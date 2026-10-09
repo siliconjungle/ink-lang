@@ -43,6 +43,10 @@ The legacy arithmetic path normalises polynomials over the ring of integers modu
 
 Collection lowering, emitted C and Clang/LLVM are currently trusted. Native behaviour is checked against an independently implemented mathematical reference and the interpreter; those tests are not an end-to-end formal proof. General equality and induction checking now exist for restricted fragments; richer contracts and general state-transition refinement remain work to do.
 
+## Compact native storage
+
+An external policy selects contiguous row/column buffers and optional promotion to a tree. The backend moves rows into undo/storage and offers a borrowed event-result API. [The design and trust boundary](docs/compact-storage.md) explain the implementation. [The current controlled benchmark](reports/borrowed-outcomes-phase1/REPORT.md) shows gains for small tables, while matching-layout handwritten Rust remains faster and large mutation-heavy flat tables can be much slower. All 75 tests pass; tree/row/column snapshots also transfer and continue across native and browser WebAssembly. Policies are checked typed data, not proofs of the physical runtime implementation.
+
 ## Benchmarks
 
 `bench/run.py` builds six variants: language without imported knowledge, language with imported knowledge, C loops, C++ standard algorithms, Rust iterators and Rust loops. They use identical modular-u64 semantics and the same separately compiled C timing driver. The current language baseline materialises collection stages, while these older handwritten baselines combine passes; use `bench/collection-proof.py` below to compare both staged and combined algorithms in every language. The archived phase-one report measured the earlier fused backend. Every result is consumed, and interprocedural optimisation is disabled across the driver/kernel boundary.

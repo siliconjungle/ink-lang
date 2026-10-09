@@ -1,0 +1,59 @@
+{
+  "status": "passed",
+  "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+  "codec": {
+    "checks": 34,
+    "status": "passed"
+  },
+  "modes": [
+    {
+      "name": "inventory-maintained",
+      "status": "passed",
+      "checks": 3892,
+      "calls": 3557,
+      "native_source": "inventory-columns",
+      "native_receiver": "inventory-rows"
+    },
+    {
+      "name": "inventory-rows",
+      "status": "passed",
+      "checks": 3892,
+      "calls": 3557,
+      "native_source": "inventory-maintained",
+      "native_receiver": "inventory-columns"
+    },
+    {
+      "name": "inventory-columns",
+      "status": "passed",
+      "checks": 3892,
+      "calls": 3557,
+      "native_source": "inventory-rows",
+      "native_receiver": "inventory-maintained"
+    },
+    {
+      "name": "bounded-bounded",
+      "status": "passed",
+      "checks": 5895,
+      "calls": 5560,
+      "native_source": "bounded-columns",
+      "native_receiver": "bounded-rows"
+    },
+    {
+      "name": "bounded-rows",
+      "status": "passed",
+      "checks": 5895,
+      "calls": 5560,
+      "native_source": "bounded-bounded",
+      "native_receiver": "bounded-columns"
+    },
+    {
+      "name": "bounded-columns",
+      "status": "passed",
+      "checks": 5895,
+      "calls": 5560,
+      "native_source": "bounded-rows",
+      "native_receiver": "bounded-bounded"
+    }
+  ],
+  "scope": "Actual browser execution; functional verification, not a timing benchmark or crash durability proof."
+}

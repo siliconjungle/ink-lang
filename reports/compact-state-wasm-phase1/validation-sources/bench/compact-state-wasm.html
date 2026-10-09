@@ -1,0 +1,42 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Stateful WebAssembly verification</title>
+<style>
+  :root{font-family:system-ui,sans-serif;color:#173024;background:#f3f7f3}
+  body{max-width:940px;margin:64px auto;padding:0 24px}
+  h1{font-size:32px;letter-spacing:-1px}p{line-height:1.5;color:#486050}
+  table{border-collapse:collapse;width:100%;margin:28px 0;background:white}
+  th,td{padding:14px;text-align:left;border-bottom:1px solid #d9e4da}
+  pre{white-space:pre-wrap;background:white;padding:20px;border-radius:8px;font-size:13px}
+  #status{font-weight:600;color:#18633a}.failed{color:#9c2730!important}
+</style>
+<h1>Stateful WebAssembly verification</h1>
+<p>These compiled programs exchange checkpoints with native executables and continue against the reference interpreter’s results. This page also checks exact integers, rollback, ordered events and the host interface.</p>
+<p id="status">Loading fixtures…</p>
+<table><thead><tr><th>Program</th><th>Calls checked</th><th>Total checks</th><th>Result</th></tr></thead><tbody id="rows"></tbody></table>
+<pre id="report">Verification is running.</pre>
+<script type="module">
+import {checkCodec,verifyMode} from './state-wasm-checks.mjs';
+const status=document.querySelector('#status'),report=document.querySelector('#report'),rows=document.querySelector('#rows');
+try {
+  const base=new URL('../reports/compact-state-wasm-phase1/',location.href);
+  const bytes=async file=>{const r=await fetch(new URL(file,base));if(!r.ok)throw new Error(`HTTP ${r.status}: ${file}`);return new Uint8Array(await r.arrayBuffer());};
+  const manifest=JSON.parse(new TextDecoder().decode(await bytes('manifest.json')));
+  const codec=checkCodec(),modes=[];
+  for(const mode of manifest.modes) {
+    status.textContent='Checking '+mode.name+'…';
+    const files=await Promise.all(manifest.fixture_files.map(async file=>[file,await bytes(mode.fixture+'/'+file)]));
+    const result=await verifyMode({name:mode.name,wasm:await bytes(mode.wasm),fixture:Object.fromEntries(files),nativeMiddle:await bytes(mode.native_middle),wrongSnapshot:await bytes(mode.wrong_snapshot)});
+    const {returnSnapshot,finalSnapshot,...stats}=result;modes.push({...stats,native_source:mode.native_source,native_receiver:mode.native_receiver});
+    const row=document.createElement('tr');for(const item of [stats.name,stats.calls,stats.checks,stats.status]){const cell=document.createElement('td');cell.textContent=item;row.append(cell);}rows.append(row);
+    // Let the UI update between independent modules.
+    await new Promise(resolve=>requestAnimationFrame(resolve));
+  }
+  status.textContent='All checks passed';status.dataset.result='passed';
+  report.textContent=JSON.stringify({status:'passed',user_agent:navigator.userAgent,codec,modes,scope:'Actual browser execution; functional verification, not a timing benchmark or crash durability proof.'},null,2);
+} catch(error) {
+  status.textContent='Verification failed';status.dataset.result='failed';status.className='failed';
+  report.textContent=JSON.stringify({status:'failed',message:error.message,stack:error.stack},null,2);
+}
+</script>

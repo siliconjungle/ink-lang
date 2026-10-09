@@ -1,0 +1,79 @@
+{
+  "fixture_files": [
+    "acknowledged.bin",
+    "before.bin",
+    "future-expected.json",
+    "future-script.json",
+    "future.bin",
+    "metadata.json",
+    "middle-expected.json",
+    "middle-script.json",
+    "middle.bin",
+    "outbox-expected.json",
+    "tail-expected.json",
+    "tail-script.json",
+    "tail.bin"
+  ],
+  "modes": [
+    {
+      "name": "inventory-maintained",
+      "wasm": "inventory-maintained/program.wasm",
+      "fixture": "fixtures/inventory",
+      "native_middle": "inventory-columns/native-middle.bin",
+      "return_snapshot": "inventory-maintained/wasm-return.bin",
+      "wrong_snapshot": "fixtures/bounded/tail.bin",
+      "native_source": "inventory-columns",
+      "native_receiver": "inventory-rows"
+    },
+    {
+      "name": "inventory-rows",
+      "wasm": "inventory-rows/program.wasm",
+      "fixture": "fixtures/inventory",
+      "native_middle": "inventory-maintained/native-middle.bin",
+      "return_snapshot": "inventory-rows/wasm-return.bin",
+      "wrong_snapshot": "fixtures/bounded/tail.bin",
+      "native_source": "inventory-maintained",
+      "native_receiver": "inventory-columns"
+    },
+    {
+      "name": "inventory-columns",
+      "wasm": "inventory-columns/program.wasm",
+      "fixture": "fixtures/inventory",
+      "native_middle": "inventory-rows/native-middle.bin",
+      "return_snapshot": "inventory-columns/wasm-return.bin",
+      "wrong_snapshot": "fixtures/bounded/tail.bin",
+      "native_source": "inventory-rows",
+      "native_receiver": "inventory-maintained"
+    },
+    {
+      "name": "bounded-bounded",
+      "wasm": "bounded-bounded/program.wasm",
+      "fixture": "fixtures/bounded",
+      "native_middle": "bounded-columns/native-middle.bin",
+      "return_snapshot": "bounded-bounded/wasm-return.bin",
+      "wrong_snapshot": "fixtures/inventory/tail.bin",
+      "native_source": "bounded-columns",
+      "native_receiver": "bounded-rows"
+    },
+    {
+      "name": "bounded-rows",
+      "wasm": "bounded-rows/program.wasm",
+      "fixture": "fixtures/bounded",
+      "native_middle": "bounded-bounded/native-middle.bin",
+      "return_snapshot": "bounded-rows/wasm-return.bin",
+      "wrong_snapshot": "fixtures/inventory/tail.bin",
+      "native_source": "bounded-bounded",
+      "native_receiver": "bounded-columns"
+    },
+    {
+      "name": "bounded-columns",
+      "wasm": "bounded-columns/program.wasm",
+      "fixture": "fixtures/bounded",
+      "native_middle": "bounded-rows/native-middle.bin",
+      "return_snapshot": "bounded-columns/wasm-return.bin",
+      "wrong_snapshot": "fixtures/inventory/tail.bin",
+      "native_source": "bounded-rows",
+      "native_receiver": "bounded-bounded"
+    }
+  ]
+}
