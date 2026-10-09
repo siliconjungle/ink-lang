@@ -1,0 +1,11 @@
+module conditional;
+fn conjunction(a: Bool, b: Bool, c: Bool) -> Bool {
+    return a && ((a && b) || c);
+}
+fn disjunction(a: Bool, b: Bool, c: Bool) -> Bool {
+    return a || ((a || b) && c);
+}
+fn unguarded(a: Bool, b: Bool) -> Bool { return a && b; }
+fn numeric(x: u64, limit: u64, b: Bool, c: Bool) -> Bool {
+    return (x < limit) && (((x < limit) && b) || c);
+}

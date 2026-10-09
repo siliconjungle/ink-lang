@@ -1,0 +1,13 @@
+module arithmetic_knowledge;
+
+rewrite factor_square(x: u64) {
+    from x * x + 6 * x + 9;
+    to (x + 3) * (x + 3);
+    proof by arithmetic;
+}
+
+rewrite remove_zero(x: u64) {
+    from x + 0;
+    to x;
+    proof by normalize;
+}

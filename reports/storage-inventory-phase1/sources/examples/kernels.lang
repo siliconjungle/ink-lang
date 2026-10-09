@@ -1,0 +1,31 @@
+module benchmarks;
+
+pub fn sum_values(xs: List<u64>) -> u64 {
+    return sum(xs);
+}
+
+pub fn affine(xs: List<u64>, scale: u64, offset: u64) -> u64 {
+    return sum(xs.map(fn(x) => x * scale + offset));
+}
+
+pub fn squares(xs: List<u64>) -> u64 {
+    return sum(xs.map(fn(x) => x * x));
+}
+
+pub fn filter_sum(xs: List<u64>, threshold: u64) -> u64 {
+    return sum(xs.filter(fn(x) => x < threshold));
+}
+
+pub fn pipeline(xs: List<u64>, scale: u64, offset: u64, threshold: u64) -> u64 {
+    return sum(xs.map(fn(x) => x * scale + offset)
+        .filter(fn(y) => y < threshold)
+        .map(fn(z) => z * z + 7));
+}
+
+pub fn expanded(xs: List<u64>) -> u64 {
+    return sum(xs.map(fn(x) => x * x + 6 * x + 9));
+}
+
+pub fn count_under(xs: List<u64>, threshold: u64) -> u64 {
+    return count(xs.filter(fn(x) => x < threshold));
+}

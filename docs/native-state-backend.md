@@ -34,10 +34,12 @@ The benchmark uses this view for the bounded variant and the ordinary BigInt res
 
 ## Current limits
 
-This is a bootstrap implementation. Storage is BTreeMap, scans materialise vectors, and cloning and transactional bookkeeping remain conservative. Portable native/reference snapshots are implemented; see `portable-snapshot.md`. Live runtime implementation migration, automatic profile-based selection, durable storage, concurrency and stateful WebAssembly are not implemented. The reference runtime's fuel budget is not imposed on native code. Resource exhaustion may terminate the generated process; this is not a durable transaction guarantee.
+This is a bootstrap implementation. Storage is BTreeMap, scans materialise vectors, and row/query cloning and transactional bookkeeping remain conservative. Portable native/reference snapshots are implemented; see `portable-snapshot.md`. Stateful WebAssembly has a synchronous JSON interface; see `wasm-abi.md`. Live runtime implementation migration, automatic profile-based selection, durable storage and concurrency are not implemented. The reference runtime's fuel budget is not imposed on native code. Resource exhaustion may terminate the generated process; this is not a durable transaction guarantee.
 
 The frontend, fixed proof schemas, range reasoning, generated Rust, runtime support, BigInt library and Rust/LLVM backend remain trusted. Differential tests validate behaviour but are not an end-to-end correctness proof.
 
 ## Reversible cache journals
 
 With version-3 maintenance evidence, exact cache undo fields store the database-defined saved integer and operation discriminator. The native write evaluates the checked saved expression once, applies the checked forward expression, and rollback evaluates the checked restore expression in reverse write order. An absent-to-absent removal stores no cache value. A full-total snapshot remains an independently checked database candidate. Bounded u128 caches use full snapshots even with version-3 evidence; no unchecked signed-to-unsigned journal conversion is introduced. The checker proves the cache expressions' composition, while table projection, scheduling and backend remain trusted. See [design and tests](reversible-cache-journals.md).
+
+Exact forward and inverse expressions now consume the cache's owned BigInt at its final occurrence, copying earlier occurrences and preserving the original expression tree/order. This permits capacity reuse without adding an algebraic law to the core. Other operands remain borrowed, and bounded lowering is unchanged. See [integer storage reuse](integer-storage-reuse.md) for tests, before/after measurements and the trusted backend boundary.

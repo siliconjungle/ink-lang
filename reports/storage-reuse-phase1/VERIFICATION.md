@@ -1,0 +1,9 @@
+# Verification scope
+
+The full suite passes 65 tests; `tests.log` and `verification.json` archive the test output and exact test/tool/document sources. The native fixture includes repeated uses of the consumed integer and multiplication, and the state suites cover both checked database journals, wide signed values, rollback, tentative reads, ordered events, checkpoints, exhausted commit counters and bounded fallback.
+
+`lowering-change.json` binds the previous compiler to commit c72942c2ccdea120062c042e8397727ae42aecfc and the prior report's compiler hash. The generic kernel, exact source bridge, reference runtime and cache proof authority are unchanged. The only runtime code change is primitive native ownership lowering. The bounded inventory emission is byte-identical to the prior report.
+
+`python3 tools/audit_storage_reports.py --execute` validates all archived source/artifact hashes, complete sample matrices, outcomes and summary ratios. It checks compiler and measured native binary identities, replays 80 wide and 108 inventory native streams without rebuilding the timed binaries, compares exact old/current emitted source and plan manifests, and regenerates the two unchanged database journal candidates. Wide allocation instrumentation is separately rebuilt and all 40 cases reproduced. Allocation instrumentation excludes setup/queries/observations and does not measure timing, retained capacity or peak/live memory.
+
+The code generator/BigInt backend, actual table projection/list correspondence, reverse journal scheduling, ranges and complete transaction refinement remain trusted or unfinished as documented. This milestone does not establish end-to-end native verification, crash durability, automatic adaptation, browser/Wasm validation of the new lowering or the fastest general language. Interactive shared-host measurements are not a universal performance guarantee. The benchmark retains baseline protocol and toolchain differences.

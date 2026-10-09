@@ -2,6 +2,8 @@
 
 The full goal remains open. This file describes executable behaviour and its limits.
 
+The latest milestone is [exact integer storage reuse](docs/integer-storage-reuse.md): native cache lowering consumes the final use of an owned integer, retaining the existing expression tree and database authority. All 65 tests pass. The controlled 560-sample report shows 1.36× overall journal improvement and zero measured update allocations for the 8192-exponent small-changing-row case; overall Ink still takes 1.90× handwritten Rust time. The maintained 756-sample C/C++/Rust inventory report leaves bounded Ink at 1.77× Rust time. Full state refinement, measured adaptation, durability and broad language coverage are still unfinished. The [complete public Hunchroom catalog review](reports/hunchroom-review-20261010/REVIEW.md) identifies operational proof templates for that next work.
+
 ## Native pure computation
 
 - Rust lexer, parser, type checker and independent reference evaluator.
@@ -56,7 +58,7 @@ The reference state runtime evaluates the AST. Its archived benchmark is explici
 
 ## Native stateful performance evidence
 
-The latest report is `reports/native-state-phase3-native-abi/REPORT.md`: 756 samples, 18 cells, six variants. All variants maintain totals; the common C driver consumes outputs and final state. Independent Python validation checks 2,005 operations per variant (12,030 native comparisons) and 4,010 reference-runtime outcomes. Sources, toolchains, commands, generated code and observations are archived.
+The original native ABI comparison is `reports/native-state-phase3-native-abi/REPORT.md`: 756 samples, 18 cells, six variants. All variants maintain totals; the common C driver consumes outputs and final state. Independent Python validation checks 2,005 operations per variant (12,030 native comparisons) and 4,010 reference-runtime outcomes. Sources, toolchains, commands, generated code and observations are archived. The latest maintained inventory comparison is `reports/storage-inventory-phase1/REPORT.md`; the controlled old/current exact-integer comparison is `reports/storage-reuse-phase1/REPORT.md`.
 
 The bounded native variant is 1.71× faster than the current BigInt variant by geometric mean. It still takes 1.75× the handwritten Rust u128 baseline's time and 2.56× the fastest baseline's time per cell, aggregated geometrically. C's flat table, C++'s map and Rust's BTreeMap differ in layout and costs; handwritten baselines also eliminate unobservable speculative writes. The reports document these differences. These are warm, single-threaded, in-memory measurements, not durability, concurrency or universal language rankings.
 
