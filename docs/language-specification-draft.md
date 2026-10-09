@@ -1,4 +1,4 @@
-# Language Specification Draft for Verified Adaptive Computation
+# Ink Language Specification Draft
 
 **Draft 0.1 — 9 October 2026**
 

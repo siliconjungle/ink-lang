@@ -665,3 +665,91 @@ fn library_roots_are_explicit_and_transitive_dependencies_do_not_grant_visibilit
         verified_language::knowledge::load(Path::new("knowledge/inductive/lock.json")).is_err()
     );
 }
+
+#[test]
+fn conditional_cases_and_general_congruence_close_predicate_assumptions() {
+    let c = Context::default();
+    let condition = binary("<", var("x"), var("y"));
+    let choose = |condition: Term, a: Term, b: Term| Term::If {
+        condition: Box::new(condition),
+        on_true: Box::new(a),
+        on_false: Box::new(b),
+    };
+    let from = choose(
+        condition.clone(),
+        choose(condition.clone(), Term::U64(2), Term::U64(7)),
+        Term::U64(7),
+    );
+    let to = choose(condition.clone(), Term::U64(2), Term::U64(7));
+    let original_context = choose(
+        var("decision"),
+        choose(var("decision"), Term::U64(2), Term::U64(7)),
+        Term::U64(7),
+    );
+    let final_context = choose(var("decision"), Term::U64(2), Term::U64(7));
+    let rewrite = |context: Term| Proof::Substitute {
+        variable: "decision".into(),
+        context,
+        equality: Box::new(Proof::Hypothesis(0)),
+    };
+    let branch = || {
+        Box::new(Proof::Trans(
+            Box::new(rewrite(original_context.clone())),
+            Box::new(Proof::Sym(Box::new(rewrite(final_context.clone())))),
+        ))
+    };
+    let proof = Proof::BoolSplit {
+        condition: condition.clone(),
+        from: from.clone(),
+        to: to.clone(),
+        on_false: branch(),
+        on_true: branch(),
+    };
+    let params = vec![("x".into(), Sort::U64), ("y".into(), Sort::U64)];
+    c.check(&params, &[], &from, &to, &proof).unwrap();
+    assert!(c
+        .check(
+            &params,
+            &[],
+            &condition,
+            &Term::Bool(true),
+            &Proof::Hypothesis(0)
+        )
+        .is_err());
+    let bad = Proof::BoolSplit {
+        condition: condition.clone(),
+        from: Term::U64(0),
+        to: Term::U64(1),
+        on_false: Box::new(Proof::Refl(Term::U64(0))),
+        on_true: Box::new(Proof::Refl(Term::U64(0))),
+    };
+    assert!(c
+        .check(&params, &[], &Term::U64(0), &Term::U64(1), &bad)
+        .is_err());
+    let mut bad = proof.clone();
+    if let Proof::BoolSplit { condition, .. } = &mut bad {
+        *condition = Term::U64(1);
+    }
+    assert!(c.check(&params, &[], &from, &to, &bad).is_err());
+    let mut bad = proof.clone();
+    if let Proof::BoolSplit { on_true, .. } = &mut bad {
+        *on_true = Box::new(Proof::Refl(Term::U64(2)));
+    }
+    assert!(c.check(&params, &[], &from, &to, &bad).is_err());
+    let context = Proof::Substitute {
+        variable: "x".into(),
+        context: var("x"),
+        equality: Box::new(Proof::Refl(Term::U64(3))),
+    };
+    assert!(c
+        .check(&params, &[], &Term::U64(3), &Term::U64(3), &context)
+        .is_err());
+    let context = Proof::Substitute {
+        variable: "hole".into(),
+        context: binary("&&", var("hole"), Term::Bool(true)),
+        equality: Box::new(Proof::Refl(Term::U64(3))),
+    };
+    assert!(c
+        .check(&[], &[], &Term::U64(3), &Term::U64(3), &context)
+        .is_err());
+}

@@ -4,6 +4,16 @@ pub type Env = BTreeMap<String, Type>;
 
 pub fn infer(e: &Expr, env: &Env, p: &Program) -> LangResult<Type> {
     match e {
+        Expr::Call(n, args) if n == "choose" => {
+            if args.len() != 3 || infer(&args[0], env, p)? != Type::Bool {
+                return Err("choose expects a Bool condition and two scalar branches".into());
+            }
+            let ty = infer(&args[1], env, p)?;
+            if !matches!(ty, Type::U64 | Type::Bool) || infer(&args[2], env, p)? != ty {
+                return Err("choose branches must have the same scalar type".into());
+            }
+            Ok(ty)
+        }
         Expr::Call(n, args) if n == "foldr" => {
             if args.len() != 3 {
                 return Err(
@@ -126,7 +136,7 @@ pub fn params_env(params: &[(String, Type)]) -> LangResult<Env> {
 fn calls(e: &Expr, out: &mut BTreeSet<String>) {
     match e {
         Expr::Call(n, args) => {
-            if n != "sum" && n != "count" && n != "foldr" {
+            if n != "sum" && n != "count" && n != "foldr" && n != "choose" {
                 out.insert(n.clone());
             }
             for a in args {
@@ -151,7 +161,9 @@ fn calls(e: &Expr, out: &mut BTreeSet<String>) {
 pub fn check(p: &Program) -> LangResult<()> {
     let mut names = BTreeSet::new();
     for f in &p.functions {
-        if ["sum", "count", "foldr"].contains(&f.name.as_str()) || !names.insert(f.name.clone()) {
+        if ["sum", "count", "foldr", "choose"].contains(&f.name.as_str())
+            || !names.insert(f.name.clone())
+        {
             return Err(format!("reserved or duplicate function {}", f.name));
         }
         let got = infer(&f.body, &params_env(&f.params)?, p)?;

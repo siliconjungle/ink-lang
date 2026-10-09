@@ -98,27 +98,9 @@ fn free(
     }
     Ok(())
 }
-fn scalar(e: &Expr, env: &Env, depth: usize) -> LangResult<Term> {
-    if depth > 128 {
-        return Err("collection scalar depth limit".into());
-    }
-    match e {
-        Expr::Num(n) => Ok(Term::U64(*n)),
-        Expr::Bool(b) => Ok(Term::Bool(*b)),
-        Expr::Var(n) => env
-            .get(n)
-            .map(|v| v.1.clone())
-            .ok_or_else(|| format!("unbound model name {n}")),
-        Expr::Binary(op, a, b) => Ok(bin(
-            op,
-            scalar(a, env, depth + 1)?,
-            scalar(b, env, depth + 1)?,
-        )),
-        _ => Err("collection step correspondence currently requires scalar expressions".into()),
-    }
-}
 struct Translator<'a> {
     context: &'a Context,
+    program: &'a Program,
     datatype: &'a str,
     ids: &'a [String],
     cursor: usize,
@@ -138,13 +120,28 @@ impl Translator<'_> {
         }
         self.remaining -= 1;
         match e {
-            Expr::Num(_) | Expr::Bool(_) | Expr::Var(_) => scalar(e, env, 0),
+            Expr::Num(n) => Ok(Term::U64(*n)),
+            Expr::Bool(b) => Ok(Term::Bool(*b)),
+            Expr::Var(n) => env
+                .get(n)
+                .map(|v| v.1.clone())
+                .ok_or_else(|| format!("unbound model name {n}")),
+            Expr::Call(n, args) if n == "choose" => {
+                let [condition, on_true, on_false] = args.as_slice() else {
+                    return Err("invalid choose correspondence".into());
+                };
+                Ok(Term::If {
+                    condition: Box::new(self.expr(condition, env, depth + 1)?),
+                    on_true: Box::new(self.expr(on_true, env, depth + 1)?),
+                    on_false: Box::new(self.expr(on_false, env, depth + 1)?),
+                })
+            }
             Expr::Binary(op, a, b) => Ok(bin(
                 op,
                 self.expr(a, env, depth + 1)?,
                 self.expr(b, env, depth + 1)?,
             )),
-            Expr::Method(xs, method, args) if method == "map" => {
+            Expr::Method(xs, method, args) if method == "map" || method == "filter" => {
                 let input = self.expr(xs, env, depth + 1)?;
                 let [Expr::Lambda(item, body)] = args.as_slice() else {
                     return Err("invalid map correspondence".into());
@@ -153,7 +150,7 @@ impl Translator<'_> {
                 free(&args[0], &BTreeSet::new(), &mut names, 0)?;
                 let (params, mut local, captures) = self.captures(env, &names)?;
                 local.insert(item.clone(), (Sort::U64, var("head")));
-                let head = scalar(body, &local, 0)?;
+                let head = self.expr(body, &local, depth + 1)?;
                 let tail = self.recursion(&params);
                 let body = Term::Match {
                     scrutinee: Box::new(var("input")),
@@ -164,7 +161,17 @@ impl Translator<'_> {
                         },
                         Branch {
                             bindings: vec!["head".into(), "tail".into()],
-                            body: self.construct(1, vec![head, tail]),
+                            body: if method == "map" {
+                                self.construct(1, vec![head, tail])
+                            } else {
+                                Term::If {
+                                    condition: Box::new(head),
+                                    on_true: Box::new(
+                                        self.construct(1, vec![var("head"), tail.clone()]),
+                                    ),
+                                    on_false: Box::new(tail),
+                                }
+                            },
                         },
                     ],
                 };
@@ -219,7 +226,7 @@ impl Translator<'_> {
                 free(initial, &BTreeSet::new(), &mut names, 0)?;
                 free(&args[2], &BTreeSet::new(), &mut names, 0)?;
                 let (params, mut local, captures) = self.captures(env, &names)?;
-                let zero = scalar(initial, &local, 0)?;
+                let zero = self.expr(initial, &local, depth + 1)?;
                 local.insert(item.clone(), (Sort::U64, var("head")));
                 local.insert(rest.clone(), (Sort::U64, self.recursion(&params)));
                 let body = Term::Match {
@@ -231,11 +238,39 @@ impl Translator<'_> {
                         },
                         Branch {
                             bindings: vec!["head".into(), "tail".into()],
-                            body: scalar(step, &local, 0)?,
+                            body: self.expr(step, &local, depth + 1)?,
                         },
                     ],
                 };
                 self.component(input, params, captures, Sort::U64, body)
+            }
+            Expr::Call(name, args) => {
+                let f = self
+                    .program
+                    .functions
+                    .iter()
+                    .find(|f| f.name == *name)
+                    .ok_or("unknown source function in correspondence")?
+                    .clone();
+                let arguments = args
+                    .iter()
+                    .map(|e| self.expr(e, env, depth + 1))
+                    .collect::<LangResult<Vec<_>>>()?;
+                let mut params = Vec::new();
+                let mut local = Env::new();
+                for (i, (n, ty)) in f.params.iter().enumerate() {
+                    let p = format!("arg{i}");
+                    let ty = sort(ty, self.datatype)?;
+                    params.push((p.clone(), ty.clone()));
+                    local.insert(n.clone(), (ty, var(&p)));
+                }
+                let body = self.expr(&f.body, &local, depth + 1)?;
+                let function =
+                    self.definition(params, sort(&f.result, self.datatype)?, body, None)?;
+                Ok(Term::Call {
+                    function,
+                    arguments,
+                })
             }
             _ => Err("unsupported operation in collection correspondence".into()),
         }
@@ -275,6 +310,19 @@ impl Translator<'_> {
         result: Sort,
         body: Term,
     ) -> LangResult<Term> {
+        let function = self.definition(params, result, body, Some(0))?;
+        Ok(Term::Call {
+            function,
+            arguments: std::iter::once(input).chain(captures).collect(),
+        })
+    }
+    fn definition(
+        &mut self,
+        params: Vec<(String, Sort)>,
+        result: Sort,
+        body: Term,
+        recursive: Option<usize>,
+    ) -> LangResult<String> {
         let id = self
             .ids
             .get(self.cursor)
@@ -286,17 +334,15 @@ impl Translator<'_> {
                 params,
                 result,
                 body,
-                recursive: Some(0),
+                recursive,
             },
         )?;
-        Ok(Term::Call {
-            function: id.clone(),
-            arguments: std::iter::once(input).chain(captures).collect(),
-        })
+        Ok(id.clone())
     }
 }
 fn model(
     context: &Context,
+    program: &Program,
     datatype: &str,
     ids: &[String],
     body: &Expr,
@@ -307,6 +353,7 @@ fn model(
     }
     let mut translator = Translator {
         context,
+        program,
         datatype,
         ids,
         cursor: 0,
@@ -379,6 +426,7 @@ pub fn apply(program: &mut Program, path: &Path) -> LangResult<Evidence> {
         }
         let from = model(
             &lib.context,
+            program,
             &proposal.datatype,
             &proposal.from_definitions,
             &proposal.from,
@@ -386,6 +434,7 @@ pub fn apply(program: &mut Program, path: &Path) -> LangResult<Evidence> {
         )?;
         let to = model(
             &lib.context,
+            program,
             &proposal.datatype,
             &proposal.to_definitions,
             &proposal.to,
@@ -403,5 +452,5 @@ pub fn apply(program: &mut Program, path: &Path) -> LangResult<Evidence> {
     }
     check::check(&candidate)?;
     *program = candidate;
-    Ok(Evidence {package_sha256:format!("{:x}",Sha256::digest(bytes)),library_lock:lib.lock,library_closure:lib.closure,checked_proposals:package.proposals,source_models:models,scope:"total mathematical value equality for map/sum/count/foldr over u64 lists; allocation, OOM and trap traces excluded"})
+    Ok(Evidence {package_sha256:format!("{:x}",Sha256::digest(bytes)),library_lock:lib.lock,library_closure:lib.closure,checked_proposals:package.proposals,source_models:models,scope:"total mathematical value equality for map/filter/sum/count/foldr/choose and acyclic pure calls over u64 lists; allocation, OOM and trap traces excluded"})
 }

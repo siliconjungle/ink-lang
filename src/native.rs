@@ -79,6 +79,7 @@ impl Emitter<'_> {
                 self.indent += 1;
                 let value = self.fresh();
                 self.line(format!("uint64_t {value}={input}[{index}];"));
+                self.line(format!("(void){value};"));
                 let mut local = env.clone();
                 local.insert(var.clone(), Binding::Scalar(value.clone()));
                 let expression = self.scalar(body, &local)?;
@@ -101,6 +102,24 @@ impl Emitter<'_> {
     }
     fn scalar(&mut self, e: &Expr, env: &Env) -> LangResult<String> {
         match e {
+            Expr::Call(n, args) if n == "choose" => {
+                let condition = self.scalar(&args[0], env)?;
+                let result = self.fresh();
+                self.line(format!("uint64_t {result};"));
+                self.line(format!("if ({condition}) {{"));
+                self.indent += 1;
+                let value = self.scalar(&args[1], env)?;
+                self.line(format!("{result}={value};"));
+                self.indent -= 1;
+                self.line("} else {");
+                self.indent += 1;
+                let value = self.scalar(&args[2], env)?;
+                self.line(format!("{result}={value};"));
+                self.indent -= 1;
+                self.line("}");
+                Ok(result)
+            }
+
             Expr::Num(n) => Ok(format!("UINT64_C({n})")),
             Expr::Bool(b) => Ok(if *b { "true" } else { "false" }.into()),
             Expr::Var(n) => match env.get(n) {

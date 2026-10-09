@@ -6,7 +6,7 @@ The full goal remains open. This file describes executable behaviour and its lim
 
 - Rust lexer, parser, type checker and independent reference evaluator.
 - Expression-returning functions over `u64`, `Bool` and `List<u64>`.
-- Modular arithmetic, comparisons, Boolean short circuiting, lambdas, `map`, `filter`, `sum`, `count`, right-fold `foldr` and scalar calls.
+- Modular arithmetic, comparisons, Boolean short circuiting, lambdas, `map`, `filter`, `sum`, `count`, right-fold `foldr`, lazy scalar `choose` and scalar calls.
 - Literal materialised collection stages through emitted C and Clang/LLVM, retaining generated C, LLVM IR and a plan manifest. Checked database proposals can select single-fold implementations; the core no longer automatically fuses pipelines.
 - Bounded modular-polynomial proof checking, content-identified knowledge packages and locally validated rewrite application.
 - Algorithm-matched C/C++/Rust benchmarks: 2,352 samples and 8,568 native correctness comparisons in the archived phase-one report.
@@ -24,8 +24,8 @@ The full goal remains open. This file describes executable behaviour and its lim
 - General equality proofs, constructor/function/primitive congruence, checked theorem application with explicit premises, Boolean cases and induction over each recursive constructor field. Induction hypotheses cannot escape branches or assume variable-dependent outer premises for strict subterms.
 - `lang verify-library` checks immutable SHA-256 entries under explicit direct imports and a bounded dependency closure. Untrusted Python production supplies twelve objects proving list-traversal composition, a modular boundary instance and generic tree-copy identity. Thirty-three extension/hostile-object checks pass with an unchanged compiler binary; evidence is in `reports/database-induction`.
 - The new checker is a trusted Rust implementation, not yet formally verified itself. It checks mathematical definitions/equalities, and the separate collection correspondence bridge now authorises exact compiled replacements; `--database` still uses the earlier scalar fragment. Higher-order/generic types, dependent propositions and stateful refinement remain unfinished. See `docs/small-core-and-knowledge.md`.
-- `--implementation` uses closed whole-function proposals and a pinned library. It independently checks recursive definitions against source map/sum/count/foldr semantics, handles actual lexical captures and shadowing, and checks the exact whole-function theorem with no external hypotheses. Installation is transactional. Unsupported operations and mismatching definitions fail closed. The proof covers total values, excluding allocation/OOM/trap traces.
-- The external producer supplies 21 immutable objects and four candidates. Five selected database revisions change generated code without changing the compiler binary. Forty tests pass, including 1,024 before/after interpreter comparisons, forged/stale/wrong-model rejection and right-fold order.
+- `--implementation` uses closed whole-function proposals and a pinned library. It independently checks recursive definitions against source map/filter/sum/count/foldr/choose semantics and acyclic source callees, handles actual lexical captures and shadowing, and checks the exact whole-function theorem with no external hypotheses. Installation is transactional. Unsupported operations and mismatching definitions fail closed. The proof covers total values, excluding allocation/OOM/trap traces.
+- The external producer supplies 21 immutable objects and four candidates. Five selected database revisions change generated code without changing the compiler binary. The earlier forty-test milestone included 1,024 before/after interpreter comparisons, forged/stale/wrong-model rejection and right-fold order.
 - `reports/collection-proof-phase1` contains 1,344 samples across 24 cells and 8,320 native oracle comparisons. Checked replacements are 6.17× faster than staged baseline execution and take approximately the same time as combined C/C++/Rust. The bootstrap backend still delegates machine optimisation to LLVM.
 - `reports/collection-proof-wasm-phase1` contains 4,416 Node/V8 checks over import-free literal, checked and ownership/order fixture modules. Memory growth, input preservation, repeated calls, nested temporary arguments and multiple borrowed inputs pass. This new pure collection path has not yet been independently browser-tested.
 
@@ -82,3 +82,11 @@ Generated Rust lowering, runtime support, dependencies and Rust/LLVM remain trus
 - The complete performance matrix: changing distributions, memory constraints, concurrent workloads and durability.
 
 Unsupported source is rejected rather than silently omitted from compilation. The full acceptance list is in PLAN.md.
+
+## Ink naming and filtered proof extension
+
+The package and primary executable are named `ink`; `lang` remains a compatibility executable for archived tooling. Source files can use `.ink` (`examples/hello.ink`); existing `.lang` inputs remain accepted.
+
+The first-order kernel now has total typed conditional terms, general congruence via capture-avoiding substitution into a typed fresh-hole context, and exhaustive cases over an arbitrary Bool expression with closed predicate hypotheses. The source bridge supports filter, lazy scalar choose and acyclic pure functions, including exact callee-definition correspondence. This adds general logic/computation mechanisms, not a catalogue of filter optimisations.
+
+The external filtered producer supplies 36 immutable objects and four induction-checked implementations. Tests add 1,024 filtered before/after interpreter comparisons with modular overflow and predicates selecting none/all/some rows; stale callee and forged proposal rejection; closed condition hypotheses; mismatched conditional sorts; lazy branch execution; and warning-free native compilation for ignored lambda arguments. This extension has not yet received its dedicated C/C++/Rust performance comparison or Wasm verification. The full architecture and implementation goal remains open.

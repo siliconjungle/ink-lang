@@ -1,8 +1,18 @@
 [package]
-name = "verified-language"
+name = "ink"
 version = "0.1.0"
 edition = "2021"
-default-run = "lang"
+default-run = "ink"
+publish = false
+description = "Ink: a small language with locally checked implementation proofs"
+repository = "https://github.com/siliconjungle/ink-lang"
+
+[lib]
+name = "verified_language"
+
+[[bin]]
+name = "ink"
+path = "src/bin/ink.rs"
 
 [[bin]]
 name = "lang"

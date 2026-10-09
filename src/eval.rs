@@ -44,6 +44,16 @@ fn expr(e: &Expr, env: &Env, p: &Program, fuel: &mut u64) -> LangResult<Value> {
     }
     *fuel -= 1;
     match e {
+        Expr::Call(n, args) if n == "choose" => {
+            if args.len() != 3 {
+                return Err("choose argument count".into());
+            }
+            match expr(&args[0], env, p, fuel)? {
+                Value::Bool(true) => expr(&args[1], env, p, fuel),
+                Value::Bool(false) => expr(&args[2], env, p, fuel),
+                _ => Err("choose condition must be Bool".into()),
+            }
+        }
         Expr::Call(n, args) if n == "foldr" => {
             if args.len() != 3 {
                 return Err("foldr argument count".into());

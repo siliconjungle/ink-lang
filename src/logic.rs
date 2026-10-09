@@ -36,6 +36,11 @@ pub enum Term {
         left: Box<Term>,
         right: Box<Term>,
     },
+    If {
+        condition: Box<Term>,
+        on_true: Box<Term>,
+        on_false: Box<Term>,
+    },
     Match {
         scrutinee: Box<Term>,
         branches: Vec<Branch>,
@@ -62,6 +67,18 @@ pub struct Case {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub enum Proof {
+    Substitute {
+        variable: String,
+        context: Term,
+        equality: Box<Proof>,
+    },
+    BoolSplit {
+        condition: Term,
+        from: Term,
+        to: Term,
+        on_false: Box<Proof>,
+        on_true: Box<Proof>,
+    },
     Refl(Term),
     Convert {
         from: Term,
@@ -552,6 +569,20 @@ fn infer(
             )?;
             Ok(f.result.clone())
         }
+        Term::If {
+            condition,
+            on_true,
+            on_false,
+        } => {
+            if infer(condition, env, c, pending, internal, budget, depth + 1)? != Sort::Bool {
+                return Err("conditional requires Bool".into());
+            }
+            let ty = infer(on_true, env, c, pending, internal, budget, depth + 1)?;
+            if infer(on_false, env, c, pending, internal, budget, depth + 1)? != ty {
+                return Err("conditional branch sorts differ".into());
+            }
+            Ok(ty)
+        }
         Term::Match {
             scrutinee,
             branches,
@@ -625,6 +656,15 @@ fn terminating(
             }
             for a in args {
                 terminating(a, f, smaller, c, budget, depth + 1)?
+            }
+        }
+        Term::If {
+            condition,
+            on_true,
+            on_false,
+        } => {
+            for t in [condition, on_true, on_false] {
+                terminating(t, f, smaller, c, budget, depth + 1)?;
             }
         }
         Term::Match {
@@ -701,6 +741,15 @@ fn bind_self(t: &Term, id: &str, budget: &mut Budget, depth: usize) -> LangResul
             left: Box::new(bind_self(left, id, budget, depth + 1)?),
             right: Box::new(bind_self(right, id, budget, depth + 1)?),
         },
+        Term::If {
+            condition,
+            on_true,
+            on_false,
+        } => Term::If {
+            condition: Box::new(bind_self(condition, id, budget, depth + 1)?),
+            on_true: Box::new(bind_self(on_true, id, budget, depth + 1)?),
+            on_false: Box::new(bind_self(on_false, id, budget, depth + 1)?),
+        },
         Term::Match {
             scrutinee,
             branches,
@@ -739,6 +788,15 @@ fn names(
         | Term::SelfCall(arguments) => {
             for a in arguments {
                 names(a, out, budget, depth + 1)?
+            }
+        }
+        Term::If {
+            condition,
+            on_true,
+            on_false,
+        } => {
+            for t in [condition, on_true, on_false] {
+                names(t, out, budget, depth + 1)?;
             }
         }
         Term::Match {
@@ -792,6 +850,15 @@ fn substitute(
                 .iter()
                 .map(|a| substitute(a, bindings, budget, depth + 1))
                 .collect::<LangResult<_>>()?,
+        },
+        Term::If {
+            condition,
+            on_true,
+            on_false,
+        } => Term::If {
+            condition: Box::new(substitute(condition, bindings, budget, depth + 1)?),
+            on_true: Box::new(substitute(on_true, bindings, budget, depth + 1)?),
+            on_false: Box::new(substitute(on_false, bindings, budget, depth + 1)?),
         },
         Term::Match {
             scrutinee,
@@ -859,6 +926,22 @@ fn normal(t: &Term, c: &Context, budget: &mut Budget, depth: usize) -> LangResul
                 budget,
                 depth + 1,
             )
+        }
+        Term::If {
+            condition,
+            on_true,
+            on_false,
+        } => {
+            let condition = normal(condition, c, budget, depth + 1)?;
+            match condition {
+                Term::Bool(true) => normal(on_true, c, budget, depth + 1),
+                Term::Bool(false) => normal(on_false, c, budget, depth + 1),
+                _ => Ok(Term::If {
+                    condition: Box::new(condition),
+                    on_true: Box::new(normal(on_true, c, budget, depth + 1)?),
+                    on_false: Box::new(normal(on_false, c, budget, depth + 1)?),
+                }),
+            }
         }
         Term::Match {
             scrutinee,
@@ -1017,6 +1100,64 @@ fn derive(
     }
     budget.step(depth)?;
     let equation = match p {
+        Proof::Substitute {
+            variable,
+            context,
+            equality,
+        } => {
+            name(variable)?;
+            if env.contains_key(variable) {
+                return Err("congruence hole must be fresh".into());
+            }
+            let e = derive(equality, env, c, hypotheses, budget, depth + 1)?;
+            let ty = infer(&e.from, env, c, None, true, budget, 0)?;
+            let mut local = env.clone();
+            local.insert(variable.clone(), ty);
+            infer(context, &local, c, None, false, budget, 0)?;
+            Equation {
+                from: substitute(context, &[(variable.clone(), e.from)].into(), budget, 0)?,
+                to: substitute(context, &[(variable.clone(), e.to)].into(), budget, 0)?,
+            }
+        }
+        Proof::BoolSplit {
+            condition,
+            from,
+            to,
+            on_false,
+            on_true,
+        } => {
+            if infer(condition, env, c, None, false, budget, 0)? != Sort::Bool {
+                return Err("case condition must be Bool".into());
+            }
+            let want = prepare(
+                &Equation {
+                    from: from.clone(),
+                    to: to.clone(),
+                },
+                env,
+                c,
+                budget,
+            )?;
+            if hypotheses.len() >= 128 {
+                return Err("logic hypothesis count limit".into());
+            }
+            for (value, proof) in [(false, on_false), (true, on_true)] {
+                let mut local = hypotheses.to_vec();
+                local.push(prepare(
+                    &Equation {
+                        from: condition.clone(),
+                        to: Term::Bool(value),
+                    },
+                    env,
+                    c,
+                    budget,
+                )?);
+                if derive(proof, env, c, &local, budget, depth + 1)? != want {
+                    return Err("Boolean condition branch proves a different statement".into());
+                }
+            }
+            want
+        }
         Proof::Hypothesis(i) => hypotheses
             .get(*i)
             .cloned()

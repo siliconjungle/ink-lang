@@ -1,8 +1,8 @@
-# Verified adaptive language implementation
+# Ink
 
-This repository implements the language in [the design draft](docs/language-specification-draft.md), incrementally. The full implementation is **in progress**. [STATUS.md](STATUS.md) describes the current executable subset; [PLAN.md](PLAN.md) preserves the full acceptance criteria.
+Ink is a language for data, computation and explicit state changes, with implementation choices justified by locally checked proofs. This repository implements [the design draft](docs/language-specification-draft.md), incrementally. The full implementation is **in progress**. [STATUS.md](STATUS.md) describes the current executable subset; [PLAN.md](PLAN.md) preserves the full acceptance criteria.
 
-The first working milestone is a Rust frontend and reference evaluator, native compilation through C and Clang/LLVM, and a local database of checked modular-arithmetic rewrites. The current baseline materialises collection stages; an explicit checked database proposal can select a single-fold implementation. It does not recognise benchmark names or substitute handwritten benchmark kernels.
+The implementation includes a Rust frontend and reference evaluator, native compilation through C and Clang/LLVM, and a local database of checked modular-arithmetic rewrites. The current baseline materialises collection stages; an explicit checked database proposal can select a single-fold implementation. It does not recognise benchmark names or substitute handwritten benchmark kernels.
 
 ```text
 module demo;
@@ -19,10 +19,10 @@ Requirements: a Rust toolchain, Clang, Python 3, and a C++ compiler for comparis
 ```sh
 cargo test
 cargo build --release
-target/release/lang check examples/kernels.lang
-target/release/lang prove knowledge/ring.lang -o build/ring.json
-target/release/lang knowledge verify build/ring.json
-target/release/lang build examples/kernels.lang -o build/kernels.o --knowledge build/ring.json --native-cpu
+target/release/ink check examples/kernels.lang
+target/release/ink prove knowledge/ring.lang -o build/ring.json
+target/release/ink knowledge verify build/ring.json
+target/release/ink build examples/kernels.lang -o build/kernels.o --knowledge build/ring.json --native-cpu
 python3 bench/run.py
 ```
 
@@ -33,9 +33,9 @@ python3 dev.py test
 python3 dev.py build --release
 ```
 
-To evaluate a program with the independent interpreter, put an array of function arguments in a JSON file, then run `lang run SOURCE FUNCTION ARGUMENTS.json`. For example, the arguments to `affine` are `[[1,2,3],3,11]`, whose result is 51.
+To evaluate a program with the independent interpreter, put an array of function arguments in a JSON file, then run `ink run SOURCE FUNCTION ARGUMENTS.json`. For example, the arguments to `affine` are `[[1,2,3],3,11]`, whose result is 51.
 
-The build emits a native object, its readable C intermediate, LLVM IR, and a plan manifest containing the identities of applied certificates and the trust boundary. Proof packages can be validated offline.
+The build emits a native object, its readable C intermediate, LLVM IR, and a plan manifest containing the identities of applied certificates and the trust boundary. Proof packages can be validated offline. The `lang` executable remains available for existing benchmark scripts and archived reproduction commands.
 
 ## Meaning of verified in this milestone
 
@@ -57,10 +57,10 @@ The complete [inventory program](examples/inventory.lang) from the draft now run
 
 ```sh
 python3 dev.py build --bin lang
-target/debug/lang check examples/inventory.lang
-target/debug/lang prove-maintenance knowledge/sum-maintenance.lang -o build/maintenance.json
-target/debug/lang verify-maintenance build/maintenance.json
-target/debug/lang execute examples/inventory.lang examples/inventory-script.json --maintenance build/maintenance.json --snapshot-out build/inventory.json
+target/debug/ink check examples/inventory.lang
+target/debug/ink prove-maintenance knowledge/sum-maintenance.lang -o build/maintenance.json
+target/debug/ink verify-maintenance build/maintenance.json
+target/debug/ink execute examples/inventory.lang examples/inventory-script.json --maintenance build/maintenance.json --snapshot-out build/inventory.json
 python3 bench/state_runtime.py
 ```
 
@@ -71,7 +71,7 @@ The package's three exact-integer update functions are validated against a fixed
 The stateful subset also has a typed native backend:
 
 ```sh
-target/debug/lang emit-state examples/inventory.lang --maintenance build/maintenance.json -o build/inventory-native
+target/debug/ink emit-state examples/inventory.lang --maintenance build/maintenance.json -o build/inventory-native
 python3 dev.py build --release --offline --manifest-path build/inventory-native/Cargo.toml
 build/inventory-native/target/release/compiled-state examples/inventory-script.json
 ```
@@ -97,8 +97,8 @@ The new path loads explicit equality proofs from immutable objects, without putt
 ```sh
 python3 tools/boolean_proofs.py knowledge/boolean-rules.json knowledge/boolean
 python3 dev.py build
-target/debug/lang verify-database knowledge/boolean/lock.json
-target/debug/lang build examples/boolean.lang --database knowledge/boolean/lock.json -o build/boolean.o
+target/debug/ink verify-database knowledge/boolean/lock.json
+target/debug/ink build examples/boolean.lang --database knowledge/boolean/lock.json -o build/boolean.o
 python3 tools/check_database.py
 ```
 
@@ -109,7 +109,7 @@ The first-order inductive proof library adds database-defined constructors, recu
 
 ```sh
 python3 tools/inductive_proofs.py knowledge/inductive
-target/debug/lang verify-library knowledge/inductive/lock.json
+target/debug/ink verify-library knowledge/inductive/lock.json
 python3 tools/check_induction.py
 ```
 
@@ -122,9 +122,21 @@ An untrusted external producer now proposes complete collection-function replace
 ```sh
 python3 tools/collection_proofs.py knowledge/collections
 python3 dev.py build --bin lang
-target/debug/lang build knowledge/collections/kernels.lang --implementation knowledge/collections/proposal.json -o build/checked-collections.o
+target/debug/ink build knowledge/collections/kernels.lang --implementation knowledge/collections/proposal.json -o build/checked-collections.o
 python3 bench/collection-proof.py
 python3 bench/collection-wasm.py
 ```
 
 The [collection benchmark](reports/collection-proof-phase1/REPORT.md) contains 1,344 samples across 24 cells, with 8,320 native oracle comparisons. Checked replacements run 6.17× faster than the staged baseline by geometric mean and take essentially the same time as combined C/C++/Rust loops. This measures selection of a better algorithm, not a universal performance advantage or a new optimisation unavailable to C. The same compiler binary accepts five independently selected database revisions. Import-free Wasm passes 4,416 value/ownership checks, including memory growth and nested calls.
+
+## Filtered pipelines and pure calls
+
+`choose(condition, when_true, when_false)` evaluates one scalar branch. The general proof kernel supports conditional terms, case analysis over an arbitrary Boolean expression and substitution of a proved equality into a typed context. These rules also let database proofs justify filtered pipelines without a built-in fusion rule. The correspondence bridge now checks acyclic source calls and exact callee bodies, including calls within collection lambdas. Changing a callee invalidates a stale proposal even when the caller's source text is unchanged.
+
+```sh
+python3 tools/filter_proofs.py knowledge/filtered
+python3 dev.py build --bin ink
+target/debug/ink build knowledge/filtered/kernels.lang --implementation knowledge/filtered/proposal.json -o build/filtered-checked.o
+```
+
+The producer supplies 36 immutable objects and four induction-checked candidates: map/filter/sum, filter/map/sum, filtered count and a map that ignores its element. They have interpreter, proof-rejection and native compilation checks. A dedicated performance comparison for these filtered workloads remains pending; the 6.17× result above belongs to the earlier collection benchmark.

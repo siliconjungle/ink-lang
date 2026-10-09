@@ -150,3 +150,171 @@ fn foldr_order_initial_and_shadowing_are_actual_language_semantics() {
         .is_err());
     }
 }
+
+#[test]
+fn filtered_candidates_preserve_values_and_validate_called_function_bodies() {
+    let fixture = Fixture::new();
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("knowledge/filtered");
+    fs::copy(root.join("lock.json"), fixture.0.join("lock.json")).unwrap();
+    for entry in fs::read_dir(root.join("objects")).unwrap() {
+        let entry = entry.unwrap();
+        fs::copy(
+            entry.path(),
+            fixture.0.join("objects").join(entry.file_name()),
+        )
+        .unwrap();
+    }
+    let package: Package =
+        serde_json::from_str(include_str!("../knowledge/filtered/proposal.json")).unwrap();
+    let path = fixture.package(&package);
+    let original = syntax::parse(include_str!("../knowledge/filtered/kernels.lang")).unwrap();
+    let mut candidate = original.clone();
+    implementation::apply(&mut candidate, &path).unwrap();
+    let mut seed = 7712u64;
+    for i in 0..256 {
+        let mut next = || {
+            seed ^= seed << 13;
+            seed ^= seed >> 7;
+            seed ^= seed << 17;
+            seed
+        };
+        let scale = next();
+        let bias = next();
+        let limit = match i % 4 {
+            0 => 0,
+            1 => u64::MAX,
+            2 => 512,
+            _ => next(),
+        };
+        let xs: Vec<u64> = if i == 0 {
+            vec![]
+        } else if i == 1 {
+            vec![0, 1, u64::MAX, 1 << 63]
+        } else {
+            (0..i % 31)
+                .map(|_| if i % 2 == 0 { next() } else { next() & 1023 })
+                .collect()
+        };
+        for name in [
+            "mapped_filter_sum",
+            "filter_map_sum",
+            "mapped_filter_count",
+            "constant_filter_sum",
+        ] {
+            let args = vec![
+                Value::List(xs.iter().copied().map(Value::U64).collect()),
+                Value::U64(scale),
+                Value::U64(bias),
+                Value::U64(limit),
+            ];
+            let a = eval::call(&original, name, args.clone(), &mut 100_000).unwrap();
+            let b = eval::call(&candidate, name, args, &mut 100_000).unwrap();
+            let expected = xs.iter().fold(0u64, |s, &x| {
+                let y = x.wrapping_mul(scale).wrapping_add(bias);
+                s.wrapping_add(match name {
+                    "mapped_filter_sum" => {
+                        if y < limit {
+                            y
+                        } else {
+                            0
+                        }
+                    }
+                    "filter_map_sum" => {
+                        if x < limit {
+                            y
+                        } else {
+                            0
+                        }
+                    }
+                    "mapped_filter_count" => u64::from(y < limit),
+                    _ => {
+                        if bias < limit {
+                            bias
+                        } else {
+                            0
+                        }
+                    }
+                })
+            });
+            assert_eq!(a, Value::U64(expected));
+            assert_eq!(b, a);
+        }
+    }
+    let mut changed = original.clone();
+    changed
+        .functions
+        .iter_mut()
+        .find(|f| f.name == "project")
+        .unwrap()
+        .body = syntax::Expr::Num(0);
+    let before = serde_json::to_vec(&changed).unwrap();
+    assert!(implementation::apply(&mut changed, &path).is_err());
+    assert_eq!(serde_json::to_vec(&changed).unwrap(), before);
+    let mut changed = original.clone();
+    changed
+        .functions
+        .iter_mut()
+        .find(|f| f.name == "under")
+        .unwrap()
+        .body = syntax::Expr::Bool(true);
+    assert!(implementation::apply(&mut changed, &path).is_err());
+    let mut forged = package;
+    forged.proposals[0].to = syntax::Expr::Call(
+        "mapped_filter_sum".into(),
+        original
+            .functions
+            .iter()
+            .find(|f| f.name == "mapped_filter_sum")
+            .unwrap()
+            .params
+            .iter()
+            .map(|(n, _)| syntax::Expr::Var(n.clone()))
+            .collect(),
+    );
+    assert!(implementation::apply(&mut original.clone(), &fixture.package(&forged)).is_err());
+}
+
+#[test]
+fn conditional_evaluation_is_lazy_and_constant_lambdas_compile_without_warnings() {
+    let source="module t; fn f(xs:List<u64>)->u64{return choose(true,7,sum(xs.map(fn(ignored)=>11)));} fn g(xs:List<u64>)->Bool{return choose(false,sum(xs)>0,true);} fn constant(xs:List<u64>)->u64{return sum(xs.map(fn(ignored)=>11).filter(fn(also_ignored)=>true));}";
+    let p = syntax::parse(source).unwrap();
+    check::check(&p).unwrap();
+    let list = Value::List((0..1000).map(|_| Value::U64(9)).collect());
+    assert_eq!(
+        eval::call(&p, "f", vec![list.clone()], &mut 8).unwrap(),
+        Value::U64(7)
+    );
+    assert_eq!(
+        eval::call(&p, "g", vec![list], &mut 8).unwrap(),
+        Value::Bool(true)
+    );
+    let fixture = Fixture::new();
+    let c = fixture.0.join("constant.c");
+    let exe = fixture.0.join("constant");
+    let mut code = native::emit(&p).unwrap();
+    code.push_str("\nint main(void){uint64_t x[3]={0,1,UINT64_MAX};return lang_fn_f(x,3)!=7 || !lang_fn_g(x,3) || lang_fn_constant(x,3)!=33;}\n");
+    fs::write(&c, code).unwrap();
+    assert!(std::process::Command::new("clang")
+        .args(["-O3", "-std=c11", "-Wall", "-Wextra", "-Werror"])
+        .arg(&c)
+        .arg("-o")
+        .arg(&exe)
+        .status()
+        .unwrap()
+        .success());
+    assert!(std::process::Command::new(&exe).status().unwrap().success());
+    for expression in [
+        "choose(1,2,3)",
+        "choose(true,1,false)",
+        "choose(true,xs,xs)",
+        "choose(true,1)",
+    ] {
+        assert!(check::check(
+            &syntax::parse(&format!(
+                "module t; fn f(xs:List<u64>)->u64{{return {expression};}}"
+            ))
+            .unwrap()
+        )
+        .is_err());
+    }
+}
