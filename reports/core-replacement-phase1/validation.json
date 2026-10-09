@@ -1,0 +1,206 @@
+{
+  "status": "passed",
+  "fixtures": 260,
+  "native_comparisons": 4160,
+  "seed": 918244,
+  "compiler_sha256": "f8e0ad6fc478587c97de77e46941157c058a622cc7bfaef8657c3f5d855168ae",
+  "platform": "macOS-15.7.4-arm64-arm-64bit-Mach-O",
+  "clang": "Apple clang version 17.0.0 (clang-1700.6.3.2)\nTarget: arm64-apple-darwin24.6.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\n",
+  "commands": [
+    {
+      "argv": [
+        "python3",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/knowledge/tools/replacement_package.py",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/reports/core-replacement-phase1/source.lang",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/knowledge/filtered/proposal.json",
+        "--compiler",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/target/debug/ink",
+        "--output-dir",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/reports/core-replacement-phase1/package"
+      ],
+      "exit_code": 0,
+      "stdout": "{\"status\": \"checked\", \"compiler_sha256\": \"f8e0ad6fc478587c97de77e46941157c058a622cc7bfaef8657c3f5d855168ae\", \"input_core_sha256\": \"effa6da264288bcc22fba13b05be902f9fe29449502ee6969b7a65810a07b477\", \"replacement\": \"/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/reports/core-replacement-phase1/package/replacement.json\"}\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/target/debug/ink",
+        "emit-c",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/reports/core-replacement-phase1/source.lang",
+        "-o",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/reports/core-replacement-phase1/source_base.c"
+      ],
+      "exit_code": 0,
+      "stdout": "wrote /Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/reports/core-replacement-phase1/source_base.c; 0 checked rule applications; 0 checked implementation replacements\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "clang",
+        "-O3",
+        "-std=c11",
+        "-Wall",
+        "-Wextra",
+        "-dynamiclib",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/reports/core-replacement-phase1/source_base.c",
+        "-o",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/reports/core-replacement-phase1/source_base.dylib"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/target/debug/ink",
+        "emit-c",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/reports/core-replacement-phase1/package/core.json",
+        "--core",
+        "-o",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/reports/core-replacement-phase1/core_base.c"
+      ],
+      "exit_code": 0,
+      "stdout": "wrote /Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/reports/core-replacement-phase1/core_base.c; 0 checked rule applications; 0 checked implementation replacements\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "clang",
+        "-O3",
+        "-std=c11",
+        "-Wall",
+        "-Wextra",
+        "-dynamiclib",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/reports/core-replacement-phase1/core_base.c",
+        "-o",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/reports/core-replacement-phase1/core_base.dylib"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/target/debug/ink",
+        "emit-c",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/reports/core-replacement-phase1/source.lang",
+        "--replacement",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/reports/core-replacement-phase1/package/replacement.json",
+        "-o",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/reports/core-replacement-phase1/source_checked.c"
+      ],
+      "exit_code": 0,
+      "stdout": "wrote /Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/reports/core-replacement-phase1/source_checked.c; 0 checked rule applications; 4 checked implementation replacements\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "clang",
+        "-O3",
+        "-std=c11",
+        "-Wall",
+        "-Wextra",
+        "-dynamiclib",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/reports/core-replacement-phase1/source_checked.c",
+        "-o",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/reports/core-replacement-phase1/source_checked.dylib"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/target/debug/ink",
+        "emit-c",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/reports/core-replacement-phase1/package/core.json",
+        "--core",
+        "--replacement",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/reports/core-replacement-phase1/package/replacement.json",
+        "-o",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/reports/core-replacement-phase1/core_checked.c"
+      ],
+      "exit_code": 0,
+      "stdout": "wrote /Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/reports/core-replacement-phase1/core_checked.c; 0 checked rule applications; 4 checked implementation replacements\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "clang",
+        "-O3",
+        "-std=c11",
+        "-Wall",
+        "-Wextra",
+        "-dynamiclib",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/reports/core-replacement-phase1/core_checked.c",
+        "-o",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/reports/core-replacement-phase1/core_checked.dylib"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "clang",
+        "--version"
+      ],
+      "exit_code": 0,
+      "stdout": "Apple clang version 17.0.0 (clang-1700.6.3.2)\nTarget: arm64-apple-darwin24.6.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\n",
+      "stderr": ""
+    }
+  ],
+  "scope": "source and core inputs, with and without pinned pure replacements; full-width modular u64; no performance or stateful-replacement claim",
+  "artifact_hashes": {
+    "source.lang": "f914bfb5890ff7c9e0c0a80685e0109c80420c90e5ef143d018de8df9296a127",
+    "core_checked.c": "f2ca4d6845f5b2c47a0bfb7949dd8e1572a80ffd5ba2df17d479972519b1c004",
+    "source_checked.c.plan.json": "e6a7c0da288ca7d50e7ad3a890f74b0ada9373fc3e19f6d9cc3597fa938f1a89",
+    "core_checked.c.plan.json": "0da4f45b2864ad5fdb75672d2fd6e6bb049179d1ff366271f715fef5a8d05127",
+    "core_base.c": "a5bcea758fb5aa391461b7f3bb3274296a97e4dcaeb8f62b8035ba975b9a2aea",
+    "source_base.c": "a5bcea758fb5aa391461b7f3bb3274296a97e4dcaeb8f62b8035ba975b9a2aea",
+    "source_checked.c": "f2ca4d6845f5b2c47a0bfb7949dd8e1572a80ffd5ba2df17d479972519b1c004",
+    "core_base.c.plan.json": "c88513c61c9b9dd04f075a04368baaa00bd5d064ac1f398bd622efe62b4a7179",
+    "source_base.c.plan.json": "c39acdcc54d72037d8ba5a39222537fef4b49f1c9249fc59108ce6fb0e77138a",
+    "package/lock.json": "e5f83f71740520b8eda5961c3dc5394e616a84b582d5bb8bc8b2d3bc6d20f079",
+    "package/checked.c": "f2ca4d6845f5b2c47a0bfb7949dd8e1572a80ffd5ba2df17d479972519b1c004",
+    "package/checked.c.plan.json": "0da4f45b2864ad5fdb75672d2fd6e6bb049179d1ff366271f715fef5a8d05127",
+    "package/replacement.json": "1883afb7fe8cc465c6d07c7b7c7ba5a737db4cc9d323dd2d2b653eb0b38b592b",
+    "package/core.json": "effa6da264288bcc22fba13b05be902f9fe29449502ee6969b7a65810a07b477",
+    "package/objects/b718a033ed7abaaaf024eaab9b3a9e609c31d45238a97c8d75e5e102df8af2f3.json": "b718a033ed7abaaaf024eaab9b3a9e609c31d45238a97c8d75e5e102df8af2f3",
+    "package/objects/ccc6f98f8e41a10871a73bea7bfac00776b41f824b8e3f72208b94c43ce5ca3e.json": "ccc6f98f8e41a10871a73bea7bfac00776b41f824b8e3f72208b94c43ce5ca3e",
+    "package/objects/37ace345a588d7f4af30481c916aae777c487e7bf2ba14c272e9edbafed4ff80.json": "37ace345a588d7f4af30481c916aae777c487e7bf2ba14c272e9edbafed4ff80",
+    "package/objects/aadf062e912cc7e4bc9dbeb3abbfdd40ebc79b46e09b14e2eed542f8e77e8d16.json": "aadf062e912cc7e4bc9dbeb3abbfdd40ebc79b46e09b14e2eed542f8e77e8d16",
+    "package/objects/807bad9b7b72431f939c1429fbc0494f8c3ae4af1ccc4541d4433fc02d6fecc5.json": "807bad9b7b72431f939c1429fbc0494f8c3ae4af1ccc4541d4433fc02d6fecc5",
+    "package/objects/4688f343d03501529920dc8c5466cc3d087149c7be74770f74b7c49c6744e18f.json": "4688f343d03501529920dc8c5466cc3d087149c7be74770f74b7c49c6744e18f",
+    "package/objects/fcd18d38028b04e6f2a8c5aefd081d4a153f7d19fff40ff9977e64847ffdbb40.json": "fcd18d38028b04e6f2a8c5aefd081d4a153f7d19fff40ff9977e64847ffdbb40",
+    "package/objects/b39f10ac8d49d7e107f6902c5990ae6ebd198f12671a3b61f5c7fdf57d342898.json": "b39f10ac8d49d7e107f6902c5990ae6ebd198f12671a3b61f5c7fdf57d342898",
+    "package/objects/cbe251fd4192ba7e929d83856295d9e5ce3579fa37152601363f8f5cbf080735.json": "cbe251fd4192ba7e929d83856295d9e5ce3579fa37152601363f8f5cbf080735",
+    "package/objects/ed9419d013b415c486b0026fa0db37e2562d9a9511c3463ea8d4052746ae9dfb.json": "ed9419d013b415c486b0026fa0db37e2562d9a9511c3463ea8d4052746ae9dfb",
+    "package/objects/8f3ce4e1fb4435fa83d81d0d0b24a3375f52febb96505737a24cfaba0238842a.json": "8f3ce4e1fb4435fa83d81d0d0b24a3375f52febb96505737a24cfaba0238842a",
+    "package/objects/ca04446dc92255100bf28878781689684df1ddc4fc463c1187a1e48664562fc3.json": "ca04446dc92255100bf28878781689684df1ddc4fc463c1187a1e48664562fc3",
+    "package/objects/5444d9d6bfd444fdfefc58c5257d70e21fcfc5f043ad444043ec4c0d1b3caac3.json": "5444d9d6bfd444fdfefc58c5257d70e21fcfc5f043ad444043ec4c0d1b3caac3",
+    "package/objects/62eb3bca309d9d371f5ba60a77c405cd2d6b3ebd0a415f4d38b3bf3d63f4ca64.json": "62eb3bca309d9d371f5ba60a77c405cd2d6b3ebd0a415f4d38b3bf3d63f4ca64",
+    "package/objects/077111a434113908a53a6ed2d677e87f42a6e35cfc287699e731a60698072cfe.json": "077111a434113908a53a6ed2d677e87f42a6e35cfc287699e731a60698072cfe",
+    "package/objects/bc8ad94f51cb5378c62d024f28d250139dc937864f55a7ec62ade63788a611ab.json": "bc8ad94f51cb5378c62d024f28d250139dc937864f55a7ec62ade63788a611ab",
+    "package/objects/d2cb6cbf12345781ab9984c0a6345976560615bc3f3eb4272fece39ce1fda81a.json": "d2cb6cbf12345781ab9984c0a6345976560615bc3f3eb4272fece39ce1fda81a",
+    "package/objects/0e3f2294ba30f4a45b6bd1713f91baa0e2c565ba18a6a3733abafb68d08de50b.json": "0e3f2294ba30f4a45b6bd1713f91baa0e2c565ba18a6a3733abafb68d08de50b",
+    "package/objects/2b1479646ffbd037294fca08807dcdc7917d1059e718f12a701c72a91f8118a6.json": "2b1479646ffbd037294fca08807dcdc7917d1059e718f12a701c72a91f8118a6",
+    "package/objects/3c670959e72f7fa7180b7ae3fa72f4ebffed4f4d72e3ed3bed02c16420a1ce02.json": "3c670959e72f7fa7180b7ae3fa72f4ebffed4f4d72e3ed3bed02c16420a1ce02",
+    "package/objects/9e791cf4689621e3dd4ea7f289aece0822d25f7085245d9e65bab82d4b04b97b.json": "9e791cf4689621e3dd4ea7f289aece0822d25f7085245d9e65bab82d4b04b97b",
+    "package/objects/1c76ecb46f573566dec11206d1e42937dfbde149a3f4ab9a5e89f2a42863e9c6.json": "1c76ecb46f573566dec11206d1e42937dfbde149a3f4ab9a5e89f2a42863e9c6",
+    "package/objects/54cc24ff1c29715ec48103b5bdbbddbe335c57276863274ef833925204a17ecd.json": "54cc24ff1c29715ec48103b5bdbbddbe335c57276863274ef833925204a17ecd",
+    "package/objects/d2b6705b298cc6c04d85e7527a4fd71d24553b973493f67fe1adc7b38b800832.json": "d2b6705b298cc6c04d85e7527a4fd71d24553b973493f67fe1adc7b38b800832",
+    "package/objects/4ab6ddc4623abb0e997e0651fbfe0a452d3b3e863ebb401af054bd21857879a4.json": "4ab6ddc4623abb0e997e0651fbfe0a452d3b3e863ebb401af054bd21857879a4",
+    "package/objects/26327e7627dfe1a28b904cda7549f73d1f60857382569126e0c441a51863c87e.json": "26327e7627dfe1a28b904cda7549f73d1f60857382569126e0c441a51863c87e",
+    "package/objects/39bf1d8a652b9267426ed2de3442cc685401ed0de57dcbbd8465079773ca6d76.json": "39bf1d8a652b9267426ed2de3442cc685401ed0de57dcbbd8465079773ca6d76",
+    "package/objects/623490126f344ee0a47be53295778a0fabd4b0a5304f135e6d9f124672538f25.json": "623490126f344ee0a47be53295778a0fabd4b0a5304f135e6d9f124672538f25",
+    "package/objects/3ffb6ef6c9273f9dd548d80d16b036c43fef5bf6d0c83446d780bc6b31a7bae8.json": "3ffb6ef6c9273f9dd548d80d16b036c43fef5bf6d0c83446d780bc6b31a7bae8",
+    "package/objects/d1e1d9aaab96d9fc9b8b9a2da7b579e26097b1490cf19bac99fbc3f0b6b09849.json": "d1e1d9aaab96d9fc9b8b9a2da7b579e26097b1490cf19bac99fbc3f0b6b09849",
+    "package/objects/fc76d78e8ed820466948f740d7ab921d136b1ec57995d3a9e5162482b5ab2dbd.json": "fc76d78e8ed820466948f740d7ab921d136b1ec57995d3a9e5162482b5ab2dbd",
+    "package/objects/698d8bf11aa4a63e2fd8fbed7b41544939c75c5bed4f00b21fd589cefb511df3.json": "698d8bf11aa4a63e2fd8fbed7b41544939c75c5bed4f00b21fd589cefb511df3",
+    "package/objects/012429be46a796524603a96b219cfd5ea4bc5f6f59dc2c69dd0413a94418c0a7.json": "012429be46a796524603a96b219cfd5ea4bc5f6f59dc2c69dd0413a94418c0a7",
+    "package/objects/5eee8891e48d65f6b045e1f625290d277989fcd1f8885560996362c5d1c69b9b.json": "5eee8891e48d65f6b045e1f625290d277989fcd1f8885560996362c5d1c69b9b",
+    "package/objects/d729a3f1db566ee24d2777e03582f5e0d7a6313b8ff695c63ecfa41d5d6ea593.json": "d729a3f1db566ee24d2777e03582f5e0d7a6313b8ff695c63ecfa41d5d6ea593",
+    "package/objects/8c55de000f916019827a9c7f9eb39e256295e1bf6f5cc4f8dd132e4ea5758a3e.json": "8c55de000f916019827a9c7f9eb39e256295e1bf6f5cc4f8dd132e4ea5758a3e"
+  }
+}

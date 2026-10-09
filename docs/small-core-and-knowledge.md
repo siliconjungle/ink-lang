@@ -49,6 +49,35 @@ LLVM currently performs additional optimisation after generated C/Rust. The smal
 
 The arithmetic certificate path described below is now an alternative to the legacy polynomial normaliser. The legacy path remains present; adding an alternative does not by itself remove its transformation authority or finish the architecture migration.
 
+## Versioned executable subject and replacement admission
+
+`core::CheckedModule` now checks and serialises the shared executable program
+representation under `ink-executable-core-v1`. The source parser re-exports
+these types rather than owning a second representation. The [executable contract](language-specification-draft.md#executable-core-v1)
+records operations, bounds, observable transactions and trust boundaries.
+This is a checked typed AST, not a fully resolved SSA or ownership IR.
+
+`--replacement` accepts an `ink-checked-replacement-v1` envelope containing
+schema, core_semantics, input_core_sha256, observations,
+library_lock_sha256 and the proposal package. `pure-total-values-v1` is the only
+admitted observation domain today. The compiler checks the complete original
+module identity, hashes the same lock bytes it parses, checks the library closure
+and exact source correspondence/proof, then rechecks the selected executable
+module before installation. Every failure leaves the caller's original program
+unchanged. The build plan records both executable identities and checked evidence.
+
+The inner proposal currently uses the existing whole-function collection/scalar
+bridge. The envelope is a stable admission boundary, not completed general
+stateful refinement. Conditions must be closed in its universal whole-function
+proof; profile observations do not supply premises. State/effect, failure-trace,
+allocation and migration claims are rejected by this domain. Legacy interfaces
+remain transitional until their authority is migrated.
+
+The external `ink-knowledge/tools/replacement_package.py` produces portable
+pinned envelopes from source and an existing checked proposal without modifying
+the compiler. Core JSON can then be compiled directly with `--core`. Selection
+search, candidate construction and performance evidence remain outside the core.
+
 ## Database acceptance path
 
 1. Resolve names to immutable content identities from an explicit lockfile. Load a bounded dependency closure; reject missing objects, cycles, incompatible semantics and altered content.

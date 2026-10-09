@@ -59,6 +59,23 @@ The requested Goose-inspired changes are also binding: contiguous/compact repres
 - [ ] Workloads include pure kernels, update/query mixes, changing distributions, memory limits and durability.
 - [ ] Final report includes raw measurements, correctness validation, toolchains, limitations and fair algorithm-matched comparisons.
 
+## Executable core and replacement boundary progress
+
+The shared executable declarations now live in `src/core.rs`; parsing and all
+existing semantic consumers use the same structures. `ink-executable-core-v1`
+adds a bounded checked-module witness, strict versioned wire input, canonical
+identity and emit-core/check-core/--core commands. The full design draft now
+separates implemented semantics and observable transaction behaviour from
+proposed ownership, concurrency and durability features. Native/reference/codec
+implementations remain trusted, and the checked typed AST is not yet resolved SSA.
+
+The first `ink-checked-replacement-v1` admission envelope binds the exact full
+input core and library lock, admits only pure total-value equality, reuses actual
+source/math correspondence and checks the candidate core before atomic install.
+An external producer owns envelope construction. General state/effect and
+representation migration admission are still required; this does not close
+milestones 2–5 or remove the legacy polynomial/aggregate/bounded/layout paths.
+
 ## Current implementation sequence
 
 The whole-row journal work also has a [Lean contribution](reports/hunchroom-row-journal/README.md) on Hunchroom: arbitrary history restoration and complete-machine equivalence for adjacent same-key coalescing. It is reusable research evidence, not native optimization admission. Source/effect and physical-map correspondence remain required; the full implementation and evaluation objective stays active.

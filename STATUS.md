@@ -2,6 +2,20 @@
 
 The full goal remains open. This file describes executable behaviour and its limits.
 
+The latest implementation boundary is `ink-executable-core-v1`: one shared,
+bounded, checked program representation for source and serialized input.
+`ink-checked-replacement-v1` pins that entire input, its semantic version, the
+pure total-value observation domain, and exact proof-library lock bytes before
+accepting a replacement. Failed admission leaves the input unchanged. All 100
+tests pass, including a fully rehashed false theorem and unchanged state
+snapshots after core round trips. Four native compilation paths pass 4,160
+independent full-width arithmetic oracle comparisons; source/core paths emit
+identical C. The producer lives in the separate knowledge repository. This
+establishes a checked interface foundation, not a complete SSA/ownership system,
+stateful replacement admission, removal of legacy optimisation machinery, or
+a performance improvement. See `reports/core-replacement-phase1/validation.json`
+and [the architecture](docs/small-core-and-knowledge.md).
+
 The latest invariant milestone is [source-bound sorted layouts](docs/sorted-layout-models.md). Two packages add 22 objects each and prove order laws, sortedness through all finite row/column write histories and uniqueness. Column validity also checks lane alignment. All 89 tests pass; the packages reproduce byte identically and check under the earlier kernel. New tests cover 128 write prefixes, boundary-key order/equality, reversal/duplicate/mismatched-lane witnesses and twelve fully rehashed false models. Native search/index, buffer operations, source actions/effects, codecs and representation admission remain unfinished. Runtime and performance evidence are unchanged.
 
 The previous layout/proof milestone is [source-bound rows and columns](docs/column-layout-models.md). Two packages add 38 objects each and prove complete sequence roundtrip, lookup/write correspondence, alignment and arbitrary future write histories. Both reproduce under the preserved compiler and check under the earlier kernel. All 86 tests pass; 512 prefixes compare the models with four native storage variants and an independent tree oracle, and ten fully rehashed false models are rejected. Runtime, five benchmark bodies/plans and recorded lifecycle binaries are unchanged. Native binary search, sorted/unique invariants, source actions, effects, codecs and representation admission remain unfinished.

@@ -58,6 +58,27 @@ integration tests and catalogue examples require the pinned knowledge checkout.
 Installed compilers also accept lockfiles and proposals from an unrelated local
 checkout using `--library`, `--database` and `--implementation`; paths are explicit.
 
+The executable subset has a versioned checked format. `emit-core` checks source
+and exports it; `--core` reads that format without the source parser. A replacement
+can pin the complete input identity and exact library lock:
+
+```sh
+target/debug/ink emit-core knowledge/filtered/kernels.lang -o build/core.json
+target/debug/ink check-core build/core.json
+python3 knowledge/tools/replacement_package.py \
+  knowledge/filtered/kernels.lang knowledge/filtered/proposal.json \
+  --compiler target/debug/ink --output-dir build/replacement
+target/debug/ink build build/replacement/core.json --core \
+  --replacement build/replacement/replacement.json -o build/checked.o
+```
+
+Use a fresh producer output directory. This first replacement domain proves pure
+total-value equality. It does not cover stateful migration or backend correctness.
+The [core format and semantics](docs/language-specification-draft.md) separate the
+implemented subset from the larger proposed language. Source/core compilation
+produces identical C, and four compilation paths pass 4,160 independent native
+oracle comparisons in `reports/core-replacement-phase1/validation.json`.
+
 The split establishes independent ownership, not completion of the small-core
 migration. The legacy polynomial checker, aggregate schema, bounded-cache
 analysis and layout-specific lowering remain documented migration work in

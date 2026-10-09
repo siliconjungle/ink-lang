@@ -6,7 +6,81 @@ This language describes data, permitted changes, and required results. Its compi
 
 The performance ambition is to compete with expert implementations on specified workloads and hardware, then extend that coverage. No language can promise to be the fastest on every program. The engineering objective is to remove avoidable work, approach hardware limits on the remaining work, and make improvements reusable.
 
-This is a proposed language and implementation specification. The syntax below is normative for the draft; no compiler implementing it is claimed to exist. The language has no permanent name yet. The command name `lang` is a placeholder. Initial implementation requirements and later research extensions are identified explicitly.
+This is the full design draft for Ink. The compiler implements the subset described in [STATUS.md](../STATUS.md); the draft is not a claim that every feature below exists. The executable core contract below describes the current shared representation. The `ink` command is primary; `lang` remains a compatibility command for archived experiments.
+
+## Executable core v1
+
+`ink-executable-core-v1` fixes the first checked program format. Its declarations
+live in `src/core.rs`, independently of the source parser. Parsing, type/effect
+checking, the reference runtimes, proof correspondence and native lowering use
+these same Program/Type/Expr/Statement structures. Source names and lexical
+scopes remain explicit; this is a checked typed AST, not SSA or a complete
+ownership calculus. Local types can be inferred rather than stored on every node.
+
+A module contains `schema: 1`, `semantics: "ink-executable-core-v1"` and `program`.
+Program fields are module, functions, rules, ids, records, enums, states, keeps,
+events and actions. `rules` is reserved and must be empty: inline proof-authoring
+instructions do not belong to executable IR. Unknown fields, unresolved declared
+types, incompatible versions, unsafe identifiers and failed type/effect/dependency
+checks are rejected. A checked-module witness exposes immutable program data;
+deserialising an ordinary Program does not create that witness.
+
+The canonical identity is SHA-256 of compact UTF-8 JSON in declaration-field
+order, with named maps ordered by key and sequence order preserved. Whitespace
+and incoming JSON property order are discarded before hashing. This identifies
+an exact versioned program, not its equivalence class: renaming a binder may
+change its identity. No source locations or optimisation selection enter it.
+The current wire representation is fixed by the Rust/Serde definitions and
+pinned toolchain; cross-language encoders need to reproduce that encoding.
+
+Ingress is bounded to 16 MB, 1,024 top-level declarations, 128 parameters or
+record fields, 100,000 structural steps and depth 32. Identifiers are ASCII
+letters/digits/underscore, begin with a letter or underscore, and have at most
+128 bytes. Individual string literals have at most one million UTF-8 bytes.
+These bounds control acceptance work; they are not a process-memory guarantee.
+
+The executable semantic commitments are:
+
+| Construct | Meaning and current boundary |
+| --- | --- |
+| Values | Bool, Unit, strings, bounded u32/u64, exact Int, finite lists, Option/Result, nominal 128-bit IDs, records and nullary enums. Declared signatures and state schemas have concrete types. |
+| Variables and bindings | Lexical immutable bindings, with shadowing scoped to lambdas/blocks. No observable pointer identity or shared mutable references. A general borrowing/ownership language remains proposed. |
+| Arithmetic | Ordinary u32/u64 `+ - *` wraps at the declared width; Int arithmetic is exact. `checked_add/sub/mul` returns Result with Overflow on failure. Stateful literal operands use their expected integer type. |
+| Evaluation | Operands/arguments evaluate in source order. `&&`, `||` and pure `choose` evaluate only the selected continuation. There is no permission to reorder effects merely because final values agree. |
+| Pure collections | Ordered map and filter preserve element order; sum uses modular u64 arithmetic, count returns u64, and foldr visits the finite list right-to-left. Pure calls are acyclic; escaping first-class closures/general recursion are not supported. |
+| Stateful tables and keeps | Tables are logical keyed collections. Reads inside a change observe earlier tentative writes. Derived values must match recomputation. Physical storage and caches are not logical state. |
+| Changes | An outer successful change returning Ok commits once, including an otherwise empty change. Err, `?`, nested failed changes and host execution errors roll back tentative writes and discard transaction events. Nested failure poisons its enclosing change even if the Result is ignored. |
+| Queries | Declared reads only; queries publish no events and do not advance the committed version. |
+| Events | Successful commits append events in emission order, identified by commit and position. Aborts preserve the previous outbox. Host acknowledgement removes an acknowledged prefix without changing logical table contents. |
+| Commit exhaustion | A change cannot wrap the commit sequence. Exhaustion rolls back and returns a host error. |
+| Snapshots | Transaction-boundary logical tables, committed version and pending ordered events; physical caches are rebuilt. Existing snapshot identities/codecs remain unchanged by the core-file split. No captured call stack, schema migration or durable crash recovery is implied. |
+
+Pure and stateful collection APIs currently have different result typing where
+specified by their checkers: stateful count is exact Int, and stateful sum follows
+the element integer type. An unsupported cross-fragment operation must be rejected
+or diagnosed; this contract does not silently claim the full draft's coverage.
+`src/eval.rs` and `src/stateful.rs` are the executable reference definitions;
+`src/check.rs` and `src/statecheck.rs` define current admission and effects.
+Their Rust implementations have not been formally verified.
+
+Pure mathematical replacement proofs preserve total values. They exclude host
+resource exhaustion, allocation/OOM and native trap traces. Stateful replacement
+admission must separately cover return values/errors, future state, tentative
+reads, aborts, versions, event order and snapshots; pure equality cannot authorise
+it. Code generation, allocation primitives, generated C/Rust, LLVM and host ABIs
+remain explicit trusted components. Lean research is external to core admission.
+
+```sh
+ink emit-core program.ink -o core.json
+ink check-core core.json
+ink run core.json function arguments.json --core
+ink emit-state core.json --core -o generated-state
+```
+
+The richer type system, general ownership/arenas, foreign effects, concurrency,
+durability and migration in the design below remain subsequent milestones.
+A new executable operation or changed meaning requires an explicit core-version
+and correspondence decision; a new equivalent implementation belongs in knowledge.
 
 ## 1 Design commitments
 
