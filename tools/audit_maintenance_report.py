@@ -7,7 +7,8 @@ OUT=ROOT/'reports/database-maintenance-phase1'
 
 def digest(path):return hashlib.sha256(path.read_bytes()).hexdigest()
 def main():
-    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--execute',action='store_true');args=parser.parse_args()
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--execute',action='store_true')
+    parser.add_argument('--compiler',type=Path,default=ROOT/'target/release/lang');args=parser.parse_args()
     metadata=json.loads((OUT/'metadata.json').read_text());rows=json.loads((OUT/'samples.json').read_text())
     for path,want in metadata['source_sha256'].items():assert digest(OUT/'sources'/path)==want,path
     variants=('language','language_bounded','c_flat','cpp_tree','rust_tree','rust_bigint')
@@ -56,7 +57,7 @@ def main():
         spec=importlib.util.spec_from_file_location('state_bench',ROOT/'bench/state/run.py')
         bench=importlib.util.module_from_spec(spec);spec.loader.exec_module(bench)
         env=bench.environment();bench.BUILD=(ROOT/metadata['parameters']['build_directory']).resolve();bench.OUT=OUT
-        compiler=ROOT/'target/release/lang';assert digest(compiler)==metadata['compiler_sha256']
+        compiler=args.compiler.resolve();assert digest(compiler)==metadata['compiler_sha256']
         audit['binary_sha256']={str(p.relative_to(ROOT)):digest(p) for v in variants
                                 for p in [bench.BUILD/v,bench.BUILD/f'{v}.dylib']}
         previous=OUT/'audit.json'

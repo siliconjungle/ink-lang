@@ -171,6 +171,10 @@ Reference and native state execution now accept this path. Its initial expressio
 
 `reports/database-maintenance-phase1` records source/plan and producer replay, 62 passing tests, 756 native timing samples and independent state oracles. Canonical legacy/database certificates emit identical runtime code. Bounded Ink still takes 1.75× handwritten Rust time and 2.57× the fastest baseline's time by geometric mean. This step migrates arithmetic authority; it introduces no claimed runtime speed gain.
 
+The next package, `knowledge/delta-maintenance`, adds two universal proofs and an actual delta-first replacement expression under the same original compiler. The equation is database evidence, not a compiler rule. Its source bridge and generic kernel remain unchanged. A separate lowering improvement borrows primitive exact operands and keeps owned arithmetic temporaries; it changes physical copying, not the program's arithmetic expression or selected implementation. This belongs to efficient base execution, which the architecture permits, and has a declared trusted Rust/BigInt/backend boundary.
+
+The controlled inventory and wide-Int reports separate the lowering change from the database choice. Borrowing improves the wide experiment by 1.23× overall, with fewer independently measured allocation calls. Delta ordering helps when a small row changes beside a large total but is slightly worse when the changing row is also large. The same equality is safe in both profiles; it is not the same cost. This supports storing applicability/cost evidence with multiple proved candidates. It does not implement measured adaptation, migrate the fixed cache/transaction protocol or remove the remaining built-in authority. Handwritten Rust remains faster.
+
 ## Design precedents and implications
 
 The individual mechanisms have substantial prior work. This comparison is a design assessment, not an exhaustive novelty claim or a statement that the complete systems are equivalent to Ink.

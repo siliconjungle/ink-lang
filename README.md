@@ -171,7 +171,7 @@ python3 tools/maintenance_proofs.py build/exact-maintenance-replay
 target/release/ink prove-maintenance knowledge/exact-maintenance/canonical.ink --evidence knowledge/exact-maintenance/canonical.evidence.json -o build/database-maintenance.json
 target/release/ink emit-state examples/inventory.lang --maintenance build/database-maintenance.json -o build/database-inventory
 python3 bench/state/run.py --maintenance knowledge/exact-maintenance/canonical.json --output reports/database-maintenance-phase1 --build-directory build/database-maintenance-bench
-python3 tools/audit_maintenance_report.py --execute
+python3 tools/audit_maintenance_report.py --execute --compiler build/cache-lowering-original/lang
 ```
 
 [Two checked packages](knowledge/exact-maintenance/README.md) select actual update expressions through the generic proof kernel. The source bridge pins exact integer/list meanings, translates the proposed arithmetic, and checks each insertion/replacement/removal equality. Proof production and maintenance laws remain database data. The self-contained certificate carries immutable checked objects; no solver runs during import.
@@ -179,3 +179,21 @@ python3 tools/audit_maintenance_report.py --execute
 The [native report](reports/database-maintenance-phase1/REPORT.md) records 756 samples, 12,030 independent native state comparisons, replayed code/plans and about 6 ms certificate checking. The complete suite passes 62 tests, including signed 512-bit runtime/native values, aborts, tentative queries, events and checkpoint continuation. Bounded Ink takes 1.75× handwritten Rust time and 2.57× the fastest baseline's time by geometric mean. Canonical legacy/database certificates produce identical runtime source; this step changes checking authority, not performance.
 
 Full transaction/representation proofs, multiplication and efficient large proof literals remain work. The legacy polynomial authority, pipeline recogniser and representation analysis are still present. The compiler does not yet meet the complete small-core design.
+
+## Exact cache performance and data profiles
+
+The [delta package](knowledge/delta-maintenance/README.md) adds two universal proofs and selects `total + (new - old)` under the original unchanged compiler. A separate base-lowering improvement borrows exact operands and keeps arithmetic temporaries owned, reducing redundant copies without inserting an algebraic rewrite into the core.
+
+```sh
+python3 tools/delta_maintenance_proofs.py build/delta-maintenance-replay
+python3 bench/cache-lowering.py
+python3 bench/wide-cache.py
+python3 tools/cache_allocations.py
+python3 tools/audit_cache_reports.py --execute
+```
+
+The [inventory comparison](reports/cache-lowering-phase1/REPORT.md) records 1,008 samples in 18 cells and 16,040 independent native comparisons across eight variants. It separates the old emitted BigInt code, borrowed lowering and delta choice from the bounded/C/C++/Rust baselines. Small-integer differences are mostly minor; bounded Ink still takes 1.77× Rust u128 time by geometric mean.
+
+The [wide signed-Int report](reports/wide-cache-phase1/REPORT.md) records 448 samples in 16 cells plus 4,096 native oracle comparisons. Borrowing runs 1.23× faster than the old lowering overall. Delta ordering helps the small-changing-row profile by 1.05× overall, and the 8192-exponent update-only case by 1.17×; it is about 3% slower on the wide-changing-row profile. It still takes 2.98× handwritten Rust BigInt time overall. Separate allocation instrumentation confirms fewer allocations; those instrumented binaries are not used for timing. All 63 tests pass, including the new delta path on signed values, aborts, tentative reads and continued checkpoints.
+
+These benchmarks require the recorded original compiler at `build/cache-lowering-original/lang` for before/after reproduction. Current and original identities, measured sources, exact emitted projects and raw observations are archived. The audit replays 208 native streams and the unchanged-compiler proof extension. Full transition/representation verification, measured adaptive selection and the broader language requirements remain open.
