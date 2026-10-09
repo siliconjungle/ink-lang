@@ -1,7 +1,7 @@
 //! Content-addressed definitions/theorems, bounded dependency closure and selected rewrites.
 use crate::{
     check,
-    equality::{self, Proof},
+    equality::{self, Equation, Proof},
     syntax::{Expr, Program, Type},
     LangResult,
 };
@@ -27,6 +27,8 @@ pub struct Object {
     pub proof: Proof,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub dependencies: Vec<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub conditions: Vec<Equation>,
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -109,6 +111,10 @@ fn rewrite_eligible(object: &Object) -> LangResult<()> {
     let mut b = BTreeSet::new();
     vars(&object.from, &mut a);
     vars(&object.to, &mut b);
+    for condition in &object.conditions {
+        vars(&condition.from, &mut b);
+        vars(&condition.to, &mut b);
+    }
     if !b.is_subset(&a) {
         return Err("unbound replacement variable".into());
     }
@@ -174,15 +180,17 @@ impl Loader<'_> {
                 )?;
             }
             Entry::Theorem(mut theorem) => {
-                let (from, to) = local.prove(
+                let (from, to, conditions) = local.prove_under(
                     id.to_owned(),
                     &theorem.params,
+                    &theorem.conditions,
                     &theorem.from,
                     &theorem.to,
                     &theorem.proof,
                 )?;
                 theorem.from = from;
                 theorem.to = to;
+                theorem.conditions = conditions;
                 self.theorems.insert(id.to_owned(), theorem);
             }
         }
@@ -282,25 +290,86 @@ fn instantiate(
         _ => Ok(e.clone()),
     }
 }
+fn scalar_params(env: &check::Env) -> Vec<(String, Type)> {
+    env.iter()
+        .filter(|(_, ty)| matches!(ty, Type::Bool | Type::U64))
+        .map(|(name, ty)| (name.clone(), ty.clone()))
+        .collect()
+}
+fn discharge(
+    condition: &Equation,
+    hypotheses: &[Equation],
+    evidence: &equality::Context,
+    params: &[(String, Type)],
+) -> Option<Proof> {
+    let proof = if condition.from == condition.to {
+        Proof::Refl(condition.from.clone())
+    } else if let Some(index) = hypotheses
+        .iter()
+        .position(|hypothesis| hypothesis == condition)
+    {
+        Proof::Hypothesis(index)
+    } else if let Some(index) = hypotheses
+        .iter()
+        .position(|hypothesis| hypothesis.from == condition.to && hypothesis.to == condition.from)
+    {
+        Proof::Sym(Box::new(Proof::Hypothesis(index)))
+    } else {
+        Proof::Compute {
+            from: condition.from.clone(),
+            to: condition.to.clone(),
+        }
+    };
+    evidence
+        .check_under(params, hypotheses, &condition.from, &condition.to, &proof)
+        .ok()?;
+    Some(proof)
+}
 fn rewrite(
     e: &Expr,
     env: &check::Env,
     rules: &[CheckedRule],
+    hypotheses: &[Equation],
     used: &mut Vec<String>,
     fuel: &mut usize,
-) -> LangResult<Expr> {
+) -> LangResult<(Expr, Proof)> {
     if *fuel == 0 {
         return Err("rewrite traversal budget exceeded".into());
     }
     *fuel -= 1;
-    let mut out = match e {
-        Expr::Binary(op, a, b) => Expr::Binary(
-            op.clone(),
-            Box::new(rewrite(a, env, rules, used, fuel)?),
-            Box::new(rewrite(b, env, rules, used, fuel)?),
-        ),
-        _ => e.clone(),
+    let (mut out, mut trace) = match e {
+        Expr::Binary(op, a, b) => {
+            let (left, lp) = rewrite(a, env, rules, hypotheses, used, fuel)?;
+            let mut local = hypotheses.to_vec();
+            let short = ["&&", "||"].contains(&op.as_str());
+            if short {
+                local.push(Equation {
+                    from: (**a).clone(),
+                    to: Expr::Bool(op == "&&"),
+                });
+            }
+            let (right, rp) = rewrite(b, env, rules, &local, used, fuel)?;
+            let proof = if short {
+                Proof::ShortCircuit {
+                    op: op.clone(),
+                    left: Box::new(lp),
+                    right: Box::new(rp),
+                }
+            } else {
+                Proof::Binary {
+                    op: op.clone(),
+                    left: Box::new(lp),
+                    right: Box::new(rp),
+                }
+            };
+            (
+                Expr::Binary(op.clone(), Box::new(left), Box::new(right)),
+                proof,
+            )
+        }
+        _ => (e.clone(), Proof::Refl(e.clone())),
     };
+    let params = scalar_params(env);
     for rule in rules {
         if *fuel == 0 {
             return Err("rewrite matching budget exceeded".into());
@@ -311,61 +380,80 @@ fn rewrite(
             continue;
         }
         let mut budget = equality::Budget::new();
-        let mut valid = true;
-        for (name, ty) in &rule.object.params {
-            if let Some(value) = bindings.get(name) {
-                if equality::term_type(value, env, &mut budget).as_ref() != Ok(ty) {
-                    valid = false;
-                    break;
-                }
-            }
-        }
-        if !valid {
+        if rule.object.params.iter().any(|(name, ty)| {
+            bindings.get(name).is_some_and(|value| {
+                equality::term_type(value, env, &mut budget).as_ref() != Ok(ty)
+            })
+        }) {
             continue;
         }
         let next = instantiate(&rule.object.to, &bindings, fuel, 0)?;
-        if next != out {
-            // Search/matching only proposes an optimisation. Recheck the exact
-            // instantiated equality before accepting its replacement.
-            let arguments = rule
-                .object
-                .params
-                .iter()
-                .map(|(name, ty)| {
-                    bindings.get(name).cloned().unwrap_or_else(|| match ty {
-                        Type::Bool => Expr::Bool(false),
-                        _ => Expr::Num(0),
-                    })
-                })
-                .collect();
-            let params = env
-                .iter()
-                .filter(|(_, ty)| matches!(ty, Type::Bool | Type::U64))
-                .map(|(name, ty)| (name.clone(), ty.clone()))
-                .collect::<Vec<_>>();
-            rule.evidence.check(
-                &params,
-                &out,
-                &next,
-                &Proof::Use {
-                    theorem: rule.id.clone(),
-                    arguments,
-                },
-            )?;
-            out = next;
-            used.push(rule.id.clone());
+        if next == out {
+            continue;
         }
+        let mut premises = Vec::new();
+        let mut applicable = true;
+        for condition in &rule.object.conditions {
+            let condition = Equation {
+                from: instantiate(&condition.from, &bindings, fuel, 0)?,
+                to: instantiate(&condition.to, &bindings, fuel, 0)?,
+            };
+            if let Some(proof) = discharge(&condition, hypotheses, &rule.evidence, &params) {
+                premises.push(proof);
+            } else {
+                applicable = false;
+                break;
+            }
+        }
+        if !applicable {
+            continue;
+        }
+        let arguments = rule
+            .object
+            .params
+            .iter()
+            .map(|(name, ty)| {
+                bindings.get(name).cloned().unwrap_or_else(|| match ty {
+                    Type::Bool => Expr::Bool(false),
+                    _ => Expr::Num(0),
+                })
+            })
+            .collect();
+        let application = Proof::UseConditional {
+            theorem: rule.id.clone(),
+            arguments,
+            premises,
+        };
+        // Search supplies a proposal. The kernel checks its exact instantiated equality.
+        rule.evidence
+            .check_under(&params, hypotheses, &out, &next, &application)?;
+        trace = Proof::Trans(Box::new(trace), Box::new(application));
+        out = next;
+        used.push(rule.id.clone());
     }
-    Ok(out)
+    Ok((out, trace))
 }
 pub fn apply(program: &mut Program, rules: &[CheckedRule]) -> LangResult<Vec<String>> {
     check::check(program)?;
+    if rules.is_empty() {
+        return Ok(Vec::new());
+    }
+    let mut context = equality::Context::default();
+    for rule in rules {
+        context.import(&rule.evidence, &rule.id)?;
+    }
     let mut used = Vec::new();
     for function in &mut program.functions {
         let env = check::params_env(&function.params)?;
-        // Only whole finite scalar bodies: no calls, effects, loops or binders.
         if equality::term_type(&function.body, &env, &mut equality::Budget::new()).is_ok() {
-            function.body = rewrite(&function.body, &env, rules, &mut used, &mut 100_000)?;
+            let (candidate, proof) =
+                rewrite(&function.body, &env, rules, &[], &mut used, &mut 100_000)?;
+            // The whole function proof closes every branch assumption. No premise
+            // provided by the optimiser can escape into an unconditional build.
+            if candidate != function.body {
+                context.check(&scalar_params(&env), &function.body, &candidate, &proof)?;
+            }
+            function.body = candidate;
         }
     }
     check::check(program)?;

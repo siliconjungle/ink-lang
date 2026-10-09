@@ -10,6 +10,17 @@ use std::collections::BTreeMap;
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub enum Proof {
+    Hypothesis(usize),
+    UseConditional {
+        theorem: String,
+        arguments: Vec<Expr>,
+        premises: Vec<Proof>,
+    },
+    ShortCircuit {
+        op: String,
+        left: Box<Proof>,
+        right: Box<Proof>,
+    },
     Refl(Expr),
     Use {
         theorem: String,
@@ -34,6 +45,13 @@ pub enum Proof {
         on_true: Box<Proof>,
     },
 }
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct Equation {
+    pub from: Expr,
+    pub to: Expr,
+}
+
 pub struct Budget {
     remaining: usize,
 }
@@ -108,6 +126,7 @@ struct Definition {
 }
 #[derive(Clone, Debug)]
 struct Theorem {
+    conditions: Vec<Equation>,
     params: Vec<(String, Type)>,
     from: Expr,
     to: Expr,
@@ -191,12 +210,23 @@ impl Context {
         to: &Expr,
         proof: &Proof,
     ) -> LangResult<(Expr, Expr)> {
+        self.check_under(params, &[], from, to, proof)
+    }
+    pub fn check_under(
+        &self,
+        params: &[(String, Type)],
+        conditions: &[Equation],
+        from: &Expr,
+        to: &Expr,
+        proof: &Proof,
+    ) -> LangResult<(Expr, Expr)> {
         let env = params_env(params)?;
         let mut budget = Budget::new();
+        let hypotheses = prepare_conditions(conditions, &env, self, &mut budget)?;
         let from = expand(from, &env, self, &mut budget, 0)?;
         let to = expand(to, &env, self, &mut budget, 0)?;
         pair(&from, &to, &env, &mut budget)?;
-        let (a, b) = derive(proof, &env, self, &mut budget, 0)?;
+        let (a, b) = derive(proof, &env, self, &hypotheses, &mut budget, 0)?;
         if a != from || b != to {
             return Err("proof proves a different statement".into());
         }
@@ -210,18 +240,55 @@ impl Context {
         to: &Expr,
         proof: &Proof,
     ) -> LangResult<(Expr, Expr)> {
+        self.prove_under(id, params, &[], from, to, proof)
+            .map(|(a, b, _)| (a, b))
+    }
+    pub fn prove_under(
+        &mut self,
+        id: String,
+        params: &[(String, Type)],
+        conditions: &[Equation],
+        from: &Expr,
+        to: &Expr,
+        proof: &Proof,
+    ) -> LangResult<(Expr, Expr, Vec<Equation>)> {
         self.vacant(&id)?;
-        let (from, to) = self.check(params, from, to, proof)?;
+        if conditions.len() > 64 {
+            return Err("theorem condition count limit".into());
+        }
+        let (from, to) = self.check_under(params, conditions, from, to, proof)?;
+        let env = params_env(params)?;
+        let conditions = prepare_conditions(conditions, &env, self, &mut Budget::new())?;
         self.theorems.insert(
             id,
             Theorem {
                 params: params.to_vec(),
+                conditions: conditions.clone(),
                 from: from.clone(),
                 to: to.clone(),
             },
         );
-        Ok((from, to))
+        Ok((from, to, conditions))
     }
+}
+fn prepare_conditions(
+    conditions: &[Equation],
+    env: &Env,
+    context: &Context,
+    budget: &mut Budget,
+) -> LangResult<Vec<Equation>> {
+    if conditions.len() > 128 {
+        return Err("proof condition count limit".into());
+    }
+    conditions
+        .iter()
+        .map(|condition| {
+            let from = expand(&condition.from, env, context, budget, 0)?;
+            let to = expand(&condition.to, env, context, budget, 0)?;
+            pair(&from, &to, env, budget)?;
+            Ok(Equation { from, to })
+        })
+        .collect()
 }
 fn arguments(
     params: &[(String, Type)],
@@ -313,11 +380,67 @@ fn derive(
     p: &Proof,
     env: &Env,
     context: &Context,
+    hypotheses: &[Equation],
     budget: &mut Budget,
     depth: usize,
 ) -> LangResult<(Expr, Expr)> {
     budget.step(depth)?;
     let (a, b) = match p {
+        Proof::Hypothesis(index) => {
+            let equation = hypotheses.get(*index).ok_or("unknown proof hypothesis")?;
+            (equation.from.clone(), equation.to.clone())
+        }
+        Proof::UseConditional {
+            theorem,
+            arguments: args,
+            premises,
+        } => {
+            let theorem = context
+                .theorems
+                .get(theorem)
+                .ok_or("unknown or undeclared theorem")?;
+            if premises.len() != theorem.conditions.len() {
+                return Err("theorem premise count mismatch".into());
+            }
+            let bindings = arguments(&theorem.params, args, env, context, budget, 0)?;
+            for (condition, proof) in theorem.conditions.iter().zip(premises) {
+                let want = (
+                    substitute(&condition.from, &bindings, budget, 0)?,
+                    substitute(&condition.to, &bindings, budget, 0)?,
+                );
+                if derive(proof, env, context, hypotheses, budget, depth + 1)? != want {
+                    return Err("theorem premise proves a different condition".into());
+                }
+            }
+            (
+                substitute(&theorem.from, &bindings, budget, 0)?,
+                substitute(&theorem.to, &bindings, budget, 0)?,
+            )
+        }
+        Proof::ShortCircuit { op, left, right } => {
+            if !["&&", "||"].contains(&op.as_str()) {
+                return Err("short circuit congruence requires a Boolean operator".into());
+            }
+            let (a, b) = derive(left, env, context, hypotheses, budget, depth + 1)?;
+            if term_type(&a, env, budget)? != Type::Bool
+                || term_type(&b, env, budget)? != Type::Bool
+            {
+                return Err("short circuit condition must be Boolean".into());
+            }
+            let mut local = hypotheses.to_vec();
+            if local.len() >= 128 {
+                return Err("proof hypothesis count limit".into());
+            }
+            local.push(Equation {
+                from: a.clone(),
+                to: Expr::Bool(op == "&&"),
+            });
+            let (c, d) = derive(right, env, context, &local, budget, depth + 1)?;
+            (
+                Expr::Binary(op.clone(), Box::new(a), Box::new(c)),
+                Expr::Binary(op.clone(), Box::new(b), Box::new(d)),
+            )
+        }
         Proof::Refl(t) => {
             let t = expand(t, env, context, budget, 0)?;
             (t.clone(), t)
@@ -330,6 +453,9 @@ fn derive(
                 .theorems
                 .get(theorem)
                 .ok_or("unknown or undeclared theorem")?;
+            if !theorem.conditions.is_empty() {
+                return Err("conditional theorem requires premise proofs".into());
+            }
             let bindings = arguments(&theorem.params, args, env, context, budget, 0)?;
             (
                 substitute(&theorem.from, &bindings, budget, 0)?,
@@ -346,20 +472,20 @@ fn derive(
             (from.clone(), to.clone())
         }
         Proof::Sym(p) => {
-            let (a, b) = derive(p, env, context, budget, depth + 1)?;
+            let (a, b) = derive(p, env, context, hypotheses, budget, depth + 1)?;
             (b, a)
         }
         Proof::Trans(p, q) => {
-            let (a, b) = derive(p, env, context, budget, depth + 1)?;
-            let (c, d) = derive(q, env, context, budget, depth + 1)?;
+            let (a, b) = derive(p, env, context, hypotheses, budget, depth + 1)?;
+            let (c, d) = derive(q, env, context, hypotheses, budget, depth + 1)?;
             if b != c {
                 return Err("transitivity middle terms differ".into());
             }
             (a, d)
         }
         Proof::Binary { op, left, right } => {
-            let (a, b) = derive(left, env, context, budget, depth + 1)?;
-            let (c, d) = derive(right, env, context, budget, depth + 1)?;
+            let (a, b) = derive(left, env, context, hypotheses, budget, depth + 1)?;
+            let (c, d) = derive(right, env, context, hypotheses, budget, depth + 1)?;
             (
                 Expr::Binary(op.clone(), Box::new(a), Box::new(c)),
                 Expr::Binary(op.clone(), Box::new(b), Box::new(d)),
@@ -386,7 +512,16 @@ fn derive(
                     substitute(&from, &binding, budget, 0)?,
                     substitute(&to, &binding, budget, 0)?,
                 );
-                if derive(proof, &local, context, budget, depth + 1)? != want {
+                let local_hypotheses = hypotheses
+                    .iter()
+                    .map(|equation| {
+                        Ok(Equation {
+                            from: substitute(&equation.from, &binding, budget, 0)?,
+                            to: substitute(&equation.to, &binding, budget, 0)?,
+                        })
+                    })
+                    .collect::<LangResult<Vec<_>>>()?;
+                if derive(proof, &local, context, &local_hypotheses, budget, depth + 1)? != want {
                     return Err("case branch does not prove the instantiated statement".into());
                 }
             }

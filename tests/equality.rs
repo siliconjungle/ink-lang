@@ -385,3 +385,199 @@ fn dependency_closure_checks_all_imports_but_selects_only_roots() {
         .contains("closure limit"));
     fs::remove_dir_all(dir).unwrap();
 }
+
+#[test]
+fn conditional_theorems_cannot_escape_their_premises() {
+    use equality::Equation;
+    let params = vec![("a".into(), Type::Bool)];
+    let condition = Equation {
+        from: var("a"),
+        to: Expr::Bool(true),
+    };
+    let mut context = equality::Context::default();
+    context
+        .prove_under(
+            "known".into(),
+            &params,
+            &[condition.clone()],
+            &var("a"),
+            &Expr::Bool(true),
+            &Proof::Hypothesis(0),
+        )
+        .unwrap();
+    let application = Proof::UseConditional {
+        theorem: "known".into(),
+        arguments: vec![var("a")],
+        premises: vec![Proof::Hypothesis(0)],
+    };
+    assert!(context
+        .check(&params, &var("a"), &Expr::Bool(true), &application)
+        .is_err());
+    assert!(context
+        .check(
+            &params,
+            &var("a"),
+            &Expr::Bool(true),
+            &Proof::Use {
+                theorem: "known".into(),
+                arguments: vec![var("a")]
+            }
+        )
+        .is_err());
+    assert!(context
+        .check(&params, &var("a"), &Expr::Bool(true), &Proof::Hypothesis(0))
+        .is_err());
+    assert!(context
+        .check_under(
+            &params,
+            &[condition.clone()],
+            &var("a"),
+            &Expr::Bool(true),
+            &Proof::Hypothesis(1)
+        )
+        .is_err());
+    let valid = Proof::ShortCircuit {
+        op: "&&".into(),
+        left: Box::new(Proof::Refl(var("a"))),
+        right: Box::new(application.clone()),
+    };
+    context
+        .check(
+            &params,
+            &bin("&&", var("a"), var("a")),
+            &bin("&&", var("a"), Expr::Bool(true)),
+            &valid,
+        )
+        .unwrap();
+    let wrong_guard = Proof::ShortCircuit {
+        op: "||".into(),
+        left: Box::new(Proof::Refl(var("a"))),
+        right: Box::new(application.clone()),
+    };
+    assert!(context
+        .check(
+            &params,
+            &bin("||", var("a"), var("a")),
+            &bin("||", var("a"), Expr::Bool(true)),
+            &wrong_guard
+        )
+        .is_err());
+    let wrong_premise = Proof::UseConditional {
+        theorem: "known".into(),
+        arguments: vec![var("a")],
+        premises: vec![Proof::Refl(Expr::Bool(true))],
+    };
+    assert!(context
+        .check_under(
+            &params,
+            &[condition.clone()],
+            &var("a"),
+            &Expr::Bool(true),
+            &wrong_premise
+        )
+        .is_err());
+    let cases = Proof::BoolCases {
+        variable: "a".into(),
+        from: var("a"),
+        to: Expr::Bool(true),
+        on_false: Box::new(Proof::Hypothesis(0)),
+        on_true: Box::new(Proof::Hypothesis(0)),
+    };
+    // Cases substitute both the statement and its hypotheses, without changing indices.
+    context
+        .check_under(&params, &[condition], &var("a"), &Expr::Bool(true), &cases)
+        .unwrap();
+    let impossible = Equation {
+        from: Expr::Bool(false),
+        to: Expr::Bool(true),
+    };
+    context
+        .prove_under(
+            "impossible".into(),
+            &[],
+            &[impossible],
+            &Expr::Bool(false),
+            &Expr::Bool(true),
+            &Proof::Hypothesis(0),
+        )
+        .unwrap();
+    let forged = Proof::UseConditional {
+        theorem: "impossible".into(),
+        arguments: vec![],
+        premises: vec![Proof::Compute {
+            from: Expr::Bool(false),
+            to: Expr::Bool(true),
+        }],
+    };
+    assert!(context
+        .check(&[], &Expr::Bool(false), &Expr::Bool(true), &forged)
+        .is_err());
+}
+
+#[test]
+fn conditional_database_rewrites_only_where_guard_proofs_are_available() {
+    let db = knowledge::load(Path::new("knowledge/conditional/lock.json")).unwrap();
+    assert_eq!(db.closure.len(), 4);
+    assert_eq!(db.rules.len(), 2);
+    let original = syntax::parse(include_str!("../examples/conditional.lang")).unwrap();
+    let mut changed = original.clone();
+    assert_eq!(knowledge::apply(&mut changed, &db.rules).unwrap().len(), 3);
+    assert_eq!(original.functions[2].body, changed.functions[2].body); // unguarded remains unchanged
+    for name in ["conjunction", "disjunction"] {
+        for a in [false, true] {
+            for b in [false, true] {
+                for c in [false, true] {
+                    let args = vec![Value::Bool(a), Value::Bool(b), Value::Bool(c)];
+                    assert_eq!(
+                        eval::call(&original, name, args.clone(), &mut 1000).unwrap(),
+                        eval::call(&changed, name, args, &mut 1000).unwrap()
+                    );
+                }
+            }
+        }
+    }
+    for x in [0, 1, 1 << 63, u64::MAX] {
+        for limit in [0, 1, 1 << 63, u64::MAX] {
+            for b in [false, true] {
+                for c in [false, true] {
+                    let args = vec![
+                        Value::U64(x),
+                        Value::U64(limit),
+                        Value::Bool(b),
+                        Value::Bool(c),
+                    ];
+                    assert_eq!(
+                        eval::call(&original, "numeric", args.clone(), &mut 1000).unwrap(),
+                        eval::call(&changed, "numeric", args, &mut 1000).unwrap()
+                    );
+                }
+            }
+        }
+    }
+    // Opposite guard and arbitrary profiles are insufficient to apply a=true.
+    let mut opposite = syntax::parse(
+        "module t; fn f(a: Bool,b: Bool,c: Bool)->Bool{return a || ((a && b) || c);}",
+    )
+    .unwrap();
+    assert!(knowledge::apply(&mut opposite, &db.rules)
+        .unwrap()
+        .is_empty());
+    // A rewritten left operand must not supply an unproved assumption about the old one.
+    let mut nested = syntax::parse(
+        "module t; fn f(a: Bool,b: Bool,c: Bool)->Bool{return a && ((a && b) && ((a && b) || c));}",
+    )
+    .unwrap();
+    let before = nested.clone();
+    knowledge::apply(&mut nested, &db.rules).unwrap();
+    for a in [false, true] {
+        for b in [false, true] {
+            for c in [false, true] {
+                let args = vec![Value::Bool(a), Value::Bool(b), Value::Bool(c)];
+                assert_eq!(
+                    eval::call(&before, "f", args.clone(), &mut 1000).unwrap(),
+                    eval::call(&nested, "f", args, &mut 1000).unwrap()
+                );
+            }
+        }
+    }
+}
