@@ -39,6 +39,8 @@ The build emits a native object, its readable C intermediate, LLVM IR, and a pla
 
 ## Meaning of verified in this milestone
 
+[Source row models](docs/source-row-models.md) now bind actual nested record types, key words and contribution expressions to checked mathematical definitions. Four external rollback libraries instantiate two schemas under the same compiler; the previous kernel also checks them. The full suite passes 83 tests. These bindings still require native-map and complete transaction correspondence before they can authorise representation changes.
+
 The legacy arithmetic path normalises polynomials over the ring of integers modulo 2^64. A newer database path reconstructs fixed Boolean/u64 circuits and checks external hinted RUP refutations; it has no solver or arithmetic-law catalogue in the compiler. Both Rust checkers remain trusted implementations and have not themselves been mechanically proved correct. The legacy path is still available and needs migration before the full small-core architecture can be claimed.
 
 Collection lowering, emitted C and Clang/LLVM are currently trusted. Native behaviour is checked against an independently implemented mathematical reference and the interpreter; those tests are not an end-to-end formal proof. General equality and induction checking now exist for restricted fragments; richer contracts and general state-transition refinement remain work to do.
