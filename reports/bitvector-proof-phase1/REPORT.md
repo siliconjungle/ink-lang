@@ -6,7 +6,7 @@ The measured baseline/checked speed ratio is 0.9967×. Checked elapsed times are
 
 ## Method
 
-- Apple M4 Pro, macOS ARM64, 48 GiB; Apple Clang 17 and Rust 1.99 / LLVM 23.1.1. Native CPU flags are recorded. Rust and Clang use different LLVM versions.
+- Apple M4 Pro, macOS ARM64, 48 GiB; Apple Clang 17 and Rust 1.99 / LLVM 23.1.1. Native CPU flags are recorded. Clang's emitted target is `apple-m3`, while Rust's newer LLVM selects `apple-m4`; the archived LLVM IR and metadata record this difference. These are the installed toolchains' native settings, not identical backend versions or processor tuning.
 - Eight scalar kernels: addition by zero, subtraction from self, addition commutation, cancellation, multiplication by zero, unsigned reflexivity/maximum and equal conditional branches. Fixed u64 arithmetic wraps modulo 2^64.
 - Five variants: Ink baseline, Ink database-selected, C, C++ and Rust. C++ compiles the same typed arithmetic through an extern-C interface; Rust explicitly uses wrapping arithmetic.
 - All use one separately compiled C driver and one separately compiled adapter object. Adapters normalise unary/binary/Bool signatures; no LTO crosses those boundaries. Every result contributes to a checked checksum.

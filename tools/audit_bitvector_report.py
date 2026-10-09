@@ -4,7 +4,7 @@
 Replay requires the measured compiler binary and the macOS toolchain. It does
 not repeat timings or trust the original report's pass labels as validation.
 """
-import argparse, hashlib, importlib.util, json, os, platform, shutil, subprocess, sys, tempfile
+import argparse, hashlib, importlib.util, json, os, platform, re, shutil, subprocess, sys, tempfile
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
@@ -21,6 +21,9 @@ def run(args,**kw):
 def main():
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--execute',action='store_true');args=parser.parse_args()
     metadata=read(REPORT/'metadata.json')
+    for filename,targets in metadata.get('emitted_target_cpus',{}).items():
+        actual=sorted(set(re.findall(r'"target-cpu"="([^"]+)"',(REPORT/'artifacts'/filename).read_text())))
+        require(actual==targets,f'CPU target differs from archived LLVM: {filename}')
     for relative,digest in {**metadata['source_hashes'],**metadata.get('supplementary_source_hashes',{})}.items():
         require(sha(REPORT/relative)==digest,f'source hash mismatch: {relative}')
     sys.path.insert(0,str(REPORT/'sources/bench'))
