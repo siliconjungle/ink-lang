@@ -93,7 +93,7 @@ pub struct Database {
     pub rules: Vec<CheckedRule>,
     pub closure: Vec<String>,
 }
-fn identity(id: &str) -> LangResult<()> {
+pub(crate) fn identity(id: &str) -> LangResult<()> {
     if id.len() != 64
         || !id
             .bytes()
@@ -200,7 +200,7 @@ impl Loader<'_> {
         Ok(())
     }
 }
-fn read_bounded(path: &Path, limit: usize) -> LangResult<Vec<u8>> {
+pub(crate) fn read_bounded(path: &Path, limit: usize) -> LangResult<Vec<u8>> {
     let mut bytes = Vec::new();
     File::open(path)
         .map_err(|e| format!("{}: {e}", path.display()))?

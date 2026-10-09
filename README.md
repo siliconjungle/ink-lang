@@ -103,3 +103,14 @@ python3 tools/check_database.py
 ```
 
 The last command checks unchanged-compiler extension, generated-code differences and native results with zero, one and two database rules. It is not a speed benchmark. This first proof calculus covers total scalar expressions, Boolean cases, acyclic definitions, reusable theorems and conditional equality proofs. It cannot yet replace the legacy polynomial/aggregate checkers. `python3 tools/composed_proofs.py knowledge/composed` produces a seven-object library with one selected rewrite; `python3 tools/check_composition.py` validates its native output and dependency closure. `python3 tools/conditional_proofs.py knowledge/conditional` produces laws with explicit premises; `python3 tools/check_conditional.py` checks their scoped use and native results. See [architecture and limits](docs/small-core-and-knowledge.md).
+
+
+The first-order inductive proof library adds database-defined constructors, recursive computations and induction:
+
+```sh
+python3 tools/inductive_proofs.py knowledge/inductive
+target/debug/lang verify-library knowledge/inductive/lock.json
+python3 tools/check_induction.py
+```
+
+Its twelve objects prove list-traversal composition and tree-copy identity, with reused theorem instances. This is a checked mathematical foundation; connecting those definitions to source collection rewrites and replacing the remaining built-in optimisation authority is still in progress. [Scope and rules](docs/small-core-and-knowledge.md), [extension and rejection evidence](reports/database-induction/result.json).

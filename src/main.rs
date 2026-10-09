@@ -51,6 +51,15 @@ fn write(path: &str, text: &str) -> LangResult<()> {
 fn run() -> LangResult<()> {
     let args: Vec<String> = env::args().skip(1).collect();
     let cmd = args.first().map(String::as_str).unwrap_or("help");
+    if cmd == "verify-library" {
+        let path = args.get(1).ok_or("verify-library requires LOCK.json")?;
+        let library = verified_language::library::load(std::path::Path::new(path))?;
+        println!(
+            "{}",
+            serde_json::json!({"status":"verified","semantics":library.lock.semantics,"roots":library.lock.objects,"closure":library.closure,"scope":"first-order inductive mathematical definitions and theorems; source rewrite correspondence not yet implemented"})
+        );
+        return Ok(());
+    }
     if cmd == "verify-database" {
         let path = args.get(1).ok_or("verify-database requires LOCK.json")?;
         let database = knowledge::load(Path::new(path))?;
@@ -91,7 +100,7 @@ fn run() -> LangResult<()> {
         return Ok(());
     }
     if cmd == "help" || cmd == "--help" {
-        println!("lang verify-database LOCK.json\nlang check SOURCE\nlang prove RULES -o PACKAGE.json\nlang knowledge verify PACKAGE.json\nlang prove-maintenance SOURCE -o PACKAGE.json\nlang verify-maintenance PACKAGE.json\nlang execute SOURCE SCRIPT.json [--maintenance PACKAGE.json] [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable]\nlang run SOURCE FUNCTION ARGS.json\nlang build SOURCE -o OUTPUT.o [--knowledge PACKAGE.json] [--database LOCK.json] [--cc clang] [--native-cpu]\nlang build SOURCE --target wasm32 --zig PATH -o OUTPUT.wasm\nlang emit-c SOURCE -o OUTPUT.c [--knowledge PACKAGE.json] [--database LOCK.json]\nlang emit-state SOURCE -o DIRECTORY [--maintenance PACKAGE.json] [--bounded-totals] [--wasm-abi]");
+        println!("lang verify-library LOCK.json\nlang verify-database LOCK.json\nlang check SOURCE\nlang prove RULES -o PACKAGE.json\nlang knowledge verify PACKAGE.json\nlang prove-maintenance SOURCE -o PACKAGE.json\nlang verify-maintenance PACKAGE.json\nlang execute SOURCE SCRIPT.json [--maintenance PACKAGE.json] [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable]\nlang run SOURCE FUNCTION ARGS.json\nlang build SOURCE -o OUTPUT.o [--knowledge PACKAGE.json] [--database LOCK.json] [--cc clang] [--native-cpu]\nlang build SOURCE --target wasm32 --zig PATH -o OUTPUT.wasm\nlang emit-c SOURCE -o OUTPUT.c [--knowledge PACKAGE.json] [--database LOCK.json]\nlang emit-state SOURCE -o DIRECTORY [--maintenance PACKAGE.json] [--bounded-totals] [--wasm-abi]");
         return Ok(());
     }
     if cmd == "knowledge" {

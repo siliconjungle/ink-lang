@@ -3,6 +3,8 @@ pub mod check;
 pub mod equality;
 pub mod eval;
 pub mod knowledge;
+pub mod library;
+pub mod logic;
 pub mod native;
 pub mod proof;
 pub mod snapshot;
