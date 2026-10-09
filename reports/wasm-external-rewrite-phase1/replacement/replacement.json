@@ -1,0 +1,602 @@
+{
+  "schema": 1,
+  "semantics": "ink-checked-replacement-v1",
+  "core_semantics": "ink-executable-core-v1",
+  "input_core_sha256": "caa31702f91acfb74de7256164092c29b397ad749e2d39926eed0d4492c76b6f",
+  "observations": "pure-total-values-v1",
+  "library_lock_sha256": "ab0a958714f92cbb72be6f55af7fd69899513dd20afb90dda2ac857495e164e7",
+  "package": {
+    "schema": 1,
+    "semantics": "source-collections-v1",
+    "library": "lock.json",
+    "proposals": [
+      {
+        "function": "affine",
+        "from": {
+          "Call": [
+            "sum",
+            [
+              {
+                "Method": [
+                  {
+                    "Var": "xs"
+                  },
+                  "map",
+                  [
+                    {
+                      "Lambda": [
+                        "x",
+                        {
+                          "Binary": [
+                            "+",
+                            {
+                              "Binary": [
+                                "*",
+                                {
+                                  "Var": "x"
+                                },
+                                {
+                                  "Var": "scale"
+                                }
+                              ]
+                            },
+                            {
+                              "Var": "offset"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                ]
+              }
+            ]
+          ]
+        },
+        "to": {
+          "Call": [
+            "foldr",
+            [
+              {
+                "Var": "xs"
+              },
+              {
+                "Num": 0
+              },
+              {
+                "Lambda": [
+                  "x",
+                  {
+                    "Lambda": [
+                      "rewrite_rest",
+                      {
+                        "Binary": [
+                          "+",
+                          {
+                            "Binary": [
+                              "+",
+                              {
+                                "Binary": [
+                                  "*",
+                                  {
+                                    "Var": "x"
+                                  },
+                                  {
+                                    "Var": "scale"
+                                  }
+                                ]
+                              },
+                              {
+                                "Var": "offset"
+                              }
+                            ]
+                          },
+                          {
+                            "Var": "rewrite_rest"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          ]
+        },
+        "datatype": "09b3f13ec092c5d377c8be240c1ad7954a2e0ff748acc284ee04866a2b2087f6",
+        "from_definitions": [
+          "ae075b3cc3586f998c4519be5e0f1794c1ca671029151db59bf65040ca672f41",
+          "3ef2b95be2b24ccf498e98ffa77007b6277abaeba0831b6c0234ed101e6e6a10"
+        ],
+        "to_definitions": [
+          "a52c43f139f99e7dac0e734b6ebb907190462aeb7451cc43c6bba7123fa6cb95"
+        ],
+        "proof": {
+          "Induction": {
+            "variable": "p0",
+            "from": {
+              "Call": {
+                "function": "3ef2b95be2b24ccf498e98ffa77007b6277abaeba0831b6c0234ed101e6e6a10",
+                "arguments": [
+                  {
+                    "Call": {
+                      "function": "ae075b3cc3586f998c4519be5e0f1794c1ca671029151db59bf65040ca672f41",
+                      "arguments": [
+                        {
+                          "Var": "p0"
+                        },
+                        {
+                          "Var": "p2"
+                        },
+                        {
+                          "Var": "p1"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "to": {
+              "Call": {
+                "function": "a52c43f139f99e7dac0e734b6ebb907190462aeb7451cc43c6bba7123fa6cb95",
+                "arguments": [
+                  {
+                    "Var": "p0"
+                  },
+                  {
+                    "Var": "p2"
+                  },
+                  {
+                    "Var": "p1"
+                  }
+                ]
+              }
+            },
+            "cases": [
+              {
+                "bindings": [],
+                "proof": {
+                  "Refl": {
+                    "U64": 0
+                  }
+                }
+              },
+              {
+                "bindings": [
+                  "head",
+                  "tail"
+                ],
+                "proof": {
+                  "Binary": {
+                    "op": "+",
+                    "left": {
+                      "Binary": {
+                        "op": "+",
+                        "left": {
+                          "Binary": {
+                            "op": "*",
+                            "left": {
+                              "Refl": {
+                                "Var": "head"
+                              }
+                            },
+                            "right": {
+                              "Refl": {
+                                "Var": "p1"
+                              }
+                            }
+                          }
+                        },
+                        "right": {
+                          "Refl": {
+                            "Var": "p2"
+                          }
+                        }
+                      }
+                    },
+                    "right": {
+                      "Hypothesis": 0
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "function": "squares",
+        "from": {
+          "Call": [
+            "sum",
+            [
+              {
+                "Method": [
+                  {
+                    "Var": "xs"
+                  },
+                  "map",
+                  [
+                    {
+                      "Lambda": [
+                        "x",
+                        {
+                          "Binary": [
+                            "*",
+                            {
+                              "Var": "x"
+                            },
+                            {
+                              "Var": "x"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                ]
+              }
+            ]
+          ]
+        },
+        "to": {
+          "Call": [
+            "foldr",
+            [
+              {
+                "Var": "xs"
+              },
+              {
+                "Num": 0
+              },
+              {
+                "Lambda": [
+                  "x",
+                  {
+                    "Lambda": [
+                      "rewrite_rest",
+                      {
+                        "Binary": [
+                          "+",
+                          {
+                            "Binary": [
+                              "*",
+                              {
+                                "Var": "x"
+                              },
+                              {
+                                "Var": "x"
+                              }
+                            ]
+                          },
+                          {
+                            "Var": "rewrite_rest"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          ]
+        },
+        "datatype": "09b3f13ec092c5d377c8be240c1ad7954a2e0ff748acc284ee04866a2b2087f6",
+        "from_definitions": [
+          "1dfe8a45927ed65e5621d252d908b9cdf090da2866dd6de829fb9bd49db59749",
+          "b1f20fb2042a0070892013fa893ae406658064411199198cf4c316c53109445d"
+        ],
+        "to_definitions": [
+          "7ddbcf4b718e3bd653f8758b7025ef3b71a07a63d14a2920df0a807a95cb34fe"
+        ],
+        "proof": {
+          "Induction": {
+            "variable": "p0",
+            "from": {
+              "Call": {
+                "function": "b1f20fb2042a0070892013fa893ae406658064411199198cf4c316c53109445d",
+                "arguments": [
+                  {
+                    "Call": {
+                      "function": "1dfe8a45927ed65e5621d252d908b9cdf090da2866dd6de829fb9bd49db59749",
+                      "arguments": [
+                        {
+                          "Var": "p0"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "to": {
+              "Call": {
+                "function": "7ddbcf4b718e3bd653f8758b7025ef3b71a07a63d14a2920df0a807a95cb34fe",
+                "arguments": [
+                  {
+                    "Var": "p0"
+                  }
+                ]
+              }
+            },
+            "cases": [
+              {
+                "bindings": [],
+                "proof": {
+                  "Refl": {
+                    "U64": 0
+                  }
+                }
+              },
+              {
+                "bindings": [
+                  "head",
+                  "tail"
+                ],
+                "proof": {
+                  "Binary": {
+                    "op": "+",
+                    "left": {
+                      "Binary": {
+                        "op": "*",
+                        "left": {
+                          "Refl": {
+                            "Var": "head"
+                          }
+                        },
+                        "right": {
+                          "Refl": {
+                            "Var": "head"
+                          }
+                        }
+                      }
+                    },
+                    "right": {
+                      "Hypothesis": 0
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "function": "expanded",
+        "from": {
+          "Call": [
+            "sum",
+            [
+              {
+                "Method": [
+                  {
+                    "Var": "xs"
+                  },
+                  "map",
+                  [
+                    {
+                      "Lambda": [
+                        "x",
+                        {
+                          "Binary": [
+                            "+",
+                            {
+                              "Binary": [
+                                "+",
+                                {
+                                  "Binary": [
+                                    "*",
+                                    {
+                                      "Var": "x"
+                                    },
+                                    {
+                                      "Var": "x"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "Binary": [
+                                    "*",
+                                    {
+                                      "Num": 6
+                                    },
+                                    {
+                                      "Var": "x"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "Num": 9
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                ]
+              }
+            ]
+          ]
+        },
+        "to": {
+          "Call": [
+            "foldr",
+            [
+              {
+                "Var": "xs"
+              },
+              {
+                "Num": 0
+              },
+              {
+                "Lambda": [
+                  "x",
+                  {
+                    "Lambda": [
+                      "rewrite_rest",
+                      {
+                        "Binary": [
+                          "+",
+                          {
+                            "Binary": [
+                              "+",
+                              {
+                                "Binary": [
+                                  "+",
+                                  {
+                                    "Binary": [
+                                      "*",
+                                      {
+                                        "Var": "x"
+                                      },
+                                      {
+                                        "Var": "x"
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "Binary": [
+                                      "*",
+                                      {
+                                        "Num": 6
+                                      },
+                                      {
+                                        "Var": "x"
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "Num": 9
+                              }
+                            ]
+                          },
+                          {
+                            "Var": "rewrite_rest"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          ]
+        },
+        "datatype": "09b3f13ec092c5d377c8be240c1ad7954a2e0ff748acc284ee04866a2b2087f6",
+        "from_definitions": [
+          "1d1adeba11605ef639d6cc0a116a930cfb6c975e86baa80d45f27458e71f6d0c",
+          "98004a7a21be42711a57ee051730666f2602de12cb26daa8357bb9239b4defaa"
+        ],
+        "to_definitions": [
+          "0b18d11b218e905e219face1e65bb3cc98da5168337b655f385888d1757d7236"
+        ],
+        "proof": {
+          "Induction": {
+            "variable": "p0",
+            "from": {
+              "Call": {
+                "function": "98004a7a21be42711a57ee051730666f2602de12cb26daa8357bb9239b4defaa",
+                "arguments": [
+                  {
+                    "Call": {
+                      "function": "1d1adeba11605ef639d6cc0a116a930cfb6c975e86baa80d45f27458e71f6d0c",
+                      "arguments": [
+                        {
+                          "Var": "p0"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "to": {
+              "Call": {
+                "function": "0b18d11b218e905e219face1e65bb3cc98da5168337b655f385888d1757d7236",
+                "arguments": [
+                  {
+                    "Var": "p0"
+                  }
+                ]
+              }
+            },
+            "cases": [
+              {
+                "bindings": [],
+                "proof": {
+                  "Refl": {
+                    "U64": 0
+                  }
+                }
+              },
+              {
+                "bindings": [
+                  "head",
+                  "tail"
+                ],
+                "proof": {
+                  "Binary": {
+                    "op": "+",
+                    "left": {
+                      "Binary": {
+                        "op": "+",
+                        "left": {
+                          "Binary": {
+                            "op": "+",
+                            "left": {
+                              "Binary": {
+                                "op": "*",
+                                "left": {
+                                  "Refl": {
+                                    "Var": "head"
+                                  }
+                                },
+                                "right": {
+                                  "Refl": {
+                                    "Var": "head"
+                                  }
+                                }
+                              }
+                            },
+                            "right": {
+                              "Binary": {
+                                "op": "*",
+                                "left": {
+                                  "Refl": {
+                                    "U64": 6
+                                  }
+                                },
+                                "right": {
+                                  "Refl": {
+                                    "Var": "head"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "right": {
+                          "Refl": {
+                            "U64": 9
+                          }
+                        }
+                      }
+                    },
+                    "right": {
+                      "Hypothesis": 0
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

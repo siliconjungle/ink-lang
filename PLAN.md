@@ -207,3 +207,19 @@ The [search packages](docs/search-layout-models.md) add 41 external objects each
 All 96 tests pass without warnings. New comparisons cover 128 prefixes, 1,024 searches, 2,048 Rust binary-search position results, 4,096 native lookups and 512 native mutations/returned values/enumerations. Eighteen fully rehashed false models fail. Five benchmark bodies/plans reproduce exactly and 44 measured lifecycle binaries are unchanged. There is no new speed claim.
 
 Next connect actual native binary search, usize/index operations and buffer mutation to the proved cut contract, then combine complete source updates, caches/journals, effects and checkpoint installation. Use lifecycle cost evidence for bounded database candidate selection after those correspondences. Keep the full language, performance, small-core/database architecture, ownership/arenas, compact links, inline data, adaptation and durability objective active.
+
+### External arithmetic-search migration
+
+The production modular-polynomial checker and rewrite matcher have been
+removed. Explicit external DB law selection now produces complete proofs for
+scalar expressions and arithmetic within a single mapped sum. Optional
+map/sum-to-fold candidates use existing induction rules; no compiler law or
+fusion recogniser was added. Search is shared-budget bounded and an exhausted
+search supplies a valid unchanged program. The old factoring law does not yet
+have a replacement proof and is deliberately left unapplied.
+
+Active native/Wasm harnesses use externally checked replacement packages;
+historical compilers, packages and measured reports retain their old identities.
+Remaining separation work includes the older scalar-database search and
+exact-integer aggregate schema, bounded-cache analysis and representation
+admission. This does not close milestones 2–5 or establish new timing claims.

@@ -13,8 +13,9 @@ kernel rules. A new core mechanism needs a general semantic/checking justificati
 an explicit trust-boundary update and meaningful validation.
 
 Keep efficient primitive execution and straightforward lowering in the core.
-Existing polynomial, aggregate, bounded-cache and layout mechanisms are migration
-debt; moving files is not evidence that their authority has been externalised.
+The modular-polynomial compiler path has been retired. The existing aggregate
+schema, bounded-cache and layout mechanisms remain migration debt; moving files
+is not evidence that their authority has been externalised.
 See `docs/small-core-and-knowledge.md` and the production milestones in `PLAN.md`.
 
 The core must build without the knowledge checkout. Full integration tests use

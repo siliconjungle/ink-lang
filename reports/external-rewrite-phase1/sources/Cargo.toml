@@ -1,0 +1,30 @@
+[package]
+name = "ink"
+version = "0.1.0"
+edition = "2021"
+default-run = "ink"
+publish = false
+description = "Ink: a small language with locally checked implementation proofs"
+repository = "https://github.com/siliconjungle/ink-lang"
+
+[lib]
+name = "verified_language"
+
+[[bin]]
+name = "ink"
+path = "src/bin/ink.rs"
+
+[[bin]]
+name = "lang"
+path = "src/main.rs"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+num-bigint = { version = "0.4", features = ["serde"] }
+num-traits = "0.2"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1

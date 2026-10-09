@@ -80,8 +80,8 @@ produces identical C, and four compilation paths pass 4,160 independent native
 oracle comparisons in `reports/core-replacement-phase1/validation.json`.
 
 The split establishes independent ownership, not completion of the small-core
-migration. The legacy polynomial checker, aggregate schema, bounded-cache
-analysis and layout-specific lowering remain documented migration work in
+migration. The aggregate schema, bounded-cache analysis and layout-specific lowering
+remain documented migration work in
 [the architectural boundary](docs/small-core-and-knowledge.md).
 
 ## Meaning of verified in this milestone
@@ -92,7 +92,31 @@ analysis and layout-specific lowering remain documented migration work in
 
 [Sorted layout models](docs/sorted-layout-models.md) now prove that the row algorithm preserves strict order and uniqueness through every finite write history, and that aligned columns preserve the same validity condition. Both packages reproduce and check under the preserved earlier kernel. All 89 tests pass, including reversed/duplicate/mismatched-lane witnesses and twelve rehashed false invariant packages. Native search/index and complete source/protocol correspondence remain unfinished; performance measurements are unchanged.
 
-The legacy arithmetic path normalises polynomials over the ring of integers modulo 2^64. A newer database path reconstructs fixed Boolean/u64 circuits and checks external hinted RUP refutations; it has no solver or arithmetic-law catalogue in the compiler. Both Rust checkers remain trusted implementations and have not themselves been mechanically proved correct. The legacy path is still available and needs migration before the full small-core architecture can be claimed.
+The production compiler no longer contains the modular-polynomial normaliser
+or its rewrite matcher. The external `knowledge/tools/rewrite_search.py` tool
+selects database laws and produces whole-function proofs, including arithmetic
+inside a mapped sum. It can also propose a single fold with an induction proof.
+The compiler checks source correspondence and the existing general logic/RUP
+proof rules. It contains no SAT solver or arithmetic-law catalogue. Its Rust
+checkers remain trusted implementations rather than mechanically proved kernels.
+
+```sh
+python3 knowledge/tools/rewrite_search.py examples/kernels.lang \
+  --rules knowledge/bitvector/rewrite-index.json --compiler target/debug/ink \
+  --fuse-mapped-sum --output-dir build/searched
+target/debug/ink build examples/kernels.lang \
+  --replacement build/searched/replacement.json -o build/searched.o
+```
+
+The output directory must be fresh. Search has an explicit shared work budget;
+unsupported functions and exhausted searches retain the original code. The
+current laws do not recover the old square-factoring optimisation. A smaller
+expression is only a producer cost estimate, not a measured speed guarantee.
+`ink prove`, `ink knowledge verify` and `--knowledge` were retired; use this
+external producer, `verify-library` and `--replacement`. Historical reports
+retain their earlier compilers and commands. The legacy exact-integer aggregate
+schema is separate migration debt.
+
 
 Collection lowering, emitted C and Clang/LLVM are currently trusted. Native behaviour is checked against an independently implemented mathematical reference and the interpreter; those tests are not an end-to-end formal proof. General equality and induction checking now exist for restricted fragments; richer contracts and general state-transition refinement remain work to do.
 
@@ -104,11 +128,11 @@ An external policy selects contiguous row/column buffers and optional promotion 
 
 ## Benchmarks
 
-`bench/run.py` builds six variants: language without imported knowledge, language with imported knowledge, C loops, C++ standard algorithms, Rust iterators and Rust loops. They use identical modular-u64 semantics and the same separately compiled C timing driver. The current language baseline materialises collection stages, while these older handwritten baselines combine passes; use `bench/collection-proof.py` below to compare both staged and combined algorithms in every language. The archived phase-one report measured the earlier fused backend. Every result is consumed, and interprocedural optimisation is disabled across the driver/kernel boundary.
+`bench/run.py` builds six variants: language without replacements, language with externally proved mapped-sum folds, C loops, C++ standard algorithms, Rust iterators and Rust loops. They use identical modular-u64 semantics and the same separately compiled C timing driver. The current language baseline materialises collection stages, while these older handwritten baselines combine passes; use `bench/collection-proof.py` below to compare both staged and combined algorithms in every language. The archived phase-one report measured the earlier fused backend. Every result is consumed, and interprocedural optimisation is disabled across the driver/kernel boundary.
 
 The benchmark validates outputs before measuring, randomises variant order, calibrates batch duration and records all samples and commands. Full mode covers seven workloads, four input sizes and two data distributions. `--quick` reduces input coverage for development.
 
-Results are under `bench/results`. They are an evaluation of a small pure-kernel milestone, not proof that the full proposed language exists or that it is universally faster than other languages.
+Current development runs are under `bench/results`; archived reports remain in `reports/`. They are an evaluation of a small pure-kernel milestone, not proof that the full proposed language exists or that it is universally faster than other languages.
 
 The [lifecycle benchmark](reports/lifecycle-phase1/REPORT.md) extends the state comparison to construction, timed growth/promotion, changing update distributions, clearing, final observation and destruction. Its separate allocation probes distinguish live rows from retained capacity and event logs. After building the compiler, check reproduction inputs with `python3 bench/state/lifecycle.py --validate-inputs-only`, then run into a fresh report directory with `python3 bench/state/lifecycle.py --output reports/NEW`. The harness requires identical generated implementations and records the actual toolchain targets. Replays use the preserved binaries via `python3 tools/audit_lifecycle_report.py --execute`; they do not replace timing samples.
 

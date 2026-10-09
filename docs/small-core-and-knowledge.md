@@ -203,7 +203,7 @@ Limits are fixed: 100,000 circuit variables, 300,000 circuit clauses, 20,000 cer
 
 `ink bitvector-obligation GOAL.json [--library LOCK.json] -o CNF.json` exports an exact, typed problem for untrusted search. `knowledge/tools/bitvector_proofs.py` uses external PySAT/Glucose3, enforces search time/conflict budgets, and translates its RUP trace into explicit checker hints. A solver result alone is never imported as authority. The installed objects need no solver at import time. `knowledge/bitvector` contains nine arithmetic/Boolean theorems and eight unconditional exact-source replacements. Its conditional `x - y = 0` theorem requires `x = y` and is library-only. Checked theorem reuse composes with list induction; there is no arithmetic-specific map optimisation in the core.
 
-`reports/bitvector-proof-phase1` preserves native validation, independent fixed-input Python/SAT encoding checks, raw timing samples, checking costs, nine independently pinned database revisions and compiler-plan/disassembly replay. All eight checked/native baseline function bodies are instruction-identical after LLVM. This establishes proof extensibility, not a runtime advantage for elementary identities. The legacy `proof.rs` polynomial path and built-in aggregate/representation authority remain present and require migration. General arithmetic proofs inside useful algorithms, state-transition refinement, representation selection and the fuller proof language remain work.
+`reports/bitvector-proof-phase1` preserves native validation, independent fixed-input Python/SAT encoding checks, raw timing samples, checking costs, nine independently pinned database revisions and compiler-plan/disassembly replay. All eight checked/native baseline function bodies are instruction-identical after LLVM. This establishes proof extensibility, not a runtime advantage for elementary identities. At that milestone the legacy `proof.rs` polynomial path and aggregate/representation authority remained. The modular path has since been retired as described below; the aggregate/representation migration remains open. General arithmetic proofs inside useful algorithms, state-transition refinement, representation selection and the fuller proof language remain work.
 
 ## Exact-integer and finite-sum proof foundation
 
@@ -250,3 +250,26 @@ Version-3 maintenance now supplies `save`, `apply` and `restore` expressions for
 The generic kernel now supports generalised structural induction for changing nonrecursive state parameters. Hypotheses are typed, branch-local schemas whose recursive argument is fixed to an immediate constructor field; fixed premises cannot be quantified over new values. This extends the proof language, without introducing any algebraic, table or optimisation axiom. The kernel remains a trusted implementation.
 
 Version-4 maintenance evidence supplies checked keyed contribution-table step/history proofs. The source bridge pins 18 semantic roles, including actual lookup/write behavior and the candidate update function reconstructed from its Ink expressions. A 63-object package selects either a reversible or snapshot journal under one compiler. The bridge remains a restricted source correspondence schema; native map/projection abstraction, transaction effects/undo and general database-defined layouts are not yet end-to-end checked. Unsupported key domains retain scanning. See [scope and evidence](keyed-table-proofs.md).
+
+## External arithmetic search and modular-path retirement
+
+The production crate no longer contains `src/proof.rs`, polynomial certificate
+normalisation, or that untyped rewrite matcher. Retired CLI commands fail
+explicitly before producing code. Historical certificate objects remain
+research/reproduction inputs rather than current admission authority.
+
+`ink-knowledge/tools/rewrite_search.py` reads an explicit index of already
+proved laws, searches with a bounded shared work budget, and builds complete
+replacement proofs through the existing congruence, theorem-instantiation,
+induction and RUP rules. Its first subset handles scalars and a single mapped
+sum; optional mapped-sum fusion supplies a checked right-fold candidate. The
+compiler adds no algebraic law or fusion recogniser. A node-count estimate
+selects proposals outside the trusted core; it does not prove profitability.
+
+Zero/exhausted search retains the original program. Unsupported collection
+structures and square factoring also retain the original implementation.
+Thus this is a deliberate reduction in the old polynomial path's supported
+identities, not proof that all historical optimisations have migrated.
+General stateful maintenance, bounded representations, physical layout
+admission and the older scalar database search still need further separation.
+The trusted bridge/kernel and backend boundaries are unchanged.

@@ -2,7 +2,21 @@
 
 The full goal remains open. This file describes executable behaviour and its limits.
 
-The latest implementation boundary is `ink-executable-core-v1`: one shared,
+The latest separation milestone retires the production modular-polynomial
+normaliser and rewrite matcher. An external knowledge tool reuses checked laws
+and produces whole-function proofs for scalars and arithmetic within mapped sums;
+optional fold fusion is proved by the existing induction kernel. Unsupported
+structures, exhausted search and unproved square factoring keep their original
+implementation. The full 101-test run passes, plus all four focused tests after
+adding fusion coverage. Native validation passes 8,568 kernel comparisons and
+2,040 additional scalar/mapped-sum comparisons; WebAssembly passes 2,856 oracle
+checks. New packages also check under the preserved previous compiler. Evidence
+is in `reports/external-rewrite-phase1/` and `reports/wasm-external-rewrite-phase1/`.
+There are no new timing claims. Exact-integer aggregate authority, older scalar
+database search, bounded caches and stateful representation admission remain
+migration work.
+
+The preceding implementation boundary is `ink-executable-core-v1`: one shared,
 bounded, checked program representation for source and serialized input.
 `ink-checked-replacement-v1` pins that entire input, its semantic version, the
 pure total-value observation domain, and exact proof-library lock bytes before
@@ -38,7 +52,9 @@ The previous milestone is [exact integer storage reuse](docs/integer-storage-reu
 - Expression-returning functions over `u64`, `Bool` and `List<u64>`.
 - Modular arithmetic, comparisons, Boolean short circuiting, lambdas, `map`, `filter`, `sum`, `count`, right-fold `foldr`, lazy scalar `choose` and scalar calls.
 - Literal materialised collection stages through emitted C and Clang/LLVM, retaining generated C, LLVM IR and a plan manifest. Checked database proposals can select single-fold implementations; the core no longer automatically fuses pipelines.
-- Bounded modular-polynomial proof checking, content-identified knowledge packages and locally validated rewrite application.
+- External bounded rewrite search over database laws, complete replacement
+  proofs checked locally through the general equality/induction/RUP kernel.
+  The legacy modular-polynomial certificate path is retired.
 - Algorithm-matched C/C++/Rust benchmarks: 2,352 samples and 8,568 native correctness comparisons in the archived phase-one report.
 
 ## External proof-term database (first fragment)

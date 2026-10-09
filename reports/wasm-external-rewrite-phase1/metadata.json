@@ -1,0 +1,59 @@
+{
+  "zig": "0.17.0",
+  "commands": [
+    [
+      "python3",
+      "dev.py",
+      "build",
+      "--bin",
+      "lang"
+    ],
+    [
+      "python3",
+      "knowledge/tools/rewrite_search.py",
+      "examples/kernels.lang",
+      "--rules",
+      "knowledge/bitvector/rewrite-index.json",
+      "--compiler",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/target/debug/lang",
+      "--output-dir",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/wasm/replacement",
+      "--fuse-mapped-sum"
+    ],
+    [
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/target/debug/lang",
+      "build",
+      "examples/kernels.lang",
+      "--target",
+      "wasm32",
+      "--zig",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/work/toolchain/zig-aarch64-macos-0.17.0/zig",
+      "-o",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/wasm/plain.wasm"
+    ],
+    [
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/target/debug/lang",
+      "build",
+      "examples/kernels.lang",
+      "--target",
+      "wasm32",
+      "--zig",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/work/toolchain/zig-aarch64-macos-0.17.0/zig",
+      "-o",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/wasm/knowledge.wasm",
+      "--replacement",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/wasm/replacement/replacement.json"
+    ],
+    [
+      "node",
+      "bench/wasm.mjs",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/wasm/plain.wasm",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/wasm/knowledge.wasm",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/reports/wasm-external-rewrite-phase1/validation.json"
+    ]
+  ],
+  "wasm_sha256": {
+    "plain": "9a87f5b06a2054f56459fc69ba5d29094ecbf4322e03622b2e417af83599863e",
+    "knowledge": "62a2889a89edf1e8835c82d956bc973790cb4eeb16fc666621ec0a622341429b"
+  }
+}
