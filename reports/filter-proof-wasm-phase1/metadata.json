@@ -1,0 +1,65 @@
+{
+  "commands": [
+    [
+      "python3",
+      "dev.py",
+      "build",
+      "--bin",
+      "ink"
+    ],
+    [
+      "python3",
+      "tools/filter_proofs.py",
+      "knowledge/filtered"
+    ],
+    [
+      "target/debug/ink",
+      "build",
+      "knowledge/filtered/kernels.lang",
+      "--target",
+      "wasm32",
+      "--zig",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/work/toolchain/zig-aarch64-macos-0.17.0/zig",
+      "-o",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/reports/filter-proof-wasm-phase1/staged.wasm"
+    ],
+    [
+      "target/debug/ink",
+      "build",
+      "knowledge/filtered/kernels.lang",
+      "--target",
+      "wasm32",
+      "--zig",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/work/toolchain/zig-aarch64-macos-0.17.0/zig",
+      "-o",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/reports/filter-proof-wasm-phase1/checked.wasm",
+      "--implementation",
+      "knowledge/filtered/proposal.json"
+    ],
+    [
+      "target/debug/ink",
+      "build",
+      "bench/filtered/semantics.ink",
+      "--target",
+      "wasm32",
+      "--zig",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/work/toolchain/zig-aarch64-macos-0.17.0/zig",
+      "-o",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/reports/filter-proof-wasm-phase1/semantics.wasm"
+    ],
+    [
+      "node",
+      "bench/filtered/wasm.mjs",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/reports/filter-proof-wasm-phase1/staged.wasm",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/reports/filter-proof-wasm-phase1/checked.wasm",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/reports/filter-proof-wasm-phase1/semantics.wasm",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/reports/filter-proof-wasm-phase1/validation.json"
+    ]
+  ],
+  "zig": "0.17.0",
+  "wasm_sha256": {
+    "staged": "98fc82e9dd445e63473b78f3414f452accb76f910dedfaf5e0a3f9bf8b48034e",
+    "checked": "89829e2c0d4af23f2a8b0eee29845ad1233e9e8a660e7cd769e6f88c203e5088",
+    "semantics": "0b75350d049736c95f4bca98fa8b8adafd7de44d1ffbfe67ba0f9c9ff14a31e5"
+  }
+}

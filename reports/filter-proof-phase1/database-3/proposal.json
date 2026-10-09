@@ -1,0 +1,528 @@
+{
+  "schema": 1,
+  "semantics": "source-collections-v1",
+  "library": "lock.json",
+  "proposals": [
+    {
+      "function": "mapped_filter_sum",
+      "from": {
+        "Call": [
+          "sum",
+          [
+            {
+              "Method": [
+                {
+                  "Method": [
+                    {
+                      "Var": "xs"
+                    },
+                    "map",
+                    [
+                      {
+                        "Lambda": [
+                          "x",
+                          {
+                            "Call": [
+                              "project",
+                              [
+                                {
+                                  "Var": "x"
+                                },
+                                {
+                                  "Var": "scale"
+                                },
+                                {
+                                  "Var": "bias"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  ]
+                },
+                "filter",
+                [
+                  {
+                    "Lambda": [
+                      "y",
+                      {
+                        "Call": [
+                          "under",
+                          [
+                            {
+                              "Var": "y"
+                            },
+                            {
+                              "Var": "limit"
+                            }
+                          ]
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              ]
+            }
+          ]
+        ]
+      },
+      "to": {
+        "Call": [
+          "foldr",
+          [
+            {
+              "Var": "xs"
+            },
+            {
+              "Num": 0
+            },
+            {
+              "Lambda": [
+                "x",
+                {
+                  "Lambda": [
+                    "rest",
+                    {
+                      "Call": [
+                        "choose",
+                        [
+                          {
+                            "Call": [
+                              "under",
+                              [
+                                {
+                                  "Call": [
+                                    "project",
+                                    [
+                                      {
+                                        "Var": "x"
+                                      },
+                                      {
+                                        "Var": "scale"
+                                      },
+                                      {
+                                        "Var": "bias"
+                                      }
+                                    ]
+                                  ]
+                                },
+                                {
+                                  "Var": "limit"
+                                }
+                              ]
+                            ]
+                          },
+                          {
+                            "Binary": [
+                              "+",
+                              {
+                                "Call": [
+                                  "project",
+                                  [
+                                    {
+                                      "Var": "x"
+                                    },
+                                    {
+                                      "Var": "scale"
+                                    },
+                                    {
+                                      "Var": "bias"
+                                    }
+                                  ]
+                                ]
+                              },
+                              {
+                                "Var": "rest"
+                              }
+                            ]
+                          },
+                          {
+                            "Var": "rest"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        ]
+      },
+      "datatype": "8f3ce4e1fb4435fa83d81d0d0b24a3375f52febb96505737a24cfaba0238842a",
+      "from_definitions": [
+        "bc8ad94f51cb5378c62d024f28d250139dc937864f55a7ec62ade63788a611ab",
+        "5eee8891e48d65f6b045e1f625290d277989fcd1f8885560996362c5d1c69b9b",
+        "ed9419d013b415c486b0026fa0db37e2562d9a9511c3463ea8d4052746ae9dfb",
+        "d1e1d9aaab96d9fc9b8b9a2da7b579e26097b1490cf19bac99fbc3f0b6b09849",
+        "9e791cf4689621e3dd4ea7f289aece0822d25f7085245d9e65bab82d4b04b97b"
+      ],
+      "to_definitions": [
+        "b718a033ed7abaaaf024eaab9b3a9e609c31d45238a97c8d75e5e102df8af2f3",
+        "4688f343d03501529920dc8c5466cc3d087149c7be74770f74b7c49c6744e18f",
+        "2b1479646ffbd037294fca08807dcdc7917d1059e718f12a701c72a91f8118a6",
+        "3c670959e72f7fa7180b7ae3fa72f4ebffed4f4d72e3ed3bed02c16420a1ce02"
+      ],
+      "proof": {
+        "Use": {
+          "theorem": "d2b6705b298cc6c04d85e7527a4fd71d24553b973493f67fe1adc7b38b800832",
+          "arguments": [
+            {
+              "Var": "p0"
+            },
+            {
+              "Var": "p1"
+            },
+            {
+              "Var": "p2"
+            },
+            {
+              "Var": "p3"
+            }
+          ],
+          "premises": []
+        }
+      }
+    },
+    {
+      "function": "filter_map_sum",
+      "from": {
+        "Call": [
+          "sum",
+          [
+            {
+              "Method": [
+                {
+                  "Method": [
+                    {
+                      "Var": "xs"
+                    },
+                    "filter",
+                    [
+                      {
+                        "Lambda": [
+                          "y",
+                          {
+                            "Call": [
+                              "under",
+                              [
+                                {
+                                  "Var": "y"
+                                },
+                                {
+                                  "Var": "limit"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  ]
+                },
+                "map",
+                [
+                  {
+                    "Lambda": [
+                      "x",
+                      {
+                        "Call": [
+                          "project",
+                          [
+                            {
+                              "Var": "x"
+                            },
+                            {
+                              "Var": "scale"
+                            },
+                            {
+                              "Var": "bias"
+                            }
+                          ]
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              ]
+            }
+          ]
+        ]
+      },
+      "to": {
+        "Call": [
+          "foldr",
+          [
+            {
+              "Var": "xs"
+            },
+            {
+              "Num": 0
+            },
+            {
+              "Lambda": [
+                "x",
+                {
+                  "Lambda": [
+                    "rest",
+                    {
+                      "Call": [
+                        "choose",
+                        [
+                          {
+                            "Call": [
+                              "under",
+                              [
+                                {
+                                  "Var": "x"
+                                },
+                                {
+                                  "Var": "limit"
+                                }
+                              ]
+                            ]
+                          },
+                          {
+                            "Binary": [
+                              "+",
+                              {
+                                "Call": [
+                                  "project",
+                                  [
+                                    {
+                                      "Var": "x"
+                                    },
+                                    {
+                                      "Var": "scale"
+                                    },
+                                    {
+                                      "Var": "bias"
+                                    }
+                                  ]
+                                ]
+                              },
+                              {
+                                "Var": "rest"
+                              }
+                            ]
+                          },
+                          {
+                            "Var": "rest"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        ]
+      },
+      "datatype": "8f3ce4e1fb4435fa83d81d0d0b24a3375f52febb96505737a24cfaba0238842a",
+      "from_definitions": [
+        "fcd18d38028b04e6f2a8c5aefd081d4a153f7d19fff40ff9977e64847ffdbb40",
+        "623490126f344ee0a47be53295778a0fabd4b0a5304f135e6d9f124672538f25",
+        "1c76ecb46f573566dec11206d1e42937dfbde149a3f4ab9a5e89f2a42863e9c6",
+        "37ace345a588d7f4af30481c916aae777c487e7bf2ba14c272e9edbafed4ff80",
+        "aadf062e912cc7e4bc9dbeb3abbfdd40ebc79b46e09b14e2eed542f8e77e8d16"
+      ],
+      "to_definitions": [
+        "3ffb6ef6c9273f9dd548d80d16b036c43fef5bf6d0c83446d780bc6b31a7bae8",
+        "5444d9d6bfd444fdfefc58c5257d70e21fcfc5f043ad444043ec4c0d1b3caac3",
+        "fc76d78e8ed820466948f740d7ab921d136b1ec57995d3a9e5162482b5ab2dbd"
+      ],
+      "proof": {
+        "Use": {
+          "theorem": "4ab6ddc4623abb0e997e0651fbfe0a452d3b3e863ebb401af054bd21857879a4",
+          "arguments": [
+            {
+              "Var": "p0"
+            },
+            {
+              "Var": "p1"
+            },
+            {
+              "Var": "p2"
+            },
+            {
+              "Var": "p3"
+            }
+          ],
+          "premises": []
+        }
+      }
+    },
+    {
+      "function": "mapped_filter_count",
+      "from": {
+        "Call": [
+          "count",
+          [
+            {
+              "Method": [
+                {
+                  "Method": [
+                    {
+                      "Var": "xs"
+                    },
+                    "map",
+                    [
+                      {
+                        "Lambda": [
+                          "x",
+                          {
+                            "Call": [
+                              "project",
+                              [
+                                {
+                                  "Var": "x"
+                                },
+                                {
+                                  "Var": "scale"
+                                },
+                                {
+                                  "Var": "bias"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  ]
+                },
+                "filter",
+                [
+                  {
+                    "Lambda": [
+                      "y",
+                      {
+                        "Call": [
+                          "under",
+                          [
+                            {
+                              "Var": "y"
+                            },
+                            {
+                              "Var": "limit"
+                            }
+                          ]
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              ]
+            }
+          ]
+        ]
+      },
+      "to": {
+        "Call": [
+          "foldr",
+          [
+            {
+              "Var": "xs"
+            },
+            {
+              "Num": 0
+            },
+            {
+              "Lambda": [
+                "x",
+                {
+                  "Lambda": [
+                    "rest",
+                    {
+                      "Call": [
+                        "choose",
+                        [
+                          {
+                            "Call": [
+                              "under",
+                              [
+                                {
+                                  "Call": [
+                                    "project",
+                                    [
+                                      {
+                                        "Var": "x"
+                                      },
+                                      {
+                                        "Var": "scale"
+                                      },
+                                      {
+                                        "Var": "bias"
+                                      }
+                                    ]
+                                  ]
+                                },
+                                {
+                                  "Var": "limit"
+                                }
+                              ]
+                            ]
+                          },
+                          {
+                            "Binary": [
+                              "+",
+                              {
+                                "Num": 1
+                              },
+                              {
+                                "Var": "rest"
+                              }
+                            ]
+                          },
+                          {
+                            "Var": "rest"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        ]
+      },
+      "datatype": "8f3ce4e1fb4435fa83d81d0d0b24a3375f52febb96505737a24cfaba0238842a",
+      "from_definitions": [
+        "012429be46a796524603a96b219cfd5ea4bc5f6f59dc2c69dd0413a94418c0a7",
+        "39bf1d8a652b9267426ed2de3442cc685401ed0de57dcbbd8465079773ca6d76",
+        "8c55de000f916019827a9c7f9eb39e256295e1bf6f5cc4f8dd132e4ea5758a3e",
+        "807bad9b7b72431f939c1429fbc0494f8c3ae4af1ccc4541d4433fc02d6fecc5",
+        "698d8bf11aa4a63e2fd8fbed7b41544939c75c5bed4f00b21fd589cefb511df3"
+      ],
+      "to_definitions": [
+        "0e3f2294ba30f4a45b6bd1713f91baa0e2c565ba18a6a3733abafb68d08de50b",
+        "26327e7627dfe1a28b904cda7549f73d1f60857382569126e0c441a51863c87e",
+        "62eb3bca309d9d371f5ba60a77c405cd2d6b3ebd0a415f4d38b3bf3d63f4ca64"
+      ],
+      "proof": {
+        "Use": {
+          "theorem": "b39f10ac8d49d7e107f6902c5990ae6ebd198f12671a3b61f5c7fdf57d342898",
+          "arguments": [
+            {
+              "Var": "p0"
+            },
+            {
+              "Var": "p1"
+            },
+            {
+              "Var": "p2"
+            },
+            {
+              "Var": "p3"
+            }
+          ],
+          "premises": []
+        }
+      }
+    }
+  ]
+}

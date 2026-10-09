@@ -1,0 +1,981 @@
+{
+  "applied_rule_ids": [],
+  "checked_implementation": {
+    "checked_proposals": [
+      {
+        "datatype": "8f3ce4e1fb4435fa83d81d0d0b24a3375f52febb96505737a24cfaba0238842a",
+        "from": {
+          "Call": [
+            "sum",
+            [
+              {
+                "Method": [
+                  {
+                    "Method": [
+                      {
+                        "Var": "xs"
+                      },
+                      "map",
+                      [
+                        {
+                          "Lambda": [
+                            "x",
+                            {
+                              "Call": [
+                                "project",
+                                [
+                                  {
+                                    "Var": "x"
+                                  },
+                                  {
+                                    "Var": "scale"
+                                  },
+                                  {
+                                    "Var": "bias"
+                                  }
+                                ]
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    ]
+                  },
+                  "filter",
+                  [
+                    {
+                      "Lambda": [
+                        "y",
+                        {
+                          "Call": [
+                            "under",
+                            [
+                              {
+                                "Var": "y"
+                              },
+                              {
+                                "Var": "limit"
+                              }
+                            ]
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                ]
+              }
+            ]
+          ]
+        },
+        "from_definitions": [
+          "bc8ad94f51cb5378c62d024f28d250139dc937864f55a7ec62ade63788a611ab",
+          "5eee8891e48d65f6b045e1f625290d277989fcd1f8885560996362c5d1c69b9b",
+          "ed9419d013b415c486b0026fa0db37e2562d9a9511c3463ea8d4052746ae9dfb",
+          "d1e1d9aaab96d9fc9b8b9a2da7b579e26097b1490cf19bac99fbc3f0b6b09849",
+          "9e791cf4689621e3dd4ea7f289aece0822d25f7085245d9e65bab82d4b04b97b"
+        ],
+        "function": "mapped_filter_sum",
+        "proof": {
+          "Use": {
+            "arguments": [
+              {
+                "Var": "p0"
+              },
+              {
+                "Var": "p1"
+              },
+              {
+                "Var": "p2"
+              },
+              {
+                "Var": "p3"
+              }
+            ],
+            "premises": [],
+            "theorem": "d2b6705b298cc6c04d85e7527a4fd71d24553b973493f67fe1adc7b38b800832"
+          }
+        },
+        "to": {
+          "Call": [
+            "foldr",
+            [
+              {
+                "Var": "xs"
+              },
+              {
+                "Num": 0
+              },
+              {
+                "Lambda": [
+                  "x",
+                  {
+                    "Lambda": [
+                      "rest",
+                      {
+                        "Call": [
+                          "choose",
+                          [
+                            {
+                              "Call": [
+                                "under",
+                                [
+                                  {
+                                    "Call": [
+                                      "project",
+                                      [
+                                        {
+                                          "Var": "x"
+                                        },
+                                        {
+                                          "Var": "scale"
+                                        },
+                                        {
+                                          "Var": "bias"
+                                        }
+                                      ]
+                                    ]
+                                  },
+                                  {
+                                    "Var": "limit"
+                                  }
+                                ]
+                              ]
+                            },
+                            {
+                              "Binary": [
+                                "+",
+                                {
+                                  "Call": [
+                                    "project",
+                                    [
+                                      {
+                                        "Var": "x"
+                                      },
+                                      {
+                                        "Var": "scale"
+                                      },
+                                      {
+                                        "Var": "bias"
+                                      }
+                                    ]
+                                  ]
+                                },
+                                {
+                                  "Var": "rest"
+                                }
+                              ]
+                            },
+                            {
+                              "Var": "rest"
+                            }
+                          ]
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          ]
+        },
+        "to_definitions": [
+          "b718a033ed7abaaaf024eaab9b3a9e609c31d45238a97c8d75e5e102df8af2f3",
+          "4688f343d03501529920dc8c5466cc3d087149c7be74770f74b7c49c6744e18f",
+          "2b1479646ffbd037294fca08807dcdc7917d1059e718f12a701c72a91f8118a6",
+          "3c670959e72f7fa7180b7ae3fa72f4ebffed4f4d72e3ed3bed02c16420a1ce02"
+        ]
+      },
+      {
+        "datatype": "8f3ce4e1fb4435fa83d81d0d0b24a3375f52febb96505737a24cfaba0238842a",
+        "from": {
+          "Call": [
+            "sum",
+            [
+              {
+                "Method": [
+                  {
+                    "Method": [
+                      {
+                        "Var": "xs"
+                      },
+                      "filter",
+                      [
+                        {
+                          "Lambda": [
+                            "y",
+                            {
+                              "Call": [
+                                "under",
+                                [
+                                  {
+                                    "Var": "y"
+                                  },
+                                  {
+                                    "Var": "limit"
+                                  }
+                                ]
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    ]
+                  },
+                  "map",
+                  [
+                    {
+                      "Lambda": [
+                        "x",
+                        {
+                          "Call": [
+                            "project",
+                            [
+                              {
+                                "Var": "x"
+                              },
+                              {
+                                "Var": "scale"
+                              },
+                              {
+                                "Var": "bias"
+                              }
+                            ]
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                ]
+              }
+            ]
+          ]
+        },
+        "from_definitions": [
+          "fcd18d38028b04e6f2a8c5aefd081d4a153f7d19fff40ff9977e64847ffdbb40",
+          "623490126f344ee0a47be53295778a0fabd4b0a5304f135e6d9f124672538f25",
+          "1c76ecb46f573566dec11206d1e42937dfbde149a3f4ab9a5e89f2a42863e9c6",
+          "37ace345a588d7f4af30481c916aae777c487e7bf2ba14c272e9edbafed4ff80",
+          "aadf062e912cc7e4bc9dbeb3abbfdd40ebc79b46e09b14e2eed542f8e77e8d16"
+        ],
+        "function": "filter_map_sum",
+        "proof": {
+          "Use": {
+            "arguments": [
+              {
+                "Var": "p0"
+              },
+              {
+                "Var": "p1"
+              },
+              {
+                "Var": "p2"
+              },
+              {
+                "Var": "p3"
+              }
+            ],
+            "premises": [],
+            "theorem": "4ab6ddc4623abb0e997e0651fbfe0a452d3b3e863ebb401af054bd21857879a4"
+          }
+        },
+        "to": {
+          "Call": [
+            "foldr",
+            [
+              {
+                "Var": "xs"
+              },
+              {
+                "Num": 0
+              },
+              {
+                "Lambda": [
+                  "x",
+                  {
+                    "Lambda": [
+                      "rest",
+                      {
+                        "Call": [
+                          "choose",
+                          [
+                            {
+                              "Call": [
+                                "under",
+                                [
+                                  {
+                                    "Var": "x"
+                                  },
+                                  {
+                                    "Var": "limit"
+                                  }
+                                ]
+                              ]
+                            },
+                            {
+                              "Binary": [
+                                "+",
+                                {
+                                  "Call": [
+                                    "project",
+                                    [
+                                      {
+                                        "Var": "x"
+                                      },
+                                      {
+                                        "Var": "scale"
+                                      },
+                                      {
+                                        "Var": "bias"
+                                      }
+                                    ]
+                                  ]
+                                },
+                                {
+                                  "Var": "rest"
+                                }
+                              ]
+                            },
+                            {
+                              "Var": "rest"
+                            }
+                          ]
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          ]
+        },
+        "to_definitions": [
+          "3ffb6ef6c9273f9dd548d80d16b036c43fef5bf6d0c83446d780bc6b31a7bae8",
+          "5444d9d6bfd444fdfefc58c5257d70e21fcfc5f043ad444043ec4c0d1b3caac3",
+          "fc76d78e8ed820466948f740d7ab921d136b1ec57995d3a9e5162482b5ab2dbd"
+        ]
+      },
+      {
+        "datatype": "8f3ce4e1fb4435fa83d81d0d0b24a3375f52febb96505737a24cfaba0238842a",
+        "from": {
+          "Call": [
+            "count",
+            [
+              {
+                "Method": [
+                  {
+                    "Method": [
+                      {
+                        "Var": "xs"
+                      },
+                      "map",
+                      [
+                        {
+                          "Lambda": [
+                            "x",
+                            {
+                              "Call": [
+                                "project",
+                                [
+                                  {
+                                    "Var": "x"
+                                  },
+                                  {
+                                    "Var": "scale"
+                                  },
+                                  {
+                                    "Var": "bias"
+                                  }
+                                ]
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    ]
+                  },
+                  "filter",
+                  [
+                    {
+                      "Lambda": [
+                        "y",
+                        {
+                          "Call": [
+                            "under",
+                            [
+                              {
+                                "Var": "y"
+                              },
+                              {
+                                "Var": "limit"
+                              }
+                            ]
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                ]
+              }
+            ]
+          ]
+        },
+        "from_definitions": [
+          "012429be46a796524603a96b219cfd5ea4bc5f6f59dc2c69dd0413a94418c0a7",
+          "39bf1d8a652b9267426ed2de3442cc685401ed0de57dcbbd8465079773ca6d76",
+          "8c55de000f916019827a9c7f9eb39e256295e1bf6f5cc4f8dd132e4ea5758a3e",
+          "807bad9b7b72431f939c1429fbc0494f8c3ae4af1ccc4541d4433fc02d6fecc5",
+          "698d8bf11aa4a63e2fd8fbed7b41544939c75c5bed4f00b21fd589cefb511df3"
+        ],
+        "function": "mapped_filter_count",
+        "proof": {
+          "Use": {
+            "arguments": [
+              {
+                "Var": "p0"
+              },
+              {
+                "Var": "p1"
+              },
+              {
+                "Var": "p2"
+              },
+              {
+                "Var": "p3"
+              }
+            ],
+            "premises": [],
+            "theorem": "b39f10ac8d49d7e107f6902c5990ae6ebd198f12671a3b61f5c7fdf57d342898"
+          }
+        },
+        "to": {
+          "Call": [
+            "foldr",
+            [
+              {
+                "Var": "xs"
+              },
+              {
+                "Num": 0
+              },
+              {
+                "Lambda": [
+                  "x",
+                  {
+                    "Lambda": [
+                      "rest",
+                      {
+                        "Call": [
+                          "choose",
+                          [
+                            {
+                              "Call": [
+                                "under",
+                                [
+                                  {
+                                    "Call": [
+                                      "project",
+                                      [
+                                        {
+                                          "Var": "x"
+                                        },
+                                        {
+                                          "Var": "scale"
+                                        },
+                                        {
+                                          "Var": "bias"
+                                        }
+                                      ]
+                                    ]
+                                  },
+                                  {
+                                    "Var": "limit"
+                                  }
+                                ]
+                              ]
+                            },
+                            {
+                              "Binary": [
+                                "+",
+                                {
+                                  "Num": 1
+                                },
+                                {
+                                  "Var": "rest"
+                                }
+                              ]
+                            },
+                            {
+                              "Var": "rest"
+                            }
+                          ]
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          ]
+        },
+        "to_definitions": [
+          "0e3f2294ba30f4a45b6bd1713f91baa0e2c565ba18a6a3733abafb68d08de50b",
+          "26327e7627dfe1a28b904cda7549f73d1f60857382569126e0c441a51863c87e",
+          "62eb3bca309d9d371f5ba60a77c405cd2d6b3ebd0a415f4d38b3bf3d63f4ca64"
+        ]
+      },
+      {
+        "datatype": "8f3ce4e1fb4435fa83d81d0d0b24a3375f52febb96505737a24cfaba0238842a",
+        "from": {
+          "Call": [
+            "sum",
+            [
+              {
+                "Method": [
+                  {
+                    "Method": [
+                      {
+                        "Var": "xs"
+                      },
+                      "map",
+                      [
+                        {
+                          "Lambda": [
+                            "ignored",
+                            {
+                              "Var": "bias"
+                            }
+                          ]
+                        }
+                      ]
+                    ]
+                  },
+                  "filter",
+                  [
+                    {
+                      "Lambda": [
+                        "y",
+                        {
+                          "Call": [
+                            "under",
+                            [
+                              {
+                                "Var": "y"
+                              },
+                              {
+                                "Var": "limit"
+                              }
+                            ]
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                ]
+              }
+            ]
+          ]
+        },
+        "from_definitions": [
+          "cbe251fd4192ba7e929d83856295d9e5ce3579fa37152601363f8f5cbf080735",
+          "ca04446dc92255100bf28878781689684df1ddc4fc463c1187a1e48664562fc3",
+          "077111a434113908a53a6ed2d677e87f42a6e35cfc287699e731a60698072cfe",
+          "d2cb6cbf12345781ab9984c0a6345976560615bc3f3eb4272fece39ce1fda81a"
+        ],
+        "function": "constant_filter_sum",
+        "proof": {
+          "Use": {
+            "arguments": [
+              {
+                "Var": "p0"
+              },
+              {
+                "Var": "p1"
+              },
+              {
+                "Var": "p2"
+              },
+              {
+                "Var": "p3"
+              }
+            ],
+            "premises": [],
+            "theorem": "ccc6f98f8e41a10871a73bea7bfac00776b41f824b8e3f72208b94c43ce5ca3e"
+          }
+        },
+        "to": {
+          "Call": [
+            "foldr",
+            [
+              {
+                "Var": "xs"
+              },
+              {
+                "Num": 0
+              },
+              {
+                "Lambda": [
+                  "x",
+                  {
+                    "Lambda": [
+                      "rest",
+                      {
+                        "Call": [
+                          "choose",
+                          [
+                            {
+                              "Call": [
+                                "under",
+                                [
+                                  {
+                                    "Var": "bias"
+                                  },
+                                  {
+                                    "Var": "limit"
+                                  }
+                                ]
+                              ]
+                            },
+                            {
+                              "Binary": [
+                                "+",
+                                {
+                                  "Var": "bias"
+                                },
+                                {
+                                  "Var": "rest"
+                                }
+                              ]
+                            },
+                            {
+                              "Var": "rest"
+                            }
+                          ]
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          ]
+        },
+        "to_definitions": [
+          "d729a3f1db566ee24d2777e03582f5e0d7a6313b8ff695c63ecfa41d5d6ea593",
+          "54cc24ff1c29715ec48103b5bdbbddbe335c57276863274ef833925204a17ecd"
+        ]
+      }
+    ],
+    "library_closure": [
+      "012429be46a796524603a96b219cfd5ea4bc5f6f59dc2c69dd0413a94418c0a7",
+      "077111a434113908a53a6ed2d677e87f42a6e35cfc287699e731a60698072cfe",
+      "0e3f2294ba30f4a45b6bd1713f91baa0e2c565ba18a6a3733abafb68d08de50b",
+      "1c76ecb46f573566dec11206d1e42937dfbde149a3f4ab9a5e89f2a42863e9c6",
+      "26327e7627dfe1a28b904cda7549f73d1f60857382569126e0c441a51863c87e",
+      "2b1479646ffbd037294fca08807dcdc7917d1059e718f12a701c72a91f8118a6",
+      "37ace345a588d7f4af30481c916aae777c487e7bf2ba14c272e9edbafed4ff80",
+      "39bf1d8a652b9267426ed2de3442cc685401ed0de57dcbbd8465079773ca6d76",
+      "3c670959e72f7fa7180b7ae3fa72f4ebffed4f4d72e3ed3bed02c16420a1ce02",
+      "3ffb6ef6c9273f9dd548d80d16b036c43fef5bf6d0c83446d780bc6b31a7bae8",
+      "4688f343d03501529920dc8c5466cc3d087149c7be74770f74b7c49c6744e18f",
+      "4ab6ddc4623abb0e997e0651fbfe0a452d3b3e863ebb401af054bd21857879a4",
+      "5444d9d6bfd444fdfefc58c5257d70e21fcfc5f043ad444043ec4c0d1b3caac3",
+      "54cc24ff1c29715ec48103b5bdbbddbe335c57276863274ef833925204a17ecd",
+      "5eee8891e48d65f6b045e1f625290d277989fcd1f8885560996362c5d1c69b9b",
+      "623490126f344ee0a47be53295778a0fabd4b0a5304f135e6d9f124672538f25",
+      "62eb3bca309d9d371f5ba60a77c405cd2d6b3ebd0a415f4d38b3bf3d63f4ca64",
+      "698d8bf11aa4a63e2fd8fbed7b41544939c75c5bed4f00b21fd589cefb511df3",
+      "807bad9b7b72431f939c1429fbc0494f8c3ae4af1ccc4541d4433fc02d6fecc5",
+      "8c55de000f916019827a9c7f9eb39e256295e1bf6f5cc4f8dd132e4ea5758a3e",
+      "8f3ce4e1fb4435fa83d81d0d0b24a3375f52febb96505737a24cfaba0238842a",
+      "9e791cf4689621e3dd4ea7f289aece0822d25f7085245d9e65bab82d4b04b97b",
+      "aadf062e912cc7e4bc9dbeb3abbfdd40ebc79b46e09b14e2eed542f8e77e8d16",
+      "b39f10ac8d49d7e107f6902c5990ae6ebd198f12671a3b61f5c7fdf57d342898",
+      "b718a033ed7abaaaf024eaab9b3a9e609c31d45238a97c8d75e5e102df8af2f3",
+      "bc8ad94f51cb5378c62d024f28d250139dc937864f55a7ec62ade63788a611ab",
+      "ca04446dc92255100bf28878781689684df1ddc4fc463c1187a1e48664562fc3",
+      "cbe251fd4192ba7e929d83856295d9e5ce3579fa37152601363f8f5cbf080735",
+      "ccc6f98f8e41a10871a73bea7bfac00776b41f824b8e3f72208b94c43ce5ca3e",
+      "d1e1d9aaab96d9fc9b8b9a2da7b579e26097b1490cf19bac99fbc3f0b6b09849",
+      "d2b6705b298cc6c04d85e7527a4fd71d24553b973493f67fe1adc7b38b800832",
+      "d2cb6cbf12345781ab9984c0a6345976560615bc3f3eb4272fece39ce1fda81a",
+      "d729a3f1db566ee24d2777e03582f5e0d7a6313b8ff695c63ecfa41d5d6ea593",
+      "ed9419d013b415c486b0026fa0db37e2562d9a9511c3463ea8d4052746ae9dfb",
+      "fc76d78e8ed820466948f740d7ab921d136b1ec57995d3a9e5162482b5ab2dbd",
+      "fcd18d38028b04e6f2a8c5aefd081d4a153f7d19fff40ff9977e64847ffdbb40"
+    ],
+    "library_lock": {
+      "objects": [
+        "8f3ce4e1fb4435fa83d81d0d0b24a3375f52febb96505737a24cfaba0238842a",
+        "bc8ad94f51cb5378c62d024f28d250139dc937864f55a7ec62ade63788a611ab",
+        "5eee8891e48d65f6b045e1f625290d277989fcd1f8885560996362c5d1c69b9b",
+        "ed9419d013b415c486b0026fa0db37e2562d9a9511c3463ea8d4052746ae9dfb",
+        "d1e1d9aaab96d9fc9b8b9a2da7b579e26097b1490cf19bac99fbc3f0b6b09849",
+        "9e791cf4689621e3dd4ea7f289aece0822d25f7085245d9e65bab82d4b04b97b",
+        "b718a033ed7abaaaf024eaab9b3a9e609c31d45238a97c8d75e5e102df8af2f3",
+        "4688f343d03501529920dc8c5466cc3d087149c7be74770f74b7c49c6744e18f",
+        "2b1479646ffbd037294fca08807dcdc7917d1059e718f12a701c72a91f8118a6",
+        "3c670959e72f7fa7180b7ae3fa72f4ebffed4f4d72e3ed3bed02c16420a1ce02",
+        "d2b6705b298cc6c04d85e7527a4fd71d24553b973493f67fe1adc7b38b800832",
+        "fcd18d38028b04e6f2a8c5aefd081d4a153f7d19fff40ff9977e64847ffdbb40",
+        "623490126f344ee0a47be53295778a0fabd4b0a5304f135e6d9f124672538f25",
+        "1c76ecb46f573566dec11206d1e42937dfbde149a3f4ab9a5e89f2a42863e9c6",
+        "37ace345a588d7f4af30481c916aae777c487e7bf2ba14c272e9edbafed4ff80",
+        "aadf062e912cc7e4bc9dbeb3abbfdd40ebc79b46e09b14e2eed542f8e77e8d16",
+        "3ffb6ef6c9273f9dd548d80d16b036c43fef5bf6d0c83446d780bc6b31a7bae8",
+        "5444d9d6bfd444fdfefc58c5257d70e21fcfc5f043ad444043ec4c0d1b3caac3",
+        "fc76d78e8ed820466948f740d7ab921d136b1ec57995d3a9e5162482b5ab2dbd",
+        "4ab6ddc4623abb0e997e0651fbfe0a452d3b3e863ebb401af054bd21857879a4",
+        "012429be46a796524603a96b219cfd5ea4bc5f6f59dc2c69dd0413a94418c0a7",
+        "39bf1d8a652b9267426ed2de3442cc685401ed0de57dcbbd8465079773ca6d76",
+        "8c55de000f916019827a9c7f9eb39e256295e1bf6f5cc4f8dd132e4ea5758a3e",
+        "807bad9b7b72431f939c1429fbc0494f8c3ae4af1ccc4541d4433fc02d6fecc5",
+        "698d8bf11aa4a63e2fd8fbed7b41544939c75c5bed4f00b21fd589cefb511df3",
+        "0e3f2294ba30f4a45b6bd1713f91baa0e2c565ba18a6a3733abafb68d08de50b",
+        "26327e7627dfe1a28b904cda7549f73d1f60857382569126e0c441a51863c87e",
+        "62eb3bca309d9d371f5ba60a77c405cd2d6b3ebd0a415f4d38b3bf3d63f4ca64",
+        "b39f10ac8d49d7e107f6902c5990ae6ebd198f12671a3b61f5c7fdf57d342898",
+        "cbe251fd4192ba7e929d83856295d9e5ce3579fa37152601363f8f5cbf080735",
+        "ca04446dc92255100bf28878781689684df1ddc4fc463c1187a1e48664562fc3",
+        "077111a434113908a53a6ed2d677e87f42a6e35cfc287699e731a60698072cfe",
+        "d2cb6cbf12345781ab9984c0a6345976560615bc3f3eb4272fece39ce1fda81a",
+        "d729a3f1db566ee24d2777e03582f5e0d7a6313b8ff695c63ecfa41d5d6ea593",
+        "54cc24ff1c29715ec48103b5bdbbddbe335c57276863274ef833925204a17ecd",
+        "ccc6f98f8e41a10871a73bea7bfac00776b41f824b8e3f72208b94c43ce5ca3e"
+      ],
+      "schema": 1,
+      "semantics": "first-order-inductive-equality-v1"
+    },
+    "package_sha256": "f289bc2b504615c53cc80545f811ed2b5905fd30b4e4f7522ea59a2034eddc78",
+    "scope": "total mathematical value equality for map/filter/sum/count/foldr/choose and acyclic pure calls over u64 lists; allocation, OOM and trap traces excluded",
+    "source_models": [
+      [
+        {
+          "Call": {
+            "arguments": [
+              {
+                "Call": {
+                  "arguments": [
+                    {
+                      "Call": {
+                        "arguments": [
+                          {
+                            "Var": "p0"
+                          },
+                          {
+                            "Var": "p2"
+                          },
+                          {
+                            "Var": "p1"
+                          }
+                        ],
+                        "function": "5eee8891e48d65f6b045e1f625290d277989fcd1f8885560996362c5d1c69b9b"
+                      }
+                    },
+                    {
+                      "Var": "p3"
+                    }
+                  ],
+                  "function": "d1e1d9aaab96d9fc9b8b9a2da7b579e26097b1490cf19bac99fbc3f0b6b09849"
+                }
+              }
+            ],
+            "function": "9e791cf4689621e3dd4ea7f289aece0822d25f7085245d9e65bab82d4b04b97b"
+          }
+        },
+        {
+          "Call": {
+            "arguments": [
+              {
+                "Var": "p0"
+              },
+              {
+                "Var": "p2"
+              },
+              {
+                "Var": "p3"
+              },
+              {
+                "Var": "p1"
+              }
+            ],
+            "function": "3c670959e72f7fa7180b7ae3fa72f4ebffed4f4d72e3ed3bed02c16420a1ce02"
+          }
+        }
+      ],
+      [
+        {
+          "Call": {
+            "arguments": [
+              {
+                "Call": {
+                  "arguments": [
+                    {
+                      "Call": {
+                        "arguments": [
+                          {
+                            "Var": "p0"
+                          },
+                          {
+                            "Var": "p3"
+                          }
+                        ],
+                        "function": "623490126f344ee0a47be53295778a0fabd4b0a5304f135e6d9f124672538f25"
+                      }
+                    },
+                    {
+                      "Var": "p2"
+                    },
+                    {
+                      "Var": "p1"
+                    }
+                  ],
+                  "function": "37ace345a588d7f4af30481c916aae777c487e7bf2ba14c272e9edbafed4ff80"
+                }
+              }
+            ],
+            "function": "aadf062e912cc7e4bc9dbeb3abbfdd40ebc79b46e09b14e2eed542f8e77e8d16"
+          }
+        },
+        {
+          "Call": {
+            "arguments": [
+              {
+                "Var": "p0"
+              },
+              {
+                "Var": "p2"
+              },
+              {
+                "Var": "p3"
+              },
+              {
+                "Var": "p1"
+              }
+            ],
+            "function": "fc76d78e8ed820466948f740d7ab921d136b1ec57995d3a9e5162482b5ab2dbd"
+          }
+        }
+      ],
+      [
+        {
+          "Call": {
+            "arguments": [
+              {
+                "Call": {
+                  "arguments": [
+                    {
+                      "Call": {
+                        "arguments": [
+                          {
+                            "Var": "p0"
+                          },
+                          {
+                            "Var": "p2"
+                          },
+                          {
+                            "Var": "p1"
+                          }
+                        ],
+                        "function": "39bf1d8a652b9267426ed2de3442cc685401ed0de57dcbbd8465079773ca6d76"
+                      }
+                    },
+                    {
+                      "Var": "p3"
+                    }
+                  ],
+                  "function": "807bad9b7b72431f939c1429fbc0494f8c3ae4af1ccc4541d4433fc02d6fecc5"
+                }
+              }
+            ],
+            "function": "698d8bf11aa4a63e2fd8fbed7b41544939c75c5bed4f00b21fd589cefb511df3"
+          }
+        },
+        {
+          "Call": {
+            "arguments": [
+              {
+                "Var": "p0"
+              },
+              {
+                "Var": "p2"
+              },
+              {
+                "Var": "p3"
+              },
+              {
+                "Var": "p1"
+              }
+            ],
+            "function": "62eb3bca309d9d371f5ba60a77c405cd2d6b3ebd0a415f4d38b3bf3d63f4ca64"
+          }
+        }
+      ],
+      [
+        {
+          "Call": {
+            "arguments": [
+              {
+                "Call": {
+                  "arguments": [
+                    {
+                      "Call": {
+                        "arguments": [
+                          {
+                            "Var": "p0"
+                          },
+                          {
+                            "Var": "p2"
+                          }
+                        ],
+                        "function": "cbe251fd4192ba7e929d83856295d9e5ce3579fa37152601363f8f5cbf080735"
+                      }
+                    },
+                    {
+                      "Var": "p3"
+                    }
+                  ],
+                  "function": "077111a434113908a53a6ed2d677e87f42a6e35cfc287699e731a60698072cfe"
+                }
+              }
+            ],
+            "function": "d2cb6cbf12345781ab9984c0a6345976560615bc3f3eb4272fece39ce1fda81a"
+          }
+        },
+        {
+          "Call": {
+            "arguments": [
+              {
+                "Var": "p0"
+              },
+              {
+                "Var": "p2"
+              },
+              {
+                "Var": "p3"
+              }
+            ],
+            "function": "54cc24ff1c29715ec48103b5bdbbddbe335c57276863274ef833925204a17ecd"
+          }
+        }
+      ]
+    ]
+  },
+  "database_closure": null,
+  "database_lock": null,
+  "generated_c_sha256": "b07b0f7d08fbae7abcc8738619ecc249fe2595c894bba4a371f73363185aee0b",
+  "input_program_sha256": "620569f24ae159ac013c8711356ec4a85dd69ecb751a781e97542cf8ab43e433",
+  "module": "filtered_proofs",
+  "selected_program_sha256": "a0d006a95057b3c4129ef1d02bd100b8e69386476221c23ceece31600a3488f7",
+  "source": "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/knowledge/filtered/kernels.lang",
+  "target": "native",
+  "trusted": [
+    "Rust checker implementation",
+    "source semantics correspondence",
+    "literal collection lowering and allocation",
+    "generated C",
+    "Clang/LLVM backend",
+    "host ABI"
+  ],
+  "unsupported_spec_features": "see PLAN.md and STATUS.md",
+  "verified_fragment": "whole-function inductive collection equality; total-scalar equality proof terms; legacy u64 polynomial certificates"
+}

@@ -2,7 +2,7 @@
 
 Ink is a language for data, computation and explicit state changes, with implementation choices justified by locally checked proofs. This repository implements [the design draft](docs/language-specification-draft.md), incrementally. The full implementation is **in progress**. [STATUS.md](STATUS.md) describes the current executable subset; [PLAN.md](PLAN.md) preserves the full acceptance criteria.
 
-The implementation includes a Rust frontend and reference evaluator, native compilation through C and Clang/LLVM, and a local database of checked modular-arithmetic rewrites. The current baseline materialises collection stages; an explicit checked database proposal can select a single-fold implementation. It does not recognise benchmark names or substitute handwritten benchmark kernels.
+The implementation includes a Rust frontend and reference evaluator, pure native compilation through C and Clang/LLVM, stateful compilation through generated Rust, and local databases of checked proofs and implementations. Both compilation paths also target WebAssembly. The current pure baseline materialises collection stages; an explicit checked database proposal can select a single-fold implementation. It does not recognise benchmark names or substitute handwritten benchmark kernels.
 
 ```text
 module demo;
@@ -137,6 +137,10 @@ The [collection benchmark](reports/collection-proof-phase1/REPORT.md) contains 1
 python3 tools/filter_proofs.py knowledge/filtered
 python3 dev.py build --bin ink
 target/debug/ink build knowledge/filtered/kernels.lang --implementation knowledge/filtered/proposal.json -o build/filtered-checked.o
+python3 bench/filter-proof.py
+python3 bench/filter-wasm.py
 ```
 
-The producer supplies 36 immutable objects and four induction-checked candidates: map/filter/sum, filter/map/sum, filtered count and a map that ignores its element. They have interpreter, proof-rejection and native compilation checks. A dedicated performance comparison for these filtered workloads remains pending; the 6.17× result above belongs to the earlier collection benchmark.
+The producer supplies 36 immutable objects and four induction-checked candidates: map/filter/sum, filter/map/sum, filtered count and a map that ignores its element. The [filtered benchmark](reports/filter-proof-phase1/REPORT.md) contains 5,376 samples across 96 cells and 8,320 native oracle comparisons. Across the three traversal workloads, checked replacements run 3.43× faster than Ink's staged baseline and approximately match combined C/C++/Rust implementations. The constant map is reported separately because LLVM eliminates its traversal entirely; this is not a new optimisation unavailable to the other languages.
+
+Five selected database revisions produce distinct C programs with the same compiler binary. The [filtered Wasm suite](reports/filter-proof-wasm-phase1/REPORT.md) passes 4,476 checks in each of Node and an actual browser, including conditional laziness, nested collections, input preservation and memory growth. Run `python3 bench/filtered/serve.py` and open its printed URL to reproduce the browser checks. Automatic profitability selection, stateful refinement and migration of the remaining legacy optimisation authority are still unfinished.

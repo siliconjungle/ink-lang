@@ -1,0 +1,15 @@
+<!doctype html><meta charset="utf-8"><title>Ink · filtered Wasm validation</title>
+<style>body{font:18px system-ui;background:#10131b;color:#e6ebf5;max-width:900px;margin:70px auto;padding:0 25px}h1{font-size:36px}pre{font:14px ui-monospace;white-space:pre-wrap;line-height:1.6;padding:24px;background:#191f2c;border-radius:12px}.pass{color:#83ddab}.fail{color:#ffadad}</style>
+<h1>Ink · filtered Wasm validation</h1><p id="status">Running the shared validation suite…</p><pre id="result">Loading modules</pre>
+<script type="module">
+import {validateFilteredWasm} from './wasm-checks.mjs';
+const status=document.querySelector('#status'),output=document.querySelector('#result');
+try{
+    const files=['staged','checked','semantics'].map(n=>'/reports/filter-proof-wasm-phase1/'+n+'.wasm');
+    const result=await validateFilteredWasm(async file=>{const response=await fetch(file);if(!response.ok)throw Error('load failed');return new Uint8Array(await response.arrayBuffer());},files);
+    Object.assign(result,{browser:navigator.userAgent});
+    const receipt=await fetch('/validation-receipt',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(result)});
+    if(!receipt.ok)throw Error('Could not save validation receipt');
+    status.textContent=`Passed ${result.checks.toLocaleString()} checks across ${result.modules.length} modules`;status.className='pass';output.textContent=JSON.stringify(result,null,2);
+}catch(error){status.textContent='Validation failed';status.className='fail';output.textContent=String(error);}
+</script>
