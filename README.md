@@ -224,6 +224,8 @@ The [controlled experiment](reports/storage-reuse-phase1/REPORT.md) compares the
 
 The [Hunchroom review](reports/hunchroom-review-20261010/REVIEW.md) indexes all 427 public submissions and 114 modules in the captured catalog, including failed/partial attempts and reported secondary-check errors. Its strongest applicable ideas are exact runtime admission, invariant-preserving physical replacement, all-future transaction refinement, failure-preserving fusion and bounded measured selection. The review distinguishes complete corpus triage from deeper reading of selected models; it is not an independent recheck of the entire Lean corpus.
 
+The [complete-row journal contribution](reports/hunchroom-row-journal/README.md), published as [Hunchroom module 144](https://hunchroom.com/modules/144), proves arbitrary history restoration and adjacent same-key coalescing in Lean. It preserves complete payloads, cache deltas and existing journals. This abstract model does not yet authorize native coalescing or establish a speedup.
+
 ## Keyed table transition proofs
 
 [Version-4 evidence](docs/keyed-table-proofs.md) binds the actual cache arithmetic to a pinned keyed contribution-table model and checks universal one-step and finite write-history equalities. Generic generalised induction allows the history proof to recurse from changed rows; it introduces no optimisation law. A 63-object database package supplies reversible/snapshot candidates under one compiler. All 70 tests pass, including independent model traces, forged-but-valid alternative definitions, numeric/128-bit keys, source arithmetic binding and existing native/reference abort/event/checkpoint integration. Unsupported key domains retain scanning.

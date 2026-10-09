@@ -1,0 +1,342 @@
+{
+  "version": 3,
+  "kind": "module",
+  "module": {
+    "id": 144,
+    "user_id": "cef483b5-8f5a-40e6-b0b3-f82d7a8be13a",
+    "title": "Complete-row undo journals: arbitrary histories and adjacent same-key coalescing",
+    "namespace": "CompleteRowUndo",
+    "description": "Generic keyed functional-map journal with arbitrary row payloads and any row-to-Int contribution function. Each write stores the complete prior optional row and its signed contribution delta. Proves one-step inversion, exact restoration of arbitrary finite histories including any preexisting journal and any initial cache offset, identical future write continuations after undo, and full rollback equivalence with an existing stack. Repeated keys, insertions, removals and non-injective projections are included; Also proves that two adjacent writes to the same key may be replaced by the last write if their undo frames are merged using the oldest saved payload and the sum of deltas; complete machine equality establishes future write continuation and undo safety. This law excludes any observable intermediate write or savepoint and does not suppress events. A concrete equal-contribution/different-payload witness explains why a cache-only proof cannot justify row restoration. Motivated by Ink's whole-row undo/source projection work. This is a standard reversible-update law, not a novelty, native storage, enumeration, codec, event, transaction-control, machine integer or performance proof. The table is an abstract total key lookup with optional rows; physical finite-map refinement remains separate.",
+    "profile": "core",
+    "declarations": [
+      {
+        "kind": "definition",
+        "name": "Store",
+        "type": "Type → Type → Type",
+        "value": "fun Key Row => (Key → Option Row) × Int"
+      },
+      {
+        "kind": "definition",
+        "name": "Frame",
+        "type": "Type → Type → Type",
+        "value": "fun Key Row => Key × Option Row × Int"
+      },
+      {
+        "kind": "definition",
+        "name": "Machine",
+        "type": "Type → Type → Type",
+        "value": "fun Key Row => Store Key Row × List (Frame Key Row)"
+      },
+      {
+        "kind": "definition",
+        "name": "weight",
+        "type": "{Row : Type} → (Row → Int) → Option Row → Int",
+        "value": "fun {_Row} project value => match value with | none => 0 | some row => project row"
+      },
+      {
+        "kind": "definition",
+        "name": "overwrite",
+        "type": "{Key Row : Type} → [DecidableEq Key] → (Key → Option Row) → Key → Option Row → Key → Option Row",
+        "value": "fun {_Key _Row} [_] rows key value query => if query = key then value else rows query"
+      },
+      {
+        "kind": "lemma",
+        "name": "overwrite_restore",
+        "type": "∀ {Key Row : Type} [DecidableEq Key] (rows : Key → Option Row) key value, overwrite (overwrite rows key value) key (rows key) = rows",
+        "value": "by\n  intro Key Row inst rows key value\n  funext query\n  by_cases h : query = key\n  · subst query; simp [overwrite]\n  · simp [overwrite, h]"
+      },
+      {
+        "kind": "definition",
+        "name": "applyWrite",
+        "type": "{Key Row : Type} → [DecidableEq Key] → (Row → Int) → Machine Key Row → Key × Option Row → Machine Key Row",
+        "value": "fun {_Key _Row} [_] project machine write =>\n  let rows := machine.1.1\n  let old := rows write.1\n  let delta := weight project write.2 - weight project old\n  ((overwrite rows write.1 write.2, machine.1.2 + delta),\n   (write.1, old, delta) :: machine.2)"
+      },
+      {
+        "kind": "definition",
+        "name": "undoOne",
+        "type": "{Key Row : Type} → [DecidableEq Key] → Machine Key Row → Machine Key Row",
+        "value": "fun {_Key _Row} [_] machine =>\n  match machine.2 with\n  | [] => machine\n  | frame :: rest =>\n    ((overwrite machine.1.1 frame.1 frame.2.1, machine.1.2 - frame.2.2), rest)"
+      },
+      {
+        "kind": "lemma",
+        "name": "undo_write",
+        "type": "∀ {Key Row : Type} [DecidableEq Key] (project : Row → Int) (machine : Machine Key Row) write, undoOne (applyWrite project machine write) = machine",
+        "value": "by\n  intro Key Row inst project machine write\n  rcases machine with ⟨⟨rows, cache⟩, journal⟩\n  simp [applyWrite, undoOne, overwrite_restore] <;> rfl"
+      },
+      {
+        "kind": "definition",
+        "name": "execute",
+        "type": "{Key Row : Type} → [DecidableEq Key] → (Row → Int) → List (Key × Option Row) → Machine Key Row → Machine Key Row",
+        "value": "fun {_Key _Row} [_] project writes machine =>\n  match writes with\n  | [] => machine\n  | write :: rest => execute project rest (applyWrite project machine write)"
+      },
+      {
+        "kind": "definition",
+        "name": "undoN",
+        "type": "{Key Row : Type} → [DecidableEq Key] → Nat → Machine Key Row → Machine Key Row",
+        "value": "fun {_Key _Row} [_] count machine =>\n  match count with\n  | 0 => machine\n  | n + 1 => undoOne (undoN n machine)"
+      },
+      {
+        "kind": "lemma",
+        "name": "undo_history",
+        "type": "∀ {Key Row : Type} [DecidableEq Key] (project : Row → Int) writes (machine : Machine Key Row), undoN writes.length (execute project writes machine) = machine",
+        "value": "by\n  intro Key Row inst project writes\n  induction writes with\n  | nil => intro machine; rfl\n  | cons write rest ih =>\n    intro machine\n    simp only [List.length_cons, execute, undoN]\n    rw [ih, undo_write]"
+      },
+      {
+        "kind": "lemma",
+        "name": "future_after_undo",
+        "type": "∀ {Key Row : Type} [DecidableEq Key] (project : Row → Int) history future (machine : Machine Key Row), execute project future (undoN history.length (execute project history machine)) = execute project future machine",
+        "value": "by\n  intro Key Row inst project history future machine\n  rw [undo_history]"
+      },
+      {
+        "kind": "definition",
+        "name": "unwind",
+        "type": "{Key Row : Type} → [DecidableEq Key] → List (Frame Key Row) → Store Key Row → Store Key Row",
+        "value": "fun {_Key _Row} [_] frames store =>\n  match frames with\n  | [] => store\n  | frame :: rest => unwind rest (overwrite store.1 frame.1 frame.2.1, store.2 - frame.2.2)"
+      },
+      {
+        "kind": "definition",
+        "name": "rollback",
+        "type": "{Key Row : Type} → [DecidableEq Key] → Machine Key Row → Store Key Row",
+        "value": "fun {_Key _Row} [_] machine => unwind machine.2 machine.1"
+      },
+      {
+        "kind": "lemma",
+        "name": "rollback_write",
+        "type": "∀ {Key Row : Type} [DecidableEq Key] (project : Row → Int) (machine : Machine Key Row) write, rollback (applyWrite project machine write) = rollback machine",
+        "value": "by\n  intro Key Row inst project machine write\n  rcases machine with ⟨⟨rows, cache⟩, journal⟩\n  simp [rollback, applyWrite, unwind, overwrite_restore]"
+      },
+      {
+        "kind": "lemma",
+        "name": "rollback_history",
+        "type": "∀ {Key Row : Type} [DecidableEq Key] (project : Row → Int) writes (machine : Machine Key Row), rollback (execute project writes machine) = rollback machine",
+        "value": "by\n  intro Key Row inst project writes\n  induction writes with\n  | nil => intro machine; rfl\n  | cons write rest ih =>\n    intro machine\n    simp only [execute]\n    rw [ih, rollback_write]"
+      },
+      {
+        "kind": "definition",
+        "name": "witnessMachine",
+        "type": "Machine Nat (Nat × Int)",
+        "value": "(((fun _ => some (1, 7)), 7), [])"
+      },
+      {
+        "kind": "definition",
+        "name": "witnessChanged",
+        "type": "Machine Nat (Nat × Int)",
+        "value": "applyWrite Prod.snd witnessMachine (0, some (2, 7))"
+      },
+      {
+        "kind": "lemma",
+        "name": "payload_matters",
+        "type": "witnessChanged.1.2 = witnessMachine.1.2 ∧ witnessChanged.1.1 0 ≠ witnessMachine.1.1 0 ∧ undoOne witnessChanged = witnessMachine",
+        "value": "by\n  constructor\n  · rfl\n  constructor\n  · simp [witnessChanged, witnessMachine, applyWrite, overwrite]\n  · exact undo_write Prod.snd _ _"
+      },
+      {
+        "kind": "lemma",
+        "name": "overwrite_twice",
+        "type": "∀ {Key Row : Type} [DecidableEq Key] (rows : Key → Option Row) key first last, overwrite (overwrite rows key first) key last = overwrite rows key last",
+        "value": "by\n  intro Key Row inst rows key first last\n  funext query\n  by_cases h : query = key <;> simp [overwrite, h]"
+      },
+      {
+        "kind": "definition",
+        "name": "squashTop",
+        "type": "{Key Row : Type} → [DecidableEq Key] → Machine Key Row → Machine Key Row",
+        "value": "fun {_Key _Row} [_] machine =>\n  match machine.2 with\n  | newer :: older :: rest =>\n    if newer.1 = older.1 then\n      (machine.1, (older.1, older.2.1, older.2.2 + newer.2.2) :: rest)\n    else machine\n  | _ => machine"
+      },
+      {
+        "kind": "lemma",
+        "name": "squash_two_writes",
+        "type": "∀ {Key Row : Type} [DecidableEq Key] (project : Row → Int) (machine : Machine Key Row) key first last, squashTop (applyWrite project (applyWrite project machine (key, first)) (key, last)) = applyWrite project machine (key, last)",
+        "value": "by\n  intro Key Row inst project machine key first last\n  rcases machine with ⟨⟨rows, cache⟩, journal⟩\n  simp only [applyWrite, squashTop, overwrite_twice]\n  simp only [overwrite, ↓reduceIte]\n  dsimp [Store, Frame]\n  have h : weight project first - weight project (rows key) +\n      (weight project last - weight project first) =\n      weight project last - weight project (rows key) := by omega\n  rw [Int.add_assoc, h]"
+      },
+      {
+        "kind": "lemma",
+        "name": "squashed_undo",
+        "type": "∀ {Key Row : Type} [DecidableEq Key] (project : Row → Int) (machine : Machine Key Row) key first last, undoOne (squashTop (applyWrite project (applyWrite project machine (key, first)) (key, last))) = machine",
+        "value": "by\n  intro Key Row inst project machine key first last\n  rw [squash_two_writes, undo_write]"
+      },
+      {
+        "kind": "lemma",
+        "name": "squashed_future",
+        "type": "∀ {Key Row : Type} [DecidableEq Key] (project : Row → Int) (machine : Machine Key Row) key first last future, execute project future (squashTop (applyWrite project (applyWrite project machine (key, first)) (key, last))) = execute project future (applyWrite project machine (key, last))",
+        "value": "by\n  intro Key Row inst project machine key first last future\n  rw [squash_two_writes]"
+      }
+    ],
+    "module_pins": [],
+    "module_context": [],
+    "module_hash": "a64c0005a9a41eb2b33bc990f0dba174d7d42999a1e29d6d96bf14507ed132f1",
+    "status": "checking",
+    "check_log": null,
+    "axioms": [],
+    "created_at": 1791582646,
+    "checked_at": null,
+    "hidden_at": null,
+    "secondary_status": "not_run",
+    "secondary_details": null,
+    "origin_submission_id": null,
+    "origin_source_hash": null
+  },
+  "problem": {
+    "statement": "True",
+    "profile": "core",
+    "module_context": [],
+    "module_pins": [],
+    "module_declarations": [
+      {
+        "kind": "definition",
+        "name": "Store",
+        "type": "Type → Type → Type",
+        "value": "fun Key Row => (Key → Option Row) × Int"
+      },
+      {
+        "kind": "definition",
+        "name": "Frame",
+        "type": "Type → Type → Type",
+        "value": "fun Key Row => Key × Option Row × Int"
+      },
+      {
+        "kind": "definition",
+        "name": "Machine",
+        "type": "Type → Type → Type",
+        "value": "fun Key Row => Store Key Row × List (Frame Key Row)"
+      },
+      {
+        "kind": "definition",
+        "name": "weight",
+        "type": "{Row : Type} → (Row → Int) → Option Row → Int",
+        "value": "fun {_Row} project value => match value with | none => 0 | some row => project row"
+      },
+      {
+        "kind": "definition",
+        "name": "overwrite",
+        "type": "{Key Row : Type} → [DecidableEq Key] → (Key → Option Row) → Key → Option Row → Key → Option Row",
+        "value": "fun {_Key _Row} [_] rows key value query => if query = key then value else rows query"
+      },
+      {
+        "kind": "lemma",
+        "name": "overwrite_restore",
+        "type": "∀ {Key Row : Type} [DecidableEq Key] (rows : Key → Option Row) key value, overwrite (overwrite rows key value) key (rows key) = rows",
+        "value": "by\n  intro Key Row inst rows key value\n  funext query\n  by_cases h : query = key\n  · subst query; simp [overwrite]\n  · simp [overwrite, h]"
+      },
+      {
+        "kind": "definition",
+        "name": "applyWrite",
+        "type": "{Key Row : Type} → [DecidableEq Key] → (Row → Int) → Machine Key Row → Key × Option Row → Machine Key Row",
+        "value": "fun {_Key _Row} [_] project machine write =>\n  let rows := machine.1.1\n  let old := rows write.1\n  let delta := weight project write.2 - weight project old\n  ((overwrite rows write.1 write.2, machine.1.2 + delta),\n   (write.1, old, delta) :: machine.2)"
+      },
+      {
+        "kind": "definition",
+        "name": "undoOne",
+        "type": "{Key Row : Type} → [DecidableEq Key] → Machine Key Row → Machine Key Row",
+        "value": "fun {_Key _Row} [_] machine =>\n  match machine.2 with\n  | [] => machine\n  | frame :: rest =>\n    ((overwrite machine.1.1 frame.1 frame.2.1, machine.1.2 - frame.2.2), rest)"
+      },
+      {
+        "kind": "lemma",
+        "name": "undo_write",
+        "type": "∀ {Key Row : Type} [DecidableEq Key] (project : Row → Int) (machine : Machine Key Row) write, undoOne (applyWrite project machine write) = machine",
+        "value": "by\n  intro Key Row inst project machine write\n  rcases machine with ⟨⟨rows, cache⟩, journal⟩\n  simp [applyWrite, undoOne, overwrite_restore] <;> rfl"
+      },
+      {
+        "kind": "definition",
+        "name": "execute",
+        "type": "{Key Row : Type} → [DecidableEq Key] → (Row → Int) → List (Key × Option Row) → Machine Key Row → Machine Key Row",
+        "value": "fun {_Key _Row} [_] project writes machine =>\n  match writes with\n  | [] => machine\n  | write :: rest => execute project rest (applyWrite project machine write)"
+      },
+      {
+        "kind": "definition",
+        "name": "undoN",
+        "type": "{Key Row : Type} → [DecidableEq Key] → Nat → Machine Key Row → Machine Key Row",
+        "value": "fun {_Key _Row} [_] count machine =>\n  match count with\n  | 0 => machine\n  | n + 1 => undoOne (undoN n machine)"
+      },
+      {
+        "kind": "lemma",
+        "name": "undo_history",
+        "type": "∀ {Key Row : Type} [DecidableEq Key] (project : Row → Int) writes (machine : Machine Key Row), undoN writes.length (execute project writes machine) = machine",
+        "value": "by\n  intro Key Row inst project writes\n  induction writes with\n  | nil => intro machine; rfl\n  | cons write rest ih =>\n    intro machine\n    simp only [List.length_cons, execute, undoN]\n    rw [ih, undo_write]"
+      },
+      {
+        "kind": "lemma",
+        "name": "future_after_undo",
+        "type": "∀ {Key Row : Type} [DecidableEq Key] (project : Row → Int) history future (machine : Machine Key Row), execute project future (undoN history.length (execute project history machine)) = execute project future machine",
+        "value": "by\n  intro Key Row inst project history future machine\n  rw [undo_history]"
+      },
+      {
+        "kind": "definition",
+        "name": "unwind",
+        "type": "{Key Row : Type} → [DecidableEq Key] → List (Frame Key Row) → Store Key Row → Store Key Row",
+        "value": "fun {_Key _Row} [_] frames store =>\n  match frames with\n  | [] => store\n  | frame :: rest => unwind rest (overwrite store.1 frame.1 frame.2.1, store.2 - frame.2.2)"
+      },
+      {
+        "kind": "definition",
+        "name": "rollback",
+        "type": "{Key Row : Type} → [DecidableEq Key] → Machine Key Row → Store Key Row",
+        "value": "fun {_Key _Row} [_] machine => unwind machine.2 machine.1"
+      },
+      {
+        "kind": "lemma",
+        "name": "rollback_write",
+        "type": "∀ {Key Row : Type} [DecidableEq Key] (project : Row → Int) (machine : Machine Key Row) write, rollback (applyWrite project machine write) = rollback machine",
+        "value": "by\n  intro Key Row inst project machine write\n  rcases machine with ⟨⟨rows, cache⟩, journal⟩\n  simp [rollback, applyWrite, unwind, overwrite_restore]"
+      },
+      {
+        "kind": "lemma",
+        "name": "rollback_history",
+        "type": "∀ {Key Row : Type} [DecidableEq Key] (project : Row → Int) writes (machine : Machine Key Row), rollback (execute project writes machine) = rollback machine",
+        "value": "by\n  intro Key Row inst project writes\n  induction writes with\n  | nil => intro machine; rfl\n  | cons write rest ih =>\n    intro machine\n    simp only [execute]\n    rw [ih, rollback_write]"
+      },
+      {
+        "kind": "definition",
+        "name": "witnessMachine",
+        "type": "Machine Nat (Nat × Int)",
+        "value": "(((fun _ => some (1, 7)), 7), [])"
+      },
+      {
+        "kind": "definition",
+        "name": "witnessChanged",
+        "type": "Machine Nat (Nat × Int)",
+        "value": "applyWrite Prod.snd witnessMachine (0, some (2, 7))"
+      },
+      {
+        "kind": "lemma",
+        "name": "payload_matters",
+        "type": "witnessChanged.1.2 = witnessMachine.1.2 ∧ witnessChanged.1.1 0 ≠ witnessMachine.1.1 0 ∧ undoOne witnessChanged = witnessMachine",
+        "value": "by\n  constructor\n  · rfl\n  constructor\n  · simp [witnessChanged, witnessMachine, applyWrite, overwrite]\n  · exact undo_write Prod.snd _ _"
+      },
+      {
+        "kind": "lemma",
+        "name": "overwrite_twice",
+        "type": "∀ {Key Row : Type} [DecidableEq Key] (rows : Key → Option Row) key first last, overwrite (overwrite rows key first) key last = overwrite rows key last",
+        "value": "by\n  intro Key Row inst rows key first last\n  funext query\n  by_cases h : query = key <;> simp [overwrite, h]"
+      },
+      {
+        "kind": "definition",
+        "name": "squashTop",
+        "type": "{Key Row : Type} → [DecidableEq Key] → Machine Key Row → Machine Key Row",
+        "value": "fun {_Key _Row} [_] machine =>\n  match machine.2 with\n  | newer :: older :: rest =>\n    if newer.1 = older.1 then\n      (machine.1, (older.1, older.2.1, older.2.2 + newer.2.2) :: rest)\n    else machine\n  | _ => machine"
+      },
+      {
+        "kind": "lemma",
+        "name": "squash_two_writes",
+        "type": "∀ {Key Row : Type} [DecidableEq Key] (project : Row → Int) (machine : Machine Key Row) key first last, squashTop (applyWrite project (applyWrite project machine (key, first)) (key, last)) = applyWrite project machine (key, last)",
+        "value": "by\n  intro Key Row inst project machine key first last\n  rcases machine with ⟨⟨rows, cache⟩, journal⟩\n  simp only [applyWrite, squashTop, overwrite_twice]\n  simp only [overwrite, ↓reduceIte]\n  dsimp [Store, Frame]\n  have h : weight project first - weight project (rows key) +\n      (weight project last - weight project first) =\n      weight project last - weight project (rows key) := by omega\n  rw [Int.add_assoc, h]"
+      },
+      {
+        "kind": "lemma",
+        "name": "squashed_undo",
+        "type": "∀ {Key Row : Type} [DecidableEq Key] (project : Row → Int) (machine : Machine Key Row) key first last, undoOne (squashTop (applyWrite project (applyWrite project machine (key, first)) (key, last))) = machine",
+        "value": "by\n  intro Key Row inst project machine key first last\n  rw [squash_two_writes, undo_write]"
+      },
+      {
+        "kind": "lemma",
+        "name": "squashed_future",
+        "type": "∀ {Key Row : Type} [DecidableEq Key] (project : Row → Int) (machine : Machine Key Row) key first last future, execute project future (squashTop (applyWrite project (applyWrite project machine (key, first)) (key, last))) = execute project future (applyWrite project machine (key, last))",
+        "value": "by\n  intro Key Row inst project machine key first last future\n  rw [squash_two_writes]"
+      }
+    ],
+    "namespace": "CompleteRowUndo"
+  },
+  "profile": "core",
+  "policy": "oa-lean-v1",
+  "lean_commit": "62b6a2291302d4bbeace37642a066b7510d0145c",
+  "proof": "by trivial",
+  "statement_hash": "2a08c013e3b3f61442dc6bd1ee2a9959610c940d0ee05197817c74f0ebd13476",
+  "source": "import Init\n\nnamespace Hunch.CompleteRowUndo\ndef Store : (Type → Type → Type) :=\n  fun Key Row => (Key → Option Row) × Int\n\ndef Frame : (Type → Type → Type) :=\n  fun Key Row => Key × Option Row × Int\n\ndef Machine : (Type → Type → Type) :=\n  fun Key Row => Store Key Row × List (Frame Key Row)\n\ndef weight : ({Row : Type} → (Row → Int) → Option Row → Int) :=\n  fun {_Row} project value => match value with | none => 0 | some row => project row\n\ndef overwrite : ({Key Row : Type} → [DecidableEq Key] → (Key → Option Row) → Key → Option Row → Key → Option Row) :=\n  fun {_Key _Row} [_] rows key value query => if query = key then value else rows query\n\ntheorem overwrite_restore : (∀ {Key Row : Type} [DecidableEq Key] (rows : Key → Option Row) key value, overwrite (overwrite rows key value) key (rows key) = rows) :=\n  by\n    intro Key Row inst rows key value\n    funext query\n    by_cases h : query = key\n    · subst query; simp [overwrite]\n    · simp [overwrite, h]\n\ndef applyWrite : ({Key Row : Type} → [DecidableEq Key] → (Row → Int) → Machine Key Row → Key × Option Row → Machine Key Row) :=\n  fun {_Key _Row} [_] project machine write =>\n    let rows := machine.1.1\n    let old := rows write.1\n    let delta := weight project write.2 - weight project old\n    ((overwrite rows write.1 write.2, machine.1.2 + delta),\n     (write.1, old, delta) :: machine.2)\n\ndef undoOne : ({Key Row : Type} → [DecidableEq Key] → Machine Key Row → Machine Key Row) :=\n  fun {_Key _Row} [_] machine =>\n    match machine.2 with\n    | [] => machine\n    | frame :: rest =>\n      ((overwrite machine.1.1 frame.1 frame.2.1, machine.1.2 - frame.2.2), rest)\n\ntheorem undo_write : (∀ {Key Row : Type} [DecidableEq Key] (project : Row → Int) (machine : Machine Key Row) write, undoOne (applyWrite project machine write) = machine) :=\n  by\n    intro Key Row inst project machine write\n    rcases machine with ⟨⟨rows, cache⟩, journal⟩\n    simp [applyWrite, undoOne, overwrite_restore] <;> rfl\n\ndef execute : ({Key Row : Type} → [DecidableEq Key] → (Row → Int) → List (Key × Option Row) → Machine Key Row → Machine Key Row) :=\n  fun {_Key _Row} [_] project writes machine =>\n    match writes with\n    | [] => machine\n    | write :: rest => execute project rest (applyWrite project machine write)\n\ndef undoN : ({Key Row : Type} → [DecidableEq Key] → Nat → Machine Key Row → Machine Key Row) :=\n  fun {_Key _Row} [_] count machine =>\n    match count with\n    | 0 => machine\n    | n + 1 => undoOne (undoN n machine)\n\ntheorem undo_history : (∀ {Key Row : Type} [DecidableEq Key] (project : Row → Int) writes (machine : Machine Key Row), undoN writes.length (execute project writes machine) = machine) :=\n  by\n    intro Key Row inst project writes\n    induction writes with\n    | nil => intro machine; rfl\n    | cons write rest ih =>\n      intro machine\n      simp only [List.length_cons, execute, undoN]\n      rw [ih, undo_write]\n\ntheorem future_after_undo : (∀ {Key Row : Type} [DecidableEq Key] (project : Row → Int) history future (machine : Machine Key Row), execute project future (undoN history.length (execute project history machine)) = execute project future machine) :=\n  by\n    intro Key Row inst project history future machine\n    rw [undo_history]\n\ndef unwind : ({Key Row : Type} → [DecidableEq Key] → List (Frame Key Row) → Store Key Row → Store Key Row) :=\n  fun {_Key _Row} [_] frames store =>\n    match frames with\n    | [] => store\n    | frame :: rest => unwind rest (overwrite store.1 frame.1 frame.2.1, store.2 - frame.2.2)\n\ndef rollback : ({Key Row : Type} → [DecidableEq Key] → Machine Key Row → Store Key Row) :=\n  fun {_Key _Row} [_] machine => unwind machine.2 machine.1\n\ntheorem rollback_write : (∀ {Key Row : Type} [DecidableEq Key] (project : Row → Int) (machine : Machine Key Row) write, rollback (applyWrite project machine write) = rollback machine) :=\n  by\n    intro Key Row inst project machine write\n    rcases machine with ⟨⟨rows, cache⟩, journal⟩\n    simp [rollback, applyWrite, unwind, overwrite_restore]\n\ntheorem rollback_history : (∀ {Key Row : Type} [DecidableEq Key] (project : Row → Int) writes (machine : Machine Key Row), rollback (execute project writes machine) = rollback machine) :=\n  by\n    intro Key Row inst project writes\n    induction writes with\n    | nil => intro machine; rfl\n    | cons write rest ih =>\n      intro machine\n      simp only [execute]\n      rw [ih, rollback_write]\n\ndef witnessMachine : (Machine Nat (Nat × Int)) :=\n  (((fun _ => some (1, 7)), 7), [])\n\ndef witnessChanged : (Machine Nat (Nat × Int)) :=\n  applyWrite Prod.snd witnessMachine (0, some (2, 7))\n\ntheorem payload_matters : (witnessChanged.1.2 = witnessMachine.1.2 ∧ witnessChanged.1.1 0 ≠ witnessMachine.1.1 0 ∧ undoOne witnessChanged = witnessMachine) :=\n  by\n    constructor\n    · rfl\n    constructor\n    · simp [witnessChanged, witnessMachine, applyWrite, overwrite]\n    · exact undo_write Prod.snd _ _\n\ntheorem overwrite_twice : (∀ {Key Row : Type} [DecidableEq Key] (rows : Key → Option Row) key first last, overwrite (overwrite rows key first) key last = overwrite rows key last) :=\n  by\n    intro Key Row inst rows key first last\n    funext query\n    by_cases h : query = key <;> simp [overwrite, h]\n\ndef squashTop : ({Key Row : Type} → [DecidableEq Key] → Machine Key Row → Machine Key Row) :=\n  fun {_Key _Row} [_] machine =>\n    match machine.2 with\n    | newer :: older :: rest =>\n      if newer.1 = older.1 then\n        (machine.1, (older.1, older.2.1, older.2.2 + newer.2.2) :: rest)\n      else machine\n    | _ => machine\n\ntheorem squash_two_writes : (∀ {Key Row : Type} [DecidableEq Key] (project : Row → Int) (machine : Machine Key Row) key first last, squashTop (applyWrite project (applyWrite project machine (key, first)) (key, last)) = applyWrite project machine (key, last)) :=\n  by\n    intro Key Row inst project machine key first last\n    rcases machine with ⟨⟨rows, cache⟩, journal⟩\n    simp only [applyWrite, squashTop, overwrite_twice]\n    simp only [overwrite, ↓reduceIte]\n    dsimp [Store, Frame]\n    have h : weight project first - weight project (rows key) +\n        (weight project last - weight project first) =\n        weight project last - weight project (rows key) := by omega\n    rw [Int.add_assoc, h]\n\ntheorem squashed_undo : (∀ {Key Row : Type} [DecidableEq Key] (project : Row → Int) (machine : Machine Key Row) key first last, undoOne (squashTop (applyWrite project (applyWrite project machine (key, first)) (key, last))) = machine) :=\n  by\n    intro Key Row inst project machine key first last\n    rw [squash_two_writes, undo_write]\n\ntheorem squashed_future : (∀ {Key Row : Type} [DecidableEq Key] (project : Row → Int) (machine : Machine Key Row) key first last future, execute project future (squashTop (applyWrite project (applyWrite project machine (key, first)) (key, last))) = execute project future (applyWrite project machine (key, last))) :=\n  by\n    intro Key Row inst project machine key first last future\n    rw [squash_two_writes]\n\nend Hunch.CompleteRowUndo\n\ndef OA_statement : Prop := (True)\n\ntheorem OA_target : OA_statement :=\n  by trivial\n\n#print axioms Hunch.CompleteRowUndo.Store\n#print axioms Hunch.CompleteRowUndo.Frame\n#print axioms Hunch.CompleteRowUndo.Machine\n#print axioms Hunch.CompleteRowUndo.weight\n#print axioms Hunch.CompleteRowUndo.overwrite\n#print axioms Hunch.CompleteRowUndo.overwrite_restore\n#print axioms Hunch.CompleteRowUndo.applyWrite\n#print axioms Hunch.CompleteRowUndo.undoOne\n#print axioms Hunch.CompleteRowUndo.undo_write\n#print axioms Hunch.CompleteRowUndo.execute\n#print axioms Hunch.CompleteRowUndo.undoN\n#print axioms Hunch.CompleteRowUndo.undo_history\n#print axioms Hunch.CompleteRowUndo.future_after_undo\n#print axioms Hunch.CompleteRowUndo.unwind\n#print axioms Hunch.CompleteRowUndo.rollback\n#print axioms Hunch.CompleteRowUndo.rollback_write\n#print axioms Hunch.CompleteRowUndo.rollback_history\n#print axioms Hunch.CompleteRowUndo.witnessMachine\n#print axioms Hunch.CompleteRowUndo.witnessChanged\n#print axioms Hunch.CompleteRowUndo.payload_matters\n#print axioms Hunch.CompleteRowUndo.overwrite_twice\n#print axioms Hunch.CompleteRowUndo.squashTop\n#print axioms Hunch.CompleteRowUndo.squash_two_writes\n#print axioms Hunch.CompleteRowUndo.squashed_undo\n#print axioms Hunch.CompleteRowUndo.squashed_future\n#print axioms OA_target\n#check OA_target\n"
+}

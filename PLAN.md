@@ -25,6 +25,8 @@ The requested Goose-inspired changes are also binding: contiguous/compact repres
 
 ## Current implementation sequence
 
+The whole-row journal work also has a [Lean contribution](reports/hunchroom-row-journal/README.md) on Hunchroom: arbitrary history restoration and complete-machine equivalence for adjacent same-key coalescing. It is reusable research evidence, not native optimization admission. Source/effect and physical-map correspondence remain required; the full implementation and evaluation objective stays active.
+
 1. Establish a real Rust frontend, independent reference evaluator, bounded arithmetic proof checker and native compilation path. Benchmark pure collection programs without hardcoded workload recognition.
 2. Implement the inventory/state language and correctness suite; add checked incremental implementations and compare against manually maintained C/C++/Rust.
 3. Add portable snapshots and Wasm; implement safe runtime migration and adaptation.
