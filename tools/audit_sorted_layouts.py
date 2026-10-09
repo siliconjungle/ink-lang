@@ -44,7 +44,7 @@ def main():
         if args.reproduce:
             with tempfile.TemporaryDirectory(prefix='sorted-layout-replay-') as temp:
                 replay=Path(temp)
-                run([args.python,ROOT/'tools/sorted_layout_proofs.py',replay,'--compiler',compiler,'--layout',layout,
+                run([args.python,ROOT/'knowledge/tools/sorted_layout_proofs.py',replay,'--compiler',compiler,'--layout',layout,
                     '--source',source,'--source-model',source_model,'--maintenance',cert])
                 want={str(p.relative_to(directory)) for p in directory.rglob('*') if p.is_file()}
                 actual={str(p.relative_to(replay)) for p in replay.rglob('*') if p.is_file()}

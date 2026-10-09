@@ -2,6 +2,7 @@
 """End-to-end architecture check: add checked knowledge without changing the compiler.
 This is a correctness/extension test, not a performance benchmark.
 """
+import argparse
 import hashlib
 import json
 import subprocess
@@ -21,6 +22,11 @@ def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 def main():
+    global OUT
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--output', type=Path, default=OUT)
+    args = parser.parse_args()
+    OUT = args.output.resolve()
     OUT.mkdir(parents=True, exist_ok=True)
     before = digest(LANG)
     rules = json.loads((ROOT/'knowledge/boolean-rules.json').read_text())
@@ -49,7 +55,7 @@ int main(void) {
         rule_file=OUT/f'rules-{count}.json'
         rule_file.write_text(json.dumps(rules[:count]))
         database=OUT/f'db-{count}'
-        run(['python3', ROOT/'tools/boolean_proofs.py', rule_file, database])
+        run(['python3', ROOT/'knowledge/tools/boolean_proofs.py', rule_file, database])
         run([LANG,'verify-database',database/'lock.json'])
         obj=OUT/f'variant-{count}.o'
         command=[LANG,'build',ROOT/'examples/boolean.lang','--database',database/'lock.json','-o',obj]

@@ -38,11 +38,11 @@ Bounded u128 caches keep full snapshots. The new evidence lives in exact integer
 
 ## Proof production
 
-`tools/reversible_maintenance_proofs.py` is an untrusted external producer. It extends the 37-object delta package with two universal theorems: `subtraction_self` and `undo_subtraction`. The preserved pre-change compiler checks these theorem objects using the unchanged generic kernel. The new compiler then checks the two actual journal candidates through the version-3 source bridge. No ring axiom, built-in cancellation law or solver was introduced.
+`knowledge/tools/reversible_maintenance_proofs.py` is an untrusted external producer. It extends the 37-object delta package with two universal theorems: `subtraction_self` and `undo_subtraction`. The preserved pre-change compiler checks these theorem objects using the unchanged generic kernel. The new compiler then checks the two actual journal candidates through the version-3 source bridge. No ring axiom, built-in cancellation law or solver was introduced.
 
 ```sh
 python3 dev.py build --release
-python3 tools/reversible_maintenance_proofs.py build/journal-package \
+python3 knowledge/tools/reversible_maintenance_proofs.py build/journal-package \
   --compiler target/release/ink --kernel build/reversible-original/lang
 target/release/ink emit-state bench/wide-cache/program.ink \
   --maintenance knowledge/reversible-maintenance/reversible.json \

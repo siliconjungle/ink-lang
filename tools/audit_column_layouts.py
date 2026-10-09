@@ -44,7 +44,7 @@ def main():
         if args.reproduce:
             with tempfile.TemporaryDirectory(prefix='column-layout-replay-') as temp:
                 replay=Path(temp)
-                run(['python3',ROOT/'tools/column_layout_proofs.py',replay,'--compiler',compiler,
+                run(['python3',ROOT/'knowledge/tools/column_layout_proofs.py',replay,'--compiler',compiler,
                     '--source',source,'--source-model',source_model,'--maintenance',cert])
                 want={str(p.relative_to(directory)) for p in directory.rglob('*') if p.is_file()}
                 actual={str(p.relative_to(replay)) for p in replay.rglob('*') if p.is_file()}

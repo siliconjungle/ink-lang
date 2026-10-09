@@ -80,7 +80,7 @@ def main():
     if args.repeats<3 or not 1<=args.steps<=10000000:parser.error('at least 3 repeats and 1..10000000 steps required')
     started=time.time();env=state.environment();state.BUILD=BUILD;state.OUT=OUT
     paths=[p for folder in ['src','bench/wide-cache','knowledge/delta-maintenance','knowledge/exact-maintenance'] for p in (ROOT/folder).rglob('*') if p.is_file()]
-    paths+=[ROOT/p for p in ['Cargo.toml','Cargo.lock','bench/wide-cache.py','tools/delta_maintenance_proofs.py']]
+    paths+=[ROOT/p for p in ['Cargo.toml','Cargo.lock','bench/wide-cache.py','knowledge/tools/delta_maintenance_proofs.py']]
     sources={str(p.relative_to(ROOT)):sha(p) for p in paths}
     artifacts,compilers=build(env);correctness=validate();print('Correctness:',correctness['native_observation_comparisons'],flush=True)
     rows=[];rnd=random.Random(1973264)

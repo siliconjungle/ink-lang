@@ -40,7 +40,7 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--repeats',type=int,default=7);parser.add_argument('--steps',type=int,default=30000);args=parser.parse_args()
     if args.repeats<3 or not 1<=args.steps<=10000000:parser.error('at least 3 repeats and 1..10000000 steps required')
     paths=[p for folder in ['src','bench/wide-cache','bench/state','knowledge/delta-maintenance','knowledge/reversible-maintenance'] for p in (ROOT/folder).rglob('*') if p.is_file()]
-    paths += [ROOT/p for p in ['Cargo.toml','Cargo.lock','bench/storage-reuse.py','bench/wide-cache.py','tools/reversible_maintenance_proofs.py','tests/database_maintenance.rs','reports/wide-cache-phase1/rust_bigint/src/lib.rs','reports/wide-cache-phase1/rust_bigint/Cargo.toml','reports/wide-cache-phase1/rust_bigint/Cargo.lock']]
+    paths += [ROOT/p for p in ['Cargo.toml','Cargo.lock','bench/storage-reuse.py','bench/wide-cache.py','knowledge/tools/reversible_maintenance_proofs.py','tests/database_maintenance.rs','reports/wide-cache-phase1/rust_bigint/src/lib.rs','reports/wide-cache-phase1/rust_bigint/Cargo.toml','reports/wide-cache-phase1/rust_bigint/Cargo.lock']]
     sources={str(p.relative_to(ROOT)):sha(p) for p in paths};started=time.time();env=state.environment()
     artifacts=build(env);correctness=wide.validate();print('Correctness:',correctness['native_observation_comparisons'],flush=True)
     rows=[];rnd=random.Random(817234)

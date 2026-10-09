@@ -1,5 +1,41 @@
 # Implementation and evaluation plan
 
+## Accepted production roadmap — 2026-10-10
+
+The compiler and knowledge catalogue evolve in separate repositories. Keep as
+much optimisation knowledge as possible in the catalogue: alternative layouts,
+allocation strategies, query maintenance, batching, range specialisation and
+selection evidence. The core owns fixed semantics, general evidence checking,
+application correspondence and straightforward primitive execution/lowering.
+Profiles guide choices; only checked conditions justify them. Preserve the full
+language and evaluation requirements below while delivering these milestones.
+
+| Order | Deliverable | Acceptance gate |
+| --- | --- | --- |
+| 1 | Separate `ink-lang` and `ink-knowledge`; extract catalogue history, move producers, pin a revision, provide discovery metadata | Core builds without catalogue checkout; full integration works with the pin; external packages check without modifying the compiler |
+| 2 | Freeze the executable semantic core and trust boundary | Every supported value, operation, ownership/effect rule, error, abort, event and snapshot has explicit semantics and a reference implementation; draft features are distinguished |
+| 3 | Generic proof and replacement interface | Original/replacement typed IR, conditions and observation-preservation evidence are checked against the actual application; no package-name authority |
+| 4 | Stable knowledge packaging | Definitions, proofs, candidates, representation relations, initialisation/migration and separate cost evidence have pinned bounded dependency closures, offline replay and inspectable plans |
+| 5 | Complete one table representation transformation | Independently supplied row/column and maintained-query candidates preserve future reads/writes, failures, aborts, ordered events and snapshots under an unchanged compiler; correct baseline remains available |
+| 6 | Refine base execution through general primitives and database alternatives | Competitive ownership/allocation/construction behaviour; remaining hardcoded transformation authority is migrated rather than renamed |
+| 7 | First usable language release | Modules, standard library, diagnostics, installation, debugging/editor support and native/Wasm interoperability work for the declared subset |
+| 8 | Bounded search, then profile-guided adaptation | Replaceable external search has budgets and caching; exhaustion preserves a correct build; runtime adaptation additionally checks guards, migration and fallback |
+| 9 | Harden and evaluate the declared deployment scope | Adversarial/fuzz/independent checking, durability/recovery and concurrency claims have explicit boundaries; fair end-to-end performance, memory and compilation/proof-check costs are reported |
+
+Milestone 1 is implemented and validated in `reports/repository-split-phase1`: 96 tests, all binaries built without knowledge, 19 checked primary libraries, 60 native extension checks, and byte-identical search package reproduction.
+
+Milestone 1 is a repository boundary, not a proof of kernel soundness or native
+code correctness. Ink currently checks its restricted proof language in Rust;
+Lean remains external research/metatheory tooling. A Lean model needs an explicit
+connection to the implemented checker before claiming that implementation is
+verified. LLVM and generated C/Rust remain disclosed trusted components.
+
+The next implementation gate after the split is a frozen semantic IR and a
+generic proposal contract. Further isolated mathematical layout lemmas do not
+complete source/effect/native correspondence on their own. Keep legacy
+optimisation paths visibly transitional until their authority is removed.
+
+
 The objective is to implement the language specified in docs/language-specification-draft.md and evaluate it against C, C++ and Rust. The full objective remains active until its implementation and evaluation requirements are satisfied. Early benchmark kernels are milestones, not substitutes for the language.
 
 The requested Goose-inspired changes are also binding: contiguous/compact representations, fewer copies and allocations, general arenas/ownership inference, narrow relative links, variable-size inline data/enums and construction directly into final destinations. Representation choices should come from the database, with actual native correspondence and future-update safety; typed storage policy alone does not complete that requirement. Benchmark construction/teardown and retained memory as well as execution, and keep matching layout controls.

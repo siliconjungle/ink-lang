@@ -79,7 +79,7 @@ def main():
         audit['previous_version3_runtime_source_identical']=True
         audit['exact_codegen_and_plan_replay']=True
         # Producer replay uses the same compiler, not a newly built producer/checker.
-        replay=temp/'producer';run(['python3','tools/table_transition_proofs.py',replay,'--compiler',compiler])
+        replay=temp/'producer';run(['python3','knowledge/tools/table_transition_proofs.py',replay,'--compiler',compiler])
         for path in (ROOT/'knowledge/table-maintenance').rglob('*'):
             if path.is_file() and path.suffix in ('.json','.ink'):assert path.read_bytes()==(replay/path.relative_to(ROOT/'knowledge/table-maintenance')).read_bytes(),path.name
         audit['deterministic_producer_replay']=True

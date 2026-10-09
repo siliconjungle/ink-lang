@@ -61,7 +61,7 @@ def main():
         if args.reproduce:
             with tempfile.TemporaryDirectory(prefix='table-undo-replay-') as scratch:
                 replay = Path(scratch)
-                subprocess.run([args.python, str(ROOT/'tools/table_undo_proofs.py'), str(replay),
+                subprocess.run([args.python, str(ROOT/'knowledge/tools/table_undo_proofs.py'), str(replay),
                                 '--variant',variant,'--compiler',str(compiler)], check=True, capture_output=True)
                 for p in path.rglob('*'):
                     if p.is_file():

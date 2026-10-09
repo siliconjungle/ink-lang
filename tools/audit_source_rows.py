@@ -50,7 +50,7 @@ def main():
                 with tempfile.TemporaryDirectory(prefix='source-row-replay-') as temp:
                     replay=Path(temp)
                     run([compiler,'model-row',source,keep,'--maintenance',cert,'-o',replay/'source-model.json'])
-                    run([args.python,ROOT/'tools/table_undo_proofs.py',replay,'--compiler',compiler,'--variant',variant,
+                    run([args.python,ROOT/'knowledge/tools/table_undo_proofs.py',replay,'--compiler',compiler,'--variant',variant,
                          '--source',source,'--source-model',replay/'source-model.json','--maintenance',cert])
                     for path in folder.rglob('*'):
                         if path.is_file():assert path.read_bytes()==(replay/path.relative_to(folder)).read_bytes(),str(path)

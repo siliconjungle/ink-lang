@@ -18,7 +18,7 @@ def sha(path): return hashlib.sha256(path.read_bytes()).hexdigest()
 def main():
     OUT.mkdir(parents=True,exist_ok=True)
     compiler=sha(LANG)
-    run(['python3',ROOT/'tools/composed_proofs.py',OUT/'database'])
+    run(['python3',ROOT/'knowledge/tools/composed_proofs.py',OUT/'database'])
     lock=OUT/'database/lock.json'
     run([LANG,'verify-database',lock])
     obj=OUT/'composed.o'

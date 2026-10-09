@@ -18,7 +18,7 @@ def sha(path): return hashlib.sha256(path.read_bytes()).hexdigest()
 def main():
     OUT.mkdir(parents=True,exist_ok=True)
     compiler=sha(LANG)
-    run(['python3',ROOT/'tools/conditional_proofs.py',OUT/'database'])
+    run(['python3',ROOT/'knowledge/tools/conditional_proofs.py',OUT/'database'])
     lock=OUT/'database/lock.json';run([LANG,'verify-database',lock])
     driver=OUT/'driver.c'
     driver.write_text('''#include <stdbool.h>

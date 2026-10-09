@@ -1,5 +1,5 @@
 //! Measures the reference runtime with and without checked maintenance.
-//! This is NOT the native-code comparison: stateful code generation is still pending.
+//! This is separate from the native-code comparison.
 use num_bigint::BigInt;
 use std::{env, time::Instant};
 use verified_language::{
@@ -13,8 +13,8 @@ fn id(i: u64) -> Value {
 }
 fn main() {
     let args: Vec<String> = env::args().skip(1).collect();
-    if args.len() != 4 {
-        eprintln!("usage: state_bench scan|maintained ROWS UPDATES QUERIES_PER_UPDATE");
+    if args.len() != 4 && args.len() != 5 {
+        eprintln!("usage: state_bench scan|maintained ROWS UPDATES QUERIES_PER_UPDATE [MAINTENANCE_SOURCE]");
         std::process::exit(2);
     }
     let maintained = match args[0].as_str() {
@@ -41,11 +41,28 @@ fn main() {
             .committed
         );
     }
-    let certificate =
-        aggregate::prove(&parse(include_str!("../../knowledge/sum-maintenance.lang")).unwrap())
-            .unwrap();
+    let certificate = if maintained {
+        let path = args
+            .get(4)
+            .map(std::path::PathBuf::from)
+            .unwrap_or_else(|| {
+                let root = env::var_os("INK_KNOWLEDGE_ROOT")
+                    .map(std::path::PathBuf::from)
+                    .unwrap_or_else(|| {
+                        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("knowledge")
+                    });
+                root.join("sum-maintenance.lang")
+            });
+        let source = std::fs::read_to_string(&path).unwrap_or_else(|error| {
+            eprintln!("cannot read maintenance source {}: {error}; pass MAINTENANCE_SOURCE or initialise the knowledge submodule", path.display());
+            std::process::exit(2);
+        });
+        Some(aggregate::prove(&parse(&source).unwrap()).unwrap())
+    } else {
+        None
+    };
     let install = Instant::now();
-    if maintained {
+    if let Some(certificate) = certificate {
         rt.enable_maintenance(certificate).unwrap();
     }
     let install_seconds = install.elapsed().as_secs_f64();

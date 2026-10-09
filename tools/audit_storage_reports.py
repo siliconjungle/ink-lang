@@ -111,7 +111,7 @@ def main():
         results[out.name]=result
     if args.execute:
         temporary=ROOT/'build/storage-reports-audit/producer'
-        run(['python3','tools/reversible_maintenance_proofs.py',temporary,'--compiler',current,'--kernel',original])
+        run(['python3','knowledge/tools/reversible_maintenance_proofs.py',temporary,'--compiler',current,'--kernel',original])
         for p in (ROOT/'knowledge/reversible-maintenance').rglob('*'):
             if p.is_file() and p.suffix in ('.json','.ink'):assert p.read_bytes()==(temporary/p.relative_to(ROOT/'knowledge/reversible-maintenance')).read_bytes(),p
         for result in results.values():result['unchanged_two_database_candidates_replayed']=True

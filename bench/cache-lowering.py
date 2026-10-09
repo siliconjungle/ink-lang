@@ -19,7 +19,7 @@ def main():
     sources={str(p.relative_to(ROOT)):sha(p) for folder in ['src','bench/state','knowledge/exact-integers','knowledge/exact-maintenance','knowledge/delta-maintenance']
              for p in (ROOT/folder).rglob('*') if p.is_file()}
     for path in ['Cargo.toml','Cargo.lock','examples/state-benchmark.lang','bench/cache-lowering.py',
-                 'tools/delta_maintenance_proofs.py','tests/database_maintenance.rs']:
+                 'knowledge/tools/delta_maintenance_proofs.py','tests/database_maintenance.rs']:
         sources[path]=sha(ROOT/path)
     previous=ROOT/'reports/database-maintenance-phase1'
     for path in ['generated-lib.rs','generated-Cargo.toml','generated-Cargo.lock','generated-bounded-lib.rs','metadata.json']:

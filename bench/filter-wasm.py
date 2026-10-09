@@ -10,7 +10,7 @@ env=os.environ.copy();env['ZIG_GLOBAL_CACHE_DIR']=str(root/'build/zig-cache');co
 def run(command):
     command=list(map(str,command));commands.append(command);subprocess.run(command,cwd=root,env=env,check=True)
 run(['python3','dev.py','build','--bin','ink'])
-run(['python3','tools/filter_proofs.py','knowledge/filtered'])
+run(['python3','knowledge/tools/filter_proofs.py','knowledge/filtered'])
 for name in ['staged','checked','semantics']:
     source='bench/filtered/semantics.ink' if name=='semantics' else 'knowledge/filtered/kernels.lang'
     command=['target/debug/ink','build',source,'--target','wasm32','--zig',zig,'-o',out/f'{name}.wasm']

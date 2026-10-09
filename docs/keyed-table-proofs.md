@@ -53,7 +53,7 @@ The executed audit validates source/artifact/binary hashes, the complete sample 
 ```sh
 python3 dev.py test
 python3 dev.py build --release
-python3 tools/table_transition_proofs.py build/table-package \
+python3 knowledge/tools/table_transition_proofs.py build/table-package \
   --compiler target/release/ink
 target/release/ink emit-state examples/state-benchmark.lang \
   --maintenance knowledge/table-maintenance/table.json -o build/table-program

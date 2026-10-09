@@ -10,7 +10,7 @@ env=os.environ.copy();env['ZIG_GLOBAL_CACHE_DIR']=str(root/'build/zig-cache');co
 def run(command):
     command=list(map(str,command));commands.append(command);subprocess.run(command,cwd=root,env=env,check=True)
 run(['python3','dev.py','build','--bin','lang'])
-run(['python3','tools/collection_proofs.py','knowledge/collections'])
+run(['python3','knowledge/tools/collection_proofs.py','knowledge/collections'])
 for name in ['staged','checked','semantics']:
     source='bench/collections/semantics.lang' if name=='semantics' else 'knowledge/collections/kernels.lang'
     command=['target/debug/lang','build',source,'--target','wasm32','--zig',zig,'-o',out/f'{name}.wasm']

@@ -86,7 +86,7 @@ def main():
             assert (project/'src/lib.rs').read_bytes()==(temp/mode/'src/lib.rs').read_bytes()
         audit['exact_codegen_and_plan_replay']=True;audit['legacy_database_codegen_identical']=True
         # Producer replay uses the same compiler, not a newly built producer/checker.
-        replay=temp/'producer';run(['python3','tools/maintenance_proofs.py',replay,'--compiler',compiler])
+        replay=temp/'producer';run(['python3','knowledge/tools/maintenance_proofs.py',replay,'--compiler',compiler])
         for path in (ROOT/'knowledge/exact-maintenance').iterdir():
             if path.suffix in ('.json','.ink'):assert path.read_bytes()==(replay/path.name).read_bytes(),path.name
         audit['deterministic_producer_replay']=True

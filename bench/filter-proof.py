@@ -25,7 +25,7 @@ def reference(case,xs,a,b,limit):
 def build(env):
     BUILD.mkdir(parents=True,exist_ok=True);REPORT.mkdir(parents=True,exist_ok=True)
     invoke(['cargo','build','--release','--bin','ink'],env=env);lang=ROOT/'target/release/ink'
-    invoke(['python3','tools/filter_proofs.py','knowledge/filtered'])
+    invoke(['python3','knowledge/tools/filter_proofs.py','knowledge/filtered'])
     source=ROOT/'knowledge/filtered/kernels.lang';package=ROOT/'knowledge/filtered/proposal.json'
     invoke([lang,'build',source,'--native-cpu','-o',BUILD/'ink_staged.o'])
     invoke([lang,'build',source,'--implementation',package,'--native-cpu','-o',BUILD/'ink_checked.o'])
@@ -160,7 +160,7 @@ def main():
         shutil.copytree(BUILD/f'database-{count}',REPORT/f'database-{count}',dirs_exist_ok=True)
         shutil.copy2(BUILD/f'phase-{count}.o.c',archived/f'phase-{count}.c')
         shutil.copy2(BUILD/f'phase-{count}.o.plan.json',archived/f'phase-{count}.plan.json')
-    for name in ['src/implementation.rs','src/logic.rs','src/library.rs','src/native.rs','src/pure_alloc.c','src/check.rs','src/eval.rs','src/main.rs','tools/filter_proofs.py','tests/implementation.rs','src/bin/ink.rs','Cargo.toml','Cargo.lock','tools/collection_proofs.py','tools/inductive_proofs.py','bench/filter-proof.py','bench/filtered/baseline.c','bench/filtered/baseline.cpp','bench/filtered/baseline.rs','bench/filtered/driver.c','knowledge/filtered/kernels.lang']:
+    for name in ['src/implementation.rs','src/logic.rs','src/library.rs','src/native.rs','src/pure_alloc.c','src/check.rs','src/eval.rs','src/main.rs','knowledge/tools/filter_proofs.py','tests/implementation.rs','src/bin/ink.rs','Cargo.toml','Cargo.lock','knowledge/tools/collection_proofs.py','knowledge/tools/inductive_proofs.py','bench/filter-proof.py','bench/filtered/baseline.c','bench/filtered/baseline.cpp','bench/filtered/baseline.rs','bench/filtered/driver.c','knowledge/filtered/kernels.lang']:
         dest=REPORT/'sources'/name;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(ROOT/name,dest)
     metadata=dict(platform=platform.platform(),machine=platform.machine(),processor=platform.processor(),cpu=invoke(['sysctl','-n','machdep.cpu.brand_string']),memory_bytes=invoke(['sysctl','-n','hw.memsize']),clang=invoke(['clang','--version']),rustc=invoke(['rustc','-vV'],env=env),compiler_sha256=sha(lang),parameters=vars(args),seed=20261009,commands=COMMANDS,source_hashes={str(p.relative_to(REPORT)):sha(p) for p in (REPORT/'sources').rglob('*') if p.is_file()},scope='warm single-threaded macOS ARM64 native calls; modular u64; fresh intermediate allocation included; no LTO; no durability/stateful claim')
     (REPORT/'metadata.json').write_text(json.dumps(metadata,indent=2)+'\n')

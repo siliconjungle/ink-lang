@@ -55,7 +55,7 @@ def main():
         if args.reproduce:
             with tempfile.TemporaryDirectory(prefix='search-layout-replay-') as temp:
                 replay=Path(temp)
-                run([args.python,ROOT/'tools/search_layout_proofs.py',replay,'--compiler',compiler,
+                run([args.python,ROOT/'knowledge/tools/search_layout_proofs.py',replay,'--compiler',compiler,
                      '--sorted',sorted_model,'--source',source,'--maintenance',cert])
                 want={str(p.relative_to(directory)) for p in directory.rglob('*') if p.is_file()}
                 actual={str(p.relative_to(replay)) for p in replay.rglob('*') if p.is_file()}

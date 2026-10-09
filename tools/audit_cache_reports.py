@@ -101,7 +101,7 @@ def main():
     if args.execute:
         original=ROOT/'build/cache-lowering-original/lang';assert sha(original)==extension['compiler_sha256']
         temporary=ROOT/'build/cache-reports-audit/delta-replay'
-        run(['python3','tools/delta_maintenance_proofs.py',temporary,'--compiler',original])
+        run(['python3','knowledge/tools/delta_maintenance_proofs.py',temporary,'--compiler',original])
         for source in (ROOT/'knowledge/delta-maintenance').rglob('*'):
             if source.is_file() and source.suffix in ('.json','.ink'):assert source.read_bytes()==(temporary/source.relative_to(ROOT/'knowledge/delta-maintenance')).read_bytes(),source
         for name in ['cache-lowering-phase1','wide-cache-phase1']:

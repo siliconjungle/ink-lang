@@ -165,7 +165,7 @@ def main():
     artifacts=REPORT/'artifacts';artifacts.mkdir(exist_ok=True)
     for path in BUILD.iterdir():
         if path.is_file() and (path.name.endswith(('.o.c','.o.ll','.o.plan.json','.c.plan.json','.ll')) or path.name.startswith('phase-') and path.suffix=='.c'): shutil.copy2(path,artifacts/path.name)
-    paths=['Cargo.toml','Cargo.lock','dev.py','src/lib.rs','src/logic.rs','src/bitproof.rs','src/main.rs','src/bin/ink.rs','src/library.rs','src/knowledge.rs','src/implementation.rs','src/native.rs','src/pure_alloc.c','src/syntax.rs','src/check.rs','src/eval.rs','src/proof.rs','src/equality.rs','tests/bitproof.rs','bench/bitvector-proof.py','bench/run.py','tools/bitvector_proofs.py']
+    paths=['Cargo.toml','Cargo.lock','dev.py','src/lib.rs','src/logic.rs','src/bitproof.rs','src/main.rs','src/bin/ink.rs','src/library.rs','src/knowledge.rs','src/implementation.rs','src/native.rs','src/pure_alloc.c','src/syntax.rs','src/check.rs','src/eval.rs','src/proof.rs','src/equality.rs','tests/bitproof.rs','bench/bitvector-proof.py','bench/run.py','knowledge/tools/bitvector_proofs.py']
     paths += [str(p.relative_to(ROOT)) for p in (ROOT/'bench/arithmetic').glob('*') if p.is_file()]
     # Keep subsequent runs self-contained for compiler inspection/reconstruction,
     # including modules not executed by these pure arithmetic kernels.

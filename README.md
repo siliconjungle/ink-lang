@@ -2,7 +2,7 @@
 
 Ink is a language for data, computation and explicit state changes, with implementation choices justified by locally checked proofs. This repository implements [the design draft](docs/language-specification-draft.md), incrementally. The full implementation is **in progress**. [STATUS.md](STATUS.md) describes the current executable subset; [PLAN.md](PLAN.md) preserves the full acceptance criteria.
 
-The implementation includes a Rust frontend and reference evaluator, pure native compilation through C and Clang/LLVM, stateful compilation through generated Rust, and local databases of checked proofs and implementations. Both compilation paths also target WebAssembly. The current pure baseline materialises collection stages; an explicit checked database proposal can select a single-fold implementation. It does not recognise benchmark names or substitute handwritten benchmark kernels.
+The implementation includes a Rust frontend and reference evaluator, pure native compilation through C and Clang/LLVM, stateful compilation through generated Rust, and an independently versioned catalogue of checked proofs and implementations. Both compilation paths also target WebAssembly. The current pure baseline materialises collection stages; an explicit checked database proposal can select a single-fold implementation. It does not recognise benchmark names or substitute handwritten benchmark kernels.
 
 ```text
 module demo;
@@ -17,6 +17,7 @@ pub fn total(xs: List<u64>, scale: u64) -> u64 {
 Requirements: a Rust toolchain, Clang, Python 3, and a C++ compiler for comparison. The current benchmark harness targets macOS; the compiler's C backend can be adapted to other hosts.
 
 ```sh
+git submodule update --init knowledge
 cargo test
 cargo build --release
 target/release/ink check examples/kernels.lang
@@ -36,6 +37,31 @@ python3 dev.py build --release
 To evaluate a program with the independent interpreter, put an array of function arguments in a JSON file, then run `ink run SOURCE FUNCTION ARGUMENTS.json`. For example, the arguments to `affine` are `[[1,2,3],3,11]`, whose result is 51.
 
 The build emits a native object, its readable C intermediate, LLVM IR, and a plan manifest containing the identities of applied certificates and the trust boundary. Proof packages can be validated offline. The `lang` executable remains available for existing benchmark scripts and archived reproduction commands.
+
+## Compiler and knowledge repositories
+
+[ink-lang](https://github.com/siliconjungle/ink-lang) contains the executable
+language, general checkers, base runtime, lowering and integration tests.
+[ink-knowledge](https://github.com/siliconjungle/ink-knowledge) contains the JSON
+catalogue, candidate packages, untrusted proof generators and Lean research.
+The `knowledge` directory is a submodule pinned to an exact commit. It is not
+part of the compiler executable, and the compiler does not fetch updates.
+
+```sh
+git clone --recurse-submodules https://github.com/siliconjungle/ink-lang.git
+python3 knowledge/tools/catalogue.py list
+python3 knowledge/tools/catalogue.py verify --compiler target/debug/ink
+```
+
+A compiler-only checkout builds without initialising the submodule. Full
+integration tests and catalogue examples require the pinned knowledge checkout.
+Installed compilers also accept lockfiles and proposals from an unrelated local
+checkout using `--library`, `--database` and `--implementation`; paths are explicit.
+
+The split establishes independent ownership, not completion of the small-core
+migration. The legacy polynomial checker, aggregate schema, bounded-cache
+analysis and layout-specific lowering remain documented migration work in
+[the architectural boundary](docs/small-core-and-knowledge.md).
 
 ## Meaning of verified in this milestone
 
@@ -109,20 +135,20 @@ Improve the measured stateful bottlenecks: transactional bookkeeping, repeated l
 The new path loads explicit equality proofs from immutable objects, without putting Boolean optimisation laws in the compiler:
 
 ```sh
-python3 tools/boolean_proofs.py knowledge/boolean-rules.json knowledge/boolean
+python3 knowledge/tools/boolean_proofs.py knowledge/boolean-rules.json knowledge/boolean
 python3 dev.py build
 target/debug/ink verify-database knowledge/boolean/lock.json
 target/debug/ink build examples/boolean.lang --database knowledge/boolean/lock.json -o build/boolean.o
 python3 tools/check_database.py
 ```
 
-The last command checks unchanged-compiler extension, generated-code differences and native results with zero, one and two database rules. It is not a speed benchmark. This first proof calculus covers total scalar expressions, Boolean cases, acyclic definitions, reusable theorems and conditional equality proofs. It cannot yet replace the legacy polynomial/aggregate checkers. `python3 tools/composed_proofs.py knowledge/composed` produces a seven-object library with one selected rewrite; `python3 tools/check_composition.py` validates its native output and dependency closure. `python3 tools/conditional_proofs.py knowledge/conditional` produces laws with explicit premises; `python3 tools/check_conditional.py` checks their scoped use and native results. See [architecture and limits](docs/small-core-and-knowledge.md).
+The last command checks unchanged-compiler extension, generated-code differences and native results with zero, one and two database rules. It is not a speed benchmark. This first proof calculus covers total scalar expressions, Boolean cases, acyclic definitions, reusable theorems and conditional equality proofs. It cannot yet replace the legacy polynomial/aggregate checkers. `python3 knowledge/tools/composed_proofs.py knowledge/composed` produces a seven-object library with one selected rewrite; `python3 tools/check_composition.py` validates its native output and dependency closure. `python3 knowledge/tools/conditional_proofs.py knowledge/conditional` produces laws with explicit premises; `python3 tools/check_conditional.py` checks their scoped use and native results. See [architecture and limits](docs/small-core-and-knowledge.md).
 
 
 The first-order inductive proof library adds database-defined constructors, recursive computations and induction:
 
 ```sh
-python3 tools/inductive_proofs.py knowledge/inductive
+python3 knowledge/tools/inductive_proofs.py knowledge/inductive
 target/debug/ink verify-library knowledge/inductive/lock.json
 python3 tools/check_induction.py
 ```
@@ -134,7 +160,7 @@ Its twelve objects prove list-traversal composition and tree-copy identity, with
 An untrusted external producer now proposes complete collection-function replacements. The compiler checks exact correspondence between source operations and database-defined recursive models, then checks an unconditional induction theorem before installing each candidate. The baseline no longer automatically fuses collections.
 
 ```sh
-python3 tools/collection_proofs.py knowledge/collections
+python3 knowledge/tools/collection_proofs.py knowledge/collections
 python3 dev.py build --bin lang
 target/debug/ink build knowledge/collections/kernels.lang --implementation knowledge/collections/proposal.json -o build/checked-collections.o
 python3 bench/collection-proof.py
@@ -148,7 +174,7 @@ The [collection benchmark](reports/collection-proof-phase1/REPORT.md) contains 1
 `choose(condition, when_true, when_false)` evaluates one scalar branch. The general proof kernel supports conditional terms, case analysis over an arbitrary Boolean expression and substitution of a proved equality into a typed context. These rules also let database proofs justify filtered pipelines without a built-in fusion rule. The correspondence bridge now checks acyclic source calls and exact callee bodies, including calls within collection lambdas. Changing a callee invalidates a stale proposal even when the caller's source text is unchanged.
 
 ```sh
-python3 tools/filter_proofs.py knowledge/filtered
+python3 knowledge/tools/filter_proofs.py knowledge/filtered
 python3 dev.py build --bin ink
 target/debug/ink build knowledge/filtered/kernels.lang --implementation knowledge/filtered/proposal.json -o build/filtered-checked.o
 python3 bench/filter-proof.py
@@ -181,7 +207,7 @@ This mathematical package alone does not authorise source/table transformations.
 ## Database-backed state maintenance
 
 ```sh
-python3 tools/maintenance_proofs.py build/exact-maintenance-replay
+python3 knowledge/tools/maintenance_proofs.py build/exact-maintenance-replay
 target/release/ink prove-maintenance knowledge/exact-maintenance/canonical.ink --evidence knowledge/exact-maintenance/canonical.evidence.json -o build/database-maintenance.json
 target/release/ink emit-state examples/inventory.lang --maintenance build/database-maintenance.json -o build/database-inventory
 python3 bench/state/run.py --maintenance knowledge/exact-maintenance/canonical.json --output reports/database-maintenance-phase1 --build-directory build/database-maintenance-bench
@@ -199,7 +225,7 @@ Full transaction/representation proofs, multiplication and efficient large proof
 The [delta package](knowledge/delta-maintenance/README.md) adds two universal proofs and selects `total + (new - old)` under the original unchanged compiler. A separate base-lowering improvement borrows exact operands and keeps arithmetic temporaries owned, reducing redundant copies without inserting an algebraic rewrite into the core.
 
 ```sh
-python3 tools/delta_maintenance_proofs.py build/delta-maintenance-replay
+python3 knowledge/tools/delta_maintenance_proofs.py build/delta-maintenance-replay
 python3 bench/cache-lowering.py
 python3 bench/wide-cache.py
 python3 tools/cache_allocations.py
