@@ -1,0 +1,230 @@
+{
+  "module": {
+    "id": 151,
+    "user_id": "cef483b5-8f5a-40e6-b0b3-f82d7a8be13a",
+    "title": "Complete-row and column layouts: checked conversion and all future writes",
+    "namespace": "CompleteRowColumns",
+    "description": "From Ink's database-defined row/column layout work. Independent recursive row and paired-column algorithms insert, replace and remove complete arbitrary row payloads. Proves exact ordered enumeration roundtrip, lookup correspondence, one-write correspondence and all finite future write histories; lane alignment is preserved. Starting from any aligned columns, the independent column history equals encoding the row history after decoding. A checked decoder accepts encoded rows and any accepted result re-encodes to the exact original columns. Two explicit witnesses show that plain truncating zip loses an unmatched key or value. Keys and payloads are arbitrary types with decidable key equality; the comparison is any Key-to-Key-to-Bool function. No order laws or sortedness premises are needed for representation correspondence because both algorithms make the same branch decisions. This does NOT prove that an arbitrary comparator gives correct ordered-map semantics, sortedness, binary search, native Vec/BTreeMap refinement, allocation/index safety, migration/effect atomicity, codecs or performance. Those are separate obligations. Standard sequence/refinement laws, no novelty claim. The Lean translation is independently checked; it is not an automatic verified translator from Ink proof objects and grants no new native optimization admission.",
+    "profile": "core",
+    "declarations": [
+      {
+        "kind": "definition",
+        "name": "Rows",
+        "type": "Type → Type → Type",
+        "value": "fun Key Row => List (Key × Row)"
+      },
+      {
+        "kind": "definition",
+        "name": "Columns",
+        "type": "Type → Type → Type",
+        "value": "fun Key Row => List Key × List Row"
+      },
+      {
+        "kind": "definition",
+        "name": "encode",
+        "type": "{Key Row : Type} → Rows Key Row → Columns Key Row",
+        "value": "fun {_Key _Row} rows => (rows.map Prod.fst, rows.map Prod.snd)"
+      },
+      {
+        "kind": "definition",
+        "name": "decode",
+        "type": "{Key Row : Type} → Columns Key Row → Rows Key Row",
+        "value": "fun {_Key _Row} columns => columns.1.zip columns.2"
+      },
+      {
+        "kind": "definition",
+        "name": "aligned",
+        "type": "{Key Row : Type} → Columns Key Row → Prop",
+        "value": "fun {_Key _Row} columns => columns.1.length = columns.2.length"
+      },
+      {
+        "kind": "definition",
+        "name": "prependRows",
+        "type": "{Key Row : Type} → Key → Rows Key Row → Option Row → Rows Key Row",
+        "value": "fun {_Key _Row} key rows value => match value with | none => rows | some row => (key, row) :: rows"
+      },
+      {
+        "kind": "definition",
+        "name": "prependColumns",
+        "type": "{Key Row : Type} → Key → Columns Key Row → Option Row → Columns Key Row",
+        "value": "fun {_Key _Row} key columns value => match value with | none => columns | some row => (key :: columns.1, row :: columns.2)"
+      },
+      {
+        "kind": "lemma",
+        "name": "decode_encode",
+        "type": "∀ {Key Row : Type} (rows : Rows Key Row), decode (encode rows) = rows",
+        "value": "by\n  intro Key Row rows\n  induction rows with\n  | nil => rfl\n  | cons head tail ih =>\n    rcases head with ⟨key, row⟩\n    change (key, row) :: decode (encode tail) = (key, row) :: tail\n    rw [ih]"
+      },
+      {
+        "kind": "lemma",
+        "name": "encoded_aligned",
+        "type": "∀ {Key Row : Type} (rows : Rows Key Row), aligned (encode rows)",
+        "value": "by\n  intro Key Row rows\n  induction rows with\n  | nil => rfl\n  | cons head tail ih =>\n    change (encode tail).1.length + 1 = (encode tail).2.length + 1\n    exact congrArg (fun n => n + 1) ih"
+      },
+      {
+        "kind": "lemma",
+        "name": "encode_decode",
+        "type": "∀ {Key Row : Type} (keys : List Key) (values : List Row), aligned (keys, values) → encode (decode (keys, values)) = (keys, values)",
+        "value": "by\n  intro Key Row keys\n  induction keys with\n  | nil =>\n    intro values h\n    cases values with\n    | nil => rfl\n    | cons row tail => exact False.elim (Nat.noConfusion h)\n  | cons key keys ih =>\n    intro values h\n    cases values with\n    | nil => exact False.elim (Nat.noConfusion h)\n    | cons row values =>\n      have ht : aligned (keys, values) := Nat.succ.inj h\n      change (key :: (encode (decode (keys, values))).1,\n        row :: (encode (decode (keys, values))).2) = (key :: keys, row :: values)\n      rw [ih values ht]"
+      },
+      {
+        "kind": "lemma",
+        "name": "encode_prepend",
+        "type": "∀ {Key Row : Type} key (rows : Rows Key Row) value, encode (prependRows key rows value) = prependColumns key (encode rows) value",
+        "value": "by\n  intro Key Row key rows value\n  cases value <;> rfl"
+      },
+      {
+        "kind": "definition",
+        "name": "rowWrite",
+        "type": "{Key Row : Type} → [DecidableEq Key] → (Key → Key → Bool) → Rows Key Row → Key → Option Row → Rows Key Row",
+        "value": "fun {_Key _Row} [_] less rows key value =>\n  match rows with\n  | [] => prependRows key [] value\n  | (headKey, headRow) :: tail =>\n    if headKey = key then prependRows headKey tail value\n    else if less key headKey then prependRows key rows value\n    else (headKey, headRow) :: rowWrite less tail key value"
+      },
+      {
+        "kind": "definition",
+        "name": "columnWrite",
+        "type": "{Key Row : Type} → [DecidableEq Key] → (Key → Key → Bool) → List Key → List Row → Key → Option Row → Columns Key Row",
+        "value": "fun {_Key _Row} [_] less keys values key value =>\n  match keys with\n  | [] => prependColumns key (keys, values) value\n  | headKey :: keyTail =>\n    match values with\n    | [] => (keys, values)\n    | headRow :: rowTail =>\n      if headKey = key then prependColumns headKey (keyTail, rowTail) value\n      else if less key headKey then prependColumns key (keys, values) value\n      else\n        let next := columnWrite less keyTail rowTail key value\n        (headKey :: next.1, headRow :: next.2)"
+      },
+      {
+        "kind": "lemma",
+        "name": "write_correspondence",
+        "type": "∀ {Key Row : Type} [DecidableEq Key] less (rows : Rows Key Row) key value, columnWrite less (encode rows).1 (encode rows).2 key value = encode (rowWrite less rows key value)",
+        "value": "by\n  intro Key Row inst less rows\n  induction rows with\n  | nil =>\n    intro key value\n    exact (encode_prepend key [] value).symm\n  | cons head tail ih =>\n    rcases head with ⟨headKey, headRow⟩\n    intro key value\n    by_cases he : headKey = key\n    · simp only [encode, List.map_cons, columnWrite, rowWrite, he, ↓reduceIte]\n      exact (encode_prepend key tail value).symm\n    · cases hb : less key headKey with\n      | false =>\n        simp only [encode, List.map_cons, columnWrite, rowWrite, he, hb, ↓reduceIte]\n        exact congrArg (fun c : Columns Key Row =>\n          (headKey :: c.1, headRow :: c.2)) (ih key value)\n      | true =>\n        simp only [encode, List.map_cons, columnWrite, rowWrite, he, hb, ↓reduceIte]\n        exact (encode_prepend key ((headKey, headRow) :: tail) value).symm"
+      },
+      {
+        "kind": "definition",
+        "name": "rowLookup",
+        "type": "{Key Row : Type} → [DecidableEq Key] → Rows Key Row → Key → Option Row",
+        "value": "fun {_Key _Row} [_] rows query =>\n  match rows with\n  | [] => none\n  | (key, row) :: tail => if key = query then some row else rowLookup tail query"
+      },
+      {
+        "kind": "definition",
+        "name": "columnLookup",
+        "type": "{Key Row : Type} → [DecidableEq Key] → List Key → List Row → Key → Option Row",
+        "value": "fun {_Key _Row} [_] keys values query =>\n  match keys with\n  | [] => none\n  | key :: keyTail =>\n    match values with\n    | [] => none\n    | row :: rowTail => if key = query then some row else columnLookup keyTail rowTail query"
+      },
+      {
+        "kind": "lemma",
+        "name": "lookup_correspondence",
+        "type": "∀ {Key Row : Type} [DecidableEq Key] (rows : Rows Key Row) query, columnLookup (encode rows).1 (encode rows).2 query = rowLookup rows query",
+        "value": "by\n  intro Key Row inst rows\n  induction rows with\n  | nil => intro query; rfl\n  | cons head tail ih =>\n    rcases head with ⟨key, row⟩\n    intro query\n    by_cases h : key = query\n    · simp only [encode, List.map_cons, columnLookup, rowLookup, h, ↓reduceIte]\n    · simp only [encode, List.map_cons, columnLookup, rowLookup, h, ↓reduceIte]\n      exact ih query"
+      },
+      {
+        "kind": "definition",
+        "name": "rowExecute",
+        "type": "{Key Row : Type} → [DecidableEq Key] → (Key → Key → Bool) → List (Key × Option Row) → Rows Key Row → Rows Key Row",
+        "value": "fun {_Key _Row} [_] less writes rows =>\n  match writes with\n  | [] => rows\n  | write :: rest => rowExecute less rest (rowWrite less rows write.1 write.2)"
+      },
+      {
+        "kind": "definition",
+        "name": "columnExecute",
+        "type": "{Key Row : Type} → [DecidableEq Key] → (Key → Key → Bool) → List (Key × Option Row) → Columns Key Row → Columns Key Row",
+        "value": "fun {_Key _Row} [_] less writes columns =>\n  match writes with\n  | [] => columns\n  | write :: rest => columnExecute less rest (columnWrite less columns.1 columns.2 write.1 write.2)"
+      },
+      {
+        "kind": "lemma",
+        "name": "history_correspondence",
+        "type": "∀ {Key Row : Type} [DecidableEq Key] less writes (rows : Rows Key Row), columnExecute less writes (encode rows) = encode (rowExecute less writes rows)",
+        "value": "by\n  intro Key Row inst less writes\n  induction writes with\n  | nil => intro rows; rfl\n  | cons write rest ih =>\n    intro rows\n    simp only [columnExecute, rowExecute, write_correspondence]\n    exact ih _"
+      },
+      {
+        "kind": "lemma",
+        "name": "future_enumeration",
+        "type": "∀ {Key Row : Type} [DecidableEq Key] less writes (rows : Rows Key Row), decode (columnExecute less writes (encode rows)) = rowExecute less writes rows",
+        "value": "by\n  intro Key Row inst less writes rows\n  rw [history_correspondence, decode_encode]"
+      },
+      {
+        "kind": "lemma",
+        "name": "future_lookup",
+        "type": "∀ {Key Row : Type} [DecidableEq Key] less writes (rows : Rows Key Row) query, columnLookup (columnExecute less writes (encode rows)).1 (columnExecute less writes (encode rows)).2 query = rowLookup (rowExecute less writes rows) query",
+        "value": "by\n  intro Key Row inst less writes rows query\n  rw [history_correspondence]\n  exact lookup_correspondence _ _"
+      },
+      {
+        "kind": "lemma",
+        "name": "future_alignment",
+        "type": "∀ {Key Row : Type} [DecidableEq Key] less writes (rows : Rows Key Row), aligned (columnExecute less writes (encode rows))",
+        "value": "by\n  intro Key Row inst less writes rows\n  rw [history_correspondence]\n  exact encoded_aligned _"
+      },
+      {
+        "kind": "lemma",
+        "name": "aligned_history",
+        "type": "∀ {Key Row : Type} [DecidableEq Key] less writes (keys : List Key) (values : List Row), aligned (keys, values) → columnExecute less writes (keys, values) = encode (rowExecute less writes (decode (keys, values)))",
+        "value": "by\n  intro Key Row inst less writes keys values h\n  have eq := history_correspondence less writes (decode (keys, values))\n  rw [encode_decode keys values h] at eq\n  exact eq"
+      },
+      {
+        "kind": "lemma",
+        "name": "aligned_history_stays_aligned",
+        "type": "∀ {Key Row : Type} [DecidableEq Key] less writes (keys : List Key) (values : List Row), aligned (keys, values) → aligned (columnExecute less writes (keys, values))",
+        "value": "by\n  intro Key Row inst less writes keys values h\n  rw [aligned_history less writes keys values h]\n  exact encoded_aligned _"
+      },
+      {
+        "kind": "definition",
+        "name": "checkedDecode",
+        "type": "{Key Row : Type} → Columns Key Row → Option (Rows Key Row)",
+        "value": "fun {_Key _Row} columns => if columns.1.length = columns.2.length then some (decode columns) else none"
+      },
+      {
+        "kind": "lemma",
+        "name": "checked_decode_sound",
+        "type": "∀ {Key Row : Type} (columns : Columns Key Row) rows, checkedDecode columns = some rows → encode rows = columns",
+        "value": "by\n  intro Key Row columns rows h\n  rcases columns with ⟨keys, values⟩\n  by_cases ha : keys.length = values.length\n  · have hr : decode (keys, values) = rows := by simpa [checkedDecode, ha] using h\n    rw [← hr]\n    exact encode_decode keys values ha\n  · simp [checkedDecode, ha] at h"
+      },
+      {
+        "kind": "lemma",
+        "name": "checked_decode_accepts_encoding",
+        "type": "∀ {Key Row : Type} (rows : Rows Key Row), checkedDecode (encode rows) = some rows",
+        "value": "by\n  intro Key Row rows\n  unfold checkedDecode\n  split\n  · rw [decode_encode]\n  · rename_i h\n    exact False.elim (h (encoded_aligned rows))"
+      },
+      {
+        "kind": "definition",
+        "name": "malformedKeys",
+        "type": "Columns Nat Nat",
+        "value": "([1, 2], [7])"
+      },
+      {
+        "kind": "definition",
+        "name": "malformedValues",
+        "type": "Columns Nat Nat",
+        "value": "([1], [7, 8])"
+      },
+      {
+        "kind": "lemma",
+        "name": "truncation_loses_data",
+        "type": "encode (decode malformedKeys) ≠ malformedKeys ∧ encode (decode malformedValues) ≠ malformedValues",
+        "value": "by\n  change (([1], [7]) : List Nat × List Nat) ≠ ([1, 2], [7]) ∧\n    (([1], [7]) : List Nat × List Nat) ≠ ([1], [7, 8])\n  constructor <;> decide"
+      },
+      {
+        "kind": "lemma",
+        "name": "alignment_rejects_truncation",
+        "type": "checkedDecode malformedKeys = none ∧ checkedDecode malformedValues = none",
+        "value": "by constructor <;> rfl"
+      }
+    ],
+    "module_pins": [],
+    "module_context": [],
+    "module_hash": "102d98af7577e05aaaff3ec16986cb6546623c9eead70de1cfcb852e66a745b4",
+    "status": "verified",
+    "check_log": "[DEBUG:INIT] lean_initialize() started\nHUNCH_COMPUTATION_READY\n'_private.0.Hunch.CompleteRowColumns.Rows' does not depend on any axioms\n'_private.0.Hunch.CompleteRowColumns.Columns' does not depend on any axioms\n'_private.0.Hunch.CompleteRowColumns.encode' does not depend on any axioms\n'_private.0.Hunch.CompleteRowColumns.decode' does not depend on any axioms\n'_private.0.Hunch.CompleteRowColumns.aligned' does not depend on any axioms\n'_private.0.Hunch.CompleteRowColumns.prependRows' does not depend on any axioms\n'_private.0.Hunch.CompleteRowColumns.prependColumns' does not depend on any axioms\n'_private.0.Hunch.CompleteRowColumns.decode_encode' does not depend on any axioms\n'_private.0.Hunch.CompleteRowColumns.encoded_aligned' does not depend on any axioms\n'_private.0.Hunch.CompleteRowColumns.encode_decode' does not depend on any axioms\n'_private.0.Hunch.CompleteRowColumns.encode_prepend' does not depend on any axioms\n'_private.0.Hunch.CompleteRowColumns.rowWrite' does not depend on any axioms\n'_private.0.Hunch.CompleteRowColumns.columnWrite' does not depend on any axioms\n'_private.0.Hunch.CompleteRowColumns.write_correspondence' depends on axioms: [propext]\n'_private.0.Hunch.CompleteRowColumns.rowLookup' does not depend on any axioms\n'_private.0.Hunch.CompleteRowColumns.columnLookup' does not depend on any axioms\n'_private.0.Hunch.CompleteRowColumns.lookup_correspondence' depends on axioms: [propext, Quot.sound]\n'_private.0.Hunch.CompleteRowColumns.rowExecute' does not depend on any axioms\n'_private.0.Hunch.CompleteRowColumns.columnExecute' does not depend on any axioms\n'_private.0.Hunch.CompleteRowColumns.history_correspondence' depends on axioms: [propext]\n'_private.0.Hunch.CompleteRowColumns.future_enumeration' depends on axioms: [propext]\n'_private.0.Hunch.CompleteRowColumns.future_lookup' depends on axioms: [propext, Quot.sound]\n'_private.0.Hunch.CompleteRowColumns.future_alignment' depends on axioms: [propext]\n'_private.0.Hunch.CompleteRowColumns.aligned_history' depends on axioms: [propext]\n'_private.0.Hunch.CompleteRowColumns.aligned_history_stays_aligned' depends on axioms: [propext]\n'_private.0.Hunch.CompleteRowColumns.checkedDecode' does not depend on any axioms\n'_private.0.Hunch.CompleteRowColumns.checked_decode_sound' depends on axioms: [propext]\n'_private.0.Hunch.CompleteRowColumns.checked_decode_accepts_encoding' does not depend on any axioms\n'_private.0.Hunch.CompleteRowColumns.malformedKeys' does not depend on any axioms\n'_private.0.Hunch.CompleteRowColumns.malformedValues' does not depend on any axioms\n'_private.0.Hunch.CompleteRowColumns.truncation_loses_data' does not depend on any axioms\n'_private.0.Hunch.CompleteRowColumns.alignment_rejects_truncation' does not depend on any axioms\n'_private.0.OA_target' does not depend on any axioms\nOA_target : OA_statement\n[DEBUG:INIT] save_stack_info() done\n[DEBUG:INIT] initialize_util_module() done\n[DEBUG:INIT] About to initialize_Init...\n[DEBUG:INIT] initialize_Init() done\n[DEBUG:INIT] About to initialize_Std...\n[DEBUG:INIT] initialize_Std() done\n[DEBUG:INIT] About to initialize_Lean...\n[DEBUG:INIT] initialize_Lean() done\n[DEBUG:INIT] initialize_kernel_module() done\n[DEBUG:INIT] lean_initialize() completed successfully\n",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "created_at": 1791585120,
+    "checked_at": 1791585155,
+    "hidden_at": null,
+    "secondary_status": "passed",
+    "secondary_details": "{\"implementation\":\"Nanoda\",\"status\":\"passed\",\"declarations\":261,\"export_sha256\":\"ba28a99aa03b431252ace8aa4da348a94be7454df03d17aed0dc510231e78306\",\"checker_sha256\":\"eb036dcc2e11541c6e6fa0ee1bcf4697e31140f63e100ccb81184c2f839c11d9\",\"checker_commit\":\"3a2407216ee84a75f9e1aead6803d0578be06ae7\",\"exporter_commit\":\"05d43a2bc773b40ecfdebb32294192a5ef756951\",\"export_output\":\"file-v1\",\"export_bytes\":607842,\"export_elapsed_ms\":12417,\"elapsed_ms\":455,\"computation_budget_seconds\":7200}",
+    "origin_submission_id": null,
+    "origin_source_hash": null,
+    "username": "jungle"
+  },
+  "verification": {
+    "id": "job_84fe1fe4bffedb067e02452e3a3cb15517829f7795473ba696260299e1b1833a",
+    "status": "complete",
+    "stage": "verified",
+    "attempts": 1,
+    "updated_at": 1791585155,
+    "poll_after_seconds": 3
+  },
+  "diagnostics": []
+}

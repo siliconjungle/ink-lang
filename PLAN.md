@@ -27,6 +27,8 @@ The requested Goose-inspired changes are also binding: contiguous/compact repres
 
 The whole-row journal work also has a [Lean contribution](reports/hunchroom-row-journal/README.md) on Hunchroom: arbitrary history restoration and complete-machine equivalence for adjacent same-key coalescing. It is reusable research evidence, not native optimization admission. Source/effect and physical-map correspondence remain required; the full implementation and evaluation objective stays active.
 
+The row/column representation work also has a [Lean contribution](reports/hunchroom-column-layout/README.md), Hunchroom module 151: complete enumeration/lookup/write correspondence, arbitrary future histories and checked conversion that rejects unmatched lanes. Lean and Nanoda both passed. Six well-typed false implementations fail locally. This publication makes the laws reusable; it adds no native optimization or speed claim and leaves the full objective active.
+
 1. Establish a real Rust frontend, independent reference evaluator, bounded arithmetic proof checker and native compilation path. Benchmark pure collection programs without hardcoded workload recognition.
 2. Implement the inventory/state language and correctness suite; add checked incremental implementations and compare against manually maintained C/C++/Rust.
 3. Add portable snapshots and Wasm; implement safe runtime migration and adaptation.

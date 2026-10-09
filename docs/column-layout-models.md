@@ -19,6 +19,8 @@ These statements quantify over arbitrary complete source-sort payloads, includin
 
 The package uses structural induction, congruence and Boolean case proofs already supported by the kernel. It adds no trusted rewrite, representation law, optimizer catalogue, solver or proof rule to the compiler. Both packages reproduce byte for byte; the earlier whole-row compiler also verifies their complete libraries.
 
+The representation laws now also have a [standalone Lean contribution](../reports/hunchroom-column-layout/README.md), published as [Hunchroom module 151](https://hunchroom.com/modules/151) and checked by Lean and Nanoda. It includes independent row/column write algorithms, arbitrary future histories and a checked decoder with unmatched-lane loss witnesses. This reviewed Lean translation is separate evidence, not automatic Ink/native admission.
+
 ## Executed comparisons
 
 The new native comparison test runs eight 64-write histories across the two source schemas, with empty and nonempty starting stores, boundary keys, repeated writes, absent removals and unrelated lookup hints. All 512 prefixes compare the mathematical row and column transitions with an independent `BTreeMap` and four native stores: flat rows, flat columns and both layouts promoting to a tree. That supplies 2,048 native mutation/returned-value comparisons and 6,144 native lookup comparisons, along with complete ordered enumeration and value iteration checks.
