@@ -1,0 +1,43 @@
+{
+  "status": "passed",
+  "mode": "executed",
+  "samples": 448,
+  "cells": 16,
+  "source_artifact_validation_hashes": true,
+  "sample_matrix": true,
+  "summary_recomputed": true,
+  "unchanged_generic_kernel": true,
+  "correctness": {
+    "status": "passed",
+    "native_observation_comparisons": 4096,
+    "variants": [
+      "snapshot",
+      "snapshot_db",
+      "journal",
+      "rust_bigint"
+    ],
+    "bits": [
+      64,
+      512,
+      4096,
+      8192
+    ],
+    "profiles": [
+      "small changing row",
+      "wide signed changing row"
+    ],
+    "checks": [
+      "signed exact total",
+      "both table rows",
+      "version",
+      "full signed digest",
+      "return status"
+    ],
+    "fixtures": []
+  },
+  "native_replayed_streams": 64,
+  "measured_binaries_preserved": true,
+  "exact_codegen_and_plan_replay": true,
+  "instrumented_allocations_replayed": true,
+  "original_kernel_and_two_candidates_replayed": true
+}
