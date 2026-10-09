@@ -1,0 +1,23 @@
+pub mod aggregate;
+pub mod bitproof;
+pub mod check;
+pub mod equality;
+pub mod eval;
+pub mod exact_maintenance;
+pub mod implementation;
+pub mod knowledge;
+pub mod library;
+pub mod logic;
+pub mod native;
+pub mod ordered_storage;
+pub mod proof;
+pub mod snapshot;
+pub mod snapshot_wire;
+pub mod state_native;
+pub mod statecheck;
+pub mod stateful;
+pub mod storage;
+pub mod syntax;
+pub mod table_maintenance;
+
+pub type LangResult<T> = Result<T, String>;

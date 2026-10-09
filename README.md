@@ -45,6 +45,8 @@ Collection lowering, emitted C and Clang/LLVM are currently trusted. Native beha
 
 ## Compact native storage
 
+The proof database also contains [whole-row rollback evidence](docs/whole-row-undo.md), checked under the unchanged compiler. It proves payload/cache restoration in an abstract keyed model for arbitrary finite histories. Native representation admission still needs the source/map/codec correspondence bridge. The full suite now passes 78 tests.
+
 An external policy selects contiguous row/column buffers and optional promotion to a tree. The backend moves rows into undo/storage and offers a borrowed event-result API. [The design and trust boundary](docs/compact-storage.md) explain the implementation. [The current controlled benchmark](reports/borrowed-outcomes-phase1/REPORT.md) shows gains for small tables, while matching-layout handwritten Rust remains faster and large mutation-heavy flat tables can be much slower. All 75 tests pass; tree/row/column snapshots also transfer and continue across native and browser WebAssembly. Policies are checked typed data, not proofs of the physical runtime implementation.
 
 ## Benchmarks
