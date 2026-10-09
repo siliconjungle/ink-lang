@@ -50,6 +50,8 @@ Hunchroom was read on 2026-10-09. The following are source-reported results and 
 
 These belong in an external research/proof-production workflow. An import must either translate to our core's proof language with the needed semantic correspondence, or disclose a separate checker and translation layer as trusted. No Lean dependency is being silently added to the user language, and no Hunchroom theorem is currently accepted as an optimisation certificate here.
 
+This project submitted a reusable Lean model of bounded polynomial execution: modular intermediates recover the exact result when its final value is nonnegative and below the modulus, including an equivalent alternative polynomial. [Module 28](https://hunchroom.com/modules/28) passes hosted Lean checking with only `propext` and `Quot.sound`; Nanoda reports an export error involving `Nat.le_of_ble_eq_true`, so independent verification is incomplete. The earlier module 19 was rejected because the pinned acceptance policy rejects all warnings, including unused binder names. Removing only those names resolved that failure without changing the proof bodies or mathematical claims. Payloads, logs, receipt and a replay of the exact pinned policy are archived in `reports/hunchroom-bounded-cache/warning-free`. This is a mathematical evaluator model, not an end-to-end proof of the compiler or generated code.
+
 ## Required architecture tests
 
 - Hash the compiler binary, add a new independently checked optimisation object to the database, and demonstrate a changed valid plan with the same compiler hash.

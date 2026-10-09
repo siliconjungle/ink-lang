@@ -1,0 +1,30 @@
+{
+  "local_check": {
+    "status": "passed",
+    "exit_code": 0,
+    "warnings": 0,
+    "source_sha256": "e4eb7550ccdec3ad126ab5f5b5c0c0b85c3e335f7fd5bc83adb1f4836d3f9992",
+    "pinned_acceptance_policy": "passed",
+    "axioms": [
+      "propext",
+      "Quot.sound"
+    ],
+    "limitation": "Local Lean toolchain differs from hosted pin; local source omits unused Batteries import."
+  },
+  "hosted": {
+    "module_url": "https://hunchroom.com/modules/28",
+    "status": "verified",
+    "secondary_status": "error",
+    "primary_status": "verified",
+    "secondary_details": {
+      "implementation": "Nanoda",
+      "status": "error",
+      "diagnostic": "export file declares unpermitted axiom \"Nat.le_of_ble_eq_true\"",
+      "export_sha256": "1e0e34a5cc74afcba5a155c8cd43146e4540b61c5c2098061ecec2aefcc47778",
+      "checker_sha256": "ab9650346052bcc6947332de49b6553eee9030ade4ba1ea596dfd4fa7e124ad4"
+    },
+    "receipt": "module-receipt.json",
+    "receipt_signature_independently_verified": false
+  },
+  "change": "Only nondependent binder names were removed from types; proof bodies and mathematical claims unchanged."
+}

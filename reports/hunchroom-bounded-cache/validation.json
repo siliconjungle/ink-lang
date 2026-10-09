@@ -12,7 +12,9 @@
     "secondary_status": "not_run",
     "receipt": "module-receipt.json",
     "receipt_signature_independently_verified": false,
-    "diagnosis": "No explicit Lean error in returned check log. Hosted failure remains unresolved; do not count as accepted or verified by Hunchroom."
+    "diagnosis": "Confirmed sufficient rejection cause: pinned oa-lean-v1 assessResult rejects any warning. Hosted log has 15 unused-variable warnings. Policy replay rejects original log and accepts it after removing only those warning blocks, assuming successful process exit and no separate stderr. Mathematical proof failure is not reported.",
+    "diagnostic_artifacts": "warning-free/policy-replay.json; warning-free/verification.mjs; warning-free/runtime-manifest.json",
+    "replacement_module_url": "https://hunchroom.com/modules/28"
   },
   "scope": "Executable mathematical polynomial model; not a proof of the Rust frontend, range analysis or generated machine code."
 }
