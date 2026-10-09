@@ -1,0 +1,25 @@
+{
+  "backend": "typed Rust; no AST evaluator",
+  "bounded_cache_evidence": {},
+  "limitations": [
+    "portable snapshots supported; no live native migration or durable WAL",
+    "collection scans currently materialise lists",
+    "no native execution fuel limit"
+  ],
+  "maintenance_authority": "recomputation; no maintenance certificate",
+  "maintenance_certificate": null,
+  "maintenance_library_closure": null,
+  "maintenance_semantics": null,
+  "module": "state_benchmark",
+  "source": "examples/state-benchmark.lang",
+  "trusted": [
+    "frontend",
+    "row-local table projection and transactional cache protocol",
+    "finite-domain range analysis",
+    "modular representation lowering",
+    "typed Rust lowering",
+    "num-bigint",
+    "Rust/LLVM backend"
+  ],
+  "wasm_host_abi": null
+}

@@ -64,7 +64,7 @@ target/debug/ink execute examples/inventory.lang examples/inventory-script.json 
 python3 bench/state_runtime.py
 ```
 
-The package's three exact-integer update functions are validated against a fixed finite-map induction schema. Eligible sum/count queries can then use maintained totals. The runtime preserves transaction failure, nested aborts, events and tentative reads. Portable reference snapshots omit physical caches and restore logical state independently of the selected implementation.
+The legacy package's three exact-integer update functions are validated against a fixed finite-map induction schema. The newer database-backed path below checks the actual update expressions through generic induction proofs. Eligible sum/count queries can then use maintained totals. The runtime preserves transaction failure, nested aborts, events and tentative reads. Portable reference snapshots omit physical caches and restore logical state independently of the selected implementation.
 
 [State-runtime measurements](reports/state-runtime-phase2/REPORT.md) show both update overhead and query savings. These compare two modes of the reference evaluator, not generated native stateful code against C/C++/Rust.
 
@@ -162,4 +162,20 @@ The [benchmark report](reports/bitvector-proof-phase1/REPORT.md) records 560 tim
 
 The [exact-integer package](knowledge/exact-integers/README.md) adds 35 database objects and 23 universally quantified induction proofs with the unchanged kernel. Its group laws prove insert/replace/remove sum equations at arbitrary positions in finite lists, including negative weights. The [verification report](reports/exact-sum-proof-foundation/REPORT.md) records deterministic replay, 57 passing tests and about 6 ms for a complete import.
 
-This is a foundation for replacing the aggregate checker's built-in authority. It does not yet authorise source/table transformations or change runtime performance; source correspondence and transaction refinement remain necessary.
+This mathematical package alone does not authorise source/table transformations. The separate bridge below now checks actual maintenance arithmetic; complete transaction and representation refinement remain necessary.
+
+## Database-backed state maintenance
+
+```sh
+python3 tools/maintenance_proofs.py build/exact-maintenance-replay
+target/release/ink prove-maintenance knowledge/exact-maintenance/canonical.ink --evidence knowledge/exact-maintenance/canonical.evidence.json -o build/database-maintenance.json
+target/release/ink emit-state examples/inventory.lang --maintenance build/database-maintenance.json -o build/database-inventory
+python3 bench/state/run.py --maintenance knowledge/exact-maintenance/canonical.json --output reports/database-maintenance-phase1 --build-directory build/database-maintenance-bench
+python3 tools/audit_maintenance_report.py --execute
+```
+
+[Two checked packages](knowledge/exact-maintenance/README.md) select actual update expressions through the generic proof kernel. The source bridge pins exact integer/list meanings, translates the proposed arithmetic, and checks each insertion/replacement/removal equality. Proof production and maintenance laws remain database data. The self-contained certificate carries immutable checked objects; no solver runs during import.
+
+The [native report](reports/database-maintenance-phase1/REPORT.md) records 756 samples, 12,030 independent native state comparisons, replayed code/plans and about 6 ms certificate checking. The complete suite passes 62 tests, including signed 512-bit runtime/native values, aborts, tentative queries, events and checkpoint continuation. Bounded Ink takes 1.75× handwritten Rust time and 2.57× the fastest baseline's time by geometric mean. Canonical legacy/database certificates produce identical runtime source; this step changes checking authority, not performance.
+
+Full transaction/representation proofs, multiplication and efficient large proof literals remain work. The legacy polynomial authority, pipeline recogniser and representation analysis are still present. The compiler does not yet meet the complete small-core design.
