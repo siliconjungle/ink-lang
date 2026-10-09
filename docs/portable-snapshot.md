@@ -1,6 +1,6 @@
 # Portable snapshot v1
 
-Reference and generated native stateful programs share a canonical binary interchange format. This is a transaction-boundary checkpoint, not crash-safe storage or a write-ahead log. Physical aggregate caches are omitted and reconstructed by the receiving implementation.
+Reference, generated native and generated Wasm stateful programs share a canonical binary interchange format. This is a transaction-boundary checkpoint, not crash-safe storage or a write-ahead log. Physical aggregate caches are omitted and reconstructed by the receiving implementation.
 
 The 84-byte header is: eight magic bytes `VLSTATE\0`, u16 format version 1, u16 semantics version 1, 32-byte program identity, 32-byte schema identity, and a u64 payload byte count. Integers are little endian. SHA-256 of the header and payload follows the payload as 32 raw bytes. This detects corruption; it does not authenticate the sender.
 
@@ -16,4 +16,4 @@ Default decoding/encoding limits are 64 MiB, one million typed values and depth 
 
 Reference APIs: `checkpoint_portable`, `restore_portable`, and corresponding `_with_limits` methods. Generated native APIs: `checkpoint`, `restore`, and `_with_limits`. The reference CLI accepts `--portable --snapshot-out FILE` and auto-detects this format on `--restore`. The generated runner accepts `SCRIPT.json --restore FILE --snapshot-out FILE` and uses portable binary snapshots exclusively.
 
-Tests transfer checkpoints from the reference runtime through scanning, maintained and bounded generated programs and back, execute later operations at each stage, and compare complete snapshot bytes and outcomes. Corruption, truncation, malformed lengths, type encodings and key ordering have negative tests. This is tested interoperability, not a formal storage proof. Stateful WebAssembly interchange remains pending.
+Tests transfer checkpoints from the reference runtime through scanning, maintained and bounded generated programs and back, execute later operations at each stage, and compare complete snapshot bytes and outcomes. Corruption, truncation, malformed lengths, type encodings and key ordering have negative tests. This is tested interoperability, not a formal storage proof. The stateful Wasm verification in `reports/state-wasm-phase1` also passes bidirectional native/Wasm transfers, continuation and acknowledgement in Node/V8 and an actual browser. See `docs/wasm-abi.md` for the host interface. Durable recovery and schema evolution remain pending.

@@ -1,0 +1,38 @@
+module state_benchmark;
+record Row { stock: u32, }
+record Updated { key: u64, before: u32, after: u32, }
+enum Error { Missing, Exists, Overflow, }
+state Items: Table<u64, Row> = Table.empty();
+event updated: Updated;
+keep total_units: Int = sum(Items.values().map(fn(row) => Int(row.stock)));
+change create(key:u64, stock:u32) -> Result<Unit,Error> writes(Items) {
+    if Items.contains(key) {return Err(Error.Exists);}
+    Items.insert(key, Row {stock:stock});
+    return Ok(());
+}
+change restock(key:u64, amount:u32) -> Result<Unit,Error> writes(Items) emits(updated) {
+    let row = Items.get(key).ok_or(Error.Missing)?;
+    let next = checked_add(row.stock,amount).map_err(fn(_) => Error.Overflow)?;
+    Items.replace(key, Row {stock:next});
+    emit updated(Updated {key:key,before:row.stock,after:next});
+    return Ok(());
+}
+change remove(key:u64) -> Result<Unit,Error> writes(Items) {
+    Items.remove(key);
+    return Ok(());
+}
+change fail(key:u64) -> Result<Unit,Error> writes(Items) emits(updated) {
+    restock(key,7)?;
+    restock(key,9)?;
+    return Err(Error.Overflow);
+}
+query total() -> Int reads(total_units) {return total_units;}
+query stock_of(key:u64) -> Option<u32> reads(Items) {return Items.get(key).map(fn(row) => row.stock);}
+
+
+keep expensive:Int=sum(Items.values().filter(fn(row)=>row.stock>100).map(fn(row)=>Int(row.stock)*Int(row.stock)));
+query derived()->Int reads(expensive){return expensive;}
+change read_after_write(key:u64)->Result<Int,Error> writes(Items) reads(total_units) emits(updated){restock(key,3)?;return Ok(total_units);}
+change remove_fail(key:u64)->Result<Unit,Error> writes(Items){Items.remove(key);return Err(Error.Overflow);}
+change ignored_fail(key:u64)->Result<Unit,Error> writes(Items) emits(updated){restock(key,4294967295);return Ok(());}
+query negative()->Int{return Int(2)-Int(5);}

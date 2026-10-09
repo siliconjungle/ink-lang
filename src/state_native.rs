@@ -917,3 +917,6 @@ fn run()->Result<(),String>{
 }
 fn main()->std::process::ExitCode{match run(){Ok(())=>std::process::ExitCode::SUCCESS,Err(e)=>{eprintln!("error: {e}");std::process::ExitCode::FAILURE}}}
 "#;
+
+/// The optional single-threaded Wasm ABI is appended to a generated crate.
+pub const WASM_ABI: &str = include_str!("state_wasm_support.rs");

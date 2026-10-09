@@ -1,0 +1,99 @@
+   Compiling verified-language v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.54s
+     Running unittests src/lib.rs (target/debug/deps/verified_language-23ef834879088669)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (target/debug/deps/lang-db7db69d15e62f1a)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/state_bench.rs (target/debug/deps/state_bench-49c149e25b20befe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/state_wasm_fixture.rs (target/debug/deps/state_wasm_fixture-577e35153ae89ad7)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/equality.rs (target/debug/deps/equality-10ea7e100bad79f1)
+
+running 7 tests
+test checked_definitions_and_reused_lemmas_preserve_substitution_scope ... ok
+test conditional_theorems_cannot_escape_their_premises ... ok
+test conditional_database_rewrites_only_where_guard_proofs_are_available ... ok
+test checked_database_preserves_all_boolean_inputs_and_word_boundaries ... ok
+test equality_rules_validate_types_endpoints_and_case_contexts ... ok
+test database_rejects_forgery_wrong_hash_and_incompatible_semantics ... ok
+test dependency_closure_checks_all_imports_but_selects_only_roots ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/language.rs (target/debug/deps/language-34bd8c89d6d391a1)
+
+running 6 tests
+test syntax_errors_are_not_silently_ignored ... ok
+test reject_invalid_types_names_and_recursion ... ok
+test arbitrary_symbol_names_cannot_collide_with_c_temporaries ... ok
+test overflow_and_collection_order ... ok
+test ring_checker_accepts_true_rejects_false_and_tampered ... ok
+test knowledge_changes_code_and_preserves_boundary_values ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/maintenance.rs (target/debug/deps/maintenance-61432b9cf5debc68)
+
+running 4 tests
+test certificate_checks_actual_update_algorithms ... ok
+test state_dependent_projection_is_not_incrementalised ... ok
+test full_width_ids_and_empty_filtered_aggregates_survive_snapshot ... ok
+test maintained_and_scanned_observations_match_across_future_changes ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.71s
+
+     Running tests/snapshots.rs (target/debug/deps/snapshots-0dd8ba102c9e1d46)
+
+running 3 tests
+test all_value_forms_roundtrip_and_noncanonical_values_are_rejected ... ok
+test golden_payload_order_and_little_endian_integers ... ok
+test portable_reference_snapshots_preserve_future_changes_and_pending_events ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/state_native.rs (target/debug/deps/state_native-220103ae09a8d283)
+
+running 3 tests
+test tampered_native_maintenance_is_rejected_before_emission ... ok
+test range_analysis_uses_full_domains_and_rejects_unbounded_contributions ... ok
+test native_state_matches_reference_with_and_without_checked_maintenance ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.68s
+
+     Running tests/stateful.rs (target/debug/deps/stateful-f9d7fd63660879af)
+
+running 8 tests
+test key_presence_facts_are_not_assumed_for_state_dependent_expressions ... ok
+test contextual_constructors_and_negative_exact_arithmetic ... ok
+test abort_rolls_back_multiple_writes_and_staged_events ... ok
+test complete_inventory_example_and_exact_totals ... ok
+test reject_malformed_snapshots_and_ingress ... ok
+test ignored_nested_error_still_aborts_outer_transaction ... ok
+test reject_undeclared_effects_unproved_keys_and_cycles ... ok
+test tentative_derived_reads_and_snapshot_roundtrip ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+   Doc-tests verified_language
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

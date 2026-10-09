@@ -1,0 +1,109 @@
+{
+  "version": 1,
+  "semantics": "finite-map-pointwise-exact-sum-v1",
+  "insert": {
+    "Binary": [
+      "+",
+      {
+        "Var": "total"
+      },
+      {
+        "Var": "new"
+      }
+    ]
+  },
+  "replace": {
+    "Binary": [
+      "+",
+      {
+        "Binary": [
+          "-",
+          {
+            "Var": "total"
+          },
+          {
+            "Var": "old"
+          }
+        ]
+      },
+      {
+        "Var": "new"
+      }
+    ]
+  },
+  "remove": {
+    "Binary": [
+      "-",
+      {
+        "Var": "total"
+      },
+      {
+        "Var": "old"
+      }
+    ]
+  },
+  "obligations": [
+    [
+      [
+        [
+          "new"
+        ],
+        [
+          1,
+          [
+            1
+          ]
+        ]
+      ],
+      [
+        [
+          "rest"
+        ],
+        [
+          1,
+          [
+            1
+          ]
+        ]
+      ]
+    ],
+    [
+      [
+        [
+          "new"
+        ],
+        [
+          1,
+          [
+            1
+          ]
+        ]
+      ],
+      [
+        [
+          "rest"
+        ],
+        [
+          1,
+          [
+            1
+          ]
+        ]
+      ]
+    ],
+    [
+      [
+        [
+          "rest"
+        ],
+        [
+          1,
+          [
+            1
+          ]
+        ]
+      ]
+    ]
+  ],
+  "id": "a746374ab2b4d716620ac9ac8dfafdf1e89e6c6b6a428de28875e142d2d10176"
+}

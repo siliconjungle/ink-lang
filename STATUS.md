@@ -56,7 +56,9 @@ Generated Rust lowering, runtime support, dependencies and Rust/LLVM remain trus
 - Pure programs compile to freestanding wasm32 modules with SIMD through Zig's Clang/linker toolchain.
 - The pure-function pointer/length ABI is documented in `docs/wasm-abi.md`.
 - Both the plain and knowledge-enabled modules passed 2,856 independent BigInt checks in Node/V8.
-- Stateful Wasm execution, browser integration and native/Wasm snapshot interchange remain unimplemented.
+- Stateful programs compile through the typed Rust backend to import-free `wasm32-unknown-unknown` modules. ABI version 1 uses opaque handles, exact JSON requests, atomic changes, ordered outbox inspection/acknowledgement and portable binary checkpoints. `runtime/state-wasm.mjs` works in Node and browsers and preserves integer precision across signed i64 and JavaScript Number boundaries.
+- Five Wasm implementations pass a total of 23,794 reference outcome comparisons in each of Node/V8 and actual Chromium 155; native checkpoint handoff steps pass 2,526 additional comparisons. Complete checkpoint bytes match across transfers and future changes. ABI checks cover invalid requests, corrupt/wrong-program snapshots, handle and byte limits, memory growth, high commit counters, commit exhaustion rollback and a poisoned-instance trap policy. Sources, binaries, toolchains and browser evidence are archived in `reports/state-wasm-phase1`. This is functional interoperability evidence, not a new speed result or formal backend proof.
+- This initial interface uses synchronous JSON requests. It provides no fuel limit, crash-safe storage, host capabilities, concurrent access or schema evolution. Buffer/state-count limits do not impose a total process-memory ceiling. See `docs/wasm-abi.md`.
 
 ## Remaining scope
 
@@ -64,7 +66,7 @@ Generated Rust lowering, runtime support, dependencies and Rust/LLVM remain trus
 - Unified type inference across the pure native and broader stateful reference subsets. Unsupported combinations are rejected.
 - A complete general logic with inductive definitions and induction, a dependent-type kernel, contract proving and comprehensive transition simulation certificates. Existing decision procedures and induction schemas remain in the trusted Rust implementation.
 - Broader native stateful lowering, specialised physical layouts and further optimisation against the existing stateful C/C++/Rust baselines.
-- Durable recovery, snapshot schema evolution and stateful Wasm interoperability.
+- Durable recovery, snapshot schema evolution and broader stateful Wasm workload/performance coverage.
 - Automatic profiling-based selection, search budgets beyond the current checkers, native-code migration and registry retrieval.
 - The complete performance matrix: changing distributions, memory constraints, concurrent workloads and durability.
 

@@ -84,11 +84,11 @@ Add `--bounded-totals` to derive eligible aggregate bounds from the declared key
 
 ## WebAssembly
 
-`python3 bench/wasm.py` builds and validates the pure kernels using an installed Zig toolchain, or this workspace's isolated installation. The resulting modules need no WASI imports and have passed 2,856 checks in Node/V8. See the [ABI](docs/wasm-abi.md) and [validation results](reports/wasm-phase2/validation.json). Stateful Wasm and snapshot interchange remain work to do.
+`python3 bench/wasm.py` builds and validates the pure kernels using an installed Zig toolchain, or this workspace's isolated installation. The resulting modules need no WASI imports and have passed 2,856 checks in Node/V8. See the [ABI](docs/wasm-abi.md) and [validation results](reports/wasm-phase2/validation.json). Stateful programs also compile to Wasm through `emit-state --wasm-abi`. Five implementations pass bidirectional native/Wasm checkpoint transfer and future observations in Node/V8 and an actual browser. [Stateful ABI and reproduction](docs/wasm-abi.md), [Node evidence](reports/state-wasm-phase1/validation.json), [browser evidence](reports/state-wasm-phase1/browser-validation.json). Run `python3 bench/state-wasm.py` to rebuild and validate them.
 
 ## Next implementation work
 
-Improve the measured stateful bottlenecks: transactional bookkeeping, repeated lookups, storage layout and unnecessary speculative work. Extend persistence and WebAssembly to that state machine, add measured adaptive selection, and complete the broader syntax and verification requirements in PLAN.md.
+Improve the measured stateful bottlenecks: transactional bookkeeping, repeated lookups, storage layout and unnecessary speculative work. Add durable recovery and broader WebAssembly benchmarks to that state machine, add measured adaptive selection, and complete the broader syntax and verification requirements in PLAN.md.
 
 ## Proof-term database prototype
 

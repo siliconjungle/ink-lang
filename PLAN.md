@@ -15,7 +15,7 @@ The objective is to implement the language specified in docs/language-specificat
 - [ ] Incremental sum/count maintenance covers insert, replace, remove, batches, errors and abort.
 - [ ] Representation changes preserve future update behaviour and observable event sequences.
 - [ ] Persistence, restoration, recovery and native/Wasm interchange.
-- [ ] WebAssembly execution with a documented host ABI.
+- [x] WebAssembly execution with a documented host ABI. Evidence: `docs/wasm-abi.md` and `reports/state-wasm-phase1`; five stateful modules pass bidirectional native/Wasm continuation in Node and an actual browser. Pure kernels retain their separate ABI.
 - [ ] Adaptive selection, bounded search, migration and safe implementation fallback.
 - [ ] Reproducible benchmarks against equivalently optimised C, C++ and Rust.
 - [ ] Workloads include pure kernels, update/query mixes, changing distributions, memory limits and durability.
@@ -34,11 +34,11 @@ LLVM code generation initially runs through emitted portable C and Clang. This i
 
 The full inventory example is executable in the reference runtime. Records, IDs, nullary enums, Option/Result, u32 and exact Int support its transactions, effects and queries. An undo journal handles rollback and event staging. Domain-specific certificates validate actual aggregate update expressions, and imported knowledge selects maintained sums/counts for row-local pipelines. Tests compare 2,000 mixed operations against recomputation and exercise snapshot restoration and implementation switching.
 
-Pure programs also compile to WebAssembly and pass 2,856 independent arithmetic checks in Node/V8. Subsequent work added native stateful compilation and benchmarks, plus canonical binary snapshots that transfer between native representations and the reference runtime. Stateful Wasm and durable recovery remain unfinished. These milestones do not close the broader unchecked requirements above.
+Pure programs also compile to WebAssembly and pass 2,856 independent arithmetic checks in Node/V8. Subsequent work added native stateful compilation and benchmarks, plus canonical binary snapshots that transfer between native representations and the reference runtime. Stateful Wasm now has a documented ABI and verified native interchange in Node and an actual browser. Durable recovery remains unfinished. These milestones do not close the broader unchecked requirements above.
 
 ## Next concrete work
 
 1. Prioritise the user's small-core architecture: externalise optimisation knowledge and proof production, define the general checking boundary, and demonstrate independently evolving database entries. The first total-scalar proof-term path now loads external Boolean laws without recompiling (archived in `reports/database-equality`). Reusable acyclic scalar definitions and pinned theorem dependencies now compose in a checked seven-object example. Scoped conditional equality proofs and complete application proofs now preserve short-circuit observations. Next add inductive/recursive definitions and induction, then migrate legacy rules and representations through that logic. Existing hardcoded transformation mechanisms are transitional, not the intended core. Hunchroom research informs proof obligations but does not automatically authorise compiler transformations.
 2. Initial native state comparison is complete: all baselines maintain totals and compare observable state, errors, versions and ordered events. The range-checked cache and exact native query view improve performance, but handwritten Rust remains faster overall. Next reduce transactional bookkeeping and redundant work, explore physical layouts, and broaden workloads to distribution shifts and memory limits. Preserve algorithm-matched baselines.
-3. Portable native snapshots now transfer logical state across implementation choices. Extend the same format/state machine to Wasm and durable recovery, then implement measured selection with safe migration through the database architecture.
+3. Portable native snapshots now transfer logical state across implementation choices. The same format/state machine now executes in Wasm and passes bidirectional native interchange. Next add durable recovery and measured selection with safe migration through the database architecture.
 4. Broaden the language and proof core against the original draft. Keep the outstanding acceptance criteria intact.

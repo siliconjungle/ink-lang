@@ -91,7 +91,7 @@ fn run() -> LangResult<()> {
         return Ok(());
     }
     if cmd == "help" || cmd == "--help" {
-        println!("lang verify-database LOCK.json\nlang check SOURCE\nlang prove RULES -o PACKAGE.json\nlang knowledge verify PACKAGE.json\nlang prove-maintenance SOURCE -o PACKAGE.json\nlang verify-maintenance PACKAGE.json\nlang execute SOURCE SCRIPT.json [--maintenance PACKAGE.json] [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable]\nlang run SOURCE FUNCTION ARGS.json\nlang build SOURCE -o OUTPUT.o [--knowledge PACKAGE.json] [--database LOCK.json] [--cc clang] [--native-cpu]\nlang build SOURCE --target wasm32 --zig PATH -o OUTPUT.wasm\nlang emit-c SOURCE -o OUTPUT.c [--knowledge PACKAGE.json] [--database LOCK.json]\nlang emit-state SOURCE -o DIRECTORY [--maintenance PACKAGE.json] [--bounded-totals]");
+        println!("lang verify-database LOCK.json\nlang check SOURCE\nlang prove RULES -o PACKAGE.json\nlang knowledge verify PACKAGE.json\nlang prove-maintenance SOURCE -o PACKAGE.json\nlang verify-maintenance PACKAGE.json\nlang execute SOURCE SCRIPT.json [--maintenance PACKAGE.json] [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable]\nlang run SOURCE FUNCTION ARGS.json\nlang build SOURCE -o OUTPUT.o [--knowledge PACKAGE.json] [--database LOCK.json] [--cc clang] [--native-cpu]\nlang build SOURCE --target wasm32 --zig PATH -o OUTPUT.wasm\nlang emit-c SOURCE -o OUTPUT.c [--knowledge PACKAGE.json] [--database LOCK.json]\nlang emit-state SOURCE -o DIRECTORY [--maintenance PACKAGE.json] [--bounded-totals] [--wasm-abi]");
         return Ok(());
     }
     if cmd == "knowledge" {
@@ -123,16 +123,20 @@ fn run() -> LangResult<()> {
             if bounded && certificate.is_none() {
                 return Err("--bounded-totals requires a verified --maintenance package".into());
             }
-            let code = state_native::emit_with_bounds(&p, certificate.as_ref(), bounded)?;
+            let wasm_abi = args.iter().any(|s| s == "--wasm-abi");
+            let mut code = state_native::emit_with_bounds(&p, certificate.as_ref(), bounded)?;
+            if wasm_abi {
+                code.push_str(state_native::WASM_ABI);
+            }
             write(&format!("{out}/src/lib.rs"), &code)?;
             write(&format!("{out}/src/main.rs"), state_native::RUNNER)?;
-            write(&format!("{out}/Cargo.toml"), "[package]\nname = \"compiled-state\"\nversion = \"0.1.0\"\nedition = \"2021\"\n[dependencies]\nnum-bigint = \"=0.4.8\"\nsha2 = \"=0.10.9\"\nserde_json = \"=1.0.151\"\n[profile.release]\nlto = \"thin\"\ncodegen-units = 1\n")?;
+            write(&format!("{out}/Cargo.toml"), "[package]\nname = \"compiled-state\"\nversion = \"0.1.0\"\nedition = \"2021\"\n[lib]\ncrate-type = [\"rlib\", \"cdylib\"]\n[dependencies]\nnum-bigint = \"=0.4.8\"\nsha2 = \"=0.10.9\"\nserde_json = \"=1.0.151\"\n[profile.release]\nlto = \"thin\"\ncodegen-units = 1\n")?;
             let bounds = if bounded {
                 state_native::bounded_caches(&p)
             } else {
                 Default::default()
             };
-            let plan = serde_json::json!({"source":path,"module":p.module,"backend":"typed Rust; no AST evaluator","maintenance_certificate":certificate.as_ref().map(|c|&c.id),"bounded_cache_evidence":bounds,"trusted":["frontend","finite-map induction schema","finite-domain range analysis","modular representation lowering","typed Rust lowering","num-bigint","Rust/LLVM backend"],"limitations":["portable snapshots supported; no live native migration or durable WAL","collection scans currently materialise lists","no native execution fuel limit"]});
+            let plan = serde_json::json!({"source":path,"module":p.module,"backend":"typed Rust; no AST evaluator","wasm_host_abi":if wasm_abi {Some(1)} else {None},"maintenance_certificate":certificate.as_ref().map(|c|&c.id),"bounded_cache_evidence":bounds,"trusted":["frontend","finite-map induction schema","finite-domain range analysis","modular representation lowering","typed Rust lowering","num-bigint","Rust/LLVM backend"],"limitations":["portable snapshots supported; no live native migration or durable WAL","collection scans currently materialise lists","no native execution fuel limit"]});
             write(
                 &format!("{out}/plan.json"),
                 &serde_json::to_string_pretty(&plan).map_err(|e| e.to_string())?,

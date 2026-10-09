@@ -1,0 +1,51 @@
+{
+  "status": "passed",
+  "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+  "codec": {
+    "checks": 34,
+    "status": "passed"
+  },
+  "modes": [
+    {
+      "name": "inventory-scan",
+      "status": "passed",
+      "checks": 3892,
+      "calls": 3557,
+      "native_source": "inventory-maintained",
+      "native_receiver": "inventory-maintained"
+    },
+    {
+      "name": "inventory-maintained",
+      "status": "passed",
+      "checks": 3892,
+      "calls": 3557,
+      "native_source": "inventory-scan",
+      "native_receiver": "inventory-scan"
+    },
+    {
+      "name": "bounded-scan",
+      "status": "passed",
+      "checks": 5895,
+      "calls": 5560,
+      "native_source": "bounded-bounded",
+      "native_receiver": "bounded-maintained"
+    },
+    {
+      "name": "bounded-maintained",
+      "status": "passed",
+      "checks": 5895,
+      "calls": 5560,
+      "native_source": "bounded-scan",
+      "native_receiver": "bounded-bounded"
+    },
+    {
+      "name": "bounded-bounded",
+      "status": "passed",
+      "checks": 5895,
+      "calls": 5560,
+      "native_source": "bounded-maintained",
+      "native_receiver": "bounded-scan"
+    }
+  ],
+  "scope": "Actual browser execution; functional verification, not a timing benchmark or crash durability proof."
+}
