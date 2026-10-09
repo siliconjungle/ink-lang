@@ -2,6 +2,7 @@
 name = "verified-language"
 version = "0.1.0"
 edition = "2021"
+default-run = "lang"
 
 [[bin]]
 name = "lang"
@@ -11,8 +12,9 @@ path = "src/main.rs"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 sha2 = "0.10"
+num-bigint = { version = "0.4", features = ["serde"] }
+num-traits = "0.2"
 
 [profile.release]
 lto = "thin"
 codegen-units = 1
-

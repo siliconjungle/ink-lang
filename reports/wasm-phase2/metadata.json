@@ -1,0 +1,54 @@
+{
+  "zig": "0.17.0",
+  "commands": [
+    [
+      "python3",
+      "dev.py",
+      "build",
+      "--bin",
+      "lang"
+    ],
+    [
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/target/debug/lang",
+      "prove",
+      "knowledge/ring.lang",
+      "-o",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/wasm/ring.json"
+    ],
+    [
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/target/debug/lang",
+      "build",
+      "examples/kernels.lang",
+      "--target",
+      "wasm32",
+      "--zig",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/work/toolchain/zig-aarch64-macos-0.17.0/zig",
+      "-o",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/wasm/plain.wasm"
+    ],
+    [
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/target/debug/lang",
+      "build",
+      "examples/kernels.lang",
+      "--target",
+      "wasm32",
+      "--zig",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/work/toolchain/zig-aarch64-macos-0.17.0/zig",
+      "-o",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/wasm/knowledge.wasm",
+      "--knowledge",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/wasm/ring.json"
+    ],
+    [
+      "node",
+      "bench/wasm.mjs",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/wasm/plain.wasm",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/wasm/knowledge.wasm",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/reports/wasm-phase2/validation.json"
+    ]
+  ],
+  "wasm_sha256": {
+    "plain": "c5a5ef5b419a535e90be1ed2d60069529fd340b09e406af7bade0916070227e5",
+    "knowledge": "63480449d3ef7161395753afd9d8df89a88da89065225ecb64325d9954f52fc2"
+  }
+}

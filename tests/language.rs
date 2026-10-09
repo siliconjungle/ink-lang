@@ -37,7 +37,7 @@ fn reject_invalid_types_names_and_recursion() {
 #[test]
 fn syntax_errors_are_not_silently_ignored() {
     for s in [
-        "module t; state x: u64 = 0;",
+        "module t; state x: u64 = ;",
         "module t; fn f(x: u64)->u64{return 18446744073709551616;}",
         "module t; /*",
         "module t; fn f(x: u64)->u64{return @;}",

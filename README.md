@@ -51,6 +51,27 @@ The benchmark validates outputs before measuring, randomises variant order, cali
 
 Results are under `bench/results`. They are an evaluation of a small pure-kernel milestone, not proof that the full proposed language exists or that it is universally faster than other languages.
 
+## Stateful execution and maintenance
+
+The complete [inventory program](examples/inventory.lang) from the draft now runs in the reference runtime:
+
+```sh
+python3 dev.py build --bin lang
+target/debug/lang check examples/inventory.lang
+target/debug/lang prove-maintenance knowledge/sum-maintenance.lang -o build/maintenance.json
+target/debug/lang verify-maintenance build/maintenance.json
+target/debug/lang execute examples/inventory.lang examples/inventory-script.json --maintenance build/maintenance.json --snapshot-out build/inventory.json
+python3 bench/state_runtime.py
+```
+
+The package's three exact-integer update functions are validated against a fixed finite-map induction schema. Eligible sum/count queries can then use maintained totals. The runtime preserves transaction failure, nested aborts, events and tentative reads. Portable reference snapshots omit physical caches and restore logical state independently of the selected implementation.
+
+[State-runtime measurements](reports/state-runtime-phase2/REPORT.md) show both update overhead and query savings. These compare two modes of the reference evaluator, not generated native stateful code against C/C++/Rust.
+
+## WebAssembly
+
+`python3 bench/wasm.py` builds and validates the pure kernels using an installed Zig toolchain, or this workspace's isolated installation. The resulting modules need no WASI imports and have passed 2,856 checks in Node/V8. See the [ABI](docs/wasm-abi.md) and [validation results](reports/wasm-phase2/validation.json). Stateful Wasm and snapshot interchange remain work to do.
+
 ## Next implementation work
 
-Implement the complete inventory example: record and enum types, state, changes, rollback, event staging, queries and exact integers. Add checked incremental aggregates and compare them with equally incremental C/C++/Rust baselines. Then complete persistence, WebAssembly and safe adaptive migration.
+Generate native code for the stateful AST and compare it with equally incremental C/C++/Rust implementations. Extend persistence and WebAssembly to that state machine, add measured adaptive selection, and complete the broader syntax and verification requirements in PLAN.md.

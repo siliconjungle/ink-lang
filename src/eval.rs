@@ -32,6 +32,7 @@ impl Value {
                 .map(|x| Self::from_json(x, t))
                 .collect::<LangResult<Vec<_>>>()
                 .map(Self::List),
+            _ => Err("use stateful execution for this type".into()),
         }
     }
 }
@@ -123,6 +124,7 @@ fn expr(e: &Expr, env: &Env, p: &Program, fuel: &mut u64) -> LangResult<Value> {
             Ok(Value::List(out))
         }
         Expr::Lambda(..) => Err("lambda cannot be evaluated outside collection operator".into()),
+        _ => Err("use stateful execution for this expression".into()),
     }
 }
 

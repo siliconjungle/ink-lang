@@ -81,6 +81,10 @@ pub fn infer(e: &Expr, env: &Env, p: &Program) -> LangResult<Type> {
         Expr::Lambda(..) => Err(
             "lambda is only permitted as a collection operator argument in this milestone".into(),
         ),
+        _ => Err(
+            "stateful expression is not yet supported inside an expression-only pure function"
+                .into(),
+        ),
     }
 }
 
@@ -142,6 +146,9 @@ pub fn check(p: &Program) -> LangResult<()> {
         if done.contains(n) {
             return Ok(());
         }
+        if stack.len() >= 128 {
+            return Err("function dependency nesting limit exceeded".into());
+        }
         if !stack.insert(n.into()) {
             return Err(format!(
                 "recursive call to {n}: no decreasing measure has been proved"
@@ -165,5 +172,5 @@ pub fn check(p: &Program) -> LangResult<()> {
     for f in &p.functions {
         visit(&f.name, p, &mut BTreeSet::new(), &mut done)?;
     }
-    Ok(())
+    crate::statecheck::check(p)
 }

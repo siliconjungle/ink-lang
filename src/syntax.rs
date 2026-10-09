@@ -4,8 +4,17 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Type {
     U64,
+    U32,
+    Int,
+    Unit,
+    String,
     Bool,
     List(Box<Type>),
+    Option(Box<Type>),
+    Result(Box<Type>, Box<Type>),
+    Table(Box<Type>, Box<Type>),
+    Named(String),
+    Unknown,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -17,6 +26,45 @@ pub enum Expr {
     Call(String, Vec<Expr>),
     Method(Box<Expr>, String, Vec<Expr>),
     Lambda(String, Box<Expr>),
+    String(String),
+    Unit,
+    Field(Box<Expr>, String),
+    Record(String, Vec<(String, Expr)>),
+    Try(Box<Expr>),
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum Statement {
+    Let(String, Option<Type>, Expr),
+    Return(Expr),
+    If(Expr, Vec<Statement>, Vec<Statement>),
+    Emit(String, Expr),
+    Expr(Expr),
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+pub enum ActionKind {
+    Change,
+    Query,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct Action {
+    pub name: String,
+    pub kind: ActionKind,
+    pub params: Vec<(String, Type)>,
+    pub result: Type,
+    pub reads: Vec<String>,
+    pub writes: Vec<String>,
+    pub emits: Vec<String>,
+    pub body: Vec<Statement>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct BindingDecl {
+    pub name: String,
+    pub ty: Type,
+    pub value: Expr,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -41,6 +89,13 @@ pub struct Program {
     pub module: String,
     pub functions: Vec<Function>,
     pub rules: Vec<Rewrite>,
+    pub ids: Vec<String>,
+    pub records: std::collections::BTreeMap<String, Vec<(String, Type)>>,
+    pub enums: std::collections::BTreeMap<String, Vec<String>>,
+    pub states: Vec<BindingDecl>,
+    pub keeps: Vec<BindingDecl>,
+    pub events: std::collections::BTreeMap<String, Type>,
+    pub actions: Vec<Action>,
 }
 
 #[derive(Clone, Debug)]
@@ -72,7 +127,24 @@ fn lex(source: &str) -> LangResult<Vec<Token>> {
             continue;
         }
         let start = p;
-        if b[p].is_ascii_alphabetic() || b[p] == b'_' {
+        if b[p] == b'"' {
+            p += 1;
+            let mut closed = false;
+            while p < b.len() {
+                if b[p] == b'\\' {
+                    p += 2;
+                } else if b[p] == b'"' {
+                    p += 1;
+                    closed = true;
+                    break;
+                } else {
+                    p += 1;
+                }
+            }
+            if !closed {
+                return Err(format!("unclosed string at byte {start}"));
+            }
+        } else if b[p].is_ascii_alphabetic() || b[p] == b'_' {
             p += 1;
             while p < b.len() && (b[p].is_ascii_alphanumeric() || b[p] == b'_') {
                 p += 1;
@@ -87,7 +159,7 @@ fn lex(source: &str) -> LangResult<Vec<Token>> {
             .any(|s| source[p..].starts_with(s))
         {
             p += 2;
-        } else if b";:,.(){}<>+-*!".contains(&b[p]) {
+        } else if b";:,.(){}<>+-*!=?".contains(&b[p]) {
             p += 1;
         } else {
             return Err(format!("unsupported character at byte {p}"));
@@ -108,6 +180,7 @@ struct Parser {
     ts: Vec<Token>,
     at: usize,
     depth: usize,
+    records: std::collections::BTreeSet<String>,
 }
 impl Parser {
     fn peek(&self) -> &str {
@@ -154,19 +227,50 @@ impl Parser {
         }
     }
     fn ty(&mut self) -> LangResult<Type> {
-        match self.take().as_str() {
+        self.depth += 1;
+        if self.depth > 128 {
+            return Err(self.err("type nesting limit exceeded"));
+        }
+        let result = match self.take().as_str() {
             "u64" => Ok(Type::U64),
+            "u32" => Ok(Type::U32),
+            "Int" => Ok(Type::Int),
+            "Unit" => Ok(Type::Unit),
+            "String" => Ok(Type::String),
             "Bool" => Ok(Type::Bool),
-            "List" => {
+            kind @ ("List" | "Option") => {
                 self.expect("<")?;
                 let t = self.ty()?;
                 self.expect(">")?;
-                Ok(Type::List(Box::new(t)))
+                Ok(if kind == "List" {
+                    Type::List(Box::new(t))
+                } else {
+                    Type::Option(Box::new(t))
+                })
             }
-            s => Err(format!(
-                "type {s} is not implemented in this compiler milestone"
-            )),
-        }
+            kind @ ("Result" | "Table") => {
+                self.expect("<")?;
+                let a = self.ty()?;
+                self.expect(",")?;
+                let b = self.ty()?;
+                self.expect(">")?;
+                Ok(if kind == "Result" {
+                    Type::Result(Box::new(a), Box::new(b))
+                } else {
+                    Type::Table(Box::new(a), Box::new(b))
+                })
+            }
+            s if s
+                .as_bytes()
+                .first()
+                .is_some_and(|c| c.is_ascii_alphabetic() || *c == b'_') =>
+            {
+                Ok(Type::Named(s.into()))
+            }
+            s => Err(format!("invalid type {s}")),
+        };
+        self.depth -= 1;
+        result
     }
     fn params(&mut self) -> LangResult<Vec<(String, Type)>> {
         self.expect("(")?;
@@ -205,9 +309,17 @@ impl Parser {
             return Err(self.err("expression nesting limit exceeded"));
         }
         let mut lhs = if self.eat("(") {
-            let e = self.expr(0)?;
-            self.expect(")")?;
-            e
+            if self.eat(")") {
+                Expr::Unit
+            } else {
+                let e = self.expr(0)?;
+                self.expect(")")?;
+                e
+            }
+        } else if self.peek().starts_with('"') {
+            Expr::String(
+                serde_json::from_str(&self.take()).map_err(|e| format!("invalid string: {e}"))?,
+            )
         } else if self.eat("fn") {
             self.expect("(")?;
             let n = self.name()?;
@@ -228,7 +340,24 @@ impl Parser {
             .map_err(|_| format!("invalid u64 literal {s}"))?;
             Expr::Num(n)
         } else {
-            Expr::Var(self.name()?)
+            let name = self.name()?;
+            if self.peek() == "{" && self.records.contains(&name) {
+                self.expect("{")?;
+                let mut fields = Vec::new();
+                while !self.eat("}") {
+                    let f = self.name()?;
+                    self.expect(":")?;
+                    let value = self.expr(0)?;
+                    fields.push((f, value));
+                    if self.eat("}") {
+                        break;
+                    }
+                    self.expect(",")?;
+                }
+                Expr::Record(name, fields)
+            } else {
+                Expr::Var(name)
+            }
         };
         loop {
             if self.peek() == "(" {
@@ -242,8 +371,15 @@ impl Parser {
             }
             if self.eat(".") {
                 let m = self.name()?;
-                let a = self.args()?;
-                lhs = Expr::Method(Box::new(lhs), m, a);
+                lhs = if self.peek() == "(" {
+                    Expr::Method(Box::new(lhs), m, self.args()?)
+                } else {
+                    Expr::Field(Box::new(lhs), m)
+                };
+                continue;
+            }
+            if self.eat("?") {
+                lhs = Expr::Try(Box::new(lhs));
                 continue;
             }
             let prec = match self.peek() {
@@ -294,6 +430,100 @@ impl Parser {
                     result,
                     body,
                 });
+            } else if self.eat("id") {
+                let n = self.name()?;
+                self.expect(";")?;
+                p.ids.push(n);
+            } else if self.eat("record") {
+                let n = self.name()?;
+                self.expect("{")?;
+                let mut fields = Vec::new();
+                while !self.eat("}") {
+                    let name = self.name()?;
+                    self.expect(":")?;
+                    let t = self.ty()?;
+                    fields.push((name, t));
+                    self.expect(",")?;
+                }
+                if p.records.insert(n.clone(), fields).is_some() {
+                    return Err(format!("duplicate record {n}"));
+                }
+            } else if self.eat("enum") {
+                let n = self.name()?;
+                self.expect("{")?;
+                let mut vars = Vec::new();
+                while !self.eat("}") {
+                    vars.push(self.name()?);
+                    self.expect(",")?;
+                }
+                if p.enums.insert(n.clone(), vars).is_some() {
+                    return Err(format!("duplicate enum {n}"));
+                }
+            } else if self.peek() == "state" || self.peek() == "keep" {
+                let kind = self.take();
+                let name = self.name()?;
+                self.expect(":")?;
+                let ty = self.ty()?;
+                self.expect("=")?;
+                let value = self.expr(0)?;
+                self.expect(";")?;
+                let d = BindingDecl { name, ty, value };
+                if kind == "state" {
+                    p.states.push(d);
+                } else {
+                    p.keeps.push(d);
+                }
+            } else if self.eat("event") {
+                let n = self.name()?;
+                self.expect(":")?;
+                let t = self.ty()?;
+                self.expect(";")?;
+                if p.events.insert(n.clone(), t).is_some() {
+                    return Err(format!("duplicate event {n}"));
+                }
+            } else if self.peek() == "change" || self.peek() == "query" {
+                let kind = if self.take() == "change" {
+                    ActionKind::Change
+                } else {
+                    ActionKind::Query
+                };
+                let name = self.name()?;
+                let params = self.params()?;
+                self.expect("->")?;
+                let result = self.ty()?;
+                let mut reads = Vec::new();
+                let mut writes = Vec::new();
+                let mut emits = Vec::new();
+                while ["reads", "writes", "emits"].contains(&self.peek()) {
+                    let cap = self.take();
+                    self.expect("(")?;
+                    let mut ns = Vec::new();
+                    if !self.eat(")") {
+                        loop {
+                            ns.push(self.name()?);
+                            if self.eat(")") {
+                                break;
+                            }
+                            self.expect(",")?;
+                        }
+                    }
+                    match cap.as_str() {
+                        "reads" => reads.extend(ns),
+                        "writes" => writes.extend(ns),
+                        _ => emits.extend(ns),
+                    }
+                }
+                let body = self.block()?;
+                p.actions.push(Action {
+                    name,
+                    kind,
+                    params,
+                    result,
+                    reads,
+                    writes,
+                    emits,
+                    body,
+                });
             } else if self.eat("rewrite") {
                 let name = self.name()?;
                 let params = self.params()?;
@@ -317,10 +547,58 @@ impl Parser {
                     tactic,
                 });
             } else {
-                return Err(self.err("declaration not yet implemented; expected fn or rewrite"));
+                return Err(self.err("unsupported declaration"));
             }
         }
         Ok(p)
+    }
+    fn block(&mut self) -> LangResult<Vec<Statement>> {
+        self.depth += 1;
+        if self.depth > 128 {
+            return Err(self.err("block nesting limit exceeded"));
+        }
+        self.expect("{")?;
+        let mut body = Vec::new();
+        while !self.eat("}") {
+            if self.eat("let") {
+                let n = self.name()?;
+                let ty = if self.eat(":") {
+                    Some(self.ty()?)
+                } else {
+                    None
+                };
+                self.expect("=")?;
+                let e = self.expr(0)?;
+                self.expect(";")?;
+                body.push(Statement::Let(n, ty, e));
+            } else if self.eat("return") {
+                let e = self.expr(0)?;
+                self.expect(";")?;
+                body.push(Statement::Return(e));
+            } else if self.eat("if") {
+                let e = self.expr(0)?;
+                let yes = self.block()?;
+                let no = if self.eat("else") {
+                    self.block()?
+                } else {
+                    vec![]
+                };
+                body.push(Statement::If(e, yes, no));
+            } else if self.eat("emit") {
+                let n = self.name()?;
+                self.expect("(")?;
+                let e = self.expr(0)?;
+                self.expect(")")?;
+                self.expect(";")?;
+                body.push(Statement::Emit(n, e));
+            } else {
+                let e = self.expr(0)?;
+                self.expect(";")?;
+                body.push(Statement::Expr(e));
+            }
+        }
+        self.depth -= 1;
+        Ok(body)
     }
 }
 
@@ -328,10 +606,17 @@ pub fn parse(s: &str) -> LangResult<Program> {
     if s.len() > 1_000_000 {
         return Err("source exceeds 1 MB parser limit".into());
     }
+    let ts = lex(s)?;
+    let records = ts
+        .windows(2)
+        .filter(|w| w[0].text == "record")
+        .map(|w| w[1].text.clone())
+        .collect();
     Parser {
-        ts: lex(s)?,
+        ts,
         at: 0,
         depth: 0,
+        records,
     }
     .program()
 }

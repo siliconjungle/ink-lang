@@ -1,0 +1,26 @@
+{
+  "runtime": "reference AST evaluator; not stateful native codegen",
+  "cpu": "Apple M4 Pro",
+  "platform": "macOS-15.7.4-arm64-arm-64bit-Mach-O",
+  "build_command": "python3 dev.py build --release --bin state_bench",
+  "measurement_command": "python3 bench/state_runtime.py",
+  "source_sha256": {
+    "src/native.rs": "7374b7101194fd33edbcbf2fdc6187fc1a57f24929d6531f049660f9a334e374",
+    "src/check.rs": "7fed6b967ca9350b38fcf99111c9acb0df9ed84a49f0be0cfced0e96b9d7c85a",
+    "src/statecheck.rs": "237003a65f2b3099cc7f32e0cd589d20ed910acd9795d1cd574d6342a71a7d9f",
+    "src/lib.rs": "26821f4bcf8f14c866d0029ceea15eccb6f2c3c17aecf7596431e9fe91ac3c13",
+    "src/aggregate.rs": "71f0c76ef368b1a03b66bdd097413a143975a08cd44f30e81cbaef8083d9d0ff",
+    "src/stateful.rs": "f5194d77b177a556bc40645a5e38ec76522658bdce6b084d6eb4f00a710a7d14",
+    "src/eval.rs": "a5e7d4311b7d147e2fcd53227029508d18b56edd3f232374e9b68bdd32a06ea8",
+    "src/main.rs": "e049d079f2ae8a5e00856c4d20d43b2c615ebed93a906b47fc4584f10942e323",
+    "src/syntax.rs": "3cb0119e59ad162cbc8aa9b674aff33253e4cff998e298d9bf1dc6e9c247e5df",
+    "src/proof.rs": "0daa16ad99934314161b3b48ed7ade2f5b2624a6a53d438cf620bf6ecc32de20",
+    "src/bin/state_bench.rs": "611cba21458df52e080c5d1e7fcfb089a6c74762f536a1434d4646e0f7f328ed",
+    "examples/kernels.lang": "90deb135c2fb3d7b4fa46b549e425a0363c5dc0ffb50cd52b6eb69d33f2265f1",
+    "examples/inventory.lang": "0e3c222b31cbb343c16a6ab915717ab9276308641dbd25307894cb8fdf42c83e",
+    "knowledge/sum-maintenance.lang": "f00be10748b9c610958e1f6f89c229cdedff254ccfd6a2b5d7b44de81d7d80ba",
+    "Cargo.lock": "ff51a701afdbee6ba3956c71478cc0e4eb8031a262827de7a1fdfd33497c12ed"
+  },
+  "correctness": "tests/maintenance.rs: 2000 deterministic mixed operations with seed 0x123456789abcdef; 16 test functions total at this checkpoint",
+  "scope": "in-memory transactions, row-local exact sums/counts, manually selected checked maintenance; no durable commit timings"
+}
