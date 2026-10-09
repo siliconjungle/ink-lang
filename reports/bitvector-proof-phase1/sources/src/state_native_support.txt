@@ -1,0 +1,63 @@
+// Shared support for generated native applications. No parser or evaluator.
+use num_bigint::BigInt;
+use serde_json::{Value as Json, json};
+use std::collections::BTreeMap;
+pub trait Wire: Sized {
+    fn to_json(&self) -> Json;
+    fn from_json(v: &Json) -> Result<Self, String>;
+}
+macro_rules! unsigned_wire {
+    ($t:ty) => { impl Wire for $t {
+        fn to_json(&self) -> Json { json!(self) }
+        fn from_json(v:&Json)->Result<Self,String> { v.as_u64().and_then(|n| n.try_into().ok()).ok_or("invalid unsigned integer".into()) }
+    } };
+}
+unsigned_wire!(u32); unsigned_wire!(u64);
+impl Wire for () {
+    fn to_json(&self)->Json { Json::Null }
+    fn from_json(v:&Json)->Result<Self,String>{ if v.is_null(){Ok(())}else{Err("expected Unit".into())} }
+}
+impl Wire for bool {
+    fn to_json(&self)->Json{json!(self)}
+    fn from_json(v:&Json)->Result<Self,String>{v.as_bool().ok_or("expected Bool".into())}
+}
+impl Wire for String {
+    fn to_json(&self)->Json{json!(self)}
+    fn from_json(v:&Json)->Result<Self,String>{v.as_str().map(str::to_owned).ok_or("expected String".into())}
+}
+impl Wire for BigInt {
+    fn to_json(&self)->Json{json!({"Int":self.to_string()})}
+    fn from_json(v:&Json)->Result<Self,String>{v.get("Int").and_then(Json::as_str).map(str::to_owned).unwrap_or_else(||v.to_string()).parse().map_err(|_|"expected Int".into())}
+}
+impl<T:Wire> Wire for Vec<T> {
+    fn to_json(&self)->Json{self.iter().map(Wire::to_json).collect()}
+    fn from_json(v:&Json)->Result<Self,String>{v.as_array().ok_or("expected List")?.iter().map(T::from_json).collect()}
+}
+impl<T:Wire> Wire for Option<T> {
+    fn to_json(&self)->Json{match self{Some(v)=>json!({"Some":v.to_json()}),None=>json!({"None":null})}}
+    fn from_json(v:&Json)->Result<Self,String>{
+        let obj=v.as_object().ok_or("expected Option")?;
+        if obj.len()!=1 {return Err("expected one tag".into())}
+        if let Some(x)=obj.get("Some"){Ok(Some(T::from_json(x)?))}
+        else if obj.get("None")==Some(&Json::Null){Ok(None)}else{Err("invalid Option".into())}
+    }
+}
+impl<T:Wire,E:Wire> Wire for Result<T,E> {
+    fn to_json(&self)->Json{match self{Ok(v)=>json!({"Ok":v.to_json()}),Err(e)=>json!({"Err":e.to_json()})}}
+    fn from_json(v:&Json)->Result<Self,String>{
+        let obj=v.as_object().ok_or("expected Result")?;
+        if obj.len()!=1 {return Err("expected one tag".into())}
+        if let Some(x)=obj.get("Ok"){Ok(Ok(T::from_json(x)?))}
+        else if let Some(x)=obj.get("Err"){Ok(Err(E::from_json(x)?))}else{Err("invalid Result".into())}
+    }
+}
+#[derive(Clone, Debug)]
+pub struct Event {pub commit:u64,pub position:u64,pub data:EventData}
+impl Event {
+    pub fn to_json(&self)->Json {let (channel,value)=self.data.wire();json!({"commit":self.commit,"position":self.position,"channel":channel,"value":value})}
+}
+#[derive(Clone, Debug)]
+pub struct Outcome<T> {pub result:T,pub committed:bool,pub version:u64,pub events:Vec<Event>}
+impl<T:Wire> Outcome<T> {
+    pub fn to_json(&self)->Json {json!({"result":self.result.to_json(),"committed":self.committed,"version":self.version,"events":self.events.iter().map(Event::to_json).collect::<Vec<_>>()})}
+}

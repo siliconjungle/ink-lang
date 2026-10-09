@@ -39,7 +39,7 @@ The build emits a native object, its readable C intermediate, LLVM IR, and a pla
 
 ## Meaning of verified in this milestone
 
-The arithmetic checker normalises polynomials over the ring of integers modulo 2^64. It accepts equivalent polynomial rewrites and rejects unsupported syntax, incompatible semantics and tampered certificates. Its Rust implementation is part of the trusted base and has not itself been mechanically proved correct. The type checker restricts these rules to the supported arithmetic domain.
+The legacy arithmetic path normalises polynomials over the ring of integers modulo 2^64. A newer database path reconstructs fixed Boolean/u64 circuits and checks external hinted RUP refutations; it has no solver or arithmetic-law catalogue in the compiler. Both Rust checkers remain trusted implementations and have not themselves been mechanically proved correct. The legacy path is still available and needs migration before the full small-core architecture can be claimed.
 
 Collection lowering, emitted C and Clang/LLVM are currently trusted. Native behaviour is checked against an independently implemented mathematical reference and the interpreter; those tests are not an end-to-end formal proof. General equality and induction checking now exist for restricted fragments; richer contracts and general state-transition refinement remain work to do.
 
@@ -144,3 +144,16 @@ python3 bench/filter-wasm.py
 The producer supplies 36 immutable objects and four induction-checked candidates: map/filter/sum, filter/map/sum, filtered count and a map that ignores its element. The [filtered benchmark](reports/filter-proof-phase1/REPORT.md) contains 5,376 samples across 96 cells and 8,320 native oracle comparisons. Across the three traversal workloads, checked replacements run 3.43× faster than Ink's staged baseline and approximately match combined C/C++/Rust implementations. The constant map is reported separately because LLVM eliminates its traversal entirely; this is not a new optimisation unavailable to the other languages.
 
 Five selected database revisions produce distinct C programs with the same compiler binary. The [filtered Wasm suite](reports/filter-proof-wasm-phase1/REPORT.md) passes 4,476 checks in each of Node and an actual browser, including conditional laziness, nested collections, input preservation and memory growth. Run `python3 bench/filtered/serve.py` and open its printed URL to reproduce the browser checks. Automatic profitability selection, stateful refinement and migration of the remaining legacy optimisation authority are still unfinished.
+
+## Arithmetic proof certificates
+
+```sh
+target/release/ink verify-library knowledge/bitvector/lock.json
+target/release/ink build knowledge/bitvector/kernels.ink --implementation knowledge/bitvector/proposal.json --native-cpu -o build/arithmetic.o
+python3 bench/bitvector-proof.py
+python3 tools/audit_bitvector_report.py --execute
+```
+
+The [arithmetic package](knowledge/bitvector/README.md) supplies nine theorems and eight exact source replacements through untrusted external SAT proof production. Ink independently checks the certificates, scoped premises and complete replacement proofs. Arithmetic theorems also compose with list induction. A conditional theorem cannot authorise an unguarded rewrite.
+
+The [benchmark report](reports/bitvector-proof-phase1/REPORT.md) records 560 timing samples, 42,920 native oracle checks, 2,534 independent SAT/encoding checks and nine database revisions under one compiler. All eight baseline/checked ARM64 function bodies are identical: LLVM already recognises these elementary identities, so this produces no demonstrated runtime speedup. The full library checks in about 22 ms including fresh-process startup and warm file I/O. This extends the proof boundary; the next performance gains need algorithms and representations that skip substantial work.

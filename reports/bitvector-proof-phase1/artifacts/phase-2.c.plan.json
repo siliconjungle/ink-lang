@@ -1,0 +1,137 @@
+{
+  "applied_rule_ids": [],
+  "checked_implementation": {
+    "checked_proposals": [
+      {
+        "datatype": "8f3ce4e1fb4435fa83d81d0d0b24a3375f52febb96505737a24cfaba0238842a",
+        "from": {
+          "Binary": [
+            "+",
+            {
+              "Var": "p0"
+            },
+            {
+              "Num": 0
+            }
+          ]
+        },
+        "from_definitions": [],
+        "function": "add_zero",
+        "proof": {
+          "Use": {
+            "arguments": [
+              {
+                "Var": "p0"
+              }
+            ],
+            "premises": [],
+            "theorem": "aee8c9cc47c2ad481f0538b490f7871fbfa08a831c9e7fd829a3138efe8ff5f6"
+          }
+        },
+        "to": {
+          "Var": "p0"
+        },
+        "to_definitions": []
+      },
+      {
+        "datatype": "8f3ce4e1fb4435fa83d81d0d0b24a3375f52febb96505737a24cfaba0238842a",
+        "from": {
+          "Binary": [
+            "-",
+            {
+              "Var": "p0"
+            },
+            {
+              "Var": "p0"
+            }
+          ]
+        },
+        "from_definitions": [],
+        "function": "subtract_self",
+        "proof": {
+          "Use": {
+            "arguments": [
+              {
+                "Var": "p0"
+              }
+            ],
+            "premises": [],
+            "theorem": "d0d18725768ee2511a5310ce573dd7c1c59c8f8f69ff972e0f14d9bc664a2fa1"
+          }
+        },
+        "to": {
+          "Num": 0
+        },
+        "to_definitions": []
+      }
+    ],
+    "library_closure": [
+      "8f3ce4e1fb4435fa83d81d0d0b24a3375f52febb96505737a24cfaba0238842a",
+      "aee8c9cc47c2ad481f0538b490f7871fbfa08a831c9e7fd829a3138efe8ff5f6",
+      "d0d18725768ee2511a5310ce573dd7c1c59c8f8f69ff972e0f14d9bc664a2fa1"
+    ],
+    "library_lock": {
+      "objects": [
+        "8f3ce4e1fb4435fa83d81d0d0b24a3375f52febb96505737a24cfaba0238842a",
+        "aee8c9cc47c2ad481f0538b490f7871fbfa08a831c9e7fd829a3138efe8ff5f6",
+        "d0d18725768ee2511a5310ce573dd7c1c59c8f8f69ff972e0f14d9bc664a2fa1"
+      ],
+      "schema": 1,
+      "semantics": "first-order-inductive-equality-v1"
+    },
+    "package_sha256": "74fc6a81678a5a1be7d8ffb6076ec79a952a631ff8f0359170743a0ca5dcd08a",
+    "scope": "total mathematical value equality for map/filter/sum/count/foldr/choose and acyclic pure calls over u64 lists; allocation, OOM and trap traces excluded",
+    "source_models": [
+      [
+        {
+          "Binary": {
+            "left": {
+              "Var": "p0"
+            },
+            "op": "+",
+            "right": {
+              "U64": 0
+            }
+          }
+        },
+        {
+          "Var": "p0"
+        }
+      ],
+      [
+        {
+          "Binary": {
+            "left": {
+              "Var": "p0"
+            },
+            "op": "-",
+            "right": {
+              "Var": "p0"
+            }
+          }
+        },
+        {
+          "U64": 0
+        }
+      ]
+    ]
+  },
+  "database_closure": null,
+  "database_lock": null,
+  "generated_c_sha256": "f19d35930d7c412e0e4ae7ebe2aa3e9e25fa91a6efd8f2788a6c3f03f0b683ea",
+  "input_program_sha256": "7b6c92ff1f9f09b1e6118c740f75f0e4dfa6e33db1433780e8f5243e62958350",
+  "module": "bitvector_proofs",
+  "selected_program_sha256": "b7f24f126a1eaff403a8191ac03e0ef214713896e8f82eaf38cea8d6c8c5d195",
+  "source": "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/knowledge/bitvector/kernels.ink",
+  "target": "native",
+  "trusted": [
+    "Rust checker implementation",
+    "source semantics correspondence",
+    "literal collection lowering and allocation",
+    "generated C",
+    "Clang/LLVM backend",
+    "host ABI"
+  ],
+  "unsupported_spec_features": "see PLAN.md and STATUS.md",
+  "verified_fragment": "whole-function inductive collection equality; total-scalar equality proof terms; legacy u64 polynomial certificates"
+}
