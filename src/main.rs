@@ -1,3 +1,4 @@
+use sha2::{Digest, Sha256};
 use std::{
     env, fs,
     path::Path,
@@ -52,8 +53,12 @@ fn run() -> LangResult<()> {
     let cmd = args.first().map(String::as_str).unwrap_or("help");
     if cmd == "verify-database" {
         let path = args.get(1).ok_or("verify-database requires LOCK.json")?;
-        let (lock, _) = knowledge::load(Path::new(path))?;
-        println!("verified {} proof-term objects", lock.objects.len());
+        let database = knowledge::load(Path::new(path))?;
+        println!(
+            "verified {} proof-term objects; {} selected rewrites",
+            database.closure.len(),
+            database.rules.len()
+        );
         return Ok(());
     }
     if cmd == "verify-maintenance" {
@@ -235,6 +240,10 @@ fn run() -> LangResult<()> {
             println!("{}", eval::call(&p, name, vs, &mut 100_000_000)?.json());
         }
         "build" | "emit-c" => {
+            let input_program_sha256 = format!(
+                "{:x}",
+                Sha256::digest(serde_json::to_vec(&p).map_err(|e| e.to_string())?)
+            );
             let mut certs = p
                 .rules
                 .iter()
@@ -247,8 +256,8 @@ fn run() -> LangResult<()> {
                 .map(|path| knowledge::load(Path::new(&path)))
                 .transpose()?;
             let mut used = Vec::new();
-            if let Some((_, rules)) = &database {
-                used.extend(knowledge::apply(&mut p, rules)?);
+            if let Some(database) = &database {
+                used.extend(knowledge::apply(&mut p, &database.rules)?);
             }
             for f in &mut p.functions {
                 f.body = proof::optimise(&f.body, &certs, &mut used, &mut 100_000);
@@ -267,8 +276,14 @@ fn run() -> LangResult<()> {
             } else {
                 format!("{out}.c")
             };
-            write(&cpath, &native::emit(&p)?)?;
-            let manifest = serde_json::json!({"source":path,"module":p.module,"target":target,"applied_rule_ids":used,"database_lock":database.as_ref().map(|(lock,_)|lock),"verified_fragment":"total-scalar equality proof terms plus legacy u64 polynomial certificates","trusted":["Rust checker implementation","collection lowering","generated C","Clang/LLVM backend","host ABI"],"unsupported_spec_features":"see PLAN.md and STATUS.md"});
+            let generated_c = native::emit(&p)?;
+            write(&cpath, &generated_c)?;
+            let generated_c_sha256 = format!("{:x}", Sha256::digest(generated_c.as_bytes()));
+            let selected_program_sha256 = format!(
+                "{:x}",
+                Sha256::digest(serde_json::to_vec(&p).map_err(|e| e.to_string())?)
+            );
+            let manifest = serde_json::json!({"source":path,"module":p.module,"target":target,"input_program_sha256":input_program_sha256,"selected_program_sha256":selected_program_sha256,"generated_c_sha256":generated_c_sha256,"applied_rule_ids":used,"database_lock":database.as_ref().map(|db|&db.lock),"database_closure":database.as_ref().map(|db|&db.closure),"verified_fragment":"total-scalar equality proof terms plus legacy u64 polynomial certificates","trusted":["Rust checker implementation","collection lowering","generated C","Clang/LLVM backend","host ABI"],"unsupported_spec_features":"see PLAN.md and STATUS.md"});
             write(
                 &format!("{out}.plan.json"),
                 &serde_json::to_string_pretty(&manifest).map_err(|e| e.to_string())?,

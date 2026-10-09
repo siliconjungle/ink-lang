@@ -13,9 +13,9 @@ The full goal remains open. This file describes executable behaviour and its lim
 
 ## External proof-term database (first fragment)
 
-- A bounded equality checker supports reflexivity, symmetry, transitivity, primitive literal computation, binary congruence and Boolean case analysis over total `Bool`/modular `u64` scalar expressions. There are no algebraic optimisation axioms in this checker.
+- A bounded equality checker supports reflexivity, symmetry, transitivity, primitive literal computation, binary congruence, Boolean case analysis, acyclic definitions and typed theorem instantiation over total `Bool`/modular `u64` scalar expressions. There are no algebraic optimisation axioms in this checker.
 - An external Python producer emits explicit case proofs; immutable SHA-256 objects are loaded through an ordered lockfile and checked locally. `--database` applies them only with typed total-scalar substitutions.
-- Boolean absorption and duplicate-predicate elimination are supplied as database data. An end-to-end check added zero, one and two laws under an unchanged compiler SHA-256, obtained three distinct generated C programs and passed 60 native oracle comparisons (`reports/database-equality/result.json`). New laws in this fragment require no compiler changes. This is not yet a full logic: definitions, induction, theorem dependencies and stateful refinement are pending.
+- Boolean absorption and duplicate-predicate elimination are supplied as database data. An end-to-end check added zero, one and two laws under an unchanged compiler SHA-256, obtained three distinct generated C programs and passed 60 native oracle comparisons (`reports/database-equality/result.json`). New laws in this fragment require no compiler changes. A bounded dependency loader now checks reusable definitions and theorems under explicit imports, and records the full closure in build plans. A seven-object example specialises a combined Boolean theorem to a numeric comparison and passes 32 native oracle checks. Every proposed rewrite is rechecked as an exact theorem instantiation before application. Inductive/recursive definitions, induction, conditional theorems and stateful refinement remain pending.
 - Existing polynomial, aggregate and collection optimisation paths still use their legacy trusted mechanisms. The overall compiler does not yet satisfy the small-core architecture. LLVM remains a separate optimising backend.
 
 ## Stateful reference execution
@@ -62,7 +62,7 @@ Generated Rust lowering, runtime support, dependencies and Rust/LLVM remain trus
 
 - Complete surface syntax, generic functions, refinements, local mutation, ownership rules, all numeric types and floating-point semantics.
 - Unified type inference across the pure native and broader stateful reference subsets. Unsupported combinations are rejected.
-- A complete general logic with definitions and induction, a dependent-type kernel, contract proving and comprehensive transition simulation certificates. Existing decision procedures and induction schemas remain in the trusted Rust implementation.
+- A complete general logic with inductive definitions and induction, a dependent-type kernel, contract proving and comprehensive transition simulation certificates. Existing decision procedures and induction schemas remain in the trusted Rust implementation.
 - Broader native stateful lowering, specialised physical layouts and further optimisation against the existing stateful C/C++/Rust baselines.
 - Durable recovery, snapshot schema evolution and stateful Wasm interoperability.
 - Automatic profiling-based selection, search budgets beyond the current checkers, native-code migration and registry retrieval.

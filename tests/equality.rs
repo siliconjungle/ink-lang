@@ -14,8 +14,10 @@ fn bin(op: &str, a: Expr, b: Expr) -> Expr {
     Expr::Binary(op.into(), Box::new(a), Box::new(b))
 }
 fn objects() -> Vec<Object> {
-    let (lock, _) = knowledge::load(Path::new("knowledge/boolean/lock.json")).unwrap();
-    lock.objects
+    let database = knowledge::load(Path::new("knowledge/boolean/lock.json")).unwrap();
+    database
+        .lock
+        .objects
         .iter()
         .map(|id| {
             serde_json::from_slice(
@@ -27,7 +29,9 @@ fn objects() -> Vec<Object> {
 }
 #[test]
 fn checked_database_preserves_all_boolean_inputs_and_word_boundaries() {
-    let (_, rules) = knowledge::load(Path::new("knowledge/boolean/lock.json")).unwrap();
+    let rules = knowledge::load(Path::new("knowledge/boolean/lock.json"))
+        .unwrap()
+        .rules;
     let original = syntax::parse(include_str!("../examples/boolean.lang")).unwrap();
     let mut changed = original.clone();
     assert_eq!(knowledge::apply(&mut changed, &rules).unwrap().len(), 2);
@@ -64,6 +68,10 @@ fn checked_database_preserves_all_boolean_inputs_and_word_boundaries() {
         "module t; fn f(a: Bool) -> Bool {return a;} fn g(a: Bool) -> Bool {return f(a) && f(a);}",
     )
     .unwrap();
+    let mut unused =
+        syntax::parse("module t; fn f(a: Bool, xs: List<u64>) -> Bool {return a && a;}").unwrap();
+    assert_eq!(knowledge::apply(&mut unused, &rules).unwrap().len(), 1);
+    assert_eq!(unused.functions[0].body, var("a"));
     let before = native::emit(&calls).unwrap();
     assert!(knowledge::apply(&mut calls, &rules).unwrap().is_empty());
     assert_eq!(before, native::emit(&calls).unwrap());
@@ -179,5 +187,201 @@ fn database_rejects_forgery_wrong_hash_and_incompatible_semantics() {
     };
     fs::write(dir.join("lock.json"), serde_json::to_vec(&lock).unwrap()).unwrap();
     assert!(knowledge::load(&dir.join("lock.json")).is_err());
+    fs::remove_dir_all(dir).unwrap();
+}
+
+#[test]
+fn checked_definitions_and_reused_lemmas_preserve_substitution_scope() {
+    let mut context = equality::Context::default();
+    let params = vec![("a".into(), Type::Bool), ("b".into(), Type::Bool)];
+    context
+        .define("first".into(), &params, &Type::Bool, &var("a"))
+        .unwrap();
+    let call = Expr::Call("first".into(), vec![var("b"), var("a")]);
+    // Substitution is simultaneous: first(b,a)=b, not a.
+    context
+        .prove(
+            "first_swapped".into(),
+            &params,
+            &call,
+            &var("b"),
+            &Proof::Refl(call.clone()),
+        )
+        .unwrap();
+    assert!(context
+        .prove(
+            "wrong_swap".into(),
+            &params,
+            &call,
+            &var("a"),
+            &Proof::Refl(call.clone())
+        )
+        .is_err());
+    let arguments = vec![Expr::Bool(true), Expr::Bool(false)];
+    let proof = Proof::Use {
+        theorem: "first_swapped".into(),
+        arguments,
+    };
+    context
+        .prove(
+            "instantiated".into(),
+            &[],
+            &Expr::Bool(false),
+            &Expr::Bool(false),
+            &proof,
+        )
+        .unwrap();
+    // Even an erased definition argument must be correctly typed and in scope.
+    for bad in [Expr::Num(1), var("unknown")] {
+        let call = Expr::Call("first".into(), vec![Expr::Bool(true), bad]);
+        assert!(context
+            .prove(
+                "ill_typed".into(),
+                &[],
+                &call,
+                &Expr::Bool(true),
+                &Proof::Refl(call.clone())
+            )
+            .is_err());
+    }
+    assert!(context
+        .define(
+            "recursive".into(),
+            &[],
+            &Type::Bool,
+            &Expr::Call("recursive".into(), vec![])
+        )
+        .is_err());
+    assert!(context
+        .prove(
+            "circular".into(),
+            &[],
+            &Expr::Bool(false),
+            &Expr::Bool(true),
+            &Proof::Use {
+                theorem: "circular".into(),
+                arguments: vec![]
+            }
+        )
+        .is_err());
+    assert!(context
+        .prove(
+            "wrong_arity".into(),
+            &[],
+            &Expr::Bool(true),
+            &Expr::Bool(true),
+            &Proof::Use {
+                theorem: "first_swapped".into(),
+                arguments: vec![Expr::Bool(true)]
+            }
+        )
+        .is_err());
+    assert!(context
+        .prove(
+            "wrong_type".into(),
+            &[],
+            &Expr::Bool(true),
+            &Expr::Bool(true),
+            &Proof::Use {
+                theorem: "first_swapped".into(),
+                arguments: vec![Expr::Bool(true), Expr::Num(1)]
+            }
+        )
+        .is_err());
+    assert!(context
+        .define("first".into(), &params, &Type::Bool, &var("b"))
+        .is_err());
+    assert!(context.subset(&["missing".into()]).is_err());
+}
+
+#[test]
+fn dependency_closure_checks_all_imports_but_selects_only_roots() {
+    let source = Path::new("knowledge/composed");
+    let db = knowledge::load(&source.join("lock.json")).unwrap();
+    assert_eq!(db.closure.len(), 7);
+    assert_eq!(db.rules.len(), 1);
+    let original = syntax::parse(include_str!("../examples/composed.lang")).unwrap();
+    let mut changed = original.clone();
+    assert_eq!(
+        knowledge::apply(&mut changed, &db.rules).unwrap(),
+        db.lock.objects
+    );
+    assert_eq!(changed.functions[0].body, bin("<", var("x"), var("limit")));
+    for x in [0, 1, 1 << 63, u64::MAX] {
+        for limit in [0, 1, 1 << 63, u64::MAX] {
+            for flag in [false, true] {
+                let args = vec![Value::U64(x), Value::U64(limit), Value::Bool(flag)];
+                assert_eq!(
+                    eval::call(&original, "decision", args.clone(), &mut 1000).unwrap(),
+                    eval::call(&changed, "decision", args, &mut 1000).unwrap()
+                );
+            }
+        }
+    }
+    let dir = std::env::temp_dir().join(format!("vl-dependencies-{}", std::process::id()));
+    fs::create_dir_all(dir.join("objects")).unwrap();
+    for entry in fs::read_dir(source.join("objects")).unwrap() {
+        let entry = entry.unwrap();
+        fs::copy(entry.path(), dir.join("objects").join(entry.file_name())).unwrap();
+    }
+    let names: serde_json::Value =
+        serde_json::from_slice(&fs::read(source.join("names.json")).unwrap()).unwrap();
+    let root = names["combined_comparison"].as_str().unwrap();
+    let mut object: serde_json::Value = serde_json::from_slice(
+        &fs::read(dir.join("objects").join(format!("{root}.json"))).unwrap(),
+    )
+    .unwrap();
+    let write_object = |object: &serde_json::Value| {
+        let bytes = serde_json::to_vec(object).unwrap();
+        let id = format!("{:x}", Sha256::digest(&bytes));
+        fs::write(dir.join("objects").join(format!("{id}.json")), bytes).unwrap();
+        id
+    };
+    let write_lock = |objects: Vec<String>| {
+        let lock = knowledge::Lock {
+            schema: 1,
+            semantics: knowledge::SEMANTICS.into(),
+            objects,
+        };
+        fs::write(dir.join("lock.json"), serde_json::to_vec(&lock).unwrap()).unwrap();
+    };
+    // Being verified as a different root does not make an undeclared import visible.
+    let composition = names["combined_decision"].as_str().unwrap().to_owned();
+    object["dependencies"]
+        .as_array_mut()
+        .unwrap()
+        .retain(|x| x.as_str() != Some(&composition));
+    let altered = write_object(&object);
+    write_lock(vec![composition.clone(), altered]);
+    assert!(knowledge::load(&dir.join("lock.json"))
+        .unwrap_err()
+        .contains("undeclared theorem"));
+    write_lock(vec![root.into()]);
+    let leaf = dir
+        .join("objects")
+        .join(format!("{}.json", names["decision"].as_str().unwrap()));
+    let bytes = fs::read(&leaf).unwrap();
+    fs::remove_file(&leaf).unwrap();
+    assert!(knowledge::load(&dir.join("lock.json")).is_err());
+    fs::write(&leaf, b"{}").unwrap();
+    assert!(knowledge::load(&dir.join("lock.json"))
+        .unwrap_err()
+        .contains("hash mismatch"));
+    fs::write(&leaf, bytes).unwrap();
+    knowledge::load(&dir.join("lock.json")).unwrap();
+    // A deep chain of tiny, valid definitions still has a bounded loader depth.
+    let mut last = None;
+    for index in 0..66 {
+        let mut object = serde_json::json!({"schema":1,"semantics":knowledge::SEMANTICS,"kind":"definition","name":format!("chain{index}"),"params":[],"result":"Bool","body":{"Bool":true}});
+        if let Some(previous) = &last {
+            object["body"] = serde_json::json!({"Call":[previous,[]]});
+            object["dependencies"] = serde_json::json!([previous]);
+        }
+        last = Some(write_object(&object));
+    }
+    write_lock(vec![last.unwrap()]);
+    assert!(knowledge::load(&dir.join("lock.json"))
+        .unwrap_err()
+        .contains("closure limit"));
     fs::remove_dir_all(dir).unwrap();
 }

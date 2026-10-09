@@ -5,11 +5,16 @@ use crate::{
     LangResult,
 };
 use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub enum Proof {
     Refl(Expr),
+    Use {
+        theorem: String,
+        arguments: Vec<Expr>,
+    },
     Compute {
         from: Expr,
         to: Expr,
@@ -74,16 +79,203 @@ fn pair(a: &Expr, b: &Expr, env: &Env, budget: &mut Budget) -> LangResult<()> {
     }
     Ok(())
 }
-pub fn substitute(e: &Expr, bindings: &std::collections::BTreeMap<String, Expr>) -> Expr {
+// Simultaneous substitution: inserted arguments are never substituted again.
+fn substitute(
+    e: &Expr,
+    bindings: &BTreeMap<String, Expr>,
+    budget: &mut Budget,
+    depth: usize,
+) -> LangResult<Expr> {
+    budget.step(depth)?;
     match e {
-        Expr::Var(n) => bindings.get(n).cloned().unwrap_or_else(|| e.clone()),
+        Expr::Var(n) if bindings.contains_key(n) => {
+            substitute(&bindings[n], &BTreeMap::new(), budget, depth + 1)
+        }
+        Expr::Binary(op, a, b) => Ok(Expr::Binary(
+            op.clone(),
+            Box::new(substitute(a, bindings, budget, depth + 1)?),
+            Box::new(substitute(b, bindings, budget, depth + 1)?),
+        )),
+        Expr::Var(_) | Expr::Num(_) | Expr::Bool(_) => Ok(e.clone()),
+        _ => Err("substitution requires expanded scalar terms".into()),
+    }
+}
+#[derive(Clone, Debug)]
+struct Definition {
+    params: Vec<(String, Type)>,
+    result: Type,
+    body: Expr,
+}
+#[derive(Clone, Debug)]
+struct Theorem {
+    params: Vec<(String, Type)>,
+    from: Expr,
+    to: Expr,
+}
+/// Only checked definitions and proved theorems can enter this context.
+#[derive(Clone, Debug, Default)]
+pub struct Context {
+    definitions: BTreeMap<String, Definition>,
+    theorems: BTreeMap<String, Theorem>,
+}
+fn params_env(params: &[(String, Type)]) -> LangResult<Env> {
+    if params.len() > 64
+        || params
+            .iter()
+            .any(|(_, t)| !matches!(t, Type::Bool | Type::U64))
+    {
+        return Err("invalid equality context".into());
+    }
+    check::params_env(params)
+}
+impl Context {
+    fn vacant(&self, id: &str) -> LangResult<()> {
+        if self.definitions.contains_key(id) || self.theorems.contains_key(id) {
+            return Err("duplicate proof context identity".into());
+        }
+        Ok(())
+    }
+    pub fn subset(&self, ids: &[String]) -> LangResult<Self> {
+        let mut result = Self::default();
+        for id in ids {
+            result.vacant(id)?;
+            if let Some(definition) = self.definitions.get(id) {
+                result.definitions.insert(id.clone(), definition.clone());
+            } else if let Some(theorem) = self.theorems.get(id) {
+                result.theorems.insert(id.clone(), theorem.clone());
+            } else {
+                return Err("unchecked dependency".into());
+            }
+        }
+        Ok(result)
+    }
+    // Import only opaque, already checked entries; callers cannot construct their internals.
+    pub fn import(&mut self, other: &Self, id: &str) -> LangResult<()> {
+        self.vacant(id)?;
+        let entry = other.subset(&[id.to_owned()])?;
+        self.definitions.extend(entry.definitions);
+        self.theorems.extend(entry.theorems);
+        Ok(())
+    }
+    pub fn define(
+        &mut self,
+        id: String,
+        params: &[(String, Type)],
+        result: &Type,
+        body: &Expr,
+    ) -> LangResult<()> {
+        self.vacant(&id)?;
+        if !matches!(result, Type::Bool | Type::U64) {
+            return Err("invalid definition result type".into());
+        }
+        let env = params_env(params)?;
+        let mut budget = Budget::new();
+        let body = expand(body, &env, self, &mut budget, 0)?;
+        if &term_type(&body, &env, &mut budget)? != result {
+            return Err("definition result type mismatch".into());
+        }
+        self.definitions.insert(
+            id,
+            Definition {
+                params: params.to_vec(),
+                result: result.clone(),
+                body,
+            },
+        );
+        Ok(())
+    }
+    pub fn check(
+        &self,
+        params: &[(String, Type)],
+        from: &Expr,
+        to: &Expr,
+        proof: &Proof,
+    ) -> LangResult<(Expr, Expr)> {
+        let env = params_env(params)?;
+        let mut budget = Budget::new();
+        let from = expand(from, &env, self, &mut budget, 0)?;
+        let to = expand(to, &env, self, &mut budget, 0)?;
+        pair(&from, &to, &env, &mut budget)?;
+        let (a, b) = derive(proof, &env, self, &mut budget, 0)?;
+        if a != from || b != to {
+            return Err("proof proves a different statement".into());
+        }
+        Ok((from, to))
+    }
+    pub fn prove(
+        &mut self,
+        id: String,
+        params: &[(String, Type)],
+        from: &Expr,
+        to: &Expr,
+        proof: &Proof,
+    ) -> LangResult<(Expr, Expr)> {
+        self.vacant(&id)?;
+        let (from, to) = self.check(params, from, to, proof)?;
+        self.theorems.insert(
+            id,
+            Theorem {
+                params: params.to_vec(),
+                from: from.clone(),
+                to: to.clone(),
+            },
+        );
+        Ok((from, to))
+    }
+}
+fn arguments(
+    params: &[(String, Type)],
+    args: &[Expr],
+    env: &Env,
+    context: &Context,
+    budget: &mut Budget,
+    depth: usize,
+) -> LangResult<BTreeMap<String, Expr>> {
+    if params.len() != args.len() {
+        return Err("proof application argument count mismatch".into());
+    }
+    let mut bindings = BTreeMap::new();
+    for ((name, ty), argument) in params.iter().zip(args) {
+        let value = expand(argument, env, context, budget, depth + 1)?;
+        if term_type(&value, env, budget)? != *ty {
+            return Err("proof application argument type mismatch".into());
+        }
+        bindings.insert(name.clone(), value);
+    }
+    Ok(bindings)
+}
+// Calls in proof objects resolve only to checked content identities, never source names.
+fn expand(
+    e: &Expr,
+    env: &Env,
+    context: &Context,
+    budget: &mut Budget,
+    depth: usize,
+) -> LangResult<Expr> {
+    budget.step(depth)?;
+    let result = match e {
+        Expr::Call(id, args) => {
+            let definition = context
+                .definitions
+                .get(id)
+                .ok_or("unknown or undeclared definition")?;
+            let bindings = arguments(&definition.params, args, env, context, budget, depth + 1)?;
+            let expanded = substitute(&definition.body, &bindings, budget, depth + 1)?;
+            if term_type(&expanded, env, budget)? != definition.result {
+                return Err("definition instantiation type mismatch".into());
+            }
+            expanded
+        }
         Expr::Binary(op, a, b) => Expr::Binary(
             op.clone(),
-            Box::new(substitute(a, bindings)),
-            Box::new(substitute(b, bindings)),
+            Box::new(expand(a, env, context, budget, depth + 1)?),
+            Box::new(expand(b, env, context, budget, depth + 1)?),
         ),
-        _ => e.clone(),
-    }
+        Expr::Var(_) | Expr::Num(_) | Expr::Bool(_) => e.clone(),
+        _ => return Err("proof definitions require total scalar expressions".into()),
+    };
+    term_type(&result, env, budget)?;
+    Ok(result)
 }
 // Only execute primitives on literals. No symbolic identities such as x+0=x.
 fn compute(e: &Expr, budget: &mut Budget, depth: usize) -> LangResult<Expr> {
@@ -117,32 +309,57 @@ fn compute(e: &Expr, budget: &mut Budget, depth: usize) -> LangResult<Expr> {
     };
     Ok(value.unwrap_or_else(|| Expr::Binary(op.clone(), Box::new(a), Box::new(b))))
 }
-fn derive(p: &Proof, env: &Env, budget: &mut Budget, depth: usize) -> LangResult<(Expr, Expr)> {
+fn derive(
+    p: &Proof,
+    env: &Env,
+    context: &Context,
+    budget: &mut Budget,
+    depth: usize,
+) -> LangResult<(Expr, Expr)> {
     budget.step(depth)?;
     let (a, b) = match p {
-        Proof::Refl(t) => (t.clone(), t.clone()),
+        Proof::Refl(t) => {
+            let t = expand(t, env, context, budget, 0)?;
+            (t.clone(), t)
+        }
+        Proof::Use {
+            theorem,
+            arguments: args,
+        } => {
+            let theorem = context
+                .theorems
+                .get(theorem)
+                .ok_or("unknown or undeclared theorem")?;
+            let bindings = arguments(&theorem.params, args, env, context, budget, 0)?;
+            (
+                substitute(&theorem.from, &bindings, budget, 0)?,
+                substitute(&theorem.to, &bindings, budget, 0)?,
+            )
+        }
         Proof::Compute { from, to } => {
-            pair(from, to, env, budget)?;
-            if compute(from, budget, 0)? != compute(to, budget, 0)? {
+            let from = expand(from, env, context, budget, 0)?;
+            let to = expand(to, env, context, budget, 0)?;
+            pair(&from, &to, env, budget)?;
+            if compute(&from, budget, 0)? != compute(&to, budget, 0)? {
                 return Err("primitive evaluation does not establish equality".into());
             }
             (from.clone(), to.clone())
         }
         Proof::Sym(p) => {
-            let (a, b) = derive(p, env, budget, depth + 1)?;
+            let (a, b) = derive(p, env, context, budget, depth + 1)?;
             (b, a)
         }
         Proof::Trans(p, q) => {
-            let (a, b) = derive(p, env, budget, depth + 1)?;
-            let (c, d) = derive(q, env, budget, depth + 1)?;
+            let (a, b) = derive(p, env, context, budget, depth + 1)?;
+            let (c, d) = derive(q, env, context, budget, depth + 1)?;
             if b != c {
                 return Err("transitivity middle terms differ".into());
             }
             (a, d)
         }
         Proof::Binary { op, left, right } => {
-            let (a, b) = derive(left, env, budget, depth + 1)?;
-            let (c, d) = derive(right, env, budget, depth + 1)?;
+            let (a, b) = derive(left, env, context, budget, depth + 1)?;
+            let (c, d) = derive(right, env, context, budget, depth + 1)?;
             (
                 Expr::Binary(op.clone(), Box::new(a), Box::new(c)),
                 Expr::Binary(op.clone(), Box::new(b), Box::new(d)),
@@ -158,13 +375,18 @@ fn derive(p: &Proof, env: &Env, budget: &mut Budget, depth: usize) -> LangResult
             if env.get(variable) != Some(&Type::Bool) {
                 return Err("case variable must have Bool type".into());
             }
-            pair(from, to, env, budget)?;
+            let from = expand(from, env, context, budget, 0)?;
+            let to = expand(to, env, context, budget, 0)?;
+            pair(&from, &to, env, budget)?;
             let mut local = env.clone();
             local.remove(variable);
             for (value, proof) in [(false, on_false), (true, on_true)] {
                 let binding = [(variable.clone(), Expr::Bool(value))].into();
-                let want = (substitute(from, &binding), substitute(to, &binding));
-                if derive(proof, &local, budget, depth + 1)? != want {
+                let want = (
+                    substitute(&from, &binding, budget, 0)?,
+                    substitute(&to, &binding, budget, 0)?,
+                );
+                if derive(proof, &local, context, budget, depth + 1)? != want {
                     return Err("case branch does not prove the instantiated statement".into());
                 }
             }
@@ -175,19 +397,7 @@ fn derive(p: &Proof, env: &Env, budget: &mut Budget, depth: usize) -> LangResult
     Ok((a, b))
 }
 pub fn verify(params: &[(String, Type)], from: &Expr, to: &Expr, proof: &Proof) -> LangResult<()> {
-    if params.len() > 64
-        || params
-            .iter()
-            .any(|(_, t)| !matches!(t, Type::Bool | Type::U64))
-    {
-        return Err("invalid equality context".into());
-    }
-    let env = check::params_env(params)?;
-    let mut budget = Budget::new();
-    pair(from, to, &env, &mut budget)?;
-    let (a, b) = derive(proof, &env, &mut budget, 0)?;
-    if &a != from || &b != to {
-        return Err("proof proves a different statement".into());
-    }
-    Ok(())
+    Context::default()
+        .prove("target".into(), params, from, to, proof)
+        .map(|_| ())
 }

@@ -1,4 +1,4 @@
-//! Content-addressed self-contained equality objects and explicit ordered lockfiles.
+//! Content-addressed definitions/theorems, bounded dependency closure and selected rewrites.
 use crate::{
     check,
     equality::{self, Proof},
@@ -25,6 +25,8 @@ pub struct Object {
     pub from: Expr,
     pub to: Expr,
     pub proof: Proof,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub dependencies: Vec<String>,
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -37,6 +39,7 @@ pub struct Lock {
 pub struct CheckedRule {
     id: String,
     object: Object,
+    evidence: equality::Context,
 }
 fn vars(e: &Expr, out: &mut BTreeSet<String>) {
     match e {
@@ -50,11 +53,55 @@ fn vars(e: &Expr, out: &mut BTreeSet<String>) {
         _ => {}
     }
 }
-fn check_object(id: String, object: Object) -> LangResult<CheckedRule> {
-    if object.schema != 1 || object.semantics != SEMANTICS {
-        return Err("incompatible knowledge semantics".into());
+#[derive(Clone, Debug, Deserialize)]
+#[serde(rename_all = "lowercase")]
+enum DefinitionKind {
+    Definition,
+}
+#[derive(Clone, Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct DefinitionObject {
+    kind: DefinitionKind,
+    schema: u32,
+    semantics: String,
+    name: String,
+    params: Vec<(String, Type)>,
+    result: Type,
+    body: Expr,
+    #[serde(default)]
+    dependencies: Vec<String>,
+}
+#[derive(Clone, Debug, Deserialize)]
+#[serde(untagged)]
+enum Entry {
+    Definition(DefinitionObject),
+    Theorem(Object),
+}
+impl Entry {
+    fn metadata(&self) -> (u32, &str, &[String]) {
+        match self {
+            Self::Definition(d) => (d.schema, &d.semantics, &d.dependencies),
+            Self::Theorem(t) => (t.schema, &t.semantics, &t.dependencies),
+        }
     }
-    equality::verify(&object.params, &object.from, &object.to, &object.proof)?;
+}
+#[derive(Debug)]
+pub struct Database {
+    pub lock: Lock,
+    pub rules: Vec<CheckedRule>,
+    pub closure: Vec<String>,
+}
+fn identity(id: &str) -> LangResult<()> {
+    if id.len() != 64
+        || !id
+            .bytes()
+            .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))
+    {
+        return Err("invalid knowledge identity".into());
+    }
+    Ok(())
+}
+fn rewrite_eligible(object: &Object) -> LangResult<()> {
     if matches!(object.from, Expr::Var(_)) {
         return Err("bare-variable rewrite patterns are disabled".into());
     }
@@ -65,7 +112,85 @@ fn check_object(id: String, object: Object) -> LangResult<CheckedRule> {
     if !b.is_subset(&a) {
         return Err("unbound replacement variable".into());
     }
-    Ok(CheckedRule { id, object })
+    Ok(())
+}
+struct Loader<'a> {
+    root: &'a Path,
+    context: equality::Context,
+    checked: BTreeSet<String>,
+    active: BTreeSet<String>,
+    theorems: BTreeMap<String, Object>,
+    bytes: usize,
+}
+impl Loader<'_> {
+    fn visit(&mut self, id: &str, depth: usize) -> LangResult<()> {
+        identity(id)?;
+        if self.checked.contains(id) {
+            return Ok(());
+        }
+        if depth > 64 || self.checked.len() + self.active.len() >= 128 {
+            return Err("knowledge dependency closure limit".into());
+        }
+        if !self.active.insert(id.to_owned()) {
+            return Err("cyclic knowledge dependency".into());
+        }
+        let bytes = read_bounded(
+            &self.root.join("objects").join(format!("{id}.json")),
+            4_000_000,
+        )?;
+        self.bytes += bytes.len();
+        if self.bytes > 16_000_000 {
+            return Err("knowledge database budget exceeded".into());
+        }
+        if format!("{:x}", Sha256::digest(&bytes)) != id {
+            return Err("knowledge content hash mismatch".into());
+        }
+        let entry: Entry =
+            serde_json::from_slice(&bytes).map_err(|e| format!("invalid knowledge object: {e}"))?;
+        let (schema, semantics, dependencies) = entry.metadata();
+        if schema != 1 || semantics != SEMANTICS {
+            return Err("incompatible knowledge semantics".into());
+        }
+        if dependencies.len() > 128 {
+            return Err("knowledge dependency count limit".into());
+        }
+        let mut unique = BTreeSet::new();
+        for dependency in dependencies {
+            if !unique.insert(dependency) {
+                return Err("duplicate knowledge dependency".into());
+            }
+            self.visit(dependency, depth + 1)?;
+        }
+        // Direct imports only. Being present elsewhere in the database grants no authority.
+        let mut local = self.context.subset(dependencies)?;
+        match entry {
+            Entry::Definition(definition) => {
+                let _metadata = (&definition.kind, &definition.name);
+                local.define(
+                    id.to_owned(),
+                    &definition.params,
+                    &definition.result,
+                    &definition.body,
+                )?;
+            }
+            Entry::Theorem(mut theorem) => {
+                let (from, to) = local.prove(
+                    id.to_owned(),
+                    &theorem.params,
+                    &theorem.from,
+                    &theorem.to,
+                    &theorem.proof,
+                )?;
+                theorem.from = from;
+                theorem.to = to;
+                self.theorems.insert(id.to_owned(), theorem);
+            }
+        }
+        self.context.import(&local, id)?;
+        self.active.remove(id);
+        self.checked.insert(id.to_owned());
+        Ok(())
+    }
 }
 fn read_bounded(path: &Path, limit: usize) -> LangResult<Vec<u8>> {
     let mut bytes = Vec::new();
@@ -79,37 +204,43 @@ fn read_bounded(path: &Path, limit: usize) -> LangResult<Vec<u8>> {
     }
     Ok(bytes)
 }
-pub fn load(lock_path: &Path) -> LangResult<(Lock, Vec<CheckedRule>)> {
+pub fn load(lock_path: &Path) -> LangResult<Database> {
     let lock: Lock =
         serde_json::from_slice(&read_bounded(lock_path, 64_000)?).map_err(|e| e.to_string())?;
     if lock.schema != 1 || lock.semantics != SEMANTICS || lock.objects.len() > 128 {
         return Err("unsupported knowledge lock".into());
     }
-    let root = lock_path.parent().unwrap_or(Path::new("."));
-    let mut seen = BTreeSet::new();
-    let mut rules = Vec::new();
-    let mut total = 0;
+    let mut loader = Loader {
+        root: lock_path.parent().unwrap_or(Path::new(".")),
+        context: equality::Context::default(),
+        checked: BTreeSet::new(),
+        active: BTreeSet::new(),
+        theorems: BTreeMap::new(),
+        bytes: 0,
+    };
+    let mut roots = BTreeSet::new();
     for id in &lock.objects {
-        if id.len() != 64
-            || !id
-                .bytes()
-                .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))
-            || !seen.insert(id.clone())
-        {
-            return Err("invalid or duplicate knowledge identity".into());
+        if !roots.insert(id) {
+            return Err("duplicate knowledge identity".into());
         }
-        let bytes = read_bounded(&root.join("objects").join(format!("{id}.json")), 4_000_000)?;
-        total += bytes.len();
-        if total > 16_000_000 {
-            return Err("knowledge database budget exceeded".into());
-        }
-        if format!("{:x}", Sha256::digest(&bytes)) != *id {
-            return Err("knowledge content hash mismatch".into());
-        }
-        let object = serde_json::from_slice(&bytes).map_err(|e| e.to_string())?;
-        rules.push(check_object(id.clone(), object)?);
+        loader.visit(id, 0)?;
     }
-    Ok((lock, rules))
+    let mut rules = Vec::new();
+    for id in &lock.objects {
+        if let Some(object) = loader.theorems.remove(id) {
+            rewrite_eligible(&object)?;
+            rules.push(CheckedRule {
+                id: id.clone(),
+                object,
+                evidence: loader.context.subset(&[id.clone()])?,
+            });
+        }
+    }
+    Ok(Database {
+        lock,
+        rules,
+        closure: loader.checked.into_iter().collect(),
+    })
 }
 fn matches(p: &Expr, e: &Expr, bindings: &mut BTreeMap<String, Expr>) -> bool {
     match (p, e) {
@@ -194,6 +325,33 @@ fn rewrite(
         }
         let next = instantiate(&rule.object.to, &bindings, fuel, 0)?;
         if next != out {
+            // Search/matching only proposes an optimisation. Recheck the exact
+            // instantiated equality before accepting its replacement.
+            let arguments = rule
+                .object
+                .params
+                .iter()
+                .map(|(name, ty)| {
+                    bindings.get(name).cloned().unwrap_or_else(|| match ty {
+                        Type::Bool => Expr::Bool(false),
+                        _ => Expr::Num(0),
+                    })
+                })
+                .collect();
+            let params = env
+                .iter()
+                .filter(|(_, ty)| matches!(ty, Type::Bool | Type::U64))
+                .map(|(name, ty)| (name.clone(), ty.clone()))
+                .collect::<Vec<_>>();
+            rule.evidence.check(
+                &params,
+                &out,
+                &next,
+                &Proof::Use {
+                    theorem: rule.id.clone(),
+                    arguments,
+                },
+            )?;
             out = next;
             used.push(rule.id.clone());
         }

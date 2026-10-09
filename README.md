@@ -102,4 +102,4 @@ target/debug/lang build examples/boolean.lang --database knowledge/boolean/lock.
 python3 tools/check_database.py
 ```
 
-The last command checks unchanged-compiler extension, generated-code differences and native results with zero, one and two database rules. It is not a speed benchmark. This first proof calculus covers total scalar expressions and Boolean cases; it cannot yet replace the legacy polynomial/aggregate checkers. See [architecture and limits](docs/small-core-and-knowledge.md).
+The last command checks unchanged-compiler extension, generated-code differences and native results with zero, one and two database rules. It is not a speed benchmark. This first proof calculus covers total scalar expressions, Boolean cases, acyclic definitions and reusable theorems. It cannot yet replace the legacy polynomial/aggregate checkers. `python3 tools/composed_proofs.py knowledge/composed` produces a seven-object library with one selected rewrite; `python3 tools/check_composition.py` validates its native output and dependency closure. See [architecture and limits](docs/small-core-and-knowledge.md).
