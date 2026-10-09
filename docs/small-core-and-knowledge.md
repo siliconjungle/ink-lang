@@ -157,6 +157,14 @@ Limits are fixed: 100,000 circuit variables, 300,000 circuit clauses, 20,000 cer
 
 `reports/bitvector-proof-phase1` preserves native validation, independent fixed-input Python/SAT encoding checks, raw timing samples, checking costs, nine independently pinned database revisions and compiler-plan/disassembly replay. All eight checked/native baseline function bodies are instruction-identical after LLVM. This establishes proof extensibility, not a runtime advantage for elementary identities. The legacy `proof.rs` polynomial path and built-in aggregate/representation authority remain present and require migration. General arithmetic proofs inside useful algorithms, state-transition refinement, representation selection and the fuller proof language remain work.
 
+## Exact-integer and finite-sum proof foundation
+
+The bit-vector fragment cannot justify exact-Int cache updates: modular cancellation and unbounded integer semantics are different domains. `tools/integer_proofs.py` now produces 35 immutable objects checked by the unchanged first-order kernel. It defines Natural (Zero/Successor), canonical Integer (Zero/Positive(n)/Negative(n)), structurally terminating integer operations, IntegerList, append and sum. Twenty-three proofs establish inverse/cancellation laws, commutativity, associativity, row decomposition and arbitrary-position sum insertion/replacement/removal, using only existing general proof rules and explicit theorem dependencies. No Int primitive, ring axiom, polynomial procedure, solver or aggregate-specific kernel rule is added.
+
+These are universally quantified datatype proofs, not enumerated integer samples. The unary model lives in proof data; it does not replace the runtime's BigInt representation. The fixed kernel's normalisation budgets limit concrete large-value evaluation. Direct imports remain explicit even when a dependency's type exists in the hidden checked closure.
+
+`knowledge/exact-integers` and `reports/exact-sum-proof-foundation` preserve objects, deterministic producer replay, independent BigInt fixture checks, negative import/proof cases and import cost. Source Int/table correspondence remains separate and unimplemented for this package. The next bridge must pin exact semantic definitions, validate actual candidate update expressions and their scope, and extend to transaction/representation observations. A model theorem alone does not authorise a source transformation or remove existing legacy authority.
+
 ## Design precedents and implications
 
 The individual mechanisms have substantial prior work. This comparison is a design assessment, not an exhaustive novelty claim or a statement that the complete systems are equivalent to Ink.

@@ -157,3 +157,9 @@ python3 tools/audit_bitvector_report.py --execute
 The [arithmetic package](knowledge/bitvector/README.md) supplies nine theorems and eight exact source replacements through untrusted external SAT proof production. Ink independently checks the certificates, scoped premises and complete replacement proofs. Arithmetic theorems also compose with list induction. A conditional theorem cannot authorise an unguarded rewrite.
 
 The [benchmark report](reports/bitvector-proof-phase1/REPORT.md) records 560 timing samples, 42,920 native oracle checks, 2,534 independent SAT/encoding checks and nine database revisions under one compiler. All eight baseline/checked ARM64 function bodies are identical: LLVM already recognises these elementary identities, so this produces no demonstrated runtime speedup. The full library checks in about 22 ms including fresh-process startup and warm file I/O. This extends the proof boundary; the next performance gains need algorithms and representations that skip substantial work.
+
+## Exact-sum proof foundation
+
+The [exact-integer package](knowledge/exact-integers/README.md) adds 35 database objects and 23 universally quantified induction proofs with the unchanged kernel. Its group laws prove insert/replace/remove sum equations at arbitrary positions in finite lists, including negative weights. The [verification report](reports/exact-sum-proof-foundation/REPORT.md) records deterministic replay, 57 passing tests and about 6 ms for a complete import.
+
+This is a foundation for replacing the aggregate checker's built-in authority. It does not yet authorise source/table transformations or change runtime performance; source correspondence and transaction refinement remain necessary.

@@ -104,3 +104,11 @@ The installed package has ten immutable objects: a list datatype and nine scalar
 The complete Rust suite passes 54 tests, including six checker/encoding unit tests and five integration tests. Independent external SAT checks compare the exported circuits against Python arithmetic at 2,534 expected/mutated assignments over 15 operations. Five native variants pass 42,920 oracle comparisons. These are engineering checks, not a mechanically verified soundness theorem for the encoder/checker or backend.
 
 `reports/bitvector-proof-phase1` records 560 samples in 16 scalar-call cells, nine independently selected database revisions, replayed compiler plans and disassembly, and fresh-process proof-checking costs. All eight baseline/checked ARM64 bodies are identical; the elementary arithmetic package demonstrates extensibility, not runtime improvement. LLVM already performs those simplifications. The small-core migration, stateful refinement, durability, adaptation and broader language coverage remain unfinished.
+
+## Exact-sum proof foundation
+
+The unchanged generic kernel now checks a database-defined canonical exact-integer model, additive group laws, and arbitrary-position finite-list sum insertion/replacement/removal equations. `knowledge/exact-integers` contains 35 immutable definitions/theorems, including 23 universal induction proofs. No new primitive, ring axiom, solver or aggregate-specific rule enters the core.
+
+Three integration tests supplement those proofs: 1,323 model/BigInt arithmetic checks, 225 sum-update fixtures with negative/duplicate/empty values, and rejection of rehashed false proofs and missing direct imports. The complete suite passes 57 tests. Deterministic production and approximately 6 ms whole-library import cost are recorded in `reports/exact-sum-proof-foundation`.
+
+The unary data is a proof model, not a runtime representation change. This package is not yet connected to source Int/table semantics and does not authorise stateful transformations. Connecting exact candidate update expressions to the checked definitions and then covering transactions, abort/events and future changes remains work; the legacy aggregate authority is still present.
