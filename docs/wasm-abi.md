@@ -12,11 +12,11 @@ Each exported source function is named `lang_fn_NAME`. Scalar `u64` parameters a
 
 A `List<u64>` parameter becomes two `i32` parameters: a byte offset into exported linear memory and an element count. Elements are little-endian 64-bit unsigned integers, eight-byte aligned. The host must supply a valid, non-overflowing range inside memory. A list is read-only for the duration of the call. The module does not retain the pointer.
 
-The host can use exported `__heap_base` as the start of host-owned input buffers and grow exported `memory` as needed. Recreate JavaScript typed-array views after memory growth. Do not place inputs inside the stack or static-data region below `__heap_base`. There is no allocator or concurrent access protocol in this initial pure ABI.
+The host can use exported `__heap_base` as the start of host-owned input buffers and grow exported `memory` as needed. Recreate JavaScript typed-array views after memory growth. Do not place inputs inside the stack or static-data region below `__heap_base`. Literal collection stages now use an internal frame-based bump allocator that grows memory and protects the ranges of every borrowed input. It reclaims released trailing blocks and resets temporary storage at function return; input pointers are never retained. Freed holes can remain until the frame exits. Allocation/overflow failures trap. There is no host allocation API or concurrent access protocol in this pure ABI.
 
 The pure-module tests run in Node/V8. The stateful path below has also been exercised in an actual browser. Neither path currently imports host capabilities.
 
-`python3 bench/wasm.py` builds both the baseline and imported-knowledge variants, validates their binary format and checks them against independent BigInt arithmetic, including overflow and empty arrays. This correctness test is not a browser performance benchmark.
+`python3 bench/wasm.py` builds both the baseline and imported-knowledge variants, validates their binary format and checks them against independent BigInt arithmetic, including overflow and empty arrays. This correctness test is not a browser performance benchmark. `python3 bench/collection-wasm.py` additionally checks database-selected folds, right-fold ordering, shadowing, temporary list arguments, multiple borrowed inputs and memory growth; its 4,416 Node/V8 checks are archived under `reports/collection-proof-wasm-phase1`.
 
 
 ## Stateful modules: ABI version 1

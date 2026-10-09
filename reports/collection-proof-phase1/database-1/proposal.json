@@ -1,0 +1,142 @@
+{
+  "schema": 1,
+  "semantics": "source-collections-v1",
+  "library": "lock.json",
+  "proposals": [
+    {
+      "function": "two_maps",
+      "from": {
+        "Call": [
+          "sum",
+          [
+            {
+              "Method": [
+                {
+                  "Method": [
+                    {
+                      "Var": "xs"
+                    },
+                    "map",
+                    [
+                      {
+                        "Lambda": [
+                          "x",
+                          {
+                            "Binary": [
+                              "*",
+                              {
+                                "Var": "x"
+                              },
+                              {
+                                "Var": "scale"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  ]
+                },
+                "map",
+                [
+                  {
+                    "Lambda": [
+                      "y",
+                      {
+                        "Binary": [
+                          "+",
+                          {
+                            "Var": "y"
+                          },
+                          {
+                            "Var": "bias"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              ]
+            }
+          ]
+        ]
+      },
+      "to": {
+        "Call": [
+          "foldr",
+          [
+            {
+              "Var": "xs"
+            },
+            {
+              "Num": 0
+            },
+            {
+              "Lambda": [
+                "x",
+                {
+                  "Lambda": [
+                    "rest",
+                    {
+                      "Binary": [
+                        "+",
+                        {
+                          "Binary": [
+                            "+",
+                            {
+                              "Binary": [
+                                "*",
+                                {
+                                  "Var": "x"
+                                },
+                                {
+                                  "Var": "scale"
+                                }
+                              ]
+                            },
+                            {
+                              "Var": "bias"
+                            }
+                          ]
+                        },
+                        {
+                          "Var": "rest"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        ]
+      },
+      "datatype": "8f3ce4e1fb4435fa83d81d0d0b24a3375f52febb96505737a24cfaba0238842a",
+      "from_definitions": [
+        "dbeba5d87a8d6de77db173c01e1b0482261027f09ddeecb6f0de9b520627a2db",
+        "36f079149415881a83c0db301bd4585f118ad16dd8c189fca96cfbb2e97ca6b0",
+        "e8f9629e02e22535614b4f7b8c19477aaed3a205c783a3598ce61f2fde28a09e"
+      ],
+      "to_definitions": [
+        "3f9c02b69a3fc6dc9af39750aeb7a68340d86a5462703e85c04d04c22e8bb421"
+      ],
+      "proof": {
+        "Use": {
+          "theorem": "4e634783b1d4a044d393c8eb750cb9e62b1c9d733350d41db32befe7b42eae09",
+          "arguments": [
+            {
+              "Var": "p0"
+            },
+            {
+              "Var": "p1"
+            },
+            {
+              "Var": "p2"
+            }
+          ],
+          "premises": []
+        }
+      }
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build, validate and benchmark equivalent kernels through one shared C driver."""
+"""Build, validate and benchmark same-value kernels through one shared C driver; current language stages are materialised."""
 import argparse, ctypes, hashlib, json, os, platform, random, shutil, statistics, subprocess, time
 from pathlib import Path
 
@@ -118,7 +118,7 @@ def benchmark(args):
                 print(f'{distribution:5} n={n:8} {case:12}: '+', '.join(f'{v} {statistics.median(r["ns_per_call"] for r in group if r["variant"]==v):.1f} ns' for v in VARIANTS),flush=True)
                 (RESULTS/'samples.json').write_text(json.dumps(rows,indent=2))
     sources={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for folder in ['src','bench','examples','knowledge'] for p in (ROOT/folder).glob('*') if p.is_file()}
-    metadata={'started_unix':start,'elapsed_seconds':time.time()-start,'platform':platform.platform(),'machine':platform.machine(),'cpu':invoke(['sysctl','-n','machdep.cpu.brand_string']),'memory_bytes':invoke(['sysctl','-n','hw.memsize']),'clang':invoke(['clang','--version']),'rustc':invoke(['rustc','-vV'],env=env),'parameters':vars(args),'correctness':correctness,'source_sha256':sources,'commands':COMMANDS,'notes':['All timed variants share one C driver object; no LTO.','Native LLVM versions differ between Clang and Rust.','No CPU pinning; shared interactive machine.','Warm in-memory u64 kernels only; not the complete language or a persistence benchmark.','C and C++ factored polynomial baseline; the language must compete with an already simplified expert implementation.']}
+    metadata={'started_unix':start,'elapsed_seconds':time.time()-start,'platform':platform.platform(),'machine':platform.machine(),'cpu':invoke(['sysctl','-n','machdep.cpu.brand_string']),'memory_bytes':invoke(['sysctl','-n','hw.memsize']),'clang':invoke(['clang','--version']),'rustc':invoke(['rustc','-vV'],env=env),'parameters':vars(args),'correctness':correctness,'source_sha256':sources,'commands':COMMANDS,'notes':['All timed variants share one C driver object; no LTO.','Current language baseline materialises collection stages; handwritten baselines combine passes. This harness now compares differing algorithms. Use bench/collection-proof.py for staged and combined variants in every language.','Native LLVM versions differ between Clang and Rust.','No CPU pinning; shared interactive machine.','Warm in-memory u64 kernels only; not the complete language or a persistence benchmark.','C and C++ factored polynomial baseline; the language must compete with an already simplified expert implementation.']}
     (RESULTS/'metadata.json').write_text(json.dumps(metadata,indent=2))
     summaries=[]
     for distribution in distributions:

@@ -1,0 +1,232 @@
+{
+  "applied_rule_ids": [],
+  "checked_implementation": {
+    "checked_proposals": [
+      {
+        "datatype": "8f3ce4e1fb4435fa83d81d0d0b24a3375f52febb96505737a24cfaba0238842a",
+        "from": {
+          "Call": [
+            "sum",
+            [
+              {
+                "Method": [
+                  {
+                    "Method": [
+                      {
+                        "Var": "xs"
+                      },
+                      "map",
+                      [
+                        {
+                          "Lambda": [
+                            "x",
+                            {
+                              "Binary": [
+                                "*",
+                                {
+                                  "Var": "x"
+                                },
+                                {
+                                  "Var": "scale"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    ]
+                  },
+                  "map",
+                  [
+                    {
+                      "Lambda": [
+                        "y",
+                        {
+                          "Binary": [
+                            "+",
+                            {
+                              "Var": "y"
+                            },
+                            {
+                              "Var": "bias"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                ]
+              }
+            ]
+          ]
+        },
+        "from_definitions": [
+          "dbeba5d87a8d6de77db173c01e1b0482261027f09ddeecb6f0de9b520627a2db",
+          "36f079149415881a83c0db301bd4585f118ad16dd8c189fca96cfbb2e97ca6b0",
+          "e8f9629e02e22535614b4f7b8c19477aaed3a205c783a3598ce61f2fde28a09e"
+        ],
+        "function": "two_maps",
+        "proof": {
+          "Use": {
+            "arguments": [
+              {
+                "Var": "p0"
+              },
+              {
+                "Var": "p1"
+              },
+              {
+                "Var": "p2"
+              }
+            ],
+            "premises": [],
+            "theorem": "4e634783b1d4a044d393c8eb750cb9e62b1c9d733350d41db32befe7b42eae09"
+          }
+        },
+        "to": {
+          "Call": [
+            "foldr",
+            [
+              {
+                "Var": "xs"
+              },
+              {
+                "Num": 0
+              },
+              {
+                "Lambda": [
+                  "x",
+                  {
+                    "Lambda": [
+                      "rest",
+                      {
+                        "Binary": [
+                          "+",
+                          {
+                            "Binary": [
+                              "+",
+                              {
+                                "Binary": [
+                                  "*",
+                                  {
+                                    "Var": "x"
+                                  },
+                                  {
+                                    "Var": "scale"
+                                  }
+                                ]
+                              },
+                              {
+                                "Var": "bias"
+                              }
+                            ]
+                          },
+                          {
+                            "Var": "rest"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          ]
+        },
+        "to_definitions": [
+          "3f9c02b69a3fc6dc9af39750aeb7a68340d86a5462703e85c04d04c22e8bb421"
+        ]
+      }
+    ],
+    "library_closure": [
+      "36f079149415881a83c0db301bd4585f118ad16dd8c189fca96cfbb2e97ca6b0",
+      "3f9c02b69a3fc6dc9af39750aeb7a68340d86a5462703e85c04d04c22e8bb421",
+      "4e634783b1d4a044d393c8eb750cb9e62b1c9d733350d41db32befe7b42eae09",
+      "8f3ce4e1fb4435fa83d81d0d0b24a3375f52febb96505737a24cfaba0238842a",
+      "dbeba5d87a8d6de77db173c01e1b0482261027f09ddeecb6f0de9b520627a2db",
+      "e8f9629e02e22535614b4f7b8c19477aaed3a205c783a3598ce61f2fde28a09e"
+    ],
+    "library_lock": {
+      "objects": [
+        "8f3ce4e1fb4435fa83d81d0d0b24a3375f52febb96505737a24cfaba0238842a",
+        "dbeba5d87a8d6de77db173c01e1b0482261027f09ddeecb6f0de9b520627a2db",
+        "36f079149415881a83c0db301bd4585f118ad16dd8c189fca96cfbb2e97ca6b0",
+        "e8f9629e02e22535614b4f7b8c19477aaed3a205c783a3598ce61f2fde28a09e",
+        "3f9c02b69a3fc6dc9af39750aeb7a68340d86a5462703e85c04d04c22e8bb421",
+        "4e634783b1d4a044d393c8eb750cb9e62b1c9d733350d41db32befe7b42eae09"
+      ],
+      "schema": 1,
+      "semantics": "first-order-inductive-equality-v1"
+    },
+    "package_sha256": "c59818991aef0fcd41b6d6cfb70b2492c62a76beed13d2b5542ebace0dba7bb3",
+    "scope": "total mathematical value equality for map/sum/count/foldr over u64 lists; allocation, OOM and trap traces excluded",
+    "source_models": [
+      [
+        {
+          "Call": {
+            "arguments": [
+              {
+                "Call": {
+                  "arguments": [
+                    {
+                      "Call": {
+                        "arguments": [
+                          {
+                            "Var": "p0"
+                          },
+                          {
+                            "Var": "p1"
+                          }
+                        ],
+                        "function": "dbeba5d87a8d6de77db173c01e1b0482261027f09ddeecb6f0de9b520627a2db"
+                      }
+                    },
+                    {
+                      "Var": "p2"
+                    }
+                  ],
+                  "function": "36f079149415881a83c0db301bd4585f118ad16dd8c189fca96cfbb2e97ca6b0"
+                }
+              }
+            ],
+            "function": "e8f9629e02e22535614b4f7b8c19477aaed3a205c783a3598ce61f2fde28a09e"
+          }
+        },
+        {
+          "Call": {
+            "arguments": [
+              {
+                "Var": "p0"
+              },
+              {
+                "Var": "p2"
+              },
+              {
+                "Var": "p1"
+              }
+            ],
+            "function": "3f9c02b69a3fc6dc9af39750aeb7a68340d86a5462703e85c04d04c22e8bb421"
+          }
+        }
+      ]
+    ]
+  },
+  "database_closure": null,
+  "database_lock": null,
+  "generated_c_sha256": "44abb48d1b2db2767665b6db0252688836d74f1accbe954e04c834a55e5da521",
+  "input_program_sha256": "81d9f603518ebd40e3b405b0cab33e495f73588d79ed8cbdd82af3b664536f0e",
+  "module": "collection_proofs",
+  "selected_program_sha256": "9160db1c1e8beb774fdbb478931ff1de57e2b2ba937c97731f040a8b5dd95191",
+  "source": "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/knowledge/collections/kernels.lang",
+  "target": "native",
+  "trusted": [
+    "Rust checker implementation",
+    "source semantics correspondence",
+    "literal collection lowering and allocation",
+    "generated C",
+    "Clang/LLVM backend",
+    "host ABI"
+  ],
+  "unsupported_spec_features": "see PLAN.md and STATUS.md",
+  "verified_fragment": "whole-function inductive collection equality; total-scalar equality proof terms; legacy u64 polynomial certificates"
+}

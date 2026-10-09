@@ -1,0 +1,65 @@
+{
+  "commands": [
+    [
+      "python3",
+      "dev.py",
+      "build",
+      "--bin",
+      "lang"
+    ],
+    [
+      "python3",
+      "tools/collection_proofs.py",
+      "knowledge/collections"
+    ],
+    [
+      "target/debug/lang",
+      "build",
+      "knowledge/collections/kernels.lang",
+      "--target",
+      "wasm32",
+      "--zig",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/work/toolchain/zig-aarch64-macos-0.17.0/zig",
+      "-o",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/reports/collection-proof-wasm-phase1/staged.wasm"
+    ],
+    [
+      "target/debug/lang",
+      "build",
+      "knowledge/collections/kernels.lang",
+      "--target",
+      "wasm32",
+      "--zig",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/work/toolchain/zig-aarch64-macos-0.17.0/zig",
+      "-o",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/reports/collection-proof-wasm-phase1/checked.wasm",
+      "--implementation",
+      "knowledge/collections/proposal.json"
+    ],
+    [
+      "target/debug/lang",
+      "build",
+      "bench/collections/semantics.lang",
+      "--target",
+      "wasm32",
+      "--zig",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/work/toolchain/zig-aarch64-macos-0.17.0/zig",
+      "-o",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/reports/collection-proof-wasm-phase1/semantics.wasm"
+    ],
+    [
+      "node",
+      "bench/collections/wasm.mjs",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/reports/collection-proof-wasm-phase1/staged.wasm",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/reports/collection-proof-wasm-phase1/checked.wasm",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/reports/collection-proof-wasm-phase1/semantics.wasm",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/reports/collection-proof-wasm-phase1/validation.json"
+    ]
+  ],
+  "zig": "0.17.0",
+  "wasm_sha256": {
+    "staged": "9a600d37218de7352446a63495dc6773a6bbcec15527e6f301440b349600191d",
+    "checked": "d568b530d1eff0bdd3343a80d75cc530c2cf7066a194d89937dac456927d8c51",
+    "semantics": "a2425037e03641de63b0bbd4be2a7f97ae692595d65a70a7a9d831b5f0dc8568"
+  }
+}

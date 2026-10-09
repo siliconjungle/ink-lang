@@ -1,0 +1,797 @@
+{
+  "applied_rule_ids": [],
+  "checked_implementation": {
+    "checked_proposals": [
+      {
+        "datatype": "8f3ce4e1fb4435fa83d81d0d0b24a3375f52febb96505737a24cfaba0238842a",
+        "from": {
+          "Call": [
+            "sum",
+            [
+              {
+                "Method": [
+                  {
+                    "Method": [
+                      {
+                        "Var": "xs"
+                      },
+                      "map",
+                      [
+                        {
+                          "Lambda": [
+                            "x",
+                            {
+                              "Binary": [
+                                "*",
+                                {
+                                  "Var": "x"
+                                },
+                                {
+                                  "Var": "scale"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    ]
+                  },
+                  "map",
+                  [
+                    {
+                      "Lambda": [
+                        "y",
+                        {
+                          "Binary": [
+                            "+",
+                            {
+                              "Var": "y"
+                            },
+                            {
+                              "Var": "bias"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                ]
+              }
+            ]
+          ]
+        },
+        "from_definitions": [
+          "dbeba5d87a8d6de77db173c01e1b0482261027f09ddeecb6f0de9b520627a2db",
+          "36f079149415881a83c0db301bd4585f118ad16dd8c189fca96cfbb2e97ca6b0",
+          "e8f9629e02e22535614b4f7b8c19477aaed3a205c783a3598ce61f2fde28a09e"
+        ],
+        "function": "two_maps",
+        "proof": {
+          "Use": {
+            "arguments": [
+              {
+                "Var": "p0"
+              },
+              {
+                "Var": "p1"
+              },
+              {
+                "Var": "p2"
+              }
+            ],
+            "premises": [],
+            "theorem": "4e634783b1d4a044d393c8eb750cb9e62b1c9d733350d41db32befe7b42eae09"
+          }
+        },
+        "to": {
+          "Call": [
+            "foldr",
+            [
+              {
+                "Var": "xs"
+              },
+              {
+                "Num": 0
+              },
+              {
+                "Lambda": [
+                  "x",
+                  {
+                    "Lambda": [
+                      "rest",
+                      {
+                        "Binary": [
+                          "+",
+                          {
+                            "Binary": [
+                              "+",
+                              {
+                                "Binary": [
+                                  "*",
+                                  {
+                                    "Var": "x"
+                                  },
+                                  {
+                                    "Var": "scale"
+                                  }
+                                ]
+                              },
+                              {
+                                "Var": "bias"
+                              }
+                            ]
+                          },
+                          {
+                            "Var": "rest"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          ]
+        },
+        "to_definitions": [
+          "3f9c02b69a3fc6dc9af39750aeb7a68340d86a5462703e85c04d04c22e8bb421"
+        ]
+      },
+      {
+        "datatype": "8f3ce4e1fb4435fa83d81d0d0b24a3375f52febb96505737a24cfaba0238842a",
+        "from": {
+          "Call": [
+            "sum",
+            [
+              {
+                "Method": [
+                  {
+                    "Method": [
+                      {
+                        "Method": [
+                          {
+                            "Var": "xs"
+                          },
+                          "map",
+                          [
+                            {
+                              "Lambda": [
+                                "x",
+                                {
+                                  "Binary": [
+                                    "*",
+                                    {
+                                      "Var": "x"
+                                    },
+                                    {
+                                      "Var": "scale"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        ]
+                      },
+                      "map",
+                      [
+                        {
+                          "Lambda": [
+                            "y",
+                            {
+                              "Binary": [
+                                "+",
+                                {
+                                  "Var": "y"
+                                },
+                                {
+                                  "Var": "bias"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    ]
+                  },
+                  "map",
+                  [
+                    {
+                      "Lambda": [
+                        "z",
+                        {
+                          "Binary": [
+                            "-",
+                            {
+                              "Var": "z"
+                            },
+                            {
+                              "Var": "bias"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                ]
+              }
+            ]
+          ]
+        },
+        "from_definitions": [
+          "519a3c2df593ba8e929d0443397e841a408c303042dccf442e5fb4b291eedf0e",
+          "fa3dce2172d0cce53ba2f3b4a6d8078413a201caba9fd9ae7edbd9e7840a6124",
+          "ac7a9652522cf24e440556d029ca7f037ac235b62daafe94891bd0cd2e13a8de",
+          "6e8cb6989904d2117d8a2f2fe96b24a8392a0472a8f6687f5658effe615b0802"
+        ],
+        "function": "three_maps",
+        "proof": {
+          "Use": {
+            "arguments": [
+              {
+                "Var": "p0"
+              },
+              {
+                "Var": "p1"
+              },
+              {
+                "Var": "p2"
+              }
+            ],
+            "premises": [],
+            "theorem": "e72478e4208eec015ccdaaf2b293d3b46528b592dae14b0dda22a0adfc4f7e4b"
+          }
+        },
+        "to": {
+          "Call": [
+            "foldr",
+            [
+              {
+                "Var": "xs"
+              },
+              {
+                "Num": 0
+              },
+              {
+                "Lambda": [
+                  "x",
+                  {
+                    "Lambda": [
+                      "rest",
+                      {
+                        "Binary": [
+                          "+",
+                          {
+                            "Binary": [
+                              "-",
+                              {
+                                "Binary": [
+                                  "+",
+                                  {
+                                    "Binary": [
+                                      "*",
+                                      {
+                                        "Var": "x"
+                                      },
+                                      {
+                                        "Var": "scale"
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "Var": "bias"
+                                  }
+                                ]
+                              },
+                              {
+                                "Var": "bias"
+                              }
+                            ]
+                          },
+                          {
+                            "Var": "rest"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          ]
+        },
+        "to_definitions": [
+          "63b6bd75dfc3edc5acc1df5351b6b09574fe6ccc9c606314a0f2e700fb4b9687"
+        ]
+      },
+      {
+        "datatype": "8f3ce4e1fb4435fa83d81d0d0b24a3375f52febb96505737a24cfaba0238842a",
+        "from": {
+          "Call": [
+            "sum",
+            [
+              {
+                "Method": [
+                  {
+                    "Method": [
+                      {
+                        "Var": "xs"
+                      },
+                      "map",
+                      [
+                        {
+                          "Lambda": [
+                            "scale",
+                            {
+                              "Binary": [
+                                "+",
+                                {
+                                  "Var": "scale"
+                                },
+                                {
+                                  "Var": "bias"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    ]
+                  },
+                  "map",
+                  [
+                    {
+                      "Lambda": [
+                        "bias",
+                        {
+                          "Binary": [
+                            "*",
+                            {
+                              "Var": "bias"
+                            },
+                            {
+                              "Var": "scale"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                ]
+              }
+            ]
+          ]
+        },
+        "from_definitions": [
+          "09ef291b81550b6ba5fcd72507ae328a8a0e844fdba432ec1b27dc471479df14",
+          "2fb499b8db53b27a9e94472d24892cf580c58882865a4524dbaed50c2b513bc3",
+          "de1e8ca12b15c8d05ffd1b8b7fd4e85a1abc28fe56647e39ff2393e20d9c4d60"
+        ],
+        "function": "shadow_maps",
+        "proof": {
+          "Use": {
+            "arguments": [
+              {
+                "Var": "p0"
+              },
+              {
+                "Var": "p1"
+              },
+              {
+                "Var": "p2"
+              }
+            ],
+            "premises": [],
+            "theorem": "afa55a17e76ad57f31192b270a32925f93e01a11a371938615e1c7819cc63f62"
+          }
+        },
+        "to": {
+          "Call": [
+            "foldr",
+            [
+              {
+                "Var": "xs"
+              },
+              {
+                "Num": 0
+              },
+              {
+                "Lambda": [
+                  "x",
+                  {
+                    "Lambda": [
+                      "rest",
+                      {
+                        "Binary": [
+                          "+",
+                          {
+                            "Binary": [
+                              "*",
+                              {
+                                "Binary": [
+                                  "+",
+                                  {
+                                    "Var": "x"
+                                  },
+                                  {
+                                    "Var": "bias"
+                                  }
+                                ]
+                              },
+                              {
+                                "Var": "scale"
+                              }
+                            ]
+                          },
+                          {
+                            "Var": "rest"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          ]
+        },
+        "to_definitions": [
+          "6c7c4d6797731a145068f737f783f3bc7f049eb7e8188f0535537faeb07ff839"
+        ]
+      },
+      {
+        "datatype": "8f3ce4e1fb4435fa83d81d0d0b24a3375f52febb96505737a24cfaba0238842a",
+        "from": {
+          "Call": [
+            "count",
+            [
+              {
+                "Method": [
+                  {
+                    "Var": "xs"
+                  },
+                  "map",
+                  [
+                    {
+                      "Lambda": [
+                        "x",
+                        {
+                          "Binary": [
+                            "*",
+                            {
+                              "Var": "x"
+                            },
+                            {
+                              "Var": "scale"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                ]
+              }
+            ]
+          ]
+        },
+        "from_definitions": [
+          "7c5d8cb9ffc4bfdb98eb8e437c6d7deb448a45efb23c722f842d74973999cc0d",
+          "4b2d427cfd244a43e273cd977e572fe646ea3d0505bcd36523ecfafd3d87f424"
+        ],
+        "function": "mapped_count",
+        "proof": {
+          "Use": {
+            "arguments": [
+              {
+                "Var": "p0"
+              },
+              {
+                "Var": "p1"
+              },
+              {
+                "Var": "p2"
+              }
+            ],
+            "premises": [],
+            "theorem": "09c971da020c1eba0e16f9d9b2115a68c6e7480644a7121dfa280022c4ea68de"
+          }
+        },
+        "to": {
+          "Call": [
+            "foldr",
+            [
+              {
+                "Var": "xs"
+              },
+              {
+                "Num": 0
+              },
+              {
+                "Lambda": [
+                  "x",
+                  {
+                    "Lambda": [
+                      "rest",
+                      {
+                        "Binary": [
+                          "+",
+                          {
+                            "Num": 1
+                          },
+                          {
+                            "Var": "rest"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          ]
+        },
+        "to_definitions": [
+          "7fc262b205f1b308be1acf4fed353db51fc4bd8db02cb44c7b471b8411f73e42"
+        ]
+      }
+    ],
+    "library_closure": [
+      "09c971da020c1eba0e16f9d9b2115a68c6e7480644a7121dfa280022c4ea68de",
+      "09ef291b81550b6ba5fcd72507ae328a8a0e844fdba432ec1b27dc471479df14",
+      "2fb499b8db53b27a9e94472d24892cf580c58882865a4524dbaed50c2b513bc3",
+      "36f079149415881a83c0db301bd4585f118ad16dd8c189fca96cfbb2e97ca6b0",
+      "3f9c02b69a3fc6dc9af39750aeb7a68340d86a5462703e85c04d04c22e8bb421",
+      "4b2d427cfd244a43e273cd977e572fe646ea3d0505bcd36523ecfafd3d87f424",
+      "4e634783b1d4a044d393c8eb750cb9e62b1c9d733350d41db32befe7b42eae09",
+      "519a3c2df593ba8e929d0443397e841a408c303042dccf442e5fb4b291eedf0e",
+      "63b6bd75dfc3edc5acc1df5351b6b09574fe6ccc9c606314a0f2e700fb4b9687",
+      "6c7c4d6797731a145068f737f783f3bc7f049eb7e8188f0535537faeb07ff839",
+      "6e8cb6989904d2117d8a2f2fe96b24a8392a0472a8f6687f5658effe615b0802",
+      "7c5d8cb9ffc4bfdb98eb8e437c6d7deb448a45efb23c722f842d74973999cc0d",
+      "7fc262b205f1b308be1acf4fed353db51fc4bd8db02cb44c7b471b8411f73e42",
+      "8f3ce4e1fb4435fa83d81d0d0b24a3375f52febb96505737a24cfaba0238842a",
+      "ac7a9652522cf24e440556d029ca7f037ac235b62daafe94891bd0cd2e13a8de",
+      "afa55a17e76ad57f31192b270a32925f93e01a11a371938615e1c7819cc63f62",
+      "dbeba5d87a8d6de77db173c01e1b0482261027f09ddeecb6f0de9b520627a2db",
+      "de1e8ca12b15c8d05ffd1b8b7fd4e85a1abc28fe56647e39ff2393e20d9c4d60",
+      "e72478e4208eec015ccdaaf2b293d3b46528b592dae14b0dda22a0adfc4f7e4b",
+      "e8f9629e02e22535614b4f7b8c19477aaed3a205c783a3598ce61f2fde28a09e",
+      "fa3dce2172d0cce53ba2f3b4a6d8078413a201caba9fd9ae7edbd9e7840a6124"
+    ],
+    "library_lock": {
+      "objects": [
+        "8f3ce4e1fb4435fa83d81d0d0b24a3375f52febb96505737a24cfaba0238842a",
+        "dbeba5d87a8d6de77db173c01e1b0482261027f09ddeecb6f0de9b520627a2db",
+        "36f079149415881a83c0db301bd4585f118ad16dd8c189fca96cfbb2e97ca6b0",
+        "e8f9629e02e22535614b4f7b8c19477aaed3a205c783a3598ce61f2fde28a09e",
+        "3f9c02b69a3fc6dc9af39750aeb7a68340d86a5462703e85c04d04c22e8bb421",
+        "4e634783b1d4a044d393c8eb750cb9e62b1c9d733350d41db32befe7b42eae09",
+        "519a3c2df593ba8e929d0443397e841a408c303042dccf442e5fb4b291eedf0e",
+        "fa3dce2172d0cce53ba2f3b4a6d8078413a201caba9fd9ae7edbd9e7840a6124",
+        "ac7a9652522cf24e440556d029ca7f037ac235b62daafe94891bd0cd2e13a8de",
+        "6e8cb6989904d2117d8a2f2fe96b24a8392a0472a8f6687f5658effe615b0802",
+        "63b6bd75dfc3edc5acc1df5351b6b09574fe6ccc9c606314a0f2e700fb4b9687",
+        "e72478e4208eec015ccdaaf2b293d3b46528b592dae14b0dda22a0adfc4f7e4b",
+        "09ef291b81550b6ba5fcd72507ae328a8a0e844fdba432ec1b27dc471479df14",
+        "2fb499b8db53b27a9e94472d24892cf580c58882865a4524dbaed50c2b513bc3",
+        "de1e8ca12b15c8d05ffd1b8b7fd4e85a1abc28fe56647e39ff2393e20d9c4d60",
+        "6c7c4d6797731a145068f737f783f3bc7f049eb7e8188f0535537faeb07ff839",
+        "afa55a17e76ad57f31192b270a32925f93e01a11a371938615e1c7819cc63f62",
+        "7c5d8cb9ffc4bfdb98eb8e437c6d7deb448a45efb23c722f842d74973999cc0d",
+        "4b2d427cfd244a43e273cd977e572fe646ea3d0505bcd36523ecfafd3d87f424",
+        "7fc262b205f1b308be1acf4fed353db51fc4bd8db02cb44c7b471b8411f73e42",
+        "09c971da020c1eba0e16f9d9b2115a68c6e7480644a7121dfa280022c4ea68de"
+      ],
+      "schema": 1,
+      "semantics": "first-order-inductive-equality-v1"
+    },
+    "package_sha256": "31d2c3c109cbdf56a60891504ffa82aa564f56690aa7deebccb984f5da531e94",
+    "scope": "total mathematical value equality for map/sum/count/foldr over u64 lists; allocation, OOM and trap traces excluded",
+    "source_models": [
+      [
+        {
+          "Call": {
+            "arguments": [
+              {
+                "Call": {
+                  "arguments": [
+                    {
+                      "Call": {
+                        "arguments": [
+                          {
+                            "Var": "p0"
+                          },
+                          {
+                            "Var": "p1"
+                          }
+                        ],
+                        "function": "dbeba5d87a8d6de77db173c01e1b0482261027f09ddeecb6f0de9b520627a2db"
+                      }
+                    },
+                    {
+                      "Var": "p2"
+                    }
+                  ],
+                  "function": "36f079149415881a83c0db301bd4585f118ad16dd8c189fca96cfbb2e97ca6b0"
+                }
+              }
+            ],
+            "function": "e8f9629e02e22535614b4f7b8c19477aaed3a205c783a3598ce61f2fde28a09e"
+          }
+        },
+        {
+          "Call": {
+            "arguments": [
+              {
+                "Var": "p0"
+              },
+              {
+                "Var": "p2"
+              },
+              {
+                "Var": "p1"
+              }
+            ],
+            "function": "3f9c02b69a3fc6dc9af39750aeb7a68340d86a5462703e85c04d04c22e8bb421"
+          }
+        }
+      ],
+      [
+        {
+          "Call": {
+            "arguments": [
+              {
+                "Call": {
+                  "arguments": [
+                    {
+                      "Call": {
+                        "arguments": [
+                          {
+                            "Call": {
+                              "arguments": [
+                                {
+                                  "Var": "p0"
+                                },
+                                {
+                                  "Var": "p1"
+                                }
+                              ],
+                              "function": "519a3c2df593ba8e929d0443397e841a408c303042dccf442e5fb4b291eedf0e"
+                            }
+                          },
+                          {
+                            "Var": "p2"
+                          }
+                        ],
+                        "function": "fa3dce2172d0cce53ba2f3b4a6d8078413a201caba9fd9ae7edbd9e7840a6124"
+                      }
+                    },
+                    {
+                      "Var": "p2"
+                    }
+                  ],
+                  "function": "ac7a9652522cf24e440556d029ca7f037ac235b62daafe94891bd0cd2e13a8de"
+                }
+              }
+            ],
+            "function": "6e8cb6989904d2117d8a2f2fe96b24a8392a0472a8f6687f5658effe615b0802"
+          }
+        },
+        {
+          "Call": {
+            "arguments": [
+              {
+                "Var": "p0"
+              },
+              {
+                "Var": "p2"
+              },
+              {
+                "Var": "p1"
+              }
+            ],
+            "function": "63b6bd75dfc3edc5acc1df5351b6b09574fe6ccc9c606314a0f2e700fb4b9687"
+          }
+        }
+      ],
+      [
+        {
+          "Call": {
+            "arguments": [
+              {
+                "Call": {
+                  "arguments": [
+                    {
+                      "Call": {
+                        "arguments": [
+                          {
+                            "Var": "p0"
+                          },
+                          {
+                            "Var": "p2"
+                          }
+                        ],
+                        "function": "09ef291b81550b6ba5fcd72507ae328a8a0e844fdba432ec1b27dc471479df14"
+                      }
+                    },
+                    {
+                      "Var": "p1"
+                    }
+                  ],
+                  "function": "2fb499b8db53b27a9e94472d24892cf580c58882865a4524dbaed50c2b513bc3"
+                }
+              }
+            ],
+            "function": "de1e8ca12b15c8d05ffd1b8b7fd4e85a1abc28fe56647e39ff2393e20d9c4d60"
+          }
+        },
+        {
+          "Call": {
+            "arguments": [
+              {
+                "Var": "p0"
+              },
+              {
+                "Var": "p2"
+              },
+              {
+                "Var": "p1"
+              }
+            ],
+            "function": "6c7c4d6797731a145068f737f783f3bc7f049eb7e8188f0535537faeb07ff839"
+          }
+        }
+      ],
+      [
+        {
+          "Call": {
+            "arguments": [
+              {
+                "Call": {
+                  "arguments": [
+                    {
+                      "Var": "p0"
+                    },
+                    {
+                      "Var": "p1"
+                    }
+                  ],
+                  "function": "7c5d8cb9ffc4bfdb98eb8e437c6d7deb448a45efb23c722f842d74973999cc0d"
+                }
+              }
+            ],
+            "function": "4b2d427cfd244a43e273cd977e572fe646ea3d0505bcd36523ecfafd3d87f424"
+          }
+        },
+        {
+          "Call": {
+            "arguments": [
+              {
+                "Var": "p0"
+              }
+            ],
+            "function": "7fc262b205f1b308be1acf4fed353db51fc4bd8db02cb44c7b471b8411f73e42"
+          }
+        }
+      ]
+    ]
+  },
+  "database_closure": null,
+  "database_lock": null,
+  "generated_c_sha256": "ccc1bf84bfab4e362907b701aa75ed967b5356683ec58ceabd149673825446c8",
+  "input_program_sha256": "81d9f603518ebd40e3b405b0cab33e495f73588d79ed8cbdd82af3b664536f0e",
+  "module": "collection_proofs",
+  "selected_program_sha256": "249651dbbb7e16091a6fa4791bec4d32e0692a59dbc35e61a6892e9bb13fe3ed",
+  "source": "knowledge/collections/kernels.lang",
+  "target": "wasm32",
+  "trusted": [
+    "Rust checker implementation",
+    "source semantics correspondence",
+    "literal collection lowering and allocation",
+    "generated C",
+    "Clang/LLVM backend",
+    "host ABI"
+  ],
+  "unsupported_spec_features": "see PLAN.md and STATUS.md",
+  "verified_fragment": "whole-function inductive collection equality; total-scalar equality proof terms; legacy u64 polynomial certificates"
+}

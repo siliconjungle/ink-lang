@@ -2,7 +2,7 @@
 from pathlib import Path
 import os,subprocess,hashlib,json,shutil
 root=Path(__file__).resolve().parents[1]
-out=root/'reports/wasm-phase2';out.mkdir(parents=True,exist_ok=True)
+out=root/'reports/wasm-phase3-literal';out.mkdir(parents=True,exist_ok=True)
 build=root/'build/wasm';build.mkdir(parents=True,exist_ok=True)
 env=os.environ.copy();env['ZIG_GLOBAL_CACHE_DIR']=str(root/'build/zig-cache')
 zig=shutil.which('zig')

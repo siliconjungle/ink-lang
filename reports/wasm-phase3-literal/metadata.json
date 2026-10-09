@@ -1,0 +1,54 @@
+{
+  "zig": "0.17.0",
+  "commands": [
+    [
+      "python3",
+      "dev.py",
+      "build",
+      "--bin",
+      "lang"
+    ],
+    [
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/target/debug/lang",
+      "prove",
+      "knowledge/ring.lang",
+      "-o",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/wasm/ring.json"
+    ],
+    [
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/target/debug/lang",
+      "build",
+      "examples/kernels.lang",
+      "--target",
+      "wasm32",
+      "--zig",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/work/toolchain/zig-aarch64-macos-0.17.0/zig",
+      "-o",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/wasm/plain.wasm"
+    ],
+    [
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/target/debug/lang",
+      "build",
+      "examples/kernels.lang",
+      "--target",
+      "wasm32",
+      "--zig",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/work/toolchain/zig-aarch64-macos-0.17.0/zig",
+      "-o",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/wasm/knowledge.wasm",
+      "--knowledge",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/wasm/ring.json"
+    ],
+    [
+      "node",
+      "bench/wasm.mjs",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/wasm/plain.wasm",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/wasm/knowledge.wasm",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/reports/wasm-phase2/validation.json"
+    ]
+  ],
+  "wasm_sha256": {
+    "plain": "51a1fb23568882db2db2794592d84fbc15e03f5c9c5f8394005f11f8278f67d7",
+    "knowledge": "639ecc563a637880401c9bd93d2422bca1b893c9c36f5a92c29d85de0a4ecc29"
+  }
+}

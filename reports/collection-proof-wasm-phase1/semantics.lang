@@ -1,0 +1,6 @@
+module collection_semantics;
+fn ordered(xs: List<u64>, z: u64) -> u64 { return foldr(xs, z, fn(x) => fn(rest) => x - rest); }
+fn shadow(xs: List<u64>) -> u64 { return foldr(xs, 7, fn(x) => fn(x) => x + 1); }
+fn sink(xs: List<u64>, bias: u64) -> u64 { return sum(xs) + bias; }
+fn caller(xs: List<u64>, scale: u64, bias: u64) -> u64 { return sink(xs.map(fn(x) => x * scale).map(fn(y) => y + bias), bias); }
+fn dual(xs: List<u64>, ys: List<u64>) -> u64 { return sum(xs.map(fn(x) => x + sum(ys.map(fn(y) => y + 1)))); }
