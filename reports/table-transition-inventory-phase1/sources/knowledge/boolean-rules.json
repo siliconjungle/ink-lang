@@ -1,0 +1,14 @@
+[
+  {
+    "name": "absorption",
+    "params": [["a", "Bool"], ["b", "Bool"]],
+    "from": {"Binary": ["&&", {"Var": "a"}, {"Binary": ["||", {"Var": "a"}, {"Var": "b"}]}]},
+    "to": {"Var": "a"}
+  },
+  {
+    "name": "duplicate_predicate",
+    "params": [["a", "Bool"]],
+    "from": {"Binary": ["&&", {"Var": "a"}, {"Var": "a"}]},
+    "to": {"Var": "a"}
+  }
+]

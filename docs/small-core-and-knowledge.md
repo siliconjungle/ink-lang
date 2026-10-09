@@ -196,3 +196,9 @@ The intended Ink combination is serialisable logical state, explicit changes and
 ### Reversible cache storage from evidence
 
 Version-3 maintenance now supplies `save`, `apply` and `restore` expressions for each operation, rather than having the core always choose a full-total snapshot. The source bridge checks forward equality and inverse identity using the unchanged generic induction kernel. Both a full-snapshot entry and a reversible-difference entry execute under the same compiler. No optimisation rule selects between them automatically. The exact BigInt path uses the supplied expressions; bounded caches retain snapshots pending representation evidence. This advances journal-choice authority but still trusts projection and reverse transaction scheduling. See [the precise obligations, measurements and remaining work](reversible-cache-journals.md).
+
+## Keyed transition evidence and generalised induction
+
+The generic kernel now supports generalised structural induction for changing nonrecursive state parameters. Hypotheses are typed, branch-local schemas whose recursive argument is fixed to an immediate constructor field; fixed premises cannot be quantified over new values. This extends the proof language, without introducing any algebraic, table or optimisation axiom. The kernel remains a trusted implementation.
+
+Version-4 maintenance evidence supplies checked keyed contribution-table step/history proofs. The source bridge pins 18 semantic roles, including actual lookup/write behavior and the candidate update function reconstructed from its Ink expressions. A 63-object package selects either a reversible or snapshot journal under one compiler. The bridge remains a restricted source correspondence schema; native map/projection abstraction, transaction effects/undo and general database-defined layouts are not yet end-to-end checked. Unsupported key domains retain scanning. See [scope and evidence](keyed-table-proofs.md).

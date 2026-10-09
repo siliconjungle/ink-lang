@@ -1,0 +1,9 @@
+module collection_proofs;
+
+fn two_maps(xs: List<u64>, scale: u64, bias: u64) -> u64 { return sum(xs.map(fn(x) => (x * scale)).map(fn(y) => (y + bias))); }
+
+fn three_maps(xs: List<u64>, scale: u64, bias: u64) -> u64 { return sum(xs.map(fn(x) => (x * scale)).map(fn(y) => (y + bias)).map(fn(z) => (z - bias))); }
+
+fn shadow_maps(xs: List<u64>, scale: u64, bias: u64) -> u64 { return sum(xs.map(fn(scale) => (scale + bias)).map(fn(bias) => (bias * scale))); }
+
+fn mapped_count(xs: List<u64>, scale: u64, bias: u64) -> u64 { return count(xs.map(fn(x) => (x * scale))); }
