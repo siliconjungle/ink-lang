@@ -1,0 +1,135 @@
+[
+  {
+    "schema": 1,
+    "semantics": "u64-modular-ring-v1",
+    "rule": {
+      "name": "factor_square",
+      "params": [
+        [
+          "x",
+          "U64"
+        ]
+      ],
+      "from": {
+        "Binary": [
+          "+",
+          {
+            "Binary": [
+              "+",
+              {
+                "Binary": [
+                  "*",
+                  {
+                    "Var": "x"
+                  },
+                  {
+                    "Var": "x"
+                  }
+                ]
+              },
+              {
+                "Binary": [
+                  "*",
+                  {
+                    "Num": 6
+                  },
+                  {
+                    "Var": "x"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "Num": 9
+          }
+        ]
+      },
+      "to": {
+        "Binary": [
+          "*",
+          {
+            "Binary": [
+              "+",
+              {
+                "Var": "x"
+              },
+              {
+                "Num": 3
+              }
+            ]
+          },
+          {
+            "Binary": [
+              "+",
+              {
+                "Var": "x"
+              },
+              {
+                "Num": 3
+              }
+            ]
+          }
+        ]
+      },
+      "tactic": "arithmetic"
+    },
+    "normal_form": [
+      [
+        [],
+        9
+      ],
+      [
+        [
+          "x"
+        ],
+        6
+      ],
+      [
+        [
+          "x",
+          "x"
+        ],
+        1
+      ]
+    ],
+    "id": "bfd78bfb5c0cd89697af3b60213615cebfc96c98811d2b9c461dc677ac6fff30"
+  },
+  {
+    "schema": 1,
+    "semantics": "u64-modular-ring-v1",
+    "rule": {
+      "name": "remove_zero",
+      "params": [
+        [
+          "x",
+          "U64"
+        ]
+      ],
+      "from": {
+        "Binary": [
+          "+",
+          {
+            "Var": "x"
+          },
+          {
+            "Num": 0
+          }
+        ]
+      },
+      "to": {
+        "Var": "x"
+      },
+      "tactic": "normalize"
+    },
+    "normal_form": [
+      [
+        [
+          "x"
+        ],
+        1
+      ]
+    ],
+    "id": "cce2a4d4feec75019a2c65c45d74f2124901e50ae6607b6f86c17685194ec4b2"
+  }
+]

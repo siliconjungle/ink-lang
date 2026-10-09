@@ -1,0 +1,56 @@
+# Verified adaptive language implementation
+
+This repository implements the language in [the design draft](docs/language-specification-draft.md), incrementally. The full implementation is **in progress**. [STATUS.md](STATUS.md) describes the current executable subset; [PLAN.md](PLAN.md) preserves the full acceptance criteria.
+
+The first working milestone is a Rust frontend and reference evaluator, native compilation through C and Clang/LLVM, and a local database of checked modular-arithmetic rewrites. Its map/filter/reduce pipelines compile into fused native loops. It does not recognise benchmark names or substitute handwritten benchmark kernels.
+
+```text
+module demo;
+
+pub fn total(xs: List<u64>, scale: u64) -> u64 {
+    return sum(xs.map(fn(x) => x * scale).filter(fn(y) => y < 1000));
+}
+```
+
+## Build and run
+
+Requirements: a Rust toolchain, Clang, Python 3, and a C++ compiler for comparison. The current benchmark harness targets macOS; the compiler's C backend can be adapted to other hosts.
+
+```sh
+cargo test
+cargo build --release
+target/release/lang check examples/kernels.lang
+target/release/lang prove knowledge/ring.lang -o build/ring.json
+target/release/lang knowledge verify build/ring.json
+target/release/lang build examples/kernels.lang -o build/kernels.o --knowledge build/ring.json --native-cpu
+python3 bench/run.py
+```
+
+On this workspace, Rust is installed outside the system PATH at `../../work/toolchain/cargo/bin` relative to the repository. The benchmark harness detects that isolated installation automatically. `dev.py` provides the same detection for Cargo commands:
+
+```sh
+python3 dev.py test
+python3 dev.py build --release
+```
+
+To evaluate a program with the independent interpreter, put an array of function arguments in a JSON file, then run `lang run SOURCE FUNCTION ARGUMENTS.json`. For example, the arguments to `affine` are `[[1,2,3],3,11]`, whose result is 51.
+
+The build emits a native object, its readable C intermediate, LLVM IR, and a plan manifest containing the identities of applied certificates and the trust boundary. Proof packages can be validated offline.
+
+## Meaning of verified in this milestone
+
+The arithmetic checker normalises polynomials over the ring of integers modulo 2^64. It accepts equivalent polynomial rewrites and rejects unsupported syntax, incompatible semantics and tampered certificates. Its Rust implementation is part of the trusted base and has not itself been mechanically proved correct. The type checker restricts these rules to the supported arithmetic domain.
+
+Collection lowering, emitted C and Clang/LLVM are currently trusted. Native behaviour is checked against an independently implemented mathematical reference and the interpreter; those tests are not an end-to-end formal proof. The general proof kernel, contracts and state-transition certificates from the draft remain work to do.
+
+## Benchmarks
+
+`bench/run.py` builds six variants: language without imported knowledge, language with imported knowledge, C loops, C++ standard algorithms, Rust iterators and Rust loops. They use identical modular-u64 semantics, equivalent algorithms, and the same separately compiled C timing driver. Every result is consumed, and interprocedural optimisation is disabled across the driver/kernel boundary.
+
+The benchmark validates outputs before measuring, randomises variant order, calibrates batch duration and records all samples and commands. Full mode covers seven workloads, four input sizes and two data distributions. `--quick` reduces input coverage for development.
+
+Results are under `bench/results`. They are an evaluation of a small pure-kernel milestone, not proof that the full proposed language exists or that it is universally faster than other languages.
+
+## Next implementation work
+
+Implement the complete inventory example: record and enum types, state, changes, rollback, event staging, queries and exact integers. Add checked incremental aggregates and compare them with equally incremental C/C++/Rust baselines. Then complete persistence, WebAssembly and safe adaptive migration.
