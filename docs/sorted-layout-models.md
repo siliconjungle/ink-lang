@@ -34,6 +34,8 @@ The generic evaluator retains its fixed resource budget. Concrete comparisons us
 
 These are invariants of the database-defined linear-search write model. Native storage still uses Rust `Vec`, binary search, a checked index hint and optional tree promotion. The next work must prove the search/index contract and connect actual native operations to the model, then combine storage evidence with source actions, cache/undo, effects and snapshot installation. These packages alone do not authorize native representation replacement.
 
+The subsequent [search-cut packages](search-layout-models.md) now prove the semantic lookup/gap, mutation and mathematical position contract. Native binary search and machine indexing remain the next correspondence; the original packages and evidence here are unchanged.
+
 Runtime code, five recorded benchmark bodies/plans and 44 measured lifecycle binaries remain unchanged. This milestone makes the verification boundary more complete; it adds no runtime speedup. The full language, database admission and performance objectives remain active.
 
 ```sh
