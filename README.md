@@ -55,6 +55,8 @@ The benchmark validates outputs before measuring, randomises variant order, cali
 
 Results are under `bench/results`. They are an evaluation of a small pure-kernel milestone, not proof that the full proposed language exists or that it is universally faster than other languages.
 
+The [lifecycle benchmark](reports/lifecycle-phase1/REPORT.md) extends the state comparison to construction, timed growth/promotion, changing update distributions, clearing, final observation and destruction. Its separate allocation probes distinguish live rows from retained capacity and event logs. After building the compiler, check reproduction inputs with `python3 bench/state/lifecycle.py --validate-inputs-only`, then run into a fresh report directory with `python3 bench/state/lifecycle.py --output reports/NEW`. The harness requires identical generated implementations and records the actual toolchain targets. Replays use the preserved binaries via `python3 tools/audit_lifecycle_report.py --execute`; they do not replace timing samples.
+
 ## Stateful execution and maintenance
 
 The complete [inventory program](examples/inventory.lang) from the draft now runs in the reference runtime:

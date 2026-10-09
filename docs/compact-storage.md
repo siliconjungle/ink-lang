@@ -54,6 +54,16 @@ All 75 tests pass. The full suite covers reference/native transactions, signed e
 
 [Stateful Wasm validation](../reports/compact-state-wasm-phase1/verification.json) covers six generated tree/row/column programs with exact and bounded totals. Each passes in Node and an actual browser, with 29,395 checks per environment including codec checks, plus 3,030 native outcome checks. Cross-layout logical snapshots restore and continue correctly. These are functional checks, not Wasm timings or physical refinement proofs.
 
+## Construction, distribution changes and retained memory
+
+[The lifecycle report](../reports/lifecycle-phase1/REPORT.md) adds 462 timing samples and 66 separate allocation profiles over eleven C/C++/Rust/Ink implementations. State is constructed, grown, updated through steady and mixed streams, cleared, observed and destroyed. The incremental fixture crosses the 256-row promotion threshold inside the timed growth phase. Additional intermediate correctness observations are outside the sum of measured segments, while final observation is included. Bulk baseline constructors directly construct rows; the generated Ink ABI executes create transactions. This difference is recorded rather than hidden.
+
+The small-column policy takes 1.25× Rust tree time across six lifecycle cells and 1.45× matching-layout Rust time. Large repeated removal exposes a different bottleneck: 65,536-row flat columns take about 396 ms to clear, versus 2.04 ms with promotion. Rust using the same columns also takes about 396 ms, while C flat rows take about 487 ms. Changing syntax cannot remove the quadratic shifting cost.
+
+After clearing that incremental fixture, permanent Ink columns still own 2,097,520 requested bytes, while the promoted policy owns 524,800. The required event log accounts for much of the latter; vector capacity explains the flat policy's excess. Every instrumented State releases all counted requested bytes on destruction. These are allocation-request counters from separately compiled probes, not RSS or physical allocator peaks. Independent known-size sequences check the counters; executed audits replay both ordinary streams and exact allocation profiles without rebuilding timed binaries.
+
+This motivates bounded selection based on full lifecycle costs, direct construction, batch representations and explicit lifetime/reclamation choices. It does not establish a universal threshold, a physical refinement theorem or automatic adaptation.
+
 ## Remaining memory-model work
 
 The complete design still needs general lifetime/ownership inference and region arenas, compact relative graph links, variable-size inline strings/collections/enums, construction directly into final destinations across calls, physical snapshot admission, database-proved representations and bounded measured selection. Simply packing every struct is not the plan: unaligned data can lose vectorization, and larger mixed workloads can favor trees over flat buffers. Each candidate needs correctness evidence, matching algorithm/layout controls, construction/teardown and retained-memory measurements in addition to steady execution timing. The full language and benchmark requirements in PLAN.md remain active.

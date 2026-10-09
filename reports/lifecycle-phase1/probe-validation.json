@@ -1,0 +1,88 @@
+{
+  "status": "passed",
+  "sequences": [
+    "C malloc/calloc/realloc/free",
+    "C++ new/delete and overlapping replacement buffers",
+    "Rust alloc/alloc_zeroed/realloc/dealloc"
+  ],
+  "checks": [
+    "known requested/cumulative/live/peak bytes",
+    "successful allocation/reallocation counts",
+    "zero initialization and retained bytes",
+    "ordinary C/C++ alignment",
+    "zero live bytes after free",
+    "counter reset"
+  ],
+  "source_sha256": {
+    "tools/validate_allocation_probes.py": "f819aa1b5113cf96c50f775b6173077596d7da261dbb3b387f34440e52247b68",
+    "bench/state/allocation_probe.h": "f9fab14a13bb5f892ee3315c9f85025c26cf699ab464e3ed76a59abceb8f1a23",
+    "bench/state/allocation_probe.rs": "dbc2cc6400a06fc9bf9412c3f2f5175316be6a01facc7466c8e68dcfbb84e0f2"
+  },
+  "generated_source_sha256": {
+    "c.c": "3567aef0c496235ec5ba2df61e6eef61ca52cbc9668c0fc5d9f4cf3bce41b348",
+    "rust-host.c": "4b2a63782f0be06654ba366ac75338013d7e4e0dbc2b0094ab4e9e58d5154a29",
+    "rust.rs": "89a6a1e9c5c692532e53dcb0baf4998fd9ba7661c9da14532364be83643dc0fa",
+    "cpp.cpp": "39d14633988508b4eb5d53ea05a597a9d94e3f0ec38536262c4c8533f62e15ac"
+  },
+  "binary_sha256": {
+    "build/allocation-probe-validation/c": "33059ac1d59a91101dbbf4cee31c710b14a8aaeca54dec41ee4611b21fd09824",
+    "build/allocation-probe-validation/cpp": "372fc42305382b9e708f43b495a16c05d986db23b12aa9a93bb34e9589a275b7",
+    "build/allocation-probe-validation/rust": "9d91aca5ab0b1aebfc3eb95bd90e717186e565b784fb51dc4c9ca803a4295018"
+  },
+  "commands": [
+    [
+      "clang",
+      "-O0",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-I",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/bench/state",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/allocation-probe-validation/c.c",
+      "-o",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/allocation-probe-validation/c"
+    ],
+    [
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/allocation-probe-validation/c"
+    ],
+    [
+      "clang++",
+      "-O0",
+      "-std=c++20",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-I",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/bench/state",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/allocation-probe-validation/cpp.cpp",
+      "-o",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/allocation-probe-validation/cpp"
+    ],
+    [
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/allocation-probe-validation/cpp"
+    ],
+    [
+      "rustc",
+      "--crate-type=staticlib",
+      "--edition=2021",
+      "-C",
+      "panic=abort",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/allocation-probe-validation/rust.rs",
+      "-o",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/allocation-probe-validation/rust.a"
+    ],
+    [
+      "clang",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/allocation-probe-validation/rust-host.c",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/allocation-probe-validation/rust.a",
+      "-liconv",
+      "-o",
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/allocation-probe-validation/rust"
+    ],
+    [
+      "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/allocation-probe-validation/rust"
+    ]
+  ],
+  "scope": "Known-size accounting checks; not allocator implementation/RSS verification or formal proof."
+}
