@@ -34,6 +34,6 @@ The benchmark uses this view for the bounded variant and the ordinary BigInt res
 
 ## Current limits
 
-This is a bootstrap implementation. Storage is BTreeMap, scans materialise vectors, and cloning and transactional bookkeeping remain conservative. Native snapshots, runtime implementation migration, automatic profile-based selection, durable storage, concurrency and stateful WebAssembly are not implemented. The reference runtime's fuel budget is not imposed on native code. Resource exhaustion may terminate the generated process; this is not a durable transaction guarantee.
+This is a bootstrap implementation. Storage is BTreeMap, scans materialise vectors, and cloning and transactional bookkeeping remain conservative. Portable native/reference snapshots are implemented; see `portable-snapshot.md`. Live runtime implementation migration, automatic profile-based selection, durable storage, concurrency and stateful WebAssembly are not implemented. The reference runtime's fuel budget is not imposed on native code. Resource exhaustion may terminate the generated process; this is not a durable transaction guarantee.
 
 The frontend, fixed proof schemas, range reasoning, generated Rust, runtime support, BigInt library and Rust/LLVM backend remain trusted. Differential tests validate behaviour but are not an end-to-end correctness proof.

@@ -198,6 +198,16 @@ pub fn emit(p: &Program) -> LangResult<String> {
             next: 0,
             indent: 1,
         };
+        // A checked rewrite can eliminate the last use of any ABI parameter.
+        for binding in env.values() {
+            match binding {
+                Binding::Scalar(name) => em.line(format!("(void){name};")),
+                Binding::List(data, len) => {
+                    em.line(format!("(void){data};"));
+                    em.line(format!("(void){len};"));
+                }
+            }
+        }
         let value = em.scalar(&f.body, &env)?;
         em.line(format!("return {value};"));
         out.push_str(&em.lines);

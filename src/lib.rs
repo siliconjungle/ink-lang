@@ -1,8 +1,12 @@
 pub mod aggregate;
 pub mod check;
+pub mod equality;
 pub mod eval;
+pub mod knowledge;
 pub mod native;
 pub mod proof;
+pub mod snapshot;
+pub mod snapshot_wire;
 pub mod state_native;
 pub mod statecheck;
 pub mod stateful;

@@ -76,7 +76,7 @@ python3 dev.py build --release --offline --manifest-path build/inventory-native/
 build/inventory-native/target/release/compiled-state examples/inventory-script.json
 ```
 
-This produces a standalone Rust crate with no interpreter dependency. Omit `--maintenance` to emit recomputing queries. The generated crate retains its source and plan manifest for inspection. Tests compare five generated implementations with the reference across 30,040 outcomes, including nested failures and exact arithmetic. Native snapshots and runtime implementation switching are not yet available.
+This produces a standalone Rust crate with no interpreter dependency. Omit `--maintenance` to emit recomputing queries. The generated crate retains its source and plan manifest for inspection. Tests compare six generated implementations with the reference across 36,048 outcomes, including nested failures and exact arithmetic. Portable binary checkpoints transfer state between these implementations and the reference runtime, with another 3,000 future-call comparisons. Live native implementation switching remains pending; see [snapshot format](docs/portable-snapshot.md).
 
 Add `--bounded-totals` to derive eligible aggregate bounds from the declared key and value types. A successful bound permits a u128 cache while preserving exact Int semantics. Direct bounded aggregate queries also receive an allocation-free native word-pair interface. This conservative analysis currently handles sums of a single unsigned record field; other cases keep BigInt storage. See [the lowering argument and trust boundary](docs/native-state-backend.md).
 
@@ -89,3 +89,17 @@ Add `--bounded-totals` to derive eligible aggregate bounds from the declared key
 ## Next implementation work
 
 Improve the measured stateful bottlenecks: transactional bookkeeping, repeated lookups, storage layout and unnecessary speculative work. Extend persistence and WebAssembly to that state machine, add measured adaptive selection, and complete the broader syntax and verification requirements in PLAN.md.
+
+## Proof-term database prototype
+
+The new path loads explicit equality proofs from immutable objects, without putting Boolean optimisation laws in the compiler:
+
+```sh
+python3 tools/boolean_proofs.py knowledge/boolean-rules.json knowledge/boolean
+python3 dev.py build
+target/debug/lang verify-database knowledge/boolean/lock.json
+target/debug/lang build examples/boolean.lang --database knowledge/boolean/lock.json -o build/boolean.o
+python3 tools/check_database.py
+```
+
+The last command checks unchanged-compiler extension, generated-code differences and native results with zero, one and two database rules. It is not a speed benchmark. This first proof calculus covers total scalar expressions and Boolean cases; it cannot yet replace the legacy polynomial/aggregate checkers. See [architecture and limits](docs/small-core-and-knowledge.md).

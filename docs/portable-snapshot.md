@@ -1,0 +1,19 @@
+# Portable snapshot v1
+
+Reference and generated native stateful programs share a canonical binary interchange format. This is a transaction-boundary checkpoint, not crash-safe storage or a write-ahead log. Physical aggregate caches are omitted and reconstructed by the receiving implementation.
+
+The 84-byte header is: eight magic bytes `VLSTATE\0`, u16 format version 1, u16 semantics version 1, 32-byte program identity, 32-byte schema identity, and a u64 payload byte count. Integers are little endian. SHA-256 of the header and payload follows the payload as 32 raw bytes. This detects corruption; it does not authenticate the sender.
+
+The payload contains a u64 committed version, tables in root-name order, then pending events. Each table has a u64 row count and typed key/value pairs in increasing logical key order. Integer and ID keys use numeric order; strings use UTF-8 byte order. Duplicate or unordered keys are rejected. Records follow declared field order. Enum tags are zero-based u32 declaration indices. Strings and lists have u64 length prefixes. IDs occupy 16 bytes. Fixed integers occupy their declared width. Bool, Option and Result use validated byte tags; Unit has no payload.
+
+Exact integers have a sign byte (0 zero, 1 positive, 2 negative), a u64 magnitude length, and little-endian magnitude bytes. Zero requires an empty magnitude. Nonzero magnitudes require a nonzero highest byte. Alternative encodings of the same value are rejected.
+
+Each pending event contains u64 commit, u64 position, u32 channel index (channels sorted by name), and a schema-encoded payload. Entries must increase strictly by (commit, position), with commits from 1 through the stored version. Acknowledged events are absent from the retained outbox; this format carries no separate durable delivery ledger. It permits gaps because acknowledged prefixes may already be removed.
+
+The program identity hashes the prototype's deterministic AST JSON serialization. The schema identity hashes the version, nominal declarations, sorted state-root types and event declarations. These are pinned prototype identities, not a cross-version canonical semantic-object format. A compiler AST format change may invalidate older checkpoints. Application schema migration and persistent jobs are not implemented.
+
+Default decoding/encoding limits are 64 MiB, one million typed values and depth 128. Host APIs can choose limits. Length overflow, malformed tags, invalid UTF-8, identity mismatches, corruption, extra bytes and noncanonical ordering are rejected. The current adapter constructs intermediate JSON values in memory; these limits do not impose an exact process-memory ceiling or prevent allocation failure.
+
+Reference APIs: `checkpoint_portable`, `restore_portable`, and corresponding `_with_limits` methods. Generated native APIs: `checkpoint`, `restore`, and `_with_limits`. The reference CLI accepts `--portable --snapshot-out FILE` and auto-detects this format on `--restore`. The generated runner accepts `SCRIPT.json --restore FILE --snapshot-out FILE` and uses portable binary snapshots exclusively.
+
+Tests transfer checkpoints from the reference runtime through scanning, maintained and bounded generated programs and back, execute later operations at each stage, and compare complete snapshot bytes and outcomes. Corruption, truncation, malformed lengths, type encodings and key ordering have negative tests. This is tested interoperability, not a formal storage proof. Stateful WebAssembly interchange remains pending.

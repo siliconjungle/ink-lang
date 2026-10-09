@@ -4,7 +4,7 @@ use std::{
     process::{Command, ExitCode},
 };
 use verified_language::{
-    aggregate, check, eval, native, proof, state_native, stateful, syntax, LangResult,
+    aggregate, check, eval, knowledge, native, proof, state_native, stateful, syntax, LangResult,
 };
 
 fn arg_value(args: &[String], flag: &str) -> LangResult<Option<String>> {
@@ -50,6 +50,12 @@ fn write(path: &str, text: &str) -> LangResult<()> {
 fn run() -> LangResult<()> {
     let args: Vec<String> = env::args().skip(1).collect();
     let cmd = args.first().map(String::as_str).unwrap_or("help");
+    if cmd == "verify-database" {
+        let path = args.get(1).ok_or("verify-database requires LOCK.json")?;
+        let (lock, _) = knowledge::load(Path::new(path))?;
+        println!("verified {} proof-term objects", lock.objects.len());
+        return Ok(());
+    }
     if cmd == "verify-maintenance" {
         let path = args
             .get(1)
@@ -80,7 +86,7 @@ fn run() -> LangResult<()> {
         return Ok(());
     }
     if cmd == "help" || cmd == "--help" {
-        println!("lang check SOURCE\nlang prove RULES -o PACKAGE.json\nlang knowledge verify PACKAGE.json\nlang prove-maintenance SOURCE -o PACKAGE.json\nlang verify-maintenance PACKAGE.json\nlang execute SOURCE SCRIPT.json [--maintenance PACKAGE.json] [--restore SNAPSHOT] [--snapshot-out SNAPSHOT]\nlang run SOURCE FUNCTION ARGS.json\nlang build SOURCE -o OUTPUT.o [--knowledge PACKAGE.json] [--cc clang] [--native-cpu]\nlang build SOURCE --target wasm32 --zig PATH -o OUTPUT.wasm\nlang emit-c SOURCE -o OUTPUT.c [--knowledge PACKAGE.json]\nlang emit-state SOURCE -o DIRECTORY [--maintenance PACKAGE.json] [--bounded-totals]");
+        println!("lang verify-database LOCK.json\nlang check SOURCE\nlang prove RULES -o PACKAGE.json\nlang knowledge verify PACKAGE.json\nlang prove-maintenance SOURCE -o PACKAGE.json\nlang verify-maintenance PACKAGE.json\nlang execute SOURCE SCRIPT.json [--maintenance PACKAGE.json] [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable]\nlang run SOURCE FUNCTION ARGS.json\nlang build SOURCE -o OUTPUT.o [--knowledge PACKAGE.json] [--database LOCK.json] [--cc clang] [--native-cpu]\nlang build SOURCE --target wasm32 --zig PATH -o OUTPUT.wasm\nlang emit-c SOURCE -o OUTPUT.c [--knowledge PACKAGE.json] [--database LOCK.json]\nlang emit-state SOURCE -o DIRECTORY [--maintenance PACKAGE.json] [--bounded-totals]");
         return Ok(());
     }
     if cmd == "knowledge" {
@@ -115,13 +121,13 @@ fn run() -> LangResult<()> {
             let code = state_native::emit_with_bounds(&p, certificate.as_ref(), bounded)?;
             write(&format!("{out}/src/lib.rs"), &code)?;
             write(&format!("{out}/src/main.rs"), state_native::RUNNER)?;
-            write(&format!("{out}/Cargo.toml"), "[package]\nname = \"compiled-state\"\nversion = \"0.1.0\"\nedition = \"2021\"\n[dependencies]\nnum-bigint = \"=0.4.8\"\nserde_json = \"=1.0.151\"\n[profile.release]\nlto = \"thin\"\ncodegen-units = 1\n")?;
+            write(&format!("{out}/Cargo.toml"), "[package]\nname = \"compiled-state\"\nversion = \"0.1.0\"\nedition = \"2021\"\n[dependencies]\nnum-bigint = \"=0.4.8\"\nsha2 = \"=0.10.9\"\nserde_json = \"=1.0.151\"\n[profile.release]\nlto = \"thin\"\ncodegen-units = 1\n")?;
             let bounds = if bounded {
                 state_native::bounded_caches(&p)
             } else {
                 Default::default()
             };
-            let plan = serde_json::json!({"source":path,"module":p.module,"backend":"typed Rust; no AST evaluator","maintenance_certificate":certificate.as_ref().map(|c|&c.id),"bounded_cache_evidence":bounds,"trusted":["frontend","finite-map induction schema","finite-domain range analysis","modular representation lowering","typed Rust lowering","num-bigint","Rust/LLVM backend"],"limitations":["no native snapshot or runtime migration yet","collection scans currently materialise lists","no native execution fuel limit"]});
+            let plan = serde_json::json!({"source":path,"module":p.module,"backend":"typed Rust; no AST evaluator","maintenance_certificate":certificate.as_ref().map(|c|&c.id),"bounded_cache_evidence":bounds,"trusted":["frontend","finite-map induction schema","finite-domain range analysis","modular representation lowering","typed Rust lowering","num-bigint","Rust/LLVM backend"],"limitations":["portable snapshots supported; no live native migration or durable WAL","collection scans currently materialise lists","no native execution fuel limit"]});
             write(
                 &format!("{out}/plan.json"),
                 &serde_json::to_string_pretty(&plan).map_err(|e| e.to_string())?,
@@ -134,10 +140,12 @@ fn run() -> LangResult<()> {
                 serde_json::from_slice(&fs::read(script_path).map_err(|e| e.to_string())?)
                     .map_err(|e| e.to_string())?;
             let mut runtime = if let Some(snapshot) = arg_value(&args, "--restore")? {
-                stateful::Runtime::restore(
-                    p.clone(),
-                    &fs::read(snapshot).map_err(|e| e.to_string())?,
-                )?
+                let bytes = fs::read(snapshot).map_err(|e| e.to_string())?;
+                if bytes.starts_with(b"VLSTATE\0") {
+                    stateful::Runtime::restore_portable(p.clone(), &bytes)?
+                } else {
+                    stateful::Runtime::restore(p.clone(), &bytes)?
+                }
             } else {
                 stateful::Runtime::new(p.clone())?
             };
@@ -164,7 +172,11 @@ fn run() -> LangResult<()> {
                 output.push(runtime.invoke_json(name, arguments)?.json());
             }
             if let Some(file) = arg_value(&args, "--snapshot-out")? {
-                let bytes = runtime.checkpoint()?;
+                let bytes = if args.iter().any(|s| s == "--portable") {
+                    runtime.checkpoint_portable()?
+                } else {
+                    runtime.checkpoint()?
+                };
                 if let Some(dir) = Path::new(&file).parent() {
                     if !dir.as_os_str().is_empty() {
                         fs::create_dir_all(dir).map_err(|e| e.to_string())?;
@@ -231,7 +243,13 @@ fn run() -> LangResult<()> {
             if let Some(k) = arg_value(&args, "--knowledge")? {
                 certs.extend(package(&k)?);
             }
+            let database = arg_value(&args, "--database")?
+                .map(|path| knowledge::load(Path::new(&path)))
+                .transpose()?;
             let mut used = Vec::new();
+            if let Some((_, rules)) = &database {
+                used.extend(knowledge::apply(&mut p, rules)?);
+            }
             for f in &mut p.functions {
                 f.body = proof::optimise(&f.body, &certs, &mut used, &mut 100_000);
             }
@@ -250,7 +268,7 @@ fn run() -> LangResult<()> {
                 format!("{out}.c")
             };
             write(&cpath, &native::emit(&p)?)?;
-            let manifest = serde_json::json!({"source":path,"module":p.module,"target":target,"applied_rule_ids":used,"verified_fragment":"u64 modular polynomial rewrite certificates","trusted":["Rust checker implementation","collection lowering","generated C","Clang/LLVM backend","host ABI"],"unsupported_spec_features":"see PLAN.md and STATUS.md"});
+            let manifest = serde_json::json!({"source":path,"module":p.module,"target":target,"applied_rule_ids":used,"database_lock":database.as_ref().map(|(lock,_)|lock),"verified_fragment":"total-scalar equality proof terms plus legacy u64 polynomial certificates","trusted":["Rust checker implementation","collection lowering","generated C","Clang/LLVM backend","host ABI"],"unsupported_spec_features":"see PLAN.md and STATUS.md"});
             write(
                 &format!("{out}.plan.json"),
                 &serde_json::to_string_pretty(&manifest).map_err(|e| e.to_string())?,

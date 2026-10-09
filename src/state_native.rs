@@ -557,6 +557,25 @@ pub fn emit_with_bounds(
         "#![allow(non_camel_case_types,non_snake_case,unused_variables,unused_parens,dead_code)]\n",
     );
     out.push_str(include_str!("state_native_support.txt"));
+    out.push_str("\nmod portable {\n");
+    out.push_str(include_str!("snapshot_wire.rs"));
+    out.push_str("\n}\npub use portable::Limits as SnapshotLimits;\n");
+    let layout = crate::snapshot::layout(p)?;
+    writeln!(out,"fn snapshot_layout()->portable::Layout{{portable::Layout{{program:{:?},schema:{:?},roots:vec![",layout.program,layout.schema).unwrap();
+    for (n, k, v) in &layout.roots {
+        writeln!(
+            out,
+            "({n:?}.into(),{},{}),",
+            crate::snapshot::schema_code(k),
+            crate::snapshot::schema_code(v)
+        )
+        .unwrap();
+    }
+    out.push_str("],events:vec![");
+    for (n, t) in &layout.events {
+        writeln!(out, "({n:?}.into(),{}),", crate::snapshot::schema_code(t)).unwrap();
+    }
+    out.push_str("]}}\n");
     // Nominal IDs remain distinct types even though their native storage is u128.
     for n in &p.ids {
         let id = ident(n);
@@ -663,6 +682,49 @@ impl Wire for {id} {{
     }
     out.push_str("}}\n");
     out.push_str("pub fn version(&self)->u64{self.version}\npub fn outbox(&self)->&[Event]{&self.outbox}\npub fn acknowledge_through(&mut self,commit:u64,position:u64){self.outbox.retain(|e|(e.commit,e.position)>(commit,position));}\n");
+    out.push_str("pub fn checkpoint(&self)->Result<Vec<u8>,String>{self.checkpoint_with_limits(SnapshotLimits::default())}\npub fn checkpoint_with_limits(&self,limits:SnapshotLimits)->Result<Vec<u8>,String>{if !self.undo.is_empty()||!self.staged.is_empty(){return Err(\"checkpoint requires transaction boundary\".into())}let layout=snapshot_layout();let tables=vec![");
+    for (n, _, _) in &layout.roots {
+        writeln!(
+            out,
+            "self.{}.iter().map(|(k,v)|(k.to_json(),v.to_json())).collect(),",
+            ident(n)
+        )
+        .unwrap();
+    }
+    out.push_str("];let outbox=self.outbox.iter().map(|e|{let(channel,value)=match e.data{");
+    for (i, (n, _)) in layout.events.iter().enumerate() {
+        writeln!(out, "EventData::{}(ref v)=>({i},v.to_json()),", ident(n)).unwrap();
+    }
+    out.push_str("};portable::Event{commit:e.commit,position:e.position,channel,value}}).collect();portable::encode(&layout,&portable::Logical{version:self.version,tables,outbox},limits)}\n");
+    out.push_str("pub fn restore(bytes:&[u8])->Result<Self,String>{Self::restore_with_limits(bytes,SnapshotLimits::default())}\npub fn restore_with_limits(bytes:&[u8],limits:SnapshotLimits)->Result<Self,String>{let layout=snapshot_layout();let logical=portable::decode(&layout,bytes,limits)?;let mut state=Self::new();state.version=logical.version;let mut tables=logical.tables.into_iter();");
+    for (n, _, _) in &layout.roots {
+        let s = p.states.iter().find(|s| &s.name == n).unwrap();
+        let Type::Table(k, v) = &s.ty else {
+            unreachable!()
+        };
+        writeln!(out,"for(k,v)in tables.next().unwrap(){{state.{}.insert(<{} as Wire>::from_json(&k)?,<{} as Wire>::from_json(&v)?);}}",ident(n),ty(k)?,ty(v)?).unwrap();
+    }
+    out.push_str("state.outbox=logical.outbox.into_iter().map(|e|{let data=match e.channel{");
+    for (i, (n, _)) in layout.events.iter().enumerate() {
+        writeln!(
+            out,
+            "{i}=>EventData::{}(<{} as Wire>::from_json(&e.value)?),",
+            ident(n),
+            ty(&p.events[n])?
+        )
+        .unwrap();
+    }
+    out.push_str("_=>return Err(\"unknown event channel\".into())};Ok(Event{commit:e.commit,position:e.position,data})}).collect::<Result<Vec<_>,String>>()?;");
+    for (n, plan) in &emitter.plans {
+        let id = ident(n);
+        let root = ident(&plan.root);
+        if emitter.bounded.contains_key(n) {
+            writeln!(out,"for row in state.{root}.values(){{state.cache_{id}=state.cache_{id}.checked_add(Self::contribution_{id}(row)).ok_or(\"restored aggregate violates range\")?;}}").unwrap();
+        } else {
+            writeln!(out,"for row in state.{root}.values(){{state.cache_{id}+=Self::contribution_{id}(row);}}").unwrap();
+        }
+    }
+    out.push_str("Ok(state)}\n");
     for (n, plan) in emitter.plans.clone() {
         out.push_str(&emitter.contribution(&n, &plan)?);
     }
@@ -842,12 +904,15 @@ impl Wire for {id} {{
 pub const RUNNER: &str = r#"
 use compiled_state::*;
 fn run()->Result<(),String>{
- let file=std::env::args().nth(1).ok_or("expected SCRIPT.json")?;
+ let mut args=std::env::args().skip(1);let file=args.next().ok_or("expected SCRIPT.json")?;
+ let mut restore=None;let mut snapshot_out=None;
+ while let Some(flag)=args.next(){let value=args.next().ok_or("missing option value")?;match flag.as_str(){"--restore"=>restore=Some(value),"--snapshot-out"=>snapshot_out=Some(value),_=>return Err(format!("unknown option {flag}"))}}
  let script:serde_json::Value=serde_json::from_slice(&std::fs::read(file).map_err(|e|e.to_string())?).map_err(|e|e.to_string())?;
- let mut state=State::new();let mut output=vec![];
+ let mut state=if let Some(file)=restore{State::restore(&std::fs::read(file).map_err(|e|e.to_string())?)?}else{State::new()};let mut output=vec![];
  for step in script.as_array().ok_or("expected script array")? {
   output.push(state.invoke_json(step.get("call").and_then(serde_json::Value::as_str).ok_or("missing call")?,step.get("args").ok_or("missing args")?)?);
  }
+ if let Some(file)=snapshot_out{std::fs::write(file,state.checkpoint()?).map_err(|e|e.to_string())?;}
  println!("{}",serde_json::to_string_pretty(&output).map_err(|e|e.to_string())?);Ok(())
 }
 fn main()->std::process::ExitCode{match run(){Ok(())=>std::process::ExitCode::SUCCESS,Err(e)=>{eprintln!("error: {e}");std::process::ExitCode::FAILURE}}}

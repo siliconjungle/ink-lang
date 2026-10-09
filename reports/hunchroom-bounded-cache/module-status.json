@@ -1,0 +1,83 @@
+{
+  "module": {
+    "id": 19,
+    "user_id": "cef483b5-8f5a-40e6-b0b3-f82d7a8be13a",
+    "title": "Bounded polynomial execution: modular intermediates preserve exact in-range results",
+    "namespace": "BoundedPolynomial",
+    "description": "Executable multivariate integer polynomials are finite lists of signed coefficients and lists of variable indices. The modular evaluator reduces each multiplication and addition. Structural induction proves residue preservation, then a final nonnegative range bound recovers the exact integer result. An equivalent alternative polynomial can use the same result bound. Intermediate values may be negative or exceed the modulus. This is a standard algebraic fact formalised as a reusable algorithm model, motivated by bounded aggregate caches in a compiler prototype. It is not a Rust, LLVM, finite-map range analysis, transaction, performance or end-to-end compiler proof. No novelty claim.",
+    "profile": "std",
+    "declarations": [
+      {
+        "kind": "definition",
+        "name": "monomial",
+        "type": "∀ (env : Nat → Int) (variables : List Nat), Int",
+        "value": "fun env variables =>\n  variables.foldr (fun index rest => env index * rest) 1"
+      },
+      {
+        "kind": "definition",
+        "name": "wordMonomial",
+        "type": "∀ (modulus : Int) (env : Nat → Int) (variables : List Nat), Int",
+        "value": "fun modulus env variables =>\n  variables.foldr (fun index rest => (env index % modulus * rest) % modulus) (1 % modulus)"
+      },
+      {
+        "kind": "definition",
+        "name": "polynomial",
+        "type": "∀ (env : Nat → Int) (terms : List (Int × List Nat)), Int",
+        "value": "fun env terms =>\n  terms.foldr (fun term rest => term.1 * monomial env term.2 + rest) 0"
+      },
+      {
+        "kind": "definition",
+        "name": "wordPolynomial",
+        "type": "∀ (modulus : Int) (env : Nat → Int) (terms : List (Int × List Nat)), Int",
+        "value": "fun modulus env terms =>\n  terms.foldr (fun term rest => ((term.1 % modulus * wordMonomial modulus env term.2) % modulus + rest) % modulus) 0"
+      },
+      {
+        "kind": "lemma",
+        "name": "monomial_residue",
+        "type": "∀ (modulus : Int) (env : Nat → Int) (variables : List Nat), wordMonomial modulus env variables = monomial env variables % modulus",
+        "value": "by\n  intro modulus env variables\n  induction variables with\n  | nil => rfl\n  | cons index rest ih =>\n    simp only [wordMonomial, monomial, List.foldr_cons] at *\n    rw [ih]\n    simp only [Int.mul_emod, Int.emod_emod]"
+      },
+      {
+        "kind": "lemma",
+        "name": "polynomial_residue",
+        "type": "∀ (modulus : Int) (env : Nat → Int) (terms : List (Int × List Nat)), wordPolynomial modulus env terms = polynomial env terms % modulus",
+        "value": "by\n  intro modulus env terms\n  induction terms with\n  | nil => simp [wordPolynomial, polynomial]\n  | cons term rest ih =>\n    simp only [wordPolynomial, polynomial, List.foldr_cons] at *\n    rw [ih, monomial_residue]\n    simp only [Int.add_emod, Int.mul_emod, Int.emod_emod]"
+      },
+      {
+        "kind": "lemma",
+        "name": "bounded_polynomial",
+        "type": "∀ (modulus : Int) (env : Nat → Int) (terms : List (Int × List Nat))\n    (nonnegative : 0 ≤ polynomial env terms) (fits : polynomial env terms < modulus), wordPolynomial modulus env terms = polynomial env terms",
+        "value": "by\n  intro modulus env terms nonnegative fits\n  rw [polynomial_residue]\n  exact Int.emod_eq_of_lt nonnegative fits"
+      },
+      {
+        "kind": "lemma",
+        "name": "equivalent_bounded_polynomial",
+        "type": "∀ (modulus : Int) (env : Nat → Int)\n    (original alternative : List (Int × List Nat))\n    (equivalent : polynomial env original = polynomial env alternative)\n    (nonnegative : 0 ≤ polynomial env original) (fits : polynomial env original < modulus), wordPolynomial modulus env alternative = polynomial env original",
+        "value": "by\n  intro modulus env original alternative equivalent nonnegative fits\n  rw [polynomial_residue, ← equivalent]\n  exact Int.emod_eq_of_lt nonnegative fits"
+      }
+    ],
+    "module_pins": [],
+    "module_context": [],
+    "module_hash": "f08eae9aafce4ea2124aa4950d4eacedaacaffe171241003045c7713e64d7856",
+    "status": "failed",
+    "check_log": "[DEBUG:INIT] lean_initialize() started\nHUNCH_COMPUTATION_READY\nwarning: Variable name `env` is not explicitly referenced.\n\nThe binding can be removed (if unused) or named `_` (if used implicitly).\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`\nwarning: Variable name `variables` is not explicitly referenced.\n\nThe binding can be removed (if unused) or named `_` (if used implicitly).\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`\nwarning: Variable name `modulus` is not explicitly referenced.\n\nThe binding can be removed (if unused) or named `_` (if used implicitly).\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`\nwarning: Variable name `env` is not explicitly referenced.\n\nThe binding can be removed (if unused) or named `_` (if used implicitly).\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`\nwarning: Variable name `variables` is not explicitly referenced.\n\nThe binding can be removed (if unused) or named `_` (if used implicitly).\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`\nwarning: Variable name `env` is not explicitly referenced.\n\nThe binding can be removed (if unused) or named `_` (if used implicitly).\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`\nwarning: Variable name `terms` is not explicitly referenced.\n\nThe binding can be removed (if unused) or named `_` (if used implicitly).\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`\nwarning: Variable name `modulus` is not explicitly referenced.\n\nThe binding can be removed (if unused) or named `_` (if used implicitly).\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`\nwarning: Variable name `env` is not explicitly referenced.\n\nThe binding can be removed (if unused) or named `_` (if used implicitly).\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`\nwarning: Variable name `terms` is not explicitly referenced.\n\nThe binding can be removed (if unused) or named `_` (if used implicitly).\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`\nwarning: Variable name `nonnegative` is not explicitly referenced.\n\nThe binding can be removed (if unused) or named `_` (if used implicitly).\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`\nwarning: Variable name `fits` is not explicitly referenced.\n\nThe binding can be removed (if unused) or named `_` (if used implicitly).\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`\nwarning: Variable name `equivalent` is not explicitly referenced.\n\nThe binding can be removed (if unused) or named `_` (if used implicitly).\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`\nwarning: Variable name `nonnegative` is not explicitly referenced.\n\nThe binding can be removed (if unused) or named `_` (if used implicitly).\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`\nwarning: Variable name `fits` is not explicitly referenced.\n\nThe binding can be removed (if unused) or named `_` (if used implicitly).\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`\n'_private.0.Hunch.BoundedPolynomial.monomial' does not depend on any axioms\n'_private.0.Hunch.BoundedPolynomial.wordMonomial' does not depend on any axioms\n'_private.0.Hunch.BoundedPolynomial.polynomial' does not depend on any axioms\n'_private.0.Hunch.BoundedPolynomial.wordPolynomial' does not depend on any axioms\n'_private.0.Hunch.BoundedPolynomial.monomial_residue' depends on axioms: [propext]\n'_private.0.Hunch.BoundedPolynomial.polynomial_residue' depends on axioms: [propext, Quot.sound]\n'_private.0.Hunch.BoundedPolynomial.bounded_polynomial' depends on axioms: [propext, Quot.sound]\n'_private.0.Hunch.BoundedPolynomial.equivalent_bounded_polynomial' depends on axioms: [propext, Quot.sound]\n'_private.0.OA_target' does not depend on any axioms\nOA_target : OA_statement\n[DEBUG:INIT] save_stack_info() done\n[DEBUG:INIT] initialize_util_module() done\n[DEBUG:INIT] About to initialize_Init...\n[DEBUG:INIT] initialize_Init() done\n[DEBUG:INIT] About to initialize_Std...\n[DEBUG:INIT] initialize_Std() done\n[DEBUG:INIT] About to initialize_Lean...\n[DEBUG:INIT] initialize_Lean() done\n[DEBUG:INIT] initialize_kernel_module() done\n[DEBUG:INIT] lean_initialize() completed successfully\n",
+    "axioms": [],
+    "created_at": 1791513524,
+    "checked_at": 1791513567,
+    "hidden_at": null,
+    "secondary_status": "not_run",
+    "secondary_details": "{\"implementation\":\"Nanoda\",\"status\":\"not_run\"}",
+    "origin_submission_id": null,
+    "origin_source_hash": null,
+    "username": "jungle"
+  },
+  "verification": {
+    "id": "job_a94e1bb756c963541c51680cf5343e81fc0294f81d53ccc7cdb9924347aa9431",
+    "status": "complete",
+    "stage": "failed",
+    "attempts": 1,
+    "updated_at": 1791513567,
+    "poll_after_seconds": 3
+  },
+  "diagnostics": []
+}

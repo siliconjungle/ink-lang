@@ -24,7 +24,7 @@ fn compile_and_run_with_runner(dir: &Path, code: &str, script: &[Value], runner:
     fs::create_dir_all(dir.join("src")).unwrap();
     fs::write(dir.join("src/lib.rs"), code).unwrap();
     fs::write(dir.join("src/main.rs"), runner).unwrap();
-    fs::write(dir.join("Cargo.toml"), "[package]\nname=\"compiled-state\"\nversion=\"0.1.0\"\nedition=\"2021\"\n[dependencies]\nnum-bigint=\"=0.4.8\"\nserde_json=\"=1.0.151\"\n").unwrap();
+    fs::write(dir.join("Cargo.toml"), "[package]\nname=\"compiled-state\"\nversion=\"0.1.0\"\nedition=\"2021\"\n[dependencies]\nnum-bigint=\"=0.4.8\"\nsha2=\"=0.10.9\"\nserde_json=\"=1.0.151\"\n").unwrap();
     let output = Command::new(env!("CARGO"))
         .args(["build", "--offline", "--manifest-path"])
         .arg(dir.join("Cargo.toml"))
@@ -54,6 +54,65 @@ fn compile_and_run_with_runner(dir: &Path, code: &str, script: &[Value], runner:
         String::from_utf8_lossy(&run.stderr)
     );
     serde_json::from_slice(&run.stdout).unwrap()
+}
+
+fn migrate_and_continue(
+    dir: &Path,
+    p: &verified_language::syntax::Program,
+    script: &[Value],
+    carry: &mut Option<Vec<u8>>,
+) {
+    let mut rt = if let Some(bytes) = carry.as_ref() {
+        Runtime::restore_portable(p.clone(), bytes).unwrap()
+    } else {
+        let mut rt = Runtime::new(p.clone()).unwrap();
+        for step in &script[..500] {
+            rt.invoke_json(step["call"].as_str().unwrap(), &step["args"])
+                .unwrap();
+        }
+        rt.acknowledge_through(rt.version().saturating_sub(1), u64::MAX);
+        rt
+    };
+    let before = rt.checkpoint_portable().unwrap();
+    fs::write(dir.join("restore.bin"), &before).unwrap();
+    let steps = &script[500..1000];
+    let expected: Vec<_> = steps
+        .iter()
+        .map(|s| {
+            rt.invoke_json(s["call"].as_str().unwrap(), &s["args"])
+                .unwrap()
+                .json()
+        })
+        .collect();
+    fs::write(
+        dir.join("continue.json"),
+        serde_json::to_vec(steps).unwrap(),
+    )
+    .unwrap();
+    let run = Command::new(
+        dir.parent()
+            .unwrap()
+            .join("native-test-target/debug/compiled-state"),
+    )
+    .arg(dir.join("continue.json"))
+    .arg("--restore")
+    .arg(dir.join("restore.bin"))
+    .arg("--snapshot-out")
+    .arg(dir.join("native.bin"))
+    .output()
+    .unwrap();
+    assert!(
+        run.status.success(),
+        "{}",
+        String::from_utf8_lossy(&run.stderr)
+    );
+    let got: Value = serde_json::from_slice(&run.stdout).unwrap();
+    assert_eq!(got, json!(expected));
+    let bytes = fs::read(dir.join("native.bin")).unwrap();
+    assert_eq!(bytes, rt.checkpoint_portable().unwrap());
+    let restored = Runtime::restore_portable(p.clone(), &bytes).unwrap();
+    assert_eq!(restored.checkpoint_portable().unwrap(), bytes);
+    *carry = Some(bytes);
 }
 
 #[test]
@@ -120,6 +179,7 @@ fn native_state_matches_reference_with_and_without_checked_maintenance() {
         "total + new + (18446744073709551615 * 2) - 18446744073709551615 - 18446744073709551615",
     );
     let alternate = aggregate::prove(&parse(&alternate).unwrap()).unwrap();
+    let mut carry = None;
     for (mode, cert) in [
         ("scan", None),
         ("maintained", Some(&c)),
@@ -134,6 +194,12 @@ fn native_state_matches_reference_with_and_without_checked_maintenance() {
         for (i, (a, b)) in values.iter().zip(&expected).enumerate() {
             assert_eq!(a, b, "{mode} call {i}: {}", script[i]);
         }
+        migrate_and_continue(
+            &root.join(format!("native-test-{mode}")),
+            &p,
+            &script,
+            &mut carry,
+        );
     }
     // The same state machine with u64 keys admits a proved u128 total cache.
     let narrow_source = source.replace("id ItemId;", "").replace("ItemId", "u64");
@@ -160,16 +226,28 @@ fn native_state_matches_reference_with_and_without_checked_maintenance() {
     // This equivalent formula has negative and >128-bit intermediate values.
     let modular_source=include_str!("../knowledge/sum-maintenance.lang").replace("total + new", "new - total + total + total + (18446744073709551615 * 18446744073709551615 * 18446744073709551615) - (18446744073709551615 * 18446744073709551615 * 18446744073709551615)");
     let modular = aggregate::prove(&parse(&modular_source).unwrap()).unwrap();
-    for (mode, certificate) in [("bounded", &c), ("bounded-modular", &modular)] {
-        let code =
-            state_native::emit_with_bounds(&narrow_program, Some(certificate), true).unwrap();
-        assert!(code.contains("cache_l_total_units:u128"));
+    let mut carry = None;
+    for (mode, certificate, bounded) in [
+        ("narrow-scan", None, false),
+        ("bounded", Some(&c), true),
+        ("bounded-modular", Some(&modular), true),
+    ] {
+        let code = state_native::emit_with_bounds(&narrow_program, certificate, bounded).unwrap();
+        if bounded {
+            assert!(code.contains("cache_l_total_units:u128"));
+        }
         let got = compile_and_run(
             &root.join(format!("native-test-{mode}")),
             &code,
             &narrow_script,
         );
         assert_eq!(got.as_array().unwrap(), &expected);
+        migrate_and_continue(
+            &root.join(format!("native-test-{mode}")),
+            &narrow_program,
+            &narrow_script,
+            &mut carry,
+        );
     }
     // Exercise the high half of the exact native ABI without billions of rows.
     let wide = parse(

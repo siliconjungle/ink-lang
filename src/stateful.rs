@@ -961,6 +961,97 @@ impl Runtime {
         })
         .map_err(|e| e.to_string())
     }
+    pub fn checkpoint_portable(&self) -> LangResult<Vec<u8>> {
+        self.checkpoint_portable_with_limits(crate::snapshot_wire::Limits::default())
+    }
+    pub fn checkpoint_portable_with_limits(
+        &self,
+        limits: crate::snapshot_wire::Limits,
+    ) -> LangResult<Vec<u8>> {
+        use crate::snapshot_wire::{Event as PortableEvent, Logical};
+        if !self.undo.is_empty() || !self.staged.is_empty() {
+            return Err("checkpoint requires a transaction boundary".into());
+        }
+        let layout = crate::snapshot::layout(&self.program)?;
+        let tables = layout
+            .roots
+            .iter()
+            .map(|(n, _, _)| {
+                self.tables[n]
+                    .iter()
+                    .map(|(k, v)| (k.json(), v.json()))
+                    .collect()
+            })
+            .collect();
+        let outbox = self
+            .outbox
+            .iter()
+            .map(|e| {
+                Ok(PortableEvent {
+                    commit: e.commit,
+                    position: e.position,
+                    channel: layout
+                        .events
+                        .iter()
+                        .position(|(n, _)| n == &e.channel)
+                        .ok_or("unknown event channel")?,
+                    value: e.value.json(),
+                })
+            })
+            .collect::<LangResult<Vec<_>>>()?;
+        crate::snapshot_wire::encode(
+            &layout,
+            &Logical {
+                version: self.version,
+                tables,
+                outbox,
+            },
+            limits,
+        )
+    }
+    pub fn restore_portable(program: Program, bytes: &[u8]) -> LangResult<Self> {
+        Self::restore_portable_with_limits(program, bytes, crate::snapshot_wire::Limits::default())
+    }
+    pub fn restore_portable_with_limits(
+        program: Program,
+        bytes: &[u8],
+        limits: crate::snapshot_wire::Limits,
+    ) -> LangResult<Self> {
+        let mut rt = Self::new(program)?;
+        let layout = crate::snapshot::layout(&rt.program)?;
+        let logical = crate::snapshot_wire::decode(&layout, bytes, limits)?;
+        for ((name, _, _), rows) in layout.roots.iter().zip(logical.tables) {
+            let root = rt.program.states.iter().find(|s| &s.name == name).unwrap();
+            let Type::Table(kt, vt) = &root.ty else {
+                unreachable!()
+            };
+            let table = rows
+                .into_iter()
+                .map(|(k, v)| {
+                    Ok((
+                        Value::from_json(&k, kt, &rt.program)?,
+                        Value::from_json(&v, vt, &rt.program)?,
+                    ))
+                })
+                .collect::<LangResult<Table>>()?;
+            rt.tables.insert(name.clone(), table);
+        }
+        rt.outbox = logical
+            .outbox
+            .into_iter()
+            .map(|e| {
+                let channel = &layout.events[e.channel].0;
+                Ok(Event {
+                    commit: e.commit,
+                    position: e.position,
+                    channel: channel.clone(),
+                    value: Value::from_json(&e.value, &rt.program.events[channel], &rt.program)?,
+                })
+            })
+            .collect::<LangResult<Vec<_>>>()?;
+        rt.version = logical.version;
+        Ok(rt)
+    }
     pub fn restore(program: Program, bytes: &[u8]) -> LangResult<Self> {
         let mut rt = Self::new(program)?;
         let s: Snapshot = serde_json::from_slice(bytes).map_err(|e| e.to_string())?;

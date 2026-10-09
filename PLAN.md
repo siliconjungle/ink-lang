@@ -4,6 +4,8 @@ The objective is to implement the language specified in docs/language-specificat
 
 ## Requirements and evidence
 
+- [ ] Small compiler core has no built-in optimisation catalogue. All language-level rewrites, incremental algorithms and representation choices come from checked database entries; new entries work without rebuilding the compiler. See `docs/small-core-and-knowledge.md` for the binding architecture and migration audit.
+
 - [ ] Parser and diagnostic coverage for the specified surface language, including the complete inventory example.
 - [ ] Types, effects, ownership, totality and contract checking with negative cases.
 - [ ] Reference interpreter for pure functions, collections, transactions, events and queries.
@@ -32,11 +34,11 @@ LLVM code generation initially runs through emitted portable C and Clang. This i
 
 The full inventory example is executable in the reference runtime. Records, IDs, nullary enums, Option/Result, u32 and exact Int support its transactions, effects and queries. An undo journal handles rollback and event staging. Domain-specific certificates validate actual aggregate update expressions, and imported knowledge selects maintained sums/counts for row-local pipelines. Tests compare 2,000 mixed operations against recomputation and exercise snapshot restoration and implementation switching.
 
-Pure programs also compile to WebAssembly and pass 2,856 independent arithmetic checks in Node/V8. The stateful runtime is not yet compiled to native code or Wasm. Reference JSON snapshots are not a durable storage implementation. These milestones do not close the broader unchecked requirements above.
+Pure programs also compile to WebAssembly and pass 2,856 independent arithmetic checks in Node/V8. Subsequent work added native stateful compilation and benchmarks, plus canonical binary snapshots that transfer between native representations and the reference runtime. Stateful Wasm and durable recovery remain unfinished. These milestones do not close the broader unchecked requirements above.
 
 ## Next concrete work
 
-1. Initial typed native stateful lowering is implemented and differentially checked against the reference (see STATUS.md). Broaden coverage and optimise generated collection scans and cloning based on measurements. Native snapshot support remains outstanding.
+1. Prioritise the user's small-core architecture: externalise optimisation knowledge and proof production, define the general checking boundary, and demonstrate independently evolving database entries. The first total-scalar proof-term path now loads external Boolean laws without recompiling (archived in `reports/database-equality`). Next add reusable definitions, induction and theorem dependencies, then migrate legacy rules and representations through that logic. Existing hardcoded transformation mechanisms are transitional, not the intended core. Hunchroom research informs proof obligations but does not automatically authorise compiler transformations.
 2. Initial native state comparison is complete: all baselines maintain totals and compare observable state, errors, versions and ordered events. The range-checked cache and exact native query view improve performance, but handwritten Rust remains faster overall. Next reduce transactional bookkeeping and redundant work, explore physical layouts, and broaden workloads to distribution shifts and memory limits. Preserve algorithm-matched baselines.
-3. Extend persistence and Wasm to the same state machine, then implement measured selection with safe migration.
+3. Portable native snapshots now transfer logical state across implementation choices. Extend the same format/state machine to Wasm and durable recovery, then implement measured selection with safe migration through the database architecture.
 4. Broaden the language and proof core against the original draft. Keep the outstanding acceptance criteria intact.
