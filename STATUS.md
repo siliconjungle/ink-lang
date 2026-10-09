@@ -31,9 +31,16 @@ The reference state runtime evaluates the AST. Its archived benchmark is explici
 - `lang emit-state` generates a standalone Rust crate with typed records, nominal IDs, enums, tables, changes, queries and events. Execution does not include this compiler crate or an AST evaluator.
 - Table writes use generated undo entries. Nested failures abort the transaction; rollback restores tables, staged events and maintained values. Exact integers use `num-bigint`.
 - An optional verified maintenance certificate emits its actual update arithmetic into native code. All certificate subexpressions use exact arithmetic, including constant-only subtrees.
-- Three generated implementations (scanning, ordinary maintenance and an algebraically equivalent maintenance package with large constants) match the reference on 6,008 calls each: 18,024 observed outcome comparisons, covering 2,000 mixed operations plus intermediate queries and boundaries.
+- Five generated implementations (scanning, ordinary maintenance, exact large-constant maintenance, bounded maintenance and bounded maintenance with wrapping intermediate values) match the reference on 6,008 calls each: 30,040 observed outcome comparisons, covering 2,000 mixed operations plus intermediate queries and boundaries.
 - The basic inventory example also builds and executes in release mode.
-- This is a bootstrap backend: collection scans materialise intermediate vectors, storage uses BTreeMap, and generated code performs conservative clones. Native snapshots, migration, execution budgets and performance comparisons remain pending.
+- An optional checked range analysis derives the full-domain maximum of eligible sums and selects u128 caches when safe. Certificate expressions execute modulo 2^128 only after exact equivalence and final-range checks justify the representation. Direct bounded keep queries have a generated exact low/high-word interface. A separate wide-value test exercises its high word.
+- This is a bootstrap backend: collection scans materialise intermediate vectors, storage uses BTreeMap, and generated code performs conservative clones. Native snapshots, migration and execution budgets remain pending.
+
+## Native stateful performance evidence
+
+The latest report is `reports/native-state-phase3-native-abi/REPORT.md`: 756 samples, 18 cells, six variants. All variants maintain totals; the common C driver consumes outputs and final state. Independent Python validation checks 2,005 operations per variant (12,030 native comparisons) and 4,010 reference-runtime outcomes. Sources, toolchains, commands, generated code and observations are archived.
+
+The bounded native variant is 1.71× faster than the current BigInt variant by geometric mean. It still takes 1.75× the handwritten Rust u128 baseline's time and 2.56× the fastest baseline's time per cell, aggregated geometrically. C's flat table, C++'s map and Rust's BTreeMap differ in layout and costs; handwritten baselines also eliminate unobservable speculative writes. The reports document these differences. These are warm, single-threaded, in-memory measurements, not durability, concurrency or universal language rankings.
 
 Generated Rust lowering, runtime support, dependencies and Rust/LLVM remain trusted; the tests are not a machine-code correctness proof.
 
@@ -49,7 +56,7 @@ Generated Rust lowering, runtime support, dependencies and Rust/LLVM remain trus
 - Complete surface syntax, generic functions, refinements, local mutation, ownership rules, all numeric types and floating-point semantics.
 - Unified type inference across the pure native and broader stateful reference subsets. Unsupported combinations are rejected.
 - General proof terms, a dependent-type kernel, contract proving and comprehensive transition simulation certificates. Existing decision procedures and induction schemas remain in the trusted Rust implementation.
-- Broader native stateful lowering, specialised physical layouts and fair stateful C/C++/Rust baselines.
+- Broader native stateful lowering, specialised physical layouts and further optimisation against the existing stateful C/C++/Rust baselines.
 - Durable recovery, binary snapshots and stateful Wasm interoperability.
 - Automatic profiling-based selection, search budgets beyond the current checkers, native-code migration and registry retrieval.
 - The complete performance matrix: changing distributions, memory constraints, concurrent workloads and durability.

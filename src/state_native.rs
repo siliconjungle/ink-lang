@@ -44,9 +44,111 @@ fn exact_expression(e: &Expr) -> LangResult<String> {
 struct Emitter<'a> {
     p: &'a Program,
     plans: BTreeMap<String, aggregate::Plan>,
+    bounded: BTreeMap<String, BoundEvidence>,
     serial: usize,
 }
+
+#[derive(Clone, Debug, serde::Serialize)]
+pub struct BoundEvidence {
+    pub root: String,
+    pub field: String,
+    pub key_bits: u32,
+    pub value_bits: u32,
+    pub maximum_total: String,
+    pub justification: &'static str,
+}
+
+/// Conservative range analysis for one exact sum of an unsigned row field.
+/// Full key-domain cardinality is used, not an observed size or host RAM bound.
+pub fn bounded_caches(p: &Program) -> BTreeMap<String, BoundEvidence> {
+    use num_bigint::BigInt;
+    let mut result = BTreeMap::new();
+    for k in &p.keeps {
+        let Some(plan) = aggregate::plan(k) else {
+            continue;
+        };
+        if plan.count || plan.stages.len() != 1 {
+            continue;
+        }
+        let (op, binder, body) = &plan.stages[0];
+        if op != "map" {
+            continue;
+        }
+        let Expr::Call(conversion, args) = body else {
+            continue;
+        };
+        if conversion != "Int" || args.len() != 1 {
+            continue;
+        }
+        let Expr::Field(base, field) = &args[0] else {
+            continue;
+        };
+        if !matches!(&**base,Expr::Var(v) if v==binder) {
+            continue;
+        }
+        let Some(root) = p.states.iter().find(|s| s.name == plan.root) else {
+            continue;
+        };
+        let Type::Table(key, row) = &root.ty else {
+            continue;
+        };
+        let key_bits = match &**key {
+            Type::U32 => 32,
+            Type::U64 => 64,
+            Type::Named(n) if p.ids.contains(n) => 128,
+            _ => continue,
+        };
+        let Type::Named(record) = &**row else {
+            continue;
+        };
+        let Some(fields) = p.records.get(record) else {
+            continue;
+        };
+        let Some((_, field_type)) = fields.iter().find(|(f, _)| f == field) else {
+            continue;
+        };
+        let value_bits = match field_type {
+            Type::U32 => 32,
+            Type::U64 => 64,
+            _ => continue,
+        };
+        let maximum = (BigInt::from(1u8) << key_bits) * ((BigInt::from(1u8) << value_bits) - 1u8);
+        if maximum > BigInt::from(u128::MAX) {
+            continue;
+        }
+        result.insert(k.name.clone(),BoundEvidence{root:root.name.clone(),field:field.clone(),key_bits,value_bits,maximum_total:maximum.to_string(),justification:"nonnegative unsigned field; finite map has at most 2^key_bits entries; maximum = 2^key_bits * (2^value_bits - 1) < 2^128"});
+    }
+    result
+}
+
+fn modular128_expression(e: &Expr) -> LangResult<String> {
+    match e {
+        Expr::Num(n) => Ok(format!("{n}u128")),
+        Expr::Var(n) => Ok(ident(n)),
+        Expr::Binary(op, a, b) => {
+            let method = match op.as_str() {
+                "+" => "wrapping_add",
+                "-" => "wrapping_sub",
+                "*" => "wrapping_mul",
+                _ => return Err("invalid polynomial operator".into()),
+            };
+            Ok(format!(
+                "({}).{method}({})",
+                modular128_expression(a)?,
+                modular128_expression(b)?
+            ))
+        }
+        _ => Err("invalid polynomial expression".into()),
+    }
+}
 impl Emitter<'_> {
+    fn cache_type(&self, n: &str) -> &'static str {
+        if self.bounded.contains_key(n) {
+            "u128"
+        } else {
+            "BigInt"
+        }
+    }
     fn fresh(&mut self) -> String {
         self.serial += 1;
         format!("tmp_{}", self.serial)
@@ -376,6 +478,14 @@ impl Emitter<'_> {
         let Type::Table(_, row) = &root.ty else {
             unreachable!()
         };
+        if let Some(bound) = self.bounded.get(name) {
+            return Ok(format!(
+                "fn contribution_{}(row:&{})->u128{{row.{} as u128}}\n",
+                ident(name),
+                ty(row)?,
+                ident(&bound.field)
+            ));
+        }
         let mut current = "row".to_string();
         let mut current_ty = *row.clone();
         let mut out = String::new();
@@ -413,6 +523,14 @@ impl Emitter<'_> {
 }
 
 pub fn emit(p: &Program, certificate: Option<&aggregate::Certificate>) -> LangResult<String> {
+    emit_with_bounds(p, certificate, false)
+}
+
+pub fn emit_with_bounds(
+    p: &Program,
+    certificate: Option<&aggregate::Certificate>,
+    narrow: bool,
+) -> LangResult<String> {
     check::check(p)?;
     if let Some(c) = certificate {
         aggregate::verify(c)?;
@@ -428,6 +546,11 @@ pub fn emit(p: &Program, certificate: Option<&aggregate::Certificate>) -> LangRe
     let mut emitter = Emitter {
         p,
         plans,
+        bounded: if narrow && certificate.is_some() {
+            bounded_caches(p)
+        } else {
+            BTreeMap::new()
+        },
         serial: 0,
     };
     let mut out = String::from(
@@ -510,7 +633,7 @@ impl Wire for {id} {{
         .unwrap();
         for (n, plan) in &emitter.plans {
             if plan.root == s.name {
-                write!(out, ",cache_{}:BigInt", ident(n)).unwrap();
+                write!(out, ",cache_{}:{}", ident(n), emitter.cache_type(n)).unwrap();
             }
         }
         out.push_str("},\n");
@@ -523,14 +646,20 @@ impl Wire for {id} {{
         writeln!(out, "{}:{},", ident(&s.name), ty(&s.ty)?).unwrap();
     }
     for n in emitter.plans.keys() {
-        writeln!(out, "cache_{}:BigInt,", ident(n)).unwrap();
+        writeln!(out, "cache_{}:{},", ident(n), emitter.cache_type(n)).unwrap();
     }
     out.push_str("}\nimpl Default for State {fn default()->Self{Self::new()}}\nimpl State {pub fn new()->Self{Self{version:0,staged:vec![],outbox:vec![],undo:vec![],\n");
     for s in &p.states {
         writeln!(out, "{}:BTreeMap::new(),", ident(&s.name)).unwrap();
     }
     for n in emitter.plans.keys() {
-        writeln!(out, "cache_{}:BigInt::from(0u8),", ident(n)).unwrap();
+        writeln!(
+            out,
+            "cache_{}:{}::from(0u8),",
+            ident(n),
+            emitter.cache_type(n)
+        )
+        .unwrap();
     }
     out.push_str("}}\n");
     out.push_str("pub fn version(&self)->u64{self.version}\npub fn outbox(&self)->&[Event]{&self.outbox}\npub fn acknowledge_through(&mut self,commit:u64,position:u64){self.outbox.retain(|e|(e.commit,e.position)>(commit,position));}\n");
@@ -543,7 +672,9 @@ impl Wire for {id} {{
         let Type::Table(k, v) = &s.ty else {
             unreachable!()
         };
-        writeln!(out,"fn set_{field}(&mut self,key:{},value:Option<{}>)->Option<{}>{{let old=self.{field}.get(&key).cloned();",ty(k)?,ty(v)?,ty(v)?).unwrap();
+        // Ordered-map insertion/removal returns the actual previous value.
+        // Reuse it for rollback instead of performing a separate lookup.
+        writeln!(out,"fn set_{field}(&mut self,key:{},value:Option<{}>)->Option<{}>{{let old=match &value{{Some(v)=>self.{field}.insert(key.clone(),v.clone()),None=>self.{field}.remove(&key)}};",ty(k)?,ty(v)?,ty(v)?).unwrap();
         write!(
             out,
             "self.undo.push(Undo::{field}{{key:key.clone(),old:old.clone()"
@@ -571,7 +702,14 @@ impl Wire for {id} {{
                 ),
                 ("(Some(old),None)", &c.remove, vec!["total", "old"]),
             ] {
-                let expr = exact_expression(e)?;
+                // The checked update equals an exact map sum within the range
+                // above. Polynomial reduction modulo 2^128 preserves its residue;
+                // the range proof makes that residue the unique exact result.
+                let expr = if emitter.bounded.contains_key(&n) {
+                    modular128_expression(e)?
+                } else {
+                    exact_expression(e)?
+                };
                 write!(out, "{pattern}=>{{").unwrap();
                 for v in vars {
                     write!(out, "let {}={v};", ident(v)).unwrap();
@@ -580,7 +718,7 @@ impl Wire for {id} {{
             }
             out.push_str("(None,None)=>total};}\n");
         }
-        writeln!(out,"match value{{Some(v)=>{{self.{field}.insert(key,v);}},None=>{{self.{field}.remove(&key);}}}}old}}\n").unwrap();
+        out.push_str("old}\n");
     }
     out.push_str("fn rollback(&mut self){for undo in self.undo.drain(..).rev(){match undo{\n");
     for s in &p.states {
@@ -602,7 +740,11 @@ impl Wire for {id} {{
     out.push_str("}}self.staged.clear();}\n");
     for k in &p.keeps {
         let body = if emitter.plans.contains_key(&k.name) {
-            format!("self.cache_{}.clone()", ident(&k.name))
+            if emitter.bounded.contains_key(&k.name) {
+                format!("BigInt::from(self.cache_{})", ident(&k.name))
+            } else {
+                format!("self.cache_{}.clone()", ident(&k.name))
+            }
         } else {
             emitter.expr(&k.value, &Env::new(), Some(&k.ty))?.0
         };
@@ -632,6 +774,16 @@ impl Wire for {id} {{
         .unwrap();
     }
     for a in &p.actions {
+        // A direct bounded keep query admits an allocation-free exact host ABI.
+        // The ordinary language/JSON API still returns Int. This extra view is
+        // generated from checked structure, never an application name.
+        if a.kind == ActionKind::Query && a.params.is_empty() && a.result == Type::Int {
+            if let [Statement::Return(Expr::Var(keep))] = a.body.as_slice() {
+                if emitter.bounded.contains_key(keep) {
+                    writeln!(out,"pub fn query_words_{}(&self)->(u64,u64){{let v=self.cache_{};(v as u64,(v>>64) as u64)}}",ident(&a.name),ident(keep)).unwrap();
+                }
+            }
+        }
         let id = ident(&a.name);
         let params = a
             .params

@@ -18,9 +18,12 @@ query empty() -> Option<u32> {return None;}
 "#;
 
 fn compile_and_run(dir: &Path, code: &str, script: &[Value]) -> Value {
+    compile_and_run_with_runner(dir, code, script, state_native::RUNNER)
+}
+fn compile_and_run_with_runner(dir: &Path, code: &str, script: &[Value], runner: &str) -> Value {
     fs::create_dir_all(dir.join("src")).unwrap();
     fs::write(dir.join("src/lib.rs"), code).unwrap();
-    fs::write(dir.join("src/main.rs"), state_native::RUNNER).unwrap();
+    fs::write(dir.join("src/main.rs"), runner).unwrap();
     fs::write(dir.join("Cargo.toml"), "[package]\nname=\"compiled-state\"\nversion=\"0.1.0\"\nedition=\"2021\"\n[dependencies]\nnum-bigint=\"=0.4.8\"\nserde_json=\"=1.0.151\"\n").unwrap();
     let output = Command::new(env!("CARGO"))
         .args(["build", "--offline", "--manifest-path"])
@@ -131,6 +134,102 @@ fn native_state_matches_reference_with_and_without_checked_maintenance() {
         for (i, (a, b)) in values.iter().zip(&expected).enumerate() {
             assert_eq!(a, b, "{mode} call {i}: {}", script[i]);
         }
+    }
+    // The same state machine with u64 keys admits a proved u128 total cache.
+    let narrow_source = source.replace("id ItemId;", "").replace("ItemId", "u64");
+    let narrow_program = parse(&narrow_source).unwrap();
+    let mut narrow_script = script.clone();
+    for call in &mut narrow_script {
+        if let Some(args) = call["args"].as_array_mut() {
+            if let Some(Value::String(key)) = args.first() {
+                let id = u128::from_str_radix(key, 16).unwrap() as u64;
+                args[0] = json!(id);
+            }
+        }
+    }
+    let mut reference = Runtime::new(narrow_program.clone()).unwrap();
+    let expected: Vec<_> = narrow_script
+        .iter()
+        .map(|s| {
+            reference
+                .invoke_json(s["call"].as_str().unwrap(), &s["args"])
+                .unwrap()
+                .json()
+        })
+        .collect();
+    // This equivalent formula has negative and >128-bit intermediate values.
+    let modular_source=include_str!("../knowledge/sum-maintenance.lang").replace("total + new", "new - total + total + total + (18446744073709551615 * 18446744073709551615 * 18446744073709551615) - (18446744073709551615 * 18446744073709551615 * 18446744073709551615)");
+    let modular = aggregate::prove(&parse(&modular_source).unwrap()).unwrap();
+    for (mode, certificate) in [("bounded", &c), ("bounded-modular", &modular)] {
+        let code =
+            state_native::emit_with_bounds(&narrow_program, Some(certificate), true).unwrap();
+        assert!(code.contains("cache_l_total_units:u128"));
+        let got = compile_and_run(
+            &root.join(format!("native-test-{mode}")),
+            &code,
+            &narrow_script,
+        );
+        assert_eq!(got.as_array().unwrap(), &expected);
+    }
+    // Exercise the high half of the exact native ABI without billions of rows.
+    let wide = parse(
+        r#"module wide;
+      record Row { value:u64, }
+      enum Error { Exists, }
+      state Rows:Table<u64,Row> = Table.empty();
+      keep sum_value:Int=sum(Rows.values().map(fn(row)=>Int(row.value)));
+      change put(key:u64,value:u64)->Result<Unit,Error> writes(Rows){
+        if Rows.contains(key){return Err(Error.Exists);}
+        Rows.insert(key,Row {value:value});return Ok(());
+      }
+      query total()->Int reads(sum_value){return sum_value;}
+    "#,
+    )
+    .unwrap();
+    let wide_script = vec![
+        json!({"call":"put","args":[0,u64::MAX]}),
+        json!({"call":"put","args":[1,u64::MAX]}),
+        json!({"call":"put","args":[2,u64::MAX]}),
+        json!({"call":"total","args":[]}),
+    ];
+    let code = state_native::emit_with_bounds(&wide, Some(&modular), true).unwrap();
+    let runner = state_native::RUNNER.replacen(
+        "println!",
+        "assert_eq!(state.query_words_l_total(),(u64::MAX-2,2)); println!",
+        1,
+    );
+    let got = compile_and_run_with_runner(
+        &root.join("native-test-wide-abi"),
+        &code,
+        &wide_script,
+        &runner,
+    );
+    assert_eq!(
+        got[3]["result"],
+        json!({"Int":(num_bigint::BigInt::from(u64::MAX)*3u8).to_string()})
+    );
+}
+
+#[test]
+fn range_analysis_uses_full_domains_and_rejects_unbounded_contributions() {
+    let source = include_str!("../examples/state-benchmark.lang");
+    let p = parse(source).unwrap();
+    let b = state_native::bounded_caches(&p);
+    assert_eq!(b["total_units"].key_bits, 64);
+    assert_eq!(b["total_units"].value_bits, 32);
+    let max = (num_bigint::BigInt::from(1u8) << 64u32) * num_bigint::BigInt::from(u32::MAX);
+    assert_eq!(b["total_units"].maximum_total, max.to_string());
+    let wide = parse(&source.replace("stock: u32", "stock: u64")).unwrap();
+    assert_eq!(
+        state_native::bounded_caches(&wide)["total_units"].value_bits,
+        64
+    );
+    // A nominal ID has a 128-bit domain, even if observed data only use small IDs.
+    let inventory = parse(include_str!("../examples/inventory.lang")).unwrap();
+    assert!(state_native::bounded_caches(&inventory).is_empty());
+    for expression in ["Int(row.stock) - Int(1)", "Int(row.stock) * Int(row.stock)"] {
+        let changed = parse(&source.replace("Int(row.stock)", expression)).unwrap();
+        assert!(state_native::bounded_caches(&changed).is_empty());
     }
 }
 

@@ -37,6 +37,6 @@ Pure programs also compile to WebAssembly and pass 2,856 independent arithmetic 
 ## Next concrete work
 
 1. Initial typed native stateful lowering is implemented and differentially checked against the reference (see STATUS.md). Broaden coverage and optimise generated collection scans and cloning based on measurements. Native snapshot support remains outstanding.
-2. Compare generated stateful code with C/C++/Rust using equally maintained aggregates, matched semantics and realistic update/query mixes. Report representation and runtime overhead rather than comparing only against a rescan baseline.
+2. Initial native state comparison is complete: all baselines maintain totals and compare observable state, errors, versions and ordered events. The range-checked cache and exact native query view improve performance, but handwritten Rust remains faster overall. Next reduce transactional bookkeeping and redundant work, explore physical layouts, and broaden workloads to distribution shifts and memory limits. Preserve algorithm-matched baselines.
 3. Extend persistence and Wasm to the same state machine, then implement measured selection with safe migration.
 4. Broaden the language and proof core against the original draft. Keep the outstanding acceptance criteria intact.

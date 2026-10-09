@@ -80,7 +80,7 @@ fn run() -> LangResult<()> {
         return Ok(());
     }
     if cmd == "help" || cmd == "--help" {
-        println!("lang check SOURCE\nlang prove RULES -o PACKAGE.json\nlang knowledge verify PACKAGE.json\nlang prove-maintenance SOURCE -o PACKAGE.json\nlang verify-maintenance PACKAGE.json\nlang execute SOURCE SCRIPT.json [--maintenance PACKAGE.json] [--restore SNAPSHOT] [--snapshot-out SNAPSHOT]\nlang run SOURCE FUNCTION ARGS.json\nlang build SOURCE -o OUTPUT.o [--knowledge PACKAGE.json] [--cc clang] [--native-cpu]\nlang build SOURCE --target wasm32 --zig PATH -o OUTPUT.wasm\nlang emit-c SOURCE -o OUTPUT.c [--knowledge PACKAGE.json]\nlang emit-state SOURCE -o DIRECTORY [--maintenance PACKAGE.json]");
+        println!("lang check SOURCE\nlang prove RULES -o PACKAGE.json\nlang knowledge verify PACKAGE.json\nlang prove-maintenance SOURCE -o PACKAGE.json\nlang verify-maintenance PACKAGE.json\nlang execute SOURCE SCRIPT.json [--maintenance PACKAGE.json] [--restore SNAPSHOT] [--snapshot-out SNAPSHOT]\nlang run SOURCE FUNCTION ARGS.json\nlang build SOURCE -o OUTPUT.o [--knowledge PACKAGE.json] [--cc clang] [--native-cpu]\nlang build SOURCE --target wasm32 --zig PATH -o OUTPUT.wasm\nlang emit-c SOURCE -o OUTPUT.c [--knowledge PACKAGE.json]\nlang emit-state SOURCE -o DIRECTORY [--maintenance PACKAGE.json] [--bounded-totals]");
         return Ok(());
     }
     if cmd == "knowledge" {
@@ -108,11 +108,20 @@ fn run() -> LangResult<()> {
             } else {
                 None
             };
-            let code = state_native::emit(&p, certificate.as_ref())?;
+            let bounded = args.iter().any(|s| s == "--bounded-totals");
+            if bounded && certificate.is_none() {
+                return Err("--bounded-totals requires a verified --maintenance package".into());
+            }
+            let code = state_native::emit_with_bounds(&p, certificate.as_ref(), bounded)?;
             write(&format!("{out}/src/lib.rs"), &code)?;
             write(&format!("{out}/src/main.rs"), state_native::RUNNER)?;
             write(&format!("{out}/Cargo.toml"), "[package]\nname = \"compiled-state\"\nversion = \"0.1.0\"\nedition = \"2021\"\n[dependencies]\nnum-bigint = \"=0.4.8\"\nserde_json = \"=1.0.151\"\n[profile.release]\nlto = \"thin\"\ncodegen-units = 1\n")?;
-            let plan = serde_json::json!({"source":path,"module":p.module,"backend":"typed Rust; no AST evaluator","maintenance_certificate":certificate.as_ref().map(|c|&c.id),"trusted":["frontend","finite-map induction schema","typed Rust lowering","num-bigint","Rust/LLVM backend"],"limitations":["no native snapshot or runtime migration yet","collection scans currently materialise lists","no native execution fuel limit"]});
+            let bounds = if bounded {
+                state_native::bounded_caches(&p)
+            } else {
+                Default::default()
+            };
+            let plan = serde_json::json!({"source":path,"module":p.module,"backend":"typed Rust; no AST evaluator","maintenance_certificate":certificate.as_ref().map(|c|&c.id),"bounded_cache_evidence":bounds,"trusted":["frontend","finite-map induction schema","finite-domain range analysis","modular representation lowering","typed Rust lowering","num-bigint","Rust/LLVM backend"],"limitations":["no native snapshot or runtime migration yet","collection scans currently materialise lists","no native execution fuel limit"]});
             write(
                 &format!("{out}/plan.json"),
                 &serde_json::to_string_pretty(&plan).map_err(|e| e.to_string())?,

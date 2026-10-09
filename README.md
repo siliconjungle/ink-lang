@@ -76,7 +76,11 @@ python3 dev.py build --release --offline --manifest-path build/inventory-native/
 build/inventory-native/target/release/compiled-state examples/inventory-script.json
 ```
 
-This produces a standalone Rust crate with no interpreter dependency. Omit `--maintenance` to emit recomputing queries. The generated crate retains its source and plan manifest for inspection. Tests compare generated programs with the reference across 18,024 outcomes, including nested failures and exact arithmetic. Native stateful performance has not yet been benchmarked; its scans currently materialise collections. Native snapshots and runtime implementation switching are not yet available.
+This produces a standalone Rust crate with no interpreter dependency. Omit `--maintenance` to emit recomputing queries. The generated crate retains its source and plan manifest for inspection. Tests compare five generated implementations with the reference across 30,040 outcomes, including nested failures and exact arithmetic. Native snapshots and runtime implementation switching are not yet available.
+
+Add `--bounded-totals` to derive eligible aggregate bounds from the declared key and value types. A successful bound permits a u128 cache while preserving exact Int semantics. Direct bounded aggregate queries also receive an allocation-free native word-pair interface. This conservative analysis currently handles sums of a single unsigned record field; other cases keep BigInt storage. See [the lowering argument and trust boundary](docs/native-state-backend.md).
+
+`python3 bench/state/run.py` builds the generated application, C, C++ and two Rust baselines, checks them against an independent Python state model, and measures them through one C driver. All maintain totals incrementally. The [latest stateful report](reports/native-state-phase3-native-abi/REPORT.md) contains 756 samples across 18 workload cells and 12,030 native correctness comparisons. The checked bounded representation and native query interface improve the generated implementation by 1.71× geometric mean, but it still takes 1.75× the handwritten Rust baseline's time overall. This is useful compiler progress, not a fastest-language claim.
 
 ## WebAssembly
 
@@ -84,4 +88,4 @@ This produces a standalone Rust crate with no interpreter dependency. Omit `--ma
 
 ## Next implementation work
 
-Benchmark generated stateful code against equally incremental C/C++/Rust implementations, then improve measured bottlenecks. Extend persistence and WebAssembly to that state machine, add measured adaptive selection, and complete the broader syntax and verification requirements in PLAN.md.
+Improve the measured stateful bottlenecks: transactional bookkeeping, repeated lookups, storage layout and unnecessary speculative work. Extend persistence and WebAssembly to that state machine, add measured adaptive selection, and complete the broader syntax and verification requirements in PLAN.md.

@@ -1,0 +1,7236 @@
+{
+  "started_unix": 1791511423.645092,
+  "elapsed_seconds": 23.748229026794434,
+  "platform": "macOS-15.7.4-arm64-arm-64bit-Mach-O",
+  "cpu": "Apple M4 Pro",
+  "clang": "Apple clang version 17.0.0 (clang-1700.6.3.2)\nTarget: arm64-apple-darwin24.6.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin",
+  "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)\nbinary: rustc\ncommit-hash: b940084d7eb6a299eb4bfeb8e34901bc051e7ac4\ncommit-date: 2026-09-28\nhost: aarch64-apple-darwin\nrelease: 1.99.0\nLLVM version: 23.1.1",
+  "parameters": {
+    "repeats": 7,
+    "steps": 30000,
+    "quick": false
+  },
+  "correctness": {
+    "seed": 817263,
+    "operations": 2005,
+    "native_observation_comparisons": 10025,
+    "reference_outcome_comparisons": 4010,
+    "status": "passed",
+    "checks": [
+      "return status",
+      "exact total",
+      "version",
+      "ordered event digest",
+      "event count",
+      "touched row presence and value"
+    ]
+  },
+  "source_sha256": {
+    "src/native.rs": "7374b7101194fd33edbcbf2fdc6187fc1a57f24929d6531f049660f9a334e374",
+    "src/check.rs": "4b08158ef3b2c45bf2abb5be20b5f769d10d19bdfcb791e0d140126669f0ebac",
+    "src/statecheck.rs": "7cf2ac18a4974314a2745a24188200aa99ecef2774466a6483132ff64a4854d8",
+    "src/lib.rs": "7dd8b97a4929ccdcde978b6e5ee9634c610d4ba515b944ce103b070ae35f2333",
+    "src/aggregate.rs": "71f0c76ef368b1a03b66bdd097413a143975a08cd44f30e81cbaef8083d9d0ff",
+    "src/state_native.rs": "dae4baf426b4edae33832071ec10bf660943f908c24b084716e88ad183277af0",
+    "src/stateful.rs": "f5194d77b177a556bc40645a5e38ec76522658bdce6b084d6eb4f00a710a7d14",
+    "src/eval.rs": "a5e7d4311b7d147e2fcd53227029508d18b56edd3f232374e9b68bdd32a06ea8",
+    "src/state_native_support.txt": "f0ce0f7c87dd006e3b9c3ef9cd916f2e26204c7893c89e940964cbd3ecf8b26c",
+    "src/main.rs": "8d76a619756982d540b89aa3be23e0ed66ba367d9d3317c948cb018b396cbb08",
+    "src/syntax.rs": "c17871a68a9e09f370c7be8e486617f3935469bea9fc6e2fcbb5bedd627f8d43",
+    "src/proof.rs": "0daa16ad99934314161b3b48ed7ade2f5b2624a6a53d438cf620bf6ecc32de20",
+    "src/bin/state_bench.rs": "611cba21458df52e080c5d1e7fcfb089a6c74762f536a1434d4646e0f7f328ed",
+    "bench/state/run.py": "890d3b52f5043a4d8b5b85cf318225f139b4ca54168d92f5df9808ee026ccbdf",
+    "bench/state/baseline.rs": "385aeff6414282599bc63c07f3770dd57f85729b87b4c1b96736e27bb9b0ba20",
+    "bench/state/api.h": "723f10247439eef2c182f2dd1eabda44e0391550d10ec3aab0926e235ac7dc06",
+    "bench/state/baseline.cpp": "868e5ad847781f34682e2ac7f045011d8dfb45a7c3b19f4901d27c4d45be4839",
+    "bench/state/baseline.c": "d4d8fe2c338ba7c50cc55f5492edaa242c7a8529b53ecffb7176b95af40fe2dc",
+    "bench/state/generated_abi.rs": "387f8d677b2bfd39e27a71cbcdee3d550cdf09203d78f4993a5d00d84a433e63",
+    "bench/state/driver.c": "a96a766d0e3b08f4cfb738df9cd14b236e9bd41804cde7993d262618ab8b584c",
+    "examples/kernels.lang": "90deb135c2fb3d7b4fa46b549e425a0363c5dc0ffb50cd52b6eb69d33f2265f1",
+    "examples/state-benchmark.lang": "72f56a7f03f355d8a968992dc83e7df703ec52cd335e5185ab398b9962dbafd4",
+    "examples/inventory-script.json": "d7808459d1abc37dc2ffd197ef89bf6e660c7ab3c3c7aafa675906e5edc7fc0d",
+    "examples/inventory.lang": "0e3c222b31cbb343c16a6ab915717ab9276308641dbd25307894cb8fdf42c83e",
+    "knowledge/ring.lang": "1691317d367cdeacda6f23c8adcda39c2c88a3e091fc6cffcac46b0bc528d9dd",
+    "knowledge/sum-maintenance.lang": "f00be10748b9c610958e1f6f89c229cdedff254ccfd6a2b5d7b44de81d7d80ba"
+  },
+  "commands": [
+    {
+      "argv": [
+        "cargo",
+        "build",
+        "--release",
+        "--bin",
+        "lang"
+      ],
+      "seconds": 10.808801083127037,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/target/release/lang",
+        "prove-maintenance",
+        "knowledge/sum-maintenance.lang",
+        "-o",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/maintenance.json"
+      ],
+      "seconds": 0.22529325005598366,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/target/release/lang",
+        "emit-state",
+        "examples/state-benchmark.lang",
+        "-o",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/generated",
+        "--maintenance",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/maintenance.json"
+      ],
+      "seconds": 0.004675209056586027,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "cargo",
+        "build",
+        "--release",
+        "--offline",
+        "--lib",
+        "--manifest-path",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/generated/Cargo.toml"
+      ],
+      "seconds": 3.2636094170156866,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "cargo",
+        "build",
+        "--release",
+        "--offline",
+        "--manifest-path",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust-baseline/Cargo.toml"
+      ],
+      "seconds": 0.23731408291496336,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "cargo",
+        "build",
+        "--release",
+        "--offline",
+        "--manifest-path",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust-baseline/Cargo.toml",
+        "--features",
+        "bigint"
+      ],
+      "seconds": 0.2827219171449542,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "clang",
+        "-O3",
+        "-mcpu=native",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-std=c11",
+        "-c",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/bench/state/baseline.c",
+        "-o",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat.o"
+      ],
+      "seconds": 0.182951333001256,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "clang",
+        "-dynamiclib",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat.o",
+        "-o",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat.dylib"
+      ],
+      "seconds": 0.0349904999602586,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "clang++",
+        "-O3",
+        "-mcpu=native",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-std=c++20",
+        "-c",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/bench/state/baseline.cpp",
+        "-o",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree.o"
+      ],
+      "seconds": 0.4918027080129832,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "clang++",
+        "-dynamiclib",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree.o",
+        "-o",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree.dylib"
+      ],
+      "seconds": 0.03527112491428852,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "clang",
+        "-O3",
+        "-std=c11",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-c",
+        "bench/state/driver.c",
+        "-o",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/driver.o"
+      ],
+      "seconds": 0.043970041908323765,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "clang",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/driver.o",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language.a",
+        "-liconv",
+        "-o",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language"
+      ],
+      "seconds": 0.04111979203298688,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "clang",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/driver.o",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat.o",
+        "-liconv",
+        "-o",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat"
+      ],
+      "seconds": 0.03483108407817781,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "clang++",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/driver.o",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree.o",
+        "-liconv",
+        "-o",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree"
+      ],
+      "seconds": 0.034644458908587694,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "clang",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/driver.o",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree.a",
+        "-liconv",
+        "-o",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree"
+      ],
+      "seconds": 0.0399700419511646,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "clang",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/driver.o",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint.a",
+        "-liconv",
+        "-o",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint"
+      ],
+      "seconds": 0.0398246250115335,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/target/release/lang",
+        "execute",
+        "examples/state-benchmark.lang",
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/validation-script.json"
+      ],
+      "seconds": 0.06428216700442135,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "64",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.23499966692179441,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "64",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.23370566708035767,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "64",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.23009854182600975,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "64",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.22582995798438787,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "64",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.2351597910746932,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "64",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.0058065420016646385,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "64",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.0029215419199317694,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "64",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.004332666983827949,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "64",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.006609083153307438,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "64",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.0038064580876380205,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "64",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.0037265419960021973,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "64",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.0031841250602155924,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "64",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.004580667009577155,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "64",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.006017457926645875,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "64",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.0037822918966412544,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "64",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.0028782919980585575,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "64",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.0036220410838723183,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "64",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.005225790897384286,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "64",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.003112541977316141,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "64",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.0038152080960571766,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "64",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.00333574996329844,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "64",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.003910708939656615,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "64",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.00482179201208055,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "64",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.002265834016725421,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "64",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.003671125043183565,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "64",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.003800707869231701,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "64",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.003859167220070958,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "64",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.0029186250176280737,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "64",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.004585125017911196,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "64",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.0023687081411480904,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "64",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.002526709111407399,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "64",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.0053164169657975435,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "64",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.004448165884241462,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "64",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.0031070001423358917,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "64",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.002890208037570119,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "64",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.0060765419621020555,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "64",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.0032941659446805716,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "64",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.002905542030930519,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "64",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.0023918328806757927,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "64",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.0051238329615443945,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "64",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.003208042122423649,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "64",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.0032495418563485146,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "64",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.0048047080636024475,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "64",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.0044954579789191484,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "64",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.0025688749738037586,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "64",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.0026726669166237116,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "64",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.002776667010039091,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "64",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.0031415829434990883,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "64",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.004565041977912188,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "64",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.005667875055223703,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "64",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.0029394158627837896,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "64",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.0051829160656780005,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "64",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.004148125182837248,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "64",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.003123458009213209,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "64",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.004684292012825608,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "64",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.004438959062099457,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "64",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.0057727082166820765,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "64",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.0035287081263959408,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "64",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.0028746668249368668,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "64",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.0022652079351246357,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "64",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.005543791921809316,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "64",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.005358916940167546,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "64",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.0033865831792354584,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "64",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.0022753330413252115,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "64",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.003197957994416356,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "64",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.004857625113800168,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "64",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.005480250110849738,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "64",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.003517625154927373,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "64",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.003702125046402216,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "64",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.002982917008921504,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "64",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.004201916977763176,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "64",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.010335125029087067,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "64",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.009193167090415955,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "64",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.003487291978672147,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "64",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.0034689169842749834,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "64",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.003961582900956273,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "64",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.009642417076975107,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "64",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.003960541915148497,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "64",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.0034329169429838657,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "64",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.010583207942545414,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "64",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.010395582998171449,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "64",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.009576499927788973,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "64",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.003676583059132099,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "64",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.003687084186822176,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "64",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.002942000050097704,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "64",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.003529665991663933,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "64",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.003317292081192136,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "64",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.009834750089794397,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "64",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.009795207995921373,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "64",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.004033833043649793,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "64",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.010692333104088902,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "64",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.0036839579697698355,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "64",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.008792292093858123,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "64",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.004305500071495771,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "64",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.002754500135779381,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "64",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.0026677080895751715,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "64",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.0033790001180022955,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "64",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.010150959016755223,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "64",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.008816124871373177,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "64",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.004287790972739458,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "64",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.008687542052939534,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "64",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.010477083967998624,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "64",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.004044207977131009,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "64",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.0029690000228583813,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "64",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.003697457956150174,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "64",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.004450999898836017,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "64",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.0029407499823719263,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "64",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.0027302089147269726,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "64",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.004258959088474512,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "64",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.004626665962859988,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "64",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.004395124968141317,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "64",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.0036009170580655336,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "64",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.003650791011750698,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "64",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.0036615831777453423,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "64",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.002638207981362939,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "64",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.002927041845396161,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "64",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.0025451250839978456,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "64",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.004337250022217631,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "64",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.004682166967540979,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "64",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.003894499968737364,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "64",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.0038416250608861446,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "64",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.0035419578198343515,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "64",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.003326958045363426,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "64",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.004723167046904564,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "64",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.0034552919678390026,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "64",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.004894083831459284,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "64",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.0030999998562037945,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "64",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.003065875032916665,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "64",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.0034127498511224985,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "64",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.004489583894610405,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "64",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.005117000080645084,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "64",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.0030362920369952917,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "64",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.0027322089299559593,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "64",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.0035794158466160297,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "64",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.004683041945099831,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "64",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.004069042159244418,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "64",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.0029192918445914984,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "64",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.0034255420323461294,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "64",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.0045016249641776085,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "64",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.0034473331179469824,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "64",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.004722291836515069,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "64",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.003498000092804432,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "64",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.0034206248819828033,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "64",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.0034969591069966555,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "64",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.005021208897233009,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "64",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.003133708145469427,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "64",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.004138166084885597,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "64",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.005529958056285977,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "64",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.002895791782066226,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "64",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.003525415901094675,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "64",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.0040102500934153795,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "64",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.005590666085481644,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "64",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.003103208029642701,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "64",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.002895958023145795,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "64",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.003404374932870269,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "64",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.005048000020906329,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "64",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.003671916900202632,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "64",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.004909500014036894,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "64",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.002917582867667079,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "64",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.0035490000154823065,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "64",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.004255207953974605,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "64",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.003528458997607231,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "64",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.0049120408948510885,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "64",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.00391883309930563,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "64",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.003289415966719389,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "64",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.0029722910840064287,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "64",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.0034115000162273645,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "64",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.00407333392649889,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "64",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.0035665000323206186,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "64",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.00499458285048604,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "64",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.0027807920705527067,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "64",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.0028069999534636736,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "64",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.005108583020046353,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "64",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.005698583088815212,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "64",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.003928709076717496,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "64",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.009317707968875766,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "64",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.004301500041037798,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "64",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.0032399578485637903,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "64",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.009952584048733115,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "64",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.003520833095535636,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "64",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.003034125082194805,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "64",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.003429125063121319,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "64",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.010977625148370862,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "64",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.0047613331116735935,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "64",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.009267334127798676,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "64",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.0043145830277353525,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "64",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.009905833983793855,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "64",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.010724833002313972,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "64",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.00456262519583106,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "64",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.0036042500287294388,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "64",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.00978316692635417,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "64",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.003884666133671999,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "64",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.003958333050832152,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "64",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.009661333868280053,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "64",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.004035291029140353,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "64",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.008850750047713518,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "64",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.010368499904870987,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "64",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.0035943330731242895,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "64",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.004878917010501027,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "64",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.004051458090543747,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "64",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.003996665822342038,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "64",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.0030918328557163477,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "64",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.010902917012572289,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "64",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.003627459052950144,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "64",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.008738083066418767,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "64",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.009098707931116223,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "64",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.0037267920561134815,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "64",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.004547083983197808,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "64",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.003175124991685152,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "64",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.009513000026345253,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "4096",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.0051698340103030205,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "4096",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.004804374882951379,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "4096",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.004222207935526967,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "4096",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.0035559579264372587,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "4096",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.006904958048835397,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "4096",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.00715229194611311,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "4096",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.003732499899342656,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "4096",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.0049788751639425755,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "4096",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.003980542067438364,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "4096",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.005573583068326116,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "4096",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.003373999847099185,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "4096",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.0054835418704897165,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "4096",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.00726458290591836,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "4096",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.004820249974727631,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "4096",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.00489470805041492,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "4096",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.004334083059802651,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "4096",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.005314792040735483,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "4096",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.004820500034838915,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "4096",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.007785707945004106,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "4096",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.003533832961693406,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "4096",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.008175249909982085,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "4096",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.00464650010690093,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "4096",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.004947958048433065,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "4096",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.005113834049552679,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "4096",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.0030418329406529665,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "4096",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.00334695796482265,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "4096",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.0060292501002550125,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "4096",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.004617500118911266,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "4096",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.004146707942709327,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "4096",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.008464375045150518,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "4096",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.007384957978501916,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "4096",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.0036680421326309443,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "4096",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.0049924589693546295,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "4096",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.0043637079652398825,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "4096",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.004063041880726814,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "4096",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.004956916905939579,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "4096",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.007528000045567751,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "4096",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.005638666916638613,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "4096",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.005053041037172079,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "4096",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.002765833865851164,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "4096",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.007774624973535538,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "4096",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.0037925830110907555,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "4096",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.004982833983376622,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "4096",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.005826292093843222,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "4096",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.004881375003606081,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "4096",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.004743458004668355,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "4096",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.0030295420438051224,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "4096",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.008559958077967167,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "4096",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.006126207998022437,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "4096",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.00451070792041719,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "4096",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.0059090841095894575,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "4096",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.004671792034059763,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "4096",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.004361333791166544,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "4096",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.00886299996636808,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "4096",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.0032201248686760664,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "4096",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.004597374936565757,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "4096",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.0032865828834474087,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "4096",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.004488833015784621,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "4096",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.007773958146572113,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "4096",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.00564195797778666,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "4096",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.00353441690094769,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "4096",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.004390917019918561,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "4096",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.00784724997356534,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "4096",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.005284415790811181,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "4096",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.005393333034589887,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "4096",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.004383999854326248,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "4096",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.008606208022683859,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "4096",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.00556629104539752,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "4096",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.0033362091053277254,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "4096",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.004872584016993642,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "4096",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.01309762499295175,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "4096",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.005154749844223261,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "4096",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.003166292095556855,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "4096",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.004557291977107525,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "4096",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.011182291200384498,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "4096",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.0038972909096628428,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "4096",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.013564958004280925,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "4096",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.005554375005885959,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "4096",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.010413625044748187,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "4096",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.004855250008404255,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "4096",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.013197500025853515,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "4096",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.005223541986197233,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "4096",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.0036385830026119947,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "4096",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.010605874937027693,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "4096",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.0050409159157425165,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "4096",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.0030764578841626644,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "4096",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.004342416999861598,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "4096",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.012852916959673166,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "4096",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.010398833081126213,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "4096",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.005236624972894788,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "4096",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.00452587497420609,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "4096",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.0031723331194370985,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "4096",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.013182291062548757,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "4096",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.010796290822327137,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "4096",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.004923665896058083,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "4096",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.013706666883081198,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "4096",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.005073207896202803,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "4096",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.010645875008776784,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "4096",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.005645666038617492,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "4096",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.0038930419832468033,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "4096",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.003792374860495329,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "4096",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.00506462506018579,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "4096",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.012792916968464851,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "4096",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.0051562918815761805,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "4096",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.009999417001381516,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "4096",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.005115624982863665,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "4096",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.007024041144177318,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "4096",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.004888500086963177,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "4096",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.004810416838154197,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "4096",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.004565750015899539,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "4096",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.005174207966774702,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "4096",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.0046549581456929445,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "4096",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.004410791909322143,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "4096",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.005619833013042808,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "4096",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.0071760418359190226,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "4096",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.005377041874453425,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "4096",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.005483250133693218,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "4096",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.0073147909715771675,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "4096",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.004212250001728535,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "4096",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.005277791991829872,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "4096",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.005310749867931008,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "4096",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.004696666030213237,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "4096",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.004804166033864021,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "4096",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.00699770892970264,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "4096",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.004457707982510328,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "4096",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.005231041926890612,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "4096",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.004187250044196844,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "4096",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.006901834160089493,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "4096",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.005593874957412481,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "4096",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.0059643329586833715,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "4096",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.0046269590966403484,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "4096",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.007930207997560501,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "4096",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.004996249917894602,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "4096",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.013550542062148452,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "4096",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.005321624921634793,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "4096",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.007917833048850298,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "4096",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.005582999903708696,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "4096",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.005254707997664809,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "4096",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.005122458096593618,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "4096",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.005340083036571741,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "4096",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.00499795819632709,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "4096",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.005611832952126861,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "4096",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.007776834070682526,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "4096",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.005789666902273893,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "4096",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.004889041883870959,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "4096",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.004272290971130133,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "4096",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.0054312089923769236,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "4096",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.0053594999480992556,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "4096",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.004782707896083593,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "4096",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.008099874947220087,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "4096",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.005212666001170874,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "4096",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.005342249991372228,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "4096",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.004767207894474268,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "4096",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.0047391250263899565,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "4096",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.007747832918539643,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "4096",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.005881584016606212,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "4096",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.005053624976426363,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "4096",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.007755792001262307,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "4096",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.005211165873333812,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "4096",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.004923499887809157,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "4096",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.004725041100755334,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "4096",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.008132749935612082,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "4096",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.005388583056628704,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "4096",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.004440084099769592,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "4096",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.005000041797757149,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "4096",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.004811333026736975,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "4096",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.004236583132296801,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "4096",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.007924749981611967,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "4096",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.005507291993126273,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "4096",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.00455924984999001,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "4096",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.005273499991744757,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "4096",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.005462666042149067,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "4096",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.00441058399155736,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "4096",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.008258665911853313,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "4096",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.004803708055987954,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "4096",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.009963041869923472,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "4096",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.0053455408196896315,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "4096",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.012341334018856287,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "4096",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.005065875127911568,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "4096",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.004797292174771428,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "4096",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.010098041966557503,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "4096",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.005277958000078797,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "4096",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.005636499961838126,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "4096",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.004470332991331816,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "4096",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.012449832865968347,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "4096",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.012677292106673121,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "4096",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.006450416054576635,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "4096",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.004614207893610001,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "4096",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.0048409998416900635,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "4096",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.010679040802642703,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "4096",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.004874541889876127,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "4096",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.005592708010226488,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "4096",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.004945125197991729,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "4096",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.00958791607990861,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "4096",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.012732792180031538,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "4096",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.005421916022896767,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "4096",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.004588500130921602,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "4096",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.01040941709652543,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "4096",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.013121542055159807,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "4096",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.005501041887328029,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "4096",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.005245333071798086,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "4096",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.004800084047019482,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "4096",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.012677374994382262,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "4096",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.009866832988336682,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "4096",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.005130416946485639,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "4096",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.012170624919235706,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "4096",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.010186249855905771,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "4096",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.005681833019480109,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "4096",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.004821083042770624,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "4096",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.005842207930982113,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "65536",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.012801749864593148,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "65536",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.01442604186013341,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "65536",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.006826624972745776,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "65536",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.020970792043954134,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "65536",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.01257462496869266,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "65536",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.014031416969373822,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "65536",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.02140516578219831,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "65536",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.012188457883894444,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "65536",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.012961374828591943,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "65536",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.008022458059713244,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "65536",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.012470457935705781,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "65536",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.020570665830746293,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "65536",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.011914791073650122,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "65536",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.006869917036965489,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "65536",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.013140708906576037,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "65536",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.012681083986535668,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "65536",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.01166224991902709,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "65536",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.014185999985784292,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "65536",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.00662920786999166,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "65536",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.020271458197385073,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "65536",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.020273375092074275,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "65536",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.006477750139310956,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "65536",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.012154583120718598,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "65536",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.013654165901243687,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "65536",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.011652334127575159,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "65536",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.012579958885908127,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "65536",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.006773832952603698,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "65536",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.011634374968707561,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "65536",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.014411750016734004,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "65536",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.020118999993428588,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "65536",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.012506915954872966,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "65536",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.011561375111341476,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "65536",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.006424166960641742,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "65536",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.020412749843671918,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "65536",
+        "30000",
+        "0",
+        "steady"
+      ],
+      "seconds": 0.015370917040854692,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "65536",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.01462566596455872,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "65536",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.007195374928414822,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "65536",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.01294045802205801,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "65536",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.012259333860129118,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "65536",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.021558166947215796,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "65536",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.013129584025591612,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "65536",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.007228165864944458,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "65536",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.011390957981348038,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "65536",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.02114858408458531,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "65536",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.013965291902422905,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "65536",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.02147841709665954,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "65536",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.011921833036467433,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "65536",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.014042458031326532,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "65536",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.013008374953642488,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "65536",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.007175209000706673,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "65536",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.011463750153779984,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "65536",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.021573165897279978,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "65536",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.006712999893352389,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "65536",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.012756207957863808,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "65536",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.014034167164936662,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "65536",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.006475416943430901,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "65536",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.02042570896446705,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "65536",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.011810624971985817,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "65536",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.014025875134393573,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "65536",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.013207125011831522,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "65536",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.012992540840059519,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "65536",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.0067189999390393496,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "65536",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.013677791925147176,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "65536",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.020607458893209696,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "65536",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.011766458163037896,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "65536",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.011493708938360214,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "65536",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.006966375047340989,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "65536",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.01345958304591477,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "65536",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.013578707817941904,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "65536",
+        "30000",
+        "1",
+        "steady"
+      ],
+      "seconds": 0.02093262504786253,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "65536",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.017869750037789345,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "65536",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.015485958196222782,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "65536",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.007043167017400265,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "65536",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.012576540932059288,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "65536",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.025551124941557646,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "65536",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.01196054182946682,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "65536",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.0192911250051111,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "65536",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.015228667063638568,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "65536",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.008144374936819077,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "65536",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.02545637497678399,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "65536",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.015269125113263726,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "65536",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.0262874998152256,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "65536",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.018282749922946095,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "65536",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.012276999885216355,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "65536",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.006997166899964213,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "65536",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.01186683401465416,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "65536",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.025249875150620937,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "65536",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.018430500058457255,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "65536",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.014821500051766634,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "65536",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.007415915839374065,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "65536",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.00681033288128674,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "65536",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.014827791834250093,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "65536",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.018403666792437434,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "65536",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.013635584153234959,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "65536",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.025989667046815157,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "65536",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.012941749999299645,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "65536",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.014743250096216798,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "65536",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.007442167028784752,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "65536",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.025124582927674055,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "65536",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.017869916977360845,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "65536",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.012138625141233206,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "65536",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.017358791083097458,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "65536",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.01666049985215068,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "65536",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.02585195889696479,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "65536",
+        "30000",
+        "10",
+        "steady"
+      ],
+      "seconds": 0.007075750036165118,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "65536",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.012107666116207838,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "65536",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.018466833047568798,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "65536",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.013565167086198926,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "65536",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.012290334096178412,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "65536",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.019237083150073886,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "65536",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.018934916937723756,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "65536",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.013936665840446949,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "65536",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.018261624965816736,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "65536",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.012004083953797817,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "65536",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.011104624951258302,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "65536",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.0114953329320997,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "65536",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.017700833035632968,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "65536",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.018686166033148766,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "65536",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.011979166185483336,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "65536",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.013164000120013952,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "65536",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.011035583913326263,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "65536",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.01186254108324647,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "65536",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.018435125006362796,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "65536",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.018918625079095364,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "65536",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.0133714999537915,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "65536",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.011969333048909903,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "65536",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.013209625147283077,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "65536",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.01837904122658074,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "65536",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.01095654210075736,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "65536",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.018958749948069453,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "65536",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.019001665990799665,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "65536",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.018534667091444135,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "65536",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.013413666049018502,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "65536",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.011568999849259853,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "65536",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.011960166972130537,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "65536",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.018558874959126115,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "65536",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.012324041919782758,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "65536",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.018463999964296818,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "65536",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.013650249922648072,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "65536",
+        "30000",
+        "0",
+        "mixed"
+      ],
+      "seconds": 0.011468749959021807,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "65536",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.01182137499563396,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "65536",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.0124765420332551,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "65536",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.01914099999703467,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "65536",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.019509665900841355,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "65536",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.014086500043049455,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "65536",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.011846000095829368,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "65536",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.01905566710047424,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "65536",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.013017541961744428,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "65536",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.01875062519684434,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "65536",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.013664833037182689,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "65536",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.018834291957318783,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "65536",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.011258583050221205,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "65536",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.012965333182364702,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "65536",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.018938125111162663,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "65536",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.01217225007712841,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "65536",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.013511583907529712,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "65536",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.019524999894201756,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "65536",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.012228958075866103,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "65536",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.018789124907925725,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "65536",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.011561083141714334,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "65536",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.013987333979457617,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "65536",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.01898687519133091,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "65536",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.012379457941278815,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "65536",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.018828167114406824,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "65536",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.011162708047777414,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "65536",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.019665459170937538,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "65536",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.013079916825518012,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "65536",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.019068708177655935,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "65536",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.012260209070518613,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "65536",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.011532249860465527,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "65536",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.012301499955356121,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "65536",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.01937187509611249,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "65536",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.011643290985375643,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "65536",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.013564207823947072,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "65536",
+        "30000",
+        "1",
+        "mixed"
+      ],
+      "seconds": 0.01931591611355543,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "65536",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.011776166968047619,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "65536",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.019951541908085346,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "65536",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.013887666864320636,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "65536",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.024426500080153346,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "65536",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.017541166860610247,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "65536",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.012437375029549003,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "65536",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.024261875078082085,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "65536",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.018107459181919694,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "65536",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.014835875015705824,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "65536",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.020507125183939934,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "65536",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.024066624930128455,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "65536",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.01322495797649026,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "65536",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.011549500050023198,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "65536",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.019804291892796755,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "65536",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.017512708203867078,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "65536",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.01920974999666214,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "65536",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.014593707863241434,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "65536",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.017092833062633872,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "65536",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.011270459042862058,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "65536",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.024607833940535784,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "65536",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.023645875044167042,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "65536",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.019405707949772477,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "65536",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.014344041934236884,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "65536",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.017055458156391978,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "65536",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.010792542016133666,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "65536",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.011383750010281801,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "65536",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.024726541945710778,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "65536",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.019211208913475275,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "65536",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.014717624988406897,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "65536",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.016220999881625175,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/language",
+        "65536",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.02420245809480548,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/c_flat",
+        "65536",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.018972332822158933,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/cpp_tree",
+        "65536",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.01419187500141561,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_bigint",
+        "65536",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.017287250142544508,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/state-bench/rust_tree",
+        "65536",
+        "30000",
+        "10",
+        "mixed"
+      ],
+      "seconds": 0.011410332983359694,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "sysctl",
+        "-n",
+        "machdep.cpu.brand_string"
+      ],
+      "seconds": 0.0034681251272559166,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "clang",
+        "--version"
+      ],
+      "seconds": 0.014448832953348756,
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "rustc",
+        "-vV"
+      ],
+      "seconds": 0.023147291038185358,
+      "returncode": 0
+    }
+  ],
+  "notes": [
+    "Common C driver object, no cross-ABI LTO; native CPU optimisation for all implementations.",
+    "Warm in-memory transactions; no persistence or concurrency. Setup, final state validation and event hashing are outside timing.",
+    "Same observations and incremental algorithm, but data structure and arithmetic representations differ; see report.",
+    "Interactive shared machine, no CPU pinning.",
+    "No warmup; each sample starts from a fresh state. Fixed operation count and deterministic streams."
+  ]
+}
