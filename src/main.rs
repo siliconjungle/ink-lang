@@ -3,7 +3,9 @@ use std::{
     path::Path,
     process::{Command, ExitCode},
 };
-use verified_language::{aggregate, check, eval, native, proof, stateful, syntax, LangResult};
+use verified_language::{
+    aggregate, check, eval, native, proof, state_native, stateful, syntax, LangResult,
+};
 
 fn arg_value(args: &[String], flag: &str) -> LangResult<Option<String>> {
     if let Some(i) = args.iter().position(|a| a == flag) {
@@ -78,7 +80,7 @@ fn run() -> LangResult<()> {
         return Ok(());
     }
     if cmd == "help" || cmd == "--help" {
-        println!("lang check SOURCE\nlang prove RULES -o PACKAGE.json\nlang knowledge verify PACKAGE.json\nlang prove-maintenance SOURCE -o PACKAGE.json\nlang verify-maintenance PACKAGE.json\nlang execute SOURCE SCRIPT.json [--maintenance PACKAGE.json] [--restore SNAPSHOT] [--snapshot-out SNAPSHOT]\nlang run SOURCE FUNCTION ARGS.json\nlang build SOURCE -o OUTPUT.o [--knowledge PACKAGE.json] [--cc clang] [--native-cpu]\nlang build SOURCE --target wasm32 --zig PATH -o OUTPUT.wasm\nlang emit-c SOURCE -o OUTPUT.c [--knowledge PACKAGE.json]");
+        println!("lang check SOURCE\nlang prove RULES -o PACKAGE.json\nlang knowledge verify PACKAGE.json\nlang prove-maintenance SOURCE -o PACKAGE.json\nlang verify-maintenance PACKAGE.json\nlang execute SOURCE SCRIPT.json [--maintenance PACKAGE.json] [--restore SNAPSHOT] [--snapshot-out SNAPSHOT]\nlang run SOURCE FUNCTION ARGS.json\nlang build SOURCE -o OUTPUT.o [--knowledge PACKAGE.json] [--cc clang] [--native-cpu]\nlang build SOURCE --target wasm32 --zig PATH -o OUTPUT.wasm\nlang emit-c SOURCE -o OUTPUT.c [--knowledge PACKAGE.json]\nlang emit-state SOURCE -o DIRECTORY [--maintenance PACKAGE.json]");
         return Ok(());
     }
     if cmd == "knowledge" {
@@ -92,6 +94,31 @@ fn run() -> LangResult<()> {
     let path = args.get(1).ok_or("missing source path")?;
     let mut p = source(path)?;
     match cmd {
+        "emit-state" => {
+            let out = arg_value(&args, "-o")?.ok_or("emit-state requires -o DIRECTORY")?;
+            let certificate = if let Some(file) = arg_value(&args, "--maintenance")? {
+                let bytes = fs::read(file).map_err(|e| e.to_string())?;
+                if bytes.len() > 4_000_000 {
+                    return Err("maintenance package exceeds 4 MB limit".into());
+                }
+                Some(
+                    serde_json::from_slice::<aggregate::Certificate>(&bytes)
+                        .map_err(|e| e.to_string())?,
+                )
+            } else {
+                None
+            };
+            let code = state_native::emit(&p, certificate.as_ref())?;
+            write(&format!("{out}/src/lib.rs"), &code)?;
+            write(&format!("{out}/src/main.rs"), state_native::RUNNER)?;
+            write(&format!("{out}/Cargo.toml"), "[package]\nname = \"compiled-state\"\nversion = \"0.1.0\"\nedition = \"2021\"\n[dependencies]\nnum-bigint = \"=0.4.8\"\nserde_json = \"=1.0.151\"\n[profile.release]\nlto = \"thin\"\ncodegen-units = 1\n")?;
+            let plan = serde_json::json!({"source":path,"module":p.module,"backend":"typed Rust; no AST evaluator","maintenance_certificate":certificate.as_ref().map(|c|&c.id),"trusted":["frontend","finite-map induction schema","typed Rust lowering","num-bigint","Rust/LLVM backend"],"limitations":["no native snapshot or runtime migration yet","collection scans currently materialise lists","no native execution fuel limit"]});
+            write(
+                &format!("{out}/plan.json"),
+                &serde_json::to_string_pretty(&plan).map_err(|e| e.to_string())?,
+            )?;
+            println!("wrote native state project to {out}");
+        }
         "execute" => {
             let script_path = args.get(2).ok_or("execute requires SCRIPT.json")?;
             let script: serde_json::Value =

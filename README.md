@@ -68,10 +68,20 @@ The package's three exact-integer update functions are validated against a fixed
 
 [State-runtime measurements](reports/state-runtime-phase2/REPORT.md) show both update overhead and query savings. These compare two modes of the reference evaluator, not generated native stateful code against C/C++/Rust.
 
+The stateful subset also has a typed native backend:
+
+```sh
+target/debug/lang emit-state examples/inventory.lang --maintenance build/maintenance.json -o build/inventory-native
+python3 dev.py build --release --offline --manifest-path build/inventory-native/Cargo.toml
+build/inventory-native/target/release/compiled-state examples/inventory-script.json
+```
+
+This produces a standalone Rust crate with no interpreter dependency. Omit `--maintenance` to emit recomputing queries. The generated crate retains its source and plan manifest for inspection. Tests compare generated programs with the reference across 18,024 outcomes, including nested failures and exact arithmetic. Native stateful performance has not yet been benchmarked; its scans currently materialise collections. Native snapshots and runtime implementation switching are not yet available.
+
 ## WebAssembly
 
 `python3 bench/wasm.py` builds and validates the pure kernels using an installed Zig toolchain, or this workspace's isolated installation. The resulting modules need no WASI imports and have passed 2,856 checks in Node/V8. See the [ABI](docs/wasm-abi.md) and [validation results](reports/wasm-phase2/validation.json). Stateful Wasm and snapshot interchange remain work to do.
 
 ## Next implementation work
 
-Generate native code for the stateful AST and compare it with equally incremental C/C++/Rust implementations. Extend persistence and WebAssembly to that state machine, add measured adaptive selection, and complete the broader syntax and verification requirements in PLAN.md.
+Benchmark generated stateful code against equally incremental C/C++/Rust implementations, then improve measured bottlenecks. Extend persistence and WebAssembly to that state machine, add measured adaptive selection, and complete the broader syntax and verification requirements in PLAN.md.

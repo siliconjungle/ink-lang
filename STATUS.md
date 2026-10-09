@@ -24,7 +24,18 @@ The full goal remains open. This file describes executable behaviour and its lim
 - In-memory transactional outbox with acknowledgement. No crash-safe storage adapter or write-ahead log yet.
 - 2,000 deterministic mixed operations compare scanning and maintained execution, including aborts, future changes, tentative queries, filtered aggregates, restoration and implementation switching.
 
-The state runtime currently evaluates the AST. Native stateful code generation and its C/C++/Rust comparison are the next implementation step. The state-runtime benchmark is explicitly not a cross-language performance claim.
+The reference state runtime evaluates the AST. Its archived benchmark is explicitly not a cross-language performance claim.
+
+## Native stateful compilation
+
+- `lang emit-state` generates a standalone Rust crate with typed records, nominal IDs, enums, tables, changes, queries and events. Execution does not include this compiler crate or an AST evaluator.
+- Table writes use generated undo entries. Nested failures abort the transaction; rollback restores tables, staged events and maintained values. Exact integers use `num-bigint`.
+- An optional verified maintenance certificate emits its actual update arithmetic into native code. All certificate subexpressions use exact arithmetic, including constant-only subtrees.
+- Three generated implementations (scanning, ordinary maintenance and an algebraically equivalent maintenance package with large constants) match the reference on 6,008 calls each: 18,024 observed outcome comparisons, covering 2,000 mixed operations plus intermediate queries and boundaries.
+- The basic inventory example also builds and executes in release mode.
+- This is a bootstrap backend: collection scans materialise intermediate vectors, storage uses BTreeMap, and generated code performs conservative clones. Native snapshots, migration, execution budgets and performance comparisons remain pending.
+
+Generated Rust lowering, runtime support, dependencies and Rust/LLVM remain trusted; the tests are not a machine-code correctness proof.
 
 ## WebAssembly
 
@@ -38,7 +49,7 @@ The state runtime currently evaluates the AST. Native stateful code generation a
 - Complete surface syntax, generic functions, refinements, local mutation, ownership rules, all numeric types and floating-point semantics.
 - Unified type inference across the pure native and broader stateful reference subsets. Unsupported combinations are rejected.
 - General proof terms, a dependent-type kernel, contract proving and comprehensive transition simulation certificates. Existing decision procedures and induction schemas remain in the trusted Rust implementation.
-- Native stateful compilation, specialised physical layouts and fair stateful C/C++/Rust baselines.
+- Broader native stateful lowering, specialised physical layouts and fair stateful C/C++/Rust baselines.
 - Durable recovery, binary snapshots and stateful Wasm interoperability.
 - Automatic profiling-based selection, search budgets beyond the current checkers, native-code migration and registry retrieval.
 - The complete performance matrix: changing distributions, memory constraints, concurrent workloads and durability.

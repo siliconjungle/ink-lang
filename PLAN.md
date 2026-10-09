@@ -36,7 +36,7 @@ Pure programs also compile to WebAssembly and pass 2,856 independent arithmetic 
 
 ## Next concrete work
 
-1. Generate native code for checked stateful ASTs instead of interpreting them. Preserve the complete inventory example, atomic errors, ordered events, tentative reads and exact arithmetic.
+1. Initial typed native stateful lowering is implemented and differentially checked against the reference (see STATUS.md). Broaden coverage and optimise generated collection scans and cloning based on measurements. Native snapshot support remains outstanding.
 2. Compare generated stateful code with C/C++/Rust using equally maintained aggregates, matched semantics and realistic update/query mixes. Report representation and runtime overhead rather than comparing only against a rescan baseline.
 3. Extend persistence and Wasm to the same state machine, then implement measured selection with safe migration.
 4. Broaden the language and proof core against the original draft. Keep the outstanding acceptance criteria intact.

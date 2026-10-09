@@ -3,6 +3,7 @@ pub mod check;
 pub mod eval;
 pub mod native;
 pub mod proof;
+pub mod state_native;
 pub mod statecheck;
 pub mod stateful;
 pub mod syntax;
