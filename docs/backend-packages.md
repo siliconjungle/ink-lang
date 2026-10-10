@@ -63,8 +63,10 @@ backend is installed, the physical transport is faithful or the graph is faster.
 This initial proof domain uses the existing first-order Bool/U64/datatype dialect;
 it does not yet admit GPU u32 source pipelines through the same proof language.
 
-The current GPU runtime chooses CPU versus GPU per complete eligible function and
-keeps supported GPU pipeline intermediates resident. Arbitrary routing of source
+The GPU runtime supports complete eligible functions and explicit typed host
+pipelines, selecting CPU or GPU for the entire invocation. Intermediate arrays
+stay resident across pipeline steps and iterations. These host plans are not
+admitted by the checked mathematical router. Arbitrary routing of source
 subexpressions between Wasm/native/GPU is **not yet implemented**. Transactions,
 concurrent effects, async cancellation and persistent state need observation and
 protocol contracts beyond this pure composition interface. A logical identity

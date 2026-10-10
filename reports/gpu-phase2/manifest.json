@@ -1,0 +1,562 @@
+{
+  "abi": "packed little-endian 32-bit lanes; records in declaration order; vectors unpadded",
+  "backend": "webgpu-wgpu-v2",
+  "core_semantics": "ink-executable-core-v2",
+  "core_sha256": "79b4d4502c4ea35e913ea8859c925cbdcceb35af2ec69354d7ef2c399d945ce3",
+  "cpu_c_sha256": "52325ab315446e11554459cc12d3f8bfed20946e039f5eb502be46d71422d722",
+  "float_contract": "portable f32 follows WGSL permitted floating evaluation, including rounding, reassociation, fusion, flush-to-zero and finite-math assumptions; lowering emits source order; CPU reference uses binary32; bitwise equivalence is not promised",
+  "functions": [
+    {
+      "fallback_reason": null,
+      "index": 0,
+      "lengths": [
+        0
+      ],
+      "name": "kick",
+      "params": [
+        {
+          "name": "velocities",
+          "type": {
+            "element": {
+              "element": {
+                "kind": "f32"
+              },
+              "kind": "vector",
+              "size": 3
+            },
+            "kind": "list"
+          }
+        },
+        {
+          "name": "dt",
+          "type": {
+            "kind": "f32"
+          }
+        },
+        {
+          "name": "gravity",
+          "type": {
+            "element": {
+              "kind": "f32"
+            },
+            "kind": "vector",
+            "size": 3
+          }
+        }
+      ],
+      "result": {
+        "element": {
+          "element": {
+            "kind": "f32"
+          },
+          "kind": "vector",
+          "size": 3
+        },
+        "kind": "list"
+      },
+      "shader": "compute-0.wgsl"
+    },
+    {
+      "fallback_reason": null,
+      "index": 1,
+      "lengths": [
+        0,
+        1
+      ],
+      "name": "drift",
+      "params": [
+        {
+          "name": "positions",
+          "type": {
+            "element": {
+              "element": {
+                "kind": "f32"
+              },
+              "kind": "vector",
+              "size": 3
+            },
+            "kind": "list"
+          }
+        },
+        {
+          "name": "velocities",
+          "type": {
+            "element": {
+              "element": {
+                "kind": "f32"
+              },
+              "kind": "vector",
+              "size": 3
+            },
+            "kind": "list"
+          }
+        },
+        {
+          "name": "dt",
+          "type": {
+            "kind": "f32"
+          }
+        }
+      ],
+      "result": {
+        "element": {
+          "element": {
+            "kind": "f32"
+          },
+          "kind": "vector",
+          "size": 3
+        },
+        "kind": "list"
+      },
+      "shader": "compute-1.wgsl"
+    },
+    {
+      "fallback_reason": null,
+      "index": 2,
+      "lengths": [
+        0
+      ],
+      "name": "particles",
+      "params": [
+        {
+          "name": "xs",
+          "type": {
+            "element": {
+              "fields": [
+                {
+                  "name": "position",
+                  "type": {
+                    "element": {
+                      "kind": "f32"
+                    },
+                    "kind": "vector",
+                    "size": 3
+                  }
+                },
+                {
+                  "name": "velocity",
+                  "type": {
+                    "element": {
+                      "kind": "f32"
+                    },
+                    "kind": "vector",
+                    "size": 3
+                  }
+                },
+                {
+                  "name": "mass",
+                  "type": {
+                    "kind": "f32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "Particle"
+            },
+            "kind": "list"
+          }
+        },
+        {
+          "name": "dt",
+          "type": {
+            "kind": "f32"
+          }
+        }
+      ],
+      "result": {
+        "element": {
+          "fields": [
+            {
+              "name": "position",
+              "type": {
+                "element": {
+                  "kind": "f32"
+                },
+                "kind": "vector",
+                "size": 3
+              }
+            },
+            {
+              "name": "velocity",
+              "type": {
+                "element": {
+                  "kind": "f32"
+                },
+                "kind": "vector",
+                "size": 3
+              }
+            },
+            {
+              "name": "mass",
+              "type": {
+                "kind": "f32"
+              }
+            }
+          ],
+          "kind": "record",
+          "name": "Particle"
+        },
+        "kind": "list"
+      },
+      "shader": "compute-2.wgsl"
+    },
+    {
+      "fallback_reason": null,
+      "index": 3,
+      "lengths": [
+        1
+      ],
+      "name": "gather",
+      "params": [
+        {
+          "name": "xs",
+          "type": {
+            "element": {
+              "kind": "i32"
+            },
+            "kind": "list"
+          }
+        },
+        {
+          "name": "indices",
+          "type": {
+            "element": {
+              "kind": "u32"
+            },
+            "kind": "list"
+          }
+        }
+      ],
+      "result": {
+        "element": {
+          "kind": "i32"
+        },
+        "kind": "list"
+      },
+      "shader": "compute-3.wgsl"
+    },
+    {
+      "fallback_reason": null,
+      "index": 4,
+      "lengths": [
+        0
+      ],
+      "name": "indexed",
+      "params": [
+        {
+          "name": "xs",
+          "type": {
+            "element": {
+              "kind": "i32"
+            },
+            "kind": "list"
+          }
+        }
+      ],
+      "result": {
+        "element": {
+          "kind": "i32"
+        },
+        "kind": "list"
+      },
+      "shader": "compute-4.wgsl"
+    },
+    {
+      "fallback_reason": null,
+      "index": 5,
+      "lengths": [
+        0
+      ],
+      "name": "iterate",
+      "params": [
+        {
+          "name": "xs",
+          "type": {
+            "element": {
+              "kind": "i32"
+            },
+            "kind": "list"
+          }
+        }
+      ],
+      "result": {
+        "element": {
+          "kind": "i32"
+        },
+        "kind": "list"
+      },
+      "shader": "compute-5.wgsl"
+    },
+    {
+      "fallback_reason": null,
+      "index": 6,
+      "lengths": [
+        0
+      ],
+      "name": "matrix4",
+      "params": [
+        {
+          "name": "rows",
+          "type": {
+            "element": {
+              "kind": "f32"
+            },
+            "kind": "list"
+          }
+        },
+        {
+          "name": "columns",
+          "type": {
+            "element": {
+              "kind": "f32"
+            },
+            "kind": "list"
+          }
+        }
+      ],
+      "result": {
+        "element": {
+          "kind": "f32"
+        },
+        "kind": "list"
+      },
+      "shader": "compute-6.wgsl"
+    },
+    {
+      "fallback_reason": "GPU collection lambda missing",
+      "index": 7,
+      "lengths": [],
+      "name": "prefix",
+      "params": [
+        {
+          "name": "xs",
+          "type": {
+            "element": {
+              "kind": "i32"
+            },
+            "kind": "list"
+          }
+        }
+      ],
+      "result": {
+        "element": {
+          "kind": "i32"
+        },
+        "kind": "list"
+      },
+      "shader": null
+    },
+    {
+      "fallback_reason": "GPU collection lambda missing",
+      "index": 8,
+      "lengths": [],
+      "name": "ordered",
+      "params": [
+        {
+          "name": "xs",
+          "type": {
+            "element": {
+              "kind": "i32"
+            },
+            "kind": "list"
+          }
+        }
+      ],
+      "result": {
+        "element": {
+          "kind": "i32"
+        },
+        "kind": "list"
+      },
+      "shader": null
+    },
+    {
+      "fallback_reason": "GPU v2 currently requires an array result; ordered scalar reductions use CPU",
+      "index": 9,
+      "lengths": [],
+      "name": "ordered_sum",
+      "params": [
+        {
+          "name": "xs",
+          "type": {
+            "element": {
+              "kind": "f32"
+            },
+            "kind": "list"
+          }
+        }
+      ],
+      "result": {
+        "kind": "f32"
+      },
+      "shader": null
+    },
+    {
+      "fallback_reason": "GPU v2 currently requires an array result; ordered scalar reductions use CPU",
+      "index": 10,
+      "lengths": [],
+      "name": "locals",
+      "params": [
+        {
+          "name": "x",
+          "type": {
+            "kind": "i32"
+          }
+        }
+      ],
+      "result": {
+        "kind": "i32"
+      },
+      "shader": null
+    },
+    {
+      "fallback_reason": null,
+      "index": 11,
+      "lengths": [
+        0
+      ],
+      "name": "negative_words",
+      "params": [
+        {
+          "name": "xs",
+          "type": {
+            "element": {
+              "kind": "u32"
+            },
+            "kind": "list"
+          }
+        }
+      ],
+      "result": {
+        "element": {
+          "kind": "u32"
+        },
+        "kind": "list"
+      },
+      "shader": "compute-11.wgsl"
+    },
+    {
+      "fallback_reason": null,
+      "index": 12,
+      "lengths": [
+        0
+      ],
+      "name": "division",
+      "params": [
+        {
+          "name": "xs",
+          "type": {
+            "element": {
+              "kind": "i32"
+            },
+            "kind": "list"
+          }
+        },
+        {
+          "name": "divisor",
+          "type": {
+            "kind": "i32"
+          }
+        }
+      ],
+      "result": {
+        "element": {
+          "kind": "i32"
+        },
+        "kind": "list"
+      },
+      "shader": "compute-12.wgsl"
+    },
+    {
+      "fallback_reason": null,
+      "index": 13,
+      "lengths": [
+        0
+      ],
+      "name": "mask",
+      "params": [
+        {
+          "name": "xs",
+          "type": {
+            "element": {
+              "kind": "i32"
+            },
+            "kind": "list"
+          }
+        }
+      ],
+      "result": {
+        "element": {
+          "kind": "bool"
+        },
+        "kind": "list"
+      },
+      "shader": "compute-13.wgsl"
+    },
+    {
+      "fallback_reason": "GPU v2 currently requires an array result; ordered scalar reductions use CPU",
+      "index": 14,
+      "lengths": [],
+      "name": "local_step",
+      "params": [
+        {
+          "name": "x",
+          "type": {
+            "kind": "i32"
+          }
+        }
+      ],
+      "result": {
+        "kind": "i32"
+      },
+      "shader": null
+    },
+    {
+      "fallback_reason": null,
+      "index": 15,
+      "lengths": [
+        0
+      ],
+      "name": "helper",
+      "params": [
+        {
+          "name": "xs",
+          "type": {
+            "element": {
+              "kind": "i32"
+            },
+            "kind": "list"
+          }
+        }
+      ],
+      "result": {
+        "element": {
+          "kind": "i32"
+        },
+        "kind": "list"
+      },
+      "shader": "compute-15.wgsl"
+    }
+  ],
+  "proof_claim": "no backend correctness proof or optimisation theorem; profiling establishes profitability only",
+  "schema": 2,
+  "shaders": {
+    "compute-0.wgsl": "dd57ab4133d575d223afd61656e973833f3edb02468d55827e38396ff2da44e5",
+    "compute-1.wgsl": "15949b2a0485190ec4a734b476c9099fd0b8c4a17c187fcf5cd89c611a1d743c",
+    "compute-11.wgsl": "68af0f5eedd1a4e1b9c1ff1aefb630f807a84f5a139a6aba5c0ba01c14d7c0f4",
+    "compute-12.wgsl": "99ac2ef426c81b977cc96f5dbd94ce2ec0f26ae8ab763694f9d0cb6e55cc889d",
+    "compute-13.wgsl": "7f6876d5ad716dc6cc3bb572c32f5597e9280c3e17969d73cde8b1b26dc4bc7c",
+    "compute-15.wgsl": "883b7e70cb6731db717fafd0aa3c1becab31cc88d647b48ad54347a2b1df7cc4",
+    "compute-2.wgsl": "5a67e24bc1bc09fba1f07c2f7c165a1daded4c91df1c2ed3c5a6884432d1a3fd",
+    "compute-3.wgsl": "576f972a735f4201c98a54934ed56a3e2c474b9051a06614a3a8c7f15f304f4b",
+    "compute-4.wgsl": "390c31552b4d70038a5937257c1baf2554f56616209cde17ab31cb5a3cea4db9",
+    "compute-5.wgsl": "4b12adf72de29cf4c503072257ca97e725bf321b53f32fa95ea866d0d79ed291",
+    "compute-6.wgsl": "1915fdb1195b04dd534687e0d2ea46640cf30b33f7ac31fb69b4470d7ed7f731"
+  },
+  "trust": [
+    "type checker",
+    "literal C and WGSL lowering",
+    "packed ABI and host pipeline execution",
+    "C/LLVM, WebGPU/wgpu and drivers"
+  ]
+}
