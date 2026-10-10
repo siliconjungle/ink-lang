@@ -1,0 +1,82 @@
+TAP version 13
+# Subtest: chooses JS or Wasm based on complete measured cost, with cached bounded profiling
+ok 1 - chooses JS or Wasm based on complete measured cost, with cached bounded profiling
+  ---
+  duration_ms: 0.669833
+  type: 'test'
+  ...
+# Subtest: GPU setup and transfers can outweigh a faster kernel; availability invalidates profiles
+ok 2 - GPU setup and transfers can outweigh a faster kernel; availability invalidates profiles
+  ---
+  duration_ms: 0.653125
+  type: 'test'
+  ...
+# Subtest: selects GPU when worthwhile, retains baseline on failure and rejects invalid configuration
+ok 3 - selects GPU when worthwhile, retains baseline on failure and rejects invalid configuration
+  ---
+  duration_ms: 0.335083
+  type: 'test'
+  ...
+# Subtest: numerical mismatch removes a profiled scalar GPU candidate; explicit JS remains available
+ok 4 - numerical mismatch removes a profiled scalar GPU candidate; explicit JS remains available
+  ---
+  duration_ms: 0.145959
+  type: 'test'
+  ...
+# Subtest: charges module startup once and rechecks warm costs rather than repeatedly taxing a target
+ok 5 - charges module startup once and rechecks warm costs rather than repeatedly taxing a target
+  ---
+  duration_ms: 0.097125
+  type: 'test'
+  ...
+# Subtest: capture, serialize concurrent calls and recover exact receipts
+ok 6 - capture, serialize concurrent calls and recover exact receipts
+  ---
+  duration_ms: 7.671708
+  type: 'test'
+  ...
+# Subtest: uncertain write before or after durable publication requires recovery
+ok 7 - uncertain write before or after durable publication requires recovery
+  ---
+  duration_ms: 1.578333
+  type: 'test'
+  ...
+# Subtest: receiver failure leaves pending events; acknowledgement is durable
+ok 8 - receiver failure leaves pending events; acknowledgement is durable
+  ---
+  duration_ms: 1.156875
+  type: 'test'
+  ...
+# Subtest: delivery can repeat after receiver success and failed acknowledgement
+ok 9 - delivery can repeat after receiver success and failed acknowledgement
+  ---
+  duration_ms: 0.685125
+  type: 'test'
+  ...
+# Subtest: action exception rolls back; bounded receipt eviction is explicit
+ok 10 - action exception rolls back; bounded receipt eviction is explicit
+  ---
+  duration_ms: 0.650625
+  type: 'test'
+  ...
+# Subtest: storage conflict rejects a second stale writer
+ok 11 - storage conflict rejects a second stale writer
+  ---
+  duration_ms: 0.798166
+  type: 'test'
+  ...
+# Subtest: real file replacement, ownership, recovery and corruption rejection
+ok 12 - real file replacement, ownership, recovery and corruption rejection
+  ---
+  duration_ms: 32.420083
+  type: 'test'
+  ...
+1..12
+# tests 12
+# suites 0
+# pass 12
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 82.008875

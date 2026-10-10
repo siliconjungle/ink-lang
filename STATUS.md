@@ -1,5 +1,169 @@
 # Implementation status
 
+## Combined continuation, numerical and durable runtime gate
+
+The integrated distribution passes 265 broad tests with both Wasm paths and actual
+wgpu enabled, 43 isolated asset-free core tests, 12 Node runtime tests and six
+knowledge tests. The locked all-target check is warning-free. This run records
+106 actual GPU calls, including mixed-host durable recovery around process death.
+The nested-flow, numerical and runtime extensions work together under pinned
+package revisions. Counts overlap earlier receipts; these are conformance checks,
+not native refinement or performance claims. The general physical representation
+and maintenance gate remains open. See [the combined receipt](reports/combined-flow-numerics-phase1/REPORT.md).
+
+## Existing numerical types across execution boundaries
+
+The source Type definition is unchanged. i32, f32 and fixed numerical vectors
+now cross actions, tables, keeps, events and portable checkpoints on all five
+CPU paths. Signed keys use signed order; floats preserve raw stored bits while
+scalar comparisons use IEEE semantics. Numerical typed actions use V2, and an
+exact pre-extension golden validates unchanged old-domain V1 bytes. The
+independent database value encoder supports this domain without new carrier
+definitions or kernel rules. GPU floats retain their weaker WGSL contract;
+numerical logical replacement projection still fails closed. See
+[the numerical contract](docs/numerical-state.md).
+
+
+## Database proofs of complete projected action transitions
+
+The fixed projection now covers nested transactions and ordered expression
+effects in its word/Boolean/record/Option/Result domain. One continuation builder
+replaces the old statement projection. Ignored nested errors remain sticky;
+query errors are local values; `?`, lazy Boolean operands, eager `ok_or`, callback
+scopes and mutation results preserve the outer transaction's single commit and
+rollback. The unchanged database theorem composes through child and caller.
+Forty-five focused tests and forty-three isolated core tests pass; twenty calls
+match exact snapshots on all five CPU paths. Wrong authenticated candidates that
+drop events or suppress errors reject. See [the flow evidence](reports/action-flow-phase1/REPORT.md).
+
+The projection also covers reached total word/Boolean/record helpers through the
+existing binder-safe semantic tree, including scoped lets and nested helper
+calls. The core defines their meaning; the database still supplies the rewrite
+and proof. A helper fixture passes eighty logical/reference transitions and
+eight calls with exact snapshots on all five CPU paths. Thirty-five focused
+distribution tests and forty-one isolated core tests pass; earlier frozen
+whole-action evidence replays unchanged. See [the helper evidence](reports/action-helper-transitions-phase1/REPORT.md).
+
+The restricted whole-action path now checks the actual original and selected
+typed actions against complete logical transition equations: replies, successful
+commits, rollback, ordered staged events and commit-counter exhaustion. The
+database supplies the replacement and its proof; the core contains no removal
+rewrite. A single abstract-row removal theorem is instantiated for different
+table value types and composed across roots. Frozen replay needs no live database
+or producer. Physical representation changes and general action coverage remain
+open; the fixed source projection, codecs, native emission and toolchains remain
+trusted. See [the contract](docs/action-transitions.md).
+
+The canonical database contains 662 entries with all 2,536 earlier name targets
+preserved. Source definitions and the four new parametric law entries are checked
+locally. Backend and runtime dependencies are pinned to the reviewed core API.
+Relocatable installation now includes the whole-action proposal producer and
+checks its moved database before asset-free replay.
+
+Validation retained in [the report](reports/action-transitions-phase1/REPORT.md):
+248 broad tests, 40 isolated core tests and a final 11 enabled integration tests.
+Counts overlap. The whole-action fixture matches ten replies and exact snapshots
+on C, Rust, JavaScript and both Wasm paths; its mixed host uses no GPU kernels.
+A separate selected-checkpoint fixture executes an actual GPU kernel. These are
+conformance checks, not a native correctness proof or a new performance result.
+The full PLAN.md remains active. Editor support and schema evolution are excluded.
+
+## Database equality inside actions and reusable general laws
+
+The unchanged external query engine now selects checked total pure expression
+regions inside actions and keeps. Sealed slot identities, capture-free callbacks
+and lexical branch facts prevent scope mistakes. Actual guarded rules are
+discovered automatically; exhausted search retains the original program.
+Checked selected execution retains the original source's checkpoint namespace
+across reference, C, Rust, JavaScript, both Wasm paths and mixed host/GPU modules.
+Bare changed-program emission still rejects an original checkpoint.
+
+The reviewed first-order kernel adds general abstract-symbol interpretation with
+checked assumption discharge. Eight general collection laws now live among 658
+canonical database entries; view proofs instantiate them instead of repeating
+per-program induction. All 2,490 earlier name targets are preserved. This is a
+new general proof mechanism, with unchanged caps, rather than an optimisation
+pattern in the compiler.
+
+Final local validation passes 241 broad distribution tests, seven enabled
+action/selected-checkpoint tests, 36 isolated offline core tests and the focused
+general-law/view checks. Counts overlap. The new action fixture compares 13
+replies and exact checkpoints per CPU path; its wgpu route uses the host. The
+separate selected fixture executes an eligible GPU map. Reviewed backend
+integration additionally retains its 523 CPU replies/checkpoints and 103 actual
+GPU-call evidence. The new view-sweep harness passes a checksum smoke check;
+that small dirty-tree run is not a performance result.
+
+Whole-action interpretation, primitive/native correspondence, general physical
+representation admission and legacy optimisation-authority migration remain
+open. No Hunchroom acceptance is claimed. Editor support and schema evolution
+remain excluded. See [action regions](docs/action-regions.md),
+[general laws](docs/general-laws.md) and
+[selected checkpoints](docs/selected-checkpoints.md).
+
+## General action-value correspondence
+
+The source-bound action value bridge now works without an aggregate certificate.
+Flat canonical images preserve full-width words/IDs, recursive nominal values
+and binary exact-integer magnitudes. Independent producer agreement, actual
+arguments/results/events and adversarial image checks pass. Action signatures
+and total argument budgets are checked; standalone CLI replay is covered.
+This is data correspondence, not logical action or primitive arithmetic proof.
+See [the contract](docs/action-values.md) and
+[the combined evidence](reports/action-values-phase1/REPORT.md).
+
+Validation passes 223 broad tests, 12 enabled backend/durability/module tests,
+33 isolated offline core tests, six final focused replay tests and 12 Node tests.
+Counts overlap. Native C/Rust durable recovery is reviewed and integrated; all
+five CPU paths preserve 516 requests/exact snapshots and wgpu logs 102 GPU calls.
+Kernel rules are unchanged. Full production gates remain active, with editor
+support and schema evolution excluded.
+
+## Complete code-data binding and checked view decomposition
+
+The core now checks exact complete source/typed-action images supplied as
+individual canonical database entries. An independent producer, authenticated
+membership and exact declaration comparisons prevent proofs about other helpers,
+schemas or evaluation order from being substituted. This binds code data;
+executable logical action and physical implementation correspondence remain open.
+
+Reviewed view proofs automatically establish per-program map/filter sum/count
+decomposition with `--prove-views`, falling back explicitly to recomputation when
+verification fails. `--require-views` makes failure an error. Native contribution
+and cache correctness remain trusted. Twenty additional Lean laws pass local
+checking; they have not been submitted or accepted by Hunchroom.
+
+Validation: 218 broad distribution tests, 23 final focused tests, and 28 offline
+core tests both in place and in an isolated copy. The later runtime/module merge
+passes 216 broad tests, eight enabled conformance/durability tests, three binding
+tests, 28 isolated core tests and 12 Node tests. Counts overlap. Five CPU paths
+match 516 requests/exact snapshots, and wgpu executes 102 GPU calls. Kernel rules
+are unchanged; no new speed claim. See [the initial evidence](reports/source-syntax-phase1/REPORT.md)
+and [the integration scope](reports/source-syntax-phase1/INTEGRATION.md).
+
+Current target coverage is documented in [lowering parity](docs/lowering-parity.md): complete C/Rust/JavaScript/Wasm execution, a common native/Wasm lifecycle ABI, and eligible WebGPU/wgpu collection closures inside mixed modules. Historical milestone sections below retain their original scope.
+
+## Runtime durability, generated conformance and modules
+
+Runtime hosts persist native C/Rust and compiled JavaScript/C-Wasm/Rust-Wasm state and bounded
+retry receipts before returning replies. Synced file replacement and IndexedDB
+transactions retain the outbox and acknowledgements across crashes/reloads;
+delivery is at least once. Native executables accept `--durable FILE` and libraries
+export a generic durable host. Native failure injection and generated process
+death tests pass. The mixed-wgpu runner now shares the native durable CLI, with
+actual GPU work around crash recovery and exact reference checkpoints. Incremental
+logs remain open. See [the durable contract](docs/durable-host.md) and
+[the native recovery evidence](reports/native-durability-phase1/REPORT.md).
+
+Generated conformance records bounded typed programs and action histories;
+fixed four seeds add 432 replies/exact snapshots on all CPU targets and 80 actual
+wgpu calls. GitHub checks include a commit-derived seed and software Vulkan.
+[Module imports](docs/modules.md) link types, values, state and events using the
+existing checked core, with embedded word/list helpers. Core types and proof
+rules are unchanged. Small complete-C scalar handles now avoid arena allocation
+and primitive argument scratch uses the stack; the matched scalar benchmark is
+kept under `bench/complete-values`, with its limited scope disclosed.
+
 ## Reviewed ownership lowering and independent proof replay
 
 Stateful Rust now uses conservative lexical moves, borrowed lookup keys and
@@ -409,3 +573,66 @@ entries replay across 37 bounded views using the preserved checker. This makes
 no timing or browser claim. Source-body/effect, physical rollback/storage and
 replacement admission remain open. See docs/change-boundary-correspondence.md
 and reports/change-boundary-phase1.
+
+## Typed ordered actions
+
+The source-bound core artifact now retains concrete types, resolved references
+and evaluation order. Reference execution and Rust lowering consume its frozen
+adapter. This fixes contextual empty sums returned by changes and native
+constructor inference for discarded values. Dead code remains represented and
+now requires valid types and declared effects. No proof-kernel rule, database
+optimisation catalogue or stateful replacement authority was added.
+
+Combined validation preserves the parallel JavaScript/runtime changes: all
+196 distribution tests and 22 independent core tests pass. The isolated core
+also passes 22 tests offline without external repositories. The focused fixture
+compares 32 native and 32 compiled Wasm outcomes, each with exact snapshots,
+against reference execution. No timing or browser claim follows. Whole-action
+logical/primitive correspondence, physical rollback and stateful replacement
+admission remain open. See docs/typed-actions.md and reports/typed-actions-phase1.
+
+## Source-bound effects and local Result boundaries
+
+The typed action core now derives bounded conservative access and prefix-effect
+judgments. A private witness ties them to exact source/action identities. The
+database's fixed prefix-composition definitions and six theorems bind to the
+actual finite Rust operation; they do not prove the abstract analysis sound or
+authorise a stateful replacement. Runtime diagnostics expose observed prefix
+flags before commit/rollback. Core proof acceptance rules remain unchanged.
+
+This work exposed and fixed reference/native disagreement for a query's internal
+`?`: queries and Result-valued keeps now return local errors as ordinary values,
+including when their error type differs from the caller's. Explicit caller `?`
+propagates them; nested change errors remain sticky. See docs/action-effects.md
+and reports/action-effects-phase1. Whole-action/primitive correspondence, full
+ordered observations, physical rollback/refinement and generic stateful
+replacement admission remain open; no performance improvement is claimed.
+
+Final validation: all 204 integration tests and 23 independent/isolated core tests
+pass. All 612 entries replay on the preserved checker; 12,544 finite composition
+cases agree, and 1,000 observed reference prefixes fit their judgments. Native
+and compiled Wasm each match 42 outcomes with exact snapshots. The query/keep
+error-boundary regression is fixed. No timing or browser claim follows.
+
+
+## Direct reference actions and reviewed backend integration — 2026-10-10
+
+Reference actions/keeps now execute sealed typed nodes/instructions directly
+with resolved slot frames; the source adapter remains available to lowerers.
+General primitives and source/action/snapshot identities are preserved. A found
+admission gap is fixed: table roots cannot escape into ordinary values or nested
+table payloads; only declared roots and capability-checked literal methods admit.
+No optimisation catalogue or proof-kernel acceptance rule was added.
+
+Parallel backend main af3c6c4 is integrated with all published pins. Final-tree
+validation passes 207 broad tests plus three actual Zig/Wasm/wgpu conformance
+tests; the unchanged expensive migration case passed in the earlier broad runs.
+Core and an isolated byte-identical offline copy pass 25 tests. All five CPU
+paths match 78 cases with exact snapshots; native wgpu matches 68 mixed-module
+cases with 21 GPU calls and resident shrinking/empty feedback. Archived Wasm
+replay matches 53 calls/snapshots. No timing or browser revalidation claim.
+
+Whole-action logical/primitive correspondence, physical rollback, generic
+stateful admission, remaining specialised authority removal and the broader
+production/performance goals remain open. Editor support and schema evolution
+are excluded. See reports/typed-execution-phase1 and docs/typed-actions.md.

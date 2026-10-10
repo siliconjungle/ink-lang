@@ -85,9 +85,9 @@ fn compute_contract_is_versioned_and_rejects_false_tags_and_unsafe_types() {
     let recursive = parse("module Recursive;record R{x:R,} fn f(x:R)->R{return x;}").unwrap();
     assert!(native::emit(&recursive).unwrap_err().contains("recursive"));
     let p = parse("module State;query q(x:f32)->f32 {return x;}").unwrap();
-    assert!(check::check(&p).is_err());
+    assert!(check::check(&p).is_ok());
     let p=parse("module State;fn generate(xs:List<u32>)->List<f32>{return xs.map(fn(x)=>0.0);}query q(xs:List<u32>)->Int{return count(generate(xs));}").unwrap();
-    assert!(check::check(&p).is_err());
+    assert!(check::check(&p).is_ok());
 }
 #[test]
 fn decimal_lexing_exact_minimum_and_total_integer_division() {
@@ -190,7 +190,7 @@ int main(void) {
     assert!(result.status.success(), "{}", String::from_utf8_lossy(&result.stderr));
 }
 #[test]
-fn shader_capabilities_leave_ordered_reductions_and_missing_primitives_on_cpu() {
+fn shader_capabilities_cover_collection_operations_and_keep_scalar_reductions_on_cpu() {
     let p = program();
     let dir = std::path::Path::new("build/compute-emission-test");
     verified_language::runtime::emit_gpu(&p, dir).unwrap();
@@ -201,14 +201,14 @@ fn shader_capabilities_leave_ordered_reductions_and_missing_primitives_on_cpu() 
         let name = f["name"].as_str().unwrap();
         assert_eq!(
             f["shader"].is_string(),
-            !["ordered_sum", "prefix", "ordered", "locals", "local_step"].contains(&name),
+            !["ordered_sum", "locals", "local_step"].contains(&name),
             "{name}: {}",
             f["fallback_reason"]
         );
     }
     assert!(std::fs::read_to_string(dir.join("compute-3.wgsl"))
         .unwrap()
-        .contains("if ("));
+        .contains("fn main"));
 }
 #[test]
 fn internal_values_and_deep_calls_have_safe_compilation_boundaries() {

@@ -38,11 +38,10 @@ Bool, vectors, records and nested lists retain their declared types. Functions,
 lexical bindings, map/filter, indexed map, truncating zip, ordered sums, right
 folds, scans, numeric sort, bounded repeat and lazy branches/fallbacks are
 supported. Inputs are captured and collection operations preserve them.
-The first target rejects state/actions/events and opaque stateful types, including
-Int, strings, Option/Result, tables and IDs. It never changes a type to fit JS.
+Exact Int, strings, IDs, enums, Unit and Option/Result are supported, together with tables, queries, changes, keeps, ordered events and rollback. `createState()` exposes action invocation and asynchronous portable checkpoint/restore. See the [complete parity contract](lowering-parity.md) for the host API and wire forms.
 
-Host ingress/output have a one-million-cell budget. Function calls and collection
-iterations share a one-million-step budget per invocation. These host limits are
+Host ingress/output have a one-million-cell budget. Pure function calls and collection
+iterations share a one-million-step budget per invocation; state invocation uses a 100-million-step budget. These host limits are
 not the reference interpreter's exact fuel accounting.
 
 ## Browser backend selection
@@ -61,8 +60,7 @@ cache, rechecking and a 10% saving threshold limit profiling work.
 Measurements depend on the browser, device, workload and data size. No target is
 universally faster. The current packed JavaScript pipeline crosses the host value
 codec at each stage; avoiding those conversions is future runtime work. Native
-wgpu bundles retain the C CPU path. Per-stage adaptive placement, stateful JS
-execution and browser source editing are not provided by this change.
+wgpu bundles retain the C CPU path. Per-stage adaptive placement and browser source editing remain future work. Complete mixed modules also expose explicit JavaScript state execution; transactional calls are never profiled speculatively.
 
 ## Evidence and trust
 

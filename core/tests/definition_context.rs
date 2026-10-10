@@ -35,6 +35,7 @@ fn package(m: &CheckedModule, c: &Catalogue, applications: Vec<Site>) -> Package
         input_core_sha256: m.identity().unwrap(),
         knowledge: registry::from_catalogue(c).unwrap(),
         applications,
+        action_replacement: None,
     }
 }
 fn normalize(m: &CheckedModule, from: &str, to: s::Term, roots: &[&str]) -> Law {

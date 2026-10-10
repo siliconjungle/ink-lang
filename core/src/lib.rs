@@ -1,9 +1,16 @@
+pub mod action_ir;
+pub mod action_model;
+mod action_semantic;
+mod action_types;
+pub mod action_values;
 pub mod aggregate;
 pub mod bitproof;
 pub mod check;
 pub mod core;
 pub mod definition;
 pub mod definition_context;
+pub mod effect_model;
+pub mod effects;
 pub mod equality;
 pub mod eval;
 pub mod exact_maintenance;
@@ -21,6 +28,7 @@ pub mod semantic;
 pub mod snapshot;
 pub mod snapshot_wire;
 pub mod source_routing;
+pub mod source_syntax;
 pub mod source_values;
 pub mod statecheck;
 pub mod stateful;
@@ -39,3 +47,8 @@ pub const SNAPSHOT_WIRE_RUST_SOURCE: &str = include_str!("snapshot_wire.rs");
 pub const TRANSACTION_RUST_SOURCE: &str = include_str!("transaction.rs");
 
 pub mod compute_values;
+
+pub mod local_collections;
+pub mod temporary;
+
+pub const TEMPORARY_RUST_SOURCE: &str = include_str!("temporary.rs");

@@ -208,23 +208,27 @@ impl Parser {
             "Unit" => Ok(Type::Unit),
             "String" => Ok(Type::String),
             "Bool" => Ok(Type::Bool),
-            kind @ ("List" | "Option") => {
+            kind @ ("List" | "Buffer" | "Option") => {
                 self.expect("<")?;
                 let t = self.ty()?;
                 self.expect(">")?;
-                Ok(if kind == "List" {
+                Ok(if kind == "Buffer" {
+                    Type::Buffer(Box::new(t))
+                } else if kind == "List" {
                     Type::List(Box::new(t))
                 } else {
                     Type::Option(Box::new(t))
                 })
             }
-            kind @ ("Result" | "Table") => {
+            kind @ ("Result" | "Map" | "Table") => {
                 self.expect("<")?;
                 let a = self.ty()?;
                 self.expect(",")?;
                 let b = self.ty()?;
                 self.expect(">")?;
-                Ok(if kind == "Result" {
+                Ok(if kind == "Map" {
+                    Type::Map(Box::new(a), Box::new(b))
+                } else if kind == "Result" {
                     Type::Result(Box::new(a), Box::new(b))
                 } else {
                     Type::Table(Box::new(a), Box::new(b))
@@ -602,14 +606,28 @@ impl Parser {
 }
 
 pub fn parse(s: &str) -> LangResult<Program> {
+    parse_with_record_names(s, std::iter::empty())
+}
+
+/// Frontends may recognize imported record constructors while parsing. Names
+/// confer no type authority: the assembled program must still pass all checks.
+pub fn parse_with_record_names(
+    s: &str,
+    imported_records: impl IntoIterator<Item = String>,
+) -> LangResult<Program> {
     if s.len() > 1_000_000 {
         return Err("source exceeds 1 MB parser limit".into());
+    }
+    let imported_records: Vec<_> = imported_records.into_iter().take(1025).collect();
+    if imported_records.len() > 1024 || imported_records.iter().any(|n| n.len() > 128) {
+        return Err("imported record-name limit exceeded".into());
     }
     let ts = lex(s)?;
     let records = ts
         .windows(2)
         .filter(|w| w[0].text == "record")
         .map(|w| w[1].text.clone())
+        .chain(imported_records)
         .collect();
     Parser {
         ts,

@@ -1,0 +1,40 @@
+TAP version 13
+# Subtest: chooses JS or Wasm based on complete measured cost, with cached bounded profiling
+ok 1 - chooses JS or Wasm based on complete measured cost, with cached bounded profiling
+  ---
+  duration_ms: 0.724042
+  type: 'test'
+  ...
+# Subtest: GPU setup and transfers can outweigh a faster kernel; availability invalidates profiles
+ok 2 - GPU setup and transfers can outweigh a faster kernel; availability invalidates profiles
+  ---
+  duration_ms: 0.703166
+  type: 'test'
+  ...
+# Subtest: selects GPU when worthwhile, retains baseline on failure and rejects invalid configuration
+ok 3 - selects GPU when worthwhile, retains baseline on failure and rejects invalid configuration
+  ---
+  duration_ms: 0.371625
+  type: 'test'
+  ...
+# Subtest: numerical mismatch removes a profiled scalar GPU candidate; explicit JS remains available
+ok 4 - numerical mismatch removes a profiled scalar GPU candidate; explicit JS remains available
+  ---
+  duration_ms: 0.156084
+  type: 'test'
+  ...
+# Subtest: charges module startup once and rechecks warm costs rather than repeatedly taxing a target
+ok 5 - charges module startup once and rechecks warm costs rather than repeatedly taxing a target
+  ---
+  duration_ms: 0.099334
+  type: 'test'
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 38.976792

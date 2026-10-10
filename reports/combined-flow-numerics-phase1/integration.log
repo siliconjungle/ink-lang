@@ -1,0 +1,705 @@
+   Compiling ink-core v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/core)
+   Compiling ink-lowering-c v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/lowerings/c)
+   Compiling ink-lowering-js v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/lowerings/js)
+   Compiling ink-lowering-gpu v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/lowerings/gpu)
+   Compiling ink-lowering-rust v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/lowerings/rust)
+   Compiling ink-lowering-wasm v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/lowerings/wasm)
+   Compiling ink-runtime v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/runtime)
+   Compiling ink v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 16.27s
+     Running unittests src/lib.rs (target/debug/deps/verified_language-4c8f017d911d58dc)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/ink.rs (target/debug/deps/ink-1fb8d267638ddef8)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (target/debug/deps/lang-d144caaeb6c4f008)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/state_bench.rs (target/debug/deps/state_bench-f298fb3f572caab4)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/state_wasm_fixture.rs (target/debug/deps/state_wasm_fixture-6bf7da82e43d5d3e)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/action_ir.rs (target/debug/deps/action_ir-fba1187947f09e42)
+
+running 4 tests
+test dead_code_remains_in_the_tree_and_still_needs_type_and_effect_checks ... ok
+test typed_trees_resolve_scopes_callbacks_order_and_abrupt_exits ... ok
+test execution_uses_checked_types_for_effectful_empty_sum_and_preserves_snapshots ... ok
+test altered_types_effect_calls_references_and_control_flow_cannot_forge_a_witness ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running tests/action_optimisation.rs (target/debug/deps/action_optimisation-838188cdcd046bd2)
+
+running 4 tests
+test a_single_checked_database_law_rewrites_a_real_change_region ... ok
+test lexical_branch_facts_are_exact_and_do_not_escape_or_follow_shadowed_slots ... ok
+wgpu: 13 results matched; 0 GPU calls
+test unchanged_query_engine_discovers_action_rules_and_frozen_selection_replays ... ok
+c Wasm: 13 values/outcomes and exact snapshots matched
+rust Wasm: 13 values/outcomes and exact snapshots matched
+
+test selected_action_regions_preserve_all_compiled_values_aborts_events_and_snapshots ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 9.45s
+
+     Running tests/action_transitions.rs (target/debug/deps/action_transitions-a7781cc050efbf34)
+
+running 12 tests
+test unsupported_operations_and_domain_types_fail_closed ... ok
+test frozen_published_whole_action_evidence_retains_its_meaning_after_helper_extension ... ok
+test complete_projected_transitions_match_reference_state_replies_events_and_rollback ... ok
+test one_parametric_database_law_composes_across_distinct_table_row_sorts ... ok
+test authentic_source_definitions_do_not_make_a_wrong_replacement_proof_valid ... ok
+test nested_actions_and_expression_effects_match_full_reference_transitions ... ok
+test frozen_whole_action_replay_and_inspection_need_no_producer_or_live_database ... ok
+test database_remove_law_admits_a_complete_action_and_rejects_changed_observations ... ok
+test authentic_nested_candidates_cannot_drop_events_or_capture_sticky_errors ... ok
+wgpu: 10 results matched; 0 GPU calls
+wgpu: 8 results matched; 0 GPU calls
+wgpu: 20 results matched; 0 GPU calls
+c Wasm: 10 values/outcomes and exact snapshots matched
+rust Wasm: 10 values/outcomes and exact snapshots matched
+
+test checked_whole_actions_execute_through_compiled_backends_and_restore_original_snapshots ... ok
+c Wasm: 8 values/outcomes and exact snapshots matched
+rust Wasm: 8 values/outcomes and exact snapshots matched
+
+test source_bound_total_helpers_preserve_complete_actions_and_database_admission ... ok
+c Wasm: 20 values/outcomes and exact snapshots matched
+rust Wasm: 20 values/outcomes and exact snapshots matched
+
+test database_replacement_composes_through_nested_transactions_and_compiled_execution ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 10.84s
+
+     Running tests/action_values.rs (target/debug/deps/action_values-cbb4dfe4154373b7)
+
+running 4 tests
+test independent_numerical_images_preserve_actual_arguments_results_and_events ... ok
+test independent_encoder_matches_complete_value_domain_and_real_action_observations ... ok
+test authenticated_wrong_carrier_and_changed_source_cannot_forge_correspondence ... ok
+test cli_and_argument_budgets_validate_before_writing_output ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.23s
+
+     Running tests/alpha_equality.rs (target/debug/deps/alpha_equality-170f38b58cf78654)
+
+running 2 tests
+test alpha_conversion_preserves_free_variables_and_constructor_field_positions ... ok
+test repeated_unfolding_transport_and_roundtrip_use_ignore_bound_name_spelling ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/bitproof.rs (target/debug/deps/bitproof-ebb61ed4c16f9082)
+
+running 5 tests
+test content_rehashed_false_and_corrupt_proofs_still_fail_kernel_checks ... ok
+test arithmetic_theorem_composes_with_induction_over_database_defined_lists ... ok
+test conditional_certificate_requires_the_exact_scoped_premise ... ok
+test real_database_proofs_authorise_exact_source_and_preserve_full_width_values ... ok
+test stale_source_and_conditional_theorem_cannot_bypass_whole_function_proof ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.70s
+
+     Running tests/compute.rs (target/debug/deps/compute-1100b2e4a719b296)
+
+running 6 tests
+test decimal_lexing_exact_minimum_and_total_integer_division ... ok
+test signed_words_safe_reads_loops_vectors_records_and_ordered_floats ... ok
+test compute_contract_is_versioned_and_rejects_false_tags_and_unsafe_types ... ok
+test shader_capabilities_cover_collection_operations_and_keep_scalar_reductions_on_cpu ... ok
+test internal_values_and_deep_calls_have_safe_compilation_boundaries ... ok
+test generated_c_array_abi_is_checked_with_sanitizers ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.56s
+
+     Running tests/core.rs (target/debug/deps/core-0ad8a68c13a44a63)
+
+running 4 tests
+test core_rejects_unresolved_types_unsafe_identifiers_inline_rules_and_false_types ... ok
+test checked_core_roundtrips_preserve_full_width_order_and_native_source ... ok
+test state_core_roundtrip_preserves_failures_events_and_portable_snapshots ... ok
+test pinned_replacement_rejects_stale_inputs_wrong_domain_changed_locks_and_forged_proofs_atomically ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/database_maintenance.rs (target/debug/deps/database_maintenance-de38ae43609587bc)
+
+running 8 tests
+test delta_candidate_requires_its_new_proofs_and_exact_operation_order ... ok
+test portable_bundles_keep_hash_dependency_and_resource_checks ... ok
+test reversible_journal_checks_both_directions_and_exact_expression_scopes ... ok
+test valid_database_math_cannot_change_source_meaning_or_hide_imports ... ok
+test exact_source_updates_use_database_proofs_for_unbounded_signed_values ... ok
+test reversible_journal_restores_all_writes_when_commit_sequence_is_exhausted ... ok
+test database_cache_matches_scan_after_abort_batches_and_future_snapshot_changes ... ok
+test compiled_database_updates_preserve_signed_state_events_and_checkpoints ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 10.46s
+
+     Running tests/database_query.rs (target/debug/deps/database_query-2a9c5660ffc6c71a)
+
+running 4 tests
+test discovering_a_well_hashed_false_rule_does_not_give_it_transformation_authority ... ok
+test query_order_is_reproducible_and_conditional_evidence_cannot_escape_its_branch ... ok
+test general_typed_query_discovers_individual_laws_and_replays_after_database_removal ... ok
+test individual_entries_enable_checked_rewrites_without_an_index_or_compiler_change ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.63s
+
+     Running tests/definition_native.rs (target/debug/deps/definition_native-899b6da7c8ae9a03)
+
+running 7 tests
+test cli_emits_checked_bodies_and_preserves_output_on_rejection ... ok
+test forged_libraries_bad_exports_and_malformed_values_are_rejected ... ok
+recursive native comparisons: 18
+test recursive_trees_lists_and_private_dependencies_lower_without_recognisers ... ok
+primitive native comparisons: 471
+test arbitrary_primitive_definitions_keywords_and_owned_matches_execute_exactly ... ok
+test external_candidate_producer_reproduces_pinned_objects_and_proofs ... ok
+proved selection native comparisons: 12
+test entry_selection_uses_actual_proved_bodies_without_redirecting_internal_calls ... ok
+test emitted_row_column_operations_preserve_native_continued_histories_and_migration has been running for over 60 seconds
+continued row/column native comparisons: 680
+test emitted_row_column_operations_preserve_native_continued_histories_and_migration ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 101.65s
+
+     Running tests/distribution.rs (target/debug/deps/distribution-89880cd322745b90)
+
+running 1 test
+test relocated_install_search_and_independent_offline_replay_need_no_original_paths ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.90s
+
+     Running tests/durability.rs (target/debug/deps/durability-463627937085af1a)
+
+running 5 tests
+test host_failure_injection::receiver_failure_and_uncertain_ack_allow_duplicate_delivery ... ok
+test host_failure_injection::exact_receipts_and_structure_limits ... ok
+test host_failure_injection::uncertain_writes_poison_until_reopen_and_retries_execute_once ... ok
+javascript: compiled recovery, lost-reply deduplication, abort and durable outbox passed
+c: compiled recovery, lost-reply deduplication, abort and durable outbox passed
+c: native process death, retry deduplication, abort, outbox acknowledgements and corruption rejection passed
+rust: compiled recovery, lost-reply deduplication, abort and durable outbox passed
+test compiled_durable_state_recovers_before_reply_and_keeps_outbox ... ok
+rust: native process death, retry deduplication, abort, outbox acknowledgements and corruption rejection passed
+test generated_native_durable_hosts_recover_and_retry_after_process_death ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.90s
+
+     Running tests/effect_model.rs (target/debug/deps/effect_model-3331bd92bafbef9f)
+
+running 2 tests
+test authenticated_wrong_models_and_false_laws_do_not_establish_correspondence ... ok
+test database_sequencing_matches_the_actual_finite_prefix_algebra ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.06s
+
+     Running tests/effects.rs (target/debug/deps/effects-146ebc9aa3574920)
+
+running 5 tests
+test query_and_keep_domain_errors_exit_locally_without_poisoning_other_error_types ... ok
+test domain_exits_before_and_after_effects_and_query_error_values_are_distinct ... ok
+test source_effects_preserve_abrupt_exits_lazy_calls_and_transitive_keep_reads ... ok
+test callback_reads_are_conditional_and_effect_artifacts_are_rechecked ... ok
+test observed_reference_prefixes_fit_the_source_judgment_through_future_calls ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.94s
+
+     Running tests/equality.rs (target/debug/deps/equality-867422f85af28946)
+
+running 7 tests
+test checked_definitions_and_reused_lemmas_preserve_substitution_scope ... ok
+test conditional_theorems_cannot_escape_their_premises ... ok
+test equality_rules_validate_types_endpoints_and_case_contexts ... ok
+test database_rejects_forgery_wrong_hash_and_incompatible_semantics ... ok
+test dependency_closure_checks_all_imports_but_selects_only_roots ... ok
+test checked_database_preserves_all_boolean_inputs_and_word_boundaries ... ok
+test conditional_database_rewrites_only_where_guard_proofs_are_available ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.31s
+
+     Running tests/exact_integers.rs (target/debug/deps/exact_integers-f9270a9d1ce00157)
+
+running 3 tests
+test rehashed_false_theorem_and_missing_direct_import_are_rejected ... ok
+test general_induction_proves_arbitrary_position_sum_updates_not_sampled_laws ... ok
+test independently_defined_integers_agree_with_bigint_and_cross_zero ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.37s
+
+     Running tests/general_laws.rs (target/debug/deps/general_laws-2eed91c580da6c7b)
+
+running 8 tests
+test abstract_symbols_cannot_be_inspected_or_computed ... ok
+test assumption_dependence_is_tracked_even_without_abstract_symbols ... ok
+test general_law_instantiates_for_a_concrete_program ... ok
+test instance_rejects_wrong_or_incomplete_interpretations ... ok
+test general_laws_never_reach_a_conclusion_directly ... ok
+test instantiated_lemmas_are_closed_and_reusable ... ok
+test assumptions_must_be_proved_for_the_interpretation ... ok
+test canonical_store_admits_the_general_laws_and_rejects_a_false_one ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.18s
+
+     Running tests/generalized_induction.rs (target/debug/deps/generalized_induction-194ea15e3b30a595)
+
+running 2 tests
+test generalized_hypotheses_are_typed_scoped_and_cannot_quantify_fixed_assumptions ... ok
+test induction_can_instantiate_a_changing_accumulator_without_changing_the_recursive_argument ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/generated_parity.rs (target/debug/deps/generated_parity-9423a3e7e8ddaff2)
+
+running 1 test
+wgpu: 432 results matched; 80 GPU calls
+c Wasm: 432 values/outcomes and exact snapshots matched
+rust Wasm: 432 values/outcomes and exact snapshots matched
+
+test reproducible_generated_programs_and_action_histories_agree ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 14.71s
+
+     Running tests/gpu.rs (target/debug/deps/gpu-08b113b4cc413275)
+
+running 2 tests
+test complete_gpu_bundle_keeps_state_on_the_host ... ok
+test capability_rejection_preserves_compiled_cpu_and_staged_lowering ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/hardening.rs (target/debug/deps/hardening-4421012e8e24c364)
+
+running 19 tests
+test regression_eval_collection_and_float_frames_are_bounded ... ok
+test regression_boolean_hint_and_definition_expansion_are_bounded ... ok
+test regression_eval_nesting_is_bounded ... ok
+test regression_parser_bounds_unparenthesised_and_postfix_chains ... ok
+test regression_snapshot_int_size_is_bounded ... ok
+test regression_snapshot_schema_expansion_is_bounded ... ok
+test regression_logic_substitution_copies_are_charged ... ok
+test regression_eval_scope_is_not_copied_per_element ... ok
+test fuzz_maintenance_certificates ... ok
+test fuzz_row_models ... ok
+test fuzz_logic_objects ... ok
+test regression_eval_compute_values_charge_copies_and_preserve_context ... ok
+test fuzz_lockfiles ... ok
+test fuzz_evaluation_arguments ... ok
+test regression_eval_list_copies_cost_fuel ... ok
+test fuzz_equality_objects ... ok
+test fuzz_snapshots ... ok
+test fuzz_bitproof_certificates ... ok
+test fuzz_core_modules ... ok
+
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 8.71s
+
+     Running tests/implementation.rs (target/debug/deps/implementation-2208d7328e0fa88c)
+
+running 5 tests
+test foldr_order_initial_and_shadowing_are_actual_language_semantics ... ok
+test stale_wrong_model_forged_proof_and_partial_failure_leave_program_unchanged ... ok
+test checked_database_candidates_preserve_modular_values_and_lexical_captures ... ok
+test conditional_evaluation_is_lazy_and_constant_lambdas_compile_without_warnings ... ok
+test filtered_candidates_preserve_values_and_validate_called_function_bodies ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.32s
+
+     Running tests/incremental_views.rs (target/debug/deps/incremental_views-810786fc543273c0)
+
+running 3 tests
+test correctly_rehashed_false_join_law_is_rejected_by_the_kernel ... ok
+test canonical_store_readdresses_the_same_proofs_and_cannot_authenticate_a_false_law ... ok
+test checked_append_join_agrees_with_pair_enumeration_but_payload_negation_is_not_deletion ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.31s
+
+     Running tests/javascript.rs (target/debug/deps/javascript-a9a185b505df0065)
+
+running 2 tests
+test checked_module_identity_is_not_changed_by_lowering_and_bundle_contains_js ... ok
+test cli_emits_importable_module_and_selection_plan_without_native_toolchain ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+
+     Running tests/language.rs (target/debug/deps/language-1f886b2c9bc5e485)
+
+running 4 tests
+test syntax_errors_are_not_silently_ignored ... ok
+test reject_invalid_types_names_and_recursion ... ok
+test overflow_and_collection_order ... ok
+test arbitrary_symbol_names_cannot_collide_with_c_temporaries ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/library_projection.rs (target/debug/deps/library_projection-b88ffe2fe2c2f5a3)
+
+running 3 tests
+test selecting_valid_roots_cannot_hide_an_invalid_unrelated_theorem ... ok
+test projection_keeps_internal_dependencies_immutable_and_public_visibility_explicit ... ok
+test projection_rejects_missing_duplicate_and_damaged_dependencies ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/logic.rs (target/debug/deps/logic-27bc50ba799dcee9)
+
+running 7 tests
+test substitution_avoids_capture_and_imports_keep_checked_internal_dependencies ... ok
+test recursion_types_binders_and_literal_computation_have_negative_checks ... ok
+test boolean_cases_premises_and_congruence_do_not_create_unconditional_assumptions ... ok
+test induction_is_generic_and_supplies_one_hypothesis_per_recursive_field ... ok
+test conditional_cases_and_general_congruence_close_predicate_assumptions ... ok
+test arbitrary_recursive_list_functions_are_equal_by_induction_not_sampling ... ok
+test library_roots_are_explicit_and_transitive_dependencies_do_not_grant_visibility ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/lowering_parity.rs (target/debug/deps/lowering_parity-0c49f8da75c43b90)
+
+running 3 tests
+test resident_collection_lengths_survive_feedback ... ok
+c Wasm: 10 values/outcomes and exact snapshots matched
+rust Wasm: 10 values/outcomes and exact snapshots matched
+
+test query_and_result_keep_boundaries_agree_across_lowerings ... ok
+wgpu: 68 results matched; 21 GPU calls
+c Wasm: 68 values/outcomes and exact snapshots matched
+rust Wasm: 68 values/outcomes and exact snapshots matched
+
+test all_cpu_lowerings_preserve_values_transactions_and_portable_snapshots ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 14.67s
+
+     Running tests/machine.rs (target/debug/deps/machine-84f1700357cf1d61)
+
+running 2 tests
+test machine_admission_rejects_missing_evidence_and_rehashed_false_replies ... ok
+test sealed_native_and_wasm_machines_preserve_future_calls_abort_events_and_migration ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.68s
+
+     Running tests/maintenance.rs (target/debug/deps/maintenance-b9e9d04b34e72029)
+
+running 4 tests
+test certificate_checks_actual_update_algorithms ... ok
+test state_dependent_projection_is_not_incrementalised ... ok
+test full_width_ids_and_empty_filtered_aggregates_survive_snapshot ... ok
+test maintained_and_scanned_observations_match_across_future_changes ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.68s
+
+     Running tests/mixed_durability.rs (target/debug/deps/mixed_durability-5593b03a0681d1c5)
+
+running 1 test
+mixed wgpu: 2 actual GPU calls, crash recovery, exact reference checkpoints, retry identity, abort, acknowledgements and corruption rejection passed
+test mixed_native_gpu_host_recovers_transactions_and_preserves_pure_dispatch ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.46s
+
+     Running tests/modules.rs (target/debug/deps/modules-067d800d06d1c106)
+
+running 4 tests
+test imported_function_type_failure_identifies_its_original_declaration ... ok
+test imports_reject_cycles_unknown_exports_namespaces_and_module_collisions ... ok
+test linking_preserves_fields_and_shadowed_local_values ... ok
+wgpu: 6 results matched; 1 GPU calls
+c Wasm: 6 values/outcomes and exact snapshots matched
+rust Wasm: 6 values/outcomes and exact snapshots matched
+
+test imports_types_state_events_and_standard_helpers_lower_identically ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 8.73s
+
+     Running tests/numerical_state.rs (target/debug/deps/numerical_state-7e6bddfb992a013a)
+
+running 3 tests
+test malformed_numerical_inputs_fail_before_state_or_outbox_changes ... ok
+test numerical_actions_have_explicit_version_and_no_float_proof_authority ... ok
+wgpu: 101 results matched; 1 GPU calls
+c Wasm: 101 values/outcomes and exact snapshots matched
+rust Wasm: 101 values/outcomes and exact snapshots matched
+
+test numerical_storage_rollback_events_and_pure_calls_match_all_cpu_paths ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 17.59s
+
+     Running tests/ordered_storage.rs (target/debug/deps/ordered_storage-d64c4b0c820eff2c)
+
+running 3 tests
+test external_storage_policies_reject_unbound_roots_limits_and_maintenance ... ok
+test columns_remove_row_padding_and_storage_moves_nonclone_values ... ok
+test ordered_buffers_match_tree_through_shifts_replacements_and_promotion ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.59s
+
+     Running tests/rewrite_search.rs (target/debug/deps/rewrite_search-864628fc21c657de)
+
+running 4 tests
+test retired_polynomial_commands_fail_before_writing_output ... ok
+test external_arithmetic_search_proves_scalars_and_mapped_sums_with_lexical_shadowing ... ok
+test external_mapped_sum_fusion_is_checked_by_induction_without_new_core_rules ... ok
+test exhausted_external_search_keeps_original_program_and_reproduces_without_solver ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.81s
+
+     Running tests/routing.rs (target/debug/deps/routing-56ee3f36d838c818)
+
+running 2 tests
+test repinning_a_false_stage_does_not_establish_composition_equality ... ok
+test core_checks_composition_without_interpreting_placement_labels ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/row_model.rs (target/debug/deps/row_model-f451b61d404953e8)
+
+running 5 tests
+test valid_but_wrong_source_projection_or_payload_shapes_do_not_bind ... ok
+test width_cast_and_recursive_types_fail_closed_while_count_works ... ok
+test source_binding_requires_actual_semantic_closure_and_direct_definitions ... ok
+test actual_source_shapes_and_filtered_projection_agree_with_reference_and_undo ... ok
+test a_different_nested_row_and_nominal_key_use_the_same_generic_source_bridge ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.97s
+
+     Running tests/runtime_execution.rs (target/debug/deps/runtime_execution-73c4357ebe7fbbe6)
+
+running 1 test
+test opaque_domains_compose_and_unavailable_targets_fall_back_on_pure_calls ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/rup_crosscheck.rs (target/debug/deps/rup_crosscheck-271c6dd138b0c0bc)
+
+running 1 test
+rup crosscheck: 17 refutations from 36 libraries; external checkers: Array []
+test accepted_bit_proofs_replay_in_independent_checkers ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.36s
+
+     Running tests/scalar_replacements.rs (target/debug/deps/scalar_replacements-4ff963e9bc724a69)
+
+running 3 tests
+test general_scalar_library_reproduces_and_legacy_search_flag_fails_closed ... ok
+test changing_the_actual_boolean_guard_or_dropping_a_branch_is_rejected ... ok
+test branch_hypotheses_cannot_authorise_an_unguarded_replacement ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s
+
+     Running tests/selected_checkpoint.rs (target/debug/deps/selected_checkpoint-ef3ab8d6a05e1de8)
+
+running 3 tests
+wgpu: 7 results matched; 1 GPU calls
+test build_and_emit_commands_keep_selected_provenance_and_native_host_assembly ... ok
+test compiled_native_durable_files_continue_across_checked_selection ... ok
+c Wasm: 7 values/outcomes and exact snapshots matched
+rust Wasm: 7 values/outcomes and exact snapshots matched
+
+test selected_cpu_wasm_and_mixed_gpu_hosts_use_original_checkpoints ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 8.94s
+
+     Running tests/semantic_optimisation.rs (target/debug/deps/semantic_optimisation-07fedabc825e5530)
+
+running 17 tests
+test checked_laws_cannot_be_reused_with_different_function_definitions ... ok
+test induction_rejects_a_premise_that_does_not_hold_for_subproblems ... ok
+test all_executable_expression_forms_round_trip_through_semantic_terms ... ok
+test operational_list_models_preserve_index_scan_sort_and_float_sum_order ... ok
+test float_reassociation_and_numeric_equality_as_bit_equality_are_rejected ... ok
+test a_new_catalogue_entry_changes_execution_without_rebuilding_the_compiler ... ok
+test universal_loop_and_collection_laws_check_independently ... ok
+test altered_bytes_unknown_operations_and_missing_premises_fail_closed ... ok
+test rules_apply_under_binders_without_capture ... ok
+test optimisation_preserves_state_declarations_and_transaction_bodies ... ok
+test the_same_proof_calculus_checks_alternative_routed_compositions ... ok
+test nested_loop_laws_preserve_outer_captures_and_reject_index_dependent_steps ... ok
+test branch_conditions_are_proved_at_the_actual_site ... ok
+test search_composes_supporting_lemmas_to_discharge_rule_conditions ... ok
+test nested_optimisations_compose_and_enable_further_rules_automatically ... ok
+test loop_count_and_increment_are_instantiated_generically ... ok
+test external_search_and_interpreter_share_the_checked_selection ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.35s
+
+     Running tests/snapshots.rs (target/debug/deps/snapshots-9f64e5d527c88826)
+
+running 3 tests
+test all_value_forms_roundtrip_and_noncanonical_values_are_rejected ... ok
+test golden_payload_order_and_little_endian_integers ... ok
+test portable_reference_snapshots_preserve_future_changes_and_pending_events ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/source_columns.rs (target/debug/deps/source_columns-af761bc1b5bcdc28)
+
+running 9 tests
+test alignment_checker_exposes_truncated_zip_in_malformed_external_columns ... ok
+test rehashed_dropped_payload_wrong_lookup_and_false_alignment_proofs_are_rejected ... ok
+test order_guards_reject_reversal_duplicates_and_high_word_aliases ... ok
+test search_reconstruction_alone_does_not_admit_unsorted_or_duplicate_maps ... ok
+test sorted_unique_invariants_hold_through_source_row_and_column_writes ... ok
+test rehashed_false_order_predicates_and_unimplemented_writes_are_rejected ... ok
+test complete_search_cuts_match_binary_search_and_native_mutations_at_every_prefix ... ok
+test rehashed_false_search_gap_payload_position_and_validity_models_fail ... ok
+test source_bound_layouts_match_native_ordered_storage_and_tree_after_every_write ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 19.69s
+
+     Running tests/source_routing.rs (target/debug/deps/source_routing-2ca47420975bb6cb)
+
+running 5 tests
+test portable_compute_requires_a_distinct_observation_contract ... ok
+test actual_source_graph_and_opaque_placement_are_checked ... ok
+test width_safe_literals_identity_and_lazy_control ... ok
+test full_pin_types_edges_and_actual_expression_reject_forgery ... ok
+test shared_graph_expansion_is_bounded_before_cloning ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/source_routing_tools.rs (target/debug/deps/source_routing_tools-719dedbb770136a6)
+
+running 2 tests
+test external_producer_shares_repeated_pure_calls_under_unchanged_structural_checker ... ok
+test external_partitioning_and_selection_never_promote_costs_to_proofs ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.54s
+
+     Running tests/source_syntax.rs (target/debug/deps/source_syntax-6de6c41f81fe0fb7)
+
+running 3 tests
+test linked_imported_helpers_are_part_of_the_bound_program ... ok
+test cli_replay_checks_source_and_preserves_output_on_rejection ... ok
+test authentic_complete_code_is_bound_and_other_code_cannot_substitute ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.72s
+
+     Running tests/source_values.rs (target/debug/deps/source_values-12b6fa529c77002e)
+
+running 7 tests
+test model_from_another_source_cannot_construct_a_bound_witness ... ok
+test decoder_rejects_noncanonical_width_utf8_arity_sort_and_open_terms ... ok
+test nominal_tags_member_types_and_field_sets_cannot_be_erased ... ok
+test limits_are_checked_before_unary_expansion_and_do_not_limit_runtime_integers ... ok
+test u32_table_keys_are_checked_even_though_logic_uses_u64_words ... ok
+test reference_transactions_and_column_roundtrips_use_actual_runtime_rows ... ok
+test ordered_tables_preserve_full_id_words_and_reject_duplicate_or_foreign_keys ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.33s
+
+     Running tests/state_native.rs (target/debug/deps/state_native-c071011a246ab617)
+
+running 11 tests
+test range_analysis_uses_full_domains_and_rejects_unbounded_contributions ... ok
+test tampered_native_maintenance_is_rejected_before_emission ... ok
+test complete_rows_survive_repeated_abort_and_failed_promotion_with_both_journals ... ok
+test borrowed_commit_outcomes_reuse_events_and_enforce_the_state_borrow ... ok
+test direct_typed_frames_match_native_scopes_callbacks_and_snapshots ... ok
+test owned_rows_copy_only_used_remove_results_and_preserve_abort ... ok
+test native_state_matches_reference_with_and_without_checked_maintenance ... ok
+test result_query_and_keep_errors_are_local_until_the_caller_propagates ... ok
+test shared_boundary_preserves_nested_control_event_order_and_exhausted_rollback ... ok
+test source_row_projection_preserves_composite_payloads_across_native_abort_and_restore ... ok
+test typed_action_execution_preserves_effect_order_and_contextual_empty_values has been running for over 60 seconds
+test typed_action_execution_preserves_effect_order_and_contextual_empty_values ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 62.00s
+
+     Running tests/state_ownership.rs (target/debug/deps/state_ownership-da483d932834e79b)
+
+running 3 tests
+test rows_still_read_whole_after_a_write_are_cloned_before_it ... ok
+row clones 669
+test ownership_lowering_matches_reference_and_borrows_rows ... ok
+test stored_row_closures_can_call_helpers_queries_and_derived_reads ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.49s
+
+     Running tests/stateful.rs (target/debug/deps/stateful-a914e8b8ff08403b)
+
+running 8 tests
+test key_presence_facts_are_not_assumed_for_state_dependent_expressions ... ok
+test reject_undeclared_effects_unproved_keys_and_cycles ... ok
+test contextual_constructors_and_negative_exact_arithmetic ... ok
+test complete_inventory_example_and_exact_totals ... ok
+test abort_rolls_back_multiple_writes_and_staged_events ... ok
+test ignored_nested_error_still_aborts_outer_transaction ... ok
+test tentative_derived_reads_and_snapshot_roundtrip ... ok
+test reject_malformed_snapshots_and_ingress ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/table_maintenance.rs (target/debug/deps/table_maintenance-de8b827d8c9df755)
+
+running 3 tests
+test unsupported_key_domains_keep_scanning_and_have_no_bounded_cache_plan ... ok
+test rehashed_valid_math_cannot_change_table_meaning_or_source_arithmetic ... ok
+test universal_keyed_history_proof_agrees_with_independent_first_match_table_execution ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.41s
+
+     Running tests/table_undo.rs (target/debug/deps/table_undo-db9b0b15379cf858)
+
+running 2 tests
+test rehashed_false_key_payload_restore_and_dropped_frames_are_rejected ... ok
+test complete_payload_and_cache_undo_matches_independent_map_for_every_prefix ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 8.27s
+
+     Running tests/transaction_boundary.rs (target/debug/deps/transaction_boundary-207341a23e71cfc9)
+
+running 2 tests
+test valid_math_about_a_different_boundary_never_binds_to_ink ... ok
+test canonical_proofs_bind_to_the_real_change_boundary_at_word_limits ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s
+
+     Running tests/typed_execution.rs (target/debug/deps/typed_execution-69c6d3a56df241ba)
+
+running 3 tests
+test table_resources_cannot_escape_into_values_and_literal_operations_still_work ... ok
+test slot_scopes_captures_and_callback_error_frames_preserve_observations ... ok
+test archived_native_and_wasm_observations_still_match_direct_execution ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/u32.rs (target/debug/deps/u32-35ccaa10751826e7)
+
+running 4 tests
+test narrowing_and_cross_width_values_are_rejected ... ok
+test contextual_literals_empty_lists_and_modular_intermediates ... ok
+test compiled_c_matches_wrapping_oracle ... ok
+test stateful_reference_and_rust_share_pure_word_semantics ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.94s
+
+     Running tests/view_decomposition.rs (target/debug/deps/view_decomposition-0678653e55887c31)
+
+running 5 tests
+test unsigned_fields_cast_to_int_faithfully ... ok
+test wrong_stale_or_tampered_view_evidence_is_rejected ... ok
+test every_supported_pipeline_shape_is_decomposed_automatically ... ok
+test emit_state_proves_every_maintained_view_automatically ... ok
+test logical_pipeline_agrees_with_reference_runtime_on_concrete_rows ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.51s
+

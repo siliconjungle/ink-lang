@@ -31,12 +31,15 @@ De Bruijn bound indices make alpha-equivalent lambdas identical and simultaneous
 substitution avoids capture. Function holes have typed arrow sorts; they can
 bind arbitrary closed lambdas, including captures from the application context.
 
-The bridge covers every expression form currently admitted in pure functions:
+The bridge covers the documented total-value subset of pure functions:
 word and binary32 values, arithmetic/comparisons/Boolean operators, negation,
 local bindings, acyclic calls, choose, bounded repeat, vectors, record construction
 and fields, map/filter/zip/indexed map, sum/count/foldr, scan/sort and at_or,
 quot_or/rem_or. Other existing value types can pass through as opaque typed
-parameters and values. Transactions, table mutations, assertions, try, events
+parameters and values. The [local-collection extension](local-collection-laws.md) additionally covers
+buffer creation/freeze/read observations, list length and stopping loops with
+ordinary immutable accumulators. Owned mutation, keyed local maps and owned loop
+accumulators remain unavailable to semantic selection. Transactions, table mutations, assertions, try, events
 and effectful calls are not converted into pure total expressions.
 
 The checker contains fixed operation semantics and general proof rules, not
@@ -129,13 +132,16 @@ substitution, general equality/induction checking, wrapping polynomial equality,
 condition scoping and exact reification. Their Rust implementation is tested,
 not formally verified. Hashes identify bytes and contexts, not correctness.
 
-Only pure function bodies are selected, including pure helpers used by stateful
-programs. State declarations, transaction statements, capability footprints,
-event order and storage policies are unchanged. Direct transaction rewrites,
-state/representation migration and durable snapshot compatibility still need
-trace/refinement evidence through the existing machine interfaces. This work
-does not turn those obligations into pure value equalities or remove the
-remaining aggregate/representation migration debt.
+Pure function bodies and sealed total pure expression regions inside actions and
+keeps can be selected. [Action regions](action-regions.md) resolve lexical slots,
+scope branch facts and recheck capture-free replacements. Transaction instructions,
+capability footprints, event order, state declarations and storage policies retain
+their positions and meaning. The private checked selection grants the original
+source program's snapshot identity to selected execution; a raw changed Program
+has its own identity. This grants no schema evolution or authority for later
+independent code changes. Direct transaction rewrites and state/representation
+migration still require trace/refinement evidence. Pure value equalities do not
+remove the remaining aggregate/representation migration debt.
 
 Validation lives in `tests/semantic_optimisation.rs` and core-only unit tests.
 It covers composed nested rewrites, generic loop counts, overflow, collection
@@ -152,3 +158,24 @@ Adding and publishing a law changes candidates without installing an algorithm
 or changing compiler rules. The old research directory-scanning implementation
 now lives in `ink-planner/research`; its independent query comparisons remain
 regression evidence, not the production storage contract.
+
+Checked selections also retain their original application checkpoint namespace
+through the [selected emission APIs](selected-checkpoints.md). Raw emission of a
+changed program keeps its own namespace. This preserves checkpoints between
+checked plans for one source; it does not authorise schema evolution or arbitrary
+stateful replacement.
+
+[Collection pipeline laws](collection-pipelines.md) remove unused maps and
+intermediate lists before ordered reductions using ordinary database proofs.
+The standalone planner CLI accepts `--rounds 32` for larger selections without
+changing its default twelve rounds or the separate proof-check budget.
+
+[Shared-sequence laws](shared-sequences.md) combine mapped zip branches from
+the exact same source sequence and erase unused mapping before count. These
+compose with the preceding reduction laws through the unchanged checker.
+
+[Sort aggregation laws](sort-cardinality.md) remove sorting before cardinality
+observations and wrapping integer sums, using checked insertion lemmas.
+
+[Filtered-sort aggregation](filtered-sort.md) extends sort erasure through pure
+value-based filtering with checked kept/dropped insertion premises.

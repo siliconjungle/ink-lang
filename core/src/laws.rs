@@ -554,6 +554,17 @@ fn check_word(t: &Type) -> bool {
 }
 fn normal(t: &Term, hyp: &[Equation], p: &Program, b: &mut Budget, d: usize) -> LangResult<Term> {
     b.step(d)?;
+    // Fixed lazy control semantics: do not spend proof work unfolding a branch
+    // that cannot execute. This also keeps a stopping loop's bound independent
+    // of proof work when its initial stop condition is already true.
+    if let Node::Op(name, args) = &t.node {
+        if name == "call:choose" && args.len() == 3 {
+            let condition = normal(&args[0], hyp, p, b, d + 1)?;
+            if let Node::Bool(flag) = condition.node {
+                return normal(&args[if flag { 1 } else { 2 }], hyp, p, b, d + 1);
+            }
+        }
+    }
     let mut out = t.clone();
     for (i, c) in children(t).into_iter().enumerate() {
         out = replace_child(&out, i, normal(c, hyp, p, b, d + 1)?)?;
@@ -656,6 +667,115 @@ fn normal(t: &Term, hyp: &[Equation], p: &Program, b: &mut Budget, d: usize) -> 
                     h.clone(),
                     Box::new(op(out.sort.clone(), n, vec![(**t).clone(), ys.clone()])),
                 ),
+            )),
+            _ => None,
+        },
+        ("call:repeat_until", [count, init, stop, step]) => {
+            let next = apply(apply(step.clone(), word(Type::U32, 0))?, init.clone())?;
+            Some(op(
+                out.sort.clone(),
+                "call:choose",
+                vec![
+                    op(
+                        value(Type::Bool),
+                        "binary:==",
+                        vec![count.clone(), word(Type::U32, 0)],
+                    ),
+                    init.clone(),
+                    op(
+                        out.sort.clone(),
+                        "call:choose",
+                        vec![
+                            apply(stop.clone(), init.clone())?,
+                            init.clone(),
+                            op(
+                                out.sort.clone(),
+                                "until.from",
+                                vec![
+                                    op(
+                                        value(Type::U32),
+                                        "binary:-",
+                                        vec![count.clone(), word(Type::U32, 1)],
+                                    ),
+                                    word(Type::U32, 1),
+                                    next,
+                                    stop.clone(),
+                                    step.clone(),
+                                ],
+                            ),
+                        ],
+                    ),
+                ],
+            ))
+        }
+        ("until.from", [count, index, init, stop, step]) => match count.node {
+            Node::Word(0) => Some(init.clone()),
+            Node::Word(n) => Some(op(
+                out.sort.clone(),
+                "call:choose",
+                vec![
+                    apply(stop.clone(), init.clone())?,
+                    init.clone(),
+                    op(
+                        out.sort.clone(),
+                        "until.from",
+                        vec![
+                            word(Type::U32, n - 1),
+                            op(
+                                value(Type::U32),
+                                "binary:+",
+                                vec![index.clone(), word(Type::U32, 1)],
+                            ),
+                            apply(apply(step.clone(), index.clone())?, init.clone())?,
+                            stop.clone(),
+                            step.clone(),
+                        ],
+                    ),
+                ],
+            )),
+            _ => None,
+        },
+        ("method:freeze" | "method:len", [buffer]) => {
+            if let Node::Op(name, args) = &buffer.node {
+                if name == "call:buffer" {
+                    Some(if n == "method:freeze" {
+                        args[0].clone()
+                    } else {
+                        op(value(Type::U32), "call:length", vec![args[0].clone()])
+                    })
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
+        }
+        ("method:at_or", [buffer, index, fallback])
+            if matches!(&buffer.sort, Sort::Value(Type::Buffer(_))) =>
+        {
+            if let Node::Op(name, args) = &buffer.node {
+                if name == "call:buffer" {
+                    Some(op(
+                        out.sort.clone(),
+                        "method:at_or",
+                        vec![args[0].clone(), index.clone(), fallback.clone()],
+                    ))
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
+        }
+        ("call:length", [xs]) => match &xs.node {
+            Node::Nil => Some(word(Type::U32, 0)),
+            Node::Cons(_, tail) => Some(op(
+                value(Type::U32),
+                "binary:+",
+                vec![
+                    op(value(Type::U32), "call:length", vec![(**tail).clone()]),
+                    word(Type::U32, 1),
+                ],
             )),
             _ => None,
         },

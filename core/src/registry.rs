@@ -147,6 +147,48 @@ fn operations(v: &Value, out: &mut BTreeSet<String>) {
     }
 }
 impl Entry {
+    /// Transport for a mathematical declaration, with an exact searchable
+    /// interface. This constructs bytes; it does not admit the declaration.
+    pub fn from_declaration(
+        declaration: &crate::logic::Declaration,
+        dependencies: Vec<String>,
+    ) -> LangResult<Self> {
+        let value = serde_json::to_value(declaration).map_err(|e| e.to_string())?;
+        let body = value
+            .as_object()
+            .and_then(|m| m.values().next())
+            .ok_or("declaration object")?;
+        let payload = json!({"declaration": declaration});
+        let mut ops = BTreeSet::new();
+        operations(&payload, &mut ops);
+        let pairs: Vec<(String, Value)> =
+            serde_json::from_value(body.get("params").cloned().unwrap_or(json!([])))
+                .map_err(|e| e.to_string())?;
+        let mut dependencies = dependencies;
+        dependencies.sort();
+        dependencies.dedup();
+        Ok(Self {
+            schema: 1,
+            kind: if matches!(declaration, crate::logic::Declaration::Theorem { .. }) {
+                Kind::Theorem
+            } else {
+                Kind::Definition
+            },
+            semantics: crate::library::SEMANTICS.into(),
+            dependencies,
+            interface: Interface {
+                parameters: pairs.into_iter().collect(),
+                result: body.get("result").cloned().unwrap_or(Value::Null),
+                operations: ops.into_iter().collect(),
+                effects: vec![],
+                conditions: serde_json::from_value(
+                    body.get("conditions").cloned().unwrap_or(json!([])),
+                )
+                .map_err(|e| e.to_string())?,
+            },
+            payload,
+        })
+    }
     pub fn from_law(law: &Law) -> LangResult<Self> {
         let mut payload = serde_json::to_value(law).map_err(|e| e.to_string())?;
         let m = payload.as_object_mut().ok_or("law object")?;
@@ -385,7 +427,8 @@ impl CheckedBundle {
             if entry.semantics != crate::library::SEMANTICS {
                 return Err("first-order scope contains an incompatible domain".into());
             }
-            admit_first_order(&mut context, id, entry)?;
+            admit_first_order(&mut context, id, entry)
+                .map_err(|e| format!("first-order entry {id}: {e}"))?;
         }
         Ok(context)
     }
@@ -470,34 +513,68 @@ impl CheckedBundle {
 }
 /// Construct a pinned in-memory view for proof producers and focused tests.
 pub fn from_catalogue(c: &Catalogue) -> LangResult<Bundle> {
+    if c.objects.len() > 1024 || c.roots.len() > 1024 {
+        return Err("in-memory catalogue exceeds bounded knowledge view".into());
+    }
     let objects = c
         .objects
         .iter()
         .map(|(id, l)| Ok((id.clone(), Entry::from_law(l)?)))
         .collect::<LangResult<BTreeMap<_, _>>>()?;
     let ids = objects.keys().cloned().collect::<Vec<_>>();
-    if ids.len() > 64 {
-        return Err(
-            "in-memory producer leaf limit; use the knowledge store for larger snapshots".into(),
-        );
+    // Use the same bounded leaves and odd-node duplication as the canonical
+    // store. This constructs transport witnesses; checking still grants authority.
+    let mut membership = BTreeMap::new();
+    let mut nodes = vec![];
+    for entries in ids.chunks(64) {
+        let entries = entries.to_vec();
+        for id in &entries {
+            membership.insert(
+                id.clone(),
+                Membership {
+                    entries: entries.clone(),
+                    path: vec![],
+                },
+            );
+        }
+        nodes.push((identity(&json!({"schema":1,"entries":entries}))?, entries));
+    }
+    if nodes.is_empty() {
+        nodes.push((identity(&json!({"schema":1,"entries":[]}))?, vec![]));
+    }
+    while nodes.len() > 1 {
+        let mut next = vec![];
+        for pair in nodes.chunks(2) {
+            let (left, left_ids) = &pair[0];
+            let (right, right_ids) = pair.get(1).unwrap_or(&pair[0]);
+            for id in left_ids {
+                membership.get_mut(id).unwrap().path.push(Sibling {
+                    sibling: right.clone(),
+                    left: false,
+                });
+            }
+            let mut parent_ids = left_ids.clone();
+            if pair.len() == 2 {
+                for id in right_ids {
+                    membership.get_mut(id).unwrap().path.push(Sibling {
+                        sibling: left.clone(),
+                        left: true,
+                    });
+                }
+                parent_ids.extend(right_ids.iter().cloned());
+            }
+            next.push((
+                identity(&json!({"schema":1,"left":left,"right":right}))?,
+                parent_ids,
+            ));
+        }
+        nodes = next;
     }
     let snapshot = Snapshot {
         schema: 1,
         semantics: SNAPSHOT_SEMANTICS.into(),
-        root: identity(&json!({"schema":1,"entries":ids}))?,
+        root: nodes.pop().unwrap().0,
     };
-    let membership = ids
-        .iter()
-        .map(|i| {
-            (
-                i.clone(),
-                Membership {
-                    entries: ids.clone(),
-                    path: vec![],
-                },
-            )
-        })
-        .collect();
     let mut roots = c.roots.clone();
     roots.sort();
     roots.dedup();

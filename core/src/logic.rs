@@ -136,6 +136,29 @@ pub enum Proof {
         on_false: Box<Proof>,
         on_true: Box<Proof>,
     },
+    /// Instantiate a general (parametric) theorem. Every abstract sort,
+    /// abstract function and assumption the theorem depends on is interpreted
+    /// exactly once: sorts by sorts, functions by closed total terms, and
+    /// assumptions by checked proofs of their instantiated statements. Each
+    /// parametric datatype or function the instantiated statement reaches is
+    /// mapped to an existing definition whose declaration is the instantiated
+    /// declaration. The conclusion is the instantiated equation.
+    Instance {
+        theorem: String,
+        sorts: BTreeMap<String, Sort>,
+        functions: BTreeMap<String, Lambda>,
+        definitions: BTreeMap<String, String>,
+        assumptions: BTreeMap<String, Proof>,
+        arguments: Vec<Term>,
+        premises: Vec<Proof>,
+    },
+}
+/// A closed term with named parameters interpreting an abstract function.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct Lambda {
+    pub params: Vec<String>,
+    pub body: Term,
 }
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -161,6 +184,25 @@ pub enum Declaration {
         from: Term,
         to: Term,
         proof: Proof,
+    },
+    /// An uninterpreted sort: no constructors, so it cannot be matched,
+    /// constructed or inducted on. Only `Proof::Instance` interprets it. The
+    /// name keeps distinct symbols distinct under content addressing.
+    AbstractSort { name: String },
+    /// An uninterpreted total function. Its calls never compute. Parameter
+    /// names are documentation only; instances bind their own.
+    AbstractFunction {
+        name: String,
+        params: Vec<(String, Sort)>,
+        result: Sort,
+    },
+    /// A hypothesis schema. Everything that uses it stays parametric, and can
+    /// only reach a checked conclusion through an `Instance` that proves it.
+    Assumption {
+        params: Vec<(String, Sort)>,
+        conditions: Vec<Equation>,
+        from: Term,
+        to: Term,
     },
 }
 struct Budget {
@@ -236,12 +278,18 @@ enum Kind {
     Datatype(Vec<Constructor>),
     Function(Function),
     Theorem(Theorem),
+    AbstractSort,
+    AbstractFunction(Vec<Sort>, Sort),
+    Assumption(Theorem),
 }
 #[derive(Clone, Debug)]
 struct Entry {
     id: String,
     kind: Kind,
     dependencies: Vec<Arc<Entry>>,
+    /// Abstract sorts, functions and assumptions this entry's meaning or
+    /// validity depends on. Empty means closed (ordinary, checkable).
+    parameters: BTreeSet<String>,
 }
 /// Visible names are direct imports. Internal entries retain immutable checked
 /// dependency closures; they cannot be constructed by external callers.
@@ -343,12 +391,34 @@ impl Context {
             _ => Err("expected function".into()),
         }
     }
+    /// Parameter sorts and result of a defined or abstract function.
+    fn signature(&self, id: &str, internal: bool) -> LangResult<(Vec<Sort>, Sort)> {
+        match &self.entry(id, internal)?.kind {
+            Kind::Function(f) => Ok((
+                f.params.iter().map(|p| p.1.clone()).collect(),
+                f.result.clone(),
+            )),
+            Kind::AbstractFunction(params, result) => Ok((params.clone(), result.clone())),
+            _ => Err("expected function".into()),
+        }
+    }
     fn sort(&self, sort: &Sort) -> LangResult<()> {
         match sort {
             Sort::Bool | Sort::U64 => Ok(()),
-            Sort::Data(id) => self.datatype(id, false).map(|_| ()),
+            Sort::Data(id) => match &self.entry(id, false)?.kind {
+                Kind::Datatype(_) | Kind::AbstractSort => Ok(()),
+                _ => Err("expected datatype".into()),
+            },
             Sort::SelfType => Err("SelfType only allowed in datatype fields".into()),
         }
+    }
+    /// Union of the abstract parameters of the referenced entries.
+    fn parameters(&self, references: &BTreeSet<String>) -> LangResult<BTreeSet<String>> {
+        let mut out = BTreeSet::new();
+        for id in references {
+            out.extend(self.entry(id, true)?.parameters.iter().cloned());
+        }
+        Ok(out)
     }
     fn env(&self, params: &[(String, Sort)]) -> LangResult<Env> {
         if params.len() > 64 {
@@ -421,6 +491,11 @@ impl Context {
             return Err("duplicate logic identity".into());
         }
         let mut budget = Budget::new();
+        // Entries referenced by the declaration: their abstract parameters
+        // become this entry's parameters, so nothing that depends on an
+        // uninterpreted symbol or an assumption can pass as closed.
+        let mut references = BTreeSet::new();
+        let mut own = BTreeSet::new();
         let kind = match declaration {
             Declaration::Datatype { constructors } => {
                 if constructors.is_empty() || constructors.len() > 32 {
@@ -438,6 +513,7 @@ impl Context {
                             *field = Sort::Data(id.clone())
                         } else {
                             self.sort(field)?;
+                            sort_references(field, &mut references);
                         }
                     }
                 }
@@ -452,9 +528,10 @@ impl Context {
                 let env = self.env(params)?;
                 self.sort(result)?;
                 if let Some(index) = recursive {
-                    if !matches!(params.get(*index).map(|p| &p.1), Some(Sort::Data(_))) {
+                    let Some(Sort::Data(data)) = params.get(*index).map(|p| &p.1) else {
                         return Err("recursive parameter must be an inductive datatype".into());
-                    }
+                    };
+                    self.datatype(data, false)?;
                 }
                 let pending = Function {
                     params: params.clone(),
@@ -466,6 +543,11 @@ impl Context {
                     return Err("logic function result type mismatch".into());
                 }
                 terminating(body, &pending, &BTreeSet::new(), self, &mut budget, 0)?;
+                for (_, sort) in params {
+                    sort_references(sort, &mut references);
+                }
+                sort_references(result, &mut references);
+                term_references(body, &mut references);
                 let body = bind_self(body, &id, &mut budget, 0)?;
                 Kind::Function(Function { body, ..pending })
             }
@@ -476,39 +558,94 @@ impl Context {
                 to,
                 proof,
             } => {
-                let env = self.env(params)?;
-                if conditions.len() > 64 {
-                    return Err("logic theorem premise count limit".into());
-                }
-                let hypotheses = conditions
-                    .iter()
-                    .map(|e| prepare(e, &env, self, &mut budget))
-                    .collect::<LangResult<Vec<_>>>()?;
-                let equation = prepare(
-                    &Equation {
-                        from: from.clone(),
-                        to: to.clone(),
-                    },
-                    &env,
-                    self,
-                    &mut budget,
-                )?;
-                if derive(proof, &env, self, &hypotheses, &[], &mut budget, 0)? != equation {
+                let statement = self.statement(params, conditions, from, to, &mut budget)?;
+                let (env, hypotheses, equation) = &statement;
+                if derive(proof, env, self, hypotheses, &[], &mut budget, 0)? != *equation {
                     return Err("inductive proof proves a different statement".into());
                 }
+                statement_references(params, conditions, from, to, &mut references);
+                proof_references(proof, &mut references);
                 Kind::Theorem(Theorem {
+                    params: params.clone(),
+                    conditions: statement.1,
+                    equation: statement.2,
+                })
+            }
+            Declaration::AbstractSort { name: label } => {
+                name(label)?;
+                own.insert(id.clone());
+                Kind::AbstractSort
+            }
+            Declaration::AbstractFunction {
+                name: label,
+                params,
+                result,
+            } => {
+                name(label)?;
+                self.env(params)?;
+                self.sort(result)?;
+                for sort in params.iter().map(|p| &p.1).chain([result]) {
+                    sort_references(sort, &mut references);
+                }
+                own.insert(id.clone());
+                Kind::AbstractFunction(params.iter().map(|p| p.1.clone()).collect(), result.clone())
+            }
+            Declaration::Assumption {
+                params,
+                conditions,
+                from,
+                to,
+            } => {
+                let (_, hypotheses, equation) =
+                    self.statement(params, conditions, from, to, &mut budget)?;
+                statement_references(params, conditions, from, to, &mut references);
+                own.insert(id.clone());
+                Kind::Assumption(Theorem {
                     params: params.clone(),
                     conditions: hypotheses,
                     equation,
                 })
             }
         };
+        let mut parameters = self.parameters(&references)?;
+        parameters.extend(own);
         self.install(Arc::new(Entry {
             id,
             kind,
             dependencies: self.visible.values().cloned().collect(),
+            parameters,
         }))
     }
+    fn statement(
+        &self,
+        params: &[(String, Sort)],
+        conditions: &[Equation],
+        from: &Term,
+        to: &Term,
+        budget: &mut Budget,
+    ) -> LangResult<(Env, Vec<Equation>, Equation)> {
+        let env = self.env(params)?;
+        if conditions.len() > 64 {
+            return Err("logic theorem premise count limit".into());
+        }
+        let hypotheses = conditions
+            .iter()
+            .map(|e| prepare(e, &env, self, budget))
+            .collect::<LangResult<Vec<_>>>()?;
+        let equation = prepare(
+            &Equation {
+                from: from.clone(),
+                to: to.clone(),
+            },
+            &env,
+            self,
+            budget,
+        )?;
+        Ok((env, hypotheses, equation))
+    }
+    /// Check a closed obligation. A conclusion that depends on an abstract
+    /// symbol or an assumption is refused: general laws reach concrete
+    /// obligations only through `Proof::Instance`.
     pub fn check(
         &self,
         params: &[(String, Sort)],
@@ -517,26 +654,19 @@ impl Context {
         to: &Term,
         proof: &Proof,
     ) -> LangResult<()> {
-        let env = self.env(params)?;
         let mut budget = Budget::new();
-        if conditions.len() > 64 {
-            return Err("logic theorem premise count limit".into());
-        }
-        let hypotheses = conditions
-            .iter()
-            .map(|e| prepare(e, &env, self, &mut budget))
-            .collect::<LangResult<Vec<_>>>()?;
-        let want = prepare(
-            &Equation {
-                from: from.clone(),
-                to: to.clone(),
-            },
-            &env,
-            self,
-            &mut budget,
-        )?;
+        let (env, hypotheses, want) = self.statement(params, conditions, from, to, &mut budget)?;
         if derive(proof, &env, self, &hypotheses, &[], &mut budget, 0)? != want {
             return Err("inductive proof proves a different statement".into());
+        }
+        let mut references = BTreeSet::new();
+        statement_references(params, conditions, from, to, &mut references);
+        proof_references(proof, &mut references);
+        if !self.parameters(&references)?.is_empty() {
+            return Err(
+                "checked conclusion depends on abstract parameters or assumptions; instantiate the general law"
+                    .into(),
+            );
         }
         Ok(())
     }
@@ -622,9 +752,9 @@ fn infer(
             function,
             arguments,
         } => {
-            let f = c.function(function, internal)?;
+            let (params, result) = c.signature(function, internal)?;
             check_args(
-                &f.params.iter().map(|p| p.1.clone()).collect::<Vec<_>>(),
+                &params,
                 arguments,
                 env,
                 c,
@@ -633,7 +763,7 @@ fn infer(
                 budget,
                 depth + 1,
             )?;
-            Ok(f.result.clone())
+            Ok(result)
         }
         Term::SelfCall(arguments) => {
             let f = pending.ok_or("SelfCall outside a recursive definition")?;
@@ -995,11 +1125,21 @@ fn normal(t: &Term, c: &Context, budget: &mut Budget, depth: usize) -> LangResul
             function,
             arguments,
         } => {
-            let f = c.function(function, true)?;
             let args = arguments
                 .iter()
                 .map(|a| normal(a, c, budget, depth + 1))
                 .collect::<LangResult<Vec<_>>>()?;
+            let f = match &c.entry(function, true)?.kind {
+                Kind::Function(f) => f,
+                // An uninterpreted function never computes.
+                Kind::AbstractFunction(..) => {
+                    return Ok(Term::Call {
+                        function: function.clone(),
+                        arguments: args,
+                    })
+                }
+                _ => return Err("expected function".into()),
+            };
             if f.recursive
                 .is_some_and(|i| !matches!(args[i], Term::Construct { .. }))
             {
@@ -1398,6 +1538,287 @@ fn independent_induction_premises(
     }
     Ok(())
 }
+/// A substitution of interpretations for abstract symbols and of existing
+/// definitions for parametric ones. Inserted function bodies are closed terms
+/// of the target context and are never substituted again.
+struct Interpretation<'a> {
+    sorts: &'a BTreeMap<String, Sort>,
+    functions: &'a BTreeMap<String, Lambda>,
+    definitions: &'a BTreeMap<String, String>,
+    c: &'a Context,
+}
+impl Interpretation<'_> {
+    fn parametric(&self, id: &str) -> LangResult<bool> {
+        Ok(!self.c.entry(id, true)?.parameters.is_empty())
+    }
+    fn sort(&self, sort: &Sort) -> LangResult<Sort> {
+        Ok(match sort {
+            Sort::Data(id) => {
+                if let Some(target) = self.sorts.get(id) {
+                    target.clone()
+                } else if let Some(target) = self.definitions.get(id) {
+                    Sort::Data(target.clone())
+                } else if self.parametric(id)? {
+                    return Err("uninterpreted parametric sort in instance".into());
+                } else {
+                    sort.clone()
+                }
+            }
+            Sort::SelfType => return Err("SelfType outside datatype declaration".into()),
+            _ => sort.clone(),
+        })
+    }
+    fn datatype(&self, id: &str) -> LangResult<String> {
+        if let Some(target) = self.definitions.get(id) {
+            Ok(target.clone())
+        } else if self.parametric(id)? {
+            Err("uninterpreted parametric datatype in instance".into())
+        } else {
+            Ok(id.to_owned())
+        }
+    }
+    fn equation(&self, e: &Equation, budget: &mut Budget) -> LangResult<Equation> {
+        Ok(Equation {
+            from: self.term(&e.from, budget, 0)?,
+            to: self.term(&e.to, budget, 0)?,
+        })
+    }
+    fn term(&self, t: &Term, budget: &mut Budget, depth: usize) -> LangResult<Term> {
+        budget.step(depth)?;
+        let all = |arguments: &[Term], budget: &mut Budget| {
+            arguments
+                .iter()
+                .map(|a| self.term(a, budget, depth + 1))
+                .collect::<LangResult<Vec<_>>>()
+        };
+        Ok(match t {
+            Term::Var(_) | Term::Bool(_) | Term::U64(_) => t.clone(),
+            Term::Construct {
+                datatype,
+                constructor,
+                arguments,
+            } => Term::Construct {
+                datatype: self.datatype(datatype)?,
+                constructor: *constructor,
+                arguments: all(arguments, budget)?,
+            },
+            Term::Call {
+                function,
+                arguments,
+            } => {
+                let arguments = all(arguments, budget)?;
+                if let Some(lambda) = self.functions.get(function) {
+                    let bindings = lambda.params.iter().cloned().zip(arguments).collect();
+                    substitute(&lambda.body, &bindings, budget, depth + 1)?
+                } else if let Some(target) = self.definitions.get(function) {
+                    Term::Call {
+                        function: target.clone(),
+                        arguments,
+                    }
+                } else if self.parametric(function)? {
+                    return Err("uninterpreted parametric function in instance".into());
+                } else {
+                    Term::Call {
+                        function: function.clone(),
+                        arguments,
+                    }
+                }
+            }
+            Term::SelfCall(_) => return Err("unbound recursive call in instance".into()),
+            Term::Binary { op, left, right } => Term::Binary {
+                op: op.clone(),
+                left: Box::new(self.term(left, budget, depth + 1)?),
+                right: Box::new(self.term(right, budget, depth + 1)?),
+            },
+            Term::If {
+                condition,
+                on_true,
+                on_false,
+            } => Term::If {
+                condition: Box::new(self.term(condition, budget, depth + 1)?),
+                on_true: Box::new(self.term(on_true, budget, depth + 1)?),
+                on_false: Box::new(self.term(on_false, budget, depth + 1)?),
+            },
+            Term::Match {
+                scrutinee,
+                branches,
+            } => Term::Match {
+                scrutinee: Box::new(self.term(scrutinee, budget, depth + 1)?),
+                branches: branches
+                    .iter()
+                    .map(|b| {
+                        Ok(Branch {
+                            bindings: b.bindings.clone(),
+                            body: self.term(&b.body, budget, depth + 1)?,
+                        })
+                    })
+                    .collect::<LangResult<_>>()?,
+            },
+        })
+    }
+}
+fn sort_references(sort: &Sort, out: &mut BTreeSet<String>) {
+    if let Sort::Data(id) = sort {
+        out.insert(id.clone());
+    }
+}
+fn term_references(t: &Term, out: &mut BTreeSet<String>) {
+    match t {
+        Term::Construct {
+            datatype,
+            arguments,
+            ..
+        } => {
+            out.insert(datatype.clone());
+            arguments.iter().for_each(|a| term_references(a, out));
+        }
+        Term::Call {
+            function,
+            arguments,
+        } => {
+            out.insert(function.clone());
+            arguments.iter().for_each(|a| term_references(a, out));
+        }
+        Term::SelfCall(arguments) => arguments.iter().for_each(|a| term_references(a, out)),
+        Term::Binary { left, right, .. } => {
+            term_references(left, out);
+            term_references(right, out);
+        }
+        Term::If {
+            condition,
+            on_true,
+            on_false,
+        } => {
+            for t in [condition, on_true, on_false] {
+                term_references(t, out);
+            }
+        }
+        Term::Match {
+            scrutinee,
+            branches,
+        } => {
+            term_references(scrutinee, out);
+            branches.iter().for_each(|b| term_references(&b.body, out));
+        }
+        Term::Var(_) | Term::Bool(_) | Term::U64(_) => {}
+    }
+}
+fn statement_references(
+    params: &[(String, Sort)],
+    conditions: &[Equation],
+    from: &Term,
+    to: &Term,
+    out: &mut BTreeSet<String>,
+) {
+    params.iter().for_each(|p| sort_references(&p.1, out));
+    for e in conditions {
+        term_references(&e.from, out);
+        term_references(&e.to, out);
+    }
+    term_references(from, out);
+    term_references(to, out);
+}
+/// Entries a proof relies on. An `Instance` relies on its interpretations, not
+/// on the abstract symbols it interprets: those are discharged by the rule.
+fn proof_references(p: &Proof, out: &mut BTreeSet<String>) {
+    let terms = |ts: &[&Term], out: &mut BTreeSet<String>| ts.iter().for_each(|t| term_references(t, out));
+    match p {
+        Proof::BitVector { from, to, .. } | Proof::Convert { from, to } => terms(&[from, to], out),
+        Proof::Substitute {
+            context, equality, ..
+        } => {
+            term_references(context, out);
+            proof_references(equality, out);
+        }
+        Proof::BoolSplit {
+            condition,
+            from,
+            to,
+            on_false,
+            on_true,
+        } => {
+            terms(&[condition, from, to], out);
+            proof_references(on_false, out);
+            proof_references(on_true, out);
+        }
+        Proof::BoolCases {
+            from,
+            to,
+            on_false,
+            on_true,
+            ..
+        } => {
+            terms(&[from, to], out);
+            proof_references(on_false, out);
+            proof_references(on_true, out);
+        }
+        Proof::Refl(t) => term_references(t, out),
+        Proof::Hypothesis(_) => {}
+        Proof::Sym(p) => proof_references(p, out),
+        Proof::Trans(p, q) => {
+            proof_references(p, out);
+            proof_references(q, out);
+        }
+        Proof::Construct {
+            datatype,
+            arguments,
+            ..
+        } => {
+            out.insert(datatype.clone());
+            arguments.iter().for_each(|p| proof_references(p, out));
+        }
+        Proof::Call {
+            function,
+            arguments,
+        } => {
+            out.insert(function.clone());
+            arguments.iter().for_each(|p| proof_references(p, out));
+        }
+        Proof::Binary { left, right, .. } => {
+            proof_references(left, out);
+            proof_references(right, out);
+        }
+        Proof::Use {
+            theorem,
+            arguments,
+            premises,
+        } => {
+            out.insert(theorem.clone());
+            arguments.iter().for_each(|t| term_references(t, out));
+            premises.iter().for_each(|p| proof_references(p, out));
+        }
+        Proof::Induction {
+            from, to, cases, ..
+        }
+        | Proof::GeneralizedInduction {
+            from, to, cases, ..
+        } => {
+            terms(&[from, to], out);
+            cases.iter().for_each(|c| proof_references(&c.proof, out));
+        }
+        Proof::GeneralizedHypothesis { arguments, .. } => {
+            arguments.iter().for_each(|t| term_references(t, out))
+        }
+        Proof::Instance {
+            sorts,
+            functions,
+            definitions,
+            assumptions,
+            arguments,
+            premises,
+            ..
+        } => {
+            sorts.values().for_each(|s| sort_references(s, out));
+            functions
+                .values()
+                .for_each(|l| term_references(&l.body, out));
+            out.extend(definitions.values().cloned());
+            assumptions.values().for_each(|p| proof_references(p, out));
+            arguments.iter().for_each(|t| term_references(t, out));
+            premises.iter().for_each(|p| proof_references(p, out));
+        }
+    }
+}
 fn derive(
     p: &Proof,
     env: &Env,
@@ -1584,7 +2005,7 @@ fn derive(
             function,
             arguments,
         } => {
-            c.function(function, false)?;
+            c.signature(function, false)?;
             let pairs = arguments
                 .iter()
                 .map(|p| derive(p, env, c, hypotheses, schemas, budget, depth + 1))
@@ -1621,7 +2042,7 @@ fn derive(
             arguments,
             premises,
         } => {
-            let Kind::Theorem(t) = &c.entry(theorem, false)?.kind else {
+            let (Kind::Theorem(t) | Kind::Assumption(t)) = &c.entry(theorem, false)?.kind else {
                 return Err("expected checked theorem".into());
             };
             if premises.len() != t.conditions.len() {
@@ -1636,6 +2057,151 @@ fn derive(
                 }
             }
             sub_pair(&t.equation, &bindings, c, budget)?
+        }
+        Proof::Instance {
+            theorem,
+            sorts,
+            functions,
+            definitions,
+            assumptions,
+            arguments,
+            premises,
+        } => {
+            if sorts.len() + functions.len() + definitions.len() + assumptions.len() > 128 {
+                return Err("instance interpretation count limit".into());
+            }
+            let entry = c.entry(theorem, false)?;
+            let (Kind::Theorem(t) | Kind::Assumption(t)) = &entry.kind else {
+                return Err("expected checked theorem".into());
+            };
+            // Interpret exactly the theorem's abstract parameters: every
+            // assumption its validity rests on must be discharged here.
+            let (mut want_sorts, mut want_functions, mut want_assumptions) =
+                (BTreeSet::new(), BTreeSet::new(), BTreeSet::new());
+            for id in &entry.parameters {
+                match &c.entry(id, true)?.kind {
+                    Kind::AbstractSort => want_sorts.insert(id),
+                    Kind::AbstractFunction(..) => want_functions.insert(id),
+                    Kind::Assumption(_) => want_assumptions.insert(id),
+                    _ => return Err("invalid abstract parameter".into()),
+                };
+            }
+            if !sorts.keys().eq(want_sorts.iter().copied())
+                || !functions.keys().eq(want_functions.iter().copied())
+                || !assumptions.keys().eq(want_assumptions.iter().copied())
+            {
+                return Err("instance must interpret exactly the theorem's abstract parameters".into());
+            }
+            for target in sorts.values() {
+                c.sort(target)?;
+            }
+            let s = Interpretation {
+                sorts,
+                functions,
+                definitions,
+                c,
+            };
+            for (id, lambda) in functions {
+                let Kind::AbstractFunction(params, result) = &c.entry(id, true)?.kind else {
+                    return Err("invalid abstract function".into());
+                };
+                if lambda.params.len() != params.len() {
+                    return Err("instance function arity mismatch".into());
+                }
+                let mut local = Env::new();
+                for (n, sort) in lambda.params.iter().zip(params) {
+                    name(n)?;
+                    if local.insert(n.clone(), s.sort(sort)?).is_some() {
+                        return Err("duplicate instance function parameter".into());
+                    }
+                }
+                // Closed (only its parameters are bound) and SelfCall-free, so
+                // it denotes a total function of the instantiated signature.
+                if infer(&lambda.body, &local, c, None, false, budget, 0)? != s.sort(result)? {
+                    return Err("instance function result type mismatch".into());
+                }
+            }
+            for (from, to) in definitions {
+                let source = c.entry(from, true)?;
+                if source.parameters.is_empty() {
+                    return Err("only parametric definitions are instantiated".into());
+                }
+                match (&source.kind, &c.entry(to, false)?.kind) {
+                    (Kind::Datatype(general), Kind::Datatype(actual)) => {
+                        let same = general.len() == actual.len()
+                            && general.iter().zip(actual).all(|(g, a)| {
+                                g.name == a.name
+                                    && g.fields.len() == a.fields.len()
+                                    && g.fields
+                                        .iter()
+                                        .zip(&a.fields)
+                                        .all(|(gf, af)| s.sort(gf).ok().as_ref() == Some(af))
+                            });
+                        if !same {
+                            return Err("instantiated datatype differs from its definition".into());
+                        }
+                    }
+                    (Kind::Function(general), Kind::Function(_)) => {
+                        let actual = c.function(to, false)?;
+                        if general.params.len() != actual.params.len()
+                            || general.recursive != actual.recursive
+                            || s.sort(&general.result)? != actual.result
+                        {
+                            return Err("instantiated function signature differs".into());
+                        }
+                        let mut rename = BTreeMap::new();
+                        for (g, a) in general.params.iter().zip(&actual.params) {
+                            if s.sort(&g.1)? != a.1 {
+                                return Err("instantiated function signature differs".into());
+                            }
+                            rename.insert(a.0.clone(), Term::Var(g.0.clone()));
+                        }
+                        let expected = alpha_normal(s.term(&general.body, budget, 0)?, budget)?;
+                        let actual =
+                            alpha_normal(substitute(&actual.body, &rename, budget, 0)?, budget)?;
+                        if expected != actual {
+                            return Err("instantiated function body differs from its definition".into());
+                        }
+                    }
+                    _ => return Err("instance definition kind mismatch".into()),
+                }
+            }
+            for (id, proof) in assumptions {
+                let Kind::Assumption(a) = &c.entry(id, true)?.kind else {
+                    return Err("invalid assumption".into());
+                };
+                let local = a
+                    .params
+                    .iter()
+                    .map(|(n, sort)| Ok((n.clone(), s.sort(sort)?)))
+                    .collect::<LangResult<Env>>()?;
+                let hypotheses = a
+                    .conditions
+                    .iter()
+                    .map(|e| normalize_pair(s.equation(e, budget)?, c, budget))
+                    .collect::<LangResult<Vec<_>>>()?;
+                let want = normalize_pair(s.equation(&a.equation, budget)?, c, budget)?;
+                if derive(proof, &local, c, &hypotheses, &[], budget, depth + 1)? != want {
+                    return Err("assumption discharge proves a different statement".into());
+                }
+            }
+            if premises.len() != t.conditions.len() {
+                return Err("logic theorem premise count mismatch".into());
+            }
+            let params = t
+                .params
+                .iter()
+                .map(|(n, sort)| Ok((n.clone(), s.sort(sort)?)))
+                .collect::<LangResult<Vec<_>>>()?;
+            let bindings = instance(&params, arguments, env, c, budget)?;
+            for (condition, proof) in t.conditions.iter().zip(premises) {
+                if derive(proof, env, c, hypotheses, schemas, budget, depth + 1)?
+                    != sub_pair(&s.equation(condition, budget)?, &bindings, c, budget)?
+                {
+                    return Err("logic theorem premise proves a different statement".into());
+                }
+            }
+            sub_pair(&s.equation(&t.equation, budget)?, &bindings, c, budget)?
         }
         Proof::Induction {
             variable,

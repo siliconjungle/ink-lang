@@ -36,7 +36,10 @@ Vector and record element order and fields are unchanged.
 
 ## Version and trust boundary
 
-Executable modules containing concat use `ink-executable-core-v3`. Programs
+Executable modules containing concat use `ink-executable-core-v4`, including modules
+that also use owned collections. Upstream owned-collection modules retain
+`ink-executable-core-v3`; an old concat module bearing that ambiguous marker is
+rejected and must be re-emitted from source. Programs
 without concat keep their prior v1/v2 tag and canonical bytes. Decoding an
 executable module rechecks its source program and recomputes its required tag;
 a concat program falsely tagged v1 or v2 is rejected. The method expression

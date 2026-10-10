@@ -1,0 +1,53 @@
+   Compiling ink-core v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/core)
+   Compiling ink-lowering-c v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/lowerings/c)
+   Compiling ink-lowering-js v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/lowerings/js)
+   Compiling ink-lowering-gpu v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/lowerings/gpu)
+   Compiling ink-lowering-rust v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/lowerings/rust)
+   Compiling ink-lowering-wasm v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/lowerings/wasm)
+   Compiling ink-runtime v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/runtime)
+   Compiling ink v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.57s
+     Running tests/action_ir.rs (target/debug/deps/action_ir-fba1187947f09e42)
+
+running 4 tests
+test dead_code_remains_in_the_tree_and_still_needs_type_and_effect_checks ... ok
+test typed_trees_resolve_scopes_callbacks_order_and_abrupt_exits ... ok
+test execution_uses_checked_types_for_effectful_empty_sum_and_preserves_snapshots ... ok
+test altered_types_effect_calls_references_and_control_flow_cannot_forge_a_witness ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/effects.rs (target/debug/deps/effects-146ebc9aa3574920)
+
+running 5 tests
+test query_and_keep_domain_errors_exit_locally_without_poisoning_other_error_types ... ok
+test domain_exits_before_and_after_effects_and_query_error_values_are_distinct ... ok
+test source_effects_preserve_abrupt_exits_lazy_calls_and_transitive_keep_reads ... ok
+test callback_reads_are_conditional_and_effect_artifacts_are_rechecked ... ok
+test observed_reference_prefixes_fit_the_source_judgment_through_future_calls ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.96s
+
+     Running tests/stateful.rs (target/debug/deps/stateful-a914e8b8ff08403b)
+
+running 8 tests
+test key_presence_facts_are_not_assumed_for_state_dependent_expressions ... ok
+test reject_undeclared_effects_unproved_keys_and_cycles ... ok
+test contextual_constructors_and_negative_exact_arithmetic ... ok
+test complete_inventory_example_and_exact_totals ... ok
+test abort_rolls_back_multiple_writes_and_staged_events ... ok
+test ignored_nested_error_still_aborts_outer_transaction ... ok
+test tentative_derived_reads_and_snapshot_roundtrip ... ok
+test reject_malformed_snapshots_and_ingress ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/typed_execution.rs (target/debug/deps/typed_execution-69c6d3a56df241ba)
+
+running 3 tests
+test table_resources_cannot_escape_into_values_and_literal_operations_still_work ... ok
+test slot_scopes_captures_and_callback_error_frames_preserve_observations ... ok
+test archived_native_and_wasm_observations_still_match_direct_execution ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+

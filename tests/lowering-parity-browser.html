@@ -1,0 +1,25 @@
+<!doctype html><meta charset="utf-8"><title>Ink lowering conformance</title><pre id="result">Running…</pre><script type="module">
+import {loadInk} from './full-web-parity/ink-gpu.mjs';
+import {parseExactJSON,StatefulModule} from './full-web-parity/state-wasm.mjs';
+const node=document.querySelector('#result');
+const norm=v=>typeof v==='bigint'?v.toString():typeof v==='number'&&Number.isInteger(v)?(Object.is(v,-0)?'negative zero':String(v)):Array.isArray(v)?v.map(norm):v&&typeof v==='object'?Object.fromEntries(Object.entries(v).sort(([a],[b])=>a.localeCompare(b)).map(([k,x])=>[k,norm(x)])):v;
+function cast(v,t,named){if(t.kind==='ref')return cast(v,named[t.name],named);if(['u32','i32','f32'].includes(t.kind))return typeof v==='bigint'?Number(v):v?.F32Bits!==undefined?{F32Bits:Number(v.F32Bits)}:v;if(['list','vector'].includes(t.kind))return v.map(x=>cast(x,t.element,named));if(t.kind==='record')return Object.fromEntries(t.fields.map(f=>[f.name,cast(v[f.name],f.type,named)]));if(t.kind==='option')return Object.hasOwn(v,'Some')?{Some:cast(v.Some,t.element,named)}:v;if(t.kind==='result')return Object.hasOwn(v,'Ok')?{Ok:cast(v.Ok,t.ok,named)}:{Err:cast(v.Err,t.error,named)};return v;}
+const read=async path=>parseExactJSON(await(await fetch(path)).text());
+try{
+ const runtime=await loadInk('./full-web-parity/');const module=await import('./full-web-parity/program.mjs');let gpu=0,counts={};
+ for(const kind of ['wasm-gpu','javascript']){
+  let state=kind==='javascript'?runtime.createJavaScriptState():runtime.createState(),index=0;
+  const steps=await read('./lowering-parity/script.json'),expected=await read('./lowering-parity/expected.json');
+  for(const step of steps){if(step.restore){if(kind==='javascript')await state.restore(step.restore.map(Number));else{state.dispose();state=runtime.restoreState(new Uint8Array(step.restore.map(Number)));}continue;}let reply;try{
+   const decl=step.pure?module.metadata.functions.find(f=>f.name===step.pure):module.metadata.state.actions.find(f=>f.name===step.call);const args=step.args.map((a,i)=>cast(a,decl.params[i].type,module.metadata.named_types));
+   if(step.pure){const r=await runtime.call(step.pure,args,{backend:kind==='javascript'?'javascript':'gpu'});if(r.backend==='gpu')gpu++;reply={value:r.value};}else reply={outcome:state.invoke(step.call,args)};
+  }catch(e){reply={host_error:e.message};}
+  if(JSON.stringify(norm(reply))!==JSON.stringify(norm(expected[index].reply)))throw Error(`${kind} reply ${index}: ${JSON.stringify(norm(reply))}`);
+  const snapshot=Array.from(kind==='javascript'?await state.checkpoint():state.snapshot());if(JSON.stringify(snapshot)!==JSON.stringify(expected[index].snapshot.map(Number)))throw Error(`${kind} snapshot ${index}`);index++;
+  }state.dispose?.();counts[kind]=index;
+ }
+ const query=await import('./lowering-query-errors/program.mjs');const wasm=await StatefulModule.instantiate(new Uint8Array(await(await fetch('./lowering-query-errors/c/target/wasm32-unknown-unknown/debug/compiled_state.wasm')).arrayBuffer()));
+ for(const kind of ['wasm-gpu','javascript']){const state=kind==='javascript'?query.createState():wasm.create();let i=0;const expected=await read('./lowering-query-errors/expected.json');for(const s of await read('./lowering-query-errors/script.json')){const args=s.args.map((a,j)=>cast(a,query.metadata.state.actions.find(f=>f.name===s.call).params[j].type,query.metadata.named_types));const reply={outcome:state.invoke(s.call,args)};if(JSON.stringify(norm(reply))!==JSON.stringify(norm(expected[i].reply)))throw Error(`query ${kind} reply ${i}`);const snapshot=Array.from(kind==='javascript'?await state.checkpoint():state.snapshot());if(JSON.stringify(snapshot)!==JSON.stringify(expected[i].snapshot.map(Number)))throw Error(`query ${kind} snapshot ${i}`);i++;}state.dispose?.();counts[kind]+=i;}
+ runtime.dispose();node.textContent=`PASS: ${counts['wasm-gpu']} Wasm/GPU results and exact snapshots; ${counts.javascript} JavaScript results and exact snapshots; ${gpu} WebGPU calls; navigator.gpu=${!!navigator.gpu}`;
+}catch(e){node.textContent='FAIL: '+e.stack;}
+</script>

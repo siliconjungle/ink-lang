@@ -16,6 +16,8 @@ pub enum Type {
     String,
     Bool,
     List(Box<Type>),
+    Buffer(Box<Type>),
+    Map(Box<Type>, Box<Type>),
     Option(Box<Type>),
     Result(Box<Type>, Box<Type>),
     Table(Box<Type>, Box<Type>),
@@ -120,7 +122,8 @@ pub struct Program {
 /// not the larger proposed language or a proof of the Rust implementation.
 pub const SEMANTICS: &str = "ink-executable-core-v1";
 pub const COMPUTE_SEMANTICS: &str = "ink-executable-core-v2";
-pub const SEQUENCE_SEMANTICS: &str = "ink-executable-core-v3";
+pub const LOCAL_SEMANTICS: &str = "ink-executable-core-v3";
+pub const SEQUENCE_SEMANTICS: &str = "ink-executable-core-v4";
 pub const MAX_BYTES: usize = 16_000_000;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -139,11 +142,14 @@ pub struct CheckedModule(WireModule);
 impl CheckedModule {
     pub fn from_source(program: Program) -> LangResult<Self> {
         let (extended, sequence) = validate(&program)?;
+        let local = crate::local_collections::needed(&program);
         crate::check::check(&program)?;
         let module = Self(WireModule {
             schema: 1,
             semantics: if sequence {
                 SEQUENCE_SEMANTICS
+            } else if local {
+                LOCAL_SEMANTICS
             } else if extended {
                 COMPUTE_SEMANTICS
             } else {
@@ -163,7 +169,7 @@ impl CheckedModule {
         let wire: WireModule =
             serde_json::from_slice(bytes).map_err(|e| format!("invalid core module: {e}"))?;
         if wire.schema != 1
-            || ![SEMANTICS, COMPUTE_SEMANTICS, SEQUENCE_SEMANTICS]
+            || ![SEMANTICS, COMPUTE_SEMANTICS, LOCAL_SEMANTICS, SEQUENCE_SEMANTICS]
                 .contains(&wire.semantics.as_str())
         {
             return Err("incompatible executable core semantics".into());
@@ -262,8 +268,8 @@ impl Bounds {
             }
             Type::Unknown => Err("unresolved type in executable core".into()),
             Type::Named(n) => self.name(n),
-            Type::List(t) | Type::Option(t) => self.ty(t, d + 1),
-            Type::Result(a, b) | Type::Table(a, b) => {
+            Type::List(t) | Type::Buffer(t) | Type::Option(t) => self.ty(t, d + 1),
+            Type::Result(a, b) | Type::Map(a, b) | Type::Table(a, b) => {
                 self.ty(a, d + 1)?;
                 self.ty(b, d + 1)
             }

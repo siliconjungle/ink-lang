@@ -91,6 +91,103 @@ struct Lower<'a> {
     active: BTreeSet<String>,
     definitions: Vec<String>,
     remaining: usize,
+    /// Source types of the logic variables a translated term may mention.
+    vars: BTreeMap<String, Type>,
+}
+fn free_vars(t: &Term, bound: &mut Vec<String>, out: &mut BTreeSet<String>) {
+    match t {
+        Term::Var(n) => {
+            if !bound.contains(n) {
+                out.insert(n.clone());
+            }
+        }
+        Term::Construct { arguments, .. }
+        | Term::Call { arguments, .. }
+        | Term::SelfCall(arguments) => arguments.iter().for_each(|a| free_vars(a, bound, out)),
+        Term::Binary { left, right, .. } => {
+            free_vars(left, bound, out);
+            free_vars(right, bound, out)
+        }
+        Term::If {
+            condition,
+            on_true,
+            on_false,
+        } => {
+            free_vars(condition, bound, out);
+            free_vars(on_true, bound, out);
+            free_vars(on_false, bound, out)
+        }
+        Term::Match {
+            scrutinee,
+            branches,
+        } => {
+            free_vars(scrutinee, bound, out);
+            for b in branches {
+                let n = bound.len();
+                bound.extend(b.bindings.iter().cloned());
+                free_vars(&b.body, bound, out);
+                bound.truncate(n);
+            }
+        }
+        _ => {}
+    }
+}
+/// Renames free occurrences of `from`; translated terms bind only fresh
+/// `field_i` names, so no capture can occur.
+fn rename(t: &Term, from: &str, to: &str) -> Term {
+    let r = |x: &Term| rename(x, from, to);
+    match t {
+        Term::Var(n) if n == from => var(to),
+        Term::Construct {
+            datatype,
+            constructor,
+            arguments,
+        } => Term::Construct {
+            datatype: datatype.clone(),
+            constructor: *constructor,
+            arguments: arguments.iter().map(r).collect(),
+        },
+        Term::Call {
+            function,
+            arguments,
+        } => Term::Call {
+            function: function.clone(),
+            arguments: arguments.iter().map(r).collect(),
+        },
+        Term::SelfCall(arguments) => Term::SelfCall(arguments.iter().map(r).collect()),
+        Term::Binary { op, left, right } => Term::Binary {
+            op: op.clone(),
+            left: Box::new(r(left)),
+            right: Box::new(r(right)),
+        },
+        Term::If {
+            condition,
+            on_true,
+            on_false,
+        } => Term::If {
+            condition: Box::new(r(condition)),
+            on_true: Box::new(r(on_true)),
+            on_false: Box::new(r(on_false)),
+        },
+        Term::Match {
+            scrutinee,
+            branches,
+        } => Term::Match {
+            scrutinee: Box::new(r(scrutinee)),
+            branches: branches
+                .iter()
+                .map(|b| Branch {
+                    bindings: b.bindings.clone(),
+                    body: if b.bindings.iter().any(|x| x == from) {
+                        b.body.clone()
+                    } else {
+                        r(&b.body)
+                    },
+                })
+                .collect(),
+        },
+        other => other.clone(),
+    }
 }
 impl Lower<'_> {
     fn store(&mut self, name: String, declaration: Declaration) -> LangResult<String> {
@@ -223,14 +320,189 @@ impl Lower<'_> {
     fn integer(&self, n: u64) -> LangResult<Term> {
         crate::exact_maintenance::expression(self.exact, &Expr::Num(n), &BTreeMap::new())
     }
-    fn exact_operand(&self, ty: &Type, term: Term) -> LangResult<Term> {
+    fn exact_operand(&mut self, ty: &Type, term: Term) -> LangResult<Term> {
         if *ty == Type::Int {
             return Ok(term);
         }
         if let Term::U64(n) = term {
             return self.integer(n);
         }
+        if matches!(ty, Type::U64 | Type::U32) {
+            return self.unsigned_integer(term);
+        }
         Err("symbolic unsigned-to-Int correspondence remains unsupported".into())
+    }
+    /// Faithful embedding of an unsigned word into the exact integers, built
+    /// only from ordinary definitions: bit `i` of `x` is the top bit of
+    /// `x * 2^(63-i)` (wrapping), and Horner's rule accumulates
+    /// `n = 2n + bit` over Natural. Each step mentions the accumulator once,
+    /// so symbolic terms stay linear in the word width.
+    fn unsigned_integer(&mut self, term: Term) -> LangResult<Term> {
+        let natural = self.exact["Natural"].clone();
+        let integer = self.exact["Integer"].clone();
+        let nat = Sort::Data(natural.clone());
+        let zero = Term::Construct {
+            datatype: natural.clone(),
+            constructor: 0,
+            arguments: vec![],
+        };
+        let succ = |t: Term| Term::Construct {
+            datatype: natural.clone(),
+            constructor: 1,
+            arguments: vec![t],
+        };
+        let cases = |scrutinee: Term, zero_case: Term, binder: &str, succ_case: Term| Term::Match {
+            scrutinee: Box::new(scrutinee),
+            branches: vec![
+                Branch {
+                    bindings: vec![],
+                    body: zero_case,
+                },
+                Branch {
+                    bindings: vec![binder.into()],
+                    body: succ_case,
+                },
+            ],
+        };
+        let double = self.store(
+            "source_natural_double".into(),
+            Declaration::Function {
+                params: vec![("n".into(), nat.clone())],
+                result: nat.clone(),
+                body: cases(
+                    var("n"),
+                    zero.clone(),
+                    "m",
+                    succ(succ(Term::SelfCall(vec![var("m")]))),
+                ),
+                recursive: Some(0),
+            },
+        )?;
+        let plus = self.store(
+            "source_natural_plus".into(),
+            Declaration::Function {
+                params: vec![("m".into(), nat.clone()), ("k".into(), nat.clone())],
+                result: nat.clone(),
+                body: cases(
+                    var("k"),
+                    var("m"),
+                    "j",
+                    succ(Term::SelfCall(vec![var("m"), var("j")])),
+                ),
+                recursive: Some(1),
+            },
+        )?;
+        // Eight bits per definition keeps every object shallow enough for
+        // the bounded JSON object reader.
+        let mut chunks = vec![];
+        for chunk in 0..8u32 {
+            let mut accumulated = var("acc");
+            for bit in (8 * chunk..8 * chunk + 8).rev() {
+                let set = Term::Binary {
+                    op: ">=".into(),
+                    left: Box::new(Term::Binary {
+                        op: "*".into(),
+                        left: Box::new(var("x")),
+                        right: Box::new(Term::U64(1u64 << (63 - bit))),
+                    }),
+                    right: Box::new(Term::U64(1u64 << 63)),
+                };
+                let digit = Term::If {
+                    condition: Box::new(set),
+                    on_true: Box::new(succ(zero.clone())),
+                    on_false: Box::new(zero.clone()),
+                };
+                accumulated = call(&plus, vec![call(&double, vec![accumulated]), digit]);
+            }
+            chunks.push(self.store(
+                format!("source_u64_natural_bits_{}_{}", 8 * chunk + 7, 8 * chunk),
+                Declaration::Function {
+                    params: vec![("acc".into(), nat.clone()), ("x".into(), Sort::U64)],
+                    result: nat.clone(),
+                    body: accumulated,
+                    recursive: None,
+                },
+            )?);
+        }
+        // Horner order: the most significant chunk first.
+        let mut accumulated = zero.clone();
+        for chunk in chunks.iter().rev() {
+            accumulated = call(chunk, vec![accumulated, var("x")]);
+        }
+        let to_natural = self.store(
+            "source_u64_natural".into(),
+            Declaration::Function {
+                params: vec![("x".into(), Sort::U64)],
+                result: nat,
+                body: accumulated,
+                recursive: None,
+            },
+        )?;
+        // A Natural parameter makes that datatype a direct import of the
+        // matching definition.
+        let natural_integer = self.store(
+            "source_natural_integer".into(),
+            Declaration::Function {
+                params: vec![("n".into(), Sort::Data(natural.clone()))],
+                result: Sort::Data(integer.clone()),
+                body: cases(
+                    var("n"),
+                    Term::Construct {
+                        datatype: integer.clone(),
+                        constructor: 0,
+                        arguments: vec![],
+                    },
+                    "m",
+                    Term::Construct {
+                        datatype: integer.clone(),
+                        constructor: 1,
+                        arguments: vec![var("m")],
+                    },
+                ),
+                recursive: None,
+            },
+        )?;
+        let to_integer = self.store(
+            "source_u64_integer".into(),
+            Declaration::Function {
+                params: vec![("x".into(), Sort::U64)],
+                result: Sort::Data(integer),
+                body: call(&natural_integer, vec![call(&to_natural, vec![var("x")])]),
+                recursive: None,
+            },
+        )?;
+        // A cast of a value read from one row-valued input becomes a
+        // function of that input, structurally recursive on it with no
+        // self-call. Concrete rows evaluate fully; for a symbolic row the
+        // call stays folded, so proofs never expand the 64-bit conversion.
+        let mut free = BTreeSet::new();
+        free_vars(&term, &mut vec![], &mut free);
+        if free.is_empty() {
+            return Ok(call(&to_integer, vec![term]));
+        }
+        let owner = free.into_iter().collect::<Vec<_>>();
+        let [owner] = owner.as_slice() else {
+            return Err("unsigned-to-Int correspondence needs a single row-valued input".into());
+        };
+        let ty = self
+            .vars
+            .get(owner)
+            .cloned()
+            .ok_or("unsigned-to-Int input has no source type")?;
+        let sort = self.sort(&ty, 0)?;
+        if !matches!(sort, Sort::Data(_)) {
+            return Err("unsigned-to-Int correspondence needs a structured row input".into());
+        }
+        let cast = self.store(
+            "source_unsigned_integer".into(),
+            Declaration::Function {
+                params: vec![("value".into(), sort)],
+                result: Sort::Data(self.exact["Integer"].clone()),
+                body: call(&to_integer, vec![rename(&term, owner, "value")]),
+                recursive: Some(0),
+            },
+        )?;
+        Ok(call(&cast, vec![var(owner)]))
     }
     fn expression(
         &mut self,
@@ -356,6 +628,7 @@ pub fn export(program: &Program, keep_name: &str, certificate: &Certificate) -> 
         active: BTreeSet::new(),
         definitions: vec![],
         remaining: 512,
+        vars: BTreeMap::new(),
     };
     let table = evidence
         .table
@@ -386,6 +659,7 @@ pub fn export(program: &Program, keep_name: &str, certificate: &Certificate) -> 
         },
     )?;
     let row_sort = lower.sort(ty, 0)?;
+    lower.vars = BTreeMap::from([("row".to_string(), ty.as_ref().clone())]);
     let mut current = (ty.as_ref().clone(), var("row"));
     let mut conditions = vec![];
     for (stage, binder, expression) in &plan.stages {
@@ -502,4 +776,295 @@ pub fn verify(program: &Program, certificate: &Certificate, model: &Model) -> La
             .map_err(|e| format!("source row projection adapter: {e}"))?;
     }
     Ok(())
+}
+
+// ---------------------------------------------------------------------------
+// View decomposition: the literal meaning of a maintained collection pipeline.
+//
+// `export` above states each row's contribution (`projection`) and
+// maintenance then sums contributions. That a `sum`/`count` over a chain of
+// `map`/`filter` stages equals the sum of per-row projections was previously
+// assumed. `export_view` instead states the pipeline literally: one list
+// function per source stage, the final fold, and `decomposed(rows)`, the sum
+// of projections. `verify_view` checks a supplied general-kernel proof of
+// `pipeline(rows) = decomposed(rows)` for the actual source. The proof comes
+// from an external producer; nothing here searches or adds a law.
+
+pub const VIEW_SEMANTICS: &str = "source-view-pipeline-decomposition-v1";
+
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(deny_unknown_fields)]
+pub struct ViewStage {
+    pub kind: String,
+    pub input: Sort,
+    pub output: Sort,
+    pub function: String,
+}
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(deny_unknown_fields)]
+pub struct ViewDescription {
+    pub schema: u32,
+    pub semantics: String,
+    pub row: Description,
+    pub aggregate: String,
+    pub rows: Sort,
+    pub stages: Vec<ViewStage>,
+    pub fold: String,
+    pub pipeline: String,
+    pub decomposed: String,
+    pub definitions: Vec<String>,
+}
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ViewModel {
+    pub description: ViewDescription,
+    pub library: Bundle,
+}
+/// A producer's answer: a bundle containing every exported definition
+/// unchanged plus its own lemmas, and a proof of the exported obligation.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ViewEvidence {
+    pub schema: u32,
+    pub semantics: String,
+    pub keep: String,
+    pub library: Bundle,
+    pub proof: crate::logic::Proof,
+}
+
+pub fn export_view(
+    program: &Program,
+    keep_name: &str,
+    certificate: &Certificate,
+) -> LangResult<ViewModel> {
+    let model = export(program, keep_name, certificate)?;
+    let evidence = certificate
+        .evidence
+        .as_ref()
+        .ok_or("source view model requires database exact maintenance")?;
+    let keep = program
+        .keeps
+        .iter()
+        .find(|k| k.name == keep_name)
+        .ok_or("unknown source keep")?;
+    let plan = aggregate::plan_with_certificate(program, keep, certificate)
+        .ok_or("unsupported source view pipeline")?;
+    let root = program
+        .states
+        .iter()
+        .find(|s| s.name == plan.root)
+        .ok_or("unknown source table root")?;
+    let Type::Table(_, row_type) = &root.ty else {
+        return Err("source view root must be a table".into());
+    };
+    let mut lower = Lower {
+        program,
+        exact: &evidence.model,
+        bundle: model.library.clone(),
+        types: model.description.types.clone(),
+        active: BTreeSet::new(),
+        definitions: vec![],
+        remaining: 512,
+        vars: BTreeMap::new(),
+    };
+    let integer = Sort::Data(evidence.model["Integer"].clone());
+    let zero = lower.integer(0)?;
+    let one = lower.integer(1)?;
+    let add = |a: Term, b: Term| call(&evidence.model["addition"], vec![a, b]);
+    let data = |sort: &Sort| match sort {
+        Sort::Data(id) => Ok(id.clone()),
+        _ => Err("source view list sort must be a datatype".to_string()),
+    };
+    let list_match = |scrutinee: &str, nil: Term, cons: Term| Term::Match {
+        scrutinee: Box::new(var(scrutinee)),
+        branches: vec![
+            Branch {
+                bindings: vec![],
+                body: nil,
+            },
+            Branch {
+                bindings: vec!["head".into(), "tail".into()],
+                body: cons,
+            },
+        ],
+    };
+    // Translate every lambda before creating any new sort, so a definition
+    // shared with the row model (such as an unsigned cast) gets exactly the
+    // same dependencies, and hence identity, as it does there.
+    let mut element = row_type.as_ref().clone();
+    let mut translated = vec![];
+    for (kind, binder, expression) in &plan.stages {
+        let env = BTreeMap::from([(binder.clone(), (element.clone(), var("head")))]);
+        lower.vars = BTreeMap::from([("head".to_string(), element.clone())]);
+        let (result, term) = lower.expression(expression, &env, 0)?;
+        let next = if kind == "map" {
+            result.clone()
+        } else {
+            if result != Type::Bool {
+                return Err("source view filter must be Boolean".into());
+            }
+            element.clone()
+        };
+        translated.push((kind.clone(), element.clone(), next.clone(), term));
+        element = next;
+    }
+    let rows = lower.sort(&Type::List(row_type.clone()), 0)?;
+    let mut input = rows.clone();
+    let mut stages = vec![];
+    for (index, (kind, _, next_element, term)) in translated.into_iter().enumerate() {
+        let rest = Term::SelfCall(vec![var("tail")]);
+        let (output, cons) = if kind == "map" {
+            let output = lower.sort(&Type::List(Box::new(next_element.clone())), 0)?;
+            let cons = Term::Construct {
+                datatype: data(&output)?,
+                constructor: 1,
+                arguments: vec![term, rest],
+            };
+            (output, cons)
+        } else {
+            let cons = Term::If {
+                condition: Box::new(term),
+                on_true: Box::new(Term::Construct {
+                    datatype: data(&input)?,
+                    constructor: 1,
+                    arguments: vec![var("head"), rest.clone()],
+                }),
+                on_false: Box::new(rest),
+            };
+            (input.clone(), cons)
+        };
+        let nil = Term::Construct {
+            datatype: data(&output)?,
+            constructor: 0,
+            arguments: vec![],
+        };
+        let function = lower.store(
+            format!("source_view_{keep_name}_stage_{index}_{kind}"),
+            Declaration::Function {
+                params: vec![("xs".into(), input.clone())],
+                result: output.clone(),
+                body: list_match("xs", nil, cons),
+                recursive: Some(0),
+            },
+        )?;
+        stages.push(ViewStage {
+            kind,
+            input: input.clone(),
+            output: output.clone(),
+            function,
+        });
+        input = output;
+    }
+    let item = if plan.count {
+        one
+    } else {
+        if element != Type::Int {
+            return Err("source view sum requires exact Int elements".into());
+        }
+        var("head")
+    };
+    let fold = lower.store(
+        format!(
+            "source_view_{keep_name}_{}",
+            if plan.count { "count" } else { "sum" }
+        ),
+        Declaration::Function {
+            params: vec![("xs".into(), input.clone())],
+            result: integer.clone(),
+            body: list_match(
+                "xs",
+                zero.clone(),
+                add(Term::SelfCall(vec![var("tail")]), item),
+            ),
+            recursive: Some(0),
+        },
+    )?;
+    let mut literal = var("rows");
+    for stage in &stages {
+        literal = call(&stage.function, vec![literal]);
+    }
+    let pipeline = lower.store(
+        format!("source_view_{keep_name}_pipeline"),
+        Declaration::Function {
+            params: vec![("rows".into(), rows.clone())],
+            result: integer.clone(),
+            body: call(&fold, vec![literal]),
+            recursive: None,
+        },
+    )?;
+    let decomposed = lower.store(
+        format!("source_view_{keep_name}_decomposed"),
+        Declaration::Function {
+            params: vec![("rows".into(), rows.clone())],
+            result: integer,
+            body: list_match(
+                "rows",
+                zero,
+                add(
+                    Term::SelfCall(vec![var("tail")]),
+                    call(&model.description.projection, vec![var("head")]),
+                ),
+            ),
+            recursive: Some(0),
+        },
+    )?;
+    library::load_bundle(&lower.bundle)?;
+    Ok(ViewModel {
+        description: ViewDescription {
+            schema: 1,
+            semantics: VIEW_SEMANTICS.into(),
+            row: model.description,
+            aggregate: if plan.count { "count" } else { "sum" }.into(),
+            rows,
+            stages,
+            fold,
+            pipeline,
+            decomposed,
+            definitions: lower.definitions,
+        },
+        library: lower.bundle,
+    })
+}
+
+/// Check that `evidence` proves this source keep equals the sum of its row
+/// projections. Every exported definition must appear unchanged and be
+/// directly visible; the unchanged general kernel checks the bundle and the
+/// exact obligation. Table enumeration and native lowering stay outside it.
+pub fn verify_view(
+    program: &Program,
+    certificate: &Certificate,
+    evidence: &ViewEvidence,
+) -> LangResult<ViewDescription> {
+    if evidence.schema != 1 || evidence.semantics != VIEW_SEMANTICS {
+        return Err("unsupported source view evidence".into());
+    }
+    let expected = export_view(program, &evidence.keep, certificate)?;
+    let description = &expected.description;
+    let mut definitions = description.row.definitions.clone();
+    definitions.extend(description.definitions.iter().cloned());
+    let required = library::project(&expected.library, &definitions)?;
+    for (id, raw) in &required.objects {
+        if evidence.library.objects.get(id) != Some(raw) {
+            return Err("source view evidence changed an exported definition".into());
+        }
+    }
+    let context = library::load_bundle(&evidence.library)?.context;
+    for id in &definitions {
+        let object: Object =
+            serde_json::from_str(&expected.library.objects[id]).map_err(|e| e.to_string())?;
+        context
+            .matches_definition(id, &object.declaration)
+            .map_err(|e| format!("source view definition: {e}"))?;
+    }
+    let rows = var("rows");
+    context
+        .check(
+            &[("rows".into(), description.rows.clone())],
+            &[],
+            &call(&description.pipeline, vec![rows.clone()]),
+            &call(&description.decomposed, vec![rows]),
+            &evidence.proof,
+        )
+        .map_err(|e| format!("source view decomposition: {e}"))?;
+    Ok(expected.description)
 }

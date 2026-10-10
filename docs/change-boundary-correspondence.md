@@ -12,7 +12,9 @@ embed that source verbatim. This freezes three existing behaviours:
   in order and numbers this transaction's events from zero.
 
 Queries can return an ordinary `Result::Err` without poisoning their caller.
-Applying `?` to that result still aborts the enclosing change. The action body
+Applying `?` inside a change aborts that change. A query or Result-valued keep
+handles its own `?` locally and returns Err as an ordinary value; its caller may
+choose to propagate it. The action body
 runs before the boundary decides whether it may commit; prechecking exhaustion
 would change the error precedence.
 

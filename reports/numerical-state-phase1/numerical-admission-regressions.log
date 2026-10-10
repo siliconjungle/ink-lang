@@ -1,0 +1,204 @@
+   Compiling ink v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-10/can-3/work/ink-lang)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.44s
+     Running unittests src/lib.rs (target/debug/deps/verified_language-ab293d5983fa259e)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/action_ir.rs (target/debug/deps/action_ir-9b9fff324bab03cd)
+
+running 4 tests
+test dead_code_remains_in_the_tree_and_still_needs_type_and_effect_checks ... ok
+test execution_uses_checked_types_for_effectful_empty_sum_and_preserves_snapshots ... ok
+test typed_trees_resolve_scopes_callbacks_order_and_abrupt_exits ... ok
+test altered_types_effect_calls_references_and_control_flow_cannot_forge_a_witness ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running tests/action_values.rs (target/debug/deps/action_values-8ccff4d285e9b848)
+
+running 3 tests
+test independent_encoder_matches_complete_value_domain_and_real_action_observations ... ok
+test authenticated_wrong_carrier_and_changed_source_cannot_forge_correspondence ... ok
+test cli_and_argument_budgets_validate_before_writing_output ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.56s
+
+     Running tests/compute.rs (target/debug/deps/compute-27f324c4de885d1f)
+
+running 6 tests
+test decimal_lexing_exact_minimum_and_total_integer_division ... ok
+test signed_words_safe_reads_loops_vectors_records_and_ordered_floats ... ok
+test compute_contract_is_versioned_and_rejects_false_tags_and_unsafe_types ... ok
+test shader_capabilities_cover_collection_operations_and_keep_scalar_reductions_on_cpu ... ok
+test internal_values_and_deep_calls_have_safe_compilation_boundaries ... ok
+test generated_c_array_abi_is_checked_with_sanitizers ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.60s
+
+     Running tests/effect_model.rs (target/debug/deps/effect_model-01864e2421920b83)
+
+running 2 tests
+test authenticated_wrong_models_and_false_laws_do_not_establish_correspondence ... ok
+test database_sequencing_matches_the_actual_finite_prefix_algebra ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.06s
+
+     Running tests/effects.rs (target/debug/deps/effects-36cc820c42463720)
+
+running 5 tests
+test query_and_keep_domain_errors_exit_locally_without_poisoning_other_error_types ... ok
+test domain_exits_before_and_after_effects_and_query_error_values_are_distinct ... ok
+test source_effects_preserve_abrupt_exits_lazy_calls_and_transitive_keep_reads ... ok
+test callback_reads_are_conditional_and_effect_artifacts_are_rechecked ... ok
+test observed_reference_prefixes_fit_the_source_judgment_through_future_calls ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.94s
+
+     Running tests/general_laws.rs (target/debug/deps/general_laws-7758761e35d9160d)
+
+running 8 tests
+test assumption_dependence_is_tracked_even_without_abstract_symbols ... ok
+test abstract_symbols_cannot_be_inspected_or_computed ... ok
+test general_law_instantiates_for_a_concrete_program ... ok
+test instance_rejects_wrong_or_incomplete_interpretations ... ok
+test general_laws_never_reach_a_conclusion_directly ... ok
+test instantiated_lemmas_are_closed_and_reusable ... ok
+test assumptions_must_be_proved_for_the_interpretation ... ok
+test canonical_store_admits_the_general_laws_and_rejects_a_false_one ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.18s
+
+     Running tests/hardening.rs (target/debug/deps/hardening-18d280a9e53b7805)
+
+running 19 tests
+test regression_eval_collection_and_float_frames_are_bounded ... ok
+test regression_boolean_hint_and_definition_expansion_are_bounded ... ok
+test regression_eval_nesting_is_bounded ... ok
+test regression_parser_bounds_unparenthesised_and_postfix_chains ... ok
+test regression_snapshot_int_size_is_bounded ... ok
+test fuzz_maintenance_certificates ... ok
+test regression_snapshot_schema_expansion_is_bounded ... ok
+test fuzz_row_models ... ok
+test regression_logic_substitution_copies_are_charged ... ok
+test regression_eval_scope_is_not_copied_per_element ... ok
+test fuzz_logic_objects ... ok
+test regression_eval_compute_values_charge_copies_and_preserve_context ... ok
+test fuzz_evaluation_arguments ... ok
+test fuzz_lockfiles ... ok
+test regression_eval_list_copies_cost_fuel ... ok
+test fuzz_equality_objects ... ok
+test fuzz_snapshots ... ok
+test fuzz_bitproof_certificates ... ok
+test fuzz_core_modules ... ok
+
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 8.93s
+
+     Running tests/modules.rs (target/debug/deps/modules-6740c0786102d832)
+
+running 4 tests
+test imported_function_type_failure_identifies_its_original_declaration ... ok
+test imports_reject_cycles_unknown_exports_namespaces_and_module_collisions ... ok
+test linking_preserves_fields_and_shadowed_local_values ... ok
+test imports_types_state_events_and_standard_helpers_lower_identically ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.39s
+
+     Running tests/semantic_optimisation.rs (target/debug/deps/semantic_optimisation-04296cf8229bb0ed)
+
+running 17 tests
+test checked_laws_cannot_be_reused_with_different_function_definitions ... ok
+test induction_rejects_a_premise_that_does_not_hold_for_subproblems ... ok
+test all_executable_expression_forms_round_trip_through_semantic_terms ... ok
+test operational_list_models_preserve_index_scan_sort_and_float_sum_order ... ok
+test float_reassociation_and_numeric_equality_as_bit_equality_are_rejected ... ok
+test a_new_catalogue_entry_changes_execution_without_rebuilding_the_compiler ... ok
+test altered_bytes_unknown_operations_and_missing_premises_fail_closed ... ok
+test universal_loop_and_collection_laws_check_independently ... ok
+test rules_apply_under_binders_without_capture ... ok
+test optimisation_preserves_state_declarations_and_transaction_bodies ... ok
+test the_same_proof_calculus_checks_alternative_routed_compositions ... ok
+test nested_loop_laws_preserve_outer_captures_and_reject_index_dependent_steps ... ok
+test branch_conditions_are_proved_at_the_actual_site ... ok
+test search_composes_supporting_lemmas_to_discharge_rule_conditions ... ok
+test nested_optimisations_compose_and_enable_further_rules_automatically ... ok
+test loop_count_and_increment_are_instantiated_generically ... ok
+test external_search_and_interpreter_share_the_checked_selection ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.30s
+
+     Running tests/snapshots.rs (target/debug/deps/snapshots-efd46cc27b35aab7)
+
+running 3 tests
+test all_value_forms_roundtrip_and_noncanonical_values_are_rejected ... ok
+test golden_payload_order_and_little_endian_integers ... ok
+test portable_reference_snapshots_preserve_future_changes_and_pending_events ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/source_syntax.rs (target/debug/deps/source_syntax-781c63afc18fab4c)
+
+running 3 tests
+test linked_imported_helpers_are_part_of_the_bound_program ... ok
+test cli_replay_checks_source_and_preserves_output_on_rejection ... ok
+test authentic_complete_code_is_bound_and_other_code_cannot_substitute ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.72s
+
+     Running tests/state_native.rs (target/debug/deps/state_native-9925d73241a2388d)
+
+running 11 tests
+test range_analysis_uses_full_domains_and_rejects_unbounded_contributions ... ok
+test tampered_native_maintenance_is_rejected_before_emission ... ok
+test complete_rows_survive_repeated_abort_and_failed_promotion_with_both_journals ... ok
+test owned_rows_copy_only_used_remove_results_and_preserve_abort ... ok
+test native_state_matches_reference_with_and_without_checked_maintenance ... ok
+test borrowed_commit_outcomes_reuse_events_and_enforce_the_state_borrow ... ok
+test direct_typed_frames_match_native_scopes_callbacks_and_snapshots ... ok
+test source_row_projection_preserves_composite_payloads_across_native_abort_and_restore ... ok
+test result_query_and_keep_errors_are_local_until_the_caller_propagates ... ok
+test shared_boundary_preserves_nested_control_event_order_and_exhausted_rollback ... ok
+test typed_action_execution_preserves_effect_order_and_contextual_empty_values ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 38.13s
+
+     Running tests/state_ownership.rs (target/debug/deps/state_ownership-e0db072b37cf45ea)
+
+running 3 tests
+test rows_still_read_whole_after_a_write_are_cloned_before_it ... ok
+test ownership_lowering_matches_reference_and_borrows_rows ... ok
+test stored_row_closures_can_call_helpers_queries_and_derived_reads ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.20s
+
+     Running tests/stateful.rs (target/debug/deps/stateful-c3f14309f3984e60)
+
+running 8 tests
+test key_presence_facts_are_not_assumed_for_state_dependent_expressions ... ok
+test reject_undeclared_effects_unproved_keys_and_cycles ... ok
+test contextual_constructors_and_negative_exact_arithmetic ... ok
+test complete_inventory_example_and_exact_totals ... ok
+test tentative_derived_reads_and_snapshot_roundtrip ... ok
+test ignored_nested_error_still_aborts_outer_transaction ... ok
+test abort_rolls_back_multiple_writes_and_staged_events ... ok
+test reject_malformed_snapshots_and_ingress ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/table_undo.rs (target/debug/deps/table_undo-471a60d69eb40d92)
+
+running 2 tests
+test rehashed_false_key_payload_restore_and_dropped_frames_are_rejected ... ok
+test complete_payload_and_cache_undo_matches_independent_map_for_every_prefix ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 8.25s
+
+     Running tests/transaction_boundary.rs (target/debug/deps/transaction_boundary-e3dd6a48c357e263)
+
+running 2 tests
+test valid_math_about_a_different_boundary_never_binds_to_ink ... ok
+test canonical_proofs_bind_to_the_real_change_boundary_at_word_limits ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+

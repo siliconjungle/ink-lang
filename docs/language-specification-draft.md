@@ -41,11 +41,13 @@ mathematical domains; arbitrary entry kinds do not grant executable authority.
 Historical experiment fixtures live under `knowledge/research`, outside production
 discovery. General stateful replacement and migration remain unfinished.
 
-JavaScript lowering emits ES modules while preserving Ink's core types, wrapping
-integers and binary32 operation order. The initial target supports pure numeric,
-Bool, vector, record and list functions. Browser runtime selection compares
-JavaScript, Wasm and WebGPU whole execution costs; stateful JavaScript execution
-and per-stage adaptive placement remain unfinished. See [JavaScript target](javascript-backend.md).
+C, Rust, JavaScript and Wasm implement the currently executable pure and stateful
+language, including exact values, tables, transactions, ordered events, keeps and
+portable snapshots. JavaScript emits literal ES modules with explicit wrapping
+and binary32 operation order. Complete C emission uses a shared Rust primitive
+runtime. Browser selection compares eligible JavaScript, Wasm and WebGPU pure
+execution costs; per-stage adaptive placement remains unfinished. See the
+[parity contract](lowering-parity.md) and [JavaScript target](javascript-backend.md).
 
 C/Rust toolchains produce native machine code and Wasm. The GPU package emits
 WGSL and operates WebGPU/wgpu devices; runtime assembles artifacts with compiled
@@ -63,7 +65,9 @@ claim end-to-end verified machine code. See [the repository contract](repository
 Legacy programs use `ink-executable-core-v1` and retain their canonical identities.
 Pure compute extensions use `ink-executable-core-v2`; the checker determines the
 version from the actual types and operations and rejects a falsely tagged input.
-Both use the same bounded typed AST. This is separate from the full design below.
+Owned temporary buffers/maps and runtime-bounded stopping iteration use
+`ink-executable-core-v3`; see [the implemented local contract](local-collections.md).
+All use the same bounded typed AST. This is separate from the full design below.
 
 `ink-executable-core-v1` fixes the first checked program format. Its declarations
 live in `core/src/core.rs`, independently of the source parser. Parsing, type/effect
@@ -98,25 +102,29 @@ The executable semantic commitments are:
 
 | Construct | Meaning and current boundary |
 | --- | --- |
-| Values | Bool, Unit, strings, bounded u32/u64, exact Int, finite lists, Option/Result, nominal 128-bit IDs, records and nullary enums. Declared signatures and state schemas have concrete types. |
+| Values | Bool, Unit, strings, bounded u32/u64/i32, f32, fixed numerical vectors, exact Int, finite lists, Option/Result, nominal 128-bit IDs, records and nullary enums. These existing types cross pure and stateful boundaries; declared signatures and state schemas have concrete types. |
 | Variables and bindings | Lexical immutable bindings, with shadowing scoped to lambdas/blocks. No observable pointer identity or shared mutable references. A general borrowing/ownership language remains proposed. |
-| Arithmetic | Ordinary u32/u64 `+ - *` wraps at the declared width; Int arithmetic is exact. `checked_add/sub/mul` returns Result with Overflow on failure. Pure word literals use an expected word type and otherwise default to u64; stateful literal operands use their expected integer type. Out-of-range fixed-width literals are rejected. |
+| Arithmetic | Ordinary u32/u64/i32 `+ - *` wraps at the declared width; i32 comparisons are signed. Int arithmetic is exact. CPU f32 rounds each operation to binary32; scalar comparisons use IEEE semantics and aggregate action equality uses raw contained float bits. `checked_add/sub/mul` returns Result with Overflow on failure. Pure word literals use an expected word type and otherwise default to u64; stateful literal operands use their expected integer type. Out-of-range fixed-width literals are rejected. |
 | Evaluation | Operands/arguments evaluate in source order. `&&`, `||` and pure `choose` evaluate only the selected continuation. There is no permission to reorder effects merely because final values agree. |
 | Pure collections | Ordered map and filter preserve element order; sum uses the checked modular u32/u64 element width, count returns u64, and foldr visits the finite list right-to-left. Pure calls are acyclic; escaping first-class closures/general recursion are not supported. |
 | Stateful tables and keeps | Tables are logical keyed collections. Reads inside a change observe earlier tentative writes. Derived values must match recomputation. Physical storage and caches are not logical state. |
 | Changes | An outer successful change returning Ok commits once, including an otherwise empty change. Err, `?`, nested failed changes and host execution errors roll back tentative writes and discard transaction events. Nested failure poisons its enclosing change even if the Result is ignored. |
 | Queries | Declared reads only; queries publish no events and do not advance the committed version. |
+| Table resources | In the executable subset, `Table<K,V>` is a declared root capability. It cannot occur as an ordinary parameter, return, field, event, keep or nested table value. Literal root methods produce ordinary values; root escapes reject during checking. |
 | Events | Successful commits append events in emission order, identified by commit and position. Aborts preserve the previous outbox. Host acknowledgement removes an acknowledged prefix without changing logical table contents. |
 | Commit exhaustion | A change cannot wrap the commit sequence. Exhaustion rolls back and returns a host error. |
 | Snapshots | Transaction-boundary logical tables, committed version and pending ordered events; physical caches are rebuilt. Existing snapshot identities/codecs remain unchanged by the core-file split. No captured call stack, schema migration or durable crash recovery is implied. |
 
 Pure and stateful collection APIs currently have different result typing where
 specified by their checkers: stateful count is exact Int, and stateful sum follows
-the element integer type. An unsupported cross-fragment operation must be rejected
+the element numeric type. An unsupported cross-fragment operation must be rejected
 or diagnosed; this contract does not silently claim the full draft's coverage.
 `core/src/eval.rs` and `core/src/stateful.rs` are the executable reference definitions;
 `core/src/check.rs` and `core/src/statecheck.rs` define current admission and effects.
-Their Rust implementations have not been formally verified.
+Their Rust implementations have not been formally verified. Numerical action domains
+use the explicit typed-actions V2 marker; stored floats preserve raw payloads,
+while GPU floats retain the separate WGSL contract. See
+[the numerical boundary contract](numerical-state.md).
 
 Reference and generated stateful execution share the fixed change-boundary
 primitives in `core/src/transaction.rs`. Canonical database decision laws can be
@@ -140,7 +148,7 @@ ink emit-state core.json --core -o generated-state
 ```
 
 The richer type system, general ownership/arenas, foreign effects, concurrency,
-durability and migration in the design below remain subsequent milestones.
+generic stateful replacement and migration in the design below remain subsequent milestones. Runtime filesystem/IndexedDB adapters now provide a documented native C/Rust and compiled-JavaScript/Wasm durability baseline; they replace whole snapshots rather than implementing the draft's incremental-log protocol. See `docs/durable-host.md`.
 A new executable operation or changed meaning requires an explicit core-version
 and correspondence decision; a new equivalent implementation belongs in knowledge.
 
@@ -149,7 +157,7 @@ and correspondence decision; a new equivalent implementation belongs in knowledg
 The extension adds wrapping i32, portable f32, numeric vectors/records, pure local
 bindings, multiple array inputs and array outputs. Safe indexed reads use
 `at_or`; `repeat` has a literal bound no greater than 65,536. Map, indexed map,
-zip, ordered CPU reductions and integer scan/sort have reference and compiled
+zip, filter, ordered reductions and integer scan/sort have reference and compiled
 implementations. Typed host pipelines can keep GPU arrays resident across steps
 and iterations. See [the compute contract](gpu-compute.md) for exact operations,
 packed ABI, capability limits, fallback and reproduction.
@@ -335,7 +343,11 @@ fn sum_copy(xs: List<Int>) -> Int {
 }
 ```
 
-`if`, `match`, bounded `for`, tuples, lambdas and exhaustive enum matching form the basic control language. A block returns through explicit `return`. `?` propagates an error in a `Result`-returning declaration; it has no implicit exception behaviour.
+`if`, `match`, bounded `for`, tuples, lambdas and exhaustive enum matching form the basic control language. A block returns through explicit `return`. `?` exits its containing `Result`-returning declaration with Err. A query or
+Result-valued keep returns that Err as an ordinary value: reading/calling it does
+not automatically abort a change. A caller can apply `?` to propagate it.
+Nested change errors still poison the transaction even when discarded. Host
+execution failures propagate and require rollback.
 
 The checked total fragment accepts structural recursion and recursion with a proved decreasing measure. Unrestricted recursion and `while` require `partial fn`. Partial functions may diverge and cannot be invoked during type checking or proof reduction. They are excluded from transactions and maintained queries in the initial version. External drivers may call them.
 
@@ -716,7 +728,19 @@ WebAssembly is the browser CPU target. Browser GPU execution requires a separate
 
 ## 19 Packages and developer commands
 
-Modules use explicit imports:
+The executable distribution supports explicit file namespaces and embedded standard helpers (`docs/modules.md`):
+
+```ink
+module app.inventory;
+import "stock.ink" as stock;
+import "std:words" as words;
+```
+
+All top-level declarations are currently exported. The loader rejects import cycles,
+resolves relative file paths and preserves ordinary checked core semantics. Private
+exports, package resolution and richer library/proof syntax remain proposed below.
+
+The broader package design uses explicit imports:
 
 ```text
 module app.inventory;

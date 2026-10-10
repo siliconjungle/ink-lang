@@ -1,0 +1,33 @@
+   Compiling version_check v0.9.5
+   Compiling autocfg v1.5.1
+   Compiling typenum v1.20.1
+   Compiling serde_core v1.0.229
+   Compiling zmij v1.0.23
+   Compiling serde_json v1.0.151
+   Compiling cfg-if v1.0.5
+   Compiling memchr v2.8.3
+   Compiling itoa v1.0.18
+   Compiling generic-array v0.14.7
+   Compiling num-traits v0.2.19
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling digest v0.10.7
+   Compiling sha2 v0.10.9
+   Compiling num-integer v0.1.47
+   Compiling num-bigint v0.4.8
+   Compiling compiled-state v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/query-errors-wasm)
+warning: unnecessary braces around block return value
+   --> src/lib.rs:738:147
+    |
+738 | ...ned().collect::<Vec<_>>()).into_iter().map(|l_row|{{self.action_l_raising()}}).collect::<Vec<_>>();
+    |                                                       ^                       ^
+    |
+    = note: `#[warn(unused_braces)]` (part of `#[warn(unused)]`) on by default
+help: remove these braces
+    |
+738 - fn action_l_callback(&mut self,)->Vec<Result<(),l_OtherError>>{return (self.l_Rows.values().cloned().collect::<Vec<_>>()).into_iter().map(|l_row|{{self.action_l_raising()}}).collect::<Vec<_>>();
+738 + fn action_l_callback(&mut self,)->Vec<Result<(),l_OtherError>>{return (self.l_Rows.values().cloned().collect::<Vec<_>>()).into_iter().map(|l_row|{self.action_l_raising()}).collect::<Vec<_>>();
+    |
+
+warning: `compiled-state` (lib) generated 1 warning (run `cargo fix --lib -p compiled-state` to apply 1 suggestion)
+    Finished `release` profile [optimized] target(s) in 4.09s

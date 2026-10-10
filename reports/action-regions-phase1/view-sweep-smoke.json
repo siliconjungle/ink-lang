@@ -1,0 +1,863 @@
+{
+ "schema": 1,
+ "workload": "bench/views/view_sweep.ink",
+ "variants": [
+  "ink_maintained",
+  "ink_scan",
+  "rust_incremental",
+  "rust_incremental_bigint",
+  "rust_scan"
+ ],
+ "rounds": 2,
+ "warmup": 1,
+ "budget": 1000.0,
+ "seed": 7,
+ "environment": {
+  "platform": "macOS-15.7.4-arm64-arm-64bit-Mach-O",
+  "machine": "arm64",
+  "cpu": "Apple M4 Pro",
+  "logical_cpus": 14,
+  "python": "3.14.7",
+  "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)\nbinary: rustc\ncommit-hash: b940084d7eb6a299eb4bfeb8e34901bc051e7ac4\ncommit-date: 2026-09-28\nhost: aarch64-apple-darwin\nrelease: 1.99.0\nLLVM version: 23.1.1",
+  "clang": "Apple clang version 17.0.0 (clang-1700.6.3.2)\nTarget: arm64-apple-darwin24.6.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin",
+  "rustc_llvm_major": 23,
+  "clang_llvm_major": null,
+  "git": {
+   "ink-lang": {
+    "commit": "ccf8b6acd0cf9c424dc87f58d4268e61b58e1bd5",
+    "dirty": true
+   },
+   "knowledge": {
+    "commit": "da3d9610a0b586e673d16012a14b554b8455a0e0",
+    "dirty": false
+   },
+   "lowering-c": {
+    "commit": "1bbf84a21e35154f42de66af07831902bf251aab",
+    "dirty": false
+   },
+   "lowering-gpu": {
+    "commit": "1e587d49a7e5a2793213ca0b228f8bf5ef9d3194",
+    "dirty": false
+   },
+   "lowering-js": {
+    "commit": "c15d7050a06da93558018c4fdea0d82dac313dd1",
+    "dirty": false
+   },
+   "lowering-rust": {
+    "commit": "faf94172a5fa8738e61af350a45b0314251dd1b5",
+    "dirty": false
+   },
+   "lowering-wasm": {
+    "commit": "e81fcd28ccb7626b62c79b9f8261d8e3af8d214c",
+    "dirty": false
+   }
+  },
+  "warnings": [
+   "Apple Clang version does not identify its upstream LLVM major; backend version matching is unestablished",
+   "uncommitted changes in a measured checkout"
+  ]
+ },
+ "plans": {
+  "ink_maintained": {
+   "view_decompositions": [
+    {
+     "aggregate": "sum",
+     "decomposed": "8a0709037d46aa9fb1b502aa00bd66c03f7c7cfacaaa4dd7ef92e1b03b21d0d7",
+     "evidence_sha256": "69152a0cd8b32e194c1c5fb02989aaa8e348fb4082d5d90e7f0eb39fb090f8b4",
+     "keep": "active_units",
+     "pipeline": "293ba67fe76d923cc813557d1604857c0cb591d3e01c2dae2214e5622fedf8a1",
+     "stages": [
+      "filter",
+      "map"
+     ]
+    },
+    {
+     "aggregate": "count",
+     "decomposed": "5f149bfb1c19f52b8b235c624b99417d385b88004ac9d1d133df1af47ab06654",
+     "evidence_sha256": "d0a4cee469f8342dc5c55418c1169c1eb6c84cefdc5cf3cd85783cb672164841",
+     "keep": "active_rows",
+     "pipeline": "b981c522cb4bea423758225e61fa73050acfab2d602d97c83ff0b10bf8aa04c2",
+     "stages": [
+      "filter"
+     ]
+    }
+   ],
+   "view_authority": "each maintained keep's sum/count pipeline is checked equal to the sum of its row projections by the general kernel; the proof is externally produced",
+   "view_fallback": null,
+   "trusted": [
+    "frontend",
+    "stored table enumerated as the logical row list",
+    "native contribution lowering and transactional cache protocol",
+    "finite-domain range analysis",
+    "modular representation lowering",
+    "typed Rust lowering",
+    "num-bigint",
+    "Rust/LLVM backend"
+   ]
+  },
+  "ink_scan": {
+   "view_decompositions": null,
+   "view_authority": null,
+   "view_fallback": null,
+   "trusted": [
+    "frontend",
+    "row-local table projection and transactional cache protocol",
+    "finite-domain range analysis",
+    "modular representation lowering",
+    "typed Rust lowering",
+    "num-bigint",
+    "Rust/LLVM backend"
+   ]
+  }
+ },
+ "results": [
+  {
+   "n": 32,
+   "query_permille": 0,
+   "steps": 1000,
+   "queries": 0,
+   "updates": 1000,
+   "units": 26454,
+   "rows": 41,
+   "ns_per_op": {
+    "ink_maintained": [
+     97.999,
+     74.0
+    ],
+    "ink_scan": [
+     51.99999999999999,
+     47.0
+    ],
+    "rust_incremental": [
+     34.0,
+     31.999000000000002
+    ],
+    "rust_incremental_bigint": [
+     82.0,
+     51.999
+    ],
+    "rust_scan": [
+     35.998999999999995,
+     25.999999999999996
+    ]
+   },
+   "median_ns_per_op": {
+    "ink_maintained": 85.9995,
+    "ink_scan": 49.5,
+    "rust_incremental": 32.9995,
+    "rust_incremental_bigint": 66.9995,
+    "rust_scan": 30.999499999999998
+   },
+   "ratios": {
+    "ink_maintained/ink_scan": [
+     1.7373636363636362,
+     1.574468085106383,
+     1.884596153846154
+    ],
+    "ink_maintained/rust_incremental": [
+     2.6060849406809194,
+     2.3125722678833713,
+     2.8823235294117646
+    ],
+    "ink_maintained/rust_incremental_bigint": [
+     1.2835842058522824,
+     1.195109756097561,
+     1.4231042904671243
+    ],
+    "ink_maintained/rust_scan": [
+     2.774222164873627,
+     2.7222700630573073,
+     2.8461538461538467
+    ],
+    "rust_incremental_bigint/rust_scan": [
+     2.161309053371829,
+     1.9999615384615388,
+     2.2778410511403098
+    ]
+   }
+  },
+  {
+   "n": 32,
+   "query_permille": 500,
+   "steps": 400,
+   "queries": 207,
+   "updates": 193,
+   "units": 16469,
+   "rows": 33,
+   "ns_per_op": {
+    "ink_maintained": [
+     59.997499999999995,
+     75.0
+    ],
+    "ink_scan": [
+     270.0,
+     277.5025
+    ],
+    "rust_incremental": [
+     22.4975,
+     20.0
+    ],
+    "rust_incremental_bigint": [
+     54.99999999999999,
+     49.9975
+    ],
+    "rust_scan": [
+     54.99999999999999,
+     60.00000000000001
+    ]
+   },
+   "median_ns_per_op": {
+    "ink_maintained": 67.49875,
+    "ink_scan": 273.75125,
+    "rust_incremental": 21.24875,
+    "rust_incremental_bigint": 52.49875,
+    "rust_scan": 57.5
+   },
+   "ratios": {
+    "ink_maintained/ink_scan": [
+     0.2465696503668933,
+     0.22221296296296295,
+     0.27026783542490607
+    ],
+    "ink_maintained/rust_incremental": [
+     3.176598623448438,
+     2.66685187243027,
+     3.75
+    ],
+    "ink_maintained/rust_incremental_bigint": [
+     1.2857210885973476,
+     1.0908636363636364,
+     1.5000750037501875
+    ],
+    "ink_maintained/rust_scan": [
+     1.173891304347826,
+     1.0908636363636364,
+     1.2499999999999998
+    ],
+    "rust_incremental_bigint/rust_scan": [
+     0.9130217391304348,
+     0.8332916666666667,
+     1.0
+    ]
+   }
+  }
+ ],
+ "commands": [
+  {
+   "argv": [
+    "cargo",
+    "build",
+    "--release",
+    "--bin",
+    "ink"
+   ],
+   "seconds": 52.507,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "clang",
+    "-O3",
+    "-std=c11",
+    "-c",
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/bench/views/driver.c",
+    "-o",
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/driver.o"
+   ],
+   "seconds": 0.052,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/target/release/ink",
+    "emit-state",
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/bench/views/view_sweep.ink",
+    "-o",
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/ink_maintained",
+    "--maintenance",
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/knowledge/research/table-maintenance/table.json",
+    "--prove-views",
+    "--require-views"
+   ],
+   "seconds": 0.432,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "cargo",
+    "build",
+    "--release",
+    "--offline",
+    "--lib",
+    "--manifest-path",
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/ink_maintained/Cargo.toml"
+   ],
+   "seconds": 3.714,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "clang",
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/driver.o",
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/target-ink_maintained/release/libcompiled_state.a",
+    "-o",
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/ink_maintained.bin",
+    "-liconv"
+   ],
+   "seconds": 0.064,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/target/release/ink",
+    "emit-state",
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/bench/views/view_sweep.ink",
+    "-o",
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/ink_scan"
+   ],
+   "seconds": 0.004,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "cargo",
+    "build",
+    "--release",
+    "--offline",
+    "--lib",
+    "--manifest-path",
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/ink_scan/Cargo.toml"
+   ],
+   "seconds": 3.059,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "clang",
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/driver.o",
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/target-ink_scan/release/libcompiled_state.a",
+    "-o",
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/ink_scan.bin",
+    "-liconv"
+   ],
+   "seconds": 0.063,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "cargo",
+    "build",
+    "--release",
+    "--offline",
+    "--manifest-path",
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/rust-baseline/Cargo.toml"
+   ],
+   "seconds": 2.364,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "clang",
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/driver.o",
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/target-rust_incremental/release/libview_sweep_baseline.a",
+    "-o",
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/rust_incremental.bin",
+    "-liconv"
+   ],
+   "seconds": 0.059,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "cargo",
+    "build",
+    "--release",
+    "--offline",
+    "--manifest-path",
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/rust-baseline/Cargo.toml",
+    "--features",
+    "bigint"
+   ],
+   "seconds": 2.429,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "clang",
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/driver.o",
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/target-rust_incremental_bigint/release/libview_sweep_baseline.a",
+    "-o",
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/rust_incremental_bigint.bin",
+    "-liconv"
+   ],
+   "seconds": 0.058,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "cargo",
+    "build",
+    "--release",
+    "--offline",
+    "--manifest-path",
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/rust-baseline/Cargo.toml",
+    "--features",
+    "scan"
+   ],
+   "seconds": 2.341,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "clang",
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/driver.o",
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/target-rust_scan/release/libview_sweep_baseline.a",
+    "-o",
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/rust_scan.bin",
+    "-liconv"
+   ],
+   "seconds": 0.058,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/ink_maintained.bin",
+    "32",
+    "1000",
+    "0",
+    "39"
+   ],
+   "seconds": 0.238,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/ink_scan.bin",
+    "32",
+    "1000",
+    "0",
+    "39"
+   ],
+   "seconds": 0.226,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/rust_incremental.bin",
+    "32",
+    "1000",
+    "0",
+    "39"
+   ],
+   "seconds": 0.236,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/rust_incremental_bigint.bin",
+    "32",
+    "1000",
+    "0",
+    "39"
+   ],
+   "seconds": 0.225,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/rust_scan.bin",
+    "32",
+    "1000",
+    "0",
+    "39"
+   ],
+   "seconds": 0.228,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/ink_maintained.bin",
+    "32",
+    "1000",
+    "0",
+    "39"
+   ],
+   "seconds": 0.003,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/ink_scan.bin",
+    "32",
+    "1000",
+    "0",
+    "39"
+   ],
+   "seconds": 0.004,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/rust_incremental.bin",
+    "32",
+    "1000",
+    "0",
+    "39"
+   ],
+   "seconds": 0.003,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/rust_incremental_bigint.bin",
+    "32",
+    "1000",
+    "0",
+    "39"
+   ],
+   "seconds": 0.003,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/rust_scan.bin",
+    "32",
+    "1000",
+    "0",
+    "39"
+   ],
+   "seconds": 0.004,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/rust_incremental_bigint.bin",
+    "32",
+    "1000",
+    "0",
+    "39"
+   ],
+   "seconds": 0.004,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/ink_maintained.bin",
+    "32",
+    "1000",
+    "0",
+    "39"
+   ],
+   "seconds": 0.004,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/rust_scan.bin",
+    "32",
+    "1000",
+    "0",
+    "39"
+   ],
+   "seconds": 0.004,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/rust_incremental.bin",
+    "32",
+    "1000",
+    "0",
+    "39"
+   ],
+   "seconds": 0.003,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/ink_scan.bin",
+    "32",
+    "1000",
+    "0",
+    "39"
+   ],
+   "seconds": 0.003,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/rust_incremental.bin",
+    "32",
+    "1000",
+    "0",
+    "39"
+   ],
+   "seconds": 0.003,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/ink_maintained.bin",
+    "32",
+    "1000",
+    "0",
+    "39"
+   ],
+   "seconds": 0.003,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/rust_incremental_bigint.bin",
+    "32",
+    "1000",
+    "0",
+    "39"
+   ],
+   "seconds": 0.003,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/rust_scan.bin",
+    "32",
+    "1000",
+    "0",
+    "39"
+   ],
+   "seconds": 0.003,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/ink_scan.bin",
+    "32",
+    "1000",
+    "0",
+    "39"
+   ],
+   "seconds": 0.002,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/ink_maintained.bin",
+    "32",
+    "400",
+    "500",
+    "539"
+   ],
+   "seconds": 0.003,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/ink_scan.bin",
+    "32",
+    "400",
+    "500",
+    "539"
+   ],
+   "seconds": 0.003,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/rust_incremental.bin",
+    "32",
+    "400",
+    "500",
+    "539"
+   ],
+   "seconds": 0.003,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/rust_incremental_bigint.bin",
+    "32",
+    "400",
+    "500",
+    "539"
+   ],
+   "seconds": 0.003,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/rust_scan.bin",
+    "32",
+    "400",
+    "500",
+    "539"
+   ],
+   "seconds": 0.003,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/ink_maintained.bin",
+    "32",
+    "400",
+    "500",
+    "539"
+   ],
+   "seconds": 0.003,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/ink_scan.bin",
+    "32",
+    "400",
+    "500",
+    "539"
+   ],
+   "seconds": 0.003,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/rust_incremental.bin",
+    "32",
+    "400",
+    "500",
+    "539"
+   ],
+   "seconds": 0.002,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/rust_incremental_bigint.bin",
+    "32",
+    "400",
+    "500",
+    "539"
+   ],
+   "seconds": 0.002,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/rust_scan.bin",
+    "32",
+    "400",
+    "500",
+    "539"
+   ],
+   "seconds": 0.003,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/rust_incremental_bigint.bin",
+    "32",
+    "400",
+    "500",
+    "539"
+   ],
+   "seconds": 0.003,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/ink_maintained.bin",
+    "32",
+    "400",
+    "500",
+    "539"
+   ],
+   "seconds": 0.003,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/rust_scan.bin",
+    "32",
+    "400",
+    "500",
+    "539"
+   ],
+   "seconds": 0.003,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/ink_scan.bin",
+    "32",
+    "400",
+    "500",
+    "539"
+   ],
+   "seconds": 0.002,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/rust_incremental.bin",
+    "32",
+    "400",
+    "500",
+    "539"
+   ],
+   "seconds": 0.002,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/rust_scan.bin",
+    "32",
+    "400",
+    "500",
+    "539"
+   ],
+   "seconds": 0.003,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/rust_incremental_bigint.bin",
+    "32",
+    "400",
+    "500",
+    "539"
+   ],
+   "seconds": 0.003,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/ink_maintained.bin",
+    "32",
+    "400",
+    "500",
+    "539"
+   ],
+   "seconds": 0.003,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/rust_incremental.bin",
+    "32",
+    "400",
+    "500",
+    "539"
+   ],
+   "seconds": 0.003,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/view-sweep/ink_scan.bin",
+    "32",
+    "400",
+    "500",
+    "539"
+   ],
+   "seconds": 0.002,
+   "returncode": 0
+  }
+ ]
+}

@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "date": "2026-10-11",
+  "core_correspondence_commit": "77a47a6e0b69bf03a31f5a302b58b2c8b80a7a24",
+  "integration_commit": "a0024c924775e32459a331c72c691e7a5fae166c",
+  "knowledge_commit": "e69ffeeb60dd2f2916b5b73d47d4fd4749c047d2",
+  "planner_commit": "d041bf1b7a53c9aef2b7955258a556b8cb0e1adc",
+  "knowledge_snapshot": "625a0b8ae1cf1060fd4b74f6233992d60604b0f850bbecc2269f74225922a4ff",
+  "checked_new_laws": 45,
+  "families": 9,
+  "types": [
+    "u32",
+    "u64",
+    "i32",
+    "f32",
+    "Bool"
+  ],
+  "tests": {
+    "standalone_core": 53,
+    "distribution": 270,
+    "planner": 5,
+    "focused_integration": 3,
+    "compiled_requests_per_path": 66,
+    "cpu_paths": [
+      "native C",
+      "native Rust",
+      "JavaScript",
+      "C Wasm",
+      "Rust Wasm"
+    ]
+  },
+  "store_reproduction": [
+    "snapshot.json",
+    "rewrite-view.json",
+    "local-collection-view.json",
+    "names.json"
+  ],
+  "adversarial_checks": [
+    "rehashed index-shift law",
+    "rehashed disjunctive filter-fusion law",
+    "rehashed false stopping law",
+    "missing or false application premises",
+    "Merkle boundary/corruption cases",
+    "exact 129-entry Rust/Python catalogue equality"
+  ],
+  "trust": "Existing general proof checker with newly fixed primitive correspondence. Total result equality only; physical code generation, fuel, allocation failures, host traps and timing remain outside the proof. Owned mutations, Maps and owned loop accumulators are unavailable.",
+  "benchmark": "../../bench/local-collection-laws/results.json"
+}

@@ -1,0 +1,15 @@
+use compiled_state::State;
+use serde_json::{Value,json};
+fn run()->Result<(),String>{
+ let mut args=std::env::args().skip(1);let file=args.next().ok_or("expected SCRIPT.json")?;let script:Value=serde_json::from_slice(&std::fs::read(file).map_err(|e|e.to_string())?).map_err(|e|e.to_string())?;
+ let mut state=State::new();let mut output=vec![];
+ for step in script.as_array().ok_or("expected script array")?{
+  if let Some(bytes)=step.get("restore"){let bytes:Vec<u8>=serde_json::from_value(bytes.clone()).map_err(|e|e.to_string())?;state=State::restore(&bytes)?;continue;}
+  if let Some(ack)=step.get("acknowledge"){state.acknowledge_through(ack[0].as_u64().ok_or("commit")?,ack[1].as_u64().ok_or("position")?);continue;}
+  let reply=if let Some(name)=step.get("pure").and_then(Value::as_str){match state.call_json(name,&step["args"]){Ok(v)=>json!({"value":v}),Err(e)=>json!({"host_error":e})}}
+  else{match state.invoke_json(step["call"].as_str().ok_or("missing call")?,&step["args"]){Ok(v)=>json!({"outcome":v}),Err(e)=>json!({"host_error":e})}};
+  output.push(json!({"reply":reply,"snapshot":state.checkpoint()?}));
+ }
+ println!("{}",serde_json::to_string(&output).map_err(|e|e.to_string())?);Ok(())
+}
+fn main()->std::process::ExitCode{match run(){Ok(())=>std::process::ExitCode::SUCCESS,Err(e)=>{eprintln!("error: {e}");std::process::ExitCode::FAILURE}}}

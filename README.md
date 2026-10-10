@@ -1,6 +1,6 @@
 # Ink
 
-Ink is a programming language with a small semantic core and proof-backed, data-driven optimisation. Pure functions support word and signed arithmetic, binary32, records/vectors, collections, bounded loops and typed higher-order collection operations. Stateful programs add tables, transactions, events, invariants and portable snapshots.
+Ink is a programming language with a small semantic core and proof-backed, data-driven optimisation. Pure functions support word and signed arithmetic, binary32, records/vectors, collections, bounded loops, [owned local buffers/maps](docs/local-collections.md) and typed higher-order collection operations. Stateful programs add tables, transactions, events, maintained results and portable snapshots.
 
 Read the [practical guide](https://siliconjungle.github.io/ink-spec-site/) or the [language reference](https://siliconjungle.github.io/ink-spec-site/reference.html).
 
@@ -27,16 +27,17 @@ The core checks what programs mean and whether proposed changes preserve that me
 git clone --recurse-submodules https://github.com/siliconjungle/ink-lang.git
 cd ink-lang
 cargo build --release
+(cd knowledge && python3 -m ink_knowledge --root . rebuild)
 cargo test
 cargo test --manifest-path core/Cargo.toml
 
 # Baseline interpreter and native C/LLVM compilation.
 target/release/ink run examples/hello.ink total arguments.json
-target/release/ink build examples/hello.ink -o build/hello.o
+target/release/ink build examples/hello.ink -o build/hello
 
 # Search the pinned database, then independently check every proposed change.
 target/release/ink build program.ink \
-  --optimise knowledge/store/snapshot.json -o build/program.o
+  --optimise knowledge/store/snapshot.json -o build/program
 
 # Portable browser/native GPU bundle, with compiled CPU fallback.
 target/release/ink build examples/particles.ink --target webgpu \
@@ -47,6 +48,15 @@ cargo build --release --manifest-path build/particles/native/Cargo.toml
 Core-only builds need no planner, database, runtime or lowering checkout. SQLite uses Python's standard library; installed planner deployments depend on the `ink-knowledge` Python package. The pinned source distribution supplies its explicitly assembled checkout.
 
 `--selection selection.json` replays a plan without searching or reading the current database. It contains the exact input identity, an authenticated knowledge view and application proofs. Builds record original and selected identities, proof dependencies, applications and target artifacts. The canonical entry/snapshot/evidence formats replace catalogue selection; there are no compatibility aliases.
+
+Explicit [module imports and standard helpers](docs/modules.md) work across targets. [Durable host adapters](docs/durable-host.md) supply filesystem/IndexedDB recovery and ordered outbox delivery for native C/Rust and compiled JavaScript/Wasm.
+
+For a relocatable installation with optional pinned tools, run
+`python3 tools/install.py --prefix DIRECTORY`. `ink doctor` diagnoses missing
+tools; `ink explain SOURCE [--selection PACKAGE.json]` inspects a checked program
+and its optimisation plan. See [installation and inspection](docs/installation.md).
+
+Complete CPU targets share the [lowering parity contract](docs/lowering-parity.md), including transactions and portable snapshots. GPU execution uses eligible pure closures with host execution for stateful operations.
 
 ## Proofs, capabilities and costs
 
@@ -69,8 +79,24 @@ connects actual typed rows and ordered source keys to checked row/column models.
 It is bounded validation infrastructure; transaction/native refinement and an
 efficient logical integer representation remain open.
 
-Pure programs can also [compile to JavaScript](docs/javascript-backend.md):
+[General action values](docs/action-values.md) now bind complete source data and
+the actual action signatures without an aggregate certificate. A flat canonical
+carrier preserves recursive nominal values and full-width words/IDs, with binary
+exact-integer magnitudes. This is data correspondence; logical arithmetic and
+whole-action execution proofs remain open.
+
+Programs can also [compile to JavaScript](docs/javascript-backend.md):
 
 ```sh
 ink build examples/particles.ink --target javascript -o build/particles.mjs
 ```
+
+[Typed ordered actions](docs/typed-actions.md) retain the checked types and
+execution order of stateful code. `ink emit-actions` exports the source-bound
+artifact and `ink check-actions` replays it against the complete source module.
+Reference and Rust execution use its retained judgments. Whole-action logical
+refinement and stateful replacement admission remain open.
+
+[Source-bound action effects](docs/action-effects.md) distinguish reads, writes,
+emits, local Result errors and abrupt exits. Database composition laws bind to
+the fixed effect algebra; whole-action/refinement proofs remain required.

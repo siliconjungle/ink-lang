@@ -1,0 +1,113 @@
+{
+  "schema": 1,
+  "status": "passed",
+  "kind": "database-only filtered-sort aggregation extension",
+  "snapshot": {
+    "root": "2471851ec1e86fd649530daea038fcf0b30f65c614b50b4e3b2ae465a317ac73",
+    "schema": 1,
+    "semantics": "ink-knowledge-snapshot-v1"
+  },
+  "canonical_entries": 915,
+  "checked_semantic_laws": 295,
+  "executable_rewrite_roots": 268,
+  "proof_only_insertion_dependencies": 27,
+  "new_executable_roots": 9,
+  "new_conditional_insertion_dependencies": 18,
+  "new_proofs_replayed": 27,
+  "all_semantic_laws_replayed": 295,
+  "compiler_sha256": "d2cdbb26f4afe7d5ffb3122694eb8002cfc68316cea91fab33a0494778190d10",
+  "unchanged_since": "557723ce2874cf083d9c72520b1219804fd499ab",
+  "unchanged_components": [
+    "core",
+    "src",
+    "Cargo.toml",
+    "Cargo.lock",
+    "planner",
+    "lowerings",
+    "runtime"
+  ],
+  "rust_targeted_tests": {
+    "passed": 32,
+    "suites": [
+      "filtered_sort_optimisation",
+      "sort_cardinality_optimisation",
+      "shared_sequence_optimisation",
+      "collection_pipeline_optimisation",
+      "local_collection_optimisation",
+      "semantic_optimisation",
+      "action_optimisation"
+    ]
+  },
+  "python_tests": {
+    "knowledge": 6,
+    "planner": 7
+  },
+  "new_cpu_requests": 117,
+  "cpu_paths": [
+    "native C",
+    "native Rust",
+    "JavaScript",
+    "C Wasm",
+    "Rust Wasm"
+  ],
+  "validation": [
+    "independent length/count/wrapping sum and native sorted-filter oracles",
+    "empty, prior and new database selection with identical compiler SHA",
+    "prior DB retains all ten example aggregate sorts; new DB erases them",
+    "observed filtered ordered output preserves sorting",
+    "captured predicate under lambda preserves binder scope",
+    "six rehashed type-correct false endpoints rejected",
+    "two swapped helper predicate premises rejected",
+    "missing helper dependency rejected",
+    "forged changed-predicate and ordered-output applications rejected",
+    "active snapshot, names and all six named views reproduce byte-for-byte",
+    "both benchmark packages separately replayed against source-bound core"
+  ],
+  "baseline_snapshot": "229e3d87fa2ca12d83f0f297b5f04a431c25730c47b248a0e600910b38f6f6a0",
+  "benchmark": "../../bench/filtered-sort/results.json",
+  "measured_commits": {
+    "ink-lang": {
+      "commit": "2bab25f05c65c893c2a3efc319d9a3e9a0fff8db",
+      "dirty": false
+    },
+    "knowledge": {
+      "commit": "47b458cfa5a05821990702c583b47c7ec947ec34",
+      "dirty": false
+    },
+    "lowering-c": {
+      "commit": "f4d5ec94e2ea7489f74150cd09e715c78117cbd0",
+      "dirty": false
+    },
+    "lowering-gpu": {
+      "commit": "44d80a1822d1f042381f51f1d4fb16cdeab43fa4",
+      "dirty": false
+    },
+    "lowering-js": {
+      "commit": "01faee8b407abac7a2cbd64555aebbf7a14aab56",
+      "dirty": false
+    },
+    "lowering-rust": {
+      "commit": "40b7ea4c95d0be2f01e22e7e221a4ac66af39a1b",
+      "dirty": false
+    },
+    "lowering-wasm": {
+      "commit": "97074bec1bb4eb68b04206d0192f0ab1917dedd3",
+      "dirty": false
+    },
+    "planner": {
+      "commit": "2f489b6f12c4d1a2d6f5910e63f4270b303a9211",
+      "dirty": false
+    },
+    "runtime": {
+      "commit": "0041210b1001d733dcd608886e9fa4c2622cac19",
+      "dirty": false
+    }
+  },
+  "phase_seconds_single_observations": {
+    "search_and_local_checks": 6.785706124996068,
+    "prior_db_search_and_local_checks": 2.1526857919961913,
+    "baseline_emission_and_selection_replay": 0.5492656670030556,
+    "selected_emission_and_selection_replay": 0.6668388329999289
+  },
+  "trust": "Existing Rust checker, primitive correspondence and backend implementations remain trusted. Total logical equality excludes allocation failure, fuel exhaustion, traps, timing and physical emission. Integer sum wraps; no floating sum reorder proof."
+}

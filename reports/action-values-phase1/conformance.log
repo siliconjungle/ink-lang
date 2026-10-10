@@ -1,0 +1,57 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.04s
+     Running tests/durability.rs (target/debug/deps/durability-463627937085af1a)
+
+running 5 tests
+test compiled_durable_state_recovers_before_reply_and_keeps_outbox ... javascript: compiled recovery, lost-reply deduplication, abort and durable outbox passed
+c: compiled recovery, lost-reply deduplication, abort and durable outbox passed
+rust: compiled recovery, lost-reply deduplication, abort and durable outbox passed
+ok
+test generated_native_durable_hosts_recover_and_retry_after_process_death ... c: native process death, retry deduplication, abort, outbox acknowledgements and corruption rejection passed
+rust: native process death, retry deduplication, abort, outbox acknowledgements and corruption rejection passed
+ok
+test host_failure_injection::exact_receipts_and_structure_limits ... ok
+test host_failure_injection::receiver_failure_and_uncertain_ack_allow_duplicate_delivery ... ok
+test host_failure_injection::uncertain_writes_poison_until_reopen_and_retries_execute_once ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 15.37s
+
+     Running tests/generated_parity.rs (target/debug/deps/generated_parity-9423a3e7e8ddaff2)
+
+running 1 test
+test reproducible_generated_programs_and_action_histories_agree ... wgpu: 432 results matched; 80 GPU calls
+c Wasm: 432 values/outcomes and exact snapshots matched
+rust Wasm: 432 values/outcomes and exact snapshots matched
+
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 14.29s
+
+     Running tests/lowering_parity.rs (target/debug/deps/lowering_parity-0c49f8da75c43b90)
+
+running 3 tests
+test all_cpu_lowerings_preserve_values_transactions_and_portable_snapshots ... wgpu: 68 results matched; 21 GPU calls
+c Wasm: 68 values/outcomes and exact snapshots matched
+rust Wasm: 68 values/outcomes and exact snapshots matched
+
+ok
+test query_and_result_keep_boundaries_agree_across_lowerings ... c Wasm: 10 values/outcomes and exact snapshots matched
+rust Wasm: 10 values/outcomes and exact snapshots matched
+
+ok
+test resident_collection_lengths_survive_feedback ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 18.34s
+
+     Running tests/modules.rs (target/debug/deps/modules-067d800d06d1c106)
+
+running 3 tests
+test imports_reject_cycles_unknown_exports_namespaces_and_module_collisions ... ok
+test imports_types_state_events_and_standard_helpers_lower_identically ... wgpu: 6 results matched; 1 GPU calls
+c Wasm: 6 values/outcomes and exact snapshots matched
+rust Wasm: 6 values/outcomes and exact snapshots matched
+
+ok
+test linking_preserves_fields_and_shadowed_local_values ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 7.46s
+
