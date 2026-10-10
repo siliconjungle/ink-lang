@@ -79,7 +79,9 @@ release tooling, runtime adaptation, durability and concurrency remain open.
 ## Reproduce
 
 See docs/source-routing.md and bench/routing/{fixtures.py,native.py,validate.mjs}.
-Use the archived core/route/placements, pinned backends and compiler commands:
+Use `validation.json`'s distribution_code_revision for the CLI source, its core
+field for the checked core library, and its explicit backend/knowledge pins. The
+archived core/route/placements and compiler commands are:
 
 ```sh
 ink check-source-route core.json route.json
