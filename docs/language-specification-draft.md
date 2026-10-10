@@ -100,9 +100,9 @@ The executable semantic commitments are:
 
 | Construct | Meaning and current boundary |
 | --- | --- |
-| Values | Bool, Unit, strings, bounded u32/u64, exact Int, finite lists, Option/Result, nominal 128-bit IDs, records and nullary enums. Declared signatures and state schemas have concrete types. |
+| Values | Bool, Unit, strings, bounded u32/u64/i32, f32, fixed numerical vectors, exact Int, finite lists, Option/Result, nominal 128-bit IDs, records and nullary enums. These existing types cross pure and stateful boundaries; declared signatures and state schemas have concrete types. |
 | Variables and bindings | Lexical immutable bindings, with shadowing scoped to lambdas/blocks. No observable pointer identity or shared mutable references. A general borrowing/ownership language remains proposed. |
-| Arithmetic | Ordinary u32/u64 `+ - *` wraps at the declared width; Int arithmetic is exact. `checked_add/sub/mul` returns Result with Overflow on failure. Pure word literals use an expected word type and otherwise default to u64; stateful literal operands use their expected integer type. Out-of-range fixed-width literals are rejected. |
+| Arithmetic | Ordinary u32/u64/i32 `+ - *` wraps at the declared width; i32 comparisons are signed. Int arithmetic is exact. CPU f32 rounds each operation to binary32; scalar comparisons use IEEE semantics and aggregate action equality uses raw contained float bits. `checked_add/sub/mul` returns Result with Overflow on failure. Pure word literals use an expected word type and otherwise default to u64; stateful literal operands use their expected integer type. Out-of-range fixed-width literals are rejected. |
 | Evaluation | Operands/arguments evaluate in source order. `&&`, `||` and pure `choose` evaluate only the selected continuation. There is no permission to reorder effects merely because final values agree. |
 | Pure collections | Ordered map and filter preserve element order; sum uses the checked modular u32/u64 element width, count returns u64, and foldr visits the finite list right-to-left. Pure calls are acyclic; escaping first-class closures/general recursion are not supported. |
 | Stateful tables and keeps | Tables are logical keyed collections. Reads inside a change observe earlier tentative writes. Derived values must match recomputation. Physical storage and caches are not logical state. |
@@ -115,11 +115,14 @@ The executable semantic commitments are:
 
 Pure and stateful collection APIs currently have different result typing where
 specified by their checkers: stateful count is exact Int, and stateful sum follows
-the element integer type. An unsupported cross-fragment operation must be rejected
+the element numeric type. An unsupported cross-fragment operation must be rejected
 or diagnosed; this contract does not silently claim the full draft's coverage.
 `core/src/eval.rs` and `core/src/stateful.rs` are the executable reference definitions;
 `core/src/check.rs` and `core/src/statecheck.rs` define current admission and effects.
-Their Rust implementations have not been formally verified.
+Their Rust implementations have not been formally verified. Numerical action domains
+use the explicit typed-actions V2 marker; stored floats preserve raw payloads,
+while GPU floats retain the separate WGSL contract. See
+[the numerical boundary contract](numerical-state.md).
 
 Reference and generated stateful execution share the fixed change-boundary
 primitives in `core/src/transaction.rs`. Canonical database decision laws can be
