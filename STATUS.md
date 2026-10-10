@@ -2,6 +2,14 @@
 
 ## Database proofs of complete projected action transitions
 
+The projection also covers reached total word/Boolean/record helpers through the
+existing binder-safe semantic tree, including scoped lets and nested helper
+calls. The core defines their meaning; the database still supplies the rewrite
+and proof. A helper fixture passes eighty logical/reference transitions and
+eight calls with exact snapshots on all five CPU paths. Thirty-five focused
+distribution tests and forty-one isolated core tests pass; earlier frozen
+whole-action evidence replays unchanged. See [the helper evidence](reports/action-helper-transitions-phase1/REPORT.md).
+
 The restricted whole-action path now checks the actual original and selected
 typed actions against complete logical transition equations: replies, successful
 commits, rollback, ordered staged events and commit-counter exhaustion. The
