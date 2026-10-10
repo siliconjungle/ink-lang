@@ -40,6 +40,17 @@ jobs:
         working-directory: knowledge
       - name: Fetch locked dependencies
         run: cargo fetch --locked
+      - name: Fetch pinned compiled host dependencies
+        run: |
+          mkdir -p build/host-deps/src
+          cp runtime/hosts/native/Cargo.toml runtime/hosts/native/Cargo.lock build/host-deps/
+          python3 - <<'PYTHON'
+          from pathlib import Path
+          Path('build/host-deps/src/main.rs').write_text('fn main() {}\n')
+          with Path('build/host-deps/Cargo.toml').open('a') as f:
+              f.write('\n[workspace]\n')
+          PYTHON
+          cargo fetch --locked --manifest-path build/host-deps/Cargo.toml
       - name: Runtime policies and failure injection
         run: node --test runtime/tests/backend-selection.mjs runtime/tests/durable-state.mjs
       - name: Independent core and source-bound value admission
