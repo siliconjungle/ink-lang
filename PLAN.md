@@ -2,6 +2,12 @@
 
 ## Accepted production roadmap — 2026-10-10
 
+The user's later clarification makes individual database entries the primary
+knowledge unit. Bundles/locks are derived transport and reproducible build
+artifacts, not a requirement to install each algorithm as a separate package.
+Discovery should query checked code deterministically; matching and proof
+production stay external, while core admission checks actual replacements.
+
 The compiler and knowledge catalogue evolve in separate repositories. Keep as
 much optimisation knowledge as possible in the catalogue: alternative layouts,
 allocation strategies, query maintenance, batching, range specialisation and
@@ -356,3 +362,18 @@ that gate, remaining specialised authority migration or the full release scope.
 - [ ] Extend direct transaction/state/representation selection with trace refinements.
 - [ ] Connect compute-v2 resident pipelines to proved mixed-route physical execution.
 - [ ] Add measured semantic-candidate costs beyond the current structural estimate.
+
+### Deterministic discovery of database entries
+
+Following the user's AST-query clarification, external search now discovers
+eligible immutable theorem entries directly from a configured database directory.
+No per-rule index or algorithm installation is required for the admitted scalar
+subset. Fixed source/postorder/hash scheduling and a shared search budget produce
+checked replacements; strict node-count reduction is an explicit producer policy.
+Only the selected proof closure is frozen for offline builds. The compiler core
+and its proof rules are unchanged.
+
+This advances milestones 4 and 8. It does not complete arbitrary collection,
+data-flow, stateful or mixed-target discovery, measured ranking, runtime adaptation
+or the full source/effect/representation gate. Existing explicit rule indexes
+remain supported for historical replay. See reports/ast-database-query-phase1.

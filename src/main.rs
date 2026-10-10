@@ -93,7 +93,13 @@ fn prepare_selection(
                 .arg(env::current_exe().map_err(|e| e.to_string())?)
                 .arg("--core")
                 .arg(&input)
-                .arg("--catalogue")
+                .arg(
+                    if std::path::Path::new(catalogue.as_ref().unwrap()).is_dir() {
+                        "--database"
+                    } else {
+                        "--catalogue"
+                    },
+                )
                 .arg(catalogue.as_ref().unwrap())
                 .arg("--budget")
                 .arg(budget)
@@ -417,7 +423,7 @@ fn run() -> LangResult<()> {
         return Ok(());
     }
     if cmd == "help" || cmd == "--help" {
-        println!("ink emit-semantic SOURCE [--core] -o SUBJECT.json\nink check-selection CORE.json PACKAGE.json\nExecution, lowering and core emission accept --optimise CATALOGUE.json (external search) or --selection PACKAGE.json (checked replay). Optional --search-tool PATH and --search-budget N.");
+        println!("ink emit-semantic SOURCE [--core] -o SUBJECT.json\nink check-selection CORE.json PACKAGE.json\nExecution, lowering and core emission accept --optimise DATABASE_DIRECTORY or CATALOGUE.json (external search), or --selection PACKAGE.json (checked replay). Optional --search-tool PATH and --search-budget N.");
         println!("ink check-source-route CORE.json ROUTING.json");
         println!("ink emit-machine LOCK.json PACKAGE.json -o SOURCE.rs");
         println!(

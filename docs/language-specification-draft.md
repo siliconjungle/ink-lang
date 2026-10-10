@@ -19,8 +19,11 @@ definition, theorem or candidate names its exact dependencies. The prototype's
 “packages” are portable groups of those entries for checking and reproducible
 builds, not a separate algorithm-installation model. The intended workflow is to
 add entries to the database and let external search discover applicable choices.
-Today's tools still use explicit indexes and proposal files; general automatic
-discovery is not complete.
+External search now queries the checked AST deterministically and discovers
+individual typed law entries from a database directory. It checks every proposed
+application and freezes the selected knowledge for replay. Transaction and
+representation discovery, large-database indexing and measured ranking remain
+production work.
 
 [ink-knowledge](https://github.com/siliconjungle/ink-knowledge) holds immutable
 JSON definitions, theorems, candidate implementations and external proof-producing

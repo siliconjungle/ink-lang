@@ -7,6 +7,7 @@ Matching and cost estimates cannot authorise a replacement.
 
 ```sh
 ink emit-core program.ink --optimise knowledge/semantic/catalogue.json -o selected.json
+ink build program.ink --optimise knowledge/ -o program.o
 ink run program.ink function arguments.json --optimise knowledge/semantic/catalogue.json
 ink build program.ink --optimise knowledge/semantic/catalogue.json -o program.o
 ink build program.ink --optimise knowledge/semantic/catalogue.json --target wasm32 --zig zig -o program.wasm
@@ -21,6 +22,18 @@ script. Without this option, builds retain their existing baseline behaviour.
 `--selection PACKAGE.json` replays an explicit package without running search.
 Build plans include the package, checked dependency closure, applied laws and
 original/selected module identities.
+
+`--optimise` also accepts a database directory. External discovery reads typed
+law files under `objects/<ID>.json` and existing inline catalogue views. New law
+files become rewrite roots automatically; existing views retain their enabled
+roots/private supporting lemmas. The assembled view is ordered by content
+identity, then the same typed AST matcher and checker session run. The receipt
+records the exact root/entry snapshot and producer identity. Whitespace and JSON
+field order do not change the canonical typed identity checked by Ink.
+There is no per-algorithm installation step and no new compiler optimisation rule.
+This mode currently assembles a bounded active view (1024 laws / 16 MB), rather
+than querying an unbounded remote service. Selected packages retain their checked
+view for offline replay.
 
 ## One executable meaning
 

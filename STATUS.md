@@ -1,5 +1,17 @@
 # Implementation status
 
+## Deterministic AST database discovery
+
+The external optimiser can now discover eligible scalar theorem objects directly
+from the database, without a manual rule index or per-algorithm installation.
+AST shape filtering, typed pattern matching, scoped condition proofs and fixed
+content-hash ordering produce replacements checked by the unchanged compiler.
+Each rewrite decreases expression size; node/rule budgets preserve baseline
+bodies when search is exhausted. Builds freeze selected entries and dependencies
+for offline replay. General stateful/data-flow/target queries and measured ranking
+remain unfinished; this is not a runtime speed claim.
+See [evidence](reports/ast-database-query-phase1/REPORT.md).
+
 ## Checker hardening integration
 
 Claude's checker-hardening bundle is integrated with the current compute-v2

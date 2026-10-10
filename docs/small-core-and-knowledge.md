@@ -10,9 +10,11 @@ to the database. Search should discover applicable entries from the configured
 snapshot; it should not require a separate algorithm-installation workflow.
 The implementation's “package” or “bundle” terminology describes a portable
 selection of entries and their exact dependency closure for offline replay. It
-is a transport/build artifact, not a new source of authority. The current tools
-still require explicit indexes and proposal files; general entry discovery and
-selection remain production work. Backend crates are separate execution
+is a transport/build artifact, not a new source of authority. External AST search
+now discovers typed semantic laws and eligible older scalar theorem entries
+without a hand-maintained rule index and produces proposals automatically.
+General stateful and mixed-target discovery/selection remain production work.
+Backend crates are separate execution
 dependencies and do not change this database model.
 
 `siliconjungle/ink-lang` owns the language implementation and its general
@@ -107,6 +109,42 @@ search, candidate construction and performance evidence remain outside the core.
 5. Measure competing valid implementations separately. Profiles guide selection, never justify correctness. Trials cannot publish application events.
 
 Representation packages must prove more than today's answer: initialisation, observations, successful and failing transitions, ordered events, tentative reads, future permitted changes and migration at a transaction boundary. Switching implementations must preserve committed user changes and outstanding outbox entries.
+
+## Deterministic query over code
+
+`ink ... --optimise DATABASE_DIRECTORY` connects individual typed law files and
+existing inline views to the general semantic matcher. Discovery and ordering live
+in `ink-knowledge/tools/semantic_database.py`; no matcher or optimisation law is
+added to the compiler. Individual entries become rewrite roots; existing views
+preserve private supporting lemmas. The core independently checks canonical law
+identities, the complete admitted view and every application. General search uses
+typed root buckets, capture-safe matching and its existing deterministic bounded
+beam. Its receipt binds both the entry/root snapshot and producer identity.
+Active-view admission remains bounded to 1024 laws / 16 MB; large-database
+projection before admission remains unfinished. See the general semantic path
+below and docs/semantic-optimisation.md.
+
+`ink-knowledge/tools/rewrite_search.py --database DIRECTORY` now queries individual
+immutable database entries against the checked source AST. The external discovery
+tool derives its index from theorem endpoints rather than an optimisation-name
+catalogue. Root operator/literal buckets filter candidates; complete structural
+matching checks repeated variables, scalar types and instantiable conditions.
+Selected replacements carry ordinary proof terms through the unchanged admission
+interface. Discovery never authorises a replacement on its own.
+
+Scheduling is fixed: source declarations in order, postorder AST traversal,
+content-hash rule order and a root-query restart after each strict size reduction.
+Search charges visited nodes and candidate attempts against a shared budget;
+unsupported/exhausted functions retain their original implementation. Discovery
+also bounds file counts, byte reads, definition-expansion depth and substituted
+copies. Selection records the discovered snapshot identity, actual selected laws
+and exact proof dependency closure for offline checking.
+
+This older bridge's coverage is scalar u64/Bool and one mapped u64 sum, including the existing
+branch-condition and optional fold proof paths. Node count is only a producer
+heuristic. This does not establish faster execution, complete global rewriting,
+general data-flow queries or stateful/mixed-target optimisation. Those require
+richer correspondence, applicability evidence and separate complete-cost ranking.
 
 ## Hunchroom findings relevant to this design
 
