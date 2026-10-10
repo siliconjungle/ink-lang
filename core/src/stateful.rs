@@ -385,25 +385,31 @@ impl Runtime {
                     events: vec![],
                 })
             }
-            Ok(Value::Result(true, v)) => {
-                let next = match self.version.checked_add(1) {
-                    Some(v) => v,
-                    None => {
+            Ok(Value::Result(succeeded, v)) => {
+                let next = match crate::transaction::decide(self.version, succeeded) {
+                    crate::transaction::Decision::Commit { version } => version,
+                    crate::transaction::Decision::Exhausted => {
                         self.rollback();
                         return Err("commit sequence exhausted".into());
+                    }
+                    crate::transaction::Decision::Rollback => {
+                        self.rollback();
+                        return Ok(Outcome {
+                            result: Value::Result(false, v),
+                            committed: false,
+                            version: self.version,
+                            events: vec![],
+                        });
                     }
                 };
                 self.version = next;
                 self.undo.clear();
-                let events = self
-                    .staged
-                    .drain(..)
-                    .enumerate()
-                    .map(|(i, (channel, value))| Event {
-                        commit: next,
-                        position: i as u64,
-                        channel,
-                        value,
+                let events = crate::transaction::publish(next, self.staged.drain(..))
+                    .map(|published| Event {
+                        commit: published.commit,
+                        position: published.position,
+                        channel: published.value.0,
+                        value: published.value.1,
                     })
                     .collect::<Vec<_>>();
                 self.outbox.extend(events.iter().cloned());
@@ -412,15 +418,6 @@ impl Runtime {
                     committed: true,
                     version: next,
                     events,
-                })
-            }
-            Ok(Value::Result(false, e)) => {
-                self.rollback();
-                Ok(Outcome {
-                    result: Value::Result(false, e),
-                    committed: false,
-                    version: self.version,
-                    events: vec![],
                 })
             }
             Err(Failure::Abort(e)) => {
@@ -500,9 +497,16 @@ impl Runtime {
         let result = self.block(&a.body, &mut env)?.ok_or("missing return")?;
         let result = self.coerce(result, &a.result)?;
         if nested && a.kind == ActionKind::Change {
-            if let Value::Result(false, e) = result {
-                return Err(Failure::Abort(*e));
-            }
+            let result = match result {
+                Value::Result(true, value) => Ok(value),
+                Value::Result(false, error) => Err(error),
+                _ => return Err("change did not return Result".into()),
+            };
+            return match crate::transaction::nested_change(result) {
+                Ok(Ok(value)) => Ok(Value::Result(true, value)),
+                Err(error) => Err(Failure::Abort(*error)),
+                Ok(Err(_)) => unreachable!("nested errors cannot resume"),
+            };
         }
         Ok(result)
     }

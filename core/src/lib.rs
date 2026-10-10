@@ -26,10 +26,15 @@ pub mod stateful;
 pub mod storage;
 pub mod syntax;
 pub mod table_maintenance;
+pub mod transaction;
+pub mod transaction_model;
 
 pub type LangResult<T> = Result<T, String>;
 
 /// Shared reference wire codec used verbatim by external generated runtimes.
 pub const SNAPSHOT_WIRE_RUST_SOURCE: &str = include_str!("snapshot_wire.rs");
+
+/// Fixed transaction boundary used verbatim by generated stateful runtimes.
+pub const TRANSACTION_RUST_SOURCE: &str = include_str!("transaction.rs");
 
 pub mod compute_values;

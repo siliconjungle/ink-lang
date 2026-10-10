@@ -234,6 +234,32 @@ pub struct CheckedBundle {
     order: Vec<String>,
     snapshot_id: String,
 }
+fn admit_first_order(context: &mut crate::logic::Context, id: &str, e: &Entry) -> LangResult<()> {
+    if !matches!(e.kind, Kind::Definition | Kind::Theorem) {
+        return Err("first-order entry kind".into());
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields)]
+    struct Payload {
+        declaration: crate::logic::Declaration,
+    }
+    let d: Payload = serde_json::from_value(e.payload.clone()).map_err(|x| x.to_string())?;
+    let value = serde_json::to_value(&d.declaration).map_err(|x| x.to_string())?;
+    let body = value
+        .as_object()
+        .and_then(|m| m.values().next())
+        .ok_or("declaration object")?;
+    let theorem = matches!(d.declaration, crate::logic::Declaration::Theorem { .. });
+    if (e.kind == Kind::Theorem) != theorem {
+        return Err("declaration kind mismatch".into());
+    }
+    check_interface(e, body)?;
+    let mut local = context.subset(&e.dependencies)?;
+    local.declare(id.to_owned(), &d.declaration)?;
+    context.import(&local, id)?;
+    Ok(())
+}
+
 impl CheckedBundle {
     pub fn check(b: &Bundle) -> LangResult<Self> {
         if b.schema != 1
@@ -349,6 +375,21 @@ impl CheckedBundle {
                 .collect::<LangResult<_>>()?,
         })
     }
+    /// A checked bounded first-order scope for semantic correspondence.
+    /// Snapshot membership alone does not create this context. Mixed domains
+    /// must be projected externally into a compatible dependency closure.
+    pub fn first_order_context(&self) -> LangResult<crate::logic::Context> {
+        let mut context = crate::logic::Context::default();
+        for id in &self.order {
+            let entry = &self.bundle.objects[id];
+            if entry.semantics != crate::library::SEMANTICS {
+                return Err("first-order scope contains an incompatible domain".into());
+            }
+            admit_first_order(&mut context, id, entry)?;
+        }
+        Ok(context)
+    }
+
     /// Common evidence admission for mathematical entries. Program rewrites still require application proofs.
     pub fn verify(&self, p: &crate::core::Program) -> LangResult<Vec<String>> {
         let mut first = crate::logic::Context::default();
@@ -363,30 +404,7 @@ impl CheckedBundle {
                     semantic_roots.push(id.clone());
                 }
                 crate::library::SEMANTICS => {
-                    if !matches!(e.kind, Kind::Definition | Kind::Theorem) {
-                        return Err("first-order entry kind".into());
-                    }
-                    #[derive(Deserialize)]
-                    #[serde(deny_unknown_fields)]
-                    struct Payload {
-                        declaration: crate::logic::Declaration,
-                    }
-                    let d: Payload =
-                        serde_json::from_value(e.payload.clone()).map_err(|x| x.to_string())?;
-                    let value = serde_json::to_value(&d.declaration).map_err(|x| x.to_string())?;
-                    let body = value
-                        .as_object()
-                        .and_then(|m| m.values().next())
-                        .ok_or("declaration object")?;
-                    let theorem =
-                        matches!(d.declaration, crate::logic::Declaration::Theorem { .. });
-                    if (e.kind == Kind::Theorem) != theorem {
-                        return Err("declaration kind mismatch".into());
-                    }
-                    check_interface(e, body)?;
-                    let mut local = first.subset(&e.dependencies)?;
-                    local.declare(id.clone(), &d.declaration)?;
-                    first.import(&local, id)?;
+                    admit_first_order(&mut first, id, e)?;
                 }
                 crate::knowledge::SEMANTICS => {
                     check_interface(e, &e.payload)?;
