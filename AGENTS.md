@@ -116,3 +116,13 @@ identity; no total float key ordering or floating rewrite authority is admitted.
 Snapshot container V1 binds new schemas without migration. Preserve WGSL's
 separate float contract and numerical logical projection's fail-closed boundary.
 See docs/numerical-state.md; no source Type or proof-kernel change was made.
+
+Source-bound physical representations now live in core/src/representation.rs,
+with canonical representation/bridge entries, exact all-action/source binding,
+universal relation preservation and decode/encode or proved direct migration.
+Runtime owns transaction-boundary switching and portable logical snapshots;
+Rust lowering compiles sealed definitions literally. Production rejects old
+aggregate certificates and typed storage policies. Historical experiments require
+legacy-optimisation-research; do not enable it silently or count it as small-core
+admission. Keep docs/database-representations.md source-domain, backend, resource
+and trust limits explicit. No new syntax or proof-kernel rule was introduced.

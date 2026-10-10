@@ -1,3 +1,4 @@
+#![cfg(feature = "legacy-optimisation-research")]
 use sha2::{Digest, Sha256};
 use std::{fs, path::Path};
 use verified_language::{

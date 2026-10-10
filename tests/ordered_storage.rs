@@ -1,6 +1,7 @@
 use std::collections::BTreeMap;
+use verified_language::ordered_storage::OrderedStorage;
+#[cfg(feature = "legacy-optimisation-research")]
 use verified_language::{
-    ordered_storage::OrderedStorage,
     storage::{Layout, Policy, TableStorage},
     syntax::parse,
 };
@@ -98,6 +99,7 @@ fn columns_remove_row_padding_and_storage_moves_nonclone_values() {
     assert_eq!(rows.get(&4095).unwrap().0, 1);
 }
 
+#[cfg(feature = "legacy-optimisation-research")]
 #[test]
 fn external_storage_policies_reject_unbound_roots_limits_and_maintenance() {
     let p = parse("module s; state Rows:Table<u64,u32> = Table.empty();").unwrap();

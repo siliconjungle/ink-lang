@@ -56,6 +56,9 @@ fn slot_scopes_captures_and_callback_error_frames_preserve_observations() {
 #[test]
 fn archived_native_and_wasm_observations_still_match_direct_execution() {
     for mode in ["scan", "maintained", "query-errors"] {
+        if mode == "maintained" && !cfg!(feature = "legacy-optimisation-research") {
+            continue;
+        }
         let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
             .join("reports/action-effects-phase1")
             .join(mode);

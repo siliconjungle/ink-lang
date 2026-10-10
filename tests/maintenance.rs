@@ -1,3 +1,4 @@
+#![cfg(feature = "legacy-optimisation-research")]
 use serde_json::json;
 use verified_language::{aggregate, stateful::Runtime, syntax::parse};
 

@@ -95,22 +95,24 @@ fn relocated_install_search_and_independent_offline_replay_need_no_original_path
     fs::write(outside.join("args.json"), "[4294967295]").unwrap();
     let value = success(command().args(["run", "main.ink", "bounded", "args.json"]));
     assert_eq!(String::from_utf8(value).unwrap().trim(), "100");
-    fs::write(outside.join("views.ink"), "module views; record Row{a:Int,} state Rows:Table<u64,Row> = Table.empty(); keep total:Int=sum(Rows.values().map(fn(r)=>r.a)); query get()->Int reads(total){return total;}").unwrap();
-    fs::write(
-        outside.join("maintenance.json"),
-        include_bytes!("../knowledge/research/table-maintenance/table.json"),
-    )
-    .unwrap();
-    success(command().args([
-        "emit-state",
-        "views.ink",
-        "--maintenance",
-        "maintenance.json",
-        "--require-views",
-        "-o",
-        "state",
-    ]));
-    assert!(outside.join("state/views/total.evidence.json").is_file());
+    if cfg!(feature = "legacy-optimisation-research") {
+        fs::write(outside.join("views.ink"), "module views; record Row{a:Int,} state Rows:Table<u64,Row> = Table.empty(); keep total:Int=sum(Rows.values().map(fn(r)=>r.a)); query get()->Int reads(total){return total;}").unwrap();
+        fs::write(
+            outside.join("maintenance.json"),
+            include_bytes!("../knowledge/research/table-maintenance/table.json"),
+        )
+        .unwrap();
+        success(command().args([
+            "emit-state",
+            "views.ink",
+            "--maintenance",
+            "maintenance.json",
+            "--require-views",
+            "-o",
+            "state",
+        ]));
+        assert!(outside.join("state/views/total.evidence.json").is_file());
+    }
     let info: Value = serde_json::from_slice(&success(
         command()
             .args(["explain", "main.ink", "--optimise"])
