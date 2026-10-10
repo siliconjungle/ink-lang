@@ -1,6 +1,10 @@
+#[cfg(feature = "legacy-optimisation-research")]
 use serde_json::{json, Value as Json};
+#[cfg(feature = "legacy-optimisation-research")]
 use sha2::{Digest, Sha256};
+#[cfg(feature = "legacy-optimisation-research")]
 use std::{collections::BTreeMap, fs, path::Path};
+#[cfg(feature = "legacy-optimisation-research")]
 use verified_language::{
     aggregate::Certificate,
     core::CheckedModule,
@@ -12,7 +16,35 @@ use verified_language::{
     syntax::{parse, Program, Type},
 };
 
+#[cfg(not(feature = "legacy-optimisation-research"))]
+#[test]
+fn archived_row_models_have_no_production_admission_authority() {
+    let program =
+        verified_language::syntax::parse(include_str!("../examples/source-row-undo.ink")).unwrap();
+    let certificate = serde_json::from_str(include_str!(
+        "../knowledge/research/table-maintenance/table.json"
+    ))
+    .unwrap();
+    let model = serde_json::from_str(include_str!(
+        "../knowledge/research/source-row-undo/reversible/source-model.json"
+    ))
+    .unwrap();
+    assert!(
+        verified_language::row_model::export(&program, "total", &certificate)
+            .err()
+            .unwrap()
+            .contains("retired")
+    );
+    assert!(
+        verified_language::row_model::verify(&program, &certificate, &model)
+            .unwrap_err()
+            .contains("retired")
+    );
+}
+
+#[cfg(feature = "legacy-optimisation-research")]
 const SOURCE: &str = include_str!("../examples/source-row-undo.ink");
+#[cfg(feature = "legacy-optimisation-research")]
 fn cert(snapshot: bool) -> Certificate {
     serde_json::from_str(if snapshot {
         include_str!("../knowledge/research/table-maintenance/table-snapshot.json")
@@ -21,6 +53,7 @@ fn cert(snapshot: bool) -> Certificate {
     })
     .unwrap()
 }
+#[cfg(feature = "legacy-optimisation-research")]
 fn ctor(id: &str, constructor: usize, arguments: Vec<Term>) -> Term {
     Term::Construct {
         datatype: id.into(),
@@ -28,12 +61,14 @@ fn ctor(id: &str, constructor: usize, arguments: Vec<Term>) -> Term {
         arguments,
     }
 }
+#[cfg(feature = "legacy-optimisation-research")]
 fn call(id: &str, arguments: Vec<Term>) -> Term {
     Term::Call {
         function: id.into(),
         arguments,
     }
 }
+#[cfg(feature = "legacy-optimisation-research")]
 fn integer(c: &Certificate, n: i64) -> Term {
     let exact = &c.evidence.as_ref().unwrap().model;
     let natural = (1..n.unsigned_abs()).fold(ctor(&exact["Natural"], 0, vec![]), |tail, _| {
@@ -51,6 +86,7 @@ fn integer(c: &Certificate, n: i64) -> Term {
         if n == 0 { vec![] } else { vec![natural] },
     )
 }
+#[cfg(feature = "legacy-optimisation-research")]
 fn encode(model: &Model, p: &Program, c: &Certificate, ty: &Type, value: &Value) -> Term {
     let module = CheckedModule::from_source(p.clone()).unwrap();
     let values = SourceValues::bind(&module, c, model).unwrap();
@@ -63,6 +99,7 @@ fn encode(model: &Model, p: &Program, c: &Certificate, ty: &Type, value: &Value)
         term
     }
 }
+#[cfg(feature = "legacy-optimisation-research")]
 fn row(seed: usize) -> Json {
     json!({
         "name":if seed%2==0{"λ"}else{"hi"},"value":{"Int":(seed as i64%5-2).to_string()},
@@ -76,6 +113,7 @@ fn row(seed: usize) -> Json {
     })
 }
 
+#[cfg(feature = "legacy-optimisation-research")]
 #[test]
 fn actual_source_shapes_and_filtered_projection_agree_with_reference_and_undo() {
     let p = parse(SOURCE).unwrap();
@@ -196,6 +234,7 @@ fn actual_source_shapes_and_filtered_projection_agree_with_reference_and_undo() 
     }
 }
 
+#[cfg(feature = "legacy-optimisation-research")]
 #[test]
 fn a_different_nested_row_and_nominal_key_use_the_same_generic_source_bridge() {
     let p = parse(include_str!("../examples/source-row-ledger.ink")).unwrap();
@@ -344,6 +383,7 @@ fn a_different_nested_row_and_nominal_key_use_the_same_generic_source_bridge() {
     }
 }
 
+#[cfg(feature = "legacy-optimisation-research")]
 #[test]
 fn valid_but_wrong_source_projection_or_payload_shapes_do_not_bind() {
     let p = parse(SOURCE).unwrap();
@@ -401,6 +441,7 @@ fn valid_but_wrong_source_projection_or_payload_shapes_do_not_bind() {
         .contains("projection adapter"));
 }
 
+#[cfg(feature = "legacy-optimisation-research")]
 #[test]
 fn source_binding_requires_actual_semantic_closure_and_direct_definitions() {
     for (source, keep, folder) in [
@@ -468,6 +509,7 @@ fn source_binding_requires_actual_semantic_closure_and_direct_definitions() {
     }
 }
 
+#[cfg(feature = "legacy-optimisation-research")]
 #[test]
 fn width_cast_and_recursive_types_fail_closed_while_count_works() {
     let c = cert(false);
@@ -484,7 +526,11 @@ fn width_cast_and_recursive_types_fail_closed_while_count_works() {
         let value = Value::from_json(&json, &Type::Named("Row".into()), &p).unwrap();
         let input = encode(&model, &p, &c, &Type::Named("Row".into()), &value);
         let count = json["count"].as_u64().unwrap() as i64;
-        let want = if json["detail"]["active"].as_bool().unwrap() { count } else { 0 };
+        let want = if json["detail"]["active"].as_bool().unwrap() {
+            count
+        } else {
+            0
+        };
         if want > 40 {
             // Concrete unary exact integers this large exceed kernel depth;
             // tests/view_decomposition.rs checks small values exactly.

@@ -1,5 +1,8 @@
+#[cfg(feature = "legacy-optimisation-research")]
 use sha2::{Digest, Sha256};
+#[cfg(feature = "legacy-optimisation-research")]
 use std::{collections::BTreeMap, fs, path::Path};
+#[cfg(feature = "legacy-optimisation-research")]
 use verified_language::{
     aggregate::Certificate,
     core::CheckedModule,
@@ -12,6 +15,35 @@ use verified_language::{
     syntax::{parse, Program, Type},
 };
 
+#[cfg(not(feature = "legacy-optimisation-research"))]
+#[test]
+fn archived_column_layouts_cannot_bind_production_source_values() {
+    let module = verified_language::core::CheckedModule::from_source(
+        verified_language::syntax::parse(include_str!("../examples/source-row-undo.ink")).unwrap(),
+    )
+    .unwrap();
+    let certificate = serde_json::from_str(include_str!(
+        "../knowledge/research/table-maintenance/table.json"
+    ))
+    .unwrap();
+    let model = serde_json::from_str(include_str!(
+        "../knowledge/research/source-column-layout/binding.json"
+    ))
+    .unwrap();
+    assert!(
+        verified_language::row_model::verify(module.program(), &certificate, &model)
+            .unwrap_err()
+            .contains("retired")
+    );
+    assert!(
+        verified_language::source_values::SourceValues::bind(&module, &certificate, &model)
+            .err()
+            .unwrap()
+            .contains("retired")
+    );
+}
+
+#[cfg(feature = "legacy-optimisation-research")]
 struct Layout {
     names: BTreeMap<String, String>,
     model: Model,
@@ -19,6 +51,7 @@ struct Layout {
     program: Program,
     values: SourceValues,
 }
+#[cfg(feature = "legacy-optimisation-research")]
 impl Layout {
     fn load(ledger: bool) -> Self {
         Self::load_version(ledger, false)
@@ -215,6 +248,7 @@ impl Layout {
     }
 }
 
+#[cfg(feature = "legacy-optimisation-research")]
 fn natural_position(m: &Layout, mut term: Term) -> usize {
     let mut position = 0;
     loop {
@@ -239,6 +273,7 @@ fn natural_position(m: &Layout, mut term: Term) -> usize {
     }
 }
 
+#[cfg(feature = "legacy-optimisation-research")]
 #[test]
 fn complete_search_cuts_match_binary_search_and_native_mutations_at_every_prefix() {
     let mut prefixes = 0;
@@ -370,6 +405,7 @@ fn complete_search_cuts_match_binary_search_and_native_mutations_at_every_prefix
     assert_eq!(queries, 1024);
 }
 
+#[cfg(feature = "legacy-optimisation-research")]
 #[test]
 fn search_reconstruction_alone_does_not_admit_unsorted_or_duplicate_maps() {
     for ledger in [false, true] {
@@ -398,6 +434,7 @@ fn search_reconstruction_alone_does_not_admit_unsorted_or_duplicate_maps() {
     }
 }
 
+#[cfg(feature = "legacy-optimisation-research")]
 #[test]
 fn rehashed_false_search_gap_payload_position_and_validity_models_fail() {
     for ledger in [false, true] {
@@ -426,6 +463,7 @@ fn rehashed_false_search_gap_payload_position_and_validity_models_fail() {
     }
 }
 
+#[cfg(feature = "legacy-optimisation-research")]
 #[test]
 fn source_bound_layouts_match_native_ordered_storage_and_tree_after_every_write() {
     for ledger in [false, true] {
@@ -576,6 +614,7 @@ fn source_bound_layouts_match_native_ordered_storage_and_tree_after_every_write(
     }
 }
 
+#[cfg(feature = "legacy-optimisation-research")]
 #[test]
 fn alignment_checker_exposes_truncated_zip_in_malformed_external_columns() {
     for ledger in [false, true] {
@@ -606,6 +645,7 @@ fn alignment_checker_exposes_truncated_zip_in_malformed_external_columns() {
     }
 }
 
+#[cfg(feature = "legacy-optimisation-research")]
 fn rewrite(value: &mut serde_json::Value, ids: &BTreeMap<String, String>) {
     match value {
         serde_json::Value::String(s) => {
@@ -626,6 +666,7 @@ fn rewrite(value: &mut serde_json::Value, ids: &BTreeMap<String, String>) {
         _ => (),
     }
 }
+#[cfg(feature = "legacy-optimisation-research")]
 fn changed_bundle(m: &Layout, target: &str) -> Bundle {
     let mut bundle = m.model.library.clone();
     bundle.objects.clear();
@@ -704,6 +745,7 @@ fn changed_bundle(m: &Layout, target: &str) -> Bundle {
     bundle
 }
 
+#[cfg(feature = "legacy-optimisation-research")]
 #[test]
 fn rehashed_dropped_payload_wrong_lookup_and_false_alignment_proofs_are_rejected() {
     for ledger in [false, true] {
@@ -728,6 +770,7 @@ fn rehashed_dropped_payload_wrong_lookup_and_false_alignment_proofs_are_rejected
     }
 }
 
+#[cfg(feature = "legacy-optimisation-research")]
 #[test]
 fn sorted_unique_invariants_hold_through_source_row_and_column_writes() {
     for ledger in [false, true] {
@@ -811,6 +854,7 @@ fn sorted_unique_invariants_hold_through_source_row_and_column_writes() {
     }
 }
 
+#[cfg(feature = "legacy-optimisation-research")]
 #[test]
 fn order_guards_reject_reversal_duplicates_and_high_word_aliases() {
     for ledger in [false, true] {
@@ -905,6 +949,7 @@ fn order_guards_reject_reversal_duplicates_and_high_word_aliases() {
     }
 }
 
+#[cfg(feature = "legacy-optimisation-research")]
 #[test]
 fn rehashed_false_order_predicates_and_unimplemented_writes_are_rejected() {
     for ledger in [false, true] {

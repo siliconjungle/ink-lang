@@ -2,11 +2,15 @@ use std::{collections::BTreeMap, fs, path::Path};
 use verified_language::{
     aggregate::Certificate,
     core::CheckedModule,
-    logic::Term,
     row_model::Model,
-    source_values::{Limits, SourceValues},
-    stateful::{Runtime, Value},
+    source_values::SourceValues,
     syntax::{parse, Type},
+};
+#[cfg(feature = "legacy-optimisation-research")]
+use verified_language::{
+    logic::Term,
+    source_values::Limits,
+    stateful::{Runtime, Value},
 };
 fn fixture(ledger: bool) -> (CheckedModule, Certificate, Model, BTreeMap<String, String>) {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
@@ -26,6 +30,16 @@ fn fixture(ledger: bool) -> (CheckedModule, Certificate, Model, BTreeMap<String,
     let names = serde_json::from_slice(&fs::read(folder.join("names.json")).unwrap()).unwrap();
     (module, cert, model, names)
 }
+#[cfg(not(feature = "legacy-optimisation-research"))]
+#[test]
+fn archived_certificates_cannot_construct_production_source_witnesses() {
+    let (module, certificate, model, _) = fixture(false);
+    assert!(SourceValues::bind(&module, &certificate, &model)
+        .err()
+        .unwrap()
+        .contains("retired"));
+}
+#[cfg(feature = "legacy-optimisation-research")]
 fn row(module: &CheckedModule, n: i64) -> Value {
     Value::from_json(
         &serde_json::json!({
@@ -40,12 +54,14 @@ fn row(module: &CheckedModule, n: i64) -> Value {
     )
     .unwrap()
 }
+#[cfg(feature = "legacy-optimisation-research")]
 fn field_mut(term: &mut Term, i: usize) -> &mut Term {
     let Term::Construct { arguments, .. } = term else {
         panic!("not a constructor")
     };
     &mut arguments[i]
 }
+#[cfg(feature = "legacy-optimisation-research")]
 #[test]
 fn reference_transactions_and_column_roundtrips_use_actual_runtime_rows() {
     let (module, cert, model, names) = fixture(false);
@@ -98,6 +114,7 @@ fn reference_transactions_and_column_roundtrips_use_actual_runtime_rows() {
         assert_eq!(table.decode(&restored, Limits::default()).unwrap(), actual);
     }
 }
+#[cfg(feature = "legacy-optimisation-research")]
 #[test]
 fn nominal_tags_member_types_and_field_sets_cannot_be_erased() {
     let (module, cert, model, _) = fixture(false);
@@ -136,6 +153,7 @@ fn nominal_tags_member_types_and_field_sets_cannot_be_erased() {
         .encode_key(&Value::U32(1), Limits::default())
         .is_err());
 }
+#[cfg(feature = "legacy-optimisation-research")]
 #[test]
 fn decoder_rejects_noncanonical_width_utf8_arity_sort_and_open_terms() {
     let (module, cert, model, _) = fixture(false);
@@ -186,6 +204,7 @@ fn decoder_rejects_noncanonical_width_utf8_arity_sort_and_open_terms() {
         row(&module, -3)
     );
 }
+#[cfg(feature = "legacy-optimisation-research")]
 #[test]
 fn ordered_tables_preserve_full_id_words_and_reject_duplicate_or_foreign_keys() {
     for ledger in [false, true] {
@@ -229,6 +248,7 @@ fn ordered_tables_preserve_full_id_words_and_reject_duplicate_or_foreign_keys() 
         }
     }
 }
+#[cfg(feature = "legacy-optimisation-research")]
 #[test]
 fn limits_are_checked_before_unary_expansion_and_do_not_limit_runtime_integers() {
     let (module, cert, model, _) = fixture(false);
@@ -284,6 +304,7 @@ fn model_from_another_source_cannot_construct_a_bound_witness() {
     assert!(SourceValues::bind(&module, &cert, &model).is_err());
 }
 
+#[cfg(feature = "legacy-optimisation-research")]
 #[test]
 fn u32_table_keys_are_checked_even_though_logic_uses_u64_words() {
     let (_, cert, old, names) = fixture(false);
