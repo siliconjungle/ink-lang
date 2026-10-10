@@ -41,11 +41,13 @@ mathematical domains; arbitrary entry kinds do not grant executable authority.
 Historical experiment fixtures live under `knowledge/research`, outside production
 discovery. General stateful replacement and migration remain unfinished.
 
-JavaScript lowering emits ES modules while preserving Ink's core types, wrapping
-integers and binary32 operation order. The initial target supports pure numeric,
-Bool, vector, record and list functions. Browser runtime selection compares
-JavaScript, Wasm and WebGPU whole execution costs; stateful JavaScript execution
-and per-stage adaptive placement remain unfinished. See [JavaScript target](javascript-backend.md).
+C, Rust, JavaScript and Wasm implement the currently executable pure and stateful
+language, including exact values, tables, transactions, ordered events, keeps and
+portable snapshots. JavaScript emits literal ES modules with explicit wrapping
+and binary32 operation order. Complete C emission uses a shared Rust primitive
+runtime. Browser selection compares eligible JavaScript, Wasm and WebGPU pure
+execution costs; per-stage adaptive placement remains unfinished. See the
+[parity contract](lowering-parity.md) and [JavaScript target](javascript-backend.md).
 
 C/Rust toolchains produce native machine code and Wasm. The GPU package emits
 WGSL and operates WebGPU/wgpu devices; runtime assembles artifacts with compiled
@@ -149,7 +151,7 @@ and correspondence decision; a new equivalent implementation belongs in knowledg
 The extension adds wrapping i32, portable f32, numeric vectors/records, pure local
 bindings, multiple array inputs and array outputs. Safe indexed reads use
 `at_or`; `repeat` has a literal bound no greater than 65,536. Map, indexed map,
-zip, ordered CPU reductions and integer scan/sort have reference and compiled
+zip, filter, ordered reductions and integer scan/sort have reference and compiled
 implementations. Typed host pipelines can keep GPU arrays resident across steps
 and iterations. See [the compute contract](gpu-compute.md) for exact operations,
 packed ABI, capability limits, fallback and reproduction.

@@ -151,7 +151,7 @@ int main(void){
     );
 }
 #[test]
-fn shader_capabilities_leave_ordered_reductions_and_missing_primitives_on_cpu() {
+fn shader_capabilities_cover_collection_operations_and_keep_scalar_reductions_on_cpu() {
     let p = program();
     let dir = std::path::Path::new("build/compute-emission-test");
     verified_language::runtime::emit_gpu(&p, dir).unwrap();
@@ -162,14 +162,14 @@ fn shader_capabilities_leave_ordered_reductions_and_missing_primitives_on_cpu() 
         let name = f["name"].as_str().unwrap();
         assert_eq!(
             f["shader"].is_string(),
-            !["ordered_sum", "prefix", "ordered", "locals", "local_step"].contains(&name),
+            !["ordered_sum", "locals", "local_step"].contains(&name),
             "{name}: {}",
             f["fallback_reason"]
         );
     }
     assert!(std::fs::read_to_string(dir.join("compute-3.wgsl"))
         .unwrap()
-        .contains("if ("));
+        .contains("fn main"));
 }
 #[test]
 fn internal_values_and_deep_calls_have_safe_compilation_boundaries() {

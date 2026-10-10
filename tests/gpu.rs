@@ -36,11 +36,11 @@ fn capability_rejection_preserves_compiled_cpu_and_staged_lowering() {
     assert!(dir.join("native/Cargo.lock").exists());
 }
 #[test]
-fn state_is_rejected_by_the_pure_gpu_backend() {
+fn complete_gpu_bundle_keeps_state_on_the_host() {
     let p = parse(include_str!("../examples/inventory.lang")).unwrap();
     assert!(verified_language::runtime::emit_gpu(
         &p,
         std::path::Path::new("build/gpu-state-rejected")
     )
-    .is_err());
+    .is_ok());
 }

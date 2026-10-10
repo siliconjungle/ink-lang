@@ -1,5 +1,7 @@
 # Implementation status
 
+Current target coverage is documented in [lowering parity](docs/lowering-parity.md): complete C/Rust/JavaScript/Wasm execution, a common native/Wasm lifecycle ABI, and eligible WebGPU/wgpu collection closures inside mixed modules. Historical milestone sections below retain their original scope.
+
 ## Reviewed ownership lowering and independent proof replay
 
 Stateful Rust now uses conservative lexical moves, borrowed lookup keys and
