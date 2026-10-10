@@ -900,6 +900,20 @@ fn evaluate_map_filter(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> 
     }
 }
 
+/// Evaluate a closed primitive expression with the reference semantics. Used by
+/// generic proof computation; no synthetic function name can intercept it.
+pub(crate) fn closed(e: &Expr, p: &Program, want: &Type, fuel: &mut u64) -> LangResult<Value> {
+    expr(
+        e,
+        &BTreeMap::new(),
+        &crate::check::Env::new(),
+        p,
+        fuel,
+        Some(want),
+        0,
+    )
+}
+
 pub fn call(p: &Program, name: &str, args: Vec<Value>, fuel: &mut u64) -> LangResult<Value> {
     call_at(p, name, args, fuel, 0)
 }
@@ -927,4 +941,14 @@ fn call_at(
     crate::check::infer_as(&f.body, &types, p, &f.result)?;
     let env = f.params.iter().map(|(n, _)| n.clone()).zip(args).collect();
     expr(&f.body, &env, &types, p, fuel, Some(&f.result), depth)
+}
+
+/// Execute the exact module admitted by the shared selection boundary.
+pub fn call_selected(
+    selected: &crate::optimisation::CheckedSelection,
+    name: &str,
+    args: Vec<Value>,
+    fuel: &mut u64,
+) -> LangResult<Value> {
+    call(selected.module().program(), name, args, fuel)
 }

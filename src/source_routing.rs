@@ -7,6 +7,7 @@ use crate::{
 };
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
+pub const PROVED_SEMANTICS: &str = "ink-proved-source-routing-v1";
 pub const SEMANTICS: &str = "ink-literal-source-routing-v1";
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -68,8 +69,19 @@ pub struct CheckedRouting {
     package: Package,
     stage_types: BTreeMap<String, Type>,
     composition: Expr,
+    equivalence: Option<Equivalence>,
+}
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct Equivalence {
+    pub catalogue: crate::laws::Catalogue,
+    pub proof: crate::laws::Proof,
 }
 impl CheckedRouting {
+    pub fn equivalence(&self) -> Option<&Equivalence> {
+        self.equivalence.as_ref()
+    }
+
     pub fn module(&self) -> &CheckedModule {
         &self.module
     }
@@ -115,11 +127,38 @@ fn resolve(
     }
 }
 pub fn check(module: &CheckedModule, p: &Package) -> LangResult<CheckedRouting> {
-    if module.semantics() != crate::core::SEMANTICS {
+    check_internal(module, p, None)
+}
+pub fn check_equivalent(
+    module: &CheckedModule,
+    p: &Package,
+    evidence: &Equivalence,
+) -> LangResult<CheckedRouting> {
+    check_internal(module, p, Some(evidence))
+}
+pub fn check_selected(
+    selected: &crate::optimisation::CheckedSelection,
+    p: &Package,
+) -> LangResult<CheckedRouting> {
+    check(selected.module(), p)
+}
+fn check_internal(
+    module: &CheckedModule,
+    p: &Package,
+    equivalence: Option<&Equivalence>,
+) -> LangResult<CheckedRouting> {
+    if equivalence.is_none() && module.semantics() != crate::core::SEMANTICS {
         return Err("literal source routing v1 requires deterministic executable core v1; compute v2 needs its own observation contract".into());
     }
     let source = module.pure_program()?;
-    if p.schema != 1 || p.semantics != SEMANTICS {
+    if p.schema != 1
+        || p.semantics
+            != if equivalence.is_some() {
+                PROVED_SEMANTICS
+            } else {
+                SEMANTICS
+            }
+    {
         return Err("incompatible source routing semantics".into());
     }
     if p.input_core_sha256 != module.identity()? {
@@ -197,7 +236,17 @@ pub fn check(module: &CheckedModule, p: &Package) -> LangResult<CheckedRouting> 
             .map(|(n, _)| Expr::Var(n.clone()))
             .collect(),
     );
-    if composition != entry.body && composition != original {
+    if let Some(evidence) = equivalence {
+        crate::optimisation::equivalent(
+            module,
+            &evidence.catalogue,
+            &entry.params,
+            &entry.result,
+            &entry.body,
+            &composition,
+            &evidence.proof,
+        )?;
+    } else if composition != entry.body && composition != original {
         return Err("routing does not reconstruct the actual source computation".into());
     }
     let mut used = BTreeSet::new();
@@ -224,5 +273,6 @@ pub fn check(module: &CheckedModule, p: &Package) -> LangResult<CheckedRouting> 
         package: p.clone(),
         stage_types: values.into_iter().map(|(n, (t, _, _))| (n, t)).collect(),
         composition,
+        equivalence: equivalence.cloned(),
     })
 }
