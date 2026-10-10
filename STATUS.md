@@ -12,6 +12,28 @@ identity. Stateful Wire support for these new types remains future work.
 See [compute semantics, pipeline API and limits](docs/gpu-compute.md) and
 [validation evidence](reports/gpu-phase2/REPORT.md).
 
+## Literal mixed CPU/GPU execution
+
+A checked source-routing package now connects actual pure source calls to the
+separate GPU backend. One graph runs a u32 collection pipeline in WebGPU/wgpu
+then a scalar finishing call in Wasm/native C. Identical pure calls can share one
+stage: the core reconstructs the graph into the original expression, while the
+external database producer discovers sharing and supplies placements.
+
+External bounded candidate selection checks every candidate and a whole-entry
+CPU baseline before using complete-call measurements. No profile grants a
+semantic fact. This initial simple pipeline selects CPU at all three sampled
+sizes, including one million rows: browser medians were approximately 1 ms CPU
+versus 3.2 ms mixed. These are three-trial exploratory measurements with bounded
+clock calibration, not a broad speed claim.
+
+Evidence in `reports/source-routing-phase1`: native/reference/compiled CPU
+comparisons, actual GPU stages on both hosts, no-GPU/shader fallback, captured
+inputs, concurrent calls, forged graphs/cost records and bounded selection.
+The core has no target knowledge or placement optimiser; backends and physical
+transport remain trusted. General resident-buffer graphs, state/effect routing,
+representation refinement, ownership and durability remain unfinished.
+See [source routing](docs/source-routing.md).
 
 ## u32 and browser/native GPU execution
 

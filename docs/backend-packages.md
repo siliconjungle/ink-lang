@@ -63,11 +63,21 @@ backend is installed, the physical transport is faithful or the graph is faster.
 This initial proof domain uses the existing first-order Bool/U64/datatype dialect;
 it does not yet admit GPU u32 source pipelines through the same proof language.
 
-The GPU runtime supports complete eligible functions and explicit typed host
-pipelines, selecting CPU or GPU for the entire invocation. Intermediate arrays
-stay resident across pipeline steps and iterations. These host plans are not
-admitted by the checked mathematical router. Arbitrary routing of source
-subexpressions between Wasm/native/GPU is **not yet implemented**. Transactions,
+The v2 GPU runtime supports explicit typed host pipelines whose intermediate
+arrays stay resident across steps and iterations. Those host plans are not
+admitted as source replacements by the mathematical or literal source router.
+See [compute pipelines](gpu-compute.md).
+
+The v1 literal pure call router now executes checked source compositions through
+the independent GPU package: `ink build CORE.json --core --route ROUTE.json
+--target webgpu ...` produces Wasm/WebGPU and native C/wgpu hosts. Stages return
+scalar word/Bool results on the host. Repeated pure calls can share one stage,
+with exact source reconstruction checked by core; external production owns
+sharing, placement and complete-cost selection. See [source routing](source-routing.md)
+and `reports/source-routing-phase1`.
+
+General proof-admitted residency, arbitrary source subexpressions and stateful
+placement are not yet implemented. Transactions,
 concurrent effects, async cancellation and persistent state need observation and
 protocol contracts beyond this pure composition interface. A logical identity
 stage alone is not a proof of DMA, buffer ownership, layout bytes or barriers.
@@ -90,6 +100,7 @@ and concurrency. Bounded profiling may rank valid candidates; it must not invent
 semantic assumptions. Search exhaustion keeps an admitted baseline. Runtime
 switching needs checked applicability, state migration and fallback protocols.
 
-Next: connect the existing source/definition dialects to a shared checked graph,
-define physical ABI/ownership/async bridge contracts, then implement mixed
-Wasm/WebGPU execution with transfer-inclusive comparisons to an all-CPU baseline.
+Next: unify source/definition proof dialects, extend explicit physical ABI,
+ownership and async bridge contracts, and retain buffers across GPU functions.
+The literal mixed executor is an initial pure scalar-result boundary; it does
+not establish effects/state refinement or complete the production roadmap.

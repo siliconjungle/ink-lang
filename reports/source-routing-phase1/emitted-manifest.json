@@ -1,0 +1,100 @@
+{
+  "backend": "webgpu-wgpu-v1",
+  "core_semantics": "ink-executable-core-v1",
+  "core_sha256": "e1202e78516ae2d9673021d209b868ae2d4f909a6df65189fc6b566c53fbe602",
+  "cpu_c_sha256": "6b9cb295d2f0d04bda141f1942bc68f2137d146f3fda34a63c7033c91341932f",
+  "functions": [
+    {
+      "cpu_reason": null,
+      "gpu": {
+        "aggregate": "sum",
+        "list_param": 0,
+        "stages": [
+          {
+            "kind": "map",
+            "shader": "function_0_stage_0.wgsl"
+          },
+          {
+            "kind": "filter",
+            "shader": "function_0_stage_1.wgsl"
+          }
+        ]
+      },
+      "index": 0,
+      "name": "bulk",
+      "params": [
+        {
+          "name": "xs",
+          "type": "list_u32"
+        },
+        {
+          "name": "scale",
+          "type": "u32"
+        }
+      ],
+      "result": "u32"
+    },
+    {
+      "cpu_reason": "GPU candidate requires one List<u32> and u32/Bool scalar parameters",
+      "gpu": null,
+      "index": 1,
+      "name": "finish",
+      "params": [
+        {
+          "name": "value",
+          "type": "u32"
+        },
+        {
+          "name": "bias",
+          "type": "u32"
+        }
+      ],
+      "result": "u32"
+    },
+    {
+      "cpu_reason": "GPU currently supports sum/count results; order-sensitive folds stay on CPU",
+      "gpu": null,
+      "index": 2,
+      "name": "entry",
+      "params": [
+        {
+          "name": "xs",
+          "type": "list_u32"
+        },
+        {
+          "name": "scale",
+          "type": "u32"
+        },
+        {
+          "name": "bias",
+          "type": "u32"
+        }
+      ],
+      "result": "u32"
+    }
+  ],
+  "limitations": [
+    "GPU subset: u32 map/filter followed by sum/count, one list and u32/Bool scalars",
+    "u64, exact integers, nested collections, order-sensitive folds and transactions remain on CPU",
+    "GPU unavailable, device loss, limits or validation errors fall back to compiled CPU",
+    "no universal performance or all-device GPU guarantee"
+  ],
+  "proof_claim": "no GPU backend or shader correctness proof; no new optimisation laws; literal source stages retained",
+  "schema": 1,
+  "selection": "bounded host-side measurements, including allocation/upload/dispatch/readback; correctness independent of profiles",
+  "shaders": {
+    "count.wgsl": "df4f41caf2ca6f27d91ac65dcdda1c5b8e8ac0b1867ea88f37b2afd02d0cead7",
+    "filter-offsets.wgsl": "576cb0498f1b6b4684dceedefe773e460dc121d2b6ea9af71553f8a90e9c2e83",
+    "filter-scatter.wgsl": "06a50fa665a840e417acaeb747fb154bb2a5e9edb37e345b6f2251929137e391",
+    "function_0_stage_0.wgsl": "0149a8ef93a1302163ddead6b4efd7c82cf03de5fa122d6a2cb6ddcfa2b6cbdb",
+    "function_0_stage_1.wgsl": "e0fc1be394cea8b351b6be86c39e2a415b50bc5d9964963bafde9ad620be5095",
+    "sum.wgsl": "52be23c14b27dfb888ff2e26281b34ece5cb1ba7ca83a784e6876c0d369e576b"
+  },
+  "trust": [
+    "Rust type checker",
+    "literal C and WGSL lowering",
+    "parallel u32 sum and stable filter primitives",
+    "C/LLVM and wgpu/WebGPU shader toolchains and drivers",
+    "host ABI and runtime"
+  ]
+}

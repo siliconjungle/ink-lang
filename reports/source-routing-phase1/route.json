@@ -1,0 +1,39 @@
+{
+  "entry": "entry",
+  "input_core_sha256": "e1202e78516ae2d9673021d209b868ae2d4f909a6df65189fc6b566c53fbe602",
+  "output": {
+    "Stage": "s1"
+  },
+  "schema": 1,
+  "semantics": "ink-literal-source-routing-v1",
+  "stages": [
+    {
+      "arguments": [
+        {
+          "Input": 0
+        },
+        {
+          "Input": 1
+        }
+      ],
+      "backend": "gpu",
+      "domain": "gpu",
+      "function": "bulk",
+      "id": "s0"
+    },
+    {
+      "arguments": [
+        {
+          "Stage": "s0"
+        },
+        {
+          "Input": 2
+        }
+      ],
+      "backend": "c",
+      "domain": "cpu",
+      "function": "finish",
+      "id": "s1"
+    }
+  ]
+}

@@ -307,3 +307,22 @@ Next: persistent resident handles across host calls, richer source-level control
 flow, reusable GPU scan/sort/scatter primitives with explicit conditions, tiled
 matrix kernels, wider stateful Wire support and externally checked pipeline
 rewrites. Current profiling is host policy, not proof-producing optimization.
+
+### Literal source mixed execution and external complete-cost selection
+
+`ink-literal-source-routing-v1` now checks actual pure source call compositions,
+including u32, by exact reconstruction. The separate GPU package executes these
+graphs as Wasm/WebGPU or native C/wgpu with scalar host results and compiled CPU
+fallback. External production can share repeated pure calls under the unchanged
+core checker. External bounded selection checks baseline/candidates independently
+and uses separate complete-call measurements, retaining baseline without usable
+evidence or search budget. The simple measured pipeline selects CPU rather than
+a slower GPU route.
+
+Next extend the admitted graph with efficient cross-function resident buffers,
+explicit async/ownership/representation bridge contracts and source/definition
+proof correspondence. Connect this execution boundary to complete stateful
+representation admission rather than treating pure graphs as its replacement.
+Full source transaction/error/abort/event/commit/snapshot/migration refinement,
+remaining aggregate/bounded/layout authority removal and all ownership, compact
+storage, release, adaptation and durability gates stay open.

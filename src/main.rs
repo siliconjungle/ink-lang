@@ -49,6 +49,21 @@ fn read_bounded(path: &str, limit: usize) -> LangResult<Vec<u8>> {
 fn run() -> LangResult<()> {
     let args: Vec<String> = env::args().skip(1).collect();
     let cmd = args.first().map(String::as_str).unwrap_or("help");
+    if cmd == "check-source-route" {
+        if args.len() != 3 {
+            return Err("check-source-route requires CORE.json ROUTING.json".into());
+        }
+        let module = core::CheckedModule::from_bytes(&read_bounded(&args[1], core::MAX_BYTES)?)?;
+        let package: verified_language::source_routing::Package =
+            serde_json::from_slice(&read_bounded(&args[2], 16_000_000)?)
+                .map_err(|e| e.to_string())?;
+        let checked = verified_language::source_routing::check(&module, &package)?;
+        println!(
+            "{}",
+            serde_json::json!({"status":"checked", "semantics":package.semantics,"core_sha256":package.input_core_sha256,"entry":package.entry,"stages":package.stages,"stage_types":checked.stage_types(),"scope":"literal pure source call composition; target availability, physical transport, host failures and code generation remain trusted"})
+        );
+        return Ok(());
+    }
     if cmd == "check-route" {
         if args.len() != 3 {
             return Err("check-route requires LOCK.json ROUTING.json".into());
@@ -261,12 +276,13 @@ fn run() -> LangResult<()> {
         return Ok(());
     }
     if cmd == "help" || cmd == "--help" {
+        println!("ink check-source-route CORE.json ROUTING.json");
         println!("ink emit-machine LOCK.json PACKAGE.json -o SOURCE.rs");
         println!(
             "ink emit-definition LOCK.json EXPORTS.json [--select PACKAGE.json] -o DEFINITION.rs"
         );
         println!("ink emit-core SOURCE -o CORE.json\nink check-core CORE.json\nExecution/lowering commands also accept --core to read a checked CORE.json instead of source.\nChecked replacement packages: build/emit-c ... --replacement PACKAGE.json");
-        println!("ink bitvector-obligation GOAL.json [--library LOCK.json] -o CNF.json\nink verify-library LOCK.json\nink project-library LOCK.json ROOTS.json -o BUNDLE.json\nink model-row SOURCE KEEP --maintenance PACKAGE.json -o MODEL.json\nink verify-row-model SOURCE MODEL.json --maintenance PACKAGE.json\nink verify-database LOCK.json\nink check SOURCE\nink prove-maintenance SOURCE [--evidence EVIDENCE.json] -o PACKAGE.json\nink verify-maintenance PACKAGE.json\nink execute SOURCE SCRIPT.json [--maintenance PACKAGE.json] [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable]\nink run SOURCE FUNCTION ARGS.json\nink build SOURCE -o OUTPUT.o [--implementation PROPOSAL.json] [--cc clang] [--native-cpu]\nink build SOURCE --target wasm32 --zig PATH -o OUTPUT.wasm\nink build SOURCE --target webgpu --zig PATH -o DIRECTORY (also emits native wgpu crate)\nink emit-c SOURCE -o OUTPUT.c [--implementation PROPOSAL.json]\nink emit-state SOURCE -o DIRECTORY [--maintenance PACKAGE.json] [--bounded-totals] [--wasm-abi]");
+        println!("ink bitvector-obligation GOAL.json [--library LOCK.json] -o CNF.json\nink verify-library LOCK.json\nink project-library LOCK.json ROOTS.json -o BUNDLE.json\nink model-row SOURCE KEEP --maintenance PACKAGE.json -o MODEL.json\nink verify-row-model SOURCE MODEL.json --maintenance PACKAGE.json\nink verify-database LOCK.json\nink check SOURCE\nink prove-maintenance SOURCE [--evidence EVIDENCE.json] -o PACKAGE.json\nink verify-maintenance PACKAGE.json\nink execute SOURCE SCRIPT.json [--maintenance PACKAGE.json] [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable]\nink run SOURCE FUNCTION ARGS.json\nink build SOURCE -o OUTPUT.o [--implementation PROPOSAL.json] [--cc clang] [--native-cpu]\nink build SOURCE --target wasm32 --zig PATH -o OUTPUT.wasm\nink build SOURCE --target webgpu --zig PATH [--route PACKAGE.json] -o DIRECTORY (also emits native wgpu crate)\nink emit-c SOURCE -o OUTPUT.c [--implementation PROPOSAL.json]\nink emit-state SOURCE -o DIRECTORY [--maintenance PACKAGE.json] [--bounded-totals] [--wasm-abi]");
         return Ok(());
     }
     if cmd == "prove" || cmd == "knowledge" || args.iter().any(|arg| arg == "--knowledge") {
@@ -485,11 +501,30 @@ fn run() -> LangResult<()> {
             let selected_core_sha256 = core::CheckedModule::from_source(p.clone())?.identity()?;
             let out = arg_value(&args, "-o")?.ok_or("build requires -o OUTPUT.o")?;
             let target = arg_value(&args, "--target")?.unwrap_or_else(|| "native".into());
+            let route = arg_value(&args, "--route")?
+                .map(|file| {
+                    let package = serde_json::from_slice::<
+                        verified_language::source_routing::Package,
+                    >(&read_bounded(&file, 16_000_000)?)
+                    .map_err(|e| e.to_string())?;
+                    verified_language::source_routing::check(
+                        &core::CheckedModule::from_source(p.clone())?,
+                        &package,
+                    )
+                })
+                .transpose()?;
+            if route.is_some() && (cmd != "build" || !matches!(target.as_str(), "webgpu" | "gpu")) {
+                return Err("--route currently requires build --target webgpu or gpu".into());
+            }
             if target == "webgpu" || target == "gpu" {
                 if args.iter().any(|a| a == "--native-cpu") {
                     return Err("--native-cpu is not a GPU bundle option".into());
                 }
-                verified_language::gpu::emit(&p, Path::new(&out))?;
+                if let Some(route) = &route {
+                    verified_language::gpu::emit_routed(route, Path::new(&out))?;
+                } else {
+                    verified_language::gpu::emit(&p, Path::new(&out))?;
+                }
                 let zig = arg_value(&args, "--zig")?.unwrap_or_else(|| "zig".into());
                 let mut command = Command::new(&zig);
                 command.args([
@@ -522,12 +557,16 @@ fn run() -> LangResult<()> {
                 if !result.status.success() {
                     return Err(String::from_utf8_lossy(&result.stderr).into_owned());
                 }
-                let plan = serde_json::json!({"source":path,"target":target,"checked_replacement":replacement,"checked_implementation":implementation,"applied_rule_ids":used,"database_lock":serde_json::Value::Null,"database_closure":serde_json::Value::Null,"input_core_sha256":input_core_sha256,"selected_core_sha256":selected_core_sha256,"trust":"GPU backend remains trusted; see manifest.json"});
+                let plan = serde_json::json!({"source":path,"target":target,"checked_replacement":replacement,"checked_implementation":implementation,"applied_rule_ids":used,"database_lock":serde_json::Value::Null,"database_closure":serde_json::Value::Null,"input_core_sha256":input_core_sha256,"selected_core_sha256":selected_core_sha256,"checked_source_route":route.as_ref().map(|r|r.package()),"trust":"GPU backend and physical routing remain trusted; see manifest.json"});
                 write(
                     &format!("{out}/plan.json"),
                     &serde_json::to_string_pretty(&plan).map_err(|e| e.to_string())?,
                 )?;
-                println!("wrote WebGPU/Wasm bundle and native wgpu project to {out}; GPU selection is measured by the host runtime");
+                if route.is_some() {
+                    println!("wrote checked source graph, Wasm/WebGPU and native C/wgpu hosts to {out}; placements supplied externally, GPU failures retain compiled CPU fallback");
+                } else {
+                    println!("wrote WebGPU/Wasm bundle and native wgpu project to {out}; GPU selection is measured by the host runtime");
+                }
                 return Ok(());
             }
             if !["native", "wasm32"].contains(&target.as_str()) {

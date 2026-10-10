@@ -8,7 +8,12 @@ The performance ambition is to compete with expert implementations on specified 
 
 This is the full design draft for Ink. The compiler implements the subset described in [STATUS.md](../STATUS.md); the draft is not a claim that every feature below exists. The executable core contract below describes the current shared representation. The `ink` command is primary; `lang` remains a compatibility command for archived experiments.
 
-## Executable core v1
+## Executable core versions
+
+Legacy programs use `ink-executable-core-v1` and retain their canonical identities.
+Pure compute extensions use `ink-executable-core-v2`; the checker determines the
+version from the actual types and operations and rejects a falsely tagged input.
+Both use the same bounded typed AST. This is separate from the full design below.
 
 `ink-executable-core-v1` fixes the first checked program format. Its declarations
 live in `src/core.rs`, independently of the source parser. Parsing, type/effect
@@ -81,6 +86,30 @@ The richer type system, general ownership/arenas, foreign effects, concurrency,
 durability and migration in the design below remain subsequent milestones.
 A new executable operation or changed meaning requires an explicit core-version
 and correspondence decision; a new equivalent implementation belongs in knowledge.
+
+### Implemented pure compute v2
+
+The extension adds wrapping i32, portable f32, numeric vectors/records, pure local
+bindings, multiple array inputs and array outputs. Safe indexed reads use
+`at_or`; `repeat` has a literal bound no greater than 65,536. Map, indexed map,
+zip, ordered CPU reductions and integer scan/sort have reference and compiled
+implementations. Typed host pipelines can keep GPU arrays resident across steps
+and iterations. See [the compute contract](gpu-compute.md) for exact operations,
+packed ABI, capability limits, fallback and reproduction.
+
+Portable GPU f32 follows WGSL-permitted evaluation behaviour, including rounding,
+fusion and subnormal differences. CPU/GPU bit identity and float-dependent branch
+agreement are not promised. Exact IEEE behaviour requires CPU execution. Tests
+and profiles do not establish stronger floating-point equivalence.
+
+The existing mathematical replacement language does not admit the new compute
+forms. `ink-literal-source-routing-v1` admits deterministic v1 pure calls only:
+the checked graph must reconstruct the original entry expression. External
+knowledge production may share identical calls and rank complete-cost plans;
+the core checks typed source equality and knows no target or cost model. Browser
+and native backends can execute admitted v1 CPU/GPU graphs with scalar host
+results. The explicit v2 resident pipeline API has a separate host contract;
+it is not yet a proved source replacement. See [source routing](source-routing.md).
 
 ## 1 Design commitments
 

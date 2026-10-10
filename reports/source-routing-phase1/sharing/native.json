@@ -1,0 +1,123 @@
+{
+  "status": "passed",
+  "comparisons": 8,
+  "repeated_bulk_runs_once": true,
+  "cases": [
+    {
+      "length": 0,
+      "expected": 0,
+      "result": {
+        "scope": "pure values; immutable inputs shared across stages; scalar stage results materialise on host; physical ABI and backends trusted",
+        "stages": [
+          {
+            "backend": "gpu",
+            "bridge_ms": 0.00025,
+            "execution_ms": 17.885292,
+            "function": "bulk",
+            "id": "s0",
+            "reason": "explicit GPU selection",
+            "requested": "gpu"
+          },
+          {
+            "backend": "cpu",
+            "bridge_ms": 0.000792,
+            "execution_ms": 0.004,
+            "function": "combine",
+            "id": "s1",
+            "reason": "explicit CPU selection",
+            "requested": "cpu"
+          }
+        ],
+        "total_ms": 17.899333,
+        "value": 0
+      }
+    },
+    {
+      "length": 3,
+      "expected": 4,
+      "result": {
+        "scope": "pure values; immutable inputs shared across stages; scalar stage results materialise on host; physical ABI and backends trusted",
+        "stages": [
+          {
+            "backend": "gpu",
+            "bridge_ms": 0.000625,
+            "execution_ms": 14.259166,
+            "function": "bulk",
+            "id": "s0",
+            "reason": "explicit GPU selection",
+            "requested": "gpu"
+          },
+          {
+            "backend": "cpu",
+            "bridge_ms": 0.000458,
+            "execution_ms": 0.004,
+            "function": "combine",
+            "id": "s1",
+            "reason": "explicit CPU selection",
+            "requested": "cpu"
+          }
+        ],
+        "total_ms": 14.274459,
+        "value": 4
+      }
+    },
+    {
+      "length": 4,
+      "expected": 20,
+      "result": {
+        "scope": "pure values; immutable inputs shared across stages; scalar stage results materialise on host; physical ABI and backends trusted",
+        "stages": [
+          {
+            "backend": "gpu",
+            "bridge_ms": 0.00045900000000000004,
+            "execution_ms": 13.71775,
+            "function": "bulk",
+            "id": "s0",
+            "reason": "explicit GPU selection",
+            "requested": "gpu"
+          },
+          {
+            "backend": "cpu",
+            "bridge_ms": 0.0006670000000000001,
+            "execution_ms": 0.003125,
+            "function": "combine",
+            "id": "s1",
+            "reason": "explicit CPU selection",
+            "requested": "cpu"
+          }
+        ],
+        "total_ms": 13.731209,
+        "value": 20
+      }
+    },
+    {
+      "length": 1024,
+      "expected": 1047552,
+      "result": {
+        "scope": "pure values; immutable inputs shared across stages; scalar stage results materialise on host; physical ABI and backends trusted",
+        "stages": [
+          {
+            "backend": "gpu",
+            "bridge_ms": 0.000375,
+            "execution_ms": 13.492208999999999,
+            "function": "bulk",
+            "id": "s0",
+            "reason": "explicit GPU selection",
+            "requested": "gpu"
+          },
+          {
+            "backend": "cpu",
+            "bridge_ms": 0.00045900000000000004,
+            "execution_ms": 0.003459,
+            "function": "combine",
+            "id": "s1",
+            "reason": "explicit CPU selection",
+            "requested": "cpu"
+          }
+        ],
+        "total_ms": 13.5115,
+        "value": 1047552
+      }
+    }
+  ]
+}
