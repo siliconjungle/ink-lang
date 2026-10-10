@@ -38,9 +38,11 @@ generic stateful candidate admission path.
    `ink emit-state SOURCE --maintenance PKG --prove-views` does steps 1–3 for
    every maintained keep, and archives the evidence under `views/`. It records
    the result in `plan.json` (`view_decompositions`, `view_authority`) and updates
-   the trusted list. If any keep fails, the build fails. It never silently falls
-   back to the assumed decomposition. `--view-tool` selects another producer,
-   which is checked the same way.
+   the trusted list. If any keep lacks a checked decomposition, the build falls
+   back explicitly to the recomputing baseline, with no maintenance, and records
+   `view_fallback` with the reason. `--require-views` fails the build instead.
+   The assumed decomposition is never used silently. `--view-tool` selects
+   another producer, which is checked the same way.
 
 ## Unsigned fields
 
