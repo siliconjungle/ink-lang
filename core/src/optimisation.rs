@@ -8,7 +8,7 @@ use crate::{
 };
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
-pub const SEMANTICS: &str = "ink-semantic-selection-v1";
+pub const SEMANTICS: &str = "ink-evidence-v1";
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Site {
@@ -24,7 +24,7 @@ pub struct Package {
     pub schema: u32,
     pub semantics: String,
     pub input_core_sha256: String,
-    pub catalogue: Catalogue,
+    pub knowledge: crate::registry::Bundle,
     pub applications: Vec<Site>,
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -33,7 +33,7 @@ pub struct Evidence {
     pub semantics: String,
     pub input_core_sha256: String,
     pub selected_core_sha256: String,
-    pub catalogue_sha256: String,
+    pub snapshot_sha256: String,
     pub closure: Vec<String>,
     pub applied_laws: Vec<String>,
 }
@@ -97,7 +97,8 @@ pub fn check(module: &CheckedModule, package: &Package) -> LangResult<CheckedSel
         return Err("selection package limit".into());
     }
     let p = module.program();
-    let laws = CheckedCatalogue::check(&package.catalogue, p)?;
+    let knowledge = crate::registry::CheckedBundle::check(&package.knowledge)?;
+    let laws = CheckedCatalogue::check(&knowledge.catalogue()?, p)?;
     check_with_catalogue(module, package, &laws)
 }
 fn check_with_catalogue(
@@ -237,7 +238,7 @@ fn check_with_catalogue(
         semantics: SEMANTICS.into(),
         input_core_sha256: module.identity()?,
         selected_core_sha256: selected.identity()?,
-        catalogue_sha256: laws.identity().into(),
+        snapshot_sha256: crate::registry::identity(&package.knowledge.snapshot)?,
         closure: laws.closure(),
         applied_laws: used,
     };
@@ -251,15 +252,16 @@ fn check_with_catalogue(
 /// producer may submit many proposals; none receives authority from the session.
 pub struct SelectionChecker {
     module: CheckedModule,
-    catalogue: Catalogue,
+    knowledge: crate::registry::Bundle,
     laws: CheckedCatalogue,
 }
 impl SelectionChecker {
-    pub fn new(module: CheckedModule, catalogue: Catalogue) -> LangResult<Self> {
-        let laws = CheckedCatalogue::check(&catalogue, module.program())?;
+    pub fn new(module: CheckedModule, knowledge: crate::registry::Bundle) -> LangResult<Self> {
+        let checked = crate::registry::CheckedBundle::check(&knowledge)?;
+        let laws = CheckedCatalogue::check(&checked.catalogue()?, module.program())?;
         Ok(Self {
             module,
-            catalogue,
+            knowledge,
             laws,
         })
     }
@@ -276,7 +278,7 @@ impl SelectionChecker {
             schema: 1,
             semantics: SEMANTICS.into(),
             input_core_sha256: self.module.identity()?,
-            catalogue: self.catalogue.clone(),
+            knowledge: self.knowledge.clone(),
             applications,
         };
         check_with_catalogue(&self.module, &package, &self.laws)

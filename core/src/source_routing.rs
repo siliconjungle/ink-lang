@@ -74,7 +74,7 @@ pub struct CheckedRouting {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Equivalence {
-    pub catalogue: crate::laws::Catalogue,
+    pub knowledge: crate::registry::Bundle,
     pub proof: crate::laws::Proof,
 }
 impl CheckedRouting {
@@ -239,7 +239,7 @@ fn check_internal(
     if let Some(evidence) = equivalence {
         crate::optimisation::equivalent(
             module,
-            &evidence.catalogue,
+            &crate::registry::CheckedBundle::check(&evidence.knowledge)?.catalogue()?,
             &entry.params,
             &entry.result,
             &entry.body,

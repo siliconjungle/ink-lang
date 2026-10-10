@@ -134,7 +134,7 @@ impl CheckedCatalogue {
                 return Err("cyclic law dependencies".into());
             }
             let law = c.objects.get(id).ok_or("missing law dependency")?;
-            if identity(law)? != id {
+            if crate::registry::identity(&crate::registry::Entry::from_law(law)?)? != *id {
                 return Err("law content identity mismatch".into());
             }
             if law.schema != 1

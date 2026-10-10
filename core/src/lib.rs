@@ -13,6 +13,7 @@ pub mod library;
 pub mod logic;
 pub mod machine;
 pub mod optimisation;
+pub mod registry;
 pub mod routing;
 pub mod row_model;
 pub mod semantic;
@@ -29,3 +30,5 @@ pub type LangResult<T> = Result<T, String>;
 
 /// Shared reference wire codec used verbatim by external generated runtimes.
 pub const SNAPSHOT_WIRE_RUST_SOURCE: &str = include_str!("snapshot_wire.rs");
+
+pub mod compute_values;
