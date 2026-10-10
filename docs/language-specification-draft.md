@@ -143,7 +143,7 @@ ink emit-state core.json --core -o generated-state
 ```
 
 The richer type system, general ownership/arenas, foreign effects, concurrency,
-durability and migration in the design below remain subsequent milestones.
+generic stateful replacement and migration in the design below remain subsequent milestones. Runtime filesystem/IndexedDB adapters now provide a documented compiled-JavaScript/Wasm durability baseline; they replace whole snapshots rather than implementing the draft's incremental-log protocol. See `docs/durable-host.md`.
 A new executable operation or changed meaning requires an explicit core-version
 and correspondence decision; a new equivalent implementation belongs in knowledge.
 
@@ -723,7 +723,19 @@ WebAssembly is the browser CPU target. Browser GPU execution requires a separate
 
 ## 19 Packages and developer commands
 
-Modules use explicit imports:
+The executable distribution supports explicit file namespaces and embedded standard helpers (`docs/modules.md`):
+
+```ink
+module app.inventory;
+import "stock.ink" as stock;
+import "std:words" as words;
+```
+
+All top-level declarations are currently exported. The loader rejects import cycles,
+resolves relative file paths and preserves ordinary checked core semantics. Private
+exports, package resolution and richer library/proof syntax remain proposed below.
+
+The broader package design uses explicit imports:
 
 ```text
 module app.inventory;

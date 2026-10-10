@@ -21,10 +21,7 @@ fn arg_value(args: &[String], flag: &str) -> LangResult<Option<String>> {
     }
 }
 fn source(path: &str) -> LangResult<syntax::Program> {
-    let s = fs::read_to_string(path).map_err(|e| format!("{path}: {e}"))?;
-    let p = syntax::parse(&s)?;
-    check::check(&p)?;
-    Ok(p)
+    Ok(verified_language::modules::load(path)?.program)
 }
 fn write(path: &str, text: &str) -> LangResult<()> {
     if let Some(p) = Path::new(path).parent() {
@@ -209,6 +206,16 @@ fn prepare_selection(
 fn run() -> LangResult<()> {
     let args: Vec<String> = env::args().skip(1).collect();
     let cmd = args.first().map(String::as_str).unwrap_or("help");
+    if cmd == "modules" {
+        let path = args.get(1).ok_or("modules requires SOURCE")?;
+        let loaded = verified_language::modules::load(path)?;
+        let output = serde_json::json!({"entry":loaded.files[0].module,"files":loaded.files.iter().map(|f|serde_json::json!({"path":f.path,"module":f.module,"sha256":f.sha256})).collect::<Vec<_>>()});
+        println!(
+            "{}",
+            serde_json::to_string_pretty(&output).map_err(|e| e.to_string())?
+        );
+        return Ok(());
+    }
     if cmd == "selection-session" {
         if args.len() != 3 {
             return Err("selection-session requires CORE.json VIEW.json".into());
