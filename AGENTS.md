@@ -36,3 +36,21 @@ lowering packages. Core source belongs in core/src, never distribution src.
 Canonical entries and pinned snapshots are the knowledge storage contract;
 SQLite is a disposable index, never mathematical authority. New interface
 changes do not need backward compatibility for historical research formats.
+
+## Direct action execution and production scope
+
+The reference now executes source-bound typed bodies directly, using resolved
+slots and ordered nodes. Actions/keeps do not consume the reconstructed source
+adapter; it remains a backend compatibility interface. General primitive
+semantics and transaction/snapshot boundaries are unchanged. Legacy maintained
+row contributions still use their source evaluator and specialised admission.
+No new proof-kernel rule or stateful replacement authority was added. Continue
+with a whole-action logical interpreter, primitive correspondence and universal
+representation preservation; passing conformance tests does not close those
+gates. See docs/typed-actions.md and reports/typed-execution-phase1.
+
+Parallel lowering/runtime parity is integrated. Preserve the independently
+versioned pins and validate CPU values/errors/events/exact snapshots and eligible
+GPU execution after semantic changes. GPU scan/rank-sort are literal current
+algorithms, not efficiency claims. James excludes editor support and schema
+evolution; installation, diagnostics/debugging and crash recovery remain in scope.

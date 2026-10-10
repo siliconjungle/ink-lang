@@ -108,6 +108,7 @@ The executable semantic commitments are:
 | Stateful tables and keeps | Tables are logical keyed collections. Reads inside a change observe earlier tentative writes. Derived values must match recomputation. Physical storage and caches are not logical state. |
 | Changes | An outer successful change returning Ok commits once, including an otherwise empty change. Err, `?`, nested failed changes and host execution errors roll back tentative writes and discard transaction events. Nested failure poisons its enclosing change even if the Result is ignored. |
 | Queries | Declared reads only; queries publish no events and do not advance the committed version. |
+| Table resources | In the executable subset, `Table<K,V>` is a declared root capability. It cannot occur as an ordinary parameter, return, field, event, keep or nested table value. Literal root methods produce ordinary values; root escapes reject during checking. |
 | Events | Successful commits append events in emission order, identified by commit and position. Aborts preserve the previous outbox. Host acknowledgement removes an acknowledged prefix without changing logical table contents. |
 | Commit exhaustion | A change cannot wrap the commit sequence. Exhaustion rolls back and returns a host error. |
 | Snapshots | Transaction-boundary logical tables, committed version and pending ordered events; physical caches are rebuilt. Existing snapshot identities/codecs remain unchanged by the core-file split. No captured call stack, schema migration or durable crash recovery is implied. |

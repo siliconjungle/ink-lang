@@ -106,3 +106,37 @@ fn archived_native_and_wasm_observations_still_match_direct_execution() {
         );
     }
 }
+
+#[test]
+fn table_resources_cannot_escape_into_values_and_literal_operations_still_work() {
+    use verified_language::{action_ir::CheckedActions, core::CheckedModule};
+    let prefix = "module roots; state Rows:Table<u32,u32> = Table.empty(); ";
+    for source in [
+        "query value()->Table<u32,u32> reads(Rows){return Rows;}",
+        "query value()->Unit reads(Rows){Rows; return ();}",
+        "query value()->Unit reads(Rows){let alias=Rows; return ();}",
+        "query value(x:Table<u32,u32>)->Unit{return ();}",
+        "keep alias:Table<u32,u32> = Rows;",
+        "event escaped:Option<Table<u32,u32>>;",
+        "record Holder {table:Table<u32,u32>,}",
+        "state Nested:Table<u32,Table<u32,u32>> = Table.empty();",
+        "fn identity(x:Table<u32,u32>)->Table<u32,u32>{return x;}",
+    ] {
+        let error =
+            CheckedModule::from_source(parse(&format!("{prefix}{source}")).unwrap()).unwrap_err();
+        assert!(error.contains("root"), "{source}: {error}");
+    }
+    let source = format!("{prefix} query values()->List<u32> reads(Rows) {{return Rows.values().map(fn(Rows)=>Rows+1);}}");
+    let module = CheckedModule::from_source(parse(&source).unwrap()).unwrap();
+    let actions = CheckedActions::elaborate(&module).unwrap();
+    CheckedActions::from_bytes(&module, &actions.bytes().unwrap()).unwrap();
+    assert_eq!(
+        Runtime::new(module.into_program())
+            .unwrap()
+            .invoke_json("values", &json!([]))
+            .unwrap()
+            .result
+            .json(),
+        json!([])
+    );
+}

@@ -316,4 +316,25 @@ mod tests {
             }
         }
     }
+    #[test]
+    fn table_resources_are_rejected_as_values_by_the_independent_core() {
+        let prefix = "module roots; state Rows:Table<u32,u32> = Table.empty(); ";
+        for expression in [
+            "query bad()->Unit reads(Rows){Rows; return ();}",
+            "query bad()->Table<u32,u32> reads(Rows){return Rows;}",
+            "keep bad:Option<Table<u32,u32>> = None;",
+        ] {
+            let p = crate::syntax::parse(&format!("{prefix}{expression}")).unwrap();
+            assert!(crate::core::CheckedModule::from_source(p).is_err());
+        }
+        let p = crate::syntax::parse(&format!(
+            "{prefix} query values()->List<u32> reads(Rows){{return Rows.values();}}"
+        ))
+        .unwrap();
+        let mut rt = Runtime::new(p).unwrap();
+        assert_eq!(
+            rt.invoke("values", vec![]).unwrap().result,
+            Value::List(vec![])
+        );
+    }
 }

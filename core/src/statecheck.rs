@@ -50,7 +50,8 @@ pub(crate) fn validate_type(t: &Type, p: &Program) -> LangResult<()> {
             Ok(())
         }
         Type::List(t) | Type::Option(t) => validate_type(t, p),
-        Type::Result(a, b) | Type::Table(a, b) => {
+        Type::Table(..) => Err("Table is a state-root resource, not a value type".into()),
+        Type::Result(a, b) => {
             validate_type(a, p)?;
             validate_type(b, p)
         }
@@ -163,6 +164,11 @@ impl Context<'_> {
                             "{} lacks read capability for {n}",
                             self.action.name
                         ));
+                    }
+                    if matches!(d.ty, T::Table(..)) {
+                        return Err(
+                            "table roots may only be used as table-operation receivers".into()
+                        );
                     }
                     return Ok(d.ty.clone());
                 }
@@ -383,7 +389,35 @@ impl Context<'_> {
                 Err(format!("unknown function {n}"))
             }
             Expr::Method(receiver, n, args) => {
-                let t = self.infer(receiver, env, facts)?;
+                // Roots are capabilities, never first-class values. Resolve a
+                // literal receiver separately, retaining its typing judgment
+                // for action elaboration. A lambda-local shadow remains a value.
+                let root = self.root(receiver).filter(|n| !env.contains_key(n));
+                let t = if let Some(root) = &root {
+                    if !self.action.reads.contains(root) && !self.action.writes.contains(root) {
+                        return Err(format!(
+                            "{} lacks read capability for {root}",
+                            self.action.name
+                        ));
+                    }
+                    let ty = self
+                        .p
+                        .states
+                        .iter()
+                        .find(|s| &s.name == root)
+                        .expect("resolved root")
+                        .ty
+                        .clone();
+                    if let Some(typing) = self.typing {
+                        typing
+                            .borrow_mut()
+                            .values
+                            .insert(address(receiver), ty.clone());
+                    }
+                    ty
+                } else {
+                    self.infer(receiver, env, facts)?
+                };
                 if let T::Table(kt, vt) = t {
                     let root = self
                         .root(receiver)
@@ -668,12 +702,13 @@ pub fn check(p: &Program) -> LangResult<()> {
         validate_type(t, p)?;
     }
     for s in &p.states {
-        validate_type(&s.ty, p)?;
-        let (k, _) = if let Type::Table(k, v) = &s.ty {
+        let (k, v) = if let Type::Table(k, v) = &s.ty {
             (k, v)
         } else {
             return Err("only table state roots are implemented yet".into());
         };
+        validate_type(k, p)?;
+        validate_type(v, p)?;
         if !matches!(&**k, Type::U64 | Type::U32 | Type::String)
             && !matches!(&**k,Type::Named(n) if p.ids.contains(n))
         {

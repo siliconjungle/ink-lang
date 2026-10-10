@@ -76,3 +76,14 @@ that optimisation authority or prove a source-to-logic interpreter, all-future
 stateful replacement, native storage correspondence or physical rollback.
 The elaborator, direct interpreter and primitive implementations remain
 trusted. Matching executions are validation evidence, not universal proofs.
+
+## Table resources
+
+`Table<K,V>` describes a declared state root, not a first-class value. Tables
+cannot be returned, copied into locals/keeps/records/events, nested as table
+payloads or passed as parameters. Read and write capabilities authorise literal
+root receivers such as `Rows.get(key)` and `Rows.values()`. Values produced by
+those operations are ordinary values. A callback-local name that shadows a root
+is resolved as its local slot, not as a capability. Unsupported resource escapes
+now fail at admission instead of failing later during execution. This fixes an
+accepted-but-unexecutable source shape without adding an optimisation rule.
