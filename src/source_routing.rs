@@ -115,6 +115,9 @@ fn resolve(
     }
 }
 pub fn check(module: &CheckedModule, p: &Package) -> LangResult<CheckedRouting> {
+    if module.semantics() != crate::core::SEMANTICS {
+        return Err("literal source routing v1 requires deterministic executable core v1; compute v2 needs its own observation contract".into());
+    }
     let source = module.pure_program()?;
     if p.schema != 1 || p.semantics != SEMANTICS {
         return Err("incompatible source routing semantics".into());

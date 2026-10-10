@@ -192,3 +192,18 @@ fn shared_graph_expansion_is_bounded_before_cloning() {
         .unwrap_err()
         .contains("expansion limit"));
 }
+
+#[test]
+fn portable_compute_requires_a_distinct_observation_contract() {
+    let m=module("module portable; fn flag(x: f32) -> Bool { return x > 0.0; } fn entry(x: f32) -> Bool { return flag(x); }");
+    assert_eq!(m.semantics(), verified_language::core::COMPUTE_SEMANTICS);
+    let p = package(
+        &m,
+        "entry",
+        vec![stage("flag", "flag", vec![ValueRef::Input(0)])],
+        ValueRef::Stage("flag".into()),
+    );
+    assert!(source_routing::check(&m, &p)
+        .unwrap_err()
+        .contains("observation contract"));
+}
