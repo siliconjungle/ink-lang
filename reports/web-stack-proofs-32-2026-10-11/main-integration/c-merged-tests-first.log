@@ -1,0 +1,50 @@
+     Locking 26 packages to latest compatible versions
+   Compiling ink-lowering-c v0.1.0 (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/reports/web-stack-proofs-32-2026-10-11/main-integration/test-views/c)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.09s
+     Running unittests src/lib.rs (target/debug/deps/ink_lowering_c-cac21574f5c9521e)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (target/debug/deps/ink_lowering_c-1d766fcbf16308e3)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/borrowed_ingress.rs (target/debug/deps/borrowed_ingress-08a7aefd54a8f208)
+
+running 1 test
+test packed_borrowing_is_read_only_and_representation_specific ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.74s
+
+     Running tests/concat.rs (target/debug/deps/concat-13603cd8f77cd6c1)
+
+running 3 tests
+test concat_has_one_fresh_allocation_preserves_bits_and_borrows_packed_u32_inputs ... FAILED
+test scalar_count_of_concat_routes_to_compute_instead_of_the_legacy_list_backend ... FAILED
+test concat_rejects_unsupported_nested_packed_layouts_explicitly ... ok
+
+failures:
+
+---- concat_has_one_fresh_allocation_preserves_bits_and_borrows_packed_u32_inputs stdout ----
+
+thread 'concat_has_one_fresh_allocation_preserves_bits_and_borrows_packed_u32_inputs' (5628827) panicked at tests/concat.rs:24:43:
+called `Result::unwrap()` on an `Err` value: "reserved or duplicate function length"
+
+---- scalar_count_of_concat_routes_to_compute_instead_of_the_legacy_list_backend stdout ----
+
+thread 'scalar_count_of_concat_routes_to_compute_instead_of_the_legacy_list_backend' (5628829) panicked at tests/concat.rs:148:43:
+called `Result::unwrap()` on an `Err` value: "reserved or duplicate function length"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    concat_has_one_fresh_allocation_preserves_bits_and_borrows_packed_u32_inputs
+    scalar_count_of_concat_routes_to_compute_instead_of_the_legacy_list_backend
+
+test result: FAILED. 1 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--test concat`

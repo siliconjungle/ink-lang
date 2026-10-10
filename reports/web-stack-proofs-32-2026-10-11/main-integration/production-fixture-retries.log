@@ -1,0 +1,31 @@
+warning: field `graph` is never read
+   --> lowerings/gpu/src/compute.rs:104:5
+    |
+ 98 | struct Emitter<'a> {
+    |        ------- field in this struct
+...
+104 |     graph: bool,
+    |     ^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `ink-lowering-gpu` (lib) generated 1 warning
+   Compiling ink v0.1.0 (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang)
+error[E0433]: cannot find type `Type` in this scope
+   --> tests/source_values.rs:301:34
+    |
+301 |     model.description.row_type = Type::Named("OtherRow".into());
+    |                                  ^^^^ use of undeclared type `Type`
+    |
+note: found an item that was configured out
+   --> tests/source_values.rs:11:13
+    |
+  6 | #[cfg(feature = "legacy-optimisation-research")]
+    |       ---------------------------------------- the item is gated behind the `legacy-optimisation-research` feature
+...
+ 11 |     syntax::Type,
+    |             ^^^^
+
+For more information about this error, try `rustc --explain E0433`.
+error: could not compile `ink` (test "source_values") due to 1 previous error
+warning: build failed, waiting for other jobs to finish...

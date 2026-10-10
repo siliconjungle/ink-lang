@@ -1,0 +1,39 @@
+   Compiling ink-lowering-js v0.1.0 (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/reports/web-stack-proofs-32-2026-10-11/main-integration/test-views/js)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.40s
+     Running tests/merged_interfaces.rs (target/debug/deps/merged_interfaces-35d4406e7c9a27ba)
+
+running 1 test
+test upstream_owned_state_and_tagged_values_compose_with_trusted_direct_functions ... FAILED
+
+failures:
+
+---- upstream_owned_state_and_tagged_values_compose_with_trusted_direct_functions stdout ----
+
+thread 'upstream_owned_state_and_tagged_values_compose_with_trusted_direct_functions' (5652164) panicked at tests/merged_interfaces.rs:42:80:
+file:///private/var/folders/9l/vh_j__m15dd8jkbdzfwrphq00000gn/T/ink-merged-js-72393/program.mjs:394
+function __tick(ctx){if(--ctx.fuel<0)throw Error('Ink state execution budget exhausted');}
+^
+
+SyntaxError: Identifier '__tick' has already been declared
+    at compileSourceTextModule (node:internal/modules/esm/utils:354:16)
+    at ModuleLoader.moduleStrategy (node:internal/modules/esm/translators:91:18)
+    at #translate (node:internal/modules/esm/loader:438:20)
+    at afterLoad (node:internal/modules/esm/loader:494:29)
+    at ModuleLoader.loadAndTranslate (node:internal/modules/esm/loader:499:12)
+    at #getOrCreateModuleJobAfterResolve (node:internal/modules/esm/loader:552:36)
+    at afterResolve (node:internal/modules/esm/loader:600:52)
+    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:606:12)
+    at ModuleJob.syncLink (node:internal/modules/esm/module_job:163:33)
+    at ModuleJob.link (node:internal/modules/esm/module_job:253:17)
+
+Node.js v26.1.0
+
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    upstream_owned_state_and_tagged_values_compose_with_trusted_direct_functions
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.23s
+
+error: test failed, to rerun pass `--test merged_interfaces`

@@ -1,0 +1,32 @@
+✔ chooses JS or Wasm based on complete measured cost, with cached bounded profiling (1.561666ms)
+✔ GPU setup and transfers can outweigh a faster kernel; availability invalidates profiles (1.407958ms)
+✔ selects GPU when worthwhile, retains baseline on failure and rejects invalid configuration (0.330458ms)
+✔ numerical mismatch removes a profiled scalar GPU candidate; explicit JS remains available (0.169583ms)
+✔ charges module startup once and rechecks warm costs rather than repeatedly taxing a target (0.135459ms)
+✔ native JS destination preserves U64/F32 native values and untouched tail without Wasm loading (16.903709ms)
+✔ captured CPU destination returns native BigInt and exact floating bits, with stable ordinary results (8.063334ms)
+✔ prepared CPU calls snapshot once and remain independent of ordinary calls (4.938083ms)
+✔ capture, serialize concurrent calls and recover exact receipts (15.239ms)
+✔ uncertain write before or after durable publication requires recovery (2.116583ms)
+✔ receiver failure leaves pending events; acknowledgement is durable (3.160041ms)
+✔ delivery can repeat after receiver success and failed acknowledgement (1.683208ms)
+✔ action exception rolls back; bounded receipt eviction is explicit (1.933792ms)
+✔ storage conflict rejects a second stale writer (0.5375ms)
+✔ real file replacement, ownership, recovery and corruption rejection (54.027ms)
+✔ bound trusted JS calls preserve wrapping, signed, Bool, U64 and F32 outputs without CPU transport (15.512ms)
+✔ JS pipeline composes native Bool/list/U64 values and feedback, matching literal references (5.146334ms)
+✔ packed CPU remains available and auto profiling uses equivalent native JS results (9.119666ms)
+✔ scalar host binds native JS and lazily retains its Wasm fallback (13.401709ms)
+✔ prepared capture and destination persist across scratch rewinds and memory growth (2.316542ms)
+✔ separate prepared instances do not invalidate each other (0.198083ms)
+✔ scalar machine-word results preserve all numeric representations without header/output allocations (15.646583ms)
+✔ modules without scalar exports retain the previous packed result path (6.269833ms)
+✔ failed scalar calls reset the arena and leave the serialized queue usable (5.804208ms)
+ℹ tests 24
+ℹ suites 0
+ℹ pass 24
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 176.782375

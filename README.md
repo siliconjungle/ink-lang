@@ -108,3 +108,5 @@ refinement and stateful replacement admission remain open.
 [Source-bound action effects](docs/action-effects.md) distinguish reads, writes,
 emits, local Result errors and abrupt exits. Database composition laws bind to
 the fixed effect algebra; whole-action/refinement proofs remain required.
+
+The latest checked web proof batch and its preserved timings are in [batch32](reports/web-stack-proofs-32-2026-10-11/REPORT.md). [Direct main integration](reports/web-stack-proofs-32-2026-10-11/main-integration/REPORT.md) records the merged source revisions, generated-target correctness replay and publication checks.
