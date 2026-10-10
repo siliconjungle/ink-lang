@@ -7,17 +7,21 @@ The `ink` distribution combines that core with independently pinned repositories
 
 | Repository | Owns |
 | --- | --- |
-| `siliconjungle/ink-lowering-c` | Pure C emitter and allocation primitives |
-| `siliconjungle/ink-lowering-rust` | Stateful Rust emitter, pure Rust expressions, checked definition and machine emission, ordered storage primitives |
-| `siliconjungle/ink-lowering-wasm` | Existing state Wasm ABI and browser/Node adapter |
-| `siliconjungle/ink-lowering-gpu` | WGSL emission, shared WebGPU/wgpu runtime, compiled C fallback |
-| `siliconjungle/ink-knowledge` | Algorithms, equivalent candidates, proof production, discovery and eventually routing/cost selection |
+| [ink-knowledge](https://github.com/siliconjungle/ink-knowledge) | Canonical entries, snapshots, typed SQLite discovery and separate performance observations |
+| [ink-planner](https://github.com/siliconjungle/ink-planner) | Search, applicability proof production and checked-plan selection |
+| [ink-runtime](https://github.com/siliconjungle/ink-runtime) | Backend-neutral graph execution, bundle assembly, host ABIs, scheduling, profiling and pure fallback |
+| [ink-lowering-c](https://github.com/siliconjungle/ink-lowering-c) | Portable C emission and allocation primitives |
+| [ink-lowering-rust](https://github.com/siliconjungle/ink-lowering-rust) | Stateful/inductive Rust emission and native storage primitives |
+| [ink-lowering-wasm](https://github.com/siliconjungle/ink-lowering-wasm) | Checked C-to-Wasm target configuration and exports |
+| [ink-lowering-gpu](https://github.com/siliconjungle/ink-lowering-gpu) | WGSL emission and WebGPU/wgpu device adapters |
 
-Rust/C and their existing toolchains produce native machine code or Wasm.
-No separate ARM64/x86 assembly compiler is required. WebGPU and native wgpu share
-shader lowering. The Wasm package is an adapter, not a direct code generator.
-The distribution's submodule revisions and Cargo lock are explicit pins;
-standalone backend packages pin their compatible core revision as well.
+C/Rust toolchains produce native machine code or Wasm. WebGPU and native wgpu
+share shader lowering. Runtime assembles GPU artifacts with compiled C/Wasm
+fallback; the GPU lowerer has no C or runtime dependency. Wasm state host support
+also belongs to runtime. Core source lives entirely in `core/src`.
+
+The distribution pins repositories and its Cargo lock; standalone packages pin
+compatible core/backend revisions. See [the storage and execution contract](repository-architecture.md).
 
 A core-only build needs neither knowledge nor backend checkouts:
 
@@ -45,7 +49,7 @@ Core must validate what the graph means. A backend provides its capability
 checks, actual emission, runtime protocol and ABI. The external planner compares
 admitted candidates; target names and measured speed never constitute proof.
 
-The first implemented interface is `ink-pure-routing-v1` in `src/routing.rs`:
+The first implemented interface is `ink-pure-routing-v1` in `core/src/routing.rs`:
 
 - An original public function and an acyclic ordered list of public stage functions.
 - Each stage names an opaque backend/domain and takes inputs or earlier results.
@@ -69,7 +73,7 @@ admitted as source replacements by the mathematical or literal source router.
 See [compute pipelines](gpu-compute.md).
 
 The v1 literal pure call router now executes checked source compositions through
-the independent GPU package: `ink build CORE.json --core --route ROUTE.json
+the shared runtime and independent lowerers: `ink build CORE.json --core --route ROUTE.json
 --target webgpu ...` produces Wasm/WebGPU and native C/wgpu hosts. Stages return
 scalar word/Bool results on the host. Repeated pure calls can share one stage,
 with exact source reconstruction checked by core; external production owns
