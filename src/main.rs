@@ -53,12 +53,11 @@ fn prove_views(
     certificate: &aggregate::Certificate,
     out: Option<&str>,
 ) -> LangResult<Vec<serde_json::Value>> {
-    let tool = arg_value(args, "--view-tool")?.unwrap_or_else(|| {
-        format!(
-            "{}/knowledge/producers/view_decomposition.py",
-            env!("CARGO_MANIFEST_DIR")
-        )
-    });
+    let tool = if let Some(path) = arg_value(args, "--view-tool")? {
+        std::path::PathBuf::from(path)
+    } else {
+        verified_language::distribution::resource("knowledge/producers/view_decomposition.py")?
+    };
     let temp = env::temp_dir().join(format!(
         "ink-views-{}-{}",
         std::process::id(),
@@ -87,13 +86,19 @@ fn prove_views(
                 serde_json::to_vec(&view).map_err(|e| e.to_string())?,
             )
             .map_err(|e| e.to_string())?;
-            let run = Command::new("python3")
+            let python = arg_value(args, "--python")?.unwrap_or_else(|| "python3".into());
+            let run = Command::new(&python)
                 .arg(&tool)
                 .arg(&input)
                 .arg("-o")
                 .arg(&output)
                 .output()
-                .map_err(|e| fail(e.to_string()))?;
+                .map_err(|e| {
+                    fail(format!(
+                        "cannot start {python} for {}: {e}; use --python PATH",
+                        tool.display()
+                    ))
+                })?;
             if !run.status.success() {
                 return Err(fail(
                     String::from_utf8_lossy(&run.stderr).trim().to_string(),
@@ -168,11 +173,15 @@ fn prepare_selection(
             let input = temp.join("core.json");
             let output = temp.join("selection.json");
             fs::write(&input, module.bytes()?).map_err(|e| e.to_string())?;
-            let tool = arg_value(args, "--search-tool")?
-                .unwrap_or_else(|| format!("{}/planner/plan.py", env!("CARGO_MANIFEST_DIR")));
+            let tool = if let Some(path) = arg_value(args, "--search-tool")? {
+                std::path::PathBuf::from(path)
+            } else {
+                verified_language::distribution::resource("planner/plan.py")?
+            };
             let budget = arg_value(args, "--search-budget")?.unwrap_or_else(|| "128".into());
-            let result = Command::new("python3")
-                .arg(tool)
+            let python = arg_value(args, "--python")?.unwrap_or_else(|| "python3".into());
+            let result = Command::new(&python)
+                .arg(&tool)
                 .arg("--compiler")
                 .arg(env::current_exe().map_err(|e| e.to_string())?)
                 .arg("--core")
@@ -184,7 +193,12 @@ fn prepare_selection(
                 .arg("-o")
                 .arg(&output)
                 .output()
-                .map_err(|e| e.to_string())?;
+                .map_err(|e| {
+                    format!(
+                        "cannot start {python} for {}: {e}; use --python PATH",
+                        tool.display()
+                    )
+                })?;
             if !result.status.success() {
                 return Err(format!(
                     "external search failed: {}",
@@ -206,6 +220,19 @@ fn prepare_selection(
 fn run() -> LangResult<()> {
     let args: Vec<String> = env::args().skip(1).collect();
     let cmd = args.first().map(String::as_str).unwrap_or("help");
+    if cmd == "--version" || cmd == "version" {
+        println!("ink {} ({})", env!("CARGO_PKG_VERSION"), core::SEMANTICS);
+        return Ok(());
+    }
+    if cmd == "doctor" {
+        let python = arg_value(&args, "--python")?.unwrap_or_else(|| "python3".into());
+        println!(
+            "{}",
+            serde_json::to_string_pretty(&verified_language::distribution::doctor(&python))
+                .map_err(|e| e.to_string())?
+        );
+        return Ok(());
+    }
     if cmd == "modules" {
         let path = args.get(1).ok_or("modules requires SOURCE")?;
         let loaded = verified_language::modules::load(path)?;
@@ -556,7 +583,8 @@ fn run() -> LangResult<()> {
         return Ok(());
     }
     if cmd == "help" || cmd == "--help" {
-        println!("ink emit-semantic SOURCE [--core] -o SUBJECT.json\nink check-selection CORE.json PACKAGE.json\nExecution, lowering and core emission accept --optimise KNOWLEDGE_DIRECTORY or SNAPSHOT.json (external search) or --selection PACKAGE.json (checked replay). Optional --search-tool PATH and --search-budget N.");
+        println!("ink --version\nink doctor [--python PATH]\nink explain SOURCE [--core] [--selection PACKAGE.json | --optimise SNAPSHOT.json]\nink modules SOURCE");
+        println!("ink emit-semantic SOURCE [--core] -o SUBJECT.json\nink check-selection CORE.json PACKAGE.json\nExecution, lowering and core emission accept --optimise KNOWLEDGE_DIRECTORY or SNAPSHOT.json (external search) or --selection PACKAGE.json (checked replay). Optional --search-tool PATH, --search-budget N and --python PATH. INK_DISTRIBUTION locates an optional installed tool bundle.");
         println!("ink check-source-route CORE.json ROUTING.json");
         println!("ink emit-source-syntax SOURCE --roles ROLES.json -o EXPECTED.json\nink check-source-syntax SOURCE --roles ROLES.json --view VIEW.json (complete code-data binding only)");
         println!("ink check-action-values SOURCE --syntax-roles SYNTAX.json --value-roles VALUES.json --view VIEW.json\nink emit-action-values SOURCE ACTION ARGS.json --syntax-roles SYNTAX.json --value-roles VALUES.json --view VIEW.json -o IMAGE.json (typed value data only)");
@@ -585,11 +613,45 @@ fn run() -> LangResult<()> {
         "{:x}",
         Sha256::digest(serde_json::to_vec(&p).map_err(|e| e.to_string())?)
     );
+    let input_module = if cmd == "explain" {
+        Some(core::CheckedModule::from_source(p.clone())?)
+    } else {
+        None
+    };
     let semantic_selection = prepare_selection(&args, &p)?;
     if let Some(selected) = &semantic_selection {
         p = selected.module().program().clone();
     }
     match cmd {
+        "explain" => {
+            let input = input_module.as_ref().unwrap();
+            let selected = core::CheckedModule::from_source(p.clone())?;
+            let subject = verified_language::optimisation::subject(input)?;
+            let checkpoint = match &semantic_selection {
+                Some(plan) => verified_language::snapshot::selected_layout(plan),
+                None => verified_language::snapshot::layout(&p),
+            }
+            .map(|layout| {
+                serde_json::json!({
+                    "program":layout.program.iter().map(|b| format!("{b:02x}")).collect::<String>(),
+                    "schema":layout.schema.iter().map(|b| format!("{b:02x}")).collect::<String>(),
+                    "roots":layout.roots.iter().map(|r| &r.0).collect::<Vec<_>>(),
+                    "events":layout.events.iter().map(|e| &e.0).collect::<Vec<_>>()
+                })
+            });
+            println!("{}", serde_json::to_string_pretty(&serde_json::json!({
+                "schema":1,"module":p.module,"semantics":selected.semantics(),
+                "input_core_sha256":input.identity()?,"selected_core_sha256":selected.identity()?,
+                "selection":semantic_selection.as_ref().map(|s| s.evidence()),
+                "applications":semantic_selection.as_ref().map(|s| &s.package().applications),
+                "eligible_regions":subject.functions.keys().collect::<Vec<_>>(),"unavailable_regions":subject.unavailable,
+                "functions":p.functions.iter().map(|f| serde_json::json!({"name":f.name,"params":f.params,"result":f.result})).collect::<Vec<_>>(),
+                "actions":p.actions.iter().map(|a| serde_json::json!({"name":a.name,"kind":a.kind,"params":a.params,"result":a.result,"reads":a.reads,"writes":a.writes,"emits":a.emits})).collect::<Vec<_>>(),
+                "checkpoint":match checkpoint {Ok(v)=>v,Err(e)=>serde_json::json!({"unavailable":e})},
+                "trust":["Rust checker and source/primitive correspondence","target emission and toolchains","runtime adapters and device drivers"],
+                "scope":"Checked source and selection inspection. This command neither executes actions nor proves generated machine code."
+            })).map_err(|e| e.to_string())?);
+        }
         "check-action-values" | "emit-action-values" => {
             let module = core::CheckedModule::from_source(p)?;
             let actions = verified_language::action_ir::CheckedActions::elaborate(&module)?;

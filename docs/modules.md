@@ -55,10 +55,10 @@ events and complete backend parity, including Wasm/wgpu when enabled.
 
 ## Install
 
-After a recursive clone, `cargo install --path . --locked --bin ink` installs the
-distribution CLI with its embedded standard helpers. Core-only checks remain
-independent of knowledge. Native/Wasm/GPU builds require the documented target
-toolchains; installing the CLI does not install GPU drivers or enable devices.
-For inspection use `ink modules`, `emit-core`, `emit-actions` and the generated
-selection/build plans. These are current debugging surfaces; an interactive
-source debugger remains future work.
+After a recursive clone, `python3 tools/install.py --prefix DIRECTORY` installs a
+relocatable CLI and its optional pinned planner/knowledge tool bundle. A bare
+`cargo install --path . --locked --bin ink` includes the embedded standard helpers.
+Use `ink doctor` for tool locations and `ink explain SOURCE` to inspect checked
+types, effects, selections and checkpoint identity. Native/Wasm/GPU builds still
+require their target toolchains. See [installation and inspection](installation.md)
+for independent package paths, offline replay and the remaining debugging scope.
