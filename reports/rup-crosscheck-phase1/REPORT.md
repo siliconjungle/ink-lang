@@ -23,12 +23,11 @@ Three independent checkers then replay them:
 clause removed. That clause asserts the two endpoints differ, and without it the
 formula is satisfiable. All three checkers must reject the original proof there.
 
-## Result (ink-lang c012588 + this branch, knowledge f5c8e59-era pin)
+## Claude's Linux result (ink-lang c012588, knowledge 0db77af8)
 
-The following is Claude's reported Linux run. The supplied `report.json` was
-subsequently produced by a run without external checkers (`checkers: []`); it
-records the exported refutations, not evidence for the external replay claim.
-The independently reproduced local results are recorded below.
+The refreshed bundle preserves the three-checker run in `report-external.json`.
+The original export-only archive is retained as `report-export-only.json`.
+The independently reproduced ARM results remain separate below.
 
 - 34 lockfiles were found. 31 proof libraries load. The other 3 are old
   `verify-database` scalar-rule locks with no bit proofs.
@@ -40,7 +39,8 @@ The independently reproduced local results are recorded below.
 - **All 17 goal-free controls are rejected.**
 - There are no disagreements.
 
-Per-refutation data is in `report.json`.
+Claude’s per-refutation data is in `report-external.json`. Its checker list
+includes drat-trim, lrat-check and cake_lpr. The local record uses two checkers.
 
 ## Scope
 
@@ -84,3 +84,9 @@ refutation, and skips the external replay. cake_lpr is run with
 The combined distribution suite passes 175 tests (`local-full-tests.log`), and
 the independent offline core passes 12 tests (`local-core-tests.log`). The
 documented directory-query build command also succeeds.
+
+Refreshed-bundle review retains the already tested panic-safe hook and core
+regression. Export-only and external test runs now use separate directories and
+filenames: changing only the filename would still allow directory cleanup to
+delete prior replay evidence. Focused validation runs an external replay, then
+an export-only run and checks the external report remains byte-identical.

@@ -130,14 +130,19 @@ fn accepted_bit_proofs_replay_in_independent_checkers() {
         "the catalogue should contain bit proofs"
     );
 
-    let out = root.join("build/rup-crosscheck");
-    let _ = fs::remove_dir_all(&out);
-    fs::create_dir_all(&out).unwrap();
     let tools: Vec<(&str, Option<String>)> = vec![
         ("drat-trim", std::env::var("INK_DRAT_TRIM").ok()),
         ("lrat-check", std::env::var("INK_LRAT_CHECK").ok()),
         ("cake_lpr", std::env::var("INK_CAKE_LPR").ok()),
     ];
+    let external = tools.iter().any(|(_, path)| path.is_some());
+    // Separate directories as well as filenames: clearing an export-only run
+    // must not delete a previously completed external replay.
+    let out =
+        root.join("build/rup-crosscheck")
+            .join(if external { "external" } else { "export-only" });
+    let _ = fs::remove_dir_all(&out);
+    fs::create_dir_all(&out).unwrap();
     let mut report = vec![];
     for (n, r) in accepted.values().enumerate() {
         // The recorder only yields refutations accepted by Ink; additionally
@@ -228,7 +233,11 @@ fn accepted_bit_proofs_replay_in_independent_checkers() {
         "refutations": report,
     });
     fs::write(
-        out.join("report.json"),
+        out.join(if external {
+            "report-external.json"
+        } else {
+            "report-export-only.json"
+        }),
         serde_json::to_string_pretty(&summary).unwrap(),
     )
     .unwrap();
