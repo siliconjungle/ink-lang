@@ -1,5 +1,20 @@
 # Implementation status
 
+## u32 and browser/native GPU execution
+
+The pure frontend, evaluator and native/Wasm backends now support `u32` words
+and collections with checked contextual literals and wrapping intermediates.
+`ink build SOURCE --target webgpu --zig PATH -o DIRECTORY` emits literal WGSL
+stages, a compiled Wasm CPU fallback and a standalone native `wgpu` project.
+The host measures eligible u32 map/filter/sum/count computations and selects CPU
+or GPU with explicit cost diagnostics; unsupported features and unavailable GPU
+access retain compiled CPU execution. Existing u64 and exact-Int meanings are
+unchanged. This is a trusted backend and a bounded host selector, not completed
+formal GPU verification or general adaptive state migration.
+See [GPU scope, selection, trust and reproduction](docs/gpu-backend.md) and
+[validation evidence](reports/gpu-phase1/REPORT.md): 111 Cargo tests, 1,332
+CPU/GPU comparisons per host and native no-GPU fallback comparisons.
+
 The full goal remains open. This file describes executable behaviour and its limits.
 
 The latest candidate milestone adds general Rust lowering for checked database
@@ -84,7 +99,7 @@ The previous milestone is [exact integer storage reuse](docs/integer-storage-reu
 ## Native pure computation
 
 - Rust lexer, parser, type checker and independent reference evaluator.
-- Expression-returning functions over `u64`, `Bool` and `List<u64>`.
+- Expression-returning functions over `u32`, `u64`, `Bool` and word lists, with unchanged opaque value types available in the stateful host.
 - Modular arithmetic, comparisons, Boolean short circuiting, lambdas, `map`, `filter`, `sum`, `count`, right-fold `foldr`, lazy scalar `choose` and scalar calls.
 - Literal materialised collection stages through emitted C and Clang/LLVM, retaining generated C, LLVM IR and a plan manifest. Checked database proposals can select single-fold implementations; the core no longer automatically fuses pipelines.
 - External bounded rewrite search over database laws, complete replacement

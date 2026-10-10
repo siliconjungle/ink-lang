@@ -2,17 +2,108 @@ use crate::{syntax::*, LangResult};
 use std::collections::{BTreeMap, BTreeSet};
 pub type Env = BTreeMap<String, Type>;
 
+pub fn is_word(t: &Type) -> bool {
+    matches!(t, Type::U32 | Type::U64)
+}
+
+// Unsuffixed literals keep the historical u64 default, but use an expected
+// word type from a signature, operator or collection lambda. No implicit
+// conversion of typed values is permitted.
 pub fn infer(e: &Expr, env: &Env, p: &Program) -> LangResult<Type> {
+    infer_context(e, env, p, None)
+}
+pub fn infer_as(e: &Expr, env: &Env, p: &Program, want: &Type) -> LangResult<Type> {
+    let got = infer_context(e, env, p, Some(want))?;
+    if &got != want {
+        return Err(format!("expected {want:?}, got {got:?}"));
+    }
+    Ok(got)
+}
+pub(crate) fn hint(e: &Expr, env: &Env, p: &Program) -> Option<Type> {
     match e {
+        Expr::Num(_) => None,
+        Expr::Binary(op, a, b) if ["+", "-", "*"].contains(&op.as_str()) => {
+            hint(a, env, p).or_else(|| hint(b, env, p))
+        }
+        _ => infer(e, env, p).ok().filter(is_word),
+    }
+}
+pub(crate) fn infer_context(
+    e: &Expr,
+    env: &Env,
+    p: &Program,
+    want: Option<&Type>,
+) -> LangResult<Type> {
+    match e {
+        Expr::Num(n) => {
+            if want == Some(&Type::U32) {
+                if *n > u32::MAX as u64 {
+                    return Err("literal is outside u32 range".into());
+                }
+                Ok(Type::U32)
+            } else {
+                Ok(Type::U64)
+            }
+        }
+        Expr::Bool(_) => Ok(Type::Bool),
+        Expr::Var(n) => env
+            .get(n)
+            .cloned()
+            .ok_or_else(|| format!("unbound name {n}")),
+        Expr::Binary(op, a, b) => {
+            let numeric = if ["+", "-", "*"].contains(&op.as_str()) {
+                want.filter(|t| is_word(t)).cloned()
+            } else {
+                None
+            }
+            .or_else(|| hint(a, env, p))
+            .or_else(|| hint(b, env, p));
+            let at = infer_context(a, env, p, numeric.as_ref())?;
+            let bt = infer_context(b, env, p, Some(&at))?;
+            if at != bt {
+                return Err(format!(
+                    "operator {op}: different operand types {at:?}, {bt:?}"
+                ));
+            }
+            match op.as_str() {
+                "+" | "-" | "*" if is_word(&at) => Ok(at),
+                "<" | ">" | "<=" | ">=" if is_word(&at) => Ok(Type::Bool),
+                "==" | "!=" if is_word(&at) || at == Type::Bool => Ok(Type::Bool),
+                "&&" | "||" if at == Type::Bool => Ok(Type::Bool),
+                _ => Err(format!("operator {op} does not accept {at:?}")),
+            }
+        }
         Expr::Call(n, args) if n == "choose" => {
-            if args.len() != 3 || infer(&args[0], env, p)? != Type::Bool {
-                return Err("choose expects a Bool condition and two scalar branches".into());
+            if args.len() != 3 {
+                return Err("choose expects three arguments".into());
             }
-            let ty = infer(&args[1], env, p)?;
-            if !matches!(ty, Type::U64 | Type::Bool) || infer(&args[2], env, p)? != ty {
-                return Err("choose branches must have the same scalar type".into());
+            infer_as(&args[0], env, p, &Type::Bool)?;
+            let context = want
+                .cloned()
+                .or_else(|| hint(&args[1], env, p))
+                .or_else(|| hint(&args[2], env, p));
+            let ty = infer_context(&args[1], env, p, context.as_ref())?;
+            if !is_word(&ty) && ty != Type::Bool {
+                return Err("choose branches must be scalar".into());
             }
+            infer_as(&args[2], env, p, &ty)?;
             Ok(ty)
+        }
+        Expr::Call(n, args) if n == "sum" || n == "count" => {
+            if args.len() != 1 {
+                return Err(format!("{n} expects one argument"));
+            }
+            let list_want = if n == "sum" {
+                want.filter(|t| is_word(t))
+                    .map(|t| Type::List(Box::new(t.clone())))
+            } else {
+                None
+            };
+            let ty = infer_context(&args[0], env, p, list_want.as_ref())?;
+            match ty {
+                Type::List(t) if is_word(&t) => Ok(if n == "count" { Type::U64 } else { *t }),
+                _ => Err(format!("{n} requires List<u32> or List<u64>")),
+            }
         }
         Expr::Call(n, args) if n == "foldr" => {
             if args.len() != 3 {
@@ -20,56 +111,24 @@ pub fn infer(e: &Expr, env: &Env, p: &Program) -> LangResult<Type> {
                     "foldr expects list, initial value and fn(item)=>fn(rest)=>body".into(),
                 );
             }
-            if infer(&args[0], env, p)? != Type::List(Box::new(Type::U64))
-                || infer(&args[1], env, p)? != Type::U64
-            {
-                return Err("foldr requires List<u64> and a u64 initial value".into());
+            let Type::List(t) = infer(&args[0], env, p)? else {
+                return Err("foldr requires a word list".into());
+            };
+            if !is_word(&t) {
+                return Err("foldr requires a word list".into());
             }
+            infer_as(&args[1], env, p, &t)?;
             let Expr::Lambda(item, inner) = &args[2] else {
-                return Err("foldr needs a nested lambda".into());
+                return Err("foldr needs nested lambdas".into());
             };
             let Expr::Lambda(rest, body) = inner.as_ref() else {
-                return Err("foldr needs fn(item)=>fn(rest)=>body".into());
+                return Err("foldr needs nested lambdas".into());
             };
             let mut local = env.clone();
-            local.insert(item.clone(), Type::U64);
-            local.insert(rest.clone(), Type::U64);
-            if infer(body, &local, p)? != Type::U64 {
-                return Err("foldr body must return u64".into());
-            }
-            Ok(Type::U64)
-        }
-        Expr::Num(_) => Ok(Type::U64),
-        Expr::Bool(_) => Ok(Type::Bool),
-        Expr::Var(n) => env
-            .get(n)
-            .cloned()
-            .ok_or_else(|| format!("unbound name {n}")),
-        Expr::Binary(op, a, b) => {
-            let at = infer(a, env, p)?;
-            let bt = infer(b, env, p)?;
-            if at != bt {
-                return Err(format!(
-                    "operator {op}: different operand types {at:?}, {bt:?}"
-                ));
-            }
-            match op.as_str() {
-                "+" | "-" | "*" if at == Type::U64 => Ok(Type::U64),
-                "<" | ">" | "<=" | ">=" if at == Type::U64 => Ok(Type::Bool),
-                "==" | "!=" if at == Type::U64 || at == Type::Bool => Ok(Type::Bool),
-                "&&" | "||" if at == Type::Bool => Ok(Type::Bool),
-                _ => Err(format!("operator {op} does not accept {at:?}")),
-            }
-        }
-        Expr::Call(n, args) if n == "sum" || n == "count" => {
-            if args.len() != 1 {
-                return Err(format!("{n} expects one argument"));
-            }
-            let t = infer(&args[0], env, p)?;
-            if t != Type::List(Box::new(Type::U64)) {
-                return Err(format!("{n} requires List<u64> in this milestone"));
-            }
-            Ok(Type::U64)
+            local.insert(item.clone(), (*t).clone());
+            local.insert(rest.clone(), (*t).clone());
+            infer_as(body, &local, p, &t)?;
+            Ok(*t)
         }
         Expr::Call(n, args) => {
             let f = p
@@ -80,45 +139,49 @@ pub fn infer(e: &Expr, env: &Env, p: &Program) -> LangResult<Type> {
             if args.len() != f.params.len() {
                 return Err(format!("{n}: argument count mismatch"));
             }
-            for (arg, (_, want)) in args.iter().zip(&f.params) {
-                let got = infer(arg, env, p)?;
-                if &got != want {
-                    return Err(format!("{n}: expected {want:?}, got {got:?}"));
-                }
+            for (e, (_, t)) in args.iter().zip(&f.params) {
+                infer_as(e, env, p, t)?;
             }
             Ok(f.result.clone())
         }
         Expr::Method(xs, n, args) => {
-            let inner = if let Type::List(t) = infer(xs, env, p)? {
-                *t
-            } else {
+            let Type::List(inner) =
+                infer_context(xs, env, p, if n == "filter" { want } else { None })?
+            else {
                 return Err(format!("method {n} requires a list"));
             };
             if args.len() != 1 {
-                return Err(format!("{n} expects one lambda"));
+                return Err("collection method requires one lambda".into());
             }
-            let (var, body) = if let Expr::Lambda(v, b) = &args[0] {
-                (v, b)
-            } else {
-                return Err(format!("{n} expects a lambda"));
+            let Expr::Lambda(var, body) = &args[0] else {
+                return Err("collection method requires a lambda".into());
             };
             let mut local = env.clone();
-            local.insert(var.clone(), inner.clone());
-            let out = infer(body, &local, p)?;
+            local.insert(var.clone(), (*inner).clone());
             match n.as_str() {
-                "map" if out == Type::U64 => Ok(Type::List(Box::new(out))),
-                "filter" if out == Type::Bool => Ok(Type::List(Box::new(inner))),
-                _ => Err(format!(
-                    "unsupported method or invalid lambda type: {n}, {out:?}"
-                )),
+                "map" => {
+                    let output_want = match want {
+                        Some(Type::List(t)) => Some(&**t),
+                        _ => None,
+                    };
+                    let out = infer_context(body, &local, p, output_want)?;
+                    if !is_word(&out) {
+                        return Err("map must return a word".into());
+                    }
+                    Ok(Type::List(Box::new(out)))
+                }
+                "filter" => {
+                    infer_as(body, &local, p, &Type::Bool)?;
+                    Ok(Type::List(inner))
+                }
+                _ => Err(format!("unsupported collection method {n}")),
             }
         }
-        Expr::Lambda(..) => Err(
-            "lambda is only permitted as a collection operator argument in this milestone".into(),
-        ),
+        Expr::Lambda(..) => {
+            Err("lambda is only permitted as a collection operator argument".into())
+        }
         _ => Err(
-            "stateful expression is not yet supported inside an expression-only pure function"
-                .into(),
+            "stateful expression is not supported inside an expression-only pure function".into(),
         ),
     }
 }
@@ -166,7 +229,7 @@ pub fn check(p: &Program) -> LangResult<()> {
         {
             return Err(format!("reserved or duplicate function {}", f.name));
         }
-        let got = infer(&f.body, &params_env(&f.params)?, p)?;
+        let got = infer_as(&f.body, &params_env(&f.params)?, p, &f.result)?;
         if got != f.result {
             return Err(format!(
                 "{}: declared {:?}, returns {got:?}",
