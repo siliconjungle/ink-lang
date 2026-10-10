@@ -26,11 +26,14 @@ Current target coverage is documented in [lowering parity](docs/lowering-parity.
 
 ## Runtime durability, generated conformance and modules
 
-Runtime hosts persist compiled JavaScript/C-Wasm/Rust-Wasm state and bounded
+Runtime hosts persist native C/Rust and compiled JavaScript/C-Wasm/Rust-Wasm state and bounded
 retry receipts before returning replies. Synced file replacement and IndexedDB
 transactions retain the outbox and acknowledgements across crashes/reloads;
-delivery is at least once. Native executable embedding and incremental logs
-remain open. See [the durable contract](docs/durable-host.md).
+delivery is at least once. Native executables accept `--durable FILE` and libraries
+export a generic durable host. Native failure injection and generated process
+death tests pass; incremental logs and mixed-wgpu runner integration remain
+open. See [the durable contract](docs/durable-host.md) and
+[the native recovery evidence](reports/native-durability-phase1/REPORT.md).
 
 Generated conformance records bounded typed programs and action histories;
 fixed four seeds add 432 replies/exact snapshots on all CPU targets and 80 actual
