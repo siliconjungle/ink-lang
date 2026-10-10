@@ -573,6 +573,9 @@ fn source_diagnostic(node: &Node, mapping: &[usize], error: String) -> String {
     else {
         return format!("{}: {error}", node.path.display());
     };
+    positioned_diagnostic(node, offset, message)
+}
+fn positioned_diagnostic(node: &Node, offset: usize, message: &str) -> String {
     let offset = (0..=offset)
         .rev()
         .find(|n| node.text.is_char_boundary(*n))
@@ -585,6 +588,35 @@ fn source_diagnostic(node: &Node, mapping: &[usize], error: String) -> String {
         "{}:{line}:{column}: {message}\n  {excerpt}",
         node.path.display()
     )
+}
+// The semantic checker remains authoritative. On failure, repeat its public
+// function inference only to identify a declaration that produced that same
+// error. This does not accept, repair or alter the linked program.
+fn function_error_origin<'a>(
+    loader: &'a Loader,
+    program: &Program,
+    error: &str,
+) -> Option<(&'a Node, usize)> {
+    for function in &program.functions {
+        let result = check::params_env(&function.params)
+            .and_then(|env| check::infer_as(&function.body, &env, program, &function.result));
+        if result.err().as_deref() != Some(error) {
+            continue;
+        }
+        for (index, node) in loader.nodes.iter().enumerate() {
+            for (original, linked) in names(node, index == 0) {
+                if linked != function.name {
+                    continue;
+                }
+                for pair in node.tokens.windows(2) {
+                    if pair[0].text == "fn" && pair[1].text == original {
+                        return Some((node, pair[0].start));
+                    }
+                }
+            }
+        }
+    }
+    None
 }
 pub fn load(path: impl AsRef<Path>) -> LangResult<Loaded> {
     let mut loader = Loader {
@@ -628,10 +660,15 @@ pub fn load(path: impl AsRef<Path>) -> LangResult<Loaded> {
         }
     }
     check::check(&program).map_err(|mut e| {
+        let origin = function_error_origin(&loader, &program, &e);
         for (linked, display) in &displays {
             e = e.replace(linked, display);
         }
-        format!("{}: {e}", loader.nodes[0].path.display())
+        if let Some((node, offset)) = origin {
+            positioned_diagnostic(node, offset, &e)
+        } else {
+            format!("{}: {e}", loader.nodes[0].path.display())
+        }
     })?;
     let files = loader
         .nodes
