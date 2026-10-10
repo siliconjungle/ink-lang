@@ -3,9 +3,11 @@ use sha2::{Digest, Sha256};
 use std::{collections::BTreeMap, fs, path::Path};
 use verified_language::{
     aggregate::Certificate,
+    core::CheckedModule,
     library::{self, Object},
     logic::{Declaration, Sort, Term},
     row_model::{self, Model},
+    source_values::{Limits, SourceValues},
     stateful::{Runtime, Value},
     syntax::{parse, Program, Type},
 };
@@ -49,64 +51,16 @@ fn integer(c: &Certificate, n: i64) -> Term {
         if n == 0 { vec![] } else { vec![natural] },
     )
 }
-fn data(model: &Model, ty: &Type) -> String {
-    let Sort::Data(id) = &model.description.types[&serde_json::to_string(ty).unwrap()] else {
-        panic!("non-data sort")
-    };
-    id.clone()
-}
 fn encode(model: &Model, p: &Program, c: &Certificate, ty: &Type, value: &Value) -> Term {
-    match (ty, value) {
-        (Type::U64, Value::U64(n)) => Term::U64(*n),
-        (Type::U32, Value::U32(n)) => Term::U64(*n as u64),
-        (Type::Bool, Value::Bool(b)) => Term::Bool(*b),
-        (Type::Int, Value::Int(n)) => integer(c, n.to_string().parse().unwrap()),
-        (Type::Unit, Value::Unit) => ctor(&data(model, ty), 0, vec![]),
-        (Type::String, Value::String(s)) => s
-            .bytes()
-            .rev()
-            .fold(ctor(&data(model, ty), 0, vec![]), |tail, b| {
-                ctor(&data(model, ty), 1, vec![Term::U64(b as u64), tail])
-            }),
-        (Type::Named(_), Value::Id(_, n)) => ctor(
-            &data(model, ty),
-            0,
-            vec![Term::U64((n >> 64) as u64), Term::U64(*n as u64)],
-        ),
-        (Type::Named(name), Value::Record(_, fields)) => ctor(
-            &data(model, ty),
-            0,
-            p.records[name]
-                .iter()
-                .map(|(field, ty)| encode(model, p, c, ty, &fields[field]))
-                .collect(),
-        ),
-        (Type::Named(name), Value::Enum(_, variant)) => ctor(
-            &data(model, ty),
-            p.enums[name].iter().position(|v| v == variant).unwrap(),
-            vec![],
-        ),
-        (Type::List(inner), Value::List(xs)) => {
-            xs.iter()
-                .rev()
-                .fold(ctor(&data(model, ty), 0, vec![]), |tail, x| {
-                    ctor(
-                        &data(model, ty),
-                        1,
-                        vec![encode(model, p, c, inner, x), tail],
-                    )
-                })
-        }
-        (Type::Option(_), Value::Option(None)) => ctor(&data(model, ty), 0, vec![]),
-        (Type::Option(inner), Value::Option(Some(x))) => {
-            ctor(&data(model, ty), 1, vec![encode(model, p, c, inner, x)])
-        }
-        (Type::Result(ok, error), Value::Result(success, x)) => ctor(
-            &data(model, ty),
-            if *success { 0 } else { 1 },
-            vec![encode(model, p, c, if *success { ok } else { error }, x)],
-        ),
-        _ => panic!("unexpected source value {ty:?}: {value:?}"),
+    let module = CheckedModule::from_source(p.clone()).unwrap();
+    let values = SourceValues::bind(&module, c, model).unwrap();
+    if ty == &model.description.key_type {
+        values.encode_key(value, Limits::default()).unwrap()
+    } else {
+        assert_eq!(ty, &model.description.row_type);
+        let term = values.encode_row(value, Limits::default()).unwrap();
+        assert_eq!(values.decode_row(&term, Limits::default()).unwrap(), *value);
+        term
     }
 }
 fn row(seed: usize) -> Json {

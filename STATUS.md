@@ -359,3 +359,14 @@ proved source routing uses the same calculus. The example laws are independently
 versioned knowledge data. Direct effectful transaction/representation rewrites,
 physical bridge proofs, compute-v2 mixed-route execution and global-optimality
 claims remain outside this milestone. See `docs/semantic-optimisation.md`.
+
+## Runtime value binding
+
+The checked source model now has a bounded codec for actual runtime inhabitants
+and canonical ordered tables. Row/column tests share it instead of hand-building
+logical payloads. Nominal identity, u32 widths, UTF-8, member types, duplicate keys
+and resource limits are checked. Large Ink integers remain executable even when
+the unary proof model cannot encode them. The trusted codec does not establish
+complete source-action/effect/native correspondence. The new knowledge laws are
+append-only mathematics; payload negation is not a signed join deletion. See
+docs/source-value-correspondence.md and reports/source-values-phase1.

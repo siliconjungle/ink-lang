@@ -20,6 +20,7 @@ pub mod semantic;
 pub mod snapshot;
 pub mod snapshot_wire;
 pub mod source_routing;
+pub mod source_values;
 pub mod statecheck;
 pub mod stateful;
 pub mod storage;

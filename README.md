@@ -60,3 +60,8 @@ Benchmark methodology and independent proof-audit work are preserved in
 [native ownership lowering](docs/native-state-backend.md),
 [transaction-plan research](docs/transaction-plans.md), and
 [independent certificate replay](reports/rup-crosscheck-phase1/REPORT.md).
+
+The [runtime value correspondence bridge](docs/source-value-correspondence.md)
+connects actual typed rows and ordered source keys to checked row/column models.
+It is bounded validation infrastructure; transaction/native refinement and an
+efficient logical integer representation remain open.
