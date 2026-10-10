@@ -1,6 +1,7 @@
 pub mod action_ir;
-pub mod action_values;
+mod action_semantic;
 mod action_types;
+pub mod action_values;
 pub mod aggregate;
 pub mod bitproof;
 pub mod check;

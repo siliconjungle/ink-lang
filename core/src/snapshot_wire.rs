@@ -5,7 +5,7 @@ use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 use std::cmp::Ordering;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Schema {
     Unit,
     Bool,
@@ -20,7 +20,7 @@ pub enum Schema {
     Option(Box<Schema>),
     Result(Box<Schema>, Box<Schema>),
 }
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Layout {
     pub program: [u8; 32],
     pub schema: [u8; 32],

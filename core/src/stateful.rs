@@ -230,6 +230,7 @@ struct Cached {
 
 pub struct Runtime {
     program: Program,
+    selected_layout: Option<crate::snapshot_wire::Layout>,
     action_ir: crate::action_ir::CheckedActions,
     effects: crate::effects::CheckedEffects,
     last_body_path: Option<crate::effects::Path>,
@@ -262,6 +263,7 @@ impl Runtime {
             .collect();
         Ok(Self {
             program,
+            selected_layout: None,
             action_ir,
             effects,
             last_body_path: None,
@@ -276,6 +278,17 @@ impl Runtime {
             cached: BTreeMap::new(),
             certificate: None,
         })
+    }
+    pub fn new_selected(selection: &crate::optimisation::CheckedSelection) -> LangResult<Self> {
+        let layout = crate::snapshot::selected_layout(selection)?;
+        let mut rt = Self::new(selection.module().program().clone())?;
+        rt.selected_layout = Some(layout);
+        Ok(rt)
+    }
+    fn portable_layout(&self) -> LangResult<crate::snapshot_wire::Layout> {
+        self.selected_layout
+            .clone()
+            .map_or_else(|| crate::snapshot::layout(&self.program), Ok)
     }
     pub fn action_ir(&self) -> &crate::action_ir::CheckedActions {
         &self.action_ir
@@ -964,6 +977,9 @@ struct Snapshot {
 }
 impl Runtime {
     fn program_id(&self) -> LangResult<String> {
+        if let Some(layout) = &self.selected_layout {
+            return Ok(layout.program.iter().map(|b| format!("{b:02x}")).collect());
+        }
         let bytes = serde_json::to_vec(&self.program).map_err(|e| e.to_string())?;
         Ok(format!("{:x}", Sha256::digest(bytes)))
     }
@@ -1000,7 +1016,7 @@ impl Runtime {
         if !self.undo.is_empty() || !self.staged.is_empty() {
             return Err("checkpoint requires a transaction boundary".into());
         }
-        let layout = crate::snapshot::layout(&self.program)?;
+        let layout = self.portable_layout()?;
         let tables = layout
             .roots
             .iter()
@@ -1045,8 +1061,31 @@ impl Runtime {
         bytes: &[u8],
         limits: crate::snapshot_wire::Limits,
     ) -> LangResult<Self> {
-        let mut rt = Self::new(program)?;
-        let layout = crate::snapshot::layout(&rt.program)?;
+        Self::restore_portable_into(Self::new(program)?, bytes, limits)
+    }
+    pub fn restore_portable_selected(
+        selection: &crate::optimisation::CheckedSelection,
+        bytes: &[u8],
+    ) -> LangResult<Self> {
+        Self::restore_portable_selected_with_limits(
+            selection,
+            bytes,
+            crate::snapshot_wire::Limits::default(),
+        )
+    }
+    pub fn restore_portable_selected_with_limits(
+        selection: &crate::optimisation::CheckedSelection,
+        bytes: &[u8],
+        limits: crate::snapshot_wire::Limits,
+    ) -> LangResult<Self> {
+        Self::restore_portable_into(Self::new_selected(selection)?, bytes, limits)
+    }
+    fn restore_portable_into(
+        mut rt: Self,
+        bytes: &[u8],
+        limits: crate::snapshot_wire::Limits,
+    ) -> LangResult<Self> {
+        let layout = rt.portable_layout()?;
         let logical = crate::snapshot_wire::decode(&layout, bytes, limits)?;
         for ((name, _, _), rows) in layout.roots.iter().zip(logical.tables) {
             let root = rt.program.states.iter().find(|s| &s.name == name).unwrap();
@@ -1081,7 +1120,15 @@ impl Runtime {
         Ok(rt)
     }
     pub fn restore(program: Program, bytes: &[u8]) -> LangResult<Self> {
-        let mut rt = Self::new(program)?;
+        Self::restore_into(Self::new(program)?, bytes)
+    }
+    pub fn restore_selected(
+        selection: &crate::optimisation::CheckedSelection,
+        bytes: &[u8],
+    ) -> LangResult<Self> {
+        Self::restore_into(Self::new_selected(selection)?, bytes)
+    }
+    fn restore_into(mut rt: Self, bytes: &[u8]) -> LangResult<Self> {
         let s: Snapshot = serde_json::from_slice(bytes).map_err(|e| e.to_string())?;
         if s.format != 1 || s.program != rt.program_id()? {
             return Err("snapshot format or program identity mismatch".into());

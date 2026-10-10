@@ -931,10 +931,21 @@ impl Body {
         Ok(())
     }
     fn expr_source(&self, p: &Program, id: NodeId) -> LangResult<Expr> {
+        self.expression(p, id, &BTreeMap::new())
+    }
+    pub(crate) fn expression(
+        &self,
+        p: &Program,
+        id: NodeId,
+        replacements: &BTreeMap<NodeId, Expr>,
+    ) -> LangResult<Expr> {
+        if let Some(e) = replacements.get(&id) {
+            return Ok(e.clone());
+        }
         let node = self.nodes.get(id).ok_or("action IR node reference")?;
         let args = |xs: &[NodeId]| {
             xs.iter()
-                .map(|&i| self.expr_source(p, i))
+                .map(|&i| self.expression(p, i, replacements))
                 .collect::<LangResult<Vec<_>>>()
         };
         Ok(match &node.kind {
@@ -954,7 +965,12 @@ impl Body {
                 name.clone(),
                 fields
                     .iter()
-                    .map(|(i, n)| Ok((p.records[name][*i].0.clone(), self.expr_source(p, *n)?)))
+                    .map(|(i, n)| {
+                        Ok((
+                            p.records[name][*i].0.clone(),
+                            self.expression(p, *n, replacements)?,
+                        ))
+                    })
                     .collect::<LangResult<_>>()?,
             ),
             Kind::Field {
@@ -962,25 +978,25 @@ impl Body {
                 receiver,
                 field,
             } => Expr::Field(
-                Box::new(self.expr_source(p, *receiver)?),
+                Box::new(self.expression(p, *receiver, replacements)?),
                 p.records[record][*field].0.clone(),
             ),
             Kind::Binary { op, left, right } => Expr::Binary(
                 op.clone(),
-                Box::new(self.expr_source(p, *left)?),
-                Box::new(self.expr_source(p, *right)?),
+                Box::new(self.expression(p, *left, replacements)?),
+                Box::new(self.expression(p, *right, replacements)?),
             ),
             Kind::And { left, right } => Expr::Binary(
                 "&&".into(),
-                Box::new(self.expr_source(p, *left)?),
-                Box::new(self.expr_source(p, *right)?),
+                Box::new(self.expression(p, *left, replacements)?),
+                Box::new(self.expression(p, *right, replacements)?),
             ),
             Kind::Or { left, right } => Expr::Binary(
                 "||".into(),
-                Box::new(self.expr_source(p, *left)?),
-                Box::new(self.expr_source(p, *right)?),
+                Box::new(self.expression(p, *left, replacements)?),
+                Box::new(self.expression(p, *right, replacements)?),
             ),
-            Kind::Try { value } => Expr::Try(Box::new(self.expr_source(p, *value)?)),
+            Kind::Try { value } => Expr::Try(Box::new(self.expression(p, *value, replacements)?)),
             Kind::Builtin { name, arguments } => Expr::Call(name.clone(), args(arguments)?),
             Kind::PureCall {
                 function,
@@ -1003,13 +1019,13 @@ impl Body {
                 method,
                 arguments,
             } => Expr::Method(
-                Box::new(self.expr_source(p, *receiver)?),
+                Box::new(self.expression(p, *receiver, replacements)?),
                 method.clone(),
                 args(arguments)?,
             ),
             Kind::Lambda { parameter, body } => Expr::Lambda(
                 self.slots[*parameter].name.clone(),
-                Box::new(self.expr_source(p, *body)?),
+                Box::new(self.expression(p, *body, replacements)?),
             ),
         })
     }
@@ -1018,6 +1034,15 @@ impl Body {
         p: &Program,
         instructions: &[Instruction],
         typed: bool,
+    ) -> LangResult<Vec<Statement>> {
+        self.rebuild(p, instructions, typed, &BTreeMap::new())
+    }
+    pub(crate) fn rebuild(
+        &self,
+        p: &Program,
+        instructions: &[Instruction],
+        typed: bool,
+        replacements: &BTreeMap<NodeId, Expr>,
     ) -> LangResult<Vec<Statement>> {
         instructions
             .iter()
@@ -1030,21 +1055,25 @@ impl Body {
                     } => Statement::Let(
                         self.slots[*slot].name.clone(),
                         (typed || *annotated).then(|| self.slots[*slot].ty.clone()),
-                        self.expr_source(p, *value)?,
+                        self.expression(p, *value, replacements)?,
                     ),
-                    Instruction::Return(value) => Statement::Return(self.expr_source(p, *value)?),
-                    Instruction::Eval(value) => Statement::Expr(self.expr_source(p, *value)?),
+                    Instruction::Return(value) => {
+                        Statement::Return(self.expression(p, *value, replacements)?)
+                    }
+                    Instruction::Eval(value) => {
+                        Statement::Expr(self.expression(p, *value, replacements)?)
+                    }
                     Instruction::Emit { channel, value } => {
-                        Statement::Emit(channel.clone(), self.expr_source(p, *value)?)
+                        Statement::Emit(channel.clone(), self.expression(p, *value, replacements)?)
                     }
                     Instruction::If {
                         condition,
                         on_true,
                         on_false,
                     } => Statement::If(
-                        self.expr_source(p, *condition)?,
-                        self.block_source(p, on_true, typed)?,
-                        self.block_source(p, on_false, typed)?,
+                        self.expression(p, *condition, replacements)?,
+                        self.rebuild(p, on_true, typed, replacements)?,
+                        self.rebuild(p, on_false, typed, replacements)?,
                     ),
                 })
             })

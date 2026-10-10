@@ -39,11 +39,15 @@ pub struct Evidence {
 }
 #[derive(Clone, Debug)]
 pub struct CheckedSelection {
+    input: CheckedModule,
     module: CheckedModule,
     evidence: Evidence,
     package: Package,
 }
 impl CheckedSelection {
+    pub fn input_module(&self) -> &CheckedModule {
+        &self.input
+    }
     pub fn module(&self) -> &CheckedModule {
         &self.module
     }
@@ -64,21 +68,34 @@ pub struct Subject {
     pub semantics: String,
     pub input_core_sha256: String,
     pub functions: BTreeMap<String, Term>,
+    pub unavailable: Vec<String>,
 }
 pub fn subject(module: &CheckedModule) -> LangResult<Subject> {
     let p = module.program();
     let mut functions = BTreeMap::new();
+    let mut unavailable = vec![];
     for f in &p.functions {
-        functions.insert(
-            f.name.clone(),
-            s::elaborate(&f.body, &crate::check::params_env(&f.params)?, p, &f.result)?,
-        );
+        match s::elaborate(&f.body, &crate::check::params_env(&f.params)?, p, &f.result) {
+            Ok(t) => {
+                functions.insert(f.name.clone(), t);
+            }
+            Err(e) => unavailable.push(format!("function {}: {e}", f.name)),
+        }
+    }
+    match crate::action_semantic::Regions::derive(module, &mut Budget::new()) {
+        Ok(regions) => {
+            for (key, r) in regions.entries {
+                functions.insert(key, r.term);
+            }
+        }
+        Err(e) => unavailable.push(format!("action/keep projection: {e}")),
     }
     Ok(Subject {
         schema: 1,
         semantics: s::SEMANTICS.into(),
         input_core_sha256: module.identity()?,
         functions,
+        unavailable,
     })
 }
 pub fn check(module: &CheckedModule, package: &Package) -> LangResult<CheckedSelection> {
@@ -106,28 +123,58 @@ fn check_with_catalogue(
     package: &Package,
     laws: &CheckedCatalogue,
 ) -> LangResult<CheckedSelection> {
+    if package.applications.is_empty() {
+        return Ok(CheckedSelection {
+            input: module.clone(),
+            module: module.clone(),
+            package: package.clone(),
+            evidence: Evidence {
+                semantics: SEMANTICS.into(),
+                input_core_sha256: module.identity()?,
+                selected_core_sha256: module.identity()?,
+                snapshot_sha256: crate::registry::identity(&package.knowledge.snapshot)?,
+                closure: laws.closure(),
+                applied_laws: vec![],
+            },
+        });
+    }
     let p = module.program();
-    let mut bodies = subject(module)?.functions;
     let mut budget = Budget::new();
+    let regions = crate::action_semantic::Regions::derive(module, &mut budget)?;
+    let mut bodies = BTreeMap::new();
+    let mut parameters = BTreeMap::new();
+    for f in &p.functions {
+        if let Ok(t) = s::elaborate(&f.body, &crate::check::params_env(&f.params)?, p, &f.result) {
+            bodies.insert(f.name.clone(), t);
+            parameters.insert(f.name.clone(), f.params.clone());
+        }
+    }
+    for (key, r) in &regions.entries {
+        bodies.insert(key.clone(), r.term.clone());
+        parameters.insert(key.clone(), r.proof_params.clone());
+    }
     let mut used = vec![];
     for application in &package.applications {
         if !laws.roots().contains(&application.law) {
             return Err("application law is not an enabled catalogue root".into());
         }
-        let f = p
-            .functions
-            .iter()
-            .find(|f| f.name == application.function)
-            .ok_or("selection function missing")?;
-        let mut env: Env = f
-            .params
+        let params = parameters
+            .get(&application.function)
+            .ok_or("selection function/region missing")?;
+        let mut env: Env = params
             .iter()
             .map(|(n, t)| (n.clone(), s::value(t.clone())))
             .collect();
-        let body = bodies.get(&f.name).ok_or("selection body missing")?;
+        let body = bodies
+            .get(&application.function)
+            .ok_or("selection body missing")?;
         let mut target = body;
         let mut scope = vec![];
-        let mut facts = vec![];
+        let mut facts = if let Some(r) = regions.entries.get(&application.function) {
+            crate::action_semantic::copy_facts(&r.facts, &mut budget)?
+        } else {
+            vec![]
+        };
         for index in &application.path {
             budget.step(scope.len())?;
             if let Node::Op(n, args) = &target.node {
@@ -195,17 +242,24 @@ fn check_with_catalogue(
         }
         let shifted = s::close_scope(&to, &scope, &mut budget)?;
         let selected = replace_path(body, &application.path, shifted, &mut budget, 0)?;
-        let outer_env: Env = f
-            .params
+        let value_params = regions
+            .entries
+            .get(&application.function)
+            .map(|r| &r.params)
+            .unwrap_or(params);
+        let outer_env: Env = value_params
             .iter()
             .map(|(n, t)| (n.clone(), s::value(t.clone())))
             .collect();
         s::validate(&selected, &outer_env, p, &mut budget)?;
-        bodies.insert(f.name.clone(), selected);
+        bodies.insert(application.function.clone(), selected);
         used.push(application.law.clone());
     }
     let mut selected = p.clone();
     for f in &mut selected.functions {
+        if !bodies.contains_key(&f.name) {
+            continue;
+        }
         let original = s::elaborate(&f.body, &crate::check::params_env(&f.params)?, p, &f.result)?;
         if bodies[&f.name] != original {
             f.body = s::reify(&bodies[&f.name], p)?;
@@ -232,7 +286,33 @@ fn check_with_catalogue(
             )?;
         }
     }
-    // No transaction statement, footprint, event or storage declaration changes.
+    let mut expressions = BTreeMap::new();
+    for (key, r) in &regions.entries {
+        if bodies[key] != r.term {
+            let (expr, actual) = regions.reify(key, &bodies[key], p, &mut budget)?;
+            let env = r
+                .params
+                .iter()
+                .map(|(n, t)| (n.clone(), s::value(t.clone())))
+                .collect();
+            laws.prove(
+                p,
+                &env,
+                &[],
+                &Equation {
+                    from: bodies[key].clone(),
+                    to: actual,
+                },
+                &Proof::Normalize,
+                &mut budget,
+                0,
+            )?;
+            expressions.insert(key.clone(), expr);
+        }
+    }
+    regions.apply(&mut selected, expressions)?;
+    // Statements and effects retain their positions; only admitted total pure
+    // expression regions change. Storage declarations and footprints are intact.
     let selected = CheckedModule::from_source(selected)?;
     let evidence = Evidence {
         semantics: SEMANTICS.into(),
@@ -243,6 +323,7 @@ fn check_with_catalogue(
         applied_laws: used,
     };
     Ok(CheckedSelection {
+        input: module.clone(),
         module: selected,
         evidence,
         package: package.clone(),

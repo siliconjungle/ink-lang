@@ -95,3 +95,19 @@ pub fn layout(p: &Program) -> LangResult<Layout> {
         events,
     })
 }
+
+/// A checked optimisation executes different code for the same source program.
+/// Only the checker witness can supply the source snapshot identity; a raw hash
+/// or another module cannot grant cross-program restoration authority.
+pub fn selected_layout(selected: &crate::optimisation::CheckedSelection) -> LangResult<Layout> {
+    let original = layout(selected.input_module().program())?;
+    let mut actual = layout(selected.module().program())?;
+    if actual.schema != original.schema
+        || actual.roots != original.roots
+        || actual.events != original.events
+    {
+        return Err("selection changes the portable state schema".into());
+    }
+    actual.program = original.program;
+    Ok(actual)
+}
