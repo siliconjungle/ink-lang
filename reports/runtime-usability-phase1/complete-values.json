@@ -1,0 +1,467 @@
+{
+  "scope": "same emitted C and JSON driver; scalar intermediates; no broad language or hardware claim",
+  "old_runtime": "56ea95b8224906839bbf1266949a3c07f5b06f5f",
+  "environment": {
+    "platform": "macOS-15.7.4-arm64-arm-64bit-Mach-O",
+    "machine": "arm64",
+    "cpu": "Apple M4 Pro",
+    "logical_cpus": 14,
+    "python": "3.14.7",
+    "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)\nbinary: rustc\ncommit-hash: b940084d7eb6a299eb4bfeb8e34901bc051e7ac4\ncommit-date: 2026-09-28\nhost: aarch64-apple-darwin\nrelease: 1.99.0\nLLVM version: 23.1.1",
+    "clang": "Apple clang version 17.0.0 (clang-1700.6.3.2)\nTarget: arm64-apple-darwin24.6.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin",
+    "rustc_llvm_major": 23,
+    "clang_llvm_major": null,
+    "git": {
+      "ink-lang": {
+        "commit": "ad8e64d7788f980915b94bbfbc0369ba001e6e57",
+        "dirty": true
+      },
+      "knowledge": {
+        "commit": "ae08d99d2931e46b9c8a9c94566a541ae57d58b2",
+        "dirty": false
+      },
+      "lowering-c": {
+        "commit": "1bbf84a21e35154f42de66af07831902bf251aab",
+        "dirty": false
+      },
+      "lowering-gpu": {
+        "commit": "1e587d49a7e5a2793213ca0b228f8bf5ef9d3194",
+        "dirty": false
+      },
+      "lowering-js": {
+        "commit": "c15d7050a06da93558018c4fdea0d82dac313dd1",
+        "dirty": false
+      },
+      "lowering-rust": {
+        "commit": "6cd194b61e223dc2196d29db1e030faee213624e",
+        "dirty": false
+      },
+      "lowering-wasm": {
+        "commit": "e81fcd28ccb7626b62c79b9f8261d8e3af8d214c",
+        "dirty": false
+      }
+    },
+    "warnings": [
+      "Apple Clang version does not identify its upstream LLVM major; backend version matching is unestablished",
+      "uncommitted changes in a measured checkout"
+    ],
+    "runtime_commit": "56ea95b8224906839bbf1266949a3c07f5b06f5f"
+  },
+  "cases": [
+    {
+      "iterations": 100,
+      "mode": "execution",
+      "calls": 10,
+      "rounds_ms": [
+        {
+          "inline": 0.0275,
+          "arena": 0.10024999999999999
+        },
+        {
+          "inline": 0.025667,
+          "arena": 0.106375
+        },
+        {
+          "inline": 0.027208,
+          "arena": 0.102875
+        },
+        {
+          "inline": 0.027958,
+          "arena": 0.104458
+        },
+        {
+          "arena": 0.108,
+          "inline": 0.026125000000000002
+        },
+        {
+          "inline": 0.026583,
+          "arena": 0.102
+        },
+        {
+          "arena": 0.105125,
+          "inline": 0.025625
+        }
+      ],
+      "median_ms": {
+        "arena": 0.104458,
+        "inline": 0.026583
+      },
+      "arena_over_inline": [
+        3.9295038182296955,
+        3.709090909090909,
+        4.144426695757198
+      ],
+      "instrumented": {
+        "arena": {
+          "allocations_requested_peak_live": [
+            3110,
+            305840,
+            23832,
+            22848
+          ],
+          "calls": 10,
+          "elapsed_ms": 0.111,
+          "result": 4953
+        },
+        "inline": {
+          "allocations_requested_peak_live": [
+            100,
+            9640,
+            7429,
+            6465
+          ],
+          "calls": 10,
+          "elapsed_ms": 0.028625,
+          "result": 4953
+        }
+      }
+    },
+    {
+      "iterations": 100,
+      "mode": "lifecycle",
+      "calls": 10,
+      "rounds_ms": [
+        {
+          "inline": 0.066791,
+          "arena": 0.149125
+        },
+        {
+          "inline": 0.065292,
+          "arena": 0.153875
+        },
+        {
+          "inline": 0.062667,
+          "arena": 0.14783400000000002
+        },
+        {
+          "inline": 0.066833,
+          "arena": 0.145458
+        },
+        {
+          "arena": 0.146541,
+          "inline": 0.074167
+        },
+        {
+          "inline": 0.068917,
+          "arena": 0.14475
+        },
+        {
+          "arena": 0.144459,
+          "inline": 0.113458
+        }
+      ],
+      "median_ms": {
+        "arena": 0.146541,
+        "inline": 0.066833
+      },
+      "arena_over_inline": [
+        2.1926443523409094,
+        1.9516766216781047,
+        2.2839704711143787
+      ],
+      "instrumented": {
+        "arena": {
+          "allocations_requested_peak_live": [
+            3660,
+            704760,
+            45804,
+            22848
+          ],
+          "calls": 10,
+          "elapsed_ms": 0.145042,
+          "result": 4953
+        },
+        "inline": {
+          "allocations_requested_peak_live": [
+            580,
+            83440,
+            13017,
+            6465
+          ],
+          "calls": 10,
+          "elapsed_ms": 0.063583,
+          "result": 4953
+        }
+      }
+    },
+    {
+      "iterations": 10000,
+      "mode": "execution",
+      "calls": 10,
+      "rounds_ms": [
+        {
+          "arena": 9.190125,
+          "inline": 2.213208
+        },
+        {
+          "arena": 8.964167,
+          "inline": 2.2062079999999997
+        },
+        {
+          "arena": 9.39725,
+          "inline": 2.0892079999999997
+        },
+        {
+          "inline": 2.117375,
+          "arena": 8.997583
+        },
+        {
+          "arena": 8.77475,
+          "inline": 2.161667
+        },
+        {
+          "inline": 2.1472919999999998,
+          "arena": 9.01
+        },
+        {
+          "inline": 2.18175,
+          "arena": 8.56475
+        }
+      ],
+      "median_ms": {
+        "arena": 8.997583,
+        "inline": 2.161667
+      },
+      "arena_over_inline": [
+        4.162335364327624,
+        4.02188610060731,
+        4.279867386456989
+      ],
+      "instrumented": {
+        "arena": {
+          "allocations_requested_peak_live": [
+            300110,
+            29609860,
+            2104604,
+            2103618
+          ],
+          "calls": 10,
+          "elapsed_ms": 9.261208,
+          "result": 49995003
+        },
+        "inline": {
+          "allocations_requested_peak_live": [
+            100,
+            9660,
+            7433,
+            6467
+          ],
+          "calls": 10,
+          "elapsed_ms": 2.1359999999999997,
+          "result": 49995003
+        }
+      }
+    },
+    {
+      "iterations": 10000,
+      "mode": "lifecycle",
+      "calls": 10,
+      "rounds_ms": [
+        {
+          "arena": 10.489625,
+          "inline": 2.215917
+        },
+        {
+          "arena": 10.215290999999999,
+          "inline": 2.144917
+        },
+        {
+          "arena": 10.511,
+          "inline": 2.116667
+        },
+        {
+          "inline": 2.096125,
+          "arena": 10.465041
+        },
+        {
+          "arena": 10.299041,
+          "inline": 2.1525
+        },
+        {
+          "inline": 2.257417,
+          "arena": 10.808375
+        },
+        {
+          "inline": 2.146666,
+          "arena": 10.64025
+        }
+      ],
+      "median_ms": {
+        "arena": 10.489625,
+        "inline": 2.146666
+      },
+      "arena_over_inline": [
+        4.886472790830059,
+        4.733762591288392,
+        4.965825989633702
+      ],
+      "instrumented": {
+        "arena": {
+          "allocations_requested_peak_live": [
+            300730,
+            71624140,
+            4207344,
+            2103618
+          ],
+          "calls": 10,
+          "elapsed_ms": 10.553417000000001,
+          "result": 49995003
+        },
+        "inline": {
+          "allocations_requested_peak_live": [
+            580,
+            83460,
+            13021,
+            6467
+          ],
+          "calls": 10,
+          "elapsed_ms": 2.1247089999999997,
+          "result": 49995003
+        }
+      }
+    },
+    {
+      "iterations": 60000,
+      "mode": "execution",
+      "calls": 10,
+      "rounds_ms": [
+        {
+          "arena": 52.90620800000001,
+          "inline": 12.702333999999999
+        },
+        {
+          "arena": 54.413542,
+          "inline": 12.555416
+        },
+        {
+          "arena": 53.050959,
+          "inline": 12.71625
+        },
+        {
+          "arena": 53.56375,
+          "inline": 12.948792000000001
+        },
+        {
+          "inline": 12.959208,
+          "arena": 53.057917
+        },
+        {
+          "inline": 12.556792000000002,
+          "arena": 55.298958
+        },
+        {
+          "arena": 53.595375000000004,
+          "inline": 12.815874999999998
+        }
+      ],
+      "median_ms": {
+        "arena": 53.56375,
+        "inline": 12.71625
+      },
+      "arena_over_inline": [
+        4.212228447852158,
+        4.09751867201203,
+        4.333395185649327
+      ],
+      "instrumented": {
+        "arena": {
+          "allocations_requested_peak_live": [
+            1800110,
+            177609860,
+            8396060,
+            8395074
+          ],
+          "calls": 10,
+          "elapsed_ms": 53.247375,
+          "result": 1799970003
+        },
+        "inline": {
+          "allocations_requested_peak_live": [
+            100,
+            9660,
+            7433,
+            6467
+          ],
+          "calls": 10,
+          "elapsed_ms": 12.696375,
+          "result": 1799970003
+        }
+      }
+    },
+    {
+      "iterations": 60000,
+      "mode": "lifecycle",
+      "calls": 10,
+      "rounds_ms": [
+        {
+          "arena": 61.049583,
+          "inline": 12.509417000000001
+        },
+        {
+          "arena": 63.06445900000001,
+          "inline": 12.74875
+        },
+        {
+          "arena": 62.277333,
+          "inline": 12.840084
+        },
+        {
+          "arena": 62.058375,
+          "inline": 12.963584
+        },
+        {
+          "inline": 12.899041,
+          "arena": 61.975958
+        },
+        {
+          "inline": 13.041625,
+          "arena": 60.957625
+        },
+        {
+          "arena": 60.772167,
+          "inline": 12.84125
+        }
+      ],
+      "median_ms": {
+        "arena": 61.975958,
+        "inline": 12.84125
+      },
+      "arena_over_inline": [
+        4.826318154385281,
+        4.702220080496257,
+        4.884975625061281
+      ],
+      "instrumented": {
+        "arena": {
+          "allocations_requested_peak_live": [
+            1800750,
+            345453260,
+            16790256,
+            8395074
+          ],
+          "calls": 10,
+          "elapsed_ms": 61.844167,
+          "result": 1799970003
+        },
+        "inline": {
+          "allocations_requested_peak_live": [
+            580,
+            83460,
+            13021,
+            6467
+          ],
+          "calls": 10,
+          "elapsed_ms": 12.640625,
+          "result": 1799970003
+        }
+      }
+    }
+  ],
+  "source_sha256": "f5f084530c6e9a0853b485cea0d7fcc2a2b2a9686d0c56f3ae144f1a5aecc980",
+  "runtime_sha256": {
+    "arena": "fe32d10aea92a77685e9807f92dce56b4bbee80fa195520ad3f2b42efc5dd8bc",
+    "inline": "1975902ffca1d4bf2bcbea7b697b3873b4ef74009a1dbbdc9c94db5a2991aff9"
+  },
+  "driver_sha256": "150777a66e4d075e408d4169a5dc170a63fbb05e4d97f4e435b896721ac91636",
+  "emitted_c_sha256": "19e2b1a6b768693c0193c2be99b0e4b3b2fc913604912e110e1c308db3be07c4"
+}

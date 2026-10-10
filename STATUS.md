@@ -2,6 +2,23 @@
 
 Current target coverage is documented in [lowering parity](docs/lowering-parity.md): complete C/Rust/JavaScript/Wasm execution, a common native/Wasm lifecycle ABI, and eligible WebGPU/wgpu collection closures inside mixed modules. Historical milestone sections below retain their original scope.
 
+## Runtime durability, generated conformance and modules
+
+Runtime hosts persist compiled JavaScript/C-Wasm/Rust-Wasm state and bounded
+retry receipts before returning replies. Synced file replacement and IndexedDB
+transactions retain the outbox and acknowledgements across crashes/reloads;
+delivery is at least once. Native executable embedding and incremental logs
+remain open. See [the durable contract](docs/durable-host.md).
+
+Generated conformance records bounded typed programs and action histories;
+fixed four seeds add 432 replies/exact snapshots on all CPU targets and 80 actual
+wgpu calls. GitHub checks include a commit-derived seed and software Vulkan.
+[Module imports](docs/modules.md) link types, values, state and events using the
+existing checked core, with embedded word/list helpers. Core types and proof
+rules are unchanged. Small complete-C scalar handles now avoid arena allocation
+and primitive argument scratch uses the stack; the matched scalar benchmark is
+kept under `bench/complete-values`, with its limited scope disclosed.
+
 ## Reviewed ownership lowering and independent proof replay
 
 Stateful Rust now uses conservative lexical moves, borrowed lookup keys and

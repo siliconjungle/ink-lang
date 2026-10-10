@@ -49,6 +49,8 @@ Core-only builds need no planner, database, runtime or lowering checkout. SQLite
 
 `--selection selection.json` replays a plan without searching or reading the current database. It contains the exact input identity, an authenticated knowledge view and application proofs. Builds record original and selected identities, proof dependencies, applications and target artifacts. The canonical entry/snapshot/evidence formats replace catalogue selection; there are no compatibility aliases.
 
+Explicit [module imports and standard helpers](docs/modules.md) work across targets. [Durable host adapters](docs/durable-host.md) supply filesystem/IndexedDB recovery and ordered outbox delivery for compiled JavaScript/Wasm.
+
 Complete CPU targets share the [lowering parity contract](docs/lowering-parity.md), including transactions and portable snapshots. GPU execution uses eligible pure closures with host execution for stateful operations.
 
 ## Proofs, capabilities and costs

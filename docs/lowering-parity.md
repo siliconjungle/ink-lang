@@ -92,3 +92,25 @@ INK_TEST_WGPU=1 cargo test --test lowering_parity -- --nocapture
 The checker, source correspondence, literal emission, codecs, host adapters and
 toolchains remain trusted. Differential tests and identical snapshots provide
 regression evidence; they are not formal proofs of emitted machine code.
+
+## Generated conformance gate
+
+`tests/generated_parity.rs` generates bounded typed scalar expressions, composed
+integer array kernels and update/query/abort/delete histories from recorded
+seeds. It compares replies and exact checkpoints with the reference after every
+request, with restoration continuations. The default four seeds yield 432
+requests; `INK_PARITY_SEEDS=1,7,...` supplies replayable decimal u64 seeds.
+The source, seeds, script and expected results remain under
+`build/generated-parity/`, including after failures. This supplements the fixed
+feature inventory; it is not exhaustive enumeration of the language.
+
+The `Executable conformance` GitHub workflow runs C, Rust, JavaScript and both
+Wasm lowerings, durable-host failure tests, and a separate actual wgpu dispatch
+job on Vulkan's software adapter, including resident feedback. It adds a seed
+from the commit identity and retains reproduction artifacts. Hardware/browser
+WebGPU and IndexedDB acceptance still have explicit browser fixtures; software
+Vulkan conformance provides no hardware performance evidence. Branch protection
+must require these checks if they are to block merges automatically.
+
+[Durable host adapters](durable-host.md) now supply filesystem/IndexedDB
+persistence and ordered outbox delivery for compiled JavaScript/Wasm state.

@@ -1,0 +1,101 @@
+name: Executable conformance
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: conformance-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  cpu-wasm-durability:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned cross compiler
+        run: |
+          python -m pip install ziglang==0.14.1
+          python - <<'PY'
+          import os, pathlib, ziglang
+          with open(os.environ['GITHUB_ENV'], 'a') as f:
+              f.write('INK_TEST_ZIG='+str(pathlib.Path(ziglang.__file__).parent/'zig')+'\n')
+              f.write('INK_PARITY_SEEDS=1,7,23,3735928559,'+str(int(os.environ['GITHUB_SHA'][:16],16))+'\n')
+          PY
+      - name: Rebuild disposable knowledge index
+        run: python -m ink_knowledge --root . rebuild
+        working-directory: knowledge
+      - name: Fetch locked dependencies
+        run: cargo fetch --locked
+      - name: Runtime policies and failure injection
+        run: node --test runtime/tests/backend-selection.mjs runtime/tests/durable-state.mjs
+      - name: Literal CPU and both Wasm lowerings, generated histories and crash recovery
+        run: cargo test --test lowering_parity --test generated_parity --test durability --test modules -- --nocapture
+      - name: Retain reproducible programs, seeds and expected outcomes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cpu-wasm-conformance
+          path: |
+            build/generated-parity/source.ink
+            build/generated-parity/seeds.json
+            build/generated-parity/script.json
+            build/generated-parity/expected.json
+            build/lowering-parity/source.ink
+            build/lowering-parity/script.json
+            build/lowering-parity/expected.json
+          retention-days: 30
+  wgpu:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      INK_TEST_WGPU: '1'
+      WGPU_BACKEND: vulkan
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Vulkan software adapter
+        run: sudo apt-get update && sudo apt-get install -y mesa-vulkan-drivers
+      - name: Private device runtime directory and replayable seeds
+        run: |
+          mkdir -p build/xdg
+          chmod 700 build/xdg
+          echo "XDG_RUNTIME_DIR=$PWD/build/xdg" >> "$GITHUB_ENV"
+          python3 - <<'PY'
+          import os
+          with open(os.environ['GITHUB_ENV'], 'a') as f:
+              f.write('INK_PARITY_SEEDS=1,7,23,3735928559,'+str(int(os.environ['GITHUB_SHA'][:16],16))+'\n')
+          PY
+      - run: cargo fetch --locked
+      - name: Actual wgpu dispatch and resident feedback
+        run: cargo test --test lowering_parity --test generated_parity --test modules -- --nocapture
+      - name: Retain GPU failure reproductions
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wgpu-conformance
+          path: |
+            build/generated-parity/source.ink
+            build/generated-parity/seeds.json
+            build/generated-parity/script.json
+            build/generated-parity/expected.json
+            build/generated-parity/gpu-script.json
+          retention-days: 30
