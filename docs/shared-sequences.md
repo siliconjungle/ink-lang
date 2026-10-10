@@ -48,7 +48,10 @@ roots and all archived snapshot/object identities.
 The full fifteen-function example uses the existing maximum 4,096 proof-check
 budget and 32 rounds. At 1,024 checks search stops before all independent
 rewrites; that partial selection remains checked and correct. No search or
-checker limit was raised. Profitability is recorded separately in
+checker limit was raised. The recorded native Rust run at 65,536 u32 elements
+measures 1.69× for zip projection, 1.83× for mapped zip and 1.74× for mapped
+zip/sum. Count-after-map measures 1.37× there, but is slower on the smallest
+input. Profitability and one-time planning costs are recorded separately in
 [the native benchmark](../bench/shared-sequences/README.md).
 
 ```sh

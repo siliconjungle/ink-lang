@@ -19,3 +19,31 @@ Count erasure skips building an unused map. Zip projections remove duplicate
 input traversals. Shared mapped-zip fusion replaces two maps plus zip with one
 map. Combining that law with the preceding integer sum law selects a fold
 without any mapped/paired list. Proof validity and measured benefit are separate.
+
+## Recorded native Rust run
+
+Apple M2, 65,536 u32 elements, full typed call median and paired
+95% bootstrap ratio interval.
+
+| Case | Baseline | Selected | Baseline / selected |
+| --- | ---: | ---: | ---: |
+| count_after_map | 20.32 µs | 14.82 µs | 1.37× [1.22, 1.57] |
+| zip_projection | 38.55 µs | 22.75 µs | 1.69× [1.25, 2.47] |
+| mapped_zip | 70.97 µs | 38.83 µs | 1.83× [1.50, 2.16] |
+| mapped_zip_sum | 80.90 µs | 46.52 µs | 1.74× [1.54, 1.96] |
+
+Count-after-map is about 0.94× at 256 elements (slower), and 1.18× at 4,096.
+The other three cases are faster at each recorded size; raw intervals and samples
+remain available. These are one-machine observations, not universal profitability.
+
+For the complete fifteen-function example, search/check took
+33.48 s once; emission plus selection
+replay took 1301.7 ms
+(baseline emission 14.1 ms).
+These phase times are single observations and are excluded from execution timings.
+The checked package can be saved and replayed for later builds.
+
+The compiler hash is identical to prior passes. Dependency checkouts were clean;
+the root was marked dirty solely by untracked validation reports generated
+during the run, with no compiler/source changes. Exact source and proof bytes
+are included in the recorded result.
