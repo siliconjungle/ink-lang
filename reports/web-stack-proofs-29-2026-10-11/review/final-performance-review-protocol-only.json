@@ -1,0 +1,38 @@
+{
+  "status": "independent-saved-web-protocol-and-GPU-review-passes",
+  "hosts": [
+    {
+      "host": "node",
+      "samples": 1944,
+      "complete_output_checks": 10125,
+      "calibration_trials": 2349,
+      "zero_calibration_trials": 0,
+      "actual_gpu_validation": 0,
+      "actual_gpu_sample_rows": 0,
+      "fallback_validation": 0
+    },
+    {
+      "host": "browser",
+      "samples": 2430,
+      "complete_output_checks": 12218,
+      "calibration_trials": 2498,
+      "zero_calibration_trials": 651,
+      "actual_gpu_validation": 189,
+      "actual_gpu_sample_rows": 486,
+      "fallback_validation": 0
+    }
+  ],
+  "physical_scope": "Both fresh GPU graphs reduce 3 dispatches to 2 with identical input upload and U64 readback; serial filter and one materialized accepted list remain. Merged reference prior/current program identical; no fresh causal claim.",
+  "comparators": "Strong JS/Rust count controls omit both discarded stages and avoid accepted-list allocation. Prepared Ink scalar returns direct i64 versus Rust 2-lane caller-scratch result; bridge work differs, so this is a named ABI comparison. Full captures and resident boundaries stay separate.",
+  "interrupted_browser_attempt": "No accepted saved samples; retained retry alone is audited, no pooling.",
+  "statistics": "Pending root analysis and final report review; no gain classification asserted here.",
+  "bindings": {
+    "reports/web-stack-proofs-29-2026-10-11/metadata.json": "dce8fb8aef9be76047419e27c882f565189ddb18055154690162004011808e4b",
+    "reports/web-stack-proofs-29-2026-10-11/node-results.json": "02cfa91b87e73105500f53aaaebf4b37b7c01e26ba675fc8997006236c1db00c",
+    "reports/web-stack-proofs-29-2026-10-11/browser-results.json": "7c5d168d9f7cfe125872f322402da060c41a62587b5927f766d1a86fa078f2dc",
+    "reports/web-stack-proofs-29-2026-10-11/native/results.json": "ce5734342799299301e95a13943bea430f653ec6386b8c5368cf543f03e086cd",
+    "reports/web-stack-proofs-29-2026-10-11/browser-interrupted-attempt.json": "904042622d4364135c462d61bf7fe0012b833f16ce744998231005f41fb89156",
+    "reports/web-stack-proofs-29-2026-10-11/fixtures.json": "a5f66bdb0d7c931e0eaf90b7d69bbed11762ffa1081b16c7b970f7f479ce1f0c",
+    "reports/web-stack-proofs-29-2026-10-11/spec.json": "ffee82a0abd6eb51d517fa711b308c25f4cf1128cbb2581b6f9e24c379fe3952"
+  }
+}

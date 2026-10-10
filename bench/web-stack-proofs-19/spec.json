@@ -1,0 +1,193 @@
+{
+  "schema": 1,
+  "rust_abi": "bench_eval(case,xs_ptr,xs_len,ys_ptr,ys_len,seed,k,out)->word_count",
+  "tasks": [
+    {
+      "name": "partition_recombine_u32",
+      "generic_family": "partition_recombine_u32",
+      "cohort": "discovery",
+      "operation": "recombine",
+      "predicate": "x<seed",
+      "mapper": "(x+7)*(x+seed)",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "fresh_proof_required": true,
+      "index": 0,
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "result_length": "one scalar word"
+    },
+    {
+      "name": "partition_contrast_u32",
+      "generic_family": "partition_contrast_u32",
+      "cohort": "discovery",
+      "operation": "contrast",
+      "predicate": "x<seed",
+      "mapper": "(x+7)*(x+seed)",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "fresh_proof_required": true,
+      "index": 1,
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "result_length": "one scalar word"
+    },
+    {
+      "name": "partition_weighted_u32",
+      "generic_family": "partition_weighted_u32",
+      "cohort": "discovery",
+      "operation": "weighted",
+      "predicate": "x<seed",
+      "mapper": "(x+7)*(x+seed)",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "fresh_proof_required": true,
+      "index": 2,
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "result_length": "one scalar word"
+    },
+    {
+      "name": "partition_recombine_u32_heldout",
+      "generic_family": "partition_recombine_u32",
+      "cohort": "heldout",
+      "operation": "recombine",
+      "predicate": "x>seed",
+      "mapper": "choose(x<k,k-x,x-k)+seed",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "fresh_proof_required": true,
+      "index": 3,
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "result_length": "one scalar word"
+    },
+    {
+      "name": "partition_contrast_u32_heldout",
+      "generic_family": "partition_contrast_u32",
+      "cohort": "heldout",
+      "operation": "contrast",
+      "predicate": "x>seed",
+      "mapper": "choose(x<k,k-x,x-k)+seed",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "fresh_proof_required": true,
+      "index": 4,
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "result_length": "one scalar word"
+    },
+    {
+      "name": "partition_weighted_u32_heldout",
+      "generic_family": "partition_weighted_u32",
+      "cohort": "heldout",
+      "operation": "weighted",
+      "predicate": "x>seed",
+      "mapper": "choose(x<k,k-x,x-k)+seed",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "fresh_proof_required": true,
+      "index": 5,
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "result_length": "one scalar word"
+    },
+    {
+      "name": "paired_score_u32",
+      "generic_family": "paired_mapped_zip_u32",
+      "cohort": "discovery",
+      "operation": "paired",
+      "left": "choose(x<seed,x,k)",
+      "right": "choose(x<seed,k,x)",
+      "combine": "choose(a<b,a+b*k,a-b*k)",
+      "output": "list_u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "fresh_proof_required": true,
+      "index": 6,
+      "output_kind": "list_u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": false,
+      "scalar_words": 1,
+      "result_length": "xs.length"
+    },
+    {
+      "name": "paired_signal_heldout_u32",
+      "generic_family": "paired_mapped_zip_u32",
+      "cohort": "heldout",
+      "operation": "paired",
+      "left": "choose(x>k,x,seed)",
+      "right": "choose(x>k,seed,x)",
+      "combine": "choose(a>b,a*b+seed,a+b*k)",
+      "output": "list_u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "fresh_proof_required": true,
+      "index": 7,
+      "output_kind": "list_u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": false,
+      "scalar_words": 1,
+      "result_length": "xs.length"
+    }
+  ],
+  "scope": "Six complementary partition reductions and two paired-calibration list recipes, each primary or preset alternate callback instantiations. All natural one-list ABI. Expert controls already fuse original semantics; weighted expert keeps two accumulators and scalar weights once. Captured web calls, borrowed JS, native resident/snapshot boundaries separate. No general language or compiler ranking."
+}

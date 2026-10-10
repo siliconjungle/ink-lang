@@ -106,6 +106,7 @@ fn check_with_catalogue(
     package: &Package,
     laws: &CheckedCatalogue,
 ) -> LangResult<CheckedSelection> {
+    laws.require_applicable()?;
     let p = module.program();
     let mut bodies = subject(module)?.functions;
     let mut budget = Budget::new();
@@ -259,6 +260,7 @@ impl SelectionChecker {
     pub fn new(module: CheckedModule, knowledge: crate::registry::Bundle) -> LangResult<Self> {
         let checked = crate::registry::CheckedBundle::check(&knowledge)?;
         let laws = CheckedCatalogue::check(&checked.catalogue()?, module.program())?;
+        laws.require_applicable()?;
         Ok(Self {
             module,
             knowledge,

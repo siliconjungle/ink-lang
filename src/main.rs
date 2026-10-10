@@ -745,11 +745,12 @@ fn run() -> LangResult<()> {
                     verified_language::runtime::emit_gpu(&p, Path::new(&out))?;
                 }
                 let zig = arg_value(&args, "--zig")?.unwrap_or_else(|| "zig".into());
-                verified_language::runtime::toolchain::wasm(
+                verified_language::runtime::toolchain::wasm_with_abi(
                     &core::CheckedModule::from_source(p.clone())?,
                     &Path::new(&out).join("cpu.c"),
                     &Path::new(&out).join("cpu.wasm"),
                     &zig,
+                    verified_language::runtime::uses_packed_compute(&p),
                 )?;
                 let plan = serde_json::json!({"source":path,"target":target,"semantic_selection":semantic_selection.as_ref().map(|s|s.evidence()),"semantic_package":semantic_selection.as_ref().map(|s|s.package()),"checked_replacement":replacement,"checked_implementation":implementation,"applied_rule_ids":used,"database_lock":serde_json::Value::Null,"database_closure":serde_json::Value::Null,"input_core_sha256":input_core_sha256,"selected_core_sha256":selected_core_sha256,"checked_source_route":route.as_ref().map(|r|r.package()),"source_route_equivalence":route.as_ref().and_then(|r|r.equivalence()),"trust":"GPU backend and physical routing remain trusted; see manifest.json"});
                 write(

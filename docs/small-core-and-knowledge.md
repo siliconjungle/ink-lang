@@ -441,3 +441,21 @@ search, example optimisation laws and cost estimates live in ink-knowledge.
 Lowerers, reference execution and proved source routing consume the same admitted
 module/equality mechanism. The new trusted mechanisms and the remaining
 state/trace/physical-backend limits are explicit in that document.
+
+### Portable helper contexts and explicit destination execution
+
+The general definition-context checker binds transitive pure helper bodies and
+signatures by content hash, reconstructs/types/checks their definitions and uses
+the existing equality proof calculus. Contextual laws carry this data in their
+ordinary DB payload. Application additionally matches the original checked
+module exactly. Context-free laws cannot borrow undeclared helpers from an
+admission module. The planner's context filter is untrusted; core replay repeats
+applicability checking. No helper-specific theorem rule is added.
+
+Evaluate-once operand emission, caller-owned destination entrypoints, allocation
+marks and literal resident GPU stage graphs are general physical mechanisms in
+lowering/runtime packages. Mathematical fusion, alternative representations and
+profitability choices remain database authority. These mechanisms remain trusted
+native correspondence; pure value equality does not prove ownership/lifetime or
+allocation traces. [The precise contracts and validation boundary](web-engine-storage-and-contexts.md)
+are recorded separately.

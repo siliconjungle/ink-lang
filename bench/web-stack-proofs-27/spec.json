@@ -1,0 +1,209 @@
+{
+  "schema": 3,
+  "rust_abi": "bench_eval(case,xs_ptr,xs_len,ys_ptr,ys_len,seed,k,out)->word_count",
+  "tasks": [
+    {
+      "name": "aligned_left_pair_u32",
+      "operation": "nested_zip",
+      "side": "left",
+      "generic_family": "aligned_left_nested_zip_u32",
+      "cohort": "discovery",
+      "combine": "choose(a<seed,a+b*k,a-b)",
+      "outer": "choose(v<seed,v+x*k,v-x)",
+      "output": "list_u32",
+      "list_inputs": [
+        "xs",
+        "ys"
+      ],
+      "fresh_proof_required": true,
+      "proof_role": "new arbitrary independent nested-zip fusion; preserves min lengths and callback order",
+      "index": 0,
+      "output_kind": "list_u32",
+      "params": [
+        "xs",
+        "ys",
+        "seed",
+        "k"
+      ],
+      "scalar": false,
+      "scalar_words": 1,
+      "result_length": "min(xs.length,ys.length)"
+    },
+    {
+      "name": "aligned_right_pair_u32",
+      "operation": "nested_zip",
+      "side": "right",
+      "generic_family": "aligned_right_nested_zip_u32",
+      "cohort": "discovery",
+      "combine": "choose(a<seed,a+b*k,a-b)",
+      "outer": "choose(v<seed,v+x*k,v-x)",
+      "output": "list_u32",
+      "list_inputs": [
+        "xs",
+        "ys"
+      ],
+      "fresh_proof_required": true,
+      "proof_role": "new arbitrary independent nested-zip fusion; preserves min lengths and callback order",
+      "index": 1,
+      "output_kind": "list_u32",
+      "params": [
+        "xs",
+        "ys",
+        "seed",
+        "k"
+      ],
+      "scalar": false,
+      "scalar_words": 1,
+      "result_length": "min(xs.length,ys.length)"
+    },
+    {
+      "name": "helper_calibrated_map_u32",
+      "operation": "helper_map",
+      "list_inputs": [
+        "xs"
+      ],
+      "output": "list_u32",
+      "index": 2,
+      "fresh_proof_required": false,
+      "cohort": "reference",
+      "generic_family": null,
+      "proof_role": "named-helper backend reference; no fresh law requirement",
+      "output_kind": "list_u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": false,
+      "scalar_words": 1,
+      "result_length": "xs.length"
+    },
+    {
+      "name": "helper_indexed_calibration_u32",
+      "operation": "helper_indexed",
+      "list_inputs": [
+        "xs"
+      ],
+      "output": "list_u32",
+      "index": 3,
+      "fresh_proof_required": false,
+      "cohort": "reference",
+      "generic_family": null,
+      "proof_role": "named-helper backend reference; no fresh law requirement",
+      "output_kind": "list_u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": false,
+      "scalar_words": 1,
+      "result_length": "xs.length"
+    },
+    {
+      "name": "helper_ordered_checksum_u32",
+      "operation": "helper_fold",
+      "list_inputs": [
+        "xs"
+      ],
+      "output": "u32",
+      "index": 4,
+      "fresh_proof_required": false,
+      "cohort": "reference",
+      "generic_family": null,
+      "proof_role": "named-helper backend reference; no fresh law requirement",
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "result_length": "one scalar word"
+    },
+    {
+      "name": "helper_accepted_projection_u32",
+      "operation": "helper_filter_map",
+      "list_inputs": [
+        "xs"
+      ],
+      "output": "list_u32",
+      "index": 5,
+      "fresh_proof_required": false,
+      "cohort": "reference",
+      "generic_family": null,
+      "proof_role": "named-helper backend reference; no fresh law requirement",
+      "output_kind": "list_u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": false,
+      "scalar_words": 1,
+      "result_length": "accepted predicate count"
+    },
+    {
+      "name": "helper_independent_pair_u32",
+      "operation": "helper_zip",
+      "list_inputs": [
+        "xs",
+        "ys"
+      ],
+      "output": "list_u32",
+      "index": 6,
+      "fresh_proof_required": false,
+      "cohort": "reference",
+      "generic_family": null,
+      "proof_role": "named-helper backend reference; no fresh law requirement",
+      "output_kind": "list_u32",
+      "params": [
+        "xs",
+        "ys",
+        "seed",
+        "k"
+      ],
+      "scalar": false,
+      "scalar_words": 1,
+      "result_length": "min(xs.length,ys.length)"
+    },
+    {
+      "name": "reference_modular_mix_u32",
+      "operation": "modular_mix",
+      "list_inputs": [
+        "xs"
+      ],
+      "output": "list_u32",
+      "stages": 16,
+      "modulus": 4294967291,
+      "index": 7,
+      "fresh_proof_required": false,
+      "cohort": "reference",
+      "generic_family": null,
+      "proof_role": "named-helper backend reference; no fresh law requirement",
+      "output_kind": "list_u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": false,
+      "scalar_words": 1,
+      "result_length": "xs.length"
+    }
+  ],
+  "matrix": {
+    "backends": [
+      "old",
+      "new"
+    ],
+    "proof_states": [
+      "prior",
+      "checked"
+    ],
+    "bundle_pattern": "{backend}/{proof_state}/{task}",
+    "frozen_core": "one prior/current selection per task recompiled unchanged by both backends"
+  },
+  "scope": "Eight bounded U32 recipes: two fresh independent nested-zip fusions and six named-helper/backend references spanning map, indexed output, ordered checksum, filtered projection, independent pair and immutable26 modular mix.32 matched cells;32/65536 timed and4096 correctness only. Three natural two-list ABIs, others single-list. Fixed captured parameters across sizes, original staged controls validation-only, strong experts inline/hoist/fuse all valid work. Full captured and synchronous borrowed calls are separate; native resident/snapshot separate. No broad application corpus or universal superiority claim."
+}

@@ -1,0 +1,427 @@
+{
+  "schema": 1,
+  "rust_abi": "bench_eval(case,xs_ptr,xs_len,ys_ptr,ys_len,seed,k,out)->word_count",
+  "tasks": [
+    {
+      "name": "accepted_total",
+      "cohort": "discovery",
+      "family": "filtered_predicated_sum",
+      "operation": "sum",
+      "pipeline": "filter",
+      "mapper": "calibration",
+      "predicate": "below",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 0,
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "fresh_proof_required": true
+    },
+    {
+      "name": "calibrated_accepted_total",
+      "cohort": "discovery",
+      "family": "mapped_filtered_predicated_sum",
+      "operation": "sum",
+      "pipeline": "map_filter",
+      "mapper": "calibration",
+      "predicate": "below",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 1,
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "fresh_proof_required": true
+    },
+    {
+      "name": "accepted_calibrated_total",
+      "cohort": "discovery",
+      "family": "filtered_mapped_predicated_sum",
+      "operation": "sum",
+      "pipeline": "filter_map",
+      "mapper": "calibration",
+      "predicate": "below",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 2,
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "fresh_proof_required": true
+    },
+    {
+      "name": "dual_sum_add",
+      "cohort": "discovery",
+      "family": "dual_sum_add",
+      "operation": "dual_sum",
+      "combine": "add",
+      "mapper": "distance",
+      "second_mapper": "offset_scale",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 3,
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "fresh_proof_required": true
+    },
+    {
+      "name": "dual_sum_subtract",
+      "cohort": "discovery",
+      "family": "dual_sum_subtract",
+      "operation": "dual_sum",
+      "combine": "subtract",
+      "mapper": "distance",
+      "second_mapper": "offset_scale",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 4,
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "fresh_proof_required": true
+    },
+    {
+      "name": "dual_sum_weighted",
+      "cohort": "discovery",
+      "family": "dual_sum_weighted",
+      "operation": "dual_sum",
+      "combine": "weighted",
+      "mapper": "distance",
+      "second_mapper": "offset_scale",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 5,
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "fresh_proof_required": true
+    },
+    {
+      "name": "accepted_total_heldout",
+      "cohort": "heldout",
+      "family": "filtered_predicated_sum",
+      "operation": "sum",
+      "pipeline": "filter",
+      "mapper": "distance",
+      "predicate": "above_k",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 6,
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "fresh_proof_required": true
+    },
+    {
+      "name": "calibrated_accepted_total_heldout",
+      "cohort": "heldout",
+      "family": "mapped_filtered_predicated_sum",
+      "operation": "sum",
+      "pipeline": "map_filter",
+      "mapper": "distance",
+      "predicate": "above_k",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 7,
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "fresh_proof_required": true
+    },
+    {
+      "name": "accepted_calibrated_total_heldout",
+      "cohort": "heldout",
+      "family": "filtered_mapped_predicated_sum",
+      "operation": "sum",
+      "pipeline": "filter_map",
+      "mapper": "distance",
+      "predicate": "above_k",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 8,
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "fresh_proof_required": true
+    },
+    {
+      "name": "dual_sum_add_heldout",
+      "cohort": "heldout",
+      "family": "dual_sum_add",
+      "operation": "dual_sum",
+      "combine": "add",
+      "mapper": "distance_k",
+      "second_mapper": "square_offset",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 9,
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "fresh_proof_required": true
+    },
+    {
+      "name": "dual_sum_subtract_heldout",
+      "cohort": "heldout",
+      "family": "dual_sum_subtract",
+      "operation": "dual_sum",
+      "combine": "subtract",
+      "mapper": "distance_k",
+      "second_mapper": "square_offset",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 10,
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "fresh_proof_required": true
+    },
+    {
+      "name": "dual_sum_weighted_heldout",
+      "cohort": "heldout",
+      "family": "dual_sum_weighted",
+      "operation": "dual_sum",
+      "combine": "weighted",
+      "mapper": "distance_k",
+      "second_mapper": "square_offset",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 11,
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "fresh_proof_required": true
+    },
+    {
+      "name": "abi_calibrated_checksum",
+      "original_name": "calibrated_checksum",
+      "cohort": "anchor",
+      "family": "round14_abi_regression",
+      "operation": "fold",
+      "pipeline": "map",
+      "mapper": "calibration",
+      "predicate": "below",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 12,
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "fresh_proof_required": false
+    },
+    {
+      "name": "abi_accepted_total",
+      "original_name": "accepted_total",
+      "cohort": "anchor",
+      "family": "round14_abi_regression",
+      "operation": "sum",
+      "pipeline": "filter",
+      "mapper": "identity",
+      "predicate": "below",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 13,
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "fresh_proof_required": false
+    },
+    {
+      "name": "abi_calibrated_accepted_total",
+      "original_name": "calibrated_accepted_total",
+      "cohort": "anchor",
+      "family": "round14_abi_regression",
+      "operation": "sum",
+      "pipeline": "map_filter",
+      "mapper": "calibration",
+      "predicate": "below",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 14,
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "fresh_proof_required": false
+    },
+    {
+      "name": "abi_distance_total",
+      "original_name": "distance_total",
+      "cohort": "anchor",
+      "family": "round14_abi_regression",
+      "operation": "sum",
+      "pipeline": "map",
+      "mapper": "distance",
+      "predicate": "above",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 15,
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "fresh_proof_required": false
+    },
+    {
+      "name": "abi_accepted_checksum",
+      "original_name": "accepted_checksum",
+      "cohort": "anchor",
+      "family": "round14_abi_regression",
+      "operation": "fold",
+      "pipeline": "filter",
+      "mapper": "identity",
+      "predicate": "above",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 16,
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "fresh_proof_required": false
+    },
+    {
+      "name": "abi_calibrated_accepted_checksum",
+      "original_name": "calibrated_accepted_checksum",
+      "cohort": "anchor",
+      "family": "round14_abi_regression",
+      "operation": "fold",
+      "pipeline": "map_filter",
+      "mapper": "offset_gate",
+      "predicate": "above",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 17,
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "fresh_proof_required": false
+    }
+  ],
+  "scope": "Twelve predicated/two-consumer word reductions plus six archived round14 ABI regression sources/inputs; six discovery and six preset held-out callback instantiations. Anchors separately test representation specialization; no new aggregate-law discovery claim. All arithmetic wrapsU32; callbacks pure total. Same external cost model applies to prior/current. Strong expert algorithms frozen before timings."
+}

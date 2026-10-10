@@ -1,0 +1,241 @@
+{
+  "schema": 3,
+  "rust_abi": "bench_eval(case,xs_ptr,xs_len,ys_ptr,ys_len,seed,k,out)->word_count",
+  "tasks": [
+    {
+      "name": "accepted_repair_u32",
+      "generic_family": "accepted_branch_map_u32",
+      "cohort": "discovery",
+      "operation": "repair",
+      "predicate": "rem_or(x,seed,0)<k",
+      "mapper": "choose(x<seed,seed-x,x+seed)",
+      "rejected_mapper": "choose(x>seed,x-seed,x*k)",
+      "reducer": "choose(a<seed,x+a*k,x-a)",
+      "output": "list_u32",
+      "fresh_proof_required": true,
+      "proof_role": "new accepted-branch simplification, deployment through existing ordered folds if selected",
+      "index": 0,
+      "list_inputs": [
+        "xs"
+      ],
+      "output_kind": "list_u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": false,
+      "scalar_words": 1,
+      "result_length": "accepted predicate count"
+    },
+    {
+      "name": "accepted_checksum_u32",
+      "generic_family": "accepted_branch_map_u32",
+      "cohort": "discovery",
+      "operation": "repair_fold",
+      "predicate": "rem_or(x,seed,0)<k",
+      "mapper": "choose(x<seed,seed-x,x+seed)",
+      "rejected_mapper": "choose(x>seed,x-seed,x*k)",
+      "reducer": "choose(a<seed,x+a*k,x-a)",
+      "output": "u32",
+      "fresh_proof_required": true,
+      "proof_role": "new accepted-branch simplification, deployment through existing ordered folds if selected",
+      "index": 1,
+      "list_inputs": [
+        "xs"
+      ],
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "result_length": "one scalar word"
+    },
+    {
+      "name": "accepted_repair_heldout_u32",
+      "generic_family": "accepted_branch_map_u32",
+      "cohort": "heldout",
+      "operation": "repair",
+      "predicate": "choose(x<seed,rem_or(seed-x,k,0),rem_or(x-seed,k,0))<quot_or(k,2,0)",
+      "mapper": "choose(x>k,x*k-seed,seed+x)",
+      "rejected_mapper": "choose(x<k,x+seed,x-k)",
+      "reducer": "choose(a<seed,x+a*k,x-a)",
+      "output": "list_u32",
+      "fresh_proof_required": true,
+      "proof_role": "new accepted-branch simplification, deployment through existing ordered folds if selected",
+      "index": 2,
+      "list_inputs": [
+        "xs"
+      ],
+      "output_kind": "list_u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": false,
+      "scalar_words": 1,
+      "result_length": "accepted predicate count"
+    },
+    {
+      "name": "accepted_checksum_heldout_u32",
+      "generic_family": "accepted_branch_map_u32",
+      "cohort": "heldout",
+      "operation": "repair_fold",
+      "predicate": "choose(x<seed,rem_or(seed-x,k,0),rem_or(x-seed,k,0))<quot_or(k,2,0)",
+      "mapper": "choose(x>k,x*k-seed,seed+x)",
+      "rejected_mapper": "choose(x<k,x+seed,x-k)",
+      "reducer": "choose(a<seed,x+a*k,x-a)",
+      "output": "u32",
+      "fresh_proof_required": true,
+      "proof_role": "new accepted-branch simplification, deployment through existing ordered folds if selected",
+      "index": 3,
+      "list_inputs": [
+        "xs"
+      ],
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "result_length": "one scalar word"
+    },
+    {
+      "name": "skip_first_accepted_u32",
+      "generic_family": "skip_first_accepted_u32",
+      "cohort": "reference",
+      "operation": "first_accepted",
+      "predicate": "x>seed",
+      "output": "u32",
+      "fresh_proof_required": false,
+      "proof_role": "existing23 first-match law; legacy-emitter backend reference",
+      "index": 4,
+      "list_inputs": [
+        "xs"
+      ],
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "result_length": "one scalar word"
+    },
+    {
+      "name": "skip_first_accepted_u32_heldout",
+      "generic_family": "skip_first_accepted_u32",
+      "cohort": "heldout",
+      "operation": "first_accepted",
+      "predicate": "x<k",
+      "output": "u32",
+      "fresh_proof_required": false,
+      "proof_role": "existing23 first-match law; legacy-emitter backend reference",
+      "index": 5,
+      "list_inputs": [
+        "xs"
+      ],
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "result_length": "one scalar word"
+    },
+    {
+      "name": "demand_filtered_mapped_head_u32",
+      "generic_family": "demand_filtered_mapped_head_u32",
+      "cohort": "reference",
+      "operation": "filtered_mapped_head",
+      "mapper": "choose(x>k,x*k+seed,seed-x)",
+      "predicate": "x>seed",
+      "output": "u32",
+      "fresh_proof_required": false,
+      "proof_role": "existing24 demand proof; compute scalar bridge regression reference",
+      "index": 6,
+      "list_inputs": [
+        "xs"
+      ],
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "result_length": "one scalar word"
+    },
+    {
+      "name": "reference_indexed_u32",
+      "generic_family": null,
+      "cohort": "reference",
+      "operation": "indexed",
+      "mapper": "choose(rem_or(i,2,0)==0,x+k,x-seed)",
+      "output": "list_u32",
+      "fresh_proof_required": false,
+      "proof_role": "unchanged indexed/GPU and U32 borrowed-ingress reference",
+      "index": 7,
+      "list_inputs": [
+        "xs"
+      ],
+      "output_kind": "list_u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": false,
+      "scalar_words": 1,
+      "result_length": "xs.length"
+    },
+    {
+      "name": "accepted_total_u32",
+      "generic_family": "accepted_branch_sum_u32",
+      "cohort": "discovery",
+      "operation": "repair_sum",
+      "predicate": "rem_or(x,seed,0)<k",
+      "mapper": "choose(x<seed,seed-x,x+seed)",
+      "rejected_mapper": "choose(x>seed,x-seed,x*k)",
+      "output": "u32",
+      "fresh_proof_required": true,
+      "proof_role": "checked accepted-map plus existing predicated mapped-sum composition; actual GPU manifest determines scope",
+      "index": 8,
+      "list_inputs": [
+        "xs"
+      ],
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "result_length": "one scalar word"
+    }
+  ],
+  "matrix": {
+    "backends": [
+      "old",
+      "new"
+    ],
+    "proof_states": [
+      "prior",
+      "checked"
+    ],
+    "bundle_pattern": "{backend}/{proof_state}/{task}",
+    "frozen_core": "one prior/current selection per task, recompiled unchanged by both backend/host bundles"
+  },
+  "scope": "Five accepted repair/ordered-checksum/total recipes plus four backend/GPU references. Backend includes emitter, Wasm exports and CPU bridge refinements, not just C code. All single-list trusted ABI. Fixed per-distribution parameters across32/65536 timings;4096 correctness only. Three lookup references cover first/interior/last/absent. Variable vector repair length is validated completely. Experts fuse filter/map; ordered checksum retains exact reverse accepted order and accumulator-dependent branch. Original staged JS/Rust validate only. Full captured calls and synchronous borrowed JS/native resident are separate boundaries. U32 compute borrowing already exists; Bool borrowing has separate author evidence. Actual GPU coverage and dedup are manifest-derived; no general superiority claim."
+}

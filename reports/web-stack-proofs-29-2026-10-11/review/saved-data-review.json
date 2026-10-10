@@ -1,0 +1,202 @@
+{
+  "status": "passed",
+  "errors": [],
+  "auditor": "Independent saved-data audit; does not import root audit/analysis implementations or execute measured programs.",
+  "counts": {
+    "frozen_timing_artifacts": 4676,
+    "main_artifacts": 4588,
+    "native_artifacts": 74,
+    "unchanged_existing_source_files": 343,
+    "tasks": 3,
+    "all_fixture_frames": 63,
+    "timed_frames": 18,
+    "native": {
+      "samples": 1296,
+      "groups": 144,
+      "calibration_trials": 1818,
+      "journal_invocations": 3114,
+      "complete_prevalidation": 252,
+      "warmups": "three prewarm plus single precheck on every driver invocation, verified source; not separately journaled"
+    },
+    "web": [
+      {
+        "host": "node",
+        "samples": 1944,
+        "groups": 216,
+        "variants": 12,
+        "validation": 756,
+        "warmup_rows": 432,
+        "calibration_trials": 2349,
+        "complete_output_checks": 10125,
+        "actual_gpu_golden_frames": 0,
+        "fallbacks": 0
+      },
+      {
+        "host": "browser",
+        "samples": 2430,
+        "groups": 270,
+        "variants": 15,
+        "validation": 945,
+        "warmup_rows": 540,
+        "calibration_trials": 2498,
+        "complete_output_checks": 12218,
+        "actual_gpu_golden_frames": 189,
+        "fallbacks": 0
+      }
+    ]
+  },
+  "checked_recipe_effects": [
+    {
+      "task": "pipeline_scan_telemetry_u32",
+      "role": "new-cardinality-work-erasure",
+      "shapes": {
+        "literal": {
+          "graph_ops": [
+            "filter",
+            "scan",
+            "count"
+          ],
+          "dispatches": 3,
+          "serial_ops": [
+            "filter",
+            "scan",
+            "count"
+          ]
+        },
+        "prior": {
+          "graph_ops": [
+            "filter",
+            "scan",
+            "count"
+          ],
+          "dispatches": 3,
+          "serial_ops": [
+            "filter",
+            "scan",
+            "count"
+          ]
+        },
+        "checked": {
+          "graph_ops": [
+            "filter",
+            "count"
+          ],
+          "dispatches": 2,
+          "serial_ops": [
+            "filter",
+            "count"
+          ]
+        }
+      }
+    },
+    {
+      "task": "pipeline_indexed_telemetry_u32",
+      "role": "new-cardinality-work-erasure",
+      "shapes": {
+        "literal": {
+          "graph_ops": [
+            "filter",
+            "map_indexed",
+            "count"
+          ],
+          "dispatches": 3,
+          "serial_ops": [
+            "filter",
+            "count"
+          ]
+        },
+        "prior": {
+          "graph_ops": [
+            "filter",
+            "map_indexed",
+            "count"
+          ],
+          "dispatches": 3,
+          "serial_ops": [
+            "filter",
+            "count"
+          ]
+        },
+        "checked": {
+          "graph_ops": [
+            "filter",
+            "count"
+          ],
+          "dispatches": 2,
+          "serial_ops": [
+            "filter",
+            "count"
+          ]
+        }
+      }
+    },
+    {
+      "task": "pipeline_merged_telemetry_u32",
+      "role": "existing-mathematics-reference",
+      "shapes": {
+        "literal": {
+          "graph_ops": [
+            "map",
+            "map",
+            "concat"
+          ],
+          "dispatches": 3,
+          "serial_ops": [
+            "concat"
+          ]
+        },
+        "prior": {
+          "graph_ops": [
+            "concat",
+            "map"
+          ],
+          "dispatches": 2,
+          "serial_ops": [
+            "concat"
+          ]
+        },
+        "checked": {
+          "graph_ops": [
+            "concat",
+            "map"
+          ],
+          "dispatches": 2,
+          "serial_ops": [
+            "concat"
+          ]
+        }
+      }
+    }
+  ],
+  "bindings": {
+    "metadata.json": "dce8fb8aef9be76047419e27c882f565189ddb18055154690162004011808e4b",
+    "native/metadata.json": "6d66beb84bbec10501f6a2fa4dd3b37223bb77f7b10a05beb7726dbd75d4db66",
+    "native/results.json": "ce5734342799299301e95a13943bea430f653ec6386b8c5368cf543f03e086cd",
+    "native/journal.json": "b02a7ca8489bb7c897cd4953ed763593c82b70a02105493228b68d005e49d804",
+    "node-results.json": "02cfa91b87e73105500f53aaaebf4b37b7c01e26ba675fc8997006236c1db00c",
+    "browser-results.json": "7c5d168d9f7cfe125872f322402da060c41a62587b5927f766d1a86fa078f2dc",
+    "timing-freeze.json": "d36085974ff8732c6ea2060bdd550dd2b7ceacf1946f4c5c9d4a7a688781c49a",
+    "initial-pins.json": "569ef352e8fbdf269db7b8ca01451226d060e0bee45460847aab210063665958",
+    "fixtures.json": "a5f66bdb0d7c931e0eaf90b7d69bbed11762ffa1081b16c7b970f7f479ce1f0c",
+    "spec.json": "ffee82a0abd6eb51d517fa711b308c25f4cf1128cbb2581b6f9e24c379fe3952",
+    "expert.mjs": "4ee0b5cf1c2c1b521ae35ef6cd41312bd6b911484069a9ba369a361c1a04c815",
+    "expert.rs": "8da76d99c7972fbb53a18af595b66aabae0437bc9a78b3f548a88423e460bd43",
+    "runner.mjs": "20ab8e4e5c8294923b968b9c4b8ffd5cd9dc64db062e237187ecb0430bc91031",
+    "native.py": "a92c13605d45ec7fed3a92b88359de7be4598792b998f39e487da006596f7426",
+    "native/driver.c": "e223fd1581ec865baf68594c9602d0b794430cfe4bc9758754d57ce4d47d5be8",
+    "review/prepared-source-review.json": "1c38e0871ea36e5c0ea4efa43fbfc4b20770e973294ad29e692adaeb57bca86f"
+  },
+  "review_program_sha256": "ea03bb697207b172162d25560f995895f33e29ebc4c81c36a5332c9499ea4613",
+  "control_review": {
+    "accepted_count": "Expert JS and Rust directly count the predicate, allocating no accepted/scan/indexed arrays; scalar U64 result. Native expert wrapper extracts two output words from shared Wasm bench_eval; optimized machine shape not independently disassembled.",
+    "merged": "Both independently sourced lists are mapped in one final-output traversal; wrapping multiply/add/sub matches source order. Prior/current already receive identical old concat-map helper witnesses.",
+    "boundaries": "Native resident vs captured distinct; web owned JS/complete runtime Wasm vs prepared resident distinct. Complete checks outside timer, native full-vector consumption vs web length/first/last checksum inside timer. Instrumented GPU includes transfer/stage dispatch/readback."
+  },
+  "limitations": [
+    "Only three U32 recipes timed, two count-work erasures and one old reference; broader typed and held-out correctness is separate.",
+    "Count source retains filter allocation/traversal; arbitrary pure total skipped callbacks, no caller validators.",
+    "Saved full-output validation is authenticated, not replayed by this audit; checksums alone do not establish all-element correctness.",
+    "No confidence intervals recomputed in this receipt; root paired bootstrap analysis is separate.",
+    "One frozen machine/compiler/model; no universal native or hardware superiority claim."
+  ]
+}

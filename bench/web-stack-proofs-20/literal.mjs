@@ -1,0 +1,9 @@
+const mul=(a,b)=>Math.imul(a,b)>>>0,add=(a,b)=>(a+b)>>>0,sub=(a,b)=>(a-b)>>>0,quot=(a,b,z)=>b?Math.floor(a/b)>>>0:z;
+const functions={"gated_mapper_sum_u32":(xs,ys,seed,k)=>{const mapped=Array.from(xs,x=>(seed<k)?quot(add(x,seed),k,seed):0);let a=0;for(const x of mapped)a=add(a,x);return a;},
+"gated_predicate_count_u32":(xs,ys,seed,k)=>{const filtered=Array.from(xs).filter(x=>(seed<k)?(x<seed):false);return BigInt(filtered.length);},
+"gated_arbitrary_fold_u32":(xs,ys,seed,k)=>{let a=seed;for(let i=xs.length;i-->0;){const x=xs[i];a=((seed<k)?mul(add(x,seed),add(a,k)):a);}return a;},
+"gated_arbitrary_fold_u32_heldout":(xs,ys,seed,k)=>{let a=seed;for(let i=xs.length;i-->0;){const x=xs[i];a=((seed==k)?((x<k)?add(a,mul(x,seed)):sub(a,mul(x,k))):a);}return a;},
+"paired_ordered_score_u32":(xs,ys,seed,k)=>{const zipped=new Array(xs.length);for(let i=0;i<xs.length;i++){const a=xs[i],b=a;zipped[i]=((a<seed)?add(a,mul(b,k)):sub(a,mul(b,k)));}let acc=seed;for(let i=zipped.length;i-->0;){const v=zipped[i];acc=((acc<seed)?sub(v,acc):add(v,mul(acc,k)));}return acc;},
+"paired_ordered_signal_heldout_u32":(xs,ys,seed,k)=>{const zipped=new Array(xs.length);for(let i=0;i<xs.length;i++){const a=xs[i],b=a;zipped[i]=((a>k)?add(mul(a,b),seed):add(a,mul(b,k)));}let acc=seed;for(let i=zipped.length;i-->0;){const v=zipped[i];acc=((v<seed)?add(v,mul(acc,k)):sub(v,acc));}return acc;},
+"paired_calibrated_u32":(xs,ys,seed,k)=>{const n=Math.min(xs.length,ys.length),zipped=new Array(n);for(let i=0;i<n;i++){const a=xs[i],b=ys[i];zipped[i]=((a<seed)?add(a,mul(b,k)):sub(a,mul(b,k)));}return zipped.map(v=>((v>k)?sub(v,seed):add(v,seed)));},
+"paired_contrast_heldout_u32":(xs,ys,seed,k)=>{const n=Math.min(xs.length,ys.length),zipped=new Array(n);for(let i=0;i<n;i++){const a=xs[i],b=ys[i];zipped[i]=((a>b)?sub(a,b):sub(b,a));}return zipped.map(v=>((v<seed)?mul(v,k):add(v,seed)));}};export const call=(name,args)=>functions[name](...args);

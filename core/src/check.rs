@@ -286,11 +286,27 @@ pub fn infer_context(e: &Expr, env: &Env, p: &Program, want: Option<&Type>) -> L
             Ok(f.result.clone())
         }
         Expr::Method(xs, n, args) => {
-            let Type::List(inner) =
-                infer_context(xs, env, p, if n == "filter" { want } else { None })?
+            let Type::List(inner) = infer_context(
+                xs,
+                env,
+                p,
+                if n == "filter" || n == "concat" {
+                    want
+                } else {
+                    None
+                },
+            )?
             else {
                 return Err(format!("method {n} requires a list"));
             };
+            if n == "concat" {
+                if args.len() != 1 {
+                    return Err("concat expects one list of the same element type".into());
+                }
+                let ty = Type::List(inner);
+                infer_as(&args[0], env, p, &ty)?;
+                return Ok(ty);
+            }
             if n == "at_or" {
                 if args.len() != 2 {
                     return Err("at_or expects index and fallback".into());

@@ -119,6 +119,7 @@ int main(void){
  ink_compute_reset(); }
  ink_l_int32 empty={0,0};assert(lang_fn_indexed(empty).len==0);ink_compute_reset();return 0;
 }
+
 "#);
     let dir = std::path::Path::new("build/compute-c-test");
     fs::create_dir_all(dir).unwrap();
@@ -149,6 +150,44 @@ int main(void){
         "{}",
         String::from_utf8_lossy(&result.stderr)
     );
+}
+#[test]
+fn packed_u32_ingress_borrows_without_mutating_or_freeing_caller_storage() {
+    use std::{fs, process::Command};
+    let p = parse("module Borrow;fn identity(xs:List<u32>)->List<u32>{return xs;}fn sorted(xs:List<u32>)->List<u32>{return xs.sort();}fn mapped(xs:List<u32>)->List<u32>{return xs.map(fn(x)=>x+1);}").unwrap();
+    let mut c = native::emit(&p).unwrap();
+    c.push_str(r#"
+#include <assert.h>
+int main(void) {
+    uint32_t xs[]={UINT32_MAX,0,7};
+    const void *data[]={xs};size_t lengths[]={3};void *output=0;size_t count=0;
+    ink_compute_call(0,data,lengths,&output,&count);
+    assert(output==xs && count==3 && ink_blocks==0);
+    ink_compute_reset();assert(xs[0]==UINT32_MAX);
+    ink_compute_call(1,data,lengths,&output,&count);
+    uint32_t *sorted=output;
+    assert(sorted!=xs && count==3 && sorted[0]==0 && sorted[1]==7 && sorted[2]==UINT32_MAX);
+    assert(xs[0]==UINT32_MAX && xs[1]==0 && xs[2]==7);
+    ink_compute_reset();
+    ink_compute_call(2,data,lengths,&output,&count);
+    uint32_t *mapped=output;
+    assert(mapped!=xs && mapped[0]==0 && mapped[1]==1 && mapped[2]==8);
+    assert(xs[0]==UINT32_MAX && xs[1]==0 && xs[2]==7);
+    ink_compute_reset();
+    lengths[0]=0;ink_compute_call(0,data,lengths,&output,&count);
+    assert(count==0 && ink_blocks==0);ink_compute_reset();
+    return 0;
+}
+"#);
+    let dir = std::path::Path::new("build/compute-borrow-test");
+    fs::create_dir_all(dir).unwrap();
+    fs::write(dir.join("test.c"), c).unwrap();
+    let result = Command::new("clang")
+        .args(["-O2", "-std=c11", "-Wall", "-Wextra", "-Werror", "-fsanitize=address,undefined", "-ffp-contract=off"])
+        .arg(dir.join("test.c")).arg("-o").arg(dir.join("test")).output().unwrap();
+    assert!(result.status.success(), "{}", String::from_utf8_lossy(&result.stderr));
+    let result = Command::new(dir.join("test")).output().unwrap();
+    assert!(result.status.success(), "{}", String::from_utf8_lossy(&result.stderr));
 }
 #[test]
 fn shader_capabilities_leave_ordered_reductions_and_missing_primitives_on_cpu() {

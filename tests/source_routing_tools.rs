@@ -146,11 +146,16 @@ fn external_partitioning_and_selection_never_promote_costs_to_proofs() {
     let r = tool("route_selection.py", &args);
     assert!(r.status.success());
     assert_eq!(fs::read(&output).unwrap(), fs::read(&baseline).unwrap());
-    // Restore the target, then tamper with immutable observation content.
+    // Restore the target, then tamper with an observation the selector uses.
+    // Rejected candidate plans are deliberately excluded from bounded queries.
     fs::write(&target,br#"{"hardware":"test-device","driver":"test-driver","toolchain":"test-toolchain","backend":"mixed","bridge":"host"}"#).unwrap();
     let observation = fs::read_dir(knowledge.join("store/observations"))
         .unwrap()
-        .next()
+        .find(|entry| {
+            let entry = entry.as_ref().unwrap();
+            let object: Value = serde_json::from_slice(&fs::read(entry.path()).unwrap()).unwrap();
+            object["plan"] == digest(&baseline)
+        })
         .unwrap()
         .unwrap()
         .path();

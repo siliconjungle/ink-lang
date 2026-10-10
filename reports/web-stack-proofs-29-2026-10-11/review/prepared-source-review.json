@@ -1,0 +1,186 @@
+{
+  "status": "prepared-source-review-passes",
+  "compiler_sha256": "c0f3651f11c04b2a4f30740a1239f3192af52c3cdff4523076456624cc557bbc",
+  "main_metadata_sha256": "dce8fb8aef9be76047419e27c882f565189ddb18055154690162004011808e4b",
+  "frozen_artifact_hashes_verified": 4588,
+  "fair_prior_entries": 1839,
+  "new_entries": 1867,
+  "fresh_delta_against_fair_prior": 28,
+  "fresh_timed_tasks": 2,
+  "reference_timed_tasks": 1,
+  "rows": [
+    {
+      "task": "pipeline_scan_telemetry_u32",
+      "fresh": true,
+      "physical": {
+        "literal": {
+          "graph_ops": [
+            "filter",
+            "scan",
+            "count"
+          ],
+          "graph_nodes": 3,
+          "graph_serial_ops": [
+            "filter",
+            "scan",
+            "count"
+          ],
+          "js_root_loops": 2,
+          "js_root_list_allocation_sites": 2,
+          "c_root_loops": 2,
+          "c_root_allocation_sites": 2
+        },
+        "prior": {
+          "graph_ops": [
+            "filter",
+            "scan",
+            "count"
+          ],
+          "graph_nodes": 3,
+          "graph_serial_ops": [
+            "filter",
+            "scan",
+            "count"
+          ],
+          "js_root_loops": 2,
+          "js_root_list_allocation_sites": 2,
+          "c_root_loops": 2,
+          "c_root_allocation_sites": 2
+        },
+        "checked": {
+          "graph_ops": [
+            "filter",
+            "count"
+          ],
+          "graph_nodes": 2,
+          "graph_serial_ops": [
+            "filter",
+            "count"
+          ],
+          "js_root_loops": 1,
+          "js_root_list_allocation_sites": 1,
+          "c_root_loops": 1,
+          "c_root_allocation_sites": 1
+        }
+      }
+    },
+    {
+      "task": "pipeline_indexed_telemetry_u32",
+      "fresh": true,
+      "physical": {
+        "literal": {
+          "graph_ops": [
+            "filter",
+            "map_indexed",
+            "count"
+          ],
+          "graph_nodes": 3,
+          "graph_serial_ops": [
+            "filter",
+            "count"
+          ],
+          "js_root_loops": 2,
+          "js_root_list_allocation_sites": 2,
+          "c_root_loops": 2,
+          "c_root_allocation_sites": 2
+        },
+        "prior": {
+          "graph_ops": [
+            "filter",
+            "map_indexed",
+            "count"
+          ],
+          "graph_nodes": 3,
+          "graph_serial_ops": [
+            "filter",
+            "count"
+          ],
+          "js_root_loops": 2,
+          "js_root_list_allocation_sites": 2,
+          "c_root_loops": 2,
+          "c_root_allocation_sites": 2
+        },
+        "checked": {
+          "graph_ops": [
+            "filter",
+            "count"
+          ],
+          "graph_nodes": 2,
+          "graph_serial_ops": [
+            "filter",
+            "count"
+          ],
+          "js_root_loops": 1,
+          "js_root_list_allocation_sites": 1,
+          "c_root_loops": 1,
+          "c_root_allocation_sites": 1
+        }
+      }
+    },
+    {
+      "task": "pipeline_merged_telemetry_u32",
+      "fresh": false,
+      "physical": {
+        "literal": {
+          "graph_ops": [
+            "map",
+            "map",
+            "concat"
+          ],
+          "graph_nodes": 3,
+          "graph_serial_ops": [
+            "concat"
+          ],
+          "js_root_loops": 4,
+          "js_root_list_allocation_sites": 3,
+          "c_root_loops": 2,
+          "c_root_allocation_sites": 3
+        },
+        "prior": {
+          "graph_ops": [
+            "concat",
+            "map"
+          ],
+          "graph_nodes": 2,
+          "graph_serial_ops": [
+            "concat"
+          ],
+          "js_root_loops": 3,
+          "js_root_list_allocation_sites": 2,
+          "c_root_loops": 1,
+          "c_root_allocation_sites": 2
+        },
+        "checked": {
+          "graph_ops": [
+            "concat",
+            "map"
+          ],
+          "graph_nodes": 2,
+          "graph_serial_ops": [
+            "concat"
+          ],
+          "js_root_loops": 3,
+          "js_root_list_allocation_sites": 2,
+          "c_root_loops": 1,
+          "c_root_allocation_sites": 2
+        }
+      }
+    }
+  ],
+  "node_complete_comparisons": 1512,
+  "native_complete_comparisons": 252,
+  "physical_scope": [
+    "Both new count recipes remain literal serial filter+count graphs; no parallel filtered-count legacy switch occurred. Graph stages/dispatches decrease 3 to 2 while input upload and U64 readback remain identical.",
+    "Both CPU new targets retain one materialized accepted list and one predicate pass. They omit exactly one scan/indexed loop and result allocation; strong expert count allocates no list.",
+    "Merged literal graph has 3 stages, fair prior/current both 2 and identical program/C/manifest bytes and Wasm executable sections; custom/debug sections differ. This is old-map-concat capability, not a fresh DB gain.",
+    "GPU coverage is manifest eligibility until browser executes; empty graph still dispatches its count/filter nodes. Upload 4*(N+3) scalar bytes and readback8; merged upload4*(N+M+4), readback4*(N+M+1).",
+    "All timings and performance classifications remain pending; this is pretime source/validation evidence."
+  ],
+  "bindings": {
+    "reports/web-stack-proofs-29-2026-10-11/metadata.json": "dce8fb8aef9be76047419e27c882f565189ddb18055154690162004011808e4b",
+    "reports/web-stack-proofs-29-2026-10-11/node-validation.json": "f556e75e4a379669447882af9848d7f5222f67d91f91a62ab772e18eb8af40a2",
+    "reports/web-stack-proofs-29-2026-10-11/native/metadata.json": "6d66beb84bbec10501f6a2fa4dd3b37223bb77f7b10a05beb7726dbd75d4db66",
+    "reports/web-stack-proofs-29-2026-10-11/pipeline/evidence.json": "07f09c58c29e05b3182d15dd46eed5ef89f58619903c2014406217b33bfaaf25",
+    "reports/web-stack-proofs-29-2026-10-11/pipeline/old-frontier.json": "cae1d118d022b00712b5366ee3eee1fb68c7e0bdb86a304130f43c1010cc267f"
+  }
+}

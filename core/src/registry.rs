@@ -390,7 +390,9 @@ impl CheckedBundle {
         Ok(context)
     }
 
-    /// Common evidence admission for mathematical entries. Program rewrites still require application proofs.
+    /// Common evidence admission for mathematical entries. Contextual rewrites
+    /// carry their own bounded definitions; admission here does not establish
+    /// applicability to p. Selection separately matches the original module.
     pub fn verify(&self, p: &crate::core::Program) -> LangResult<Vec<String>> {
         let mut first = crate::logic::Context::default();
         let mut scalar = crate::equality::Context::default();

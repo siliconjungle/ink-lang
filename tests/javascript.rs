@@ -37,7 +37,7 @@ fn cli_emits_importable_module_and_selection_plan_without_native_toolchain() {
     assert!(!plan["applied_rule_ids"].as_array().unwrap().is_empty());
     assert_ne!(plan["input_core_sha256"], plan["selected_core_sha256"]);
     assert_eq!(plan["backend"]["core_sha256"], plan["selected_core_sha256"]);
-    fs::write(dir.join("run.mjs"),"import assert from 'node:assert/strict';import {functions} from './test.mjs';assert.equal(functions.total(['18446744073709551615',1n]),2n);assert.equal(functions.advance(4294967295,1),9);").unwrap();
+    fs::write(dir.join("run.mjs"),"import assert from 'node:assert/strict';import {functions} from './test.mjs';assert.equal(functions.total([18446744073709551615n,1n]),2n);assert.equal(functions.advance(4294967295,1),9);").unwrap();
     let result = Command::new("node")
         .arg(dir.join("run.mjs"))
         .output()

@@ -1,0 +1,325 @@
+{
+  "schema": 1,
+  "rust_abi": "bench_eval(case,xs_ptr,xs_len,ys_ptr,ys_len,seed,k,out)->word_count",
+  "tasks": [
+    {
+      "name": "calibrated_checksum",
+      "cohort": "discovery",
+      "family": "mapped_affine_fold",
+      "operation": "fold",
+      "pipeline": "map",
+      "mapper": "calibration",
+      "predicate": "below",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 0,
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "fresh_proof_required": true
+    },
+    {
+      "name": "accepted_total",
+      "cohort": "discovery",
+      "family": "filtered_sum",
+      "operation": "sum",
+      "pipeline": "filter",
+      "mapper": "identity",
+      "predicate": "below",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 1,
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "fresh_proof_required": true
+    },
+    {
+      "name": "calibrated_accepted_total",
+      "cohort": "discovery",
+      "family": "mapped_filtered_sum",
+      "operation": "sum",
+      "pipeline": "map_filter",
+      "mapper": "calibration",
+      "predicate": "below",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 2,
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "fresh_proof_required": true
+    },
+    {
+      "name": "distance_total",
+      "cohort": "heldout",
+      "family": "mapped_sum",
+      "operation": "sum",
+      "pipeline": "map",
+      "mapper": "distance",
+      "predicate": "above",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 3,
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "fresh_proof_required": true
+    },
+    {
+      "name": "accepted_checksum",
+      "cohort": "heldout",
+      "family": "filtered_affine_fold",
+      "operation": "fold",
+      "pipeline": "filter",
+      "mapper": "identity",
+      "predicate": "above",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 4,
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "fresh_proof_required": true
+    },
+    {
+      "name": "calibrated_accepted_checksum",
+      "cohort": "heldout",
+      "family": "mapped_filtered_affine_fold",
+      "operation": "fold",
+      "pipeline": "map_filter",
+      "mapper": "offset_gate",
+      "predicate": "above",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 5,
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "fresh_proof_required": true
+    },
+    {
+      "name": "callback_mapped_head",
+      "cohort": "discovery",
+      "family": "mapped_head",
+      "operation": "head",
+      "mapper": "maximum",
+      "fallback": "seed",
+      "offset": "*k",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 6,
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "fresh_proof_required": true
+    },
+    {
+      "name": "concat_first_result",
+      "cohort": "discovery",
+      "family": "concat_head",
+      "operation": "concat_head",
+      "fallback": "seed",
+      "offset": "+k",
+      "output": "u32",
+      "list_inputs": [
+        "xs",
+        "ys"
+      ],
+      "index": 7,
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "ys",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "fresh_proof_required": true
+    },
+    {
+      "name": "self_zip_cardinality",
+      "cohort": "discovery",
+      "family": "self_zip_count",
+      "operation": "zip_count",
+      "combiner": "piecewise",
+      "output": "u64",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 8,
+      "output_kind": "u64",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 2,
+      "fresh_proof_required": true
+    },
+    {
+      "name": "clamped_first",
+      "cohort": "heldout",
+      "family": "mapped_head",
+      "operation": "head",
+      "mapper": "minimum",
+      "fallback": "k",
+      "offset": "-seed",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 9,
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "fresh_proof_required": true
+    },
+    {
+      "name": "concat_signed_offset",
+      "cohort": "heldout",
+      "family": "concat_head",
+      "operation": "concat_head",
+      "fallback": "k",
+      "offset": "-seed",
+      "output": "u32",
+      "list_inputs": [
+        "xs",
+        "ys"
+      ],
+      "index": 10,
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "ys",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "fresh_proof_required": true
+    },
+    {
+      "name": "paired_score_count",
+      "cohort": "heldout",
+      "family": "self_zip_count",
+      "operation": "zip_count",
+      "combiner": "equal",
+      "output": "u64",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 11,
+      "output_kind": "u64",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 2,
+      "fresh_proof_required": true
+    },
+    {
+      "name": "threshold_remap",
+      "cohort": "anchor",
+      "family": "existing_vector",
+      "operation": "vector",
+      "mapper": "head_piecewise",
+      "pipeline": "map",
+      "output": "list_u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 12,
+      "output_kind": "list_u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": false,
+      "scalar_words": 1,
+      "fresh_proof_required": false
+    },
+    {
+      "name": "calibration_pipeline",
+      "cohort": "anchor",
+      "family": "existing_map_fusion",
+      "operation": "vector",
+      "mapper": "head_clamp",
+      "pipeline": "two_maps",
+      "output": "list_u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 13,
+      "output_kind": "list_u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": false,
+      "scalar_words": 1,
+      "fresh_proof_required": false
+    }
+  ],
+  "scope": "Twelve reusable proof-consuming scalar recipes plus two existing-law vector anchors. Anchors have no fresh-law claim. Strong expert fused/head/count controls and original-stage controls; no expert retuning from timings. Independent input lists for concat. Pure total wrapping-word value semantics; no real numerical-accuracy claim."
+}

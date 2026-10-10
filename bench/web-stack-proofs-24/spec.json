@@ -1,0 +1,206 @@
+{
+  "schema": 3,
+  "rust_abi": "bench_eval(case,xs_ptr,xs_len,ys_ptr,ys_len,seed,k,out)->word_count",
+  "tasks": [
+    {
+      "name": "demand_mapped_head_u32",
+      "generic_family": "demand_mapped_head_u32",
+      "cohort": "discovery",
+      "operation": "mapped_head",
+      "mapper": "choose(x>k,x*k+seed,seed-x)",
+      "predicate": "x>seed",
+      "output": "u32",
+      "fresh_proof_required": true,
+      "proof_role": "pending fair-prior source derivation",
+      "index": 0,
+      "list_inputs": [
+        "xs"
+      ],
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "result_length": "one scalar word"
+    },
+    {
+      "name": "demand_mapped_head_heldout_u32",
+      "generic_family": "demand_mapped_head_u32",
+      "cohort": "heldout",
+      "operation": "mapped_head",
+      "mapper": "choose(x<k,x*x+seed,(x-seed)*(x+k))",
+      "predicate": "x<k",
+      "output": "u32",
+      "fresh_proof_required": true,
+      "proof_role": "pending fair-prior source derivation",
+      "index": 1,
+      "list_inputs": [
+        "xs"
+      ],
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "result_length": "one scalar word"
+    },
+    {
+      "name": "demand_filtered_mapped_head_u32",
+      "generic_family": "demand_filtered_mapped_head_u32",
+      "cohort": "discovery",
+      "operation": "filtered_mapped_head",
+      "mapper": "choose(x>k,x*k+seed,seed-x)",
+      "predicate": "x>seed",
+      "output": "u32",
+      "fresh_proof_required": true,
+      "proof_role": "pending fair-prior source derivation",
+      "index": 2,
+      "list_inputs": [
+        "xs"
+      ],
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "result_length": "one scalar word"
+    },
+    {
+      "name": "demand_filtered_mapped_head_heldout_u32",
+      "generic_family": "demand_filtered_mapped_head_u32",
+      "cohort": "heldout",
+      "operation": "filtered_mapped_head",
+      "mapper": "choose(x<k,x*x+seed,(x-seed)*(x+k))",
+      "predicate": "x<k",
+      "output": "u32",
+      "fresh_proof_required": true,
+      "proof_role": "pending fair-prior source derivation",
+      "index": 3,
+      "list_inputs": [
+        "xs"
+      ],
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "result_length": "one scalar word"
+    },
+    {
+      "name": "skip_first_accepted_u32",
+      "generic_family": "skip_first_accepted_u32",
+      "cohort": "discovery",
+      "operation": "first_accepted",
+      "predicate": "x>seed",
+      "output": "u32",
+      "fresh_proof_required": false,
+      "proof_role": "existing23 law; backend attribution reference",
+      "index": 4,
+      "list_inputs": [
+        "xs"
+      ],
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "result_length": "one scalar word"
+    },
+    {
+      "name": "skip_first_accepted_u32_heldout",
+      "generic_family": "skip_first_accepted_u32",
+      "cohort": "heldout",
+      "operation": "first_accepted",
+      "predicate": "x<k",
+      "output": "u32",
+      "fresh_proof_required": false,
+      "proof_role": "existing23 law; backend attribution reference",
+      "index": 5,
+      "list_inputs": [
+        "xs"
+      ],
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "result_length": "one scalar word"
+    },
+    {
+      "name": "reference_count_u32",
+      "generic_family": null,
+      "cohort": "reference",
+      "operation": "count",
+      "output": "u64",
+      "fresh_proof_required": false,
+      "proof_role": "unchanged O(1) cardinality reference",
+      "index": 6,
+      "list_inputs": [
+        "xs"
+      ],
+      "output_kind": "u64",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 2,
+      "result_length": "two scalar words"
+    },
+    {
+      "name": "reference_indexed_u32",
+      "generic_family": null,
+      "cohort": "reference",
+      "operation": "indexed",
+      "mapper": "choose(rem_or(i,2,0)==0,x+k,x-seed)",
+      "output": "list_u32",
+      "fresh_proof_required": false,
+      "proof_role": "unchanged direct indexed vector/GPU reference",
+      "index": 7,
+      "list_inputs": [
+        "xs"
+      ],
+      "output_kind": "list_u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": false,
+      "scalar_words": 1,
+      "result_length": "xs.length"
+    }
+  ],
+  "matrix": {
+    "backends": [
+      "old",
+      "new"
+    ],
+    "proof_states": [
+      "prior",
+      "checked"
+    ],
+    "bundle_pattern": "{backend}/{proof_state}/{task}",
+    "frozen_core": "one prior/current selection per task, recompiled unchanged by both backends"
+  },
+  "scope": "Eight single-list recipes: four new transformed-fallback head transports, two existing first-accepted backend attribution controls, unchanged U64 count and direct indexed reference. Timed lookup first/interior/last/absent at32/65536 andsmall/full;4096 correctness only. Exact prior/current cores are shared across old/new compilers; full capture and separately synchronous borrowed JS are different boundaries. Strong expert first lookup uses forward early exit and mapper once after selection. Staged algorithms validate only. GPU byte-distinct reference representatives are measured with complete transfers and counters; no fresh GPU emitter claim or general language superiority."
+}

@@ -1,0 +1,102 @@
+{
+  "status": "read-only candidate scout complete",
+  "prior_snapshot": "8d2785e3f27ee945810ffc2c3801dc81f72436829f173cb9d18ea6b017edd65f",
+  "prior_members": 1867,
+  "semantic_endpoints_scanned": 1308,
+  "candidates": [
+    {
+      "candidate": "concat_filtered_batches",
+      "type": "U32",
+      "alpha_duplicate_ids": [],
+      "endpoint_sha256": "e71a079be3f67a69ad90429352e89933609cfd9881834c0d5e6c775a78d03737"
+    },
+    {
+      "candidate": "map_filter_map",
+      "type": "U32",
+      "alpha_duplicate_ids": [],
+      "endpoint_sha256": "3ee590bf2cc2d05ddff7631773ea2c1ac98f01575deb83a4d3ba3cf01275bdf2"
+    },
+    {
+      "candidate": "filter_map_filter",
+      "type": "U32",
+      "alpha_duplicate_ids": [],
+      "endpoint_sha256": "9740417db3f15b4c980b8e9d2543898cba3ffbc00dad8576556c8ed95e420ecb"
+    },
+    {
+      "candidate": "concat_filtered_batches",
+      "type": "I32",
+      "alpha_duplicate_ids": [],
+      "endpoint_sha256": "591967948382f316d7b5620bf9ec8e1f3b8c5d339959addf08c08b6e734fdc59"
+    },
+    {
+      "candidate": "map_filter_map",
+      "type": "I32",
+      "alpha_duplicate_ids": [],
+      "endpoint_sha256": "e75abd09adc16c774908ad2c5255c081627504c70f5a42cfd70d1bcb13d51558"
+    },
+    {
+      "candidate": "filter_map_filter",
+      "type": "I32",
+      "alpha_duplicate_ids": [],
+      "endpoint_sha256": "e2df1c7a2ef1c06224e8b66928e1b911115129bdbe2a678cc879fcf32c31fb4d"
+    },
+    {
+      "candidate": "concat_filtered_batches",
+      "type": "U64",
+      "alpha_duplicate_ids": [],
+      "endpoint_sha256": "13e6f78f87813a93a0ccf310a511e25c07a31965f6c93d855bde693651a509b7"
+    },
+    {
+      "candidate": "map_filter_map",
+      "type": "U64",
+      "alpha_duplicate_ids": [],
+      "endpoint_sha256": "39821b8ffa4bb389e0455ac5aaa201c16c94b07d186a1bed3e0da2fe6aa93d98"
+    },
+    {
+      "candidate": "filter_map_filter",
+      "type": "U64",
+      "alpha_duplicate_ids": [],
+      "endpoint_sha256": "67dc3faecdb5b03ec57892e1c3c4d0036462714d6cd6c692982da9757a8329d3"
+    },
+    {
+      "candidate": "concat_filtered_batches",
+      "type": "F32",
+      "alpha_duplicate_ids": [],
+      "endpoint_sha256": "82482c7e62866bfca3bb5c8f58a48a134fa013a6e64eb7ce7343d4510c1e5dab"
+    },
+    {
+      "candidate": "map_filter_map",
+      "type": "F32",
+      "alpha_duplicate_ids": [],
+      "endpoint_sha256": "a6a03976d2be14c85078199ed070f0935e326c4dd7a8188809649cb8fd0f752a"
+    },
+    {
+      "candidate": "filter_map_filter",
+      "type": "F32",
+      "alpha_duplicate_ids": [],
+      "endpoint_sha256": "7d35c57d06b239e8821f7f7b2f5d756eadc83970218bdf34db0be680c04bf482"
+    }
+  ],
+  "limitations": [
+    "Alpha absence does not establish nonderivability through compositions; fair old bounded contextual search must still run.",
+    "No candidate proof has been independently kernel checked here; author admission/replay/typed output receipts remain required."
+  ],
+  "physical_tradeoffs": [
+    "map-filter-map target f calls N+A versus original N, where A is accepted count; same exact f primitive grouping, pure total schedule contract. Removes original full mapped array but strong expert can share fx in one append loop.",
+    "filter-map-filter target f calls accepted-by-first-predicate plus final-accepted values; original first mapper runs once per first-accepted word. Combined predicate must short-circuit first p before q(fx).",
+    "concat-filter original GPU capacities nx,ny,nx+ny versus target nx+ny,nx+ny: both total2(nx+ny) words excluding headers. Removes one node/header/dispatch; target concat copies rejected words, while original concat only accepted words.",
+    "Strong experts may use one forward append loop, scalar predicate/mapped value sharing, final owned ordinary JS array and reusable Rust output buffer with disclosed ownership boundaries."
+  ],
+  "benchmark_suggestions": [
+    "Freeze cheap and expensive pure mapper cohorts before measurements; low/high selectivity count actual outcomes.",
+    "Use independent two-list lengths and empty-left/right cases for concat/filter; verify full arrays/order, mutation and output lifetime.",
+    "Record actual graph nodes, upper-bound buffers, dispatches/uploads/readback rather than claiming generic fusion from endpoint shape."
+  ],
+  "bindings": {
+    "AGENTS.md": "6678b12227d6330f6de0814509e9be2c8331f8608024cc4f52c9e478104e8fac",
+    "knowledge/producers/performance_laws.py": "58cca55310b9694abec0c5a8431ddfa7863fc359ef84908707fe4a5f2c4e37ff",
+    "knowledge/producers/web_sequence_laws.py": "53d20247333f699f60cbbdb35c6b523ce0cf40d394993b1cc3ea9be9a0a08e73",
+    "lowerings/gpu/src/compute_graph.rs": "7b618f8f7f2f661e1bf156e37132ed790087bc255d0e9a51494fd52ea8a192aa",
+    "lowerings/gpu/devices/compute.mjs": "32dca081c6e1ffd5f422838577b1ddebad143f81f58f4dfbcfbc8a624d239d3c"
+  }
+}
