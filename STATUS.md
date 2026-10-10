@@ -5,7 +5,7 @@
 The integrated distribution passes 265 broad tests with both Wasm paths and actual
 wgpu enabled, 43 isolated asset-free core tests, 12 Node runtime tests and six
 knowledge tests. The locked all-target check is warning-free. This run records
-105 actual GPU calls, including mixed-host durable recovery around process death.
+106 actual GPU calls, including mixed-host durable recovery around process death.
 The nested-flow, numerical and runtime extensions work together under pinned
 package revisions. Counts overlap earlier receipts; these are conformance checks,
 not native refinement or performance claims. The general physical representation
