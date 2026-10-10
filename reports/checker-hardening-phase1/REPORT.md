@@ -52,9 +52,28 @@ elapsed time after each case. Release commands also ran under an external
 
 [Metadata](metadata.json) identifies seeds, dependencies and evidence hashes.
 The [full distribution suite](cargo-tests.log) passed 150 tests. Published
-package revisions are recorded separately after the dependency pins are aligned. Archived reports from earlier milestones are unchanged.
+package revisions are recorded in metadata. Archived reports from earlier milestones are unchanged.
 
 ## Scope and remaining work
+
+The published core is `3757051010d3a4040ec83f0eaff7b3ea000f923c`. C, Rust and
+GPU packages pin that same core; GPU also pins the matching C revision. Their
+[C](standalone-c.log), [Rust](standalone-rust.log) and [GPU](standalone-gpu.log)
+standalone checks use the published Git dependencies. The final
+[locked offline distribution check](distribution-check.log) passes. These pin
+changes alter no emitter code. The Wasm adapter has no core dependency and keeps
+its existing revision. Formatting checks pass for both independent core and
+distribution sources. Raw command logs are preserved verbatim.
+
+Reproduce with the distribution's committed submodules:
+
+```sh
+python3 dev.py test
+python3 dev.py test --manifest-path core/Cargo.toml --locked --offline
+INK_FUZZ_ITERS=1000 python3 dev.py test --release --test hardening
+INK_FUZZ_ITERS=1000 INK_FUZZ_SEED=1592597068 \
+  python3 dev.py test --release --test hardening
+```
 
 Passing mutation tests does not prove checker soundness, cover every package
 interface or establish global host memory/time limits. Very large exact integers
