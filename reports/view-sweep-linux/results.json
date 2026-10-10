@@ -1,0 +1,6814 @@
+{
+ "schema": 1,
+ "workload": "bench/views/view_sweep.ink",
+ "variants": [
+  "ink_maintained",
+  "ink_scan",
+  "rust_incremental",
+  "rust_incremental_bigint",
+  "rust_scan"
+ ],
+ "rounds": 5,
+ "warmup": 1,
+ "budget": 10000000.0,
+ "seed": 7,
+ "environment": {
+  "platform": "Linux-6.18.44-fc-v114-x86_64-with-glibc2.39",
+  "machine": "x86_64",
+  "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+  "logical_cpus": 2,
+  "python": "3.13.16",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)\nbinary: rustc\ncommit-hash: 2d8144b7880597b6e6d3dfd63a9a9efae3f533d3\ncommit-date: 2026-07-07\nhost: x86_64-unknown-linux-gnu\nrelease: 1.97.0\nLLVM version: 22.1.6",
+  "clang": "Ubuntu clang version 18.1.3 (1ubuntu1)\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /usr/bin",
+  "rustc_llvm_major": 22,
+  "clang_llvm_major": 18,
+  "git": {
+   "ink-lang": {
+    "commit": "999a6b7ed44f3875389407fe6b6eeed53879acdd",
+    "dirty": false
+   },
+   "knowledge": {
+    "commit": "a6cdd58deefee2ca1e8a28daf6043f1951f135ce",
+    "dirty": false
+   },
+   "lowering-c": {
+    "commit": "1bbf84a21e35154f42de66af07831902bf251aab",
+    "dirty": false
+   },
+   "lowering-gpu": {
+    "commit": "1e587d49a7e5a2793213ca0b228f8bf5ef9d3194",
+    "dirty": false
+   },
+   "lowering-js": {
+    "commit": "c15d7050a06da93558018c4fdea0d82dac313dd1",
+    "dirty": false
+   },
+   "lowering-rust": {
+    "commit": "e76fdf0441adc91019153cf54a9e6d4846d211aa",
+    "dirty": false
+   },
+   "lowering-wasm": {
+    "commit": "e81fcd28ccb7626b62c79b9f8261d8e3af8d214c",
+    "dirty": false
+   }
+  },
+  "cpufreq_governor": null,
+  "intel_no_turbo": null,
+  "warnings": [
+   "rustc uses LLVM 22 but clang uses LLVM 18: C/C++ and Rust code generation differ by backend version"
+  ]
+ },
+ "plans": {
+  "ink_maintained": {
+   "view_decompositions": [
+    {
+     "aggregate": "sum",
+     "decomposed": "8a0709037d46aa9fb1b502aa00bd66c03f7c7cfacaaa4dd7ef92e1b03b21d0d7",
+     "evidence_sha256": "69152a0cd8b32e194c1c5fb02989aaa8e348fb4082d5d90e7f0eb39fb090f8b4",
+     "keep": "active_units",
+     "pipeline": "293ba67fe76d923cc813557d1604857c0cb591d3e01c2dae2214e5622fedf8a1",
+     "stages": [
+      "filter",
+      "map"
+     ]
+    },
+    {
+     "aggregate": "count",
+     "decomposed": "5f149bfb1c19f52b8b235c624b99417d385b88004ac9d1d133df1af47ab06654",
+     "evidence_sha256": "d0a4cee469f8342dc5c55418c1169c1eb6c84cefdc5cf3cd85783cb672164841",
+     "keep": "active_rows",
+     "pipeline": "b981c522cb4bea423758225e61fa73050acfab2d602d97c83ff0b10bf8aa04c2",
+     "stages": [
+      "filter"
+     ]
+    }
+   ],
+   "view_authority": "each maintained keep's sum/count pipeline is checked equal to the sum of its row projections by the general kernel; the proof is externally produced",
+   "view_fallback": null,
+   "trusted": [
+    "frontend",
+    "stored table enumerated as the logical row list",
+    "native contribution lowering and transactional cache protocol",
+    "finite-domain range analysis",
+    "modular representation lowering",
+    "typed Rust lowering",
+    "num-bigint",
+    "Rust/LLVM backend"
+   ]
+  },
+  "ink_scan": {
+   "view_decompositions": null,
+   "view_authority": null,
+   "view_fallback": null,
+   "trusted": [
+    "frontend",
+    "row-local table projection and transactional cache protocol",
+    "finite-domain range analysis",
+    "modular representation lowering",
+    "typed Rust lowering",
+    "num-bigint",
+    "Rust/LLVM backend"
+   ]
+  }
+ },
+ "results": [
+  {
+   "n": 1024,
+   "query_permille": 0,
+   "steps": 200000,
+   "queries": 0,
+   "updates": 200000,
+   "units": 599947,
+   "rows": 1231,
+   "ns_per_op": {
+    "ink_maintained": [
+     160.37271499999997,
+     164.17704,
+     158.5401,
+     124.37441,
+     123.465385
+    ],
+    "ink_scan": [
+     182.282355,
+     117.70564000000002,
+     90.60972000000001,
+     89.972065,
+     96.456105
+    ],
+    "rust_incremental": [
+     66.818695,
+     71.41959,
+     58.434865,
+     61.059200000000004,
+     67.54177
+    ],
+    "rust_incremental_bigint": [
+     176.84557,
+     100.567025,
+     76.61174,
+     89.19442,
+     77.21509
+    ],
+    "rust_scan": [
+     65.74768,
+     64.76610000000001,
+     61.818470000000005,
+     53.67002,
+     51.417625
+    ]
+   },
+   "median_ns_per_op": {
+    "ink_maintained": 158.5401,
+    "ink_scan": 96.456105,
+    "rust_incremental": 66.818695,
+    "rust_incremental_bigint": 89.19442,
+    "rust_scan": 61.818470000000005
+   },
+   "ratios": {
+    "ink_maintained/ink_scan": [
+     1.6436502386240872,
+     0.8798038350996725,
+     1.7497030119947394
+    ],
+    "ink_maintained/rust_incremental": [
+     2.372690756681195,
+     1.8279856302255626,
+     2.713108004955603
+    ],
+    "ink_maintained/rust_incremental_bigint": [
+     1.7774665724604746,
+     0.9068517520682026,
+     2.0693969357698965
+    ],
+    "ink_maintained/rust_scan": [
+     2.564607309110044,
+     2.3173907891221206,
+     2.564607309110044
+    ],
+    "rust_incremental_bigint/rust_scan": [
+     1.4428441855646053,
+     1.2393017814902243,
+     2.6897613725685834
+    ]
+   }
+  },
+  {
+   "n": 1024,
+   "query_permille": 1,
+   "steps": 200000,
+   "queries": 189,
+   "updates": 199811,
+   "units": 639242,
+   "rows": 1255,
+   "ns_per_op": {
+    "ink_maintained": [
+     124.86964999999998,
+     166.698925,
+     149.12561499999998,
+     171.81403,
+     155.629665
+    ],
+    "ink_scan": [
+     113.7347,
+     144.892535,
+     153.93418,
+     135.5001,
+     139.64316
+    ],
+    "rust_incremental": [
+     52.623885,
+     66.68929,
+     66.597405,
+     66.18228,
+     65.938415
+    ],
+    "rust_incremental_bigint": [
+     97.781365,
+     98.64283,
+     100.89185,
+     97.63549499999999,
+     96.70085999999999
+    ],
+    "rust_scan": [
+     58.302915,
+     70.79893000000001,
+     70.31336,
+     67.498605,
+     70.503175
+    ]
+   },
+   "median_ns_per_op": {
+    "ink_maintained": 155.629665,
+    "ink_scan": 139.64316,
+    "rust_incremental": 66.18228,
+    "rust_incremental_bigint": 97.781365,
+    "rust_scan": 70.31336
+   },
+   "ratios": {
+    "ink_maintained/ink_scan": [
+     1.114481117442487,
+     0.9687622008315501,
+     1.2679992856093834
+    ],
+    "ink_maintained/rust_incremental": [
+     2.351530726955916,
+     2.2392105968693525,
+     2.5960729971829317
+    ],
+    "ink_maintained/rust_incremental_bigint": [
+     1.591608636267248,
+     1.2770291149034378,
+     1.759749668908833
+    ],
+    "ink_maintained/rust_scan": [
+     2.2133726079937013,
+     2.120871694938202,
+     2.5454456429136574
+    ],
+    "rust_incremental_bigint/rust_scan": [
+     1.3906512930117405,
+     1.3715816344441225,
+     1.6771265210324389
+    ]
+   }
+  },
+  {
+   "n": 1024,
+   "query_permille": 10,
+   "steps": 200000,
+   "queries": 1978,
+   "updates": 198022,
+   "units": 613120,
+   "rows": 1234,
+   "ns_per_op": {
+    "ink_maintained": [
+     190.471855,
+     165.61162000000002,
+     139.49077,
+     169.55738000000002,
+     169.615765
+    ],
+    "ink_scan": [
+     356.27625500000005,
+     377.73704,
+     381.384785,
+     368.93605,
+     380.251755
+    ],
+    "rust_incremental": [
+     95.544715,
+     71.01278500000001,
+     59.49469,
+     60.269475,
+     76.60965
+    ],
+    "rust_incremental_bigint": [
+     121.03652000000001,
+     106.04299500000002,
+     86.677315,
+     105.282305,
+     105.308235
+    ],
+    "rust_scan": [
+     139.79833,
+     149.97323,
+     122.52416500000001,
+     143.411385,
+     136.36757500000002
+    ]
+   },
+   "median_ns_per_op": {
+    "ink_maintained": 169.55738000000002,
+    "ink_scan": 377.73704,
+    "rust_incremental": 71.01278500000001,
+    "rust_incremental_bigint": 105.308235,
+    "rust_scan": 139.79833
+   },
+   "ratios": {
+    "ink_maintained/ink_scan": [
+     0.44887676358135287,
+     0.36574812495469633,
+     0.5346184381555262
+    ],
+    "ink_maintained/rust_incremental": [
+     2.387702158139552,
+     1.9935362725191028,
+     2.8133210053679747
+    ],
+    "ink_maintained/rust_incremental_bigint": [
+     1.6101056104491736,
+     1.5617403110879695,
+     1.6106600305284768
+    ],
+    "ink_maintained/rust_scan": [
+     1.212871283941661,
+     1.1042745428634164,
+     1.36247589652895
+    ],
+    "rust_incremental_bigint/rust_scan": [
+     0.753286788189816,
+     0.7070794901196702,
+     0.8657937473215883
+    ]
+   }
+  },
+  {
+   "n": 1024,
+   "query_permille": 100,
+   "steps": 96711,
+   "queries": 9675,
+   "updates": 87036,
+   "units": 606457,
+   "rows": 1203,
+   "ns_per_op": {
+    "ink_maintained": [
+     156.53195603395685,
+     169.8875722513468,
+     155.1617189357984,
+     148.69341646762,
+     148.01309054812793
+    ],
+    "ink_scan": [
+     2521.1000506664186,
+     1853.8695598225643,
+     2221.8538015324007,
+     2147.3632161801656,
+     2088.0111466120707
+    ],
+    "rust_incremental": [
+     68.1645624592859,
+     54.32179379801678,
+     66.79926792195303,
+     63.93791812720372,
+     64.10613063663905
+    ],
+    "rust_incremental_bigint": [
+     98.38733959942508,
+     76.11513685103039,
+     101.42258895058474,
+     97.33026232796682,
+     114.69561890581217
+    ],
+    "rust_scan": [
+     543.1926668114278,
+     444.22922935343445,
+     542.0558985017216,
+     555.9379388073746,
+     548.6397514243467
+    ]
+   },
+   "median_ns_per_op": {
+    "ink_maintained": 155.1617189357984,
+    "ink_scan": 2147.3632161801656,
+    "rust_incremental": 64.10613063663905,
+    "rust_incremental_bigint": 98.38733959942508,
+    "rust_scan": 543.1926668114278
+   },
+   "ratios": {
+    "ink_maintained/ink_scan": [
+     0.07225685797664338,
+     0.0620887520876372,
+     0.09163944213400155
+    ],
+    "ink_maintained/rust_incremental": [
+     2.420388150008194,
+     2.2963831995173742,
+     3.1274293496830214
+    ],
+    "ink_maintained/rust_incremental_bigint": [
+     1.5770496444717883,
+     1.2904860007745895,
+     2.2319814333887913
+    ],
+    "ink_maintained/rust_scan": [
+     0.28564766871137387,
+     0.26746405684527386,
+     0.3824322242339035
+    ],
+    "rust_incremental_bigint/rust_scan": [
+     0.18112788631143426,
+     0.17134202754243397,
+     0.2090545182117155
+    ]
+   }
+  },
+  {
+   "n": 1024,
+   "query_permille": 500,
+   "steps": 19493,
+   "queries": 9659,
+   "updates": 9834,
+   "units": 603966,
+   "rows": 1245,
+   "ns_per_op": {
+    "ink_maintained": [
+     95.76678807777151,
+     101.17801261991485,
+     99.21669317190786,
+     77.3341712409583,
+     97.51331247114348
+    ],
+    "ink_scan": [
+     8608.96809110963,
+     8592.322679936387,
+     8283.927204637563,
+     6437.362437798183,
+     8119.582311599035
+    ],
+    "rust_incremental": [
+     45.60144667316472,
+     46.58318370697174,
+     44.51885292156159,
+     34.95300877237983,
+     44.789462884112254
+    ],
+    "rust_incremental_bigint": [
+     69.2239265377315,
+     68.8207048684143,
+     66.60406299697327,
+     52.34237931565177,
+     68.21402554763247
+    ],
+    "rust_scan": [
+     1972.463191915046,
+     1672.5946237110757,
+     1244.4058379931257,
+     1270.8541014723235,
+     1556.1671369209462
+    ]
+   },
+   "median_ns_per_op": {
+    "ink_maintained": 97.51331247114348,
+    "ink_scan": 8283.927204637563,
+    "rust_incremental": 44.789462884112254,
+    "rust_incremental_bigint": 68.21402554763247,
+    "rust_scan": 1556.1671369209462
+   },
+   "ratios": {
+    "ink_maintained/ink_scan": [
+     0.011771386935480665,
+     0.011124072834776637,
+     0.012013331855742063
+    ],
+    "ink_maintained/rust_incremental": [
+     2.1771485119937317,
+     2.1000822356394186,
+     2.2286444205271683
+    ],
+    "ink_maintained/rust_incremental_bigint": [
+     1.4295199805068226,
+     1.3834347871840589,
+     1.4896492602323168
+    ],
+    "ink_maintained/rust_scan": [
+     0.06266249309446585,
+     0.04855187588306397,
+     0.07973017334273864
+    ],
+    "rust_incremental_bigint/rust_scan": [
+     0.04383463956358935,
+     0.03509516771794491,
+     0.05352278249062763
+    ]
+   }
+  },
+  {
+   "n": 1024,
+   "query_permille": 900,
+   "steps": 10838,
+   "queries": 9709,
+   "updates": 1129,
+   "units": 466497,
+   "rows": 933,
+   "ns_per_op": {
+    "ink_maintained": [
+     38.09651227163683,
+     47.92111090607123,
+     28.41714338438826,
+     28.31324967706219,
+     233.27265178077135
+    ],
+    "ink_scan": [
+     11722.881158885402,
+     11252.923048532939,
+     9842.500553607677,
+     11215.83963830965,
+     11165.029341206866
+    ],
+    "rust_incremental": [
+     16.43467429415021,
+     15.552223657501385,
+     14.83216460601587,
+     14.59558959217568,
+     16.445285107953495
+    ],
+    "rust_incremental_bigint": [
+     30.130651411699574,
+     33.64569108691641,
+     25.86464292304853,
+     31.085809189887435,
+     31.78750692009596
+    ],
+    "rust_scan": [
+     1924.3653810666174,
+     1917.944270160546,
+     1472.7790182690535,
+     2089.508673186935,
+     1859.7057575198376
+    ]
+   },
+   "median_ns_per_op": {
+    "ink_maintained": 38.09651227163683,
+    "ink_scan": 11215.83963830965,
+    "rust_incremental": 15.552223657501385,
+    "rust_incremental_bigint": 31.085809189887435,
+    "rust_scan": 1917.944270160546
+   },
+   "ratios": {
+    "ink_maintained/ink_scan": [
+     0.0033966705570139906,
+     0.002524398581837187,
+     0.020893151701789986
+    ],
+    "ink_maintained/rust_incremental": [
+     2.4495861884844707,
+     1.9159134313316868,
+     14.184773948853755
+    ],
+    "ink_maintained/rust_incremental_bigint": [
+     1.2255274436938273,
+     0.910809479145642,
+     7.338501014475505
+    ],
+    "ink_maintained/rust_scan": [
+     0.01986320085747219,
+     0.013550194856994107,
+     0.12543524739734696
+    ],
+    "rust_incremental_bigint/rust_scan": [
+     0.016207879276536708,
+     0.01487709028863475,
+     0.01756179481253546
+    ]
+   }
+  },
+  {
+   "n": 1024,
+   "query_permille": 990,
+   "steps": 9854,
+   "queries": 9765,
+   "updates": 89,
+   "units": 342073,
+   "rows": 702,
+   "ns_per_op": {
+    "ink_maintained": [
+     22.158920235437385,
+     22.09864014613355,
+     22.138217982545157,
+     22.884107976456264,
+     22.864116094986805
+    ],
+    "ink_scan": [
+     11906.443880657602,
+     10402.876293890806,
+     10955.814593058658,
+     9589.228942561396,
+     10905.812157499493
+    ],
+    "rust_incremental": [
+     7.1972802922670995,
+     7.354272376699818,
+     7.434442865841283,
+     7.043028211893647,
+     7.840572356403492
+    ],
+    "rust_incremental_bigint": [
+     20.136898721331438,
+     20.032880048711185,
+     22.229551451187337,
+     20.490054800081186,
+     20.92673026182261
+    ],
+    "rust_scan": [
+     1822.726811447128,
+     1805.9072457885125,
+     1760.566571950477,
+     1763.0344022731883,
+     1783.5846356809416
+    ]
+   },
+   "median_ns_per_op": {
+    "ink_maintained": 22.158920235437385,
+    "ink_scan": 10905.812157499493,
+    "rust_incremental": 7.354272376699818,
+    "rust_incremental_bigint": 20.490054800081186,
+    "rust_scan": 1783.5846356809416
+   },
+   "ratios": {
+    "ink_maintained/ink_scan": [
+     0.0020318450304684164,
+     0.0018610863543761591,
+     0.002386438796438168
+    ],
+    "ink_maintained/rust_incremental": [
+     3.0130676565151995,
+     2.916128447729125,
+     3.2491859024235614
+    ],
+    "ink_maintained/rust_incremental_bigint": [
+     1.0814475828219643,
+     0.9958913490070759,
+     1.1168397644483408
+    ],
+    "ink_maintained/rust_scan": [
+     0.012423812019987207,
+     0.01215701667209505,
+     0.012979955437596896
+    ],
+    "rust_incremental_bigint/rust_scan": [
+     0.011488131479815332,
+     0.011047677904811216,
+     0.012626362334347805
+    ]
+   }
+  },
+  {
+   "n": 65536,
+   "query_permille": 0,
+   "steps": 200000,
+   "queries": 0,
+   "updates": 200000,
+   "units": 35491513,
+   "rows": 70991,
+   "ns_per_op": {
+    "ink_maintained": [
+     270.90040999999997,
+     319.096015,
+     291.99613,
+     257.38451,
+     262.83405
+    ],
+    "ink_scan": [
+     232.58295999999999,
+     258.676745,
+     255.41316500000002,
+     209.18583500000003,
+     291.95241000000004
+    ],
+    "rust_incremental": [
+     146.293495,
+     167.120575,
+     156.23226,
+     157.570455,
+     154.95256
+    ],
+    "rust_incremental_bigint": [
+     194.58592,
+     192.35813000000002,
+     186.213295,
+     179.45202999999998,
+     203.983945
+    ],
+    "rust_scan": [
+     151.00694499999997,
+     144.361425,
+     153.008675,
+     290.55245499999995,
+     137.56984
+    ]
+   },
+   "median_ns_per_op": {
+    "ink_maintained": 270.90040999999997,
+    "ink_scan": 255.41316500000002,
+    "rust_incremental": 156.23226,
+    "rust_incremental_bigint": 192.35813000000002,
+    "rust_scan": 151.00694499999997
+   },
+   "ratios": {
+    "ink_maintained/ink_scan": [
+     1.060636048263213,
+     0.9002633340139236,
+     1.2335705515391422
+    ],
+    "ink_maintained/rust_incremental": [
+     1.7339594908247502,
+     1.6334566654643472,
+     1.9093759999329827
+    ],
+    "ink_maintained/rust_incremental_bigint": [
+     1.4083127653611518,
+     1.288503612379886,
+     1.658864197733675
+    ],
+    "ink_maintained/rust_scan": [
+     1.7939599400544128,
+     0.8858452426430196,
+     2.210396683185969
+    ],
+    "rust_incremental_bigint/rust_scan": [
+     1.2738363126278731,
+     0.6176235199940059,
+     1.4827664624746237
+    ]
+   }
+  },
+  {
+   "n": 65536,
+   "query_permille": 1,
+   "steps": 150294,
+   "queries": 119,
+   "updates": 150175,
+   "units": 33518775,
+   "rows": 67121,
+   "ns_per_op": {
+    "ink_maintained": [
+     262.06655621648235,
+     267.6143159407561,
+     269.51938201125796,
+     239.99727201352016,
+     270.20976885304805
+    ],
+    "ink_scan": [
+     1303.298135654118,
+     1316.6218678057674,
+     1407.4431248087083,
+     1284.3845529428986,
+     1413.1637656859223
+    ],
+    "rust_incremental": [
+     133.42322381465664,
+     134.81111687758658,
+     134.86144490132673,
+     131.3907940436744,
+     160.90553182429105
+    ],
+    "rust_incremental_bigint": [
+     168.13990578466203,
+     170.5379256656952,
+     172.17230894114203,
+     193.05477929924015,
+     174.1342635101867
+    ],
+    "rust_scan": [
+     542.4426324404168,
+     549.3290617057235,
+     557.6472314264042,
+     637.0902896988569,
+     671.6235378657831
+    ]
+   },
+   "median_ns_per_op": {
+    "ink_maintained": 267.6143159407561,
+    "ink_scan": 1316.6218678057674,
+    "rust_incremental": 134.81111687758658,
+    "rust_incremental_bigint": 172.17230894114203,
+    "rust_scan": 557.6472314264042
+   },
+   "ratios": {
+    "ink_maintained/ink_scan": [
+     0.20325829494747197,
+     0.18685780007523184,
+     0.20325829494747197
+    ],
+    "ink_maintained/rust_incremental": [
+     1.9851056955767208,
+     1.6793068938619047,
+     1.9984909861262097
+    ],
+    "ink_maintained/rust_incremental_bigint": [
+     1.554340053790191,
+     1.2431563356508148,
+     1.5692363730596757
+    ],
+    "ink_maintained/rust_scan": [
+     0.47989894122889526,
+     0.3767084130680493,
+     0.48716577111319403
+    ],
+    "rust_incremental_bigint/rust_scan": [
+     0.308747715828774,
+     0.25927361638267304,
+     0.3104476670798325
+    ]
+   }
+  },
+  {
+   "n": 65536,
+   "query_permille": 10,
+   "steps": 15235,
+   "queries": 133,
+   "updates": 15102,
+   "units": 23615110,
+   "rows": 47377,
+   "ns_per_op": {
+    "ink_maintained": [
+     242.62271086314408,
+     232.7150639973745,
+     226.11276665572694,
+     245.9568099770266,
+     230.06609780111586
+    ],
+    "ink_scan": [
+     7517.788578930095,
+     7823.123006235643,
+     7405.395011486708,
+     7569.314932720709,
+     7444.215031178208
+    ],
+    "rust_incremental": [
+     137.49333770922217,
+     133.3409911388251,
+     123.54525763045619,
+     122.74952412208728,
+     125.8994420741713
+    ],
+    "rust_incremental_bigint": [
+     148.44358385297014,
+     155.54617656711517,
+     150.89872005251067,
+     149.19533967837216,
+     148.52832294059732
+    ],
+    "rust_scan": [
+     2291.604069576633,
+     2152.199803085002,
+     2283.5106005907446,
+     2249.4613062028225,
+     2189.7062028224486
+    ]
+   },
+   "median_ns_per_op": {
+    "ink_maintained": 232.7150639973745,
+    "ink_scan": 7517.788578930095,
+    "rust_incremental": 125.8994420741713,
+    "rust_incremental_bigint": 149.19533967837216,
+    "rust_scan": 2249.4613062028225
+   },
+   "ratios": {
+    "ink_maintained/ink_scan": [
+     0.030955255199594037,
+     0.029747079754706956,
+     0.03249393269578493
+    ],
+    "ink_maintained/rust_incremental": [
+     1.8484201372415516,
+     1.7452627433606536,
+     2.0037292342770856
+    ],
+    "ink_maintained/rust_incremental_bigint": [
+     1.5598011606733158,
+     1.4961156174543606,
+     1.6485555816103101
+    ],
+    "ink_maintained/rust_scan": [
+     0.10345368615840142,
+     0.09901980161477311,
+     0.10934031596756434
+    ],
+    "rust_incremental_bigint/rust_scan": [
+     0.0663249193337847,
+     0.06477715143890221,
+     0.07227311160615872
+    ]
+   }
+  },
+  {
+   "n": 65536,
+   "query_permille": 100,
+   "steps": 1525,
+   "queries": 141,
+   "updates": 1384,
+   "units": 21920850,
+   "rows": 44074,
+   "ns_per_op": {
+    "ink_maintained": [
+     248.49639344262297,
+     254.95278688524593,
+     304.5337704918033,
+     242.49377049180328,
+     236.97180327868853
+    ],
+    "ink_scan": [
+     82046.62950819673,
+     66346.32590163934,
+     80704.59147540983,
+     82315.98950819673,
+     77506.80459016394
+    ],
+    "rust_incremental": [
+     163.52262295081965,
+     120.4045901639344,
+     125.0544262295082,
+     135.93639344262294,
+     126.80918032786884
+    ],
+    "rust_incremental_bigint": [
+     156.72196721311477,
+     149.38426229508195,
+     157.28655737704918,
+     235.66557377049182,
+     156.84852459016392
+    ],
+    "rust_scan": [
+     21016.710163934422,
+     19352.03016393443,
+     22723.08262295082,
+     22546.493770491805,
+     24531.674098360654
+    ]
+   },
+   "median_ns_per_op": {
+    "ink_maintained": 248.49639344262297,
+    "ink_scan": 80704.59147540983,
+    "rust_incremental": 126.80918032786884,
+    "rust_incremental_bigint": 156.84852459016392,
+    "rust_scan": 22546.493770491805
+   },
+   "ratios": {
+    "ink_maintained/ink_scan": [
+     0.0030790861944743034,
+     0.002945889030073029,
+     0.003842756677486889
+    ],
+    "ink_maintained/rust_incremental": [
+     1.95960886112605,
+     1.5196453491169821,
+     2.4352098496130212
+    ],
+    "ink_maintained/rust_incremental_bigint": [
+     1.5843081348194357,
+     1.0289740949942958,
+     1.936171632021746
+    ],
+    "ink_maintained/rust_scan": [
+     0.011021509418366764,
+     0.009659830076355218,
+     0.013401956747902566
+    ],
+    "rust_incremental_bigint/rust_scan": [
+     0.0069566703447009,
+     0.006393714671133897,
+     0.010452426712969627
+    ]
+   }
+  },
+  {
+   "n": 65536,
+   "query_permille": 500,
+   "steps": 400,
+   "queries": 187,
+   "updates": 213,
+   "units": 21774266,
+   "rows": 43753,
+   "ns_per_op": {
+    "ink_maintained": [
+     496.185,
+     198.0125,
+     176.0375,
+     241.085,
+     189.995
+    ],
+    "ink_scan": [
+     352182.17750000005,
+     388004.2225,
+     360552.2275,
+     374533.8625,
+     386399.1075
+    ],
+    "rust_incremental": [
+     94.45,
+     123.68,
+     103.99,
+     110.09750000000001,
+     107.80499999999999
+    ],
+    "rust_incremental_bigint": [
+     134.2125,
+     131.855,
+     135.185,
+     134.19750000000002,
+     146.4
+    ],
+    "rust_scan": [
+     125758.21750000001,
+     110517.59249999998,
+     87086.83499999999,
+     96767.77500000001,
+     96664.35500000001
+    ]
+   },
+   "median_ns_per_op": {
+    "ink_maintained": 198.0125,
+    "ink_scan": 374533.8625,
+    "rust_incremental": 107.80499999999999,
+    "rust_incremental_bigint": 134.2125,
+    "rust_scan": 96767.77500000001
+   },
+   "ratios": {
+    "ink_maintained/ink_scan": [
+     0.000528690513264338,
+     0.00048824410604979556,
+     0.0014088873080466996
+    ],
+    "ink_maintained/rust_incremental": [
+     1.836765456147674,
+     1.6010066300129364,
+     5.253414505029116
+    ],
+    "ink_maintained/rust_incremental_bigint": [
+     1.475365558349632,
+     1.2977800546448088,
+     3.6970103380832633
+    ],
+    "ink_maintained/rust_scan": [
+     0.0020462648851851764,
+     0.0017916830752533813,
+     0.003945547335703927
+    ],
+    "rust_incremental_bigint/rust_scan": [
+     0.001386954489756533,
+     0.0010672264816412493,
+     0.0015523012175146797
+    ]
+   }
+  },
+  {
+   "n": 65536,
+   "query_permille": 900,
+   "steps": 400,
+   "queries": 367,
+   "updates": 33,
+   "units": 21747320,
+   "rows": 43703,
+   "ns_per_op": {
+    "ink_maintained": [
+     74.5475,
+     60.495,
+     63.365,
+     53.46999999999999,
+     59.55
+    ],
+    "ink_scan": [
+     815615.485,
+     785294.72,
+     816800.87,
+     754824.5725,
+     792539.3625
+    ],
+    "rust_incremental": [
+     40.397499999999994,
+     97.77,
+     44.2425,
+     36.965,
+     36.300000000000004
+    ],
+    "rust_incremental_bigint": [
+     44.75,
+     41.99,
+     45.142500000000005,
+     46.48499999999999,
+     48.102500000000006
+    ],
+    "rust_scan": [
+     228472.83000000002,
+     197628.0375,
+     237840.46,
+     234053.75499999998,
+     195979.87
+    ]
+   },
+   "median_ns_per_op": {
+    "ink_maintained": 60.495,
+    "ink_scan": 792539.3625,
+    "rust_incremental": 40.397499999999994,
+    "rust_incremental_bigint": 45.142500000000005,
+    "rust_scan": 228472.83000000002
+   },
+   "ratios": {
+    "ink_maintained/ink_scan": [
+     7.633059361136778e-05,
+     7.083765148623323e-05,
+     9.14002999832697e-05
+    ],
+    "ink_maintained/rust_incremental": [
+     1.4974936567856925,
+     0.6187480822338141,
+     1.8453493409245625
+    ],
+    "ink_maintained/rust_incremental_bigint": [
+     1.340089715899651,
+     1.1502635258685598,
+     1.6658659217877094
+    ],
+    "ink_maintained/rust_scan": [
+     0.00026477984274979213,
+     0.00022845179305070324,
+     0.00032628606211075514
+    ],
+    "rust_incremental_bigint/rust_scan": [
+     0.00019758366892028256,
+     0.0001898016006191714,
+     0.0002454461266863786
+    ]
+   }
+  },
+  {
+   "n": 65536,
+   "query_permille": 990,
+   "steps": 400,
+   "queries": 398,
+   "updates": 2,
+   "units": 21739384,
+   "rows": 43690,
+   "ns_per_op": {
+    "ink_maintained": [
+     27.974999999999998,
+     28.095000000000002,
+     27.9725,
+     29.2175,
+     36.83
+    ],
+    "ink_scan": [
+     773271.9674999999,
+     821216.9625,
+     839982.425,
+     689644.6175,
+     819606.645
+    ],
+    "rust_incremental": [
+     17.94,
+     19.3,
+     20.347499999999997,
+     16.7725,
+     20.974999999999998
+    ],
+    "rust_incremental_bigint": [
+     26.625,
+     25.880000000000003,
+     26.085,
+     21.027499999999996,
+     19.9225
+    ],
+    "rust_scan": [
+     188624.6175,
+     179693.925,
+     188425.3775,
+     203012.66,
+     220369.3025
+    ]
+   },
+   "median_ns_per_op": {
+    "ink_maintained": 28.095000000000002,
+    "ink_scan": 819606.645,
+    "rust_incremental": 19.3,
+    "rust_incremental_bigint": 25.880000000000003,
+    "rust_scan": 188624.6175
+   },
+   "ratios": {
+    "ink_maintained/ink_scan": [
+     3.427863862670367e-05,
+     3.33012919883413e-05,
+     4.4936190091528596e-05
+    ],
+    "ink_maintained/rust_incremental": [
+     1.455699481865285,
+     1.3747389114141788,
+     1.7558998808104889
+    ],
+    "ink_maintained/rust_incremental_bigint": [
+     1.0855873261205564,
+     1.0507042253521126,
+     1.8486635713389383
+    ],
+    "ink_maintained/rust_scan": [
+     0.00014894662410647435,
+     0.00014391959595032154,
+     0.00016712854096363988
+    ],
+    "rust_incremental_bigint/rust_scan": [
+     0.00013720372421696233,
+     9.040505993342698e-05,
+     0.00014402267633699918
+    ]
+   }
+  }
+ ],
+ "commands": [
+  {
+   "argv": [
+    "cargo",
+    "build",
+    "--release",
+    "--bin",
+    "ink"
+   ],
+   "seconds": 0.064,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "clang",
+    "-O3",
+    "-std=c11",
+    "-c",
+    "/home/claude/hardening/ink-lang/bench/views/driver.c",
+    "-o",
+    "/home/claude/hardening/ink-lang/build/view-sweep/driver.o"
+   ],
+   "seconds": 0.059,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/target/release/ink",
+    "emit-state",
+    "/home/claude/hardening/ink-lang/bench/views/view_sweep.ink",
+    "-o",
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained",
+    "--maintenance",
+    "/home/claude/hardening/ink-lang/knowledge/research/table-maintenance/table.json",
+    "--prove-views",
+    "--require-views"
+   ],
+   "seconds": 0.199,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "cargo",
+    "build",
+    "--release",
+    "--offline",
+    "--lib",
+    "--manifest-path",
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained/Cargo.toml"
+   ],
+   "seconds": 0.836,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "clang",
+    "/home/claude/hardening/ink-lang/build/view-sweep/driver.o",
+    "/home/claude/hardening/ink-lang/build/view-sweep/target-ink_maintained/release/libcompiled_state.a",
+    "-o",
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "-lpthread",
+    "-ldl",
+    "-lm"
+   ],
+   "seconds": 0.135,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/target/release/ink",
+    "emit-state",
+    "/home/claude/hardening/ink-lang/bench/views/view_sweep.ink",
+    "-o",
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan"
+   ],
+   "seconds": 0.003,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "cargo",
+    "build",
+    "--release",
+    "--offline",
+    "--lib",
+    "--manifest-path",
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan/Cargo.toml"
+   ],
+   "seconds": 0.96,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "clang",
+    "/home/claude/hardening/ink-lang/build/view-sweep/driver.o",
+    "/home/claude/hardening/ink-lang/build/view-sweep/target-ink_scan/release/libcompiled_state.a",
+    "-o",
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "-lpthread",
+    "-ldl",
+    "-lm"
+   ],
+   "seconds": 0.117,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "cargo",
+    "build",
+    "--release",
+    "--offline",
+    "--manifest-path",
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust-baseline/Cargo.toml"
+   ],
+   "seconds": 0.357,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "clang",
+    "/home/claude/hardening/ink-lang/build/view-sweep/driver.o",
+    "/home/claude/hardening/ink-lang/build/view-sweep/target-rust_incremental/release/libview_sweep_baseline.a",
+    "-o",
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "-lpthread",
+    "-ldl",
+    "-lm"
+   ],
+   "seconds": 0.139,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "cargo",
+    "build",
+    "--release",
+    "--offline",
+    "--manifest-path",
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust-baseline/Cargo.toml",
+    "--features",
+    "bigint"
+   ],
+   "seconds": 0.476,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "clang",
+    "/home/claude/hardening/ink-lang/build/view-sweep/driver.o",
+    "/home/claude/hardening/ink-lang/build/view-sweep/target-rust_incremental_bigint/release/libview_sweep_baseline.a",
+    "-o",
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "-lpthread",
+    "-ldl",
+    "-lm"
+   ],
+   "seconds": 0.128,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "cargo",
+    "build",
+    "--release",
+    "--offline",
+    "--manifest-path",
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust-baseline/Cargo.toml",
+    "--features",
+    "scan"
+   ],
+   "seconds": 0.376,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "clang",
+    "/home/claude/hardening/ink-lang/build/view-sweep/driver.o",
+    "/home/claude/hardening/ink-lang/build/view-sweep/target-rust_scan/release/libview_sweep_baseline.a",
+    "-o",
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "-lpthread",
+    "-ldl",
+    "-lm"
+   ],
+   "seconds": 0.137,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "1024",
+    "200000",
+    "0",
+    "1031"
+   ],
+   "seconds": 0.031,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "1024",
+    "200000",
+    "0",
+    "1031"
+   ],
+   "seconds": 0.021,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "1024",
+    "200000",
+    "0",
+    "1031"
+   ],
+   "seconds": 0.014,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "1024",
+    "200000",
+    "0",
+    "1031"
+   ],
+   "seconds": 0.017,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "1024",
+    "200000",
+    "0",
+    "1031"
+   ],
+   "seconds": 0.011,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "1024",
+    "200000",
+    "0",
+    "1031"
+   ],
+   "seconds": 0.026,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "1024",
+    "200000",
+    "0",
+    "1031"
+   ],
+   "seconds": 0.02,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "1024",
+    "200000",
+    "0",
+    "1031"
+   ],
+   "seconds": 0.012,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "1024",
+    "200000",
+    "0",
+    "1031"
+   ],
+   "seconds": 0.019,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "1024",
+    "200000",
+    "0",
+    "1031"
+   ],
+   "seconds": 0.015,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "1024",
+    "200000",
+    "0",
+    "1031"
+   ],
+   "seconds": 0.015,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "1024",
+    "200000",
+    "0",
+    "1031"
+   ],
+   "seconds": 0.039,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "1024",
+    "200000",
+    "0",
+    "1031"
+   ],
+   "seconds": 0.042,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "1024",
+    "200000",
+    "0",
+    "1031"
+   ],
+   "seconds": 0.034,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "1024",
+    "200000",
+    "0",
+    "1031"
+   ],
+   "seconds": 0.015,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "1024",
+    "200000",
+    "0",
+    "1031"
+   ],
+   "seconds": 0.022,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "1024",
+    "200000",
+    "0",
+    "1031"
+   ],
+   "seconds": 0.015,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "1024",
+    "200000",
+    "0",
+    "1031"
+   ],
+   "seconds": 0.026,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "1024",
+    "200000",
+    "0",
+    "1031"
+   ],
+   "seconds": 0.035,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "1024",
+    "200000",
+    "0",
+    "1031"
+   ],
+   "seconds": 0.016,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "1024",
+    "200000",
+    "0",
+    "1031"
+   ],
+   "seconds": 0.033,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "1024",
+    "200000",
+    "0",
+    "1031"
+   ],
+   "seconds": 0.013,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "1024",
+    "200000",
+    "0",
+    "1031"
+   ],
+   "seconds": 0.02,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "1024",
+    "200000",
+    "0",
+    "1031"
+   ],
+   "seconds": 0.014,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "1024",
+    "200000",
+    "0",
+    "1031"
+   ],
+   "seconds": 0.017,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "1024",
+    "200000",
+    "0",
+    "1031"
+   ],
+   "seconds": 0.019,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "1024",
+    "200000",
+    "0",
+    "1031"
+   ],
+   "seconds": 0.014,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "1024",
+    "200000",
+    "0",
+    "1031"
+   ],
+   "seconds": 0.012,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "1024",
+    "200000",
+    "0",
+    "1031"
+   ],
+   "seconds": 0.019,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "1024",
+    "200000",
+    "0",
+    "1031"
+   ],
+   "seconds": 0.026,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "1024",
+    "200000",
+    "0",
+    "1031"
+   ],
+   "seconds": 0.017,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "1024",
+    "200000",
+    "0",
+    "1031"
+   ],
+   "seconds": 0.026,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "1024",
+    "200000",
+    "0",
+    "1031"
+   ],
+   "seconds": 0.015,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "1024",
+    "200000",
+    "0",
+    "1031"
+   ],
+   "seconds": 0.012,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "1024",
+    "200000",
+    "0",
+    "1031"
+   ],
+   "seconds": 0.021,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "1024",
+    "200000",
+    "1",
+    "1032"
+   ],
+   "seconds": 0.033,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "1024",
+    "200000",
+    "1",
+    "1032"
+   ],
+   "seconds": 0.031,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "1024",
+    "200000",
+    "1",
+    "1032"
+   ],
+   "seconds": 0.015,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "1024",
+    "200000",
+    "1",
+    "1032"
+   ],
+   "seconds": 0.022,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "1024",
+    "200000",
+    "1",
+    "1032"
+   ],
+   "seconds": 0.016,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "1024",
+    "200000",
+    "1",
+    "1032"
+   ],
+   "seconds": 0.034,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "1024",
+    "200000",
+    "1",
+    "1032"
+   ],
+   "seconds": 0.025,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "1024",
+    "200000",
+    "1",
+    "1032"
+   ],
+   "seconds": 0.012,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "1024",
+    "200000",
+    "1",
+    "1032"
+   ],
+   "seconds": 0.017,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "1024",
+    "200000",
+    "1",
+    "1032"
+   ],
+   "seconds": 0.012,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "1024",
+    "200000",
+    "1",
+    "1032"
+   ],
+   "seconds": 0.012,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "1024",
+    "200000",
+    "1",
+    "1032"
+   ],
+   "seconds": 0.024,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "1024",
+    "200000",
+    "1",
+    "1032"
+   ],
+   "seconds": 0.026,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "1024",
+    "200000",
+    "1",
+    "1032"
+   ],
+   "seconds": 0.013,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "1024",
+    "200000",
+    "1",
+    "1032"
+   ],
+   "seconds": 0.021,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "1024",
+    "200000",
+    "1",
+    "1032"
+   ],
+   "seconds": 0.015,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "1024",
+    "200000",
+    "1",
+    "1032"
+   ],
+   "seconds": 0.035,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "1024",
+    "200000",
+    "1",
+    "1032"
+   ],
+   "seconds": 0.016,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "1024",
+    "200000",
+    "1",
+    "1032"
+   ],
+   "seconds": 0.021,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "1024",
+    "200000",
+    "1",
+    "1032"
+   ],
+   "seconds": 0.031,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "1024",
+    "200000",
+    "1",
+    "1032"
+   ],
+   "seconds": 0.033,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "1024",
+    "200000",
+    "1",
+    "1032"
+   ],
+   "seconds": 0.022,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "1024",
+    "200000",
+    "1",
+    "1032"
+   ],
+   "seconds": 0.016,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "1024",
+    "200000",
+    "1",
+    "1032"
+   ],
+   "seconds": 0.015,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "1024",
+    "200000",
+    "1",
+    "1032"
+   ],
+   "seconds": 0.031,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "1024",
+    "200000",
+    "1",
+    "1032"
+   ],
+   "seconds": 0.015,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "1024",
+    "200000",
+    "1",
+    "1032"
+   ],
+   "seconds": 0.036,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "1024",
+    "200000",
+    "1",
+    "1032"
+   ],
+   "seconds": 0.029,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "1024",
+    "200000",
+    "1",
+    "1032"
+   ],
+   "seconds": 0.021,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "1024",
+    "200000",
+    "1",
+    "1032"
+   ],
+   "seconds": 0.015,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "1024",
+    "200000",
+    "1",
+    "1032"
+   ],
+   "seconds": 0.021,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "1024",
+    "200000",
+    "1",
+    "1032"
+   ],
+   "seconds": 0.033,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "1024",
+    "200000",
+    "1",
+    "1032"
+   ],
+   "seconds": 0.03,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "1024",
+    "200000",
+    "1",
+    "1032"
+   ],
+   "seconds": 0.015,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "1024",
+    "200000",
+    "1",
+    "1032"
+   ],
+   "seconds": 0.016,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "1024",
+    "200000",
+    "10",
+    "1041"
+   ],
+   "seconds": 0.033,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "1024",
+    "200000",
+    "10",
+    "1041"
+   ],
+   "seconds": 0.075,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "1024",
+    "200000",
+    "10",
+    "1041"
+   ],
+   "seconds": 0.015,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "1024",
+    "200000",
+    "10",
+    "1041"
+   ],
+   "seconds": 0.022,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "1024",
+    "200000",
+    "10",
+    "1041"
+   ],
+   "seconds": 0.029,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "1024",
+    "200000",
+    "10",
+    "1041"
+   ],
+   "seconds": 0.036,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "1024",
+    "200000",
+    "10",
+    "1041"
+   ],
+   "seconds": 0.072,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "1024",
+    "200000",
+    "10",
+    "1041"
+   ],
+   "seconds": 0.015,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "1024",
+    "200000",
+    "10",
+    "1041"
+   ],
+   "seconds": 0.022,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "1024",
+    "200000",
+    "10",
+    "1041"
+   ],
+   "seconds": 0.029,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "1024",
+    "200000",
+    "10",
+    "1041"
+   ],
+   "seconds": 0.04,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "1024",
+    "200000",
+    "10",
+    "1041"
+   ],
+   "seconds": 0.021,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "1024",
+    "200000",
+    "10",
+    "1041"
+   ],
+   "seconds": 0.03,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "1024",
+    "200000",
+    "10",
+    "1041"
+   ],
+   "seconds": 0.073,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "1024",
+    "200000",
+    "10",
+    "1041"
+   ],
+   "seconds": 0.026,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "1024",
+    "200000",
+    "10",
+    "1041"
+   ],
+   "seconds": 0.023,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "1024",
+    "200000",
+    "10",
+    "1041"
+   ],
+   "seconds": 0.016,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "1024",
+    "200000",
+    "10",
+    "1041"
+   ],
+   "seconds": 0.032,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "1024",
+    "200000",
+    "10",
+    "1041"
+   ],
+   "seconds": 0.077,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "1024",
+    "200000",
+    "10",
+    "1041"
+   ],
+   "seconds": 0.035,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "1024",
+    "200000",
+    "10",
+    "1041"
+   ],
+   "seconds": 0.078,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "1024",
+    "200000",
+    "10",
+    "1041"
+   ],
+   "seconds": 0.026,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "1024",
+    "200000",
+    "10",
+    "1041"
+   ],
+   "seconds": 0.013,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "1024",
+    "200000",
+    "10",
+    "1041"
+   ],
+   "seconds": 0.019,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "1024",
+    "200000",
+    "10",
+    "1041"
+   ],
+   "seconds": 0.029,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "1024",
+    "200000",
+    "10",
+    "1041"
+   ],
+   "seconds": 0.014,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "1024",
+    "200000",
+    "10",
+    "1041"
+   ],
+   "seconds": 0.036,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "1024",
+    "200000",
+    "10",
+    "1041"
+   ],
+   "seconds": 0.031,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "1024",
+    "200000",
+    "10",
+    "1041"
+   ],
+   "seconds": 0.023,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "1024",
+    "200000",
+    "10",
+    "1041"
+   ],
+   "seconds": 0.076,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "1024",
+    "200000",
+    "10",
+    "1041"
+   ],
+   "seconds": 0.079,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "1024",
+    "200000",
+    "10",
+    "1041"
+   ],
+   "seconds": 0.029,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "1024",
+    "200000",
+    "10",
+    "1041"
+   ],
+   "seconds": 0.017,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "1024",
+    "200000",
+    "10",
+    "1041"
+   ],
+   "seconds": 0.023,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "1024",
+    "200000",
+    "10",
+    "1041"
+   ],
+   "seconds": 0.036,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "1024",
+    "96711",
+    "100",
+    "1131"
+   ],
+   "seconds": 0.046,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "1024",
+    "96711",
+    "100",
+    "1131"
+   ],
+   "seconds": 0.211,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "1024",
+    "96711",
+    "100",
+    "1131"
+   ],
+   "seconds": 0.008,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "1024",
+    "96711",
+    "100",
+    "1131"
+   ],
+   "seconds": 0.011,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "1024",
+    "96711",
+    "100",
+    "1131"
+   ],
+   "seconds": 0.062,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "1024",
+    "96711",
+    "100",
+    "1131"
+   ],
+   "seconds": 0.018,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "1024",
+    "96711",
+    "100",
+    "1131"
+   ],
+   "seconds": 0.222,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "1024",
+    "96711",
+    "100",
+    "1131"
+   ],
+   "seconds": 0.008,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "1024",
+    "96711",
+    "100",
+    "1131"
+   ],
+   "seconds": 0.011,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "1024",
+    "96711",
+    "100",
+    "1131"
+   ],
+   "seconds": 0.056,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "1024",
+    "96711",
+    "100",
+    "1131"
+   ],
+   "seconds": 0.011,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "1024",
+    "96711",
+    "100",
+    "1131"
+   ],
+   "seconds": 0.009,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "1024",
+    "96711",
+    "100",
+    "1131"
+   ],
+   "seconds": 0.246,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "1024",
+    "96711",
+    "100",
+    "1131"
+   ],
+   "seconds": 0.055,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "1024",
+    "96711",
+    "100",
+    "1131"
+   ],
+   "seconds": 0.017,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "1024",
+    "96711",
+    "100",
+    "1131"
+   ],
+   "seconds": 0.181,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "1024",
+    "96711",
+    "100",
+    "1131"
+   ],
+   "seconds": 0.007,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "1024",
+    "96711",
+    "100",
+    "1131"
+   ],
+   "seconds": 0.009,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "1024",
+    "96711",
+    "100",
+    "1131"
+   ],
+   "seconds": 0.045,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "1024",
+    "96711",
+    "100",
+    "1131"
+   ],
+   "seconds": 0.018,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "1024",
+    "96711",
+    "100",
+    "1131"
+   ],
+   "seconds": 0.017,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "1024",
+    "96711",
+    "100",
+    "1131"
+   ],
+   "seconds": 0.008,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "1024",
+    "96711",
+    "100",
+    "1131"
+   ],
+   "seconds": 0.054,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "1024",
+    "96711",
+    "100",
+    "1131"
+   ],
+   "seconds": 0.217,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "1024",
+    "96711",
+    "100",
+    "1131"
+   ],
+   "seconds": 0.012,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "1024",
+    "96711",
+    "100",
+    "1131"
+   ],
+   "seconds": 0.011,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "1024",
+    "96711",
+    "100",
+    "1131"
+   ],
+   "seconds": 0.016,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "1024",
+    "96711",
+    "100",
+    "1131"
+   ],
+   "seconds": 0.21,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "1024",
+    "96711",
+    "100",
+    "1131"
+   ],
+   "seconds": 0.058,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "1024",
+    "96711",
+    "100",
+    "1131"
+   ],
+   "seconds": 0.008,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "1024",
+    "96711",
+    "100",
+    "1131"
+   ],
+   "seconds": 0.204,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "1024",
+    "96711",
+    "100",
+    "1131"
+   ],
+   "seconds": 0.008,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "1024",
+    "96711",
+    "100",
+    "1131"
+   ],
+   "seconds": 0.016,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "1024",
+    "96711",
+    "100",
+    "1131"
+   ],
+   "seconds": 0.055,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "1024",
+    "96711",
+    "100",
+    "1131"
+   ],
+   "seconds": 0.013,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "1024",
+    "19493",
+    "500",
+    "1531"
+   ],
+   "seconds": 0.004,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "1024",
+    "19493",
+    "500",
+    "1531"
+   ],
+   "seconds": 0.159,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "1024",
+    "19493",
+    "500",
+    "1531"
+   ],
+   "seconds": 0.003,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "1024",
+    "19493",
+    "500",
+    "1531"
+   ],
+   "seconds": 0.003,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "1024",
+    "19493",
+    "500",
+    "1531"
+   ],
+   "seconds": 0.033,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "1024",
+    "19493",
+    "500",
+    "1531"
+   ],
+   "seconds": 0.004,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "1024",
+    "19493",
+    "500",
+    "1531"
+   ],
+   "seconds": 0.157,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "1024",
+    "19493",
+    "500",
+    "1531"
+   ],
+   "seconds": 0.003,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "1024",
+    "19493",
+    "500",
+    "1531"
+   ],
+   "seconds": 0.003,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "1024",
+    "19493",
+    "500",
+    "1531"
+   ],
+   "seconds": 0.032,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "1024",
+    "19493",
+    "500",
+    "1531"
+   ],
+   "seconds": 0.003,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "1024",
+    "19493",
+    "500",
+    "1531"
+   ],
+   "seconds": 0.04,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "1024",
+    "19493",
+    "500",
+    "1531"
+   ],
+   "seconds": 0.004,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "1024",
+    "19493",
+    "500",
+    "1531"
+   ],
+   "seconds": 0.17,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "1024",
+    "19493",
+    "500",
+    "1531"
+   ],
+   "seconds": 0.004,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "1024",
+    "19493",
+    "500",
+    "1531"
+   ],
+   "seconds": 0.003,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "1024",
+    "19493",
+    "500",
+    "1531"
+   ],
+   "seconds": 0.034,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "1024",
+    "19493",
+    "500",
+    "1531"
+   ],
+   "seconds": 0.17,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "1024",
+    "19493",
+    "500",
+    "1531"
+   ],
+   "seconds": 0.004,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "1024",
+    "19493",
+    "500",
+    "1531"
+   ],
+   "seconds": 0.002,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "1024",
+    "19493",
+    "500",
+    "1531"
+   ],
+   "seconds": 0.003,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "1024",
+    "19493",
+    "500",
+    "1531"
+   ],
+   "seconds": 0.002,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "1024",
+    "19493",
+    "500",
+    "1531"
+   ],
+   "seconds": 0.163,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "1024",
+    "19493",
+    "500",
+    "1531"
+   ],
+   "seconds": 0.004,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "1024",
+    "19493",
+    "500",
+    "1531"
+   ],
+   "seconds": 0.026,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "1024",
+    "19493",
+    "500",
+    "1531"
+   ],
+   "seconds": 0.026,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "1024",
+    "19493",
+    "500",
+    "1531"
+   ],
+   "seconds": 0.002,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "1024",
+    "19493",
+    "500",
+    "1531"
+   ],
+   "seconds": 0.002,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "1024",
+    "19493",
+    "500",
+    "1531"
+   ],
+   "seconds": 0.003,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "1024",
+    "19493",
+    "500",
+    "1531"
+   ],
+   "seconds": 0.127,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "1024",
+    "19493",
+    "500",
+    "1531"
+   ],
+   "seconds": 0.16,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "1024",
+    "19493",
+    "500",
+    "1531"
+   ],
+   "seconds": 0.004,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "1024",
+    "19493",
+    "500",
+    "1531"
+   ],
+   "seconds": 0.003,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "1024",
+    "19493",
+    "500",
+    "1531"
+   ],
+   "seconds": 0.002,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "1024",
+    "19493",
+    "500",
+    "1531"
+   ],
+   "seconds": 0.032,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "1024",
+    "10838",
+    "900",
+    "1931"
+   ],
+   "seconds": 0.003,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "1024",
+    "10838",
+    "900",
+    "1931"
+   ],
+   "seconds": 0.125,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "1024",
+    "10838",
+    "900",
+    "1931"
+   ],
+   "seconds": 0.002,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "1024",
+    "10838",
+    "900",
+    "1931"
+   ],
+   "seconds": 0.002,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "1024",
+    "10838",
+    "900",
+    "1931"
+   ],
+   "seconds": 0.018,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "1024",
+    "10838",
+    "900",
+    "1931"
+   ],
+   "seconds": 0.002,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "1024",
+    "10838",
+    "900",
+    "1931"
+   ],
+   "seconds": 0.136,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "1024",
+    "10838",
+    "900",
+    "1931"
+   ],
+   "seconds": 0.002,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "1024",
+    "10838",
+    "900",
+    "1931"
+   ],
+   "seconds": 0.002,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "1024",
+    "10838",
+    "900",
+    "1931"
+   ],
+   "seconds": 0.026,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "1024",
+    "10838",
+    "900",
+    "1931"
+   ],
+   "seconds": 0.129,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "1024",
+    "10838",
+    "900",
+    "1931"
+   ],
+   "seconds": 0.002,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "1024",
+    "10838",
+    "900",
+    "1931"
+   ],
+   "seconds": 0.022,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "1024",
+    "10838",
+    "900",
+    "1931"
+   ],
+   "seconds": 0.003,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "1024",
+    "10838",
+    "900",
+    "1931"
+   ],
+   "seconds": 0.002,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "1024",
+    "10838",
+    "900",
+    "1931"
+   ],
+   "seconds": 0.002,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "1024",
+    "10838",
+    "900",
+    "1931"
+   ],
+   "seconds": 0.002,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "1024",
+    "10838",
+    "900",
+    "1931"
+   ],
+   "seconds": 0.022,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "1024",
+    "10838",
+    "900",
+    "1931"
+   ],
+   "seconds": 0.002,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "1024",
+    "10838",
+    "900",
+    "1931"
+   ],
+   "seconds": 0.124,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "1024",
+    "10838",
+    "900",
+    "1931"
+   ],
+   "seconds": 0.004,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "1024",
+    "10838",
+    "900",
+    "1931"
+   ],
+   "seconds": 0.108,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "1024",
+    "10838",
+    "900",
+    "1931"
+   ],
+   "seconds": 0.018,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "1024",
+    "10838",
+    "900",
+    "1931"
+   ],
+   "seconds": 0.002,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "1024",
+    "10838",
+    "900",
+    "1931"
+   ],
+   "seconds": 0.001,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "1024",
+    "10838",
+    "900",
+    "1931"
+   ],
+   "seconds": 0.002,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "1024",
+    "10838",
+    "900",
+    "1931"
+   ],
+   "seconds": 0.123,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "1024",
+    "10838",
+    "900",
+    "1931"
+   ],
+   "seconds": 0.002,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "1024",
+    "10838",
+    "900",
+    "1931"
+   ],
+   "seconds": 0.002,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "1024",
+    "10838",
+    "900",
+    "1931"
+   ],
+   "seconds": 0.024,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "1024",
+    "10838",
+    "900",
+    "1931"
+   ],
+   "seconds": 0.004,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "1024",
+    "10838",
+    "900",
+    "1931"
+   ],
+   "seconds": 0.002,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "1024",
+    "10838",
+    "900",
+    "1931"
+   ],
+   "seconds": 0.123,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "1024",
+    "10838",
+    "900",
+    "1931"
+   ],
+   "seconds": 0.002,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "1024",
+    "10838",
+    "900",
+    "1931"
+   ],
+   "seconds": 0.022,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "1024",
+    "9854",
+    "990",
+    "2021"
+   ],
+   "seconds": 0.002,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "1024",
+    "9854",
+    "990",
+    "2021"
+   ],
+   "seconds": 0.104,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "1024",
+    "9854",
+    "990",
+    "2021"
+   ],
+   "seconds": 0.002,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "1024",
+    "9854",
+    "990",
+    "2021"
+   ],
+   "seconds": 0.002,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "1024",
+    "9854",
+    "990",
+    "2021"
+   ],
+   "seconds": 0.019,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "1024",
+    "9854",
+    "990",
+    "2021"
+   ],
+   "seconds": 0.002,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "1024",
+    "9854",
+    "990",
+    "2021"
+   ],
+   "seconds": 0.106,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "1024",
+    "9854",
+    "990",
+    "2021"
+   ],
+   "seconds": 0.002,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "1024",
+    "9854",
+    "990",
+    "2021"
+   ],
+   "seconds": 0.002,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "1024",
+    "9854",
+    "990",
+    "2021"
+   ],
+   "seconds": 0.019,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "1024",
+    "9854",
+    "990",
+    "2021"
+   ],
+   "seconds": 0.119,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "1024",
+    "9854",
+    "990",
+    "2021"
+   ],
+   "seconds": 0.02,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "1024",
+    "9854",
+    "990",
+    "2021"
+   ],
+   "seconds": 0.002,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "1024",
+    "9854",
+    "990",
+    "2021"
+   ],
+   "seconds": 0.002,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "1024",
+    "9854",
+    "990",
+    "2021"
+   ],
+   "seconds": 0.002,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "1024",
+    "9854",
+    "990",
+    "2021"
+   ],
+   "seconds": 0.105,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "1024",
+    "9854",
+    "990",
+    "2021"
+   ],
+   "seconds": 0.003,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "1024",
+    "9854",
+    "990",
+    "2021"
+   ],
+   "seconds": 0.002,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "1024",
+    "9854",
+    "990",
+    "2021"
+   ],
+   "seconds": 0.019,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "1024",
+    "9854",
+    "990",
+    "2021"
+   ],
+   "seconds": 0.002,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "1024",
+    "9854",
+    "990",
+    "2021"
+   ],
+   "seconds": 0.002,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "1024",
+    "9854",
+    "990",
+    "2021"
+   ],
+   "seconds": 0.002,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "1024",
+    "9854",
+    "990",
+    "2021"
+   ],
+   "seconds": 0.11,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "1024",
+    "9854",
+    "990",
+    "2021"
+   ],
+   "seconds": 0.019,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "1024",
+    "9854",
+    "990",
+    "2021"
+   ],
+   "seconds": 0.002,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "1024",
+    "9854",
+    "990",
+    "2021"
+   ],
+   "seconds": 0.002,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "1024",
+    "9854",
+    "990",
+    "2021"
+   ],
+   "seconds": 0.002,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "1024",
+    "9854",
+    "990",
+    "2021"
+   ],
+   "seconds": 0.019,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "1024",
+    "9854",
+    "990",
+    "2021"
+   ],
+   "seconds": 0.096,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "1024",
+    "9854",
+    "990",
+    "2021"
+   ],
+   "seconds": 0.002,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "1024",
+    "9854",
+    "990",
+    "2021"
+   ],
+   "seconds": 0.002,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "1024",
+    "9854",
+    "990",
+    "2021"
+   ],
+   "seconds": 0.109,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "1024",
+    "9854",
+    "990",
+    "2021"
+   ],
+   "seconds": 0.019,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "1024",
+    "9854",
+    "990",
+    "2021"
+   ],
+   "seconds": 0.002,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "1024",
+    "9854",
+    "990",
+    "2021"
+   ],
+   "seconds": 0.002,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "65536",
+    "200000",
+    "0",
+    "65543"
+   ],
+   "seconds": 0.062,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "65536",
+    "200000",
+    "0",
+    "65543"
+   ],
+   "seconds": 0.054,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "65536",
+    "200000",
+    "0",
+    "65543"
+   ],
+   "seconds": 0.031,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "65536",
+    "200000",
+    "0",
+    "65543"
+   ],
+   "seconds": 0.045,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "65536",
+    "200000",
+    "0",
+    "65543"
+   ],
+   "seconds": 0.038,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "65536",
+    "200000",
+    "0",
+    "65543"
+   ],
+   "seconds": 0.065,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "65536",
+    "200000",
+    "0",
+    "65543"
+   ],
+   "seconds": 0.058,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "65536",
+    "200000",
+    "0",
+    "65543"
+   ],
+   "seconds": 0.038,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "65536",
+    "200000",
+    "0",
+    "65543"
+   ],
+   "seconds": 0.046,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "65536",
+    "200000",
+    "0",
+    "65543"
+   ],
+   "seconds": 0.039,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "65536",
+    "200000",
+    "0",
+    "65543"
+   ],
+   "seconds": 0.04,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "65536",
+    "200000",
+    "0",
+    "65543"
+   ],
+   "seconds": 0.037,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "65536",
+    "200000",
+    "0",
+    "65543"
+   ],
+   "seconds": 0.064,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "65536",
+    "200000",
+    "0",
+    "65543"
+   ],
+   "seconds": 0.068,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "65536",
+    "200000",
+    "0",
+    "65543"
+   ],
+   "seconds": 0.048,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "65536",
+    "200000",
+    "0",
+    "65543"
+   ],
+   "seconds": 0.078,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "65536",
+    "200000",
+    "0",
+    "65543"
+   ],
+   "seconds": 0.04,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "65536",
+    "200000",
+    "0",
+    "65543"
+   ],
+   "seconds": 0.042,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "65536",
+    "200000",
+    "0",
+    "65543"
+   ],
+   "seconds": 0.049,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "65536",
+    "200000",
+    "0",
+    "65543"
+   ],
+   "seconds": 0.069,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "65536",
+    "200000",
+    "0",
+    "65543"
+   ],
+   "seconds": 0.042,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "65536",
+    "200000",
+    "0",
+    "65543"
+   ],
+   "seconds": 0.072,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "65536",
+    "200000",
+    "0",
+    "65543"
+   ],
+   "seconds": 0.04,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "65536",
+    "200000",
+    "0",
+    "65543"
+   ],
+   "seconds": 0.047,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "65536",
+    "200000",
+    "0",
+    "65543"
+   ],
+   "seconds": 0.069,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "65536",
+    "200000",
+    "0",
+    "65543"
+   ],
+   "seconds": 0.065,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "65536",
+    "200000",
+    "0",
+    "65543"
+   ],
+   "seconds": 0.04,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "65536",
+    "200000",
+    "0",
+    "65543"
+   ],
+   "seconds": 0.057,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "65536",
+    "200000",
+    "0",
+    "65543"
+   ],
+   "seconds": 0.044,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "65536",
+    "200000",
+    "0",
+    "65543"
+   ],
+   "seconds": 0.069,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "65536",
+    "200000",
+    "0",
+    "65543"
+   ],
+   "seconds": 0.077,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "65536",
+    "200000",
+    "0",
+    "65543"
+   ],
+   "seconds": 0.066,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "65536",
+    "200000",
+    "0",
+    "65543"
+   ],
+   "seconds": 0.037,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "65536",
+    "200000",
+    "0",
+    "65543"
+   ],
+   "seconds": 0.039,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "65536",
+    "200000",
+    "0",
+    "65543"
+   ],
+   "seconds": 0.05,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "65536",
+    "150294",
+    "1",
+    "65544"
+   ],
+   "seconds": 0.059,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "65536",
+    "150294",
+    "1",
+    "65544"
+   ],
+   "seconds": 0.239,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "65536",
+    "150294",
+    "1",
+    "65544"
+   ],
+   "seconds": 0.032,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "65536",
+    "150294",
+    "1",
+    "65544"
+   ],
+   "seconds": 0.04,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "65536",
+    "150294",
+    "1",
+    "65544"
+   ],
+   "seconds": 0.1,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "65536",
+    "150294",
+    "1",
+    "65544"
+   ],
+   "seconds": 0.055,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "65536",
+    "150294",
+    "1",
+    "65544"
+   ],
+   "seconds": 0.228,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "65536",
+    "150294",
+    "1",
+    "65544"
+   ],
+   "seconds": 0.033,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "65536",
+    "150294",
+    "1",
+    "65544"
+   ],
+   "seconds": 0.04,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "65536",
+    "150294",
+    "1",
+    "65544"
+   ],
+   "seconds": 0.092,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "65536",
+    "150294",
+    "1",
+    "65544"
+   ],
+   "seconds": 0.034,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "65536",
+    "150294",
+    "1",
+    "65544"
+   ],
+   "seconds": 0.028,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "65536",
+    "150294",
+    "1",
+    "65544"
+   ],
+   "seconds": 0.053,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "65536",
+    "150294",
+    "1",
+    "65544"
+   ],
+   "seconds": 0.091,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "65536",
+    "150294",
+    "1",
+    "65544"
+   ],
+   "seconds": 0.211,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "65536",
+    "150294",
+    "1",
+    "65544"
+   ],
+   "seconds": 0.092,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "65536",
+    "150294",
+    "1",
+    "65544"
+   ],
+   "seconds": 0.035,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "65536",
+    "150294",
+    "1",
+    "65544"
+   ],
+   "seconds": 0.214,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "65536",
+    "150294",
+    "1",
+    "65544"
+   ],
+   "seconds": 0.028,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "65536",
+    "150294",
+    "1",
+    "65544"
+   ],
+   "seconds": 0.053,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "65536",
+    "150294",
+    "1",
+    "65544"
+   ],
+   "seconds": 0.054,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "65536",
+    "150294",
+    "1",
+    "65544"
+   ],
+   "seconds": 0.228,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "65536",
+    "150294",
+    "1",
+    "65544"
+   ],
+   "seconds": 0.036,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "65536",
+    "150294",
+    "1",
+    "65544"
+   ],
+   "seconds": 0.093,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "65536",
+    "150294",
+    "1",
+    "65544"
+   ],
+   "seconds": 0.028,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "65536",
+    "150294",
+    "1",
+    "65544"
+   ],
+   "seconds": 0.049,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "65536",
+    "150294",
+    "1",
+    "65544"
+   ],
+   "seconds": 0.027,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "65536",
+    "150294",
+    "1",
+    "65544"
+   ],
+   "seconds": 0.208,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "65536",
+    "150294",
+    "1",
+    "65544"
+   ],
+   "seconds": 0.106,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "65536",
+    "150294",
+    "1",
+    "65544"
+   ],
+   "seconds": 0.038,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "65536",
+    "150294",
+    "1",
+    "65544"
+   ],
+   "seconds": 0.035,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "65536",
+    "150294",
+    "1",
+    "65544"
+   ],
+   "seconds": 0.11,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "65536",
+    "150294",
+    "1",
+    "65544"
+   ],
+   "seconds": 0.228,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "65536",
+    "150294",
+    "1",
+    "65544"
+   ],
+   "seconds": 0.032,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "65536",
+    "150294",
+    "1",
+    "65544"
+   ],
+   "seconds": 0.054,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "65536",
+    "15235",
+    "10",
+    "65553"
+   ],
+   "seconds": 0.019,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "65536",
+    "15235",
+    "10",
+    "65553"
+   ],
+   "seconds": 0.128,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "65536",
+    "15235",
+    "10",
+    "65553"
+   ],
+   "seconds": 0.009,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "65536",
+    "15235",
+    "10",
+    "65553"
+   ],
+   "seconds": 0.011,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "65536",
+    "15235",
+    "10",
+    "65553"
+   ],
+   "seconds": 0.042,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "65536",
+    "15235",
+    "10",
+    "65553"
+   ],
+   "seconds": 0.017,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "65536",
+    "15235",
+    "10",
+    "65553"
+   ],
+   "seconds": 0.129,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "65536",
+    "15235",
+    "10",
+    "65553"
+   ],
+   "seconds": 0.009,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "65536",
+    "15235",
+    "10",
+    "65553"
+   ],
+   "seconds": 0.01,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "65536",
+    "15235",
+    "10",
+    "65553"
+   ],
+   "seconds": 0.041,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "65536",
+    "15235",
+    "10",
+    "65553"
+   ],
+   "seconds": 0.017,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "65536",
+    "15235",
+    "10",
+    "65553"
+   ],
+   "seconds": 0.128,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "65536",
+    "15235",
+    "10",
+    "65553"
+   ],
+   "seconds": 0.043,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "65536",
+    "15235",
+    "10",
+    "65553"
+   ],
+   "seconds": 0.01,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "65536",
+    "15235",
+    "10",
+    "65553"
+   ],
+   "seconds": 0.009,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "65536",
+    "15235",
+    "10",
+    "65553"
+   ],
+   "seconds": 0.133,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "65536",
+    "15235",
+    "10",
+    "65553"
+   ],
+   "seconds": 0.016,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "65536",
+    "15235",
+    "10",
+    "65553"
+   ],
+   "seconds": 0.04,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "65536",
+    "15235",
+    "10",
+    "65553"
+   ],
+   "seconds": 0.009,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "65536",
+    "15235",
+    "10",
+    "65553"
+   ],
+   "seconds": 0.011,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "65536",
+    "15235",
+    "10",
+    "65553"
+   ],
+   "seconds": 0.127,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "65536",
+    "15235",
+    "10",
+    "65553"
+   ],
+   "seconds": 0.011,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "65536",
+    "15235",
+    "10",
+    "65553"
+   ],
+   "seconds": 0.011,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "65536",
+    "15235",
+    "10",
+    "65553"
+   ],
+   "seconds": 0.016,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "65536",
+    "15235",
+    "10",
+    "65553"
+   ],
+   "seconds": 0.042,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "65536",
+    "15235",
+    "10",
+    "65553"
+   ],
+   "seconds": 0.011,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "65536",
+    "15235",
+    "10",
+    "65553"
+   ],
+   "seconds": 0.042,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "65536",
+    "15235",
+    "10",
+    "65553"
+   ],
+   "seconds": 0.129,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "65536",
+    "15235",
+    "10",
+    "65553"
+   ],
+   "seconds": 0.016,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "65536",
+    "15235",
+    "10",
+    "65553"
+   ],
+   "seconds": 0.009,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "65536",
+    "15235",
+    "10",
+    "65553"
+   ],
+   "seconds": 0.041,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "65536",
+    "15235",
+    "10",
+    "65553"
+   ],
+   "seconds": 0.01,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "65536",
+    "15235",
+    "10",
+    "65553"
+   ],
+   "seconds": 0.127,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "65536",
+    "15235",
+    "10",
+    "65553"
+   ],
+   "seconds": 0.016,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "65536",
+    "15235",
+    "10",
+    "65553"
+   ],
+   "seconds": 0.009,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "65536",
+    "1525",
+    "100",
+    "65643"
+   ],
+   "seconds": 0.013,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "65536",
+    "1525",
+    "100",
+    "65643"
+   ],
+   "seconds": 0.128,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "65536",
+    "1525",
+    "100",
+    "65643"
+   ],
+   "seconds": 0.007,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "65536",
+    "1525",
+    "100",
+    "65643"
+   ],
+   "seconds": 0.008,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "65536",
+    "1525",
+    "100",
+    "65643"
+   ],
+   "seconds": 0.037,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "65536",
+    "1525",
+    "100",
+    "65643"
+   ],
+   "seconds": 0.013,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "65536",
+    "1525",
+    "100",
+    "65643"
+   ],
+   "seconds": 0.121,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "65536",
+    "1525",
+    "100",
+    "65643"
+   ],
+   "seconds": 0.008,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "65536",
+    "1525",
+    "100",
+    "65643"
+   ],
+   "seconds": 0.009,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "65536",
+    "1525",
+    "100",
+    "65643"
+   ],
+   "seconds": 0.044,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "65536",
+    "1525",
+    "100",
+    "65643"
+   ],
+   "seconds": 0.01,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "65536",
+    "1525",
+    "100",
+    "65643"
+   ],
+   "seconds": 0.141,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "65536",
+    "1525",
+    "100",
+    "65643"
+   ],
+   "seconds": 0.04,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "65536",
+    "1525",
+    "100",
+    "65643"
+   ],
+   "seconds": 0.014,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "65536",
+    "1525",
+    "100",
+    "65643"
+   ],
+   "seconds": 0.01,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "65536",
+    "1525",
+    "100",
+    "65643"
+   ],
+   "seconds": 0.014,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "65536",
+    "1525",
+    "100",
+    "65643"
+   ],
+   "seconds": 0.118,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "65536",
+    "1525",
+    "100",
+    "65643"
+   ],
+   "seconds": 0.04,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "65536",
+    "1525",
+    "100",
+    "65643"
+   ],
+   "seconds": 0.011,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "65536",
+    "1525",
+    "100",
+    "65643"
+   ],
+   "seconds": 0.007,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "65536",
+    "1525",
+    "100",
+    "65643"
+   ],
+   "seconds": 0.008,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "65536",
+    "1525",
+    "100",
+    "65643"
+   ],
+   "seconds": 0.013,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "65536",
+    "1525",
+    "100",
+    "65643"
+   ],
+   "seconds": 0.138,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "65536",
+    "1525",
+    "100",
+    "65643"
+   ],
+   "seconds": 0.007,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "65536",
+    "1525",
+    "100",
+    "65643"
+   ],
+   "seconds": 0.043,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "65536",
+    "1525",
+    "100",
+    "65643"
+   ],
+   "seconds": 0.141,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "65536",
+    "1525",
+    "100",
+    "65643"
+   ],
+   "seconds": 0.014,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "65536",
+    "1525",
+    "100",
+    "65643"
+   ],
+   "seconds": 0.043,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "65536",
+    "1525",
+    "100",
+    "65643"
+   ],
+   "seconds": 0.009,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "65536",
+    "1525",
+    "100",
+    "65643"
+   ],
+   "seconds": 0.007,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "65536",
+    "1525",
+    "100",
+    "65643"
+   ],
+   "seconds": 0.132,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "65536",
+    "1525",
+    "100",
+    "65643"
+   ],
+   "seconds": 0.007,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "65536",
+    "1525",
+    "100",
+    "65643"
+   ],
+   "seconds": 0.013,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "65536",
+    "1525",
+    "100",
+    "65643"
+   ],
+   "seconds": 0.009,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "65536",
+    "1525",
+    "100",
+    "65643"
+   ],
+   "seconds": 0.045,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "65536",
+    "400",
+    "500",
+    "66043"
+   ],
+   "seconds": 0.017,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "65536",
+    "400",
+    "500",
+    "66043"
+   ],
+   "seconds": 0.17,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "65536",
+    "400",
+    "500",
+    "66043"
+   ],
+   "seconds": 0.008,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "65536",
+    "400",
+    "500",
+    "66043"
+   ],
+   "seconds": 0.01,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "65536",
+    "400",
+    "500",
+    "66043"
+   ],
+   "seconds": 0.051,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "65536",
+    "400",
+    "500",
+    "66043"
+   ],
+   "seconds": 0.013,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "65536",
+    "400",
+    "500",
+    "66043"
+   ],
+   "seconds": 0.162,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "65536",
+    "400",
+    "500",
+    "66043"
+   ],
+   "seconds": 0.006,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "65536",
+    "400",
+    "500",
+    "66043"
+   ],
+   "seconds": 0.01,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "65536",
+    "400",
+    "500",
+    "66043"
+   ],
+   "seconds": 0.048,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "65536",
+    "400",
+    "500",
+    "66043"
+   ],
+   "seconds": 0.006,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "65536",
+    "400",
+    "500",
+    "66043"
+   ],
+   "seconds": 0.013,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "65536",
+    "400",
+    "500",
+    "66043"
+   ],
+   "seconds": 0.154,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "65536",
+    "400",
+    "500",
+    "66043"
+   ],
+   "seconds": 0.059,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "65536",
+    "400",
+    "500",
+    "66043"
+   ],
+   "seconds": 0.013,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "65536",
+    "400",
+    "500",
+    "66043"
+   ],
+   "seconds": 0.053,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "65536",
+    "400",
+    "500",
+    "66043"
+   ],
+   "seconds": 0.013,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "65536",
+    "400",
+    "500",
+    "66043"
+   ],
+   "seconds": 0.007,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "65536",
+    "400",
+    "500",
+    "66043"
+   ],
+   "seconds": 0.168,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "65536",
+    "400",
+    "500",
+    "66043"
+   ],
+   "seconds": 0.012,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "65536",
+    "400",
+    "500",
+    "66043"
+   ],
+   "seconds": 0.042,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "65536",
+    "400",
+    "500",
+    "66043"
+   ],
+   "seconds": 0.009,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "65536",
+    "400",
+    "500",
+    "66043"
+   ],
+   "seconds": 0.007,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "65536",
+    "400",
+    "500",
+    "66043"
+   ],
+   "seconds": 0.157,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "65536",
+    "400",
+    "500",
+    "66043"
+   ],
+   "seconds": 0.013,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "65536",
+    "400",
+    "500",
+    "66043"
+   ],
+   "seconds": 0.163,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "65536",
+    "400",
+    "500",
+    "66043"
+   ],
+   "seconds": 0.007,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "65536",
+    "400",
+    "500",
+    "66043"
+   ],
+   "seconds": 0.047,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "65536",
+    "400",
+    "500",
+    "66043"
+   ],
+   "seconds": 0.008,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "65536",
+    "400",
+    "500",
+    "66043"
+   ],
+   "seconds": 0.013,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "65536",
+    "400",
+    "500",
+    "66043"
+   ],
+   "seconds": 0.009,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "65536",
+    "400",
+    "500",
+    "66043"
+   ],
+   "seconds": 0.167,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "65536",
+    "400",
+    "500",
+    "66043"
+   ],
+   "seconds": 0.046,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "65536",
+    "400",
+    "500",
+    "66043"
+   ],
+   "seconds": 0.007,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "65536",
+    "400",
+    "500",
+    "66043"
+   ],
+   "seconds": 0.013,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "65536",
+    "400",
+    "900",
+    "66443"
+   ],
+   "seconds": 0.014,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "65536",
+    "400",
+    "900",
+    "66443"
+   ],
+   "seconds": 0.331,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "65536",
+    "400",
+    "900",
+    "66443"
+   ],
+   "seconds": 0.007,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "65536",
+    "400",
+    "900",
+    "66443"
+   ],
+   "seconds": 0.009,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "65536",
+    "400",
+    "900",
+    "66443"
+   ],
+   "seconds": 0.088,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "65536",
+    "400",
+    "900",
+    "66443"
+   ],
+   "seconds": 0.013,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "65536",
+    "400",
+    "900",
+    "66443"
+   ],
+   "seconds": 0.32,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "65536",
+    "400",
+    "900",
+    "66443"
+   ],
+   "seconds": 0.007,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "65536",
+    "400",
+    "900",
+    "66443"
+   ],
+   "seconds": 0.009,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "65536",
+    "400",
+    "900",
+    "66443"
+   ],
+   "seconds": 0.076,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "65536",
+    "400",
+    "900",
+    "66443"
+   ],
+   "seconds": 0.339,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "65536",
+    "400",
+    "900",
+    "66443"
+   ],
+   "seconds": 0.099,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "65536",
+    "400",
+    "900",
+    "66443"
+   ],
+   "seconds": 0.014,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "65536",
+    "400",
+    "900",
+    "66443"
+   ],
+   "seconds": 0.009,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "65536",
+    "400",
+    "900",
+    "66443"
+   ],
+   "seconds": 0.008,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "65536",
+    "400",
+    "900",
+    "66443"
+   ],
+   "seconds": 0.008,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "65536",
+    "400",
+    "900",
+    "66443"
+   ],
+   "seconds": 0.009,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "65536",
+    "400",
+    "900",
+    "66443"
+   ],
+   "seconds": 0.327,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "65536",
+    "400",
+    "900",
+    "66443"
+   ],
+   "seconds": 0.087,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "65536",
+    "400",
+    "900",
+    "66443"
+   ],
+   "seconds": 0.014,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "65536",
+    "400",
+    "900",
+    "66443"
+   ],
+   "seconds": 0.103,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "65536",
+    "400",
+    "900",
+    "66443"
+   ],
+   "seconds": 0.013,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "65536",
+    "400",
+    "900",
+    "66443"
+   ],
+   "seconds": 0.008,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "65536",
+    "400",
+    "900",
+    "66443"
+   ],
+   "seconds": 0.008,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "65536",
+    "400",
+    "900",
+    "66443"
+   ],
+   "seconds": 0.343,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "65536",
+    "400",
+    "900",
+    "66443"
+   ],
+   "seconds": 0.315,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "65536",
+    "400",
+    "900",
+    "66443"
+   ],
+   "seconds": 0.024,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "65536",
+    "400",
+    "900",
+    "66443"
+   ],
+   "seconds": 0.102,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "65536",
+    "400",
+    "900",
+    "66443"
+   ],
+   "seconds": 0.007,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "65536",
+    "400",
+    "900",
+    "66443"
+   ],
+   "seconds": 0.014,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "65536",
+    "400",
+    "900",
+    "66443"
+   ],
+   "seconds": 0.007,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "65536",
+    "400",
+    "900",
+    "66443"
+   ],
+   "seconds": 0.087,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "65536",
+    "400",
+    "900",
+    "66443"
+   ],
+   "seconds": 0.019,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "65536",
+    "400",
+    "900",
+    "66443"
+   ],
+   "seconds": 0.009,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "65536",
+    "400",
+    "900",
+    "66443"
+   ],
+   "seconds": 0.33,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "65536",
+    "400",
+    "990",
+    "66533"
+   ],
+   "seconds": 0.013,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "65536",
+    "400",
+    "990",
+    "66533"
+   ],
+   "seconds": 0.307,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "65536",
+    "400",
+    "990",
+    "66533"
+   ],
+   "seconds": 0.007,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "65536",
+    "400",
+    "990",
+    "66533"
+   ],
+   "seconds": 0.01,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "65536",
+    "400",
+    "990",
+    "66533"
+   ],
+   "seconds": 0.105,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "65536",
+    "400",
+    "990",
+    "66533"
+   ],
+   "seconds": 0.013,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "65536",
+    "400",
+    "990",
+    "66533"
+   ],
+   "seconds": 0.347,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "65536",
+    "400",
+    "990",
+    "66533"
+   ],
+   "seconds": 0.007,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "65536",
+    "400",
+    "990",
+    "66533"
+   ],
+   "seconds": 0.009,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "65536",
+    "400",
+    "990",
+    "66533"
+   ],
+   "seconds": 0.095,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "65536",
+    "400",
+    "990",
+    "66533"
+   ],
+   "seconds": 0.011,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "65536",
+    "400",
+    "990",
+    "66533"
+   ],
+   "seconds": 0.083,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "65536",
+    "400",
+    "990",
+    "66533"
+   ],
+   "seconds": 0.007,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "65536",
+    "400",
+    "990",
+    "66533"
+   ],
+   "seconds": 0.322,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "65536",
+    "400",
+    "990",
+    "66533"
+   ],
+   "seconds": 0.013,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "65536",
+    "400",
+    "990",
+    "66533"
+   ],
+   "seconds": 0.007,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "65536",
+    "400",
+    "990",
+    "66533"
+   ],
+   "seconds": 0.008,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "65536",
+    "400",
+    "990",
+    "66533"
+   ],
+   "seconds": 0.079,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "65536",
+    "400",
+    "990",
+    "66533"
+   ],
+   "seconds": 0.012,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "65536",
+    "400",
+    "990",
+    "66533"
+   ],
+   "seconds": 0.342,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "65536",
+    "400",
+    "990",
+    "66533"
+   ],
+   "seconds": 0.013,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "65536",
+    "400",
+    "990",
+    "66533"
+   ],
+   "seconds": 0.084,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "65536",
+    "400",
+    "990",
+    "66533"
+   ],
+   "seconds": 0.008,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "65536",
+    "400",
+    "990",
+    "66533"
+   ],
+   "seconds": 0.349,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "65536",
+    "400",
+    "990",
+    "66533"
+   ],
+   "seconds": 0.007,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "65536",
+    "400",
+    "990",
+    "66533"
+   ],
+   "seconds": 0.013,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "65536",
+    "400",
+    "990",
+    "66533"
+   ],
+   "seconds": 0.007,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "65536",
+    "400",
+    "990",
+    "66533"
+   ],
+   "seconds": 0.089,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "65536",
+    "400",
+    "990",
+    "66533"
+   ],
+   "seconds": 0.288,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "65536",
+    "400",
+    "990",
+    "66533"
+   ],
+   "seconds": 0.007,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental_bigint.bin",
+    "65536",
+    "400",
+    "990",
+    "66533"
+   ],
+   "seconds": 0.007,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_scan.bin",
+    "65536",
+    "400",
+    "990",
+    "66533"
+   ],
+   "seconds": 0.096,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_scan.bin",
+    "65536",
+    "400",
+    "990",
+    "66533"
+   ],
+   "seconds": 0.341,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/rust_incremental.bin",
+    "65536",
+    "400",
+    "990",
+    "66533"
+   ],
+   "seconds": 0.007,
+   "returncode": 0
+  },
+  {
+   "argv": [
+    "/home/claude/hardening/ink-lang/build/view-sweep/ink_maintained.bin",
+    "65536",
+    "400",
+    "990",
+    "66533"
+   ],
+   "seconds": 0.013,
+   "returncode": 0
+  }
+ ]
+}
