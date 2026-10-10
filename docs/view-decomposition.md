@@ -5,8 +5,10 @@ Maintained views are `keep`s of the form `sum(T.values().stage*)` or
 `filter(fn(x) => p)` with a pure body. The compiler maintains such a view
 incrementally by adding and removing each row's contribution (its
 *projection*). Until now it was **assumed** that the pipeline equals the sum
-of those per-row projections. That fact is now **checked**, automatically, for
-every program in the supported subset.
+of those per-row projections. With `--prove-views`, that fact is now **checked**
+automatically for each maintained keep in the supported subset. Builds without
+that flag retain their existing trusted decomposition; this is not yet the
+generic stateful candidate admission path.
 
 ## How it works
 

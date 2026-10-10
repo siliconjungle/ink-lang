@@ -352,9 +352,12 @@ mod tests {
     #[test]
     fn full_module_and_typed_actions_roundtrip_through_unchanged_kernel() {
         let roles = roles();
-        let module = crate::core::CheckedModule::from_source(crate::syntax::parse(
+        for source in [
             "module demo; record Row { value:u32, } state Rows:Table<u32,Row> = Table.empty(); fn twice(x:u64)->u64 {return x+x;} query read()->Option<Row> reads(Rows) {return Rows.get(1);}"
-        ).unwrap()).unwrap();
+            , "module numeric; fn negate(x:f32)->f32{return -x;} fn initial()->f32{return 1.5;} fn mapped(xs:List<i32>)->List<i32>{return repeat(3,xs,fn(i)=>fn(acc)=>acc.map(fn(x)=>x+1));}"
+            , "module recursive_types; record Chain { value:u64, next:Option<Chain>, } fn next(x:Chain)->Option<Chain>{return x.next;}"
+        ] {
+        let module = crate::core::CheckedModule::from_source(crate::syntax::parse(source).unwrap()).unwrap();
         let actions = CheckedActions::elaborate(&module).unwrap();
         let declaration = definition(&actions, &roles).unwrap();
         let mut context = Context::default();
@@ -377,6 +380,7 @@ mod tests {
             "module":serde_json::from_slice::<Value>(&module.bytes().unwrap()).unwrap(),
             "typed_actions":serde_json::from_slice::<Value>(&actions.bytes().unwrap()).unwrap()});
         assert_eq!(decode(&actual), expected);
+        }
     }
     #[test]
     fn bounded_invalid_values_fail_without_relaxing_kernel_limits() {

@@ -32,7 +32,15 @@ with tempfile.TemporaryDirectory() as directory:
   objects=[obj for id,obj in view['objects'].items() if id!=roles['program']]+[changed]
   store=Store.publish(other,objects)
   wrong=copy.deepcopy(roles);wrong['program']=identity(changed)
-  print(json.dumps(dict(roles=roles,view=view,wrong_roles=wrong,wrong_view=store.bundle([wrong['program']]))))
+  wrong_view=store.bundle([wrong['program']])
+ changed_grammar=copy.deepcopy(view['objects'][roles['words']])
+ changed_grammar['payload']['declaration']['Datatype']['constructors'][1]['name']='Other'
+ with tempfile.TemporaryDirectory() as other:
+  store=Store.publish(other,list(view['objects'].values())+[changed_grammar])
+  grammar_roles=copy.deepcopy(roles);grammar_roles['words']=identity(changed_grammar)
+  grammar_view=store.bundle([roles['program'],grammar_roles['words']])
+  print(json.dumps(dict(roles=roles,view=view,wrong_roles=wrong,wrong_view=wrong_view,
+                       grammar_roles=grammar_roles,grammar_view=grammar_view)))
 "#;
     let mut child = Command::new("python3")
         .args(["-c", script])
@@ -94,6 +102,13 @@ fn authentic_complete_code_is_bound_and_other_code_cannot_substitute() {
         .first_order_context()
         .unwrap();
     assert!(BoundSyntax::bind(&ir, &wrong_view, &wrong_roles).is_err());
+    let grammar_roles: Roles = serde_json::from_value(f["grammar_roles"].clone()).unwrap();
+    let grammar_view: Bundle = serde_json::from_value(f["grammar_view"].clone()).unwrap();
+    CheckedBundle::check(&grammar_view)
+        .unwrap()
+        .first_order_context()
+        .unwrap();
+    assert!(BoundSyntax::bind(&ir, &grammar_view, &grammar_roles).is_err());
     let mut alias = roles.clone();
     alias.fields = alias.words.clone();
     assert!(BoundSyntax::bind(&ir, &bundle, &alias).is_err());
