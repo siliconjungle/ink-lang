@@ -388,3 +388,15 @@ execution are trusted mechanisms. WGSL-permitted floating behaviour is part of
 the v2 contract; IEEE bitwise equivalence is not inferred from profiling or tests.
 Existing proof translators reject unsupported compute forms. See
 [compute contract and validation](gpu-compute.md).
+
+## Shared conditional semantic selection
+
+The current general pure-expression path is documented in
+[Composable semantic optimisation](semantic-optimisation.md). It supplements the
+older restricted source-to-first-order bridge with a typed executable term
+correspondence, general equality/induction rules, explicit premise proofs and a
+shared checked selection witness. Pattern matching, repeated compositional
+search, example optimisation laws and cost estimates live in ink-knowledge.
+Lowerers, reference execution and proved source routing consume the same admitted
+module/equality mechanism. The new trusted mechanisms and the remaining
+state/trace/physical-backend limits are explicit in that document.

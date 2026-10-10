@@ -46,21 +46,162 @@ fn read_bounded(path: &str, limit: usize) -> LangResult<Vec<u8>> {
     }
     Ok(bytes)
 }
+fn prepare_selection(
+    args: &[String],
+    p: &syntax::Program,
+) -> LangResult<Option<verified_language::optimisation::CheckedSelection>> {
+    let selection = arg_value(args, "--selection")?;
+    let catalogue = arg_value(args, "--optimise")?;
+    if selection.is_some() && catalogue.is_some() {
+        return Err("choose --selection or --optimise".into());
+    }
+    if selection.is_none() && catalogue.is_none() {
+        return Ok(None);
+    }
+    let module = core::CheckedModule::from_source(p.clone())?;
+    let package = if let Some(path) = selection {
+        serde_json::from_slice::<verified_language::optimisation::Package>(&read_bounded(
+            &path, 16_000_000,
+        )?)
+        .map_err(|e| e.to_string())?
+    } else {
+        // The producer is external and untrusted. Only its bounded data output
+        // enters the checker; a catalogue cannot nominate executable scripts.
+        let temp = env::temp_dir().join(format!(
+            "ink-search-{}-{}",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .map_err(|e| e.to_string())?
+                .as_nanos()
+        ));
+        fs::create_dir(&temp).map_err(|e| e.to_string())?;
+        let result = (|| {
+            let input = temp.join("core.json");
+            let output = temp.join("selection.json");
+            fs::write(&input, module.bytes()?).map_err(|e| e.to_string())?;
+            let tool = arg_value(args, "--search-tool")?.unwrap_or_else(|| {
+                format!(
+                    "{}/knowledge/tools/semantic_search.py",
+                    env!("CARGO_MANIFEST_DIR")
+                )
+            });
+            let budget = arg_value(args, "--search-budget")?.unwrap_or_else(|| "128".into());
+            let result = Command::new("python3")
+                .arg(tool)
+                .arg("--compiler")
+                .arg(env::current_exe().map_err(|e| e.to_string())?)
+                .arg("--core")
+                .arg(&input)
+                .arg("--catalogue")
+                .arg(catalogue.as_ref().unwrap())
+                .arg("--budget")
+                .arg(budget)
+                .arg("-o")
+                .arg(&output)
+                .output()
+                .map_err(|e| e.to_string())?;
+            if !result.status.success() {
+                return Err(format!(
+                    "external search failed: {}",
+                    String::from_utf8_lossy(&result.stderr)
+                ));
+            }
+            eprintln!("{}", String::from_utf8_lossy(&result.stdout).trim());
+            serde_json::from_slice::<verified_language::optimisation::Package>(&read_bounded(
+                output.to_str().ok_or("invalid output path")?,
+                16_000_000,
+            )?)
+            .map_err(|e| e.to_string())
+        })();
+        let _ = fs::remove_dir_all(&temp);
+        result?
+    };
+    verified_language::optimisation::check(&module, &package).map(Some)
+}
 fn run() -> LangResult<()> {
     let args: Vec<String> = env::args().skip(1).collect();
     let cmd = args.first().map(String::as_str).unwrap_or("help");
-    if cmd == "check-source-route" {
+    if cmd == "selection-session" {
         if args.len() != 3 {
-            return Err("check-source-route requires CORE.json ROUTING.json".into());
+            return Err("selection-session requires CORE.json CATALOGUE.json".into());
+        }
+        let module = core::CheckedModule::from_bytes(&read_bounded(&args[1], core::MAX_BYTES)?)?;
+        let catalogue = serde_json::from_slice(&read_bounded(&args[2], 16_000_000)?)
+            .map_err(|e| e.to_string())?;
+        let checker = verified_language::optimisation::SelectionChecker::new(module, catalogue)?;
+        use std::io::{BufRead, Write};
+        let stdin = std::io::stdin();
+        let mut reader = stdin.lock();
+        println!("{}", serde_json::json!({"ready":true}));
+        std::io::stdout().flush().map_err(|e| e.to_string())?;
+        for _ in 0..4098 {
+            let mut line = Vec::new();
+            let count = reader
+                .by_ref()
+                .take(16_000_001)
+                .read_until(b'\n', &mut line)
+                .map_err(|e| e.to_string())?;
+            if count == 0 {
+                break;
+            }
+            if count > 16_000_000 {
+                return Err("checker session request byte limit".into());
+            }
+            let result =
+                serde_json::from_slice::<Vec<verified_language::optimisation::Site>>(&line)
+                    .map_err(|e| e.to_string())
+                    .and_then(|apps| checker.check(apps));
+            println!(
+                "{}",
+                match result {
+                    Ok(s) => serde_json::json!({"checked":true,"evidence":s.evidence()}),
+                    Err(e) => serde_json::json!({"checked":false,"error":e}),
+                }
+            );
+            std::io::stdout().flush().map_err(|e| e.to_string())?;
+        }
+        return Ok(());
+    }
+    if cmd == "check-selection" {
+        if args.len() != 3 {
+            return Err("check-selection requires CORE.json PACKAGE.json".into());
+        }
+        let module = core::CheckedModule::from_bytes(&read_bounded(&args[1], core::MAX_BYTES)?)?;
+        let package: verified_language::optimisation::Package =
+            serde_json::from_slice(&read_bounded(&args[2], 16_000_000)?)
+                .map_err(|e| e.to_string())?;
+        let selected = verified_language::optimisation::check(&module, &package)?;
+        println!(
+            "{}",
+            serde_json::to_string(selected.evidence()).map_err(|e| e.to_string())?
+        );
+        return Ok(());
+    }
+    if cmd == "check-source-route" {
+        if args.len() != 3 && args.len() != 5 {
+            return Err(
+                "check-source-route requires CORE.json ROUTING.json [--route-proof EVIDENCE.json]"
+                    .into(),
+            );
         }
         let module = core::CheckedModule::from_bytes(&read_bounded(&args[1], core::MAX_BYTES)?)?;
         let package: verified_language::source_routing::Package =
             serde_json::from_slice(&read_bounded(&args[2], 16_000_000)?)
                 .map_err(|e| e.to_string())?;
-        let checked = verified_language::source_routing::check(&module, &package)?;
+        let checked = if let Some(file) = arg_value(&args, "--route-proof")? {
+            let evidence =
+                serde_json::from_slice::<verified_language::source_routing::Equivalence>(
+                    &read_bounded(&file, 16_000_000)?,
+                )
+                .map_err(|e| e.to_string())?;
+            verified_language::source_routing::check_equivalent(&module, &package, &evidence)?
+        } else {
+            verified_language::source_routing::check(&module, &package)?
+        };
         println!(
             "{}",
-            serde_json::json!({"status":"checked", "semantics":package.semantics,"core_sha256":package.input_core_sha256,"entry":package.entry,"stages":package.stages,"stage_types":checked.stage_types(),"scope":"literal pure source call composition; target availability, physical transport, host failures and code generation remain trusted"})
+            serde_json::json!({"status":"checked", "semantics":package.semantics,"core_sha256":package.input_core_sha256,"entry":package.entry,"stages":package.stages,"stage_types":checked.stage_types(),"scope":"checked pure source call composition; target availability, physical transport, host failures and code generation remain trusted"})
         );
         return Ok(());
     }
@@ -276,6 +417,7 @@ fn run() -> LangResult<()> {
         return Ok(());
     }
     if cmd == "help" || cmd == "--help" {
+        println!("ink emit-semantic SOURCE [--core] -o SUBJECT.json\nink check-selection CORE.json PACKAGE.json\nExecution, lowering and core emission accept --optimise CATALOGUE.json (external search) or --selection PACKAGE.json (checked replay). Optional --search-tool PATH and --search-budget N.");
         println!("ink check-source-route CORE.json ROUTING.json");
         println!("ink emit-machine LOCK.json PACKAGE.json -o SOURCE.rs");
         println!(
@@ -297,7 +439,24 @@ fn run() -> LangResult<()> {
     } else {
         source(path)?
     };
+    let source_program_sha256 = format!(
+        "{:x}",
+        Sha256::digest(serde_json::to_vec(&p).map_err(|e| e.to_string())?)
+    );
+    let semantic_selection = prepare_selection(&args, &p)?;
+    if let Some(selected) = &semantic_selection {
+        p = selected.module().program().clone();
+    }
     match cmd {
+        "emit-semantic" => {
+            let module = core::CheckedModule::from_source(p)?;
+            let out = arg_value(&args, "-o")?.ok_or("emit-semantic requires -o SUBJECT.json")?;
+            write(
+                &out,
+                &serde_json::to_string_pretty(&verified_language::optimisation::subject(&module)?)
+                    .map_err(|e| e.to_string())?,
+            )?;
+        }
         "emit-core" | "check-core" => {
             let module = core::CheckedModule::from_source(p)?;
             if cmd == "emit-core" {
@@ -376,6 +535,12 @@ fn run() -> LangResult<()> {
             };
             let plan = serde_json::json!({"source":path,"module":p.module,"backend":"typed Rust; no AST evaluator","wasm_host_abi":if wasm_abi {Some(1)} else {None},"maintenance_certificate":certificate.as_ref().map(|c|&c.id),"maintenance_semantics":certificate.as_ref().map(|c|&c.semantics),"maintenance_authority":authority,"maintenance_library_closure":certificate.as_ref().and_then(|c|c.evidence.as_ref()).map(|e|e.library.objects.keys().collect::<Vec<_>>()),"bounded_cache_evidence":bounds,"trusted":["frontend","row-local table projection and transactional cache protocol","finite-domain range analysis","modular representation lowering","typed Rust lowering","num-bigint","Rust/LLVM backend"],"limitations":["portable snapshots supported; no live native migration or durable WAL","collection scans currently materialise lists","no native execution fuel limit"]});
             let mut plan = plan;
+            plan["semantic_selection"] =
+                serde_json::to_value(semantic_selection.as_ref().map(|s| s.evidence()))
+                    .map_err(|e| e.to_string())?;
+            plan["semantic_package"] =
+                serde_json::to_value(semantic_selection.as_ref().map(|s| s.package()))
+                    .map_err(|e| e.to_string())?;
             plan["storage_policy"] =
                 serde_json::to_value(storage.as_ref().map(|s| &s.0)).map_err(|e| e.to_string())?;
             plan["storage_policy_sha256"] =
@@ -477,11 +642,11 @@ fn run() -> LangResult<()> {
         "build" | "emit-c" => {
             let input_core = core::CheckedModule::from_source(p.clone())?;
             input_core.pure_program()?;
-            let input_core_sha256 = input_core.identity()?;
-            let input_program_sha256 = format!(
-                "{:x}",
-                Sha256::digest(serde_json::to_vec(&p).map_err(|e| e.to_string())?)
-            );
+            let input_core_sha256 = semantic_selection
+                .as_ref()
+                .map(|s| s.evidence().input_core_sha256.clone())
+                .unwrap_or(input_core.identity()?);
+            let input_program_sha256 = source_program_sha256.clone();
             let replacement = arg_value(&args, "--replacement")?
                 .map(|path| {
                     verified_language::implementation::apply_replacement(&mut p, Path::new(&path))
@@ -490,7 +655,10 @@ fn run() -> LangResult<()> {
             let implementation = arg_value(&args, "--implementation")?
                 .map(|path| verified_language::implementation::apply(&mut p, Path::new(&path)))
                 .transpose()?;
-            let used: Vec<String> = Vec::new();
+            let used: Vec<String> = semantic_selection
+                .as_ref()
+                .map(|s| s.evidence().applied_laws.clone())
+                .unwrap_or_default();
             let implementation_count = implementation
                 .as_ref()
                 .map_or(0, |e| e.checked_proposals.len())
@@ -507,12 +675,23 @@ fn run() -> LangResult<()> {
                         verified_language::source_routing::Package,
                     >(&read_bounded(&file, 16_000_000)?)
                     .map_err(|e| e.to_string())?;
-                    verified_language::source_routing::check(
-                        &core::CheckedModule::from_source(p.clone())?,
-                        &package,
-                    )
+                    let module = core::CheckedModule::from_source(p.clone())?;
+                    if let Some(file) = arg_value(&args, "--route-proof")? {
+                        let evidence = serde_json::from_slice::<
+                            verified_language::source_routing::Equivalence,
+                        >(&read_bounded(&file, 16_000_000)?)
+                        .map_err(|e| e.to_string())?;
+                        verified_language::source_routing::check_equivalent(
+                            &module, &package, &evidence,
+                        )
+                    } else {
+                        verified_language::source_routing::check(&module, &package)
+                    }
                 })
                 .transpose()?;
+            if route.is_none() && arg_value(&args, "--route-proof")?.is_some() {
+                return Err("--route-proof requires --route".into());
+            }
             if route.is_some() && (cmd != "build" || !matches!(target.as_str(), "webgpu" | "gpu")) {
                 return Err("--route currently requires build --target webgpu or gpu".into());
             }
@@ -557,7 +736,7 @@ fn run() -> LangResult<()> {
                 if !result.status.success() {
                     return Err(String::from_utf8_lossy(&result.stderr).into_owned());
                 }
-                let plan = serde_json::json!({"source":path,"target":target,"checked_replacement":replacement,"checked_implementation":implementation,"applied_rule_ids":used,"database_lock":serde_json::Value::Null,"database_closure":serde_json::Value::Null,"input_core_sha256":input_core_sha256,"selected_core_sha256":selected_core_sha256,"checked_source_route":route.as_ref().map(|r|r.package()),"trust":"GPU backend and physical routing remain trusted; see manifest.json"});
+                let plan = serde_json::json!({"source":path,"target":target,"semantic_selection":semantic_selection.as_ref().map(|s|s.evidence()),"semantic_package":semantic_selection.as_ref().map(|s|s.package()),"checked_replacement":replacement,"checked_implementation":implementation,"applied_rule_ids":used,"database_lock":serde_json::Value::Null,"database_closure":serde_json::Value::Null,"input_core_sha256":input_core_sha256,"selected_core_sha256":selected_core_sha256,"checked_source_route":route.as_ref().map(|r|r.package()),"source_route_equivalence":route.as_ref().and_then(|r|r.equivalence()),"trust":"GPU backend and physical routing remain trusted; see manifest.json"});
                 write(
                     &format!("{out}/plan.json"),
                     &serde_json::to_string_pretty(&plan).map_err(|e| e.to_string())?,
@@ -587,7 +766,7 @@ fn run() -> LangResult<()> {
                 "{:x}",
                 Sha256::digest(serde_json::to_vec(&p).map_err(|e| e.to_string())?)
             );
-            let manifest = serde_json::json!({"source":path,"module":p.module,"target":target,"core_semantics":core::CheckedModule::from_source(p.clone())?.semantics(),"input_core_sha256":input_core_sha256,"selected_core_sha256":selected_core_sha256,"input_program_sha256":input_program_sha256,"selected_program_sha256":selected_program_sha256,"generated_c_sha256":generated_c_sha256,"checked_replacement":replacement,"checked_implementation":implementation,"applied_rule_ids":used,"database_lock":serde_json::Value::Null,"database_closure":serde_json::Value::Null,"verified_fragment":"whole-function inductive collection equality; total-scalar equality proof terms","trusted":["Rust checker implementation","source semantics correspondence","literal collection lowering and allocation","generated C","Clang/LLVM backend","host ABI"],"unsupported_spec_features":"see PLAN.md and STATUS.md"});
+            let manifest = serde_json::json!({"source":path,"module":p.module,"target":target,"core_semantics":core::CheckedModule::from_source(p.clone())?.semantics(),"input_core_sha256":input_core_sha256,"selected_core_sha256":selected_core_sha256,"input_program_sha256":input_program_sha256,"selected_program_sha256":selected_program_sha256,"generated_c_sha256":generated_c_sha256,"semantic_selection":semantic_selection.as_ref().map(|s|s.evidence()),"semantic_package":semantic_selection.as_ref().map(|s|s.package()),"checked_replacement":replacement,"checked_implementation":implementation,"applied_rule_ids":used,"database_lock":serde_json::Value::Null,"database_closure":serde_json::Value::Null,"verified_fragment":"whole-function inductive collection equality; total-scalar equality proof terms","trusted":["Rust checker implementation","source semantics correspondence","literal collection lowering and allocation","generated C","Clang/LLVM backend","host ABI"],"unsupported_spec_features":"see PLAN.md and STATUS.md"});
             write(
                 &format!("{out}.plan.json"),
                 &serde_json::to_string_pretty(&manifest).map_err(|e| e.to_string())?,

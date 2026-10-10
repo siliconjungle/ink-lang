@@ -316,3 +316,16 @@ whole-function equality, with target/domain labels opaque to the core. Arbitrary
 mixed Wasm/WebGPU/native graph execution, physical bridge proofs, ownership/async
 contracts and database cost search remain open. See docs/backend-packages.md.
 No new runtime speedup or universal fastest-language claim follows from this split.
+
+## Composable conditional optimisation
+
+Implemented a shared typed semantic term and checked selection path for all
+currently admitted pure-function expression forms, with capture-safe binders,
+explicit condition proofs, operational reduction, list/natural induction and
+wrapping-word polynomial equality. External indexed bounded search composes
+nested rewrites and can discharge premises using checked catalogue lemmas.
+CLI `--optimise`/`--selection` connects the result to execution and lowering;
+proved source routing uses the same calculus. The example laws are independently
+versioned knowledge data. Direct effectful transaction/representation rewrites,
+physical bridge proofs, compute-v2 mixed-route execution and global-optimality
+claims remain outside this milestone. See `docs/semantic-optimisation.md`.

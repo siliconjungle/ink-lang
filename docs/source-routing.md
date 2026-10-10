@@ -88,3 +88,20 @@ selection, not general runtime adaptation.
 Reproduction and execution evidence: `reports/source-routing-phase1`. This
 milestone does not complete stateful placement/refinement, durability, general
 ownership or removal of the remaining aggregate/bounded/layout authority.
+
+General equivalence proofs can also admit a different pure composition. A route
+with `ink-proved-source-routing-v1` supplies `--route-proof evidence.json`, whose
+`catalogue` and `proof` use the shared conditional semantic checker. It proves the
+entry body equal to the reconstructed graph in the exact checked source context;
+branch conditions and dependencies remain proof obligations. The external
+`knowledge/tools/source_routing.py --proof evidence.json` producer supports this
+contract. The legacy physical mixed-route executor still rejects compute-v2
+records, vectors and resident array outputs before emission; admitting an
+equivalent graph does not create a physical transport implementation.
+
+The measured `route_selection.py` index accepts existing route filenames and
+`{"route":"candidate.json","proof":"evidence.json"}` entries. It checks each
+proved candidate through the same compiler boundary before considering costs.
+A selected proved route writes its evidence alongside the output as
+`OUTPUT.proof.json`; pass that file as `--route-proof` when building. Without
+comparable measured costs the unchanged whole-entry CPU baseline remains selected.

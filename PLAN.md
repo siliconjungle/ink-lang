@@ -346,3 +346,13 @@ aborts, ordered events, commit position and snapshots over future histories.
 Efficient physical row/column candidates must then use that general interface.
 No additional isolated mathematical lemma or passing fuzz suite substitutes for
 that gate, remaining specialised authority migration or the full release scope.
+
+### Shared conditional semantic optimisation
+
+- [x] Typed executable term correspondence across the current pure expression set.
+- [x] General condition/equality/induction admission, exact source-context binding.
+- [x] External data-driven matching, bounded compositional search and checked replay.
+- [x] Common selected-module witness for execution, lowering and proved source routing.
+- [ ] Extend direct transaction/state/representation selection with trace refinements.
+- [ ] Connect compute-v2 resident pipelines to proved mixed-route physical execution.
+- [ ] Add measured semantic-candidate costs beyond the current structural estimate.
