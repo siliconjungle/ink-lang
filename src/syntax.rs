@@ -116,6 +116,35 @@ struct Parser {
     records: std::collections::BTreeSet<String>,
 }
 impl Parser {
+    // Precedence parsing builds left-associated and postfix chains in a loop,
+    // so parser call depth alone does not bound the resulting AST. Check each
+    // partial expression before extending it again; even an error then drops
+    // only a bounded tree. This walk itself uses an explicit stack.
+    fn bounded_expression(&self, expression: &Expr) -> LangResult<()> {
+        let mut pending = vec![(expression, 0usize)];
+        while let Some((e, depth)) = pending.pop() {
+            if depth > 128 {
+                return Err(self.err("expression tree nesting limit exceeded"));
+            }
+            let next = depth + 1;
+            match e {
+                Expr::Neg(a) | Expr::Lambda(_, a) | Expr::Field(a, _) | Expr::Try(a) => {
+                    pending.push((a, next));
+                }
+                Expr::Binary(_, a, b) | Expr::Let(_, _, a, b) => {
+                    pending.extend([(a.as_ref(), next), (b.as_ref(), next)]);
+                }
+                Expr::Call(_, args) => pending.extend(args.iter().map(|a| (a, next))),
+                Expr::Method(receiver, _, args) => {
+                    pending.push((receiver, next));
+                    pending.extend(args.iter().map(|a| (a, next)));
+                }
+                Expr::Record(_, fields) => pending.extend(fields.iter().map(|(_, a)| (a, next))),
+                _ => (),
+            }
+        }
+        Ok(())
+    }
     fn peek(&self) -> &str {
         &self.ts[self.at].text
     }
@@ -313,6 +342,7 @@ impl Parser {
             }
         };
         loop {
+            self.bounded_expression(&lhs)?;
             if self.peek() == "(" {
                 let name = if let Expr::Var(n) = lhs {
                     n

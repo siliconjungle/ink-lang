@@ -132,6 +132,75 @@ impl Value {
 }
 type Env = BTreeMap<String, Value>;
 
+// Weighted nesting bounds include variant-specific frames and contextual typing.
+// This budget is checked in both debug and release small-stack regressions.
+const MAX_DEPTH: usize = 384;
+fn charge(fuel: &mut u64, cost: u64) -> LangResult<()> {
+    *fuel = fuel
+        .checked_sub(cost)
+        .ok_or("interpreter evaluation budget exhausted")?;
+    Ok(())
+}
+// Count copied cells iteratively, including compute records/vectors and the
+// existing opaque state values. Copy costs cannot evade the execution budget.
+fn weight(value: &Value) -> u64 {
+    if !matches!(
+        value,
+        Value::List(_) | Value::Vector(_) | Value::Record(..) | Value::Opaque(_)
+    ) {
+        return 0;
+    }
+    let mut pending = vec![value];
+    let mut opaque = Vec::new();
+    let mut cost = 0u64;
+    while let Some(v) = pending.pop() {
+        match v {
+            Value::List(xs) | Value::Vector(xs) => {
+                cost = cost.saturating_add(xs.len() as u64);
+                pending.extend(xs);
+            }
+            Value::Record(_, fields) => {
+                cost = cost.saturating_add(fields.len() as u64);
+                pending.extend(fields.values());
+            }
+            Value::Opaque(v) => opaque.push(v),
+            _ => {}
+        }
+    }
+    while let Some(v) = opaque.pop() {
+        use crate::stateful::Value as S;
+        match v {
+            S::List(xs) => {
+                cost = cost.saturating_add(xs.len() as u64);
+                opaque.extend(xs);
+            }
+            S::Record(_, fs) => {
+                cost = cost.saturating_add(fs.len() as u64);
+                opaque.extend(fs.values());
+            }
+            S::Option(Some(v)) | S::Result(_, v) => {
+                cost = cost.saturating_add(1);
+                opaque.push(v);
+            }
+            S::String(s) => cost = cost.saturating_add(s.len() as u64),
+            S::Int(n) => cost = cost.saturating_add(n.bits().div_ceil(8)),
+            _ => {}
+        }
+    }
+    cost
+}
+fn copy_value(value: &Value, fuel: &mut u64) -> LangResult<Value> {
+    charge(fuel, weight(value))?;
+    Ok(value.clone())
+}
+fn copy_env(env: &Env, fuel: &mut u64) -> LangResult<Env> {
+    charge(
+        fuel,
+        env.values().fold(0u64, |n, v| n.saturating_add(weight(v))),
+    )?;
+    Ok(env.clone())
+}
+
 fn expr(
     e: &Expr,
     env: &Env,
@@ -139,21 +208,102 @@ fn expr(
     p: &Program,
     fuel: &mut u64,
     want: Option<&Type>,
+    depth: usize,
 ) -> LangResult<Value> {
     if *fuel == 0 {
         return Err("interpreter evaluation budget exhausted".into());
     }
     *fuel -= 1;
-    let ty = crate::check::infer_context(e, types, p, want)?;
+    if depth > MAX_DEPTH {
+        return Err("interpreter evaluation nesting limit exceeded".into());
+    }
+    let depth = depth
+        + match e {
+            Expr::Method(..) => 8,
+            Expr::Call(..) | Expr::Let(..) | Expr::Record(..) => 4,
+            Expr::Field(..) | Expr::Neg(..) => 2,
+            _ => 1,
+        };
+    // Function bodies are checked on entry. Arithmetic operands inherit their
+    // checked numeric context; do not recheck the entire subtree per operation.
+    let ty = match (e, want) {
+        (Expr::Binary(op, _, _), Some(t))
+            if ["+", "-", "*"].contains(&op.as_str()) && crate::check::is_number(t) =>
+        {
+            t.clone()
+        }
+        _ => crate::check::infer_context(e, types, p, want)?,
+    };
+    let frame = Frame {
+        env,
+        types,
+        p,
+        depth,
+    };
     match e {
         Expr::Float(bits) => Ok(Value::F32(*bits)),
+        Expr::Neg(_) => evaluate_negation(e, frame, fuel, ty),
+        Expr::Let(..) => evaluate_binding(e, frame, fuel, ty),
+        Expr::Record(..) => evaluate_record(e, frame, fuel, ty),
+        Expr::Field(..) => evaluate_field(e, frame, fuel, ty),
+        Expr::Call(n, _) if ["vec2", "vec3", "vec4"].contains(&n.as_str()) => {
+            evaluate_vector(e, frame, fuel, ty)
+        }
+        Expr::Call(n, _) if n == "repeat" => evaluate_repeat(e, frame, fuel, ty),
+        Expr::Call(n, _) if n == "quot_or" || n == "rem_or" => {
+            evaluate_division(e, frame, fuel, ty)
+        }
+        Expr::Method(_, n, _) if n == "at_or" => evaluate_index(e, frame, fuel, ty),
+        Expr::Method(_, n, _) if ["zip", "map_indexed", "scan", "sort"].contains(&n.as_str()) => {
+            evaluate_array_operation(e, frame, fuel, ty)
+        }
+        Expr::Call(n, _) if n == "choose" => evaluate_choose(e, frame, fuel, ty),
+        Expr::Call(n, _) if n == "foldr" => evaluate_foldr(e, frame, fuel, ty),
+        Expr::Num(n) => Ok(if ty == Type::I32 {
+            Value::I32(*n as i32)
+        } else if ty == Type::F32 {
+            Value::F32((*n as f32).to_bits())
+        } else if ty == Type::U32 {
+            Value::U32(u32::try_from(*n).map_err(|_| "literal outside u32 range")?)
+        } else {
+            Value::U64(*n)
+        }),
+        Expr::Bool(b) => Ok(Value::Bool(*b)),
+        Expr::Var(n) => copy_value(env.get(n).ok_or_else(|| format!("unbound {n}"))?, fuel),
+        Expr::Binary(..) => evaluate_binary(e, frame, fuel, ty),
+        Expr::Call(..) => evaluate_apply(e, frame, fuel, ty),
+        Expr::Method(..) => evaluate_map_filter(e, frame, fuel, ty),
+        Expr::Lambda(..) => Err("lambda cannot be evaluated outside collection operator".into()),
+        _ => Err("use stateful execution for this expression".into()),
+    }
+}
+
+// A separate frame keeps deeply nested evaluation from reserving stack space
+// for every other expression variant at each level.
+#[derive(Clone, Copy)]
+struct Frame<'a> {
+    env: &'a Env,
+    types: &'a crate::check::Env,
+    p: &'a Program,
+    depth: usize,
+}
+
+#[inline(never)]
+fn evaluate_negation(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> LangResult<Value> {
+    let Frame {
+        env,
+        types,
+        p,
+        depth,
+    } = frame;
+    match e {
         Expr::Neg(e) => {
             if ty == Type::I32 {
                 if let Expr::Num(n) = e.as_ref() {
                     return Ok(Value::I32((*n as i32).wrapping_neg()));
                 }
             }
-            let v = expr(e, env, types, p, fuel, Some(&ty))?;
+            let v = expr(e, env, types, p, fuel, Some(&ty), depth)?;
             Ok(match v {
                 Value::I32(x) => Value::I32(x.wrapping_neg()),
                 Value::U32(x) => Value::U32(x.wrapping_neg()),
@@ -162,47 +312,113 @@ fn expr(
                 _ => return Err("numeric negation".into()),
             })
         }
+        _ => unreachable!("expression dispatch"),
+    }
+}
+
+#[inline(never)]
+fn evaluate_binding(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> LangResult<Value> {
+    let Frame {
+        env,
+        types,
+        p,
+        depth,
+    } = frame;
+    match e {
         Expr::Let(n, t, a, b) => {
             let at = crate::check::infer_context(a, types, p, t.as_deref())?;
-            let value = expr(a, env, types, p, fuel, Some(&at))?;
-            let mut local = env.clone();
+            let value = expr(a, env, types, p, fuel, Some(&at), depth)?;
+            let mut local = copy_env(env, fuel)?;
             local.insert(n.clone(), value);
             let mut ts = types.clone();
             ts.insert(n.clone(), at);
-            expr(b, &local, &ts, p, fuel, Some(&ty))
+            expr(b, &local, &ts, p, fuel, Some(&ty), depth)
         }
+        _ => unreachable!("expression dispatch"),
+    }
+}
+
+#[inline(never)]
+fn evaluate_record(e: &Expr, frame: Frame<'_>, fuel: &mut u64, _ty: Type) -> LangResult<Value> {
+    let Frame {
+        env,
+        types,
+        p,
+        depth,
+    } = frame;
+    match e {
         Expr::Record(n, fields) => {
             let mut out = BTreeMap::new();
             for (name, e) in fields {
                 let t = &p.records[n].iter().find(|(f, _)| f == name).unwrap().1;
-                out.insert(name.clone(), expr(e, env, types, p, fuel, Some(t))?);
+                out.insert(name.clone(), expr(e, env, types, p, fuel, Some(t), depth)?);
             }
             Ok(Value::Record(n.clone(), out))
         }
+        _ => unreachable!("expression dispatch"),
+    }
+}
+
+#[inline(never)]
+fn evaluate_field(e: &Expr, frame: Frame<'_>, fuel: &mut u64, _ty: Type) -> LangResult<Value> {
+    let Frame {
+        env,
+        types,
+        p,
+        depth,
+    } = frame;
+    match e {
         Expr::Field(e, n) => {
-            let v = expr(e, env, types, p, fuel, None)?;
+            let v = expr(e, env, types, p, fuel, None, depth)?;
             match v {
-                Value::Record(_, fields) => fields.get(n).cloned().ok_or("missing field".into()),
-                Value::Vector(xs) => {
-                    Ok(xs[["x", "y", "z", "w"].iter().position(|f| *f == n).unwrap()].clone())
-                }
+                Value::Record(_, fields) => copy_value(fields.get(n).ok_or("missing field")?, fuel),
+                Value::Vector(xs) => copy_value(
+                    &xs[["x", "y", "z", "w"].iter().position(|f| *f == n).unwrap()],
+                    fuel,
+                ),
                 _ => Err("field access needs record/vector".into()),
             }
         }
+        _ => unreachable!("expression dispatch"),
+    }
+}
+
+#[inline(never)]
+fn evaluate_vector(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> LangResult<Value> {
+    let Frame {
+        env,
+        types,
+        p,
+        depth,
+    } = frame;
+    match e {
         Expr::Call(n, args) if ["vec2", "vec3", "vec4"].contains(&n.as_str()) => {
             let Type::Vector(t, _) = &ty else {
                 return Err("vector type".into());
             };
             args.iter()
-                .map(|e| expr(e, env, types, p, fuel, Some(t)))
+                .map(|e| expr(e, env, types, p, fuel, Some(t), depth))
                 .collect::<LangResult<Vec<_>>>()
                 .map(Value::Vector)
         }
+        _ => unreachable!("expression dispatch"),
+    }
+}
+
+#[inline(never)]
+fn evaluate_repeat(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> LangResult<Value> {
+    let Frame {
+        env,
+        types,
+        p,
+        depth,
+    } = frame;
+    match e {
         Expr::Call(n, args) if n == "repeat" => {
             let Expr::Num(bound) = args[0] else {
                 return Err("repeat bound".into());
             };
-            let mut acc = expr(&args[1], env, types, p, fuel, Some(&ty))?;
+            let mut acc = expr(&args[1], env, types, p, fuel, Some(&ty), depth)?;
             let Expr::Lambda(index, l) = &args[2] else {
                 return Err("repeat index lambda".into());
             };
@@ -212,17 +428,30 @@ fn expr(
             let mut ts = types.clone();
             ts.insert(index.clone(), Type::U32);
             ts.insert(name.clone(), ty.clone());
+            let mut local = copy_env(env, fuel)?;
             for i in 0..bound {
-                let mut local = env.clone();
                 local.insert(index.clone(), Value::U32(i as u32));
                 local.insert(name.clone(), acc);
-                acc = expr(body, &local, &ts, p, fuel, Some(&ty))?;
+                acc = expr(body, &local, &ts, p, fuel, Some(&ty), depth)?;
             }
             Ok(acc)
         }
+        _ => unreachable!("expression dispatch"),
+    }
+}
+
+#[inline(never)]
+fn evaluate_division(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> LangResult<Value> {
+    let Frame {
+        env,
+        types,
+        p,
+        depth,
+    } = frame;
+    match e {
         Expr::Call(n, args) if n == "quot_or" || n == "rem_or" => {
-            let a = expr(&args[0], env, types, p, fuel, Some(&ty))?;
-            let b = expr(&args[1], env, types, p, fuel, Some(&ty))?;
+            let a = expr(&args[0], env, types, p, fuel, Some(&ty), depth)?;
+            let b = expr(&args[1], env, types, p, fuel, Some(&ty), depth)?;
             let result = match (&a, &b) {
                 (Value::U32(a), Value::U32(b)) => if n == "quot_or" {
                     a.checked_div(*b)
@@ -247,26 +476,58 @@ fn expr(
             if let Some(v) = result {
                 Ok(v)
             } else {
-                expr(&args[2], env, types, p, fuel, Some(&ty))
+                expr(&args[2], env, types, p, fuel, Some(&ty), depth)
             }
         }
+        _ => unreachable!("expression dispatch"),
+    }
+}
+
+#[inline(never)]
+fn evaluate_index(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> LangResult<Value> {
+    let Frame {
+        env,
+        types,
+        p,
+        depth,
+    } = frame;
+    match e {
         Expr::Method(xs, n, args) if n == "at_or" => {
-            let Value::List(xs) = expr(xs, env, types, p, fuel, None)? else {
+            let Value::List(xs) = expr(xs, env, types, p, fuel, None, depth)? else {
                 return Err("at_or list".into());
             };
-            let Value::U32(i) = expr(&args[0], env, types, p, fuel, Some(&Type::U32))? else {
+            let Value::U32(i) = expr(&args[0], env, types, p, fuel, Some(&Type::U32), depth)?
+            else {
                 return Err("at_or index".into());
             };
             if let Some(v) = xs.get(i as usize) {
-                Ok(v.clone())
+                copy_value(v, fuel)
             } else {
-                expr(&args[1], env, types, p, fuel, Some(&ty))
+                expr(&args[1], env, types, p, fuel, Some(&ty), depth)
             }
         }
+        _ => unreachable!("expression dispatch"),
+    }
+}
+
+#[inline(never)]
+fn evaluate_array_operation(
+    e: &Expr,
+    frame: Frame<'_>,
+    fuel: &mut u64,
+    ty: Type,
+) -> LangResult<Value> {
+    let Frame {
+        env,
+        types,
+        p,
+        depth,
+    } = frame;
+    match e {
         Expr::Method(xs, n, args)
             if ["zip", "map_indexed", "scan", "sort"].contains(&n.as_str()) =>
         {
-            let Value::List(mut values) = expr(xs, env, types, p, fuel, None)? else {
+            let Value::List(mut values) = expr(xs, env, types, p, fuel, None, depth)? else {
                 return Err("array operator needs list".into());
             };
             let Type::List(input) = crate::check::infer(xs, types, p)? else {
@@ -299,7 +560,7 @@ fn expr(
                 return Ok(Value::List(values));
             }
             let (lambda, other) = if n == "zip" {
-                let Value::List(ys) = expr(&args[0], env, types, p, fuel, None)? else {
+                let Value::List(ys) = expr(&args[0], env, types, p, fuel, None, depth)? else {
                     return Err("zip list".into());
                 };
                 (&args[1], ys)
@@ -316,15 +577,15 @@ fn expr(
                 return Err("output list".into());
             };
             let mut out = Vec::new();
+            let mut local = copy_env(env, fuel)?;
+            let mut ts = types.clone();
             for (i, x) in values.into_iter().enumerate() {
                 if n == "zip" && i >= other.len() {
                     break;
                 }
-                let mut local = env.clone();
-                let mut ts = types.clone();
                 if n == "zip" {
                     local.insert(a.clone(), x);
-                    local.insert(b.clone(), other[i].clone());
+                    local.insert(b.clone(), copy_value(&other[i], fuel)?);
                     ts.insert(a.clone(), (*input).clone());
                     let Type::List(t) = crate::check::infer(&args[0], types, p)? else {
                         return Err("zip type".into());
@@ -336,118 +597,167 @@ fn expr(
                     ts.insert(a.clone(), Type::U32);
                     ts.insert(b.clone(), (*input).clone());
                 }
-                out.push(expr(body, &local, &ts, p, fuel, Some(output))?);
+                out.push(expr(body, &local, &ts, p, fuel, Some(output), depth)?);
             }
             Ok(Value::List(out))
         }
+        _ => unreachable!("expression dispatch"),
+    }
+}
+
+#[inline(never)]
+fn evaluate_choose(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> LangResult<Value> {
+    let Frame {
+        env,
+        types,
+        p,
+        depth,
+    } = frame;
+    match e {
         Expr::Call(n, args) if n == "choose" => {
             if args.len() != 3 {
                 return Err("choose argument count".into());
             }
-            match expr(&args[0], env, types, p, fuel, Some(&Type::Bool))? {
-                Value::Bool(true) => expr(&args[1], env, types, p, fuel, Some(&ty)),
-                Value::Bool(false) => expr(&args[2], env, types, p, fuel, Some(&ty)),
+            match expr(&args[0], env, types, p, fuel, Some(&Type::Bool), depth)? {
+                Value::Bool(true) => expr(&args[1], env, types, p, fuel, Some(&ty), depth),
+                Value::Bool(false) => expr(&args[2], env, types, p, fuel, Some(&ty), depth),
                 _ => Err("choose condition must be Bool".into()),
             }
         }
+        _ => unreachable!("expression dispatch"),
+    }
+}
+
+#[inline(never)]
+fn evaluate_foldr(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> LangResult<Value> {
+    let Frame {
+        env,
+        types,
+        p,
+        depth,
+    } = frame;
+    match e {
         Expr::Call(n, args) if n == "foldr" => {
             if args.len() != 3 {
                 return Err("foldr argument count".into());
             }
-            let Value::List(xs) = expr(&args[0], env, types, p, fuel, None)? else {
+            let Value::List(xs) = expr(&args[0], env, types, p, fuel, None, depth)? else {
                 return Err("foldr needs a list".into());
             };
-            let mut rest_value = expr(&args[1], env, types, p, fuel, Some(&ty))?;
+            let mut rest_value = expr(&args[1], env, types, p, fuel, Some(&ty), depth)?;
             let Expr::Lambda(item, inner) = &args[2] else {
                 return Err("foldr needs a lambda".into());
             };
             let Expr::Lambda(rest, body) = inner.as_ref() else {
                 return Err("foldr needs a nested lambda".into());
             };
+            let mut local = copy_env(env, fuel)?;
+            let Type::List(item_type) = crate::check::infer(&args[0], types, p)? else {
+                return Err("foldr needs a list".into());
+            };
+            let mut local_types = types.clone();
+            local_types.insert(item.clone(), *item_type);
+            local_types.insert(rest.clone(), ty.clone());
             for x in xs.into_iter().rev() {
-                let mut local = env.clone();
-                let mut local_types = types.clone();
-                local_types.insert(item.clone(), ty.clone());
-                local_types.insert(rest.clone(), ty.clone());
                 local.insert(item.clone(), x);
                 local.insert(rest.clone(), rest_value);
-                rest_value = expr(body, &local, &local_types, p, fuel, Some(&ty))?;
+                rest_value = expr(body, &local, &local_types, p, fuel, Some(&ty), depth)?;
             }
             Ok(rest_value)
         }
-        Expr::Num(n) => Ok(if ty == Type::I32 {
-            Value::I32(*n as i32)
-        } else if ty == Type::F32 {
-            Value::F32((*n as f32).to_bits())
-        } else if ty == Type::U32 {
-            Value::U32(u32::try_from(*n).map_err(|_| "literal outside u32 range")?)
-        } else {
-            Value::U64(*n)
-        }),
-        Expr::Bool(b) => Ok(Value::Bool(*b)),
-        Expr::Var(n) => env.get(n).cloned().ok_or_else(|| format!("unbound {n}")),
+        _ => unreachable!("expression dispatch"),
+    }
+}
+
+#[inline(never)]
+fn evaluate_binary(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> LangResult<Value> {
+    let Frame {
+        env,
+        types,
+        p,
+        depth,
+    } = frame;
+    match e {
         Expr::Binary(op, a, b) => {
             let operand_ty = if crate::check::is_number(&ty) {
                 Some(ty.clone())
             } else {
                 crate::check::hint(a, types, p).or_else(|| crate::check::hint(b, types, p))
             };
-            let av = expr(a, env, types, p, fuel, operand_ty.as_ref())?;
+            let av = expr(a, env, types, p, fuel, operand_ty.as_ref(), depth)?;
             if op == "&&" && av == Value::Bool(false) {
                 return Ok(av);
             }
             if op == "||" && av == Value::Bool(true) {
                 return Ok(av);
             }
-            let bv = expr(b, env, types, p, fuel, operand_ty.as_ref())?;
-            match (&av, &bv, op.as_str()) {
-                (Value::F32(a), Value::F32(b), op) => {
-                    let a = f32::from_bits(*a);
-                    let b = f32::from_bits(*b);
-                    Ok(match op {
-                        "+" => Value::F32((a + b).to_bits()),
-                        "-" => Value::F32((a - b).to_bits()),
-                        "*" => Value::F32((a * b).to_bits()),
-                        "<" => Value::Bool(a < b),
-                        ">" => Value::Bool(a > b),
-                        "<=" => Value::Bool(a <= b),
-                        ">=" => Value::Bool(a >= b),
-                        "==" => Value::Bool(a == b),
-                        "!=" => Value::Bool(a != b),
-                        _ => return Err("f32 operator".into()),
-                    })
-                }
-                (Value::I32(a), Value::I32(b), op) => Ok(match op {
-                    "+" => Value::I32(a.wrapping_add(*b)),
-                    "-" => Value::I32(a.wrapping_sub(*b)),
-                    "*" => Value::I32(a.wrapping_mul(*b)),
-                    "<" => Value::Bool(a < b),
-                    ">" => Value::Bool(a > b),
-                    "<=" => Value::Bool(a <= b),
-                    ">=" => Value::Bool(a >= b),
-                    _ => Value::Bool(if op == "==" { a == b } else { a != b }),
-                }),
-                (Value::U32(a), Value::U32(b), "+") => Ok(Value::U32(a.wrapping_add(*b))),
-                (Value::U32(a), Value::U32(b), "-") => Ok(Value::U32(a.wrapping_sub(*b))),
-                (Value::U32(a), Value::U32(b), "*") => Ok(Value::U32(a.wrapping_mul(*b))),
-                (Value::U32(a), Value::U32(b), "<") => Ok(Value::Bool(a < b)),
-                (Value::U32(a), Value::U32(b), ">") => Ok(Value::Bool(a > b)),
-                (Value::U32(a), Value::U32(b), "<=") => Ok(Value::Bool(a <= b)),
-                (Value::U32(a), Value::U32(b), ">=") => Ok(Value::Bool(a >= b)),
-                (Value::U64(a), Value::U64(b), "+") => Ok(Value::U64(a.wrapping_add(*b))),
-                (Value::U64(a), Value::U64(b), "-") => Ok(Value::U64(a.wrapping_sub(*b))),
-                (Value::U64(a), Value::U64(b), "*") => Ok(Value::U64(a.wrapping_mul(*b))),
-                (Value::U64(a), Value::U64(b), "<") => Ok(Value::Bool(a < b)),
-                (Value::U64(a), Value::U64(b), ">") => Ok(Value::Bool(a > b)),
-                (Value::U64(a), Value::U64(b), "<=") => Ok(Value::Bool(a <= b)),
-                (Value::U64(a), Value::U64(b), ">=") => Ok(Value::Bool(a >= b)),
-                (_, _, "==") => Ok(Value::Bool(av == bv)),
-                (_, _, "!=") => Ok(Value::Bool(av != bv)),
-                (Value::Bool(a), Value::Bool(b), "&&") => Ok(Value::Bool(*a && *b)),
-                (Value::Bool(a), Value::Bool(b), "||") => Ok(Value::Bool(*a || *b)),
-                _ => Err("interpreter type error".into()),
-            }
+            let bv = expr(b, env, types, p, fuel, operand_ty.as_ref(), depth)?;
+            binary_values(op, av, bv)
         }
+        _ => unreachable!("expression dispatch"),
+    }
+}
+
+#[inline(never)]
+fn binary_values(op: &str, av: Value, bv: Value) -> LangResult<Value> {
+    match (&av, &bv, op) {
+        (Value::F32(a), Value::F32(b), op) => {
+            let a = f32::from_bits(*a);
+            let b = f32::from_bits(*b);
+            Ok(match op {
+                "+" => Value::F32((a + b).to_bits()),
+                "-" => Value::F32((a - b).to_bits()),
+                "*" => Value::F32((a * b).to_bits()),
+                "<" => Value::Bool(a < b),
+                ">" => Value::Bool(a > b),
+                "<=" => Value::Bool(a <= b),
+                ">=" => Value::Bool(a >= b),
+                "==" => Value::Bool(a == b),
+                "!=" => Value::Bool(a != b),
+                _ => return Err("f32 operator".into()),
+            })
+        }
+        (Value::I32(a), Value::I32(b), op) => Ok(match op {
+            "+" => Value::I32(a.wrapping_add(*b)),
+            "-" => Value::I32(a.wrapping_sub(*b)),
+            "*" => Value::I32(a.wrapping_mul(*b)),
+            "<" => Value::Bool(a < b),
+            ">" => Value::Bool(a > b),
+            "<=" => Value::Bool(a <= b),
+            ">=" => Value::Bool(a >= b),
+            _ => Value::Bool(if op == "==" { a == b } else { a != b }),
+        }),
+        (Value::U32(a), Value::U32(b), "+") => Ok(Value::U32(a.wrapping_add(*b))),
+        (Value::U32(a), Value::U32(b), "-") => Ok(Value::U32(a.wrapping_sub(*b))),
+        (Value::U32(a), Value::U32(b), "*") => Ok(Value::U32(a.wrapping_mul(*b))),
+        (Value::U32(a), Value::U32(b), "<") => Ok(Value::Bool(a < b)),
+        (Value::U32(a), Value::U32(b), ">") => Ok(Value::Bool(a > b)),
+        (Value::U32(a), Value::U32(b), "<=") => Ok(Value::Bool(a <= b)),
+        (Value::U32(a), Value::U32(b), ">=") => Ok(Value::Bool(a >= b)),
+        (Value::U64(a), Value::U64(b), "+") => Ok(Value::U64(a.wrapping_add(*b))),
+        (Value::U64(a), Value::U64(b), "-") => Ok(Value::U64(a.wrapping_sub(*b))),
+        (Value::U64(a), Value::U64(b), "*") => Ok(Value::U64(a.wrapping_mul(*b))),
+        (Value::U64(a), Value::U64(b), "<") => Ok(Value::Bool(a < b)),
+        (Value::U64(a), Value::U64(b), ">") => Ok(Value::Bool(a > b)),
+        (Value::U64(a), Value::U64(b), "<=") => Ok(Value::Bool(a <= b)),
+        (Value::U64(a), Value::U64(b), ">=") => Ok(Value::Bool(a >= b)),
+        (_, _, "==") => Ok(Value::Bool(av == bv)),
+        (_, _, "!=") => Ok(Value::Bool(av != bv)),
+        (Value::Bool(a), Value::Bool(b), "&&") => Ok(Value::Bool(*a && *b)),
+        (Value::Bool(a), Value::Bool(b), "||") => Ok(Value::Bool(*a || *b)),
+        _ => Err("interpreter type error".into()),
+    }
+}
+
+#[inline(never)]
+fn evaluate_apply(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> LangResult<Value> {
+    let Frame {
+        env,
+        types,
+        p,
+        depth,
+    } = frame;
+    match e {
         Expr::Call(n, args) => {
             let expected: Vec<Option<Type>> = if n == "sum" || n == "count" {
                 vec![if n == "sum" {
@@ -465,11 +775,10 @@ fn expr(
                     .map(|(_, t)| Some(t.clone()))
                     .collect()
             };
-            let vals = args
-                .iter()
-                .zip(&expected)
-                .map(|(e, t)| expr(e, env, types, p, fuel, t.as_ref()))
-                .collect::<LangResult<Vec<_>>>()?;
+            let mut vals = Vec::with_capacity(args.len());
+            for (e, t) in args.iter().zip(&expected) {
+                vals.push(expr(e, env, types, p, fuel, t.as_ref(), depth)?);
+            }
             if n == "sum" || n == "count" {
                 if let Some(Value::List(xs)) = vals.first() {
                     if n == "count" {
@@ -517,8 +826,21 @@ fn expr(
                 }
                 return Err("aggregate requires a list".into());
             }
-            call(p, n, vals, fuel)
+            call_at(p, n, vals, fuel, depth)
         }
+        _ => unreachable!("expression dispatch"),
+    }
+}
+
+#[inline(never)]
+fn evaluate_map_filter(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> LangResult<Value> {
+    let Frame {
+        env,
+        types,
+        p,
+        depth,
+    } = frame;
+    match e {
         Expr::Method(xs, n, args) => {
             let vals = if let Value::List(xs) = expr(
                 xs,
@@ -527,6 +849,7 @@ fn expr(
                 p,
                 fuel,
                 if n == "filter" { Some(&ty) } else { None },
+                depth,
             )? {
                 xs
             } else {
@@ -538,29 +861,29 @@ fn expr(
                 return Err("expected lambda".into());
             };
             let mut out = Vec::new();
+            let mut local = copy_env(env, fuel)?;
+            let Type::List(inner) = crate::check::infer_context(
+                xs,
+                types,
+                p,
+                if n == "filter" { Some(&ty) } else { None },
+            )?
+            else {
+                return Err("expected list".into());
+            };
+            let mut local_types = types.clone();
+            local_types.insert(var.clone(), *inner);
+            let body_ty = if n == "filter" {
+                Type::Bool
+            } else {
+                let Type::List(t) = &ty else {
+                    return Err("map type".into());
+                };
+                (**t).clone()
+            };
             for v in vals {
-                let mut local = env.clone();
-                local.insert(var.clone(), v.clone());
-                let Type::List(inner) = crate::check::infer_context(
-                    xs,
-                    types,
-                    p,
-                    if n == "filter" { Some(&ty) } else { None },
-                )?
-                else {
-                    return Err("expected list".into());
-                };
-                let mut local_types = types.clone();
-                local_types.insert(var.clone(), *inner);
-                let body_ty = if n == "filter" {
-                    Type::Bool
-                } else {
-                    let Type::List(t) = &ty else {
-                        return Err("map type".into());
-                    };
-                    (**t).clone()
-                };
-                let r = expr(body, &local, &local_types, p, fuel, Some(&body_ty))?;
+                local.insert(var.clone(), copy_value(&v, fuel)?);
+                let r = expr(body, &local, &local_types, p, fuel, Some(&body_ty), depth)?;
                 match n.as_str() {
                     "map" => out.push(r),
                     "filter" => match r {
@@ -573,12 +896,20 @@ fn expr(
             }
             Ok(Value::List(out))
         }
-        Expr::Lambda(..) => Err("lambda cannot be evaluated outside collection operator".into()),
-        _ => Err("use stateful execution for this expression".into()),
+        _ => unreachable!("expression dispatch"),
     }
 }
 
 pub fn call(p: &Program, name: &str, args: Vec<Value>, fuel: &mut u64) -> LangResult<Value> {
+    call_at(p, name, args, fuel, 0)
+}
+fn call_at(
+    p: &Program,
+    name: &str,
+    args: Vec<Value>,
+    fuel: &mut u64,
+    depth: usize,
+) -> LangResult<Value> {
     let f = p
         .functions
         .iter()
@@ -593,6 +924,7 @@ pub fn call(p: &Program, name: &str, args: Vec<Value>, fuel: &mut u64) -> LangRe
         }
     }
     let types = crate::check::params_env(&f.params)?;
+    crate::check::infer_as(&f.body, &types, p, &f.result)?;
     let env = f.params.iter().map(|(n, _)| n.clone()).zip(args).collect();
-    expr(&f.body, &env, &types, p, fuel, Some(&f.result))
+    expr(&f.body, &env, &types, p, fuel, Some(&f.result), depth)
 }

@@ -326,3 +326,23 @@ representation admission rather than treating pure graphs as its replacement.
 Full source transaction/error/abort/event/commit/snapshot/migration refinement,
 remaining aggregate/bounded/layout authority removal and all ownership, compact
 storage, release, adaptation and durability gates stay open.
+
+### Checker and reference-execution hardening
+
+Claude's current checker-hardening branch is integrated with compute-v2.
+Substitution, large reference copies, evaluation nesting, portable Int/schema
+expansion, Boolean hint inference and source-chain depth have bounded regression
+coverage. The full distribution passes 150 tests, the standalone offline core
+passes seven, and two release seeds pass 18,000 mutations across nine targets.
+The preserved small legacy definition that took 76.9s now rejects through its
+existing proof budget in about 6.5ms. Evidence and changed snapshot resource
+limits are in `reports/checker-hardening-phase1`.
+
+This advances adversarial validation; it does not close milestone 9. Legacy JSON
+Int/restore limits, large-module typing costs, independent checking, durability
+and concurrency remain open. The next architectural gate remains actual
+source-to-stateful candidate correspondence: reads/writes, results/errors,
+aborts, ordered events, commit position and snapshots over future histories.
+Efficient physical row/column candidates must then use that general interface.
+No additional isolated mathematical lemma or passing fuzz suite substitutes for
+that gate, remaining specialised authority migration or the full release scope.

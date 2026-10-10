@@ -30,6 +30,11 @@ pub fn hint(e: &Expr, env: &Env, p: &Program) -> Option<Type> {
         Expr::Binary(op, a, b) if ["+", "-", "*"].contains(&op.as_str()) => {
             hint(a, env, p).or_else(|| hint(b, env, p))
         }
+        // Every other admitted binary operator produces Bool. It cannot
+        // supply a numeric hint. Re-inferring it here duplicates the full
+        // subtree walk at each enclosing Boolean operator; normal inference
+        // below still validates its operands and rejects invalid operators.
+        Expr::Binary(..) => None,
         _ => infer(e, env, p).ok().filter(is_number),
     }
 }

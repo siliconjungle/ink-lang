@@ -1,5 +1,29 @@
 # Implementation status
 
+## Checker hardening integration
+
+Claude's checker-hardening bundle is integrated with the current compute-v2
+evaluator. General substitution charges copied nodes; portable snapshots bound
+Int size and schema expansion. Reference evaluation bounds nesting and charges
+large copies, with one scope copy per collection operation. Two additional
+resource regressions are fixed: exponential Boolean numeric-hint inference and
+unsafe unparenthesised/postfix expression-tree depth in source parsing.
+
+The full distribution suite passes 150 tests; the independent offline core
+passes seven. Nineteen hardening tests include ten regressions and nine mutation
+targets. Two expanded release seeds pass 18,000 mutated inputs overall. The
+3,492-byte slow legacy definition now reaches the proof budget in about 6.5ms,
+versus the observed 76.9s before the fix. This is diagnostic resource evidence,
+not a generated-code performance claim or a proof of checker soundness.
+See [the report](reports/checker-hardening-phase1/REPORT.md) and
+[resource policy and remaining limits](docs/checker-hardening.md).
+
+Portable snapshots now reject exact integers above 4,096 magnitude bytes;
+ordinary exact arithmetic and accepted snapshot encodings are unchanged.
+Legacy JSON Int/restore limits and large-module typing costs remain review
+items. Full stateful source/representation correspondence, specialised authority
+migration, durability and the broader production gates remain unfinished.
+
 ## Numeric arrays and resident GPU pipelines
 
 Pure compute now supports `i32`, `f32`, numeric vectors/records, multiple array

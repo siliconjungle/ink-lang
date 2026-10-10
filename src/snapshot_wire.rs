@@ -55,6 +55,9 @@ impl Default for Limits {
         }
     }
 }
+/// Magnitude bound for one exact integer. Decimal conversion is superlinear,
+/// so without it a single large Int in a snapshot takes minutes to hours.
+pub const MAX_INT_BYTES: usize = 4096;
 const MAGIC: &[u8; 8] = b"VLSTATE\0";
 const HEADER: usize = 8 + 2 + 2 + 32 + 32 + 8;
 type R<T> = Result<T, String>;
@@ -77,7 +80,14 @@ fn tag<'a>(v: &'a Value, name: &str) -> R<&'a Value> {
 }
 fn integer(v: &Value) -> R<BigInt> {
     let s = tag(v, "Int")?.as_str().ok_or("expected Int string")?;
+    // Every Int within the bound has fewer than 2.41 decimal digits per byte.
+    if s.len() > MAX_INT_BYTES * 5 / 2 + 1 {
+        return Err("snapshot Int exceeds size limit".into());
+    }
     let n = s.parse::<BigInt>().map_err(|_| "invalid Int")?;
+    if n.bits() > 8 * MAX_INT_BYTES as u64 {
+        return Err("snapshot Int exceeds size limit".into());
+    }
     if n.to_string() != s {
         return Err("noncanonical Int".into());
     }
@@ -264,6 +274,9 @@ impl<'a> Reader<'a> {
             Schema::Int => {
                 let sign = self.byte()?;
                 let bytes = self.raw()?;
+                if bytes.len() > MAX_INT_BYTES {
+                    return Err("snapshot Int exceeds size limit".into());
+                }
                 let sign = match sign {
                     0 if bytes.is_empty() => Sign::NoSign,
                     1 if !bytes.is_empty() && bytes.last() != Some(&0) => Sign::Plus,

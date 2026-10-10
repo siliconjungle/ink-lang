@@ -5,10 +5,23 @@ use crate::{
     LangResult,
 };
 use sha2::{Digest, Sha256};
-fn schema(t: &Type, p: &Program, stack: &mut Vec<String>, depth: usize) -> LangResult<Schema> {
+/// Schema nodes per layout. Records are expanded at each use, so a chain of
+/// records that each use the next twice would otherwise grow exponentially.
+const MAX_SCHEMA_NODES: usize = 100_000;
+struct Expansion<'a> {
+    p: &'a Program,
+    stack: Vec<String>,
+    remaining: usize,
+}
+fn schema(t: &Type, x: &mut Expansion, depth: usize) -> LangResult<Schema> {
     if depth > 128 {
         return Err("snapshot schema depth exceeded".into());
     }
+    if x.remaining == 0 {
+        return Err("snapshot schema size limit exceeded".into());
+    }
+    x.remaining -= 1;
+    let p = x.p;
     Ok(match t {
         Type::Unit => Schema::Unit,
         Type::Bool => Schema::Bool,
@@ -16,32 +29,42 @@ fn schema(t: &Type, p: &Program, stack: &mut Vec<String>, depth: usize) -> LangR
         Type::U64 => Schema::U64,
         Type::Int => Schema::Int,
         Type::String => Schema::String,
-        Type::List(a) => Schema::List(Box::new(schema(a, p, stack, depth + 1)?)),
-        Type::Option(a) => Schema::Option(Box::new(schema(a, p, stack, depth + 1)?)),
+        Type::List(a) => Schema::List(Box::new(schema(a, x, depth + 1)?)),
+        Type::Option(a) => Schema::Option(Box::new(schema(a, x, depth + 1)?)),
         Type::Result(a, b) => Schema::Result(
-            Box::new(schema(a, p, stack, depth + 1)?),
-            Box::new(schema(b, p, stack, depth + 1)?),
+            Box::new(schema(a, x, depth + 1)?),
+            Box::new(schema(b, x, depth + 1)?),
         ),
         Type::Named(n) if p.ids.contains(n) => Schema::Id,
         Type::Named(n) if p.enums.contains_key(n) => {
-            Schema::Enum(p.enums[n].iter().map(|v| format!("{n}.{v}")).collect())
+            let variants = &p.enums[n];
+            x.remaining = x
+                .remaining
+                .checked_sub(variants.len())
+                .ok_or("snapshot schema size limit exceeded")?;
+            Schema::Enum(variants.iter().map(|v| format!("{n}.{v}")).collect())
         }
         Type::Named(n) if p.records.contains_key(n) => {
-            if stack.contains(n) {
+            if x.stack.contains(n) {
                 return Err("recursive portable snapshot schemas are not implemented".into());
             }
-            stack.push(n.clone());
+            x.stack.push(n.clone());
             let fs = p.records[n]
                 .iter()
-                .map(|(n, t)| Ok((n.clone(), schema(t, p, stack, depth + 1)?)))
+                .map(|(n, t)| Ok((n.clone(), schema(t, x, depth + 1)?)))
                 .collect::<LangResult<Vec<_>>>()?;
-            stack.pop();
+            x.stack.pop();
             Schema::Record(fs)
         }
         _ => return Err(format!("unsupported snapshot schema {t:?}")),
     })
 }
 pub fn layout(p: &Program) -> LangResult<Layout> {
+    let x = &mut Expansion {
+        p,
+        stack: vec![],
+        remaining: MAX_SCHEMA_NODES,
+    };
     let mut states: Vec<_> = p.states.iter().collect();
     states.sort_by_key(|s| &s.name);
     let roots = states
@@ -50,17 +73,13 @@ pub fn layout(p: &Program) -> LangResult<Layout> {
             let Type::Table(k, v) = &s.ty else {
                 return Err("snapshot root must be table".into());
             };
-            Ok((
-                s.name.clone(),
-                schema(k, p, &mut vec![], 0)?,
-                schema(v, p, &mut vec![], 0)?,
-            ))
+            Ok((s.name.clone(), schema(k, x, 0)?, schema(v, x, 0)?))
         })
         .collect::<LangResult<Vec<_>>>()?;
     let events = p
         .events
         .iter()
-        .map(|(n, t)| Ok((n.clone(), schema(t, p, &mut vec![], 0)?)))
+        .map(|(n, t)| Ok((n.clone(), schema(t, x, 0)?)))
         .collect::<LangResult<Vec<_>>>()?;
     let program = Sha256::digest(serde_json::to_vec(p).map_err(|e| e.to_string())?).into();
     let types: Vec<_> = states.iter().map(|s| (&s.name, &s.ty)).collect();

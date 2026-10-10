@@ -181,6 +181,34 @@ impl Budget {
         self.remaining -= 1;
         Ok(())
     }
+    /// A substituted copy of a bound term costs one step per node, so a
+    /// repeated variable cannot multiply a large argument without bound.
+    fn copy(&mut self, t: &Term) -> LangResult<()> {
+        let mut pending = vec![t];
+        while let Some(t) = pending.pop() {
+            self.step(0)?;
+            match t {
+                Term::Var(_) | Term::Bool(_) | Term::U64(_) => {}
+                Term::Construct { arguments, .. }
+                | Term::Call { arguments, .. }
+                | Term::SelfCall(arguments) => pending.extend(arguments),
+                Term::Binary { left, right, .. } => pending.extend([&**left, &**right]),
+                Term::If {
+                    condition,
+                    on_true,
+                    on_false,
+                } => pending.extend([&**condition, &**on_true, &**on_false]),
+                Term::Match {
+                    scrutinee,
+                    branches,
+                } => {
+                    pending.push(scrutinee);
+                    pending.extend(branches.iter().map(|b| &b.body));
+                }
+            }
+        }
+        Ok(())
+    }
 }
 type Env = BTreeMap<String, Sort>;
 #[derive(Clone, Debug)]
@@ -878,7 +906,13 @@ fn substitute(
 ) -> LangResult<Term> {
     budget.step(depth)?;
     Ok(match t {
-        Term::Var(n) => bindings.get(n).cloned().unwrap_or_else(|| t.clone()),
+        Term::Var(n) => match bindings.get(n) {
+            Some(value) => {
+                budget.copy(value)?;
+                value.clone()
+            }
+            None => t.clone(),
+        },
         Term::Binary { op, left, right } => Term::Binary {
             op: op.clone(),
             left: Box::new(substitute(left, bindings, budget, depth + 1)?),
