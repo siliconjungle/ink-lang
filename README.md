@@ -6,6 +6,14 @@ Read the [practical guide](https://siliconjungle.github.io/ink-spec-site/) or th
 
 The core checks what programs mean and whether proposed changes preserve that meaning. The knowledge store supplies immutable definitions, laws and proofs; the planner searches and selects candidates; the runtime orchestrates physical execution; target packages emit code and operate devices.
 
+Physical layouts, cached query implementations and transaction-boundary migrations
+can now be [canonical database entries](docs/database-representations.md), checked
+against every action of unchanged source and compiled literally to Rust. Source
+syntax is unchanged. The current proof path covers the u64 transition subset;
+other domains retain baseline execution. Old aggregate/bounded-cache/storage-policy
+approval is retired from default builds; historical reproduction requires the
+explicit `legacy-optimisation-research` feature.
+
 ## Repositories
 
 | Repository | Responsibility |

@@ -36,12 +36,14 @@ use std::{
     thread,
     time::{Duration, Instant},
 };
+#[cfg(feature = "legacy-optimisation-research")]
+use verified_language::{aggregate, row_model};
 use verified_language::{
-    aggregate, bitproof,
+    bitproof,
     core::CheckedModule,
     equality, eval, knowledge, library,
     logic::{Context, Declaration, Equation, Proof},
-    row_model, snapshot,
+    snapshot,
     snapshot_wire::{self, Limits, Logical, Schema},
     stateful::Runtime,
     syntax::{self, Expr, Type},
@@ -1364,6 +1366,7 @@ fn mutate_json(rng: &mut Rng, value: &Json, raw: &[u8]) -> Vec<u8> {
 }
 /// Mutate the JSON seed while usually keeping the subtree at `protect` intact,
 /// so mutations reach the parts that are not content-addressed.
+#[cfg(feature = "legacy-optimisation-research")]
 fn mutate_json_protecting(rng: &mut Rng, value: &Json, raw: &[u8], protect: &[&str]) -> Vec<u8> {
     if rng.one_in(5) {
         return mutate_json(rng, value, raw);
@@ -1923,6 +1926,7 @@ fn fuzz_lockfiles() {
     );
 }
 
+#[cfg(feature = "legacy-optimisation-research")]
 fn certificate_seeds() -> Vec<Seed<()>> {
     let mut seeds: Vec<_> = [
         "table-maintenance/table.json",
@@ -1947,6 +1951,7 @@ fn certificate_seeds() -> Vec<Seed<()>> {
 
 /// Database maintenance certificates (`aggregate::verify`, which runs the
 /// exact and keyed-table maintenance checkers and their kernel proofs).
+#[cfg(feature = "legacy-optimisation-research")]
 #[test]
 fn fuzz_maintenance_certificates() {
     let s = settings();
@@ -1974,6 +1979,7 @@ fn fuzz_maintenance_certificates() {
 }
 
 /// Source row models bound to a program and maintenance certificate.
+#[cfg(feature = "legacy-optimisation-research")]
 #[test]
 fn fuzz_row_models() {
     let s = settings();

@@ -33,11 +33,16 @@ an entire gate. Editor support and schema evolution are outside the current scop
 
 ## Outstanding architecture requirements
 
-The old aggregate, bounded-cache and layout admission paths remain migration
-debt until their authority uses the common checked entry/evidence interface.
-Moving their files does not complete that migration. General stateful admission
-must connect logical models to real source actions and physical execution;
-isolated layout lemmas are insufficient.
+Default aggregate, bounded-cache and typed-policy admission is retired. Canonical
+source-bound representation entries now check all-action observation/invariant
+preservation and direct physical migrations, and execute through a literal Rust
+definition backend with baseline-compatible logical snapshots. See
+[the contract, tests and limits](docs/database-representations.md). Historical
+experiments require an explicit research feature. Priority 1 remains open beyond
+the current u64 transition subset: fixed exact-Int/keep correspondence, broader
+source domains, efficient delta maintenance, planner selection and other native
+representation executors still require implementation. No performance gate is
+closed by representation correctness tests.
 
 Ownership and representation work must include contiguous/compact layouts,
 fewer copies and allocations, general arenas and ownership inference, narrow

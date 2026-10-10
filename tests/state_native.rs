@@ -1,6 +1,9 @@
+#![cfg_attr(not(feature = "legacy-optimisation-research"), allow(dead_code))]
 use serde_json::{json, Value};
 use std::{fs, path::Path, process::Command};
-use verified_language::{aggregate, state_native, stateful::Runtime, syntax::parse};
+use verified_language::{state_native, stateful::Runtime, syntax::parse};
+#[cfg(feature = "legacy-optimisation-research")]
+use verified_language::aggregate;
 
 // Cargo serializes compilation, but another test can replace this shared
 // executable between build and run. Hold the lock across each native suite.
@@ -21,6 +24,7 @@ query literal() -> Result<u32, Error> {return Ok(3);}
 query empty() -> Option<u32> {return None;}
 "#;
 
+#[cfg(feature = "legacy-optimisation-research")]
 #[test]
 fn typed_action_execution_preserves_effect_order_and_contextual_empty_values() {
     let _native = NATIVE_EXECUTION.lock().unwrap();
@@ -94,6 +98,7 @@ println!("{}",serde_json::to_string(&output).unwrap());}
     }
 }
 
+#[cfg(feature = "legacy-optimisation-research")]
 #[test]
 fn shared_boundary_preserves_nested_control_event_order_and_exhausted_rollback() {
     use verified_language::{snapshot, snapshot_wire};
@@ -345,6 +350,7 @@ fn migrate_and_continue(
     *carry = Some(bytes);
 }
 
+#[cfg(feature = "legacy-optimisation-research")]
 #[test]
 fn native_state_matches_reference_with_and_without_checked_maintenance() {
     let _native = NATIVE_EXECUTION.lock().unwrap();
@@ -599,6 +605,7 @@ fn native_state_matches_reference_with_and_without_checked_maintenance() {
     );
 }
 
+#[cfg(feature = "legacy-optimisation-research")]
 #[test]
 fn range_analysis_uses_full_domains_and_rejects_unbounded_contributions() {
     let source = include_str!("../examples/state-benchmark.lang");
@@ -622,6 +629,7 @@ fn range_analysis_uses_full_domains_and_rejects_unbounded_contributions() {
     }
 }
 
+#[cfg(feature = "legacy-optimisation-research")]
 #[test]
 fn owned_rows_copy_only_used_remove_results_and_preserve_abort() {
     let _native = NATIVE_EXECUTION.lock().unwrap();
@@ -701,6 +709,7 @@ fn owned_rows_copy_only_used_remove_results_and_preserve_abort() {
     }
 }
 
+#[cfg(feature = "legacy-optimisation-research")]
 #[test]
 fn complete_rows_survive_repeated_abort_and_failed_promotion_with_both_journals() {
     let _native = NATIVE_EXECUTION.lock().unwrap();
@@ -798,6 +807,7 @@ fn complete_rows_survive_repeated_abort_and_failed_promotion_with_both_journals(
     }
 }
 
+#[cfg(feature = "legacy-optimisation-research")]
 #[test]
 fn source_row_projection_preserves_composite_payloads_across_native_abort_and_restore() {
     let _native = NATIVE_EXECUTION.lock().unwrap();
@@ -890,6 +900,7 @@ fn source_row_projection_preserves_composite_payloads_across_native_abort_and_re
     }
 }
 
+#[cfg(feature = "legacy-optimisation-research")]
 #[test]
 fn borrowed_commit_outcomes_reuse_events_and_enforce_the_state_borrow() {
     let _native = NATIVE_EXECUTION.lock().unwrap();
@@ -961,6 +972,7 @@ fn borrowed_commit_outcomes_reuse_events_and_enforce_the_state_borrow() {
     );
 }
 
+#[cfg(feature = "legacy-optimisation-research")]
 #[test]
 fn tampered_native_maintenance_is_rejected_before_emission() {
     let p = parse(include_str!("../examples/inventory.lang")).unwrap();

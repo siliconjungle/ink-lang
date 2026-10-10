@@ -1,3 +1,4 @@
+#![cfg(feature = "legacy-optimisation-research")]
 //! Automatic, checked decomposition of maintained views.
 //!
 //! For every `keep` that is a `sum`/`count` over any chain of `map`/`filter`
