@@ -121,3 +121,49 @@ fn correctly_rehashed_false_join_law_is_rejected_by_the_kernel() {
     let error = library::load_bundle(&bundle).unwrap_err();
     assert!(error.contains("different statement"), "{error}");
 }
+
+#[test]
+fn canonical_store_readdresses_the_same_proofs_and_cannot_authenticate_a_false_law() {
+    use verified_language::{core::CheckedModule, registry::CheckedBundle, syntax::parse};
+    let root = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let script = r#"
+import json,copy,tempfile
+from pathlib import Path
+from ink_knowledge import Store,identity
+s=Store('.'); names=json.loads(Path('store/names.json').read_text())
+roots=[i for n,i in names.items() if n.startswith('incremental-views/')]
+accepted=s.bundle(roots)
+old=names['incremental-views/join_right_append']; small=s.bundle([old])
+false=copy.deepcopy(small['objects'][old])
+false['payload']['declaration']['Theorem']['to']={'Call':{'function':names['incremental-views/join_sum'],'arguments':[{'Var':'as'},{'Var':'bs'}]}}
+with tempfile.TemporaryDirectory() as directory:
+    objects=[false if i==old else o for i,o in small['objects'].items()]
+    store=Store.publish(directory,objects)
+    rejected=store.bundle([identity(false)])
+    print(json.dumps({'accepted':accepted,'rejected':rejected}))
+"#;
+    let output = std::process::Command::new("python3")
+        .args(["-c", script])
+        .current_dir(root.join("knowledge"))
+        .output()
+        .unwrap();
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let value: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
+    let accepted = serde_json::from_value(value["accepted"].clone()).unwrap();
+    let module = CheckedModule::from_source(
+        parse("module review; fn identity(x:u64)->u64 { return x; }").unwrap(),
+    )
+    .unwrap();
+    let checked = CheckedBundle::check(&accepted).unwrap();
+    assert_eq!(checked.verify(module.program()).unwrap().len(), 55);
+    let rejected = serde_json::from_value(value["rejected"].clone()).unwrap();
+    // The false entry has a valid, newly published content identity and snapshot.
+    // Mathematical admission must still fail independently of membership.
+    let checked = CheckedBundle::check(&rejected).unwrap();
+    let error = checked.verify(module.program()).unwrap_err();
+    assert!(error.contains("different statement"), "{error}");
+}

@@ -370,3 +370,10 @@ the unary proof model cannot encode them. The trusted codec does not establish
 complete source-action/effect/native correspondence. The new knowledge laws are
 append-only mathematics; payload negation is not a signed join deletion. See
 docs/source-value-correspondence.md and reports/source-values-phase1.
+
+The reviewed append-view entries are also published through the canonical Store
+API (595-entry snapshot), with readdressed references checked by the registry.
+The value bridge is adapted to the physically separate core source tree; planner,
+runtime and backend responsibilities stay as defined by the architecture split.
+Reports/source-values-canonical records combined validation separately from the
+original base's evidence. Action/effect/native refinement remains the next gate.

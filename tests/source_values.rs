@@ -17,8 +17,10 @@ fn fixture(ledger: bool) -> (CheckedModule, Certificate, Model, BTreeMap<String,
             .unwrap(),
     )
     .unwrap();
-    let cert =
-        serde_json::from_str(include_str!("../knowledge/research/table-maintenance/table.json")).unwrap();
+    let cert = serde_json::from_str(include_str!(
+        "../knowledge/research/table-maintenance/table.json"
+    ))
+    .unwrap();
     let folder = root.join(format!("knowledge/research/source-column-{name}"));
     let model = serde_json::from_slice(&fs::read(folder.join("binding.json")).unwrap()).unwrap();
     let names = serde_json::from_slice(&fs::read(folder.join("names.json")).unwrap()).unwrap();

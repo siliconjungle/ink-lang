@@ -1,0 +1,65 @@
+   Compiling ink-core v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/core)
+   Compiling ink-lowering-c v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/lowerings/c)
+   Compiling ink-lowering-gpu v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/lowerings/gpu)
+   Compiling ink-lowering-rust v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/lowerings/rust)
+   Compiling ink-lowering-wasm v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/lowerings/wasm)
+   Compiling ink-runtime v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/runtime)
+   Compiling ink v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language)
+warning: unused import: `Sort`
+ --> tests/source_columns.rs:7:22
+  |
+7 |     logic::{Context, Sort, Term},
+  |                      ^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: `ink` (test "source_columns") generated 1 warning (run `cargo fix --test "source_columns" -p ink` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.88s
+     Running tests/incremental_views.rs (target/debug/deps/incremental_views-5fbb87c1ac60578c)
+
+running 3 tests
+test correctly_rehashed_false_join_law_is_rejected_by_the_kernel ... ok
+test canonical_store_readdresses_the_same_proofs_and_cannot_authenticate_a_false_law ... ok
+test checked_append_join_agrees_with_pair_enumeration_but_payload_negation_is_not_deletion ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.31s
+
+     Running tests/row_model.rs (target/debug/deps/row_model-c18ba19f670444cb)
+
+running 5 tests
+test valid_but_wrong_source_projection_or_payload_shapes_do_not_bind ... ok
+test width_cast_and_recursive_types_fail_closed_while_count_works ... ok
+test source_binding_requires_actual_semantic_closure_and_direct_definitions ... ok
+test actual_source_shapes_and_filtered_projection_agree_with_reference_and_undo ... ok
+test a_different_nested_row_and_nominal_key_use_the_same_generic_source_bridge ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.91s
+
+     Running tests/source_columns.rs (target/debug/deps/source_columns-9f5475fa23f50b86)
+
+running 9 tests
+test alignment_checker_exposes_truncated_zip_in_malformed_external_columns ... ok
+test rehashed_dropped_payload_wrong_lookup_and_false_alignment_proofs_are_rejected ... ok
+test order_guards_reject_reversal_duplicates_and_high_word_aliases ... ok
+test search_reconstruction_alone_does_not_admit_unsorted_or_duplicate_maps ... ok
+test sorted_unique_invariants_hold_through_source_row_and_column_writes ... ok
+test rehashed_false_order_predicates_and_unimplemented_writes_are_rejected ... ok
+test complete_search_cuts_match_binary_search_and_native_mutations_at_every_prefix ... ok
+test rehashed_false_search_gap_payload_position_and_validity_models_fail ... ok
+test source_bound_layouts_match_native_ordered_storage_and_tree_after_every_write ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 17.30s
+
+     Running tests/source_values.rs (target/debug/deps/source_values-639fbdb7876ad3ba)
+
+running 7 tests
+test model_from_another_source_cannot_construct_a_bound_witness ... ok
+test decoder_rejects_noncanonical_width_utf8_arity_sort_and_open_terms ... ok
+test nominal_tags_member_types_and_field_sets_cannot_be_erased ... ok
+test limits_are_checked_before_unary_expansion_and_do_not_limit_runtime_integers ... ok
+test u32_table_keys_are_checked_even_though_logic_uses_u64_words ... ok
+test reference_transactions_and_column_roundtrips_use_actual_runtime_rows ... ok
+test ordered_tables_preserve_full_id_words_and_reject_duplicate_or_foreign_keys ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.33s
+

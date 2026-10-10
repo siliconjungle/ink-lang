@@ -74,4 +74,7 @@ not observable row/event/snapshot ordering. `tests/incremental_views.rs` checks
 256 append combinations against direct pair enumeration and rejects a correctly
 rehashed false theorem through the ordinary kernel.
 
-See [the recorded validation](../reports/source-values-phase1/REPORT.md).
+See the [original validation](../reports/source-values-phase1/REPORT.md) and
+[canonical-store integration](../reports/source-values-canonical/REPORT.md).
+The latter rechecks the 55 readdressed entries through the canonical Store and
+registry interfaces and independently rejects an authenticated false theorem.
