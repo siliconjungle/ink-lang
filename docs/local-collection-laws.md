@@ -76,6 +76,9 @@ not admission limits or proof authority. Boundary/corruption tests and a
 
 ## Validation and measurement
 
+Standalone core tests: 53 passed. Distribution tests: 270 passed. Planner tests:
+5 passed. The final dedicated integration run includes all five CPU paths.
+
 All 45 new proofs replay locally. Tests rehash incorrect indexed reads, filter
 fusion and stopping laws and still reject them. Application tests reject missing
 or false conditions. The same compiler binary selects the baseline from an empty
@@ -89,7 +92,10 @@ Rust backend before/after database selection. It verifies outputs, records the
 exact proof package and compiler hash, and interleaves nine timing rounds.
 Full typed calls include input copies and output construction/destruction;
 compilation, search/proof checking and JSON are excluded from execution timings.
-See [raw results](../bench/local-collection-laws/results.json). Correctness,
+The recorded 65,536-element native Rust run gives 2.09× for length, 2.02×
+for indexed reads and 1.46× for filter fusion. No reliable round-trip gain is
+claimed. See [method and intervals](../bench/local-collection-laws/README.md)
+and [raw results](../bench/local-collection-laws/results.json). Correctness,
 applicability and measured profitability are separate.
 
 ```sh
