@@ -1,14 +1,19 @@
-//! Row-local aggregate execution. Legacy v1 certificates use polynomial
-//! authority; v2 checks the actual source update against database sum proofs.
-//! Table projection and transaction execution still form a trusted boundary.
+//! Archived specialised aggregate execution. Admission is unavailable in
+//! production; opt-in research reproduces historical certificates and results.
+//! New optimisations use canonical source-bound representation entries.
 use crate::{syntax::*, LangResult};
 use num_bigint::BigInt;
+#[cfg(feature = "legacy-optimisation-research")]
 use num_traits::Zero;
 use serde::{Deserialize, Serialize};
+#[cfg(feature = "legacy-optimisation-research")]
 use sha2::{Digest, Sha256};
+#[cfg(feature = "legacy-optimisation-research")]
 use std::collections::BTreeMap;
 
+#[cfg(feature = "legacy-optimisation-research")]
 type Poly = BTreeMap<Vec<String>, BigInt>;
+#[cfg(feature = "legacy-optimisation-research")]
 fn term(p: &mut Poly, m: Vec<String>, c: BigInt) -> LangResult<()> {
     let n = p.get(&m).cloned().unwrap_or_default() + c;
     if n.is_zero() {
@@ -21,6 +26,7 @@ fn term(p: &mut Poly, m: Vec<String>, c: BigInt) -> LangResult<()> {
     }
     Ok(())
 }
+#[cfg(feature = "legacy-optimisation-research")]
 fn normal(e: &Expr, env: &BTreeMap<String, Expr>, budget: &mut usize) -> LangResult<Poly> {
     if *budget == 0 {
         return Err("aggregate proof budget exhausted".into());
@@ -70,12 +76,15 @@ fn normal(e: &Expr, env: &BTreeMap<String, Expr>, budget: &mut usize) -> LangRes
         _ => Err("aggregate update must use exact-integer +, - and * only".into()),
     }
 }
+#[cfg(feature = "legacy-optimisation-research")]
 fn var(n: &str) -> Expr {
     Expr::Var(n.into())
 }
+#[cfg(feature = "legacy-optimisation-research")]
 fn plus(a: Expr, b: Expr) -> Expr {
     Expr::Binary("+".into(), Box::new(a), Box::new(b))
 }
+#[cfg(feature = "legacy-optimisation-research")]
 fn vars(e: &Expr, out: &mut std::collections::BTreeSet<String>) {
     match e {
         Expr::Var(n) => {
@@ -102,6 +111,7 @@ pub struct Certificate {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub evidence: Option<crate::exact_maintenance::Evidence>,
 }
+#[cfg(feature = "legacy-optimisation-research")]
 fn check_obligations(c: &Certificate) -> LangResult<Vec<Vec<(Vec<String>, BigInt)>>> {
     if c.version != 1 || c.semantics != "finite-map-pointwise-exact-sum-v1" {
         return Err("unsupported aggregate semantics".into());
@@ -142,6 +152,7 @@ fn check_obligations(c: &Certificate) -> LangResult<Vec<Vec<(Vec<String>, BigInt
     }
     Ok(results)
 }
+#[cfg(feature = "legacy-optimisation-research")]
 fn id(c: &Certificate) -> LangResult<String> {
     // Preserve archived v1 identities; v2 binds the complete proof bundle too.
     let data = if c.version == 1 {
@@ -159,6 +170,7 @@ fn id(c: &Certificate) -> LangResult<String> {
     .map_err(|e| e.to_string())?;
     Ok(format!("{:x}", Sha256::digest(data)))
 }
+#[cfg(feature = "legacy-optimisation-research")]
 fn source_updates(p: &Program) -> LangResult<[Expr; 3]> {
     if p.functions.len() != 3
         || !p.states.is_empty()
@@ -197,7 +209,8 @@ fn source_updates(p: &Program) -> LangResult<[Expr; 3]> {
         get("remove", vec!["total", "old"])?,
     ])
 }
-pub fn prove(p: &Program) -> LangResult<Certificate> {
+#[cfg(feature = "legacy-optimisation-research")]
+fn legacy_prove(p: &Program) -> LangResult<Certificate> {
     let [insert, replace, remove] = source_updates(p)?;
     let mut c = Certificate {
         version: 1,
@@ -213,7 +226,8 @@ pub fn prove(p: &Program) -> LangResult<Certificate> {
     c.id = id(&c)?;
     Ok(c)
 }
-pub fn prove_database(
+#[cfg(feature = "legacy-optimisation-research")]
+fn legacy_prove_database(
     p: &Program,
     evidence: crate::exact_maintenance::Evidence,
 ) -> LangResult<Certificate> {
@@ -245,7 +259,8 @@ pub fn prove_database(
     c.id = id(&c)?;
     Ok(c)
 }
-pub fn verify(c: &Certificate) -> LangResult<()> {
+#[cfg(feature = "legacy-optimisation-research")]
+fn legacy_verify(c: &Certificate) -> LangResult<()> {
     if [2, 3, 4].contains(&c.version) {
         crate::exact_maintenance::verify(
             c,
@@ -431,4 +446,58 @@ pub fn plan_with_certificate(p: &Program, keep: &BindingDecl, c: &Certificate) -
         }
     }
     Some(plan)
+}
+
+/// Historical specialised admission is opt-in research only. Production uses
+/// source-bound `representation::check` and canonical immutable entries.
+pub fn prove(p: &Program) -> LangResult<Certificate> {
+    #[cfg(feature = "legacy-optimisation-research")]
+    {
+        legacy_prove(p)
+    }
+    #[cfg(not(feature = "legacy-optimisation-research"))]
+    {
+        let _ = p;
+        Err(
+            "specialised aggregate admission retired; use a source-bound representation entry"
+                .into(),
+        )
+    }
+}
+
+/// Historical specialised admission is opt-in research only. Production uses
+/// source-bound `representation::check` and canonical immutable entries.
+pub fn prove_database(
+    p: &Program,
+    evidence: crate::exact_maintenance::Evidence,
+) -> LangResult<Certificate> {
+    #[cfg(feature = "legacy-optimisation-research")]
+    {
+        legacy_prove_database(p, evidence)
+    }
+    #[cfg(not(feature = "legacy-optimisation-research"))]
+    {
+        let _ = (p, evidence);
+        Err(
+            "specialised aggregate admission retired; use a source-bound representation entry"
+                .into(),
+        )
+    }
+}
+
+/// Historical specialised admission is opt-in research only. Production uses
+/// source-bound `representation::check` and canonical immutable entries.
+pub fn verify(c: &Certificate) -> LangResult<()> {
+    #[cfg(feature = "legacy-optimisation-research")]
+    {
+        legacy_verify(c)
+    }
+    #[cfg(not(feature = "legacy-optimisation-research"))]
+    {
+        let _ = c;
+        Err(
+            "specialised aggregate admission retired; use a source-bound representation entry"
+                .into(),
+        )
+    }
 }

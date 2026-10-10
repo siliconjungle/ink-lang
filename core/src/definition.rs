@@ -55,6 +55,61 @@ impl CheckedDefinition {
         self.selection_sha256.as_deref()
     }
 }
+/// Seal literal executable definitions from an authenticated canonical view.
+pub fn check_registry(
+    bundle: &crate::registry::Bundle,
+    exports: &[String],
+) -> LangResult<CheckedDefinition> {
+    let view = crate::registry::CheckedBundle::check(bundle)?;
+    view.first_order_context()?;
+    if exports.is_empty() || exports.len() > 128 {
+        return Err("definition export count limit".into());
+    }
+    let mut unique = BTreeSet::new();
+    let mut objects = BTreeMap::new();
+    for (id, entry) in &bundle.objects {
+        let declaration: Declaration = serde_json::from_value(entry.payload["declaration"].clone())
+            .map_err(|e| e.to_string())?;
+        let object = Object {
+            schema: 1,
+            semantics: library::SEMANTICS.into(),
+            name: id.clone(),
+            dependencies: entry.dependencies.clone(),
+            declaration,
+        };
+        objects.insert(
+            id.clone(),
+            serde_json::to_string(&object).map_err(|e| e.to_string())?,
+        );
+    }
+    for id in exports {
+        if !bundle.roots.contains(id) || !unique.insert(id.clone()) {
+            return Err("definition export must be a unique public root".into());
+        }
+        let object: Object = serde_json::from_str(objects.get(id).ok_or("missing export")?)
+            .map_err(|e| e.to_string())?;
+        if !matches!(object.declaration, Declaration::Function { .. }) {
+            return Err("definition export must be a function".into());
+        }
+    }
+    // Internal lowering adapter only. Entry identities are retained; these
+    // bytes cannot pass the separate legacy raw-library hash admission path.
+    Ok(CheckedDefinition {
+        bundle: Bundle {
+            lock: crate::knowledge::Lock {
+                schema: 1,
+                semantics: library::SEMANTICS.into(),
+                objects: bundle.roots.clone(),
+            },
+            objects,
+        },
+        exports: exports.to_vec(),
+        choices: BTreeMap::new(),
+        bundle_sha256: crate::registry::identity(bundle)?,
+        closure: bundle.objects.keys().cloned().collect(),
+        selection_sha256: None,
+    })
+}
 pub fn check(
     bundle: &Bundle,
     exports: &[String],

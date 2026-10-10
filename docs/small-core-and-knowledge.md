@@ -29,8 +29,11 @@ proof authority. The checker validates selected proofs locally. The catalogue
 index lists primary libraries and their lock hashes; the complete production
 candidate/migration/cost package interface remains planned.
 
-All remaining domain-specific authority listed below is migration debt. The
-split must not be reported as having removed those mechanisms. Efficient base
+The default build now retires the old aggregate, bounded-cache and layout
+admission authority in favour of [source-bound canonical representation entries](database-representations.md).
+Their historical code remains behind an explicit research feature. New admission
+covers the documented source-transition subset; porting the remaining numerical
+and keep candidates requires fixed source correspondence. Efficient base
 primitives stay in the runtime; choosing representations, skipping work and
 specialising a program should be checked database proposals wherever possible.
 
@@ -52,8 +55,8 @@ The present prototype is an implementation experiment, not yet this architecture
 | --- | --- | --- |
 | Former `proof.rs` | Retired from the production crate | External law selection/proof production now uses the general checked replacement interface |
 | `knowledge.rs` | Historical scalar library verification only; search retired | Current scalar search/conditions/proofs live in `ink-planner/research/rewrite_search.py` |
-| `aggregate.rs` | Built-in finite-map induction schema and row-pipeline recogniser | Definition/theorem/implementation objects and external applicability search |
-| `state_native.rs` | Built-in bounded-sum analysis and alternative cache generation | Range-proof producer and database-defined representation/lowering plan |
+| `aggregate.rs` | Specialised admission retired from production; opt-in archived research | Canonical source-bound representation entries and external producers |
+| `state_native.rs` | Historical bounded-cache authority unavailable in default builds | Database definitions lowered literally from sealed representation witnesses |
 | `native.rs` | Literal collection execution; previous automatic fusion removed | Checked map/filter/sum/count/foldr bridge now includes conditional computation and acyclic pure calls; migrate the remaining state/representation authority |
 | Compiler commands | Direct package files and optimisation switches | A pinned database closure and explicit checked selection plan |
 
@@ -61,7 +64,7 @@ Moving these routines to another Rust module, or wrapping them in a package name
 
 LLVM currently performs additional optimisation after generated C/Rust. The small-core claim must distinguish our language-level core from this external trusted toolchain. Replacing LLVM with a minimal backend is a separate engineering task; concealing its optimisation would be misleading.
 
-The modular-polynomial optimiser and older scalar matching/search path have now been retired. The historical milestone descriptions below preserve their earlier evidence; they are not descriptions of current compilation authority. Aggregate, bounded-cache and representation authority still needs migration.
+The modular-polynomial optimiser and older scalar matching/search path have now been retired. The historical milestone descriptions below preserve their earlier evidence; they are not descriptions of current compilation authority. The default aggregate, bounded-cache and storage-policy approval paths are now retired. General database-defined physical execution and migration are available for the documented action-transition subset; exact-Int/keep correspondence and additional target executors remain work.
 
 The GPU backend is a separate trusted lowering of the existing u32 primitives:
 source stages remain separate, stable filter preserves order, and modular sum

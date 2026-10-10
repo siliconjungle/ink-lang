@@ -1,10 +1,8 @@
 //! External storage policy for trusted native Table primitives.
 //! Checking a policy is not a formal proof of its Rust implementation.
-use crate::{
-    aggregate::Certificate,
-    syntax::{Program, Type},
-    LangResult,
-};
+#[cfg(feature = "legacy-optimisation-research")]
+use crate::syntax::Type;
+use crate::{aggregate::Certificate, syntax::Program, LangResult};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 pub const SEMANTICS: &str = "ordered-table-storage-policy-v1";
@@ -30,7 +28,21 @@ pub struct Policy {
     pub roots: BTreeMap<String, TableStorage>,
 }
 impl Policy {
+    /// Typed policy metadata alone cannot admit a physical representation.
     pub fn check(&self, p: &Program, c: Option<&Certificate>) -> LangResult<()> {
+        #[cfg(feature = "legacy-optimisation-research")]
+        {
+            self.legacy_check(p, c)
+        }
+        #[cfg(not(feature = "legacy-optimisation-research"))]
+        {
+            let _ = (p, c);
+            Err("unproved storage policy retired; use a source-bound representation entry".into())
+        }
+    }
+
+    #[cfg(feature = "legacy-optimisation-research")]
+    fn legacy_check(&self, p: &Program, c: Option<&Certificate>) -> LangResult<()> {
         if self.schema != 1
             || self.semantics != SEMANTICS
             || self.roots.is_empty()

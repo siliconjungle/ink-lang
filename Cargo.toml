@@ -22,6 +22,10 @@ path = "src/main.rs"
 members = []
 exclude = ["runtime", "planner", "core", "lowerings/c", "lowerings/rust", "lowerings/wasm", "lowerings/gpu", "lowerings/js", "build", "build/**", "reports", "reports/**"]
 
+[features]
+# Opt-in reproduction of archived aggregate/layout experiments.
+legacy-optimisation-research = ["ink-core/legacy-optimisation-research"]
+
 [dependencies]
 ink-runtime = { path = "runtime" }
 ink-core = { path = "core" }

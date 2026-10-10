@@ -3,7 +3,7 @@ pub use ink_core::*;
 pub use ink_lowering_c::{compute, native};
 pub use ink_lowering_gpu::gpu;
 pub use ink_lowering_js as javascript;
-pub use ink_lowering_rust::{definition_native, ordered_storage};
+pub use ink_lowering_rust::{definition_native, ordered_storage, representation_native};
 pub mod state_native {
     pub use ink_lowering_rust::state_native::*;
     pub const WASM_ABI: &str = ink_runtime::STATE_WASM_ABI;
@@ -23,3 +23,5 @@ pub use ink_runtime as runtime;
 pub mod distribution;
 /// Filesystem/source module assembly belongs to the distribution.
 pub mod modules;
+
+pub mod representations;

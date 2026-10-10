@@ -1,3 +1,4 @@
+#![cfg(feature = "legacy-optimisation-research")]
 use num_bigint::BigInt;
 use serde_json::json;
 use sha2::{Digest, Sha256};
