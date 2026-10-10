@@ -430,3 +430,14 @@ connected to actual execution, then checked all-future state/representation
 replacement. No P1/P2/P3 recogniser, shortcut or measured speedup is enabled.
 The full production and performance objective remains open. See
 docs/change-boundary-correspondence.md and reports/change-boundary-phase1.
+
+## Typed ordered action representation
+
+The core now retains concrete value/callback types, resolved locals and references,
+source evaluation order, lazy branches and abrupt exits in a bounded source-bound
+artifact. Reference execution and Rust lowering consume its frozen execution
+adapter. The independent core still has no database dependency or optimisation
+catalogue; kernel proof rules are unchanged. See docs/typed-actions.md.
+This advances milestone 2, but source-action logical execution and primitive
+correspondence, full effect/ownership reasoning and stateful replacement admission
+remain necessary for milestones 3–5.

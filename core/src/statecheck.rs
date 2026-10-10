@@ -1,6 +1,9 @@
 //! Type/effect checking for stateful declarations. Facts are conservative key-presence proofs.
 use crate::{check::Env, syntax::*, LangResult};
-use std::collections::{BTreeMap, BTreeSet};
+use std::{
+    cell::RefCell,
+    collections::{BTreeMap, BTreeSet},
+};
 
 type Facts = BTreeMap<(String, String), bool>;
 fn key(e: &Expr) -> String {
@@ -56,14 +59,36 @@ pub(crate) fn validate_type(t: &Type, p: &Program) -> LangResult<()> {
     }
 }
 
+#[derive(Default)]
+pub(crate) struct Typing {
+    pub values: BTreeMap<usize, Type>,
+    pub lambdas: BTreeMap<usize, (Type, Type)>,
+}
+fn address(e: &Expr) -> usize {
+    e as *const Expr as usize
+}
+
 struct Context<'a> {
     p: &'a Program,
     action: &'a Action,
     in_lambda: bool,
-    typing_only: bool,
+    typing: Option<&'a RefCell<Typing>>,
 }
 impl Context<'_> {
     fn expected(&self, e: &Expr, want: &Type, env: &Env, facts: &mut Facts) -> LangResult<Type> {
+        let ty = self.expected_inner(e, want, env, facts)?;
+        if let Some(typing) = self.typing {
+            typing.borrow_mut().values.insert(address(e), ty.clone());
+        }
+        Ok(ty)
+    }
+    fn expected_inner(
+        &self,
+        e: &Expr,
+        want: &Type,
+        env: &Env,
+        facts: &mut Facts,
+    ) -> LangResult<Type> {
         if let Expr::Call(n, args) = e {
             if args.len() == 1 {
                 match (n.as_str(), want) {
@@ -103,6 +128,13 @@ impl Context<'_> {
         None
     }
     fn infer(&self, e: &Expr, env: &Env, facts: &mut Facts) -> LangResult<Type> {
+        let ty = self.infer_inner(e, env, facts)?;
+        if let Some(typing) = self.typing {
+            typing.borrow_mut().values.insert(address(e), ty.clone());
+        }
+        Ok(ty)
+    }
+    fn infer_inner(&self, e: &Expr, env: &Env, facts: &mut Facts) -> LangResult<Type> {
         use Type as T;
         match e {
             Expr::Float(_) | Expr::Neg(_) | Expr::Let(..) => {
@@ -304,7 +336,7 @@ impl Context<'_> {
                         if let (T::Result(_, callee), T::Result(_, caller)) =
                             (&a.result, &self.action.result)
                         {
-                            if !self.typing_only && callee != caller {
+                            if callee != caller {
                                 return Err("nested changes must use the same error type because failure aborts the transaction".into());
                             }
                         }
@@ -376,12 +408,12 @@ impl Context<'_> {
                             return Err(format!("write to {root} is not permitted"));
                         }
                         let fact = (root.clone(), key(&args[0]));
-                        if !self.typing_only && n == "insert" && facts.get(&fact) != Some(&false) {
+                        if n == "insert" && facts.get(&fact) != Some(&false) {
                             return Err(format!(
                                 "insert into {root} needs proof that the key is absent"
                             ));
                         }
-                        if !self.typing_only && n == "replace" && facts.get(&fact) != Some(&true) {
+                        if n == "replace" && facts.get(&fact) != Some(&true) {
                             return Err(format!(
                                 "replace in {root} needs proof that the key is present"
                             ));
@@ -430,6 +462,12 @@ impl Context<'_> {
                         ..*self
                     };
                     let out = cx.infer(body, &local, &mut facts.clone())?;
+                    if let Some(typing) = self.typing {
+                        typing
+                            .borrow_mut()
+                            .lambdas
+                            .insert(address(&args[0]), (inner.clone(), out.clone()));
+                    }
                     return Ok(match t {
                         T::List(a) => {
                             if n == "filter" {
@@ -458,6 +496,7 @@ impl Context<'_> {
         }
     }
     fn block(&self, body: &[Statement], env: &mut Env, facts: &mut Facts) -> LangResult<bool> {
+        let mut terminated = false;
         for s in body {
             match s {
                 Statement::Let(n, annotation, e) => {
@@ -484,7 +523,7 @@ impl Context<'_> {
                 }
                 Statement::Return(e) => {
                     self.expected(e, &self.action.result, env, facts)?;
-                    return Ok(true);
+                    terminated = true;
                 }
                 Statement::Expr(e) => {
                     self.infer(e, env, facts)?;
@@ -517,7 +556,7 @@ impl Context<'_> {
                     let y = self.block(yes, &mut env.clone(), &mut yf)?;
                     let n = self.block(no, &mut env.clone(), &mut nf)?;
                     if y && n {
-                        return Ok(true);
+                        terminated = true;
                     }
                     if y {
                         *facts = nf;
@@ -530,7 +569,7 @@ impl Context<'_> {
                 }
             }
         }
-        Ok(false)
+        Ok(terminated)
     }
 }
 
@@ -666,7 +705,7 @@ pub fn check(p: &Program) -> LangResult<()> {
             p,
             action: &fake,
             in_lambda: false,
-            typing_only: false,
+            typing: None,
         }
         .expected(&k.value, &k.ty, &Env::new(), &mut Facts::new())?;
     }
@@ -704,7 +743,7 @@ pub fn check(p: &Program) -> LangResult<()> {
             p,
             action: a,
             in_lambda: false,
-            typing_only: false,
+            typing: None,
         })
         .block(&a.body, &mut env.clone(), &mut Facts::new())?
         {
@@ -822,18 +861,51 @@ pub fn expression_type(p: &Program, e: &Expr, env: &Env) -> LangResult<Type> {
         p,
         action: &action,
         in_lambda: false,
-            typing_only: false,
+        typing: None,
     }
     .infer(e, env, &mut Facts::new())
 }
 
-/// Extract contextual types for emission from an already checked module. This
-/// does not admit source or evidence: presence/effect obligations were checked
-/// when the opaque module was created. Backend-local expressions are not proof
-/// premises and cannot create a CheckedModule.
-pub fn lowering_type(module:&crate::core::CheckedModule,e:&Expr,env:&Env,want:Option<&Type>)->LangResult<Type>{
- let p=module.program();
- let action=Action{name:"lowering_types".into(),kind:ActionKind::Change,params:vec![],result:Type::Result(Box::new(Type::Unknown),Box::new(Type::Unknown)),reads:p.states.iter().chain(&p.keeps).map(|d|d.name.clone()).collect(),writes:p.states.iter().map(|d|d.name.clone()).collect(),emits:p.events.keys().cloned().collect(),body:vec![]};
- let cx=Context{p,action:&action,in_lambda:false,typing_only:true};
- if let Some(t)=want {cx.expected(e,t,env,&mut Facts::new())}else{cx.infer(e,env,&mut Facts::new())}
+/// Retain the existing checker's judgments; addresses exist only during this
+/// pass and never enter executable identities or the exported representation.
+pub(crate) fn action_typing(p: &Program, action: &Action) -> LangResult<Typing> {
+    let typing = RefCell::new(Typing::default());
+    let cx = Context {
+        p,
+        action,
+        in_lambda: false,
+        typing: Some(&typing),
+    };
+    let mut env = crate::check::params_env(&action.params)?;
+    if !cx.block(&action.body, &mut env, &mut Facts::new())? {
+        return Err("action can fall through".into());
+    }
+    Ok(typing.into_inner())
+}
+
+pub(crate) fn keep_typing(p: &Program, keep: &BindingDecl) -> LangResult<Typing> {
+    let typing = RefCell::new(Typing::default());
+    let action = Action {
+        name: keep.name.clone(),
+        kind: ActionKind::Query,
+        params: vec![],
+        result: keep.ty.clone(),
+        reads: p
+            .states
+            .iter()
+            .chain(&p.keeps)
+            .map(|d| d.name.clone())
+            .collect(),
+        writes: vec![],
+        emits: vec![],
+        body: vec![],
+    };
+    Context {
+        p,
+        action: &action,
+        in_lambda: false,
+        typing: Some(&typing),
+    }
+    .expected(&keep.value, &keep.ty, &Env::new(), &mut Facts::new())?;
+    Ok(typing.into_inner())
 }

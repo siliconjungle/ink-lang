@@ -409,3 +409,20 @@ entries replay across 37 bounded views using the preserved checker. This makes
 no timing or browser claim. Source-body/effect, physical rollback/storage and
 replacement admission remain open. See docs/change-boundary-correspondence.md
 and reports/change-boundary-phase1.
+
+## Typed ordered actions
+
+The source-bound core artifact now retains concrete types, resolved references
+and evaluation order. Reference execution and Rust lowering consume its frozen
+adapter. This fixes contextual empty sums returned by changes and native
+constructor inference for discarded values. Dead code remains represented and
+now requires valid types and declared effects. No proof-kernel rule, database
+optimisation catalogue or stateful replacement authority was added.
+
+Combined validation preserves the parallel JavaScript/runtime changes: all
+196 distribution tests and 22 independent core tests pass. The isolated core
+also passes 22 tests offline without external repositories. The focused fixture
+compares 32 native and 32 compiled Wasm outcomes, each with exact snapshots,
+against reference execution. No timing or browser claim follows. Whole-action
+logical/primitive correspondence, physical rollback and stateful replacement
+admission remain open. See docs/typed-actions.md and reports/typed-actions-phase1.

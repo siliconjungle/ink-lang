@@ -74,3 +74,9 @@ Pure programs can also [compile to JavaScript](docs/javascript-backend.md):
 ```sh
 ink build examples/particles.ink --target javascript -o build/particles.mjs
 ```
+
+[Typed ordered actions](docs/typed-actions.md) retain the checked types and
+execution order of stateful code. `ink emit-actions` exports the source-bound
+artifact and `ink check-actions` replays it against the complete source module.
+Reference and Rust execution use its retained judgments. Whole-action logical
+refinement and stateful replacement admission remain open.
