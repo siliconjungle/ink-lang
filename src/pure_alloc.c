@@ -1,5 +1,9 @@
 /* Base allocation mechanism for literal collection operations; no fusion law. */
+#if defined(_MSC_VER)
+#define LANG_UNUSED
+#else
 #define LANG_UNUSED __attribute__((unused))
+#endif
 #if defined(__wasm__)
 extern unsigned char __heap_base;
 typedef struct lang_block { size_t previous_top; struct lang_block *previous; uint64_t released; } lang_block;
@@ -12,35 +16,36 @@ static LANG_UNUSED lang_frame lang_enter(void) {
     if (lang_top<(size_t)&__heap_base) lang_top=(size_t)&__heap_base;
     return frame;
 }
-static LANG_UNUSED void lang_input(const uint64_t *data,size_t length) {
-    if (length>SIZE_MAX/8 || (size_t)data>SIZE_MAX-length*8) lang_fail();
-    size_t end=(size_t)data+length*8;if(end>lang_top) lang_top=end;
+static LANG_UNUSED void lang_input(const void *data,size_t length,size_t width) {
+    if (!width || length>SIZE_MAX/width || (size_t)data>SIZE_MAX-length*width) lang_fail();
+    size_t end=(size_t)data+length*width;if(end>lang_top) lang_top=end;
 }
 static LANG_UNUSED void lang_exit(lang_frame frame) { lang_top=frame.top;lang_last=frame.last; }
-static LANG_UNUSED uint64_t *lang_allocate(size_t count) {
+static LANG_UNUSED void *lang_allocate(size_t count,size_t width) {
     if(!count)count=1;
-    if(count>SIZE_MAX/8 || lang_top>SIZE_MAX-7) lang_fail();
+    if(!width || count>SIZE_MAX/width || lang_top>SIZE_MAX-7) lang_fail();
     size_t start=(lang_top+7)&~(size_t)7;
-    if(start>SIZE_MAX-sizeof(lang_block) || count*8>SIZE_MAX-start-sizeof(lang_block))lang_fail();
-    size_t end=start+sizeof(lang_block)+count*8;
+    if(start>SIZE_MAX-sizeof(lang_block) || count*width>SIZE_MAX-start-sizeof(lang_block))lang_fail();
+    size_t end=start+sizeof(lang_block)+count*width;
     size_t needed=(size_t)(((uint64_t)end+65535)/65536),pages=__builtin_wasm_memory_size(0);
     if(needed>pages && __builtin_wasm_memory_grow(0,needed-pages)==(size_t)-1)lang_fail();
     lang_block *block=(lang_block*)start;block->previous_top=lang_top;block->previous=lang_last;block->released=0;
-    lang_last=block;lang_top=end;return (uint64_t*)(block+1);
+    lang_last=block;lang_top=end;return (void*)(block+1);
 }
-static LANG_UNUSED void lang_release(uint64_t *data) {
+static LANG_UNUSED void lang_release(void *data) {
     ((lang_block*)data-1)->released=1;
     while(lang_last && lang_last->released) {size_t top=lang_last->previous_top;lang_block *previous=lang_last->previous;lang_top=top;lang_last=previous;}
 }
 #else
 #include <stdlib.h>
+static LANG_UNUSED void lang_fail(void) {abort();}
 typedef unsigned char lang_frame;
 static LANG_UNUSED lang_frame lang_enter(void) {return 0;}
-static LANG_UNUSED void lang_input(const uint64_t *data,size_t length) {(void)data;(void)length;}
+static LANG_UNUSED void lang_input(const void *data,size_t length,size_t width) {(void)data;(void)length;(void)width;}
 static LANG_UNUSED void lang_exit(lang_frame frame) {(void)frame;}
-static LANG_UNUSED uint64_t *lang_allocate(size_t count) {
-    if(count>SIZE_MAX/sizeof(uint64_t))abort();
-    uint64_t *data=malloc((count?count:1)*sizeof(uint64_t));if(!data)abort();return data;
+static LANG_UNUSED void *lang_allocate(size_t count,size_t width) {
+    if(!width || count>SIZE_MAX/width)abort();
+    void *data=malloc((count?count:1)*width);if(!data)abort();return data;
 }
-static LANG_UNUSED void lang_release(uint64_t *data) {free(data);}
+static LANG_UNUSED void lang_release(void *data) {free(data);}
 #endif

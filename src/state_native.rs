@@ -1015,8 +1015,7 @@ impl Wire for {id} {{
         .unwrap();
     }
     for f in &p.functions {
-        let env = f.params.iter().cloned().collect();
-        let body = emitter.expr(&f.body, &env, Some(&f.result))?.0;
+        let body = crate::pure_rust::body(p, f)?;
         let params = f
             .params
             .iter()

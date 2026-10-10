@@ -1,5 +1,18 @@
 # Ink
 
+## u32 and browser/native GPU execution
+
+The pure frontend, evaluator and native/Wasm backends now support `u32` words
+and collections with checked contextual literals and wrapping intermediates.
+`ink build SOURCE --target webgpu --zig PATH -o DIRECTORY` emits literal WGSL
+stages, a compiled Wasm CPU fallback and a standalone native `wgpu` project.
+The host measures eligible u32 map/filter/sum/count computations and selects CPU
+or GPU with explicit cost diagnostics; unsupported features and unavailable GPU
+access retain compiled CPU execution. Existing u64 and exact-Int meanings are
+unchanged. This is a trusted backend and a bounded host selector, not completed
+formal GPU verification or general adaptive state migration.
+See [GPU scope, selection, trust and reproduction](docs/gpu-backend.md).
+
 Ink is a language for data, computation and explicit state changes, with implementation choices justified by locally checked proofs. This repository implements [the design draft](docs/language-specification-draft.md), incrementally. The full implementation is **in progress**. [STATUS.md](STATUS.md) describes the current executable subset; [PLAN.md](PLAN.md) preserves the full acceptance criteria.
 
 The implementation includes a Rust frontend and reference evaluator, pure native compilation through C and Clang/LLVM, stateful compilation through generated Rust, and an independently versioned catalogue of checked proofs and implementations. Both compilation paths also target WebAssembly. The current pure baseline materialises collection stages; an explicit checked database proposal can select a single-fold implementation. It does not recognise benchmark names or substitute handwritten benchmark kernels.

@@ -232,7 +232,7 @@ fn run() -> LangResult<()> {
             "ink emit-definition LOCK.json EXPORTS.json [--select PACKAGE.json] -o DEFINITION.rs"
         );
         println!("ink emit-core SOURCE -o CORE.json\nink check-core CORE.json\nExecution/lowering commands also accept --core to read a checked CORE.json instead of source.\nChecked replacement packages: build/emit-c ... --replacement PACKAGE.json");
-        println!("ink bitvector-obligation GOAL.json [--library LOCK.json] -o CNF.json\nink verify-library LOCK.json\nink project-library LOCK.json ROOTS.json -o BUNDLE.json\nink model-row SOURCE KEEP --maintenance PACKAGE.json -o MODEL.json\nink verify-row-model SOURCE MODEL.json --maintenance PACKAGE.json\nink verify-database LOCK.json\nink check SOURCE\nink prove-maintenance SOURCE [--evidence EVIDENCE.json] -o PACKAGE.json\nink verify-maintenance PACKAGE.json\nink execute SOURCE SCRIPT.json [--maintenance PACKAGE.json] [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable]\nink run SOURCE FUNCTION ARGS.json\nink build SOURCE -o OUTPUT.o [--implementation PROPOSAL.json] [--cc clang] [--native-cpu]\nink build SOURCE --target wasm32 --zig PATH -o OUTPUT.wasm\nink emit-c SOURCE -o OUTPUT.c [--implementation PROPOSAL.json]\nink emit-state SOURCE -o DIRECTORY [--maintenance PACKAGE.json] [--bounded-totals] [--wasm-abi]");
+        println!("ink bitvector-obligation GOAL.json [--library LOCK.json] -o CNF.json\nink verify-library LOCK.json\nink project-library LOCK.json ROOTS.json -o BUNDLE.json\nink model-row SOURCE KEEP --maintenance PACKAGE.json -o MODEL.json\nink verify-row-model SOURCE MODEL.json --maintenance PACKAGE.json\nink verify-database LOCK.json\nink check SOURCE\nink prove-maintenance SOURCE [--evidence EVIDENCE.json] -o PACKAGE.json\nink verify-maintenance PACKAGE.json\nink execute SOURCE SCRIPT.json [--maintenance PACKAGE.json] [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable]\nink run SOURCE FUNCTION ARGS.json\nink build SOURCE -o OUTPUT.o [--implementation PROPOSAL.json] [--cc clang] [--native-cpu]\nink build SOURCE --target wasm32 --zig PATH -o OUTPUT.wasm\nink build SOURCE --target webgpu --zig PATH -o DIRECTORY (also emits native wgpu crate)\nink emit-c SOURCE -o OUTPUT.c [--implementation PROPOSAL.json]\nink emit-state SOURCE -o DIRECTORY [--maintenance PACKAGE.json] [--bounded-totals] [--wasm-abi]");
         return Ok(());
     }
     if cmd == "prove" || cmd == "knowledge" || args.iter().any(|arg| arg == "--knowledge") {
@@ -420,7 +420,7 @@ fn run() -> LangResult<()> {
             let vs = vals
                 .iter()
                 .zip(&f.params)
-                .map(|(v, (_, t))| eval::Value::from_json(v, t))
+                .map(|(v, (_, t))| eval::Value::from_program_json(v, t, &p))
                 .collect::<LangResult<Vec<_>>>()?;
             println!("{}", eval::call(&p, name, vs, &mut 100_000_000)?.json());
         }
@@ -451,6 +451,46 @@ fn run() -> LangResult<()> {
             let selected_core_sha256 = core::CheckedModule::from_source(p.clone())?.identity()?;
             let out = arg_value(&args, "-o")?.ok_or("build requires -o OUTPUT.o")?;
             let target = arg_value(&args, "--target")?.unwrap_or_else(|| "native".into());
+            if target == "webgpu" || target == "gpu" {
+                if args.iter().any(|a| a == "--native-cpu") {
+                    return Err("--native-cpu is not a GPU bundle option".into());
+                }
+                verified_language::gpu::emit(&p, Path::new(&out))?;
+                let zig = arg_value(&args, "--zig")?.unwrap_or_else(|| "zig".into());
+                let mut command = Command::new(&zig);
+                command.args([
+                    "cc",
+                    "-target",
+                    "wasm32-freestanding",
+                    "-O3",
+                    "-msimd128",
+                    "-std=c11",
+                    "-ffreestanding",
+                    "-nostdlib",
+                    "-Wl,--no-entry",
+                    "-Wl,--export=__heap_base",
+                    "-Wl,--export-memory",
+                ]);
+                for f in &p.functions {
+                    command.arg(format!("-Wl,--export=lang_fn_{}", f.name));
+                }
+                let result = command
+                    .arg(Path::new(&out).join("cpu.c"))
+                    .arg("-o")
+                    .arg(Path::new(&out).join("cpu.wasm"))
+                    .output()
+                    .map_err(|e| format!("GPU bundle CPU fallback requires Zig ({zig}): {e}"))?;
+                if !result.status.success() {
+                    return Err(String::from_utf8_lossy(&result.stderr).into_owned());
+                }
+                let plan = serde_json::json!({"source":path,"target":target,"checked_replacement":replacement,"checked_implementation":implementation,"applied_rule_ids":used,"database_lock":serde_json::Value::Null,"database_closure":serde_json::Value::Null,"input_core_sha256":input_core_sha256,"selected_core_sha256":selected_core_sha256,"trust":"GPU backend remains trusted; see manifest.json"});
+                write(
+                    &format!("{out}/plan.json"),
+                    &serde_json::to_string_pretty(&plan).map_err(|e| e.to_string())?,
+                )?;
+                println!("wrote WebGPU/Wasm bundle and native wgpu project to {out}; GPU selection is measured by the host runtime");
+                return Ok(());
+            }
             if !["native", "wasm32"].contains(&target.as_str()) {
                 return Err(format!("unsupported target {target}"));
             }

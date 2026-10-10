@@ -40,6 +40,18 @@ The objective is to implement the language specified in docs/language-specificat
 
 The requested Goose-inspired changes are also binding: contiguous/compact representations, fewer copies and allocations, general arenas/ownership inference, narrow relative links, variable-size inline data/enums and construction directly into final destinations. Representation choices should come from the database, with actual native correspondence and future-update safety; typed storage policy alone does not complete that requirement. Benchmark construction/teardown and retained memory as well as execution, and keep matching layout controls.
 
+## GPU execution milestone
+
+Contextual u32 execution and an initial browser WebGPU/native wgpu backend are
+implemented. Each checked u32 map/filter stage is emitted literally, with
+parallel modular sum/stable filter primitives and compiled CPU fallback.
+Bounded host profiles compare actual execution costs and sampled results.
+This is an execution milestone within steps 6–8, not completion of their general
+ownership, database-defined representation, migration or refinement gates.
+GPU primitive implementations, shaders, host ABI and drivers remain trusted;
+formal backend verification, wider numeric kernels and general stateful GPU
+execution remain open. See `docs/gpu-backend.md` and `reports/gpu-phase1/`.
+
 ## Requirements and evidence
 
 - [ ] Small compiler core has no built-in optimisation catalogue. All language-level rewrites, incremental algorithms and representation choices come from checked database entries; new entries work without rebuilding the compiler. See `docs/small-core-and-knowledge.md` for the binding architecture and migration audit.

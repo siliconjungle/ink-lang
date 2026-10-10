@@ -1,0 +1,55 @@
+{
+  "shader_failure_fallback": {
+    "value": 24,
+    "backend": "cpu",
+    "reason": "GPU fallback: GPUPipelineError: [Invalid ShaderModule (unlabeled)] is invalid due to a previous error.\n - While validating compute stage ([Invalid ShaderModule (unlabeled)], entryPoint: \"main\").\n"
+  },
+  "status": "passed",
+  "browser_comparisons": 1332,
+  "gpu_calls": 487,
+  "invalid_arguments_rejected": 4,
+  "limit_fallback_and_retry": [
+    {
+      "value": 0,
+      "backend": "cpu",
+      "reason": "GPU fallback: Error: input exceeds this backend’s stable-filter prefix budget"
+    },
+    {
+      "value": 14,
+      "backend": "gpu",
+      "reason": "explicit GPU selection"
+    }
+  ],
+  "small_selection": {
+    "value": 30,
+    "backend": "cpu",
+    "reason": "measured full execution cost with setup amortisation and 10% minimum saving",
+    "profile": {
+      "cpu_ms": 0.00039062555879354477,
+      "gpu_ms": 0.5,
+      "gpu_setup_ms": 1.6000001430511475,
+      "expected_calls": 32,
+      "uses": 1,
+      "backend": "cpu"
+    }
+  },
+  "large_selection": {
+    "value": 4294443008,
+    "backend": "gpu",
+    "reason": "measured full execution cost with setup amortisation and 10% minimum saving",
+    "profile": {
+      "cpu_ms": 30,
+      "gpu_ms": 2.1000001430511475,
+      "gpu_setup_ms": 2.799999952316284,
+      "expected_calls": 32,
+      "uses": 1,
+      "backend": "gpu"
+    }
+  },
+  "browser": "154.0.8037.98",
+  "unavailable_gpu_fallback": {
+    "value": 3,
+    "backend": "cpu",
+    "reason": "GPU fallback: Error: WebGPU unavailable"
+  }
+}
