@@ -101,6 +101,20 @@ An execution/transport failure leaves the old session intact. Calls stage their
 new state/events and publish only after all checks succeed; aborted calls and
 exhausted successful commits publish no mutation or events.
 
+The frozen `knowledge/research/layout-switch` bridges switch between the two
+query implementations while retaining their identical cached physical state.
+`producers/representation_bridge.py` proposes an identity function and universal
+preservation proofs for identical relations. Direct execution avoids encoder/cache
+recomputation, while both decodes and logical validation still run. Native tests
+verify this with an encoder counter and future histories. This does not establish
+constant-time switching or a measured migration-latency gain.
+
+Cost evidence lookup filters requested plans before limiting its results and uses
+a covering SQLite index. Unrelated plans cannot exhaust the evidence budget;
+only matching canonical evidence files are read and hash-validated. This improves
+discovery rather than source action execution. The standalone synthetic timings
+and exact baseline are in `reports/knowledge-lookup-performance`.
+
 The reference executor runs checked first-order definitions. The independently
 versioned Rust lowering literally compiles their bodies and emits an executor
 bound to the exact sealed definition identities. It can contain up to sixteen

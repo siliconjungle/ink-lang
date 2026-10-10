@@ -898,6 +898,154 @@ fn published_cache_maintenance_replays_and_migrates_offline() {
 }
 
 #[test]
+fn state_reusing_database_bridges_preserve_native_histories_without_encoding() {
+    let source = include_str!("../examples/representation-cache-maintenance.ink");
+    let module = CheckedModule::from_source(parse(source).unwrap()).unwrap();
+    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("build/layout-switch-native");
+    fs::create_dir_all(&root).unwrap();
+    for (label, bytes) in [
+        (
+            "previous",
+            include_str!("../knowledge/research/compact-queries/previous.json"),
+        ),
+        (
+            "cached",
+            include_str!("../knowledge/research/compact-queries/cached.json"),
+        ),
+        (
+            "forward",
+            include_str!("../knowledge/research/layout-switch/forward.json"),
+        ),
+        (
+            "backward",
+            include_str!("../knowledge/research/layout-switch/backward.json"),
+        ),
+    ] {
+        fs::write(root.join(format!("{label}.json")), bytes).unwrap();
+    }
+    let load = |label: &str| {
+        let request =
+            serde_json::from_slice(&fs::read(root.join(format!("{label}.json"))).unwrap()).unwrap();
+        representation::check(&module, &request).unwrap()
+    };
+    let old = load("previous");
+    let new = load("cached");
+    let mut bridges = vec![];
+    for (label, before, after) in [("forward", &old, &new), ("backward", &new, &old)] {
+        let frozen: Bridge =
+            serde_json::from_slice(&fs::read(root.join(format!("{label}.json"))).unwrap()).unwrap();
+        bridges.push(
+            representation::check_migration(before, after, &frozen.knowledge, &frozen.root)
+                .unwrap(),
+        );
+        let output = Command::new("python3")
+            .arg("knowledge/producers/representation_bridge.py")
+            .arg(root.join(if label == "forward" {
+                "previous.json"
+            } else {
+                "cached.json"
+            }))
+            .arg(root.join(if label == "forward" {
+                "cached.json"
+            } else {
+                "previous.json"
+            }))
+            .arg("-o")
+            .arg(root.join(format!("generated-{label}.json")))
+            .current_dir(env!("CARGO_MANIFEST_DIR"))
+            .output()
+            .unwrap();
+        assert!(
+            output.status.success(),
+            "{}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+        let generated: Bridge = serde_json::from_slice(
+            &fs::read(root.join(format!("generated-{label}.json"))).unwrap(),
+        )
+        .unwrap();
+        assert_eq!(generated.root, frozen.root);
+        representation::check_migration(before, after, &generated.knowledge, &generated.root)
+            .unwrap();
+    }
+    let mut generated = String::from(
+        "use verified_language as ink_core;\nuse verified_language::runtime as ink_runtime;\n",
+    );
+    generated
+        .push_str(&verified_language::representation_native::lower(&[old, new], &bridges).unwrap());
+    generated.push_str(&format!(
+        "\nconst SOURCE:&str={source:?};\nconst DIRECTORY:&str={:?};\n",
+        root.to_str().unwrap()
+    ));
+    generated.push_str(include_str!(
+        "../bench/representations/layout-switch.rs.txt"
+    ));
+    fs::write(root.join("native.rs"), generated).unwrap();
+    compile_native(&root, false);
+    let output = Command::new(root.join("native"))
+        .env("PATH", "")
+        .output()
+        .unwrap();
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+}
+
+#[test]
+fn state_reusing_bridge_rejects_a_rehashed_false_preservation_proof() {
+    let module = CheckedModule::from_source(
+        parse(include_str!(
+            "../examples/representation-cache-maintenance.ink"
+        ))
+        .unwrap(),
+    )
+    .unwrap();
+    let old: Request = serde_json::from_str(include_str!(
+        "../knowledge/research/compact-queries/previous.json"
+    ))
+    .unwrap();
+    let new: Request = serde_json::from_str(include_str!(
+        "../knowledge/research/compact-queries/cached.json"
+    ))
+    .unwrap();
+    let before = representation::check(&module, &old).unwrap();
+    let after = representation::check(&module, &new).unwrap();
+    let script = r#"import json,sys,tempfile
+sys.path.insert(0,'knowledge')
+sys.path.insert(0,'knowledge/producers')
+from ink_knowledge import Store,identity
+from representations import refs
+p=json.load(open('knowledge/research/layout-switch/forward.json'))
+objects=p['knowledge']['objects'];bridge=objects.pop(p['root'])
+bridge['payload']['preservation']=[{'Refl':{'Var':'logical'}}]
+bridge['dependencies']=sorted(refs(bridge['payload']))
+root=identity(bridge);objects[root]=bridge
+with tempfile.TemporaryDirectory() as d:
+ print(json.dumps(dict(root=root,knowledge=Store.publish(d,objects.values()).bundle([root]))))
+"#;
+    let output = Command::new("python3")
+        .args(["-c", script])
+        .current_dir(env!("CARGO_MANIFEST_DIR"))
+        .output()
+        .unwrap();
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let bridge: Bridge = serde_json::from_slice(&output.stdout).unwrap();
+    verified_language::registry::CheckedBundle::check(&bridge.knowledge).unwrap();
+    let error = representation::check_migration(&before, &after, &bridge.knowledge, &bridge.root)
+        .unwrap_err();
+    assert!(
+        error.contains("inductive proof proves a different statement"),
+        "{error}"
+    );
+}
+
+#[test]
 #[ignore = "manual performance measurement; no timing assertion"]
 fn benchmark_composed_cache_maintenance() {
     cache_maintenance_native("composed-cache-maintenance-benchmark", true, true, false);
