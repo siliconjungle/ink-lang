@@ -21,6 +21,7 @@ pub mod logic;
 pub mod machine;
 pub mod optimisation;
 pub mod registry;
+pub mod representation;
 pub mod routing;
 pub mod row_model;
 pub mod semantic;
