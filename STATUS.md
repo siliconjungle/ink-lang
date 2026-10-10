@@ -1,5 +1,23 @@
 # Implementation status
 
+## General action-value correspondence
+
+The source-bound action value bridge now works without an aggregate certificate.
+Flat canonical images preserve full-width words/IDs, recursive nominal values
+and binary exact-integer magnitudes. Independent producer agreement, actual
+arguments/results/events and adversarial image checks pass. Action signatures
+and total argument budgets are checked; standalone CLI replay is covered.
+This is data correspondence, not logical action or primitive arithmetic proof.
+See [the contract](docs/action-values.md) and
+[the combined evidence](reports/action-values-phase1/REPORT.md).
+
+Validation passes 223 broad tests, 12 enabled backend/durability/module tests,
+33 isolated offline core tests, six final focused replay tests and 12 Node tests.
+Counts overlap. Native C/Rust durable recovery is reviewed and integrated; all
+five CPU paths preserve 516 requests/exact snapshots and wgpu logs 102 GPU calls.
+Kernel rules are unchanged. Full production gates remain active, with editor
+support and schema evolution excluded.
+
 ## Complete code-data binding and checked view decomposition
 
 The core now checks exact complete source/typed-action images supplied as
