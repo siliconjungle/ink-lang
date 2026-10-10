@@ -11,6 +11,7 @@ use crate::{
 };
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
+mod pure;
 pub const SEMANTICS: &str = "ink-action-transition-v1";
 const MAX_DEFINITIONS: usize = 128;
 const MAX_WORK: usize = 20_000;
@@ -199,6 +200,8 @@ struct Lower<'a> {
     boxes: BTreeMap<String, String>,
     fresh: usize,
     work: usize,
+    helpers: BTreeMap<usize, String>,
+    helper_active: BTreeSet<usize>,
 }
 impl Lower<'_> {
     fn tick(&mut self) -> LangResult<()> {
@@ -592,6 +595,17 @@ impl Lower<'_> {
                     vec![rows, args[0].clone()],
                 ))
             }
+            Kind::PureCall {
+                function,
+                arguments,
+            } => {
+                let xs = arguments
+                    .iter()
+                    .map(|n| self.expr(body, *n, env, state))
+                    .collect::<LangResult<Vec<_>>>()?;
+                let f = self.pure_function(*function)?;
+                Ok(call(&f, xs))
+            }
             _ => Err(format!(
                 "unsupported action transition expression: {:?}",
                 n.kind
@@ -853,6 +867,8 @@ impl Projection {
             boxes: BTreeMap::new(),
             fresh: 0,
             work: MAX_WORK,
+            helpers: BTreeMap::new(),
+            helper_active: BTreeSet::new(),
         };
         // Domain validation includes unused signatures; an unsupported value may
         // not acquire authority just because a branch happens not to evaluate it.

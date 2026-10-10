@@ -159,3 +159,69 @@ fn source_parameter_names_cannot_capture_transaction_model_binders() {
     assert_eq!(a.actions["erase"].function, z.actions["erase"].function);
     assert_eq!(a.actions["get"].function, z.actions["get"].function);
 }
+
+#[test]
+fn total_helper_projection_is_bound_and_bounded_without_external_tools() {
+    let source = "module helper;
+      record Row { word:u64, take:Bool, }
+      fn bump(word:u64)->u64 {let word:u64=word+1;return word-1;}
+      fn pick(row:Row)->u64 {let row:u64=choose(row.take,bump(row.word),row.word);return row;}
+      query get(initial:u64,version:Bool)->u64 {
+        return pick(Row{word:initial,take:version});
+      }";
+    let model = Projection::derive(&module(source)).unwrap();
+    let context = model.context().unwrap();
+    for word in [0, 1, u64::MAX] {
+        for take in [false, true] {
+            let result = context
+                .evaluate(
+                    &[],
+                    &call(
+                        &model.actions["get"].function,
+                        vec![
+                            c(&model.state, 0, vec![]),
+                            Term::U64(8),
+                            Term::U64(word),
+                            Term::Bool(take),
+                        ],
+                    ),
+                )
+                .unwrap();
+            let Term::Construct { arguments, .. } = result else {
+                panic!()
+            };
+            assert_eq!(arguments[0], Term::U64(word));
+            assert_eq!(arguments[1], Term::Bool(false));
+            assert_eq!(arguments[2], Term::U64(8));
+        }
+    }
+    for body in [
+        "let n:u32=1;return choose(n==1,x,0);",
+        "return quot_or(x,1,0);",
+    ] {
+        let app=format!("module unsupported;fn helper(x:u64)->u64{{{body}}}query q(x:u64)->u64{{return helper(x);}}");
+        assert!(Projection::derive(&module(&app)).is_err());
+    }
+    let mut chain = String::from("module depth;");
+    for i in 0..33 {
+        chain.push_str(&format!(
+            "fn helper_{i}(x:u64)->u64{{return {};}}",
+            if i == 32 {
+                "x".into()
+            } else {
+                format!("helper_{}(x)", i + 1)
+            }
+        ));
+    }
+    chain.push_str("query q(x:u64)->u64{return helper_0(x);}");
+    assert!(Projection::derive(&module(&chain))
+        .unwrap_err()
+        .contains("call depth/cycle limit"));
+    let base = "module unrelated;query q(x:u64)->u64{return x;}";
+    let old = Projection::derive(&module(base)).unwrap();
+    let new = Projection::derive(&module(&format!(
+        "{base}fn unused(x:u32)->u32{{return x;}}"
+    )))
+    .unwrap();
+    assert_eq!(old.actions["q"].function, new.actions["q"].function);
+}

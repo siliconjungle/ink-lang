@@ -35,13 +35,23 @@ view and checked proposal, rather than installing an algorithm into the core.
 The current source projection supports u64-keyed tables whose values use u64,
 Bool, Unit, enums, records, Option and Result; total word/Boolean expressions and
 constructors; table get/contains; statement insert/replace/remove; local lets,
-branches, ordered emits and returns. All action signatures and used operations
+branches, ordered emits and returns. Total pure helpers can use u64/Bool literals,
+arithmetic/comparisons, lazy Boolean operators and `choose`, records/fields,
+lexically scoped lets and nested total helper calls. Their definitions are
+derived from the existing checked binder-safe semantic tree. Helper call depth
+is limited to 32 and the projection's shared work/definition limits still apply.
+All action signatures and used operations
 must lie in this domain. It currently rejects other numeric types, IDs, exact
-integers, strings, lists, keep reads, pure/nested calls, Try and mutation values
+integers, strings, lists, keep reads, nested action calls, Try and mutation values
 used as expressions. Those features continue to execute through the baseline;
 this projection does not certify their replacement. Proposed definitions and
 continuations have explicit node, byte, depth and declaration limits. Kernel
 proof limits and checking rules are unchanged.
+
+Only reached pure helpers are translated; an unrelated unused numerical helper
+does not widen the projection's semantics or invalidate an old transition. A
+reached unsupported operation such as division or a u32 intermediate rejects
+projection even in a branch that is not taken in a particular execution.
 
 A transition observes the reply, commit flag, version, every logical table root
 and ordered staged events. Host failures preserve the original roots/version.

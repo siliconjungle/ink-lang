@@ -129,12 +129,15 @@ fn package(original: &CheckedModule, selected: &CheckedModule, name: &str) -> Pa
 }
 #[test]
 fn complete_projected_transitions_match_reference_state_replies_events_and_rollback() {
-    let m = module(SOURCE);
+    compare_transitions(SOURCE, 120);
+}
+fn compare_transitions(source: &str, count: usize) {
+    let m = module(source);
     let projection = Projection::derive(&m).unwrap();
     let context = projection.context().unwrap();
     let mut rt = Runtime::new(m.program().clone()).unwrap();
     let mut seed = 42u64;
-    for i in 0..120 {
+    for i in 0..count {
         seed = seed.wrapping_mul(6364136223846793005).wrapping_add(1);
         let key = if i % 17 == 0 { u64::MAX } else { seed % 11 };
         let (name, args) = match i % 3 {
@@ -235,6 +238,79 @@ fn complete_projected_transitions_match_reference_state_replies_events_and_rollb
         checkpoint,
         serde_json::from_slice::<Json>(&exhausted.checkpoint().unwrap()).unwrap()
     );
+}
+#[test]
+fn source_bound_total_helpers_preserve_complete_actions_and_database_admission() {
+    let source = SOURCE
+        .replace(
+            "module transitions;",
+            r#"module transitions;
+      record Key { word:u64, special:Bool, }
+      fn identity(word:u64)->u64 {let word:u64=word+1;return word-1;}
+      fn pick(row:Key)->u64 {return choose(row.special,identity(row.word),row.word);}
+      fn key_of(word:u64)->u64 {
+        let word:Key=Key{word:word,special:word==18446744073709551615};
+        return pick(word);
+      }"#,
+        )
+        .replace("Rows.remove(key)", "Rows.remove(key_of(key))");
+    compare_transitions(&source, 80);
+    let original = module(&source);
+    let selected = module(&source.replace(
+        "Rows.remove(key_of(key)); Rows.remove(key_of(key));",
+        "Rows.remove(key_of(key));",
+    ));
+    let proposal = package(&original, &selected, "action-transitions-helpers");
+    let checked = optimisation::check(&original, &proposal).unwrap();
+    let mut altered = proposal.clone();
+    altered.action_replacement.as_mut().unwrap().selected = serde_json::from_slice(
+        &module(&source.replace("return word-1;", "return word+1;"))
+            .bytes()
+            .unwrap(),
+    )
+    .unwrap();
+    assert!(optimisation::check(&original, &altered).is_err());
+    let mut baseline = Runtime::new(original.program().clone()).unwrap();
+    let mut steps = vec![];
+    let mut expected = vec![];
+    for (name, args) in [
+        ("put", json!([u64::MAX, 91])),
+        ("put", json!([0, 12])),
+        ("erase", json!([u64::MAX, true])),
+        ("get", json!([u64::MAX])),
+        ("erase", json!([u64::MAX, false])),
+        ("get", json!([u64::MAX])),
+        ("erase", json!([0, false])),
+        ("get", json!([0])),
+    ] {
+        let result = baseline.invoke_json(name, &args).unwrap();
+        let snapshot = baseline.checkpoint_portable().unwrap();
+        steps.push(json!({"call":name,"args":args}));
+        expected.push(json!({"reply":{"outcome":result.json()},"snapshot":snapshot}));
+        if name == "get" {
+            steps.push(json!({"restore":snapshot}));
+        }
+    }
+    parity::conformance_selected(
+        "action-transitions-helpers",
+        &checked,
+        &source,
+        steps,
+        expected,
+    );
+}
+#[test]
+fn frozen_published_whole_action_evidence_retains_its_meaning_after_helper_extension() {
+    let original = CheckedModule::from_bytes(include_bytes!(
+        "../reports/action-transitions-phase1/input-core.json"
+    ))
+    .unwrap();
+    let package: Package = serde_json::from_slice(include_bytes!(
+        "../reports/action-transitions-phase1/selection.json"
+    ))
+    .unwrap();
+    let checked = optimisation::check(&original, &package).unwrap();
+    assert_eq!(checked.evidence().applied_laws.len(), 1);
 }
 #[test]
 fn database_remove_law_admits_a_complete_action_and_rejects_changed_observations() {
@@ -457,11 +533,76 @@ with tempfile.TemporaryDirectory() as d:print(json.dumps(Store.publish(d,objects
     assert!(error.contains("different statement"), "{error}");
 }
 #[test]
-fn frozen_whole_action_replay_and_inspection_need_no_producer_or_live_database(){
- let m=module(SOURCE);let z=module(&SOURCE.replace("Rows.remove(key); Rows.remove(key);","Rows.remove(key);"));let p=package(&m,&z,"action-transitions-offline");let root=Path::new(env!("CARGO_MANIFEST_DIR")).join("build/action-transitions-offline");fs::write(root.join("source.ink"),SOURCE).unwrap();fs::write(root.join("original-core.json"),m.bytes().unwrap()).unwrap();
- let cli=env!("CARGO_BIN_EXE_ink");let run=|args:Vec<String>|Command::new(cli).args(args).env("PATH","").env("INK_DISTRIBUTION",root.join("missing-assets")).current_dir(std::env::temp_dir()).output().unwrap();
- let output=run(vec!["check-selection".into(),root.join("original-core.json").display().to_string(),root.join("selection.json").display().to_string()]);assert!(output.status.success(),"{}",String::from_utf8_lossy(&output.stderr));
- let output=run(vec!["explain".into(),root.join("source.ink").display().to_string(),"--selection".into(),root.join("selection.json").display().to_string()]);assert!(output.status.success(),"{}",String::from_utf8_lossy(&output.stderr));let plan:Json=serde_json::from_slice(&output.stdout).unwrap();assert_eq!(plan["whole_action_selection"]["actions"],json!(["erase","get","put"]));assert_eq!(plan["selection"]["applied_laws"].as_array().unwrap().len(),1);assert_eq!(plan["selected_core_sha256"],z.identity().unwrap());
- let protected=root.join("protected-core.json");fs::write(&protected,b"keep original").unwrap();let mut invalid=p;invalid.action_replacement.as_mut().unwrap().proofs.remove("erase");fs::write(root.join("invalid-selection.json"),serde_json::to_vec(&invalid).unwrap()).unwrap();
- let output=run(vec!["emit-core".into(),root.join("source.ink").display().to_string(),"--selection".into(),root.join("invalid-selection.json").display().to_string(),"-o".into(),protected.display().to_string()]);assert!(!output.status.success());assert_eq!(fs::read(&protected).unwrap(),b"keep original");
+fn frozen_whole_action_replay_and_inspection_need_no_producer_or_live_database() {
+    let m = module(SOURCE);
+    let z = module(&SOURCE.replace("Rows.remove(key); Rows.remove(key);", "Rows.remove(key);"));
+    let p = package(&m, &z, "action-transitions-offline");
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("build/action-transitions-offline");
+    fs::write(root.join("source.ink"), SOURCE).unwrap();
+    fs::write(root.join("original-core.json"), m.bytes().unwrap()).unwrap();
+    let cli = env!("CARGO_BIN_EXE_ink");
+    let run = |args: Vec<String>| {
+        Command::new(cli)
+            .args(args)
+            .env("PATH", "")
+            .env("INK_DISTRIBUTION", root.join("missing-assets"))
+            .current_dir(std::env::temp_dir())
+            .output()
+            .unwrap()
+    };
+    let output = run(vec![
+        "check-selection".into(),
+        root.join("original-core.json").display().to_string(),
+        root.join("selection.json").display().to_string(),
+    ]);
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let output = run(vec![
+        "explain".into(),
+        root.join("source.ink").display().to_string(),
+        "--selection".into(),
+        root.join("selection.json").display().to_string(),
+    ]);
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let plan: Json = serde_json::from_slice(&output.stdout).unwrap();
+    assert_eq!(
+        plan["whole_action_selection"]["actions"],
+        json!(["erase", "get", "put"])
+    );
+    assert_eq!(
+        plan["selection"]["applied_laws"].as_array().unwrap().len(),
+        1
+    );
+    assert_eq!(plan["selected_core_sha256"], z.identity().unwrap());
+    let protected = root.join("protected-core.json");
+    fs::write(&protected, b"keep original").unwrap();
+    let mut invalid = p;
+    invalid
+        .action_replacement
+        .as_mut()
+        .unwrap()
+        .proofs
+        .remove("erase");
+    fs::write(
+        root.join("invalid-selection.json"),
+        serde_json::to_vec(&invalid).unwrap(),
+    )
+    .unwrap();
+    let output = run(vec![
+        "emit-core".into(),
+        root.join("source.ink").display().to_string(),
+        "--selection".into(),
+        root.join("invalid-selection.json").display().to_string(),
+        "-o".into(),
+        protected.display().to_string(),
+    ]);
+    assert!(!output.status.success());
+    assert_eq!(fs::read(&protected).unwrap(), b"keep original");
 }
