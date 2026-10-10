@@ -1,6 +1,6 @@
 //! Distribution facade. Semantic core has no lowering dependency.
 pub use ink_core::*;
-pub use ink_lowering_c::native;
+pub use ink_lowering_c::{compute, native};
 pub use ink_lowering_gpu::gpu;
 pub use ink_lowering_rust::{definition_native, ordered_storage};
 pub mod state_native {

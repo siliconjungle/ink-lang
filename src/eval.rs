@@ -5,6 +5,10 @@ use std::collections::BTreeMap;
 pub enum Value {
     U64(u64),
     U32(u32),
+    I32(i32),
+    F32(u32),
+    Vector(Vec<Value>),
+    Record(String, BTreeMap<String, Value>),
     Bool(bool),
     List(Vec<Value>),
     // The pure grammar can carry existing stateful value types unchanged.
@@ -17,6 +21,17 @@ impl Value {
         match self {
             Self::U64(x) => (*x).into(),
             Self::U32(x) => (*x).into(),
+            Self::I32(x) => (*x).into(),
+            Self::F32(bits) => {
+                let x = f32::from_bits(*bits);
+                if x.is_finite() {
+                    serde_json::json!(x)
+                } else {
+                    serde_json::json!({"F32Bits":bits})
+                }
+            }
+            Self::Vector(xs) => xs.iter().map(Self::json).collect(),
+            Self::Record(_, fs) => fs.iter().map(|(n, v)| (n.clone(), v.json())).collect(),
             Self::Bool(x) => (*x).into(),
             Self::List(xs) => xs.iter().map(Self::json).collect(),
             Self::Opaque(v) => v.json(),
@@ -24,6 +39,37 @@ impl Value {
     }
     pub fn from_json(v: &serde_json::Value, t: &Type) -> LangResult<Self> {
         match t {
+            Type::I32 => v
+                .as_i64()
+                .and_then(|n| i32::try_from(n).ok())
+                .map(Self::I32)
+                .ok_or("expected i32".into()),
+            Type::F32 => {
+                let bits = if let Some(b) = v.get("F32Bits") {
+                    if v.as_object().is_none_or(|o| o.len() != 1) {
+                        return Err("expected only F32Bits field".into());
+                    }
+                    u32::try_from(b.as_u64().ok_or("expected f32 bits")?)
+                        .map_err(|_| "f32 bits outside range")?
+                } else {
+                    let x = v.as_f64().ok_or("expected f32")? as f32;
+                    if !x.is_finite() {
+                        return Err("finite f32 input required; use explicit F32Bits for exceptional CPU values".into());
+                    }
+                    x.to_bits()
+                };
+                Ok(Self::F32(bits))
+            }
+            Type::Vector(t, n) => {
+                let xs = v.as_array().ok_or("expected vector array")?;
+                if xs.len() != *n as usize {
+                    return Err("vector dimension mismatch".into());
+                }
+                xs.iter()
+                    .map(|x| Self::from_json(x, t))
+                    .collect::<LangResult<Vec<_>>>()
+                    .map(Self::Vector)
+            }
             Type::U64 => v
                 .as_u64()
                 .map(Self::U64)
@@ -49,7 +95,30 @@ impl Value {
     }
     pub fn from_program_json(v: &serde_json::Value, t: &Type, p: &Program) -> LangResult<Self> {
         match t {
-            Type::U32 | Type::U64 | Type::Bool => Self::from_json(v, t),
+            Type::U32 | Type::U64 | Type::I32 | Type::F32 | Type::Vector(..) | Type::Bool => {
+                Self::from_json(v, t)
+            }
+            Type::Named(n) if p.records.contains_key(n) => {
+                let fs = &p.records[n];
+                let obj = v.as_object().ok_or("expected record object")?;
+                if obj.len() != fs.len() {
+                    return Err("record field count mismatch".into());
+                }
+                let fields = fs
+                    .iter()
+                    .map(|(name, t)| {
+                        Ok((
+                            name.clone(),
+                            Self::from_program_json(
+                                obj.get(name).ok_or("missing record field")?,
+                                t,
+                                p,
+                            )?,
+                        ))
+                    })
+                    .collect::<LangResult<BTreeMap<_, _>>>()?;
+                Ok(Self::Record(n.clone(), fields))
+            }
             Type::List(t) => v
                 .as_array()
                 .ok_or("expected JSON array")?
@@ -77,6 +146,200 @@ fn expr(
     *fuel -= 1;
     let ty = crate::check::infer_context(e, types, p, want)?;
     match e {
+        Expr::Float(bits) => Ok(Value::F32(*bits)),
+        Expr::Neg(e) => {
+            if ty == Type::I32 {
+                if let Expr::Num(n) = e.as_ref() {
+                    return Ok(Value::I32((*n as i32).wrapping_neg()));
+                }
+            }
+            let v = expr(e, env, types, p, fuel, Some(&ty))?;
+            Ok(match v {
+                Value::I32(x) => Value::I32(x.wrapping_neg()),
+                Value::U32(x) => Value::U32(x.wrapping_neg()),
+                Value::U64(x) => Value::U64(x.wrapping_neg()),
+                Value::F32(b) => Value::F32(b ^ 0x80000000),
+                _ => return Err("numeric negation".into()),
+            })
+        }
+        Expr::Let(n, t, a, b) => {
+            let at = crate::check::infer_context(a, types, p, t.as_deref())?;
+            let value = expr(a, env, types, p, fuel, Some(&at))?;
+            let mut local = env.clone();
+            local.insert(n.clone(), value);
+            let mut ts = types.clone();
+            ts.insert(n.clone(), at);
+            expr(b, &local, &ts, p, fuel, Some(&ty))
+        }
+        Expr::Record(n, fields) => {
+            let mut out = BTreeMap::new();
+            for (name, e) in fields {
+                let t = &p.records[n].iter().find(|(f, _)| f == name).unwrap().1;
+                out.insert(name.clone(), expr(e, env, types, p, fuel, Some(t))?);
+            }
+            Ok(Value::Record(n.clone(), out))
+        }
+        Expr::Field(e, n) => {
+            let v = expr(e, env, types, p, fuel, None)?;
+            match v {
+                Value::Record(_, fields) => fields.get(n).cloned().ok_or("missing field".into()),
+                Value::Vector(xs) => {
+                    Ok(xs[["x", "y", "z", "w"].iter().position(|f| *f == n).unwrap()].clone())
+                }
+                _ => Err("field access needs record/vector".into()),
+            }
+        }
+        Expr::Call(n, args) if ["vec2", "vec3", "vec4"].contains(&n.as_str()) => {
+            let Type::Vector(t, _) = &ty else {
+                return Err("vector type".into());
+            };
+            args.iter()
+                .map(|e| expr(e, env, types, p, fuel, Some(t)))
+                .collect::<LangResult<Vec<_>>>()
+                .map(Value::Vector)
+        }
+        Expr::Call(n, args) if n == "repeat" => {
+            let Expr::Num(bound) = args[0] else {
+                return Err("repeat bound".into());
+            };
+            let mut acc = expr(&args[1], env, types, p, fuel, Some(&ty))?;
+            let Expr::Lambda(index, l) = &args[2] else {
+                return Err("repeat index lambda".into());
+            };
+            let Expr::Lambda(name, body) = l.as_ref() else {
+                return Err("repeat accumulator lambda".into());
+            };
+            let mut ts = types.clone();
+            ts.insert(index.clone(), Type::U32);
+            ts.insert(name.clone(), ty.clone());
+            for i in 0..bound {
+                let mut local = env.clone();
+                local.insert(index.clone(), Value::U32(i as u32));
+                local.insert(name.clone(), acc);
+                acc = expr(body, &local, &ts, p, fuel, Some(&ty))?;
+            }
+            Ok(acc)
+        }
+        Expr::Call(n, args) if n == "quot_or" || n == "rem_or" => {
+            let a = expr(&args[0], env, types, p, fuel, Some(&ty))?;
+            let b = expr(&args[1], env, types, p, fuel, Some(&ty))?;
+            let result = match (&a, &b) {
+                (Value::U32(a), Value::U32(b)) => if n == "quot_or" {
+                    a.checked_div(*b)
+                } else {
+                    a.checked_rem(*b)
+                }
+                .map(Value::U32),
+                (Value::I32(a), Value::I32(b)) => if n == "quot_or" {
+                    a.checked_div(*b)
+                } else {
+                    a.checked_rem(*b)
+                }
+                .map(Value::I32),
+                (Value::U64(a), Value::U64(b)) => if n == "quot_or" {
+                    a.checked_div(*b)
+                } else {
+                    a.checked_rem(*b)
+                }
+                .map(Value::U64),
+                _ => return Err("integer division types".into()),
+            };
+            if let Some(v) = result {
+                Ok(v)
+            } else {
+                expr(&args[2], env, types, p, fuel, Some(&ty))
+            }
+        }
+        Expr::Method(xs, n, args) if n == "at_or" => {
+            let Value::List(xs) = expr(xs, env, types, p, fuel, None)? else {
+                return Err("at_or list".into());
+            };
+            let Value::U32(i) = expr(&args[0], env, types, p, fuel, Some(&Type::U32))? else {
+                return Err("at_or index".into());
+            };
+            if let Some(v) = xs.get(i as usize) {
+                Ok(v.clone())
+            } else {
+                expr(&args[1], env, types, p, fuel, Some(&ty))
+            }
+        }
+        Expr::Method(xs, n, args)
+            if ["zip", "map_indexed", "scan", "sort"].contains(&n.as_str()) =>
+        {
+            let Value::List(mut values) = expr(xs, env, types, p, fuel, None)? else {
+                return Err("array operator needs list".into());
+            };
+            let Type::List(input) = crate::check::infer(xs, types, p)? else {
+                return Err("array element type".into());
+            };
+            if n == "sort" {
+                values.sort_by(|a, b| match (a, b) {
+                    (Value::U32(a), Value::U32(b)) => a.cmp(b),
+                    (Value::I32(a), Value::I32(b)) => a.cmp(b),
+                    (Value::U64(a), Value::U64(b)) => a.cmp(b),
+                    _ => unreachable!(),
+                });
+                return Ok(Value::List(values));
+            }
+            if n == "scan" {
+                let mut acc = match &*input {
+                    Type::U32 => Value::U32(0),
+                    Type::I32 => Value::I32(0),
+                    _ => Value::U64(0),
+                };
+                for x in &mut values {
+                    acc = match (&acc, &*x) {
+                        (Value::U32(a), Value::U32(b)) => Value::U32(a.wrapping_add(*b)),
+                        (Value::I32(a), Value::I32(b)) => Value::I32(a.wrapping_add(*b)),
+                        (Value::U64(a), Value::U64(b)) => Value::U64(a.wrapping_add(*b)),
+                        _ => unreachable!(),
+                    };
+                    *x = acc.clone();
+                }
+                return Ok(Value::List(values));
+            }
+            let (lambda, other) = if n == "zip" {
+                let Value::List(ys) = expr(&args[0], env, types, p, fuel, None)? else {
+                    return Err("zip list".into());
+                };
+                (&args[1], ys)
+            } else {
+                (&args[0], Vec::new())
+            };
+            let Expr::Lambda(a, l) = lambda else {
+                return Err("nested lambda".into());
+            };
+            let Expr::Lambda(b, body) = l.as_ref() else {
+                return Err("nested lambda".into());
+            };
+            let Type::List(output) = &ty else {
+                return Err("output list".into());
+            };
+            let mut out = Vec::new();
+            for (i, x) in values.into_iter().enumerate() {
+                if n == "zip" && i >= other.len() {
+                    break;
+                }
+                let mut local = env.clone();
+                let mut ts = types.clone();
+                if n == "zip" {
+                    local.insert(a.clone(), x);
+                    local.insert(b.clone(), other[i].clone());
+                    ts.insert(a.clone(), (*input).clone());
+                    let Type::List(t) = crate::check::infer(&args[0], types, p)? else {
+                        return Err("zip type".into());
+                    };
+                    ts.insert(b.clone(), *t);
+                } else {
+                    local.insert(a.clone(), Value::U32(i as u32));
+                    local.insert(b.clone(), x);
+                    ts.insert(a.clone(), Type::U32);
+                    ts.insert(b.clone(), (*input).clone());
+                }
+                out.push(expr(body, &local, &ts, p, fuel, Some(output))?);
+            }
+            Ok(Value::List(out))
+        }
         Expr::Call(n, args) if n == "choose" => {
             if args.len() != 3 {
                 return Err("choose argument count".into());
@@ -112,7 +375,11 @@ fn expr(
             }
             Ok(rest_value)
         }
-        Expr::Num(n) => Ok(if ty == Type::U32 {
+        Expr::Num(n) => Ok(if ty == Type::I32 {
+            Value::I32(*n as i32)
+        } else if ty == Type::F32 {
+            Value::F32((*n as f32).to_bits())
+        } else if ty == Type::U32 {
             Value::U32(u32::try_from(*n).map_err(|_| "literal outside u32 range")?)
         } else {
             Value::U64(*n)
@@ -120,7 +387,7 @@ fn expr(
         Expr::Bool(b) => Ok(Value::Bool(*b)),
         Expr::Var(n) => env.get(n).cloned().ok_or_else(|| format!("unbound {n}")),
         Expr::Binary(op, a, b) => {
-            let operand_ty = if crate::check::is_word(&ty) {
+            let operand_ty = if crate::check::is_number(&ty) {
                 Some(ty.clone())
             } else {
                 crate::check::hint(a, types, p).or_else(|| crate::check::hint(b, types, p))
@@ -134,6 +401,32 @@ fn expr(
             }
             let bv = expr(b, env, types, p, fuel, operand_ty.as_ref())?;
             match (&av, &bv, op.as_str()) {
+                (Value::F32(a), Value::F32(b), op) => {
+                    let a = f32::from_bits(*a);
+                    let b = f32::from_bits(*b);
+                    Ok(match op {
+                        "+" => Value::F32((a + b).to_bits()),
+                        "-" => Value::F32((a - b).to_bits()),
+                        "*" => Value::F32((a * b).to_bits()),
+                        "<" => Value::Bool(a < b),
+                        ">" => Value::Bool(a > b),
+                        "<=" => Value::Bool(a <= b),
+                        ">=" => Value::Bool(a >= b),
+                        "==" => Value::Bool(a == b),
+                        "!=" => Value::Bool(a != b),
+                        _ => return Err("f32 operator".into()),
+                    })
+                }
+                (Value::I32(a), Value::I32(b), op) => Ok(match op {
+                    "+" => Value::I32(a.wrapping_add(*b)),
+                    "-" => Value::I32(a.wrapping_sub(*b)),
+                    "*" => Value::I32(a.wrapping_mul(*b)),
+                    "<" => Value::Bool(a < b),
+                    ">" => Value::Bool(a > b),
+                    "<=" => Value::Bool(a <= b),
+                    ">=" => Value::Bool(a >= b),
+                    _ => Value::Bool(if op == "==" { a == b } else { a != b }),
+                }),
                 (Value::U32(a), Value::U32(b), "+") => Ok(Value::U32(a.wrapping_add(*b))),
                 (Value::U32(a), Value::U32(b), "-") => Ok(Value::U32(a.wrapping_sub(*b))),
                 (Value::U32(a), Value::U32(b), "*") => Ok(Value::U32(a.wrapping_mul(*b))),
@@ -181,6 +474,26 @@ fn expr(
                 if let Some(Value::List(xs)) = vals.first() {
                     if n == "count" {
                         return Ok(Value::U64(xs.len() as u64));
+                    }
+                    if ty == Type::F32 {
+                        let mut result = 0.0f32;
+                        for x in xs {
+                            let Value::F32(b) = x else {
+                                return Err("float sum type".into());
+                            };
+                            result += f32::from_bits(*b);
+                        }
+                        return Ok(Value::F32(result.to_bits()));
+                    }
+                    if ty == Type::I32 {
+                        let mut result = 0i32;
+                        for x in xs {
+                            let Value::I32(x) = x else {
+                                return Err("i32 sum type".into());
+                            };
+                            result = result.wrapping_add(*x);
+                        }
+                        return Ok(Value::I32(result));
                     }
                     if ty == Type::U32 {
                         let mut sum = 0u32;

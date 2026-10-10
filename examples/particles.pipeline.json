@@ -1,0 +1,27 @@
+{
+  "inputs": {
+    "positions": [
+      [0, 0, 0],
+      [1, 0, 0]
+    ],
+    "velocities": [
+      [1, 2, 0],
+      [-1, 2, 0]
+    ]
+  },
+  "steps": [
+    {
+      "id": "velocity",
+      "call": "kick",
+      "args": [{ "input": "velocities" }, 0.015625, [0, -9.75, 0]]
+    },
+    {
+      "id": "position",
+      "call": "drift",
+      "args": [{ "input": "positions" }, { "step": "velocity" }, 0.015625]
+    }
+  ],
+  "iterations": 120,
+  "feedback": { "positions": "position", "velocities": "velocity" },
+  "outputs": ["position", "velocity"]
+}

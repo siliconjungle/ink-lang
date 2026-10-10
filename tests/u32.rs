@@ -127,6 +127,9 @@ query carried_word(x:String)->u32{return word_with_text(x);}
 fn text(x:String)->String{return x;}
 fn flags(xs:List<Bool>)->u32{return sum(xs.filter(fn(x)=>x).map(fn(x)=>1));}
 fn labels(xs:List<Label>)->List<Label>{return xs.filter(fn(x)=>true);}
+fn make_label(x:String)->Label{let y:String=x;return Label{text:y};}
+fn read_label(x:Label)->String{return x.text;}
+query constructed(x:String)->String{return read_label(make_label(x));}
 query echo_exact(x:Int)->Int{return exact(x);}
 query echo_text(x:String)->String{return text(x);}
 query bool_words(xs:List<Bool>)->u32{return flags(xs);}
@@ -138,7 +141,7 @@ query ordered(xs:List<u32>)->u32{return fold(xs);}
     )
     .unwrap();
     check::check(&p).unwrap();
-    let script = serde_json::json!([{ "call":"echo_exact","args":[{"Int":"18446744073709551616000"}]},{"call":"echo_text","args":["hello"]},{"call":"bool_words","args":[[true,false,true]]},{"call":"record_words","args":[[{"text":"one"},{"text":"two"}]]},{"call":"first","args":[4294967295u32,false]},{"call":"first","args":[4294967295u32,true]},{"call":"count_words","args":[[]]},{"call":"count_words","args":[[1,2,3]]},{"call":"ordered","args":[[1,2,3]]},{"call":"carried_word","args":["opaque parameter"]}]);
+    let script = serde_json::json!([{ "call":"echo_exact","args":[{"Int":"18446744073709551616000"}]},{"call":"echo_text","args":["hello"]},{"call":"bool_words","args":[[true,false,true]]},{"call":"record_words","args":[[{"text":"one"},{"text":"two"}]]},{"call":"first","args":[4294967295u32,false]},{"call":"first","args":[4294967295u32,true]},{"call":"count_words","args":[[]]},{"call":"count_words","args":[[1,2,3]]},{"call":"ordered","args":[[1,2,3]]},{"call":"carried_word","args":["opaque parameter"]},{"call":"constructed","args":["new label"]}]);
     let mut rt = Runtime::new(p.clone()).unwrap();
     let expected: Vec<_> = script
         .as_array()
@@ -157,6 +160,7 @@ query ordered(xs:List<u32>)->u32{return fold(xs);}
     assert_eq!(expected[1]["result"], serde_json::json!("hello"));
     assert_eq!(expected[2]["result"], serde_json::json!(2));
     assert_eq!(expected[9]["result"], serde_json::json!(0));
+    assert_eq!(expected[10]["result"], serde_json::json!("new label"));
     assert_eq!(
         expected[3]["result"],
         serde_json::json!([{"text":"one"},{"text":"two"}])

@@ -60,6 +60,33 @@ fn lex(source: &str) -> LangResult<Vec<Token>> {
             while p < b.len() && (b[p].is_ascii_alphanumeric() || b[p] == b'_') {
                 p += 1;
             }
+            if !source[start..p].starts_with("0x") {
+                if p + 1 < b.len() && b[p] == b'.' && b[p + 1].is_ascii_digit() {
+                    p += 1;
+                    while p < b.len() && (b[p].is_ascii_digit() || b[p] == b'_') {
+                        p += 1;
+                    }
+                }
+                if p < b.len() && (b[p] == b'e' || b[p] == b'E') {
+                    p += 1;
+                    if p < b.len() && (b[p] == b'+' || b[p] == b'-') {
+                        p += 1;
+                    }
+                    while p < b.len() && b[p].is_ascii_digit() {
+                        p += 1;
+                    }
+                }
+                // An exponent immediately following integer digits was consumed
+                // above; its sign/digits still belong to this numeric token.
+                if p > start && (b[p - 1] == b'e' || b[p - 1] == b'E') {
+                    if p < b.len() && (b[p] == b'+' || b[p] == b'-') {
+                        p += 1;
+                    }
+                    while p < b.len() && b[p].is_ascii_digit() {
+                        p += 1;
+                    }
+                }
+            }
         } else if ["->", "=>", "==", "!=", "<=", ">=", "&&", "||"]
             .iter()
             .any(|s| source[p..].starts_with(s))
@@ -140,6 +167,14 @@ impl Parser {
         let result = match self.take().as_str() {
             "u64" => Ok(Type::U64),
             "u32" => Ok(Type::U32),
+            "i32" => Ok(Type::I32),
+            "f32" => Ok(Type::F32),
+            kind @ ("Vec2" | "Vec3" | "Vec4") => {
+                self.expect("<")?;
+                let t = self.ty()?;
+                self.expect(">")?;
+                Ok(Type::Vector(Box::new(t), kind.as_bytes()[3] - b'0'))
+            }
             "Int" => Ok(Type::Int),
             "Unit" => Ok(Type::Unit),
             "String" => Ok(Type::String),
@@ -214,7 +249,9 @@ impl Parser {
         if self.depth > 128 {
             return Err(self.err("expression nesting limit exceeded"));
         }
-        let mut lhs = if self.eat("(") {
+        let mut lhs = if self.eat("-") {
+            Expr::Neg(Box::new(self.expr(7)?))
+        } else if self.eat("(") {
             if self.eat(")") {
                 Expr::Unit
             } else {
@@ -238,13 +275,23 @@ impl Parser {
             Expr::Bool(false)
         } else if self.peek().as_bytes()[0].is_ascii_digit() {
             let s = self.take().replace('_', "");
-            let n = if let Some(h) = s.strip_prefix("0x") {
-                u64::from_str_radix(h, 16)
+            if !s.starts_with("0x") && (s.contains('.') || s.contains('e') || s.contains('E')) {
+                let x = s
+                    .parse::<f32>()
+                    .map_err(|_| format!("invalid f32 literal {s}"))?;
+                if !x.is_finite() {
+                    return Err(self.err("f32 literal is outside finite range"));
+                }
+                Expr::Float(x.to_bits())
             } else {
-                s.parse::<u64>()
+                let n = if let Some(h) = s.strip_prefix("0x") {
+                    u64::from_str_radix(h, 16)
+                } else {
+                    s.parse::<u64>()
+                }
+                .map_err(|_| format!("invalid u64 literal {s}"))?;
+                Expr::Num(n)
             }
-            .map_err(|_| format!("invalid u64 literal {s}"))?;
-            Expr::Num(n)
         } else {
             let name = self.name()?;
             if self.peek() == "{" && self.records.contains(&name) {
@@ -326,8 +373,24 @@ impl Parser {
                 self.expect("->")?;
                 let result = self.ty()?;
                 self.expect("{")?;
+                let mut bindings = Vec::new();
+                while self.eat("let") {
+                    let n = self.name()?;
+                    let t = if self.eat(":") {
+                        Some(self.ty()?)
+                    } else {
+                        None
+                    };
+                    self.expect("=")?;
+                    let e = self.expr(0)?;
+                    self.expect(";")?;
+                    bindings.push((n, t, e));
+                }
                 self.expect("return")?;
-                let body = self.expr(0)?;
+                let mut body = self.expr(0)?;
+                for (n, t, e) in bindings.into_iter().rev() {
+                    body = Expr::Let(n, t.map(Box::new), Box::new(e), Box::new(body));
+                }
                 self.expect(";")?;
                 self.expect("}")?;
                 p.functions.push(Function {

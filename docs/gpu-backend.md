@@ -1,5 +1,8 @@
 # Word types and measured GPU execution
 
+This page describes the preserved v1 word backend. For the newer numeric arrays,
+vectors/records and resident pipelines, see [pure compute v2](gpu-compute.md).
+
 Ink's pure frontend, reference evaluator, C/native backend and Wasm backend now
 support `u32` alongside `u64`. Pure functions embedded in generated stateful Rust
 use the same contextual word typing. `+`, `-`, `*` and `sum` wrap at the declared

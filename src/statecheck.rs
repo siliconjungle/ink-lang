@@ -33,12 +33,18 @@ fn concrete(t: &Type) -> bool {
         _ => true,
     }
 }
-fn validate_type(t: &Type, p: &Program) -> LangResult<()> {
+pub(crate) fn validate_type(t: &Type, p: &Program) -> LangResult<()> {
     match t {
         Type::Named(n)
             if !p.ids.contains(n) && !p.records.contains_key(n) && !p.enums.contains_key(n) =>
         {
             Err(format!("unknown type {n}"))
+        }
+        Type::Vector(t, n) => {
+            if !(2..=4).contains(n) || !matches!(**t, Type::U32 | Type::I32 | Type::F32) {
+                return Err("vector requires 2..4 numeric 32-bit components".into());
+            }
+            Ok(())
         }
         Type::List(t) | Type::Option(t) => validate_type(t, p),
         Type::Result(a, b) | Type::Table(a, b) => {
@@ -98,6 +104,9 @@ impl Context<'_> {
     fn infer(&self, e: &Expr, env: &Env, facts: &mut Facts) -> LangResult<Type> {
         use Type as T;
         match e {
+            Expr::Float(_) | Expr::Neg(_) | Expr::Let(..) => {
+                Err("compute expression belongs in a pure function".into())
+            }
             Expr::Num(_) => Ok(T::U64),
             Expr::Bool(_) => Ok(T::Bool),
             Expr::String(_) => Ok(T::String),
@@ -326,6 +335,10 @@ impl Context<'_> {
                     return Ok(a.result.clone());
                 }
                 if let Some(f) = self.p.functions.iter().find(|f| &f.name == n) {
+                    legacy(&f.result, self.p, &mut BTreeSet::new())?;
+                    for (_, t) in &f.params {
+                        legacy(t, self.p, &mut BTreeSet::new())?;
+                    }
                     if args.len() != f.params.len() {
                         return Err(format!("{n} argument count mismatch"));
                     }
@@ -520,7 +533,31 @@ impl Context<'_> {
     }
 }
 
+fn legacy(t: &Type, p: &Program, seen: &mut BTreeSet<String>) -> LangResult<()> {
+    match t {
+            Type::I32|Type::F32|Type::Vector(..)=>Err("compute types are currently supported in pure functions; state/action Wire support is not implemented".into()),
+            Type::Named(n) if seen.insert(n.clone())=>{if let Some(fields)=p.records.get(n){for(_,t)in fields{legacy(t,p,seen)?;}}Ok(())},
+            Type::List(t)|Type::Option(t)=>legacy(t,p,seen),
+            Type::Table(a,b)|Type::Result(a,b)=>{legacy(a,p,seen)?;legacy(b,p,seen)},
+            _=>Ok(())
+        }
+}
 pub fn check(p: &Program) -> LangResult<()> {
+    for t in p
+        .events
+        .values()
+        .chain(p.states.iter().map(|s| &s.ty))
+        .chain(p.keeps.iter().map(|s| &s.ty))
+        .chain(p.actions.iter().flat_map(|a| {
+            a.params
+                .iter()
+                .map(|(_, t)| t)
+                .chain(std::iter::once(&a.result))
+        }))
+    {
+        legacy(t, p, &mut BTreeSet::new())?;
+    }
+
     let mut names = BTreeSet::new();
     for n in p
         .ids
@@ -537,6 +574,17 @@ pub fn check(p: &Program) -> LangResult<()> {
             || [
                 "Int",
                 "u32",
+                "i32",
+                "f32",
+                "Vec2",
+                "Vec3",
+                "Vec4",
+                "repeat",
+                "vec2",
+                "vec3",
+                "vec4",
+                "quot_or",
+                "rem_or",
                 "u64",
                 "Bool",
                 "Unit",

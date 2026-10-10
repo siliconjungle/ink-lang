@@ -364,3 +364,16 @@ Actual Ink source actions, error/abort/event/commit semantics, physical buffer
 operations, snapshots and candidate installation still require correspondence
 and preservation proofs. Efficient physical representations and measured
 selection remain production work; this interface does not close that gate.
+
+## Compute v2 boundary
+
+The general pure compute extension defines logical signed words, portable f32,
+vectors, record construction/access, safe indexed reads and literal bounded loops.
+New programs serialize with executable-core-v2; legacy programs retain v1
+identities. Scalar operation structure and collection stages are lowered directly.
+The GPU pipeline API is explicit host composition, not a core fusion/rewrite law.
+C/Wasm and WGSL emission, packed value correspondence, call ownership and host
+execution are trusted mechanisms. WGSL-permitted floating behaviour is part of
+the v2 contract; IEEE bitwise equivalence is not inferred from profiling or tests.
+Existing proof translators reject unsupported compute forms. See
+[compute contract and validation](gpu-compute.md).

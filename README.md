@@ -1,5 +1,18 @@
 # Ink
 
+## Numeric arrays and resident GPU pipelines
+
+Pure compute now supports `i32`, `f32`, numeric vectors/records, multiple array
+inputs, array results, safe indexed reads and bounded loops. WebGPU and native
+wgpu hosts can execute typed pipelines whose intermediate arrays stay resident
+across steps and iterations, with compiled CPU fallback and measured whole
+pipeline selection. The particle example includes velocity/position updates and
+a 120-step pipeline. Portable GPU float arithmetic does not promise bitwise CPU
+identity. Stateful Wire support for these new types remains future work.
+See [compute semantics, pipeline API and limits](docs/gpu-compute.md) and
+[validation evidence](reports/gpu-phase2/REPORT.md).
+
+
 ## u32 and browser/native GPU execution
 
 The pure frontend, evaluator and native/Wasm backends now support `u32` words

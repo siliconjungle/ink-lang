@@ -8,6 +8,9 @@ use serde::{Deserialize, Serialize};
 pub enum Type {
     U64,
     U32,
+    I32,
+    F32,
+    Vector(Box<Type>, u8),
     Int,
     Unit,
     String,
@@ -24,6 +27,10 @@ pub enum Type {
 #[serde(deny_unknown_fields)]
 pub enum Expr {
     Num(u64),
+    Float(u32),
+    Neg(Box<Expr>),
+    // Box annotations to preserve the compact v1 Expr stack footprint.
+    Let(String, Option<Box<Type>>, Box<Expr>, Box<Expr>),
     Bool(bool),
     Var(String),
     Binary(String, Box<Expr>, Box<Expr>),
@@ -112,6 +119,7 @@ pub struct Program {
 /// This version fixes the executable representation and its current semantics,
 /// not the larger proposed language or a proof of the Rust implementation.
 pub const SEMANTICS: &str = "ink-executable-core-v1";
+pub const COMPUTE_SEMANTICS: &str = "ink-executable-core-v2";
 pub const MAX_BYTES: usize = 16_000_000;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -129,11 +137,16 @@ pub struct CheckedModule(WireModule);
 
 impl CheckedModule {
     pub fn from_source(program: Program) -> LangResult<Self> {
-        validate(&program)?;
+        let extended = validate(&program)?;
         crate::check::check(&program)?;
         let module = Self(WireModule {
             schema: 1,
-            semantics: SEMANTICS.into(),
+            semantics: if extended {
+                COMPUTE_SEMANTICS
+            } else {
+                SEMANTICS
+            }
+            .into(),
             program,
         });
         module.bytes()?;
@@ -146,10 +159,18 @@ impl CheckedModule {
         }
         let wire: WireModule =
             serde_json::from_slice(bytes).map_err(|e| format!("invalid core module: {e}"))?;
-        if wire.schema != 1 || wire.semantics != SEMANTICS {
+        if wire.schema != 1 || ![SEMANTICS, COMPUTE_SEMANTICS].contains(&wire.semantics.as_str()) {
             return Err("incompatible executable core semantics".into());
         }
-        Self::from_source(wire.program)
+        let checked = Self::from_source(wire.program)?;
+        if checked.semantics() != wire.semantics {
+            return Err("incorrect executable semantics version".into());
+        }
+        Ok(checked)
+    }
+
+    pub fn semantics(&self) -> &str {
+        &self.0.semantics
     }
 
     pub fn program(&self) -> &Program {
@@ -182,7 +203,6 @@ impl CheckedModule {
             || !p.actions.is_empty()
             || !p.events.is_empty()
             || !p.ids.is_empty()
-            || !p.records.is_empty()
             || !p.enums.is_empty()
         {
             return Err(
@@ -196,6 +216,7 @@ impl CheckedModule {
 
 struct Bounds {
     remaining: usize,
+    extended: bool,
 }
 impl Bounds {
     fn step(&mut self, depth: usize) -> LangResult<()> {
@@ -221,6 +242,17 @@ impl Bounds {
     fn ty(&mut self, t: &Type, d: usize) -> LangResult<()> {
         self.step(d)?;
         match t {
+            Type::I32 | Type::F32 => {
+                self.extended = true;
+                Ok(())
+            }
+            Type::Vector(t, n) => {
+                self.extended = true;
+                if !(2..=4).contains(n) || !matches!(**t, Type::U32 | Type::I32 | Type::F32) {
+                    return Err("vectors require 2–4 32-bit numeric components".into());
+                }
+                self.ty(t, d + 1)
+            }
             Type::Unknown => Err("unresolved type in executable core".into()),
             Type::Named(n) => self.name(n),
             Type::List(t) | Type::Option(t) => self.ty(t, d + 1),
@@ -234,12 +266,35 @@ impl Bounds {
     fn expr(&mut self, e: &Expr, d: usize) -> LangResult<()> {
         self.step(d)?;
         match e {
+            Expr::Float(bits) => {
+                self.extended = true;
+                if !f32::from_bits(*bits).is_finite() {
+                    return Err("non-finite float literal".into());
+                }
+                Ok(())
+            }
+            Expr::Neg(e) => {
+                self.extended = true;
+                self.expr(e, d + 1)
+            }
+            Expr::Let(n, t, a, b) => {
+                self.extended = true;
+                self.name(n)?;
+                if let Some(t) = t {
+                    self.ty(t, d + 1)?;
+                }
+                self.expr(a, d + 1)?;
+                self.expr(b, d + 1)
+            }
             Expr::Var(n) => self.name(n),
             Expr::Binary(_, a, b) => {
                 self.expr(a, d + 1)?;
                 self.expr(b, d + 1)
             }
             Expr::Call(n, args) => {
+                if ["repeat", "vec2", "vec3", "vec4", "quot_or", "rem_or"].contains(&n.as_str()) {
+                    self.extended = true;
+                }
                 self.name(n)?;
                 for a in args {
                     self.expr(a, d + 1)?;
@@ -247,6 +302,9 @@ impl Bounds {
                 Ok(())
             }
             Expr::Method(e, n, args) => {
+                if ["zip", "map_indexed", "at_or", "scan", "sort"].contains(&n.as_str()) {
+                    self.extended = true;
+                }
                 self.name(n)?;
                 self.expr(e, d + 1)?;
                 for a in args {
@@ -310,7 +368,7 @@ impl Bounds {
     }
 }
 
-fn validate(p: &Program) -> LangResult<()> {
+fn validate(p: &Program) -> LangResult<bool> {
     if !p.rules.is_empty() {
         return Err(
             "executable core excludes inline rewrites; supply an external proof package".into(),
@@ -328,7 +386,10 @@ fn validate(p: &Program) -> LangResult<()> {
     {
         return Err("core declaration limit exceeded".into());
     }
-    let mut b = Bounds { remaining: 100_000 };
+    let mut b = Bounds {
+        remaining: 100_000,
+        extended: false,
+    };
     if !p.module.is_empty() {
         b.name(&p.module)?;
     }
@@ -337,6 +398,17 @@ fn validate(p: &Program) -> LangResult<()> {
         b.params(&f.params)?;
         b.ty(&f.result, 0)?;
         b.expr(&f.body, 0)?;
+        fn new_record_expr(e: &Expr) -> bool {
+            match e {
+                Expr::Record(..) | Expr::Field(..) => true,
+                Expr::Binary(_, a, b) => new_record_expr(a) || new_record_expr(b),
+                Expr::Call(_, a) => a.iter().any(new_record_expr),
+                Expr::Method(x, _, a) => new_record_expr(x) || a.iter().any(new_record_expr),
+                Expr::Lambda(_, b) => new_record_expr(b),
+                _ => false,
+            }
+        }
+        b.extended |= new_record_expr(&f.body);
     }
     for n in &p.ids {
         b.name(n)?;
@@ -369,5 +441,5 @@ fn validate(p: &Program) -> LangResult<()> {
         }
         b.statements(&a.body, 0)?;
     }
-    Ok(())
+    Ok(b.extended)
 }

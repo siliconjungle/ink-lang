@@ -294,3 +294,16 @@ plans by complete costs including upload, readback, conversion, allocation and
 synchronisation. Compare against all-CPU and algorithm-matched controls. State
 placement additionally requires future-call, abort/event/snapshot/migration
 preservation. See docs/backend-packages.md. Earlier acceptance gates remain open.
+
+## Resident compute milestone
+
+The pure compute v2 milestone now lowers i32/f32 vectors and numeric records,
+multiple arrays, array outputs, safe indexed access and bounded loops to C/Wasm
+and eligible WebGPU/wgpu kernels. Explicit host pipelines retain intermediate
+buffers across steps and iterations; whole-pipeline timings select CPU/GPU.
+See `docs/gpu-compute.md` for the versioned float contract, ABI and trust boundary.
+
+Next: persistent resident handles across host calls, richer source-level control
+flow, reusable GPU scan/sort/scatter primitives with explicit conditions, tiled
+matrix kernels, wider stateful Wire support and externally checked pipeline
+rewrites. Current profiling is host policy, not proof-producing optimization.

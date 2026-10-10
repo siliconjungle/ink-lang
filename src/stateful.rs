@@ -547,6 +547,9 @@ impl Runtime {
     fn expr(&mut self, e: &Expr, env: &Env) -> Exec<Value> {
         self.tick()?;
         match e {
+            Expr::Float(_) | Expr::Neg(_) | Expr::Let(..) => {
+                Err("compute expression belongs in a pure function".into())
+            }
             Expr::Num(n) => Ok(Value::U64(*n)),
             Expr::Bool(v) => Ok(Value::Bool(*v)),
             Expr::String(s) => Ok(Value::String(s.clone())),

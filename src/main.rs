@@ -293,7 +293,7 @@ fn run() -> LangResult<()> {
             }
             println!(
                 "{}",
-                serde_json::json!({"status":"checked", "semantics":core::SEMANTICS,
+                serde_json::json!({"status":"checked", "semantics":module.semantics(),
                 "core_sha256":module.identity()?, "functions":module.program().functions.len(),
                 "actions":module.program().actions.len(), "trust":"Rust structural/type/effect checks; no proof of checker or backend correctness"})
             );
@@ -505,6 +505,11 @@ fn run() -> LangResult<()> {
                     "-Wl,--export=__heap_base",
                     "-Wl,--export-memory",
                 ]);
+                if verified_language::compute::needed(&p) {
+                    for symbol in ["ink_compute_call", "ink_compute_reset", "ink_alloc"] {
+                        command.arg(format!("-Wl,--export={symbol}"));
+                    }
+                }
                 for f in &p.functions {
                     command.arg(format!("-Wl,--export=lang_fn_{}", f.name));
                 }
@@ -543,7 +548,7 @@ fn run() -> LangResult<()> {
                 "{:x}",
                 Sha256::digest(serde_json::to_vec(&p).map_err(|e| e.to_string())?)
             );
-            let manifest = serde_json::json!({"source":path,"module":p.module,"target":target,"core_semantics":core::SEMANTICS,"input_core_sha256":input_core_sha256,"selected_core_sha256":selected_core_sha256,"input_program_sha256":input_program_sha256,"selected_program_sha256":selected_program_sha256,"generated_c_sha256":generated_c_sha256,"checked_replacement":replacement,"checked_implementation":implementation,"applied_rule_ids":used,"database_lock":serde_json::Value::Null,"database_closure":serde_json::Value::Null,"verified_fragment":"whole-function inductive collection equality; total-scalar equality proof terms","trusted":["Rust checker implementation","source semantics correspondence","literal collection lowering and allocation","generated C","Clang/LLVM backend","host ABI"],"unsupported_spec_features":"see PLAN.md and STATUS.md"});
+            let manifest = serde_json::json!({"source":path,"module":p.module,"target":target,"core_semantics":core::CheckedModule::from_source(p.clone())?.semantics(),"input_core_sha256":input_core_sha256,"selected_core_sha256":selected_core_sha256,"input_program_sha256":input_program_sha256,"selected_program_sha256":selected_program_sha256,"generated_c_sha256":generated_c_sha256,"checked_replacement":replacement,"checked_implementation":implementation,"applied_rule_ids":used,"database_lock":serde_json::Value::Null,"database_closure":serde_json::Value::Null,"verified_fragment":"whole-function inductive collection equality; total-scalar equality proof terms","trusted":["Rust checker implementation","source semantics correspondence","literal collection lowering and allocation","generated C","Clang/LLVM backend","host ABI"],"unsupported_spec_features":"see PLAN.md and STATUS.md"});
             write(
                 &format!("{out}.plan.json"),
                 &serde_json::to_string_pretty(&manifest).map_err(|e| e.to_string())?,
@@ -565,6 +570,11 @@ fn run() -> LangResult<()> {
                         "-Wl,--export=__heap_base",
                         "-Wl,--export-memory",
                     ]);
+                    if verified_language::compute::needed(&p) {
+                        for symbol in ["ink_compute_call", "ink_compute_reset", "ink_alloc"] {
+                            command.arg(format!("-Wl,--export={symbol}"));
+                        }
+                    }
                     for f in &p.functions {
                         command.arg(format!("-Wl,--export=lang_fn_{}", f.name));
                     }
