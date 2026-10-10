@@ -164,3 +164,8 @@ through the [selected emission APIs](selected-checkpoints.md). Raw emission of a
 changed program keeps its own namespace. This preserves checkpoints between
 checked plans for one source; it does not authorise schema evolution or arbitrary
 stateful replacement.
+
+[Collection pipeline laws](collection-pipelines.md) remove unused maps and
+intermediate lists before ordered reductions using ordinary database proofs.
+The standalone planner CLI accepts `--rounds 32` for larger selections without
+changing its default twelve rounds or the separate proof-check budget.
