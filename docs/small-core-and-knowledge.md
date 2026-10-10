@@ -37,7 +37,8 @@ The present prototype is an implementation experiment, not yet this architecture
 
 | Location | Current mechanism | Required destination |
 | --- | --- | --- |
-| `proof.rs` | Polynomial normalisation plus rule matching/search | Proof producer and generic external search; core checks emitted proof terms |
+| Former `proof.rs` | Retired from the production crate | External law selection/proof production now uses the general checked replacement interface |
+| `knowledge.rs` | Historical scalar library verification only; search retired | Current scalar search/conditions/proofs live in `ink-knowledge/tools/rewrite_search.py` |
 | `aggregate.rs` | Built-in finite-map induction schema and row-pipeline recogniser | Definition/theorem/implementation objects and external applicability search |
 | `state_native.rs` | Built-in bounded-sum analysis and alternative cache generation | Range-proof producer and database-defined representation/lowering plan |
 | `native.rs` | Literal collection execution; previous automatic fusion removed | Checked map/filter/sum/count/foldr bridge now includes conditional computation and acyclic pure calls; migrate the remaining state/representation authority |
@@ -47,7 +48,7 @@ Moving these routines to another Rust module, or wrapping them in a package name
 
 LLVM currently performs additional optimisation after generated C/Rust. The small-core claim must distinguish our language-level core from this external trusted toolchain. Replacing LLVM with a minimal backend is a separate engineering task; concealing its optimisation would be misleading.
 
-The arithmetic certificate path described below is now an alternative to the legacy polynomial normaliser. The legacy path remains present; adding an alternative does not by itself remove its transformation authority or finish the architecture migration.
+The modular-polynomial optimiser and older scalar matching/search path have now been retired. The historical milestone descriptions below preserve their earlier evidence; they are not descriptions of current compilation authority. Aggregate, bounded-cache and representation authority still needs migration.
 
 ## Versioned executable subject and replacement admission
 
@@ -271,5 +272,27 @@ structures and square factoring also retain the original implementation.
 Thus this is a deliberate reduction in the old polynomial path's supported
 identities, not proof that all historical optimisations have migrated.
 General stateful maintenance, bounded representations, physical layout
-admission and the older scalar database search still need further separation.
+admission still need further separation. The older scalar search was subsequently retired as described below.
 The trusted bridge/kernel and backend boundaries are unchanged.
+
+## Scalar search retirement and conditional proofs
+
+`knowledge.rs` now only verifies the historical scalar object format. Its rule
+selection, matcher, traversal, premise search and application entry point are
+removed. `--database` fails explicitly before compilation; it cannot silently
+ignore or re-enable a legacy optimisation. `verify-database` still checks old
+mathematical libraries, without granting compilation authority.
+
+The external `scalar_library.py` translates the Boolean/composed/conditional
+libraries to general logic declarations. Hashes and dependencies are remapped,
+and the unchanged compiler rechecks every translated theorem. The external
+`rewrite_search.py` expands acyclic scalar definitions, matches typed arguments,
+and supplies complete conditional-use and Boolean-split proofs. Each active
+branch proves its actual new guard; inactive branches use ordinary checked DB
+annihilation lemmas. No profile fact enters those proof contexts.
+
+Search operates on source or the checked core format. Missing branch-closing
+laws or exhausted search retain the original function. General kernel and
+source correspondence remain unchanged. The old scalar calculus stays in the
+trusted compatibility reader; removing that reader is a separate compatibility
+decision, not a hidden second compilation path.

@@ -1,0 +1,1052 @@
+{
+  "schema": 1,
+  "semantics": "ink-checked-replacement-v1",
+  "core_semantics": "ink-executable-core-v1",
+  "input_core_sha256": "799f767785a3112f0bf3730521d81cb8cf9175d588fff9f5de8c07434ebee958",
+  "observations": "pure-total-values-v1",
+  "library_lock_sha256": "fdd153afa4cb20f966e52cf41805ce8beb6dca59d8c9501e8cf94ddb91ec4d86",
+  "package": {
+    "schema": 1,
+    "semantics": "source-collections-v1",
+    "library": "lock.json",
+    "proposals": [
+      {
+        "function": "conjunction",
+        "from": {
+          "Binary": [
+            "&&",
+            {
+              "Var": "a"
+            },
+            {
+              "Binary": [
+                "||",
+                {
+                  "Binary": [
+                    "&&",
+                    {
+                      "Var": "a"
+                    },
+                    {
+                      "Var": "b"
+                    }
+                  ]
+                },
+                {
+                  "Var": "c"
+                }
+              ]
+            }
+          ]
+        },
+        "to": {
+          "Binary": [
+            "&&",
+            {
+              "Var": "a"
+            },
+            {
+              "Binary": [
+                "||",
+                {
+                  "Var": "b"
+                },
+                {
+                  "Var": "c"
+                }
+              ]
+            }
+          ]
+        },
+        "datatype": "09b3f13ec092c5d377c8be240c1ad7954a2e0ff748acc284ee04866a2b2087f6",
+        "from_definitions": [],
+        "to_definitions": [],
+        "proof": {
+          "Trans": [
+            {
+              "Binary": {
+                "op": "&&",
+                "left": {
+                  "Refl": {
+                    "Var": "p0"
+                  }
+                },
+                "right": {
+                  "Refl": {
+                    "Binary": {
+                      "op": "||",
+                      "left": {
+                        "Binary": {
+                          "op": "&&",
+                          "left": {
+                            "Var": "p0"
+                          },
+                          "right": {
+                            "Var": "p1"
+                          }
+                        }
+                      },
+                      "right": {
+                        "Var": "p2"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "BoolSplit": {
+                "condition": {
+                  "Var": "p0"
+                },
+                "from": {
+                  "Binary": {
+                    "op": "&&",
+                    "left": {
+                      "Var": "p0"
+                    },
+                    "right": {
+                      "Binary": {
+                        "op": "||",
+                        "left": {
+                          "Binary": {
+                            "op": "&&",
+                            "left": {
+                              "Var": "p0"
+                            },
+                            "right": {
+                              "Var": "p1"
+                            }
+                          }
+                        },
+                        "right": {
+                          "Var": "p2"
+                        }
+                      }
+                    }
+                  }
+                },
+                "to": {
+                  "Binary": {
+                    "op": "&&",
+                    "left": {
+                      "Var": "p0"
+                    },
+                    "right": {
+                      "Binary": {
+                        "op": "||",
+                        "left": {
+                          "Var": "p1"
+                        },
+                        "right": {
+                          "Var": "p2"
+                        }
+                      }
+                    }
+                  }
+                },
+                "on_false": {
+                  "Trans": [
+                    {
+                      "Trans": [
+                        {
+                          "Binary": {
+                            "op": "&&",
+                            "left": {
+                              "Hypothesis": 0
+                            },
+                            "right": {
+                              "Refl": {
+                                "Binary": {
+                                  "op": "||",
+                                  "left": {
+                                    "Binary": {
+                                      "op": "&&",
+                                      "left": {
+                                        "Var": "p0"
+                                      },
+                                      "right": {
+                                        "Var": "p1"
+                                      }
+                                    }
+                                  },
+                                  "right": {
+                                    "Var": "p2"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "Use": {
+                            "theorem": "d3c5208f8463785a71707ab6bdefd80baf09b21c3b023d2cdc9a8164c784f865",
+                            "arguments": [
+                              {
+                                "Binary": {
+                                  "op": "||",
+                                  "left": {
+                                    "Binary": {
+                                      "op": "&&",
+                                      "left": {
+                                        "Var": "p0"
+                                      },
+                                      "right": {
+                                        "Var": "p1"
+                                      }
+                                    }
+                                  },
+                                  "right": {
+                                    "Var": "p2"
+                                  }
+                                }
+                              }
+                            ],
+                            "premises": []
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "Sym": {
+                        "Trans": [
+                          {
+                            "Binary": {
+                              "op": "&&",
+                              "left": {
+                                "Hypothesis": 0
+                              },
+                              "right": {
+                                "Refl": {
+                                  "Binary": {
+                                    "op": "||",
+                                    "left": {
+                                      "Var": "p1"
+                                    },
+                                    "right": {
+                                      "Var": "p2"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "Use": {
+                              "theorem": "d3c5208f8463785a71707ab6bdefd80baf09b21c3b023d2cdc9a8164c784f865",
+                              "arguments": [
+                                {
+                                  "Binary": {
+                                    "op": "||",
+                                    "left": {
+                                      "Var": "p1"
+                                    },
+                                    "right": {
+                                      "Var": "p2"
+                                    }
+                                  }
+                                }
+                              ],
+                              "premises": []
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "on_true": {
+                  "Binary": {
+                    "op": "&&",
+                    "left": {
+                      "Refl": {
+                        "Var": "p0"
+                      }
+                    },
+                    "right": {
+                      "Binary": {
+                        "op": "||",
+                        "left": {
+                          "Trans": [
+                            {
+                              "Binary": {
+                                "op": "&&",
+                                "left": {
+                                  "Refl": {
+                                    "Var": "p0"
+                                  }
+                                },
+                                "right": {
+                                  "Refl": {
+                                    "Var": "p1"
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "Use": {
+                                "theorem": "1757c2e9e959ff4d13ad32d22361e9ee56b0f387363064b92c71dcde06af3429",
+                                "arguments": [
+                                  {
+                                    "Var": "p0"
+                                  },
+                                  {
+                                    "Var": "p1"
+                                  }
+                                ],
+                                "premises": [
+                                  {
+                                    "Hypothesis": 0
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        },
+                        "right": {
+                          "Refl": {
+                            "Var": "p2"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "function": "disjunction",
+        "from": {
+          "Binary": [
+            "||",
+            {
+              "Var": "a"
+            },
+            {
+              "Binary": [
+                "&&",
+                {
+                  "Binary": [
+                    "||",
+                    {
+                      "Var": "a"
+                    },
+                    {
+                      "Var": "b"
+                    }
+                  ]
+                },
+                {
+                  "Var": "c"
+                }
+              ]
+            }
+          ]
+        },
+        "to": {
+          "Binary": [
+            "||",
+            {
+              "Var": "a"
+            },
+            {
+              "Binary": [
+                "&&",
+                {
+                  "Var": "b"
+                },
+                {
+                  "Var": "c"
+                }
+              ]
+            }
+          ]
+        },
+        "datatype": "09b3f13ec092c5d377c8be240c1ad7954a2e0ff748acc284ee04866a2b2087f6",
+        "from_definitions": [],
+        "to_definitions": [],
+        "proof": {
+          "Trans": [
+            {
+              "Binary": {
+                "op": "||",
+                "left": {
+                  "Refl": {
+                    "Var": "p0"
+                  }
+                },
+                "right": {
+                  "Refl": {
+                    "Binary": {
+                      "op": "&&",
+                      "left": {
+                        "Binary": {
+                          "op": "||",
+                          "left": {
+                            "Var": "p0"
+                          },
+                          "right": {
+                            "Var": "p1"
+                          }
+                        }
+                      },
+                      "right": {
+                        "Var": "p2"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "BoolSplit": {
+                "condition": {
+                  "Var": "p0"
+                },
+                "from": {
+                  "Binary": {
+                    "op": "||",
+                    "left": {
+                      "Var": "p0"
+                    },
+                    "right": {
+                      "Binary": {
+                        "op": "&&",
+                        "left": {
+                          "Binary": {
+                            "op": "||",
+                            "left": {
+                              "Var": "p0"
+                            },
+                            "right": {
+                              "Var": "p1"
+                            }
+                          }
+                        },
+                        "right": {
+                          "Var": "p2"
+                        }
+                      }
+                    }
+                  }
+                },
+                "to": {
+                  "Binary": {
+                    "op": "||",
+                    "left": {
+                      "Var": "p0"
+                    },
+                    "right": {
+                      "Binary": {
+                        "op": "&&",
+                        "left": {
+                          "Var": "p1"
+                        },
+                        "right": {
+                          "Var": "p2"
+                        }
+                      }
+                    }
+                  }
+                },
+                "on_false": {
+                  "Binary": {
+                    "op": "||",
+                    "left": {
+                      "Refl": {
+                        "Var": "p0"
+                      }
+                    },
+                    "right": {
+                      "Binary": {
+                        "op": "&&",
+                        "left": {
+                          "Trans": [
+                            {
+                              "Binary": {
+                                "op": "||",
+                                "left": {
+                                  "Refl": {
+                                    "Var": "p0"
+                                  }
+                                },
+                                "right": {
+                                  "Refl": {
+                                    "Var": "p1"
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "Use": {
+                                "theorem": "986f8388da7d0b8dd164e7a2457e6df1b9e38d4a91d548e91f68a43f58d095c0",
+                                "arguments": [
+                                  {
+                                    "Var": "p0"
+                                  },
+                                  {
+                                    "Var": "p1"
+                                  }
+                                ],
+                                "premises": [
+                                  {
+                                    "Hypothesis": 0
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        },
+                        "right": {
+                          "Refl": {
+                            "Var": "p2"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "on_true": {
+                  "Trans": [
+                    {
+                      "Trans": [
+                        {
+                          "Binary": {
+                            "op": "||",
+                            "left": {
+                              "Hypothesis": 0
+                            },
+                            "right": {
+                              "Refl": {
+                                "Binary": {
+                                  "op": "&&",
+                                  "left": {
+                                    "Binary": {
+                                      "op": "||",
+                                      "left": {
+                                        "Var": "p0"
+                                      },
+                                      "right": {
+                                        "Var": "p1"
+                                      }
+                                    }
+                                  },
+                                  "right": {
+                                    "Var": "p2"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "Use": {
+                            "theorem": "608e0717de644295cdc5e48a093203a07d5168d106910e6700df25137988795c",
+                            "arguments": [
+                              {
+                                "Binary": {
+                                  "op": "&&",
+                                  "left": {
+                                    "Binary": {
+                                      "op": "||",
+                                      "left": {
+                                        "Var": "p0"
+                                      },
+                                      "right": {
+                                        "Var": "p1"
+                                      }
+                                    }
+                                  },
+                                  "right": {
+                                    "Var": "p2"
+                                  }
+                                }
+                              }
+                            ],
+                            "premises": []
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "Sym": {
+                        "Trans": [
+                          {
+                            "Binary": {
+                              "op": "||",
+                              "left": {
+                                "Hypothesis": 0
+                              },
+                              "right": {
+                                "Refl": {
+                                  "Binary": {
+                                    "op": "&&",
+                                    "left": {
+                                      "Var": "p1"
+                                    },
+                                    "right": {
+                                      "Var": "p2"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "Use": {
+                              "theorem": "608e0717de644295cdc5e48a093203a07d5168d106910e6700df25137988795c",
+                              "arguments": [
+                                {
+                                  "Binary": {
+                                    "op": "&&",
+                                    "left": {
+                                      "Var": "p1"
+                                    },
+                                    "right": {
+                                      "Var": "p2"
+                                    }
+                                  }
+                                }
+                              ],
+                              "premises": []
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "function": "numeric",
+        "from": {
+          "Binary": [
+            "&&",
+            {
+              "Binary": [
+                "<",
+                {
+                  "Var": "x"
+                },
+                {
+                  "Var": "limit"
+                }
+              ]
+            },
+            {
+              "Binary": [
+                "||",
+                {
+                  "Binary": [
+                    "&&",
+                    {
+                      "Binary": [
+                        "<",
+                        {
+                          "Var": "x"
+                        },
+                        {
+                          "Var": "limit"
+                        }
+                      ]
+                    },
+                    {
+                      "Var": "b"
+                    }
+                  ]
+                },
+                {
+                  "Var": "c"
+                }
+              ]
+            }
+          ]
+        },
+        "to": {
+          "Binary": [
+            "&&",
+            {
+              "Binary": [
+                "<",
+                {
+                  "Var": "x"
+                },
+                {
+                  "Var": "limit"
+                }
+              ]
+            },
+            {
+              "Binary": [
+                "||",
+                {
+                  "Var": "b"
+                },
+                {
+                  "Var": "c"
+                }
+              ]
+            }
+          ]
+        },
+        "datatype": "09b3f13ec092c5d377c8be240c1ad7954a2e0ff748acc284ee04866a2b2087f6",
+        "from_definitions": [],
+        "to_definitions": [],
+        "proof": {
+          "Trans": [
+            {
+              "Binary": {
+                "op": "&&",
+                "left": {
+                  "Binary": {
+                    "op": "<",
+                    "left": {
+                      "Refl": {
+                        "Var": "p0"
+                      }
+                    },
+                    "right": {
+                      "Refl": {
+                        "Var": "p1"
+                      }
+                    }
+                  }
+                },
+                "right": {
+                  "Refl": {
+                    "Binary": {
+                      "op": "||",
+                      "left": {
+                        "Binary": {
+                          "op": "&&",
+                          "left": {
+                            "Binary": {
+                              "op": "<",
+                              "left": {
+                                "Var": "p0"
+                              },
+                              "right": {
+                                "Var": "p1"
+                              }
+                            }
+                          },
+                          "right": {
+                            "Var": "p2"
+                          }
+                        }
+                      },
+                      "right": {
+                        "Var": "p3"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "BoolSplit": {
+                "condition": {
+                  "Binary": {
+                    "op": "<",
+                    "left": {
+                      "Var": "p0"
+                    },
+                    "right": {
+                      "Var": "p1"
+                    }
+                  }
+                },
+                "from": {
+                  "Binary": {
+                    "op": "&&",
+                    "left": {
+                      "Binary": {
+                        "op": "<",
+                        "left": {
+                          "Var": "p0"
+                        },
+                        "right": {
+                          "Var": "p1"
+                        }
+                      }
+                    },
+                    "right": {
+                      "Binary": {
+                        "op": "||",
+                        "left": {
+                          "Binary": {
+                            "op": "&&",
+                            "left": {
+                              "Binary": {
+                                "op": "<",
+                                "left": {
+                                  "Var": "p0"
+                                },
+                                "right": {
+                                  "Var": "p1"
+                                }
+                              }
+                            },
+                            "right": {
+                              "Var": "p2"
+                            }
+                          }
+                        },
+                        "right": {
+                          "Var": "p3"
+                        }
+                      }
+                    }
+                  }
+                },
+                "to": {
+                  "Binary": {
+                    "op": "&&",
+                    "left": {
+                      "Binary": {
+                        "op": "<",
+                        "left": {
+                          "Var": "p0"
+                        },
+                        "right": {
+                          "Var": "p1"
+                        }
+                      }
+                    },
+                    "right": {
+                      "Binary": {
+                        "op": "||",
+                        "left": {
+                          "Var": "p2"
+                        },
+                        "right": {
+                          "Var": "p3"
+                        }
+                      }
+                    }
+                  }
+                },
+                "on_false": {
+                  "Trans": [
+                    {
+                      "Trans": [
+                        {
+                          "Binary": {
+                            "op": "&&",
+                            "left": {
+                              "Hypothesis": 0
+                            },
+                            "right": {
+                              "Refl": {
+                                "Binary": {
+                                  "op": "||",
+                                  "left": {
+                                    "Binary": {
+                                      "op": "&&",
+                                      "left": {
+                                        "Binary": {
+                                          "op": "<",
+                                          "left": {
+                                            "Var": "p0"
+                                          },
+                                          "right": {
+                                            "Var": "p1"
+                                          }
+                                        }
+                                      },
+                                      "right": {
+                                        "Var": "p2"
+                                      }
+                                    }
+                                  },
+                                  "right": {
+                                    "Var": "p3"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "Use": {
+                            "theorem": "d3c5208f8463785a71707ab6bdefd80baf09b21c3b023d2cdc9a8164c784f865",
+                            "arguments": [
+                              {
+                                "Binary": {
+                                  "op": "||",
+                                  "left": {
+                                    "Binary": {
+                                      "op": "&&",
+                                      "left": {
+                                        "Binary": {
+                                          "op": "<",
+                                          "left": {
+                                            "Var": "p0"
+                                          },
+                                          "right": {
+                                            "Var": "p1"
+                                          }
+                                        }
+                                      },
+                                      "right": {
+                                        "Var": "p2"
+                                      }
+                                    }
+                                  },
+                                  "right": {
+                                    "Var": "p3"
+                                  }
+                                }
+                              }
+                            ],
+                            "premises": []
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "Sym": {
+                        "Trans": [
+                          {
+                            "Binary": {
+                              "op": "&&",
+                              "left": {
+                                "Hypothesis": 0
+                              },
+                              "right": {
+                                "Refl": {
+                                  "Binary": {
+                                    "op": "||",
+                                    "left": {
+                                      "Var": "p2"
+                                    },
+                                    "right": {
+                                      "Var": "p3"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "Use": {
+                              "theorem": "d3c5208f8463785a71707ab6bdefd80baf09b21c3b023d2cdc9a8164c784f865",
+                              "arguments": [
+                                {
+                                  "Binary": {
+                                    "op": "||",
+                                    "left": {
+                                      "Var": "p2"
+                                    },
+                                    "right": {
+                                      "Var": "p3"
+                                    }
+                                  }
+                                }
+                              ],
+                              "premises": []
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "on_true": {
+                  "Binary": {
+                    "op": "&&",
+                    "left": {
+                      "Refl": {
+                        "Binary": {
+                          "op": "<",
+                          "left": {
+                            "Var": "p0"
+                          },
+                          "right": {
+                            "Var": "p1"
+                          }
+                        }
+                      }
+                    },
+                    "right": {
+                      "Binary": {
+                        "op": "||",
+                        "left": {
+                          "Trans": [
+                            {
+                              "Binary": {
+                                "op": "&&",
+                                "left": {
+                                  "Binary": {
+                                    "op": "<",
+                                    "left": {
+                                      "Refl": {
+                                        "Var": "p0"
+                                      }
+                                    },
+                                    "right": {
+                                      "Refl": {
+                                        "Var": "p1"
+                                      }
+                                    }
+                                  }
+                                },
+                                "right": {
+                                  "Refl": {
+                                    "Var": "p2"
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "Use": {
+                                "theorem": "1757c2e9e959ff4d13ad32d22361e9ee56b0f387363064b92c71dcde06af3429",
+                                "arguments": [
+                                  {
+                                    "Binary": {
+                                      "op": "<",
+                                      "left": {
+                                        "Var": "p0"
+                                      },
+                                      "right": {
+                                        "Var": "p1"
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "Var": "p2"
+                                  }
+                                ],
+                                "premises": [
+                                  {
+                                    "Hypothesis": 0
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        },
+                        "right": {
+                          "Refl": {
+                            "Var": "p3"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

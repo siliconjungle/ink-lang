@@ -1,0 +1,223 @@
+{
+  "schema": 1,
+  "semantics": "ink-checked-replacement-v1",
+  "core_semantics": "ink-executable-core-v1",
+  "input_core_sha256": "9ae3ed773ee052db4e31e2690406ef3c14f7de213f6f48d1387df7925cdb9d15",
+  "observations": "pure-total-values-v1",
+  "library_lock_sha256": "86ad70fd04947f61c5360247fe8e5cc686eacd1dca70c75f94dbc8aae33aeac2",
+  "package": {
+    "schema": 1,
+    "semantics": "source-collections-v1",
+    "library": "lock.json",
+    "proposals": [
+      {
+        "function": "decision",
+        "from": {
+          "Binary": [
+            "&&",
+            {
+              "Binary": [
+                "&&",
+                {
+                  "Binary": [
+                    "<",
+                    {
+                      "Var": "x"
+                    },
+                    {
+                      "Var": "limit"
+                    }
+                  ]
+                },
+                {
+                  "Binary": [
+                    "||",
+                    {
+                      "Binary": [
+                        "<",
+                        {
+                          "Var": "x"
+                        },
+                        {
+                          "Var": "limit"
+                        }
+                      ]
+                    },
+                    {
+                      "Var": "fallback"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "Binary": [
+                "&&",
+                {
+                  "Binary": [
+                    "<",
+                    {
+                      "Var": "x"
+                    },
+                    {
+                      "Var": "limit"
+                    }
+                  ]
+                },
+                {
+                  "Binary": [
+                    "||",
+                    {
+                      "Binary": [
+                        "<",
+                        {
+                          "Var": "x"
+                        },
+                        {
+                          "Var": "limit"
+                        }
+                      ]
+                    },
+                    {
+                      "Var": "fallback"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "to": {
+          "Binary": [
+            "<",
+            {
+              "Var": "x"
+            },
+            {
+              "Var": "limit"
+            }
+          ]
+        },
+        "datatype": "09b3f13ec092c5d377c8be240c1ad7954a2e0ff748acc284ee04866a2b2087f6",
+        "from_definitions": [],
+        "to_definitions": [],
+        "proof": {
+          "Trans": [
+            {
+              "Binary": {
+                "op": "&&",
+                "left": {
+                  "Binary": {
+                    "op": "&&",
+                    "left": {
+                      "Binary": {
+                        "op": "<",
+                        "left": {
+                          "Refl": {
+                            "Var": "p0"
+                          }
+                        },
+                        "right": {
+                          "Refl": {
+                            "Var": "p1"
+                          }
+                        }
+                      }
+                    },
+                    "right": {
+                      "Binary": {
+                        "op": "||",
+                        "left": {
+                          "Binary": {
+                            "op": "<",
+                            "left": {
+                              "Refl": {
+                                "Var": "p0"
+                              }
+                            },
+                            "right": {
+                              "Refl": {
+                                "Var": "p1"
+                              }
+                            }
+                          }
+                        },
+                        "right": {
+                          "Refl": {
+                            "Var": "p2"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "right": {
+                  "Binary": {
+                    "op": "&&",
+                    "left": {
+                      "Binary": {
+                        "op": "<",
+                        "left": {
+                          "Refl": {
+                            "Var": "p0"
+                          }
+                        },
+                        "right": {
+                          "Refl": {
+                            "Var": "p1"
+                          }
+                        }
+                      }
+                    },
+                    "right": {
+                      "Binary": {
+                        "op": "||",
+                        "left": {
+                          "Binary": {
+                            "op": "<",
+                            "left": {
+                              "Refl": {
+                                "Var": "p0"
+                              }
+                            },
+                            "right": {
+                              "Refl": {
+                                "Var": "p1"
+                              }
+                            }
+                          }
+                        },
+                        "right": {
+                          "Refl": {
+                            "Var": "p2"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "Use": {
+                "theorem": "2bc8712e3b496b2f2b89d61c851e0fe21d32f568940a58565b75d6fcc47a452f",
+                "arguments": [
+                  {
+                    "Var": "p0"
+                  },
+                  {
+                    "Var": "p1"
+                  },
+                  {
+                    "Var": "p2"
+                  }
+                ],
+                "premises": []
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

@@ -2,7 +2,19 @@
 
 The full goal remains open. This file describes executable behaviour and its limits.
 
-The latest separation milestone retires the production modular-polynomial
+The latest separation milestone removes the older typed-scalar matcher,
+traversal, premise search and application from the compiler. Historical scalar
+libraries are verification-only; active compilation accepts complete external
+replacement proofs. Boolean/composed/conditional libraries translate and
+reproduce under the unchanged general kernel. Actual branch assumptions are
+closed in complete proofs; changed guards, missing branches and leaked
+hypotheses are rejected atomically. The full 102-test run passes, followed by
+three new admission tests. Native architecture checks pass 260 comparisons,
+including empty/one/two rule selection under one compiler. New proposals also
+check under the preserved previous compiler. Evidence is in
+`reports/scalar-replacement-phase1/`. No new timing claim is made.
+
+The preceding separation milestone retires the production modular-polynomial
 normaliser and rewrite matcher. An external knowledge tool reuses checked laws
 and produces whole-function proofs for scalars and arithmetic within mapped sums;
 optional fold fusion is proved by the existing induction kernel. Unsupported

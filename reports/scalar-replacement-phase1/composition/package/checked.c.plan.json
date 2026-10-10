@@ -1,0 +1,368 @@
+{
+  "applied_rule_ids": [],
+  "checked_implementation": null,
+  "checked_replacement": {
+    "equality": {
+      "checked_proposals": [
+        {
+          "datatype": "09b3f13ec092c5d377c8be240c1ad7954a2e0ff748acc284ee04866a2b2087f6",
+          "from": {
+            "Binary": [
+              "&&",
+              {
+                "Binary": [
+                  "&&",
+                  {
+                    "Binary": [
+                      "<",
+                      {
+                        "Var": "x"
+                      },
+                      {
+                        "Var": "limit"
+                      }
+                    ]
+                  },
+                  {
+                    "Binary": [
+                      "||",
+                      {
+                        "Binary": [
+                          "<",
+                          {
+                            "Var": "x"
+                          },
+                          {
+                            "Var": "limit"
+                          }
+                        ]
+                      },
+                      {
+                        "Var": "fallback"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "Binary": [
+                  "&&",
+                  {
+                    "Binary": [
+                      "<",
+                      {
+                        "Var": "x"
+                      },
+                      {
+                        "Var": "limit"
+                      }
+                    ]
+                  },
+                  {
+                    "Binary": [
+                      "||",
+                      {
+                        "Binary": [
+                          "<",
+                          {
+                            "Var": "x"
+                          },
+                          {
+                            "Var": "limit"
+                          }
+                        ]
+                      },
+                      {
+                        "Var": "fallback"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "from_definitions": [],
+          "function": "decision",
+          "proof": {
+            "Trans": [
+              {
+                "Binary": {
+                  "left": {
+                    "Binary": {
+                      "left": {
+                        "Binary": {
+                          "left": {
+                            "Refl": {
+                              "Var": "p0"
+                            }
+                          },
+                          "op": "<",
+                          "right": {
+                            "Refl": {
+                              "Var": "p1"
+                            }
+                          }
+                        }
+                      },
+                      "op": "&&",
+                      "right": {
+                        "Binary": {
+                          "left": {
+                            "Binary": {
+                              "left": {
+                                "Refl": {
+                                  "Var": "p0"
+                                }
+                              },
+                              "op": "<",
+                              "right": {
+                                "Refl": {
+                                  "Var": "p1"
+                                }
+                              }
+                            }
+                          },
+                          "op": "||",
+                          "right": {
+                            "Refl": {
+                              "Var": "p2"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "op": "&&",
+                  "right": {
+                    "Binary": {
+                      "left": {
+                        "Binary": {
+                          "left": {
+                            "Refl": {
+                              "Var": "p0"
+                            }
+                          },
+                          "op": "<",
+                          "right": {
+                            "Refl": {
+                              "Var": "p1"
+                            }
+                          }
+                        }
+                      },
+                      "op": "&&",
+                      "right": {
+                        "Binary": {
+                          "left": {
+                            "Binary": {
+                              "left": {
+                                "Refl": {
+                                  "Var": "p0"
+                                }
+                              },
+                              "op": "<",
+                              "right": {
+                                "Refl": {
+                                  "Var": "p1"
+                                }
+                              }
+                            }
+                          },
+                          "op": "||",
+                          "right": {
+                            "Refl": {
+                              "Var": "p2"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "Use": {
+                  "arguments": [
+                    {
+                      "Var": "p0"
+                    },
+                    {
+                      "Var": "p1"
+                    },
+                    {
+                      "Var": "p2"
+                    }
+                  ],
+                  "premises": [],
+                  "theorem": "2bc8712e3b496b2f2b89d61c851e0fe21d32f568940a58565b75d6fcc47a452f"
+                }
+              }
+            ]
+          },
+          "to": {
+            "Binary": [
+              "<",
+              {
+                "Var": "x"
+              },
+              {
+                "Var": "limit"
+              }
+            ]
+          },
+          "to_definitions": []
+        }
+      ],
+      "library_closure": [
+        "09b3f13ec092c5d377c8be240c1ad7954a2e0ff748acc284ee04866a2b2087f6",
+        "112ab21fdfd87c60250915a2fee9c13bb6b9f09d0075787ceb00df60d163d316",
+        "24161fa9246ed3467aee51a8649a11a35269e55e9f6cf6400f910323ae3ffb25",
+        "270bc755a03dad8c2154aab8a2457fe7f87972f1ab1c98af6f7370d81994dac2",
+        "2bc8712e3b496b2f2b89d61c851e0fe21d32f568940a58565b75d6fcc47a452f",
+        "44b9a1429782dc61cdec70bf2e8fd2065f39e3cdcd2da8c1b0adaefe6ca02ac1",
+        "467f3cc4061c1db89eb57dfa0d6ff8a274acc236459b8850ba626c97702e6b9a",
+        "608e0717de644295cdc5e48a093203a07d5168d106910e6700df25137988795c",
+        "d06fd46943c17ec18226963dfa16e4fdb4e4455d951a7950c20ab40b031da9fe",
+        "d169bba8f3169c74724008cec10513325d5a976cc2537ce251f87845a291d5a6",
+        "d3c5208f8463785a71707ab6bdefd80baf09b21c3b023d2cdc9a8164c784f865",
+        "dbdb0e3bedd20ffee8f23fc5c4b3afcec9493dd5da86703de6943ebaae771c7c"
+      ],
+      "library_lock": {
+        "objects": [
+          "24161fa9246ed3467aee51a8649a11a35269e55e9f6cf6400f910323ae3ffb25",
+          "d169bba8f3169c74724008cec10513325d5a976cc2537ce251f87845a291d5a6",
+          "dbdb0e3bedd20ffee8f23fc5c4b3afcec9493dd5da86703de6943ebaae771c7c",
+          "467f3cc4061c1db89eb57dfa0d6ff8a274acc236459b8850ba626c97702e6b9a",
+          "270bc755a03dad8c2154aab8a2457fe7f87972f1ab1c98af6f7370d81994dac2",
+          "44b9a1429782dc61cdec70bf2e8fd2065f39e3cdcd2da8c1b0adaefe6ca02ac1",
+          "2bc8712e3b496b2f2b89d61c851e0fe21d32f568940a58565b75d6fcc47a452f",
+          "d3c5208f8463785a71707ab6bdefd80baf09b21c3b023d2cdc9a8164c784f865",
+          "112ab21fdfd87c60250915a2fee9c13bb6b9f09d0075787ceb00df60d163d316",
+          "d06fd46943c17ec18226963dfa16e4fdb4e4455d951a7950c20ab40b031da9fe",
+          "608e0717de644295cdc5e48a093203a07d5168d106910e6700df25137988795c",
+          "09b3f13ec092c5d377c8be240c1ad7954a2e0ff748acc284ee04866a2b2087f6"
+        ],
+        "schema": 1,
+        "semantics": "first-order-inductive-equality-v1"
+      },
+      "package_sha256": "69b414b86294b3ab0abe434fdfbd78a4ddfba4d5f5a24da040a0b9176b6e4aef",
+      "scope": "total mathematical value equality for map/filter/sum/count/foldr/choose and acyclic pure calls over u64 lists; allocation, OOM and trap traces excluded",
+      "source_models": [
+        [
+          {
+            "Binary": {
+              "left": {
+                "Binary": {
+                  "left": {
+                    "Binary": {
+                      "left": {
+                        "Var": "p0"
+                      },
+                      "op": "<",
+                      "right": {
+                        "Var": "p1"
+                      }
+                    }
+                  },
+                  "op": "&&",
+                  "right": {
+                    "Binary": {
+                      "left": {
+                        "Binary": {
+                          "left": {
+                            "Var": "p0"
+                          },
+                          "op": "<",
+                          "right": {
+                            "Var": "p1"
+                          }
+                        }
+                      },
+                      "op": "||",
+                      "right": {
+                        "Var": "p2"
+                      }
+                    }
+                  }
+                }
+              },
+              "op": "&&",
+              "right": {
+                "Binary": {
+                  "left": {
+                    "Binary": {
+                      "left": {
+                        "Var": "p0"
+                      },
+                      "op": "<",
+                      "right": {
+                        "Var": "p1"
+                      }
+                    }
+                  },
+                  "op": "&&",
+                  "right": {
+                    "Binary": {
+                      "left": {
+                        "Binary": {
+                          "left": {
+                            "Var": "p0"
+                          },
+                          "op": "<",
+                          "right": {
+                            "Var": "p1"
+                          }
+                        }
+                      },
+                      "op": "||",
+                      "right": {
+                        "Var": "p2"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "Binary": {
+              "left": {
+                "Var": "p0"
+              },
+              "op": "<",
+              "right": {
+                "Var": "p1"
+              }
+            }
+          }
+        ]
+      ]
+    },
+    "input_core_sha256": "9ae3ed773ee052db4e31e2690406ef3c14f7de213f6f48d1387df7925cdb9d15",
+    "library_lock_sha256": "86ad70fd04947f61c5360247fe8e5cc686eacd1dca70c75f94dbc8aae33aeac2",
+    "observations": "pure-total-values-v1",
+    "replacement_package_sha256": "69b414b86294b3ab0abe434fdfbd78a4ddfba4d5f5a24da040a0b9176b6e4aef",
+    "selected_core_sha256": "6341504fadeac46cfb8a6d777d2df3e4e96f2c58f0240fccd0e4318a50fc8991"
+  },
+  "core_semantics": "ink-executable-core-v1",
+  "database_closure": null,
+  "database_lock": null,
+  "generated_c_sha256": "067032bab3cd61e6ed29b57c3493c42bb802affbf809044267dcb9e68f7d4ddb",
+  "input_core_sha256": "9ae3ed773ee052db4e31e2690406ef3c14f7de213f6f48d1387df7925cdb9d15",
+  "input_program_sha256": "f7eb427b9e07dc3c056f01ce1dd705c5a0ccf0a51cee743e92df6a0b900ee360",
+  "module": "composed",
+  "selected_core_sha256": "6341504fadeac46cfb8a6d777d2df3e4e96f2c58f0240fccd0e4318a50fc8991",
+  "selected_program_sha256": "321f21a58851b0fa802c963af62cbab444ac5dd8b8c4221ebd7e1ea9b82ba9cd",
+  "source": "/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/reports/scalar-replacement-phase1/composition/package/core.json",
+  "target": "native",
+  "trusted": [
+    "Rust checker implementation",
+    "source semantics correspondence",
+    "literal collection lowering and allocation",
+    "generated C",
+    "Clang/LLVM backend",
+    "host ABI"
+  ],
+  "unsupported_spec_features": "see PLAN.md and STATUS.md",
+  "verified_fragment": "whole-function inductive collection equality; total-scalar equality proof terms"
+}

@@ -223,3 +223,20 @@ historical compilers, packages and measured reports retain their old identities.
 Remaining separation work includes the older scalar-database search and
 exact-integer aggregate schema, bounded-cache analysis and representation
 admission. This does not close milestones 2–5 or establish new timing claims.
+
+### Scalar search externalisation
+
+The compiler's older typed-scalar rewrite search and application are removed.
+Historical scalar libraries are verification-only. The external producer can
+consume executable core IR, expand definitions, apply typed DB laws, discharge
+actual branch conditions and close complete Boolean-split proofs. Original
+unguarded expressions remain unchanged; changing a guard, dropping a branch or
+leaking a branch hypothesis is rejected before installation. General kernel
+and source correspondence rules were not extended.
+
+The next prerequisite for stateful representations is a general executable
+implementation description with explicit operation semantics and a checked
+connection to emitted bodies. Existing abstract row/column/search proofs and
+typed layout policy alone do not provide that connection. This remains part
+of the full source/effect/native admission gate, not a narrower replacement
+for it. Aggregate/bounded-cache authority and release experience remain open.

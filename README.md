@@ -21,9 +21,11 @@ git submodule update --init knowledge
 cargo test
 cargo build --release
 target/release/ink check examples/kernels.lang
-target/release/ink prove knowledge/ring.lang -o build/ring.json
-target/release/ink knowledge verify build/ring.json
-target/release/ink build examples/kernels.lang -o build/kernels.o --knowledge build/ring.json --native-cpu
+python3 knowledge/tools/rewrite_search.py examples/kernels.lang \
+  --rules knowledge/bitvector/rewrite-index.json --compiler target/release/ink \
+  --fuse-mapped-sum --output-dir build/replacement
+target/release/ink build examples/kernels.lang -o build/kernels.o \
+  --replacement build/replacement/replacement.json --native-cpu
 python3 bench/run.py
 ```
 
@@ -56,7 +58,7 @@ python3 knowledge/tools/catalogue.py verify --compiler target/debug/ink
 A compiler-only checkout builds without initialising the submodule. Full
 integration tests and catalogue examples require the pinned knowledge checkout.
 Installed compilers also accept lockfiles and proposals from an unrelated local
-checkout using `--library`, `--database` and `--implementation`; paths are explicit.
+checkout using `--library`, `--implementation` and `--replacement`; paths are explicit.
 
 The executable subset has a versioned checked format. `emit-core` checks source
 and exports it; `--core` reads that format without the source parser. A replacement
@@ -112,10 +114,23 @@ The output directory must be fresh. Search has an explicit shared work budget;
 unsupported functions and exhausted searches retain the original code. The
 current laws do not recover the old square-factoring optimisation. A smaller
 expression is only a producer cost estimate, not a measured speed guarantee.
-`ink prove`, `ink knowledge verify` and `--knowledge` were retired; use this
+`ink prove`, `ink knowledge verify`, `--knowledge` and built-in `--database`
+search were retired; use this
 external producer, `verify-library` and `--replacement`. Historical reports
-retain their earlier compilers and commands. The legacy exact-integer aggregate
-schema is separate migration debt.
+retain their earlier compilers and commands. The historical scalar library reader remains verification-only for old packages.
+The legacy exact-integer aggregate schema is separate migration debt.
+
+External search can use `knowledge/scalar-logic/rewrite-index.json` for Boolean
+laws, specialised definitions and conditional laws. Branch conditions are
+closed by complete `BoolSplit` proofs, using checked database lemmas for inactive
+branches. `--core` lets the producer consume the versioned executable format.
+The native architecture checks require fresh report directories:
+
+```sh
+python3 tools/check_database.py --output reports/NEW-boolean
+python3 tools/check_composition.py --output reports/NEW-composition
+python3 tools/check_conditional.py --output reports/NEW-conditional
+```
 
 
 Collection lowering, emitted C and Clang/LLVM are currently trusted. Native behaviour is checked against an independently implemented mathematical reference and the interpreter; those tests are not an end-to-end formal proof. General equality and induction checking now exist for restricted fragments; richer contracts and general state-transition refinement remain work to do.
