@@ -4,7 +4,7 @@ use verified_language::{
     aggregate::Certificate,
     core::CheckedModule,
     library::{self, Bundle},
-    logic::{Context, Sort, Term},
+    logic::{Context, Term},
     ordered_storage::OrderedStorage,
     row_model::{self, Model},
     source_values::{Limits, SourceValues},

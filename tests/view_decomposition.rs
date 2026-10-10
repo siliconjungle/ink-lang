@@ -190,7 +190,7 @@ fn wrong_stale_or_tampered_view_evidence_is_rejected() {
     assert!(row_model::verify_view(&q, &c, &good).is_err());
 
     // A lemma claiming a different projection fails in the kernel.
-    let mut false_lemma = good.clone();
+    let false_lemma = good.clone();
     let target = false_lemma
         .library
         .objects
