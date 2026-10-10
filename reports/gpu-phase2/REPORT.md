@@ -48,6 +48,10 @@ proofs are claimed.
   offline without knowledge or any lowering submodule. See
   [independent build log](compiler-only.log). Rust formatting and JavaScript
   syntax checks passed. Native-object and freestanding Wasm emission passed.
+- Independently runnable C, GPU and Rust packages checked against their published
+  Git core dependencies. The C CLI emitted byte-identical particle C from checked
+  core JSON. Its existing checked-module interface and initial source type check
+  are preserved; 14 compute/core/u32 tests passed again after that restoration.
 - Splitting lowering into C/GPU packages preserved byte-identical particle
   checked core, generated C, shaders and function metadata.
 
