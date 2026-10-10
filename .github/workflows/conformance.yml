@@ -58,7 +58,7 @@ jobs:
           cargo test --manifest-path core/Cargo.toml --offline
           cargo test --test distribution --test source_syntax --test action_values --test general_laws --test semantic_optimisation
       - name: Literal CPU and both Wasm lowerings, generated histories and crash recovery
-        run: cargo test --test lowering_parity --test generated_parity --test durability --test modules --test selected_checkpoint --test action_optimisation -- --nocapture
+        run: cargo test --test lowering_parity --test generated_parity --test durability --test modules --test selected_checkpoint --test action_optimisation --test action_transitions -- --nocapture
       - name: Retain reproducible programs, seeds and expected outcomes
         if: always()
         uses: actions/upload-artifact@v4
@@ -78,6 +78,9 @@ jobs:
             build/selected-checkpoint-parity/input-core.json
             build/selected-checkpoint-parity/selected-core.json
             build/selected-checkpoint-parity/selection.json
+            build/action-transitions-native/*.json
+            build/action-transitions-native/source.ink
+            build/action-transitions-native-evidence/*.json
             build/action-rule-parity/*.json
             build/action-rule-parity/source.ink
             build/action-rule-search/*.json
@@ -122,7 +125,7 @@ jobs:
           PY
           cargo fetch --locked --manifest-path build/gpu-deps/Cargo.toml
       - name: Actual wgpu dispatch and resident feedback
-        run: cargo test --test lowering_parity --test generated_parity --test modules --test selected_checkpoint --test action_optimisation -- --nocapture
+        run: cargo test --test lowering_parity --test generated_parity --test modules --test selected_checkpoint --test action_optimisation --test action_transitions -- --nocapture
       - name: Retain GPU failure reproductions
         if: always()
         uses: actions/upload-artifact@v4
@@ -141,6 +144,9 @@ jobs:
             build/selected-checkpoint-parity/input-core.json
             build/selected-checkpoint-parity/selected-core.json
             build/selected-checkpoint-parity/selection.json
+            build/action-transitions-native/*.json
+            build/action-transitions-native/source.ink
+            build/action-transitions-native-evidence/*.json
             build/action-rule-parity/*.json
             build/action-rule-parity/source.ink
             build/action-rule-search/*.json

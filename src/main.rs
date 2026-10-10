@@ -585,7 +585,7 @@ fn run() -> LangResult<()> {
     if cmd == "help" || cmd == "--help" {
         println!("ink --version\nink doctor [--python PATH]\nink explain SOURCE [--core] [--selection PACKAGE.json | --optimise SNAPSHOT.json]\nink modules SOURCE");
         println!("ink emit-semantic SOURCE [--core] -o SUBJECT.json\nink check-selection CORE.json PACKAGE.json\nExecution, lowering and core emission accept --optimise KNOWLEDGE_DIRECTORY or SNAPSHOT.json (external search) or --selection PACKAGE.json (checked replay). Optional --search-tool PATH, --search-budget N and --python PATH. INK_DISTRIBUTION locates an optional installed tool bundle.");
-        println!("ink check-source-route CORE.json ROUTING.json");
+        println!("ink check-source-route CORE.json ROUTING.json\nink emit-action-model SOURCE -o MODEL.json (restricted whole-action transition projection)");
         println!("ink emit-source-syntax SOURCE --roles ROLES.json -o EXPECTED.json\nink check-source-syntax SOURCE --roles ROLES.json --view VIEW.json (complete code-data binding only)");
         println!("ink check-action-values SOURCE --syntax-roles SYNTAX.json --value-roles VALUES.json --view VIEW.json\nink emit-action-values SOURCE ACTION ARGS.json --syntax-roles SYNTAX.json --value-roles VALUES.json --view VIEW.json -o IMAGE.json (typed value data only)");
         println!("ink emit-machine LOCK.json PACKAGE.json -o SOURCE.rs");
@@ -644,6 +644,11 @@ fn run() -> LangResult<()> {
                 "input_core_sha256":input.identity()?,"selected_core_sha256":selected.identity()?,
                 "selection":semantic_selection.as_ref().map(|s| s.evidence()),
                 "applications":semantic_selection.as_ref().map(|s| &s.package().applications),
+                "whole_action_selection":semantic_selection.as_ref().and_then(|s| s.package().action_replacement.as_ref()).map(|r| serde_json::json!({
+                    "semantics":verified_language::action_model::SEMANTICS,
+                    "actions":r.proofs.keys().collect::<Vec<_>>(),
+                    "scope":"Equal complete projected source transitions; fixed projection, codecs and native emission remain trusted. See the selection artifact for proof terms."
+                })),
                 "eligible_regions":subject.functions.keys().collect::<Vec<_>>(),"unavailable_regions":subject.unavailable,
                 "functions":p.functions.iter().map(|f| serde_json::json!({"name":f.name,"params":f.params,"result":f.result})).collect::<Vec<_>>(),
                 "actions":p.actions.iter().map(|a| serde_json::json!({"name":a.name,"kind":a.kind,"params":a.params,"result":a.result,"reads":a.reads,"writes":a.writes,"emits":a.emits})).collect::<Vec<_>>(),

@@ -98,3 +98,12 @@ transitive parameter dependence rejected at closed program obligations. This is
 a new general kernel mechanism, not an optimisation pattern or an unchanged-rule
 claim. Preserve its adversarial tests and unchanged resource limits; see
 docs/general-laws.md.
+
+Whole-action source transition admission now exists for the documented subset in
+core/src/action_model.rs, with database-supplied equality proofs consumed through
+Package.action_replacement. Preserve exact source/public-interface binding and
+all-action proof coverage. The stable removal law belongs in ink-knowledge;
+source projection and literal primitive meanings belong in the core. No kernel
+rule changed. Nested calls, Try, other numbers, ID keys and maintained-view or
+physical-representation admission are still open. Do not treat conformance as a
+proof of native emission. See docs/action-transitions.md and retain PLAN.md scope.
