@@ -45,7 +45,7 @@ jobs:
       - name: Independent core and source-bound value admission
         run: |
           cargo test --manifest-path core/Cargo.toml --offline
-          cargo test --test source_syntax --test action_values
+          cargo test --test source_syntax --test action_values --test general_laws --test semantic_optimisation
       - name: Literal CPU and both Wasm lowerings, generated histories and crash recovery
         run: cargo test --test lowering_parity --test generated_parity --test durability --test modules --test selected_checkpoint -- --nocapture
       - name: Retain reproducible programs, seeds and expected outcomes
