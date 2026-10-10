@@ -1,5 +1,24 @@
 # Implementation status
 
+## Complete code-data binding and checked view decomposition
+
+The core now checks exact complete source/typed-action images supplied as
+individual canonical database entries. An independent producer, authenticated
+membership and exact declaration comparisons prevent proofs about other helpers,
+schemas or evaluation order from being substituted. This binds code data;
+executable logical action and physical implementation correspondence remain open.
+
+Reviewed view proofs automatically establish per-program map/filter sum/count
+decomposition with `--prove-views`, falling back explicitly to recomputation when
+verification fails. `--require-views` makes failure an error. Native contribution
+and cache correctness remain trusted. Twenty additional Lean laws pass local
+checking; they have not been submitted or accepted by Hunchroom.
+
+Validation: 218 broad distribution tests, 23 final focused tests, and 28 offline
+core tests both in place and in an isolated copy. These are overlapping counts,
+not additional distinct tests. Backend/runtime pins and kernel rules are unchanged;
+no new speed claim. See [the evidence](reports/source-syntax-phase1/REPORT.md).
+
 Current target coverage is documented in [lowering parity](docs/lowering-parity.md): complete C/Rust/JavaScript/Wasm execution, a common native/Wasm lifecycle ABI, and eligible WebGPU/wgpu collection closures inside mixed modules. Historical milestone sections below retain their original scope.
 
 ## Reviewed ownership lowering and independent proof replay

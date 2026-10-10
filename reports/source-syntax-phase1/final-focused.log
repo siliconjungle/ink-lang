@@ -1,0 +1,67 @@
+   Compiling ink-core v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/core)
+   Compiling ink-lowering-c v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/lowerings/c)
+   Compiling ink-lowering-gpu v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/lowerings/gpu)
+   Compiling ink-lowering-js v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/lowerings/js)
+   Compiling ink-lowering-rust v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/lowerings/rust)
+   Compiling ink-lowering-wasm v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/lowerings/wasm)
+   Compiling ink-runtime v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/runtime)
+   Compiling ink v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language)
+warning: variable does not need to be mutable
+   --> tests/view_decomposition.rs:193:9
+    |
+193 |     let mut false_lemma = good.clone();
+    |         ----^^^^^^^^^^^
+    |         |
+    |         help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: `ink` (test "view_decomposition") generated 1 warning (run `cargo fix --test "view_decomposition" -p ink` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.78s
+     Running tests/row_model.rs (target/debug/deps/row_model-f451b61d404953e8)
+
+running 5 tests
+test valid_but_wrong_source_projection_or_payload_shapes_do_not_bind ... ok
+test width_cast_and_recursive_types_fail_closed_while_count_works ... ok
+test source_binding_requires_actual_semantic_closure_and_direct_definitions ... ok
+test actual_source_shapes_and_filtered_projection_agree_with_reference_and_undo ... ok
+test a_different_nested_row_and_nominal_key_use_the_same_generic_source_bridge ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.11s
+
+     Running tests/source_syntax.rs (target/debug/deps/source_syntax-6de6c41f81fe0fb7)
+
+running 2 tests
+test cli_replay_checks_source_and_preserves_output_on_rejection ... ok
+test authentic_complete_code_is_bound_and_other_code_cannot_substitute ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.76s
+
+     Running tests/state_native.rs (target/debug/deps/state_native-c071011a246ab617)
+
+running 11 tests
+test range_analysis_uses_full_domains_and_rejects_unbounded_contributions ... ok
+test tampered_native_maintenance_is_rejected_before_emission ... ok
+test borrowed_commit_outcomes_reuse_events_and_enforce_the_state_borrow ... ok
+test complete_rows_survive_repeated_abort_and_failed_promotion_with_both_journals ... ok
+test native_state_matches_reference_with_and_without_checked_maintenance ... ok
+test direct_typed_frames_match_native_scopes_callbacks_and_snapshots ... ok
+test owned_rows_copy_only_used_remove_results_and_preserve_abort ... ok
+test result_query_and_keep_errors_are_local_until_the_caller_propagates ... ok
+test shared_boundary_preserves_nested_control_event_order_and_exhausted_rollback ... ok
+test source_row_projection_preserves_composite_payloads_across_native_abort_and_restore ... ok
+test typed_action_execution_preserves_effect_order_and_contextual_empty_values ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 54.17s
+
+     Running tests/view_decomposition.rs (target/debug/deps/view_decomposition-0678653e55887c31)
+
+running 5 tests
+test unsigned_fields_cast_to_int_faithfully ... ok
+test wrong_stale_or_tampered_view_evidence_is_rejected ... ok
+test every_supported_pipeline_shape_is_decomposed_automatically ... ok
+test emit_state_proves_every_maintained_view_automatically ... ok
+test logical_pipeline_agrees_with_reference_runtime_on_concrete_rows ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.42s
+

@@ -54,3 +54,14 @@ versioned pins and validate CPU values/errors/events/exact snapshots and eligibl
 GPU execution after semantic changes. GPU scan/rank-sort are literal current
 algorithms, not efficiency claims. James excludes editor support and schema
 evolution; installation, diagnostics/debugging and crash recovery remain in scope.
+
+Complete code-data binding is implemented in core/src/source_syntax.rs. Its private
+witness authenticates exact full module and typed-action data, not interpreter
+meaning or candidate admission. Do not treat arbitrary database interpreters as
+authoritative merely because their definitions pass general type checking. The
+next gate is fixed action semantics/primitive correspondence and all-future
+stateful candidate preservation. The external source-image and view-proof producers
+belong to ink-knowledge. --prove-views falls back to recomputation when a proof
+cannot be checked; --require-views fails. Builds without these flags keep their
+legacy disclosed trust. Claude's 20 additional Lean laws are locally checked only,
+not Hunchroom/Nanoda accepted. See reports/source-syntax-phase1.
