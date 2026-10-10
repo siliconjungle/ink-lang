@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "date": "2026-10-11",
+  "integration_commit": "cde2628d40e03940eec50495b4caafc3ff8dea7f",
+  "knowledge_commit": "610577436a65a7805e310e5b3b6160224c4cf05c",
+  "planner_commit": "2f489b6f12c4d1a2d6f5910e63f4270b303a9211",
+  "snapshot": "11a30eb00b50cef307d5320ca4600ee1e45a594d385bdc416204cd43c009f1ac",
+  "new_checked_laws": 80,
+  "all_checked_laws": 167,
+  "canonical_entries": 787,
+  "compiler_unchanged_from_previous_collection_law_run": true,
+  "compiler_sha256": "d2cdbb26f4afe7d5ffb3122694eb8002cfc68316cea91fab33a0494778190d10",
+  "tests": {
+    "new_integration": 2,
+    "existing_semantic_action_and_local_collection_regressions": 24,
+    "knowledge": 6,
+    "planner": 7,
+    "new_compiled_requests_per_cpu_path": 78,
+    "cpu_paths": [
+      "native C",
+      "native Rust",
+      "JavaScript",
+      "C Wasm",
+      "Rust Wasm"
+    ]
+  },
+  "reproduction": [
+    "snapshot.json",
+    "names.json",
+    "rewrite-view.json",
+    "local-collection-view.json",
+    "collection-pipeline-view.json"
+  ],
+  "adversarial_cases": [
+    "rehashed wrong mapped length",
+    "reversed subtraction operands",
+    "discarded filter predicate",
+    "wrong reduction seed",
+    "reversed floating subtraction"
+  ],
+  "scope": "Unchanged core, checker, syntax and backends. Existing total-value equality proofs; no new associativity or floating arithmetic rule. Ordered float foldr is supported, float sum fusion is excluded. Resource behavior and physical backend generation remain outside equality proof.",
+  "benchmark": "../../bench/collection-pipelines/results.json"
+}

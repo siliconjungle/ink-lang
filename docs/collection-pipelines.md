@@ -57,6 +57,10 @@ reductions. Independent oracles and 78 requests compare native C/Rust, JavaScrip
 and C/Rust Wasm, including overflow, subtraction order, NaNs, infinities, signed
 zero, empty input and float cancellation.
 
+At 65,536 u32 elements on the recorded native Rust run, length-after-map is
+3.43× faster, filtered sums 3.18× and filter/map/sum 2.95×. Plain map/sum is
+slower on the two smaller inputs and only modestly faster on the largest.
+
 See [the native benchmark](../bench/collection-pipelines/README.md) for actual
 profitability, raw samples, paired intervals and separate search/check costs.
 
