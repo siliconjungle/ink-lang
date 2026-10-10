@@ -11,6 +11,7 @@ use verified_language::{
 #[path = "support/parity.rs"]
 mod parity;
 const SOURCE: &str = include_str!("../examples/action-transitions.ink");
+const FLOW: &str = include_str!("../examples/action-flow.ink");
 fn module(source: &str) -> CheckedModule {
     CheckedModule::from_source(parse(source).unwrap()).unwrap()
 }
@@ -240,6 +241,98 @@ fn compare_transitions(source: &str, count: usize) {
     );
 }
 #[test]
+fn nested_actions_and_expression_effects_match_full_reference_transitions() {
+    compare_transitions(FLOW, 80);
+    let m = module(FLOW);
+    let projection = Projection::derive(&m).unwrap();
+    let context = projection.context().unwrap();
+    let mut rt = Runtime::new(m.program().clone()).unwrap();
+    rt.invoke_json("put", &json!([7, 30])).unwrap();
+    for (name, args) in flow_calls() {
+        let action = m.program().actions.iter().find(|a| a.name == name).unwrap();
+        let before = rt.checkpoint().unwrap();
+        let mut terms = vec![
+            state(&projection, m.program(), &before),
+            Term::U64(rt.version()),
+        ];
+        let arguments = action
+            .params
+            .iter()
+            .zip(args.as_array().unwrap())
+            .map(|((_, ty), x)| Value::from_json(x, ty, m.program()).unwrap())
+            .collect::<Vec<_>>();
+        terms.extend(
+            action
+                .params
+                .iter()
+                .zip(&arguments)
+                .map(|((_, ty), x)| encode(&projection, m.program(), ty, x)),
+        );
+        let projected = context
+            .evaluate(&[], &call(&projection.actions[name].function, terms))
+            .unwrap();
+        let outcome = rt.invoke(name, arguments).unwrap();
+        let event_type = projection.objects[&projection.events].payload["declaration"]["Datatype"]
+            ["constructors"][1]["fields"][0]["Data"]
+            .as_str()
+            .unwrap();
+        let events =
+            outcome
+                .events
+                .iter()
+                .rev()
+                .fold(c(&projection.events, 0, vec![]), |tail, e| {
+                    c(
+                        &projection.events,
+                        1,
+                        vec![
+                            c(
+                                event_type,
+                                0,
+                                vec![encode(&projection, m.program(), &Type::U64, &e.value)],
+                            ),
+                            tail,
+                        ],
+                    )
+                });
+        let expected = c(
+            data(&projection.actions[name].result),
+            0,
+            vec![
+                encode(&projection, m.program(), &action.result, &outcome.result),
+                Term::Bool(outcome.committed),
+                Term::U64(outcome.version),
+                state(&projection, m.program(), &rt.checkpoint().unwrap()),
+                events,
+            ],
+        );
+        assert_eq!(projected, expected, "{name} {args}");
+    }
+}
+fn flow_calls() -> Vec<(&'static str, Json)> {
+    vec![
+        ("mapped", json!([7])),
+        ("mapped", json!([8])),
+        ("local", json!([8])),
+        ("propagate", json!([8])),
+        ("eager", json!([7])),
+        ("eager", json!([8])),
+        ("lazy", json!([true, false])),
+        ("lazy", json!([false, false])),
+        ("lazy", json!([true, true])),
+        ("lazy", json!([false, true])),
+        ("args", json!([])),
+        ("fields", json!([])),
+        ("erase", json!([7, true])),
+        ("get", json!([7])),
+        ("take", json!([7])),
+        ("take", json!([7])),
+        ("put", json!([u64::MAX, 30])),
+        ("erase", json!([u64::MAX, false])),
+        ("get", json!([u64::MAX])),
+    ]
+}
+#[test]
 fn source_bound_total_helpers_preserve_complete_actions_and_database_admission() {
     let source = SOURCE
         .replace(
@@ -378,22 +471,60 @@ fn database_remove_law_admits_a_complete_action_and_rejects_changed_observations
     assert!(optimisation::check(&m, &malformed).is_err());
 }
 #[test]
-fn unsupported_effectful_expressions_and_domain_types_fail_closed() {
+fn unsupported_operations_and_domain_types_fail_closed() {
     for s in [
-        SOURCE.replace("Rows.remove(key); Rows.remove(key);", "erase(key,false);"),
-        SOURCE.replace("return Ok(());", "return Ok(checked_add(1,2)?);"),
-        SOURCE
-            .replace("Table<u64,u64>", "Table<u64,u32>")
-            .replace("value:u64", "value:u32"),
-        SOURCE.replace(
-            "Rows.remove(key); Rows.remove(key);",
-            "let old=Rows.remove(key);",
-        ),
+        "module unsupported;query q(x:u32)->u32{return x;}",
+        "module unsupported;query q(x:String)->String{return x;}",
+        "module unsupported;keep value:u64=1;query q()->u64 reads(value){return value;}",
+        "module unsupported;state Rows:Table<u64,u64> = Table.empty();query q()->List<u64> reads(Rows){return Rows.values();}",
+        "module unsupported;fn divide(x:u64)->u64{return quot_or(x,1,0);}query q(x:u64)->u64{return divide(x);}",
     ] {
-        if let Ok(m) = parse(&s).and_then(CheckedModule::from_source) {
-            assert!(Projection::derive(&m).is_err());
+        // These are valid executable programs. Projection must reject them;
+        // a frontend error cannot masquerade as a negative admission check.
+        assert!(Projection::derive(&module(s)).is_err());
+    }
+}
+
+#[test]
+fn database_replacement_composes_through_nested_transactions_and_compiled_execution() {
+    let original = module(FLOW);
+    let selected =
+        module(&FLOW.replace("Rows.remove(key); Rows.remove(key);", "Rows.remove(key);"));
+    let proposal = package(&original, &selected, "action-flow-evidence");
+    let checked = optimisation::check(&original, &proposal).unwrap();
+    assert_eq!(checked.evidence().applied_laws.len(), 1);
+    let mut rt = Runtime::new(original.program().clone()).unwrap();
+    let mut transformed = Runtime::new_selected(&checked).unwrap();
+    let mut steps = vec![];
+    let mut expected = vec![];
+    let calls = std::iter::once(("put", json!([7, 30]))).chain(flow_calls());
+    for (name, args) in calls {
+        let result = rt.invoke_json(name, &args).unwrap();
+        assert_eq!(
+            result.json(),
+            transformed.invoke_json(name, &args).unwrap().json()
+        );
+        let snapshot = rt.checkpoint_portable().unwrap();
+        assert_eq!(snapshot, transformed.checkpoint_portable().unwrap());
+        steps.push(json!({"call":name,"args":args}));
+        expected.push(json!({"reply":{"outcome":result.json()},"snapshot":snapshot}));
+        if name == "get" || name == "mapped" {
+            steps.push(json!({"restore":snapshot}));
+            transformed = Runtime::restore_portable_selected(&checked, &snapshot).unwrap();
+            rt = Runtime::restore_portable(
+                original.program().clone(),
+                &transformed.checkpoint_portable().unwrap(),
+            )
+            .unwrap();
         }
     }
+    // A candidate that drops the caller's event is not proved by row equality.
+    let mut wrong = proposal.clone();
+    wrong.action_replacement.as_mut().unwrap().selected =
+        serde_json::from_slice(&module(&FLOW.replace("emit seen(22);", "")).bytes().unwrap())
+            .unwrap();
+    assert!(optimisation::check(&original, &wrong).is_err());
+    parity::conformance_selected("action-flow-compiled", &checked, FLOW, steps, expected);
 }
 #[test]
 fn checked_whole_actions_execute_through_compiled_backends_and_restore_original_snapshots() {
@@ -497,9 +628,25 @@ fn authentic_source_definitions_do_not_make_a_wrong_replacement_proof_valid() {
     let projection = Projection::derive(&wrong).unwrap();
     let root =
         Path::new(env!("CARGO_MANIFEST_DIR")).join("build/action-transitions-false-equation");
+    republish_with_projection(&mut p, &projection, &root);
+    p.action_replacement.as_mut().unwrap().selected =
+        serde_json::from_slice(&wrong.bytes().unwrap()).unwrap();
+    verified_language::registry::CheckedBundle::check(&p.knowledge)
+        .unwrap()
+        .first_order_context()
+        .unwrap();
+    let error = optimisation::check(&original, &p).unwrap_err();
+    assert!(error.contains("different statement"), "{error}");
+}
+fn republish_with_projection(package: &mut Package, projection: &Projection, root: &Path) {
     fs::write(
         root.join("wrong-model.json"),
-        serde_json::to_vec(&projection).unwrap(),
+        serde_json::to_vec(projection).unwrap(),
+    )
+    .unwrap();
+    fs::write(
+        root.join("candidate-selection.json"),
+        serde_json::to_vec(package).unwrap(),
     )
     .unwrap();
     let script = r#"import json,sys,tempfile
@@ -512,7 +659,7 @@ with tempfile.TemporaryDirectory() as d:print(json.dumps(Store.publish(d,objects
 "#;
     let out = Command::new("python3")
         .args(["-c", script])
-        .arg(root.join("selection.json"))
+        .arg(root.join("candidate-selection.json"))
         .arg(root.join("wrong-model.json"))
         .current_dir(env!("CARGO_MANIFEST_DIR"))
         .output()
@@ -522,15 +669,31 @@ with tempfile.TemporaryDirectory() as d:print(json.dumps(Store.publish(d,objects
         "{}",
         String::from_utf8_lossy(&out.stderr)
     );
-    p.knowledge = serde_json::from_slice(&out.stdout).unwrap();
-    p.action_replacement.as_mut().unwrap().selected =
-        serde_json::from_slice(&wrong.bytes().unwrap()).unwrap();
-    verified_language::registry::CheckedBundle::check(&p.knowledge)
-        .unwrap()
-        .first_order_context()
-        .unwrap();
-    let error = optimisation::check(&original, &p).unwrap_err();
-    assert!(error.contains("different statement"), "{error}");
+    package.knowledge = serde_json::from_slice(&out.stdout).unwrap();
+}
+#[test]
+fn authentic_nested_candidates_cannot_drop_events_or_capture_sticky_errors() {
+    let original = module(FLOW);
+    let alternative = FLOW.replace("Rows.remove(key); Rows.remove(key);", "Rows.remove(key);");
+    let selected = module(&alternative);
+    let proposal = package(&original, &selected, "action-flow-false-equations");
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("build/action-flow-false-equations");
+    for source in [
+        alternative.replace("emit seen(22);", ""),
+        alternative.replace("trim(key,fail);", "trim(key,false);"),
+    ] {
+        let wrong = module(&source);
+        let mut candidate = proposal.clone();
+        republish_with_projection(&mut candidate, &Projection::derive(&wrong).unwrap(), &root);
+        candidate.action_replacement.as_mut().unwrap().selected =
+            serde_json::from_slice(&wrong.bytes().unwrap()).unwrap();
+        verified_language::registry::CheckedBundle::check(&candidate.knowledge)
+            .unwrap()
+            .first_order_context()
+            .unwrap();
+        let error = optimisation::check(&original, &candidate).unwrap_err();
+        assert!(error.contains("different statement"), "{error}");
+    }
 }
 #[test]
 fn frozen_whole_action_replay_and_inspection_need_no_producer_or_live_database() {

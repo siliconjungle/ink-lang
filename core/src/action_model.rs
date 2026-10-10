@@ -11,6 +11,7 @@ use crate::{
 };
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
+mod flow;
 mod pure;
 pub const SEMANTICS: &str = "ink-action-transition-v1";
 const MAX_DEFINITIONS: usize = 128;
@@ -677,169 +678,6 @@ impl Lower<'_> {
             ],
         ))
     }
-    fn block(
-        &mut self,
-        body: &Body,
-        instructions: &[Instruction],
-        env: BTreeMap<usize, Term>,
-        state: Term,
-        events: Term,
-        kind: &ActionKind,
-        result_type: &Type,
-        observation: &str,
-        depth: usize,
-    ) -> LangResult<Term> {
-        if depth > 32 {
-            return Err("action transition continuation depth limit".into());
-        }
-        self.tick()?;
-        let Some((first, tail)) = instructions.split_first() else {
-            return Ok(self.host(observation, 3));
-        };
-        match first {
-            Instruction::Return(n) => {
-                let value = self.expr(body, *n, &env, &state)?;
-                self.finish(value, state, events, kind, result_type, observation)
-            }
-            Instruction::Let { slot, value, .. } => {
-                let value = self.expr(body, *value, &env, &state)?;
-                let s = self.sort(&body.slots[*slot].ty)?;
-                self.bind(s, value, |this, value| {
-                    let mut env = env;
-                    env.insert(*slot, value);
-                    this.block(
-                        body,
-                        tail,
-                        env,
-                        state,
-                        events,
-                        kind,
-                        result_type,
-                        observation,
-                        depth + 1,
-                    )
-                })
-            }
-            Instruction::Emit { channel, value } => {
-                let value = self.expr(body, *value, &env, &state)?;
-                let index = self
-                    .program
-                    .events
-                    .keys()
-                    .position(|n| n == channel)
-                    .expect("checked event");
-                let next = call(&self.snoc, vec![events, c(&self.event, index, vec![value])]);
-                self.bind(Sort::Data(self.events.clone()), next, |this, events| {
-                    this.block(
-                        body,
-                        tail,
-                        env,
-                        state,
-                        events,
-                        kind,
-                        result_type,
-                        observation,
-                        depth + 1,
-                    )
-                })
-            }
-            Instruction::If {
-                condition,
-                on_true,
-                on_false,
-            } => {
-                let test = self.expr(body, *condition, &env, &state)?;
-                let mut yes = on_true.clone();
-                yes.extend_from_slice(tail);
-                let mut no = on_false.clone();
-                no.extend_from_slice(tail);
-                let a = self.block(
-                    body,
-                    &yes,
-                    env.clone(),
-                    state.clone(),
-                    events.clone(),
-                    kind,
-                    result_type,
-                    observation,
-                    depth + 1,
-                )?;
-                let z = self.block(
-                    body,
-                    &no,
-                    env,
-                    state,
-                    events,
-                    kind,
-                    result_type,
-                    observation,
-                    depth + 1,
-                )?;
-                Ok(choice(test, a, z))
-            }
-            Instruction::Eval(n) => {
-                if let Kind::Table {
-                    root,
-                    method,
-                    arguments,
-                } = &body.nodes[*n].kind
-                {
-                    if ["insert", "replace", "remove"].contains(&method.as_str()) {
-                        let args = arguments
-                            .iter()
-                            .map(|n| self.expr(body, *n, &env, &state))
-                            .collect::<LangResult<Vec<_>>>()?;
-                        let rows = self.root(state.clone(), *root)?;
-                        let t = self.tables[*root].clone();
-                        let fun = match method.as_str() {
-                            "insert" => &t.insert,
-                            "replace" => &t.replace,
-                            _ => &t.remove,
-                        };
-                        let mut xs = vec![rows.clone()];
-                        xs.extend(args.clone());
-                        let next = self.update(state, *root, call(fun, xs))?;
-                        let continuation =
-                            self.bind(Sort::Data(self.state.clone()), next, |this, state| {
-                                this.block(
-                                    body,
-                                    tail,
-                                    env,
-                                    state,
-                                    events,
-                                    kind,
-                                    result_type,
-                                    observation,
-                                    depth + 1,
-                                )
-                            })?;
-                        return Ok(if method == "remove" {
-                            continuation
-                        } else {
-                            let present = call(&t.contains, vec![rows, args[0].clone()]);
-                            if method == "insert" {
-                                choice(present, self.host(observation, 2), continuation)
-                            } else {
-                                choice(present, continuation, self.host(observation, 2))
-                            }
-                        });
-                    }
-                }
-                self.expr(body, *n, &env, &state)?;
-                self.block(
-                    body,
-                    tail,
-                    env,
-                    state,
-                    events,
-                    kind,
-                    result_type,
-                    observation,
-                    depth + 1,
-                )
-            }
-        }
-    }
 }
 impl Projection {
     pub fn derive(module: &CheckedModule) -> LangResult<Self> {
@@ -973,17 +811,7 @@ impl Projection {
                 params.push((n.clone(), l.sort(t)?));
                 env.insert(i, v(&n));
             }
-            let term = l.block(
-                actions.action(index).expect("checked action"),
-                &actions.action(index).unwrap().instructions,
-                env,
-                v("initial"),
-                c(&l.events, 0, vec![]),
-                &a.kind,
-                &a.result,
-                &observation,
-                0,
-            )?;
+            let term = l.action_flow(&actions, index, env, &observation)?;
             let function = l.store(Declaration::Function {
                 params: params.clone(),
                 result: Sort::Data(observation.clone()),

@@ -225,3 +225,128 @@ fn total_helper_projection_is_bound_and_bounded_without_external_tools() {
     .unwrap();
     assert_eq!(old.actions["q"].function, new.actions["q"].function);
 }
+
+#[test]
+fn nested_unknown_results_are_sticky_and_domain_errors_precede_exhaustion() {
+    let source = "module exits;enum Error{Failed,} event seen:u64;
+      change child(value:Result<Unit,Error>)->Result<Unit,Error>{return value;}
+      change outer(value:Result<Unit,Error>)->Result<Unit,Error> emits(seen){
+        emit seen(11);child(value);emit seen(22);return Ok(());
+      }
+      query unwrap(value:Result<u64,Error>)->Result<u64,Error>{return Ok(value?);}";
+    let p = module(source);
+    let model = Projection::derive(&p).unwrap();
+    let context = model.context().unwrap();
+    let initial = c(&model.state, 0, vec![]);
+    let unit = c(data(&model.types["\"Unit\""]), 0, vec![]);
+    let error = c(data(&model.types["{\"Named\":\"Error\"}"]), 0, vec![]);
+    let result = data(&model.types["{\"Result\":[\"Unit\",{\"Named\":\"Error\"}]}"]);
+    let event = model.objects[&model.events].payload["declaration"]["Datatype"]["constructors"][1]
+        ["fields"][0]["Data"]
+        .as_str()
+        .unwrap();
+    for version in [0, u64::MAX] {
+        for success in [false, true] {
+            let argument = c(
+                result,
+                usize::from(!success),
+                vec![if success { unit.clone() } else { error.clone() }],
+            );
+            let observed = context
+                .evaluate(
+                    &[],
+                    &call(
+                        &model.actions["outer"].function,
+                        vec![initial.clone(), Term::U64(version), argument.clone()],
+                    ),
+                )
+                .unwrap();
+            let expected = if success && version == u64::MAX {
+                c(
+                    data(&model.actions["outer"].result),
+                    1,
+                    vec![Term::U64(1), Term::U64(version), initial.clone()],
+                )
+            } else {
+                let events = if success {
+                    c(
+                        &model.events,
+                        1,
+                        vec![
+                            c(event, 0, vec![Term::U64(11)]),
+                            c(
+                                &model.events,
+                                1,
+                                vec![
+                                    c(event, 0, vec![Term::U64(22)]),
+                                    c(&model.events, 0, vec![]),
+                                ],
+                            ),
+                        ],
+                    )
+                } else {
+                    c(&model.events, 0, vec![])
+                };
+                c(
+                    data(&model.actions["outer"].result),
+                    0,
+                    vec![
+                        argument,
+                        Term::Bool(success),
+                        Term::U64(if success { version + 1 } else { version }),
+                        initial.clone(),
+                        events,
+                    ],
+                )
+            };
+            assert_eq!(observed, expected);
+        }
+    }
+    let word_result = data(&model.types["{\"Result\":[\"U64\",{\"Named\":\"Error\"}]}"]);
+    for value in [
+        c(word_result, 0, vec![Term::U64(u64::MAX)]),
+        c(word_result, 1, vec![error]),
+    ] {
+        let observed = context
+            .evaluate(
+                &[],
+                &call(
+                    &model.actions["unwrap"].function,
+                    vec![initial.clone(), Term::U64(u64::MAX), value.clone()],
+                ),
+            )
+            .unwrap();
+        assert_eq!(
+            observed,
+            c(
+                data(&model.actions["unwrap"].result),
+                0,
+                vec![
+                    value,
+                    Term::Bool(false),
+                    Term::U64(u64::MAX),
+                    initial.clone(),
+                    c(&model.events, 0, vec![])
+                ]
+            )
+        );
+    }
+}
+
+#[test]
+fn nested_action_expansion_has_a_call_budget_independent_of_source_typing() {
+    let mut source = String::from("module depth;enum Error{Failed,}");
+    for i in 0..34 {
+        source.push_str(&format!(
+            "change nested_{i}()->Result<Unit,Error>{{{}return Ok(());}}",
+            if i == 33 {
+                String::new()
+            } else {
+                format!("nested_{}();", i + 1)
+            }
+        ));
+    }
+    assert!(Projection::derive(&module(&source))
+        .unwrap_err()
+        .contains("nested call depth limit"));
+}

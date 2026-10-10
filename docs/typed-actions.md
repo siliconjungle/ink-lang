@@ -45,9 +45,9 @@ replacement on the strength of matching syntax alone.
 
 A restricted [whole-action logical model](action-transitions.md) now binds the
 actual typed bodies to reads, statement writes, ordered events, returns and
-transaction rollback, including total word/Boolean/record helpers. Database
-equivalences can replace complete actions in that domain. Nested actions,
-expression effects and abrupt `?` exits still need logical correspondence;
+transaction rollback, including total word/Boolean/record helpers, nested
+actions, expression effects and abrupt `?` exits. Database equivalences can
+replace complete actions in that domain. Numeric/collection/keep coverage,
 physical representations, restoration and profitability require separate
 obligations. Direct baseline execution supports more than this proof domain.
 

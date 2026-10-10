@@ -34,16 +34,18 @@ view and checked proposal, rather than installing an algorithm into the core.
 
 The current source projection supports u64-keyed tables whose values use u64,
 Bool, Unit, enums, records, Option and Result; total word/Boolean expressions and
-constructors; table get/contains; statement insert/replace/remove; local lets,
-branches, ordered emits and returns. Total pure helpers can use u64/Bool literals,
+constructors; table get/contains and insert/replace/remove (including their
+returned values); local lets, branches, ordered emits and returns. Nested query
+and change calls, `?`, and Option/Result `map`, `map_err` and `ok_or` now have
+fixed logical meanings. Total pure helpers can use u64/Bool literals,
 arithmetic/comparisons, lazy Boolean operators and `choose`, records/fields,
 lexically scoped lets and nested total helper calls. Their definitions are
 derived from the existing checked binder-safe semantic tree. Helper call depth
 is limited to 32 and the projection's shared work/definition limits still apply.
 All action signatures and used operations
 must lie in this domain. It currently rejects other numeric types, IDs, exact
-integers, strings, lists, keep reads, nested action calls, Try and mutation values
-used as expressions. Those features continue to execute through the baseline;
+integers, strings, lists, keep reads and unsupported primitive operations.
+Those features continue to execute through the baseline;
 this projection does not certify their replacement. Proposed definitions and
 continuations have explicit node, byte, depth and declaration limits. Kernel
 proof limits and checking rules are unchanged.
@@ -52,6 +54,25 @@ Only reached pure helpers are translated; an unrelated unused numerical helper
 does not widen the projection's semantics or invalidate an old transition. A
 reached unsupported operation such as division or a u32 intermediate rejects
 projection even in a branch that is not taken in a particular execution.
+
+Expressions execute from left to right, including record fields in their source
+order and function arguments. `&&` and `||` evaluate their right operand only
+when needed; `ok_or` evaluates its fallback eagerly. Nested changes share the
+caller's tentative state and event prefix; an Err aborts the caller even if its
+return is ignored. A query catches its own `?` exit as a Result value. The caller
+can inspect or discard that value; its own `?` propagates it. Only the outermost
+change decides commit, increments the version and publishes staged events.
+Domain failure takes precedence over commit-counter exhaustion.
+
+One private continuation builder now handles all action statements. Total
+subexpressions use the existing fixed expression correspondence; effectful
+subexpressions pass their updated logical state and event prefix to the next
+step. Constructor cases already produced by those semantics are selected
+directly; unknown values remain logical matches. This is semantic evaluation,
+not an optimisation rule for user programs. There is no second legacy statement
+interpreter in the projection. Nested action expansion is limited to 32 calls,
+expression construction to 128 levels and statement continuation to 32 levels;
+the shared work budget and kernel limits remain unchanged.
 
 A transition observes the reply, commit flag, version, every logical table root
 and ordered staged events. Host failures preserve the original roots/version.
