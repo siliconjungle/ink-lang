@@ -389,3 +389,23 @@ bundles include JS, Wasm and WGSL, with bounded whole-computation selection in
 ink-runtime. Native GPU fallback remains C. Per-stage adaptive placement and
 browser source editing remain unfinished. See [the target contract](docs/javascript-backend.md)
 and [validation evidence](reports/javascript-phase1/REPORT.md).
+
+## Shared executable change boundary
+
+Reference and generated Rust/Wasm now share the fixed commit decision, sticky
+nested-change error propagation and ordered event-coordinate primitives.
+A private binding witness checks a canonical database decision definition
+against the actual fixed semantics and a checked source change. It does not
+bind the action body or install a replacement. Four database theorems cover
+domain-error precedence, exhaustion and guarded commits; the snapshot contains
+601 entries. Six valid alternative mathematical protocols fail binding and a
+fresh authenticated false theorem fails proof admission.
+
+All 189 distribution tests and 20 independent core tests pass. The final
+three-seed transaction fixture checks 48 native and 48 compiled Wasm outcomes,
+each with exact snapshot comparison, covering nested ignored/captured errors,
+tentative reads, short circuits, event order and commit exhaustion. All canonical
+entries replay across 37 bounded views using the preserved checker. This makes
+no timing or browser claim. Source-body/effect, physical rollback/storage and
+replacement admission remain open. See docs/change-boundary-correspondence.md
+and reports/change-boundary-phase1.

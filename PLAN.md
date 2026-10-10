@@ -412,3 +412,21 @@ This advances the value part of milestones 2, 3 and 5. It does not finish source
 action/effect correspondence or native representation refinement. The unary
 integer model and legacy maintenance dependency remain explicit limitations.
 No transaction shortcut or new optimisation-specific kernel rule is enabled.
+
+### Shared change-boundary semantics
+
+The journalled base now uses shared dependency-free commit, nested-error and
+event-coordinate primitives in reference and generated Rust/Wasm. A canonical
+database definition can be bound to a checked source change through exact
+fixed-semantics checking, with no package-name authority. Boundary decision
+theorems use the existing general proof rules. Six mathematically valid wrong
+protocols fail correspondence; fresh false evidence fails mathematical admission.
+
+This advances the transaction boundary of milestones 2, 3 and 5. It does not
+establish complete source-action interpretation, ordered effects, physical
+rollback, publication payloads, native refinement or replacement admission.
+The next implementation gate is a general typed action/effect representation
+connected to actual execution, then checked all-future state/representation
+replacement. No P1/P2/P3 recogniser, shortcut or measured speedup is enabled.
+The full production and performance objective remains open. See
+docs/change-boundary-correspondence.md and reports/change-boundary-phase1.

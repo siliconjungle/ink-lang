@@ -49,6 +49,11 @@ preserve every observation:
 
 ## Plan shapes measured by the prototype
 
+The fixed base boundary is now shared by reference and generated execution,
+with checked database decision laws and a source-change binding. See
+[its exact scope](change-boundary-correspondence.md). This does not establish
+action-body or physical rollback refinement and enables none of these plans.
+
 ### P1: validated direct execution
 
 *Applicability.* Every failure point of the body precedes its first effect. A
