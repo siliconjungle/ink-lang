@@ -153,6 +153,16 @@ Planner search and measured cost selection remain external. These commands
 select explicit requests; they do not silently turn an unverified database
 search result into a selection.
 
+Canonical subset export now retains checked witnesses while traversing the
+dependency closure, using one SQLite read snapshot and authenticating identical
+membership proof bytes once per export. Every ID still requires authenticated
+leaf membership, and every object's canonical bytes are read and hashed. Later
+indexed exports recheck both; no persistent indexed authentication cache is introduced. This
+reduces bundle assembly overhead without changing the mathematical snapshot or
+the core's independent local checking. Measurements are in
+`reports/knowledge-export-performance` and exclude mathematical admission and
+source action execution.
+
 ## Scope and trust
 
 Admission currently uses the documented `action_model` domain: u64 table keys,
