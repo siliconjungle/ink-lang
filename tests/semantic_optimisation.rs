@@ -139,7 +139,9 @@ fn branch_conditions_are_proved_at_the_actual_site() {
         .roots
         .iter()
         .find(|id| {
-            !c.objects[*id].conditions.is_empty() && c.objects[*id].from.sort == s::value(Type::U32)
+            !c.objects[*id].conditions.is_empty()
+                && c.objects[*id].from.sort == s::value(Type::U32)
+                && matches!(&c.objects[*id].from.node,Node::Op(n,_) if n=="binary:+")
         })
         .unwrap()
         .clone();
@@ -737,7 +739,9 @@ fn search_composes_supporting_lemmas_to_discharge_rule_conditions() {
         .iter()
         .find(|id| {
             let law = &all.objects[*id];
-            law.from.sort == ls && law.to == xs
+            law.from.sort == ls
+                && law.to == xs
+                && matches!(&law.from.node,Node::Op(n,_) if n=="method:map")
         })
         .unwrap()
         .clone();

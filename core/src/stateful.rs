@@ -42,6 +42,9 @@ impl Value {
                 E::F32(x) => Value::F32(x),
                 E::Bool(x) => Value::Bool(x),
                 E::Opaque(x) => x,
+                E::Buffer(_) | E::Map(_) => {
+                    return Err("temporary storage cannot enter stateful values".into())
+                }
                 E::Record(n, xs) => Value::Record(
                     n,
                     xs.into_iter()

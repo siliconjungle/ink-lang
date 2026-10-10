@@ -511,34 +511,68 @@ impl CheckedBundle {
 }
 /// Construct a pinned in-memory view for proof producers and focused tests.
 pub fn from_catalogue(c: &Catalogue) -> LangResult<Bundle> {
+    if c.objects.len() > 1024 || c.roots.len() > 1024 {
+        return Err("in-memory catalogue exceeds bounded knowledge view".into());
+    }
     let objects = c
         .objects
         .iter()
         .map(|(id, l)| Ok((id.clone(), Entry::from_law(l)?)))
         .collect::<LangResult<BTreeMap<_, _>>>()?;
     let ids = objects.keys().cloned().collect::<Vec<_>>();
-    if ids.len() > 64 {
-        return Err(
-            "in-memory producer leaf limit; use the knowledge store for larger snapshots".into(),
-        );
+    // Use the same bounded leaves and odd-node duplication as the canonical
+    // store. This constructs transport witnesses; checking still grants authority.
+    let mut membership = BTreeMap::new();
+    let mut nodes = vec![];
+    for entries in ids.chunks(64) {
+        let entries = entries.to_vec();
+        for id in &entries {
+            membership.insert(
+                id.clone(),
+                Membership {
+                    entries: entries.clone(),
+                    path: vec![],
+                },
+            );
+        }
+        nodes.push((identity(&json!({"schema":1,"entries":entries}))?, entries));
+    }
+    if nodes.is_empty() {
+        nodes.push((identity(&json!({"schema":1,"entries":[]}))?, vec![]));
+    }
+    while nodes.len() > 1 {
+        let mut next = vec![];
+        for pair in nodes.chunks(2) {
+            let (left, left_ids) = &pair[0];
+            let (right, right_ids) = pair.get(1).unwrap_or(&pair[0]);
+            for id in left_ids {
+                membership.get_mut(id).unwrap().path.push(Sibling {
+                    sibling: right.clone(),
+                    left: false,
+                });
+            }
+            let mut parent_ids = left_ids.clone();
+            if pair.len() == 2 {
+                for id in right_ids {
+                    membership.get_mut(id).unwrap().path.push(Sibling {
+                        sibling: left.clone(),
+                        left: true,
+                    });
+                }
+                parent_ids.extend(right_ids.iter().cloned());
+            }
+            next.push((
+                identity(&json!({"schema":1,"left":left,"right":right}))?,
+                parent_ids,
+            ));
+        }
+        nodes = next;
     }
     let snapshot = Snapshot {
         schema: 1,
         semantics: SNAPSHOT_SEMANTICS.into(),
-        root: identity(&json!({"schema":1,"entries":ids}))?,
+        root: nodes.pop().unwrap().0,
     };
-    let membership = ids
-        .iter()
-        .map(|i| {
-            (
-                i.clone(),
-                Membership {
-                    entries: ids.clone(),
-                    path: vec![],
-                },
-            )
-        })
-        .collect();
     let mut roots = c.roots.clone();
     roots.sort();
     roots.dedup();
