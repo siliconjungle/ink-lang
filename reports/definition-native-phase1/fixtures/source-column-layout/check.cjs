@@ -1,0 +1,1 @@
+const fs=require('node:fs'); WebAssembly.instantiate(fs.readFileSync('program.wasm'),{}).then(({instance})=>{if(instance.exports.run_checks()!==1)throw Error('wrong result');}).catch(e=>{console.error(e);process.exitCode=1;});

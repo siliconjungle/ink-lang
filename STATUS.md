@@ -2,7 +2,30 @@
 
 The full goal remains open. This file describes executable behaviour and its limits.
 
-The latest separation milestone removes the older typed-scalar matcher,
+The latest candidate milestone adds general Rust lowering for checked database
+definitions and a pinned, proof-checked entry-selection interface. Database
+packages supply combined list passes and row updates performed through columns;
+the compiler emits their actual checked bodies without an optimisation law or
+representation recogniser. Internal calls retain immutable definitions, so an
+equal candidate cannot introduce a cycle by calling a redirected entry.
+
+All 112 tests pass. Native and Wasm execution each pass 1,181 positive value
+comparisons, including continued row/ledger updates and representation
+conversion, plus malformed-value and forged-package rejection. Nine complete
+fixture libraries/selections reproduce byte-identical Rust under the current
+compiler. All 28 libraries now appear in recursive discovery and check locally;
+the compiler also builds offline without a knowledge checkout and emits the
+same selected code from explicitly supplied packages. Evidence is in
+`reports/definition-native-phase1/`.
+
+This executes mathematical candidate definitions with a trusted Rust/LLVM
+backend; it does not formally verify that backend or admit full Ink source
+stateful replacements. The row/column adapter uses boxed data and converts at
+each entry. Efficient physical buffers, persistent representation selection,
+source errors/aborts/events/commits, snapshots and migration remain required.
+There is no new performance claim.
+
+The preceding separation milestone removes the older typed-scalar matcher,
 traversal, premise search and application from the compiler. Historical scalar
 libraries are verification-only; active compilation accepts complete external
 replacement proofs. Boolean/composed/conditional libraries translate and

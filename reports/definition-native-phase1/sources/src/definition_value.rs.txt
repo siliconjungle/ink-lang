@@ -1,0 +1,28 @@
+/// Ground constructor values at the checked dispatch boundary. This is an
+/// in-process Rust API, not a persistent snapshot or an untrusted byte parser.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum Value {
+    Bool(bool),
+    U64(u64),
+    Data { datatype: String, constructor: usize, arguments: Vec<Value> },
+}
+fn decode_bool(v: &Value) -> Result<bool, &'static str> {
+    if let Value::Bool(b) = v { Ok(*b) } else { Err("expected Bool") }
+}
+fn decode_u64(v: &Value) -> Result<u64, &'static str> {
+    if let Value::U64(n) = v { Ok(*n) } else { Err("expected U64") }
+}
+fn validate_inputs(args: &[Value]) -> Result<(), &'static str> {
+    if args.len() > 64 { return Err("input argument limit"); }
+    let mut pending: Vec<_> = args.iter().map(|v| (v, 0usize)).collect();
+    let mut nodes = 0;
+    while let Some((v, depth)) = pending.pop() {
+        nodes += 1;
+        if depth > 64 || nodes > 100_000 { return Err("input value resource limit"); }
+        if let Value::Data { datatype, arguments, .. } = v {
+            if datatype.len() != 64 || arguments.len() > 64 { return Err("input constructor limit"); }
+            pending.extend(arguments.iter().map(|v| (v, depth + 1)));
+        }
+    }
+    Ok(())
+}

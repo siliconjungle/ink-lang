@@ -86,6 +86,33 @@ migration. The aggregate schema, bounded-cache analysis and layout-specific lowe
 remain documented migration work in
 [the architectural boundary](docs/small-core-and-knowledge.md).
 
+Database definitions can also be executed directly. `emit-definition` lowers
+the actual checked first-order function bodies to Rust, using ordinary
+constructors, matches, calls and structural recursion. An optional selection
+package must prove unconditional equality between the actual entry functions:
+
+```sh
+python3 knowledge/tools/definition_candidates.py --example map \
+  --compiler target/debug/ink --output-dir build/definition-map
+target/debug/ink emit-definition build/definition-map/lock.json \
+  build/definition-map/exports.json --select build/definition-map/selection.json \
+  -o build/definition-map/selected.rs
+```
+
+The generated library has typed Rust exports and a checked ground-value
+dispatch API. Rust can compile it to native code or `wasm32-unknown-unknown`.
+The compiler checks every library object and the replacement's actual
+signature and proof before writing output. Entry wrappers select candidates;
+internal calls retain immutable definition identities to avoid introducing
+recursion cycles. No list-fusion or row/column law lives in this backend.
+
+`knowledge/definition-candidates/` supplies examples of combined list passes
+and row updates performed through columns. The latter encodes and decodes at
+each entry and uses boxed datatype storage. It is a correspondence baseline,
+not fast physical column storage or full Ink source transaction admission.
+Lowering, codecs and Rust/LLVM remain trusted; proofs concern total values,
+not allocation failures or runtime costs. See the architectural boundary below.
+
 ## Meaning of verified in this milestone
 
 [Source row models](docs/source-row-models.md) now bind actual nested record types, key words and contribution expressions to checked mathematical definitions. Four external rollback libraries instantiate two schemas under the same compiler; the previous kernel also checks them. The full suite passes 83 tests. These bindings still require native-map and complete transaction correspondence before they can authorise representation changes.

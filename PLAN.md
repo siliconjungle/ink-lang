@@ -240,3 +240,22 @@ connection to emitted bodies. Existing abstract row/column/search proofs and
 typed layout policy alone do not provide that connection. This remains part
 of the full source/effect/native admission gate, not a narrower replacement
 for it. Aggregate/bounded-cache authority and release experience remain open.
+
+### Executable candidate descriptions
+
+Checked first-order definitions now lower directly to Rust, without a
+representation-name recogniser or optimisation law. A pinned entry-selection
+package must prove unconditional equality between actual checked functions
+with matching signatures before any output is written. Internal calls retain
+immutable bodies, preventing equal entry selections from introducing cycles.
+External packages supply combined list passes and row/column transition
+adapters; the compiler emits their actual checked bodies.
+
+Next connect efficient physical buffer operations to this executable/proof
+boundary and keep the chosen representation across source actions. The current
+boxed row/column adapter converts at each entry and is not a competitive
+physical implementation. Complete source-action, error, abort, event, commit,
+snapshot and migration correspondence remains an explicit admission gate.
+Continue aggregate/bounded-cache separation, general ownership/arenas, compact
+links, inline data, final-destination construction, bounded search, profiles,
+durability and all original release/benchmark requirements.

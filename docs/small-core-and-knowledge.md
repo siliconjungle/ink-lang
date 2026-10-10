@@ -296,3 +296,63 @@ laws or exhausted search retain the original function. General kernel and
 source correspondence remain unchanged. The old scalar calculus stays in the
 trusted compatibility reader; removing that reader is a separate compatibility
 decision, not a hidden second compilation path.
+
+## Executable database definitions and checked entry selection
+
+`definition_native.rs` supplies a general backend for the existing checked
+first-order definition language, rather than another optimisation calculus.
+It lowers Bool, wrapping U64 arithmetic, finite inductive constructors,
+matches, conditionals, immutable calls and checked structural recursion.
+Datatype fields use boxes; data parameters are borrowed and data results
+owned. Returning an existing borrowed value clones it. The backend chooses no
+algebraic identity, cache algorithm or table representation.
+
+`emit-definition LOCK EXPORTS [--select PACKAGE] -o SOURCE.rs` checks the
+whole immutable library before selecting public function roots. The compiler
+generates binder/constructor symbols independently of user names. Supplied
+packages cannot inject Rust bodies. Output is deterministic for the same
+bundle, exports, package and compiler. The receipt identifies the canonical
+bundle, selected entries, executable dependencies and emitted source; hashes
+are identities, not correctness evidence.
+
+`ink-definition-selection-v1` packages contain schema, semantic/observation
+versions, the complete canonical bundle identity and proposals with original
+function, replacement function and proof. The only admitted observation
+domain is `first-order-total-values-v1`. Every endpoint must be a checked public
+function with identical ordered parameter sorts and result sort. The compiler
+constructs calls from the actual original signature and checks the supplied
+proof under an empty premise context. A conditional theorem alone therefore
+cannot establish an unconditional replacement. All proposals must pass before
+any source is written; unknown/duplicate CLI options also fail explicitly.
+
+Selections affect public entry wrappers. Definition calls and recursive calls
+continue to reference original immutable bodies. This matters even for a valid
+equality: a candidate that calls the original entry can be equal to it, but
+globally redirecting that call to the candidate would create an infinite loop.
+
+The generated Rust library exposes typed functions and an in-process ground
+`Value` dispatch API. The latter checks exact datatype identities, constructor
+tags, arities, field sorts and input limits (64 arguments/fields, depth 64,
+100,000 nodes). This is not a persistent snapshot format. These bounds cover
+input validation, not total execution time, intermediate allocations or output
+size; structurally terminating definitions can still consume large resources.
+Typed exports require ordinary Rust values and do not perform dispatch bounds.
+Host allocation/stack failures remain outside the total-value proof domain.
+
+The DB's `definition_candidates.py` supplies an ordinary staged-list entry and
+its proved combined-pass selection, plus row/ledger entries that encode rows,
+execute a column update and decode the result. Existing step and roundtrip
+theorems prove the complete selected function, with no new kernel rule. The
+compiler emits those checked candidate bodies; it does not attach a model
+theorem to an independently written storage implementation. Native and Wasm
+tests compare continued updates and representation conversion with independent
+maps and the checked definition evaluator.
+
+This closes one missing executable-description layer. The Rust lowering,
+generated codecs, compiler and LLVM remain trusted implementations, rather
+than a verified backend. The boxed column adapter converts at every entry;
+it is neither persistent native flat storage nor evidence of profitability.
+Actual Ink source actions, error/abort/event/commit semantics, physical buffer
+operations, snapshots and candidate installation still require correspondence
+and preservation proofs. Efficient physical representations and measured
+selection remain production work; this interface does not close that gate.
