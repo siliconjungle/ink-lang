@@ -1,0 +1,113 @@
+   Compiling ink-lowering-rust v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/lowerings/rust)
+   Compiling ink v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.15s
+     Running tests/state_ownership.rs (target/debug/deps/state_ownership-cedb22cdfaa893f7)
+
+running 1 test
+test stored_row_closures_can_call_helpers_queries_and_derived_reads ... FAILED
+
+failures:
+
+---- stored_row_closures_can_call_helpers_queries_and_derived_reads stdout ----
+
+thread 'stored_row_closures_can_call_helpers_queries_and_derived_reads' (116956046) panicked at tests/state_ownership.rs:95:5:
+     Locking 25 packages to highest compatible versions
+   Compiling version_check v0.9.5
+   Compiling typenum v1.20.1
+   Compiling autocfg v1.5.1
+   Compiling libc v0.2.190
+   Compiling serde_core v1.0.229
+   Compiling zmij v1.0.23
+   Compiling serde_json v1.0.151
+   Compiling memchr v2.8.3
+   Compiling itoa v1.0.18
+   Compiling cfg-if v1.0.5
+   Compiling generic-array v0.14.7
+   Compiling num-traits v0.2.19
+   Compiling cpufeatures v0.2.17
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling digest v0.10.7
+   Compiling sha2 v0.10.9
+   Compiling num-integer v0.1.47
+   Compiling num-bigint v0.4.8
+   Compiling compiled-state v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-09/wha/outputs/verified-language/build/native-ownership/closure-calls)
+error[E0500]: closure requires unique access to `*self` but it is already borrowed
+   --> src/lib.rs:676:79
+    |
+676 | ...f,)->Vec<u32>{return self.l_Items.values().map(|l_row|{{let tmp_5:u32=l_row.l_stock.clone();self.function_l_bump(tmp_5)}}).colle...
+    |                         ------------          --- ^^^^^^^ closure construction occurs here     ---- second borrow occurs due to use of `*self` in closure
+    |                         |                     |
+    |                         |                     first borrow later used by call
+    |                         borrow occurs here
+
+error[E0500]: closure requires unique access to `*self` but it is already borrowed
+   --> src/lib.rs:681:88
+    |
+681 | ...Vec<l_Item>{return self.l_Items.values().filter(|l_row|{{let tmp_6:u32=l_row.l_stock.clone();self.function_l_positive(tmp_6)}})....
+    |                       ------------          ------ ^^^^^^^ closure construction occurs here     ---- second borrow occurs due to use of `*self` in closure
+    |                       |                     |
+    |                       |                     first borrow later used by call
+    |                       borrow occurs here
+
+error[E0500]: closure requires unique access to `*self` but it is already borrowed
+   --> src/lib.rs:686:101
+    |
+686 | ...ption<u32>{return (self.l_Items.get(&(l_key))).map(|l_row|{{let tmp_7:u32=l_row.l_stock.clone();self.function_l_bump(tmp_7)}});
+    |                       ------------                --- ^^^^^^^ closure construction occurs here     ---- second borrow occurs due to use of `*self` in closure
+    |                       |                           |
+    |                       |                           first borrow later used by call
+    |                       borrow occurs here
+
+error[E0500]: closure requires unique access to `*self` but it is already borrowed
+   --> src/lib.rs:691:81
+    |
+691 | ...<BigInt>{return self.l_Items.values().map(|l_row|{(({self.action_l_total()}) + (BigInt::from(l_row.l_stock.clone())))}).collect:...
+    |                    ------------          --- ^^^^^^^    ---- second borrow occurs due to use of `*self` in closure
+    |                    |                     |   |
+    |                    |                     |   closure construction occurs here
+    |                    |                     first borrow later used by call
+    |                    borrow occurs here
+
+error[E0500]: closure requires unique access to `*self` but it is already borrowed
+   --> src/lib.rs:696:87
+    |
+696 | ...l_Item>{return self.l_Items.values().filter(|l_row|{(({self.action_l_total()}) > (BigInt::from(l_row.l_stock.clone())))}).cloned...
+    |                   ------------          ------ ^^^^^^^    ---- second borrow occurs due to use of `*self` in closure
+    |                   |                     |      |
+    |                   |                     |      closure construction occurs here
+    |                   |                     first borrow later used by call
+    |                   borrow occurs here
+
+error[E0500]: closure requires unique access to `*self` but it is already borrowed
+   --> src/lib.rs:701:103
+    |
+701 | ...Int>{return (self.l_Items.get(&(l_key))).map(|l_row|{(({self.action_l_total()}) + (BigInt::from(l_row.l_stock.clone())))});
+    |                 ------------                --- ^^^^^^^    ---- second borrow occurs due to use of `*self` in closure
+    |                 |                           |   |
+    |                 |                           |   closure construction occurs here
+    |                 |                           first borrow later used by call
+    |                 borrow occurs here
+
+error[E0500]: closure requires unique access to `*self` but it is already borrowed
+   --> src/lib.rs:706:83
+    |
+706 | ...c<BigInt>{return self.l_Items.values().map(|l_row|{((self.keep_l_units()) + (BigInt::from(l_row.l_stock.clone())))}).collect::<V...
+    |                     ------------          --- ^^^^^^^   ---- second borrow occurs due to use of `*self` in closure
+    |                     |                     |   |
+    |                     |                     |   closure construction occurs here
+    |                     |                     first borrow later used by call
+    |                     borrow occurs here
+
+For more information about this error, try `rustc --explain E0500`.
+error: could not compile `compiled-state` (lib) due to 7 previous errors
+
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    stored_row_closures_can_call_helpers_queries_and_derived_reads
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 2 filtered out; finished in 2.97s
+
+error: test failed, to rerun pass `--test state_ownership`
