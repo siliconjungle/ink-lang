@@ -19,7 +19,7 @@ execution and general evidence checking. It builds independently. The
 | [ink-knowledge](https://github.com/siliconjungle/ink-knowledge) | Immutable entries, authenticated snapshots, typed discovery and performance observations |
 | [ink-planner](https://github.com/siliconjungle/ink-planner) | Bounded compositional search, applicability proofs and plan selection |
 | [ink-runtime](https://github.com/siliconjungle/ink-runtime) | Checked-graph execution, host ABIs, scheduling, profiling, bundle assembly and pure fallback |
-| [Lowerings](backend-packages.md) | C/Rust/Wasm target emission and WGSL/WebGPU/wgpu device operations |
+| [Lowerings](backend-packages.md) | C/Rust/Wasm/JavaScript target emission and WGSL/WebGPU/wgpu device operations |
 
 Each canonical knowledge entry has a content identity, kind, semantics version,
 exact dependencies, typed interface and payload. SQLite is a rebuildable
@@ -41,6 +41,12 @@ mathematical domains; arbitrary entry kinds do not grant executable authority.
 Historical experiment fixtures live under `knowledge/research`, outside production
 discovery. General stateful replacement and migration remain unfinished.
 
+JavaScript lowering emits ES modules while preserving Ink's core types, wrapping
+integers and binary32 operation order. The initial target supports pure numeric,
+Bool, vector, record and list functions. Browser runtime selection compares
+JavaScript, Wasm and WebGPU whole execution costs; stateful JavaScript execution
+and per-stage adaptive placement remain unfinished. See [JavaScript target](javascript-backend.md).
+
 C/Rust toolchains produce native machine code and Wasm. The GPU package emits
 WGSL and operates WebGPU/wgpu devices; runtime assembles artifacts with compiled
 CPU fallback and owns browser/native scheduling. Supported host pipelines retain
@@ -48,7 +54,7 @@ GPU arrays across steps and iterations. Checked pure source graphs mix CPU/GPU
 stages, but general proved resident-buffer routing is unfinished.
 
 The proof checker is written in Rust; Lean is separate research tooling.
-The checker, correspondence bridges, emitted C/Rust/WGSL, toolchains, runtime
+The checker, correspondence bridges, emitted C/Rust/JavaScript/WGSL, toolchains, runtime
 adapters and GPU drivers remain trusted implementations. This draft does not
 claim end-to-end verified machine code. See [the repository contract](repository-architecture.md).
 

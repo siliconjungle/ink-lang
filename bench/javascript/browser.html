@@ -1,0 +1,38 @@
+<!doctype html><meta charset="utf-8"><title>Ink JavaScript lowering validation</title>
+<style>body{font:16px system-ui;margin:32px;background:#111;color:#eee}button{padding:12px}pre{white-space:pre-wrap}</style>
+<h1>Ink browser target validation</h1><button id="run">Run validation</button><pre id="result">Ready</pre>
+<script type="module">
+const result=document.querySelector('#result');
+const json=v=>JSON.stringify(v,(_,v)=>typeof v==='bigint'?v.toString():v);
+const require=(value,message)=>{if(!value)throw Error(message);};
+document.querySelector('#run').onclick=async()=>{
+ document.querySelector('#run').disabled=true;
+ const receipt={status:'running',browser:navigator.userAgent,webgpu:!!navigator.gpu,comparisons:0,gpu_calls:0,targets:[]};
+ try {
+  for(const kind of ['particles','scalar']) {
+   const root=new URL(`../javascript-${kind}/`,location.href);
+   const {loadInk}=await import(new URL('ink-gpu.mjs',root));
+   const fixtures=await(await fetch(new URL('fixtures.json',root))).json();
+   const engine=await loadInk(root);const packed=engine.manifest.schema===2;
+   for(const f of fixtures)for(const backend of ['cpu','javascript','gpu']) {
+    const r=packed?(f.pipeline?await engine.pipeline(f.pipeline,{backend}):await engine.call(f.call,f.args,{backend})):await engine.run(f.call,f.args,backend);
+    const actual=f.pipeline?r.values:r.value;
+    function near(a,b){if(Array.isArray(b))return Array.isArray(a)&&a.length===b.length&&a.every((x,i)=>near(x,b[i]));if(b&&typeof b==='object')return a&&Object.keys(a).length===Object.keys(b).length&&Object.keys(b).every(k=>near(a[k],b[k]));if(typeof b==='number'&&backend==='gpu')return typeof a==='number'&&Math.abs(a-b)<=Math.max(2e-5,Math.abs(b)*2e-5);return a===b;}
+    const correct=packed?(backend==='gpu'?near(actual,f.expected):json(actual)===json(f.expected)):String(actual)===String(f.expected);
+    require(correct,`${kind}/${backend}/${f.call??'pipeline'} mismatch`);
+    if(backend!=='gpu')require(r.backend===backend,'explicit backend ignored');
+    if(navigator.gpu && backend==='gpu' && (f.eligible??f.gpu_eligible))require(r.backend==='gpu',`GPU fallback: ${r.reason}`);
+    receipt.comparisons++;receipt.gpu_calls+=r.backend==='gpu';
+   }
+   const small=packed?await engine.call('indexed',[[1,2,3]],{backend:'auto'}):await engine.run('total',[[1,2,3],3],'auto');
+   require(Object.hasOwn(small.profile.times_ms,'javascript'),'JS missing from profiling');
+   if(packed){const xs=[1];const p=engine.call('indexed',[xs],{backend:'javascript'});xs[0]=99;require((await p).value[0]===-2,'input capture failed');}
+   receipt.targets.push({kind,small_selection:small,javascript_sha256:engine.manifest.javascript.javascript_sha256});
+   await(engine.dispose??engine.close)();
+   result.textContent=json(receipt);
+  }
+  receipt.status='passed';
+ }catch(error){receipt.status='failed';receipt.error=String(error);receipt.stack=error.stack;}
+ result.textContent=JSON.stringify(receipt,(_,v)=>typeof v==='bigint'?v.toString():v,2);
+};
+</script>

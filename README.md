@@ -18,6 +18,7 @@ The core checks what programs mean and whether proposed changes preserve that me
 | [`ink-lowering-c`](https://github.com/siliconjungle/ink-lowering-c) | Literal portable C and packed value ABI emission |
 | [`ink-lowering-rust`](https://github.com/siliconjungle/ink-lowering-rust) | Stateful/inductive Rust emission and native storage primitives |
 | [`ink-lowering-wasm`](https://github.com/siliconjungle/ink-lowering-wasm) | Checked C-to-Wasm target configuration and exports |
+| [`ink-lowering-js`](https://github.com/siliconjungle/ink-lowering-js) | JavaScript ES modules with explicit Ink numeric semantics |
 | [`ink-lowering-gpu`](https://github.com/siliconjungle/ink-lowering-gpu) | WGSL artifacts, shader primitives and WebGPU/wgpu device adapters |
 
 ## Build and use
@@ -67,3 +68,9 @@ The [runtime value correspondence bridge](docs/source-value-correspondence.md)
 connects actual typed rows and ordered source keys to checked row/column models.
 It is bounded validation infrastructure; transaction/native refinement and an
 efficient logical integer representation remain open.
+
+Pure programs can also [compile to JavaScript](docs/javascript-backend.md):
+
+```sh
+ink build examples/particles.ink --target javascript -o build/particles.mjs
+```

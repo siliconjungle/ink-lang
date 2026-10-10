@@ -199,3 +199,11 @@ array tests also run under address/undefined-behaviour sanitizers. Browser/nativ
 receipts include actual backend selections and transfer counts. Float comparison
 tolerances are validation diagnostics, not a portable error bound for arbitrary
 programs. See [phase 2 evidence](../reports/gpu-phase2/REPORT.md).
+
+## JavaScript CPU alternative
+
+Browser bundles now also carry literal `program.mjs` emission. Runtime accepts
+`backend: "javascript"` and includes JavaScript in `auto` whole-pipeline profiling
+alongside Wasm and WebGPU. The JavaScript path preserves Ink word/f32 types and
+uses the host value codec at each stage. Native wgpu fallback remains compiled C.
+See [JavaScript target and selection](javascript-backend.md).
