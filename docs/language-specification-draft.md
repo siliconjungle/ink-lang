@@ -143,7 +143,7 @@ ink emit-state core.json --core -o generated-state
 ```
 
 The richer type system, general ownership/arenas, foreign effects, concurrency,
-generic stateful replacement and migration in the design below remain subsequent milestones. Runtime filesystem/IndexedDB adapters now provide a documented compiled-JavaScript/Wasm durability baseline; they replace whole snapshots rather than implementing the draft's incremental-log protocol. See `docs/durable-host.md`.
+generic stateful replacement and migration in the design below remain subsequent milestones. Runtime filesystem/IndexedDB adapters now provide a documented native C/Rust and compiled-JavaScript/Wasm durability baseline; they replace whole snapshots rather than implementing the draft's incremental-log protocol. See `docs/durable-host.md`.
 A new executable operation or changed meaning requires an explicit core-version
 and correspondence decision; a new equivalent implementation belongs in knowledge.
 

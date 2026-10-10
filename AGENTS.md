@@ -75,5 +75,7 @@ ownership; coordinate parser/distribution edits with the parallel backend chat.
 Final enabled conformance compares 516 requests/exact snapshots on all five CPU
 paths and 102 actual wgpu calls; generated durability uses JS and both Wasm paths.
 Snapshots/outbox/retry receipts are durable under the declared host guarantees,
-not permanent exactly-once delivery or native executable embedding. Keep numerical
+not permanent exactly-once delivery. Native C/Rust executable embedding now
+uses the runtime durable host and synced-file adapter; incremental logs and the
+mixed-wgpu runner remain separate work. Keep numerical
 state/action-boundary consistency and logical action/primitive correspondence open.
