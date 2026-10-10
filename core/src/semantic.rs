@@ -339,6 +339,53 @@ pub fn validate(t: &Term, env: &Env, p: &Program, b: &mut Budget) -> LangResult<
                             arrow(value(Type::U32), arrow(t.sort.clone(), t.sort.clone())),
                         )?;
                     }
+                    "call:repeat_until" | "until.from" => {
+                        let offset = usize::from(n == "until.from");
+                        arity(4 + offset)?;
+                        need(a(0)?, value(Type::U32))?;
+                        if offset == 1 {
+                            need(a(1)?, value(Type::U32))?;
+                        }
+                        let ty = val(&t.sort)?;
+                        if crate::local_collections::owned(ty, p) {
+                            return Err(
+                                "owned stopping iteration has no logical correspondence".into()
+                            );
+                        }
+                        need(a(1 + offset)?, t.sort.clone())?;
+                        need(a(2 + offset)?, arrow(t.sort.clone(), value(Type::Bool)))?;
+                        need(
+                            a(3 + offset)?,
+                            arrow(value(Type::U32), arrow(t.sort.clone(), t.sort.clone())),
+                        )?;
+                    }
+                    "call:buffer" => {
+                        arity(1)?;
+                        let Type::Buffer(inner) = val(&t.sort)? else {
+                            return Err("buffer result sort".into());
+                        };
+                        crate::statecheck::validate_type(val(&t.sort)?, p)?;
+                        need(a(0)?, value(Type::List(inner.clone())))?;
+                    }
+                    "call:length" => {
+                        arity(1)?;
+                        list(a(0)?)?;
+                        need(&t.sort, value(Type::U32))?;
+                    }
+                    "method:freeze" | "method:len" => {
+                        arity(1)?;
+                        let Type::Buffer(inner) = val(a(0)?)? else {
+                            return Err("logical buffer read receiver".into());
+                        };
+                        need(
+                            &t.sort,
+                            if n == "method:freeze" {
+                                value(Type::List(inner.clone()))
+                            } else {
+                                value(Type::U32)
+                            },
+                        )?;
+                    }
                     "call:quot_or" | "call:rem_or" => {
                         arity(3)?;
                         if !check::is_word(val(&t.sort)?) {
@@ -406,7 +453,11 @@ pub fn validate(t: &Term, env: &Env, p: &Program, b: &mut Budget) -> LangResult<
                     }
                     "method:at_or" => {
                         arity(3)?;
-                        need(&t.sort, value(list(a(0)?)?.clone()))?;
+                        let inner = match val(a(0)?)? {
+                            Type::List(inner) | Type::Buffer(inner) => inner,
+                            _ => return Err("indexed read receiver sort".into()),
+                        };
+                        need(&t.sort, value((**inner).clone()))?;
                         need(a(1)?, value(Type::U32))?;
                         need(a(2)?, t.sort.clone())?;
                     }
@@ -632,6 +683,38 @@ pub fn elaborate(e: &Expr, env: &check::Env, p: &Program, want: &Type) -> LangRe
             Expr::Call(n, args) => {
                 let mut out = Vec::new();
                 match n.as_str() {
+                    "repeat_until" => {
+                        out.push(recur(&args[0], &Type::U32)?);
+                        out.push(recur(&args[1], want)?);
+                        out.push(lam(
+                            &args[2],
+                            &[want.clone()],
+                            &Type::Bool,
+                            env,
+                            bound,
+                            p,
+                            b,
+                        )?);
+                        out.push(lam(
+                            &args[3],
+                            &[Type::U32, want.clone()],
+                            want,
+                            env,
+                            bound,
+                            p,
+                            b,
+                        )?);
+                    }
+                    "buffer" => {
+                        let Type::Buffer(inner) = want else {
+                            return Err("buffer result sort".into());
+                        };
+                        out.push(recur(&args[0], &Type::List(inner.clone()))?);
+                    }
+                    "length" => {
+                        let ty = check::infer(&args[0], env, p)?;
+                        out.push(recur(&args[0], &ty)?);
+                    }
                     "repeat" => {
                         let Expr::Num(count) = args[0] else {
                             return Err("repeat count".into());
@@ -710,6 +793,18 @@ pub fn elaborate(e: &Expr, env: &check::Env, p: &Program, want: &Type) -> LangRe
                     p,
                     if n == "filter" { Some(want) } else { None },
                 )?;
+                if let Type::Buffer(inner) = &ty {
+                    let mut out = vec![recur(xs, &ty)?];
+                    match n.as_str() {
+                        "freeze" | "len" if args.is_empty() => (),
+                        "at_or" if args.len() == 2 => {
+                            out.push(recur(&args[0], &Type::U32)?);
+                            out.push(recur(&args[1], inner)?);
+                        }
+                        _ => return Err("owned mutation has no logical correspondence".into()),
+                    }
+                    return Ok(op(s, &format!("method:{n}"), out));
+                }
                 let Type::List(inner) = &ty else {
                     return Err("list receiver".into());
                 };
