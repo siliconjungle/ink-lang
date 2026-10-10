@@ -176,3 +176,6 @@ compose with the preceding reduction laws through the unchanged checker.
 
 [Sort aggregation laws](sort-cardinality.md) remove sorting before cardinality
 observations and wrapping integer sums, using checked insertion lemmas.
+
+[Filtered-sort aggregation](filtered-sort.md) extends sort erasure through pure
+value-based filtering with checked kept/dropped insertion premises.
