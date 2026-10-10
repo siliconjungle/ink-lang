@@ -391,3 +391,75 @@ fn cli_and_argument_budgets_validate_before_writing_output() {
     assert_eq!(std::fs::read(dir.join("out.json")).unwrap(), bytes);
     std::fs::remove_dir_all(dir).unwrap();
 }
+
+#[test]
+fn independent_numerical_images_preserve_actual_arguments_results_and_events() {
+    let module = CheckedModule::from_source(
+        parse(
+            r#"module numerical_values;
+enum Error{Missing,}
+record Sample{value:f32,point:Vec2<f32>,trail:List<f32>,word:i32,signed:Vec2<i32>,words:Vec2<u32>,}
+record Envelope{items:List<Sample>,maybe:Option<Sample>,answer:Result<Sample,Error>,}
+state Rows:Table<i32,Envelope> = Table.empty();
+event seen:Envelope;
+change put(key:i32,row:Envelope,fail:Bool)->Result<f32,Error> writes(Rows) emits(seen){
+ if Rows.contains(key){Rows.replace(key,row);}else{Rows.insert(key,row);}
+ emit seen(row);
+ let sample:Sample=row.maybe.ok_or(Error.Missing)?;
+ return Ok(sample.value);
+}"#,
+        )
+        .unwrap(),
+    )
+    .unwrap();
+    let ir = CheckedActions::elaborate(&module).unwrap();
+    let program = module.program();
+    let sample = json!({"value":{"F32Bits":0x7f812345u32},"point":[-0.0,{"F32Bits":1}],"trail":[{"F32Bits":0x7fc12345u32}],"word":i32::MIN,"signed":[i32::MIN,i32::MAX],"words":[u32::MAX,0]});
+    let args =
+        json!([i32::MIN,{"items":[sample],"maybe":{"Some":sample},"answer":{"Ok":sample}},false]);
+    let action = program.actions.iter().find(|a| a.name == "put").unwrap();
+    let values = action
+        .params
+        .iter()
+        .zip(args.as_array().unwrap())
+        .map(|((_, ty), v)| Value::from_json(v, ty, program).unwrap())
+        .collect::<Vec<_>>();
+    let mut cases = action
+        .params
+        .iter()
+        .map(|(_, ty)| ty.clone())
+        .zip(values.clone())
+        .collect::<Vec<_>>();
+    let outcome = Runtime::new(program.clone())
+        .unwrap()
+        .invoke_json("put", &args)
+        .unwrap();
+    cases.push((action.result.clone(), outcome.result.clone()));
+    for event in &outcome.events {
+        cases.push((program.events[&event.channel].clone(), event.value.clone()));
+    }
+    for bits in [
+        0, 0x80000000, 1, 0x7f800000, 0xff800000, 0x7fc12345, 0x7f812345,
+    ] {
+        cases.push((Type::F32, Value::F32(bits)));
+    }
+    let f = fixture(&ir, &cases);
+    let codec = bind(&ir, &f);
+    for ((ty, value), expected) in cases.iter().zip(f["encoded"].as_array().unwrap()) {
+        let encoded = codec.encode(ty, value, limits()).unwrap();
+        assert_eq!(serde_json::to_value(&encoded).unwrap(), *expected);
+        assert_eq!(codec.decode(ty, &encoded, limits()).unwrap(), *value);
+    }
+    let arguments = codec.encode_arguments("put", &values, limits()).unwrap();
+    assert_eq!(
+        codec.decode_arguments("put", &arguments, limits()).unwrap(),
+        values
+    );
+    let result = codec
+        .encode_result("put", &outcome.result, limits())
+        .unwrap();
+    assert_eq!(
+        codec.decode_result("put", &result, limits()).unwrap(),
+        outcome.result
+    );
+}

@@ -26,6 +26,10 @@ inconsistent and recursive types. Elaboration shares a 100,000-node/instruction
 budget across bodies; each body’s type solving has a two-million-step budget and 128-level
 resolution limit. Source nesting and 16 MiB artifact limits still apply.
 
+Numerical action domains use `ink-typed-actions-v2`; old-domain V1 bytes remain
+unchanged. Selection of the marker and the numerical boundary contract are
+documented in [numerical state](numerical-state.md).
+
 ## Execution and trust
 
 Lowerers can consume an execution adapter generated
