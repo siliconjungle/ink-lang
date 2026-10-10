@@ -121,6 +121,29 @@ fn authentic_complete_code_is_bound_and_other_code_cannot_substitute() {
 }
 
 #[test]
+fn linked_imported_helpers_are_part_of_the_bound_program() {
+    let loaded = verified_language::modules::load(
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("examples/modules/main.ink"),
+    )
+    .unwrap();
+    let module = CheckedModule::from_source(loaded.program.clone()).unwrap();
+    let ir = CheckedActions::elaborate(&module).unwrap();
+    let f = fixture(&ir);
+    let roles: Roles = serde_json::from_value(f["roles"].clone()).unwrap();
+    let bundle: Bundle = serde_json::from_value(f["view"].clone()).unwrap();
+    BoundSyntax::bind(&ir, &bundle, &roles).unwrap();
+    let mut changed = loaded.program;
+    let helper = changed
+        .functions
+        .iter_mut()
+        .find(|f| f.name != "clamp" && f.result == verified_language::syntax::Type::U32)
+        .unwrap();
+    helper.body = verified_language::syntax::Expr::Num(0);
+    let changed = CheckedActions::elaborate(&CheckedModule::from_source(changed).unwrap()).unwrap();
+    assert!(BoundSyntax::bind(&changed, &bundle, &roles).is_err());
+}
+
+#[test]
 fn cli_replay_checks_source_and_preserves_output_on_rejection() {
     let ir = actions(APP);
     let f = fixture(&ir);
