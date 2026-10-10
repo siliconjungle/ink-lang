@@ -14,6 +14,7 @@ fn stable_key(e: &Expr, env: &Env) -> bool {
         Expr::Var(n) => env.contains_key(n),
         Expr::Num(_) | Expr::String(_) => true,
         Expr::Field(e, _) => stable_key(e, env),
+        Expr::Neg(e) => stable_key(e, env),
         Expr::Binary(_, a, b) => stable_key(a, env) && stable_key(b, env),
         _ => false,
     }
@@ -76,6 +77,19 @@ struct Context<'a> {
     typing: Option<&'a RefCell<Typing>>,
 }
 impl Context<'_> {
+    fn numeric_hint(&self, e: &Expr, env: &Env, facts: &Facts) -> Option<Type> {
+        match e {
+            Expr::Num(_) => None,
+            Expr::Binary(op, a, b) if ["+", "-", "*"].contains(&op.as_str()) => self
+                .numeric_hint(a, env, facts)
+                .or_else(|| self.numeric_hint(b, env, facts)),
+            Expr::Binary(..) => None,
+            _ => self
+                .infer(e, env, &mut facts.clone())
+                .ok()
+                .filter(|t| crate::check::is_number(t) || *t == Type::Int),
+        }
+    }
     fn expected(&self, e: &Expr, want: &Type, env: &Env, facts: &mut Facts) -> LangResult<Type> {
         let ty = self.expected_inner(e, want, env, facts)?;
         if let Some(typing) = self.typing {
@@ -90,7 +104,39 @@ impl Context<'_> {
         env: &Env,
         facts: &mut Facts,
     ) -> LangResult<Type> {
+        if let Expr::Binary(op, a, b) = e {
+            if ["+", "-", "*"].contains(&op.as_str())
+                && (crate::check::is_number(want) || *want == Type::Int)
+            {
+                self.expected(a, want, env, facts)?;
+                self.expected(b, want, env, facts)?;
+                return Ok(want.clone());
+            }
+        }
+        if let Expr::Neg(value) = e {
+            if crate::check::is_number(want) || *want == Type::Int {
+                if let (Type::I32, Expr::Num(2147483648)) = (want, value.as_ref()) {
+                    if let Some(typing) = self.typing {
+                        typing.borrow_mut().values.insert(address(value), Type::I32);
+                    }
+                } else {
+                    self.expected(value, want, env, facts)?;
+                }
+                return Ok(want.clone());
+            }
+        }
         if let Expr::Call(n, args) = e {
+            if ["vec2", "vec3", "vec4"].contains(&n.as_str()) {
+                if let Type::Vector(t, k) = want {
+                    if n.as_bytes()[3] - b'0' != *k || args.len() != *k as usize {
+                        return Err("vector arity mismatch".into());
+                    }
+                    for e in args {
+                        self.expected(e, t, env, facts)?;
+                    }
+                    return Ok(want.clone());
+                }
+            }
             if args.len() == 1 {
                 match (n.as_str(), want) {
                     ("Ok", Type::Result(t, _))
@@ -104,6 +150,9 @@ impl Context<'_> {
             }
         }
         if let Expr::Num(n) = e {
+            if matches!(want, Type::I32 | Type::F32) {
+                return crate::check::infer_as(e, env, self.p, want);
+            }
             if *want == Type::U32 {
                 if *n > u32::MAX as u64 {
                     return Err("u32 literal out of range".into());
@@ -138,9 +187,19 @@ impl Context<'_> {
     fn infer_inner(&self, e: &Expr, env: &Env, facts: &mut Facts) -> LangResult<Type> {
         use Type as T;
         match e {
-            Expr::Float(_) | Expr::Neg(_) | Expr::Let(..) => {
-                Err("compute expression belongs in a pure function".into())
+            Expr::Float(_) => Ok(T::F32),
+            Expr::Neg(value) => {
+                let t = if matches!(value.as_ref(), Expr::Num(_)) {
+                    T::I32
+                } else {
+                    self.infer(value, env, facts)?
+                };
+                if !crate::check::is_number(&t) && t != T::Int {
+                    return Err("negation requires numeric value".into());
+                }
+                self.expected(e, &t, env, facts)
             }
+            Expr::Let(..) => Err("compute expression belongs in a pure function".into()),
             Expr::Num(_) => Ok(T::U64),
             Expr::Bool(_) => Ok(T::Bool),
             Expr::String(_) => Ok(T::String),
@@ -183,7 +242,17 @@ impl Context<'_> {
                         return Err(format!("unknown variant {en}.{n}"));
                     }
                 }
-                if let T::Named(record) = self.infer(x, env, facts)? {
+                let receiver = self.infer(x, env, facts)?;
+                if let T::Vector(t, k) = receiver {
+                    let i = ["x", "y", "z", "w"]
+                        .iter()
+                        .position(|v| *v == n)
+                        .ok_or("unknown vector component")?;
+                    if i >= k as usize {
+                        return Err("vector component outside dimension".into());
+                    }
+                    Ok(*t)
+                } else if let T::Named(record) = receiver {
                     self.p
                         .records
                         .get(&record)
@@ -251,14 +320,14 @@ impl Context<'_> {
                 Ok(*out)
             }
             Expr::Binary(op, a, b) => {
-                let mut at = self.infer(a, env, facts)?;
-                if matches!(&**a, Expr::Num(_)) {
-                    let bt = self.infer(b, env, facts)?;
-                    if matches!(bt, T::U32 | T::Int) {
-                        self.expected(a, &bt, env, facts)?;
-                        at = bt;
-                    }
-                }
+                let hint = self
+                    .numeric_hint(a, env, facts)
+                    .or_else(|| self.numeric_hint(b, env, facts));
+                let at = if let Some(t) = hint {
+                    self.expected(a, &t, env, facts)?
+                } else {
+                    self.infer(a, env, facts)?
+                };
                 // Short-circuit operands cannot contribute unconditional presence facts.
                 let mut right_facts = facts.clone();
                 self.expected(b, &at, env, &mut right_facts)?;
@@ -268,8 +337,8 @@ impl Context<'_> {
                     facts.retain(|k, v| right_facts.get(k) == Some(v));
                 }
                 match op.as_str() {
-                    "+" | "-" | "*" if matches!(at, T::U64 | T::U32 | T::Int) => Ok(at),
-                    "<" | ">" | "<=" | ">=" if matches!(at, T::U64 | T::U32 | T::Int) => {
+                    "+" | "-" | "*" if crate::check::is_number(&at) || at == T::Int => Ok(at),
+                    "<" | ">" | "<=" | ">=" if crate::check::is_number(&at) || at == T::Int => {
                         Ok(T::Bool)
                     }
                     "==" | "!=" => Ok(T::Bool),
@@ -279,6 +348,20 @@ impl Context<'_> {
             }
             Expr::Call(n, args) => {
                 match n.as_str() {
+                    "vec2" | "vec3" | "vec4" => {
+                        let k = n.as_bytes()[3] - b'0';
+                        if args.len() != k as usize {
+                            return Err("vector arity mismatch".into());
+                        }
+                        let t = self.infer(&args[0], env, facts)?;
+                        if !matches!(t, T::U32 | T::I32 | T::F32) {
+                            return Err("vector components require 32-bit numeric values".into());
+                        }
+                        for e in &args[1..] {
+                            self.expected(e, &t, env, facts)?;
+                        }
+                        return Ok(T::Vector(Box::new(t), k));
+                    }
                     "Ok" | "Err" | "Some" => {
                         if args.len() != 1 {
                             return Err(format!("{n} expects one argument"));
@@ -295,7 +378,7 @@ impl Context<'_> {
                             return Err("Int expects one argument".into());
                         }
                         let t = self.infer(&args[0], env, facts)?;
-                        if !matches!(t, T::U64 | T::U32 | T::Int) {
+                        if !matches!(t, T::U64 | T::U32 | T::Int | T::I32) {
                             return Err("Int requires integer input".into());
                         }
                         return Ok(T::Int);
@@ -305,7 +388,7 @@ impl Context<'_> {
                             return Err(format!("{n} expects two arguments"));
                         }
                         let t = self.infer(&args[0], env, facts)?;
-                        if !matches!(t, T::U64 | T::U32) {
+                        if !matches!(t, T::U64 | T::U32 | T::I32) {
                             return Err("checked arithmetic requires fixed integers".into());
                         }
                         self.expected(&args[1], &t, env, facts)?;
@@ -323,7 +406,7 @@ impl Context<'_> {
                             if n == "count" {
                                 return Ok(T::Int);
                             }
-                            if matches!(*inner, T::U32 | T::U64 | T::Int) {
+                            if matches!(*inner, T::U32 | T::U64 | T::Int | T::I32 | T::F32) {
                                 return Ok(*inner);
                             }
                         }
@@ -374,10 +457,6 @@ impl Context<'_> {
                     return Ok(a.result.clone());
                 }
                 if let Some(f) = self.p.functions.iter().find(|f| &f.name == n) {
-                    legacy(&f.result, self.p, &mut BTreeSet::new())?;
-                    for (_, t) in &f.params {
-                        legacy(t, self.p, &mut BTreeSet::new())?;
-                    }
                     if args.len() != f.params.len() {
                         return Err(format!("{n} argument count mismatch"));
                     }
@@ -607,31 +686,7 @@ impl Context<'_> {
     }
 }
 
-fn legacy(t: &Type, p: &Program, seen: &mut BTreeSet<String>) -> LangResult<()> {
-    match t {
-            Type::I32|Type::F32|Type::Vector(..)=>Err("compute types are currently supported in pure functions; state/action Wire support is not implemented".into()),
-            Type::Named(n) if seen.insert(n.clone())=>{if let Some(fields)=p.records.get(n){for(_,t)in fields{legacy(t,p,seen)?;}}Ok(())},
-            Type::List(t)|Type::Option(t)=>legacy(t,p,seen),
-            Type::Table(a,b)|Type::Result(a,b)=>{legacy(a,p,seen)?;legacy(b,p,seen)},
-            _=>Ok(())
-        }
-}
 pub fn check(p: &Program) -> LangResult<()> {
-    for t in p
-        .events
-        .values()
-        .chain(p.states.iter().map(|s| &s.ty))
-        .chain(p.keeps.iter().map(|s| &s.ty))
-        .chain(p.actions.iter().flat_map(|a| {
-            a.params
-                .iter()
-                .map(|(_, t)| t)
-                .chain(std::iter::once(&a.result))
-        }))
-    {
-        legacy(t, p, &mut BTreeSet::new())?;
-    }
-
     let mut names = BTreeSet::new();
     for n in p
         .ids
@@ -709,7 +764,7 @@ pub fn check(p: &Program) -> LangResult<()> {
         };
         validate_type(k, p)?;
         validate_type(v, p)?;
-        if !matches!(&**k, Type::U64 | Type::U32 | Type::String)
+        if !matches!(&**k, Type::U64 | Type::U32 | Type::I32 | Type::String)
             && !matches!(&**k,Type::Named(n) if p.ids.contains(n))
         {
             return Err("unsupported persistent key type".into());

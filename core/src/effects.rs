@@ -467,6 +467,7 @@ impl Checker<'_> {
             }]),
             Kind::None => normal(&[ValueShape::None]),
             Kind::Number(_)
+            | Kind::Float(_)
             | Kind::String(_)
             | Kind::Unit
             | Kind::Enum { .. }
@@ -485,7 +486,9 @@ impl Checker<'_> {
                 let s = self.arguments(body, &ids, depth)?;
                 self.tags(s, output)?
             }
-            Kind::Field { receiver, .. } => {
+            Kind::Field { receiver, .. }
+            | Kind::VectorField { receiver, .. }
+            | Kind::Neg { value: receiver } => {
                 let s = self.expr(body, *receiver, depth + 1)?;
                 self.tags(s, output)?
             }

@@ -331,7 +331,20 @@ impl Codec {
         while let Some(ty) = pending.pop() {
             left = left.checked_sub(1).ok_or("action type budget exceeded")?;
             match ty {
-                Type::Unit | Type::Bool | Type::U32 | Type::U64 | Type::Int | Type::String => {}
+                Type::Unit
+                | Type::Bool
+                | Type::U32
+                | Type::U64
+                | Type::Int
+                | Type::String
+                | Type::I32
+                | Type::F32 => {}
+                Type::Vector(t, n)
+                    if (2..=4).contains(n)
+                        && matches!(t.as_ref(), Type::U32 | Type::I32 | Type::F32) =>
+                {
+                    pending.push(t)
+                }
                 Type::List(t) | Type::Option(t) => pending.push(t),
                 Type::Result(a, b) => {
                     pending.push(a);
@@ -414,6 +427,8 @@ impl Codec {
             (Type::Unit, Value::Unit) => (0, vec![]),
             (Type::Bool, Value::Bool(x)) => (1, vec![Term::Bool(*x)]),
             (Type::U32, Value::U32(x)) => (2, vec![word(*x as u64)]),
+            (Type::I32, Value::I32(x)) => (2, vec![word(*x as u32 as u64)]),
+            (Type::F32, Value::F32(x)) => (2, vec![word(*x as u64)]),
             (Type::U64, Value::U64(x)) => (3, vec![word(*x)]),
             (Type::Int, Value::Int(x)) => {
                 let size = x.bits() / 8 + u64::from(x.bits() % 8 != 0);
@@ -491,7 +506,12 @@ impl Codec {
                 if *success { 11 } else { 12 },
                 vec![self.encode_value(if *success { ok } else { err }, x, depth + 1, b)?],
             ),
-            (Type::List(t), Value::List(xs)) => {
+            (Type::List(t), Value::List(xs)) | (Type::Vector(t, _), Value::Vector(xs)) => {
+                if let Type::Vector(_, n) = ty {
+                    if xs.len() != *n as usize {
+                        return Err("vector dimension mismatch".into());
+                    }
+                }
                 if xs.len() > b.nodes {
                     return Err("action value node budget exceeded".into());
                 }
@@ -571,6 +591,12 @@ impl Codec {
             (Type::U32, 2, [n]) => Ok(Value::U32(
                 number(n)?.try_into().map_err(|_| "u32 width exceeded")?,
             )),
+            (Type::I32, 2, [n]) => Ok(Value::I32(
+                u32::try_from(number(n)?).map_err(|_| "i32 width exceeded")? as i32,
+            )),
+            (Type::F32, 2, [n]) => Ok(Value::F32(
+                u32::try_from(number(n)?).map_err(|_| "f32 width exceeded")?,
+            )),
             (Type::U64, 3, [n]) => Ok(Value::U64(number(n)?)),
             (Type::Int, 4, [Term::Bool(negative), len, tree]) => {
                 let raw = self.decode_bytes(len, tree)?;
@@ -643,6 +669,18 @@ impl Codec {
                     .map(|v| self.decode_value(t, v))
                     .collect::<LangResult<Vec<_>>>()?,
             )),
+            (Type::Vector(t, n), 13, [tree]) => {
+                let leaves = self.leaves(tree)?;
+                if leaves.len() != *n as usize {
+                    return Err("vector dimension mismatch".into());
+                }
+                Ok(Value::Vector(
+                    leaves
+                        .into_iter()
+                        .map(|v| self.decode_value(t, v))
+                        .collect::<LangResult<_>>()?,
+                ))
+            }
             _ => Err("logical value does not inhabit the declared source type".into()),
         }
     }
@@ -860,6 +898,17 @@ mod tests {
         for x in [0, 1, 1 << 63, u64::MAX] {
             roundtrip(&c, Type::U64, Value::U64(x));
         }
+        for x in [i32::MIN, -1, 0, i32::MAX] {
+            roundtrip(&c, Type::I32, Value::I32(x));
+        }
+        for bits in [0, 0x80000000, 1, 0x7f800000, 0x7fc12345, 0x7f812345] {
+            roundtrip(&c, Type::F32, Value::F32(bits));
+            roundtrip(
+                &c,
+                Type::Vector(Box::new(Type::F32), 2),
+                Value::Vector(vec![Value::F32(bits), Value::F32(bits ^ 0x80000000)]),
+            );
+        }
         for x in [
             BigInt::from(0),
             BigInt::from(1),
@@ -1017,6 +1066,10 @@ mod tests {
         let bad = [
             (Type::U32, constructed(&c.node, 2, vec![word(1 << 32)])),
             (Type::U32, constructed(&c.node, 3, vec![word(0)])),
+            (Type::I32, constructed(&c.node, 2, vec![word(1 << 32)])),
+            (Type::F32, constructed(&c.node, 2, vec![word(1 << 32)])),
+            (Type::I32, constructed(&c.node, 3, vec![word(0)])),
+            (Type::F32, constructed(&c.node, 3, vec![word(0)])),
             (Type::Unit, constructed(&c.node, 0, vec![word(1)])),
             (
                 Type::Named("Left".into()),
@@ -1088,11 +1141,29 @@ mod tests {
         for t in [
             Type::Unknown,
             Type::Option(Box::new(Type::Unknown)),
-            Type::Option(Box::new(Type::F32)),
+            Type::Vector(Box::new(Type::U64), 2),
             Type::Table(Box::new(Type::U32), Box::new(Type::U32)),
         ] {
             assert!(c.encode(&t, &Value::Option(None), limits()).is_err());
         }
+        for ty in [Type::I32, Type::F32] {
+            assert!(c.encode(&ty, &Value::U32(0), limits()).is_err());
+            assert!(c
+                .decode(
+                    &Type::Vector(Box::new(ty.clone()), 2),
+                    &c.encode(&Type::List(Box::new(ty)), &Value::List(vec![]), limits())
+                        .unwrap(),
+                    limits()
+                )
+                .is_err());
+        }
+        assert!(c
+            .encode(
+                &Type::Vector(Box::new(Type::I32), 2),
+                &Value::Vector(vec![Value::I32(0)]),
+                limits()
+            )
+            .is_err());
         assert!(c.encode(&Type::U32, &Value::U64(1), limits()).is_err());
         assert!(c
             .decode(&Type::U64, &Term::Var("untrusted".into()), limits())
