@@ -108,9 +108,16 @@ Pure and stateful collection APIs currently have different result typing where
 specified by their checkers: stateful count is exact Int, and stateful sum follows
 the element integer type. An unsupported cross-fragment operation must be rejected
 or diagnosed; this contract does not silently claim the full draft's coverage.
-`src/eval.rs` and `src/stateful.rs` are the executable reference definitions;
-`src/check.rs` and `src/statecheck.rs` define current admission and effects.
+`core/src/eval.rs` and `core/src/stateful.rs` are the executable reference definitions;
+`core/src/check.rs` and `core/src/statecheck.rs` define current admission and effects.
 Their Rust implementations have not been formally verified.
+
+Reference and generated stateful execution share the fixed change-boundary
+primitives in `core/src/transaction.rs`. Canonical database decision laws can be
+bound to a checked source change through exact definition checking. This covers
+the commit decision, with explicit domain-error precedence and word exhaustion;
+it does not certify the action body or physical rollback and enables no shortcut.
+See [the boundary and remaining correspondence work](change-boundary-correspondence.md).
 
 Pure mathematical replacement proofs preserve total values. They exclude host
 resource exhaustion, allocation/OOM and native trap traces. Stateful replacement

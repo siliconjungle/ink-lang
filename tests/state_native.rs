@@ -21,6 +21,159 @@ query literal() -> Result<u32, Error> {return Ok(3);}
 query empty() -> Option<u32> {return None;}
 "#;
 
+#[test]
+fn shared_boundary_preserves_nested_control_event_order_and_exhausted_rollback() {
+    use verified_language::{snapshot, snapshot_wire};
+    let _native = NATIVE_EXECUTION.lock().unwrap();
+    let source = format!(
+        "{}\n{}",
+        include_str!("../examples/inventory.lang"),
+        r#"
+event marker:u32;
+query query_error() -> Result<Unit,Error> { return Err(Error.Missing); }
+change committed(id:ItemId) -> Result<Int,Error> reads(total_units) writes(Items) emits(stock_changed,marker) {
+    emit marker(0); restock(id,1)?; emit marker(1); restock(id,2)?; emit marker(2);
+    return Ok(total_units);
+}
+change poison(id:ItemId) -> Result<Unit,Error> writes(Items) emits(stock_changed,marker) {
+    restock(id,7)?; emit marker(3); return Err(Error.Overflow);
+}
+change ignored(id:ItemId) -> Result<Unit,Error> writes(Items) emits(stock_changed,marker) {
+    poison(id); emit marker(4); return Ok(());
+}
+change captured(id:ItemId) -> Result<Unit,Error> writes(Items) emits(stock_changed,marker) {
+    let discarded=poison(id); emit marker(5); return Ok(());
+}
+change truth(id:ItemId) -> Result<Bool,Error> writes(Items) emits(stock_changed) {
+    restock(id,9)?; return Ok(true);
+}
+change short_circuit(id:ItemId) -> Result<Unit,Error> writes(Items) emits(stock_changed) {
+    if false && truth(id)? { return Err(Error.Overflow); }
+    if true || truth(id)? { return Ok(()); }
+    return Err(Error.Overflow);
+}
+change ignore_query() -> Result<Unit,Error> { query_error(); return Ok(()); }
+change try_query(id:ItemId) -> Result<Unit,Error> writes(Items) emits(stock_changed) {
+    restock(id,5)?; query_error()?; return Ok(());
+}
+"#
+    );
+    let p = parse(&source).unwrap();
+    let cert = aggregate::prove(
+        &parse(include_str!("../knowledge/research/sum-maintenance.lang")).unwrap(),
+    )
+    .unwrap();
+    let key = format!("{:032x}", 1);
+    let missing = format!("{:032x}", 2);
+    let mut seed = Runtime::new(p.clone()).unwrap();
+    seed.invoke_json("create", &json!([key, "part", 12]))
+        .unwrap();
+    seed.invoke_json("restock", &json!([key, 0])).unwrap();
+    let seed_bytes = seed.checkpoint_portable().unwrap();
+    let layout = snapshot::layout(&p).unwrap();
+    let mut logical =
+        snapshot_wire::decode(&layout, &seed_bytes, snapshot_wire::Limits::default()).unwrap();
+    logical.version = u64::MAX - 1;
+    let last_commit =
+        snapshot_wire::encode(&layout, &logical, snapshot_wire::Limits::default()).unwrap();
+    logical.version = u64::MAX;
+    let exhausted =
+        snapshot_wire::encode(&layout, &logical, snapshot_wire::Limits::default()).unwrap();
+    let calls = vec![
+        json!({"call":"committed","args":[key]}),
+        json!({"call":"ignored","args":[key]}),
+        json!({"call":"captured","args":[key]}),
+        json!({"call":"ignored","args":[missing]}),
+        json!({"call":"short_circuit","args":[missing]}),
+        json!({"call":"ignore_query","args":[]}),
+        json!({"call":"try_query","args":[key]}),
+        json!({"call":"total","args":[]}),
+    ];
+    let mut script = vec![];
+    let mut expected = vec![];
+    for bytes in [&seed_bytes, &last_commit, &exhausted] {
+        script.push(json!({"restore":bytes}));
+        let mut reference = Runtime::restore_portable(p.clone(), bytes).unwrap();
+        for call in &calls {
+            let before = reference.checkpoint_portable().unwrap();
+            let result = reference.invoke_json(call["call"].as_str().unwrap(), &call["args"]);
+            let committed = result.as_ref().is_ok_and(|out| out.committed);
+            let reply = match result {
+                Ok(out) => json!({"outcome":out.json()}),
+                Err(error) => json!({"host_error":error}),
+            };
+            let after = reference.checkpoint_portable().unwrap();
+            if !committed {
+                assert_eq!(before, after);
+            }
+            if call["call"] == "committed" && committed {
+                let events = reply["outcome"]["events"].as_array().unwrap();
+                assert_eq!(
+                    events
+                        .iter()
+                        .map(|e| e["channel"].as_str().unwrap())
+                        .collect::<Vec<_>>(),
+                    [
+                        "marker",
+                        "stock_changed",
+                        "marker",
+                        "stock_changed",
+                        "marker"
+                    ]
+                );
+                assert_eq!(
+                    events
+                        .iter()
+                        .map(|e| e["position"].as_u64().unwrap())
+                        .collect::<Vec<_>>(),
+                    [0, 1, 2, 3, 4]
+                );
+                assert_eq!(reply["outcome"]["result"], json!({"Ok":{"Int":"15"}}));
+            }
+            if call["call"] == "ignored" || call["call"] == "captured" {
+                assert_eq!(
+                    reply["outcome"]["result"],
+                    json!({"Err":if call["args"][0] == missing {"Error.Missing"}else{"Error.Overflow"}})
+                );
+            }
+            expected.push(json!({"reply":reply,"snapshot":after}));
+            script.push(call.clone());
+        }
+    }
+    let runner = r#"
+use compiled_state::State;
+use serde_json::{Value,json};
+fn main(){
+ let steps:Vec<Value>=serde_json::from_slice(&std::fs::read(std::env::args().nth(1).unwrap()).unwrap()).unwrap();
+ let mut state=State::new(); let mut output=vec![];
+ for step in steps {
+  if let Some(bytes)=step.get("restore") { let bytes:Vec<u8>=serde_json::from_value(bytes.clone()).unwrap();state=State::restore(&bytes).unwrap();continue; }
+  let reply=match state.invoke_json(step["call"].as_str().unwrap(),&step["args"]) {
+    Ok(outcome)=>json!({"outcome":outcome}),Err(error)=>json!({"host_error":error})};
+  output.push(json!({"reply":reply,"snapshot":state.checkpoint().unwrap()}));
+ }
+ println!("{}",serde_json::to_string(&output).unwrap());
+}
+"#;
+    for (name, certificate) in [("scan", None), ("maintained", Some(&cert))] {
+        let code = state_native::emit(&p, certificate).unwrap();
+        assert!(code.contains(verified_language::TRANSACTION_RUST_SOURCE));
+        let root =
+            Path::new(env!("CARGO_MANIFEST_DIR")).join(format!("build/shared-boundary-{name}"));
+        fs::create_dir_all(&root).unwrap();
+        fs::write(root.join("source.lang"), &source).unwrap();
+        fs::write(
+            root.join("expected.json"),
+            serde_json::to_vec_pretty(&expected).unwrap(),
+        )
+        .unwrap();
+        assert_eq!(
+            compile_and_run_with_runner(&root, &code, &script, runner),
+            json!(expected)
+        );
+    }
+}
+
 fn compile_and_run(dir: &Path, code: &str, script: &[Value]) -> Value {
     compile_and_run_with_runner(dir, code, script, verified_language::runtime::STATE_RUNNER)
 }

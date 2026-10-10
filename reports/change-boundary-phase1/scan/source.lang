@@ -1,0 +1,94 @@
+module inventory;
+
+id ItemId;
+
+record Item {
+    name: String,
+    stock: u32,
+}
+
+enum Error {
+    Missing,
+    AlreadyExists,
+    Overflow,
+}
+
+record StockChanged {
+    item: ItemId,
+    before: u32,
+    after: u32,
+}
+
+state Items: Table<ItemId, Item> = Table.empty();
+event stock_changed: StockChanged;
+
+keep total_units: Int =
+    sum(Items.values().map(fn(item) => Int(item.stock)));
+
+change create(id: ItemId, name: String, stock: u32)
+    -> Result<Unit, Error>
+    writes(Items)
+{
+    if Items.contains(id) {
+        return Err(Error.AlreadyExists);
+    }
+    Items.insert(id, Item { name: name, stock: stock });
+    return Ok(());
+}
+
+change restock(id: ItemId, amount: u32)
+    -> Result<Unit, Error>
+    writes(Items)
+    emits(stock_changed)
+{
+    let item = Items.get(id).ok_or(Error.Missing)?;
+    let next = checked_add(item.stock, amount)
+        .map_err(fn(_) => Error.Overflow)?;
+
+    Items.replace(id, Item { name: item.name, stock: next });
+    emit stock_changed(StockChanged {
+        item: id,
+        before: item.stock,
+        after: next,
+    });
+    return Ok(());
+}
+
+query stock_of(id: ItemId) -> Option<u32>
+    reads(Items)
+{
+    return Items.get(id).map(fn(item) => item.stock);
+}
+
+query total() -> Int reads(total_units) {
+    return total_units;
+}
+
+
+event marker:u32;
+query query_error() -> Result<Unit,Error> { return Err(Error.Missing); }
+change committed(id:ItemId) -> Result<Int,Error> reads(total_units) writes(Items) emits(stock_changed,marker) {
+    emit marker(0); restock(id,1)?; emit marker(1); restock(id,2)?; emit marker(2);
+    return Ok(total_units);
+}
+change poison(id:ItemId) -> Result<Unit,Error> writes(Items) emits(stock_changed,marker) {
+    restock(id,7)?; emit marker(3); return Err(Error.Overflow);
+}
+change ignored(id:ItemId) -> Result<Unit,Error> writes(Items) emits(stock_changed,marker) {
+    poison(id); emit marker(4); return Ok(());
+}
+change captured(id:ItemId) -> Result<Unit,Error> writes(Items) emits(stock_changed,marker) {
+    let discarded=poison(id); emit marker(5); return Ok(());
+}
+change truth(id:ItemId) -> Result<Bool,Error> writes(Items) emits(stock_changed) {
+    restock(id,9)?; return Ok(true);
+}
+change short_circuit(id:ItemId) -> Result<Unit,Error> writes(Items) emits(stock_changed) {
+    if false && truth(id)? { return Err(Error.Overflow); }
+    if true || truth(id)? { return Ok(()); }
+    return Err(Error.Overflow);
+}
+change ignore_query() -> Result<Unit,Error> { query_error(); return Ok(()); }
+change try_query(id:ItemId) -> Result<Unit,Error> writes(Items) emits(stock_changed) {
+    restock(id,5)?; query_error()?; return Ok(());
+}

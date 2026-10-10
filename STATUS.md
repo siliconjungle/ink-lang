@@ -377,3 +377,23 @@ The value bridge is adapted to the physically separate core source tree; planner
 runtime and backend responsibilities stay as defined by the architecture split.
 Reports/source-values-canonical records combined validation separately from the
 original base's evidence. Action/effect/native refinement remains the next gate.
+
+## Shared executable change boundary
+
+Reference and generated Rust/Wasm now share the fixed commit decision, sticky
+nested-change error propagation and ordered event-coordinate primitives.
+A private binding witness checks a canonical database decision definition
+against the actual fixed semantics and a checked source change. It does not
+bind the action body or install a replacement. Four database theorems cover
+domain-error precedence, exhaustion and guarded commits; the snapshot contains
+601 entries. Six valid alternative mathematical protocols fail binding and a
+fresh authenticated false theorem fails proof admission.
+
+All 189 distribution tests and 20 independent core tests pass. The final
+three-seed transaction fixture checks 48 native and 48 compiled Wasm outcomes,
+each with exact snapshot comparison, covering nested ignored/captured errors,
+tentative reads, short circuits, event order and commit exhaustion. All canonical
+entries replay across 37 bounded views using the preserved checker. This makes
+no timing or browser claim. Source-body/effect, physical rollback/storage and
+replacement admission remain open. See docs/change-boundary-correspondence.md
+and reports/change-boundary-phase1.

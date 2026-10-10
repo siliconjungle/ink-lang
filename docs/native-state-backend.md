@@ -54,6 +54,12 @@ formal proof of generated Rust.
 
 ## Current limits
 
+Commit decisions, sticky nested-change errors and event coordinates now use
+the core's shared primitives verbatim, also used by the reference runtime and
+stateful Wasm. Checked database laws bind the fixed decision definition to a
+source change; body execution and physical restoration remain trusted. See
+[the precise correspondence scope](change-boundary-correspondence.md).
+
 This is a bootstrap implementation. Storage is BTreeMap, scans materialise vectors, and row/query cloning and transactional bookkeeping remain conservative. Portable native/reference snapshots are implemented; see `portable-snapshot.md`. Stateful WebAssembly has a synchronous JSON interface; see `wasm-abi.md`. Live runtime implementation migration, automatic profile-based selection, durable storage and concurrency are not implemented. The reference runtime's fuel budget is not imposed on native code. Resource exhaustion may terminate the generated process; this is not a durable transaction guarantee.
 
 The frontend, fixed proof schemas, range reasoning, generated Rust, runtime support, BigInt library and Rust/LLVM backend remain trusted. Differential tests validate behaviour but are not an end-to-end correctness proof.
