@@ -771,8 +771,15 @@ impl Runtime {
                     .find(|f| &f.name == n)
                     .cloned()
                 {
-                    let env = f.params.iter().map(|(n, _)| n.clone()).zip(vals).collect();
-                    return self.expr(&f.body, &env);
+                    let inputs = vals
+                        .iter()
+                        .zip(&f.params)
+                        .map(|(v, (_, t))| {
+                            crate::eval::Value::from_program_json(&v.json(), t, &self.program)
+                        })
+                        .collect::<LangResult<Vec<_>>>()?;
+                    let result = crate::eval::call(&self.program, n, inputs, &mut self.fuel)?;
+                    return Ok(Value::from_json(&result.json(), &f.result, &self.program)?);
                 }
                 Err(format!("unknown runtime function {n}").into())
             }

@@ -50,6 +50,14 @@ LLVM currently performs additional optimisation after generated C/Rust. The smal
 
 The modular-polynomial optimiser and older scalar matching/search path have now been retired. The historical milestone descriptions below preserve their earlier evidence; they are not descriptions of current compilation authority. Aggregate, bounded-cache and representation authority still needs migration.
 
+The GPU backend is a separate trusted lowering of the existing u32 primitives:
+source stages remain separate, stable filter preserves order, and modular sum
+uses a parallel reduction. It installs no transformation law. Host selection
+measures compiled CPU/GPU execution and cannot change types or arithmetic.
+Current proof translators still cover their documented u64 subset; accepting u32
+execution does not extend those proofs. See [the exact scope and trust
+boundary](gpu-backend.md).
+
 ## Versioned executable subject and replacement admission
 
 `core::CheckedModule` now checks and serialises the shared executable program
