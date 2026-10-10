@@ -443,7 +443,8 @@ fn run() -> LangResult<()> {
             "ink emit-definition LOCK.json EXPORTS.json [--select PACKAGE.json] -o DEFINITION.rs"
         );
         println!("ink emit-core SOURCE -o CORE.json\nink check-core CORE.json\nink emit-actions SOURCE -o ACTIONS.json\nink check-actions SOURCE ACTIONS.json\nink emit-effects SOURCE -o EFFECTS.json\nink check-effects SOURCE EFFECTS.json\nExecution/lowering commands also accept --core to read a checked CORE.json instead of source.\nChecked replacement packages: build/emit-c ... --replacement PACKAGE.json");
-        println!("ink bitvector-obligation GOAL.json [--library LOCK.json] -o CNF.json\nink verify-library LOCK.json\nink project-library LOCK.json ROOTS.json -o BUNDLE.json\nink model-row SOURCE KEEP --maintenance PACKAGE.json -o MODEL.json\nink verify-row-model SOURCE MODEL.json --maintenance PACKAGE.json\nink verify-database LOCK.json\nink check SOURCE\nink prove-maintenance SOURCE [--evidence EVIDENCE.json] -o PACKAGE.json\nink verify-maintenance PACKAGE.json\nink execute SOURCE SCRIPT.json [--maintenance PACKAGE.json] [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable]\nink run SOURCE FUNCTION ARGS.json\nink build SOURCE -o OUTPUT.o [--implementation PROPOSAL.json] [--cc clang] [--native-cpu]\nink build SOURCE --target javascript -o OUTPUT.mjs\nink build SOURCE --target wasm32 --zig PATH -o OUTPUT.wasm\nink build SOURCE --target webgpu --zig PATH [--route PACKAGE.json] -o DIRECTORY (also emits native wgpu crate)\nink emit-c SOURCE -o OUTPUT.c [--implementation PROPOSAL.json]\nink emit-state SOURCE -o DIRECTORY [--maintenance PACKAGE.json] [--bounded-totals] [--wasm-abi]");
+        println!("ink bitvector-obligation GOAL.json [--library LOCK.json] -o CNF.json\nink verify-library LOCK.json\nink project-library LOCK.json ROOTS.json -o BUNDLE.json\nink model-row SOURCE KEEP --maintenance PACKAGE.json -o MODEL.json\nink verify-row-model SOURCE MODEL.json --maintenance PACKAGE.json\nink verify-database LOCK.json\nink check SOURCE\nink prove-maintenance SOURCE [--evidence EVIDENCE.json] -o PACKAGE.json\nink verify-maintenance PACKAGE.json\nink execute SOURCE SCRIPT.json [--maintenance PACKAGE.json] [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable]\nink run SOURCE FUNCTION ARGS.json\nink build SOURCE -o EXECUTABLE [--cargo cargo]\nink build SOURCE --target object -o OUTPUT.o [--implementation PROPOSAL.json] [--cc clang] [--native-cpu]\nink build SOURCE --target c -o PROJECT\nink build SOURCE --target rust -o PROJECT\nink build SOURCE --target javascript -o OUTPUT.mjs\nink build SOURCE --target wasm32 --zig PATH -o OUTPUT.wasm\nink build SOURCE --target webgpu --zig PATH [--route PACKAGE.json] -o DIRECTORY (also emits native wgpu crate)\nink emit-c SOURCE -o OUTPUT.c [--implementation PROPOSAL.json]\nink emit-state SOURCE -o DIRECTORY [--maintenance PACKAGE.json] [--bounded-totals] [--wasm-abi]");
+
         return Ok(());
     }
     if cmd == "prove" || cmd == "knowledge" || args.iter().any(|arg| arg == "--knowledge") {
@@ -720,9 +721,9 @@ fn run() -> LangResult<()> {
                 .collect::<LangResult<Vec<_>>>()?;
             println!("{}", eval::call(&p, name, vs, &mut 100_000_000)?.json());
         }
-        "build" | "emit-c" => {
+        "build" | "emit-c" | "emit-c-project" | "emit-rust" => {
             let input_core = core::CheckedModule::from_source(p.clone())?;
-            input_core.pure_program()?;
+
             let input_core_sha256 = semantic_selection
                 .as_ref()
                 .map(|s| s.evidence().input_core_sha256.clone())
@@ -750,6 +751,72 @@ fn run() -> LangResult<()> {
             let selected_core_sha256 = core::CheckedModule::from_source(p.clone())?.identity()?;
             let out = arg_value(&args, "-o")?.ok_or("build requires -o OUTPUT.o")?;
             let target = arg_value(&args, "--target")?.unwrap_or_else(|| "native".into());
+            if arg_value(&args, "--route-proof")?.is_some()
+                && arg_value(&args, "--route")?.is_none()
+            {
+                return Err("--route-proof requires --route".into());
+            }
+            if arg_value(&args, "--route")?.is_some()
+                && (cmd != "build" || !matches!(target.as_str(), "webgpu" | "gpu"))
+            {
+                return Err("explicit routes require the GPU bundle target".into());
+            }
+            if cmd == "build" && target != "object" && args.iter().any(|a| a == "--native-cpu") {
+                return Err("--native-cpu requires the object target".into());
+            }
+            if cmd == "emit-c-project" {
+                verified_language::runtime::emit_c_program(
+                    &core::CheckedModule::from_source(p.clone())?,
+                    Path::new(&out),
+                )?;
+                println!("wrote complete C program and primitive runtime to {out}");
+                return Ok(());
+            }
+            if cmd == "emit-rust" {
+                write(&out, &state_native::emit(&p, None)?)?;
+                return Ok(());
+            }
+            if cmd == "build" && matches!(target.as_str(), "c" | "rust") {
+                if arg_value(&args, "--route")?.is_some() {
+                    return Err("explicit routes require the GPU bundle target".into());
+                }
+                let module = core::CheckedModule::from_source(p.clone())?;
+                if target == "c" {
+                    verified_language::runtime::emit_c_program(&module, Path::new(&out))?;
+                } else {
+                    verified_language::runtime::emit_rust_program(
+                        &state_native::emit(&p, None)?,
+                        Path::new(&out),
+                    )?;
+                }
+                write(&format!("{out}/plan.json"),&serde_json::to_string_pretty(&serde_json::json!({"target":target,"input_core_sha256":input_core_sha256,"selected_core_sha256":selected_core_sha256,"semantic_selection":semantic_selection.as_ref().map(|s|s.evidence()),"semantic_package":semantic_selection.as_ref().map(|s|s.package()),"checked_replacement":replacement,"checked_implementation":implementation,"applied_rule_ids":used,"trust":"literal emission and target runtimes/toolchains remain trusted"})).map_err(|e|e.to_string())?)?;
+                println!("wrote complete {target} project to {out}");
+                return Ok(());
+            }
+            if cmd == "build" && matches!(target.as_str(), "native" | "wasm32") {
+                if arg_value(&args, "--route")?.is_some() {
+                    return Err("explicit routes require the GPU bundle target".into());
+                }
+                let module = core::CheckedModule::from_source(p.clone())?;
+                let project = std::path::PathBuf::from(format!("{out}.project"));
+                verified_language::runtime::emit_c_program(&module, &project)?;
+                let cargo = arg_value(&args, "--cargo")?
+                    .or_else(|| std::env::var("INK_CARGO").ok())
+                    .unwrap_or_else(|| "cargo".into());
+                if let Some(cc) = arg_value(&args, "--cc")? {
+                    std::env::set_var("INK_CC", cc);
+                }
+                verified_language::runtime::toolchain::complete_program(
+                    &project,
+                    target == "wasm32",
+                    Path::new(&out),
+                    &cargo,
+                    arg_value(&args, "--zig")?.as_deref(),
+                )?;
+                write(&format!("{out}.plan.json"),&serde_json::to_string_pretty(&serde_json::json!({"target":target,"abi":"ink-values-v1","artifact_kind":if target=="native"{"executable"}else{"wasm_module"},"input_core_sha256":input_core_sha256,"selected_core_sha256":selected_core_sha256,"semantic_selection":semantic_selection.as_ref().map(|s|s.evidence()),"semantic_package":semantic_selection.as_ref().map(|s|s.package()),"checked_replacement":replacement,"checked_implementation":implementation,"applied_rule_ids":used,"trust":"literal C emission and shared Rust primitive runtime; toolchains remain trusted"})).map_err(|e|e.to_string())?)?;
+                println!("wrote complete program to {out}");
+                return Ok(());
+            }
             let route = arg_value(&args, "--route")?
                 .map(|file| {
                     let package = serde_json::from_slice::<
@@ -804,12 +871,43 @@ fn run() -> LangResult<()> {
                     verified_language::runtime::emit_gpu(&p, Path::new(&out))?;
                 }
                 let zig = arg_value(&args, "--zig")?.unwrap_or_else(|| "zig".into());
-                verified_language::runtime::toolchain::wasm(
-                    &core::CheckedModule::from_source(p.clone())?,
-                    &Path::new(&out).join("cpu.c"),
-                    &Path::new(&out).join("cpu.wasm"),
-                    &zig,
-                )?;
+                let manifest: serde_json::Value = serde_json::from_slice(
+                    &fs::read(Path::new(&out).join("manifest.json")).map_err(|e| e.to_string())?,
+                )
+                .map_err(|e| e.to_string())?;
+                if manifest["runtime_abi"] == "ink-module-v1" {
+                    let cargo = arg_value(&args, "--cargo")?
+                        .or_else(|| std::env::var("INK_CARGO").ok())
+                        .unwrap_or_else(|| "cargo".into());
+                    verified_language::runtime::toolchain::complete_program(
+                        &Path::new(&out).join("cpu"),
+                        true,
+                        &Path::new(&out).join("cpu/compiled_state.wasm"),
+                        &cargo,
+                        Some(&zig),
+                    )?;
+                    for f in manifest["functions"].as_array().unwrap() {
+                        if let Some(folder) = f["bundle"].as_str() {
+                            let dir = Path::new(&out).join(folder);
+                            let module = core::CheckedModule::from_bytes(
+                                &fs::read(dir.join("core.json")).map_err(|e| e.to_string())?,
+                            )?;
+                            verified_language::runtime::toolchain::wasm(
+                                &module,
+                                &dir.join("cpu.c"),
+                                &dir.join("cpu.wasm"),
+                                &zig,
+                            )?;
+                        }
+                    }
+                } else {
+                    verified_language::runtime::toolchain::wasm(
+                        &core::CheckedModule::from_source(p.clone())?,
+                        &Path::new(&out).join("cpu.c"),
+                        &Path::new(&out).join("cpu.wasm"),
+                        &zig,
+                    )?;
+                }
                 let plan = serde_json::json!({"source":path,"target":target,"semantic_selection":semantic_selection.as_ref().map(|s|s.evidence()),"semantic_package":semantic_selection.as_ref().map(|s|s.package()),"checked_replacement":replacement,"checked_implementation":implementation,"applied_rule_ids":used,"database_lock":serde_json::Value::Null,"database_closure":serde_json::Value::Null,"input_core_sha256":input_core_sha256,"selected_core_sha256":selected_core_sha256,"checked_source_route":route.as_ref().map(|r|r.package()),"source_route_equivalence":route.as_ref().and_then(|r|r.equivalence()),"trust":"GPU backend and physical routing remain trusted; see manifest.json"});
                 write(
                     &format!("{out}/plan.json"),
@@ -822,7 +920,7 @@ fn run() -> LangResult<()> {
                 }
                 return Ok(());
             }
-            if !["native", "wasm32"].contains(&target.as_str()) {
+            if !["native", "object", "wasm32"].contains(&target.as_str()) {
                 return Err(format!("unsupported target {target}"));
             }
             if target == "wasm32" && args.iter().any(|a| a == "--native-cpu") {
@@ -833,7 +931,23 @@ fn run() -> LangResult<()> {
             } else {
                 format!("{out}.c")
             };
-            let generated_c = native::emit(&p)?;
+            let generated_c = match native::emit(&p) {
+                Ok(c) => c,
+                Err(_) if cmd == "emit-c" => {
+                    let module = core::CheckedModule::from_source(p.clone())?;
+                    let project = std::path::PathBuf::from(format!("{out}.project"));
+                    verified_language::runtime::emit_c_program(&module, &project)?;
+                    let c =
+                        fs::read_to_string(project.join("program.c")).map_err(|e| e.to_string())?;
+                    write(&out, &c)?;
+                    println!(
+                        "wrote C source {out} and required primitive runtime to {}",
+                        project.display()
+                    );
+                    return Ok(());
+                }
+                Err(e) => return Err(e),
+            };
             write(&cpath, &generated_c)?;
             let generated_c_sha256 = format!("{:x}", Sha256::digest(generated_c.as_bytes()));
             let selected_program_sha256 = format!(

@@ -34,8 +34,7 @@ native host links generated C. Neither host links an Ink interpreter.
   `vec2(...)`, `vec3(...)`, `vec4(...)`; read `.x`, `.y`, `.z`, `.w`.
 - Records retain named fields. The compute ABI supports records containing
   32-bit numeric/Bool values, vectors and other such records. No nested arrays,
-  recursive records or u64 record fields are supported by this ABI. All record
-  declarations in a compute bundle must satisfy these layout restrictions.
+  recursive records or u64 record fields are supported by this ABI. Only declarations in the selected pure closure must satisfy these layout restrictions. Unrelated state declarations execute on the complete CPU host.
 - Pure function bodies accept sequential `let name[: Type] = expression;`
   bindings followed by a return expression. `choose(condition, a, b)` evaluates
   only the selected branch. Functions remain acyclic and free of effects.
@@ -52,19 +51,21 @@ native host links generated C. Neither host links an Ink interpreter.
   zero divisors and i32 minimum / -1 select the lazy fallback. Other signed
   quotients truncate toward zero.
 - `xs.scan()` is an inclusive wrapping integer prefix sum; `xs.sort()` orders
-  integer values ascending. They currently execute on CPU. Float `sum` evaluates
-  from left to right; `foldr` retains right-to-left evaluation. Ordered reductions
-  execute on CPU in the general compute bundle.
+  integer values ascending. Eligible 32-bit array computations emit WGSL for both,
+  including compositions with map, filter, zip and acyclic helpers. Ordered sums
+  and right folds preserve their source traversal when used inside eligible kernels.
 
-GPU array functions currently directly map, zip or map_indexed input arrays.
-Their scalar bodies can read other input arrays, call acyclic helpers, construct
-vectors/records, branch and use bounded loops. Literal lowering emits one kernel
-per function, with distinct buffers for inputs and outputs. Nested collection
-stages within a function remain CPU-only; put stages in separate pipeline steps
-for residency. Deep helper expansion can also exceed the shader lowering budget
-and select CPU; compiled CPU helpers use ordinary function calls. There is no
-automatic collection fusion, scatter, GPU scan/sort,
-parallel float reduction, general graphics renderer or stateful GPU execution.
+Array kernels can compose collection expressions and lazy list branches. Bounded
+list-valued repeat unrolls up to 16 iterations; larger expansions select CPU.
+Filter/scan/stable-rank sort are literal algorithms, not efficient parallel
+primitives. Heavy compositions have a 128-element GPU admission limit. Actual
+length headers preserve filtering and truncation through resident pipelines.
+Eligibility does not establish that GPU execution is faster.
+
+Stateful programs, exact Int/u64 arrays, opaque values and nested heap structures
+use the complete CPU host. See [lowering parity](lowering-parity.md) for mixed
+module assembly, host APIs and resource boundaries. There is no automatic scatter,
+parallel float reduction, graphics renderer or stateful GPU execution.
 
 `matrix4` in the particle example demonstrates indexed reads and a bounded
 inner loop for a small matrix product. It is literal lowering, not a tiled BLAS
