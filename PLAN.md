@@ -365,15 +365,36 @@ that gate, remaining specialised authority migration or the full release scope.
 
 ### Deterministic discovery of database entries
 
-Following the user's AST-query clarification, external search now discovers
-eligible immutable theorem entries directly from a configured database directory.
-No per-rule index or algorithm installation is required for the admitted scalar
-subset. Fixed source/postorder/hash scheduling and a shared search budget produce
-checked replacements; strict node-count reduction is an explicit producer policy.
-Only the selected proof closure is frozen for offline builds. The compiler core
-and its proof rules are unchanged.
+Following the user's AST-query clarification, external search discovers
+individual typed conditional laws and older scalar theorems directly from a
+database directory. No per-rule algorithm installation is required. The general
+typed matcher uses deterministic, bounded compositional search. The older scalar
+producer uses source/postorder/hash scheduling, a shared budget, strict node-count
+reduction and selected-only proof closure freezing. The broader general discovery
+path still assembles a bounded active view. Checked selections replay offline;
+the compiler's semantic checking rules are unchanged by discovery.
 
-This advances milestones 4 and 8. It does not complete arbitrary collection,
-data-flow, stateful or mixed-target discovery, measured ranking, runtime adaptation
-or the full source/effect/representation gate. Existing explicit rule indexes
-remain supported for historical replay. See reports/ast-database-query-phase1.
+This advances milestones 4 and 8. Large-database projection/indexing, stateful and
+mixed-target representation discovery, measured ranking, runtime adaptation and
+the full source/effect/representation gate remain unfinished. Existing explicit
+rule indexes remain supported for historical replay. See
+reports/ast-database-query-phase1.
+
+### Reviewed base ownership and independent bit-proof replay
+
+Claude’s lexical ownership lowering is integrated with the newer semantic
+backend. Final local reads move, lookup keys borrow, stored row reads borrow
+until conflicting statements, and live fields can be snapshotted before writes.
+A review regression found callbacks calling helpers/queries/derived reads could
+conflict with borrowed scans; those callbacks retain the owned baseline. Three
+focused tests include two 3,000-step native/reference runs. The journal/outbox/
+always-abort plans remain historical measured proposals for database entries,
+not compiler recognisers or enabled transaction shortcuts.
+
+The accepted-bit-proof audit exports 17 catalogue refutations for independent
+replay. Local drat-trim and lrat-check verify all 17 and reject their goal-free
+controls. Panic-safe audit restoration is regression tested. This advances
+independent validation, not a proof of the source-to-CNF encoding or universal
+checker correctness. Source/action/effect/representation correspondence and the
+remaining production gates stay open. See reports/ownership-lowering-review and
+reports/rup-crosscheck-phase1.

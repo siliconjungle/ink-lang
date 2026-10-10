@@ -1,15 +1,32 @@
 # Implementation status
 
+## Reviewed ownership lowering and independent proof replay
+
+Stateful Rust now uses conservative lexical moves, borrowed lookup keys and
+stored-row borrows with field snapshots before conflicts. Callbacks needing
+mutable `self` keep the owned baseline. Three focused tests pass, including
+3,000-step native/reference comparisons with and without instrumentation.
+Journal-elision, direct-outbox and always-abort plans remain proposed database
+entries, backed by historical hand-edited measurements.
+
+All 17 catalogue bit-proof refutations pass locally built drat-trim and
+lrat-check; both reject all goal-free controls. The audit hook restores its scope
+even when a callback unwinds. This checks the exported CNF certificates, not the
+source-to-CNF encoding or correctness of every possible proof input.
+See [ownership review](reports/ownership-lowering-review/REPORT.md) and
+[independent replay](reports/rup-crosscheck-phase1/REPORT.md).
+
 ## Deterministic AST database discovery
 
-The external optimiser can now discover eligible scalar theorem objects directly
-from the database, without a manual rule index or per-algorithm installation.
-AST shape filtering, typed pattern matching, scoped condition proofs and fixed
-content-hash ordering produce replacements checked by the unchanged compiler.
-Each rewrite decreases expression size; node/rule budgets preserve baseline
-bodies when search is exhausted. Builds freeze selected entries and dependencies
-for offline replay. General stateful/data-flow/target queries and measured ranking
-remain unfinished; this is not a runtime speed claim.
+The external optimiser discovers individual typed conditional laws and older
+scalar theorem objects directly from a database directory, without a per-rule
+installation step. Typed AST filtering, scoped condition proofs and deterministic
+ordering produce replacements independently checked by the core. The general
+matcher uses bounded compositional search; the older scalar producer restarts
+after strict expression-size decreases. Checked selections freeze their evidence
+for offline replay. Discovery currently assembles a bounded general active view;
+large-database projection/indexing, stateful representation queries and measured
+ranking remain unfinished. This is not a runtime speed claim.
 See [evidence](reports/ast-database-query-phase1/REPORT.md).
 
 ## Checker hardening integration

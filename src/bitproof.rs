@@ -298,6 +298,36 @@ fn assign(values: &mut [i8], lit: i32) -> bool {
         *old != value
     }
 }
+/// A refutation this thread's checker accepted, recorded for independent audit.
+#[derive(Clone, Debug)]
+pub struct AcceptedRefutation {
+    pub problem_sha256: String,
+    pub variables: usize,
+    pub clauses: Vec<Vec<i32>>,
+    pub steps: Vec<Step>,
+}
+thread_local! {
+    static AUDIT: std::cell::RefCell<Option<Vec<AcceptedRefutation>>> =
+        const { std::cell::RefCell::new(None) };
+}
+/// Runs `f`, returning every bit-proof refutation accepted on this thread
+/// in this scope. Nested audits collect their own records. Observation only:
+/// recording never influences acceptance, and nothing is recorded outside this
+/// call, including after an unwinding panic. Used to replay certificates through
+/// independent DRAT/LRAT checkers.
+pub fn audit_accepted<T>(f: impl FnOnce() -> T) -> (T, Vec<AcceptedRefutation>) {
+    struct Scope(Option<Vec<AcceptedRefutation>>);
+    impl Drop for Scope {
+        fn drop(&mut self) {
+            AUDIT.with(|a| a.replace(self.0.take()));
+        }
+    }
+    let scope = Scope(AUDIT.with(|a| a.replace(Some(Vec::new()))));
+    let value = f();
+    let recorded = AUDIT.with(|a| a.take()).unwrap_or_default();
+    drop(scope);
+    (value, recorded)
+}
 pub fn verify(problem: &Problem, proof: &Certificate) -> LangResult<()> {
     let mut work = MAX_WORK;
     verify_with_work(problem, proof, &mut work)
@@ -380,6 +410,16 @@ pub(crate) fn verify_with_work(
     if !done {
         return Err("bit proof has no final contradiction".into());
     }
+    AUDIT.with(|a| {
+        if let Some(log) = a.borrow_mut().as_mut() {
+            log.push(AcceptedRefutation {
+                problem_sha256: problem.sha256.clone(),
+                variables: problem.variables,
+                clauses: problem.clauses.clone(),
+                steps: proof.steps.clone(),
+            });
+        }
+    });
     Ok(())
 }
 
@@ -651,6 +691,38 @@ mod tests {
             &proof(vec![step(&[2, -2], &[]), step(&[], &[2])])
         )
         .is_err());
+    }
+    #[test]
+    fn auditing_only_records_accepted_proofs_and_restores_after_panics() {
+        let p = toy(vec![vec![1], vec![-1]]);
+        let good = proof(vec![step(&[], &[0, 1])]);
+        let bad = proof(vec![step(&[], &[99])]);
+        let (_, records) = audit_accepted(|| {
+            verify(&p, &good).unwrap();
+            assert!(verify(&p, &bad).is_err());
+            let (_, nested) = audit_accepted(|| verify(&p, &good).unwrap());
+            assert_eq!(nested.len(), 1);
+            assert!(std::panic::catch_unwind(|| {
+                audit_accepted(|| {
+                    verify(&p, &good).unwrap();
+                    panic!("audit callback panic");
+                });
+            })
+            .is_err());
+            verify(&p, &good).unwrap();
+        });
+        assert_eq!(records.len(), 2);
+        assert_eq!(records[0].clauses, p.clauses);
+        assert_eq!(
+            serde_json::to_value(&records[0].steps).unwrap(),
+            serde_json::to_value(&good.steps).unwrap()
+        );
+        assert!(AUDIT.with(|a| a.borrow().is_none()));
+        assert!(
+            std::panic::catch_unwind(|| audit_accepted(|| panic!("outer audit panic"))).is_err()
+        );
+        verify(&p, &good).unwrap();
+        assert!(AUDIT.with(|a| a.borrow().is_none()));
     }
     #[test]
     fn accepted_short_refutations_have_no_two_variable_model() {

@@ -47,13 +47,17 @@ git submodule update --init --recursive
 cargo test
 cargo build --release
 target/release/ink check examples/kernels.lang
-python3 knowledge/tools/rewrite_search.py examples/kernels.lang \
-  --rules knowledge/bitvector/rewrite-index.json --compiler target/release/ink \
-  --fuse-mapped-sum --output-dir build/replacement
 target/release/ink build examples/kernels.lang -o build/kernels.o \
-  --replacement build/replacement/replacement.json --native-cpu
+  --optimise knowledge --native-cpu
 python3 bench/run.py
 ```
+
+`--optimise knowledge` queries the pinned local database for applicable typed
+laws. Individual entries can extend the optimiser without compiler rules or a
+per-algorithm installation step. The core independently checks the selected
+replacements. See [query and replay evidence](reports/ast-database-query-phase1/REPORT.md)
+and [semantic optimisation](docs/semantic-optimisation.md). Structural candidate
+costs are estimates, not runtime measurements.
 
 On this workspace, Rust is installed outside the system PATH at `../../work/toolchain/cargo/bin` relative to the repository. The benchmark harness detects that isolated installation automatically. `dev.py` provides the same detection for Cargo commands:
 

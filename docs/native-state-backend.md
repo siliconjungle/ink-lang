@@ -32,6 +32,26 @@ Normal queries return their declared language type. JSON queries retain the exac
 
 The benchmark uses this view for the bounded variant and the ordinary BigInt result path for the unbounded variant. Both expose the same C ABI to the common timing driver.
 
+The handwritten Rust state benchmark replaces its always-aborting `fail` action
+with a presence check. That shortcut performs less work than Ink's literal
+journaled transaction. Comparisons must disclose it or use the algorithm-matched
+variant in [the historical prototype report](../reports/txn-plan-prototype/REPORT.md).
+Those hand-edited transaction plans are not enabled compiler optimisations.
+
+## Base ownership lowering
+
+Final lexical reads can move owned locals; lookups borrow String keys. A local
+holding a stored row can stay borrowed until a conflicting statement, when the
+remaining fields or whole row are copied. Stored-row callbacks without a mutable
+`self` requirement can read rows by reference. Callbacks using helpers, queries
+or derived reads retain the owned-row baseline. The language's materialised-stage
+semantics, undo journal and staged outbox remain in place.
+
+[Review evidence](../reports/ownership-lowering-review/REPORT.md) includes a
+3,000-step native/reference comparison and callback regressions. These ownership
+decisions are trusted lowering, not database-supplied semantic rewrites or a
+formal proof of generated Rust.
+
 ## Current limits
 
 This is a bootstrap implementation. Storage is BTreeMap, scans materialise vectors, and row/query cloning and transactional bookkeeping remain conservative. Portable native/reference snapshots are implemented; see `portable-snapshot.md`. Stateful WebAssembly has a synchronous JSON interface; see `wasm-abi.md`. Live runtime implementation migration, automatic profile-based selection, durable storage and concurrency are not implemented. The reference runtime's fuel budget is not imposed on native code. Resource exhaustion may terminate the generated process; this is not a durable transaction guarantee.
