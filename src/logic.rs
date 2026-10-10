@@ -1092,11 +1092,212 @@ fn typed_pair(
     }
     Ok(())
 }
+// Normalised equality terms have canonical lexical binders. Substitution may
+// freshen a stuck Match more than once; those spellings do not change its value.
+// Free variables are preserved, including internal names, so canonicalisation
+// cannot turn variable capture into an equality.
+fn alpha_normal(t: Term, budget: &mut Budget) -> LangResult<Term> {
+    fn free(
+        t: &Term,
+        bound: &BTreeSet<String>,
+        out: &mut BTreeSet<String>,
+        has_match: &mut bool,
+        budget: &mut Budget,
+        depth: usize,
+    ) -> LangResult<()> {
+        budget.step(depth)?;
+        match t {
+            Term::Var(n) => {
+                if !bound.contains(n) {
+                    out.insert(n.clone());
+                }
+            }
+            Term::Binary { left, right, .. } => {
+                free(left, bound, out, has_match, budget, depth + 1)?;
+                free(right, bound, out, has_match, budget, depth + 1)?;
+            }
+            Term::Construct { arguments, .. }
+            | Term::Call { arguments, .. }
+            | Term::SelfCall(arguments) => {
+                for a in arguments {
+                    free(a, bound, out, has_match, budget, depth + 1)?;
+                }
+            }
+            Term::If {
+                condition,
+                on_true,
+                on_false,
+            } => {
+                for a in [condition, on_true, on_false] {
+                    free(a, bound, out, has_match, budget, depth + 1)?;
+                }
+            }
+            Term::Match {
+                scrutinee,
+                branches,
+            } => {
+                *has_match = true;
+                free(scrutinee, bound, out, has_match, budget, depth + 1)?;
+                for b in branches {
+                    let mut local = bound.clone();
+                    local.extend(b.bindings.iter().cloned());
+                    free(&b.body, &local, out, has_match, budget, depth + 1)?;
+                }
+            }
+            _ => (),
+        }
+        Ok(())
+    }
+    fn rename(
+        t: &Term,
+        env: &BTreeMap<String, String>,
+        avoid: &BTreeSet<String>,
+        next: &mut usize,
+        budget: &mut Budget,
+        depth: usize,
+    ) -> LangResult<Term> {
+        budget.step(depth)?;
+        Ok(match t {
+            Term::Var(n) => Term::Var(env.get(n).unwrap_or(n).clone()),
+            Term::Binary { op, left, right } => Term::Binary {
+                op: op.clone(),
+                left: Box::new(rename(left, env, avoid, next, budget, depth + 1)?),
+                right: Box::new(rename(right, env, avoid, next, budget, depth + 1)?),
+            },
+            Term::Construct {
+                datatype,
+                constructor,
+                arguments,
+            } => Term::Construct {
+                datatype: datatype.clone(),
+                constructor: *constructor,
+                arguments: arguments
+                    .iter()
+                    .map(|a| rename(a, env, avoid, next, budget, depth + 1))
+                    .collect::<LangResult<_>>()?,
+            },
+            Term::Call {
+                function,
+                arguments,
+            } => Term::Call {
+                function: function.clone(),
+                arguments: arguments
+                    .iter()
+                    .map(|a| rename(a, env, avoid, next, budget, depth + 1))
+                    .collect::<LangResult<_>>()?,
+            },
+            Term::SelfCall(arguments) => Term::SelfCall(
+                arguments
+                    .iter()
+                    .map(|a| rename(a, env, avoid, next, budget, depth + 1))
+                    .collect::<LangResult<_>>()?,
+            ),
+            Term::If {
+                condition,
+                on_true,
+                on_false,
+            } => Term::If {
+                condition: Box::new(rename(condition, env, avoid, next, budget, depth + 1)?),
+                on_true: Box::new(rename(on_true, env, avoid, next, budget, depth + 1)?),
+                on_false: Box::new(rename(on_false, env, avoid, next, budget, depth + 1)?),
+            },
+            Term::Match {
+                scrutinee,
+                branches,
+            } => {
+                let scrutinee = Box::new(rename(scrutinee, env, avoid, next, budget, depth + 1)?);
+                let mut cases = Vec::new();
+                for b in branches {
+                    let mut local = env.clone();
+                    let mut bindings = Vec::new();
+                    for old in &b.bindings {
+                        let fresh = loop {
+                            let n = format!("$a{}", *next);
+                            *next += 1;
+                            if !avoid.contains(&n) {
+                                break n;
+                            }
+                        };
+                        local.insert(old.clone(), fresh.clone());
+                        bindings.push(fresh);
+                    }
+                    cases.push(Branch {
+                        bindings,
+                        body: rename(&b.body, &local, avoid, next, budget, depth + 1)?,
+                    });
+                }
+                Term::Match {
+                    scrutinee,
+                    branches: cases,
+                }
+            }
+            _ => t.clone(),
+        })
+    }
+    if matches!(t, Term::Var(_) | Term::Bool(_) | Term::U64(_)) {
+        return Ok(t);
+    }
+    let mut avoid = BTreeSet::new();
+    let mut has_match = false;
+    free(&t, &BTreeSet::new(), &mut avoid, &mut has_match, budget, 0)?;
+    if !has_match {
+        return Ok(t);
+    }
+    rename(&t, &BTreeMap::new(), &avoid, &mut 0, budget, 0)
+}
 fn normalize_pair(e: Equation, c: &Context, budget: &mut Budget) -> LangResult<Equation> {
     Ok(Equation {
-        from: normal(&e.from, c, budget, 0)?,
-        to: normal(&e.to, c, budget, 0)?,
+        from: alpha_normal(normal(&e.from, c, budget, 0)?, budget)?,
+        to: alpha_normal(normal(&e.to, c, budget, 0)?, budget)?,
     })
+}
+
+#[cfg(test)]
+mod alpha_tests {
+    use super::*;
+    #[test]
+    fn free_internal_names_and_nested_shadowing_survive_canonicalisation() {
+        let t = Term::Match {
+            scrutinee: Box::new(Term::Var("source".into())),
+            branches: vec![Branch {
+                bindings: vec!["x".into()],
+                body: Term::Binary {
+                    op: "+".into(),
+                    left: Box::new(Term::Var("$a0".into())),
+                    right: Box::new(Term::Match {
+                        scrutinee: Box::new(Term::Var("x".into())),
+                        branches: vec![Branch {
+                            bindings: vec!["x".into()],
+                            body: Term::Var("x".into()),
+                        }],
+                    }),
+                },
+            }],
+        };
+        let n = alpha_normal(t, &mut Budget::new()).unwrap();
+        let Term::Match { branches, .. } = &n else {
+            panic!()
+        };
+        assert_eq!(branches[0].bindings, ["$a1"]);
+        let Term::Binary { left, right, .. } = &branches[0].body else {
+            panic!()
+        };
+        assert_eq!(**left, Term::Var("$a0".into()));
+        let Term::Match {
+            scrutinee,
+            branches,
+        } = &**right
+        else {
+            panic!()
+        };
+        assert_eq!(**scrutinee, Term::Var("$a1".into()));
+        assert_eq!(branches[0].bindings, ["$a2"]);
+        assert_eq!(branches[0].body, Term::Var("$a2".into()));
+        assert_eq!(alpha_normal(n.clone(), &mut Budget::new()).unwrap(), n);
+        let mut budget = Budget::new();
+        budget.remaining = 0;
+        assert!(alpha_normal(n, &mut budget).is_err());
+    }
 }
 fn prepare(e: &Equation, env: &Env, c: &Context, budget: &mut Budget) -> LangResult<Equation> {
     typed_pair(e, env, c, false, budget)?;
