@@ -132,6 +132,60 @@ impl Value {
 }
 type Env = BTreeMap<String, Value>;
 
+/// Nested expression frames. Deeper evaluation is rejected, so the stack
+/// needed is bounded independently of the host; see `EVAL_STACK`.
+const MAX_DEPTH: usize = 512;
+thread_local! {
+    static DEPTH: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
+}
+struct Nesting;
+impl Nesting {
+    fn enter() -> LangResult<Self> {
+        DEPTH.with(|d| {
+            let n = d.get();
+            if n >= MAX_DEPTH {
+                return Err("interpreter evaluation nesting limit exceeded".to_string());
+            }
+            d.set(n + 1);
+            Ok(Nesting)
+        })
+    }
+}
+impl Drop for Nesting {
+    fn drop(&mut self) {
+        DEPTH.with(|d| d.set(d.get() - 1));
+    }
+}
+/// A scope copy is charged like copying each of its values.
+fn copy_env(env: &Env, fuel: &mut u64) -> LangResult<Env> {
+    charge(
+        fuel,
+        env.values().fold(0, |n, v| n.saturating_add(weight(v))),
+    )?;
+    Ok(env.clone())
+}
+/// An unoptimised build uses roughly 16-24 KiB of stack per nesting level, so
+/// the outermost call evaluates on its own thread with room for MAX_DEPTH
+/// levels instead of relying on the caller's (often 2 MiB) stack.
+const EVAL_STACK: usize = 64 << 20;
+fn charge(fuel: &mut u64, n: u64) -> LangResult<()> {
+    *fuel = fuel
+        .checked_sub(n)
+        .ok_or("interpreter evaluation budget exhausted")?;
+    Ok(())
+}
+/// Copying a value costs fuel in proportion to its list elements, so a large
+/// list cannot be duplicated per element or per reference for free.
+fn weight(v: &Value) -> u64 {
+    match v {
+        Value::List(xs) | Value::Vector(xs) => xs
+            .iter()
+            .fold(xs.len() as u64, |n, x| n.saturating_add(weight(x))),
+        Value::Record(_, fs) => fs.values().fold(0, |n, x| n.saturating_add(weight(x))),
+        _ => 0,
+    }
+}
+
 fn expr(
     e: &Expr,
     env: &Env,
@@ -144,6 +198,7 @@ fn expr(
         return Err("interpreter evaluation budget exhausted".into());
     }
     *fuel -= 1;
+    let _nesting = Nesting::enter()?;
     let ty = crate::check::infer_context(e, types, p, want)?;
     match e {
         Expr::Float(bits) => Ok(Value::F32(*bits)),
@@ -165,7 +220,7 @@ fn expr(
         Expr::Let(n, t, a, b) => {
             let at = crate::check::infer_context(a, types, p, t.as_deref())?;
             let value = expr(a, env, types, p, fuel, Some(&at))?;
-            let mut local = env.clone();
+            let mut local = copy_env(env, fuel)?;
             local.insert(n.clone(), value);
             let mut ts = types.clone();
             ts.insert(n.clone(), at);
@@ -212,8 +267,9 @@ fn expr(
             let mut ts = types.clone();
             ts.insert(index.clone(), Type::U32);
             ts.insert(name.clone(), ty.clone());
+            // One scope copy per operator; each iteration rebinds the same names.
+            let mut local = copy_env(env, fuel)?;
             for i in 0..bound {
-                let mut local = env.clone();
                 local.insert(index.clone(), Value::U32(i as u32));
                 local.insert(name.clone(), acc);
                 acc = expr(body, &local, &ts, p, fuel, Some(&ty))?;
@@ -316,25 +372,30 @@ fn expr(
                 return Err("output list".into());
             };
             let mut out = Vec::new();
+            // One scope copy per operator; each iteration rebinds the same names.
+            let mut local = copy_env(env, fuel)?;
+            let mut ts = types.clone();
+            if n == "zip" {
+                ts.insert(a.clone(), (*input).clone());
+                let Type::List(t) = crate::check::infer(&args[0], types, p)? else {
+                    return Err("zip type".into());
+                };
+                ts.insert(b.clone(), *t);
+            } else {
+                ts.insert(a.clone(), Type::U32);
+                ts.insert(b.clone(), (*input).clone());
+            }
             for (i, x) in values.into_iter().enumerate() {
                 if n == "zip" && i >= other.len() {
                     break;
                 }
-                let mut local = env.clone();
-                let mut ts = types.clone();
                 if n == "zip" {
+                    charge(fuel, weight(&other[i]))?;
                     local.insert(a.clone(), x);
                     local.insert(b.clone(), other[i].clone());
-                    ts.insert(a.clone(), (*input).clone());
-                    let Type::List(t) = crate::check::infer(&args[0], types, p)? else {
-                        return Err("zip type".into());
-                    };
-                    ts.insert(b.clone(), *t);
                 } else {
                     local.insert(a.clone(), Value::U32(i as u32));
                     local.insert(b.clone(), x);
-                    ts.insert(a.clone(), Type::U32);
-                    ts.insert(b.clone(), (*input).clone());
                 }
                 out.push(expr(body, &local, &ts, p, fuel, Some(output))?);
             }
@@ -364,11 +425,12 @@ fn expr(
             let Expr::Lambda(rest, body) = inner.as_ref() else {
                 return Err("foldr needs a nested lambda".into());
             };
+            // One scope copy per operator; each iteration rebinds the same names.
+            let mut local = copy_env(env, fuel)?;
+            let mut local_types = types.clone();
+            local_types.insert(item.clone(), ty.clone());
+            local_types.insert(rest.clone(), ty.clone());
             for x in xs.into_iter().rev() {
-                let mut local = env.clone();
-                let mut local_types = types.clone();
-                local_types.insert(item.clone(), ty.clone());
-                local_types.insert(rest.clone(), ty.clone());
                 local.insert(item.clone(), x);
                 local.insert(rest.clone(), rest_value);
                 rest_value = expr(body, &local, &local_types, p, fuel, Some(&ty))?;
@@ -385,7 +447,11 @@ fn expr(
             Value::U64(*n)
         }),
         Expr::Bool(b) => Ok(Value::Bool(*b)),
-        Expr::Var(n) => env.get(n).cloned().ok_or_else(|| format!("unbound {n}")),
+        Expr::Var(n) => {
+            let v = env.get(n).ok_or_else(|| format!("unbound {n}"))?;
+            charge(fuel, weight(v))?;
+            Ok(v.clone())
+        }
         Expr::Binary(op, a, b) => {
             let operand_ty = if crate::check::is_number(&ty) {
                 Some(ty.clone())
@@ -538,28 +604,30 @@ fn expr(
                 return Err("expected lambda".into());
             };
             let mut out = Vec::new();
+            let Type::List(inner) = crate::check::infer_context(
+                xs,
+                types,
+                p,
+                if n == "filter" { Some(&ty) } else { None },
+            )?
+            else {
+                return Err("expected list".into());
+            };
+            // One scope copy per operator; each iteration rebinds the same name.
+            let mut local = copy_env(env, fuel)?;
+            let mut local_types = types.clone();
+            local_types.insert(var.clone(), *inner);
+            let body_ty = if n == "filter" {
+                Type::Bool
+            } else {
+                let Type::List(t) = &ty else {
+                    return Err("map type".into());
+                };
+                (**t).clone()
+            };
             for v in vals {
-                let mut local = env.clone();
+                charge(fuel, weight(&v))?;
                 local.insert(var.clone(), v.clone());
-                let Type::List(inner) = crate::check::infer_context(
-                    xs,
-                    types,
-                    p,
-                    if n == "filter" { Some(&ty) } else { None },
-                )?
-                else {
-                    return Err("expected list".into());
-                };
-                let mut local_types = types.clone();
-                local_types.insert(var.clone(), *inner);
-                let body_ty = if n == "filter" {
-                    Type::Bool
-                } else {
-                    let Type::List(t) = &ty else {
-                        return Err("map type".into());
-                    };
-                    (**t).clone()
-                };
                 let r = expr(body, &local, &local_types, p, fuel, Some(&body_ty))?;
                 match n.as_str() {
                     "map" => out.push(r),
@@ -579,6 +647,36 @@ fn expr(
 }
 
 pub fn call(p: &Program, name: &str, args: Vec<Value>, fuel: &mut u64) -> LangResult<Value> {
+    if DEPTH.with(|d| d.get()) > 0 {
+        return call_here(p, name, args, fuel);
+    }
+    // Outermost entry: evaluate with a stack sized for the nesting bound.
+    #[cfg(not(target_family = "wasm"))]
+    {
+        let start = *fuel;
+        std::thread::scope(|scope| {
+            let handle = std::thread::Builder::new()
+                .name("ink-eval".into())
+                .stack_size(EVAL_STACK)
+                .spawn_scoped(scope, move || {
+                    let mut left = start;
+                    let r = call_here(p, name, args, &mut left);
+                    (r, left)
+                })
+                .map_err(|e| format!("could not start interpreter thread: {e}"))?;
+            match handle.join() {
+                Ok((r, left)) => {
+                    *fuel = left;
+                    r
+                }
+                Err(panic) => std::panic::resume_unwind(panic),
+            }
+        })
+    }
+    #[cfg(target_family = "wasm")]
+    call_here(p, name, args, fuel)
+}
+fn call_here(p: &Program, name: &str, args: Vec<Value>, fuel: &mut u64) -> LangResult<Value> {
     let f = p
         .functions
         .iter()
