@@ -14,6 +14,14 @@ The `ink-core` crate owns types, executable semantics, reference evaluation and
 general evidence checking. It builds without knowledge or backend checkouts.
 The distribution combines independently pinned packages; it is not the core.
 
+Individual database entries are the unit of optimisation knowledge. Each
+definition, theorem or candidate names its exact dependencies. The prototype's
+“packages” are portable groups of those entries for checking and reproducible
+builds, not a separate algorithm-installation model. The intended workflow is to
+add entries to the database and let external search discover applicable choices.
+Today's tools still use explicit indexes and proposal files; general automatic
+discovery is not complete.
+
 [ink-knowledge](https://github.com/siliconjungle/ink-knowledge) holds immutable
 JSON definitions, theorems, candidate implementations and external proof-producing
 search. Complete pure replacement proofs are checked against the actual program.

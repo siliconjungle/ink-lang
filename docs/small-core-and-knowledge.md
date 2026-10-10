@@ -4,6 +4,17 @@ This is a binding architectural direction following the user's clarification: th
 
 ## Repository ownership
 
+Individual database entries are the unit of knowledge. Adding an algorithm means
+adding its definition, applicability information and checked equivalence evidence
+to the database. Search should discover applicable entries from the configured
+snapshot; it should not require a separate algorithm-installation workflow.
+The implementation's “package” or “bundle” terminology describes a portable
+selection of entries and their exact dependency closure for offline replay. It
+is a transport/build artifact, not a new source of authority. The current tools
+still require explicit indexes and proposal files; general entry discovery and
+selection remain production work. Backend crates are separate execution
+dependencies and do not change this database model.
+
 `siliconjungle/ink-lang` owns the language implementation and its general
 checking boundary. `siliconjungle/ink-knowledge` owns proof objects, candidate
 packages, discovery metadata, external proof producers and Lean research.
