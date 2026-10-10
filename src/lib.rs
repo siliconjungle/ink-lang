@@ -2,6 +2,7 @@
 pub use ink_core::*;
 pub use ink_lowering_c::{compute, native};
 pub use ink_lowering_gpu::gpu;
+pub use ink_lowering_js as javascript;
 pub use ink_lowering_rust::{definition_native, ordered_storage};
 pub mod state_native {
     pub use ink_lowering_rust::state_native::*;

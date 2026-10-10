@@ -443,7 +443,7 @@ fn run() -> LangResult<()> {
             "ink emit-definition LOCK.json EXPORTS.json [--select PACKAGE.json] -o DEFINITION.rs"
         );
         println!("ink emit-core SOURCE -o CORE.json\nink check-core CORE.json\nink emit-actions SOURCE -o ACTIONS.json\nink check-actions SOURCE ACTIONS.json\nExecution/lowering commands also accept --core to read a checked CORE.json instead of source.\nChecked replacement packages: build/emit-c ... --replacement PACKAGE.json");
-        println!("ink bitvector-obligation GOAL.json [--library LOCK.json] -o CNF.json\nink verify-library LOCK.json\nink project-library LOCK.json ROOTS.json -o BUNDLE.json\nink model-row SOURCE KEEP --maintenance PACKAGE.json -o MODEL.json\nink verify-row-model SOURCE MODEL.json --maintenance PACKAGE.json\nink verify-database LOCK.json\nink check SOURCE\nink prove-maintenance SOURCE [--evidence EVIDENCE.json] -o PACKAGE.json\nink verify-maintenance PACKAGE.json\nink execute SOURCE SCRIPT.json [--maintenance PACKAGE.json] [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable]\nink run SOURCE FUNCTION ARGS.json\nink build SOURCE -o OUTPUT.o [--implementation PROPOSAL.json] [--cc clang] [--native-cpu]\nink build SOURCE --target wasm32 --zig PATH -o OUTPUT.wasm\nink build SOURCE --target webgpu --zig PATH [--route PACKAGE.json] -o DIRECTORY (also emits native wgpu crate)\nink emit-c SOURCE -o OUTPUT.c [--implementation PROPOSAL.json]\nink emit-state SOURCE -o DIRECTORY [--maintenance PACKAGE.json] [--bounded-totals] [--wasm-abi]");
+        println!("ink bitvector-obligation GOAL.json [--library LOCK.json] -o CNF.json\nink verify-library LOCK.json\nink project-library LOCK.json ROOTS.json -o BUNDLE.json\nink model-row SOURCE KEEP --maintenance PACKAGE.json -o MODEL.json\nink verify-row-model SOURCE MODEL.json --maintenance PACKAGE.json\nink verify-database LOCK.json\nink check SOURCE\nink prove-maintenance SOURCE [--evidence EVIDENCE.json] -o PACKAGE.json\nink verify-maintenance PACKAGE.json\nink execute SOURCE SCRIPT.json [--maintenance PACKAGE.json] [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable]\nink run SOURCE FUNCTION ARGS.json\nink build SOURCE -o OUTPUT.o [--implementation PROPOSAL.json] [--cc clang] [--native-cpu]\nink build SOURCE --target javascript -o OUTPUT.mjs\nink build SOURCE --target wasm32 --zig PATH -o OUTPUT.wasm\nink build SOURCE --target webgpu --zig PATH [--route PACKAGE.json] -o DIRECTORY (also emits native wgpu crate)\nink emit-c SOURCE -o OUTPUT.c [--implementation PROPOSAL.json]\nink emit-state SOURCE -o DIRECTORY [--maintenance PACKAGE.json] [--bounded-totals] [--wasm-abi]");
         return Ok(());
     }
     if cmd == "prove" || cmd == "knowledge" || args.iter().any(|arg| arg == "--knowledge") {
@@ -744,6 +744,24 @@ fn run() -> LangResult<()> {
             }
             if route.is_some() && (cmd != "build" || !matches!(target.as_str(), "webgpu" | "gpu")) {
                 return Err("--route currently requires build --target webgpu or gpu".into());
+            }
+            if target == "javascript" {
+                if cmd != "build" || args.iter().any(|a| a == "--native-cpu") {
+                    return Err("JavaScript requires build --target javascript".into());
+                }
+                let module = core::CheckedModule::from_source(p.clone())?;
+                let emission = verified_language::javascript::lower(&module)?;
+                write(&out, &emission.javascript)?;
+                let plan = serde_json::json!({"source":path,"target":target,"backend":emission.manifest,"semantic_selection":semantic_selection.as_ref().map(|s|s.evidence()),"semantic_package":semantic_selection.as_ref().map(|s|s.package()),"checked_replacement":replacement,"checked_implementation":implementation,"applied_rule_ids":used,"input_core_sha256":input_core_sha256,"selected_core_sha256":selected_core_sha256,"trust":"checked transformations; JavaScript emission and engine remain trusted"});
+                write(
+                    &format!("{out}.plan.json"),
+                    &serde_json::to_string_pretty(&plan).map_err(|e| e.to_string())?,
+                )?;
+                println!(
+                    "wrote JavaScript module {out}; {} checked rule applications",
+                    used.len()
+                );
+                return Ok(());
             }
             if target == "webgpu" || target == "gpu" {
                 if args.iter().any(|a| a == "--native-cpu") {

@@ -13,8 +13,10 @@ The `ink` distribution combines that core with independently pinned repositories
 | [ink-lowering-c](https://github.com/siliconjungle/ink-lowering-c) | Portable C emission and allocation primitives |
 | [ink-lowering-rust](https://github.com/siliconjungle/ink-lowering-rust) | Stateful/inductive Rust emission and native storage primitives |
 | [ink-lowering-wasm](https://github.com/siliconjungle/ink-lowering-wasm) | Checked C-to-Wasm target configuration and exports |
+| [ink-lowering-js](https://github.com/siliconjungle/ink-lowering-js) | Literal ES module emission preserving Ink word/f32 semantics |
 | [ink-lowering-gpu](https://github.com/siliconjungle/ink-lowering-gpu) | WGSL emission and WebGPU/wgpu device adapters |
 
+JavaScript emits portable ES modules; see [its value and selection contract](javascript-backend.md).
 C/Rust toolchains produce native machine code or Wasm. WebGPU and native wgpu
 share shader lowering. Runtime assembles GPU artifacts with compiled C/Wasm
 fallback; the GPU lowerer has no C or runtime dependency. Wasm state host support
@@ -39,7 +41,7 @@ has been formally verified.
 ## A program can use several targets
 
 Placement is a graph, not one target attached to an entire program. In a browser,
-control and small tasks may execute in Wasm while a bulk pipeline executes in
+control and small tasks may execute in JavaScript or Wasm while a bulk pipeline executes in
 WebGPU. On desktop, CPU parts use ordinary native toolchains and GPU parts use
 wgpu. A placement should name operations, representations, execution domains and
 explicit conversion/transport edges. A buffer can stay resident on the GPU across

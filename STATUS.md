@@ -378,6 +378,18 @@ runtime and backend responsibilities stay as defined by the architecture split.
 Reports/source-values-canonical records combined validation separately from the
 original base's evidence. Action/effect/native refinement remains the next gate.
 
+## JavaScript lowering and browser selection
+
+The independent pinned `ink-lowering-js` package emits literal ES modules for
+checked pure numeric, Bool, vector, record and nested-list programs. Ink core
+types and canonical identities are unchanged. JavaScript implements word wrapping,
+BigInt-backed u64 and separately rounded binary32 operations. Stateful and opaque
+stateful values reject. The CLI exposes `build --target javascript`; browser GPU
+bundles include JS, Wasm and WGSL, with bounded whole-computation selection in
+ink-runtime. Native GPU fallback remains C. Per-stage adaptive placement and
+browser source editing remain unfinished. See [the target contract](docs/javascript-backend.md)
+and [validation evidence](reports/javascript-phase1/REPORT.md).
+
 ## Shared executable change boundary
 
 Reference and generated Rust/Wasm now share the fixed commit decision, sticky

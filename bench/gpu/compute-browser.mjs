@@ -41,7 +41,7 @@ try {
         return a === b;
       }
       for (const f of fixtures) {
-        for (const backend of ["cpu", "gpu"]) {
+        for (const backend of ["cpu", "javascript", "gpu"]) {
           const r = f.pipeline
             ? await engine.pipeline(f.pipeline, { backend })
             : await engine.call(f.call, f.args, { backend });
@@ -115,7 +115,7 @@ try {
       if (concurrent.some((r, i) => r.value !== 1 - i * 2))
         throw Error("concurrent CPU call corruption");
       const auto = await engine.call("indexed", [[1, 2]], { backend: "auto" });
-      if (auto.backend !== "cpu") throw Error("small array should select CPU");
+      if (!["cpu", "javascript"].includes(auto.backend)) throw Error("small array should select CPU");
       await engine.dispose();
       const disposed = await engine.call("indexed", [[1]], { backend: "gpu" });
       if (disposed.backend !== "cpu" || disposed.value[0] !== -2)

@@ -71,8 +71,8 @@ try {
       }
     }
     if (
-      (r.backend === "gpu") !==
-      r.profile.gpu_ms + r.profile.setup_ms / 32 < r.profile.cpu_ms * 0.9
+      !Object.hasOwn(r.profile.cost_ms,r.backend) ||
+      (r.backend !== "cpu" && r.profile.cost_ms[r.backend] >= r.profile.cost_ms.cpu * 0.9)
     )
       throw Error("profitability selection mismatch");
     const original = [1];
