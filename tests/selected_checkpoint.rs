@@ -27,6 +27,7 @@ fn fixture() -> (String, CheckedModule, optimisation::CheckedSelection) {
         semantics: optimisation::SEMANTICS.into(),
         input_core_sha256: module.identity().unwrap(),
         knowledge: bundle,
+        action_replacement: None,
         applications: vec![
             Site {
                 function: "identity".into(),

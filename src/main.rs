@@ -699,6 +699,20 @@ fn run() -> LangResult<()> {
                     .map_err(|e| e.to_string())?,
             )?;
         }
+        "emit-action-model" => {
+            let module = core::CheckedModule::from_source(p)?;
+            let model = verified_language::action_model::Projection::derive(&module)?;
+            let out = arg_value(&args, "-o")?.ok_or("emit-action-model requires -o MODEL.json")?;
+            write(
+                &out,
+                &serde_json::to_string_pretty(&model).map_err(|e| e.to_string())?,
+            )?;
+            println!(
+                "{}",
+                serde_json::json!({"status":"projected", "semantics":verified_language::action_model::SEMANTICS,
+                "source":module.identity()?, "trust":"Checked source-to-transition projection; native lowering and host execution remain trusted."})
+            );
+        }
         "emit-actions" | "check-actions" => {
             let module = core::CheckedModule::from_source(p)?;
             let actions = if cmd == "check-actions" {
