@@ -65,7 +65,9 @@ claim end-to-end verified machine code. See [the repository contract](repository
 Legacy programs use `ink-executable-core-v1` and retain their canonical identities.
 Pure compute extensions use `ink-executable-core-v2`; the checker determines the
 version from the actual types and operations and rejects a falsely tagged input.
-Both use the same bounded typed AST. This is separate from the full design below.
+Owned temporary buffers/maps and runtime-bounded stopping iteration use
+`ink-executable-core-v3`; see [the implemented local contract](local-collections.md).
+All use the same bounded typed AST. This is separate from the full design below.
 
 `ink-executable-core-v1` fixes the first checked program format. Its declarations
 live in `core/src/core.rs`, independently of the source parser. Parsing, type/effect
