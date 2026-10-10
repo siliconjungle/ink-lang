@@ -839,21 +839,32 @@ fn run() -> LangResult<()> {
             } else {
                 None
             };
-            let mut code = state_native::emit_with_storage(
-                &p,
-                certificate.as_ref(),
-                bounded,
-                storage.as_ref().map(|s| &s.0),
-            )?;
+            let mut code = if let Some(selected) = &semantic_selection {
+                state_native::emit_selected_with_storage(
+                    selected,
+                    certificate.as_ref(),
+                    bounded,
+                    storage.as_ref().map(|s| &s.0),
+                )?
+            } else {
+                state_native::emit_with_storage(
+                    &p,
+                    certificate.as_ref(),
+                    bounded,
+                    storage.as_ref().map(|s| &s.0),
+                )?
+            };
             if wasm_abi {
                 code.push_str(state_native::WASM_ABI);
             }
+            code.push_str(verified_language::runtime::NATIVE_STATE_ADAPTER);
+            verified_language::runtime::emit_native_state_host(Path::new(&out))?;
             write(&format!("{out}/src/lib.rs"), &code)?;
             write(
                 &format!("{out}/src/main.rs"),
-                verified_language::runtime::STATE_RUNNER,
+                verified_language::runtime::COMPLETE_STATE_RUNNER,
             )?;
-            write(&format!("{out}/Cargo.toml"), "[package]\nname = \"compiled-state\"\nversion = \"0.1.0\"\nedition = \"2021\"\n[lib]\ncrate-type = [\"rlib\", \"cdylib\"]\n[dependencies]\nnum-bigint = \"=0.4.8\"\nsha2 = \"=0.10.9\"\nserde_json = \"=1.0.151\"\n[profile.release]\nlto = \"thin\"\ncodegen-units = 1\n")?;
+            write(&format!("{out}/Cargo.toml"), "[package]\nname = \"compiled-state\"\nversion = \"0.1.0\"\nedition = \"2021\"\n[lib]\ncrate-type = [\"rlib\", \"cdylib\"]\n[dependencies]\nnum-bigint = \"=0.4.8\"\nsha2 = \"=0.10.9\"\nserde_json = {version=\"=1.0.151\",features=[\"float_roundtrip\"]}\n[profile.release]\nlto = \"thin\"\ncodegen-units = 1\n")?;
             let bounds = if bounded {
                 state_native::bounded_caches_with_certificate(&p, certificate.as_ref().unwrap())
             } else {
@@ -1016,6 +1027,13 @@ fn run() -> LangResult<()> {
                     .as_ref()
                     .map_or(0, |e| e.equality.checked_proposals.len());
             check::check(&p)?;
+            if let Some(selected) = &semantic_selection {
+                if core::CheckedModule::from_source(p.clone())?.identity()?
+                    != selected.module().identity()?
+                {
+                    return Err("checked selection provenance cannot be reused after a separate implementation or replacement changes the program".into());
+                }
+            }
             let selected_core_sha256 = core::CheckedModule::from_source(p.clone())?.identity()?;
             let out = arg_value(&args, "-o")?.ok_or("build requires -o OUTPUT.o")?;
             let target = arg_value(&args, "--target")?.unwrap_or_else(|| "native".into());
@@ -1033,15 +1051,24 @@ fn run() -> LangResult<()> {
                 return Err("--native-cpu requires the object target".into());
             }
             if cmd == "emit-c-project" {
-                verified_language::runtime::emit_c_program(
-                    &core::CheckedModule::from_source(p.clone())?,
-                    Path::new(&out),
-                )?;
+                if let Some(selected) = &semantic_selection {
+                    verified_language::runtime::emit_c_program_selected(selected, Path::new(&out))?;
+                } else {
+                    verified_language::runtime::emit_c_program(
+                        &core::CheckedModule::from_source(p.clone())?,
+                        Path::new(&out),
+                    )?;
+                }
                 println!("wrote complete C program and primitive runtime to {out}");
                 return Ok(());
             }
             if cmd == "emit-rust" {
-                write(&out, &state_native::emit(&p, None)?)?;
+                let code = if let Some(selected) = &semantic_selection {
+                    state_native::emit_selected(selected, None)?
+                } else {
+                    state_native::emit(&p, None)?
+                };
+                write(&out, &code)?;
                 return Ok(());
             }
             if cmd == "build" && matches!(target.as_str(), "c" | "rust") {
@@ -1050,10 +1077,21 @@ fn run() -> LangResult<()> {
                 }
                 let module = core::CheckedModule::from_source(p.clone())?;
                 if target == "c" {
-                    verified_language::runtime::emit_c_program(&module, Path::new(&out))?;
+                    if let Some(selected) = &semantic_selection {
+                        verified_language::runtime::emit_c_program_selected(
+                            selected,
+                            Path::new(&out),
+                        )?;
+                    } else {
+                        verified_language::runtime::emit_c_program(&module, Path::new(&out))?;
+                    }
                 } else {
                     verified_language::runtime::emit_rust_program(
-                        &state_native::emit(&p, None)?,
+                        &if let Some(selected) = &semantic_selection {
+                            state_native::emit_selected(selected, None)?
+                        } else {
+                            state_native::emit(&p, None)?
+                        },
                         Path::new(&out),
                     )?;
                 }
@@ -1067,7 +1105,11 @@ fn run() -> LangResult<()> {
                 }
                 let module = core::CheckedModule::from_source(p.clone())?;
                 let project = std::path::PathBuf::from(format!("{out}.project"));
-                verified_language::runtime::emit_c_program(&module, &project)?;
+                if let Some(selected) = &semantic_selection {
+                    verified_language::runtime::emit_c_program_selected(selected, &project)?;
+                } else {
+                    verified_language::runtime::emit_c_program(&module, &project)?;
+                }
                 let cargo = arg_value(&args, "--cargo")?
                     .or_else(|| std::env::var("INK_CARGO").ok())
                     .unwrap_or_else(|| "cargo".into());
@@ -1116,7 +1158,11 @@ fn run() -> LangResult<()> {
                     return Err("JavaScript requires build --target javascript".into());
                 }
                 let module = core::CheckedModule::from_source(p.clone())?;
-                let emission = verified_language::javascript::lower(&module)?;
+                let emission = if let Some(selected) = &semantic_selection {
+                    verified_language::javascript::lower_selected(selected)?
+                } else {
+                    verified_language::javascript::lower(&module)?
+                };
                 write(&out, &emission.javascript)?;
                 let plan = serde_json::json!({"source":path,"target":target,"backend":emission.manifest,"semantic_selection":semantic_selection.as_ref().map(|s|s.evidence()),"semantic_package":semantic_selection.as_ref().map(|s|s.package()),"checked_replacement":replacement,"checked_implementation":implementation,"applied_rule_ids":used,"input_core_sha256":input_core_sha256,"selected_core_sha256":selected_core_sha256,"trust":"checked transformations; JavaScript emission and engine remain trusted"});
                 write(
@@ -1135,6 +1181,8 @@ fn run() -> LangResult<()> {
                 }
                 if let Some(route) = &route {
                     verified_language::runtime::emit_routed(route, Path::new(&out))?;
+                } else if let Some(selected) = &semantic_selection {
+                    verified_language::runtime::emit_selected(selected, Path::new(&out))?;
                 } else {
                     verified_language::runtime::emit_gpu(&p, Path::new(&out))?;
                 }

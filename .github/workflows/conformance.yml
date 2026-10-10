@@ -45,9 +45,9 @@ jobs:
       - name: Independent core and source-bound value admission
         run: |
           cargo test --manifest-path core/Cargo.toml --offline
-          cargo test --test source_syntax --test action_values
+          cargo test --test source_syntax --test action_values --test general_laws --test semantic_optimisation
       - name: Literal CPU and both Wasm lowerings, generated histories and crash recovery
-        run: cargo test --test lowering_parity --test generated_parity --test durability --test modules -- --nocapture
+        run: cargo test --test lowering_parity --test generated_parity --test durability --test modules --test selected_checkpoint -- --nocapture
       - name: Retain reproducible programs, seeds and expected outcomes
         if: always()
         uses: actions/upload-artifact@v4
@@ -61,6 +61,12 @@ jobs:
             build/lowering-parity/source.ink
             build/lowering-parity/script.json
             build/lowering-parity/expected.json
+            build/selected-checkpoint-parity/source.ink
+            build/selected-checkpoint-parity/script.json
+            build/selected-checkpoint-parity/expected.json
+            build/selected-checkpoint-parity/input-core.json
+            build/selected-checkpoint-parity/selected-core.json
+            build/selected-checkpoint-parity/selection.json
           retention-days: 30
   wgpu:
     runs-on: ubuntu-24.04
@@ -101,7 +107,7 @@ jobs:
           PY
           cargo fetch --locked --manifest-path build/gpu-deps/Cargo.toml
       - name: Actual wgpu dispatch and resident feedback
-        run: cargo test --test lowering_parity --test generated_parity --test modules -- --nocapture
+        run: cargo test --test lowering_parity --test generated_parity --test modules --test selected_checkpoint -- --nocapture
       - name: Retain GPU failure reproductions
         if: always()
         uses: actions/upload-artifact@v4
@@ -113,4 +119,11 @@ jobs:
             build/generated-parity/script.json
             build/generated-parity/expected.json
             build/generated-parity/gpu-script.json
+            build/selected-checkpoint-parity/source.ink
+            build/selected-checkpoint-parity/script.json
+            build/selected-checkpoint-parity/expected.json
+            build/selected-checkpoint-parity/gpu-script.json
+            build/selected-checkpoint-parity/input-core.json
+            build/selected-checkpoint-parity/selected-core.json
+            build/selected-checkpoint-parity/selection.json
           retention-days: 30

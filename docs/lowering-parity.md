@@ -114,3 +114,8 @@ must require these checks if they are to block merges automatically.
 
 [Durable host adapters](durable-host.md) now supply filesystem/IndexedDB
 persistence and ordered outbox delivery for compiled JavaScript/Wasm state.
+
+Checked optimisation plans preserve the original application checkpoint namespace
+through the [selected emission APIs](selected-checkpoints.md). Cross-backend
+continuation and durable receipt replay are tested separately from raw-program
+emission, which keeps the changed program’s own namespace.

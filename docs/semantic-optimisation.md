@@ -152,3 +152,9 @@ Adding and publishing a law changes candidates without installing an algorithm
 or changing compiler rules. The old research directory-scanning implementation
 now lives in `ink-planner/research`; its independent query comparisons remain
 regression evidence, not the production storage contract.
+
+Checked selections also retain their original application checkpoint namespace
+through the [selected emission APIs](selected-checkpoints.md). Raw emission of a
+changed program keeps its own namespace. This preserves checkpoints between
+checked plans for one source; it does not authorise schema evolution or arbitrary
+stateful replacement.
