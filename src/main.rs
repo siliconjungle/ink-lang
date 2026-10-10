@@ -438,6 +438,7 @@ fn run() -> LangResult<()> {
     if cmd == "help" || cmd == "--help" {
         println!("ink emit-semantic SOURCE [--core] -o SUBJECT.json\nink check-selection CORE.json PACKAGE.json\nExecution, lowering and core emission accept --optimise KNOWLEDGE_DIRECTORY or SNAPSHOT.json (external search) or --selection PACKAGE.json (checked replay). Optional --search-tool PATH and --search-budget N.");
         println!("ink check-source-route CORE.json ROUTING.json");
+        println!("ink emit-source-syntax SOURCE --roles ROLES.json -o EXPECTED.json\nink check-source-syntax SOURCE --roles ROLES.json --view VIEW.json (complete code-data binding only)");
         println!("ink emit-machine LOCK.json PACKAGE.json -o SOURCE.rs");
         println!(
             "ink emit-definition LOCK.json EXPORTS.json [--select PACKAGE.json] -o DEFINITION.rs"
@@ -468,6 +469,43 @@ fn run() -> LangResult<()> {
         p = selected.module().program().clone();
     }
     match cmd {
+        "emit-source-syntax" | "check-source-syntax" => {
+            let module = core::CheckedModule::from_source(p)?;
+            let actions = verified_language::action_ir::CheckedActions::elaborate(&module)?;
+            let file =
+                arg_value(&args, "--roles")?.ok_or("source syntax requires --roles ROLES.json")?;
+            let roles: verified_language::source_syntax::Roles =
+                serde_json::from_slice(&read_bounded(&file, 16_384)?).map_err(|e| e.to_string())?;
+            if cmd == "emit-source-syntax" {
+                let declarations = verified_language::source_syntax::grammar(&roles);
+                let program = verified_language::source_syntax::definition(&actions, &roles)?;
+                let out = arg_value(&args, "-o")?
+                    .ok_or("emit-source-syntax requires -o EXPECTED.json")?;
+                write(
+                    &out,
+                    &serde_json::to_string_pretty(&serde_json::json!({
+                        "schema":1,"semantics":verified_language::source_syntax::SEMANTICS,
+                        "source":actions.source_identity(),"actions":actions.identity()?,
+                        "grammar":declarations,"program":program
+                    }))
+                    .map_err(|e| e.to_string())?,
+                )?;
+            } else {
+                let file = arg_value(&args, "--view")?
+                    .ok_or("check-source-syntax requires --view VIEW.json")?;
+                let bundle: verified_language::registry::Bundle =
+                    serde_json::from_slice(&read_bounded(&file, 16_000_000)?)
+                        .map_err(|e| e.to_string())?;
+                verified_language::source_syntax::BoundSyntax::bind(&actions, &bundle, &roles)?;
+            }
+            println!(
+                "{}",
+                serde_json::json!({"status":"checked",
+                "semantics":verified_language::source_syntax::SEMANTICS,
+                "source":actions.source_identity(),"actions":actions.identity()?,
+                "trust":"Exact complete code-data binding only. Source checking, elaboration and codecs remain trusted; no interpreter refinement or replacement authority."})
+            );
+        }
         "emit-semantic" => {
             let module = core::CheckedModule::from_source(p)?;
             let out = arg_value(&args, "-o")?.ok_or("emit-semantic requires -o SUBJECT.json")?;
