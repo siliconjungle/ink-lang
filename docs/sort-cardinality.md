@@ -21,7 +21,7 @@ expression is not covered by an aggregate law's application endpoints.
 
 The bounded view is `knowledge/store/sort-cardinality-view.json`: nine roots and
 nine dependencies. The canonical snapshot now contains 888 entries, including
-268 executable semantic laws (259 roots in the full rewrite view and nine
+268 checked semantic laws (259 executable roots in the full rewrite view and nine
 insertion dependencies). Rebuilding from the producers reproduces the active
 snapshot, names and all five bounded views. Earlier immutable snapshots remain.
 
