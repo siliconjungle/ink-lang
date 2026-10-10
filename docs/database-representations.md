@@ -40,8 +40,11 @@ The complete-action removal optimisation comes from the pinned knowledge laws,
 not a new compiler rewrite. The cached-query implementation reads a stored
 reply and retains the physical state without refreshing it on that query; its
 encoder refreshes the reply after changes from the logical state. This establishes
-expressibility and correctness, not a speed advantage or efficient delta
-maintenance. Other entries can define different layouts, cache updates and
+expressibility and correctness, not efficient delta maintenance. Ordinary queries
+with a direct unchanged-state observation now retain their physical state too,
+with universal observation and preservation proofs. They avoid refreshing an
+unrelated cache after each `get(key)`. `--rebuild-queries` reproduces the earlier
+candidate for comparison. Other entries can define different layouts, cache updates and
 specialisations under the same obligations without adding core rules.
 
 ## Runtime migration
@@ -68,6 +71,17 @@ versioned Rust lowering literally compiles their bodies and emits an executor
 bound to the exact sealed definition identities. It can contain up to sixteen
 representations and sixteen direct migrations. It rejects unknown closures.
 No compiler optimiser chooses algorithms while emitting those definitions.
+
+Native action execution decodes its arguments once, runs the checked execute
+function once and applies the checked observation/next projections to the typed
+intermediate. It transports only the two final outputs. The reference and older
+executors retain the equivalent three-call implementation through the default
+`Executor::transition`. Native immutable datatype fields share `Arc` storage;
+clones preserve structural equality and no pointer identity has semantic meaning.
+This sharing is generic across constructor types, not a cache/layout recogniser.
+Ordinary definition emission keeps its existing `Box` ABI. The runtime also
+caches the fixed logical snapshot layout rather than hashing the source on every
+call. Snapshot encoding, resource validation and atomic publication still run.
 
 ## Tooling
 
@@ -111,7 +125,9 @@ are host errors, not mathematical proof premises. The reference codec limits a
 table/event list to 4096 entries and source values to depth 32; the general
 checker and native definition dispatcher also retain their existing bounds.
 Persistence still requires the ordinary host durable-write protocol; `Session`
-alone is not a WAL or crash-recovery implementation. There is no timing claim.
+alone is not a WAL or crash-recovery implementation. Measured performance and
+its workload limits are reported separately in
+[`reports/representation-performance`](../reports/representation-performance/README.md).
 
 The representation tests compare future action histories, rollback, ordered
 outbox entries and byte-identical portable snapshots; exercise baseline restore,

@@ -20,6 +20,53 @@ struct Bridge {
     root: String,
     knowledge: Bundle,
 }
+#[test]
+fn published_retention_entries_replay_without_a_producer_or_index() {
+    let module = CheckedModule::from_source(
+        parse(include_str!(
+            "../knowledge/research/source-representations/app.ink"
+        ))
+        .unwrap(),
+    )
+    .unwrap();
+    let from: Request = serde_json::from_str(include_str!(
+        "../knowledge/research/source-representations/retained-direct.json"
+    ))
+    .unwrap();
+    let to: Request = serde_json::from_str(include_str!(
+        "../knowledge/research/source-representations/retained-query-cache.json"
+    ))
+    .unwrap();
+    let bridge: Bridge = serde_json::from_str(include_str!(
+        "../knowledge/research/source-representations/retained-migration.json"
+    ))
+    .unwrap();
+    let a = representation::check(&module, &from).unwrap();
+    let b = representation::check(&module, &to).unwrap();
+    let migration =
+        representation::check_migration(&a, &b, &bridge.knowledge, &bridge.root).unwrap();
+    let mut session = Session::new(a, Reference).unwrap();
+    let mut baseline = Runtime::new(module.program().clone()).unwrap();
+    for i in 0..24 {
+        let (name, args) = match i % 4 {
+            0 => ("put", json!([i % 3, i])),
+            1 => ("get", json!([i % 3])),
+            2 => ("erase", json!([i % 3, i % 8 == 2])),
+            _ => ("zero", json!([])),
+        };
+        assert_eq!(
+            session.invoke_json(name, &args).unwrap(),
+            baseline.invoke_json(name, &args).unwrap().json()
+        );
+        assert_eq!(
+            session.checkpoint().unwrap(),
+            baseline.checkpoint_portable().unwrap()
+        );
+        if i == 7 {
+            session.migrate_direct(b.clone(), &migration).unwrap();
+        }
+    }
+}
 fn proposal(source: &str, name: &str) -> (CheckedModule, Proposal, PathBuf) {
     let module = CheckedModule::from_source(parse(source).unwrap()).unwrap();
     let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
@@ -226,51 +273,22 @@ let p:serde_json::Value=serde_json::from_slice(&std::fs::read({proposal:?}).unwr
 let a=representation::check(&m,&serde_json::from_value(p["requests"][0].clone()).unwrap()).unwrap();
 let b=representation::check(&m,&serde_json::from_value(p["requests"][1].clone()).unwrap()).unwrap();
 let bridge=representation::check_migration(&a,&b,&serde_json::from_value(p["migration"]["knowledge"].clone()).unwrap(),p["migration"]["root"].as_str().unwrap()).unwrap();
-let mut session=ink_runtime::representation::Session::new(a.clone(),Native).unwrap();let mut base=Runtime::new(m.program().clone()).unwrap();
+struct Unfused;
+impl ink_runtime::representation::Executor for Unfused{{
+fn execute(&self,d:&ink_core::definition::CheckedDefinition,c:&ink_core::logic::Context,f:&str,x:Vec<ink_core::logic::Term>)->ink_core::LangResult<ink_core::logic::Term>{{ink_runtime::representation::Executor::execute(&Native,d,c,f,x)}}
+}}
+let mut session=ink_runtime::representation::Session::new(a.clone(),Native).unwrap();let mut fallback=ink_runtime::representation::Session::new(a.clone(),Unfused).unwrap();let mut base=Runtime::new(m.program().clone()).unwrap();
+for key in 1..=48u64{{let args=serde_json::json!([key,key*2]);let expected=base.invoke_json("put",&args).unwrap().json();assert_eq!(session.invoke_json("put",&args).unwrap(),expected);assert_eq!(fallback.invoke_json("put",&args).unwrap(),expected);}}
+for key in [0,1,48,999]{{let args=serde_json::json!([key]);let expected=base.invoke_json("get",&args).unwrap().json();assert_eq!(session.invoke_json("get",&args).unwrap(),expected);assert_eq!(fallback.invoke_json("get",&args).unwrap(),expected);}}
 for i in 0..36u64{{let (name,args)=match i%3{{0=>("put",serde_json::json!([i%5,i*11])),1=>("erase",serde_json::json!([i%5,i%2==0])),_=>("get",serde_json::json!([i%5]))}};
-assert_eq!(session.invoke_json(name,&args).unwrap(),base.invoke_json(name,&args).unwrap().json());assert_eq!(session.invoke_json("zero",&serde_json::json!([])).unwrap(),base.invoke_json("zero",&serde_json::json!([])).unwrap().json());assert_eq!(session.checkpoint().unwrap(),base.checkpoint_portable().unwrap());
-if i==8{{session.migrate_direct(b.clone(),&bridge).unwrap();}}if i==17{{session.migrate(a.clone()).unwrap();}}if i==26{{session=ink_runtime::representation::Session::restore(b.clone(),&session.checkpoint().unwrap(),Native).unwrap();}}
+let expected=base.invoke_json(name,&args).unwrap().json();assert_eq!(session.invoke_json(name,&args).unwrap(),expected);assert_eq!(fallback.invoke_json(name,&args).unwrap(),expected);
+let expected=base.invoke_json("zero",&serde_json::json!([])).unwrap().json();assert_eq!(session.invoke_json("zero",&serde_json::json!([])).unwrap(),expected);assert_eq!(fallback.invoke_json("zero",&serde_json::json!([])).unwrap(),expected);assert_eq!(session.checkpoint().unwrap(),base.checkpoint_portable().unwrap());assert_eq!(fallback.checkpoint().unwrap(),session.checkpoint().unwrap());
+if i==8{{session.migrate_direct(b.clone(),&bridge).unwrap();fallback.migrate_direct(b.clone(),&bridge).unwrap();}}if i==17{{session.migrate(a.clone()).unwrap();fallback.migrate(a.clone()).unwrap();}}if i==26{{session=ink_runtime::representation::Session::restore(b.clone(),&session.checkpoint().unwrap(),Native).unwrap();fallback=ink_runtime::representation::Session::restore(b.clone(),&fallback.checkpoint().unwrap(),Unfused).unwrap();}}
 }}
 }}
 "#,proposal=root.join("proposal.json").to_str().unwrap()));
     fs::write(root.join("native.rs"), source).unwrap();
-    let deps = std::env::current_exe()
-        .unwrap()
-        .parent()
-        .unwrap()
-        .to_owned();
-    let mut rustc = Command::new("rustc");
-    rustc
-        .arg("--edition=2021")
-        .arg(root.join("native.rs"))
-        .arg("-o")
-        .arg(root.join("native"))
-        .arg("-L")
-        .arg(format!("dependency={}", deps.display()));
-    for name in ["verified_language", "serde_json"] {
-        let file = fs::read_dir(&deps)
-            .unwrap()
-            .map(|e| e.unwrap().path())
-            .filter(|p| {
-                p.file_name()
-                    .unwrap()
-                    .to_str()
-                    .unwrap()
-                    .starts_with(&format!("lib{name}-"))
-                    && p.extension().is_some_and(|e| e == "rlib")
-            })
-            .max_by_key(|p| fs::metadata(p).unwrap().modified().unwrap())
-            .unwrap();
-        rustc
-            .arg("--extern")
-            .arg(format!("{name}={}", file.display()));
-    }
-    let output = rustc.output().unwrap();
-    assert!(
-        output.status.success(),
-        "{}",
-        String::from_utf8_lossy(&output.stderr)
-    );
+    compile_native(&root, false);
     let output = Command::new(root.join("native"))
         .env("PATH", "")
         .current_dir(std::env::temp_dir())
@@ -563,4 +581,103 @@ fn frozen_cli_replay_needs_no_live_catalogue_and_checks_before_writing() {
     ]);
     assert!(!out.status.success());
     assert_eq!(fs::read_to_string(protected).unwrap(), "original");
+}
+
+fn compile_native(root: &std::path::Path, optimised: bool) {
+    let deps = std::env::current_exe()
+        .unwrap()
+        .parent()
+        .unwrap()
+        .to_owned();
+    let mut rustc = Command::new("rustc");
+    rustc
+        .arg("--edition=2021")
+        .arg(root.join("native.rs"))
+        .arg("-o")
+        .arg(root.join("native"))
+        .arg("-L")
+        .arg(format!("dependency={}", deps.display()));
+    for name in ["verified_language", "serde_json"] {
+        let file = fs::read_dir(&deps)
+            .unwrap()
+            .map(|e| e.unwrap().path())
+            .filter(|p| {
+                p.file_name()
+                    .unwrap()
+                    .to_str()
+                    .unwrap()
+                    .starts_with(&format!("lib{name}-"))
+                    && p.extension().is_some_and(|e| e == "rlib")
+            })
+            .max_by_key(|p| fs::metadata(p).unwrap().modified().unwrap())
+            .unwrap();
+        rustc
+            .arg("--extern")
+            .arg(format!("{name}={}", file.display()));
+    }
+    if optimised {
+        rustc.arg("-O");
+    }
+    if !cfg!(debug_assertions) {
+        // Cargo release dependencies contain LLVM bitcode. Let rustc consume
+        // it instead of passing newer IR to the system Apple linker.
+        rustc.args(["-C", "lto=thin", "-C", "embed-bitcode=yes"]);
+    }
+    let output = rustc.output().unwrap();
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+}
+
+#[test]
+#[ignore = "manual performance measurement; no timing assertion"]
+fn benchmark_representation_execution() {
+    let source = include_str!("../examples/representation-migrations.ink");
+    let (module, _, root) = proposal(source, "representation-benchmark");
+    let mut plans = vec![];
+    for (label, extra) in [("rebuild", vec!["--rebuild-queries"]), ("retain", vec![])] {
+        let mut command = Command::new("python3");
+        command
+            .arg("knowledge/producers/representations.py")
+            .arg(root.join("model.json"))
+            .args(["--cache-query", "zero", "-o"])
+            .arg(root.join(format!("{label}.json")))
+            .args(extra);
+        let output = command.output().unwrap();
+        assert!(
+            output.status.success(),
+            "{}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+        let proposal: Proposal =
+            serde_json::from_slice(&fs::read(root.join(format!("{label}.json"))).unwrap()).unwrap();
+        plans.push(representation::check(&module, &proposal.requests[1]).unwrap());
+    }
+    let mut generated = String::from(
+        "use verified_language as ink_core;\nuse verified_language::runtime as ink_runtime;\n",
+    );
+    generated.push_str(&verified_language::representation_native::lower(&plans, &[]).unwrap());
+    generated.push_str(&format!(
+        "\nconst SOURCE:&str={source:?};\nconst DIRECTORY:&str={:?};\nconst LIBRARY_PROFILE:&str={:?};\n",
+        root.to_str().unwrap(),
+        if cfg!(debug_assertions) { "debug" } else { "release" }
+    ));
+    generated.push_str(include_str!("../bench/representations/driver.rs.txt"));
+    fs::write(root.join("native.rs"), generated).unwrap();
+    compile_native(&root, true);
+    let output = Command::new(root.join("native")).output().unwrap();
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let report: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
+    fs::write(
+        root.join("result.json"),
+        serde_json::to_vec_pretty(&report).unwrap(),
+    )
+    .unwrap();
+    println!("{}", serde_json::to_string_pretty(&report).unwrap());
 }
