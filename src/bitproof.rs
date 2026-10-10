@@ -298,6 +298,28 @@ fn assign(values: &mut [i8], lit: i32) -> bool {
         *old != value
     }
 }
+/// A refutation this thread's checker accepted, recorded for independent audit.
+#[derive(Clone, Debug)]
+pub struct AcceptedRefutation {
+    pub problem_sha256: String,
+    pub variables: usize,
+    pub clauses: Vec<Vec<i32>>,
+    pub steps: Vec<Step>,
+}
+thread_local! {
+    static AUDIT: std::cell::RefCell<Option<Vec<AcceptedRefutation>>> =
+        const { std::cell::RefCell::new(None) };
+}
+/// Runs `f`, returning every bit-proof refutation accepted on this thread
+/// meanwhile. Observation only: recording never influences acceptance, and
+/// nothing is recorded outside this call. Used to replay certificates through
+/// independent DRAT/LRAT checkers.
+pub fn audit_accepted<T>(f: impl FnOnce() -> T) -> (T, Vec<AcceptedRefutation>) {
+    let previous = AUDIT.with(|a| a.replace(Some(Vec::new())));
+    let value = f();
+    let recorded = AUDIT.with(|a| a.replace(previous)).unwrap_or_default();
+    (value, recorded)
+}
 pub fn verify(problem: &Problem, proof: &Certificate) -> LangResult<()> {
     let mut work = MAX_WORK;
     verify_with_work(problem, proof, &mut work)
@@ -380,6 +402,16 @@ pub(crate) fn verify_with_work(
     if !done {
         return Err("bit proof has no final contradiction".into());
     }
+    AUDIT.with(|a| {
+        if let Some(log) = a.borrow_mut().as_mut() {
+            log.push(AcceptedRefutation {
+                problem_sha256: problem.sha256.clone(),
+                variables: problem.variables,
+                clauses: problem.clauses.clone(),
+                steps: proof.steps.clone(),
+            });
+        }
+    });
     Ok(())
 }
 
