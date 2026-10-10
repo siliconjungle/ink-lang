@@ -34,3 +34,7 @@ record validation. Input generation and exact commands are in
 [the backend guide](../../docs/gpu-backend.md) and `bench/gpu/`.
 The GPU bridge and primitive implementation are trusted engineering code,
 not machine-checked correctness proofs. Existing archived reports are unchanged.
+
+Integration with main at `f2d2b7f` and its exact knowledge pin
+also passes all 118 tests; see `integration.json` and `integration-tests.log`.
+The earlier GPU measurements retain their original source identities.
