@@ -4,6 +4,29 @@ use verified_language::{core::CheckedModule, eval, modules, stateful::Runtime};
 #[path = "support/parity.rs"]
 mod parity;
 #[test]
+fn imported_function_type_failure_identifies_its_original_declaration() {
+    let dir = Path::new("build/module-type-diagnostic");
+    fs::create_dir_all(dir).unwrap();
+    fs::write(dir.join("main.ink"), "module entry; import \"helpers.ink\" as helpers; fn root(x:u32)->Bool{return helpers.bad(x);}").unwrap();
+    fs::write(dir.join("helpers.ink"), "module helpers;\n// λ source locations count characters\nfn bad(x:u32)->Bool{return x+1;}\n").unwrap();
+    let error = modules::load(dir.join("main.ink")).err().unwrap();
+    assert!(error.contains("helpers.ink:3:1:"), "{error}");
+    assert!(error.contains("fn bad(x:u32)->Bool"), "{error}");
+    assert!(!error.contains("ink_m"), "{error}");
+    fs::write(
+        dir.join("helpers.ink"),
+        "module helpers; fn bad(x:u32)->Bool{return x>0;}",
+    )
+    .unwrap();
+    let program = modules::load(dir.join("main.ink")).unwrap().program;
+    assert_eq!(
+        eval::call(&program, "root", vec![eval::Value::U32(2)], &mut 1000)
+            .unwrap()
+            .json(),
+        json!(true)
+    );
+}
+#[test]
 fn imports_types_state_events_and_standard_helpers_lower_identically() {
     let loaded = modules::load("examples/modules/main.ink").unwrap();
     assert_eq!(loaded.files.len(), 4);

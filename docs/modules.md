@@ -28,7 +28,10 @@ as function calls. Record fields and locally shadowed values retain their own
 names. Import aliases cannot be shadowed by parameters, locals, lambdas or
 module declarations. Duplicate module identities in separate files, missing
 exports and cycles have explicit diagnostics. Parser errors include source
-file, original line and column, even after namespace expansion. Module loading
+file, original line and column, even after namespace expansion. An identified
+pure-function type error points to that function's original file and declaration
+header, including imported helpers. Other semantic errors retain the linked
+entry file and readable module names. Module loading
 is bounded to 64 files, 1 MB per file and 4 MB total source.
 
 Run `ink modules SOURCE` to inspect the resolved dependency graph and content identities. The loader records each dependency's declared module, resolved path and SHA-256.
