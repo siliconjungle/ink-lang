@@ -335,7 +335,11 @@ fn sum_copy(xs: List<Int>) -> Int {
 }
 ```
 
-`if`, `match`, bounded `for`, tuples, lambdas and exhaustive enum matching form the basic control language. A block returns through explicit `return`. `?` propagates an error in a `Result`-returning declaration; it has no implicit exception behaviour.
+`if`, `match`, bounded `for`, tuples, lambdas and exhaustive enum matching form the basic control language. A block returns through explicit `return`. `?` exits its containing `Result`-returning declaration with Err. A query or
+Result-valued keep returns that Err as an ordinary value: reading/calling it does
+not automatically abort a change. A caller can apply `?` to propagate it.
+Nested change errors still poison the transaction even when discarded. Host
+execution failures propagate and require rollback.
 
 The checked total fragment accepts structural recursion and recursion with a proved decreasing measure. Unrestricted recursion and `while` require `partial fn`. Partial functions may diverge and cannot be invoked during type checking or proof reduction. They are excluded from transactions and maintained queries in the initial version. External drivers may call them.
 

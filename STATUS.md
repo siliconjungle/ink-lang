@@ -426,3 +426,26 @@ compares 32 native and 32 compiled Wasm outcomes, each with exact snapshots,
 against reference execution. No timing or browser claim follows. Whole-action
 logical/primitive correspondence, physical rollback and stateful replacement
 admission remain open. See docs/typed-actions.md and reports/typed-actions-phase1.
+
+## Source-bound effects and local Result boundaries
+
+The typed action core now derives bounded conservative access and prefix-effect
+judgments. A private witness ties them to exact source/action identities. The
+database's fixed prefix-composition definitions and six theorems bind to the
+actual finite Rust operation; they do not prove the abstract analysis sound or
+authorise a stateful replacement. Runtime diagnostics expose observed prefix
+flags before commit/rollback. Core proof acceptance rules remain unchanged.
+
+This work exposed and fixed reference/native disagreement for a query's internal
+`?`: queries and Result-valued keeps now return local errors as ordinary values,
+including when their error type differs from the caller's. Explicit caller `?`
+propagates them; nested change errors remain sticky. See docs/action-effects.md
+and reports/action-effects-phase1. Whole-action/primitive correspondence, full
+ordered observations, physical rollback/refinement and generic stateful
+replacement admission remain open; no performance improvement is claimed.
+
+Final validation: all 204 integration tests and 23 independent/isolated core tests
+pass. All 612 entries replay on the preserved checker; 12,544 finite composition
+cases agree, and 1,000 observed reference prefixes fit their judgments. Native
+and compiled Wasm each match 42 outcomes with exact snapshots. The query/keep
+error-boundary regression is fixed. No timing or browser claim follows.

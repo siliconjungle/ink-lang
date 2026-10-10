@@ -442,7 +442,7 @@ fn run() -> LangResult<()> {
         println!(
             "ink emit-definition LOCK.json EXPORTS.json [--select PACKAGE.json] -o DEFINITION.rs"
         );
-        println!("ink emit-core SOURCE -o CORE.json\nink check-core CORE.json\nink emit-actions SOURCE -o ACTIONS.json\nink check-actions SOURCE ACTIONS.json\nExecution/lowering commands also accept --core to read a checked CORE.json instead of source.\nChecked replacement packages: build/emit-c ... --replacement PACKAGE.json");
+        println!("ink emit-core SOURCE -o CORE.json\nink check-core CORE.json\nink emit-actions SOURCE -o ACTIONS.json\nink check-actions SOURCE ACTIONS.json\nink emit-effects SOURCE -o EFFECTS.json\nink check-effects SOURCE EFFECTS.json\nExecution/lowering commands also accept --core to read a checked CORE.json instead of source.\nChecked replacement packages: build/emit-c ... --replacement PACKAGE.json");
         println!("ink bitvector-obligation GOAL.json [--library LOCK.json] -o CNF.json\nink verify-library LOCK.json\nink project-library LOCK.json ROOTS.json -o BUNDLE.json\nink model-row SOURCE KEEP --maintenance PACKAGE.json -o MODEL.json\nink verify-row-model SOURCE MODEL.json --maintenance PACKAGE.json\nink verify-database LOCK.json\nink check SOURCE\nink prove-maintenance SOURCE [--evidence EVIDENCE.json] -o PACKAGE.json\nink verify-maintenance PACKAGE.json\nink execute SOURCE SCRIPT.json [--maintenance PACKAGE.json] [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable]\nink run SOURCE FUNCTION ARGS.json\nink build SOURCE -o OUTPUT.o [--implementation PROPOSAL.json] [--cc clang] [--native-cpu]\nink build SOURCE --target javascript -o OUTPUT.mjs\nink build SOURCE --target wasm32 --zig PATH -o OUTPUT.wasm\nink build SOURCE --target webgpu --zig PATH [--route PACKAGE.json] -o DIRECTORY (also emits native wgpu crate)\nink emit-c SOURCE -o OUTPUT.c [--implementation PROPOSAL.json]\nink emit-state SOURCE -o DIRECTORY [--maintenance PACKAGE.json] [--bounded-totals] [--wasm-abi]");
         return Ok(());
     }
@@ -502,6 +502,37 @@ fn run() -> LangResult<()> {
             println!(
                 "{}",
                 serde_json::json!({"status":"checked","semantics":verified_language::action_ir::SEMANTICS,"source":actions.source_identity(),"actions_sha256":actions.identity()?,"trust":"Source checking, typed elaboration and execution adapters remain trusted; no action-body refinement proof"})
+            );
+        }
+        "emit-effects" | "check-effects" => {
+            let module = core::CheckedModule::from_source(p)?;
+            let actions = verified_language::action_ir::CheckedActions::elaborate(&module)?;
+            let effects = if cmd == "check-effects" {
+                let file = args
+                    .get(2)
+                    .ok_or("check-effects requires SOURCE EFFECTS.json")?;
+                let mut bytes = Vec::new();
+                fs::File::open(file)
+                    .map_err(|e| e.to_string())?
+                    .take(core::MAX_BYTES as u64 + 1)
+                    .read_to_end(&mut bytes)
+                    .map_err(|e| e.to_string())?;
+                verified_language::effects::CheckedEffects::from_bytes(&actions, &bytes)?
+            } else {
+                verified_language::effects::CheckedEffects::derive(&actions)?
+            };
+            if cmd == "emit-effects" {
+                let out = arg_value(&args, "-o")?.ok_or("emit-effects requires -o EFFECTS.json")?;
+                write(
+                    &out,
+                    &String::from_utf8(effects.bytes()?).map_err(|e| e.to_string())?,
+                )?;
+            }
+            println!(
+                "{}",
+                serde_json::json!({"status":"checked", "semantics":verified_language::effects::SEMANTICS,
+                "source":effects.source_identity(), "actions_sha256":effects.actions_identity(), "effects_sha256":effects.identity()?,
+                "trust":"Conservative source-body effects from trusted checking. Not a whole-action refinement proof or replacement authority"})
             );
         }
         "emit-core" | "check-core" => {

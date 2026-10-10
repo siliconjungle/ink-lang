@@ -80,3 +80,7 @@ execution order of stateful code. `ink emit-actions` exports the source-bound
 artifact and `ink check-actions` replays it against the complete source module.
 Reference and Rust execution use its retained judgments. Whole-action logical
 refinement and stateful replacement admission remain open.
+
+[Source-bound action effects](docs/action-effects.md) distinguish reads, writes,
+emits, local Result errors and abrupt exits. Database composition laws bind to
+the fixed effect algebra; whole-action/refinement proofs remain required.

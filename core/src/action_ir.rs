@@ -236,6 +236,9 @@ impl CheckedActions {
         }
         Ok(bytes)
     }
+    pub fn module(&self) -> &CheckedModule {
+        &self.module
+    }
     pub fn source_identity(&self) -> &str {
         &self.wire.source
     }
