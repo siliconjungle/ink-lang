@@ -99,8 +99,11 @@ filesystem and single-writer requirements as Node, rejects a second owner in
 one process, and skips orphaned temporary names left by a crashed process.
 Native tests run on macOS locally and Linux in CI; other filesystem/platform
 support requires the documented rename and file/directory sync operations.
-The generated native wgpu mixed-bundle runner does not yet expose `--durable`;
-state can use the compiled CPU host or an explicit embedding adapter.
+The generated native wgpu mixed-bundle runner uses the same CLI protocol:
+`--durable`, `--snapshot-out`, stable action IDs and durable acknowledgements.
+Eligible `pure` requests can use GPU dispatch without publishing state or retry
+receipts; transactions execute once on the durable CPU host. Memory execution
+also supports `--restore`. A poisoned host rejects pure dispatch until reopened.
 
 Native receipts preserve signed-zero floats and full JSON i64/u64 integers.
 Native captured values are bounded to 48 levels and 100,000 cells. JavaScript
@@ -165,6 +168,11 @@ executes generated JavaScript too. Set
 `INK_TEST_ZIG=/path/to/zig` to include complete C and Rust Wasm. Each backend's
 child process exits after persistence and before returning its reply; recovery
 and retry apply the action once, retain the outbox and preserve rollback.
+
+`INK_TEST_WGPU=1 cargo test --test mixed_durability -- --nocapture` also checks
+actual GPU dispatch before/after a lost reply, unchanged durable bytes for pure
+work, exact reference checkpoints, aborted writes, conflicting retry IDs,
+acknowledgements, forbidden durable restore and corruption rejection.
 
 After that test, copy `tests/durable-browser.html` to
 `build/durable-state/index.html` and serve `build/` on localhost. The fixture

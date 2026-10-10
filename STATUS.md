@@ -129,8 +129,9 @@ retry receipts before returning replies. Synced file replacement and IndexedDB
 transactions retain the outbox and acknowledgements across crashes/reloads;
 delivery is at least once. Native executables accept `--durable FILE` and libraries
 export a generic durable host. Native failure injection and generated process
-death tests pass; incremental logs and mixed-wgpu runner integration remain
-open. See [the durable contract](docs/durable-host.md) and
+death tests pass. The mixed-wgpu runner now shares the native durable CLI, with
+actual GPU work around crash recovery and exact reference checkpoints. Incremental
+logs remain open. See [the durable contract](docs/durable-host.md) and
 [the native recovery evidence](reports/native-durability-phase1/REPORT.md).
 
 Generated conformance records bounded typed programs and action histories;

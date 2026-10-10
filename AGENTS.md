@@ -76,8 +76,8 @@ Final enabled conformance compares 516 requests/exact snapshots on all five CPU
 paths and 102 actual wgpu calls; generated durability uses JS and both Wasm paths.
 Snapshots/outbox/retry receipts are durable under the declared host guarantees,
 not permanent exactly-once delivery. Native C/Rust executable embedding now
-uses the runtime durable host and synced-file adapter; incremental logs and the
-mixed-wgpu runner remain separate work. Keep numerical
+uses the runtime durable host and synced-file adapter; incremental logs remain separate work. The mixed-wgpu runner now shares the
+complete native durable CLI; pure GPU calls do not publish state or receipts. Keep numerical
 state/action-boundary consistency and logical action/primitive correspondence open.
 
 General action values in core/src/action_values.rs bind complete code and exact

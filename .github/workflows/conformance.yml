@@ -58,13 +58,17 @@ jobs:
           cargo test --manifest-path core/Cargo.toml --offline
           cargo test --test distribution --test source_syntax --test action_values --test general_laws --test semantic_optimisation
       - name: Literal CPU and both Wasm lowerings, generated histories and crash recovery
-        run: cargo test --test lowering_parity --test generated_parity --test durability --test modules --test selected_checkpoint --test action_optimisation --test action_transitions --test numerical_state -- --nocapture
+        run: cargo test --test lowering_parity --test generated_parity --test durability --test modules --test selected_checkpoint --test action_optimisation --test action_transitions --test numerical_state --test mixed_durability -- --nocapture
       - name: Retain reproducible programs, seeds and expected outcomes
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: cpu-wasm-conformance
           path: |
+            build/mixed-durable-native/source.ink
+            build/mixed-durable-native/initial.json
+            build/mixed-durable-native/recovery.json
+            build/mixed-durable-native/expected.json
             build/numerical-state-parity/source.ink
             build/numerical-state-parity/script.json
             build/numerical-state-parity/expected.json
@@ -129,13 +133,17 @@ jobs:
           PY
           cargo fetch --locked --manifest-path build/gpu-deps/Cargo.toml
       - name: Actual wgpu dispatch and resident feedback
-        run: cargo test --test lowering_parity --test generated_parity --test modules --test selected_checkpoint --test action_optimisation --test action_transitions --test numerical_state -- --nocapture
+        run: cargo test --test lowering_parity --test generated_parity --test modules --test selected_checkpoint --test action_optimisation --test action_transitions --test numerical_state --test mixed_durability -- --nocapture
       - name: Retain GPU failure reproductions
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: wgpu-conformance
           path: |
+            build/mixed-durable-native/source.ink
+            build/mixed-durable-native/initial.json
+            build/mixed-durable-native/recovery.json
+            build/mixed-durable-native/expected.json
             build/numerical-state-parity/source.ink
             build/numerical-state-parity/script.json
             build/numerical-state-parity/expected.json
