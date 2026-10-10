@@ -1,0 +1,46 @@
+{
+  "schema": 1,
+  "date": "2026-10-11",
+  "integration_commit": "7f2fc4dd8fc2fd4dd5f363af5729993cfcb26290",
+  "knowledge_commit": "484e0a8bbbf5bb959151866651f2805ccf638451",
+  "planner_commit": "2f489b6f12c4d1a2d6f5910e63f4270b303a9211",
+  "snapshot": "4ec98c3611cead321971a5f9e8dc804e047cffe631544b85df3b610ebc5e228d",
+  "new_checked_laws": 83,
+  "all_checked_laws": 250,
+  "canonical_entries": 870,
+  "compiler_unchanged_from_previous_collection_law_runs": true,
+  "compiler_sha256": "d2cdbb26f4afe7d5ffb3122694eb8002cfc68316cea91fab33a0494778190d10",
+  "tests": {
+    "new_integration": 2,
+    "existing_semantic_action_collection_pipeline_regressions": 26,
+    "knowledge": 6,
+    "planner": 7,
+    "new_compiled_requests_per_cpu_path": 67,
+    "cpu_paths": [
+      "native C",
+      "native Rust",
+      "JavaScript",
+      "C Wasm",
+      "Rust Wasm"
+    ]
+  },
+  "reproduction": [
+    "snapshot.json",
+    "names.json",
+    "rewrite-view.json",
+    "local-collection-view.json",
+    "collection-pipeline-view.json",
+    "shared-sequence-view.json"
+  ],
+  "adversarial_cases": [
+    "rehashed wrong count",
+    "projection with a different second source",
+    "reversed subtraction operands",
+    "omitted right mapper",
+    "false float operation",
+    "forged same-source fusion of independent lists"
+  ],
+  "scope": "Unchanged compiler, core/checker, syntax, planner and backends. List induction for exact same-source zip and count erasure. Arithmetic operand tree is preserved; independent-list truncation remains. Existing total result equality excludes resource behavior and physical emission.",
+  "benchmark": "../../bench/shared-sequences/results.json",
+  "benchmark_root_dirty_reason": "Only generated, untracked validation reports; compiler/source unchanged."
+}

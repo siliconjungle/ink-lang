@@ -1,6 +1,6 @@
 # Ink
 
-Ink is a programming language with a small semantic core and proof-backed, data-driven optimisation. Pure functions support word and signed arithmetic, binary32, records/vectors, collections, bounded loops and typed higher-order collection operations. Stateful programs add tables, transactions, events, maintained results and portable snapshots.
+Ink is a programming language with a small semantic core and proof-backed, data-driven optimisation. Pure functions support word and signed arithmetic, binary32, records/vectors, collections, bounded loops, [owned local buffers/maps](docs/local-collections.md) and typed higher-order collection operations. Stateful programs add tables, transactions, events, maintained results and portable snapshots.
 
 Read the [practical guide](https://siliconjungle.github.io/ink-spec-site/) or the [language reference](https://siliconjungle.github.io/ink-spec-site/reference.html).
 

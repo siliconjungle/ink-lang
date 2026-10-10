@@ -11,6 +11,8 @@ pub enum Value {
     Record(String, BTreeMap<String, Value>),
     Bool(bool),
     List(Vec<Value>),
+    Buffer(crate::temporary::OwnedBuffer<Value>),
+    Map(crate::temporary::OwnedMap<LocalKey, Value>),
     // The pure grammar can carry existing stateful value types unchanged.
     // They are validated with the program's declarations at the host boundary;
     // word operations still require their explicit checked word types.
@@ -34,6 +36,7 @@ impl Value {
             Self::Record(_, fs) => fs.iter().map(|(n, v)| (n.clone(), v.json())).collect(),
             Self::Bool(x) => (*x).into(),
             Self::List(xs) => xs.iter().map(Self::json).collect(),
+            Self::Buffer(_) | Self::Map(_) => serde_json::Value::Null,
             Self::Opaque(v) => v.json(),
         }
     }
@@ -127,6 +130,32 @@ impl Value {
                 .collect::<LangResult<Vec<_>>>()
                 .map(Self::List),
             _ => crate::stateful::Value::from_json(v, t, p).map(Self::Opaque),
+        }
+    }
+}
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub enum LocalKey {
+    U32(u32),
+    U64(u64),
+    I32(i32),
+    Bool(bool),
+}
+impl LocalKey {
+    fn from_value(v: Value) -> LangResult<Self> {
+        Ok(match v {
+            Value::U32(x) => Self::U32(x),
+            Value::U64(x) => Self::U64(x),
+            Value::I32(x) => Self::I32(x),
+            Value::Bool(x) => Self::Bool(x),
+            _ => return Err("local map key type".into()),
+        })
+    }
+    fn value(self) -> Value {
+        match self {
+            Self::U32(x) => Value::U32(x),
+            Self::U64(x) => Value::U64(x),
+            Self::I32(x) => Value::I32(x),
+            Self::Bool(x) => Value::Bool(x),
         }
     }
 }
@@ -241,6 +270,18 @@ fn expr(
         depth,
     };
     match e {
+        Expr::Call(n, _)
+            if ["repeat_until", "buffer", "buffer_fill", "length"].contains(&n.as_str()) =>
+        {
+            evaluate_local(e, frame, fuel, ty)
+        }
+        Expr::Method(x, _, _)
+            if matches!(x.as_ref(),Expr::Var(n) if n=="Buffer" || n=="Map")
+                || crate::check::infer(x, types, p)
+                    .is_ok_and(|t| matches!(t, Type::Buffer(_) | Type::Map(..))) =>
+        {
+            evaluate_local(e, frame, fuel, ty)
+        }
         Expr::Float(bits) => Ok(Value::F32(*bits)),
         Expr::Neg(_) => evaluate_negation(e, frame, fuel, ty),
         Expr::Let(..) => evaluate_binding(e, frame, fuel, ty),
@@ -915,6 +956,19 @@ pub(crate) fn closed(e: &Expr, p: &Program, want: &Type, fuel: &mut u64) -> Lang
 }
 
 pub fn call(p: &Program, name: &str, args: Vec<Value>, fuel: &mut u64) -> LangResult<Value> {
+    crate::check::check(p)?;
+    let f = p
+        .functions
+        .iter()
+        .find(|f| f.name == name)
+        .ok_or("unknown function")?;
+    if crate::local_collections::owned(&f.result, p)
+        || f.params
+            .iter()
+            .any(|(_, t)| crate::local_collections::owned(t, p))
+    {
+        return Err("temporary storage is internal to a pure invocation".into());
+    }
     call_at(p, name, args, fuel, 0)
 }
 fn call_at(
@@ -933,7 +987,9 @@ fn call_at(
         return Err("argument count mismatch".into());
     }
     for (v, (_, t)) in args.iter().zip(&f.params) {
-        if Value::from_program_json(&v.json(), t, p)? != *v {
+        if !crate::local_collections::owned(t, p)
+            && Value::from_program_json(&v.json(), t, p)? != *v
+        {
             return Err("argument type mismatch".into());
         }
     }
@@ -951,4 +1007,181 @@ pub fn call_selected(
     fuel: &mut u64,
 ) -> LangResult<Value> {
     call(selected.module().program(), name, args, fuel)
+}
+
+#[inline(never)]
+fn evaluate_local(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> LangResult<Value> {
+    let Frame {
+        env,
+        types,
+        p,
+        depth,
+    } = frame;
+    match e {
+        Expr::Call(n, a) if n == "length" => {
+            let Value::List(xs) = expr(&a[0], env, types, p, fuel, None, depth)? else {
+                unreachable!()
+            };
+            Ok(Value::U32(
+                xs.len().try_into().map_err(|_| "list exceeds u32")?,
+            ))
+        }
+        Expr::Call(n, a) if n == "repeat_until" => {
+            let Value::U32(limit) = expr(&a[0], env, types, p, fuel, Some(&Type::U32), depth)?
+            else {
+                return Err("repeat_until limit".into());
+            };
+            let mut acc = expr(&a[1], env, types, p, fuel, Some(&ty), depth)?;
+            let Expr::Lambda(stop_name, stop) = &a[2] else {
+                unreachable!()
+            };
+            let Expr::Lambda(index, l) = &a[3] else {
+                unreachable!()
+            };
+            let Expr::Lambda(name, body) = l.as_ref() else {
+                unreachable!()
+            };
+            let mut ts = types.clone();
+            ts.insert(index.clone(), Type::U32);
+            ts.insert(name.clone(), ty.clone());
+            let mut stop_ts = types.clone();
+            stop_ts.insert(stop_name.clone(), ty.clone());
+            let mut local = copy_env(env, fuel)?;
+            let mut stop_env = copy_env(env, fuel)?;
+            for i in 0..limit {
+                charge(fuel, 1)?;
+                stop_env.insert(stop_name.clone(), copy_value(&acc, fuel)?);
+                if expr(stop, &stop_env, &stop_ts, p, fuel, Some(&Type::Bool), depth)?
+                    == Value::Bool(true)
+                {
+                    break;
+                }
+                local.insert(index.clone(), Value::U32(i));
+                local.insert(name.clone(), acc);
+                acc = expr(body, &local, &ts, p, fuel, Some(&ty), depth)?;
+            }
+            Ok(acc)
+        }
+        Expr::Call(n, a) if n == "buffer" => {
+            let Type::Buffer(t) = &ty else { unreachable!() };
+            let Value::List(xs) = expr(
+                &a[0],
+                env,
+                types,
+                p,
+                fuel,
+                Some(&Type::List(t.clone())),
+                depth,
+            )?
+            else {
+                unreachable!()
+            };
+            Ok(Value::Buffer(crate::temporary::OwnedBuffer::new(xs)))
+        }
+        Expr::Call(n, a) if n == "buffer_fill" => {
+            let Type::Buffer(t) = &ty else { unreachable!() };
+            let Value::U32(n) = expr(&a[0], env, types, p, fuel, Some(&Type::U32), depth)? else {
+                unreachable!()
+            };
+            let v = expr(&a[1], env, types, p, fuel, Some(t), depth)?;
+            charge(fuel, (n as u64).saturating_mul(1 + weight(&v)))?;
+            Ok(Value::Buffer(crate::temporary::OwnedBuffer::new(
+                vec![v; n as usize],
+            )))
+        }
+        Expr::Method(x, n, a) => {
+            if matches!(x.as_ref(),Expr::Var(n) if n=="Buffer" || n=="Map") {
+                return Ok(match ty {
+                    Type::Buffer(_) => Value::Buffer(crate::temporary::OwnedBuffer::new(vec![])),
+                    Type::Map(..) => Value::Map(crate::temporary::OwnedMap::new()),
+                    _ => unreachable!(),
+                });
+            }
+            let xt = crate::check::infer(x, types, p)?;
+            let v = expr(x, env, types, p, fuel, Some(&xt), depth)?;
+            match (v, xt) {
+                (Value::Buffer(b), Type::Buffer(t)) => {
+                    if n == "len" {
+                        return Ok(Value::U32(b.len()));
+                    }
+                    if n == "freeze" {
+                        return Ok(Value::List(b.freeze()));
+                    }
+                    if n == "pop" {
+                        return Ok(Value::Buffer(b.pop()));
+                    }
+                    let Value::U32(i) = (if n == "push" {
+                        Value::U32(0)
+                    } else {
+                        expr(&a[0], env, types, p, fuel, Some(&Type::U32), depth)?
+                    }) else {
+                        unreachable!()
+                    };
+                    match n.as_str() {
+                        "at_or" => b.with_item(i, |v| match v {
+                            Some(v) => copy_value(v, fuel),
+                            None => expr(&a[1], env, types, p, fuel, Some(&t), depth),
+                        }),
+                        "set" => {
+                            let value = expr(&a[1], env, types, p, fuel, Some(&t), depth)?;
+                            Ok(Value::Buffer(b.set(i, value)))
+                        }
+                        "swap" => {
+                            let Value::U32(j) =
+                                expr(&a[1], env, types, p, fuel, Some(&Type::U32), depth)?
+                            else {
+                                unreachable!()
+                            };
+                            Ok(Value::Buffer(b.swap(i, j)))
+                        }
+                        "push" => {
+                            let value = expr(&a[0], env, types, p, fuel, Some(&t), depth)?;
+                            charge(fuel, 1 + weight(&value))?;
+                            Ok(Value::Buffer(b.push(value)))
+                        }
+                        "truncate" => Ok(Value::Buffer(b.truncate(i))),
+                        _ => Err("buffer method".into()),
+                    }
+                }
+                (Value::Map(m), Type::Map(k, t)) => {
+                    if n == "len" {
+                        return Ok(Value::U32(m.len()));
+                    }
+                    if n == "keys" {
+                        charge(fuel, m.len() as u64)?;
+                        return Ok(Value::List(
+                            m.keys().into_iter().map(LocalKey::value).collect(),
+                        ));
+                    }
+                    if n == "values" {
+                        m.with_values(|vs| {
+                            charge(
+                                fuel,
+                                vs.fold(m.len() as u64, |n, v| n.saturating_add(weight(v))),
+                            )
+                        })?;
+                        return Ok(Value::List(m.values()));
+                    }
+                    let key =
+                        LocalKey::from_value(expr(&a[0], env, types, p, fuel, Some(&k), depth)?)?;
+                    match n.as_str() {
+                        "contains" => Ok(Value::Bool(m.contains(&key))),
+                        "get_or" => m.with_value(&key, |v| match v {
+                            Some(v) => copy_value(v, fuel),
+                            None => expr(&a[1], env, types, p, fuel, Some(&t), depth),
+                        }),
+                        "set" => {
+                            let v = expr(&a[1], env, types, p, fuel, Some(&t), depth)?;
+                            charge(fuel, 1 + weight(&v))?;
+                            Ok(Value::Map(m.set(key, v)))
+                        }
+                        "remove" => Ok(Value::Map(m.remove(&key))),
+                        _ => Err("map method".into()),
+                    }
+                }
+                _ => Err("temporary value type".into()),
+            }
+        }
+        _ => unreachable!(),
+    }
 }

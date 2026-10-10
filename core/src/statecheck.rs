@@ -50,9 +50,35 @@ pub(crate) fn validate_type(t: &Type, p: &Program) -> LangResult<()> {
             }
             Ok(())
         }
-        Type::List(t) | Type::Option(t) => validate_type(t, p),
+        Type::List(t) | Type::Option(t) => {
+            validate_type(t, p)?;
+            if crate::local_collections::owned(t, p) {
+                return Err("immutable containers cannot own temporary storage".into());
+            }
+            Ok(())
+        }
+        Type::Buffer(t) => {
+            validate_type(t, p)?;
+            if crate::local_collections::owned(t, p) {
+                return Err("buffer elements cannot own temporary storage".into());
+            }
+            Ok(())
+        }
+        Type::Map(k, v) => {
+            if !crate::local_collections::key_type(k) {
+                return Err("local map keys require u32/u64/i32/Bool".into());
+            }
+            validate_type(v, p)?;
+            if crate::local_collections::owned(v, p) {
+                return Err("map values cannot own temporary storage".into());
+            }
+            Ok(())
+        }
         Type::Table(..) => Err("Table is a state-root resource, not a value type".into()),
         Type::Result(a, b) => {
+            if crate::local_collections::owned(a, p) || crate::local_collections::owned(b, p) {
+                return Err("immutable containers cannot own temporary storage".into());
+            }
             validate_type(a, p)?;
             validate_type(b, p)
         }
@@ -709,6 +735,12 @@ pub fn check(p: &Program) -> LangResult<()> {
                 "Vec3",
                 "Vec4",
                 "repeat",
+                "repeat_until",
+                "length",
+                "buffer",
+                "buffer_fill",
+                "Buffer",
+                "Map",
                 "vec2",
                 "vec3",
                 "vec4",

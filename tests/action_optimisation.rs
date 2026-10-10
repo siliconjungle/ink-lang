@@ -84,7 +84,9 @@ fn conditional(m: &CheckedModule, name: &str) -> Site {
         .roots
         .iter()
         .find(|id| {
-            !c.objects[*id].conditions.is_empty() && c.objects[*id].from.sort == s::value(Type::U32)
+            !c.objects[*id].conditions.is_empty()
+                && c.objects[*id].from.sort == s::value(Type::U32)
+                && matches!(&c.objects[*id].from.node,Node::Op(op,_) if op=="binary:+")
         })
         .unwrap()
         .clone();

@@ -2319,6 +2319,14 @@ fn fuzz_evaluation_arguments() {
             continue;
         }
         for f in &p.functions {
+            // Owned helper signatures have no external value ABI.
+            if verified_language::local_collections::owned(&f.result, &p)
+                || f.params
+                    .iter()
+                    .any(|(_, t)| verified_language::local_collections::owned(t, &p))
+            {
+                continue;
+            }
             let Some(args) = arguments_for(&f.params, &p, 5) else {
                 continue;
             };
