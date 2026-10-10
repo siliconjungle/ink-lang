@@ -15,6 +15,7 @@ pub mod routing;
 pub mod row_model;
 pub mod snapshot;
 pub mod snapshot_wire;
+pub mod source_routing;
 pub mod statecheck;
 pub mod stateful;
 pub mod storage;
