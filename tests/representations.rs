@@ -684,7 +684,7 @@ fn benchmark_representation_execution() {
     println!("{}", serde_json::to_string_pretty(&report).unwrap());
 }
 
-fn cache_maintenance_native(name: &str, timed: bool, composed: bool) {
+fn cache_maintenance_native(name: &str, timed: bool, composed: bool, compact_queries: bool) {
     let source = include_str!("../examples/representation-cache-maintenance.ink");
     let (module, _, root) = proposal(source, name);
     if composed {
@@ -719,7 +719,12 @@ fn cache_maintenance_native(name: &str, timed: bool, composed: bool) {
         );
     }
     let mut plans = vec![];
-    for (label, extra) in [("refresh", vec![]), ("preserve", vec!["--preserve-cache"])] {
+    let before = if compact_queries {
+        vec!["--preserve-cache"]
+    } else {
+        vec![]
+    };
+    for (label, extra) in [("refresh", before), ("preserve", vec!["--preserve-cache"])] {
         let mut command = Command::new("python3");
         command
             .arg("knowledge/producers/representations.py")
@@ -728,7 +733,10 @@ fn cache_maintenance_native(name: &str, timed: bool, composed: bool) {
             .arg(root.join(format!("{label}.json")))
             .args(extra)
             .current_dir(env!("CARGO_MANIFEST_DIR"));
-        if composed && label == "preserve" {
+        if compact_queries && label == "preserve" {
+            command.arg("--compact-queries");
+        }
+        if composed && (label == "preserve" || compact_queries) {
             command
                 .arg("--replacement")
                 .arg(root.join("replacement.json"))
@@ -746,6 +754,9 @@ fn cache_maintenance_native(name: &str, timed: bool, composed: bool) {
         let a = representation::check(&module, &p.requests[0]).unwrap();
         let b = representation::check(&module, &p.requests[1]).unwrap();
         representation::check_migration(&a, &b, &p.migration.knowledge, &p.migration.root).unwrap();
+        if compact_queries {
+            plans.push(a);
+        }
         plans.push(b);
     }
     let mut generated = String::from(
@@ -753,9 +764,11 @@ fn cache_maintenance_native(name: &str, timed: bool, composed: bool) {
     );
     generated.push_str(&verified_language::representation_native::lower(&plans, &[]).unwrap());
     generated.push_str(&format!("\nconst SOURCE:&str={source:?};\nconst DIRECTORY:&str={:?};\nconst TIMED:bool={timed};\nconst COMPOSED:bool={composed};\nconst LIBRARY_PROFILE:&str={:?};\n",root.to_str().unwrap(),if cfg!(debug_assertions) { "debug" } else { "release" }));
-    generated.push_str(include_str!(
-        "../bench/representations/cache-maintenance.rs.txt"
-    ));
+    generated.push_str(if compact_queries {
+        include_str!("../bench/representations/compact-queries.rs.txt")
+    } else {
+        include_str!("../bench/representations/cache-maintenance.rs.txt")
+    });
     fs::write(root.join("native.rs"), generated).unwrap();
     compile_native(&root, timed);
     let output = Command::new(root.join("native"))
@@ -779,12 +792,12 @@ fn cache_maintenance_native(name: &str, timed: bool, composed: bool) {
 }
 #[test]
 fn cache_maintenance_preserves_abort_unrelated_commit_and_affected_commit() {
-    cache_maintenance_native("cache-maintenance-native", false, false);
+    cache_maintenance_native("cache-maintenance-native", false, false, false);
 }
 #[test]
 #[ignore = "manual performance measurement; no timing assertion"]
 fn benchmark_cache_maintenance() {
-    cache_maintenance_native("cache-maintenance-benchmark", true, false);
+    cache_maintenance_native("cache-maintenance-benchmark", true, false, false);
 }
 #[test]
 fn cache_dependency_heuristic_cannot_authorise_a_false_update() {
@@ -844,6 +857,11 @@ fn published_cache_maintenance_replays_and_migrates_offline() {
             include_str!("../knowledge/research/cache-maintenance/composed.json"),
             include_str!("../knowledge/research/cache-maintenance/composed-migration.json"),
         ),
+        (
+            include_str!("../knowledge/research/compact-queries/direct.json"),
+            include_str!("../knowledge/research/compact-queries/cached.json"),
+            include_str!("../knowledge/research/compact-queries/migration.json"),
+        ),
     ] {
         let from: Request = serde_json::from_str(from_json).unwrap();
         let to: Request = serde_json::from_str(to_json).unwrap();
@@ -882,5 +900,49 @@ fn published_cache_maintenance_replays_and_migrates_offline() {
 #[test]
 #[ignore = "manual performance measurement; no timing assertion"]
 fn benchmark_composed_cache_maintenance() {
-    cache_maintenance_native("composed-cache-maintenance-benchmark", true, true);
+    cache_maintenance_native("composed-cache-maintenance-benchmark", true, true, false);
+}
+
+#[test]
+fn compact_query_transitions_preserve_native_and_reference_histories() {
+    cache_maintenance_native("compact-query-native", false, true, true);
+}
+#[test]
+#[ignore = "manual performance measurement; no timing assertion"]
+fn benchmark_compact_query_transitions() {
+    cache_maintenance_native("compact-query-benchmark", true, true, true);
+}
+
+#[test]
+fn compact_query_cannot_substitute_a_false_cached_reply() {
+    let source = include_str!("../examples/representation-cache-maintenance.ink");
+    let (module, _, root) = proposal(source, "compact-query-adversarial");
+    let script = r#"import json,sys
+sys.path.insert(0,'knowledge/producers')
+from representations import generate
+p=json.load(open(sys.argv[1]));a=p['actions']['zero']
+sort=p['objects'][a['result']['Data']]['payload']['declaration']['Datatype']['constructors'][0]['fields'][0]
+# Lie only in the untrusted source-case metadata. Keep all exact source objects.
+a['case']['normal']['Construct']['arguments'][0]={'Construct':{'datatype':sort['Data'],'constructor':0,'arguments':[]}}
+print(json.dumps(generate(p,sys.argv[2],cache_query='zero',preserve_cache=True,compact_queries=True)))
+"#;
+    let output = Command::new("python3")
+        .args(["-c", script])
+        .arg(root.join("model.json"))
+        .arg(root.join("false-database"))
+        .current_dir(env!("CARGO_MANIFEST_DIR"))
+        .output()
+        .unwrap();
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let p: Proposal = serde_json::from_slice(&output.stdout).unwrap();
+    verified_language::registry::CheckedBundle::check(&p.requests[1].knowledge).unwrap();
+    let error = representation::check(&module, &p.requests[1]).unwrap_err();
+    assert!(
+        error.contains("definitional computation does not prove equality"),
+        "{error}"
+    );
 }

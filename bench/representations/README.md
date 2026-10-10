@@ -58,3 +58,21 @@ implementation removes once. Outputs go to
 `build/composed-cache-maintenance-benchmark`. This measures the combined candidate
 against the same refresh baseline; it does not attribute removal savings to cache
 retention. Both manual benchmarks have no timing assertion.
+
+## Compact query transport
+
+```sh
+CARGO_INCREMENTAL=0 cargo test --release --test representations \
+  benchmark_compact_query_transitions -- --ignored --nocapture
+```
+
+`compact-queries.rs.txt` compares the prior composed cached candidate with
+`--compact-queries`. Both candidates have identical change maintenance/removal
+proofs; only queries change. Complete fused and three-call calls are measured in
+nine alternating rounds of 512 calls with 32 warmup calls, at 8/24/48 main-table
+rows plus one Boolean row. `zero`, `get` and `flagged` are query targets; `erase`
+and `put` are unchanged controls. Native direct and cached layouts, reference
+histories, rollback, exact snapshots, exhausted versions and migration are checked
+outside timing. Results and native inputs go to `build/compact-query-benchmark`.
+Archive standalone process trials after other tests/compilation finish, and keep
+executor-specific conclusions separate. There is no timing assertion.

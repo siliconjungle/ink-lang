@@ -69,6 +69,19 @@ migration, and `reports/cache-maintenance-performance` for measured costs.
 Other entries can define different layouts, cache updates and specialisations
 under the same obligations without adding core rules.
 
+
+`--compact-queries` additionally removes duplicated table roots from query
+intermediates. A cached query's source observation supplies its cached reply and
+logical post-state directly. Other direct-observation queries carry only the
+cached value when necessary; uncached layouts use the source observation alone.
+Existing universal observation/preservation equations authorise these definitions.
+The frozen `knowledge/research/compact-queries` requests compose with the same
+change-boundary maintenance and removal law as the previous candidate. Matched
+three-call query measurements improve on the small fixtures, while fused costs
+do not; this remains an explicit executor/workload choice. Comparable timing
+observations live separately in the database, with unmeasured memory recorded as
+`null`. See `reports/compact-query-performance` for samples and limits.
+
 ## Runtime migration
 
 `ink_runtime::representation::Session` uses a sealed representation. Logical
