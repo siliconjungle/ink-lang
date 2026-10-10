@@ -471,9 +471,31 @@ fn source_binding_requires_actual_semantic_closure_and_direct_definitions() {
 #[test]
 fn width_cast_and_recursive_types_fail_closed_while_count_works() {
     let c = cert(false);
-    for expression in ["Int(row.count)", "Int(row.count+1)"] {
-        let p = parse(&SOURCE.replace("row.value+row.detail.bias", expression)).unwrap();
-        assert!(row_model::export(&p, "total", &c).is_err());
+    // u32 arithmetic before the cast needs its exact modular width: fail closed.
+    let p = parse(&SOURCE.replace("row.value+row.detail.bias", "Int(row.count+1)")).unwrap();
+    assert!(row_model::export(&p, "total", &c).is_err());
+    // A direct unsigned field cast is a faithful exact embedding.
+    let p = parse(&SOURCE.replace("row.value+row.detail.bias", "Int(row.count)")).unwrap();
+    let model = row_model::export(&p, "total", &c).unwrap();
+    row_model::verify(&p, &c, &model).unwrap();
+    let context = library::load_bundle(&model.library).unwrap().context;
+    for seed in 0..6 {
+        let json = row(seed);
+        let value = Value::from_json(&json, &Type::Named("Row".into()), &p).unwrap();
+        let input = encode(&model, &p, &c, &Type::Named("Row".into()), &value);
+        let count = json["count"].as_u64().unwrap() as i64;
+        let want = if json["detail"]["active"].as_bool().unwrap() { count } else { 0 };
+        if want > 40 {
+            // Concrete unary exact integers this large exceed kernel depth;
+            // tests/view_decomposition.rs checks small values exactly.
+            continue;
+        }
+        assert_eq!(
+            context
+                .evaluate(&[], &call(&model.description.projection, vec![input]))
+                .unwrap(),
+            integer(&c, want)
+        );
     }
     let recursive = SOURCE.replace("note:Option<String>", "note:Option<Row>");
     assert!(row_model::export(&parse(&recursive).unwrap(), "total", &c).is_err());
