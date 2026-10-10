@@ -85,6 +85,17 @@ jobs:
               f.write('INK_PARITY_SEEDS=1,7,23,3735928559,'+str(int(os.environ['GITHUB_SHA'][:16],16))+'\n')
           PY
       - run: cargo fetch --locked
+      - name: Fetch the pinned device runtime dependencies
+        run: |
+          mkdir -p build/gpu-deps/src
+          cp runtime/hosts/native/Cargo.toml runtime/hosts/native/Cargo.lock build/gpu-deps/
+          python3 - <<'PY'
+          from pathlib import Path
+          Path('build/gpu-deps/src/main.rs').write_text('fn main() {}\n')
+          with Path('build/gpu-deps/Cargo.toml').open('a') as f:
+              f.write('\n[workspace]\n')
+          PY
+          cargo fetch --locked --manifest-path build/gpu-deps/Cargo.toml
       - name: Actual wgpu dispatch and resident feedback
         run: cargo test --test lowering_parity --test generated_parity --test modules -- --nocapture
       - name: Retain GPU failure reproductions

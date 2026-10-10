@@ -168,16 +168,19 @@ pub(crate) fn conformance(
             include_str!("../lowering-parity-host.c"),
         )
         .unwrap();
-        let out = Command::new("clang")
+        let mut command = Command::new("clang");
+        command
             .args(["-std=c11", "-Wall", "-Wextra", "-Werror"])
             .arg(root.join("host.c"))
             .arg("-I")
             .arg(&c)
             .arg(c.join("target/debug/libcompiled_state.a"))
             .arg("-o")
-            .arg(root.join("host"))
-            .output()
-            .unwrap();
+            .arg(root.join("host"));
+        if cfg!(target_os = "linux") {
+            command.args(["-lpthread", "-ldl", "-lm"]);
+        }
+        let out = command.output().unwrap();
         assert!(
             out.status.success(),
             "{}",
