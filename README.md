@@ -2,6 +2,8 @@
 
 Ink is a programming language with a small semantic core and proof-backed, data-driven optimisation. Pure functions support word and signed arithmetic, binary32, records/vectors, collections, bounded loops and typed higher-order collection operations. Stateful programs add tables, transactions, events, invariants and portable snapshots.
 
+Read the [practical guide](https://siliconjungle.github.io/ink-spec-site/) or the [language reference](https://siliconjungle.github.io/ink-spec-site/reference.html).
+
 The core checks what programs mean and whether proposed changes preserve that meaning. The knowledge store supplies immutable definitions, laws and proofs; the planner searches and selects candidates; the runtime orchestrates physical execution; target packages emit code and operate devices.
 
 ## Repositories
