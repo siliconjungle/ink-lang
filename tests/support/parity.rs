@@ -13,9 +13,37 @@ fn compile(root: &Path) {
         String::from_utf8_lossy(&out.stderr)
     );
 }
+#[allow(dead_code)]
 pub(crate) fn conformance(
     name: &str,
     p: verified_language::syntax::Program,
+    source: &str,
+    steps: Vec<Value>,
+    expected: Vec<Value>,
+) {
+    conformance_inner(name, p, None, source, steps, expected)
+}
+#[allow(dead_code)]
+pub(crate) fn conformance_selected(
+    name: &str,
+    selected: &verified_language::optimisation::CheckedSelection,
+    source: &str,
+    steps: Vec<Value>,
+    expected: Vec<Value>,
+) {
+    conformance_inner(
+        name,
+        selected.module().program().clone(),
+        Some(selected),
+        source,
+        steps,
+        expected,
+    )
+}
+fn conformance_inner(
+    name: &str,
+    p: verified_language::syntax::Program,
+    selected: Option<&verified_language::optimisation::CheckedSelection>,
     source: &str,
     steps: Vec<Value>,
     expected: Vec<Value>,
@@ -24,6 +52,23 @@ pub(crate) fn conformance(
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join(format!("build/{name}"));
     fs::create_dir_all(&root).unwrap();
     fs::write(root.join("source.ink"), source).unwrap();
+    if let Some(selected) = selected {
+        fs::write(
+            root.join("input-core.json"),
+            selected.input_module().bytes().unwrap(),
+        )
+        .unwrap();
+        fs::write(
+            root.join("selected-core.json"),
+            selected.module().bytes().unwrap(),
+        )
+        .unwrap();
+        fs::write(
+            root.join("selection.json"),
+            serde_json::to_vec_pretty(selected.package()).unwrap(),
+        )
+        .unwrap();
+    }
     fs::write(
         root.join("script.json"),
         serde_json::to_vec(&steps).unwrap(),
@@ -35,12 +80,17 @@ pub(crate) fn conformance(
     )
     .unwrap();
     if std::env::var_os("INK_TEST_GPU").is_some() || std::env::var_os("INK_TEST_WGPU").is_some() {
-        verified_language::runtime::emit_gpu(&p, &root.join("gpu-module")).unwrap();
+        if let Some(selected) = selected {
+            verified_language::runtime::emit_selected(selected, &root.join("gpu-module")).unwrap();
+        } else {
+            verified_language::runtime::emit_gpu(&p, &root.join("gpu-module")).unwrap();
+        }
     }
     if std::env::var_os("INK_TEST_WGPU").is_some()
         && (name == "lowering-parity"
             || name.starts_with("generated-parity")
-            || name == "modules-parity")
+            || name == "modules-parity"
+            || selected.is_some())
     {
         let project = root.join("gpu-module/native");
         let target = Path::new(env!("CARGO_MANIFEST_DIR")).join("build/parity-gpu-target");
@@ -116,7 +166,11 @@ pub(crate) fn conformance(
         );
     }
     let c = root.join("c");
-    verified_language::runtime::emit_c_program(&module, &c).unwrap();
+    if let Some(selected) = selected {
+        verified_language::runtime::emit_c_program_selected(selected, &c).unwrap();
+    } else {
+        verified_language::runtime::emit_c_program(&module, &c).unwrap();
+    }
     fs::write(
         c.join("src/main.rs"),
         include_str!("../lowering-parity-runner.rs.txt"),
@@ -128,7 +182,11 @@ pub(crate) fn conformance(
         rust.join("src/lib.rs"),
         format!(
             "{}{}",
-            verified_language::state_native::emit(&p, None).unwrap(),
+            if let Some(selected) = selected {
+                verified_language::state_native::emit_selected(selected, None).unwrap()
+            } else {
+                verified_language::state_native::emit(&p, None).unwrap()
+            },
             verified_language::runtime::STATE_WASM_ABI
         ),
     )
@@ -190,9 +248,15 @@ pub(crate) fn conformance(
     }
     fs::write(
         root.join("program.mjs"),
-        verified_language::javascript::lower(&module)
-            .unwrap()
-            .javascript,
+        if let Some(selected) = selected {
+            verified_language::javascript::lower_selected(selected)
+                .unwrap()
+                .javascript
+        } else {
+            verified_language::javascript::lower(&module)
+                .unwrap()
+                .javascript
+        },
     )
     .unwrap();
     fs::write(
