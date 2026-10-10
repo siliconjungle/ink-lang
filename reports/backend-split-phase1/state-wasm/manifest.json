@@ -1,0 +1,69 @@
+{
+  "fixture_files": [
+    "acknowledged.bin",
+    "before.bin",
+    "future-expected.json",
+    "future-script.json",
+    "future.bin",
+    "metadata.json",
+    "middle-expected.json",
+    "middle-script.json",
+    "middle.bin",
+    "outbox-expected.json",
+    "tail-expected.json",
+    "tail-script.json",
+    "tail.bin"
+  ],
+  "modes": [
+    {
+      "name": "inventory-scan",
+      "wasm": "inventory-scan/program.wasm",
+      "fixture": "fixtures/inventory",
+      "native_middle": "inventory-maintained/native-middle.bin",
+      "return_snapshot": "inventory-scan/wasm-return.bin",
+      "wrong_snapshot": "fixtures/bounded/tail.bin",
+      "native_source": "inventory-maintained",
+      "native_receiver": "inventory-maintained"
+    },
+    {
+      "name": "inventory-maintained",
+      "wasm": "inventory-maintained/program.wasm",
+      "fixture": "fixtures/inventory",
+      "native_middle": "inventory-scan/native-middle.bin",
+      "return_snapshot": "inventory-maintained/wasm-return.bin",
+      "wrong_snapshot": "fixtures/bounded/tail.bin",
+      "native_source": "inventory-scan",
+      "native_receiver": "inventory-scan"
+    },
+    {
+      "name": "bounded-scan",
+      "wasm": "bounded-scan/program.wasm",
+      "fixture": "fixtures/bounded",
+      "native_middle": "bounded-bounded/native-middle.bin",
+      "return_snapshot": "bounded-scan/wasm-return.bin",
+      "wrong_snapshot": "fixtures/inventory/tail.bin",
+      "native_source": "bounded-bounded",
+      "native_receiver": "bounded-maintained"
+    },
+    {
+      "name": "bounded-maintained",
+      "wasm": "bounded-maintained/program.wasm",
+      "fixture": "fixtures/bounded",
+      "native_middle": "bounded-scan/native-middle.bin",
+      "return_snapshot": "bounded-maintained/wasm-return.bin",
+      "wrong_snapshot": "fixtures/inventory/tail.bin",
+      "native_source": "bounded-scan",
+      "native_receiver": "bounded-bounded"
+    },
+    {
+      "name": "bounded-bounded",
+      "wasm": "bounded-bounded/program.wasm",
+      "fixture": "fixtures/bounded",
+      "native_middle": "bounded-maintained/native-middle.bin",
+      "return_snapshot": "bounded-bounded/wasm-return.bin",
+      "wrong_snapshot": "fixtures/inventory/tail.bin",
+      "native_source": "bounded-maintained",
+      "native_receiver": "bounded-scan"
+    }
+  ]
+}

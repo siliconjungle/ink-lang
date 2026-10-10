@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """Rebuild real native/Wasm implementations and compare complete future behaviour."""
 from pathlib import Path
-import hashlib,json,os,shutil,subprocess
+import argparse,hashlib,json,os,shutil,subprocess
 root=Path(__file__).resolve().parents[1]
-out=root/'reports/state-wasm-phase1';out.mkdir(parents=True,exist_ok=True)
-build=root/'build/state-wasm-phase1';build.mkdir(parents=True,exist_ok=True)
-for name in ['validation.json','metadata.json','browser-validation.json','browser.png']:(out/name).unlink(missing_ok=True)
+ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('--output',type=Path,required=True);options=ap.parse_args()
+out=options.output.resolve()
+if out.exists():raise SystemExit('output must be fresh; archived reports are immutable')
+out.mkdir(parents=True)
+build=root/'build'/(out.name+'-work');build.mkdir(parents=True,exist_ok=True)
 commands=[]
 def run(args,capture=False):
     args=list(map(str,args));commands.append(args)

@@ -1,5 +1,5 @@
 // Shared by Node and an actual browser. No Node APIs or numeric JSON rounding.
-import {AbiError, StatefulModule, parseExactJSON, stringifyExactJSON} from '../runtime/state-wasm.mjs';
+import {AbiError, StatefulModule, parseExactJSON, stringifyExactJSON} from '../lowerings/wasm/runtime/state-wasm.mjs';
 const MAX=0xffffffffffffffffn;
 const text=new TextDecoder('utf-8',{fatal:true});
 const encoder=new TextEncoder();

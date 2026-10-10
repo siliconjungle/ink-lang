@@ -93,7 +93,8 @@ and correspondence decision; a new equivalent implementation belongs in knowledg
 7. Programs run without a network connection or background optimiser. Adaptation is an optional execution mode.
 8. Native machine code and WebAssembly share the same logical semantics, subject to declared host capabilities.
 9. Durable execution uses explicit state and checkpoint boundaries. It does not require recording every temporary memory write.
-10. Compilation exposes its actual verification boundary. A checked high-level rewrite does not establish correctness of an unverified backend.
+10. A program may combine execution domains. CPU/GPU placement and explicit bridges belong to the execution plan; transfer, conversion, allocation and synchronisation costs matter alongside computation. General mixed-target execution remains implementation work.
+11. Compilation exposes its actual verification boundary. A checked high-level rewrite does not establish correctness of an unverified backend.
 
 The first language is a compact general computational core with strong support for collections and stateful applications. Distributed consistency, automatic CRDT construction, arbitrary live stack migration and general GPU compilation are later extensions.
 

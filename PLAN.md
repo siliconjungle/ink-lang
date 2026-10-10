@@ -271,3 +271,26 @@ snapshot and migration correspondence remains an explicit admission gate.
 Continue aggregate/bounded-cache separation, general ownership/arenas, compact
 links, inline data, final-destination construction, bounded search, profiles,
 durability and all original release/benchmark requirements.
+
+
+### Backend separation and composable routing — 2026-10-10
+
+The user extended the small-core requirement: target emitters/runtime adapters
+belong in separate repositories, and one program may span multiple targets.
+`ink-core` now has no backend dependencies. The distribution combines pinned C,
+Rust, Wasm-adapter and shared WebGPU/wgpu packages. Existing native toolchains emit
+assembly; architecture-specific compiler projects are not part of this plan.
+
+`ink-pure-routing-v1` checks actual acyclic stage composition against the original
+function using the existing general kernel. Types, forward/missing/unused edges,
+resource bounds and whole-function equality are checked before admission.
+Physical mixed-target execution remains unfinished. The current GPU runtime
+selects per eligible function; the router interface does not yet connect its u32
+source dialect, async transfers or physical buffer representation to proofs.
+
+Complete the shared graph/ABI boundary, give every conversion/transport/residency
+choice an explicit contract, and make external knowledge search rank admitted
+plans by complete costs including upload, readback, conversion, allocation and
+synchronisation. Compare against all-CPU and algorithm-matched controls. State
+placement additionally requires future-call, abort/event/snapshot/migration
+preservation. See docs/backend-packages.md. Earlier acceptance gates remain open.

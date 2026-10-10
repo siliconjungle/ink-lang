@@ -1,0 +1,209 @@
+{
+  "schema": 1,
+  "semantics": "ink-relational-machine-v1",
+  "observations": "first-order-sequential-state-values-v1",
+  "bundle_sha256": "a4dcb61b8ac6140bfdf9a83af7ca094b95e9f7d275c5ef1655d1b0575706e22a",
+  "logical_state": {
+    "Data": "ac21f7bf213a910e50f356de0d17d639621a268a4412765075968296ab3a6eb5"
+  },
+  "physical_state": {
+    "Data": "83f833a544283201b73f2866f3785ae4ed4b5fc24bf009e40e271dffe940b748"
+  },
+  "encode": "9ff4656bfcc3e26988d6675c3faec23e35dec4c910717d1ad7f7ea9009073880",
+  "decode": "24e8da35d47ff7ec6db2ad120688879d3bc096e26ae1352825cd5edaf98c4f31",
+  "relations": [
+    {
+      "left": "efd94eae74f32bf7666c9204c6156439cf830614284f801f8e4afa584ed49a64",
+      "right": "88e4f48ce062e1081a56f9280f529fcc80dcd2d269f70df798c3a8637602c102"
+    }
+  ],
+  "initialisation": [
+    {
+      "Convert": {
+        "from": {
+          "Call": {
+            "function": "efd94eae74f32bf7666c9204c6156439cf830614284f801f8e4afa584ed49a64",
+            "arguments": [
+              {
+                "Call": {
+                  "function": "9ff4656bfcc3e26988d6675c3faec23e35dec4c910717d1ad7f7ea9009073880",
+                  "arguments": [
+                    {
+                      "Var": "logical"
+                    }
+                  ]
+                }
+              },
+              {
+                "Var": "logical"
+              }
+            ]
+          }
+        },
+        "to": {
+          "Call": {
+            "function": "88e4f48ce062e1081a56f9280f529fcc80dcd2d269f70df798c3a8637602c102",
+            "arguments": [
+              {
+                "Call": {
+                  "function": "9ff4656bfcc3e26988d6675c3faec23e35dec4c910717d1ad7f7ea9009073880",
+                  "arguments": [
+                    {
+                      "Var": "logical"
+                    }
+                  ]
+                }
+              },
+              {
+                "Var": "logical"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "snapshot": {
+    "Trans": [
+      {
+        "Call": {
+          "function": "24e8da35d47ff7ec6db2ad120688879d3bc096e26ae1352825cd5edaf98c4f31",
+          "arguments": [
+            {
+              "Hypothesis": 0
+            }
+          ]
+        }
+      },
+      {
+        "Use": {
+          "theorem": "63db9e1ea24ba3287ae66d0ab2281338a0552d59e8420cab2e1fd3a97a3ba7ff",
+          "arguments": [
+            {
+              "Var": "logical"
+            }
+          ],
+          "premises": []
+        }
+      }
+    ]
+  },
+  "operations": [
+    {
+      "name": "write",
+      "logical_step": "e37c62e2df52b005708940625015a4df4ee3f6475513b283fbdca507d792fdcf",
+      "physical_step": "1b36942b2b475326499ba0814348d24683e34242f828cd879a2de34c975746ce",
+      "logical_reply": "4495cd26b4f95e2cfa31b70e26137a75c28ca46717bb60d4272f276e04c08c36",
+      "physical_reply": "e31ac770dafe6539d8039cc00048af69dfa2318f75f363730bbd64a1c1f67bd7",
+      "preservation": [
+        {
+          "Trans": [
+            {
+              "Call": {
+                "function": "1b36942b2b475326499ba0814348d24683e34242f828cd879a2de34c975746ce",
+                "arguments": [
+                  {
+                    "Hypothesis": 0
+                  },
+                  {
+                    "Refl": {
+                      "Var": "arg0"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "Use": {
+                "theorem": "bdf5a39f87174aa7b9cbd20781cb19a4614996134d90fcb91df4bf4c5ef644c6",
+                "arguments": [
+                  {
+                    "Var": "logical"
+                  },
+                  {
+                    "Var": "arg0"
+                  }
+                ],
+                "premises": []
+              }
+            }
+          ]
+        }
+      ],
+      "reply": {
+        "Convert": {
+          "from": {
+            "Call": {
+              "function": "e31ac770dafe6539d8039cc00048af69dfa2318f75f363730bbd64a1c1f67bd7",
+              "arguments": [
+                {
+                  "Var": "physical"
+                },
+                {
+                  "Var": "arg0"
+                }
+              ]
+            }
+          },
+          "to": {
+            "Call": {
+              "function": "4495cd26b4f95e2cfa31b70e26137a75c28ca46717bb60d4272f276e04c08c36",
+              "arguments": [
+                {
+                  "Var": "logical"
+                },
+                {
+                  "Var": "arg0"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ],
+  "queries": [
+    {
+      "name": "lookup",
+      "logical": "ec1cb65469da39f710e0f6fa840a740fcb25d2e5d989b54d5d1aa87bc8dc3842",
+      "physical": "9a50c6a81a0096d9ca258208e70fd4ea08a23bc7ea01d22a51eb3b8dac874b42",
+      "proof": {
+        "Call": {
+          "function": "ec1cb65469da39f710e0f6fa840a740fcb25d2e5d989b54d5d1aa87bc8dc3842",
+          "arguments": [
+            {
+              "Trans": [
+                {
+                  "Call": {
+                    "function": "24e8da35d47ff7ec6db2ad120688879d3bc096e26ae1352825cd5edaf98c4f31",
+                    "arguments": [
+                      {
+                        "Hypothesis": 0
+                      }
+                    ]
+                  }
+                },
+                {
+                  "Use": {
+                    "theorem": "63db9e1ea24ba3287ae66d0ab2281338a0552d59e8420cab2e1fd3a97a3ba7ff",
+                    "arguments": [
+                      {
+                        "Var": "logical"
+                      }
+                    ],
+                    "premises": []
+                  }
+                }
+              ]
+            },
+            {
+              "Refl": {
+                "Var": "arg0"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

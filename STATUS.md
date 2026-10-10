@@ -163,7 +163,7 @@ Generated Rust lowering, runtime support, dependencies and Rust/LLVM remain trus
 - Pure programs compile to freestanding wasm32 modules with SIMD through Zig's Clang/linker toolchain.
 - The pure-function pointer/length ABI is documented in `docs/wasm-abi.md`.
 - Both the plain and knowledge-enabled modules passed 2,856 independent BigInt checks in Node/V8.
-- Stateful programs compile through the typed Rust backend to import-free `wasm32-unknown-unknown` modules. ABI version 1 uses opaque handles, exact JSON requests, atomic changes, ordered outbox inspection/acknowledgement and portable binary checkpoints. `runtime/state-wasm.mjs` works in Node and browsers and preserves integer precision across signed i64 and JavaScript Number boundaries.
+- Stateful programs compile through the typed Rust backend to import-free `wasm32-unknown-unknown` modules. ABI version 1 uses opaque handles, exact JSON requests, atomic changes, ordered outbox inspection/acknowledgement and portable binary checkpoints. `lowerings/wasm/runtime/state-wasm.mjs` works in Node and browsers and preserves integer precision across signed i64 and JavaScript Number boundaries.
 - Five Wasm implementations pass a total of 23,794 reference outcome comparisons in each of Node/V8 and actual Chromium 155; native checkpoint handoff steps pass 2,526 additional comparisons. Complete checkpoint bytes match across transfers and future changes. ABI checks cover invalid requests, corrupt/wrong-program snapshots, handle and byte limits, memory growth, high commit counters, commit exhaustion rollback and a poisoned-instance trap policy. Sources, binaries, toolchains and browser evidence are archived in `reports/state-wasm-phase1`. This is functional interoperability evidence, not a new speed result or formal backend proof.
 - This initial interface uses synchronous JSON requests. It provides no fuel limit, crash-safe storage, host capabilities, concurrent access or schema evolution. Buffer/state-count limits do not impose a total process-memory ceiling. See `docs/wasm-abi.md`.
 
@@ -236,3 +236,24 @@ Separate instrumented builds count allocation/reallocation calls and requested b
 Version-3 evidence now specifies a saved exact integer and actual apply/restore expressions for each insert, replacement and removal. The bridge checks forward equality to the original maintained update and restoration to an arbitrary prior total. The generic kernel/library checker is unchanged. Two external packages select full snapshots or reversible differences without rebuilding the compiler. The reference runtime and native backend execute both, retaining the existing trusted table/transaction scheduling boundary. Bounded u128 caches keep snapshots; richer journal layouts and general state refinement remain unfinished.
 
 All 65 tests pass, including multi-table aborts, repeated writes/removals, wide signed values, tentative reads, ordered events, checkpoints and exhausted commit counters. `reports/reversible-cache-phase1` records 448 samples and 4,096 independent native comparisons. The reversible journal improves by 1.31× on small-changing-row profiles, gives little benefit on wide-changing-row profiles, and remains 2.54× slower than handwritten Rust overall. Separate allocation counters confirm a reduction from 2.492 to 1.492 calls/update for an 8192-exponent anchor with small changes; wide changes can allocate more. `reports/reversible-inventory-phase1` records 756 samples against C/C++/Rust and 12,030 native plus 4,010 reference checks; bounded Ink still takes 1.77× Rust u128 time. See `docs/reversible-cache-journals.md` for precise obligations and reproduction. The full PLAN.md remains binding.
+
+
+## Independent backend boundary and routing
+
+The semantic/proof crate now builds without knowledge or backend source. Pinned
+external C/Rust/GPU/Wasm-adapter repositories supply code generation and target
+runtimes to the CLI facade. The existing contextual-u32 GPU work is integrated;
+WebGPU and wgpu share lowering, while Rust/C retain native/Wasm toolchains.
+
+Generic definition/machine admission stays in core. The sequential machine
+package proves initialisation, relation preservation, reply/query agreement and
+snapshot recovery from actual definitions; private generated physical state
+persists across calls. Row/ledger column packages and an independent counter
+exercise it. Boxed definitions, codecs, protocol and Rust/LLVM remain trusted;
+actual Ink source-action admission, flat storage proof and host failures are open.
+
+The pure routing interface checks a bounded acyclic typed composition and its
+whole-function equality, with target/domain labels opaque to the core. Arbitrary
+mixed Wasm/WebGPU/native graph execution, physical bridge proofs, ownership/async
+contracts and database cost search remain open. See docs/backend-packages.md.
+No new runtime speedup or universal fastest-language claim follows from this split.

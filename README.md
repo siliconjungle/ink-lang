@@ -30,7 +30,7 @@ pub fn total(xs: List<u64>, scale: u64) -> u64 {
 Requirements: a Rust toolchain, Clang, Python 3, and a C++ compiler for comparison. The current benchmark harness targets macOS; the compiler's C backend can be adapted to other hosts.
 
 ```sh
-git submodule update --init knowledge
+git submodule update --init --recursive
 cargo test
 cargo build --release
 target/release/ink check examples/kernels.lang
@@ -56,7 +56,9 @@ The build emits a native object, its readable C intermediate, LLVM IR, and a pla
 ## Compiler and knowledge repositories
 
 [ink-lang](https://github.com/siliconjungle/ink-lang) contains the executable
-language, general checkers, base runtime, lowering and integration tests.
+language, general checkers, reference runtime and distribution integration tests.
+Target emitters/runtime adapters are independently pinned backend repositories;
+see [backend packages and mixed execution](docs/backend-packages.md).
 [ink-knowledge](https://github.com/siliconjungle/ink-knowledge) contains the JSON
 catalogue, candidate packages, untrusted proof generators and Lean research.
 The `knowledge` directory is a submodule pinned to an exact commit. It is not
@@ -68,8 +70,9 @@ python3 knowledge/tools/catalogue.py list
 python3 knowledge/tools/catalogue.py verify --compiler target/debug/ink
 ```
 
-A compiler-only checkout builds without initialising the submodule. Full
-integration tests and catalogue examples require the pinned knowledge checkout.
+The semantic core builds with `cargo build --manifest-path core/Cargo.toml`
+without any submodule. The CLI distribution needs backend checkouts; full
+integration tests and catalogue examples additionally need pinned knowledge.
 Installed compilers also accept lockfiles and proposals from an unrelated local
 checkout using `--library`, `--implementation` and `--replacement`; paths are explicit.
 

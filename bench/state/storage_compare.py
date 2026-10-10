@@ -44,7 +44,7 @@ def main():
         old='use std::collections::btree_map::Entry;match s.rows.entry(key){Entry::Occupied(_)=>return 2,Entry::Vacant(e)=>{e.insert(value);s.total+=Total::from(value);}}'
         new='if s.rows.contains_key(&key){return 2}s.rows.insert(key,value);s.total+=Total::from(value);'
         assert old in text;text=text.replace(old,new)
-        (project/'src/lib.rs').write_text(text);shutil.copyfile(ROOT/'src/ordered_storage.rs',project/'src/ordered_storage.rs')
+        (project/'src/lib.rs').write_text(text);shutil.copyfile(ROOT/'lowerings/rust/src/ordered_storage.rs',project/'src/ordered_storage.rs')
         (project/'Cargo.toml').write_bytes((build/'rust-baseline/Cargo.toml').read_bytes())
         state.run(['cargo','build','--release','--offline','--lib','--manifest-path',project/'Cargo.toml'],native_env)
         for suffix in ['a','dylib']:shutil.copyfile(build/f'rust-target/release/libbaseline_state.{suffix}',build/f'{variant}.{suffix}')

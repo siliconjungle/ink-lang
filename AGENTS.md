@@ -12,7 +12,10 @@ Do not add package-name whitelists, trusted theorem flags or optimisation-specif
 kernel rules. A new core mechanism needs a general semantic/checking justification,
 an explicit trust-boundary update and meaningful validation.
 
-Keep efficient primitive execution and straightforward lowering in the core.
+Keep fixed primitive semantics in the core. The user explicitly moved target
+lowering to independently versioned backend packages. The distribution facade
+can depend on those packages; ink-core must not. Keep target selection and bridge
+cost search external, and validate composed computations with general proofs.
 The modular-polynomial compiler path has been retired. The existing aggregate
 schema, bounded-cache and layout mechanisms remain migration debt; moving files
 is not evidence that their authority has been externalised.
