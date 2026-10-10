@@ -43,10 +43,13 @@ aggregate/bounded/layout authority has not moved into database entries through
 this change. It adds no proof kernel acceptance rule and enables no transaction
 replacement on the strength of matching syntax alone.
 
-The next step is to give these ordered actions a logical execution model and bind
-that model to actual primitive reads, writes, staged events and abrupt exits.
-Then database equivalences can apply to the computation actually being executed,
-with separate restoration, representation and profitability obligations.
+A restricted [whole-action logical model](action-transitions.md) now binds the
+actual typed bodies to reads, statement writes, ordered events, returns and
+transaction rollback, including total word/Boolean/record helpers. Database
+equivalences can replace complete actions in that domain. Nested actions,
+expression effects and abrupt `?` exits still need logical correspondence;
+physical representations, restoration and profitability require separate
+obligations. Direct baseline execution supports more than this proof domain.
 
 See reports/typed-actions-phase1 for validation, including concrete order and
 rollback assertions and exact snapshots for native and compiled Wasm execution.
