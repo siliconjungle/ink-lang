@@ -1,0 +1,39 @@
+{
+  "backend": "typed Rust; no AST evaluator",
+  "bounded_cache_evidence": {
+    "total_units": {
+      "field": "stock",
+      "justification": "nonnegative unsigned field; finite map has at most 2^key_bits entries; maximum = 2^key_bits * (2^value_bits - 1) < 2^128",
+      "key_bits": 64,
+      "maximum_total": "79228162495817593519834398720",
+      "root": "Items",
+      "value_bits": 32
+    }
+  },
+  "limitations": [
+    "portable snapshots supported; no live native migration or durable WAL",
+    "collection scans currently materialise lists",
+    "no native execution fuel limit"
+  ],
+  "maintenance_authority": "legacy polynomial checker and finite-map induction schema",
+  "maintenance_certificate": "a746374ab2b4d716620ac9ac8dfafdf1e89e6c6b6a428de28875e142d2d10176",
+  "maintenance_library_closure": null,
+  "maintenance_semantics": "finite-map-pointwise-exact-sum-v1",
+  "module": "state_benchmark",
+  "semantic_package": null,
+  "semantic_selection": null,
+  "source": "examples/state-benchmark.lang",
+  "storage_authority": "typed external policy; ordered storage primitives and promotion remain trusted native lowering, not database-proved physical refinement",
+  "storage_policy": null,
+  "storage_policy_sha256": null,
+  "trusted": [
+    "frontend",
+    "row-local table projection and transactional cache protocol",
+    "finite-domain range analysis",
+    "modular representation lowering",
+    "typed Rust lowering",
+    "num-bigint",
+    "Rust/LLVM backend"
+  ],
+  "wasm_host_abi": null
+}

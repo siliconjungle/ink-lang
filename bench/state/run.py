@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """Native state comparison; common driver, independent oracle, no cross-ABI LTO."""
-import argparse,ctypes,hashlib,json,os,platform,random,shutil,statistics,subprocess,time
+import argparse,ctypes,hashlib,json,os,platform,random,shutil,statistics,subprocess,sys,time
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
+sys.path.insert(0,str(ROOT/'bench'))
+import methodology as M
 BUILD=ROOT/'build/state-bench'
 OUT=ROOT/'reports/native-state-phase3-native-abi'
 VARIANTS=['language','language_bounded','c_flat','cpp_tree','rust_tree','rust_bigint']
@@ -40,28 +42,36 @@ def build(env,maintenance=None):
     native_env=env.copy();native_env['RUSTFLAGS']='-C target-cpu=native -C panic=abort'
     native_env['CARGO_TARGET_DIR']=str(BUILD/'rust-target')
     run(['cargo','build','--release','--offline','--lib','--manifest-path',project/'Cargo.toml'],native_env)
-    for suffix in ['a','dylib']:shutil.copyfile(BUILD/f'rust-target/release/libcompiled_state.{suffix}',BUILD/f'language.{suffix}')
+    for suffix in ['a',M.shared_suffix()]:shutil.copyfile(BUILD/f'rust-target/release/libcompiled_state.{suffix}',BUILD/f'language.{suffix}')
     bounded=BUILD/'generated-bounded'
     run([lang,'emit-state','examples/state-benchmark.lang','-o',bounded,'--maintenance',BUILD/'maintenance.json','--bounded-totals'])
     with (bounded/'src/lib.rs').open('a') as f:f.write((ROOT/'bench/state/generated_abi.rs').read_text())
     (bounded/'Cargo.toml').write_text((project/'Cargo.toml').read_text())
     run(['cargo','build','--release','--offline','--lib','--features','bounded-abi','--manifest-path',bounded/'Cargo.toml'],native_env)
-    for suffix in ['a','dylib']:shutil.copyfile(BUILD/f'rust-target/release/libcompiled_state.{suffix}',BUILD/f'language_bounded.{suffix}')
+    for suffix in ['a',M.shared_suffix()]:shutil.copyfile(BUILD/f'rust-target/release/libcompiled_state.{suffix}',BUILD/f'language_bounded.{suffix}')
     baseline=BUILD/'rust-baseline';(baseline/'src').mkdir(parents=True,exist_ok=True)
     shutil.copyfile(ROOT/'bench/state/baseline.rs',baseline/'src/lib.rs')
     (baseline/'Cargo.toml').write_text('[package]\nname="baseline-state"\nversion="0.1.0"\nedition="2021"\n[lib]\ncrate-type=["staticlib","cdylib"]\n[features]\nbigint=[]\n[dependencies]\nnum-bigint="=0.4.8"\n[profile.release]\nlto=false\ncodegen-units=1\n')
     for variant,features in [('rust_tree',[]),('rust_bigint',['--features','bigint'])]:
         run(['cargo','build','--release','--offline','--manifest-path',baseline/'Cargo.toml']+features,native_env)
-        for suffix in ['a','dylib']:shutil.copyfile(BUILD/f'rust-target/release/libbaseline_state.{suffix}',BUILD/f'{variant}.{suffix}')
-    cpu='-mcpu=native' if platform.machine()=='arm64' else '-march=native'
+        for suffix in ['a',M.shared_suffix()]:shutil.copyfile(BUILD/f'rust-target/release/libbaseline_state.{suffix}',BUILD/f'{variant}.{suffix}')
+    if 'rust_tree_literal' in VARIANTS:
+        # Algorithm-matched baseline: the always-aborting change really performs
+        # both restocks and rolls them back, as the generated code does.
+        literal=BUILD/'rust-baseline-literal';(literal/'src').mkdir(parents=True,exist_ok=True)
+        shutil.copyfile(ROOT/'bench/state/baseline_literal_fail.rs',literal/'src/lib.rs')
+        (literal/'Cargo.toml').write_text((baseline/'Cargo.toml').read_text())
+        run(['cargo','build','--release','--offline','--manifest-path',literal/'Cargo.toml'],native_env)
+        for suffix in ['a',M.shared_suffix()]:shutil.copyfile(BUILD/f'rust-target/release/libbaseline_state.{suffix}',BUILD/f'rust_tree_literal.{suffix}')
+    cpu=M.native_cpu_flag()
     for variant,compiler,source,std in [('c_flat','clang','baseline.c','c11'),('cpp_tree','clang++','baseline.cpp','c++20')]:
-        run([compiler,'-O3',cpu,'-Wall','-Wextra','-Werror','-std='+std,'-c',ROOT/'bench/state'/source,'-o',BUILD/f'{variant}.o'])
-        run([compiler,'-dynamiclib',BUILD/f'{variant}.o','-o',BUILD/f'{variant}.dylib'])
+        run([compiler,'-O3',cpu,'-fPIC','-Wall','-Wextra','-Werror','-std='+std,'-c',ROOT/'bench/state'/source,'-o',BUILD/f'{variant}.o'])
+        run([compiler,M.shared_link_flag(),BUILD/f'{variant}.o','-o',BUILD/f'{variant}.{M.shared_suffix()}'])
     run(['clang','-O3','-std=c11','-Wall','-Wextra','-Werror','-c','bench/state/driver.c','-o',BUILD/'driver.o'])
     for variant in VARIANTS:
         compiler='clang++' if variant=='cpp_tree' else 'clang'
         obj=BUILD/(variant+('.o' if variant in ['c_flat','cpp_tree'] else '.a'))
-        run([compiler,BUILD/'driver.o',obj,'-liconv','-o',BUILD/variant])
+        run([compiler,BUILD/'driver.o',obj,*M.static_rust_link_libs(),'-o',BUILD/variant])
     return lang
 
 class Model:
@@ -88,7 +98,7 @@ class Model:
         return h
 
 def load(variant):
-    lib=ctypes.CDLL(str(BUILD/f'{variant}.dylib'))
+    lib=ctypes.CDLL(str(BUILD/f'{variant}.{M.shared_suffix()}'))
     ptr=ctypes.c_void_p;u64=ctypes.c_uint64;u32=ctypes.c_uint32
     signatures={'st_new':([u64],ptr),'st_free':([ptr],None),'st_apply':([ptr,u32,u64,u32],u32),'st_stock':([ptr,u64,ctypes.POINTER(u32)],u32),'st_total':([ptr,ctypes.POINTER(u64),ctypes.POINTER(u64)],None),'st_version':([ptr],u64),'st_event_count':([ptr],u64),'st_event_hash':([ptr],u64)}
     for name,(args,result) in signatures.items():getattr(lib,name).argtypes=args;getattr(lib,name).restype=result
@@ -131,10 +141,13 @@ def validate(lang):
 
 def main():
     global BUILD,OUT
-    parser=argparse.ArgumentParser();parser.add_argument('--repeats',type=int,default=7);parser.add_argument('--steps',type=int,default=30000);parser.add_argument('--quick',action='store_true')
+    parser=argparse.ArgumentParser();parser.add_argument('--repeats',type=int,default=11);parser.add_argument('--warmup',type=int,default=1);parser.add_argument('--steps',type=int,default=30000);parser.add_argument('--quick',action='store_true')
+    parser.add_argument('--with-literal-fail',action='store_true',help='add rust_tree_literal: the aborting change performs and rolls back both writes')
     parser.add_argument('--maintenance',type=Path);parser.add_argument('--output',type=Path);parser.add_argument('--build-directory',type=Path)
     args=parser.parse_args()
     if args.repeats<3 or not 1<=args.steps<=10000000:parser.error('at least 3 repeats and 1..10000000 steps required')
+    if args.warmup<0:parser.error('warmup must be non-negative')
+    if args.with_literal_fail and 'rust_tree_literal' not in VARIANTS:VARIANTS.append('rust_tree_literal')
     if args.output:OUT=args.output.resolve()
     if args.build_directory:BUILD=args.build_directory.resolve()
     env=environment();started=time.time()
@@ -144,6 +157,8 @@ def main():
     for n in sizes:
         for workload in ['steady','mixed']:
             for qpu in [0,1,10]:
+                for variant in VARIANTS:
+                    for _ in range(args.warmup):run([BUILD/variant,n,args.steps,qpu,workload])
                 for repeat in range(args.repeats):
                     order=VARIANTS.copy();rnd.shuffle(order)
                     for variant in order:
@@ -156,7 +171,7 @@ def main():
                 (OUT/'samples.json').write_text(json.dumps(rows,indent=2))
     maintenance=json.loads((BUILD/'maintenance.json').read_text())
     compiler_hash=hashlib.sha256(lang.read_bytes()).hexdigest()
-    metadata={'started_unix':started,'elapsed_seconds':time.time()-started,'platform':platform.platform(),'cpu':run(['sysctl','-n','machdep.cpu.brand_string']),'clang':run(['clang','--version']),'rustc':run(['rustc','-vV'],env),'parameters':{k:str(v) if isinstance(v,Path) else v for k,v in vars(args).items()},'compiler_sha256':compiler_hash,'maintenance_id':maintenance['id'],'maintenance_semantics':maintenance['semantics'],'correctness':correctness,'source_sha256':sources,'commands':COMMANDS,'notes':['Common C driver object, no cross-ABI LTO; native CPU optimisation requested for all implementations. Actual LLVM target CPUs are retained in backend-targets.json.','Warm in-memory transactions; no persistence or concurrency. Setup, final state validation and event hashing are outside timing.','Same observations and incremental algorithm, but data structure and arithmetic representations differ; see report.','Interactive shared machine, no CPU pinning.','No warmup; each sample starts from a fresh state. Fixed operation count and deterministic streams.']}
+    metadata={'started_unix':started,'elapsed_seconds':time.time()-started,'platform':platform.platform(),'cpu':M.cpu_model(),'environment':M.environment(env),'clang':run(['clang','--version']),'rustc':run(['rustc','-vV'],env),'parameters':{k:str(v) if isinstance(v,Path) else v for k,v in vars(args).items()},'compiler_sha256':compiler_hash,'maintenance_id':maintenance['id'],'maintenance_semantics':maintenance['semantics'],'correctness':correctness,'source_sha256':sources,'commands':COMMANDS,'notes':['Common C driver object, no cross-ABI LTO; native CPU optimisation requested for all implementations. Actual LLVM target CPUs are retained in backend-targets.json.','Warm in-memory transactions; no persistence or concurrency. Setup, final state validation and event hashing are outside timing.','Same observations and incremental algorithm, but data structure and arithmetic representations differ; see report.','Interactive shared machine, no CPU pinning.',f'{args.warmup} discarded warmup run(s) per variant and cell, then {args.repeats} interleaved rounds; each sample starts from a fresh process and state. Fixed operation count and deterministic streams. Ratio intervals are 95% paired bootstrap intervals over rounds.']}
     (OUT/'metadata.json').write_text(json.dumps(metadata,indent=2))
     for project in ['generated','generated-bounded']:
         for source in ['src/lib.rs','Cargo.lock','plan.json']:shutil.copyfile(BUILD/project/source,OUT/(project+'-'+Path(source).name))
@@ -181,14 +196,22 @@ def main():
     write_report(rows,args)
 
 def write_report(rows,args):
-    lines=['# Native stateful comparison','','The stateful language is compiled to typed Rust and machine code. No AST evaluator runs in timed code. Every variant maintains the total incrementally. These results are about the implemented compiler/runtime and application, not a universal ranking of languages.','','## Compared implementations','','| Variant | Table | Total | Transaction implementation |','| --- | --- | --- | --- |','| language | Rust BTreeMap | BigInt | Generated undo journal, staged events, checked maintenance expressions |','| language_bounded | Rust BTreeMap | checked u128 cache and exact word-pair query ABI | Generated undo journal and staged events |','| c_flat | Sorted contiguous array | unsigned 128-bit | Handwritten, validates before mutation |','| cpp_tree | std::map | unsigned 128-bit | Handwritten, validates before mutation |','| rust_tree | Rust BTreeMap | u128 | Handwritten, validates before mutation |','| rust_bigint | Rust BTreeMap | BigInt | Handwritten, validates before mutation |','','The exact sum of a finite table keyed by u64 with u32 values is at most `2^64 × (2^32 − 1)`, below `2^96`. A 128-bit unsigned total therefore preserves this application\'s exact arithmetic for every possible table. The bounded compiler variant now derives this range from declared types; the ordinary variant retains BigInt caches. The bounded variant uses a compiler-generated allocation-free exact word-pair view for direct bounded aggregate queries. Ordinary language/JSON queries still return Int; both host paths expose the same exact unsigned total. BigInt Rust isolates part of the arithmetic/storage cost. C uses a flat ordered table, so insertion/removal costs differ from the tree variants.','','The handwritten aborting transaction is reduced to a presence check: every present-key execution returns Overflow and leaves no writes or events, while an absent key returns Missing. Generated code still performs and rolls back speculative writes. This valid baseline optimisation exposes another compiler opportunity.','','## Method','','Each sample begins with a fresh table of the stated size. Setup is excluded. The steady stream adds one to existing random keys. The mixed stream includes insert, delete, successful/failed restock, overflow and an always-aborting two-write transaction. Queries run after each attempted update. All successful commits advance the version; events remain in an in-memory outbox. End-of-run checks compare every candidate row, exact totals, statuses, versions and ordered event digests across variants.','','All variants use the same separately compiled C driver, without cross-boundary LTO. ABI query conversion and return-value handling are included. Generated writes also reuse the previous value returned by map insertion/removal, avoiding a redundant lookup. Seven repeats by default, randomised variant order. No CPU pinning or isolated-machine claim. The table reports median nanoseconds per attempted update **including its queries**.','','| Rows | Stream | Queries/update | Language ns | Bounded ns | C flat ns | C++ tree ns | Rust tree ns | Rust BigInt ns | Bounded / fastest baseline |','| ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |']
-    ratios=[]
+    lines=['# Native stateful comparison','','The stateful language is compiled to typed Rust and machine code. No AST evaluator runs in timed code. Every variant maintains the total incrementally. These results are about the implemented compiler/runtime and application, not a universal ranking of languages.','','## Compared implementations','','| Variant | Table | Total | Transaction implementation |','| --- | --- | --- | --- |','| language | Rust BTreeMap | BigInt | Generated undo journal, staged events, checked maintenance expressions |','| language_bounded | Rust BTreeMap | checked u128 cache and exact word-pair query ABI | Generated undo journal and staged events |','| c_flat | Sorted contiguous array | unsigned 128-bit | Handwritten, validates before mutation |','| cpp_tree | std::map | unsigned 128-bit | Handwritten, validates before mutation |','| rust_tree | Rust BTreeMap | u128 | Handwritten, validates before mutation |','| rust_bigint | Rust BTreeMap | BigInt | Handwritten, validates before mutation |','','The exact sum of a finite table keyed by u64 with u32 values is at most `2^64 × (2^32 − 1)`, below `2^96`. A 128-bit unsigned total therefore preserves this application\'s exact arithmetic for every possible table. The bounded compiler variant now derives this range from declared types; the ordinary variant retains BigInt caches. The bounded variant uses a compiler-generated allocation-free exact word-pair view for direct bounded aggregate queries. Ordinary language/JSON queries still return Int; both host paths expose the same exact unsigned total. BigInt Rust isolates part of the arithmetic/storage cost. C uses a flat ordered table, so insertion/removal costs differ from the tree variants.','','The handwritten aborting transaction is reduced to a presence check: every present-key execution returns Overflow and leaves no writes or events, while an absent key returns Missing. Generated code still performs and rolls back speculative writes. This valid baseline optimisation exposes another compiler opportunity.','','## Method','','Each sample begins with a fresh table of the stated size. Setup is excluded. The steady stream adds one to existing random keys. The mixed stream includes insert, delete, successful/failed restock, overflow and an always-aborting two-write transaction. Queries run after each attempted update. All successful commits advance the version; events remain in an in-memory outbox. End-of-run checks compare every candidate row, exact totals, statuses, versions and ordered event digests across variants.','','All variants use the same separately compiled C driver, without cross-boundary LTO. ABI query conversion and return-value handling are included. Generated writes also reuse the previous value returned by map insertion/removal, avoiding a redundant lookup. Seven repeats by default, randomised variant order. No CPU pinning or isolated-machine claim. The table reports median nanoseconds per attempted update **including its queries**.','','| Rows | Stream | Queries/update | Language ns | Bounded ns | C flat ns | C++ tree ns | Rust tree ns | Rust BigInt ns |'+(' Rust literal-fail ns |' if 'rust_tree_literal' in VARIANTS else '')+' Bounded / fastest baseline |','| ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |'+(' ---: |' if 'rust_tree_literal' in VARIANTS else '')]
+    ratios=[];BASELINES=[v for v in VARIANTS if not v.startswith('language')]
     for n in sorted({r['rows'] for r in rows}):
         for workload in ['steady','mixed']:
             for qpu in [0,1,10]:
                 group=[r for r in rows if (r['rows'],r['workload'],r['queries_per_update'])==(n,workload,qpu)]
-                med={v:statistics.median(r['ns_per_step'] for r in group if r['variant']==v) for v in VARIANTS};ratio=med['language_bounded']/min(med[v] for v in VARIANTS[2:]);ratios.append(ratio)
+                med={v:statistics.median(r['ns_per_step'] for r in group if r['variant']==v) for v in VARIANTS};ratio=med['language_bounded']/min(med[v] for v in BASELINES);ratios.append(ratio)
                 lines.append(f'| {n} | {workload} | {qpu} | '+' | '.join(f'{med[v]:.1f}' for v in VARIANTS)+f' | {ratio:.2f}× |')
+    # Paired bootstrap intervals over interleaved rounds.
+    by=lambda cell,v:[r['ns_per_step'] for r in sorted(rows,key=lambda r:r['repeat']) if (r['rows'],r['workload'],r['queries_per_update'])==cell and r['variant']==v]
+    lines += ['','### Ratios with 95% paired bootstrap intervals','','| Rows | Stream | Queries/update | Bounded ÷ Rust tree |'+(' Bounded ÷ Rust literal-fail |' if 'rust_tree_literal' in VARIANTS else '')+' Bounded ÷ BigInt language |','| ---: | --- | ---: | ---: |'+(' ---: |' if 'rust_tree_literal' in VARIANTS else '')+' ---: |']
+    for cell in sorted({(r['rows'],r['workload'],r['queries_per_update']) for r in rows}):
+        cols=[M.fmt_ci(*M.ratio_ci(by(cell,'language_bounded'),by(cell,'rust_tree'),seed=1))]
+        if 'rust_tree_literal' in VARIANTS:cols.append(M.fmt_ci(*M.ratio_ci(by(cell,'language_bounded'),by(cell,'rust_tree_literal'),seed=2)))
+        cols.append(M.fmt_ci(*M.ratio_ci(by(cell,'language_bounded'),by(cell,'language'),seed=3)))
+        lines.append(f'| {cell[0]} | {cell[1]} | {cell[2]} | '+' | '.join(cols)+' |')
     lines += ['','A ratio greater than one means the generated language implementation takes longer. Differences include representation, transaction strategy, cloning, allocations and ABI conversion; they cannot all be attributed to the surface language.','','Correctness: 2,005 deterministic operations are checked against an independent Python integer/state model for each native implementation. The reference interpreter is also checked on the same source and stream. Separate native range tests exercise equivalent legacy certificates with negative and greater-than-128-bit intermediate values. See [correctness.json](correctness.json), [raw samples](samples.json), [toolchain and source metadata](metadata.json), and [generated code](generated-lib.rs).','','The broader language, full stateful refinement, durable recovery and adaptive selection remain unfinished. These measurements do not close the full project goal.']
     cert=json.loads((BUILD/'maintenance.json').read_text())
     if cert['version']==2:
@@ -198,9 +221,12 @@ def write_report(rows,args):
     for cell in {(r['rows'],r['workload'],r['queries_per_update']) for r in rows}:
         medians[cell]={v:statistics.median(r['ns_per_step'] for r in rows if (r['rows'],r['workload'],r['queries_per_update'])==cell and r['variant']==v) for v in VARIANTS}
     geomean=lambda xs:__import__('math').exp(statistics.mean(__import__('math').log(x) for x in xs))
-    summary={'samples':len(rows),'cells':len(medians),'bounded_time_divided_by_rust_tree':geomean([m['language_bounded']/m['rust_tree'] for m in medians.values()]),'bounded_time_divided_by_fastest_baseline':geomean([m['language_bounded']/min(m[v] for v in VARIANTS[2:]) for m in medians.values()]),'bigint_time_divided_by_bounded':geomean([m['language']/m['language_bounded'] for m in medians.values()])}
+    if 'rust_tree_literal' in VARIANTS:literal_ratio=geomean([m['language_bounded']/m['rust_tree_literal'] for m in medians.values()])
+    summary={'samples':len(rows),'cells':len(medians),'warmup_runs_per_variant_and_cell':args.warmup,'rounds':args.repeats,**({'bounded_time_divided_by_rust_tree_literal':literal_ratio} if 'rust_tree_literal' in VARIANTS else {}),'bounded_time_divided_by_rust_tree':geomean([m['language_bounded']/m['rust_tree'] for m in medians.values()]),'bounded_time_divided_by_fastest_baseline':geomean([m['language_bounded']/min(m[v] for v in VARIANTS if not v.startswith('language')) for m in medians.values()]),'bigint_time_divided_by_bounded':geomean([m['language']/m['language_bounded'] for m in medians.values()])}
     (OUT/'summary.json').write_text(json.dumps(summary,indent=2))
     lines+=['',f"Across {summary['cells']} cells, bounded Ink takes {summary['bounded_time_divided_by_rust_tree']:.2f}× Rust tree time and {summary['bounded_time_divided_by_fastest_baseline']:.2f}× the fastest baseline's time by geometric mean. BigInt Ink takes {summary['bigint_time_divided_by_bounded']:.2f}× bounded Ink time. See [summary.json](summary.json)."]
+    warnings=M.environment().get('warnings',[])
+    if warnings:lines[2:2]=['**Measurement warnings:** '+'; '.join(warnings)+'.','']
     (OUT/'REPORT.md').write_text('\n'.join(lines)+'\n')
 
 if __name__=='__main__':main()
