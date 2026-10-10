@@ -381,3 +381,8 @@ The [complete-row journal contribution](reports/hunchroom-row-journal/README.md)
 [Version-4 evidence](docs/keyed-table-proofs.md) binds the actual cache arithmetic to a pinned keyed contribution-table model and checks universal one-step and finite write-history equalities. Generic generalised induction allows the history proof to recurse from changed rows; it introduces no optimisation law. A 63-object database package supplies reversible/snapshot candidates under one compiler. All 70 tests pass, including independent model traces, forged-but-valid alternative definitions, numeric/128-bit keys, source arithmetic binding and existing native/reference abort/event/checkpoint integration. Unsupported key domains retain scanning.
 
 The [fresh C/C++/Rust report](reports/table-transition-inventory-phase1/REPORT.md) contains 756 samples, 12,030 native comparisons and 4,010 reference outcomes. Bounded Ink remains at 1.77× Rust time. For this application emitted runtime code is identical to the prior version-3 implementation: stronger verification adds compilation work without adding runtime work. `python3 tools/audit_table_report.py --execute` replays measured binaries, code/plans and both database candidates. Actual native map/projection correspondence and complete error/event/rollback transition proofs remain unfinished; the full objective stays open.
+
+The [runtime value correspondence bridge](docs/source-value-correspondence.md)
+now connects actual typed rows and ordered source keys to checked row/column
+models. This is bounded validation infrastructure; transaction/native refinement
+and an efficient logical integer representation remain open.

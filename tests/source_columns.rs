@@ -2,10 +2,13 @@ use sha2::{Digest, Sha256};
 use std::{collections::BTreeMap, fs, path::Path};
 use verified_language::{
     aggregate::Certificate,
+    core::CheckedModule,
     library::{self, Bundle},
     logic::{Context, Sort, Term},
     ordered_storage::OrderedStorage,
     row_model::{self, Model},
+    source_values::{Limits, SourceValues},
+    stateful::Value,
     syntax::{parse, Program, Type},
 };
 
@@ -14,6 +17,7 @@ struct Layout {
     model: Model,
     context: Context,
     program: Program,
+    values: SourceValues,
 }
 impl Layout {
     fn load(ledger: bool) -> Self {
@@ -80,7 +84,10 @@ impl Layout {
         row_model::verify(&program, &cert, &model).unwrap();
         let context = library::load_bundle(&model.library).unwrap().context;
         assert_eq!(model.library.objects.len(), count);
+        let module = CheckedModule::from_source(program.clone()).unwrap();
+        let values = SourceValues::bind(&module, &cert, &model).unwrap();
         Self {
+            values,
             names,
             model,
             context,
@@ -108,99 +115,66 @@ impl Layout {
             )
             .unwrap_or_else(|error| panic!("{name}: {error}"))
     }
-    fn data(&self, ty: &Type) -> String {
-        let Sort::Data(id) = &self.model.description.types[&serde_json::to_string(ty).unwrap()]
-        else {
-            panic!("not a datatype")
-        };
-        id.clone()
-    }
-    // Closed inhabitants of the actual source sorts. Distinct fields and
-    // varying sum/list cases expose payload loss and lane misalignment.
-    fn payload(&self, ty: &Type, seed: usize) -> Term {
+    // Runtime inhabitants, encoded by the checked source bridge.
+    fn value(&self, ty: &Type, seed: usize) -> Value {
         match ty {
-            Type::U32 => Term::U64(if seed % 2 == 0 { 0 } else { u32::MAX as u64 }),
-            Type::U64 => Term::U64(if seed % 2 == 0 { seed as u64 } else { u64::MAX }),
-            Type::Bool => Term::Bool(seed % 3 != 0),
-            Type::Int => {
-                let n = seed as i64 % 5 - 2;
-                let natural = (1..n.unsigned_abs())
-                    .fold(self.ctor("Natural", 0, vec![]), |tail, _| {
-                        self.ctor("Natural", 1, vec![tail])
-                    });
-                self.ctor(
-                    "Integer",
-                    if n == 0 {
-                        0
-                    } else if n > 0 {
-                        1
-                    } else {
-                        2
-                    },
-                    if n == 0 { vec![] } else { vec![natural] },
-                )
+            Type::U32 => Value::U32(if seed % 2 == 0 { 0 } else { u32::MAX }),
+            Type::U64 => Value::U64(if seed % 2 == 0 { seed as u64 } else { u64::MAX }),
+            Type::Bool => Value::Bool(seed % 3 != 0),
+            Type::Int => Value::Int((seed as i64 % 5 - 2).into()),
+            Type::String => Value::String(if seed % 2 == 0 { "λ" } else { "🖋" }.into()),
+            Type::Named(name) if self.program.ids.contains(name) => {
+                Value::Id(name.clone(), ((seed as u128) << 64) | u64::MAX as u128)
             }
-            Type::String => (if seed % 2 == 0 { "λ" } else { "🖋" })
-                .bytes()
-                .rev()
-                .fold(self.raw(&self.data(ty), 0, vec![]), |tail, b| {
-                    self.raw(&self.data(ty), 1, vec![Term::U64(b as u64), tail])
-                }),
-            Type::Named(name) if self.program.ids.contains(name) => self.raw(
-                &self.data(ty),
-                0,
-                vec![Term::U64(seed as u64), Term::U64(u64::MAX)],
-            ),
-            Type::Named(name) if self.program.records.contains_key(name) => self.raw(
-                &self.data(ty),
-                0,
+            Type::Named(name) if self.program.records.contains_key(name) => Value::Record(
+                name.clone(),
                 self.program.records[name]
                     .iter()
                     .enumerate()
-                    .map(|(i, (_, t))| self.payload(t, seed + i))
+                    .map(|(i, (field, ty))| (field.clone(), self.value(ty, seed + i)))
                     .collect(),
             ),
-            Type::Named(name) => self.raw(
-                &self.data(ty),
-                seed % self.program.enums[name].len(),
-                vec![],
+            Type::Named(name) => Value::Enum(
+                name.clone(),
+                self.program.enums[name][seed % self.program.enums[name].len()].clone(),
             ),
-            Type::List(t) => (0..seed % 3)
-                .rev()
-                .fold(self.raw(&self.data(ty), 0, vec![]), |tail, i| {
-                    self.raw(&self.data(ty), 1, vec![self.payload(t, seed + i), tail])
-                }),
-            Type::Option(t) => {
-                if seed % 2 == 0 {
-                    self.raw(&self.data(ty), 0, vec![])
-                } else {
-                    self.raw(&self.data(ty), 1, vec![self.payload(t, seed)])
-                }
+            Type::List(inner) => {
+                Value::List((0..seed % 3).map(|i| self.value(inner, seed + i)).collect())
             }
-            Type::Result(ok, error) => self.raw(
-                &self.data(ty),
-                seed % 2,
-                vec![self.payload(if seed % 2 == 0 { ok } else { error }, seed)],
+            Type::Option(inner) => Value::Option(if seed % 2 == 0 {
+                None
+            } else {
+                Some(Box::new(self.value(inner, seed)))
+            }),
+            Type::Result(ok, error) => Value::Result(
+                seed % 2 == 0,
+                Box::new(self.value(if seed % 2 == 0 { ok } else { error }, seed)),
             ),
             _ => panic!("unexpected fixture type"),
         }
     }
     fn row(&self, seed: usize) -> Term {
-        self.payload(&self.model.description.row_type, seed)
+        let value = self.value(&self.model.description.row_type, seed);
+        let term = self.values.encode_row(&value, Limits::default()).unwrap();
+        assert_eq!(
+            self.values.decode_row(&term, Limits::default()).unwrap(),
+            value
+        );
+        term
+    }
+    fn source_key(&self, key: u128) -> Value {
+        match &self.model.description.key_type {
+            Type::U64 => Value::U64(key.try_into().unwrap()),
+            Type::U32 => Value::U32(key.try_into().unwrap()),
+            Type::Named(name) => Value::Id(name.clone(), key),
+            _ => unreachable!(),
+        }
     }
     fn key(&self, key: u128) -> Term {
-        let input = match &self.model.description.key_sort {
-            Sort::U64 => {
-                assert_eq!(key >> 64, 0);
-                Term::U64(key as u64)
-            }
-            Sort::Data(id) => self.raw(
-                id,
-                0,
-                vec![Term::U64((key >> 64) as u64), Term::U64(key as u64)],
-            ),
-            _ => unreachable!(),
-        };
+        let input = self
+            .values
+            .encode_key(&self.source_key(key), Limits::default())
+            .unwrap();
         self.context
             .evaluate(
                 &[],
@@ -219,11 +193,19 @@ impl Layout {
         )
     }
     fn rows(&self, rows: &BTreeMap<u128, Term>) -> Term {
-        rows.iter()
-            .rev()
-            .fold(self.ctor("LayoutRows", 0, vec![]), |tail, (&k, v)| {
-                self.ctor("LayoutRows", 1, vec![self.key(k), v.clone(), tail])
+        let rows: Vec<_> = rows
+            .iter()
+            .map(|(&key, term)| {
+                (
+                    self.source_key(key),
+                    self.values.decode_row(term, Limits::default()).unwrap(),
+                )
             })
+            .collect();
+        let table = self.values.table(&self.names["LayoutRows"]).unwrap();
+        let term = table.encode(&rows, Limits::default()).unwrap();
+        assert_eq!(table.decode(&term, Limits::default()).unwrap(), rows);
+        term
     }
     fn lanes(columns: &Term) -> Vec<Term> {
         let Term::Construct { arguments, .. } = columns else {

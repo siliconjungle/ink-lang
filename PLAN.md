@@ -398,3 +398,17 @@ independent validation, not a proof of the source-to-CNF encoding or universal
 checker correctness. Source/action/effect/representation correspondence and the
 remaining production gates stay open. See reports/ownership-lowering-review and
 reports/rup-crosscheck-phase1.
+
+### Bounded source-value correspondence
+
+A sealed witness now binds a checked module and its checked source row model to
+actual runtime values. It checks nominal identities, field sets, primitive word
+widths, UTF-8 and full-width ordered keys, with resource-bounded canonical
+encoding/decoding. Existing row/column/undo/search tests now use the bridge.
+Independently supplied append-view laws remain mathematics, with signed deletion
+and observable order limitations explicit. See docs/source-value-correspondence.md.
+
+This advances the value part of milestones 2, 3 and 5. It does not finish source
+action/effect correspondence or native representation refinement. The unary
+integer model and legacy maintenance dependency remain explicit limitations.
+No transaction shortcut or new optimisation-specific kernel rule is enabled.
