@@ -143,9 +143,31 @@ impl Runtime {
             Kind::Number(n) => Ok(match ty {
                 Type::U32 => Value::U32((*n).try_into().map_err(|_| "u32 literal out of range")?),
                 Type::Int => Value::Int(BigInt::from(*n)),
+                Type::I32 => Value::I32(*n as i32),
+                Type::F32 => Value::F32((*n as f32).to_bits()),
                 _ => Value::U64(*n),
             }),
             Kind::Bool(v) => Ok(Value::Bool(*v)),
+            Kind::Float(bits) => Ok(Value::F32(*bits)),
+            Kind::Neg { value } => Ok(match self.typed_expr(body, *value, slots)? {
+                Value::I32(v) => Value::I32(v.wrapping_neg()),
+                Value::U32(v) => Value::U32(v.wrapping_neg()),
+                Value::U64(v) => Value::U64(v.wrapping_neg()),
+                Value::F32(v) => Value::F32(v ^ 0x80000000),
+                Value::Int(v) => Value::Int(-v),
+                _ => return Err("numeric negation".into()),
+            }),
+            Kind::VectorField {
+                receiver,
+                component,
+            } => {
+                let Value::Vector(xs) = self.typed_expr(body, *receiver, slots)? else {
+                    return Err("vector component".into());
+                };
+                xs.get(*component)
+                    .cloned()
+                    .ok_or_else(|| Failure::Host("vector dimension mismatch".into()))
+            }
             Kind::String(v) => Ok(Value::String(v.clone())),
             Kind::Unit => Ok(Value::Unit),
             Kind::None => Ok(Value::Option(None)),

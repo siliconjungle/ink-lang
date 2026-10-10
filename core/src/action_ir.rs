@@ -11,6 +11,7 @@ use serde::{Deserialize, Serialize};
 use std::{collections::BTreeMap, sync::Arc};
 
 pub const SEMANTICS: &str = "ink-typed-actions-v1";
+pub const NUMERICAL_SEMANTICS: &str = "ink-typed-actions-v2";
 const MAX_NODES: usize = 100_000;
 pub type NodeId = usize;
 pub type SlotId = usize;
@@ -32,6 +33,14 @@ pub struct Node {
 #[serde(deny_unknown_fields)]
 pub enum Kind {
     Number(u64),
+    Float(u32),
+    Neg {
+        value: NodeId,
+    },
+    VectorField {
+        receiver: NodeId,
+        component: usize,
+    },
     Bool(bool),
     String(String),
     Unit,
@@ -194,11 +203,17 @@ impl CheckedActions {
             lower.body.resolve_types(p, Some(&keep.ty))?;
             keeps.push(lower.body);
         }
+        let numerical = numerical_domain(p, &actions, &keeps);
         let out = Self {
             module: module.clone(),
             wire: Wire {
                 schema: 1,
-                semantics: SEMANTICS.into(),
+                semantics: if numerical {
+                    NUMERICAL_SEMANTICS
+                } else {
+                    SEMANTICS
+                }
+                .into(),
                 source: module.identity()?,
                 actions,
                 keeps,
@@ -314,6 +329,40 @@ impl CheckedActions {
     }
 }
 
+fn numerical_domain(p: &Program, actions: &[Body], keeps: &[Body]) -> bool {
+    fn numerical(t: &Type, p: &Program, seen: &mut std::collections::BTreeSet<String>) -> bool {
+        match t {
+            Type::I32 | Type::F32 | Type::Vector(..) => true,
+            Type::List(t) | Type::Option(t) => numerical(t, p, seen),
+            Type::Table(a, b) | Type::Result(a, b) => {
+                numerical(a, p, seen) || numerical(b, p, seen)
+            }
+            Type::Named(n) if seen.insert(n.clone()) => p
+                .records
+                .get(n)
+                .is_some_and(|fs| fs.iter().any(|(_, t)| numerical(t, p, seen))),
+            _ => false,
+        }
+    }
+    let has = |t: &Type| numerical(t, p, &mut std::collections::BTreeSet::new());
+    p.states.iter().chain(&p.keeps).any(|x| has(&x.ty))
+        || p.events.values().any(has)
+        || p.actions
+            .iter()
+            .any(|a| has(&a.result) || a.params.iter().any(|(_, t)| has(t)))
+        || actions.iter().chain(keeps).any(|b| {
+            b.nodes.iter().any(|n| {
+                matches!(
+                    n.kind,
+                    Kind::Float(_) | Kind::Neg { .. } | Kind::VectorField { .. }
+                ) || match &n.ty {
+                    ExprType::Value(t) => has(t),
+                    ExprType::Lambda { parameter, result } => has(parameter) || has(result),
+                }
+            })
+        })
+}
+
 // Unknowns arise only in absent constructor branches. Instantiate those
 // phantom sorts from the surrounding context. The subsequent general
 // unifier connects slots, payloads and callback signatures before defaulting
@@ -405,6 +454,10 @@ impl<'a> Lower<'a> {
             let ty = self.value_type(e, want)?;
             let kind = match e {
                 Expr::Num(n) => Kind::Number(*n),
+                Expr::Float(bits) => Kind::Float(*bits),
+                Expr::Neg(value) => Kind::Neg {
+                    value: self.expr(value, Some(&ty), env)?,
+                },
                 Expr::Bool(b) => Kind::Bool(*b),
                 Expr::String(s) => Kind::String(s.clone()),
                 Expr::Unit => Kind::Unit,
@@ -454,7 +507,24 @@ impl<'a> Lower<'a> {
                             return Ok(id);
                         }
                     }
-                    let Type::Named(record) = self.value_type(receiver, None)? else {
+                    let receiver_type = self.value_type(receiver, None)?;
+                    if let Type::Vector(_, _) = receiver_type {
+                        let component = ["x", "y", "z", "w"]
+                            .iter()
+                            .position(|x| *x == name)
+                            .ok_or("vector component")?;
+                        let receiver = self.expr(receiver, None, env)?;
+                        let id = self.body.nodes.len();
+                        self.body.nodes.push(Node {
+                            ty: ExprType::Value(ty),
+                            kind: Kind::VectorField {
+                                receiver,
+                                component,
+                            },
+                        });
+                        return Ok(id);
+                    }
+                    let Type::Named(record) = receiver_type else {
                         return Err("field receiver type".into());
                     };
                     let field = self.p.records[&record]
@@ -641,9 +711,10 @@ impl Body {
             (Kind::Record { fields, .. }, Expr::Record(_, source)) => {
                 children.extend(fields.iter().zip(source).map(|((_, id), (_, e))| (*id, e)))
             }
-            (Kind::Field { receiver, .. }, Expr::Field(e, _)) => {
-                children.push((*receiver, e.as_ref()))
-            }
+            (
+                Kind::Field { receiver, .. } | Kind::VectorField { receiver, .. },
+                Expr::Field(e, _),
+            ) => children.push((*receiver, e.as_ref())),
             (
                 Kind::Binary { left, right, .. }
                 | Kind::And { left, right }
@@ -651,6 +722,7 @@ impl Body {
                 Expr::Binary(_, a, b),
             ) => children.extend([(*left, a.as_ref()), (*right, b.as_ref())]),
             (Kind::Try { value }, Expr::Try(e)) => children.push((*value, e.as_ref())),
+            (Kind::Neg { value }, Expr::Neg(e)) => children.push((*value, e.as_ref())),
             (
                 Kind::Builtin { arguments, .. }
                 | Kind::PureCall { arguments, .. }
@@ -748,6 +820,8 @@ impl Body {
             match &node.kind {
                 Kind::Local(slot) => solver.unify(out()?, slots[*slot].clone())?,
                 Kind::Bool(_) => solver.unify(out()?, Ty::Atom(Type::Bool))?,
+                Kind::Float(_) => solver.unify(out()?, Ty::Atom(Type::F32))?,
+                Kind::Neg { value } => solver.unify(out()?, val(*value)?)?,
                 Kind::String(_) => solver.unify(out()?, Ty::Atom(Type::String))?,
                 Kind::Unit => solver.unify(out()?, Ty::Atom(Type::Unit))?,
                 Kind::None => {
@@ -924,6 +998,8 @@ impl Body {
                 match &node.ty {
                     ExprType::Value(Type::U32) if n <= u32::MAX as u64 => (),
                     ExprType::Value(Type::U64 | Type::Int) => (),
+                    ExprType::Value(Type::I32) if n <= 2147483648 => (),
+                    ExprType::Value(Type::F32) if (n as f32) as u128 == n as u128 => (),
                     _ => return Err("invalid numeric action type".into()),
                 }
             }
@@ -950,6 +1026,15 @@ impl Body {
         };
         Ok(match &node.kind {
             Kind::Number(n) => Expr::Num(*n),
+            Kind::Float(bits) => Expr::Float(*bits),
+            Kind::Neg { value } => Expr::Neg(Box::new(self.expression(p, *value, replacements)?)),
+            Kind::VectorField {
+                receiver,
+                component,
+            } => Expr::Field(
+                Box::new(self.expression(p, *receiver, replacements)?),
+                ["x", "y", "z", "w"][*component].into(),
+            ),
             Kind::Bool(b) => Expr::Bool(*b),
             Kind::String(s) => Expr::String(s.clone()),
             Kind::Unit => Expr::Unit,

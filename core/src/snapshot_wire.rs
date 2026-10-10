@@ -11,6 +11,9 @@ pub enum Schema {
     Bool,
     U32,
     U64,
+    I32,
+    F32,
+    Vector(Box<Schema>, u8),
     Int,
     String,
     Id,
@@ -106,6 +109,15 @@ fn identifier(v: &Value) -> R<u128> {
 }
 fn compare(t: &Schema, a: &Value, b: &Value) -> R<Ordering> {
     Ok(match t {
+        Schema::I32 => a
+            .as_i64()
+            .and_then(|n| i32::try_from(n).ok())
+            .ok_or("invalid i32 key")?
+            .cmp(
+                &b.as_i64()
+                    .and_then(|n| i32::try_from(n).ok())
+                    .ok_or("invalid i32 key")?,
+            ),
         Schema::U32 | Schema::U64 => a
             .as_u64()
             .ok_or("invalid key")?
@@ -148,6 +160,41 @@ fn encode_value(
                 .to_le_bytes(),
         ),
         Schema::U64 => u64_bytes(out, v.as_u64().ok_or("expected u64")?),
+        Schema::I32 => out.extend_from_slice(
+            &i32::try_from(v.as_i64().ok_or("expected i32")?)
+                .map_err(|_| "i32 overflow")?
+                .to_le_bytes(),
+        ),
+        Schema::F32 => {
+            let bits = if let Some(b) = v.get("F32Bits") {
+                if v.as_object().is_none_or(|o| o.len() != 1) {
+                    return Err("expected only F32Bits field".into());
+                }
+                u32::try_from(b.as_u64().ok_or("expected f32 bits")?)
+                    .map_err(|_| "f32 bits overflow")?
+            } else {
+                let f = v.as_f64().ok_or("expected f32")? as f32;
+                if !f.is_finite() {
+                    return Err("finite f32 or F32Bits required".into());
+                }
+                f.to_bits()
+            };
+            out.extend_from_slice(&bits.to_le_bytes());
+        }
+        Schema::Vector(inner, n) => {
+            if !(2..=4).contains(n)
+                || !matches!(inner.as_ref(), Schema::U32 | Schema::I32 | Schema::F32)
+            {
+                return Err("invalid vector schema".into());
+            }
+            let xs = v.as_array().ok_or("expected vector")?;
+            if xs.len() != *n as usize {
+                return Err("vector dimension mismatch".into());
+            }
+            for x in xs {
+                encode_value(inner, x, out, left, depth + 1, limits)?;
+            }
+        }
         Schema::Int => {
             let n = integer(v)?;
             let (sign, b) = n.to_bytes_le();
@@ -271,6 +318,27 @@ impl<'a> Reader<'a> {
             },
             Schema::U32 => json!(self.u32()?),
             Schema::U64 => json!(self.u64()?),
+            Schema::I32 => json!(self.u32()? as i32),
+            Schema::F32 => {
+                let bits = self.u32()?;
+                let f = f32::from_bits(bits);
+                if f.is_finite() {
+                    json!(f)
+                } else {
+                    json!({"F32Bits":bits})
+                }
+            }
+            Schema::Vector(inner, n) => {
+                if !(2..=4).contains(n)
+                    || !matches!(inner.as_ref(), Schema::U32 | Schema::I32 | Schema::F32)
+                {
+                    return Err("invalid vector schema".into());
+                }
+                (0..*n)
+                    .map(|_| self.value(inner, depth + 1))
+                    .collect::<R<Vec<_>>>()?
+                    .into()
+            }
             Schema::Int => {
                 let sign = self.byte()?;
                 let bytes = self.raw()?;

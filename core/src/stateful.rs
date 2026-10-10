@@ -14,6 +14,10 @@ pub enum Value {
     Bool(bool),
     U32(u32),
     U64(u64),
+    I32(i32),
+    /// Raw binary32 storage identity; scalar operators use IEEE comparisons.
+    F32(u32),
+    Vector(Vec<Value>),
     Int(BigInt),
     String(String),
     Id(String, u128),
@@ -24,12 +28,85 @@ pub enum Value {
     List(Vec<Value>),
 }
 impl Value {
+    /// Convert a checked pure value without passing floating payloads through JSON.
+    fn from_eval(value: crate::eval::Value) -> LangResult<Self> {
+        fn convert(value: crate::eval::Value, depth: usize) -> LangResult<Value> {
+            use crate::eval::Value as E;
+            if depth > 128 {
+                return Err("pure value conversion depth exceeded".into());
+            }
+            Ok(match value {
+                E::U32(x) => Value::U32(x),
+                E::U64(x) => Value::U64(x),
+                E::I32(x) => Value::I32(x),
+                E::F32(x) => Value::F32(x),
+                E::Bool(x) => Value::Bool(x),
+                E::Opaque(x) => x,
+                E::Record(n, xs) => Value::Record(
+                    n,
+                    xs.into_iter()
+                        .map(|(n, v)| Ok((n, convert(v, depth + 1)?)))
+                        .collect::<LangResult<_>>()?,
+                ),
+                E::Vector(xs) => Value::Vector(
+                    xs.into_iter()
+                        .map(|v| convert(v, depth + 1))
+                        .collect::<LangResult<_>>()?,
+                ),
+                E::List(xs) => Value::List(
+                    xs.into_iter()
+                        .map(|v| convert(v, depth + 1))
+                        .collect::<LangResult<_>>()?,
+                ),
+            })
+        }
+        convert(value, 0)
+    }
+    fn to_eval(&self) -> LangResult<crate::eval::Value> {
+        fn convert(value: &Value, depth: usize) -> LangResult<crate::eval::Value> {
+            use crate::eval::Value as E;
+            if depth > 128 {
+                return Err("pure value conversion depth exceeded".into());
+            }
+            Ok(match value {
+                Value::U32(x) => E::U32(*x),
+                Value::U64(x) => E::U64(*x),
+                Value::I32(x) => E::I32(*x),
+                Value::F32(x) => E::F32(*x),
+                Value::Bool(x) => E::Bool(*x),
+                Value::Record(n, xs) => E::Record(
+                    n.clone(),
+                    xs.iter()
+                        .map(|(n, v)| Ok((n.clone(), convert(v, depth + 1)?)))
+                        .collect::<LangResult<_>>()?,
+                ),
+                Value::Vector(xs) => E::Vector(
+                    xs.iter()
+                        .map(|v| convert(v, depth + 1))
+                        .collect::<LangResult<_>>()?,
+                ),
+                Value::List(xs) => E::List(
+                    xs.iter()
+                        .map(|v| convert(v, depth + 1))
+                        .collect::<LangResult<_>>()?,
+                ),
+                v => E::Opaque(v.clone()),
+            })
+        }
+        convert(self, 0)
+    }
     fn ty(&self) -> Type {
         match self {
             Self::Unit => Type::Unit,
             Self::Bool(_) => Type::Bool,
             Self::U32(_) => Type::U32,
             Self::U64(_) => Type::U64,
+            Self::I32(_) => Type::I32,
+            Self::F32(_) => Type::F32,
+            Self::Vector(xs) => Type::Vector(
+                Box::new(xs.first().map(Value::ty).unwrap_or(Type::Unknown)),
+                xs.len() as u8,
+            ),
             Self::Int(_) => Type::Int,
             Self::String(_) => Type::String,
             Self::Id(n, _) | Self::Record(n, _) | Self::Enum(n, _) => Type::Named(n.clone()),
@@ -55,6 +132,9 @@ impl Value {
             Self::Bool(v) => json!(v),
             Self::U32(v) => json!(v),
             Self::U64(v) => json!(v),
+            Self::I32(v) => json!(v),
+            Self::F32(bits) => crate::eval::Value::F32(*bits).json(),
+            Self::Vector(xs) => xs.iter().map(Self::json).collect(),
             Self::Int(v) => json!({"Int":v.to_string()}),
             Self::String(v) => json!(v),
             Self::Id(_, v) => json!(format!("{v:032x}")),
@@ -79,6 +159,9 @@ impl Value {
     }
     pub fn from_json(v: &serde_json::Value, t: &Type, p: &Program) -> LangResult<Self> {
         match t {
+            Type::I32 | Type::F32 | Type::Vector(..) => {
+                Self::from_eval(crate::eval::Value::from_json(v, t)?)
+            }
             Type::Unit if v.is_null() => Ok(Self::Unit),
             Type::Bool => v.as_bool().map(Self::Bool).ok_or("expected Bool".into()),
             Type::U32 => v
@@ -553,6 +636,7 @@ impl Runtime {
             }
             (Value::U64(n), Type::Int) => return Ok(Value::Int(BigInt::from(*n))),
             (Value::U32(n), Type::Int) => return Ok(Value::Int(BigInt::from(*n))),
+            (Value::I32(n), Type::Int) => return Ok(Value::Int(BigInt::from(*n))),
             (_, Type::Unknown) => return Ok(v),
             _ => {}
         }
@@ -560,6 +644,21 @@ impl Runtime {
         Value::from_json(&v.json(), t, &self.program)
     }
     fn binary(op: &str, av: Value, bv: Value) -> Exec<Value> {
+        if let (Value::F32(a), Value::F32(b)) = (&av, &bv) {
+            let (a, b) = (f32::from_bits(*a), f32::from_bits(*b));
+            return Ok(match op {
+                "+" => Value::F32((a + b).to_bits()),
+                "-" => Value::F32((a - b).to_bits()),
+                "*" => Value::F32((a * b).to_bits()),
+                "==" => Value::Bool(a == b),
+                "!=" => Value::Bool(a != b),
+                "<" => Value::Bool(a < b),
+                ">" => Value::Bool(a > b),
+                "<=" => Value::Bool(a <= b),
+                ">=" => Value::Bool(a >= b),
+                _ => return Err("invalid f32 operator".into()),
+            });
+        }
         match op {
             "==" => return Ok(Value::Bool(av == bv)),
             "!=" => return Ok(Value::Bool(av != bv)),
@@ -570,6 +669,12 @@ impl Runtime {
             _ => {}
         }
         match (av, bv) {
+            (Value::I32(a), Value::I32(b)) => Ok(Value::I32(match op {
+                "+" => a.wrapping_add(b),
+                "-" => a.wrapping_sub(b),
+                "*" => a.wrapping_mul(b),
+                _ => return Err("invalid integer operator".into()),
+            })),
             (Value::U64(a), Value::U64(b)) => Ok(Value::U64(match op {
                 "+" => a.wrapping_add(b),
                 "-" => a.wrapping_sub(b),
@@ -598,11 +703,23 @@ impl Runtime {
     }
     fn builtin(&mut self, n: &str, vals: Vec<Value>, result_type: &Type) -> Exec<Value> {
         match n {
+            "vec2" | "vec3" | "vec4" => return Ok(Value::Vector(vals)),
             "Ok" | "Err" => return Ok(Value::Result(n == "Ok", Box::new(vals[0].clone()))),
             "Some" => return Ok(Value::Option(Some(Box::new(vals[0].clone())))),
             "Int" => return Ok(self.coerce(vals[0].clone(), &Type::Int)?),
             "checked_add" | "checked_sub" | "checked_mul" => {
                 let out = match &vals[0] {
+                    Value::I32(a) => {
+                        let Value::I32(b) = vals[1] else {
+                            return Err("checked i32 arithmetic".into());
+                        };
+                        match n {
+                            "checked_add" => a.checked_add(b),
+                            "checked_sub" => a.checked_sub(b),
+                            _ => a.checked_mul(b),
+                        }
+                        .map(Value::I32)
+                    }
                     Value::U32(a) => {
                         let b = if let Value::U32(b) = self.coerce(vals[1].clone(), &Type::U32)? {
                             b
@@ -653,8 +770,21 @@ impl Runtime {
                     return Ok(match result_type {
                         Type::U32 => Value::U32(0),
                         Type::U64 => Value::U64(0),
+                        Type::I32 => Value::I32(0),
+                        Type::F32 => Value::F32(0),
                         _ => Value::Int(BigInt::from(0)),
                     });
+                }
+                if matches!(result_type, Type::I32 | Type::F32) {
+                    let mut s = if *result_type == Type::I32 {
+                        Value::I32(0)
+                    } else {
+                        Value::F32(0)
+                    };
+                    for x in xs {
+                        s = Self::binary("+", s, x.clone())?;
+                    }
+                    return Ok(s);
                 }
                 if xs.iter().all(|x| matches!(x, Value::Int(_))) {
                     let mut s = BigInt::from(0);
@@ -691,11 +821,10 @@ impl Runtime {
         let f = &self.program.functions[index];
         let inputs = vals
             .iter()
-            .zip(&f.params)
-            .map(|(v, (_, t))| crate::eval::Value::from_program_json(&v.json(), t, &self.program))
+            .map(Value::to_eval)
             .collect::<LangResult<Vec<_>>>()?;
         let result = crate::eval::call(&self.program, &f.name, inputs, &mut self.fuel)?;
-        return Ok(Value::from_json(&result.json(), &f.result, &self.program)?);
+        return Ok(self.coerce(Value::from_eval(result)?, &f.result)?);
     }
     fn table(&mut self, root: &String, n: &str, vals: Vec<Value>) -> Exec<Value> {
         let d = self
