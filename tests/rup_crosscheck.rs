@@ -197,9 +197,27 @@ fn accepted_bit_proofs_replay_in_independent_checkers() {
         "checkers": tools.iter().filter(|(_, p)| p.is_some()).map(|(t, _)| *t).collect::<Vec<_>>(),
         "refutations": report,
     });
-    fs::write(out.join("report.json"), serde_json::to_string_pretty(&summary).unwrap()).unwrap();
+    // Separate names, so an export-only run never overwrites an external replay.
+    let name = if tools.iter().any(|(_, p)| p.is_some()) {
+        "report-external.json"
+    } else {
+        "report-export-only.json"
+    };
+    fs::write(out.join(name), serde_json::to_string_pretty(&summary).unwrap()).unwrap();
     eprintln!(
         "rup crosscheck: {} refutations from {libraries} libraries; external checkers: {:?}",
         summary["distinct_accepted_refutations"], summary["checkers"]
     );
+}
+
+#[test]
+fn audit_recording_is_removed_when_the_audited_call_panics() {
+    let caught = std::panic::catch_unwind(|| bitproof::audit_accepted(|| panic!("inside audit")));
+    assert!(caught.is_err());
+    // A later audit starts empty and a nested audit restores the outer one.
+    let ((), outer) = bitproof::audit_accepted(|| {
+        let ((), inner) = bitproof::audit_accepted(|| ());
+        assert!(inner.is_empty());
+    });
+    assert!(outer.is_empty());
 }

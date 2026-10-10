@@ -35,7 +35,7 @@ formula is satisfiable. All three checkers must reject the original proof there.
 - **All 17 goal-free controls are rejected.**
 - There are no disagreements.
 
-Per-refutation data is in `report.json`.
+Per-refutation data is in `report-external.json`. It was written by the run with all three checkers configured, and its `checkers` field lists them. An export-only run writes `report-export-only.json` instead.
 
 ## Scope
 

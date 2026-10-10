@@ -315,8 +315,19 @@ thread_local! {
 /// nothing is recorded outside this call. Used to replay certificates through
 /// independent DRAT/LRAT checkers.
 pub fn audit_accepted<T>(f: impl FnOnce() -> T) -> (T, Vec<AcceptedRefutation>) {
-    let previous = AUDIT.with(|a| a.replace(Some(Vec::new())));
+    // Restores the previous recorder even if `f` unwinds, so a caught panic
+    // cannot leave recording installed on this thread.
+    struct Restore(Option<Option<Vec<AcceptedRefutation>>>);
+    impl Drop for Restore {
+        fn drop(&mut self) {
+            if let Some(previous) = self.0.take() {
+                AUDIT.with(|a| *a.borrow_mut() = previous);
+            }
+        }
+    }
+    let mut guard = Restore(Some(AUDIT.with(|a| a.replace(Some(Vec::new())))));
     let value = f();
+    let previous = guard.0.take().unwrap();
     let recorded = AUDIT.with(|a| a.replace(previous)).unwrap_or_default();
     (value, recorded)
 }
