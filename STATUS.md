@@ -1,5 +1,38 @@
 # Implementation status
 
+## Database equality inside actions and reusable general laws
+
+The unchanged external query engine now selects checked total pure expression
+regions inside actions and keeps. Sealed slot identities, capture-free callbacks
+and lexical branch facts prevent scope mistakes. Actual guarded rules are
+discovered automatically; exhausted search retains the original program.
+Checked selected execution retains the original source's checkpoint namespace
+across reference, C, Rust, JavaScript, both Wasm paths and mixed host/GPU modules.
+Bare changed-program emission still rejects an original checkpoint.
+
+The reviewed first-order kernel adds general abstract-symbol interpretation with
+checked assumption discharge. Eight general collection laws now live among 658
+canonical database entries; view proofs instantiate them instead of repeating
+per-program induction. All 2,490 earlier name targets are preserved. This is a
+new general proof mechanism, with unchanged caps, rather than an optimisation
+pattern in the compiler.
+
+Final local validation passes 241 broad distribution tests, seven enabled
+action/selected-checkpoint tests, 36 isolated offline core tests and the focused
+general-law/view checks. Counts overlap. The new action fixture compares 13
+replies and exact checkpoints per CPU path; its wgpu route uses the host. The
+separate selected fixture executes an eligible GPU map. Reviewed backend
+integration additionally retains its 523 CPU replies/checkpoints and 103 actual
+GPU-call evidence. The new view-sweep harness passes a checksum smoke check;
+that small dirty-tree run is not a performance result.
+
+Whole-action interpretation, primitive/native correspondence, general physical
+representation admission and legacy optimisation-authority migration remain
+open. No Hunchroom acceptance is claimed. Editor support and schema evolution
+remain excluded. See [action regions](docs/action-regions.md),
+[general laws](docs/general-laws.md) and
+[selected checkpoints](docs/selected-checkpoints.md).
+
 ## General action-value correspondence
 
 The source-bound action value bridge now works without an aggregate certificate.

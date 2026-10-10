@@ -87,3 +87,14 @@ and reject aliasing, forward/unused references and noncanonical order. The
 external producer is knowledge/producers/action_values.py. These are data checks,
 not logical interpreter, primitive arithmetic or stateful replacement authority.
 Keep existing proof/transport limits and the trusted codec boundary explicit.
+
+Total pure action/keep regions now use the existing semantic equality selection
+interface, with sealed lexical slots and scoped branch facts. Their checked
+selection alone grants the original program snapshot identity; raw hashes cannot
+grant it. Whole-action/physical representation authority remains open. See
+docs/action-regions.md. General FOL laws additionally use abstract sorts/functions
+and checked Instance interpretations, with every assumption discharged and
+transitive parameter dependence rejected at closed program obligations. This is
+a new general kernel mechanism, not an optimisation pattern or an unchanged-rule
+claim. Preserve its adversarial tests and unchanged resource limits; see
+docs/general-laws.md.

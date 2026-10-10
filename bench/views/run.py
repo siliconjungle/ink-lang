@@ -125,7 +125,11 @@ def main():
             raise SystemExit(f'variants disagree at n={n} q={q}: {observed}')
         samples = {v: [] for v in VARIANTS}
         for _, v in M.interleaved(VARIANTS, a.rounds, seed):
-            samples[v].append(measure(v, n, steps, q, seed)['seconds'] / steps * 1e9)
+            measured = measure(v, n, steps, q, seed)
+            current = tuple(measured[k] for k in ('checksum', 'units', 'rows', 'queries', 'updates'))
+            if current != observed[v]:
+                raise SystemExit(f'timed variant disagrees at n={n} q={q}: {v}: {current} != {observed[v]}')
+            samples[v].append(measured['seconds'] / steps * 1e9)
         row = {'n': n, 'query_permille': q, 'steps': steps, 'queries': outputs[VARIANTS[0]]['queries'],
                'updates': outputs[VARIANTS[0]]['updates'], 'units': outputs[VARIANTS[0]]['units'],
                'rows': outputs[VARIANTS[0]]['rows'], 'ns_per_op': samples,

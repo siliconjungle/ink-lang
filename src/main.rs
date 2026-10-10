@@ -920,11 +920,19 @@ fn run() -> LangResult<()> {
                     .map_err(|e| e.to_string())?;
             let mut runtime = if let Some(snapshot) = arg_value(&args, "--restore")? {
                 let bytes = fs::read(snapshot).map_err(|e| e.to_string())?;
-                if bytes.starts_with(b"VLSTATE\0") {
+                if let Some(selected) = &semantic_selection {
+                    if bytes.starts_with(b"VLSTATE\0") {
+                        stateful::Runtime::restore_portable_selected(selected, &bytes)?
+                    } else {
+                        stateful::Runtime::restore_selected(selected, &bytes)?
+                    }
+                } else if bytes.starts_with(b"VLSTATE\0") {
                     stateful::Runtime::restore_portable(p.clone(), &bytes)?
                 } else {
                     stateful::Runtime::restore(p.clone(), &bytes)?
                 }
+            } else if let Some(selected) = &semantic_selection {
+                stateful::Runtime::new_selected(selected)?
             } else {
                 stateful::Runtime::new(p.clone())?
             };

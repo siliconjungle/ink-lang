@@ -129,13 +129,16 @@ substitution, general equality/induction checking, wrapping polynomial equality,
 condition scoping and exact reification. Their Rust implementation is tested,
 not formally verified. Hashes identify bytes and contexts, not correctness.
 
-Only pure function bodies are selected, including pure helpers used by stateful
-programs. State declarations, transaction statements, capability footprints,
-event order and storage policies are unchanged. Direct transaction rewrites,
-state/representation migration and durable snapshot compatibility still need
-trace/refinement evidence through the existing machine interfaces. This work
-does not turn those obligations into pure value equalities or remove the
-remaining aggregate/representation migration debt.
+Pure function bodies and sealed total pure expression regions inside actions and
+keeps can be selected. [Action regions](action-regions.md) resolve lexical slots,
+scope branch facts and recheck capture-free replacements. Transaction instructions,
+capability footprints, event order, state declarations and storage policies retain
+their positions and meaning. The private checked selection grants the original
+source program's snapshot identity to selected execution; a raw changed Program
+has its own identity. This grants no schema evolution or authority for later
+independent code changes. Direct transaction rewrites and state/representation
+migration still require trace/refinement evidence. Pure value equalities do not
+remove the remaining aggregate/representation migration debt.
 
 Validation lives in `tests/semantic_optimisation.rs` and core-only unit tests.
 It covers composed nested rewrites, generic loop counts, overflow, collection
