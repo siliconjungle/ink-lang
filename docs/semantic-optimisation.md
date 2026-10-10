@@ -169,3 +169,7 @@ stateful replacement.
 intermediate lists before ordered reductions using ordinary database proofs.
 The standalone planner CLI accepts `--rounds 32` for larger selections without
 changing its default twelve rounds or the separate proof-check budget.
+
+[Shared-sequence laws](shared-sequences.md) combine mapped zip branches from
+the exact same source sequence and erase unused mapping before count. These
+compose with the preceding reduction laws through the unchanged checker.
