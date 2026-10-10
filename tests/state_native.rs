@@ -971,3 +971,69 @@ fn tampered_native_maintenance_is_rejected_before_emission() {
     c.replace = c.insert.clone();
     assert!(state_native::emit(&p, Some(&c)).is_err());
 }
+
+#[test]
+fn result_query_and_keep_errors_are_local_until_the_caller_propagates() {
+    let _native = NATIVE_EXECUTION.lock().unwrap();
+    let p = parse(include_str!("../examples/query-errors.ink")).unwrap();
+    let script = vec![
+        json!({"call":"raising","args":[]}),
+        json!({"call":"ignored","args":[]}),
+        json!({"call":"captured","args":[]}),
+        json!({"call":"keep_value","args":[]}),
+        json!({"call":"create","args":[]}),
+        json!({"call":"callback","args":[]}),
+        json!({"call":"propagated","args":[]}),
+        json!({"call":"read","args":[]}),
+        json!({"call":"keep_propagated","args":[]}),
+        json!({"call":"read","args":[]}),
+    ];
+    let mut rt = Runtime::new(p.clone()).unwrap();
+    let mut expected = vec![];
+    for request in &script {
+        let before = rt.checkpoint_portable().unwrap();
+        let result = rt
+            .invoke_json(request["call"].as_str().unwrap(), &request["args"])
+            .unwrap();
+        let after = rt.checkpoint_portable().unwrap();
+        if !result.committed {
+            assert_eq!(before, after);
+        }
+        expected.push(json!({"outcome":result.json(),"snapshot":after}));
+    }
+    for index in [1, 2, 3, 4] {
+        assert_eq!(expected[index]["outcome"]["committed"], json!(true));
+    }
+    assert_eq!(
+        expected[0]["outcome"]["result"],
+        json!({"Err":"OtherError.Bad"})
+    );
+    assert_eq!(
+        expected[5]["outcome"]["result"],
+        json!([{"Err":"OtherError.Bad"}])
+    );
+    for index in [6, 8] {
+        assert_eq!(expected[index]["outcome"]["committed"], json!(false));
+        assert_eq!(
+            expected[index]["outcome"]["result"],
+            json!({"Err":"OtherError.Bad"})
+        );
+    }
+    assert_eq!(
+        expected[7]["outcome"]["result"],
+        json!({"Some":{"value":7}})
+    );
+    let code = state_native::emit(&p, None).unwrap();
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("build/query-errors-local");
+    fs::create_dir_all(&root).unwrap();
+    fs::write(
+        root.join("expected.json"),
+        serde_json::to_vec(&expected).unwrap(),
+    )
+    .unwrap();
+    let runner = r#"use compiled_state::State;use serde_json::{Value,json};fn main(){let steps:Vec<Value>=serde_json::from_slice(&std::fs::read(std::env::args().nth(1).unwrap()).unwrap()).unwrap();let mut state=State::new();let mut output=vec![];for step in steps{let outcome=state.invoke_json(step["call"].as_str().unwrap(),&step["args"]).unwrap();output.push(json!({"outcome":outcome,"snapshot":state.checkpoint().unwrap()}));}println!("{}",serde_json::to_string(&output).unwrap());}"#;
+    assert_eq!(
+        compile_and_run_with_runner(&root, &code, &script, runner),
+        json!(expected)
+    );
+}

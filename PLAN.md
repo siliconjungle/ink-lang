@@ -441,3 +441,20 @@ catalogue; kernel proof rules are unchanged. See docs/typed-actions.md.
 This advances milestone 2, but source-action logical execution and primitive
 correspondence, full effect/ownership reasoning and stateful replacement admission
 remain necessary for milestones 3–5.
+
+## Source-bound effects and local Result boundaries
+
+The typed action core now derives bounded conservative access and prefix-effect
+judgments. A private witness ties them to exact source/action identities. The
+database's fixed prefix-composition definitions and six theorems bind to the
+actual finite Rust operation; they do not prove the abstract analysis sound or
+authorise a stateful replacement. Runtime diagnostics expose observed prefix
+flags before commit/rollback. Core proof acceptance rules remain unchanged.
+
+This work exposed and fixed reference/native disagreement for a query's internal
+`?`: queries and Result-valued keeps now return local errors as ordinary values,
+including when their error type differs from the caller's. Explicit caller `?`
+propagates them; nested change errors remain sticky. See docs/action-effects.md
+and reports/action-effects-phase1. Whole-action/primitive correspondence, full
+ordered observations, physical rollback/refinement and generic stateful
+replacement admission remain open; no performance improvement is claimed.

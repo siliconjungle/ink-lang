@@ -229,6 +229,8 @@ struct Cached {
 pub struct Runtime {
     program: Program,
     action_ir: crate::action_ir::CheckedActions,
+    effects: crate::effects::CheckedEffects,
+    last_body_path: Option<crate::effects::Path>,
     execution: crate::action_ir::Execution,
     tables: BTreeMap<String, Table>,
     version: u64,
@@ -244,6 +246,7 @@ impl Runtime {
         let module = crate::core::CheckedModule::from_source(program.clone())?;
         let action_ir = crate::action_ir::CheckedActions::elaborate(&module)?;
         let execution = action_ir.execution()?;
+        let effects = crate::effects::CheckedEffects::derive(&action_ir)?;
         let tables = program
             .states
             .iter()
@@ -252,6 +255,8 @@ impl Runtime {
         Ok(Self {
             program,
             action_ir,
+            effects,
+            last_body_path: None,
             execution,
             tables,
             version: 0,
@@ -265,6 +270,14 @@ impl Runtime {
     }
     pub fn action_ir(&self) -> &crate::action_ir::CheckedActions {
         &self.action_ir
+    }
+    pub fn effects(&self) -> &crate::effects::CheckedEffects {
+        &self.effects
+    }
+    /// Observed prefix effects before commit/rollback of the last body.
+    /// Diagnostic data, not proof or replacement authority.
+    pub fn last_body_path(&self) -> Option<crate::effects::Path> {
+        self.last_body_path
     }
     pub fn version(&self) -> u64 {
         self.version
@@ -347,6 +360,7 @@ impl Runtime {
             .retain(|e| (e.commit, e.position) > (commit, position));
     }
     pub fn invoke_json(&mut self, name: &str, args: &serde_json::Value) -> LangResult<Outcome> {
+        self.last_body_path = None;
         let a = self
             .program
             .actions
@@ -365,6 +379,7 @@ impl Runtime {
         self.invoke(name, vals)
     }
     pub fn invoke(&mut self, name: &str, args: Vec<Value>) -> LangResult<Outcome> {
+        self.last_body_path = None;
         let action = self
             .execution
             .actions()
@@ -384,6 +399,30 @@ impl Runtime {
         self.undo.clear();
         self.staged.clear();
         let result = self.action(&action, args, false);
+        use crate::effects::{Exit, Path, ValueShape};
+        let (exit, value) = match &result {
+            Ok(v) => (
+                Exit::Return,
+                match v {
+                    Value::Bool(false) => ValueShape::False,
+                    Value::Bool(true) => ValueShape::True,
+                    Value::Result(true, _) => ValueShape::Ok,
+                    Value::Result(false, _) => ValueShape::Err,
+                    Value::Option(None) => ValueShape::None,
+                    Value::Option(Some(_)) => ValueShape::Some,
+                    _ => ValueShape::Other,
+                },
+            ),
+            Err(Failure::Abort(_)) => (Exit::Abort, ValueShape::Other),
+            Err(Failure::Host(_)) => (Exit::Host, ValueShape::Other),
+        };
+        self.last_body_path = Some(Path {
+            written: !self.undo.is_empty(),
+            emitted: !self.staged.is_empty(),
+            exit,
+            value,
+        });
+
         match result {
             Ok(v) if action.kind == ActionKind::Query => {
                 self.rollback();
@@ -503,7 +542,16 @@ impl Runtime {
         for ((n, t), v) in a.params.iter().zip(args) {
             env.insert(n.clone(), self.coerce(v, t)?);
         }
-        let result = self.block(&a.body, &mut env)?.ok_or("missing return")?;
+        // ? exits this Result-returning query, not the enclosing transaction.
+        // Change errors remain sticky across their call boundary below.
+        let result = match self.block(&a.body, &mut env) {
+            Err(Failure::Abort(error))
+                if a.kind == ActionKind::Query && matches!(a.result, Type::Result(..)) =>
+            {
+                Value::Result(false, Box::new(error))
+            }
+            result => result?.ok_or("missing return")?,
+        };
         let result = self.coerce(result, &a.result)?;
         if nested && a.kind == ActionKind::Change {
             let result = match result {
@@ -590,7 +638,14 @@ impl Runtime {
                     .find(|k| &k.name == n)
                     .cloned()
                 {
-                    let v = self.expr(&k.value, &Env::new())?;
+                    // Result-valued keeps have the same local error boundary
+                    // as read-only queries; reading one does not propagate it.
+                    let v = match self.expr(&k.value, &Env::new()) {
+                        Err(Failure::Abort(error)) if matches!(k.ty, Type::Result(..)) => {
+                            Value::Result(false, Box::new(error))
+                        }
+                        result => result?,
+                    };
                     return Ok(self.coerce(v, &k.ty)?);
                 }
                 Err(format!("unbound runtime name {n}").into())

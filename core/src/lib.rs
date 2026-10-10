@@ -5,6 +5,8 @@ pub mod bitproof;
 pub mod check;
 pub mod core;
 pub mod definition;
+pub mod effect_model;
+pub mod effects;
 pub mod equality;
 pub mod eval;
 pub mod exact_maintenance;
