@@ -26,6 +26,8 @@ pub struct Package {
     pub input_core_sha256: String,
     pub knowledge: crate::registry::Bundle,
     pub applications: Vec<Site>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub action_replacement: Option<crate::action_model::Replacement>,
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -112,6 +114,30 @@ pub fn check(module: &CheckedModule, package: &Package) -> LangResult<CheckedSel
             > 16_000_000
     {
         return Err("selection package limit".into());
+    }
+    if let Some(replacement) = &package.action_replacement {
+        if !package.applications.is_empty() {
+            return Err(
+                "compose expression and action selections as separately checked steps".into(),
+            );
+        }
+        let selected = crate::action_model::check(module, &package.knowledge, replacement)?;
+        return Ok(CheckedSelection {
+            input: module.clone(),
+            module: selected.clone(),
+            package: package.clone(),
+            evidence: Evidence {
+                semantics: SEMANTICS.into(),
+                input_core_sha256: module.identity()?,
+                selected_core_sha256: selected.identity()?,
+                snapshot_sha256: crate::registry::identity(&package.knowledge.snapshot)?,
+                closure: package.knowledge.objects.keys().cloned().collect(),
+                applied_laws: crate::action_model::used_theorems(
+                    &replacement.proofs,
+                    &package.knowledge,
+                )?,
+            },
+        });
     }
     let p = module.program();
     let knowledge = crate::registry::CheckedBundle::check(&package.knowledge)?;
@@ -361,6 +387,7 @@ impl SelectionChecker {
             input_core_sha256: self.module.identity()?,
             knowledge: self.knowledge.clone(),
             applications,
+            action_replacement: None,
         };
         check_with_catalogue(&self.module, &package, &self.laws)
     }

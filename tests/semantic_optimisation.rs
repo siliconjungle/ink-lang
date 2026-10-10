@@ -36,6 +36,7 @@ fn pack(m: &CheckedModule, c: Catalogue, applications: Vec<Site>) -> Package {
         input_core_sha256: m.identity().unwrap(),
         knowledge: verified_language::registry::from_catalogue(&c).unwrap(),
         applications,
+        action_replacement: None,
     }
 }
 fn pick(c: &Catalogue, operation: &str, ty: &Type) -> String {

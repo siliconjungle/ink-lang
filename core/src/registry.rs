@@ -147,6 +147,48 @@ fn operations(v: &Value, out: &mut BTreeSet<String>) {
     }
 }
 impl Entry {
+    /// Transport for a mathematical declaration, with an exact searchable
+    /// interface. This constructs bytes; it does not admit the declaration.
+    pub fn from_declaration(
+        declaration: &crate::logic::Declaration,
+        dependencies: Vec<String>,
+    ) -> LangResult<Self> {
+        let value = serde_json::to_value(declaration).map_err(|e| e.to_string())?;
+        let body = value
+            .as_object()
+            .and_then(|m| m.values().next())
+            .ok_or("declaration object")?;
+        let payload = json!({"declaration": declaration});
+        let mut ops = BTreeSet::new();
+        operations(&payload, &mut ops);
+        let pairs: Vec<(String, Value)> =
+            serde_json::from_value(body.get("params").cloned().unwrap_or(json!([])))
+                .map_err(|e| e.to_string())?;
+        let mut dependencies = dependencies;
+        dependencies.sort();
+        dependencies.dedup();
+        Ok(Self {
+            schema: 1,
+            kind: if matches!(declaration, crate::logic::Declaration::Theorem { .. }) {
+                Kind::Theorem
+            } else {
+                Kind::Definition
+            },
+            semantics: crate::library::SEMANTICS.into(),
+            dependencies,
+            interface: Interface {
+                parameters: pairs.into_iter().collect(),
+                result: body.get("result").cloned().unwrap_or(Value::Null),
+                operations: ops.into_iter().collect(),
+                effects: vec![],
+                conditions: serde_json::from_value(
+                    body.get("conditions").cloned().unwrap_or(json!([])),
+                )
+                .map_err(|e| e.to_string())?,
+            },
+            payload,
+        })
+    }
     pub fn from_law(law: &Law) -> LangResult<Self> {
         let mut payload = serde_json::to_value(law).map_err(|e| e.to_string())?;
         let m = payload.as_object_mut().ok_or("law object")?;
@@ -385,7 +427,8 @@ impl CheckedBundle {
             if entry.semantics != crate::library::SEMANTICS {
                 return Err("first-order scope contains an incompatible domain".into());
             }
-            admit_first_order(&mut context, id, entry)?;
+            admit_first_order(&mut context, id, entry)
+                .map_err(|e| format!("first-order entry {id}: {e}"))?;
         }
         Ok(context)
     }
