@@ -456,3 +456,12 @@ with tempfile.TemporaryDirectory() as d:print(json.dumps(Store.publish(d,objects
     let error = optimisation::check(&original, &p).unwrap_err();
     assert!(error.contains("different statement"), "{error}");
 }
+#[test]
+fn frozen_whole_action_replay_and_inspection_need_no_producer_or_live_database(){
+ let m=module(SOURCE);let z=module(&SOURCE.replace("Rows.remove(key); Rows.remove(key);","Rows.remove(key);"));let p=package(&m,&z,"action-transitions-offline");let root=Path::new(env!("CARGO_MANIFEST_DIR")).join("build/action-transitions-offline");fs::write(root.join("source.ink"),SOURCE).unwrap();fs::write(root.join("original-core.json"),m.bytes().unwrap()).unwrap();
+ let cli=env!("CARGO_BIN_EXE_ink");let run=|args:Vec<String>|Command::new(cli).args(args).env("PATH","").env("INK_DISTRIBUTION",root.join("missing-assets")).current_dir(std::env::temp_dir()).output().unwrap();
+ let output=run(vec!["check-selection".into(),root.join("original-core.json").display().to_string(),root.join("selection.json").display().to_string()]);assert!(output.status.success(),"{}",String::from_utf8_lossy(&output.stderr));
+ let output=run(vec!["explain".into(),root.join("source.ink").display().to_string(),"--selection".into(),root.join("selection.json").display().to_string()]);assert!(output.status.success(),"{}",String::from_utf8_lossy(&output.stderr));let plan:Json=serde_json::from_slice(&output.stdout).unwrap();assert_eq!(plan["whole_action_selection"]["actions"],json!(["erase","get","put"]));assert_eq!(plan["selection"]["applied_laws"].as_array().unwrap().len(),1);assert_eq!(plan["selected_core_sha256"],z.identity().unwrap());
+ let protected=root.join("protected-core.json");fs::write(&protected,b"keep original").unwrap();let mut invalid=p;invalid.action_replacement.as_mut().unwrap().proofs.remove("erase");fs::write(root.join("invalid-selection.json"),serde_json::to_vec(&invalid).unwrap()).unwrap();
+ let output=run(vec!["emit-core".into(),root.join("source.ink").display().to_string(),"--selection".into(),root.join("invalid-selection.json").display().to_string(),"-o".into(),protected.display().to_string()]);assert!(!output.status.success());assert_eq!(fs::read(&protected).unwrap(),b"keep original");
+}

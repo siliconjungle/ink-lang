@@ -60,7 +60,8 @@ def main():
             raise ValueError('installation did not produce the Ink executable')
         resources = stage / 'share' / 'ink'
         committed(root / 'planner', ['plan.py', 'ink_planner'], resources / 'planner')
-        committed(root / 'knowledge', ['ink_knowledge', 'store', 'research/general-laws', 'producers/view_decomposition.py'], resources / 'knowledge')
+        committed(root / 'knowledge', ['ink_knowledge', 'store', 'research/general-laws',
+                  'producers/view_decomposition.py', 'producers/action_replacement.py'], resources / 'knowledge')
         manifest = dict(schema=1, source_revision=git(root, 'rev-parse', 'HEAD').decode().strip(), packages=packages,
                         source_checkout_dirty=bool(git(root, 'status', '--porcelain')),
                         binary_source='explicit --binary input' if args.binary else 'cargo install of the current checkout',

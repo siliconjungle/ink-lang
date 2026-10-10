@@ -52,6 +52,45 @@ fn relocated_install_search_and_independent_offline_replay_need_no_original_path
         assert_eq!(resource["available"], true);
         assert!(Path::new(resource["path"].as_str().unwrap()).starts_with(&resources));
     }
+    // Proposals use the moved database and producer, not their checkout paths.
+    let action_source = include_str!("../examples/action-transitions.ink");
+    fs::write(outside.join("actions.ink"), action_source).unwrap();
+    fs::write(
+        outside.join("selected.ink"),
+        action_source.replace("Rows.remove(key); Rows.remove(key);", "Rows.remove(key);"),
+    )
+    .unwrap();
+    success(command().args(["emit-action-model", "actions.ink", "-o", "before.json"]));
+    success(command().args(["emit-action-model", "selected.ink", "-o", "after.json"]));
+    success(command().args(["emit-core", "selected.ink", "-o", "selected.json"]));
+    success(
+        Command::new("python3")
+            .arg(resources.join("knowledge/producers/action_replacement.py"))
+            .args([
+                "before.json",
+                "after.json",
+                "selected.json",
+                "-o",
+                "whole-selection.json",
+            ])
+            .env_remove("INK_KNOWLEDGE_ROOT")
+            .current_dir(&outside),
+    );
+    let whole: Value = serde_json::from_slice(&success(command().args([
+        "explain",
+        "actions.ink",
+        "--selection",
+        "whole-selection.json",
+    ])))
+    .unwrap();
+    assert_eq!(
+        whole["whole_action_selection"]["semantics"],
+        "ink-action-transition-v1"
+    );
+    assert_eq!(
+        whole["selection"]["applied_laws"].as_array().unwrap().len(),
+        1
+    );
     fs::write(outside.join("main.ink"), "module installed; import \"std:words\" as words; fn identity(x:u32)->u32{return x+0;} fn bounded(x:u32)->u32{return words.clamp32(x,0,100);}").unwrap();
     fs::write(outside.join("args.json"), "[4294967295]").unwrap();
     let value = success(command().args(["run", "main.ink", "bounded", "args.json"]));
@@ -147,6 +186,20 @@ fn relocated_install_search_and_independent_offline_replay_need_no_original_path
     assert_eq!(info["selection"], frozen["selection"]);
     assert_eq!(info["checkpoint"], frozen["checkpoint"]);
     assert!(frozen["trust"].as_array().unwrap().len() >= 3);
+    let whole_frozen: Value = serde_json::from_slice(&success(
+        command()
+            .env("PATH", "")
+            .env("INK_DISTRIBUTION", outside.join("missing bundle"))
+            .args([
+                "explain",
+                "actions.ink",
+                "--selection",
+                "whole-selection.json",
+            ]),
+    ))
+    .unwrap();
+    assert_eq!(whole["selection"], whole_frozen["selection"]);
+    assert_eq!(whole["checkpoint"], whole_frozen["checkpoint"]);
     let unavailable = command()
         .env("INK_DISTRIBUTION", outside.join("missing bundle"))
         .args(["explain", "main.ink", "--optimise", "missing.json"])

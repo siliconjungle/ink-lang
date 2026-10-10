@@ -56,6 +56,7 @@ pub fn doctor(python: &str) -> Value {
     let resources = [
         "planner/plan.py",
         "knowledge/producers/view_decomposition.py",
+        "knowledge/producers/action_replacement.py",
     ]
     .iter()
     .map(|name| match resource(name) {
