@@ -15,9 +15,12 @@ and cache correctness remain trusted. Twenty additional Lean laws pass local
 checking; they have not been submitted or accepted by Hunchroom.
 
 Validation: 218 broad distribution tests, 23 final focused tests, and 28 offline
-core tests both in place and in an isolated copy. These are overlapping counts,
-not additional distinct tests. Backend/runtime pins and kernel rules are unchanged;
-no new speed claim. See [the evidence](reports/source-syntax-phase1/REPORT.md).
+core tests both in place and in an isolated copy. The later runtime/module merge
+passes 216 broad tests, eight enabled conformance/durability tests, three binding
+tests, 28 isolated core tests and 12 Node tests. Counts overlap. Five CPU paths
+match 516 requests/exact snapshots, and wgpu executes 102 GPU calls. Kernel rules
+are unchanged; no new speed claim. See [the initial evidence](reports/source-syntax-phase1/REPORT.md)
+and [the integration scope](reports/source-syntax-phase1/INTEGRATION.md).
 
 Current target coverage is documented in [lowering parity](docs/lowering-parity.md): complete C/Rust/JavaScript/Wasm execution, a common native/Wasm lifecycle ABI, and eligible WebGPU/wgpu collection closures inside mixed modules. Historical milestone sections below retain their original scope.
 

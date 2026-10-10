@@ -65,3 +65,15 @@ belong to ink-knowledge. --prove-views falls back to recomputation when a proof
 cannot be checked; --require-views fails. Builds without these flags keep their
 legacy disclosed trust. Claude's 20 additional Lean laws are locally checked only,
 not Hunchroom/Nanoda accepted. See reports/source-syntax-phase1.
+
+Parallel module/durable-host/runtime improvements are integrated from 5a43118,
+runtime a7ee91b. Preserve the concise PLAN and its archived full acceptance scope.
+Module loading is distribution-owned; core parsing accepts a bounded constructor
+name hint only, with no type or proof authority. Full-code binding includes linked
+imported helpers. Source/effect/stateful replacement admission remains this chat's
+ownership; coordinate parser/distribution edits with the parallel backend chat.
+Final enabled conformance compares 516 requests/exact snapshots on all five CPU
+paths and 102 actual wgpu calls; generated durability uses JS and both Wasm paths.
+Snapshots/outbox/retry receipts are durable under the declared host guarantees,
+not permanent exactly-once delivery or native executable embedding. Keep numerical
+state/action-boundary consistency and logical action/primitive correspondence open.
