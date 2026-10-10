@@ -1,5 +1,31 @@
 # Implementation status
 
+## Database proofs of complete projected action transitions
+
+The restricted whole-action path now checks the actual original and selected
+typed actions against complete logical transition equations: replies, successful
+commits, rollback, ordered staged events and commit-counter exhaustion. The
+database supplies the replacement and its proof; the core contains no removal
+rewrite. A single abstract-row removal theorem is instantiated for different
+table value types and composed across roots. Frozen replay needs no live database
+or producer. Physical representation changes and general action coverage remain
+open; the fixed source projection, codecs, native emission and toolchains remain
+trusted. See [the contract](docs/action-transitions.md).
+
+The canonical database contains 662 entries with all 2,536 earlier name targets
+preserved. Source definitions and the four new parametric law entries are checked
+locally. Backend and runtime dependencies are pinned to the reviewed core API.
+Relocatable installation now includes the whole-action proposal producer and
+checks its moved database before asset-free replay.
+
+Validation retained in [the report](reports/action-transitions-phase1/REPORT.md):
+248 broad tests, 40 isolated core tests and a final 11 enabled integration tests.
+Counts overlap. The whole-action fixture matches ten replies and exact snapshots
+on C, Rust, JavaScript and both Wasm paths; its mixed host uses no GPU kernels.
+A separate selected-checkpoint fixture executes an actual GPU kernel. These are
+conformance checks, not a native correctness proof or a new performance result.
+The full PLAN.md remains active. Editor support and schema evolution are excluded.
+
 ## Database equality inside actions and reusable general laws
 
 The unchanged external query engine now selects checked total pure expression

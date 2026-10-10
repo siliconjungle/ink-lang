@@ -26,3 +26,12 @@ Unsupported action forms fail closed; see docs/action-transitions.md for the
 exact domain and resource limits. No universal native refinement, performance
 or fastest-language claim is made. PLAN.md remains the full active acceptance
 scope. Editor support and schema evolution remain excluded.
+
+Final coherent dependency integration passes eleven enabled tests (seven
+whole-action, three selected-checkpoint and one relocated installation). The
+installed action producer uses its moved pinned database to make a checked
+proposal, then frozen checking succeeds after those assets are removed. The
+separate selected-checkpoint fixture performs one actual GPU call. Full output
+is retained in final-integration.log; independent package build receipts and
+exact pins are in ../action-api-integration-phase1. Counts overlap the earlier
+runs. This extends integration evidence, not the formal projection domain.

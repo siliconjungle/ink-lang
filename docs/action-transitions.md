@@ -85,6 +85,12 @@ a proposal it cannot prove. Expression-site and whole-action proposals are
 currently separate selection forms; a whole-action proposal can compose several
 database theorems and changes in one checked alternative module.
 
+`tools/install.py` includes `knowledge/producers/action_replacement.py` and the
+pinned database in the relocatable tool bundle. The producer can be invoked from
+the installed `share/ink/knowledge` directory without the original checkout;
+`ink doctor` reports its availability. Frozen proposals can then be checked with
+that complete bundle removed.
+
 The trust boundary still includes the Rust source/primitive projection, fixed
 reference semantics, host codecs, target emission, toolchains and device runtime.
 This is not a proof of generated machine instructions or kernel soundness.
