@@ -1,5 +1,16 @@
 # Implementation status
 
+## Combined continuation, numerical and durable runtime gate
+
+The integrated distribution passes 265 broad tests with both Wasm paths and actual
+wgpu enabled, 43 isolated asset-free core tests, 12 Node runtime tests and six
+knowledge tests. The locked all-target check is warning-free. This run records
+105 actual GPU calls, including mixed-host durable recovery around process death.
+The nested-flow, numerical and runtime extensions work together under pinned
+package revisions. Counts overlap earlier receipts; these are conformance checks,
+not native refinement or performance claims. The general physical representation
+and maintenance gate remains open. See [the combined receipt](reports/combined-flow-numerics-phase1/REPORT.md).
+
 ## Existing numerical types across execution boundaries
 
 The source Type definition is unchanged. i32, f32 and fixed numerical vectors
