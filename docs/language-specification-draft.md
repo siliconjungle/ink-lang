@@ -8,6 +8,34 @@ The performance ambition is to compete with expert implementations on specified 
 
 This is the full design draft for Ink. The compiler implements the subset described in [STATUS.md](../STATUS.md); the draft is not a claim that every feature below exists. The executable core contract below describes the current shared representation. The `ink` command is primary; `lang` remains a compatibility command for archived experiments.
 
+## Implemented architecture
+
+The `ink-core` crate owns types, executable semantics, reference evaluation and
+general evidence checking. It builds without knowledge or backend checkouts.
+The distribution combines independently pinned packages; it is not the core.
+
+[ink-knowledge](https://github.com/siliconjungle/ink-knowledge) holds immutable
+JSON definitions, theorems, candidate implementations and external proof-producing
+search. Complete pure replacement proofs are checked against the actual program.
+Candidate selection uses separate cost evidence. Hashes identify dependencies;
+neither hashes nor measurements prove equivalence. Some older aggregate,
+bounded-cache and layout authority remains to be migrated out of the compiler.
+
+Separate [C](https://github.com/siliconjungle/ink-lowering-c),
+[Rust](https://github.com/siliconjungle/ink-lowering-rust),
+[Wasm adapter](https://github.com/siliconjungle/ink-lowering-wasm) and
+[GPU](https://github.com/siliconjungle/ink-lowering-gpu) repositories own emission
+and host protocols. Existing C/Rust toolchains produce native machine code or
+Wasm; Ink is not building architecture-specific assembly compilers. WGSL
+lowering is shared between browser WebGPU and desktop wgpu.
+
+Checked deterministic pure source graphs already mix CPU and GPU stages.
+External tools propose sharing and placement, and rank checked plans using
+complete-call timings. General proved resident-buffer routing and stateful
+placement remain work. The current restricted proof checker is written in Rust;
+Lean is separate research tooling. The checker, correspondence bridges, emitted
+C/Rust, LLVM, host runtimes and GPU drivers remain trusted components.
+
 ## Executable core versions
 
 Legacy programs use `ink-executable-core-v1` and retain their canonical identities.
@@ -599,7 +627,7 @@ The language’s connection between data and computation is structural: operatio
 
 The initial compiler, proof-object reader and runtime are written in Rust. This choice affects implementation reliability and compilation performance; it does not bound the speed of generated programs by that of a typical Rust program.
 
-The pipeline is:
+The intended full pipeline is:
 
 ```text
 Source modules
@@ -619,6 +647,11 @@ The semantic graph retains collections, state roots, changes, effects, invariant
 Every accepted high-level transformation records its premises and proof dependency. The build manifest reports the final verified stage and all later trusted components.
 
 LLVM supplies initial code generation for native targets and WebAssembly. A custom backend is justified only by demonstrated limitations. MLIR may later support structured loop and vector transformations; it is not required to validate the first prototype.
+
+The executable implementation currently emits C or Rust through the independent
+backend packages and invokes existing toolchains. Its core format is a bounded
+typed AST, not the complete semantic graph, ownership system or proof-authoring
+surface shown in this proposed pipeline.
 
 The baseline must generate ordinary efficient loops, direct calls, contiguous buffers where suitable, and predictable allocation. It must remain useful when the knowledge database is small. Proof search is not an excuse for a weak baseline.
 
