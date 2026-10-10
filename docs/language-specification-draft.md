@@ -1,6 +1,6 @@
 # Ink Language Specification Draft
 
-**Draft 0.1 — 9 October 2026**
+**Draft 0.1 — implementation notes updated 10 October 2026**
 
 This language describes data, permitted changes, and required results. Its compiler may change algorithms, storage layouts and execution schedules when it can establish that observable behaviour is preserved. A growing database distributes reusable transformations together with machine-checkable proofs. Local measurements help select the implementations that actually perform well.
 
@@ -10,42 +10,47 @@ This is the full design draft for Ink. The compiler implements the subset descri
 
 ## Implemented architecture
 
-The `ink-core` crate owns types, executable semantics, reference evaluation and
-general evidence checking. It builds without knowledge or backend checkouts.
-The distribution combines independently pinned packages; it is not the core.
+The semantic core owns `core/src`: types, executable semantics, reference
+execution and general evidence checking. It builds independently. The
+`ink-lang` distribution assembles pinned repositories:
 
-Individual database entries are the unit of optimisation knowledge. Each
-definition, theorem or candidate names its exact dependencies. The prototype's
-“packages” are portable groups of those entries for checking and reproducible
-builds, not a separate algorithm-installation model. The intended workflow is to
-add entries to the database and let external search discover applicable choices.
-External search now queries the checked AST deterministically and discovers
-individual typed law entries from a database directory. It checks every proposed
-application and freezes the selected knowledge for replay. Transaction and
-representation discovery, large-database indexing and measured ranking remain
-production work.
+| Package | Responsibility |
+| --- | --- |
+| [ink-knowledge](https://github.com/siliconjungle/ink-knowledge) | Immutable entries, authenticated snapshots, typed discovery and performance observations |
+| [ink-planner](https://github.com/siliconjungle/ink-planner) | Bounded compositional search, applicability proofs and plan selection |
+| [ink-runtime](https://github.com/siliconjungle/ink-runtime) | Checked-graph execution, host ABIs, scheduling, profiling, bundle assembly and pure fallback |
+| [Lowerings](backend-packages.md) | C/Rust/Wasm target emission and WGSL/WebGPU/wgpu device operations |
 
-[ink-knowledge](https://github.com/siliconjungle/ink-knowledge) holds immutable
-JSON definitions, theorems, candidate implementations and external proof-producing
-search. Complete pure replacement proofs are checked against the actual program.
-Candidate selection uses separate cost evidence. Hashes identify dependencies;
-neither hashes nor measurements prove equivalence. Some older aggregate,
-bounded-cache and layout authority remains to be migrated out of the compiler.
+Each canonical knowledge entry has a content identity, kind, semantics version,
+exact dependencies, typed interface and payload. SQLite is a rebuildable
+index/cache for types, operations, effects, conditions and membership witnesses.
+It grants no proof authority. Bounded exported views carry selected roots, their
+exact dependency closure and Merkle membership proofs against a pinned snapshot.
+New entries can become search candidates without changing compiler rules.
 
-Separate [C](https://github.com/siliconjungle/ink-lowering-c),
-[Rust](https://github.com/siliconjungle/ink-lowering-rust),
-[Wasm adapter](https://github.com/siliconjungle/ink-lowering-wasm) and
-[GPU](https://github.com/siliconjungle/ink-lowering-gpu) repositories own emission
-and host protocols. Existing C/Rust toolchains produce native machine code or
-Wasm; Ink is not building architecture-specific assembly compilers. WGSL
-lowering is shared between browser WebGPU and desktop wgpu.
+Pure selection uses `ink-evidence-v1`; it binds the exact input program,
+authenticated knowledge view and ordered applications with premise proofs.
+`--selection` replays those bytes without a live database. Routing equivalence
+uses the same knowledge/evidence interface. Performance observations are separate
+immutable objects matched by program/plan, hardware, driver, toolchain, backend,
+bridge and workload. Costs cannot supply mathematical premises.
 
-Checked deterministic pure source graphs already mix CPU and GPU stages.
-External tools propose sharing and placement, and rank checked plans using
-complete-call timings. General proved resident-buffer routing and stateful
-placement remain work. The current restricted proof checker is written in Rust;
-Lean is separate research tooling. The checker, correspondence bridges, emitted
-C/Rust, LLVM, host runtimes and GPU drivers remain trusted components.
+Scalar/inductive mathematics and executable laws use the common registry entry
+boundary. Specialised maintenance/machine proof obligations remain explicit
+mathematical domains; arbitrary entry kinds do not grant executable authority.
+Historical experiment fixtures live under `knowledge/research`, outside production
+discovery. General stateful replacement and migration remain unfinished.
+
+C/Rust toolchains produce native machine code and Wasm. The GPU package emits
+WGSL and operates WebGPU/wgpu devices; runtime assembles artifacts with compiled
+CPU fallback and owns browser/native scheduling. Supported host pipelines retain
+GPU arrays across steps and iterations. Checked pure source graphs mix CPU/GPU
+stages, but general proved resident-buffer routing is unfinished.
+
+The proof checker is written in Rust; Lean is separate research tooling.
+The checker, correspondence bridges, emitted C/Rust/WGSL, toolchains, runtime
+adapters and GPU drivers remain trusted implementations. This draft does not
+claim end-to-end verified machine code. See [the repository contract](repository-architecture.md).
 
 ## Executable core versions
 
@@ -55,7 +60,7 @@ version from the actual types and operations and rejects a falsely tagged input.
 Both use the same bounded typed AST. This is separate from the full design below.
 
 `ink-executable-core-v1` fixes the first checked program format. Its declarations
-live in `src/core.rs`, independently of the source parser. Parsing, type/effect
+live in `core/src/core.rs`, independently of the source parser. Parsing, type/effect
 checking, the reference runtimes, proof correspondence and native lowering use
 these same Program/Type/Expr/Statement structures. Source names and lexical
 scopes remain explicit; this is a checked typed AST, not SSA or a complete

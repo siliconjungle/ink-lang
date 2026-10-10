@@ -12,13 +12,15 @@ cargo build --release --locked --manifest-path build/particles/native/Cargo.toml
 build/particles/native/target/release/ink-gpu-program --pipeline examples/particles.pipeline.json --backend auto
 ```
 
-The semantic core builds without `knowledge` or any lowering package. The
-distribution compiler uses the pinned C, Rust, Wasm-adapter and GPU packages,
-and builds without `knowledge` or a wgpu runtime dependency. C owns the compiled
-CPU fallback; GPU owns WGSL and the browser/native hosts. A GPU bundle contains
-a standalone pinned wgpu project; compatible adapters and drivers are required
-for GPU execution. The browser uses Wasm CPU fallback; the native host links
-generated C. Neither host links an Ink interpreter.
+The semantic core builds without knowledge or lowering packages. The distribution
+assembles pinned planner, runtime and lowerers. C emits compiled CPU fallback;
+GPU emits WGSL and owns device adapters; `ink-runtime` owns bundle assembly,
+browser/native host ABIs, scheduling, profiling and fallback. The GPU lowerer has
+no C or runtime dependency.
+
+A GPU bundle contains a standalone pinned wgpu project. Compatible adapters and
+drivers are required for GPU execution. The browser uses Wasm CPU fallback; the
+native host links generated C. Neither host links an Ink interpreter.
 
 ## Source operations
 
