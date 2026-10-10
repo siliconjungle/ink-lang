@@ -259,8 +259,8 @@ fn emit_state_proves_every_maintained_view_automatically() {
     for (keep, _) in KEEPS {
         assert!(out.join(format!("views/{keep}.evidence.json")).exists());
     }
-    // A producer that answers wrongly makes the build fail rather than fall
-    // back silently to the trusted decomposition.
+    // A producer that answers wrongly never yields maintenance: --prove-views
+    // falls back explicitly to the recomputing baseline, --require-views fails.
     let bad = dir.join("bad_producer.py");
     std::fs::write(&bad, "import json,sys\nv=json.load(open(sys.argv[1]))\njson.dump({'schema':1,'semantics':'source-view-pipeline-decomposition-v1','keep':v['description']['row']['keep'],'library':v['library'],'proof':{'Refl':{'Var':'rows'}}},open(sys.argv[3],'w'))\n").unwrap();
     let run = Command::new(env!("CARGO_BIN_EXE_ink"))
@@ -271,6 +271,24 @@ fn emit_state_proves_every_maintained_view_automatically() {
         .arg("--maintenance")
         .arg(Path::new(env!("CARGO_MANIFEST_DIR")).join("knowledge/research/table-maintenance/table.json"))
         .arg("--prove-views")
+        .arg("--view-tool")
+        .arg(&bad)
+        .output()
+        .unwrap();
+    assert!(run.status.success(), "{}", String::from_utf8_lossy(&run.stderr));
+    let plan: Json = serde_json::from_slice(&std::fs::read(dir.join("bad/plan.json")).unwrap()).unwrap();
+    assert!(plan["view_fallback"]["reason"].as_str().unwrap().contains("view decomposition not established"));
+    assert!(plan["maintenance_certificate"].is_null());
+    let code = std::fs::read_to_string(dir.join("bad/src/lib.rs")).unwrap();
+    assert!(!code.contains("cache_l_"), "fallback must not maintain caches");
+    let run = Command::new(env!("CARGO_BIN_EXE_ink"))
+        .arg("emit-state")
+        .arg(&program)
+        .arg("-o")
+        .arg(dir.join("bad-required"))
+        .arg("--maintenance")
+        .arg(Path::new(env!("CARGO_MANIFEST_DIR")).join("knowledge/research/table-maintenance/table.json"))
+        .arg("--require-views")
         .arg("--view-tool")
         .arg(&bad)
         .output()
