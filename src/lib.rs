@@ -20,5 +20,6 @@ pub mod snapshot {
 
 pub use ink_runtime as runtime;
 
+pub mod distribution;
 /// Filesystem/source module assembly belongs to the distribution.
 pub mod modules;

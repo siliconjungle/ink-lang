@@ -51,6 +51,11 @@ Core-only builds need no planner, database, runtime or lowering checkout. SQLite
 
 Explicit [module imports and standard helpers](docs/modules.md) work across targets. [Durable host adapters](docs/durable-host.md) supply filesystem/IndexedDB recovery and ordered outbox delivery for native C/Rust and compiled JavaScript/Wasm.
 
+For a relocatable installation with optional pinned tools, run
+`python3 tools/install.py --prefix DIRECTORY`. `ink doctor` diagnoses missing
+tools; `ink explain SOURCE [--selection PACKAGE.json]` inspects a checked program
+and its optimisation plan. See [installation and inspection](docs/installation.md).
+
 Complete CPU targets share the [lowering parity contract](docs/lowering-parity.md), including transactions and portable snapshots. GPU execution uses eligible pure closures with host execution for stateful operations.
 
 ## Proofs, capabilities and costs
