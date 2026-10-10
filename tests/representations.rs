@@ -190,10 +190,27 @@ fn compiled_database_definitions_execute_and_migrate_offline() {
         "{}",
         String::from_utf8_lossy(&out.stderr)
     );
-    let p: Proposal =
+    // A planner may share one pinned closure across multiple selections. The
+    // native identity must also include exports, not only mathematical bytes.
+    let mut raw: serde_json::Value =
         serde_json::from_slice(&fs::read(root.join("proposal.json")).unwrap()).unwrap();
+    let shared = raw["migration"]["knowledge"].clone();
+    for i in 0..2 {
+        raw["requests"][i]["knowledge"] = shared.clone();
+    }
+    fs::write(
+        root.join("proposal.json"),
+        serde_json::to_vec(&raw).unwrap(),
+    )
+    .unwrap();
+    let p: Proposal = serde_json::from_value(raw).unwrap();
     let a = representation::check(&m, &p.requests[0]).unwrap();
     let b = representation::check(&m, &p.requests[1]).unwrap();
+    assert_eq!(
+        a.definition().bundle_sha256(),
+        b.definition().bundle_sha256()
+    );
+    assert_ne!(a.definition().exports(), b.definition().exports());
     let migration =
         representation::check_migration(&a, &b, &p.migration.knowledge, &p.migration.root).unwrap();
     let mut source = String::from(
