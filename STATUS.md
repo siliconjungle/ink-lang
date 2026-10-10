@@ -451,3 +451,26 @@ pass. All 612 entries replay on the preserved checker; 12,544 finite composition
 cases agree, and 1,000 observed reference prefixes fit their judgments. Native
 and compiled Wasm each match 42 outcomes with exact snapshots. The query/keep
 error-boundary regression is fixed. No timing or browser claim follows.
+
+
+## Direct reference actions and reviewed backend integration — 2026-10-10
+
+Reference actions/keeps now execute sealed typed nodes/instructions directly
+with resolved slot frames; the source adapter remains available to lowerers.
+General primitives and source/action/snapshot identities are preserved. A found
+admission gap is fixed: table roots cannot escape into ordinary values or nested
+table payloads; only declared roots and capability-checked literal methods admit.
+No optimisation catalogue or proof-kernel acceptance rule was added.
+
+Parallel backend main af3c6c4 is integrated with all published pins. Final-tree
+validation passes 207 broad tests plus three actual Zig/Wasm/wgpu conformance
+tests; the unchanged expensive migration case passed in the earlier broad runs.
+Core and an isolated byte-identical offline copy pass 25 tests. All five CPU
+paths match 78 cases with exact snapshots; native wgpu matches 68 mixed-module
+cases with 21 GPU calls and resident shrinking/empty feedback. Archived Wasm
+replay matches 53 calls/snapshots. No timing or browser revalidation claim.
+
+Whole-action logical/primitive correspondence, physical rollback, generic
+stateful admission, remaining specialised authority removal and the broader
+production/performance goals remain open. Editor support and schema evolution
+are excluded. See reports/typed-execution-phase1 and docs/typed-actions.md.

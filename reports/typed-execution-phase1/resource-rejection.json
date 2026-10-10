@@ -1,0 +1,6 @@
+{
+  "program": "module roots; state Rows:Table<u32,u32> = Table.empty(); query value()->Table<u32,u32> reads(Rows){return Rows;}",
+  "status": "rejected",
+  "error": "error: Table is a state-root resource, not a value type",
+  "scope": "Previously accepted table-root return now rejects during source checking."
+}
