@@ -228,6 +228,8 @@ struct Cached {
 
 pub struct Runtime {
     program: Program,
+    action_ir: crate::action_ir::CheckedActions,
+    execution: crate::action_ir::Execution,
     tables: BTreeMap<String, Table>,
     version: u64,
     outbox: Vec<Event>,
@@ -239,7 +241,9 @@ pub struct Runtime {
 }
 impl Runtime {
     pub fn new(program: Program) -> LangResult<Self> {
-        crate::check::check(&program)?;
+        let module = crate::core::CheckedModule::from_source(program.clone())?;
+        let action_ir = crate::action_ir::CheckedActions::elaborate(&module)?;
+        let execution = action_ir.execution()?;
         let tables = program
             .states
             .iter()
@@ -247,6 +251,8 @@ impl Runtime {
             .collect();
         Ok(Self {
             program,
+            action_ir,
+            execution,
             tables,
             version: 0,
             outbox: vec![],
@@ -256,6 +262,9 @@ impl Runtime {
             cached: BTreeMap::new(),
             certificate: None,
         })
+    }
+    pub fn action_ir(&self) -> &crate::action_ir::CheckedActions {
+        &self.action_ir
     }
     pub fn version(&self) -> u64 {
         self.version
@@ -357,8 +366,8 @@ impl Runtime {
     }
     pub fn invoke(&mut self, name: &str, args: Vec<Value>) -> LangResult<Outcome> {
         let action = self
-            .program
-            .actions
+            .execution
+            .actions()
             .iter()
             .find(|a| a.name == name)
             .ok_or_else(|| format!("unknown action {name}"))?
@@ -554,7 +563,13 @@ impl Runtime {
             Expr::Float(_) | Expr::Neg(_) | Expr::Let(..) => {
                 Err("compute expression belongs in a pure function".into())
             }
-            Expr::Num(n) => Ok(Value::U64(*n)),
+            Expr::Num(n) => Ok(match self.execution.type_of(e) {
+                Some(Type::U32) => {
+                    Value::U32((*n).try_into().map_err(|_| "u32 literal out of range")?)
+                }
+                Some(Type::Int) => Value::Int(BigInt::from(*n)),
+                _ => Value::U64(*n),
+            }),
             Expr::Bool(v) => Ok(Value::Bool(*v)),
             Expr::String(s) => Ok(Value::String(s.clone())),
             Expr::Unit => Ok(Value::Unit),
@@ -568,7 +583,13 @@ impl Runtime {
                 if let Some(cache) = self.cached.get(n) {
                     return Ok(Value::Int(cache.total.clone()));
                 }
-                if let Some(k) = self.program.keeps.iter().find(|k| &k.name == n).cloned() {
+                if let Some(k) = self
+                    .execution
+                    .keeps()
+                    .iter()
+                    .find(|k| &k.name == n)
+                    .cloned()
+                {
                     let v = self.expr(&k.value, &Env::new())?;
                     return Ok(self.coerce(v, &k.ty)?);
                 }
@@ -727,11 +748,11 @@ impl Runtime {
                         }
                         if xs.is_empty() {
                             let types = env.iter().map(|(n, v)| (n.clone(), v.ty())).collect();
-                            let t = crate::statecheck::expression_type(
-                                &self.program,
-                                &args[0],
-                                &types,
-                            )?;
+                            let t = if let Some(ty) = self.execution.type_of(&args[0]) {
+                                ty.clone()
+                            } else {
+                                crate::statecheck::expression_type(&self.program, &args[0], &types)?
+                            };
                             return Ok(match t {
                                 Type::List(t) if *t == Type::U32 => Value::U32(0),
                                 Type::List(t) if *t == Type::U64 => Value::U64(0),
@@ -768,7 +789,13 @@ impl Runtime {
                     }
                     _ => {}
                 }
-                if let Some(a) = self.program.actions.iter().find(|a| &a.name == n).cloned() {
+                if let Some(a) = self
+                    .execution
+                    .actions()
+                    .iter()
+                    .find(|a| &a.name == n)
+                    .cloned()
+                {
                     return self.action(&a, vals, true);
                 }
                 if let Some(f) = self

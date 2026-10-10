@@ -1,0 +1,52 @@
+# Typed actions and source identity
+
+Ink now retains a typed, ordered representation of each checked action and keep.
+This is fixed language elaboration, not a database optimisation catalogue.
+`ink emit-actions SOURCE -o ACTIONS.json` exports it; `ink check-actions SOURCE
+ACTIONS.json` checks the artifact against the complete checked source module.
+
+The representation resolves locals to slots, record fields to declared field
+indices, and state, keep and action references to module indices. Every value
+and callback has a concrete type. Calls and record fields retain source evaluation
+order. Lazy `&&`, `||`, branches, `?`, query calls and sticky-error change calls
+are distinct nodes. Unreachable statements remain in the tree and must still
+satisfy source typing and declared effect permissions.
+
+The private CheckedActions witness can only be produced by elaboration or bounded
+replay. Replay regenerates the representation and compares canonical bytes; it
+never executes an untrusted supplied graph. The identity includes schema,
+semantics and the complete checked module identity. Changing a helper, state
+schema or unused source declaration changes that identity. Source reconstruction
+is checked against the original syntax before making the witness.
+
+Typing judgments come from the existing source checker. A general unifier resolves
+contextual constructor types and empty callbacks, then defaults unconstrained
+numeric types to u64 and unobserved constructor payloads to Unit. It rejects
+inconsistent and recursive types. Elaboration shares a 100,000-node/instruction
+budget across bodies; type solving has a two-million-step budget and 128-level
+resolution limit. Source nesting and 16 MiB artifact limits still apply.
+
+## Execution and trust
+
+Reference execution and the Rust lowerer consume an execution adapter generated
+from the witness. It reconstructs source-shaped expressions with explicit inferred
+let types and retains expression type judgments in a frozen tree. Those transient
+addresses are never serialized or used as proof identities. Original module
+identity and snapshot schema remain unchanged. Generated Rust gives discarded
+values an explicit type, including constructor payloads that Rust cannot otherwise
+infer. Typed empty sums work even when their argument calls a change.
+
+This adapter, the source checker, type solver, primitive runtime, Rust lowering,
+LLVM and host remain trusted implementations. This is an ordered typed tree,
+not SSA, ANF, a complete effect calculus or a formal refinement theorem. Legacy
+aggregate/bounded/layout authority has not moved into database entries through
+this change. It adds no proof kernel acceptance rule and enables no transaction
+replacement on the strength of matching syntax alone.
+
+The next step is to give these ordered actions a logical execution model and bind
+that model to actual primitive reads, writes, staged events and abrupt exits.
+Then database equivalences can apply to the computation actually being executed,
+with separate restoration, representation and profitability obligations.
+
+See reports/typed-actions-phase1 for validation, including concrete order and
+rollback assertions and exact snapshots for native and compiled Wasm execution.

@@ -442,7 +442,7 @@ fn run() -> LangResult<()> {
         println!(
             "ink emit-definition LOCK.json EXPORTS.json [--select PACKAGE.json] -o DEFINITION.rs"
         );
-        println!("ink emit-core SOURCE -o CORE.json\nink check-core CORE.json\nExecution/lowering commands also accept --core to read a checked CORE.json instead of source.\nChecked replacement packages: build/emit-c ... --replacement PACKAGE.json");
+        println!("ink emit-core SOURCE -o CORE.json\nink check-core CORE.json\nink emit-actions SOURCE -o ACTIONS.json\nink check-actions SOURCE ACTIONS.json\nExecution/lowering commands also accept --core to read a checked CORE.json instead of source.\nChecked replacement packages: build/emit-c ... --replacement PACKAGE.json");
         println!("ink bitvector-obligation GOAL.json [--library LOCK.json] -o CNF.json\nink verify-library LOCK.json\nink project-library LOCK.json ROOTS.json -o BUNDLE.json\nink model-row SOURCE KEEP --maintenance PACKAGE.json -o MODEL.json\nink verify-row-model SOURCE MODEL.json --maintenance PACKAGE.json\nink verify-database LOCK.json\nink check SOURCE\nink prove-maintenance SOURCE [--evidence EVIDENCE.json] -o PACKAGE.json\nink verify-maintenance PACKAGE.json\nink execute SOURCE SCRIPT.json [--maintenance PACKAGE.json] [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable]\nink run SOURCE FUNCTION ARGS.json\nink build SOURCE -o OUTPUT.o [--implementation PROPOSAL.json] [--cc clang] [--native-cpu]\nink build SOURCE --target wasm32 --zig PATH -o OUTPUT.wasm\nink build SOURCE --target webgpu --zig PATH [--route PACKAGE.json] -o DIRECTORY (also emits native wgpu crate)\nink emit-c SOURCE -o OUTPUT.c [--implementation PROPOSAL.json]\nink emit-state SOURCE -o DIRECTORY [--maintenance PACKAGE.json] [--bounded-totals] [--wasm-abi]");
         return Ok(());
     }
@@ -475,6 +475,34 @@ fn run() -> LangResult<()> {
                 &serde_json::to_string_pretty(&verified_language::optimisation::subject(&module)?)
                     .map_err(|e| e.to_string())?,
             )?;
+        }
+        "emit-actions" | "check-actions" => {
+            let module = core::CheckedModule::from_source(p)?;
+            let actions = if cmd == "check-actions" {
+                let file = args
+                    .get(2)
+                    .ok_or("check-actions requires SOURCE ACTIONS.json")?;
+                let mut bytes = Vec::new();
+                fs::File::open(file)
+                    .map_err(|e| e.to_string())?
+                    .take(core::MAX_BYTES as u64 + 1)
+                    .read_to_end(&mut bytes)
+                    .map_err(|e| e.to_string())?;
+                verified_language::action_ir::CheckedActions::from_bytes(&module, &bytes)?
+            } else {
+                verified_language::action_ir::CheckedActions::elaborate(&module)?
+            };
+            if cmd == "emit-actions" {
+                let out = arg_value(&args, "-o")?.ok_or("emit-actions requires -o ACTIONS.json")?;
+                write(
+                    &out,
+                    &String::from_utf8(actions.bytes()?).map_err(|e| e.to_string())?,
+                )?;
+            }
+            println!(
+                "{}",
+                serde_json::json!({"status":"checked","semantics":verified_language::action_ir::SEMANTICS,"source":actions.source_identity(),"actions_sha256":actions.identity()?,"trust":"Source checking, typed elaboration and execution adapters remain trusted; no action-body refinement proof"})
+            );
         }
         "emit-core" | "check-core" => {
             let module = core::CheckedModule::from_source(p)?;
