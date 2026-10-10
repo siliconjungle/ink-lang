@@ -559,6 +559,7 @@ fn run() -> LangResult<()> {
         println!("ink emit-semantic SOURCE [--core] -o SUBJECT.json\nink check-selection CORE.json PACKAGE.json\nExecution, lowering and core emission accept --optimise KNOWLEDGE_DIRECTORY or SNAPSHOT.json (external search) or --selection PACKAGE.json (checked replay). Optional --search-tool PATH and --search-budget N.");
         println!("ink check-source-route CORE.json ROUTING.json");
         println!("ink emit-source-syntax SOURCE --roles ROLES.json -o EXPECTED.json\nink check-source-syntax SOURCE --roles ROLES.json --view VIEW.json (complete code-data binding only)");
+        println!("ink check-action-values SOURCE --syntax-roles SYNTAX.json --value-roles VALUES.json --view VIEW.json\nink emit-action-values SOURCE ACTION ARGS.json --syntax-roles SYNTAX.json --value-roles VALUES.json --view VIEW.json -o IMAGE.json (typed value data only)");
         println!("ink emit-machine LOCK.json PACKAGE.json -o SOURCE.rs");
         println!(
             "ink emit-definition LOCK.json EXPORTS.json [--select PACKAGE.json] -o DEFINITION.rs"
@@ -589,6 +590,69 @@ fn run() -> LangResult<()> {
         p = selected.module().program().clone();
     }
     match cmd {
+        "check-action-values" | "emit-action-values" => {
+            let module = core::CheckedModule::from_source(p)?;
+            let actions = verified_language::action_ir::CheckedActions::elaborate(&module)?;
+            let file = arg_value(&args, "--syntax-roles")?
+                .ok_or("action values require --syntax-roles SYNTAX.json")?;
+            let syntax =
+                serde_json::from_slice(&read_bounded(&file, 16_384)?).map_err(|e| e.to_string())?;
+            let file = arg_value(&args, "--value-roles")?
+                .ok_or("action values require --value-roles VALUES.json")?;
+            let roles =
+                serde_json::from_slice(&read_bounded(&file, 16_384)?).map_err(|e| e.to_string())?;
+            let file =
+                arg_value(&args, "--view")?.ok_or("action values require --view VIEW.json")?;
+            let view = serde_json::from_slice(&read_bounded(&file, 16_000_000)?)
+                .map_err(|e| e.to_string())?;
+            let codec = verified_language::action_values::ActionValues::bind(
+                &actions, &view, &syntax, &roles,
+            )?;
+            if cmd == "emit-action-values" {
+                let name = args.get(2).ok_or("missing action name")?;
+                let file = args.get(3).ok_or("missing ARGS.json")?;
+                let raw: serde_json::Value =
+                    serde_json::from_slice(&read_bounded(file, 1_048_576)?)
+                        .map_err(|e| e.to_string())?;
+                let raw = raw.as_array().ok_or("expected argument array")?;
+                let action = module
+                    .program()
+                    .actions
+                    .iter()
+                    .find(|a| a.name == *name)
+                    .ok_or("unknown bound source action")?;
+                if raw.len() != action.params.len() {
+                    return Err("action argument count mismatch".into());
+                }
+                let values = action
+                    .params
+                    .iter()
+                    .zip(raw)
+                    .map(|((_, ty), v)| {
+                        verified_language::stateful::Value::from_json(v, ty, module.program())
+                    })
+                    .collect::<LangResult<Vec<_>>>()?;
+                let terms = codec.encode_arguments(name, &values, Default::default())?;
+                let out =
+                    arg_value(&args, "-o")?.ok_or("emit-action-values requires -o IMAGE.json")?;
+                write(
+                    &out,
+                    &serde_json::to_string_pretty(&serde_json::json!({
+                        "schema":1,"semantics":verified_language::action_values::SEMANTICS,
+                        "source":actions.source_identity(),"actions":actions.identity()?,
+                        "action":name,"arguments":terms
+                    }))
+                    .map_err(|e| e.to_string())?,
+                )?;
+            }
+            println!(
+                "{}",
+                serde_json::json!({"status":"checked",
+                "semantics":verified_language::action_values::SEMANTICS,
+                "source":actions.source_identity(),"actions":actions.identity()?,
+                "trust":"Exact code and typed value data only; codecs remain trusted. No interpreter refinement or replacement authority."})
+            );
+        }
         "emit-source-syntax" | "check-source-syntax" => {
             let module = core::CheckedModule::from_source(p)?;
             let actions = verified_language::action_ir::CheckedActions::elaborate(&module)?;
