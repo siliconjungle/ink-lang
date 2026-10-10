@@ -22,6 +22,79 @@ query empty() -> Option<u32> {return None;}
 "#;
 
 #[test]
+fn typed_action_execution_preserves_effect_order_and_contextual_empty_values() {
+    let _native = NATIVE_EXECUTION.lock().unwrap();
+    let p = parse(include_str!("../examples/action-control.ink")).unwrap();
+    let cert = aggregate::prove(
+        &parse(include_str!("../knowledge/research/sum-maintenance.lang")).unwrap(),
+    )
+    .unwrap();
+    let script = vec![
+        json!({"call":"create","args":[]}),
+        json!({"call":"record_order","args":[]}),
+        json!({"call":"argument_order","args":[]}),
+        json!({"call":"eager_fallback","args":[]}),
+        json!({"call":"ignore","args":[]}),
+        json!({"call":"capture","args":[]}),
+        json!({"call":"branch","args":[true]}),
+        json!({"call":"branch","args":[false]}),
+        json!({"call":"short_circuit","args":[]}),
+        json!({"call":"read_tentative","args":[]}),
+        json!({"call":"sum_changed","args":[]}),
+        json!({"call":"total_query","args":[]}),
+        json!({"call":"contextual_none","args":[]}),
+        json!({"call":"constrained_none","args":[]}),
+        json!({"call":"discarded_constructors","args":[]}),
+        json!({"call":"ignore","args":[]}),
+    ];
+    let mut rt = Runtime::new(p.clone()).unwrap();
+    let mut expected = vec![];
+    for call in &script {
+        let before = rt.checkpoint_portable().unwrap();
+        let outcome = rt
+            .invoke_json(call["call"].as_str().unwrap(), &call["args"])
+            .unwrap();
+        let after = rt.checkpoint_portable().unwrap();
+        if !outcome.committed {
+            assert_eq!(before, after);
+        }
+        expected.push(json!({"outcome":outcome.json(),"snapshot":after}));
+    }
+    assert_eq!(
+        expected[1]["outcome"]["result"],
+        json!({"Ok":{"a":10,"b":8}})
+    );
+    assert_eq!(
+        expected[2]["outcome"]["result"],
+        json!({"Ok":{"a":13,"b":17}})
+    );
+    assert_eq!(expected[3]["outcome"]["events"][0]["value"], json!(99));
+    assert_eq!(expected[10]["outcome"]["result"], json!({"Ok":0}));
+    let runner = r#"
+use compiled_state::State;
+use serde_json::{Value,json};
+fn main(){let steps:Vec<Value>=serde_json::from_slice(&std::fs::read(std::env::args().nth(1).unwrap()).unwrap()).unwrap();let mut state=State::new();let mut output=vec![];
+for step in steps{let outcome=state.invoke_json(step["call"].as_str().unwrap(),&step["args"]).unwrap();output.push(json!({"outcome":outcome,"snapshot":state.checkpoint().unwrap()}));}
+println!("{}",serde_json::to_string(&output).unwrap());}
+"#;
+    for (name, certificate) in [("scan", None), ("maintained", Some(&cert))] {
+        let code = state_native::emit(&p, certificate).unwrap();
+        let root =
+            Path::new(env!("CARGO_MANIFEST_DIR")).join(format!("build/typed-actions-{name}"));
+        fs::create_dir_all(&root).unwrap();
+        fs::write(
+            root.join("expected.json"),
+            serde_json::to_vec(&expected).unwrap(),
+        )
+        .unwrap();
+        assert_eq!(
+            compile_and_run_with_runner(&root, &code, &script, runner),
+            json!(expected)
+        );
+    }
+}
+
+#[test]
 fn shared_boundary_preserves_nested_control_event_order_and_exhausted_rollback() {
     use verified_language::{snapshot, snapshot_wire};
     let _native = NATIVE_EXECUTION.lock().unwrap();

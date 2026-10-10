@@ -23,7 +23,7 @@ Typing judgments come from the existing source checker. A general unifier resolv
 contextual constructor types and empty callbacks, then defaults unconstrained
 numeric types to u64 and unobserved constructor payloads to Unit. It rejects
 inconsistent and recursive types. Elaboration shares a 100,000-node/instruction
-budget across bodies; type solving has a two-million-step budget and 128-level
+budget across bodies; each body’s type solving has a two-million-step budget and 128-level
 resolution limit. Source nesting and 16 MiB artifact limits still apply.
 
 ## Execution and trust
