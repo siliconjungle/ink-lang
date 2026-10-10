@@ -85,9 +85,9 @@ fn compute_contract_is_versioned_and_rejects_false_tags_and_unsafe_types() {
     let recursive = parse("module Recursive;record R{x:R,} fn f(x:R)->R{return x;}").unwrap();
     assert!(native::emit(&recursive).unwrap_err().contains("recursive"));
     let p = parse("module State;query q(x:f32)->f32 {return x;}").unwrap();
-    assert!(check::check(&p).is_err());
+    assert!(check::check(&p).is_ok());
     let p=parse("module State;fn generate(xs:List<u32>)->List<f32>{return xs.map(fn(x)=>0.0);}query q(xs:List<u32>)->Int{return count(generate(xs));}").unwrap();
-    assert!(check::check(&p).is_err());
+    assert!(check::check(&p).is_ok());
 }
 #[test]
 fn decimal_lexing_exact_minimum_and_total_integer_division() {

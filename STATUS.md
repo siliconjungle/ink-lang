@@ -1,5 +1,18 @@
 # Implementation status
 
+## Existing numerical types across execution boundaries
+
+The source Type definition is unchanged. i32, f32 and fixed numerical vectors
+now cross actions, tables, keeps, events and portable checkpoints on all five
+CPU paths. Signed keys use signed order; floats preserve raw stored bits while
+scalar comparisons use IEEE semantics. Numerical typed actions use V2, and an
+exact pre-extension golden validates unchanged old-domain V1 bytes. The
+independent database value encoder supports this domain without new carrier
+definitions or kernel rules. GPU floats retain their weaker WGSL contract;
+numerical logical replacement projection still fails closed. See
+[the numerical contract](docs/numerical-state.md).
+
+
 ## Database proofs of complete projected action transitions
 
 The projection also covers reached total word/Boolean/record helpers through the

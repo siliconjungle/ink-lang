@@ -90,6 +90,7 @@ fn conformance_inner(
         && (name == "lowering-parity"
             || name.starts_with("generated-parity")
             || name == "modules-parity"
+            || name == "numerical-state-parity"
             || selected.is_some())
     {
         let project = root.join("gpu-module/native");

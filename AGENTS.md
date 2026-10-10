@@ -107,3 +107,12 @@ source projection and literal primitive meanings belong in the core. No kernel
 rule changed. Nested calls, Try, other numbers, ID keys and maintained-view or
 physical-representation admission are still open. Do not treat conformance as a
 proof of native emission. See docs/action-transitions.md and retain PLAN.md scope.
+
+
+Existing numerical source types now cross state/action/event/keep boundaries.
+Preserve the explicit typed-actions V2 marker for numerical domains and unchanged
+old-domain V1 bytes. Floats use IEEE scalar comparisons and raw-bit aggregate
+identity; no total float key ordering or floating rewrite authority is admitted.
+Snapshot container V1 binds new schemas without migration. Preserve WGSL's
+separate float contract and numerical logical projection's fail-closed boundary.
+See docs/numerical-state.md; no source Type or proof-kernel change was made.

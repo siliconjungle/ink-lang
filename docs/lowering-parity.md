@@ -20,6 +20,10 @@ value types in one module. The runtime extracts each eligible pure dependency
 closure; unrelated declarations no longer prevent GPU execution. Transactions
 execute once on the host, without speculative profiling or replay.
 
+Existing numerical types also cross state, action, keep and event boundaries.
+See [numerical state](numerical-state.md) for signed keys, float data identity,
+wire encoding and the separate GPU float contract.
+
 ## Build and host interfaces
 
 ```sh

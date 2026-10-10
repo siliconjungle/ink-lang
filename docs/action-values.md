@@ -39,9 +39,10 @@ integers without unary expansion; it does not yet supply arithmetic proofs over
 those integers.
 
 The value domain is the current executable action subset: Unit, Bool, U32, U64,
-Int, String, nominal IDs/enums/records and recursive List/Option/Result. Unknown,
-I32, F32, Vector and Table types are rejected, including when hidden behind an
-empty option or collection. Table is a root capability, not an ordinary value.
+Int, String, nominal IDs/enums/records and recursive List/Option/Result. I32, F32 and fixed numerical vectors are also supported: the U32 constructor
+contains signed/floating bits, and List contains exactly the declared vector
+components. Width, type and arity are checked against the source type. Unknown
+and Table types are rejected, including when hidden behind an empty option or collection. Table is a root capability, not an ordinary value.
 This codec does not expand the language's accepted action types.
 
 The caller can lower the existing value limits. Hard ceilings remain 100,000
