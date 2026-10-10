@@ -208,23 +208,27 @@ impl Parser {
             "Unit" => Ok(Type::Unit),
             "String" => Ok(Type::String),
             "Bool" => Ok(Type::Bool),
-            kind @ ("List" | "Option") => {
+            kind @ ("List" | "Buffer" | "Option") => {
                 self.expect("<")?;
                 let t = self.ty()?;
                 self.expect(">")?;
-                Ok(if kind == "List" {
+                Ok(if kind == "Buffer" {
+                    Type::Buffer(Box::new(t))
+                } else if kind == "List" {
                     Type::List(Box::new(t))
                 } else {
                     Type::Option(Box::new(t))
                 })
             }
-            kind @ ("Result" | "Table") => {
+            kind @ ("Result" | "Map" | "Table") => {
                 self.expect("<")?;
                 let a = self.ty()?;
                 self.expect(",")?;
                 let b = self.ty()?;
                 self.expect(">")?;
-                Ok(if kind == "Result" {
+                Ok(if kind == "Map" {
+                    Type::Map(Box::new(a), Box::new(b))
+                } else if kind == "Result" {
                     Type::Result(Box::new(a), Box::new(b))
                 } else {
                     Type::Table(Box::new(a), Box::new(b))

@@ -40,6 +40,9 @@ pub fn hint(e: &Expr, env: &Env, p: &Program) -> Option<Type> {
 }
 /// Source typing with an explicit expected context, shared by backends.
 pub fn infer_context(e: &Expr, env: &Env, p: &Program, want: Option<&Type>) -> LangResult<Type> {
+    if let Some(result) = crate::local_collections::infer(e, env, p, want) {
+        return result;
+    }
     match e {
         Expr::Float(_) => Ok(Type::F32),
         Expr::Neg(e) => {
@@ -286,9 +289,11 @@ pub fn infer_context(e: &Expr, env: &Env, p: &Program, want: Option<&Type>) -> L
             Ok(f.result.clone())
         }
         Expr::Method(xs, n, args) => {
-            let Type::List(inner) =
-                infer_context(xs, env, p, if n == "filter" { want } else { None })?
-            else {
+            let receiver = infer_context(xs, env, p, if n == "filter" { want } else { None })?;
+            if matches!(receiver, Type::Buffer(_) | Type::Map(..)) {
+                return crate::local_collections::infer_method(e, env, p, want, receiver);
+            }
+            let Type::List(inner) = receiver else {
                 return Err(format!("method {n} requires a list"));
             };
             if n == "at_or" {
@@ -392,7 +397,19 @@ fn calls(e: &Expr, out: &mut BTreeSet<String>) {
     match e {
         Expr::Call(n, args) => {
             if ![
-                "sum", "count", "foldr", "choose", "repeat", "vec2", "vec3", "vec4", "quot_or",
+                "sum",
+                "count",
+                "foldr",
+                "choose",
+                "repeat",
+                "repeat_until",
+                "buffer",
+                "buffer_fill",
+                "length",
+                "vec2",
+                "vec3",
+                "vec4",
+                "quot_or",
                 "rem_or",
             ]
             .contains(&n.as_str())
@@ -435,7 +452,19 @@ pub fn check(p: &Program) -> LangResult<()> {
         }
         crate::statecheck::validate_type(&f.result, p)?;
         if [
-            "sum", "count", "foldr", "choose", "repeat", "vec2", "vec3", "vec4", "quot_or",
+            "sum",
+            "count",
+            "foldr",
+            "choose",
+            "repeat",
+            "repeat_until",
+            "buffer",
+            "buffer_fill",
+            "length",
+            "vec2",
+            "vec3",
+            "vec4",
+            "quot_or",
             "rem_or",
         ]
         .contains(&f.name.as_str())
@@ -486,5 +515,6 @@ pub fn check(p: &Program) -> LangResult<()> {
     for f in &p.functions {
         visit(&f.name, p, &mut BTreeSet::new(), &mut done)?;
     }
-    crate::statecheck::check(p)
+    crate::statecheck::check(p)?;
+    crate::local_collections::check_ownership(p)
 }
