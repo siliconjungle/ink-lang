@@ -19,7 +19,8 @@ pub fn infer_as(e: &Expr, env: &Env, p: &Program, want: &Type) -> LangResult<Typ
     }
     Ok(got)
 }
-pub(crate) fn hint(e: &Expr, env: &Env, p: &Program) -> Option<Type> {
+/// Contextual word-width hint shared by independent backends.
+pub fn hint(e: &Expr, env: &Env, p: &Program) -> Option<Type> {
     match e {
         Expr::Num(_) => None,
         Expr::Binary(op, a, b) if ["+", "-", "*"].contains(&op.as_str()) => {
@@ -28,12 +29,8 @@ pub(crate) fn hint(e: &Expr, env: &Env, p: &Program) -> Option<Type> {
         _ => infer(e, env, p).ok().filter(is_word),
     }
 }
-pub(crate) fn infer_context(
-    e: &Expr,
-    env: &Env,
-    p: &Program,
-    want: Option<&Type>,
-) -> LangResult<Type> {
+/// Source typing with an explicit expected context, shared by backends.
+pub fn infer_context(e: &Expr, env: &Env, p: &Program, want: Option<&Type>) -> LangResult<Type> {
     match e {
         Expr::Num(n) => {
             if want == Some(&Type::U32) {
