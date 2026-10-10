@@ -1037,3 +1037,55 @@ fn result_query_and_keep_errors_are_local_until_the_caller_propagates() {
         json!(expected)
     );
 }
+
+#[test]
+fn direct_typed_frames_match_native_scopes_callbacks_and_snapshots() {
+    let _native = NATIVE_EXECUTION.lock().unwrap();
+    let source = include_str!("../examples/typed-frames.ink");
+    let p = parse(source).unwrap();
+    let script = vec![
+        json!({"call":"emit_list","args":[7]}),
+        json!({"call":"insert","args":[1,2]}),
+        json!({"call":"insert","args":[2,8]}),
+        json!({"call":"shadow","args":[10,false]}),
+        json!({"call":"shadow","args":[10,true]}),
+        json!({"call":"nested","args":[99]}),
+        json!({"call":"errors","args":[]}),
+        json!({"call":"emit_list","args":[7]}),
+        json!({"call":"abort_after_callback","args":[]}),
+        json!({"call":"nested","args":[0]}),
+        json!({"call":"insert","args":[1,99]}),
+    ];
+    let mut rt = Runtime::new(p.clone()).unwrap();
+    let expected: Vec<_> = script
+        .iter()
+        .map(|request| {
+            let before = rt.checkpoint_portable().unwrap();
+            let result = rt
+                .invoke_json(request["call"].as_str().unwrap(), &request["args"])
+                .unwrap();
+            let after = rt.checkpoint_portable().unwrap();
+            if !result.committed {
+                assert_eq!(before, after);
+            }
+            json!({"outcome":result.json(), "snapshot":after})
+        })
+        .collect();
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("build/typed-execution-phase1/frames");
+    fs::create_dir_all(&root).unwrap();
+    fs::write(root.join("source.ink"), source).unwrap();
+    fs::write(
+        root.join("expected.json"),
+        serde_json::to_vec(&expected).unwrap(),
+    )
+    .unwrap();
+    let code = state_native::emit(&p, None).unwrap();
+    let runner = r#"use compiled_state::State;use serde_json::{Value,json};fn main(){let steps:Vec<Value>=serde_json::from_slice(&std::fs::read(std::env::args().nth(1).unwrap()).unwrap()).unwrap();let mut state=State::new();let mut output=vec![];for step in steps{let outcome=state.invoke_json(step["call"].as_str().unwrap(),&step["args"]).unwrap();output.push(json!({"outcome":outcome,"snapshot":state.checkpoint().unwrap()}));}println!("{}",serde_json::to_string(&output).unwrap());}"#;
+    let native = compile_and_run_with_runner(&root, &code, &script, runner);
+    fs::write(
+        root.join("native.json"),
+        serde_json::to_vec(&native).unwrap(),
+    )
+    .unwrap();
+    assert_eq!(native, json!(expected));
+}

@@ -2,6 +2,11 @@
 
 ## Accepted production roadmap — 2026-10-10
 
+Scope update: James explicitly excludes editor support and schema evolution.
+Installation, diagnostics, debugging, persistence and crash recovery remain in
+scope. These exclusions do not reduce the source/refinement, performance or
+backend acceptance gates below.
+
 The user's later clarification makes individual database entries the primary
 knowledge unit. Bundles/locks are derived transport and reproducible build
 artifacts, not a requirement to install each algorithm as a separate package.
@@ -24,7 +29,7 @@ language and evaluation requirements below while delivering these milestones.
 | 4 | Stable knowledge packaging | Definitions, proofs, candidates, representation relations, initialisation/migration and separate cost evidence have pinned bounded dependency closures, offline replay and inspectable plans |
 | 5 | Complete one table representation transformation | Independently supplied row/column and maintained-query candidates preserve future reads/writes, failures, aborts, ordered events and snapshots under an unchanged compiler; correct baseline remains available |
 | 6 | Refine base execution through general primitives and database alternatives | Competitive ownership/allocation/construction behaviour; remaining hardcoded transformation authority is migrated rather than renamed |
-| 7 | First usable language release | Modules, standard library, diagnostics, installation, debugging/editor support and native/Wasm interoperability work for the declared subset |
+| 7 | First usable language release | Modules, standard library, diagnostics, installation, debugging and native/Wasm interoperability work for the declared subset |
 | 8 | Bounded search, then profile-guided adaptation | Replaceable external search has budgets and caching; exhaustion preserves a correct build; runtime adaptation additionally checks guards, migration and fallback |
 | 9 | Harden and evaluate the declared deployment scope | Adversarial/fuzz/independent checking, durability/recovery and concurrency claims have explicit boundaries; fair end-to-end performance, memory and compilation/proof-check costs are reported |
 

@@ -5,6 +5,8 @@ use num_traits::ToPrimitive;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::collections::BTreeMap;
+#[path = "stateful_actions.rs"]
+mod actions;
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum Value {
@@ -231,7 +233,8 @@ pub struct Runtime {
     action_ir: crate::action_ir::CheckedActions,
     effects: crate::effects::CheckedEffects,
     last_body_path: Option<crate::effects::Path>,
-    execution: crate::action_ir::Execution,
+    action_bodies: Vec<std::sync::Arc<crate::action_ir::Body>>,
+    keep_bodies: Vec<std::sync::Arc<crate::action_ir::Body>>,
     tables: BTreeMap<String, Table>,
     version: u64,
     outbox: Vec<Event>,
@@ -245,7 +248,12 @@ impl Runtime {
     pub fn new(program: Program) -> LangResult<Self> {
         let module = crate::core::CheckedModule::from_source(program.clone())?;
         let action_ir = crate::action_ir::CheckedActions::elaborate(&module)?;
-        let execution = action_ir.execution()?;
+        let action_bodies = (0..program.actions.len())
+            .map(|i| std::sync::Arc::new(action_ir.action(i).expect("checked action").clone()))
+            .collect();
+        let keep_bodies = (0..program.keeps.len())
+            .map(|i| std::sync::Arc::new(action_ir.keep(i).expect("checked keep").clone()))
+            .collect();
         let effects = crate::effects::CheckedEffects::derive(&action_ir)?;
         let tables = program
             .states
@@ -257,7 +265,8 @@ impl Runtime {
             action_ir,
             effects,
             last_body_path: None,
-            execution,
+            action_bodies,
+            keep_bodies,
             tables,
             version: 0,
             outbox: vec![],
@@ -380,13 +389,14 @@ impl Runtime {
     }
     pub fn invoke(&mut self, name: &str, args: Vec<Value>) -> LangResult<Outcome> {
         self.last_body_path = None;
-        let action = self
-            .execution
-            .actions()
+        let index = self
+            .program
+            .actions
             .iter()
-            .find(|a| a.name == name)
-            .ok_or_else(|| format!("unknown action {name}"))?
-            .clone();
+            .position(|a| a.name == name)
+            .ok_or_else(|| format!("unknown action {name}"))?;
+        let action = &self.program.actions[index];
+        let kind = action.kind.clone();
         if args.len() != action.params.len() {
             return Err("argument count mismatch".into());
         }
@@ -398,7 +408,7 @@ impl Runtime {
         self.fuel = 100_000_000;
         self.undo.clear();
         self.staged.clear();
-        let result = self.action(&action, args, false);
+        let result = self.typed_action(index, args, false);
         use crate::effects::{Exit, Path, ValueShape};
         let (exit, value) = match &result {
             Ok(v) => (
@@ -424,7 +434,7 @@ impl Runtime {
         });
 
         match result {
-            Ok(v) if action.kind == ActionKind::Query => {
+            Ok(v) if kind == ActionKind::Query => {
                 self.rollback();
                 Ok(Outcome {
                     result: v,
@@ -536,88 +546,239 @@ impl Runtime {
         // Reuse the boundary validator to reject malformed structured values.
         Value::from_json(&v.json(), t, &self.program)
     }
-    fn action(&mut self, a: &Action, args: Vec<Value>, nested: bool) -> Exec<Value> {
-        self.tick()?;
-        let mut env = Env::new();
-        for ((n, t), v) in a.params.iter().zip(args) {
-            env.insert(n.clone(), self.coerce(v, t)?);
+    fn binary(op: &str, av: Value, bv: Value) -> Exec<Value> {
+        match op {
+            "==" => return Ok(Value::Bool(av == bv)),
+            "!=" => return Ok(Value::Bool(av != bv)),
+            "<" => return Ok(Value::Bool(av < bv)),
+            ">" => return Ok(Value::Bool(av > bv)),
+            "<=" => return Ok(Value::Bool(av <= bv)),
+            ">=" => return Ok(Value::Bool(av >= bv)),
+            _ => {}
         }
-        // ? exits this Result-returning query, not the enclosing transaction.
-        // Change errors remain sticky across their call boundary below.
-        let result = match self.block(&a.body, &mut env) {
-            Err(Failure::Abort(error))
-                if a.kind == ActionKind::Query && matches!(a.result, Type::Result(..)) =>
-            {
-                Value::Result(false, Box::new(error))
-            }
-            result => result?.ok_or("missing return")?,
-        };
-        let result = self.coerce(result, &a.result)?;
-        if nested && a.kind == ActionKind::Change {
-            let result = match result {
-                Value::Result(true, value) => Ok(value),
-                Value::Result(false, error) => Err(error),
-                _ => return Err("change did not return Result".into()),
-            };
-            return match crate::transaction::nested_change(result) {
-                Ok(Ok(value)) => Ok(Value::Result(true, value)),
-                Err(error) => Err(Failure::Abort(*error)),
-                Ok(Err(_)) => unreachable!("nested errors cannot resume"),
-            };
+        match (av, bv) {
+            (Value::U64(a), Value::U64(b)) => Ok(Value::U64(match op {
+                "+" => a.wrapping_add(b),
+                "-" => a.wrapping_sub(b),
+                "*" => a.wrapping_mul(b),
+                _ => return Err("invalid integer operator".into()),
+            })),
+            (Value::U32(a), Value::U32(b)) => Ok(Value::U32(match op {
+                "+" => a.wrapping_add(b),
+                "-" => a.wrapping_sub(b),
+                "*" => a.wrapping_mul(b),
+                _ => return Err("invalid integer operator".into()),
+            })),
+            (Value::Int(a), Value::Int(b)) => Ok(Value::Int(match op {
+                "+" => a + b,
+                "-" => a - b,
+                "*" => a * b,
+                _ => return Err("invalid exact integer operator".into()),
+            })),
+            (Value::Bool(a), Value::Bool(b)) => Ok(Value::Bool(match op {
+                "&&" => a && b,
+                "||" => a || b,
+                _ => return Err("invalid Bool operator".into()),
+            })),
+            _ => Err("operand type mismatch".into()),
         }
-        Ok(result)
     }
-    fn block(&mut self, body: &[Statement], env: &mut Env) -> Exec<Option<Value>> {
-        for s in body {
-            self.tick()?;
-            match s {
-                Statement::Let(n, t, e) => {
-                    let v = self.expr(e, env)?;
-                    let v = if let Some(t) = t {
-                        self.coerce(v, t)?
+    fn builtin(&mut self, n: &str, vals: Vec<Value>, result_type: &Type) -> Exec<Value> {
+        match n {
+            "Ok" | "Err" => return Ok(Value::Result(n == "Ok", Box::new(vals[0].clone()))),
+            "Some" => return Ok(Value::Option(Some(Box::new(vals[0].clone())))),
+            "Int" => return Ok(self.coerce(vals[0].clone(), &Type::Int)?),
+            "checked_add" | "checked_sub" | "checked_mul" => {
+                let out = match &vals[0] {
+                    Value::U32(a) => {
+                        let b = if let Value::U32(b) = self.coerce(vals[1].clone(), &Type::U32)? {
+                            b
+                        } else {
+                            return Err("arithmetic type".into());
+                        };
+                        match n {
+                            "checked_add" => a.checked_add(b),
+                            "checked_sub" => a.checked_sub(b),
+                            _ => a.checked_mul(b),
+                        }
+                        .map(Value::U32)
+                    }
+                    Value::U64(a) => {
+                        let b = if let Value::U64(b) = vals[1] {
+                            b
+                        } else {
+                            return Err("arithmetic type".into());
+                        };
+                        match n {
+                            "checked_add" => a.checked_add(b),
+                            "checked_sub" => a.checked_sub(b),
+                            _ => a.checked_mul(b),
+                        }
+                        .map(Value::U64)
+                    }
+                    _ => return Err("checked arithmetic type".into()),
+                };
+                return Ok(if let Some(v) = out {
+                    Value::Result(true, Box::new(v))
+                } else {
+                    Value::Result(
+                        false,
+                        Box::new(Value::Enum("ArithmeticError".into(), "Overflow".into())),
+                    )
+                });
+            }
+            "sum" | "count" => {
+                let xs = if let Value::List(xs) = &vals[0] {
+                    xs
+                } else {
+                    return Err("aggregate requires list".into());
+                };
+                if n == "count" {
+                    return Ok(Value::Int(BigInt::from(xs.len())));
+                }
+                if xs.is_empty() {
+                    return Ok(match result_type {
+                        Type::U32 => Value::U32(0),
+                        Type::U64 => Value::U64(0),
+                        _ => Value::Int(BigInt::from(0)),
+                    });
+                }
+                if xs.iter().all(|x| matches!(x, Value::Int(_))) {
+                    let mut s = BigInt::from(0);
+                    for x in xs {
+                        if let Value::Int(v) = x {
+                            s += v;
+                        }
+                    }
+                    return Ok(Value::Int(s));
+                }
+                if xs.iter().all(|x| matches!(x, Value::U32(_))) {
+                    let mut s = 0u32;
+                    for x in xs {
+                        if let Value::U32(v) = x {
+                            s = s.wrapping_add(*v);
+                        }
+                    }
+                    return Ok(Value::U32(s));
+                }
+                let mut s = 0u64;
+                for x in xs {
+                    if let Value::U64(v) = x {
+                        s = s.wrapping_add(*v);
                     } else {
-                        v
-                    };
-                    env.insert(n.clone(), v);
-                }
-                Statement::Return(e) => return Ok(Some(self.expr(e, env)?)),
-                Statement::Expr(e) => {
-                    self.expr(e, env)?;
-                }
-                Statement::Emit(n, e) => {
-                    let v = self.expr(e, env)?;
-                    let t = &self.program.events[n];
-                    let v = self.coerce(v, t)?;
-                    self.staged.push((n.clone(), v));
-                }
-                Statement::If(e, yes, no) => {
-                    let yes_value = match self.expr(e, env)? {
-                        Value::Bool(b) => b,
-                        _ => return Err("if requires Bool".into()),
-                    };
-                    if let Some(v) =
-                        self.block(if yes_value { yes } else { no }, &mut env.clone())?
-                    {
-                        return Ok(Some(v));
+                        return Err("invalid sum elements".into());
                     }
                 }
+                return Ok(Value::U64(s));
             }
+            _ => return Err(format!("unknown builtin {n}").into()),
         }
-        Ok(None)
     }
+    fn pure_call(&mut self, index: usize, vals: Vec<Value>) -> Exec<Value> {
+        let f = &self.program.functions[index];
+        let inputs = vals
+            .iter()
+            .zip(&f.params)
+            .map(|(v, (_, t))| crate::eval::Value::from_program_json(&v.json(), t, &self.program))
+            .collect::<LangResult<Vec<_>>>()?;
+        let result = crate::eval::call(&self.program, &f.name, inputs, &mut self.fuel)?;
+        return Ok(Value::from_json(&result.json(), &f.result, &self.program)?);
+    }
+    fn table(&mut self, root: &String, n: &str, vals: Vec<Value>) -> Exec<Value> {
+        let d = self
+            .program
+            .states
+            .iter()
+            .find(|d| &d.name == root)
+            .ok_or("missing schema")?
+            .clone();
+        let (kt, vt) = if let Type::Table(k, v) = d.ty {
+            (k, v)
+        } else {
+            return Err("state is not a table".into());
+        };
+        if n == "values" {
+            return Ok(Value::List(self.tables[root].values().cloned().collect()));
+        }
+        let k = self.coerce(vals[0].clone(), &kt)?;
+        match n {
+            "get" => {
+                return Ok(Value::Option(
+                    self.tables[root].get(&k).cloned().map(Box::new),
+                ))
+            }
+            "contains" => return Ok(Value::Bool(self.tables[root].contains_key(&k))),
+            "insert" | "replace" | "remove" => {
+                let old = self.tables[root].get(&k).cloned();
+                if (n == "insert" && old.is_some()) || (n == "replace" && old.is_none()) {
+                    return Err("violated checked table precondition".into());
+                }
+                let next = if n == "remove" {
+                    None
+                } else {
+                    Some(self.coerce(vals[1].clone(), &vt)?)
+                };
+                let plans = self
+                    .cached
+                    .iter()
+                    .filter(|(_, c)| &c.plan.root == root)
+                    .map(|(n, c)| (n.clone(), c.plan.clone()))
+                    .collect::<Vec<_>>();
+                let mut prior = Vec::new();
+                let mut updated = Vec::new();
+                for (name, plan) in plans {
+                    let old_value = if let Some(v) = &old {
+                        Some(self.contribution(&plan, v.clone())?)
+                    } else {
+                        None
+                    };
+                    let new_value = if let Some(v) = &next {
+                        Some(self.contribution(&plan, v.clone())?)
+                    } else {
+                        None
+                    };
+                    let (new_total, undo) = crate::aggregate::update_journal(
+                        self.certificate.as_ref().expect("checked plan certificate"),
+                        &self.cached[&name].total,
+                        old_value.as_ref(),
+                        new_value.as_ref(),
+                    );
+                    prior.push((name.clone(), undo));
+                    updated.push((name, new_total));
+                }
+                self.undo.push(Undo {
+                    root: root.clone(),
+                    key: k.clone(),
+                    old: old.clone(),
+                    cached: prior,
+                });
+                let table = self.tables.get_mut(root).expect("known root");
+                if let Some(v) = next {
+                    table.insert(k, v);
+                } else {
+                    table.remove(&k);
+                }
+                for (name, total) in updated {
+                    self.cached.get_mut(&name).expect("existing plan").total = total;
+                }
+                return Ok(if n == "remove" {
+                    Value::Option(old.map(Box::new))
+                } else {
+                    Value::Unit
+                });
+            }
+            _ => return Err(format!("unknown table method {n}").into()),
+        }
+    }
+    // Transitional aggregate projections still use source expressions. Actions
+    // and keeps execute only the checked typed tree in actions.rs.
     fn expr(&mut self, e: &Expr, env: &Env) -> Exec<Value> {
         self.tick()?;
         match e {
             Expr::Float(_) | Expr::Neg(_) | Expr::Let(..) => {
                 Err("compute expression belongs in a pure function".into())
             }
-            Expr::Num(n) => Ok(match self.execution.type_of(e) {
-                Some(Type::U32) => {
-                    Value::U32((*n).try_into().map_err(|_| "u32 literal out of range")?)
-                }
-                Some(Type::Int) => Value::Int(BigInt::from(*n)),
-                _ => Value::U64(*n),
-            }),
+            Expr::Num(n) => Ok(Value::U64(*n)),
             Expr::Bool(v) => Ok(Value::Bool(*v)),
             Expr::String(s) => Ok(Value::String(s.clone())),
             Expr::Unit => Ok(Value::Unit),
@@ -631,22 +792,8 @@ impl Runtime {
                 if let Some(cache) = self.cached.get(n) {
                     return Ok(Value::Int(cache.total.clone()));
                 }
-                if let Some(k) = self
-                    .execution
-                    .keeps()
-                    .iter()
-                    .find(|k| &k.name == n)
-                    .cloned()
-                {
-                    // Result-valued keeps have the same local error boundary
-                    // as read-only queries; reading one does not propagate it.
-                    let v = match self.expr(&k.value, &Env::new()) {
-                        Err(Failure::Abort(error)) if matches!(k.ty, Type::Result(..)) => {
-                            Value::Result(false, Box::new(error))
-                        }
-                        result => result?,
-                    };
-                    return Ok(self.coerce(v, &k.ty)?);
+                if let Some(index) = self.program.keeps.iter().position(|k| &k.name == n) {
+                    return self.typed_keep(index);
                 }
                 Err(format!("unbound runtime name {n}").into())
             }
@@ -706,270 +853,50 @@ impl Runtime {
                         _ => bv,
                     };
                 }
-                match op.as_str() {
-                    "==" => return Ok(Value::Bool(av == bv)),
-                    "!=" => return Ok(Value::Bool(av != bv)),
-                    "<" => return Ok(Value::Bool(av < bv)),
-                    ">" => return Ok(Value::Bool(av > bv)),
-                    "<=" => return Ok(Value::Bool(av <= bv)),
-                    ">=" => return Ok(Value::Bool(av >= bv)),
-                    _ => {}
-                }
-                match (av, bv) {
-                    (Value::U64(a), Value::U64(b)) => Ok(Value::U64(match op.as_str() {
-                        "+" => a.wrapping_add(b),
-                        "-" => a.wrapping_sub(b),
-                        "*" => a.wrapping_mul(b),
-                        _ => return Err("invalid integer operator".into()),
-                    })),
-                    (Value::U32(a), Value::U32(b)) => Ok(Value::U32(match op.as_str() {
-                        "+" => a.wrapping_add(b),
-                        "-" => a.wrapping_sub(b),
-                        "*" => a.wrapping_mul(b),
-                        _ => return Err("invalid integer operator".into()),
-                    })),
-                    (Value::Int(a), Value::Int(b)) => Ok(Value::Int(match op.as_str() {
-                        "+" => a + b,
-                        "-" => a - b,
-                        "*" => a * b,
-                        _ => return Err("invalid exact integer operator".into()),
-                    })),
-                    (Value::Bool(a), Value::Bool(b)) => Ok(Value::Bool(match op.as_str() {
-                        "&&" => a && b,
-                        "||" => a || b,
-                        _ => return Err("invalid Bool operator".into()),
-                    })),
-                    _ => Err("operand type mismatch".into()),
-                }
+                Self::binary(op, av, bv)
             }
             Expr::Call(n, args) => {
                 let vals = args
                     .iter()
                     .map(|e| self.expr(e, env))
                     .collect::<Exec<Vec<_>>>()?;
-                match n.as_str() {
-                    "Ok" | "Err" => return Ok(Value::Result(n == "Ok", Box::new(vals[0].clone()))),
-                    "Some" => return Ok(Value::Option(Some(Box::new(vals[0].clone())))),
-                    "Int" => return Ok(self.coerce(vals[0].clone(), &Type::Int)?),
-                    "checked_add" | "checked_sub" | "checked_mul" => {
-                        let out = match &vals[0] {
-                            Value::U32(a) => {
-                                let b = if let Value::U32(b) =
-                                    self.coerce(vals[1].clone(), &Type::U32)?
-                                {
-                                    b
-                                } else {
-                                    return Err("arithmetic type".into());
-                                };
-                                match n.as_str() {
-                                    "checked_add" => a.checked_add(b),
-                                    "checked_sub" => a.checked_sub(b),
-                                    _ => a.checked_mul(b),
-                                }
-                                .map(Value::U32)
-                            }
-                            Value::U64(a) => {
-                                let b = if let Value::U64(b) = vals[1] {
-                                    b
-                                } else {
-                                    return Err("arithmetic type".into());
-                                };
-                                match n.as_str() {
-                                    "checked_add" => a.checked_add(b),
-                                    "checked_sub" => a.checked_sub(b),
-                                    _ => a.checked_mul(b),
-                                }
-                                .map(Value::U64)
-                            }
-                            _ => return Err("checked arithmetic type".into()),
-                        };
-                        return Ok(if let Some(v) = out {
-                            Value::Result(true, Box::new(v))
-                        } else {
-                            Value::Result(
-                                false,
-                                Box::new(Value::Enum("ArithmeticError".into(), "Overflow".into())),
-                            )
-                        });
-                    }
-                    "sum" | "count" => {
-                        let xs = if let Value::List(xs) = &vals[0] {
-                            xs
-                        } else {
-                            return Err("aggregate requires list".into());
-                        };
-                        if n == "count" {
-                            return Ok(Value::Int(BigInt::from(xs.len())));
-                        }
-                        if xs.is_empty() {
-                            let types = env.iter().map(|(n, v)| (n.clone(), v.ty())).collect();
-                            let t = if let Some(ty) = self.execution.type_of(&args[0]) {
-                                ty.clone()
-                            } else {
-                                crate::statecheck::expression_type(&self.program, &args[0], &types)?
-                            };
-                            return Ok(match t {
-                                Type::List(t) if *t == Type::U32 => Value::U32(0),
-                                Type::List(t) if *t == Type::U64 => Value::U64(0),
-                                _ => Value::Int(BigInt::from(0)),
-                            });
-                        }
-                        if xs.iter().all(|x| matches!(x, Value::Int(_))) {
-                            let mut s = BigInt::from(0);
-                            for x in xs {
-                                if let Value::Int(v) = x {
-                                    s += v;
-                                }
-                            }
-                            return Ok(Value::Int(s));
-                        }
-                        if xs.iter().all(|x| matches!(x, Value::U32(_))) {
-                            let mut s = 0u32;
-                            for x in xs {
-                                if let Value::U32(v) = x {
-                                    s = s.wrapping_add(*v);
-                                }
-                            }
-                            return Ok(Value::U32(s));
-                        }
-                        let mut s = 0u64;
-                        for x in xs {
-                            if let Value::U64(v) = x {
-                                s = s.wrapping_add(*v);
-                            } else {
-                                return Err("invalid sum elements".into());
-                            }
-                        }
-                        return Ok(Value::U64(s));
-                    }
-                    _ => {}
-                }
-                if let Some(a) = self
-                    .execution
-                    .actions()
-                    .iter()
-                    .find(|a| &a.name == n)
-                    .cloned()
+                if [
+                    "Ok",
+                    "Err",
+                    "Some",
+                    "Int",
+                    "checked_add",
+                    "checked_sub",
+                    "checked_mul",
+                    "sum",
+                    "count",
+                ]
+                .contains(&n.as_str())
                 {
-                    return self.action(&a, vals, true);
+                    let result_type = if n == "sum" {
+                        let types = env.iter().map(|(n, v)| (n.clone(), v.ty())).collect();
+                        crate::statecheck::expression_type(&self.program, e, &types)?
+                    } else {
+                        Type::Unit
+                    };
+                    return self.builtin(n, vals, &result_type);
                 }
-                if let Some(f) = self
-                    .program
-                    .functions
-                    .iter()
-                    .find(|f| &f.name == n)
-                    .cloned()
-                {
-                    let inputs = vals
-                        .iter()
-                        .zip(&f.params)
-                        .map(|(v, (_, t))| {
-                            crate::eval::Value::from_program_json(&v.json(), t, &self.program)
-                        })
-                        .collect::<LangResult<Vec<_>>>()?;
-                    let result = crate::eval::call(&self.program, n, inputs, &mut self.fuel)?;
-                    return Ok(Value::from_json(&result.json(), &f.result, &self.program)?);
+                if let Some(index) = self.program.actions.iter().position(|a| &a.name == n) {
+                    return self.typed_action(index, vals, true);
+                }
+                if let Some(index) = self.program.functions.iter().position(|f| &f.name == n) {
+                    return self.pure_call(index, vals);
                 }
                 Err(format!("unknown runtime function {n}").into())
             }
             Expr::Method(receiver, n, args) => {
                 if let Expr::Var(root) = &**receiver {
                     if self.tables.contains_key(root) && !env.contains_key(root) {
-                        let d = self
-                            .program
-                            .states
-                            .iter()
-                            .find(|d| &d.name == root)
-                            .ok_or("missing schema")?
-                            .clone();
-                        let (kt, vt) = if let Type::Table(k, v) = d.ty {
-                            (k, v)
-                        } else {
-                            return Err("state is not a table".into());
-                        };
                         let vals = args
                             .iter()
                             .map(|a| self.expr(a, env))
                             .collect::<Exec<Vec<_>>>()?;
-                        if n == "values" {
-                            return Ok(Value::List(self.tables[root].values().cloned().collect()));
-                        }
-                        let k = self.coerce(vals[0].clone(), &kt)?;
-                        match n.as_str() {
-                            "get" => {
-                                return Ok(Value::Option(
-                                    self.tables[root].get(&k).cloned().map(Box::new),
-                                ))
-                            }
-                            "contains" => {
-                                return Ok(Value::Bool(self.tables[root].contains_key(&k)))
-                            }
-                            "insert" | "replace" | "remove" => {
-                                let old = self.tables[root].get(&k).cloned();
-                                if (n == "insert" && old.is_some())
-                                    || (n == "replace" && old.is_none())
-                                {
-                                    return Err("violated checked table precondition".into());
-                                }
-                                let next = if n == "remove" {
-                                    None
-                                } else {
-                                    Some(self.coerce(vals[1].clone(), &vt)?)
-                                };
-                                let plans = self
-                                    .cached
-                                    .iter()
-                                    .filter(|(_, c)| &c.plan.root == root)
-                                    .map(|(n, c)| (n.clone(), c.plan.clone()))
-                                    .collect::<Vec<_>>();
-                                let mut prior = Vec::new();
-                                let mut updated = Vec::new();
-                                for (name, plan) in plans {
-                                    let old_value = if let Some(v) = &old {
-                                        Some(self.contribution(&plan, v.clone())?)
-                                    } else {
-                                        None
-                                    };
-                                    let new_value = if let Some(v) = &next {
-                                        Some(self.contribution(&plan, v.clone())?)
-                                    } else {
-                                        None
-                                    };
-                                    let (new_total, undo) = crate::aggregate::update_journal(
-                                        self.certificate
-                                            .as_ref()
-                                            .expect("checked plan certificate"),
-                                        &self.cached[&name].total,
-                                        old_value.as_ref(),
-                                        new_value.as_ref(),
-                                    );
-                                    prior.push((name.clone(), undo));
-                                    updated.push((name, new_total));
-                                }
-                                self.undo.push(Undo {
-                                    root: root.clone(),
-                                    key: k.clone(),
-                                    old: old.clone(),
-                                    cached: prior,
-                                });
-                                let table = self.tables.get_mut(root).expect("known root");
-                                if let Some(v) = next {
-                                    table.insert(k, v);
-                                } else {
-                                    table.remove(&k);
-                                }
-                                for (name, total) in updated {
-                                    self.cached.get_mut(&name).expect("existing plan").total =
-                                        total;
-                                }
-                                return Ok(if n == "remove" {
-                                    Value::Option(old.map(Box::new))
-                                } else {
-                                    Value::Unit
-                                });
-                            }
-                            _ => return Err(format!("unknown table method {n}").into()),
-                        }
+                        return self.table(root, n, vals);
                     }
                 }
                 let value = self.expr(receiver, env)?;
