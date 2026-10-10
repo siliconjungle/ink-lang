@@ -11,7 +11,8 @@ use verified_language::{
 fn certificate() -> Certificate {
     serde_json::from_slice(
         &fs::read(
-            Path::new(env!("CARGO_MANIFEST_DIR")).join("knowledge/table-maintenance/table.json"),
+            Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join("knowledge/research/table-maintenance/table.json"),
         )
         .unwrap(),
     )
@@ -212,7 +213,7 @@ fn rehashed_valid_math_cannot_change_table_meaning_or_source_arithmetic() {
     }
     let mut bad = c.clone();
     let canonical: Certificate = serde_json::from_str(include_str!(
-        "../knowledge/exact-maintenance/canonical.json"
+        "../knowledge/research/exact-maintenance/canonical.json"
     ))
     .unwrap();
     bad.replace = canonical.replace;
@@ -269,7 +270,7 @@ fn unsupported_key_domains_keep_scanning_and_have_no_bounded_cache_plan() {
     state_native::emit_with_bounds(&p, Some(&c), true).unwrap();
     // Older proof fragments retain their original supported selection scope.
     let old: Certificate = serde_json::from_str(include_str!(
-        "../knowledge/reversible-maintenance/reversible.json"
+        "../knowledge/research/reversible-maintenance/reversible.json"
     ))
     .unwrap();
     assert!(aggregate::plan_with_certificate(&p, &p.keeps[0], &old).is_some());

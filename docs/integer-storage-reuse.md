@@ -29,7 +29,7 @@ python3 dev.py build --release
 # build/storage-original/lang before running the before/after experiment.
 python3 bench/storage-reuse.py
 python3 bench/state/run.py \
-  --maintenance knowledge/reversible-maintenance/reversible.json \
+  --maintenance knowledge/research/reversible-maintenance/reversible.json \
   --output reports/storage-inventory-phase1 \
   --build-directory build/storage-inventory-bench
 python3 tools/cache_allocations.py \

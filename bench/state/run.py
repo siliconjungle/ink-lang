@@ -29,7 +29,7 @@ def build(env,maintenance=None):
     run(['cargo','build','--release','--bin','lang'],env)
     lang=ROOT/'target/release/lang'
     if maintenance is None:
-        run([lang,'prove-maintenance','knowledge/sum-maintenance.lang','-o',BUILD/'maintenance.json'])
+        run([lang,'prove-maintenance','knowledge/research/sum-maintenance.lang','-o',BUILD/'maintenance.json'])
     else:
         run([lang,'verify-maintenance',maintenance])
         shutil.copyfile(maintenance,BUILD/'maintenance.json')
@@ -151,7 +151,7 @@ def main():
     if args.output:OUT=args.output.resolve()
     if args.build_directory:BUILD=args.build_directory.resolve()
     env=environment();started=time.time()
-    sources={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for folder in ['src','bench/state','examples','knowledge'] for p in (ROOT/folder).rglob('*') if p.is_file() and '__pycache__' not in str(p)}
+    sources={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for folder in ['src','core/src','runtime/src','runtime/hosts','lowerings/c/src','lowerings/rust/src','lowerings/wasm/src','lowerings/gpu/src','lowerings/gpu/devices','lowerings/gpu/shaders','bench/state','examples','knowledge/research','knowledge/producers','knowledge/ink_knowledge','knowledge/schemas','knowledge/store'] for p in (ROOT/folder).rglob('*') if p.is_file() and '__pycache__' not in str(p)}
     for name in ['bench/methodology.py','Cargo.toml','Cargo.lock','core/Cargo.toml','core/Cargo.lock']:
         sources[name]=hashlib.sha256((ROOT/name).read_bytes()).hexdigest()
     lang=build(env,args.maintenance);correctness=validate(lang);print('Correctness:',correctness,flush=True)

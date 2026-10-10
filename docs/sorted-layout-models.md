@@ -2,7 +2,7 @@
 
 The source-bound row/column model now has database proofs that valid ordered stores stay sorted and unique through every finite insert, replace and remove history. The compiler, generic kernel and native runtime are unchanged.
 
-`knowledge/source-sorted-layout` binds the nine-field `Row` source schema; `knowledge/source-sorted-ledger` binds the nested `Ledger` schema. Each adds 22 objects: five functions and 17 theorems. The packages retain the necessary closure from the earlier [layout correspondence](column-layout-models.md), plus the original source authority. Their complete closures contain 128 and 125 objects. No checker resource limit was increased.
+`knowledge/research/source-sorted-layout` binds the nine-field `Row` source schema; `knowledge/research/source-sorted-ledger` binds the nested `Ledger` schema. Each adds 22 objects: five functions and 17 theorems. The packages retain the necessary closure from the earlier [layout correspondence](column-layout-models.md), plus the original source authority. Their complete closures contain 128 and 125 objects. No checker resource limit was increased.
 
 The key comparison is the existing lexicographic comparison of two unsigned 64-bit words. External SAT certificates prove transitivity, forward order when equality and reverse order are absent, and inequality in the presence of strict order. The generic kernel independently reconstructs the bitvector obligations and checks the RUP proofs. The SAT solver is not part of the compiler or its trust boundary.
 

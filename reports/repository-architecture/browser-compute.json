@@ -1,0 +1,105 @@
+{
+  "status": "passed",
+  "comparisons": 298,
+  "gpu_calls": 126,
+  "invalid_rejected": 6,
+  "resident_particle_receipts": [
+    {
+      "counters": {
+        "upload_bytes": 6220,
+        "readback_bytes": 6168,
+        "dispatches": 240,
+        "live_buffer_bytes": 24724
+      },
+      "backend": "gpu",
+      "reason": "explicit GPU selection"
+    }
+  ],
+  "small_selection": {
+    "values": {
+      "result": [
+        -2,
+        9
+      ]
+    },
+    "counters": {
+      "upload_bytes": 0,
+      "readback_bytes": 0,
+      "dispatches": 0
+    },
+    "backend": "cpu",
+    "reason": "measured whole pipeline including transfers; setup amortised over 32 uses, 10% minimum saving",
+    "profile": {
+      "cpu_ms": 0,
+      "gpu_ms": 0.2999999523162842,
+      "setup_ms": 0,
+      "uses": 1,
+      "gpu": false
+    },
+    "value": [
+      -2,
+      9
+    ]
+  },
+  "disposed_device_fallback": {
+    "values": {
+      "result": [
+        -2
+      ]
+    },
+    "counters": {
+      "upload_bytes": 0,
+      "readback_bytes": 0,
+      "dispatches": 0
+    },
+    "backend": "cpu",
+    "reason": "GPU fallback: engine disposed",
+    "value": [
+      -2
+    ]
+  },
+  "concurrent_calls": 8,
+  "browser": "154.0.8037.98",
+  "unavailable_gpu_fallback": {
+    "values": {
+      "result": [
+        -2,
+        9,
+        -6
+      ]
+    },
+    "counters": {
+      "upload_bytes": 0,
+      "readback_bytes": 0,
+      "dispatches": 0
+    },
+    "backend": "cpu",
+    "reason": "GPU fallback: WebGPU unavailable",
+    "value": [
+      -2,
+      9,
+      -6
+    ]
+  },
+  "shader_failure_fallback": {
+    "values": {
+      "result": [
+        -2,
+        9,
+        -6
+      ]
+    },
+    "counters": {
+      "upload_bytes": 0,
+      "readback_bytes": 0,
+      "dispatches": 0
+    },
+    "backend": "cpu",
+    "reason": "GPU fallback: GPUPipelineError: [Invalid ShaderModule (unlabeled)] is invalid due to a previous error.\n - While validating compute stage ([Invalid ShaderModule (unlabeled)], entryPoint: \"main\").\n",
+    "value": [
+      -2,
+      9,
+      -6
+    ]
+  }
+}

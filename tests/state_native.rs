@@ -22,7 +22,7 @@ query empty() -> Option<u32> {return None;}
 "#;
 
 fn compile_and_run(dir: &Path, code: &str, script: &[Value]) -> Value {
-    compile_and_run_with_runner(dir, code, script, state_native::RUNNER)
+    compile_and_run_with_runner(dir, code, script, verified_language::runtime::STATE_RUNNER)
 }
 fn compile_and_run_with_runner(dir: &Path, code: &str, script: &[Value], runner: &str) -> Value {
     fs::create_dir_all(dir.join("src")).unwrap();
@@ -124,8 +124,10 @@ fn native_state_matches_reference_with_and_without_checked_maintenance() {
     let _native = NATIVE_EXECUTION.lock().unwrap();
     let source = format!("{}\n{EXTRA}", include_str!("../examples/inventory.lang"));
     let p = parse(&source).unwrap();
-    let c = aggregate::prove(&parse(include_str!("../knowledge/sum-maintenance.lang")).unwrap())
-        .unwrap();
+    let c = aggregate::prove(
+        &parse(include_str!("../knowledge/research/sum-maintenance.lang")).unwrap(),
+    )
+    .unwrap();
     let mut script = vec![
         json!({"call":"total","args":[]}),
         json!({"call":"derived","args":[]}),
@@ -179,14 +181,14 @@ fn native_state_matches_reference_with_and_without_checked_maintenance() {
         })
         .collect();
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("build");
-    let alternate = include_str!("../knowledge/sum-maintenance.lang").replace(
+    let alternate = include_str!("../knowledge/research/sum-maintenance.lang").replace(
         "total + new",
         "total + new + (18446744073709551615 * 2) - 18446744073709551615 - 18446744073709551615",
     );
     let alternate = aggregate::prove(&parse(&alternate).unwrap()).unwrap();
     // Consume the final use only: copies on both sides and multiplication
     // retain their exact source order before the owned allocation is moved.
-    let repeated = include_str!("../knowledge/sum-maintenance.lang")
+    let repeated = include_str!("../knowledge/research/sum-maintenance.lang")
         .replace(
             "total + new",
             "total + new + (total * total) - (total * total)",
@@ -197,14 +199,16 @@ fn native_state_matches_reference_with_and_without_checked_maintenance() {
     let reversible: aggregate::Certificate = serde_json::from_slice(
         &fs::read(
             Path::new(env!("CARGO_MANIFEST_DIR"))
-                .join("knowledge/reversible-maintenance/reversible.json"),
+                .join("knowledge/research/reversible-maintenance/reversible.json"),
         )
         .unwrap(),
     )
     .unwrap();
     let mut carry = None;
-    let table: aggregate::Certificate =
-        serde_json::from_str(include_str!("../knowledge/table-maintenance/table.json")).unwrap();
+    let table: aggregate::Certificate = serde_json::from_str(include_str!(
+        "../knowledge/research/table-maintenance/table.json"
+    ))
+    .unwrap();
     for (mode, cert) in [
         ("scan", None),
         ("maintained", Some(&c)),
@@ -281,7 +285,7 @@ fn native_state_matches_reference_with_and_without_checked_maintenance() {
         })
         .collect();
     // This equivalent formula has negative and >128-bit intermediate values.
-    let modular_source=include_str!("../knowledge/sum-maintenance.lang").replace("total + new", "new - total + total + total + (18446744073709551615 * 18446744073709551615 * 18446744073709551615) - (18446744073709551615 * 18446744073709551615 * 18446744073709551615)");
+    let modular_source=include_str!("../knowledge/research/sum-maintenance.lang").replace("total + new", "new - total + total + total + (18446744073709551615 * 18446744073709551615 * 18446744073709551615) - (18446744073709551615 * 18446744073709551615 * 18446744073709551615)");
     let modular = aggregate::prove(&parse(&modular_source).unwrap()).unwrap();
     let mut carry = None;
     for (mode, certificate, bounded) in [
@@ -352,7 +356,7 @@ fn native_state_matches_reference_with_and_without_checked_maintenance() {
         json!({"call":"total","args":[]}),
     ];
     let code = state_native::emit_with_bounds(&wide, Some(&modular), true).unwrap();
-    let runner = state_native::RUNNER.replacen(
+    let runner = verified_language::runtime::STATE_RUNNER.replacen(
         "println!",
         "assert_eq!(state.query_words_l_total(),(u64::MAX-2,2)); println!",
         1,
@@ -408,8 +412,10 @@ fn owned_rows_copy_only_used_remove_results_and_preserve_abort() {
       change take(key:u64)->Result<Option<Row>,Error> writes(Rows){return Ok(Rows.remove(key));}
       query value()->Int reads(total){return total;}
     "#).unwrap();
-    let cert: aggregate::Certificate =
-        serde_json::from_str(include_str!("../knowledge/table-maintenance/table.json")).unwrap();
+    let cert: aggregate::Certificate = serde_json::from_str(include_str!(
+        "../knowledge/research/table-maintenance/table.json"
+    ))
+    .unwrap();
     let huge = (num_bigint::BigInt::from(1u32) << 512usize).to_string();
     let script = vec![
         json!({"call":"put","args":[0,"original",{"Int":huge}]}),
@@ -458,7 +464,7 @@ fn owned_rows_copy_only_used_remove_results_and_preserve_abort() {
             "#[derive(Debug,PartialEq,Eq)] pub struct l_Row",
         );
         code.push_str("\npub static ROW_CLONES:std::sync::atomic::AtomicUsize=std::sync::atomic::AtomicUsize::new(0);\nimpl Clone for l_Row{fn clone(&self)->Self{ROW_CLONES.fetch_add(1,std::sync::atomic::Ordering::Relaxed);Self{l_name:self.l_name.clone(),l_value:self.l_value.clone()}}}\n");
-        let runner=state_native::RUNNER.replacen("println!","assert_eq!(compiled_state::ROW_CLONES.load(std::sync::atomic::Ordering::Relaxed),1);println!",1);
+        let runner=verified_language::runtime::STATE_RUNNER.replacen("println!","assert_eq!(compiled_state::ROW_CLONES.load(std::sync::atomic::Ordering::Relaxed),1);println!",1);
         let got = compile_and_run_with_runner(
             &Path::new(env!("CARGO_MANIFEST_DIR")).join(format!("build/native-owned-row-{name}")),
             &code,
@@ -523,11 +529,11 @@ fn complete_rows_survive_repeated_abort_and_failed_promotion_with_both_journals(
     for (journal, raw) in [
         (
             "reversible",
-            include_str!("../knowledge/table-maintenance/table.json"),
+            include_str!("../knowledge/research/table-maintenance/table.json"),
         ),
         (
             "snapshot",
-            include_str!("../knowledge/table-maintenance/table-snapshot.json"),
+            include_str!("../knowledge/research/table-maintenance/table-snapshot.json"),
         ),
     ] {
         let cert: aggregate::Certificate = serde_json::from_str(raw).unwrap();
@@ -555,7 +561,7 @@ fn complete_rows_survive_repeated_abort_and_failed_promotion_with_both_journals(
             fs::create_dir_all(&dir).unwrap();
             let snapshot_file = dir.join("expected.bin");
             fs::write(&snapshot_file, &expected_snapshot).unwrap();
-            let runner = state_native::RUNNER
+            let runner = verified_language::runtime::STATE_RUNNER
                 .replace("  output.push", "  let before=state.checkpoint()?;\n  output.push")
                 .replace("?);\n }", "?);\n  if step[\"call\"]==\"fail\"{assert_eq!(state.checkpoint()?,before);}\n  state=State::restore(&state.checkpoint()?)?;\n }")
                 .replace(" println!", &format!(" assert_eq!(state.checkpoint()?,std::fs::read({:?}).unwrap());\n println!",snapshot_file));
@@ -605,17 +611,17 @@ fn source_row_projection_preserves_composite_payloads_across_native_abort_and_re
     for (journal, raw) in [
         (
             "reversible",
-            include_str!("../knowledge/table-maintenance/table.json"),
+            include_str!("../knowledge/research/table-maintenance/table.json"),
         ),
         (
             "snapshot",
-            include_str!("../knowledge/table-maintenance/table-snapshot.json"),
+            include_str!("../knowledge/research/table-maintenance/table-snapshot.json"),
         ),
     ] {
         let cert: aggregate::Certificate = serde_json::from_str(raw).unwrap();
         let model: verified_language::row_model::Model = serde_json::from_slice(
             &fs::read(Path::new(env!("CARGO_MANIFEST_DIR")).join(format!(
-                "knowledge/source-row-undo/{journal}/source-model.json"
+                "knowledge/research/source-row-undo/{journal}/source-model.json"
             )))
             .unwrap(),
         )
@@ -645,7 +651,7 @@ fn source_row_projection_preserves_composite_payloads_across_native_abort_and_re
             fs::create_dir_all(&dir).unwrap();
             let snapshot_file = dir.join("expected.bin");
             fs::write(&snapshot_file, &snapshot).unwrap();
-            let runner=state_native::RUNNER.replace("  output.push","  let before=state.checkpoint()?;\n  output.push")
+            let runner=verified_language::runtime::STATE_RUNNER.replace("  output.push","  let before=state.checkpoint()?;\n  output.push")
                 .replace("?);\n }","?);\n  if step[\"call\"]==\"fail\"{assert_eq!(state.checkpoint()?,before);}\n  state=State::restore(&state.checkpoint()?)?;\n }")
                 .replace(" println!",&format!(" assert_eq!(state.checkpoint()?,std::fs::read({:?}).unwrap());\n println!",snapshot_file));
             assert!(runner.contains("assert_eq!(state.checkpoint()?,before)"));
@@ -663,8 +669,10 @@ fn borrowed_commit_outcomes_reuse_events_and_enforce_the_state_borrow() {
     let _native = NATIVE_EXECUTION.lock().unwrap();
     use std::process::Command;
     let p = parse(include_str!("../examples/state-benchmark.lang")).unwrap();
-    let cert: aggregate::Certificate =
-        serde_json::from_str(include_str!("../knowledge/table-maintenance/table.json")).unwrap();
+    let cert: aggregate::Certificate = serde_json::from_str(include_str!(
+        "../knowledge/research/table-maintenance/table.json"
+    ))
+    .unwrap();
     let code = state_native::emit_with_bounds(&p, Some(&cert), true).unwrap();
     let runner = r#"
       use compiled_state::*;
@@ -730,9 +738,10 @@ fn borrowed_commit_outcomes_reuse_events_and_enforce_the_state_borrow() {
 #[test]
 fn tampered_native_maintenance_is_rejected_before_emission() {
     let p = parse(include_str!("../examples/inventory.lang")).unwrap();
-    let mut c =
-        aggregate::prove(&parse(include_str!("../knowledge/sum-maintenance.lang")).unwrap())
-            .unwrap();
+    let mut c = aggregate::prove(
+        &parse(include_str!("../knowledge/research/sum-maintenance.lang")).unwrap(),
+    )
+    .unwrap();
     c.replace = c.insert.clone();
     assert!(state_native::emit(&p, Some(&c)).is_err());
 }

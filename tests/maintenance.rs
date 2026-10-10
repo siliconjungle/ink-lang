@@ -12,7 +12,8 @@ change add_and_read(id: ItemId) -> Result<Int, Error> writes(Items) reads(total_
 change delete_and_fail(id: ItemId) -> Result<Unit, Error> writes(Items) { Items.remove(id); return Err(Error.Overflow); }
 "#;
 fn certificate() -> aggregate::Certificate {
-    aggregate::prove(&parse(include_str!("../knowledge/sum-maintenance.lang")).unwrap()).unwrap()
+    aggregate::prove(&parse(include_str!("../knowledge/research/sum-maintenance.lang")).unwrap())
+        .unwrap()
 }
 fn id(n: u64) -> String {
     format!("{n:032x}")
@@ -22,7 +23,7 @@ fn id(n: u64) -> String {
 fn certificate_checks_actual_update_algorithms() {
     let c = certificate();
     aggregate::verify(&c).unwrap();
-    let source = include_str!("../knowledge/sum-maintenance.lang")
+    let source = include_str!("../knowledge/research/sum-maintenance.lang")
         .replace("total - old + new", "total + old + new");
     assert!(aggregate::prove(&parse(&source).unwrap()).is_err());
     let mut bad = c.clone();

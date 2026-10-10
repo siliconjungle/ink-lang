@@ -1,6 +1,6 @@
 # Complete-row search contracts
 
-The database now contains a lower-bound search model for the actual `Row` and nested `Ledger` source payload sorts. `knowledge/source-search-layout` and `knowledge/source-search-ledger` add 41 objects each: two datatypes, 17 functions and 22 theorems. Their complete closures contain 122 and 121 objects, within the unchanged 128-object limit.
+The database now contains a lower-bound search model for the actual `Row` and nested `Ledger` source payload sorts. `knowledge/research/source-search-layout` and `knowledge/research/source-search-ledger` add 41 objects each: two datatypes, 17 functions and 22 theorems. Their complete closures contain 122 and 121 objects, within the unchanged 128-object limit.
 
 A search returns a `SearchCut`. A missing key has the sequence before its insertion gap and the sequence after it. A found key additionally holds the actual key and complete row, between the prefix and suffix. Searching uses the same equality and lexicographic two-word comparison as the existing ordered-write model. It scans linearly; native storage still uses Rust binary search.
 

@@ -740,7 +740,7 @@ fn root() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).to_path_buf()
 }
 fn knowledge_dir() -> PathBuf {
-    root().join("knowledge")
+    root().join("knowledge/research")
 }
 fn read(path: impl AsRef<Path>) -> Vec<u8> {
     let path = path.as_ref();

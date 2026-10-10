@@ -39,7 +39,7 @@ def build(env):
             (project/'Cargo.toml').write_text('[package]\nname="compiled-state"\nversion="0.1.0"\nedition="2021"\n[lib]\ncrate-type=["staticlib","cdylib"]\n[features]\nbaseline=[]\n[dependencies]\nnum-bigint="=0.4.8"\nserde_json="=1.0.151"\n[profile.release]\nlto=false\ncodegen-units=1\n')
         else:
             compiler=original if variant=='cloned' else current
-            cert=ROOT/('knowledge/delta-maintenance/delta.json' if variant=='delta' else 'knowledge/exact-maintenance/canonical.json')
+            cert=ROOT/('knowledge/research/delta-maintenance/delta.json' if variant=='delta' else 'knowledge/research/exact-maintenance/canonical.json')
             state.run([compiler,'emit-state','bench/wide-cache/program.ink','-o',project,'--maintenance',cert])
             manifest=(project/'Cargo.toml').read_text().replace('crate-type = ["rlib", "cdylib"]','crate-type = ["staticlib", "cdylib"]').replace('lto = "thin"','lto = false')
             (project/'Cargo.toml').write_text(manifest+'\n[features]\nbaseline=[]\n')
@@ -79,8 +79,8 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--repeats',type=int,default=7);parser.add_argument('--steps',type=int,default=30000);args=parser.parse_args()
     if args.repeats<3 or not 1<=args.steps<=10000000:parser.error('at least 3 repeats and 1..10000000 steps required')
     started=time.time();env=state.environment();state.BUILD=BUILD;state.OUT=OUT
-    paths=[p for folder in ['src','bench/wide-cache','knowledge/delta-maintenance','knowledge/exact-maintenance'] for p in (ROOT/folder).rglob('*') if p.is_file()]
-    paths+=[ROOT/p for p in ['Cargo.toml','Cargo.lock','bench/wide-cache.py','knowledge/tools/delta_maintenance_proofs.py']]
+    paths=[p for folder in ['src','core/src','runtime/src','runtime/hosts','lowerings/c/src','lowerings/rust/src','lowerings/wasm/src','lowerings/gpu/src','lowerings/gpu/devices','lowerings/gpu/shaders','bench/wide-cache','knowledge/research/delta-maintenance','knowledge/research/exact-maintenance'] for p in (ROOT/folder).rglob('*') if p.is_file()]
+    paths+=[ROOT/p for p in ['Cargo.toml','Cargo.lock','bench/wide-cache.py','knowledge/producers/delta_maintenance_proofs.py']]
     sources={str(p.relative_to(ROOT)):sha(p) for p in paths}
     artifacts,compilers=build(env);correctness=validate();print('Correctness:',correctness['native_observation_comparisons'],flush=True)
     rows=[];rnd=random.Random(1973264)

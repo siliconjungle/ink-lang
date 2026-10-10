@@ -7,7 +7,7 @@ use verified_language::{
 
 #[test]
 fn external_arithmetic_search_proves_scalars_and_mapped_sums_with_lexical_shadowing() {
-    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("knowledge/rewrite-search");
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("knowledge/research/rewrite-search");
     let original = syntax::parse(&fs::read_to_string(root.join("kernels.ink")).unwrap()).unwrap();
     let mut selected = original.clone();
     let evidence =
@@ -78,16 +78,16 @@ fn exhausted_external_search_keeps_original_program_and_reproduces_without_solve
     let temp = std::env::temp_dir().join(format!("ink-rewrite-search-{}", std::process::id()));
     fs::create_dir_all(&temp).unwrap();
     let original = syntax::parse(
-        &fs::read_to_string(root.join("knowledge/rewrite-search/kernels.ink")).unwrap(),
+        &fs::read_to_string(root.join("knowledge/research/rewrite-search/kernels.ink")).unwrap(),
     )
     .unwrap();
     for budget in [0, 1, 10000] {
         let out = temp.join(format!("budget-{budget}"));
         let result = Command::new("python3")
-            .arg(root.join("knowledge/tools/rewrite_search.py"))
-            .arg(root.join("knowledge/rewrite-search/kernels.ink"))
+            .arg(root.join("planner/research/rewrite_search.py"))
+            .arg(root.join("knowledge/research/rewrite-search/kernels.ink"))
             .args(["--compiler", env!("CARGO_BIN_EXE_ink"), "--rules"])
-            .arg(root.join("knowledge/bitvector/rewrite-index.json"))
+            .arg(root.join("knowledge/research/bitvector/rewrite-index.json"))
             .args(["--budget", &budget.to_string(), "--output-dir"])
             .arg(&out)
             .output()
@@ -118,7 +118,7 @@ fn exhausted_external_search_keeps_original_program_and_reproduces_without_solve
             for name in ["lock.json", "replacement.json"] {
                 assert_eq!(
                     fs::read(out.join(name)).unwrap(),
-                    fs::read(root.join("knowledge/rewrite-search").join(name)).unwrap()
+                    fs::read(root.join("knowledge/research/rewrite-search").join(name)).unwrap()
                 );
             }
         }
@@ -145,7 +145,7 @@ fn retired_polynomial_commands_fail_before_writing_output() {
     assert!(!output.exists());
     let result = Command::new(env!("CARGO_BIN_EXE_ink"))
         .args(["prove"])
-        .arg(root.join("knowledge/ring.lang"))
+        .arg(root.join("knowledge/research/ring.lang"))
         .arg("-o")
         .arg(&output)
         .output()
@@ -159,10 +159,10 @@ fn external_mapped_sum_fusion_is_checked_by_induction_without_new_core_rules() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
     let temp = std::env::temp_dir().join(format!("ink-rewrite-fusion-{}", std::process::id()));
     let result = Command::new("python3")
-        .arg(root.join("knowledge/tools/rewrite_search.py"))
+        .arg(root.join("planner/research/rewrite_search.py"))
         .arg(root.join("examples/kernels.lang"))
         .args(["--compiler", env!("CARGO_BIN_EXE_ink"), "--rules"])
-        .arg(root.join("knowledge/bitvector/rewrite-index.json"))
+        .arg(root.join("knowledge/research/bitvector/rewrite-index.json"))
         .args(["--fuse-mapped-sum", "--output-dir"])
         .arg(&temp)
         .output()

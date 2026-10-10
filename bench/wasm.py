@@ -20,8 +20,8 @@ def run(args):
 run(['python3','dev.py','build','--bin','lang'])
 lang=root/'target/debug/lang'
 replacement=build/'replacement';shutil.rmtree(replacement,ignore_errors=True)
-run(['python3','knowledge/tools/rewrite_search.py','examples/kernels.lang',
-     '--rules','knowledge/bitvector/rewrite-index.json','--compiler',lang,
+run(['python3','planner/research/rewrite_search.py','examples/kernels.lang',
+     '--rules','knowledge/research/bitvector/rewrite-index.json','--compiler',lang,
      '--output-dir',replacement,'--fuse-mapped-sum'])
 for mode in ['plain','knowledge']:
     args=[lang,'build','examples/kernels.lang','--target','wasm32','--zig',zig,'-o',build/f'{mode}.wasm']

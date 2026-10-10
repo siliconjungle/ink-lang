@@ -71,6 +71,7 @@ dependencies = [
  "ink-lowering-gpu",
  "ink-lowering-rust",
  "ink-lowering-wasm",
+ "ink-runtime",
  "num-bigint",
  "num-traits",
  "serde",
@@ -101,7 +102,6 @@ name = "ink-lowering-gpu"
 version = "0.1.0"
 dependencies = [
  "ink-core",
- "ink-lowering-c",
  "serde_json",
  "sha2",
 ]
@@ -120,6 +120,22 @@ dependencies = [
 [[package]]
 name = "ink-lowering-wasm"
 version = "0.1.0"
+dependencies = [
+ "ink-core",
+ "ink-lowering-c",
+]
+
+[[package]]
+name = "ink-runtime"
+version = "0.1.0"
+dependencies = [
+ "ink-core",
+ "ink-lowering-c",
+ "ink-lowering-gpu",
+ "ink-lowering-wasm",
+ "serde_json",
+ "sha2",
+]
 
 [[package]]
 name = "itoa"

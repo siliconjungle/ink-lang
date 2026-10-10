@@ -22,7 +22,7 @@ def build(env):
             shutil.copyfile(ROOT/'reports/wide-cache-phase1/rust_bigint/Cargo.toml',project/'Cargo.toml')
             shutil.copyfile(ROOT/'reports/wide-cache-phase1/rust_bigint/Cargo.lock',project/'Cargo.lock')
         else:
-            cert=ROOT/({'journal':'knowledge/reversible-maintenance/reversible.json','snapshot_db':'knowledge/reversible-maintenance/snapshot.json'}.get(variant,'knowledge/delta-maintenance/delta.json'))
+            cert=ROOT/({'journal':'knowledge/research/reversible-maintenance/reversible.json','snapshot_db':'knowledge/research/reversible-maintenance/snapshot.json'}.get(variant,'knowledge/research/delta-maintenance/delta.json'))
             state.run([ROOT/'target/release/lang','emit-state','bench/wide-cache/program.ink','-o',project,'--maintenance',cert])
             manifest=(project/'Cargo.toml').read_text().replace('crate-type = ["rlib", "cdylib"]','crate-type = ["staticlib", "cdylib"]').replace('lto = "thin"','lto = false')
             (project/'Cargo.toml').write_text(manifest+'\n[features]\nbaseline=[]\n')
@@ -38,8 +38,8 @@ def build(env):
 def main():
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--repeats',type=int,default=7);parser.add_argument('--steps',type=int,default=30000);args=parser.parse_args()
     if args.repeats<3 or not 1<=args.steps<=10000000:parser.error('at least 3 repeats and 1..10000000 steps required')
-    paths=[p for folder in ['src','bench/wide-cache','bench/state','knowledge/delta-maintenance','knowledge/reversible-maintenance'] for p in (ROOT/folder).rglob('*') if p.is_file()]
-    paths += [ROOT/p for p in ['Cargo.toml','Cargo.lock','bench/reversible-cache.py','bench/wide-cache.py','knowledge/tools/reversible_maintenance_proofs.py','tests/database_maintenance.rs','reports/wide-cache-phase1/rust_bigint/src/lib.rs','reports/wide-cache-phase1/rust_bigint/Cargo.toml','reports/wide-cache-phase1/rust_bigint/Cargo.lock']]
+    paths=[p for folder in ['src','core/src','runtime/src','runtime/hosts','lowerings/c/src','lowerings/rust/src','lowerings/wasm/src','lowerings/gpu/src','lowerings/gpu/devices','lowerings/gpu/shaders','bench/wide-cache','bench/state','knowledge/research/delta-maintenance','knowledge/research/reversible-maintenance'] for p in (ROOT/folder).rglob('*') if p.is_file()]
+    paths += [ROOT/p for p in ['Cargo.toml','Cargo.lock','bench/reversible-cache.py','bench/wide-cache.py','knowledge/producers/reversible_maintenance_proofs.py','tests/database_maintenance.rs','reports/wide-cache-phase1/rust_bigint/src/lib.rs','reports/wide-cache-phase1/rust_bigint/Cargo.toml','reports/wide-cache-phase1/rust_bigint/Cargo.lock']]
     sources={str(p.relative_to(ROOT)):sha(p) for p in paths};started=time.time();env=state.environment()
     artifacts=build(env);correctness=wide.validate();print('Correctness:',correctness['native_observation_comparisons'],flush=True)
     rows=[];rnd=random.Random(817234)

@@ -75,7 +75,7 @@ def main():
                         want=bench.wide.oracle(c[0],c[1],m['parameters']['steps'],c[2]);assert {k:got[k] for k in want}==want
                     trials+=1
             temporary=ROOT/'build/reversible-reports-audit'/out.name
-            cases=[('snapshot','knowledge/delta-maintenance/delta.json',False),('snapshot_db','knowledge/reversible-maintenance/snapshot.json',False),('journal','knowledge/reversible-maintenance/reversible.json',False)] if wide else [('generated','knowledge/reversible-maintenance/reversible.json',False),('generated-bounded','knowledge/reversible-maintenance/reversible.json',True)]
+            cases=[('snapshot','knowledge/research/delta-maintenance/delta.json',False),('snapshot_db','knowledge/research/reversible-maintenance/snapshot.json',False),('journal','knowledge/research/reversible-maintenance/reversible.json',False)] if wide else [('generated','knowledge/research/reversible-maintenance/reversible.json',False),('generated-bounded','knowledge/research/reversible-maintenance/reversible.json',True)]
             source='bench/wide-cache/program.ink' if wide else 'examples/state-benchmark.lang'
             wrapper='bench/wide-cache/wrapper.rs' if wide else 'bench/state/generated_abi.rs'
             for variant,cert,bounded in cases:
@@ -103,9 +103,9 @@ def main():
         results[out.name]=result
     if args.execute:
         temporary=ROOT/'build/reversible-reports-audit/producer'
-        run(['python3','knowledge/tools/reversible_maintenance_proofs.py',temporary,'--compiler',current,'--kernel',original])
-        for p in (ROOT/'knowledge/reversible-maintenance').rglob('*'):
-            if p.is_file() and p.suffix in ('.json','.ink'):assert p.read_bytes()==(temporary/p.relative_to(ROOT/'knowledge/reversible-maintenance')).read_bytes(),p
+        run(['python3','knowledge/producers/reversible_maintenance_proofs.py',temporary,'--compiler',current,'--kernel',original])
+        for p in (ROOT/'knowledge/research/reversible-maintenance').rglob('*'):
+            if p.is_file() and p.suffix in ('.json','.ink'):assert p.read_bytes()==(temporary/p.relative_to(ROOT/'knowledge/research/reversible-maintenance')).read_bytes(),p
         for result in results.values():result['original_kernel_and_two_candidates_replayed']=True
     for name,result in results.items():(ROOT/'reports'/name/('audit.json' if args.execute else 'audit-static.json')).write_text(json.dumps(result,indent=2)+'\n')
     print(json.dumps(results,indent=2))

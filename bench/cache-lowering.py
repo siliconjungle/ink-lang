@@ -16,16 +16,16 @@ def main():
     BUILD.mkdir(parents=True,exist_ok=True);OUT.mkdir(parents=True,exist_ok=True)
     # Snapshot every input needed to reconstruct the compiler, producers/tests,
     # and compared runtime sources. Check no source changes during measurement.
-    sources={str(p.relative_to(ROOT)):sha(p) for folder in ['src','bench/state','knowledge/exact-integers','knowledge/exact-maintenance','knowledge/delta-maintenance']
+    sources={str(p.relative_to(ROOT)):sha(p) for folder in ['src','core/src','runtime/src','runtime/hosts','lowerings/c/src','lowerings/rust/src','lowerings/wasm/src','lowerings/gpu/src','lowerings/gpu/devices','lowerings/gpu/shaders','bench/state','knowledge/research/exact-integers','knowledge/research/exact-maintenance','knowledge/research/delta-maintenance']
              for p in (ROOT/folder).rglob('*') if p.is_file()}
     for path in ['Cargo.toml','Cargo.lock','examples/state-benchmark.lang','bench/cache-lowering.py',
-                 'knowledge/tools/delta_maintenance_proofs.py','tests/database_maintenance.rs']:
+                 'knowledge/producers/delta_maintenance_proofs.py','tests/database_maintenance.rs']:
         sources[path]=sha(ROOT/path)
     previous=ROOT/'reports/database-maintenance-phase1'
     for path in ['generated-lib.rs','generated-Cargo.toml','generated-Cargo.lock','generated-bounded-lib.rs','metadata.json']:
         sources[str((previous/path).relative_to(ROOT))]=sha(previous/path)
     env=state.environment();state.BUILD=BUILD;state.OUT=OUT;started=time.time()
-    compiler=state.build(env,ROOT/'knowledge/exact-maintenance/canonical.json')
+    compiler=state.build(env,ROOT/'knowledge/research/exact-maintenance/canonical.json')
     native=env.copy();native['RUSTFLAGS']='-C target-cpu=native -C panic=abort';native['CARGO_TARGET_DIR']=str(BUILD/'rust-target')
     for variant in ['language_cloned','language_delta']:
         project=BUILD/(variant+'-project');(project/'src').mkdir(parents=True,exist_ok=True)
@@ -34,7 +34,7 @@ def main():
             shutil.copyfile(previous/'generated-Cargo.toml',project/'Cargo.toml')
             shutil.copyfile(previous/'generated-Cargo.lock',project/'Cargo.lock')
         else:
-            state.run([compiler,'emit-state','examples/state-benchmark.lang','-o',project,'--maintenance',ROOT/'knowledge/delta-maintenance/delta.json'])
+            state.run([compiler,'emit-state','examples/state-benchmark.lang','-o',project,'--maintenance',ROOT/'knowledge/research/delta-maintenance/delta.json'])
             with (project/'src/lib.rs').open('a') as f:f.write((ROOT/'bench/state/generated_abi.rs').read_text())
             shutil.copyfile(BUILD/'generated/Cargo.toml',project/'Cargo.toml')
         state.run(['cargo','build','--release','--offline','--lib','--manifest-path',project/'Cargo.toml'],native)

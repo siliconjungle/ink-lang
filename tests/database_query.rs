@@ -13,7 +13,7 @@ fn write_entry(database: &Path, object: &Json) -> String {
 
 fn add(database: &Path, library: &str, name: &str) -> String {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("knowledge")
+        .join("knowledge/research")
         .join(library);
     let names: Json = serde_json::from_slice(&fs::read(root.join("names.json")).unwrap()).unwrap();
     let id = names[name].as_str().unwrap().to_owned();
@@ -40,7 +40,7 @@ fn add(database: &Path, library: &str, name: &str) -> String {
 
 fn run(source: &Path, database: &Path, out: &Path, budget: usize) -> std::process::Output {
     Command::new("python3")
-        .arg(Path::new(env!("CARGO_MANIFEST_DIR")).join("knowledge/tools/rewrite_search.py"))
+        .arg(Path::new(env!("CARGO_MANIFEST_DIR")).join("planner/research/rewrite_search.py"))
         .arg(source)
         .args(["--database"])
         .arg(database)
@@ -239,7 +239,7 @@ fn general_typed_query_discovers_individual_laws_and_replays_after_database_remo
     let database = dir.join("database");
     let relocated = dir.join("relocated");
     fs::create_dir(&database).unwrap();
-    fs::create_dir_all(relocated.join("objects")).unwrap();
+    fs::create_dir(&relocated).unwrap();
     let source = dir.join("source.ink");
     fs::write(
         &source,
@@ -251,11 +251,26 @@ fn general_typed_query_discovers_individual_laws_and_replays_after_database_remo
             .unwrap();
     let core = dir.join("core.json");
     fs::write(&core, module.bytes().unwrap()).unwrap();
+    let publish = |db: &Path, objects: &Vec<verified_language::registry::Entry>| {
+        let input = db.join("authoring.json");
+        fs::write(&input, serde_json::to_vec(objects).unwrap()).unwrap();
+        let result=Command::new("python3").env("PYTHONPATH",Path::new(env!("CARGO_MANIFEST_DIR")).join("knowledge"))
+            .arg("-c").arg("import sys,json;from ink_knowledge import Store;Store.publish(sys.argv[1],json.load(open(sys.argv[2]))).rebuild()")
+            .arg(db).arg(input).output().unwrap();
+        assert!(
+            result.status.success(),
+            "{}",
+            String::from_utf8_lossy(&result.stderr)
+        );
+    };
+    publish(&database, &vec![]);
     let run_typed = |db: &Path, out: &Path| {
         let result = Command::new("python3")
-            .arg(Path::new(env!("CARGO_MANIFEST_DIR")).join("knowledge/tools/semantic_search.py"))
-            .args(["--compiler", env!("CARGO_BIN_EXE_ink"), "--database"])
+            .arg(Path::new(env!("CARGO_MANIFEST_DIR")).join("planner/plan.py"))
+            .args(["--compiler", env!("CARGO_BIN_EXE_ink"), "--knowledge-root"])
             .arg(db)
+            .arg("--snapshot")
+            .arg(db.join("store/snapshot.json"))
             .arg("--core")
             .arg(&core)
             .arg("-o")
@@ -276,9 +291,12 @@ fn general_typed_query_discovers_individual_laws_and_replays_after_database_remo
     };
     let (empty, _) = run_typed(&database, &dir.join("empty.json"));
     assert!(empty.applications.is_empty());
-    let catalogue: Json =
-        serde_json::from_str(include_str!("../knowledge/semantic/catalogue.json")).unwrap();
+    let catalogue: Json = serde_json::from_str(include_str!(
+        "../knowledge/research/semantic/catalogue.json"
+    ))
+    .unwrap();
     let mut laws = Vec::new();
+    let mut objects = Vec::new();
     for op in ["binary:+", "binary:*"] {
         let literal = if op == "binary:+" { 0 } else { 1 };
         let law = catalogue["objects"]
@@ -292,21 +310,13 @@ fn general_typed_query_discovers_individual_laws_and_replays_after_database_remo
             })
             .unwrap();
         let typed: verified_language::laws::Law = serde_json::from_value(law.clone()).unwrap();
-        let id = verified_language::laws::identity(&typed).unwrap();
-        fs::create_dir_all(database.join("objects")).unwrap();
-        fs::write(
-            database.join("objects").join(format!("{id}.json")),
-            serde_json::to_vec_pretty(&typed).unwrap(),
-        )
-        .unwrap();
-        // Generic JSON maps reorder fields. The Rust checker owns canonical law identity.
-        fs::write(
-            relocated.join("objects").join(format!("{id}.json")),
-            serde_json::to_vec(law).unwrap(),
-        )
-        .unwrap();
+        let entry = verified_language::registry::Entry::from_law(&typed).unwrap();
+        let id = verified_language::registry::identity(&entry).unwrap();
+        objects.push(entry);
         laws.push(id);
     }
+    publish(&database, &objects);
+    publish(&relocated, &objects);
     let selected_path = dir.join("selection.json");
     let (package, receipt) = run_typed(&database, &selected_path);
     let (_, again) = run_typed(&relocated, &dir.join("again.json"));
@@ -335,6 +345,29 @@ fn general_typed_query_discovers_individual_laws_and_replays_after_database_remo
         "{}",
         String::from_utf8_lossy(&cli.stderr)
     );
+    // Immutable snapshot paths work without relying on the active pointer.
+    let pinned = database.join("store/snapshots").join(format!(
+        "{}.json",
+        receipt["database"]["snapshot_sha256"].as_str().unwrap()
+    ));
+    let cli_pinned = Command::new(env!("CARGO_BIN_EXE_ink"))
+        .arg("emit-core")
+        .arg(&source)
+        .arg("--optimise")
+        .arg(pinned)
+        .arg("-o")
+        .arg(dir.join("cli-pinned.json"))
+        .output()
+        .unwrap();
+    assert!(
+        cli_pinned.status.success(),
+        "{}",
+        String::from_utf8_lossy(&cli_pinned.stderr)
+    );
+    assert_eq!(
+        fs::read(dir.join("cli.json")).unwrap(),
+        fs::read(dir.join("cli-pinned.json")).unwrap()
+    );
     let mut false_law: verified_language::laws::Law = serde_json::from_value(
         catalogue["objects"]
             .as_object()
@@ -350,12 +383,8 @@ fn general_typed_query_discovers_individual_laws_and_replays_after_database_remo
     )
     .unwrap();
     false_law.to = verified_language::semantic::word(verified_language::core::Type::U32, 1);
-    let false_id = verified_language::laws::identity(&false_law).unwrap();
-    fs::write(
-        database.join("objects").join(format!("{false_id}.json")),
-        serde_json::to_vec(&false_law).unwrap(),
-    )
-    .unwrap();
+    objects.push(verified_language::registry::Entry::from_law(&false_law).unwrap());
+    publish(&database, &objects);
     let untouched = dir.join("untouched.json");
     fs::write(&untouched, "existing-output").unwrap();
     let rejected = Command::new(env!("CARGO_BIN_EXE_ink"))

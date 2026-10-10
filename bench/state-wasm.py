@@ -19,7 +19,7 @@ def same_json(a,b):
 run(['python3','dev.py','build','--bin','lang','--bin','state_wasm_fixture'])
 run([root/'target/debug/state_wasm_fixture',out/'fixtures'])
 lang=root/'target/debug/lang'
-run([lang,'prove-maintenance','knowledge/sum-maintenance.lang','-o',out/'maintenance.json'])
+run([lang,'prove-maintenance','knowledge/research/sum-maintenance.lang','-o',out/'maintenance.json'])
 fixture_files=sorted(p.name for p in (out/'fixtures/inventory').iterdir() if p.name!='source.lang')
 modes=[];native_checks=0
 for fixture,variant in [('inventory','scan'),('inventory','maintained'),('bounded','scan'),('bounded','maintained'),('bounded','bounded')]:

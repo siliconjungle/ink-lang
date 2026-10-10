@@ -160,8 +160,10 @@ fn portable_reference_snapshots_preserve_future_changes_and_pending_events() {
     let mut restored = Runtime::restore_portable(p.clone(), &bytes).unwrap();
     restored
         .enable_maintenance(
-            aggregate::prove(&parse(include_str!("../knowledge/sum-maintenance.lang")).unwrap())
-                .unwrap(),
+            aggregate::prove(
+                &parse(include_str!("../knowledge/research/sum-maintenance.lang")).unwrap(),
+            )
+            .unwrap(),
         )
         .unwrap();
     assert_eq!(restored.checkpoint_portable().unwrap(), bytes);

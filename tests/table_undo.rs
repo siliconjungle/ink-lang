@@ -13,7 +13,7 @@ struct Model {
 impl Model {
     fn load(folder: &str) -> Self {
         let root = Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join("knowledge")
+            .join("knowledge/research")
             .join(folder);
         let ids = serde_json::from_slice(&fs::read(root.join("names.json")).unwrap()).unwrap();
         let bundle: Bundle =

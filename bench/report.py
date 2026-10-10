@@ -66,7 +66,7 @@ lines += [
     '- [Environment, commands and source hashes](bench/results/metadata.json)',
     '- [Correctness checks](bench/results/correctness.json)',
     '- [Language source](examples/kernels.lang)',
-    '- [Proof-package source](knowledge/ring.lang)',
+    '- [Proof-package source](knowledge/research/ring.lang)',
     '- [Full implementation plan](PLAN.md)',
 ]
 (root/'BENCHMARKS.md').write_text('\n'.join(lines)+'\n')

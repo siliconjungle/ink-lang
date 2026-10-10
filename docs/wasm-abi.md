@@ -57,10 +57,10 @@ Buffer offsets and handles have different meanings. Inputs remain owned by the h
 
 `lang_invoke` accepts UTF-8 JSON `{"call":"restock","args":[KEY,AMOUNT]}`. JSON integers must remain exact. Fixed integer keys/arguments use numeric tokens; nominal IDs use their existing hexadecimal strings. Exact `Int` outcomes keep the native wire encoding `{"Int":"DECIMAL"}`. The success response is `{"ok":OUTCOME}`; an ABI/argument/execution error is `{"error":{"message":"TEXT","committed":false}}`. A source-level `Err` is an ordinary outcome with `committed:false`, not a host exception. Successful changes return their new version and ordered events. Queries return the current version without committing.
 
-`lowerings/wasm/runtime/state-wasm.mjs` is a browser/Node adapter using standard WebAssembly APIs. Its exact JSON codec encodes BigInt as numeric tokens and decodes integer tokens to BigInt. It rejects unsafe Number inputs; pass integers as BigInt. It preserves strings, including Unicode and escaped characters. For example:
+`runtime/hosts/state-wasm.mjs` is a browser/Node adapter using standard WebAssembly APIs. Its exact JSON codec encodes BigInt as numeric tokens and decodes integer tokens to BigInt. It rejects unsafe Number inputs; pass integers as BigInt. It preserves strings, including Unicode and escaped characters. For example:
 
 ```js
-import {StatefulModule} from './lowerings/wasm/runtime/state-wasm.mjs';
+import {StatefulModule} from './runtime/hosts/state-wasm.mjs';
 const module = await StatefulModule.instantiate(await (await fetch('/inventory.wasm')).arrayBuffer());
 let state = module.create();
 state.invoke('create', ['00000000000000000000000000000001', 'Part', 12n]);

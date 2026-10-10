@@ -65,12 +65,12 @@ impl Layout {
         } else {
             "source-row-undo"
         };
-        let folder = root.join("knowledge").join(name);
+        let folder = root.join("knowledge/research").join(name);
         let model: Model =
             serde_json::from_slice(&fs::read(folder.join("binding.json")).unwrap()).unwrap();
         let names = serde_json::from_slice(&fs::read(folder.join("names.json")).unwrap()).unwrap();
         let cert: Certificate = serde_json::from_slice(
-            &fs::read(root.join("knowledge/table-maintenance/table.json")).unwrap(),
+            &fs::read(root.join("knowledge/research/table-maintenance/table.json")).unwrap(),
         )
         .unwrap();
         let program = parse(

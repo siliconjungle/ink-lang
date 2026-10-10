@@ -16,7 +16,7 @@ use verified_language::{
 
 static NEXT: AtomicUsize = AtomicUsize::new(0);
 fn root() -> PathBuf {
-    Path::new(env!("CARGO_MANIFEST_DIR")).join("knowledge/bitvector")
+    Path::new(env!("CARGO_MANIFEST_DIR")).join("knowledge/research/bitvector")
 }
 fn names() -> BTreeMap<String, String> {
     serde_json::from_slice(&fs::read(root().join("names.json")).unwrap()).unwrap()

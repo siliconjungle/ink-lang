@@ -19,7 +19,7 @@ impl Fixture {
             NEXT.fetch_add(1, Ordering::Relaxed)
         ));
         fs::create_dir_all(p.join("objects")).unwrap();
-        let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("knowledge/collections");
+        let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("knowledge/research/collections");
         fs::copy(root.join("lock.json"), p.join("lock.json")).unwrap();
         for entry in fs::read_dir(root.join("objects")).unwrap() {
             let entry = entry.unwrap();
@@ -39,10 +39,16 @@ impl Drop for Fixture {
     }
 }
 fn original() -> syntax::Program {
-    syntax::parse(include_str!("../knowledge/collections/kernels.lang")).unwrap()
+    syntax::parse(include_str!(
+        "../knowledge/research/collections/kernels.lang"
+    ))
+    .unwrap()
 }
 fn package() -> Package {
-    serde_json::from_str(include_str!("../knowledge/collections/proposal.json")).unwrap()
+    serde_json::from_str(include_str!(
+        "../knowledge/research/collections/proposal.json"
+    ))
+    .unwrap()
 }
 #[test]
 fn checked_database_candidates_preserve_modular_values_and_lexical_captures() {
@@ -154,7 +160,7 @@ fn foldr_order_initial_and_shadowing_are_actual_language_semantics() {
 #[test]
 fn filtered_candidates_preserve_values_and_validate_called_function_bodies() {
     let fixture = Fixture::new();
-    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("knowledge/filtered");
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("knowledge/research/filtered");
     fs::copy(root.join("lock.json"), fixture.0.join("lock.json")).unwrap();
     for entry in fs::read_dir(root.join("objects")).unwrap() {
         let entry = entry.unwrap();
@@ -165,9 +171,10 @@ fn filtered_candidates_preserve_values_and_validate_called_function_bodies() {
         .unwrap();
     }
     let package: Package =
-        serde_json::from_str(include_str!("../knowledge/filtered/proposal.json")).unwrap();
+        serde_json::from_str(include_str!("../knowledge/research/filtered/proposal.json")).unwrap();
     let path = fixture.package(&package);
-    let original = syntax::parse(include_str!("../knowledge/filtered/kernels.lang")).unwrap();
+    let original =
+        syntax::parse(include_str!("../knowledge/research/filtered/kernels.lang")).unwrap();
     let mut candidate = original.clone();
     implementation::apply(&mut candidate, &path).unwrap();
     let mut seed = 7712u64;

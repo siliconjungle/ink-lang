@@ -16,8 +16,8 @@ def main():
     args=parser.parse_args();assert args.repeats>=3 and 1<=args.steps<=10000000
     state.BUILD=args.build_directory.resolve();state.OUT=args.output.resolve();build,out=state.BUILD,state.OUT
     out.mkdir(parents=True,exist_ok=True);started=time.time();env=state.environment()
-    source_hashes={str(p.relative_to(ROOT)):digest(p) for folder in ['src','bench/state','examples','knowledge'] for p in (ROOT/folder).rglob('*') if p.is_file() and '__pycache__' not in str(p)}
-    maintenance=ROOT/'knowledge/table-maintenance/table.json'
+    source_hashes={str(p.relative_to(ROOT)):digest(p) for folder in ['src','core/src','runtime/src','runtime/hosts','lowerings/c/src','lowerings/rust/src','lowerings/wasm/src','lowerings/gpu/src','lowerings/gpu/devices','lowerings/gpu/shaders','bench/state','examples','knowledge/research','knowledge/producers','knowledge/ink_knowledge','knowledge/schemas','knowledge/store'] for p in (ROOT/folder).rglob('*') if p.is_file() and '__pycache__' not in str(p)}
+    maintenance=ROOT/'knowledge/research/table-maintenance/table.json'
     lang=state.build(env,maintenance)
     original=args.original.resolve();original_hash=digest(original);current_hash=digest(lang)
     native_env=env.copy();native_env['RUSTFLAGS']='-C target-cpu=native -C panic=abort';native_env['CARGO_TARGET_DIR']=str(build/'rust-target')
@@ -25,7 +25,7 @@ def main():
     def emit(variant,compiler,policy=None):
         project=build/'projects'/variant
         argv=[compiler,'emit-state','examples/state-benchmark.lang','--maintenance',maintenance,'--bounded-totals','-o',project]
-        if policy:argv+=['--storage',ROOT/'knowledge/storage'/f'inventory-{policy}.json']
+        if policy:argv+=['--storage',ROOT/'knowledge/research/storage'/f'inventory-{policy}.json']
         state.run(argv)
         # Pin exactly the emitted code before the shared ABI is appended.
         (out/f'{variant}-emitted.rs').write_bytes((project/'src/lib.rs').read_bytes())

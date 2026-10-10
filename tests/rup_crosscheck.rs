@@ -103,7 +103,7 @@ fn run(tool: &str, args: &[&Path]) -> Verdict {
 fn accepted_bit_proofs_replay_in_independent_checkers() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
     let mut paths = vec![];
-    locks(&root.join("knowledge"), &mut paths);
+    locks(&root.join("knowledge/research"), &mut paths);
     assert!(
         !paths.is_empty(),
         "initialise the pinned knowledge submodule"

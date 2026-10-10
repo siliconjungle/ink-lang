@@ -35,10 +35,10 @@ impl Fixture {
         )
         .unwrap();
         let result = Command::new("python3")
-            .arg(root.join("knowledge/tools/rewrite_search.py"))
+            .arg(root.join("planner/research/rewrite_search.py"))
             .arg(self.0.join("input.json"))
             .args(["--core", "--compiler", env!("CARGO_BIN_EXE_ink"), "--rules"])
-            .arg(root.join("knowledge/scalar-logic/rewrite-index.json"))
+            .arg(root.join("knowledge/research/scalar-logic/rewrite-index.json"))
             .arg("--output-dir")
             .arg(self.0.join("package"))
             .output()
@@ -98,9 +98,10 @@ fn branch_hypotheses_cannot_authorise_an_unguarded_replacement() {
     );
     assert_eq!(original.functions[2].body, input.functions[2].body);
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
-    let names: serde_json::Value =
-        serde_json::from_slice(&fs::read(root.join("knowledge/scalar-logic/names.json")).unwrap())
-            .unwrap();
+    let names: serde_json::Value = serde_json::from_slice(
+        &fs::read(root.join("knowledge/research/scalar-logic/names.json")).unwrap(),
+    )
+    .unwrap();
     let mut proposal = package.package.proposals[0].clone();
     proposal.function = "unguarded".into();
     proposal.from = original.functions[2].body.clone();
@@ -151,11 +152,11 @@ fn general_scalar_library_reproduces_and_legacy_search_flag_fails_closed() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
     let fixture = Fixture::new();
     let mut command = Command::new("python3");
-    command.arg(root.join("knowledge/tools/scalar_library.py"));
+    command.arg(root.join("knowledge/producers/scalar_library.py"));
     for name in ["boolean", "composed", "conditional"] {
         command
             .arg("--library")
-            .arg(root.join("knowledge").join(name).join("lock.json"));
+            .arg(root.join("knowledge/research").join(name).join("lock.json"));
     }
     let result = command
         .args(["--compiler", env!("CARGO_BIN_EXE_ink"), "--output-dir"])
@@ -170,10 +171,10 @@ fn general_scalar_library_reproduces_and_legacy_search_flag_fails_closed() {
     for name in ["lock.json", "names.json", "rewrite-index.json"] {
         assert_eq!(
             fs::read(fixture.0.join("translated").join(name)).unwrap(),
-            fs::read(root.join("knowledge/scalar-logic").join(name)).unwrap()
+            fs::read(root.join("knowledge/research/scalar-logic").join(name)).unwrap()
         );
     }
-    for entry in fs::read_dir(root.join("knowledge/scalar-logic/objects")).unwrap() {
+    for entry in fs::read_dir(root.join("knowledge/research/scalar-logic/objects")).unwrap() {
         let entry = entry.unwrap();
         assert_eq!(
             fs::read(entry.path()).unwrap(),
@@ -185,7 +186,7 @@ fn general_scalar_library_reproduces_and_legacy_search_flag_fails_closed() {
         .arg("emit-c")
         .arg(root.join("examples/boolean.lang"))
         .arg("--database")
-        .arg(root.join("knowledge/boolean/lock.json"))
+        .arg(root.join("knowledge/research/boolean/lock.json"))
         .arg("-o")
         .arg(&output)
         .output()

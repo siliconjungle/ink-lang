@@ -33,8 +33,8 @@ def build(env):
     lang=ROOT/'target/release/lang'
     replacement=BUILD/'replacement'
     shutil.rmtree(replacement,ignore_errors=True)
-    invoke(['python3','knowledge/tools/rewrite_search.py','examples/kernels.lang',
-            '--rules','knowledge/bitvector/rewrite-index.json','--compiler',lang,
+    invoke(['python3','planner/research/rewrite_search.py','examples/kernels.lang',
+            '--rules','knowledge/research/bitvector/rewrite-index.json','--compiler',lang,
             '--output-dir',replacement,'--fuse-mapped-sum'])
     invoke([lang,'build','examples/kernels.lang','-o',BUILD/'lang.o','--native-cpu'])
     invoke([lang,'build','examples/kernels.lang','-o',BUILD/'lang_knowledge.o','--replacement',replacement/'replacement.json','--native-cpu'])
@@ -122,7 +122,7 @@ def benchmark(args):
                 assert len({r['single'] for r in group})==1,(case,n,'cross-language checksum mismatch')
                 print(f'{distribution:5} n={n:8} {case:12}: '+', '.join(f'{v} {statistics.median(r["ns_per_call"] for r in group if r["variant"]==v):.1f} ns' for v in VARIANTS),flush=True)
                 (RESULTS/'samples.json').write_text(json.dumps(rows,indent=2))
-    sources={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for folder in ['src','bench','examples','knowledge'] for p in (ROOT/folder).glob('*') if p.is_file()}
+    sources={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for folder in ['src','core/src','runtime/src','runtime/hosts','lowerings/c/src','lowerings/rust/src','lowerings/wasm/src','lowerings/gpu/src','lowerings/gpu/devices','lowerings/gpu/shaders','bench','examples','knowledge/research','knowledge/producers','knowledge/ink_knowledge','knowledge/schemas','knowledge/store'] for p in (ROOT/folder).glob('*') if p.is_file()}
     metadata={'started_unix':start,'elapsed_seconds':time.time()-start,'platform':platform.platform(),'machine':platform.machine(),'cpu':M.cpu_model(),'memory_bytes':invoke(['sysctl','-n','hw.memsize']) if M.DARWIN else None,'environment':M.environment(env),'clang':invoke(['clang','--version']),'rustc':invoke(['rustc','-vV'],env=env),'parameters':vars(args),'correctness':correctness,'source_sha256':sources,'commands':COMMANDS,'notes':['All timed variants share one C driver object; no LTO.','Current language baseline materialises collection stages; handwritten baselines combine passes. This harness now compares differing algorithms. Use bench/collection-proof.py for staged and combined variants in every language.','Backend versions are not established as identical; see recorded toolchain versions and warnings.','No CPU pinning; shared interactive machine.','Warm in-memory u64 kernels only; not the complete language or a persistence benchmark.','C and C++ factored polynomial baseline; the language must compete with an already simplified expert implementation.']}
     (RESULTS/'metadata.json').write_text(json.dumps(metadata,indent=2))
     summaries=[]

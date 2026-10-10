@@ -61,8 +61,8 @@ def assembly(path):
 def build(env):
     BUILD.mkdir(parents=True,exist_ok=True); REPORT.mkdir(parents=True,exist_ok=True)
     invoke(['cargo','build','--release','--bin','ink'],env=env); compiler=ROOT/'target/release/ink'
-    compiler_hash=sha(compiler); source=ROOT/'knowledge/bitvector/kernels.ink'; package=ROOT/'knowledge/bitvector/proposal.json'
-    invoke([compiler,'verify-library',ROOT/'knowledge/bitvector/lock.json'])
+    compiler_hash=sha(compiler); source=ROOT/'knowledge/research/bitvector/kernels.ink'; package=ROOT/'knowledge/research/bitvector/proposal.json'
+    invoke([compiler,'verify-library',ROOT/'knowledge/research/bitvector/lock.json'])
     for variant in VARIANTS[:2]:
         args=['--implementation',package] if variant=='ink_checked' else []
         invoke([compiler,'build',source,'--native-cpu',*args,'-o',BUILD/f'{variant}.o'])
@@ -86,7 +86,7 @@ def build(env):
     for count in range(len(full['proposals'])+1):
         directory=BUILD/f'database-{count}'; (directory/'objects').mkdir(parents=True,exist_ok=True)
         selected=full['proposals'][:count]; ids=sorted({p['datatype'] for p in selected}|{p['proof']['Use']['theorem'] for p in selected})
-        for identity in ids: shutil.copy2(ROOT/'knowledge/bitvector/objects'/f'{identity}.json',directory/'objects'/f'{identity}.json')
+        for identity in ids: shutil.copy2(ROOT/'knowledge/research/bitvector/objects'/f'{identity}.json',directory/'objects'/f'{identity}.json')
         (directory/'lock.json').write_text(json.dumps(dict(schema=1,semantics='first-order-inductive-equality-v1',objects=ids),indent=2)+'\n')
         (directory/'proposal.json').write_text(json.dumps(dict(**{k:v for k,v in full.items() if k!='proposals'},proposals=selected),indent=2)+'\n')
         out=BUILD/f'phase-{count}.c'; invoke([compiler,'emit-c',source,'--implementation',directory/'proposal.json','-o',out])
@@ -102,7 +102,7 @@ def build(env):
     checking=[]
     for repeat in range(7):
         for mode in ['verify_library','emit_baseline','emit_checked']:
-            args=[compiler,'verify-library',ROOT/'knowledge/bitvector/lock.json'] if mode=='verify_library' else [compiler,'emit-c',source,*(['--implementation',package] if mode=='emit_checked' else []),'-o',BUILD/'cost.c']
+            args=[compiler,'verify-library',ROOT/'knowledge/research/bitvector/lock.json'] if mode=='verify_library' else [compiler,'emit-c',source,*(['--implementation',package] if mode=='emit_checked' else []),'-o',BUILD/'cost.c']
             invoke(args); checking.append(dict(repeat=repeat,mode=mode,seconds=COMMANDS[-1]['seconds']))
     (REPORT/'checking-cost.json').write_text(json.dumps(dict(samples=checking,median_seconds={m:statistics.median(r['seconds'] for r in checking if r['mode']==m) for m in ['verify_library','emit_baseline','emit_checked']},scope='fresh child process and warm filesystem; includes startup, parsing, certificate checking and I/O; no SAT proof production or Clang'),indent=2)+'\n')
     return compiler
@@ -165,14 +165,14 @@ def main():
     artifacts=REPORT/'artifacts';artifacts.mkdir(exist_ok=True)
     for path in BUILD.iterdir():
         if path.is_file() and (path.name.endswith(('.o.c','.o.ll','.o.plan.json','.c.plan.json','.ll')) or path.name.startswith('phase-') and path.suffix=='.c'): shutil.copy2(path,artifacts/path.name)
-    paths=['Cargo.toml','Cargo.lock','dev.py','src/lib.rs','src/logic.rs','src/bitproof.rs','src/main.rs','src/bin/ink.rs','src/library.rs','src/knowledge.rs','src/implementation.rs','src/native.rs','src/pure_alloc.c','src/syntax.rs','src/check.rs','src/eval.rs','src/proof.rs','src/equality.rs','tests/bitproof.rs','bench/bitvector-proof.py','bench/run.py','knowledge/tools/bitvector_proofs.py']
+    paths=['Cargo.toml','Cargo.lock','dev.py','core/Cargo.toml','core/src/lib.rs','src/lib.rs','core/src/logic.rs','core/src/bitproof.rs','src/main.rs','src/bin/ink.rs','core/src/library.rs','core/src/knowledge.rs','core/src/implementation.rs','lowerings/c/src/native.rs','lowerings/c/src/pure_alloc.c','core/src/syntax.rs','core/src/check.rs','core/src/eval.rs','core/src/equality.rs','tests/bitproof.rs','bench/bitvector-proof.py','bench/run.py','knowledge/producers/bitvector_proofs.py']
     paths += [str(p.relative_to(ROOT)) for p in (ROOT/'bench/arithmetic').glob('*') if p.is_file()]
     # Keep subsequent runs self-contained for compiler inspection/reconstruction,
     # including modules not executed by these pure arithmetic kernels.
-    paths = sorted(set(paths) | {str(p.relative_to(ROOT)) for p in (ROOT/'src').rglob('*') if p.is_file()})
+    paths = sorted(set(paths) | {str(p.relative_to(ROOT)) for folder in ['src','core/src','runtime/src','runtime/hosts','lowerings/c/src','lowerings/rust/src','lowerings/wasm/src','lowerings/gpu/src','lowerings/gpu/devices','lowerings/gpu/shaders'] for p in (ROOT/folder).rglob('*') if p.is_file()})
     for relative in paths:
         dest=REPORT/'sources'/relative;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(ROOT/relative,dest)
-    shutil.copytree(ROOT/'knowledge/bitvector',REPORT/'knowledge',dirs_exist_ok=True)
+    shutil.copytree(ROOT/'knowledge/research/bitvector',REPORT/'knowledge',dirs_exist_ok=True)
     metadata=dict(platform=platform.platform(),machine=platform.machine(),cpu=invoke(['sysctl','-n','machdep.cpu.brand_string']),memory_bytes=invoke(['sysctl','-n','hw.memsize']),clang=invoke(['clang','--version']),rustc=invoke(['rustc','-vV'],env=env),compiler_sha256=sha(compiler),parameters=vars(args),seed=20261009,commands=COMMANDS,source_hashes={str(p.relative_to(REPORT)):sha(p) for p in (REPORT/'sources').rglob('*') if p.is_file()},scope='warm single-threaded scalar ABI call benchmark over 256 resident input pairs; common separately compiled driver and adapters; no LTO; call/loop overhead dominates; no general-purpose language ranking')
     (REPORT/'metadata.json').write_text(json.dumps(metadata,indent=2)+'\n')
     print(json.dumps({k:v for k,v in summary.items() if k!='measurements'},indent=2),flush=True)

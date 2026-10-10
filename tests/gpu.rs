@@ -1,11 +1,11 @@
 use std::fs;
-use verified_language::{check, gpu, syntax::parse};
+use verified_language::{check, syntax::parse};
 #[test]
 fn capability_rejection_preserves_compiled_cpu_and_staged_lowering() {
     let p = parse(include_str!("../examples/gpu.ink")).unwrap();
     check::check(&p).unwrap();
     let dir = std::path::Path::new("build/gpu-emission-test");
-    gpu::emit(&p, dir).unwrap();
+    verified_language::runtime::emit_gpu(&p, dir).unwrap();
     let manifest: serde_json::Value =
         serde_json::from_slice(&fs::read(dir.join("manifest.json")).unwrap()).unwrap();
     let function = |name: &str| {
@@ -38,5 +38,9 @@ fn capability_rejection_preserves_compiled_cpu_and_staged_lowering() {
 #[test]
 fn state_is_rejected_by_the_pure_gpu_backend() {
     let p = parse(include_str!("../examples/inventory.lang")).unwrap();
-    assert!(gpu::emit(&p, std::path::Path::new("build/gpu-state-rejected")).is_err());
+    assert!(verified_language::runtime::emit_gpu(
+        &p,
+        std::path::Path::new("build/gpu-state-rejected")
+    )
+    .is_err());
 }

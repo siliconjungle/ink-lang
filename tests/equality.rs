@@ -32,10 +32,10 @@ fn external_apply(program: &mut syntax::Program) -> Vec<String> {
     )
     .unwrap();
     let result = Command::new("python3")
-        .arg(root.join("knowledge/tools/rewrite_search.py"))
+        .arg(root.join("planner/research/rewrite_search.py"))
         .arg(temp.join("input.json"))
         .args(["--core", "--compiler", env!("CARGO_BIN_EXE_ink"), "--rules"])
-        .arg(root.join("knowledge/scalar-logic/rewrite-index.json"))
+        .arg(root.join("knowledge/research/scalar-logic/rewrite-index.json"))
         .arg("--output-dir")
         .arg(temp.join("package"))
         .output()
@@ -63,14 +63,14 @@ fn bin(op: &str, a: Expr, b: Expr) -> Expr {
     Expr::Binary(op.into(), Box::new(a), Box::new(b))
 }
 fn objects() -> Vec<Object> {
-    let database = knowledge::load(Path::new("knowledge/boolean/lock.json")).unwrap();
+    let database = knowledge::load(Path::new("knowledge/research/boolean/lock.json")).unwrap();
     database
         .lock
         .objects
         .iter()
         .map(|id| {
             serde_json::from_slice(
-                &fs::read(format!("knowledge/boolean/objects/{id}.json")).unwrap(),
+                &fs::read(format!("knowledge/research/boolean/objects/{id}.json")).unwrap(),
             )
             .unwrap()
         })
@@ -336,7 +336,7 @@ fn checked_definitions_and_reused_lemmas_preserve_substitution_scope() {
 
 #[test]
 fn dependency_closure_checks_all_imports_but_selects_only_roots() {
-    let source = Path::new("knowledge/composed");
+    let source = Path::new("knowledge/research/composed");
     let db = knowledge::load(&source.join("lock.json")).unwrap();
     assert_eq!(db.closure.len(), 7);
     assert_eq!(db.theorems.len(), 1);
@@ -553,7 +553,7 @@ fn conditional_theorems_cannot_escape_their_premises() {
 
 #[test]
 fn conditional_database_rewrites_only_where_guard_proofs_are_available() {
-    let db = knowledge::load(Path::new("knowledge/conditional/lock.json")).unwrap();
+    let db = knowledge::load(Path::new("knowledge/research/conditional/lock.json")).unwrap();
     assert_eq!(db.closure.len(), 4);
     assert_eq!(db.theorems.len(), 2);
     let original = syntax::parse(include_str!("../examples/conditional.lang")).unwrap();

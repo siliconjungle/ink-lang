@@ -5,7 +5,7 @@ pub use ink_lowering_gpu::gpu;
 pub use ink_lowering_rust::{definition_native, ordered_storage};
 pub mod state_native {
     pub use ink_lowering_rust::state_native::*;
-    pub const WASM_ABI: &str = ink_lowering_wasm::STATE_ABI;
+    pub const WASM_ABI: &str = ink_runtime::STATE_WASM_ABI;
 }
 pub mod machine {
     pub use ink_core::machine::*;
@@ -16,3 +16,5 @@ pub mod snapshot {
     pub use ink_core::snapshot::*;
     pub use ink_lowering_rust::snapshot_code::schema_code;
 }
+
+pub use ink_runtime as runtime;

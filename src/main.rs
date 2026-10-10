@@ -51,7 +51,14 @@ fn prepare_selection(
     p: &syntax::Program,
 ) -> LangResult<Option<verified_language::optimisation::CheckedSelection>> {
     let selection = arg_value(args, "--selection")?;
-    let catalogue = arg_value(args, "--optimise")?;
+    let catalogue = arg_value(args, "--optimise")?.map(|path| {
+        let p = Path::new(&path);
+        if p.is_dir() {
+            p.join("store/snapshot.json").to_string_lossy().into_owned()
+        } else {
+            path
+        }
+    });
     if selection.is_some() && catalogue.is_some() {
         return Err("choose --selection or --optimise".into());
     }
@@ -80,12 +87,8 @@ fn prepare_selection(
             let input = temp.join("core.json");
             let output = temp.join("selection.json");
             fs::write(&input, module.bytes()?).map_err(|e| e.to_string())?;
-            let tool = arg_value(args, "--search-tool")?.unwrap_or_else(|| {
-                format!(
-                    "{}/knowledge/tools/semantic_search.py",
-                    env!("CARGO_MANIFEST_DIR")
-                )
-            });
+            let tool = arg_value(args, "--search-tool")?
+                .unwrap_or_else(|| format!("{}/planner/plan.py", env!("CARGO_MANIFEST_DIR")));
             let budget = arg_value(args, "--search-budget")?.unwrap_or_else(|| "128".into());
             let result = Command::new("python3")
                 .arg(tool)
@@ -93,13 +96,7 @@ fn prepare_selection(
                 .arg(env::current_exe().map_err(|e| e.to_string())?)
                 .arg("--core")
                 .arg(&input)
-                .arg(
-                    if std::path::Path::new(catalogue.as_ref().unwrap()).is_dir() {
-                        "--database"
-                    } else {
-                        "--catalogue"
-                    },
-                )
+                .arg("--snapshot")
                 .arg(catalogue.as_ref().unwrap())
                 .arg("--budget")
                 .arg(budget)
@@ -130,7 +127,7 @@ fn run() -> LangResult<()> {
     let cmd = args.first().map(String::as_str).unwrap_or("help");
     if cmd == "selection-session" {
         if args.len() != 3 {
-            return Err("selection-session requires CORE.json CATALOGUE.json".into());
+            return Err("selection-session requires CORE.json VIEW.json".into());
         }
         let module = core::CheckedModule::from_bytes(&read_bounded(&args[1], core::MAX_BYTES)?)?;
         let catalogue = serde_json::from_slice(&read_bounded(&args[2], 16_000_000)?)
@@ -167,6 +164,22 @@ fn run() -> LangResult<()> {
             );
             std::io::stdout().flush().map_err(|e| e.to_string())?;
         }
+        return Ok(());
+    }
+    if cmd == "knowledge-check" {
+        if args.len() != 3 {
+            return Err("knowledge-check requires CORE.json VIEW.json".into());
+        }
+        let module = core::CheckedModule::from_bytes(&read_bounded(&args[1], core::MAX_BYTES)?)?;
+        let bundle: verified_language::registry::Bundle =
+            serde_json::from_slice(&read_bounded(&args[2], 16_000_000)?)
+                .map_err(|e| e.to_string())?;
+        let checked = verified_language::registry::CheckedBundle::check(&bundle)?;
+        let entries = checked.verify(module.program())?;
+        println!(
+            "{}",
+            serde_json::json!({"status":"checked","snapshot_sha256":checked.snapshot_id(),"entries":entries})
+        );
         return Ok(());
     }
     if cmd == "check-selection" {
@@ -423,7 +436,7 @@ fn run() -> LangResult<()> {
         return Ok(());
     }
     if cmd == "help" || cmd == "--help" {
-        println!("ink emit-semantic SOURCE [--core] -o SUBJECT.json\nink check-selection CORE.json PACKAGE.json\nExecution, lowering and core emission accept --optimise DATABASE_DIRECTORY or CATALOGUE.json (external search), or --selection PACKAGE.json (checked replay). Optional --search-tool PATH and --search-budget N.");
+        println!("ink emit-semantic SOURCE [--core] -o SUBJECT.json\nink check-selection CORE.json PACKAGE.json\nExecution, lowering and core emission accept --optimise KNOWLEDGE_DIRECTORY or SNAPSHOT.json (external search) or --selection PACKAGE.json (checked replay). Optional --search-tool PATH and --search-budget N.");
         println!("ink check-source-route CORE.json ROUTING.json");
         println!("ink emit-machine LOCK.json PACKAGE.json -o SOURCE.rs");
         println!(
@@ -525,7 +538,10 @@ fn run() -> LangResult<()> {
                 code.push_str(state_native::WASM_ABI);
             }
             write(&format!("{out}/src/lib.rs"), &code)?;
-            write(&format!("{out}/src/main.rs"), state_native::RUNNER)?;
+            write(
+                &format!("{out}/src/main.rs"),
+                verified_language::runtime::STATE_RUNNER,
+            )?;
             write(&format!("{out}/Cargo.toml"), "[package]\nname = \"compiled-state\"\nversion = \"0.1.0\"\nedition = \"2021\"\n[lib]\ncrate-type = [\"rlib\", \"cdylib\"]\n[dependencies]\nnum-bigint = \"=0.4.8\"\nsha2 = \"=0.10.9\"\nserde_json = \"=1.0.151\"\n[profile.release]\nlto = \"thin\"\ncodegen-units = 1\n")?;
             let bounds = if bounded {
                 state_native::bounded_caches_with_certificate(&p, certificate.as_ref().unwrap())
@@ -706,42 +722,17 @@ fn run() -> LangResult<()> {
                     return Err("--native-cpu is not a GPU bundle option".into());
                 }
                 if let Some(route) = &route {
-                    verified_language::gpu::emit_routed(route, Path::new(&out))?;
+                    verified_language::runtime::emit_routed(route, Path::new(&out))?;
                 } else {
-                    verified_language::gpu::emit(&p, Path::new(&out))?;
+                    verified_language::runtime::emit_gpu(&p, Path::new(&out))?;
                 }
                 let zig = arg_value(&args, "--zig")?.unwrap_or_else(|| "zig".into());
-                let mut command = Command::new(&zig);
-                command.args([
-                    "cc",
-                    "-target",
-                    "wasm32-freestanding",
-                    "-O3",
-                    "-msimd128",
-                    "-std=c11",
-                    "-ffreestanding",
-                    "-nostdlib",
-                    "-Wl,--no-entry",
-                    "-Wl,--export=__heap_base",
-                    "-Wl,--export-memory",
-                ]);
-                if verified_language::compute::needed(&p) {
-                    for symbol in ["ink_compute_call", "ink_compute_reset", "ink_alloc"] {
-                        command.arg(format!("-Wl,--export={symbol}"));
-                    }
-                }
-                for f in &p.functions {
-                    command.arg(format!("-Wl,--export=lang_fn_{}", f.name));
-                }
-                let result = command
-                    .arg(Path::new(&out).join("cpu.c"))
-                    .arg("-o")
-                    .arg(Path::new(&out).join("cpu.wasm"))
-                    .output()
-                    .map_err(|e| format!("GPU bundle CPU fallback requires Zig ({zig}): {e}"))?;
-                if !result.status.success() {
-                    return Err(String::from_utf8_lossy(&result.stderr).into_owned());
-                }
+                verified_language::runtime::toolchain::wasm(
+                    &core::CheckedModule::from_source(p.clone())?,
+                    &Path::new(&out).join("cpu.c"),
+                    &Path::new(&out).join("cpu.wasm"),
+                    &zig,
+                )?;
                 let plan = serde_json::json!({"source":path,"target":target,"semantic_selection":semantic_selection.as_ref().map(|s|s.evidence()),"semantic_package":semantic_selection.as_ref().map(|s|s.package()),"checked_replacement":replacement,"checked_implementation":implementation,"applied_rule_ids":used,"database_lock":serde_json::Value::Null,"database_closure":serde_json::Value::Null,"input_core_sha256":input_core_sha256,"selected_core_sha256":selected_core_sha256,"checked_source_route":route.as_ref().map(|r|r.package()),"source_route_equivalence":route.as_ref().and_then(|r|r.equivalence()),"trust":"GPU backend and physical routing remain trusted; see manifest.json"});
                 write(
                     &format!("{out}/plan.json"),
@@ -780,37 +771,12 @@ fn run() -> LangResult<()> {
             if cmd == "build" {
                 if target == "wasm32" {
                     let zig = arg_value(&args, "--zig")?.unwrap_or_else(|| "zig".into());
-                    let mut command = Command::new(&zig);
-                    command.args([
-                        "cc",
-                        "-target",
-                        "wasm32-freestanding",
-                        "-O3",
-                        "-msimd128",
-                        "-std=c11",
-                        "-ffreestanding",
-                        "-nostdlib",
-                        "-Wl,--no-entry",
-                        "-Wl,--export=__heap_base",
-                        "-Wl,--export-memory",
-                    ]);
-                    if verified_language::compute::needed(&p) {
-                        for symbol in ["ink_compute_call", "ink_compute_reset", "ink_alloc"] {
-                            command.arg(format!("-Wl,--export={symbol}"));
-                        }
-                    }
-                    for f in &p.functions {
-                        command.arg(format!("-Wl,--export=lang_fn_{}", f.name));
-                    }
-                    let result = command
-                        .arg(&cpath)
-                        .arg("-o")
-                        .arg(&out)
-                        .output()
-                        .map_err(|e| format!("{zig}: {e}"))?;
-                    if !result.status.success() {
-                        return Err(String::from_utf8_lossy(&result.stderr).into_owned());
-                    }
+                    verified_language::runtime::toolchain::wasm(
+                        &core::CheckedModule::from_source(p.clone())?,
+                        Path::new(&cpath),
+                        Path::new(&out),
+                        &zig,
+                    )?;
                     println!("wrote {out}; {} checked rule applications; {implementation_count} checked implementation replacements", used.len());
                     return Ok(());
                 }

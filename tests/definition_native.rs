@@ -33,7 +33,7 @@ impl Drop for Scratch {
 }
 fn fixture(name: &str) -> (Bundle, BTreeMap<String, String>) {
     let p = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("knowledge")
+        .join("knowledge/research")
         .join(name);
     (
         library::bundle(&p.join("lock.json")).unwrap(),
@@ -610,7 +610,7 @@ fn emitted_row_column_operations_preserve_native_continued_histories_and_migrati
         let selection: definition_native::SelectionPackage = serde_json::from_slice(
             &fs::read(
                 Path::new(env!("CARGO_MANIFEST_DIR"))
-                    .join("knowledge")
+                    .join("knowledge/research")
                     .join(&candidate_folder)
                     .join("selection.json"),
             )
@@ -635,7 +635,7 @@ fn entry_selection_uses_actual_proved_bodies_without_redirecting_internal_calls(
     let selection: definition_native::SelectionPackage = serde_json::from_slice(
         &fs::read(
             Path::new(env!("CARGO_MANIFEST_DIR"))
-                .join("knowledge/definition-candidates/map/selection.json"),
+                .join("knowledge/research/definition-candidates/map/selection.json"),
         )
         .unwrap(),
     )
@@ -822,7 +822,7 @@ fn forged_libraries_bad_exports_and_malformed_values_are_rejected() {
 #[test]
 fn cli_emits_checked_bodies_and_preserves_output_on_rejection() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
-    let lock = root.join("knowledge/inductive/lock.json");
+    let lock = root.join("knowledge/research/inductive/lock.json");
     let (b, n) = fixture("inductive");
     let temp = Scratch::new();
     let exports = temp.0.join("exports.json");
@@ -920,7 +920,7 @@ fn external_candidate_producer_reproduces_pinned_objects_and_proofs() {
         let temp = Scratch::new();
         let out = temp.0.join("candidate");
         let result = Command::new("python3")
-            .arg(root.join("knowledge/tools/definition_candidates.py"))
+            .arg(root.join("knowledge/producers/definition_candidates.py"))
             .arg("--example")
             .arg(example)
             .arg("--compiler")
@@ -936,7 +936,9 @@ fn external_candidate_producer_reproduces_pinned_objects_and_proofs() {
         );
         let checked: serde_json::Value = serde_json::from_slice(&result.stdout).unwrap();
         assert_eq!(checked["status"], "checked");
-        let pinned = root.join("knowledge/definition-candidates").join(example);
+        let pinned = root
+            .join("knowledge/research/definition-candidates")
+            .join(example);
         for name in ["lock.json", "names.json", "exports.json", "selection.json"] {
             assert_eq!(
                 fs::read(out.join(name)).unwrap(),

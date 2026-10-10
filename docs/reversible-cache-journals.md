@@ -6,7 +6,7 @@ This is an implemented cache refinement fragment. The table projection, table/li
 
 ## Two candidates under one compiler
 
-The package in `knowledge/reversible-maintenance` supplies both a full snapshot and a reversible difference. These are data-selected expressions, rather than a compiler tag naming a preferred arithmetic algorithm.
+The package in `knowledge/research/reversible-maintenance` supplies both a full snapshot and a reversible difference. These are data-selected expressions, rather than a compiler tag naming a preferred arithmetic algorithm.
 
 | Operation | Saved value | Apply | Restore |
 | --- | --- | --- | --- |
@@ -38,14 +38,14 @@ Bounded u128 caches keep full snapshots. The new evidence lives in exact integer
 
 ## Proof production
 
-`knowledge/tools/reversible_maintenance_proofs.py` is an untrusted external producer. It extends the 37-object delta package with two universal theorems: `subtraction_self` and `undo_subtraction`. The preserved pre-change compiler checks these theorem objects using the unchanged generic kernel. The new compiler then checks the two actual journal candidates through the version-3 source bridge. No ring axiom, built-in cancellation law or solver was introduced.
+`knowledge/producers/reversible_maintenance_proofs.py` is an untrusted external producer. It extends the 37-object delta package with two universal theorems: `subtraction_self` and `undo_subtraction`. The preserved pre-change compiler checks these theorem objects using the unchanged generic kernel. The new compiler then checks the two actual journal candidates through the version-3 source bridge. No ring axiom, built-in cancellation law or solver was introduced.
 
 ```sh
 python3 dev.py build --release
-python3 knowledge/tools/reversible_maintenance_proofs.py build/journal-package \
+python3 knowledge/producers/reversible_maintenance_proofs.py build/journal-package \
   --compiler target/release/ink --kernel build/reversible-original/lang
 target/release/ink emit-state bench/wide-cache/program.ink \
-  --maintenance knowledge/reversible-maintenance/reversible.json \
+  --maintenance knowledge/research/reversible-maintenance/reversible.json \
   -o build/reversible-program
 ```
 
@@ -66,7 +66,7 @@ Separate allocation instrumentation for an 8192-exponent anchor and small changi
 ```sh
 python3 bench/reversible-cache.py
 python3 bench/state/run.py \
-  --maintenance knowledge/reversible-maintenance/reversible.json \
+  --maintenance knowledge/research/reversible-maintenance/reversible.json \
   --output reports/reversible-inventory-phase1 \
   --build-directory build/reversible-inventory-bench
 python3 tools/cache_allocations.py \

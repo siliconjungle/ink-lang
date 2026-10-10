@@ -19,7 +19,7 @@ Observation includes the complete optional row and exact total. The theorem quan
 
 Supporting theorems establish key identity, double-write lookup restoration, inversion of the actual cache expressions, correspondence between map rollback and an observation-based rollback, and one-write restoration. Generalised induction lifts the one-write result to histories. The existing generic equality/induction checker and bounded bitvector checker verify these derivations; no new compiler axiom, solver, optimisation rule or native code is added.
 
-Each package contains 96 content-addressed objects: the existing 63 and 33 new definitions/theorems. The two packages share many identities. They are in `knowledge/table-undo` and `knowledge/table-undo-snapshot`. `model.json` describes their scope and names their roots; it is documentation metadata, not a new compiler admission certificate. The generic library loader checks object meaning and proof validity. A future source bridge must independently bind the required model meanings before granting transformation authority.
+Each package contains 96 content-addressed objects: the existing 63 and 33 new definitions/theorems. The two packages share many identities. They are in `knowledge/research/table-undo` and `knowledge/research/table-undo-snapshot`. `model.json` describes their scope and names their roots; it is documentation metadata, not a new compiler admission certificate. The generic library loader checks object meaning and proof validity. A future source bridge must independently bind the required model meanings before granting transformation authority.
 
 ## Checks
 
@@ -41,8 +41,8 @@ The next step is to connect actual source row codecs and map operations to a sha
 
 ```sh
 python3 dev.py test
-target/release/lang verify-library knowledge/table-undo/lock.json
-target/release/lang verify-library knowledge/table-undo-snapshot/lock.json
+target/release/lang verify-library knowledge/research/table-undo/lock.json
+target/release/lang verify-library knowledge/research/table-undo-snapshot/lock.json
 python3 tools/audit_table_undo.py
 ```
 

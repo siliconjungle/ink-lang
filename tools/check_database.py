@@ -30,7 +30,7 @@ def main():
     OUT.mkdir(parents=True, exist_ok=True)
     if any(OUT.iterdir()): parser.error('report directory must be empty')
     before = digest(LANG)
-    rules = json.loads((ROOT/'knowledge/boolean-rules.json').read_text())
+    rules = json.loads((ROOT/'knowledge/research/boolean-rules.json').read_text())
     driver = OUT/'driver.c'
     driver.write_text('''#include <stdint.h>
 #include <stdbool.h>
@@ -56,15 +56,15 @@ int main(void) {
         rule_file=OUT/f'rules-{count}.json'
         rule_file.write_text(json.dumps(rules[:count]))
         database=OUT/f'db-{count}'
-        run(['python3', ROOT/'knowledge/tools/boolean_proofs.py', rule_file, database])
+        run(['python3', ROOT/'knowledge/producers/boolean_proofs.py', rule_file, database])
         run([LANG,'verify-database',database/'lock.json'])
         converted=OUT/f'logic-{count}'
-        run(['python3',ROOT/'knowledge/tools/scalar_library.py','--library',database/'lock.json',
+        run(['python3',ROOT/'knowledge/producers/scalar_library.py','--library',database/'lock.json',
              '--compiler',LANG,'--output-dir',converted])
         index_path=converted/'rewrite-index.json';index=json.loads(index_path.read_text())
         index['rules']=index['rules'][:count];index_path.write_text(json.dumps(index,indent=2)+'\n')
         package=OUT/f'package-{count}'
-        run(['python3',ROOT/'knowledge/tools/rewrite_search.py',ROOT/'examples/boolean.lang',
+        run(['python3',ROOT/'planner/research/rewrite_search.py',ROOT/'examples/boolean.lang',
              '--rules',index_path,'--compiler',LANG,'--output-dir',package])
         obj=OUT/f'variant-{count}.o'
         command=[LANG,'build',ROOT/'examples/boolean.lang','--replacement',package/'replacement.json','-o',obj]

@@ -6,7 +6,7 @@ use verified_language::{
 };
 
 fn fixture() -> (Bundle, BTreeMap<String, String>) {
-    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("knowledge/inductive");
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("knowledge/research/inductive");
     (
         library::bundle(&root.join("lock.json")).unwrap(),
         serde_json::from_slice(&fs::read(root.join("names.json")).unwrap()).unwrap(),

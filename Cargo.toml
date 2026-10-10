@@ -20,9 +20,10 @@ path = "src/main.rs"
 
 [workspace]
 members = []
-exclude = ["core", "lowerings/c", "lowerings/rust", "lowerings/wasm", "lowerings/gpu", "build", "build/**", "reports", "reports/**"]
+exclude = ["runtime", "planner", "core", "lowerings/c", "lowerings/rust", "lowerings/wasm", "lowerings/gpu", "build", "build/**", "reports", "reports/**"]
 
 [dependencies]
+ink-runtime = { path = "runtime" }
 ink-core = { path = "core" }
 ink-lowering-c = { path = "lowerings/c" }
 ink-lowering-rust = { path = "lowerings/rust" }
@@ -43,3 +44,9 @@ ink-core = { path = "core" }
 
 [patch."https://github.com/siliconjungle/ink-lowering-c"]
 ink-lowering-c = { path = "lowerings/c" }
+
+[patch."https://github.com/siliconjungle/ink-lowering-gpu"]
+ink-lowering-gpu = { path = "lowerings/gpu" }
+
+[patch."https://github.com/siliconjungle/ink-lowering-wasm"]
+ink-lowering-wasm = { path = "lowerings/wasm" }

@@ -13,7 +13,7 @@ def require(ok,label):
     checks.append(label)
 result=run(['python3','dev.py','build','--bin','lang']);require(result.returncode==0,'compiler builds')
 lang=root/'target/debug/lang';compiler_hash=digest(lang)
-result=run(['python3','knowledge/tools/inductive_proofs.py',db]);require(result.returncode==0,'external producer runs')
+result=run(['python3','knowledge/producers/inductive_proofs.py',db]);require(result.returncode==0,'external producer runs')
 names=json.loads((db/'names.json').read_text());full=json.loads((db/'lock.json').read_text())
 def lock(filename,objects):
     p=out/filename;p.write_text(json.dumps(dict(schema=1,semantics=full['semantics'],objects=objects),indent=2)+'\n')

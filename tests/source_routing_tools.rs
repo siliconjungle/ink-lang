@@ -24,9 +24,11 @@ fn temp() -> PathBuf {
 fn tool(name: &str, args: &[&str]) -> Output {
     Command::new("python3")
         .arg(
-            Path::new(env!("CARGO_MANIFEST_DIR"))
-                .join("knowledge/tools")
-                .join(name),
+            Path::new(env!("CARGO_MANIFEST_DIR")).join(if name == "route_selection.py" {
+                "planner/route.py"
+            } else {
+                "planner/ink_planner/source_routing.py"
+            }),
         )
         .args(args)
         .output()
@@ -46,7 +48,9 @@ fn external_partitioning_and_selection_never_promote_costs_to_proofs() {
     let mixed = dir.join("mixed.json");
     let placements = dir.join("placements.json");
     let candidates = dir.join("candidates.json");
-    let measurements = dir.join("measurements.json");
+    let knowledge = dir.join("knowledge/research");
+    let target = dir.join("target.json");
+    let workload = dir.join("workload.json");
     let output = dir.join("selected.json");
     let m=CheckedModule::from_source(syntax::parse("module tools; fn bulk(xs: List<u32>) -> u32 { return sum(xs); } fn finish(x: u32) -> u32 { return x + 1; } fn entry(xs: List<u32>) -> u32 { return finish(bulk(xs)); }").unwrap()).unwrap();
     fs::write(&core, m.bytes().unwrap()).unwrap();
@@ -79,11 +83,29 @@ fn external_partitioning_and_selection_never_promote_costs_to_proofs() {
     let r = tool("source_routing.py", &args);
     assert!(r.status.success(), "{}", String::from_utf8_lossy(&r.stderr));
     fs::write(&candidates, b"[\"mixed.json\"]").unwrap();
-    let mut samples = serde_json::Map::new();
-    samples.insert(digest(&baseline), json!([10, 11, 9]));
-    samples.insert(digest(&mixed), json!([1, 2, 1]));
-    let profile = json!({"schema":1,"core_sha256":m.identity().unwrap(),"entry":"entry","metric":"complete-call-ms","target":"test-target","workload":"synthetic costs only; no performance claim","samples":samples});
-    fs::write(&measurements, serde_json::to_vec(&profile).unwrap()).unwrap();
+    fs::write(&target,br#"{"hardware":"test-device","driver":"test-driver","toolchain":"test-toolchain","backend":"mixed","bridge":"host"}"#).unwrap();
+    fs::write(
+        &workload,
+        br#"{"shape":[100],"distribution":"synthetic","concurrency":1,"residency":"host"}"#,
+    )
+    .unwrap();
+    let publish = |plans: Vec<(String, Vec<&str>)>| {
+        let records:Vec<Value>=plans.into_iter().map(|(plan,samples)|json!({"schema":1,"program":m.identity().unwrap(),"entries":[],"plan":plan,"target":serde_json::from_slice::<Value>(&fs::read(&target).unwrap()).unwrap(),"workload":serde_json::from_slice::<Value>(&fs::read(&workload).unwrap()).unwrap(),"metrics":{"complete_call_ns":samples,"peak_bytes":400}})).collect();
+        let input = dir.join("observations.json");
+        fs::write(&input, serde_json::to_vec(&records).unwrap()).unwrap();
+        let result=Command::new("python3").env("PYTHONPATH",Path::new(env!("CARGO_MANIFEST_DIR")).join("knowledge"))
+            .arg("-c").arg("import sys,json;from ink_knowledge import Store;s=Store.publish(sys.argv[1],[]);[s.observe(o) for o in json.load(open(sys.argv[2]))];s.rebuild()")
+            .arg(&knowledge).arg(&input).output().unwrap();
+        assert!(
+            result.status.success(),
+            "{}",
+            String::from_utf8_lossy(&result.stderr)
+        );
+    };
+    publish(vec![
+        (digest(&baseline), vec!["10000000", "11000000", "9000000"]),
+        (digest(&mixed), vec!["1000000", "2000000", "1000000"]),
+    ]);
     let args = [
         "--compiler",
         compiler,
@@ -93,8 +115,12 @@ fn external_partitioning_and_selection_never_promote_costs_to_proofs() {
         text(&baseline),
         "--candidates",
         text(&candidates),
-        "--measurements",
-        text(&measurements),
+        "--knowledge-root",
+        text(&knowledge),
+        "--target",
+        text(&target),
+        "--workload",
+        text(&workload),
         "-o",
         text(&output),
     ];
@@ -104,9 +130,7 @@ fn external_partitioning_and_selection_never_promote_costs_to_proofs() {
     let mut forged: Value = serde_json::from_slice(&fs::read(&mixed).unwrap()).unwrap();
     forged["stages"][1]["arguments"][0] = json!({"Literal":{"U32":0}});
     fs::write(&mixed, serde_json::to_vec(&forged).unwrap()).unwrap();
-    let mut forged_profile = profile.clone();
-    forged_profile["samples"][digest(&mixed)] = json!([0, 0, 0]);
-    fs::write(&measurements, serde_json::to_vec(&forged_profile).unwrap()).unwrap();
+    publish(vec![(digest(&mixed), vec!["0", "0", "0"])]);
     let r = tool("route_selection.py", &args);
     assert!(r.status.success());
     assert_eq!(fs::read(&output).unwrap(), fs::read(&baseline).unwrap());
@@ -117,8 +141,22 @@ fn external_partitioning_and_selection_never_promote_costs_to_proofs() {
     let r = tool("route_selection.py", &limited);
     assert!(r.status.success());
     assert_eq!(fs::read(&output).unwrap(), fs::read(&baseline).unwrap());
-    forged_profile["samples"][digest(&baseline)] = json!([-1]);
-    fs::write(&measurements, serde_json::to_vec(&forged_profile).unwrap()).unwrap();
+    // A different device cannot borrow the favourable observation.
+    fs::write(&target,br#"{"hardware":"different-device","driver":"test-driver","toolchain":"test-toolchain","backend":"mixed","bridge":"host"}"#).unwrap();
+    let r = tool("route_selection.py", &args);
+    assert!(r.status.success());
+    assert_eq!(fs::read(&output).unwrap(), fs::read(&baseline).unwrap());
+    // Restore the target, then tamper with immutable observation content.
+    fs::write(&target,br#"{"hardware":"test-device","driver":"test-driver","toolchain":"test-toolchain","backend":"mixed","bridge":"host"}"#).unwrap();
+    let observation = fs::read_dir(knowledge.join("store/observations"))
+        .unwrap()
+        .next()
+        .unwrap()
+        .unwrap()
+        .path();
+    let mut forged: Value = serde_json::from_slice(&fs::read(&observation).unwrap()).unwrap();
+    forged["metrics"]["complete_call_ns"] = json!(["0"]);
+    fs::write(observation, serde_json::to_vec(&forged).unwrap()).unwrap();
     fs::write(&output, b"preserved").unwrap();
     let r = tool("route_selection.py", &args);
     assert!(!r.status.success());

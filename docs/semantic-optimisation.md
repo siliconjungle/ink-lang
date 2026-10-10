@@ -6,34 +6,21 @@ explicit applicability conditions, a proof and exact theorem dependencies.
 Matching and cost estimates cannot authorise a replacement.
 
 ```sh
-ink emit-core program.ink --optimise knowledge/semantic/catalogue.json -o selected.json
-ink build program.ink --optimise knowledge/ -o program.o
-ink run program.ink function arguments.json --optimise knowledge/semantic/catalogue.json
-ink build program.ink --optimise knowledge/semantic/catalogue.json -o program.o
-ink build program.ink --optimise knowledge/semantic/catalogue.json --target wasm32 --zig zig -o program.wasm
-ink build program.ink --optimise knowledge/semantic/catalogue.json --target webgpu --zig zig -o gpu-bundle
+ink emit-core program.ink --optimise knowledge/store/snapshot.json -o selected.json
+ink run program.ink function arguments.json --optimise knowledge/store/snapshot.json
+ink build program.ink --optimise knowledge/store/snapshot.json -o program.o
+ink build program.ink --optimise knowledge/store/snapshot.json --target wasm32 --zig zig -o program.wasm
+ink build program.ink --optimise knowledge/store/snapshot.json --target webgpu --zig zig -o gpu-bundle
 ```
 
 `--optimise` runs the independently versioned, untrusted
-`ink-knowledge/tools/semantic_search.py` producer. Supply `--search-tool PATH`
+`ink-planner/plan.py` producer. Supply `--search-tool PATH`
 when that checkout is installed elsewhere. `--search-budget N` bounds candidate
 checks (default 128; maximum 4096). The database never nominates an executable
 script. Without this option, builds retain their existing baseline behaviour.
 `--selection PACKAGE.json` replays an explicit package without running search.
 Build plans include the package, checked dependency closure, applied laws and
 original/selected module identities.
-
-`--optimise` also accepts a database directory. External discovery reads typed
-law files under `objects/<ID>.json` and existing inline catalogue views. New law
-files become rewrite roots automatically; existing views retain their enabled
-roots/private supporting lemmas. The assembled view is ordered by content
-identity, then the same typed AST matcher and checker session run. The receipt
-records the exact root/entry snapshot and producer identity. Whitespace and JSON
-field order do not change the canonical typed identity checked by Ink.
-There is no per-algorithm installation step and no new compiler optimisation rule.
-This mode currently assembles a bounded active view (1024 laws / 16 MB), rather
-than querying an unbounded remote service. Selected packages retain their checked
-view for offline replay.
 
 ## One executable meaning
 
@@ -95,7 +82,7 @@ becomes `x * 3` through several independently checked laws. The repeated `x` may
 itself be a compound expression. A natural-induction theorem also turns
 `repeat(n, x, fn(i) => fn(acc) => acc + k)` into `x + n * k`, for any source-admitted
 literal count and wrapping word type. No repeat-add or triple-add case exists in
-the compiler or matcher. These are objects in `knowledge/semantic/catalogue.json`.
+the compiler or matcher. These are immutable entries addressed by `knowledge/store/snapshot.json`.
 
 Search validates the dependency closure once in a bounded checker session, then
 checks each proposed application sequence against the exact original module.
@@ -104,11 +91,11 @@ This is bounded optimisation, not a guarantee of a global minimum. The current
 cost estimate is structural, not a runtime measurement. Physical CPU/GPU choice
 remains a separate capability/cost decision.
 
-A catalogue has bounded active roots/objects (1024), bytes (16 MB), proof work
+A knowledge view has bounded active roots/objects (1024), bytes (16 MB), proof work
 and dependency depth. A database may contain more material in separately pinned
-catalogue views; increasing its contents neither extends proof authority nor
-requires a compiler rebuild. This prototype still loads an active view in full;
-it is not an unbounded online database service.
+knowledge views; increasing its contents neither extends proof authority nor
+requires a compiler rebuild. The SQLite API discovers a bounded subset and exports its authenticated dependency closure;
+the checker loads that view in full. It is not an unbounded online database service.
 
 ## Shared execution and routing
 
@@ -119,7 +106,7 @@ witness. CLI preparation uses that same checker before execution or lowering;
 it does not ask each backend to reimplement theorem matching.
 
 The source router additionally accepts `ink-proved-source-routing-v1` through
-`check_equivalent`, with a catalogue and a proof that the reconstructed graph
+`check_equivalent`, with an authenticated pinned knowledge view and a proof that the reconstructed graph
 matches the entry computation. CLI uses `--route-proof EVIDENCE.json` alongside
 `--route PACKAGE.json`. Existing literal v1 routing stays unchanged. The general
 checker accepts compute-v2 value statements, but the existing mixed route host
@@ -154,3 +141,14 @@ Validation lives in `tests/semantic_optimisation.rs` and core-only unit tests.
 It covers composed nested rewrites, generic loop counts, overflow, collection
 laws, branch conditions, capture, context/identity forgery, floats, actual routed
 emission and stateful event outcomes.
+
+## Deterministic database queries
+
+`--optimise KNOWLEDGE_DIRECTORY` selects that store's explicitly pinned
+`store/snapshot.json`. SQLite discovery filters canonical entries by typed
+result sorts before the compositional AST matcher runs. Entry order is stable
+by content identity; replay packages contain the exact authenticated closure.
+Adding and publishing a law changes candidates without installing an algorithm
+or changing compiler rules. The old research directory-scanning implementation
+now lives in `ink-planner/research`; its independent query comparisons remain
+regression evidence, not the production storage contract.

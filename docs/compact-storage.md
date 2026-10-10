@@ -17,14 +17,14 @@ For 4,096 entries with u64 keys and u32 rows, row buffers reserve 65,536 bytes a
 
 ## Database policies and checking
 
-`knowledge/storage` has four independently selectable policies for the inventory example: row/column layouts, with either a 256-row promotion threshold or no promotion. They work under one compiler. Each pins the exact maintenance certificate identity; changing that certificate requires explicitly updating the policy. The CLI checks the schema, semantic version, table names, threshold bounds and maintenance identity. Unknown fields and arbitrary executable code are rejected. The emitted plan records the entire policy and its byte hash.
+`knowledge/research/storage` has four independently selectable policies for the inventory example: row/column layouts, with either a 256-row promotion threshold or no promotion. They work under one compiler. Each pins the exact maintenance certificate identity; changing that certificate requires explicitly updating the policy. The CLI checks the schema, semantic version, table names, threshold bounds and maintenance identity. Unknown fields and arbitrary executable code are rejected. The emitted plan records the entire policy and its byte hash.
 
 ```sh
 python3 dev.py build --release
 target/release/ink emit-state examples/state-benchmark.lang \
-  --maintenance knowledge/table-maintenance/table.json \
+  --maintenance knowledge/research/table-maintenance/table.json \
   --bounded-totals \
-  --storage knowledge/storage/inventory-columns-small.json \
+  --storage knowledge/research/storage/inventory-columns-small.json \
   -o build/column-program
 ```
 

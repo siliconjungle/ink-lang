@@ -118,7 +118,7 @@ fn state_core_roundtrip_preserves_failures_events_and_portable_snapshots() {
 #[test]
 fn pinned_replacement_rejects_stale_inputs_wrong_domain_changed_locks_and_forged_proofs_atomically()
 {
-    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("knowledge/collections");
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("knowledge/research/collections");
     let original = syntax::parse(&fs::read_to_string(root.join("kernels.lang")).unwrap()).unwrap();
     let package: Package =
         serde_json::from_slice(&fs::read(root.join("proposal.json")).unwrap()).unwrap();

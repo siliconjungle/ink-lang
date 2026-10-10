@@ -74,21 +74,21 @@ def main():
         assert digest(original)==json.loads((ROOT/'reports/storage-reuse-phase1/metadata.json').read_text())['compiler_sha256']['current']
         for mode,bounded in [('generated',False),('generated-bounded',True)]:
             project=temp/f'original-{mode}'
-            run([original,'emit-state','examples/state-benchmark.lang','-o',project,'--maintenance','knowledge/reversible-maintenance/reversible.json']+(['--bounded-totals'] if bounded else []))
+            run([original,'emit-state','examples/state-benchmark.lang','-o',project,'--maintenance','knowledge/research/reversible-maintenance/reversible.json']+(['--bounded-totals'] if bounded else []))
             assert (project/'src/lib.rs').read_bytes()==(temp/mode/'src/lib.rs').read_bytes()
         audit['previous_version3_runtime_source_identical']=True
         audit['exact_codegen_and_plan_replay']=True
         # Producer replay uses the same compiler, not a newly built producer/checker.
-        replay=temp/'producer';run(['python3','knowledge/tools/table_transition_proofs.py',replay,'--compiler',compiler])
-        for path in (ROOT/'knowledge/table-maintenance').rglob('*'):
-            if path.is_file() and path.suffix in ('.json','.ink'):assert path.read_bytes()==(replay/path.relative_to(ROOT/'knowledge/table-maintenance')).read_bytes(),path.name
+        replay=temp/'producer';run(['python3','knowledge/producers/table_transition_proofs.py',replay,'--compiler',compiler])
+        for path in (ROOT/'knowledge/research/table-maintenance').rglob('*'):
+            if path.is_file() and path.suffix in ('.json','.ink'):assert path.read_bytes()==(replay/path.relative_to(ROOT/'knowledge/research/table-maintenance')).read_bytes(),path.name
         audit['deterministic_producer_replay']=True
         audit['correctness']=bench.validate(compiler);assert audit['correctness']==metadata['correctness']
         costs={}
         for name in ['table','table-snapshot']:
             timings=[]
             for _ in range(7):
-                start=time.perf_counter();run([compiler,'verify-maintenance',ROOT/f'knowledge/table-maintenance/{name}.json']);timings.append((time.perf_counter()-start)*1000)
+                start=time.perf_counter();run([compiler,'verify-maintenance',ROOT/f'knowledge/research/table-maintenance/{name}.json']);timings.append((time.perf_counter()-start)*1000)
             costs[name]={'fresh_process_warm_fs_ms':timings,'median_ms':statistics.median(timings)}
         audit['verification_costs']=costs
         targets=json.loads((OUT/'backend-targets.json').read_text())

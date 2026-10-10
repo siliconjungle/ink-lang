@@ -48,10 +48,10 @@ Next connect shared map/protocol operations to actual source changes and native 
 python3 dev.py build --release --bin lang
 python3 dev.py test
 target/release/lang model-row examples/source-row-undo.ink total \
-    --maintenance knowledge/table-maintenance/table.json -o build/source-row.json
+    --maintenance knowledge/research/table-maintenance/table.json -o build/source-row.json
 target/release/lang verify-row-model examples/source-row-undo.ink \
-    knowledge/source-row-undo/reversible/binding.json \
-    --maintenance knowledge/table-maintenance/table.json
+    knowledge/research/source-row-undo/reversible/binding.json \
+    --maintenance knowledge/research/table-maintenance/table.json
 python3 tools/audit_source_rows.py --compiler target/release/lang \
     --kernel build/table-undo-original/lang --reproduce \
     --python ../../work/toolchain/bitproof-venv/bin/python

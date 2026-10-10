@@ -11,7 +11,15 @@ fn module(source: &str) -> CheckedModule {
     CheckedModule::from_source(syntax::parse(&format!("module test; {source}")).unwrap()).unwrap()
 }
 fn catalogue() -> Catalogue {
-    serde_json::from_slice(&std::fs::read("knowledge/semantic/catalogue.json").unwrap()).unwrap()
+    {
+        let b: verified_language::registry::Bundle =
+            serde_json::from_slice(&std::fs::read("knowledge/store/rewrite-view.json").unwrap())
+                .unwrap();
+        verified_language::registry::CheckedBundle::check(&b)
+            .unwrap()
+            .catalogue()
+            .unwrap()
+    }
 }
 fn empty() -> Catalogue {
     Catalogue {
@@ -26,7 +34,7 @@ fn pack(m: &CheckedModule, c: Catalogue, applications: Vec<Site>) -> Package {
         schema: 1,
         semantics: optimisation::SEMANTICS.into(),
         input_core_sha256: m.identity().unwrap(),
-        catalogue: c,
+        knowledge: verified_language::registry::from_catalogue(&c).unwrap(),
         applications,
     }
 }
@@ -37,6 +45,7 @@ fn pick(c: &Catalogue, operation: &str, ty: &Type) -> String {
             let l = &c.objects[*id];
             l.from.sort == s::value(ty.clone())
                 && matches!(&l.from.node,Node::Op(n,_) if n==operation)
+                && (operation!="binary:+" || (l.params.len()==1 && matches!(&l.from.node,Node::Op(_,a) if matches!(a[1].node,Node::Word(0)))))
         })
         .unwrap()
         .clone()
@@ -260,7 +269,10 @@ fn a_new_catalogue_entry_changes_execution_without_rebuilding_the_compiler() {
         proof: Proof::Normalize,
         dependencies: vec![],
     };
-    let id = laws::identity(&law).unwrap();
+    let id = verified_language::registry::identity(
+        &verified_language::registry::Entry::from_law(&law).unwrap(),
+    )
+    .unwrap();
     let mut c = c;
     c.roots.push(id.clone());
     c.objects.insert(id.clone(), law);
@@ -303,7 +315,7 @@ fn external_search_and_interpreter_share_the_checked_selection() {
             "f",
             args.to_str().unwrap(),
             "--optimise",
-            "knowledge/semantic/catalogue.json",
+            "knowledge/store/snapshot.json",
             "--search-budget",
             "16",
         ])
@@ -406,14 +418,14 @@ fn the_same_proof_calculus_checks_alternative_routed_compositions() {
         output: ValueRef::Stage("fast".into()),
     };
     let evidence = source_routing::Equivalence {
-        catalogue: empty(),
+        knowledge: verified_language::registry::from_catalogue(&empty()).unwrap(),
         proof: Proof::Normalize,
     };
     let checked = source_routing::check_equivalent(&m, &route, &evidence).unwrap();
     assert!(checked.equivalence().is_some());
     assert!(source_routing::check(&m, &route).is_err());
     let dir = std::env::temp_dir().join(format!("ink-proved-route-{}", std::process::id()));
-    verified_language::gpu::emit_routed(&checked, &dir).unwrap();
+    verified_language::runtime::emit_routed(&checked, &dir).unwrap();
     assert!(dir.join("ink-route.mjs").exists());
     let mut baseline = route.clone();
     baseline.semantics = source_routing::SEMANTICS.into();
@@ -439,19 +451,35 @@ fn the_same_proof_calculus_checks_alternative_routed_compositions() {
         .unwrap(),
     )
     .unwrap();
+    let target = serde_json::json!({"hardware":"test","driver":"test","toolchain":"test","backend":"mixed","bridge":"host"});
+    let workload = serde_json::json!({"shape":[1],"distribution":"synthetic","concurrency":1,"residency":"host"});
     std::fs::write(
-        dir.join("costs.json"),
-        serde_json::to_vec(&serde_json::json!({
-        "schema":1,"core_sha256":m.identity().unwrap(),"entry":"original",
-        "metric":"complete-call-ms","target":"test","workload":"test",
-        "samples":{sha2_hash(&base):[2],sha2_hash(&raw):[1]}}))
-        .unwrap(),
+        dir.join("target.json"),
+        serde_json::to_vec(&target).unwrap(),
     )
     .unwrap();
+    std::fs::write(
+        dir.join("workload.json"),
+        serde_json::to_vec(&workload).unwrap(),
+    )
+    .unwrap();
+    let observations = serde_json::json!([{"schema":1,"program":m.identity().unwrap(),"entries":[],"plan":sha2_hash(&base),"target":target,"workload":workload,"metrics":{"complete_call_ns":["2000000"],"peak_bytes":4}},{"schema":1,"program":m.identity().unwrap(),"entries":[],"plan":sha2_hash(&raw),"target":target,"workload":workload,"metrics":{"complete_call_ns":["1000000"],"peak_bytes":4}}]);
+    std::fs::write(
+        dir.join("observations.json"),
+        serde_json::to_vec(&observations).unwrap(),
+    )
+    .unwrap();
+    let result=Command::new("python3").env("PYTHONPATH","knowledge").arg("-c").arg("import sys,json;from ink_knowledge import Store;s=Store.publish(sys.argv[1],[]);[s.observe(o) for o in json.load(open(sys.argv[2]))];s.rebuild()")
+        .arg(dir.join("knowledge/research")).arg(dir.join("observations.json")).output().unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
     let output = dir.join("chosen.json");
     let result = Command::new("python3")
         .args([
-            "knowledge/tools/route_selection.py",
+            "planner/route.py",
             "--compiler",
             env!("CARGO_BIN_EXE_ink"),
             "--core",
@@ -460,8 +488,12 @@ fn the_same_proof_calculus_checks_alternative_routed_compositions() {
             dir.join("base.json").to_str().unwrap(),
             "--candidates",
             dir.join("index.json").to_str().unwrap(),
-            "--measurements",
-            dir.join("costs.json").to_str().unwrap(),
+            "--knowledge-root",
+            dir.join("knowledge/research").to_str().unwrap(),
+            "--target",
+            dir.join("target.json").to_str().unwrap(),
+            "--workload",
+            dir.join("workload.json").to_str().unwrap(),
             "-o",
             output.to_str().unwrap(),
         ])
@@ -536,7 +568,7 @@ fn nested_optimisations_compose_and_enable_further_rules_automatically() {
             "emit-core",
             source.to_str().unwrap(),
             "--optimise",
-            "knowledge/semantic/catalogue.json",
+            "knowledge/store/snapshot.json",
             "--search-budget",
             "64",
             "-o",
@@ -722,7 +754,10 @@ fn search_composes_supporting_lemmas_to_discharge_rule_conditions() {
         proof: Proof::Congruence(vec![Proof::Hypothesis(0)]),
         dependencies: vec![identity_id.clone()],
     };
-    let id = laws::identity(&law).unwrap();
+    let id = verified_language::registry::identity(
+        &verified_language::registry::Entry::from_law(&law).unwrap(),
+    )
+    .unwrap();
     let c = Catalogue {
         schema: 1,
         semantics: laws::SEMANTICS.into(),
@@ -733,10 +768,34 @@ fn search_composes_supporting_lemmas_to_discharge_rule_conditions() {
     let dir = std::env::temp_dir().join(format!("ink-premise-search-{}", std::process::id()));
     std::fs::create_dir_all(&dir).unwrap();
     let input = dir.join("core.json");
-    let catalogue = dir.join("catalogue.json");
     let output = dir.join("selected.json");
     std::fs::write(&input, m.bytes().unwrap()).unwrap();
-    std::fs::write(&catalogue, serde_json::to_vec(&c).unwrap()).unwrap();
+    let b = verified_language::registry::from_catalogue(&c).unwrap();
+    let store = dir.join("store");
+    std::fs::create_dir_all(store.join("objects")).unwrap();
+    std::fs::create_dir_all(store.join("trees")).unwrap();
+    for (id, e) in &b.objects {
+        std::fs::write(
+            store.join("objects").join(format!("{id}.json")),
+            verified_language::registry::canonical(e).unwrap(),
+        )
+        .unwrap();
+    }
+    let leaf = serde_json::json!({"schema":1,"entries":b.objects.keys().collect::<Vec<_>>()});
+    std::fs::write(
+        store
+            .join("trees")
+            .join(format!("{}.json", b.snapshot.root)),
+        verified_language::registry::canonical(&leaf).unwrap(),
+    )
+    .unwrap();
+    std::fs::write(store.join("names.json"), "{}").unwrap();
+    let catalogue = store.join("snapshot.json");
+    std::fs::write(
+        &catalogue,
+        verified_language::registry::canonical(&b.snapshot).unwrap(),
+    )
+    .unwrap();
     let result = Command::new(env!("CARGO_BIN_EXE_ink"))
         .args([
             "emit-core",

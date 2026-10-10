@@ -7,7 +7,7 @@ use verified_language::{
 };
 fn fixture(rep: &str) -> (Bundle, machine::Package, BTreeMap<String, String>) {
     let path = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("knowledge/machine-candidates")
+        .join("knowledge/research/machine-candidates")
         .join(format!("counter-{rep}"));
     (
         library::bundle(&path.join("lock.json")).unwrap(),

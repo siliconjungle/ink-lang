@@ -1,7 +1,7 @@
 # Ink architecture
 
 The language implementation lives in this repository. Proof objects, alternative
-implementations, discovery metadata, proof-producing search and Lean research
+implementations, canonical discovery data and Lean research
 live in the independently versioned `siliconjungle/ink-knowledge` repository,
 pinned here as the `knowledge` submodule.
 
@@ -28,3 +28,11 @@ repository pins, hashes, profiles and server receipts do not establish correctne
 
 Keep correctness, application conditions and measured profitability separate.
 Preserve archived benchmark inputs and results when changing active tools.
+
+Planner search and cost selection belong in the pinned ink-planner repository.
+Backend-neutral execution, bundle assembly, host ABIs, profiling and fallback
+belong in ink-runtime. Target emission and GPU device operations remain in
+lowering packages. Core source belongs in core/src, never distribution src.
+Canonical entries and pinned snapshots are the knowledge storage contract;
+SQLite is a disposable index, never mathematical authority. New interface
+changes do not need backward compatibility for historical research formats.

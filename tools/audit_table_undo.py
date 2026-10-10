@@ -40,7 +40,7 @@ def main():
         bundle = json.loads((path/'bundle.json').read_text())
         model = json.loads((path/'model.json').read_text())
         names = json.loads((path/'names.json').read_text())
-        parent = ROOT/'knowledge/table-maintenance'/evidence_name
+        parent = ROOT/'knowledge/research/table-maintenance'/evidence_name
         assert model['variant'] == variant
         assert model['parent_evidence_sha256'] == sha(parent)
         assert json.loads((path/'lock.json').read_text()) == bundle['lock']
@@ -61,7 +61,7 @@ def main():
         if args.reproduce:
             with tempfile.TemporaryDirectory(prefix='table-undo-replay-') as scratch:
                 replay = Path(scratch)
-                subprocess.run([args.python, str(ROOT/'knowledge/tools/table_undo_proofs.py'), str(replay),
+                subprocess.run([args.python, str(ROOT/'knowledge/producers/table_undo_proofs.py'), str(replay),
                                 '--variant',variant,'--compiler',str(compiler)], check=True, capture_output=True)
                 for p in path.rglob('*'):
                     if p.is_file():

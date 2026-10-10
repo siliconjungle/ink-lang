@@ -164,7 +164,7 @@ fn ownership_lowering_matches_reference_and_borrows_rows() {
         "#[derive(Debug,PartialEq,Eq)] pub struct l_Item",
     ) + "\npub static ROW_CLONES:std::sync::atomic::AtomicUsize=std::sync::atomic::AtomicUsize::new(0);\nimpl Clone for l_Item{fn clone(&self)->Self{ROW_CLONES.fetch_add(1,std::sync::atomic::Ordering::Relaxed);Self{l_name:self.l_name.clone(),l_stock:self.l_stock}}}\n";
     assert_ne!(counted, code, "instrumentation must replace the derive");
-    let runner = state_native::RUNNER.replacen(
+    let runner = verified_language::runtime::STATE_RUNNER.replacen(
         "println!",
         "eprintln!(\"row clones {}\",compiled_state::ROW_CLONES.load(std::sync::atomic::Ordering::Relaxed));println!",
         1,
@@ -172,7 +172,12 @@ fn ownership_lowering_matches_reference_and_borrows_rows() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("build/native-ownership");
     let got = compile_and_run(&root.join("counted"), &counted, &runner, &script);
     assert_eq!(got, json!(expected));
-    let plain = compile_and_run(&root.join("plain"), &code, state_native::RUNNER, &script);
+    let plain = compile_and_run(
+        &root.join("plain"),
+        &code,
+        verified_language::runtime::STATE_RUNNER,
+        &script,
+    );
     assert_eq!(plain, json!(expected));
 }
 
@@ -262,7 +267,7 @@ query derived_map() -> List<Int> reads(Items, units) {{
     let got = compile_and_run(
         &root.join("closure-calls"),
         &code,
-        state_native::RUNNER,
+        verified_language::runtime::STATE_RUNNER,
         &calls,
     );
     assert_eq!(got, json!(expected));

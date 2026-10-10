@@ -1,5 +1,5 @@
 use serde_json::{json, Value as Json};
-use verified_language::{check, core, eval, gpu, native, syntax::parse};
+use verified_language::{check, core, eval, native, syntax::parse};
 fn program() -> verified_language::syntax::Program {
     let p = parse(include_str!("../examples/particles.ink")).unwrap();
     check::check(&p).unwrap();
@@ -154,7 +154,7 @@ int main(void){
 fn shader_capabilities_leave_ordered_reductions_and_missing_primitives_on_cpu() {
     let p = program();
     let dir = std::path::Path::new("build/compute-emission-test");
-    gpu::emit(&p, dir).unwrap();
+    verified_language::runtime::emit_gpu(&p, dir).unwrap();
     let m: Json =
         serde_json::from_slice(&std::fs::read(dir.join("manifest.json")).unwrap()).unwrap();
     assert_eq!(m["schema"], 2);
@@ -201,7 +201,7 @@ fn internal_values_and_deep_calls_have_safe_compilation_boundaries() {
     check::check(&p).unwrap();
     assert!(native::emit(&p).is_ok());
     let dir = std::path::Path::new("build/compute-depth-test");
-    gpu::emit(&p, dir).unwrap();
+    verified_language::runtime::emit_gpu(&p, dir).unwrap();
     let m: Json = serde_json::from_slice(&fs::read(dir.join("manifest.json")).unwrap()).unwrap();
     let f = m["functions"].as_array().unwrap().last().unwrap();
     assert!(f["shader"].is_null());

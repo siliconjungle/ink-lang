@@ -51,7 +51,7 @@ def main():
             current=ROOT/'target/release/lang';original=ROOT/'build/cache-lowering-original/lang'
             assert sha(current)==(compilers['current'] if wide else compilers)
             if wide:assert sha(original)==compilers['original']
-            run([current,'verify-maintenance','knowledge/delta-maintenance/delta.json'])
+            run([current,'verify-maintenance','knowledge/research/delta-maintenance/delta.json'])
             if wide: result['correctness']=bench.validate()
             else:
                 state.BUILD=build;state.OUT=out;state.VARIANTS=variants;result['correctness']=state.validate(current)
@@ -68,8 +68,8 @@ def main():
             # Exact emit and plan replay for the new compiler, and for the
             # original compiler where the report relies on its emitted source.
             tmp=ROOT/'build/cache-reports-audit'/name
-            if wide:cases=[('cloned',original,'knowledge/exact-maintenance/canonical.json',False),('borrowed',current,'knowledge/exact-maintenance/canonical.json',False),('delta',current,'knowledge/delta-maintenance/delta.json',False)]
-            else:cases=[('generated',current,'knowledge/exact-maintenance/canonical.json',False),('generated-bounded',current,'knowledge/exact-maintenance/canonical.json',True),('language_delta',current,'knowledge/delta-maintenance/delta.json',False)]
+            if wide:cases=[('cloned',original,'knowledge/research/exact-maintenance/canonical.json',False),('borrowed',current,'knowledge/research/exact-maintenance/canonical.json',False),('delta',current,'knowledge/research/delta-maintenance/delta.json',False)]
+            else:cases=[('generated',current,'knowledge/research/exact-maintenance/canonical.json',False),('generated-bounded',current,'knowledge/research/exact-maintenance/canonical.json',True),('language_delta',current,'knowledge/research/delta-maintenance/delta.json',False)]
             source='bench/wide-cache/program.ink' if wide else 'examples/state-benchmark.lang'
             wrapper='bench/wide-cache/wrapper.rs' if wide else 'bench/state/generated_abi.rs'
             for variant,compiler,cert,bounded in cases:
@@ -101,9 +101,9 @@ def main():
     if args.execute:
         original=ROOT/'build/cache-lowering-original/lang';assert sha(original)==extension['compiler_sha256']
         temporary=ROOT/'build/cache-reports-audit/delta-replay'
-        run(['python3','knowledge/tools/delta_maintenance_proofs.py',temporary,'--compiler',original])
-        for source in (ROOT/'knowledge/delta-maintenance').rglob('*'):
-            if source.is_file() and source.suffix in ('.json','.ink'):assert source.read_bytes()==(temporary/source.relative_to(ROOT/'knowledge/delta-maintenance')).read_bytes(),source
+        run(['python3','knowledge/producers/delta_maintenance_proofs.py',temporary,'--compiler',original])
+        for source in (ROOT/'knowledge/research/delta-maintenance').rglob('*'):
+            if source.is_file() and source.suffix in ('.json','.ink'):assert source.read_bytes()==(temporary/source.relative_to(ROOT/'knowledge/research/delta-maintenance')).read_bytes(),source
         for name in ['cache-lowering-phase1','wide-cache-phase1']:
             path=ROOT/'reports'/name/'audit.json';result=json.loads(path.read_text());result['original_compiler_delta_extension_replayed']=True;path.write_text(json.dumps(result,indent=2)+'\n')
     print(json.dumps(results,indent=2))

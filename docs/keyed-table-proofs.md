@@ -6,7 +6,7 @@ This strengthens the cache proof boundary. It is not full native or transaction 
 
 ## The model
 
-`knowledge/table-maintenance` contains 63 immutable checked objects: the previous 39 exact-integer/journal objects and 24 new definitions/theorems. Signed integers are the existing unbounded canonical mathematical model. Keys contain two u64 words, representing all 128-bit values. Key comparison checks both words. u64/u32 source keys embed in this domain; nominal IDs already use u128 storage. String, exact-Int and other unsupported key domains retain scanning under version 4.
+`knowledge/research/table-maintenance` contains 63 immutable checked objects: the previous 39 exact-integer/journal objects and 24 new definitions/theorems. Signed integers are the existing unbounded canonical mathematical model. Keys contain two u64 words, representing all 128-bit values. Key comparison checks both words. u64/u32 source keys embed in this domain; nominal IDs already use u128 storage. String, exact-Int and other unsupported key domains retain scanning under version 4.
 
 Contribution rows are finite keyed lists. Lookup finds the first matching key. Writing replaces/removes that match, or appends a present value when absent; absent removal leaves the table unchanged. The sum independently traverses every stored contribution. The theorem even covers duplicate keys in this mathematical model: only the first match changes, and shadowed contributions remain in the sum. Actual language tables have unique keys. The model does not establish correspondence between arbitrary duplicate lists and native tables.
 
@@ -53,12 +53,12 @@ The executed audit validates source/artifact/binary hashes, the complete sample 
 ```sh
 python3 dev.py test
 python3 dev.py build --release
-python3 knowledge/tools/table_transition_proofs.py build/table-package \
+python3 knowledge/producers/table_transition_proofs.py build/table-package \
   --compiler target/release/ink
 target/release/ink emit-state examples/state-benchmark.lang \
-  --maintenance knowledge/table-maintenance/table.json -o build/table-program
+  --maintenance knowledge/research/table-maintenance/table.json -o build/table-program
 python3 bench/state/run.py \
-  --maintenance knowledge/table-maintenance/table.json \
+  --maintenance knowledge/research/table-maintenance/table.json \
   --output reports/table-transition-inventory-phase1 \
   --build-directory build/table-transition-inventory-bench
 python3 tools/audit_table_report.py --execute

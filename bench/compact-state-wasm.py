@@ -17,7 +17,7 @@ def same_json(a,b):
 run(['python3','dev.py','build','--bin','lang','--bin','state_wasm_fixture'])
 run([root/'target/debug/state_wasm_fixture',out/'fixtures'])
 lang=root/'target/debug/lang'
-shutil.copyfile(root/'knowledge/table-maintenance/table.json',out/'maintenance.json')
+shutil.copyfile(root/'knowledge/research/table-maintenance/table.json',out/'maintenance.json')
 run([lang,'verify-maintenance',out/'maintenance.json'])
 fixture_files=sorted(p.name for p in (out/'fixtures/inventory').iterdir() if p.name!='source.lang')
 modes=[];native_checks=0
@@ -27,7 +27,7 @@ for fixture,variant in [('inventory','maintained'),('inventory','rows'),('invent
     args=[lang,'emit-state',fdir/'source.lang','--wasm-abi','-o',project]
     if variant!='scan':args+=['--maintenance',out/'maintenance.json']
     if fixture=='bounded':args+=['--bounded-totals']
-    if variant in ['rows','columns']:args+=['--storage',root/'knowledge/storage'/f'inventory-{variant}-small.json']
+    if variant in ['rows','columns']:args+=['--storage',root/'knowledge/research/storage'/f'inventory-{variant}-small.json']
     run(args)
     run(['python3','dev.py','build','--release','--bin','compiled-state','--offline','--manifest-path',project/'Cargo.toml','--target-dir',build/'native-target'])
     binary=dest/'native-runner';shutil.copy2(build/'native-target/release/compiled-state',binary)

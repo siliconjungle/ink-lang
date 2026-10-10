@@ -24,12 +24,12 @@ def main():
     OUT.mkdir(parents=True,exist_ok=True)
     if any(OUT.iterdir()):parser.error('report directory must be empty')
     compiler=sha(LANG)
-    run(['python3',ROOT/'knowledge/tools/conditional_proofs.py',OUT/'database'])
+    run(['python3',ROOT/'knowledge/producers/conditional_proofs.py',OUT/'database'])
     lock=OUT/'database/lock.json';run([LANG,'verify-database',lock])
     converted=OUT/'logic'
-    run(['python3',ROOT/'knowledge/tools/scalar_library.py','--library',lock,'--compiler',LANG,'--output-dir',converted])
+    run(['python3',ROOT/'knowledge/producers/scalar_library.py','--library',lock,'--compiler',LANG,'--output-dir',converted])
     package=OUT/'package'
-    run(['python3',ROOT/'knowledge/tools/rewrite_search.py',ROOT/'examples/conditional.lang',
+    run(['python3',ROOT/'planner/research/rewrite_search.py',ROOT/'examples/conditional.lang',
          '--rules',converted/'rewrite-index.json','--compiler',LANG,'--output-dir',package])
     driver=OUT/'driver.c'
     driver.write_text('''#include <stdbool.h>

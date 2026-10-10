@@ -10,11 +10,11 @@ env=os.environ.copy();env['ZIG_GLOBAL_CACHE_DIR']=str(root/'build/zig-cache');co
 def run(command):
     command=list(map(str,command));commands.append(command);subprocess.run(command,cwd=root,env=env,check=True)
 run(['python3','dev.py','build','--bin','ink'])
-run(['python3','knowledge/tools/filter_proofs.py','knowledge/filtered'])
+run(['python3','knowledge/producers/filter_proofs.py','knowledge/research/filtered'])
 for name in ['staged','checked','semantics']:
-    source='bench/filtered/semantics.ink' if name=='semantics' else 'knowledge/filtered/kernels.lang'
+    source='bench/filtered/semantics.ink' if name=='semantics' else 'knowledge/research/filtered/kernels.lang'
     command=['target/debug/ink','build',source,'--target','wasm32','--zig',zig,'-o',out/f'{name}.wasm']
-    if name=='checked':command+=['--implementation','knowledge/filtered/proposal.json']
+    if name=='checked':command+=['--implementation','knowledge/research/filtered/proposal.json']
     run(command)
 run(['node','bench/filtered/wasm.mjs',*[out/f'{name}.wasm' for name in ['staged','checked','semantics']],out/'validation.json'])
 (out/'metadata.json').write_text(json.dumps(dict(commands=commands,zig=subprocess.check_output([zig,'version'],text=True).strip(),wasm_sha256={name:hashlib.sha256((out/f'{name}.wasm').read_bytes()).hexdigest() for name in ['staged','checked','semantics']}),indent=2)+'\n')

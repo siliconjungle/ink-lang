@@ -621,10 +621,11 @@ fn boolean_cases_premises_and_congruence_do_not_create_unconditional_assumptions
 fn library_roots_are_explicit_and_transitive_dependencies_do_not_grant_visibility() {
     use std::{fs, path::Path};
     use verified_language::library;
-    let lib = library::load(Path::new("knowledge/inductive/lock.json")).unwrap();
+    let lib = library::load(Path::new("knowledge/research/inductive/lock.json")).unwrap();
     assert_eq!(lib.closure.len(), 12);
     let names: serde_json::Value =
-        serde_json::from_slice(&fs::read("knowledge/inductive/names.json").unwrap()).unwrap();
+        serde_json::from_slice(&fs::read("knowledge/research/inductive/names.json").unwrap())
+            .unwrap();
     let id = |n: &str| names[n].as_str().unwrap();
     let list = ctor(
         id("List64"),
@@ -661,9 +662,10 @@ fn library_roots_are_explicit_and_transitive_dependencies_do_not_grant_visibilit
         Term::U64(u64::MAX)
     );
     // The scalar rewrite loader must not misinterpret this new logical domain.
-    assert!(
-        verified_language::knowledge::load(Path::new("knowledge/inductive/lock.json")).is_err()
-    );
+    assert!(verified_language::knowledge::load(Path::new(
+        "knowledge/research/inductive/lock.json"
+    ))
+    .is_err());
 }
 
 #[test]

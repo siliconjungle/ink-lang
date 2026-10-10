@@ -172,7 +172,11 @@ query ordered(xs:List<u32>)->u32{return fold(xs);}
         state_native::emit(&p, None).unwrap(),
     )
     .unwrap();
-    fs::write(dir.join("src/main.rs"), state_native::RUNNER).unwrap();
+    fs::write(
+        dir.join("src/main.rs"),
+        verified_language::runtime::STATE_RUNNER,
+    )
+    .unwrap();
     fs::write(dir.join("Cargo.toml"),"[package]\nname=\"compiled-state\"\nversion=\"0.1.0\"\nedition=\"2021\"\n[dependencies]\nnum-bigint=\"=0.4.8\"\nsha2=\"=0.10.9\"\nserde_json=\"=1.0.151\"\n").unwrap();
     fs::write(dir.join("script.json"), script.to_string()).unwrap();
     let run = Command::new(env!("CARGO"))

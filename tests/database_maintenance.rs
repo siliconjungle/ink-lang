@@ -15,13 +15,13 @@ fn certificate(name: &str) -> Certificate {
         &fs::read(
             Path::new(env!("CARGO_MANIFEST_DIR"))
                 .join(if ["table", "table-snapshot"].contains(&name) {
-                    "knowledge/table-maintenance"
+                    "knowledge/research/table-maintenance"
                 } else if ["reversible", "snapshot"].contains(&name) {
-                    "knowledge/reversible-maintenance"
+                    "knowledge/research/reversible-maintenance"
                 } else if name == "delta" {
-                    "knowledge/delta-maintenance"
+                    "knowledge/research/delta-maintenance"
                 } else {
-                    "knowledge/exact-maintenance"
+                    "knowledge/research/exact-maintenance"
                 })
                 .join(format!("{name}.json")),
         )
@@ -74,13 +74,13 @@ fn exact_source_updates_use_database_proofs_for_unbounded_signed_values() {
         let source = fs::read_to_string(
             Path::new(env!("CARGO_MANIFEST_DIR"))
                 .join(if ["table", "table-snapshot"].contains(&name) {
-                    "knowledge/table-maintenance"
+                    "knowledge/research/table-maintenance"
                 } else if ["reversible", "snapshot"].contains(&name) {
-                    "knowledge/reversible-maintenance"
+                    "knowledge/research/reversible-maintenance"
                 } else if name == "delta" {
-                    "knowledge/delta-maintenance"
+                    "knowledge/research/delta-maintenance"
                 } else {
-                    "knowledge/exact-maintenance"
+                    "knowledge/research/exact-maintenance"
                 })
                 .join(format!("{name}.ink")),
         )
@@ -104,9 +104,10 @@ fn exact_source_updates_use_database_proofs_for_unbounded_signed_values() {
         }
     }
     // Archived v1 identities/semantics still verify and retain broad constants.
-    let legacy =
-        aggregate::prove(&parse(include_str!("../knowledge/sum-maintenance.lang")).unwrap())
-            .unwrap();
+    let legacy = aggregate::prove(
+        &parse(include_str!("../knowledge/research/sum-maintenance.lang")).unwrap(),
+    )
+    .unwrap();
     aggregate::verify(&legacy).unwrap();
     assert_eq!(legacy.version, 1);
     assert!(legacy.evidence.is_none());
@@ -245,7 +246,8 @@ fn valid_database_math_cannot_change_source_meaning_or_hide_imports() {
 }
 #[test]
 fn portable_bundles_keep_hash_dependency_and_resource_checks() {
-    let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("knowledge/exact-integers/lock.json");
+    let path =
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("knowledge/research/exact-integers/lock.json");
     let bundle = library::bundle(&path).unwrap();
     let disk = library::load(&path).unwrap();
     assert_eq!(library::load_bundle(&bundle).unwrap().closure, disk.closure);
@@ -527,7 +529,11 @@ fn compiled_database_updates_preserve_signed_state_events_and_checkpoints() {
         let project = root.join(name);
         fs::create_dir_all(project.join("src")).unwrap();
         fs::write(project.join("src/lib.rs"), code).unwrap();
-        fs::write(project.join("src/main.rs"), state_native::RUNNER).unwrap();
+        fs::write(
+            project.join("src/main.rs"),
+            verified_language::runtime::STATE_RUNNER,
+        )
+        .unwrap();
         fs::write(project.join("Cargo.toml"),"[package]\nname=\"compiled-state\"\nversion=\"0.1.0\"\nedition=\"2021\"\n[dependencies]\nnum-bigint=\"=0.4.8\"\nsha2=\"=0.10.9\"\nserde_json=\"=1.0.151\"\n").unwrap();
         let compile = Command::new(env!("CARGO"))
             .args(["build", "--offline", "--manifest-path"])

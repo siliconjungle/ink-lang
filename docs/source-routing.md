@@ -43,7 +43,7 @@ assets and modules; they do not prove transport or code-generation correctness.
 The distribution now connects this witness to the independent GPU backend:
 
 ```sh
-python3 knowledge/tools/source_routing.py --core core.json --entry entry \
+python3 planner/ink_planner/source_routing.py --core core.json --entry entry \
   --placements placements.json --compiler ./ink -o route.json
 ink build core.json --core --route route.json --target webgpu --zig /path/to/zig -o bundle
 ```
@@ -77,7 +77,7 @@ law is trusted. In this total-value scope, evaluating the same pure computation
 once rather than twice preserves results. Host failure/allocation traces remain
 outside that claim.
 
-`knowledge/tools/route_selection.py` checks the unchanged whole-entry CPU baseline
+`planner/route.py` checks the unchanged whole-entry CPU baseline
 and each bounded candidate independently, then ranks comparable complete-call
 measurements. It has candidate/input/sample and per-check time budgets. No
 measurements, missing baseline measurements or exhausted search retain baseline;
@@ -94,7 +94,7 @@ with `ink-proved-source-routing-v1` supplies `--route-proof evidence.json`, whos
 `catalogue` and `proof` use the shared conditional semantic checker. It proves the
 entry body equal to the reconstructed graph in the exact checked source context;
 branch conditions and dependencies remain proof obligations. The external
-`knowledge/tools/source_routing.py --proof evidence.json` producer supports this
+`planner/ink_planner/source_routing.py --proof evidence.json` producer supports this
 contract. The legacy physical mixed-route executor still rejects compute-v2
 records, vectors and resident array outputs before emission; admitting an
 equivalent graph does not create a physical transport implementation.

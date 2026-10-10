@@ -26,7 +26,7 @@ def main():
         result['archived_validation']=True
     for folder,example in [('source-column-layout','source-row-undo'),('source-column-ledger','source-row-ledger')]:
         directory=ROOT/'knowledge'/folder; source=ROOT/'examples'/f'{example}.ink'
-        cert=ROOT/'knowledge/table-maintenance/table.json'
+        cert=ROOT/'knowledge/research/table-maintenance/table.json'
         source_model=ROOT/'knowledge'/example/'reversible/source-model.json'
         bundle=json.loads((directory/'bundle.json').read_text())
         binding=json.loads((directory/'binding.json').read_text()); names=json.loads((directory/'names.json').read_text())
@@ -44,7 +44,7 @@ def main():
         if args.reproduce:
             with tempfile.TemporaryDirectory(prefix='column-layout-replay-') as temp:
                 replay=Path(temp)
-                run(['python3',ROOT/'knowledge/tools/column_layout_proofs.py',replay,'--compiler',compiler,
+                run(['python3',ROOT/'knowledge/producers/column_layout_proofs.py',replay,'--compiler',compiler,
                     '--source',source,'--source-model',source_model,'--maintenance',cert])
                 want={str(p.relative_to(directory)) for p in directory.rglob('*') if p.is_file()}
                 actual={str(p.relative_to(replay)) for p in replay.rglob('*') if p.is_file()}

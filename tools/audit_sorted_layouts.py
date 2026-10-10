@@ -27,7 +27,7 @@ def main():
     for folder,parent,example in [('source-sorted-layout','source-column-layout','source-row-undo'),
                                    ('source-sorted-ledger','source-column-ledger','source-row-ledger')]:
         directory=ROOT/'knowledge'/folder;layout=ROOT/'knowledge'/parent;source=ROOT/'examples'/f'{example}.ink'
-        source_model=ROOT/'knowledge'/example/'reversible/source-model.json';cert=ROOT/'knowledge/table-maintenance/table.json'
+        source_model=ROOT/'knowledge'/example/'reversible/source-model.json';cert=ROOT/'knowledge/research/table-maintenance/table.json'
         bundle=json.loads((directory/'bundle.json').read_text());binding=json.loads((directory/'binding.json').read_text())
         names=json.loads((directory/'names.json').read_text());model=json.loads((directory/'model.json').read_text())
         assert binding['library']==bundle
@@ -44,7 +44,7 @@ def main():
         if args.reproduce:
             with tempfile.TemporaryDirectory(prefix='sorted-layout-replay-') as temp:
                 replay=Path(temp)
-                run([args.python,ROOT/'knowledge/tools/sorted_layout_proofs.py',replay,'--compiler',compiler,'--layout',layout,
+                run([args.python,ROOT/'knowledge/producers/sorted_layout_proofs.py',replay,'--compiler',compiler,'--layout',layout,
                     '--source',source,'--source-model',source_model,'--maintenance',cert])
                 want={str(p.relative_to(directory)) for p in directory.rglob('*') if p.is_file()}
                 actual={str(p.relative_to(replay)) for p in replay.rglob('*') if p.is_file()}

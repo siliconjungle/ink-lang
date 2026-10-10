@@ -13,9 +13,9 @@ use verified_language::{
 const SOURCE: &str = include_str!("../examples/source-row-undo.ink");
 fn cert(snapshot: bool) -> Certificate {
     serde_json::from_str(if snapshot {
-        include_str!("../knowledge/table-maintenance/table-snapshot.json")
+        include_str!("../knowledge/research/table-maintenance/table-snapshot.json")
     } else {
-        include_str!("../knowledge/table-maintenance/table.json")
+        include_str!("../knowledge/research/table-maintenance/table.json")
     })
     .unwrap()
 }
@@ -131,7 +131,7 @@ fn actual_source_shapes_and_filtered_projection_agree_with_reference_and_undo() 
         let generated = row_model::export(&p, "total", &c).unwrap();
         row_model::verify(&p, &c, &generated).unwrap();
         let root = Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join("knowledge/source-row-undo")
+            .join("knowledge/research/source-row-undo")
             .join(folder);
         let disk: Model =
             serde_json::from_slice(&fs::read(root.join("source-model.json")).unwrap()).unwrap();
@@ -249,7 +249,7 @@ fn a_different_nested_row_and_nominal_key_use_the_same_generic_source_bridge() {
         let c = cert(snapshot);
         let model = row_model::export(&p, "balance", &c).unwrap();
         let root = Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join("knowledge/source-row-ledger")
+            .join("knowledge/research/source-row-ledger")
             .join(folder);
         let disk: Model =
             serde_json::from_slice(&fs::read(root.join("source-model.json")).unwrap()).unwrap();
@@ -426,7 +426,8 @@ fn valid_but_wrong_source_projection_or_payload_shapes_do_not_bind() {
     let mut bad = model;
     bad.library.objects.remove(&bad.description.projection);
     assert!(row_model::verify(&p, &c, &bad).is_err());
-    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("knowledge/source-row-undo/reversible");
+    let root =
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("knowledge/research/source-row-undo/reversible");
     let mut bad: Model =
         serde_json::from_slice(&fs::read(root.join("binding.json")).unwrap()).unwrap();
     let binding = bad.row_binding.as_mut().unwrap();
@@ -498,7 +499,7 @@ fn source_binding_requires_actual_semantic_closure_and_direct_definitions() {
             // Complete source payload wrappers remain valid after pruning all
             // unrelated journal theorems; wrapper shapes are still checked.
             let root = Path::new(env!("CARGO_MANIFEST_DIR"))
-                .join("knowledge")
+                .join("knowledge/research")
                 .join(folder)
                 .join(variant);
             let mut extended: Model =

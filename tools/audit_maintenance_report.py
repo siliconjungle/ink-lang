@@ -78,7 +78,7 @@ def main():
             assert json.loads((project/'plan.json').read_text())==json.loads((OUT/f'{mode}-plan.json').read_text()),mode
         # Legacy and new authority must emit identical code for the canonical
         # expressions. The selection plan intentionally records different proof evidence.
-        legacy=temp/'legacy.json';run([compiler,'prove-maintenance','knowledge/sum-maintenance.lang','-o',legacy])
+        legacy=temp/'legacy.json';run([compiler,'prove-maintenance','knowledge/research/sum-maintenance.lang','-o',legacy])
         for mode,bounded in [('generated',False),('generated-bounded',True)]:
             project=temp/f'legacy-{mode}'
             run([compiler,'emit-state','examples/state-benchmark.lang','-o',project,'--maintenance',legacy]+
@@ -86,8 +86,8 @@ def main():
             assert (project/'src/lib.rs').read_bytes()==(temp/mode/'src/lib.rs').read_bytes()
         audit['exact_codegen_and_plan_replay']=True;audit['legacy_database_codegen_identical']=True
         # Producer replay uses the same compiler, not a newly built producer/checker.
-        replay=temp/'producer';run(['python3','knowledge/tools/maintenance_proofs.py',replay,'--compiler',compiler])
-        for path in (ROOT/'knowledge/exact-maintenance').iterdir():
+        replay=temp/'producer';run(['python3','knowledge/producers/maintenance_proofs.py',replay,'--compiler',compiler])
+        for path in (ROOT/'knowledge/research/exact-maintenance').iterdir():
             if path.suffix in ('.json','.ink'):assert path.read_bytes()==(replay/path.name).read_bytes(),path.name
         audit['deterministic_producer_replay']=True
         audit['correctness']=bench.validate(compiler);assert audit['correctness']==metadata['correctness']
@@ -95,7 +95,7 @@ def main():
         for name in ['canonical','commuted']:
             timings=[]
             for _ in range(7):
-                start=time.perf_counter();run([compiler,'verify-maintenance',ROOT/f'knowledge/exact-maintenance/{name}.json']);timings.append((time.perf_counter()-start)*1000)
+                start=time.perf_counter();run([compiler,'verify-maintenance',ROOT/f'knowledge/research/exact-maintenance/{name}.json']);timings.append((time.perf_counter()-start)*1000)
             costs[name]={'fresh_process_warm_fs_ms':timings,'median_ms':statistics.median(timings)}
         audit['verification_costs']=costs
         # Preserve a non-eliminable probe; the original measurement's private

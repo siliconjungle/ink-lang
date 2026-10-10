@@ -11,7 +11,7 @@ use verified_language::{
 };
 
 fn root() -> PathBuf {
-    Path::new(env!("CARGO_MANIFEST_DIR")).join("knowledge/exact-integers")
+    Path::new(env!("CARGO_MANIFEST_DIR")).join("knowledge/research/exact-integers")
 }
 fn names() -> BTreeMap<String, String> {
     serde_json::from_slice(&fs::read(root().join("names.json")).unwrap()).unwrap()
