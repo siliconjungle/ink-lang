@@ -302,9 +302,10 @@ if i==8{{session.migrate_direct(b.clone(),&bridge).unwrap();fallback.migrate_dir
 }
 #[test]
 fn database_optimises_complete_actions_without_compiler_patterns() {
-    let (m, _, root) = proposal(SOURCE, "representation-optimised");
+    let source = include_str!("../examples/representation-cache-maintenance.ink");
+    let (m, _, root) = proposal(source, "representation-optimised");
     let selected = CheckedModule::from_source(
-        parse(&SOURCE.replace("Rows.remove(key); Rows.remove(key);", "Rows.remove(key);")).unwrap(),
+        parse(&source.replace("Rows.remove(key); Rows.remove(key);", "Rows.remove(key);")).unwrap(),
     )
     .unwrap();
     fs::write(root.join("selected.json"), selected.bytes().unwrap()).unwrap();
@@ -334,6 +335,7 @@ fn database_optimises_complete_actions_without_compiler_patterns() {
     let out = Command::new("python3")
         .arg("knowledge/producers/representations.py")
         .arg(root.join("model.json"))
+        .args(["--cache-query", "zero", "--preserve-cache"])
         .arg("--replacement")
         .arg(root.join("replacement.json"))
         .arg("--selected-model")
@@ -680,4 +682,205 @@ fn benchmark_representation_execution() {
     )
     .unwrap();
     println!("{}", serde_json::to_string_pretty(&report).unwrap());
+}
+
+fn cache_maintenance_native(name: &str, timed: bool, composed: bool) {
+    let source = include_str!("../examples/representation-cache-maintenance.ink");
+    let (module, _, root) = proposal(source, name);
+    if composed {
+        let selected = CheckedModule::from_source(
+            parse(&source.replace("Rows.remove(key); Rows.remove(key);", "Rows.remove(key);"))
+                .unwrap(),
+        )
+        .unwrap();
+        fs::write(root.join("selected.json"), selected.bytes().unwrap()).unwrap();
+        fs::write(
+            root.join("selected-model.json"),
+            serde_json::to_vec(
+                &verified_language::action_model::Projection::derive(&selected).unwrap(),
+            )
+            .unwrap(),
+        )
+        .unwrap();
+        let output = Command::new("python3")
+            .arg("knowledge/producers/action_replacement.py")
+            .arg(root.join("model.json"))
+            .arg(root.join("selected-model.json"))
+            .arg(root.join("selected.json"))
+            .arg("-o")
+            .arg(root.join("replacement.json"))
+            .current_dir(env!("CARGO_MANIFEST_DIR"))
+            .output()
+            .unwrap();
+        assert!(
+            output.status.success(),
+            "{}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+    }
+    let mut plans = vec![];
+    for (label, extra) in [("refresh", vec![]), ("preserve", vec!["--preserve-cache"])] {
+        let mut command = Command::new("python3");
+        command
+            .arg("knowledge/producers/representations.py")
+            .arg(root.join("model.json"))
+            .args(["--cache-query", "zero", "-o"])
+            .arg(root.join(format!("{label}.json")))
+            .args(extra)
+            .current_dir(env!("CARGO_MANIFEST_DIR"));
+        if composed && label == "preserve" {
+            command
+                .arg("--replacement")
+                .arg(root.join("replacement.json"))
+                .arg("--selected-model")
+                .arg(root.join("selected-model.json"));
+        }
+        let output = command.output().unwrap();
+        assert!(
+            output.status.success(),
+            "{}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+        let p: Proposal =
+            serde_json::from_slice(&fs::read(root.join(format!("{label}.json"))).unwrap()).unwrap();
+        let a = representation::check(&module, &p.requests[0]).unwrap();
+        let b = representation::check(&module, &p.requests[1]).unwrap();
+        representation::check_migration(&a, &b, &p.migration.knowledge, &p.migration.root).unwrap();
+        plans.push(b);
+    }
+    let mut generated = String::from(
+        "use verified_language as ink_core;\nuse verified_language::runtime as ink_runtime;\n",
+    );
+    generated.push_str(&verified_language::representation_native::lower(&plans, &[]).unwrap());
+    generated.push_str(&format!("\nconst SOURCE:&str={source:?};\nconst DIRECTORY:&str={:?};\nconst TIMED:bool={timed};\nconst COMPOSED:bool={composed};\nconst LIBRARY_PROFILE:&str={:?};\n",root.to_str().unwrap(),if cfg!(debug_assertions) { "debug" } else { "release" }));
+    generated.push_str(include_str!(
+        "../bench/representations/cache-maintenance.rs.txt"
+    ));
+    fs::write(root.join("native.rs"), generated).unwrap();
+    compile_native(&root, timed);
+    let output = Command::new(root.join("native"))
+        .env("PATH", "")
+        .output()
+        .unwrap();
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    if timed {
+        let report: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
+        fs::write(
+            root.join("result.json"),
+            serde_json::to_vec_pretty(&report).unwrap(),
+        )
+        .unwrap();
+        println!("{}", serde_json::to_string_pretty(&report).unwrap());
+    }
+}
+#[test]
+fn cache_maintenance_preserves_abort_unrelated_commit_and_affected_commit() {
+    cache_maintenance_native("cache-maintenance-native", false, false);
+}
+#[test]
+#[ignore = "manual performance measurement; no timing assertion"]
+fn benchmark_cache_maintenance() {
+    cache_maintenance_native("cache-maintenance-benchmark", true, false);
+}
+#[test]
+fn cache_dependency_heuristic_cannot_authorise_a_false_update() {
+    let source = include_str!("../examples/representation-cache-maintenance.ink");
+    let (module, _, root) = proposal(source, "cache-maintenance-adversarial");
+    let script = r#"import json,sys
+sys.path.insert(0,'knowledge/producers')
+from representations import generate
+from cache_maintenance import leaves
+p=json.load(open(sys.argv[1]));a=p['actions']['put'];rows=1
+# Lie to the untrusted authoring heuristic: all put branches leave Rows unchanged.
+# Keep the authenticated source objects and source function entirely intact.
+for leaf in leaves(a['case']['normal']):
+ if leaf['constructor']==0 and leaf['arguments'][1]=={'Bool':True}:
+  leaf['arguments'][3]['Construct']['arguments'][rows]={'Var':a['case']['bindings'][rows]}
+result=generate(p,sys.argv[2],cache_query='zero',preserve_cache=True)
+print(json.dumps(result))
+"#;
+    let output = Command::new("python3")
+        .args(["-c", script])
+        .arg(root.join("model.json"))
+        .arg(root.join("false-database"))
+        .current_dir(env!("CARGO_MANIFEST_DIR"))
+        .output()
+        .unwrap();
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let p: Proposal = serde_json::from_slice(&output.stdout).unwrap();
+    verified_language::registry::CheckedBundle::check(&p.requests[1].knowledge).unwrap();
+    let error = representation::check(&module, &p.requests[1]).unwrap_err();
+    assert!(
+        error.contains("definitional computation does not prove equality"),
+        "{error}"
+    );
+}
+
+#[test]
+fn published_cache_maintenance_replays_and_migrates_offline() {
+    let module = CheckedModule::from_source(
+        parse(include_str!(
+            "../knowledge/research/cache-maintenance/app.ink"
+        ))
+        .unwrap(),
+    )
+    .unwrap();
+    for (from_json, to_json, bridge_json) in [
+        (
+            include_str!("../knowledge/research/cache-maintenance/direct.json"),
+            include_str!("../knowledge/research/cache-maintenance/preserve.json"),
+            include_str!("../knowledge/research/cache-maintenance/migration.json"),
+        ),
+        (
+            include_str!("../knowledge/research/cache-maintenance/composed-direct.json"),
+            include_str!("../knowledge/research/cache-maintenance/composed.json"),
+            include_str!("../knowledge/research/cache-maintenance/composed-migration.json"),
+        ),
+    ] {
+        let from: Request = serde_json::from_str(from_json).unwrap();
+        let to: Request = serde_json::from_str(to_json).unwrap();
+        let bridge: Bridge = serde_json::from_str(bridge_json).unwrap();
+        let a = representation::check(&module, &from).unwrap();
+        let b = representation::check(&module, &to).unwrap();
+        let migration =
+            representation::check_migration(&a, &b, &bridge.knowledge, &bridge.root).unwrap();
+        let mut session = Session::new(a, Reference).unwrap();
+        let mut baseline = Runtime::new(module.program().clone()).unwrap();
+        let calls: serde_json::Value = serde_json::from_str(include_str!(
+            "../knowledge/research/cache-maintenance/calls.json"
+        ))
+        .unwrap();
+        for (i, call) in calls.as_array().unwrap().iter().enumerate() {
+            if i == 1 {
+                session.migrate_direct(b.clone(), &migration).unwrap();
+            }
+            if i == 4 {
+                session =
+                    Session::restore(b.clone(), &session.checkpoint().unwrap(), Reference).unwrap();
+            }
+            let name = call["call"].as_str().unwrap();
+            assert_eq!(
+                session.invoke_json(name, &call["args"]).unwrap(),
+                baseline.invoke_json(name, &call["args"]).unwrap().json()
+            );
+            assert_eq!(
+                session.checkpoint().unwrap(),
+                baseline.checkpoint_portable().unwrap()
+            );
+        }
+    }
+}
+
+#[test]
+#[ignore = "manual performance measurement; no timing assertion"]
+fn benchmark_composed_cache_maintenance() {
+    cache_maintenance_native("composed-cache-maintenance-benchmark", true, true);
 }

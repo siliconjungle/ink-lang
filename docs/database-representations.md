@@ -44,8 +44,30 @@ expressibility and correctness, not efficient delta maintenance. Ordinary querie
 with a direct unchanged-state observation now retain their physical state too,
 with universal observation and preservation proofs. They avoid refreshing an
 unrelated cache after each `get(key)`. `--rebuild-queries` reproduces the earlier
-candidate for comparison. Other entries can define different layouts, cache updates and
-specialisations under the same obligations without adding core rules.
+candidate for comparison.
+
+`--cache-query zero --preserve-cache` additionally proposes database-defined
+work skipping at change boundaries. Aborted changes and host failures retain the
+previous cached value and reconstruct the physical tuple from source post-state. Successful changes to tables that the cached query does
+not read install the new logical roots and retain its cached reply. Changes to a
+read table still recompute the reply. The producer uses conservative syntactic
+analysis to propose this definition, then supplies universal branch equations
+using existing equality rules; neither the analysis nor dependency metadata
+is a premise accepted by the core. The complete original observation, including
+errors, versions and staged events, remains the execution result. A forged
+unchanged-root claim fails mathematical checking even with authentic hashes and
+membership. This candidate composes with checked whole-action replacements. The frozen
+`composed.json` candidate combines it with the database removal-idempotence law,
+so the source can still remove twice while the selected implementation removes
+once under a universal equality proof.
+
+Only the cached reply and source observation cross the transition intermediate;
+carrying the whole previous state would duplicate roots during transport.
+The candidate is explicit, with the refresh candidate retained for cost comparison.
+See `knowledge/research/cache-maintenance` for standalone requests and direct
+migration, and `reports/cache-maintenance-performance` for measured costs.
+Other entries can define different layouts, cache updates and specialisations
+under the same obligations without adding core rules.
 
 ## Runtime migration
 
