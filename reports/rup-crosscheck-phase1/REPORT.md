@@ -80,3 +80,7 @@ INK_CAKE_LPR=$PWD/cake_lpr/cake_lpr cargo test --release --test rup_crosscheck -
 Without the environment variables, the test still exports and audits every
 refutation, and skips the external replay. cake_lpr is run with
 `--CML_HEAP_SIZE=2048 --CML_STACK_SIZE=1024`.
+
+The combined distribution suite passes 175 tests (`local-full-tests.log`), and
+the independent offline core passes 12 tests (`local-core-tests.log`). The
+documented directory-query build command also succeeds.

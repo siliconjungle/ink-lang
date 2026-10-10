@@ -13,7 +13,8 @@ All 17 catalogue bit-proof refutations pass locally built drat-trim and
 lrat-check; both reject all goal-free controls. The audit hook restores its scope
 even when a callback unwinds. This checks the exported CNF certificates, not the
 source-to-CNF encoding or correctness of every possible proof input.
-See [ownership review](reports/ownership-lowering-review/REPORT.md) and
+The combined distribution suite passes 175 tests; the independent offline core
+passes 12. See [ownership review](reports/ownership-lowering-review/REPORT.md) and
 [independent replay](reports/rup-crosscheck-phase1/REPORT.md).
 
 ## Deterministic AST database discovery

@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """Build, validate and benchmark same-value kernels through one shared C driver; current language stages are materialised."""
-import argparse, ctypes, hashlib, json, os, platform, random, shutil, statistics, subprocess, time
+import sys,argparse, ctypes, hashlib, json, os, platform, random, shutil, statistics, subprocess, time
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(ROOT/'bench'))
+import methodology as M
 BUILD=ROOT/'build'/'bench'
 RESULTS=ROOT/'bench'/'results'
 CASES=['sum_values','affine','squares','filter_sum','pipeline','expanded','count_under']
@@ -36,15 +38,15 @@ def build(env):
             '--output-dir',replacement,'--fuse-mapped-sum'])
     invoke([lang,'build','examples/kernels.lang','-o',BUILD/'lang.o','--native-cpu'])
     invoke([lang,'build','examples/kernels.lang','-o',BUILD/'lang_knowledge.o','--replacement',replacement/'replacement.json','--native-cpu'])
-    cpu='-mcpu=native' if platform.machine()=='arm64' else '-march=native'
-    invoke(['clang','-O3',cpu,'-std=c11','-c','bench/baseline.c','-o',BUILD/'c.o'])
-    invoke(['clang++','-O3',cpu,'-std=c++20','-c','bench/baseline.cpp','-o',BUILD/'cpp.o'])
+    cpu=M.native_cpu_flag()
+    invoke(['clang','-O3',cpu,'-fPIC','-std=c11','-c','bench/baseline.c','-o',BUILD/'c.o'])
+    invoke(['clang++','-O3',cpu,'-fPIC','-std=c++20','-c','bench/baseline.cpp','-o',BUILD/'cpp.o'])
     invoke(['rustc','--edition=2021','--crate-type=lib','--emit=obj','-C','opt-level=3','-C','target-cpu=native','-C','panic=abort','bench/baseline.rs','-o',BUILD/'rust.o'],env=env)
     invoke(['rustc','--edition=2021','--crate-type=lib','--emit=obj','-C','opt-level=3','-C','target-cpu=native','-C','panic=abort','bench/baseline_loop.rs','-o',BUILD/'rust_loop.o'],env=env)
     invoke(['clang','-O3','-std=c11','-c','bench/driver.c','-o',BUILD/'driver.o'])
     for v in VARIANTS:
         invoke(['clang',BUILD/'driver.o',BUILD/f'{v}.o','-o',BUILD/v])
-        invoke(['clang','-dynamiclib',BUILD/f'{v}.o','-o',BUILD/f'{v}.dylib'])
+        invoke(['clang',M.shared_link_flag(),BUILD/f'{v}.o','-o',BUILD/f'{v}.{M.shared_suffix()}'])
     return lang
 
 def reference(case,xs,a=3,b=11,t=1536):
@@ -61,7 +63,7 @@ def parameters(case,a,b,t):
     return [a,b] if case=='affine' else [t] if case in ('filter_sum','count_under') else [a,b,t] if case=='pipeline' else []
 
 def validate(lang):
-    rnd=random.Random(1729);libs={v:ctypes.CDLL(str(BUILD/f'{v}.dylib')) for v in VARIANTS}
+    rnd=random.Random(1729);libs={v:ctypes.CDLL(str(BUILD/f'{v}.{M.shared_suffix()}')) for v in VARIANTS}
     total=0;interpreted=0
     vectors=[[],[0],[MASK],[0,1,MASK,1<<63,(1<<63)-1]]
     vectors += [[rnd.getrandbits(64) for _ in range(rnd.randrange(1,150))] for _ in range(100)]
@@ -121,7 +123,7 @@ def benchmark(args):
                 print(f'{distribution:5} n={n:8} {case:12}: '+', '.join(f'{v} {statistics.median(r["ns_per_call"] for r in group if r["variant"]==v):.1f} ns' for v in VARIANTS),flush=True)
                 (RESULTS/'samples.json').write_text(json.dumps(rows,indent=2))
     sources={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for folder in ['src','bench','examples','knowledge'] for p in (ROOT/folder).glob('*') if p.is_file()}
-    metadata={'started_unix':start,'elapsed_seconds':time.time()-start,'platform':platform.platform(),'machine':platform.machine(),'cpu':invoke(['sysctl','-n','machdep.cpu.brand_string']),'memory_bytes':invoke(['sysctl','-n','hw.memsize']),'clang':invoke(['clang','--version']),'rustc':invoke(['rustc','-vV'],env=env),'parameters':vars(args),'correctness':correctness,'source_sha256':sources,'commands':COMMANDS,'notes':['All timed variants share one C driver object; no LTO.','Current language baseline materialises collection stages; handwritten baselines combine passes. This harness now compares differing algorithms. Use bench/collection-proof.py for staged and combined variants in every language.','Native LLVM versions differ between Clang and Rust.','No CPU pinning; shared interactive machine.','Warm in-memory u64 kernels only; not the complete language or a persistence benchmark.','C and C++ factored polynomial baseline; the language must compete with an already simplified expert implementation.']}
+    metadata={'started_unix':start,'elapsed_seconds':time.time()-start,'platform':platform.platform(),'machine':platform.machine(),'cpu':M.cpu_model(),'memory_bytes':invoke(['sysctl','-n','hw.memsize']) if M.DARWIN else None,'environment':M.environment(env),'clang':invoke(['clang','--version']),'rustc':invoke(['rustc','-vV'],env=env),'parameters':vars(args),'correctness':correctness,'source_sha256':sources,'commands':COMMANDS,'notes':['All timed variants share one C driver object; no LTO.','Current language baseline materialises collection stages; handwritten baselines combine passes. This harness now compares differing algorithms. Use bench/collection-proof.py for staged and combined variants in every language.','Backend versions are not established as identical; see recorded toolchain versions and warnings.','No CPU pinning; shared interactive machine.','Warm in-memory u64 kernels only; not the complete language or a persistence benchmark.','C and C++ factored polynomial baseline; the language must compete with an already simplified expert implementation.']}
     (RESULTS/'metadata.json').write_text(json.dumps(metadata,indent=2))
     summaries=[]
     for distribution in distributions:
