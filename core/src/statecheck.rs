@@ -60,6 +60,7 @@ struct Context<'a> {
     p: &'a Program,
     action: &'a Action,
     in_lambda: bool,
+    typing_only: bool,
 }
 impl Context<'_> {
     fn expected(&self, e: &Expr, want: &Type, env: &Env, facts: &mut Facts) -> LangResult<Type> {
@@ -303,7 +304,7 @@ impl Context<'_> {
                         if let (T::Result(_, callee), T::Result(_, caller)) =
                             (&a.result, &self.action.result)
                         {
-                            if callee != caller {
+                            if !self.typing_only && callee != caller {
                                 return Err("nested changes must use the same error type because failure aborts the transaction".into());
                             }
                         }
@@ -375,12 +376,12 @@ impl Context<'_> {
                             return Err(format!("write to {root} is not permitted"));
                         }
                         let fact = (root.clone(), key(&args[0]));
-                        if n == "insert" && facts.get(&fact) != Some(&false) {
+                        if !self.typing_only && n == "insert" && facts.get(&fact) != Some(&false) {
                             return Err(format!(
                                 "insert into {root} needs proof that the key is absent"
                             ));
                         }
-                        if n == "replace" && facts.get(&fact) != Some(&true) {
+                        if !self.typing_only && n == "replace" && facts.get(&fact) != Some(&true) {
                             return Err(format!(
                                 "replace in {root} needs proof that the key is present"
                             ));
@@ -665,6 +666,7 @@ pub fn check(p: &Program) -> LangResult<()> {
             p,
             action: &fake,
             in_lambda: false,
+            typing_only: false,
         }
         .expected(&k.value, &k.ty, &Env::new(), &mut Facts::new())?;
     }
@@ -702,6 +704,7 @@ pub fn check(p: &Program) -> LangResult<()> {
             p,
             action: a,
             in_lambda: false,
+            typing_only: false,
         })
         .block(&a.body, &mut env.clone(), &mut Facts::new())?
         {
@@ -819,6 +822,18 @@ pub fn expression_type(p: &Program, e: &Expr, env: &Env) -> LangResult<Type> {
         p,
         action: &action,
         in_lambda: false,
+            typing_only: false,
     }
     .infer(e, env, &mut Facts::new())
+}
+
+/// Extract contextual types for emission from an already checked module. This
+/// does not admit source or evidence: presence/effect obligations were checked
+/// when the opaque module was created. Backend-local expressions are not proof
+/// premises and cannot create a CheckedModule.
+pub fn lowering_type(module:&crate::core::CheckedModule,e:&Expr,env:&Env,want:Option<&Type>)->LangResult<Type>{
+ let p=module.program();
+ let action=Action{name:"lowering_types".into(),kind:ActionKind::Change,params:vec![],result:Type::Result(Box::new(Type::Unknown),Box::new(Type::Unknown)),reads:p.states.iter().chain(&p.keeps).map(|d|d.name.clone()).collect(),writes:p.states.iter().map(|d|d.name.clone()).collect(),emits:p.events.keys().cloned().collect(),body:vec![]};
+ let cx=Context{p,action:&action,in_lambda:false,typing_only:true};
+ if let Some(t)=want {cx.expected(e,t,env,&mut Facts::new())}else{cx.infer(e,env,&mut Facts::new())}
 }
