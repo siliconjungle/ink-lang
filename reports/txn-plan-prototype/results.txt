@@ -1,0 +1,73 @@
+# Raw run.py output. NOTE: in this archived run the 'x rust_tree' ratio lines are relative to
+# the LAST rust_tree listed (lit:rust_tree, algorithm-matched); use the ns/op lines (REPORT.md table).
+
+rows=64 restock:
+  base:language                        77.6 ns/op  sig=26067
+  base:language_bounded                57.2 ns/op  sig=26067
+  base:rust_tree                       44.5 ns/op  sig=26067
+  outbox:language_bounded              56.2 ns/op  sig=26067
+  plan:language_bounded                44.4 ns/op  sig=26067
+  lit:rust_tree                        44.6 ns/op  sig=26067
+  base:language                     1.74x rust_tree
+  base:language_bounded             1.28x rust_tree
+  base:rust_tree                    1.00x rust_tree
+  outbox:language_bounded           1.26x rust_tree
+  plan:language_bounded             1.00x rust_tree
+  lit:rust_tree                     1.00x rust_tree
+
+rows=64 mixed:
+  base:language                        90.3 ns/op  sig=99706
+  base:language_bounded                79.8 ns/op  sig=99706
+  base:rust_tree                       53.9 ns/op  sig=99706
+  outbox:language_bounded              77.0 ns/op  sig=99706
+  plan:language_bounded                65.5 ns/op  sig=99706
+  lit:rust_tree                        63.6 ns/op  sig=99706
+  base:language                     1.42x rust_tree
+  base:language_bounded             1.25x rust_tree
+  base:rust_tree                    0.85x rust_tree
+  outbox:language_bounded           1.21x rust_tree
+  plan:language_bounded             1.03x rust_tree
+  lit:rust_tree                     1.00x rust_tree
+
+rows=4096 restock:
+  base:language                       164.2 ns/op  sig=86241
+  base:language_bounded               144.4 ns/op  sig=86241
+  base:rust_tree                       81.5 ns/op  sig=86241
+  outbox:language_bounded             139.0 ns/op  sig=86241
+  plan:language_bounded                76.7 ns/op  sig=86241
+  lit:rust_tree                        81.8 ns/op  sig=86241
+  base:language                     2.01x rust_tree
+  base:language_bounded             1.77x rust_tree
+  base:rust_tree                    1.00x rust_tree
+  outbox:language_bounded           1.70x rust_tree
+  plan:language_bounded             0.94x rust_tree
+  lit:rust_tree                     1.00x rust_tree
+
+rows=4096 mixed:
+  base:language                       183.5 ns/op  sig=64685
+  base:language_bounded               163.7 ns/op  sig=64685
+  base:rust_tree                       87.7 ns/op  sig=64685
+  outbox:language_bounded             159.7 ns/op  sig=64685
+  plan:language_bounded               137.7 ns/op  sig=64685
+  lit:rust_tree                       121.6 ns/op  sig=64685
+  base:language                     1.51x rust_tree
+  base:language_bounded             1.35x rust_tree
+  base:rust_tree                    0.72x rust_tree
+  outbox:language_bounded           1.31x rust_tree
+  plan:language_bounded             1.13x rust_tree
+  lit:rust_tree                     1.00x rust_tree
+
+rows=262144 mixed:
+  base:language                       354.7 ns/op  sig=76713
+  base:language_bounded               339.4 ns/op  sig=76713
+  base:rust_tree                      217.1 ns/op  sig=76713
+  outbox:language_bounded             315.9 ns/op  sig=76713
+  plan:language_bounded               294.9 ns/op  sig=76713
+  lit:rust_tree                       281.4 ns/op  sig=76713
+  base:language                     1.26x rust_tree
+  base:language_bounded             1.21x rust_tree
+  base:rust_tree                    0.77x rust_tree
+  outbox:language_bounded           1.12x rust_tree
+  plan:language_bounded             1.05x rust_tree
+  lit:rust_tree                     1.00x rust_tree
+DONE
