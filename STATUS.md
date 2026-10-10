@@ -2,6 +2,16 @@
 
 ## Database proofs of complete projected action transitions
 
+The fixed projection now covers nested transactions and ordered expression
+effects in its word/Boolean/record/Option/Result domain. One continuation builder
+replaces the old statement projection. Ignored nested errors remain sticky;
+query errors are local values; `?`, lazy Boolean operands, eager `ok_or`, callback
+scopes and mutation results preserve the outer transaction's single commit and
+rollback. The unchanged database theorem composes through child and caller.
+Forty-five focused tests and forty-three isolated core tests pass; twenty calls
+match exact snapshots on all five CPU paths. Wrong authenticated candidates that
+drop events or suppress errors reject. See [the flow evidence](reports/action-flow-phase1/REPORT.md).
+
 The projection also covers reached total word/Boolean/record helpers through the
 existing binder-safe semantic tree, including scoped lets and nested helper
 calls. The core defines their meaning; the database still supplies the rewrite
