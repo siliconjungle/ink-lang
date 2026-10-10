@@ -93,7 +93,8 @@ collections. CPU support does not imply GPU support. Runtime execution/allocatio
 budgets remain backend policies; they may reject a bounded program that exceeds
 resources. Native Rust typed calls use native allocation. Values/errors and
 termination belong to the language contract; physical speed remains measured
-backend behaviour. Mutable-storage source rewrite proofs are not added here.
+backend behaviour. [Checked observation/stopping laws](local-collection-laws.md) now cover the
+documented read-only boundary. Owned mutation and map rewrites remain unproved.
 
 ## Validation and practical performance
 

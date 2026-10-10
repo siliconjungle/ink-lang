@@ -31,12 +31,15 @@ De Bruijn bound indices make alpha-equivalent lambdas identical and simultaneous
 substitution avoids capture. Function holes have typed arrow sorts; they can
 bind arbitrary closed lambdas, including captures from the application context.
 
-The bridge covers every expression form currently admitted in pure functions:
+The bridge covers the documented total-value subset of pure functions:
 word and binary32 values, arithmetic/comparisons/Boolean operators, negation,
 local bindings, acyclic calls, choose, bounded repeat, vectors, record construction
 and fields, map/filter/zip/indexed map, sum/count/foldr, scan/sort and at_or,
 quot_or/rem_or. Other existing value types can pass through as opaque typed
-parameters and values. Transactions, table mutations, assertions, try, events
+parameters and values. The [local-collection extension](local-collection-laws.md) additionally covers
+buffer creation/freeze/read observations, list length and stopping loops with
+ordinary immutable accumulators. Owned mutation, keyed local maps and owned loop
+accumulators remain unavailable to semantic selection. Transactions, table mutations, assertions, try, events
 and effectful calls are not converted into pure total expressions.
 
 The checker contains fixed operation semantics and general proof rules, not
