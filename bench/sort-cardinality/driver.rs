@@ -31,7 +31,7 @@ fn measure(which: usize, case: usize, xs: &[u32], reps: usize) -> f64 {
 }
 fn main() {
     let mut results = vec![];
-    for n in [256, 4096, 65536] {
+    for n in [256u32, 4096, 65536] {
         let xs = (0..n)
             .map(|i| i.wrapping_mul(2654435761u32).wrapping_add(i % 31))
             .collect::<Vec<_>>();
