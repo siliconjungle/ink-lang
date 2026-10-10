@@ -23,12 +23,24 @@ generic stateful candidate admission path.
 
    The obligation is `∀ rows. pipeline(rows) = decomposed(rows)`. Each
    lambda goes through the same translator as the row model.
-2. **An untrusted producer proves it.**
-   `knowledge/producers/view_decomposition.py` builds a proof from the stage
-   structure alone: one inductive lemma per stage (filters use a single Boolean
-   case split), a fold lemma and a projection lemma, chained together. The
-   producer never looks at what a lambda computes, so it works for any number
-   and order of stages without per-program input.
+2. **An untrusted producer proves it by instantiating database laws.**
+   `knowledge/producers/view_decomposition.py` does no induction of its own.
+   Every step instantiates a general law from `knowledge/research/general-laws`
+   (see [general-laws.md](general-laws.md)). Each law is stated once over
+   abstract sorts, functions and a monoid, and checked once:
+   - a map stage instantiates `sum_map`
+   - a filter stage instantiates `sum_filter`; its assumption `plus(a, 0) = a`
+     is discharged by computation
+   - the final step instantiates `sum_congruence`; the assumption that the
+     two per-row projections agree is discharged by computation
+
+   The compiler's stage functions are literal instances of the general `map`
+   and `filter`, with the stage lambda as `f` or `p`. The producer adds one
+   projection definition and its sum per stage, and the kernel checks that
+   they are exactly the instantiated general definitions. It works for any
+   number and order of stages without per-program input. The evidence bundle
+   keeps only the exported definitions, the new sums and the imported laws, at
+   most 64 objects for the tested six-stage chain.
 3. **The kernel checks it.** `row_model::verify_view` (`ink verify-view`)
    re-exports the obligation from the actual source. It then:
    - requires every exported definition byte for byte
@@ -63,8 +75,8 @@ because it needs its exact modular width.
 
 `tests/view_decomposition.rs` covers:
 
-- **Pipeline shapes.** Nine shapes are proved and checked automatically:
-  - 0–3 stages
+- **Pipeline shapes.** Ten shapes are proved and checked automatically:
+  - 0–3 stages and a six-stage chain
   - sum and count
   - two filters in a row
   - map to a nested record, then filter, then map
@@ -78,9 +90,11 @@ because it needs its exact modular width.
   - tampered definition bytes
   - a missing definition
   - stale evidence after the source changes
-  - a false projection lemma
+  - a projection definition that is not the instantiated one
+  - an instance that skips interpretations or assumptions, or discharges an
+    assumption with a wrong proof
 - **Cast faithfulness.** Concrete casts are exact.
-- **Builds.** `emit-state --prove-views` proves all nine keeps, and a wrong
+- **Builds.** `emit-state --prove-views` proves all ten keeps, and a wrong
   producer fails the build.
 
 `inventory.lang` and `state-benchmark.lang` (u32 stock cast to Int) now have

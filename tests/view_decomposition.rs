@@ -30,6 +30,10 @@ const KEEPS: &[(&str, &str)] = &[
     ("k_map_record", "sum(Rows.values().map(fn(r) => r.detail).filter(fn(d) => d.on).map(fn(d) => d.c))"),
     ("k_u32_compare", "sum(Rows.values().filter(fn(r) => r.b > 3).map(fn(r) => Int(r.b) + Int(r.b)))"),
     ("k_count_all", "count(Rows.values())"),
+    (
+        "k_long_chain",
+        "sum(Rows.values().filter(fn(r) => r.flag).map(fn(r) => r.detail).filter(fn(d) => d.on).map(fn(d) => d.c).map(fn(x) => x + x).map(fn(x) => x - 1))",
+    ),
 ];
 
 fn source(keeps: &[(&str, &str)]) -> String {
@@ -189,13 +193,52 @@ fn wrong_stale_or_tampered_view_evidence_is_rejected() {
     let q = parse(&source(&changed)).unwrap();
     assert!(row_model::verify_view(&q, &c, &good).is_err());
 
-    // A lemma claiming a different projection fails in the kernel.
-    let false_lemma = good.clone();
+    // The proof instantiates checked general laws; it cannot use one
+    // directly, skip an assumption, or discharge it with a wrong proof.
+    let text = serde_json::to_string(&good.proof).unwrap();
+    assert!(text.contains("\"Instance\"") && !text.contains("\"Induction\""));
+    let edit = |f: &dyn Fn(&mut Json)| {
+        let mut evidence = good.clone();
+        let mut proof = serde_json::to_value(&evidence.proof).unwrap();
+        fn walk(v: &mut Json, f: &dyn Fn(&mut Json)) {
+            if let Some(instance) = v.get_mut("Instance") {
+                f(instance);
+            }
+            match v {
+                Json::Array(items) => items.iter_mut().for_each(|x| walk(x, f)),
+                Json::Object(map) => map.values_mut().for_each(|x| walk(x, f)),
+                _ => {}
+            }
+        }
+        walk(&mut proof, f);
+        evidence.proof = serde_json::from_value(proof).unwrap();
+        row_model::verify_view(&p, &c, &evidence).unwrap_err()
+    };
+    let err = edit(&|i| {
+        let theorem = i["theorem"].clone();
+        let args = i["arguments"].clone();
+        *i = json!({"theorem": theorem, "sorts": {}, "functions": {}, "definitions": {},
+                    "assumptions": {}, "arguments": args, "premises": []});
+    });
+    assert!(err.contains("exactly"), "{err}");
+    let err = edit(&|i| {
+        for (_, discharge) in i["assumptions"].as_object_mut().unwrap() {
+            *discharge = json!({"Refl": {"Var": "a"}});
+        }
+    });
+    assert!(["discharge", "unbound", "type"].iter().any(|w| err.contains(w)), "{err}");
+    let err = edit(&|i| {
+        i["assumptions"] = json!({});
+    });
+    assert!(err.contains("exactly"), "{err}");
+
+    // A projection definition that is not the instantiated one fails in the kernel.
+    let mut false_lemma = good.clone();
     let target = false_lemma
         .library
         .objects
         .iter()
-        .find(|(_, raw)| raw.contains("\"name\":\"view_k_filter_map_mixed_proj_3\""))
+        .find(|(_, raw)| raw.contains("\"name\":\"view_k_filter_map_mixed_proj_1\""))
         .map(|(id, raw)| (id.clone(), raw.clone()))
         .unwrap();
     let zero = serde_json::to_string(&integer(&c, 0)).unwrap();
@@ -204,11 +247,15 @@ fn wrong_stale_or_tampered_view_evidence_is_rejected() {
     let raw = serde_json::to_string(&object).unwrap();
     use sha2::{Digest, Sha256};
     let id = format!("{:x}", Sha256::digest(raw.as_bytes()));
-    let text = serde_json::to_string(&false_lemma).unwrap().replace(&target.0, &id);
-    let mut false_lemma: ViewEvidence = serde_json::from_str(&text).unwrap();
-    false_lemma.library.objects.remove(&target.0);
-    false_lemma.library.objects.insert(id, raw);
-    assert!(row_model::verify_view(&p, &c, &false_lemma).is_err());
+    // Point the instance at the false definition; everything else is intact.
+    let text = serde_json::to_string(&false_lemma.proof)
+        .unwrap()
+        .replace(&format!("\"{}\"", target.0), &format!("\"{id}\""));
+    false_lemma.proof = serde_json::from_str(&text).unwrap();
+    false_lemma.library.objects.insert(id.clone(), raw);
+    false_lemma.library.lock.objects.push(id);
+    let err = row_model::verify_view(&p, &c, &false_lemma).unwrap_err();
+    assert!(err.contains("differs"), "{err}");
 }
 
 #[test]
