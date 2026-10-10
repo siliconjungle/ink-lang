@@ -173,3 +173,6 @@ changing its default twelve rounds or the separate proof-check budget.
 [Shared-sequence laws](shared-sequences.md) combine mapped zip branches from
 the exact same source sequence and erase unused mapping before count. These
 compose with the preceding reduction laws through the unchanged checker.
+
+[Sort aggregation laws](sort-cardinality.md) remove sorting before cardinality
+observations and wrapping integer sums, using checked insertion lemmas.
