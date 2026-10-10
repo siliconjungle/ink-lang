@@ -74,6 +74,12 @@ connects actual typed rows and ordered source keys to checked row/column models.
 It is bounded validation infrastructure; transaction/native refinement and an
 efficient logical integer representation remain open.
 
+[General action values](docs/action-values.md) now bind complete source data and
+the actual action signatures without an aggregate certificate. A flat canonical
+carrier preserves recursive nominal values and full-width words/IDs, with binary
+exact-integer magnitudes. This is data correspondence; logical arithmetic and
+whole-action execution proofs remain open.
+
 Programs can also [compile to JavaScript](docs/javascript-backend.md):
 
 ```sh

@@ -79,3 +79,11 @@ not permanent exactly-once delivery. Native C/Rust executable embedding now
 uses the runtime durable host and synced-file adapter; incremental logs and the
 mixed-wgpu runner remain separate work. Keep numerical
 state/action-boundary consistency and logical action/primitive correspondence open.
+
+General action values in core/src/action_values.rs bind complete code and exact
+carrier definitions independently of aggregate certificates. Flat postorder
+images preserve the supported action domain, use binary exact-integer magnitudes
+and reject aliasing, forward/unused references and noncanonical order. The
+external producer is knowledge/producers/action_values.py. These are data checks,
+not logical interpreter, primitive arithmetic or stateful replacement authority.
+Keep existing proof/transport limits and the trusted codec boundary explicit.

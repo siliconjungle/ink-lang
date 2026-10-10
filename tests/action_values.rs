@@ -299,6 +299,35 @@ fn cli_and_argument_budgets_validate_before_writing_output() {
         .is_err());
     let dir = std::env::temp_dir().join(format!("ink-action-values-{}", std::process::id()));
     std::fs::create_dir_all(&dir).unwrap();
+    std::fs::write(dir.join("core.json"), ir.module().bytes().unwrap()).unwrap();
+    std::fs::write(dir.join("actions.json"), ir.bytes().unwrap()).unwrap();
+    for producer in ["source_syntax", "action_values"] {
+        let output = Command::new("python3")
+            .arg(
+                Path::new(env!("CARGO_MANIFEST_DIR"))
+                    .join(format!("knowledge/producers/{producer}.py")),
+            )
+            .arg(dir.join("core.json"))
+            .arg(dir.join("actions.json"))
+            .arg("-o")
+            .arg(dir.join(producer))
+            .output()
+            .unwrap();
+        assert!(
+            output.status.success(),
+            "{}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+    }
+    let produced = dir.join("action_values");
+    let bundle =
+        serde_json::from_slice(&std::fs::read(produced.join("view.json")).unwrap()).unwrap();
+    let syntax =
+        serde_json::from_slice(&std::fs::read(produced.join("syntax-roles.json")).unwrap())
+            .unwrap();
+    let roles =
+        serde_json::from_slice(&std::fs::read(produced.join("value-roles.json")).unwrap()).unwrap();
+    ActionValues::bind(&ir, &bundle, &syntax, &roles).unwrap();
     let source = dir.join("values.ink");
     std::fs::write(&source, APP).unwrap();
     for (name, v) in [
