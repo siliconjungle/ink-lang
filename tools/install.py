@@ -63,7 +63,7 @@ def main():
                            if name and len(Path(name).parts) == 1 and Path(name).suffix == '.py']
         committed(root / 'planner', ['ink_planner', *planner_scripts], resources / 'planner')
         committed(root / 'knowledge', ['ink_knowledge', 'store', 'research/general-laws',
-                  'producers', 'research/verified-kernel'], resources / 'knowledge')
+                  'producers', 'libraries', 'research/verified-kernel'], resources / 'knowledge')
         manifest = dict(schema=1, source_revision=git(root, 'rev-parse', 'HEAD').decode().strip(), packages=packages,
                         source_checkout_dirty=bool(git(root, 'status', '--porcelain')),
                         binary_source='explicit --binary input' if args.binary else 'cargo install of the current checkout',

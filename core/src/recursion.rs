@@ -44,6 +44,23 @@ pub fn needed(p: &Program) -> bool {
 }
 // Facts are lower bounds on unsigned words or list lengths in this exact scope.
 fn branch(c: &Expr, truth: bool, name: &str, list: bool, facts: &mut BTreeMap<String, u64>) {
+    if let Expr::Binary(op, a, b) = c {
+        if (op == "&&" && truth) || (op == "||" && !truth) {
+            branch(a, truth, name, list, facts);
+            branch(b, truth, name, list, facts);
+            return;
+        }
+        if (op == "==" || op == "!=") && matches!(b.as_ref(), Expr::Bool(false)) {
+            branch(
+                a,
+                if op == "==" { !truth } else { truth },
+                name,
+                list,
+                facts,
+            );
+            return;
+        }
+    }
     let Expr::Binary(op, a, b) = c else { return };
     let measured = if list {
         matches!(a.as_ref(),Expr::Call(n,args) if n=="length" && matches!(args.as_slice(),[Expr::Var(v)] if v==name))
@@ -146,8 +163,120 @@ pub fn check_function(f: &Function, _p: &Program) -> LangResult<()> {
             return Ok(());
         }
     }
+    let measures: Vec<_> = f
+        .params
+        .iter()
+        .enumerate()
+        .filter_map(|(i, (n, t))| {
+            if matches!(t, Type::U32 | Type::U64 | Type::List(_)) {
+                Some((i, n.clone(), matches!(t, Type::List(_))))
+            } else {
+                None
+            }
+        })
+        .collect();
+    if !measures.is_empty()
+        && lexicographic(
+            &f.body,
+            f,
+            &measures,
+            &BTreeMap::new(),
+            &measures.iter().map(|(_, n, _)| n.clone()).collect(),
+        )
+        .is_ok()
+    {
+        return Ok(());
+    }
     Err(format!(
         "{}: recursion requires a guarded decreasing unsigned parameter or nonempty list tail",
         f.name
     ))
+}
+
+// A lexicographic product of existing well-founded measures. Later components
+// may reset only after an earlier one decreases; this is a checking mechanism,
+// independent of any optimisation or catalogue name.
+fn lexicographic(
+    e: &Expr,
+    f: &Function,
+    measures: &[(usize, String, bool)],
+    facts: &BTreeMap<String, u64>,
+    active: &std::collections::BTreeSet<String>,
+) -> LangResult<()> {
+    let walk = |e: &Expr| lexicographic(e, f, measures, facts, active);
+    match e {
+        Expr::Call(n, args) if n == &f.name => {
+            let mut decreased = false;
+            for (index, name, list) in measures {
+                if !active.contains(name) {
+                    break;
+                }
+                let Some(argument) = args.get(*index) else {
+                    break;
+                };
+                if matches!(argument,Expr::Var(v) if v==name) {
+                    continue;
+                }
+                let lower = facts.get(name).copied().unwrap_or(0);
+                decreased = if *list {
+                    matches!(argument,Expr::Method(x,m,a) if m=="drop" && matches!(x.as_ref(),Expr::Var(v) if v==name) && matches!(a.as_slice(),[Expr::Num(k)] if *k>0 && lower>0))
+                } else {
+                    matches!(argument,Expr::Binary(op,a,b) if op=="-" && matches!(a.as_ref(),Expr::Var(v) if v==name) && matches!(b.as_ref(),Expr::Num(k) if *k>0 && lower>=*k))
+                };
+                break;
+            }
+            if !decreased {
+                return Err("recursive call lacks lexicographic descent".into());
+            }
+            for a in args {
+                walk(a)?;
+            }
+        }
+        Expr::Call(n, args) if n == "choose" && args.len() == 3 => {
+            walk(&args[0])?;
+            for (truth, e) in [(true, &args[1]), (false, &args[2])] {
+                let mut local = facts.clone();
+                for (_, name, list) in measures {
+                    if active.contains(name) {
+                        branch(&args[0], truth, name, *list, &mut local);
+                    }
+                }
+                lexicographic(e, f, measures, &local, active)?;
+            }
+        }
+        Expr::Let(n, _, a, b) => {
+            walk(a)?;
+            let mut local = active.clone();
+            local.remove(n);
+            lexicographic(b, f, measures, facts, &local)?;
+        }
+        Expr::Lambda(n, b) => {
+            let mut local = active.clone();
+            local.remove(n);
+            lexicographic(b, f, measures, facts, &local)?;
+        }
+        Expr::Call(_, args) => {
+            for a in args {
+                walk(a)?;
+            }
+        }
+        Expr::Method(x, _, args) => {
+            walk(x)?;
+            for a in args {
+                walk(a)?;
+            }
+        }
+        Expr::Neg(x) | Expr::Try(x) | Expr::Field(x, _) => walk(x)?,
+        Expr::Binary(_, a, b) => {
+            walk(a)?;
+            walk(b)?;
+        }
+        Expr::Record(_, fields) => {
+            for (_, a) in fields {
+                walk(a)?;
+            }
+        }
+        _ => (),
+    }
+    Ok(())
 }
