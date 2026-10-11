@@ -45,7 +45,8 @@ fn main(){
   let layout=ink_core::snapshot::layout(module.program()).unwrap();
   let logical=ink_core::snapshot_wire::Logical{version:count as u64,tables:vec![(0..count).map(|i|(json!(i),json!(i as u64*13+7))).collect()],outbox:vec![]};
   let bytes=ink_core::snapshot_wire::encode(&layout,&logical,Default::default()).unwrap();
-  for (index,label) in ["direct","refresh","delta"].iter().enumerate(){
+  let mut order=vec![(0,"direct"),(1,"refresh"),(2,"delta")];if std::env::var_os("INK_BENCH_REVERSE").is_some(){order.reverse();}
+  for (index,label) in order{
    let plan=&plans[index];
    let(_,check_ns,_)=timed(||black_box(load(label)));
    let(session,initialise_ns,_) = timed(||Session::restore(plan.clone(),&bytes,Native).unwrap());
