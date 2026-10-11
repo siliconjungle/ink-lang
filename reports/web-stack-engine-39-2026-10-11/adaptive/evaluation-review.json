@@ -1,0 +1,56 @@
+{
+  "status": "passed",
+  "evaluation_samples": 384,
+  "evaluation_groups": 128,
+  "comparison_count": 112,
+  "profile_sha256": "b4645757acdaf2177811aca187622b1185dbf471353d160a55c5def518094d6d",
+  "model_not_retuned": true,
+  "aggregates": [
+    {
+      "boundary": "captured-owned",
+      "static_reference_over_adaptive_geomean": 0.9634022147767746,
+      "classifications": {
+        "uncertain": 5,
+        "faster": 1,
+        "slower": 2
+      },
+      "all_point_losses": 5,
+      "chosen_backend_counts": {
+        "cpu": 8
+      }
+    },
+    {
+      "boundary": "resident-input-owned-readback",
+      "static_reference_over_adaptive_geomean": 1.4992092263249959,
+      "classifications": {
+        "faster": 8
+      },
+      "all_point_losses": 0,
+      "chosen_backend_counts": {
+        "javascript": 8
+      }
+    }
+  ],
+  "selection_retrospective_fastest_matches": {
+    "captured-owned": 8,
+    "resident-input-owned-readback": 8
+  },
+  "all_losses_uncertainty_and_point_losses_retained": true,
+  "first_miss_observations": 16,
+  "first_miss_zero_elapsed_observations": 2,
+  "first_miss_limits": "One full-operation observation per context, not isolated selector overhead; browser timer quantization produces zero and 0.1ms steps. Separate repeated selector proxy follows.",
+  "next_gate": {
+    "file": "overhead-gate.json",
+    "authorized": true,
+    "metadata_sha256": "c6573021fe2229df0eb1bc8b55feb40ed7dbc1ec5ecb314988beae2dec652804",
+    "protocol_sha256": "aea82044aed16fd68a3ccdfaf04fdd8c0db3cb6dd01416d1d52d0795212fb553",
+    "profile_sha256": "b4645757acdaf2177811aca187622b1185dbf471353d160a55c5def518094d6d"
+  },
+  "bindings": {
+    "reports/web-stack-engine-39-2026-10-11/adaptive/summary.json": "211bffad035d256dffe53e650cf00beaea6f90d070a8d6b39beaad1497a65588",
+    "reports/web-stack-engine-39-2026-10-11/adaptive/evaluation-audit.json": "db22207a1816bdeeac43eabb09a13f5534017368cc52fc60ffcbd08a07216a22",
+    "reports/web-stack-engine-39-2026-10-11/adaptive/evaluation-results.json": "08eb1c72c7defb4c0f6b7efc20a9619acf979563047aa8551086cfb7c081ef11",
+    "reports/web-stack-engine-39-2026-10-11/adaptive/fit-receipt.json": "a59e10becc6b0f391c06c1406b6f25132e1d4913c2c314dd2650d141f07db971",
+    "reports/web-stack-engine-39-2026-10-11/adaptive/frozen-profile.json": "b4645757acdaf2177811aca187622b1185dbf471353d160a55c5def518094d6d"
+  }
+}
