@@ -126,7 +126,7 @@ fn source_transition_roots_cannot_ignore_ordered_event_changes() {
 #[test]
 fn unsupported_domains_and_long_continuations_are_rejected_with_bounded_work() {
     assert!(Projection::derive(&module(
-        "module unsupported; query pass(x:u32)->u32{return x;}"
+        "module unsupported; query pass(x:String)->String{return x;}"
     ))
     .unwrap_err()
     .contains("unsupported action model type"));
@@ -199,6 +199,24 @@ fn total_helper_projection_is_bound_and_bounded_without_external_tools() {
         "let n:u32=1;return choose(n==1,x,0);",
         "return quot_or(x,1,0);",
     ] {
+        let app=format!("module supported;fn helper(x:u64)->u64{{{body}}}query q(x:u64)->u64{{return helper(x);}}");
+        let projected = Projection::derive(&module(&app)).unwrap();
+        let context = projected.context().unwrap();
+        let value = context
+            .evaluate(
+                &[],
+                &call(
+                    &projected.actions["q"].function,
+                    vec![c(&projected.state, 0, vec![]), Term::U64(0), Term::U64(7)],
+                ),
+            )
+            .unwrap();
+        let Term::Construct { arguments, .. } = value else {
+            panic!()
+        };
+        assert_eq!(arguments[0], Term::U64(7));
+    }
+    for body in ["let text:String=\"unsupported\";return x;"] {
         let app=format!("module unsupported;fn helper(x:u64)->u64{{{body}}}query q(x:u64)->u64{{return helper(x);}}");
         assert!(Projection::derive(&module(&app)).is_err());
     }
