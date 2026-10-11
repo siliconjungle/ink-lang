@@ -1,4 +1,11 @@
-# Historical representation scaling experiments
+# Representation scaling experiments
+
+Current ordinary compiled execution is measured in the
+[standalone merged-main report](standalone-main-2026-10-11/README.md).
+It separates proof checking, compilation, restore/migration and steady state,
+with independent scanning and maintained Rust baselines.
+
+## Historical generic-executor measurements
 
 These measurements used the retired generic stateful representation executor.
 Its active drivers and adapters have been removed. Reproduce them from the
@@ -13,8 +20,8 @@ large costs; they do not establish precise cross-revision speedup ratios.
 retains typed physical state. `after-readonly-preliminary.json` additionally avoids
 logical snapshot transport on fixed source queries. The initial dominant cost was
 execution plus repeated whole-state encoding/copying, not aggregate arithmetic.
-The changed runtime retains immutable typed state and bounds changed private
-storage before publication. Unchanged storage reuses its validated bounds by
+The retired runtime retained immutable typed state and bounds changed private
+storage before publication. Unchanged storage reused its validated bounds by
 constructor/scalar equality and child pointer identity.
 
 `aggregate-preliminary.json` exercises 48, 256, 1024 and 2048 rows; direct, refresh,

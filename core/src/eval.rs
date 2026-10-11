@@ -844,6 +844,13 @@ fn evaluate_binary(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> Lang
     }
 }
 
+// One explicit binary32 operation boundary. Payload bits are retained for
+// transport/negation; arithmetic NaNs have a single cross-target spelling.
+#[inline(never)]
+pub(crate) fn arithmetic_f32_bits(value: f32) -> u32 {
+    crate::logic::canonical_f32_bits(value)
+}
+
 #[inline(never)]
 fn binary_values(op: &str, av: Value, bv: Value) -> LangResult<Value> {
     match (&av, &bv, op) {
@@ -936,7 +943,8 @@ fn evaluate_apply(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> LangR
                             let Value::F32(b) = x else {
                                 return Err("float sum type".into());
                             };
-                            result += f32::from_bits(*b);
+                            result =
+                                f32::from_bits(arithmetic_f32_bits(result + f32::from_bits(*b)));
                         }
                         return Ok(Value::F32(crate::logic::canonical_f32_bits(result)));
                     }
