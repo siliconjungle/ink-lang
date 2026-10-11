@@ -443,15 +443,15 @@ fn every_representation_backend_has_the_same_execution_contract() {
     for (label, request) in [
         (
             "direct",
-            include_str!("../knowledge/research/composable-state/point-delta/direct.json"),
+            include_str!("../knowledge/research/composable-state/main-integration/point-delta/direct.json"),
         ),
         (
             "refresh",
-            include_str!("../knowledge/research/composable-state/point-delta/refresh.json"),
+            include_str!("../knowledge/research/composable-state/main-integration/point-delta/refresh.json"),
         ),
         (
             "delta",
-            include_str!("../knowledge/research/composable-state/point-delta/delta.json"),
+            include_str!("../knowledge/research/composable-state/main-integration/point-delta/delta.json"),
         ),
     ] {
         check(
@@ -638,11 +638,11 @@ fn filtered_sum_and_count_deltas_have_equal_backend_coverage() {
     for (label, request) in [
         (
             "sum-delta",
-            include_str!("../knowledge/research/composable-state/filtered-aggregate/sum-delta.json"),
+            include_str!("../knowledge/research/composable-state/main-integration/filtered-aggregate/sum-delta.json"),
         ),
         (
             "count-delta",
-            include_str!("../knowledge/research/composable-state/filtered-aggregate/count-delta.json"),
+            include_str!("../knowledge/research/composable-state/main-integration/filtered-aggregate/count-delta.json"),
         ),
     ] {
         check(
@@ -721,11 +721,11 @@ fn unused_source_carriers_do_not_break_any_standalone_backend() {
     for (name, request) in [
         (
             "retained-direct",
-            include_str!("../knowledge/research/composable-state/source-representations/retained-direct.json"),
+            include_str!("../knowledge/research/composable-state/main-integration/source-representations/retained-direct.json"),
         ),
         (
             "retained-query-cache",
-            include_str!("../knowledge/research/composable-state/source-representations/retained-query-cache.json"),
+            include_str!("../knowledge/research/composable-state/main-integration/source-representations/retained-query-cache.json"),
         ),
     ] {
         check(
@@ -755,11 +755,11 @@ fn fixed_key_keep_deltas_execute_as_standalone_programs_on_every_cpu_target() {
     for (name, bytes) in [
         (
             "fixed-key-baseline",
-            include_str!("../knowledge/research/composable-state/keep/representation-0.json"),
+            include_str!("../knowledge/research/composable-state/main-integration/keep/representation-0.json"),
         ),
         (
             "fixed-key-cache",
-            include_str!("../knowledge/research/composable-state/keep/representation-1.json"),
+            include_str!("../knowledge/research/composable-state/main-integration/keep/representation-1.json"),
         ),
     ] {
         check(

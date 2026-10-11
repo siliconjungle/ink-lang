@@ -1,0 +1,33 @@
+   Compiling ink v0.1.0 (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-composable-state-2026-10-12)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.05s
+     Running tests/composable_state.rs (target/debug/deps/composable_state-53a5dca6bc586031)
+
+running 5 tests
+test constructor_cases_substitute_premises_without_inventing_induction_hypotheses ... ok
+test field_frontier_requires_a_proof_for_the_actual_row_update ... ok
+test open_repair_assumptions_cannot_authorize_a_closed_conclusion ... ok
+test parameterised_group_repair_is_bound_to_source_query_and_exact_contribution ... ok
+test parameterized_key_locality_is_instantiated_and_false_key_mapping_is_rejected ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 34.12s
+
+     Running tests/journal_compaction.rs (target/debug/deps/journal_compaction-2c60e6ed6d6e4816)
+
+running 1 test
+test generated_journals_keep_one_before_image_per_cell ... FAILED
+
+failures:
+
+---- generated_journals_keep_one_before_image_per_cell stdout ----
+
+thread 'generated_journals_keep_one_before_image_per_cell' (17091340) panicked at tests/journal_compaction.rs:12:73:
+called `Result::unwrap()` on an `Err` value: "replace in Rows needs proof that the key is present"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    generated_journals_keep_one_before_image_per_cell
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--test journal_compaction`

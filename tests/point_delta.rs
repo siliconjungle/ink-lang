@@ -12,7 +12,7 @@ fn benchmark_standalone_aggregate_scaling() {
     let module = CheckedModule::from_source(parse(source).unwrap()).unwrap();
     let requests = std::env::var_os("INK_BENCH_REQUEST_DIR")
         .map(std::path::PathBuf::from)
-        .unwrap_or_else(|| repository.join("knowledge/research/filtered-aggregate"));
+        .unwrap_or_else(|| repository.join("knowledge/research/composable-state/main-integration/filtered-aggregate"));
     let mut phases = vec![];
     let labels =
         std::env::var("INK_BENCH_PLANS").unwrap_or("direct,refresh,sum-delta,count-delta".into());
@@ -22,13 +22,7 @@ fn benchmark_standalone_aggregate_scaling() {
         .iter()
         .map(|label| {
             let start = Instant::now();
-            let request = serde_json::from_slice(
-                &fs::read(repository.join(format!(
-                    "knowledge/research/composable-state/filtered-aggregate/{label}.json"
-                )))
-                .unwrap(),
-            )
-            .unwrap();
+            let request = serde_json::from_slice(&fs::read(requests.join(format!("{label}.json"))).unwrap()).unwrap();
             let plan = representation::check(&module, &request).unwrap();
             phases
                 .push(serde_json::json!({"candidate":label,"check_ns":start.elapsed().as_nanos()}));
@@ -122,7 +116,7 @@ fn measured_selection_rechecks_candidates_and_bridges_before_ranking() {
             "planner/tests/representation_selection_integration.py",
             env!("CARGO_BIN_EXE_ink"),
             "examples/point-query-delta.ink",
-            "knowledge/research/composable-state/point-delta",
+            "knowledge/research/composable-state/main-integration/point-delta",
         ])
         .env("PYTHONPATH", "planner:knowledge")
         .output()
@@ -151,7 +145,7 @@ fn lean_lifecycle_selection_model_checks_independently() {
 fn database_implementation_selection_rechecks_packages() {
     let output = Command::new("python3")
         .args(["planner/tests/implementation_selection_integration.py", env!("CARGO_BIN_EXE_ink"),
-               "examples/point-query-delta.ink", "knowledge/research/composable-state/point-delta"])
+               "examples/point-query-delta.ink", "knowledge/research/composable-state/main-integration/point-delta"])
         .env("PYTHONPATH", "planner:knowledge").output().unwrap();
     assert!(output.status.success(), "{}{}", String::from_utf8_lossy(&output.stdout), String::from_utf8_lossy(&output.stderr));
 }
