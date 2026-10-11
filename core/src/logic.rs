@@ -3,7 +3,7 @@
 use crate::LangResult;
 use serde::{Deserialize, Serialize};
 use std::{
-    collections::{BTreeMap, BTreeSet},
+    collections::{BTreeMap, BTreeSet, HashMap},
     sync::Arc,
 };
 
@@ -15,7 +15,7 @@ pub enum Sort {
     Data(String),
     SelfType,
 }
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub enum Term {
     Var(String),
@@ -46,7 +46,7 @@ pub enum Term {
         branches: Vec<Branch>,
     },
 }
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Branch {
     pub bindings: Vec<String>,
@@ -119,6 +119,14 @@ pub enum Proof {
         premises: Vec<Proof>,
     },
     Induction {
+        variable: String,
+        from: Term,
+        to: Term,
+        cases: Vec<Case>,
+    },
+    /// Exhaustive constructor analysis with substituted outer premises. This
+    /// introduces no induction hypothesis, including for recursive fields.
+    Cases {
         variable: String,
         from: Term,
         to: Term,
@@ -216,12 +224,21 @@ pub enum Declaration {
 struct Budget {
     remaining: usize,
     bit_work: usize,
+    // Per-check computation sharing, never a cache of accepted proof claims.
+    // Keys include the exact lexical term and expansion depth. The context is
+    // immutable for a check; changing it invalidates every cached reduction.
+    normal_context: Option<usize>,
+    normal_calls: HashMap<(Term, usize), Term>,
+    normal_nodes: usize,
 }
 impl Budget {
     fn new() -> Self {
         Self {
             remaining: 100_000,
             bit_work: 20_000_000,
+            normal_context: None,
+            normal_calls: HashMap::new(),
+            normal_nodes: 0,
         }
     }
     fn step(&mut self, depth: usize) -> LangResult<()> {
@@ -1161,6 +1178,62 @@ fn substitute(
 }
 fn normal(t: &Term, c: &Context, budget: &mut Budget, depth: usize) -> LangResult<Term> {
     budget.step(depth)?;
+    // Only small calls are memoised. Counting also bounds key construction and
+    // hashing; the complete cache retains at most 16,384 syntax nodes.
+    fn nodes(t: &Term, remaining: &mut usize) -> bool {
+        if *remaining == 0 {
+            return false;
+        }
+        *remaining -= 1;
+        match t {
+            Term::Call { arguments, .. }
+            | Term::Construct { arguments, .. }
+            | Term::SelfCall(arguments) => arguments.iter().all(|t| nodes(t, remaining)),
+            Term::Binary { left, right, .. } => nodes(left, remaining) && nodes(right, remaining),
+            Term::If {
+                condition,
+                on_true,
+                on_false,
+            } => {
+                nodes(condition, remaining)
+                    && nodes(on_true, remaining)
+                    && nodes(on_false, remaining)
+            }
+            Term::Match {
+                scrutinee,
+                branches,
+            } => nodes(scrutinee, remaining) && branches.iter().all(|b| nodes(&b.body, remaining)),
+            _ => true,
+        }
+    }
+    let context = c as *const Context as usize;
+    if budget.normal_context != Some(context) {
+        budget.normal_calls.clear();
+        budget.normal_nodes = 0;
+        budget.normal_context = Some(context);
+    }
+    let mut key_remaining = 128;
+    let eligible = matches!(t, Term::Call { .. }) && nodes(t, &mut key_remaining);
+    let key = eligible.then(|| (t.clone(), depth));
+    if let Some(key) = &key {
+        if let Some(result) = budget.normal_calls.get(key) {
+            return Ok(result.clone());
+        }
+    }
+    let result = normal_uncached(t, c, budget, depth)?;
+    if let Some(key) = key {
+        let mut result_remaining = 1024;
+        if budget.normal_calls.len() < 128 && nodes(&result, &mut result_remaining) {
+            let count = 128 - key_remaining + 1024 - result_remaining;
+            if budget.normal_nodes + count <= 16_384 {
+                budget.normal_nodes += count;
+                budget.normal_calls.insert(key, result.clone());
+            }
+        }
+    }
+    Ok(result)
+}
+fn normal_uncached(t: &Term, c: &Context, budget: &mut Budget, depth: usize) -> LangResult<Term> {
     match t {
         Term::Call {
             function,
@@ -1471,6 +1544,79 @@ fn normalize_pair(e: Equation, c: &Context, budget: &mut Budget) -> LangResult<E
         from: alpha_normal(normal(&e.from, c, budget, 0)?, budget)?,
         to: alpha_normal(normal(&e.to, c, budget, 0)?, budget)?,
     })
+}
+
+#[cfg(test)]
+mod normal_cache_tests {
+    use super::*;
+    fn context(increment: u64) -> Context {
+        let mut c = Context::default();
+        c.declare(
+            "increment".into(),
+            &Declaration::Function {
+                params: vec![("x".into(), Sort::U64)],
+                result: Sort::U64,
+                recursive: None,
+                body: Term::Binary {
+                    op: "+".into(),
+                    left: Box::new(Term::Var("x".into())),
+                    right: Box::new(Term::U64(increment)),
+                },
+            },
+        )
+        .unwrap();
+        c
+    }
+    fn call(n: u64) -> Term {
+        Term::Call {
+            function: "increment".into(),
+            arguments: vec![Term::U64(n)],
+        }
+    }
+    #[test]
+    fn reductions_share_work_only_in_the_same_context_and_depth() {
+        let first = context(1);
+        let second = context(2);
+        let mut budget = Budget::new();
+        assert_eq!(
+            normal(&call(7), &first, &mut budget, 0).unwrap(),
+            Term::U64(8)
+        );
+        let before = budget.remaining;
+        assert_eq!(
+            normal(&call(7), &first, &mut budget, 0).unwrap(),
+            Term::U64(8)
+        );
+        assert_eq!(before - budget.remaining, 1);
+        let before = budget.remaining;
+        normal(&call(7), &first, &mut budget, 1).unwrap();
+        assert!(before - budget.remaining > 1);
+        assert!(normal(&call(7), &first, &mut budget, 129).is_err());
+        assert_eq!(
+            normal(&call(7), &second, &mut budget, 0).unwrap(),
+            Term::U64(9)
+        );
+        assert_eq!(budget.normal_calls.len(), 1);
+        let wrong = Term::Call {
+            function: "absent".into(),
+            arguments: vec![],
+        };
+        assert!(normal(&wrong, &second, &mut budget, 0).is_err());
+        assert!(!budget.normal_calls.contains_key(&(wrong, 0)));
+    }
+    #[test]
+    fn retained_call_syntax_is_bounded() {
+        let c = context(1);
+        let mut budget = Budget::new();
+        for n in 0..1000 {
+            assert_eq!(
+                normal(&call(n), &c, &mut budget, 0).unwrap(),
+                Term::U64(n + 1)
+            );
+        }
+        assert!(budget.normal_calls.len() <= 128);
+        assert!(budget.normal_nodes <= 16_384);
+    }
 }
 
 #[cfg(test)]
@@ -1842,6 +1988,9 @@ fn proof_references(p: &Proof, out: &mut BTreeSet<String>) {
             premises.iter().for_each(|p| proof_references(p, out));
         }
         Proof::Induction {
+            from, to, cases, ..
+        }
+        | Proof::Cases {
             from, to, cases, ..
         }
         | Proof::GeneralizedInduction {
@@ -2301,6 +2450,56 @@ fn derive(
                 }
             }
             sub_pair(&s.equation(&t.equation, budget)?, &bindings, c, budget)?
+        }
+        Proof::Cases {
+            variable,
+            from,
+            to,
+            cases,
+        } => {
+            let Some(Sort::Data(id)) = env.get(variable) else {
+                return Err("case variable must have datatype sort".into());
+            };
+            let constructors = c.datatype(id, false)?;
+            if cases.len() != constructors.len() {
+                return Err("cases must cover every constructor".into());
+            }
+            let original = Equation {
+                from: from.clone(),
+                to: to.clone(),
+            };
+            typed_pair(&original, env, c, false, budget)?;
+            // Schemas describe separately generalized induction arguments.
+            // Do not silently reinterpret a schema that captures this variable.
+            independent_induction_premises(&[variable.clone()].into(), &[], schemas, budget)?;
+            for (index, (case, constructor)) in cases.iter().zip(constructors).enumerate() {
+                let mut local = branch_env(&case.bindings, &constructor.fields, env, false)?;
+                local.remove(variable);
+                let value = Term::Construct {
+                    datatype: id.clone(),
+                    constructor: index,
+                    arguments: case.bindings.iter().cloned().map(Term::Var).collect(),
+                };
+                let bindings = [(variable.clone(), value)].into();
+                let want = sub_pair(&original, &bindings, c, budget)?;
+                let premises = hypotheses
+                    .iter()
+                    .map(|e| sub_pair(e, &bindings, c, budget))
+                    .collect::<LangResult<Vec<_>>>()?;
+                if derive(
+                    &case.proof,
+                    &local,
+                    c,
+                    &premises,
+                    schemas,
+                    budget,
+                    depth + 1,
+                )? != want
+                {
+                    return Err("constructor case proves a different statement".into());
+                }
+            }
+            normalize_pair(original, c, budget)?
         }
         Proof::Induction {
             variable,
