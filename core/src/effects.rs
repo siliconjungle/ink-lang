@@ -560,6 +560,29 @@ impl Checker<'_> {
                 let b = self.call(true, *action)?;
                 self.then(a, b)?
             }
+            Kind::Builtin { name, arguments } if name == "choose" => {
+                let condition = self.expr(body, arguments[0], depth + 1)?;
+                let mut out = Summary::default();
+                for path in &condition.paths {
+                    let prefix = Summary {
+                        access: condition.access.clone(),
+                        paths: [*path].into_iter().collect(),
+                    };
+                    let suffix = if path.exit != Exit::Next {
+                        normal(&[path.value])
+                    } else {
+                        let index = match path.value {
+                            ValueShape::True => arguments[1],
+                            ValueShape::False => arguments[2],
+                            _ => return Err("conditional effect requires Bool".into()),
+                        };
+                        self.expr(body, index, depth + 1)?
+                    };
+                    let branch = self.then(prefix, suffix)?;
+                    out = self.join(out, branch)?;
+                }
+                out
+            }
             Kind::Builtin { name, arguments } => {
                 let a = self.arguments(body, arguments, depth)?;
                 let tags = match name.as_str() {
@@ -603,6 +626,38 @@ impl Checker<'_> {
                     let b = self.arguments(body, arguments, depth)?;
                     let s = self.then(a, b)?;
                     self.tags(s, output)?
+                } else if method == "fold" {
+                    let mut out = Summary::default();
+                    for path in &a.paths {
+                        let branches: &[usize] = match path.value {
+                            ValueShape::Some | ValueShape::Ok => &[0],
+                            ValueShape::None | ValueShape::Err => &[1],
+                            _ => &[0, 1],
+                        };
+                        for branch in branches {
+                            let single = Summary {
+                                access: a.access.clone(),
+                                paths: [*path].into_iter().collect(),
+                            };
+                            let suffix = if path.exit != Exit::Next {
+                                normal(output)
+                            } else {
+                                let Kind::Lambda { body: callback, .. } =
+                                    &body.nodes[arguments[*branch]].kind
+                                else {
+                                    return Err("fold effect callback".into());
+                                };
+                                let b = self.expr(body, *callback, depth + 1)?;
+                                if !b.access.writes.is_empty() || !b.access.emits.is_empty() {
+                                    return Err("effectful variant callback".into());
+                                }
+                                b
+                            };
+                            let branch = self.then(single, suffix)?;
+                            out = self.join(out, branch)?;
+                        }
+                    }
+                    out
                 } else {
                     let callback = arguments.first().ok_or("missing effect callback")?;
                     let Kind::Lambda { body: callback, .. } = &body.nodes[*callback].kind else {
@@ -646,6 +701,15 @@ impl Checker<'_> {
                     }
                     out
                 }
+            }
+            Kind::Bind {
+                value,
+                body: expression,
+                ..
+            } => {
+                let a = self.expr(body, *value, depth + 1)?;
+                let b = self.expr(body, *expression, depth + 1)?;
+                self.then(a, b)?
             }
         };
         // Conservative recoverable host failure before or after a primitive;

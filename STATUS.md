@@ -201,3 +201,25 @@ Native/JavaScript process-death recovery, both Wasm paths and IndexedDB browser
 continuation pass. Generic observer demand projection avoids logical flattening
 on each representation call. Existing measured selection remains external.
 See [scope, boundaries and artifacts](docs/indexed-aggregate-durable.md).
+## Generic language foundations
+
+[Bounded surface and value additions](docs/generic-language-foundations.md) cover
+ordinary pure/action value consistency, lazy conditionals, list literals, exact
+counts, fixed word operations, generics/aliases/constants, payload enums/matching,
+finite local iteration, fixed arrays and pure nonescaping callbacks. Fallible
+pre/postcondition validation uses ordinary Result errors and transaction rollback.
+External theorem authoring checks canonical evidence through the existing kernel.
+Exact integer arithmetic/count/sum now have executable semantic correspondence.
+
+Generic sets, grouping, joins, partition mapping and checked division are external
+Ink definitions. Scoped native/JavaScript buffer partitions share disjoint ranges
+and rejoin adjacent ranges without element copies; growth detaches before overlap.
+Generated ownership support lives in ink-native-support, independent of reference
+execution. Clone counters/backing identity and compiled conformance validate this
+mechanism; complete-workload timing improvements are not claimed here.
+Knowledge supplies 247 finite-list laws and three authored exact-integer laws.
+The compiler's JavaScript fold shortcut is removed. C/Rust/JavaScript/both Wasm
+conformance is mandatory; actual eligible GPU dispatch and compiled fallback retain
+the explicit device capability boundary. This does not close compact numerical
+carriers, packed Bytes, new borrowing syntax, static refinements or the full design
+draft. The scope document records the exact admission and resource limits.

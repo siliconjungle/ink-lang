@@ -16,6 +16,7 @@ pub mod effects;
 pub mod equality;
 pub mod eval;
 pub mod implementation;
+pub mod law_author;
 pub mod laws;
 pub mod library;
 pub mod logic;
@@ -33,9 +34,11 @@ pub mod source_routing;
 pub mod source_syntax;
 pub mod statecheck;
 pub mod stateful;
+mod surface;
 pub mod syntax;
 pub mod transaction;
 pub mod transaction_model;
+pub mod word;
 
 pub type LangResult<T> = Result<T, String>;
 
@@ -49,8 +52,6 @@ pub mod compute_values;
 
 pub mod local_collections;
 pub mod temporary;
-
-pub const TEMPORARY_RUST_SOURCE: &str = include_str!("temporary.rs");
 
 mod owned_semantic;
 
