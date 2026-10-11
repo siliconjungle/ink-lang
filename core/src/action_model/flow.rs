@@ -74,7 +74,7 @@ impl<'p> Lower<'p> {
                 Kind::Table {
                     method, arguments, ..
                 } => {
-                    ["get", "contains", "values", "keys"].contains(&method.as_str())
+                    ["get", "contains", "values", "keys", "intersect_keys", "shared_keys", "sum_by", "count_where"].contains(&method.as_str())
                         && arguments.iter().all(|n| child(*n))
                 }
                 Kind::Lambda { body, .. } => child(*body),
@@ -629,7 +629,7 @@ impl<'p> Lower<'p> {
                 root,
                 method,
                 arguments,
-            } if ["get", "contains", "insert", "replace", "remove"].contains(&method.as_str()) => {
+            } if ["get", "contains", "insert", "replace", "remove", "put", "put_many", "remove_many"].contains(&method.as_str()) => {
                 self.flow_args(
                     scope,
                     body,
@@ -640,6 +640,17 @@ impl<'p> Lower<'p> {
                     vec![],
                     &|this, xs, state, events| {
                         let table = this.tables[*root].clone();
+                        if method == "put_many" || method == "remove_many" {
+                            let (value,state)=this.bulk_table(*root,method,&xs,state)?;
+                            if let (Term::If { condition, on_true, on_false }, Term::If { condition: state_condition, on_true: true_state, on_false: false_state }) = (&value,&state) {
+                                if condition == state_condition {
+                                    let yes=next(this,*on_true.clone(),*true_state.clone(),events.clone())?;
+                                    let no=next(this,*on_false.clone(),*false_state.clone(),events)?;
+                                    return Ok(choice(*condition.clone(),yes,no));
+                                }
+                            }
+                            return next(this,value,state,events);
+                        }
                         let rows = this.root(state.clone(), *root)?;
                         let present = call(&table.contains, vec![rows.clone(), xs[0].clone()]);
                         match method.as_str() {
@@ -657,9 +668,10 @@ impl<'p> Lower<'p> {
                                     c(id(&sort)?, 0, vec![])
                                 };
                                 let f = match method.as_str() {
-                                    "insert" => table.insert,
-                                    "replace" => table.replace,
-                                    _ => table.remove,
+                                    "insert" => table.insert.clone(),
+                                    "replace" => table.replace.clone(),
+                                    "put" => this.upsert_function(&table)?,
+                                    _ => table.remove.clone(),
                                 };
                                 let mut args = vec![rows];
                                 args.extend(xs);

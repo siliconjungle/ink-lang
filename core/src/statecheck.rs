@@ -527,22 +527,43 @@ impl Context<'_> {
                     let root = self
                         .root(receiver)
                         .ok_or("table operations require a state root")?;
+                    if n=="shared_keys" {
+                        if args.len()!=1{return Err("shared_keys requires one state table root".into());}
+                        let Expr::Var(other)=&args[0] else{return Err("shared_keys requires a state table root".into());};
+                        if env.contains_key(other) || (!self.action.reads.contains(other) && !self.action.writes.contains(other)){return Err("shared_keys lacks a table read capability".into());}
+                        let decl=self.p.states.iter().find(|s|&s.name==other).ok_or("shared_keys requires a state table root")?;
+                        let T::Table(other_key,_)=&decl.ty else{return Err("shared_keys requires a table".into());};
+                        if other_key!=&kt{return Err("shared_keys key types differ".into());}
+                        if let Some(typing)=self.typing {typing.borrow_mut().values.insert(address(&args[0]),decl.ty.clone());}
+                        return Ok(T::List(kt));
+                    }
+                    if n == "sum_by" || n == "count_where" {
+                        if args.len()!=1 { return Err(format!("{n} expects one lambda")); }
+                        let Expr::Lambda(parameter, body)=&args[0] else { return Err(format!("{n} requires a lambda")); };
+                        let mut local=env.clone();local.insert(parameter.clone(),*vt.clone());
+                        let cx=Context {in_lambda:true,..*self};
+                        let result=cx.infer(body,&local,&mut facts.clone())?;
+                        if n=="count_where" && result!=T::Bool {return Err("count_where predicate must return Bool".into());}
+                        if n=="sum_by" && !matches!(result,T::U32|T::U64|T::I32|T::Int|T::F32) {return Err("sum_by requires a numerical contribution".into());}
+                        if let Some(typing)=self.typing {typing.borrow_mut().lambdas.insert(address(&args[0]),(*vt,result.clone()));}
+                        return Ok(if n=="count_where" {T::Int}else{result});
+                    }
                     let argc = match n.as_str() {
-                        "values" => 0,
-                        "get" | "contains" | "remove" => 1,
-                        "insert" | "replace" => 2,
+                        "values" | "keys" => 0,
+                        "get" | "contains" | "remove" | "intersect_keys" | "remove_many" => 1,
+                        "insert" | "replace" | "put" | "put_many" => 2,
                         _ => return Err(format!("unsupported table method {n}")),
                     };
                     if args.len() != argc {
                         return Err(format!("{n} expects {argc} arguments"));
                     }
                     if argc > 0 {
-                        self.expected(&args[0], &kt, env, facts)?;
+                        self.expected(&args[0], &if ["intersect_keys", "put_many", "remove_many"].contains(&n.as_str()) { T::List(kt.clone()) } else { *kt.clone() }, env, facts)?;
                     }
                     if argc > 1 {
-                        self.expected(&args[1], &vt, env, facts)?;
+                        self.expected(&args[1], &if n == "put_many" { T::List(vt.clone()) } else { *vt.clone() }, env, facts)?;
                     }
-                    if ["insert", "replace", "remove"].contains(&n.as_str()) {
+                    if ["insert", "replace", "remove", "put", "put_many", "remove_many"].contains(&n.as_str()) {
                         if self.in_lambda || !self.action.writes.contains(&root) {
                             return Err(format!("write to {root} is not permitted"));
                         }
@@ -558,7 +579,7 @@ impl Context<'_> {
                             ));
                         }
                         facts.clear();
-                        if stable_key(&args[0], env) {
+                        if !["put_many", "remove_many"].contains(&n.as_str()) && stable_key(&args[0], env) {
                             facts.insert(fact, n != "remove");
                         }
                     }
@@ -566,6 +587,8 @@ impl Context<'_> {
                         "get" | "remove" => T::Option(vt),
                         "contains" => T::Bool,
                         "values" => T::List(vt),
+                        "keys" | "intersect_keys" => T::List(kt),
+                        "put_many" => T::Result(Box::new(T::Unit), Box::new(T::String)),
                         _ => T::Unit,
                     });
                 }

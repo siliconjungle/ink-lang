@@ -577,9 +577,15 @@ impl Checker<'_> {
             } => {
                 let a = self.arguments(body, arguments, depth)?;
                 let mut b = normal(output);
+                if method=="sum_by" || method=="count_where" {
+                    let Kind::Lambda {body:callback,..}=body.nodes[arguments[0]].kind else {return Err("scan callback effect".into());};
+                    let callback=self.expr(body,callback,depth+1)?;
+                    let callback=self.tags(callback,output)?;
+                    b=self.join(b,callback)?;
+                }
                 let name = self.actions.module().program().states[*root].name.clone();
                 b.access.reads.insert(name.clone());
-                if ["insert", "replace", "remove"].contains(&method.as_str()) {
+                if ["insert", "replace", "remove", "put", "put_many", "remove_many"].contains(&method.as_str()) {
                     b.access.writes.insert(name);
                     b.paths = b
                         .paths
