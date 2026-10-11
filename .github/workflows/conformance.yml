@@ -13,6 +13,9 @@ jobs:
   cpu-wasm-durability:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
+    env:
+      INK_PARITY_REQUIRE_ALL: '1'
+      INK_THREADS: '4'
     steps:
       - uses: actions/checkout@v4
         with:
@@ -68,7 +71,7 @@ jobs:
           CARGO_TARGET_DIR=target cargo test --manifest-path lowerings/gpu/Cargo.toml --test temporary_bounds
           cargo test --test distribution --test source_syntax --test action_values --test general_laws --test semantic_optimisation
       - name: Literal CPU and both Wasm lowerings, generated histories and crash recovery
-        run: cargo test --test lowering_parity --test generated_parity --test durability --test modules --test selected_checkpoint --test action_optimisation --test action_transitions --test numerical_state --test mixed_durability --test bend_features -- --nocapture
+        run: python3 tools/check_feature_parity.py --scope cpu --run --receipt build/enforced-parity/cpu-audit.json
       - name: Retain reproducible programs, seeds and expected outcomes
         if: always()
         uses: actions/upload-artifact@v4
@@ -77,6 +80,17 @@ jobs:
           path: |
             build/lowering-residency/*.json
             build/lowering-residency/*.wgsl
+            build/generated-parity-f32/source.ink
+            build/generated-parity-f32/script.json
+            build/generated-parity-f32/expected.json
+            build/generated-parity-u64/source.ink
+            build/generated-parity-u64/script.json
+            build/generated-parity-u64/expected.json
+            build/enforced-parity/representations/histories.json
+            build/enforced-parity/cpu-audit.json
+            build/async-parallel-transactions/source.ink
+            build/async-parallel-transactions/script.json
+            build/async-parallel-transactions/expected.json
             build/generated-parity-bend/source.ink
             build/generated-parity-bend/script.json
             build/generated-parity-bend/expected.json
@@ -116,6 +130,7 @@ jobs:
     timeout-minutes: 30
     env:
       INK_TEST_WGPU: '1'
+      INK_THREADS: '4'
       WGPU_BACKEND: vulkan
     steps:
       - uses: actions/checkout@v4
@@ -151,6 +166,8 @@ jobs:
               f.write('\n[workspace]\n')
           PY
           cargo fetch --locked --manifest-path build/gpu-deps/Cargo.toml
+      - name: Required GPU dispatch, exact u64 and binary32
+        run: cargo test --test feature_parity -- --nocapture --test-threads=1
       - name: Actual wgpu dispatch and resident feedback
         run: cargo test --test lowering_parity --test generated_parity --test modules --test selected_checkpoint --test action_optimisation --test action_transitions --test numerical_state --test mixed_durability --test bend_features -- --nocapture
       - uses: actions/setup-python@v5
@@ -174,6 +191,13 @@ jobs:
             build/temporary-c-test/test.c
             build/lowering-residency/*.json
             build/lowering-residency/*.wgsl
+            build/generated-parity-f32/source.ink
+            build/generated-parity-f32/script.json
+            build/generated-parity-f32/expected.json
+            build/generated-parity-u64/source.ink
+            build/generated-parity-u64/script.json
+            build/generated-parity-u64/expected.json
+            build/enforced-parity/representations/histories.json
             build/generated-parity-bend/source.ink
             build/generated-parity-bend/script.json
             build/generated-parity-bend/expected.json

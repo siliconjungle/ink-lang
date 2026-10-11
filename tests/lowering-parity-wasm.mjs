@@ -6,10 +6,12 @@ for(const backend of ['c','rust']){
  let state=module.create(),index=0;
  for(const step of steps){
   if(step.restore){state.dispose();state=module.restore(new Uint8Array(step.restore.map(Number)));continue;}
-  let reply;try{reply=step.pure?{value:state.pure(step.pure,step.args)}:{outcome:state.invoke(step.call,step.args)};}catch(e){reply={host_error:e.message};}
+  const before=module.parallelStatistics();
+  let reply;try{if(step.async){const pending=step.pure?state.pureAsync(step.pure,step.args):state.invokeAsync(step.call,step.args);if(!step.pure){assert.throws(()=>state.invoke(step.call,step.args),/operation already in progress/);assert.throws(()=>state.snapshot(),/operation already in progress/);}reply=step.pure?{value:await pending}:{outcome:await pending};}else reply=step.pure?{value:state.pure(step.pure,step.args)}:{outcome:state.invoke(step.call,step.args)};}catch(e){reply={host_error:e.message};}
+  if(step.expect_workers){const after=module.parallelStatistics();assert.ok(after.workers-before.workers>=2);assert.ok(after.workerIds.length>=2);}
   assert.deepEqual(normalize(reply),normalize(expected[index].reply),`${backend} step ${index}`);
   assert.deepEqual(Array.from(state.snapshot()),expected[index].snapshot.map(Number),`${backend} snapshot ${index}`);index++;
  }
- const before=state.snapshot();assert.throws(()=>state.invoke('create',['bad','x',0n]));assert.deepEqual(state.snapshot(),before);state.dispose();
+ const before=state.snapshot();assert.throws(()=>state.invoke('create',['bad','x',0n]));assert.deepEqual(state.snapshot(),before);if(steps.some(s=>s.async)){await assert.rejects(state.invokeAsync('__unknown_action__',[]));assert.deepEqual(state.snapshot(),before);await assert.rejects(state.invokeAsync('batch',['invalid',false]));assert.deepEqual(state.snapshot(),before);}state.dispose();
  console.log(`${backend} Wasm: ${index} values/outcomes and exact snapshots matched`);
 }

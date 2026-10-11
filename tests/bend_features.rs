@@ -136,7 +136,7 @@ fn parallel_buffers_recursion_and_scratch_agree_on_all_backends() {
             ("partitioned", json!([xs, 0])),
             ("partitioned", json!([xs, u32::MAX])),
         ] {
-            steps.push(json!({"pure":name,"args":args}));
+            steps.push(json!({"pure":name,"args":args,"expect_workers":name=="parallel"&&n==1024}));
             expected
                 .push(json!({"reply":{"value":want},"snapshot":r.checkpoint_portable().unwrap()}));
         }

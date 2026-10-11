@@ -113,15 +113,16 @@ Existing numerical source types now cross state/action/event/keep boundaries.
 Preserve the explicit typed-actions V2 marker for numerical domains and unchanged
 old-domain V1 bytes. Floats use IEEE scalar comparisons and raw-bit aggregate
 identity; no total float key ordering or floating rewrite authority is admitted.
-Snapshot container V1 binds new schemas without migration. Preserve WGSL's
-separate float contract and numerical logical projection's fail-closed boundary.
+Snapshot container V1 binds new schemas without migration. Preserve executable-core V6 canonical arithmetic NaNs and the integer-lane
+GPU binary32 contract and numerical logical projection's fail-closed boundary.
 See docs/numerical-state.md; no source Type or proof-kernel change was made.
 
 Source-bound physical representations now live in core/src/representation.rs,
 with canonical representation/bridge entries, exact all-action/source binding,
 universal relation preservation and decode/encode or proved direct migration.
 Runtime owns transaction-boundary switching and portable logical snapshots;
-Rust lowering compiles sealed definitions literally. Production rejects old
+C/Rust/JavaScript lowerings compile sealed definitions literally; both Wasm
+paths execute the same sealed definitions through the bounded word ABI. Production rejects old
 aggregate certificates and typed storage policies. Historical experiments require
 legacy-optimisation-research; do not enable it silently or count it as small-core
 admission. Keep docs/database-representations.md source-domain, backend, resource
@@ -131,7 +132,10 @@ Bend-inspired primitives use executable-core V5 only when needed. Ordered parall
 map has sequential value semantics; grain and INK_THREADS are scheduling hints,
 never independence or proof authority. Reject captured owned storage; each callback
 may create its own temporary owners. Rust workers own disjoint slices, with bounded
-workers and sequential nested/Wasm execution. GPU private buffers require statically bounded
+workers and sequential nested execution. Complete C, JavaScript and both Wasm
+paths now use bounded native/host workers too; browser parallel entry is async
+and requires cross-origin isolation. All-target feature audits must disclose and
+fail remaining GPU gaps; passing eligible kernels does not establish full parity. GPU private buffers require statically bounded
 capacity <=64. Preserve complementary partition provenance and conservative
 branch/loop bounds; growth uses compiled CPU fallback. Self recursion
 requires guarded unsigned descent or a nonempty list tail, with mutual recursion

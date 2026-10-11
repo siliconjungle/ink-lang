@@ -1,0 +1,8 @@
+import {parseExactJSON} from './state-wasm.mjs';
+import fs from 'node:fs';import assert from 'node:assert/strict';
+import {createRepresentationState,createState,representationMetadata} from './application.mjs';
+const normalize=v=>typeof v==='bigint'?String(v):typeof v==='number'&&Number.isInteger(v)?String(v):Array.isArray(v)?v.map(normalize):v&&typeof v==='object'?Object.fromEntries(Object.entries(v).map(([k,v])=>[k,normalize(v)])):v;
+const steps=parseExactJSON(fs.readFileSync(new URL('histories.json',import.meta.url),'utf8'));
+const state=createRepresentationState();
+for(let i=0;i<steps.length;i++){const step=steps[i];assert.deepEqual(normalize(state.invoke(step.name,step.args)),normalize(step.outcome));assert.deepEqual(Array.from(await state.checkpoint()),step.snapshot.map(Number));if(i===7)state.migrateDirect(representationMetadata.representations[1],representationMetadata.migrations[0]);if(i===15)state.migrate(representationMetadata.representations[0]);}
+const snapshot=await state.checkpoint();const baseline=createState();await baseline.restore(snapshot);assert.deepEqual(await baseline.checkpoint(),snapshot);const before=state.statistics();for(let i=0;i<5;i++)state.invoke('zero',[]);const after=state.statistics();assert.equal(after.encodes,before.encodes,'query must not re-encode physical state');const corrupt=snapshot.slice();corrupt[corrupt.length-1]^=1;await assert.rejects(state.restore(corrupt));assert.deepEqual(await state.checkpoint(),snapshot);await state.restore(snapshot);assert.deepEqual(await state.checkpoint(),snapshot);console.log('JavaScript representation host: histories, checkpoints, migration, cached reads and failed restore passed');
