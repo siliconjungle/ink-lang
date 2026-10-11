@@ -154,3 +154,13 @@ Measured representation selection belongs in ink-planner and binds exact request
 and bridge bytes; missing comparable evidence retains the baseline. Preserve
 the measured losing candidates and native resource limits. See docs/owned-optimisation.md,
 docs/point-query-delta.md and reports/incremental-maintenance-selection.
+
+Filtered u64 sum/count delta proofs and rollback/migration are now external
+knowledge entries. Numerical representation projection includes the scoped exact
+integer, u32/i32, binary32, fixed vector, stored equality and pure closure domains;
+unsupported keys/operators still fail closed. Rust/C/JavaScript/both Wasm/both GPU
+host lanes share standalone representation conformance. Recursive physical state
+uses GPU hosts, not device shaders. Retain explicit proof/transport bounds and
+separate checked Session transport from caller-trusted standalone calls. Benchmark
+checking, emission/compilation, migration and steady state separately; preserve
+losing candidates and independently maintained handwritten baselines.
