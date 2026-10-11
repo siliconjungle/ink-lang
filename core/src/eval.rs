@@ -851,9 +851,9 @@ fn binary_values(op: &str, av: Value, bv: Value) -> LangResult<Value> {
             let a = f32::from_bits(*a);
             let b = f32::from_bits(*b);
             Ok(match op {
-                "+" => Value::F32((a + b).to_bits()),
-                "-" => Value::F32((a - b).to_bits()),
-                "*" => Value::F32((a * b).to_bits()),
+                "+" => Value::F32(crate::logic::canonical_f32_bits(a + b)),
+                "-" => Value::F32(crate::logic::canonical_f32_bits(a - b)),
+                "*" => Value::F32(crate::logic::canonical_f32_bits(a * b)),
                 "<" => Value::Bool(a < b),
                 ">" => Value::Bool(a > b),
                 "<=" => Value::Bool(a <= b),
@@ -938,7 +938,7 @@ fn evaluate_apply(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> LangR
                             };
                             result += f32::from_bits(*b);
                         }
-                        return Ok(Value::F32(result.to_bits()));
+                        return Ok(Value::F32(crate::logic::canonical_f32_bits(result)));
                     }
                     if ty == Type::I32 {
                         let mut result = 0i32;

@@ -120,6 +120,7 @@ pub struct Program {
 
 /// This version fixes the executable representation and its current semantics,
 /// not the larger proposed language or a proof of the Rust implementation.
+pub const CANONICAL_FLOAT_SEMANTICS: &str = "ink-executable-core-v7";
 pub const CONTROL_SEMANTICS: &str = "ink-executable-core-v6";
 pub const SEMANTICS: &str = "ink-executable-core-v1";
 pub const COMPUTE_SEMANTICS: &str = "ink-executable-core-v2";
@@ -148,7 +149,9 @@ impl CheckedModule {
         crate::check::check(&program)?;
         let module = Self(WireModule {
             schema: 1,
-            semantics: if control_needed(&program) {
+            semantics: if canonical_float_needed(&program) {
+                CANONICAL_FLOAT_SEMANTICS
+            } else if control_needed(&program) {
                 CONTROL_SEMANTICS
             } else if crate::recursion::needed(&program) {
                 PARALLEL_SEMANTICS
@@ -182,6 +185,7 @@ impl CheckedModule {
                 SEQUENCE_SEMANTICS,
                 PARALLEL_SEMANTICS,
                 CONTROL_SEMANTICS,
+                CANONICAL_FLOAT_SEMANTICS,
             ]
             .contains(&wire.semantics.as_str())
         {
@@ -472,6 +476,45 @@ fn validate(p: &Program) -> LangResult<(bool, bool)> {
     Ok((b.extended, b.sequence))
 }
 
+fn canonical_float_needed(p: &Program) -> bool {
+    fn ty(t: &Type) -> bool {
+        match t {
+            Type::F32 => true,
+            Type::List(x) | Type::Buffer(x) | Type::Option(x) | Type::Vector(x, _) => ty(x),
+            Type::Result(a, b) | Type::Map(a, b) | Type::Table(a, b) => ty(a) || ty(b),
+            _ => false,
+        }
+    }
+    fn expr(e: &Expr) -> bool {
+        let mut found = false;
+        crate::analysis::walk(e, |node| {
+            found |= matches!(node, Expr::Float(_));
+            if let Expr::Let(_, Some(t), _, _) = node {
+                found |= ty(t);
+            }
+        });
+        found
+    }
+    fn statements(ss: &[Statement]) -> bool {
+        ss.iter().any(|s| match s {
+            Statement::Let(_, t, e) => t.as_ref().is_some_and(ty) || expr(e),
+            Statement::If(c, a, b) => expr(c) || statements(a) || statements(b),
+            Statement::Return(e) | Statement::Expr(e) | Statement::Emit(_, e) => expr(e),
+        })
+    }
+    p.records.values().any(|fs| fs.iter().any(|(_, t)| ty(t)))
+        || p.states
+            .iter()
+            .chain(&p.keeps)
+            .any(|d| ty(&d.ty) || expr(&d.value))
+        || p.events.values().any(ty)
+        || p.functions
+            .iter()
+            .any(|f| ty(&f.result) || f.params.iter().any(|(_, t)| ty(t)) || expr(&f.body))
+        || p.actions
+            .iter()
+            .any(|a| ty(&a.result) || a.params.iter().any(|(_, t)| ty(t)) || statements(&a.body))
+}
 fn control_needed(p: &Program) -> bool {
     fn has(e: &Expr, pure_carriers: bool) -> bool {
         let mut found = false;
