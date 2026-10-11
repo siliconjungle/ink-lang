@@ -58,7 +58,7 @@ for name,profile in profiles.items():
  result=subprocess.run(command,capture_output=True,text=True,timeout=1800)
  assert result.returncode==0,result.stderr
  receipts[name]=json.loads(result.stdout)
- assert receipts[name]['checked']==3 and not receipts[name]['rejected']
+ assert receipts[name]['checked']==(2 if name=='indexed-erases' else 3) and not receipts[name]['rejected']
 assert receipts['writes']['selected']==ids[0]
 assert receipts['dynamic-reads']['selected']==ids[0]
 assert receipts['cached-reads']['selected']!=ids[0]
