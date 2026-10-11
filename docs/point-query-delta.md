@@ -102,3 +102,7 @@ and avoid full logical snapshot validation on every write. Physical linked-list
 maintenance may still traverse the table. Profitability
 is workload-specific: retain direct execution when cache maintenance costs more
 than the reads it saves. See [scaling results](../reports/representation-scaling/README.md).
+
+The [path-local sequence candidates](path-local-indexed-tables.md) add generic
+shared-owner preservation, checked compact observations and explicit continuation
+frames for bounded recursive call sites, with proof-view and execution resource bounds.

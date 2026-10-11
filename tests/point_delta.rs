@@ -10,18 +10,21 @@ fn benchmark_standalone_aggregate_scaling() {
     fs::create_dir_all(root.join("src")).unwrap();
     let source = include_str!("../examples/filtered-aggregate.ink");
     let module = CheckedModule::from_source(parse(source).unwrap()).unwrap();
+    let requests = std::env::var_os("INK_BENCH_REQUEST_DIR")
+        .map(std::path::PathBuf::from)
+        .unwrap_or_else(|| repository.join("knowledge/research/filtered-aggregate"));
     let mut phases = vec![];
-    let plans = ["direct", "refresh", "sum-delta", "count-delta"]
+    let labels =
+        std::env::var("INK_BENCH_PLANS").unwrap_or("direct,refresh,sum-delta,count-delta".into());
+    let labels = labels.split(',').collect::<Vec<_>>();
+    assert!(labels.len() >= 2 && labels.len() <= 16);
+    let plans = labels
         .iter()
         .map(|label| {
             let start = Instant::now();
-            let request = serde_json::from_slice(
-                &fs::read(repository.join(format!(
-                    "knowledge/research/composable-state/filtered-aggregate/{label}.json"
-                )))
-                .unwrap(),
-            )
-            .unwrap();
+            let request =
+                serde_json::from_slice(&fs::read(requests.join(format!("{label}.json"))).unwrap())
+                    .unwrap();
             let plan = representation::check(&module, &request).unwrap();
             phases
                 .push(serde_json::json!({"candidate":label,"check_ns":start.elapsed().as_nanos()}));
@@ -31,12 +34,20 @@ fn benchmark_standalone_aggregate_scaling() {
     let start = Instant::now();
     let mut code = verified_language::representations::compiled_bundle(&plans).unwrap();
     phases.push(serde_json::json!({"literal_emission_ns":start.elapsed().as_nanos()}));
-    code.push_str(&format!("\nmod indexed_source {{ {} }}\nconst SOURCE:&str={source:?};\n", verified_language::state_native::emit(module.program()).unwrap()));
+    fs::write(
+        root.join("src/ordinary.rs"),
+        ink_lowering_rust::state_native::emit(module.program()).unwrap(),
+    )
+    .unwrap();
+    code.push_str("\n#[path=\"ordinary.rs\"] mod ordinary;\n");
+    code.push_str(&format!(
+        "\nconst SOURCE:&str={source:?};\nconst LABELS:&[&str]=&{labels:?};\n"
+    ));
     code.push_str(include_str!(
         "../bench/point-delta/standalone-aggregate.rs.txt"
     ));
     fs::write(root.join("src/main.rs"), code).unwrap();
-    fs::write(root.join("Cargo.toml"),format!("[package]\nname=\"ink-standalone-aggregate-benchmark\"\nversion=\"0.1.0\"\nedition=\"2021\"\n[workspace]\n[dependencies]\nverified_language={{package=\"ink\",path={:?}}}\nserde_json={{version=\"1\",features=[\"float_roundtrip\"]}}\nsha2=\"0.10\"\nnum-bigint=\"0.4\"\n[profile.release]\nlto=\"thin\"\ncodegen-units=1\n",repository.to_str().unwrap())).unwrap();
+    fs::write(root.join("Cargo.toml"),format!("[package]\nname=\"ink-standalone-aggregate-benchmark\"\nversion=\"0.1.0\"\nedition=\"2021\"\n[workspace]\n[dependencies]\nverified_language={{package=\"ink\",path={:?}}}\nserde_json={{version=\"1\",features=[\"float_roundtrip\"]}}\nsha2=\"0.10\"\nnum-bigint=\"0.4\"\n[features]\nallocation-profile=[]\n[profile.release]\nlto=\"thin\"\ncodegen-units=1\n",repository.to_str().unwrap())).unwrap();
     // Dependency resolution must use the same independently versioned packages
     // as the distribution, never an unrelated latest upstream backend.
     let manifest = fs::read_to_string(repository.join("Cargo.toml")).unwrap();

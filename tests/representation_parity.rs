@@ -15,8 +15,11 @@ use verified_language::{
     syntax::parse,
 };
 fn root() -> PathBuf {
-    let base=Path::new(env!("CARGO_MANIFEST_DIR"));
-    std::env::var_os("INK_REP_PARITY_ROOT").map(|p|base.join(p)).unwrap_or_else(||base.join("build/representation-parity"))
+    std::env::var_os("INK_REP_PARITY_ROOT")
+        .map(|p| Path::new(env!("CARGO_MANIFEST_DIR")).join(p))
+        .unwrap_or_else(|| {
+            Path::new(env!("CARGO_MANIFEST_DIR")).join("build/representation-parity")
+        })
 }
 fn run(command: &mut Command, log: &Path) {
     let output = command.output().unwrap();
@@ -215,8 +218,40 @@ fn check(name: &str, source: &str, request: Option<Request>, calls: Vec<(&str, V
     fs::create_dir_all(&dir).unwrap();
     fs::write(dir.join("source.ink"), source).unwrap();
     let module = CheckedModule::from_source(parse(source).unwrap()).unwrap();
-    let mut request = request.unwrap_or_else(|| propose(&module, &dir));
-    let unused = if name=="indexed-aggregate" { vec![] } else { add_unused_mathematics(&mut request) };
+    let request = request.unwrap_or_else(|| propose(&module, &dir));
+    let mut request = if request.knowledge.objects[&request.representation].payload["actions"]
+        .as_object()
+        .unwrap()
+        .values()
+        .all(|a| a.get("compact").is_some())
+    {
+        request
+    } else {
+        fs::write(
+            dir.join("full-request.json"),
+            serde_json::to_vec(&request).unwrap(),
+        )
+        .unwrap();
+        run(
+            Command::new("python3")
+                .arg(
+                    Path::new(env!("CARGO_MANIFEST_DIR"))
+                        .join("knowledge/producers/compact_observation.py"),
+                )
+                .arg(dir.join("full-request.json"))
+                .arg("--store")
+                .arg(dir.join("compact-store"))
+                .arg("-o")
+                .arg(dir.join("compact-request.json")),
+            &dir.join("compact-producer.log"),
+        );
+        serde_json::from_slice(&fs::read(dir.join("compact-request.json")).unwrap()).unwrap()
+    };
+    let unused = if name == "indexed-aggregate" {
+        vec![]
+    } else {
+        add_unused_mathematics(&mut request)
+    };
     fs::write(
         dir.join("request.json"),
         serde_json::to_vec(&request).unwrap(),
@@ -400,10 +435,18 @@ fn check(name: &str, source: &str, request: Option<Request>, calls: Vec<(&str, V
             );
         }
     }
-    if name=="indexed-aggregate" {
-        for backend in ["javascript","rust-wasm","wasm32"] {
-            if backend!="javascript" && std::env::var_os("INK_TEST_ZIG").is_none(){continue;}
-            run(Command::new("node").arg(Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/indexed-durable.mjs")).arg(dir.join(backend)).arg(backend),&dir.join(format!("{backend}-durable.log")));
+    if name == "indexed-aggregate" {
+        for backend in ["javascript", "rust-wasm", "wasm32"] {
+            if backend != "javascript" && std::env::var_os("INK_TEST_ZIG").is_none() {
+                continue;
+            }
+            run(
+                Command::new("node")
+                    .arg(Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/indexed-durable.mjs"))
+                    .arg(dir.join(backend))
+                    .arg(backend),
+                &dir.join(format!("{backend}-durable.log")),
+            );
         }
     }
     fs::write(dir.join("checks.json"),serde_json::to_vec_pretty(&json!({"requests":oracle.as_array().unwrap().len(),"native":if std::env::var_os("INK_TEST_PACKED").is_some(){json!(["rust","c","wgpu-host","rust-packed"])}else{json!(["rust","c","wgpu-host"])},"javascript":["javascript","webgpu-host"],"wasm":if std::env::var_os("INK_TEST_ZIG").is_some(){if std::env::var_os("INK_TEST_PACKED").is_some(){json!(["rust-wasm","c-wasm","rust-wasm-packed"])}else{json!(["rust-wasm","c-wasm"])}}else{json!("not enabled")},"checks":"exact replies/errors, snapshots and outboxes; restore after every request; acknowledgement; exhausted counter; malformed snapshots; standalone dependency audit"})).unwrap()).unwrap();
@@ -1304,19 +1347,143 @@ fn fixed_key_keep_deltas_execute_as_standalone_programs_on_every_cpu_target() {
 }
 
 #[test]
+fn indexed_filtered_aggregates_have_equal_backend_coverage() {
+    let requests = std::env::var_os("INK_INDEXED_REQUEST_DIR")
+        .map(PathBuf::from)
+        .unwrap_or_else(|| {
+            Path::new(env!("CARGO_MANIFEST_DIR")).join("knowledge/research/indexed-sequence")
+        });
+    let mut calls = vec![];
+    for i in 0..24u64 {
+        calls.extend([
+            (
+                "put",
+                json!([
+                    i % 7,
+                    if i % 5 == 0 { u64::MAX } else { i * 19 },
+                    i % 3 != 0,
+                    i % 6 == 0
+                ]),
+            ),
+            (
+                "erase",
+                json!([if i % 9 == 0 { u64::MAX } else { (i + 3) % 9 }, i % 8 == 0]),
+            ),
+            ("total_query", json!([])),
+            ("count_query", json!([])),
+        ]);
+    }
+    for label in ["indexed-sum", "indexed-count"] {
+        let request =
+            serde_json::from_slice(&fs::read(requests.join(format!("{label}.json"))).unwrap())
+                .unwrap();
+        check(
+            label,
+            include_str!("../examples/filtered-aggregate.ink"),
+            Some(request),
+            calls.clone(),
+        );
+    }
+}
+
+#[test]
+fn compact_observations_reject_rehashed_false_proofs_and_wrong_interfaces() {
+    let source="module compact_guard;state Rows:Table<u64,u64>=Table.empty();query zero()->Option<u64> reads(Rows){return Rows.get(0);}";
+    let module = CheckedModule::from_source(parse(source).unwrap()).unwrap();
+    let dir = root().join("compact-adversarial");
+    let request = propose(&module, &dir);
+    fs::write(dir.join("full.json"), serde_json::to_vec(&request).unwrap()).unwrap();
+    run(
+        Command::new("python3")
+            .arg(
+                Path::new(env!("CARGO_MANIFEST_DIR"))
+                    .join("knowledge/producers/compact_observation.py"),
+            )
+            .arg(dir.join("full.json"))
+            .arg("--store")
+            .arg(dir.join("store"))
+            .arg("-o")
+            .arg(dir.join("request.json")),
+        &dir.join("producer.log"),
+    );
+    let good: Request =
+        serde_json::from_slice(&fs::read(dir.join("request.json")).unwrap()).unwrap();
+    representation::check(&module, &good).unwrap();
+    for field in ["result", "proof"] {
+        let mut bad = good.clone();
+        let old = bad.representation.clone();
+        let mut entry = bad.knowledge.objects.remove(&old).unwrap();
+        entry.payload["actions"]["zero"]["compact"][field] = if field == "result" {
+            json!("U64")
+        } else {
+            json!({"Refl":{"U64":0}})
+        };
+        let id = verified_language::registry::identity(&entry).unwrap();
+        bad.knowledge.objects.insert(id.clone(), entry);
+        bad.knowledge
+            .roots
+            .iter_mut()
+            .filter(|r| **r == old)
+            .for_each(|r| *r = id.clone());
+        bad.representation = id;
+        add_unused_mathematics(&mut bad);
+        assert!(
+            representation::check(&module, &bad).is_err(),
+            "accepted rehashed compact {field}"
+        );
+    }
+}
+
+#[test]
 fn indexed_cached_sum_count_have_equal_backend_coverage() {
-    let path=Path::new(env!("CARGO_MANIFEST_DIR")).join("knowledge/research/indexed-aggregate/request.json");
-    let request:Request=serde_json::from_slice(&fs::read(path).unwrap()).unwrap();
-    let mut calls=vec![];
+    let path = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("knowledge/research/indexed-aggregate/request.json");
+    let request: Request = serde_json::from_slice(&fs::read(path).unwrap()).unwrap();
+    let mut calls = vec![];
     // Opposing insertion orders exercise single and double rotations.
-    for key in [8u64,4,12,2,6,10,14,1,3,5,7,9,11,13,15,0,u64::MAX] {
-        calls.push(("put",json!([key,key,key%2==0,false])));
-        calls.push(("total_query",json!([])));calls.push(("count_query",json!([])));
+    for key in [
+        8u64,
+        4,
+        12,
+        2,
+        6,
+        10,
+        14,
+        1,
+        3,
+        5,
+        7,
+        9,
+        11,
+        13,
+        15,
+        0,
+        u64::MAX,
+    ] {
+        calls.push(("put", json!([key, key, key % 2 == 0, false])));
+        calls.push(("total_query", json!([])));
+        calls.push(("count_query", json!([])));
     }
-    for key in [0u64,7,12,u64::MAX,99,4,8] {
-        calls.extend([("put",json!([key,u64::MAX,true,true])),("erase",json!([key,true])),("total_query",json!([])),("count_query",json!([])),("put",json!([key,u64::MAX,true,false])),("total_query",json!([])),("count_query",json!([])),("erase",json!([key,false])),("total_query",json!([])),("count_query",json!([]))]);
+    for key in [0u64, 7, 12, u64::MAX, 99, 4, 8] {
+        calls.extend([
+            ("put", json!([key, u64::MAX, true, true])),
+            ("erase", json!([key, true])),
+            ("total_query", json!([])),
+            ("count_query", json!([])),
+            ("put", json!([key, u64::MAX, true, false])),
+            ("total_query", json!([])),
+            ("count_query", json!([])),
+            ("erase", json!([key, false])),
+            ("total_query", json!([])),
+            ("count_query", json!([])),
+        ]);
     }
-    check("indexed-aggregate",include_str!("../examples/filtered-aggregate.ink"),Some(request),calls);
+    check(
+        "indexed-aggregate",
+        include_str!("../examples/filtered-aggregate.ink"),
+        Some(request),
+        calls,
+    );
 }
 
 #[test]
