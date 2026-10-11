@@ -59,13 +59,11 @@ def main():
         if not binary.is_file():
             raise ValueError('installation did not produce the Ink executable')
         resources = stage / 'share' / 'ink'
-        committed(root / 'planner', ['plan.py', 'ink_planner'], resources / 'planner')
+        planner_scripts = [name for name in git(root / 'planner', 'ls-files', '-z').decode().split('\0')
+                           if name and len(Path(name).parts) == 1 and Path(name).suffix == '.py']
+        committed(root / 'planner', ['ink_planner', *planner_scripts], resources / 'planner')
         committed(root / 'knowledge', ['ink_knowledge', 'store', 'research/general-laws',
-                  'producers/__init__.py', 'producers/semantic_laws.py',
-                  'producers/definition_context28.py', 'producers/fold_until_laws.py',
-                  'producers/inline_laws.py', 'producers/owned_transform_laws.py',
-                  'producers/action_replacement.py',
-                  'producers/boolean_verdict.py', 'research/verified-kernel'], resources / 'knowledge')
+                  'producers', 'research/verified-kernel'], resources / 'knowledge')
         manifest = dict(schema=1, source_revision=git(root, 'rev-parse', 'HEAD').decode().strip(), packages=packages,
                         source_checkout_dirty=bool(git(root, 'status', '--porcelain')),
                         binary_source='explicit --binary input' if args.binary else 'cargo install of the current checkout',
