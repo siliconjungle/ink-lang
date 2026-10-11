@@ -1,0 +1,4840 @@
+{
+  "schema": 1,
+  "scope": "steady-state public complete calls; initialisation, proof checking, emission and build excluded and recorded separately; memory unmeasured; one machine",
+  "target": {
+    "hardware": "macOS-26.5.2-arm64-arm-64bit",
+    "driver": "host",
+    "toolchain": "Node v26.1.0; rustc 1.96.0 (ac68faa20 2026-05-25)",
+    "bridge": "public invoke_json"
+  },
+  "compiler_sha256": "c6e37474606a643a9e445617e6459f9a0eb855836c3461023ae5a920172a1c20",
+  "snapshot": "94e30359b7a5c8c38c78db93b365bdaa2daf2baa0d8983d7c54d3e2bbaf43b2b",
+  "request_sha256": {
+    "direct": "a548aae9080aea63241780dc5a69e423bed72b1af8a2549885ae4710d16809ba",
+    "packed-2": "6c016def409c66028108d7d964b23b8ec2b71e0f4dc689ec802d1844ac849675",
+    "packed-4": "ac294faf30baa71a956b4da2a9caeef93b3c9c0eace4bba235a1249eeb35ff32",
+    "indexed-4-hot-1023": "2ac6bfad5b7c10acb432ef5d2ce8f0cff191369a7455395c2a4e1c338d7d2694",
+    "boolean-direct": "ca9c081c4c96a223a2bab99c879f3f3df3d6b81696cadda83fe6cf0cf599390d",
+    "any-delta": "c1c62a4b89c6c123f77012b38ead7ef1aaa812be349ef597719458898c47f789",
+    "all-delta": "1bb098884c14dec0e0c5433c0fca02cd26009326dde8be015fe6f961e1905f34"
+  },
+  "generated_sha256": {
+    "build/storage-bulk-bench/direct/javascript/program.mjs": "522415ad91d0e126b1643bb43d5f0ed7a6bd49d389ecf8584dc8fe28166d412a",
+    "build/storage-bulk-bench/direct/rust-wasm/src/lib.rs": "d00624a9e60bd716856af0319360b194fccd3ca6924e876ef3ac7576653b1fa3",
+    "build/storage-bulk-bench/direct/rust-wasm/Cargo.lock": "791464ccc2aa5bb81fded3fb4d54d7c9861e59b8ed37929c4f2cac968a242c21",
+    "build/storage-bulk-bench/packed-2/javascript/program.mjs": "e7c958e48d3662a563390307bc09b357e7622bbb9117b65a3193f46405ce809c",
+    "build/storage-bulk-bench/packed-2/rust-wasm/src/lib.rs": "f96c0baa9bb5d895dbeeac55e9279bbd6e2dc88a120a244ff60cf224ad8d5560",
+    "build/storage-bulk-bench/packed-2/rust-wasm/Cargo.lock": "791464ccc2aa5bb81fded3fb4d54d7c9861e59b8ed37929c4f2cac968a242c21",
+    "build/storage-bulk-bench/packed-4/javascript/program.mjs": "60ebfc2440220050391aa985695816caf20e330108cfda5eb0c5726a238cd68e",
+    "build/storage-bulk-bench/packed-4/rust-wasm/src/lib.rs": "c59e1907cbb76d9701c4114cf7348af0700529178a1ebdbfec9580e5556fb056",
+    "build/storage-bulk-bench/packed-4/rust-wasm/Cargo.lock": "791464ccc2aa5bb81fded3fb4d54d7c9861e59b8ed37929c4f2cac968a242c21",
+    "build/storage-bulk-bench/indexed-4-hot-1023/javascript/program.mjs": "de578b0342a13fc344e5a4f5c5606585df322d0bf93096dc00ac03e7864a1269",
+    "build/storage-bulk-bench/indexed-4-hot-1023/rust-wasm/src/lib.rs": "8ee79fd4f3bc165d08c807008cf64c62bf63e1897694484d4d7e22926992e070",
+    "build/storage-bulk-bench/indexed-4-hot-1023/rust-wasm/Cargo.lock": "791464ccc2aa5bb81fded3fb4d54d7c9861e59b8ed37929c4f2cac968a242c21",
+    "build/storage-bulk-bench/boolean-direct/javascript/program.mjs": "d30ee9509fc1dfd2f24ce4908adeb2f88b9f4dec62f9de1001b1338f3aa57337",
+    "build/storage-bulk-bench/boolean-direct/rust-wasm/src/lib.rs": "2f4e63846fec0030887f97bf3dfc7247ffdfc8a6d2533580bd286abeb9008303",
+    "build/storage-bulk-bench/boolean-direct/rust-wasm/Cargo.lock": "791464ccc2aa5bb81fded3fb4d54d7c9861e59b8ed37929c4f2cac968a242c21",
+    "build/storage-bulk-bench/any-delta/javascript/program.mjs": "485b43b5c39f8696faa3c77447b880f8bcf59a58a04f4fa20c1d058a9bc74c06",
+    "build/storage-bulk-bench/any-delta/rust-wasm/src/lib.rs": "ccd9f9d05e98e1cc6cce3cf32def0bcd5ea99cb59e586ab96fb6dce6ee9654f5",
+    "build/storage-bulk-bench/any-delta/rust-wasm/Cargo.lock": "791464ccc2aa5bb81fded3fb4d54d7c9861e59b8ed37929c4f2cac968a242c21",
+    "build/storage-bulk-bench/all-delta/javascript/program.mjs": "5d1b1c7995bc6073f3f007751ed58834b3a31b757e02619fd865f83b50309685",
+    "build/storage-bulk-bench/all-delta/rust-wasm/src/lib.rs": "7eedda5b12857ca6beae7acc047c4c48d6ab6fe01f43a2a6dfb60c0353e0fa90",
+    "build/storage-bulk-bench/all-delta/rust-wasm/Cargo.lock": "791464ccc2aa5bb81fded3fb4d54d7c9861e59b8ed37929c4f2cac968a242c21"
+  },
+  "rows": [
+    {
+      "iterations": 512,
+      "phase": "action:get-hot",
+      "rows": 16,
+      "samples_ns": [
+        675,
+        644,
+        649,
+        642,
+        645,
+        669,
+        655
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "direct",
+      "backend": "rust-native",
+      "group": "table",
+      "median_ns": 649
+    },
+    {
+      "iterations": 512,
+      "phase": "action:get-cold",
+      "rows": 16,
+      "samples_ns": [
+        651,
+        654,
+        632,
+        630,
+        621,
+        649,
+        646
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "direct",
+      "backend": "rust-native",
+      "group": "table",
+      "median_ns": 646
+    },
+    {
+      "iterations": 32,
+      "phase": "action:put",
+      "rows": 16,
+      "samples_ns": [
+        2078,
+        1968,
+        1972,
+        1998,
+        1976,
+        1980,
+        1981
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "direct",
+      "backend": "rust-native",
+      "group": "table",
+      "median_ns": 1980
+    },
+    {
+      "iterations": 32,
+      "phase": "action:erase",
+      "rows": 16,
+      "samples_ns": [
+        2498,
+        2410,
+        2412,
+        2410,
+        2425,
+        2414,
+        2411
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "direct",
+      "backend": "rust-native",
+      "group": "table",
+      "median_ns": 2412
+    },
+    {
+      "iterations": 512,
+      "phase": "action:get-hot",
+      "rows": 128,
+      "samples_ns": [
+        1552,
+        1550,
+        1532,
+        1562,
+        1519,
+        1527,
+        1525
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "direct",
+      "backend": "rust-native",
+      "group": "table",
+      "median_ns": 1532
+    },
+    {
+      "iterations": 512,
+      "phase": "action:get-cold",
+      "rows": 128,
+      "samples_ns": [
+        1620,
+        1512,
+        1496,
+        1613,
+        1508,
+        1521,
+        1514
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "direct",
+      "backend": "rust-native",
+      "group": "table",
+      "median_ns": 1514
+    },
+    {
+      "iterations": 32,
+      "phase": "action:put",
+      "rows": 128,
+      "samples_ns": [
+        7579,
+        7536,
+        7579,
+        7506,
+        7604,
+        7596,
+        7611
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "direct",
+      "backend": "rust-native",
+      "group": "table",
+      "median_ns": 7579
+    },
+    {
+      "iterations": 32,
+      "phase": "action:erase",
+      "rows": 128,
+      "samples_ns": [
+        10101,
+        10108,
+        10067,
+        10110,
+        10078,
+        10111,
+        10196
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "direct",
+      "backend": "rust-native",
+      "group": "table",
+      "median_ns": 10108
+    },
+    {
+      "iterations": 512,
+      "phase": "action:get-hot",
+      "rows": 1024,
+      "samples_ns": [
+        9339,
+        9284,
+        8528,
+        8361,
+        8129,
+        8011,
+        8100
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "direct",
+      "backend": "rust-native",
+      "group": "table",
+      "median_ns": 8361
+    },
+    {
+      "iterations": 512,
+      "phase": "action:get-cold",
+      "rows": 1024,
+      "samples_ns": [
+        8041,
+        7988,
+        8081,
+        8083,
+        8085,
+        8001,
+        7792
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "direct",
+      "backend": "rust-native",
+      "group": "table",
+      "median_ns": 8041
+    },
+    {
+      "iterations": 32,
+      "phase": "action:put",
+      "rows": 1024,
+      "samples_ns": [
+        50358,
+        49983,
+        48862,
+        49515,
+        49007,
+        52057,
+        50894
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "direct",
+      "backend": "rust-native",
+      "group": "table",
+      "median_ns": 49983
+    },
+    {
+      "iterations": 32,
+      "phase": "action:erase",
+      "rows": 1024,
+      "samples_ns": [
+        69070,
+        69397,
+        69243,
+        71023,
+        69092,
+        70488,
+        71261
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "direct",
+      "backend": "rust-native",
+      "group": "table",
+      "median_ns": 69397
+    },
+    {
+      "iterations": 512,
+      "phase": "action:get-hot",
+      "rows": 16,
+      "samples_ns": [
+        1756,
+        1069,
+        1099,
+        1163,
+        1118,
+        1049,
+        2144
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "packed-2",
+      "backend": "rust-native",
+      "group": "table",
+      "median_ns": 1118
+    },
+    {
+      "iterations": 512,
+      "phase": "action:get-cold",
+      "rows": 16,
+      "samples_ns": [
+        1640,
+        1082,
+        1061,
+        1060,
+        1140,
+        1072,
+        1054
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "packed-2",
+      "backend": "rust-native",
+      "group": "table",
+      "median_ns": 1072
+    },
+    {
+      "iterations": 32,
+      "phase": "action:put",
+      "rows": 16,
+      "samples_ns": [
+        2213,
+        1992,
+        2201,
+        2002,
+        2006,
+        2000,
+        2001
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "packed-2",
+      "backend": "rust-native",
+      "group": "table",
+      "median_ns": 2002
+    },
+    {
+      "iterations": 32,
+      "phase": "action:erase",
+      "rows": 16,
+      "samples_ns": [
+        3420,
+        3432,
+        3454,
+        3389,
+        3397,
+        3386,
+        3371
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "packed-2",
+      "backend": "rust-native",
+      "group": "table",
+      "median_ns": 3397
+    },
+    {
+      "iterations": 512,
+      "phase": "action:get-hot",
+      "rows": 128,
+      "samples_ns": [
+        4899,
+        4981,
+        4941,
+        5903,
+        6305,
+        5445,
+        4859
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "packed-2",
+      "backend": "rust-native",
+      "group": "table",
+      "median_ns": 4981
+    },
+    {
+      "iterations": 512,
+      "phase": "action:get-cold",
+      "rows": 128,
+      "samples_ns": [
+        5297,
+        5531,
+        7034,
+        6378,
+        4996,
+        5248,
+        5496
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "packed-2",
+      "backend": "rust-native",
+      "group": "table",
+      "median_ns": 5496
+    },
+    {
+      "iterations": 32,
+      "phase": "action:put",
+      "rows": 128,
+      "samples_ns": [
+        8149,
+        8089,
+        11895,
+        17070,
+        8221,
+        7998,
+        8098
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "packed-2",
+      "backend": "rust-native",
+      "group": "table",
+      "median_ns": 8149
+    },
+    {
+      "iterations": 32,
+      "phase": "action:erase",
+      "rows": 128,
+      "samples_ns": [
+        26127,
+        19835,
+        19175,
+        20167,
+        21639,
+        20783,
+        24404
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "packed-2",
+      "backend": "rust-native",
+      "group": "table",
+      "median_ns": 20783
+    },
+    {
+      "iterations": 512,
+      "phase": "action:get-hot",
+      "rows": 1024,
+      "samples_ns": [
+        43141,
+        46153,
+        47202,
+        43596,
+        45336,
+        43307,
+        41620
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "packed-2",
+      "backend": "rust-native",
+      "group": "table",
+      "median_ns": 43596
+    },
+    {
+      "iterations": 512,
+      "phase": "action:get-cold",
+      "rows": 1024,
+      "samples_ns": [
+        39423,
+        41665,
+        44935,
+        46854,
+        42151,
+        45795,
+        40890
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "packed-2",
+      "backend": "rust-native",
+      "group": "table",
+      "median_ns": 42151
+    },
+    {
+      "iterations": 32,
+      "phase": "action:put",
+      "rows": 1024,
+      "samples_ns": [
+        59266,
+        59486,
+        59317,
+        61486,
+        73868,
+        66744,
+        76524
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "packed-2",
+      "backend": "rust-native",
+      "group": "table",
+      "median_ns": 61486
+    },
+    {
+      "iterations": 32,
+      "phase": "action:erase",
+      "rows": 1024,
+      "samples_ns": [
+        149825,
+        163548,
+        180082,
+        171541,
+        149712,
+        155885,
+        150023
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "packed-2",
+      "backend": "rust-native",
+      "group": "table",
+      "median_ns": 155885
+    },
+    {
+      "iterations": 512,
+      "phase": "action:get-hot",
+      "rows": 16,
+      "samples_ns": [
+        2543,
+        2488,
+        2489,
+        3605,
+        2489,
+        2506,
+        2493
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "packed-4",
+      "backend": "rust-native",
+      "group": "table",
+      "median_ns": 2493
+    },
+    {
+      "iterations": 512,
+      "phase": "action:get-cold",
+      "rows": 16,
+      "samples_ns": [
+        2498,
+        2706,
+        4044,
+        4893,
+        3013,
+        2508,
+        2503
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "packed-4",
+      "backend": "rust-native",
+      "group": "table",
+      "median_ns": 2706
+    },
+    {
+      "iterations": 32,
+      "phase": "action:put",
+      "rows": 16,
+      "samples_ns": [
+        4523,
+        4395,
+        4372,
+        4378,
+        4399,
+        4391,
+        4395
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "packed-4",
+      "backend": "rust-native",
+      "group": "table",
+      "median_ns": 4395
+    },
+    {
+      "iterations": 32,
+      "phase": "action:erase",
+      "rows": 16,
+      "samples_ns": [
+        7369,
+        7389,
+        7397,
+        7437,
+        7432,
+        7432,
+        7420
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "packed-4",
+      "backend": "rust-native",
+      "group": "table",
+      "median_ns": 7420
+    },
+    {
+      "iterations": 512,
+      "phase": "action:get-hot",
+      "rows": 128,
+      "samples_ns": [
+        9875,
+        12930,
+        13243,
+        13690,
+        14772,
+        55267,
+        15397
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "packed-4",
+      "backend": "rust-native",
+      "group": "table",
+      "median_ns": 13690
+    },
+    {
+      "iterations": 512,
+      "phase": "action:get-cold",
+      "rows": 128,
+      "samples_ns": [
+        46376,
+        14135,
+        12562,
+        10743,
+        33161,
+        10387,
+        15809
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "packed-4",
+      "backend": "rust-native",
+      "group": "table",
+      "median_ns": 14135
+    },
+    {
+      "iterations": 32,
+      "phase": "action:put",
+      "rows": 128,
+      "samples_ns": [
+        22179,
+        14940,
+        15024,
+        24932,
+        23256,
+        21601,
+        19682
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "packed-4",
+      "backend": "rust-native",
+      "group": "table",
+      "median_ns": 21601
+    },
+    {
+      "iterations": 32,
+      "phase": "action:erase",
+      "rows": 128,
+      "samples_ns": [
+        39222,
+        143545,
+        38871,
+        46562,
+        55308,
+        42824,
+        48246
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "packed-4",
+      "backend": "rust-native",
+      "group": "table",
+      "median_ns": 46562
+    },
+    {
+      "iterations": 512,
+      "phase": "action:get-hot",
+      "rows": 1024,
+      "samples_ns": [
+        183295,
+        283049,
+        211628,
+        207109,
+        185068,
+        273921,
+        263045
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "packed-4",
+      "backend": "rust-native",
+      "group": "table",
+      "median_ns": 211628
+    },
+    {
+      "iterations": 512,
+      "phase": "action:get-cold",
+      "rows": 1024,
+      "samples_ns": [
+        199076,
+        238964,
+        182555,
+        570344,
+        507289,
+        212897,
+        224504
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "packed-4",
+      "backend": "rust-native",
+      "group": "table",
+      "median_ns": 224504
+    },
+    {
+      "iterations": 32,
+      "phase": "action:put",
+      "rows": 1024,
+      "samples_ns": [
+        95376,
+        237397,
+        108608,
+        138688,
+        927976,
+        510826,
+        245471
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "packed-4",
+      "backend": "rust-native",
+      "group": "table",
+      "median_ns": 237397
+    },
+    {
+      "iterations": 32,
+      "phase": "action:erase",
+      "rows": 1024,
+      "samples_ns": [
+        2204773,
+        1712056,
+        604085,
+        755942,
+        291326,
+        326161,
+        407588
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "packed-4",
+      "backend": "rust-native",
+      "group": "table",
+      "median_ns": 604085
+    },
+    {
+      "iterations": 512,
+      "phase": "action:get-hot",
+      "rows": 16,
+      "samples_ns": [
+        2683,
+        3070,
+        3908,
+        3504,
+        2538,
+        2501,
+        2484
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "indexed-4-hot-1023",
+      "backend": "rust-native",
+      "group": "table",
+      "median_ns": 2683
+    },
+    {
+      "iterations": 512,
+      "phase": "action:get-cold",
+      "rows": 16,
+      "samples_ns": [
+        2512,
+        2580,
+        2510,
+        2908,
+        2648,
+        2803,
+        2635
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "indexed-4-hot-1023",
+      "backend": "rust-native",
+      "group": "table",
+      "median_ns": 2635
+    },
+    {
+      "iterations": 32,
+      "phase": "action:put",
+      "rows": 16,
+      "samples_ns": [
+        5151,
+        5645,
+        7386,
+        7273,
+        5441,
+        5393,
+        5544
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "indexed-4-hot-1023",
+      "backend": "rust-native",
+      "group": "table",
+      "median_ns": 5544
+    },
+    {
+      "iterations": 32,
+      "phase": "action:erase",
+      "rows": 16,
+      "samples_ns": [
+        10781,
+        10154,
+        10996,
+        10082,
+        10101,
+        10013,
+        19513
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "indexed-4-hot-1023",
+      "backend": "rust-native",
+      "group": "table",
+      "median_ns": 10154
+    },
+    {
+      "iterations": 512,
+      "phase": "action:get-hot",
+      "rows": 128,
+      "samples_ns": [
+        12596,
+        13837,
+        14665,
+        11093,
+        14967,
+        14034,
+        11356
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "indexed-4-hot-1023",
+      "backend": "rust-native",
+      "group": "table",
+      "median_ns": 13837
+    },
+    {
+      "iterations": 512,
+      "phase": "action:get-cold",
+      "rows": 128,
+      "samples_ns": [
+        11589,
+        20825,
+        16190,
+        13741,
+        55740,
+        12592,
+        12858
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "indexed-4-hot-1023",
+      "backend": "rust-native",
+      "group": "table",
+      "median_ns": 13741
+    },
+    {
+      "iterations": 32,
+      "phase": "action:put",
+      "rows": 128,
+      "samples_ns": [
+        16369,
+        16453,
+        16371,
+        16278,
+        16431,
+        16348,
+        16411
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "indexed-4-hot-1023",
+      "backend": "rust-native",
+      "group": "table",
+      "median_ns": 16371
+    },
+    {
+      "iterations": 32,
+      "phase": "action:erase",
+      "rows": 128,
+      "samples_ns": [
+        51983,
+        51986,
+        325199,
+        51040,
+        41665,
+        47009,
+        55730
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "indexed-4-hot-1023",
+      "backend": "rust-native",
+      "group": "table",
+      "median_ns": 51983
+    },
+    {
+      "iterations": 512,
+      "phase": "action:get-hot",
+      "rows": 1024,
+      "samples_ns": [
+        222865,
+        158697,
+        135996,
+        160151,
+        123784,
+        412638,
+        144835
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "indexed-4-hot-1023",
+      "backend": "rust-native",
+      "group": "table",
+      "median_ns": 158697
+    },
+    {
+      "iterations": 512,
+      "phase": "action:get-cold",
+      "rows": 1024,
+      "samples_ns": [
+        123668,
+        144468,
+        173080,
+        119489,
+        132566,
+        173326,
+        100253
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "indexed-4-hot-1023",
+      "backend": "rust-native",
+      "group": "table",
+      "median_ns": 132566
+    },
+    {
+      "iterations": 32,
+      "phase": "action:put",
+      "rows": 1024,
+      "samples_ns": [
+        154634,
+        121864,
+        174056,
+        156269,
+        157992,
+        136406,
+        107790
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "indexed-4-hot-1023",
+      "backend": "rust-native",
+      "group": "table",
+      "median_ns": 154634
+    },
+    {
+      "iterations": 32,
+      "phase": "action:erase",
+      "rows": 1024,
+      "samples_ns": [
+        515662,
+        412881,
+        359697,
+        543563,
+        392419,
+        469574,
+        444615
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "indexed-4-hot-1023",
+      "backend": "rust-native",
+      "group": "table",
+      "median_ns": 444615
+    },
+    {
+      "label": "direct",
+      "rows": 16,
+      "phase": "action:get-hot",
+      "samples_ns": [
+        7268,
+        6409,
+        7518,
+        4730,
+        5004,
+        5028,
+        5066
+      ],
+      "iterations": 512,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "table",
+      "median_ns": 5066
+    },
+    {
+      "label": "packed-2",
+      "rows": 16,
+      "phase": "action:get-hot",
+      "samples_ns": [
+        14338,
+        10399,
+        7653,
+        8151,
+        9122,
+        9382,
+        7968
+      ],
+      "iterations": 512,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "table",
+      "median_ns": 9122
+    },
+    {
+      "label": "packed-4",
+      "rows": 16,
+      "phase": "action:get-hot",
+      "samples_ns": [
+        16702,
+        15189,
+        8335,
+        7357,
+        7667,
+        6417,
+        8703
+      ],
+      "iterations": 512,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "table",
+      "median_ns": 8335
+    },
+    {
+      "label": "indexed-4-hot-1023",
+      "rows": 16,
+      "phase": "action:get-hot",
+      "samples_ns": [
+        20357,
+        24515,
+        8140,
+        7962,
+        7691,
+        6600,
+        7777
+      ],
+      "iterations": 512,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "table",
+      "median_ns": 7962
+    },
+    {
+      "label": "direct",
+      "rows": 16,
+      "phase": "action:get-cold",
+      "samples_ns": [
+        6256,
+        4601,
+        5073,
+        4020,
+        5114,
+        5382,
+        6560
+      ],
+      "iterations": 512,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "table",
+      "median_ns": 5114
+    },
+    {
+      "label": "packed-2",
+      "rows": 16,
+      "phase": "action:get-cold",
+      "samples_ns": [
+        10607,
+        8439,
+        8335,
+        8579,
+        10300,
+        7662,
+        8132
+      ],
+      "iterations": 512,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "table",
+      "median_ns": 8439
+    },
+    {
+      "label": "packed-4",
+      "rows": 16,
+      "phase": "action:get-cold",
+      "samples_ns": [
+        13400,
+        11333,
+        7142,
+        7439,
+        6326,
+        6390,
+        7034
+      ],
+      "iterations": 512,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "table",
+      "median_ns": 7142
+    },
+    {
+      "label": "indexed-4-hot-1023",
+      "rows": 16,
+      "phase": "action:get-cold",
+      "samples_ns": [
+        9100,
+        10923,
+        6818,
+        7032,
+        6939,
+        7058,
+        10402
+      ],
+      "iterations": 512,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "table",
+      "median_ns": 7058
+    },
+    {
+      "label": "direct",
+      "rows": 16,
+      "phase": "action:put",
+      "samples_ns": [
+        25026,
+        22072,
+        16371,
+        15359,
+        18836,
+        19701,
+        29730
+      ],
+      "iterations": 32,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "table",
+      "median_ns": 19701
+    },
+    {
+      "label": "packed-2",
+      "rows": 16,
+      "phase": "action:put",
+      "samples_ns": [
+        19845,
+        15975,
+        20358,
+        22392,
+        41927,
+        17608,
+        16247
+      ],
+      "iterations": 32,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "table",
+      "median_ns": 19845
+    },
+    {
+      "label": "packed-4",
+      "rows": 16,
+      "phase": "action:put",
+      "samples_ns": [
+        15034,
+        13490,
+        13770,
+        15490,
+        14327,
+        14497,
+        15125
+      ],
+      "iterations": 32,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "table",
+      "median_ns": 14497
+    },
+    {
+      "label": "indexed-4-hot-1023",
+      "rows": 16,
+      "phase": "action:put",
+      "samples_ns": [
+        17161,
+        20633,
+        23646,
+        18797,
+        19358,
+        25316,
+        23772
+      ],
+      "iterations": 32,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "table",
+      "median_ns": 20633
+    },
+    {
+      "label": "direct",
+      "rows": 16,
+      "phase": "action:erase",
+      "samples_ns": [
+        19126,
+        37063,
+        17582,
+        21508,
+        27874,
+        14655,
+        14361
+      ],
+      "iterations": 32,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "table",
+      "median_ns": 19126
+    },
+    {
+      "label": "packed-2",
+      "rows": 16,
+      "phase": "action:erase",
+      "samples_ns": [
+        32672,
+        25138,
+        26189,
+        22533,
+        27270,
+        24904,
+        23604
+      ],
+      "iterations": 32,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "table",
+      "median_ns": 25138
+    },
+    {
+      "label": "packed-4",
+      "rows": 16,
+      "phase": "action:erase",
+      "samples_ns": [
+        53591,
+        42263,
+        35154,
+        32939,
+        47178,
+        25410,
+        24333
+      ],
+      "iterations": 32,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "table",
+      "median_ns": 35154
+    },
+    {
+      "label": "indexed-4-hot-1023",
+      "rows": 16,
+      "phase": "action:erase",
+      "samples_ns": [
+        60753,
+        42381,
+        34746,
+        41551,
+        34990,
+        33828,
+        33430
+      ],
+      "iterations": 32,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "table",
+      "median_ns": 34990
+    },
+    {
+      "label": "direct",
+      "rows": 128,
+      "phase": "action:get-hot",
+      "samples_ns": [
+        24440,
+        46196,
+        57713,
+        25973,
+        25360,
+        23629,
+        21625
+      ],
+      "iterations": 512,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "table",
+      "median_ns": 25360
+    },
+    {
+      "label": "packed-2",
+      "rows": 128,
+      "phase": "action:get-hot",
+      "samples_ns": [
+        109236,
+        51130,
+        59566,
+        52044,
+        49068,
+        50305,
+        45562
+      ],
+      "iterations": 512,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "table",
+      "median_ns": 51130
+    },
+    {
+      "label": "packed-4",
+      "rows": 128,
+      "phase": "action:get-hot",
+      "samples_ns": [
+        85770,
+        172630,
+        40998,
+        35570,
+        36490,
+        43291,
+        36024
+      ],
+      "iterations": 512,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "table",
+      "median_ns": 40998
+    },
+    {
+      "label": "indexed-4-hot-1023",
+      "rows": 128,
+      "phase": "action:get-hot",
+      "samples_ns": [
+        48372,
+        170685,
+        35293,
+        49398,
+        40351,
+        39332,
+        40700
+      ],
+      "iterations": 512,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "table",
+      "median_ns": 40700
+    },
+    {
+      "label": "direct",
+      "rows": 128,
+      "phase": "action:get-cold",
+      "samples_ns": [
+        22688,
+        25903,
+        21718,
+        20950,
+        21636,
+        22271,
+        21415
+      ],
+      "iterations": 512,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "table",
+      "median_ns": 21718
+    },
+    {
+      "label": "packed-2",
+      "rows": 128,
+      "phase": "action:get-cold",
+      "samples_ns": [
+        50114,
+        44298,
+        45683,
+        51832,
+        42469,
+        46108,
+        44339
+      ],
+      "iterations": 512,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "table",
+      "median_ns": 45683
+    },
+    {
+      "label": "packed-4",
+      "rows": 128,
+      "phase": "action:get-cold",
+      "samples_ns": [
+        37672,
+        38259,
+        34552,
+        35721,
+        37230,
+        35472,
+        30787
+      ],
+      "iterations": 512,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "table",
+      "median_ns": 35721
+    },
+    {
+      "label": "indexed-4-hot-1023",
+      "rows": 128,
+      "phase": "action:get-cold",
+      "samples_ns": [
+        42191,
+        38142,
+        35006,
+        34010,
+        47620,
+        37669,
+        31930
+      ],
+      "iterations": 512,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "table",
+      "median_ns": 37669
+    },
+    {
+      "label": "direct",
+      "rows": 128,
+      "phase": "action:put",
+      "samples_ns": [
+        76219,
+        76645,
+        72668,
+        74193,
+        77548,
+        81514,
+        70935
+      ],
+      "iterations": 32,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "table",
+      "median_ns": 76219
+    },
+    {
+      "label": "packed-2",
+      "rows": 128,
+      "phase": "action:put",
+      "samples_ns": [
+        75228,
+        73022,
+        74335,
+        68033,
+        69581,
+        83263,
+        66146
+      ],
+      "iterations": 32,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "table",
+      "median_ns": 73022
+    },
+    {
+      "label": "packed-4",
+      "rows": 128,
+      "phase": "action:put",
+      "samples_ns": [
+        53414,
+        59240,
+        57858,
+        65647,
+        56908,
+        51510,
+        50418
+      ],
+      "iterations": 32,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "table",
+      "median_ns": 56908
+    },
+    {
+      "label": "indexed-4-hot-1023",
+      "rows": 128,
+      "phase": "action:put",
+      "samples_ns": [
+        67030,
+        61277,
+        61727,
+        65335,
+        66910,
+        81007,
+        63577
+      ],
+      "iterations": 32,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "table",
+      "median_ns": 65335
+    },
+    {
+      "label": "direct",
+      "rows": 128,
+      "phase": "action:erase",
+      "samples_ns": [
+        86366,
+        71724,
+        79285,
+        76188,
+        75234,
+        75561,
+        74582
+      ],
+      "iterations": 32,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "table",
+      "median_ns": 75561
+    },
+    {
+      "label": "packed-2",
+      "rows": 128,
+      "phase": "action:erase",
+      "samples_ns": [
+        129592,
+        126478,
+        125113,
+        124319,
+        128289,
+        125637,
+        117844
+      ],
+      "iterations": 32,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "table",
+      "median_ns": 125637
+    },
+    {
+      "label": "packed-4",
+      "rows": 128,
+      "phase": "action:erase",
+      "samples_ns": [
+        152303,
+        156462,
+        158984,
+        153559,
+        169465,
+        156462,
+        157888
+      ],
+      "iterations": 32,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "table",
+      "median_ns": 156462
+    },
+    {
+      "label": "indexed-4-hot-1023",
+      "rows": 128,
+      "phase": "action:erase",
+      "samples_ns": [
+        170781,
+        172772,
+        161570,
+        160853,
+        173988,
+        166182,
+        173371
+      ],
+      "iterations": 32,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "table",
+      "median_ns": 170781
+    },
+    {
+      "label": "direct",
+      "rows": 1024,
+      "phase": "action:get-hot",
+      "samples_ns": [
+        147118,
+        154458,
+        141487,
+        149719,
+        150220,
+        171818,
+        187226
+      ],
+      "iterations": 512,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "table",
+      "median_ns": 150220
+    },
+    {
+      "label": "packed-2",
+      "rows": 1024,
+      "phase": "action:get-hot",
+      "samples_ns": [
+        295814,
+        302073,
+        313798,
+        303477,
+        401017,
+        295472,
+        309912
+      ],
+      "iterations": 512,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "table",
+      "median_ns": 303477
+    },
+    {
+      "label": "packed-4",
+      "rows": 1024,
+      "phase": "action:get-hot",
+      "samples_ns": [
+        250789,
+        449944,
+        269917,
+        218490,
+        333359,
+        235677,
+        272142
+      ],
+      "iterations": 512,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "table",
+      "median_ns": 269917
+    },
+    {
+      "label": "indexed-4-hot-1023",
+      "rows": 1024,
+      "phase": "action:get-hot",
+      "samples_ns": [
+        424754,
+        369512,
+        248589,
+        224587,
+        307716,
+        373826,
+        217982
+      ],
+      "iterations": 512,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "table",
+      "median_ns": 307716
+    },
+    {
+      "label": "direct",
+      "rows": 1024,
+      "phase": "action:get-cold",
+      "samples_ns": [
+        121224,
+        114761,
+        104814,
+        153511,
+        154094,
+        146103,
+        140825
+      ],
+      "iterations": 512,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "table",
+      "median_ns": 140825
+    },
+    {
+      "label": "packed-2",
+      "rows": 1024,
+      "phase": "action:get-cold",
+      "samples_ns": [
+        297236,
+        234618,
+        256070,
+        345733,
+        335609,
+        303271,
+        328483
+      ],
+      "iterations": 512,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "table",
+      "median_ns": 303271
+    },
+    {
+      "label": "packed-4",
+      "rows": 1024,
+      "phase": "action:get-cold",
+      "samples_ns": [
+        251453,
+        198548,
+        226415,
+        233871,
+        263928,
+        249475,
+        254830
+      ],
+      "iterations": 512,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "table",
+      "median_ns": 249475
+    },
+    {
+      "label": "indexed-4-hot-1023",
+      "rows": 1024,
+      "phase": "action:get-cold",
+      "samples_ns": [
+        220752,
+        204963,
+        228786,
+        253832,
+        234734,
+        241124,
+        259080
+      ],
+      "iterations": 512,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "table",
+      "median_ns": 234734
+    },
+    {
+      "label": "direct",
+      "rows": 1024,
+      "phase": "action:put",
+      "samples_ns": [
+        601290,
+        553898,
+        591854,
+        567375,
+        524560,
+        610857,
+        554652
+      ],
+      "iterations": 32,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "table",
+      "median_ns": 567375
+    },
+    {
+      "label": "packed-2",
+      "rows": 1024,
+      "phase": "action:put",
+      "samples_ns": [
+        572473,
+        579922,
+        526733,
+        510328,
+        560009,
+        531987,
+        523565
+      ],
+      "iterations": 32,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "table",
+      "median_ns": 531987
+    },
+    {
+      "label": "packed-4",
+      "rows": 1024,
+      "phase": "action:put",
+      "samples_ns": [
+        458007,
+        638059,
+        348238,
+        373434,
+        383009,
+        443550,
+        384152
+      ],
+      "iterations": 32,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "table",
+      "median_ns": 384152
+    },
+    {
+      "label": "indexed-4-hot-1023",
+      "rows": 1024,
+      "phase": "action:put",
+      "samples_ns": [
+        551966,
+        593453,
+        433159,
+        437813,
+        449969,
+        429486,
+        508027
+      ],
+      "iterations": 32,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "table",
+      "median_ns": 449969
+    },
+    {
+      "label": "direct",
+      "rows": 1024,
+      "phase": "action:erase",
+      "samples_ns": [
+        559594,
+        645171,
+        671322,
+        572626,
+        522167,
+        549297,
+        534880
+      ],
+      "iterations": 32,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "table",
+      "median_ns": 559594
+    },
+    {
+      "label": "packed-2",
+      "rows": 1024,
+      "phase": "action:erase",
+      "samples_ns": [
+        1162678,
+        1379512,
+        1450326,
+        975923,
+        912436,
+        996470,
+        984198
+      ],
+      "iterations": 32,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "table",
+      "median_ns": 996470
+    },
+    {
+      "label": "packed-4",
+      "rows": 1024,
+      "phase": "action:erase",
+      "samples_ns": [
+        1037139,
+        1216026,
+        1136048,
+        889953,
+        987829,
+        960594,
+        928736
+      ],
+      "iterations": 32,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "table",
+      "median_ns": 987829
+    },
+    {
+      "label": "indexed-4-hot-1023",
+      "rows": 1024,
+      "phase": "action:erase",
+      "samples_ns": [
+        1065362,
+        1104918,
+        1379249,
+        1134210,
+        1105465,
+        1023411,
+        1107451
+      ],
+      "iterations": 32,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "table",
+      "median_ns": 1105465
+    },
+    {
+      "iterations": 512,
+      "phase": "action:any_query",
+      "rows": 16,
+      "samples_ns": [
+        2591,
+        2799,
+        2382,
+        2394,
+        2469,
+        2395,
+        2482
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "boolean-direct",
+      "backend": "rust-native",
+      "group": "boolean",
+      "median_ns": 2469
+    },
+    {
+      "iterations": 512,
+      "phase": "action:all_query",
+      "rows": 16,
+      "samples_ns": [
+        3512,
+        2967,
+        3674,
+        2398,
+        2907,
+        2658,
+        3396
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "boolean-direct",
+      "backend": "rust-native",
+      "group": "boolean",
+      "median_ns": 2967
+    },
+    {
+      "iterations": 16,
+      "phase": "action:insert",
+      "rows": 16,
+      "samples_ns": [
+        6132,
+        8921,
+        10630,
+        12859,
+        15234,
+        25257,
+        17250
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "boolean-direct",
+      "backend": "rust-native",
+      "group": "boolean",
+      "median_ns": 12859
+    },
+    {
+      "iterations": 32,
+      "phase": "action:replace",
+      "rows": 16,
+      "samples_ns": [
+        16777,
+        16537,
+        17136,
+        17192,
+        20942,
+        21654,
+        17497
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "boolean-direct",
+      "backend": "rust-native",
+      "group": "boolean",
+      "median_ns": 17192
+    },
+    {
+      "iterations": 32,
+      "phase": "action:erase",
+      "rows": 16,
+      "samples_ns": [
+        19285,
+        16183,
+        16618,
+        18656,
+        18911,
+        16208,
+        16178
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "boolean-direct",
+      "backend": "rust-native",
+      "group": "boolean",
+      "median_ns": 16618
+    },
+    {
+      "iterations": 512,
+      "phase": "action:any_query",
+      "rows": 128,
+      "samples_ns": [
+        16501,
+        15007,
+        15209,
+        18120,
+        15448,
+        15398,
+        15275
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "boolean-direct",
+      "backend": "rust-native",
+      "group": "boolean",
+      "median_ns": 15398
+    },
+    {
+      "iterations": 512,
+      "phase": "action:all_query",
+      "rows": 128,
+      "samples_ns": [
+        15611,
+        15250,
+        16141,
+        16630,
+        16097,
+        15085,
+        17931
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "boolean-direct",
+      "backend": "rust-native",
+      "group": "boolean",
+      "median_ns": 16097
+    },
+    {
+      "iterations": 16,
+      "phase": "action:insert",
+      "rows": 128,
+      "samples_ns": [
+        18882,
+        20304,
+        22216,
+        27536,
+        25734,
+        33809,
+        33841
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "boolean-direct",
+      "backend": "rust-native",
+      "group": "boolean",
+      "median_ns": 25734
+    },
+    {
+      "iterations": 32,
+      "phase": "action:replace",
+      "rows": 128,
+      "samples_ns": [
+        31260,
+        33061,
+        30027,
+        36065,
+        30036,
+        30803,
+        39498
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "boolean-direct",
+      "backend": "rust-native",
+      "group": "boolean",
+      "median_ns": 31260
+    },
+    {
+      "iterations": 32,
+      "phase": "action:erase",
+      "rows": 128,
+      "samples_ns": [
+        39266,
+        31319,
+        28518,
+        30528,
+        34645,
+        29108,
+        29147
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "boolean-direct",
+      "backend": "rust-native",
+      "group": "boolean",
+      "median_ns": 30528
+    },
+    {
+      "iterations": 512,
+      "phase": "action:any_query",
+      "rows": 1024,
+      "samples_ns": [
+        123613,
+        119477,
+        121489,
+        121653,
+        125077,
+        116388,
+        121368
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "boolean-direct",
+      "backend": "rust-native",
+      "group": "boolean",
+      "median_ns": 121489
+    },
+    {
+      "iterations": 512,
+      "phase": "action:all_query",
+      "rows": 1024,
+      "samples_ns": [
+        127031,
+        129808,
+        127003,
+        126507,
+        129278,
+        126914,
+        125251
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "boolean-direct",
+      "backend": "rust-native",
+      "group": "boolean",
+      "median_ns": 127003
+    },
+    {
+      "iterations": 16,
+      "phase": "action:insert",
+      "rows": 1024,
+      "samples_ns": [
+        153812,
+        141833,
+        130515,
+        157572,
+        143093,
+        137914,
+        141533
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "boolean-direct",
+      "backend": "rust-native",
+      "group": "boolean",
+      "median_ns": 141833
+    },
+    {
+      "iterations": 32,
+      "phase": "action:replace",
+      "rows": 1024,
+      "samples_ns": [
+        145526,
+        147755,
+        147306,
+        145707,
+        140595,
+        144412,
+        198015
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "boolean-direct",
+      "backend": "rust-native",
+      "group": "boolean",
+      "median_ns": 145707
+    },
+    {
+      "iterations": 32,
+      "phase": "action:erase",
+      "rows": 1024,
+      "samples_ns": [
+        135593,
+        150272,
+        147161,
+        136684,
+        132179,
+        132040,
+        161171
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "boolean-direct",
+      "backend": "rust-native",
+      "group": "boolean",
+      "median_ns": 136684
+    },
+    {
+      "iterations": 512,
+      "phase": "action:any_query",
+      "rows": 16,
+      "samples_ns": [
+        648,
+        621,
+        622,
+        624,
+        1056,
+        622,
+        620
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "any-delta",
+      "backend": "rust-native",
+      "group": "boolean",
+      "median_ns": 622
+    },
+    {
+      "iterations": 512,
+      "phase": "action:all_query",
+      "rows": 16,
+      "samples_ns": [
+        2216,
+        2238,
+        6632,
+        2261,
+        2269,
+        5565,
+        2398
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "any-delta",
+      "backend": "rust-native",
+      "group": "boolean",
+      "median_ns": 2269
+    },
+    {
+      "iterations": 16,
+      "phase": "action:insert",
+      "rows": 16,
+      "samples_ns": [
+        7033,
+        8218,
+        10171,
+        11916,
+        14263,
+        16421,
+        17960
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "any-delta",
+      "backend": "rust-native",
+      "group": "boolean",
+      "median_ns": 11916
+    },
+    {
+      "iterations": 32,
+      "phase": "action:replace",
+      "rows": 16,
+      "samples_ns": [
+        161444,
+        59217,
+        69760,
+        64960,
+        102264,
+        115808,
+        43592
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "any-delta",
+      "backend": "rust-native",
+      "group": "boolean",
+      "median_ns": 69760
+    },
+    {
+      "iterations": 32,
+      "phase": "action:erase",
+      "rows": 16,
+      "samples_ns": [
+        45623,
+        57197,
+        58888,
+        51582,
+        51736,
+        52231,
+        45477
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "any-delta",
+      "backend": "rust-native",
+      "group": "boolean",
+      "median_ns": 51736
+    },
+    {
+      "iterations": 512,
+      "phase": "action:any_query",
+      "rows": 128,
+      "samples_ns": [
+        868,
+        1161,
+        964,
+        837,
+        858,
+        1333,
+        761
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "any-delta",
+      "backend": "rust-native",
+      "group": "boolean",
+      "median_ns": 868
+    },
+    {
+      "iterations": 512,
+      "phase": "action:all_query",
+      "rows": 128,
+      "samples_ns": [
+        16506,
+        17072,
+        16588,
+        19443,
+        14527,
+        15466,
+        13253
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "any-delta",
+      "backend": "rust-native",
+      "group": "boolean",
+      "median_ns": 16506
+    },
+    {
+      "iterations": 16,
+      "phase": "action:insert",
+      "rows": 128,
+      "samples_ns": [
+        20197,
+        18854,
+        20536,
+        26442,
+        23770,
+        26734,
+        32033
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "any-delta",
+      "backend": "rust-native",
+      "group": "boolean",
+      "median_ns": 23770
+    },
+    {
+      "iterations": 32,
+      "phase": "action:replace",
+      "rows": 128,
+      "samples_ns": [
+        79352,
+        72549,
+        73817,
+        78541,
+        101343,
+        72218,
+        84144
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "any-delta",
+      "backend": "rust-native",
+      "group": "boolean",
+      "median_ns": 78541
+    },
+    {
+      "iterations": 32,
+      "phase": "action:erase",
+      "rows": 128,
+      "samples_ns": [
+        71582,
+        69648,
+        74434,
+        73678,
+        70108,
+        78205,
+        101097
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "any-delta",
+      "backend": "rust-native",
+      "group": "boolean",
+      "median_ns": 73678
+    },
+    {
+      "iterations": 512,
+      "phase": "action:any_query",
+      "rows": 1024,
+      "samples_ns": [
+        655,
+        1954,
+        719,
+        618,
+        629,
+        728,
+        639
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "any-delta",
+      "backend": "rust-native",
+      "group": "boolean",
+      "median_ns": 655
+    },
+    {
+      "iterations": 512,
+      "phase": "action:all_query",
+      "rows": 1024,
+      "samples_ns": [
+        119086,
+        112886,
+        108726,
+        107795,
+        102411,
+        105365,
+        102823
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "any-delta",
+      "backend": "rust-native",
+      "group": "boolean",
+      "median_ns": 107795
+    },
+    {
+      "iterations": 16,
+      "phase": "action:insert",
+      "rows": 1024,
+      "samples_ns": [
+        137466,
+        119002,
+        117664,
+        119044,
+        123723,
+        117588,
+        112213
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "any-delta",
+      "backend": "rust-native",
+      "group": "boolean",
+      "median_ns": 119002
+    },
+    {
+      "iterations": 32,
+      "phase": "action:replace",
+      "rows": 1024,
+      "samples_ns": [
+        305407,
+        313192,
+        308183,
+        309205,
+        308925,
+        303584,
+        308802
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "any-delta",
+      "backend": "rust-native",
+      "group": "boolean",
+      "median_ns": 308802
+    },
+    {
+      "iterations": 32,
+      "phase": "action:erase",
+      "rows": 1024,
+      "samples_ns": [
+        302106,
+        293608,
+        296662,
+        292559,
+        300132,
+        293829,
+        296052
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "any-delta",
+      "backend": "rust-native",
+      "group": "boolean",
+      "median_ns": 296052
+    },
+    {
+      "iterations": 512,
+      "phase": "action:any_query",
+      "rows": 16,
+      "samples_ns": [
+        1876,
+        2036,
+        2302,
+        1930,
+        1882,
+        2038,
+        1918
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "all-delta",
+      "backend": "rust-native",
+      "group": "boolean",
+      "median_ns": 1930
+    },
+    {
+      "iterations": 512,
+      "phase": "action:all_query",
+      "rows": 16,
+      "samples_ns": [
+        561,
+        554,
+        550,
+        555,
+        555,
+        556,
+        619
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "all-delta",
+      "backend": "rust-native",
+      "group": "boolean",
+      "median_ns": 555
+    },
+    {
+      "iterations": 16,
+      "phase": "action:insert",
+      "rows": 16,
+      "samples_ns": [
+        7921,
+        6244,
+        7737,
+        8934,
+        10523,
+        11981,
+        16085
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "all-delta",
+      "backend": "rust-native",
+      "group": "boolean",
+      "median_ns": 8934
+    },
+    {
+      "iterations": 32,
+      "phase": "action:replace",
+      "rows": 16,
+      "samples_ns": [
+        34996,
+        35553,
+        36605,
+        34662,
+        35281,
+        33658,
+        33699
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "all-delta",
+      "backend": "rust-native",
+      "group": "boolean",
+      "median_ns": 34996
+    },
+    {
+      "iterations": 32,
+      "phase": "action:erase",
+      "rows": 16,
+      "samples_ns": [
+        33121,
+        32953,
+        41671,
+        32980,
+        34015,
+        33819,
+        33285
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "all-delta",
+      "backend": "rust-native",
+      "group": "boolean",
+      "median_ns": 33285
+    },
+    {
+      "iterations": 512,
+      "phase": "action:any_query",
+      "rows": 128,
+      "samples_ns": [
+        12354,
+        10992,
+        11069,
+        11343,
+        10940,
+        11365,
+        13201
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "all-delta",
+      "backend": "rust-native",
+      "group": "boolean",
+      "median_ns": 11343
+    },
+    {
+      "iterations": 512,
+      "phase": "action:all_query",
+      "rows": 128,
+      "samples_ns": [
+        940,
+        853,
+        844,
+        965,
+        876,
+        1090,
+        903
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "all-delta",
+      "backend": "rust-native",
+      "group": "boolean",
+      "median_ns": 903
+    },
+    {
+      "iterations": 16,
+      "phase": "action:insert",
+      "rows": 128,
+      "samples_ns": [
+        26677,
+        25450,
+        33677,
+        33255,
+        48950,
+        23375,
+        25468
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "all-delta",
+      "backend": "rust-native",
+      "group": "boolean",
+      "median_ns": 26677
+    },
+    {
+      "iterations": 32,
+      "phase": "action:replace",
+      "rows": 128,
+      "samples_ns": [
+        76627,
+        126519,
+        72328,
+        72115,
+        77925,
+        148938,
+        86561
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "all-delta",
+      "backend": "rust-native",
+      "group": "boolean",
+      "median_ns": 77925
+    },
+    {
+      "iterations": 32,
+      "phase": "action:erase",
+      "rows": 128,
+      "samples_ns": [
+        92440,
+        91601,
+        92388,
+        70273,
+        88820,
+        101778,
+        72139
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "all-delta",
+      "backend": "rust-native",
+      "group": "boolean",
+      "median_ns": 91601
+    },
+    {
+      "iterations": 512,
+      "phase": "action:any_query",
+      "rows": 1024,
+      "samples_ns": [
+        148628,
+        143993,
+        127095,
+        122854,
+        108743,
+        108223,
+        112396
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "all-delta",
+      "backend": "rust-native",
+      "group": "boolean",
+      "median_ns": 122854
+    },
+    {
+      "iterations": 512,
+      "phase": "action:all_query",
+      "rows": 1024,
+      "samples_ns": [
+        1331,
+        897,
+        1038,
+        825,
+        1032,
+        779,
+        860
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "all-delta",
+      "backend": "rust-native",
+      "group": "boolean",
+      "median_ns": 897
+    },
+    {
+      "iterations": 16,
+      "phase": "action:insert",
+      "rows": 1024,
+      "samples_ns": [
+        140776,
+        151057,
+        159869,
+        121570,
+        153078,
+        157437,
+        127979
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "all-delta",
+      "backend": "rust-native",
+      "group": "boolean",
+      "median_ns": 151057
+    },
+    {
+      "iterations": 32,
+      "phase": "action:replace",
+      "rows": 1024,
+      "samples_ns": [
+        360863,
+        388806,
+        459598,
+        391713,
+        355270,
+        388126,
+        377097
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "all-delta",
+      "backend": "rust-native",
+      "group": "boolean",
+      "median_ns": 388126
+    },
+    {
+      "iterations": 32,
+      "phase": "action:erase",
+      "rows": 1024,
+      "samples_ns": [
+        455766,
+        397981,
+        497523,
+        680688,
+        632753,
+        1481056,
+        425535
+      ],
+      "transport": "public generated Rust invoke_json, including argument/result conversion and events",
+      "label": "all-delta",
+      "backend": "rust-native",
+      "group": "boolean",
+      "median_ns": 497523
+    },
+    {
+      "label": "boolean-direct",
+      "rows": 16,
+      "phase": "action:any_query",
+      "samples_ns": [
+        10749,
+        18740,
+        20392,
+        12297,
+        6153,
+        13139,
+        4036
+      ],
+      "iterations": 512,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "boolean",
+      "median_ns": 12297
+    },
+    {
+      "label": "any-delta",
+      "rows": 16,
+      "phase": "action:any_query",
+      "samples_ns": [
+        80292,
+        15684,
+        1074,
+        1640,
+        1470,
+        1472,
+        948
+      ],
+      "iterations": 512,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "boolean",
+      "median_ns": 1472
+    },
+    {
+      "label": "all-delta",
+      "rows": 16,
+      "phase": "action:any_query",
+      "samples_ns": [
+        40883,
+        101194,
+        13346,
+        10323,
+        7540,
+        32242,
+        4099
+      ],
+      "iterations": 512,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "boolean",
+      "median_ns": 13346
+    },
+    {
+      "label": "boolean-direct",
+      "rows": 16,
+      "phase": "action:all_query",
+      "samples_ns": [
+        9446,
+        15908,
+        8505,
+        8387,
+        10256,
+        12223,
+        9943
+      ],
+      "iterations": 512,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "boolean",
+      "median_ns": 9943
+    },
+    {
+      "label": "any-delta",
+      "rows": 16,
+      "phase": "action:all_query",
+      "samples_ns": [
+        13786,
+        32962,
+        26135,
+        11311,
+        7842,
+        9347,
+        8832
+      ],
+      "iterations": 512,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "boolean",
+      "median_ns": 11311
+    },
+    {
+      "label": "all-delta",
+      "rows": 16,
+      "phase": "action:all_query",
+      "samples_ns": [
+        2774,
+        3034,
+        3047,
+        1124,
+        1354,
+        1537,
+        1477
+      ],
+      "iterations": 512,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "boolean",
+      "median_ns": 1537
+    },
+    {
+      "label": "boolean-direct",
+      "rows": 16,
+      "phase": "action:insert",
+      "samples_ns": [
+        29367,
+        95982,
+        52750,
+        30810,
+        47932,
+        179508,
+        61286
+      ],
+      "iterations": 16,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "boolean",
+      "median_ns": 52750
+    },
+    {
+      "label": "any-delta",
+      "rows": 16,
+      "phase": "action:insert",
+      "samples_ns": [
+        40810,
+        47148,
+        131622,
+        51044,
+        65151,
+        195961,
+        87854
+      ],
+      "iterations": 16,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "boolean",
+      "median_ns": 65151
+    },
+    {
+      "label": "all-delta",
+      "rows": 16,
+      "phase": "action:insert",
+      "samples_ns": [
+        34052,
+        53982,
+        85357,
+        77333,
+        67771,
+        82461,
+        98359
+      ],
+      "iterations": 16,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "boolean",
+      "median_ns": 77333
+    },
+    {
+      "label": "boolean-direct",
+      "rows": 16,
+      "phase": "action:replace",
+      "samples_ns": [
+        41279,
+        129736,
+        316945,
+        49689,
+        36741,
+        86167,
+        51852
+      ],
+      "iterations": 32,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "boolean",
+      "median_ns": 51852
+    },
+    {
+      "label": "any-delta",
+      "rows": 16,
+      "phase": "action:replace",
+      "samples_ns": [
+        87889,
+        144165,
+        436543,
+        174074,
+        136672,
+        146423,
+        98883
+      ],
+      "iterations": 32,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "boolean",
+      "median_ns": 144165
+    },
+    {
+      "label": "all-delta",
+      "rows": 16,
+      "phase": "action:replace",
+      "samples_ns": [
+        178026,
+        293573,
+        464151,
+        556801,
+        124266,
+        203447,
+        110784
+      ],
+      "iterations": 32,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "boolean",
+      "median_ns": 203447
+    },
+    {
+      "label": "boolean-direct",
+      "rows": 16,
+      "phase": "action:erase",
+      "samples_ns": [
+        30604,
+        64312,
+        28612,
+        107013,
+        44660,
+        40005,
+        42244
+      ],
+      "iterations": 32,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "boolean",
+      "median_ns": 42244
+    },
+    {
+      "label": "any-delta",
+      "rows": 16,
+      "phase": "action:erase",
+      "samples_ns": [
+        130766,
+        152828,
+        126503,
+        129690,
+        106646,
+        77852,
+        84743
+      ],
+      "iterations": 32,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "boolean",
+      "median_ns": 126503
+    },
+    {
+      "label": "all-delta",
+      "rows": 16,
+      "phase": "action:erase",
+      "samples_ns": [
+        130999,
+        146038,
+        120254,
+        117950,
+        84117,
+        93208,
+        93551
+      ],
+      "iterations": 32,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "boolean",
+      "median_ns": 117950
+    },
+    {
+      "label": "boolean-direct",
+      "rows": 128,
+      "phase": "action:any_query",
+      "samples_ns": [
+        29067,
+        33854,
+        31609,
+        37579,
+        39415,
+        90086,
+        31622
+      ],
+      "iterations": 512,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "boolean",
+      "median_ns": 33854
+    },
+    {
+      "label": "any-delta",
+      "rows": 128,
+      "phase": "action:any_query",
+      "samples_ns": [
+        1208,
+        2962,
+        1123,
+        1611,
+        1706,
+        3778,
+        979
+      ],
+      "iterations": 512,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "boolean",
+      "median_ns": 1611
+    },
+    {
+      "label": "all-delta",
+      "rows": 128,
+      "phase": "action:any_query",
+      "samples_ns": [
+        28492,
+        30976,
+        33400,
+        35420,
+        45008,
+        83189,
+        48852
+      ],
+      "iterations": 512,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "boolean",
+      "median_ns": 35420
+    },
+    {
+      "label": "boolean-direct",
+      "rows": 128,
+      "phase": "action:all_query",
+      "samples_ns": [
+        42607,
+        47457,
+        43570,
+        51008,
+        52783,
+        51042,
+        54434
+      ],
+      "iterations": 512,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "boolean",
+      "median_ns": 51008
+    },
+    {
+      "label": "any-delta",
+      "rows": 128,
+      "phase": "action:all_query",
+      "samples_ns": [
+        50111,
+        46329,
+        53032,
+        44181,
+        59092,
+        60974,
+        55001
+      ],
+      "iterations": 512,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "boolean",
+      "median_ns": 53032
+    },
+    {
+      "label": "all-delta",
+      "rows": 128,
+      "phase": "action:all_query",
+      "samples_ns": [
+        1374,
+        1375,
+        1352,
+        1984,
+        945,
+        1379,
+        1183
+      ],
+      "iterations": 512,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "boolean",
+      "median_ns": 1374
+    },
+    {
+      "label": "boolean-direct",
+      "rows": 128,
+      "phase": "action:insert",
+      "samples_ns": [
+        88182,
+        129672,
+        90081,
+        110378,
+        95349,
+        95401,
+        156320
+      ],
+      "iterations": 16,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "boolean",
+      "median_ns": 95401
+    },
+    {
+      "label": "any-delta",
+      "rows": 128,
+      "phase": "action:insert",
+      "samples_ns": [
+        143419,
+        129448,
+        170914,
+        158661,
+        183138,
+        197982,
+        416128
+      ],
+      "iterations": 16,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "boolean",
+      "median_ns": 170914
+    },
+    {
+      "label": "all-delta",
+      "rows": 128,
+      "phase": "action:insert",
+      "samples_ns": [
+        126380,
+        146130,
+        151706,
+        154667,
+        186029,
+        187987,
+        324448
+      ],
+      "iterations": 16,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "boolean",
+      "median_ns": 154667
+    },
+    {
+      "label": "boolean-direct",
+      "rows": 128,
+      "phase": "action:replace",
+      "samples_ns": [
+        440428,
+        86210,
+        119576,
+        80305,
+        121332,
+        114672,
+        141715
+      ],
+      "iterations": 32,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "boolean",
+      "median_ns": 119576
+    },
+    {
+      "label": "any-delta",
+      "rows": 128,
+      "phase": "action:replace",
+      "samples_ns": [
+        361362,
+        290910,
+        314827,
+        306225,
+        384656,
+        231247,
+        212286
+      ],
+      "iterations": 32,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "boolean",
+      "median_ns": 306225
+    },
+    {
+      "label": "all-delta",
+      "rows": 128,
+      "phase": "action:replace",
+      "samples_ns": [
+        718543,
+        306119,
+        362858,
+        411889,
+        308964,
+        341228,
+        1140270
+      ],
+      "iterations": 32,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "boolean",
+      "median_ns": 362858
+    },
+    {
+      "label": "boolean-direct",
+      "rows": 128,
+      "phase": "action:erase",
+      "samples_ns": [
+        114618,
+        140328,
+        100641,
+        983790,
+        87574,
+        168845,
+        101176
+      ],
+      "iterations": 32,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "boolean",
+      "median_ns": 114618
+    },
+    {
+      "label": "any-delta",
+      "rows": 128,
+      "phase": "action:erase",
+      "samples_ns": [
+        228464,
+        661530,
+        182987,
+        275306,
+        203107,
+        423680,
+        278124
+      ],
+      "iterations": 32,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "boolean",
+      "median_ns": 275306
+    },
+    {
+      "label": "all-delta",
+      "rows": 128,
+      "phase": "action:erase",
+      "samples_ns": [
+        948948,
+        2310158,
+        251560,
+        186010,
+        209376,
+        270540,
+        328652
+      ],
+      "iterations": 32,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "boolean",
+      "median_ns": 270540
+    },
+    {
+      "label": "boolean-direct",
+      "rows": 1024,
+      "phase": "action:any_query",
+      "samples_ns": [
+        209431,
+        149095,
+        157566,
+        147563,
+        147523,
+        142721,
+        154150
+      ],
+      "iterations": 512,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "boolean",
+      "median_ns": 149095
+    },
+    {
+      "label": "any-delta",
+      "rows": 1024,
+      "phase": "action:any_query",
+      "samples_ns": [
+        1203,
+        836,
+        931,
+        816,
+        864,
+        829,
+        827
+      ],
+      "iterations": 512,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "boolean",
+      "median_ns": 836
+    },
+    {
+      "label": "all-delta",
+      "rows": 1024,
+      "phase": "action:any_query",
+      "samples_ns": [
+        202211,
+        175670,
+        152412,
+        150797,
+        150494,
+        145773,
+        149094
+      ],
+      "iterations": 512,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "boolean",
+      "median_ns": 150797
+    },
+    {
+      "label": "boolean-direct",
+      "rows": 1024,
+      "phase": "action:all_query",
+      "samples_ns": [
+        237173,
+        242124,
+        211977,
+        307024,
+        317169,
+        323931,
+        377988
+      ],
+      "iterations": 512,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "boolean",
+      "median_ns": 307024
+    },
+    {
+      "label": "any-delta",
+      "rows": 1024,
+      "phase": "action:all_query",
+      "samples_ns": [
+        237926,
+        262499,
+        246208,
+        272830,
+        310723,
+        350669,
+        387259
+      ],
+      "iterations": 512,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "boolean",
+      "median_ns": 272830
+    },
+    {
+      "label": "all-delta",
+      "rows": 1024,
+      "phase": "action:all_query",
+      "samples_ns": [
+        1199,
+        985,
+        886,
+        1305,
+        1360,
+        1330,
+        1009
+      ],
+      "iterations": 512,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "boolean",
+      "median_ns": 1199
+    },
+    {
+      "label": "boolean-direct",
+      "rows": 1024,
+      "phase": "action:insert",
+      "samples_ns": [
+        526315,
+        430703,
+        447302,
+        750630,
+        587753,
+        390099,
+        441841
+      ],
+      "iterations": 16,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "boolean",
+      "median_ns": 447302
+    },
+    {
+      "label": "any-delta",
+      "rows": 1024,
+      "phase": "action:insert",
+      "samples_ns": [
+        944997,
+        772779,
+        757609,
+        802971,
+        949102,
+        829344,
+        670440
+      ],
+      "iterations": 16,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "boolean",
+      "median_ns": 802971
+    },
+    {
+      "label": "all-delta",
+      "rows": 1024,
+      "phase": "action:insert",
+      "samples_ns": [
+        672393,
+        559083,
+        794310,
+        673607,
+        1127581,
+        711154,
+        639518
+      ],
+      "iterations": 16,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "boolean",
+      "median_ns": 673607
+    },
+    {
+      "label": "boolean-direct",
+      "rows": 1024,
+      "phase": "action:replace",
+      "samples_ns": [
+        408333,
+        465486,
+        874099,
+        444797,
+        522048,
+        527905,
+        510276
+      ],
+      "iterations": 32,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "boolean",
+      "median_ns": 510276
+    },
+    {
+      "label": "any-delta",
+      "rows": 1024,
+      "phase": "action:replace",
+      "samples_ns": [
+        978044,
+        1170443,
+        1533035,
+        1159736,
+        1236267,
+        1854865,
+        1235977
+      ],
+      "iterations": 32,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "boolean",
+      "median_ns": 1235977
+    },
+    {
+      "label": "all-delta",
+      "rows": 1024,
+      "phase": "action:replace",
+      "samples_ns": [
+        1204634,
+        1151667,
+        1760358,
+        1906413,
+        1313038,
+        1229314,
+        1229316
+      ],
+      "iterations": 32,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "boolean",
+      "median_ns": 1229316
+    },
+    {
+      "label": "boolean-direct",
+      "rows": 1024,
+      "phase": "action:erase",
+      "samples_ns": [
+        237172,
+        247979,
+        281839,
+        226095,
+        213190,
+        319859,
+        358711
+      ],
+      "iterations": 32,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "boolean",
+      "median_ns": 247979
+    },
+    {
+      "label": "any-delta",
+      "rows": 1024,
+      "phase": "action:erase",
+      "samples_ns": [
+        647859,
+        630958,
+        750251,
+        601717,
+        594909,
+        647440,
+        689479
+      ],
+      "iterations": 32,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "boolean",
+      "median_ns": 647440
+    },
+    {
+      "label": "all-delta",
+      "rows": 1024,
+      "phase": "action:erase",
+      "samples_ns": [
+        781018,
+        742684,
+        838792,
+        744380,
+        750880,
+        789991,
+        709190
+      ],
+      "iterations": 32,
+      "transport": "public generated JavaScript invoke_json, including argument/result conversion and events",
+      "backend": "javascript",
+      "group": "boolean",
+      "median_ns": 750880
+    }
+  ],
+  "lifecycle": [
+    {
+      "label": "direct",
+      "phase": "check",
+      "ns": 193446917
+    },
+    {
+      "label": "direct",
+      "phase": "proof-check-and-emit:javascript",
+      "ns": 192147875
+    },
+    {
+      "label": "direct",
+      "phase": "proof-check-and-emit:rust-wasm",
+      "ns": 193523708
+    },
+    {
+      "label": "direct",
+      "phase": "native-build",
+      "ns": 5511547458
+    },
+    {
+      "label": "packed-2",
+      "phase": "check",
+      "ns": 1065186166
+    },
+    {
+      "label": "packed-2",
+      "phase": "proof-check-and-emit:javascript",
+      "ns": 1104724375
+    },
+    {
+      "label": "packed-2",
+      "phase": "proof-check-and-emit:rust-wasm",
+      "ns": 1124777709
+    },
+    {
+      "label": "packed-2",
+      "phase": "native-build",
+      "ns": 1836231500
+    },
+    {
+      "label": "packed-4",
+      "phase": "check",
+      "ns": 5922637334
+    },
+    {
+      "label": "packed-4",
+      "phase": "proof-check-and-emit:javascript",
+      "ns": 9823689250
+    },
+    {
+      "label": "packed-4",
+      "phase": "proof-check-and-emit:rust-wasm",
+      "ns": 43291972458
+    },
+    {
+      "label": "packed-4",
+      "phase": "native-build",
+      "ns": 14232049959
+    },
+    {
+      "label": "indexed-4-hot-1023",
+      "phase": "check",
+      "ns": 35636533833
+    },
+    {
+      "label": "indexed-4-hot-1023",
+      "phase": "proof-check-and-emit:javascript",
+      "ns": 58004121250
+    },
+    {
+      "label": "indexed-4-hot-1023",
+      "phase": "proof-check-and-emit:rust-wasm",
+      "ns": 45898766000
+    },
+    {
+      "label": "indexed-4-hot-1023",
+      "phase": "native-build",
+      "ns": 14157019416
+    },
+    {
+      "label": "boolean-direct",
+      "phase": "check",
+      "ns": 1902126208
+    },
+    {
+      "label": "boolean-direct",
+      "phase": "proof-check-and-emit:javascript",
+      "ns": 1017155167
+    },
+    {
+      "label": "boolean-direct",
+      "phase": "proof-check-and-emit:rust-wasm",
+      "ns": 896181958
+    },
+    {
+      "label": "boolean-direct",
+      "phase": "native-build",
+      "ns": 5082457917
+    },
+    {
+      "label": "any-delta",
+      "phase": "check",
+      "ns": 2713595959
+    },
+    {
+      "label": "any-delta",
+      "phase": "proof-check-and-emit:javascript",
+      "ns": 2391107541
+    },
+    {
+      "label": "any-delta",
+      "phase": "proof-check-and-emit:rust-wasm",
+      "ns": 2319131750
+    },
+    {
+      "label": "any-delta",
+      "phase": "native-build",
+      "ns": 3149951958
+    },
+    {
+      "label": "all-delta",
+      "phase": "check",
+      "ns": 2139869834
+    },
+    {
+      "label": "all-delta",
+      "phase": "proof-check-and-emit:javascript",
+      "ns": 2644787750
+    },
+    {
+      "label": "all-delta",
+      "phase": "proof-check-and-emit:rust-wasm",
+      "ns": 2939975334
+    },
+    {
+      "label": "all-delta",
+      "phase": "native-build",
+      "ns": 3683619125
+    }
+  ],
+  "decisions": [
+    {
+      "group": "table",
+      "backend": "javascript",
+      "rows": 16,
+      "profile": "reads",
+      "selected": "direct",
+      "costs": {
+        "total_ns": {
+          "a548aae9080aea63241780dc5a69e423bed72b1af8a2549885ae4710d16809ba": "50698827",
+          "6c016def409c66028108d7d964b23b8ec2b71e0f4dc689ec802d1844ac849675": "91264983",
+          "ac294faf30baa71a956b4da2a9caeef93b3c9c0eace4bba235a1249eeb35ff32": "83399651",
+          "2ac6bfad5b7c10acb432ef5d2ce8f0cff191369a7455395c2a4e1c338d7d2694": "79675623"
+        },
+        "excluded": {},
+        "observations": {
+          "a548aae9080aea63241780dc5a69e423bed72b1af8a2549885ae4710d16809ba": [
+            "39552d8fb7f6c6c435d2830c40827f22524d4851301c966c562ca295ad028380",
+            "4bc7d48ce92207b756e3de49910c01d9d7e4ba951b211469eb327113952b6aa2",
+            "a844b177a1f92e6a05234e73892d101df3818f9e7d011f016cf0d940d217b744"
+          ],
+          "6c016def409c66028108d7d964b23b8ec2b71e0f4dc689ec802d1844ac849675": [
+            "18739f80730b9fbb9364bbd5180057492d6500258f4c118dd8c3b36ddc3d675c",
+            "a6ecd1a33c72547db5917d6f3da5e2745b5047874ac3c62277f6743e8e149fb4",
+            "e054683ccf4a9f5fce0dabccb9d4fb962b785a2df8b1d0a60e20ddd068e7ebc5"
+          ],
+          "ac294faf30baa71a956b4da2a9caeef93b3c9c0eace4bba235a1249eeb35ff32": [
+            "63a7a4cf9296fcde9dd59b0a56579c16652e6d644750ceb571ae10e920fd99a2",
+            "7a65dedb8f2005284e0eac464dc4b30fe68c0658f5f402bdc351f85bc6b601b0",
+            "a8bea2ff6468e150a664fa1a370a586b741adeebfb67c51672087caa3ae41124"
+          ],
+          "2ac6bfad5b7c10acb432ef5d2ce8f0cff191369a7455395c2a4e1c338d7d2694": [
+            "061e8397bd7daaaebe48d0a925369f8dd90b9e269d824c79aa6a87835990fbd0",
+            "1f9cefe13f0122c508606ec2492b86f166b1e3faeab8c7a0fa7eb2868616bbc3",
+            "209efda94d41c4402d3a9a365eead74f766d71107cf79065b3194065a1a7959d"
+          ]
+        },
+        "baseline_comparable": true
+      }
+    },
+    {
+      "group": "table",
+      "backend": "javascript",
+      "rows": 16,
+      "profile": "writes",
+      "selected": "packed-4",
+      "costs": {
+        "total_ns": {
+          "a548aae9080aea63241780dc5a69e423bed72b1af8a2549885ae4710d16809ba": "197034192",
+          "6c016def409c66028108d7d964b23b8ec2b71e0f4dc689ec802d1844ac849675": "198484260",
+          "ac294faf30baa71a956b4da2a9caeef93b3c9c0eace4bba235a1249eeb35ff32": "145013489",
+          "2ac6bfad5b7c10acb432ef5d2ce8f0cff191369a7455395c2a4e1c338d7d2694": "206372952"
+        },
+        "excluded": {},
+        "observations": {
+          "a548aae9080aea63241780dc5a69e423bed72b1af8a2549885ae4710d16809ba": [
+            "39552d8fb7f6c6c435d2830c40827f22524d4851301c966c562ca295ad028380",
+            "4bc7d48ce92207b756e3de49910c01d9d7e4ba951b211469eb327113952b6aa2",
+            "a844b177a1f92e6a05234e73892d101df3818f9e7d011f016cf0d940d217b744"
+          ],
+          "6c016def409c66028108d7d964b23b8ec2b71e0f4dc689ec802d1844ac849675": [
+            "18739f80730b9fbb9364bbd5180057492d6500258f4c118dd8c3b36ddc3d675c",
+            "a6ecd1a33c72547db5917d6f3da5e2745b5047874ac3c62277f6743e8e149fb4",
+            "e054683ccf4a9f5fce0dabccb9d4fb962b785a2df8b1d0a60e20ddd068e7ebc5"
+          ],
+          "ac294faf30baa71a956b4da2a9caeef93b3c9c0eace4bba235a1249eeb35ff32": [
+            "63a7a4cf9296fcde9dd59b0a56579c16652e6d644750ceb571ae10e920fd99a2",
+            "7a65dedb8f2005284e0eac464dc4b30fe68c0658f5f402bdc351f85bc6b601b0",
+            "a8bea2ff6468e150a664fa1a370a586b741adeebfb67c51672087caa3ae41124"
+          ],
+          "2ac6bfad5b7c10acb432ef5d2ce8f0cff191369a7455395c2a4e1c338d7d2694": [
+            "061e8397bd7daaaebe48d0a925369f8dd90b9e269d824c79aa6a87835990fbd0",
+            "1f9cefe13f0122c508606ec2492b86f166b1e3faeab8c7a0fa7eb2868616bbc3",
+            "209efda94d41c4402d3a9a365eead74f766d71107cf79065b3194065a1a7959d"
+          ]
+        },
+        "baseline_comparable": true
+      }
+    },
+    {
+      "group": "table",
+      "backend": "javascript",
+      "rows": 128,
+      "profile": "reads",
+      "selected": "direct",
+      "costs": {
+        "total_ns": {
+          "a548aae9080aea63241780dc5a69e423bed72b1af8a2549885ae4710d16809ba": "253751780",
+          "6c016def409c66028108d7d964b23b8ec2b71e0f4dc689ec802d1844ac849675": "511498659",
+          "ac294faf30baa71a956b4da2a9caeef93b3c9c0eace4bba235a1249eeb35ff32": "410193370",
+          "2ac6bfad5b7c10acb432ef5d2ce8f0cff191369a7455395c2a4e1c338d7d2694": "407236116"
+        },
+        "excluded": {},
+        "observations": {
+          "a548aae9080aea63241780dc5a69e423bed72b1af8a2549885ae4710d16809ba": [
+            "63e619a610a437f1f378043cef0da8402cdd6d82b9539d659dcb79d0647dcde6",
+            "95eb69263525bc1cdba8a203975727662ea36789880e4c41610ae652c62a78bd",
+            "f14864b894af143f5ee573e5895066c4a187f843a738219fae65ee8d3628c524"
+          ],
+          "6c016def409c66028108d7d964b23b8ec2b71e0f4dc689ec802d1844ac849675": [
+            "8d863c812f6f99a3baa423c51d55930bad9de45130052cf73b45c29328b91892",
+            "8e7ac1ce5221930a705e2ad7bebc3de369202a2670a9e3166fe3f337e0910814",
+            "c2c03860ea908e34b9240a196f8a961c6eae71baee7fbb802864de874b7e8508"
+          ],
+          "ac294faf30baa71a956b4da2a9caeef93b3c9c0eace4bba235a1249eeb35ff32": [
+            "1b19720116eaecfa2fc3e64ce4d9f937ae6740964c0ed2e7ed896af3c6d4783f",
+            "2808b3a924d32a7010464c8d2ded08ef70b101ba7c7f5b30be72fc6ebe695b9f",
+            "40d18368e08e659c2c8001c927e068e237462795a56d3a0813a051cf9307ce6a"
+          ],
+          "2ac6bfad5b7c10acb432ef5d2ce8f0cff191369a7455395c2a4e1c338d7d2694": [
+            "2d09030f48005ff3e166fd68e131d8ae249550a5d5799b1c2247586f9b27b66e",
+            "c8f8d2e9e3149510a42a3712a3f6e7f57bd247696330d09a1dacbe5708e46718",
+            "fcf0c0e0bec49b888a5fb7f9a2755c5c48b5c4538de26e6c95ffa29b7a4015ae"
+          ]
+        },
+        "baseline_comparable": true
+      }
+    },
+    {
+      "group": "table",
+      "backend": "javascript",
+      "rows": 128,
+      "profile": "writes",
+      "selected": "packed-4",
+      "costs": {
+        "total_ns": {
+          "a548aae9080aea63241780dc5a69e423bed72b1af8a2549885ae4710d16809ba": "762290921",
+          "6c016def409c66028108d7d964b23b8ec2b71e0f4dc689ec802d1844ac849675": "730396767",
+          "ac294faf30baa71a956b4da2a9caeef93b3c9c0eace4bba235a1249eeb35ff32": "569277460",
+          "2ac6bfad5b7c10acb432ef5d2ce8f0cff191369a7455395c2a4e1c338d7d2694": "653561481"
+        },
+        "excluded": {},
+        "observations": {
+          "a548aae9080aea63241780dc5a69e423bed72b1af8a2549885ae4710d16809ba": [
+            "63e619a610a437f1f378043cef0da8402cdd6d82b9539d659dcb79d0647dcde6",
+            "95eb69263525bc1cdba8a203975727662ea36789880e4c41610ae652c62a78bd",
+            "f14864b894af143f5ee573e5895066c4a187f843a738219fae65ee8d3628c524"
+          ],
+          "6c016def409c66028108d7d964b23b8ec2b71e0f4dc689ec802d1844ac849675": [
+            "8d863c812f6f99a3baa423c51d55930bad9de45130052cf73b45c29328b91892",
+            "8e7ac1ce5221930a705e2ad7bebc3de369202a2670a9e3166fe3f337e0910814",
+            "c2c03860ea908e34b9240a196f8a961c6eae71baee7fbb802864de874b7e8508"
+          ],
+          "ac294faf30baa71a956b4da2a9caeef93b3c9c0eace4bba235a1249eeb35ff32": [
+            "1b19720116eaecfa2fc3e64ce4d9f937ae6740964c0ed2e7ed896af3c6d4783f",
+            "2808b3a924d32a7010464c8d2ded08ef70b101ba7c7f5b30be72fc6ebe695b9f",
+            "40d18368e08e659c2c8001c927e068e237462795a56d3a0813a051cf9307ce6a"
+          ],
+          "2ac6bfad5b7c10acb432ef5d2ce8f0cff191369a7455395c2a4e1c338d7d2694": [
+            "2d09030f48005ff3e166fd68e131d8ae249550a5d5799b1c2247586f9b27b66e",
+            "c8f8d2e9e3149510a42a3712a3f6e7f57bd247696330d09a1dacbe5708e46718",
+            "fcf0c0e0bec49b888a5fb7f9a2755c5c48b5c4538de26e6c95ffa29b7a4015ae"
+          ]
+        },
+        "baseline_comparable": true
+      }
+    },
+    {
+      "group": "table",
+      "backend": "javascript",
+      "rows": 1024,
+      "profile": "reads",
+      "selected": "direct",
+      "costs": {
+        "total_ns": {
+          "a548aae9080aea63241780dc5a69e423bed72b1af8a2549885ae4710d16809ba": "1503326969",
+          "6c016def409c66028108d7d964b23b8ec2b71e0f4dc689ec802d1844ac849675": "3036298457",
+          "ac294faf30baa71a956b4da2a9caeef93b3c9c0eace4bba235a1249eeb35ff32": "2700541981",
+          "2ac6bfad5b7c10acb432ef5d2ce8f0cff191369a7455395c2a4e1c338d7d2694": "3078715434"
+        },
+        "excluded": {},
+        "observations": {
+          "a548aae9080aea63241780dc5a69e423bed72b1af8a2549885ae4710d16809ba": [
+            "3ddc31ca1440aca887bb24e13864d6cd4c29127d1337a65558a64e6749eba85f",
+            "6c6c99313601066dccff8a01604000cd111af1aa61ff36fd4521acaaf89f812d",
+            "f67b4a9fe1a95346cc40eaae2d6ee7710e306b7a8eef681e407794b90f7776d0"
+          ],
+          "6c016def409c66028108d7d964b23b8ec2b71e0f4dc689ec802d1844ac849675": [
+            "0d14892029652096f26a3f45a60e8f369fce7674dafccf0d55ceb248ea92c8e3",
+            "887aed8978b3d59ca73a37c534ec79b51e302b64d1ae40996aeb04452b9f478d",
+            "8bab46becd0d5d7d495875c71dbc57e6e1cab38c8b0e4a61dcfc49ded2ca2f96"
+          ],
+          "ac294faf30baa71a956b4da2a9caeef93b3c9c0eace4bba235a1249eeb35ff32": [
+            "30c1257e06a22b14d207988bd63a02ea1d96c905708014fbf2cfc5b2317a178e",
+            "40d6516b15e59aa7ad28224fdb260db32185cd0527d20eaa281b7adc63c249a6",
+            "90889e1dd8aed9d14dcb54ab3338ac15ba6074d3c72310c8742a68f52a319497"
+          ],
+          "2ac6bfad5b7c10acb432ef5d2ce8f0cff191369a7455395c2a4e1c338d7d2694": [
+            "06203aa1ad843f903014e54f4b9a6d27466ef25e96d378b754fdb0213a6635c5",
+            "9b443617f05b8d7af2d0aac17cbed307d8af50ed06b9213379777789262bdb24",
+            "e48fa60e5f5b285bec28267bf2d4eb93e6e3c8e8549a7f63f71e4565ac21608a"
+          ]
+        },
+        "baseline_comparable": true
+      }
+    },
+    {
+      "group": "table",
+      "backend": "javascript",
+      "rows": 1024,
+      "profile": "writes",
+      "selected": "packed-4",
+      "costs": {
+        "total_ns": {
+          "a548aae9080aea63241780dc5a69e423bed72b1af8a2549885ae4710d16809ba": "5674459814",
+          "6c016def409c66028108d7d964b23b8ec2b71e0f4dc689ec802d1844ac849675": "5321169947",
+          "ac294faf30baa71a956b4da2a9caeef93b3c9c0eace4bba235a1249eeb35ff32": "3842777746",
+          "2ac6bfad5b7c10acb432ef5d2ce8f0cff191369a7455395c2a4e1c338d7d2694": "4501103181"
+        },
+        "excluded": {},
+        "observations": {
+          "a548aae9080aea63241780dc5a69e423bed72b1af8a2549885ae4710d16809ba": [
+            "3ddc31ca1440aca887bb24e13864d6cd4c29127d1337a65558a64e6749eba85f",
+            "6c6c99313601066dccff8a01604000cd111af1aa61ff36fd4521acaaf89f812d",
+            "f67b4a9fe1a95346cc40eaae2d6ee7710e306b7a8eef681e407794b90f7776d0"
+          ],
+          "6c016def409c66028108d7d964b23b8ec2b71e0f4dc689ec802d1844ac849675": [
+            "0d14892029652096f26a3f45a60e8f369fce7674dafccf0d55ceb248ea92c8e3",
+            "887aed8978b3d59ca73a37c534ec79b51e302b64d1ae40996aeb04452b9f478d",
+            "8bab46becd0d5d7d495875c71dbc57e6e1cab38c8b0e4a61dcfc49ded2ca2f96"
+          ],
+          "ac294faf30baa71a956b4da2a9caeef93b3c9c0eace4bba235a1249eeb35ff32": [
+            "30c1257e06a22b14d207988bd63a02ea1d96c905708014fbf2cfc5b2317a178e",
+            "40d6516b15e59aa7ad28224fdb260db32185cd0527d20eaa281b7adc63c249a6",
+            "90889e1dd8aed9d14dcb54ab3338ac15ba6074d3c72310c8742a68f52a319497"
+          ],
+          "2ac6bfad5b7c10acb432ef5d2ce8f0cff191369a7455395c2a4e1c338d7d2694": [
+            "06203aa1ad843f903014e54f4b9a6d27466ef25e96d378b754fdb0213a6635c5",
+            "9b443617f05b8d7af2d0aac17cbed307d8af50ed06b9213379777789262bdb24",
+            "e48fa60e5f5b285bec28267bf2d4eb93e6e3c8e8549a7f63f71e4565ac21608a"
+          ]
+        },
+        "baseline_comparable": true
+      }
+    },
+    {
+      "group": "table",
+      "backend": "rust-native",
+      "rows": 16,
+      "profile": "reads",
+      "selected": "direct",
+      "costs": {
+        "total_ns": {
+          "a548aae9080aea63241780dc5a69e423bed72b1af8a2549885ae4710d16809ba": "6494392",
+          "6c016def409c66028108d7d964b23b8ec2b71e0f4dc689ec802d1844ac849675": "11185399",
+          "ac294faf30baa71a956b4da2a9caeef93b3c9c0eace4bba235a1249eeb35ff32": "24941815",
+          "2ac6bfad5b7c10acb432ef5d2ce8f0cff191369a7455395c2a4e1c338d7d2694": "26845698"
+        },
+        "excluded": {},
+        "observations": {
+          "a548aae9080aea63241780dc5a69e423bed72b1af8a2549885ae4710d16809ba": [
+            "4f4ea29ef32c801d615c47983f9870e82a6c04ea1a2974fa25c5a3e38a0bceae",
+            "c9a5ea39e697054436a600a4150720571887fabb365b4ce344f51dd1420b3646",
+            "f49305e787502940ea454cf840d887af12db020890d725210fcbbaee381b3f8c"
+          ],
+          "6c016def409c66028108d7d964b23b8ec2b71e0f4dc689ec802d1844ac849675": [
+            "80aa14f0485e6725f94deed9c1ff7901e3ff5450af9ac35538fbcd3223b2b66e",
+            "caa7589ee328438912616ab53909df540c63f4fd5bcb0c2de04a04936680afdb",
+            "e93b8f7a25b4c65f13c1a3cd185a77962b882f1d2a923e05a331aeecb2e048e5"
+          ],
+          "ac294faf30baa71a956b4da2a9caeef93b3c9c0eace4bba235a1249eeb35ff32": [
+            "96141261fb16c594cfc73c572447c3203337e4cdc590227c1e21263e471a6feb",
+            "b089ae4a841d7eb3f9d13d7b8efd789ef2f49b6c00445921119befcfc0ab1726",
+            "d9d44bb0f74efcd2f9a65362d7a95f0434c77088ddb6e3107aad85741f0a70e7"
+          ],
+          "2ac6bfad5b7c10acb432ef5d2ce8f0cff191369a7455395c2a4e1c338d7d2694": [
+            "2fcbce198bdb9c12d08b65d3e3cdc549209cf01d71e48c8f411012215cf69071",
+            "431f2bbdca6e78fd9a3fb1e72eb8906b375ba31540cf53b4dcebf9f444987ac3",
+            "46845077b0fb891d4f8bdb994f3b30b2770271857d510b9447b2ede8b481d7c9"
+          ]
+        },
+        "baseline_comparable": true
+      }
+    },
+    {
+      "group": "table",
+      "backend": "rust-native",
+      "rows": 16,
+      "profile": "writes",
+      "selected": "direct",
+      "costs": {
+        "total_ns": {
+          "a548aae9080aea63241780dc5a69e423bed72b1af8a2549885ae4710d16809ba": "19803061",
+          "6c016def409c66028108d7d964b23b8ec2b71e0f4dc689ec802d1844ac849675": "20024515",
+          "ac294faf30baa71a956b4da2a9caeef93b3c9c0eace4bba235a1249eeb35ff32": "43959913",
+          "2ac6bfad5b7c10acb432ef5d2ce8f0cff191369a7455395c2a4e1c338d7d2694": "55452837"
+        },
+        "excluded": {},
+        "observations": {
+          "a548aae9080aea63241780dc5a69e423bed72b1af8a2549885ae4710d16809ba": [
+            "4f4ea29ef32c801d615c47983f9870e82a6c04ea1a2974fa25c5a3e38a0bceae",
+            "c9a5ea39e697054436a600a4150720571887fabb365b4ce344f51dd1420b3646",
+            "f49305e787502940ea454cf840d887af12db020890d725210fcbbaee381b3f8c"
+          ],
+          "6c016def409c66028108d7d964b23b8ec2b71e0f4dc689ec802d1844ac849675": [
+            "80aa14f0485e6725f94deed9c1ff7901e3ff5450af9ac35538fbcd3223b2b66e",
+            "caa7589ee328438912616ab53909df540c63f4fd5bcb0c2de04a04936680afdb",
+            "e93b8f7a25b4c65f13c1a3cd185a77962b882f1d2a923e05a331aeecb2e048e5"
+          ],
+          "ac294faf30baa71a956b4da2a9caeef93b3c9c0eace4bba235a1249eeb35ff32": [
+            "96141261fb16c594cfc73c572447c3203337e4cdc590227c1e21263e471a6feb",
+            "b089ae4a841d7eb3f9d13d7b8efd789ef2f49b6c00445921119befcfc0ab1726",
+            "d9d44bb0f74efcd2f9a65362d7a95f0434c77088ddb6e3107aad85741f0a70e7"
+          ],
+          "2ac6bfad5b7c10acb432ef5d2ce8f0cff191369a7455395c2a4e1c338d7d2694": [
+            "2fcbce198bdb9c12d08b65d3e3cdc549209cf01d71e48c8f411012215cf69071",
+            "431f2bbdca6e78fd9a3fb1e72eb8906b375ba31540cf53b4dcebf9f444987ac3",
+            "46845077b0fb891d4f8bdb994f3b30b2770271857d510b9447b2ede8b481d7c9"
+          ]
+        },
+        "baseline_comparable": true
+      }
+    },
+    {
+      "group": "table",
+      "backend": "rust-native",
+      "rows": 128,
+      "profile": "reads",
+      "selected": "direct",
+      "costs": {
+        "total_ns": {
+          "a548aae9080aea63241780dc5a69e423bed72b1af8a2549885ae4710d16809ba": "15337687",
+          "6c016def409c66028108d7d964b23b8ec2b71e0f4dc689ec802d1844ac849675": "49838932",
+          "ac294faf30baa71a956b4da2a9caeef93b3c9c0eace4bba235a1249eeb35ff32": "136968163",
+          "2ac6bfad5b7c10acb432ef5d2ce8f0cff191369a7455395c2a4e1c338d7d2694": "138438354"
+        },
+        "excluded": {},
+        "observations": {
+          "a548aae9080aea63241780dc5a69e423bed72b1af8a2549885ae4710d16809ba": [
+            "3d5a6c4e4186a761d18ea34726c9597d73ee69b65dcfcbb53e6287b0cfede64f",
+            "87f5586a814cd19c3b106964bc9b9f74fbf39a32a2fa865b2c239c2847a947bd",
+            "c4ad5a7d2f50c2c3def15fa223cdbc558233ffe1ddf8dc43db1a1ffd9f10f2f9"
+          ],
+          "6c016def409c66028108d7d964b23b8ec2b71e0f4dc689ec802d1844ac849675": [
+            "16c571bbeaf2dcda842a0cb38930821a79fd9ad63905c3b04ef70846928bb97f",
+            "61caa0063b11b53213eb32badda7285cd24978390426e41cf492471633eeaae1",
+            "7b2297f88f77bf55b3fdc6b266666b23d1d50f39a8bd7aec2cef7e0c8802cdc6"
+          ],
+          "ac294faf30baa71a956b4da2a9caeef93b3c9c0eace4bba235a1249eeb35ff32": [
+            "18deeac8afb4ce9d304f59d4163c4ae8073238abdebc242e3685be7e7f9df5c8",
+            "71fbac0afb665e4a8d42467a3516ba6d38f9ee8bf79d75a8c72aa052e23af250",
+            "9a85ee50c9a51ddf4149f04ed626b6860929747ff69199f3633846bc74c3234e"
+          ],
+          "2ac6bfad5b7c10acb432ef5d2ce8f0cff191369a7455395c2a4e1c338d7d2694": [
+            "6643e709d5ddc4972a284e27da9cdf8b932e31af4fbd3e88969dd367ce889f37",
+            "6f8301893cb5efafdfc9e20aa6b772b813d3ff8b6b6358fac756d2bd9f98bfe6",
+            "daa7eb3b46bc36ca9b52ea9ebe3410fe978fe12da871d62128a66f032d22b162"
+          ]
+        },
+        "baseline_comparable": true
+      }
+    },
+    {
+      "group": "table",
+      "backend": "rust-native",
+      "rows": 128,
+      "profile": "writes",
+      "selected": "direct",
+      "costs": {
+        "total_ns": {
+          "a548aae9080aea63241780dc5a69e423bed72b1af8a2549885ae4710d16809ba": "75801640",
+          "6c016def409c66028108d7d964b23b8ec2b71e0f4dc689ec802d1844ac849675": "81515764",
+          "ac294faf30baa71a956b4da2a9caeef93b3c9c0eace4bba235a1249eeb35ff32": "216070252",
+          "2ac6bfad5b7c10acb432ef5d2ce8f0cff191369a7455395c2a4e1c338d7d2694": "163775820"
+        },
+        "excluded": {},
+        "observations": {
+          "a548aae9080aea63241780dc5a69e423bed72b1af8a2549885ae4710d16809ba": [
+            "3d5a6c4e4186a761d18ea34726c9597d73ee69b65dcfcbb53e6287b0cfede64f",
+            "87f5586a814cd19c3b106964bc9b9f74fbf39a32a2fa865b2c239c2847a947bd",
+            "c4ad5a7d2f50c2c3def15fa223cdbc558233ffe1ddf8dc43db1a1ffd9f10f2f9"
+          ],
+          "6c016def409c66028108d7d964b23b8ec2b71e0f4dc689ec802d1844ac849675": [
+            "16c571bbeaf2dcda842a0cb38930821a79fd9ad63905c3b04ef70846928bb97f",
+            "61caa0063b11b53213eb32badda7285cd24978390426e41cf492471633eeaae1",
+            "7b2297f88f77bf55b3fdc6b266666b23d1d50f39a8bd7aec2cef7e0c8802cdc6"
+          ],
+          "ac294faf30baa71a956b4da2a9caeef93b3c9c0eace4bba235a1249eeb35ff32": [
+            "18deeac8afb4ce9d304f59d4163c4ae8073238abdebc242e3685be7e7f9df5c8",
+            "71fbac0afb665e4a8d42467a3516ba6d38f9ee8bf79d75a8c72aa052e23af250",
+            "9a85ee50c9a51ddf4149f04ed626b6860929747ff69199f3633846bc74c3234e"
+          ],
+          "2ac6bfad5b7c10acb432ef5d2ce8f0cff191369a7455395c2a4e1c338d7d2694": [
+            "6643e709d5ddc4972a284e27da9cdf8b932e31af4fbd3e88969dd367ce889f37",
+            "6f8301893cb5efafdfc9e20aa6b772b813d3ff8b6b6358fac756d2bd9f98bfe6",
+            "daa7eb3b46bc36ca9b52ea9ebe3410fe978fe12da871d62128a66f032d22b162"
+          ]
+        },
+        "baseline_comparable": true
+      }
+    },
+    {
+      "group": "table",
+      "backend": "rust-native",
+      "rows": 1024,
+      "profile": "reads",
+      "selected": "direct",
+      "costs": {
+        "total_ns": {
+          "a548aae9080aea63241780dc5a69e423bed72b1af8a2549885ae4710d16809ba": "83729380",
+          "6c016def409c66028108d7d964b23b8ec2b71e0f4dc689ec802d1844ac849675": "436177371",
+          "ac294faf30baa71a956b4da2a9caeef93b3c9c0eace4bba235a1249eeb35ff32": "2117121482",
+          "2ac6bfad5b7c10acb432ef5d2ce8f0cff191369a7455395c2a4e1c338d7d2694": "1587569249"
+        },
+        "excluded": {},
+        "observations": {
+          "a548aae9080aea63241780dc5a69e423bed72b1af8a2549885ae4710d16809ba": [
+            "283359026cb1619072887d79933d10977a84807ff7afc1e3fb2145a2e8929497",
+            "67738b5c239cc9b1a88754c004cb943f8c85748e989624ef4d2a911762659116",
+            "ef7d2f3128409c814bfb1fc056a246c729ab27d80a6ad45f36ff264824622549"
+          ],
+          "6c016def409c66028108d7d964b23b8ec2b71e0f4dc689ec802d1844ac849675": [
+            "6eda58d36f114f3f8d03ac1d46e6e9cfc0f422d53ce196d4e484903538acf9b2",
+            "82d3b33c825c7b96b748d9d095909d79047627836f35dc1c8198eb19a35e2032",
+            "d60099194f5e2e81513de17319a5497d8fc93ac5087bcd0a37d674eba9885398"
+          ],
+          "ac294faf30baa71a956b4da2a9caeef93b3c9c0eace4bba235a1249eeb35ff32": [
+            "22551d407569b3fb58d4dc5379d5c35c1eba5cdad29f025bf0d93a18fe696176",
+            "4a7a37e429cf065d3ee06a17b95f09029b9510e280d47cbdc199efad465af169",
+            "853160fc2a0e5800f889c20cf55db588075e03968a707cdc91be0421eafa826c"
+          ],
+          "2ac6bfad5b7c10acb432ef5d2ce8f0cff191369a7455395c2a4e1c338d7d2694": [
+            "2ae54a4fa43964236252d7691b3c6517dddb2b0b23318a12ed86857e20aae9f8",
+            "432ce1297844b2d4e6a45a650e85b99a1ee4b87510b412a4cb654029e089aa8d",
+            "d76afacd8b720d6ad57d33d5d0df248e3139d5757f10a1beb1bda452bf5b4cbb"
+          ]
+        },
+        "baseline_comparable": true
+      }
+    },
+    {
+      "group": "table",
+      "backend": "rust-native",
+      "rows": 1024,
+      "profile": "writes",
+      "selected": "direct",
+      "costs": {
+        "total_ns": {
+          "a548aae9080aea63241780dc5a69e423bed72b1af8a2549885ae4710d16809ba": "499907758",
+          "6c016def409c66028108d7d964b23b8ec2b71e0f4dc689ec802d1844ac849675": "615059481",
+          "ac294faf30baa71a956b4da2a9caeef93b3c9c0eace4bba235a1249eeb35ff32": "2374785713",
+          "2ac6bfad5b7c10acb432ef5d2ce8f0cff191369a7455395c2a4e1c338d7d2694": "1546943312"
+        },
+        "excluded": {},
+        "observations": {
+          "a548aae9080aea63241780dc5a69e423bed72b1af8a2549885ae4710d16809ba": [
+            "283359026cb1619072887d79933d10977a84807ff7afc1e3fb2145a2e8929497",
+            "67738b5c239cc9b1a88754c004cb943f8c85748e989624ef4d2a911762659116",
+            "ef7d2f3128409c814bfb1fc056a246c729ab27d80a6ad45f36ff264824622549"
+          ],
+          "6c016def409c66028108d7d964b23b8ec2b71e0f4dc689ec802d1844ac849675": [
+            "6eda58d36f114f3f8d03ac1d46e6e9cfc0f422d53ce196d4e484903538acf9b2",
+            "82d3b33c825c7b96b748d9d095909d79047627836f35dc1c8198eb19a35e2032",
+            "d60099194f5e2e81513de17319a5497d8fc93ac5087bcd0a37d674eba9885398"
+          ],
+          "ac294faf30baa71a956b4da2a9caeef93b3c9c0eace4bba235a1249eeb35ff32": [
+            "22551d407569b3fb58d4dc5379d5c35c1eba5cdad29f025bf0d93a18fe696176",
+            "4a7a37e429cf065d3ee06a17b95f09029b9510e280d47cbdc199efad465af169",
+            "853160fc2a0e5800f889c20cf55db588075e03968a707cdc91be0421eafa826c"
+          ],
+          "2ac6bfad5b7c10acb432ef5d2ce8f0cff191369a7455395c2a4e1c338d7d2694": [
+            "2ae54a4fa43964236252d7691b3c6517dddb2b0b23318a12ed86857e20aae9f8",
+            "432ce1297844b2d4e6a45a650e85b99a1ee4b87510b412a4cb654029e089aa8d",
+            "d76afacd8b720d6ad57d33d5d0df248e3139d5757f10a1beb1bda452bf5b4cbb"
+          ]
+        },
+        "baseline_comparable": true
+      }
+    },
+    {
+      "group": "boolean",
+      "backend": "javascript",
+      "rows": 16,
+      "profile": "any-reads",
+      "selected": "any-delta",
+      "costs": {
+        "total_ns": {
+          "ca9c081c4c96a223a2bab99c879f3f3df3d6b81696cadda83fe6cf0cf599390d": "123116846",
+          "c1c62a4b89c6c123f77012b38ead7ef1aaa812be349ef597719458898c47f789": "15055819",
+          "1bb098884c14dec0e0c5433c0fca02cd26009326dde8be015fe6f961e1905f34": "133858730"
+        },
+        "excluded": {},
+        "observations": {
+          "ca9c081c4c96a223a2bab99c879f3f3df3d6b81696cadda83fe6cf0cf599390d": [
+            "38c9473399e1c16acc90987344c1774ed2a310a821f46761654ac2c4335ad95b",
+            "3e84ef1d46b3bf87befe2cbc15dc06edd0ce3383ef8df4694a836b16aa5f0bd0",
+            "6c6044993a65cb414b5072eff1c6dc96538d98a13ad60a81abd959b10769738f",
+            "79f1432e0f217f37e907fa4a4e7d55f9df2cdcfd1c7ca6b32d823187d211b348"
+          ],
+          "c1c62a4b89c6c123f77012b38ead7ef1aaa812be349ef597719458898c47f789": [
+            "6d83de06ae53a5c1d037ec445d4bd752a73382365d1e599342a9cafa0e60b23e",
+            "b3ba4511f0c751220ce719bb81a23693d8699fe13d4d909fba561f6c162695ad",
+            "c34b6c97fd605c9768bf55104f0d2732d39725325a4fd05a765d52268f555e05",
+            "f91a857e144d53bf945ccc3700484822bb45716e28f045ea82b0ef7e001ba1fa"
+          ],
+          "1bb098884c14dec0e0c5433c0fca02cd26009326dde8be015fe6f961e1905f34": [
+            "17f330d657ff0e81c4728df9b9f980c13f44cec309ac59470501c2c6427e272c",
+            "1f8cdf288adc1bb31888f4c73e7212d6b92a4e9fafc24e8f81de7d0d69bbfd27",
+            "930293c2fec3e616db3051918debde8da85132de058f73f46c1f2d7693cdf95f",
+            "c58b7d2d2d6a7ebb12d1e781bf959dfa7585dad96af0d26dc0bbd8eeb23bf6f1"
+          ]
+        },
+        "baseline_comparable": true
+      }
+    },
+    {
+      "group": "boolean",
+      "backend": "javascript",
+      "rows": 16,
+      "profile": "all-reads",
+      "selected": "all-delta",
+      "costs": {
+        "total_ns": {
+          "ca9c081c4c96a223a2bab99c879f3f3df3d6b81696cadda83fe6cf0cf599390d": "99576846",
+          "c1c62a4b89c6c123f77012b38ead7ef1aaa812be349ef597719458898c47f789": "113445819",
+          "1bb098884c14dec0e0c5433c0fca02cd26009326dde8be015fe6f961e1905f34": "15768730"
+        },
+        "excluded": {},
+        "observations": {
+          "ca9c081c4c96a223a2bab99c879f3f3df3d6b81696cadda83fe6cf0cf599390d": [
+            "3e84ef1d46b3bf87befe2cbc15dc06edd0ce3383ef8df4694a836b16aa5f0bd0",
+            "6c6044993a65cb414b5072eff1c6dc96538d98a13ad60a81abd959b10769738f",
+            "79f1432e0f217f37e907fa4a4e7d55f9df2cdcfd1c7ca6b32d823187d211b348",
+            "85826b4f87662db29378327be10ed61429111bd34c7dd0a416c1cdd445595cec"
+          ],
+          "c1c62a4b89c6c123f77012b38ead7ef1aaa812be349ef597719458898c47f789": [
+            "6b05eeba573c645590050bc0e7a8220af8a425a521ed8f57b659da9267693fc3",
+            "b3ba4511f0c751220ce719bb81a23693d8699fe13d4d909fba561f6c162695ad",
+            "c34b6c97fd605c9768bf55104f0d2732d39725325a4fd05a765d52268f555e05",
+            "f91a857e144d53bf945ccc3700484822bb45716e28f045ea82b0ef7e001ba1fa"
+          ],
+          "1bb098884c14dec0e0c5433c0fca02cd26009326dde8be015fe6f961e1905f34": [
+            "17f330d657ff0e81c4728df9b9f980c13f44cec309ac59470501c2c6427e272c",
+            "1f8cdf288adc1bb31888f4c73e7212d6b92a4e9fafc24e8f81de7d0d69bbfd27",
+            "930293c2fec3e616db3051918debde8da85132de058f73f46c1f2d7693cdf95f",
+            "c10956383ce528301f04b0d01796019071e95382ccaa38a64fcb20db73984e39"
+          ]
+        },
+        "baseline_comparable": true
+      }
+    },
+    {
+      "group": "boolean",
+      "backend": "javascript",
+      "rows": 16,
+      "profile": "writes",
+      "selected": "boolean-direct",
+      "costs": {
+        "total_ns": {
+          "ca9c081c4c96a223a2bab99c879f3f3df3d6b81696cadda83fe6cf0cf599390d": "527606393",
+          "c1c62a4b89c6c123f77012b38ead7ef1aaa812be349ef597719458898c47f789": "651782140",
+          "1bb098884c14dec0e0c5433c0fca02cd26009326dde8be015fe6f961e1905f34": "773664743"
+        },
+        "excluded": {},
+        "observations": {
+          "ca9c081c4c96a223a2bab99c879f3f3df3d6b81696cadda83fe6cf0cf599390d": [
+            "38c9473399e1c16acc90987344c1774ed2a310a821f46761654ac2c4335ad95b",
+            "3e84ef1d46b3bf87befe2cbc15dc06edd0ce3383ef8df4694a836b16aa5f0bd0",
+            "6c6044993a65cb414b5072eff1c6dc96538d98a13ad60a81abd959b10769738f",
+            "79f1432e0f217f37e907fa4a4e7d55f9df2cdcfd1c7ca6b32d823187d211b348"
+          ],
+          "c1c62a4b89c6c123f77012b38ead7ef1aaa812be349ef597719458898c47f789": [
+            "6d83de06ae53a5c1d037ec445d4bd752a73382365d1e599342a9cafa0e60b23e",
+            "b3ba4511f0c751220ce719bb81a23693d8699fe13d4d909fba561f6c162695ad",
+            "c34b6c97fd605c9768bf55104f0d2732d39725325a4fd05a765d52268f555e05",
+            "f91a857e144d53bf945ccc3700484822bb45716e28f045ea82b0ef7e001ba1fa"
+          ],
+          "1bb098884c14dec0e0c5433c0fca02cd26009326dde8be015fe6f961e1905f34": [
+            "17f330d657ff0e81c4728df9b9f980c13f44cec309ac59470501c2c6427e272c",
+            "1f8cdf288adc1bb31888f4c73e7212d6b92a4e9fafc24e8f81de7d0d69bbfd27",
+            "930293c2fec3e616db3051918debde8da85132de058f73f46c1f2d7693cdf95f",
+            "c58b7d2d2d6a7ebb12d1e781bf959dfa7585dad96af0d26dc0bbd8eeb23bf6f1"
+          ]
+        },
+        "baseline_comparable": true
+      }
+    },
+    {
+      "group": "boolean",
+      "backend": "javascript",
+      "rows": 128,
+      "profile": "any-reads",
+      "selected": "any-delta",
+      "costs": {
+        "total_ns": {
+          "ca9c081c4c96a223a2bab99c879f3f3df3d6b81696cadda83fe6cf0cf599390d": "338869595",
+          "c1c62a4b89c6c123f77012b38ead7ef1aaa812be349ef597719458898c47f789": "16862445",
+          "1bb098884c14dec0e0c5433c0fca02cd26009326dde8be015fe6f961e1905f34": "354988065"
+        },
+        "excluded": {},
+        "observations": {
+          "ca9c081c4c96a223a2bab99c879f3f3df3d6b81696cadda83fe6cf0cf599390d": [
+            "7f5ce744dca356f6d30a5a9b2c0d70db4a072e069066e3fc36617f7050936f82",
+            "a8770143cce77f3b0821e9233bc15ffd2decca4d014b8b3d7cd82e4114760d10",
+            "e654dd07e48c8d6f0a80a8db16ced2185b0789007450d705961c17e71d851807",
+            "f1c0d3049c8bb94706ddc9ddf3bcf9f2f2a08627e9600a725babd4169b6e97b1"
+          ],
+          "c1c62a4b89c6c123f77012b38ead7ef1aaa812be349ef597719458898c47f789": [
+            "00c7a044266c05e7daa0abbfd76bb825b30b823591fb2aca528761f69b2ae03e",
+            "5d996d96815be586e10aea363d7025b7a84d123d4743989836a4c919a2a8655e",
+            "7168b7c26dbdf9b5b7e0eb232f5ca9dd0ea63fce470437312729779efd8a3146",
+            "8add58d86bb57f72c83d01f1f45e13f015cf8c9461bb485d094fcc1ce1a362a5"
+          ],
+          "1bb098884c14dec0e0c5433c0fca02cd26009326dde8be015fe6f961e1905f34": [
+            "38a401ede67bab4eb5c69134eefb01ad7c27311355a319346672c1684e84b091",
+            "6ff567124cd880c5920cddfae2163e24304fda6c865e0f2193faa36b0ac53c49",
+            "8f75c56609c53aafe42506242a4a2f8e697ac5c887305a9eeff03bc1457c16c9",
+            "9740e499c0b5ad3232f0b5d79982a945cc0e3d0c08b3e79aeb50794bde878c68"
+          ]
+        },
+        "baseline_comparable": true
+      }
+    },
+    {
+      "group": "boolean",
+      "backend": "javascript",
+      "rows": 128,
+      "profile": "all-reads",
+      "selected": "all-delta",
+      "costs": {
+        "total_ns": {
+          "ca9c081c4c96a223a2bab99c879f3f3df3d6b81696cadda83fe6cf0cf599390d": "510409595",
+          "c1c62a4b89c6c123f77012b38ead7ef1aaa812be349ef597719458898c47f789": "531072445",
+          "1bb098884c14dec0e0c5433c0fca02cd26009326dde8be015fe6f961e1905f34": "14528065"
+        },
+        "excluded": {},
+        "observations": {
+          "ca9c081c4c96a223a2bab99c879f3f3df3d6b81696cadda83fe6cf0cf599390d": [
+            "08cb8376f3913a48926fcfd3a4d88ea3876b4086d3deb36e08651a85d0d555e5",
+            "7f5ce744dca356f6d30a5a9b2c0d70db4a072e069066e3fc36617f7050936f82",
+            "e654dd07e48c8d6f0a80a8db16ced2185b0789007450d705961c17e71d851807",
+            "f1c0d3049c8bb94706ddc9ddf3bcf9f2f2a08627e9600a725babd4169b6e97b1"
+          ],
+          "c1c62a4b89c6c123f77012b38ead7ef1aaa812be349ef597719458898c47f789": [
+            "00c7a044266c05e7daa0abbfd76bb825b30b823591fb2aca528761f69b2ae03e",
+            "2c104df11f924888f630709ac9f21351a6157637545dafe2c55915f2f9a3a6c1",
+            "5d996d96815be586e10aea363d7025b7a84d123d4743989836a4c919a2a8655e",
+            "8add58d86bb57f72c83d01f1f45e13f015cf8c9461bb485d094fcc1ce1a362a5"
+          ],
+          "1bb098884c14dec0e0c5433c0fca02cd26009326dde8be015fe6f961e1905f34": [
+            "38a401ede67bab4eb5c69134eefb01ad7c27311355a319346672c1684e84b091",
+            "6ff567124cd880c5920cddfae2163e24304fda6c865e0f2193faa36b0ac53c49",
+            "9740e499c0b5ad3232f0b5d79982a945cc0e3d0c08b3e79aeb50794bde878c68",
+            "e82dbff5417666a48162ed839f4db912a80c5c8266aa11863217bd1d75d1aec9"
+          ]
+        },
+        "baseline_comparable": true
+      }
+    },
+    {
+      "group": "boolean",
+      "backend": "javascript",
+      "rows": 128,
+      "profile": "writes",
+      "selected": "boolean-direct",
+      "costs": {
+        "total_ns": {
+          "ca9c081c4c96a223a2bab99c879f3f3df3d6b81696cadda83fe6cf0cf599390d": "954278048",
+          "c1c62a4b89c6c123f77012b38ead7ef1aaa812be349ef597719458898c47f789": "1709723142",
+          "1bb098884c14dec0e0c5433c0fca02cd26009326dde8be015fe6f961e1905f34": "1547338818"
+        },
+        "excluded": {},
+        "observations": {
+          "ca9c081c4c96a223a2bab99c879f3f3df3d6b81696cadda83fe6cf0cf599390d": [
+            "7f5ce744dca356f6d30a5a9b2c0d70db4a072e069066e3fc36617f7050936f82",
+            "a8770143cce77f3b0821e9233bc15ffd2decca4d014b8b3d7cd82e4114760d10",
+            "e654dd07e48c8d6f0a80a8db16ced2185b0789007450d705961c17e71d851807",
+            "f1c0d3049c8bb94706ddc9ddf3bcf9f2f2a08627e9600a725babd4169b6e97b1"
+          ],
+          "c1c62a4b89c6c123f77012b38ead7ef1aaa812be349ef597719458898c47f789": [
+            "00c7a044266c05e7daa0abbfd76bb825b30b823591fb2aca528761f69b2ae03e",
+            "5d996d96815be586e10aea363d7025b7a84d123d4743989836a4c919a2a8655e",
+            "7168b7c26dbdf9b5b7e0eb232f5ca9dd0ea63fce470437312729779efd8a3146",
+            "8add58d86bb57f72c83d01f1f45e13f015cf8c9461bb485d094fcc1ce1a362a5"
+          ],
+          "1bb098884c14dec0e0c5433c0fca02cd26009326dde8be015fe6f961e1905f34": [
+            "38a401ede67bab4eb5c69134eefb01ad7c27311355a319346672c1684e84b091",
+            "6ff567124cd880c5920cddfae2163e24304fda6c865e0f2193faa36b0ac53c49",
+            "8f75c56609c53aafe42506242a4a2f8e697ac5c887305a9eeff03bc1457c16c9",
+            "9740e499c0b5ad3232f0b5d79982a945cc0e3d0c08b3e79aeb50794bde878c68"
+          ]
+        },
+        "baseline_comparable": true
+      }
+    },
+    {
+      "group": "boolean",
+      "backend": "javascript",
+      "rows": 1024,
+      "profile": "any-reads",
+      "selected": "any-delta",
+      "costs": {
+        "total_ns": {
+          "ca9c081c4c96a223a2bab99c879f3f3df3d6b81696cadda83fe6cf0cf599390d": "1492155557",
+          "c1c62a4b89c6c123f77012b38ead7ef1aaa812be349ef597719458898c47f789": "11046388",
+          "1bb098884c14dec0e0c5433c0fca02cd26009326dde8be015fe6f961e1905f34": "1510623803"
+        },
+        "excluded": {},
+        "observations": {
+          "ca9c081c4c96a223a2bab99c879f3f3df3d6b81696cadda83fe6cf0cf599390d": [
+            "485b0e9e1e63f3272134deb730308b314e3d7d9b5ae023cdb8494f5b37f4e2af",
+            "8edc506b06109484d90fb458e8ad80a664b8664337886210dadd6192ccba4e4d",
+            "b2aea7af7b70748bf73e05521d0274c71b78f034242c11c8410649f7cef9f271",
+            "c90a45a1d0793511d31a9fc9af9d44bb53797f20bbb2ba968914c1cc6fc190e1"
+          ],
+          "c1c62a4b89c6c123f77012b38ead7ef1aaa812be349ef597719458898c47f789": [
+            "3535038d9a5a573cde2f89635683dcb94d48511129a35c61ec36bbcc9dd82e9c",
+            "64319c4b1ce8756970c9ac70e6d158a5571fdfec9a709c55ef21323ee67b97e2",
+            "9abe118c5d77050e4da7af6d3d1f76d0ff79166d0cc7fe4c326e88a7fd3d0ca2",
+            "b96a23c2bdb644745d7c0218f71f6adf576daadb77bb50882b4bbbfe19927768"
+          ],
+          "1bb098884c14dec0e0c5433c0fca02cd26009326dde8be015fe6f961e1905f34": [
+            "3711982cf0f835653edb3a9be41e8fccc56577ab3d15b2230aac2e42643f0797",
+            "90e5b7ac42147aa6f7865117b53d6fb1d8fa01fa6c8b4aee6ad85e4f9ee97b7f",
+            "b25d102699c4f3be5a31389f63bafe1b4242a87a747085e7fd5c543aba218b33",
+            "e9d0b90ab76f60a5e4f33708977f4cb40776a56694ff025072b8db22457b1ef6"
+          ]
+        },
+        "baseline_comparable": true
+      }
+    },
+    {
+      "group": "boolean",
+      "backend": "javascript",
+      "rows": 1024,
+      "profile": "all-reads",
+      "selected": "all-delta",
+      "costs": {
+        "total_ns": {
+          "ca9c081c4c96a223a2bab99c879f3f3df3d6b81696cadda83fe6cf0cf599390d": "3071445557",
+          "c1c62a4b89c6c123f77012b38ead7ef1aaa812be349ef597719458898c47f789": "2730986388",
+          "1bb098884c14dec0e0c5433c0fca02cd26009326dde8be015fe6f961e1905f34": "14643803"
+        },
+        "excluded": {},
+        "observations": {
+          "ca9c081c4c96a223a2bab99c879f3f3df3d6b81696cadda83fe6cf0cf599390d": [
+            "28a96b4e5468d3a77e3305976f171bffb8b4291c05e4faa0f0cd6b989c200e59",
+            "485b0e9e1e63f3272134deb730308b314e3d7d9b5ae023cdb8494f5b37f4e2af",
+            "8edc506b06109484d90fb458e8ad80a664b8664337886210dadd6192ccba4e4d",
+            "b2aea7af7b70748bf73e05521d0274c71b78f034242c11c8410649f7cef9f271"
+          ],
+          "c1c62a4b89c6c123f77012b38ead7ef1aaa812be349ef597719458898c47f789": [
+            "3535038d9a5a573cde2f89635683dcb94d48511129a35c61ec36bbcc9dd82e9c",
+            "64319c4b1ce8756970c9ac70e6d158a5571fdfec9a709c55ef21323ee67b97e2",
+            "9abe118c5d77050e4da7af6d3d1f76d0ff79166d0cc7fe4c326e88a7fd3d0ca2",
+            "b2effc43086c82952927639d2184fa4f8d42813a33695e931db246ec90c434a0"
+          ],
+          "1bb098884c14dec0e0c5433c0fca02cd26009326dde8be015fe6f961e1905f34": [
+            "90e5b7ac42147aa6f7865117b53d6fb1d8fa01fa6c8b4aee6ad85e4f9ee97b7f",
+            "b25d102699c4f3be5a31389f63bafe1b4242a87a747085e7fd5c543aba218b33",
+            "c9bdc7af146997a22930fb87b86e395518199fd28a4f92fcf1deb301f2997ed8",
+            "e9d0b90ab76f60a5e4f33708977f4cb40776a56694ff025072b8db22457b1ef6"
+          ]
+        },
+        "baseline_comparable": true
+      }
+    },
+    {
+      "group": "boolean",
+      "backend": "javascript",
+      "rows": 1024,
+      "profile": "writes",
+      "selected": "boolean-direct",
+      "costs": {
+        "total_ns": {
+          "ca9c081c4c96a223a2bab99c879f3f3df3d6b81696cadda83fe6cf0cf599390d": "4473927350",
+          "c1c62a4b89c6c123f77012b38ead7ef1aaa812be349ef597719458898c47f789": "8031594253",
+          "1bb098884c14dec0e0c5433c0fca02cd26009326dde8be015fe6f961e1905f34": "6738200993"
+        },
+        "excluded": {},
+        "observations": {
+          "ca9c081c4c96a223a2bab99c879f3f3df3d6b81696cadda83fe6cf0cf599390d": [
+            "485b0e9e1e63f3272134deb730308b314e3d7d9b5ae023cdb8494f5b37f4e2af",
+            "8edc506b06109484d90fb458e8ad80a664b8664337886210dadd6192ccba4e4d",
+            "b2aea7af7b70748bf73e05521d0274c71b78f034242c11c8410649f7cef9f271",
+            "c90a45a1d0793511d31a9fc9af9d44bb53797f20bbb2ba968914c1cc6fc190e1"
+          ],
+          "c1c62a4b89c6c123f77012b38ead7ef1aaa812be349ef597719458898c47f789": [
+            "3535038d9a5a573cde2f89635683dcb94d48511129a35c61ec36bbcc9dd82e9c",
+            "64319c4b1ce8756970c9ac70e6d158a5571fdfec9a709c55ef21323ee67b97e2",
+            "9abe118c5d77050e4da7af6d3d1f76d0ff79166d0cc7fe4c326e88a7fd3d0ca2",
+            "b96a23c2bdb644745d7c0218f71f6adf576daadb77bb50882b4bbbfe19927768"
+          ],
+          "1bb098884c14dec0e0c5433c0fca02cd26009326dde8be015fe6f961e1905f34": [
+            "3711982cf0f835653edb3a9be41e8fccc56577ab3d15b2230aac2e42643f0797",
+            "90e5b7ac42147aa6f7865117b53d6fb1d8fa01fa6c8b4aee6ad85e4f9ee97b7f",
+            "b25d102699c4f3be5a31389f63bafe1b4242a87a747085e7fd5c543aba218b33",
+            "e9d0b90ab76f60a5e4f33708977f4cb40776a56694ff025072b8db22457b1ef6"
+          ]
+        },
+        "baseline_comparable": true
+      }
+    },
+    {
+      "group": "boolean",
+      "backend": "rust-native",
+      "rows": 16,
+      "profile": "any-reads",
+      "selected": "any-delta",
+      "costs": {
+        "total_ns": {
+          "ca9c081c4c96a223a2bab99c879f3f3df3d6b81696cadda83fe6cf0cf599390d": "24736669",
+          "c1c62a4b89c6c123f77012b38ead7ef1aaa812be349ef597719458898c47f789": "6353412",
+          "1bb098884c14dec0e0c5433c0fca02cd26009326dde8be015fe6f961e1905f34": "19377215"
+        },
+        "excluded": {},
+        "observations": {
+          "ca9c081c4c96a223a2bab99c879f3f3df3d6b81696cadda83fe6cf0cf599390d": [
+            "9bbfeddb17b2f8d20c764e50adc77b164352dee703bf9813147ef21b159b7f48",
+            "a177ca91573db0dda48c169e39d8742dd8beb86716e65fbf1366c2b43fb35142",
+            "b507cddfb362a5c8c8f5e2e69dcf0dd922b4410fe327658233040a5c79bab0f0",
+            "cfee493de1c64a470b4564750690589cbb0e2cf3c89c86529e49479c0dc390ab"
+          ],
+          "c1c62a4b89c6c123f77012b38ead7ef1aaa812be349ef597719458898c47f789": [
+            "3f709df851bbca966d85b279ab3591aa200fcf6db0aaab857375ba1ecd3f86fe",
+            "79240be5f74f092539a0e64203daf569e4ad2c7682380c6387aeb511c7e07652",
+            "9b2e3408f7024a58f8fcc3488e299830ee00cc414940d810c37216791d30c819",
+            "aad4364b156f36bcf65bfb0388b618a98e22ed28bdc9898af5b25f08fc27581d"
+          ],
+          "1bb098884c14dec0e0c5433c0fca02cd26009326dde8be015fe6f961e1905f34": [
+            "611bd352ebd91890bf094c65529af673a6437954637f856d82d5a0093bcaf874",
+            "c5130f91c9bea68002e04cb1058583f270512d2ad53438b4a8f381677582cf5f",
+            "c85bde4acba166c56fd3caa7f26e8d9d1a3651dcae17a818809957800f486cc6",
+            "ce3991c3d3765d70d602338477a1a12220778bb4c837b1ce8dc09d7b89f0d90a"
+          ]
+        },
+        "baseline_comparable": true
+      }
+    },
+    {
+      "group": "boolean",
+      "backend": "rust-native",
+      "rows": 16,
+      "profile": "all-reads",
+      "selected": "all-delta",
+      "costs": {
+        "total_ns": {
+          "ca9c081c4c96a223a2bab99c879f3f3df3d6b81696cadda83fe6cf0cf599390d": "29716669",
+          "c1c62a4b89c6c123f77012b38ead7ef1aaa812be349ef597719458898c47f789": "22823412",
+          "1bb098884c14dec0e0c5433c0fca02cd26009326dde8be015fe6f961e1905f34": "5627215"
+        },
+        "excluded": {},
+        "observations": {
+          "ca9c081c4c96a223a2bab99c879f3f3df3d6b81696cadda83fe6cf0cf599390d": [
+            "a177ca91573db0dda48c169e39d8742dd8beb86716e65fbf1366c2b43fb35142",
+            "b507cddfb362a5c8c8f5e2e69dcf0dd922b4410fe327658233040a5c79bab0f0",
+            "cfee493de1c64a470b4564750690589cbb0e2cf3c89c86529e49479c0dc390ab",
+            "dc28a8b1424777031425431c6ddfa8214e2b3d5afbc1d6acc10fc7674ff58835"
+          ],
+          "c1c62a4b89c6c123f77012b38ead7ef1aaa812be349ef597719458898c47f789": [
+            "3f709df851bbca966d85b279ab3591aa200fcf6db0aaab857375ba1ecd3f86fe",
+            "9b2e3408f7024a58f8fcc3488e299830ee00cc414940d810c37216791d30c819",
+            "aad4364b156f36bcf65bfb0388b618a98e22ed28bdc9898af5b25f08fc27581d",
+            "d0702b2a6b364dda8bae7ca97f420e491380ac8d88dfa98d157653c952346916"
+          ],
+          "1bb098884c14dec0e0c5433c0fca02cd26009326dde8be015fe6f961e1905f34": [
+            "25a34c7830350269aba3d7edeff47e1e9ff38417227dbae393b8878c7620a9b5",
+            "611bd352ebd91890bf094c65529af673a6437954637f856d82d5a0093bcaf874",
+            "c85bde4acba166c56fd3caa7f26e8d9d1a3651dcae17a818809957800f486cc6",
+            "ce3991c3d3765d70d602338477a1a12220778bb4c837b1ce8dc09d7b89f0d90a"
+          ]
+        },
+        "baseline_comparable": true
+      }
+    },
+    {
+      "group": "boolean",
+      "backend": "rust-native",
+      "rows": 16,
+      "profile": "writes",
+      "selected": "all-delta",
+      "costs": {
+        "total_ns": {
+          "ca9c081c4c96a223a2bab99c879f3f3df3d6b81696cadda83fe6cf0cf599390d": "128626279",
+          "c1c62a4b89c6c123f77012b38ead7ef1aaa812be349ef597719458898c47f789": "119282118",
+          "1bb098884c14dec0e0c5433c0fca02cd26009326dde8be015fe6f961e1905f34": "89410211"
+        },
+        "excluded": {},
+        "observations": {
+          "ca9c081c4c96a223a2bab99c879f3f3df3d6b81696cadda83fe6cf0cf599390d": [
+            "9bbfeddb17b2f8d20c764e50adc77b164352dee703bf9813147ef21b159b7f48",
+            "a177ca91573db0dda48c169e39d8742dd8beb86716e65fbf1366c2b43fb35142",
+            "b507cddfb362a5c8c8f5e2e69dcf0dd922b4410fe327658233040a5c79bab0f0",
+            "cfee493de1c64a470b4564750690589cbb0e2cf3c89c86529e49479c0dc390ab"
+          ],
+          "c1c62a4b89c6c123f77012b38ead7ef1aaa812be349ef597719458898c47f789": [
+            "3f709df851bbca966d85b279ab3591aa200fcf6db0aaab857375ba1ecd3f86fe",
+            "79240be5f74f092539a0e64203daf569e4ad2c7682380c6387aeb511c7e07652",
+            "9b2e3408f7024a58f8fcc3488e299830ee00cc414940d810c37216791d30c819",
+            "aad4364b156f36bcf65bfb0388b618a98e22ed28bdc9898af5b25f08fc27581d"
+          ],
+          "1bb098884c14dec0e0c5433c0fca02cd26009326dde8be015fe6f961e1905f34": [
+            "611bd352ebd91890bf094c65529af673a6437954637f856d82d5a0093bcaf874",
+            "c5130f91c9bea68002e04cb1058583f270512d2ad53438b4a8f381677582cf5f",
+            "c85bde4acba166c56fd3caa7f26e8d9d1a3651dcae17a818809957800f486cc6",
+            "ce3991c3d3765d70d602338477a1a12220778bb4c837b1ce8dc09d7b89f0d90a"
+          ]
+        },
+        "baseline_comparable": true
+      }
+    },
+    {
+      "group": "boolean",
+      "backend": "rust-native",
+      "rows": 128,
+      "profile": "any-reads",
+      "selected": "any-delta",
+      "costs": {
+        "total_ns": {
+          "ca9c081c4c96a223a2bab99c879f3f3df3d6b81696cadda83fe6cf0cf599390d": "154067522",
+          "c1c62a4b89c6c123f77012b38ead7ef1aaa812be349ef597719458898c47f789": "8855989",
+          "1bb098884c14dec0e0c5433c0fca02cd26009326dde8be015fe6f961e1905f34": "113626203"
+        },
+        "excluded": {},
+        "observations": {
+          "ca9c081c4c96a223a2bab99c879f3f3df3d6b81696cadda83fe6cf0cf599390d": [
+            "263f3cad42e0b89924c129e653d2ff1c39f7bc64cc99bc802808a928e8a89267",
+            "2c11d35c42ebeea70c1da8b2ca17af0ce60c75a6097cffff15b34d5eb286cd34",
+            "9005ca8201d91d3f1048eda84508baa1bfd73b057c5e2c16927a38144ef513a6",
+            "a924803b7404e537f31da1e489dc118de6b014b57f728b5506a4f31a4d6361d2"
+          ],
+          "c1c62a4b89c6c123f77012b38ead7ef1aaa812be349ef597719458898c47f789": [
+            "235b91afa316c16f8e4c5c6985de46c038dafa41c39b82138dc772f9fb5e074d",
+            "4fc19316e8bf60d36c09cf51821d1845e47f3d7d8742e69cc0a520373433b805",
+            "96f3875527d88398a1461c054d6fade62a1f91a06f342ebc17d2e4c6516b8857",
+            "d8e8c1505a1d85304b4ea13d100f12a96ad0c1840fff505a92480e959fa1b301"
+          ],
+          "1bb098884c14dec0e0c5433c0fca02cd26009326dde8be015fe6f961e1905f34": [
+            "719ca7d1cf1499061948d43289243ce6f0117fb422ca3f9eb5dc5eeee12be3df",
+            "aeb6cffc109e350fe48fb623492b76a73d174ed81c555d4608d4b51660314c7c",
+            "d5d1642ef7696c16ed55c271f8ed35363faa7456e3f140db5f583c4f0d93698d",
+            "f5c723257f3831f59b84c5464432ee590c6b9b622d1c52df4702cccf4485f360"
+          ]
+        },
+        "baseline_comparable": true
+      }
+    },
+    {
+      "group": "boolean",
+      "backend": "rust-native",
+      "rows": 128,
+      "profile": "all-reads",
+      "selected": "all-delta",
+      "costs": {
+        "total_ns": {
+          "ca9c081c4c96a223a2bab99c879f3f3df3d6b81696cadda83fe6cf0cf599390d": "161057522",
+          "c1c62a4b89c6c123f77012b38ead7ef1aaa812be349ef597719458898c47f789": "165235989",
+          "1bb098884c14dec0e0c5433c0fca02cd26009326dde8be015fe6f961e1905f34": "9226203"
+        },
+        "excluded": {},
+        "observations": {
+          "ca9c081c4c96a223a2bab99c879f3f3df3d6b81696cadda83fe6cf0cf599390d": [
+            "263f3cad42e0b89924c129e653d2ff1c39f7bc64cc99bc802808a928e8a89267",
+            "88397265a377f09794fb769d95f7514b2f7a809bc590923b1ebcef009857df5c",
+            "9005ca8201d91d3f1048eda84508baa1bfd73b057c5e2c16927a38144ef513a6",
+            "a924803b7404e537f31da1e489dc118de6b014b57f728b5506a4f31a4d6361d2"
+          ],
+          "c1c62a4b89c6c123f77012b38ead7ef1aaa812be349ef597719458898c47f789": [
+            "235b91afa316c16f8e4c5c6985de46c038dafa41c39b82138dc772f9fb5e074d",
+            "4fc19316e8bf60d36c09cf51821d1845e47f3d7d8742e69cc0a520373433b805",
+            "7d565db1904045420cb58b99121947c60ef5072b66230fee6a75329047c0a6e2",
+            "d8e8c1505a1d85304b4ea13d100f12a96ad0c1840fff505a92480e959fa1b301"
+          ],
+          "1bb098884c14dec0e0c5433c0fca02cd26009326dde8be015fe6f961e1905f34": [
+            "aeb6cffc109e350fe48fb623492b76a73d174ed81c555d4608d4b51660314c7c",
+            "d5d1642ef7696c16ed55c271f8ed35363faa7456e3f140db5f583c4f0d93698d",
+            "e3c5f3929c78a370d23c473c9ab9a58662354ca484fc7626989e5c16b27c0036",
+            "f5c723257f3831f59b84c5464432ee590c6b9b622d1c52df4702cccf4485f360"
+          ]
+        },
+        "baseline_comparable": true
+      }
+    },
+    {
+      "group": "boolean",
+      "backend": "rust-native",
+      "rows": 128,
+      "profile": "writes",
+      "selected": "any-delta",
+      "costs": {
+        "total_ns": {
+          "ca9c081c4c96a223a2bab99c879f3f3df3d6b81696cadda83fe6cf0cf599390d": "257417186",
+          "c1c62a4b89c6c123f77012b38ead7ef1aaa812be349ef597719458898c47f789": "237853087",
+          "1bb098884c14dec0e0c5433c0fca02cd26009326dde8be015fe6f961e1905f34": "266950869"
+        },
+        "excluded": {},
+        "observations": {
+          "ca9c081c4c96a223a2bab99c879f3f3df3d6b81696cadda83fe6cf0cf599390d": [
+            "263f3cad42e0b89924c129e653d2ff1c39f7bc64cc99bc802808a928e8a89267",
+            "2c11d35c42ebeea70c1da8b2ca17af0ce60c75a6097cffff15b34d5eb286cd34",
+            "9005ca8201d91d3f1048eda84508baa1bfd73b057c5e2c16927a38144ef513a6",
+            "a924803b7404e537f31da1e489dc118de6b014b57f728b5506a4f31a4d6361d2"
+          ],
+          "c1c62a4b89c6c123f77012b38ead7ef1aaa812be349ef597719458898c47f789": [
+            "235b91afa316c16f8e4c5c6985de46c038dafa41c39b82138dc772f9fb5e074d",
+            "4fc19316e8bf60d36c09cf51821d1845e47f3d7d8742e69cc0a520373433b805",
+            "96f3875527d88398a1461c054d6fade62a1f91a06f342ebc17d2e4c6516b8857",
+            "d8e8c1505a1d85304b4ea13d100f12a96ad0c1840fff505a92480e959fa1b301"
+          ],
+          "1bb098884c14dec0e0c5433c0fca02cd26009326dde8be015fe6f961e1905f34": [
+            "719ca7d1cf1499061948d43289243ce6f0117fb422ca3f9eb5dc5eeee12be3df",
+            "aeb6cffc109e350fe48fb623492b76a73d174ed81c555d4608d4b51660314c7c",
+            "d5d1642ef7696c16ed55c271f8ed35363faa7456e3f140db5f583c4f0d93698d",
+            "f5c723257f3831f59b84c5464432ee590c6b9b622d1c52df4702cccf4485f360"
+          ]
+        },
+        "baseline_comparable": true
+      }
+    },
+    {
+      "group": "boolean",
+      "backend": "rust-native",
+      "rows": 1024,
+      "profile": "any-reads",
+      "selected": "any-delta",
+      "costs": {
+        "total_ns": {
+          "ca9c081c4c96a223a2bab99c879f3f3df3d6b81696cadda83fe6cf0cf599390d": "1215314224",
+          "c1c62a4b89c6c123f77012b38ead7ef1aaa812be349ef597719458898c47f789": "7273856",
+          "1bb098884c14dec0e0c5433c0fca02cd26009326dde8be015fe6f961e1905f34": "1229576706"
+        },
+        "excluded": {},
+        "observations": {
+          "ca9c081c4c96a223a2bab99c879f3f3df3d6b81696cadda83fe6cf0cf599390d": [
+            "14e6a856328955f2f5c7721cf3bd8e9617fa28037615751d6c70d8d10a2d1303",
+            "8c3608b8e8e821752cdaefd534b0406e774f97cba87a98e1983836077334acf9",
+            "9da67e118f87dd88fb63585de28c044018ca48cfa0ef3e9d351d187f17db22ac",
+            "a0f1c99c5fa5053eb731c2fe14aa895f82b086714ce6191dbd3ce8be812fa441"
+          ],
+          "c1c62a4b89c6c123f77012b38ead7ef1aaa812be349ef597719458898c47f789": [
+            "30de73d660d6b08a19425303a48b4bec053dad60a241aadd855f76dc1fa5f1d5",
+            "9a7793627e80cd99635a0cfc8843ed33071cfebd54fc36c07c83b770a97d4bf4",
+            "cf337ee7648dbe3b47f12f6a916d2dea76dc72698545eb593cba8c64eb5ae875",
+            "f1d475b3de4e1fc1d9c686fa4f65b26e51c58ac8833367fce400258a6f72bc6b"
+          ],
+          "1bb098884c14dec0e0c5433c0fca02cd26009326dde8be015fe6f961e1905f34": [
+            "37ff7e8e6ce98415a4abb25b6f15fcdecf1e6861d3081ecaabac0319e9c14f94",
+            "3b9c8afcc4ac65ddc352f12b52107e70cc0a3836163db7d3da0036284a02622c",
+            "a711c91bb36f7af65cf1255dcce9a20541c8246318c84065546fec1a7746b108",
+            "ab3ca012ba0fdd54a5161b0482d74e2ee51753d2232544382757330d0d4abe12"
+          ]
+        },
+        "baseline_comparable": true
+      }
+    },
+    {
+      "group": "boolean",
+      "backend": "rust-native",
+      "rows": 1024,
+      "profile": "all-reads",
+      "selected": "all-delta",
+      "costs": {
+        "total_ns": {
+          "ca9c081c4c96a223a2bab99c879f3f3df3d6b81696cadda83fe6cf0cf599390d": "1270454224",
+          "c1c62a4b89c6c123f77012b38ead7ef1aaa812be349ef597719458898c47f789": "1078673856",
+          "1bb098884c14dec0e0c5433c0fca02cd26009326dde8be015fe6f961e1905f34": "10006706"
+        },
+        "excluded": {},
+        "observations": {
+          "ca9c081c4c96a223a2bab99c879f3f3df3d6b81696cadda83fe6cf0cf599390d": [
+            "14e6a856328955f2f5c7721cf3bd8e9617fa28037615751d6c70d8d10a2d1303",
+            "8c3608b8e8e821752cdaefd534b0406e774f97cba87a98e1983836077334acf9",
+            "a0f1c99c5fa5053eb731c2fe14aa895f82b086714ce6191dbd3ce8be812fa441",
+            "d9629b2ac565585e22699ce0f3321d9e89315a2e40385fa2e4c531271ff82dea"
+          ],
+          "c1c62a4b89c6c123f77012b38ead7ef1aaa812be349ef597719458898c47f789": [
+            "30de73d660d6b08a19425303a48b4bec053dad60a241aadd855f76dc1fa5f1d5",
+            "9215a234d584633b98b16a9ef19fa8d77429e02ffbfd15f84989e290dfecc769",
+            "9a7793627e80cd99635a0cfc8843ed33071cfebd54fc36c07c83b770a97d4bf4",
+            "f1d475b3de4e1fc1d9c686fa4f65b26e51c58ac8833367fce400258a6f72bc6b"
+          ],
+          "1bb098884c14dec0e0c5433c0fca02cd26009326dde8be015fe6f961e1905f34": [
+            "37ff7e8e6ce98415a4abb25b6f15fcdecf1e6861d3081ecaabac0319e9c14f94",
+            "3b9c8afcc4ac65ddc352f12b52107e70cc0a3836163db7d3da0036284a02622c",
+            "83d8a1c9a42718000e30b20d477e2e7264bcca0b61c0303392b8fa6babcad587",
+            "a711c91bb36f7af65cf1255dcce9a20541c8246318c84065546fec1a7746b108"
+          ]
+        },
+        "baseline_comparable": true
+      }
+    },
+    {
+      "group": "boolean",
+      "backend": "rust-native",
+      "rows": 1024,
+      "profile": "writes",
+      "selected": "any-delta",
+      "costs": {
+        "total_ns": {
+          "ca9c081c4c96a223a2bab99c879f3f3df3d6b81696cadda83fe6cf0cf599390d": "1418733880",
+          "c1c62a4b89c6c123f77012b38ead7ef1aaa812be349ef597719458898c47f789": "1190625509",
+          "1bb098884c14dec0e0c5433c0fca02cd26009326dde8be015fe6f961e1905f34": "1511578503"
+        },
+        "excluded": {},
+        "observations": {
+          "ca9c081c4c96a223a2bab99c879f3f3df3d6b81696cadda83fe6cf0cf599390d": [
+            "14e6a856328955f2f5c7721cf3bd8e9617fa28037615751d6c70d8d10a2d1303",
+            "8c3608b8e8e821752cdaefd534b0406e774f97cba87a98e1983836077334acf9",
+            "9da67e118f87dd88fb63585de28c044018ca48cfa0ef3e9d351d187f17db22ac",
+            "a0f1c99c5fa5053eb731c2fe14aa895f82b086714ce6191dbd3ce8be812fa441"
+          ],
+          "c1c62a4b89c6c123f77012b38ead7ef1aaa812be349ef597719458898c47f789": [
+            "30de73d660d6b08a19425303a48b4bec053dad60a241aadd855f76dc1fa5f1d5",
+            "9a7793627e80cd99635a0cfc8843ed33071cfebd54fc36c07c83b770a97d4bf4",
+            "cf337ee7648dbe3b47f12f6a916d2dea76dc72698545eb593cba8c64eb5ae875",
+            "f1d475b3de4e1fc1d9c686fa4f65b26e51c58ac8833367fce400258a6f72bc6b"
+          ],
+          "1bb098884c14dec0e0c5433c0fca02cd26009326dde8be015fe6f961e1905f34": [
+            "37ff7e8e6ce98415a4abb25b6f15fcdecf1e6861d3081ecaabac0319e9c14f94",
+            "3b9c8afcc4ac65ddc352f12b52107e70cc0a3836163db7d3da0036284a02622c",
+            "a711c91bb36f7af65cf1255dcce9a20541c8246318c84065546fec1a7746b108",
+            "ab3ca012ba0fdd54a5161b0482d74e2ee51753d2232544382757330d0d4abe12"
+          ]
+        },
+        "baseline_comparable": true
+      }
+    }
+  ]
+}
