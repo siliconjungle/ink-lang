@@ -69,3 +69,7 @@ archived manifests retain their original immutable bytes. Numeric action tests
 assert the restored legacy identities. Admission replay uses Python file
 discovery so CI and installed tool bundles do not require ripgrep. The required
 GPU conformance job retains all checks with a 60-minute execution allowance.
+
+Final generic measurements and compiler-bound selection evidence (`e4dd7a0a`)
+are preserved in `reports/generic-indexed-batching/current/`. This completion
+adds evidence without changing the validated compiler or package graph.
