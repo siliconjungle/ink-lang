@@ -594,6 +594,76 @@
     "mixed_durability",
     "bend_features",
     "feature_parity",
-    "temporary_lowering"
-  ]
+    "temporary_lowering",
+    "composed_storage_parity",
+    "storage_destination_parity",
+    "checked_physical_selection_parity"
+  ],
+  "gpu_contract": {
+    "semantics": "eligible-pure-exact-v1",
+    "host_only": [
+      "stateful-transactions",
+      "arbitrary-size-integers",
+      "general-dynamic-maps",
+      "recursive-physical-definitions"
+    ],
+    "capabilities": {
+      "exact-u64": {
+        "tests": [
+          "feature_parity",
+          "bend_features"
+        ],
+        "targets": {
+          "webgpu": {
+            "status": "implemented"
+          },
+          "wgpu": {
+            "status": "implemented"
+          }
+        }
+      },
+      "exact-binary32": {
+        "tests": [
+          "feature_parity",
+          "bend_features"
+        ],
+        "targets": {
+          "webgpu": {
+            "status": "implemented"
+          },
+          "wgpu": {
+            "status": "implemented"
+          }
+        }
+      },
+      "actual-eligible-dispatch": {
+        "tests": [
+          "feature_parity",
+          "bend_features"
+        ],
+        "targets": {
+          "webgpu": {
+            "status": "implemented"
+          },
+          "wgpu": {
+            "status": "implemented"
+          }
+        }
+      },
+      "required-gpu-no-fallback": {
+        "tests": [
+          "feature_parity",
+          "bend_features"
+        ],
+        "targets": {
+          "webgpu": {
+            "status": "implemented"
+          },
+          "wgpu": {
+            "status": "implemented"
+          }
+        }
+      }
+    }
+  }
 }

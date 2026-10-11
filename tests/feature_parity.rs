@@ -46,6 +46,11 @@ fn parity_inventory_rejects_missing_targets_and_uncovered_features() {
             .unwrap()
     };
     assert!(run(&catalog, "cpu").status.success());
+    assert!(run(&catalog, "contract").status.success());
+    let mut gpu_gap = catalog.clone();
+    gpu_gap["gpu_contract"]["capabilities"]["exact-binary32"]["targets"]["webgpu"] =
+        json!({"status":"unsupported","reason":"test fault"});
+    assert_eq!(run(&gpu_gap, "contract").status.code(), Some(1));
     assert_eq!(
         run(&catalog, "all").status.code(),
         Some(1),
@@ -438,4 +443,102 @@ fn exact_binary32_uses_actual_gpu_dispatch() {
         expected.push(json!({"reply":{"value":value},"snapshot":r.checkpoint_portable().unwrap()}));
     }
     parity::conformance("generated-parity-f32", p, source, steps, expected);
+}
+
+#[test]
+fn sealed_numeric_primitives_execute_identically_on_every_cpu_target() {
+    use sha2::{Digest, Sha256};
+    use verified_language::{
+        definition,
+        knowledge::Lock,
+        library::{self, Bundle, Object},
+        logic::{Declaration, Sort, Term},
+        runtime::representation::Executor,
+    };
+    let mut bundle = Bundle {
+        lock: Lock {
+            schema: 1,
+            semantics: library::SEMANTICS.into(),
+            objects: vec![],
+        },
+        objects: std::collections::BTreeMap::new(),
+    };
+    let mut functions = vec![];
+    for op in [
+        "f32:+", "f32:-", "f32:*", "f32:neg", "f32:==", "f32:!=", "f32:<", "f32:<=", "f32:>",
+        "f32:>=", "quot", "rem", "&",
+    ] {
+        let compare =
+            op.starts_with("f32:") && !matches!(op, "f32:+" | "f32:-" | "f32:*" | "f32:neg");
+        let object = Object {
+            schema: 1,
+            semantics: library::SEMANTICS.into(),
+            name: "numeric_definition".into(),
+            dependencies: vec![],
+            declaration: Declaration::Function {
+                params: vec![("x".into(), Sort::U64), ("y".into(), Sort::U64)],
+                result: if compare { Sort::Bool } else { Sort::U64 },
+                body: Term::Binary {
+                    op: op.into(),
+                    left: Box::new(Term::Var("x".into())),
+                    right: Box::new(Term::Var("y".into())),
+                },
+                recursive: None,
+            },
+        };
+        let raw = serde_json::to_string(&object).unwrap();
+        let id = format!("{:x}", Sha256::digest(raw.as_bytes()));
+        bundle.lock.objects.push(id.clone());
+        bundle.objects.insert(id.clone(), raw);
+        functions.push((op, id));
+    }
+    let checked = definition::check(&bundle, &bundle.lock.objects, None).unwrap();
+    let context = library::load_bundle(&bundle).unwrap().context;
+    let zig = std::env::var("INK_TEST_ZIG").ok();
+    if std::env::var_os("INK_PARITY_REQUIRE_ALL").is_some() {
+        assert!(zig.is_some());
+    }
+    for target in ["c", "rust", "javascript", "c-wasm", "rust-wasm"] {
+        if target.ends_with("wasm") && zig.is_none() {
+            continue;
+        }
+        let mut executor = Compiled::new();
+        verified_language::runtime::representation::compiled::prepare(
+            &mut executor,
+            &checked,
+            verified_language::runtime::representation::compiled::Target::parse(target).unwrap(),
+            &root("numeric-definitions").join(target),
+            zig.as_deref(),
+        )
+        .unwrap();
+        for a in [
+            0u64,
+            1,
+            0x80000000,
+            0x7f800000,
+            0xff800000,
+            0x7fc12345,
+            0xff812345,
+            0x3f800001,
+            u64::MAX,
+        ] {
+            for b in [0u64, 1, 0x80000000, 0x7f800000, 0x7f812345, 0x3f800000] {
+                for (op, id) in &functions {
+                    let want = match *op {
+                        "quot" => Term::U64(if b == 0 { 0 } else { a / b }),
+                        "rem" => Term::U64(if b == 0 { 0 } else { a % b }),
+                        "&" => Term::U64(a & b),
+                        _ => verified_language::logic::f32_primitive(op, a, b).unwrap(),
+                    };
+                    assert_eq!(
+                        executor
+                            .execute(&checked, &context, id, vec![Term::U64(a), Term::U64(b)])
+                            .unwrap(),
+                        want,
+                        "{target}/{op}/{a}/{b}"
+                    );
+                }
+            }
+        }
+    }
 }

@@ -20,7 +20,7 @@ for(const step of steps){
  const before=program.parallelStatistics?.();
  const args=step.args.map((v,i)=>capture(v,decl.params[i].type));let reply;
  try{if(step.async){const pending=step.pure?program.callAsync(step.pure,args):state.invokeAsync(step.call,args);if(!step.pure){assert.throws(()=>state.invoke(step.call,args),/operation already in progress/);assert.throws(()=>state.checkpoint(),/transaction boundary/);}reply=step.pure?{value:await pending}:{outcome:await pending};}else reply=step.pure?{value:call(step.pure,args)}:{outcome:state.invoke(step.call,args)};}catch(e){reply={host_error:e.message};}
- if(step.expect_workers){const after=program.parallelStatistics();assert.ok(after.workers-before.workers>=2);assert.ok(after.workerIds.length>=2);}
+ if(step.expect_workers){const after=program.parallelStatistics();assert.ok(after.workers-before.workers>=2);assert.ok(after.lastWorkerIds.length>=2);}
  assert.deepEqual(normalize(reply),normalize(expected[index].reply),`step ${index} ${step.pure??step.call}`);
  if(state)assert.deepEqual(Array.from(await state.checkpoint()),expected[index].snapshot.map(Number),`snapshot ${index}`);index++;
 }
