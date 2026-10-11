@@ -134,3 +134,45 @@ Checked optimisation plans preserve the original application checkpoint namespac
 through the [selected emission APIs](selected-checkpoints.md). Cross-backend
 continuation and durable receipt replay are tested separately from raw-program
 emission, which keeps the changed program’s own namespace.
+
+## Standalone physical representations
+
+Proof-selected physical representations now use standalone compiled code on
+all targets, including C/Rust Wasm and native/browser GPU host lanes. Proofs,
+source ASTs and checker packages remain at compile time. All targets use the
+same checked snapshot namespace and transaction contract. GPU device eligibility
+is unchanged; recursive state executes on the host. The narrower fixed source
+representation model is described in [database representations](database-representations.md).
+
+`tests/representation_parity.rs` supplies the shared replies/errors/events/exact
+snapshot gate. It runs both Wasm lanes when INK_TEST_ZIG is set, including in CI.
+No backend emitter is mechanically verified by that differential gate.
+
+Resident stage-graph feedback now captures source buffers before simultaneous
+input updates and observes final outputs before another update. Identity output
+aliases, one/two/three-iteration swaps and shrinking/empty filter/scan/sort loops
+are covered by actual wgpu tests. The browser device command builder uses the
+same ordering and has an independent buffer/command-model test. Heavy literal
+operations retain the 128-element device admission bound; shapes that cannot
+retain their declared capacity use the complete host path.
+
+
+## Caller-trusted generated arguments
+
+All generated Rust, C, JavaScript, Wasm and GPU host interfaces require arguments
+with the declared arity, types, shapes, tags and canonical ranges. They convert
+representations where transport requires it and do not perform an ingress type
+validation pass. Invalid arguments are unsafe: they may crash/trap, corrupt state
+or return incorrect results, and raw native pointer APIs may corrupt memory.
+There is no invalid-input diagnostic, atomicity or cross-target parity contract.
+Validate external data in the application when required. Source types and proofs
+are still checked by the compiler; the reference interpreter keeps its diagnostic
+checks for tooling.
+
+JSON syntax parsing, explicit checkpoint integrity/size checks, hardware resource
+limits, device eligibility and transaction/version rules remain. The GPU finite
+float eligibility test selects a permitted device domain; it is not input type
+validation. Generated state queries avoid transaction table backups. Standalone
+representation calls also avoid whole-state transport and checkpoint validation,
+and statically simplified read-only queries compute the reply directly.
+See `reports/leaner-generated-code-2026-10-11` for executable and Lean evidence.
