@@ -68,7 +68,8 @@ fn exhaustive_constructor_elimination_preserves_conditional_premises() {
     // Case elimination adds no recursive hypotheses and may retain premises
     // dependent on the scrutinee. The original premise proves both branches.
     let proof = Proof::Cases {
-        scrutinee: v("input"),
+        scrutinee: Some(v("input")),
+        variable: None,
         from: from.clone(),
         to: to.clone(),
         cases: vec![
@@ -93,7 +94,8 @@ fn constructor_cases_cannot_supply_induction_or_unchecked_equalities() {
     let from = projected(v("input"));
     let to = from.clone();
     let valid = Proof::Cases {
-        scrutinee: v("input"),
+        scrutinee: Some(v("input")),
+        variable: None,
         from: from.clone(),
         to: to.clone(),
         cases: vec![
@@ -108,6 +110,12 @@ fn constructor_cases_cannot_supply_induction_or_unchecked_equalities() {
         ],
     };
     c.check(&params, &[], &from, &to, &valid).unwrap();
+    let mut ambiguous = valid.clone();
+    if let Proof::Cases { variable, .. } = &mut ambiguous { *variable = Some("input".into()); }
+    assert!(c.check(&params, &[], &from, &to, &ambiguous).is_err());
+    let mut missing = valid.clone();
+    if let Proof::Cases { scrutinee, .. } = &mut missing { *scrutinee = None; }
+    assert!(c.check(&params, &[], &from, &to, &missing).is_err());
     let mut bad = valid.clone();
     if let Proof::Cases { cases, .. } = &mut bad {
         cases.pop();
@@ -115,7 +123,7 @@ fn constructor_cases_cannot_supply_induction_or_unchecked_equalities() {
     assert!(c.check(&params, &[], &from, &to, &bad).is_err());
     let mut bad = valid.clone();
     if let Proof::Cases { scrutinee, .. } = &mut bad {
-        *scrutinee = Term::U64(0);
+        *scrutinee = Some(Term::U64(0));
     }
     assert!(c.check(&params, &[], &from, &to, &bad).is_err());
     let mut bad = valid.clone();
