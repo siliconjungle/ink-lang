@@ -90,6 +90,7 @@ jobs:
           cargo test --test temporary_lowering
           CARGO_TARGET_DIR=target cargo test --manifest-path lowerings/gpu/Cargo.toml --test temporary_bounds
           cargo test --test distribution --test source_syntax --test action_values --test general_laws --test semantic_optimisation
+          cargo test --test internal_snapshots --test collect_before_build
       - name: Literal CPU and both Wasm lowerings, generated histories and crash recovery
         run: python3 tools/check_feature_parity.py --scope cpu --run --receipt build/enforced-parity/cpu-audit.json
       - name: Retain reproducible programs, seeds and expected outcomes
