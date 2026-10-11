@@ -1,0 +1,103 @@
+{
+  "status": "passed",
+  "checks": {
+    "capacity_uses_max_lengths": true,
+    "input_list_headers": true,
+    "metadata_args_plus_one": true,
+    "read_capacity_plus_header": true,
+    "skip_zero_capacity_dispatch": true
+  },
+  "formula_scope": "Single requested U32 list function,4parameters(xs,ys,seed,k),2listinputs,resultwordwidth1,no feedback,1iteration. Formula isphysical capacity, notlogicaloutputsize.",
+  "examples": [
+    {
+      "nx": 0,
+      "ny": 7,
+      "logical_output": 0,
+      "legacy_shader_capacity": 7,
+      "legacy_shader": {
+        "dispatches": 1,
+        "upload_bytes": 64,
+        "readback_bytes": 32,
+        "live_buffer_bytes": 160
+      },
+      "prior_graph_raw": {
+        "dispatches": 2,
+        "upload_bytes": 44,
+        "readback_bytes": 4
+      }
+    },
+    {
+      "nx": 0,
+      "ny": 0,
+      "logical_output": 0,
+      "legacy_shader_capacity": 0,
+      "legacy_shader": {
+        "dispatches": 0,
+        "upload_bytes": 36,
+        "readback_bytes": 4,
+        "live_buffer_bytes": 48
+      },
+      "prior_graph_raw": {
+        "dispatches": 2,
+        "upload_bytes": 16,
+        "readback_bytes": 4
+      }
+    },
+    {
+      "nx": 7,
+      "ny": 0,
+      "logical_output": 0,
+      "legacy_shader_capacity": 7,
+      "legacy_shader": {
+        "dispatches": 1,
+        "upload_bytes": 64,
+        "readback_bytes": 32,
+        "live_buffer_bytes": 160
+      },
+      "prior_graph_raw": {
+        "dispatches": 2,
+        "upload_bytes": 44,
+        "readback_bytes": 4
+      }
+    },
+    {
+      "nx": 32,
+      "ny": 39,
+      "logical_output": 32,
+      "legacy_shader_capacity": 39,
+      "legacy_shader": {
+        "dispatches": 1,
+        "upload_bytes": 320,
+        "readback_bytes": 160,
+        "live_buffer_bytes": 800
+      },
+      "prior_graph_raw": {
+        "dispatches": 2,
+        "upload_bytes": 300,
+        "readback_bytes": 132
+      }
+    },
+    {
+      "nx": 65536,
+      "ny": 21846,
+      "logical_output": 21846,
+      "legacy_shader_capacity": 65536,
+      "legacy_shader": {
+        "dispatches": 1,
+        "upload_bytes": 349564,
+        "readback_bytes": 262148,
+        "live_buffer_bytes": 1136008
+      },
+      "prior_graph_raw": {
+        "dispatches": 2,
+        "upload_bytes": 349544,
+        "readback_bytes": 87388
+      }
+    }
+  ],
+  "bindings": {
+    "targets-direct/targets/pipeline33_left_projection_u32/checked/ink-gpu.mjs": "58effef88016a0f0f65e6e570c166870689ac7a8d767a2d856332ce17df9df15",
+    "targets-direct/targets/pipeline33_left_projection_u32/checked/ink-device.mjs": "ff0c9715bb0284b98404056222dbc5e298a97f3a2b086c43cfa442570fb3095d"
+  },
+  "scope": "Independent generated-source counter derivation. Original0/7failure retained; actual completeoutputs unaffected. Browserrevalidation withcorrected harnesspending. Metadata andreadback overhead changes remainperformanceevidence."
+}

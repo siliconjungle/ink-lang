@@ -109,4 +109,6 @@ refinement and stateful replacement admission remain open.
 emits, local Result errors and abrupt exits. Database composition laws bind to
 the fixed effect algebra; whole-action/refinement proofs remain required.
 
-The latest checked web proof batch and its preserved timings are in [batch32](reports/web-stack-proofs-32-2026-10-11/REPORT.md). [Direct main integration](reports/web-stack-proofs-32-2026-10-11/main-integration/REPORT.md) records the merged source revisions, generated-target correctness replay and publication checks.
+The preceding checked web proof batch and its preserved timings are in [batch32](reports/web-stack-proofs-32-2026-10-11/REPORT.md). [Direct main integration](reports/web-stack-proofs-32-2026-10-11/main-integration/REPORT.md) records the merged source revisions, generated-target correctness replay and publication checks.
+
+[Batch33](reports/web-stack-proofs-33-2026-10-11/REPORT.md) adds checked unused-scan projection laws for independent lists. All four tested source contexts select the DB rewrite with the production compiler unchanged. Measured gains over prior Ink include 1.57× browser JS, 1.93× resident Wasm, 2.77× resident native and 3.15× complete GPU calls. Handwritten controls usually remain faster; these results do not establish general native superiority.

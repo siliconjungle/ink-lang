@@ -1,0 +1,385 @@
+{
+  "status": "passed",
+  "checks": {
+    "all316_metadata_bindings": true,
+    "all_analysis_bindings": true,
+    "corrected_metadata_frozen": true,
+    "compiler_unchanged": true,
+    "all122_production_sources_unchanged": true,
+    "all107_native_bindings": true,
+    "native_exact_main_metadata": true,
+    "node-audit.json_bound": true,
+    "node-validation-audit.json_bound": true,
+    "browser-audit.json_bound": true,
+    "browser-validation-audit.json_bound": true,
+    "native_audit_bound": true,
+    "all_raw_samples_valid": true,
+    "all672_paired_bootstrap_replayed": true,
+    "all_aggregates_recomputed": true,
+    "all216_prior_cells_retained": true,
+    "all648_timed_gpu_rows_actual_device": true,
+    "physical_contracts_independent": true
+  },
+  "samples": {
+    "node": 2592,
+    "browser": 3240,
+    "native": 1728
+  },
+  "total_samples": 7560,
+  "raw_groups": 840,
+  "replayed_comparisons": 672,
+  "bootstrap_draws_each": 4000,
+  "prior_proof_cells": {
+    "total": 216,
+    "faster": 194,
+    "slower": 0,
+    "inconclusive": 22,
+    "point_estimates_below_one": 8
+  },
+  "uncertain_point_losses": [
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-low-32",
+      "boundary": "captured-wasm-owned",
+      "reference": "prior_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.9935825466834549,
+      "ci95": [
+        0.9859626589172027,
+        1.0010682410448766
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 8078654333323651254,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-low-4096",
+      "boundary": "captured-js-owned",
+      "reference": "prior_js_owned",
+      "current": "checked_js_owned",
+      "ratio_reference_over_current": 0.9926481127148684,
+      "ci95": [
+        0.9779896706678075,
+        1.0077672393708852
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 15587431553065293825,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-high-65536",
+      "boundary": "captured-wasm-owned",
+      "reference": "prior_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.9986591150821771,
+      "ci95": [
+        0.9708083943227688,
+        1.0271048874252329
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 1907868147880234788,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-low-32",
+      "boundary": "captured-wasm-owned",
+      "reference": "prior_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.9863135148668976,
+      "ci95": [
+        0.9717818851967969,
+        1.0010309841913834
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 506789811420215014,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline33_right_projection_u32-high-65536",
+      "boundary": "captured-wasm-owned",
+      "reference": "prior_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.9914230804985875,
+      "ci95": [
+        0.9614339241929227,
+        1.0176569145337175
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 6445113182868297161,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-high-32",
+      "boundary": "captured-wasm-owned",
+      "reference": "prior_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.9943252008208631,
+      "ci95": [
+        0.9604130112988125,
+        1.0279499979980888
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 1195007333865445332,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-low-32",
+      "boundary": "captured-wasm-owned",
+      "reference": "prior_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.9908382765518726,
+      "ci95": [
+        0.9495629363028584,
+        1.0338666751227747
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 8078654333323651254,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-high-32",
+      "boundary": "captured-wasm-owned",
+      "reference": "prior_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.9899485272925655,
+      "ci95": [
+        0.9481930059477834,
+        1.0320053319645544
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 14268863668699948697,
+      "host": "browser"
+    }
+  ],
+  "actual_timed_gpu": {
+    "rows": 648,
+    "calls": 6822,
+    "fallbacks": 0
+  },
+  "prior_aggregates": [
+    {
+      "host": "browser",
+      "boundary": "captured-js-owned",
+      "reference": "prior_js_owned",
+      "current": "checked_js_owned",
+      "cells": 24,
+      "geomean": 1.568756930162397,
+      "wins": 24,
+      "losses": 0,
+      "inconclusive": 0
+    },
+    {
+      "host": "browser",
+      "boundary": "captured-wasm-owned",
+      "reference": "prior_wasm_full",
+      "current": "checked_wasm_full",
+      "cells": 24,
+      "geomean": 1.0179223950692144,
+      "wins": 12,
+      "losses": 0,
+      "inconclusive": 12
+    },
+    {
+      "host": "browser",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "prior_gpu_requested",
+      "current": "checked_gpu_requested",
+      "cells": 24,
+      "geomean": 3.145767837267014,
+      "wins": 24,
+      "losses": 0,
+      "inconclusive": 0
+    },
+    {
+      "host": "browser",
+      "boundary": "resident-wasm-destination",
+      "reference": "prior_wasm_prepared",
+      "current": "checked_wasm_prepared",
+      "cells": 24,
+      "geomean": 1.9260568455799336,
+      "wins": 23,
+      "losses": 0,
+      "inconclusive": 1
+    },
+    {
+      "host": "native",
+      "boundary": "captured-native-destination",
+      "reference": "prior",
+      "current": "checked",
+      "cells": 24,
+      "geomean": 1.824073453210711,
+      "wins": 24,
+      "losses": 0,
+      "inconclusive": 0
+    },
+    {
+      "host": "native",
+      "boundary": "resident-native-destination",
+      "reference": "prior",
+      "current": "checked",
+      "cells": 24,
+      "geomean": 2.771654686944724,
+      "wins": 24,
+      "losses": 0,
+      "inconclusive": 0
+    },
+    {
+      "host": "node",
+      "boundary": "captured-js-owned",
+      "reference": "prior_js_owned",
+      "current": "checked_js_owned",
+      "cells": 24,
+      "geomean": 1.1609224642847913,
+      "wins": 23,
+      "losses": 0,
+      "inconclusive": 1
+    },
+    {
+      "host": "node",
+      "boundary": "captured-wasm-owned",
+      "reference": "prior_wasm_full",
+      "current": "checked_wasm_full",
+      "cells": 24,
+      "geomean": 1.010138434123262,
+      "wins": 16,
+      "losses": 0,
+      "inconclusive": 8
+    },
+    {
+      "host": "node",
+      "boundary": "resident-wasm-destination",
+      "reference": "prior_wasm_prepared",
+      "current": "checked_wasm_prepared",
+      "cells": 24,
+      "geomean": 1.9352036316739223,
+      "wins": 24,
+      "losses": 0,
+      "inconclusive": 0
+    }
+  ],
+  "strong_expert_aggregates": [
+    {
+      "host": "browser",
+      "boundary": "captured-js-owned",
+      "reference": "expert_js_owned",
+      "current": "checked_js_owned",
+      "cells": 24,
+      "geomean": 0.7547767827012619,
+      "wins": 1,
+      "losses": 18,
+      "inconclusive": 5
+    },
+    {
+      "host": "browser",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "cells": 24,
+      "geomean": 0.43659416109016164,
+      "wins": 0,
+      "losses": 24,
+      "inconclusive": 0
+    },
+    {
+      "host": "browser",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "expert_js_owned",
+      "current": "checked_gpu_requested",
+      "cells": 24,
+      "geomean": 0.010415871923143869,
+      "wins": 0,
+      "losses": 24,
+      "inconclusive": 0
+    },
+    {
+      "host": "browser",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "rust_wasm_full",
+      "current": "checked_gpu_requested",
+      "cells": 24,
+      "geomean": 0.028891737455352895,
+      "wins": 0,
+      "losses": 24,
+      "inconclusive": 0
+    },
+    {
+      "host": "browser",
+      "boundary": "resident-wasm-destination",
+      "reference": "rust_wasm_prepared",
+      "current": "checked_wasm_prepared",
+      "cells": 24,
+      "geomean": 0.7307158552155575,
+      "wins": 6,
+      "losses": 17,
+      "inconclusive": 1
+    },
+    {
+      "host": "native",
+      "boundary": "captured-native-destination",
+      "reference": "expert",
+      "current": "checked",
+      "cells": 24,
+      "geomean": 0.734286891809388,
+      "wins": 1,
+      "losses": 19,
+      "inconclusive": 4
+    },
+    {
+      "host": "native",
+      "boundary": "resident-native-destination",
+      "reference": "expert",
+      "current": "checked",
+      "cells": 24,
+      "geomean": 0.613506072653798,
+      "wins": 0,
+      "losses": 21,
+      "inconclusive": 3
+    },
+    {
+      "host": "node",
+      "boundary": "captured-js-owned",
+      "reference": "expert_js_owned",
+      "current": "checked_js_owned",
+      "cells": 24,
+      "geomean": 0.5400892494076153,
+      "wins": 0,
+      "losses": 18,
+      "inconclusive": 6
+    },
+    {
+      "host": "node",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "cells": 24,
+      "geomean": 0.4135455850174114,
+      "wins": 0,
+      "losses": 24,
+      "inconclusive": 0
+    },
+    {
+      "host": "node",
+      "boundary": "resident-wasm-destination",
+      "reference": "rust_wasm_prepared",
+      "current": "checked_wasm_prepared",
+      "cells": 24,
+      "geomean": 0.7609525649700692,
+      "wins": 6,
+      "losses": 18,
+      "inconclusive": 0
+    }
+  ],
+  "limits": [
+    "Four U32 source contexts of one erasure mechanism; generic proofs U32/I32/U64, no F32 scan or GPU U64 claim.",
+    "Single machine with paired nine rounds; nominal per-cell95% intervals, no multiplicity correction; aggregate geometric means descriptive.",
+    "Eight prior comparison point estimates fall below1 with intervals crossing1; no classified prior regression is not a guarantee against regressions.",
+    "Full Wasm largely transport bound; handwritten strong controls usually faster; GPU requests remain far slower than CPU controls.",
+    "GPU legacy capacity uses maximum input length; transfer/live-buffer costs may increase despite scan erasure.",
+    "Compile-time proof selection under a frozen structural model, no runtime load/state adaptation.",
+    "Node/browser length+first+last timed consumption versus native full-vector consumption; host/boundary ratios are not pooled."
+  ],
+  "bindings": {
+    "analysis": "5c3efac28a50af8bb1dca7136294050ec98b9b860b55682f084a4885a96fc66e",
+    "metadata": "f0527061f15c41de7fce6619da276367c542f04de17e232bf6727ed4f6e0d828",
+    "script": "4eb62ea9180280a91b59ac29ebb72f0aca38feed805a0182c3bc21adf38e133f"
+  }
+}
