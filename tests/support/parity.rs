@@ -159,14 +159,22 @@ fn conformance_inner(
         assert_eq!(actual.len(), expected.len());
         let mut gpu_calls = 0;
         for (i, ((a, e), s)) in actual.iter().zip(&expected).zip(calls).enumerate() {
-            let reply = if s["pure"].is_string() {
-                json!({"value":a["value"]})
+            let mut expected_reply = e["reply"].clone();
+            let reply = if let Some(name) = s["pure"].as_str() {
+                let f = p.functions.iter().find(|f| f.name == name).unwrap();
+                let descriptor = ink_abi::describe(&f.result, &p.records, &p.enums, &p.ids).unwrap();
+                // Packed u64 wire values use decimal strings above the safe
+                // JSON range. Compare through the shared ABI, preserving bits.
+                if ink_abi::packed_width(&descriptor).is_ok() {
+                    expected_reply = json!({"value":ink_abi::packed::unpack(&ink_abi::packed::pack(&e["reply"]["value"], &descriptor).unwrap(), &descriptor)});
+                    json!({"value":ink_abi::packed::unpack(&ink_abi::packed::pack(&a["value"], &descriptor).unwrap(), &descriptor)})
+                } else { json!({"value":a["value"]}) }
             } else if a["host_error"].is_string() {
                 a.clone()
             } else {
                 json!({"outcome":a})
             };
-            assert_eq!(reply, e["reply"], "wgpu result {i}");
+            assert_eq!(reply, expected_reply, "wgpu result {i}");
             if a["backend"] == "gpu" {
                 gpu_calls += 1;
             }
