@@ -2,7 +2,8 @@
 
 This integration combines the completed adaptive pipeline work (`138f9f65`),
 Frontier representations and scalable storage (`4747cc68`), the Frontier diff
-benchmark (`ca8644f9`), and database implementation selection from PR #17.
+benchmark (`ca8644f9`), database implementation selection from PR #17,
+and completed private snapshot sharing/field updates (`62f63f63`).
 It is based on remote main `7210c73e` and preserves the intervening language,
 ownership, storage, incremental proof and durability changes.
 
@@ -29,7 +30,12 @@ profile is bound to the exact emitted code, host, planner, device and observed
 domains; it is optional and cannot justify a semantic rewrite.
 
 This audit excludes the still-active balanced-tree, generalized batching,
-composed-state and internal snapshot-sharing implementations.
+and composed-state implementations. Snapshot sharing finished during the audit
+and is included, with its original measurements and proof artifacts preserved.
 
 Fresh CI installs `python-sat==1.9.dev5` for representation authoring. The solver
 produces candidate certificates; the existing kernel independently checks them.
+
+The packed native compute script emits NDJSON; the state script emits a single
+array. The parity helper now decodes the selected transport before checking exact
+values, receipt counts and required actual GPU dispatch.
