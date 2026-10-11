@@ -12,6 +12,6 @@ for(const backend of ['c','rust']){
   assert.deepEqual(normalize(reply),normalize(expected[index].reply),`${backend} step ${index}`);
   assert.deepEqual(Array.from(state.snapshot()),expected[index].snapshot.map(Number),`${backend} snapshot ${index}`);index++;
  }
- const before=state.snapshot();assert.throws(()=>state.invoke('__unknown_action__',[]));assert.deepEqual(state.snapshot(),before);if(steps.some(s=>s.async)){await assert.rejects(state.invokeAsync('__unknown_action__',[]));assert.deepEqual(state.snapshot(),before);await assert.rejects(state.invokeAsync('batch',['invalid',false]));assert.deepEqual(state.snapshot(),before);}state.dispose();
+ const before=state.snapshot();assert.throws(()=>state.invoke('__unknown_action__',[]));assert.deepEqual(state.snapshot(),before);if(steps.some(s=>s.async)){await assert.rejects(state.invokeAsync('__unknown_action__',[]));assert.deepEqual(state.snapshot(),before);await assert.rejects(state.invokeAsync('batch',['invalid',false]));assert.deepEqual(state.snapshot(),before);}if(steps.some(s=>s.call==='create'&&typeof s.args?.[0]==='string'&&/^[0-9a-f]{32}$/i.test(s.args[0]))){for(const id of ['bad','0'.repeat(31),'0'.repeat(33),'g'.repeat(32),0n,null]){assert.throws(()=>state.invoke('create',[id,'x',0n]));assert.deepEqual(state.snapshot(),before);}}state.dispose();
  console.log(`${backend} Wasm: ${index} values/outcomes and exact snapshots matched`);
 }
