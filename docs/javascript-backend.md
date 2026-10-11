@@ -31,8 +31,8 @@ those explicitly (for example as decimal strings).
 operation. Negation preserves payloads and flips the sign bit. Host values use
 finite Numbers or `{F32Bits: bits}`; exceptional output is never silently turned
 into JSON null. The emitter preserves operation order, signed zero and
-subnormals. Arithmetic-produced NaN payloads are engine-dependent, as on native
-CPU; exact cross-engine NaN payload reproducibility is not promised.
+subnormals. Arithmetic-produced NaNs use the canonical quiet payload `0x7fc00000`;
+transport and sign-bit negation retain the original payload.
 
 Bool, vectors, records and nested lists retain their declared types. Functions,
 lexical bindings, map/filter, indexed map, truncating zip, ordered sums, right
@@ -46,21 +46,13 @@ not the reference interpreter's exact fuel accounting.
 
 ## Browser backend selection
 
-WebGPU bundles now include `program.mjs` as well as `cpu.wasm` and shaders.
-`ink-runtime` owns selection; the lowerer contains no timings or target policy.
-Scalar `run(name,args,'javascript')` and compute
-`call(name,args,{backend:'javascript'})` explicitly choose JavaScript.
-`auto` compares eligible JavaScript, Wasm CPU and WebGPU candidates. Whole-call
-or whole-pipeline timing includes codecs, allocation, upload/dispatch/readback and
-result materialisation. Initial JS/Wasm module setup is charged once and
-amortised over expected calls; later profiles measure warm costs. GPU preparation
-is measured explicitly. Three alternating trials, bounded calibration, a 32-shape
-cache, rechecking and a 10% saving threshold limit profiling work.
-
-Measurements depend on the browser, device, workload and data size. No target is
-universally faster. The current packed JavaScript pipeline crosses the host value
-codec at each stage; avoiding those conversions is future runtime work. Native
-wgpu bundles retain the C CPU path. Per-stage adaptive placement and browser source editing remain future work. Complete mixed modules also expose explicit JavaScript state execution; transactional calls are never profiled speculatively.
+WebGPU bundles include `program.mjs`, `cpu.wasm` and shaders. Explicit JavaScript,
+CPU or GPU selection remains available. Automatic selection applies `ink-abi`'s
+Rust decision implementation through Wasm to already eligible candidates and
+saved, target-bound profiles. Missing comparable evidence retains the compiled
+CPU baseline. Runtime enforces resources and handles device failure; it performs
+no profitability probes. Knowledge owns observations and models, and planner
+owns offline fitting. See [the common contract](adaptive-execution.md).
 
 ## Evidence and trust
 

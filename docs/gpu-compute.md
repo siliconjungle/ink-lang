@@ -15,8 +15,10 @@ build/particles/native/target/release/ink-gpu-program --pipeline examples/partic
 The semantic core builds without knowledge or lowering packages. The distribution
 assembles pinned planner, runtime and lowerers. C emits compiled CPU fallback;
 GPU emits WGSL and owns device adapters; `ink-runtime` owns bundle assembly,
-browser/native host ABIs, scheduling, profiling and fallback. The GPU lowerer has
-no C or runtime dependency.
+browser/native host assembly, shared saved-model decisions, scheduling and fallback.
+GPU shader emission is independent; general recursive host lanes reuse literal
+C and JavaScript representation emission. `ink-abi` owns packed layouts and the
+common decision implementation.
 
 A GPU bundle contains a standalone pinned wgpu project. Compatible adapters and
 drivers are required for GPU execution. The browser uses Wasm CPU fallback; the
@@ -152,7 +154,7 @@ word-only host's BigInt return values; manifest.schema selects the host version.
 Native `Engine::pipeline(&plan, Backend::Auto)` uses the same plan format.
 `--pipeline FILE.json` executes a plan; `--script FILE.json` accepts call entries
 or `{"pipeline": PLAN, "backend": "gpu"}` entries. `--repeat N` reuses one host
-for profiling. `INK_GPU_DISABLE=1` exercises compiled native CPU fallback.
+for offline measurement. `INK_GPU_DISABLE=1` exercises compiled native CPU fallback.
 
 ## Ownership, limits and selection
 
@@ -204,7 +206,7 @@ programs. See [phase 2 evidence](../reports/gpu-phase2/REPORT.md).
 ## JavaScript CPU alternative
 
 Browser bundles now also carry literal `program.mjs` emission. Runtime accepts
-`backend: "javascript"` and includes JavaScript in `auto` whole-pipeline profiling
-alongside Wasm and WebGPU. The JavaScript path preserves Ink word/f32 types and
+`backend: "javascript"` and includes eligible JavaScript in `auto` saved-model
+selection alongside Wasm and WebGPU. Missing comparable evidence retains CPU. The JavaScript path preserves Ink word/f32 types and
 uses the host value codec at each stage. Native wgpu fallback remains compiled C.
 See [JavaScript target and selection](javascript-backend.md).

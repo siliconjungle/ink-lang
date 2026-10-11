@@ -26,7 +26,7 @@ Lowerers execute the admitted program literally. They implement general language
 mechanisms and target constraints. They do not decide to replace a reverse fold
 with an early exit, reuse an immutable intermediate buffer, or inline a helper.
 Those choices are externally proposed and checked. General `fold_until` and owned
-`Buffer.map`, `Buffer.map_indexed` and `Buffer.scan` operations express those
+`Buffer.map`, `Buffer.map_indexed`, `Buffer.scan` and stable `Buffer.filter` operations express those
 alternatives on every backend. See [universal optimisation](universal-optimisation.md)
 for the operation contracts and proof scope.
 

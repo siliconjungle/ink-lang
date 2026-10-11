@@ -72,9 +72,10 @@ A host supplies persistence, external I/O and event delivery.
 CPU integer arithmetic and evaluation order match Ink. `u64` must not pass through
 an unsafe JavaScript Number; use BigInt or exact decimal input. `Int` has the
 explicit `{Int:"decimal"}` wire form. Exceptional floats use `{F32Bits:bits}`.
-JS rounds each f32 operation separately and preserves negation payloads; arithmetic
-NaN payloads can differ between engines. GPU floats follow the portable WGSL
-contract and are not promised to match CPU bits.
+Each f32 arithmetic operation rounds separately and canonicalises arithmetic
+NaNs to `0x7fc00000`; transport and negation preserve payload bits. The packed GPU
+emitter implements binary32 using integer lanes. F32 programs bind executable-core
+V7, with cross-target tests including NaN arithmetic and payload transport.
 
 The GPU collection implementation is literal: filter, inclusive scan and stable
 rank sorting preserve integer semantics, but scans and rank sorts repeat work.
@@ -134,3 +135,43 @@ Checked optimisation plans preserve the original application checkpoint namespac
 through the [selected emission APIs](selected-checkpoints.md). Cross-backend
 continuation and durable receipt replay are tested separately from raw-program
 emission, which keeps the changed program’s own namespace.
+
+## Standalone physical representations
+
+Proof-selected physical representations now use standalone compiled code on
+all targets, including C/Rust Wasm and native/browser GPU host lanes. Proofs,
+source ASTs and checker packages remain at compile time. All targets use the
+same checked snapshot namespace and transaction contract. GPU device eligibility
+is unchanged; recursive state executes on the host. The narrower fixed source
+representation model is described in [database representations](database-representations.md).
+
+`tests/representation_parity.rs` supplies the shared replies/errors/events/exact
+snapshot gate. It runs both Wasm lanes when INK_TEST_ZIG is set, including in CI.
+No backend emitter is mechanically verified by that differential gate.
+
+Resident stage-graph feedback now captures source buffers before simultaneous
+input updates and observes final outputs before another update. Identity output
+aliases, one/two/three-iteration swaps and shrinking/empty filter/scan/sort loops
+are covered by actual wgpu tests. The browser device command builder uses the
+same ordering and has an independent buffer/command-model test. Heavy literal
+operations retain the 128-element device admission bound; shapes that cannot
+retain their declared capacity use the complete host path.
+
+
+## Generated arguments and checked state transport
+
+Raw generated pure functions and standalone representation calls require arguments
+with their declared arity, types, tags, shapes and ranges. Their native pointer
+interfaces additionally require the documented ownership/capacity contract.
+Applications validate external data before using those caller-trusted interfaces.
+
+JavaScript `createState` retains its typed input boundary and resource budget.
+Proof-selected `Session` calls validate complete observations and logical state
+transport before installing a transition. Invalid transport cannot partially
+publish new state or events. There is no synthetic backend read-only query
+protocol: database definitions express compact queries and cache retention,
+and targets emit those checked definitions literally.
+
+Checkpoint integrity, transaction/version rules, device eligibility and hardware
+resource limits remain enforced. These execution boundaries and differential
+checks do not establish a formal backend correctness proof.

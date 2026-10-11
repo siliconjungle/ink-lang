@@ -4,7 +4,7 @@ pub use ink_core::*;
 pub use ink_lowering_c::{compute, native};
 pub use ink_lowering_gpu::gpu;
 pub use ink_lowering_js as javascript;
-pub use ink_lowering_rust::{definition_native, representation_native};
+pub use ink_lowering_rust::{definition_native, representation_native, representation_program};
 pub mod state_native {
     pub use ink_lowering_rust::state_native::*;
     pub const WASM_ABI: &str = ink_runtime::STATE_WASM_ABI;

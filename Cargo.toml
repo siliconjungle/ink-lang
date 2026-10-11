@@ -17,8 +17,7 @@ path = "src/bin/ink.rs"
 
 [workspace]
 members = []
-exclude = ["abi", "native-support","runtime", "planner", "core", "lowerings/c", "lowerings/rust", "lowerings/wasm", "lowerings/gpu", "lowerings/js", "build", "build/**", "reports", "reports/**"]
-
+exclude = ["abi", "native-support", "runtime", "planner", "core", "lowerings/c", "lowerings/rust", "lowerings/wasm", "lowerings/gpu", "lowerings/js", "build", "build/**", "reports", "reports/**"]
 
 [dependencies]
 ink-abi = { path = "abi" }
@@ -56,5 +55,9 @@ ink-lowering-js = { path = "lowerings/js" }
 
 [patch."https://github.com/siliconjungle/ink-abi"]
 ink-abi = { path = "abi" }
+
 [patch."https://github.com/siliconjungle/ink-native-support"]
 ink-native-support = { path = "native-support" }
+
+[patch."https://github.com/siliconjungle/ink-lowering-rust"]
+ink-lowering-rust = { path = "lowerings/rust" }

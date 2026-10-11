@@ -91,7 +91,8 @@ a limited Boolean equality calculus; it does not verify the complete compiler.
 
 The [target parity contract](docs/lowering-parity.md) records exact coverage and
 limits. Complete C emission uses a shared Rust primitive runtime. JavaScript keeps
-are recomputed; GPU floating-point results have a separate WGSL contract.
+are recomputed. F32 arithmetic uses canonical NaNs and source-order binary32
+operations; the packed GPU emitter implements these through integer lanes.
 
 Recent integration adds [215 owned Buffer/Map laws](docs/owned-optimisation.md),
 List state/action correspondence and [point-query delta candidates](docs/point-query-delta.md).

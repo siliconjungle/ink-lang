@@ -532,9 +532,9 @@ impl Runtime {
         if let (Value::F32(a), Value::F32(b)) = (&av, &bv) {
             let (a, b) = (f32::from_bits(*a), f32::from_bits(*b));
             return Ok(match op {
-                "+" => Value::F32((a + b).to_bits()),
-                "-" => Value::F32((a - b).to_bits()),
-                "*" => Value::F32((a * b).to_bits()),
+                "+" => Value::F32(crate::logic::canonical_f32_bits(a + b)),
+                "-" => Value::F32(crate::logic::canonical_f32_bits(a - b)),
+                "*" => Value::F32(crate::logic::canonical_f32_bits(a * b)),
                 "==" => Value::Bool(a == b),
                 "!=" => Value::Bool(a != b),
                 "<" => Value::Bool(a < b),

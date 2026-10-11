@@ -9,7 +9,7 @@ The `ink` distribution combines that core with independently pinned repositories
 | --- | --- |
 | [ink-knowledge](https://github.com/siliconjungle/ink-knowledge) | Canonical entries, snapshots, typed SQLite discovery and separate performance observations |
 | [ink-planner](https://github.com/siliconjungle/ink-planner) | Search, applicability proof production and checked-plan selection |
-| [ink-runtime](https://github.com/siliconjungle/ink-runtime) | Backend-neutral graph execution, bundle assembly, host ABIs, scheduling, profiling and pure fallback |
+| [ink-runtime](https://github.com/siliconjungle/ink-runtime) | Backend-neutral graph execution, bundle assembly, host assembly, shared saved-model decisions, scheduling and pure fallback |
 | [ink-lowering-c](https://github.com/siliconjungle/ink-lowering-c) | Portable C emission and allocation primitives |
 | [ink-lowering-rust](https://github.com/siliconjungle/ink-lowering-rust) | Stateful/inductive Rust emission and native storage primitives |
 | [ink-lowering-wasm](https://github.com/siliconjungle/ink-lowering-wasm) | Checked C-to-Wasm target configuration and exports |
@@ -19,8 +19,10 @@ The `ink` distribution combines that core with independently pinned repositories
 JavaScript emits portable ES modules; see [its value and selection contract](javascript-backend.md).
 C/Rust toolchains produce native machine code or Wasm. WebGPU and native wgpu
 share shader lowering. Runtime assembles GPU artifacts with compiled C/Wasm
-fallback; the GPU lowerer has no C or runtime dependency. Wasm state host support
-also belongs to runtime. Core source lives entirely in `core/src`.
+fallback. GPU shader emission is independent; its recursive host lanes reuse
+literal C and JavaScript representation emission. ABI contracts and emitted native
+support live in `ink-abi` and `ink-native-support`. Core source lives entirely
+in `core/src`.
 
 The distribution pins repositories and its Cargo lock; standalone packages pin
 compatible core/backend revisions. See [the storage and execution contract](repository-architecture.md).
@@ -102,7 +104,8 @@ operations to avoid transfers.
 
 Measurements are separate from proof objects and keyed by hardware, drivers,
 toolchains, backend/bridge identities, data shape/size, allocation/residency state
-and concurrency. Bounded profiling may rank valid candidates; it must not invent
+and concurrency. Offline models may rank valid candidates; runtime applies the shared decision
+contract without profitability probes and must not invent
 semantic assumptions. Search exhaustion keeps an admitted baseline. Runtime
 switching needs checked applicability, state migration and fallback protocols.
 

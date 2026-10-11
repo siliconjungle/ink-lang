@@ -39,7 +39,7 @@ action; see [the contract and limits](database-representations.md).
 
 The planner proposes checked graphs and cost choices. `ink-runtime::execution` composes pure source stages through registered opaque backend/domain adapters, validates original inputs before execution and validates each output's logical type. Failed stages repeat the same pure call on an explicitly registered fallback. Adapter registration and physical bridges remain trusted.
 
-GPU target emission returns manifest/shader artifacts and owns shader/device operations. Shared runtime assembly supplies C fallback, Wasm compilation, browser/native host ABI, scheduling, shared saved-model decisions and fallback. The GPU lowerer has no C or runtime dependency. Wasm target exports remain in its lowering package; Wasm state host support belongs to runtime.
+GPU target emission returns manifest/shader artifacts and owns shader/device operations. Shared runtime assembly supplies C fallback, Wasm compilation, browser/native host ABI, scheduling, shared saved-model decisions and fallback. GPU shader emission is independent of C. Its general recursive host lanes reuse the literal C and JavaScript representation emitters. Wasm target exports remain in its lowering package; Wasm state host support belongs to runtime.
 
 Scalar source routes transport supported values through the host. Packed compute
 pipelines support resident arrays across steps and iterations. Durable file and
