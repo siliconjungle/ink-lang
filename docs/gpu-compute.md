@@ -15,8 +15,10 @@ build/particles/native/target/release/ink-gpu-program --pipeline examples/partic
 The semantic core builds without knowledge or lowering packages. The distribution
 assembles pinned planner, runtime and lowerers. C emits compiled CPU fallback;
 GPU emits WGSL and owns device adapters; `ink-runtime` owns bundle assembly,
-browser/native host ABIs, scheduling, profiling and fallback. The GPU lowerer has
-no C or runtime dependency.
+browser/native host assembly, shared saved-model decisions, scheduling and fallback.
+GPU shader emission is independent; general recursive host lanes reuse literal
+C and JavaScript representation emission. `ink-abi` owns packed layouts and the
+common decision implementation.
 
 A GPU bundle contains a standalone pinned wgpu project. Compatible adapters and
 drivers are required for GPU execution. The browser uses Wasm CPU fallback; the
@@ -34,7 +36,7 @@ native host links generated C. Neither host links an Ink interpreter.
   `vec2(...)`, `vec3(...)`, `vec4(...)`; read `.x`, `.y`, `.z`, `.w`.
 - Records retain named fields. The compute ABI supports records containing
   32-bit numeric/Bool values, vectors and other such records. No nested arrays,
-  recursive records or u64 record fields are supported by this ABI. Only declarations in the selected pure closure must satisfy these layout restrictions. Unrelated state declarations execute on the complete CPU host.
+  recursive records are supported by this ABI. U64 values use two 32-bit lanes. Only declarations in the selected pure closure must satisfy these layout restrictions. Unrelated state declarations execute on the complete CPU host.
 - Pure function bodies accept sequential `let name[: Type] = expression;`
   bindings followed by a return expression. `choose(condition, a, b)` evaluates
   only the selected branch. Functions remain acyclic and free of effects.
@@ -62,7 +64,7 @@ primitives. Heavy compositions have a 128-element GPU admission limit. Actual
 length headers preserve filtering and truncation through resident pipelines.
 Eligibility does not establish that GPU execution is faster.
 
-Stateful programs, exact Int/u64 arrays, opaque values and nested heap structures
+Stateful programs, exact Int arrays, opaque values and nested heap structures
 use the complete CPU host. See [lowering parity](lowering-parity.md) for mixed
 module assembly, host APIs and resource boundaries. There is no automatic scatter,
 parallel float reduction, graphics renderer or stateful GPU execution.
@@ -152,7 +154,7 @@ word-only host's BigInt return values; manifest.schema selects the host version.
 Native `Engine::pipeline(&plan, Backend::Auto)` uses the same plan format.
 `--pipeline FILE.json` executes a plan; `--script FILE.json` accepts call entries
 or `{"pipeline": PLAN, "backend": "gpu"}` entries. `--repeat N` reuses one host
-for profiling. `INK_GPU_DISABLE=1` exercises compiled native CPU fallback.
+for offline measurement. `INK_GPU_DISABLE=1` exercises compiled native CPU fallback.
 
 ## Ownership, limits and selection
 
@@ -174,14 +176,13 @@ replay the original pipeline on compiled CPU and report the reason. Unsupported
 CPU ABI features fail compilation; malformed arguments/plans fail validation.
 There is no native evaluation fuel or universal hardware guarantee.
 
-Auto selection takes three alternating CPU/GPU timings for the complete
-pipeline, including host allocation, copies, upload, dispatch, synchronization,
-readback and JSON result construction. It amortizes initial GPU setup over 32
-uses and requires a measured saving of at least 10%. At most 32 profiles are
-cached, keyed by topology, types/shapes, iterations, feedback and sampled input
-words; profiles refresh after 32 uses. Sampling can miss data-dependent cost
-changes; it cannot authorize a semantic rewrite. CPU/GPU trials always start
-from the same immutable inputs. No intermediate GPU state is authoritative.
+Automatic selection uses the common `ink-abi` decision contract over saved,
+exact-target profiles and bounded workload domains. The browser runs the same
+Rust implementation through Wasm. Alternatives require more than 10% predicted
+savings over comparable CPU evidence; missing evidence retains CPU. Knowledge
+owns observations and models; planner performs offline fitting. Runtime performs
+no profitability trials or periodic remeasurement. Resources and device failure
+remain host responsibilities. Costs cannot authorise a semantic rewrite.
 
 ## Reproduce validation
 
@@ -204,7 +205,7 @@ programs. See [phase 2 evidence](../reports/gpu-phase2/REPORT.md).
 ## JavaScript CPU alternative
 
 Browser bundles now also carry literal `program.mjs` emission. Runtime accepts
-`backend: "javascript"` and includes JavaScript in `auto` whole-pipeline profiling
-alongside Wasm and WebGPU. The JavaScript path preserves Ink word/f32 types and
+`backend: "javascript"` and includes eligible JavaScript in `auto` saved-model
+selection alongside Wasm and WebGPU. Missing comparable evidence retains CPU. The JavaScript path preserves Ink word/f32 types and
 uses the host value codec at each stage. Native wgpu fallback remains compiled C.
 See [JavaScript target and selection](javascript-backend.md).

@@ -36,12 +36,11 @@ use std::{
     thread,
     time::{Duration, Instant},
 };
-#[cfg(feature = "legacy-optimisation-research")]
-use verified_language::{aggregate, row_model};
+
 use verified_language::{
-    bitproof,
+    bitproof, content,
     core::CheckedModule,
-    equality, eval, knowledge, library,
+    equality, eval, library,
     logic::{Context, Declaration, Equation, Proof},
     snapshot,
     snapshot_wire::{self, Limits, Logical, Schema},
@@ -345,7 +344,8 @@ fn regression_eval_scope_is_not_copied_per_element() {
     let p = syntax::parse(
         "module m;
          fn f(xs: List<u64>) -> u64 { return sum(xs.map(fn(x) => x * 3 + 1).filter(fn(y) => y > 10)); }
-         fn g(xs: List<u64>) -> u64 { return foldr(xs, 0, fn(x) => fn(r) => x + r); }",
+         fn g(xs: List<u64>) -> u64 { return foldr(xs, 0, fn(x) => fn(r) => x + r); }
+         fn h(xs: List<u64>) -> u64 { return fold_until(xs, 0, fn(x) => fn(r) => false, fn(x) => fn(r) => x + r); }",
     )
     .unwrap();
     bounded("eval-scope", 20, || {
@@ -353,8 +353,10 @@ fn regression_eval_scope_is_not_copied_per_element() {
         let want: u64 = (0..n).map(|x| x * 3 + 1).filter(|y| *y > 10).sum();
         let got = eval::call(&p, "f", vec![u64_list(n)], &mut 100_000_000)?;
         assert_eq!(got, eval::Value::U64(want));
-        let got = eval::call(&p, "g", vec![u64_list(n)], &mut 100_000_000)?;
-        assert_eq!(got, eval::Value::U64(n * (n - 1) / 2));
+        for function in ["g", "h"] {
+            let got = eval::call(&p, function, vec![u64_list(n)], &mut 100_000_000)?;
+            assert_eq!(got, eval::Value::U64(n * (n - 1) / 2));
+        }
         Ok(())
     });
 }
@@ -487,10 +489,10 @@ fn regression_eval_compute_values_charge_copies_and_preserve_context() {
             .iter_mut()
             .find(|f| f.name == "positives")
             .unwrap()
-            .result = Type::U64;
+            .body = syntax::parse("module bad; fn f(xs:List<u32>)->u32{return foldr(xs,0,fn(x)=>fn(r)=>choose(x>0,true,r));}").unwrap().functions.remove(0).body;
         assert!(
             CheckedModule::from_source(invalid).is_err(),
-            "the current fold subset requires matching element and accumulator types"
+            "a Boolean step cannot produce the declared numeric accumulator"
         );
         let rows = |n| {
             eval::Value::List(
@@ -1379,37 +1381,6 @@ fn mutate_json(rng: &mut Rng, value: &Json, raw: &[u8]) -> Vec<u8> {
 }
 /// Mutate the JSON seed while usually keeping the subtree at `protect` intact,
 /// so mutations reach the parts that are not content-addressed.
-#[cfg(feature = "legacy-optimisation-research")]
-fn mutate_json_protecting(rng: &mut Rng, value: &Json, raw: &[u8], protect: &[&str]) -> Vec<u8> {
-    if rng.one_in(5) {
-        return mutate_json(rng, value, raw);
-    }
-    let mut v = value.clone();
-    let mut slot = &mut v;
-    for key in protect {
-        slot = &mut slot[*key];
-    }
-    let saved = slot.take();
-    let mut mutated: Json =
-        serde_json::from_slice(&mutate_json(rng, &v, &serde_json::to_vec(&v).unwrap()))
-            .unwrap_or(Json::Null);
-    let mut slot = Some(&mut mutated);
-    for key in protect {
-        slot = slot
-            .and_then(|s| s.as_object_mut())
-            .and_then(|o| o.get_mut(*key));
-    }
-    match slot {
-        Some(slot) if slot.is_null() => *slot = saved,
-        _ => {
-            // The mutation moved or removed the protected field; send raw damage.
-            let mut bytes = raw.to_vec();
-            mutate_bytes(rng, &mut bytes, 1);
-            return bytes;
-        }
-    }
-    serde_json::to_vec(&mutated).unwrap()
-}
 
 // ---------------------------------------------------------------------------
 // Corpora.
@@ -1438,7 +1409,7 @@ fn first_order_locks() -> Vec<PathBuf> {
     locks
 }
 fn lock_semantics(path: &Path) -> String {
-    let lock: knowledge::Lock = serde_json::from_slice(&read(path)).unwrap();
+    let lock: content::Lock = serde_json::from_slice(&read(path)).unwrap();
     lock.semantics
 }
 /// Raw bytes of every content-addressed object of the given lock semantics.
@@ -1721,101 +1692,6 @@ fn fuzz_bitproof_certificates() {
 }
 
 /// Total-scalar equality objects (`equality::Context::define`/`prove_under`).
-#[test]
-fn fuzz_equality_objects() {
-    let s = settings();
-    if s.only.as_ref().is_some_and(|(t, _)| t != "equality") {
-        return;
-    }
-    let raw = objects(knowledge::SEMANTICS);
-    // Typed partial reads: a mutated object can hold millions of nodes, and
-    // a `serde_json::Value` of it would dwarf what the checker allocates.
-    fn head(bytes: &[u8]) -> (bool, Vec<String>) {
-        use serde::{de::IgnoredAny, Deserialize};
-        #[derive(Deserialize)]
-        struct Head {
-            kind: Option<IgnoredAny>,
-            #[serde(default)]
-            dependencies: Vec<String>,
-        }
-        #[derive(Deserialize)]
-        struct Kind {
-            kind: Option<IgnoredAny>,
-        }
-        match serde_json::from_slice::<Head>(bytes) {
-            Ok(h) => (h.kind.is_some(), h.dependencies),
-            Err(_) => (
-                serde_json::from_slice::<Kind>(bytes).is_ok_and(|k| k.kind.is_some()),
-                vec![],
-            ),
-        }
-    }
-    fn declare(context: &mut equality::Context, id: &str, bytes: &[u8]) -> Result<(), String> {
-        #[derive(serde::Deserialize)]
-        struct Definition {
-            params: Vec<(String, Type)>,
-            result: Type,
-            body: Expr,
-        }
-        if head(bytes).0 {
-            let d: Definition = serde_json::from_slice(bytes).map_err(|e| e.to_string())?;
-            context.define(id.to_owned(), &d.params, &d.result, &d.body)
-        } else {
-            let o: knowledge::Object = serde_json::from_slice(bytes).map_err(|e| e.to_string())?;
-            let checked = context.check_under(&o.params, &o.conditions, &o.from, &o.to, &o.proof);
-            let proved = context.prove_under(
-                id.to_owned(),
-                &o.params,
-                &o.conditions,
-                &o.from,
-                &o.to,
-                &o.proof,
-            );
-            if o.conditions.is_empty() {
-                let _ = equality::verify(&o.params, &o.from, &o.to, &o.proof);
-            }
-            assert_eq!(checked.is_ok(), proved.is_ok(), "check and prove disagree");
-            proved.map(|_| ())
-        }
-    }
-    let mut before: BTreeMap<String, equality::Context> = BTreeMap::new();
-    let mut after: BTreeMap<String, equality::Context> = BTreeMap::new();
-    fn build(
-        id: &str,
-        raw: &BTreeMap<String, Vec<u8>>,
-        before: &mut BTreeMap<String, equality::Context>,
-        after: &mut BTreeMap<String, equality::Context>,
-    ) {
-        if after.contains_key(id) {
-            return;
-        }
-        let mut context = equality::Context::default();
-        for d in head(&raw[id]).1 {
-            build(&d, raw, before, after);
-            context.import(&after[&d], &d).unwrap();
-        }
-        before.insert(id.to_owned(), context.clone());
-        declare(&mut context, id, &raw[id]).unwrap();
-        after.insert(id.to_owned(), context);
-    }
-    for id in raw.keys() {
-        build(id, &raw, &mut before, &mut after);
-    }
-    let seeds: Vec<_> = raw
-        .iter()
-        .map(|(id, bytes)| Seed::json(bytes.clone(), id.clone()))
-        .collect();
-    fuzz(
-        "equality",
-        400,
-        &seeds,
-        |rng, seed| mutate_json(rng, seed.json.as_ref().unwrap(), &seed.bytes),
-        |seed, bytes| {
-            let mut local = before[&seed.data].subset(&head(bytes).1)?;
-            declare(&mut local, &seed.data, bytes)
-        },
-    );
-}
 
 /// Content-addressed packages loaded from disk through their lockfiles.
 /// A mutated object is re-addressed, and dependants are re-addressed in turn,
@@ -1826,13 +1702,7 @@ fn fuzz_lockfiles() {
     if s.only.as_ref().is_some_and(|(t, _)| t != "lockfile") {
         return;
     }
-    let packages = [
-        "boolean",
-        "conditional",
-        "composed",
-        "inductive",
-        "collections",
-    ];
+    let packages = ["inductive", "collections"];
     fn encode(lock: &[u8], objects: &BTreeMap<String, Vec<u8>>) -> Vec<u8> {
         serde_json::to_vec(&json!({
             "lock": String::from_utf8_lossy(lock),
@@ -1911,7 +1781,7 @@ fn fuzz_lockfiles() {
             }
             encode(&lock, &objects)
         },
-        |seed, bytes| {
+        |_seed, bytes| {
             let package: Json = serde_json::from_slice(bytes).unwrap();
             let dir = std::env::temp_dir().join(format!(
                 "ink-hardening-{}-{}",
@@ -1928,109 +1798,9 @@ fn fuzz_lockfiles() {
                 .unwrap();
             }
             let lock = dir.join("lock.json");
-            let result = if seed.data.0 == knowledge::SEMANTICS {
-                knowledge::load(&lock).map(|_| ())
-            } else {
-                library::load(&lock).map(|_| ())
-            };
+            let result = library::load(&lock).map(|_| ());
             let _ = fs::remove_dir_all(&dir);
             result
-        },
-    );
-}
-
-#[cfg(feature = "legacy-optimisation-research")]
-fn certificate_seeds() -> Vec<Seed<()>> {
-    let mut seeds: Vec<_> = [
-        "table-maintenance/table.json",
-        "table-maintenance/table-snapshot.json",
-        "reversible-maintenance/reversible.json",
-        "reversible-maintenance/snapshot.json",
-        "delta-maintenance/delta.json",
-    ]
-    .iter()
-    .map(|path| Seed::json(read(knowledge_dir().join(path)), ()))
-    .collect();
-    let legacy = aggregate::prove(
-        &syntax::parse(
-            &String::from_utf8(read(knowledge_dir().join("sum-maintenance.lang"))).unwrap(),
-        )
-        .unwrap(),
-    )
-    .unwrap();
-    seeds.push(Seed::json(serde_json::to_vec(&legacy).unwrap(), ()));
-    seeds
-}
-
-/// Database maintenance certificates (`aggregate::verify`, which runs the
-/// exact and keyed-table maintenance checkers and their kernel proofs).
-#[cfg(feature = "legacy-optimisation-research")]
-#[test]
-fn fuzz_maintenance_certificates() {
-    let s = settings();
-    if s.only.as_ref().is_some_and(|(t, _)| t != "certificate") {
-        return;
-    }
-    fuzz(
-        "certificate",
-        if cfg!(debug_assertions) { 25 } else { 200 },
-        &certificate_seeds(),
-        |rng, seed| {
-            mutate_json_protecting(
-                rng,
-                seed.json.as_ref().unwrap(),
-                &seed.bytes,
-                &["evidence", "library"],
-            )
-        },
-        |_, bytes| {
-            let c: aggregate::Certificate =
-                serde_json::from_slice(bytes).map_err(|e| e.to_string())?;
-            aggregate::verify(&c)
-        },
-    );
-}
-
-/// Source row models bound to a program and maintenance certificate.
-#[cfg(feature = "legacy-optimisation-research")]
-#[test]
-fn fuzz_row_models() {
-    let s = settings();
-    if s.only.as_ref().is_some_and(|(t, _)| t != "row-model") {
-        return;
-    }
-    let program = syntax::parse(include_str!("../examples/source-row-undo.ink")).unwrap();
-    let seeds: Vec<_> = [
-        ("reversible", "table.json"),
-        ("snapshot", "table-snapshot.json"),
-    ]
-    .iter()
-    .map(|(folder, cert)| {
-        let c: aggregate::Certificate =
-            serde_json::from_slice(&read(knowledge_dir().join("table-maintenance").join(cert)))
-                .unwrap();
-        Seed::json(
-            read(
-                knowledge_dir()
-                    .join("source-row-undo")
-                    .join(folder)
-                    .join("source-model.json"),
-            ),
-            c,
-        )
-    })
-    .collect();
-    fuzz(
-        "row-model",
-        if cfg!(debug_assertions) { 6 } else { 100 },
-        &seeds,
-        |rng, seed| {
-            mutate_json_protecting(rng, seed.json.as_ref().unwrap(), &seed.bytes, &["library"])
-        },
-        |seed, bytes| {
-            let model: row_model::Model =
-                serde_json::from_slice(bytes).map_err(|e| e.to_string())?;
-            row_model::verify(&program, &seed.data, &model)
         },
     );
 }

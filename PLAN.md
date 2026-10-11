@@ -54,12 +54,28 @@ proof checking, additional writes, memory and migration. Trial bounded saved-pro
 or batch/session selection with an explicit static policy before a general live
 controller; never benchmark an effectful action by executing it speculatively.
 
-Default aggregate, bounded-cache and typed-policy admission is retired. Canonical
-source-bound representation entries now check all-action observation/invariant
-preservation and direct physical migrations, and execute through a literal Rust
-definition backend with baseline-compatible logical snapshots. See
-[the contract, tests and limits](docs/database-representations.md). Historical
-experiments require an explicit research feature. Priority 1 remains open for arbitrary cross-row grouped/ordered maintenance,
+Legacy aggregate certificates, bounded caches, typed-policy admission and their
+compatibility paths are removed. Canonical database representations check
+all-action observation and invariant preservation against the admitted fixed
+source projection. Standalone C/Rust/JavaScript and both Wasm emit the checked
+definitions literally; recursive state executes on GPU hosts. Supported scalar,
+collection, vector and pure helper correspondence is documented in
+[the representation contract](docs/database-representations.md). Unsupported
+keys/operators fail closed, and broader source correspondence remains open.
+Portable checkpoint/restore performs executable migration; direct bridge proofs
+remain checkable but direct bridge emission is not implemented.
+
+The permanent supported parity contract is enforced in CI, including actual
+workers, exact eligible GPU kernels and explicit required-GPU failures. The
+unrestricted device audit retains its disclosed missing capabilities. Passing
+conformance does not close compiler correctness or competitive execution.
+The latest compiled-state scaling report shows that cached reads can approach
+a maintained handwritten control while linked-list writes remain expensive.
+Next physical-state work must reduce traversal, allocation and copying in updates,
+with representation/source proofs and equal backend coverage. Preserve the
+current slow candidates as benchmark controls and report memory and lifecycle costs.
+
+Priority 1 remains open for arbitrary cross-row grouped/ordered maintenance,
 unbounded group discovery, full dependency/storage deduplication and additional
 physical executors. Bounded grouped u64 aggregates, exact per-row ordered
 contributions, proved field projection retention and shared observations are now
@@ -68,8 +84,8 @@ correspondence, guarded dynamic point deltas, independent cache composition,
 ordinary column/Boolean packing candidates, proved direct column reads, explicit
 packed Rust/Wasm scalar and data-cell storage, direct physical mutations, dense
 and bucket point indexes, generation-stamped scratch, bounded identity memoisation,
-proved aggregate fusion and direct native entry points have been extended on the
-Frontier branch. Exact whole heap/grid query caches preserve source observations.
+proved aggregate fusion and direct native entry points are included in the
+Frontier integration. Exact whole heap/grid query caches preserve source observations.
 The implementation ledger, measurements and limits are in [Frontier extensions](reports/frontier-extensions/README.md).
 Fixed-key remove/replace delta candidates, List value/count/u64-sum correspondence,
 owned collection laws and external lifecycle/migration/memory selection are implemented;

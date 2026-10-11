@@ -34,7 +34,7 @@ pub fn resource(relative: &str) -> LangResult<PathBuf> {
         }
     }
     Err(format!(
-        "optional Ink tool {relative} is unavailable in {}. Install the tool bundle with tools/install.py, set INK_DISTRIBUTION to its share/ink directory, or provide --search-tool/--view-tool explicitly. Frozen --selection replay needs neither tool.",
+        "optional Ink tool {relative} is unavailable in {}. Install the tool bundle with tools/install.py, set INK_DISTRIBUTION to its share/ink directory, or provide --search-tool explicitly. Frozen --selection replay needs neither tool.",
         roots.iter().map(|p| p.display().to_string()).collect::<Vec<_>>().join(", ")
     ))
 }
@@ -55,7 +55,7 @@ pub fn doctor(python: &str) -> Value {
         .collect::<Vec<_>>();
     let resources = [
         "planner/plan.py",
-        "knowledge/producers/view_decomposition.py",
+        "knowledge/producers/fold_until_laws.py",
         "knowledge/producers/action_replacement.py",
     ]
     .iter()

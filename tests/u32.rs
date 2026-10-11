@@ -167,11 +167,7 @@ query ordered(xs:List<u32>)->u32{return fold(xs);}
     );
     let dir = std::path::Path::new("build/u32-state-test");
     fs::create_dir_all(dir.join("src")).unwrap();
-    fs::write(
-        dir.join("src/lib.rs"),
-        state_native::emit(&p, None).unwrap(),
-    )
-    .unwrap();
+    fs::write(dir.join("src/lib.rs"), state_native::emit(&p).unwrap()).unwrap();
     fs::write(
         dir.join("src/main.rs"),
         verified_language::runtime::STATE_RUNNER,

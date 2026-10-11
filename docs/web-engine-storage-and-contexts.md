@@ -56,7 +56,21 @@ keeping intermediate buffers resident. Ordered reductions preserve the source
 sequence and rounding rather than introducing an unproved parallel reassociation.
 Availability is a capability; profitability still requires whole-call measurements
 including transfers, allocation, dispatch and readback. Unsupported types,
-operations or device capabilities retain explicit CPU fallback.
+operations or device capabilities retain explicit CPU fallback. Mixed modules
+recognize literal graph descriptors as well as scalar-pipeline descriptors, and
+use the host API emitted for each part. Awaiting module disposal closes both
+kinds of device host. Generated mixed native projects explicitly disable Cargo's
+implicit library target, so an old pure-project library in a reused output
+directory cannot intercept native link dependencies.
+
+CPU transport decodes a terminal arena result before reset instead of first
+copying its packed words. Values crossing a later arena reset still receive an
+owned copy. Destination decoding writes directly to the caller prefix. Captured
+adaptive automatic U32 JavaScript calls can read their already private typed input buffer;
+public packed results retain the owned Array contract. GPU mapped readback still
+copies to owned host words before unmap; a header-free subview avoids a second
+copy while the decoder consumes those owned words. These mechanisms preserve
+ordinary result lifetimes and do not enable caller checks.
 
 The pure value semantics does not model allocation traces or certify physical
 ownership correspondence. Destination ABI and allocation marks are trusted

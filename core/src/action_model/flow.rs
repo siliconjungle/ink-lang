@@ -56,13 +56,19 @@ impl<'p> Lower<'p> {
                 | Kind::Local(_)
                 | Kind::Enum { .. } => true,
                 Kind::Record { fields, .. } => fields.iter().all(|(_, n)| child(*n)),
-                Kind::VectorField { receiver, .. } | Kind::Field { receiver, .. } | Kind::Neg { value:receiver } => child(*receiver),
+                Kind::VectorField { receiver, .. }
+                | Kind::Field { receiver, .. }
+                | Kind::Neg { value: receiver } => child(*receiver),
                 Kind::Binary { left, right, .. }
                 | Kind::And { left, right }
                 | Kind::Or { left, right } => child(*left) && child(*right),
                 Kind::PureCall { arguments, .. } => arguments.iter().all(|n| child(*n)),
                 Kind::Builtin { name, arguments } => {
-                    ["Ok", "Err", "Some", "count", "sum", "vec2", "vec3", "vec4", "quot_or", "rem_or"].contains(&name.as_str())
+                    [
+                        "Ok", "Err", "Some", "count", "sum", "vec2", "vec3", "vec4", "quot_or",
+                        "rem_or",
+                    ]
+                    .contains(&name.as_str())
                         && arguments.iter().all(|n| child(*n))
                 }
                 Kind::Table {
@@ -72,7 +78,15 @@ impl<'p> Lower<'p> {
                         && arguments.iter().all(|n| child(*n))
                 }
                 Kind::Lambda { body, .. } => child(*body),
-                Kind::Method { receiver, method, arguments } => ["map", "filter", "keys", "values"].contains(&method.as_str()) && child(*receiver) && arguments.iter().all(|n| child(*n)),
+                Kind::Method {
+                    receiver,
+                    method,
+                    arguments,
+                } => {
+                    ["map", "filter", "keys", "values"].contains(&method.as_str())
+                        && child(*receiver)
+                        && arguments.iter().all(|n| child(*n))
+                }
                 _ => false,
             };
             total.push(safe);
@@ -372,6 +386,41 @@ impl<'p> Lower<'p> {
             return next(self, value, state, events);
         }
         match &n.kind {
+            Kind::Keep(index) => {
+                if calls >= 32 {
+                    return Err("action model keep expansion limit".into());
+                }
+                let keep = scope
+                    .actions
+                    .keep(*index)
+                    .ok_or("action model keep index")?;
+                let frame = self.flow_frame(keep)?;
+                let root = frame.value.ok_or("action model keep root")?;
+                let kept_state = state.clone();
+                let kept_events = events.clone();
+                self.flow_expr(
+                    scope,
+                    &frame,
+                    root,
+                    &Env::new(),
+                    state,
+                    events,
+                    next,
+                    &|this, error| {
+                        if !matches!(ty, Type::Result(..)) {
+                            return Err("abrupt keep requires Result".into());
+                        }
+                        next(
+                            this,
+                            c(id(&sort)?, 1, vec![error]),
+                            kept_state.clone(),
+                            kept_events.clone(),
+                        )
+                    },
+                    depth + 1,
+                    calls + 1,
+                )
+            }
             Kind::Number(_)
             | Kind::Bool(_)
             | Kind::Unit
@@ -462,9 +511,11 @@ impl<'p> Lower<'p> {
                     events,
                     vec![],
                     &|this, xs, state, events| {
-                        let ExprType::Value(t)=&body.nodes[*left].ty else {return Err("operator type".into());};
-                        let value=this.operator(t,op,xs[0].clone(),xs[1].clone())?;
-                        next(this,value,state,events)
+                        let ExprType::Value(t) = &body.nodes[*left].ty else {
+                            return Err("operator type".into());
+                        };
+                        let value = this.operator(t, op, xs[0].clone(), xs[1].clone())?;
+                        next(this, value, state, events)
                     },
                     abort,
                     depth + 1,

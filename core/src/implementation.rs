@@ -1,7 +1,7 @@
 //! Whole-function database proposals. This module fixes source semantics, not
 //! optimisation laws. Every replacement requires an unconditional kernel proof.
 use crate::{
-    check, knowledge, library,
+    check, content, library,
     logic::{Branch, Constructor, Context, Declaration, Proof, Sort, Term},
     syntax::{Expr, Program, Type},
     LangResult,
@@ -58,7 +58,7 @@ pub struct ReplacementEvidence {
 #[derive(Debug, Serialize)]
 pub struct Evidence {
     pub package_sha256: String,
-    pub library_lock: knowledge::Lock,
+    pub library_lock: content::Lock,
     pub library_closure: Vec<String>,
     pub checked_proposals: Vec<Proposal>,
     pub source_models: Vec<(Term, Term)>,
@@ -391,7 +391,7 @@ fn model(
 /// Transactional: every proposal is checked before the caller's program changes.
 pub fn apply(program: &mut Program, path: &Path) -> LangResult<Evidence> {
     check::check(program)?;
-    let bytes = knowledge::read_bounded(path, 4_000_000)?;
+    let bytes = content::read_bounded(path, 4_000_000)?;
     let package: Package = serde_json::from_slice(&bytes)
         .map_err(|e| format!("invalid implementation package: {e}"))?;
     let relative = package_library(&package)?;
@@ -425,7 +425,7 @@ pub fn apply_replacement(program: &mut Program, path: &Path) -> LangResult<Repla
     let input = crate::core::CheckedModule::from_source(program.clone())?;
     input.pure_program()?;
     let input_hash = input.identity()?;
-    let bytes = knowledge::read_bounded(path, 4_000_000)?;
+    let bytes = content::read_bounded(path, 4_000_000)?;
     let replacement: ReplacementPackage =
         serde_json::from_slice(&bytes).map_err(|e| format!("invalid replacement package: {e}"))?;
     if replacement.schema != 1

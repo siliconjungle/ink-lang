@@ -863,6 +863,27 @@ fn normal(t: &Term, hyp: &[Equation], p: &Program, b: &mut Budget, d: usize) -> 
             )),
             _ => None,
         },
+        ("call:fold_until", [xs, init, stop, step]) => match &xs.node {
+            Node::Nil => Some(init.clone()),
+            Node::Cons(h, tail) => {
+                let stopped = apply(apply(stop.clone(), (**h).clone())?, init.clone())?;
+                let next = apply(apply(step.clone(), (**h).clone())?, init.clone())?;
+                Some(op(
+                    out.sort.clone(),
+                    "call:choose",
+                    vec![
+                        stopped,
+                        next.clone(),
+                        op(
+                            out.sort.clone(),
+                            n,
+                            vec![(**tail).clone(), next, stop.clone(), step.clone()],
+                        ),
+                    ],
+                ))
+            }
+            _ => None,
+        },
         ("call:foldr", [xs, init, f]) => match &xs.node {
             Node::Nil => Some(init.clone()),
             Node::Cons(h, t) => Some(apply(
@@ -927,7 +948,14 @@ fn normal(t: &Term, hyp: &[Equation], p: &Program, b: &mut Budget, d: usize) -> 
             Some(op(
                 out.sort.clone(),
                 "scan.acc",
-                vec![xs.clone(), word((**t).clone(), 0)],
+                vec![
+                    xs.clone(),
+                    if **t == Type::F32 {
+                        term(value(Type::F32), Node::Float(0))
+                    } else {
+                        word((**t).clone(), 0)
+                    },
+                ],
             ))
         }
         ("scan.acc", [xs, initial]) => match &xs.node {

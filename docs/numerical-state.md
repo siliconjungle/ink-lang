@@ -46,12 +46,15 @@ JSON accepts finite numbers or a single-field `{ "F32Bits": bits }` object.
 Finite numbers round to binary32; values that overflow require the raw-bit form.
 Outputs use finite numbers and the raw-bit form for infinities/NaNs. Stored
 payloads, pass-through helpers, sign-bit negation and checkpoints preserve all
-32 bits, including signaling NaN payloads. Arithmetic NaN payloads can differ
-between CPU engines and are not a portable bitwise promise.
+32 bits, including signaling NaN payloads. Arithmetic produces the canonical
+quiet NaN `0x7fc00000`. F32 programs bind executable-core V7; earlier executable
+headers do not authorise the new arithmetic contract.
 
-GPU floats retain the portable WGSL contract, which permits different rounding,
-fusion and subnormal treatment. This change does not claim CPU/GPU bitwise float
-parity or introduce floating-point rewrite authority.
+The packed GPU emitter uses integer-lane binary32 operations to retain source
+rounding, gradual underflow and the same canonical arithmetic NaN. Transport
+and sign-bit negation preserve payload bits. Cross-target conformance is
+regression evidence; it does not prove shader or toolchain correctness or grant
+floating-point rewrite authority.
 
 Vectors have two through four components of `u32`, `i32` or `f32`. Constructors
 and component access work directly in actions; other pure computation forms,
@@ -92,6 +95,8 @@ one signed integer kernel. Malformed ingress fails before state/outbox changes.
 `tests/action_values.rs` and isolated core tests exercise independent encoding and
 adversarial numerical carriers. CI retains the reproduction source and requests.
 
-These are conformance and data-binding checks. Numerical whole-action logical
-projection still fails closed; no numerical replacement proof or native emission
-correctness theorem is implied. Physical representation admission remains open.
+These are conformance and data-binding checks. Whole-action logical projection and physical representation admission now include
+the numerical subset listed in [database representations](database-representations.md),
+with exact integer functions and fixed word/binary32 correspondence. Unsupported
+constructs continue to fail closed. Numerical laws need ordinary checked database
+proofs, and conformance does not establish a native emission correctness theorem.

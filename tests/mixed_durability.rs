@@ -59,7 +59,7 @@ fn mixed_native_gpu_host_recovers_transactions_and_preserves_pure_dispatch() {
     };
     run(json!([]));
     let empty = fs::read(&file).unwrap();
-    let pure = run(json!([{"pure":"gpu_sum","args":[[1,2,3]],"backend":"gpu"}]));
+    let pure = run(json!([{"pure":"gpu_sum","args":[[1,2,3]],"backend":"gpu-required"}]));
     assert_eq!(pure[0]["value"], 9);
     assert_eq!(pure[0]["backend"], "gpu", "{pure}");
     assert_eq!(
@@ -97,7 +97,7 @@ fn mixed_native_gpu_host_recovers_transactions_and_preserves_pure_dispatch() {
     let death = Command::new(&crash).arg(&file).status().unwrap();
     assert_eq!(death.code(), Some(73));
     let recovery = json!([
-        {"pure":"gpu_sum","args":[[4,5]],"backend":"gpu"},
+        {"pure":"gpu_sum","args":[[4,5]],"backend":"gpu-required"},
         {"id":"lost-reply","call":"restock","args":[id,5]},
         {"id":"read","call":"stock_of","args":[id]},
         {"id":"overflow","call":"restock","args":[id,u32::MAX]},

@@ -1,4 +1,7 @@
-//! One exact source oracle for standalone representations on every lowering.
+#[path="support/compiled_state.rs"]
+mod compiled_state;
+use compiled_state::CompiledState;
+// One exact source oracle for standalone representations on every lowering.
 use serde_json::{json, Value};
 use std::{
     fs,
@@ -200,6 +203,11 @@ fn fixtures(module: &CheckedModule, calls: &[(&str, Value)]) -> Value {
     json!(entries)
 }
 fn check(name: &str, source: &str, request: Option<Request>, calls: Vec<(&str, Value)>) {
+    // These emitted projects share package/binary names and a dependency cache.
+    // Cargo releases its lock before we run/copy the result; another fixture
+    // could replace it, or reuse a different C build-script fingerprint.
+    static ARTIFACTS: std::sync::Mutex<()> = std::sync::Mutex::new(());
+    let _artifacts = ARTIFACTS.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
     let dir = root().join(name);
     fs::create_dir_all(&dir).unwrap();
     fs::write(dir.join("source.ink"), source).unwrap();
@@ -217,18 +225,6 @@ fn check(name: &str, source: &str, request: Option<Request>, calls: Vec<(&str, V
         .reachable_executable_declarations()
         .unwrap();
     assert!(unused.iter().all(|id| !reachable.contains_key(id)));
-    let rust_queries = ink_lowering_rust::representation_query::declarations(&checked).unwrap();
-    let js_queries =
-        verified_language::javascript::representation_query::declarations(&checked).unwrap();
-    assert_eq!(
-        serde_json::to_value(&rust_queries).unwrap(),
-        serde_json::to_value(&js_queries).unwrap()
-    );
-    fs::write(
-        dir.join("direct-queries.json"),
-        serde_json::to_vec_pretty(&rust_queries).unwrap(),
-    )
-    .unwrap();
     let oracle = fixtures(&module, &calls);
     let encoded = serde_json::to_string(&oracle).unwrap();
     fs::write(dir.join("oracle.json"), &encoded).unwrap();
@@ -332,6 +328,9 @@ fn check(name: &str, source: &str, request: Option<Request>, calls: Vec<(&str, V
             Command::new("node").arg(project.join("check.mjs")),
             &project.join("run.log"),
         );
+    }
+    if std::env::var_os("INK_PARITY_REQUIRE_ALL").is_some() {
+        assert!(std::env::var_os("INK_TEST_ZIG").is_some(), "required standalone parity forbids skipping Wasm");
     }
     if let Ok(zig) = std::env::var("INK_TEST_ZIG") {
         let mut wasm_backends = vec!["rust-wasm", "wasm32"];
@@ -522,6 +521,8 @@ fn binary32_representations_have_equal_backend_coverage() {
         None,
         vec![
             ("add", json!([16777216.0, 1.0])),
+            ("add", json!([{ "F32Bits":0x7fa12345u32 },0.0])),
+            ("mul", json!([{ "F32Bits":0xffc54321u32 },-0.0])),
             ("sub", json!([1.0, 1.0])),
             ("mul", json!([-0.0, 3.0])),
             // Multiplication must round before addition; a fused result differs.
@@ -683,7 +684,6 @@ fn invocation_local_owners_and_bounded_loops_have_equal_backend_coverage() {
 
 #[test]
 fn guarded_dynamic_point_deltas_preserve_future_histories_and_migrations() {
-    use verified_language::runtime::representation::{Reference, Session};
     let source=include_str!("../examples/frontier-point-maintenance.ink");
     let module=CheckedModule::from_source(parse(source).unwrap()).unwrap();
     let dir=root().join("frontier-point");
@@ -692,7 +692,7 @@ fn guarded_dynamic_point_deltas_preserve_future_histories_and_migrations() {
     let delta=representation::check(&module,&requests[1]).unwrap();
     let proposal:Value=serde_json::from_slice(&fs::read(dir.join("proposal.json")).unwrap()).unwrap();
     let migration=representation::check_migration(&direct,&delta,&serde_json::from_value(proposal["migration"]["knowledge"].clone()).unwrap(),proposal["migration"]["root"].as_str().unwrap()).unwrap();
-    let mut session=Session::new(direct,Reference).unwrap();
+    let mut session=CompiledState::new(direct).unwrap();
     let mut reference=Runtime::new(module.program().clone()).unwrap();
     let mut calls=vec![("zero",json!([])),("replace",json!([0,7,false]))];
     for i in 0..32u64 {
@@ -705,10 +705,10 @@ fn guarded_dynamic_point_deltas_preserve_future_histories_and_migrations() {
         calls.push(("zero",json!([])));
     }
     for (i,(name,args)) in calls.iter().enumerate() {
-        if i==17 {session.migrate_direct(delta.clone(),&migration).unwrap();}
+        if i==17 {session.migrate_portable(delta.clone(),&migration).unwrap();}
         assert_eq!(session.invoke_json(name,args).unwrap(),reference.invoke_json(name,args).unwrap().json());
         assert_eq!(session.checkpoint().unwrap(),reference.checkpoint_portable().unwrap());
-        if i%19==0 {session=Session::restore(if i<17{representation::check(&module,&requests[0]).unwrap()}else{delta.clone()},&session.checkpoint().unwrap(),Reference).unwrap();}
+        if i%19==0 {session=CompiledState::restore(if i<17{representation::check(&module,&requests[0]).unwrap()}else{delta.clone()},&session.checkpoint().unwrap()).unwrap();}
     }
     // Re-sign all affected entries and republish the Merkle tree. Authentication
     // must succeed, while turning "unrelated key" into "same key" must fail proof checking.
@@ -771,7 +771,6 @@ query get(key:u64)->Option<List<u32>> reads(Rows){return Rows.get(key);}
 
 #[test]
 fn independently_proved_caches_compose_and_migrate_with_exact_histories() {
-    use verified_language::runtime::representation::{Reference, Session};
     let source = include_str!("../examples/frontier-component-caches.ink");
     let module = CheckedModule::from_source(parse(source).unwrap()).unwrap();
     let dir = root().join("frontier-product");
@@ -814,7 +813,7 @@ r['representation']=rid;r['knowledge']=Store.publish(p/'forged',objects.values()
     let forged = load("forged");
     verified_language::registry::CheckedBundle::check(&forged.knowledge).unwrap();
     assert!(representation::check(&module, &forged).is_err());
-    let mut session = Session::new(before.clone(), Reference).unwrap();
+    let mut session = CompiledState::new(before.clone()).unwrap();
     let mut source_runtime = Runtime::new(module.program().clone()).unwrap();
     let mut calls = vec![("zero", json!([])), ("one", json!([]))];
     for i in 0..10u64 {
@@ -828,18 +827,17 @@ r['representation']=rid;r['knowledge']=Store.publish(p/'forged',objects.values()
         ]);
     }
     for (i, (name, args)) in calls.iter().enumerate() {
-        if i == 11 { session.migrate_direct(product.clone(), &forward).unwrap(); }
-        if i == 77 { session.migrate_direct(before.clone(), &backward).unwrap(); }
+        if i == 11 { session.migrate_portable(product.clone(), &forward).unwrap(); }
+        if i == 77 { session.migrate_portable(before.clone(), &backward).unwrap(); }
         assert_eq!(session.invoke_json(name,args).unwrap(), source_runtime.invoke_json(name,args).unwrap().json());
         assert_eq!(session.checkpoint().unwrap(), source_runtime.checkpoint_portable().unwrap());
-        if i%13 == 0 { session=Session::restore(if (11..77).contains(&i){product.clone()}else{before.clone()}, &session.checkpoint().unwrap(), Reference).unwrap(); }
+        if i%13 == 0 { session=CompiledState::restore(if (11..77).contains(&i){product.clone()}else{before.clone()}, &session.checkpoint().unwrap()).unwrap(); }
     }
     check("frontier-product", source, Some(request), calls);
 }
 
 #[test]
 fn database_column_layouts_preserve_complete_record_actions() {
-    use verified_language::runtime::representation::{Reference, Session};
     let source = include_str!("../examples/filtered-aggregate.ink");
     let module = CheckedModule::from_source(parse(source).unwrap()).unwrap();
     let dir = root().join("frontier-columns");
@@ -854,7 +852,7 @@ fn database_column_layouts_preserve_complete_record_actions() {
     let after = representation::check(&module, &columns[0]).unwrap();
     let migration: Value = serde_json::from_slice(&fs::read(dir.join("migration.json")).unwrap()).unwrap();
     let bridge = representation::check_migration(&before, &after, &serde_json::from_value(migration["knowledge"].clone()).unwrap(), migration["root"].as_str().unwrap()).unwrap();
-    let mut session = Session::new(before, Reference).unwrap();
+    let mut session = CompiledState::new(before).unwrap();
     let mut reference = Runtime::new(module.program().clone()).unwrap();
     let calls = vec![
         ("total_query",json!([])), ("put",json!([7,u64::MAX,true,false])),
@@ -866,7 +864,7 @@ fn database_column_layouts_preserve_complete_record_actions() {
         ("total_query",json!([])), ("count_query",json!([])),
     ];
     for (i,(name,args)) in calls.iter().enumerate() {
-        if i == 3 { session.migrate_direct(after.clone(), &bridge).unwrap(); }
+        if i == 3 { session.migrate_portable(after.clone(), &bridge).unwrap(); }
         assert_eq!(session.invoke_json(name,args).unwrap(), reference.invoke_json(name,args).unwrap().json());
         assert_eq!(session.checkpoint().unwrap(), reference.checkpoint_portable().unwrap());
     }
@@ -898,13 +896,12 @@ fn database_packed_boolean_columns_preserve_signed_keys_and_events() {
 
 #[test]
 fn mapped_point_caches_preserve_record_fields_and_complete_histories() {
-    use verified_language::runtime::representation::{Reference,Session};
     let source=include_str!("../examples/frontier-field-cache.ink");
     let module=CheckedModule::from_source(parse(source).unwrap()).unwrap();
     let dir=root().join("frontier-fields");
     let requests=propose_with(&module,&dir,&["--cache-query","amount","--preserve-cache","--dynamic-delta"]);
     let plan=representation::check(&module,&requests[1]).unwrap();
-    let mut session=Session::new(plan.clone(),Reference).unwrap();
+    let mut session=CompiledState::new(plan.clone()).unwrap();
     let mut baseline=Runtime::new(module.program().clone()).unwrap();
     let mut calls=vec![("amount",json!([]))];
     for i in 0..16u64 {
@@ -920,7 +917,7 @@ fn mapped_point_caches_preserve_record_fields_and_complete_histories() {
     for(i,(name,args))in calls.iter().enumerate(){
         assert_eq!(session.invoke_json(name,args).unwrap(),baseline.invoke_json(name,args).unwrap().json());
         let bytes=session.checkpoint().unwrap();assert_eq!(bytes,baseline.checkpoint_portable().unwrap());
-        if i%11==0{session=Session::restore(plan.clone(),&bytes,Reference).unwrap();}
+        if i%11==0{session=CompiledState::restore(plan.clone(),&bytes).unwrap();}
     }
     check("frontier-fields",source,Some(requests[1].clone()),calls);
 }
@@ -972,7 +969,6 @@ fn proved_column_point_reads_avoid_reconstructing_logical_rows() {
         ("get",json!([i%4])),("get",json!([99])),("rows",json!([])),
         ("erase",json!([i%4,i%3==0])),("get",json!([i%4])),
     ]);}
-    use verified_language::runtime::representation::{Reference,Session};
     let baseline=propose_with(&module,&dir.join("plain-baseline"),&["--columnar"]).remove(0);
     let before=representation::check(&module,&baseline).unwrap();
     let mut bridges=Vec::new();
@@ -985,11 +981,11 @@ fn proved_column_point_reads_avoid_reconstructing_logical_rows() {
         let bridge:Value=serde_json::from_slice(&fs::read(folder.join("bridge.json")).unwrap()).unwrap();
         bridges.push(representation::check_migration(old,new,&serde_json::from_value(bridge["knowledge"].clone()).unwrap(),bridge["root"].as_str().unwrap()).unwrap());
     }
-    let mut session=Session::new(before.clone(),Reference).unwrap();
+    let mut session=CompiledState::new(before.clone()).unwrap();
     let mut oracle=Runtime::new(module.program().clone()).unwrap();
     for(i,(name,args))in calls.iter().enumerate(){
-        if i==25 {session.migrate_direct(checked.clone(),&bridges[0]).unwrap();}
-        if i==50 {session.migrate_direct(before.clone(),&bridges[1]).unwrap();}
+        if i==25 {session.migrate_portable(checked.clone(),&bridges[0]).unwrap();}
+        if i==50 {session.migrate_portable(before.clone(),&bridges[1]).unwrap();}
         assert_eq!(session.invoke_json(name,args).unwrap(),oracle.invoke_json(name,args).unwrap().json());
         assert_eq!(session.checkpoint().unwrap(),oracle.checkpoint_portable().unwrap());
     }
@@ -1052,12 +1048,11 @@ for name,a,z in [('forward',plain,shared),('backward',shared,plain)]: (p/(name+'
     run(Command::new("python3").args(["-c",script]).arg(&dir).current_dir(env!("CARGO_MANIFEST_DIR")),&dir.join("producer.log"));
     let load=|n:&str|->Request{serde_json::from_slice(&fs::read(dir.join(format!("{n}.json"))).unwrap()).unwrap()};
     let plain=representation::check(&module,&load("plain")).unwrap();let request=load("shared");let shared=representation::check(&module,&request).unwrap();
-    use verified_language::runtime::representation::{Reference,Session};
-    let mut session=Session::new(plain.clone(),Reference).unwrap();let mut oracle=Runtime::new(module.program().clone()).unwrap();
+    let mut session=CompiledState::new(plain.clone()).unwrap();let mut oracle=Runtime::new(module.program().clone()).unwrap();
     let mut calls=vec![("zero",json!([])),("one",json!([]))];
     for i in 0..20u64{calls.extend([("put",json!([i%4,u64::MAX-i])),("zero",json!([])),("one",json!([])),("replace",json!([i%4,i,i%3==0])),("erase",json!([(i+1)%4,i%7==0])),("zero",json!([])),("one",json!([]))]);}
     for(i,(name,args))in calls.iter().enumerate(){
-        if i==19||i==99{let label=if i==19{"forward"}else{"backward"};let(a,z)=if i==19{(&plain,&shared)}else{(&shared,&plain)};let b:Value=serde_json::from_slice(&fs::read(dir.join(format!("{label}.json"))).unwrap()).unwrap();let bridge=representation::check_migration(a,z,&serde_json::from_value(b["knowledge"].clone()).unwrap(),b["root"].as_str().unwrap()).unwrap();session.migrate_direct(z.clone(),&bridge).unwrap();}
+        if i==19||i==99{let label=if i==19{"forward"}else{"backward"};let(a,z)=if i==19{(&plain,&shared)}else{(&shared,&plain)};let b:Value=serde_json::from_slice(&fs::read(dir.join(format!("{label}.json"))).unwrap()).unwrap();let bridge=representation::check_migration(a,z,&serde_json::from_value(b["knowledge"].clone()).unwrap(),b["root"].as_str().unwrap()).unwrap();session.migrate_portable(z.clone(),&bridge).unwrap();}
         assert_eq!(session.invoke_json(name,args).unwrap(),oracle.invoke_json(name,args).unwrap().json());assert_eq!(session.checkpoint().unwrap(),oracle.checkpoint_portable().unwrap());
     }
     check("frontier-shared-caches",source,Some(request),calls);
@@ -1108,7 +1103,6 @@ fn bounded_group_aggregate_deltas_preserve_group_changes() {
 
 #[test]
 fn bucket_index_preserves_point_results_and_checked_migrations() {
-    use verified_language::runtime::representation::{Reference,Session};
     let source=include_str!("../knowledge/research/product-caches/source.ink");
     let module=CheckedModule::from_source(parse(source).unwrap()).unwrap();
     let dir=root().join("frontier-indexed");
@@ -1126,8 +1120,8 @@ fn bucket_index_preserves_point_results_and_checked_migrations() {
     let forward=bridge("plain","indexed");let reverse=bridge("indexed","plain");
     let mut calls=vec![("get",json!([u64::MAX]))];
     for i in 0..43u64 {let key=if i%4==0{u64::MAX-i}else{i%13};calls.extend([("put",json!([key,u64::MAX-i])),("get",json!([key])),("zero",json!([])),("replace",json!([key,i,i%6==0])),("get",json!([key])),("erase",json!([key,i%5==0])),("get",json!([key]))]);}
-    let mut session=Session::new(before.clone(),Reference).unwrap();let mut runtime=Runtime::new(module.program().clone()).unwrap();
-    for (i,(name,args))in calls.iter().enumerate(){if i==19{session.migrate_direct(after.clone(),&forward).unwrap();}if i==199{session.migrate_direct(before.clone(),&reverse).unwrap();}assert_eq!(session.invoke_json(name,args).unwrap(),runtime.invoke_json(name,args).unwrap().json());assert_eq!(session.checkpoint().unwrap(),runtime.checkpoint_portable().unwrap());}
+    let mut session=CompiledState::new(before.clone()).unwrap();let mut runtime=Runtime::new(module.program().clone()).unwrap();
+    for (i,(name,args))in calls.iter().enumerate(){if i==19{session.migrate_portable(after.clone(),&forward).unwrap();}if i==199{session.migrate_portable(before.clone(),&reverse).unwrap();}assert_eq!(session.invoke_json(name,args).unwrap(),runtime.invoke_json(name,args).unwrap().json());assert_eq!(session.checkpoint().unwrap(),runtime.checkpoint_portable().unwrap());}
     check("frontier-indexed",source,Some(index[0].clone()),calls);
 }
 
@@ -1144,7 +1138,6 @@ fn universal_aggregate_fusion_preserves_complete_query_histories() {
 
 #[test]
 fn dense_slots_preserve_hot_and_sparse_keys_and_checked_migrations() {
-    use verified_language::runtime::representation::{Reference,Session};
     let source=include_str!("../knowledge/research/product-caches/source.ink");
     let module=CheckedModule::from_source(parse(source).unwrap()).unwrap();
     let dir=root().join("frontier-dense");
@@ -1162,8 +1155,8 @@ fn dense_slots_preserve_hot_and_sparse_keys_and_checked_migrations() {
     let forward=bridge("plain","indexed");let reverse=bridge("indexed","plain");
     let mut calls=vec![("get",json!([u64::MAX]))];
     for i in 0..43u64 {let key=if i%4==0{u64::MAX-i}else{i%13};calls.extend([("put",json!([key,u64::MAX-i])),("get",json!([key])),("zero",json!([])),("replace",json!([key,i,i%6==0])),("get",json!([key])),("erase",json!([key,i%5==0])),("get",json!([key]))]);}
-    let mut session=Session::new(before.clone(),Reference).unwrap();let mut runtime=Runtime::new(module.program().clone()).unwrap();
-    for (i,(name,args))in calls.iter().enumerate(){if i==19{session.migrate_direct(after.clone(),&forward).unwrap();}if i==199{session.migrate_direct(before.clone(),&reverse).unwrap();}assert_eq!(session.invoke_json(name,args).unwrap(),runtime.invoke_json(name,args).unwrap().json());assert_eq!(session.checkpoint().unwrap(),runtime.checkpoint_portable().unwrap());}
+    let mut session=CompiledState::new(before.clone()).unwrap();let mut runtime=Runtime::new(module.program().clone()).unwrap();
+    for (i,(name,args))in calls.iter().enumerate(){if i==19{session.migrate_portable(after.clone(),&forward).unwrap();}if i==199{session.migrate_portable(before.clone(),&reverse).unwrap();}assert_eq!(session.invoke_json(name,args).unwrap(),runtime.invoke_json(name,args).unwrap().json());assert_eq!(session.checkpoint().unwrap(),runtime.checkpoint_portable().unwrap());}
     check("frontier-dense",source,Some(index[0].clone()),calls);
 }
 
@@ -1195,4 +1188,46 @@ fn derived_heap_computation_preserves_order_duplicates_and_future_histories() {
     let module=CheckedModule::from_source(parse(source).unwrap()).unwrap();
     let request=propose_with(&module,&root().join("frontier-heap-cache"),&["--cache-query","sorted","--preserve-cache","--delta-query"])[1].clone();
     check("frontier-heap-cache",source,Some(request),vec![("sorted",json!([])),("put",json!([0,[9,1,9,0,4294967295u64,7],false])),("sorted",json!([])),("put",json!([1,[1,2],false])),("sorted",json!([])),("put",json!([0,[],true])),("sorted",json!([])),("put",json!([0,[],false])),("sorted",json!([])),("erase",json!([1,false])),("sorted",json!([])),("erase",json!([0,true])),("sorted",json!([])),("erase",json!([0,false])),("sorted",json!([]))]);
+}
+
+#[test]
+fn scalar_physical_storage_has_equal_backend_coverage() {
+    let source = "module scalar_fixture; query echo(value:u64)->u64{return value;}";
+    let module = CheckedModule::from_source(parse(source).unwrap()).unwrap();
+    for sort in ["Bool", "U64"] {
+        let dir = root().join(format!("scalar-{sort}"));
+        fs::create_dir_all(&dir).unwrap();
+        fs::write(dir.join("model.json"), serde_json::to_vec(&verified_language::action_model::Projection::derive(&module).unwrap()).unwrap()).unwrap();
+        run(Command::new("python3").arg("knowledge/producers/scalar_representation.py").arg(dir.join("model.json")).args(["--sort",sort,"-o"]).arg(dir.join("request.json")), &dir.join("producer.log"));
+        let request = serde_json::from_slice(&fs::read(dir.join("request.json")).unwrap()).unwrap();
+        check(&format!("scalar-{sort}"),source,Some(request),vec![("echo",json!([0])),("echo",json!([u64::MAX]))]);
+    }
+}
+
+#[test]
+fn unused_source_carriers_do_not_break_any_standalone_backend(){
+    let source=include_str!("../knowledge/research/source-representations/app.ink");
+    let calls=vec![("put",json!([0,19])),("get",json!([0])),("zero",json!([])),
+        ("erase",json!([0,true])),("zero",json!([])),("erase",json!([0,false])),("zero",json!([]))];
+    for (name,request) in [("retained-direct",include_str!("../knowledge/research/source-representations/retained-direct.json")),
+        ("retained-query-cache",include_str!("../knowledge/research/source-representations/retained-query-cache.json"))]{
+        check(name,source,Some(serde_json::from_str(request).unwrap()),calls.clone());
+    }
+}
+
+#[test]
+fn fixed_key_keep_deltas_execute_as_standalone_programs_on_every_cpu_target() {
+    let source=include_str!("../knowledge/research/keep-parity/app.ink");
+    let calls=(0..32u64).map(|i|match i%8 {
+        0=>("put",json!([0,i*19])), 1=>("zero",json!([])),
+        2=>("overwrite",json!([u64::MAX-i])), 3=>("get",json!([0])),
+        4=>("clear",json!([])), 5=>("zero",json!([])),
+        6=>("erase",json!([0,true])), _=>("put",json!([1,i*23])),
+    }).collect::<Vec<_>>();
+    for (name,bytes) in [
+        ("fixed-key-baseline",include_str!("../knowledge/research/keep-parity/representation-0.json")),
+        ("fixed-key-cache",include_str!("../knowledge/research/keep-parity/representation-1.json")),
+    ] {
+        check(name,source,Some(serde_json::from_str(bytes).unwrap()),calls.clone());
+    }
 }

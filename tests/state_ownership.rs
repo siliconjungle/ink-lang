@@ -121,7 +121,7 @@ fn compile_and_run(dir: &Path, code: &str, runner: &str, script: &[Value]) -> Va
 fn ownership_lowering_matches_reference_and_borrows_rows() {
     let _native = NATIVE_EXECUTION.lock().unwrap();
     let p = parse(SOURCE).unwrap();
-    let code = state_native::emit(&p, None).unwrap();
+    let code = state_native::emit(&p).unwrap();
     // The read-modify-write change borrows the stored row and keeps only the
     // two fields it still needs; nothing clones the whole row.
     let restock = code
@@ -184,7 +184,7 @@ fn ownership_lowering_matches_reference_and_borrows_rows() {
 #[test]
 fn rows_still_read_whole_after_a_write_are_cloned_before_it() {
     let p = parse(SOURCE).unwrap();
-    let code = state_native::emit(&p, None).unwrap();
+    let code = state_native::emit(&p).unwrap();
     let rename = code
         .split("fn action_l_rename(")
         .nth(1)
@@ -233,7 +233,7 @@ query derived_map() -> List<Int> reads(Items, units) {{
 "#
     );
     let p = parse(&source).unwrap();
-    let code = state_native::emit(&p, None).unwrap();
+    let code = state_native::emit(&p).unwrap();
     let mut calls = vec![
         json!({"call":"helper_map","args":[]}),
         json!({"call":"create","args":["a", "alpha", 0]}),
