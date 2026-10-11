@@ -2,7 +2,7 @@
 //! Allocation identity/failure and fuel are outside the total-value domain.
 use crate::{
     core::{Program, Type},
-    semantic::{op, term, value, word, Node, Sort, Term},
+    semantic::{arrow, op, term, value, word, Node, Sort, Term},
     LangResult,
 };
 
@@ -12,7 +12,7 @@ pub fn arguments(ty: &Type, name: &str) -> LangResult<Vec<Type>> {
         (Type::Buffer(_), "swap") => vec![Type::U32, Type::U32],
         (Type::Buffer(t), "push") => vec![*t.clone()],
         (Type::Buffer(_), "truncate") => vec![Type::U32],
-        (Type::Buffer(_), "freeze" | "len" | "pop") => vec![],
+        (Type::Buffer(_), "freeze" | "len" | "pop" | "scan") => vec![],
         (Type::Map(k, v), "get_or" | "set") => vec![*k.clone(), *v.clone()],
         (Type::Map(k, _), "remove" | "contains") => vec![*k.clone()],
         (Type::Map(..), "len" | "keys" | "values") => vec![],
@@ -66,6 +66,32 @@ pub fn validate(t: &Term, p: &Program) -> LangResult<bool> {
             let receiver_ty = ty(&receiver.sort)?;
             if matches!(receiver_ty, Type::Buffer(_) | Type::Map(..)) {
                 crate::statecheck::validate_type(receiver_ty, p)?;
+                if let Type::Buffer(inner) = receiver_ty {
+                    if ["map", "map_indexed", "filter"].contains(&name) {
+                        if a.len() != 2 {
+                            return Err("buffer map arity".into());
+                        }
+                        let item = value(*inner.clone());
+                        let callback = if name != "map_indexed" {
+                            arrow(
+                                item.clone(),
+                                if name == "filter" {
+                                    value(Type::Bool)
+                                } else {
+                                    item.clone()
+                                },
+                            )
+                        } else {
+                            arrow(value(Type::U32), arrow(item.clone(), item.clone()))
+                        };
+                        expect(&a[1], callback)?;
+                        expect(t, receiver.sort.clone())?;
+                        return Ok(true);
+                    }
+                    if name == "scan" && !crate::check::is_number(inner) {
+                        return Err("buffer scan numeric sort".into());
+                    }
+                }
                 let types = arguments(receiver_ty, name)?;
                 if a.len() != types.len() + 1 {
                     return Err("temporary method arity".into());
@@ -227,6 +253,29 @@ pub fn reduce(t: &Term) -> LangResult<Option<Term>> {
             )),
             _ => None,
         },
+        ("method:map" | "method:map_indexed" | "method:scan" | "method:filter", args)
+            if matches!(
+                args.first().map(|x| &x.sort),
+                Some(Sort::Value(Type::Buffer(_)))
+            ) =>
+        {
+            if let Node::Op(name, values) = &args[0].node {
+                if name == "call:buffer" {
+                    let list = values[0].clone();
+                    let mut params = vec![list.clone()];
+                    params.extend(args[1..].iter().cloned());
+                    Some(op(
+                        t.sort.clone(),
+                        "call:buffer",
+                        vec![op(list.sort.clone(), n, params)],
+                    ))
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
+        }
         ("method:push" | "method:set" | "method:pop" | "method:truncate" | "method:swap", args)
             if matches!(
                 args.first().map(|x| &x.sort),

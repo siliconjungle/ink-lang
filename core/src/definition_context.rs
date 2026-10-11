@@ -123,7 +123,7 @@ impl DefinitionContext {
         }
         let names = self.definitions.keys().cloned().collect();
         for (name, bound) in &self.definitions {
-            crate::knowledge::identity(&bound.sha256)?;
+            crate::content::identity(&bound.sha256)?;
             if crate::registry::identity(&bound.definition)? != bound.sha256 {
                 return Err("definition context content hash mismatch".into());
             }

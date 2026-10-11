@@ -62,7 +62,9 @@ jobs:
         run: python -m ink_knowledge --root . rebuild
         working-directory: knowledge
       - name: Fetch locked dependencies
-        run: cargo fetch --locked
+        run: |
+          cargo fetch --locked
+          cargo fetch --locked --manifest-path core/Cargo.toml
       - name: Fetch pinned compiled host dependencies
         run: |
           mkdir -p build/host-deps/src
@@ -178,7 +180,9 @@ jobs:
           with open(os.environ['GITHUB_ENV'], 'a') as f:
               f.write('INK_PARITY_SEEDS=1,7,23,3735928559,'+str(int(os.environ['GITHUB_SHA'][:16],16))+'\n')
           PY
-      - run: cargo fetch --locked
+      - run: |
+          cargo fetch --locked
+          cargo fetch --locked --manifest-path core/Cargo.toml
       - name: Fetch the pinned device runtime dependencies
         run: |
           mkdir -p build/gpu-deps/src

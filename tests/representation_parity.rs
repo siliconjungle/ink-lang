@@ -218,18 +218,6 @@ fn check(name: &str, source: &str, request: Option<Request>, calls: Vec<(&str, V
         .reachable_executable_declarations()
         .unwrap();
     assert!(unused.iter().all(|id| !reachable.contains_key(id)));
-    let rust_queries = ink_lowering_rust::representation_query::declarations(&checked).unwrap();
-    let js_queries =
-        verified_language::javascript::representation_query::declarations(&checked).unwrap();
-    assert_eq!(
-        serde_json::to_value(&rust_queries).unwrap(),
-        serde_json::to_value(&js_queries).unwrap()
-    );
-    fs::write(
-        dir.join("direct-queries.json"),
-        serde_json::to_vec_pretty(&rust_queries).unwrap(),
-    )
-    .unwrap();
     let oracle = fixtures(&module, &calls);
     let encoded = serde_json::to_string(&oracle).unwrap();
     fs::write(dir.join("oracle.json"), &encoded).unwrap();
@@ -509,6 +497,8 @@ fn binary32_representations_have_equal_backend_coverage() {
         None,
         vec![
             ("add", json!([16777216.0, 1.0])),
+            ("add", json!([{ "F32Bits":0x7fa12345u32 },0.0])),
+            ("mul", json!([{ "F32Bits":0xffc54321u32 },-0.0])),
             ("sub", json!([1.0, 1.0])),
             ("mul", json!([-0.0, 3.0])),
             // Multiplication must round before addition; a fused result differs.

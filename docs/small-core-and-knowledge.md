@@ -1,506 +1,71 @@
-# Small core, external optimisation knowledge
-
-This is a binding architectural direction following the user's clarification: the compiler core contains no catalogue of optimisations. It provides well-defined semantics, general evidence checking, and efficient base execution/lowering. Rewrites, incremental algorithms, physical representations, specialisation strategies and their selection knowledge belong in an independently versioned database.
-
-## Repository ownership
-
-Individual database entries are the unit of knowledge. Adding an algorithm means
-adding its definition, applicability information and checked equivalence evidence
-to the database. Search should discover applicable entries from the configured
-snapshot; it should not require a separate algorithm-installation workflow.
-The implementation's “package” or “bundle” terminology describes a portable
-selection of entries and their exact dependency closure for offline replay. It
-is a transport/build artifact, not a new source of authority. External AST search
-now discovers typed semantic laws and eligible older scalar theorem entries
-without a hand-maintained rule index and produces proposals automatically.
-General stateful and mixed-target discovery/selection remain production work.
-Backend crates are separate execution
-dependencies and do not change this database model.
-
-`siliconjungle/ink-lang` owns the language implementation and its general
-checking boundary. `siliconjungle/ink-knowledge` owns proof objects, candidate
-packages, discovery metadata, external proof producers and Lean research.
-`knowledge/` in the compiler checkout is an exact Git submodule pin; a compiler
-binary contains no embedded catalogue. Loading an explicit external package
-works independently of that development checkout.
-
-Git pins repository contents; object hashes identify proof bytes; neither is
-proof authority. The checker validates selected proofs locally. The catalogue
-index lists primary libraries and their lock hashes; the complete production
-candidate/migration/cost package interface remains planned.
-
-The default build now retires the old aggregate, bounded-cache and layout
-admission authority in favour of [source-bound canonical representation entries](database-representations.md).
-Their historical code remains behind an explicit research feature. New admission
-covers the documented source-transition subset; porting the remaining numerical
-and keep candidates requires fixed source correspondence. Efficient base
-primitives stay in the runtime; choosing representations, skipping work and
-specialising a program should be checked database proposals wherever possible.
-
-## Boundary
-
-The core owns parsing/elaboration into a compact typed semantic representation, type/effect/ownership checks, the chosen logic's general proof rules, and a straightforward execution/lowering path. It can efficiently execute a primitive without knowing a transformation from one user program to another. Efficient maps, allocators and code emitters are implementation mechanisms; choosing a different map representation for a program is optimisation knowledge.
-
-The database holds immutable semantic definitions, theorems, typed rewrite patterns, alternative implementation bodies, abstraction relations, initialisation and migration functions, applicability conditions and measurements. Proof-producing search, tactics and AI proposals are outside the trusted core. A general optimiser may search and instantiate database entries, but it cannot install assumptions or bypass evidence checking.
-
-An empty database must still compile and execute the language correctly. It should introduce no language-level optimisation whose justification or alternative lives only in compiler source. Applying a new rule, aggregate implementation or representation package must not require rebuilding the compiler. The same pinned program, database closure, selection plan and toolchain should reproduce a static build.
-
-The core must not grow a `cached_sum` proof rule, a `factor_polynomial` instruction, or a whitelist treating a package name as evidence. Mathematical lemmas and representation laws must ultimately be definitions and checked proof terms in the database. The trusted logic and semantic primitive set are fixed and explicit; database extensions cannot redefine them by supplying a matching name.
-
-## What the prototype currently gets wrong
-
-The present prototype is an implementation experiment, not yet this architecture:
-
-| Location | Current mechanism | Required destination |
-| --- | --- | --- |
-| Former `proof.rs` | Retired from the production crate | External law selection/proof production now uses the general checked replacement interface |
-| `knowledge.rs` | Historical scalar library verification only; search retired | Current scalar search/conditions/proofs live in `ink-planner/research/rewrite_search.py` |
-| `aggregate.rs` | Specialised admission retired from production; opt-in archived research | Canonical source-bound representation entries and external producers |
-| `state_native.rs` | Historical bounded-cache authority unavailable in default builds | Database definitions lowered literally from sealed representation witnesses |
-| `native.rs` | Literal collection execution; previous automatic fusion removed | Checked map/filter/sum/count/foldr bridge now includes conditional computation and acyclic pure calls; migrate the remaining state/representation authority |
-| Compiler commands | Direct package files and optimisation switches | A pinned database closure and explicit checked selection plan |
-
-Moving these routines to another Rust module, or wrapping them in a package named “proof”, would not satisfy this requirement. They must stop being built-in sources of transformation authority. Existing measurements remain useful evidence about candidate implementations, but do not establish the desired architectural separation.
-
-LLVM currently performs additional optimisation after generated C/Rust. The small-core claim must distinguish our language-level core from this external trusted toolchain. Replacing LLVM with a minimal backend is a separate engineering task; concealing its optimisation would be misleading.
-
-The modular-polynomial optimiser and older scalar matching/search path have now been retired. The historical milestone descriptions below preserve their earlier evidence; they are not descriptions of current compilation authority. The default aggregate, bounded-cache and storage-policy approval paths are now retired. General database-defined physical execution and migration are available for the documented action-transition subset; exact-Int/keep correspondence and additional target executors remain work.
-
-The GPU backend is a separate trusted lowering of the existing u32 primitives:
-source stages remain separate, stable filter preserves order, and modular sum
-uses a parallel reduction. It installs no transformation law. Host selection
-measures compiled CPU/GPU execution and cannot change types or arithmetic.
-Current proof translators still cover their documented u64 subset; accepting u32
-execution does not extend those proofs. See [the exact scope and trust
-boundary](gpu-backend.md).
-
-## Versioned executable subject and replacement admission
-
-`core::CheckedModule` now checks and serialises the shared executable program
-representation under `ink-executable-core-v1`. The source parser re-exports
-these types rather than owning a second representation. The [executable contract](language-specification-draft.md#executable-core-v1)
-records operations, bounds, observable transactions and trust boundaries.
-This is a checked typed AST, not a fully resolved SSA or ownership IR.
-
-`--replacement` accepts an `ink-checked-replacement-v1` envelope containing
-schema, core_semantics, input_core_sha256, observations,
-library_lock_sha256 and the proposal package. `pure-total-values-v1` is the only
-admitted observation domain today. The compiler checks the complete original
-module identity, hashes the same lock bytes it parses, checks the library closure
-and exact source correspondence/proof, then rechecks the selected executable
-module before installation. Every failure leaves the caller's original program
-unchanged. The build plan records both executable identities and checked evidence.
-
-The inner proposal currently uses the existing whole-function collection/scalar
-bridge. The envelope is a stable admission boundary, not completed general
-stateful refinement. Conditions must be closed in its universal whole-function
-proof; profile observations do not supply premises. State/effect, failure-trace,
-allocation and migration claims are rejected by this domain. Legacy interfaces
-remain transitional until their authority is migrated.
-
-The external `ink-knowledge/producers/replacement_package.py` produces portable
-pinned envelopes from source and an existing checked proposal without modifying
-the compiler. Core JSON can then be compiled directly with `--core`. Selection
-search, candidate construction and performance evidence remain outside the core.
-
-## Database acceptance path
-
-1. Resolve names to immutable content identities from an explicit lockfile. Load a bounded dependency closure; reject missing objects, cycles, incompatible semantics and altered content.
-2. Type-check definitions and validate proof terms locally against exact statements and dependency identities. A server badge or receipt is provenance, not permission to assume a theorem.
-3. Check that a proposed source-to-alternative mapping uses the theorem about those exact operations and observations. Discharge its conditions at the application site.
-4. Record the selected alternative, theorem closure, discharged conditions and backend settings in a build plan.
-5. Measure competing valid implementations separately. Profiles guide selection, never justify correctness. Trials cannot publish application events.
-
-Representation packages must prove more than today's answer: initialisation, observations, successful and failing transitions, ordered events, tentative reads, future permitted changes and migration at a transaction boundary. Switching implementations must preserve committed user changes and outstanding outbox entries.
-
-## Deterministic query over code
-
-`ink ... --optimise KNOWLEDGE_DIRECTORY` selects the store's pinned snapshot;
-`--optimise SNAPSHOT.json` selects a specific immutable snapshot. Canonical
-entries contain typed interfaces, dependencies, semantics and mathematical
-payloads. `ink-knowledge` supplies a rebuildable SQLite API for type, operation,
-effect and applicability queries; `ink-planner` owns matching and selection.
-Neither package installs optimisation cases into the compiler.
-
-Discovery exports selected roots, their exact dependency closure and authenticated
-membership witnesses. The core checks those bytes against the pinned snapshot,
-typed mathematical interfaces and every application premise. Active admission is
-bounded to 1024 objects / 16 MB; indexed subset export reads only the selected
-closure. Replay carries all required bytes and does not query the live store.
-See [repository architecture](repository-architecture.md) and
-[semantic optimisation](semantic-optimisation.md).
-
-### Historical scalar query experiment
-
-`ink-planner/research/rewrite_search.py --database DIRECTORY` reproduces the
-older scalar experiment. Its discovery index is derived from theorem endpoints;
-operator/literal buckets filter candidates, followed by complete structural
-matching. These research formats are outside production discovery and do not
-provide compatibility aliases for the canonical storage or selection interfaces.
-
-Scheduling is fixed: source declarations in order, postorder AST traversal,
-content-hash rule order and a root-query restart after each strict size reduction.
-Search charges visited nodes and candidate attempts against a shared budget;
-unsupported/exhausted functions retain their original implementation. Discovery
-also bounds file counts, byte reads, definition-expansion depth and substituted
-copies. Selection records the discovered snapshot identity, actual selected laws
-and exact proof dependency closure for offline checking.
-
-This older bridge's coverage is scalar u64/Bool and one mapped u64 sum, including the existing
-branch-condition and optional fold proof paths. Node count is only a producer
-heuristic. This does not establish faster execution, complete global rewriting,
-general data-flow queries or stateful/mixed-target optimisation. Those require
-richer correspondence, applicability evidence and separate complete-cost ranking.
-
-## Hunchroom findings relevant to this design
-
-Hunchroom was read on 2026-10-09. The following are source-reported results and inspected statements, not proofs independently replayed by this project.
-
-- Its verification workflow pins formal dependencies, distinguishes theorem checking from statement meaning, and describes a second checker plus replayable receipts. Our database should likewise separate content identity, local acceptance, semantic correspondence and measured usefulness. A signature alone cannot establish validity. [Verification](https://www.hunchroom.com/verification)
-- Its incremental recomputation theorem assumes a correct old cache, query extensionality in declared dependencies and coverage of every changed field. Those are concrete obligations for an incremental package. The model uses pure total functions and fixed dependencies; it does not certify our effectful transactions or dynamic dependency discovery. [Result 72](https://www.hunchroom.com/p/72)
-- Its operation-commutation theorem requires sound read/write footprints and cross-operation independence. Merely writing different fields is insufficient. We additionally need to preserve failures and ordered events before reordering our changes. [Result 70](https://www.hunchroom.com/p/70)
-- Its sparse-counter refinement relates executable sparse and dense transitions over arbitrary finite future traces. That is the right shape for representation equivalence. Its two-replica natural-number model omits bounded-machine overflow, dynamic replicas and native lowering. [Result 75](https://www.hunchroom.com/p/75)
-- Its checked-register work proves adjacent additive fusion and overwrite elimination inside sequential contexts. Its arithmetic is exact natural numbers, so the statements cannot simply be relabelled as our checked-u32 arithmetic or eventful changes. [Result 67](https://www.hunchroom.com/p/67)
-
-These belong in an external research/proof-production workflow. An import must either translate to our core's proof language with the needed semantic correspondence, or disclose a separate checker and translation layer as trusted. No Lean dependency is being silently added to the user language, and no Hunchroom theorem is currently accepted as an optimisation certificate here.
-
-This project submitted a reusable Lean model of bounded polynomial execution: modular intermediates recover the exact result when its final value is nonnegative and below the modulus, including an equivalent alternative polynomial. [Module 28](https://hunchroom.com/modules/28) passes hosted Lean checking with only `propext` and `Quot.sound`; Nanoda reports an export error involving `Nat.le_of_ble_eq_true`, so independent verification is incomplete. The earlier module 19 was rejected because the pinned acceptance policy rejects all warnings, including unused binder names. Removing only those names resolved that failure without changing the proof bodies or mathematical claims. Payloads, logs, receipt and a replay of the exact pinned policy are archived in `reports/hunchroom-bounded-cache/warning-free`. This is a mathematical evaluator model, not an end-to-end proof of the compiler or generated code.
-
-## Required architecture tests
-
-- Hash the compiler binary, add a new independently checked optimisation object to the database, and demonstrate a changed valid plan with the same compiler hash.
-- An empty database produces a correct baseline with no database-selected transforms.
-- Unknown theorem names, unchecked proof terms, altered dependencies and incompatible semantics fail closed.
-- New algorithm and representation definitions work through the same general mechanism; a built-in aggregate whitelist is not enough.
-- Removing a knowledge entry changes opportunity or performance, never the source program's meaning.
-- Counterexamples cover intermediate assertions, reads of another operation's writes, missing dirty dependencies, event order and future updates after migration.
-
-## First implemented proof-term path
-
-`equality.rs` checks explicit equality derivations over the total scalar fragment (`Bool`, modular `u64`, existing scalar binary primitives). Its rules are reflexivity, symmetry, transitivity, literal primitive execution, binary congruence, Boolean case analysis, scoped equality hypotheses, short-circuit congruence and typed instantiation of previously checked theorems with explicit premise proofs. Acyclic scalar definitions expand by simultaneous substitution; they introduce no axioms. Compute executes primitives only on literal arguments: it does not accept `x + 0 = x` as an arithmetic axiom. Cases check both Boolean branches with the split variable removed from context. Proof endpoints and operand types must agree exactly. This Rust checker has not itself been formally verified.
-
-`knowledge.rs` reads an ordered lockfile and SHA-256 identities of exact object bytes, checks a bounded transitive dependency closure, and applies typed substitutions only within whole total scalar function bodies. Source calls, binders, collections and stateful expressions are excluded. Proof objects may call their explicitly imported, checked scalar definitions by content identity; the compiler expands these before matching source expressions. Object fields are closed; unknown proof rules and incompatible semantics are rejected. Dependencies are explicit and exact: another object being present in the database does not grant permission to use it. The SHA-256 is an identity, not a trust signal. Checker, parsing and rewrite budgets are bounded.
-
-`knowledge/producers/boolean_proofs.py` is an external, untrusted case-enumeration producer. Its first example data supplies absorption and duplicate-predicate elimination. `tools/check_database.py` builds an empty database and then extends it with one and two laws, verifies unchanged compiler identity, and compares native results with an independent C oracle. Database selection is explicit lock order and one bottom-up pass, not measured search or global optimality. Each proposed replacement is checked again as an exact theorem instantiation at the application site; a matcher result alone cannot authorise it. Clang may independently discover these simple laws, so this demonstrates architecture rather than a performance gain.
-
-This path adds no optimisation law to the equality checker. The separate collection bridge now removes automatic collection fusion; it does not yet remove the legacy arithmetic/aggregate paths listed above, and the empty-database guarantee for the entire language remains unmet. The first-order inductive proof library described below now checks datatype definitions, structurally recursive functions and induction. A restricted correspondence to source collections now exists below; the broader proof calculus, generic implementation IR and migration proof interface still need implementation. The existing domain-specific certificate checkers are explicitly transitional and remain in the trusted base.
-
-### Definitions and dependency closure
-
-Schema-1 theorem objects may contain a `dependencies` array of content identities. `Use { theorem, arguments }` instantiates a checked universal equality; arguments must match every declared parameter, including parameters unused in the result. `kind: "definition"` objects declare scalar `params`, `result` and `body`, plus dependencies. Proof AST calls use the existing `Call` encoding with the definition's full content identity. Definition bodies are checked before insertion, cannot recurse, and are stored fully expanded. Substitution does not recursively substitute inside an inserted argument.
-
-The loader checks at most 128 objects, a dependency depth of 64, 4 MB per object and 16 MB total object bytes. It checks direct imports in isolated contexts and imports only opaque, already checked entries into dependent contexts. Shared dependencies are checked once per load. Only theorem roots listed in lock order become rewrite candidates; dependency lemmas are never implicitly enabled as rewrites. Definition roots may be loaded for validation without selecting a transformation. Build plans retain the sorted closure identities, input and selected AST hashes and emitted C hash. AST hashes are prototype identities, not a stable cross-version semantic encoding. Backend/toolchain reproducibility remains a separate requirement.
-
-`knowledge/producers/composed_proofs.py` creates a seven-object example: two Boolean lemmas, three total scalar definitions and two derived theorems. The selected theorem uses the general combination theorem on an unsigned comparison. Its proof reuses the earlier lemmas rather than enumerating the cases again. `tools/check_composition.py` checks the closure and compares generated native code against an independent C oracle. Like the simpler example, this establishes proof composition and correctness, not a speed advantage over Clang.
-
-### Conditional theorems and closed application proofs
-
-Theorem objects may declare up to 64 typed equality `conditions`. These are premises, not trusted assertions. `Hypothesis(index)` refers to an explicitly available premise. `UseConditional { theorem, arguments, premises }` must prove every instantiated condition in order; plain `Use` rejects a theorem that has conditions. Boolean case analysis substitutes the case value into both the conclusion and all hypotheses.
-
-`ShortCircuit { op, left, right }` is contextual congruence for the fixed Boolean evaluation semantics. The left proof is checked under existing hypotheses. The right proof additionally receives `original_left = true` for `&&`, or `original_left = false` for `||`. Both operands must remain Boolean. This rule establishes equality of complete scalar expressions while closing that additional hypothesis. There is no catalogue of Boolean simplifications in this rule.
-
-The rewrite producer carries matching branch facts, then proposes premise proofs using exact hypotheses (in either direction), reflexivity or primitive literal computation. Profiles and observed data are never premises. This first producer does not perform general implication search or numerical range inference. Each local application is checked under its scoped premises; the producer also emits a compositional proof for the whole changed function. The kernel checks that final proof with **no external hypotheses** before installing the body. All source terms in this path remain total scalar expressions: stateful changes, events, checked integer errors and partial calls are excluded. Resource exhaustion and backend correctness are outside this mathematical equality model.
-
-`knowledge/producers/conditional_proofs.py` supplies two conditional laws, justified by two reusable unconditional lemmas. It simplifies redundant checks inside `&&` and `||` branches, including a repeated unsigned comparison, while leaving an unguarded expression unchanged. Tests cover wrong guards, absent premises, impossible premises, false hypothesis indices, substitutions in cases and a rewritten parent condition. `tools/check_conditional.py` checks both plain and knowledge-enabled native programs over all Boolean inputs and unsigned boundary values. This is correctness evidence, not a new performance claim.
-
-
-## First-order inductive proof library
-
-`logic.rs` extends the mathematical checking foundation with monomorphic, first-order inductive data. A database defines each datatype as a finite constructor list; fields are `Bool`, modular `U64`, a previously checked datatype, or `SelfType`. The checker resolves `SelfType` to that datatype's content identity. Recursive fields are direct, strictly positive data fields. Previously declared datatype dependencies are acyclic. No optimisation-specific constructor or theorem is built into this module.
-
-Terms are variables, scalar literals, typed constructor applications, total function calls, binary scalar primitives and exhaustive constructor matches. Functions declare an optional decreasing parameter. `SelfCall` is permitted only inside a recursive definition and only on a variable exposed as a strict constructor subterm of that parameter. Calling on the original argument, constructing a larger argument, calling an unchecked function, missing match branches and wrong types are rejected. After checking, recursive self calls bind to the definition's immutable identity. This is a conservative structural termination check, not a general termination prover.
-
-The equality rules are reflexivity, symmetry, transitivity, definitional conversion, typed constructor/function/primitive congruence, explicit hypotheses, checked theorem application with premise proofs, Boolean cases and datatype induction. Computation unfolds acyclic definitions and recursive calls with constructor arguments, reduces constructor matches, and evaluates primitives only on scalar literals. Symbolic arithmetic laws are not primitive conversion rules. Recursive calls on unknown variables stay opaque. Match substitution avoids capture with internal fresh binders; inserted arguments are not substituted again. The conversion procedure is deliberately incomplete and is not an alpha-equivalence or general equation solver.
-
-An induction proof must cover every constructor with correctly typed fresh field binders. Each direct recursive field receives one induction hypothesis, in field order, about that strict subterm. The original induction variable is removed from the branch environment. Every branch must establish the exact instantiated conclusion. The returned result closes all induction hypotheses. Outer equality premises must be independent of the induction variable: `C(xs)` cannot be silently assumed for `tail`. Proving a motive that generalises variable-dependent premises requires a richer proposition calculus and remains unsupported. Boolean cases instead substitute their value in both the conclusion and all active premises.
-
-`library.rs` loads this logical domain under semantics identity `first-order-inductive-equality-v1`, using immutable SHA-256 object bytes and an explicit lockfile. Only direct imports are visible in raw definitions and proof terms. A checked entry retains its immutable internal dependency closure so a caller may execute a public definition without acquiring authority to name its private dependencies. Imported identities cannot conflict, including hidden ones. Context internals are sealed and share checked entries through immutable `Arc` values. No object can install an axiom or mark itself trusted. Loader limits remain 128 objects, dependency depth 64, 4 MB per object and 16 MB total bytes. Each declaration/check uses a 100,000-step budget, term depth 128 and proof depth 32. The separate proof-depth bound prevents hostile proof nesting from exhausting ordinary debug-thread stacks; tests exercise structured rejection rather than increasing the host stack size.
-
-```sh
-python3 knowledge/producers/inductive_proofs.py knowledge/research/inductive
-python3 dev.py build --bin lang
-target/debug/lang verify-library knowledge/research/inductive/lock.json
-python3 tools/check_induction.py
-```
-
-The external producer supplies twelve objects: a list datatype, scalar transformations, recursive list traversals, a traversal-composition theorem, an instantiated boundary theorem, a tree datatype, recursive copying and its identity theorem. The list theorem proves that the two traversals have the same resulting values as one traversal applying the composition. Its proof works by induction over arbitrary finite lists, including modular overflow values; sampled evaluation is additional testing, not its justification. The tree proof uses two recursive hypotheses and confirms that the core rule does not assume list structure. These are standard mathematical facts, not novelty claims.
-
-`reports/database-induction/result.json` records five library stages under an unchanged compiler hash: empty, definitions only, list proof, reused instance and tree proof. It records thirty-three checks including rehashed false proofs, an undeclared transitive function, non-decreasing recursion, unknown trust fields, incompatible semantics, path traversal and content tampering. Kernel tests cover induction scope, conditional premise discharge, binding capture, constructor/argument types, erased arguments, generic branching data, modular boundary computation, hidden-identity conflicts and depth rejection.
-
-This library checks **mathematical definitions and equalities**; the separate bridge below establishes restricted source correspondence before compilation. `--database` still uses the earlier scalar checker and rejects this new semantics identity. A library theorem alone does not authorise a source AST rewrite. `--implementation` now establishes explicit correspondence between the supported source collection semantics and these definitions, checks an exact application proof, and lowers the selected implementation. The list theorem does not by itself prove a reduction in runtime allocations, exception/resource traces, memory use or execution time. The Rust checker itself has not been mechanically proved correct. Higher-order/type-polymorphic definitions, dependent types, mutual recursion, richer propositions and stateful refinement remain pending.
-
-The restricted collection bridge now replaces built-in collection-fusion authority with checked database applications. Arithmetic and finite-map invariants need corresponding general proof terms, followed by representation and transaction refinement. This first-order layer is an intermediate step toward the unified small core, not a claim that the architecture audit is complete.
-
-## Exact source collection correspondence
-
-`implementation.rs` fixes the source semantics under identity `source-collections-v1`. Schema-1 packages supply a relative library lock path and up to 128 whole-function proposals. Each proposal names a function, its exact old and candidate `Expr` bodies, the list datatype identity, ordered model-definition identities for each body, and an equality proof. Packages are bounded to 4 MB. Traversal paths, stale source bodies, duplicate targets, unsupported operations, extra/missing model components and result-type changes are rejected. All proposals are checked on a program clone; failure leaves the caller's program unchanged.
-
-The trusted translator models `Bool`, modular `u64` and `List<u64>` parameters canonically. The imported list datatype must have exactly Nil/Cons with u64 head and recursive tail. Every map, filter, sum, count and foldr definition must match the translator's nonoptimising recursive semantics exactly, including argument sorts, constructor tags, body and recursion parameter. A read-only context check compares against an already checked direct import; it cannot install assumptions. Component identities are consumed in postorder. The bridge now supports filter, lazy scalar `choose`, acyclic pure source calls and collection computation within steps. Source calls are modelled with canonically named parameters and a separately checked nonrecursive definition matching the exact original callee body. Missing definitions, changed callees and unsupported types fail closed. The final selected program is checked again for type and call-graph validity.
-
-Closure conversion captures exactly the free source variables in the step/initial expression, sorted by source name and renamed canonically. Lambda binders shadow captured names, including duplicate foldr binder names. Sum/count have no scalar captures. Foldr's Nil case uses its initial value; its Cons case substitutes the recursively computed tail for the accumulator. Both original and candidate bodies are translated independently, then the generic kernel checks their exact equality under the source function's parameters with no external premises. Neither sampled profiles nor package labels justify equality.
-
-The base compiler now materialises each map/filter result and performs sum/count separately. `foldr(xs, initial, fn(item) => fn(rest) => expression)` is a right fold over the list, providing a direct reverse loop as a computation primitive; it contains no fusion law. Temporary lists have explicit ownership and cleanup, including temporary source-call arguments. Native execution uses malloc/free. Import-free Wasm uses a frame-based bump allocator, protects borrowed input ranges, grows memory and reclaims released trailing blocks. Freed holes may remain until the enclosing frame exits; this is baseline allocation support, not an optimised representation package.
-
-`knowledge/producers/collection_proofs.py` supplies four candidates and 21 immutable objects. General induction proves two/three map reductions, lexical-shadowing composition and mapped count equal to alternative folds. Each application reuses its checked theorem. Build plans retain the package hash, full library lock/closure, exact proposals and translated endpoints. Adding zero through four candidates produces five distinct C programs under one compiler hash. The archived collection benchmark compares staged and combined C/C++/Rust implementations and records measurable allocation/pass savings; it does not show an advantage over their combined algorithms.
-
-This evidence proves mathematical values for finite total inputs. Allocation failure, resource exhaustion and trap traces are outside that equivalence: the candidate may succeed where a materialised baseline runs out of memory. The translator, interpreter correspondence, Rust kernel, allocator, C lowering and LLVM backend remain trusted rather than mechanically proved. The complete small-core architecture audit remains open.
-
-### General conditional proof rules
-
-`Term::If` checks a Bool condition and equal branch sorts, and executes only the selected branch when its condition computes to a literal. On an unknown condition it retains a conditional term. Traversals, termination checking, dependency checking and capture-avoiding substitution cover every part of the term.
-
-`Proof::BoolSplit` checks both cases of an arbitrary typed Bool expression. Each branch receives exactly one additional equality premise, `condition = false` or `condition = true`, and must prove the unchanged target equality. The rule closes both premises. It does not rewrite expressions implicitly or assume one observed profile outcome is universal.
-
-`Proof::Substitute` derives an equality first, checks a context under a fresh variable of the equality's sort, and capture-avoidably substitutes each endpoint into that same context. This is general congruence; it contains no filter or arithmetic law. The hole must be a valid fresh binder and all resulting endpoints remain typed and budgeted.
-
-`knowledge/producers/filter_proofs.py` performs proof search/normalisation outside the trusted core and emits induction plus case/congruence derivations. Four examples cover both map/filter orders, count and a constant map, using ordinary reusable source functions for projection and predicates. The compiler independently checks all 36 objects and exact caller/callee correspondence.
-
-The dedicated [filtered native benchmark](../reports/filter-proof-phase1/REPORT.md) records 5,376 samples over 96 cells and 8,320 oracle comparisons. The three traversal workloads improve by 3.43× over the staged baseline and match combined C/C++/Rust; the constant case is separately reduced to O(1) by LLVM after selecting a checked fold. Five database revisions with closures 0/11/20/29/36 produce five distinct C programs under an unchanged compiler binary. The [filtered Wasm suite](../reports/filter-proof-wasm-phase1/REPORT.md) passes 4,476 checks in each of Node and an actual browser. These demonstrate checked selection and value/ownership behaviour, not automatic search, full compiler verification or general stateful refinement.
-
-## External arithmetic certificates
-
-`bitproof.rs` adds fixed scalar semantics as Boolean circuits and bounded hinted reverse-unit-propagation (RUP) checking. It contains no SAT solver, tactic search, polynomial normaliser or list of arithmetic identities. A Boolean/u64 term has its fixed total meaning: addition, subtraction and multiplication wrap modulo 2^64; comparisons are unsigned; Boolean operations and typed conditionals return their mathematical values. Data constructors, recursive calls, checked integer failures and floating point do not enter this decision procedure. Typed acyclic definitions may be expanded by the existing logic before encoding.
-
-The obligation asserts all selected scoped equalities and inequality of the requested endpoints. `BitVector { from, to, hypotheses, certificate }` selects existing hypotheses by index; it cannot introduce a premise. The compiler reconstructs the circuit and binds the certificate to a SHA-256 of its semantics, variable count, clauses and input bindings. That identity alone proves nothing. Each proposed clause must have a checked unit-propagation derivation from the circuit and earlier accepted clauses. The final empty clause establishes contradiction. Missing/future references, unsupported rules, invalid literals, altered digests, incomplete refutations and exhausted budgets fail closed. A contradiction under premises yields only an equality under those premises; whole-function implementation proofs still close all external premises.
-
-Limits are fixed: 100,000 circuit variables, 300,000 circuit clauses, 20,000 certificate steps, 4,096 literals and 100,000 hints per step, plus 20 million charged construction/checking operations shared across bit proofs in one declaration/check. General logic traversal and input/dependency byte limits also remain in force. These are resource policies, not a promise to prove every true scalar equality. Circuit construction is deliberately literal and unsimplified. The current Rust encoder/checker has not been mechanically proved sound; it remains in the trusted base. Its fixed semantic primitives are distinct from optimisation laws supplied by the database.
-
-`ink bitvector-obligation GOAL.json [--library LOCK.json] -o CNF.json` exports an exact, typed problem for untrusted search. `knowledge/producers/bitvector_proofs.py` uses external PySAT/Glucose3, enforces search time/conflict budgets, and translates its RUP trace into explicit checker hints. A solver result alone is never imported as authority. The installed objects need no solver at import time. `knowledge/research/bitvector` contains nine arithmetic/Boolean theorems and eight unconditional exact-source replacements. Its conditional `x - y = 0` theorem requires `x = y` and is library-only. Checked theorem reuse composes with list induction; there is no arithmetic-specific map optimisation in the core.
-
-`reports/bitvector-proof-phase1` preserves native validation, independent fixed-input Python/SAT encoding checks, raw timing samples, checking costs, nine independently pinned database revisions and compiler-plan/disassembly replay. All eight checked/native baseline function bodies are instruction-identical after LLVM. This establishes proof extensibility, not a runtime advantage for elementary identities. At that milestone the legacy `proof.rs` polynomial path and aggregate/representation authority remained. The modular path has since been retired as described below; the aggregate/representation migration remains open. General arithmetic proofs inside useful algorithms, state-transition refinement, representation selection and the fuller proof language remain work.
-
-## Exact-integer and finite-sum proof foundation
-
-The bit-vector fragment cannot justify exact-Int cache updates: modular cancellation and unbounded integer semantics are different domains. `knowledge/producers/integer_proofs.py` now produces 35 immutable objects checked by the unchanged first-order kernel. It defines Natural (Zero/Successor), canonical Integer (Zero/Positive(n)/Negative(n)), structurally terminating integer operations, IntegerList, append and sum. Twenty-three proofs establish inverse/cancellation laws, commutativity, associativity, row decomposition and arbitrary-position sum insertion/replacement/removal, using only existing general proof rules and explicit theorem dependencies. No Int primitive, ring axiom, polynomial procedure, solver or aggregate-specific kernel rule is added.
-
-These are universally quantified datatype proofs, not enumerated integer samples. The unary model lives in proof data; it does not replace the runtime's BigInt representation. The fixed kernel's normalisation budgets limit concrete large-value evaluation. Direct imports remain explicit even when a dependency's type exists in the hidden checked closure.
-
-`knowledge/research/exact-integers` and `reports/exact-sum-proof-foundation` preserve objects, deterministic producer replay, independent BigInt fixture checks, negative import/proof cases and import cost. A model theorem alone does not authorise a source transformation or remove existing legacy authority.
-
-The separate `exact_maintenance.rs` bridge now pins twelve exact definitions for source Int operations and finite sums, translates actual proposed update expressions, and checks unconditional insertion/replacement/removal proofs over arbitrary prefixes/suffixes. Semantic-definition matching supplies meaning, not an optimisation-law catalogue. The generic kernel remains unchanged. `knowledge/research/exact-maintenance` contains canonical and commuted candidates generated externally, with application proofs and portable immutable library bytes. Every version-2 certificate binds the complete bundle and source expressions; a failed database proof cannot fall back implicitly to the polynomial checker.
-
-Reference and native state execution now accept this path. Its initial expression fragment is `+`, `-` and literals up to 32; runtime variables remain arbitrary BigInt. Multiplication and efficient large proof literals need further work. The compiler still recognises row-local pipelines and owns a fixed cache/transaction protocol. Table-to-list projection, filtered contributions, abort/events, range analysis and backend lowering remain trusted mechanisms rather than database simulation proofs. The legacy aggregate path remains present. General state-transition and representation evidence must replace these before the overall small-core architecture is achieved.
-
-`reports/database-maintenance-phase1` records source/plan and producer replay, 62 passing tests, 756 native timing samples and independent state oracles. Canonical legacy/database certificates emit identical runtime code. Bounded Ink still takes 1.75× handwritten Rust time and 2.57× the fastest baseline's time by geometric mean. This step migrates arithmetic authority; it introduces no claimed runtime speed gain.
-
-The next package, `knowledge/research/delta-maintenance`, adds two universal proofs and an actual delta-first replacement expression under the same original compiler. The equation is database evidence, not a compiler rule. Its source bridge and generic kernel remain unchanged. A separate lowering improvement borrows primitive exact operands and keeps owned arithmetic temporaries; it changes physical copying, not the program's arithmetic expression or selected implementation. This belongs to efficient base execution, which the architecture permits, and has a declared trusted Rust/BigInt/backend boundary.
-
-The controlled inventory and wide-Int reports separate the lowering change from the database choice. Borrowing improves the wide experiment by 1.23× overall, with fewer independently measured allocation calls. Delta ordering helps when a small row changes beside a large total but is slightly worse when the changing row is also large. The same equality is safe in both profiles; it is not the same cost. This supports storing applicability/cost evidence with multiple proved candidates. It does not implement measured adaptation, migrate the fixed cache/transaction protocol or remove the remaining built-in authority. Handwritten Rust remains faster.
-
-## Design precedents and implications
-
-The individual mechanisms have substantial prior work. This comparison is a design assessment, not an exhaustive novelty claim or a statement that the complete systems are equivalent to Ink.
-
-| System | Relevant precedent | Boundary for Ink |
-| --- | --- | --- |
-| [RISE/Shine](https://rise-lang.org/) | High-level functional data-parallel programs are transformed by extensible rewrite strategies, then lowered to parallel code. | Separating optimisation choices from lowering is established practice. Ink additionally requires locally checked evidence for accepted replacements. |
-| [Verified rewriting engine used by Fiat Cryptography](https://arxiv.org/abs/2205.00862) | Separately proved algebraic theorems are combined into efficient verified compilers in Coq. | This is direct precedent for generic machinery plus individually proved optimisation rules. Ink's Rust kernel is currently trusted and has not reached that verification boundary. |
-| [egglog](https://arxiv.org/abs/2304.04332) | Datalog and equality saturation combine relational facts and equivalent program expressions in a reasoning engine. | Useful as an external candidate-search engine. Its derived equality explanations would still need an evidence bridge to Ink's semantics and checker; an asserted rewrite is not independently proved merely by putting it in an e-graph. |
-| [Souper](https://github.com/google/souper) | SMT-based LLVM superoptimisation caches solver queries in memory or Redis. | Persistent reuse of optimisation work is established. A query cache is distinct from a versioned database of independently checked proof objects. |
-| [Unison](https://www.unison-lang.org/docs/the-big-idea/) | Typed code definitions are stored in a database and identified by content hashes. | Direct precedent for code as stored structured data and stable dependencies. A content hash establishes identity, not equality between different algorithms. |
-| [DBSP](https://arxiv.org/abs/2203.16684) | A stream computation language and a general incrementalisation algorithm maintain rich database queries from input changes. | Direct precedent for deriving work on changes instead of repeatedly evaluating the full state. Ink must additionally address transactional observations, representation refinements and migration. |
-| [Cozy](https://github.com/CozySynthesizer/cozy) | High-level state/query specifications are synthesised into efficient representations and methods. | Especially relevant to physical-layout and maintained-query selection; the [paper](https://homes.cs.washington.edu/~mernst/pubs/generalized-synthesis-icse2018.pdf) describes synthesising updates that maintain newly chosen representations. |
-
-Even library-supplied optimisations in a mainstream language have precedent: [GHC's rewrite rules](https://downloads.haskell.org/~ghc/7.4-latest/docs/html/users_guide/rewrite-rules.html) let Haskell libraries extend optimisation, but GHC leaves semantic correctness of those user rules to their authors.
-
-The intended Ink combination is serialisable logical state, explicit changes and derived queries, independently distributed checked implementation evidence, and profiling-based selection. Only restricted pieces of that combination are implemented today. A growing knowledge database increases the available safe alternatives; it does not by itself guarantee faster programs. Cost models, search limits, workload measurements and semantic versioning must remain separate from equality checking. Search engines and AI proof producers can be untrusted if their outputs are checked at the application boundary.
-
-### Reversible cache storage from evidence
-
-Version-3 maintenance now supplies `save`, `apply` and `restore` expressions for each operation, rather than having the core always choose a full-total snapshot. The source bridge checks forward equality and inverse identity using the unchanged generic induction kernel. Both a full-snapshot entry and a reversible-difference entry execute under the same compiler. No optimisation rule selects between them automatically. The exact BigInt path uses the supplied expressions; bounded caches retain snapshots pending representation evidence. This advances journal-choice authority but still trusts projection and reverse transaction scheduling. See [the precise obligations, measurements and remaining work](reversible-cache-journals.md).
-
-## Keyed transition evidence and generalised induction
-
-The generic kernel now supports generalised structural induction for changing nonrecursive state parameters. Hypotheses are typed, branch-local schemas whose recursive argument is fixed to an immediate constructor field; fixed premises cannot be quantified over new values. This extends the proof language, without introducing any algebraic, table or optimisation axiom. The kernel remains a trusted implementation.
-
-Version-4 maintenance evidence supplies checked keyed contribution-table step/history proofs. The source bridge pins 18 semantic roles, including actual lookup/write behavior and the candidate update function reconstructed from its Ink expressions. A 63-object package selects either a reversible or snapshot journal under one compiler. The bridge remains a restricted source correspondence schema; native map/projection abstraction, transaction effects/undo and general database-defined layouts are not yet end-to-end checked. Unsupported key domains retain scanning. See [scope and evidence](keyed-table-proofs.md).
-
-## External arithmetic search and modular-path retirement
-
-The production crate no longer contains `src/proof.rs`, polynomial certificate
-normalisation, or that untyped rewrite matcher. Retired CLI commands fail
-explicitly before producing code. Historical certificate objects remain
-research/reproduction inputs rather than current admission authority.
-
-`ink-planner/research/rewrite_search.py` reads an explicit index of already
-proved laws, searches with a bounded shared work budget, and builds complete
-replacement proofs through the existing congruence, theorem-instantiation,
-induction and RUP rules. Its first subset handles scalars and a single mapped
-sum; optional mapped-sum fusion supplies a checked right-fold candidate. The
-compiler adds no algebraic law or fusion recogniser. A node-count estimate
-selects proposals outside the trusted core; it does not prove profitability.
-
-Zero/exhausted search retains the original program. Unsupported collection
-structures and square factoring also retain the original implementation.
-Thus this is a deliberate reduction in the old polynomial path's supported
-identities, not proof that all historical optimisations have migrated.
-General stateful maintenance, bounded representations, physical layout
-admission still need further separation. The older scalar search was subsequently retired as described below.
-The trusted bridge/kernel and backend boundaries are unchanged.
-
-## Scalar search retirement and conditional proofs
-
-`knowledge.rs` now only verifies the historical scalar object format. Its rule
-selection, matcher, traversal, premise search and application entry point are
-removed. `--database` fails explicitly before compilation; it cannot silently
-ignore or re-enable a legacy optimisation. `verify-database` still checks old
-mathematical libraries, without granting compilation authority.
-
-The external `scalar_library.py` translates the Boolean/composed/conditional
-libraries to general logic declarations. Hashes and dependencies are remapped,
-and the unchanged compiler rechecks every translated theorem. The external
-`rewrite_search.py` expands acyclic scalar definitions, matches typed arguments,
-and supplies complete conditional-use and Boolean-split proofs. Each active
-branch proves its actual new guard; inactive branches use ordinary checked DB
-annihilation lemmas. No profile fact enters those proof contexts.
-
-Search operates on source or the checked core format. Missing branch-closing
-laws or exhausted search retain the original function. General kernel and
-source correspondence remain unchanged. The old scalar calculus stays in the
-trusted compatibility reader; removing that reader is a separate compatibility
-decision, not a hidden second compilation path.
-
-## Executable database definitions and checked entry selection
-
-`definition_native.rs` supplies a general backend for the existing checked
-first-order definition language, rather than another optimisation calculus.
-It lowers Bool, wrapping U64 arithmetic, finite inductive constructors,
-matches, conditionals, immutable calls and checked structural recursion.
-Datatype fields use boxes; data parameters are borrowed and data results
-owned. Returning an existing borrowed value clones it. The backend chooses no
-algebraic identity, cache algorithm or table representation.
-
-`emit-definition LOCK EXPORTS [--select PACKAGE] -o SOURCE.rs` checks the
-whole immutable library before selecting public function roots. The compiler
-generates binder/constructor symbols independently of user names. Supplied
-packages cannot inject Rust bodies. Output is deterministic for the same
-bundle, exports, package and compiler. The receipt identifies the canonical
-bundle, selected entries, executable dependencies and emitted source; hashes
-are identities, not correctness evidence.
-
-`ink-definition-selection-v1` packages contain schema, semantic/observation
-versions, the complete canonical bundle identity and proposals with original
-function, replacement function and proof. The only admitted observation
-domain is `first-order-total-values-v1`. Every endpoint must be a checked public
-function with identical ordered parameter sorts and result sort. The compiler
-constructs calls from the actual original signature and checks the supplied
-proof under an empty premise context. A conditional theorem alone therefore
-cannot establish an unconditional replacement. All proposals must pass before
-any source is written; unknown/duplicate CLI options also fail explicitly.
-
-Selections affect public entry wrappers. Definition calls and recursive calls
-continue to reference original immutable bodies. This matters even for a valid
-equality: a candidate that calls the original entry can be equal to it, but
-globally redirecting that call to the candidate would create an infinite loop.
-
-The generated Rust library exposes typed functions and an in-process ground
-`Value` dispatch API. The latter checks exact datatype identities, constructor
-tags, arities, field sorts and input limits (64 arguments/fields, depth 64,
-100,000 nodes). This is not a persistent snapshot format. These bounds cover
-input validation, not total execution time, intermediate allocations or output
-size; structurally terminating definitions can still consume large resources.
-Typed exports require ordinary Rust values and do not perform dispatch bounds.
-Host allocation/stack failures remain outside the total-value proof domain.
-
-The DB's `definition_candidates.py` supplies an ordinary staged-list entry and
-its proved combined-pass selection, plus row/ledger entries that encode rows,
-execute a column update and decode the result. Existing step and roundtrip
-theorems prove the complete selected function, with no new kernel rule. The
-compiler emits those checked candidate bodies; it does not attach a model
-theorem to an independently written storage implementation. Native and Wasm
-tests compare continued updates and representation conversion with independent
-maps and the checked definition evaluator.
-
-This closes one missing executable-description layer. The Rust lowering,
-generated codecs, compiler and LLVM remain trusted implementations, rather
-than a verified backend. The boxed column adapter converts at every entry;
-it is neither persistent native flat storage nor evidence of profitability.
-Actual Ink source actions, error/abort/event/commit semantics, physical buffer
-operations, snapshots and candidate installation still require correspondence
-and preservation proofs. Efficient physical representations and measured
-selection remain production work; this interface does not close that gate.
-
-## Compute v2 boundary
-
-The general pure compute extension defines logical signed words, portable f32,
-vectors, record construction/access, safe indexed reads and literal bounded loops.
-New programs serialize with executable-core-v2; legacy programs retain v1
-identities. Scalar operation structure and collection stages are lowered directly.
-The GPU pipeline API is explicit host composition, not a core fusion/rewrite law.
-C/Wasm and WGSL emission, packed value correspondence, call ownership and host
-execution are trusted mechanisms. WGSL-permitted floating behaviour is part of
-the v2 contract; IEEE bitwise equivalence is not inferred from profiling or tests.
-Existing proof translators reject unsupported compute forms. See
-[compute contract and validation](gpu-compute.md).
-
-## Shared conditional semantic selection
-
-The current general pure-expression path is documented in
-[Composable semantic optimisation](semantic-optimisation.md). It supplements the
-older restricted source-to-first-order bridge with a typed executable term
-correspondence, general equality/induction rules, explicit premise proofs and a
-shared checked selection witness. Pattern matching, repeated compositional
-search, example optimisation laws and cost estimates live in ink-knowledge.
-Lowerers, reference execution and proved source routing consume the same admitted
-module/equality mechanism. The new trusted mechanisms and the remaining
-state/trace/physical-backend limits are explicit in that document.
-
-### Portable helper contexts and explicit destination execution
-
-The general definition-context checker binds transitive pure helper bodies and
-signatures by content hash, reconstructs/types/checks their definitions and uses
-the existing equality proof calculus. Contextual laws carry this data in their
-ordinary DB payload. Application additionally matches the original checked
-module exactly. Context-free laws cannot borrow undeclared helpers from an
-admission module. The planner's context filter is untrusted; core replay repeats
-applicability checking. No helper-specific theorem rule is added.
-
-Evaluate-once operand emission, caller-owned destination entrypoints, allocation
-marks and literal resident GPU stage graphs are general physical mechanisms in
-lowering/runtime packages. Mathematical fusion, alternative representations and
-profitability choices remain database authority. These mechanisms remain trusted
-native correspondence; pure value equality does not prove ownership/lifetime or
-allocation traces. [The precise contracts and validation boundary](web-engine-storage-and-contexts.md)
-are recorded separately.
-
-## General mechanisms added for representation scale
-
-The fixed logical word primitives additionally include unsigned bitwise AND and
-unsigned total quotient/remainder (zero divisor yields zero). Source `quot_or`
-and `rem_or` correspondence explicitly selects the user's fallback on zero and
-signed overflow. The bit-vector proof encoder admits AND with literal Boolean
-circuits; it rejects quotient/remainder and binary32 operators instead of treating
-them as word-ring arithmetic. Binary32 primitives operate on stored 32-bit words,
-round each arithmetic operation, compare IEEE scalar values and negate by XOR
-of the sign bit. Stored aggregate equality compares bits. Arithmetic NaN payload
-portability follows the existing numerical contract; no new cross-engine promise
-is made. These are fixed source semantics, not database-installed axioms.
-
-`WordExtensionality` is a general equality rule: operands must be words, every
-nonzero mask has a checked equality of the masked operands, and the union of at
-most 64 masks covers every bit. It admits neither assumptions nor producer names.
-The external aggregate producer uses this rule to split expensive SAT proofs
-into separately checked word lemmas. Polynomial normalisation, update recognition
-and induction tactics remain untrusted Python which emits ordinary proof terms.
-The kernel has no aggregate, insertion-delta or cache-maintenance rule.
-
-The RUP checker resets only assignments touched by the previous goal. It still
-replays each ordered hint and requires conflict; variable, clause, hint, step and
-20-million-work bounds remain. The checked context closure bound is 512 entries,
-with dependency depth 64 and existing declaration/proof budgets. The source
-projection is bounded by 256 definitions and 20,000 work units.
-
-The old proof-aware stateful runtime and its ground-value transport/frame machines
-have been removed. Their bounds were execution-tool limits, not proof premises.
-Proof checking retains the limits above. Ordinary compiled entrypoints require
-canonical typed caller inputs; explicit portable checkpoint/restore retains its
-codec resource and integrity bounds. Compile-and-run tooling validates external
-arguments with source nesting/list/integer limits 32/4,096/4,090 bits, caps input
-and reply bytes at 16 MB and compiles at most sixteen fixed variants.
-
-Compiled physical state is ordinary immutable typed storage. Rust shares children;
-all standalone backends retain their declared host contract. Transactions stage
-new state and events and publish according to compiled source semantics. Proofs
-are checked before emission. Calls carry no proof objects, generic ground terms or
-whole-state snapshot-validation pass. A portable migration explicitly checkpoints
-and restores at a transaction boundary before replacing the old instance.
+# Small core, external implementation knowledge
+
+Keep program meaning stable. Let implementation knowledge accumulate.
+
+Ink separates what a program means from the ways it can run. Its independently
+versioned knowledge database contains implementation alternatives, transformations,
+applicability conditions and checked equality evidence. New admitted knowledge can
+improve existing programs when they are rebuilt, without changing their source or
+adding an optimisation pass to the compiler.
+
+## Boundaries
+
+The language core owns syntax, types, effects, ownership, fixed primitive semantics,
+shared expression and binding analysis, and general evidence checking. It must
+compile and execute a program correctly with an empty database. A general mechanism
+can be added when an alternative cannot yet be expressed; an algorithm recogniser
+or certificate whitelist cannot be added as a substitute for checking evidence.
+
+`ink-knowledge` owns immutable laws and implementation definitions, their discovery
+metadata, untrusted proof producers, cost observations and model provenance.
+`ink-planner` proposes applications, performs bounded search and fits cost models.
+The core independently checks the exact selected dependency closure against the
+input program. Content hashes authenticate bytes; they do not prove correctness.
+
+Lowerers execute the admitted program literally. They implement general language
+mechanisms and target constraints. They do not decide to replace a reverse fold
+with an early exit, reuse an immutable intermediate buffer, or inline a helper.
+Those choices are externally proposed and checked. General `fold_until` and owned
+`Buffer.map`, `Buffer.map_indexed`, `Buffer.scan` and stable `Buffer.filter` operations express those
+alternatives on every backend. See [universal optimisation](universal-optimisation.md)
+for the operation contracts and proof scope.
+
+[`ink-abi`](https://github.com/siliconjungle/ink-abi) owns value descriptors, packed
+layouts, value kind tags, transport fixtures and the common execution decision
+contract. All lowerers and hosts consume that package. Browser hosts execute the
+same decision code as native hosts through its Wasm artifact. Eligible targets and
+resource availability can differ; the decision rule and workload features cannot.
+Runtime applies a saved, target-bound model or retains the compiled CPU baseline.
+Device errors and resource limits remain runtime responsibilities.
+
+[`ink-native-support`](https://github.com/siliconjungle/ink-native-support) owns
+support emitted into native applications. Dynamic C values and statically typed
+Rust values retain their separate representations while consuming the shared ABI.
+The source reference evaluator remains independent for differential testing.
+Representations compile to standalone native state; the generic proof-aware
+Session, executor adapters and per-call logical snapshot validation are removed.
+Portable checkpoint/restore switches compiled implementations only after restore
+succeeds; direct mathematical bridge checking remains a compile-time capability.
+
+## Current state and ambitions
+
+Canonical semantic transformations and source-bound physical representations have
+checked admission and executable selection. The database now includes general
+early-termination and owned-buffer laws; installed database producers can propose
+source-specific decision-tree and definition-unfolding proofs during planning.
+A portable selection records the exact input, admitted laws and dependency closure
+so rebuilding is reproducible.
+
+Legacy aggregate certificates, storage policies, maintenance commands, bounded
+cache authority and the old scalar database loader have been removed. There is no
+compatibility feature that restores them. Archived observations remain evidence
+about earlier experiments, not executable optimisation authority.
+
+The ambition is broader reusable implementation knowledge: algorithms, data
+representations, incremental maintenance, hardware choices and measured cost models
+that improve programs while preserving their meaning. The current checker covers
+documented equality and action-transition domains; it is not a proof of generated
+C, Rust, JavaScript, Wasm, GPU drivers or arbitrary stateful optimisation. LLVM and
+other downstream toolchains remain trusted and can perform their own optimisation.
+Performance claims require measured workloads, rather than equality proofs or
+structural search prices.

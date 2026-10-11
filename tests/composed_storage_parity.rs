@@ -39,15 +39,29 @@ fn composed_storage_values_and_snapshots_match_every_backend() {
     let p = parse(SOURCE).unwrap();
     let mut reference = Runtime::new(p.clone()).unwrap();
     let mut rows: Vec<(&str, Value, bool, bool)> = vec![];
-    for xs in [json!([]),json!([0]),json!([u32::MAX,0,1,3,9,0x80000000u32])] {
-        for t in [0,3,u32::MAX] {
-            for name in ["compact","chain","shared"] { rows.push((name,json!([xs,t]),false,true)); }
-            for b in [false,true] { rows.push(("branches",json!([xs,t,b]),false,true)); }
+    for xs in [
+        json!([]),
+        json!([0]),
+        json!([u32::MAX, 0, 1, 3, 9, 0x80000000u32]),
+    ] {
+        for t in [0, 3, u32::MAX] {
+            for name in ["compact", "chain", "shared"] {
+                rows.push((name, json!([xs, t]), false, true));
+            }
+            for b in [false, true] {
+                rows.push(("branches", json!([xs, t, b]), false, true));
+            }
         }
-        for name in ["captured","ordered","total","lexical"] { rows.push((name,json!([xs]),false,true)); }
-        rows.push(("count_all",json!([xs]),false,false));
-        for ys in [json!([]),json!([1]),json!([u32::MAX,7,2,5,8,13,21,34])] {
-            rows.push(("zip",json!([xs,ys]),false,true));
+        for name in ["captured", "ordered", "total", "lexical"] {
+            rows.push((name, json!([xs]), false, true));
+        }
+        rows.push(("count_all", json!([xs]), false, false));
+        for ys in [
+            json!([]),
+            json!([1]),
+            json!([u32::MAX, 7, 2, 5, 8, 13, 21, 34]),
+        ] {
+            rows.push(("zip", json!([xs, ys]), false, true));
         }
     }
     rows.extend([
@@ -68,18 +82,34 @@ fn composed_storage_values_and_snapshots_match_every_backend() {
         ("join_records",json!([[{"label":"x","value":{"Int":"-3"}}],[{"label":"雪","value":{"Int":"987654321098765432109876543210"}}]]),false,false),
         ("join_nested",json!([[[1,2],[]],[[u32::MAX],[3,4]]]),false,false),
     ]);
-    let mut steps=vec![];let mut expected=vec![];
-    for (name,args) in [("joined",json!([])),("put",json!([u32::MAX,7])),("put",json!([0,3])),("joined",json!([])),("put",json!([0,9])),("joined",json!([]))] {
-        let outcome=reference.invoke_json(name,&args).unwrap();
+    let mut steps = vec![];
+    let mut expected = vec![];
+    for (name, args) in [
+        ("joined", json!([])),
+        ("put", json!([u32::MAX, 7])),
+        ("put", json!([0, 3])),
+        ("joined", json!([])),
+        ("put", json!([0, 9])),
+        ("joined", json!([])),
+    ] {
+        let outcome = reference.invoke_json(name, &args).unwrap();
         steps.push(json!({"call":name,"args":args}));
         expected.push(json!({"reply":{"outcome":outcome.json()},"snapshot":reference.checkpoint_portable().unwrap()}));
     }
-    for (name,args,cpu_only,gpu) in rows {
-        let f=p.functions.iter().find(|f|f.name==name).unwrap();
-        let inputs=args.as_array().unwrap().iter().zip(&f.params).map(|(v,(_,t))|eval::Value::from_program_json(v,t,&p).unwrap()).collect();
-        let value=eval::call(&p,name,inputs,&mut 100000000).unwrap().json();
+    for (name, args, cpu_only, gpu) in rows {
+        let f = p.functions.iter().find(|f| f.name == name).unwrap();
+        let inputs = args
+            .as_array()
+            .unwrap()
+            .iter()
+            .zip(&f.params)
+            .map(|(v, (_, t))| eval::Value::from_program_json(v, t, &p).unwrap())
+            .collect();
+        let value = eval::call(&p, name, inputs, &mut 100000000).unwrap().json();
         steps.push(json!({"pure":name,"args":args,"cpu_only":cpu_only,"expect_gpu":gpu}));
-        expected.push(json!({"reply":{"value":value},"snapshot":reference.checkpoint_portable().unwrap()}));
+        expected.push(
+            json!({"reply":{"value":value},"snapshot":reference.checkpoint_portable().unwrap()}),
+        );
     }
-    parity::conformance("generated-parity-memory40",p,SOURCE,steps,expected);
+    parity::conformance("generated-parity-memory40", p, SOURCE, steps, expected);
 }

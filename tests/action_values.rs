@@ -11,9 +11,9 @@ use verified_language::{
     logic::Term,
     registry::{Bundle, CheckedBundle},
     source_syntax,
-    source_values::Limits,
     stateful::{Runtime, Value},
     syntax::{parse, Type},
+    value_limits::Limits,
 };
 const APP: &str = r#"module values;
 id Other; id Key;

@@ -1,7 +1,6 @@
 use serde_json::json;
 use sha2::{Digest, Sha256};
-#[cfg(feature = "legacy-optimisation-research")]
-use verified_language::aggregate;
+
 use verified_language::{snapshot_wire::*, stateful::Runtime, syntax::parse};
 
 fn layout(value: Schema) -> Layout {
@@ -160,15 +159,7 @@ fn portable_reference_snapshots_preserve_future_changes_and_pending_events() {
     rt.invoke_json("restock", &json!([id, 9])).unwrap();
     let bytes = rt.checkpoint_portable().unwrap();
     let mut restored = Runtime::restore_portable(p.clone(), &bytes).unwrap();
-    #[cfg(feature = "legacy-optimisation-research")]
-    restored
-        .enable_maintenance(
-            aggregate::prove(
-                &parse(include_str!("../knowledge/research/sum-maintenance.lang")).unwrap(),
-            )
-            .unwrap(),
-        )
-        .unwrap();
+
     assert_eq!(restored.checkpoint_portable().unwrap(), bytes);
     for amount in [1, 0, u32::MAX, 3] {
         assert_eq!(

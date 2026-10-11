@@ -226,10 +226,10 @@ pub fn check_registry(
         }
     }
     // Internal lowering adapter only. Entry identities are retained; these
-    // bytes cannot pass the separate legacy raw-library hash admission path.
+    // bytes cannot pass the separate raw-library hash admission path.
     Ok(CheckedDefinition {
         bundle: Bundle {
-            lock: crate::knowledge::Lock {
+            lock: crate::content::Lock {
                 schema: 1,
                 semantics: library::SEMANTICS.into(),
                 objects: bundle.roots.clone(),

@@ -68,7 +68,11 @@ pub struct Case {
 #[serde(deny_unknown_fields)]
 pub enum Proof {
     /// Equality of every bit of a fixed-width word, checked through covering masks.
-    WordExtensionality { from: Term, to: Term, parts: Vec<(u64, Proof)> },
+    WordExtensionality {
+        from: Term,
+        to: Term,
+        parts: Vec<(u64, Proof)>,
+    },
     BitVector {
         from: Term,
         to: Term,
@@ -190,7 +194,9 @@ pub enum Declaration {
     /// An uninterpreted sort: no constructors, so it cannot be matched,
     /// constructed or inducted on. Only `Proof::Instance` interprets it. The
     /// name keeps distinct symbols distinct under content addressing.
-    AbstractSort { name: String },
+    AbstractSort {
+        name: String,
+    },
     /// An uninterpreted total function. Its calls never compute. Parameter
     /// names are documentation only; instances bind their own.
     AbstractFunction {
@@ -679,18 +685,43 @@ impl Context {
         normal(term, self, &mut budget, 0)
     }
 }
-/// Fixed CPU binary32 semantics over raw 32-bit words. NaN arithmetic payloads
-/// use the executable-core V6 canonical NaN contract; negation preserves payload.
-pub fn f32_primitive(op:&str,a:u64,b:u64)->LangResult<Term>{
- let x=f32::from_bits(a as u32);let y=f32::from_bits(b as u32);
- let bits=|v:f32|if v.is_nan(){0x7fc00000u64}else{v.to_bits()as u64};
- Ok(match op {"f32:+"=>Term::U64(bits(x+y)),"f32:-"=>Term::U64(bits(x-y)),"f32:*"=>Term::U64(bits(x*y)),"f32:neg"=>Term::U64((a as u32^0x80000000)as u64),"f32:=="=>Term::Bool(x==y),"f32:!="=>Term::Bool(x!=y),"f32:<"=>Term::Bool(x<y),"f32:<="=>Term::Bool(x<=y),"f32:>"=>Term::Bool(x>y),"f32:>="=>Term::Bool(x>=y),_=>return Err("unsupported binary32 primitive".into())})
+/// Arithmetic has one portable quiet NaN; transport and negation preserve bits.
+pub fn canonical_f32_bits(value: f32) -> u32 {
+    if value.is_nan() {
+        0x7fc00000
+    } else {
+        value.to_bits()
+    }
+}
+/// Fixed binary32 operations over raw 32-bit words.
+pub fn f32_primitive(op: &str, a: u64, b: u64) -> LangResult<Term> {
+    let x = f32::from_bits(a as u32);
+    let y = f32::from_bits(b as u32);
+    Ok(match op {
+        "f32:+" => Term::U64(canonical_f32_bits(x + y) as u64),
+        "f32:-" => Term::U64(canonical_f32_bits(x - y) as u64),
+        "f32:*" => Term::U64(canonical_f32_bits(x * y) as u64),
+        "f32:neg" => Term::U64((a as u32 ^ 0x80000000) as u64),
+        "f32:==" => Term::Bool(x == y),
+        "f32:!=" => Term::Bool(x != y),
+        "f32:<" => Term::Bool(x < y),
+        "f32:<=" => Term::Bool(x <= y),
+        "f32:>" => Term::Bool(x > y),
+        "f32:>=" => Term::Bool(x >= y),
+        _ => return Err("unsupported binary32 primitive".into()),
+    })
 }
 fn primitive(op: &str, left: &Sort, right: &Sort) -> LangResult<Sort> {
     if left != right {
         return Err("primitive operand type mismatch".into());
     }
-    if op.starts_with("f32:")&&*left==Sort::U64{return match &op[4..]{"+"|"-"|"*"|"neg"=>Ok(Sort::U64),"=="|"!="|"<"|"<="|">"|">="=>Ok(Sort::Bool),_=>Err("unsupported binary32 primitive".into())};}
+    if op.starts_with("f32:") && *left == Sort::U64 {
+        return match &op[4..] {
+            "+" | "-" | "*" | "neg" => Ok(Sort::U64),
+            "==" | "!=" | "<" | "<=" | ">" | ">=" => Ok(Sort::Bool),
+            _ => Err("unsupported binary32 primitive".into()),
+        };
+    }
     match (op, left) {
         ("+" | "-" | "*" | "&" | "quot" | "rem", Sort::U64) => Ok(Sort::U64),
         ("<" | "<=" | ">" | ">=", Sort::U64) => Ok(Sort::Bool),
@@ -1231,7 +1262,9 @@ fn normal(t: &Term, c: &Context, budget: &mut Budget, depth: usize) -> LangResul
             let left = normal(left, c, budget, depth + 1)?;
             let right = normal(right, c, budget, depth + 1)?;
             let reduced = match (&left, &right) {
-                (Term::U64(a),Term::U64(b)) if op.starts_with("f32:")=>Some(f32_primitive(op,*a,*b)?),
+                (Term::U64(a), Term::U64(b)) if op.starts_with("f32:") => {
+                    Some(f32_primitive(op, *a, *b)?)
+                }
                 (Term::U64(a), Term::U64(b)) => Some(match op.as_str() {
                     "+" => Term::U64(a.wrapping_add(*b)),
                     "-" => Term::U64(a.wrapping_sub(*b)),
@@ -1735,11 +1768,14 @@ fn statement_references(
 /// Entries a proof relies on. An `Instance` relies on its interpretations, not
 /// on the abstract symbols it interprets: those are discharged by the rule.
 fn proof_references(p: &Proof, out: &mut BTreeSet<String>) {
-    let terms = |ts: &[&Term], out: &mut BTreeSet<String>| ts.iter().for_each(|t| term_references(t, out));
+    let terms =
+        |ts: &[&Term], out: &mut BTreeSet<String>| ts.iter().for_each(|t| term_references(t, out));
     match p {
         Proof::WordExtensionality { from, to, parts } => {
             terms(&[from, to], out);
-            for (_, proof) in parts { proof_references(proof, out); }
+            for (_, proof) in parts {
+                proof_references(proof, out);
+            }
         }
         Proof::BitVector { from, to, .. } | Proof::Convert { from, to } => terms(&[from, to], out),
         Proof::Substitute {
@@ -1857,7 +1893,15 @@ fn derive(
             if parts.is_empty() || parts.len() > 64 || parts.iter().any(|(mask, _)| *mask == 0) {
                 return Err("word extensionality mask limit".into());
             }
-            let want = prepare(&Equation { from: from.clone(), to: to.clone() }, env, c, budget)?;
+            let want = prepare(
+                &Equation {
+                    from: from.clone(),
+                    to: to.clone(),
+                },
+                env,
+                c,
+                budget,
+            )?;
             if infer(&want.from, env, c, None, false, budget, depth + 1)? != Sort::U64 {
                 return Err("word extensionality requires words".into());
             }
@@ -1865,10 +1909,24 @@ fn derive(
                 return Err("word extensionality does not cover all bits".into());
             }
             for (mask, proof) in parts {
-                let masked = |term: &Term| Term::Binary { op: "&".into(), left: Box::new(term.clone()), right: Box::new(Term::U64(*mask)) };
-                let expected = prepare(&Equation { from: masked(&want.from), to: masked(&want.to) }, env, c, budget)?;
+                let masked = |term: &Term| Term::Binary {
+                    op: "&".into(),
+                    left: Box::new(term.clone()),
+                    right: Box::new(Term::U64(*mask)),
+                };
+                let expected = prepare(
+                    &Equation {
+                        from: masked(&want.from),
+                        to: masked(&want.to),
+                    },
+                    env,
+                    c,
+                    budget,
+                )?;
                 let actual = derive(proof, env, c, hypotheses, schemas, budget, depth + 1)?;
-                if actual != expected { return Err("word extensionality part mismatch".into()); }
+                if actual != expected {
+                    return Err("word extensionality part mismatch".into());
+                }
             }
             want
         }
@@ -2127,7 +2185,9 @@ fn derive(
                 || !functions.keys().eq(want_functions.iter().copied())
                 || !assumptions.keys().eq(want_assumptions.iter().copied())
             {
-                return Err("instance must interpret exactly the theorem's abstract parameters".into());
+                return Err(
+                    "instance must interpret exactly the theorem's abstract parameters".into(),
+                );
             }
             for target in sorts.values() {
                 c.sort(target)?;
@@ -2197,7 +2257,9 @@ fn derive(
                         let actual =
                             alpha_normal(substitute(&actual.body, &rename, budget, 0)?, budget)?;
                         if expected != actual {
-                            return Err("instantiated function body differs from its definition".into());
+                            return Err(
+                                "instantiated function body differs from its definition".into()
+                            );
                         }
                     }
                     _ => return Err("instance definition kind mismatch".into()),

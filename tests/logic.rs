@@ -661,11 +661,6 @@ fn library_roots_are_explicit_and_transitive_dependencies_do_not_grant_visibilit
             .unwrap(),
         Term::U64(u64::MAX)
     );
-    // The scalar rewrite loader must not misinterpret this new logical domain.
-    assert!(verified_language::knowledge::load(Path::new(
-        "knowledge/research/inductive/lock.json"
-    ))
-    .is_err());
 }
 
 #[test]

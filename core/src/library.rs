@@ -1,7 +1,7 @@
 //! Immutable first-order proof libraries. This registers checked mathematical
 //! entries; it does not authorise an unchecked correspondence to source code.
 use crate::{
-    knowledge::{identity, read_bounded, Lock},
+    content::{identity, read_bounded, Lock},
     logic::{Context, Declaration},
     LangResult,
 };
@@ -107,7 +107,7 @@ pub fn load(lock_path: &Path) -> LangResult<Library> {
 /// Bind a package to the exact lock bytes that are parsed, avoiding a second
 /// read between hash validation and dependency resolution.
 pub fn load_pinned(lock_path: &Path, sha256: &str) -> LangResult<Library> {
-    crate::knowledge::identity(sha256)?;
+    crate::content::identity(sha256)?;
     load_with_pin(lock_path, Some(sha256))
 }
 fn load_with_pin(lock_path: &Path, pin: Option<&str>) -> LangResult<Library> {
