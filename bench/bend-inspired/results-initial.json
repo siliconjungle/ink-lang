@@ -1,0 +1,130 @@
+{
+  "schema": 1,
+  "compiler_sha256": "14df295821b67aa7020a8b4d8ea2e2c94413af9ea9487f915e7353cdc5e74ad1",
+  "source_sha256": "c6a6da91caacbf73ebbf323855354844c05caf506a7fb29cbb946683e8327140",
+  "threads": 4,
+  "method": "Nine alternating paired rounds. Calibration targets 30 ms per sample, capped at 200 repetitions. Both paths include the same input copy, output allocation and destruction. Runtime only; compilation is excluded. Four requested CPU workers, with sequential fallback for small or nested workloads. 4000 paired bootstrap median-ratio resamples. Work is the same wrapping recurrence in both programs.",
+  "results": [
+    {
+      "median_ns": [
+        81389.165,
+        82158.125
+      ],
+      "n": 64,
+      "repetitions": [
+        200,
+        200
+      ],
+      "samples_ns": [
+        [
+          80922.915,
+          81156.045,
+          81389.165,
+          81637.29,
+          81361.25,
+          81139.165,
+          83069.375,
+          84350.42,
+          81931.875
+        ],
+        [
+          81823.33,
+          81560.835,
+          81771.04,
+          82290.42,
+          85581.25,
+          82307.92,
+          82649.58,
+          81943.125,
+          82158.125
+        ]
+      ],
+      "sequential_over_parallel": 0.9906404874746106,
+      "sequential_over_parallel_ci95": [
+        0.9858002121788523,
+        1.009251296837534
+      ]
+    },
+    {
+      "median_ns": [
+        5218375.0,
+        1700936.2352941176
+      ],
+      "n": 4096,
+      "repetitions": [
+        5,
+        17
+      ],
+      "samples_ns": [
+        [
+          5190050.0,
+          5261466.6,
+          5201366.6,
+          5218375.0,
+          5205175.0,
+          5368566.8,
+          5182391.6,
+          5257283.4,
+          5270475.0
+        ],
+        [
+          1700382.3529411764,
+          1713235.294117647,
+          1717583.3529411764,
+          1710272.0588235294,
+          1692678.9411764706,
+          1679713.2352941176,
+          1700936.2352941176,
+          1696450.9411764706,
+          1704715.705882353
+        ]
+      ],
+      "sequential_over_parallel": 3.067942755124894,
+      "sequential_over_parallel_ci95": [
+        3.0434777748638204,
+        3.099582273883037
+      ]
+    },
+    {
+      "median_ns": [
+        83202333.0,
+        23823583.0
+      ],
+      "n": 65536,
+      "repetitions": [
+        1,
+        1
+      ],
+      "samples_ns": [
+        [
+          84259167.0,
+          83426041.0,
+          81589834.0,
+          80540500.0,
+          80805083.0,
+          83707875.0,
+          83174000.0,
+          84169375.0,
+          83202333.0
+        ],
+        [
+          24088416.0,
+          23455833.0,
+          23164375.0,
+          23106916.0,
+          23823583.0,
+          25518375.0,
+          25912042.0,
+          23376708.0,
+          24050458.0
+        ]
+      ],
+      "sequential_over_parallel": 3.492435751582791,
+      "sequential_over_parallel_ci95": [
+        3.2802980205440195,
+        3.5808239124174372
+      ]
+    }
+  ],
+  "platform": "Darwin Jamess-MacBook-Air-2.local 25.5.0 Darwin Kernel Version 25.5.0: Tue Jun  9 22:27:52 PDT 2026; root:xnu-12377.121.10~1/RELEASE_ARM64_T8112 arm64"
+}

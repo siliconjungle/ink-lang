@@ -300,6 +300,67 @@ fn run() -> LangResult<()> {
         );
         return Ok(());
     }
+    if cmd == "check-boolean-verdict" {
+        let input = args
+            .get(1)
+            .ok_or("check-boolean-verdict requires THEOREM.json --lean PATH -o CERTIFICATE.lean")?;
+        let bytes = read_bounded(input, 1_000_000)?;
+        let obj: serde_json::Value = serde_json::from_slice(&bytes).map_err(|e| e.to_string())?;
+        let params: Vec<(String, syntax::Type)> =
+            serde_json::from_value(obj["params"].clone()).map_err(|e| e.to_string())?;
+        let from: syntax::Expr =
+            serde_json::from_value(obj["from"].clone()).map_err(|e| e.to_string())?;
+        let to: syntax::Expr =
+            serde_json::from_value(obj["to"].clone()).map_err(|e| e.to_string())?;
+        let proof: verified_language::equality::Proof =
+            serde_json::from_value(obj["proof"].clone()).map_err(|e| e.to_string())?;
+        verified_language::equality::verify(&params, &from, &to, &proof)?;
+        let output = arg_value(&args, "-o")?.ok_or("provide -o CERTIFICATE.lean")?;
+        let lean = arg_value(&args, "--lean")?.unwrap_or_else(|| "lean".into());
+        let python = arg_value(&args, "--python")?.unwrap_or_else(|| "python3".into());
+        let tool =
+            verified_language::distribution::resource("knowledge/producers/boolean_verdict.py")?;
+        let mut producer = Command::new(python)
+            .arg(tool)
+            .arg("-")
+            .arg("-o")
+            .arg(&output)
+            .stdin(std::process::Stdio::piped())
+            .stdout(std::process::Stdio::piped())
+            .stderr(std::process::Stdio::piped())
+            .spawn()
+            .map_err(|e| e.to_string())?;
+        // Translate exactly the bytes checked above, without reopening the input.
+        use std::io::Write;
+        producer
+            .stdin
+            .take()
+            .ok_or("producer stdin")?
+            .write_all(&bytes)
+            .map_err(|e| e.to_string())?;
+        let generated = producer.wait_with_output().map_err(|e| e.to_string())?;
+        if !generated.status.success() {
+            return Err(String::from_utf8_lossy(&generated.stderr).into());
+        }
+        let checked = Command::new(&lean)
+            .arg(&output)
+            .output()
+            .map_err(|e| format!("cannot run Lean: {e}"))?;
+        if !checked.status.success() {
+            return Err(format!(
+                "independent Lean verdict failed: {}{}",
+                String::from_utf8_lossy(&checked.stdout),
+                String::from_utf8_lossy(&checked.stderr)
+            ));
+        }
+        let report: serde_json::Value =
+            serde_json::from_slice(&generated.stdout).map_err(|e| e.to_string())?;
+        println!(
+            "{}",
+            serde_json::json!({"status":"checked","scope":"Boolean equality only; translator and source correspondence are not verified","identity":report,"lean":lean,"axioms":String::from_utf8_lossy(&checked.stdout)})
+        );
+        return Ok(());
+    }
     if cmd == "check-selection" {
         if args.len() != 3 {
             return Err("check-selection requires CORE.json PACKAGE.json".into());
@@ -584,7 +645,7 @@ fn run() -> LangResult<()> {
     }
     if cmd == "help" || cmd == "--help" {
         println!("ink --version\nink doctor [--python PATH]\nink explain SOURCE [--core] [--selection PACKAGE.json | --optimise SNAPSHOT.json]\nink modules SOURCE");
-        println!("ink emit-semantic SOURCE [--core] -o SUBJECT.json\nink check-selection CORE.json PACKAGE.json\nExecution, lowering and core emission accept --optimise KNOWLEDGE_DIRECTORY or SNAPSHOT.json (external search) or --selection PACKAGE.json (checked replay). Optional --search-tool PATH, --search-budget N and --python PATH. INK_DISTRIBUTION locates an optional installed tool bundle.");
+        println!("ink check-boolean-verdict THEOREM.json --lean PATH -o CERTIFICATE.lean\nink emit-semantic SOURCE [--core] -o SUBJECT.json\nink check-selection CORE.json PACKAGE.json\nExecution, lowering and core emission accept --optimise KNOWLEDGE_DIRECTORY or SNAPSHOT.json (external search) or --selection PACKAGE.json (checked replay). Optional --search-tool PATH, --search-budget N and --python PATH. INK_DISTRIBUTION locates an optional installed tool bundle.");
         println!("ink check-representation SOURCE REQUEST.json\nink emit-representation SOURCE REQUEST.json -o OUTPUT.rs\nink execute-representation SOURCE REQUEST.json SCRIPT.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] (script supports call and migrate steps)");
         println!("ink check-source-route CORE.json ROUTING.json\nink emit-action-model SOURCE -o MODEL.json (restricted whole-action transition projection)");
         println!("ink emit-source-syntax SOURCE --roles ROLES.json -o EXPECTED.json\nink check-source-syntax SOURCE --roles ROLES.json --view VIEW.json (complete code-data binding only)");
@@ -767,8 +828,15 @@ fn run() -> LangResult<()> {
                     .map_err(|e| e.to_string())?,
             )?;
         }
-        "check-representation" | "check-migration" | "emit-representation" | "execute-representation" => {
-            verified_language::representations::run(cmd, core::CheckedModule::from_source(p)?, &args)?;
+        "check-representation"
+        | "check-migration"
+        | "emit-representation"
+        | "execute-representation" => {
+            verified_language::representations::run(
+                cmd,
+                core::CheckedModule::from_source(p)?,
+                &args,
+            )?;
         }
         "emit-action-model" => {
             let module = core::CheckedModule::from_source(p)?;
