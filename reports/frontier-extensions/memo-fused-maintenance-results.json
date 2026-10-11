@@ -1,0 +1,4156 @@
+{
+  "schema": 1,
+  "case": "memo-fused",
+  "machine": "macOS-26.5.2-arm64-arm-64bit",
+  "rustc": "rustc 1.96.0 (ac68faa20 2026-05-25)",
+  "author_ns": 7101662500,
+  "costs": [
+    {
+      "variant": "before",
+      "target": "rust",
+      "check_ns": 2157244458,
+      "emit_ns": 1947854458
+    },
+    {
+      "variant": "after",
+      "target": "rust-memo",
+      "check_ns": 1344483875,
+      "emit_ns": 1450500042
+    }
+  ],
+  "compile": [
+    {
+      "binary": "timing",
+      "ns": 5172681916
+    },
+    {
+      "binary": "memory",
+      "ns": 4471960625
+    }
+  ],
+  "artifact_directory": "benchmark-inputs/51ec17d132cee4b8ab9db0dc32fbc02b57235bad6c38fb6a0c397a5e87c35452",
+  "artifact_sha256": {
+    "source.ink": "e855891531ed387d30b995a3cbbeb76c8e206bb7d54f4a33e46407d0e6821eaf",
+    "model.json": "568989b2ca2aa016ec5e2dd97cd6044ad9c88b8d40cb44a0cd71c59f07406f00",
+    "before.json": "d1b7f7c4a159cd88a9c2aa307c976484eb248fd562333f536d3e6b37616ef581",
+    "after.json": "d1b7f7c4a159cd88a9c2aa307c976484eb248fd562333f536d3e6b37616ef581",
+    "bridge.json": "b9478a4b72a62c0160305d1eb8d46118bfdbeef1916b121a89418e79d39d86d7",
+    "Cargo.toml": "7af6ce36241189da85b38c139107539d8adbeb00d7e204aedcc842e21c71c3e1",
+    "Cargo.lock": "c0f7c47e3d018c62a4aea54c162ec0bbed4d075a5ef5aa6839f3182ae627a493",
+    "before.rs": "38dafaffc2858c1f1f0f60edcaf7a5dac827f55f115776dc5ed943491070746a",
+    "after.rs": "c06fdbcd12b9650f1eb7ce4c6aee6e6af95cbeed0321f8b53d9c75b693c20d37",
+    "main.rs": "b1e48c8f2f1528c6d6f147d88a5f80351ccb2d41dd994d0a767b34a3942b39d7"
+  },
+  "compression": "gzip, mtime zero; hashes bind decompressed exact bytes",
+  "rounds": 7,
+  "measurements": [
+    {
+      "rows": 1,
+      "samples": [
+        {
+          "variant": "before",
+          "round": 0,
+          "abort": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 30792
+          },
+          "after_query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 0,
+              "one": 99,
+              "other": 0,
+              "zero": 0
+            },
+            "version": 33
+          },
+          "checkpoint": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 12042
+          },
+          "initialise": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 15667
+          },
+          "query_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 64,
+            "total_ns": 52041
+          },
+          "query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 1,
+              "one": 0,
+              "other": 0,
+              "zero": 0
+            },
+            "version": 1
+          },
+          "restore": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 9916
+          },
+          "snapshot_sha256": "460e6857228e5e59f073206659f72c6527778a9cb8748b059b1d7e6ef444e9aa",
+          "startup": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 36833
+          },
+          "state_requested_bytes": 0,
+          "teardown": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 500
+          },
+          "update_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 61667
+          }
+        },
+        {
+          "variant": "after",
+          "round": 0,
+          "abort": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 64292
+          },
+          "after_query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 0,
+              "one": 99,
+              "other": 0,
+              "zero": 0
+            },
+            "version": 33
+          },
+          "checkpoint": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 22083
+          },
+          "initialise": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 34584
+          },
+          "query_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 64,
+            "total_ns": 118708
+          },
+          "query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 1,
+              "one": 0,
+              "other": 0,
+              "zero": 0
+            },
+            "version": 1
+          },
+          "restore": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 20250
+          },
+          "snapshot_sha256": "460e6857228e5e59f073206659f72c6527778a9cb8748b059b1d7e6ef444e9aa",
+          "startup": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 34917
+          },
+          "state_requested_bytes": 0,
+          "teardown": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 833
+          },
+          "update_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 125416
+          }
+        },
+        {
+          "variant": "after",
+          "round": 1,
+          "abort": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 30917
+          },
+          "after_query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 0,
+              "one": 99,
+              "other": 0,
+              "zero": 0
+            },
+            "version": 33
+          },
+          "checkpoint": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 10750
+          },
+          "initialise": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 9834
+          },
+          "query_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 64,
+            "total_ns": 54375
+          },
+          "query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 1,
+              "one": 0,
+              "other": 0,
+              "zero": 0
+            },
+            "version": 1
+          },
+          "restore": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 10375
+          },
+          "snapshot_sha256": "460e6857228e5e59f073206659f72c6527778a9cb8748b059b1d7e6ef444e9aa",
+          "startup": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 15791
+          },
+          "state_requested_bytes": 0,
+          "teardown": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 500
+          },
+          "update_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 60083
+          }
+        },
+        {
+          "variant": "before",
+          "round": 1,
+          "abort": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 73667
+          },
+          "after_query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 0,
+              "one": 99,
+              "other": 0,
+              "zero": 0
+            },
+            "version": 33
+          },
+          "checkpoint": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 23583
+          },
+          "initialise": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 7375
+          },
+          "query_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 64,
+            "total_ns": 51042
+          },
+          "query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 1,
+              "one": 0,
+              "other": 0,
+              "zero": 0
+            },
+            "version": 1
+          },
+          "restore": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 21875
+          },
+          "snapshot_sha256": "460e6857228e5e59f073206659f72c6527778a9cb8748b059b1d7e6ef444e9aa",
+          "startup": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 15958
+          },
+          "state_requested_bytes": 0,
+          "teardown": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 1084
+          },
+          "update_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 136666
+          }
+        },
+        {
+          "variant": "before",
+          "round": 2,
+          "abort": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 30541
+          },
+          "after_query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 0,
+              "one": 99,
+              "other": 0,
+              "zero": 0
+            },
+            "version": 33
+          },
+          "checkpoint": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 11375
+          },
+          "initialise": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 6542
+          },
+          "query_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 64,
+            "total_ns": 51583
+          },
+          "query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 1,
+              "one": 0,
+              "other": 0,
+              "zero": 0
+            },
+            "version": 1
+          },
+          "restore": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 10291
+          },
+          "snapshot_sha256": "460e6857228e5e59f073206659f72c6527778a9cb8748b059b1d7e6ef444e9aa",
+          "startup": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 17417
+          },
+          "state_requested_bytes": 0,
+          "teardown": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 542
+          },
+          "update_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 57208
+          }
+        },
+        {
+          "variant": "after",
+          "round": 2,
+          "abort": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 31042
+          },
+          "after_query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 0,
+              "one": 99,
+              "other": 0,
+              "zero": 0
+            },
+            "version": 33
+          },
+          "checkpoint": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 10583
+          },
+          "initialise": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 17750
+          },
+          "query_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 64,
+            "total_ns": 116334
+          },
+          "query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 1,
+              "one": 0,
+              "other": 0,
+              "zero": 0
+            },
+            "version": 1
+          },
+          "restore": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 10709
+          },
+          "snapshot_sha256": "460e6857228e5e59f073206659f72c6527778a9cb8748b059b1d7e6ef444e9aa",
+          "startup": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 41000
+          },
+          "state_requested_bytes": 0,
+          "teardown": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 500
+          },
+          "update_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 157125
+          }
+        },
+        {
+          "variant": "after",
+          "round": 3,
+          "abort": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 30875
+          },
+          "after_query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 0,
+              "one": 99,
+              "other": 0,
+              "zero": 0
+            },
+            "version": 33
+          },
+          "checkpoint": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 10750
+          },
+          "initialise": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 8708
+          },
+          "query_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 64,
+            "total_ns": 86375
+          },
+          "query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 1,
+              "one": 0,
+              "other": 0,
+              "zero": 0
+            },
+            "version": 1
+          },
+          "restore": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 10000
+          },
+          "snapshot_sha256": "460e6857228e5e59f073206659f72c6527778a9cb8748b059b1d7e6ef444e9aa",
+          "startup": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 16833
+          },
+          "state_requested_bytes": 0,
+          "teardown": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 541
+          },
+          "update_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 86708
+          }
+        },
+        {
+          "variant": "before",
+          "round": 3,
+          "abort": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 28417
+          },
+          "after_query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 0,
+              "one": 99,
+              "other": 0,
+              "zero": 0
+            },
+            "version": 33
+          },
+          "checkpoint": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 12292
+          },
+          "initialise": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 8500
+          },
+          "query_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 64,
+            "total_ns": 52291
+          },
+          "query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 1,
+              "one": 0,
+              "other": 0,
+              "zero": 0
+            },
+            "version": 1
+          },
+          "restore": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 10000
+          },
+          "snapshot_sha256": "460e6857228e5e59f073206659f72c6527778a9cb8748b059b1d7e6ef444e9aa",
+          "startup": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 14750
+          },
+          "state_requested_bytes": 0,
+          "teardown": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 459
+          },
+          "update_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 58042
+          }
+        },
+        {
+          "variant": "before",
+          "round": 4,
+          "abort": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 27833
+          },
+          "after_query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 0,
+              "one": 99,
+              "other": 0,
+              "zero": 0
+            },
+            "version": 33
+          },
+          "checkpoint": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 12125
+          },
+          "initialise": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 7125
+          },
+          "query_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 64,
+            "total_ns": 51917
+          },
+          "query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 1,
+              "one": 0,
+              "other": 0,
+              "zero": 0
+            },
+            "version": 1
+          },
+          "restore": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 44667
+          },
+          "snapshot_sha256": "460e6857228e5e59f073206659f72c6527778a9cb8748b059b1d7e6ef444e9aa",
+          "startup": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 20042
+          },
+          "state_requested_bytes": 0,
+          "teardown": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 750
+          },
+          "update_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 56708
+          }
+        },
+        {
+          "variant": "after",
+          "round": 4,
+          "abort": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 30042
+          },
+          "after_query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 0,
+              "one": 99,
+              "other": 0,
+              "zero": 0
+            },
+            "version": 33
+          },
+          "checkpoint": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 11042
+          },
+          "initialise": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 8500
+          },
+          "query_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 64,
+            "total_ns": 53666
+          },
+          "query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 1,
+              "one": 0,
+              "other": 0,
+              "zero": 0
+            },
+            "version": 1
+          },
+          "restore": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 9916
+          },
+          "snapshot_sha256": "460e6857228e5e59f073206659f72c6527778a9cb8748b059b1d7e6ef444e9aa",
+          "startup": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 16375
+          },
+          "state_requested_bytes": 0,
+          "teardown": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 459
+          },
+          "update_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 83709
+          }
+        },
+        {
+          "variant": "after",
+          "round": 5,
+          "abort": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 48959
+          },
+          "after_query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 0,
+              "one": 99,
+              "other": 0,
+              "zero": 0
+            },
+            "version": 33
+          },
+          "checkpoint": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 13375
+          },
+          "initialise": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 10959
+          },
+          "query_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 64,
+            "total_ns": 55875
+          },
+          "query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 1,
+              "one": 0,
+              "other": 0,
+              "zero": 0
+            },
+            "version": 1
+          },
+          "restore": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 13166
+          },
+          "snapshot_sha256": "460e6857228e5e59f073206659f72c6527778a9cb8748b059b1d7e6ef444e9aa",
+          "startup": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 17166
+          },
+          "state_requested_bytes": 0,
+          "teardown": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 500
+          },
+          "update_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 102833
+          }
+        },
+        {
+          "variant": "before",
+          "round": 5,
+          "abort": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 30375
+          },
+          "after_query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 0,
+              "one": 99,
+              "other": 0,
+              "zero": 0
+            },
+            "version": 33
+          },
+          "checkpoint": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 10458
+          },
+          "initialise": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 7541
+          },
+          "query_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 64,
+            "total_ns": 56333
+          },
+          "query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 1,
+              "one": 0,
+              "other": 0,
+              "zero": 0
+            },
+            "version": 1
+          },
+          "restore": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 10084
+          },
+          "snapshot_sha256": "460e6857228e5e59f073206659f72c6527778a9cb8748b059b1d7e6ef444e9aa",
+          "startup": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 18000
+          },
+          "state_requested_bytes": 0,
+          "teardown": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 500
+          },
+          "update_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 57792
+          }
+        },
+        {
+          "variant": "before",
+          "round": 6,
+          "abort": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 30709
+          },
+          "after_query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 0,
+              "one": 99,
+              "other": 0,
+              "zero": 0
+            },
+            "version": 33
+          },
+          "checkpoint": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 10583
+          },
+          "initialise": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 6375
+          },
+          "query_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 64,
+            "total_ns": 53625
+          },
+          "query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 1,
+              "one": 0,
+              "other": 0,
+              "zero": 0
+            },
+            "version": 1
+          },
+          "restore": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 10208
+          },
+          "snapshot_sha256": "460e6857228e5e59f073206659f72c6527778a9cb8748b059b1d7e6ef444e9aa",
+          "startup": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 17000
+          },
+          "state_requested_bytes": 0,
+          "teardown": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 500
+          },
+          "update_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 57959
+          }
+        },
+        {
+          "variant": "after",
+          "round": 6,
+          "abort": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 31250
+          },
+          "after_query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 0,
+              "one": 99,
+              "other": 0,
+              "zero": 0
+            },
+            "version": 33
+          },
+          "checkpoint": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 10625
+          },
+          "initialise": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 8250
+          },
+          "query_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 64,
+            "total_ns": 54667
+          },
+          "query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 1,
+              "one": 0,
+              "other": 0,
+              "zero": 0
+            },
+            "version": 1
+          },
+          "restore": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 10375
+          },
+          "snapshot_sha256": "460e6857228e5e59f073206659f72c6527778a9cb8748b059b1d7e6ef444e9aa",
+          "startup": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 15709
+          },
+          "state_requested_bytes": 0,
+          "teardown": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 458
+          },
+          "update_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 62083
+          }
+        }
+      ],
+      "memory": {
+        "before": {
+          "abort": {
+            "allocations": 834,
+            "live_delta_bytes": 48,
+            "peak_added_bytes": 2058,
+            "repeats": 32,
+            "total_ns": 33583
+          },
+          "after_query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 0,
+              "one": 99,
+              "other": 0,
+              "zero": 0
+            },
+            "version": 33
+          },
+          "checkpoint": {
+            "allocations": 112,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 1163,
+            "repeats": 8,
+            "total_ns": 10875
+          },
+          "initialise": {
+            "allocations": 44,
+            "live_delta_bytes": 659,
+            "peak_added_bytes": 4183,
+            "repeats": 1,
+            "total_ns": 37458
+          },
+          "query_json": {
+            "allocations": 960,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 1958,
+            "repeats": 64,
+            "total_ns": 55750
+          },
+          "query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 1,
+              "one": 0,
+              "other": 0,
+              "zero": 0
+            },
+            "version": 1
+          },
+          "restore": {
+            "allocations": 128,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 1382,
+            "repeats": 8,
+            "total_ns": 203667
+          },
+          "snapshot_sha256": "460e6857228e5e59f073206659f72c6527778a9cb8748b059b1d7e6ef444e9aa",
+          "startup": {
+            "allocations": 256,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 315,
+            "repeats": 32,
+            "total_ns": 37125
+          },
+          "state_requested_bytes": 1349,
+          "teardown": {
+            "allocations": 1,
+            "live_delta_bytes": -611,
+            "peak_added_bytes": 40,
+            "repeats": 1,
+            "total_ns": 625
+          },
+          "update_json": {
+            "allocations": 1185,
+            "live_delta_bytes": 56,
+            "peak_added_bytes": 3580,
+            "repeats": 32,
+            "total_ns": 62917
+          }
+        },
+        "after": {
+          "abort": {
+            "allocations": 834,
+            "live_delta_bytes": 48,
+            "peak_added_bytes": 2058,
+            "repeats": 32,
+            "total_ns": 72792
+          },
+          "after_query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 0,
+              "one": 99,
+              "other": 0,
+              "zero": 0
+            },
+            "version": 33
+          },
+          "checkpoint": {
+            "allocations": 112,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 1163,
+            "repeats": 8,
+            "total_ns": 23375
+          },
+          "initialise": {
+            "allocations": 44,
+            "live_delta_bytes": 659,
+            "peak_added_bytes": 4183,
+            "repeats": 1,
+            "total_ns": 38208
+          },
+          "query_json": {
+            "allocations": 960,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 1958,
+            "repeats": 64,
+            "total_ns": 132417
+          },
+          "query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 1,
+              "one": 0,
+              "other": 0,
+              "zero": 0
+            },
+            "version": 1
+          },
+          "restore": {
+            "allocations": 128,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 1382,
+            "repeats": 8,
+            "total_ns": 20833
+          },
+          "snapshot_sha256": "460e6857228e5e59f073206659f72c6527778a9cb8748b059b1d7e6ef444e9aa",
+          "startup": {
+            "allocations": 256,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 315,
+            "repeats": 32,
+            "total_ns": 40167
+          },
+          "state_requested_bytes": 1349,
+          "teardown": {
+            "allocations": 1,
+            "live_delta_bytes": -571,
+            "peak_added_bytes": 40,
+            "repeats": 1,
+            "total_ns": 959
+          },
+          "update_json": {
+            "allocations": 1185,
+            "live_delta_bytes": 96,
+            "peak_added_bytes": 3620,
+            "repeats": 32,
+            "total_ns": 124875
+          }
+        }
+      },
+      "median_ns": {
+        "before": {
+          "startup": 544.28125,
+          "initialise": 7375.0,
+          "query_json": 813.140625,
+          "update_json": 1811.21875,
+          "abort": 954.40625,
+          "checkpoint": 1505.25,
+          "restore": 1276.0,
+          "teardown": 500.0
+        },
+        "after": {
+          "startup": 526.03125,
+          "initialise": 9834.0,
+          "query_json": 873.046875,
+          "update_json": 2709.625,
+          "abort": 970.0625,
+          "checkpoint": 1343.75,
+          "restore": 1296.875,
+          "teardown": 500.0
+        }
+      }
+    },
+    {
+      "rows": 64,
+      "samples": [
+        {
+          "variant": "before",
+          "round": 0,
+          "abort": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 585791
+          },
+          "after_query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 22,
+              "one": 750,
+              "other": 640,
+              "zero": 693
+            },
+            "version": 96
+          },
+          "checkpoint": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 260459
+          },
+          "initialise": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 663958
+          },
+          "query_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 64,
+            "total_ns": 119500
+          },
+          "query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 22,
+              "one": 651,
+              "other": 672,
+              "zero": 693
+            },
+            "version": 64
+          },
+          "restore": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 363625
+          },
+          "snapshot_sha256": "e317447098a2cab1745318634a820d1786bae9311cf51a820b5eea70b4e3f5b7",
+          "startup": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 36292
+          },
+          "state_requested_bytes": 0,
+          "teardown": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 13458
+          },
+          "update_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 614833
+          }
+        },
+        {
+          "variant": "after",
+          "round": 0,
+          "abort": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 250791
+          },
+          "after_query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 22,
+              "one": 750,
+              "other": 640,
+              "zero": 693
+            },
+            "version": 96
+          },
+          "checkpoint": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 122125
+          },
+          "initialise": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 293042
+          },
+          "query_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 64,
+            "total_ns": 45708
+          },
+          "query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 22,
+              "one": 651,
+              "other": 672,
+              "zero": 693
+            },
+            "version": 64
+          },
+          "restore": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 158375
+          },
+          "snapshot_sha256": "e317447098a2cab1745318634a820d1786bae9311cf51a820b5eea70b4e3f5b7",
+          "startup": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 15833
+          },
+          "state_requested_bytes": 0,
+          "teardown": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 5959
+          },
+          "update_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 325708
+          }
+        },
+        {
+          "variant": "after",
+          "round": 1,
+          "abort": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 242958
+          },
+          "after_query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 22,
+              "one": 750,
+              "other": 640,
+              "zero": 693
+            },
+            "version": 96
+          },
+          "checkpoint": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 121959
+          },
+          "initialise": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 293459
+          },
+          "query_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 64,
+            "total_ns": 45666
+          },
+          "query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 22,
+              "one": 651,
+              "other": 672,
+              "zero": 693
+            },
+            "version": 64
+          },
+          "restore": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 163584
+          },
+          "snapshot_sha256": "e317447098a2cab1745318634a820d1786bae9311cf51a820b5eea70b4e3f5b7",
+          "startup": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 20333
+          },
+          "state_requested_bytes": 0,
+          "teardown": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 5791
+          },
+          "update_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 256542
+          }
+        },
+        {
+          "variant": "before",
+          "round": 1,
+          "abort": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 243500
+          },
+          "after_query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 22,
+              "one": 750,
+              "other": 640,
+              "zero": 693
+            },
+            "version": 96
+          },
+          "checkpoint": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 121667
+          },
+          "initialise": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 284583
+          },
+          "query_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 64,
+            "total_ns": 60459
+          },
+          "query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 22,
+              "one": 651,
+              "other": 672,
+              "zero": 693
+            },
+            "version": 64
+          },
+          "restore": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 162834
+          },
+          "snapshot_sha256": "e317447098a2cab1745318634a820d1786bae9311cf51a820b5eea70b4e3f5b7",
+          "startup": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 17208
+          },
+          "state_requested_bytes": 0,
+          "teardown": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 5458
+          },
+          "update_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 265083
+          }
+        },
+        {
+          "variant": "before",
+          "round": 2,
+          "abort": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 588084
+          },
+          "after_query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 22,
+              "one": 750,
+              "other": 640,
+              "zero": 693
+            },
+            "version": 96
+          },
+          "checkpoint": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 261292
+          },
+          "initialise": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 719250
+          },
+          "query_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 64,
+            "total_ns": 132791
+          },
+          "query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 22,
+              "one": 651,
+              "other": 672,
+              "zero": 693
+            },
+            "version": 64
+          },
+          "restore": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 352541
+          },
+          "snapshot_sha256": "e317447098a2cab1745318634a820d1786bae9311cf51a820b5eea70b4e3f5b7",
+          "startup": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 41584
+          },
+          "state_requested_bytes": 0,
+          "teardown": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 14666
+          },
+          "update_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 611625
+          }
+        },
+        {
+          "variant": "after",
+          "round": 2,
+          "abort": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 462125
+          },
+          "after_query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 22,
+              "one": 750,
+              "other": 640,
+              "zero": 693
+            },
+            "version": 96
+          },
+          "checkpoint": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 286667
+          },
+          "initialise": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 300584
+          },
+          "query_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 64,
+            "total_ns": 43667
+          },
+          "query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 22,
+              "one": 651,
+              "other": 672,
+              "zero": 693
+            },
+            "version": 64
+          },
+          "restore": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 353208
+          },
+          "snapshot_sha256": "e317447098a2cab1745318634a820d1786bae9311cf51a820b5eea70b4e3f5b7",
+          "startup": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 15500
+          },
+          "state_requested_bytes": 0,
+          "teardown": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 6083
+          },
+          "update_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 260708
+          }
+        },
+        {
+          "variant": "after",
+          "round": 3,
+          "abort": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 246833
+          },
+          "after_query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 22,
+              "one": 750,
+              "other": 640,
+              "zero": 693
+            },
+            "version": 96
+          },
+          "checkpoint": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 168625
+          },
+          "initialise": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 355792
+          },
+          "query_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 64,
+            "total_ns": 43834
+          },
+          "query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 22,
+              "one": 651,
+              "other": 672,
+              "zero": 693
+            },
+            "version": 64
+          },
+          "restore": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 158958
+          },
+          "snapshot_sha256": "e317447098a2cab1745318634a820d1786bae9311cf51a820b5eea70b4e3f5b7",
+          "startup": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 23708
+          },
+          "state_requested_bytes": 0,
+          "teardown": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 5375
+          },
+          "update_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 255834
+          }
+        },
+        {
+          "variant": "before",
+          "round": 3,
+          "abort": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 249750
+          },
+          "after_query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 22,
+              "one": 750,
+              "other": 640,
+              "zero": 693
+            },
+            "version": 96
+          },
+          "checkpoint": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 122125
+          },
+          "initialise": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 299750
+          },
+          "query_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 64,
+            "total_ns": 61250
+          },
+          "query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 22,
+              "one": 651,
+              "other": 672,
+              "zero": 693
+            },
+            "version": 64
+          },
+          "restore": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 157667
+          },
+          "snapshot_sha256": "e317447098a2cab1745318634a820d1786bae9311cf51a820b5eea70b4e3f5b7",
+          "startup": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 15833
+          },
+          "state_requested_bytes": 0,
+          "teardown": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 14250
+          },
+          "update_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 295458
+          }
+        },
+        {
+          "variant": "before",
+          "round": 4,
+          "abort": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 243375
+          },
+          "after_query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 22,
+              "one": 750,
+              "other": 640,
+              "zero": 693
+            },
+            "version": 96
+          },
+          "checkpoint": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 121125
+          },
+          "initialise": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 289292
+          },
+          "query_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 64,
+            "total_ns": 58750
+          },
+          "query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 22,
+              "one": 651,
+              "other": 672,
+              "zero": 693
+            },
+            "version": 64
+          },
+          "restore": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 161375
+          },
+          "snapshot_sha256": "e317447098a2cab1745318634a820d1786bae9311cf51a820b5eea70b4e3f5b7",
+          "startup": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 14916
+          },
+          "state_requested_bytes": 0,
+          "teardown": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 5417
+          },
+          "update_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 257375
+          }
+        },
+        {
+          "variant": "after",
+          "round": 4,
+          "abort": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 277250
+          },
+          "after_query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 22,
+              "one": 750,
+              "other": 640,
+              "zero": 693
+            },
+            "version": 96
+          },
+          "checkpoint": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 124542
+          },
+          "initialise": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 351500
+          },
+          "query_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 64,
+            "total_ns": 42208
+          },
+          "query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 22,
+              "one": 651,
+              "other": 672,
+              "zero": 693
+            },
+            "version": 64
+          },
+          "restore": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 167083
+          },
+          "snapshot_sha256": "e317447098a2cab1745318634a820d1786bae9311cf51a820b5eea70b4e3f5b7",
+          "startup": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 15042
+          },
+          "state_requested_bytes": 0,
+          "teardown": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 14459
+          },
+          "update_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 462542
+          }
+        },
+        {
+          "variant": "after",
+          "round": 5,
+          "abort": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 241917
+          },
+          "after_query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 22,
+              "one": 750,
+              "other": 640,
+              "zero": 693
+            },
+            "version": 96
+          },
+          "checkpoint": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 121750
+          },
+          "initialise": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 277583
+          },
+          "query_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 64,
+            "total_ns": 59750
+          },
+          "query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 22,
+              "one": 651,
+              "other": 672,
+              "zero": 693
+            },
+            "version": 64
+          },
+          "restore": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 157250
+          },
+          "snapshot_sha256": "e317447098a2cab1745318634a820d1786bae9311cf51a820b5eea70b4e3f5b7",
+          "startup": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 13834
+          },
+          "state_requested_bytes": 0,
+          "teardown": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 5334
+          },
+          "update_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 274291
+          }
+        },
+        {
+          "variant": "before",
+          "round": 5,
+          "abort": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 257042
+          },
+          "after_query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 22,
+              "one": 750,
+              "other": 640,
+              "zero": 693
+            },
+            "version": 96
+          },
+          "checkpoint": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 123875
+          },
+          "initialise": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 295792
+          },
+          "query_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 64,
+            "total_ns": 58833
+          },
+          "query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 22,
+              "one": 651,
+              "other": 672,
+              "zero": 693
+            },
+            "version": 64
+          },
+          "restore": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 159250
+          },
+          "snapshot_sha256": "e317447098a2cab1745318634a820d1786bae9311cf51a820b5eea70b4e3f5b7",
+          "startup": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 21042
+          },
+          "state_requested_bytes": 0,
+          "teardown": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 5625
+          },
+          "update_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 261625
+          }
+        },
+        {
+          "variant": "before",
+          "round": 6,
+          "abort": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 241625
+          },
+          "after_query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 22,
+              "one": 750,
+              "other": 640,
+              "zero": 693
+            },
+            "version": 96
+          },
+          "checkpoint": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 120541
+          },
+          "initialise": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 289541
+          },
+          "query_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 64,
+            "total_ns": 59583
+          },
+          "query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 22,
+              "one": 651,
+              "other": 672,
+              "zero": 693
+            },
+            "version": 64
+          },
+          "restore": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 157666
+          },
+          "snapshot_sha256": "e317447098a2cab1745318634a820d1786bae9311cf51a820b5eea70b4e3f5b7",
+          "startup": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 14583
+          },
+          "state_requested_bytes": 0,
+          "teardown": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 5500
+          },
+          "update_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 256708
+          }
+        },
+        {
+          "variant": "after",
+          "round": 6,
+          "abort": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 242416
+          },
+          "after_query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 22,
+              "one": 750,
+              "other": 640,
+              "zero": 693
+            },
+            "version": 96
+          },
+          "checkpoint": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 120792
+          },
+          "initialise": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 291500
+          },
+          "query_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 64,
+            "total_ns": 43541
+          },
+          "query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 22,
+              "one": 651,
+              "other": 672,
+              "zero": 693
+            },
+            "version": 64
+          },
+          "restore": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 228667
+          },
+          "snapshot_sha256": "e317447098a2cab1745318634a820d1786bae9311cf51a820b5eea70b4e3f5b7",
+          "startup": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 17334
+          },
+          "state_requested_bytes": 0,
+          "teardown": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 5500
+          },
+          "update_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 258041
+          }
+        }
+      ],
+      "memory": {
+        "before": {
+          "abort": {
+            "allocations": 8898,
+            "live_delta_bytes": 48,
+            "peak_added_bytes": 4896,
+            "repeats": 32,
+            "total_ns": 243458
+          },
+          "after_query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 22,
+              "one": 750,
+              "other": 640,
+              "zero": 693
+            },
+            "version": 96
+          },
+          "checkpoint": {
+            "allocations": 1704,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 50608,
+            "repeats": 8,
+            "total_ns": 136708
+          },
+          "initialise": {
+            "allocations": 8234,
+            "live_delta_bytes": 5195,
+            "peak_added_bytes": 9411,
+            "repeats": 1,
+            "total_ns": 295500
+          },
+          "query_json": {
+            "allocations": 960,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 1958,
+            "repeats": 64,
+            "total_ns": 63875
+          },
+          "query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 22,
+              "one": 651,
+              "other": 672,
+              "zero": 693
+            },
+            "version": 64
+          },
+          "restore": {
+            "allocations": 3688,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 50267,
+            "repeats": 8,
+            "total_ns": 191584
+          },
+          "snapshot_sha256": "e317447098a2cab1745318634a820d1786bae9311cf51a820b5eea70b4e3f5b7",
+          "startup": {
+            "allocations": 256,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 315,
+            "repeats": 32,
+            "total_ns": 17000
+          },
+          "state_requested_bytes": 5885,
+          "teardown": {
+            "allocations": 127,
+            "live_delta_bytes": -5147,
+            "peak_added_bytes": 80,
+            "repeats": 1,
+            "total_ns": 5416
+          },
+          "update_json": {
+            "allocations": 9249,
+            "live_delta_bytes": 56,
+            "peak_added_bytes": 6400,
+            "repeats": 32,
+            "total_ns": 308833
+          }
+        },
+        "after": {
+          "abort": {
+            "allocations": 8898,
+            "live_delta_bytes": 48,
+            "peak_added_bytes": 4896,
+            "repeats": 32,
+            "total_ns": 255667
+          },
+          "after_query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 22,
+              "one": 750,
+              "other": 640,
+              "zero": 693
+            },
+            "version": 96
+          },
+          "checkpoint": {
+            "allocations": 1704,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 50608,
+            "repeats": 8,
+            "total_ns": 130042
+          },
+          "initialise": {
+            "allocations": 8234,
+            "live_delta_bytes": 5195,
+            "peak_added_bytes": 9411,
+            "repeats": 1,
+            "total_ns": 355791
+          },
+          "query_json": {
+            "allocations": 960,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 1958,
+            "repeats": 64,
+            "total_ns": 44208
+          },
+          "query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 22,
+              "one": 651,
+              "other": 672,
+              "zero": 693
+            },
+            "version": 64
+          },
+          "restore": {
+            "allocations": 3688,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 50267,
+            "repeats": 8,
+            "total_ns": 160041
+          },
+          "snapshot_sha256": "e317447098a2cab1745318634a820d1786bae9311cf51a820b5eea70b4e3f5b7",
+          "startup": {
+            "allocations": 256,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 315,
+            "repeats": 32,
+            "total_ns": 16625
+          },
+          "state_requested_bytes": 5885,
+          "teardown": {
+            "allocations": 127,
+            "live_delta_bytes": -5107,
+            "peak_added_bytes": 80,
+            "repeats": 1,
+            "total_ns": 5334
+          },
+          "update_json": {
+            "allocations": 9249,
+            "live_delta_bytes": 96,
+            "peak_added_bytes": 6440,
+            "repeats": 32,
+            "total_ns": 270833
+          }
+        }
+      },
+      "median_ns": {
+        "before": {
+          "startup": 537.75,
+          "initialise": 295792.0,
+          "query_json": 944.671875,
+          "update_json": 8283.84375,
+          "abort": 7804.6875,
+          "checkpoint": 15265.625,
+          "restore": 20171.875,
+          "teardown": 5625.0
+        },
+        "after": {
+          "startup": 494.78125,
+          "initialise": 293459.0,
+          "query_json": 684.90625,
+          "update_json": 8147.125,
+          "abort": 7713.53125,
+          "checkpoint": 15265.625,
+          "restore": 20448.0,
+          "teardown": 5791.0
+        }
+      }
+    },
+    {
+      "rows": 256,
+      "samples": [
+        {
+          "variant": "before",
+          "round": 0,
+          "abort": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 927708
+          },
+          "after_query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 86,
+              "one": 10894,
+              "other": 10752,
+              "zero": 10965
+            },
+            "version": 288
+          },
+          "checkpoint": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 418958
+          },
+          "initialise": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 3297208
+          },
+          "query_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 64,
+            "total_ns": 118875
+          },
+          "query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 86,
+              "one": 10795,
+              "other": 10880,
+              "zero": 10965
+            },
+            "version": 256
+          },
+          "restore": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 622625
+          },
+          "snapshot_sha256": "864ddcf7a6e556e9681dbee7d6225e1c66aa70bfac76cc3229720be835573a01",
+          "startup": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 15375
+          },
+          "state_requested_bytes": 0,
+          "teardown": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 20208
+          },
+          "update_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 952209
+          }
+        },
+        {
+          "variant": "after",
+          "round": 0,
+          "abort": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 940166
+          },
+          "after_query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 86,
+              "one": 10894,
+              "other": 10752,
+              "zero": 10965
+            },
+            "version": 288
+          },
+          "checkpoint": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 435292
+          },
+          "initialise": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 3538417
+          },
+          "query_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 64,
+            "total_ns": 86417
+          },
+          "query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 86,
+              "one": 10795,
+              "other": 10880,
+              "zero": 10965
+            },
+            "version": 256
+          },
+          "restore": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 624000
+          },
+          "snapshot_sha256": "864ddcf7a6e556e9681dbee7d6225e1c66aa70bfac76cc3229720be835573a01",
+          "startup": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 15041
+          },
+          "state_requested_bytes": 0,
+          "teardown": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 20166
+          },
+          "update_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 1508125
+          }
+        },
+        {
+          "variant": "after",
+          "round": 1,
+          "abort": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 936250
+          },
+          "after_query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 86,
+              "one": 10894,
+              "other": 10752,
+              "zero": 10965
+            },
+            "version": 288
+          },
+          "checkpoint": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 438500
+          },
+          "initialise": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 3286792
+          },
+          "query_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 64,
+            "total_ns": 42583
+          },
+          "query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 86,
+              "one": 10795,
+              "other": 10880,
+              "zero": 10965
+            },
+            "version": 256
+          },
+          "restore": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 620625
+          },
+          "snapshot_sha256": "864ddcf7a6e556e9681dbee7d6225e1c66aa70bfac76cc3229720be835573a01",
+          "startup": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 16208
+          },
+          "state_requested_bytes": 0,
+          "teardown": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 20250
+          },
+          "update_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 967334
+          }
+        },
+        {
+          "variant": "before",
+          "round": 1,
+          "abort": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 1005291
+          },
+          "after_query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 86,
+              "one": 10894,
+              "other": 10752,
+              "zero": 10965
+            },
+            "version": 288
+          },
+          "checkpoint": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 422625
+          },
+          "initialise": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 3254833
+          },
+          "query_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 64,
+            "total_ns": 117541
+          },
+          "query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 86,
+              "one": 10795,
+              "other": 10880,
+              "zero": 10965
+            },
+            "version": 256
+          },
+          "restore": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 606459
+          },
+          "snapshot_sha256": "864ddcf7a6e556e9681dbee7d6225e1c66aa70bfac76cc3229720be835573a01",
+          "startup": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 14375
+          },
+          "state_requested_bytes": 0,
+          "teardown": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 20709
+          },
+          "update_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 1018250
+          }
+        },
+        {
+          "variant": "before",
+          "round": 2,
+          "abort": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 1040709
+          },
+          "after_query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 86,
+              "one": 10894,
+              "other": 10752,
+              "zero": 10965
+            },
+            "version": 288
+          },
+          "checkpoint": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 434083
+          },
+          "initialise": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 3153042
+          },
+          "query_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 64,
+            "total_ns": 113542
+          },
+          "query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 86,
+              "one": 10795,
+              "other": 10880,
+              "zero": 10965
+            },
+            "version": 256
+          },
+          "restore": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 630917
+          },
+          "snapshot_sha256": "864ddcf7a6e556e9681dbee7d6225e1c66aa70bfac76cc3229720be835573a01",
+          "startup": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 15500
+          },
+          "state_requested_bytes": 0,
+          "teardown": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 23708
+          },
+          "update_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 1150375
+          }
+        },
+        {
+          "variant": "after",
+          "round": 2,
+          "abort": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 946792
+          },
+          "after_query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 86,
+              "one": 10894,
+              "other": 10752,
+              "zero": 10965
+            },
+            "version": 288
+          },
+          "checkpoint": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 438666
+          },
+          "initialise": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 3321625
+          },
+          "query_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 64,
+            "total_ns": 42042
+          },
+          "query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 86,
+              "one": 10795,
+              "other": 10880,
+              "zero": 10965
+            },
+            "version": 256
+          },
+          "restore": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 613041
+          },
+          "snapshot_sha256": "864ddcf7a6e556e9681dbee7d6225e1c66aa70bfac76cc3229720be835573a01",
+          "startup": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 17208
+          },
+          "state_requested_bytes": 0,
+          "teardown": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 20583
+          },
+          "update_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 1004708
+          }
+        },
+        {
+          "variant": "after",
+          "round": 3,
+          "abort": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 2926708
+          },
+          "after_query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 86,
+              "one": 10894,
+              "other": 10752,
+              "zero": 10965
+            },
+            "version": 288
+          },
+          "checkpoint": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 1841125
+          },
+          "initialise": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 5596792
+          },
+          "query_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 64,
+            "total_ns": 51708
+          },
+          "query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 86,
+              "one": 10795,
+              "other": 10880,
+              "zero": 10965
+            },
+            "version": 256
+          },
+          "restore": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 2575125
+          },
+          "snapshot_sha256": "864ddcf7a6e556e9681dbee7d6225e1c66aa70bfac76cc3229720be835573a01",
+          "startup": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 13167
+          },
+          "state_requested_bytes": 0,
+          "teardown": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 21291
+          },
+          "update_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 3777500
+          }
+        },
+        {
+          "variant": "before",
+          "round": 3,
+          "abort": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 1223000
+          },
+          "after_query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 86,
+              "one": 10894,
+              "other": 10752,
+              "zero": 10965
+            },
+            "version": 288
+          },
+          "checkpoint": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 961375
+          },
+          "initialise": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 5136333
+          },
+          "query_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 64,
+            "total_ns": 174083
+          },
+          "query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 86,
+              "one": 10795,
+              "other": 10880,
+              "zero": 10965
+            },
+            "version": 256
+          },
+          "restore": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 835750
+          },
+          "snapshot_sha256": "864ddcf7a6e556e9681dbee7d6225e1c66aa70bfac76cc3229720be835573a01",
+          "startup": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 14667
+          },
+          "state_requested_bytes": 0,
+          "teardown": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 20791
+          },
+          "update_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 1659125
+          }
+        },
+        {
+          "variant": "before",
+          "round": 4,
+          "abort": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 2053667
+          },
+          "after_query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 86,
+              "one": 10894,
+              "other": 10752,
+              "zero": 10965
+            },
+            "version": 288
+          },
+          "checkpoint": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 419167
+          },
+          "initialise": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 4415459
+          },
+          "query_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 64,
+            "total_ns": 113625
+          },
+          "query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 86,
+              "one": 10795,
+              "other": 10880,
+              "zero": 10965
+            },
+            "version": 256
+          },
+          "restore": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 2367542
+          },
+          "snapshot_sha256": "864ddcf7a6e556e9681dbee7d6225e1c66aa70bfac76cc3229720be835573a01",
+          "startup": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 14333
+          },
+          "state_requested_bytes": 0,
+          "teardown": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 77916
+          },
+          "update_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 1481375
+          }
+        },
+        {
+          "variant": "after",
+          "round": 4,
+          "abort": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 2000583
+          },
+          "after_query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 86,
+              "one": 10894,
+              "other": 10752,
+              "zero": 10965
+            },
+            "version": 288
+          },
+          "checkpoint": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 1427125
+          },
+          "initialise": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 5562041
+          },
+          "query_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 64,
+            "total_ns": 41875
+          },
+          "query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 86,
+              "one": 10795,
+              "other": 10880,
+              "zero": 10965
+            },
+            "version": 256
+          },
+          "restore": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 1698666
+          },
+          "snapshot_sha256": "864ddcf7a6e556e9681dbee7d6225e1c66aa70bfac76cc3229720be835573a01",
+          "startup": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 17625
+          },
+          "state_requested_bytes": 0,
+          "teardown": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 85584
+          },
+          "update_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 2108375
+          }
+        },
+        {
+          "variant": "after",
+          "round": 5,
+          "abort": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 1526334
+          },
+          "after_query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 86,
+              "one": 10894,
+              "other": 10752,
+              "zero": 10965
+            },
+            "version": 288
+          },
+          "checkpoint": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 1152084
+          },
+          "initialise": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 7821584
+          },
+          "query_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 64,
+            "total_ns": 98208
+          },
+          "query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 86,
+              "one": 10795,
+              "other": 10880,
+              "zero": 10965
+            },
+            "version": 256
+          },
+          "restore": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 791667
+          },
+          "snapshot_sha256": "864ddcf7a6e556e9681dbee7d6225e1c66aa70bfac76cc3229720be835573a01",
+          "startup": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 15792
+          },
+          "state_requested_bytes": 0,
+          "teardown": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 20583
+          },
+          "update_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 2071917
+          }
+        },
+        {
+          "variant": "before",
+          "round": 5,
+          "abort": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 1245583
+          },
+          "after_query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 86,
+              "one": 10894,
+              "other": 10752,
+              "zero": 10965
+            },
+            "version": 288
+          },
+          "checkpoint": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 420041
+          },
+          "initialise": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 5913417
+          },
+          "query_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 64,
+            "total_ns": 112542
+          },
+          "query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 86,
+              "one": 10795,
+              "other": 10880,
+              "zero": 10965
+            },
+            "version": 256
+          },
+          "restore": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 1062542
+          },
+          "snapshot_sha256": "864ddcf7a6e556e9681dbee7d6225e1c66aa70bfac76cc3229720be835573a01",
+          "startup": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 16167
+          },
+          "state_requested_bytes": 0,
+          "teardown": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 20541
+          },
+          "update_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 1307583
+          }
+        },
+        {
+          "variant": "before",
+          "round": 6,
+          "abort": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 2488500
+          },
+          "after_query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 86,
+              "one": 10894,
+              "other": 10752,
+              "zero": 10965
+            },
+            "version": 288
+          },
+          "checkpoint": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 1346458
+          },
+          "initialise": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 5395417
+          },
+          "query_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 64,
+            "total_ns": 112708
+          },
+          "query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 86,
+              "one": 10795,
+              "other": 10880,
+              "zero": 10965
+            },
+            "version": 256
+          },
+          "restore": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 878167
+          },
+          "snapshot_sha256": "864ddcf7a6e556e9681dbee7d6225e1c66aa70bfac76cc3229720be835573a01",
+          "startup": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 52667
+          },
+          "state_requested_bytes": 0,
+          "teardown": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 24292
+          },
+          "update_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 1919500
+          }
+        },
+        {
+          "variant": "after",
+          "round": 6,
+          "abort": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 1477167
+          },
+          "after_query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 86,
+              "one": 10894,
+              "other": 10752,
+              "zero": 10965
+            },
+            "version": 288
+          },
+          "checkpoint": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 1462458
+          },
+          "initialise": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 6279375
+          },
+          "query_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 64,
+            "total_ns": 104292
+          },
+          "query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 86,
+              "one": 10795,
+              "other": 10880,
+              "zero": 10965
+            },
+            "version": 256
+          },
+          "restore": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 8,
+            "total_ns": 824875
+          },
+          "snapshot_sha256": "864ddcf7a6e556e9681dbee7d6225e1c66aa70bfac76cc3229720be835573a01",
+          "startup": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 17792
+          },
+          "state_requested_bytes": 0,
+          "teardown": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 1,
+            "total_ns": 50750
+          },
+          "update_json": {
+            "allocations": 0,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 0,
+            "repeats": 32,
+            "total_ns": 3137333
+          }
+        }
+      ],
+      "memory": {
+        "before": {
+          "abort": {
+            "allocations": 33474,
+            "live_delta_bytes": 48,
+            "peak_added_bytes": 18720,
+            "repeats": 32,
+            "total_ns": 1467375
+          },
+          "after_query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 86,
+              "one": 10894,
+              "other": 10752,
+              "zero": 10965
+            },
+            "version": 288
+          },
+          "checkpoint": {
+            "allocations": 6344,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 201712,
+            "repeats": 8,
+            "total_ns": 429000
+          },
+          "initialise": {
+            "allocations": 106634,
+            "live_delta_bytes": 19019,
+            "peak_added_bytes": 30915,
+            "repeats": 1,
+            "total_ns": 4754834
+          },
+          "query_json": {
+            "allocations": 960,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 1958,
+            "repeats": 64,
+            "total_ns": 123500
+          },
+          "query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 86,
+              "one": 10795,
+              "other": 10880,
+              "zero": 10965
+            },
+            "version": 256
+          },
+          "restore": {
+            "allocations": 14456,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 199835,
+            "repeats": 8,
+            "total_ns": 613084
+          },
+          "snapshot_sha256": "864ddcf7a6e556e9681dbee7d6225e1c66aa70bfac76cc3229720be835573a01",
+          "startup": {
+            "allocations": 256,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 315,
+            "repeats": 32,
+            "total_ns": 16834
+          },
+          "state_requested_bytes": 19709,
+          "teardown": {
+            "allocations": 511,
+            "live_delta_bytes": -18971,
+            "peak_added_bytes": 80,
+            "repeats": 1,
+            "total_ns": 23250
+          },
+          "update_json": {
+            "allocations": 33825,
+            "live_delta_bytes": 56,
+            "peak_added_bytes": 20224,
+            "repeats": 32,
+            "total_ns": 1173583
+          }
+        },
+        "after": {
+          "abort": {
+            "allocations": 33474,
+            "live_delta_bytes": 48,
+            "peak_added_bytes": 18720,
+            "repeats": 32,
+            "total_ns": 1106542
+          },
+          "after_query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 86,
+              "one": 10894,
+              "other": 10752,
+              "zero": 10965
+            },
+            "version": 288
+          },
+          "checkpoint": {
+            "allocations": 6344,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 201712,
+            "repeats": 8,
+            "total_ns": 503875
+          },
+          "initialise": {
+            "allocations": 106634,
+            "live_delta_bytes": 19019,
+            "peak_added_bytes": 30915,
+            "repeats": 1,
+            "total_ns": 4502250
+          },
+          "query_json": {
+            "allocations": 960,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 1958,
+            "repeats": 64,
+            "total_ns": 45208
+          },
+          "query_result": {
+            "committed": false,
+            "events": [],
+            "result": {
+              "count": 86,
+              "one": 10795,
+              "other": 10880,
+              "zero": 10965
+            },
+            "version": 256
+          },
+          "restore": {
+            "allocations": 14456,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 199835,
+            "repeats": 8,
+            "total_ns": 795041
+          },
+          "snapshot_sha256": "864ddcf7a6e556e9681dbee7d6225e1c66aa70bfac76cc3229720be835573a01",
+          "startup": {
+            "allocations": 256,
+            "live_delta_bytes": 0,
+            "peak_added_bytes": 315,
+            "repeats": 32,
+            "total_ns": 18375
+          },
+          "state_requested_bytes": 19709,
+          "teardown": {
+            "allocations": 511,
+            "live_delta_bytes": -18931,
+            "peak_added_bytes": 80,
+            "repeats": 1,
+            "total_ns": 20167
+          },
+          "update_json": {
+            "allocations": 33825,
+            "live_delta_bytes": 96,
+            "peak_added_bytes": 20264,
+            "repeats": 32,
+            "total_ns": 1058959
+          }
+        }
+      },
+      "median_ns": {
+        "before": {
+          "startup": 480.46875,
+          "initialise": 4415459.0,
+          "query_json": 1775.390625,
+          "update_json": 40861.96875,
+          "abort": 38218.75,
+          "checkpoint": 52828.125,
+          "restore": 104468.75,
+          "teardown": 20791.0
+        },
+        "after": {
+          "startup": 506.5,
+          "initialise": 5562041.0,
+          "query_json": 807.9375,
+          "update_json": 64747.40625,
+          "abort": 46161.46875,
+          "checkpoint": 144010.5,
+          "restore": 98958.375,
+          "teardown": 20583.0
+        }
+      }
+    }
+  ],
+  "scope": "Complete standalone JSON actions with acknowledgement; uninstrumented alternating timings and separate requested-heap runs. Exact replies and checkpoints match, abort state unchanged; both candidates and migration independently checked. Restore includes teardown. No universal speedup or C/JS/Wasm timing claim."
+}

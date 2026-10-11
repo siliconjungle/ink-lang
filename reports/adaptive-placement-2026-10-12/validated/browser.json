@@ -1,0 +1,3251 @@
+{
+  "status": "passed",
+  "comparisons": 12,
+  "workers": {
+    "peak_pending": 2,
+    "messages": 357,
+    "pending_after_close": 0
+  },
+  "adapter": {
+    "vendor": "apple",
+    "architecture": "metal-3",
+    "device": "",
+    "description": ""
+  },
+  "target_key": "[\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36\",\"apple\",\"metal-3\",\"\",\"\"]",
+  "receipts": [
+    {
+      "backend": "mixed",
+      "reason": "explicit pure pipeline placement",
+      "placement": {
+        "scope": "[\"ink-pipeline-placement-v1\",\"d2f05a69232c4ecdc8b7f8cdf7af04bea16c6ad8c664aaf5e8b4eb072f3aeb2e\",\"15aa5559a5b8b98d5dee56aef5fd7f5f2fab090a87105284a8af24e593100910\",\"8b8194a3fe1bf46cab553769c8955136782de5c9370409f9bb8f08c68a5497d0\",{\"compute-0.wgsl\":\"a3daeb89aca915d3a0a9c851b4235d45ff67534308eae3dba3eca9f64d386a5e\",\"compute-1.wgsl\":\"4bb62863b23063ad646c4caf255512709ee12b794bb36e68e22e43fe97b3ae67\",\"compute-2.wgsl\":\"efdca9d6616bde8fa56cbc537d29ffb1d387fb1caf4290fc5e527fd8a5c1e923\",\"compute-3.wgsl\":\"dcaf6b2a406e685a2b579914236f99d1ceb36d824d2306409fd5d701616ce540\",\"compute-7.wgsl\":\"236fc240adab7ceb72e70d6c846c12cf68b452b7b513ff8251af76a5f4572b88\",\"graph-0-0.wgsl\":\"530386011deb5a7c2e12ba0c0cbe3d3c5c0425e3672a07c535574cc7b9403bdf\",\"graph-1-0.wgsl\":\"76bcb72063064eaa763ab3a5c0e254a0bd19409b690ab85bbeff5a1ae8185ea2\",\"graph-3-0.wgsl\":\"83872bf0f273efbd38015a4e4bb1ee90872c010d3b49f902ae03e310036cac36\",\"graph-4-0.wgsl\":\"a4748bc5be1570987efe1ab5d41efadc3444f908bb0c4202d6079aa5c74a5e0d\",\"graph-5-0.wgsl\":\"b9170db61921aea20d486b30148a056d36bf61cf23a3c08804f02e66d2685e62\",\"graph-7-0.wgsl\":\"dbc41dadce5d6e46cbaa83a75ff26da128edff98b56aa9c1fdd11754beacda83\"},[{\"element\":{\"kind\":\"u32\"},\"kind\":\"list\"}],[[\"inc\",[[\"i\",\"xs\"]]],[\"double\",[[\"step\",0]]],[\"total\",[[\"step\",1]]]],[\"b\",\"sum\"],[],1]",
+        "segments": [
+          {
+            "start": 0,
+            "end": 2,
+            "backend": "gpu"
+          },
+          {
+            "start": 2,
+            "end": 3,
+            "backend": "javascript"
+          }
+        ],
+        "reason": "explicit pure pipeline placement"
+      },
+      "stages": [
+        {
+          "iteration": 0,
+          "start": 0,
+          "end": 2,
+          "requested": "gpu",
+          "backend": "gpu",
+          "outputs": [
+            "b"
+          ],
+          "reason": "explicit pure pipeline placement",
+          "counters": {
+            "upload_bytes": 20,
+            "readback_bytes": 4,
+            "dispatches": 0,
+            "live_buffer_bytes": 40
+          }
+        },
+        {
+          "iteration": 0,
+          "start": 2,
+          "end": 3,
+          "requested": "javascript",
+          "backend": "javascript",
+          "outputs": [
+            "sum"
+          ],
+          "reason": "explicit pure pipeline placement",
+          "counters": {
+            "upload_bytes": 0,
+            "readback_bytes": 0,
+            "dispatches": 0
+          }
+        }
+      ],
+      "counters": {
+        "upload_bytes": 20,
+        "readback_bytes": 4,
+        "dispatches": 0,
+        "live_buffer_bytes": 40,
+        "resident_copy_bytes": 0
+      }
+    },
+    {
+      "backend": "mixed",
+      "reason": "explicit pure pipeline placement",
+      "placement": {
+        "scope": "[\"ink-pipeline-placement-v1\",\"d2f05a69232c4ecdc8b7f8cdf7af04bea16c6ad8c664aaf5e8b4eb072f3aeb2e\",\"15aa5559a5b8b98d5dee56aef5fd7f5f2fab090a87105284a8af24e593100910\",\"8b8194a3fe1bf46cab553769c8955136782de5c9370409f9bb8f08c68a5497d0\",{\"compute-0.wgsl\":\"a3daeb89aca915d3a0a9c851b4235d45ff67534308eae3dba3eca9f64d386a5e\",\"compute-1.wgsl\":\"4bb62863b23063ad646c4caf255512709ee12b794bb36e68e22e43fe97b3ae67\",\"compute-2.wgsl\":\"efdca9d6616bde8fa56cbc537d29ffb1d387fb1caf4290fc5e527fd8a5c1e923\",\"compute-3.wgsl\":\"dcaf6b2a406e685a2b579914236f99d1ceb36d824d2306409fd5d701616ce540\",\"compute-7.wgsl\":\"236fc240adab7ceb72e70d6c846c12cf68b452b7b513ff8251af76a5f4572b88\",\"graph-0-0.wgsl\":\"530386011deb5a7c2e12ba0c0cbe3d3c5c0425e3672a07c535574cc7b9403bdf\",\"graph-1-0.wgsl\":\"76bcb72063064eaa763ab3a5c0e254a0bd19409b690ab85bbeff5a1ae8185ea2\",\"graph-3-0.wgsl\":\"83872bf0f273efbd38015a4e4bb1ee90872c010d3b49f902ae03e310036cac36\",\"graph-4-0.wgsl\":\"a4748bc5be1570987efe1ab5d41efadc3444f908bb0c4202d6079aa5c74a5e0d\",\"graph-5-0.wgsl\":\"b9170db61921aea20d486b30148a056d36bf61cf23a3c08804f02e66d2685e62\",\"graph-7-0.wgsl\":\"dbc41dadce5d6e46cbaa83a75ff26da128edff98b56aa9c1fdd11754beacda83\"},[{\"element\":{\"kind\":\"u32\"},\"kind\":\"list\"}],[[\"inc\",[[\"i\",\"xs\"]]],[\"double\",[[\"step\",0]]],[\"total\",[[\"step\",1]]]],[\"b\",\"sum\"],[],1]",
+        "segments": [
+          {
+            "start": 0,
+            "end": 1,
+            "backend": "javascript"
+          },
+          {
+            "start": 1,
+            "end": 2,
+            "backend": "cpu"
+          },
+          {
+            "start": 2,
+            "end": 3,
+            "backend": "gpu"
+          }
+        ],
+        "reason": "explicit pure pipeline placement"
+      },
+      "stages": [
+        {
+          "iteration": 0,
+          "start": 0,
+          "end": 1,
+          "requested": "javascript",
+          "backend": "javascript",
+          "outputs": [
+            "a"
+          ],
+          "reason": "explicit pure pipeline placement",
+          "counters": {
+            "upload_bytes": 0,
+            "readback_bytes": 0,
+            "dispatches": 0
+          }
+        },
+        {
+          "iteration": 0,
+          "start": 1,
+          "end": 2,
+          "requested": "cpu",
+          "backend": "cpu",
+          "outputs": [
+            "b"
+          ],
+          "reason": "explicit pure pipeline placement",
+          "counters": {
+            "upload_bytes": 0,
+            "readback_bytes": 0,
+            "dispatches": 0
+          }
+        },
+        {
+          "iteration": 0,
+          "start": 2,
+          "end": 3,
+          "requested": "gpu",
+          "backend": "gpu",
+          "outputs": [
+            "sum"
+          ],
+          "reason": "explicit pure pipeline placement",
+          "counters": {
+            "upload_bytes": 4,
+            "readback_bytes": 4,
+            "dispatches": 1,
+            "live_buffer_bytes": 12,
+            "resident_copy_bytes": 0
+          }
+        }
+      ],
+      "counters": {
+        "upload_bytes": 4,
+        "readback_bytes": 4,
+        "dispatches": 1,
+        "live_buffer_bytes": 12,
+        "resident_copy_bytes": 0
+      }
+    },
+    {
+      "backend": "mixed",
+      "reason": "explicit pure pipeline placement",
+      "placement": {
+        "scope": "[\"ink-pipeline-placement-v1\",\"d2f05a69232c4ecdc8b7f8cdf7af04bea16c6ad8c664aaf5e8b4eb072f3aeb2e\",\"15aa5559a5b8b98d5dee56aef5fd7f5f2fab090a87105284a8af24e593100910\",\"8b8194a3fe1bf46cab553769c8955136782de5c9370409f9bb8f08c68a5497d0\",{\"compute-0.wgsl\":\"a3daeb89aca915d3a0a9c851b4235d45ff67534308eae3dba3eca9f64d386a5e\",\"compute-1.wgsl\":\"4bb62863b23063ad646c4caf255512709ee12b794bb36e68e22e43fe97b3ae67\",\"compute-2.wgsl\":\"efdca9d6616bde8fa56cbc537d29ffb1d387fb1caf4290fc5e527fd8a5c1e923\",\"compute-3.wgsl\":\"dcaf6b2a406e685a2b579914236f99d1ceb36d824d2306409fd5d701616ce540\",\"compute-7.wgsl\":\"236fc240adab7ceb72e70d6c846c12cf68b452b7b513ff8251af76a5f4572b88\",\"graph-0-0.wgsl\":\"530386011deb5a7c2e12ba0c0cbe3d3c5c0425e3672a07c535574cc7b9403bdf\",\"graph-1-0.wgsl\":\"76bcb72063064eaa763ab3a5c0e254a0bd19409b690ab85bbeff5a1ae8185ea2\",\"graph-3-0.wgsl\":\"83872bf0f273efbd38015a4e4bb1ee90872c010d3b49f902ae03e310036cac36\",\"graph-4-0.wgsl\":\"a4748bc5be1570987efe1ab5d41efadc3444f908bb0c4202d6079aa5c74a5e0d\",\"graph-5-0.wgsl\":\"b9170db61921aea20d486b30148a056d36bf61cf23a3c08804f02e66d2685e62\",\"graph-7-0.wgsl\":\"dbc41dadce5d6e46cbaa83a75ff26da128edff98b56aa9c1fdd11754beacda83\"},[{\"element\":{\"kind\":\"u32\"},\"kind\":\"list\"}],[[\"inc\",[[\"i\",\"xs\"]]],[\"double\",[[\"step\",0]]],[\"total\",[[\"step\",1]]]],[\"b\",\"sum\"],[],1]",
+        "segments": [
+          {
+            "start": 0,
+            "end": 2,
+            "backend": "gpu"
+          },
+          {
+            "start": 2,
+            "end": 3,
+            "backend": "javascript"
+          }
+        ],
+        "reason": "explicit pure pipeline placement"
+      },
+      "stages": [
+        {
+          "iteration": 0,
+          "start": 0,
+          "end": 2,
+          "requested": "gpu",
+          "backend": "gpu",
+          "outputs": [
+            "b"
+          ],
+          "reason": "explicit pure pipeline placement",
+          "counters": {
+            "upload_bytes": 32,
+            "readback_bytes": 16,
+            "dispatches": 2,
+            "live_buffer_bytes": 112
+          }
+        },
+        {
+          "iteration": 0,
+          "start": 2,
+          "end": 3,
+          "requested": "javascript",
+          "backend": "javascript",
+          "outputs": [
+            "sum"
+          ],
+          "reason": "explicit pure pipeline placement",
+          "counters": {
+            "upload_bytes": 0,
+            "readback_bytes": 0,
+            "dispatches": 0
+          }
+        }
+      ],
+      "counters": {
+        "upload_bytes": 32,
+        "readback_bytes": 16,
+        "dispatches": 2,
+        "live_buffer_bytes": 112,
+        "resident_copy_bytes": 0
+      }
+    },
+    {
+      "backend": "mixed",
+      "reason": "explicit pure pipeline placement",
+      "placement": {
+        "scope": "[\"ink-pipeline-placement-v1\",\"d2f05a69232c4ecdc8b7f8cdf7af04bea16c6ad8c664aaf5e8b4eb072f3aeb2e\",\"15aa5559a5b8b98d5dee56aef5fd7f5f2fab090a87105284a8af24e593100910\",\"8b8194a3fe1bf46cab553769c8955136782de5c9370409f9bb8f08c68a5497d0\",{\"compute-0.wgsl\":\"a3daeb89aca915d3a0a9c851b4235d45ff67534308eae3dba3eca9f64d386a5e\",\"compute-1.wgsl\":\"4bb62863b23063ad646c4caf255512709ee12b794bb36e68e22e43fe97b3ae67\",\"compute-2.wgsl\":\"efdca9d6616bde8fa56cbc537d29ffb1d387fb1caf4290fc5e527fd8a5c1e923\",\"compute-3.wgsl\":\"dcaf6b2a406e685a2b579914236f99d1ceb36d824d2306409fd5d701616ce540\",\"compute-7.wgsl\":\"236fc240adab7ceb72e70d6c846c12cf68b452b7b513ff8251af76a5f4572b88\",\"graph-0-0.wgsl\":\"530386011deb5a7c2e12ba0c0cbe3d3c5c0425e3672a07c535574cc7b9403bdf\",\"graph-1-0.wgsl\":\"76bcb72063064eaa763ab3a5c0e254a0bd19409b690ab85bbeff5a1ae8185ea2\",\"graph-3-0.wgsl\":\"83872bf0f273efbd38015a4e4bb1ee90872c010d3b49f902ae03e310036cac36\",\"graph-4-0.wgsl\":\"a4748bc5be1570987efe1ab5d41efadc3444f908bb0c4202d6079aa5c74a5e0d\",\"graph-5-0.wgsl\":\"b9170db61921aea20d486b30148a056d36bf61cf23a3c08804f02e66d2685e62\",\"graph-7-0.wgsl\":\"dbc41dadce5d6e46cbaa83a75ff26da128edff98b56aa9c1fdd11754beacda83\"},[{\"element\":{\"kind\":\"u32\"},\"kind\":\"list\"}],[[\"inc\",[[\"i\",\"xs\"]]],[\"double\",[[\"step\",0]]],[\"total\",[[\"step\",1]]]],[\"b\",\"sum\"],[],1]",
+        "segments": [
+          {
+            "start": 0,
+            "end": 1,
+            "backend": "javascript"
+          },
+          {
+            "start": 1,
+            "end": 2,
+            "backend": "cpu"
+          },
+          {
+            "start": 2,
+            "end": 3,
+            "backend": "gpu"
+          }
+        ],
+        "reason": "explicit pure pipeline placement"
+      },
+      "stages": [
+        {
+          "iteration": 0,
+          "start": 0,
+          "end": 1,
+          "requested": "javascript",
+          "backend": "javascript",
+          "outputs": [
+            "a"
+          ],
+          "reason": "explicit pure pipeline placement",
+          "counters": {
+            "upload_bytes": 0,
+            "readback_bytes": 0,
+            "dispatches": 0
+          }
+        },
+        {
+          "iteration": 0,
+          "start": 1,
+          "end": 2,
+          "requested": "cpu",
+          "backend": "cpu",
+          "outputs": [
+            "b"
+          ],
+          "reason": "explicit pure pipeline placement",
+          "counters": {
+            "upload_bytes": 0,
+            "readback_bytes": 0,
+            "dispatches": 0
+          }
+        },
+        {
+          "iteration": 0,
+          "start": 2,
+          "end": 3,
+          "requested": "gpu",
+          "backend": "gpu",
+          "outputs": [
+            "sum"
+          ],
+          "reason": "explicit pure pipeline placement",
+          "counters": {
+            "upload_bytes": 16,
+            "readback_bytes": 4,
+            "dispatches": 1,
+            "live_buffer_bytes": 24,
+            "resident_copy_bytes": 0
+          }
+        }
+      ],
+      "counters": {
+        "upload_bytes": 16,
+        "readback_bytes": 4,
+        "dispatches": 1,
+        "live_buffer_bytes": 24,
+        "resident_copy_bytes": 0
+      }
+    },
+    {
+      "backend": "mixed",
+      "reason": "explicit pure pipeline placement",
+      "placement": {
+        "scope": "[\"ink-pipeline-placement-v1\",\"d2f05a69232c4ecdc8b7f8cdf7af04bea16c6ad8c664aaf5e8b4eb072f3aeb2e\",\"15aa5559a5b8b98d5dee56aef5fd7f5f2fab090a87105284a8af24e593100910\",\"8b8194a3fe1bf46cab553769c8955136782de5c9370409f9bb8f08c68a5497d0\",{\"compute-0.wgsl\":\"a3daeb89aca915d3a0a9c851b4235d45ff67534308eae3dba3eca9f64d386a5e\",\"compute-1.wgsl\":\"4bb62863b23063ad646c4caf255512709ee12b794bb36e68e22e43fe97b3ae67\",\"compute-2.wgsl\":\"efdca9d6616bde8fa56cbc537d29ffb1d387fb1caf4290fc5e527fd8a5c1e923\",\"compute-3.wgsl\":\"dcaf6b2a406e685a2b579914236f99d1ceb36d824d2306409fd5d701616ce540\",\"compute-7.wgsl\":\"236fc240adab7ceb72e70d6c846c12cf68b452b7b513ff8251af76a5f4572b88\",\"graph-0-0.wgsl\":\"530386011deb5a7c2e12ba0c0cbe3d3c5c0425e3672a07c535574cc7b9403bdf\",\"graph-1-0.wgsl\":\"76bcb72063064eaa763ab3a5c0e254a0bd19409b690ab85bbeff5a1ae8185ea2\",\"graph-3-0.wgsl\":\"83872bf0f273efbd38015a4e4bb1ee90872c010d3b49f902ae03e310036cac36\",\"graph-4-0.wgsl\":\"a4748bc5be1570987efe1ab5d41efadc3444f908bb0c4202d6079aa5c74a5e0d\",\"graph-5-0.wgsl\":\"b9170db61921aea20d486b30148a056d36bf61cf23a3c08804f02e66d2685e62\",\"graph-7-0.wgsl\":\"dbc41dadce5d6e46cbaa83a75ff26da128edff98b56aa9c1fdd11754beacda83\"},[{\"element\":{\"kind\":\"u32\"},\"kind\":\"list\"}],[[\"inc\",[[\"i\",\"xs\"]]],[\"double\",[[\"step\",0]]],[\"total\",[[\"step\",1]]]],[\"b\",\"sum\"],[],1]",
+        "segments": [
+          {
+            "start": 0,
+            "end": 2,
+            "backend": "gpu"
+          },
+          {
+            "start": 2,
+            "end": 3,
+            "backend": "javascript"
+          }
+        ],
+        "reason": "explicit pure pipeline placement"
+      },
+      "stages": [
+        {
+          "iteration": 0,
+          "start": 0,
+          "end": 2,
+          "requested": "gpu",
+          "backend": "gpu",
+          "outputs": [
+            "b"
+          ],
+          "reason": "explicit pure pipeline placement",
+          "counters": {
+            "upload_bytes": 2072,
+            "readback_bytes": 2056,
+            "dispatches": 2,
+            "live_buffer_bytes": 12352
+          }
+        },
+        {
+          "iteration": 0,
+          "start": 2,
+          "end": 3,
+          "requested": "javascript",
+          "backend": "javascript",
+          "outputs": [
+            "sum"
+          ],
+          "reason": "explicit pure pipeline placement",
+          "counters": {
+            "upload_bytes": 0,
+            "readback_bytes": 0,
+            "dispatches": 0
+          }
+        }
+      ],
+      "counters": {
+        "upload_bytes": 2072,
+        "readback_bytes": 2056,
+        "dispatches": 2,
+        "live_buffer_bytes": 12352,
+        "resident_copy_bytes": 0
+      }
+    },
+    {
+      "backend": "mixed",
+      "reason": "explicit pure pipeline placement",
+      "placement": {
+        "scope": "[\"ink-pipeline-placement-v1\",\"d2f05a69232c4ecdc8b7f8cdf7af04bea16c6ad8c664aaf5e8b4eb072f3aeb2e\",\"15aa5559a5b8b98d5dee56aef5fd7f5f2fab090a87105284a8af24e593100910\",\"8b8194a3fe1bf46cab553769c8955136782de5c9370409f9bb8f08c68a5497d0\",{\"compute-0.wgsl\":\"a3daeb89aca915d3a0a9c851b4235d45ff67534308eae3dba3eca9f64d386a5e\",\"compute-1.wgsl\":\"4bb62863b23063ad646c4caf255512709ee12b794bb36e68e22e43fe97b3ae67\",\"compute-2.wgsl\":\"efdca9d6616bde8fa56cbc537d29ffb1d387fb1caf4290fc5e527fd8a5c1e923\",\"compute-3.wgsl\":\"dcaf6b2a406e685a2b579914236f99d1ceb36d824d2306409fd5d701616ce540\",\"compute-7.wgsl\":\"236fc240adab7ceb72e70d6c846c12cf68b452b7b513ff8251af76a5f4572b88\",\"graph-0-0.wgsl\":\"530386011deb5a7c2e12ba0c0cbe3d3c5c0425e3672a07c535574cc7b9403bdf\",\"graph-1-0.wgsl\":\"76bcb72063064eaa763ab3a5c0e254a0bd19409b690ab85bbeff5a1ae8185ea2\",\"graph-3-0.wgsl\":\"83872bf0f273efbd38015a4e4bb1ee90872c010d3b49f902ae03e310036cac36\",\"graph-4-0.wgsl\":\"a4748bc5be1570987efe1ab5d41efadc3444f908bb0c4202d6079aa5c74a5e0d\",\"graph-5-0.wgsl\":\"b9170db61921aea20d486b30148a056d36bf61cf23a3c08804f02e66d2685e62\",\"graph-7-0.wgsl\":\"dbc41dadce5d6e46cbaa83a75ff26da128edff98b56aa9c1fdd11754beacda83\"},[{\"element\":{\"kind\":\"u32\"},\"kind\":\"list\"}],[[\"inc\",[[\"i\",\"xs\"]]],[\"double\",[[\"step\",0]]],[\"total\",[[\"step\",1]]]],[\"b\",\"sum\"],[],1]",
+        "segments": [
+          {
+            "start": 0,
+            "end": 1,
+            "backend": "javascript"
+          },
+          {
+            "start": 1,
+            "end": 2,
+            "backend": "cpu"
+          },
+          {
+            "start": 2,
+            "end": 3,
+            "backend": "gpu"
+          }
+        ],
+        "reason": "explicit pure pipeline placement"
+      },
+      "stages": [
+        {
+          "iteration": 0,
+          "start": 0,
+          "end": 1,
+          "requested": "javascript",
+          "backend": "javascript",
+          "outputs": [
+            "a"
+          ],
+          "reason": "explicit pure pipeline placement",
+          "counters": {
+            "upload_bytes": 0,
+            "readback_bytes": 0,
+            "dispatches": 0
+          }
+        },
+        {
+          "iteration": 0,
+          "start": 1,
+          "end": 2,
+          "requested": "cpu",
+          "backend": "cpu",
+          "outputs": [
+            "b"
+          ],
+          "reason": "explicit pure pipeline placement",
+          "counters": {
+            "upload_bytes": 0,
+            "readback_bytes": 0,
+            "dispatches": 0
+          }
+        },
+        {
+          "iteration": 0,
+          "start": 2,
+          "end": 3,
+          "requested": "gpu",
+          "backend": "gpu",
+          "outputs": [
+            "sum"
+          ],
+          "reason": "explicit pure pipeline placement",
+          "counters": {
+            "upload_bytes": 2056,
+            "readback_bytes": 4,
+            "dispatches": 1,
+            "live_buffer_bytes": 2064,
+            "resident_copy_bytes": 0
+          }
+        }
+      ],
+      "counters": {
+        "upload_bytes": 2056,
+        "readback_bytes": 4,
+        "dispatches": 1,
+        "live_buffer_bytes": 2064,
+        "resident_copy_bytes": 0
+      }
+    },
+    {
+      "backend": "mixed",
+      "reason": "explicit pure pipeline placement",
+      "placement": {
+        "scope": "[\"ink-pipeline-placement-v1\",\"d2f05a69232c4ecdc8b7f8cdf7af04bea16c6ad8c664aaf5e8b4eb072f3aeb2e\",\"15aa5559a5b8b98d5dee56aef5fd7f5f2fab090a87105284a8af24e593100910\",\"8b8194a3fe1bf46cab553769c8955136782de5c9370409f9bb8f08c68a5497d0\",{\"compute-0.wgsl\":\"a3daeb89aca915d3a0a9c851b4235d45ff67534308eae3dba3eca9f64d386a5e\",\"compute-1.wgsl\":\"4bb62863b23063ad646c4caf255512709ee12b794bb36e68e22e43fe97b3ae67\",\"compute-2.wgsl\":\"efdca9d6616bde8fa56cbc537d29ffb1d387fb1caf4290fc5e527fd8a5c1e923\",\"compute-3.wgsl\":\"dcaf6b2a406e685a2b579914236f99d1ceb36d824d2306409fd5d701616ce540\",\"compute-7.wgsl\":\"236fc240adab7ceb72e70d6c846c12cf68b452b7b513ff8251af76a5f4572b88\",\"graph-0-0.wgsl\":\"530386011deb5a7c2e12ba0c0cbe3d3c5c0425e3672a07c535574cc7b9403bdf\",\"graph-1-0.wgsl\":\"76bcb72063064eaa763ab3a5c0e254a0bd19409b690ab85bbeff5a1ae8185ea2\",\"graph-3-0.wgsl\":\"83872bf0f273efbd38015a4e4bb1ee90872c010d3b49f902ae03e310036cac36\",\"graph-4-0.wgsl\":\"a4748bc5be1570987efe1ab5d41efadc3444f908bb0c4202d6079aa5c74a5e0d\",\"graph-5-0.wgsl\":\"b9170db61921aea20d486b30148a056d36bf61cf23a3c08804f02e66d2685e62\",\"graph-7-0.wgsl\":\"dbc41dadce5d6e46cbaa83a75ff26da128edff98b56aa9c1fdd11754beacda83\"},[{\"element\":{\"kind\":\"u32\"},\"kind\":\"list\"}],[[\"heavy\",[[\"i\",\"xs\"]]],[\"heavy\",[[\"i\",\"xs\"]]],[\"total\",[[\"step\",0]]],[\"total\",[[\"step\",1]]],[\"combine\",[[\"step\",2],[\"step\",3]]]],[\"a\",\"b\",\"join\"],[],1]",
+        "segments": [
+          {
+            "start": 0,
+            "end": 1,
+            "backend": "javascript-worker"
+          },
+          {
+            "start": 1,
+            "end": 2,
+            "backend": "cpu-worker"
+          },
+          {
+            "start": 2,
+            "end": 5,
+            "backend": "javascript"
+          }
+        ],
+        "reason": "explicit pure pipeline placement"
+      },
+      "stages": [
+        {
+          "iteration": 0,
+          "start": 0,
+          "end": 1,
+          "requested": "javascript-worker",
+          "backend": "javascript-worker",
+          "outputs": [
+            "a"
+          ],
+          "reason": "explicit pure pipeline placement",
+          "counters": {
+            "upload_bytes": 0,
+            "readback_bytes": 0,
+            "dispatches": 0
+          }
+        },
+        {
+          "iteration": 0,
+          "start": 1,
+          "end": 2,
+          "requested": "cpu-worker",
+          "backend": "cpu-worker",
+          "outputs": [
+            "b"
+          ],
+          "reason": "explicit pure pipeline placement",
+          "counters": {
+            "upload_bytes": 0,
+            "readback_bytes": 0,
+            "dispatches": 0
+          }
+        },
+        {
+          "iteration": 0,
+          "start": 2,
+          "end": 5,
+          "requested": "javascript",
+          "backend": "javascript",
+          "outputs": [
+            "join"
+          ],
+          "reason": "explicit pure pipeline placement",
+          "counters": {
+            "upload_bytes": 0,
+            "readback_bytes": 0,
+            "dispatches": 0
+          }
+        }
+      ],
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0,
+        "live_buffer_bytes": 0,
+        "resident_copy_bytes": 0
+      }
+    },
+    {
+      "backend": "javascript-worker",
+      "reason": "explicit pure pipeline placement",
+      "placement": {
+        "scope": "[\"ink-pipeline-placement-v1\",\"d2f05a69232c4ecdc8b7f8cdf7af04bea16c6ad8c664aaf5e8b4eb072f3aeb2e\",\"15aa5559a5b8b98d5dee56aef5fd7f5f2fab090a87105284a8af24e593100910\",\"8b8194a3fe1bf46cab553769c8955136782de5c9370409f9bb8f08c68a5497d0\",{\"compute-0.wgsl\":\"a3daeb89aca915d3a0a9c851b4235d45ff67534308eae3dba3eca9f64d386a5e\",\"compute-1.wgsl\":\"4bb62863b23063ad646c4caf255512709ee12b794bb36e68e22e43fe97b3ae67\",\"compute-2.wgsl\":\"efdca9d6616bde8fa56cbc537d29ffb1d387fb1caf4290fc5e527fd8a5c1e923\",\"compute-3.wgsl\":\"dcaf6b2a406e685a2b579914236f99d1ceb36d824d2306409fd5d701616ce540\",\"compute-7.wgsl\":\"236fc240adab7ceb72e70d6c846c12cf68b452b7b513ff8251af76a5f4572b88\",\"graph-0-0.wgsl\":\"530386011deb5a7c2e12ba0c0cbe3d3c5c0425e3672a07c535574cc7b9403bdf\",\"graph-1-0.wgsl\":\"76bcb72063064eaa763ab3a5c0e254a0bd19409b690ab85bbeff5a1ae8185ea2\",\"graph-3-0.wgsl\":\"83872bf0f273efbd38015a4e4bb1ee90872c010d3b49f902ae03e310036cac36\",\"graph-4-0.wgsl\":\"a4748bc5be1570987efe1ab5d41efadc3444f908bb0c4202d6079aa5c74a5e0d\",\"graph-5-0.wgsl\":\"b9170db61921aea20d486b30148a056d36bf61cf23a3c08804f02e66d2685e62\",\"graph-7-0.wgsl\":\"dbc41dadce5d6e46cbaa83a75ff26da128edff98b56aa9c1fdd11754beacda83\"},[{\"element\":{\"kind\":\"u64\"},\"kind\":\"list\"}],[[\"wide\",[[\"constant\",0]]]],[\"wide\"],[],1]",
+        "segments": [
+          {
+            "start": 0,
+            "end": 1,
+            "backend": "javascript-worker"
+          }
+        ],
+        "reason": "explicit pure pipeline placement"
+      },
+      "stages": [
+        {
+          "iteration": 0,
+          "start": 0,
+          "end": 1,
+          "requested": "javascript-worker",
+          "backend": "javascript-worker",
+          "outputs": [
+            "wide"
+          ],
+          "reason": "explicit pure pipeline placement",
+          "counters": {
+            "upload_bytes": 0,
+            "readback_bytes": 0,
+            "dispatches": 0
+          }
+        }
+      ],
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0,
+        "live_buffer_bytes": 0,
+        "resident_copy_bytes": 0
+      }
+    },
+    {
+      "backend": "mixed",
+      "reason": "explicit pure pipeline placement",
+      "placement": {
+        "scope": "[\"ink-pipeline-placement-v1\",\"d2f05a69232c4ecdc8b7f8cdf7af04bea16c6ad8c664aaf5e8b4eb072f3aeb2e\",\"15aa5559a5b8b98d5dee56aef5fd7f5f2fab090a87105284a8af24e593100910\",\"8b8194a3fe1bf46cab553769c8955136782de5c9370409f9bb8f08c68a5497d0\",{\"compute-0.wgsl\":\"a3daeb89aca915d3a0a9c851b4235d45ff67534308eae3dba3eca9f64d386a5e\",\"compute-1.wgsl\":\"4bb62863b23063ad646c4caf255512709ee12b794bb36e68e22e43fe97b3ae67\",\"compute-2.wgsl\":\"efdca9d6616bde8fa56cbc537d29ffb1d387fb1caf4290fc5e527fd8a5c1e923\",\"compute-3.wgsl\":\"dcaf6b2a406e685a2b579914236f99d1ceb36d824d2306409fd5d701616ce540\",\"compute-7.wgsl\":\"236fc240adab7ceb72e70d6c846c12cf68b452b7b513ff8251af76a5f4572b88\",\"graph-0-0.wgsl\":\"530386011deb5a7c2e12ba0c0cbe3d3c5c0425e3672a07c535574cc7b9403bdf\",\"graph-1-0.wgsl\":\"76bcb72063064eaa763ab3a5c0e254a0bd19409b690ab85bbeff5a1ae8185ea2\",\"graph-3-0.wgsl\":\"83872bf0f273efbd38015a4e4bb1ee90872c010d3b49f902ae03e310036cac36\",\"graph-4-0.wgsl\":\"a4748bc5be1570987efe1ab5d41efadc3444f908bb0c4202d6079aa5c74a5e0d\",\"graph-5-0.wgsl\":\"b9170db61921aea20d486b30148a056d36bf61cf23a3c08804f02e66d2685e62\",\"graph-7-0.wgsl\":\"dbc41dadce5d6e46cbaa83a75ff26da128edff98b56aa9c1fdd11754beacda83\"},[{\"element\":{\"kind\":\"u32\"},\"kind\":\"list\"},{\"element\":{\"kind\":\"u32\"},\"kind\":\"list\"}],[[\"identity\",[[\"i\",\"a\"]]],[\"identity\",[[\"i\",\"b\"]]]],[\"a\",\"b\"],[[\"a\",1],[\"b\",0]],1]",
+        "segments": [
+          {
+            "start": 0,
+            "end": 1,
+            "backend": "cpu-worker"
+          },
+          {
+            "start": 1,
+            "end": 2,
+            "backend": "gpu"
+          }
+        ],
+        "reason": "explicit pure pipeline placement"
+      },
+      "stages": [
+        {
+          "iteration": 0,
+          "start": 0,
+          "end": 1,
+          "requested": "cpu-worker",
+          "backend": "cpu-worker",
+          "outputs": [
+            "a"
+          ],
+          "reason": "explicit pure pipeline placement",
+          "counters": {
+            "upload_bytes": 0,
+            "readback_bytes": 0,
+            "dispatches": 0
+          }
+        },
+        {
+          "iteration": 0,
+          "start": 1,
+          "end": 2,
+          "requested": "gpu",
+          "backend": "gpu",
+          "outputs": [
+            "b"
+          ],
+          "reason": "explicit pure pipeline placement",
+          "counters": {
+            "upload_bytes": 20,
+            "readback_bytes": 12,
+            "dispatches": 1,
+            "live_buffer_bytes": 56
+          }
+        }
+      ],
+      "counters": {
+        "upload_bytes": 20,
+        "readback_bytes": 12,
+        "dispatches": 1,
+        "live_buffer_bytes": 56,
+        "resident_copy_bytes": 0
+      }
+    },
+    {
+      "backend": "mixed",
+      "reason": "explicit pure pipeline placement",
+      "placement": {
+        "scope": "[\"ink-pipeline-placement-v1\",\"d2f05a69232c4ecdc8b7f8cdf7af04bea16c6ad8c664aaf5e8b4eb072f3aeb2e\",\"15aa5559a5b8b98d5dee56aef5fd7f5f2fab090a87105284a8af24e593100910\",\"8b8194a3fe1bf46cab553769c8955136782de5c9370409f9bb8f08c68a5497d0\",{\"compute-0.wgsl\":\"a3daeb89aca915d3a0a9c851b4235d45ff67534308eae3dba3eca9f64d386a5e\",\"compute-1.wgsl\":\"4bb62863b23063ad646c4caf255512709ee12b794bb36e68e22e43fe97b3ae67\",\"compute-2.wgsl\":\"efdca9d6616bde8fa56cbc537d29ffb1d387fb1caf4290fc5e527fd8a5c1e923\",\"compute-3.wgsl\":\"dcaf6b2a406e685a2b579914236f99d1ceb36d824d2306409fd5d701616ce540\",\"compute-7.wgsl\":\"236fc240adab7ceb72e70d6c846c12cf68b452b7b513ff8251af76a5f4572b88\",\"graph-0-0.wgsl\":\"530386011deb5a7c2e12ba0c0cbe3d3c5c0425e3672a07c535574cc7b9403bdf\",\"graph-1-0.wgsl\":\"76bcb72063064eaa763ab3a5c0e254a0bd19409b690ab85bbeff5a1ae8185ea2\",\"graph-3-0.wgsl\":\"83872bf0f273efbd38015a4e4bb1ee90872c010d3b49f902ae03e310036cac36\",\"graph-4-0.wgsl\":\"a4748bc5be1570987efe1ab5d41efadc3444f908bb0c4202d6079aa5c74a5e0d\",\"graph-5-0.wgsl\":\"b9170db61921aea20d486b30148a056d36bf61cf23a3c08804f02e66d2685e62\",\"graph-7-0.wgsl\":\"dbc41dadce5d6e46cbaa83a75ff26da128edff98b56aa9c1fdd11754beacda83\"},[{\"element\":{\"kind\":\"u32\"},\"kind\":\"list\"},{\"element\":{\"kind\":\"u32\"},\"kind\":\"list\"}],[[\"identity\",[[\"i\",\"a\"]]],[\"identity\",[[\"i\",\"b\"]]]],[\"a\",\"b\"],[[\"a\",1],[\"b\",0]],2]",
+        "segments": [
+          {
+            "start": 0,
+            "end": 1,
+            "backend": "cpu-worker"
+          },
+          {
+            "start": 1,
+            "end": 2,
+            "backend": "gpu"
+          }
+        ],
+        "reason": "explicit pure pipeline placement"
+      },
+      "stages": [
+        {
+          "iteration": 0,
+          "start": 0,
+          "end": 1,
+          "requested": "cpu-worker",
+          "backend": "cpu-worker",
+          "outputs": [
+            "a"
+          ],
+          "reason": "explicit pure pipeline placement",
+          "counters": {
+            "upload_bytes": 0,
+            "readback_bytes": 0,
+            "dispatches": 0
+          }
+        },
+        {
+          "iteration": 0,
+          "start": 1,
+          "end": 2,
+          "requested": "gpu",
+          "backend": "gpu",
+          "outputs": [
+            "b"
+          ],
+          "reason": "explicit pure pipeline placement",
+          "counters": {
+            "upload_bytes": 20,
+            "readback_bytes": 12,
+            "dispatches": 1,
+            "live_buffer_bytes": 56
+          }
+        },
+        {
+          "iteration": 1,
+          "start": 0,
+          "end": 1,
+          "requested": "cpu-worker",
+          "backend": "cpu-worker",
+          "outputs": [
+            "a"
+          ],
+          "reason": "explicit pure pipeline placement",
+          "counters": {
+            "upload_bytes": 0,
+            "readback_bytes": 0,
+            "dispatches": 0
+          }
+        },
+        {
+          "iteration": 1,
+          "start": 1,
+          "end": 2,
+          "requested": "gpu",
+          "backend": "gpu",
+          "outputs": [
+            "b"
+          ],
+          "reason": "explicit pure pipeline placement",
+          "counters": {
+            "upload_bytes": 20,
+            "readback_bytes": 12,
+            "dispatches": 1,
+            "live_buffer_bytes": 56
+          }
+        }
+      ],
+      "counters": {
+        "upload_bytes": 40,
+        "readback_bytes": 24,
+        "dispatches": 2,
+        "live_buffer_bytes": 56,
+        "resident_copy_bytes": 0
+      }
+    },
+    {
+      "backend": "mixed",
+      "reason": "explicit pure pipeline placement",
+      "placement": {
+        "scope": "[\"ink-pipeline-placement-v1\",\"d2f05a69232c4ecdc8b7f8cdf7af04bea16c6ad8c664aaf5e8b4eb072f3aeb2e\",\"15aa5559a5b8b98d5dee56aef5fd7f5f2fab090a87105284a8af24e593100910\",\"8b8194a3fe1bf46cab553769c8955136782de5c9370409f9bb8f08c68a5497d0\",{\"compute-0.wgsl\":\"a3daeb89aca915d3a0a9c851b4235d45ff67534308eae3dba3eca9f64d386a5e\",\"compute-1.wgsl\":\"4bb62863b23063ad646c4caf255512709ee12b794bb36e68e22e43fe97b3ae67\",\"compute-2.wgsl\":\"efdca9d6616bde8fa56cbc537d29ffb1d387fb1caf4290fc5e527fd8a5c1e923\",\"compute-3.wgsl\":\"dcaf6b2a406e685a2b579914236f99d1ceb36d824d2306409fd5d701616ce540\",\"compute-7.wgsl\":\"236fc240adab7ceb72e70d6c846c12cf68b452b7b513ff8251af76a5f4572b88\",\"graph-0-0.wgsl\":\"530386011deb5a7c2e12ba0c0cbe3d3c5c0425e3672a07c535574cc7b9403bdf\",\"graph-1-0.wgsl\":\"76bcb72063064eaa763ab3a5c0e254a0bd19409b690ab85bbeff5a1ae8185ea2\",\"graph-3-0.wgsl\":\"83872bf0f273efbd38015a4e4bb1ee90872c010d3b49f902ae03e310036cac36\",\"graph-4-0.wgsl\":\"a4748bc5be1570987efe1ab5d41efadc3444f908bb0c4202d6079aa5c74a5e0d\",\"graph-5-0.wgsl\":\"b9170db61921aea20d486b30148a056d36bf61cf23a3c08804f02e66d2685e62\",\"graph-7-0.wgsl\":\"dbc41dadce5d6e46cbaa83a75ff26da128edff98b56aa9c1fdd11754beacda83\"},[{\"element\":{\"kind\":\"u32\"},\"kind\":\"list\"},{\"element\":{\"kind\":\"u32\"},\"kind\":\"list\"}],[[\"identity\",[[\"i\",\"a\"]]],[\"identity\",[[\"i\",\"b\"]]]],[\"a\",\"b\"],[[\"a\",1],[\"b\",0]],3]",
+        "segments": [
+          {
+            "start": 0,
+            "end": 1,
+            "backend": "cpu-worker"
+          },
+          {
+            "start": 1,
+            "end": 2,
+            "backend": "gpu"
+          }
+        ],
+        "reason": "explicit pure pipeline placement"
+      },
+      "stages": [
+        {
+          "iteration": 0,
+          "start": 0,
+          "end": 1,
+          "requested": "cpu-worker",
+          "backend": "cpu-worker",
+          "outputs": [
+            "a"
+          ],
+          "reason": "explicit pure pipeline placement",
+          "counters": {
+            "upload_bytes": 0,
+            "readback_bytes": 0,
+            "dispatches": 0
+          }
+        },
+        {
+          "iteration": 0,
+          "start": 1,
+          "end": 2,
+          "requested": "gpu",
+          "backend": "gpu",
+          "outputs": [
+            "b"
+          ],
+          "reason": "explicit pure pipeline placement",
+          "counters": {
+            "upload_bytes": 20,
+            "readback_bytes": 12,
+            "dispatches": 1,
+            "live_buffer_bytes": 56
+          }
+        },
+        {
+          "iteration": 1,
+          "start": 0,
+          "end": 1,
+          "requested": "cpu-worker",
+          "backend": "cpu-worker",
+          "outputs": [
+            "a"
+          ],
+          "reason": "explicit pure pipeline placement",
+          "counters": {
+            "upload_bytes": 0,
+            "readback_bytes": 0,
+            "dispatches": 0
+          }
+        },
+        {
+          "iteration": 1,
+          "start": 1,
+          "end": 2,
+          "requested": "gpu",
+          "backend": "gpu",
+          "outputs": [
+            "b"
+          ],
+          "reason": "explicit pure pipeline placement",
+          "counters": {
+            "upload_bytes": 20,
+            "readback_bytes": 12,
+            "dispatches": 1,
+            "live_buffer_bytes": 56
+          }
+        },
+        {
+          "iteration": 2,
+          "start": 0,
+          "end": 1,
+          "requested": "cpu-worker",
+          "backend": "cpu-worker",
+          "outputs": [
+            "a"
+          ],
+          "reason": "explicit pure pipeline placement",
+          "counters": {
+            "upload_bytes": 0,
+            "readback_bytes": 0,
+            "dispatches": 0
+          }
+        },
+        {
+          "iteration": 2,
+          "start": 1,
+          "end": 2,
+          "requested": "gpu",
+          "backend": "gpu",
+          "outputs": [
+            "b"
+          ],
+          "reason": "explicit pure pipeline placement",
+          "counters": {
+            "upload_bytes": 20,
+            "readback_bytes": 12,
+            "dispatches": 1,
+            "live_buffer_bytes": 56
+          }
+        }
+      ],
+      "counters": {
+        "upload_bytes": 60,
+        "readback_bytes": 36,
+        "dispatches": 3,
+        "live_buffer_bytes": 56,
+        "resident_copy_bytes": 0
+      }
+    },
+    {
+      "backend": "mixed",
+      "reason": "explicit pure pipeline placement",
+      "placement": {
+        "scope": "[\"ink-pipeline-placement-v1\",\"d2f05a69232c4ecdc8b7f8cdf7af04bea16c6ad8c664aaf5e8b4eb072f3aeb2e\",\"15aa5559a5b8b98d5dee56aef5fd7f5f2fab090a87105284a8af24e593100910\",\"8b8194a3fe1bf46cab553769c8955136782de5c9370409f9bb8f08c68a5497d0\",{\"compute-0.wgsl\":\"a3daeb89aca915d3a0a9c851b4235d45ff67534308eae3dba3eca9f64d386a5e\",\"compute-1.wgsl\":\"4bb62863b23063ad646c4caf255512709ee12b794bb36e68e22e43fe97b3ae67\",\"compute-2.wgsl\":\"efdca9d6616bde8fa56cbc537d29ffb1d387fb1caf4290fc5e527fd8a5c1e923\",\"compute-3.wgsl\":\"dcaf6b2a406e685a2b579914236f99d1ceb36d824d2306409fd5d701616ce540\",\"compute-7.wgsl\":\"236fc240adab7ceb72e70d6c846c12cf68b452b7b513ff8251af76a5f4572b88\",\"graph-0-0.wgsl\":\"530386011deb5a7c2e12ba0c0cbe3d3c5c0425e3672a07c535574cc7b9403bdf\",\"graph-1-0.wgsl\":\"76bcb72063064eaa763ab3a5c0e254a0bd19409b690ab85bbeff5a1ae8185ea2\",\"graph-3-0.wgsl\":\"83872bf0f273efbd38015a4e4bb1ee90872c010d3b49f902ae03e310036cac36\",\"graph-4-0.wgsl\":\"a4748bc5be1570987efe1ab5d41efadc3444f908bb0c4202d6079aa5c74a5e0d\",\"graph-5-0.wgsl\":\"b9170db61921aea20d486b30148a056d36bf61cf23a3c08804f02e66d2685e62\",\"graph-7-0.wgsl\":\"dbc41dadce5d6e46cbaa83a75ff26da128edff98b56aa9c1fdd11754beacda83\"},[{\"element\":{\"kind\":\"u32\"},\"kind\":\"list\"}],[[\"evens\",[[\"i\",\"xs\"]]],[\"inc\",[[\"step\",0]]]],[\"i\"],[[\"xs\",1]],3]",
+        "segments": [
+          {
+            "start": 0,
+            "end": 1,
+            "backend": "cpu"
+          },
+          {
+            "start": 1,
+            "end": 2,
+            "backend": "gpu"
+          }
+        ],
+        "reason": "explicit pure pipeline placement"
+      },
+      "stages": [
+        {
+          "iteration": 0,
+          "start": 0,
+          "end": 1,
+          "requested": "cpu",
+          "backend": "cpu",
+          "outputs": [
+            "e"
+          ],
+          "reason": "explicit pure pipeline placement",
+          "counters": {
+            "upload_bytes": 0,
+            "readback_bytes": 0,
+            "dispatches": 0
+          }
+        },
+        {
+          "iteration": 0,
+          "start": 1,
+          "end": 2,
+          "requested": "gpu",
+          "backend": "gpu",
+          "outputs": [
+            "i"
+          ],
+          "reason": "explicit pure pipeline placement",
+          "counters": {
+            "upload_bytes": 20,
+            "readback_bytes": 12,
+            "dispatches": 1,
+            "live_buffer_bytes": 56
+          }
+        },
+        {
+          "iteration": 1,
+          "start": 0,
+          "end": 1,
+          "requested": "cpu",
+          "backend": "cpu",
+          "outputs": [
+            "e"
+          ],
+          "reason": "explicit pure pipeline placement",
+          "counters": {
+            "upload_bytes": 0,
+            "readback_bytes": 0,
+            "dispatches": 0
+          }
+        },
+        {
+          "iteration": 1,
+          "start": 1,
+          "end": 2,
+          "requested": "gpu",
+          "backend": "gpu",
+          "outputs": [
+            "i"
+          ],
+          "reason": "explicit pure pipeline placement",
+          "counters": {
+            "upload_bytes": 12,
+            "readback_bytes": 4,
+            "dispatches": 0,
+            "live_buffer_bytes": 24
+          }
+        },
+        {
+          "iteration": 2,
+          "start": 0,
+          "end": 1,
+          "requested": "cpu",
+          "backend": "cpu",
+          "outputs": [
+            "e"
+          ],
+          "reason": "explicit pure pipeline placement",
+          "counters": {
+            "upload_bytes": 0,
+            "readback_bytes": 0,
+            "dispatches": 0
+          }
+        },
+        {
+          "iteration": 2,
+          "start": 1,
+          "end": 2,
+          "requested": "gpu",
+          "backend": "gpu",
+          "outputs": [
+            "i"
+          ],
+          "reason": "explicit pure pipeline placement",
+          "counters": {
+            "upload_bytes": 12,
+            "readback_bytes": 4,
+            "dispatches": 0,
+            "live_buffer_bytes": 24
+          }
+        }
+      ],
+      "counters": {
+        "upload_bytes": 44,
+        "readback_bytes": 20,
+        "dispatches": 1,
+        "live_buffer_bytes": 56,
+        "resident_copy_bytes": 0
+      }
+    }
+  ],
+  "observations": {
+    "schema": 1,
+    "boundary": "captured-segment",
+    "requests": 780,
+    "observations": [
+      {
+        "scope": "[\"[\\\"ink-pipeline-placement-v1\\\",\\\"d2f05a69232c4ecdc8b7f8cdf7af04bea16c6ad8c664aaf5e8b4eb072f3aeb2e\\\",\\\"15aa5559a5b8b98d5dee56aef5fd7f5f2fab090a87105284a8af24e593100910\\\",\\\"8b8194a3fe1bf46cab553769c8955136782de5c9370409f9bb8f08c68a5497d0\\\",{\\\"compute-0.wgsl\\\":\\\"a3daeb89aca915d3a0a9c851b4235d45ff67534308eae3dba3eca9f64d386a5e\\\",\\\"compute-1.wgsl\\\":\\\"4bb62863b23063ad646c4caf255512709ee12b794bb36e68e22e43fe97b3ae67\\\",\\\"compute-2.wgsl\\\":\\\"efdca9d6616bde8fa56cbc537d29ffb1d387fb1caf4290fc5e527fd8a5c1e923\\\",\\\"compute-3.wgsl\\\":\\\"dcaf6b2a406e685a2b579914236f99d1ceb36d824d2306409fd5d701616ce540\\\",\\\"compute-7.wgsl\\\":\\\"236fc240adab7ceb72e70d6c846c12cf68b452b7b513ff8251af76a5f4572b88\\\",\\\"graph-0-0.wgsl\\\":\\\"530386011deb5a7c2e12ba0c0cbe3d3c5c0425e3672a07c535574cc7b9403bdf\\\",\\\"graph-1-0.wgsl\\\":\\\"76bcb72063064eaa763ab3a5c0e254a0bd19409b690ab85bbeff5a1ae8185ea2\\\",\\\"graph-3-0.wgsl\\\":\\\"83872bf0f273efbd38015a4e4bb1ee90872c010d3b49f902ae03e310036cac36\\\",\\\"graph-4-0.wgsl\\\":\\\"a4748bc5be1570987efe1ab5d41efadc3444f908bb0c4202d6079aa5c74a5e0d\\\",\\\"graph-5-0.wgsl\\\":\\\"b9170db61921aea20d486b30148a056d36bf61cf23a3c08804f02e66d2685e62\\\",\\\"graph-7-0.wgsl\\\":\\\"dbc41dadce5d6e46cbaa83a75ff26da128edff98b56aa9c1fdd11754beacda83\\\"},[{\\\"element\\\":{\\\"kind\\\":\\\"u32\\\"},\\\"kind\\\":\\\"list\\\"}],[[\\\"heavy\\\",[[\\\"i\\\",\\\"xs\\\"]]],[\\\"inc\\\",[[\\\"step\\\",0]]],[\\\"total\\\",[[\\\"step\\\",1]]]],[\\\"sum\\\"],[],1]\",0,2]",
+        "boundary": "captured-segment",
+        "features": {
+          "input_elements": 256,
+          "input_bytes": 1024,
+          "output_capacity_elements": 256,
+          "dispatches": 2,
+          "iterations": 1
+        },
+        "backends": {
+          "cpu": {
+            "cold_ns": 200000.00298023224,
+            "samples_ns": [
+              0,
+              0,
+              0,
+              0,
+              200000.00298023224,
+              200000.00298023224,
+              0
+            ],
+            "median_ns": 0
+          },
+          "javascript": {
+            "cold_ns": 4599999.9940395355,
+            "samples_ns": [
+              299999.99701976776,
+              200000.00298023224,
+              200000.00298023224,
+              99999.99403953552,
+              100000.00894069672,
+              199999.98807907104,
+              100000.00894069672
+            ],
+            "median_ns": 199999.98807907104
+          },
+          "gpu": {
+            "cold_ns": 4900000.0059604645,
+            "samples_ns": [
+              900000.0059604645,
+              799999.9970197678,
+              599999.9940395355,
+              700000.0029802322,
+              599999.9940395355,
+              600000.0089406967,
+              500000
+            ],
+            "median_ns": 600000.0089406967
+          },
+          "cpu-worker": {
+            "cold_ns": 500000,
+            "samples_ns": [
+              199999.98807907104,
+              99999.99403953552,
+              200000.00298023224,
+              100000.00894069672,
+              200000.00298023224,
+              200000.00298023224,
+              200000.00298023224
+            ],
+            "median_ns": 200000.00298023224
+          },
+          "javascript-worker": {
+            "cold_ns": 2700000.0029802322,
+            "samples_ns": [
+              300000.01192092896,
+              299999.99701976776,
+              299999.99701976776,
+              299999.99701976776,
+              200000.00298023224,
+              99999.99403953552,
+              299999.99701976776
+            ],
+            "median_ns": 299999.99701976776
+          }
+        }
+      },
+      {
+        "scope": "[\"[\\\"ink-pipeline-placement-v1\\\",\\\"d2f05a69232c4ecdc8b7f8cdf7af04bea16c6ad8c664aaf5e8b4eb072f3aeb2e\\\",\\\"15aa5559a5b8b98d5dee56aef5fd7f5f2fab090a87105284a8af24e593100910\\\",\\\"8b8194a3fe1bf46cab553769c8955136782de5c9370409f9bb8f08c68a5497d0\\\",{\\\"compute-0.wgsl\\\":\\\"a3daeb89aca915d3a0a9c851b4235d45ff67534308eae3dba3eca9f64d386a5e\\\",\\\"compute-1.wgsl\\\":\\\"4bb62863b23063ad646c4caf255512709ee12b794bb36e68e22e43fe97b3ae67\\\",\\\"compute-2.wgsl\\\":\\\"efdca9d6616bde8fa56cbc537d29ffb1d387fb1caf4290fc5e527fd8a5c1e923\\\",\\\"compute-3.wgsl\\\":\\\"dcaf6b2a406e685a2b579914236f99d1ceb36d824d2306409fd5d701616ce540\\\",\\\"compute-7.wgsl\\\":\\\"236fc240adab7ceb72e70d6c846c12cf68b452b7b513ff8251af76a5f4572b88\\\",\\\"graph-0-0.wgsl\\\":\\\"530386011deb5a7c2e12ba0c0cbe3d3c5c0425e3672a07c535574cc7b9403bdf\\\",\\\"graph-1-0.wgsl\\\":\\\"76bcb72063064eaa763ab3a5c0e254a0bd19409b690ab85bbeff5a1ae8185ea2\\\",\\\"graph-3-0.wgsl\\\":\\\"83872bf0f273efbd38015a4e4bb1ee90872c010d3b49f902ae03e310036cac36\\\",\\\"graph-4-0.wgsl\\\":\\\"a4748bc5be1570987efe1ab5d41efadc3444f908bb0c4202d6079aa5c74a5e0d\\\",\\\"graph-5-0.wgsl\\\":\\\"b9170db61921aea20d486b30148a056d36bf61cf23a3c08804f02e66d2685e62\\\",\\\"graph-7-0.wgsl\\\":\\\"dbc41dadce5d6e46cbaa83a75ff26da128edff98b56aa9c1fdd11754beacda83\\\"},[{\\\"element\\\":{\\\"kind\\\":\\\"u32\\\"},\\\"kind\\\":\\\"list\\\"}],[[\\\"heavy\\\",[[\\\"i\\\",\\\"xs\\\"]]],[\\\"inc\\\",[[\\\"step\\\",0]]],[\\\"total\\\",[[\\\"step\\\",1]]]],[\\\"sum\\\"],[],1]\",0,3]",
+        "boundary": "captured-segment",
+        "features": {
+          "input_elements": 256,
+          "input_bytes": 1024,
+          "output_capacity_elements": 1,
+          "dispatches": 3,
+          "iterations": 1
+        },
+        "backends": {
+          "cpu": {
+            "cold_ns": 99999.99403953552,
+            "samples_ns": [
+              100000.00894069672,
+              100000.00894069672,
+              200000.00298023224,
+              99999.99403953552,
+              99999.99403953552,
+              100000.00894069672,
+              99999.99403953552
+            ],
+            "median_ns": 100000.00894069672
+          },
+          "javascript": {
+            "cold_ns": 100000.00894069672,
+            "samples_ns": [
+              199999.98807907104,
+              99999.99403953552,
+              99999.99403953552,
+              200000.00298023224,
+              100000.00894069672,
+              199999.98807907104,
+              100000.00894069672
+            ],
+            "median_ns": 100000.00894069672
+          },
+          "gpu": {
+            "cold_ns": 7299999.997019768,
+            "samples_ns": [
+              800000.011920929,
+              799999.9970197678,
+              700000.0029802322,
+              700000.0029802322,
+              799999.9970197678,
+              700000.0029802322,
+              699999.988079071
+            ],
+            "median_ns": 700000.0029802322
+          },
+          "cpu-worker": {
+            "cold_ns": 299999.99701976776,
+            "samples_ns": [
+              99999.99403953552,
+              200000.00298023224,
+              200000.00298023224,
+              200000.00298023224,
+              99999.99403953552,
+              100000.00894069672,
+              200000.00298023224
+            ],
+            "median_ns": 200000.00298023224
+          },
+          "javascript-worker": {
+            "cold_ns": 299999.99701976776,
+            "samples_ns": [
+              299999.99701976776,
+              200000.00298023224,
+              199999.98807907104,
+              200000.00298023224,
+              200000.00298023224,
+              299999.99701976776,
+              200000.00298023224
+            ],
+            "median_ns": 200000.00298023224
+          }
+        }
+      },
+      {
+        "scope": "[\"[\\\"ink-pipeline-placement-v1\\\",\\\"d2f05a69232c4ecdc8b7f8cdf7af04bea16c6ad8c664aaf5e8b4eb072f3aeb2e\\\",\\\"15aa5559a5b8b98d5dee56aef5fd7f5f2fab090a87105284a8af24e593100910\\\",\\\"8b8194a3fe1bf46cab553769c8955136782de5c9370409f9bb8f08c68a5497d0\\\",{\\\"compute-0.wgsl\\\":\\\"a3daeb89aca915d3a0a9c851b4235d45ff67534308eae3dba3eca9f64d386a5e\\\",\\\"compute-1.wgsl\\\":\\\"4bb62863b23063ad646c4caf255512709ee12b794bb36e68e22e43fe97b3ae67\\\",\\\"compute-2.wgsl\\\":\\\"efdca9d6616bde8fa56cbc537d29ffb1d387fb1caf4290fc5e527fd8a5c1e923\\\",\\\"compute-3.wgsl\\\":\\\"dcaf6b2a406e685a2b579914236f99d1ceb36d824d2306409fd5d701616ce540\\\",\\\"compute-7.wgsl\\\":\\\"236fc240adab7ceb72e70d6c846c12cf68b452b7b513ff8251af76a5f4572b88\\\",\\\"graph-0-0.wgsl\\\":\\\"530386011deb5a7c2e12ba0c0cbe3d3c5c0425e3672a07c535574cc7b9403bdf\\\",\\\"graph-1-0.wgsl\\\":\\\"76bcb72063064eaa763ab3a5c0e254a0bd19409b690ab85bbeff5a1ae8185ea2\\\",\\\"graph-3-0.wgsl\\\":\\\"83872bf0f273efbd38015a4e4bb1ee90872c010d3b49f902ae03e310036cac36\\\",\\\"graph-4-0.wgsl\\\":\\\"a4748bc5be1570987efe1ab5d41efadc3444f908bb0c4202d6079aa5c74a5e0d\\\",\\\"graph-5-0.wgsl\\\":\\\"b9170db61921aea20d486b30148a056d36bf61cf23a3c08804f02e66d2685e62\\\",\\\"graph-7-0.wgsl\\\":\\\"dbc41dadce5d6e46cbaa83a75ff26da128edff98b56aa9c1fdd11754beacda83\\\"},[{\\\"element\\\":{\\\"kind\\\":\\\"u32\\\"},\\\"kind\\\":\\\"list\\\"}],[[\\\"heavy\\\",[[\\\"i\\\",\\\"xs\\\"]]],[\\\"inc\\\",[[\\\"step\\\",0]]],[\\\"total\\\",[[\\\"step\\\",1]]]],[\\\"sum\\\"],[],1]\",2,3]",
+        "boundary": "captured-segment",
+        "features": {
+          "input_elements": 256,
+          "input_bytes": 1024,
+          "output_capacity_elements": 1,
+          "dispatches": 1,
+          "iterations": 1
+        },
+        "backends": {
+          "cpu": {
+            "cold_ns": 0,
+            "samples_ns": [
+              99999.99403953552,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "median_ns": 0
+          },
+          "javascript": {
+            "cold_ns": 0,
+            "samples_ns": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              99999.99403953552,
+              0
+            ],
+            "median_ns": 0
+          },
+          "gpu": {
+            "cold_ns": 800000.011920929,
+            "samples_ns": [
+              599999.9940395355,
+              700000.0029802322,
+              599999.9940395355,
+              500000,
+              599999.9940395355,
+              599999.9940395355,
+              500000
+            ],
+            "median_ns": 599999.9940395355
+          },
+          "cpu-worker": {
+            "cold_ns": 99999.99403953552,
+            "samples_ns": [
+              0,
+              0,
+              100000.00894069672,
+              99999.99403953552,
+              100000.00894069672,
+              100000.00894069672,
+              100000.00894069672
+            ],
+            "median_ns": 100000.00894069672
+          },
+          "javascript-worker": {
+            "cold_ns": 99999.99403953552,
+            "samples_ns": [
+              100000.00894069672,
+              99999.99403953552,
+              99999.99403953552,
+              100000.00894069672,
+              99999.99403953552,
+              0,
+              0
+            ],
+            "median_ns": 99999.99403953552
+          }
+        }
+      },
+      {
+        "scope": "[\"[\\\"ink-pipeline-placement-v1\\\",\\\"d2f05a69232c4ecdc8b7f8cdf7af04bea16c6ad8c664aaf5e8b4eb072f3aeb2e\\\",\\\"15aa5559a5b8b98d5dee56aef5fd7f5f2fab090a87105284a8af24e593100910\\\",\\\"8b8194a3fe1bf46cab553769c8955136782de5c9370409f9bb8f08c68a5497d0\\\",{\\\"compute-0.wgsl\\\":\\\"a3daeb89aca915d3a0a9c851b4235d45ff67534308eae3dba3eca9f64d386a5e\\\",\\\"compute-1.wgsl\\\":\\\"4bb62863b23063ad646c4caf255512709ee12b794bb36e68e22e43fe97b3ae67\\\",\\\"compute-2.wgsl\\\":\\\"efdca9d6616bde8fa56cbc537d29ffb1d387fb1caf4290fc5e527fd8a5c1e923\\\",\\\"compute-3.wgsl\\\":\\\"dcaf6b2a406e685a2b579914236f99d1ceb36d824d2306409fd5d701616ce540\\\",\\\"compute-7.wgsl\\\":\\\"236fc240adab7ceb72e70d6c846c12cf68b452b7b513ff8251af76a5f4572b88\\\",\\\"graph-0-0.wgsl\\\":\\\"530386011deb5a7c2e12ba0c0cbe3d3c5c0425e3672a07c535574cc7b9403bdf\\\",\\\"graph-1-0.wgsl\\\":\\\"76bcb72063064eaa763ab3a5c0e254a0bd19409b690ab85bbeff5a1ae8185ea2\\\",\\\"graph-3-0.wgsl\\\":\\\"83872bf0f273efbd38015a4e4bb1ee90872c010d3b49f902ae03e310036cac36\\\",\\\"graph-4-0.wgsl\\\":\\\"a4748bc5be1570987efe1ab5d41efadc3444f908bb0c4202d6079aa5c74a5e0d\\\",\\\"graph-5-0.wgsl\\\":\\\"b9170db61921aea20d486b30148a056d36bf61cf23a3c08804f02e66d2685e62\\\",\\\"graph-7-0.wgsl\\\":\\\"dbc41dadce5d6e46cbaa83a75ff26da128edff98b56aa9c1fdd11754beacda83\\\"},[{\\\"element\\\":{\\\"kind\\\":\\\"u32\\\"},\\\"kind\\\":\\\"list\\\"}],[[\\\"heavy\\\",[[\\\"i\\\",\\\"xs\\\"]]],[\\\"inc\\\",[[\\\"step\\\",0]]],[\\\"total\\\",[[\\\"step\\\",1]]]],[\\\"sum\\\"],[],1]\",0,2]",
+        "boundary": "captured-segment",
+        "features": {
+          "input_elements": 1024,
+          "input_bytes": 4096,
+          "output_capacity_elements": 1024,
+          "dispatches": 2,
+          "iterations": 1
+        },
+        "backends": {
+          "cpu": {
+            "cold_ns": 200000.00298023224,
+            "samples_ns": [
+              200000.00298023224,
+              299999.99701976776,
+              200000.00298023224,
+              299999.99701976776,
+              200000.00298023224,
+              299999.99701976776,
+              300000.01192092896
+            ],
+            "median_ns": 299999.99701976776
+          },
+          "javascript": {
+            "cold_ns": 700000.0029802322,
+            "samples_ns": [
+              700000.0029802322,
+              700000.0029802322,
+              599999.9940395355,
+              700000.0029802322,
+              599999.9940395355,
+              700000.0029802322,
+              599999.9940395355
+            ],
+            "median_ns": 700000.0029802322
+          },
+          "gpu": {
+            "cold_ns": 799999.9970197678,
+            "samples_ns": [
+              799999.9970197678,
+              1099999.9940395355,
+              800000.011920929,
+              699999.988079071,
+              799999.9970197678,
+              899999.9910593033,
+              900000.0059604645
+            ],
+            "median_ns": 800000.011920929
+          },
+          "cpu-worker": {
+            "cold_ns": 400000.0059604645,
+            "samples_ns": [
+              299999.99701976776,
+              400000.0059604645,
+              399999.9910593033,
+              400000.0059604645,
+              400000.0059604645,
+              299999.99701976776,
+              399999.9910593033
+            ],
+            "median_ns": 399999.9910593033
+          },
+          "javascript-worker": {
+            "cold_ns": 799999.9970197678,
+            "samples_ns": [
+              799999.9970197678,
+              799999.9970197678,
+              900000.0059604645,
+              799999.9970197678,
+              899999.9910593033,
+              800000.011920929,
+              799999.9970197678
+            ],
+            "median_ns": 799999.9970197678
+          }
+        }
+      },
+      {
+        "scope": "[\"[\\\"ink-pipeline-placement-v1\\\",\\\"d2f05a69232c4ecdc8b7f8cdf7af04bea16c6ad8c664aaf5e8b4eb072f3aeb2e\\\",\\\"15aa5559a5b8b98d5dee56aef5fd7f5f2fab090a87105284a8af24e593100910\\\",\\\"8b8194a3fe1bf46cab553769c8955136782de5c9370409f9bb8f08c68a5497d0\\\",{\\\"compute-0.wgsl\\\":\\\"a3daeb89aca915d3a0a9c851b4235d45ff67534308eae3dba3eca9f64d386a5e\\\",\\\"compute-1.wgsl\\\":\\\"4bb62863b23063ad646c4caf255512709ee12b794bb36e68e22e43fe97b3ae67\\\",\\\"compute-2.wgsl\\\":\\\"efdca9d6616bde8fa56cbc537d29ffb1d387fb1caf4290fc5e527fd8a5c1e923\\\",\\\"compute-3.wgsl\\\":\\\"dcaf6b2a406e685a2b579914236f99d1ceb36d824d2306409fd5d701616ce540\\\",\\\"compute-7.wgsl\\\":\\\"236fc240adab7ceb72e70d6c846c12cf68b452b7b513ff8251af76a5f4572b88\\\",\\\"graph-0-0.wgsl\\\":\\\"530386011deb5a7c2e12ba0c0cbe3d3c5c0425e3672a07c535574cc7b9403bdf\\\",\\\"graph-1-0.wgsl\\\":\\\"76bcb72063064eaa763ab3a5c0e254a0bd19409b690ab85bbeff5a1ae8185ea2\\\",\\\"graph-3-0.wgsl\\\":\\\"83872bf0f273efbd38015a4e4bb1ee90872c010d3b49f902ae03e310036cac36\\\",\\\"graph-4-0.wgsl\\\":\\\"a4748bc5be1570987efe1ab5d41efadc3444f908bb0c4202d6079aa5c74a5e0d\\\",\\\"graph-5-0.wgsl\\\":\\\"b9170db61921aea20d486b30148a056d36bf61cf23a3c08804f02e66d2685e62\\\",\\\"graph-7-0.wgsl\\\":\\\"dbc41dadce5d6e46cbaa83a75ff26da128edff98b56aa9c1fdd11754beacda83\\\"},[{\\\"element\\\":{\\\"kind\\\":\\\"u32\\\"},\\\"kind\\\":\\\"list\\\"}],[[\\\"heavy\\\",[[\\\"i\\\",\\\"xs\\\"]]],[\\\"inc\\\",[[\\\"step\\\",0]]],[\\\"total\\\",[[\\\"step\\\",1]]]],[\\\"sum\\\"],[],1]\",0,3]",
+        "boundary": "captured-segment",
+        "features": {
+          "input_elements": 1024,
+          "input_bytes": 4096,
+          "output_capacity_elements": 1,
+          "dispatches": 3,
+          "iterations": 1
+        },
+        "backends": {
+          "cpu": {
+            "cold_ns": 299999.99701976776,
+            "samples_ns": [
+              199999.98807907104,
+              200000.00298023224,
+              299999.99701976776,
+              200000.00298023224,
+              200000.00298023224,
+              200000.00298023224,
+              299999.99701976776
+            ],
+            "median_ns": 200000.00298023224
+          },
+          "javascript": {
+            "cold_ns": 599999.9940395355,
+            "samples_ns": [
+              700000.0029802322,
+              599999.9940395355,
+              700000.0029802322,
+              700000.0029802322,
+              699999.988079071,
+              700000.0029802322,
+              599999.9940395355
+            ],
+            "median_ns": 700000.0029802322
+          },
+          "gpu": {
+            "cold_ns": 1299999.9970197678,
+            "samples_ns": [
+              1200000.0029802322,
+              1300000.011920929,
+              1099999.9940395355,
+              1200000.0029802322,
+              1300000.011920929,
+              1299999.9970197678,
+              1200000.0029802322
+            ],
+            "median_ns": 1200000.0029802322
+          },
+          "cpu-worker": {
+            "cold_ns": 400000.0059604645,
+            "samples_ns": [
+              400000.0059604645,
+              199999.98807907104,
+              400000.0059604645,
+              299999.99701976776,
+              299999.99701976776,
+              299999.99701976776,
+              299999.99701976776
+            ],
+            "median_ns": 299999.99701976776
+          },
+          "javascript-worker": {
+            "cold_ns": 700000.0029802322,
+            "samples_ns": [
+              699999.988079071,
+              800000.011920929,
+              700000.0029802322,
+              799999.9970197678,
+              700000.0029802322,
+              700000.0029802322,
+              900000.0059604645
+            ],
+            "median_ns": 700000.0029802322
+          }
+        }
+      },
+      {
+        "scope": "[\"[\\\"ink-pipeline-placement-v1\\\",\\\"d2f05a69232c4ecdc8b7f8cdf7af04bea16c6ad8c664aaf5e8b4eb072f3aeb2e\\\",\\\"15aa5559a5b8b98d5dee56aef5fd7f5f2fab090a87105284a8af24e593100910\\\",\\\"8b8194a3fe1bf46cab553769c8955136782de5c9370409f9bb8f08c68a5497d0\\\",{\\\"compute-0.wgsl\\\":\\\"a3daeb89aca915d3a0a9c851b4235d45ff67534308eae3dba3eca9f64d386a5e\\\",\\\"compute-1.wgsl\\\":\\\"4bb62863b23063ad646c4caf255512709ee12b794bb36e68e22e43fe97b3ae67\\\",\\\"compute-2.wgsl\\\":\\\"efdca9d6616bde8fa56cbc537d29ffb1d387fb1caf4290fc5e527fd8a5c1e923\\\",\\\"compute-3.wgsl\\\":\\\"dcaf6b2a406e685a2b579914236f99d1ceb36d824d2306409fd5d701616ce540\\\",\\\"compute-7.wgsl\\\":\\\"236fc240adab7ceb72e70d6c846c12cf68b452b7b513ff8251af76a5f4572b88\\\",\\\"graph-0-0.wgsl\\\":\\\"530386011deb5a7c2e12ba0c0cbe3d3c5c0425e3672a07c535574cc7b9403bdf\\\",\\\"graph-1-0.wgsl\\\":\\\"76bcb72063064eaa763ab3a5c0e254a0bd19409b690ab85bbeff5a1ae8185ea2\\\",\\\"graph-3-0.wgsl\\\":\\\"83872bf0f273efbd38015a4e4bb1ee90872c010d3b49f902ae03e310036cac36\\\",\\\"graph-4-0.wgsl\\\":\\\"a4748bc5be1570987efe1ab5d41efadc3444f908bb0c4202d6079aa5c74a5e0d\\\",\\\"graph-5-0.wgsl\\\":\\\"b9170db61921aea20d486b30148a056d36bf61cf23a3c08804f02e66d2685e62\\\",\\\"graph-7-0.wgsl\\\":\\\"dbc41dadce5d6e46cbaa83a75ff26da128edff98b56aa9c1fdd11754beacda83\\\"},[{\\\"element\\\":{\\\"kind\\\":\\\"u32\\\"},\\\"kind\\\":\\\"list\\\"}],[[\\\"heavy\\\",[[\\\"i\\\",\\\"xs\\\"]]],[\\\"inc\\\",[[\\\"step\\\",0]]],[\\\"total\\\",[[\\\"step\\\",1]]]],[\\\"sum\\\"],[],1]\",2,3]",
+        "boundary": "captured-segment",
+        "features": {
+          "input_elements": 1024,
+          "input_bytes": 4096,
+          "output_capacity_elements": 1,
+          "dispatches": 1,
+          "iterations": 1
+        },
+        "backends": {
+          "cpu": {
+            "cold_ns": 0,
+            "samples_ns": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "median_ns": 0
+          },
+          "javascript": {
+            "cold_ns": 0,
+            "samples_ns": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              99999.99403953552
+            ],
+            "median_ns": 0
+          },
+          "gpu": {
+            "cold_ns": 1100000.0089406967,
+            "samples_ns": [
+              1099999.9940395355,
+              900000.0059604645,
+              800000.011920929,
+              900000.0059604645,
+              900000.0059604645,
+              799999.9970197678,
+              800000.011920929
+            ],
+            "median_ns": 900000.0059604645
+          },
+          "cpu-worker": {
+            "cold_ns": 200000.00298023224,
+            "samples_ns": [
+              0,
+              99999.99403953552,
+              0,
+              0,
+              99999.99403953552,
+              100000.00894069672,
+              99999.99403953552
+            ],
+            "median_ns": 99999.99403953552
+          },
+          "javascript-worker": {
+            "cold_ns": 99999.99403953552,
+            "samples_ns": [
+              100000.00894069672,
+              99999.99403953552,
+              99999.99403953552,
+              99999.99403953552,
+              0,
+              99999.99403953552,
+              0
+            ],
+            "median_ns": 99999.99403953552
+          }
+        }
+      },
+      {
+        "scope": "[\"[\\\"ink-pipeline-placement-v1\\\",\\\"d2f05a69232c4ecdc8b7f8cdf7af04bea16c6ad8c664aaf5e8b4eb072f3aeb2e\\\",\\\"15aa5559a5b8b98d5dee56aef5fd7f5f2fab090a87105284a8af24e593100910\\\",\\\"8b8194a3fe1bf46cab553769c8955136782de5c9370409f9bb8f08c68a5497d0\\\",{\\\"compute-0.wgsl\\\":\\\"a3daeb89aca915d3a0a9c851b4235d45ff67534308eae3dba3eca9f64d386a5e\\\",\\\"compute-1.wgsl\\\":\\\"4bb62863b23063ad646c4caf255512709ee12b794bb36e68e22e43fe97b3ae67\\\",\\\"compute-2.wgsl\\\":\\\"efdca9d6616bde8fa56cbc537d29ffb1d387fb1caf4290fc5e527fd8a5c1e923\\\",\\\"compute-3.wgsl\\\":\\\"dcaf6b2a406e685a2b579914236f99d1ceb36d824d2306409fd5d701616ce540\\\",\\\"compute-7.wgsl\\\":\\\"236fc240adab7ceb72e70d6c846c12cf68b452b7b513ff8251af76a5f4572b88\\\",\\\"graph-0-0.wgsl\\\":\\\"530386011deb5a7c2e12ba0c0cbe3d3c5c0425e3672a07c535574cc7b9403bdf\\\",\\\"graph-1-0.wgsl\\\":\\\"76bcb72063064eaa763ab3a5c0e254a0bd19409b690ab85bbeff5a1ae8185ea2\\\",\\\"graph-3-0.wgsl\\\":\\\"83872bf0f273efbd38015a4e4bb1ee90872c010d3b49f902ae03e310036cac36\\\",\\\"graph-4-0.wgsl\\\":\\\"a4748bc5be1570987efe1ab5d41efadc3444f908bb0c4202d6079aa5c74a5e0d\\\",\\\"graph-5-0.wgsl\\\":\\\"b9170db61921aea20d486b30148a056d36bf61cf23a3c08804f02e66d2685e62\\\",\\\"graph-7-0.wgsl\\\":\\\"dbc41dadce5d6e46cbaa83a75ff26da128edff98b56aa9c1fdd11754beacda83\\\"},[{\\\"element\\\":{\\\"kind\\\":\\\"u32\\\"},\\\"kind\\\":\\\"list\\\"}],[[\\\"heavy\\\",[[\\\"i\\\",\\\"xs\\\"]]],[\\\"inc\\\",[[\\\"step\\\",0]]],[\\\"total\\\",[[\\\"step\\\",1]]]],[\\\"sum\\\"],[],1]\",0,2]",
+        "boundary": "captured-segment",
+        "features": {
+          "input_elements": 4096,
+          "input_bytes": 16384,
+          "output_capacity_elements": 4096,
+          "dispatches": 2,
+          "iterations": 1
+        },
+        "backends": {
+          "cpu": {
+            "cold_ns": 1000000,
+            "samples_ns": [
+              1000000,
+              1000000,
+              1200000.0029802322,
+              1200000.0029802322,
+              1200000.0029802322,
+              1099999.9940395355,
+              1200000.0029802322
+            ],
+            "median_ns": 1200000.0029802322
+          },
+          "javascript": {
+            "cold_ns": 2600000.0089406967,
+            "samples_ns": [
+              2800000.011920929,
+              2700000.0029802322,
+              2799999.9970197678,
+              2700000.0029802322,
+              2700000.0029802322,
+              2600000.0089406967,
+              2699999.988079071
+            ],
+            "median_ns": 2700000.0029802322
+          },
+          "gpu": {
+            "cold_ns": 1599999.9940395355,
+            "samples_ns": [
+              1100000.0089406967,
+              1299999.9970197678,
+              1200000.0029802322,
+              1299999.9970197678,
+              1100000.0089406967,
+              1299999.9970197678,
+              1500000
+            ],
+            "median_ns": 1299999.9970197678
+          },
+          "cpu-worker": {
+            "cold_ns": 1200000.0029802322,
+            "samples_ns": [
+              1200000.0029802322,
+              1200000.0029802322,
+              1299999.9970197678,
+              1200000.0029802322,
+              1200000.0029802322,
+              1200000.0029802322,
+              1200000.0029802322
+            ],
+            "median_ns": 1200000.0029802322
+          },
+          "javascript-worker": {
+            "cold_ns": 3000000,
+            "samples_ns": [
+              3099999.9940395355,
+              3000000,
+              3000000,
+              3099999.9940395355,
+              3099999.9940395355,
+              2899999.9910593033,
+              3000000
+            ],
+            "median_ns": 3000000
+          }
+        }
+      },
+      {
+        "scope": "[\"[\\\"ink-pipeline-placement-v1\\\",\\\"d2f05a69232c4ecdc8b7f8cdf7af04bea16c6ad8c664aaf5e8b4eb072f3aeb2e\\\",\\\"15aa5559a5b8b98d5dee56aef5fd7f5f2fab090a87105284a8af24e593100910\\\",\\\"8b8194a3fe1bf46cab553769c8955136782de5c9370409f9bb8f08c68a5497d0\\\",{\\\"compute-0.wgsl\\\":\\\"a3daeb89aca915d3a0a9c851b4235d45ff67534308eae3dba3eca9f64d386a5e\\\",\\\"compute-1.wgsl\\\":\\\"4bb62863b23063ad646c4caf255512709ee12b794bb36e68e22e43fe97b3ae67\\\",\\\"compute-2.wgsl\\\":\\\"efdca9d6616bde8fa56cbc537d29ffb1d387fb1caf4290fc5e527fd8a5c1e923\\\",\\\"compute-3.wgsl\\\":\\\"dcaf6b2a406e685a2b579914236f99d1ceb36d824d2306409fd5d701616ce540\\\",\\\"compute-7.wgsl\\\":\\\"236fc240adab7ceb72e70d6c846c12cf68b452b7b513ff8251af76a5f4572b88\\\",\\\"graph-0-0.wgsl\\\":\\\"530386011deb5a7c2e12ba0c0cbe3d3c5c0425e3672a07c535574cc7b9403bdf\\\",\\\"graph-1-0.wgsl\\\":\\\"76bcb72063064eaa763ab3a5c0e254a0bd19409b690ab85bbeff5a1ae8185ea2\\\",\\\"graph-3-0.wgsl\\\":\\\"83872bf0f273efbd38015a4e4bb1ee90872c010d3b49f902ae03e310036cac36\\\",\\\"graph-4-0.wgsl\\\":\\\"a4748bc5be1570987efe1ab5d41efadc3444f908bb0c4202d6079aa5c74a5e0d\\\",\\\"graph-5-0.wgsl\\\":\\\"b9170db61921aea20d486b30148a056d36bf61cf23a3c08804f02e66d2685e62\\\",\\\"graph-7-0.wgsl\\\":\\\"dbc41dadce5d6e46cbaa83a75ff26da128edff98b56aa9c1fdd11754beacda83\\\"},[{\\\"element\\\":{\\\"kind\\\":\\\"u32\\\"},\\\"kind\\\":\\\"list\\\"}],[[\\\"heavy\\\",[[\\\"i\\\",\\\"xs\\\"]]],[\\\"inc\\\",[[\\\"step\\\",0]]],[\\\"total\\\",[[\\\"step\\\",1]]]],[\\\"sum\\\"],[],1]\",0,3]",
+        "boundary": "captured-segment",
+        "features": {
+          "input_elements": 4096,
+          "input_bytes": 16384,
+          "output_capacity_elements": 1,
+          "dispatches": 3,
+          "iterations": 1
+        },
+        "backends": {
+          "cpu": {
+            "cold_ns": 799999.9970197678,
+            "samples_ns": [
+              900000.0059604645,
+              1099999.9940395355,
+              800000.011920929,
+              899999.9910593033,
+              900000.0059604645,
+              800000.011920929,
+              1000000
+            ],
+            "median_ns": 900000.0059604645
+          },
+          "javascript": {
+            "cold_ns": 2700000.0029802322,
+            "samples_ns": [
+              2700000.0029802322,
+              2599999.9940395355,
+              2699999.988079071,
+              2700000.0029802322,
+              2700000.0029802322,
+              2799999.9970197678,
+              2699999.988079071
+            ],
+            "median_ns": 2700000.0029802322
+          },
+          "gpu": {
+            "cold_ns": 2599999.9940395355,
+            "samples_ns": [
+              2599999.9940395355,
+              2700000.0029802322,
+              2600000.0089406967,
+              2599999.9940395355,
+              2700000.0029802322,
+              2700000.0029802322,
+              2700000.0029802322
+            ],
+            "median_ns": 2700000.0029802322
+          },
+          "cpu-worker": {
+            "cold_ns": 1200000.0029802322,
+            "samples_ns": [
+              1200000.0029802322,
+              1100000.0089406967,
+              1099999.9940395355,
+              1100000.0089406967,
+              1099999.9940395355,
+              1000000,
+              1100000.0089406967
+            ],
+            "median_ns": 1100000.0089406967
+          },
+          "javascript-worker": {
+            "cold_ns": 2799999.9970197678,
+            "samples_ns": [
+              2799999.9970197678,
+              2799999.9970197678,
+              2799999.9970197678,
+              2700000.0029802322,
+              2900000.0059604645,
+              2699999.988079071,
+              2799999.9970197678
+            ],
+            "median_ns": 2799999.9970197678
+          }
+        }
+      },
+      {
+        "scope": "[\"[\\\"ink-pipeline-placement-v1\\\",\\\"d2f05a69232c4ecdc8b7f8cdf7af04bea16c6ad8c664aaf5e8b4eb072f3aeb2e\\\",\\\"15aa5559a5b8b98d5dee56aef5fd7f5f2fab090a87105284a8af24e593100910\\\",\\\"8b8194a3fe1bf46cab553769c8955136782de5c9370409f9bb8f08c68a5497d0\\\",{\\\"compute-0.wgsl\\\":\\\"a3daeb89aca915d3a0a9c851b4235d45ff67534308eae3dba3eca9f64d386a5e\\\",\\\"compute-1.wgsl\\\":\\\"4bb62863b23063ad646c4caf255512709ee12b794bb36e68e22e43fe97b3ae67\\\",\\\"compute-2.wgsl\\\":\\\"efdca9d6616bde8fa56cbc537d29ffb1d387fb1caf4290fc5e527fd8a5c1e923\\\",\\\"compute-3.wgsl\\\":\\\"dcaf6b2a406e685a2b579914236f99d1ceb36d824d2306409fd5d701616ce540\\\",\\\"compute-7.wgsl\\\":\\\"236fc240adab7ceb72e70d6c846c12cf68b452b7b513ff8251af76a5f4572b88\\\",\\\"graph-0-0.wgsl\\\":\\\"530386011deb5a7c2e12ba0c0cbe3d3c5c0425e3672a07c535574cc7b9403bdf\\\",\\\"graph-1-0.wgsl\\\":\\\"76bcb72063064eaa763ab3a5c0e254a0bd19409b690ab85bbeff5a1ae8185ea2\\\",\\\"graph-3-0.wgsl\\\":\\\"83872bf0f273efbd38015a4e4bb1ee90872c010d3b49f902ae03e310036cac36\\\",\\\"graph-4-0.wgsl\\\":\\\"a4748bc5be1570987efe1ab5d41efadc3444f908bb0c4202d6079aa5c74a5e0d\\\",\\\"graph-5-0.wgsl\\\":\\\"b9170db61921aea20d486b30148a056d36bf61cf23a3c08804f02e66d2685e62\\\",\\\"graph-7-0.wgsl\\\":\\\"dbc41dadce5d6e46cbaa83a75ff26da128edff98b56aa9c1fdd11754beacda83\\\"},[{\\\"element\\\":{\\\"kind\\\":\\\"u32\\\"},\\\"kind\\\":\\\"list\\\"}],[[\\\"heavy\\\",[[\\\"i\\\",\\\"xs\\\"]]],[\\\"inc\\\",[[\\\"step\\\",0]]],[\\\"total\\\",[[\\\"step\\\",1]]]],[\\\"sum\\\"],[],1]\",2,3]",
+        "boundary": "captured-segment",
+        "features": {
+          "input_elements": 4096,
+          "input_bytes": 16384,
+          "output_capacity_elements": 1,
+          "dispatches": 1,
+          "iterations": 1
+        },
+        "backends": {
+          "cpu": {
+            "cold_ns": 0,
+            "samples_ns": [
+              0,
+              0,
+              100000.00894069672,
+              100000.00894069672,
+              0,
+              0,
+              0
+            ],
+            "median_ns": 0
+          },
+          "javascript": {
+            "cold_ns": 0,
+            "samples_ns": [
+              99999.99403953552,
+              99999.99403953552,
+              0,
+              0,
+              0,
+              0,
+              99999.99403953552
+            ],
+            "median_ns": 0
+          },
+          "gpu": {
+            "cold_ns": 2400000.0059604645,
+            "samples_ns": [
+              2099999.9940395355,
+              2100000.0089406967,
+              2199999.988079071,
+              2099999.9940395355,
+              2000000,
+              2099999.9940395355,
+              2099999.9940395355
+            ],
+            "median_ns": 2099999.9940395355
+          },
+          "cpu-worker": {
+            "cold_ns": 200000.00298023224,
+            "samples_ns": [
+              200000.00298023224,
+              99999.99403953552,
+              100000.00894069672,
+              99999.99403953552,
+              200000.00298023224,
+              100000.00894069672,
+              100000.00894069672
+            ],
+            "median_ns": 100000.00894069672
+          },
+          "javascript-worker": {
+            "cold_ns": 99999.99403953552,
+            "samples_ns": [
+              100000.00894069672,
+              99999.99403953552,
+              99999.99403953552,
+              100000.00894069672,
+              99999.99403953552,
+              99999.99403953552,
+              99999.99403953552
+            ],
+            "median_ns": 99999.99403953552
+          }
+        }
+      },
+      {
+        "scope": "[\"[\\\"ink-pipeline-placement-v1\\\",\\\"d2f05a69232c4ecdc8b7f8cdf7af04bea16c6ad8c664aaf5e8b4eb072f3aeb2e\\\",\\\"15aa5559a5b8b98d5dee56aef5fd7f5f2fab090a87105284a8af24e593100910\\\",\\\"8b8194a3fe1bf46cab553769c8955136782de5c9370409f9bb8f08c68a5497d0\\\",{\\\"compute-0.wgsl\\\":\\\"a3daeb89aca915d3a0a9c851b4235d45ff67534308eae3dba3eca9f64d386a5e\\\",\\\"compute-1.wgsl\\\":\\\"4bb62863b23063ad646c4caf255512709ee12b794bb36e68e22e43fe97b3ae67\\\",\\\"compute-2.wgsl\\\":\\\"efdca9d6616bde8fa56cbc537d29ffb1d387fb1caf4290fc5e527fd8a5c1e923\\\",\\\"compute-3.wgsl\\\":\\\"dcaf6b2a406e685a2b579914236f99d1ceb36d824d2306409fd5d701616ce540\\\",\\\"compute-7.wgsl\\\":\\\"236fc240adab7ceb72e70d6c846c12cf68b452b7b513ff8251af76a5f4572b88\\\",\\\"graph-0-0.wgsl\\\":\\\"530386011deb5a7c2e12ba0c0cbe3d3c5c0425e3672a07c535574cc7b9403bdf\\\",\\\"graph-1-0.wgsl\\\":\\\"76bcb72063064eaa763ab3a5c0e254a0bd19409b690ab85bbeff5a1ae8185ea2\\\",\\\"graph-3-0.wgsl\\\":\\\"83872bf0f273efbd38015a4e4bb1ee90872c010d3b49f902ae03e310036cac36\\\",\\\"graph-4-0.wgsl\\\":\\\"a4748bc5be1570987efe1ab5d41efadc3444f908bb0c4202d6079aa5c74a5e0d\\\",\\\"graph-5-0.wgsl\\\":\\\"b9170db61921aea20d486b30148a056d36bf61cf23a3c08804f02e66d2685e62\\\",\\\"graph-7-0.wgsl\\\":\\\"dbc41dadce5d6e46cbaa83a75ff26da128edff98b56aa9c1fdd11754beacda83\\\"},[{\\\"element\\\":{\\\"kind\\\":\\\"u32\\\"},\\\"kind\\\":\\\"list\\\"}],[[\\\"heavy\\\",[[\\\"i\\\",\\\"xs\\\"]]],[\\\"inc\\\",[[\\\"step\\\",0]]],[\\\"total\\\",[[\\\"step\\\",1]]]],[\\\"sum\\\"],[],1]\",0,2]",
+        "boundary": "captured-segment",
+        "features": {
+          "input_elements": 16384,
+          "input_bytes": 65536,
+          "output_capacity_elements": 16384,
+          "dispatches": 2,
+          "iterations": 1
+        },
+        "backends": {
+          "cpu": {
+            "cold_ns": 3900000.0059604645,
+            "samples_ns": [
+              4299999.997019768,
+              4299999.997019768,
+              3899999.9910593033,
+              4000000,
+              4400000.0059604645,
+              4000000,
+              4000000
+            ],
+            "median_ns": 4000000
+          },
+          "javascript": {
+            "cold_ns": 10500000,
+            "samples_ns": [
+              10600000.008940697,
+              10600000.008940697,
+              10500000,
+              10599999.994039536,
+              11000000,
+              11000000,
+              11400000.005960464
+            ],
+            "median_ns": 10600000.008940697
+          },
+          "gpu": {
+            "cold_ns": 2300000.011920929,
+            "samples_ns": [
+              2099999.9940395355,
+              2200000.0029802322,
+              2299999.9970197678,
+              2000000,
+              2000000,
+              2199999.988079071,
+              2199999.988079071
+            ],
+            "median_ns": 2199999.988079071
+          },
+          "cpu-worker": {
+            "cold_ns": 4500000,
+            "samples_ns": [
+              4500000,
+              4399999.991059303,
+              4599999.9940395355,
+              4200000.002980232,
+              4500000,
+              4500000,
+              4500000
+            ],
+            "median_ns": 4500000
+          },
+          "javascript-worker": {
+            "cold_ns": 13900000.005960464,
+            "samples_ns": [
+              12399999.991059303,
+              12500000,
+              12299999.997019768,
+              12299999.997019768,
+              12299999.997019768,
+              12599999.994039536,
+              12400000.005960464
+            ],
+            "median_ns": 12399999.991059303
+          }
+        }
+      },
+      {
+        "scope": "[\"[\\\"ink-pipeline-placement-v1\\\",\\\"d2f05a69232c4ecdc8b7f8cdf7af04bea16c6ad8c664aaf5e8b4eb072f3aeb2e\\\",\\\"15aa5559a5b8b98d5dee56aef5fd7f5f2fab090a87105284a8af24e593100910\\\",\\\"8b8194a3fe1bf46cab553769c8955136782de5c9370409f9bb8f08c68a5497d0\\\",{\\\"compute-0.wgsl\\\":\\\"a3daeb89aca915d3a0a9c851b4235d45ff67534308eae3dba3eca9f64d386a5e\\\",\\\"compute-1.wgsl\\\":\\\"4bb62863b23063ad646c4caf255512709ee12b794bb36e68e22e43fe97b3ae67\\\",\\\"compute-2.wgsl\\\":\\\"efdca9d6616bde8fa56cbc537d29ffb1d387fb1caf4290fc5e527fd8a5c1e923\\\",\\\"compute-3.wgsl\\\":\\\"dcaf6b2a406e685a2b579914236f99d1ceb36d824d2306409fd5d701616ce540\\\",\\\"compute-7.wgsl\\\":\\\"236fc240adab7ceb72e70d6c846c12cf68b452b7b513ff8251af76a5f4572b88\\\",\\\"graph-0-0.wgsl\\\":\\\"530386011deb5a7c2e12ba0c0cbe3d3c5c0425e3672a07c535574cc7b9403bdf\\\",\\\"graph-1-0.wgsl\\\":\\\"76bcb72063064eaa763ab3a5c0e254a0bd19409b690ab85bbeff5a1ae8185ea2\\\",\\\"graph-3-0.wgsl\\\":\\\"83872bf0f273efbd38015a4e4bb1ee90872c010d3b49f902ae03e310036cac36\\\",\\\"graph-4-0.wgsl\\\":\\\"a4748bc5be1570987efe1ab5d41efadc3444f908bb0c4202d6079aa5c74a5e0d\\\",\\\"graph-5-0.wgsl\\\":\\\"b9170db61921aea20d486b30148a056d36bf61cf23a3c08804f02e66d2685e62\\\",\\\"graph-7-0.wgsl\\\":\\\"dbc41dadce5d6e46cbaa83a75ff26da128edff98b56aa9c1fdd11754beacda83\\\"},[{\\\"element\\\":{\\\"kind\\\":\\\"u32\\\"},\\\"kind\\\":\\\"list\\\"}],[[\\\"heavy\\\",[[\\\"i\\\",\\\"xs\\\"]]],[\\\"inc\\\",[[\\\"step\\\",0]]],[\\\"total\\\",[[\\\"step\\\",1]]]],[\\\"sum\\\"],[],1]\",0,3]",
+        "boundary": "captured-segment",
+        "features": {
+          "input_elements": 16384,
+          "input_bytes": 65536,
+          "output_capacity_elements": 1,
+          "dispatches": 3,
+          "iterations": 1
+        },
+        "backends": {
+          "cpu": {
+            "cold_ns": 3799999.9970197678,
+            "samples_ns": [
+              3700000.0029802322,
+              3700000.0029802322,
+              3700000.0029802322,
+              3799999.9970197678,
+              3599999.9940395355,
+              3600000.0089406967,
+              3699999.988079071
+            ],
+            "median_ns": 3700000.0029802322
+          },
+          "javascript": {
+            "cold_ns": 11100000.008940697,
+            "samples_ns": [
+              11200000.002980232,
+              11200000.002980232,
+              11099999.994039536,
+              11200000.002980232,
+              11100000.008940697,
+              11200000.002980232,
+              11100000.008940697
+            ],
+            "median_ns": 11200000.002980232
+          },
+          "gpu": {
+            "cold_ns": 7899999.991059303,
+            "samples_ns": [
+              7500000,
+              7799999.997019768,
+              7700000.002980232,
+              7400000.0059604645,
+              12599999.994039536,
+              7500000,
+              7500000
+            ],
+            "median_ns": 7500000
+          },
+          "cpu-worker": {
+            "cold_ns": 4000000,
+            "samples_ns": [
+              4000000,
+              4900000.0059604645,
+              3899999.9910593033,
+              4299999.997019768,
+              4000000,
+              4000000,
+              4000000
+            ],
+            "median_ns": 4000000
+          },
+          "javascript-worker": {
+            "cold_ns": 11500000,
+            "samples_ns": [
+              11500000,
+              13199999.988079071,
+              11800000.011920929,
+              11399999.991059303,
+              11299999.997019768,
+              11500000,
+              11200000.002980232
+            ],
+            "median_ns": 11500000
+          }
+        }
+      },
+      {
+        "scope": "[\"[\\\"ink-pipeline-placement-v1\\\",\\\"d2f05a69232c4ecdc8b7f8cdf7af04bea16c6ad8c664aaf5e8b4eb072f3aeb2e\\\",\\\"15aa5559a5b8b98d5dee56aef5fd7f5f2fab090a87105284a8af24e593100910\\\",\\\"8b8194a3fe1bf46cab553769c8955136782de5c9370409f9bb8f08c68a5497d0\\\",{\\\"compute-0.wgsl\\\":\\\"a3daeb89aca915d3a0a9c851b4235d45ff67534308eae3dba3eca9f64d386a5e\\\",\\\"compute-1.wgsl\\\":\\\"4bb62863b23063ad646c4caf255512709ee12b794bb36e68e22e43fe97b3ae67\\\",\\\"compute-2.wgsl\\\":\\\"efdca9d6616bde8fa56cbc537d29ffb1d387fb1caf4290fc5e527fd8a5c1e923\\\",\\\"compute-3.wgsl\\\":\\\"dcaf6b2a406e685a2b579914236f99d1ceb36d824d2306409fd5d701616ce540\\\",\\\"compute-7.wgsl\\\":\\\"236fc240adab7ceb72e70d6c846c12cf68b452b7b513ff8251af76a5f4572b88\\\",\\\"graph-0-0.wgsl\\\":\\\"530386011deb5a7c2e12ba0c0cbe3d3c5c0425e3672a07c535574cc7b9403bdf\\\",\\\"graph-1-0.wgsl\\\":\\\"76bcb72063064eaa763ab3a5c0e254a0bd19409b690ab85bbeff5a1ae8185ea2\\\",\\\"graph-3-0.wgsl\\\":\\\"83872bf0f273efbd38015a4e4bb1ee90872c010d3b49f902ae03e310036cac36\\\",\\\"graph-4-0.wgsl\\\":\\\"a4748bc5be1570987efe1ab5d41efadc3444f908bb0c4202d6079aa5c74a5e0d\\\",\\\"graph-5-0.wgsl\\\":\\\"b9170db61921aea20d486b30148a056d36bf61cf23a3c08804f02e66d2685e62\\\",\\\"graph-7-0.wgsl\\\":\\\"dbc41dadce5d6e46cbaa83a75ff26da128edff98b56aa9c1fdd11754beacda83\\\"},[{\\\"element\\\":{\\\"kind\\\":\\\"u32\\\"},\\\"kind\\\":\\\"list\\\"}],[[\\\"heavy\\\",[[\\\"i\\\",\\\"xs\\\"]]],[\\\"inc\\\",[[\\\"step\\\",0]]],[\\\"total\\\",[[\\\"step\\\",1]]]],[\\\"sum\\\"],[],1]\",2,3]",
+        "boundary": "captured-segment",
+        "features": {
+          "input_elements": 16384,
+          "input_bytes": 65536,
+          "output_capacity_elements": 1,
+          "dispatches": 1,
+          "iterations": 1
+        },
+        "backends": {
+          "cpu": {
+            "cold_ns": 99999.99403953552,
+            "samples_ns": [
+              0,
+              0,
+              99999.99403953552,
+              0,
+              100000.00894069672,
+              0,
+              100000.00894069672
+            ],
+            "median_ns": 0
+          },
+          "javascript": {
+            "cold_ns": 200000.00298023224,
+            "samples_ns": [
+              200000.00298023224,
+              299999.99701976776,
+              100000.00894069672,
+              200000.00298023224,
+              199999.98807907104,
+              299999.99701976776,
+              199999.98807907104
+            ],
+            "median_ns": 200000.00298023224
+          },
+          "gpu": {
+            "cold_ns": 7000000,
+            "samples_ns": [
+              6899999.991059303,
+              6900000.0059604645,
+              6899999.991059303,
+              7000000,
+              6900000.0059604645,
+              7000000,
+              6900000.0059604645
+            ],
+            "median_ns": 6900000.0059604645
+          },
+          "cpu-worker": {
+            "cold_ns": 400000.0059604645,
+            "samples_ns": [
+              400000.0059604645,
+              99999.99403953552,
+              300000.01192092896,
+              199999.98807907104,
+              200000.00298023224,
+              200000.00298023224,
+              299999.99701976776
+            ],
+            "median_ns": 200000.00298023224
+          },
+          "javascript-worker": {
+            "cold_ns": 199999.98807907104,
+            "samples_ns": [
+              200000.00298023224,
+              299999.99701976776,
+              199999.98807907104,
+              300000.01192092896,
+              299999.99701976776,
+              200000.00298023224,
+              200000.00298023224
+            ],
+            "median_ns": 200000.00298023224
+          }
+        }
+      },
+      {
+        "scope": "[\"[\\\"ink-pipeline-placement-v1\\\",\\\"d2f05a69232c4ecdc8b7f8cdf7af04bea16c6ad8c664aaf5e8b4eb072f3aeb2e\\\",\\\"15aa5559a5b8b98d5dee56aef5fd7f5f2fab090a87105284a8af24e593100910\\\",\\\"8b8194a3fe1bf46cab553769c8955136782de5c9370409f9bb8f08c68a5497d0\\\",{\\\"compute-0.wgsl\\\":\\\"a3daeb89aca915d3a0a9c851b4235d45ff67534308eae3dba3eca9f64d386a5e\\\",\\\"compute-1.wgsl\\\":\\\"4bb62863b23063ad646c4caf255512709ee12b794bb36e68e22e43fe97b3ae67\\\",\\\"compute-2.wgsl\\\":\\\"efdca9d6616bde8fa56cbc537d29ffb1d387fb1caf4290fc5e527fd8a5c1e923\\\",\\\"compute-3.wgsl\\\":\\\"dcaf6b2a406e685a2b579914236f99d1ceb36d824d2306409fd5d701616ce540\\\",\\\"compute-7.wgsl\\\":\\\"236fc240adab7ceb72e70d6c846c12cf68b452b7b513ff8251af76a5f4572b88\\\",\\\"graph-0-0.wgsl\\\":\\\"530386011deb5a7c2e12ba0c0cbe3d3c5c0425e3672a07c535574cc7b9403bdf\\\",\\\"graph-1-0.wgsl\\\":\\\"76bcb72063064eaa763ab3a5c0e254a0bd19409b690ab85bbeff5a1ae8185ea2\\\",\\\"graph-3-0.wgsl\\\":\\\"83872bf0f273efbd38015a4e4bb1ee90872c010d3b49f902ae03e310036cac36\\\",\\\"graph-4-0.wgsl\\\":\\\"a4748bc5be1570987efe1ab5d41efadc3444f908bb0c4202d6079aa5c74a5e0d\\\",\\\"graph-5-0.wgsl\\\":\\\"b9170db61921aea20d486b30148a056d36bf61cf23a3c08804f02e66d2685e62\\\",\\\"graph-7-0.wgsl\\\":\\\"dbc41dadce5d6e46cbaa83a75ff26da128edff98b56aa9c1fdd11754beacda83\\\"},[{\\\"element\\\":{\\\"kind\\\":\\\"u32\\\"},\\\"kind\\\":\\\"list\\\"}],[[\\\"heavy\\\",[[\\\"i\\\",\\\"xs\\\"]]],[\\\"heavy\\\",[[\\\"i\\\",\\\"xs\\\"]]],[\\\"total\\\",[[\\\"step\\\",0]]],[\\\"total\\\",[[\\\"step\\\",1]]],[\\\"combine\\\",[[\\\"step\\\",2],[\\\"step\\\",3]]]],[\\\"a\\\",\\\"b\\\",\\\"join\\\"],[],1]\",0,1]",
+        "boundary": "captured-segment",
+        "features": {
+          "input_elements": 1024,
+          "input_bytes": 4096,
+          "output_capacity_elements": 1024,
+          "dispatches": 1,
+          "iterations": 1
+        },
+        "backends": {
+          "cpu": {
+            "cold_ns": 200000.00298023224,
+            "samples_ns": [
+              200000.00298023224,
+              299999.99701976776,
+              299999.99701976776,
+              299999.99701976776,
+              99999.99403953552,
+              299999.99701976776,
+              200000.00298023224
+            ],
+            "median_ns": 299999.99701976776
+          },
+          "cpu-worker": {
+            "cold_ns": 700000.0029802322,
+            "samples_ns": [
+              399999.9910593033,
+              600000.0089406967,
+              299999.99701976776,
+              500000,
+              200000.00298023224,
+              599999.9940395355,
+              700000.0029802322
+            ],
+            "median_ns": 500000
+          }
+        }
+      },
+      {
+        "scope": "[\"[\\\"ink-pipeline-placement-v1\\\",\\\"d2f05a69232c4ecdc8b7f8cdf7af04bea16c6ad8c664aaf5e8b4eb072f3aeb2e\\\",\\\"15aa5559a5b8b98d5dee56aef5fd7f5f2fab090a87105284a8af24e593100910\\\",\\\"8b8194a3fe1bf46cab553769c8955136782de5c9370409f9bb8f08c68a5497d0\\\",{\\\"compute-0.wgsl\\\":\\\"a3daeb89aca915d3a0a9c851b4235d45ff67534308eae3dba3eca9f64d386a5e\\\",\\\"compute-1.wgsl\\\":\\\"4bb62863b23063ad646c4caf255512709ee12b794bb36e68e22e43fe97b3ae67\\\",\\\"compute-2.wgsl\\\":\\\"efdca9d6616bde8fa56cbc537d29ffb1d387fb1caf4290fc5e527fd8a5c1e923\\\",\\\"compute-3.wgsl\\\":\\\"dcaf6b2a406e685a2b579914236f99d1ceb36d824d2306409fd5d701616ce540\\\",\\\"compute-7.wgsl\\\":\\\"236fc240adab7ceb72e70d6c846c12cf68b452b7b513ff8251af76a5f4572b88\\\",\\\"graph-0-0.wgsl\\\":\\\"530386011deb5a7c2e12ba0c0cbe3d3c5c0425e3672a07c535574cc7b9403bdf\\\",\\\"graph-1-0.wgsl\\\":\\\"76bcb72063064eaa763ab3a5c0e254a0bd19409b690ab85bbeff5a1ae8185ea2\\\",\\\"graph-3-0.wgsl\\\":\\\"83872bf0f273efbd38015a4e4bb1ee90872c010d3b49f902ae03e310036cac36\\\",\\\"graph-4-0.wgsl\\\":\\\"a4748bc5be1570987efe1ab5d41efadc3444f908bb0c4202d6079aa5c74a5e0d\\\",\\\"graph-5-0.wgsl\\\":\\\"b9170db61921aea20d486b30148a056d36bf61cf23a3c08804f02e66d2685e62\\\",\\\"graph-7-0.wgsl\\\":\\\"dbc41dadce5d6e46cbaa83a75ff26da128edff98b56aa9c1fdd11754beacda83\\\"},[{\\\"element\\\":{\\\"kind\\\":\\\"u32\\\"},\\\"kind\\\":\\\"list\\\"}],[[\\\"heavy\\\",[[\\\"i\\\",\\\"xs\\\"]]],[\\\"heavy\\\",[[\\\"i\\\",\\\"xs\\\"]]],[\\\"total\\\",[[\\\"step\\\",0]]],[\\\"total\\\",[[\\\"step\\\",1]]],[\\\"combine\\\",[[\\\"step\\\",2],[\\\"step\\\",3]]]],[\\\"a\\\",\\\"b\\\",\\\"join\\\"],[],1]\",1,2]",
+        "boundary": "captured-segment",
+        "features": {
+          "input_elements": 1024,
+          "input_bytes": 4096,
+          "output_capacity_elements": 1024,
+          "dispatches": 1,
+          "iterations": 1
+        },
+        "backends": {
+          "cpu": {
+            "cold_ns": 299999.99701976776,
+            "samples_ns": [
+              299999.99701976776,
+              200000.00298023224,
+              199999.98807907104,
+              299999.99701976776,
+              299999.99701976776,
+              400000.0059604645,
+              299999.99701976776
+            ],
+            "median_ns": 299999.99701976776
+          },
+          "cpu-worker": {
+            "cold_ns": 400000.0059604645,
+            "samples_ns": [
+              599999.9940395355,
+              299999.99701976776,
+              300000.01192092896,
+              299999.99701976776,
+              200000.00298023224,
+              400000.0059604645,
+              700000.0029802322
+            ],
+            "median_ns": 300000.01192092896
+          }
+        }
+      },
+      {
+        "scope": "[\"[\\\"ink-pipeline-placement-v1\\\",\\\"d2f05a69232c4ecdc8b7f8cdf7af04bea16c6ad8c664aaf5e8b4eb072f3aeb2e\\\",\\\"15aa5559a5b8b98d5dee56aef5fd7f5f2fab090a87105284a8af24e593100910\\\",\\\"8b8194a3fe1bf46cab553769c8955136782de5c9370409f9bb8f08c68a5497d0\\\",{\\\"compute-0.wgsl\\\":\\\"a3daeb89aca915d3a0a9c851b4235d45ff67534308eae3dba3eca9f64d386a5e\\\",\\\"compute-1.wgsl\\\":\\\"4bb62863b23063ad646c4caf255512709ee12b794bb36e68e22e43fe97b3ae67\\\",\\\"compute-2.wgsl\\\":\\\"efdca9d6616bde8fa56cbc537d29ffb1d387fb1caf4290fc5e527fd8a5c1e923\\\",\\\"compute-3.wgsl\\\":\\\"dcaf6b2a406e685a2b579914236f99d1ceb36d824d2306409fd5d701616ce540\\\",\\\"compute-7.wgsl\\\":\\\"236fc240adab7ceb72e70d6c846c12cf68b452b7b513ff8251af76a5f4572b88\\\",\\\"graph-0-0.wgsl\\\":\\\"530386011deb5a7c2e12ba0c0cbe3d3c5c0425e3672a07c535574cc7b9403bdf\\\",\\\"graph-1-0.wgsl\\\":\\\"76bcb72063064eaa763ab3a5c0e254a0bd19409b690ab85bbeff5a1ae8185ea2\\\",\\\"graph-3-0.wgsl\\\":\\\"83872bf0f273efbd38015a4e4bb1ee90872c010d3b49f902ae03e310036cac36\\\",\\\"graph-4-0.wgsl\\\":\\\"a4748bc5be1570987efe1ab5d41efadc3444f908bb0c4202d6079aa5c74a5e0d\\\",\\\"graph-5-0.wgsl\\\":\\\"b9170db61921aea20d486b30148a056d36bf61cf23a3c08804f02e66d2685e62\\\",\\\"graph-7-0.wgsl\\\":\\\"dbc41dadce5d6e46cbaa83a75ff26da128edff98b56aa9c1fdd11754beacda83\\\"},[{\\\"element\\\":{\\\"kind\\\":\\\"u32\\\"},\\\"kind\\\":\\\"list\\\"}],[[\\\"heavy\\\",[[\\\"i\\\",\\\"xs\\\"]]],[\\\"heavy\\\",[[\\\"i\\\",\\\"xs\\\"]]],[\\\"total\\\",[[\\\"step\\\",0]]],[\\\"total\\\",[[\\\"step\\\",1]]],[\\\"combine\\\",[[\\\"step\\\",2],[\\\"step\\\",3]]]],[\\\"a\\\",\\\"b\\\",\\\"join\\\"],[],1]\",0,5]",
+        "boundary": "captured-segment",
+        "features": {
+          "input_elements": 1024,
+          "input_bytes": 4096,
+          "output_capacity_elements": 2049,
+          "dispatches": 5,
+          "iterations": 1
+        },
+        "backends": {
+          "cpu": {
+            "cold_ns": 400000.0059604645,
+            "samples_ns": [
+              599999.9940395355,
+              500000,
+              600000.0089406967,
+              500000,
+              600000.0089406967,
+              500000,
+              500000
+            ],
+            "median_ns": 500000
+          },
+          "cpu-worker": {
+            "cold_ns": 599999.9940395355,
+            "samples_ns": [
+              700000.0029802322,
+              599999.9940395355,
+              599999.9940395355,
+              599999.9940395355,
+              799999.9970197678,
+              900000.0059604645,
+              700000.0029802322
+            ],
+            "median_ns": 700000.0029802322
+          }
+        }
+      },
+      {
+        "scope": "[\"[\\\"ink-pipeline-placement-v1\\\",\\\"d2f05a69232c4ecdc8b7f8cdf7af04bea16c6ad8c664aaf5e8b4eb072f3aeb2e\\\",\\\"15aa5559a5b8b98d5dee56aef5fd7f5f2fab090a87105284a8af24e593100910\\\",\\\"8b8194a3fe1bf46cab553769c8955136782de5c9370409f9bb8f08c68a5497d0\\\",{\\\"compute-0.wgsl\\\":\\\"a3daeb89aca915d3a0a9c851b4235d45ff67534308eae3dba3eca9f64d386a5e\\\",\\\"compute-1.wgsl\\\":\\\"4bb62863b23063ad646c4caf255512709ee12b794bb36e68e22e43fe97b3ae67\\\",\\\"compute-2.wgsl\\\":\\\"efdca9d6616bde8fa56cbc537d29ffb1d387fb1caf4290fc5e527fd8a5c1e923\\\",\\\"compute-3.wgsl\\\":\\\"dcaf6b2a406e685a2b579914236f99d1ceb36d824d2306409fd5d701616ce540\\\",\\\"compute-7.wgsl\\\":\\\"236fc240adab7ceb72e70d6c846c12cf68b452b7b513ff8251af76a5f4572b88\\\",\\\"graph-0-0.wgsl\\\":\\\"530386011deb5a7c2e12ba0c0cbe3d3c5c0425e3672a07c535574cc7b9403bdf\\\",\\\"graph-1-0.wgsl\\\":\\\"76bcb72063064eaa763ab3a5c0e254a0bd19409b690ab85bbeff5a1ae8185ea2\\\",\\\"graph-3-0.wgsl\\\":\\\"83872bf0f273efbd38015a4e4bb1ee90872c010d3b49f902ae03e310036cac36\\\",\\\"graph-4-0.wgsl\\\":\\\"a4748bc5be1570987efe1ab5d41efadc3444f908bb0c4202d6079aa5c74a5e0d\\\",\\\"graph-5-0.wgsl\\\":\\\"b9170db61921aea20d486b30148a056d36bf61cf23a3c08804f02e66d2685e62\\\",\\\"graph-7-0.wgsl\\\":\\\"dbc41dadce5d6e46cbaa83a75ff26da128edff98b56aa9c1fdd11754beacda83\\\"},[{\\\"element\\\":{\\\"kind\\\":\\\"u32\\\"},\\\"kind\\\":\\\"list\\\"}],[[\\\"heavy\\\",[[\\\"i\\\",\\\"xs\\\"]]],[\\\"heavy\\\",[[\\\"i\\\",\\\"xs\\\"]]],[\\\"total\\\",[[\\\"step\\\",0]]],[\\\"total\\\",[[\\\"step\\\",1]]],[\\\"combine\\\",[[\\\"step\\\",2],[\\\"step\\\",3]]]],[\\\"a\\\",\\\"b\\\",\\\"join\\\"],[],1]\",2,5]",
+        "boundary": "captured-segment",
+        "features": {
+          "input_elements": 2048,
+          "input_bytes": 8192,
+          "output_capacity_elements": 1,
+          "dispatches": 3,
+          "iterations": 1
+        },
+        "backends": {
+          "cpu": {
+            "cold_ns": 0,
+            "samples_ns": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "median_ns": 0
+          },
+          "cpu-worker": {
+            "cold_ns": 0,
+            "samples_ns": [
+              0,
+              100000.00894069672,
+              99999.99403953552,
+              100000.00894069672,
+              99999.99403953552,
+              0,
+              0
+            ],
+            "median_ns": 99999.99403953552
+          }
+        }
+      },
+      {
+        "scope": "[\"[\\\"ink-pipeline-placement-v1\\\",\\\"d2f05a69232c4ecdc8b7f8cdf7af04bea16c6ad8c664aaf5e8b4eb072f3aeb2e\\\",\\\"15aa5559a5b8b98d5dee56aef5fd7f5f2fab090a87105284a8af24e593100910\\\",\\\"8b8194a3fe1bf46cab553769c8955136782de5c9370409f9bb8f08c68a5497d0\\\",{\\\"compute-0.wgsl\\\":\\\"a3daeb89aca915d3a0a9c851b4235d45ff67534308eae3dba3eca9f64d386a5e\\\",\\\"compute-1.wgsl\\\":\\\"4bb62863b23063ad646c4caf255512709ee12b794bb36e68e22e43fe97b3ae67\\\",\\\"compute-2.wgsl\\\":\\\"efdca9d6616bde8fa56cbc537d29ffb1d387fb1caf4290fc5e527fd8a5c1e923\\\",\\\"compute-3.wgsl\\\":\\\"dcaf6b2a406e685a2b579914236f99d1ceb36d824d2306409fd5d701616ce540\\\",\\\"compute-7.wgsl\\\":\\\"236fc240adab7ceb72e70d6c846c12cf68b452b7b513ff8251af76a5f4572b88\\\",\\\"graph-0-0.wgsl\\\":\\\"530386011deb5a7c2e12ba0c0cbe3d3c5c0425e3672a07c535574cc7b9403bdf\\\",\\\"graph-1-0.wgsl\\\":\\\"76bcb72063064eaa763ab3a5c0e254a0bd19409b690ab85bbeff5a1ae8185ea2\\\",\\\"graph-3-0.wgsl\\\":\\\"83872bf0f273efbd38015a4e4bb1ee90872c010d3b49f902ae03e310036cac36\\\",\\\"graph-4-0.wgsl\\\":\\\"a4748bc5be1570987efe1ab5d41efadc3444f908bb0c4202d6079aa5c74a5e0d\\\",\\\"graph-5-0.wgsl\\\":\\\"b9170db61921aea20d486b30148a056d36bf61cf23a3c08804f02e66d2685e62\\\",\\\"graph-7-0.wgsl\\\":\\\"dbc41dadce5d6e46cbaa83a75ff26da128edff98b56aa9c1fdd11754beacda83\\\"},[{\\\"element\\\":{\\\"kind\\\":\\\"u32\\\"},\\\"kind\\\":\\\"list\\\"}],[[\\\"heavy\\\",[[\\\"i\\\",\\\"xs\\\"]]],[\\\"heavy\\\",[[\\\"i\\\",\\\"xs\\\"]]],[\\\"total\\\",[[\\\"step\\\",0]]],[\\\"total\\\",[[\\\"step\\\",1]]],[\\\"combine\\\",[[\\\"step\\\",2],[\\\"step\\\",3]]]],[\\\"a\\\",\\\"b\\\",\\\"join\\\"],[],1]\",0,1]",
+        "boundary": "captured-segment",
+        "features": {
+          "input_elements": 4096,
+          "input_bytes": 16384,
+          "output_capacity_elements": 4096,
+          "dispatches": 1,
+          "iterations": 1
+        },
+        "backends": {
+          "cpu": {
+            "cold_ns": 1000000,
+            "samples_ns": [
+              1099999.9940395355,
+              899999.9910593033,
+              1000000,
+              1000000,
+              1000000,
+              1000000,
+              900000.0059604645
+            ],
+            "median_ns": 1000000
+          },
+          "cpu-worker": {
+            "cold_ns": 1200000.0029802322,
+            "samples_ns": [
+              1200000.0029802322,
+              1099999.9940395355,
+              1599999.9940395355,
+              1099999.9940395355,
+              1099999.9940395355,
+              1100000.0089406967,
+              1000000
+            ],
+            "median_ns": 1099999.9940395355
+          }
+        }
+      },
+      {
+        "scope": "[\"[\\\"ink-pipeline-placement-v1\\\",\\\"d2f05a69232c4ecdc8b7f8cdf7af04bea16c6ad8c664aaf5e8b4eb072f3aeb2e\\\",\\\"15aa5559a5b8b98d5dee56aef5fd7f5f2fab090a87105284a8af24e593100910\\\",\\\"8b8194a3fe1bf46cab553769c8955136782de5c9370409f9bb8f08c68a5497d0\\\",{\\\"compute-0.wgsl\\\":\\\"a3daeb89aca915d3a0a9c851b4235d45ff67534308eae3dba3eca9f64d386a5e\\\",\\\"compute-1.wgsl\\\":\\\"4bb62863b23063ad646c4caf255512709ee12b794bb36e68e22e43fe97b3ae67\\\",\\\"compute-2.wgsl\\\":\\\"efdca9d6616bde8fa56cbc537d29ffb1d387fb1caf4290fc5e527fd8a5c1e923\\\",\\\"compute-3.wgsl\\\":\\\"dcaf6b2a406e685a2b579914236f99d1ceb36d824d2306409fd5d701616ce540\\\",\\\"compute-7.wgsl\\\":\\\"236fc240adab7ceb72e70d6c846c12cf68b452b7b513ff8251af76a5f4572b88\\\",\\\"graph-0-0.wgsl\\\":\\\"530386011deb5a7c2e12ba0c0cbe3d3c5c0425e3672a07c535574cc7b9403bdf\\\",\\\"graph-1-0.wgsl\\\":\\\"76bcb72063064eaa763ab3a5c0e254a0bd19409b690ab85bbeff5a1ae8185ea2\\\",\\\"graph-3-0.wgsl\\\":\\\"83872bf0f273efbd38015a4e4bb1ee90872c010d3b49f902ae03e310036cac36\\\",\\\"graph-4-0.wgsl\\\":\\\"a4748bc5be1570987efe1ab5d41efadc3444f908bb0c4202d6079aa5c74a5e0d\\\",\\\"graph-5-0.wgsl\\\":\\\"b9170db61921aea20d486b30148a056d36bf61cf23a3c08804f02e66d2685e62\\\",\\\"graph-7-0.wgsl\\\":\\\"dbc41dadce5d6e46cbaa83a75ff26da128edff98b56aa9c1fdd11754beacda83\\\"},[{\\\"element\\\":{\\\"kind\\\":\\\"u32\\\"},\\\"kind\\\":\\\"list\\\"}],[[\\\"heavy\\\",[[\\\"i\\\",\\\"xs\\\"]]],[\\\"heavy\\\",[[\\\"i\\\",\\\"xs\\\"]]],[\\\"total\\\",[[\\\"step\\\",0]]],[\\\"total\\\",[[\\\"step\\\",1]]],[\\\"combine\\\",[[\\\"step\\\",2],[\\\"step\\\",3]]]],[\\\"a\\\",\\\"b\\\",\\\"join\\\"],[],1]\",1,2]",
+        "boundary": "captured-segment",
+        "features": {
+          "input_elements": 4096,
+          "input_bytes": 16384,
+          "output_capacity_elements": 4096,
+          "dispatches": 1,
+          "iterations": 1
+        },
+        "backends": {
+          "cpu": {
+            "cold_ns": 1000000,
+            "samples_ns": [
+              1000000,
+              899999.9910593033,
+              1000000,
+              1000000,
+              1000000,
+              1000000,
+              1000000
+            ],
+            "median_ns": 1000000
+          },
+          "cpu-worker": {
+            "cold_ns": 1200000.0029802322,
+            "samples_ns": [
+              1200000.0029802322,
+              1200000.0029802322,
+              1099999.9940395355,
+              1200000.0029802322,
+              1100000.0089406967,
+              1100000.0089406967,
+              1099999.9940395355
+            ],
+            "median_ns": 1100000.0089406967
+          }
+        }
+      },
+      {
+        "scope": "[\"[\\\"ink-pipeline-placement-v1\\\",\\\"d2f05a69232c4ecdc8b7f8cdf7af04bea16c6ad8c664aaf5e8b4eb072f3aeb2e\\\",\\\"15aa5559a5b8b98d5dee56aef5fd7f5f2fab090a87105284a8af24e593100910\\\",\\\"8b8194a3fe1bf46cab553769c8955136782de5c9370409f9bb8f08c68a5497d0\\\",{\\\"compute-0.wgsl\\\":\\\"a3daeb89aca915d3a0a9c851b4235d45ff67534308eae3dba3eca9f64d386a5e\\\",\\\"compute-1.wgsl\\\":\\\"4bb62863b23063ad646c4caf255512709ee12b794bb36e68e22e43fe97b3ae67\\\",\\\"compute-2.wgsl\\\":\\\"efdca9d6616bde8fa56cbc537d29ffb1d387fb1caf4290fc5e527fd8a5c1e923\\\",\\\"compute-3.wgsl\\\":\\\"dcaf6b2a406e685a2b579914236f99d1ceb36d824d2306409fd5d701616ce540\\\",\\\"compute-7.wgsl\\\":\\\"236fc240adab7ceb72e70d6c846c12cf68b452b7b513ff8251af76a5f4572b88\\\",\\\"graph-0-0.wgsl\\\":\\\"530386011deb5a7c2e12ba0c0cbe3d3c5c0425e3672a07c535574cc7b9403bdf\\\",\\\"graph-1-0.wgsl\\\":\\\"76bcb72063064eaa763ab3a5c0e254a0bd19409b690ab85bbeff5a1ae8185ea2\\\",\\\"graph-3-0.wgsl\\\":\\\"83872bf0f273efbd38015a4e4bb1ee90872c010d3b49f902ae03e310036cac36\\\",\\\"graph-4-0.wgsl\\\":\\\"a4748bc5be1570987efe1ab5d41efadc3444f908bb0c4202d6079aa5c74a5e0d\\\",\\\"graph-5-0.wgsl\\\":\\\"b9170db61921aea20d486b30148a056d36bf61cf23a3c08804f02e66d2685e62\\\",\\\"graph-7-0.wgsl\\\":\\\"dbc41dadce5d6e46cbaa83a75ff26da128edff98b56aa9c1fdd11754beacda83\\\"},[{\\\"element\\\":{\\\"kind\\\":\\\"u32\\\"},\\\"kind\\\":\\\"list\\\"}],[[\\\"heavy\\\",[[\\\"i\\\",\\\"xs\\\"]]],[\\\"heavy\\\",[[\\\"i\\\",\\\"xs\\\"]]],[\\\"total\\\",[[\\\"step\\\",0]]],[\\\"total\\\",[[\\\"step\\\",1]]],[\\\"combine\\\",[[\\\"step\\\",2],[\\\"step\\\",3]]]],[\\\"a\\\",\\\"b\\\",\\\"join\\\"],[],1]\",0,5]",
+        "boundary": "captured-segment",
+        "features": {
+          "input_elements": 4096,
+          "input_bytes": 16384,
+          "output_capacity_elements": 8193,
+          "dispatches": 5,
+          "iterations": 1
+        },
+        "backends": {
+          "cpu": {
+            "cold_ns": 1799999.9970197678,
+            "samples_ns": [
+              2000000,
+              1899999.9910593033,
+              1899999.9910593033,
+              1799999.9970197678,
+              1900000.0059604645,
+              2000000,
+              1900000.0059604645
+            ],
+            "median_ns": 1900000.0059604645
+          },
+          "cpu-worker": {
+            "cold_ns": 2100000.0089406967,
+            "samples_ns": [
+              2299999.9970197678,
+              2099999.9940395355,
+              2299999.9970197678,
+              2100000.0089406967,
+              2299999.9970197678,
+              2299999.9970197678,
+              2200000.0029802322
+            ],
+            "median_ns": 2299999.9970197678
+          }
+        }
+      },
+      {
+        "scope": "[\"[\\\"ink-pipeline-placement-v1\\\",\\\"d2f05a69232c4ecdc8b7f8cdf7af04bea16c6ad8c664aaf5e8b4eb072f3aeb2e\\\",\\\"15aa5559a5b8b98d5dee56aef5fd7f5f2fab090a87105284a8af24e593100910\\\",\\\"8b8194a3fe1bf46cab553769c8955136782de5c9370409f9bb8f08c68a5497d0\\\",{\\\"compute-0.wgsl\\\":\\\"a3daeb89aca915d3a0a9c851b4235d45ff67534308eae3dba3eca9f64d386a5e\\\",\\\"compute-1.wgsl\\\":\\\"4bb62863b23063ad646c4caf255512709ee12b794bb36e68e22e43fe97b3ae67\\\",\\\"compute-2.wgsl\\\":\\\"efdca9d6616bde8fa56cbc537d29ffb1d387fb1caf4290fc5e527fd8a5c1e923\\\",\\\"compute-3.wgsl\\\":\\\"dcaf6b2a406e685a2b579914236f99d1ceb36d824d2306409fd5d701616ce540\\\",\\\"compute-7.wgsl\\\":\\\"236fc240adab7ceb72e70d6c846c12cf68b452b7b513ff8251af76a5f4572b88\\\",\\\"graph-0-0.wgsl\\\":\\\"530386011deb5a7c2e12ba0c0cbe3d3c5c0425e3672a07c535574cc7b9403bdf\\\",\\\"graph-1-0.wgsl\\\":\\\"76bcb72063064eaa763ab3a5c0e254a0bd19409b690ab85bbeff5a1ae8185ea2\\\",\\\"graph-3-0.wgsl\\\":\\\"83872bf0f273efbd38015a4e4bb1ee90872c010d3b49f902ae03e310036cac36\\\",\\\"graph-4-0.wgsl\\\":\\\"a4748bc5be1570987efe1ab5d41efadc3444f908bb0c4202d6079aa5c74a5e0d\\\",\\\"graph-5-0.wgsl\\\":\\\"b9170db61921aea20d486b30148a056d36bf61cf23a3c08804f02e66d2685e62\\\",\\\"graph-7-0.wgsl\\\":\\\"dbc41dadce5d6e46cbaa83a75ff26da128edff98b56aa9c1fdd11754beacda83\\\"},[{\\\"element\\\":{\\\"kind\\\":\\\"u32\\\"},\\\"kind\\\":\\\"list\\\"}],[[\\\"heavy\\\",[[\\\"i\\\",\\\"xs\\\"]]],[\\\"heavy\\\",[[\\\"i\\\",\\\"xs\\\"]]],[\\\"total\\\",[[\\\"step\\\",0]]],[\\\"total\\\",[[\\\"step\\\",1]]],[\\\"combine\\\",[[\\\"step\\\",2],[\\\"step\\\",3]]]],[\\\"a\\\",\\\"b\\\",\\\"join\\\"],[],1]\",2,5]",
+        "boundary": "captured-segment",
+        "features": {
+          "input_elements": 8192,
+          "input_bytes": 32768,
+          "output_capacity_elements": 1,
+          "dispatches": 3,
+          "iterations": 1
+        },
+        "backends": {
+          "cpu": {
+            "cold_ns": 0,
+            "samples_ns": [
+              99999.99403953552,
+              0,
+              0,
+              100000.00894069672,
+              0,
+              100000.00894069672,
+              0
+            ],
+            "median_ns": 0
+          },
+          "cpu-worker": {
+            "cold_ns": 199999.98807907104,
+            "samples_ns": [
+              100000.00894069672,
+              99999.99403953552,
+              99999.99403953552,
+              200000.00298023224,
+              99999.99403953552,
+              99999.99403953552,
+              99999.99403953552
+            ],
+            "median_ns": 99999.99403953552
+          }
+        }
+      },
+      {
+        "scope": "[\"[\\\"ink-pipeline-placement-v1\\\",\\\"d2f05a69232c4ecdc8b7f8cdf7af04bea16c6ad8c664aaf5e8b4eb072f3aeb2e\\\",\\\"15aa5559a5b8b98d5dee56aef5fd7f5f2fab090a87105284a8af24e593100910\\\",\\\"8b8194a3fe1bf46cab553769c8955136782de5c9370409f9bb8f08c68a5497d0\\\",{\\\"compute-0.wgsl\\\":\\\"a3daeb89aca915d3a0a9c851b4235d45ff67534308eae3dba3eca9f64d386a5e\\\",\\\"compute-1.wgsl\\\":\\\"4bb62863b23063ad646c4caf255512709ee12b794bb36e68e22e43fe97b3ae67\\\",\\\"compute-2.wgsl\\\":\\\"efdca9d6616bde8fa56cbc537d29ffb1d387fb1caf4290fc5e527fd8a5c1e923\\\",\\\"compute-3.wgsl\\\":\\\"dcaf6b2a406e685a2b579914236f99d1ceb36d824d2306409fd5d701616ce540\\\",\\\"compute-7.wgsl\\\":\\\"236fc240adab7ceb72e70d6c846c12cf68b452b7b513ff8251af76a5f4572b88\\\",\\\"graph-0-0.wgsl\\\":\\\"530386011deb5a7c2e12ba0c0cbe3d3c5c0425e3672a07c535574cc7b9403bdf\\\",\\\"graph-1-0.wgsl\\\":\\\"76bcb72063064eaa763ab3a5c0e254a0bd19409b690ab85bbeff5a1ae8185ea2\\\",\\\"graph-3-0.wgsl\\\":\\\"83872bf0f273efbd38015a4e4bb1ee90872c010d3b49f902ae03e310036cac36\\\",\\\"graph-4-0.wgsl\\\":\\\"a4748bc5be1570987efe1ab5d41efadc3444f908bb0c4202d6079aa5c74a5e0d\\\",\\\"graph-5-0.wgsl\\\":\\\"b9170db61921aea20d486b30148a056d36bf61cf23a3c08804f02e66d2685e62\\\",\\\"graph-7-0.wgsl\\\":\\\"dbc41dadce5d6e46cbaa83a75ff26da128edff98b56aa9c1fdd11754beacda83\\\"},[{\\\"element\\\":{\\\"kind\\\":\\\"u32\\\"},\\\"kind\\\":\\\"list\\\"}],[[\\\"heavy\\\",[[\\\"i\\\",\\\"xs\\\"]]],[\\\"heavy\\\",[[\\\"i\\\",\\\"xs\\\"]]],[\\\"total\\\",[[\\\"step\\\",0]]],[\\\"total\\\",[[\\\"step\\\",1]]],[\\\"combine\\\",[[\\\"step\\\",2],[\\\"step\\\",3]]]],[\\\"a\\\",\\\"b\\\",\\\"join\\\"],[],1]\",0,1]",
+        "boundary": "captured-segment",
+        "features": {
+          "input_elements": 16384,
+          "input_bytes": 65536,
+          "output_capacity_elements": 16384,
+          "dispatches": 1,
+          "iterations": 1
+        },
+        "backends": {
+          "cpu": {
+            "cold_ns": 3900000.0059604645,
+            "samples_ns": [
+              3899999.9910593033,
+              4000000,
+              3900000.0059604645,
+              3900000.0059604645,
+              4000000,
+              4000000,
+              3900000.0059604645
+            ],
+            "median_ns": 3900000.0059604645
+          },
+          "cpu-worker": {
+            "cold_ns": 4599999.9940395355,
+            "samples_ns": [
+              4600000.008940697,
+              4399999.991059303,
+              4299999.997019768,
+              4399999.991059303,
+              4300000.011920929,
+              4500000,
+              4500000
+            ],
+            "median_ns": 4399999.991059303
+          }
+        }
+      },
+      {
+        "scope": "[\"[\\\"ink-pipeline-placement-v1\\\",\\\"d2f05a69232c4ecdc8b7f8cdf7af04bea16c6ad8c664aaf5e8b4eb072f3aeb2e\\\",\\\"15aa5559a5b8b98d5dee56aef5fd7f5f2fab090a87105284a8af24e593100910\\\",\\\"8b8194a3fe1bf46cab553769c8955136782de5c9370409f9bb8f08c68a5497d0\\\",{\\\"compute-0.wgsl\\\":\\\"a3daeb89aca915d3a0a9c851b4235d45ff67534308eae3dba3eca9f64d386a5e\\\",\\\"compute-1.wgsl\\\":\\\"4bb62863b23063ad646c4caf255512709ee12b794bb36e68e22e43fe97b3ae67\\\",\\\"compute-2.wgsl\\\":\\\"efdca9d6616bde8fa56cbc537d29ffb1d387fb1caf4290fc5e527fd8a5c1e923\\\",\\\"compute-3.wgsl\\\":\\\"dcaf6b2a406e685a2b579914236f99d1ceb36d824d2306409fd5d701616ce540\\\",\\\"compute-7.wgsl\\\":\\\"236fc240adab7ceb72e70d6c846c12cf68b452b7b513ff8251af76a5f4572b88\\\",\\\"graph-0-0.wgsl\\\":\\\"530386011deb5a7c2e12ba0c0cbe3d3c5c0425e3672a07c535574cc7b9403bdf\\\",\\\"graph-1-0.wgsl\\\":\\\"76bcb72063064eaa763ab3a5c0e254a0bd19409b690ab85bbeff5a1ae8185ea2\\\",\\\"graph-3-0.wgsl\\\":\\\"83872bf0f273efbd38015a4e4bb1ee90872c010d3b49f902ae03e310036cac36\\\",\\\"graph-4-0.wgsl\\\":\\\"a4748bc5be1570987efe1ab5d41efadc3444f908bb0c4202d6079aa5c74a5e0d\\\",\\\"graph-5-0.wgsl\\\":\\\"b9170db61921aea20d486b30148a056d36bf61cf23a3c08804f02e66d2685e62\\\",\\\"graph-7-0.wgsl\\\":\\\"dbc41dadce5d6e46cbaa83a75ff26da128edff98b56aa9c1fdd11754beacda83\\\"},[{\\\"element\\\":{\\\"kind\\\":\\\"u32\\\"},\\\"kind\\\":\\\"list\\\"}],[[\\\"heavy\\\",[[\\\"i\\\",\\\"xs\\\"]]],[\\\"heavy\\\",[[\\\"i\\\",\\\"xs\\\"]]],[\\\"total\\\",[[\\\"step\\\",0]]],[\\\"total\\\",[[\\\"step\\\",1]]],[\\\"combine\\\",[[\\\"step\\\",2],[\\\"step\\\",3]]]],[\\\"a\\\",\\\"b\\\",\\\"join\\\"],[],1]\",1,2]",
+        "boundary": "captured-segment",
+        "features": {
+          "input_elements": 16384,
+          "input_bytes": 65536,
+          "output_capacity_elements": 16384,
+          "dispatches": 1,
+          "iterations": 1
+        },
+        "backends": {
+          "cpu": {
+            "cold_ns": 3899999.9910593033,
+            "samples_ns": [
+              3799999.9970197678,
+              3899999.9910593033,
+              4100000.0089406967,
+              3900000.0059604645,
+              3799999.9970197678,
+              3899999.9910593033,
+              4000000
+            ],
+            "median_ns": 3899999.9910593033
+          },
+          "cpu-worker": {
+            "cold_ns": 4399999.991059303,
+            "samples_ns": [
+              4400000.0059604645,
+              4300000.011920929,
+              4400000.0059604645,
+              4299999.997019768,
+              4399999.991059303,
+              5299999.997019768,
+              4400000.0059604645
+            ],
+            "median_ns": 4400000.0059604645
+          }
+        }
+      },
+      {
+        "scope": "[\"[\\\"ink-pipeline-placement-v1\\\",\\\"d2f05a69232c4ecdc8b7f8cdf7af04bea16c6ad8c664aaf5e8b4eb072f3aeb2e\\\",\\\"15aa5559a5b8b98d5dee56aef5fd7f5f2fab090a87105284a8af24e593100910\\\",\\\"8b8194a3fe1bf46cab553769c8955136782de5c9370409f9bb8f08c68a5497d0\\\",{\\\"compute-0.wgsl\\\":\\\"a3daeb89aca915d3a0a9c851b4235d45ff67534308eae3dba3eca9f64d386a5e\\\",\\\"compute-1.wgsl\\\":\\\"4bb62863b23063ad646c4caf255512709ee12b794bb36e68e22e43fe97b3ae67\\\",\\\"compute-2.wgsl\\\":\\\"efdca9d6616bde8fa56cbc537d29ffb1d387fb1caf4290fc5e527fd8a5c1e923\\\",\\\"compute-3.wgsl\\\":\\\"dcaf6b2a406e685a2b579914236f99d1ceb36d824d2306409fd5d701616ce540\\\",\\\"compute-7.wgsl\\\":\\\"236fc240adab7ceb72e70d6c846c12cf68b452b7b513ff8251af76a5f4572b88\\\",\\\"graph-0-0.wgsl\\\":\\\"530386011deb5a7c2e12ba0c0cbe3d3c5c0425e3672a07c535574cc7b9403bdf\\\",\\\"graph-1-0.wgsl\\\":\\\"76bcb72063064eaa763ab3a5c0e254a0bd19409b690ab85bbeff5a1ae8185ea2\\\",\\\"graph-3-0.wgsl\\\":\\\"83872bf0f273efbd38015a4e4bb1ee90872c010d3b49f902ae03e310036cac36\\\",\\\"graph-4-0.wgsl\\\":\\\"a4748bc5be1570987efe1ab5d41efadc3444f908bb0c4202d6079aa5c74a5e0d\\\",\\\"graph-5-0.wgsl\\\":\\\"b9170db61921aea20d486b30148a056d36bf61cf23a3c08804f02e66d2685e62\\\",\\\"graph-7-0.wgsl\\\":\\\"dbc41dadce5d6e46cbaa83a75ff26da128edff98b56aa9c1fdd11754beacda83\\\"},[{\\\"element\\\":{\\\"kind\\\":\\\"u32\\\"},\\\"kind\\\":\\\"list\\\"}],[[\\\"heavy\\\",[[\\\"i\\\",\\\"xs\\\"]]],[\\\"heavy\\\",[[\\\"i\\\",\\\"xs\\\"]]],[\\\"total\\\",[[\\\"step\\\",0]]],[\\\"total\\\",[[\\\"step\\\",1]]],[\\\"combine\\\",[[\\\"step\\\",2],[\\\"step\\\",3]]]],[\\\"a\\\",\\\"b\\\",\\\"join\\\"],[],1]\",0,5]",
+        "boundary": "captured-segment",
+        "features": {
+          "input_elements": 16384,
+          "input_bytes": 65536,
+          "output_capacity_elements": 32769,
+          "dispatches": 5,
+          "iterations": 1
+        },
+        "backends": {
+          "cpu": {
+            "cold_ns": 7500000,
+            "samples_ns": [
+              7500000,
+              7699999.988079071,
+              7699999.988079071,
+              7500000,
+              7500000,
+              7600000.008940697,
+              7500000
+            ],
+            "median_ns": 7500000
+          },
+          "cpu-worker": {
+            "cold_ns": 10099999.994039536,
+            "samples_ns": [
+              8400000.005960464,
+              8200000.002980232,
+              8599999.994039536,
+              8599999.994039536,
+              8400000.005960464,
+              8500000,
+              8399999.991059303
+            ],
+            "median_ns": 8400000.005960464
+          }
+        }
+      },
+      {
+        "scope": "[\"[\\\"ink-pipeline-placement-v1\\\",\\\"d2f05a69232c4ecdc8b7f8cdf7af04bea16c6ad8c664aaf5e8b4eb072f3aeb2e\\\",\\\"15aa5559a5b8b98d5dee56aef5fd7f5f2fab090a87105284a8af24e593100910\\\",\\\"8b8194a3fe1bf46cab553769c8955136782de5c9370409f9bb8f08c68a5497d0\\\",{\\\"compute-0.wgsl\\\":\\\"a3daeb89aca915d3a0a9c851b4235d45ff67534308eae3dba3eca9f64d386a5e\\\",\\\"compute-1.wgsl\\\":\\\"4bb62863b23063ad646c4caf255512709ee12b794bb36e68e22e43fe97b3ae67\\\",\\\"compute-2.wgsl\\\":\\\"efdca9d6616bde8fa56cbc537d29ffb1d387fb1caf4290fc5e527fd8a5c1e923\\\",\\\"compute-3.wgsl\\\":\\\"dcaf6b2a406e685a2b579914236f99d1ceb36d824d2306409fd5d701616ce540\\\",\\\"compute-7.wgsl\\\":\\\"236fc240adab7ceb72e70d6c846c12cf68b452b7b513ff8251af76a5f4572b88\\\",\\\"graph-0-0.wgsl\\\":\\\"530386011deb5a7c2e12ba0c0cbe3d3c5c0425e3672a07c535574cc7b9403bdf\\\",\\\"graph-1-0.wgsl\\\":\\\"76bcb72063064eaa763ab3a5c0e254a0bd19409b690ab85bbeff5a1ae8185ea2\\\",\\\"graph-3-0.wgsl\\\":\\\"83872bf0f273efbd38015a4e4bb1ee90872c010d3b49f902ae03e310036cac36\\\",\\\"graph-4-0.wgsl\\\":\\\"a4748bc5be1570987efe1ab5d41efadc3444f908bb0c4202d6079aa5c74a5e0d\\\",\\\"graph-5-0.wgsl\\\":\\\"b9170db61921aea20d486b30148a056d36bf61cf23a3c08804f02e66d2685e62\\\",\\\"graph-7-0.wgsl\\\":\\\"dbc41dadce5d6e46cbaa83a75ff26da128edff98b56aa9c1fdd11754beacda83\\\"},[{\\\"element\\\":{\\\"kind\\\":\\\"u32\\\"},\\\"kind\\\":\\\"list\\\"}],[[\\\"heavy\\\",[[\\\"i\\\",\\\"xs\\\"]]],[\\\"heavy\\\",[[\\\"i\\\",\\\"xs\\\"]]],[\\\"total\\\",[[\\\"step\\\",0]]],[\\\"total\\\",[[\\\"step\\\",1]]],[\\\"combine\\\",[[\\\"step\\\",2],[\\\"step\\\",3]]]],[\\\"a\\\",\\\"b\\\",\\\"join\\\"],[],1]\",2,5]",
+        "boundary": "captured-segment",
+        "features": {
+          "input_elements": 32768,
+          "input_bytes": 131072,
+          "output_capacity_elements": 1,
+          "dispatches": 3,
+          "iterations": 1
+        },
+        "backends": {
+          "cpu": {
+            "cold_ns": 99999.99403953552,
+            "samples_ns": [
+              99999.99403953552,
+              99999.99403953552,
+              0,
+              99999.99403953552,
+              100000.00894069672,
+              200000.00298023224,
+              0
+            ],
+            "median_ns": 99999.99403953552
+          },
+          "cpu-worker": {
+            "cold_ns": 300000.01192092896,
+            "samples_ns": [
+              200000.00298023224,
+              200000.00298023224,
+              200000.00298023224,
+              200000.00298023224,
+              99999.99403953552,
+              200000.00298023224,
+              99999.99403953552
+            ],
+            "median_ns": 200000.00298023224
+          }
+        }
+      }
+    ]
+  },
+  "profile": {
+    "schema": 1,
+    "target_key": "[\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36\",\"apple\",\"metal-3\",\"\",\"\"]",
+    "models": {
+      "[\"[\\\"ink-pipeline-placement-v1\\\",\\\"d2f05a69232c4ecdc8b7f8cdf7af04bea16c6ad8c664aaf5e8b4eb072f3aeb2e\\\",\\\"15aa5559a5b8b98d5dee56aef5fd7f5f2fab090a87105284a8af24e593100910\\\",\\\"8b8194a3fe1bf46cab553769c8955136782de5c9370409f9bb8f08c68a5497d0\\\",{\\\"compute-0.wgsl\\\":\\\"a3daeb89aca915d3a0a9c851b4235d45ff67534308eae3dba3eca9f64d386a5e\\\",\\\"compute-1.wgsl\\\":\\\"4bb62863b23063ad646c4caf255512709ee12b794bb36e68e22e43fe97b3ae67\\\",\\\"compute-2.wgsl\\\":\\\"efdca9d6616bde8fa56cbc537d29ffb1d387fb1caf4290fc5e527fd8a5c1e923\\\",\\\"compute-3.wgsl\\\":\\\"dcaf6b2a406e685a2b579914236f99d1ceb36d824d2306409fd5d701616ce540\\\",\\\"compute-7.wgsl\\\":\\\"236fc240adab7ceb72e70d6c846c12cf68b452b7b513ff8251af76a5f4572b88\\\",\\\"graph-0-0.wgsl\\\":\\\"530386011deb5a7c2e12ba0c0cbe3d3c5c0425e3672a07c535574cc7b9403bdf\\\",\\\"graph-1-0.wgsl\\\":\\\"76bcb72063064eaa763ab3a5c0e254a0bd19409b690ab85bbeff5a1ae8185ea2\\\",\\\"graph-3-0.wgsl\\\":\\\"83872bf0f273efbd38015a4e4bb1ee90872c010d3b49f902ae03e310036cac36\\\",\\\"graph-4-0.wgsl\\\":\\\"a4748bc5be1570987efe1ab5d41efadc3444f908bb0c4202d6079aa5c74a5e0d\\\",\\\"graph-5-0.wgsl\\\":\\\"b9170db61921aea20d486b30148a056d36bf61cf23a3c08804f02e66d2685e62\\\",\\\"graph-7-0.wgsl\\\":\\\"dbc41dadce5d6e46cbaa83a75ff26da128edff98b56aa9c1fdd11754beacda83\\\"},[{\\\"element\\\":{\\\"kind\\\":\\\"u32\\\"},\\\"kind\\\":\\\"list\\\"}],[[\\\"heavy\\\",[[\\\"i\\\",\\\"xs\\\"]]],[\\\"inc\\\",[[\\\"step\\\",0]]],[\\\"total\\\",[[\\\"step\\\",1]]]],[\\\"sum\\\"],[],1]\",0,2]": {
+        "boundary": "captured-segment",
+        "domains": {
+          "input_elements": [
+            256,
+            16384
+          ],
+          "input_bytes": [
+            1024,
+            65536
+          ],
+          "output_capacity_elements": [
+            256,
+            16384
+          ],
+          "dispatches": [
+            2,
+            2
+          ],
+          "iterations": [
+            1,
+            1
+          ]
+        },
+        "backends": {
+          "cpu": {
+            "intercept_ns": 234644.42810465064,
+            "terms": {
+              "input_elements": 279.62782600649814
+            }
+          },
+          "javascript": {
+            "intercept_ns": 69026.9236338129,
+            "terms": {
+              "input_elements": 741.2043651839488
+            }
+          },
+          "gpu": {
+            "intercept_ns": 1055058.5337707112,
+            "terms": {
+              "input_elements": 107.40758369189983
+            }
+          },
+          "cpu-worker": {
+            "intercept_ns": 151414.98729617125,
+            "terms": {
+              "input_elements": 306.97271926209294
+            }
+          },
+          "javascript-worker": {
+            "intercept_ns": 123110.91270229082,
+            "terms": {
+              "input_elements": 866.7542338689144
+            }
+          }
+        }
+      },
+      "[\"[\\\"ink-pipeline-placement-v1\\\",\\\"d2f05a69232c4ecdc8b7f8cdf7af04bea16c6ad8c664aaf5e8b4eb072f3aeb2e\\\",\\\"15aa5559a5b8b98d5dee56aef5fd7f5f2fab090a87105284a8af24e593100910\\\",\\\"8b8194a3fe1bf46cab553769c8955136782de5c9370409f9bb8f08c68a5497d0\\\",{\\\"compute-0.wgsl\\\":\\\"a3daeb89aca915d3a0a9c851b4235d45ff67534308eae3dba3eca9f64d386a5e\\\",\\\"compute-1.wgsl\\\":\\\"4bb62863b23063ad646c4caf255512709ee12b794bb36e68e22e43fe97b3ae67\\\",\\\"compute-2.wgsl\\\":\\\"efdca9d6616bde8fa56cbc537d29ffb1d387fb1caf4290fc5e527fd8a5c1e923\\\",\\\"compute-3.wgsl\\\":\\\"dcaf6b2a406e685a2b579914236f99d1ceb36d824d2306409fd5d701616ce540\\\",\\\"compute-7.wgsl\\\":\\\"236fc240adab7ceb72e70d6c846c12cf68b452b7b513ff8251af76a5f4572b88\\\",\\\"graph-0-0.wgsl\\\":\\\"530386011deb5a7c2e12ba0c0cbe3d3c5c0425e3672a07c535574cc7b9403bdf\\\",\\\"graph-1-0.wgsl\\\":\\\"76bcb72063064eaa763ab3a5c0e254a0bd19409b690ab85bbeff5a1ae8185ea2\\\",\\\"graph-3-0.wgsl\\\":\\\"83872bf0f273efbd38015a4e4bb1ee90872c010d3b49f902ae03e310036cac36\\\",\\\"graph-4-0.wgsl\\\":\\\"a4748bc5be1570987efe1ab5d41efadc3444f908bb0c4202d6079aa5c74a5e0d\\\",\\\"graph-5-0.wgsl\\\":\\\"b9170db61921aea20d486b30148a056d36bf61cf23a3c08804f02e66d2685e62\\\",\\\"graph-7-0.wgsl\\\":\\\"dbc41dadce5d6e46cbaa83a75ff26da128edff98b56aa9c1fdd11754beacda83\\\"},[{\\\"element\\\":{\\\"kind\\\":\\\"u32\\\"},\\\"kind\\\":\\\"list\\\"}],[[\\\"heavy\\\",[[\\\"i\\\",\\\"xs\\\"]]],[\\\"inc\\\",[[\\\"step\\\",0]]],[\\\"total\\\",[[\\\"step\\\",1]]]],[\\\"sum\\\"],[],1]\",0,3]": {
+        "boundary": "captured-segment",
+        "domains": {
+          "input_elements": [
+            256,
+            16384
+          ],
+          "input_bytes": [
+            1024,
+            65536
+          ],
+          "output_capacity_elements": [
+            1,
+            1
+          ],
+          "dispatches": [
+            3,
+            3
+          ],
+          "iterations": [
+            1,
+            1
+          ]
+        },
+        "backends": {
+          "cpu": {
+            "intercept_ns": 48598.195885858375,
+            "terms": {
+              "input_elements": 259.3820874841517
+            }
+          },
+          "javascript": {
+            "intercept_ns": 0,
+            "terms": {
+              "input_elements": 789.7152562268249
+            }
+          },
+          "gpu": {
+            "intercept_ns": 1155149.2580733504,
+            "terms": {
+              "input_elements": 476.037779627421
+            }
+          },
+          "cpu-worker": {
+            "intercept_ns": 159997.07690859036,
+            "terms": {
+              "input_elements": 273.4489317135809
+            }
+          },
+          "javascript-worker": {
+            "intercept_ns": 23222.1281411601,
+            "terms": {
+              "input_elements": 807.7260753363553
+            }
+          }
+        }
+      },
+      "[\"[\\\"ink-pipeline-placement-v1\\\",\\\"d2f05a69232c4ecdc8b7f8cdf7af04bea16c6ad8c664aaf5e8b4eb072f3aeb2e\\\",\\\"15aa5559a5b8b98d5dee56aef5fd7f5f2fab090a87105284a8af24e593100910\\\",\\\"8b8194a3fe1bf46cab553769c8955136782de5c9370409f9bb8f08c68a5497d0\\\",{\\\"compute-0.wgsl\\\":\\\"a3daeb89aca915d3a0a9c851b4235d45ff67534308eae3dba3eca9f64d386a5e\\\",\\\"compute-1.wgsl\\\":\\\"4bb62863b23063ad646c4caf255512709ee12b794bb36e68e22e43fe97b3ae67\\\",\\\"compute-2.wgsl\\\":\\\"efdca9d6616bde8fa56cbc537d29ffb1d387fb1caf4290fc5e527fd8a5c1e923\\\",\\\"compute-3.wgsl\\\":\\\"dcaf6b2a406e685a2b579914236f99d1ceb36d824d2306409fd5d701616ce540\\\",\\\"compute-7.wgsl\\\":\\\"236fc240adab7ceb72e70d6c846c12cf68b452b7b513ff8251af76a5f4572b88\\\",\\\"graph-0-0.wgsl\\\":\\\"530386011deb5a7c2e12ba0c0cbe3d3c5c0425e3672a07c535574cc7b9403bdf\\\",\\\"graph-1-0.wgsl\\\":\\\"76bcb72063064eaa763ab3a5c0e254a0bd19409b690ab85bbeff5a1ae8185ea2\\\",\\\"graph-3-0.wgsl\\\":\\\"83872bf0f273efbd38015a4e4bb1ee90872c010d3b49f902ae03e310036cac36\\\",\\\"graph-4-0.wgsl\\\":\\\"a4748bc5be1570987efe1ab5d41efadc3444f908bb0c4202d6079aa5c74a5e0d\\\",\\\"graph-5-0.wgsl\\\":\\\"b9170db61921aea20d486b30148a056d36bf61cf23a3c08804f02e66d2685e62\\\",\\\"graph-7-0.wgsl\\\":\\\"dbc41dadce5d6e46cbaa83a75ff26da128edff98b56aa9c1fdd11754beacda83\\\"},[{\\\"element\\\":{\\\"kind\\\":\\\"u32\\\"},\\\"kind\\\":\\\"list\\\"}],[[\\\"heavy\\\",[[\\\"i\\\",\\\"xs\\\"]]],[\\\"inc\\\",[[\\\"step\\\",0]]],[\\\"total\\\",[[\\\"step\\\",1]]]],[\\\"sum\\\"],[],1]\",2,3]": {
+        "boundary": "captured-segment",
+        "domains": {
+          "input_elements": [
+            256,
+            16384
+          ],
+          "input_bytes": [
+            1024,
+            65536
+          ],
+          "output_capacity_elements": [
+            1,
+            1
+          ],
+          "dispatches": [
+            1,
+            1
+          ],
+          "iterations": [
+            1,
+            1
+          ]
+        },
+        "backends": {
+          "cpu": {
+            "intercept_ns": 0,
+            "terms": {
+              "input_elements": 0
+            }
+          },
+          "javascript": {
+            "intercept_ns": 0,
+            "terms": {
+              "input_elements": 14.987105139918768
+            }
+          },
+          "gpu": {
+            "intercept_ns": 575000.0063088995,
+            "terms": {
+              "input_elements": 449.21875053284623
+            }
+          },
+          "cpu-worker": {
+            "intercept_ns": 113081.66085147424,
+            "terms": {
+              "input_elements": 7.493552462214739
+            }
+          },
+          "javascript-worker": {
+            "intercept_ns": 113081.64354462808,
+            "terms": {
+              "input_elements": 7.493553128272549
+            }
+          }
+        }
+      },
+      "[\"[\\\"ink-pipeline-placement-v1\\\",\\\"d2f05a69232c4ecdc8b7f8cdf7af04bea16c6ad8c664aaf5e8b4eb072f3aeb2e\\\",\\\"15aa5559a5b8b98d5dee56aef5fd7f5f2fab090a87105284a8af24e593100910\\\",\\\"8b8194a3fe1bf46cab553769c8955136782de5c9370409f9bb8f08c68a5497d0\\\",{\\\"compute-0.wgsl\\\":\\\"a3daeb89aca915d3a0a9c851b4235d45ff67534308eae3dba3eca9f64d386a5e\\\",\\\"compute-1.wgsl\\\":\\\"4bb62863b23063ad646c4caf255512709ee12b794bb36e68e22e43fe97b3ae67\\\",\\\"compute-2.wgsl\\\":\\\"efdca9d6616bde8fa56cbc537d29ffb1d387fb1caf4290fc5e527fd8a5c1e923\\\",\\\"compute-3.wgsl\\\":\\\"dcaf6b2a406e685a2b579914236f99d1ceb36d824d2306409fd5d701616ce540\\\",\\\"compute-7.wgsl\\\":\\\"236fc240adab7ceb72e70d6c846c12cf68b452b7b513ff8251af76a5f4572b88\\\",\\\"graph-0-0.wgsl\\\":\\\"530386011deb5a7c2e12ba0c0cbe3d3c5c0425e3672a07c535574cc7b9403bdf\\\",\\\"graph-1-0.wgsl\\\":\\\"76bcb72063064eaa763ab3a5c0e254a0bd19409b690ab85bbeff5a1ae8185ea2\\\",\\\"graph-3-0.wgsl\\\":\\\"83872bf0f273efbd38015a4e4bb1ee90872c010d3b49f902ae03e310036cac36\\\",\\\"graph-4-0.wgsl\\\":\\\"a4748bc5be1570987efe1ab5d41efadc3444f908bb0c4202d6079aa5c74a5e0d\\\",\\\"graph-5-0.wgsl\\\":\\\"b9170db61921aea20d486b30148a056d36bf61cf23a3c08804f02e66d2685e62\\\",\\\"graph-7-0.wgsl\\\":\\\"dbc41dadce5d6e46cbaa83a75ff26da128edff98b56aa9c1fdd11754beacda83\\\"},[{\\\"element\\\":{\\\"kind\\\":\\\"u32\\\"},\\\"kind\\\":\\\"list\\\"}],[[\\\"heavy\\\",[[\\\"i\\\",\\\"xs\\\"]]],[\\\"heavy\\\",[[\\\"i\\\",\\\"xs\\\"]]],[\\\"total\\\",[[\\\"step\\\",0]]],[\\\"total\\\",[[\\\"step\\\",1]]],[\\\"combine\\\",[[\\\"step\\\",2],[\\\"step\\\",3]]]],[\\\"a\\\",\\\"b\\\",\\\"join\\\"],[],1]\",0,1]": {
+        "boundary": "captured-segment",
+        "domains": {
+          "input_elements": [
+            1024,
+            16384
+          ],
+          "input_bytes": [
+            4096,
+            65536
+          ],
+          "output_capacity_elements": [
+            1024,
+            16384
+          ],
+          "dispatches": [
+            1,
+            1
+          ],
+          "iterations": [
+            1,
+            1
+          ]
+        },
+        "backends": {
+          "cpu": {
+            "intercept_ns": 68452.3768723011,
+            "terms": {
+              "input_elements": 270.06603486370295
+            }
+          },
+          "cpu-worker": {
+            "intercept_ns": 271071.42914263974,
+            "terms": {
+              "input_elements": 296.8052449778908
+            }
+          }
+        }
+      },
+      "[\"[\\\"ink-pipeline-placement-v1\\\",\\\"d2f05a69232c4ecdc8b7f8cdf7af04bea16c6ad8c664aaf5e8b4eb072f3aeb2e\\\",\\\"15aa5559a5b8b98d5dee56aef5fd7f5f2fab090a87105284a8af24e593100910\\\",\\\"8b8194a3fe1bf46cab553769c8955136782de5c9370409f9bb8f08c68a5497d0\\\",{\\\"compute-0.wgsl\\\":\\\"a3daeb89aca915d3a0a9c851b4235d45ff67534308eae3dba3eca9f64d386a5e\\\",\\\"compute-1.wgsl\\\":\\\"4bb62863b23063ad646c4caf255512709ee12b794bb36e68e22e43fe97b3ae67\\\",\\\"compute-2.wgsl\\\":\\\"efdca9d6616bde8fa56cbc537d29ffb1d387fb1caf4290fc5e527fd8a5c1e923\\\",\\\"compute-3.wgsl\\\":\\\"dcaf6b2a406e685a2b579914236f99d1ceb36d824d2306409fd5d701616ce540\\\",\\\"compute-7.wgsl\\\":\\\"236fc240adab7ceb72e70d6c846c12cf68b452b7b513ff8251af76a5f4572b88\\\",\\\"graph-0-0.wgsl\\\":\\\"530386011deb5a7c2e12ba0c0cbe3d3c5c0425e3672a07c535574cc7b9403bdf\\\",\\\"graph-1-0.wgsl\\\":\\\"76bcb72063064eaa763ab3a5c0e254a0bd19409b690ab85bbeff5a1ae8185ea2\\\",\\\"graph-3-0.wgsl\\\":\\\"83872bf0f273efbd38015a4e4bb1ee90872c010d3b49f902ae03e310036cac36\\\",\\\"graph-4-0.wgsl\\\":\\\"a4748bc5be1570987efe1ab5d41efadc3444f908bb0c4202d6079aa5c74a5e0d\\\",\\\"graph-5-0.wgsl\\\":\\\"b9170db61921aea20d486b30148a056d36bf61cf23a3c08804f02e66d2685e62\\\",\\\"graph-7-0.wgsl\\\":\\\"dbc41dadce5d6e46cbaa83a75ff26da128edff98b56aa9c1fdd11754beacda83\\\"},[{\\\"element\\\":{\\\"kind\\\":\\\"u32\\\"},\\\"kind\\\":\\\"list\\\"}],[[\\\"heavy\\\",[[\\\"i\\\",\\\"xs\\\"]]],[\\\"heavy\\\",[[\\\"i\\\",\\\"xs\\\"]]],[\\\"total\\\",[[\\\"step\\\",0]]],[\\\"total\\\",[[\\\"step\\\",1]]],[\\\"combine\\\",[[\\\"step\\\",2],[\\\"step\\\",3]]]],[\\\"a\\\",\\\"b\\\",\\\"join\\\"],[],1]\",1,2]": {
+        "boundary": "captured-segment",
+        "domains": {
+          "input_elements": [
+            1024,
+            16384
+          ],
+          "input_bytes": [
+            4096,
+            65536
+          ],
+          "output_capacity_elements": [
+            1024,
+            16384
+          ],
+          "dispatches": [
+            1,
+            1
+          ],
+          "iterations": [
+            1,
+            1
+          ]
+        },
+        "backends": {
+          "cpu": {
+            "intercept_ns": 68452.3780963251,
+            "terms": {
+              "input_elements": 270.06603366836697
+            }
+          },
+          "cpu-worker": {
+            "intercept_ns": 30119.06173612392,
+            "terms": {
+              "input_elements": 307.5009296610785
+            }
+          }
+        }
+      },
+      "[\"[\\\"ink-pipeline-placement-v1\\\",\\\"d2f05a69232c4ecdc8b7f8cdf7af04bea16c6ad8c664aaf5e8b4eb072f3aeb2e\\\",\\\"15aa5559a5b8b98d5dee56aef5fd7f5f2fab090a87105284a8af24e593100910\\\",\\\"8b8194a3fe1bf46cab553769c8955136782de5c9370409f9bb8f08c68a5497d0\\\",{\\\"compute-0.wgsl\\\":\\\"a3daeb89aca915d3a0a9c851b4235d45ff67534308eae3dba3eca9f64d386a5e\\\",\\\"compute-1.wgsl\\\":\\\"4bb62863b23063ad646c4caf255512709ee12b794bb36e68e22e43fe97b3ae67\\\",\\\"compute-2.wgsl\\\":\\\"efdca9d6616bde8fa56cbc537d29ffb1d387fb1caf4290fc5e527fd8a5c1e923\\\",\\\"compute-3.wgsl\\\":\\\"dcaf6b2a406e685a2b579914236f99d1ceb36d824d2306409fd5d701616ce540\\\",\\\"compute-7.wgsl\\\":\\\"236fc240adab7ceb72e70d6c846c12cf68b452b7b513ff8251af76a5f4572b88\\\",\\\"graph-0-0.wgsl\\\":\\\"530386011deb5a7c2e12ba0c0cbe3d3c5c0425e3672a07c535574cc7b9403bdf\\\",\\\"graph-1-0.wgsl\\\":\\\"76bcb72063064eaa763ab3a5c0e254a0bd19409b690ab85bbeff5a1ae8185ea2\\\",\\\"graph-3-0.wgsl\\\":\\\"83872bf0f273efbd38015a4e4bb1ee90872c010d3b49f902ae03e310036cac36\\\",\\\"graph-4-0.wgsl\\\":\\\"a4748bc5be1570987efe1ab5d41efadc3444f908bb0c4202d6079aa5c74a5e0d\\\",\\\"graph-5-0.wgsl\\\":\\\"b9170db61921aea20d486b30148a056d36bf61cf23a3c08804f02e66d2685e62\\\",\\\"graph-7-0.wgsl\\\":\\\"dbc41dadce5d6e46cbaa83a75ff26da128edff98b56aa9c1fdd11754beacda83\\\"},[{\\\"element\\\":{\\\"kind\\\":\\\"u32\\\"},\\\"kind\\\":\\\"list\\\"}],[[\\\"heavy\\\",[[\\\"i\\\",\\\"xs\\\"]]],[\\\"heavy\\\",[[\\\"i\\\",\\\"xs\\\"]]],[\\\"total\\\",[[\\\"step\\\",0]]],[\\\"total\\\",[[\\\"step\\\",1]]],[\\\"combine\\\",[[\\\"step\\\",2],[\\\"step\\\",3]]]],[\\\"a\\\",\\\"b\\\",\\\"join\\\"],[],1]\",0,5]": {
+        "boundary": "captured-segment",
+        "domains": {
+          "input_elements": [
+            1024,
+            16384
+          ],
+          "input_bytes": [
+            4096,
+            65536
+          ],
+          "output_capacity_elements": [
+            2049,
+            32769
+          ],
+          "dispatches": [
+            5,
+            5
+          ],
+          "iterations": [
+            1,
+            1
+          ]
+        },
+        "backends": {
+          "cpu": {
+            "intercept_ns": 38333.34084068064,
+            "terms": {
+              "input_elements": 524.0885415072884
+            }
+          },
+          "cpu-worker": {
+            "intercept_ns": 290238.09017879656,
+            "terms": {
+              "input_elements": 574.8930435532071
+            }
+          }
+        }
+      },
+      "[\"[\\\"ink-pipeline-placement-v1\\\",\\\"d2f05a69232c4ecdc8b7f8cdf7af04bea16c6ad8c664aaf5e8b4eb072f3aeb2e\\\",\\\"15aa5559a5b8b98d5dee56aef5fd7f5f2fab090a87105284a8af24e593100910\\\",\\\"8b8194a3fe1bf46cab553769c8955136782de5c9370409f9bb8f08c68a5497d0\\\",{\\\"compute-0.wgsl\\\":\\\"a3daeb89aca915d3a0a9c851b4235d45ff67534308eae3dba3eca9f64d386a5e\\\",\\\"compute-1.wgsl\\\":\\\"4bb62863b23063ad646c4caf255512709ee12b794bb36e68e22e43fe97b3ae67\\\",\\\"compute-2.wgsl\\\":\\\"efdca9d6616bde8fa56cbc537d29ffb1d387fb1caf4290fc5e527fd8a5c1e923\\\",\\\"compute-3.wgsl\\\":\\\"dcaf6b2a406e685a2b579914236f99d1ceb36d824d2306409fd5d701616ce540\\\",\\\"compute-7.wgsl\\\":\\\"236fc240adab7ceb72e70d6c846c12cf68b452b7b513ff8251af76a5f4572b88\\\",\\\"graph-0-0.wgsl\\\":\\\"530386011deb5a7c2e12ba0c0cbe3d3c5c0425e3672a07c535574cc7b9403bdf\\\",\\\"graph-1-0.wgsl\\\":\\\"76bcb72063064eaa763ab3a5c0e254a0bd19409b690ab85bbeff5a1ae8185ea2\\\",\\\"graph-3-0.wgsl\\\":\\\"83872bf0f273efbd38015a4e4bb1ee90872c010d3b49f902ae03e310036cac36\\\",\\\"graph-4-0.wgsl\\\":\\\"a4748bc5be1570987efe1ab5d41efadc3444f908bb0c4202d6079aa5c74a5e0d\\\",\\\"graph-5-0.wgsl\\\":\\\"b9170db61921aea20d486b30148a056d36bf61cf23a3c08804f02e66d2685e62\\\",\\\"graph-7-0.wgsl\\\":\\\"dbc41dadce5d6e46cbaa83a75ff26da128edff98b56aa9c1fdd11754beacda83\\\"},[{\\\"element\\\":{\\\"kind\\\":\\\"u32\\\"},\\\"kind\\\":\\\"list\\\"}],[[\\\"heavy\\\",[[\\\"i\\\",\\\"xs\\\"]]],[\\\"heavy\\\",[[\\\"i\\\",\\\"xs\\\"]]],[\\\"total\\\",[[\\\"step\\\",0]]],[\\\"total\\\",[[\\\"step\\\",1]]],[\\\"combine\\\",[[\\\"step\\\",2],[\\\"step\\\",3]]]],[\\\"a\\\",\\\"b\\\",\\\"join\\\"],[],1]\",2,5]": {
+        "boundary": "captured-segment",
+        "domains": {
+          "input_elements": [
+            2048,
+            32768
+          ],
+          "input_bytes": [
+            8192,
+            131072
+          ],
+          "output_capacity_elements": [
+            1,
+            1
+          ],
+          "dispatches": [
+            3,
+            3
+          ],
+          "iterations": [
+            1,
+            1
+          ]
+        },
+        "backends": {
+          "cpu": {
+            "intercept_ns": 0,
+            "terms": {
+              "input_elements": 4.010881457361393
+            }
+          },
+          "cpu-worker": {
+            "intercept_ns": 106785.70669676576,
+            "terms": {
+              "input_elements": 4.010882055029339
+            }
+          }
+        }
+      }
+    }
+  },
+  "holdout": [
+    {
+      "kind": "heavy",
+      "n": 512,
+      "cold_ms": 6.100000008940697,
+      "backend": "cpu",
+      "segments": [
+        {
+          "start": 0,
+          "end": 3,
+          "backend": "cpu"
+        }
+      ],
+      "reason": "placement profile retains CPU at 10% saving threshold",
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      },
+      "cpu_ms": 0.10000000894069672,
+      "adaptive_ms": 0.09999999403953552,
+      "speedup": 1.0000001490116208,
+      "samples": {
+        "cpu": [
+          0.10000000894069672,
+          0.20000000298023224,
+          0.10000000894069672,
+          0.10000000894069672,
+          0.20000000298023224,
+          0.20000000298023224,
+          0.09999999403953552,
+          0.10000000894069672,
+          0.09999999403953552
+        ],
+        "adaptive": [
+          0.09999999403953552,
+          0.09999999403953552,
+          0.09999999403953552,
+          0.09999999403953552,
+          0,
+          0.09999999403953552,
+          0.10000000894069672,
+          0.19999998807907104,
+          0.10000000894069672
+        ]
+      }
+    },
+    {
+      "kind": "heavy",
+      "n": 2048,
+      "cold_ms": 0.5999999940395355,
+      "backend": "cpu",
+      "segments": [
+        {
+          "start": 0,
+          "end": 3,
+          "backend": "cpu"
+        }
+      ],
+      "reason": "placement profile retains CPU at 10% saving threshold",
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      },
+      "cpu_ms": 0.5,
+      "adaptive_ms": 0.3999999910593033,
+      "speedup": 1.250000027939678,
+      "samples": {
+        "cpu": [
+          0.5,
+          0.5,
+          0.4000000059604645,
+          0.5,
+          0.4000000059604645,
+          0.30000001192092896,
+          0.5,
+          0.4000000059604645,
+          0.5
+        ],
+        "adaptive": [
+          0.4000000059604645,
+          0.3999999910593033,
+          0.4000000059604645,
+          0.3999999910593033,
+          0.3999999910593033,
+          0.5,
+          0.3999999910593033,
+          0.5,
+          0.3999999910593033
+        ]
+      }
+    },
+    {
+      "kind": "heavy",
+      "n": 8192,
+      "cold_ms": 11.200000002980232,
+      "backend": "mixed",
+      "segments": [
+        {
+          "start": 0,
+          "end": 2,
+          "backend": "gpu"
+        },
+        {
+          "start": 2,
+          "end": 3,
+          "backend": "cpu"
+        }
+      ],
+      "reason": "saved complete segment costs; bounded parallel scheduling; 10% saving over CPU; no runtime probes",
+      "counters": {
+        "upload_bytes": 32788,
+        "readback_bytes": 32772,
+        "dispatches": 2,
+        "live_buffer_bytes": 196648,
+        "resident_copy_bytes": 0
+      },
+      "cpu_ms": 1.7000000029802322,
+      "adaptive_ms": 1.2000000029802322,
+      "speedup": 1.4166666656318638,
+      "samples": {
+        "cpu": [
+          1.7000000029802322,
+          1.7000000029802322,
+          1.7000000029802322,
+          1.5999999940395355,
+          1.7000000029802322,
+          1.7000000029802322,
+          1.7999999970197678,
+          1.7000000029802322,
+          1.699999988079071
+        ],
+        "adaptive": [
+          1.2999999970197678,
+          1.2000000029802322,
+          1.2999999970197678,
+          1.2000000029802322,
+          1.2999999970197678,
+          1.0999999940395355,
+          1.0999999940395355,
+          1.1000000089406967,
+          1.4000000059604645
+        ]
+      }
+    },
+    {
+      "kind": "heavy",
+      "n": 0,
+      "cold_ms": 0,
+      "backend": "cpu",
+      "segments": [
+        {
+          "start": 0,
+          "end": 3,
+          "backend": "cpu"
+        }
+      ],
+      "reason": "no comparable placement profile; compiled CPU baseline",
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      },
+      "cpu_ms": 0,
+      "adaptive_ms": 0,
+      "speedup": null,
+      "samples": {
+        "cpu": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0.10000000894069672,
+          0,
+          0
+        ],
+        "adaptive": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "kind": "heavy",
+      "n": 32768,
+      "cold_ms": 6.799999997019768,
+      "backend": "cpu",
+      "segments": [
+        {
+          "start": 0,
+          "end": 3,
+          "backend": "cpu"
+        }
+      ],
+      "reason": "no comparable placement profile; compiled CPU baseline",
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      },
+      "cpu_ms": 6.899999991059303,
+      "adaptive_ms": 6.9000000059604645,
+      "speedup": 0.9999999978404114,
+      "samples": {
+        "cpu": [
+          6.9000000059604645,
+          6.800000011920929,
+          6.899999991059303,
+          7,
+          6.9000000059604645,
+          6.800000011920929,
+          6.899999991059303,
+          6.9000000059604645,
+          6.899999991059303
+        ],
+        "adaptive": [
+          6.899999991059303,
+          6.799999997019768,
+          7.299999997019768,
+          7,
+          6.799999997019768,
+          6.799999997019768,
+          6.9000000059604645,
+          7.299999997019768,
+          6.9000000059604645
+        ]
+      }
+    },
+    {
+      "kind": "branches",
+      "n": 2048,
+      "cold_ms": 28.099999994039536,
+      "backend": "mixed",
+      "segments": [
+        {
+          "start": 0,
+          "end": 1,
+          "backend": "cpu"
+        },
+        {
+          "start": 1,
+          "end": 2,
+          "backend": "cpu-worker"
+        },
+        {
+          "start": 2,
+          "end": 5,
+          "backend": "cpu"
+        }
+      ],
+      "reason": "saved complete segment costs; bounded parallel scheduling; 10% saving over CPU; no runtime probes",
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0,
+        "live_buffer_bytes": 0,
+        "resident_copy_bytes": 0
+      },
+      "cpu_ms": 0.9000000059604645,
+      "adaptive_ms": 0.7000000029802322,
+      "speedup": 1.285714288755339,
+      "samples": {
+        "cpu": [
+          1,
+          0.8999999910593033,
+          0.9000000059604645,
+          0.9000000059604645,
+          0.8999999910593033,
+          0.9000000059604645,
+          0.9000000059604645,
+          0.9000000059604645,
+          1
+        ],
+        "adaptive": [
+          0.7999999970197678,
+          1.6000000089406967,
+          0.7000000029802322,
+          0.699999988079071,
+          0.7000000029802322,
+          0.699999988079071,
+          0.7999999970197678,
+          0.6000000089406967,
+          0.7000000029802322
+        ]
+      }
+    },
+    {
+      "kind": "branches",
+      "n": 8192,
+      "cold_ms": 2.7000000029802322,
+      "backend": "mixed",
+      "segments": [
+        {
+          "start": 0,
+          "end": 1,
+          "backend": "cpu"
+        },
+        {
+          "start": 1,
+          "end": 2,
+          "backend": "cpu-worker"
+        },
+        {
+          "start": 2,
+          "end": 5,
+          "backend": "cpu"
+        }
+      ],
+      "reason": "saved complete segment costs; bounded parallel scheduling; 10% saving over CPU; no runtime probes",
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0,
+        "live_buffer_bytes": 0,
+        "resident_copy_bytes": 0
+      },
+      "cpu_ms": 3.7000000029802322,
+      "adaptive_ms": 2.7000000029802322,
+      "speedup": 1.3703703699615593,
+      "samples": {
+        "cpu": [
+          3.6000000089406967,
+          3.6000000089406967,
+          4.100000008940697,
+          3.699999988079071,
+          3.7000000029802322,
+          3.800000011920929,
+          3.7000000029802322,
+          3.7000000029802322,
+          3.7000000029802322
+        ],
+        "adaptive": [
+          2.4000000059604645,
+          2.2000000029802322,
+          3.9000000059604645,
+          3.7000000029802322,
+          2.7000000029802322,
+          2.2999999970197678,
+          3,
+          2.3999999910593033,
+          4.5
+        ]
+      }
+    }
+  ],
+  "unavailable": {
+    "values": {
+      "b": [
+        4,
+        6
+      ]
+    },
+    "backend": "cpu",
+    "reason": "explicit pure pipeline placement",
+    "placement": {
+      "scope": "[\"ink-pipeline-placement-v1\",\"d2f05a69232c4ecdc8b7f8cdf7af04bea16c6ad8c664aaf5e8b4eb072f3aeb2e\",\"15aa5559a5b8b98d5dee56aef5fd7f5f2fab090a87105284a8af24e593100910\",\"8b8194a3fe1bf46cab553769c8955136782de5c9370409f9bb8f08c68a5497d0\",{\"compute-0.wgsl\":\"a3daeb89aca915d3a0a9c851b4235d45ff67534308eae3dba3eca9f64d386a5e\",\"compute-1.wgsl\":\"4bb62863b23063ad646c4caf255512709ee12b794bb36e68e22e43fe97b3ae67\",\"compute-2.wgsl\":\"efdca9d6616bde8fa56cbc537d29ffb1d387fb1caf4290fc5e527fd8a5c1e923\",\"compute-3.wgsl\":\"dcaf6b2a406e685a2b579914236f99d1ceb36d824d2306409fd5d701616ce540\",\"compute-7.wgsl\":\"236fc240adab7ceb72e70d6c846c12cf68b452b7b513ff8251af76a5f4572b88\",\"graph-0-0.wgsl\":\"530386011deb5a7c2e12ba0c0cbe3d3c5c0425e3672a07c535574cc7b9403bdf\",\"graph-1-0.wgsl\":\"76bcb72063064eaa763ab3a5c0e254a0bd19409b690ab85bbeff5a1ae8185ea2\",\"graph-3-0.wgsl\":\"83872bf0f273efbd38015a4e4bb1ee90872c010d3b49f902ae03e310036cac36\",\"graph-4-0.wgsl\":\"a4748bc5be1570987efe1ab5d41efadc3444f908bb0c4202d6079aa5c74a5e0d\",\"graph-5-0.wgsl\":\"b9170db61921aea20d486b30148a056d36bf61cf23a3c08804f02e66d2685e62\",\"graph-7-0.wgsl\":\"dbc41dadce5d6e46cbaa83a75ff26da128edff98b56aa9c1fdd11754beacda83\"},[{\"element\":{\"kind\":\"u32\"},\"kind\":\"list\"}],[[\"inc\",[[\"constant\",0]]],[\"double\",[[\"step\",0]]]],[\"b\"],[],1]",
+      "segments": [
+        {
+          "start": 0,
+          "end": 1,
+          "backend": "javascript-worker"
+        },
+        {
+          "start": 1,
+          "end": 2,
+          "backend": "gpu"
+        }
+      ],
+      "reason": "explicit pure pipeline placement"
+    },
+    "stages": [
+      {
+        "iteration": 0,
+        "start": 0,
+        "end": 1,
+        "requested": "javascript-worker",
+        "backend": "cpu",
+        "outputs": [
+          "a"
+        ],
+        "reason": "javascript-worker fallback: pure workers unavailable",
+        "counters": {
+          "upload_bytes": 0,
+          "readback_bytes": 0,
+          "dispatches": 0
+        }
+      },
+      {
+        "iteration": 0,
+        "start": 1,
+        "end": 2,
+        "requested": "gpu",
+        "backend": "cpu",
+        "outputs": [
+          "b"
+        ],
+        "reason": "gpu fallback: WebGPU unavailable",
+        "counters": {
+          "upload_bytes": 0,
+          "readback_bytes": 0,
+          "dispatches": 0
+        }
+      }
+    ],
+    "counters": {
+      "upload_bytes": 0,
+      "readback_bytes": 0,
+      "dispatches": 0,
+      "live_buffer_bytes": 0,
+      "resident_copy_bytes": 0
+    }
+  },
+  "shader_failure": {
+    "values": {
+      "b": [
+        4,
+        6
+      ]
+    },
+    "backend": "cpu",
+    "reason": "explicit pure pipeline placement",
+    "placement": {
+      "scope": "[\"ink-pipeline-placement-v1\",\"d2f05a69232c4ecdc8b7f8cdf7af04bea16c6ad8c664aaf5e8b4eb072f3aeb2e\",\"15aa5559a5b8b98d5dee56aef5fd7f5f2fab090a87105284a8af24e593100910\",\"8b8194a3fe1bf46cab553769c8955136782de5c9370409f9bb8f08c68a5497d0\",{\"compute-0.wgsl\":\"a3daeb89aca915d3a0a9c851b4235d45ff67534308eae3dba3eca9f64d386a5e\",\"compute-1.wgsl\":\"4bb62863b23063ad646c4caf255512709ee12b794bb36e68e22e43fe97b3ae67\",\"compute-2.wgsl\":\"efdca9d6616bde8fa56cbc537d29ffb1d387fb1caf4290fc5e527fd8a5c1e923\",\"compute-3.wgsl\":\"dcaf6b2a406e685a2b579914236f99d1ceb36d824d2306409fd5d701616ce540\",\"compute-7.wgsl\":\"236fc240adab7ceb72e70d6c846c12cf68b452b7b513ff8251af76a5f4572b88\",\"graph-0-0.wgsl\":\"530386011deb5a7c2e12ba0c0cbe3d3c5c0425e3672a07c535574cc7b9403bdf\",\"graph-1-0.wgsl\":\"76bcb72063064eaa763ab3a5c0e254a0bd19409b690ab85bbeff5a1ae8185ea2\",\"graph-3-0.wgsl\":\"83872bf0f273efbd38015a4e4bb1ee90872c010d3b49f902ae03e310036cac36\",\"graph-4-0.wgsl\":\"a4748bc5be1570987efe1ab5d41efadc3444f908bb0c4202d6079aa5c74a5e0d\",\"graph-5-0.wgsl\":\"b9170db61921aea20d486b30148a056d36bf61cf23a3c08804f02e66d2685e62\",\"graph-7-0.wgsl\":\"dbc41dadce5d6e46cbaa83a75ff26da128edff98b56aa9c1fdd11754beacda83\"},[{\"element\":{\"kind\":\"u32\"},\"kind\":\"list\"}],[[\"inc\",[[\"constant\",0]]],[\"double\",[[\"step\",0]]]],[\"b\"],[],1]",
+      "segments": [
+        {
+          "start": 0,
+          "end": 2,
+          "backend": "gpu"
+        }
+      ],
+      "reason": "explicit pure pipeline placement"
+    },
+    "stages": [
+      {
+        "iteration": 0,
+        "start": 0,
+        "end": 2,
+        "requested": "gpu",
+        "backend": "cpu",
+        "outputs": [
+          "b"
+        ],
+        "reason": "gpu fallback: GPUPipelineError: [Invalid ShaderModule (unlabeled)] is invalid due to a previous error.\n - While validating compute stage ([Invalid ShaderModule (unlabeled)], entryPoint: \"main\").\n",
+        "counters": {
+          "upload_bytes": 0,
+          "readback_bytes": 0,
+          "dispatches": 0
+        }
+      }
+    ],
+    "counters": {
+      "upload_bytes": 0,
+      "readback_bytes": 0,
+      "dispatches": 0,
+      "live_buffer_bytes": 0,
+      "resident_copy_bytes": 0
+    }
+  },
+  "worker_failure": {
+    "values": {
+      "b": [
+        4,
+        6
+      ]
+    },
+    "backend": "cpu",
+    "reason": "explicit pure pipeline placement",
+    "placement": {
+      "scope": "[\"ink-pipeline-placement-v1\",\"d2f05a69232c4ecdc8b7f8cdf7af04bea16c6ad8c664aaf5e8b4eb072f3aeb2e\",\"15aa5559a5b8b98d5dee56aef5fd7f5f2fab090a87105284a8af24e593100910\",\"8b8194a3fe1bf46cab553769c8955136782de5c9370409f9bb8f08c68a5497d0\",{\"compute-0.wgsl\":\"a3daeb89aca915d3a0a9c851b4235d45ff67534308eae3dba3eca9f64d386a5e\",\"compute-1.wgsl\":\"4bb62863b23063ad646c4caf255512709ee12b794bb36e68e22e43fe97b3ae67\",\"compute-2.wgsl\":\"efdca9d6616bde8fa56cbc537d29ffb1d387fb1caf4290fc5e527fd8a5c1e923\",\"compute-3.wgsl\":\"dcaf6b2a406e685a2b579914236f99d1ceb36d824d2306409fd5d701616ce540\",\"compute-7.wgsl\":\"236fc240adab7ceb72e70d6c846c12cf68b452b7b513ff8251af76a5f4572b88\",\"graph-0-0.wgsl\":\"530386011deb5a7c2e12ba0c0cbe3d3c5c0425e3672a07c535574cc7b9403bdf\",\"graph-1-0.wgsl\":\"76bcb72063064eaa763ab3a5c0e254a0bd19409b690ab85bbeff5a1ae8185ea2\",\"graph-3-0.wgsl\":\"83872bf0f273efbd38015a4e4bb1ee90872c010d3b49f902ae03e310036cac36\",\"graph-4-0.wgsl\":\"a4748bc5be1570987efe1ab5d41efadc3444f908bb0c4202d6079aa5c74a5e0d\",\"graph-5-0.wgsl\":\"b9170db61921aea20d486b30148a056d36bf61cf23a3c08804f02e66d2685e62\",\"graph-7-0.wgsl\":\"dbc41dadce5d6e46cbaa83a75ff26da128edff98b56aa9c1fdd11754beacda83\"},[{\"element\":{\"kind\":\"u32\"},\"kind\":\"list\"}],[[\"inc\",[[\"constant\",0]]],[\"double\",[[\"step\",0]]]],[\"b\"],[],1]",
+      "segments": [
+        {
+          "start": 0,
+          "end": 2,
+          "backend": "cpu-worker"
+        }
+      ],
+      "reason": "explicit pure pipeline placement"
+    },
+    "stages": [
+      {
+        "iteration": 0,
+        "start": 0,
+        "end": 2,
+        "requested": "cpu-worker",
+        "backend": "cpu",
+        "outputs": [
+          "b"
+        ],
+        "reason": "cpu-worker fallback: pure worker failed",
+        "counters": {
+          "upload_bytes": 0,
+          "readback_bytes": 0,
+          "dispatches": 0
+        }
+      }
+    ],
+    "counters": {
+      "upload_bytes": 0,
+      "readback_bytes": 0,
+      "dispatches": 0,
+      "live_buffer_bytes": 0,
+      "resident_copy_bytes": 0
+    }
+  },
+  "browser": "154.0.8037.98",
+  "chrome": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+}

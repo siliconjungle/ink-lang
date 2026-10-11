@@ -1,5 +1,7 @@
 # Compact storage and ownership lowering
 
+Historical evidence: the typed storage-policy APIs described below have been removed. For current compiler alternatives and proof boundaries, see [scalable typed state](scalable-state.md).
+
 Ink can now compile a Table into contiguous row or column buffers through an external storage policy. It also moves new rows into storage, moves previous rows into undo, and copies a removed row only when the source uses the returned value. This is the first implementation step toward the memory-model advantages described by [Goose](https://github.com/aardappel/goose/blob/master/bench/design.md).
 
 ## Physical layouts
