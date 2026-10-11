@@ -9,7 +9,6 @@ use std::{
 use verified_language::{
     core::CheckedModule,
     representation::{self, CheckedRepresentation, Request},
-    runtime::representation::{compiled::Compiled, Session},
     stateful::Runtime,
     syntax::parse,
 };
@@ -19,15 +18,6 @@ fn root(name: &str) -> PathBuf {
         .join(name);
     fs::create_dir_all(&p).unwrap();
     p
-}
-fn command(command: &mut Command) {
-    let out = command.output().unwrap();
-    assert!(
-        out.status.success(),
-        "{}\n{}",
-        String::from_utf8_lossy(&out.stdout),
-        String::from_utf8_lossy(&out.stderr)
-    );
 }
 #[test]
 fn parity_inventory_rejects_missing_targets_and_uncovered_features() {
@@ -69,6 +59,12 @@ fn parity_inventory_rejects_missing_targets_and_uncovered_features() {
     let mut no_suite = catalog.clone();
     no_suite["features"][0]["tests"] = json!([]);
     assert_eq!(run(&no_suite, "cpu").status.code(), Some(2));
+    let mut missing_suite = catalog.clone();
+    missing_suite["cpu_suites"]
+        .as_array_mut()
+        .unwrap()
+        .retain(|s| s != "point_delta");
+    assert_eq!(run(&missing_suite, "cpu").status.code(), Some(2));
     let mut no_type = catalog.clone();
     no_type["features"][0]["types"] = json!(["U32", "I32"]);
     assert_eq!(run(&no_type, "cpu").status.code(), Some(2));
@@ -105,8 +101,8 @@ fn checked() -> (
     (vec![a, b], migration)
 }
 #[test]
-fn checked_representations_execute_on_every_complete_cpu_target() {
-    let (reps, migration) = checked();
+fn checked_cache_paths_and_compiled_variant_switches_preserve_state() {
+    let (reps, _checked_direct_migration) = checked();
     fn calls(value: &serde_json::Value, out: &mut std::collections::BTreeSet<String>) {
         match value {
             serde_json::Value::Object(object) => {
@@ -153,101 +149,11 @@ fn checked_representations_execute_on_every_complete_cpu_target() {
             );
         }
     }
-    let p = reps[0].module().program();
-    let work = root("representations");
-    let mut defs = reps.iter().map(|r| r.definition()).collect::<Vec<_>>();
-    defs.push(migration.definition());
-    let zig = std::env::var("INK_TEST_ZIG").ok();
-    if std::env::var_os("INK_PARITY_REQUIRE_ALL").is_some() {
-        assert!(
-            zig.is_some(),
-            "all-target parity requires INK_TEST_ZIG; skipping Wasm is forbidden"
-        );
-    }
-    for target in ["c", "rust", "javascript", "c-wasm", "rust-wasm"] {
-        if target.ends_with("wasm") && zig.is_none() {
-            continue;
-        }
-        let mut executor = Compiled::new();
-        for d in &defs {
-            verified_language::runtime::representation::compiled::prepare(
-                &mut executor,
-                d,
-                verified_language::runtime::representation::compiled::Target::parse(target)
-                    .unwrap(),
-                &work.join(target),
-                zig.as_deref(),
-            )
-            .unwrap();
-        }
-        // Revisited migration endpoints reuse their compiled closure. Mixing a
-        // target into an already registered closure must be rejected explicitly.
-        let target_kind =
-            verified_language::runtime::representation::compiled::Target::parse(target).unwrap();
-        verified_language::runtime::representation::compiled::prepare(
-            &mut executor,
-            defs[0],
-            target_kind,
-            &work,
-            zig.as_deref(),
-        )
-        .unwrap();
-        let other =
-            if target_kind == verified_language::runtime::representation::compiled::Target::C {
-                verified_language::runtime::representation::compiled::Target::Rust
-            } else {
-                verified_language::runtime::representation::compiled::Target::C
-            };
-        assert!(
-            verified_language::runtime::representation::compiled::prepare(
-                &mut executor,
-                defs[0],
-                other,
-                &work,
-                zig.as_deref()
-            )
-            .is_err()
-        );
-        let mut state = Session::new(reps[0].clone(), executor).unwrap();
-        let mut baseline = Runtime::new(p.clone()).unwrap();
-        for i in 0..32u64 {
-            let (name, args) = match i % 8 {
-                0 => ("put", json!([0, i * 19])),
-                1 => ("zero", json!([])),
-                2 => ("overwrite", json!([u64::MAX - i])),
-                3 => ("get", json!([0])),
-                4 => ("clear", json!([])),
-                5 => ("zero", json!([])),
-                6 => ("erase", json!([0, true])),
-                _ => ("put", json!([1, i * 23])),
-            };
-            assert_eq!(
-                state.invoke_json(name, &args).unwrap(),
-                baseline.invoke_json(name, &args).unwrap().json(),
-                "{target} action {i}"
-            );
-            assert_eq!(
-                state.checkpoint().unwrap(),
-                baseline.checkpoint_portable().unwrap(),
-                "{target} snapshot {i}"
-            );
-            if i == 7 {
-                state.migrate_direct(reps[1].clone(), &migration).unwrap();
-            }
-            if i == 19 {
-                state.migrate(reps[0].clone()).unwrap();
-            }
-        }
-        println!(
-            "{target}: 32 action outcomes/exact checkpoints and direct/generic migrations matched"
-        );
-    }
-    let code =
-        verified_language::runtime::representation::javascript::emit(&reps, &[migration]).unwrap();
-    fs::write(work.join("application.mjs"), code).unwrap();
-    let mut base = Runtime::new(p.clone()).unwrap();
+    // Production now compiles ordinary variants. Cross-target application tests
+    // live in representation_parity; this checks atomic portable switching of
+    // the same checked baseline/cache pair, without a stateful interpreter.
     let mut steps = vec![];
-    for i in 0..24u64 {
+    for i in 0..32u64 {
         let (name, args) = match i % 8 {
             0 => ("put", json!([0, i * 19])),
             1 => ("zero", json!([])),
@@ -258,26 +164,18 @@ fn checked_representations_execute_on_every_complete_cpu_target() {
             6 => ("erase", json!([0, true])),
             _ => ("put", json!([1, i * 23])),
         };
-        let outcome = base.invoke_json(name, &args).unwrap().json();
-        steps.push(json!({"name":name,"args":args,"outcome":outcome,"snapshot":base.checkpoint_portable().unwrap()}));
+        steps.push(json!({"call":name,"args":args}));
+        if i == 7 {
+            steps.push(json!({"migrate":1}));
+        }
+        if i == 19 {
+            steps.push(json!({"migrate":0}));
+        }
     }
-    fs::write(
-        work.join("histories.json"),
-        serde_json::to_vec(&steps).unwrap(),
-    )
-    .unwrap();
-    fs::write(
-        work.join("state-wasm.mjs"),
-        verified_language::runtime::STATE_WASM_HOST,
-    )
-    .unwrap();
-    fs::write(
-        work.join("check-application.mjs"),
-        include_str!("feature-parity-representation.mjs"),
-    )
-    .unwrap();
-    command(Command::new("node").arg(work.join("check-application.mjs")));
+    compiled_representations::history(reps[0].module(), &reps, steps, "enforced-keep-migration");
 }
+#[path = "support/compiled_representations.rs"]
+mod compiled_representations;
 #[path = "support/parity.rs"]
 mod parity;
 #[test]
@@ -453,7 +351,6 @@ fn sealed_numeric_primitives_execute_identically_on_every_cpu_target() {
         knowledge::Lock,
         library::{self, Bundle, Object},
         logic::{Declaration, Sort, Term},
-        runtime::representation::Executor,
     };
     let mut bundle = Bundle {
         lock: Lock {
@@ -493,52 +390,7 @@ fn sealed_numeric_primitives_execute_identically_on_every_cpu_target() {
         functions.push((op, id));
     }
     let checked = definition::check(&bundle, &bundle.lock.objects, None).unwrap();
-    let context = library::load_bundle(&bundle).unwrap().context;
-    let zig = std::env::var("INK_TEST_ZIG").ok();
-    if std::env::var_os("INK_PARITY_REQUIRE_ALL").is_some() {
-        assert!(zig.is_some());
-    }
-    for target in ["c", "rust", "javascript", "c-wasm", "rust-wasm"] {
-        if target.ends_with("wasm") && zig.is_none() {
-            continue;
-        }
-        let mut executor = Compiled::new();
-        verified_language::runtime::representation::compiled::prepare(
-            &mut executor,
-            &checked,
-            verified_language::runtime::representation::compiled::Target::parse(target).unwrap(),
-            &root("numeric-definitions").join(target),
-            zig.as_deref(),
-        )
-        .unwrap();
-        for a in [
-            0u64,
-            1,
-            0x80000000,
-            0x7f800000,
-            0xff800000,
-            0x7fc12345,
-            0xff812345,
-            0x3f800001,
-            u64::MAX,
-        ] {
-            for b in [0u64, 1, 0x80000000, 0x7f800000, 0x7f812345, 0x3f800000] {
-                for (op, id) in &functions {
-                    let want = match *op {
-                        "quot" => Term::U64(if b == 0 { 0 } else { a / b }),
-                        "rem" => Term::U64(if b == 0 { 0 } else { a % b }),
-                        "&" => Term::U64(a & b),
-                        _ => verified_language::logic::f32_primitive(op, a, b).unwrap(),
-                    };
-                    assert_eq!(
-                        executor
-                            .execute(&checked, &context, id, vec![Term::U64(a), Term::U64(b)])
-                            .unwrap(),
-                        want,
-                        "{target}/{op}/{a}/{b}"
-                    );
-                }
-            }
-        }
-    }
+    numeric_definitions::check(&checked, &functions, &root("numeric-definitions"));
 }
+#[path = "support/numeric_definitions.rs"]
+mod numeric_definitions;

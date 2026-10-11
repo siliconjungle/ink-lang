@@ -1,0 +1,18 @@
+fn run()->Result<(),String>{
+ let mut program=match INITIAL{Some(bytes)=>Program::restore(0,bytes)?,None=>Program::new(0)?};
+ let steps:Vec<Json>=serde_json::from_str(CALLS).map_err(|e|e.to_string())?;
+ let mut replies=Vec::new();let mut output_bytes=2usize;
+ for step in steps{
+  let reply=if let Some(index)=step["migrate"].as_u64(){
+   program.switch(index as usize)?;
+   json!({"migrated":step["representation"],"version":program.version()})
+  }else{program.invoke_json(step["call"].as_str().unwrap(),&step["args"])?};
+  output_bytes=output_bytes.checked_add(serde_json::to_vec(&reply).map_err(|e|e.to_string())?.len()+1).ok_or("reply byte limit")?;
+  if output_bytes>16_000_000{return Err("reply byte limit".into());}
+  replies.push(reply);
+ }
+ // Checkpoint work happens only at this explicit boundary or a migration.
+ if let Some(path)=SNAPSHOT{let bytes=program.checkpoint()?;std::fs::write(path,bytes).map_err(|e|e.to_string())?;}
+ println!("{}",serde_json::to_string(&replies).map_err(|e|e.to_string())?);Ok(())
+}
+fn main(){if let Err(error)=run(){eprintln!("{error}");std::process::exit(1);}}
