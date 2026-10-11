@@ -39,10 +39,14 @@ fn capability_rejection_preserves_compiled_cpu_and_staged_lowering() {
             .unwrap()
             .contains("cursor--")
     );
-    for name in ["wide", "lazy", "intermediate_wide", "count_constants"] {
+    for name in ["lazy"] {
         assert!(function(name)["graph"].is_null(), "{name}");
         assert!(function(name)["shader"].is_null(), "{name}");
         assert!(function(name)["fallback_reason"].is_string(), "{name}");
+    }
+    for name in ["wide", "intermediate_wide", "count_constants"] {
+        assert!(!function(name)["graph"].is_null(), "{name}");
+        assert!(function(name)["fallback_reason"].is_null(), "{name}");
     }
     assert!(!function("constant")["graph"].is_null());
     assert!(!function("heavy")["graph"].is_null());

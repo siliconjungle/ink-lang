@@ -1359,7 +1359,7 @@ fn bulk_deltas_preserve_duplicates_mismatch_and_rollback_on_every_cpu_target() {
         ])
         .arg(
             Path::new(env!("CARGO_MANIFEST_DIR"))
-                .join("knowledge/research/bulk-maintenance/request.json.gz"),
+                .join("knowledge/research/scalable-state-current/bulk-maintenance/request.json.gz"),
         )
         .output()
         .unwrap();
@@ -1405,7 +1405,7 @@ fn frozen_request(folder: &str) -> Request {
         ])
         .arg(
             Path::new(env!("CARGO_MANIFEST_DIR"))
-                .join(format!("knowledge/research/{folder}/request.json.gz")),
+                .join(format!("knowledge/research/scalable-state-current/{folder}/request.json.gz")),
         )
         .output()
         .unwrap();
