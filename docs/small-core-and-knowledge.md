@@ -462,3 +462,50 @@ profitability choices remain database authority. These mechanisms remain trusted
 native correspondence; pure value equality does not prove ownership/lifetime or
 allocation traces. [The precise contracts and validation boundary](web-engine-storage-and-contexts.md)
 are recorded separately.
+
+## General mechanisms added for representation scale
+
+The fixed logical word primitives additionally include unsigned bitwise AND and
+unsigned total quotient/remainder (zero divisor yields zero). Source `quot_or`
+and `rem_or` correspondence explicitly selects the user's fallback on zero and
+signed overflow. The bit-vector proof encoder admits AND with literal Boolean
+circuits; it rejects quotient/remainder and binary32 operators instead of treating
+them as word-ring arithmetic. Binary32 primitives operate on stored 32-bit words,
+round each arithmetic operation, compare IEEE scalar values and negate by XOR
+of the sign bit. Stored aggregate equality compares bits. Arithmetic NaN payload
+portability follows the existing numerical contract; no new cross-engine promise
+is made. These are fixed source semantics, not database-installed axioms.
+
+`WordExtensionality` is a general equality rule: operands must be words, every
+nonzero mask has a checked equality of the masked operands, and the union of at
+most 64 masks covers every bit. It admits neither assumptions nor producer names.
+The external aggregate producer uses this rule to split expensive SAT proofs
+into separately checked word lemmas. Polynomial normalisation, update recognition
+and induction tactics remain untrusted Python which emits ordinary proof terms.
+The kernel has no aggregate, insertion-delta or cache-maintenance rule.
+
+The RUP checker resets only assignments touched by the previous goal. It still
+replays each ordered hint and requires conflict; variable, clause, hint, step and
+20-million-work bounds remain. The checked context closure bound is 512 entries,
+with dependency depth 64 and existing declaration/proof budgets. The source
+projection is bounded by 256 definitions and 20,000 work units.
+
+Ground execution has its own bounds, separate from symbolic proof conversion:
+100,000 constructor nodes, 8,192 constructor depth, 64 fields/arguments and
+16 MB flat transport. The reference and JavaScript frame machines additionally
+bound work to two million and frames to 16,384. Source table/list/event carriers
+remain bounded at 4,096 entries, source value nesting at 32 and exact-integer
+magnitudes at 4,090 bits. A 4,096-row table holding binary integers can require
+nearly 8,192 carrier depth; flat postorder transport and iterative codecs avoid
+JSON parser nesting limits while enforcing these finite bounds.
+
+Prepared physical state is private immutable typed storage bound to the exact
+sealed executable identity. Rust shares unchanged children; all standalone
+backends use the same host contract. A proved source query cannot change logical
+state, version or events. Its host path validates ingress/reply and rejects a
+committed flag, changed version or nonempty events, then publishes the next
+related physical state without serialising the unchanged logical checkpoint.
+Changes still stage and validate their full logical snapshot before publication.
+Checkpoint and migration still materialise and validate logical state. This
+host optimisation is trusted implementation work, covered by malformed-query
+publication tests and complete cross-target source-oracle histories.
