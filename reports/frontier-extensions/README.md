@@ -12,7 +12,8 @@ The original measurement and validation files below retain their exact pre-merge
 cohort. Main integration additionally preserves shared ABI/native support, iterative
 spine release and current collection-edit admission. Scratch storage now lives in
 `ink-native-support`; migration histories run real compiled JavaScript state through
-the portable contract. Current integration validation is recorded separately.
+the portable contract. Current integration validation is recorded in
+[`merged-main-validation.json`](merged-main-validation.json).
 
 ## Implemented capabilities
 
