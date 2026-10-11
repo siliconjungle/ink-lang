@@ -35,16 +35,25 @@ an existing immutable edge clones its `Arc`, without allocating another shallow
 node. A borrowed root without an owner retains the existing shallow-copy fallback.
 The standalone C ABI keeps its separate typed borrowing contract.
 
-Checked functions with a single recursive call site use explicit typed
+Checked functions with up to 64 recursive call sites use explicit typed
 continuation frames in the Rust and standalone C lowerings. Descent records call
 arguments, and unwinding resumes the checked expression with the recursive result.
-Frames may recompute pure terms before that call; this is general control-flow
+A frame retains completed recursive results and its pending call site.
+Frames may recompute pure terms before a call; this is general control-flow
 lowering, not an optimisation equation. Rust frames and C frame storage cap at
 one million frames and 64 MB. C uses generated native-support allocation routines,
-including on Wasm. Other recursive functions retain their existing execution
+including on Wasm. Functions with more call sites retain their existing execution
 strategy. JavaScript uses its existing explicit continuation executor. Long-list
 support does not imply unrestricted recursion or a proof of backend/resource-failure
-correctness. A typed Rust test covers 100,000-row encode/decode and release.
+correctness. A typed Rust test covers 100,000-row conditional filtering, encode/decode and release.
+
+The Wasm host decodes response bytes synchronously before freeing the guest
+buffer, so responses avoid a second byte allocation. Portable snapshots still
+return independently owned bytes. Its exact JSON reader avoids temporary token
+arrays and native parsing of unescaped strings, while preserving arbitrary-size
+integer tokens, finite floating values, safe object keys and the 128-level nesting
+limit. Tests cover malformed input, memory growth, buffer release and snapshot
+ownership. This is transport machinery shared by both Wasm backends.
 
 Published implementation candidates can contain `knowledge_ref` (schema 1 and
 sorted dependency roots) instead of embedding a second copy of the full proof
