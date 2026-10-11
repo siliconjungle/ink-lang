@@ -39,13 +39,14 @@ alternatives. [Design and ambitions](docs/vision.md) explains this separation;
 
 ## Outstanding architecture requirements
 
-Current execution work prioritises precise facts through function composition,
-less intermediate allocation/copying and full-state transport, diagnosis of
-composed-helper regressions, and target-specific profitability. Broader benchmark
-families must vary size, shape and distribution independently and compare full
-results with strong JS, Rust-Wasm and native Rust controls. GPU residency and
-complete requests remain separate boundaries. Generalisation and fewer
-regressions matter more than catalogue size.
+[Engine39](reports/web-stack-engine-39-2026-10-11/REPORT.md) supplies bounded
+facts through composition, destination reuse, a twenty-regression diagnosis,
+seven-family comparisons and separately frozen target/adaptive models. These are
+implemented experiments, not a closed competitive-execution gate. Next work must
+reduce complete-call transport and remaining multi-pass storage, improve physical
+target features/training coverage, and isolate fused scheduling/representation
+losses. Heldout errors and adverse selections rule out enabling the broad fitted
+model by default. Resident GPU and complete requests retain distinct accounting.
 
 Stateful research should use exact relevant changes to maintain results and
 workload frequencies/lifetime to choose whether maintenance pays. Charge setup,
