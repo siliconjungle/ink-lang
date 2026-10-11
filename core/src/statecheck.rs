@@ -40,7 +40,10 @@ fn concrete(t: &Type) -> bool {
 pub(crate) fn validate_type(t: &Type, p: &Program) -> LangResult<()> {
     match t {
         Type::Named(n)
-            if !p.ids.contains(n) && !p.records.contains_key(n) && !p.enums.contains_key(n) =>
+            if n != "ArithmeticError"
+                && !p.ids.contains(n)
+                && !p.records.contains_key(n)
+                && !p.enums.contains_key(n) =>
         {
             Err(format!("unknown type {n}"))
         }
@@ -130,6 +133,77 @@ impl Context<'_> {
         env: &Env,
         facts: &mut Facts,
     ) -> LangResult<Type> {
+        if let Expr::Let(n, annotation, value, body) = e {
+            if self
+                .p
+                .states
+                .iter()
+                .chain(&self.p.keeps)
+                .any(|d| &d.name == n)
+            {
+                return Err("local expression cannot shadow a state capability".into());
+            }
+            let t = if let Some(t) = annotation {
+                validate_type(t, self.p)?;
+                self.expected(value, t, env, facts)?
+            } else {
+                self.infer(value, env, facts)?
+            };
+            let mut local = env.clone();
+            local.insert(n.clone(), t);
+            facts.clear();
+            return self.expected(body, want, &local, facts);
+        }
+        if let Expr::Method(receiver, n, args) = e {
+            if n == "fold" {
+                return self.variant_fold(receiver, args, env, facts, Some(want));
+            }
+        }
+        if let Expr::Call(n, args) = e {
+            if ["checked_add", "checked_sub", "checked_mul"].contains(&n.as_str()) {
+                if let Type::Result(t, error) = want {
+                    if crate::check::is_word(t) && **error == Type::Named("ArithmeticError".into())
+                    {
+                        if args.len() != 2 {
+                            return Err("checked arithmetic arity".into());
+                        }
+                        for a in args {
+                            self.expected(a, t, env, facts)?;
+                        }
+                        return Ok(want.clone());
+                    }
+                }
+            }
+            if crate::word::primitive(n) && crate::check::is_word(want) {
+                let ts = crate::word::arguments(n, want);
+                if args.len() != ts.len() {
+                    return Err("word operation arity".into());
+                }
+                for (a, t) in args.iter().zip(ts) {
+                    self.expected(a, &t, env, facts)?;
+                }
+                return Ok(want.clone());
+            }
+            if n == "choose" {
+                if args.len() != 3 {
+                    return Err("choose expects three arguments".into());
+                }
+                self.expected(&args[0], &Type::Bool, env, facts)?;
+                self.expected(&args[1], want, env, &mut facts.clone())?;
+                self.expected(&args[2], want, env, &mut facts.clone())?;
+                // Only facts valid before either branch survive a value conditional.
+                facts.clear();
+                return Ok(want.clone());
+            }
+            if n == "list" {
+                if let Type::List(inner) = want {
+                    for item in args {
+                        self.expected(item, inner, env, facts)?;
+                    }
+                    return Ok(want.clone());
+                }
+            }
+        }
         if let Expr::Binary(op, a, b) = e {
             if ["+", "-", "*"].contains(&op.as_str())
                 && (crate::check::is_number(want) || *want == Type::Int)
@@ -225,7 +299,27 @@ impl Context<'_> {
                 }
                 self.expected(e, &t, env, facts)
             }
-            Expr::Let(..) => Err("compute expression belongs in a pure function".into()),
+            Expr::Let(n, annotation, value, body) => {
+                if self
+                    .p
+                    .states
+                    .iter()
+                    .chain(&self.p.keeps)
+                    .any(|d| &d.name == n)
+                {
+                    return Err("local expression cannot shadow a state capability".into());
+                }
+                let t = if let Some(t) = annotation {
+                    validate_type(t, self.p)?;
+                    self.expected(value, t, env, facts)?
+                } else {
+                    self.infer(value, env, facts)?
+                };
+                let mut local = env.clone();
+                local.insert(n.clone(), t);
+                facts.clear();
+                self.infer(body, &local, facts)
+            }
             Expr::Num(_) => Ok(T::U64),
             Expr::Bool(_) => Ok(T::Bool),
             Expr::String(_) => Ok(T::String),
@@ -373,7 +467,40 @@ impl Context<'_> {
                 }
             }
             Expr::Call(n, args) => {
+                if crate::word::primitive(n) {
+                    if args.len() != if n == "word_not" { 1 } else { 2 } {
+                        return Err("word operation arity".into());
+                    }
+                    let t = self.infer(&args[0], env, facts)?;
+                    if !crate::check::is_word(&t) {
+                        return Err("word operation requires fixed integers".into());
+                    }
+                    return self.expected(e, &t, env, facts);
+                }
                 match n.as_str() {
+                    "choose" => {
+                        if args.len() != 3 {
+                            return Err("choose expects three arguments".into());
+                        }
+                        let ty = match self
+                            .numeric_hint(&args[1], env, facts)
+                            .or_else(|| self.numeric_hint(&args[2], env, facts))
+                        {
+                            Some(t) => t,
+                            None => self.infer(&args[1], env, &mut facts.clone())?,
+                        };
+                        return self.expected(e, &ty, env, facts);
+                    }
+                    "list" => {
+                        let first = args
+                            .first()
+                            .ok_or("empty list needs an expected List<T> type")?;
+                        let ty = self.infer(first, env, facts)?;
+                        for item in &args[1..] {
+                            self.expected(item, &ty, env, facts)?;
+                        }
+                        return Ok(T::List(Box::new(ty)));
+                    }
                     "vec2" | "vec3" | "vec4" => {
                         let k = n.as_bytes()[3] - b'0';
                         if args.len() != k as usize {
@@ -413,7 +540,16 @@ impl Context<'_> {
                         if args.len() != 2 {
                             return Err(format!("{n} expects two arguments"));
                         }
-                        let t = self.infer(&args[0], env, facts)?;
+                        let t = match self
+                            .numeric_hint(&args[0], env, facts)
+                            .or_else(|| self.numeric_hint(&args[1], env, facts))
+                        {
+                            Some(t) => {
+                                self.expected(&args[0], &t, env, facts)?;
+                                t
+                            }
+                            None => self.infer(&args[0], env, facts)?,
+                        };
                         if !matches!(t, T::U64 | T::U32 | T::I32) {
                             return Err("checked arithmetic requires fixed integers".into());
                         }
@@ -578,6 +714,9 @@ impl Context<'_> {
                         return Ok(T::Result(v, Box::new(e)));
                     }
                 }
+                if n == "fold" {
+                    return self.variant_fold(receiver, args, env, facts, None);
+                }
                 if ["map", "map_err", "filter"].contains(&n.as_str()) {
                     if args.len() != 1 {
                         return Err(format!("{n} expects one lambda"));
@@ -634,20 +773,79 @@ impl Context<'_> {
             Expr::Lambda(..) => Err("lambda requires a typed operator context".into()),
         }
     }
+    fn variant_fold(
+        &self,
+        receiver: &Expr,
+        args: &[Expr],
+        env: &Env,
+        facts: &mut Facts,
+        want: Option<&Type>,
+    ) -> LangResult<Type> {
+        if args.len() != 2 {
+            return Err("variant fold requires both branch lambdas".into());
+        }
+        let t = self.infer(receiver, env, facts)?;
+        let (a, b) = match t {
+            Type::Option(a) => (*a, Type::Unit),
+            Type::Result(a, b) => (*a, *b),
+            _ => return Err("fold requires Option or Result".into()),
+        };
+        let inputs = [a, b];
+        let cx = Context {
+            in_lambda: true,
+            ..*self
+        };
+        let mut result = want.cloned().or_else(|| {
+            args.iter().zip(&inputs).find_map(|(arg, input)| {
+                if let Expr::Lambda(n, body) = arg {
+                    let mut local = env.clone();
+                    local.insert(n.clone(), input.clone());
+                    cx.numeric_hint(body, &local, facts)
+                } else {
+                    None
+                }
+            })
+        });
+        for (arg, input) in args.iter().zip(inputs) {
+            let Expr::Lambda(n, body) = arg else {
+                return Err("variant fold requires branch lambdas".into());
+            };
+            let mut local = env.clone();
+            local.insert(n.clone(), input.clone());
+            let out = if let Some(t) = &result {
+                cx.expected(body, t, &local, &mut facts.clone())?
+            } else {
+                cx.infer(body, &local, &mut facts.clone())?
+            };
+            if result.as_ref().is_some_and(|t| !compatible(t, &out)) {
+                return Err("variant fold branches differ".into());
+            }
+            result = Some(out.clone());
+            if let Some(typing) = self.typing {
+                typing
+                    .borrow_mut()
+                    .lambdas
+                    .insert(address(arg), (input, out));
+            }
+        }
+        Ok(result.unwrap())
+    }
     fn block(&self, body: &[Statement], env: &mut Env, facts: &mut Facts) -> LangResult<bool> {
         let mut terminated = false;
         for s in body {
             match s {
                 Statement::Let(n, annotation, e) => {
-                    if env.contains_key(n)
-                        || self
-                            .p
-                            .states
-                            .iter()
-                            .chain(&self.p.keeps)
-                            .any(|d| &d.name == n)
+                    if self
+                        .p
+                        .states
+                        .iter()
+                        .chain(&self.p.keeps)
+                        .any(|d| &d.name == n)
                     {
                         return Err(format!("duplicate or shadowed binding {n}"));
+                    }
+                    if env.contains_key(n) {
+                        facts.clear();
                     }
                     let t = if let Some(t) = annotation {
                         validate_type(t, self.p)?;
@@ -726,6 +924,7 @@ pub fn check(p: &Program) -> LangResult<()> {
         .chain(p.functions.iter().map(|f| &f.name))
     {
         if !names.insert(n.clone())
+            || crate::word::primitive(n)
             || [
                 "Int",
                 "u32",
@@ -758,6 +957,8 @@ pub fn check(p: &Program) -> LangResult<()> {
                 "Some",
                 "None",
                 "sum",
+                "list",
+                "choose",
                 "count",
                 "checked_add",
                 "checked_sub",

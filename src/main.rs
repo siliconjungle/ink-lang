@@ -5,9 +5,7 @@ use std::{
     path::Path,
     process::{Command, ExitCode},
 };
-use verified_language::{
-    check, core, eval, native, state_native, stateful, syntax, LangResult,
-};
+use verified_language::{check, core, eval, native, state_native, stateful, syntax, LangResult};
 
 fn arg_value(args: &[String], flag: &str) -> LangResult<Option<String>> {
     if let Some(i) = args.iter().position(|a| a == flag) {
@@ -135,8 +133,45 @@ fn prepare_selection(
 fn run() -> LangResult<()> {
     let args: Vec<String> = env::args().skip(1).collect();
     let cmd = args.first().map(String::as_str).unwrap_or("help");
-    const OPTIONS:&[&str]=&["--budget", "--cargo", "--cc", "--compiler", "--core", "--help", "--implementation", "--lean", "--library", "--native-cpu", "--optimise", "--portable", "--python", "--replacement", "--restore", "--roles", "--route", "--route-proof", "--search-budget", "--search-tool", "--select", "--selection", "--snapshot", "--snapshot-out", "--syntax-roles", "--target", "--value-roles", "--version", "--view", "--wasm-abi", "--zig"];
-    for arg in &args {if arg.starts_with("--")&&!OPTIONS.contains(&arg.as_str()){return Err(format!("unknown option {arg}"));}}
+    const OPTIONS: &[&str] = &[
+        "--budget",
+        "--cargo",
+        "--cc",
+        "--compiler",
+        "--core",
+        "--help",
+        "--implementation",
+        "--lean",
+        "--library",
+        "--native-cpu",
+        "--optimise",
+        "--portable",
+        "--proofs",
+        "--python",
+        "--replacement",
+        "--restore",
+        "--roles",
+        "--route",
+        "--route-proof",
+        "--search-budget",
+        "--search-tool",
+        "--select",
+        "--selection",
+        "--snapshot",
+        "--snapshot-out",
+        "--syntax-roles",
+        "--target",
+        "--value-roles",
+        "--version",
+        "--view",
+        "--wasm-abi",
+        "--zig",
+    ];
+    for arg in &args {
+        if arg.starts_with("--") && !OPTIONS.contains(&arg.as_str()) {
+            return Err(format!("unknown option {arg}"));
+        }
+    }
     if cmd == "--version" || cmd == "version" {
         println!("ink {} ({})", env!("CARGO_PKG_VERSION"), core::SEMANTICS);
         return Ok(());
@@ -390,7 +425,6 @@ fn run() -> LangResult<()> {
         return Ok(());
     }
 
-
     if cmd == "bitvector-obligation" {
         #[derive(serde::Deserialize)]
         #[serde(deny_unknown_fields)]
@@ -428,6 +462,38 @@ fn run() -> LangResult<()> {
         println!("wrote {output}; solver output requires a checked hinted-RUP certificate");
         return Ok(());
     }
+    if cmd == "emit-laws" {
+        let path = args
+            .get(1)
+            .ok_or("emit-laws requires an external theorem SOURCE")?;
+        let bytes = read_bounded(path, 1_000_000)?;
+        let text = std::str::from_utf8(&bytes).map_err(|e| e.to_string())?;
+        let program = syntax::parse(text)?;
+        let proofs = arg_value(&args, "--proofs")?
+            .map(|p| {
+                read_bounded(&p, 4_000_000)
+                    .and_then(|b| serde_json::from_slice(&b).map_err(|e| e.to_string()))
+            })
+            .transpose()?
+            .unwrap_or_default();
+        let deps = arg_value(&args, "--view")?
+            .map(|p| {
+                read_bounded(&p, 16_000_000)
+                    .and_then(|b| serde_json::from_slice(&b).map_err(|e| e.to_string()))
+            })
+            .transpose()?;
+        let authored = verified_language::law_author::compile(program, proofs, deps.as_ref())?;
+        let output = arg_value(&args, "-o")?.ok_or("emit-laws requires -o BUNDLE.json")?;
+        write(
+            &output,
+            &serde_json::to_string_pretty(&authored.bundle).map_err(|e| e.to_string())?,
+        )?;
+        println!(
+            "{}",
+            serde_json::json!({"status":"checked","names":authored.names,"snapshot":authored.bundle.snapshot,"scope":"External executable laws checked by the existing general kernel; source declarations do not grant optimisation authority."})
+        );
+        return Ok(());
+    }
     if cmd == "project-library" {
         let path = args.get(1).ok_or("project-library requires LOCK.json")?;
         let roots_path = args.get(2).ok_or("project-library requires ROOTS.json")?;
@@ -453,10 +519,10 @@ fn run() -> LangResult<()> {
         return Ok(());
     }
 
-
     if cmd == "help" || cmd == "--help" {
         println!("ink --version\nink doctor [--python PATH]\nink explain SOURCE [--core] [--selection PACKAGE.json | --optimise SNAPSHOT.json]\nink modules SOURCE");
         println!("ink check-boolean-verdict THEOREM.json --lean PATH -o CERTIFICATE.lean");
+        println!("ink emit-laws THEOREMS.ink [--proofs EVIDENCE.json] [--view DEPENDENCIES.json] -o BUNDLE.json");
         println!("ink emit-semantic SOURCE [--core] -o SUBJECT.json\nink check-selection CORE.json PACKAGE.json\nExecution, lowering and core emission accept --optimise KNOWLEDGE_DIRECTORY or SNAPSHOT.json (external search) or --selection PACKAGE.json (checked replay). Optional --search-tool PATH, --search-budget N and --python PATH. INK_DISTRIBUTION locates an optional installed tool bundle.");
         println!("ink check-representation SOURCE REQUEST.json\nink emit-representation SOURCE REQUEST.json [--target rust|c|javascript|wasm32|c-wasm|rust-wasm|wgpu|webgpu] -o OUTPUT\nink execute-representation SOURCE REQUEST.json SCRIPT.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] (compiles standalone Rust; requires Cargo; script supports call and portable migrate steps)");
         println!("ink check-source-route CORE.json ROUTING.json\nink emit-action-model SOURCE -o MODEL.json (restricted whole-action transition projection)");
@@ -738,7 +804,9 @@ fn run() -> LangResult<()> {
             let wasm_abi = args.iter().any(|s| s == "--wasm-abi");
             let mut code = if let Some(selected) = &semantic_selection {
                 state_native::emit_selected(selected)?
-            } else { state_native::emit(&p)? };
+            } else {
+                state_native::emit(&p)?
+            };
             if wasm_abi {
                 code.push_str(state_native::WASM_ABI);
             }
