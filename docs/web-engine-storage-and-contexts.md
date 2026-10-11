@@ -66,7 +66,7 @@ directory cannot intercept native link dependencies.
 CPU transport decodes a terminal arena result before reset instead of first
 copying its packed words. Values crossing a later arena reset still receive an
 owned copy. Destination decoding writes directly to the caller prefix. Captured
-automatic U32 JavaScript calls can read their already private typed input buffer;
+adaptive automatic U32 JavaScript calls can read their already private typed input buffer;
 public packed results retain the owned Array contract. GPU mapped readback still
 copies to owned host words before unmap; a header-free subview avoids a second
 copy while the decoder consumes those owned words. These mechanisms preserve
