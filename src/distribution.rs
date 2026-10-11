@@ -55,7 +55,7 @@ pub fn doctor(python: &str) -> Value {
         .collect::<Vec<_>>();
     let resources = [
         "planner/plan.py",
-        "knowledge/producers/view_decomposition.py",
+        "knowledge/producers/fold_until_laws.py",
         "knowledge/producers/action_replacement.py",
     ]
     .iter()

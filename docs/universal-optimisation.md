@@ -21,7 +21,7 @@ or predicate depending on the remaining fold cannot receive this law. Rehashing
 a false proof does not repair it. Callback order, empty inputs, shadowing, exact
 word boundaries, float payloads and captured values have conformance tests.
 
-Owned `Buffer.map`, `Buffer.map_indexed` and `Buffer.scan` explicitly consume and
+Owned `Buffer.map`, `Buffer.map_indexed`, `Buffer.scan` and stable `Buffer.filter` explicitly consume and
 update private storage. Their fixed extensional meanings correspond to the same
 ordered list operations; `freeze` returns the logical list. Database equalities
 select these representations. C and JavaScript no longer infer buffer reuse from
@@ -57,3 +57,17 @@ Legacy aggregate certificates, bounded caches, typed storage policies, source
 maintenance evaluators and historical scalar loaders are removed completely.
 Current maintained representations continue through database proofs. Archived
 reports are evidence data, not an executable compatibility path.
+
+## Definition unfolding
+
+C and JavaScript emit ordinary function calls. Bounded helper unfolding is proposed
+by the database's `inline_laws` producer using exact portable definition contexts
+and ordinary `Normalize` proofs. The planner loads installed producers from the
+knowledge package's catalog and transports generated candidates in an immutable
+derived snapshot. Only checked selected closures become compilation authority;
+producer metadata and membership confer no mathematical authority.
+
+Read-only physical query choices use the database producer's `--compact-queries`
+and cache-preservation candidates, with ordinary transition/representation proofs.
+Targets emit the admitted physical step; C, Rust and JavaScript do not infer a
+different query protocol from its observation envelope.

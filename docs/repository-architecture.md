@@ -39,7 +39,7 @@ action; see [the contract and limits](database-representations.md).
 
 The planner proposes checked graphs and cost choices. `ink-runtime::execution` composes pure source stages through registered opaque backend/domain adapters, validates original inputs before execution and validates each output's logical type. Failed stages repeat the same pure call on an explicitly registered fallback. Adapter registration and physical bridges remain trusted.
 
-GPU target emission returns manifest/shader artifacts and owns shader/device operations. Shared runtime assembly supplies C fallback, Wasm compilation, browser/native host ABI, scheduling, profiling and fallback. The GPU lowerer has no C or runtime dependency. Wasm target exports remain in its lowering package; Wasm state host support belongs to runtime.
+GPU target emission returns manifest/shader artifacts and owns shader/device operations. Shared runtime assembly supplies C fallback, Wasm compilation, browser/native host ABI, scheduling, shared saved-model decisions and fallback. The GPU lowerer has no C or runtime dependency. Wasm target exports remain in its lowering package; Wasm state host support belongs to runtime.
 
 Scalar source routes transport supported values through the host. Packed compute
 pipelines support resident arrays across steps and iterations. Durable file and
@@ -48,3 +48,9 @@ Explicit checked representation migrations operate at transaction boundaries;
 their session API alone supplies no durability guarantee. Broader resident bridge
 proofs, stateful placement, automatic live strategy choice and end-to-end backend
 proofs remain work. Neither an entry hash nor source equality establishes them.
+
+The independent `ink-abi` repository owns descriptor/packed transport contracts,
+conformance fixtures and one native/browser execution decision implementation.
+Every lowering pins it. `ink-native-support` owns emitted dynamic and typed
+value primitives, owned collections and state exports. General expression and
+binding analysis belongs in core; algorithm choices belong in checked knowledge.

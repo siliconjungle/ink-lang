@@ -6,7 +6,7 @@ use std::{
     process::{Command, ExitCode},
 };
 use verified_language::{
-    aggregate, check, core, eval, knowledge, native, state_native, stateful, syntax, LangResult,
+    check, core, eval, native, state_native, stateful, syntax, LangResult,
 };
 
 fn arg_value(args: &[String], flag: &str) -> LangResult<Option<String>> {
@@ -47,91 +47,6 @@ fn read_bounded(path: &str, limit: usize) -> LangResult<Vec<u8>> {
 /// external (untrusted) decomposition producer, and check its proof with the
 /// general kernel. Any keep without a checked decomposition is an error, so a
 /// build never silently relies on the trusted row-local decomposition.
-fn prove_views(
-    args: &[String],
-    p: &syntax::Program,
-    certificate: &aggregate::Certificate,
-    out: Option<&str>,
-) -> LangResult<Vec<serde_json::Value>> {
-    let tool = if let Some(path) = arg_value(args, "--view-tool")? {
-        std::path::PathBuf::from(path)
-    } else {
-        verified_language::distribution::resource("knowledge/producers/view_decomposition.py")?
-    };
-    let temp = env::temp_dir().join(format!(
-        "ink-views-{}-{}",
-        std::process::id(),
-        std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .map_err(|e| e.to_string())?
-            .as_nanos()
-    ));
-    fs::create_dir(&temp).map_err(|e| e.to_string())?;
-    let result = (|| {
-        let mut checked = vec![];
-        for keep in &p.keeps {
-            if aggregate::plan_with_certificate(p, keep, certificate).is_none() {
-                continue;
-            }
-            let name = &keep.name;
-            let fail = |e: String| {
-                format!("maintained keep {name}: view decomposition not established: {e}")
-            };
-            let view =
-                verified_language::row_model::export_view(p, name, certificate).map_err(fail)?;
-            let input = temp.join(format!("{name}.view.json"));
-            let output = temp.join(format!("{name}.evidence.json"));
-            fs::write(
-                &input,
-                serde_json::to_vec(&view).map_err(|e| e.to_string())?,
-            )
-            .map_err(|e| e.to_string())?;
-            let python = arg_value(args, "--python")?.unwrap_or_else(|| "python3".into());
-            let run = Command::new(&python)
-                .arg(&tool)
-                .arg(&input)
-                .arg("-o")
-                .arg(&output)
-                .output()
-                .map_err(|e| {
-                    fail(format!(
-                        "cannot start {python} for {}: {e}; use --python PATH",
-                        tool.display()
-                    ))
-                })?;
-            if !run.status.success() {
-                return Err(fail(
-                    String::from_utf8_lossy(&run.stderr).trim().to_string(),
-                ));
-            }
-            let bytes = read_bounded(&output.to_string_lossy(), 16_000_000)?;
-            let evidence: verified_language::row_model::ViewEvidence =
-                serde_json::from_slice(&bytes).map_err(|e| fail(e.to_string()))?;
-            if &evidence.keep != name {
-                return Err(fail("producer answered for a different keep".into()));
-            }
-            let description = verified_language::row_model::verify_view(p, certificate, &evidence)
-                .map_err(fail)?;
-            if let Some(out) = out {
-                write(
-                    &format!("{out}/views/{name}.evidence.json"),
-                    &String::from_utf8_lossy(&bytes),
-                )?;
-            }
-            checked.push(serde_json::json!({
-                "keep": name,
-                "aggregate": description.aggregate,
-                "stages": description.stages.iter().map(|s| &s.kind).collect::<Vec<_>>(),
-                "pipeline": description.pipeline,
-                "decomposed": description.decomposed,
-                "evidence_sha256": format!("{:x}", Sha256::digest(&bytes)),
-            }));
-        }
-        Ok(checked)
-    })();
-    let _ = fs::remove_dir_all(&temp);
-    result
-}
 fn prepare_selection(
     args: &[String],
     p: &syntax::Program,
@@ -220,6 +135,8 @@ fn prepare_selection(
 fn run() -> LangResult<()> {
     let args: Vec<String> = env::args().skip(1).collect();
     let cmd = args.first().map(String::as_str).unwrap_or("help");
+    const OPTIONS:&[&str]=&["--budget", "--cargo", "--cc", "--compiler", "--core", "--help", "--implementation", "--lean", "--library", "--native-cpu", "--optimise", "--portable", "--python", "--replacement", "--restore", "--roles", "--route", "--route-proof", "--search-budget", "--search-tool", "--select", "--selection", "--snapshot", "--snapshot-out", "--syntax-roles", "--target", "--value-roles", "--version", "--view", "--wasm-abi", "--zig"];
+    for arg in &args {if arg.starts_with("--")&&!OPTIONS.contains(&arg.as_str()){return Err(format!("unknown option {arg}"));}}
     if cmd == "--version" || cmd == "version" {
         println!("ink {} ({})", env!("CARGO_PKG_VERSION"), core::SEMANTICS);
         return Ok(());
@@ -472,59 +389,8 @@ fn run() -> LangResult<()> {
         );
         return Ok(());
     }
-    if cmd == "model-view" || cmd == "verify-view" {
-        let p = source(args.get(1).ok_or("view model requires SOURCE")?)?;
-        let cert_path = arg_value(&args, "--maintenance")?.ok_or("missing --maintenance")?;
-        let cert: aggregate::Certificate =
-            serde_json::from_slice(&read_bounded(&cert_path, 4_000_000)?)
-                .map_err(|e| e.to_string())?;
-        if cmd == "model-view" {
-            let keep = args.get(2).ok_or("model-view requires KEEP")?;
-            let model = verified_language::row_model::export_view(&p, keep, &cert)?;
-            let output = arg_value(&args, "-o")?.ok_or("missing -o")?;
-            write(
-                &output,
-                &serde_json::to_string_pretty(&model).map_err(|e| e.to_string())?,
-            )?;
-            println!("wrote {output}; obligation: pipeline(rows) = sum of row projections");
-        } else {
-            let path = args.get(2).ok_or("verify-view requires EVIDENCE.json")?;
-            let evidence = serde_json::from_slice(&read_bounded(path, 16_000_000)?)
-                .map_err(|e| e.to_string())?;
-            let checked = verified_language::row_model::verify_view(&p, &cert, &evidence)?;
-            println!(
-                "verified {} view decomposition for keep {} ({} stages); table enumeration and native lowering remain separate",
-                checked.aggregate,
-                checked.row.keep,
-                checked.stages.len()
-            );
-        }
-        return Ok(());
-    }
-    if cmd == "model-row" || cmd == "verify-row-model" {
-        let p = source(args.get(1).ok_or("row model requires SOURCE")?)?;
-        let cert_path = arg_value(&args, "--maintenance")?.ok_or("missing --maintenance")?;
-        let bytes = read_bounded(&cert_path, 4_000_000)?;
-        let cert: aggregate::Certificate =
-            serde_json::from_slice(&bytes).map_err(|e| e.to_string())?;
-        if cmd == "model-row" {
-            let keep = args.get(2).ok_or("model-row requires KEEP")?;
-            let model = verified_language::row_model::export(&p, keep, &cert)?;
-            let output = arg_value(&args, "-o")?.ok_or("missing -o")?;
-            write(
-                &output,
-                &serde_json::to_string_pretty(&model).map_err(|e| e.to_string())?,
-            )?;
-            println!("wrote {output}; logical source rows/projection, not native representation admission");
-        } else {
-            let path = args.get(2).ok_or("verify-row-model requires MODEL.json")?;
-            let bytes = read_bounded(path, 16_000_000)?;
-            let model = serde_json::from_slice(&bytes).map_err(|e| e.to_string())?;
-            verified_language::row_model::verify(&p, &cert, &model)?;
-            println!("verified logical source rows and projection; native correspondence remains separate");
-        }
-        return Ok(());
-    }
+
+
     if cmd == "bitvector-obligation" {
         #[derive(serde::Deserialize)]
         #[serde(deny_unknown_fields)]
@@ -586,63 +452,8 @@ fn run() -> LangResult<()> {
         );
         return Ok(());
     }
-    if cmd == "verify-database" {
-        let path = args.get(1).ok_or("verify-database requires LOCK.json")?;
-        let database = knowledge::load(Path::new(path))?;
-        println!(
-            "verified {} historical proof-term objects; {} root theorems (verification only)",
-            database.closure.len(),
-            database.theorems.len()
-        );
-        return Ok(());
-    }
-    if cmd == "verify-maintenance" {
-        let path = args
-            .get(1)
-            .ok_or("verify-maintenance requires PACKAGE.json")?;
-        let bytes = fs::read(path).map_err(|e| e.to_string())?;
-        if bytes.len() > 4_000_000 {
-            return Err("maintenance package exceeds 4 MB limit".into());
-        }
-        let c: aggregate::Certificate =
-            serde_json::from_slice(&bytes).map_err(|e| e.to_string())?;
-        aggregate::verify(&c)?;
-        println!(
-            "verified maintenance certificate {} ({})",
-            c.id, c.semantics
-        );
-        return Ok(());
-    }
-    if cmd == "prove-maintenance" {
-        let path = args.get(1).ok_or("prove-maintenance requires SOURCE")?;
-        let text = fs::read_to_string(path).map_err(|e| e.to_string())?;
-        let program = syntax::parse(&text)?;
-        let c = if let Some(file) = arg_value(&args, "--evidence")? {
-            let mut bytes = Vec::new();
-            fs::File::open(file)
-                .map_err(|e| e.to_string())?
-                .take(4_000_001)
-                .read_to_end(&mut bytes)
-                .map_err(|e| e.to_string())?;
-            if bytes.len() > 4_000_000 {
-                return Err("maintenance evidence exceeds 4 MB limit".into());
-            }
-            let evidence = serde_json::from_slice(&bytes).map_err(|e| e.to_string())?;
-            aggregate::prove_database(&program, evidence)?
-        } else {
-            aggregate::prove(&program)?
-        };
-        let out = arg_value(&args, "-o")?.ok_or("prove-maintenance requires -o PACKAGE.json")?;
-        write(
-            &out,
-            &serde_json::to_string_pretty(&c).map_err(|e| e.to_string())?,
-        )?;
-        println!(
-            "checked maintenance update expressions; wrote certificate {} ({})",
-            c.id, c.semantics
-        );
-        return Ok(());
-    }
+
+
     if cmd == "help" || cmd == "--help" {
         println!("ink --version\nink doctor [--python PATH]\nink explain SOURCE [--core] [--selection PACKAGE.json | --optimise SNAPSHOT.json]\nink modules SOURCE");
         println!("ink check-boolean-verdict THEOREM.json --lean PATH -o CERTIFICATE.lean\nink emit-semantic SOURCE [--core] -o SUBJECT.json\nink check-selection CORE.json PACKAGE.json\nExecution, lowering and core emission accept --optimise KNOWLEDGE_DIRECTORY or SNAPSHOT.json (external search) or --selection PACKAGE.json (checked replay). Optional --search-tool PATH, --search-budget N and --python PATH. INK_DISTRIBUTION locates an optional installed tool bundle.");
@@ -655,15 +466,9 @@ fn run() -> LangResult<()> {
             "ink emit-definition LOCK.json EXPORTS.json [--select PACKAGE.json] -o DEFINITION.rs"
         );
         println!("ink emit-core SOURCE -o CORE.json\nink check-core CORE.json\nink emit-actions SOURCE -o ACTIONS.json\nink check-actions SOURCE ACTIONS.json\nink emit-effects SOURCE -o EFFECTS.json\nink check-effects SOURCE EFFECTS.json\nExecution/lowering commands also accept --core to read a checked CORE.json instead of source.\nChecked replacement packages: build/emit-c ... --replacement PACKAGE.json");
-        println!("ink bitvector-obligation GOAL.json [--library LOCK.json] -o CNF.json\nink verify-library LOCK.json\nink project-library LOCK.json ROOTS.json -o BUNDLE.json\nink model-row SOURCE KEEP --maintenance PACKAGE.json -o MODEL.json\nink model-view SOURCE KEEP --maintenance PACKAGE.json -o VIEW.json\nink verify-view SOURCE EVIDENCE.json --maintenance PACKAGE.json\nink verify-row-model SOURCE MODEL.json --maintenance PACKAGE.json\nink verify-database LOCK.json\nink check SOURCE\nink prove-maintenance SOURCE [--evidence EVIDENCE.json] -o PACKAGE.json\nink verify-maintenance PACKAGE.json\nink execute SOURCE SCRIPT.json [--maintenance PACKAGE.json] [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable]\nink run SOURCE FUNCTION ARGS.json\nink build SOURCE -o EXECUTABLE [--cargo cargo]\nink build SOURCE --target object -o OUTPUT.o [--implementation PROPOSAL.json] [--cc clang] [--native-cpu]\nink build SOURCE --target c -o PROJECT\nink build SOURCE --target rust -o PROJECT\nink build SOURCE --target javascript -o OUTPUT.mjs\nink build SOURCE --target wasm32 --zig PATH -o OUTPUT.wasm\nink build SOURCE --target webgpu --zig PATH [--route PACKAGE.json] -o DIRECTORY (also emits native wgpu crate)\nink emit-c SOURCE -o OUTPUT.c [--implementation PROPOSAL.json]\nink emit-state SOURCE -o DIRECTORY [--maintenance PACKAGE.json [--prove-views|--require-views [--view-tool PATH]]] [--bounded-totals] [--wasm-abi]");
+        println!("ink check SOURCE\nink execute SOURCE SCRIPT.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable]\nink run SOURCE FUNCTION ARGS.json\nink build SOURCE --target c|rust|javascript|wasm32|webgpu -o OUTPUT\nink emit-state SOURCE -o DIRECTORY [--wasm-abi]\nink check-representation SOURCE REQUEST.json\nink verify-library LOCK.json");
 
         return Ok(());
-    }
-    if cmd == "prove" || cmd == "knowledge" || args.iter().any(|arg| arg == "--knowledge") {
-        return Err("legacy polynomial generation/certificates were retired; use the external ink-knowledge/tools/rewrite_search.py producer and --replacement, or verify-library for proof objects".into());
-    }
-    if args.iter().any(|arg| arg == "--database") {
-        return Err("built-in scalar rewrite search was retired; use external ink-knowledge/tools/rewrite_search.py and --replacement; verify-database still checks historical libraries".into());
     }
     let path = args.get(1).ok_or("missing source path")?;
     let mut p = if cmd == "check-core" || args.iter().any(|arg| arg == "--core") {
@@ -929,84 +734,10 @@ fn run() -> LangResult<()> {
         }
         "emit-state" => {
             let out = arg_value(&args, "-o")?.ok_or("emit-state requires -o DIRECTORY")?;
-            let certificate = if let Some(file) = arg_value(&args, "--maintenance")? {
-                let bytes = fs::read(file).map_err(|e| e.to_string())?;
-                if bytes.len() > 4_000_000 {
-                    return Err("maintenance package exceeds 4 MB limit".into());
-                }
-                Some(
-                    serde_json::from_slice::<aggregate::Certificate>(&bytes)
-                        .map_err(|e| e.to_string())?,
-                )
-            } else {
-                None
-            };
-            let bounded = args.iter().any(|s| s == "--bounded-totals");
-            if bounded && certificate.is_none() {
-                return Err("--bounded-totals requires a verified --maintenance package".into());
-            }
             let wasm_abi = args.iter().any(|s| s == "--wasm-abi");
-            // Checked view decompositions. Without a proof for every maintained
-            // keep, fall back explicitly to the recomputing baseline (or fail
-            // with --require-views); never rely on an unchecked decomposition.
-            let require_views = args.iter().any(|s| s == "--require-views");
-            let mut view_fallback = None;
-            let views = if require_views || args.iter().any(|s| s == "--prove-views") {
-                let checked_certificate = certificate
-                    .as_ref()
-                    .ok_or("--prove-views requires a verified --maintenance package")?;
-                match prove_views(&args, &p, checked_certificate, Some(&out)) {
-                    Ok(views) => Some(views),
-                    Err(e) if !require_views => {
-                        eprintln!(
-                            "warning: {e}; emitting the recomputing baseline without maintenance"
-                        );
-                        view_fallback = Some(e);
-                        Some(vec![])
-                    }
-                    Err(e) => return Err(e),
-                }
-            } else {
-                None
-            };
-            let certificate = if view_fallback.is_some() {
-                None
-            } else {
-                certificate
-            };
-            let bounded = bounded && view_fallback.is_none();
-            let storage = if let Some(file) = arg_value(&args, "--storage")? {
-                let mut bytes = Vec::new();
-                fs::File::open(&file)
-                    .map_err(|e| e.to_string())?
-                    .take(64001)
-                    .read_to_end(&mut bytes)
-                    .map_err(|e| e.to_string())?;
-                if bytes.len() > 64000 {
-                    return Err("storage policy exceeds 64 KB limit".into());
-                }
-                let policy: verified_language::storage::Policy =
-                    serde_json::from_slice(&bytes).map_err(|e| e.to_string())?;
-                policy.check(&p, certificate.as_ref())?;
-                Some((policy, format!("{:x}", Sha256::digest(bytes))))
-            } else {
-                None
-            };
             let mut code = if let Some(selected) = &semantic_selection {
-                state_native::emit_selected_with_storage(
-                    selected,
-                    certificate.as_ref(),
-                    bounded,
-                    storage.as_ref().map(|s| &s.0),
-                )?
-            } else {
-                state_native::emit_with_storage(
-                    &p,
-                    certificate.as_ref(),
-                    bounded,
-                    storage.as_ref().map(|s| &s.0),
-                )?
-            };
+                state_native::emit_selected(selected)?
+            } else { state_native::emit(&p)? };
             if wasm_abi {
                 code.push_str(state_native::WASM_ABI);
             }
@@ -1018,48 +749,7 @@ fn run() -> LangResult<()> {
                 verified_language::runtime::COMPLETE_STATE_RUNNER,
             )?;
             write(&format!("{out}/Cargo.toml"), "[package]\nname = \"compiled-state\"\nversion = \"0.1.0\"\nedition = \"2021\"\n[lib]\ncrate-type = [\"rlib\", \"cdylib\"]\n[dependencies]\nnum-bigint = \"=0.4.8\"\nsha2 = \"=0.10.9\"\nserde_json = {version=\"=1.0.151\",features=[\"float_roundtrip\"]}\n[profile.release]\nlto = \"thin\"\ncodegen-units = 1\n")?;
-            let bounds = if bounded {
-                state_native::bounded_caches_with_certificate(&p, certificate.as_ref().unwrap())
-            } else {
-                Default::default()
-            };
-            let authority = match certificate.as_ref().map(|c|c.version) {
-                Some(4) => "generic generalized induction, exact source updates and keyed contribution-table write traces; row projection/native map abstraction/transaction protocol remains trusted",
-                Some(3) => "generic induction kernel, exact source updates and reversible cache journal proofs; table projection/transaction protocol remains trusted",
-                Some(2) => "generic induction kernel and exact source-update correspondence; table projection/transaction protocol remains trusted",
-                Some(1) => "legacy polynomial checker and finite-map induction schema",
-                _ => "recomputation; no maintenance certificate",
-            };
-            let plan = serde_json::json!({"source":path,"module":p.module,"backend":"typed Rust; no AST evaluator","wasm_host_abi":if wasm_abi {Some(1)} else {None},"maintenance_certificate":certificate.as_ref().map(|c|&c.id),"maintenance_semantics":certificate.as_ref().map(|c|&c.semantics),"maintenance_authority":authority,"maintenance_library_closure":certificate.as_ref().and_then(|c|c.evidence.as_ref()).map(|e|e.library.objects.keys().collect::<Vec<_>>()),"bounded_cache_evidence":bounds,"trusted":["frontend","row-local table projection and transactional cache protocol","finite-domain range analysis","modular representation lowering","typed Rust lowering","num-bigint","Rust/LLVM backend"],"limitations":["portable snapshots supported; no live native migration or durable WAL","collection scans currently materialise lists","no native execution fuel limit"]});
-            let mut plan = plan;
-            plan["semantic_selection"] =
-                serde_json::to_value(semantic_selection.as_ref().map(|s| s.evidence()))
-                    .map_err(|e| e.to_string())?;
-            plan["semantic_package"] =
-                serde_json::to_value(semantic_selection.as_ref().map(|s| s.package()))
-                    .map_err(|e| e.to_string())?;
-            plan["storage_policy"] =
-                serde_json::to_value(storage.as_ref().map(|s| &s.0)).map_err(|e| e.to_string())?;
-            plan["storage_policy_sha256"] =
-                serde_json::to_value(storage.as_ref().map(|s| &s.1)).map_err(|e| e.to_string())?;
-            if let Some(reason) = &view_fallback {
-                plan["view_fallback"] =
-                    serde_json::json!({"baseline":"recomputation; no maintenance","reason":reason});
-            } else if let Some(views) = &views {
-                plan["view_decompositions"] = serde_json::json!(views);
-                plan["trusted"] = serde_json::json!([
-                    "frontend",
-                    "stored table enumerated as the logical row list",
-                    "native contribution lowering and transactional cache protocol",
-                    "finite-domain range analysis",
-                    "modular representation lowering",
-                    "typed Rust lowering",
-                    "num-bigint",
-                    "Rust/LLVM backend"
-                ]);
-                plan["view_authority"] = serde_json::json!("each maintained keep's sum/count pipeline is checked equal to the sum of its row projections by the general kernel; the proof is externally produced");
-            }
-            plan["storage_authority"]=serde_json::json!("typed external policy; ordered storage primitives and promotion remain trusted native lowering, not database-proved physical refinement");
+            let plan = serde_json::json!({"schema":1,"core_sha256":core::CheckedModule::from_source(p.clone())?.identity()?,"semantic_selection":semantic_selection.as_ref().map(|s|s.evidence()),"trust":["source checking","literal typed Rust lowering","primitive support","Rust/LLVM"]});
             write(
                 &format!("{out}/plan.json"),
                 &serde_json::to_string_pretty(&plan).map_err(|e| e.to_string())?,
@@ -1089,16 +779,7 @@ fn run() -> LangResult<()> {
             } else {
                 stateful::Runtime::new(p.clone())?
             };
-            if let Some(file) = arg_value(&args, "--maintenance")? {
-                let bytes = fs::read(file).map_err(|e| e.to_string())?;
-                if bytes.len() > 4_000_000 {
-                    return Err("maintenance package exceeds 4 MB limit".into());
-                }
-                let c: aggregate::Certificate =
-                    serde_json::from_slice(&bytes).map_err(|e| e.to_string())?;
-                let selected = runtime.enable_maintenance(c)?;
-                eprintln!("maintained derived values: {}", selected.join(", "));
-            }
+
             let mut output = Vec::new();
             for step in script
                 .as_array()
@@ -1225,9 +906,9 @@ fn run() -> LangResult<()> {
             }
             if cmd == "emit-rust" {
                 let code = if let Some(selected) = &semantic_selection {
-                    state_native::emit_selected(selected, None)?
+                    state_native::emit_selected(selected)?
                 } else {
-                    state_native::emit(&p, None)?
+                    state_native::emit(&p)?
                 };
                 write(&out, &code)?;
                 return Ok(());
@@ -1249,9 +930,9 @@ fn run() -> LangResult<()> {
                 } else {
                     verified_language::runtime::emit_rust_program(
                         &if let Some(selected) = &semantic_selection {
-                            state_native::emit_selected(selected, None)?
+                            state_native::emit_selected(selected)?
                         } else {
-                            state_native::emit(&p, None)?
+                            state_native::emit(&p)?
                         },
                         Path::new(&out),
                     )?;
@@ -1284,7 +965,7 @@ fn run() -> LangResult<()> {
                     &cargo,
                     arg_value(&args, "--zig")?.as_deref(),
                 )?;
-                write(&format!("{out}.plan.json"),&serde_json::to_string_pretty(&serde_json::json!({"target":target,"abi":"ink-values-v1","artifact_kind":if target=="native"{"executable"}else{"wasm_module"},"input_core_sha256":input_core_sha256,"selected_core_sha256":selected_core_sha256,"semantic_selection":semantic_selection.as_ref().map(|s|s.evidence()),"semantic_package":semantic_selection.as_ref().map(|s|s.package()),"checked_replacement":replacement,"checked_implementation":implementation,"applied_rule_ids":used,"trust":"literal C emission and shared Rust primitive runtime; toolchains remain trusted"})).map_err(|e|e.to_string())?)?;
+                write(&format!("{out}.plan.json"),&serde_json::to_string_pretty(&serde_json::json!({"target":target,"abi":verified_language::abi::VALUE_ABI,"artifact_kind":if target=="native"{"executable"}else{"wasm_module"},"input_core_sha256":input_core_sha256,"selected_core_sha256":selected_core_sha256,"semantic_selection":semantic_selection.as_ref().map(|s|s.evidence()),"semantic_package":semantic_selection.as_ref().map(|s|s.package()),"checked_replacement":replacement,"checked_implementation":implementation,"applied_rule_ids":used,"trust":"literal C emission and shared Rust primitive runtime; toolchains remain trusted"})).map_err(|e|e.to_string())?)?;
                 println!("wrote complete program to {out}");
                 return Ok(());
             }

@@ -219,7 +219,7 @@ fn compiled_native_durable_files_continue_across_checked_selection() {
             "baseline-c" => ink_runtime::emit_c_program(&module, &project).unwrap(),
             "selected-c" => ink_runtime::emit_c_program_selected(&selected, &project).unwrap(),
             "selected-rust" => ink_runtime::emit_rust_program(
-                &verified_language::state_native::emit_selected(&selected, None).unwrap(),
+                &verified_language::state_native::emit_selected(&selected).unwrap(),
                 &project,
             )
             .unwrap(),

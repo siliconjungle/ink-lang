@@ -26,26 +26,11 @@ to the active emitter stack.
 
 These facts are **not equality admission authority**. Algebraic rewrites and
 work-skipping theorems remain checked database objects. Core primitive meanings
-and the proof kernel have not changed. Backends use the facts only to place and
-reuse storage while executing the literal eager stages in their existing order.
-Any symbolic length consumer must read already materialized arguments rather
-than evaluate a source producer again.
-
-JavaScript and C can reuse an unbound fresh temporary as the output of a map,
-indexed map, or scan when source and result have identical flat element types.
-The complete source stage executes before the consuming stage. Borrowed inputs,
-bound/shared receivers, and callback closures with reachable collection captures
-are excluded. Helper closure inspection follows their actual definitions; an
-unknown helper cannot authorize reuse. Unsupported element layouts, filters,
-zips, and sorts retain their existing output allocation. This is conservative:
-a capture of a disjoint list also prevents reuse in the current implementation.
-
-Eligible fresh receivers can also execute into caller storage before their
-consumer updates that prefix in place. C retains the returned list count;
-JavaScript retains the receiver Into count explicitly. Conversion-free
-JavaScript paths support this placement; F32/Int output conversion keeps the
-ordinary temporary, so internal bit representations cannot be confused with
-external destination values.
+and the proof kernel have not changed. Backends use descriptive facts for resource bounds and explicit destination
+placement. They do not infer reusable buffers from immutable list expressions.
+Database equalities select explicit owned Buffer operations with fixed semantics.
+Any symbolic length consumer reads already materialized arguments rather than
+evaluating a source producer again.
 
 A terminal `let` whose remaining tail only passes the same list through alias
 binders writes its initializer directly to the caller destination. There is no

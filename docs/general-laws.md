@@ -104,11 +104,9 @@ See the package README for the statements.
 
 ## What uses it
 
-Maintained-view proofs (`--prove-views`, [view-decomposition.md](view-decomposition.md))
-are now built entirely from instances of `sum_map`, `sum_filter` and
-`sum_congruence`. The per-program evidence contains no induction. Before this
-change, each program carried one inductive lemma per stage. The bundles are
-also smaller: at most 64 objects, down from up to 118.
+General laws remain reusable mathematical library entries. Current executable
+selection uses source-bound semantic laws and representation preservation proofs.
+The old maintained-view command and its specialised certificate path are removed.
 
 ## Limits
 

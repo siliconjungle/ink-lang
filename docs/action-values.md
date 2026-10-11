@@ -85,5 +85,5 @@ Ink primitive or transaction. There is no universal stateful candidate admission
 physical layout proof or native machine-code proof. The fixed codec's correctness
 is currently supported by independent cross-language checks, actual action/event
 roundtrips and adversarial tests; it is not formally derived from Lean or the
-Ink kernel. Legacy specialised SourceValues remains until its consumers migrate
-through the complete action/primitive correspondence interface.
+Ink kernel. The specialised SourceValues interface is removed; current action
+and representation admission use their explicit source correspondence contracts.
