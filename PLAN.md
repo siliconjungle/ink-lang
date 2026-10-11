@@ -59,12 +59,20 @@ source-bound representation entries now check all-action observation/invariant
 preservation and direct physical migrations, and execute through a literal Rust
 definition backend with baseline-compatible logical snapshots. See
 [the contract, tests and limits](docs/database-representations.md). Historical
-experiments require an explicit research feature. Priority 1 remains open beyond
-the current u64 transition subset: fixed exact-Int/keep correspondence, broader
-source domains, general incremental aggregates and other native
-representation executors still require implementation. Fixed-key remove/replace
-delta candidates, List value/count/u64-sum correspondence, owned collection
-laws and external lifecycle/migration/memory selection are implemented;
+experiments require an explicit research feature. Priority 1 remains open for arbitrary cross-row grouped/ordered maintenance,
+unbounded group discovery, full dependency/storage deduplication and additional
+physical executors. Bounded grouped u64 aggregates, exact per-row ordered
+contributions, proved field projection retention and shared observations are now
+implemented. Existing numerical/keep, String/ID and local-owner
+correspondence, guarded dynamic point deltas, independent cache composition,
+ordinary column/Boolean packing candidates, proved direct column reads, explicit
+packed Rust/Wasm scalar and data-cell storage, direct physical mutations, dense
+and bucket point indexes, generation-stamped scratch, bounded identity memoisation,
+proved aggregate fusion and direct native entry points have been extended on the
+Frontier branch. Exact whole heap/grid query caches preserve source observations.
+The implementation ledger, measurements and limits are in [Frontier extensions](reports/frontier-extensions/README.md).
+Fixed-key remove/replace delta candidates, List value/count/u64-sum correspondence,
+owned collection laws and external lifecycle/migration/memory selection are implemented;
 [the current measurements](reports/incremental-maintenance-selection/README.md)
 favour the simpler direct layout. Native resource limits and copying costs still
 constrain these prototypes. No performance gate is

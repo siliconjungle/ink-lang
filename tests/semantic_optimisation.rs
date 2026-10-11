@@ -58,6 +58,18 @@ fn universal_loop_and_collection_laws_check_independently() {
     let checked = CheckedCatalogue::check(&c, m.program()).unwrap();
     assert_eq!(checked.roots().len(), c.roots.len());
 }
+
+#[test]
+fn existing_string_literals_have_checked_binder_safe_correspondence() {
+    let m=module("fn greeting()->String{return \"hello 🌍\";}");
+    let body=&m.program().functions[0].body;
+    let tree=s::elaborate(body,&BTreeMap::new(),m.program(),&Type::String).unwrap();
+    assert!(matches!(tree.node,Node::Text(_)));
+    assert_eq!(s::reify(&tree,m.program()).unwrap(),*body);
+    assert_eq!(verified_language::eval::call(m.program(),"greeting",vec![],&mut 1000).unwrap().json(),serde_json::json!("hello 🌍"));
+    let invalid=s::term(s::value(Type::U64),tree.node);
+    assert!(s::validate(&invalid,&BTreeMap::new(),m.program(),&mut s::Budget::new()).is_err());
+}
 #[test]
 fn loop_count_and_increment_are_instantiated_generically() {
     let m = module("fn bump(x:u32,k:u32)->u32{return repeat(65536,x,fn(i)=>fn(a)=>a+k);}");
