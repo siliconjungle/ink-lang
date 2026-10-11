@@ -584,6 +584,40 @@
           "reason": "These transaction and durable-host interfaces execute on CPU."
         }
       }
+    },
+    {
+      "id": "generic-surface-and-value-consistency",
+      "types": [],
+      "tests": [
+        "language_foundations",
+        "modules",
+        "generic_libraries"
+      ],
+      "targets": {
+        "c": {
+          "status": "implemented"
+        },
+        "rust": {
+          "status": "implemented"
+        },
+        "javascript": {
+          "status": "implemented"
+        },
+        "c-wasm": {
+          "status": "implemented"
+        },
+        "rust-wasm": {
+          "status": "implemented"
+        },
+        "webgpu": {
+          "status": "partial",
+          "reason": "Generic elaboration uses eligible existing kernels; expanded exact/variant values execute on the compiled CPU host."
+        },
+        "wgpu": {
+          "status": "partial",
+          "reason": "Generic elaboration uses eligible existing kernels; expanded exact/variant values execute on the compiled CPU host."
+        }
+      }
     }
   ],
   "cpu_suites": [
@@ -605,7 +639,9 @@
     "representation_parity",
     "standalone_representation",
     "representations",
-    "point_delta"
+    "point_delta",
+    "language_foundations",
+    "generic_libraries"
   ],
   "gpu_contract": {
     "semantics": "eligible-pure-exact-v1",

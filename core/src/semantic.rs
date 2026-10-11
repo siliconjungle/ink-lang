@@ -394,6 +394,21 @@ pub fn validate(t: &Term, env: &Env, p: &Program, b: &mut Budget) -> LangResult<
                             need(&x.sort, t.sort.clone())?;
                         }
                     }
+                    name if name
+                        .strip_prefix("call:")
+                        .is_some_and(crate::word::primitive) =>
+                    {
+                        let name = name.strip_prefix("call:").unwrap();
+                        let result = val(&t.sort)?;
+                        if !check::is_word(result) {
+                            return Err("word primitive sort".into());
+                        }
+                        let ts = crate::word::arguments(name, result);
+                        arity(ts.len())?;
+                        for (a, t) in args.iter().zip(ts) {
+                            need(&a.sort, value(t))?;
+                        }
+                    }
                     "call:sum" => {
                         arity(1)?;
                         need(&t.sort, value(list(a(0)?)?.clone()))?;
@@ -406,17 +421,11 @@ pub fn validate(t: &Term, env: &Env, p: &Program, b: &mut Budget) -> LangResult<
                         list(a(0)?)?;
                         need(&t.sort, value(Type::U64))?;
                     }
-                    "call:foldr" => {
+                    "call:foldr" | "call:foldl" => {
                         arity(3)?;
-                        need(a(0)?, value(Type::List(Box::new(val(&t.sort)?.clone()))))?;
+                        let item = value(list(a(0)?)?.clone());
                         need(a(1)?, t.sort.clone())?;
-                        need(
-                            a(2)?,
-                            arrow(t.sort.clone(), arrow(t.sort.clone(), t.sort.clone())),
-                        )?;
-                        if !check::is_number(val(&t.sort)?) {
-                            return Err("fold numeric sort".into());
-                        }
+                        need(a(2)?, arrow(item, arrow(t.sort.clone(), t.sort.clone())))?;
                     }
                     "method:map" => {
                         arity(2)?;
@@ -686,6 +695,19 @@ pub fn elaborate(e: &Expr, env: &check::Env, p: &Program, want: &Type) -> LangRe
                 Ok(op(s, &format!("field:{n}"), vec![recur(x, &ty)?]))
             }
             Expr::Call(n, args) => {
+                if n == "list" {
+                    let Type::List(inner) = want else {
+                        return Err("list constructor sort".into());
+                    };
+                    let mut tail = term(s.clone(), Node::Nil);
+                    for item in args.iter().rev() {
+                        tail = term(
+                            s.clone(),
+                            Node::Cons(Box::new(recur(item, inner)?), Box::new(tail)),
+                        );
+                    }
+                    return Ok(tail);
+                }
                 let mut out = Vec::new();
                 match n.as_str() {
                     "repeat_until" => {
@@ -753,6 +775,11 @@ pub fn elaborate(e: &Expr, env: &check::Env, p: &Program, want: &Type) -> LangRe
                             out.push(recur(x, want)?);
                         }
                     }
+                    name if crate::word::primitive(name) => {
+                        for (x, t) in args.iter().zip(crate::word::arguments(name, want)) {
+                            out.push(recur(x, &t)?);
+                        }
+                    }
                     "sum" | "count" => {
                         let hint = Type::List(Box::new(want.clone()));
                         let ty = check::infer_context(
@@ -763,13 +790,16 @@ pub fn elaborate(e: &Expr, env: &check::Env, p: &Program, want: &Type) -> LangRe
                         )?;
                         out.push(recur(&args[0], &ty)?);
                     }
-                    "foldr" => {
-                        let ty = Type::List(Box::new(want.clone()));
+                    "foldr" | "foldl" => {
+                        let ty = check::infer(&args[0], env, p)?;
+                        let Type::List(item) = &ty else {
+                            return Err("fold list type".into());
+                        };
                         out.push(recur(&args[0], &ty)?);
                         out.push(recur(&args[1], want)?);
                         out.push(lam(
                             &args[2],
-                            &[want.clone(), want.clone()],
+                            &[*item.clone(), want.clone()],
                             want,
                             env,
                             bound,
@@ -1035,8 +1065,24 @@ pub fn reify(t: &Term, p: &Program) -> LangResult<Expr> {
                     return Err("proof-only semantic operation cannot execute".into());
                 }
             }
-            Node::Nil | Node::Cons(..) => {
-                return Err("proof-only list constructor cannot execute".into())
+            Node::Nil => Expr::Call("list".into(), vec![]),
+            Node::Cons(..) => {
+                let mut heads = Vec::new();
+                let mut tail = t;
+                while let Node::Cons(head, rest) = &tail.node {
+                    heads.push(go(head, bound, free, p)?);
+                    tail = rest;
+                }
+                let literal = Expr::Call("list".into(), heads);
+                if matches!(tail.node, Node::Nil) {
+                    literal
+                } else {
+                    Expr::Method(
+                        Box::new(literal),
+                        "concat".into(),
+                        vec![go(tail, bound, free, p)?],
+                    )
+                }
             }
         })
     }

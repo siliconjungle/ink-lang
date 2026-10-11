@@ -4,6 +4,49 @@ use verified_language::{core::CheckedModule, eval, modules, stateful::Runtime};
 #[path = "support/parity.rs"]
 mod parity;
 #[test]
+fn imported_generic_templates_and_aliases_are_linked_before_elaboration() {
+    let dir = Path::new("build/generic-modules");
+    fs::create_dir_all(dir).unwrap();
+    fs::write(
+        dir.join("helpers.ink"),
+        r#"module helpers;
+      type Sequence<T>=List<T>;record Pair<T>{left:T,right:T,}
+      fn id<T>(x:T)->T{return x;}
+      fn pair<T>(x:T)->Pair<T>{return Pair<T>{left:id<T>(x),right:x};}
+    "#,
+    )
+    .unwrap();
+    fs::write(
+        dir.join("main.ink"),
+        r#"module root;import "helpers.ink" as helpers;
+      type Values=helpers.Sequence<u32>;
+      fn make(x:u32)->helpers.Pair<u32>{return helpers.pair<u32>(x);}
+      fn first(xs:Values)->u32{return helpers.id<u32>(xs.at_or(0,0));}
+    "#,
+    )
+    .unwrap();
+    let loaded = modules::load(dir.join("main.ink")).unwrap();
+    let p = loaded.program;
+    CheckedModule::from_source(p.clone()).unwrap();
+    assert_eq!(
+        eval::call(&p, "make", vec![eval::Value::U32(7)], &mut 1000)
+            .unwrap()
+            .json(),
+        json!({"left":7,"right":7})
+    );
+    assert_eq!(
+        eval::call(
+            &p,
+            "first",
+            vec![eval::Value::List(vec![eval::Value::U32(8)])],
+            &mut 1000
+        )
+        .unwrap()
+        .json(),
+        json!(8)
+    );
+}
+#[test]
 fn imported_function_type_failure_identifies_its_original_declaration() {
     let dir = Path::new("build/module-type-diagnostic");
     fs::create_dir_all(dir).unwrap();

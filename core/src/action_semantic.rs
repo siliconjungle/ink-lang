@@ -43,6 +43,7 @@ fn children(k: &Kind) -> Vec<NodeId> {
             .chain(arguments.iter().copied())
             .collect(),
         Kind::Lambda { body, .. } => vec![*body],
+        Kind::Bind { value, body, .. } => vec![*value, *body],
         _ => vec![],
     }
 }
@@ -111,6 +112,13 @@ fn translate(body: &Body, p: &Program, id: NodeId, b: &mut Budget, d: usize) -> 
         }
         Kind::And { left, right } => s::op(sort, "binary:&&", args(&[*left, *right], b)?),
         Kind::Or { left, right } => s::op(sort, "binary:||", args(&[*left, *right], b)?),
+        Kind::Builtin { name, arguments } if name == "list" => {
+            let mut tail = s::term(sort.clone(), Node::Nil);
+            for item in args(arguments, b)?.into_iter().rev() {
+                tail = s::term(sort.clone(), Node::Cons(Box::new(item), Box::new(tail)));
+            }
+            tail
+        }
         Kind::Builtin { name, arguments } => {
             s::op(sort, &format!("call:{name}"), args(arguments, b)?)
         }

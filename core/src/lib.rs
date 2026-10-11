@@ -37,10 +37,12 @@ pub mod source_values;
 pub mod statecheck;
 pub mod stateful;
 pub mod storage;
+mod surface;
 pub mod syntax;
 pub mod table_maintenance;
 pub mod transaction;
 pub mod transaction_model;
+pub mod word;
 
 pub type LangResult<T> = Result<T, String>;
 

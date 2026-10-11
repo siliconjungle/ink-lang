@@ -187,3 +187,15 @@ bridge checking, all-backend standalone conformance and explicit codec/proof/inp
 bounds. Do not restore a renamed stateful interpreter or per-call full logical
 snapshot validation. Old performance reports are historical observations; new
 execution measurements must use the compiled programs and disclose harness scope.
+
+Generic surface elaboration now lives in core/src/surface.rs. Type/constant
+parameters, payload enums, exhaustive matching, fixed shapes, finite loops and
+nonescaping pure callbacks elaborate into existing values/records/sums and checked
+lexical bindings. Preserve hygienic names, explicit resource bounds and normal
+purity/ownership/descent checks; template provenance grants no authority. New
+value operations bind executable-core V7; action Bind/fold bind typed-actions V3.
+Algorithms/laws remain in ink-knowledge (libraries and finite-list producer).
+Do not restore the JavaScript fold shortcut. Keep docs/generic-language-foundations.md
+coverage, source/transport limits and remaining machinery explicit. Both new
+mandatory CPU suites include complete C/Rust/JS/both-Wasm comparisons; GPU host
+fallback does not close the broad GPU gap.
