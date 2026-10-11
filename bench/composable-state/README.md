@@ -41,10 +41,16 @@ python3 bench/composable-state/prepare-fixtures.py --compiler target/debug/ink
 ```
 
 Every request and migration is checked before the admission receipt is written.
-The new fixtures live under `knowledge/research/composable-state`; earlier requests
+The new fixtures live under `knowledge/research/composable-state-current`; earlier requests
 keep their original bytes. Migration uses an identity function when the endpoints
 have the same physical sort and relations, and otherwise proposes decode/encode
 with a checked preservation proof.
+
+Publish the current checked choices and general mathematics while retaining the archived admissions:
+
+```
+PYTHONPATH=knowledge python3 bench/composable-state/publish-current.py --compiler target/debug/ink
+```
 
 Replay the published immutable admissions with a rebuilt compiler:
 
