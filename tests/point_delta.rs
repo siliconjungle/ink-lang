@@ -17,7 +17,7 @@ fn benchmark_standalone_aggregate_scaling() {
             let start = Instant::now();
             let request = serde_json::from_slice(
                 &fs::read(repository.join(format!(
-                    "knowledge/research/filtered-aggregate/{label}.json"
+                    "knowledge/research/composable-state/filtered-aggregate/{label}.json"
                 )))
                 .unwrap(),
             )
@@ -107,7 +107,7 @@ fn measured_selection_rechecks_candidates_and_bridges_before_ranking() {
             "planner/tests/representation_selection_integration.py",
             env!("CARGO_BIN_EXE_ink"),
             "examples/point-query-delta.ink",
-            "knowledge/research/point-delta",
+            "knowledge/research/composable-state/point-delta",
         ])
         .env("PYTHONPATH", "planner:knowledge")
         .output()
@@ -136,7 +136,7 @@ fn lean_lifecycle_selection_model_checks_independently() {
 fn database_implementation_selection_rechecks_packages() {
     let output = Command::new("python3")
         .args(["planner/tests/implementation_selection_integration.py", env!("CARGO_BIN_EXE_ink"),
-               "examples/point-query-delta.ink", "knowledge/research/point-delta"])
+               "examples/point-query-delta.ink", "knowledge/research/composable-state/point-delta"])
         .env("PYTHONPATH", "planner:knowledge").output().unwrap();
     assert!(output.status.success(), "{}{}", String::from_utf8_lossy(&output.stdout), String::from_utf8_lossy(&output.stderr));
 }

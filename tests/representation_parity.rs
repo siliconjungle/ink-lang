@@ -208,7 +208,9 @@ fn check(name: &str, source: &str, request: Option<Request>, calls: Vec<(&str, V
     // Cargo releases its lock before we run/copy the result; another fixture
     // could replace it, or reuse a different C build-script fingerprint.
     static ARTIFACTS: std::sync::Mutex<()> = std::sync::Mutex::new(());
-    let _artifacts = ARTIFACTS.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+    let _artifacts = ARTIFACTS
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
     let dir = root().join(name);
     fs::create_dir_all(&dir).unwrap();
     fs::write(dir.join("source.ink"), source).unwrap();
@@ -331,7 +333,10 @@ fn check(name: &str, source: &str, request: Option<Request>, calls: Vec<(&str, V
         );
     }
     if std::env::var_os("INK_PARITY_REQUIRE_ALL").is_some() {
-        assert!(std::env::var_os("INK_TEST_ZIG").is_some(), "required standalone parity forbids skipping Wasm");
+        assert!(
+            std::env::var_os("INK_TEST_ZIG").is_some(),
+            "required standalone parity forbids skipping Wasm"
+        );
     }
     if let Ok(zig) = std::env::var("INK_TEST_ZIG") {
         let mut wasm_backends = vec!["rust-wasm", "wasm32"];
@@ -419,15 +424,15 @@ fn every_representation_backend_has_the_same_execution_contract() {
     for (label, request) in [
         (
             "direct",
-            include_str!("../knowledge/research/point-delta/direct.json"),
+            include_str!("../knowledge/research/composable-state/point-delta/direct.json"),
         ),
         (
             "refresh",
-            include_str!("../knowledge/research/point-delta/refresh.json"),
+            include_str!("../knowledge/research/composable-state/point-delta/refresh.json"),
         ),
         (
             "delta",
-            include_str!("../knowledge/research/point-delta/delta.json"),
+            include_str!("../knowledge/research/composable-state/point-delta/delta.json"),
         ),
     ] {
         check(
@@ -533,7 +538,10 @@ fn binary32_representations_have_equal_backend_coverage() {
             ("sub", json!([1.0, 1.0])),
             ("mul", json!([-0.0, 3.0])),
             // Multiplication must round before addition; a fused result differs.
-            ("multiply_add", json!([1.0000001192092896, 0.9999998807907104, -1.0])),
+            (
+                "multiply_add",
+                json!([1.0000001192092896, 0.9999998807907104, -1.0]),
+            ),
             ("add", json!([1.0e-40, 1.0e-40])),
             ("mul", json!([3.4028234663852886e38, 2.0])),
             ("neg", json!([{"F32Bits":0x7fa12345u64}])),
@@ -611,11 +619,11 @@ fn filtered_sum_and_count_deltas_have_equal_backend_coverage() {
     for (label, request) in [
         (
             "sum-delta",
-            include_str!("../knowledge/research/filtered-aggregate/sum-delta.json"),
+            include_str!("../knowledge/research/composable-state/filtered-aggregate/sum-delta.json"),
         ),
         (
             "count-delta",
-            include_str!("../knowledge/research/filtered-aggregate/count-delta.json"),
+            include_str!("../knowledge/research/composable-state/filtered-aggregate/count-delta.json"),
         ),
     ] {
         check(
@@ -1204,38 +1212,94 @@ fn scalar_physical_storage_has_equal_backend_coverage() {
     for sort in ["Bool", "U64"] {
         let dir = root().join(format!("scalar-{sort}"));
         fs::create_dir_all(&dir).unwrap();
-        fs::write(dir.join("model.json"), serde_json::to_vec(&verified_language::action_model::Projection::derive(&module).unwrap()).unwrap()).unwrap();
-        run(Command::new("python3").arg("knowledge/producers/scalar_representation.py").arg(dir.join("model.json")).args(["--sort",sort,"-o"]).arg(dir.join("request.json")), &dir.join("producer.log"));
+        fs::write(
+            dir.join("model.json"),
+            serde_json::to_vec(
+                &verified_language::action_model::Projection::derive(&module).unwrap(),
+            )
+            .unwrap(),
+        )
+        .unwrap();
+        run(
+            Command::new("python3")
+                .arg("knowledge/producers/scalar_representation.py")
+                .arg(dir.join("model.json"))
+                .args(["--sort", sort, "-o"])
+                .arg(dir.join("request.json")),
+            &dir.join("producer.log"),
+        );
         let request = serde_json::from_slice(&fs::read(dir.join("request.json")).unwrap()).unwrap();
-        check(&format!("scalar-{sort}"),source,Some(request),vec![("echo",json!([0])),("echo",json!([u64::MAX]))]);
+        check(
+            &format!("scalar-{sort}"),
+            source,
+            Some(request),
+            vec![("echo", json!([0])), ("echo", json!([u64::MAX]))],
+        );
     }
 }
 
 #[test]
-fn unused_source_carriers_do_not_break_any_standalone_backend(){
-    let source=include_str!("../knowledge/research/source-representations/app.ink");
-    let calls=vec![("put",json!([0,19])),("get",json!([0])),("zero",json!([])),
-        ("erase",json!([0,true])),("zero",json!([])),("erase",json!([0,false])),("zero",json!([]))];
-    for (name,request) in [("retained-direct",include_str!("../knowledge/research/source-representations/retained-direct.json")),
-        ("retained-query-cache",include_str!("../knowledge/research/source-representations/retained-query-cache.json"))]{
-        check(name,source,Some(serde_json::from_str(request).unwrap()),calls.clone());
+fn unused_source_carriers_do_not_break_any_standalone_backend() {
+    let source = include_str!("../knowledge/research/source-representations/app.ink");
+    let calls = vec![
+        ("put", json!([0, 19])),
+        ("get", json!([0])),
+        ("zero", json!([])),
+        ("erase", json!([0, true])),
+        ("zero", json!([])),
+        ("erase", json!([0, false])),
+        ("zero", json!([])),
+    ];
+    for (name, request) in [
+        (
+            "retained-direct",
+            include_str!("../knowledge/research/composable-state/source-representations/retained-direct.json"),
+        ),
+        (
+            "retained-query-cache",
+            include_str!("../knowledge/research/composable-state/source-representations/retained-query-cache.json"),
+        ),
+    ] {
+        check(
+            name,
+            source,
+            Some(serde_json::from_str(request).unwrap()),
+            calls.clone(),
+        );
     }
 }
 
 #[test]
 fn fixed_key_keep_deltas_execute_as_standalone_programs_on_every_cpu_target() {
-    let source=include_str!("../knowledge/research/keep-parity/app.ink");
-    let calls=(0..32u64).map(|i|match i%8 {
-        0=>("put",json!([0,i*19])), 1=>("zero",json!([])),
-        2=>("overwrite",json!([u64::MAX-i])), 3=>("get",json!([0])),
-        4=>("clear",json!([])), 5=>("zero",json!([])),
-        6=>("erase",json!([0,true])), _=>("put",json!([1,i*23])),
-    }).collect::<Vec<_>>();
-    for (name,bytes) in [
-        ("fixed-key-baseline",include_str!("../knowledge/research/keep-parity/representation-0.json")),
-        ("fixed-key-cache",include_str!("../knowledge/research/keep-parity/representation-1.json")),
+    let source = include_str!("../knowledge/research/keep-parity/app.ink");
+    let calls = (0..32u64)
+        .map(|i| match i % 8 {
+            0 => ("put", json!([0, i * 19])),
+            1 => ("zero", json!([])),
+            2 => ("overwrite", json!([u64::MAX - i])),
+            3 => ("get", json!([0])),
+            4 => ("clear", json!([])),
+            5 => ("zero", json!([])),
+            6 => ("erase", json!([0, true])),
+            _ => ("put", json!([1, i * 23])),
+        })
+        .collect::<Vec<_>>();
+    for (name, bytes) in [
+        (
+            "fixed-key-baseline",
+            include_str!("../knowledge/research/composable-state/keep/representation-0.json"),
+        ),
+        (
+            "fixed-key-cache",
+            include_str!("../knowledge/research/composable-state/keep/representation-1.json"),
+        ),
     ] {
-        check(name,source,Some(serde_json::from_str(bytes).unwrap()),calls.clone());
+        check(
+            name,
+            source,
+            Some(serde_json::from_str(bytes).unwrap()),
+            calls.clone(),
+        );
     }
 }
 
@@ -1499,4 +1563,249 @@ fn rehashed_false_bulk_and_membership_laws_cannot_authorise_caches() {
         let module = CheckedModule::from_source(parse(&source).unwrap()).unwrap();
         assert!(representation::check(&module, &forged).is_err());
     }
+}
+// Generate these source-bound alternatives afresh; no fixture hash, producer
+// classification or reachable-state assumption grants admission authority.
+fn composable_proposal(
+    source: &str,
+    name: &str,
+    producer: &str,
+    arguments: &[&str],
+    selected: Option<usize>,
+) -> Request {
+    let dir = root().join(name).join("proposal");
+    fs::create_dir_all(&dir).unwrap();
+    let module = CheckedModule::from_source(parse(source).unwrap()).unwrap();
+    fs::write(
+        dir.join("model.json"),
+        serde_json::to_vec(&verified_language::action_model::Projection::derive(&module).unwrap())
+            .unwrap(),
+    )
+    .unwrap();
+    let mut command = Command::new("python3");
+    command
+        .arg(format!("knowledge/producers/{producer}.py"))
+        .arg(dir.join("model.json"))
+        .args(arguments)
+        .arg("-o")
+        .arg(dir.join("proposal.json"));
+    run(&mut command, &dir.join("producer.log"));
+    let value: Value =
+        serde_json::from_slice(&fs::read(dir.join("proposal.json")).unwrap()).unwrap();
+    serde_json::from_value(
+        selected
+            .map(|i| value["requests"][i].clone())
+            .unwrap_or(value),
+    )
+    .unwrap()
+}
+#[test]
+fn indexed_storage_and_point_cache_compose_with_exact_observations() {
+    let source = include_str!("../knowledge/research/keep-parity/app.ink");
+    let index = composable_proposal(
+        source,
+        "partition-index",
+        "partition_representation",
+        &[],
+        None,
+    );
+    let cache = composable_proposal(
+        source,
+        "parameter-point",
+        "representations",
+        &["--cache-query", "zero", "--preserve-cache", "--delta-query"],
+        Some(1),
+    );
+    let dir = root().join("partition-product");
+    fs::create_dir_all(&dir).unwrap();
+    let module = CheckedModule::from_source(parse(source).unwrap()).unwrap();
+    fs::write(
+        dir.join("model.json"),
+        serde_json::to_vec(&verified_language::action_model::Projection::derive(&module).unwrap())
+            .unwrap(),
+    )
+    .unwrap();
+    fs::write(dir.join("index.json"), serde_json::to_vec(&index).unwrap()).unwrap();
+    fs::write(dir.join("cache.json"), serde_json::to_vec(&cache).unwrap()).unwrap();
+    run(
+        Command::new("python3")
+            .arg("knowledge/producers/compose_representations.py")
+            .arg(dir.join("model.json"))
+            .arg(dir.join("index.json"))
+            .arg(dir.join("cache.json"))
+            .args([
+                "--query-provider",
+                "get=left",
+                "--query-provider",
+                "zero=right",
+                "-o",
+            ])
+            .arg(dir.join("product.json")),
+        &dir.join("producer.log"),
+    );
+    let product = serde_json::from_slice(&fs::read(dir.join("product.json")).unwrap()).unwrap();
+    let calls = vec![
+        ("put", json!([0, 19])),
+        ("put", json!([1, 23])),
+        ("get", json!([1])),
+        ("zero", json!([])),
+        ("erase", json!([0, true])),
+        ("zero", json!([])),
+        ("overwrite", json!([u64::MAX])),
+        ("get", json!([0])),
+        ("erase", json!([1, false])),
+        ("clear", json!([])),
+        ("zero", json!([])),
+        ("get", json!([u64::MAX])),
+        ("put", json!([u64::MAX, 41])),
+        ("get", json!([u64::MAX])),
+    ];
+    check("partition-index", source, Some(index), calls.clone());
+    check("partition-product", source, Some(product), calls);
+}
+#[test]
+fn field_sensitive_cache_repairs_preserve_other_fields_and_abort_publication() {
+    let source = include_str!("../examples/field-sensitive-point.ink");
+    let request = composable_proposal(
+        source,
+        "field-point",
+        "representations",
+        &[
+            "--cache-query",
+            "zero_field",
+            "--preserve-cache",
+            "--delta-query",
+        ],
+        Some(1),
+    );
+    // Tampering with the actual projection cannot reuse the certificate.
+    let module = CheckedModule::from_source(parse(source).unwrap()).unwrap();
+    let mut wrong = request.clone();
+    wrong.input_core_sha256 = "0".repeat(64);
+    assert!(representation::check(&module, &wrong).is_err());
+    check(
+        "field-point",
+        source,
+        Some(request),
+        vec![
+            ("put", json!([0, 19, true, 7])),
+            ("put", json!([1, 23, false, 9])),
+            ("zero_field", json!([])),
+            ("active", json!([0, false, false])),
+            ("zero_field", json!([])),
+            ("get", json!([0])),
+            ("active", json!([1, true, false])),
+            ("zero_field", json!([])),
+            ("active", json!([0, true, true])),
+            ("get", json!([0])),
+            ("erase", json!([0, true])),
+            ("zero_field", json!([])),
+            ("put", json!([0, 31, true, 11])),
+            ("zero_field", json!([])),
+            ("erase", json!([0, false])),
+            ("zero_field", json!([])),
+        ],
+    );
+}
+
+#[test]
+fn indexed_storage_composes_with_two_filtered_aggregate_caches() {
+    let source = include_str!("../examples/composable-filtered-state.ink");
+    let index = composable_proposal(
+        source,
+        "aggregate-partition",
+        "partition_representation",
+        &[],
+        None,
+    );
+    let total = composable_proposal(
+        source,
+        "aggregate-total",
+        "representations",
+        &[
+            "--cache-query",
+            "total_query",
+            "--preserve-cache",
+            "--aggregate-query",
+        ],
+        Some(1),
+    );
+    let count = composable_proposal(
+        source,
+        "aggregate-count",
+        "representations",
+        &[
+            "--cache-query",
+            "count_query",
+            "--preserve-cache",
+            "--aggregate-query",
+        ],
+        Some(1),
+    );
+    let dir = root().join("aggregate-product");
+    fs::create_dir_all(&dir).unwrap();
+    let module = CheckedModule::from_source(parse(source).unwrap()).unwrap();
+    fs::write(
+        dir.join("model.json"),
+        serde_json::to_vec(&verified_language::action_model::Projection::derive(&module).unwrap())
+            .unwrap(),
+    )
+    .unwrap();
+    for (name, request) in [("index", &index), ("total", &total), ("count", &count)] {
+        fs::write(
+            dir.join(format!("{name}.json")),
+            serde_json::to_vec(request).unwrap(),
+        )
+        .unwrap();
+    }
+    for (left, right, result, providers) in [
+        (
+            "index",
+            "total",
+            "first",
+            ["get=left", "total_query=right", "count_query=left"],
+        ),
+        (
+            "first",
+            "count",
+            "product",
+            ["get=left", "total_query=left", "count_query=right"],
+        ),
+    ] {
+        let mut command = Command::new("python3");
+        command
+            .arg("knowledge/producers/compose_representations.py")
+            .arg(dir.join("model.json"))
+            .arg(dir.join(format!("{left}.json")))
+            .arg(dir.join(format!("{right}.json")));
+        for provider in providers {
+            command.args(["--query-provider", provider]);
+        }
+        command.arg("-o").arg(dir.join(format!("{result}.json")));
+        run(&mut command, &dir.join(format!("{result}.log")));
+    }
+    let product = serde_json::from_slice(&fs::read(dir.join("product.json")).unwrap()).unwrap();
+    check(
+        "aggregate-product",
+        source,
+        Some(product),
+        vec![
+            ("put", json!([0, 19, true, false])),
+            ("put", json!([1, 23, false, false])),
+            ("total_query", json!([])),
+            ("count_query", json!([])),
+            ("get", json!([1])),
+            ("put", json!([1, u64::MAX, true, false])),
+            ("total_query", json!([])),
+            ("count_query", json!([])),
+            ("put", json!([0, 41, false, true])),
+            ("total_query", json!([])),
+            ("count_query", json!([])),
+            ("erase", json!([1, true])),
+            ("get", json!([1])),
+            ("erase", json!([0, false])),
+            ("total_query", json!([])),
+            ("count_query", json!([])),
+        ],
+    );
 }

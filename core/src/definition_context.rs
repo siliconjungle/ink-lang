@@ -29,6 +29,9 @@ pub struct BoundDefinition {
 #[serde(deny_unknown_fields)]
 pub struct DefinitionContext {
     pub schema: u32,
+    // Empty omission preserves identities of existing portable contexts.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub ids: Vec<String>,
     pub definitions: BTreeMap<String, BoundDefinition>,
     pub records: BTreeMap<String, Vec<(String, Type)>>,
     pub enums: BTreeMap<String, Vec<String>>,
@@ -56,6 +59,7 @@ impl DefinitionContext {
         let names = p.functions.iter().map(|f| f.name.clone()).collect();
         let mut out = Self {
             schema: 1,
+            ids: p.ids.clone(),
             definitions: BTreeMap::new(),
             records: p.records.clone(),
             enums: p.enums.clone(),
@@ -141,6 +145,7 @@ impl DefinitionContext {
             }
         }
         let mut p = Program {
+            ids: self.ids.clone(),
             records: self.records.clone(),
             enums: self.enums.clone(),
             functions: self
@@ -179,6 +184,11 @@ impl DefinitionContext {
     /// Applicability is exact executable correspondence, not hash trust or
     /// equality-by-normalisation. Changed same-name definitions must re-prove.
     pub fn matches(&self, p: &Program) -> LangResult<()> {
+        for name in &self.ids {
+            if !p.ids.contains(name) {
+                return Err(format!("definition context ID differs: {name}"));
+            }
+        }
         for (name, fields) in &self.records {
             if p.records.get(name) != Some(fields) {
                 return Err(format!("definition context record differs: {name}"));
