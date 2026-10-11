@@ -125,6 +125,7 @@ pub const CONTROL_SEMANTICS: &str = "ink-executable-core-v6";
 pub const SEMANTICS: &str = "ink-executable-core-v1";
 pub const COMPUTE_SEMANTICS: &str = "ink-executable-core-v2";
 pub const LOCAL_SEMANTICS: &str = "ink-executable-core-v3";
+pub const EXACT_FLOAT_SEMANTICS: &str = CANONICAL_FLOAT_SEMANTICS;
 pub const PARALLEL_SEMANTICS: &str = "ink-executable-core-v5";
 pub const SEQUENCE_SEMANTICS: &str = "ink-executable-core-v4";
 pub const MAX_BYTES: usize = 16_000_000;
@@ -141,6 +142,7 @@ struct WireModule {
 /// Executable IR contains no inline proof-authoring/optimisation directives.
 #[derive(Clone, Debug)]
 pub struct CheckedModule(WireModule);
+
 
 impl CheckedModule {
     pub fn from_source(program: Program) -> LangResult<Self> {

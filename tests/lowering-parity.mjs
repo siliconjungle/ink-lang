@@ -17,8 +17,10 @@ const state=program.createState?.();let index=0;
 for(const step of steps){
  if(step.restore){await state.restore(step.restore.map(Number));continue;}
  const decl=step.pure?metadata.functions.find(f=>f.name===step.pure):metadata.state.actions.find(a=>a.name===step.call);
+ const before=program.parallelStatistics?.();
  const args=step.args.map((v,i)=>capture(v,decl.params[i].type));let reply;
- try{reply=step.pure?{value:call(step.pure,args)}:{outcome:state.invoke(step.call,args)};}catch(e){reply={host_error:e.message};}
+ try{if(step.async){const pending=step.pure?program.callAsync(step.pure,args):state.invokeAsync(step.call,args);if(!step.pure){assert.throws(()=>state.invoke(step.call,args),/operation already in progress/);assert.throws(()=>state.checkpoint(),/transaction boundary/);}reply=step.pure?{value:await pending}:{outcome:await pending};}else reply=step.pure?{value:call(step.pure,args)}:{outcome:state.invoke(step.call,args)};}catch(e){reply={host_error:e.message};}
+ if(step.expect_workers){const after=program.parallelStatistics();assert.ok(after.workers-before.workers>=2);assert.ok(after.lastWorkerIds.length>=2);}
  assert.deepEqual(normalize(reply),normalize(expected[index].reply),`step ${index} ${step.pure??step.call}`);
  if(state)assert.deepEqual(Array.from(await state.checkpoint()),expected[index].snapshot.map(Number),`snapshot ${index}`);index++;
 }
@@ -27,5 +29,6 @@ if(state){
 const before=await state.checkpoint();const corrupt=before.slice();corrupt[corrupt.length-1]^=1;await assert.rejects(state.restore(corrupt));assert.deepEqual(await state.checkpoint(),before);
 const captured=before.slice();const restoring=state.restore(captured);captured.fill(0);await restoring;assert.deepEqual(await state.checkpoint(),before);
 assert.throws(()=>state.invoke('__unknown_action__',[]),/unknown action __unknown_action__/);assert.deepEqual(await state.checkpoint(),before);
+if(steps.some(s=>s.async)){await assert.rejects(state.invokeAsync('__unknown_action__',[]));assert.deepEqual(await state.checkpoint(),before);await assert.rejects(state.invokeAsync('batch',['invalid',false]));assert.deepEqual(await state.checkpoint(),before);}
 }
 console.log(`${index} JS outcomes matched${state?" with exact portable snapshots":" (stateless value ABI)"}`);

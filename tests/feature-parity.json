@@ -1,0 +1,677 @@
+{
+  "schema": 1,
+  "complete_cpu_targets": [
+    "c",
+    "rust",
+    "javascript",
+    "c-wasm",
+    "rust-wasm"
+  ],
+  "gpu_targets": [
+    "webgpu",
+    "wgpu"
+  ],
+  "source_variants": {
+    "Type": [
+      "U64",
+      "U32",
+      "I32",
+      "F32",
+      "Vector",
+      "Int",
+      "Unit",
+      "String",
+      "Bool",
+      "List",
+      "Buffer",
+      "Map",
+      "Option",
+      "Result",
+      "Table",
+      "Named",
+      "Unknown"
+    ],
+    "Expr": [
+      "Num",
+      "Float",
+      "Neg",
+      "Let",
+      "Bool",
+      "Var",
+      "Binary",
+      "Call",
+      "Method",
+      "Lambda",
+      "String",
+      "Unit",
+      "Field",
+      "Record",
+      "Try"
+    ],
+    "Statement": [
+      "Let",
+      "Return",
+      "If",
+      "Emit",
+      "Expr"
+    ]
+  },
+  "non_executable_types": [
+    "Unknown"
+  ],
+  "features": [
+    {
+      "id": "fixed-integers",
+      "types": [
+        "U64",
+        "U32",
+        "I32"
+      ],
+      "tests": [
+        "lowering_parity",
+        "feature_parity",
+        "generated_parity"
+      ],
+      "targets": {
+        "c": {
+          "status": "implemented"
+        },
+        "rust": {
+          "status": "implemented"
+        },
+        "javascript": {
+          "status": "implemented"
+        },
+        "c-wasm": {
+          "status": "implemented"
+        },
+        "rust-wasm": {
+          "status": "implemented"
+        },
+        "webgpu": {
+          "status": "partial",
+          "reason": "Only eligible bounded pure kernels execute on GPU."
+        },
+        "wgpu": {
+          "status": "partial",
+          "reason": "Only eligible bounded pure kernels execute on GPU."
+        }
+      }
+    },
+    {
+      "id": "binary32",
+      "types": [
+        "F32"
+      ],
+      "tests": [
+        "feature_parity",
+        "numerical_state"
+      ],
+      "targets": {
+        "c": {
+          "status": "implemented"
+        },
+        "rust": {
+          "status": "implemented"
+        },
+        "javascript": {
+          "status": "implemented"
+        },
+        "c-wasm": {
+          "status": "implemented"
+        },
+        "rust-wasm": {
+          "status": "implemented"
+        },
+        "webgpu": {
+          "status": "partial",
+          "reason": "Exact arithmetic is implemented using integer lanes; not every enclosing value shape or computation is GPU-admitted."
+        },
+        "wgpu": {
+          "status": "partial",
+          "reason": "Exact arithmetic is implemented using integer lanes; not every enclosing value shape or computation is GPU-admitted."
+        }
+      }
+    },
+    {
+      "id": "numeric-vectors",
+      "types": [
+        "Vector"
+      ],
+      "tests": [
+        "lowering_parity",
+        "numerical_state"
+      ],
+      "targets": {
+        "c": {
+          "status": "implemented"
+        },
+        "rust": {
+          "status": "implemented"
+        },
+        "javascript": {
+          "status": "implemented"
+        },
+        "c-wasm": {
+          "status": "implemented"
+        },
+        "rust-wasm": {
+          "status": "implemented"
+        },
+        "webgpu": {
+          "status": "partial",
+          "reason": "Only eligible bounded pure kernels execute on GPU."
+        },
+        "wgpu": {
+          "status": "partial",
+          "reason": "Only eligible bounded pure kernels execute on GPU."
+        }
+      }
+    },
+    {
+      "id": "exact-integers",
+      "types": [
+        "Int"
+      ],
+      "tests": [
+        "lowering_parity",
+        "numerical_state"
+      ],
+      "targets": {
+        "c": {
+          "status": "implemented"
+        },
+        "rust": {
+          "status": "implemented"
+        },
+        "javascript": {
+          "status": "implemented"
+        },
+        "c-wasm": {
+          "status": "implemented"
+        },
+        "rust-wasm": {
+          "status": "implemented"
+        },
+        "webgpu": {
+          "status": "unsupported",
+          "reason": "Arbitrary-size integer GPU execution is not implemented."
+        },
+        "wgpu": {
+          "status": "unsupported",
+          "reason": "Arbitrary-size integer GPU execution is not implemented."
+        }
+      }
+    },
+    {
+      "id": "unit-strings-named-values",
+      "types": [
+        "Unit",
+        "String",
+        "Named"
+      ],
+      "tests": [
+        "lowering_parity"
+      ],
+      "targets": {
+        "c": {
+          "status": "implemented"
+        },
+        "rust": {
+          "status": "implemented"
+        },
+        "javascript": {
+          "status": "implemented"
+        },
+        "c-wasm": {
+          "status": "implemented"
+        },
+        "rust-wasm": {
+          "status": "implemented"
+        },
+        "webgpu": {
+          "status": "partial",
+          "reason": "Flat numeric records are GPU-admitted; strings, IDs, enums and recursive records use the host."
+        },
+        "wgpu": {
+          "status": "partial",
+          "reason": "Flat numeric records are GPU-admitted; strings, IDs, enums and recursive records use the host."
+        }
+      }
+    },
+    {
+      "id": "booleans",
+      "types": [
+        "Bool"
+      ],
+      "tests": [
+        "lowering_parity",
+        "bend_features"
+      ],
+      "targets": {
+        "c": {
+          "status": "implemented"
+        },
+        "rust": {
+          "status": "implemented"
+        },
+        "javascript": {
+          "status": "implemented"
+        },
+        "c-wasm": {
+          "status": "implemented"
+        },
+        "rust-wasm": {
+          "status": "implemented"
+        },
+        "webgpu": {
+          "status": "partial",
+          "reason": "Only eligible bounded pure kernels execute on GPU."
+        },
+        "wgpu": {
+          "status": "partial",
+          "reason": "Only eligible bounded pure kernels execute on GPU."
+        }
+      }
+    },
+    {
+      "id": "lists-option-result",
+      "types": [
+        "List",
+        "Option",
+        "Result"
+      ],
+      "tests": [
+        "lowering_parity",
+        "generated_parity",
+        "feature_parity"
+      ],
+      "targets": {
+        "c": {
+          "status": "implemented"
+        },
+        "rust": {
+          "status": "implemented"
+        },
+        "javascript": {
+          "status": "implemented"
+        },
+        "c-wasm": {
+          "status": "implemented"
+        },
+        "rust-wasm": {
+          "status": "implemented"
+        },
+        "webgpu": {
+          "status": "partial",
+          "reason": "Only eligible bounded pure kernels execute on GPU."
+        },
+        "wgpu": {
+          "status": "partial",
+          "reason": "Only eligible bounded pure kernels execute on GPU."
+        }
+      }
+    },
+    {
+      "id": "owned-buffers",
+      "types": [
+        "Buffer"
+      ],
+      "tests": [
+        "temporary_lowering",
+        "bend_features"
+      ],
+      "targets": {
+        "c": {
+          "status": "implemented"
+        },
+        "rust": {
+          "status": "implemented"
+        },
+        "javascript": {
+          "status": "implemented"
+        },
+        "c-wasm": {
+          "status": "implemented"
+        },
+        "rust-wasm": {
+          "status": "implemented"
+        },
+        "webgpu": {
+          "status": "partial",
+          "reason": "GPU private buffers have a statically checked capacity at most 64; general dynamic buffers are not admitted."
+        },
+        "wgpu": {
+          "status": "partial",
+          "reason": "GPU private buffers have a statically checked capacity at most 64; general dynamic buffers are not admitted."
+        }
+      }
+    },
+    {
+      "id": "local-keyed-collections",
+      "types": [
+        "Map"
+      ],
+      "tests": [
+        "temporary_lowering"
+      ],
+      "targets": {
+        "c": {
+          "status": "implemented"
+        },
+        "rust": {
+          "status": "implemented"
+        },
+        "javascript": {
+          "status": "implemented"
+        },
+        "c-wasm": {
+          "status": "implemented"
+        },
+        "rust-wasm": {
+          "status": "implemented"
+        },
+        "webgpu": {
+          "status": "unsupported",
+          "reason": "General local keyed-collection GPU execution is not implemented."
+        },
+        "wgpu": {
+          "status": "unsupported",
+          "reason": "General local keyed-collection GPU execution is not implemented."
+        }
+      }
+    },
+    {
+      "id": "tables-and-actions",
+      "types": [
+        "Table"
+      ],
+      "tests": [
+        "lowering_parity",
+        "generated_parity",
+        "numerical_state"
+      ],
+      "targets": {
+        "c": {
+          "status": "implemented"
+        },
+        "rust": {
+          "status": "implemented"
+        },
+        "javascript": {
+          "status": "implemented"
+        },
+        "c-wasm": {
+          "status": "implemented"
+        },
+        "rust-wasm": {
+          "status": "implemented"
+        },
+        "webgpu": {
+          "status": "unsupported",
+          "reason": "GPU state/action execution is not implemented."
+        },
+        "wgpu": {
+          "status": "unsupported",
+          "reason": "GPU state/action execution is not implemented."
+        }
+      }
+    },
+    {
+      "id": "ordered-parallel-workers",
+      "types": [],
+      "tests": [
+        "bend_features",
+        "feature_parity"
+      ],
+      "targets": {
+        "c": {
+          "status": "implemented"
+        },
+        "rust": {
+          "status": "implemented"
+        },
+        "javascript": {
+          "status": "implemented"
+        },
+        "c-wasm": {
+          "status": "implemented"
+        },
+        "rust-wasm": {
+          "status": "implemented"
+        },
+        "webgpu": {
+          "status": "partial",
+          "reason": "Eligible output kernels dispatch on GPU; private-buffer mapping is sequential within each invocation."
+        },
+        "wgpu": {
+          "status": "partial",
+          "reason": "Eligible output kernels dispatch on GPU; private-buffer mapping is sequential within each invocation."
+        }
+      }
+    },
+    {
+      "id": "guarded-recursion",
+      "types": [],
+      "tests": [
+        "bend_features"
+      ],
+      "targets": {
+        "c": {
+          "status": "implemented"
+        },
+        "rust": {
+          "status": "implemented"
+        },
+        "javascript": {
+          "status": "implemented"
+        },
+        "c-wasm": {
+          "status": "implemented"
+        },
+        "rust-wasm": {
+          "status": "implemented"
+        },
+        "webgpu": {
+          "status": "unsupported",
+          "reason": "Recursive GPU execution is not implemented."
+        },
+        "wgpu": {
+          "status": "unsupported",
+          "reason": "Recursive GPU execution is not implemented."
+        }
+      }
+    },
+    {
+      "id": "checked-physical-definitions",
+      "types": [],
+      "tests": [
+        "feature_parity",
+        "representation_parity",
+        "standalone_representation"
+      ],
+      "targets": {
+        "c": {
+          "status": "implemented"
+        },
+        "rust": {
+          "status": "implemented"
+        },
+        "javascript": {
+          "status": "implemented"
+        },
+        "c-wasm": {
+          "status": "implemented"
+        },
+        "rust-wasm": {
+          "status": "implemented"
+        },
+        "webgpu": {
+          "status": "unsupported",
+          "reason": "Sealed physical-definition execution is implemented on the five CPU targets, not GPU."
+        },
+        "wgpu": {
+          "status": "unsupported",
+          "reason": "Sealed physical-definition execution is implemented on the five CPU targets, not GPU."
+        }
+      }
+    },
+    {
+      "id": "checked-keep-maintenance",
+      "types": [],
+      "tests": [
+        "feature_parity",
+        "representation_parity",
+        "point_delta"
+      ],
+      "targets": {
+        "c": {
+          "status": "implemented"
+        },
+        "rust": {
+          "status": "implemented"
+        },
+        "javascript": {
+          "status": "implemented"
+        },
+        "c-wasm": {
+          "status": "implemented"
+        },
+        "rust-wasm": {
+          "status": "implemented"
+        },
+        "webgpu": {
+          "status": "unsupported",
+          "reason": "Checked fixed-key maintenance is implemented on the five CPU targets; arbitrary keep domains and GPU execution remain open."
+        },
+        "wgpu": {
+          "status": "unsupported",
+          "reason": "Checked fixed-key maintenance is implemented on the five CPU targets; arbitrary keep domains and GPU execution remain open."
+        }
+      }
+    },
+    {
+      "id": "checkpoint-rollback-and-events",
+      "types": [],
+      "tests": [
+        "lowering_parity",
+        "durability",
+        "generated_parity",
+        "feature_parity"
+      ],
+      "targets": {
+        "c": {
+          "status": "implemented"
+        },
+        "rust": {
+          "status": "implemented"
+        },
+        "javascript": {
+          "status": "implemented"
+        },
+        "c-wasm": {
+          "status": "implemented"
+        },
+        "rust-wasm": {
+          "status": "implemented"
+        },
+        "webgpu": {
+          "status": "unsupported",
+          "reason": "These transaction and durable-host interfaces execute on CPU."
+        },
+        "wgpu": {
+          "status": "unsupported",
+          "reason": "These transaction and durable-host interfaces execute on CPU."
+        }
+      }
+    }
+  ],
+  "cpu_suites": [
+    "lowering_parity",
+    "generated_parity",
+    "durability",
+    "modules",
+    "selected_checkpoint",
+    "action_optimisation",
+    "action_transitions",
+    "numerical_state",
+    "mixed_durability",
+    "bend_features",
+    "feature_parity",
+    "temporary_lowering",
+    "composed_storage_parity",
+    "storage_destination_parity",
+    "checked_physical_selection_parity",
+    "representation_parity",
+    "standalone_representation",
+    "representations",
+    "point_delta"
+  ],
+  "gpu_contract": {
+    "semantics": "eligible-pure-exact-v1",
+    "host_only": [
+      "stateful-transactions",
+      "arbitrary-size-integers",
+      "general-dynamic-maps",
+      "recursive-physical-definitions"
+    ],
+    "capabilities": {
+      "exact-u64": {
+        "tests": [
+          "feature_parity",
+          "bend_features"
+        ],
+        "targets": {
+          "webgpu": {
+            "status": "implemented"
+          },
+          "wgpu": {
+            "status": "implemented"
+          }
+        }
+      },
+      "exact-binary32": {
+        "tests": [
+          "feature_parity",
+          "bend_features"
+        ],
+        "targets": {
+          "webgpu": {
+            "status": "implemented"
+          },
+          "wgpu": {
+            "status": "implemented"
+          }
+        }
+      },
+      "actual-eligible-dispatch": {
+        "tests": [
+          "feature_parity",
+          "bend_features"
+        ],
+        "targets": {
+          "webgpu": {
+            "status": "implemented"
+          },
+          "wgpu": {
+            "status": "implemented"
+          }
+        }
+      },
+      "required-gpu-no-fallback": {
+        "tests": [
+          "feature_parity",
+          "bend_features"
+        ],
+        "targets": {
+          "webgpu": {
+            "status": "implemented"
+          },
+          "wgpu": {
+            "status": "implemented"
+          }
+        }
+      }
+    }
+  }
+}

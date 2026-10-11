@@ -125,6 +125,7 @@ fn source_transition_roots_cannot_ignore_ordered_event_changes() {
 }
 #[test]
 fn unsupported_domains_and_long_continuations_are_rejected_with_bounded_work() {
+    assert!(Projection::derive(&module("module unsupported; query pass(x:String)->String{return x;}" )).unwrap_err().contains("unsupported action model type"));
     assert!(Projection::derive(&module(
         "module unsupported; query pass(x:String)->String{return x;}"
     ))

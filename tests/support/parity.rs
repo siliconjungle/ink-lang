@@ -48,6 +48,12 @@ fn conformance_inner(
     steps: Vec<Value>,
     expected: Vec<Value>,
 ) {
+    if std::env::var_os("INK_PARITY_REQUIRE_ALL").is_some() {
+        assert!(
+            std::env::var_os("INK_TEST_ZIG").is_some(),
+            "complete-target parity forbids skipping Wasm: set INK_TEST_ZIG"
+        );
+    }
     // Emission, building and execution form one operation for these GPU
     // fixtures: their generated package names and Cargo target are shared.
     // Lock before emission so source mtimes cannot precede another fixture's
@@ -124,6 +130,8 @@ fn conformance_inner(
             if step["pure"].is_string() {
                 step["backend"] = json!(if step["cpu_only"] == true {
                     "cpu"
+                } else if step["expect_gpu"] == true {
+                    "gpu-required"
                 } else {
                     "gpu"
                 });
@@ -208,6 +216,48 @@ fn conformance_inner(
             "wgpu: {} results matched; {gpu_calls} GPU calls",
             actual.len()
         );
+        if !packed_pure {
+            let manifest: Value =
+                serde_json::from_slice(&fs::read(root.join("gpu-module/manifest.json")).unwrap())
+                    .unwrap();
+            let rejected = steps
+                .iter()
+                .filter(|step| {
+                    step["pure"].is_string()
+                        && manifest["functions"]
+                            .as_array()
+                            .unwrap()
+                            .iter()
+                            .any(|f| f["name"] == step["pure"] && f["gpu"] == false)
+                })
+                .map(|step| {
+                    let mut step = step.clone();
+                    step["backend"] = json!("gpu-required");
+                    step
+                })
+                .collect::<Vec<_>>();
+            if !rejected.is_empty() {
+                let script = root.join("required-gpu-errors.json");
+                fs::write(&script, serde_json::to_vec(&rejected).unwrap()).unwrap();
+                let output = Command::new(target.join("debug/ink-module-program"))
+                    .arg(script)
+                    .output()
+                    .unwrap();
+                assert!(
+                    output.status.success(),
+                    "{}",
+                    String::from_utf8_lossy(&output.stderr)
+                );
+                let replies: Vec<Value> = serde_json::from_slice(&output.stdout).unwrap();
+                assert_eq!(replies.len(), rejected.len());
+                for reply in replies {
+                    assert!(
+                        reply["host_error"].is_string(),
+                        "required unsupported GPU call fell back: {reply}"
+                    );
+                }
+            }
+        }
     }
     let c = root.join("c");
     if let Some(selected) = selected {

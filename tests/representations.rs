@@ -275,6 +275,15 @@ fn frozen_cli_replay_needs_no_live_catalogue_and_checks_before_writing() {
             .output()
             .unwrap()
     };
+    for target in ["c", "javascript", "c-wasm", "rust-wasm"] {
+        let out=run(vec!["execute-representation".into(),
+            root.join("app.ink").display().to_string(),
+            root.join("request-0.json").display().to_string(),
+            root.join("calls.json").display().to_string(),
+            "--target".into(),target.into()]);
+        assert!(!out.status.success(), "unsupported convenience target must not silently run Rust");
+        assert!(String::from_utf8_lossy(&out.stderr).contains("use emit-representation --target"));
+    }
     for args in [
         vec![
             "check-representation".into(),

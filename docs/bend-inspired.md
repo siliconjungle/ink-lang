@@ -3,8 +3,8 @@
 These mechanisms borrow useful ideas from Bend while preserving Ink's small
 semantic core and independently versioned knowledge database. They do not adopt
 Bend's interaction-net runtime or implicit parallel scheduling. Programs using
-these mechanisms carry `ink-executable-core-v5`; older programs retain their
-existing semantics identities. Core JSON replay checks the marker and the source.
+these mechanisms carry `ink-executable-core-v5`, or V7 when floats occur; older
+non-floating programs retain their existing semantics identities. Core JSON replay checks the marker and the source.
 
 ## Ordered work
 
@@ -20,14 +20,21 @@ and may allocate its own local buffers/maps. It cannot capture owned temporary
 storage, including through a record or a read-only borrow, or return an owner.
 The checker enforces those restrictions independently of the scheduler.
 
-The native Rust backend uses scoped fork/join threads. `INK_THREADS` requests
-1–32 workers; the default uses available parallelism, capped at 32. Work smaller
-than the requested grain stays sequential; grain zero means one. Nested requests
-and Rust-Wasm stay sequential. C, C-Wasm and JavaScript currently execute the same
-ordered work sequentially. Eligible WebGPU lists execute in the existing output
-kernel. Grain is a CPU scheduling hint, not a GPU workgroup size or a correctness
-condition. Thread creation, input copying and join costs mean parallelism is not
-profitable for every function or input size.
+Complete native Rust and C use bounded fork/join threads; C workers have private
+value arenas. JavaScript and both Wasm paths use workers executing the same
+literal compiled module and compiler-generated callback IDs. Captures contain
+only free immutable values. No source strings or arbitrary callbacks cross the
+worker ABI. `INK_THREADS` requests 1–32 workers; browser/default Node worker hosts
+use at most four by default. `setParallelism` configures JavaScript workers.
+Work smaller than two grains and nested requests stay sequential. Grain zero
+means one. Browser parallel work uses `callAsync`, `pureAsync` or `invokeAsync`
+with cross-origin-isolated shared memory; overlapping state mutation is rejected.
+Async actions run against a captured checkpoint and publish a validated replacement
+only after success. Worker/host errors leave the original instance unchanged.
+
+Eligible WebGPU lists execute in output kernels. Grain is a CPU scheduling hint,
+not a GPU workgroup size or correctness condition. Thread creation, copying and
+join costs can exceed the saved computation; no general speedup is promised.
 
 ## Owned partitions and in-place updates
 
@@ -171,8 +178,8 @@ clamped splits, disjoint updates, append and input preservation. The browser
 runner replays the same values and resident feedback plans through CPU Wasm,
 JavaScript and actual WebGPU: the recorded Chrome run matched 181 comparisons
 with 35 actual GPU calls, including independent packed C-Wasm fallback checks.
-Device command mocks additionally test allocation failure cleanup and mismatched feedback bounds. The native backend
-unit test checks worker count, sequential nested work, order and retained vector
+Device command mocks additionally test allocation failure cleanup and mismatched feedback bounds. All complete CPU fixtures require actual distinct worker receipts for the large
+parallel case. The native Rust backend unit test checks worker count, sequential nested work, order and retained vector
 pointer/capacity. CI enables both Wasm compilers, pinned Lean and wgpu replay.
 
 `bench/bend-inspired/run.py` measures the same 1,024-step wrapping recurrence in

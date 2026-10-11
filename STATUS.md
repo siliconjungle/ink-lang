@@ -40,7 +40,8 @@ losing candidates. See [the operation and trust boundaries](docs/universal-optim
 [Numerical state](docs/numerical-state.md), [GPU compute](docs/gpu-compute.md),
 [durable hosts](docs/durable-host.md), [modules](docs/modules.md) and
 [installation](docs/installation.md) give the exact contracts.
-JavaScript maintained results are recomputed. F32 programs use executable-core V7:
+Ordinary baseline JavaScript keeps recompute; checked standalone representations
+maintain the admitted fixed-key and filtered aggregate candidates. F32 programs use executable-core V7:
 arithmetic rounds to binary32 and produces canonical NaNs; transport and negation
 preserve payload bits. Packed GPU code uses integer lanes for this contract. Literal GPU scans and sorts are not a claim of
 efficient parallel prefix/sorting algorithms.
@@ -53,7 +54,7 @@ efficient parallel prefix/sorting algorithms.
 | [Pure action regions](docs/action-regions.md) | Eligible total expressions inside queries, changes and keeps can use the same checked selection boundary | Does not by itself replace an entire transaction |
 | [Whole-action transitions](docs/action-transitions.md) | Complete transition equations preserve replies, logical roots, rollback, versions and ordered events; List values/count/u64 sum have fixed correspondence | Admitted source projection includes signed/float/exact-integer values, ordered keys, vectors and supported pure helpers; unsupported keys/operators fail closed |
 | [Physical representations](docs/database-representations.md) | Canonical layouts and cached-query implementations supply universal encoding, observation and invariant-preservation evidence for every source action | Admitted scalar/collection/vector/pure-closure domains; standalone execution on C, Rust, JavaScript, both Wasm and GPU host lanes. Recursive state stays on the host |
-| [Migration](docs/database-representations.md#compiled-execution-and-migration) | Checked decode/encode or direct bridges between exact representations, switching at transaction boundaries | Explicit checked requests; not an autonomous live workload controller or a durability protocol |
+| [Migration](docs/database-representations.md#compiled-execution-and-migration) | Portable checkpoint/restore switches between exact compiled variants at transaction boundaries; universal direct-bridge proofs remain checkable | Direct bridge emission is not implemented; publication follows successful restore. No autonomous live controller |
 | [Lifecycle selection](reports/incremental-maintenance-selection/README.md) | External measured choice accounts for checking, initialisation, compilation, action counts, teardown, memory and exact migration costs | Comparable provenance and complete required phases are necessary; replay rechecks the selected request/bridge. This is explicit offline selection |
 | [General laws](docs/general-laws.md) | Abstract sorts/functions, checked interpretations and discharged assumptions support reusable mathematics | Unsupported/open obligations cannot grant closed program authority |
 
@@ -75,6 +76,25 @@ Old aggregate certificates, bounded caches, typed storage policies, source
 maintenance evaluators and historical scalar loaders are removed. Current
 representation admission uses the canonical database proof interface.
 
+
+## Enforced execution coverage
+
+The supported contract covers complete C, Rust, JavaScript and both Wasm paths,
+with eligible exact GPU kernels and explicit host execution for transactions,
+recursive physical state, arbitrary-size integers and general dynamic maps.
+Required-GPU mode fails when device execution is unavailable; host fallback is
+never counted as a device dispatch. Unrestricted device coverage still has gaps,
+reported by the default all-GPU audit. The inventory and 19 mandatory suites are
+in [the parity contract](docs/lowering-parity.md) and
+[the integration evidence](reports/enforced-feature-parity-2026-10-11/README.md).
+Passing this gate does not prove compiler correctness or unrestricted GPU coverage.
+
+Ordinary representation programs carry no proof bundle or stateful interpreter.
+Argument types/shapes/ranges are a caller obligation; malformed data is unsafe.
+Checkpoint integrity and transaction/version rules remain explicit boundaries.
+[The latest published compiled-state scaling experiment](reports/representation-scaling/standalone-main-2026-10-11/README.md)
+shows competitive cached reads and large linked-list update costs. Its source,
+package revisions and workload boundaries determine the timing claim.
 
 ## Knowledge, selection and replay
 
@@ -103,8 +123,9 @@ it does not establish faster execution. See [the evidence index](BENCHMARKS.md).
 
 [Ordered parallel work, owned partitions, checked recursion and GPU scratch](docs/bend-inspired.md)
 use executable-core V5, with general control/owned transforms in V6 and F32
-arithmetic in V7. Native Rust uses bounded scoped workers;
-other CPU paths preserve sequential values. Browser and native GPU scratch
+arithmetic in V7. Complete native C/Rust use bounded workers; JavaScript and both Wasm paths
+use host workers with ordered results. Browser entry points are asynchronous
+and require cross-origin isolation; small or nested work can remain sequential. Browser and native GPU scratch
 support bounded split/rejoin and push within 64 elements; resident graph feedback
 preserves capacity and simultaneous assignments. Unsupported cases retain
 compiled CPU fallback. Guarded self
