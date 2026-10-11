@@ -116,7 +116,7 @@ through existing proof-package protocols. Ordinary emission is an empty selectio
 package in the database, without a privileged compiler branch. Replay binds the
 source/compiler/target and exact pinned candidate. Supplied lifetime and portable
 migration costs enter external ranking; missing comparable evidence retains the
-supplied baseline. General profitability remains incomplete. Active physical-representation examples are re-authored and universally checked against V8 source identities; archived measurements retain their original exact packages.
+supplied baseline. General profitability remains incomplete. Active physical-representation examples are re-authored and universally checked against current source identities. Ordinary action blocks preserve their earlier checked identities; mutable assignments use the V8 continuation machinery. Archived measurements retain their original exact packages.
 
 Repeated database-only proof batches have removed traversals and intermediate
 results with compiler/runtime/lowering sources unchanged. Some selected variants
