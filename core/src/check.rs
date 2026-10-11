@@ -49,7 +49,20 @@ pub fn infer_context(e: &Expr, env: &Env, p: &Program, want: Option<&Type>) -> L
         return result;
     }
     match e {
-        Expr::Call(n, _) if crate::word::primitive(n) || ["Some", "Ok", "Err", "Int", "checked_add", "checked_sub", "checked_mul", "list"].contains(&n.as_str()) => {
+        Expr::Call(n, _)
+            if crate::word::primitive(n)
+                || [
+                    "Some",
+                    "Ok",
+                    "Err",
+                    "Int",
+                    "checked_add",
+                    "checked_sub",
+                    "checked_mul",
+                    "list",
+                ]
+                .contains(&n.as_str()) =>
+        {
             infer_value_constructor(e, env, p, want)
         }
         Expr::Unit | Expr::String(_) => infer_value_constructor(e, env, p, want),
@@ -152,6 +165,300 @@ pub fn infer_context(e: &Expr, env: &Env, p: &Program, want: Option<&Type>) -> L
             .get(n)
             .cloned()
             .ok_or_else(|| format!("unbound name {n}")),
+        Expr::Binary(..) => infer_binary(e, env, p, want),
+        Expr::Call(..) => infer_call(e, env, p, want),
+        Expr::Method(..) => infer_method(e, env, p, want),
+        Expr::Lambda(..) => {
+            Err("lambda is only permitted as a collection operator argument".into())
+        }
+        _ => Err(
+            "stateful expression is not supported inside an expression-only pure function".into(),
+        ),
+    }
+}
+
+pub fn params_env(params: &[(String, Type)]) -> LangResult<Env> {
+    let mut env = Env::new();
+    for (n, t) in params {
+        if env.insert(n.clone(), t.clone()).is_some() {
+            return Err(format!("duplicate parameter {n}"));
+        }
+    }
+    Ok(env)
+}
+
+fn calls(e: &Expr, out: &mut BTreeSet<String>) {
+    match e {
+        Expr::Call(n, args) => {
+            if !crate::word::primitive(n)
+                && ![
+                    "sum",
+                    "list",
+                    "Int",
+                    "Some",
+                    "Ok",
+                    "Err",
+                    "checked_add",
+                    "checked_sub",
+                    "checked_mul",
+                    "count",
+                    "foldr",
+                    "fold_until",
+                    "foldl",
+                    "choose",
+                    "repeat",
+                    "repeat_until",
+                    "buffer",
+                    "buffer_fill",
+                    "parallel_map",
+                    "length",
+                    "vec2",
+                    "vec3",
+                    "vec4",
+                    "quot_or",
+                    "rem_or",
+                ]
+                .contains(&n.as_str())
+            {
+                out.insert(n.clone());
+            }
+            for a in args {
+                calls(a, out);
+            }
+        }
+        Expr::Binary(_, a, b) => {
+            calls(a, out);
+            calls(b, out);
+        }
+        Expr::Method(e, _, args) => {
+            calls(e, out);
+            for a in args {
+                calls(a, out);
+            }
+        }
+        Expr::Lambda(_, e) | Expr::Neg(e) | Expr::Field(e, _) => calls(e, out),
+        Expr::Let(_, _, a, b) => {
+            calls(a, out);
+            calls(b, out);
+        }
+        Expr::Record(_, fields) => {
+            for (_, e) in fields {
+                calls(e, out);
+            }
+        }
+        _ => {}
+    }
+}
+
+pub fn check(p: &Program) -> LangResult<()> {
+    let mut names = BTreeSet::new();
+    for f in &p.functions {
+        for (_, t) in &f.params {
+            crate::statecheck::validate_type(t, p)?;
+        }
+        crate::statecheck::validate_type(&f.result, p)?;
+        if crate::word::primitive(&f.name)
+            || [
+                "sum",
+                "list",
+                "Int",
+                "Some",
+                "Ok",
+                "Err",
+                "checked_add",
+                "checked_sub",
+                "checked_mul",
+                "count",
+                "foldr",
+                "fold_until",
+                "foldl",
+                "choose",
+                "repeat",
+                "repeat_until",
+                "buffer",
+                "buffer_fill",
+                "parallel_map",
+                "length",
+                "vec2",
+                "vec3",
+                "vec4",
+                "quot_or",
+                "rem_or",
+            ]
+            .contains(&f.name.as_str())
+            || !names.insert(f.name.clone())
+        {
+            return Err(format!("reserved or duplicate function {}", f.name));
+        }
+        let got = infer_as(&f.body, &params_env(&f.params)?, p, &f.result)?;
+        if got != f.result {
+            return Err(format!(
+                "{}: declared {:?}, returns {got:?}",
+                f.name, f.result
+            ));
+        }
+    }
+    fn visit(
+        n: &str,
+        p: &Program,
+        stack: &mut BTreeSet<String>,
+        done: &mut BTreeSet<String>,
+    ) -> LangResult<()> {
+        if done.contains(n) {
+            return Ok(());
+        }
+        if stack.len() >= 128 {
+            return Err("function dependency nesting limit exceeded".into());
+        }
+        if !stack.insert(n.into()) {
+            return Err(format!(
+                "recursive call to {n}: no decreasing measure has been proved"
+            ));
+        }
+        let f = p
+            .functions
+            .iter()
+            .find(|f| f.name == n)
+            .ok_or_else(|| format!("unknown function {n}"))?;
+        let mut deps = BTreeSet::new();
+        calls(&f.body, &mut deps);
+        if deps.remove(n) {
+            crate::recursion::check_function(f, p)?;
+        }
+        for d in deps {
+            visit(&d, p, stack, done)?;
+        }
+        stack.remove(n);
+        done.insert(n.into());
+        Ok(())
+    }
+    let mut done = BTreeSet::new();
+    for f in &p.functions {
+        visit(&f.name, p, &mut BTreeSet::new(), &mut done)?;
+    }
+    crate::statecheck::check(p)?;
+    crate::local_collections::check_ownership(p)
+}
+
+// Keep constructor/word temporaries out of ordinary recursive typing frames.
+#[inline(never)]
+fn infer_value_constructor(
+    e: &Expr,
+    env: &Env,
+    p: &Program,
+    want: Option<&Type>,
+) -> LangResult<Type> {
+    match e {
+        Expr::Call(n, args) if crate::word::primitive(n) => {
+            if args.len() != if n == "word_not" { 1 } else { 2 } {
+                return Err("word operation arity".into());
+            }
+            let context = want
+                .filter(|t| is_word(t))
+                .cloned()
+                .or_else(|| hint(&args[0], env, p));
+            let t = infer_context(&args[0], env, p, context.as_ref())?;
+            if !is_word(&t) {
+                return Err("word operation requires fixed integers".into());
+            }
+            for (a, t) in args.iter().zip(crate::word::arguments(n, &t)) {
+                infer_as(a, env, p, &t)?;
+            }
+            Ok(t)
+        }
+        Expr::Unit => Ok(Type::Unit),
+        Expr::String(_) => Ok(Type::String),
+        Expr::Var(n) if n == "None" => match want {
+            Some(Type::Option(_)) => Ok(want.unwrap().clone()),
+            _ => Err("None needs an expected Option<T> type".into()),
+        },
+        Expr::Field(x, variant) if matches!(x.as_ref(), Expr::Var(n) if p.enums.contains_key(n) && !env.contains_key(n)) =>
+        {
+            let Expr::Var(n) = x.as_ref() else {
+                unreachable!()
+            };
+            if !p.enums[n].contains(variant) {
+                return Err("unknown enum variant".into());
+            }
+            Ok(Type::Named(n.clone()))
+        }
+        Expr::Call(n, args) if ["Some", "Ok", "Err"].contains(&n.as_str()) => {
+            if args.len() != 1 {
+                return Err(format!("{n} expects one argument"));
+            }
+            let inner = match (n.as_str(), want) {
+                ("Some", Some(Type::Option(t)))
+                | ("Ok", Some(Type::Result(t, _)))
+                | ("Err", Some(Type::Result(_, t))) => t.as_ref(),
+                _ => return Err(format!("{n} needs an expected Option/Result type")),
+            };
+            infer_as(&args[0], env, p, inner)?;
+            Ok(want.unwrap().clone())
+        }
+        Expr::Call(n, args) if n == "Int" => {
+            if args.len() != 1
+                || !matches!(
+                    infer(&args[0], env, p)?,
+                    Type::U32 | Type::U64 | Type::I32 | Type::Int
+                )
+            {
+                return Err("Int expects one integer argument".into());
+            }
+            Ok(Type::Int)
+        }
+        Expr::Call(n, args)
+            if ["checked_add", "checked_sub", "checked_mul"].contains(&n.as_str()) =>
+        {
+            if args.len() != 2 {
+                return Err("checked arithmetic expects two arguments".into());
+            }
+            let context = match want {
+                Some(Type::Result(t, _)) if is_word(t) => Some(t.as_ref()),
+                _ => None,
+            };
+            let hint = context
+                .cloned()
+                .or_else(|| hint(&args[0], env, p))
+                .or_else(|| hint(&args[1], env, p));
+            let ty = infer_context(&args[0], env, p, hint.as_ref())?;
+            if !is_word(&ty) {
+                return Err("checked arithmetic requires fixed integers".into());
+            }
+            infer_as(&args[1], env, p, &ty)?;
+            Ok(Type::Result(
+                Box::new(ty),
+                Box::new(Type::Named("ArithmeticError".into())),
+            ))
+        }
+        Expr::Call(n, args) if n == "list" => {
+            let context = match want {
+                Some(Type::List(t)) => Some(&**t),
+                _ => None,
+            };
+            let ty = if let Some(t) = context {
+                t.clone()
+            } else if let Some(first) = args.first() {
+                infer(first, env, p)?
+            } else {
+                return Err("empty list needs an expected List<T> type".into());
+            };
+            if crate::local_collections::owned(&ty, p) {
+                return Err("immutable lists cannot own temporary storage".into());
+            }
+            for item in args {
+                infer_as(item, env, p, &ty)?;
+            }
+            Ok(Type::List(Box::new(ty)))
+        }
+        _ => unreachable!("value constructor dispatch"),
+    }
+}
+
+// Keep recursive typing frames proportional to the active expression form.
+
+#[inline(never)]
+fn infer_binary(e: &Expr, env: &Env, p: &Program, want: Option<&Type>) -> LangResult<Type> {
+    match e {
         Expr::Binary(op, a, b) => {
             let numeric = if ["+", "-", "*"].contains(&op.as_str()) {
                 want.filter(|t| is_numeric_value(t)).cloned()
@@ -175,6 +482,13 @@ pub fn infer_context(e: &Expr, env: &Env, p: &Program, want: Option<&Type>) -> L
                 _ => Err(format!("operator {op} does not accept {at:?}")),
             }
         }
+        _ => unreachable!("binary typing dispatch"),
+    }
+}
+
+#[inline(never)]
+fn infer_call(e: &Expr, env: &Env, p: &Program, want: Option<&Type>) -> LangResult<Type> {
+    match e {
         Expr::Call(n, args) if ["vec2", "vec3", "vec4"].contains(&n.as_str()) => {
             let k = n.as_bytes()[3] - b'0';
             if args.len() != k as usize {
@@ -329,6 +643,13 @@ pub fn infer_context(e: &Expr, env: &Env, p: &Program, want: Option<&Type>) -> L
             }
             Ok(f.result.clone())
         }
+        _ => unreachable!("call typing dispatch"),
+    }
+}
+
+#[inline(never)]
+fn infer_method(e: &Expr, env: &Env, p: &Program, want: Option<&Type>) -> LangResult<Type> {
+    match e {
         Expr::Method(xs, n, args) => {
             let receiver = infer_context(
                 xs,
@@ -519,283 +840,6 @@ pub fn infer_context(e: &Expr, env: &Env, p: &Program, want: Option<&Type>) -> L
                 _ => Err(format!("unsupported collection method {n}")),
             }
         }
-        Expr::Lambda(..) => {
-            Err("lambda is only permitted as a collection operator argument".into())
-        }
-        _ => Err(
-            "stateful expression is not supported inside an expression-only pure function".into(),
-        ),
-    }
-}
-
-pub fn params_env(params: &[(String, Type)]) -> LangResult<Env> {
-    let mut env = Env::new();
-    for (n, t) in params {
-        if env.insert(n.clone(), t.clone()).is_some() {
-            return Err(format!("duplicate parameter {n}"));
-        }
-    }
-    Ok(env)
-}
-
-fn calls(e: &Expr, out: &mut BTreeSet<String>) {
-    match e {
-        Expr::Call(n, args) => {
-            if !crate::word::primitive(n)
-                && ![
-                    "sum",
-                    "list",
-                    "Int",
-                    "Some",
-                    "Ok",
-                    "Err",
-                    "checked_add",
-                    "checked_sub",
-                    "checked_mul",
-                    "count",
-                    "foldr",
-                    "fold_until",
-                    "foldl",
-                    "choose",
-                    "repeat",
-                    "repeat_until",
-                    "buffer",
-                    "buffer_fill",
-                    "parallel_map",
-                    "length",
-                    "vec2",
-                    "vec3",
-                    "vec4",
-                    "quot_or",
-                    "rem_or",
-                ]
-                .contains(&n.as_str())
-            {
-                out.insert(n.clone());
-            }
-            for a in args {
-                calls(a, out);
-            }
-        }
-        Expr::Binary(_, a, b) => {
-            calls(a, out);
-            calls(b, out);
-        }
-        Expr::Method(e, _, args) => {
-            calls(e, out);
-            for a in args {
-                calls(a, out);
-            }
-        }
-        Expr::Lambda(_, e) | Expr::Neg(e) | Expr::Field(e, _) => calls(e, out),
-        Expr::Let(_, _, a, b) => {
-            calls(a, out);
-            calls(b, out);
-        }
-        Expr::Record(_, fields) => {
-            for (_, e) in fields {
-                calls(e, out);
-            }
-        }
-        _ => {}
-    }
-}
-
-pub fn check(p: &Program) -> LangResult<()> {
-    let mut names = BTreeSet::new();
-    for f in &p.functions {
-        for (_, t) in &f.params {
-            crate::statecheck::validate_type(t, p)?;
-        }
-        crate::statecheck::validate_type(&f.result, p)?;
-        if crate::word::primitive(&f.name)
-            || [
-                "sum",
-                "list",
-                "Int",
-                "Some",
-                "Ok",
-                "Err",
-                "checked_add",
-                "checked_sub",
-                "checked_mul",
-                "count",
-                "foldr",
-                "fold_until",
-                "foldl",
-                "choose",
-                "repeat",
-                "repeat_until",
-                "buffer",
-                "buffer_fill",
-                "parallel_map",
-                "length",
-                "vec2",
-                "vec3",
-                "vec4",
-                "quot_or",
-                "rem_or",
-            ]
-            .contains(&f.name.as_str())
-            || !names.insert(f.name.clone())
-        {
-            return Err(format!("reserved or duplicate function {}", f.name));
-        }
-        let got = infer_as(&f.body, &params_env(&f.params)?, p, &f.result)?;
-        if got != f.result {
-            return Err(format!(
-                "{}: declared {:?}, returns {got:?}",
-                f.name, f.result
-            ));
-        }
-    }
-    fn visit(
-        n: &str,
-        p: &Program,
-        stack: &mut BTreeSet<String>,
-        done: &mut BTreeSet<String>,
-    ) -> LangResult<()> {
-        if done.contains(n) {
-            return Ok(());
-        }
-        if stack.len() >= 128 {
-            return Err("function dependency nesting limit exceeded".into());
-        }
-        if !stack.insert(n.into()) {
-            return Err(format!(
-                "recursive call to {n}: no decreasing measure has been proved"
-            ));
-        }
-        let f = p
-            .functions
-            .iter()
-            .find(|f| f.name == n)
-            .ok_or_else(|| format!("unknown function {n}"))?;
-        let mut deps = BTreeSet::new();
-        calls(&f.body, &mut deps);
-        if deps.remove(n) {
-            crate::recursion::check_function(f, p)?;
-        }
-        for d in deps {
-            visit(&d, p, stack, done)?;
-        }
-        stack.remove(n);
-        done.insert(n.into());
-        Ok(())
-    }
-    let mut done = BTreeSet::new();
-    for f in &p.functions {
-        visit(&f.name, p, &mut BTreeSet::new(), &mut done)?;
-    }
-    crate::statecheck::check(p)?;
-    crate::local_collections::check_ownership(p)
-}
-
-// Keep constructor/word temporaries out of ordinary recursive typing frames.
-#[inline(never)]
-fn infer_value_constructor(e: &Expr, env: &Env, p: &Program, want: Option<&Type>) -> LangResult<Type> {
-    match e {
-        Expr::Call(n, args) if crate::word::primitive(n) => {
-            if args.len() != if n == "word_not" { 1 } else { 2 } {
-                return Err("word operation arity".into());
-            }
-            let context = want
-                .filter(|t| is_word(t))
-                .cloned()
-                .or_else(|| hint(&args[0], env, p));
-            let t = infer_context(&args[0], env, p, context.as_ref())?;
-            if !is_word(&t) {
-                return Err("word operation requires fixed integers".into());
-            }
-            for (a, t) in args.iter().zip(crate::word::arguments(n, &t)) {
-                infer_as(a, env, p, &t)?;
-            }
-            Ok(t)
-        }
-        Expr::Unit => Ok(Type::Unit),
-        Expr::String(_) => Ok(Type::String),
-        Expr::Var(n) if n == "None" => match want {
-            Some(Type::Option(_)) => Ok(want.unwrap().clone()),
-            _ => Err("None needs an expected Option<T> type".into()),
-        },
-        Expr::Field(x, variant) if matches!(x.as_ref(), Expr::Var(n) if p.enums.contains_key(n) && !env.contains_key(n)) =>
-        {
-            let Expr::Var(n) = x.as_ref() else {
-                unreachable!()
-            };
-            if !p.enums[n].contains(variant) {
-                return Err("unknown enum variant".into());
-            }
-            Ok(Type::Named(n.clone()))
-        }
-        Expr::Call(n, args) if ["Some", "Ok", "Err"].contains(&n.as_str()) => {
-            if args.len() != 1 {
-                return Err(format!("{n} expects one argument"));
-            }
-            let inner = match (n.as_str(), want) {
-                ("Some", Some(Type::Option(t)))
-                | ("Ok", Some(Type::Result(t, _)))
-                | ("Err", Some(Type::Result(_, t))) => t.as_ref(),
-                _ => return Err(format!("{n} needs an expected Option/Result type")),
-            };
-            infer_as(&args[0], env, p, inner)?;
-            Ok(want.unwrap().clone())
-        }
-        Expr::Call(n, args) if n == "Int" => {
-            if args.len() != 1
-                || !matches!(
-                    infer(&args[0], env, p)?,
-                    Type::U32 | Type::U64 | Type::I32 | Type::Int
-                )
-            {
-                return Err("Int expects one integer argument".into());
-            }
-            Ok(Type::Int)
-        }
-        Expr::Call(n, args)
-            if ["checked_add", "checked_sub", "checked_mul"].contains(&n.as_str()) =>
-        {
-            if args.len() != 2 {
-                return Err("checked arithmetic expects two arguments".into());
-            }
-            let context = match want {
-                Some(Type::Result(t, _)) if is_word(t) => Some(t.as_ref()),
-                _ => None,
-            };
-            let hint = context
-                .cloned()
-                .or_else(|| hint(&args[0], env, p))
-                .or_else(|| hint(&args[1], env, p));
-            let ty = infer_context(&args[0], env, p, hint.as_ref())?;
-            if !is_word(&ty) {
-                return Err("checked arithmetic requires fixed integers".into());
-            }
-            infer_as(&args[1], env, p, &ty)?;
-            Ok(Type::Result(
-                Box::new(ty),
-                Box::new(Type::Named("ArithmeticError".into())),
-            ))
-        }
-        Expr::Call(n, args) if n == "list" => {
-            let context = match want {
-                Some(Type::List(t)) => Some(&**t),
-                _ => None,
-            };
-            let ty = if let Some(t) = context {
-                t.clone()
-            } else if let Some(first) = args.first() {
-                infer(first, env, p)?
-            } else {
-                return Err("empty list needs an expected List<T> type".into());
-            };
-            if crate::local_collections::owned(&ty, p) {
-                return Err("immutable lists cannot own temporary storage".into());
-            }
-            for item in args {
-                infer_as(item, env, p, &ty)?;
-            }
-            Ok(Type::List(Box::new(ty)))
-        }
-        _ => unreachable!("value constructor dispatch"),
+        _ => unreachable!("method typing dispatch"),
     }
 }
