@@ -71,6 +71,10 @@ unrestricted device audit retains its disclosed missing capabilities. Passing
 conformance does not close compiler correctness or competitive execution.
 The latest compiled-state scaling report shows that cached reads can approach
 a maintained handwritten control while linked-list writes remain expensive.
+GPU placement follows measured profitability rather than requiring every feature
+to execute on the device. Database implementation packages, including ordinary empty selections, compete
+with cached layouts through [external selection](docs/state-choice.md); per-target
+lifetime evidence determines whether caching is worth its write/setup costs.
 Next physical-state work must reduce traversal, allocation and copying in updates,
 with representation/source proofs and equal backend coverage. Preserve the
 current slow candidates as benchmark controls and report memory and lifecycle costs.

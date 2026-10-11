@@ -111,8 +111,12 @@ without the producer, SQLite or a current database. Checked selections retain
 the original checkpoint identity; a raw modified program cannot claim it.
 Performance observations are separate and require matching target/workload
 provenance. The planner supports bounded structural selection and measured pure
-route choice plus explicit measured representation selection; general profitability
-remains incomplete.
+route choice plus explicit measured representation selection. [Database implementation selection](docs/state-choice.md) compares supplied entry IDs
+through existing proof-package protocols. Ordinary emission is an empty selection
+package in the database, without a privileged compiler branch. Replay binds the
+source/compiler/target and exact pinned candidate. Supplied lifetime and portable
+migration costs enter external ranking; missing comparable evidence retains the
+supplied baseline. General profitability remains incomplete.
 
 Repeated database-only proof batches have removed traversals and intermediate
 results with compiler/runtime/lowering sources unchanged. Some selected variants
@@ -184,3 +188,12 @@ Rust write-heavy cells improve about 1.7–2×, but indexed physical table updat
 remain open: the 4000-row write-only cell still loses by over 900× to a maintained
 handwritten tree. This allocation fix does not change linear update traversal,
 prove generated compiler correctness or extend GPU device coverage.
+
+Generic inverse journals now remove whole-table copying from ordinary C hosts
+and JavaScript changes. The matched 4000-row point workload measures native C
+queries/writes about 14.9×/14.5× faster, C-Wasm about 9.6×/14.1×, and JavaScript
+writes about 381× faster; JS queries are approximately unchanged. Rust already
+used journals. These are within-lane steady-state results, not cross-language
+rankings or GPU-device claims. Existing cached linked-list writes remain costly:
+ordinary Rust wins write-heavy mixes, while cached aggregates win read-only work.
+See [raw samples, generated code and limits](reports/indexed-source-choice-2026-10-12/README.md).
