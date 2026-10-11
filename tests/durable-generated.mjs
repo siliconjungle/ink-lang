@@ -18,8 +18,9 @@ if(backend==='javascript'){
 }
 const id='00000000000000000000000000000001';
 if(crashFile){
- const store=await openFileStore(crashFile),commit=store.commit;
+ const store=await openFileStore(crashFile),commit=store.commit,append=store.append;
  store.commit=async(...args)=>{await commit(...args);process.exit(73);};
+ store.append=async(...args)=>{await append(...args);process.exit(73);};
  const host=await DurableState.open({factory,store});await host.invoke('lost-reply','restock',[id,5]);throw Error('Crash injection failed');
 }
 const dir=await mkdtemp(join(tmpdir(),'ink-compiled-durable-')),file=join(dir,'state');
