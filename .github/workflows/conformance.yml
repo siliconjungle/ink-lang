@@ -192,7 +192,7 @@ jobs:
       - name: Required GPU dispatch, exact u64 and binary32
         run: cargo test --test feature_parity -- --nocapture --test-threads=1
       - name: Actual wgpu dispatch and resident feedback
-        run: cargo test --test lowering_parity --test generated_parity --test modules --test selected_checkpoint --test action_optimisation --test action_transitions --test numerical_state --test mixed_durability --test bend_features -- --nocapture
+        run: cargo test --test lowering_parity --test generated_parity --test modules --test selected_checkpoint --test action_optimisation --test action_transitions --test numerical_state --test mixed_durability --test bend_features -- --nocapture --test-threads=1
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
