@@ -183,9 +183,17 @@ fn conformance_inner(
             "{}",
             String::from_utf8_lossy(&out.stderr)
         );
-        // Both script CLIs return one ordered JSON array. Single-call CLI
-        // output is NDJSON, but is not the transport used by this helper.
-        let actual: Vec<Value> = serde_json::from_slice(&out.stdout).unwrap();
+        // Packed compute scripts emit one receipt per line; module scripts
+        // emit a single ordered array. Decode the selected host's transport.
+        let actual: Vec<Value> = if packed_pure {
+            std::str::from_utf8(&out.stdout)
+                .unwrap()
+                .lines()
+                .map(|line| serde_json::from_str(line).unwrap())
+                .collect()
+        } else {
+            serde_json::from_slice(&out.stdout).unwrap()
+        };
         let calls = gpu_steps
             .iter()
             .filter(|s| s["restore"].is_null())
