@@ -30,6 +30,7 @@ pub enum Node {
     Word(u64),
     Float(u32),
     Bool(bool),
+    Text(String),
     Nat(u64),
     Lambda(Box<Term>),
     Op(String, Vec<Term>),
@@ -261,6 +262,10 @@ pub fn validate(t: &Term, env: &Env, p: &Program, b: &mut Budget) -> LangResult<
             },
             Node::Float(_) => need(&t.sort, value(Type::F32))?,
             Node::Bool(_) => need(&t.sort, value(Type::Bool))?,
+            Node::Text(text) => {
+                need(&t.sort, value(Type::String))?;
+                if text.len()>1_000_000 {return Err("semantic string literal size limit".into());}
+            }
             Node::Nat(_) => need(&t.sort, Sort::Nat)?,
             Node::Lambda(body) => {
                 let Sort::Arrow(a, c) = &t.sort else {
@@ -638,6 +643,7 @@ pub fn elaborate(e: &Expr, env: &check::Env, p: &Program, want: &Type) -> LangRe
             }),
             Expr::Float(n) => Ok(term(s, Node::Float(*n))),
             Expr::Bool(x) => Ok(term(s, Node::Bool(*x))),
+            Expr::String(x) => Ok(term(s, Node::Text(x.clone()))),
             Expr::Neg(x) => {
                 if *want == Type::I32 {
                     if let Expr::Num(n) = **x {
@@ -951,6 +957,7 @@ pub fn reify(t: &Term, p: &Program) -> LangResult<Expr> {
                 Expr::Float(*n)
             }
             Node::Bool(x) => Expr::Bool(*x),
+            Node::Text(x) => Expr::String(x.clone()),
             Node::Nat(n) => Expr::Num(*n),
             Node::Lambda(body) => {
                 let mut name = format!("__ink_bound_{}", bound.len());

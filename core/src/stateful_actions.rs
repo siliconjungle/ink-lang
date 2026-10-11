@@ -252,6 +252,14 @@ impl Runtime {
                 arguments,
             } => {
                 let receiver = self.typed_expr(body, *receiver, slots)?;
+                if method == "unwrap_or" {
+                    let fallback = self.typed_expr(body, arguments[0], slots)?;
+                    return match receiver {
+                        Value::Option(Some(v)) => Ok(*v),
+                        Value::Option(None) => Ok(fallback),
+                        _ => Err("unwrap_or requires Option".into()),
+                    };
+                }
                 if method == "ok_or" {
                     // Deliberately eager: fallback evaluation is observable.
                     let fallback = self.typed_expr(body, arguments[0], slots)?;

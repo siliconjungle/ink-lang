@@ -290,6 +290,10 @@ fn expr(
             evaluate_local(e, frame, fuel, ty)
         }
         Expr::Float(bits) => Ok(Value::F32(*bits)),
+        Expr::String(text) => {
+            charge(fuel, text.len() as u64)?;
+            Ok(Value::Opaque(crate::stateful::Value::String(text.clone())))
+        }
         Expr::Neg(_) => evaluate_negation(e, frame, fuel, ty),
         Expr::Let(..) => evaluate_binding(e, frame, fuel, ty),
         Expr::Record(..) => evaluate_record(e, frame, fuel, ty),

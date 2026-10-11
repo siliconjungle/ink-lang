@@ -16,6 +16,8 @@ mod pure;
 mod collections;
 mod integer;
 mod equality;
+mod keys;
+mod local;
 pub const SEMANTICS: &str = "ink-action-transition-v1";
 const MAX_DEFINITIONS: usize = 256;
 const MAX_WORK: usize = 20_000;
@@ -171,7 +173,10 @@ pub struct Table {
     pub insert: String,
     pub replace: String,
     pub value_type: Type,
+    #[serde(default = "default_key_type")]
+    pub key_type: Type,
 }
+fn default_key_type() -> Type { Type::U64 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Projection {
@@ -209,6 +214,9 @@ struct Lower<'a> {
     fresh: usize,
     work: usize,
     helpers: BTreeMap<usize, String>,
+    local_ops: BTreeMap<String, String>,
+    local_maps: BTreeMap<String, Table>,
+    loop_fuel: Option<(String,String,String)>,
     helper_active: BTreeSet<usize>,
 }
 impl Lower<'_> {
@@ -289,8 +297,15 @@ impl Lower<'_> {
         let s = match ty {
             Type::U64 | Type::U32 | Type::I32 | Type::F32 => Sort::U64,
             Type::Int => Sort::Data(self.integer()?.value),
+            Type::String => Sort::Data(self.data(vec![("Utf8Nil",vec![]),("Utf8Cons",vec![Sort::U64,Sort::SelfType])])?),
             Type::Vector(t,n)=>{let s=self.sort(t)?;Sort::Data(self.data(vec![("Vector",vec![s;*n as usize])])?)},
             Type::Bool => Sort::Bool,
+            Type::Buffer(t) => self.sort(&Type::List(t.clone()))?,
+            Type::Map(k,t) => {
+                let table=self.table(k,t)?;
+                let sort=Sort::Data(table.datatype.clone());
+                self.local_maps.insert(key.clone(),table);sort
+            }
             Type::List(t) => {
                 let element = self.sort(t)?;
                 Sort::Data(self.data(vec![
@@ -332,6 +347,8 @@ impl Lower<'_> {
                             fields,
                         }],
                     })?)
+                } else if self.program.ids.contains(n) {
+                    Sort::Data(self.data(vec![("Id128",vec![Sort::U64,Sort::U64])])?)
                 } else {
                     return Err("unsupported nominal action model type".into());
                 }
@@ -342,17 +359,20 @@ impl Lower<'_> {
         self.types.insert(key, s.clone());
         Ok(s)
     }
-    fn table(&mut self, value_type: &Type) -> LangResult<Table> {
+    fn table(&mut self, key_type: &Type, value_type: &Type) -> LangResult<Table> {
+        let key_sort = self.sort(key_type)?;
+        let equal = self.operator(key_type,"==",v("key"),v("head"))?;
+        let less = self.key_less(key_type,v("key"),v("head"))?;
         let val = self.sort(value_type)?;
         let option = self.sort(&Type::Option(Box::new(value_type.clone())))?;
         let opt = id(&option)?.to_string();
         let table = self.data(vec![
             ("Nil", vec![]),
-            ("Cons", vec![Sort::U64, val.clone(), Sort::SelfType]),
+            ("Cons", vec![key_sort.clone(), val.clone(), Sort::SelfType]),
         ])?;
         let ts = Sort::Data(table.clone());
         let get = self.function(
-            vec![("rows", ts.clone()), ("key", Sort::U64)],
+            vec![("rows", ts.clone()), ("key", key_sort.clone())],
             option,
             m(
                 v("rows"),
@@ -361,7 +381,7 @@ impl Lower<'_> {
                     (
                         vec!["head".into(), "value".into(), "tail".into()],
                         choice(
-                            b("==", v("key"), v("head")),
+                            equal.clone(),
                             c(&opt, 1, vec![v("value")]),
                             Term::SelfCall(vec![v("tail"), v("key")]),
                         ),
@@ -371,7 +391,7 @@ impl Lower<'_> {
             Some(0),
         )?;
         let contains = self.function(
-            vec![("rows", ts.clone()), ("key", Sort::U64)],
+            vec![("rows", ts.clone()), ("key", key_sort.clone())],
             Sort::Bool,
             m(
                 call(&get, vec![v("rows"), v("key")]),
@@ -383,7 +403,7 @@ impl Lower<'_> {
             None,
         )?;
         let remove = self.function(
-            vec![("rows", ts.clone()), ("key", Sort::U64)],
+            vec![("rows", ts.clone()), ("key", key_sort.clone())],
             ts.clone(),
             m(
                 v("rows"),
@@ -392,7 +412,7 @@ impl Lower<'_> {
                     (
                         vec!["head".into(), "value".into(), "tail".into()],
                         choice(
-                            b("==", v("key"), v("head")),
+                            equal.clone(),
                             Term::SelfCall(vec![v("tail"), v("key")]),
                             c(
                                 &table,
@@ -412,7 +432,7 @@ impl Lower<'_> {
         let insert = self.function(
             vec![
                 ("rows", ts.clone()),
-                ("key", Sort::U64),
+                ("key", key_sort.clone()),
                 ("new", val.clone()),
             ],
             ts.clone(),
@@ -426,7 +446,7 @@ impl Lower<'_> {
                     (
                         vec!["head".into(), "value".into(), "tail".into()],
                         choice(
-                            b("<", v("key"), v("head")),
+                            less.clone(),
                             c(&table, 1, vec![v("key"), v("new"), v("rows")]),
                             c(
                                 &table,
@@ -444,7 +464,7 @@ impl Lower<'_> {
             Some(0),
         )?;
         let replace = self.function(
-            vec![("rows", ts.clone()), ("key", Sort::U64), ("new", val)],
+            vec![("rows", ts.clone()), ("key", key_sort.clone()), ("new", val)],
             ts,
             m(
                 v("rows"),
@@ -457,7 +477,7 @@ impl Lower<'_> {
                             1,
                             vec![
                                 v("head"),
-                                choice(b("==", v("key"), v("head")), v("new"), v("value")),
+                                choice(equal.clone(), v("new"), v("value")),
                                 Term::SelfCall(vec![v("tail"), v("key"), v("new")]),
                             ],
                         ),
@@ -474,6 +494,7 @@ impl Lower<'_> {
             insert,
             replace,
             value_type: value_type.clone(),
+            key_type: key_type.clone(),
         })
     }
     fn bind<F>(&mut self, sort: Sort, value: Term, f: F) -> LangResult<Term>
@@ -526,6 +547,7 @@ impl Lower<'_> {
             return Err("action model lambda is unsupported".into());
         };
         match &n.kind {
+            Kind::String(text) => self.string_literal(text),
             Kind::Number(n) if matches!(ty,Type::U64|Type::U32|Type::I32) => Ok(Term::U64(*n)),
             Kind::Number(n) if *ty==Type::F32 => Ok(Term::U64((*n as f32).to_bits()as u64)),
             Kind::Float(bits)=>Ok(Term::U64(*bits as u64)),
@@ -750,6 +772,9 @@ impl Projection {
             fresh: 0,
             work: MAX_WORK,
             helpers: BTreeMap::new(),
+            local_ops: BTreeMap::new(),
+            local_maps: BTreeMap::new(),
+            loop_fuel: None,
             helper_active: BTreeSet::new(),
         };
         // Domain validation includes unused signatures; an unsupported value may
@@ -767,10 +792,7 @@ impl Projection {
             let Type::Table(k, value) = &root.ty else {
                 return Err("action model state must be a table".into());
             };
-            if **k != Type::U64 {
-                return Err("action model table keys currently require u64".into());
-            }
-            let t = l.table(value)?;
+            let t = l.table(k,value)?;
             l.tables.push(t);
         }
         l.state = l.data(vec![(

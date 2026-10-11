@@ -569,6 +569,13 @@ impl Context<'_> {
                         _ => T::Unit,
                     });
                 }
+                if n == "unwrap_or" {
+                    if let T::Option(v) = &t {
+                        if args.len() != 1 { return Err("unwrap_or expects one fallback".into()); }
+                        self.expected(&args[0], v, env, facts)?;
+                        return Ok(*v.clone());
+                    }
+                }
                 if n == "ok_or" {
                     if let T::Option(v) = t {
                         if args.len() != 1 {

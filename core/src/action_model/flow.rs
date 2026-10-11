@@ -49,7 +49,7 @@ impl<'p> Lower<'p> {
             let child = |n: NodeId| total.get(n).copied().unwrap_or(false);
             let safe = match &node.kind {
                 Kind::State(_) | Kind::Keep(_) => true,
-                Kind::Float(_) | Kind::Number(_)
+                Kind::Float(_) | Kind::Number(_) | Kind::String(_)
                 | Kind::Bool(_)
                 | Kind::Unit
                 | Kind::None
@@ -745,6 +745,14 @@ impl<'p> Lower<'p> {
         let ExprType::Value(receiver_type) = &body.nodes[receiver].ty else {
             return Err("action model method receiver".into());
         };
+        if method == "unwrap_or" {
+            return self.flow_args(scope, body, &[receiver, arguments[0]], env, state, events, vec![],
+                &|this, xs, state, events| {
+                    let name = this.fresh();
+                    let value = m(xs[0].clone(), vec![(vec![], xs[1].clone()), (vec![name.clone()], v(&name))]);
+                    next(this, value, state, events)
+                }, abort, depth + 1, calls);
+        }
         if method == "ok_or" {
             return self.flow_args(
                 scope,
