@@ -20,7 +20,7 @@ owns packed layouts and one native/browser decision contract; `ink-native-suppor
 owns emitted value/ownership primitives. Shared source analysis belongs in core.
 Legacy optimisation APIs and compatibility features are removed.
 
-The pinned knowledge snapshot contains 4,374 entries, including eight early-exit
+The pinned knowledge snapshot contains 4,837 entries, including eight early-exit
 and 28 owned-transform laws. Counts describe this snapshot, not proof coverage.
 Saved profiles guide eligible execution; runtime does not run profitability probes.
 Historical measurements remain evidence of their recorded revisions, including
