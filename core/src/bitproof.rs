@@ -176,6 +176,7 @@ impl Circuit {
                         Value::Bool(self.gate(if op == "&&" { "and" } else { "or" }, a, b)?),
                     ),
                     (Value::Word(a), Value::Word(b)) => match op.as_str() {
+                        "&" => Ok(Value::Word(a.iter().zip(&b).map(|(&x, &y)| if x == -1 || y == -1 { Ok(-1) } else if x == 1 { Ok(y) } else if y == 1 { Ok(x) } else { self.gate("and", x, y) }).collect::<LangResult<_>>()?)),
                         "+" => Ok(Value::Word(self.add(&a, &b, -1)?)),
                         "-" => Ok(Value::Word(self.add(
                             &a,
@@ -344,6 +345,15 @@ pub(crate) fn verify_with_work(
         return Err("bit proof step count limit".into());
     }
     let mut clauses: Vec<&[i32]> = problem.clauses.iter().map(Vec::as_slice).collect();
+    // Reuse the bounded assignment arena, resetting only variables touched by
+    // the preceding RUP goal. Each goal still starts with no assumptions.
+    *work=work.checked_sub(problem.variables).ok_or("bit proof work limit")?;
+    let mut values=vec![0;problem.variables+1];let mut touched=Vec::new();
+    fn assign_tracked(values:&mut [i8],touched:&mut Vec<usize>,lit:i32)->bool {
+        let index=lit.unsigned_abs()as usize;
+        if values[index]==0 {touched.push(index);}
+        assign(values,lit)
+    }
     let mut done = false;
     for step in &proof.steps {
         if done {
@@ -353,13 +363,13 @@ pub(crate) fn verify_with_work(
             return Err("bit proof step size limit".into());
         }
         *work = work
-            .checked_sub(problem.variables + step.clause.len())
+            .checked_sub(touched.len() + step.clause.len())
             .ok_or("bit proof work limit")?;
-        let mut values = vec![0; problem.variables + 1];
+        for index in touched.drain(..) {values[index]=0;}
         let mut conflict = false;
         for &lit in &step.clause {
             literal(lit, problem.variables)?;
-            conflict |= assign(&mut values, -lit);
+            conflict |= assign_tracked(&mut values,&mut touched, -lit);
         }
         for &index in &step.hints {
             if conflict {
@@ -389,7 +399,7 @@ pub(crate) fn verify_with_work(
                 return Err("bit proof hint is not unit or conflicting".into());
             }
             conflict = match open {
-                Some(lit) => assign(&mut values, lit),
+                Some(lit) => assign_tracked(&mut values,&mut touched, lit),
                 None => true,
             };
         }

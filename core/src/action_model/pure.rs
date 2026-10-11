@@ -35,6 +35,24 @@ impl Lower<'_> {
         Ok(id)
     }
 
+    fn pure_collection(&mut self,t:&SemanticTerm,op:&str,args:&[SemanticTerm],env:&BTreeMap<String,Term>,bound:&[Term],depth:usize)->LangResult<Term>{
+        let (lambda,initial)=if op=="call:foldr"{(&args[2],Some(&args[1]))}else{(&args[1],None)};
+        let SemanticSort::Value(input_type)=&args[0].sort else{return Err("pure traversal input".into());};
+        let SemanticSort::Value(output_type)=&t.sort else{return Err("pure traversal output".into());};
+        let input=self.sort(input_type)?;let output=self.sort(output_type)?;
+        let mut free=BTreeMap::new();let mut captured_bound=BTreeMap::new();
+        fn captures(t:&SemanticTerm,d:usize,free:&mut BTreeMap<String,Type>,captured:&mut BTreeMap<usize,Type>){match &t.node{Node::Free(n)=>{if let SemanticSort::Value(ty)=&t.sort{free.insert(n.clone(),ty.clone());}},Node::Bound(i)if *i>=d=>{if let SemanticSort::Value(ty)=&t.sort{captured.insert(*i-d,ty.clone());}},Node::Lambda(t)=>captures(t,d+1,free,captured),Node::Op(_,xs)=>for x in xs{captures(x,d,free,captured)},Node::Cons(a,z)=>{captures(a,d,free,captured);captures(z,d,free,captured)},_=>{}}}
+        captures(lambda,0,&mut free,&mut captured_bound);
+        let mut params=vec![("pure_rows".to_string(),input)];let mut arguments=vec![self.pure_term(&args[0],env,bound,depth+1)?];let mut recursive=vec![v("pure_tail")];let mut local_env=BTreeMap::new();let mut local_bound=bound.to_vec();
+        for(n,ty)in free{let name=self.fresh();params.push((name.clone(),self.sort(&ty)?));arguments.push(env.get(&n).cloned().ok_or("pure capture")?);recursive.push(v(&name));local_env.insert(n,v(&name));}
+        for(i,ty)in captured_bound{let at=bound.len().checked_sub(i+1).ok_or("pure bound capture")?;let name=self.fresh();params.push((name.clone(),self.sort(&ty)?));arguments.push(bound[at].clone());recursive.push(v(&name));local_bound[at]=v(&name);}
+        let nil=if let Some(initial)=initial{params.push(("pure_initial".into(),output.clone()));arguments.push(self.pure_term(initial,env,bound,depth+1)?);recursive.push(v("pure_initial"));v("pure_initial")}else{c(id(&output)?,0,vec![])};
+        let recur=Term::SelfCall(recursive);let Node::Lambda(body)=&lambda.node else{return Err("pure traversal lambda".into());};local_bound.push(v("pure_head"));
+        let mapped=if initial.is_some(){let Node::Lambda(body)=&body.node else{return Err("pure fold accumulator".into());};local_bound.push(recur.clone());self.pure_term(body,&local_env,&local_bound,depth+1)?}else{self.pure_term(body,&local_env,&local_bound,depth+1)?};
+        let cons=if op=="call:foldr"{mapped}else if op=="method:filter"{choice(mapped,c(id(&output)?,1,vec![v("pure_head"),recur.clone()]),recur)}else{c(id(&output)?,1,vec![mapped,recur])};
+        let function=self.store(Declaration::Function{params,result:output,body:m(v("pure_rows"),vec![(vec![],nil),(vec!["pure_head".into(),"pure_tail".into()],cons)]),recursive:Some(0)})?;Ok(call(&function,arguments))
+    }
+
     fn pure_term(
         &mut self,
         t: &SemanticTerm,
@@ -51,7 +69,11 @@ impl Lower<'_> {
         };
         let sort = self.sort(ty)?;
         match &t.node {
-            Node::Word(n) if *ty == Type::U64 => Ok(Term::U64(*n)),
+            Node::Word(n) if matches!(ty,Type::U64|Type::U32|Type::I32) => Ok(Term::U64(*n)),
+            Node::Word(n) if *ty == Type::Int => self.integer_literal(*n),
+            Node::Nil=>Ok(c(id(&sort)?,0,vec![])),
+            Node::Cons(head,tail)=>{let h=self.pure_term(head,env,bound,depth+1)?;let z=self.pure_term(tail,env,bound,depth+1)?;Ok(c(id(&sort)?,1,vec![h,z]))},
+            Node::Float(bits)=>Ok(Term::U64(*bits as u64)),
             Node::Bool(n) => Ok(Term::Bool(*n)),
             Node::Free(n) => env
                 .get(n)
@@ -64,6 +86,8 @@ impl Lower<'_> {
                 .cloned()
                 .ok_or("unbound action model pure index".into()),
             Node::Op(op, args) => {
+                if ["method:map","method:filter","call:foldr"].contains(&op.as_str()){return self.pure_collection(t,op,args,env,bound,depth);}
+                if op=="neg"&&matches!(ty,Type::Int|Type::I32|Type::F32){let [value]=args.as_slice()else{return Err("pure neg arity".into());};let x=self.pure_term(value,env,bound,depth+1)?;return if *ty==Type::Int{let i=self.integer()?;Ok(call(&i.negate,vec![x]))}else if *ty==Type::F32{Ok(b("f32:neg",x,Term::U64(0)))}else{self.operator(ty,"-",Term::U64(0),x)};}
                 if op == "apply" {
                     let [function, argument] = args.as_slice() else {
                         return Err("action model pure application arity".into());
@@ -91,33 +115,22 @@ impl Lower<'_> {
                         let SemanticSort::Value(Type::List(inner)) = &args[0].sort else {
                             return Err("action model reduction list".into());
                         };
-                        if op == "call:sum" && **inner != Type::U64 {
-                            return Err("action model sum requires u64".into());
+                        if op=="call:sum"&&**inner==Type::F32{
+                            let sequence=self.sort(&Type::List(inner.clone()))?;
+                            let step=Term::SelfCall(vec![v("float_tail"),b("f32:+",v("float_acc"),v("float_head"))]);
+                            let f=self.function(vec![("float_rows",sequence),("float_acc",Sort::U64)],Sort::U64,m(v("float_rows"),vec![(vec![],v("float_acc")),(vec!["float_head".into(),"float_tail".into()],step)]),Some(0))?;
+                            return Ok(call(&f,vec![xs[0].clone(),Term::U64(0)]));
                         }
-                        let sequence = self.sort(&Type::List(inner.clone()))?;
-                        let result = if op == "call:count" {
-                            b("+", Term::U64(1), Term::SelfCall(vec![v("reduce_tail")]))
-                        } else {
-                            b(
-                                "+",
-                                v("reduce_head"),
-                                Term::SelfCall(vec![v("reduce_tail")]),
-                            )
-                        };
-                        let f = self.function(
-                            vec![("reduce_rows", sequence)],
-                            Sort::U64,
-                            m(
-                                v("reduce_rows"),
-                                vec![
-                                    (vec![], Term::U64(0)),
-                                    (vec!["reduce_head".into(), "reduce_tail".into()], result),
-                                ],
-                            ),
-                            Some(0),
-                        )?;
+                        if op == "call:sum" && !matches!(**inner,Type::U64|Type::U32|Type::I32|Type::Int) {return Err("unsupported pure sum correspondence".into());}
+                        let sequence=self.sort(&Type::List(inner.clone()))?;
+                        let zero=if *ty==Type::Int{self.integer_literal(0)?}else{Term::U64(0)};
+                        let head=if op=="call:count"{if *ty==Type::Int{self.integer_literal(1)?}else{Term::U64(1)}}else{v("reduce_head")};
+                        let step=self.operator(ty,"+",head,Term::SelfCall(vec![v("reduce_tail")]))?;
+                        let f=self.function(vec![("reduce_rows",sequence)],sort,m(v("reduce_rows"),vec![(vec![],zero),(vec!["reduce_head".into(),"reduce_tail".into()],step)]),Some(0))?;
                         Ok(call(&f, xs))
                     }
+                    "call:quot_or"|"call:rem_or" if xs.len()==3=>self.division(ty,&op[5..],xs[0].clone(),xs[1].clone(),xs[2].clone()),
+                    "call:vec2"|"call:vec3"|"call:vec4"=>Ok(c(id(&sort)?,0,xs)),
                     "call:choose" if xs.len() == 3 => {
                         Ok(choice(xs[0].clone(), xs[1].clone(), xs[2].clone()))
                     }
@@ -126,11 +139,12 @@ impl Lower<'_> {
                         Ok(match operator {
                             "&&" => choice(xs[0].clone(), xs[1].clone(), Term::Bool(false)),
                             "||" => choice(xs[0].clone(), Term::Bool(true), xs[1].clone()),
-                            _ => b(operator, xs[0].clone(), xs[1].clone()),
+                            _ => {let SemanticSort::Value(t)=&args[0].sort else {return Err("pure operator type".into());};self.operator(t,operator,xs[0].clone(),xs[1].clone())?},
                         })
                     }
                     _ if op.starts_with("record:") => Ok(c(id(&sort)?, 0, xs)),
                     _ if op.starts_with("field:") && xs.len() == 1 => {
+                        if let SemanticSort::Value(Type::Vector(_,n))=&args[0].sort {let component=["x","y","z","w"].iter().position(|x|*x==&op[6..]).ok_or("vector component")?;let names=(0..*n).map(|_|self.fresh()).collect::<Vec<_>>();return Ok(m(xs[0].clone(),vec![(names.clone(),v(&names[component]))]));}
                         let SemanticSort::Value(Type::Named(record)) = &args[0].sort else {
                             return Err("action model pure field receiver".into());
                         };
