@@ -6,7 +6,11 @@ use crate::{
 };
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
+use sha2::{Digest, Sha256};
 use std::collections::{BTreeMap, BTreeSet};
+pub const MAX_VIEW_ENTRIES: usize = 4096;
+pub const MAX_VIEW_BYTES: usize = 64_000_000;
+pub const MAX_ENTRY_BYTES: usize = 16_000_000;
 pub const SNAPSHOT_SEMANTICS: &str = "ink-knowledge-snapshot-v1";
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -118,7 +122,6 @@ pub fn bundle_identity(bundle: &Bundle) -> LangResult<String> {
     Ok(format!("{:x}", Sha256::digest(canonical_bundle(bundle)?)))
 }
 pub fn identity<T: Serialize>(v: &T) -> LangResult<String> {
-    use sha2::{Digest, Sha256};
     Ok(format!("{:x}", Sha256::digest(canonical(v)?)))
 }
 fn sorted(xs: &[String]) -> bool {
@@ -320,21 +323,20 @@ fn admit_first_order(context: &mut crate::logic::Context, id: &str, e: &Entry) -
     let mut local = context.subset(&e.dependencies)?;
     local
         .declare(id.to_owned(), &d.declaration)
-        .map_err(|e| format!("knowledge declaration {id}: {e}"))?;
+        .map_err(|error| format!("first-order entry {id}: {error}"))?;
     context.import(&local, id)?;
     Ok(())
 }
 
 /// Bounded proof views may contain definitions for several physical roots.
-pub const MAX_BUNDLE_BYTES: usize = 64_000_000;
 impl CheckedBundle {
     pub fn check(b: &Bundle) -> LangResult<Self> {
         if b.schema != 1
             || b.snapshot.schema != 1
             || b.snapshot.semantics != SNAPSHOT_SEMANTICS
-            || b.objects.len() > 4096
-            || b.roots.len() > 4096
-            || canonical_bundle(b)?.len() > MAX_BUNDLE_BYTES
+            || b.objects.len() > MAX_VIEW_ENTRIES
+            || b.roots.len() > MAX_VIEW_ENTRIES
+            || canonical_bundle(b)?.len() > MAX_VIEW_BYTES
         {
             return Err("knowledge view schema/size limit".into());
         }
@@ -344,6 +346,7 @@ impl CheckedBundle {
         }
         for (id, obj) in &b.objects {
             identifier(id)?;
+            let bytes = canonical(obj)?;
             if obj.schema != 1
                 || obj.semantics.is_empty()
                 || !obj.payload.is_object()
@@ -356,7 +359,8 @@ impl CheckedBundle {
                 || !sorted(&obj.dependencies)
                 || !sorted(&obj.interface.operations)
                 || !sorted(&obj.interface.effects)
-                || identity(obj)? != *id
+                || bytes.len() > MAX_ENTRY_BYTES
+                || format!("{:x}", Sha256::digest(&bytes)) != *id
             {
                 return Err("knowledge entry schema/content mismatch".into());
             }
@@ -441,9 +445,9 @@ impl CheckedBundle {
         bundle.roots.extend(other.bundle.roots);
         bundle.roots.sort();
         bundle.roots.dedup();
-        if bundle.objects.len() > 4096
-            || bundle.roots.len() > 4096
-            || canonical_bundle(&bundle)?.len() > MAX_BUNDLE_BYTES
+        if bundle.objects.len() > MAX_VIEW_ENTRIES
+            || bundle.roots.len() > MAX_VIEW_ENTRIES
+            || canonical_bundle(&bundle)?.len() > MAX_VIEW_BYTES
         {
             return Err("knowledge view schema/size limit".into());
         }
@@ -492,8 +496,7 @@ impl CheckedBundle {
             if entry.semantics != crate::library::SEMANTICS {
                 return Err("first-order scope contains an incompatible domain".into());
             }
-            admit_first_order(&mut context, id, entry)
-                .map_err(|e| format!("first-order entry {id}: {e}"))?;
+            admit_first_order(&mut context, id, entry)?;
         }
         Ok(context)
     }
