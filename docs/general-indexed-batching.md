@@ -49,7 +49,7 @@ State-threading result carriers receive structural encode/decode adapters and
 ordinary round-trip proofs. Pure application values retain their original types.
 These definitions live in knowledge. The integrated compiler supplies general String/ID
 correspondence and precise closure capture dependencies. Authenticated proof
-views allow 4096 objects and 64 MB; representation dependency lists allow 512
+views allow 8192 objects and 128 MB; representation dependency lists allow 512
 entries. Existing proof nesting, descent and term budgets remain enforced.
 The sealed definition witness also keeps a private executable declaration index,
 avoiding repeated proof parsing during lowering. It is populated only after

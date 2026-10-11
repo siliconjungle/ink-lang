@@ -8,8 +8,11 @@ use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 use std::collections::{BTreeMap, BTreeSet};
-pub const MAX_VIEW_ENTRIES: usize = 4096;
-pub const MAX_VIEW_BYTES: usize = 64_000_000;
+// Six independent ordered table domains with all nine checked edit pairs use
+// 4,730 entries and 107 MB before authentication paths. Keep a finite package
+// allowance; individual entries and every kernel computation budget stay fixed.
+pub const MAX_VIEW_ENTRIES: usize = 8192;
+pub const MAX_VIEW_BYTES: usize = 128_000_000;
 pub const MAX_ENTRY_BYTES: usize = 16_000_000;
 pub const SNAPSHOT_SEMANTICS: &str = "ink-knowledge-snapshot-v1";
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -705,6 +708,14 @@ mod tests {
             br#"{"a":true,"b":2}"#
         );
         assert!(canonical(&json!(1.5)).is_err());
+    }
+    #[test]
+    fn enlarged_package_allowance_keeps_entry_and_root_limits_fail_closed() {
+        let mut b=view(theorem());
+        b.roots=(0..=MAX_VIEW_ENTRIES).map(|i|format!("{i:064x}")).collect();
+        assert_eq!(CheckedBundle::check(&b).unwrap_err(),"knowledge view schema/size limit");
+        let mut e=theorem();e.payload["padding"]=json!("x".repeat(MAX_ENTRY_BYTES));
+        assert_eq!(CheckedBundle::check(&view(e)).unwrap_err(),"knowledge entry schema/content mismatch");
     }
     #[test]
     fn borrowed_bundle_encoding_preserves_bytes_hashes_and_rejection_bounds() {
