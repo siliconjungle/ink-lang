@@ -22,34 +22,34 @@ pub enum Kind {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Interface {
+    pub conditions: Vec<Value>,
+    pub effects: Vec<String>,
+    pub operations: Vec<String>,
     pub parameters: BTreeMap<String, Value>,
     pub result: Value,
-    pub operations: Vec<String>,
-    pub effects: Vec<String>,
-    pub conditions: Vec<Value>,
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Entry {
-    pub schema: u32,
-    pub kind: Kind,
-    pub semantics: String,
     pub dependencies: Vec<String>,
     pub interface: Interface,
+    pub kind: Kind,
     pub payload: Value,
+    pub schema: u32,
+    pub semantics: String,
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Snapshot {
+    pub root: String,
     pub schema: u32,
     pub semantics: String,
-    pub root: String,
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Sibling {
-    pub sibling: String,
     pub left: bool,
+    pub sibling: String,
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -60,41 +60,62 @@ pub struct Membership {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Bundle {
+    pub membership: BTreeMap<String, Membership>,
+    pub objects: BTreeMap<String, Entry>,
+    pub roots: Vec<String>,
     pub schema: u32,
     pub snapshot: Snapshot,
-    pub roots: Vec<String>,
-    pub objects: BTreeMap<String, Entry>,
-    pub membership: BTreeMap<String, Membership>,
 }
 fn identifier(id: &str) -> LangResult<()> {
     crate::content::identity(id)
 }
+fn check_value(v: &Value, d: usize) -> LangResult<()> {
+    if d > 128 {
+        return Err("canonical value depth limit".into());
+    }
+    match v {
+        Value::Number(n) if !n.is_u64() && !n.is_i64() => {
+            return Err("canonical knowledge forbids floating JSON numbers".into())
+        }
+        Value::Array(xs) => {
+            for x in xs {
+                check_value(x, d + 1)?
+            }
+        }
+        Value::Object(xs) => {
+            for x in xs.values() {
+                check_value(x, d + 1)?
+            }
+        }
+        _ => {}
+    }
+    Ok(())
+}
+
 pub fn canonical<T: Serialize>(value: &T) -> LangResult<Vec<u8>> {
     let v = serde_json::to_value(value).map_err(|e| e.to_string())?;
-    fn check(v: &Value, d: usize) -> LangResult<()> {
-        if d > 128 {
-            return Err("canonical value depth limit".into());
-        }
-        match v {
-            Value::Number(n) if !n.is_u64() && !n.is_i64() => {
-                return Err("canonical knowledge forbids floating JSON numbers".into())
-            }
-            Value::Array(xs) => {
-                for x in xs {
-                    check(x, d + 1)?
-                }
-            }
-            Value::Object(xs) => {
-                for x in xs.values() {
-                    check(x, d + 1)?
-                }
-            }
-            _ => {}
-        }
-        Ok(())
-    }
-    check(&v, 0)?;
+    check_value(&v, 0)?;
     serde_json::to_vec(&v).map_err(|e| e.to_string())
+}
+/// Registry wire structs serialize fields in canonical key order. Their maps
+/// use sorted keys. Borrow existing JSON instead of constructing a second tree.
+/// Keep the same integer and depth checks as generic canonical serialization.
+pub fn canonical_bundle(bundle: &Bundle) -> LangResult<Vec<u8>> {
+    for entry in bundle.objects.values() {
+        check_value(&entry.payload, 3)?;
+        check_value(&entry.interface.result, 4)?;
+        for value in entry.interface.parameters.values() {
+            check_value(value, 5)?;
+        }
+        for value in &entry.interface.conditions {
+            check_value(value, 5)?;
+        }
+    }
+    serde_json::to_vec(bundle).map_err(|e| e.to_string())
+}
+pub fn bundle_identity(bundle: &Bundle) -> LangResult<String> {
+    use sha2::{Digest, Sha256};
+    Ok(format!("{:x}", Sha256::digest(canonical_bundle(bundle)?)))
 }
 pub fn identity<T: Serialize>(v: &T) -> LangResult<String> {
     use sha2::{Digest, Sha256};
@@ -304,14 +325,16 @@ fn admit_first_order(context: &mut crate::logic::Context, id: &str, e: &Entry) -
     Ok(())
 }
 
+/// Bounded proof views may contain definitions for several physical roots.
+pub const MAX_BUNDLE_BYTES: usize = 64_000_000;
 impl CheckedBundle {
     pub fn check(b: &Bundle) -> LangResult<Self> {
         if b.schema != 1
             || b.snapshot.schema != 1
             || b.snapshot.semantics != SNAPSHOT_SEMANTICS
-            || b.objects.len() > 1024
-            || b.roots.len() > 1024
-            || canonical(b)?.len() > 16_000_000
+            || b.objects.len() > 4096
+            || b.roots.len() > 4096
+            || canonical_bundle(b)?.len() > MAX_BUNDLE_BYTES
         {
             return Err("knowledge view schema/size limit".into());
         }
@@ -324,7 +347,12 @@ impl CheckedBundle {
             if obj.schema != 1
                 || obj.semantics.is_empty()
                 || !obj.payload.is_object()
-                || obj.dependencies.len() > 128
+                || obj.dependencies.len()
+                    > if obj.semantics == "ink-source-representation-v1" {
+                        512
+                    } else {
+                        128
+                    }
                 || !sorted(&obj.dependencies)
                 || !sorted(&obj.interface.operations)
                 || !sorted(&obj.interface.effects)
@@ -413,9 +441,9 @@ impl CheckedBundle {
         bundle.roots.extend(other.bundle.roots);
         bundle.roots.sort();
         bundle.roots.dedup();
-        if bundle.objects.len() > 1024
-            || bundle.roots.len() > 1024
-            || canonical(&bundle)?.len() > 16_000_000
+        if bundle.objects.len() > 4096
+            || bundle.roots.len() > 4096
+            || canonical_bundle(&bundle)?.len() > MAX_BUNDLE_BYTES
         {
             return Err("knowledge view schema/size limit".into());
         }
@@ -550,7 +578,7 @@ impl CheckedBundle {
 }
 /// Construct a pinned in-memory view for proof producers and focused tests.
 pub fn from_catalogue(c: &Catalogue) -> LangResult<Bundle> {
-    if c.objects.len() > 1024 || c.roots.len() > 1024 {
+    if c.objects.len() > 4096 || c.roots.len() > 4096 {
         return Err("in-memory catalogue exceeds bounded knowledge view".into());
     }
     let objects = c
@@ -674,6 +702,51 @@ mod tests {
             br#"{"a":true,"b":2}"#
         );
         assert!(canonical(&json!(1.5)).is_err());
+    }
+    #[test]
+    fn borrowed_bundle_encoding_preserves_bytes_hashes_and_rejection_bounds() {
+        let mut b = view(theorem());
+        let id = b.roots[0].clone();
+        b.membership.get_mut(&id).unwrap().path.push(Sibling {
+            sibling: "f".repeat(64),
+            left: true,
+        });
+        for path in 0..4 {
+            for depth in [0, 122, 124, 126, 128] {
+                let mut value = json!({"z":"🧵\n", "a":[u64::MAX,i64::MIN,true,null]});
+                for _ in 0..depth {
+                    value = json!([value]);
+                }
+                let mut trial = b.clone();
+                let e = trial.objects.get_mut(&id).unwrap();
+                match path {
+                    0 => e.payload = value,
+                    1 => e.interface.result = value,
+                    2 => {
+                        e.interface.parameters.insert("extra".into(), value);
+                    }
+                    _ => e.interface.conditions = vec![value],
+                }
+                assert_eq!(canonical_bundle(&trial), canonical(&trial));
+                if canonical_bundle(&trial).is_ok() {
+                    assert_eq!(bundle_identity(&trial).unwrap(), identity(&trial).unwrap());
+                }
+            }
+        }
+        for path in 0..4 {
+            let mut trial = b.clone();
+            let e = trial.objects.get_mut(&id).unwrap();
+            match path {
+                0 => e.payload = json!(1.5),
+                1 => e.interface.result = json!(1.5),
+                2 => {
+                    e.interface.parameters.insert("bad".into(), json!(1.5));
+                }
+                _ => e.interface.conditions = vec![json!(1.5)],
+            }
+            assert_eq!(canonical_bundle(&trial), canonical(&trial));
+            assert!(canonical_bundle(&trial).is_err());
+        }
     }
     #[test]
     fn immutable_membership_and_snapshot_pins_are_checked() {

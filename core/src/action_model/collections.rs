@@ -172,29 +172,65 @@ impl Lower<'_> {
         let mut recursive = vec![v("traverse_tail")];
         // Conservatively capture state only when the lambda contains a state read.
         // A pure row mapper has no hidden whole-table parameter.
-        fn reads_state(body: &Body, n: NodeId) -> bool {
+        fn dependencies(body: &Body, n: NodeId, slots: &mut BTreeSet<usize>) -> bool {
             match &body.nodes[n].kind {
-                Kind::State(_) | Kind::Keep(_) | Kind::Table { .. } => true,
-                Kind::Field { receiver, .. } | Kind::Neg { value: receiver } => {
-                    reads_state(body, *receiver)
+                Kind::State(_) | Kind::Keep(_) => true,
+                Kind::Table { arguments, .. }
+                | Kind::QueryCall { arguments, .. }
+                | Kind::ChangeCall { arguments, .. } => {
+                    for argument in arguments {
+                        dependencies(body, *argument, slots);
+                    }
+                    true
                 }
+                Kind::Local(slot) => {
+                    slots.insert(*slot);
+                    false
+                }
+                Kind::Field { receiver, .. }
+                | Kind::VectorField { receiver, .. }
+                | Kind::Neg { value: receiver }
+                | Kind::Try { value: receiver } => dependencies(body, *receiver, slots),
                 Kind::Binary { left, right, .. }
                 | Kind::And { left, right }
-                | Kind::Or { left, right } => reads_state(body, *left) || reads_state(body, *right),
-                Kind::Builtin { arguments, .. } | Kind::PureCall { arguments, .. } => {
-                    arguments.iter().any(|x| reads_state(body, *x))
+                | Kind::Or { left, right } => {
+                    dependencies(body, *left, slots) | dependencies(body, *right, slots)
                 }
-                Kind::Record { fields, .. } => fields.iter().any(|(_, x)| reads_state(body, *x)),
+                Kind::Builtin { arguments, .. } | Kind::PureCall { arguments, .. } => arguments
+                    .iter()
+                    .fold(false, |state, x| dependencies(body, *x, slots) | state),
+                Kind::Record { fields, .. } => fields
+                    .iter()
+                    .fold(false, |state, (_, x)| dependencies(body, *x, slots) | state),
+                Kind::Method {
+                    receiver,
+                    arguments,
+                    ..
+                } => {
+                    let state = dependencies(body, *receiver, slots);
+                    arguments
+                        .iter()
+                        .fold(state, |state, x| dependencies(body, *x, slots) | state)
+                }
+                Kind::Lambda {
+                    body: expression, ..
+                } => dependencies(body, *expression, slots),
+                Kind::Bind {
+                    value,
+                    body: expression,
+                    ..
+                } => dependencies(body, *value, slots) | dependencies(body, *expression, slots),
                 Kind::Number(_)
+                | Kind::Float(_)
+                | Kind::String(_)
                 | Kind::Bool(_)
-                | Kind::Local(_)
                 | Kind::Unit
                 | Kind::None
                 | Kind::Enum { .. } => false,
-                _ => true,
             }
         }
-        let stateful = reads_state(body, expression);
+        let mut captured_slots = BTreeSet::new();
+        let stateful = dependencies(body, expression, &mut captured_slots);
         let lambda_state = if stateful {
             params.push(("traverse_state".into(), Sort::Data(self.state.clone())));
             args.push(state.clone());
@@ -205,6 +241,9 @@ impl Lower<'_> {
         };
         let mut local = BTreeMap::new();
         for (slot, term) in env {
+            if !captured_slots.contains(slot) {
+                continue;
+            }
             let name = format!("traverse_capture_{slot}");
             let sort = self.sort(&body.slots[*slot].ty)?;
             params.push((name.clone(), sort));

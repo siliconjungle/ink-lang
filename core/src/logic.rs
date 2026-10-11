@@ -466,7 +466,7 @@ impl Context {
                 }
                 return Err("conflicting checked logic identity".into());
             }
-            if depth > 64 || all.len() >= 1024 {
+            if depth > 64 || all.len() >= 4096 {
                 return Err("logic context closure limit".into());
             }
             for dep in &entry.dependencies {

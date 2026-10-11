@@ -8,7 +8,7 @@ use serde_json::{json, Value};
 use std::{fs, path::Path};
 fn read(path: &str) -> LangResult<Vec<u8>> {
     let size = fs::metadata(path).map_err(|e| e.to_string())?.len();
-    if size > 16_000_000 {
+    if size > crate::registry::MAX_BUNDLE_BYTES as u64 {
         return Err("representation input byte limit".into());
     }
     fs::read(path).map_err(|e| e.to_string())

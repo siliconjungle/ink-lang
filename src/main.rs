@@ -267,7 +267,7 @@ fn run() -> LangResult<()> {
         }
         let module = core::CheckedModule::from_bytes(&read_bounded(&args[1], core::MAX_BYTES)?)?;
         let bundle: verified_language::registry::Bundle =
-            serde_json::from_slice(&read_bounded(&args[2], 16_000_000)?)
+            serde_json::from_slice(&read_bounded(&args[2], verified_language::registry::MAX_BUNDLE_BYTES)?)
                 .map_err(|e| e.to_string())?;
         let checked = verified_language::registry::CheckedBundle::check(&bundle)?;
         let entries = checked.verify(module.program())?;

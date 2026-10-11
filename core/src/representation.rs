@@ -195,7 +195,7 @@ pub fn check(module: &CheckedModule, request: &Request) -> LangResult<CheckedRep
     {
         return Err("representation does not match exact source/semantics".into());
     }
-    if registry::canonical(request)?.len() > crate::core::MAX_BYTES {
+    if registry::canonical(request)?.len() > registry::MAX_BUNDLE_BYTES {
         return Err("representation byte limit".into());
     }
     let view = registry::CheckedBundle::check(&request.knowledge)?;
