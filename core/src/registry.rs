@@ -400,6 +400,41 @@ impl CheckedBundle {
             snapshot_id: identity(&b.snapshot)?,
         })
     }
+    /// Combine two sealed, complete views without reauthenticating old bytes.
+    /// No unchecked bundle can enter here; each endpoint has already verified
+    /// content identities, membership, dependency closure and topology.
+    pub(crate) fn merge(&self, other: Self) -> LangResult<Self> {
+        if self.snapshot_id != other.snapshot_id {
+            return Err("checker session snapshot mismatch".into());
+        }
+        let mut bundle = self.bundle.clone();
+        bundle.objects.extend(other.bundle.objects);
+        bundle.membership.extend(other.bundle.membership);
+        bundle.roots.extend(other.bundle.roots);
+        bundle.roots.sort();
+        bundle.roots.dedup();
+        if bundle.objects.len() > 1024
+            || bundle.roots.len() > 1024
+            || canonical(&bundle)?.len() > 16_000_000
+        {
+            return Err("knowledge view schema/size limit".into());
+        }
+        // Appending new entries in the other view's topological order keeps
+        // every dependency before its user. Complete endpoint closures imply
+        // a complete union; their authenticated roots remain reachable.
+        let mut order = self.order.clone();
+        let mut known: BTreeSet<_> = order.iter().cloned().collect();
+        for id in other.order {
+            if known.insert(id.clone()) {
+                order.push(id);
+            }
+        }
+        Ok(Self {
+            bundle,
+            order,
+            snapshot_id: self.snapshot_id.clone(),
+        })
+    }
     pub fn snapshot_id(&self) -> &str {
         &self.snapshot_id
     }
