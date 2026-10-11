@@ -1,0 +1,73 @@
+{
+  "schema": 1,
+  "status": "checked",
+  "selected": "57af103554125c4ab930d3b0fe24ee0a0a57ea1b96b5b934df4bb852af8d3446",
+  "request_sha256": "d06e050db7b9ca6100607a2b3e049616fcc277035b8f48d32bf75390658e7537",
+  "source": "b79d2303fd0e80416ef884f1ebdfb57d7a27c1a1167786e7f6e0ce15e65f665e",
+  "snapshot": "3c31614a5d42e7e5c521280480a6b80e01268d9fdeb0dc234235f1ca3fe915dd",
+  "profile": {
+    "initialise": 1,
+    "teardown": 1,
+    "check": 1,
+    "compile": 1,
+    "action:put": 100,
+    "action:erase": 100,
+    "action:total_query": 10,
+    "action:count_query": 10
+  },
+  "target": {
+    "hardware": "Apple M2",
+    "driver": "macOS-26.5.2-arm64-arm-64bit",
+    "toolchain": "v26.1.0",
+    "backend": "javascript",
+    "bridge": "frozen-benchmark:af33fc58d6f1b2bdb7c1027e5a5887fac5c1521d148cf8a9f9d84c2a6b8925d3"
+  },
+  "workload": {
+    "shape": {
+      "rows": 4000,
+      "row": "u64 value, Bool active"
+    },
+    "distribution": "keys (i*37)%4000; initial value=i; active on even keys; restore per phase",
+    "concurrency": 1,
+    "residency": "in-process preseeded table; JSON action/reply boundary"
+  },
+  "migration_count": 1,
+  "bridge": null,
+  "bridge_sha256": null,
+  "memory_limit": null,
+  "checked": 2,
+  "rejected": [],
+  "remaining": 0,
+  "costs": {
+    "total_ns": {
+      "d06e050db7b9ca6100607a2b3e049616fcc277035b8f48d32bf75390658e7537": "229213791",
+      "861074f0cb04fada48e2c40a6cf58c53bd69474876ee5d7cd3721d8cf6ff3cd4": "9722373712"
+    },
+    "excluded": {},
+    "observations": {
+      "d06e050db7b9ca6100607a2b3e049616fcc277035b8f48d32bf75390658e7537": [
+        "2fb7c5e274d4cc835f31867d594401d1c028bf235b96d1fb20b27f81626441fb",
+        "33bfb0a596df9538087e86d863dd6744677c6afc510a793d6bfcfa68607bde7b",
+        "6ce9b9f3fd2963fb972c56f60987ecd1159cbbe18260130a25241f0510e3649a",
+        "7b531cd6e5ef2048a5212b7bb1f29caef450dcbd58b476d1bfb74e09f3e88f51",
+        "ad5720792c9cd4ae034049c7d30f22ab51aeab3bf26422242a566c8257bbe5b6",
+        "bd9c54140cc621456ac4e860e8d4dbf8a88d4fd01798b6998e72ceb85ff0483a",
+        "ee80c1a30da9d56cc45743b2cb89f49d36c694ff5240bfcf10c58c98e276c554",
+        "ef00cce4cd75f7013e141023f2d57c206800f614a58453a7a81e564f8892457e"
+      ],
+      "861074f0cb04fada48e2c40a6cf58c53bd69474876ee5d7cd3721d8cf6ff3cd4": [
+        "4641e1fb85b5feb5dd118871c66305c0d307fb017da919c130c3aca87d6795ec",
+        "71fe8a057d769c2450501b30bd9aa29b78946292c2b2edbcd9de481d1cf68e93",
+        "88c64fe6209be8e79344cfadc1bb1f854d9e71da9403d4dfbf9acb4fece72184",
+        "8c917dd02a1f7d76a012cf10682cf9a4fc1f5328a9292232888a1df81fd53753",
+        "97b5943d58d8d635ec46f32910a2d3f906a964bfe73685b8428fe83e3423d8bb",
+        "ad6ca561ad6a48f5d6081e2b4c7cfdb75e9d857e6447c13820154693625308ed",
+        "c47e846fad93c6a1d63bdb2c46929d919fa10c10a9c7ce2ab7559ccfec8e5f4f",
+        "c7ac8a2988bddd235f4d5848115c38bfb37659682b6f0b9d679484bf873b0b18",
+        "e2864721d5fd033554dc983951bf9d44b44ffd60205cf0baeaed95a6d7234eec"
+      ]
+    },
+    "baseline_comparable": true
+  },
+  "scope": "external measured lifecycle selection; replay rechecks request and bridge; no live adaptation"
+}
