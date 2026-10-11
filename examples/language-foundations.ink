@@ -110,3 +110,23 @@ change contract_put(x:Word)->Result<Word,Error> writes(Rows) emits(seen)
  requires(x>0,Error.Failed)
  ensures(reply=>reply.fold(fn(v)=>v<10,fn(e)=>true),Error.Overflow)
  {if Rows.contains(x){return Err(Error.Failed);}Rows.insert(x,x);emit seen(x);return Ok(x);}
+
+fn partitioned(xs:List<u32>,at:u32)->List<u32>{
+ return buffer(xs).split_at(at,fn(a)=>fn(b)=>a.map(fn(x)=>x+1).append(b.map(fn(x)=>x*3))).freeze();
+}
+fn partition_growth(xs:List<u32>,at:u32)->List<u32>{
+ return buffer(xs).split_at(at,fn(a)=>fn(b)=>a.set(4294967295,99).push(7).append(b.set(0,9))).freeze();
+}
+fn partition_filtered(xs:List<u32>,at:u32)->List<u32>{
+ return buffer(xs).split_at(at,fn(a)=>fn(b)=>a.filter(fn(x)=>x>2).append(b.truncate(2))).freeze();
+}
+fn partition_nested(xs:List<u32>)->List<u32>{
+ return buffer(xs).split_at(1,fn(a)=>fn(b)=>a.append(b.split_at(1,fn(c)=>fn(d)=>c.append(d)))).freeze();
+}
+
+fn freeze_then_push(a:Buffer<u32>,b:Buffer<u32>)->Buffer<u32>{
+ let values=a.freeze();return b.push(length(values));
+}
+fn partition_empty_tail(xs:List<u32>)->List<u32>{
+ return buffer(xs).split_at(4294967295,fn(a)=>fn(b)=>freeze_then_push(a,b)).freeze();
+}

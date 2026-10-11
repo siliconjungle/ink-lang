@@ -11,6 +11,41 @@ fn new_surface_and_value_operations_have_complete_backend_parity() {
     let mut steps = vec![];
     let mut expected = vec![];
     let cases: Vec<(&str, Value, Value)> = vec![
+        (
+            "partitioned",
+            json!([[1, 2, 3, 4], 2]),
+            json!([2, 3, 9, 12]),
+        ),
+        (
+            "partitioned",
+            json!([[1, 2, 3, 4], 0]),
+            json!([3, 6, 9, 12]),
+        ),
+        (
+            "partitioned",
+            json!([[1, 2, 3, 4], 4294967295u32]),
+            json!([2, 3, 4, 5]),
+        ),
+        ("partitioned", json!([[], 0]), json!([])),
+        (
+            "partition_growth",
+            json!([[1, 2, 3, 4], 2]),
+            json!([1, 2, 7, 9, 4]),
+        ),
+        ("partition_growth", json!([[], 0]), json!([7])),
+        (
+            "partition_filtered",
+            json!([[1, 3, 2, 4, 5, 6], 3]),
+            json!([3, 4, 5]),
+        ),
+        (
+            "partition_nested",
+            json!([[1, 2, 3, 4]]),
+            json!([1, 2, 3, 4]),
+        ),
+        ("partition_nested", json!([[]]), json!([])),
+        ("partition_empty_tail", json!([[1, 2, 3]]), json!([3])),
+        ("partition_empty_tail", json!([[]]), json!([0])),
         ("fixed_values", json!([1]), json!([1, 7, 3])),
         ("fixed_values", json!([3]), json!([1, 2, 3])),
         ("fixed_read", json!([1]), json!(2)),

@@ -25,3 +25,10 @@ false statements and replays a selected programme across the complete CPU target
 It exercises elimination of unused list element computation and exact count/
 cancellation rewrites with integers exceeding 64 bits. These are conformance and
 proof-admission results, not timing measurements or a general speedup claim.
+
+The ownership follow-up checks scoped disjoint ranges, growth, nested partitions,
+compaction, out-of-range writes and empty/full partitions across CPU targets.
+Native clone counters and allocation pointers establish zero element clones and
+reuse of the original allocation for a split/rejoin without resizing. JavaScript
+checks the same backing-array identity. These mechanism checks do not establish a
+complete-workload timing improvement.

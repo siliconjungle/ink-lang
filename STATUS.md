@@ -195,7 +195,12 @@ pre/postcondition validation uses ordinary Result errors and transaction rollbac
 External theorem authoring checks canonical evidence through the existing kernel.
 Exact integer arithmetic/count/sum now have executable semantic correspondence.
 
-Generic sets, grouping, joins and checked division are external Ink definitions.
+Generic sets, grouping, joins, partition mapping and checked division are external
+Ink definitions. Scoped native/JavaScript buffer partitions share disjoint ranges
+and rejoin adjacent ranges without element copies; growth detaches before overlap.
+Generated ownership support lives in ink-native-support, independent of reference
+execution. Clone counters/backing identity and compiled conformance validate this
+mechanism; complete-workload timing improvements are not claimed here.
 Knowledge supplies 247 finite-list laws and three authored exact-integer laws.
 The compiler's JavaScript fold shortcut is removed. C/Rust/JavaScript/both Wasm
 conformance is mandatory; actual eligible GPU dispatch and compiled fallback retain

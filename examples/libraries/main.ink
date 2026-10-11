@@ -12,3 +12,5 @@ fn group(rows:List<collections.Entry<u32,u32>>)->List<collections.Group<u32,u32>
 fn joined(a:List<collections.Entry<u32,u32>>,b:List<collections.Entry<u32,Bool>>)->List<collections.Joined<u32,u32,Bool>>{return collections.join<u32,u32,Bool>(a,b);}
 fn transformed(xs:List<u32>,offset:u32)->List<u32>{return collections.map<u32,u32>(xs,fn(item)=>item+offset);}
 fn total(xs:List<u32>)->u32{return collections.reduce<u32,u32>(xs,0,fn(state)=>state.accumulated+state.item);}
+
+fn partitioned(xs:List<u32>,at:u32)->List<u32>{return collections.partition_map<u32>(xs,at,fn(x)=>x+1,fn(x)=>x*3);}

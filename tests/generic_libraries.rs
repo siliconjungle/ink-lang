@@ -21,6 +21,22 @@ fn external_generic_libraries_have_deterministic_semantics_and_backend_parity() 
         panic!()
     };
     let cases: Vec<(&str, Value, Value)> = vec![
+        (
+            "partitioned",
+            json!([[1, 2, 3, 4], 2]),
+            json!([2, 3, 9, 12]),
+        ),
+        (
+            "partitioned",
+            json!([[1, 2, 3, 4], 0]),
+            json!([3, 6, 9, 12]),
+        ),
+        (
+            "partitioned",
+            json!([[1, 2, 3, 4], 4294967295u32]),
+            json!([2, 3, 4, 5]),
+        ),
+        ("partitioned", json!([[], 0]), json!([])),
         ("divided", json!([7, 2]), json!({"Ok":3})),
         (
             "divided",

@@ -101,7 +101,8 @@ finite local iteration, fixed arrays and nonescaping pure callbacks are
 implemented. External collection/checked-division libraries and 247 checked
 finite-list laws provide reusable algorithms and work skipping. CPU conformance
 is mandatory; broad GPU coverage and proof correspondence beyond admitted source
-domains remain open. Compact words/Bytes, scoped views and efficient physical
-updates and static refinements remain acceptance work. Fallible pre/postcondition
+domains remain open. Scoped disjoint buffer views now share native/JavaScript
+storage with checked affine source use. Compact words/Bytes, broader borrowing,
+efficient physical updates and static refinements remain acceptance work. Fallible pre/postcondition
 validation and external theorem authoring are implemented through ordinary checked
 values/evidence; neither silently grants assumptions or rewrite authority. Totality is not weakened to admit unrestricted loops or closures.

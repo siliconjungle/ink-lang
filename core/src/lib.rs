@@ -53,8 +53,6 @@ pub mod compute_values;
 pub mod local_collections;
 pub mod temporary;
 
-pub const TEMPORARY_RUST_SOURCE: &str = include_str!("temporary.rs");
-
 mod owned_semantic;
 
 pub mod value_limits;
