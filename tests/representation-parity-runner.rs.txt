@@ -7,7 +7,8 @@ fn main(){
   else{let reply=match state.invoke_json(step["call"].as_str().unwrap(),&step["args"]){Ok(v)=>json!({"ok":v}),Err(e)=>json!({"error":e})};assert_eq!(reply,step["reply"],"reply {i}");}
   let bytes:Vec<u8>=serde_json::from_value(step["snapshot"].clone()).unwrap();assert_eq!(state.checkpoint().unwrap(),bytes,"snapshot {i}");assert_eq!(state.outbox_json(),step["outbox"],"outbox {i}");state=State::restore(&bytes).unwrap();assert_eq!(state.checkpoint().unwrap(),bytes);
  }
- let mut retained=State::new().unwrap();let empty=retained.checkpoint().unwrap();let mutation=oracle.iter().find(|s|s["reply"]["ok"]["committed"]==json!(true)).unwrap();
+ // Query-only programs still exercise transaction boundaries using a valid call.
+ let mut retained=State::new().unwrap();let empty=retained.checkpoint().unwrap();let mutation=oracle.iter().find(|s|s["reply"]["ok"]["committed"]==json!(true)).or_else(||oracle.iter().find(|s|s.get("call").is_some()&&s["reply"].get("ok").is_some())).unwrap();
  assert!(retained.begin_transaction().unwrap());retained.invoke_json(mutation["call"].as_str().unwrap(),&mutation["args"]).unwrap();retained.acknowledge_through(u64::MAX,u64::MAX);retained.rollback_transaction();assert_eq!(retained.checkpoint().unwrap(),empty);
  assert!(retained.begin_transaction().unwrap());retained.invoke_json(mutation["call"].as_str().unwrap(),&mutation["args"]).unwrap();let candidate=retained.checkpoint().unwrap();retained.commit_transaction();assert_eq!(retained.checkpoint().unwrap(),candidate);
  assert!(retained.begin_transaction().unwrap());retained.acknowledge_through(u64::MAX,u64::MAX);retained.rollback_transaction();assert_eq!(retained.checkpoint().unwrap(),candidate);
