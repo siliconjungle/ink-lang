@@ -616,3 +616,17 @@ fn numerical_pure_closures_have_equal_backend_coverage() {
         ],
     );
 }
+
+#[test]
+fn scalar_physical_storage_has_equal_backend_coverage() {
+    let source = "module scalar_fixture; query echo(value:u64)->u64{return value;}";
+    let module = CheckedModule::from_source(parse(source).unwrap()).unwrap();
+    for sort in ["Bool", "U64"] {
+        let dir = root().join(format!("scalar-{sort}"));
+        fs::create_dir_all(&dir).unwrap();
+        fs::write(dir.join("model.json"), serde_json::to_vec(&verified_language::action_model::Projection::derive(&module).unwrap()).unwrap()).unwrap();
+        run(Command::new("python3").arg("knowledge/producers/scalar_representation.py").arg(dir.join("model.json")).args(["--sort",sort,"-o"]).arg(dir.join("request.json")), &dir.join("producer.log"));
+        let request = serde_json::from_slice(&fs::read(dir.join("request.json")).unwrap()).unwrap();
+        check(&format!("scalar-{sort}"),source,Some(request),vec![("echo",json!([0])),("echo",json!([u64::MAX]))]);
+    }
+}

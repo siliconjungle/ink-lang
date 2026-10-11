@@ -307,3 +307,30 @@ fn aggregate_deltas_prove_and_execute_histories(){for backend in ["rust","c","ja
 #[test]
 #[ignore="manual full aggregate scaling benchmark"]
 fn benchmark_aggregate_scaling(){aggregate_driver(true,"rust");}
+
+#[test]
+fn scalar_physical_storage_works_in_prepared_sessions() {
+    let source = "module scalar_fixture; query echo(value:u64)->u64{return value;}";
+    let module = CheckedModule::from_source(syntax::parse(source).unwrap()).unwrap();
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("build/scalar-prepared");
+    fs::create_dir_all(&root).unwrap();
+    fs::write(root.join("model.json"),serde_json::to_vec(&verified_language::action_model::Projection::derive(&module).unwrap()).unwrap()).unwrap();
+    let mut plans=Vec::new();
+    for sort in ["Bool","U64"] {
+        let output=Command::new("python3").arg("knowledge/producers/scalar_representation.py").arg(root.join("model.json")).args(["--sort",sort,"-o"]).arg(root.join(format!("{sort}.json"))).output().unwrap();
+        assert!(output.status.success(),"{}",String::from_utf8_lossy(&output.stderr));
+        let request=serde_json::from_slice(&fs::read(root.join(format!("{sort}.json"))).unwrap()).unwrap();
+        plans.push(representation::check(&module,&request).unwrap());
+    }
+    let mut code=String::from("use verified_language as ink_core;use verified_language::runtime as ink_runtime;\n");
+    code.push_str(&verified_language::representation_native::lower(&plans,&[]).unwrap());
+    code.push_str(&format!("const SOURCE:&str={source:?};const DIRECTORY:&str={:?};",root.to_str().unwrap()));
+    code.push_str(r#"
+fn main(){use serde_json::json;use ink_runtime::representation::Session;
+let module=ink_core::core::CheckedModule::from_source(ink_core::syntax::parse(SOURCE).unwrap()).unwrap();
+for sort in ["Bool","U64"]{let request=serde_json::from_slice(&std::fs::read(format!("{DIRECTORY}/{sort}.json")).unwrap()).unwrap();let plan=ink_core::representation::check(&module,&request).unwrap();let mut session=Session::new(plan.clone(),Native).unwrap();let mut baseline=ink_core::stateful::Runtime::new(module.program().clone()).unwrap();for value in [0,u64::MAX,42]{let args=json!([value]);assert_eq!(session.invoke_json("echo",&args).unwrap(),baseline.invoke_json("echo",&args).unwrap().json());let bytes=session.checkpoint().unwrap();assert_eq!(bytes,baseline.checkpoint_portable().unwrap());session=Session::restore(plan.clone(),&bytes,Native).unwrap();assert_eq!(session.checkpoint().unwrap(),bytes);}}
+}
+"#);
+    fs::write(root.join("native.rs"),code).unwrap();compile_native(&root,false);
+    let output=Command::new(root.join("native")).env("PATH","").output().unwrap();assert!(output.status.success(),"{}",String::from_utf8_lossy(&output.stderr));
+}
