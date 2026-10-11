@@ -101,3 +101,12 @@ fn lexicographic(a:Word,b:Word)->Word{
  return 0;
 }
 fn propagated(x:Result<Word,Word>)->Result<Word,Word>{let v:Word=x?;return Ok(v+1);}
+
+fn contract_value(x:Word)->Result<Word,Error>
+ requires(x>0,Error.Failed)
+ ensures(reply=>reply.fold(fn(v)=>v<10,fn(e)=>true),Error.Overflow)
+ {return Ok(x+1);}
+change contract_put(x:Word)->Result<Word,Error> writes(Rows) emits(seen)
+ requires(x>0,Error.Failed)
+ ensures(reply=>reply.fold(fn(v)=>v<10,fn(e)=>true),Error.Overflow)
+ {if Rows.contains(x){return Err(Error.Failed);}Rows.insert(x,x);emit seen(x);return Ok(x);}

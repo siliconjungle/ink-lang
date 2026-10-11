@@ -454,8 +454,19 @@ pub fn infer_context(e: &Expr, env: &Env, p: &Program, want: Option<&Type>) -> L
                         Type::Result(a, b) => (a.as_ref().clone(), b.as_ref().clone()),
                         _ => unreachable!(),
                     };
-                    let mut output = want.cloned();
-                    for (arg, input) in args.iter().zip([a, b]) {
+                    let inputs = [a, b];
+                    let mut output = want.cloned().or_else(|| {
+                        args.iter().zip(&inputs).find_map(|(arg, input)| {
+                            if let Expr::Lambda(var, body) = arg {
+                                let mut local = env.clone();
+                                local.insert(var.clone(), input.clone());
+                                hint(body, &local, p)
+                            } else {
+                                None
+                            }
+                        })
+                    });
+                    for (arg, input) in args.iter().zip(inputs) {
                         let Expr::Lambda(var, body) = arg else {
                             return Err("variant fold requires branch lambdas".into());
                         };
@@ -703,7 +714,7 @@ pub fn check(p: &Program) -> LangResult<()> {
                 "checked_mul",
                 "count",
                 "foldr",
-                    "fold_until",
+                "fold_until",
                 "foldl",
                 "choose",
                 "repeat",

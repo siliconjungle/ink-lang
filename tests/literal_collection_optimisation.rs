@@ -22,7 +22,7 @@ fn literal_observation_laws_replay_and_rehashed_false_laws_fail() {
         .unwrap()
         .catalogue()
         .unwrap();
-    assert_eq!(c.roots.len(), 202);
+    assert_eq!(c.roots.len(), 247);
     CheckedCatalogue::check(&c, m.program()).unwrap();
     let names: serde_json::Value =
         serde_json::from_slice(&fs::read("knowledge/store/names.json").unwrap()).unwrap();
@@ -68,6 +68,8 @@ fn database_selection_skips_unobserved_element_computation() {
       fn size(x:u32,y:u32)->u32{return length([x*x+1,y*y+1]);}
       fn first(x:u32,y:u32)->u32{return [x,y*y+1].at_or(0,99);}
       fn first_nonzero(x:u32,y:u32)->u32{return foldr([x,y*y+1],99,fn(item)=>fn(rest)=>if item!=0{item}else{rest});}
+      fn exact_cancel(x:Int,y:Int)->Int{return (x-y)+y;}
+      fn exact_count(x:u32,y:u32)->Int{return count([x*x,y*y]);}
       fn cardinality(xs:List<u32>)->u32{return length([sum(xs),sum(xs)]);}
     "#;
     let m = CheckedModule::from_source(syntax::parse(source).unwrap()).unwrap();
@@ -103,6 +105,14 @@ fn database_selection_skips_unobserved_element_computation() {
     );
     let package: Package =
         serde_json::from_slice(&fs::read(dir.join("selection.json")).unwrap()).unwrap();
+    assert!(package
+        .applications
+        .iter()
+        .any(|a| a.function == "exact_cancel"));
+    assert!(package
+        .applications
+        .iter()
+        .any(|a| a.function == "exact_count"));
     assert!(package.applications.iter().any(|a| a.function == "size"));
     assert!(package.applications.iter().any(|a| a.function == "first"));
     assert!(package
@@ -121,7 +131,7 @@ fn database_selection_skips_unobserved_element_computation() {
     );
     for x in [0, 1, u32::MAX] {
         for y in [0, 7, u32::MAX] {
-            for name in ["size", "first", "first_nonzero"] {
+            for name in ["size", "first", "first_nonzero", "exact_count"] {
                 let args = vec![eval::Value::U32(x), eval::Value::U32(y)];
                 assert_eq!(
                     eval::call(m.program(), name, args.clone(), &mut 10000).unwrap(),
@@ -132,6 +142,8 @@ fn database_selection_skips_unobserved_element_computation() {
     }
     let runtime = verified_language::stateful::Runtime::new(m.program().clone()).unwrap();
     let steps = vec![
+        serde_json::json!({"pure":"exact_cancel","args":[{"Int":"184467440737095516161234567890"},{"Int":"-999999999999999999999999999999"}]}),
+        serde_json::json!({"pure":"exact_count","args":[u32::MAX,9]}),
         serde_json::json!({"pure":"cardinality","args":[[1,2,3,4]]}),
         serde_json::json!({"pure":"first_nonzero","args":[7,99]}),
         serde_json::json!({"pure":"first_nonzero","args":[0,3]}),

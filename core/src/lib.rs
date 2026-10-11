@@ -16,6 +16,7 @@ pub mod effects;
 pub mod equality;
 pub mod eval;
 pub mod implementation;
+pub mod law_author;
 pub mod laws;
 pub mod library;
 pub mod logic;

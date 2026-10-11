@@ -179,6 +179,8 @@ impl SurfaceProgram {
             for (_, t) in &mut r.params {
                 *t = e.ty(t, &env, 0)?;
             }
+            e.locals = r.params.iter().map(|(n, _)| n.clone()).collect();
+            e.local_types = r.params.iter().cloned().collect();
             e.expr(&mut r.from, &env, 0)?;
             e.expr(&mut r.to, &env, 0)?;
         }
@@ -471,9 +473,25 @@ impl Elaborator {
             }
             Expr::Field(x, variant) => {
                 if let Expr::Var(n) = x.as_ref() {
-                    let base = self.applications.get(n).map(|(n, _)| n).unwrap_or(n);
-                    if !self.locals.contains(n) && self.payload_enums.contains_key(base) {
-                        *e = self.payload_constructor(n, variant, &[], env, depth + 1)?;
+                    let target = if !self.locals.contains(n) {
+                        match self.ty(&Type::Named(n.clone()), env, depth + 1)? {
+                            Type::Named(n) => Some(n),
+                            _ => None,
+                        }
+                    } else {
+                        None
+                    };
+                    let base = target
+                        .as_ref()
+                        .map(|n| self.instance_bases.get(n).unwrap_or(n));
+                    if base.is_some_and(|base| self.payload_enums.contains_key(base)) {
+                        *e = self.payload_constructor(
+                            target.as_ref().unwrap(),
+                            variant,
+                            &[],
+                            env,
+                            depth + 1,
+                        )?;
                         return self.expr(e, env, depth + 1);
                     }
                 }
@@ -525,9 +543,25 @@ impl Elaborator {
             }
             Expr::Method(x, variant, args) => {
                 if let Expr::Var(n) = x.as_ref() {
-                    let base = self.applications.get(n).map(|(n, _)| n).unwrap_or(n);
-                    if !self.locals.contains(n) && self.payload_enums.contains_key(base) {
-                        *e = self.payload_constructor(n, variant, args, env, depth + 1)?;
+                    let target = if !self.locals.contains(n) {
+                        match self.ty(&Type::Named(n.clone()), env, depth + 1)? {
+                            Type::Named(n) => Some(n),
+                            _ => None,
+                        }
+                    } else {
+                        None
+                    };
+                    let base = target
+                        .as_ref()
+                        .map(|n| self.instance_bases.get(n).unwrap_or(n));
+                    if base.is_some_and(|base| self.payload_enums.contains_key(base)) {
+                        *e = self.payload_constructor(
+                            target.as_ref().unwrap(),
+                            variant,
+                            args,
+                            env,
+                            depth + 1,
+                        )?;
                         return self.expr(e, env, depth + 1);
                     }
                 }
@@ -668,24 +702,19 @@ impl Elaborator {
         depth: usize,
     ) -> LangResult<Expr> {
         self.step(depth)?;
-        let base = self
-            .applications
-            .get(name)
-            .map(|(n, _)| n)
-            .unwrap_or(&name.to_string())
-            .clone();
+        let Type::Named(target) = self.ty(&Type::Named(name.into()), env, depth + 1)? else {
+            return Err("payload enum type".into());
+        };
+        let base = self.instance_bases.get(&target).unwrap_or(&target);
         let variants = self
             .payload_enums
-            .get(&base)
+            .get(base)
             .ok_or("unknown payload enum")?
             .clone();
         let index = variants
             .iter()
             .position(|v| v == variant)
             .ok_or("unknown payload variant")?;
-        let Type::Named(target) = self.ty(&Type::Named(name.into()), env, depth + 1)? else {
-            return Err("payload enum type".into());
-        };
         let p = self.program_context();
         let mut sum = &p.records[&target][0].1;
         for _ in 0..index {
@@ -758,7 +787,20 @@ impl Elaborator {
         };
         let mut ordered = BTreeMap::new();
         for ((arm_root, variant, binders), body) in arms.iter().zip(&args[1..]) {
-            if arm_root != &root
+            let mut arm_root = arm_root.clone();
+            for _ in 0..64 {
+                if let Some(Type::Named(alias)) = self.aliases.get(&arm_root) {
+                    arm_root = self
+                        .applications
+                        .get(alias)
+                        .map(|(base, _)| base)
+                        .unwrap_or(alias)
+                        .clone();
+                } else {
+                    break;
+                }
+            }
+            if arm_root != root
                 || !variants.contains(variant)
                 || ordered
                     .insert(variant.clone(), (binders.len(), body.clone()))

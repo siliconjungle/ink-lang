@@ -83,7 +83,18 @@ fn translate(body: &Body, p: &Program, id: NodeId, b: &mut Budget, d: usize) -> 
             .collect::<LangResult<Vec<_>>>()
     };
     Ok(match &n.kind {
-        Kind::Number(n) => s::term(sort, Node::Word(*n)),
+        Kind::Number(n) => {
+            let node = if sort == s::value(Type::F32) {
+                Node::Float((*n as f32).to_bits())
+            } else {
+                Node::Word(*n)
+            };
+            s::term(sort, node)
+        }
+        Kind::Float(n) => s::term(sort, Node::Float(*n)),
+        Kind::Neg { value } => s::op(sort, "neg", args(&[*value], b)?),
+        Kind::String(v) => s::term(sort, Node::String(v.clone())),
+        Kind::Unit => s::term(sort, Node::Unit),
         Kind::Bool(n) => s::term(sort, Node::Bool(*n)),
         Kind::Local(i) => s::free(sort, &format!("__ink_slot_{i}")),
         Kind::Record { name, fields } => {
@@ -217,11 +228,11 @@ mod tests {
             .is_empty());
     }
     #[test]
-    fn unsupported_total_value_projection_keeps_the_source_available() {
+    fn exact_integer_projection_preserves_the_complete_source() {
         let m = checked("module m; query f(x:Int)->Int{return x+1;}");
         let before = m.bytes().unwrap();
         let subject = crate::optimisation::subject(&m).unwrap();
-        assert!(!subject.functions.values().any(|t| matches!(&t.node,
+        assert!(subject.functions.values().any(|t| matches!(&t.node,
             Node::Op(op, _) if op == "binary:+")));
         assert_eq!(m.bytes().unwrap(), before);
     }

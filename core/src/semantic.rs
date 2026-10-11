@@ -214,7 +214,7 @@ pub fn unshift_hole(t: &Term, depth: usize) -> LangResult<Term> {
     let out = walk(t, depth, 0, &mut b)?;
     shift(&out, -(depth as isize), 0, &mut b, 0)
 }
-fn val(s: &Sort) -> LangResult<&Type> {
+pub(crate) fn val(s: &Sort) -> LangResult<&Type> {
     if let Sort::Value(t) = s {
         Ok(t)
     } else {
@@ -262,7 +262,7 @@ pub fn validate(t: &Term, env: &Env, p: &Program, b: &mut Budget) -> LangResult<
                     .clone(),
             )?,
             Node::Word(n) => match val(&t.sort)? {
-                Type::U64 => {}
+                Type::U64 | Type::Int => {}
                 Type::U32 | Type::I32 if *n <= u32::MAX as u64 => {}
                 _ => return Err("invalid word literal sort/range".into()),
             },
@@ -337,7 +337,7 @@ pub fn validate(t: &Term, env: &Env, p: &Program, b: &mut Budget) -> LangResult<
                     "neg" => {
                         arity(1)?;
                         need(a(0)?, t.sort.clone())?;
-                        if !check::is_number(val(&t.sort)?) {
+                        if !check::is_numeric_value(val(&t.sort)?) {
                             return Err("numeric negation sort".into());
                         }
                     }
@@ -423,17 +423,26 @@ pub fn validate(t: &Term, env: &Env, p: &Program, b: &mut Budget) -> LangResult<
                             need(&a.sort, value(t))?;
                         }
                     }
+                    "call:Int" => {
+                        arity(1)?;
+                        need(&t.sort, value(Type::Int))?;
+                        if !matches!(val(a(0)?)?, Type::U32 | Type::U64 | Type::I32 | Type::Int) {
+                            return Err("exact conversion source sort".into());
+                        }
+                    }
                     "call:sum" => {
                         arity(1)?;
                         need(&t.sort, value(list(a(0)?)?.clone()))?;
-                        if !check::is_number(val(&t.sort)?) {
+                        if !check::is_numeric_value(val(&t.sort)?) {
                             return Err("sum numeric sort".into());
                         }
                     }
                     "call:count" => {
                         arity(1)?;
                         list(a(0)?)?;
-                        need(&t.sort, value(Type::U64))?;
+                        if !matches!(val(&t.sort)?, Type::U64 | Type::Int) {
+                            return Err("count result sort".into());
+                        }
                     }
                     "call:fold_until" => {
                         arity(4)?;
@@ -516,7 +525,7 @@ pub fn validate(t: &Term, env: &Env, p: &Program, b: &mut Budget) -> LangResult<
                         arity(2)?;
                         need(a(0)?, value(Type::List(Box::new(val(&t.sort)?.clone()))))?;
                         need(a(1)?, t.sort.clone())?;
-                        if !check::is_number(val(&t.sort)?) {
+                        if !check::is_numeric_value(val(&t.sort)?) {
                             return Err("sum accumulator numeric sort".into());
                         }
                     }
@@ -552,9 +561,11 @@ pub fn validate(t: &Term, env: &Env, p: &Program, b: &mut Budget) -> LangResult<
                         need(a(1)?, a(0)?.clone())?;
                         let ty = val(a(0)?)?;
                         let out = match &n[7..] {
-                            "+" | "-" | "*" if check::is_number(ty) => a(0)?.clone(),
-                            "<" | ">" | "<=" | ">=" if check::is_number(ty) => value(Type::Bool),
-                            "==" | "!=" if check::is_number(ty) || *ty == Type::Bool => {
+                            "+" | "-" | "*" if check::is_numeric_value(ty) => a(0)?.clone(),
+                            "<" | ">" | "<=" | ">=" if check::is_numeric_value(ty) => {
+                                value(Type::Bool)
+                            }
+                            "==" | "!=" if check::is_numeric_value(ty) || *ty == Type::Bool => {
                                 value(Type::Bool)
                             }
                             "&&" | "||" if *ty == Type::Bool => value(Type::Bool),
@@ -693,7 +704,7 @@ pub fn elaborate(e: &Expr, env: &check::Env, p: &Program, want: &Type) -> LangRe
                     a,
                     env,
                     p,
-                    if check::is_number(want) {
+                    if check::is_numeric_value(want) {
                         Some(want)
                     } else {
                         hint.as_ref()
@@ -811,6 +822,10 @@ pub fn elaborate(e: &Expr, env: &check::Env, p: &Program, want: &Type) -> LangRe
                         for (x, t) in args.iter().zip(crate::word::arguments(name, want)) {
                             out.push(recur(x, &t)?);
                         }
+                    }
+                    "Int" => {
+                        let ty = check::infer(&args[0], env, p)?;
+                        out.push(recur(&args[0], &ty)?);
                     }
                     "sum" | "count" => {
                         let hint = Type::List(Box::new(want.clone()));
@@ -1043,7 +1058,9 @@ pub fn reify(t: &Term, p: &Program) -> LangResult<Expr> {
                     .clone(),
             ),
             Node::Word(n) => {
-                if t.sort == value(Type::I32) && *n > i32::MAX as u64 {
+                if t.sort == value(Type::Int) {
+                    Expr::Call("Int".into(), vec![Expr::Num(*n)])
+                } else if t.sort == value(Type::I32) && *n > i32::MAX as u64 {
                     Expr::Neg(Box::new(Expr::Num(
                         ((*n as u32) as i32).unsigned_abs() as u64
                     )))

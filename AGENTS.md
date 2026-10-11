@@ -73,3 +73,12 @@ Do not restore the JavaScript fold shortcut. Keep docs/generic-language-foundati
 coverage, source/transport limits and remaining machinery explicit. Both new
 mandatory CPU suites include complete C/Rust/JS/both-Wasm comparisons; GPU host
 fallback does not close the broad GPU gap.
+
+Fallible requires/ensures clauses erase to checked readonly callbacks, lazy branches
+and hygienic result bindings. Preserve declaration order, original parameter
+captures, single result evaluation, explicit Result errors and transaction rollback.
+They are validations, not static assumptions. External emit-laws authoring must
+check ordinary canonical laws, explicit conditions/dependencies and portable
+definition contexts; executable source still rejects inline rewrites. Exact Int
+correspondence uses the same bounded polynomial machinery with exact coefficients,
+never wrapping coefficients. Keep finite laws and authored algorithms in knowledge.

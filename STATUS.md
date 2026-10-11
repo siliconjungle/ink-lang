@@ -184,3 +184,21 @@ Rust write-heavy cells improve about 1.7–2×, but indexed physical table updat
 remain open: the 4000-row write-only cell still loses by over 900× to a maintained
 handwritten tree. This allocation fix does not change linear update traversal,
 prove generated compiler correctness or extend GPU device coverage.
+
+## Generic language foundations
+
+[Bounded surface and value additions](docs/generic-language-foundations.md) cover
+ordinary pure/action value consistency, lazy conditionals, list literals, exact
+counts, fixed word operations, generics/aliases/constants, payload enums/matching,
+finite local iteration, fixed arrays and pure nonescaping callbacks. Fallible
+pre/postcondition validation uses ordinary Result errors and transaction rollback.
+External theorem authoring checks canonical evidence through the existing kernel.
+Exact integer arithmetic/count/sum now have executable semantic correspondence.
+
+Generic sets, grouping, joins and checked division are external Ink definitions.
+Knowledge supplies 247 finite-list laws and three authored exact-integer laws.
+The compiler's JavaScript fold shortcut is removed. C/Rust/JavaScript/both Wasm
+conformance is mandatory; actual eligible GPU dispatch and compiled fallback retain
+the explicit device capability boundary. This does not close compact numerical
+carriers, packed Bytes, new borrowing syntax, static refinements or the full design
+draft. The scope document records the exact admission and resource limits.

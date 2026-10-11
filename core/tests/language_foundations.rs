@@ -449,3 +449,153 @@ fn inferred_counts_are_exact_and_recursion_measures_cannot_be_shadowed_or_wrap()
       "module bad;fn f(a:u32,b:u32)->u32{if b>0{return f(a,b-2);}if a>0{return f(a-1,2);}return 0;}",
     ] {assert!(parse(source).and_then(CheckedModule::from_source).is_err(),"accepted {source}");}
 }
+
+#[test]
+fn exact_integer_correspondence_uses_a_bounded_ring_without_wrapping() {
+    use ink_core::{
+        check,
+        laws::{self, Catalogue, CheckedCatalogue, Equation, Proof},
+        semantic as s,
+    };
+    use std::collections::BTreeMap;
+    let module=CheckedModule::from_source(parse("module exact;fn count_values(xs:List<u32>)->Int{return count(xs);}fn equivalent(x:Int)->Int{return (x+1)*(x-1);}fn canonical(x:Int)->Int{return x*x-1;}fn sum_values()->Int{return sum([Int(1),Int(2)]);}").unwrap()).unwrap();
+    let subject = ink_core::optimisation::subject(&module).unwrap();
+    assert!(subject.unavailable.is_empty(), "{:?}", subject.unavailable);
+    let catalogue = CheckedCatalogue::check(
+        &Catalogue {
+            schema: 1,
+            semantics: laws::SEMANTICS.into(),
+            roots: vec![],
+            objects: BTreeMap::new(),
+        },
+        module.program(),
+    )
+    .unwrap();
+    let env = BTreeMap::from([("x".into(), s::value(ink_core::core::Type::Int))]);
+    catalogue
+        .prove(
+            module.program(),
+            &env,
+            &[],
+            &Equation {
+                from: subject.functions["equivalent"].clone(),
+                to: subject.functions["canonical"].clone(),
+            },
+            &Proof::Normalize,
+            &mut s::Budget::new(),
+            0,
+        )
+        .unwrap();
+    let from = s::op(
+        s::value(ink_core::core::Type::Int),
+        "binary:+",
+        vec![
+            s::word(ink_core::core::Type::Int, u64::MAX),
+            s::word(ink_core::core::Type::Int, 1),
+        ],
+    );
+    assert!(catalogue
+        .prove(
+            module.program(),
+            &BTreeMap::new(),
+            &[],
+            &Equation {
+                from,
+                to: s::word(ink_core::core::Type::Int, 0)
+            },
+            &Proof::Normalize,
+            &mut s::Budget::new(),
+            0
+        )
+        .is_err());
+    let f = module
+        .program()
+        .functions
+        .iter()
+        .find(|f| f.name == "canonical")
+        .unwrap();
+    let t = s::elaborate(
+        &f.body,
+        &check::params_env(&f.params).unwrap(),
+        module.program(),
+        &f.result,
+    )
+    .unwrap();
+    let rebuilt = s::reify(&t, module.program()).unwrap();
+    check::infer_as(
+        &rebuilt,
+        &check::params_env(&f.params).unwrap(),
+        module.program(),
+        &f.result,
+    )
+    .unwrap();
+    assert_eq!(
+        pure(
+            "module x;fn f()->Int{return sum([Int(1),Int(2)]);}",
+            "f",
+            json!([])
+        ),
+        json!({"Int":"3"})
+    );
+}
+
+#[test]
+fn contracts_validate_explicit_results_and_roll_back_postcondition_failure() {
+    let source = r#"module contracts;
+      enum Error{Input,Output,}
+      fn bounded(x:u32)->Result<u32,Error>
+        requires(x>0,Error.Input)
+        ensures(reply=>reply.fold(fn(v)=>v<10,fn(e)=>true),Error.Output)
+        {return Ok(x+1);}
+      fn first_failure()->Result<u32,Error> ensures(r=>false,Error.Input) ensures(r=>false,Error.Output){return Ok(1);}
+      query original(x:u32)->Result<u32,Error> ensures(r=>x==3,Error.Input){let x:u32=99;return Ok(x);}
+      state Rows:Table<u32,u32>=Table.empty();event changed:u32;
+      change put(x:u32)->Result<u32,Error> writes(Rows) emits(changed)
+        requires(x>0,Error.Input)
+        ensures(reply=>reply.fold(fn(v)=>v<10,fn(e)=>true),Error.Output)
+        {if Rows.contains(x){return Err(Error.Input);}Rows.insert(x,x);emit changed(x);return Ok(x);}
+    "#;
+    assert_eq!(
+        pure(source, "bounded", json!([0])),
+        json!({"Err":"Error.Input"})
+    );
+    assert_eq!(pure(source, "bounded", json!([3])), json!({"Ok":4}));
+    assert_eq!(
+        pure(source, "bounded", json!([9])),
+        json!({"Err":"Error.Output"})
+    );
+    assert_eq!(
+        pure(source, "first_failure", json!([])),
+        json!({"Err":"Error.Input"})
+    );
+    let mut r = Runtime::new(parse(source).unwrap()).unwrap();
+    assert_eq!(
+        r.invoke_json("original", &json!([3]))
+            .unwrap()
+            .result
+            .json(),
+        json!({"Ok":99})
+    );
+    let before = r.checkpoint_portable().unwrap();
+    for x in [0, 10] {
+        let out = r.invoke_json("put", &json!([x])).unwrap();
+        assert!(!out.committed);
+        assert!(out.events.is_empty());
+        assert_eq!(r.checkpoint_portable().unwrap(), before);
+    }
+    assert!(r.invoke_json("put", &json!([3])).unwrap().committed);
+    for source in [
+      "module bad;change effect()->Bool{return true;}change f()->Result<u32,u32> requires(effect(),0){return Ok(1);}",
+      "module bad;fn f(x:u32)->u32 requires(x>0,0){return x;}",
+      "module bad;fn f(x:u32)->Result<u32,u32> requires(x,0){return Ok(x);}",
+      "module bad;fn f(x:u32)->Result<u32,u32> requires(x>0,true){return Ok(x);}",
+      "module bad;fn f(x:u32)->Result<u32,u32> ensures(r=>true,0) requires(x>0,0){return Ok(x);}",
+    ]{assert!(parse(source).and_then(CheckedModule::from_source).is_err(),"accepted {source}");}
+}
+
+#[test]
+fn aliases_preserve_payload_constructors_and_patterns() {
+    let source="module alias;enum Message<T>{Empty,Value(T),}type Number=Message<u32>;fn unwrap(x:Number)->u32{return match x{Number.Empty=>0,Number.Value(v)=>v,};}fn value()->u32{return unwrap(Number.Value(7));}fn empty()->u32{return unwrap(Number.Empty);}";
+    assert_eq!(pure(source, "value", json!([])), json!(7));
+    assert_eq!(pure(source, "empty", json!([])), json!(0));
+}
