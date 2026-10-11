@@ -1,0 +1,71 @@
+{
+  "schema": 1,
+  "status": "checked",
+  "selected": "57af103554125c4ab930d3b0fe24ee0a0a57ea1b96b5b934df4bb852af8d3446",
+  "request_sha256": "d06e050db7b9ca6100607a2b3e049616fcc277035b8f48d32bf75390658e7537",
+  "source": "b79d2303fd0e80416ef884f1ebdfb57d7a27c1a1167786e7f6e0ce15e65f665e",
+  "snapshot": "3c31614a5d42e7e5c521280480a6b80e01268d9fdeb0dc234235f1ca3fe915dd",
+  "profile": {
+    "initialise": 1,
+    "teardown": 1,
+    "check": 1,
+    "compile": 0,
+    "action:put": 100,
+    "action:erase": 100,
+    "action:total_query": 10,
+    "action:count_query": 10
+  },
+  "target": {
+    "hardware": "Apple M2",
+    "driver": "macOS-26.5.2-arm64-arm-64bit",
+    "toolchain": "rustc 1.96.0 (ac68faa20 2026-05-25)",
+    "backend": "rust-native",
+    "bridge": "frozen-benchmark:af33fc58d6f1b2bdb7c1027e5a5887fac5c1521d148cf8a9f9d84c2a6b8925d3"
+  },
+  "workload": {
+    "shape": {
+      "rows": 4000,
+      "row": "u64 value, Bool active"
+    },
+    "distribution": "keys (i*37)%4000; initial value=i; active on even keys; restore per phase",
+    "concurrency": 1,
+    "residency": "in-process preseeded table; JSON action/reply boundary"
+  },
+  "migration_count": 1,
+  "bridge": null,
+  "bridge_sha256": null,
+  "memory_limit": null,
+  "checked": 2,
+  "rejected": [],
+  "remaining": 0,
+  "costs": {
+    "total_ns": {
+      "d06e050db7b9ca6100607a2b3e049616fcc277035b8f48d32bf75390658e7537": "116536008",
+      "861074f0cb04fada48e2c40a6cf58c53bd69474876ee5d7cd3721d8cf6ff3cd4": "4259112169"
+    },
+    "excluded": {},
+    "observations": {
+      "d06e050db7b9ca6100607a2b3e049616fcc277035b8f48d32bf75390658e7537": [
+        "60a64171306f0f9b801f2b4fa0341a966827763ca821db5940b45110ef2a0720",
+        "99a3c283edc7f62f8a80299067d7be7e8363f77bbf173f26c347a786cde84df7",
+        "a05b64b6da0b4594528ef0f2c0b09d3be8fe3db52b595f9894e5356dd2cd38ba",
+        "aae09b862daec64b4f894c07721a2ee68c1252f3230adfe7633ed01ceb8a1a8b",
+        "ac7717a0584749c1a8b3502ff2b98bf294d25ed0de5ad76baf7cfd93f1de254f",
+        "b75c5ef98f81f5acee9aaacf76e8484f6a2cb3aa7d30b5e0c9d479960466e4aa",
+        "d4f8e1081e4628c64b3b4f45acb4c1dfae71c00b25f095675de651fa77eb5c0b"
+      ],
+      "861074f0cb04fada48e2c40a6cf58c53bd69474876ee5d7cd3721d8cf6ff3cd4": [
+        "34058f0ce0b1ce1baea11da1fb701f31211f67e09d528944adef36cf0d4c6f90",
+        "750d789905501b9077e71fe7ac8c5fa1c3a2ff49bdc48eebddc99167d998822a",
+        "b4396f2bdd3bc17f3d803361ba50e2322fb55a82554c5c1a5937c55584c730f7",
+        "b7418be7b922d0f3e9457db716d78d8758b1ec6f55b2ff85b868ac7c59ddcc81",
+        "c2aebd69aae58d900451a066d78e81fd393867841d61207e3729b4360df8cfff",
+        "d564acc4b67465f6d2edb1cb5d91bc738443f2ce02ca0efe898e87f365cc6cbb",
+        "e80ff35909d30c32fbaca5eb869b344342cfe99f4464b5b11b7918da47f5e900",
+        "e9c8c78a79ee3ccc2b51fc400f400cf639d8d6b397d8a9f97f882042a11e2e00"
+      ]
+    },
+    "baseline_comparable": true
+  },
+  "scope": "external measured lifecycle selection; replay rechecks request and bridge; no live adaptation"
+}
