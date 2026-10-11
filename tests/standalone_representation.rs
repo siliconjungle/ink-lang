@@ -125,15 +125,15 @@ fn compiled_point_candidates_need_no_checker_or_runtime() {
     for (label, request) in [
         (
             "direct",
-            include_str!("../knowledge/research/point-delta/direct.json"),
+            include_str!("../knowledge/research/composable-state/point-delta/direct.json"),
         ),
         (
             "refresh",
-            include_str!("../knowledge/research/point-delta/refresh.json"),
+            include_str!("../knowledge/research/composable-state/point-delta/refresh.json"),
         ),
         (
             "delta",
-            include_str!("../knowledge/research/point-delta/delta.json"),
+            include_str!("../knowledge/research/composable-state/point-delta/delta.json"),
         ),
     ] {
         let calls = vec![
@@ -248,7 +248,7 @@ fn shared_physical_spines_release_without_allocating_or_losing_live_suffixes() {
     )
     .unwrap();
     let request: Request = serde_json::from_str(include_str!(
-        "../knowledge/research/point-delta/direct.json"
+        "../knowledge/research/composable-state/point-delta/direct.json"
     ))
     .unwrap();
     let checked = representation::check(&module, &request).unwrap();
