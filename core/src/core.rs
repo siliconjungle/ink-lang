@@ -126,6 +126,7 @@ pub const SEMANTICS: &str = "ink-executable-core-v1";
 pub const COMPUTE_SEMANTICS: &str = "ink-executable-core-v2";
 pub const LOCAL_SEMANTICS: &str = "ink-executable-core-v3";
 pub const EXACT_FLOAT_SEMANTICS: &str = CANONICAL_FLOAT_SEMANTICS;
+pub const VALUE_SEMANTICS: &str = "ink-executable-core-v8";
 pub const PARALLEL_SEMANTICS: &str = "ink-executable-core-v5";
 pub const SEQUENCE_SEMANTICS: &str = "ink-executable-core-v4";
 pub const MAX_BYTES: usize = 16_000_000;
@@ -143,6 +144,268 @@ struct WireModule {
 #[derive(Clone, Debug)]
 pub struct CheckedModule(WireModule);
 
+// New fixed value operations have an explicit execution version. Surface forms
+// that elaborate entirely into older meanings retain those older versions.
+fn value_domain(p: &Program) -> bool {
+    fn callback(
+        e: &Expr,
+        inputs: &[Type],
+        env: &crate::check::Env,
+        p: &Program,
+        want: Option<&Type>,
+        pure: bool,
+    ) -> bool {
+        let mut local = env.clone();
+        let mut body = e;
+        for t in inputs {
+            let Expr::Lambda(n, b) = body else {
+                return false;
+            };
+            local.insert(n.clone(), t.clone());
+            body = b;
+        }
+        expr(body, &local, p, want, pure)
+    }
+    fn expr(
+        e: &Expr,
+        env: &crate::check::Env,
+        p: &Program,
+        want: Option<&Type>,
+        pure: bool,
+    ) -> bool {
+        match e {
+            Expr::Call(n, args) => {
+                if crate::word::primitive(n) || n == "foldl" {
+                    return true;
+                }
+                if pure && n == "count" && want != Some(&Type::U64) {
+                    return true;
+                }
+                if pure
+                    && ["sum", "foldr"].contains(&n.as_str())
+                    && crate::check::infer_context(e, env, p, want)
+                        .is_ok_and(|t| !crate::check::is_number(&t))
+                {
+                    return true;
+                }
+                if n == "list"
+                    || (!pure && n == "choose")
+                    || (pure
+                        && [
+                            "Int",
+                            "Some",
+                            "Ok",
+                            "Err",
+                            "checked_add",
+                            "checked_sub",
+                            "checked_mul",
+                        ]
+                        .contains(&n.as_str()))
+                {
+                    return true;
+                }
+                if pure && ["repeat", "repeat_until", "foldr", "parallel_map"].contains(&n.as_str())
+                {
+                    let result = crate::check::infer_context(e, env, p, want).ok();
+                    let inputs = if n == "foldr" {
+                        crate::check::infer(&args[0], env, p)
+                            .ok()
+                            .and_then(|t| match t {
+                                Type::List(inner) => Some(*inner),
+                                _ => None,
+                            })
+                    } else if n == "parallel_map" {
+                        crate::check::infer(&args[0], env, p)
+                            .ok()
+                            .and_then(|t| match t {
+                                Type::List(inner) => Some(*inner),
+                                _ => None,
+                            })
+                    } else {
+                        Some(Type::U32)
+                    };
+                    if let (Some(input), Some(result)) = (inputs, result) {
+                        let output = match &result {
+                            Type::List(inner) if n == "parallel_map" => inner.as_ref(),
+                            _ => &result,
+                        };
+                        let sig = if n == "parallel_map" {
+                            vec![Type::U32, input]
+                        } else {
+                            vec![input, result.clone()]
+                        };
+                        if callback(args.last().unwrap(), &sig, env, p, Some(output), pure) {
+                            return true;
+                        }
+                        if n == "repeat_until"
+                            && callback(
+                                &args[2],
+                                &[result.clone()],
+                                env,
+                                p,
+                                Some(&Type::Bool),
+                                pure,
+                            )
+                        {
+                            return true;
+                        }
+                    }
+                }
+                let f = p.functions.iter().find(|f| &f.name == n);
+                args.iter().enumerate().any(|(i, a)| {
+                    expr(
+                        a,
+                        env,
+                        p,
+                        f.and_then(|f| f.params.get(i).map(|(_, t)| t)),
+                        pure,
+                    )
+                })
+            }
+            Expr::String(_) | Expr::Unit => false,
+            Expr::Var(n) => pure && n == "None",
+            Expr::Field(x, _) => {
+                pure && matches!(x.as_ref(), Expr::Var(n) if p.enums.contains_key(n))
+                    || expr(x, env, p, None, pure)
+            }
+            Expr::Let(n, t, a, b) => {
+                if !pure {
+                    return true;
+                }
+                let ty = crate::check::infer_context(a, env, p, t.as_deref()).ok();
+                let mut local = env.clone();
+                if let Some(t) = &ty {
+                    local.insert(n.clone(), t.clone());
+                }
+                expr(a, env, p, ty.as_ref(), pure) || expr(b, &local, p, want, pure)
+            }
+            Expr::Num(_) => pure && want == Some(&Type::Int),
+            Expr::Binary(_, a, b) => {
+                let context = want
+                    .filter(|t| crate::check::is_numeric_value(t))
+                    .cloned()
+                    .or_else(|| crate::check::hint(a, env, p))
+                    .or_else(|| crate::check::hint(b, env, p));
+                let at = crate::check::infer_context(a, env, p, context.as_ref()).ok();
+                pure && at.as_ref().is_some_and(|t| {
+                    !matches!(
+                        t,
+                        Type::U32 | Type::U64 | Type::I32 | Type::F32 | Type::Bool
+                    )
+                }) || expr(a, env, p, at.as_ref(), pure)
+                    || expr(b, env, p, at.as_ref(), pure)
+            }
+            Expr::Method(x, method, args) => {
+                if method == "fold" {
+                    return true;
+                }
+                if pure
+                    && crate::check::infer(x, env, p)
+                        .is_ok_and(|t| matches!(t, Type::Option(_) | Type::Result(..)))
+                {
+                    return true;
+                }
+                if pure {
+                    if let Ok(Type::List(inner)) = crate::check::infer(x, env, p) {
+                        let output = match want {
+                            Some(Type::List(t)) => Some(t.as_ref()),
+                            _ => None,
+                        };
+                        let inputs = match method.as_str() {
+                            "map" | "filter" => vec![*inner],
+                            "map_indexed" => vec![Type::U32, *inner],
+                            "zip" => crate::check::infer(&args[0], env, p)
+                                .ok()
+                                .and_then(|t| match t {
+                                    Type::List(other) => Some(vec![*inner, *other]),
+                                    _ => None,
+                                })
+                                .unwrap_or_default(),
+                            _ => vec![],
+                        };
+                        if !inputs.is_empty()
+                            && callback(
+                                args.last().unwrap(),
+                                &inputs,
+                                env,
+                                p,
+                                if method == "filter" {
+                                    Some(&Type::Bool)
+                                } else {
+                                    output
+                                },
+                                pure,
+                            )
+                        {
+                            return true;
+                        }
+                    }
+                }
+                expr(x, env, p, None, pure) || args.iter().any(|a| expr(a, env, p, None, pure))
+            }
+            Expr::Neg(x) => {
+                pure && crate::check::infer_context(e, env, p, want).is_ok_and(|t| t == Type::Int)
+                    || expr(x, env, p, want, pure)
+            }
+            Expr::Lambda(_, x) | Expr::Try(x) => expr(x, env, p, want, pure),
+            Expr::Record(n, fields) => fields.iter().any(|(name, e)| {
+                expr(
+                    e,
+                    env,
+                    p,
+                    p.records
+                        .get(n)
+                        .and_then(|fs| fs.iter().find(|(f, _)| f == name).map(|(_, t)| t)),
+                    pure,
+                )
+            }),
+            _ => false,
+        }
+    }
+    fn block(xs: &[Statement], p: &Program) -> bool {
+        xs.iter().any(|s| match s {
+            Statement::Let(_, _, e)
+            | Statement::Return(e)
+            | Statement::Emit(_, e)
+            | Statement::Expr(e) => expr(e, &Default::default(), p, None, false),
+            Statement::If(c, a, b) => {
+                expr(c, &Default::default(), p, None, false) || block(a, p) || block(b, p)
+            }
+        })
+    }
+    fn shadows(xs: &[Statement], mut names: std::collections::BTreeSet<String>) -> bool {
+        for s in xs {
+            match s {
+                Statement::Let(n, _, _) => {
+                    if !names.insert(n.clone()) {
+                        return true;
+                    }
+                }
+                Statement::If(_, a, b) => {
+                    if shadows(a, names.clone()) || shadows(b, names.clone()) {
+                        return true;
+                    }
+                }
+                _ => (),
+            }
+        }
+        false
+    }
+    p.functions.iter().any(|f| {
+        expr(
+            &f.body,
+            &f.params.iter().cloned().collect(),
+            p,
+            Some(&f.result),
+            true,
+        )
+    }) || p.actions.iter().any(|a| {
+        block(&a.body, p) || shadows(&a.body, a.params.iter().map(|(n, _)| n.clone()).collect())
+    }) || p
+        .keeps
+        .iter()
+        .any(|k| expr(&k.value, &Default::default(), p, Some(&k.ty), false))
+}
 
 impl CheckedModule {
     pub fn from_source(program: Program) -> LangResult<Self> {
@@ -151,7 +414,9 @@ impl CheckedModule {
         crate::check::check(&program)?;
         let module = Self(WireModule {
             schema: 1,
-            semantics: if canonical_float_needed(&program) {
+            semantics: if value_domain(&program) {
+                VALUE_SEMANTICS
+            } else if canonical_float_needed(&program) {
                 CANONICAL_FLOAT_SEMANTICS
             } else if control_needed(&program) {
                 CONTROL_SEMANTICS
@@ -188,6 +453,7 @@ impl CheckedModule {
                 PARALLEL_SEMANTICS,
                 CONTROL_SEMANTICS,
                 CANONICAL_FLOAT_SEMANTICS,
+                VALUE_SEMANTICS,
             ]
             .contains(&wire.semantics.as_str())
         {
@@ -399,6 +665,24 @@ impl Bounds {
         }
         Ok(())
     }
+}
+
+/// Reuse executable value budgets before external tools enter recursive typing.
+pub(crate) fn validate_value_groups<'a>(
+    groups: impl IntoIterator<Item = (&'a [(String, Type)], Vec<&'a Expr>)>,
+) -> LangResult<()> {
+    let mut bounds = Bounds {
+        remaining: 100_000,
+        extended: false,
+        sequence: false,
+    };
+    for (params, expressions) in groups {
+        bounds.params(params)?;
+        for expression in expressions {
+            bounds.expr(expression, 0)?;
+        }
+    }
+    Ok(())
 }
 
 fn validate(p: &Program) -> LangResult<(bool, bool)> {
