@@ -1231,3 +1231,129 @@ fn fixed_key_keep_deltas_execute_as_standalone_programs_on_every_cpu_target() {
         check(name,source,Some(serde_json::from_str(bytes).unwrap()),calls.clone());
     }
 }
+
+#[test]
+fn bulk_deltas_preserve_duplicates_mismatch_and_rollback_on_every_cpu_target() {
+    let output = Command::new("python3")
+        .args([
+            "-c",
+            "import gzip,sys;sys.stdout.buffer.write(gzip.open(sys.argv[1],'rb').read())",
+        ])
+        .arg(
+            Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join("knowledge/research/bulk-maintenance/request.json.gz"),
+        )
+        .output()
+        .unwrap();
+    assert!(output.status.success());
+    let request: Request = serde_json::from_slice(&output.stdout).unwrap();
+    let mut calls = vec![
+        ("batch", json!([[9, 1, 9, 3], [9, 1, 19, u64::MAX]])),
+        ("quantity_total", json!([])),
+        ("keys", json!([])),
+        ("batch", json!([[7, 8], [70]])),
+        ("quantity_total", json!([])),
+        ("fail", json!([[9, 1, 9], [20, 30, 40]])),
+        ("quantity_total", json!([])),
+        ("erase", json!([[9, 9, 999]])),
+        ("quantity_total", json!([])),
+        ("batch", json!([[], []])),
+    ];
+    for i in 0..32u64 {
+        calls.push(match i % 4 {
+            0 => ("put", json!([i % 7, u64::MAX - i])),
+            1 => (
+                "batch",
+                json!([[i % 7, (i + 1) % 7, i % 7], [i, i + 1, i + 2]]),
+            ),
+            2 => ("erase", json!([[i % 7, i % 7]])),
+            _ => ("fail", json!([[i % 7], [i]])),
+        });
+        calls.push(("quantity_total", json!([])));
+    }
+    check(
+        "bulk-delta",
+        include_str!("../examples/bulk-maintenance.ink"),
+        Some(request),
+        calls,
+    );
+}
+
+fn frozen_request(folder: &str) -> Request {
+    let output = Command::new("python3")
+        .args([
+            "-c",
+            "import gzip,sys;sys.stdout.buffer.write(gzip.open(sys.argv[1],'rb').read())",
+        ])
+        .arg(
+            Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join(format!("knowledge/research/{folder}/request.json.gz")),
+        )
+        .output()
+        .unwrap();
+    assert!(output.status.success());
+    serde_json::from_slice(&output.stdout).unwrap()
+}
+#[test]
+fn key_only_cache_retains_payload_changes_and_refreshes_membership_on_every_cpu_target() {
+    let calls = (0..24u64)
+        .flat_map(|i| {
+            vec![
+                (
+                    match i % 5 {
+                        0 => "put",
+                        1 => "replace",
+                        2 => "select",
+                        3 => "erase",
+                        _ => "unrelated",
+                    },
+                    if i % 5 == 2 || i % 5 == 3 {
+                        json!([i % 4])
+                    } else {
+                        json!([i % 4, i * 19])
+                    },
+                ),
+                ("intersection", json!([])),
+            ]
+        })
+        .collect();
+    check(
+        "membership-cache",
+        include_str!("../examples/membership-cache.ink"),
+        Some(frozen_request("membership-cache")),
+        calls,
+    );
+}
+#[test]
+fn rehashed_false_bulk_and_membership_laws_cannot_authorise_caches() {
+    for (folder, parameter) in [
+        ("bulk-maintenance", "bulk_rows"),
+        ("membership-cache", "membership_rows"),
+    ] {
+        let request = frozen_request(folder);
+        let dir = root().join(format!("forged-{folder}"));
+        fs::create_dir_all(&dir).unwrap();
+        fs::write(
+            dir.join("request.json"),
+            serde_json::to_vec(&request).unwrap(),
+        )
+        .unwrap();
+        let output = Command::new("python3")
+            .arg("tests/support/forge_math.py")
+            .arg(dir.join("request.json"))
+            .arg(parameter)
+            .current_dir(env!("CARGO_MANIFEST_DIR"))
+            .output()
+            .unwrap();
+        assert!(
+            output.status.success(),
+            "{}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+        let forged: Request = serde_json::from_slice(&output.stdout).unwrap();
+        verified_language::registry::CheckedBundle::check(&forged.knowledge).unwrap();
+        let source = fs::read_to_string(format!("knowledge/research/{folder}/source.ink")).unwrap();
+        let module = CheckedModule::from_source(parse(&source).unwrap()).unwrap();
+        assert!(representation::check(&module, &forged).is_err());
+    }
+}

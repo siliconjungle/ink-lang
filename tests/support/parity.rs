@@ -21,7 +21,7 @@ pub(crate) fn conformance(
     steps: Vec<Value>,
     expected: Vec<Value>,
 ) {
-    conformance_inner(name, p, None, source, steps, expected)
+    conformance_inner(name, p, None, None, source, steps, expected)
 }
 #[allow(dead_code)]
 pub(crate) fn conformance_selected(
@@ -35,6 +35,25 @@ pub(crate) fn conformance_selected(
         name,
         selected.module().program().clone(),
         Some(selected),
+        None,
+        source,
+        steps,
+        expected,
+    )
+}
+#[allow(dead_code)]
+pub(crate) fn conformance_indexed(
+    name: &str,
+    p: verified_language::syntax::Program,
+    source: &str,
+    steps: Vec<Value>,
+    expected: Vec<Value>,
+) {
+    conformance_inner(
+        name,
+        p,
+        None,
+        Some(verified_language::state_native::TableStorage::IndexedSlots),
         source,
         steps,
         expected,
@@ -44,6 +63,7 @@ fn conformance_inner(
     name: &str,
     p: verified_language::syntax::Program,
     selected: Option<&verified_language::optimisation::CheckedSelection>,
+    table_storage: Option<verified_language::state_native::TableStorage>,
     source: &str,
     steps: Vec<Value>,
     expected: Vec<Value>,
@@ -60,7 +80,9 @@ fn conformance_inner(
     // cached build-script outputs, or let it replace the executable before run.
     static GPU_ARTIFACTS: std::sync::Mutex<()> = std::sync::Mutex::new(());
     let _gpu_artifacts = std::env::var_os("INK_TEST_WGPU").map(|_| {
-        GPU_ARTIFACTS.lock().unwrap_or_else(|poisoned| poisoned.into_inner())
+        GPU_ARTIFACTS
+            .lock()
+            .unwrap_or_else(|poisoned| poisoned.into_inner())
     });
     let module = CheckedModule::from_source(p.clone()).unwrap();
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join(format!("build/{name}"));
@@ -178,13 +200,16 @@ fn conformance_inner(
             let mut expected_reply = e["reply"].clone();
             let reply = if let Some(name) = s["pure"].as_str() {
                 let f = p.functions.iter().find(|f| f.name == name).unwrap();
-                let descriptor = ink_abi::describe(&f.result, &p.records, &p.enums, &p.ids).unwrap();
+                let descriptor =
+                    ink_abi::describe(&f.result, &p.records, &p.enums, &p.ids).unwrap();
                 // Packed u64 wire values use decimal strings above the safe
                 // JSON range. Compare through the shared ABI, preserving bits.
                 if ink_abi::packed_width(&descriptor).is_ok() {
                     expected_reply = json!({"value":ink_abi::packed::unpack(&ink_abi::packed::pack(&e["reply"]["value"], &descriptor).unwrap(), &descriptor)});
                     json!({"value":ink_abi::packed::unpack(&ink_abi::packed::pack(&a["value"], &descriptor).unwrap(), &descriptor)})
-                } else { json!({"value":a["value"]}) }
+                } else {
+                    json!({"value":a["value"]})
+                }
             } else if a["host_error"].is_string() {
                 a.clone()
             } else {
@@ -279,7 +304,11 @@ fn conformance_inner(
             if let Some(selected) = selected {
                 verified_language::state_native::emit_selected(selected).unwrap()
             } else {
-                verified_language::state_native::emit(&p).unwrap()
+                verified_language::state_native::emit_with_table_storage(
+                    &p,
+                    table_storage.unwrap_or(verified_language::state_native::TableStorage::Ordered),
+                )
+                .unwrap()
             },
             verified_language::runtime::STATE_WASM_ABI
         ),
