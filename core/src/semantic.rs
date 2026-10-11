@@ -296,6 +296,9 @@ pub fn validate(t: &Term, env: &Env, p: &Program, b: &mut Budget) -> LangResult<
                         Err("semantic operator arity".to_string())
                     }
                 };
+                if crate::owned_semantic::validate(t, p)? {
+                    return Ok(());
+                }
                 match n.as_str() {
                     "apply" => {
                         arity(2)?;
@@ -347,11 +350,7 @@ pub fn validate(t: &Term, env: &Env, p: &Program, b: &mut Budget) -> LangResult<
                             need(a(1)?, value(Type::U32))?;
                         }
                         let ty = val(&t.sort)?;
-                        if crate::local_collections::owned(ty, p) {
-                            return Err(
-                                "owned stopping iteration has no logical correspondence".into()
-                            );
-                        }
+                        crate::statecheck::validate_type(ty, p)?;
                         need(a(1 + offset)?, t.sort.clone())?;
                         need(a(2 + offset)?, arrow(t.sort.clone(), value(Type::Bool)))?;
                         need(
@@ -705,6 +704,13 @@ pub fn elaborate(e: &Expr, env: &check::Env, p: &Program, want: &Type) -> LangRe
                             b,
                         )?);
                     }
+                    "buffer_fill" => {
+                        let Type::Buffer(inner) = want else {
+                            return Err("buffer fill sort".into());
+                        };
+                        out.push(recur(&args[0], &Type::U32)?);
+                        out.push(recur(&args[1], inner)?);
+                    }
                     "buffer" => {
                         let Type::Buffer(inner) = want else {
                             return Err("buffer result sort".into());
@@ -787,21 +793,31 @@ pub fn elaborate(e: &Expr, env: &check::Env, p: &Program, want: &Type) -> LangRe
                 Ok(op(s, &format!("call:{n}"), out))
             }
             Expr::Method(xs, n, args) => {
+                if matches!(xs.as_ref(), Expr::Var(v) if v == "Buffer" || v == "Map") {
+                    if n != "empty" || !args.is_empty() {
+                        return Err("temporary constructor".into());
+                    }
+                    let name = if matches!(want, Type::Buffer(_)) {
+                        "local:buffer-empty"
+                    } else {
+                        "local:map-empty"
+                    };
+                    return Ok(op(s, name, vec![]));
+                }
                 let ty = check::infer_context(
                     xs,
                     env,
                     p,
                     if n == "filter" { Some(want) } else { None },
                 )?;
-                if let Type::Buffer(inner) = &ty {
+                if matches!(ty, Type::Buffer(_) | Type::Map(..)) {
                     let mut out = vec![recur(xs, &ty)?];
-                    match n.as_str() {
-                        "freeze" | "len" if args.is_empty() => (),
-                        "at_or" if args.len() == 2 => {
-                            out.push(recur(&args[0], &Type::U32)?);
-                            out.push(recur(&args[1], inner)?);
-                        }
-                        _ => return Err("owned mutation has no logical correspondence".into()),
+                    let types = crate::owned_semantic::arguments(&ty, n)?;
+                    if types.len() != args.len() {
+                        return Err("temporary method arity".into());
+                    }
+                    for (arg, ty) in args.iter().zip(types) {
+                        out.push(recur(arg, &ty)?);
                     }
                     return Ok(op(s, &format!("method:{n}"), out));
                 }
@@ -954,7 +970,20 @@ pub fn reify(t: &Term, p: &Program) -> LangResult<Expr> {
                     );
                     return go(&literal, bound, free, p);
                 }
-                if n.starts_with("binary:") {
+                if n == "local:buffer-empty" || n == "local:map-empty" {
+                    Expr::Method(
+                        Box::new(Expr::Var(
+                            if n == "local:buffer-empty" {
+                                "Buffer"
+                            } else {
+                                "Map"
+                            }
+                            .into(),
+                        )),
+                        "empty".into(),
+                        vec![],
+                    )
+                } else if n.starts_with("binary:") {
                     Expr::Binary(
                         n[7..].into(),
                         Box::new(args[0].clone()),
