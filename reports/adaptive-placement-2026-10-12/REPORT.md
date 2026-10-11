@@ -28,8 +28,9 @@ source/C/JavaScript/shader identities. Cost profiles bind exact graph topology,
 outputs, feedback, iterations, types and measured feature domains. Unknown
 capacities, missing comparable CPU evidence and unsupported targets keep CPU.
 The host checks every physical proposal covers the original stages once in order.
-Profiles are observations, never proof premises. Both pins and all source changes
-are committed locally; publication is separate.
+Profiles are observations, never proof premises. The revisions above retain the
+original measurement provenance. Current published package revisions and refreshed
+integration checks are recorded in [the completed-work integration](../completed-main-integration-2026-10-12/README.md).
 
 Worker pools are explicit, bounded to 16 workers and 64 pending jobs. Dead slots
 change planning capacity; timeout/errors drain or reject jobs and retire a failed
