@@ -1802,11 +1802,6 @@ fn fuzz_lockfiles() {
     );
 }
 
-/// Database maintenance certificates (`aggregate::verify`, which runs the
-/// exact and keyed-table maintenance checkers and their kernel proofs).
-
-/// Source row models bound to a program and maintenance certificate.
-
 struct SnapshotSeed {
     layout: snapshot_wire::Layout,
     program: Option<syntax::Program>,

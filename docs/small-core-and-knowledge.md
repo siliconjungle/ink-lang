@@ -41,7 +41,11 @@ Device errors and resource limits remain runtime responsibilities.
 [`ink-native-support`](https://github.com/siliconjungle/ink-native-support) owns
 support emitted into native applications. Dynamic C values and statically typed
 Rust values retain their separate representations while consuming the shared ABI.
-The reference evaluator remains independent for differential testing.
+The source reference evaluator remains independent for differential testing.
+Representations compile to standalone native state; the generic proof-aware
+Session, executor adapters and per-call logical snapshot validation are removed.
+Portable checkpoint/restore switches compiled implementations only after restore
+succeeds; direct mathematical bridge checking remains a compile-time capability.
 
 ## Current state and ambitions
 

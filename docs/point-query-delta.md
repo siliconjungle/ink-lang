@@ -19,8 +19,9 @@ proof-kernel rule or source syntax was added.
 Frozen direct, refresh and delta requests live in
 `knowledge/research/point-delta`. The refresh-to-delta bridge reuses identical
 physical state; refresh-to-direct uses a proved decode/encode conversion. Both
-bridges are checked against the exact endpoint closures. `Session` switches at
-transaction boundaries, preserving portable logical snapshots and pending events.
+bridges are checked against the exact endpoint closures. Compiled programs switch
+at transaction boundaries through portable checkpoints, preserving logical state
+and pending events. The former direct research executor is retired.
 The producer's `--via-logical` bridge option is an authoring convenience, not
 unchecked migration authority.
 
@@ -30,14 +31,13 @@ Fixed list count and u64 sum project to recursive first-order functions. Runtime
 codecs preserve list elements, enforce the existing nesting bound and cap lengths
 at 4096. Exact Int, u32/i32, binary32, fixed vectors, nominal stored equality and
 filtered keeps are now also projected under the scope in
-[database representations](database-representations.md). Iterative native transport
-retains explicit bounds; representation execution may fail safely for values
-accepted by the source interpreter.
+[database representations](database-representations.md). Explicit portable codecs retain their bounds. Ordinary generated entrypoints
+require typed, canonical caller inputs; compile-and-run tooling validates ingress.
 
-Native tests compare reference, fused native and three-call execution over future
-updates, query histories, aborts, errors, events, restoration, migrations and
-exhaustion. List tests compare native and reference results and byte-identical
-snapshots, including overflow and list-valued events.
+Standalone conformance compares the source oracle against every compiled backend
+over future updates, queries, aborts, errors, events, restore and exhaustion.
+Compiled migration histories compare byte-identical snapshots before and after
+portable switches. Obsolete fused/three-call runtime harnesses are removed.
 
 The new delta candidate is slower on the measured small fixture. It is retained
 as a proved candidate, not made the default. External selection measures setup,
@@ -46,14 +46,16 @@ See [the measurements](../reports/incremental-maintenance-selection/README.md).
 The database now also contains universally checked filtered u64 sum/count
 maintenance across insertion, replacement and removal. It accounts for duplicate
 keys without assuming a unique/sorted-key invariant. Rollback, overflow, portable
-restore and direct/generic migration remain checked and exercised. Frozen
+restore and portable migration remain exercised; direct bridge preservation
+remains mathematically checked. Frozen
 requests live in `knowledge/research/filtered-aggregate`; the untrusted producer
 is `knowledge/producers/aggregate_delta.py`. All seven representation routes
 share source-oracle conformance, with recursive state executing in GPU host lanes.
 
 This closes filtered additive aggregates for the admitted table domain. Indexed
 physical tables, other reducers/key domains and efficient general aggregates
-remain open. Complete Session write transport still traverses logical state;
-compiled standalone calls have a separate caller-trusted contract. Profitability
+remain open. Ordinary compiled calls use the caller-trusted standalone contract
+and avoid full logical snapshot validation on every write. Physical linked-list
+maintenance may still traverse the table. Profitability
 is workload-specific: retain direct execution when cache maintenance costs more
 than the reads it saves. See [scaling results](../reports/representation-scaling/README.md).

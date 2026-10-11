@@ -22,7 +22,7 @@ for path in sorted(root.glob('aggregate-*.json')):
  for row in data['phases']:
   for name,value in row.items():
    if name.endswith('_ns')and value is not None:phase[('aggregate',row['rows'],row['candidate'])][name].append(value)
-result=dict(schema=1,scope='Median across all recorded samples; ns per 100 complete calls; point samples allocation-instrumented; no cross-revision ratio from preliminary runs',measurements=[],phases=[],stages=[])
+result=dict(schema=1,scope='Median across all recorded samples; ns per 100 complete calls; point samples, when present, allocation-instrumented; execution contract comes from raw scope/provenance; no cross-revision ratio from historical runs',measurements=[],phases=[],stages=[])
 for (workload,rows,candidate,query,reads),metrics in sorted(all_cases.items()):
  med={name:statistics.median(values)for name,values in metrics.items()};result['measurements'].append(dict(workload=workload,rows=rows,candidate=candidate,query=query,read_percent=reads,calls_per_sample=100,**med,baseline_speedup=med['baseline_ink_ns']/med['native_ns']))
 for (workload,rows,candidate),metrics in sorted(phase.items()):result['phases'].append(dict(workload=workload,rows=rows,candidate=candidate,**{name:statistics.median(values)for name,values in metrics.items()}))
