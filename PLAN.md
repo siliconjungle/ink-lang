@@ -48,6 +48,13 @@ target features/training coverage, and isolate fused scheduling/representation
 losses. Heldout errors and adverse selections rule out enabling the broad fitted
 model by default. Resident GPU and complete requests retain distinct accounting.
 
+[Mixed pure browser placement](reports/adaptive-placement-2026-10-12/REPORT.md)
+now implements bounded joint partition/target search, resident GPU groups and
+parallel JS/Wasm workers with measured setup, full bridges, feedback and fallback.
+Its scoped implementation gate is complete. Profiles remain opt-in, and broader
+competitive execution, stateful placement and unfamiliar-workload selection retain
+the gates above.
+
 Stateful research should use exact relevant changes to maintain results and
 workload frequencies/lifetime to choose whether maintenance pays. Charge setup,
 proof checking, additional writes, memory and migration. Trial bounded saved-profile

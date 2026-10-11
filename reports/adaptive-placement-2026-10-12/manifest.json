@@ -1,0 +1,829 @@
+{
+  "abi": "packed little-endian 32-bit lanes; GPU lists carry a length header; records in declaration order; vectors unpadded",
+  "backend": "webgpu-wgpu-v2",
+  "collection_strategy": "literal per-output evaluation; filters, ordered scans and stable rank sorts may do quadratic or greater work; profitability must be measured",
+  "core_semantics": "ink-executable-core-v2",
+  "core_sha256": "d2f05a69232c4ecdc8b7f8cdf7af04bea16c6ad8c664aaf5e8b4eb072f3aeb2e",
+  "cpu_c_sha256": "15aa5559a5b8b98d5dee56aef5fd7f5f2fab090a87105284a8af24e593100910",
+  "destination_abi": {
+    "aliasing": "destination-disjoint-from-all-reachable-inputs",
+    "alignment": 8,
+    "capacity": "trusted",
+    "count": "words32",
+    "name": "ink-packed-into-v1",
+    "ownership": "caller-owned",
+    "prepared_instance": "exclusive",
+    "scratch_lifetime": "call-mark-rewind",
+    "symbol": "ink_compute_into"
+  },
+  "float_contract": "portable f32 follows WGSL permitted floating evaluation, including rounding, reassociation, fusion, flush-to-zero and finite-math assumptions; lowering emits source order; CPU reference uses binary32; bitwise equivalence is not promised",
+  "functions": [
+    {
+      "capacity_mode": "max",
+      "fallback_reason": null,
+      "gpu_max_elements": null,
+      "graph": {
+        "limitations": [
+          "bounded 64 stages and 24 traversal depth",
+          "serial stable filter/scan/concat/ordered reductions",
+          "portable WGSL f32; exact CPU bit identity not promised",
+          "feedback requires matching bounded capacities and all stages to have graph descriptors"
+        ],
+        "nodes": [
+          {
+            "arg_types": [
+              {
+                "element": {
+                  "kind": "u32"
+                },
+                "kind": "list"
+              }
+            ],
+            "args": [
+              {
+                "param": 0
+              }
+            ],
+            "capacity": {
+              "args": [
+                0
+              ],
+              "kind": "same"
+            },
+            "id": 0,
+            "op": "map",
+            "ordered": false,
+            "result": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            },
+            "shader": "graph-0-0.wgsl",
+            "workgroup_size": 64
+          }
+        ],
+        "output": {
+          "node": 0
+        },
+        "result": {
+          "element": {
+            "kind": "u32"
+          },
+          "kind": "list"
+        },
+        "schema": 1,
+        "semantics": "literal eager array stages; ordered sums forward, folds last-to-first; no reassociation or fusion"
+      },
+      "graph_required": false,
+      "index": 0,
+      "lengths": [
+        0
+      ],
+      "name": "inc",
+      "params": [
+        {
+          "name": "xs",
+          "type": {
+            "element": {
+              "kind": "u32"
+            },
+            "kind": "list"
+          }
+        }
+      ],
+      "result": {
+        "element": {
+          "kind": "u32"
+        },
+        "kind": "list"
+      },
+      "shader": "compute-0.wgsl"
+    },
+    {
+      "capacity_mode": "max",
+      "fallback_reason": null,
+      "gpu_max_elements": null,
+      "graph": {
+        "limitations": [
+          "bounded 64 stages and 24 traversal depth",
+          "serial stable filter/scan/concat/ordered reductions",
+          "portable WGSL f32; exact CPU bit identity not promised",
+          "feedback requires matching bounded capacities and all stages to have graph descriptors"
+        ],
+        "nodes": [
+          {
+            "arg_types": [
+              {
+                "element": {
+                  "kind": "u32"
+                },
+                "kind": "list"
+              }
+            ],
+            "args": [
+              {
+                "param": 0
+              }
+            ],
+            "capacity": {
+              "args": [
+                0
+              ],
+              "kind": "same"
+            },
+            "id": 0,
+            "op": "map",
+            "ordered": false,
+            "result": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            },
+            "shader": "graph-1-0.wgsl",
+            "workgroup_size": 64
+          }
+        ],
+        "output": {
+          "node": 0
+        },
+        "result": {
+          "element": {
+            "kind": "u32"
+          },
+          "kind": "list"
+        },
+        "schema": 1,
+        "semantics": "literal eager array stages; ordered sums forward, folds last-to-first; no reassociation or fusion"
+      },
+      "graph_required": false,
+      "index": 1,
+      "lengths": [
+        0
+      ],
+      "name": "double",
+      "params": [
+        {
+          "name": "xs",
+          "type": {
+            "element": {
+              "kind": "u32"
+            },
+            "kind": "list"
+          }
+        }
+      ],
+      "result": {
+        "element": {
+          "kind": "u32"
+        },
+        "kind": "list"
+      },
+      "shader": "compute-1.wgsl"
+    },
+    {
+      "capacity_mode": "max",
+      "fallback_reason": null,
+      "gpu_max_elements": null,
+      "graph": {
+        "limitations": [
+          "bounded 64 stages and 24 traversal depth",
+          "serial stable filter/scan/concat/ordered reductions",
+          "portable WGSL f32; exact CPU bit identity not promised",
+          "feedback requires matching bounded capacities and all stages to have graph descriptors"
+        ],
+        "nodes": [],
+        "output": {
+          "param": 0
+        },
+        "result": {
+          "element": {
+            "kind": "u32"
+          },
+          "kind": "list"
+        },
+        "schema": 1,
+        "semantics": "literal eager array stages; ordered sums forward, folds last-to-first; no reassociation or fusion"
+      },
+      "graph_required": false,
+      "index": 2,
+      "lengths": [
+        0
+      ],
+      "name": "identity",
+      "params": [
+        {
+          "name": "xs",
+          "type": {
+            "element": {
+              "kind": "u32"
+            },
+            "kind": "list"
+          }
+        }
+      ],
+      "result": {
+        "element": {
+          "kind": "u32"
+        },
+        "kind": "list"
+      },
+      "shader": "compute-2.wgsl"
+    },
+    {
+      "capacity_mode": "max",
+      "fallback_reason": null,
+      "gpu_max_elements": null,
+      "graph": {
+        "limitations": [
+          "bounded 64 stages and 24 traversal depth",
+          "serial stable filter/scan/concat/ordered reductions",
+          "portable WGSL f32; exact CPU bit identity not promised",
+          "feedback requires matching bounded capacities and all stages to have graph descriptors"
+        ],
+        "nodes": [
+          {
+            "arg_types": [
+              {
+                "element": {
+                  "kind": "u32"
+                },
+                "kind": "list"
+              }
+            ],
+            "args": [
+              {
+                "param": 0
+              }
+            ],
+            "capacity": {
+              "args": [
+                0
+              ],
+              "kind": "same"
+            },
+            "id": 0,
+            "op": "filter",
+            "ordered": true,
+            "result": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            },
+            "shader": "graph-3-0.wgsl",
+            "workgroup_size": 1
+          }
+        ],
+        "output": {
+          "node": 0
+        },
+        "result": {
+          "element": {
+            "kind": "u32"
+          },
+          "kind": "list"
+        },
+        "schema": 1,
+        "semantics": "literal eager array stages; ordered sums forward, folds last-to-first; no reassociation or fusion"
+      },
+      "graph_required": true,
+      "index": 3,
+      "lengths": [
+        0
+      ],
+      "name": "evens",
+      "params": [
+        {
+          "name": "xs",
+          "type": {
+            "element": {
+              "kind": "u32"
+            },
+            "kind": "list"
+          }
+        }
+      ],
+      "result": {
+        "element": {
+          "kind": "u32"
+        },
+        "kind": "list"
+      },
+      "shader": "compute-3.wgsl"
+    },
+    {
+      "capacity_mode": "max",
+      "fallback_reason": null,
+      "gpu_max_elements": null,
+      "graph": {
+        "limitations": [
+          "bounded 64 stages and 24 traversal depth",
+          "serial stable filter/scan/concat/ordered reductions",
+          "portable WGSL f32; exact CPU bit identity not promised",
+          "feedback requires matching bounded capacities and all stages to have graph descriptors"
+        ],
+        "nodes": [
+          {
+            "arg_types": [
+              {
+                "element": {
+                  "kind": "u32"
+                },
+                "kind": "list"
+              }
+            ],
+            "args": [
+              {
+                "param": 0
+              }
+            ],
+            "capacity": {
+              "args": [],
+              "kind": "one"
+            },
+            "id": 0,
+            "op": "sum",
+            "ordered": true,
+            "result": {
+              "kind": "u32"
+            },
+            "shader": "graph-4-0.wgsl",
+            "workgroup_size": 1
+          }
+        ],
+        "output": {
+          "node": 0
+        },
+        "result": {
+          "kind": "u32"
+        },
+        "schema": 1,
+        "semantics": "literal eager array stages; ordered sums forward, folds last-to-first; no reassociation or fusion"
+      },
+      "graph_required": true,
+      "index": 4,
+      "lengths": [],
+      "name": "total",
+      "params": [
+        {
+          "name": "xs",
+          "type": {
+            "element": {
+              "kind": "u32"
+            },
+            "kind": "list"
+          }
+        }
+      ],
+      "result": {
+        "kind": "u32"
+      },
+      "shader": null
+    },
+    {
+      "capacity_mode": "max",
+      "fallback_reason": null,
+      "gpu_max_elements": null,
+      "graph": {
+        "limitations": [
+          "bounded 64 stages and 24 traversal depth",
+          "serial stable filter/scan/concat/ordered reductions",
+          "portable WGSL f32; exact CPU bit identity not promised",
+          "feedback requires matching bounded capacities and all stages to have graph descriptors"
+        ],
+        "nodes": [
+          {
+            "arg_types": [
+              {
+                "kind": "u32"
+              },
+              {
+                "kind": "u32"
+              }
+            ],
+            "args": [
+              {
+                "param": 0
+              },
+              {
+                "param": 1
+              }
+            ],
+            "capacity": {
+              "args": [],
+              "kind": "one"
+            },
+            "id": 0,
+            "op": "scalar",
+            "ordered": true,
+            "result": {
+              "kind": "u32"
+            },
+            "shader": "graph-5-0.wgsl",
+            "workgroup_size": 1
+          }
+        ],
+        "output": {
+          "node": 0
+        },
+        "result": {
+          "kind": "u32"
+        },
+        "schema": 1,
+        "semantics": "literal eager array stages; ordered sums forward, folds last-to-first; no reassociation or fusion"
+      },
+      "graph_required": true,
+      "index": 5,
+      "lengths": [],
+      "name": "combine",
+      "params": [
+        {
+          "name": "a",
+          "type": {
+            "kind": "u32"
+          }
+        },
+        {
+          "name": "b",
+          "type": {
+            "kind": "u32"
+          }
+        }
+      ],
+      "result": {
+        "kind": "u32"
+      },
+      "shader": null
+    },
+    {
+      "capacity_mode": "max",
+      "fallback_reason": "packed compute values must be flat; GPU values use only 32-bit components; literal graph: packed compute values must be flat; GPU values use only 32-bit components",
+      "gpu_max_elements": null,
+      "graph": null,
+      "graph_required": false,
+      "index": 6,
+      "lengths": [],
+      "name": "wide",
+      "params": [
+        {
+          "name": "xs",
+          "type": {
+            "element": {
+              "kind": "u64"
+            },
+            "kind": "list"
+          }
+        }
+      ],
+      "result": {
+        "element": {
+          "kind": "u64"
+        },
+        "kind": "list"
+      },
+      "shader": null
+    },
+    {
+      "capacity_mode": "max",
+      "fallback_reason": null,
+      "gpu_max_elements": null,
+      "graph": {
+        "limitations": [
+          "bounded 64 stages and 24 traversal depth",
+          "serial stable filter/scan/concat/ordered reductions",
+          "portable WGSL f32; exact CPU bit identity not promised",
+          "feedback requires matching bounded capacities and all stages to have graph descriptors"
+        ],
+        "nodes": [
+          {
+            "arg_types": [
+              {
+                "element": {
+                  "kind": "u32"
+                },
+                "kind": "list"
+              }
+            ],
+            "args": [
+              {
+                "param": 0
+              }
+            ],
+            "capacity": {
+              "args": [
+                0
+              ],
+              "kind": "same"
+            },
+            "id": 0,
+            "op": "map",
+            "ordered": false,
+            "result": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            },
+            "shader": "graph-7-0.wgsl",
+            "workgroup_size": 64
+          }
+        ],
+        "output": {
+          "node": 0
+        },
+        "result": {
+          "element": {
+            "kind": "u32"
+          },
+          "kind": "list"
+        },
+        "schema": 1,
+        "semantics": "literal eager array stages; ordered sums forward, folds last-to-first; no reassociation or fusion"
+      },
+      "graph_required": false,
+      "index": 7,
+      "lengths": [
+        0
+      ],
+      "name": "heavy",
+      "params": [
+        {
+          "name": "xs",
+          "type": {
+            "element": {
+              "kind": "u32"
+            },
+            "kind": "list"
+          }
+        }
+      ],
+      "result": {
+        "element": {
+          "kind": "u32"
+        },
+        "kind": "list"
+      },
+      "shader": "compute-7.wgsl"
+    }
+  ],
+  "gpu_list_abi": "ink-gpu-list-v3",
+  "javascript": {
+    "abi": "ink-javascript-trusted-values-v2",
+    "backend": "javascript",
+    "caller_contract": "trusted, well-typed target-native values; no input validation, snapshot capture or host resource budgets",
+    "core_semantics": "ink-executable-core-v2",
+    "core_sha256": "d2f05a69232c4ecdc8b7f8cdf7af04bea16c6ad8c664aaf5e8b4eb072f3aeb2e",
+    "destination_abi": {
+      "aliasing": "destination-disjoint-from-all-reachable-inputs",
+      "capacity": "trusted",
+      "count_unit": "elements",
+      "name": "ink-javascript-into-v1",
+      "ownership": "caller-owned",
+      "tail": "unwritten"
+    },
+    "functions": [
+      {
+        "destination": {
+          "abi": "ink-javascript-into-v1",
+          "count_unit": "elements",
+          "ownership": "caller-owned"
+        },
+        "index": 0,
+        "internal": false,
+        "name": "inc",
+        "params": [
+          {
+            "name": "xs",
+            "type": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            }
+          }
+        ],
+        "result": {
+          "element": {
+            "kind": "u32"
+          },
+          "kind": "list"
+        }
+      },
+      {
+        "destination": {
+          "abi": "ink-javascript-into-v1",
+          "count_unit": "elements",
+          "ownership": "caller-owned"
+        },
+        "index": 1,
+        "internal": false,
+        "name": "double",
+        "params": [
+          {
+            "name": "xs",
+            "type": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            }
+          }
+        ],
+        "result": {
+          "element": {
+            "kind": "u32"
+          },
+          "kind": "list"
+        }
+      },
+      {
+        "destination": {
+          "abi": "ink-javascript-into-v1",
+          "count_unit": "elements",
+          "ownership": "caller-owned"
+        },
+        "index": 2,
+        "internal": false,
+        "name": "identity",
+        "params": [
+          {
+            "name": "xs",
+            "type": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            }
+          }
+        ],
+        "result": {
+          "element": {
+            "kind": "u32"
+          },
+          "kind": "list"
+        }
+      },
+      {
+        "destination": {
+          "abi": "ink-javascript-into-v1",
+          "count_unit": "elements",
+          "ownership": "caller-owned"
+        },
+        "index": 3,
+        "internal": false,
+        "name": "evens",
+        "params": [
+          {
+            "name": "xs",
+            "type": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            }
+          }
+        ],
+        "result": {
+          "element": {
+            "kind": "u32"
+          },
+          "kind": "list"
+        }
+      },
+      {
+        "destination": null,
+        "index": 4,
+        "internal": false,
+        "name": "total",
+        "params": [
+          {
+            "name": "xs",
+            "type": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            }
+          }
+        ],
+        "result": {
+          "kind": "u32"
+        }
+      },
+      {
+        "destination": null,
+        "index": 5,
+        "internal": false,
+        "name": "combine",
+        "params": [
+          {
+            "name": "a",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "b",
+            "type": {
+              "kind": "u32"
+            }
+          }
+        ],
+        "result": {
+          "kind": "u32"
+        }
+      },
+      {
+        "destination": {
+          "abi": "ink-javascript-into-v1",
+          "count_unit": "elements",
+          "ownership": "caller-owned"
+        },
+        "index": 6,
+        "internal": false,
+        "name": "wide",
+        "params": [
+          {
+            "name": "xs",
+            "type": {
+              "element": {
+                "kind": "u64"
+              },
+              "kind": "list"
+            }
+          }
+        ],
+        "result": {
+          "element": {
+            "kind": "u64"
+          },
+          "kind": "list"
+        }
+      },
+      {
+        "destination": {
+          "abi": "ink-javascript-into-v1",
+          "count_unit": "elements",
+          "ownership": "caller-owned"
+        },
+        "index": 7,
+        "internal": false,
+        "name": "heavy",
+        "params": [
+          {
+            "name": "xs",
+            "type": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            }
+          }
+        ],
+        "result": {
+          "element": {
+            "kind": "u32"
+          },
+          "kind": "list"
+        }
+      }
+    ],
+    "javascript_sha256": "8b8194a3fe1bf46cab553769c8955136782de5c9370409f9bb8f08c68a5497d0",
+    "named_types": {},
+    "schema": 1,
+    "scope": "trusted pure functions and temporary collections; state/actions with portable snapshots and ordered transaction events",
+    "state": null,
+    "trusted": [
+      "Ink checker and source correspondence",
+      "JavaScript emitter and representation conversion",
+      "JavaScript engine and host"
+    ]
+  },
+  "javascript_sha256": "8b8194a3fe1bf46cab553769c8955136782de5c9370409f9bb8f08c68a5497d0",
+  "pipeline_planner_sha256": "7011d6da8f4bdd27d78011be19f2f1bb38bb748611553b2ec2206bd7fd1b74e0",
+  "proof_claim": "no backend correctness proof or optimisation theorem; profiling establishes profitability only",
+  "runtime_abi": "ink-packed-pipeline-v2",
+  "runtime_host_sha256": "9a2f29a1cec7aba18ea107b6c57ba0c88bab751dc5fef091b0ebb35244cb064a",
+  "schema": 2,
+  "shaders": {
+    "compute-0.wgsl": "a3daeb89aca915d3a0a9c851b4235d45ff67534308eae3dba3eca9f64d386a5e",
+    "compute-1.wgsl": "4bb62863b23063ad646c4caf255512709ee12b794bb36e68e22e43fe97b3ae67",
+    "compute-2.wgsl": "efdca9d6616bde8fa56cbc537d29ffb1d387fb1caf4290fc5e527fd8a5c1e923",
+    "compute-3.wgsl": "dcaf6b2a406e685a2b579914236f99d1ceb36d824d2306409fd5d701616ce540",
+    "compute-7.wgsl": "236fc240adab7ceb72e70d6c846c12cf68b452b7b513ff8251af76a5f4572b88",
+    "graph-0-0.wgsl": "530386011deb5a7c2e12ba0c0cbe3d3c5c0425e3672a07c535574cc7b9403bdf",
+    "graph-1-0.wgsl": "76bcb72063064eaa763ab3a5c0e254a0bd19409b690ab85bbeff5a1ae8185ea2",
+    "graph-3-0.wgsl": "83872bf0f273efbd38015a4e4bb1ee90872c010d3b49f902ae03e310036cac36",
+    "graph-4-0.wgsl": "a4748bc5be1570987efe1ab5d41efadc3444f908bb0c4202d6079aa5c74a5e0d",
+    "graph-5-0.wgsl": "b9170db61921aea20d486b30148a056d36bf61cf23a3c08804f02e66d2685e62",
+    "graph-7-0.wgsl": "dbc41dadce5d6e46cbaa83a75ff26da128edff98b56aa9c1fdd11754beacda83"
+  },
+  "trust": [
+    "type checker",
+    "literal C and WGSL lowering",
+    "packed ABI and host pipeline execution",
+    "C/LLVM, WebGPU/wgpu and drivers"
+  ]
+}
