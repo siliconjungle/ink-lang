@@ -28,9 +28,11 @@ Stateful correspondence also now represents List values using an ordinary
 Nil/Cons datatype, including lists nested in supported records/results/events.
 Fixed list count and u64 sum project to recursive first-order functions. Runtime
 codecs preserve list elements, enforce the existing nesting bound and cap lengths
-at 4096. This does not admit all numerical domains, exact Int or keeps. Native
-transport retains its stricter dispatcher bounds; representation execution may
-fail safely for values accepted by the source interpreter.
+at 4096. Exact Int, u32/i32, binary32, fixed vectors, nominal stored equality and
+filtered keeps are now also projected under the scope in
+[database representations](database-representations.md). Iterative native transport
+retains explicit bounds; representation execution may fail safely for values
+accepted by the source interpreter.
 
 Native tests compare reference, fused native and three-call execution over future
 updates, query histories, aborts, errors, events, restoration, migrations and
@@ -41,5 +43,17 @@ The new delta candidate is slower on the measured small fixture. It is retained
 as a proved candidate, not made the default. External selection measures setup,
 checking, execution, teardown, memory and exact migration costs before choosing.
 See [the measurements](../reports/incremental-maintenance-selection/README.md).
-Efficient general aggregates, other source domains and other native physical
-executors remain open work.
+The database now also contains universally checked filtered u64 sum/count
+maintenance across insertion, replacement and removal. It accounts for duplicate
+keys without assuming a unique/sorted-key invariant. Rollback, overflow, portable
+restore and direct/generic migration remain checked and exercised. Frozen
+requests live in `knowledge/research/filtered-aggregate`; the untrusted producer
+is `knowledge/producers/aggregate_delta.py`. All seven representation routes
+share source-oracle conformance, with recursive state executing in GPU host lanes.
+
+This closes filtered additive aggregates for the admitted table domain. Indexed
+physical tables, other reducers/key domains and efficient general aggregates
+remain open. Complete Session write transport still traverses logical state;
+compiled standalone calls have a separate caller-trusted contract. Profitability
+is workload-specific: retain direct execution when cache maintenance costs more
+than the reads it saves. See [scaling results](../reports/representation-scaling/README.md).
