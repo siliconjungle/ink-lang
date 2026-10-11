@@ -8,6 +8,13 @@ fn call(i:usize,reads:usize,count:usize,query:&str)->(&str,Json){
 fn main(){
  let module=CheckedModule::from_source(parse(SOURCE).unwrap()).unwrap();
  let labels=["direct","refresh","sum-delta","count-delta"];
+ let selected=std::env::var("INK_BENCH_CANDIDATES").unwrap_or(labels.join(","));
+ let selected=selected.split(',').collect::<Vec<_>>();assert!(selected.iter().all(|s|labels.contains(s)));
+ let queries=std::env::var("INK_BENCH_QUERIES").unwrap_or("total_query,count_query".into());
+ let queries=queries.split(',').collect::<Vec<_>>();assert!(queries.iter().all(|s|["total_query","count_query"].contains(s)));
+ let reads=std::env::var("INK_BENCH_READS").unwrap_or("100,90,50,10,0".into());
+ let reads=reads.split(',').map(|s|s.parse::<usize>().unwrap()).collect::<Vec<_>>();assert!(reads.iter().all(|r|*r<=100));
+ let rounds=std::env::var("INK_BENCH_ROUNDS").unwrap_or("5".into()).parse::<usize>().unwrap();assert!((1..=20).contains(&rounds));
  let sizes:Vec<usize>=std::env::var("INK_BENCH_ROWS").unwrap_or("48,256,1024,2048,4000".into()).split(',').map(|s|s.parse().unwrap()).collect();
  assert!(!sizes.is_empty()&&sizes.len()<=16&&sizes.iter().all(|n|*n>0&&*n<=4000));
  let mut measurements=vec![];let mut phases=vec![];
@@ -18,15 +25,16 @@ fn main(){
   let bytes=initial.checkpoint_portable().unwrap();
   let mut order=(0..labels.len()).collect::<Vec<_>>();if std::env::var_os("INK_BENCH_REVERSE").is_some(){order.reverse();}
   for index in order{
+   if !selected.contains(&labels[index]){continue;}
    let start=Instant::now();let mut initialized=Program::restore(index,&bytes).unwrap();let initialise_ns=start.elapsed().as_nanos();
    let start=Instant::now();initialized.switch((index+1)%labels.len()).unwrap();let migration_ns=start.elapsed().as_nanos();
    assert_eq!(initialized.checkpoint().unwrap(),bytes);
    phases.push(json!({"rows":count,"candidate":labels[index],"initialise_ns":initialise_ns,"portable_migration_ns":migration_ns}));
-   for query in ["total_query","count_query"]{for reads in [100usize,90,50,10,0]{
+   for &query in &queries{for reads in &reads{
     let mut samples=vec![];
-    for round in 0..5{
+    for round in 0..rounds{
      let mut native=Program::restore(index,&bytes).unwrap();let mut baseline=Runtime::restore_portable(module.program().clone(),&bytes).unwrap();
-     let script=(0..100).map(|i|call(i+round*100,reads,count,query)).collect::<Vec<_>>();
+     let script=(0..100).map(|i|call(i+round*100,*reads,count,query)).collect::<Vec<_>>();
      let start=Instant::now();let actual=script.iter().map(|(name,args)|{let reply=native.invoke_json(name,args).unwrap();native.acknowledge_through(u64::MAX,u64::MAX);black_box(reply)}).collect::<Vec<_>>();let native_ns=start.elapsed().as_nanos();
      let start=Instant::now();let expected=script.iter().map(|(name,args)|{let reply=baseline.invoke_json(name,args).unwrap().json();baseline.acknowledge_through(u64::MAX,u64::MAX);black_box(reply)}).collect::<Vec<_>>();let baseline_ink_ns=start.elapsed().as_nanos();assert_eq!(actual,expected);
      let mut hand=rows.clone();let mut version=count as u64;

@@ -168,3 +168,19 @@ it is not an end-to-end verification of Ink or generated machine code.
 Editor support and schema evolution are outside the current acceptance scope.
 Installation, debugging, crash recovery, broader proof coverage and competitive
 complete execution remain in scope. [PLAN.md](PLAN.md) retains the full gates.
+
+## Physical table ownership
+
+The first ownership improvement detaches shared inductive spine edges without
+allocating empty replacement nodes during release. Generated native storage
+passes a 100000-node shared-copy/release test with zero release allocations and
+an exact free count on a 1 MiB stack. The independently checked Lean ownership
+model states its reference-count/acyclicity assumptions. C, Rust, both Wasm
+and native GPU use this storage host; JavaScript/browser GPU retain GC storage.
+Cross-target observable parity remains checked. See the
+[matched measurements and artifacts](reports/table-ownership-2026-10-11/README.md).
+
+Rust write-heavy cells improve about 1.7–2×, but indexed physical table updates
+remain open: the 4000-row write-only cell still loses by over 900× to a maintained
+handwritten tree. This allocation fix does not change linear update traversal,
+prove generated compiler correctness or extend GPU device coverage.
