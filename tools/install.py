@@ -61,7 +61,10 @@ def main():
         resources = stage / 'share' / 'ink'
         committed(root / 'planner', ['plan.py', 'ink_planner'], resources / 'planner')
         committed(root / 'knowledge', ['ink_knowledge', 'store', 'research/general-laws',
-                  'producers/view_decomposition.py', 'producers/action_replacement.py',
+                  'producers/__init__.py', 'producers/semantic_laws.py',
+                  'producers/definition_context28.py', 'producers/fold_until_laws.py',
+                  'producers/inline_laws.py', 'producers/owned_transform_laws.py',
+                  'producers/action_replacement.py',
                   'producers/boolean_verdict.py', 'research/verified-kernel'], resources / 'knowledge')
         manifest = dict(schema=1, source_revision=git(root, 'rev-parse', 'HEAD').decode().strip(), packages=packages,
                         source_checkout_dirty=bool(git(root, 'status', '--porcelain')),

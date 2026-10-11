@@ -109,12 +109,19 @@ fn conformance_inner(
             String::from_utf8_lossy(&out.stderr)
         );
         let packed_pure = fs::read_to_string(project.join("Cargo.toml"))
-            .unwrap().contains("name = \"ink-gpu-program\"");
+            .unwrap()
+            .contains("name = \"ink-gpu-program\"");
         let mut gpu_steps = steps.clone();
         for step in &mut gpu_steps {
             if step["pure"].is_string() {
-                step["backend"] = json!(if step["cpu_only"] == true { "cpu" } else { "gpu" });
-                if packed_pure { step["call"] = step["pure"].clone(); }
+                step["backend"] = json!(if step["cpu_only"] == true {
+                    "cpu"
+                } else {
+                    "gpu"
+                });
+                if packed_pure {
+                    step["call"] = step["pure"].clone();
+                }
             }
         }
         fs::write(
@@ -122,8 +129,14 @@ fn conformance_inner(
             serde_json::to_vec(&gpu_steps).unwrap(),
         )
         .unwrap();
-        let mut command=Command::new(target.join(if packed_pure { "debug/ink-gpu-program" } else { "debug/ink-module-program" }));
-        if packed_pure { command.arg("--script"); }
+        let mut command = Command::new(target.join(if packed_pure {
+            "debug/ink-gpu-program"
+        } else {
+            "debug/ink-module-program"
+        }));
+        if packed_pure {
+            command.arg("--script");
+        }
         let out = command.arg(root.join("gpu-script.json")).output().unwrap();
         assert!(
             out.status.success(),
@@ -131,8 +144,14 @@ fn conformance_inner(
             String::from_utf8_lossy(&out.stderr)
         );
         let actual: Vec<Value> = if packed_pure {
-            String::from_utf8(out.stdout).unwrap().lines().map(|line|serde_json::from_str(line).unwrap()).collect()
-        } else { serde_json::from_slice(&out.stdout).unwrap() };
+            String::from_utf8(out.stdout)
+                .unwrap()
+                .lines()
+                .map(|line| serde_json::from_str(line).unwrap())
+                .collect()
+        } else {
+            serde_json::from_slice(&out.stdout).unwrap()
+        };
         let calls = gpu_steps
             .iter()
             .filter(|s| s["restore"].is_null())
