@@ -21,6 +21,8 @@ pub mod library;
 pub mod logic;
 pub mod machine;
 pub mod optimisation;
+pub mod parallel;
+pub mod recursion;
 pub mod registry;
 pub mod representation;
 pub mod routing;
@@ -53,3 +55,5 @@ pub mod local_collections;
 pub mod temporary;
 
 pub const TEMPORARY_RUST_SOURCE: &str = include_str!("temporary.rs");
+
+mod owned_semantic;

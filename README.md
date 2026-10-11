@@ -74,6 +74,10 @@ GPU capability checks and measured profitability are separate decisions. Support
 
 The checker, source correspondence, literal target emission, host bridges and toolchains remain trusted implementations. Hashes authenticate content and snapshots; they do not prove correctness. Research certificates and experiment-specific proof terms are retained under `knowledge/research/` for reproducibility, outside production discovery.
 
+See [owned collection optimisation](docs/owned-optimisation.md),
+[incremental point-query candidates](docs/point-query-delta.md) and
+[measured representation selection](reports/incremental-maintenance-selection/README.md).
+
 See [repository architecture and data contract](docs/repository-architecture.md), [composable optimisation](docs/semantic-optimisation.md), [GPU compute](docs/gpu-compute.md), [state and snapshots](docs/wasm-abi.md), and [remaining language work](PLAN.md). Archived reports preserve their original inputs and evidence.
 
 Benchmark methodology and independent proof-audit work are preserved in

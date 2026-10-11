@@ -289,7 +289,16 @@ pub fn infer_context(e: &Expr, env: &Env, p: &Program, want: Option<&Type>) -> L
             Ok(f.result.clone())
         }
         Expr::Method(xs, n, args) => {
-            let receiver = infer_context(xs, env, p, if n == "filter" || n == "concat" { want } else { None })?;
+            let receiver = infer_context(
+                xs,
+                env,
+                p,
+                if n == "filter" || n == "concat" {
+                    want
+                } else {
+                    None
+                },
+            )?;
             if matches!(receiver, Type::Buffer(_) | Type::Map(..)) {
                 return crate::local_collections::infer_method(e, env, p, want, receiver);
             }
@@ -311,6 +320,13 @@ pub fn infer_context(e: &Expr, env: &Env, p: &Program, want: Option<&Type>) -> L
                 infer_as(&args[0], env, p, &Type::U32)?;
                 infer_as(&args[1], env, p, &inner)?;
                 return Ok(*inner);
+            }
+            if n == "drop" || n == "take" {
+                if args.len() != 1 {
+                    return Err("drop/take expect a count".into());
+                };
+                infer_as(&args[0], env, p, &Type::U32)?;
+                return Ok(Type::List(inner));
             }
             if n == "scan" || n == "sort" {
                 if !args.is_empty() || !is_word(&inner) {
@@ -413,6 +429,7 @@ fn calls(e: &Expr, out: &mut BTreeSet<String>) {
                 "repeat_until",
                 "buffer",
                 "buffer_fill",
+                "parallel_map",
                 "length",
                 "vec2",
                 "vec3",
@@ -468,6 +485,7 @@ pub fn check(p: &Program) -> LangResult<()> {
             "repeat_until",
             "buffer",
             "buffer_fill",
+            "parallel_map",
             "length",
             "vec2",
             "vec3",
@@ -512,6 +530,9 @@ pub fn check(p: &Program) -> LangResult<()> {
             .ok_or_else(|| format!("unknown function {n}"))?;
         let mut deps = BTreeSet::new();
         calls(&f.body, &mut deps);
+        if deps.remove(n) {
+            crate::recursion::check_function(f, p)?;
+        }
         for d in deps {
             visit(&d, p, stack, done)?;
         }
