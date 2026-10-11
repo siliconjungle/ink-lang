@@ -2848,7 +2848,7 @@ fn derive(
                     .iter()
                     .map(|e| sub_pair(e, &bindings, c, budget))
                     .collect::<LangResult<Vec<_>>>()?;
-                if derive(
+                if !same_equation(&derive(
                     &case.proof,
                     &local,
                     c,
@@ -2856,7 +2856,7 @@ fn derive(
                     schemas,
                     budget,
                     depth + 1,
-                )? != want
+                )?, &want, c, budget)?
                 {
                     return Err("constructor case proves a different statement".into());
                 }
