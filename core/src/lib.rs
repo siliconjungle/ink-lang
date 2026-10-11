@@ -55,3 +55,5 @@ pub const TEMPORARY_RUST_SOURCE: &str = include_str!("temporary.rs");
 mod owned_semantic;
 
 pub mod value_limits;
+
+pub use action_types::table_argument;

@@ -238,8 +238,25 @@ impl Runtime {
                 method,
                 arguments,
             } => {
-                let args = self.typed_args(body, arguments, slots)?;
                 let name = self.program.states[*root].name.clone();
+                if method=="shared_keys" {
+                    let Kind::State(other)=body.nodes[arguments[0]].kind else{return Err("shared_keys root".into());};
+                    let other=&self.tables[&self.program.states[other].name];
+                    return Ok(Value::List(self.tables[&name].keys().filter(|k|other.contains_key(*k)).cloned().collect()));
+                }
+                if method=="sum_by" || method=="count_where" {
+                    let Kind::Lambda {parameter,body: callback}=body.nodes[arguments[0]].kind else {return Err("scan callback".into());};
+                    let values=self.tables[&name].values().cloned().collect::<Vec<_>>();
+                    let ExprType::Value(result_type)=&node.ty else {unreachable!()};
+                    let mut result=match result_type {Type::U64=>Value::U64(0),Type::U32=>Value::U32(0),Type::I32=>Value::I32(0),Type::F32=>Value::F32(0),Type::Int=>Value::Int(0.into()),_=>return Err("scan result type".into())};
+                    for value in values {
+                        let contribution=self.typed_apply(body,parameter,callback,slots,value)?;
+                        if method=="count_where" {if contribution==Value::Bool(true) {let Value::Int(n)=&mut result else {unreachable!()};*n+=1;}else if contribution!=Value::Bool(false){return Err("scan predicate".into());}}
+                        else {result=Self::binary("+",result,contribution)?;}
+                    }
+                    return Ok(result);
+                }
+                let args = self.typed_args(body, arguments, slots)?;
                 self.table(&name, method, args)
             }
             Kind::Method {

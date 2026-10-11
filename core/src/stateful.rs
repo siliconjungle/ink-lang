@@ -724,8 +724,22 @@ impl Runtime {
         } else {
             return Err("state is not a table".into());
         };
-        if n == "values" {
-            return Ok(Value::List(self.tables[root].values().cloned().collect()));
+        if n == "values" { return Ok(Value::List(self.tables[root].values().cloned().collect())); }
+        if n == "keys" { return Ok(Value::List(self.tables[root].keys().cloned().collect())); }
+        if ["intersect_keys", "put_many", "remove_many"].contains(&n) {
+            let Value::List(keys) = self.coerce(vals[0].clone(), &Type::List(kt.clone()))? else { unreachable!() };
+            if n == "intersect_keys" {
+                let selected: std::collections::BTreeSet<_> = keys.into_iter().collect();
+                return Ok(Value::List(self.tables[root].keys().filter(|k| selected.contains(*k)).cloned().collect()));
+            }
+            if n == "put_many" {
+                let Value::List(values) = self.coerce(vals[1].clone(), &Type::List(vt.clone()))? else { unreachable!() };
+                if keys.len() != values.len() { return Ok(Value::Result(false, Box::new(Value::String("table bulk length mismatch".into())))); }
+                for (key, value) in keys.into_iter().zip(values) { self.table(root, "put", vec![key, value])?; }
+                return Ok(Value::Result(true, Box::new(Value::Unit)));
+            }
+            for key in keys { self.table(root, "remove", vec![key])?; }
+            return Ok(Value::Unit);
         }
         let k = self.coerce(vals[0].clone(), &kt)?;
         match n {
@@ -735,7 +749,7 @@ impl Runtime {
                 ))
             }
             "contains" => return Ok(Value::Bool(self.tables[root].contains_key(&k))),
-            "insert" | "replace" | "remove" => {
+            "insert" | "replace" | "remove" | "put" => {
                 let old = self.tables[root].get(&k).cloned();
                 if (n == "insert" && old.is_some()) || (n == "replace" && old.is_none()) {
                     return Err("violated checked table precondition".into());

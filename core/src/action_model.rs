@@ -12,6 +12,7 @@ use crate::{
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 mod collections;
+mod bulk;
 mod equality;
 mod keys;
 mod local;
@@ -607,6 +608,7 @@ impl Lower<'_> {
                 let names = (0..n).map(|_| self.fresh()).collect::<Vec<_>>();
                 Ok(m(value, vec![(names.clone(), v(&names[*component]))]))
             }
+
             Kind::Builtin { name, arguments } if ["quot_or", "rem_or"].contains(&name.as_str()) => {
                 let xs = arguments
                     .iter()
@@ -706,6 +708,16 @@ impl Lower<'_> {
                     if method == "get" { &t.get } else { &t.contains },
                     vec![rows, args[0].clone()],
                 ))
+            }
+            Kind::Table {root,method,arguments} if method=="sum_by" || method=="count_where" => self.table_scan(body,*root,method,arguments[0],env,state,ty),
+            Kind::Table {root,method,arguments} if method=="shared_keys" => {
+                let Kind::State(other)=body.nodes[arguments[0]].kind else{return Err("shared_keys root".into());};
+                let keys=self.table_sequence(other,"keys",state)?;
+                self.intersect_table(*root,keys,state)
+            }
+            Kind::Table { root, method, arguments } if method == "intersect_keys" => {
+                let keys=self.expr(body,arguments[0],env,state)?;
+                self.intersect_table(*root,keys,state)
             }
             Kind::PureCall {
                 function,
