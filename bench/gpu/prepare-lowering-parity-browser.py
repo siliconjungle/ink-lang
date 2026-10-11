@@ -16,7 +16,16 @@ shutil.copyfile(root / 'c/target/wasm32-unknown-unknown/debug/compiled_state.was
 symbols = ['ink_compute_call', 'ink_compute_into', 'ink_compute_mark',
            'ink_compute_rewind', 'ink_compute_scalar32', 'ink_compute_scalar64',
            'ink_compute_reset', 'ink_alloc', '__heap_base']
-for c in [*root.glob('gpu-module/gpu/*/cpu.c'), Path('build/lowering-residency/cpu.c')]:
+numeric = [Path('build/generated-parity-u64'), Path('build/generated-parity-f32')]
+for fixture in numeric:
+    source = json.loads((fixture / 'c/manifest.json').read_text())
+    target = json.loads((fixture / 'gpu-module/manifest.json').read_text())
+    if source['core_sha256'] != target['core_sha256']:
+        raise SystemExit('numeric browser source identity mismatch')
+    shutil.copyfile(fixture / 'c/target/wasm32-unknown-unknown/debug/compiled_state.wasm',
+                    fixture / 'gpu-module/cpu/compiled_state.wasm')
+for c in [*root.glob('gpu-module/gpu/*/cpu.c'), Path('build/lowering-residency/cpu.c'),
+          *[c for fixture in numeric for c in fixture.glob('gpu-module/gpu/*/cpu.c')]]:
     subprocess.run([zig, 'cc', '-target', 'wasm32-freestanding', '-O3',
                     '-msimd128', '-std=c11', '-ffreestanding', '-nostdlib',
                     '-Wl,--no-entry', '-Wl,--export-memory',

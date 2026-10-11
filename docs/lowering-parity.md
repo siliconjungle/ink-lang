@@ -98,8 +98,8 @@ are explicit implementation policies; they do not reproduce the interpreter's
 exact fuel accounting. Explicit checked representation bundles execute literal definitions on all five
 CPU paths. The JavaScript representation host maintains admitted fixed-key keeps
 using the sealed database definitions, including guarded overwrite and removal.
-Ordinary baseline emission still recomputes keeps, and arbitrary Int aggregates
-are outside production representation admission. No unproved recognizer bypasses
+Ordinary baseline emission still recomputes keeps. The new point-query fixtures
+supply no incremental Int aggregate candidate. No unproved recognizer bypasses
 that admission boundary. See [checked representations](database-representations.md).
 
 ## Validation and trust
@@ -167,3 +167,12 @@ fails today; a passing CPU or eligible-GPU job is not a full GPU parity claim.
 `tests/feature_parity.rs` fault-injects omitted/unsupported JavaScript capabilities
 and missing coverage, and exercises literal physical executors, guarded cache
 maintenance, async transaction rollback and required-GPU numerical execution.
+
+The `declared-feature-parity` CI job checks complete CPU feature coverage and the
+`eligible-pure-exact-v1` GPU contract: exact eligible u64/binary32 kernels, actual
+dispatch and explicit `gpu-required` errors without fallback. Stateful transactions,
+arbitrary-size Int, general dynamic maps and recursive physical state execute on
+CPU hosts. The unrestricted all-GPU audit remains available with the default
+`tools/check_feature_parity.py` command and fails on its disclosed coverage gaps.
+Run `--scope contract --run` with Zig and Chrome to enforce the supported contract
+through compiled CPU, native GPU and browser GPU execution.

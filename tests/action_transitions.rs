@@ -473,11 +473,8 @@ fn database_remove_law_admits_a_complete_action_and_rejects_changed_observations
 #[test]
 fn unsupported_operations_and_domain_types_fail_closed() {
     for s in [
-        "module unsupported;query q(x:u32)->u32{return x;}",
         "module unsupported;query q(x:String)->String{return x;}",
         "module unsupported;keep value:Int=Int(1);query q()->Int reads(value){return value;}",
-        "module unsupported;state Rows:Table<u64,u64> = Table.empty();query q()->List<u64> reads(Rows){return Rows.values();}",
-        "module unsupported;fn divide(x:u64)->u64{return quot_or(x,1,0);}query q(x:u64)->u64{return divide(x);}",
     ] {
         // These are valid executable programs. Projection must reject them;
         // a frontend error cannot masquerade as a negative admission check.
@@ -488,8 +485,9 @@ fn unsupported_operations_and_domain_types_fail_closed() {
 #[test]
 fn supported_keeps_bind_fixed_source_semantics() {
     for source in [
+        "module supported;keep value:Int=1;query q()->Int reads(value){return value;}",
         "module supported;keep value:u64=1;query q()->u64 reads(value){return value;}",
-        "module supported;state Rows:Table<u64,u64> =Table.empty();keep value:Option<u64>=Rows.get(0);query q()->Option<u64> reads(Rows,value){return value;}",
+        "module supported;state Rows:Table<u64,u64> =Table.empty();keep value:Option<u64> =Rows.get(0);query q()->Option<u64> reads(Rows,value){return value;}",
     ] {
         Projection::derive(&module(source)).unwrap();
     }

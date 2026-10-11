@@ -3,7 +3,8 @@
 
 An inventory is a coverage contract, not a compiler-correctness proof. The actual
 tests require worker receipts, literal artifacts, GPU dispatch and checkpoints.
-The default audits ALL targets, including the still-incomplete GPU targets.
+The default audits unrestricted GPU coverage. Contract scope requires complete
+CPU coverage and exact eligible GPU kernels, with explicit required-GPU errors.
 """
 import argparse
 import json
@@ -55,12 +56,27 @@ def audit(catalog, scope):
                 gaps.append({"feature": feature["id"], "target": target, "reason": capability["reason"]})
     if covered != variants:
         raise ValueError("uncovered executable source types: " + str(sorted(variants - covered)))
+    contract=catalog["gpu_contract"]
+    if contract["semantics"] != "eligible-pure-exact-v1" or set(contract["host_only"]) != {"stateful-transactions","arbitrary-size-integers","general-dynamic-maps","recursive-physical-definitions"}:
+        raise ValueError("GPU execution contract changed without a coverage update")
+    if set(contract["capabilities"]) != {"exact-u64","exact-binary32","actual-eligible-dispatch","required-gpu-no-fallback"}:
+        raise ValueError("missing required GPU contract capability")
+    for name,capability in contract["capabilities"].items():
+        if not capability["tests"] or not set(capability["tests"]).issubset(catalog["cpu_suites"]):
+            raise ValueError("GPU contract capability needs mandatory conformance")
+        if set(capability["targets"]) != set(gpu):
+            raise ValueError("GPU contract omits target")
+        for target,value in capability["targets"].items():
+            if value["status"] not in ("implemented","partial","unsupported"):
+                raise ValueError("unknown GPU contract status")
+            if scope != "cpu" and value["status"] != "implemented":
+                gaps.append({"feature":name,"target":target,"reason":value.get("reason","missing required GPU contract")})
     return gaps
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--scope", choices=["all", "cpu"], default="all")
+    parser.add_argument("--scope", choices=["all", "cpu", "contract"], default="all")
     parser.add_argument("--catalog", type=Path, default=ROOT / "tests/feature-parity.json")
     parser.add_argument("--run", action="store_true", help="run required compiled conformance after the inventory passes")
     parser.add_argument("--receipt", type=Path)
@@ -75,7 +91,7 @@ def main():
         if not os.environ.get("INK_TEST_ZIG"):
             raise ValueError("--run requires INK_TEST_ZIG; skipping Wasm is forbidden")
         env = {**os.environ, "INK_PARITY_REQUIRE_ALL": "1", "INK_THREADS": "4"}
-        if args.scope == "all":
+        if args.scope in ("all", "contract"):
             if not os.environ.get("INK_TEST_CHROME"):
                 raise ValueError("all-target --run requires INK_TEST_CHROME for actual browser GPU checks")
             env["INK_TEST_WGPU"] = "1"
@@ -84,7 +100,7 @@ def main():
             command += ["--test", suite]
         status = subprocess.run(command + ["--", "--nocapture", "--test-threads=1"], cwd=ROOT, env=env).returncode
         receipt["conformance"] = "passed" if status == 0 else "failed"
-        if status == 0 and args.scope == "all":
+        if status == 0 and args.scope in ("all", "contract"):
             status = subprocess.run(["python3", "bench/gpu/prepare-lowering-parity-browser.py", env["INK_TEST_ZIG"]], cwd=ROOT, env=env).returncode
             if status == 0:
                 status = subprocess.run(["node", "bench/gpu/lowering-parity-browser.mjs", env["INK_TEST_CHROME"]], cwd=ROOT, env=env).returncode

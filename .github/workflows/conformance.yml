@@ -10,12 +10,28 @@ concurrency:
   group: conformance-${{ github.ref }}
   cancel-in-progress: true
 jobs:
+  declared-feature-parity:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Fail on any required CPU or GPU contract gap
+        run: python3 tools/check_feature_parity.py --scope contract --receipt build/enforced-parity/contract-audit.json
+      - name: Retain explicit missing capabilities
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: declared-feature-parity-inventory
+          path: build/enforced-parity/contract-audit.json
   cpu-wasm-durability:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
       INK_PARITY_REQUIRE_ALL: '1'
       INK_THREADS: '4'
+      CARGO_BUILD_JOBS: '2'
     steps:
       - uses: actions/checkout@v4
         with:
@@ -131,6 +147,7 @@ jobs:
     env:
       INK_TEST_WGPU: '1'
       INK_THREADS: '4'
+      CARGO_BUILD_JOBS: '2'
       WGPU_BACKEND: vulkan
     steps:
       - uses: actions/checkout@v4

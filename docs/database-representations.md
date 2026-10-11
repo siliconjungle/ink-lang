@@ -169,20 +169,20 @@ source action execution.
 
 ## Scope and trust
 
-Admission currently uses the documented `action_model` domain: u64 table keys,
-u64/Bool/Unit/enums/records/Option/Result/List values, supported fixed primitive
-operations, table operations, nested changes/queries, Try, replies and events.
-Unsupported source domains fail closed and continue to use ordinary baseline
-execution. This does not extend representation admission to exact-Int aggregates,
-floating-point arithmetic, other key domains or all language features. Keeps
-within the admitted U64/Bool/data domain expand through their fixed source bodies;
-checked point-query candidates reuse results and apply guarded overwrite/remove
-deltas. Exact-Int aggregate keeps remain outside this projection.
-Those require fixed source correspondence before their candidates can replace
-execution. Retiring their old specialised approval is not claiming that all old
+Admission uses the documented `action_model` domain: u64 table keys, supported
+word scalars, binary32 words, exact integers, fixed numeric vectors and
+Bool/Unit/enums/records/Option/Result/List values. Fixed source correspondence
+covers supported arithmetic and collection operations, nested changes/queries,
+Try, replies, events and keep bodies. Strings, recursive source types, other key
+domains and unsupported operations still fail closed. Every physical candidate
+must separately prove all-action preservation; type support alone grants no
+replacement authority. The point-query fixtures supply fixed-key maintenance,
+including guarded overwrite/removal. They supply no incremental Int aggregate
+candidate or measured performance evidence.
+Retiring their old specialised approval is not claiming that all old
 optimised catalogue entries have been ported to the new contract.
 
-The new path adds no proof-kernel rule and changes no source syntax or snapshot
+The portable execution path changes no source syntax or snapshot
 wire format. The fixed source projection, general checker, codecs, literal
 emitters, C/Rust/JavaScript/Wasm toolchains and hosts remain trusted; there is no
 formal compiler-correctness claim. All five CPU targets can execute the sealed
