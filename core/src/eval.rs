@@ -271,7 +271,7 @@ fn expr(
     };
     match e {
         Expr::Call(n, _) if n == "list" || crate::word::primitive(n) => {
-            evaluate_primitive_call(e, frame, fuel, ty)
+            evaluate_value_constructor(e, frame, fuel, ty)
         }
         Expr::Call(n, _)
             if [
@@ -313,6 +313,22 @@ fn expr(
         Expr::Call(n, _) if n == "choose" => evaluate_choose(e, frame, fuel, ty),
         Expr::Call(n, _) if n == "fold_until" => evaluate_fold_until(e, frame, fuel, ty),
         Expr::Call(n, _) if n == "foldr" || n == "foldl" => evaluate_foldr(e, frame, fuel, ty),
+        Expr::Num(_) | Expr::Bool(_) | Expr::String(_) | Expr::Unit | Expr::Var(_) => {
+            evaluate_literal(e, frame, fuel, ty)
+        }
+        Expr::Binary(..) => evaluate_binary(e, frame, fuel, ty),
+        Expr::Call(..) => evaluate_apply(e, frame, fuel, ty),
+        Expr::Method(..) => evaluate_map_filter(e, frame, fuel, ty),
+        Expr::Lambda(..) => Err("lambda cannot be evaluated outside collection operator".into()),
+        _ => Err("use stateful execution for this expression".into()),
+    }
+}
+
+// Literal conversion must not enlarge every arithmetic recursion frame.
+#[inline(never)]
+fn evaluate_literal(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> LangResult<Value> {
+    let env = frame.env;
+    match e {
         Expr::Num(n) => Ok(if ty == Type::Int {
             Value::Opaque(crate::stateful::Value::Int(num_bigint::BigInt::from(*n)))
         } else if ty == Type::I32 {
@@ -329,18 +345,14 @@ fn expr(
         Expr::Unit => Ok(Value::Opaque(crate::stateful::Value::Unit)),
         Expr::Var(n) if n == "None" => Ok(Value::Opaque(crate::stateful::Value::Option(None))),
         Expr::Var(n) => copy_value(env.get(n).ok_or_else(|| format!("unbound {n}"))?, fuel),
-        Expr::Binary(..) => evaluate_binary(e, frame, fuel, ty),
-        Expr::Call(..) => evaluate_apply(e, frame, fuel, ty),
-        Expr::Method(..) => evaluate_map_filter(e, frame, fuel, ty),
-        Expr::Lambda(..) => Err("lambda cannot be evaluated outside collection operator".into()),
-        _ => Err("use stateful execution for this expression".into()),
+        _ => unreachable!(),
     }
 }
 
-// Collection and word temporaries must not enlarge every recursive expression
-// frame: the depth guard has to run before exhausting a small host stack.
+// Keep constructor temporaries out of the common recursive evaluation frame.
+// In particular, word conversion owns opaque values and argument vectors.
 #[inline(never)]
-fn evaluate_primitive_call(
+fn evaluate_value_constructor(
     e: &Expr,
     frame: Frame<'_>,
     fuel: &mut u64,
@@ -352,28 +364,30 @@ fn evaluate_primitive_call(
         p,
         depth,
     } = frame;
-    let Expr::Call(n, args) = e else {
-        unreachable!("expression dispatch")
-    };
-    if n == "list" {
-        let Type::List(inner) = &ty else {
-            return Err("list result type".into());
-        };
-        return args
-            .iter()
-            .map(|e| expr(e, env, types, p, fuel, Some(inner), depth))
-            .collect::<LangResult<Vec<_>>>()
-            .map(Value::List);
+    match e {
+        Expr::Call(n, args) if n == "list" => {
+            let Type::List(inner) = &ty else {
+                return Err("list result type".into());
+            };
+            args.iter()
+                .map(|e| expr(e, env, types, p, fuel, Some(inner), depth))
+                .collect::<LangResult<Vec<_>>>()
+                .map(Value::List)
+        }
+        Expr::Call(n, args) if crate::word::primitive(n) => {
+            let ts = crate::word::arguments(n, &ty);
+            let args = args
+                .iter()
+                .zip(ts)
+                .map(|(e, t)| {
+                    expr(e, env, types, p, fuel, Some(&t), depth)
+                        .and_then(crate::stateful::Value::from_eval)
+                })
+                .collect::<LangResult<Vec<_>>>()?;
+            crate::word::evaluate(n, &args)?.to_eval()
+        }
+        _ => unreachable!(),
     }
-    let args = args
-        .iter()
-        .zip(crate::word::arguments(n, &ty))
-        .map(|(e, t)| {
-            expr(e, env, types, p, fuel, Some(&t), depth)
-                .and_then(crate::stateful::Value::from_eval)
-        })
-        .collect::<LangResult<Vec<_>>>()?;
-    crate::word::evaluate(n, &args)?.to_eval()
 }
 
 // A separate frame keeps deeply nested evaluation from reserving stack space

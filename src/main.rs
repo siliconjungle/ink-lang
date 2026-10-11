@@ -93,7 +93,8 @@ fn prepare_selection(
             };
             let budget = arg_value(args, "--search-budget")?.unwrap_or_else(|| "128".into());
             let python = arg_value(args, "--python")?.unwrap_or_else(|| "python3".into());
-            let result = Command::new(&python)
+            let mut command = Command::new(&python);
+            command
                 .arg(&tool)
                 .arg("--compiler")
                 .arg(env::current_exe().map_err(|e| e.to_string())?)
@@ -104,7 +105,14 @@ fn prepare_selection(
                 .arg("--budget")
                 .arg(budget)
                 .arg("-o")
-                .arg(&output)
+                .arg(&output);
+            if let Some(cache) = arg_value(args, "--plan-cache")? {
+                command.arg("--cache-dir").arg(cache);
+                if let Some(context) = arg_value(args, "--plan-cache-context")? {
+                    command.arg("--cache-context").arg(context);
+                }
+            }
+            let result = command
                 .output()
                 .map_err(|e| {
                     format!(
@@ -145,6 +153,8 @@ fn run() -> LangResult<()> {
         "--library",
         "--native-cpu",
         "--optimise",
+        "--plan-cache",
+        "--plan-cache-context",
         "--portable",
         "--proofs",
         "--python",
@@ -202,11 +212,12 @@ fn run() -> LangResult<()> {
         let module = core::CheckedModule::from_bytes(&read_bounded(&args[1], core::MAX_BYTES)?)?;
         let catalogue = serde_json::from_slice(&read_bounded(&args[2], 16_000_000)?)
             .map_err(|e| e.to_string())?;
-        let checker = verified_language::optimisation::SelectionChecker::new(module, catalogue)?;
+        let mut checker =
+            verified_language::optimisation::SelectionChecker::new(module, catalogue)?;
         use std::io::{BufRead, Write};
         let stdin = std::io::stdin();
         let mut reader = stdin.lock();
-        println!("{}", serde_json::json!({"ready":true}));
+        println!("{}", serde_json::json!({"ready":true,"incremental":true}));
         std::io::stdout().flush().map_err(|e| e.to_string())?;
         for _ in 0..4098 {
             let mut line = Vec::new();
@@ -220,6 +231,20 @@ fn run() -> LangResult<()> {
             }
             if count > 16_000_000 {
                 return Err("checker session request byte limit".into());
+            }
+            #[derive(serde::Deserialize)]
+            #[serde(deny_unknown_fields)]
+            struct Admission {
+                admit: verified_language::registry::Bundle,
+            }
+            if let Ok(admission) = serde_json::from_slice::<Admission>(&line) {
+                let response = match checker.extend(admission.admit) {
+                    Ok(added) => serde_json::json!({"admitted":true,"added":added}),
+                    Err(error) => serde_json::json!({"admitted":false,"error":error}),
+                };
+                println!("{response}");
+                std::io::stdout().flush().map_err(|e| e.to_string())?;
+                continue;
             }
             let result =
                 serde_json::from_slice::<Vec<verified_language::optimisation::Site>>(&line)
@@ -523,7 +548,7 @@ fn run() -> LangResult<()> {
         println!("ink --version\nink doctor [--python PATH]\nink explain SOURCE [--core] [--selection PACKAGE.json | --optimise SNAPSHOT.json]\nink modules SOURCE");
         println!("ink check-boolean-verdict THEOREM.json --lean PATH -o CERTIFICATE.lean");
         println!("ink emit-laws THEOREMS.ink [--proofs EVIDENCE.json] [--view DEPENDENCIES.json] -o BUNDLE.json");
-        println!("ink emit-semantic SOURCE [--core] -o SUBJECT.json\nink check-selection CORE.json PACKAGE.json\nExecution, lowering and core emission accept --optimise KNOWLEDGE_DIRECTORY or SNAPSHOT.json (external search) or --selection PACKAGE.json (checked replay). Optional --search-tool PATH, --search-budget N and --python PATH. INK_DISTRIBUTION locates an optional installed tool bundle.");
+        println!("ink emit-semantic SOURCE [--core] -o SUBJECT.json\nink check-selection CORE.json PACKAGE.json\nExecution, lowering and core emission accept --optimise KNOWLEDGE_DIRECTORY or SNAPSHOT.json (external search) or --selection PACKAGE.json (checked replay). Optional --search-tool PATH, --search-budget N, --python PATH and --plan-cache DIRECTORY [--plan-cache-context FILE]. INK_DISTRIBUTION locates an optional installed tool bundle.");
         println!("ink check-representation SOURCE REQUEST.json\nink emit-representation SOURCE REQUEST.json [--target rust|c|javascript|wasm32|c-wasm|rust-wasm|wgpu|webgpu] -o OUTPUT\nink execute-representation SOURCE REQUEST.json SCRIPT.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] (compiles standalone Rust; requires Cargo; script supports call and portable migrate steps)");
         println!("ink check-source-route CORE.json ROUTING.json\nink emit-action-model SOURCE -o MODEL.json (restricted whole-action transition projection)");
         println!("ink emit-source-syntax SOURCE --roles ROLES.json -o EXPECTED.json\nink check-source-syntax SOURCE --roles ROLES.json --view VIEW.json (complete code-data binding only)");
