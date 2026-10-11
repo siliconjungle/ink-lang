@@ -29,7 +29,7 @@ pub enum Value {
 }
 impl Value {
     /// Convert a checked pure value without passing floating payloads through JSON.
-    fn from_eval(value: crate::eval::Value) -> LangResult<Self> {
+    pub(crate) fn from_eval(value: crate::eval::Value) -> LangResult<Self> {
         fn convert(value: crate::eval::Value, depth: usize) -> LangResult<Value> {
             use crate::eval::Value as E;
             if depth > 128 {
@@ -65,7 +65,7 @@ impl Value {
         }
         convert(value, 0)
     }
-    fn to_eval(&self) -> LangResult<crate::eval::Value> {
+    pub(crate) fn to_eval(&self) -> LangResult<crate::eval::Value> {
         fn convert(value: &Value, depth: usize) -> LangResult<crate::eval::Value> {
             use crate::eval::Value as E;
             if depth > 128 {
@@ -157,6 +157,12 @@ impl Value {
                 .as_str()
                 .map(|s| Self::String(s.into()))
                 .ok_or("expected String".into()),
+            Type::Named(n) if n == "ArithmeticError" => {
+                if v.as_str() != Some("ArithmeticError.Overflow") {
+                    return Err("expected ArithmeticError.Overflow".into());
+                }
+                Ok(Self::Enum(n.clone(), "Overflow".into()))
+            }
             Type::Named(n) if p.ids.contains(n) => {
                 let text = v
                     .as_str()
@@ -587,7 +593,11 @@ impl Runtime {
         }
     }
     fn builtin(&mut self, n: &str, vals: Vec<Value>, result_type: &Type) -> Exec<Value> {
+        if crate::word::primitive(n) {
+            return Ok(crate::word::evaluate(n, &vals)?);
+        }
         match n {
+            "list" => return Ok(Value::List(vals)),
             "vec2" | "vec3" | "vec4" => return Ok(Value::Vector(vals)),
             "Ok" | "Err" => return Ok(Value::Result(n == "Ok", Box::new(vals[0].clone()))),
             "Some" => return Ok(Value::Option(Some(Box::new(vals[0].clone())))),
