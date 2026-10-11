@@ -1,0 +1,40 @@
+{
+  "workspace": "current",
+  "timing": "serialized by parent; no workers time/profile without gate",
+  "lanes": {
+    "regression_diagnosis": [
+      "reports/web-stack-engine-39-2026-10-11/regressions/**",
+      "bench/diagnose-pipeline38.*"
+    ],
+    "facts_memory": [
+      "core/src/collection_facts.rs",
+      "core/src/lib.rs",
+      "lowerings/js/src/lib.rs",
+      "lowerings/c/src/compute.rs",
+      "docs/collection-facts.md",
+      "package tests",
+      "reports/web-stack-engine-39-2026-10-11/facts/**"
+    ],
+    "general_benchmarks": [
+      "bench/web-stack-general39/**",
+      "bench/web-stack-general39.py",
+      "reports/web-stack-engine-39-2026-10-11/benchmark-preparation/**"
+    ],
+    "parent": [
+      "planner/**",
+      "runtime/**",
+      "docs/target-profitability.md",
+      "docs/adaptive-execution.md",
+      "reports/web-stack-engine-39-2026-10-11/{plan,selection,measurements,review,delivery}/**",
+      "root README",
+      "integration tests"
+    ]
+  },
+  "constraints": [
+    "no caller validation wrappers",
+    "no costmodel change before diagnosis",
+    "all production correctness checked independently of profiles",
+    "all prior artifacts immutable",
+    "direct main commits; no PRs"
+  ]
+}
