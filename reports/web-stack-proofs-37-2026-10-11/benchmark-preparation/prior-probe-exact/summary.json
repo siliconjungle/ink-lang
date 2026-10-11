@@ -1,0 +1,349 @@
+{
+  "status": "passed",
+  "prior_snapshot": "7f5e7a94b49db567af55f5d1129dd07c5e2b469ebd45cb6e5cbc53595782b2be",
+  "prior_members": 2512,
+  "compiler_sha256": "04f42856696cbc9a4d5b0523e4a2c5d9d84ae28e0e039f0fd9c305fe2d0a5536",
+  "model_sha256": "5d1158860dba2b72ab6e632c4eceac76c9589de81a687d446f25044fe88481be",
+  "rows": {
+    "pipeline37_left_projection_u32": {
+      "source_sha256": "d30c5c6dac20b73cde16d01672f2430fcdbed5a0a7dbe83291e1df4e032d900b",
+      "prior_selection_sha256": "bcc8cadbf1ed99962389754939d062053e2c5be14fee4450ed37fb8c5d5f2cef",
+      "receipt_sha256": "dbacbe4c1f707536f33d58000473400233ddc17275fee6e63365ae91798f20c3",
+      "selected_roots": [],
+      "initial_cost": 372,
+      "selected_cost": 372,
+      "exhausted": false,
+      "changed": false,
+      "body": {
+        "Method": [
+          {
+            "Method": [
+              {
+                "Var": "xs"
+              },
+              "map_indexed",
+              [
+                {
+                  "Lambda": [
+                    "i",
+                    {
+                      "Lambda": [
+                        "x",
+                        {
+                          "Call": [
+                            "discarded_index",
+                            [
+                              {
+                                "Var": "i"
+                              },
+                              {
+                                "Var": "x"
+                              },
+                              {
+                                "Var": "seed"
+                              },
+                              {
+                                "Var": "k"
+                              }
+                            ]
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            ]
+          },
+          "zip",
+          [
+            {
+              "Var": "ys"
+            },
+            {
+              "Lambda": [
+                "unused",
+                {
+                  "Lambda": [
+                    "y",
+                    {
+                      "Call": [
+                        "selected_word",
+                        [
+                          {
+                            "Var": "y"
+                          },
+                          {
+                            "Var": "seed"
+                          },
+                          {
+                            "Var": "k"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        ]
+      }
+    },
+    "pipeline37_right_projection_u32": {
+      "source_sha256": "30711ca2ae388624f4cb6747e9aa7e8b01fe86c1ed96bebe54cf9e14e6cfd54b",
+      "prior_selection_sha256": "df9b072794c77ee28427a84130292fa8423ef0aaa9b48a57e6dc08bcc4233495",
+      "receipt_sha256": "bc1c048c944d074d0e25e5282b9586e0eacecfcbf9ea9cb8020bb38ee26ed3b0",
+      "selected_roots": [],
+      "initial_cost": 372,
+      "selected_cost": 372,
+      "exhausted": false,
+      "changed": false,
+      "body": {
+        "Method": [
+          {
+            "Var": "xs"
+          },
+          "zip",
+          [
+            {
+              "Method": [
+                {
+                  "Var": "ys"
+                },
+                "map_indexed",
+                [
+                  {
+                    "Lambda": [
+                      "i",
+                      {
+                        "Lambda": [
+                          "x",
+                          {
+                            "Call": [
+                              "discarded_index",
+                              [
+                                {
+                                  "Var": "i"
+                                },
+                                {
+                                  "Var": "x"
+                                },
+                                {
+                                  "Var": "seed"
+                                },
+                                {
+                                  "Var": "k"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              ]
+            },
+            {
+              "Lambda": [
+                "y",
+                {
+                  "Lambda": [
+                    "unused",
+                    {
+                      "Call": [
+                        "selected_word",
+                        [
+                          {
+                            "Var": "y"
+                          },
+                          {
+                            "Var": "seed"
+                          },
+                          {
+                            "Var": "k"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        ]
+      }
+    },
+    "pipeline37_left_projection_heldout_u32": {
+      "source_sha256": "cbb974c692d65a9243330955c033dccd22ea57a42a1f31c1656692a6ace16b6b",
+      "prior_selection_sha256": "233bcc4c9f1bc4ca39d503c591ee99ea80e71d6c43aceaca2eb8f97dc3655d45",
+      "receipt_sha256": "2a0881500c338df6d5b130d1b92e8afda497dc55a5b87917bf7850996afd9187",
+      "selected_roots": [],
+      "initial_cost": 386,
+      "selected_cost": 386,
+      "exhausted": false,
+      "changed": false,
+      "body": {
+        "Method": [
+          {
+            "Method": [
+              {
+                "Var": "xs"
+              },
+              "map_indexed",
+              [
+                {
+                  "Lambda": [
+                    "i",
+                    {
+                      "Lambda": [
+                        "x",
+                        {
+                          "Call": [
+                            "discarded_index",
+                            [
+                              {
+                                "Var": "i"
+                              },
+                              {
+                                "Var": "x"
+                              },
+                              {
+                                "Var": "seed"
+                              },
+                              {
+                                "Var": "k"
+                              }
+                            ]
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            ]
+          },
+          "zip",
+          [
+            {
+              "Var": "ys"
+            },
+            {
+              "Lambda": [
+                "unused",
+                {
+                  "Lambda": [
+                    "y",
+                    {
+                      "Call": [
+                        "selected_word",
+                        [
+                          {
+                            "Var": "y"
+                          },
+                          {
+                            "Var": "seed"
+                          },
+                          {
+                            "Var": "k"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        ]
+      }
+    },
+    "pipeline37_right_projection_heldout_u32": {
+      "source_sha256": "38de954f8d7414544646db3c84d398aea9f016990f23a59280d7837ef1c42974",
+      "prior_selection_sha256": "da7c9761714340d5cc82d9e9c39e2dc0523efd78947634aa60213bf55868ff0a",
+      "receipt_sha256": "b84f2a2b4d5983064a6fc9510e98e82e28939299901b5912d5ab9f11d01e05e3",
+      "selected_roots": [],
+      "initial_cost": 386,
+      "selected_cost": 386,
+      "exhausted": false,
+      "changed": false,
+      "body": {
+        "Method": [
+          {
+            "Var": "xs"
+          },
+          "zip",
+          [
+            {
+              "Method": [
+                {
+                  "Var": "ys"
+                },
+                "map_indexed",
+                [
+                  {
+                    "Lambda": [
+                      "i",
+                      {
+                        "Lambda": [
+                          "x",
+                          {
+                            "Call": [
+                              "discarded_index",
+                              [
+                                {
+                                  "Var": "i"
+                                },
+                                {
+                                  "Var": "x"
+                                },
+                                {
+                                  "Var": "seed"
+                                },
+                                {
+                                  "Var": "k"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              ]
+            },
+            {
+              "Lambda": [
+                "y",
+                {
+                  "Lambda": [
+                    "unused",
+                    {
+                      "Call": [
+                        "selected_word",
+                        [
+                          {
+                            "Var": "y"
+                          },
+                          {
+                            "Var": "seed"
+                          },
+                          {
+                            "Var": "k"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

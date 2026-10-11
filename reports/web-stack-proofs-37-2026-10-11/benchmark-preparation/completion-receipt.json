@@ -1,0 +1,375 @@
+{
+  "status": "passed",
+  "timed": false,
+  "report": "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/reports/web-stack-proofs-37-2026-10-11/targets",
+  "result_kind": "list_u32",
+  "compiler_sha256": "04f42856696cbc9a4d5b0523e4a2c5d9d84ae28e0e039f0fd9c305fe2d0a5536",
+  "model_sha256": "5d1158860dba2b72ab6e632c4eceac76c9589de81a687d446f25044fe88481be",
+  "prior_snapshot": "7f5e7a94b49db567af55f5d1129dd07c5e2b469ebd45cb6e5cbc53595782b2be",
+  "current_snapshot": "6df4df9aae82d58eba9eac5e8d36b41ce37147ed5d661285903745f4c136d9e3",
+  "prepared_bindings_verified": 324,
+  "native_bindings_verified": 107,
+  "fixtures": 96,
+  "timed_cells": 24,
+  "prior_probe": {
+    "status": "passed",
+    "members": 2512,
+    "all_four_unchanged": true
+  },
+  "strong_controls": {
+    "frames": 96,
+    "complete_outputs": 192,
+    "input_nonmutation": true,
+    "owned_lifetime": true,
+    "ignored_donor_perturbation": true,
+    "full_word_checksum_validation": true
+  },
+  "node": {
+    "status": "passed",
+    "host": "node",
+    "timed": false,
+    "validation": 1152,
+    "complete_output_checks": 3072,
+    "actual_gpu_validation": 0,
+    "fallback_validation": 0,
+    "bindings": {
+      "metadata": "eb7476f89116c9d977980b371924fdb81905dc146017c0ab48ed78ff6b31ab7d",
+      "results": "a74446698d03c40d95427982dfc1e6ca1ff9bb7d6b73a19acfd7100880b3f991"
+    }
+  },
+  "native": {
+    "status": "prepared",
+    "full_vector_output_and_input_nonmutation_checks": 384,
+    "samples": 0,
+    "result_kind": "list_u32",
+    "boundary": "resident caller destination or copied inputs then same destination; complete output consumption and scratch reset inside timer, setup outside; no cross-host boundary ranking"
+  },
+  "web_consumption": {
+    "rule": "length+sum((index+1)*word)mod2^32",
+    "every_returned_element_read_inside_timer": true,
+    "common_instrumentation_overhead_included": true,
+    "journal_fields": [
+      "consumed_elements_per_call",
+      "consumed_elements",
+      "checksum_semantics"
+    ],
+    "audit": "independent Python checksum*iterations modulo2^32, exact per-call/total element counts; full correctness outside timers",
+    "native_scope": "separate full-vector U64 protocol, not pooled with web"
+  },
+  "boundaries": [
+    "captured-js-owned",
+    "captured-wasm-owned",
+    "resident-wasm-destination",
+    "instrumented-full-gpu-request",
+    "resident-native-destination",
+    "captured-native-destination"
+  ],
+  "gpu_contract": {
+    "route": "all12 primary targets legacy single shader, eligible/no fallback; parent validates actual device",
+    "logical_output_extent": "min(nx,ny)",
+    "physical_capacity": "max(nx,ny)",
+    "dispatches": "1 iff physical_capacity>0, else0",
+    "upload_bytes": "4*(nx+ny+9)",
+    "readback_bytes": "4*(max(nx,ny)+1)",
+    "comparison": "same physical schema2 contract allprior/current versions; alternate indexed-map graph node erased but inactive; driver dead-code elimination may already omit ignored arithmetic"
+  },
+  "selections": [
+    {
+      "name": "pipeline37_left_projection_u32",
+      "unused_side": "left",
+      "secondary_composition_probe": false,
+      "fresh_laws": [
+        "928b6d1890e10367bc155d93a3b10bdb742a1eeff42b8b2a90d9593771a6f208"
+      ],
+      "checked_changes_prior": true,
+      "costs": {
+        "prior": {
+          "initial": 372,
+          "selected": 372,
+          "applications": 0
+        },
+        "checked": {
+          "initial": 372,
+          "selected": 200,
+          "applications": 1
+        }
+      },
+      "routes": {
+        "literal": {
+          "primary_route": "legacy-single-shader",
+          "shader": "compute-0.wgsl",
+          "shader_bytes": 1100,
+          "shader_sha256": "d0689d07ef82bb03fd3aa3c3ea643df3ce5faa23e2d438c9c2ff9b2fcca6839e",
+          "lengths": [
+            0,
+            1
+          ],
+          "graph_required": false,
+          "alternate_graph_descriptor_ops": [
+            "map_indexed",
+            "zip"
+          ],
+          "alternate_graph_scope": "inactive; descriptor stage counts are not physical dispatches"
+        },
+        "prior": {
+          "primary_route": "legacy-single-shader",
+          "shader": "compute-0.wgsl",
+          "shader_bytes": 1100,
+          "shader_sha256": "d0689d07ef82bb03fd3aa3c3ea643df3ce5faa23e2d438c9c2ff9b2fcca6839e",
+          "lengths": [
+            0,
+            1
+          ],
+          "graph_required": false,
+          "alternate_graph_descriptor_ops": [
+            "map_indexed",
+            "zip"
+          ],
+          "alternate_graph_scope": "inactive; descriptor stage counts are not physical dispatches"
+        },
+        "checked": {
+          "primary_route": "legacy-single-shader",
+          "shader": "compute-0.wgsl",
+          "shader_bytes": 826,
+          "shader_sha256": "63a2411e62f44d557c501027b579b0ece5dbf8bb20955519aeef09cbb1954793",
+          "lengths": [
+            0,
+            1
+          ],
+          "graph_required": false,
+          "alternate_graph_descriptor_ops": [
+            "zip"
+          ],
+          "alternate_graph_scope": "inactive; descriptor stage counts are not physical dispatches"
+        }
+      }
+    },
+    {
+      "name": "pipeline37_right_projection_u32",
+      "unused_side": "right",
+      "secondary_composition_probe": false,
+      "fresh_laws": [
+        "5a226a310f7ebee4bde6b9bba0cf2d009ddef9b5b8beb47fbaafc4c6d84eb1e9"
+      ],
+      "checked_changes_prior": true,
+      "costs": {
+        "prior": {
+          "initial": 372,
+          "selected": 372,
+          "applications": 0
+        },
+        "checked": {
+          "initial": 372,
+          "selected": 200,
+          "applications": 1
+        }
+      },
+      "routes": {
+        "literal": {
+          "primary_route": "legacy-single-shader",
+          "shader": "compute-0.wgsl",
+          "shader_bytes": 1100,
+          "shader_sha256": "8622e3da4fbdc2387ab112d79e678f853129bd00de9dc0e052d29bce4ea548d7",
+          "lengths": [
+            0,
+            1
+          ],
+          "graph_required": false,
+          "alternate_graph_descriptor_ops": [
+            "map_indexed",
+            "zip"
+          ],
+          "alternate_graph_scope": "inactive; descriptor stage counts are not physical dispatches"
+        },
+        "prior": {
+          "primary_route": "legacy-single-shader",
+          "shader": "compute-0.wgsl",
+          "shader_bytes": 1100,
+          "shader_sha256": "8622e3da4fbdc2387ab112d79e678f853129bd00de9dc0e052d29bce4ea548d7",
+          "lengths": [
+            0,
+            1
+          ],
+          "graph_required": false,
+          "alternate_graph_descriptor_ops": [
+            "map_indexed",
+            "zip"
+          ],
+          "alternate_graph_scope": "inactive; descriptor stage counts are not physical dispatches"
+        },
+        "checked": {
+          "primary_route": "legacy-single-shader",
+          "shader": "compute-0.wgsl",
+          "shader_bytes": 826,
+          "shader_sha256": "04b56ff81a43e7320c8fc6e7d81f438cfcbe13fac30faf27ff8b77de6b0a9559",
+          "lengths": [
+            0,
+            1
+          ],
+          "graph_required": false,
+          "alternate_graph_descriptor_ops": [
+            "zip"
+          ],
+          "alternate_graph_scope": "inactive; descriptor stage counts are not physical dispatches"
+        }
+      }
+    },
+    {
+      "name": "pipeline37_left_projection_heldout_u32",
+      "unused_side": "left",
+      "secondary_composition_probe": true,
+      "fresh_laws": [
+        "bfbdbd3aefb9a6f5bfa14cad3361e668d063347e40ca5a0c5f7f60912c9fdb10"
+      ],
+      "checked_changes_prior": true,
+      "costs": {
+        "prior": {
+          "initial": 386,
+          "selected": 386,
+          "applications": 0
+        },
+        "checked": {
+          "initial": 386,
+          "selected": 214,
+          "applications": 1
+        }
+      },
+      "routes": {
+        "literal": {
+          "primary_route": "legacy-single-shader",
+          "shader": "compute-0.wgsl",
+          "shader_bytes": 1500,
+          "shader_sha256": "e6787ae87fcfc068ef588eb762210fda7caaaaeb5532e487fe7b1ee9e6b1fc5f",
+          "lengths": [
+            0,
+            1
+          ],
+          "graph_required": false,
+          "alternate_graph_descriptor_ops": [
+            "map_indexed",
+            "zip"
+          ],
+          "alternate_graph_scope": "inactive; descriptor stage counts are not physical dispatches"
+        },
+        "prior": {
+          "primary_route": "legacy-single-shader",
+          "shader": "compute-0.wgsl",
+          "shader_bytes": 1500,
+          "shader_sha256": "e6787ae87fcfc068ef588eb762210fda7caaaaeb5532e487fe7b1ee9e6b1fc5f",
+          "lengths": [
+            0,
+            1
+          ],
+          "graph_required": false,
+          "alternate_graph_descriptor_ops": [
+            "map_indexed",
+            "zip"
+          ],
+          "alternate_graph_scope": "inactive; descriptor stage counts are not physical dispatches"
+        },
+        "checked": {
+          "primary_route": "legacy-single-shader",
+          "shader": "compute-0.wgsl",
+          "shader_bytes": 1065,
+          "shader_sha256": "18be1b8a0a11cf09ec28d8199930cbd41f756c8367cd2fc52d765c3bd25d051a",
+          "lengths": [
+            0,
+            1
+          ],
+          "graph_required": false,
+          "alternate_graph_descriptor_ops": [
+            "zip"
+          ],
+          "alternate_graph_scope": "inactive; descriptor stage counts are not physical dispatches"
+        }
+      }
+    },
+    {
+      "name": "pipeline37_right_projection_heldout_u32",
+      "unused_side": "right",
+      "secondary_composition_probe": true,
+      "fresh_laws": [
+        "8af73de3a8ac76aa302fd6ca915758cb081771053333a73f524ed4580ed469d8"
+      ],
+      "checked_changes_prior": true,
+      "costs": {
+        "prior": {
+          "initial": 386,
+          "selected": 386,
+          "applications": 0
+        },
+        "checked": {
+          "initial": 386,
+          "selected": 214,
+          "applications": 1
+        }
+      },
+      "routes": {
+        "literal": {
+          "primary_route": "legacy-single-shader",
+          "shader": "compute-0.wgsl",
+          "shader_bytes": 1500,
+          "shader_sha256": "03781cf1dda32d5568573e8f3be9e4334533424ab461e867e39187efec543f07",
+          "lengths": [
+            0,
+            1
+          ],
+          "graph_required": false,
+          "alternate_graph_descriptor_ops": [
+            "map_indexed",
+            "zip"
+          ],
+          "alternate_graph_scope": "inactive; descriptor stage counts are not physical dispatches"
+        },
+        "prior": {
+          "primary_route": "legacy-single-shader",
+          "shader": "compute-0.wgsl",
+          "shader_bytes": 1500,
+          "shader_sha256": "03781cf1dda32d5568573e8f3be9e4334533424ab461e867e39187efec543f07",
+          "lengths": [
+            0,
+            1
+          ],
+          "graph_required": false,
+          "alternate_graph_descriptor_ops": [
+            "map_indexed",
+            "zip"
+          ],
+          "alternate_graph_scope": "inactive; descriptor stage counts are not physical dispatches"
+        },
+        "checked": {
+          "primary_route": "legacy-single-shader",
+          "shader": "compute-0.wgsl",
+          "shader_bytes": 1065,
+          "shader_sha256": "a43a864512c44410aa1445d96f76781c22a583cd4355cb5f8ae77caef36ba634",
+          "lengths": [
+            0,
+            1
+          ],
+          "graph_required": false,
+          "alternate_graph_descriptor_ops": [
+            "zip"
+          ],
+          "alternate_graph_scope": "inactive; descriptor stage counts are not physical dispatches"
+        }
+      }
+    }
+  ],
+  "bindings": {
+    "targets/metadata.json": "eb7476f89116c9d977980b371924fdb81905dc146017c0ab48ed78ff6b31ab7d",
+    "targets/spec.json": "337864735181f07e66dc146c90d3272a7009b62dca4f89819280038ea4a0e558",
+    "targets/fixtures.json": "c21108c167c774c50d9ba685d5c512576048a5da839a79b25e09e57741add292",
+    "targets/node-validation.json": "a74446698d03c40d95427982dfc1e6ca1ff9bb7d6b73a19acfd7100880b3f991",
+    "targets/node-validation-audit.json": "213449d3bd0346bc6c4cbf19333887f9f79cc2d73707c7c9a446c416b639cb1e",
+    "targets/native/metadata.json": "7008a80d7cb3965d72cf054459028e2ac5549265a44bad43976f9c5883dfaa2f",
+    "targets/native/commands.json": "34b56990d4507012e51015b45527c85fe4d2e1e80597f79020f6a7ca80b65b14",
+    "benchmark-preparation/control-validation.json": "11a7006b458a25d27bf29e1b5e288e6c4cc7e6f8f9aa276a9f3f7e44867ae60b",
+    "benchmark-preparation/control-commands.json": "f052fbcf5fad3f773f980851dacd8a6709f3625647cf3c55c5c294a719e5c749",
+    "benchmark-preparation/prior-probe.py": "3e170ce385505528d47ed87756fbc8b310c20901ec5265aa00b96e404455a9cb",
+    "benchmark-preparation/prior-probe-exact/summary.json": "847571c84b2e7dbb013f99b3bdcf8769951318c7d564388eaeedbaf5dd20c919",
+    "benchmark-preparation/prior-probe.log": "49650ab8a3f09c3847575c35198d715f0ff006a312704564139d45f48d2bfac5",
+    "benchmark-preparation/prepare.log": "e41bc8a0ebe766f32bb7a9c703cd1252656c0cfd99934c9c75502115a2ea1b9f",
+    "benchmark-preparation/node-validation.log": "fd2984dbf35c9da6585fe806910b1b563c7b75d0b6604f13d225a7f575cd39b3",
+    "benchmark-preparation/native-preparation.log": "f6e669ab1393ae96b5c737ca777b6e88db8b0a88b6ff49ff9e95908c4ffd07a7"
+  }
+}
