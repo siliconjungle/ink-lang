@@ -29,7 +29,7 @@ pub enum Value {
 }
 impl Value {
     /// Convert a checked pure value without passing floating payloads through JSON.
-    fn from_eval(value: crate::eval::Value) -> LangResult<Self> {
+    pub(crate) fn from_eval(value: crate::eval::Value) -> LangResult<Self> {
         fn convert(value: crate::eval::Value, depth: usize) -> LangResult<Value> {
             use crate::eval::Value as E;
             if depth > 128 {
@@ -65,7 +65,7 @@ impl Value {
         }
         convert(value, 0)
     }
-    fn to_eval(&self) -> LangResult<crate::eval::Value> {
+    pub(crate) fn to_eval(&self) -> LangResult<crate::eval::Value> {
         fn convert(value: &Value, depth: usize) -> LangResult<crate::eval::Value> {
             use crate::eval::Value as E;
             if depth > 128 {
@@ -187,6 +187,12 @@ impl Value {
                 .as_str()
                 .map(|s| Self::String(s.into()))
                 .ok_or("expected String".into()),
+            Type::Named(n) if n == "ArithmeticError" => {
+                if v.as_str() != Some("ArithmeticError.Overflow") {
+                    return Err("expected ArithmeticError.Overflow".into());
+                }
+                Ok(Self::Enum(n.clone(), "Overflow".into()))
+            }
             Type::Named(n) if p.ids.contains(n) => {
                 let text = v
                     .as_str()
@@ -705,7 +711,11 @@ impl Runtime {
         }
     }
     fn builtin(&mut self, n: &str, vals: Vec<Value>, result_type: &Type) -> Exec<Value> {
+        if crate::word::primitive(n) {
+            return Ok(crate::word::evaluate(n, &vals)?);
+        }
         match n {
+            "list" => return Ok(Value::List(vals)),
             "vec2" | "vec3" | "vec4" => return Ok(Value::Vector(vals)),
             "Ok" | "Err" => return Ok(Value::Result(n == "Ok", Box::new(vals[0].clone()))),
             "Some" => return Ok(Value::Option(Some(Box::new(vals[0].clone())))),
@@ -920,7 +930,18 @@ impl Runtime {
     fn expr(&mut self, e: &Expr, env: &Env) -> Exec<Value> {
         self.tick()?;
         match e {
-            Expr::Float(_) | Expr::Neg(_) | Expr::Let(..) => {
+            Expr::Let(n, t, value, body) => {
+                let value = self.expr(value, env)?;
+                let value = if let Some(t) = t {
+                    self.coerce(value, t)?
+                } else {
+                    value
+                };
+                let mut local = env.clone();
+                local.insert(n.clone(), value);
+                self.expr(body, &local)
+            }
+            Expr::Float(_) | Expr::Neg(_) => {
                 Err("compute expression belongs in a pure function".into())
             }
             Expr::Num(n) => Ok(Value::U64(*n)),
@@ -1001,22 +1022,30 @@ impl Runtime {
                 Self::binary(op, av, bv)
             }
             Expr::Call(n, args) => {
+                if n == "choose" {
+                    let Value::Bool(condition) = self.expr(&args[0], env)? else {
+                        return Err("choose condition".into());
+                    };
+                    return self.expr(&args[if condition { 1 } else { 2 }], env);
+                }
                 let vals = args
                     .iter()
                     .map(|e| self.expr(e, env))
                     .collect::<Exec<Vec<_>>>()?;
-                if [
-                    "Ok",
-                    "Err",
-                    "Some",
-                    "Int",
-                    "checked_add",
-                    "checked_sub",
-                    "checked_mul",
-                    "sum",
-                    "count",
-                ]
-                .contains(&n.as_str())
+                if crate::word::primitive(n)
+                    || [
+                        "Ok",
+                        "Err",
+                        "Some",
+                        "Int",
+                        "checked_add",
+                        "checked_sub",
+                        "checked_mul",
+                        "sum",
+                        "count",
+                        "list",
+                    ]
+                    .contains(&n.as_str())
                 {
                     let result_type = if n == "sum" {
                         let types = env.iter().map(|(n, v)| (n.clone(), v.ty())).collect();
@@ -1045,6 +1074,20 @@ impl Runtime {
                     }
                 }
                 let value = self.expr(receiver, env)?;
+                if n == "fold" {
+                    let (branch, input) = match value {
+                        Value::Option(Some(v)) => (0, *v),
+                        Value::Option(None) => (1, Value::Unit),
+                        Value::Result(ok, v) => (if ok { 0 } else { 1 }, *v),
+                        _ => return Err("fold receiver".into()),
+                    };
+                    let Expr::Lambda(n, body) = &args[branch] else {
+                        return Err("fold branch".into());
+                    };
+                    let mut local = env.clone();
+                    local.insert(n.clone(), input);
+                    return self.expr(body, &local);
+                }
                 if n == "ok_or" {
                     let fallback = self.expr(&args[0], env)?;
                     return match value {

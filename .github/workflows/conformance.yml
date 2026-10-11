@@ -85,6 +85,7 @@ jobs:
           cargo test --test hardening regression_eval_
           cargo test --test temporary_lowering
           CARGO_TARGET_DIR=target cargo test --manifest-path lowerings/gpu/Cargo.toml --test temporary_bounds
+          cargo test --test literal_collection_optimisation
           cargo test --test distribution --test source_syntax --test action_values --test general_laws --test semantic_optimisation
       - name: Literal CPU and both Wasm lowerings, generated histories and crash recovery
         run: python3 tools/check_feature_parity.py --scope cpu --run --receipt build/enforced-parity/cpu-audit.json
@@ -193,7 +194,7 @@ jobs:
       - name: Required GPU dispatch, exact u64 and binary32
         run: cargo test --test feature_parity -- --nocapture --test-threads=1
       - name: Actual wgpu dispatch and resident feedback
-        run: cargo test --test lowering_parity --test generated_parity --test modules --test selected_checkpoint --test action_optimisation --test action_transitions --test numerical_state --test mixed_durability --test bend_features -- --nocapture --test-threads=1
+        run: cargo test --test lowering_parity --test generated_parity --test modules --test selected_checkpoint --test action_optimisation --test action_transitions --test numerical_state --test mixed_durability --test bend_features --test language_foundations -- --nocapture --test-threads=1
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'

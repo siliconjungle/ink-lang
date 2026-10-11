@@ -863,6 +863,19 @@ fn normal(t: &Term, hyp: &[Equation], p: &Program, b: &mut Budget, d: usize) -> 
             )),
             _ => None,
         },
+        ("call:foldl", [xs, init, f]) => match &xs.node {
+            Node::Nil => Some(init.clone()),
+            Node::Cons(h, t) => Some(op(
+                out.sort.clone(),
+                n,
+                vec![
+                    (**t).clone(),
+                    apply(apply(f.clone(), (**h).clone())?, init.clone())?,
+                    f.clone(),
+                ],
+            )),
+            _ => None,
+        },
         ("call:foldr", [xs, init, f]) => match &xs.node {
             Node::Nil => Some(init.clone()),
             Node::Cons(h, t) => Some(apply(
@@ -1050,7 +1063,12 @@ fn literal_primitive(t: &Term, p: &Program, b: &mut Budget) -> LangResult<Option
     let Node::Op(n, args) = &t.node else {
         return Ok(None);
     };
-    if !(n.starts_with("binary:") || n == "neg" || n == "call:quot_or" || n == "call:rem_or") {
+    if !(n.starts_with("binary:")
+        || n == "neg"
+        || n == "call:quot_or"
+        || n == "call:rem_or"
+        || n.strip_prefix("call:").is_some_and(crate::word::primitive))
+    {
         return Ok(None);
     }
     if !args

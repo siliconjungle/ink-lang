@@ -315,6 +315,10 @@ impl Uses {
     ) -> LangResult<()> {
         let t = check::infer_context(e, env, p, want)?;
         crate::statecheck::validate_type(&t, p)?;
+        if matches!(e, Expr::Field(x, _) if matches!(x.as_ref(), Expr::Var(n) if p.enums.contains_key(n) && !env.contains_key(n)))
+        {
+            return Ok(());
+        }
         if let Some(path) = self.path(e) {
             return self.use_path(&path, !borrow && owned(&t, p));
         }
@@ -375,6 +379,21 @@ impl Uses {
                 let read =
                     ["len", "at_or", "get_or", "contains", "keys", "values"].contains(&n.as_str());
                 self.walk(x, env, p, Some(&xt), read)?;
+                if n == "fold" && matches!(xt, Type::Option(_) | Type::Result(..)) {
+                    let (left, right) = match xt {
+                        Type::Option(a) => (*a, Type::Unit),
+                        Type::Result(a, b) => (*a, *b),
+                        _ => unreachable!(),
+                    };
+                    let mut first = self.clone();
+                    first.callback(&a[0], env, p, &[left], &t, false)?;
+                    let mut second = self.clone();
+                    second.callback(&a[1], env, p, &[right], &t, false)?;
+                    self.moved.extend(first.moved);
+                    self.moved.extend(second.moved);
+                    self.next = first.next.max(second.next);
+                    return Ok(());
+                }
                 if n == "map_parallel" {
                     let Type::Buffer(inner) = &xt else {
                         unreachable!()
@@ -386,6 +405,29 @@ impl Uses {
                 if n == "split_at" {
                     self.walk(&a[0], env, p, Some(&Type::U32), false)?;
                     self.callback(&a[1], env, p, &[xt.clone(), xt.clone()], &xt, false)?;
+                    return Ok(());
+                }
+                if let Type::Option(inner) = &xt {
+                    if n == "ok_or" {
+                        self.walk(&a[0], env, p, None, false)?;
+                        return Ok(());
+                    }
+                    let Type::Option(out) = &t else {
+                        return Err("option map type".into());
+                    };
+                    self.callback(&a[0], env, p, &[*inner.clone()], out, false)?;
+                    return Ok(());
+                }
+                if let Type::Result(ok, error) = &xt {
+                    let Type::Result(out_ok, out_error) = &t else {
+                        return Err("result map type".into());
+                    };
+                    let (input, out) = if n == "map_err" {
+                        (error, out_error)
+                    } else {
+                        (ok, out_ok)
+                    };
+                    self.callback(&a[0], env, p, &[*input.clone()], out, false)?;
                     return Ok(());
                 }
                 let args_types: Vec<Type> = match xt {
@@ -442,7 +484,7 @@ impl Uses {
                     self.walk(a, env, p, Some(t), false)?;
                 }
             }
-            Expr::Call(n, a) if n == "foldr" => {
+            Expr::Call(n, a) if n == "foldr" || n == "foldl" => {
                 self.walk(&a[0], env, p, None, false)?;
                 self.walk(&a[1], env, p, Some(&t), false)?;
                 let Type::List(inner) = check::infer(&a[0], env, p)? else {
@@ -453,12 +495,26 @@ impl Uses {
             Expr::Call(n, a) => {
                 let ts = if let Some(f) = p.functions.iter().find(|f| &f.name == n) {
                     f.params.iter().map(|(_, t)| t.clone()).collect::<Vec<_>>()
+                } else if crate::word::primitive(n) {
+                    crate::word::arguments(n, &t)
                 } else if n == "buffer" {
                     let Type::Buffer(t) = &t else { unreachable!() };
                     vec![Type::List(t.clone())]
                 } else if n == "buffer_fill" {
                     let Type::Buffer(t) = &t else { unreachable!() };
                     vec![Type::U32, *t.clone()]
+                } else if n == "list" {
+                    let Type::List(inner) = &t else {
+                        unreachable!()
+                    };
+                    vec![*inner.clone(); a.len()]
+                } else if ["Some", "Ok", "Err"].contains(&n.as_str()) {
+                    vec![match (&t, n.as_str()) {
+                        (Type::Option(t), "Some")
+                        | (Type::Result(t, _), "Ok")
+                        | (Type::Result(_, t), "Err") => *t.clone(),
+                        _ => return Err("variant constructor type".into()),
+                    }]
                 } else {
                     a.iter()
                         .map(|e| {

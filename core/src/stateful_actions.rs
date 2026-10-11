@@ -223,6 +223,12 @@ impl Runtime {
                 _ => Err("? requires Result".into()),
             },
             Kind::Builtin { name, arguments } => {
+                if name == "choose" {
+                    let Value::Bool(condition) = self.typed_expr(body, arguments[0], slots)? else {
+                        return Err("choose condition".into());
+                    };
+                    return self.typed_expr(body, arguments[if condition { 1 } else { 2 }], slots);
+                }
                 let args = self.typed_args(body, arguments, slots)?;
                 self.builtin(name, args, ty)
             }
@@ -252,6 +258,22 @@ impl Runtime {
                 arguments,
             } => {
                 let receiver = self.typed_expr(body, *receiver, slots)?;
+                if method == "fold" {
+                    let (branch, input) = match receiver {
+                        Value::Option(Some(v)) => (0, *v),
+                        Value::Option(None) => (1, Value::Unit),
+                        Value::Result(ok, v) => (if ok { 0 } else { 1 }, *v),
+                        _ => return Err("fold receiver".into()),
+                    };
+                    let Kind::Lambda {
+                        parameter,
+                        body: value,
+                    } = body.nodes[arguments[branch]].kind
+                    else {
+                        return Err("fold branch".into());
+                    };
+                    return self.typed_apply(body, parameter, value, slots, input);
+                }
                 if method == "ok_or" {
                     // Deliberately eager: fallback evaluation is observable.
                     let fallback = self.typed_expr(body, arguments[0], slots)?;
@@ -303,6 +325,15 @@ impl Runtime {
                     }
                     _ => Err("unsupported receiver".into()),
                 }
+            }
+            Kind::Bind {
+                slot,
+                value,
+                body: expression,
+                ..
+            } => {
+                let value = self.typed_expr(body, *value, slots)?;
+                self.typed_apply(body, *slot, *expression, slots, value)
             }
             Kind::Lambda { .. } => Err("lambda cannot execute alone".into()),
         }
