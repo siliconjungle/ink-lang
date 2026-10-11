@@ -15,7 +15,7 @@ pub enum Sort {
     Data(String),
     SelfType,
 }
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub enum Term {
     Var(String),
@@ -46,7 +46,7 @@ pub enum Term {
         branches: Vec<Branch>,
     },
 }
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Branch {
     pub bindings: Vec<String>,
@@ -216,17 +216,26 @@ pub enum Declaration {
 struct Budget {
     remaining: usize,
     bit_work: usize,
+    normal_cache: BTreeMap<u64, Vec<(Term, Term)>>,
+    normal_entries: usize,
+    memo_work: usize,
 }
 impl Budget {
     fn new() -> Self {
         Self {
-            remaining: 100_000,
+            remaining: 1_000_000,
             bit_work: 20_000_000,
+            normal_cache: BTreeMap::new(),
+            normal_entries: 0,
+            memo_work: 1_000_000,
         }
     }
     fn step(&mut self, depth: usize) -> LangResult<()> {
         if self.remaining == 0 || depth > 128 {
-            return Err("inductive logic resource limit".into());
+            return Err(format!(
+                "inductive logic resource limit (remaining {}, depth {})",
+                self.remaining, depth
+            ));
         }
         self.remaining -= 1;
         Ok(())
@@ -457,7 +466,7 @@ impl Context {
                 }
                 return Err("conflicting checked logic identity".into());
             }
-            if depth > 64 || all.len() >= 512 {
+            if depth > 64 || all.len() >= 1024 {
                 return Err("logic context closure limit".into());
             }
             for dep in &entry.dependencies {
@@ -566,9 +575,14 @@ impl Context {
                 to,
                 proof,
             } => {
-                let statement = self.statement(params, conditions, from, to, &mut budget)?;
+                let statement = self
+                    .statement(params, conditions, from, to, &mut budget)
+                    .map_err(|e| format!("theorem statement: {e}"))?;
                 let (env, hypotheses, equation) = &statement;
-                if derive(proof, env, self, hypotheses, &[], &mut budget, 0)? != *equation {
+                if derive(proof, env, self, hypotheses, &[], &mut budget, 0)
+                    .map_err(|e| format!("theorem proof: {e}"))?
+                    != *equation
+                {
                     return Err("inductive proof proves a different statement".into());
                 }
                 statement_references(params, conditions, from, to, &mut references);
@@ -1067,6 +1081,10 @@ fn names(
     }
     Ok(())
 }
+/// Bounded capture-avoiding substitution for compile-time structural transforms.
+pub fn substitute_term(term: &Term, bindings: &BTreeMap<String, Term>) -> LangResult<Term> {
+    substitute(term, bindings, &mut Budget::new(), 0)
+}
 // Capture-avoiding simultaneous substitution. Internal fresh names use '$',
 // which untrusted binders cannot use. Inserted terms are never substituted again.
 fn substitute(
@@ -1076,6 +1094,13 @@ fn substitute(
     depth: usize,
 ) -> LangResult<Term> {
     budget.step(depth)?;
+    if bindings
+        .iter()
+        .all(|(name, value)| matches!(value,Term::Var(n) if n==name))
+    {
+        budget.copy(t)?;
+        return Ok(t.clone());
+    }
     Ok(match t {
         Term::Var(n) => match bindings.get(n) {
             Some(value) => {
@@ -1159,7 +1184,68 @@ fn substitute(
         _ => t.clone(),
     })
 }
+// Reuse exact computations inside one immutable context/check. This changes no
+// reduction rule or proof result. Key scans and copies share a finite work cap;
+// exhaustion falls back to the original computation with its expansion budget.
 fn normal(t: &Term, c: &Context, budget: &mut Budget, depth: usize) -> LangResult<Term> {
+    if !matches!(t, Term::Call { .. } | Term::Match { .. }) {
+        return normal_uncached(t, c, budget, depth);
+    }
+    fn scan(t: &Term, remaining: &mut usize) -> bool {
+        if *remaining == 0 {
+            return false;
+        }
+        *remaining -= 1;
+        match t {
+            Term::Call { arguments, .. }
+            | Term::Construct { arguments, .. }
+            | Term::SelfCall(arguments) => arguments.iter().all(|a| scan(a, remaining)),
+            Term::Binary { left, right, .. } => scan(left, remaining) && scan(right, remaining),
+            Term::If {
+                condition,
+                on_true,
+                on_false,
+            } => [condition, on_true, on_false]
+                .iter()
+                .all(|a| scan(a, remaining)),
+            Term::Match {
+                scrutinee,
+                branches,
+            } => scan(scrutinee, remaining) && branches.iter().all(|b| scan(&b.body, remaining)),
+            _ => true,
+        }
+    }
+    budget.step(depth)?;
+    if !scan(t, &mut budget.memo_work) {
+        return normal_uncached(t, c, budget, depth);
+    }
+    use std::hash::{Hash, Hasher};
+    let mut hash = std::collections::hash_map::DefaultHasher::new();
+    t.hash(&mut hash);
+    let key = hash.finish();
+    if let Some(value) = budget.normal_cache.get(&key).and_then(|items| {
+        items
+            .iter()
+            .find(|(input, _)| input == t)
+            .map(|(_, value)| value)
+    }) {
+        if scan(value, &mut budget.memo_work) {
+            return Ok(value.clone());
+        }
+        return normal_uncached(t, c, budget, depth);
+    }
+    let value = normal_uncached(t, c, budget, depth)?;
+    if budget.normal_entries < 128 && scan(&value, &mut budget.memo_work) {
+        budget
+            .normal_cache
+            .entry(key)
+            .or_default()
+            .push((t.clone(), value.clone()));
+        budget.normal_entries += 1;
+    }
+    Ok(value)
+}
+fn normal_uncached(t: &Term, c: &Context, budget: &mut Budget, depth: usize) -> LangResult<Term> {
     budget.step(depth)?;
     match t {
         Term::Call {
@@ -1476,6 +1562,56 @@ fn normalize_pair(e: Equation, c: &Context, budget: &mut Budget) -> LangResult<E
 #[cfg(test)]
 mod alpha_tests {
     use super::*;
+    #[test]
+    fn bounded_memo_reuses_exact_computation_without_changing_normal_forms() {
+        let mut context = Context::default();
+        context
+            .declare(
+                "choose".into(),
+                &Declaration::Function {
+                    params: vec![("condition".into(), Sort::Bool)],
+                    result: Sort::U64,
+                    recursive: None,
+                    body: Term::If {
+                        condition: Box::new(Term::Var("condition".into())),
+                        on_true: Box::new(Term::U64(7)),
+                        on_false: Box::new(Term::U64(9)),
+                    },
+                },
+            )
+            .unwrap();
+        let mut cached = Budget::new();
+        let mut uncached = Budget::new();
+        uncached.memo_work = 0;
+        for argument in [
+            Term::Bool(true),
+            Term::Bool(false),
+            Term::Var("free".into()),
+            Term::Bool(true),
+        ] {
+            let term = Term::Call {
+                function: "choose".into(),
+                arguments: vec![argument],
+            };
+            assert_eq!(
+                normal(&term, &context, &mut cached, 0).unwrap(),
+                normal(&term, &context, &mut uncached, 0).unwrap()
+            );
+        }
+        assert!(cached.normal_entries > 0);
+        assert_eq!(uncached.normal_entries, 0);
+        cached.remaining = 0;
+        assert!(normal(
+            &Term::Call {
+                function: "choose".into(),
+                arguments: vec![Term::Bool(true)]
+            },
+            &context,
+            &mut cached,
+            0
+        )
+        .is_err());
+    }
     #[test]
     fn free_internal_names_and_nested_shadowing_survive_canonicalisation() {
         let t = Term::Match {
