@@ -1,5 +1,9 @@
 # Generic indexed and grouped validation
 
+The final published producer was revalidated and measured separately in
+[`current/`](current/README.md). The samples below retain their original
+acquisition identities.
+
 The admitted fixture contains nested serializable row types, String, nominal IDs,
 exact Int, word/floating vectors, compound predicates, parameterized queries, two
 tables, all four replace/remove pairs, intermediate reads, events and rollback.
