@@ -62,6 +62,37 @@ and recursive calls retain the compiled CPU fallback. This is private scratch
 storage, not cross-workgroup shared memory. `scratch_many` in
 [the example](../examples/bend-inspired.ink) is exercised on a real wgpu device.
 
+## Resident GPU graph feedback
+
+Native wgpu stage graphs can feed results into later iterations when every stage
+has a graph descriptor and each feedback edge preserves its declared type and
+upper capacity. Logical list lengths remain in GPU headers, so stable filters
+can shrink a resident list to zero. Integer rank-sort stages now have graph
+descriptors for u32/i32, preserving stable duplicate ordering; this remains a
+literal quadratic algorithm, with no performance claim.
+
+The device allocates bounded temporary snapshots for feedback. Each iteration
+first copies every feedback output into its own temporary, then copies all
+snapshots into their destination inputs. This makes assignments simultaneous,
+even when identity outputs alias inputs or two feedback edges swap buffers.
+The final iteration does not publish feedback, so its exposed outputs cannot be
+overwritten by a final assignment. Only initial input uploads and final output
+readbacks cross the host boundary; `resident_copy_bytes` reports internal copies.
+
+The capacity argument is an induction over iterations: graph capacities use
+monotone `one`, `same`, `min` and `sum` operations; each feedback edge's output
+upper bound equals its input's initial bound. Hence every subsequent input and
+intermediate remains within the initial allocation. Headers carry actual lengths
+independently of that bound. Type/capacity mismatches or growing feedback retain
+compiled CPU execution. Existing dispatch, device and 256 MiB allocation limits
+still apply, including the temporary snapshot buffers. This explains the safety
+argument; it is not a formal verification of shader emission or the driver.
+
+The residency regression checks three iterations of filter/scan/sort, zero-length
+results, odd/even aliased swaps and growing-feedback fallback, including complete
+values and exact transfer/dispatch/copy counters. CI retains the plans, replies,
+manifest and shaders on failure.
+
 ## Checked recursion
 
 ```ink

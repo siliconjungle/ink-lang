@@ -137,3 +137,10 @@ requires guarded unsigned descent or a nonempty list tail, with mutual recursion
 rejected. The independent Lean Boolean verdict proves its separate calculus only;
 the Python translator, source correspondence and other checker domains remain
 trusted/unverified, and it grants no new production optimisation authority.
+
+Native GPU graph feedback requires a descriptor for every stage and matching
+feedback type/capacity bounds. Preserve simultaneous assignment through distinct
+device snapshots and leave final-iteration outputs unchanged. List headers carry
+actual lengths; bounded allocation is independent of shrinking logical length.
+Growing feedback stays on CPU. Keep allocation/dispatch limits and exact transfer
+counters, and retain alias-swap, zero-length and growth regression coverage.
