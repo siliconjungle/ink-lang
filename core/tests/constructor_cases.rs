@@ -320,3 +320,23 @@ fn conversion_computes_stuck_branch_bodies_without_assuming_equal_results() {
         )
         .is_err());
 }
+
+#[test]
+fn induction_reduces_discarded_arguments_but_rejects_dependent_premises() {
+    let mut c = context();
+    c.declare("constant".into(), &Declaration::Function {
+        params: vec![("ignored".into(), Sort::Data("optional".into()))],
+        result: Sort::Bool, body: Term::Bool(true), recursive: None,
+    }).unwrap();
+    let from = v("input");
+    let proof = Proof::Induction {
+        variable: "input".into(), from: from.clone(), to: from.clone(),
+        cases: vec![Case { bindings: vec![], proof: Proof::Refl(data(0,vec![])) },
+                    Case { bindings: vec!["value".into()], proof: Proof::Refl(data(1,vec![v("value")])) }],
+    };
+    let params = [("input".into(), Sort::Data("optional".into()))];
+    let discarded = Equation {from: Term::Call {function:"constant".into(),arguments:vec![from.clone()]},to:Term::Bool(true)};
+    c.check(&params,&[discarded],&from,&from,&proof).unwrap();
+    let dependent = Equation {from:from.clone(),to:data(0,vec![])};
+    assert!(c.check(&params,&[dependent],&from,&from,&proof).is_err());
+}

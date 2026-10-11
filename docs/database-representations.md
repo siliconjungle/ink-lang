@@ -315,3 +315,7 @@ The arithmetic and update tactics are external; correctness is independent of pr
 Caller-trusted code generation and the valid-domain/query-erasure Lean results
 are recorded in `reports/leaner-generated-code-2026-10-11`. Emission, codecs and
 target toolchains remain trusted; Lean does not prove the generated binaries.
+
+The [path-local sequence candidates](path-local-indexed-tables.md) add generic
+shared-owner preservation, checked compact observations and explicit continuation
+frames for single-site recursion, with proof-view and execution resource bounds.
