@@ -187,10 +187,28 @@ and native GPU use this storage host; JavaScript/browser GPU retain GC storage.
 Cross-target observable parity remains checked. See the
 [matched measurements and artifacts](reports/table-ownership-2026-10-11/README.md).
 
-Rust write-heavy cells improve about 1.7–2×, but indexed physical table updates
-remain open: the 4000-row write-only cell still loses by over 900× to a maintained
-handwritten tree. This allocation fix does not change linear update traversal,
+In that ownership-only experiment, Rust write-heavy cells improved about 1.7–2×;
+the 4000-row write-only linked-list cell still lost by over 900× to a maintained
+handwritten tree. The indexed candidate added below supersedes the earlier
+statement that indexed physical tables remain unfinished. This allocation fix does not change linear update traversal,
 prove generated compiler correctness or extend GPU device coverage.
+
+
+## Indexed cached tables and incremental durability
+
+The database now admits an ordered sequence-tree representation combining key
+range pruning with filtered u64 sum/count. Fifteen whole-action obligations cover
+initialisation, snapshots, replies/errors/events/versions and both preserved
+relations. Arbitrary row order and duplicate keys remain in the mathematical
+domain. Source-oracle parity passes all CPU and GPU-host representation lanes.
+Database field frame/dependency and grouped-update laws are also available.
+
+Durable operations now use retained journals or immutable roots and a checksummed
+append log between periodic checkpoints. New query IDs persist receipts only.
+Native/JavaScript process-death recovery, both Wasm paths and IndexedDB browser
+continuation pass. Generic observer demand projection avoids logical flattening
+on each representation call. Existing measured selection remains external.
+See [scope, boundaries and artifacts](docs/indexed-aggregate-durable.md).
 
 ## Generic language foundations
 
