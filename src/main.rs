@@ -283,7 +283,7 @@ fn run() -> LangResult<()> {
         }
         let module = core::CheckedModule::from_bytes(&read_bounded(&args[1], core::MAX_BYTES)?)?;
         let bundle: verified_language::registry::Bundle =
-            serde_json::from_slice(&read_bounded(&args[2], 16_000_000)?)
+            serde_json::from_slice(&read_bounded(&args[2], verified_language::registry::MAX_VIEW_BYTES)?)
                 .map_err(|e| e.to_string())?;
         let checked = verified_language::registry::CheckedBundle::check(&bundle)?;
         let entries = checked.verify(module.program())?;
@@ -519,7 +519,7 @@ fn run() -> LangResult<()> {
             .unwrap_or_default();
         let deps = arg_value(&args, "--view")?
             .map(|p| {
-                read_bounded(&p, 16_000_000)
+                read_bounded(&p, verified_language::registry::MAX_VIEW_BYTES)
                     .and_then(|b| serde_json::from_slice(&b).map_err(|e| e.to_string()))
             })
             .transpose()?;
@@ -645,7 +645,7 @@ fn run() -> LangResult<()> {
                 serde_json::from_slice(&read_bounded(&file, 16_384)?).map_err(|e| e.to_string())?;
             let file =
                 arg_value(&args, "--view")?.ok_or("action values require --view VIEW.json")?;
-            let view = serde_json::from_slice(&read_bounded(&file, 16_000_000)?)
+            let view = serde_json::from_slice(&read_bounded(&file, verified_language::registry::MAX_VIEW_BYTES)?)
                 .map_err(|e| e.to_string())?;
             let codec = verified_language::action_values::ActionValues::bind(
                 &actions, &view, &syntax, &roles,
@@ -720,7 +720,7 @@ fn run() -> LangResult<()> {
                 let file = arg_value(&args, "--view")?
                     .ok_or("check-source-syntax requires --view VIEW.json")?;
                 let bundle: verified_language::registry::Bundle =
-                    serde_json::from_slice(&read_bounded(&file, 16_000_000)?)
+                    serde_json::from_slice(&read_bounded(&file, verified_language::registry::MAX_VIEW_BYTES)?)
                         .map_err(|e| e.to_string())?;
                 verified_language::source_syntax::BoundSyntax::bind(&actions, &bundle, &roles)?;
             }
