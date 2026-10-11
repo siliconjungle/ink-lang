@@ -74,7 +74,7 @@ database. See [semantic selection](docs/semantic-optimisation.md),
 
 | Area | Implemented scope |
 | --- | --- |
-| Pure computation | Wrapping words, signed arithmetic, binary32, vectors, records, collections, bounded loops and owned local buffers/maps |
+| Pure computation | Wrapping words, signed arithmetic, binary32, vectors, records, collections, bounded loops, owned local buffers/maps and [checked recursion/ordered parallel work](docs/bend-inspired.md) |
 | Application state | Typed tables, queries, atomic changes, rollback, ordered events, maintained results and portable snapshots |
 | Targets | Native C/Rust, JavaScript ES modules, C/Rust WebAssembly and eligible WGSL through WebGPU/wgpu |
 | Checked optimisation | Composable expression rewrites, eligible pure action regions and complete action replacements in a documented subset |
@@ -85,8 +85,9 @@ database. See [semantic selection](docs/semantic-optimisation.md),
 Execution support is broader than proof-based replacement support. Numerical state,
 for example, runs on the CPU targets, while the current physical-representation
 proof path excludes floating arithmetic and exact-Int aggregates. GPU execution
-covers eligible pure work; transactions run on the host. New parallel, recursion
-and checker-assurance work is tracked in [status](STATUS.md).
+covers eligible pure work; transactions run on the host. [Parallel work, owned partitions, GPU scratch storage and checked recursion](docs/bend-inspired.md)
+now run under explicit target limits. The optional independent Lean verdict checks
+a limited Boolean equality calculus; it does not verify the complete compiler.
 
 The [target parity contract](docs/lowering-parity.md) records exact coverage and
 limits. Complete C emission uses a shared Rust primitive runtime. JavaScript keeps
@@ -174,7 +175,9 @@ the core rechecks supplied evidence. The Rust checker, source correspondence,
 codecs, lowering, hosts and toolchains remain trusted implementations. A checked
 high-level transformation is not an end-to-end proof of machine code. Lean
 research supports specific mathematical claims and does not verify the complete
-compiler. Old aggregate/bounded-cache/storage-policy admission is available only
+compiler. The [independent Boolean verdict](docs/bend-inspired.md#independent-boolean-verdict)
+proves its separate calculus sound; its translator and source correspondence remain
+unverified. Old aggregate/bounded-cache/storage-policy admission is available only
 through the explicit `legacy-optimisation-research` feature.
 
 See [current status](STATUS.md), [architecture](docs/repository-architecture.md),

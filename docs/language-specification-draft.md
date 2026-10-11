@@ -1031,3 +1031,8 @@ The named scripts in earlier examples are requests to the elaborator. For an imp
 Proofs are erased only when they do not determine runtime data. The type system prevents programs from inspecting proof identity. Erasure, equality transport and refinement elimination need explicit rules in the fixed core calculus. A core implementation must publish those rules and its tests alongside the checker.
 
 This interface makes the architecture implementable in stages without claiming the kernel has already been proved sound. The first supported proof vocabulary can be small; unsupported certificates are rejected, and unsupported optional optimisations retain the baseline.
+
+
+The executable-core V5 extension adds ordered parallel mapping, affine buffer
+partitions/rejoining and guarded unsigned/list self recursion. Exact semantics
+and target limits are specified in [the extension](bend-inspired.md).
