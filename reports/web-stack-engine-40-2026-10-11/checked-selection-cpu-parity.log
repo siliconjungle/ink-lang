@@ -1,0 +1,25 @@
+warning: field `graph` is never read
+   --> lowerings/gpu/src/compute.rs:147:5
+    |
+141 | struct Emitter<'a> {
+    |        ------- field in this struct
+...
+147 |     graph: bool,
+    |     ^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `ink-lowering-gpu` (lib) generated 1 warning
+   Compiling ink v0.1.0 (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 8.41s
+     Running tests/checked_physical_selection_parity.rs (target/debug/deps/checked_physical_selection_parity-ca078e35d34aa7bc)
+
+running 1 test
+test checked_helper_composition_matches_every_portable_target has been running for over 60 seconds
+c Wasm: 20 values/outcomes and exact snapshots matched
+rust Wasm: 20 values/outcomes and exact snapshots matched
+
+test checked_helper_composition_matches_every_portable_target ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 136.09s
+

@@ -1,0 +1,11 @@
+//! Bounded traversal of private immutable storage, without value serialization.
+use ink_core::{definition::CheckedDefinition,logic::{Declaration,Sort},LangResult};
+use std::fmt::Write;
+pub(crate) fn emit(d:&CheckedDefinition,physical:&str)->LangResult<String>{
+ let ds=d.executable_declarations()?;let mut out=String::from("enum Storage<'a>{Scalar,");
+ for(id,decl)in &ds{if matches!(decl,Declaration::Datatype{..}){write!(out,"D_{id}(&'a D_{id}),").unwrap();}}
+ out.push_str("}\nfn bounded_storage(root:Storage<'_>)->Result<(),&'static str>{let mut work=vec![(root,0usize)];let mut nodes=0;while let Some((value,depth))=work.pop(){nodes+=1;if nodes>100000||depth>8192{return Err(\"prepared storage resource limit\")}match value{Storage::Scalar=>{},");
+ for(id,decl)in &ds{if let Declaration::Datatype{constructors}=decl{write!(out,"Storage::D_{id}(v)=>match v{{").unwrap();for(i,c)in constructors.iter().enumerate(){let names=(0..c.fields.len()).map(|i|format!("a{i}")).collect::<Vec<_>>();write!(out,"D_{id}::C{i}{}=>{{",if names.is_empty(){String::new()}else{format!("({})",names.join(","))}).unwrap();for(j,s)in c.fields.iter().enumerate(){let child=match s{Sort::SelfType=>format!("Storage::D_{id}(a{j}.as_ref())"),Sort::Data(id)=>format!("Storage::D_{id}(a{j}.as_ref())"),_=>"Storage::Scalar".into()};write!(out,"work.push(({child},depth+1));").unwrap();}out.push_str("},");}out.push_str("},");}}
+ out.push_str("}}Ok(())}\n");
+ let Declaration::Datatype{constructors}=&ds[physical]else{return Err("physical datatype".into())};write!(out,"fn same_storage(a:&D_{physical},b:&D_{physical})->bool{{match(a,b){{").unwrap();for(i,c)in constructors.iter().enumerate(){let names=|p:&str|(0..c.fields.len()).map(|j|format!("{p}{j}")).collect::<Vec<_>>();let args=|p:&str|if c.fields.is_empty(){String::new()}else{format!("({})",names(p).join(","))};let tests=c.fields.iter().enumerate().map(|(j,s)|if matches!(s,Sort::Data(_)|Sort::SelfType){format!("std::sync::Arc::ptr_eq(a{j},b{j})")}else{format!("a{j}==b{j}")}).collect::<Vec<_>>();write!(out,"(D_{physical}::C{i}{},D_{physical}::C{i}{})=>{},",args("a"),args("b"),if tests.is_empty(){"true".into()}else{tests.join("&&")}).unwrap();}out.push_str("_=>false}}\n");Ok(out)
+}

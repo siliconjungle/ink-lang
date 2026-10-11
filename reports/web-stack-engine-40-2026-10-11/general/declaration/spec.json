@@ -1,0 +1,114 @@
+{
+  "tasks": [
+    {
+      "name": "general40_affine",
+      "source": "pub fn general40_affine(xs:List<u32>,ys:List<u32>,seed:u32,k:u32)->List<u32>{return xs.map(fn(x)=>x*k+seed);}",
+      "family": "map",
+      "split": "train",
+      "list_inputs": 2,
+      "output_kind": "list_u32",
+      "operation": "affine"
+    },
+    {
+      "name": "general40_compaction",
+      "source": "pub fn general40_compaction(xs:List<u32>,ys:List<u32>,seed:u32,k:u32)->List<u32>{return xs.filter(fn(x)=>rem_or(x,16,0)<seed).map(fn(x)=>x*k+1);}",
+      "family": "filter-compaction",
+      "split": "train",
+      "list_inputs": 2,
+      "output_kind": "list_u32",
+      "operation": "compaction"
+    },
+    {
+      "name": "general40_scan",
+      "source": "pub fn general40_scan(xs:List<u32>,ys:List<u32>,seed:u32,k:u32)->List<u32>{return xs.scan();}",
+      "family": "prefix-scan",
+      "split": "train",
+      "list_inputs": 2,
+      "output_kind": "list_u32",
+      "operation": "scan"
+    },
+    {
+      "name": "general40_branch",
+      "source": "pub fn general40_branch(xs:List<u32>,ys:List<u32>,seed:u32,k:u32)->List<u32>{return xs.map(fn(x)=>choose(x<seed,x*k+1,quot_or(x,k,0)+seed));}",
+      "family": "piecewise-map",
+      "split": "heldout-family",
+      "list_inputs": 2,
+      "output_kind": "list_u32",
+      "operation": "branch"
+    },
+    {
+      "name": "general40_ordered",
+      "source": "pub fn general40_ordered(xs:List<u32>,ys:List<u32>,seed:u32,k:u32)->u32{return foldr(xs,seed,fn(x)=>fn(acc)=>choose(acc<seed,x+acc*k,x-acc));}",
+      "family": "ordered-reduction",
+      "split": "heldout-family",
+      "list_inputs": 2,
+      "output_kind": "scalar_u32",
+      "operation": "ordered"
+    },
+    {
+      "name": "general40_stencil",
+      "source": "pub fn general40_stencil(xs:List<u32>,ys:List<u32>,seed:u32,k:u32)->List<u32>{return xs.map_indexed(fn(i)=>fn(x)=>xs.at_or(i-1,0)+x*k+xs.at_or(i+1,0));}",
+      "family": "neighbor-stencil",
+      "split": "heldout-family",
+      "list_inputs": 2,
+      "output_kind": "list_u32",
+      "operation": "stencil"
+    },
+    {
+      "name": "general40_update",
+      "source": "pub fn general40_update(xs:List<u32>,ys:List<u32>,seed:u32,k:u32)->List<u32>{return xs.map_indexed(fn(i)=>fn(x)=>choose(rem_or(i,k,1)==0,ys.at_or(i,x),x));}",
+      "family": "sparse-overwrite",
+      "split": "heldout-family",
+      "list_inputs": 2,
+      "output_kind": "list_u32",
+      "operation": "update"
+    },
+    {
+      "name": "general40_update_recompute",
+      "source": "pub fn general40_update_recompute(xs:List<u32>,ys:List<u32>,seed:u32,k:u32)->List<u32>{return xs.map_indexed(fn(i)=>fn(x)=>choose(rem_or(i,k,1)==0,ys.at_or(i,x),x));}",
+      "family": "overwrite-recompute",
+      "split": "heldout-family",
+      "list_inputs": 2,
+      "output_kind": "list_u32",
+      "operation": "update_recompute"
+    },
+    {
+      "name": "general40_compaction_chain",
+      "source": "pub fn general40_compaction_chain(xs:List<u32>,ys:List<u32>,seed:u32,k:u32)->List<u32>{return xs.map(fn(x)=>stage_word(x,k)).filter(fn(x)=>rem_or(x,16,0)<seed).map(fn(x)=>repair_word(x,seed,k));}fn stage_word(x:u32,k:u32)->u32{return x*k+1;}\nfn repair_word(x:u32,seed:u32,k:u32)->u32{return choose(x<seed,x+k,x-seed);}",
+      "family": "map-filter-map",
+      "split": "heldout-family",
+      "list_inputs": 2,
+      "output_kind": "list_u32",
+      "operation": "compaction_chain"
+    },
+    {
+      "name": "general40_scan_chain",
+      "source": "pub fn general40_scan_chain(xs:List<u32>,ys:List<u32>,seed:u32,k:u32)->List<u32>{return xs.map(fn(x)=>scan_word(x,seed,k)).scan();}fn calibrate_word(x:u32,k:u32)->u32{return quot_or(x,k,0)+x;}\nfn scan_word(x:u32,seed:u32,k:u32)->u32{return calibrate_word(x,k)+seed;}",
+      "family": "helper-map-scan",
+      "split": "heldout-family",
+      "list_inputs": 2,
+      "output_kind": "list_u32",
+      "operation": "scan_chain"
+    },
+    {
+      "name": "general40_dot_ordered",
+      "source": "pub fn general40_dot_ordered(xs:List<u32>,ys:List<u32>,seed:u32,k:u32)->u32{return foldr(xs.zip(ys,fn(x)=>fn(y)=>x*y),seed,fn(x)=>fn(acc)=>x+acc*k);}",
+      "family": "zip-ordered-reduction",
+      "split": "heldout-family",
+      "list_inputs": 2,
+      "output_kind": "scalar_u32",
+      "operation": "dot_ordered"
+    },
+    {
+      "name": "general40_gather_reverse",
+      "source": "pub fn general40_gather_reverse(xs:List<u32>,ys:List<u32>,seed:u32,k:u32)->List<u32>{return xs.map_indexed(fn(i)=>fn(x)=>ys.at_or(seed-i-1,x)+x*k);}",
+      "family": "indexed-reverse-gather",
+      "split": "heldout-family",
+      "list_inputs": 2,
+      "output_kind": "list_u32",
+      "operation": "gather_reverse"
+    }
+  ],
+  "result_kind": "mixed_u32",
+  "source_scope": "Twelve workloads; prior eight source families/controls reused exploratorily after Engine39 was observed. Four additional composition/demand families held out in this new fit; no confirmatory superiority claim. Sparse update/recompute share fixed snapshot overwrite semantics and unique change indices; no maintained-state proof authority. Independently crossed size, shape, values, selectivity/change density. Gather seed is explicit ys length, part of its declared reverse-index ABI, not independent random value."
+}
