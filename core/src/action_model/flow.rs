@@ -48,26 +48,44 @@ impl<'p> Lower<'p> {
             self.tick()?;
             let child = |n: NodeId| total.get(n).copied().unwrap_or(false);
             let safe = match &node.kind {
-                Kind::Number(_)
+                Kind::State(_) | Kind::Keep(_) => true,
+                Kind::Float(_)
+                | Kind::Number(_)
                 | Kind::Bool(_)
                 | Kind::Unit
                 | Kind::None
                 | Kind::Local(_)
                 | Kind::Enum { .. } => true,
                 Kind::Record { fields, .. } => fields.iter().all(|(_, n)| child(*n)),
-                Kind::Field { receiver, .. } => child(*receiver),
+                Kind::VectorField { receiver, .. }
+                | Kind::Field { receiver, .. }
+                | Kind::Neg { value: receiver } => child(*receiver),
                 Kind::Binary { left, right, .. }
                 | Kind::And { left, right }
                 | Kind::Or { left, right } => child(*left) && child(*right),
                 Kind::PureCall { arguments, .. } => arguments.iter().all(|n| child(*n)),
                 Kind::Builtin { name, arguments } => {
-                    ["Ok", "Err", "Some"].contains(&name.as_str())
+                    [
+                        "Ok", "Err", "Some", "count", "sum", "vec2", "vec3", "vec4", "quot_or",
+                        "rem_or",
+                    ]
+                    .contains(&name.as_str())
                         && arguments.iter().all(|n| child(*n))
                 }
                 Kind::Table {
                     method, arguments, ..
                 } => {
-                    ["get", "contains"].contains(&method.as_str())
+                    ["get", "contains", "values", "keys"].contains(&method.as_str())
+                        && arguments.iter().all(|n| child(*n))
+                }
+                Kind::Lambda { body, .. } => child(*body),
+                Kind::Method {
+                    receiver,
+                    method,
+                    arguments,
+                } => {
+                    ["map", "filter", "keys", "values"].contains(&method.as_str())
+                        && child(*receiver)
                         && arguments.iter().all(|n| child(*n))
                 }
                 _ => false,
@@ -446,7 +464,7 @@ impl<'p> Lower<'p> {
             Kind::Binary { op, left, right } => {
                 if !matches!(
                     &body.nodes[*left].ty,
-                    ExprType::Value(Type::U64 | Type::Bool)
+                    ExprType::Value(Type::U64 | Type::Bool | Type::Int)
                 ) {
                     return Err("non-word action model operator is unsupported".into());
                 }
@@ -459,7 +477,11 @@ impl<'p> Lower<'p> {
                     events,
                     vec![],
                     &|this, xs, state, events| {
-                        next(this, b(op, xs[0].clone(), xs[1].clone()), state, events)
+                        let ExprType::Value(t) = &body.nodes[*left].ty else {
+                            return Err("operator type".into());
+                        };
+                        let value = this.operator(t, op, xs[0].clone(), xs[1].clone())?;
+                        next(this, value, state, events)
                     },
                     abort,
                     depth + 1,

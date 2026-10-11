@@ -11,10 +11,13 @@ use crate::{
 };
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
+mod collections;
+mod equality;
 mod flow;
+mod integer;
 mod pure;
 pub const SEMANTICS: &str = "ink-action-transition-v1";
-const MAX_DEFINITIONS: usize = 128;
+const MAX_DEFINITIONS: usize = 256;
 const MAX_WORK: usize = 20_000;
 fn v(n: &str) -> Term {
     Term::Var(n.into())
@@ -190,6 +193,10 @@ pub struct Replacement {
 }
 struct Lower<'a> {
     program: &'a Program,
+    typed: &'a CheckedActions,
+    keep_active: BTreeSet<usize>,
+    integer: Option<integer::Integer>,
+    equalities: BTreeMap<String, String>,
     objects: BTreeMap<String, Entry>,
     types: BTreeMap<String, Sort>,
     active: BTreeSet<String>,
@@ -280,7 +287,12 @@ impl Lower<'_> {
             return Err("recursive action model type is unsupported".into());
         }
         let s = match ty {
-            Type::U64 => Sort::U64,
+            Type::U64 | Type::U32 | Type::I32 | Type::F32 => Sort::U64,
+            Type::Int => Sort::Data(self.integer()?.value),
+            Type::Vector(t, n) => {
+                let s = self.sort(t)?;
+                Sort::Data(self.data(vec![("Vector", vec![s; *n as usize])])?)
+            }
             Type::Bool => Sort::Bool,
             Type::List(t) => {
                 let element = self.sort(t)?;
@@ -517,7 +529,23 @@ impl Lower<'_> {
             return Err("action model lambda is unsupported".into());
         };
         match &n.kind {
-            Kind::Number(n) if *ty == Type::U64 => Ok(Term::U64(*n)),
+            Kind::Number(n) if matches!(ty, Type::U64 | Type::U32 | Type::I32) => Ok(Term::U64(*n)),
+            Kind::Number(n) if *ty == Type::F32 => Ok(Term::U64((*n as f32).to_bits() as u64)),
+            Kind::Float(bits) => Ok(Term::U64(*bits as u64)),
+            Kind::Neg { value } if *ty == Type::F32 => {
+                let x = self.expr(body, *value, env, state)?;
+                Ok(b("f32:neg", x, Term::U64(0)))
+            }
+            Kind::Number(n) if *ty == Type::Int => self.integer_literal(*n),
+            Kind::Neg { value } if *ty == Type::I32 => {
+                let x = self.expr(body, *value, env, state)?;
+                self.operator(ty, "-", Term::U64(0), x)
+            }
+            Kind::Neg { value } if *ty == Type::Int => {
+                let i = self.integer()?;
+                let x = self.expr(body, *value, env, state)?;
+                Ok(call(&i.negate, vec![x]))
+            }
             Kind::Bool(x) => Ok(Term::Bool(*x)),
             Kind::Unit => {
                 let s = self.sort(ty)?;
@@ -526,6 +554,66 @@ impl Lower<'_> {
             Kind::None => {
                 let s = self.sort(ty)?;
                 Ok(c(id(&s)?, 0, vec![]))
+            }
+            Kind::State(root) => self.root(state.clone(), *root),
+            Kind::Keep(index) => {
+                if !self.keep_active.insert(*index) {
+                    return Err("action model keep cycle".into());
+                }
+                let keep = self.typed.keep(*index).ok_or("missing typed keep")?.clone();
+                let result = self.expr(
+                    &keep,
+                    keep.value.ok_or("missing keep value")?,
+                    &BTreeMap::new(),
+                    state,
+                );
+                self.keep_active.remove(index);
+                result
+            }
+            Kind::Builtin { name, arguments }
+                if ["vec2", "vec3", "vec4"].contains(&name.as_str()) =>
+            {
+                let s = self.sort(ty)?;
+                let xs = arguments
+                    .iter()
+                    .map(|i| self.expr(body, *i, env, state))
+                    .collect::<LangResult<Vec<_>>>()?;
+                Ok(c(id(&s)?, 0, xs))
+            }
+            Kind::VectorField {
+                receiver,
+                component,
+            } => {
+                let value = self.expr(body, *receiver, env, state)?;
+                let ExprType::Value(Type::Vector(_, n)) = body.nodes[*receiver].ty else {
+                    return Err("vector receiver type".into());
+                };
+                let names = (0..n).map(|_| self.fresh()).collect::<Vec<_>>();
+                Ok(m(value, vec![(names.clone(), v(&names[*component]))]))
+            }
+            Kind::Builtin { name, arguments } if ["quot_or", "rem_or"].contains(&name.as_str()) => {
+                let xs = arguments
+                    .iter()
+                    .map(|i| self.expr(body, *i, env, state))
+                    .collect::<LangResult<Vec<_>>>()?;
+                self.division(ty, name, xs[0].clone(), xs[1].clone(), xs[2].clone())
+            }
+            Kind::Builtin { name, arguments } if ["count", "sum"].contains(&name.as_str()) => {
+                self.reduce_expr(body, name, arguments, env, state)
+            }
+            Kind::Method {
+                receiver,
+                method,
+                arguments,
+            } if ["values", "keys", "map", "filter"].contains(&method.as_str()) => {
+                self.collection_expr(body, *receiver, method, arguments, env, state)
+            }
+            Kind::Table {
+                root,
+                method,
+                arguments,
+            } if arguments.is_empty() && ["values", "keys"].contains(&method.as_str()) => {
+                self.table_sequence(*root, method, state)
             }
             Kind::Local(s) => env
                 .get(s)
@@ -565,10 +653,10 @@ impl Lower<'_> {
                 let lhs = self.expr(body, *left, env, state)?;
                 let rhs = self.expr(body, *right, env, state)?;
                 let t = &body.nodes[*left].ty;
-                if !matches!(t, ExprType::Value(Type::U64 | Type::Bool)) {
-                    return Err("non-word action model operator is unsupported".into());
-                }
-                Ok(b(op, lhs, rhs))
+                let ExprType::Value(t) = t else {
+                    return Err("operator operand type".into());
+                };
+                self.operator(t, op, lhs, rhs)
             }
             Kind::And { left, right } | Kind::Or { left, right } => {
                 let lhs = self.expr(body, *left, env, state)?;
@@ -701,6 +789,10 @@ impl Projection {
         let p = module.program();
         let mut l = Lower {
             program: p,
+            typed: &actions,
+            keep_active: BTreeSet::new(),
+            integer: None,
+            equalities: BTreeMap::new(),
             objects: BTreeMap::new(),
             types: BTreeMap::new(),
             active: BTreeSet::new(),
