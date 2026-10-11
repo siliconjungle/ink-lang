@@ -295,6 +295,7 @@ fn expr(
             evaluate_division(e, frame, fuel, ty)
         }
         Expr::Method(_, n, _) if n == "at_or" => evaluate_index(e, frame, fuel, ty),
+        Expr::Method(_, n, _) if n == "concat" => evaluate_concat(e, frame, fuel, ty),
         Expr::Method(_, n, _) if ["zip", "map_indexed", "scan", "sort"].contains(&n.as_str()) => {
             evaluate_array_operation(e, frame, fuel, ty)
         }
@@ -549,6 +550,39 @@ fn evaluate_index(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> LangR
         }
         _ => unreachable!("expression dispatch"),
     }
+}
+
+#[inline(never)]
+fn evaluate_concat(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> LangResult<Value> {
+    let Frame {
+        env,
+        types,
+        p,
+        depth,
+    } = frame;
+    let Expr::Method(xs, _, args) = e else {
+        unreachable!("expression dispatch");
+    };
+    let Value::List(mut left) = expr(xs, env, types, p, fuel, Some(&ty), depth)? else {
+        return Err("concat requires a list".into());
+    };
+    let Value::List(mut right) = expr(&args[0], env, types, p, fuel, Some(&ty), depth)? else {
+        return Err("concat requires a list".into());
+    };
+    // Operands are owned values. Move their elements without changing the
+    // caller's lists or duplicating nested values beyond ordinary evaluation.
+    let len = left
+        .len()
+        .checked_add(right.len())
+        .ok_or("concat list length overflow")?;
+    charge(
+        fuel,
+        u64::try_from(len).map_err(|_| "concat list length exceeds evaluation budget")?,
+    )?;
+    left.try_reserve(right.len())
+        .map_err(|_| "concat allocation limit")?;
+    left.append(&mut right);
+    Ok(Value::List(left))
 }
 
 #[inline(never)]

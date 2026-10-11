@@ -25,5 +25,5 @@ for(const step of steps){
 // Failure must leave the instance intact and restore must capture input bytes.
 const before=await state.checkpoint();const corrupt=before.slice();corrupt[corrupt.length-1]^=1;await assert.rejects(state.restore(corrupt));assert.deepEqual(await state.checkpoint(),before);
 const captured=before.slice();const restoring=state.restore(captured);captured.fill(0);await restoring;assert.deepEqual(await state.checkpoint(),before);
-assert.throws(()=>state.invoke('create',['bad','x',0]));assert.deepEqual(await state.checkpoint(),before);
+assert.throws(()=>state.invoke('__unknown_action__',[]),/unknown action __unknown_action__/);assert.deepEqual(await state.checkpoint(),before);
 console.log(`${index} JS outcomes and exact portable snapshots matched`);

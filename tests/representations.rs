@@ -586,33 +586,72 @@ fn frozen_cli_replay_needs_no_live_catalogue_and_checks_before_writing() {
 }
 
 fn compile_native(root: &std::path::Path, optimised: bool) {
-    let deps = std::env::current_exe()
+    // Cargo selects one coherent graph, including serde_json's feature and
+    // crate identities. Independently choosing the newest rlibs can combine
+    // incompatible debug/release or production/research builds.
+    let manifest = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    // Preserve the invoking test's library profile; `optimised` controls the
+    // generated driver separately, as recorded by the manual benchmarks.
+    let release = !cfg!(debug_assertions);
+    let mut cargo = Command::new(env!("CARGO"));
+    cargo
+        .args(["build", "--offline", "--lib", "--message-format=json"])
+        .arg("--manifest-path")
+        .arg(manifest.join("Cargo.toml"))
+        .arg("--target-dir")
+        .arg(manifest.join("build/representation-fixture-target"))
+        .env_remove("CARGO_TARGET_DIR");
+    if release {
+        cargo.arg("--release");
+    }
+    if cfg!(feature = "legacy-optimisation-research") {
+        cargo.args(["--features", "legacy-optimisation-research"]);
+    }
+    let graph = cargo.output().unwrap();
+    assert!(
+        graph.status.success(),
+        "{}\n{}",
+        String::from_utf8_lossy(&graph.stderr),
+        String::from_utf8_lossy(&graph.stdout)
+    );
+    let artifacts = String::from_utf8(graph.stdout)
         .unwrap()
-        .parent()
-        .unwrap()
-        .to_owned();
+        .lines()
+        .filter_map(|line| serde_json::from_str::<serde_json::Value>(line).ok())
+        .filter(|message| message["reason"] == "compiler-artifact")
+        .collect::<Vec<_>>();
+    let library = |name: &str| {
+        let files = artifacts
+            .iter()
+            .filter(|artifact| artifact["target"]["name"] == name)
+            .flat_map(|artifact| artifact["filenames"].as_array().unwrap())
+            .filter_map(|file| file.as_str())
+            .map(PathBuf::from)
+            .filter(|file| {
+                file.extension()
+                    .is_some_and(|extension| extension == "rlib")
+            })
+            .collect::<Vec<_>>();
+        assert_eq!(files.len(), 1, "one Cargo artifact required for {name}");
+        files.into_iter().next().unwrap()
+    };
+    let language = library("verified_language");
+    let json = library("serde_json");
+    let deps = [language.parent().unwrap(), json.parent().unwrap()]
+        .into_iter()
+        .collect::<std::collections::BTreeSet<_>>();
     let mut rustc = Command::new("rustc");
     rustc
         .arg("--edition=2021")
         .arg(root.join("native.rs"))
         .arg("-o")
-        .arg(root.join("native"))
-        .arg("-L")
-        .arg(format!("dependency={}", deps.display()));
-    for name in ["verified_language", "serde_json"] {
-        let file = fs::read_dir(&deps)
-            .unwrap()
-            .map(|e| e.unwrap().path())
-            .filter(|p| {
-                p.file_name()
-                    .unwrap()
-                    .to_str()
-                    .unwrap()
-                    .starts_with(&format!("lib{name}-"))
-                    && p.extension().is_some_and(|e| e == "rlib")
-            })
-            .max_by_key(|p| fs::metadata(p).unwrap().modified().unwrap())
-            .unwrap();
+        .arg(root.join("native"));
+    for directory in deps {
+        rustc
+            .arg("-L")
+            .arg(format!("dependency={}", directory.display()));
+    }
+    for (name, file) in [("verified_language", language), ("serde_json", json)] {
         rustc
             .arg("--extern")
             .arg(format!("{name}={}", file.display()));
@@ -620,7 +659,7 @@ fn compile_native(root: &std::path::Path, optimised: bool) {
     if optimised {
         rustc.arg("-O");
     }
-    if !cfg!(debug_assertions) {
+    if release {
         // Cargo release dependencies contain LLVM bitcode. Let rustc consume
         // it instead of passing newer IR to the system Apple linker.
         rustc.args(["-C", "lto=thin", "-C", "embed-bitcode=yes"]);

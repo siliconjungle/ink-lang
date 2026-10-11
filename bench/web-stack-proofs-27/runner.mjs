@@ -1,0 +1,183 @@
+// CPU and GPU prior/current use separate checked same-store policy selections.
+// Shared Node and browser protocol. Timers include host capture, Wasm input
+// copies, scheduling, result conversion, and GPU upload/dispatch/readback.
+import * as literal from './literal.mjs';
+import {createExpert} from './expert.mjs';
+const require = (condition, message) => { if (!condition) throw Error(message); };
+function gpuEvidence(r,input,caseName){
+ if(r.backend!=='gpu')return;
+ const c=r.counters,n=input.xs.length,contract=r.counter_contract;let expected;
+ if(contract.schema===2){
+   const arrayWords=input.xs.length+(contract.list_inputs===2?input.ys.length:0),scalarWords=contract.parameters-contract.list_inputs,metadataWords=contract.parameters+1;
+   const outputCount=Array.isArray(input.expected[caseName])?input.expected[caseName].length:(contract.result_words??1);
+   expected={dispatches:outputCount?1:0,upload_bytes:4*(arrayWords+scalarWords+metadataWords),readback_bytes:outputCount*4};
+ }
+ else{
+   let dispatches=contract.stages.reduce((s,x)=>s+(x.kind==='map'?1:3),0),cap=Math.max(1,n);
+   if(contract.aggregate==='count')dispatches++;else do{dispatches++;cap=Math.ceil(cap/256);}while(cap>1);
+   expected={dispatches,upload_bytes:n*4+4+4*contract.parameters,readback_bytes:4};
+ }
+ for(const key of Object.keys(expected))require(c&&c[key]===expected[key],`GPU actual ${key}: ${c?.[key]} vs ${expected[key]}`);
+}
+const clock = () => performance.now();
+function random(seed) { let x = seed >>> 0; return () => { x ^= x << 13; x ^= x >>> 17; x ^= x << 5; return x >>> 0; }; }
+function shuffle(xs, rng) { xs = [...xs]; for(let i=xs.length-1;i>0;i--) {const j=rng()%(i+1); [xs[i],xs[j]]=[xs[j],xs[i]];} return xs; }
+const list=value=>Array.isArray(value)||(ArrayBuffer.isView(value)&&typeof value.length==='number');
+function observation(value) {
+  if(!list(value))return {single:String(value),code:BigInt(value)};
+  let sum=0,weighted=0;
+  for(let i=0;i<value.length;i++){sum=(sum+value[i])>>>0;weighted=(weighted+Math.imul(value[i],i+1))>>>0;}
+  return {single:`array:${value.length}:${sum}:${weighted}`,code:BigInt.asUintN(64,BigInt(sum)+(BigInt(weighted)<<32n)+BigInt(value.length))};
+}
+export async function runBenchmark(base, { browser=false, validateOnly=false, progress=()=>{} }={}) {
+  const config = await (await fetch(new URL('fixtures.json', base))).json();
+  const spec = await (await fetch(new URL('spec.json',base))).json();
+  const cases=config.cases, tasks=Object.fromEntries(spec.tasks.map(t=>[t.name,t]));
+  const start = clock(), startup = {}, variants = {}, engines = {}, gpuEngines = {};
+  const inputs=config.inputs.map(x=>({...x,xs:new Uint32Array(x.xs),ys:new Uint32Array(x.ys),originalWords:x.xs,originalSecond:x.ys}));
+  const maxSize=Math.max(2,...inputs.flatMap(x=>[x.xs.length,x.ys.length])), expert=createExpert(maxSize);
+  const capturedArgs=(task,args)=>args.map((v,i)=>i<task.list_inputs.length?v.slice():v);
+  const fullArgs=(input)=>[input.xs,input.ys,input.seed,input.factor];
+  const inkArgs=(task,args)=>task.list_inputs.length===2?args:[args[0],args[2],args[3]];
+  const metadata=await(await fetch(new URL('metadata.json',base))).json();
+  for(const compiler of ['old','new'])for(const proof of ['prior','checked']) {
+    const key=compiler+'_'+proof;engines[key]={};const direct={};const t=clock();
+    for(const name of cases){
+      const url=new URL(`${compiler}/${proof}/${name}/`,base),{loadInk}=await import(new URL('ink-gpu.mjs',url));
+      engines[key][name]=await loadInk(url,{gpu:false});direct[name]=await import(new URL('program.mjs',url));
+      require(direct[name].metadata.abi==='ink-javascript-trusted-values-v2','trusted generated JS required');
+    }
+    startup[key]=clock()-t;
+    for(const backend of ['javascript','cpu']) {
+      const label=backend==='cpu'?'wasm':'js';variants[`ink_${key}_${label}`]={backend,boundary:'full',memory:backend==='cpu'?name=>engines[key][name].benchmarkMemoryBytes():null,
+        run(name,args){const task=tasks[name],engine=engines[key][name];let actual=inkArgs(task,args);if(backend==='javascript')actual=capturedArgs(task,actual);
+          return engine.manifest.schema===2?engine.call(name,actual,{backend}):engine.run(name,actual,backend);}};
+    }
+    variants[`ink_${key}_borrowed_js`]={backend:'javascript',boundary:'borrowed-sync',memory:null,
+      bind(name,args){const fn=direct[name].functions[name],actual=inkArgs(tasks[name],args);return ()=>fn(...actual);},
+      run(name,args){return {value:this.bind(name,args)(),backend:'javascript'};}};
+  }
+  // Only unique byte-bound GPU representatives are loaded/timed. Duplicates
+  // remain manifest aliases and cannot establish backend/proof GPU gains.
+  if(browser)for(const [variant,byTask] of Object.entries(metadata.gpu_manifest)) {
+    gpuEngines[variant]={};const t=clock();
+    for(const name of cases){const descriptor=byTask[name];if(!descriptor)continue;
+      const url=new URL(descriptor.bundle+'/',base),{loadInk}=await import(new URL('ink-gpu.mjs',url));
+      gpuEngines[variant][name]=await loadInk(url,{gpu:true});}
+    startup[variant]=clock()-t;
+    variants[variant]={backend:'gpu',boundary:'full',memory:null,available:name=>!!gpuEngines[variant][name],
+      async run(name,args){const task=tasks[name],engine=gpuEngines[variant][name],actual=inkArgs(task,args),r=await(engine.manifest.schema===2?engine.call(name,actual,{backend:'gpu'}):engine.run(name,actual,'gpu'));
+        const f=engine.manifest.functions.find(f=>f.name===name);return r.backend==='gpu'?{...r,counter_contract:engine.manifest.schema===2?{schema:2,list_inputs:task.list_inputs.length,parameters:actual.length,result_words:task.scalar?task.scalar_words:null}:{schema:1,stages:f.gpu?.stages,aggregate:f.gpu?.aggregate,parameters:actual.length}}:r;}};
+  }
+  const rustEngines=[],validationControls={};
+  for(const mode of ['literal','expert']){
+    const variant=`rust_${mode}_wasm`,t=clock();
+    const {instance:rust}=await WebAssembly.instantiate(await(await fetch(new URL(`rust-${mode}.wasm`,base))).arrayBuffer(),{});
+    const xp=rust.exports.bench_alloc(maxSize),yp=rust.exports.bench_alloc(maxSize),out=rust.exports.bench_alloc(maxSize);
+    rustEngines.push({rust,xp,yp,out});startup[variant]=clock()-t;
+    (mode==='literal'?validationControls:variants)[variant]={backend:'rust-wasm',boundary:'full',memory:()=>rust.exports.memory.buffer.byteLength,
+      async run(name,args){const task=tasks[name],xs=args[0].slice(),ys=task.list_inputs.length===2?args[1].slice():args[1];
+        new Uint32Array(rust.exports.memory.buffer,xp,xs.length).set(xs);if(task.list_inputs.length===2)new Uint32Array(rust.exports.memory.buffer,yp,ys.length).set(ys);
+        const n=rust.exports.bench_eval(task.index,xp,xs.length,yp,ys.length,args[2],args[3],out),values=new Uint32Array(rust.exports.memory.buffer,out,n);
+        require(task.output_kind==='list_u32'?(task.result_length==='accepted predicate count'?n<=xs.length:n===(task.result_length==='xs.length'?xs.length:Math.min(xs.length,ys.length))):n===task.scalar_words,'Rust result ABI');
+        return {value:task.output_kind==='u64'?BigInt(values[0])+(BigInt(values[1])<<32n):task.scalar?values[0]:Array.from(values),backend:'rust-wasm'};
+      }};
+  }
+  const closeRust=()=>{for(const {rust,xp,yp,out} of rustEngines){for(const p of [xp,yp,out])rust.exports.bench_free(p,maxSize);}};
+  validationControls.js_literal={backend:'javascript',boundary:'validation-only',memory:null,async run(name,args){return {value:literal.call(name,[args[0].slice(),tasks[name].list_inputs.length===2?args[1].slice():args[1],args[2],args[3]]),backend:'javascript'};}};
+  variants.js_expert={backend:'javascript',boundary:'full',memory:null,async run(name,args){return {value:expert.call(name,[args[0].slice(),tasks[name].list_inputs.length===2?args[1].slice():args[1],args[2],args[3]]),backend:'javascript'};}};
+  variants.js_expert_borrowed={backend:'javascript',boundary:'borrowed-sync',memory:null,
+    bind(name,args){const fn=expert.get(name);return ()=>fn(...args);},run(name,args){return {value:this.bind(name,args)(),backend:'javascript'};}};
+  const allControls={...variants,...validationControls};
+  const result={schema:1,status:'running',host:browser?navigator.userAgent:globalThis.process.version,
+    browser,webgpu:browser&&!!navigator.gpu,parameters:config.parameters,startup_ms:startup,
+    validation:{comparisons:0,validation_only_controls:['js_literal','rust_literal_wasm'],fixtures:config.inputs.length,oracle:'independent batch27 nested-zip, helper calibration/indexed/pairing, ordered checksum, filtered projection and immutable26 modular mix goldens corroborated by exact source-stage controls'},
+    gpu_validation:{comparisons:0,actual_gpu:0,fallbacks:0,records:[]},
+    first_validation_call_ms:{},gpu_reference_scope:metadata.gpu_reference_scope,variant_boundaries:Object.fromEntries(Object.entries(variants).map(([k,v])=>[k,v.boundary])),
+    samples:[],warmups:[],calibration:[],availability:[],peak_linear_memory_bytes:{},scope:config.scope};
+  if(browser&&navigator.gpu) {
+    try {const adapter=await navigator.gpu.requestAdapter();result.gpu_adapter=adapter?{...Object.fromEntries(['vendor','architecture','device','description'].map(k=>[k,adapter.info?.[k]??null])),features:[...adapter.features]}:null;}
+    catch(error){result.gpu_adapter_error=String(error);}
+  }
+  const expected=(input,name)=>observation(input.expected[name]);
+  function check(r,input,name,variant,allowFallback=false) {
+    gpuEvidence(r,input,name);
+    const golden=input.expected[name];
+    const correct=Array.isArray(golden)?list(r.value)&&r.value.length===golden.length&&r.value.every((v,i)=>v===golden[i]):String(r.value)===String(golden);
+    require(correct,`${variant}/${name}/${input.id}: oracle mismatch`);
+    require(input.xs.length===input.originalWords.length&&input.xs.every((v,i)=>v===input.originalWords[i])&&input.ys.length===input.originalSecond.length&&input.ys.every((v,i)=>v===input.originalSecond[i]),`${variant}/${name}/${input.id}: source input mutated`);
+    if(!allowFallback)require(r.backend===allControls[variant].backend,`${variant}: unexpected backend ${r.backend}: ${r.reason}`);
+    if(allControls[variant].memory)result.peak_linear_memory_bytes[variant]=Math.max(result.peak_linear_memory_bytes[variant]??0,allControls[variant].memory(name));
+  }
+  // Full fixture validation before timing, including every requested GPU
+  // variant on empty/unequal/full-width inputs. Fallback is recorded separately.
+  for(const input of inputs)for(const name of Object.keys(input.expected))for(const [v,entry] of Object.entries(allControls)) {
+    if(entry.available&&!entry.available(name))continue;
+    const t=clock(),r=await entry.run(name,fullArgs(input));
+    if(!(v in result.first_validation_call_ms))result.first_validation_call_ms[v]=clock()-t;
+    check(r,input,name,v,entry.backend==='gpu'); result.validation.comparisons++;
+    if(entry.backend==='gpu'){
+      const engine=gpuEngines[v][name],f=engine.manifest.functions.find(f=>f.name===name),eligible=!!(f.shader||f.gpu),outputCount=Array.isArray(input.expected[name])?input.expected[name].length:1;
+      if(eligible&&outputCount)require(r.backend==='gpu',`eligible positive GPU fixture fell back ${v}/${input.id}: ${r.reason}`);
+      result.gpu_validation.comparisons++;result.gpu_validation[r.backend==='gpu'?'actual_gpu':'fallbacks']++;
+      result.gpu_validation.records.push({case:name,input:input.id,variant:v,actual_backend:r.backend,reason:r.reason??r.fallback_reason??null,counters:r.counters??null,output_count:outputCount});
+    }
+  }
+  if(validateOnly) {
+    result.status='validation-passed';
+    closeRust();
+    for(const byTask of Object.values({...engines,...gpuEngines}))for(const engine of Object.values(byTask))await engine.close();
+    return result;
+  }
+  const rng=random(config.parameters.seed);
+  for(const cell of config.cells) {
+    const input=inputs[cell.input], name=cell.case, args=fullArgs(input);
+    const eligible=[];
+    for(const [v,entry] of Object.entries(variants)) {
+      if(entry.available&&!entry.available(name))continue;
+      const t=clock(), r=await entry.run(name,args), ms=clock()-t;
+      check(r,input,name,v,entry.backend==='gpu'); result.validation.comparisons++;
+      if(browser&&entry.backend==='gpu'&&(gpuEngines[v][name].manifest.functions.find(f=>f.name===name)?.shader||gpuEngines[v][name].manifest.functions.find(f=>f.name===name)?.gpu)) {
+        require(r.backend==='gpu',`eligible shader must execute on GPU for ${v}/${name}/${input.id}: ${r.reason}`);
+      }
+      result.availability.push({case:name,input:input.id,variant:v,actual_backend:r.backend,reason:r.reason??r.fallback_reason??null,first_call_ms:ms,counters:r.counters??null});
+      if(entry.backend!=='gpu'||r.backend==='gpu')eligible.push(v);
+    }
+    async function sample(v,iterations) {
+      const entry=variants[v];if(entry.boundary==='borrowed-sync')return sampleSync(v,iterations); let checksum=0n; const counters={dispatches:0,upload_bytes:0,readback_bytes:0}; const t=clock();
+      for(let i=0;i<iterations;i++) {
+        const r=await entry.run(name,args); // boundary promises are identical across rounds
+        if(r.backend!==entry.backend)throw Error(`${v}/${name}: backend changed during timing: ${r.reason}`);
+        if(entry.backend==='gpu'){gpuEvidence(r,input,name);for(const key of Object.keys(counters))counters[key]+=r.counters[key];}
+        checksum=BigInt.asUintN(64,checksum+observation(r.value).code);
+      }
+      const elapsed=clock()-t;
+      require(checksum===BigInt.asUintN(64,expected(input,name).code*BigInt(iterations)),`checksum ${v}/${name}`);
+      return {case:name,input:input.id,variant:v,iterations,seconds:elapsed/1000,
+        boundary:entry.boundary,ns_per_call:elapsed*1e6/iterations,checksum:String(checksum),single:expected(input,name).single,
+        linear_memory_bytes:entry.memory?entry.memory(name):null,gpu_counters:entry.backend==='gpu'?counters:null};
+    }
+    function sampleSync(v,iterations) {
+      const entry=variants[v],leaf=entry.bind(name,args);let checksum=0n;const t=clock();
+      for(let i=0;i<iterations;i++)checksum=BigInt.asUintN(64,checksum+observation(leaf()).code);
+      const elapsed=clock()-t;require(checksum===BigInt.asUintN(64,expected(input,name).code*BigInt(iterations)),`borrowed checksum ${v}/${name}`);
+      return {case:name,input:input.id,variant:v,boundary:'borrowed-sync',iterations,seconds:elapsed/1000,ns_per_call:elapsed*1e6/iterations,checksum:String(checksum),single:expected(input,name).single,linear_memory_bytes:null,gpu_counters:null};
+    }
+    const iterations={};
+    for(const v of shuffle(eligible,rng)) {
+      let n=1, r;
+      do {r=await sample(v,n);if(r.seconds*1000>=config.parameters.seconds*1000/3||n>=1000000)break;n*=4;}while(true);
+      iterations[v]=Math.max(1,Math.min(1000000,Math.ceil(config.parameters.seconds/(r.seconds/r.iterations))));
+      result.calibration.push(r);
+    }
+    for(let w=0;w<config.parameters.warmup;w++)for(const v of shuffle(eligible,rng))result.warmups.push({...await sample(v,iterations[v]),warmup:w});
+    for(let round=0;round<config.parameters.repeats;round++)for(const v of shuffle(eligible,rng)) {
+      const r=await sample(v,iterations[v]);result.samples.push({...r,round});
+      if(r.linear_memory_bytes!==null)result.peak_linear_memory_bytes[v]=Math.max(result.peak_linear_memory_bytes[v]??0,r.linear_memory_bytes);
+    }
+    progress(`${name}: ${input.id} (${eligible.length} variants)`);
+  }
+  result.status='passed';result.elapsed_seconds=(clock()-start)/1000;
+  closeRust(); for(const byTask of Object.values({...engines,...gpuEngines}))for(const engine of Object.values(byTask))await engine.close();
+  return result;
+}

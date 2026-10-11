@@ -8,6 +8,7 @@ pub mod bitproof;
 pub mod check;
 pub mod core;
 pub mod definition;
+pub mod definition_context;
 pub mod effect_model;
 pub mod effects;
 pub mod equality;

@@ -209,6 +209,7 @@ fn larger_in_memory_catalogues_use_bounded_authenticated_leaves() {
             to: from,
             proof: Proof::Normalize,
             dependencies: vec![],
+            definition_context: None,
         };
         let id = registry::identity(&registry::Entry::from_law(&law).unwrap()).unwrap();
         catalogue.roots.push(id.clone());

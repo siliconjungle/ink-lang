@@ -1,0 +1,45 @@
+{
+  "status": "four_test_only_fixes_committed_checks_passed",
+  "commit": "08845d5c3be3bb2f2b63d261e11b0d3b526d7f82",
+  "production_source_basis": "0bd647945c3289cdc79b07351503ad9e9550cdcf",
+  "changed_paths": [
+    "tests/representations.rs",
+    "tests/row_model.rs",
+    "tests/source_columns.rs",
+    "tests/source_values.rs"
+  ],
+  "checks": {
+    "production": {
+      "command": "RUST_MIN_STACK=16777216 cargo test --offline --test row_model --test source_columns --test source_values --test representations --target-dir reports/web-stack-proofs-32-2026-10-11/main-integration/cargo-target",
+      "exit_code": 0,
+      "passed": 22,
+      "failed": 0,
+      "ignored": 4,
+      "log": "published-affected-default-tests.log",
+      "sha256": "58079825200e4826157b2cf2871b525b3c88466bba9ad6aadfb73ac02d61b97d"
+    },
+    "explicit_research": {
+      "command": "RUST_MIN_STACK=16777216 cargo test --offline --features legacy-optimisation-research --test row_model --test source_columns --test source_values --target-dir reports/web-stack-proofs-32-2026-10-11/main-integration/cargo-target",
+      "exit_code": 0,
+      "passed": 21,
+      "failed": 0,
+      "ignored": 0,
+      "log": "published-affected-legacy-tests.log",
+      "sha256": "ff21fa62e4804c87e27848abc86bef289227cce353930ab9a29671c5ef5b6748"
+    }
+  },
+  "preserved_failures": [
+    "published-production-tests.log",
+    "production-fixture-retries.log",
+    "production-fixture-retries-2.log"
+  ],
+  "historical_cases_gated_explicitly": 20,
+  "existing_default_wrong_source_rejection_retained": true,
+  "new_default_retired_bridge_rejection_cases": 3,
+  "all_18_representation_checks_retained": true,
+  "manual_timing_tests_ignored": 4,
+  "manual_library_profile_and_generated_driver_optimisation_preserved": true,
+  "compiler_kernel_emitter_db_proof_and_observation_bytes_changed": false,
+  "fixture_artifact_selection": "Both explicit rlibs are captured from one Cargo --lib JSON artifact graph; rustc dependency paths come from their captured artifact directories, never modification times.",
+  "publication_owned_by_parent": true
+}

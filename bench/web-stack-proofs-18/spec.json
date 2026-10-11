@@ -1,0 +1,289 @@
+{
+  "schema": 1,
+  "rust_abi": "bench_eval(case,xs_ptr,xs_len,ys_ptr,ys_len,seed,k,out)->word_count",
+  "tasks": [
+    {
+      "name": "sorted_calibrated_total_u32",
+      "generic_family": "sorted_mapped_sum_u32",
+      "cohort": "discovery",
+      "operation": "sort_reduce",
+      "expression": "x*3+k",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "fresh_proof_required": true,
+      "index": 0,
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "result_length": "one scalar word"
+    },
+    {
+      "name": "sorted_squared_energy_u32",
+      "generic_family": "sorted_mapped_sum_u32",
+      "cohort": "discovery",
+      "operation": "sort_reduce",
+      "expression": "x*x+k",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "fresh_proof_required": true,
+      "index": 1,
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "result_length": "one scalar word"
+    },
+    {
+      "name": "sorted_distance_total_u32",
+      "generic_family": "sorted_mapped_sum_u32",
+      "cohort": "discovery",
+      "operation": "sort_reduce",
+      "expression": "choose(x<seed,seed-x,x-seed)",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "fresh_proof_required": true,
+      "index": 2,
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "result_length": "one scalar word"
+    },
+    {
+      "name": "sorted_calibrated_total_u32_heldout",
+      "generic_family": "sorted_mapped_sum_u32",
+      "cohort": "heldout",
+      "operation": "sort_reduce",
+      "expression": "choose(x<seed,x*k,x+k)",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "fresh_proof_required": true,
+      "index": 3,
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "result_length": "one scalar word"
+    },
+    {
+      "name": "sorted_squared_energy_u32_heldout",
+      "generic_family": "sorted_mapped_sum_u32",
+      "cohort": "heldout",
+      "operation": "sort_reduce",
+      "expression": "(x-seed)*(x-seed)",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "fresh_proof_required": true,
+      "index": 4,
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "result_length": "one scalar word"
+    },
+    {
+      "name": "sorted_distance_total_u32_heldout",
+      "generic_family": "sorted_mapped_sum_u32",
+      "cohort": "heldout",
+      "operation": "sort_reduce",
+      "expression": "choose(x<seed,x,seed)",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "fresh_proof_required": true,
+      "index": 5,
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "result_length": "one scalar word"
+    },
+    {
+      "name": "lower_projection_repeat_u32",
+      "generic_family": "idempotent_positive_repeat_function_u32",
+      "cohort": "discovery",
+      "operation": "projection",
+      "expression": "choose(a<seed,seed,a)",
+      "iterations": 8,
+      "output": "list_u32",
+      "list_inputs": [
+        "xs",
+        "ys"
+      ],
+      "fresh_proof_required": true,
+      "index": 6,
+      "output_kind": "list_u32",
+      "params": [
+        "xs",
+        "ys",
+        "seed",
+        "k"
+      ],
+      "scalar": false,
+      "scalar_words": 1,
+      "result_length": "xs.length"
+    },
+    {
+      "name": "upper_projection_repeat_u32",
+      "generic_family": "idempotent_positive_repeat_function_u32",
+      "cohort": "discovery",
+      "operation": "projection",
+      "expression": "choose(a>k,k,a)",
+      "iterations": 32,
+      "output": "list_u32",
+      "list_inputs": [
+        "xs",
+        "ys"
+      ],
+      "fresh_proof_required": true,
+      "index": 7,
+      "output_kind": "list_u32",
+      "params": [
+        "xs",
+        "ys",
+        "seed",
+        "k"
+      ],
+      "scalar": false,
+      "scalar_words": 1,
+      "result_length": "xs.length"
+    },
+    {
+      "name": "keyed_projection_repeat_u32",
+      "generic_family": "idempotent_positive_repeat_function_u32",
+      "cohort": "discovery",
+      "operation": "projection",
+      "expression": "choose(a==seed,k,a)",
+      "iterations": 64,
+      "output": "list_u32",
+      "list_inputs": [
+        "xs",
+        "ys"
+      ],
+      "fresh_proof_required": true,
+      "index": 8,
+      "output_kind": "list_u32",
+      "params": [
+        "xs",
+        "ys",
+        "seed",
+        "k"
+      ],
+      "scalar": false,
+      "scalar_words": 1,
+      "result_length": "xs.length"
+    },
+    {
+      "name": "lower_projection_repeat_u32_heldout",
+      "generic_family": "idempotent_positive_repeat_function_u32",
+      "cohort": "heldout",
+      "operation": "projection",
+      "expression": "choose(a<k,k,a)",
+      "iterations": 8,
+      "output": "list_u32",
+      "list_inputs": [
+        "xs",
+        "ys"
+      ],
+      "fresh_proof_required": true,
+      "index": 9,
+      "output_kind": "list_u32",
+      "params": [
+        "xs",
+        "ys",
+        "seed",
+        "k"
+      ],
+      "scalar": false,
+      "scalar_words": 1,
+      "result_length": "xs.length"
+    },
+    {
+      "name": "upper_projection_repeat_u32_heldout",
+      "generic_family": "idempotent_positive_repeat_function_u32",
+      "cohort": "heldout",
+      "operation": "projection",
+      "expression": "choose(a>seed,seed,a)",
+      "iterations": 32,
+      "output": "list_u32",
+      "list_inputs": [
+        "xs",
+        "ys"
+      ],
+      "fresh_proof_required": true,
+      "index": 10,
+      "output_kind": "list_u32",
+      "params": [
+        "xs",
+        "ys",
+        "seed",
+        "k"
+      ],
+      "scalar": false,
+      "scalar_words": 1,
+      "result_length": "xs.length"
+    },
+    {
+      "name": "keyed_projection_repeat_u32_heldout",
+      "generic_family": "idempotent_positive_repeat_function_u32",
+      "cohort": "heldout",
+      "operation": "projection",
+      "expression": "choose(a==k,seed,a)",
+      "iterations": 64,
+      "output": "list_u32",
+      "list_inputs": [
+        "xs",
+        "ys"
+      ],
+      "fresh_proof_required": true,
+      "index": 11,
+      "output_kind": "list_u32",
+      "params": [
+        "xs",
+        "ys",
+        "seed",
+        "k"
+      ],
+      "scalar": false,
+      "scalar_words": 1,
+      "result_length": "xs.length"
+    }
+  ],
+  "scope": "Six unsorted-score reductions and six repeated fixed-point projection recipes. Preset alternate callback instantiations, not an external corpus. Natural sort ABI(xs,seed,k) snapshots one list; author projection ABI(xs,ys,seed,k) snapshots both lists including unused ys. Per-task boundaries are matched across every implementation; strong experts already skip sort/repetition. Preset 8/32/64 counts and before-timing profiles; no general language ranking. Compile-time idempotence premises checked per static callback; no runtime input guards."
+}

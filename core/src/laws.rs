@@ -58,6 +58,8 @@ pub struct Law {
     pub to: Term,
     pub proof: Proof,
     pub dependencies: Vec<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub definition_context: Option<crate::definition_context::DefinitionContext>,
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -81,6 +83,7 @@ pub struct CheckedCatalogue {
     roots: Vec<String>,
     sha256: String,
     program_sha256: String,
+    context_error: Option<String>,
 }
 impl CheckedCatalogue {
     pub fn roots(&self) -> &[String] {
@@ -114,6 +117,7 @@ impl CheckedCatalogue {
             roots: c.roots.clone(),
             sha256: identity(c)?,
             program_sha256: identity(p)?,
+            context_error: None,
         };
         let mut active = BTreeSet::new();
         let mut budget = Budget::new();
@@ -145,19 +149,29 @@ impl CheckedCatalogue {
             {
                 return Err("incompatible or oversized law".into());
             }
+            // A portable law is proved only in its explicit definition context.
+            // Context-free entries cannot borrow named definitions from p.
+            let proof_program = match &law.definition_context {
+                Some(context) => context.check()?,
+                None => Program::default(),
+            };
             let mut imports = CheckedCatalogue {
                 laws: BTreeMap::new(),
                 roots: vec![],
                 sha256: String::new(),
-                program_sha256: out.program_sha256.clone(),
+                program_sha256: identity(&proof_program)?,
+                context_error: None,
             };
             for dep in &law.dependencies {
                 load(dep, c, out, active, p, b, d + 1)?;
+                if let Some(context) = &out.law(dep)?.definition_context {
+                    context.matches(&proof_program)?;
+                }
                 imports.laws.insert(dep.clone(), out.law(dep)?.clone());
             }
             // Only explicit direct imports are available while checking this law.
             imports.prove(
-                p,
+                &proof_program,
                 &law.params,
                 &law.conditions,
                 &Equation {
@@ -175,7 +189,23 @@ impl CheckedCatalogue {
         for id in &c.roots {
             load(id, c, &mut checked, &mut active, p, &mut budget, 0)?;
         }
+        for law in checked.laws.values() {
+            if let Some(context) = &law.definition_context {
+                if let Err(error) = context.matches(p) {
+                    checked.context_error = Some(error);
+                    break;
+                }
+            }
+        }
         Ok(checked)
+    }
+    /// Portable admission may succeed without these definitions in the caller.
+    /// Installing or using its laws requires the exact original module context.
+    pub fn require_applicable(&self) -> LangResult<()> {
+        match &self.context_error {
+            Some(error) => Err(error.clone()),
+            None => Ok(()),
+        }
     }
     pub fn prove(
         &self,
@@ -190,6 +220,7 @@ impl CheckedCatalogue {
         if identity(p)? != self.program_sha256 {
             return Err("checked laws belong to a different executable definition context".into());
         }
+        self.require_applicable()?;
         self.prove_inner(p, env, hyp, goal, proof, b, d)
     }
     fn prove_inner(
@@ -640,6 +671,17 @@ fn normal(t: &Term, hyp: &[Equation], p: &Program, b: &mut Budget, d: usize) -> 
                 None
             }
         }
+        ("method:concat", [xs, ys]) => match &xs.node {
+            Node::Nil => Some(ys.clone()),
+            Node::Cons(h, t) => Some(term(
+                out.sort.clone(),
+                Node::Cons(
+                    h.clone(),
+                    Box::new(op(out.sort.clone(), n, vec![(**t).clone(), ys.clone()])),
+                ),
+            )),
+            _ => None,
+        },
         ("call:repeat_until", [count, init, stop, step]) => {
             let next = apply(apply(step.clone(), word(Type::U32, 0))?, init.clone())?;
             Some(op(

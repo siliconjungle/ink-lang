@@ -1,0 +1,295 @@
+{
+  "schema": 1,
+  "rust_abi": "bench_eval(case,xs_ptr,xs_len,ys_ptr,ys_len,seed,k,out)->word_count",
+  "tasks": [
+    {
+      "name": "skip_partition_count_u32",
+      "generic_family": "skip_partition_count_u32",
+      "cohort": "discovery",
+      "operation": "skip_partition_count",
+      "predicate": "x>seed",
+      "mapper": "choose(x>k,x-k,x+k)",
+      "output": "u64",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 0,
+      "fresh_proof_required": true,
+      "proof_role": "fresh work-skipping endpoint",
+      "output_kind": "u64",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 2,
+      "result_length": "two scalar words"
+    },
+    {
+      "name": "skip_first_accepted_u32",
+      "generic_family": "skip_first_accepted_u32",
+      "cohort": "discovery",
+      "operation": "skip_first_accepted",
+      "predicate": "x>seed",
+      "mapper": "choose(x>k,x-k,x+k)",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 1,
+      "fresh_proof_required": true,
+      "proof_role": "fresh work-skipping endpoint",
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "result_length": "one scalar word"
+    },
+    {
+      "name": "skip_mapped_first_accepted_u32",
+      "generic_family": "skip_mapped_first_accepted_u32",
+      "cohort": "discovery",
+      "operation": "skip_mapped_first_accepted",
+      "predicate": "x>seed",
+      "mapper": "choose(x>k,x-k,x+k)",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 2,
+      "fresh_proof_required": true,
+      "proof_role": "fresh work-skipping endpoint",
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "result_length": "one scalar word"
+    },
+    {
+      "name": "skip_partition_count_u32_heldout",
+      "generic_family": "skip_partition_count_u32",
+      "cohort": "heldout",
+      "operation": "skip_partition_count",
+      "predicate": "x<k",
+      "mapper": "choose(x<seed,x+k,x-seed)",
+      "output": "u64",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 3,
+      "fresh_proof_required": true,
+      "proof_role": "fresh work-skipping endpoint",
+      "output_kind": "u64",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 2,
+      "result_length": "two scalar words"
+    },
+    {
+      "name": "skip_first_accepted_u32_heldout",
+      "generic_family": "skip_first_accepted_u32",
+      "cohort": "heldout",
+      "operation": "skip_first_accepted",
+      "predicate": "x<k",
+      "mapper": "choose(x<seed,x+k,x-seed)",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 4,
+      "fresh_proof_required": true,
+      "proof_role": "fresh work-skipping endpoint",
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "result_length": "one scalar word"
+    },
+    {
+      "name": "skip_mapped_first_accepted_u32_heldout",
+      "generic_family": "skip_mapped_first_accepted_u32",
+      "cohort": "heldout",
+      "operation": "skip_mapped_first_accepted",
+      "predicate": "x<k",
+      "mapper": "choose(x<seed,x+k,x-seed)",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 5,
+      "fresh_proof_required": true,
+      "proof_role": "fresh work-skipping endpoint",
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "result_length": "one scalar word"
+    },
+    {
+      "name": "pipeline_scan_left_project_u32",
+      "generic_family": "scan_left_project_u32",
+      "cohort": "discovery",
+      "operation": "scan_left_project",
+      "mapper": "choose(x<seed,x+k,x-seed)",
+      "post": "first+k",
+      "output": "list_u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 6,
+      "fresh_proof_required": true,
+      "proof_role": "fresh work-skipping endpoint",
+      "output_kind": "list_u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": false,
+      "scalar_words": 1,
+      "result_length": "xs.length"
+    },
+    {
+      "name": "pipeline_scan_right_project_u32",
+      "generic_family": "scan_right_project_u32",
+      "cohort": "discovery",
+      "operation": "scan_right_project",
+      "mapper": "choose(x<seed,x+k,x-seed)",
+      "post": "first+k",
+      "output": "list_u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 7,
+      "fresh_proof_required": true,
+      "proof_role": "fresh work-skipping endpoint",
+      "output_kind": "list_u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": false,
+      "scalar_words": 1,
+      "result_length": "xs.length"
+    },
+    {
+      "name": "pipeline_scan_first_value_u32",
+      "generic_family": "scan_first_value_u32",
+      "cohort": "discovery",
+      "operation": "scan_first_value",
+      "mapper": "choose(x<seed,x+k,x-seed)",
+      "post": "first+k",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 8,
+      "fresh_proof_required": true,
+      "proof_role": "fresh work-skipping endpoint",
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "result_length": "one scalar word"
+    },
+    {
+      "name": "pipeline_scan_left_project_heldout_u32",
+      "generic_family": "scan_left_project_u32",
+      "cohort": "heldout",
+      "operation": "scan_left_project",
+      "mapper": "choose(x>k,x*k+seed,seed-x)",
+      "post": "first*k+seed",
+      "output": "list_u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 9,
+      "fresh_proof_required": true,
+      "proof_role": "fresh work-skipping endpoint",
+      "output_kind": "list_u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": false,
+      "scalar_words": 1,
+      "result_length": "xs.length"
+    },
+    {
+      "name": "pipeline_scan_right_project_heldout_u32",
+      "generic_family": "scan_right_project_u32",
+      "cohort": "heldout",
+      "operation": "scan_right_project",
+      "mapper": "choose(x>k,x*k+seed,seed-x)",
+      "post": "first*k+seed",
+      "output": "list_u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 10,
+      "fresh_proof_required": true,
+      "proof_role": "fresh work-skipping endpoint",
+      "output_kind": "list_u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": false,
+      "scalar_words": 1,
+      "result_length": "xs.length"
+    },
+    {
+      "name": "pipeline_scan_first_value_heldout_u32",
+      "generic_family": "scan_first_value_u32",
+      "cohort": "heldout",
+      "operation": "scan_first_value",
+      "mapper": "choose(x>k,x*k+seed,seed-x)",
+      "post": "first*k+seed",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 11,
+      "fresh_proof_required": true,
+      "proof_role": "fresh work-skipping endpoint",
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "result_length": "one scalar word"
+    }
+  ],
+  "scope": "Six partition-cardinality and first-match scalars plus four unobserved-prefix scan/zip vectors and two scan-first scalars. Natural single-list ABI; unused adapter ys stays empty and is not captured. Literal controls retain every original filter/map/scan/zip stage, including complete prefix construction before scalar lookup. Strong experts count length directly, forward-scan first matches with early exit, or omit unused scans and zip entirely. Lookup locations first/interior/absent are preset at every size/distribution. Primary/alternate instantiations are not an external corpus. Full captures and result consumption/transfers differ from borrowed JS/native resident kernel boundaries; actual GPU requires manifest eligibility and counters."
+}

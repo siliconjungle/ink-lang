@@ -315,6 +315,7 @@ fn larger_views_match_the_canonical_python_store_tree() {
             to: from,
             proof: Proof::Normalize,
             dependencies: vec![],
+            definition_context: None,
         };
         let extra = one(law);
         c.roots.extend(extra.roots);

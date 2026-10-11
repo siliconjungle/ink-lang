@@ -1,0 +1,301 @@
+{
+  "schema": 1,
+  "rust_abi": "bench_eval(case,xs_ptr,xs_len,ys_ptr,ys_len,seed,k,out)->word_count",
+  "tasks": [
+    {
+      "name": "partition_dual_add_u32",
+      "generic_family": "partition_dual_add_u32",
+      "cohort": "discovery",
+      "operation": "add",
+      "predicate": "x<seed",
+      "positive": "quot_or(x+seed,k,seed)",
+      "negative": "choose(x<k,k-x,x-k)+seed",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 0,
+      "fresh_proof_required": true,
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "result_length": "one scalar word"
+    },
+    {
+      "name": "partition_dual_subtract_u32",
+      "generic_family": "partition_dual_subtract_u32",
+      "cohort": "discovery",
+      "operation": "subtract",
+      "predicate": "x<seed",
+      "positive": "quot_or(x+seed,k,seed)",
+      "negative": "choose(x<k,k-x,x-k)+seed",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 1,
+      "fresh_proof_required": true,
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "result_length": "one scalar word"
+    },
+    {
+      "name": "partition_dual_weighted_u32",
+      "generic_family": "partition_dual_weighted_u32",
+      "cohort": "discovery",
+      "operation": "weighted",
+      "predicate": "x<seed",
+      "positive": "quot_or(x+seed,k,seed)",
+      "negative": "choose(x<k,k-x,x-k)+seed",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 2,
+      "fresh_proof_required": true,
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "result_length": "one scalar word"
+    },
+    {
+      "name": "partition_dual_add_u32_heldout",
+      "generic_family": "partition_dual_add_u32",
+      "cohort": "heldout",
+      "operation": "add",
+      "predicate": "x>k",
+      "positive": "choose(x>seed,x-seed,seed-x)*3",
+      "negative": "quot_or(x*k+seed,seed,k)",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 3,
+      "fresh_proof_required": true,
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "result_length": "one scalar word"
+    },
+    {
+      "name": "partition_dual_subtract_u32_heldout",
+      "generic_family": "partition_dual_subtract_u32",
+      "cohort": "heldout",
+      "operation": "subtract",
+      "predicate": "x>k",
+      "positive": "choose(x>seed,x-seed,seed-x)*3",
+      "negative": "quot_or(x*k+seed,seed,k)",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 4,
+      "fresh_proof_required": true,
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "result_length": "one scalar word"
+    },
+    {
+      "name": "partition_dual_weighted_u32_heldout",
+      "generic_family": "partition_dual_weighted_u32",
+      "cohort": "heldout",
+      "operation": "weighted",
+      "predicate": "x>k",
+      "positive": "choose(x>seed,x-seed,seed-x)*3",
+      "negative": "quot_or(x*k+seed,seed,k)",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 5,
+      "fresh_proof_required": true,
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "result_length": "one scalar word"
+    },
+    {
+      "name": "map_indexed_u32",
+      "generic_family": "map_indexed_fusion_u32",
+      "cohort": "discovery",
+      "operation": "map_indexed",
+      "first": "choose(x<seed,x+k,x-k)",
+      "second": "choose(rem_or(i,2,0)==0,x*k,x+seed)",
+      "first_indexed": false,
+      "second_indexed": true,
+      "output": "list_u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 6,
+      "fresh_proof_required": true,
+      "output_kind": "list_u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": false,
+      "scalar_words": 1,
+      "result_length": "xs.length"
+    },
+    {
+      "name": "indexed_map_u32",
+      "generic_family": "indexed_map_fusion_u32",
+      "cohort": "discovery",
+      "operation": "indexed_map",
+      "first": "choose(rem_or(i,2,0)==0,x+k,x-seed)",
+      "second": "choose(x<seed,x+k,x-k)",
+      "first_indexed": true,
+      "second_indexed": false,
+      "output": "list_u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 7,
+      "fresh_proof_required": true,
+      "output_kind": "list_u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": false,
+      "scalar_words": 1,
+      "result_length": "xs.length"
+    },
+    {
+      "name": "indexed_indexed_u32",
+      "generic_family": "indexed_indexed_fusion_u32",
+      "cohort": "discovery",
+      "operation": "indexed_indexed",
+      "first": "choose(rem_or(i,2,0)==0,x+k,x-seed)",
+      "second": "choose(rem_or(i,2,0)==0,x*k,x+seed)",
+      "first_indexed": true,
+      "second_indexed": true,
+      "output": "list_u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 8,
+      "fresh_proof_required": true,
+      "output_kind": "list_u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": false,
+      "scalar_words": 1,
+      "result_length": "xs.length"
+    },
+    {
+      "name": "map_indexed_heldout_u32",
+      "generic_family": "map_indexed_fusion_u32",
+      "cohort": "heldout",
+      "operation": "map_indexed",
+      "first": "choose(x>k,x-seed,seed-x)",
+      "second": "choose(rem_or(i,3,0)==0,x*k,x+seed)",
+      "first_indexed": false,
+      "second_indexed": true,
+      "output": "list_u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 9,
+      "fresh_proof_required": true,
+      "output_kind": "list_u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": false,
+      "scalar_words": 1,
+      "result_length": "xs.length"
+    },
+    {
+      "name": "indexed_map_heldout_u32",
+      "generic_family": "indexed_map_fusion_u32",
+      "cohort": "heldout",
+      "operation": "indexed_map",
+      "first": "choose(rem_or(i,2,0)==0,x+k,x-seed)",
+      "second": "choose(x>k,x-seed,seed-x)",
+      "first_indexed": true,
+      "second_indexed": false,
+      "output": "list_u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 10,
+      "fresh_proof_required": true,
+      "output_kind": "list_u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": false,
+      "scalar_words": 1,
+      "result_length": "xs.length"
+    },
+    {
+      "name": "indexed_indexed_heldout_u32",
+      "generic_family": "indexed_indexed_fusion_u32",
+      "cohort": "heldout",
+      "operation": "indexed_indexed",
+      "first": "choose(rem_or(i,2,0)==0,x+k,x-seed)",
+      "second": "choose(rem_or(i,3,0)==0,x*k,x+seed)",
+      "first_indexed": true,
+      "second_indexed": true,
+      "output": "list_u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 11,
+      "fresh_proof_required": true,
+      "output_kind": "list_u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": false,
+      "scalar_words": 1,
+      "result_length": "xs.length"
+    }
+  ],
+  "scope": "Six independent-positive/negative callback partition reductions and six index-preserving pipeline vectors. Natural single-list ABI; unused ys adapter slot does not imply a second input or copied array. Three reduction and three indexed families each have primary/alternate callback instantiations. Experts already fuse traversals; weighted experts use two accumulators and sink scalar weights once. Public index wraps U32, each staged indexed operator restarts at0 and preserves length. Captured/borrowed/native resident boundaries distinct. Preset instantiations are not an external corpus or general language ranking."
+}

@@ -1,0 +1,57 @@
+{
+  "tasks": [
+    {
+      "name": "pipeline34_left_projection_u32",
+      "source": "pub fn pipeline34_left_projection_u32(xs:List<u32>,ys:List<u32>,seed:u32,k:u32)->List<u32>{return xs.map(fn(x)=>discarded_word(x,seed,k)).zip(ys,fn(unused)=>fn(y)=>selected_word(y,seed,k));}\nfn discarded_word(x:u32,seed:u32,k:u32)->u32{return calibrate_word(x,k)+seed;}\nfn calibrate_word(x:u32,k:u32)->u32{return quot_or(x,k,0)+rem_or(x,k,0);}\nfn selected_word(x:u32,seed:u32,k:u32)->u32{return repair_word(x,seed,k);}\nfn repair_word(x:u32,seed:u32,k:u32)->u32{return choose(x<seed,x+k,x-k);}",
+      "family": "zip_map_unused_producer_u32",
+      "list_inputs": 2,
+      "output_kind": "list_u32",
+      "secondary": false,
+      "erased_left": true,
+      "fresh_proof_required": true,
+      "role": "zip-map-demand-erasure",
+      "mechanism": "unused-producer-shape-preservation",
+      "callback_cost": "conditional selected helper"
+    },
+    {
+      "name": "pipeline34_right_projection_u32",
+      "source": "pub fn pipeline34_right_projection_u32(xs:List<u32>,ys:List<u32>,seed:u32,k:u32)->List<u32>{return xs.zip(ys.map(fn(x)=>discarded_word(x,seed,k)),fn(y)=>fn(unused)=>selected_word(y,seed,k));}\nfn discarded_word(x:u32,seed:u32,k:u32)->u32{return calibrate_word(x,k)+seed;}\nfn calibrate_word(x:u32,k:u32)->u32{return quot_or(x,k,0)+rem_or(x,k,0);}\nfn selected_word(x:u32,seed:u32,k:u32)->u32{return repair_word(x,seed,k);}\nfn repair_word(x:u32,seed:u32,k:u32)->u32{return choose(x<seed,x+k,x-k);}",
+      "family": "zip_map_unused_producer_u32",
+      "list_inputs": 2,
+      "output_kind": "list_u32",
+      "secondary": false,
+      "erased_left": false,
+      "fresh_proof_required": true,
+      "role": "zip-map-demand-erasure",
+      "mechanism": "unused-producer-shape-preservation",
+      "callback_cost": "conditional selected helper"
+    },
+    {
+      "name": "pipeline33_left_projection_heldout_u32",
+      "source": "pub fn pipeline33_left_projection_heldout_u32(xs:List<u32>,ys:List<u32>,seed:u32,k:u32)->List<u32>{return xs.map(fn(x)=>discarded_word(x,seed,k)).scan().scan().zip(ys,fn(unused)=>fn(y)=>selected_word(y,seed,k));}\nfn selected_word(x:u32,seed:u32,k:u32)->u32{return choose(x<seed,quot_or(x,k,0)+seed,rem_or(x,k,0)+k);}\nfn discarded_word(x:u32,seed:u32,k:u32)->u32{return quot_or(x,k,0)+rem_or(x,k,0)+seed;}",
+      "family": "zip_map_unused_producer_u32",
+      "list_inputs": 2,
+      "output_kind": "list_u32",
+      "secondary": true,
+      "erased_left": true,
+      "fresh_proof_required": true,
+      "role": "zip-map-demand-erasure",
+      "mechanism": "unused-producer-shape-preservation",
+      "callback_cost": "quotient/remainder selected helper"
+    },
+    {
+      "name": "pipeline33_right_projection_heldout_u32",
+      "source": "pub fn pipeline33_right_projection_heldout_u32(xs:List<u32>,ys:List<u32>,seed:u32,k:u32)->List<u32>{return xs.zip(ys.map(fn(x)=>discarded_word(x,seed,k)).scan().scan(),fn(y)=>fn(unused)=>selected_word(y,seed,k));}\nfn selected_word(x:u32,seed:u32,k:u32)->u32{return choose(x<seed,quot_or(x,k,0)+seed,rem_or(x,k,0)+k);}\nfn discarded_word(x:u32,seed:u32,k:u32)->u32{return quot_or(x,k,0)+rem_or(x,k,0)+seed;}",
+      "family": "zip_map_unused_producer_u32",
+      "list_inputs": 2,
+      "output_kind": "list_u32",
+      "secondary": true,
+      "erased_left": false,
+      "fresh_proof_required": true,
+      "role": "zip-map-demand-erasure",
+      "mechanism": "unused-producer-shape-preservation",
+      "callback_cost": "quotient/remainder selected helper"
+    }
+  ],
+  "source_scope": "A direct database endpoint derived from prior identity-map and mapped-zip/postmap laws. Two ignored-producer orientations, raw helper composition and exact old33 map/two-scan heldouts. Prior ordinary scan proofs remove scans; fresh endpoints additionally erase maps. Min-length zip shape remains observable. No F32 arithmetic reassociation or broad language ranking."
+}

@@ -271,6 +271,7 @@ fn a_new_catalogue_entry_changes_execution_without_rebuilding_the_compiler() {
         ),
         proof: Proof::Normalize,
         dependencies: vec![],
+        definition_context: None,
     };
     let id = verified_language::registry::identity(
         &verified_language::registry::Entry::from_law(&law).unwrap(),
@@ -758,6 +759,7 @@ fn search_composes_supporting_lemmas_to_discharge_rule_conditions() {
         to: s::op(s::value(Type::U64), "call:count", vec![xs]),
         proof: Proof::Congruence(vec![Proof::Hypothesis(0)]),
         dependencies: vec![identity_id.clone()],
+        definition_context: None,
     };
     let id = verified_language::registry::identity(
         &verified_language::registry::Entry::from_law(&law).unwrap(),

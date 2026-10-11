@@ -40,8 +40,13 @@ definition backend with baseline-compatible logical snapshots. See
 [the contract, tests and limits](docs/database-representations.md). Historical
 experiments require an explicit research feature. Priority 1 remains open beyond
 the current u64 transition subset: fixed exact-Int/keep correspondence, broader
-source domains, efficient delta maintenance, planner selection and other native
-representation executors still require implementation. No performance gate is
+source domains, general incremental aggregates and other native
+representation executors still require implementation. Fixed-key remove/replace
+delta candidates, List value/count/u64-sum correspondence, owned collection
+laws and external lifecycle/migration/memory selection are implemented;
+[the current measurements](reports/incremental-maintenance-selection/README.md)
+favour the simpler direct layout. Native resource limits and copying costs still
+constrain these prototypes. No performance gate is
 closed by representation correctness tests.
 
 Ownership and representation work must include contiguous/compact layouts,

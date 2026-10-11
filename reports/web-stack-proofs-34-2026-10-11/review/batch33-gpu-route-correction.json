@@ -1,0 +1,137 @@
+{
+  "status": "confirmed_historical_report_wording_correction",
+  "old_report_claim": "batch33REPORTline58: heldoutcheckedcallsusethegraphrouteandremovetwoscanbuffers",
+  "corrected": "Allfourcheckedprimaryfunctionsusethelegacyone-shaderroute. Helperfunctionsmarkedgraph_requiredarenotseparatepipelinecalls. Removedsemantic scannodes do not implyallocationofthosegraph buffers in selectedexecution;transfer/readbackcapacityismaxinputforbothrawandheldout.",
+  "evidence": [
+    {
+      "name": "pipeline33_left_projection_u32",
+      "selected_index": 0,
+      "primary_graph_required": false,
+      "declared_graph_nodes": 1,
+      "helper_graph_flags": {
+        "selected_word": true
+      },
+      "example": {
+        "frame": "pipeline33_left_projection_u32-high-4096",
+        "round": 0,
+        "iterations": 16,
+        "actual_backend_counts": {
+          "gpu": 16
+        },
+        "contract": {
+          "dispatches": 1,
+          "upload_bytes": 21884,
+          "readback_bytes": 16388
+        },
+        "counters_total": {
+          "dispatches": 16,
+          "upload_bytes": 350144,
+          "readback_bytes": 262208
+        },
+        "stage_capacity_model": null,
+        "live_buffer_bytes": 71048
+      },
+      "manifest_sha256": "1e55896372833e2afa65afba809d1459aa9686bedf65002666d9ee15ac764e35"
+    },
+    {
+      "name": "pipeline33_right_projection_u32",
+      "selected_index": 0,
+      "primary_graph_required": false,
+      "declared_graph_nodes": 1,
+      "helper_graph_flags": {
+        "selected_word": true
+      },
+      "example": {
+        "frame": "pipeline33_right_projection_u32-high-4096",
+        "round": 0,
+        "iterations": 16,
+        "actual_backend_counts": {
+          "gpu": 16
+        },
+        "contract": {
+          "dispatches": 1,
+          "upload_bytes": 21884,
+          "readback_bytes": 16388
+        },
+        "counters_total": {
+          "dispatches": 16,
+          "upload_bytes": 350144,
+          "readback_bytes": 262208
+        },
+        "stage_capacity_model": null,
+        "live_buffer_bytes": 71048
+      },
+      "manifest_sha256": "53376efffaa7f18f35caafc27517d4219ad7da7193e786586ccb48d299c2cca0"
+    },
+    {
+      "name": "pipeline33_left_projection_heldout_u32",
+      "selected_index": 0,
+      "primary_graph_required": false,
+      "declared_graph_nodes": 2,
+      "helper_graph_flags": {
+        "selected_word": true,
+        "discarded_word": true
+      },
+      "example": {
+        "frame": "pipeline33_left_projection_heldout_u32-high-4096",
+        "round": 0,
+        "iterations": 16,
+        "actual_backend_counts": {
+          "gpu": 16
+        },
+        "contract": {
+          "dispatches": 1,
+          "upload_bytes": 21884,
+          "readback_bytes": 16388
+        },
+        "counters_total": {
+          "dispatches": 16,
+          "upload_bytes": 350144,
+          "readback_bytes": 262208
+        },
+        "stage_capacity_model": null,
+        "live_buffer_bytes": 71048
+      },
+      "manifest_sha256": "20e41666ccbfef5b48dd5a47271c66a4b69c48f14c07546e5a0c0162450b2c5f"
+    },
+    {
+      "name": "pipeline33_right_projection_heldout_u32",
+      "selected_index": 0,
+      "primary_graph_required": false,
+      "declared_graph_nodes": 2,
+      "helper_graph_flags": {
+        "selected_word": true,
+        "discarded_word": true
+      },
+      "example": {
+        "frame": "pipeline33_right_projection_heldout_u32-high-4096",
+        "round": 0,
+        "iterations": 16,
+        "actual_backend_counts": {
+          "gpu": 16
+        },
+        "contract": {
+          "dispatches": 1,
+          "upload_bytes": 21884,
+          "readback_bytes": 16388
+        },
+        "counters_total": {
+          "dispatches": 16,
+          "upload_bytes": 350144,
+          "readback_bytes": 262208
+        },
+        "stage_capacity_model": null,
+        "live_buffer_bytes": 71048
+      },
+      "manifest_sha256": "c13baf16f2c0d13ea4ec7ac7882cdfd1dd9cd18a0811ba4197f108f85ed9ce3c"
+    }
+  ],
+  "bindings": {
+    "reports/web-stack-proofs-33-2026-10-11/REPORT.md": "bc1ca9fe46c3717ec3485ef659b348d6ce3891221e14603ab8eb38439eabcb34",
+    "reports/web-stack-proofs-33-2026-10-11/targets-final/browser-results.json": "3eb9d604142e596d628537c584c1c859f81375abbc8d62a02a905d58a92a97f3",
+    "reports/web-stack-proofs-33-2026-10-11/targets-final/metadata.json": "f0527061f15c41de7fce6619da276367c542f04de17e232bf6727ed4f6e0d828",
+    "reports/web-stack-proofs-33-2026-10-11/targets-final/targets/pipeline33_left_projection_heldout_u32/checked/ink-gpu.mjs": "58effef88016a0f0f65e6e570c166870689ac7a8d767a2d856332ce17df9df15",
+    "reports/web-stack-proofs-33-2026-10-11/targets-final/targets/pipeline33_left_projection_heldout_u32/checked/ink-device.mjs": "ff0c9715bb0284b98404056222dbc5e298a97f3a2b086c43cfa442570fb3095d"
+  },
+  "preservation": "Read-onlyreview;oldreport/rawsample/manifestbytesretainedunchanged. Newbatch34reportshouldcorrectthehistoricalexplanation."
+}

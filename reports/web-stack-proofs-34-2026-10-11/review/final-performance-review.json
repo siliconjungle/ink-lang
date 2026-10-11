@@ -1,0 +1,4131 @@
+{
+  "status": "passed",
+  "checks": {
+    "all334_metadata_bindings": true,
+    "all_analysis_bindings": true,
+    "corrected_metadata_frozen": true,
+    "compiler_unchanged": true,
+    "all122_production_sources_unchanged": true,
+    "all107_native_bindings": true,
+    "native_exact_main_metadata": true,
+    "node-audit.json_bound": true,
+    "node-validation-audit.json_bound": true,
+    "browser-audit.json_bound": true,
+    "browser-validation-audit.json_bound": true,
+    "native_audit_bound": true,
+    "all22580_prior_observations_unchanged": true,
+    "all56_strata_recomputed": true,
+    "all_raw_samples_valid": true,
+    "all672_paired_bootstrap_replayed": true,
+    "all_aggregates_recomputed": true,
+    "all216_prior_cells_retained": true,
+    "all648_timed_gpu_rows_actual_device": true,
+    "physical_contracts_independent": true
+  },
+  "samples": {
+    "node": 2592,
+    "browser": 3240,
+    "native": 1728
+  },
+  "total_samples": 7560,
+  "raw_groups": 840,
+  "replayed_comparisons": 672,
+  "bootstrap_draws_each": 4000,
+  "prior_proof_cells": {
+    "total": 216,
+    "faster": 178,
+    "slower": 0,
+    "inconclusive": 38,
+    "point_estimates_below_one": 16
+  },
+  "all_prior_uncertain_cells": [
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-low-32",
+      "boundary": "captured-wasm-owned",
+      "reference": "prior_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 1.004471030402578,
+      "ci95": [
+        0.9953773793756918,
+        1.0138405589815433
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 8078654333323651254,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-high-32",
+      "boundary": "captured-wasm-owned",
+      "reference": "prior_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 1.0066425706076936,
+      "ci95": [
+        0.9981578086528149,
+        1.0139355939143302
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 14268863668699948697,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-high-65536",
+      "boundary": "captured-wasm-owned",
+      "reference": "prior_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.999555667422779,
+      "ci95": [
+        0.9695903676555754,
+        1.0230875940844584
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 1907868147880234788,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-low-65536",
+      "boundary": "captured-wasm-owned",
+      "reference": "prior_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.9963285886017162,
+      "ci95": [
+        0.9718643295915573,
+        1.0130862449954554
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 2523191878033740591,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline34_left_projection_u32-high-32",
+      "boundary": "captured-wasm-owned",
+      "reference": "prior_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.9977830269154055,
+      "ci95": [
+        0.9858664783345753,
+        1.0082914063612956
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 8684978808568449094,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline34_left_projection_u32-low-32",
+      "boundary": "captured-wasm-owned",
+      "reference": "prior_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 1.0091893632760778,
+      "ci95": [
+        0.9982033310062927,
+        1.0207445237307
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 12845988523218623036,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline34_right_projection_u32-high-32",
+      "boundary": "captured-wasm-owned",
+      "reference": "prior_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 1.0029485195837233,
+      "ci95": [
+        0.9942792750058236,
+        1.0120954172461702
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 2809484701721769222,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline34_right_projection_u32-high-65536",
+      "boundary": "captured-wasm-owned",
+      "reference": "prior_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 1.0149949721758622,
+      "ci95": [
+        0.9843502748444138,
+        1.0481790575408938
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 10955911419014551693,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-high-32",
+      "boundary": "captured-wasm-owned",
+      "reference": "prior_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 1.0017057758159436,
+      "ci95": [
+        0.9745758280405638,
+        1.026441689518425
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 1195007333865445332,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-high-32",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "prior_gpu_requested",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 1.0080395207213941,
+      "ci95": [
+        0.9962146487411792,
+        1.0212165150708454
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 9426717183817791084,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-high-4096",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "prior_gpu_requested",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 1.0264678368750375,
+      "ci95": [
+        0.9821673082678937,
+        1.0814122054459772
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 13734951125966793898,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-high-65536",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "prior_gpu_requested",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.9692747667994704,
+      "ci95": [
+        0.9349450952819938,
+        1.0054653981606752
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 1543035260967296304,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-low-32",
+      "boundary": "captured-wasm-owned",
+      "reference": "prior_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.9947274128945027,
+      "ci95": [
+        0.9476644412131869,
+        1.0441885786726548
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 8078654333323651254,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-low-32",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "prior_gpu_requested",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.9727922889171154,
+      "ci95": [
+        0.914226904408607,
+        1.0125810686749552
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 208252930040190253,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-low-4096",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "prior_gpu_requested",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 1.0192260832499345,
+      "ci95": [
+        0.9820501327543456,
+        1.076343139411468
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 22307191748307286,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-low-65536",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "prior_gpu_requested",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.9945600276687102,
+      "ci95": [
+        0.9564063311198323,
+        1.047900721205698
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 4133768032493820646,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-high-32",
+      "boundary": "captured-wasm-owned",
+      "reference": "prior_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 1.0238576244291115,
+      "ci95": [
+        0.9777083789893435,
+        1.0691984230394513
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 14268863668699948697,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-high-32",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "prior_gpu_requested",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 1.0067423145371936,
+      "ci95": [
+        0.9985245882236153,
+        1.0158429582806914
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 2627229623776870726,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-high-4096",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "prior_gpu_requested",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.9999811671469565,
+      "ci95": [
+        0.9806191481549087,
+        1.0166936881330666
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 14115019239149349629,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-high-65536",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "prior_gpu_requested",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.9448347618527642,
+      "ci95": [
+        0.8879675171528821,
+        1.0037397902462202
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 16445214055948337822,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-low-32",
+      "boundary": "captured-wasm-owned",
+      "reference": "prior_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 1.0297121027363676,
+      "ci95": [
+        0.9810120707377171,
+        1.07944859794454
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 506789811420215014,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-low-32",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "prior_gpu_requested",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.9970704104300616,
+      "ci95": [
+        0.9863584408993255,
+        1.0087245711450872
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 244397316834247074,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-low-4096",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "prior_gpu_requested",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 1.0117581948688383,
+      "ci95": [
+        0.9925303986808403,
+        1.0292196882118172
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 10217042677983961481,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-low-65536",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "prior_gpu_requested",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.9807718090859121,
+      "ci95": [
+        0.9433644452578399,
+        1.0053079089280819
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 17975767039070933803,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline34_left_projection_u32-high-32",
+      "boundary": "captured-wasm-owned",
+      "reference": "prior_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 1.0166790971628654,
+      "ci95": [
+        0.9645430586945927,
+        1.0709445173553866
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 8684978808568449094,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline34_left_projection_u32-high-32",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "prior_gpu_requested",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.9928176452558767,
+      "ci95": [
+        0.9691602545256399,
+        1.0111962450904375
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 13445427676423387267,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline34_left_projection_u32-high-4096",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "prior_gpu_requested",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 1.030855840446047,
+      "ci95": [
+        0.9647100082601812,
+        1.1107104915475965
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 10590158619949812407,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline34_left_projection_u32-high-65536",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "prior_gpu_requested",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 1.002280679378802,
+      "ci95": [
+        0.9459508394335426,
+        1.0631221417230088
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 18198653860642850895,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline34_left_projection_u32-low-32",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "prior_gpu_requested",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.9921529278924521,
+      "ci95": [
+        0.9807535538478331,
+        1.0037315838660998
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 4736549257859895077,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline34_left_projection_u32-low-4096",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "prior_gpu_requested",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.9864083973916701,
+      "ci95": [
+        0.9712694030929406,
+        1.0017308958877165
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 15085787422615012476,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline34_left_projection_u32-low-65536",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "prior_gpu_requested",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.9988690741972294,
+      "ci95": [
+        0.966052538790955,
+        1.0245342268146098
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 1673121473002271334,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline34_right_projection_u32-high-32",
+      "boundary": "captured-wasm-owned",
+      "reference": "prior_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 1.0175448098666404,
+      "ci95": [
+        0.966291339399171,
+        1.0651423314687902
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 2809484701721769222,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline34_right_projection_u32-high-32",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "prior_gpu_requested",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 1.021384835586165,
+      "ci95": [
+        0.9940712853348391,
+        1.0593272608617248
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 5910054472009318108,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline34_right_projection_u32-high-4096",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "prior_gpu_requested",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 1.0177728618005855,
+      "ci95": [
+        0.9879857346221652,
+        1.0556584574562773
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 13752699825738449662,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline34_right_projection_u32-low-32",
+      "boundary": "captured-wasm-owned",
+      "reference": "prior_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 1.0215815190691508,
+      "ci95": [
+        0.9936322152238471,
+        1.0495038022672238
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 7442063707550063073,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline34_right_projection_u32-low-32",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "prior_gpu_requested",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 1.017772109133829,
+      "ci95": [
+        0.9948549850855769,
+        1.0470446751770803
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 18268523757825656215,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline34_right_projection_u32-low-4096",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "prior_gpu_requested",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.992119379446466,
+      "ci95": [
+        0.9587460279897758,
+        1.0338920994260616
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 1780695904321852057,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline34_right_projection_u32-low-65536",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "prior_gpu_requested",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 1.020164638716802,
+      "ci95": [
+        0.9990741481077501,
+        1.0504245877656155
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 13216741228084743390,
+      "host": "browser"
+    }
+  ],
+  "all_strong_control_regressions": [
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-high-32",
+      "boundary": "captured-js-owned",
+      "reference": "expert_js_owned",
+      "current": "checked_js_owned",
+      "ratio_reference_over_current": 0.8357716258405944,
+      "ci95": [
+        0.8178915625306937,
+        0.8539467476806921
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 9977034844019869068,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-high-32",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.2779326480823419,
+      "ci95": [
+        0.27514991929717775,
+        0.28068622028147255
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 1841646673325612187,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-high-32",
+      "boundary": "resident-wasm-destination",
+      "reference": "rust_wasm_prepared",
+      "current": "checked_wasm_prepared",
+      "ratio_reference_over_current": 0.8143925190902613,
+      "ci95": [
+        0.8075073893224195,
+        0.8210757074154107
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 17397654576795231895,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-high-4096",
+      "boundary": "captured-js-owned",
+      "reference": "expert_js_owned",
+      "current": "checked_js_owned",
+      "ratio_reference_over_current": 0.9053211385981773,
+      "ci95": [
+        0.8882276698828455,
+        0.9229297312727998
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 17390411289057049170,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-high-4096",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.5236814876120481,
+      "ci95": [
+        0.5192065144318536,
+        0.5284731006521084
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 5482917369839660570,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-high-4096",
+      "boundary": "resident-wasm-destination",
+      "reference": "rust_wasm_prepared",
+      "current": "checked_wasm_prepared",
+      "ratio_reference_over_current": 0.8355353144686521,
+      "ci95": [
+        0.8325216251289143,
+        0.8386960480194977
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 9319322416738894778,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-high-65536",
+      "boundary": "captured-js-owned",
+      "reference": "expert_js_owned",
+      "current": "checked_js_owned",
+      "ratio_reference_over_current": 0.9442185722555517,
+      "ci95": [
+        0.9381400222351701,
+        0.9507368524164145
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 17613913568593444917,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-high-65536",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.5381123428416021,
+      "ci95": [
+        0.5236175386584467,
+        0.5580611966734365
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 11035227689464918807,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-high-65536",
+      "boundary": "resident-wasm-destination",
+      "reference": "rust_wasm_prepared",
+      "current": "checked_wasm_prepared",
+      "ratio_reference_over_current": 0.8751841902526334,
+      "ci95": [
+        0.8257301586332839,
+        0.92269451827866
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 2114209248679683044,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-low-32",
+      "boundary": "captured-js-owned",
+      "reference": "expert_js_owned",
+      "current": "checked_js_owned",
+      "ratio_reference_over_current": 0.855210744312518,
+      "ci95": [
+        0.8306492614139055,
+        0.8785104016649786
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 5193586313248415665,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-low-32",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.30638833161841206,
+      "ci95": [
+        0.29915666249978984,
+        0.31492335742716404
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 13704612260222551967,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-low-4096",
+      "boundary": "captured-js-owned",
+      "reference": "expert_js_owned",
+      "current": "checked_js_owned",
+      "ratio_reference_over_current": 0.9212925452493868,
+      "ci95": [
+        0.8863630027976394,
+        0.9581858536511184
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 18104802260297478324,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-low-4096",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.45384873989658864,
+      "ci95": [
+        0.44075548318939584,
+        0.461758289747061
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 15360497771899045885,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-low-4096",
+      "boundary": "resident-wasm-destination",
+      "reference": "rust_wasm_prepared",
+      "current": "checked_wasm_prepared",
+      "ratio_reference_over_current": 0.8566447572287977,
+      "ci95": [
+        0.8534894340460928,
+        0.8595417059281677
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 13752037798876994996,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-low-65536",
+      "boundary": "captured-js-owned",
+      "reference": "expert_js_owned",
+      "current": "checked_js_owned",
+      "ratio_reference_over_current": 0.9151861727956767,
+      "ci95": [
+        0.9080093600888852,
+        0.9224144864710551
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 12619112411852979425,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-low-65536",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.526052659593949,
+      "ci95": [
+        0.5191289149370241,
+        0.5340769141107585
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 5531465143258387699,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-high-32",
+      "boundary": "captured-js-owned",
+      "reference": "expert_js_owned",
+      "current": "checked_js_owned",
+      "ratio_reference_over_current": 0.8714029537033242,
+      "ci95": [
+        0.864333774132502,
+        0.8782042297017951
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 321037535675091523,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-high-32",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.27075512343098274,
+      "ci95": [
+        0.26768311156830665,
+        0.27385233356172367
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 6286017351998597465,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-high-32",
+      "boundary": "resident-wasm-destination",
+      "reference": "rust_wasm_prepared",
+      "current": "checked_wasm_prepared",
+      "ratio_reference_over_current": 0.8351146517763909,
+      "ci95": [
+        0.827085932476907,
+        0.8425073689389391
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 16050807448323060656,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-high-4096",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.524770708041069,
+      "ci95": [
+        0.5215550799848582,
+        0.5283164979830762
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 1363194290947643210,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-high-4096",
+      "boundary": "resident-wasm-destination",
+      "reference": "rust_wasm_prepared",
+      "current": "checked_wasm_prepared",
+      "ratio_reference_over_current": 0.8434851056643448,
+      "ci95": [
+        0.8286189427835223,
+        0.8605976511501651
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 6704131840333366545,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-high-65536",
+      "boundary": "captured-js-owned",
+      "reference": "expert_js_owned",
+      "current": "checked_js_owned",
+      "ratio_reference_over_current": 0.9389605922195616,
+      "ci95": [
+        0.9085406613503523,
+        0.9581270969996796
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 7401945068090075702,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-high-65536",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.5341692349803405,
+      "ci95": [
+        0.5140526037990526,
+        0.551687942860636
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 15806114774117958727,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-low-32",
+      "boundary": "captured-js-owned",
+      "reference": "expert_js_owned",
+      "current": "checked_js_owned",
+      "ratio_reference_over_current": 0.8654595564302646,
+      "ci95": [
+        0.8338980406665052,
+        0.8999859713289466
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 17405485866686378871,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-low-32",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.30593224292821575,
+      "ci95": [
+        0.3021801535812157,
+        0.3096196356922764
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 1097365366957824949,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-low-32",
+      "boundary": "resident-wasm-destination",
+      "reference": "rust_wasm_prepared",
+      "current": "checked_wasm_prepared",
+      "ratio_reference_over_current": 0.931523480516755,
+      "ci95": [
+        0.9104777530046492,
+        0.9506797501049175
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 10320613141369499354,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-low-4096",
+      "boundary": "captured-js-owned",
+      "reference": "expert_js_owned",
+      "current": "checked_js_owned",
+      "ratio_reference_over_current": 0.8851697591669899,
+      "ci95": [
+        0.8649757450948508,
+        0.9072999833861768
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 11777398207851738155,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-low-4096",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.465537781166709,
+      "ci95": [
+        0.46141757794816773,
+        0.4700067138224603
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 12506914560597428630,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-low-4096",
+      "boundary": "resident-wasm-destination",
+      "reference": "rust_wasm_prepared",
+      "current": "checked_wasm_prepared",
+      "ratio_reference_over_current": 0.8659910352370044,
+      "ci95": [
+        0.8610517603301138,
+        0.8722229585381117
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 2045402806696884301,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-low-65536",
+      "boundary": "captured-js-owned",
+      "reference": "expert_js_owned",
+      "current": "checked_js_owned",
+      "ratio_reference_over_current": 0.9348324467183213,
+      "ci95": [
+        0.915788705859554,
+        0.9530761823912953
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 11440976074681532969,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-low-65536",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.518920432863234,
+      "ci95": [
+        0.5084497251137539,
+        0.5292776407391417
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 5867195933784508558,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-low-65536",
+      "boundary": "resident-wasm-destination",
+      "reference": "rust_wasm_prepared",
+      "current": "checked_wasm_prepared",
+      "ratio_reference_over_current": 0.9130087784202509,
+      "ci95": [
+        0.893200648061548,
+        0.9330301581864987
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 2719431176658385680,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline34_left_projection_u32-high-32",
+      "boundary": "captured-js-owned",
+      "reference": "expert_js_owned",
+      "current": "checked_js_owned",
+      "ratio_reference_over_current": 0.8627481334398849,
+      "ci95": [
+        0.8476357989430576,
+        0.8783966176512797
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 6416607635474422012,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline34_left_projection_u32-high-32",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.2691546389885435,
+      "ci95": [
+        0.26607246867911616,
+        0.27306422916540635
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 3175695693644666271,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline34_left_projection_u32-high-32",
+      "boundary": "resident-wasm-destination",
+      "reference": "rust_wasm_prepared",
+      "current": "checked_wasm_prepared",
+      "ratio_reference_over_current": 0.7593096670665126,
+      "ci95": [
+        0.7442922507690944,
+        0.7724822256081526
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 14334281785377534593,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline34_left_projection_u32-high-4096",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.5257352516652666,
+      "ci95": [
+        0.5235469037028575,
+        0.5279699110606939
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 17454413099554355124,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline34_left_projection_u32-high-4096",
+      "boundary": "resident-wasm-destination",
+      "reference": "rust_wasm_prepared",
+      "current": "checked_wasm_prepared",
+      "ratio_reference_over_current": 0.9743126381358701,
+      "ci95": [
+        0.9496475942556477,
+        0.9973020806805469
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 3055937349179840440,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline34_left_projection_u32-high-65536",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.5394113068238333,
+      "ci95": [
+        0.5241529323699052,
+        0.5554360678281247
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 12582908721614254373,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline34_left_projection_u32-low-32",
+      "boundary": "captured-js-owned",
+      "reference": "expert_js_owned",
+      "current": "checked_js_owned",
+      "ratio_reference_over_current": 0.9277759176865251,
+      "ci95": [
+        0.9134002426611461,
+        0.9411758141588663
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 11595676013404390070,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline34_left_projection_u32-low-32",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.31139809494686277,
+      "ci95": [
+        0.3065911827457841,
+        0.31668009561742205
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 13788167280993997189,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline34_left_projection_u32-low-32",
+      "boundary": "resident-wasm-destination",
+      "reference": "rust_wasm_prepared",
+      "current": "checked_wasm_prepared",
+      "ratio_reference_over_current": 0.930743437364459,
+      "ci95": [
+        0.9135238528869644,
+        0.9488062206187429
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 7922904975675070242,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline34_left_projection_u32-low-4096",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.4623647412896388,
+      "ci95": [
+        0.4601511128041249,
+        0.46464610157424624
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 5972305429122520050,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline34_left_projection_u32-low-65536",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.5095486453696194,
+      "ci95": [
+        0.479097163227405,
+        0.562897398712154
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 6680770365931707420,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline34_right_projection_u32-high-32",
+      "boundary": "captured-js-owned",
+      "reference": "expert_js_owned",
+      "current": "checked_js_owned",
+      "ratio_reference_over_current": 0.8872408917686566,
+      "ci95": [
+        0.8779399420878841,
+        0.8964792002143849
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 1329768289363927517,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline34_right_projection_u32-high-32",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.2717532115644283,
+      "ci95": [
+        0.2676967249759848,
+        0.27524963195645324
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 1962953706941277590,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline34_right_projection_u32-high-32",
+      "boundary": "resident-wasm-destination",
+      "reference": "rust_wasm_prepared",
+      "current": "checked_wasm_prepared",
+      "ratio_reference_over_current": 0.7542564294522566,
+      "ci95": [
+        0.7440087412177346,
+        0.764671785458477
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 2651317395656529541,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline34_right_projection_u32-high-4096",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.5309594182323442,
+      "ci95": [
+        0.527300015260709,
+        0.5346148295011065
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 11397528448862869391,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline34_right_projection_u32-high-4096",
+      "boundary": "resident-wasm-destination",
+      "reference": "rust_wasm_prepared",
+      "current": "checked_wasm_prepared",
+      "ratio_reference_over_current": 0.9534130472108868,
+      "ci95": [
+        0.9272130601761169,
+        0.9750016318690532
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 10141946147181276458,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline34_right_projection_u32-high-65536",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.5249404719882715,
+      "ci95": [
+        0.5093157961476791,
+        0.5413779885705655
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 27140789417918807,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline34_right_projection_u32-low-32",
+      "boundary": "captured-js-owned",
+      "reference": "expert_js_owned",
+      "current": "checked_js_owned",
+      "ratio_reference_over_current": 0.9244391139275201,
+      "ci95": [
+        0.9005139591270872,
+        0.9475396853129011
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 16371697941847797728,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline34_right_projection_u32-low-32",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.3126620831050731,
+      "ci95": [
+        0.307723756876058,
+        0.3179834194171697
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 5936588353764662512,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline34_right_projection_u32-low-4096",
+      "boundary": "captured-js-owned",
+      "reference": "expert_js_owned",
+      "current": "checked_js_owned",
+      "ratio_reference_over_current": 0.9527924940356157,
+      "ci95": [
+        0.9266923881058686,
+        0.9752490028500396
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 5585184852738513,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline34_right_projection_u32-low-4096",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.4593281179435131,
+      "ci95": [
+        0.45200901947485383,
+        0.46590368808190985
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 2160094695615324619,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline34_right_projection_u32-low-65536",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.4840304666580565,
+      "ci95": [
+        0.4772483437224576,
+        0.4912766733332532
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 11332187741630999017,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-high-32",
+      "boundary": "captured-js-owned",
+      "reference": "expert_js_owned",
+      "current": "checked_js_owned",
+      "ratio_reference_over_current": 0.8720130373091125,
+      "ci95": [
+        0.8276399989899762,
+        0.9163282034541629
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 9977034844019869068,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-high-32",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.2894890869815957,
+      "ci95": [
+        0.2789253174400116,
+        0.30109143756754597
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 1841646673325612187,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-high-32",
+      "boundary": "resident-wasm-destination",
+      "reference": "rust_wasm_prepared",
+      "current": "checked_wasm_prepared",
+      "ratio_reference_over_current": 0.792210381508999,
+      "ci95": [
+        0.7781485627880314,
+        0.8081275272925326
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 17397654576795231895,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-high-4096",
+      "boundary": "captured-js-owned",
+      "reference": "expert_js_owned",
+      "current": "checked_js_owned",
+      "ratio_reference_over_current": 0.920613960578644,
+      "ci95": [
+        0.8603221562736492,
+        0.9961056258883179
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 17390411289057049170,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-high-4096",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.5641747672934688,
+      "ci95": [
+        0.5519701971112418,
+        0.5750494621987938
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 5482917369839660570,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-high-4096",
+      "boundary": "resident-wasm-destination",
+      "reference": "rust_wasm_prepared",
+      "current": "checked_wasm_prepared",
+      "ratio_reference_over_current": 0.8745943086372582,
+      "ci95": [
+        0.8697794249691008,
+        0.8804082780510222
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 9319322416738894778,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-high-65536",
+      "boundary": "captured-js-owned",
+      "reference": "expert_js_owned",
+      "current": "checked_js_owned",
+      "ratio_reference_over_current": 0.9500157896024627,
+      "ci95": [
+        0.923793571362032,
+        0.9750943457277877
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 17613913568593444917,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-high-65536",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.5782611062468884,
+      "ci95": [
+        0.5642016145732827,
+        0.5971007013568631
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 11035227689464918807,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-high-65536",
+      "boundary": "resident-wasm-destination",
+      "reference": "rust_wasm_prepared",
+      "current": "checked_wasm_prepared",
+      "ratio_reference_over_current": 0.8611832940152848,
+      "ci95": [
+        0.8244092069569287,
+        0.8923251340431706
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 2114209248679683044,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-low-32",
+      "boundary": "captured-js-owned",
+      "reference": "expert_js_owned",
+      "current": "checked_js_owned",
+      "ratio_reference_over_current": 0.8979229205492899,
+      "ci95": [
+        0.8614985708810405,
+        0.949376784083003
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 5193586313248415665,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-low-32",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.3341784808348611,
+      "ci95": [
+        0.3206081779290176,
+        0.3486500358460755
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 13704612260222551967,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-low-32",
+      "boundary": "resident-wasm-destination",
+      "reference": "rust_wasm_prepared",
+      "current": "checked_wasm_prepared",
+      "ratio_reference_over_current": 0.8360881109209293,
+      "ci95": [
+        0.8223405075857725,
+        0.8490612302989176
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 16986760840644750836,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-low-4096",
+      "boundary": "captured-js-owned",
+      "reference": "expert_js_owned",
+      "current": "checked_js_owned",
+      "ratio_reference_over_current": 0.920237869538581,
+      "ci95": [
+        0.8760073935453626,
+        0.9672196899404595
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 18104802260297478324,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-low-4096",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.4861980748369522,
+      "ci95": [
+        0.47586502520589485,
+        0.49669198326156533
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 15360497771899045885,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-low-4096",
+      "boundary": "resident-wasm-destination",
+      "reference": "rust_wasm_prepared",
+      "current": "checked_wasm_prepared",
+      "ratio_reference_over_current": 0.9119343722360269,
+      "ci95": [
+        0.9044697034177621,
+        0.9191638059279462
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 13752037798876994996,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-low-65536",
+      "boundary": "captured-js-owned",
+      "reference": "expert_js_owned",
+      "current": "checked_js_owned",
+      "ratio_reference_over_current": 0.9700551182917575,
+      "ci95": [
+        0.9570072053388141,
+        0.9847534258828559
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 12619112411852979425,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-low-65536",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.5219554626559036,
+      "ci95": [
+        0.5143780156379961,
+        0.5303362493958734
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 5531465143258387699,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-low-65536",
+      "boundary": "resident-wasm-destination",
+      "reference": "rust_wasm_prepared",
+      "current": "checked_wasm_prepared",
+      "ratio_reference_over_current": 0.9352402675766704,
+      "ci95": [
+        0.9036633271967063,
+        0.9707425280759053
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 7283024416446210388,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-high-32",
+      "boundary": "captured-js-owned",
+      "reference": "expert_js_owned",
+      "current": "checked_js_owned",
+      "ratio_reference_over_current": 0.9284838851178281,
+      "ci95": [
+        0.868486601990849,
+        0.9942129614293398
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 321037535675091523,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-high-32",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.28017411271751913,
+      "ci95": [
+        0.2740620363575389,
+        0.2862771000610609
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 6286017351998597465,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-high-32",
+      "boundary": "resident-wasm-destination",
+      "reference": "rust_wasm_prepared",
+      "current": "checked_wasm_prepared",
+      "ratio_reference_over_current": 0.7892939925646751,
+      "ci95": [
+        0.7747116285500014,
+        0.8059579809987444
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 16050807448323060656,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-high-4096",
+      "boundary": "captured-js-owned",
+      "reference": "expert_js_owned",
+      "current": "checked_js_owned",
+      "ratio_reference_over_current": 0.8942553598797183,
+      "ci95": [
+        0.8784458311122025,
+        0.9094917790795869
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 5813166303418792110,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-high-4096",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.5646762930273408,
+      "ci95": [
+        0.5502995881489031,
+        0.578879375072587
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 1363194290947643210,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-high-4096",
+      "boundary": "resident-wasm-destination",
+      "reference": "rust_wasm_prepared",
+      "current": "checked_wasm_prepared",
+      "ratio_reference_over_current": 0.83783682580397,
+      "ci95": [
+        0.8333301106432189,
+        0.843068964544526
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 6704131840333366545,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-high-65536",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.5725646660136093,
+      "ci95": [
+        0.5644033889241273,
+        0.5811391203460426
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 15806114774117958727,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-low-32",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.3493681644188227,
+      "ci95": [
+        0.3365328750164212,
+        0.3648525820723923
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 1097365366957824949,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-low-32",
+      "boundary": "resident-wasm-destination",
+      "reference": "rust_wasm_prepared",
+      "current": "checked_wasm_prepared",
+      "ratio_reference_over_current": 0.808138708023975,
+      "ci95": [
+        0.7806627734778445,
+        0.8437295424132268
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 10320613141369499354,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-low-4096",
+      "boundary": "captured-js-owned",
+      "reference": "expert_js_owned",
+      "current": "checked_js_owned",
+      "ratio_reference_over_current": 0.9598694410859057,
+      "ci95": [
+        0.9379847601125277,
+        0.9862480517632567
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 11777398207851738155,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-low-4096",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.4906399679973494,
+      "ci95": [
+        0.48393325144605015,
+        0.497263693125331
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 12506914560597428630,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-low-4096",
+      "boundary": "resident-wasm-destination",
+      "reference": "rust_wasm_prepared",
+      "current": "checked_wasm_prepared",
+      "ratio_reference_over_current": 0.8550283646131174,
+      "ci95": [
+        0.8450719645837395,
+        0.8644280696099208
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 2045402806696884301,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-low-65536",
+      "boundary": "captured-js-owned",
+      "reference": "expert_js_owned",
+      "current": "checked_js_owned",
+      "ratio_reference_over_current": 0.9570245291111236,
+      "ci95": [
+        0.9356076609225016,
+        0.9852401142766519
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 11440976074681532969,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-low-65536",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.5143939862645168,
+      "ci95": [
+        0.506218610792718,
+        0.5220380589521826
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 5867195933784508558,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-low-65536",
+      "boundary": "resident-wasm-destination",
+      "reference": "rust_wasm_prepared",
+      "current": "checked_wasm_prepared",
+      "ratio_reference_over_current": 0.9080301221126171,
+      "ci95": [
+        0.9030860749912978,
+        0.912328692050891
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 2719431176658385680,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline34_left_projection_u32-high-32",
+      "boundary": "captured-js-owned",
+      "reference": "expert_js_owned",
+      "current": "checked_js_owned",
+      "ratio_reference_over_current": 0.9135274033918543,
+      "ci95": [
+        0.8550363094263564,
+        0.9737974312538542
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 6416607635474422012,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline34_left_projection_u32-high-32",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.28098784727652426,
+      "ci95": [
+        0.2690382209597081,
+        0.29485269035946393
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 3175695693644666271,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline34_left_projection_u32-high-32",
+      "boundary": "resident-wasm-destination",
+      "reference": "rust_wasm_prepared",
+      "current": "checked_wasm_prepared",
+      "ratio_reference_over_current": 0.7434601537874153,
+      "ci95": [
+        0.7270186842376226,
+        0.770109840884706
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 14334281785377534593,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline34_left_projection_u32-high-4096",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.5435192244706086,
+      "ci95": [
+        0.5355185017311678,
+        0.5508035755399632
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 17454413099554355124,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline34_left_projection_u32-high-65536",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.544370140384851,
+      "ci95": [
+        0.53606579833916,
+        0.5500266214380743
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 12582908721614254373,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline34_left_projection_u32-low-32",
+      "boundary": "captured-js-owned",
+      "reference": "expert_js_owned",
+      "current": "checked_js_owned",
+      "ratio_reference_over_current": 0.9325567567123965,
+      "ci95": [
+        0.9005211841253041,
+        0.9679500182686377
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 11595676013404390070,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline34_left_projection_u32-low-32",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.33427060967941835,
+      "ci95": [
+        0.33042526444338577,
+        0.33866229608958376
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 13788167280993997189,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline34_left_projection_u32-low-32",
+      "boundary": "resident-wasm-destination",
+      "reference": "rust_wasm_prepared",
+      "current": "checked_wasm_prepared",
+      "ratio_reference_over_current": 0.7813307018309702,
+      "ci95": [
+        0.7623287802009875,
+        0.8023388640608928
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 7922904975675070242,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline34_left_projection_u32-low-4096",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.4808823084526547,
+      "ci95": [
+        0.47476832246572265,
+        0.48559043441106514
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 5972305429122520050,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline34_left_projection_u32-low-65536",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.47421093082701143,
+      "ci95": [
+        0.46762459518563965,
+        0.48098646210965995
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 6680770365931707420,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline34_right_projection_u32-high-32",
+      "boundary": "captured-js-owned",
+      "reference": "expert_js_owned",
+      "current": "checked_js_owned",
+      "ratio_reference_over_current": 0.86859768320191,
+      "ci95": [
+        0.8157744473667304,
+        0.9247107851974693
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 1329768289363927517,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline34_right_projection_u32-high-32",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.28653611768752524,
+      "ci95": [
+        0.2739060976206509,
+        0.3006691747245622
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 1962953706941277590,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline34_right_projection_u32-high-32",
+      "boundary": "resident-wasm-destination",
+      "reference": "rust_wasm_prepared",
+      "current": "checked_wasm_prepared",
+      "ratio_reference_over_current": 0.735579838727425,
+      "ci95": [
+        0.7084184891631963,
+        0.76289646618103
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 2651317395656529541,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline34_right_projection_u32-high-4096",
+      "boundary": "captured-js-owned",
+      "reference": "expert_js_owned",
+      "current": "checked_js_owned",
+      "ratio_reference_over_current": 0.9233636748246333,
+      "ci95": [
+        0.8776333085756978,
+        0.979979382041482
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 11105784115733174278,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline34_right_projection_u32-high-4096",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.5558515896076759,
+      "ci95": [
+        0.5434328895296799,
+        0.5684629164399738
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 11397528448862869391,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline34_right_projection_u32-high-65536",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.5478556529455867,
+      "ci95": [
+        0.5417544489071595,
+        0.554379544094324
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 27140789417918807,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline34_right_projection_u32-low-32",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.3485468126285145,
+      "ci95": [
+        0.3265417242164915,
+        0.36949065029844635
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 5936588353764662512,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline34_right_projection_u32-low-32",
+      "boundary": "resident-wasm-destination",
+      "reference": "rust_wasm_prepared",
+      "current": "checked_wasm_prepared",
+      "ratio_reference_over_current": 0.738930049957624,
+      "ci95": [
+        0.7042694508394339,
+        0.769753072606254
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 17077353335567368843,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline34_right_projection_u32-low-4096",
+      "boundary": "captured-js-owned",
+      "reference": "expert_js_owned",
+      "current": "checked_js_owned",
+      "ratio_reference_over_current": 0.7355395224969661,
+      "ci95": [
+        0.7042048054056282,
+        0.7663048778348054
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 5585184852738513,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline34_right_projection_u32-low-4096",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.4864702971143463,
+      "ci95": [
+        0.48311677216157284,
+        0.4899130417656401
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 2160094695615324619,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline34_right_projection_u32-low-65536",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.4760519685102253,
+      "ci95": [
+        0.4720540376484032,
+        0.48036365812329546
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 11332187741630999017,
+      "host": "browser"
+    },
+    {
+      "host": "native",
+      "frame": "pipeline33_left_projection_heldout_u32-high-32",
+      "boundary": "captured-native-destination",
+      "reference": "expert",
+      "current": "checked",
+      "ratio_reference_over_current": 0.947119298117029,
+      "ci95": [
+        0.9313065549593071,
+        0.9633270950823842
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 2930163499801731270
+    },
+    {
+      "host": "native",
+      "frame": "pipeline33_left_projection_heldout_u32-high-32",
+      "boundary": "resident-native-destination",
+      "reference": "expert",
+      "current": "checked",
+      "ratio_reference_over_current": 0.9161713802161267,
+      "ci95": [
+        0.8929489406998455,
+        0.9434054414400921
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 16101773502237638525
+    },
+    {
+      "host": "native",
+      "frame": "pipeline33_left_projection_heldout_u32-high-4096",
+      "boundary": "captured-native-destination",
+      "reference": "expert",
+      "current": "checked",
+      "ratio_reference_over_current": 0.9822984148476938,
+      "ci95": [
+        0.9715718463371408,
+        0.9901300151353443
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 15709343200464607306
+    },
+    {
+      "host": "native",
+      "frame": "pipeline33_left_projection_heldout_u32-high-4096",
+      "boundary": "resident-native-destination",
+      "reference": "expert",
+      "current": "checked",
+      "ratio_reference_over_current": 0.9818123562066733,
+      "ci95": [
+        0.9620680002594312,
+        0.9948577467899907
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 15289933287097543993
+    },
+    {
+      "host": "native",
+      "frame": "pipeline33_left_projection_heldout_u32-high-65536",
+      "boundary": "captured-native-destination",
+      "reference": "expert",
+      "current": "checked",
+      "ratio_reference_over_current": 0.9888421146760723,
+      "ci95": [
+        0.9835155260566875,
+        0.9942552057600127
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 9672325439557744729
+    },
+    {
+      "host": "native",
+      "frame": "pipeline33_left_projection_heldout_u32-high-65536",
+      "boundary": "resident-native-destination",
+      "reference": "expert",
+      "current": "checked",
+      "ratio_reference_over_current": 0.987526029269403,
+      "ci95": [
+        0.9818806702702266,
+        0.992296261082229
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 13500687074339718201
+    },
+    {
+      "host": "native",
+      "frame": "pipeline33_left_projection_heldout_u32-low-32",
+      "boundary": "resident-native-destination",
+      "reference": "expert",
+      "current": "checked",
+      "ratio_reference_over_current": 0.9636469892118386,
+      "ci95": [
+        0.9416806899417635,
+        0.9853354888989034
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 509455272466544347
+    },
+    {
+      "host": "native",
+      "frame": "pipeline33_left_projection_heldout_u32-low-4096",
+      "boundary": "resident-native-destination",
+      "reference": "expert",
+      "current": "checked",
+      "ratio_reference_over_current": 0.9881668089359624,
+      "ci95": [
+        0.9798119411308602,
+        0.9947932697134845
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 15894589712628972082
+    },
+    {
+      "host": "native",
+      "frame": "pipeline33_left_projection_heldout_u32-low-65536",
+      "boundary": "captured-native-destination",
+      "reference": "expert",
+      "current": "checked",
+      "ratio_reference_over_current": 0.9878126881812761,
+      "ci95": [
+        0.9831103091881237,
+        0.9928178038460498
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 10173910103118632643
+    },
+    {
+      "host": "native",
+      "frame": "pipeline33_left_projection_heldout_u32-low-65536",
+      "boundary": "resident-native-destination",
+      "reference": "expert",
+      "current": "checked",
+      "ratio_reference_over_current": 0.9933760199485425,
+      "ci95": [
+        0.9863534373763115,
+        0.9998191385682256
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 17263522361947584113
+    },
+    {
+      "host": "native",
+      "frame": "pipeline33_right_projection_heldout_u32-high-32",
+      "boundary": "resident-native-destination",
+      "reference": "expert",
+      "current": "checked",
+      "ratio_reference_over_current": 0.9007284478766964,
+      "ci95": [
+        0.8747550475790977,
+        0.9251331485659972
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 18289794032566412382
+    },
+    {
+      "host": "native",
+      "frame": "pipeline33_right_projection_heldout_u32-high-4096",
+      "boundary": "captured-native-destination",
+      "reference": "expert",
+      "current": "checked",
+      "ratio_reference_over_current": 0.9535525075800015,
+      "ci95": [
+        0.9336607480760051,
+        0.9732922854885884
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 760536904681359570
+    },
+    {
+      "host": "native",
+      "frame": "pipeline33_right_projection_heldout_u32-low-32",
+      "boundary": "resident-native-destination",
+      "reference": "expert",
+      "current": "checked",
+      "ratio_reference_over_current": 0.9791240814187139,
+      "ci95": [
+        0.9662844736475361,
+        0.9908261094533936
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 16837427674426888214
+    },
+    {
+      "host": "native",
+      "frame": "pipeline33_right_projection_heldout_u32-low-4096",
+      "boundary": "captured-native-destination",
+      "reference": "expert",
+      "current": "checked",
+      "ratio_reference_over_current": 0.989512226351586,
+      "ci95": [
+        0.9790135826023403,
+        0.9982161344082284
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 5114043641915233642
+    },
+    {
+      "host": "native",
+      "frame": "pipeline33_right_projection_heldout_u32-low-4096",
+      "boundary": "resident-native-destination",
+      "reference": "expert",
+      "current": "checked",
+      "ratio_reference_over_current": 0.9856367743498432,
+      "ci95": [
+        0.9673456785003042,
+        0.999989465898869
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 2810750856590054189
+    },
+    {
+      "host": "native",
+      "frame": "pipeline33_right_projection_heldout_u32-low-65536",
+      "boundary": "resident-native-destination",
+      "reference": "expert",
+      "current": "checked",
+      "ratio_reference_over_current": 0.9883155376724896,
+      "ci95": [
+        0.9803661218541702,
+        0.996294307924117
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 13438003971170233110
+    },
+    {
+      "host": "native",
+      "frame": "pipeline34_left_projection_u32-high-32",
+      "boundary": "resident-native-destination",
+      "reference": "expert",
+      "current": "checked",
+      "ratio_reference_over_current": 0.9805061145564006,
+      "ci95": [
+        0.9647361814758157,
+        0.9955793588195595
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 13151473709614871199
+    },
+    {
+      "host": "native",
+      "frame": "pipeline34_left_projection_u32-high-4096",
+      "boundary": "captured-native-destination",
+      "reference": "expert",
+      "current": "checked",
+      "ratio_reference_over_current": 0.9512981445481938,
+      "ci95": [
+        0.9401378316805584,
+        0.9594574871119851
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 3819357990096625149
+    },
+    {
+      "host": "native",
+      "frame": "pipeline34_left_projection_u32-high-4096",
+      "boundary": "resident-native-destination",
+      "reference": "expert",
+      "current": "checked",
+      "ratio_reference_over_current": 0.9332690821888563,
+      "ci95": [
+        0.9256720520635432,
+        0.9408126393912978
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 5551010113673026449
+    },
+    {
+      "host": "native",
+      "frame": "pipeline34_left_projection_u32-low-32",
+      "boundary": "resident-native-destination",
+      "reference": "expert",
+      "current": "checked",
+      "ratio_reference_over_current": 0.845452115411954,
+      "ci95": [
+        0.8263048093955992,
+        0.863313190469885
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 12574249435238414641
+    },
+    {
+      "host": "native",
+      "frame": "pipeline34_left_projection_u32-low-4096",
+      "boundary": "captured-native-destination",
+      "reference": "expert",
+      "current": "checked",
+      "ratio_reference_over_current": 0.9748396281475319,
+      "ci95": [
+        0.9613446107569122,
+        0.9881551198377944
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 13536636886282118325
+    },
+    {
+      "host": "native",
+      "frame": "pipeline34_left_projection_u32-low-4096",
+      "boundary": "resident-native-destination",
+      "reference": "expert",
+      "current": "checked",
+      "ratio_reference_over_current": 0.9574482684369102,
+      "ci95": [
+        0.9524630856500402,
+        0.9636138580466027
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 16919336288493460758
+    },
+    {
+      "host": "native",
+      "frame": "pipeline34_right_projection_u32-high-32",
+      "boundary": "captured-native-destination",
+      "reference": "expert",
+      "current": "checked",
+      "ratio_reference_over_current": 0.978847729005286,
+      "ci95": [
+        0.9651420944905365,
+        0.9924107394718309
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 18303089918022853712
+    },
+    {
+      "host": "native",
+      "frame": "pipeline34_right_projection_u32-high-32",
+      "boundary": "resident-native-destination",
+      "reference": "expert",
+      "current": "checked",
+      "ratio_reference_over_current": 0.9673029341705587,
+      "ci95": [
+        0.9565327097935707,
+        0.9781199283580232
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 798103088052085658
+    },
+    {
+      "host": "native",
+      "frame": "pipeline34_right_projection_u32-high-4096",
+      "boundary": "captured-native-destination",
+      "reference": "expert",
+      "current": "checked",
+      "ratio_reference_over_current": 0.9416616649281594,
+      "ci95": [
+        0.9171925121230832,
+        0.961796634461566
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 13708427730240135471
+    },
+    {
+      "host": "native",
+      "frame": "pipeline34_right_projection_u32-high-4096",
+      "boundary": "resident-native-destination",
+      "reference": "expert",
+      "current": "checked",
+      "ratio_reference_over_current": 0.9331191323940454,
+      "ci95": [
+        0.9280284721500265,
+        0.9380269339638538
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 9991949155919219766
+    },
+    {
+      "host": "native",
+      "frame": "pipeline34_right_projection_u32-low-32",
+      "boundary": "captured-native-destination",
+      "reference": "expert",
+      "current": "checked",
+      "ratio_reference_over_current": 0.9432862783723667,
+      "ci95": [
+        0.9280143109892358,
+        0.9599004624718253
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 16278599795435373436
+    },
+    {
+      "host": "native",
+      "frame": "pipeline34_right_projection_u32-low-32",
+      "boundary": "resident-native-destination",
+      "reference": "expert",
+      "current": "checked",
+      "ratio_reference_over_current": 0.8764702221828667,
+      "ci95": [
+        0.8635512459550991,
+        0.8921563570426788
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 235891471104571260
+    },
+    {
+      "host": "native",
+      "frame": "pipeline34_right_projection_u32-low-4096",
+      "boundary": "captured-native-destination",
+      "reference": "expert",
+      "current": "checked",
+      "ratio_reference_over_current": 0.9774323420229929,
+      "ci95": [
+        0.9588333009507255,
+        0.9965682162249105
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 8431970561492418553
+    },
+    {
+      "host": "native",
+      "frame": "pipeline34_right_projection_u32-low-4096",
+      "boundary": "resident-native-destination",
+      "reference": "expert",
+      "current": "checked",
+      "ratio_reference_over_current": 0.9612043810593975,
+      "ci95": [
+        0.9435551193164464,
+        0.9856121804873351
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 7704108312253905456
+    },
+    {
+      "host": "browser",
+      "frame": "pipeline33_left_projection_heldout_u32-high-32",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "expert_js_owned",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.0007144087046942095,
+      "ci95": [
+        0.0006961498282920773,
+        0.0007352848571712285
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 6074599331392965881
+    },
+    {
+      "host": "browser",
+      "frame": "pipeline33_left_projection_heldout_u32-high-32",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "rust_wasm_full",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.0015844098775466898,
+      "ci95": [
+        0.0015379593713392016,
+        0.001635726748577865
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 9849067289221412903
+    },
+    {
+      "host": "browser",
+      "frame": "pipeline33_left_projection_heldout_u32-high-4096",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "expert_js_owned",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.01039264690677853,
+      "ci95": [
+        0.010148733434728078,
+        0.010733027060336742
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 5051639741351756820
+    },
+    {
+      "host": "browser",
+      "frame": "pipeline33_left_projection_heldout_u32-high-4096",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "rust_wasm_full",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.046593465409819415,
+      "ci95": [
+        0.04553461470249634,
+        0.047663997625111115
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 11318781437048263908
+    },
+    {
+      "host": "browser",
+      "frame": "pipeline33_left_projection_heldout_u32-high-65536",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "expert_js_owned",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.05108241650685911,
+      "ci95": [
+        0.04928903351439589,
+        0.05308850353363212
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 406391553762254160
+    },
+    {
+      "host": "browser",
+      "frame": "pipeline33_left_projection_heldout_u32-high-65536",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "rust_wasm_full",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.16014692573085873,
+      "ci95": [
+        0.1522847063800787,
+        0.1700476103309808
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 14018744157493450595
+    },
+    {
+      "host": "browser",
+      "frame": "pipeline33_left_projection_heldout_u32-low-32",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "expert_js_owned",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.0011643528859276674,
+      "ci95": [
+        0.0010683524938475014,
+        0.001252805702609406
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 12927878010747133656
+    },
+    {
+      "host": "browser",
+      "frame": "pipeline33_left_projection_heldout_u32-low-32",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "rust_wasm_full",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.0024965485307042045,
+      "ci95": [
+        0.002321502527393703,
+        0.0026493166536772235
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 14581747331019918491
+    },
+    {
+      "host": "browser",
+      "frame": "pipeline33_left_projection_heldout_u32-low-4096",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "expert_js_owned",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.032121300969576494,
+      "ci95": [
+        0.03052257992602155,
+        0.03357513027225117
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 13688036374429282965
+    },
+    {
+      "host": "browser",
+      "frame": "pipeline33_left_projection_heldout_u32-low-4096",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "rust_wasm_full",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.08806052194324457,
+      "ci95": [
+        0.085770153853955,
+        0.09041121170018772
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 4594286149208247296
+    },
+    {
+      "host": "browser",
+      "frame": "pipeline33_left_projection_heldout_u32-low-65536",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "expert_js_owned",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.1300593730021334,
+      "ci95": [
+        0.12585036626342255,
+        0.1350122543677413
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 13335543913238592726
+    },
+    {
+      "host": "browser",
+      "frame": "pipeline33_left_projection_heldout_u32-low-65536",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "rust_wasm_full",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.29916406184430083,
+      "ci95": [
+        0.2900740941795638,
+        0.30764723096908636
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 4751845206494751649
+    },
+    {
+      "host": "browser",
+      "frame": "pipeline33_right_projection_heldout_u32-high-32",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "expert_js_owned",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.0007638098296812375,
+      "ci95": [
+        0.0007155220825005178,
+        0.0008144288759357037
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 17774797172000097711
+    },
+    {
+      "host": "browser",
+      "frame": "pipeline33_right_projection_heldout_u32-high-32",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "rust_wasm_full",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.0015621191276385166,
+      "ci95": [
+        0.0015082361475285129,
+        0.0016169418997905392
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 3944617324706719573
+    },
+    {
+      "host": "browser",
+      "frame": "pipeline33_right_projection_heldout_u32-high-4096",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "expert_js_owned",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.01043651469006915,
+      "ci95": [
+        0.01022224843250556,
+        0.010629907753250725
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 6952805332728276007
+    },
+    {
+      "host": "browser",
+      "frame": "pipeline33_right_projection_heldout_u32-high-4096",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "rust_wasm_full",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.046095674783871325,
+      "ci95": [
+        0.04491435372148824,
+        0.04710808728782922
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 6298411018036459849
+    },
+    {
+      "host": "browser",
+      "frame": "pipeline33_right_projection_heldout_u32-high-65536",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "expert_js_owned",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.05064958571521676,
+      "ci95": [
+        0.04722768893059248,
+        0.054320984093400214
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 9868873445004879997
+    },
+    {
+      "host": "browser",
+      "frame": "pipeline33_right_projection_heldout_u32-high-65536",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "rust_wasm_full",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.1572145428072594,
+      "ci95": [
+        0.14859113535626348,
+        0.16626362036125877
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 13127290541724949995
+    },
+    {
+      "host": "browser",
+      "frame": "pipeline33_right_projection_heldout_u32-low-32",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "expert_js_owned",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.0012183150363587008,
+      "ci95": [
+        0.0011646242995261096,
+        0.0012836508207313435
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 11268022042981830857
+    },
+    {
+      "host": "browser",
+      "frame": "pipeline33_right_projection_heldout_u32-low-32",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "rust_wasm_full",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.0025866985701009015,
+      "ci95": [
+        0.002449867440302057,
+        0.002731112254605804
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 16700247798248530710
+    },
+    {
+      "host": "browser",
+      "frame": "pipeline33_right_projection_heldout_u32-low-4096",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "expert_js_owned",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.03278310378472488,
+      "ci95": [
+        0.03205316416802406,
+        0.033551085011521334
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 11184254284641794642
+    },
+    {
+      "host": "browser",
+      "frame": "pipeline33_right_projection_heldout_u32-low-4096",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "rust_wasm_full",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.08952690043310721,
+      "ci95": [
+        0.08799783163269927,
+        0.0908734641723831
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 17243842933999843692
+    },
+    {
+      "host": "browser",
+      "frame": "pipeline33_right_projection_heldout_u32-low-65536",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "expert_js_owned",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.1320150196739991,
+      "ci95": [
+        0.1252752303351086,
+        0.13850500061581653
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 8046709109045008357
+    },
+    {
+      "host": "browser",
+      "frame": "pipeline33_right_projection_heldout_u32-low-65536",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "rust_wasm_full",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.3007451163167558,
+      "ci95": [
+        0.28566815219006786,
+        0.3101074931458835
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 8386712342902619622
+    },
+    {
+      "host": "browser",
+      "frame": "pipeline34_left_projection_u32-high-32",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "expert_js_owned",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.00072629648438136,
+      "ci95": [
+        0.0006887800031375828,
+        0.0007708406671656152
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 7484860285207368676
+    },
+    {
+      "host": "browser",
+      "frame": "pipeline34_left_projection_u32-high-32",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "rust_wasm_full",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.0015674228900473676,
+      "ci95": [
+        0.0015342478046481236,
+        0.0016118920414523808
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 9189037323746107280
+    },
+    {
+      "host": "browser",
+      "frame": "pipeline34_left_projection_u32-high-4096",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "expert_js_owned",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.008182851026366693,
+      "ci95": [
+        0.00793157167475029,
+        0.008483422606156005
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 3129385672798026823
+    },
+    {
+      "host": "browser",
+      "frame": "pipeline34_left_projection_u32-high-4096",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "rust_wasm_full",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.04185400048185841,
+      "ci95": [
+        0.04037843269581949,
+        0.04306166822185208
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 13010841527427400438
+    },
+    {
+      "host": "browser",
+      "frame": "pipeline34_left_projection_u32-high-65536",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "expert_js_owned",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.048714634507542945,
+      "ci95": [
+        0.044738205088326564,
+        0.053236845039769345
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 1429349216539622522
+    },
+    {
+      "host": "browser",
+      "frame": "pipeline34_left_projection_u32-high-65536",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "rust_wasm_full",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.14229933611493675,
+      "ci95": [
+        0.13541237815957102,
+        0.14830662839311728
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 11414416022396368120
+    },
+    {
+      "host": "browser",
+      "frame": "pipeline34_left_projection_u32-low-32",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "expert_js_owned",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.0011542146389406265,
+      "ci95": [
+        0.0011314586728839076,
+        0.0011796191311812944
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 2331422929114437969
+    },
+    {
+      "host": "browser",
+      "frame": "pipeline34_left_projection_u32-low-32",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "rust_wasm_full",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.002410734538555024,
+      "ci95": [
+        0.0023644292301673057,
+        0.0024572357229595077
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 40486261877029906
+    },
+    {
+      "host": "browser",
+      "frame": "pipeline34_left_projection_u32-low-4096",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "expert_js_owned",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.026391594751090798,
+      "ci95": [
+        0.025366934707564747,
+        0.027669652847720428
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 4072710355594056425
+    },
+    {
+      "host": "browser",
+      "frame": "pipeline34_left_projection_u32-low-4096",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "rust_wasm_full",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.08470965136517315,
+      "ci95": [
+        0.0838804059951875,
+        0.08553296129393642
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 12470158576393869674
+    },
+    {
+      "host": "browser",
+      "frame": "pipeline34_left_projection_u32-low-65536",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "expert_js_owned",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.11347840305715966,
+      "ci95": [
+        0.11070823904191554,
+        0.11528816192821595
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 7450909680202403188
+    },
+    {
+      "host": "browser",
+      "frame": "pipeline34_left_projection_u32-low-65536",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "rust_wasm_full",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.24619678059611041,
+      "ci95": [
+        0.23848911650129226,
+        0.25295766831070393
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 3602062490685445646
+    },
+    {
+      "host": "browser",
+      "frame": "pipeline34_right_projection_u32-high-32",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "expert_js_owned",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.0007213282133814983,
+      "ci95": [
+        0.0006739481057680502,
+        0.0007885181065218783
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 12623606555422496480
+    },
+    {
+      "host": "browser",
+      "frame": "pipeline34_right_projection_u32-high-32",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "rust_wasm_full",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.0016091737854847365,
+      "ci95": [
+        0.001559101827652474,
+        0.0016695632221903972
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 2565208603128345755
+    },
+    {
+      "host": "browser",
+      "frame": "pipeline34_right_projection_u32-high-4096",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "expert_js_owned",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.0081199347378615,
+      "ci95": [
+        0.007766310830534628,
+        0.008587107737425834
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 4949267154824947535
+    },
+    {
+      "host": "browser",
+      "frame": "pipeline34_right_projection_u32-high-4096",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "rust_wasm_full",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.04303945017260449,
+      "ci95": [
+        0.041803703395564044,
+        0.04457326842874928
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 14652655992518859892
+    },
+    {
+      "host": "browser",
+      "frame": "pipeline34_right_projection_u32-high-65536",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "expert_js_owned",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.04870044496874042,
+      "ci95": [
+        0.0455902774865051,
+        0.052583432054870004
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 7499404260956561623
+    },
+    {
+      "host": "browser",
+      "frame": "pipeline34_right_projection_u32-high-65536",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "rust_wasm_full",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.14730422677355698,
+      "ci95": [
+        0.1430494816189141,
+        0.15071642566171942
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 14353027262959719867
+    },
+    {
+      "host": "browser",
+      "frame": "pipeline34_right_projection_u32-low-32",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "expert_js_owned",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.00122609240901323,
+      "ci95": [
+        0.0011223143299476162,
+        0.0013388799497614486
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 4007873318267104095
+    },
+    {
+      "host": "browser",
+      "frame": "pipeline34_right_projection_u32-low-32",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "rust_wasm_full",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.002637229754834914,
+      "ci95": [
+        0.002474967616604032,
+        0.0028855927299149074
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 17002283646734156811
+    },
+    {
+      "host": "browser",
+      "frame": "pipeline34_right_projection_u32-low-4096",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "expert_js_owned",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.020425639689876374,
+      "ci95": [
+        0.019114309238530455,
+        0.02186784040902758
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 8520477404888455440
+    },
+    {
+      "host": "browser",
+      "frame": "pipeline34_right_projection_u32-low-4096",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "rust_wasm_full",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.08415708459379907,
+      "ci95": [
+        0.08211356305916752,
+        0.08579667095645538
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 16622843515719378690
+    },
+    {
+      "host": "browser",
+      "frame": "pipeline34_right_projection_u32-low-65536",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "expert_js_owned",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.1183558778903712,
+      "ci95": [
+        0.11602415639289801,
+        0.1210691852832489
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 14924673781139270540
+    },
+    {
+      "host": "browser",
+      "frame": "pipeline34_right_projection_u32-low-65536",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "rust_wasm_full",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.25132281849236354,
+      "ci95": [
+        0.2481370953129356,
+        0.25491944971475494
+      ],
+      "classification": "slower",
+      "bootstrap_seed": 16549818190106691633
+    }
+  ],
+  "all_strong_control_uncertain": [
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-low-32",
+      "boundary": "resident-wasm-destination",
+      "reference": "rust_wasm_prepared",
+      "current": "checked_wasm_prepared",
+      "ratio_reference_over_current": 0.975620436270742,
+      "ci95": [
+        0.9570288193400404,
+        1.005365331493836
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 16986760840644750836,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-low-65536",
+      "boundary": "resident-wasm-destination",
+      "reference": "rust_wasm_prepared",
+      "current": "checked_wasm_prepared",
+      "ratio_reference_over_current": 0.94764142067491,
+      "ci95": [
+        0.9027333597585582,
+        1.0068093491369914
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 7283024416446210388,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-high-4096",
+      "boundary": "captured-js-owned",
+      "reference": "expert_js_owned",
+      "current": "checked_js_owned",
+      "ratio_reference_over_current": 0.9906516269651909,
+      "ci95": [
+        0.9651547475627255,
+        1.0183270401837266
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 5813166303418792110,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-high-65536",
+      "boundary": "resident-wasm-destination",
+      "reference": "rust_wasm_prepared",
+      "current": "checked_wasm_prepared",
+      "ratio_reference_over_current": 0.9241940859047159,
+      "ci95": [
+        0.8217569804315521,
+        1.029297467160496
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 7493311644410249603,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline34_left_projection_u32-high-4096",
+      "boundary": "captured-js-owned",
+      "reference": "expert_js_owned",
+      "current": "checked_js_owned",
+      "ratio_reference_over_current": 1.0486179217555343,
+      "ci95": [
+        0.991008610095605,
+        1.1174137568504434
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 6700299770833391810,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline34_left_projection_u32-high-65536",
+      "boundary": "captured-js-owned",
+      "reference": "expert_js_owned",
+      "current": "checked_js_owned",
+      "ratio_reference_over_current": 0.9980626610583269,
+      "ci95": [
+        0.9833762845104824,
+        1.0122902263126752
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 10788543288201467513,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline34_left_projection_u32-high-65536",
+      "boundary": "resident-wasm-destination",
+      "reference": "rust_wasm_prepared",
+      "current": "checked_wasm_prepared",
+      "ratio_reference_over_current": 1.0260081346694925,
+      "ci95": [
+        0.9949340993312378,
+        1.046376068905452
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 14898861307149750481,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline34_left_projection_u32-low-4096",
+      "boundary": "captured-js-owned",
+      "reference": "expert_js_owned",
+      "current": "checked_js_owned",
+      "ratio_reference_over_current": 1.0217846461322613,
+      "ci95": [
+        0.9906076598497728,
+        1.0521720470307019
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 10348304936810762855,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline34_right_projection_u32-high-4096",
+      "boundary": "captured-js-owned",
+      "reference": "expert_js_owned",
+      "current": "checked_js_owned",
+      "ratio_reference_over_current": 1.0016018951574852,
+      "ci95": [
+        0.9595694075097769,
+        1.0355144903351219
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 11105784115733174278,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline34_right_projection_u32-high-65536",
+      "boundary": "captured-js-owned",
+      "reference": "expert_js_owned",
+      "current": "checked_js_owned",
+      "ratio_reference_over_current": 0.9952000977710046,
+      "ci95": [
+        0.9770218040298593,
+        1.0141710795283643
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 14788879944517837986,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline34_right_projection_u32-low-32",
+      "boundary": "resident-wasm-destination",
+      "reference": "rust_wasm_prepared",
+      "current": "checked_wasm_prepared",
+      "ratio_reference_over_current": 1.0096446075202057,
+      "ci95": [
+        0.9982553739684308,
+        1.0220727919506556
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 17077353335567368843,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-high-65536",
+      "boundary": "captured-js-owned",
+      "reference": "expert_js_owned",
+      "current": "checked_js_owned",
+      "ratio_reference_over_current": 0.9693245515624552,
+      "ci95": [
+        0.9410312539979433,
+        1.0141579113338628
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 7401945068090075702,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-low-32",
+      "boundary": "captured-js-owned",
+      "reference": "expert_js_owned",
+      "current": "checked_js_owned",
+      "ratio_reference_over_current": 0.9462056358174568,
+      "ci95": [
+        0.8790214146427072,
+        1.0146247467889309
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 17405485866686378871,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline34_left_projection_u32-high-4096",
+      "boundary": "resident-wasm-destination",
+      "reference": "rust_wasm_prepared",
+      "current": "checked_wasm_prepared",
+      "ratio_reference_over_current": 0.9798475726677685,
+      "ci95": [
+        0.9356504231678272,
+        1.0264012629292218
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 3055937349179840440,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline34_left_projection_u32-high-65536",
+      "boundary": "captured-js-owned",
+      "reference": "expert_js_owned",
+      "current": "checked_js_owned",
+      "ratio_reference_over_current": 1.0567431975884305,
+      "ci95": [
+        0.9887117739546393,
+        1.1276730038172054
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 10788543288201467513,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline34_right_projection_u32-high-4096",
+      "boundary": "resident-wasm-destination",
+      "reference": "rust_wasm_prepared",
+      "current": "checked_wasm_prepared",
+      "ratio_reference_over_current": 1.0011707199858155,
+      "ci95": [
+        0.9460253548989023,
+        1.0644618787393785
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 10141946147181276458,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline34_right_projection_u32-high-65536",
+      "boundary": "captured-js-owned",
+      "reference": "expert_js_owned",
+      "current": "checked_js_owned",
+      "ratio_reference_over_current": 1.0135983988165957,
+      "ci95": [
+        0.9611474922310183,
+        1.090401368042261
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 14788879944517837986,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline34_right_projection_u32-low-32",
+      "boundary": "captured-js-owned",
+      "reference": "expert_js_owned",
+      "current": "checked_js_owned",
+      "ratio_reference_over_current": 0.9149859959221021,
+      "ci95": [
+        0.818770721730522,
+        1.0286107556183257
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 16371697941847797728,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline34_right_projection_u32-low-65536",
+      "boundary": "captured-js-owned",
+      "reference": "expert_js_owned",
+      "current": "checked_js_owned",
+      "ratio_reference_over_current": 1.02476208121299,
+      "ci95": [
+        0.9992735526060078,
+        1.052384404447826
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 8149412734457624078,
+      "host": "browser"
+    },
+    {
+      "host": "native",
+      "frame": "pipeline33_left_projection_heldout_u32-low-32",
+      "boundary": "captured-native-destination",
+      "reference": "expert",
+      "current": "checked",
+      "ratio_reference_over_current": 0.9936161597522781,
+      "ci95": [
+        0.983373169341059,
+        1.004809948640222
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 12974612751122119909
+    },
+    {
+      "host": "native",
+      "frame": "pipeline33_left_projection_heldout_u32-low-4096",
+      "boundary": "captured-native-destination",
+      "reference": "expert",
+      "current": "checked",
+      "ratio_reference_over_current": 0.9972539538793639,
+      "ci95": [
+        0.984577713978715,
+        1.0129704798378771
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 14905790295425556854
+    },
+    {
+      "host": "native",
+      "frame": "pipeline33_right_projection_heldout_u32-high-4096",
+      "boundary": "resident-native-destination",
+      "reference": "expert",
+      "current": "checked",
+      "ratio_reference_over_current": 1.0016401809418871,
+      "ci95": [
+        0.9837574994846021,
+        1.017813692912268
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 12049549451827547178
+    },
+    {
+      "host": "native",
+      "frame": "pipeline33_right_projection_heldout_u32-high-65536",
+      "boundary": "captured-native-destination",
+      "reference": "expert",
+      "current": "checked",
+      "ratio_reference_over_current": 0.9956199655042172,
+      "ci95": [
+        0.9890445879432901,
+        1.0021541767194537
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 7094870685540024608
+    },
+    {
+      "host": "native",
+      "frame": "pipeline33_right_projection_heldout_u32-high-65536",
+      "boundary": "resident-native-destination",
+      "reference": "expert",
+      "current": "checked",
+      "ratio_reference_over_current": 0.9972114467692975,
+      "ci95": [
+        0.9872869084447222,
+        1.0088301422190777
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 11910482102328744977
+    },
+    {
+      "host": "native",
+      "frame": "pipeline33_right_projection_heldout_u32-low-32",
+      "boundary": "captured-native-destination",
+      "reference": "expert",
+      "current": "checked",
+      "ratio_reference_over_current": 1.010320511914932,
+      "ci95": [
+        0.983816847572599,
+        1.047308905397631
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 9319317685537072617
+    },
+    {
+      "host": "native",
+      "frame": "pipeline33_right_projection_heldout_u32-low-65536",
+      "boundary": "captured-native-destination",
+      "reference": "expert",
+      "current": "checked",
+      "ratio_reference_over_current": 0.9904432099876432,
+      "ci95": [
+        0.9785402016289981,
+        1.0017850476641161
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 13536835484551814910
+    },
+    {
+      "host": "native",
+      "frame": "pipeline34_left_projection_u32-high-65536",
+      "boundary": "captured-native-destination",
+      "reference": "expert",
+      "current": "checked",
+      "ratio_reference_over_current": 1.0068988984415057,
+      "ci95": [
+        0.9862641355703303,
+        1.0346790110948194
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 5414809072491591859
+    },
+    {
+      "host": "native",
+      "frame": "pipeline34_left_projection_u32-high-65536",
+      "boundary": "resident-native-destination",
+      "reference": "expert",
+      "current": "checked",
+      "ratio_reference_over_current": 1.0025785868465786,
+      "ci95": [
+        0.9986148428660722,
+        1.0059339087132235
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 14668695003856989071
+    },
+    {
+      "host": "native",
+      "frame": "pipeline34_left_projection_u32-low-32",
+      "boundary": "captured-native-destination",
+      "reference": "expert",
+      "current": "checked",
+      "ratio_reference_over_current": 1.0013829582643095,
+      "ci95": [
+        0.9843056692746875,
+        1.019057861926978
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 7800554453572332613
+    },
+    {
+      "host": "native",
+      "frame": "pipeline34_left_projection_u32-low-65536",
+      "boundary": "captured-native-destination",
+      "reference": "expert",
+      "current": "checked",
+      "ratio_reference_over_current": 0.9924960952244777,
+      "ci95": [
+        0.9765223159810341,
+        1.0061242272385809
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 2253706531924946161
+    },
+    {
+      "host": "native",
+      "frame": "pipeline34_left_projection_u32-low-65536",
+      "boundary": "resident-native-destination",
+      "reference": "expert",
+      "current": "checked",
+      "ratio_reference_over_current": 1.0040223956238254,
+      "ci95": [
+        0.9986515668416458,
+        1.008771747511279
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 14743628776292101272
+    },
+    {
+      "host": "native",
+      "frame": "pipeline34_right_projection_u32-high-65536",
+      "boundary": "captured-native-destination",
+      "reference": "expert",
+      "current": "checked",
+      "ratio_reference_over_current": 0.9969955301843348,
+      "ci95": [
+        0.9910122017745349,
+        1.0024038895280607
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 1842898832912560598
+    },
+    {
+      "host": "native",
+      "frame": "pipeline34_right_projection_u32-high-65536",
+      "boundary": "resident-native-destination",
+      "reference": "expert",
+      "current": "checked",
+      "ratio_reference_over_current": 0.9980562346766426,
+      "ci95": [
+        0.9936020505887543,
+        1.0020631749549296
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 735298540711584026
+    },
+    {
+      "host": "native",
+      "frame": "pipeline34_right_projection_u32-low-65536",
+      "boundary": "captured-native-destination",
+      "reference": "expert",
+      "current": "checked",
+      "ratio_reference_over_current": 1.0052823259532593,
+      "ci95": [
+        0.9928576078189769,
+        1.0194952773349446
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 16080721173850281727
+    },
+    {
+      "host": "native",
+      "frame": "pipeline34_right_projection_u32-low-65536",
+      "boundary": "resident-native-destination",
+      "reference": "expert",
+      "current": "checked",
+      "ratio_reference_over_current": 0.9967462148642341,
+      "ci95": [
+        0.991175743356308,
+        1.0028985076491435
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 12864325531623089068
+    }
+  ],
+  "uncertain_point_losses": [
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-high-65536",
+      "boundary": "captured-wasm-owned",
+      "reference": "prior_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.999555667422779,
+      "ci95": [
+        0.9695903676555754,
+        1.0230875940844584
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 1907868147880234788,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-low-65536",
+      "boundary": "captured-wasm-owned",
+      "reference": "prior_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.9963285886017162,
+      "ci95": [
+        0.9718643295915573,
+        1.0130862449954554
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 2523191878033740591,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline34_left_projection_u32-high-32",
+      "boundary": "captured-wasm-owned",
+      "reference": "prior_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.9977830269154055,
+      "ci95": [
+        0.9858664783345753,
+        1.0082914063612956
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 8684978808568449094,
+      "host": "node"
+    },
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-high-65536",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "prior_gpu_requested",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.9692747667994704,
+      "ci95": [
+        0.9349450952819938,
+        1.0054653981606752
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 1543035260967296304,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-low-32",
+      "boundary": "captured-wasm-owned",
+      "reference": "prior_wasm_full",
+      "current": "checked_wasm_full",
+      "ratio_reference_over_current": 0.9947274128945027,
+      "ci95": [
+        0.9476644412131869,
+        1.0441885786726548
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 8078654333323651254,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-low-32",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "prior_gpu_requested",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.9727922889171154,
+      "ci95": [
+        0.914226904408607,
+        1.0125810686749552
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 208252930040190253,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_left_projection_heldout_u32-low-65536",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "prior_gpu_requested",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.9945600276687102,
+      "ci95": [
+        0.9564063311198323,
+        1.047900721205698
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 4133768032493820646,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-high-4096",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "prior_gpu_requested",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.9999811671469565,
+      "ci95": [
+        0.9806191481549087,
+        1.0166936881330666
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 14115019239149349629,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-high-65536",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "prior_gpu_requested",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.9448347618527642,
+      "ci95": [
+        0.8879675171528821,
+        1.0037397902462202
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 16445214055948337822,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-low-32",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "prior_gpu_requested",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.9970704104300616,
+      "ci95": [
+        0.9863584408993255,
+        1.0087245711450872
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 244397316834247074,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline33_right_projection_heldout_u32-low-65536",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "prior_gpu_requested",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.9807718090859121,
+      "ci95": [
+        0.9433644452578399,
+        1.0053079089280819
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 17975767039070933803,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline34_left_projection_u32-high-32",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "prior_gpu_requested",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.9928176452558767,
+      "ci95": [
+        0.9691602545256399,
+        1.0111962450904375
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 13445427676423387267,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline34_left_projection_u32-low-32",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "prior_gpu_requested",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.9921529278924521,
+      "ci95": [
+        0.9807535538478331,
+        1.0037315838660998
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 4736549257859895077,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline34_left_projection_u32-low-4096",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "prior_gpu_requested",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.9864083973916701,
+      "ci95": [
+        0.9712694030929406,
+        1.0017308958877165
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 15085787422615012476,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline34_left_projection_u32-low-65536",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "prior_gpu_requested",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.9988690741972294,
+      "ci95": [
+        0.966052538790955,
+        1.0245342268146098
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 1673121473002271334,
+      "host": "browser"
+    },
+    {
+      "frame": "pipeline34_right_projection_u32-low-4096",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "prior_gpu_requested",
+      "current": "checked_gpu_requested",
+      "ratio_reference_over_current": 0.992119379446466,
+      "ci95": [
+        0.9587460279897758,
+        1.0338920994260616
+      ],
+      "classification": "inconclusive",
+      "bootstrap_seed": 1780695904321852057,
+      "host": "browser"
+    }
+  ],
+  "actual_timed_gpu": {
+    "rows": 648,
+    "calls": 9576,
+    "fallbacks": 0
+  },
+  "prior_aggregates": [
+    {
+      "host": "browser",
+      "boundary": "captured-js-owned",
+      "reference": "prior_js_owned",
+      "current": "checked_js_owned",
+      "cells": 24,
+      "geomean": 1.732453666586582,
+      "wins": 24,
+      "losses": 0,
+      "inconclusive": 0
+    },
+    {
+      "host": "browser",
+      "boundary": "captured-wasm-owned",
+      "reference": "prior_wasm_full",
+      "current": "checked_wasm_full",
+      "cells": 24,
+      "geomean": 1.0245402823174627,
+      "wins": 17,
+      "losses": 0,
+      "inconclusive": 7
+    },
+    {
+      "host": "browser",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "prior_gpu_requested",
+      "current": "checked_gpu_requested",
+      "cells": 24,
+      "geomean": 1.002245005109702,
+      "wins": 1,
+      "losses": 0,
+      "inconclusive": 23
+    },
+    {
+      "host": "browser",
+      "boundary": "resident-wasm-destination",
+      "reference": "prior_wasm_prepared",
+      "current": "checked_wasm_prepared",
+      "cells": 24,
+      "geomean": 2.5968630850138466,
+      "wins": 24,
+      "losses": 0,
+      "inconclusive": 0
+    },
+    {
+      "host": "native",
+      "boundary": "captured-native-destination",
+      "reference": "prior",
+      "current": "checked",
+      "cells": 24,
+      "geomean": 2.234372144422078,
+      "wins": 24,
+      "losses": 0,
+      "inconclusive": 0
+    },
+    {
+      "host": "native",
+      "boundary": "resident-native-destination",
+      "reference": "prior",
+      "current": "checked",
+      "cells": 24,
+      "geomean": 3.863045798682241,
+      "wins": 24,
+      "losses": 0,
+      "inconclusive": 0
+    },
+    {
+      "host": "node",
+      "boundary": "captured-js-owned",
+      "reference": "prior_js_owned",
+      "current": "checked_js_owned",
+      "cells": 24,
+      "geomean": 4.145427930677393,
+      "wins": 24,
+      "losses": 0,
+      "inconclusive": 0
+    },
+    {
+      "host": "node",
+      "boundary": "captured-wasm-owned",
+      "reference": "prior_wasm_full",
+      "current": "checked_wasm_full",
+      "cells": 24,
+      "geomean": 1.018259186169455,
+      "wins": 16,
+      "losses": 0,
+      "inconclusive": 8
+    },
+    {
+      "host": "node",
+      "boundary": "resident-wasm-destination",
+      "reference": "prior_wasm_prepared",
+      "current": "checked_wasm_prepared",
+      "cells": 24,
+      "geomean": 2.581749286570412,
+      "wins": 24,
+      "losses": 0,
+      "inconclusive": 0
+    }
+  ],
+  "strong_expert_aggregates": [
+    {
+      "host": "browser",
+      "boundary": "captured-js-owned",
+      "reference": "expert_js_owned",
+      "current": "checked_js_owned",
+      "cells": 24,
+      "geomean": 0.9583817925806121,
+      "wins": 3,
+      "losses": 15,
+      "inconclusive": 6
+    },
+    {
+      "host": "browser",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "cells": 24,
+      "geomean": 0.44054094572443037,
+      "wins": 0,
+      "losses": 24,
+      "inconclusive": 0
+    },
+    {
+      "host": "browser",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "expert_js_owned",
+      "current": "checked_gpu_requested",
+      "cells": 24,
+      "geomean": 0.010513125073178073,
+      "wins": 0,
+      "losses": 24,
+      "inconclusive": 0
+    },
+    {
+      "host": "browser",
+      "boundary": "instrumented-full-gpu-request",
+      "reference": "rust_wasm_full",
+      "current": "checked_gpu_requested",
+      "cells": 24,
+      "geomean": 0.029326239305125276,
+      "wins": 0,
+      "losses": 24,
+      "inconclusive": 0
+    },
+    {
+      "host": "browser",
+      "boundary": "resident-wasm-destination",
+      "reference": "rust_wasm_prepared",
+      "current": "checked_wasm_prepared",
+      "cells": 24,
+      "geomean": 0.9010934712760216,
+      "wins": 7,
+      "losses": 15,
+      "inconclusive": 2
+    },
+    {
+      "host": "native",
+      "boundary": "captured-native-destination",
+      "reference": "expert",
+      "current": "checked",
+      "cells": 24,
+      "geomean": 0.987910593658523,
+      "wins": 2,
+      "losses": 12,
+      "inconclusive": 10
+    },
+    {
+      "host": "native",
+      "boundary": "resident-native-destination",
+      "reference": "expert",
+      "current": "checked",
+      "cells": 24,
+      "geomean": 0.9632072892065413,
+      "wins": 0,
+      "losses": 18,
+      "inconclusive": 6
+    },
+    {
+      "host": "node",
+      "boundary": "captured-js-owned",
+      "reference": "expert_js_owned",
+      "current": "checked_js_owned",
+      "cells": 24,
+      "geomean": 0.9385240428331139,
+      "wins": 2,
+      "losses": 16,
+      "inconclusive": 6
+    },
+    {
+      "host": "node",
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "checked_wasm_full",
+      "cells": 24,
+      "geomean": 0.42075047488268025,
+      "wins": 0,
+      "losses": 24,
+      "inconclusive": 0
+    },
+    {
+      "host": "node",
+      "boundary": "resident-wasm-destination",
+      "reference": "rust_wasm_prepared",
+      "current": "checked_wasm_prepared",
+      "cells": 24,
+      "geomean": 0.927193681625739,
+      "wins": 5,
+      "losses": 14,
+      "inconclusive": 5
+    }
+  ],
+  "limits": [
+    "Four U32 source contexts of one unused-map projection erasure mechanism; generic derived proofs U32/I32/U64, no F32 or GPU U64 claim.",
+    "Single machine with paired nine rounds; nominal per-cell95% intervals, no multiplicity correction; aggregate geometric means descriptive.",
+    "Sixteen prior comparison point estimates fall below1 with intervals crossing1; no classified prior regression is not a guarantee against regressions.",
+    "Full Wasm remains transport bound; strong handwritten controls usually faster; GPU requests remain far slower than CPU controls.",
+    "GPU legacy capacity uses maximum input length; prior and checked primary physical dispatch/upload/readback/live-buffer counts are equal despite declared graph stage erasure.",
+    "Compile-time proof selection under a frozen structural model, no runtime load/state adaptation.",
+    "Node/browser length+first+last timed consumption versus native full-vector consumption; host/boundary ratios are not pooled."
+  ],
+  "bindings": {
+    "analysis": "50fcbc63842f4f680e233e0ec0ed2daeacca4e3ba848f75f727935e8406d6ca2",
+    "metadata": "9a3f9daabe6ca11f8a47544b260c1886310c301cf941b15a64b104b4f0e53730",
+    "script": "f008e3d3b85afbe0a49ef4a34f93d9404905630781be12bdbcba6c94f79ccc0b"
+  }
+}

@@ -123,6 +123,7 @@ pub struct Program {
 pub const SEMANTICS: &str = "ink-executable-core-v1";
 pub const COMPUTE_SEMANTICS: &str = "ink-executable-core-v2";
 pub const LOCAL_SEMANTICS: &str = "ink-executable-core-v3";
+pub const SEQUENCE_SEMANTICS: &str = "ink-executable-core-v4";
 pub const MAX_BYTES: usize = 16_000_000;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -140,12 +141,14 @@ pub struct CheckedModule(WireModule);
 
 impl CheckedModule {
     pub fn from_source(program: Program) -> LangResult<Self> {
-        let extended = validate(&program)?;
+        let (extended, sequence) = validate(&program)?;
         let local = crate::local_collections::needed(&program);
         crate::check::check(&program)?;
         let module = Self(WireModule {
             schema: 1,
-            semantics: if local {
+            semantics: if sequence {
+                SEQUENCE_SEMANTICS
+            } else if local {
                 LOCAL_SEMANTICS
             } else if extended {
                 COMPUTE_SEMANTICS
@@ -166,7 +169,8 @@ impl CheckedModule {
         let wire: WireModule =
             serde_json::from_slice(bytes).map_err(|e| format!("invalid core module: {e}"))?;
         if wire.schema != 1
-            || ![SEMANTICS, COMPUTE_SEMANTICS, LOCAL_SEMANTICS].contains(&wire.semantics.as_str())
+            || ![SEMANTICS, COMPUTE_SEMANTICS, LOCAL_SEMANTICS, SEQUENCE_SEMANTICS]
+                .contains(&wire.semantics.as_str())
         {
             return Err("incompatible executable core semantics".into());
         }
@@ -225,6 +229,7 @@ impl CheckedModule {
 struct Bounds {
     remaining: usize,
     extended: bool,
+    sequence: bool,
 }
 impl Bounds {
     fn step(&mut self, depth: usize) -> LangResult<()> {
@@ -310,6 +315,7 @@ impl Bounds {
                 Ok(())
             }
             Expr::Method(e, n, args) => {
+                self.sequence |= n == "concat";
                 if ["zip", "map_indexed", "at_or", "scan", "sort"].contains(&n.as_str()) {
                     self.extended = true;
                 }
@@ -376,7 +382,7 @@ impl Bounds {
     }
 }
 
-fn validate(p: &Program) -> LangResult<bool> {
+fn validate(p: &Program) -> LangResult<(bool, bool)> {
     if !p.rules.is_empty() {
         return Err(
             "executable core excludes inline rewrites; supply an external proof package".into(),
@@ -397,6 +403,7 @@ fn validate(p: &Program) -> LangResult<bool> {
     let mut b = Bounds {
         remaining: 100_000,
         extended: false,
+        sequence: false,
     };
     if !p.module.is_empty() {
         b.name(&p.module)?;
@@ -449,5 +456,5 @@ fn validate(p: &Program) -> LangResult<bool> {
         }
         b.statements(&a.body, 0)?;
     }
-    Ok(b.extended)
+    Ok((b.extended, b.sequence))
 }

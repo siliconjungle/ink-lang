@@ -1,0 +1,571 @@
+{
+  "schema": 1,
+  "environment": {
+    "platform": "macOS-26.5.2-arm64-arm-64bit",
+    "machine": "arm64",
+    "cpu": "Apple M2",
+    "logical_cpus": 8,
+    "python": "3.12.3",
+    "rustc": "rustc 1.96.0 (ac68faa20 2026-05-25)\nbinary: rustc\ncommit-hash: ac68faa20c58cbccd01ee7208bf3b6e93a7d7f96\ncommit-date: 2026-05-25\nhost: aarch64-apple-darwin\nrelease: 1.96.0\nLLVM version: 22.1.2",
+    "clang": "Apple clang version 14.0.0 (clang-1400.0.29.202)\nTarget: arm64-apple-darwin25.5.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin",
+    "rustc_llvm_major": 22,
+    "clang_llvm_major": null,
+    "git": {
+      "ink-lang": {
+        "commit": "2a1873359e89f78ffa92859fe18b6d08cb8b6036",
+        "dirty": true
+      },
+      "knowledge": {
+        "commit": "0d997d6fe162832d362c4c69be4e6aad731fa74d",
+        "dirty": true
+      },
+      "lowering-c": {
+        "commit": "be4d1aab5045e4a39d9fd1777883693c6dcec2e8",
+        "dirty": true
+      },
+      "lowering-gpu": {
+        "commit": "6c40d9f4aa857aa56f2df4636c8595f7e5ecdd20",
+        "dirty": false
+      },
+      "lowering-js": {
+        "commit": "ffb842410a8d5b81fe0ff733637501e5ac79d1bd",
+        "dirty": true
+      },
+      "lowering-rust": {
+        "commit": "4f48a4532b65cba5f3de1ac29aaaee6a2348eef3",
+        "dirty": false
+      },
+      "lowering-wasm": {
+        "commit": "ae9f95fe7f050e5ff7f7d0005921946f25a7ff99",
+        "dirty": false
+      },
+      "planner": {
+        "commit": "25e9e719097cfc784b4828f0bfe3b4ca23c3977e",
+        "dirty": false
+      },
+      "runtime": {
+        "commit": "e415e940a33cd3b07d362d884cc84512eecb8839",
+        "dirty": true
+      }
+    },
+    "warnings": [
+      "Apple Clang version does not identify its upstream LLVM major; backend version matching is unestablished",
+      "uncommitted changes in a measured checkout"
+    ]
+  },
+  "node": "v26.1.0",
+  "zig": "0.15.2",
+  "compiler_path": "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/target/release/ink",
+  "compiler_sha256": "ad690088666352b201696ac7c46135b2f0d8e2afe48c76c41ca0c17cbede6848",
+  "knowledge_root": "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/knowledge/research/performance-laws",
+  "snapshot": "47ea6153e22e9f632aa3dce363c42430e11a74ff6d56d56a5702fe034fa2d5cf",
+  "program_sha256": "9f04792e543711b071e2c38634a36becb2ed76fe93f4c9fbaf404450f8e4bae8",
+  "selection_sha256": "48e4dea0295925401ec7c68bc5c902b897ea9fc2f1690ca11d1c2498ee66aa99",
+  "selected_laws": [
+    "15604a90b834fb985fcc26b1fb5dc33cd6c70cb1caaf8de064cf0860215927e0",
+    "33af42337320043efcf6dd828fc0ad00fe83321ce281670a1b6a2497f515b08c",
+    "5f7cb5eb6f258aab9a795ae762694f7349d5d7eb815067b608dfa9b4e2995fea",
+    "61c8f5a90ba403ee1cf5c4684969b2de05fb968afd5d9f880fa3767df01f23a9",
+    "7cd8700326f91c2415dec52cd12ee7c8f9c348de227c7c7eba99c4d1927c6a37",
+    "7dfca53336f5698649375d4945bfc2e2c345e3254ba7f627e986fafcfca7757e",
+    "917af83245260c07fff0e281e84c43cc6ea24eec0dad8743c75a2d14a3393827",
+    "c263adb0be6b2760f51c63029104184fd0ebfb4246a8c70230897beab243550b"
+  ],
+  "commands": [
+    {
+      "argv": [
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/target/release/ink",
+        "emit-core",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/reports/lean-web-output-2026-10-10/kernels.ink",
+        "-o",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/reports/lean-web-output-2026-10-10/core.json"
+      ],
+      "seconds": 0.003647834000275907,
+      "exit_code": 0,
+      "stdout": "{\"actions\":0,\"core_sha256\":\"9f04792e543711b071e2c38634a36becb2ed76fe93f4c9fbaf404450f8e4bae8\",\"functions\":8,\"semantics\":\"ink-executable-core-v2\",\"status\":\"checked\",\"trust\":\"Rust structural/type/effect checks; no proof of checker or backend correctness\"}\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "python3",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/planner/plan.py",
+        "--compiler",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/target/release/ink",
+        "--core",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/reports/lean-web-output-2026-10-10/core.json",
+        "--knowledge-root",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/knowledge/research/performance-laws",
+        "--snapshot",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/knowledge/research/performance-laws/store/snapshot.json",
+        "--budget",
+        "4096",
+        "-o",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/reports/lean-web-output-2026-10-10/selection.json"
+      ],
+      "seconds": 0.18902383299973735,
+      "exit_code": 0,
+      "stdout": "{\"compiler_sha256\": \"ad690088666352b201696ac7c46135b2f0d8e2afe48c76c41ca0c17cbede6848\", \"database\": {\"snapshot_sha256\": \"47ea6153e22e9f632aa3dce363c42430e11a74ff6d56d56a5702fe034fa2d5cf\", \"entries\": 28, \"loaded_objects\": 28}, \"initial_cost\": 66048, \"selected_cost\": 190, \"attempts\": 85, \"rejected\": 0, \"exhausted\": false, \"estimate\": \"structural; not measured runtime\"}\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/target/release/ink",
+        "check-selection",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/reports/lean-web-output-2026-10-10/core.json",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/reports/lean-web-output-2026-10-10/selection.json"
+      ],
+      "seconds": 0.009524582999802078,
+      "exit_code": 0,
+      "stdout": "{\"semantics\":\"ink-evidence-v1\",\"input_core_sha256\":\"9f04792e543711b071e2c38634a36becb2ed76fe93f4c9fbaf404450f8e4bae8\",\"selected_core_sha256\":\"cdafbe2cc285bd8757640fe93bd96f71b16e8bd17811f487518a58cbc4a05b01\",\"snapshot_sha256\":\"47ea6153e22e9f632aa3dce363c42430e11a74ff6d56d56a5702fe034fa2d5cf\",\"closure\":[\"15604a90b834fb985fcc26b1fb5dc33cd6c70cb1caaf8de064cf0860215927e0\",\"1e8c9019405c45d9b8a03be719772b0e2e1fb1ea404e276b85b9cb01eaee73ad\",\"2076f8e488bc00d9b188fb8499f91c53c200214a9a853ebc17c4f9b6e2dc947c\",\"24ccdfb190305c25c3427993a5d4acce8ced619c0dd0803d5c102a2c69b45483\",\"2e7f826b92f6dd3a2507fdffc2d25bbbcaf22dab0d7e1ae62aad64ce202be94a\",\"33af42337320043efcf6dd828fc0ad00fe83321ce281670a1b6a2497f515b08c\",\"3a09e2b3c12c822240bc9ea7135e67037c1ba369154d92fbbef8bb3c46370921\",\"3a91d92a13bca82a1ed7d8985ec91c221ffdfd9d0871a206805bc3d593b1f4a5\",\"3df4e7edf096dcdecf1d3f0faa056a4fcf264ee327be1ebc46d570fa2e552756\",\"419a84461e0dc0b5dffbbe661b6ef19e06be0d377e36e456c584967c258eb3e2\",\"58ee217d22fc1569632d030cc50715034768eecc8f7a88248b69cae88b1a6691\",\"59c61d05a9dbff55fabf278f9c3ba2533b63bc7369e7827507c37d3f52c3faab\",\"5f7cb5eb6f258aab9a795ae762694f7349d5d7eb815067b608dfa9b4e2995fea\",\"60606c1e16c40dc4ace3cb78c9ffc72b4cfa61674aef7dfd1521b32c4a0584ae\",\"61c8f5a90ba403ee1cf5c4684969b2de05fb968afd5d9f880fa3767df01f23a9\",\"67a4f8c5222d0c9daa3f827b353861a4938aa599869dc8b286a37fc1e3b6e613\",\"792315615f770628ee628aea6a1aea4d783ad646a9df4196f8887eb5885d8880\",\"7a2b33ecb127baca6087f2fa98e77b5c1a6d7f56097010862891407b33f284e8\",\"7cd8700326f91c2415dec52cd12ee7c8f9c348de227c7c7eba99c4d1927c6a37\",\"7dfca53336f5698649375d4945bfc2e2c345e3254ba7f627e986fafcfca7757e\",\"917af83245260c07fff0e281e84c43cc6ea24eec0dad8743c75a2d14a3393827\",\"9e8bbdf02aa7c08ca895574b4d5757f544b6bb0f121dacb951d524dca3be1ded\",\"b61b8fe3f30c6e81d5c24e59b11aa80b78914f0fb3535d3b9df02c0fc7b1f87d\",\"c263adb0be6b2760f51c63029104184fd0ebfb4246a8c70230897beab243550b\",\"cc2c8c61a852f9e2dee20ca25d0b5f96967cedfe1d1846419fa7341cb2a398fa\",\"e73ac913e05f0d70f64e116a7b6f833e42b1cd68482eafc38d134628c39cc597\",\"fa186e5305fc41b9ae8b2422a4deab4545de59f3c5de356ee407ecc86b41001d\",\"fe289459c68f332111d26770220418050115a668fc9dc999e9b2faa7a87d5bbf\"],\"applied_laws\":[\"5f7cb5eb6f258aab9a795ae762694f7349d5d7eb815067b608dfa9b4e2995fea\",\"15604a90b834fb985fcc26b1fb5dc33cd6c70cb1caaf8de064cf0860215927e0\",\"61c8f5a90ba403ee1cf5c4684969b2de05fb968afd5d9f880fa3767df01f23a9\",\"7cd8700326f91c2415dec52cd12ee7c8f9c348de227c7c7eba99c4d1927c6a37\",\"33af42337320043efcf6dd828fc0ad00fe83321ce281670a1b6a2497f515b08c\",\"7dfca53336f5698649375d4945bfc2e2c345e3254ba7f627e986fafcfca7757e\",\"c263adb0be6b2760f51c63029104184fd0ebfb4246a8c70230897beab243550b\",\"917af83245260c07fff0e281e84c43cc6ea24eec0dad8743c75a2d14a3393827\"]}\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/target/release/ink",
+        "build",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/reports/lean-web-output-2026-10-10/kernels.ink",
+        "--target",
+        "webgpu",
+        "--zig",
+        "../toolchain/zig-aarch64-macos-0.15.2/zig",
+        "-o",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/reports/lean-web-output-2026-10-10/baseline"
+      ],
+      "seconds": 0.5847302920001312,
+      "exit_code": 0,
+      "stdout": "wrote WebGPU/Wasm bundle and native wgpu project to /Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/reports/lean-web-output-2026-10-10/baseline; GPU selection is measured by the host runtime\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/target/release/ink",
+        "build",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/reports/lean-web-output-2026-10-10/kernels.ink",
+        "--target",
+        "webgpu",
+        "--zig",
+        "../toolchain/zig-aarch64-macos-0.15.2/zig",
+        "--selection",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/reports/lean-web-output-2026-10-10/selection.json",
+        "-o",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/reports/lean-web-output-2026-10-10/checked"
+      ],
+      "seconds": 0.14838654200002566,
+      "exit_code": 0,
+      "stdout": "wrote WebGPU/Wasm bundle and native wgpu project to /Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/reports/lean-web-output-2026-10-10/checked; GPU selection is measured by the host runtime\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "rustc",
+        "--edition=2021",
+        "--crate-type=cdylib",
+        "--target",
+        "wasm32-unknown-unknown",
+        "-C",
+        "opt-level=3",
+        "-C",
+        "panic=abort",
+        "-C",
+        "target-feature=+simd128",
+        "-C",
+        "link-arg=--strip-all",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/reports/lean-web-output-2026-10-10/matched.rs",
+        "-o",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/reports/lean-web-output-2026-10-10/rust.wasm"
+      ],
+      "seconds": 0.32734725000000253,
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "rustc",
+        "--edition=2021",
+        "--crate-type=cdylib",
+        "--target",
+        "wasm32-unknown-unknown",
+        "-C",
+        "opt-level=3",
+        "-C",
+        "panic=abort",
+        "-C",
+        "target-feature=+simd128",
+        "-C",
+        "link-arg=--strip-all",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/reports/lean-web-output-2026-10-10/literal.rs",
+        "-o",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/reports/lean-web-output-2026-10-10/rust-literal.wasm"
+      ],
+      "seconds": 0.12993845799974224,
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/planner",
+        "rev-parse",
+        "HEAD"
+      ],
+      "seconds": 0.012767709000399918,
+      "exit_code": 0,
+      "stdout": "25e9e719097cfc784b4828f0bfe3b4ca23c3977e\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/planner",
+        "status",
+        "--porcelain"
+      ],
+      "seconds": 0.014176749999933236,
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/runtime",
+        "rev-parse",
+        "HEAD"
+      ],
+      "seconds": 0.012960208999629685,
+      "exit_code": 0,
+      "stdout": "e415e940a33cd3b07d362d884cc84512eecb8839\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/runtime",
+        "status",
+        "--porcelain"
+      ],
+      "seconds": 0.014123541000117257,
+      "exit_code": 0,
+      "stdout": " M README.md\n M hosts/ink-compute.mjs\n M hosts/ink-gpu.mjs\n?? tests/lean-javascript.mjs\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "node",
+        "--version"
+      ],
+      "seconds": 0.023737749999781954,
+      "exit_code": 0,
+      "stdout": "v26.1.0\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "../toolchain/zig-aarch64-macos-0.15.2/zig",
+        "version"
+      ],
+      "seconds": 0.03481066600033955,
+      "exit_code": 0,
+      "stdout": "0.15.2\n",
+      "stderr": ""
+    }
+  ],
+  "source_hashes": {
+    "core/Cargo.toml": "a59ecd706ef92b37b9e074f7c4a7bbd83ecf3874202cf0dc51157392b6097867",
+    "core/Cargo.lock": "794a90392ff31a65c7de834bf60faabf519bb8722bc969da4e8130ec4f844fcf",
+    "core/README.md": "e8d14ebc7c4fbdedf4a07a5bd486cce314a9dc6faa4cfe1681850d384fd1147d",
+    "core/src/laws.rs": "ecc38721a227914e960dddb2e0fa95629218481cd68f34f1b64a845e085ce7ec",
+    "core/src/core.rs": "e8f9668f078fb8075b7937a2dabff0beea495be5311ac0b4b2fd9d3960c28f3c",
+    "core/src/logic.rs": "db1acb21d4deeda2926784db240c8947318f65cc41510e7cd75dbe8940163301",
+    "core/src/optimisation.rs": "9a47579da0797f6a5c74af38998ea85e459e8c5ff32bb30d9b4fb6ea33fc17e4",
+    "core/src/snapshot_wire.rs": "242b25b2efdbe11fc1f954954ccd0bcf9411c3fb15aae7f946525e1b490071d7",
+    "core/src/transaction.rs": "4ad8a602f460328f5cb6314a5a846e438b770d60cc6ecf233790338187db6a72",
+    "core/src/bitproof.rs": "a1db50cb4af421cf80dc34717717c3dae74c6320f2a81fc5b86446fc749c7419",
+    "core/src/registry.rs": "414930a187787cf295c5d38d0460a21c7d1c4f4241c78e6d595eec1da71a73a0",
+    "core/src/check.rs": "e0c8a03a5f78c9b591c83a40c8267abb6fdc7bb7b0d11f3d314a6db5923ea415",
+    "core/src/library.rs": "d7b5bcfbe5ecfd02822661989e7bddb50e8034bc98211463efa2cbacc96d983d",
+    "core/src/statecheck.rs": "84f66b37241808235975e97c25cc2ec191df6e450defd189c7327d9e0fd10eb8",
+    "core/src/semantic.rs": "04b5b940868f46d4d360cc7d833149879ab8506079d035e0a3737c1fb74bcc10",
+    "core/src/lib.rs": "fa9b4cacca6c91427bd71f5790fe4104ac748f50ee8e970a2b5ebbdded5c62f0",
+    "core/src/transaction_model.rs": "02855c2730306787d09bbd5da749ae3e8e8fca080c0c5f1d9090833b8ece09eb",
+    "core/src/aggregate.rs": "04e700d1decd915d78fae842b5b744cbb720cb352b6a4b20b84643cdedc52517",
+    "core/src/exact_maintenance.rs": "82260c76e8406dfb55c585fdf980e695c3b87340c5888463b9542ba606e3e893",
+    "core/src/knowledge.rs": "1b7307ee242e40121bd37df93acea4ef871eae5fcaf58b1c8166139078efc03d",
+    "core/src/snapshot.rs": "722e413bbf8add918f13673bf5767856201a674b6f3332573c4d3b772611d0eb",
+    "core/src/stateful.rs": "237a2bfd75b95d76a57b30c1166b565d1da491ed10f92bbca8ec33cc21cafef2",
+    "core/src/eval.rs": "c67a128cfd53975413fdf513c5d4a0b1514dbbbda5f3e2770c8f4c57d9723cba",
+    "core/src/source_values.rs": "fc4c199cf9a4f53a13c626463373b19bbc729e19c010a63ee6b90859bd8add31",
+    "core/src/definition.rs": "7408f21d500a25e11ffd5c98560258bf13cd3a50e535aa5adee0e33999665edc",
+    "core/src/row_model.rs": "aa490a4b7fb348263ecafc25a751eb9ee09082a7e5de6efaff199c4046a1dd76",
+    "core/src/compute_values.rs": "ae290faa6e5c4d0b13e340a96e1c91158ab6ff6173705c7f00367e2fc40929d5",
+    "core/src/storage.rs": "0391d558c0f14236bb5290cfdb12c808a0f4dc9433d827e3841db5063306819a",
+    "core/src/implementation.rs": "e3cc8a42718d0e37feeb64fbfcf6b28518b284314c204610dd5703e93158fd8c",
+    "core/src/routing.rs": "4587ed843663f8e28494d0f5f5876abe088c5fc37ca92762fdc3ac1a41f581a7",
+    "core/src/syntax.rs": "6910960842bc4d607de421daeafe48ef74544347b91850de2ab95b74137c9a4f",
+    "core/src/machine.rs": "fc75999c6df0be02370a0f679d99d9d56acb1f03e4cb28d9b4c908c67917cc40",
+    "core/src/equality.rs": "769e17336aa47da2b450dfb19f838e177e202f5ac989f8b821226eceab32004a",
+    "core/src/table_maintenance.rs": "54de14ca8e164fd6d044b56ffff8e54a16f65dd76ed69b046bf5a21770d7d622",
+    "core/src/source_routing.rs": "d7687a2cdddd48fe37678f63e683f975646834c4ded6c3ee0a391d4fb26ff69c",
+    "src/lib.rs": "2d149cd58bf7abd17d70237c871cd0e375b49c4b8a9aadf21c58201edec6898c",
+    "src/main.rs": "f12c494c6b8f5a864238c9621acb9a2b16f41b207926e5bd20d682626813ad4b",
+    "src/bin/ink.rs": "895fd47217d4a75ac08d835f721db4b3bcc07c6259ed8bb44ed81a1ebd0e3710",
+    "src/bin/state_wasm_fixture.rs": "1613cc9491f7f00c2c0b897465a814c96c5a8942c4b1318cb28f854eeb9ec822",
+    "src/bin/state_bench.rs": "f5493cba4fdea2eccdf090a1d64ebce77972e0e228cd1631c594fb9c9b2d53bd",
+    "planner/plan.py": "507077b7710b5680c7ede249e755185ce1133973ad49539be93f599d79d39823",
+    "planner/route.py": "c6cb93ab38c27c44135f027dfd5832b7d7a74ee2bdc749557d514309939808b9",
+    "planner/pyproject.toml": "a3a2f311647dda16dab949e068394951a660c9dce5f33966bc246342b85e94d6",
+    "planner/README.md": "3689e56ec4bc696caae8a14a77d7f0d544e208a74c6686d36e46740ff67bfda9",
+    "planner/.gitignore": "59f733c592273b931eb03647199c623b88cbb145879ca986db8c9d305fe9a311",
+    "planner/research/semantic_database.py": "0da066ca7c83a817776a6979fab2f5a189af9e7add0cc770805c1b6b23125220",
+    "planner/research/rewrite_search.py": "645d817e28330c5b3230c10d16e5d999ac89c726439fcd5266d4d90676321d99",
+    "planner/research/database_query.py": "4ac969566f8b57d93f17b071312228bb3c8a805bc7f55d9c9d97b1c8d63cb92a",
+    "planner/research/semantic_search.py": "57cd85cce80e063d8c68cab6db961ada543f5291b0c129984af5a2977a4087ce",
+    "planner/ink_planner/__init__.py": "6377b51315e2795d817a979787ddb2b02c2f92a0c60805bdf37c37a08df37e4f",
+    "planner/ink_planner/route_selection.py": "b41786e8b5f1e80b90fe61ee1513cd275a59ac905e805d525d0eea8c99db3a9f",
+    "planner/ink_planner/source_routing.py": "d437a4a9e36a2c01ea84ac39815b38a288d294a880cf113e9bece01dbc9d8aff",
+    "planner/ink_planner/semantic_search.py": "0251ebdb7dc6717bb23d03c1101c54dca7067cc91bb447b23631cd58f8658e7b",
+    "planner/tests/test_research_query.py": "f336e28dc1f6969737af31832ef850c5f2e5f735b7904264fc785aa75ff7bec7",
+    "planner/schemas/selection.json": "89ec901b3afeed9fc9f2717e86e0e48e91ebcda1ff5ecbf65777d7248ae384ab",
+    "runtime/Cargo.toml": "7bcd017b24498b9110d582837f4498a20c04a1bcb56833bb931f50dfb3fe8d2a",
+    "runtime/Cargo.lock": "6d11f81920dc261b16de6d1cd7c4442ec727db74f23de95aa62e1572af60ebab",
+    "runtime/README.md": "f7dd510b64bd61ab6f8cdb07306087597fc17fc0fa1ebe3204988b7608f13a68",
+    "runtime/.gitignore": "306fd52e74fca6746e12acc750f232de15e71da917756a1270d74c91f5eb7368",
+    "runtime/tests/execution.rs": "5c264cdd36f946b5b8f422298afe1d6247d458360b0e27573dd1f79b8f38369f",
+    "runtime/tests/backend-selection.mjs": "5a5b6757da37e0ac43acd1adf84a6691d0bd571fb5eb566f4b85933a95ac973b",
+    "runtime/tests/lean-javascript.mjs": "5ac094c07e57a08738d70e704f1be9860e4d5c01f5fcefaae3e4de66360fa1ea",
+    "runtime/hosts/state-wasm-support.rs": "994220c13a5e182aa45d1bd661c95c5af3f7cddc5742f7fac2853d6f594780a1",
+    "runtime/hosts/backend-selection.mjs": "40d2d5f77967f3f4e96d2e3e0d83de6fcfc707d906ee70ebd01ab7cb38e90a87",
+    "runtime/hosts/ink-route.mjs": "73f28ce29eec94b5fb335f7aa3b18a21f1e91b411a856fea0c99ec3e62e2639d",
+    "runtime/hosts/ink-gpu.mjs": "52a93f09d0426a76f3aa0389b129c2f8bcd80ba4a8494fba4e43bd7d5fd89261",
+    "runtime/hosts/ink-compute.mjs": "6f08b0d61c161ef97b71e5a617237a712b63efa25265078f3a477a0954ead600",
+    "runtime/hosts/state-wasm.mjs": "69bd3528bcbf80b98d51f4720fe97f0569bcd7b7056735a82d15fefb6dc112e5",
+    "runtime/src/execution.rs": "afd551a15bd31754bf2b2e1e016fcbab4e3e77b45041bb485c438ddd8f722f24",
+    "runtime/src/lib.rs": "1bdee9d32c4c335ce1fdbe03596a7cc7bc3179642b6ad873e40707700d41750b",
+    "runtime/src/toolchain.rs": "1cc4a7e4faf48f225035dba76825abf3251c34df9c52261dd01ad78cd36e58dd",
+    "runtime/hosts/native/Cargo.toml": "2cab0d6914b7741d7dc079da146ae13eaab53138d2b068d9b93da1ad025a16cf",
+    "runtime/hosts/native/state-main.rs": "f1ae0b536aa79fa305755c3299211bafc5cf92139cf96e35d4ccd0c313ce75a3",
+    "runtime/hosts/native/scalar.rs": "afe5a3c6ff556ebbdd0483b2a305f9d6485cd404594c4a2330ea243736ab4071",
+    "runtime/hosts/native/Cargo.lock": "728a699c277b5b88bd2777371af738954802e9919d7945e996bf621e992ac558",
+    "runtime/hosts/native/build.rs": "c52450b31c8b1f3140d3bc6539823b8f87a8cc4758e08bb1c828bc1b3f98b17b",
+    "runtime/hosts/native/scalar-main.rs": "ef527c1cec8326ff0996f3e878f3984b223cdf19f0e4642d04cf3a8e469479bb",
+    "runtime/hosts/native/compute.rs": "0d7a453ee83c4ab4eb75e9d128840d63431672ad40c08ead7cf9f99fceb032c0",
+    "runtime/hosts/native/compute-main.rs": "30b0fa01871915d082405826ab2919e43fa70583a0fe8011cfe28c7855b58e32",
+    "lowerings/gpu/Cargo.toml": "3ce75a58db35e6dda3ab8342976356ea6e119baafcd9deba76529ebef6839fe4",
+    "lowerings/gpu/README.md": "099d35ad357fb0352444406706dbc911723ce19dd0214d84cf67357cca70e1dc",
+    "lowerings/gpu/.gitignore": "f628a2cb64b43f7980f3e6c9fdbf05d1b8381f2f5c087aa5eadd3aa0cbd19273",
+    "lowerings/js/Cargo.toml": "eebf41900daea43d987426a58953c2881ced99c0545bcdb994688731b4eb3249",
+    "lowerings/js/Cargo.lock": "59a721e5fb4caca5a2317f79f6a7de5d6db8c4a196448a306cc0d5e9778ecdfb",
+    "lowerings/js/README.md": "e8b6dafe92fb08b6953ca9cee66a271f2cebfeb722c4bd2a571474cffe14294b",
+    "lowerings/js/.gitignore": "306fd52e74fca6746e12acc750f232de15e71da917756a1270d74c91f5eb7368",
+    "lowerings/js/AGENTS.md": "ae570082dcabd93098f4da2750b10b89669358d083a8617ad00ccd7dd5bf89a6",
+    "lowerings/rust/Cargo.toml": "ba1ee47a927112e8d37d60c8572b581275b9ae4bd904ba1f0730bd48975080fa",
+    "lowerings/rust/README.md": "a0ba549eb1819bf1a82167e8d78e89160496acb9bd5592ddaf7a62ea7c6cfb5b",
+    "lowerings/rust/.gitignore": "07d64eb09a56c853b7853a47276799b38d7d6d25a4314b0c1abc10432c214e17",
+    "lowerings/wasm/Cargo.toml": "8bec3b5f7d1628294e87df8339dfb0db1a6523a362a0280160eefd8e7cffe05e",
+    "lowerings/wasm/README.md": "7157a327dc15b027c98b913d332e089a2ae2885af1a051c464ced20d33b91ecb",
+    "lowerings/wasm/.gitignore": "07d64eb09a56c853b7853a47276799b38d7d6d25a4314b0c1abc10432c214e17",
+    "lowerings/c/Cargo.toml": "6324359b7ed33200aad774462a07686e0037badae5ec5f807d8bc534c960e6a9",
+    "lowerings/c/README.md": "12164c6e64cadae1a706b33e11b9f2cbf4f1c2b84ce9128bfdc0b93e61471b8a",
+    "lowerings/c/.gitignore": "07d64eb09a56c853b7853a47276799b38d7d6d25a4314b0c1abc10432c214e17",
+    "lowerings/gpu/shaders/gpu-filter-scatter.wgsl": "06a50fa665a840e417acaeb747fb154bb2a5e9edb37e345b6f2251929137e391",
+    "lowerings/gpu/shaders/gpu-filter-offsets.wgsl": "576cb0498f1b6b4684dceedefe773e460dc121d2b6ea9af71553f8a90e9c2e83",
+    "lowerings/gpu/shaders/gpu-sum.wgsl": "52be23c14b27dfb888ff2e26281b34ece5cb1ba7ca83a784e6876c0d369e576b",
+    "lowerings/gpu/shaders/gpu-count.wgsl": "df4f41caf2ca6f27d91ac65dcdda1c5b8e8ac0b1867ea88f37b2afd02d0cead7",
+    "lowerings/gpu/devices/scalar.mjs": "0d063599856b54404cd8458d66c7c87406c938609874432a1f6da5d0ba414f81",
+    "lowerings/gpu/devices/scalar.rs": "6b3818ae061f242bf7087be0fc86fc30e318027c48aa709eef6d1d3dbc83ca36",
+    "lowerings/gpu/devices/compute.mjs": "45fa2a21cddc5bfdd7f9698d38ad48bf11aea03578826deec8a769b526a13441",
+    "lowerings/gpu/devices/compute.rs": "eb192d5784b7aebfc4fcb1f4b4ddd186dc2953e2a8d67ac27206e1c3ac91e181",
+    "lowerings/gpu/src/lib.rs": "957bc9bfd79dbb7a67ddb63379d2ff862e75b2dbe8c28300cc49ad3671c933ff",
+    "lowerings/gpu/src/compute.rs": "42d8820513c641cbbaf515532e35602855b343972efb5c0fddfa03937992a796",
+    "lowerings/gpu/src/gpu.rs": "21dd3421ee0f7dc290c97cfe1d808e49ed8acf5b36ff3cf674bd4b6f3c8db5ae",
+    "lowerings/js/tests/differential.rs": "bc3e1135c7fd9d7f8833d3329bdf86c9e3208bfb492f1b981aacab97cdb30e06",
+    "lowerings/js/examples/particles.ink": "0fa822275f98b256267fc610fe8d0c5a073dd7b11ce6c60abee4178cf6a06679",
+    "lowerings/js/src/lib.rs": "51dc7f94d6c72cfda50547e45e6579e92653c6f24b032ebbb335dbbc42b5eb2d",
+    "lowerings/js/src/values.mjs": "96e47dea73857cf10f9b43978133886b5da909c5ad0ae0c2bf74e83e7c63ba6d",
+    "lowerings/rust/src/ordered_storage.rs": "431a93504908174539c1a3e0a44f53aa508f8ed75f80473f0577f1c8d64df5ef",
+    "lowerings/rust/src/pure_rust.rs": "73479ea1bdc130a63cdb906d6c0757ef29b374aac9e5a5772553c3ba62f8b7b0",
+    "lowerings/rust/src/lib.rs": "3d5b39eeafb7a6c04da20652e38ca2dc996817e7e1c9f9f1c7c111fbb015e6a3",
+    "lowerings/rust/src/definition_native.rs": "c195781bb84dd8748b59fdcfaffccba1af31cc8fc7ac56d6a5b1a6e870b82c4f",
+    "lowerings/rust/src/machine_native.rs": "596a373beabd6bea36044947dd7f9446a1c01f2f7f9306d262be8af79ff311a9",
+    "lowerings/rust/src/ownership.rs": "fba156a84e986c538af264b0205905f108aeb3d1afb4e1220266b0779a10a4da",
+    "lowerings/rust/src/definition_value.rs.txt": "09ca1d7b4d71f64c88c86354ac35e619e5bb13e74cf2da686bbdcdf0e106a6d8",
+    "lowerings/rust/src/state_native.rs": "da4729905347594ac35da75200efac3976ffdcfb96990f33a9b4bd57c5042f8a",
+    "lowerings/rust/src/state_native_support.txt": "35140e5f009379e59edbb89451fc8eb965e6030c9559725e7f0678b64ae5d489",
+    "lowerings/rust/src/main.rs": "4ccb4704a7e418de09e98e9b047238ba971befbc8ff4b1050163bc23f715d180",
+    "lowerings/rust/src/snapshot_code.rs": "9f113f5e3f7bee0b733f9ad71532443704f470211c8330158b678b75e26610d6",
+    "lowerings/wasm/src/lib.rs": "5712f97baf9d8c898792e7b254f44fcfb1d97f46f0782a593c33daaefe7d48e5",
+    "lowerings/c/runtime/compute-alloc.c": "a5fc8eff03b5ec5949c71e75f6e35bb91ee8b3a652e6e9490f8f3d09bfca0326",
+    "lowerings/c/src/native.rs": "3fc962994589e799b465eda9499220f8f254a96d496e17b7b027b999ba68d991",
+    "lowerings/c/src/lib.rs": "1ce541a9068fdefa6b7ad2d11648642cacee684e28a068fc61954556d2f7df02",
+    "lowerings/c/src/compute.rs": "e2146f2e7d003e5601d5414de6b93d49f74460c3e0426d2cdf7b73f19ec8c443",
+    "lowerings/c/src/main.rs": "bf38ba2f5ddafcc15b5d160df9540350134f8a102ab566fe0045b94a9854c294",
+    "lowerings/c/src/pure_alloc.c": "18a1dfd01f360340e845b6d6fa94ba9e9e393e9b07b96807f99df884178e9fd9",
+    "knowledge/ink_knowledge/store.py": "a7ae797bec619461502b2770e56cab8809d8314ea867307afe2d3b2cd8407124",
+    "knowledge/ink_knowledge/__init__.py": "02a8625d12b45c6712eafa82daf7912c6cb21dfcdbd7b5bcbd1fbd4cdfe45fcf",
+    "knowledge/ink_knowledge/index.sql": "4125f55221170d53566ca64d6a8dd63b06d2fb69d9559987dee5270bfd68a708",
+    "knowledge/ink_knowledge/__main__.py": "2eeeb4e06c384c2aa358b68c392c61265e6438a56468f176ab01afcb9aa85b8a"
+  },
+  "artifact_hashes": {
+    "before-selection.json": "48e4dea0295925401ec7c68bc5c902b897ea9fc2f1690ca11d1c2498ee66aa99",
+    "matched.mjs": "c4f350b723ddc7f98ca9c269ddb225a334f08ff83408c3f8e48a57c3613ae906",
+    "browser.html": "ce3fb3d2caf1bff8e7dd87c136d8f760201d716fe0d0ea66d6eb63b45ef9528c",
+    "node.mjs": "61733fa6cad7a9057f105b1dc849e576fdba24a31ad20b76ed898667bd38754d",
+    "matched.rs": "bcc3accaef49c14065ec7186ad4caf357c5dd1ac5aea94dc975d2484ca59c5e0",
+    "rust-literal.wasm": "97f6accbbcf115fbb151e6c0835f69eeb76a078d143f20d1e4241afe0e8ea2f1",
+    "kernels.ink": "6a58a1fd06ef591aa19a1500f33040930bbb099ba8b5da50230e7ef46894baf0",
+    "literal.rs": "fa0915f6b43e268c3ef624a9d5a3e169bad4b17d2e49f482512c6cf9204ebe80",
+    "rust.wasm": "7c5f19d43bca1293c07ea0dca8f5d53393eee590718fb56f2cf3ed5e64754d55",
+    "before-metadata.json": "beee289e075b225b8125d448218ad465b1fb89d0928aea870b7dbbd20bc1d43c",
+    "runner.mjs": "50ee3ddfb09f9c6b8f9a3c4c8da1f01174386dd16aee155ec7051948b2827c56",
+    "selection-check.json": "aee76934a48f471559d05e80f39ce04a63b31a4a2a0ba83323579d63bf2325d4",
+    "core.json": "9f04792e543711b071e2c38634a36becb2ed76fe93f4c9fbaf404450f8e4bae8",
+    "literal-typed.mjs": "c7707a5134d6e4700a1ce8120a4d956f489bed401ba3739fecc3c744dc8b5789",
+    "selection.json": "48e4dea0295925401ec7c68bc5c902b897ea9fc2f1690ca11d1c2498ee66aa99",
+    "literal.mjs": "2cf74cdd5de0e92bcd30d34ade22d1bc5ad6ed2ed3e41ddc9d79e948a7c2bf21",
+    "fixtures.json": "1dd9d0e837a92a0ed72ff821acd9c680565bba7781029818d14b8e33d0b0a21b",
+    "before-baseline/plan.json": "1a2b366f717ab8d85a2a14e66fea0bc831d68447acc4102efbded59354fe40ed",
+    "before-baseline/cpu.c": "a3ed21c0acf0688c8ae702b87331ad8527ac1b5403de213f75cb21ffa3b38b52",
+    "before-baseline/ink-device.mjs": "45fa2a21cddc5bfdd7f9698d38ad48bf11aea03578826deec8a769b526a13441",
+    "before-baseline/program.mjs": "cd24a8e0194ed18ea3413288543817f97ce2ea89f10b89dfe2bc6d7168339ec7",
+    "before-baseline/backend-selection.mjs": "40d2d5f77967f3f4e96d2e3e0d83de6fcfc707d906ee70ebd01ab7cb38e90a87",
+    "before-baseline/cpu.wasm": "70b8b71acc93be291177be1bc3616307f2e6b844a7a9792348bfa2805b043e08",
+    "before-baseline/manifest.json": "328a45dda1d7b77810b65100627ef5791f0ffb640a020f3425b3c3fc9cbac499",
+    "before-baseline/ink-gpu.mjs": "5777977d9b88667dde2ab4dc382ab6930c84165bc6654919d60991cff3e88954",
+    "before-checked/plan.json": "e70de73c8f112260bf18e0f9d10065bfae7ee9f9814682efb2b443e3df22a51c",
+    "before-checked/cpu.c": "d39cab04b7ea04defffaf8c0575be77dd8c7f1fafcfef18bf8e5bdf8a72339a8",
+    "before-checked/ink-device.mjs": "45fa2a21cddc5bfdd7f9698d38ad48bf11aea03578826deec8a769b526a13441",
+    "before-checked/program.mjs": "fe3c4efd95c7b623a1a62dfe9f0026a488c4347c4501e4e185b1941d88620896",
+    "before-checked/backend-selection.mjs": "40d2d5f77967f3f4e96d2e3e0d83de6fcfc707d906ee70ebd01ab7cb38e90a87",
+    "before-checked/cpu.wasm": "a6b431e29fd0cceea2c11c88e59a8d8b919656937240fcfcd5aa150b751b04c2",
+    "before-checked/manifest.json": "10176f89f364fc0bc5231b684b037e4cddb059b08036116ad2a6570a7df641eb",
+    "before-checked/ink-gpu.mjs": "5777977d9b88667dde2ab4dc382ab6930c84165bc6654919d60991cff3e88954",
+    "baseline/plan.json": "ee5320f0dbd388e827a511f084045875ce40e082e8dfc77d798eb62d197e6f9e",
+    "baseline/cpu.c": "9fddcee007fa942db0ef4620b69f4cae22bf0cf41b331be04263433b673dfaaa",
+    "baseline/ink-device.mjs": "45fa2a21cddc5bfdd7f9698d38ad48bf11aea03578826deec8a769b526a13441",
+    "baseline/program.mjs": "6d29dcd1660701b4a50631896db82d5ff93a5c65351c2759b06dec6ae7edfc52",
+    "baseline/backend-selection.mjs": "40d2d5f77967f3f4e96d2e3e0d83de6fcfc707d906ee70ebd01ab7cb38e90a87",
+    "baseline/cpu.wasm": "0d78b568b872be21f6099a1b27f7b987c6b66c996c0cb3193a2d46f6ab2ed7ea",
+    "baseline/manifest.json": "60a887447a3449d965ea95b7f19ab9d0d1cca08594b018362978f4e17cd8a4c8",
+    "baseline/ink-gpu.mjs": "776404b861e4fac42d37848191a996df909fa701497ca89250cc18ee421274d9",
+    "checked/plan.json": "0dce7f590e2b51549a58cb7067304179004479f8f12a3fcdd77440b84aab4848",
+    "checked/cpu.c": "0e4db6cbede3a3f98f318e2547470a5e8e79452212cead8711649c9976baac35",
+    "checked/ink-device.mjs": "45fa2a21cddc5bfdd7f9698d38ad48bf11aea03578826deec8a769b526a13441",
+    "checked/program.mjs": "6725f49d179e8dc16328560816a37be10d476573ba18d843bda9ea0c8c66bb81",
+    "checked/backend-selection.mjs": "40d2d5f77967f3f4e96d2e3e0d83de6fcfc707d906ee70ebd01ab7cb38e90a87",
+    "checked/cpu.wasm": "f13ea7db8cc4aa1ed08c9dbddfa57feca5c0b578f0d1f9fe1ed7c52f5d599929",
+    "checked/manifest.json": "fa0d9632a6f3506398ce64f106b0783ec233dc50841c90c9ee2d0e59badfa92a",
+    "checked/ink-gpu.mjs": "776404b861e4fac42d37848191a996df909fa701497ca89250cc18ee421274d9",
+    "baseline/native/Cargo.toml": "2cab0d6914b7741d7dc079da146ae13eaab53138d2b068d9b93da1ad025a16cf",
+    "baseline/native/cpu.c": "9fddcee007fa942db0ef4620b69f4cae22bf0cf41b331be04263433b673dfaaa",
+    "baseline/native/Cargo.lock": "728a699c277b5b88bd2777371af738954802e9919d7945e996bf621e992ac558",
+    "baseline/native/build.rs": "c52450b31c8b1f3140d3bc6539823b8f87a8cc4758e08bb1c828bc1b3f98b17b",
+    "baseline/native/src/device.rs": "eb192d5784b7aebfc4fcb1f4b4ddd186dc2953e2a8d67ac27206e1c3ac91e181",
+    "baseline/native/src/lib.rs": "0d7a453ee83c4ab4eb75e9d128840d63431672ad40c08ead7cf9f99fceb032c0",
+    "baseline/native/src/main.rs": "30b0fa01871915d082405826ab2919e43fa70583a0fe8011cfe28c7855b58e32",
+    "baseline/native/src/assets.rs": "f573bd50bfa77c9688ce68f9bf5bc620b2521770aa5b7abb0538ffbcb18678aa",
+    "checked/native/Cargo.toml": "2cab0d6914b7741d7dc079da146ae13eaab53138d2b068d9b93da1ad025a16cf",
+    "checked/native/cpu.c": "0e4db6cbede3a3f98f318e2547470a5e8e79452212cead8711649c9976baac35",
+    "checked/native/Cargo.lock": "728a699c277b5b88bd2777371af738954802e9919d7945e996bf621e992ac558",
+    "checked/native/build.rs": "c52450b31c8b1f3140d3bc6539823b8f87a8cc4758e08bb1c828bc1b3f98b17b",
+    "checked/native/src/device.rs": "eb192d5784b7aebfc4fcb1f4b4ddd186dc2953e2a8d67ac27206e1c3ac91e181",
+    "checked/native/src/lib.rs": "0d7a453ee83c4ab4eb75e9d128840d63431672ad40c08ead7cf9f99fceb032c0",
+    "checked/native/src/main.rs": "30b0fa01871915d082405826ab2919e43fa70583a0fe8011cfe28c7855b58e32",
+    "checked/native/src/assets.rs": "1c0a4f852ffaec32958f62e4af62d4ca8f2058ac3492e8d28b9177ea84986026"
+  },
+  "comparison_controls": {
+    "js_literal": {
+      "source": "literal.mjs",
+      "source_sha256": "2cf74cdd5de0e92bcd30d34ade22d1bc5ad6ed2ed3e41ddc9d79e948a7c2bf21",
+      "algorithm": "original source; materialised Array stages; ordinary JavaScript JIT"
+    },
+    "js_literal_typed": {
+      "source": "literal-typed.mjs",
+      "source_sha256": "c7707a5134d6e4700a1ce8120a4d956f489bed401ba3739fecc3c744dc8b5789",
+      "algorithm": "original source; materialised Uint32Array map/filter stages; ordinary JavaScript JIT"
+    },
+    "rust_literal_wasm": {
+      "source": "literal.rs",
+      "source_sha256": "fa0915f6b43e268c3ef624a9d5a3e169bad4b17d2e49f482512c6cf9204ebe80",
+      "artifact": "rust-literal.wasm",
+      "artifact_sha256": "97f6accbbcf115fbb151e6c0835f69eeb76a078d143f20d1e4241afe0e8ea2f1",
+      "algorithm": "original source; materialised Vec stages; ordinary rustc release optimisation"
+    },
+    "js_matched": {
+      "source": "matched.mjs",
+      "source_sha256": "c4f350b723ddc7f98ca9c269ddb225a334f08ff83408c3f8e48a57c3613ae906",
+      "algorithm": "handwritten checked algebraic shortcuts"
+    },
+    "rust_matched_wasm": {
+      "source": "matched.rs",
+      "source_sha256": "bcc3accaef49c14065ec7186ad4caf357c5dd1ac5aea94dc975d2484ca59c5e0",
+      "artifact": "rust.wasm",
+      "artifact_sha256": "7c5f19d43bca1293c07ea0dca8f5d53393eee590718fb56f2cf3ed5e64754d55",
+      "algorithm": "handwritten checked algebraic shortcuts"
+    }
+  },
+  "parameters": {
+    "report": "reports/lean-web-output-2026-10-10",
+    "cases": [
+      "repeat_subtract",
+      "repeat_product",
+      "scaled_sum",
+      "zero_sum",
+      "mapped_count",
+      "true_filter_sum",
+      "false_filter_count",
+      "fused_filter"
+    ],
+    "compiler": "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/target/release/ink",
+    "knowledge": "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/knowledge/research/performance-laws",
+    "before_report": "reports/proof-database-original-algorithms-2026-10-10",
+    "direct_program": true,
+    "zig": "../toolchain/zig-aarch64-macos-0.15.2/zig",
+    "repeats": 7,
+    "warmup": 1,
+    "seconds": 0.015,
+    "seed": 20261010,
+    "sizes": [
+      32,
+      4096,
+      65536
+    ],
+    "port": 8765,
+    "prepare": true,
+    "node": false,
+    "validate": false,
+    "costs": false,
+    "serve": false,
+    "summarise": null
+  },
+  "scope": "Warm complete calls over resident typed U32 input. Every implementation captures input once: old Ink inside its runtime, trusted native JS and handwritten controls in the common driver, CPU/GPU in their transport. Wasm copies, result conversion, common checksum consumption and backend checks are timed. Direct compiled JS is separate from complete runtime calls. Original-source JS/Rust controls retain loops and materialised stages; matched controls use checked shortcuts. Normal JIT/release optimisation is enabled. Startup and shader preparation are separate. Wasm memory is exported linear-memory highwater, excluding JS/GPU/RSS.",
+  "before_compiler_sha256": "8f607b70d5a5d2d6c7828cb6d075fc5a90721c5cf555f82deae671540a0121b8",
+  "before_selection_sha256": "48e4dea0295925401ec7c68bc5c902b897ea9fc2f1690ca11d1c2498ee66aa99",
+  "output_bytes": {
+    "baseline": {
+      "program.mjs": 3761,
+      "cpu.wasm": 22509,
+      "ink-gpu.mjs": 15636
+    },
+    "checked": {
+      "program.mjs": 3176,
+      "cpu.wasm": 13053,
+      "ink-gpu.mjs": 15636
+    },
+    "before-baseline": {
+      "program.mjs": 8272,
+      "cpu.wasm": 30184,
+      "ink-gpu.mjs": 14242
+    },
+    "before-checked": {
+      "program.mjs": 7920,
+      "cpu.wasm": 21106,
+      "ink-gpu.mjs": 14242
+    }
+  }
+}

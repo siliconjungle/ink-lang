@@ -1,0 +1,868 @@
+{
+  "status": "prepared",
+  "engine_scope": "DB-only: exact one frozen compiler, no backend-source changes or compiler rebuild",
+  "selection_policy": "Same automatic structural/cost-model policy for fair prior/private union; every candidate/final app ordinarychecked. All four candidates are exposed to the same ordinary planner; unchanged cost-rejected candidates remain controls.",
+  "compiler": "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/reports/web-stack-proofs-32-2026-10-11/main-integration/ink-main-publish",
+  "compiler_sha256": "04f42856696cbc9a4d5b0523e4a2c5d9d84ae28e0e039f0fd9c305fe2d0a5536",
+  "planner_sha256": "349f437c5350e5ee122e2c023ac66895dbc65ead36e058952d55e7a9efd17832",
+  "context_prefilter_sha256": "7f0239b6413cca187c769865850a2c79b6d62ceb78bdc9bed3269bfb8026cbb5",
+  "selection_helper_sha256": "ae25509c23eabfbcb052c0d95fb4d7232f4efb92009e5450df98bc5e60808e3b",
+  "cost_model_sha256": "5d1158860dba2b72ab6e632c4eceac76c9589de81a687d446f25044fe88481be",
+  "producer_sha256": "0c426cfdbd0086e9c9494a9a07b6142f8aea8adf5d87f4f7edd1a3f39c69e143",
+  "prior_catalogue_scope": "Exact full canonical batch33 2485-object prior; unchanged automatic planner/costmodel, no exact candidate isolation",
+  "prior_snapshot": "3c78ba2b4059c318afafca2f087c774139c00dc666288c207598b7c91abb2957",
+  "new_snapshot": "7cf9b7ec48a8edd25b05951b8e424ea26444467fc176257aa34ac5a8e40aa644",
+  "selections": {
+    "pipeline34_left_projection_u32": {
+      "prior": {
+        "selection_path": "targets/pipeline34_left_projection_u32/prior.selection.json",
+        "selected_core_path": "targets/pipeline34_left_projection_u32/prior.core.json",
+        "selection_sha256": "fdac534f178649806b7bbcdd12c5a0cacb6a28e7925d7af6feeac41c9ef38329",
+        "core_sha256": "408b11473eb3a689045492a4214296bb23a367bdb7c62bd6a7b7117a2c225ce3",
+        "laws": [],
+        "applications": 0,
+        "receipt_sha256": "1e80b5799aefef0bd05bcdaea1fb2ba1c6524142e36ed3b0efd2bcbee6a99014",
+        "gpu": {
+          "eligible": true,
+          "fallback_reason": null,
+          "graph_stages": 2,
+          "graph_required": false,
+          "nodes": [
+            {
+              "op": "map",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0
+                ],
+                "kind": "same"
+              }
+            },
+            {
+              "op": "zip",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0,
+                  1
+                ],
+                "kind": "min"
+              }
+            }
+          ]
+        }
+      },
+      "checked": {
+        "selection_path": "targets/pipeline34_left_projection_u32/checked.selection.json",
+        "selected_core_path": "targets/pipeline34_left_projection_u32/checked.core.json",
+        "selection_sha256": "01c2d45aa375c52e2d909016c22f45db7b5f06b7c3bccac6286763be1aabd33a",
+        "core_sha256": "68666a018a311d23b4544e7cb58a9b3dec99f54eeb214b4cfd8abf8b9ca2c2b3",
+        "laws": [
+          "0717834507695e99983171cf38c5ef32fedb70e2df754c913febf7bf2684fdfb"
+        ],
+        "applications": 1,
+        "receipt_sha256": "5dcd792c16e4dfa2aebcd87a6ea44cb49d9a1f0708409e953bbdecdd35754e8f",
+        "gpu": {
+          "eligible": true,
+          "fallback_reason": null,
+          "graph_stages": 1,
+          "graph_required": false,
+          "nodes": [
+            {
+              "op": "zip",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0,
+                  1
+                ],
+                "kind": "min"
+              }
+            }
+          ]
+        }
+      },
+      "input_core_sha256": "408b11473eb3a689045492a4214296bb23a367bdb7c62bd6a7b7117a2c225ce3",
+      "literal_core_file_sha256": "408b11473eb3a689045492a4214296bb23a367bdb7c62bd6a7b7117a2c225ce3",
+      "source_sha256": "25a68e37dda0a8307dd3ee7cae0a175859d6e103c752d7a008739346915ec5cb",
+      "fresh_laws": [
+        "0717834507695e99983171cf38c5ef32fedb70e2df754c913febf7bf2684fdfb"
+      ],
+      "prior_equals_literal": true,
+      "checked_changes_prior": true,
+      "fresh_proof_required": true,
+      "literal": {
+        "core_sha256": "408b11473eb3a689045492a4214296bb23a367bdb7c62bd6a7b7117a2c225ce3",
+        "gpu": {
+          "eligible": true,
+          "fallback_reason": null,
+          "graph_stages": 2,
+          "graph_required": false,
+          "nodes": [
+            {
+              "op": "map",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0
+                ],
+                "kind": "same"
+              }
+            },
+            {
+              "op": "zip",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0,
+                  1
+                ],
+                "kind": "min"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "pipeline34_right_projection_u32": {
+      "prior": {
+        "selection_path": "targets/pipeline34_right_projection_u32/prior.selection.json",
+        "selected_core_path": "targets/pipeline34_right_projection_u32/prior.core.json",
+        "selection_sha256": "4586ee3162c849aac3847337fdf5d067efb5ce67df5c7f4d6fd81f5f7c6d97d6",
+        "core_sha256": "81404d295c13e9c2cc73190b56179ae1f2a1b9afa5fa90377b94572035738cfc",
+        "laws": [],
+        "applications": 0,
+        "receipt_sha256": "4ff62aae298e52c4e3d318367d504af410b6f3c4353ebb66d2564b22d08de8d3",
+        "gpu": {
+          "eligible": true,
+          "fallback_reason": null,
+          "graph_stages": 2,
+          "graph_required": false,
+          "nodes": [
+            {
+              "op": "map",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0
+                ],
+                "kind": "same"
+              }
+            },
+            {
+              "op": "zip",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0,
+                  1
+                ],
+                "kind": "min"
+              }
+            }
+          ]
+        }
+      },
+      "checked": {
+        "selection_path": "targets/pipeline34_right_projection_u32/checked.selection.json",
+        "selected_core_path": "targets/pipeline34_right_projection_u32/checked.core.json",
+        "selection_sha256": "bc8618d2ffda3e16571ee657b1fb5c3d80e8e4998d9da9ba8b74826d7baa06e1",
+        "core_sha256": "6cc861bbc5a2999377c29f563866af1075ec84e0a4cb14e529987f6e575c159a",
+        "laws": [
+          "9a633a280ec609ec4bdb984e6883d1e7f75e1b51a3363b7c310e9fe2113a1afe"
+        ],
+        "applications": 1,
+        "receipt_sha256": "da7c246706ac2749f9840b65c3f40db8f9e4f9737fa7bfc6a5159e2b207f823a",
+        "gpu": {
+          "eligible": true,
+          "fallback_reason": null,
+          "graph_stages": 1,
+          "graph_required": false,
+          "nodes": [
+            {
+              "op": "zip",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0,
+                  1
+                ],
+                "kind": "min"
+              }
+            }
+          ]
+        }
+      },
+      "input_core_sha256": "81404d295c13e9c2cc73190b56179ae1f2a1b9afa5fa90377b94572035738cfc",
+      "literal_core_file_sha256": "81404d295c13e9c2cc73190b56179ae1f2a1b9afa5fa90377b94572035738cfc",
+      "source_sha256": "5083c23dd37a4c77efc94ac983db69c1edc1c926d84cb0d5c62c98c401344973",
+      "fresh_laws": [
+        "9a633a280ec609ec4bdb984e6883d1e7f75e1b51a3363b7c310e9fe2113a1afe"
+      ],
+      "prior_equals_literal": true,
+      "checked_changes_prior": true,
+      "fresh_proof_required": true,
+      "literal": {
+        "core_sha256": "81404d295c13e9c2cc73190b56179ae1f2a1b9afa5fa90377b94572035738cfc",
+        "gpu": {
+          "eligible": true,
+          "fallback_reason": null,
+          "graph_stages": 2,
+          "graph_required": false,
+          "nodes": [
+            {
+              "op": "map",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0
+                ],
+                "kind": "same"
+              }
+            },
+            {
+              "op": "zip",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0,
+                  1
+                ],
+                "kind": "min"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "pipeline33_left_projection_heldout_u32": {
+      "prior": {
+        "selection_path": "targets/pipeline33_left_projection_heldout_u32/prior.selection.json",
+        "selected_core_path": "targets/pipeline33_left_projection_heldout_u32/prior.core.json",
+        "selection_sha256": "c6015285cfb9ee186c2809601a9580b2567c9866f72ecc4ddcb2cfb287776323",
+        "core_sha256": "dff705bf1fe8606168e497ae1a9eda435a7ec981bd5a527124214b40538b9330",
+        "laws": [
+          "681ebbedc117b1d92e3b19238c45de1737b9f8bddc9916fb59d3b29dae7f0003"
+        ],
+        "applications": 1,
+        "receipt_sha256": "6bf9ff98822c2e216dac7e7e1ebed6f8a16629164a9a5b8a03b82168f8708c9d",
+        "gpu": {
+          "eligible": true,
+          "fallback_reason": null,
+          "graph_stages": 2,
+          "graph_required": false,
+          "nodes": [
+            {
+              "op": "map",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0
+                ],
+                "kind": "same"
+              }
+            },
+            {
+              "op": "zip",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0,
+                  1
+                ],
+                "kind": "min"
+              }
+            }
+          ]
+        }
+      },
+      "checked": {
+        "selection_path": "targets/pipeline33_left_projection_heldout_u32/checked.selection.json",
+        "selected_core_path": "targets/pipeline33_left_projection_heldout_u32/checked.core.json",
+        "selection_sha256": "5933e8f539e19752a85ca0ffbd2601a3da90e64ffec45b6f92af014b66c571f6",
+        "core_sha256": "906efce6f7291928ee2478862cd46e382026ac364767727878fcf1d478883140",
+        "laws": [
+          "b6e143eb86860fe90f76ea88dffb66d4bbca6dd95c3a2996f65a855b3a828e86"
+        ],
+        "applications": 1,
+        "receipt_sha256": "727064929e2ae8a99a8a0d77017a0716d2a9d8d4d6e9f5d7f770a7f28e518288",
+        "gpu": {
+          "eligible": true,
+          "fallback_reason": null,
+          "graph_stages": 1,
+          "graph_required": false,
+          "nodes": [
+            {
+              "op": "zip",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0,
+                  1
+                ],
+                "kind": "min"
+              }
+            }
+          ]
+        }
+      },
+      "input_core_sha256": "caad42d6f303a22ba67b2193a289be38f87076e800c41d4c4b9fb6eccf6773cc",
+      "literal_core_file_sha256": "caad42d6f303a22ba67b2193a289be38f87076e800c41d4c4b9fb6eccf6773cc",
+      "source_sha256": "a01ef988ab9d84408feda33f381848b163ea660fa7a2947f6b3c22b9e2d76372",
+      "fresh_laws": [
+        "b6e143eb86860fe90f76ea88dffb66d4bbca6dd95c3a2996f65a855b3a828e86"
+      ],
+      "prior_equals_literal": false,
+      "checked_changes_prior": true,
+      "fresh_proof_required": true,
+      "literal": {
+        "core_sha256": "caad42d6f303a22ba67b2193a289be38f87076e800c41d4c4b9fb6eccf6773cc",
+        "gpu": {
+          "eligible": true,
+          "fallback_reason": null,
+          "graph_stages": 4,
+          "graph_required": true,
+          "nodes": [
+            {
+              "op": "map",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0
+                ],
+                "kind": "same"
+              }
+            },
+            {
+              "op": "scan",
+              "ordered": true,
+              "capacity": {
+                "args": [
+                  0
+                ],
+                "kind": "same"
+              }
+            },
+            {
+              "op": "scan",
+              "ordered": true,
+              "capacity": {
+                "args": [
+                  0
+                ],
+                "kind": "same"
+              }
+            },
+            {
+              "op": "zip",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0,
+                  1
+                ],
+                "kind": "min"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "pipeline33_right_projection_heldout_u32": {
+      "prior": {
+        "selection_path": "targets/pipeline33_right_projection_heldout_u32/prior.selection.json",
+        "selected_core_path": "targets/pipeline33_right_projection_heldout_u32/prior.core.json",
+        "selection_sha256": "7b21a0ce40244427378135f18e9c00d84e7428a6bbf86e0b93b60eeae1e5a322",
+        "core_sha256": "7e3e71b7631308baab0cd63ae8786662ab57ef1bad9e3c3adb850fff30786560",
+        "laws": [
+          "f1017646daada0e82e8a75325144542634fec21a648707f259f12e256045ab3d"
+        ],
+        "applications": 1,
+        "receipt_sha256": "7b7f553aea27e0ad7e21d7583fb7032d6bf4f0ef861bd4ca2585a18b591ce4a5",
+        "gpu": {
+          "eligible": true,
+          "fallback_reason": null,
+          "graph_stages": 2,
+          "graph_required": false,
+          "nodes": [
+            {
+              "op": "map",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0
+                ],
+                "kind": "same"
+              }
+            },
+            {
+              "op": "zip",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0,
+                  1
+                ],
+                "kind": "min"
+              }
+            }
+          ]
+        }
+      },
+      "checked": {
+        "selection_path": "targets/pipeline33_right_projection_heldout_u32/checked.selection.json",
+        "selected_core_path": "targets/pipeline33_right_projection_heldout_u32/checked.core.json",
+        "selection_sha256": "7e70cb061fddcbb8836e08ed7f20f1dba7d4ed023d629c43e25f2a0c2910ae88",
+        "core_sha256": "72a5869928cc1cde3d1880eb742b913cb2bf470dcdb575c6e41d0146f142c41a",
+        "laws": [
+          "91a90c557836bcd844f2eb56412cc256f536c150ef6ae04b0fba1ea07bd96430"
+        ],
+        "applications": 1,
+        "receipt_sha256": "c9286c68d6ec8ec2d0c7fd3fa8b0865b7f7c1b424bac50b31de04927a1937525",
+        "gpu": {
+          "eligible": true,
+          "fallback_reason": null,
+          "graph_stages": 1,
+          "graph_required": false,
+          "nodes": [
+            {
+              "op": "zip",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0,
+                  1
+                ],
+                "kind": "min"
+              }
+            }
+          ]
+        }
+      },
+      "input_core_sha256": "0b8def094952e643bd70875c62b8ea2ed6f7ad877aa0d21e1d2af2d133050589",
+      "literal_core_file_sha256": "0b8def094952e643bd70875c62b8ea2ed6f7ad877aa0d21e1d2af2d133050589",
+      "source_sha256": "b3361955ada625898979ddfc3c871b297862f25510029de11af96ef6f7441a39",
+      "fresh_laws": [
+        "91a90c557836bcd844f2eb56412cc256f536c150ef6ae04b0fba1ea07bd96430"
+      ],
+      "prior_equals_literal": false,
+      "checked_changes_prior": true,
+      "fresh_proof_required": true,
+      "literal": {
+        "core_sha256": "0b8def094952e643bd70875c62b8ea2ed6f7ad877aa0d21e1d2af2d133050589",
+        "gpu": {
+          "eligible": true,
+          "fallback_reason": null,
+          "graph_stages": 4,
+          "graph_required": true,
+          "nodes": [
+            {
+              "op": "map",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0
+                ],
+                "kind": "same"
+              }
+            },
+            {
+              "op": "scan",
+              "ordered": true,
+              "capacity": {
+                "args": [
+                  0
+                ],
+                "kind": "same"
+              }
+            },
+            {
+              "op": "scan",
+              "ordered": true,
+              "capacity": {
+                "args": [
+                  0
+                ],
+                "kind": "same"
+              }
+            },
+            {
+              "op": "zip",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0,
+                  1
+                ],
+                "kind": "min"
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  "protocol": {
+    "rounds": 9,
+    "warmups": 2,
+    "target_ms": 8,
+    "max_iterations": 65536,
+    "seed": 2026113401,
+    "sizes": [
+      32,
+      4096,
+      65536
+    ],
+    "cohorts": [
+      "low",
+      "high"
+    ],
+    "boundaries": {
+      "captured-js-owned": "synchronous bound functions, identical typed-input copies and target-owned outputs",
+      "captured-wasm-owned": "runtime CPU capture/packing/scheduling/owned unpack",
+      "resident-wasm-destination": "dedicated instance, capture setup excluded; packed output borrowed until next run",
+      "instrumented-full-gpu-request": "runtime capture/upload/stage dispatch/readback/unpack; per-call device-counter instrumentation inside timer; fallback separately labeled"
+    },
+    "consumption": "length/first/last inside timer; full result checks outside timer",
+    "selection": "same frozen engine/model; ordinary checked automatic planner; models are untrusted compile-time hypotheses"
+  },
+  "harness_sha256": "32729d4217f1eea8f095b458d3eeeebf86a49159231b53178d364220badd4311",
+  "control_scope": "Strong direct one-pass controls already remove all discarded producer work; resident destinations are separate borrowed lifetime cohort.",
+  "commands_sha256": "5f0c58d4982ec24e1b597af7dd4eed6e1805e2522bfa1cd80fddb344bc33f329",
+  "bindings": {
+    "README.md": "f8169ff725e5ff884fa58fa390418b876a258f2c5df39f28937eb158cd55f978",
+    "browser.html": "e2ba716f83b6b0629609826f8e4dfee13fcd6ed26b355ff63fab7ad87fc980d7",
+    "commands.json": "5f0c58d4982ec24e1b597af7dd4eed6e1805e2522bfa1cd80fddb344bc33f329",
+    "control-validation.mjs": "89773248b933d37274db9d264ea6b784f06719c08dba62a65b9e47e04f6c0f24",
+    "cost-model.json": "5d1158860dba2b72ab6e632c4eceac76c9589de81a687d446f25044fe88481be",
+    "expert.mjs": "4000c96810510e48cc50f95c91f5cc4bf4fcb3b7f7ba3fd2ba3830408ca86adc",
+    "expert.rs": "c9bc103fd16290cbc36ac3bc4475538c47d73c88dfca0d137d32347117cf2880",
+    "fixtures.json": "b99fd2155b6fb434b0da4786335dcd6bf5057eabbf312c6428b1329d3250ce9b",
+    "harness.py": "32729d4217f1eea8f095b458d3eeeebf86a49159231b53178d364220badd4311",
+    "native-audit.py": "98b66f840df441a44aec84919d696cbcbee44e6940756f234275b4ee290d6e0f",
+    "native.py": "372d0cb2763f1682e10ee8a9f22016aa4229afeab8b6c826bf2a16cf559b2b70",
+    "run-node.mjs": "08b759a888eac8928a13b08b974736197ec16ebe4aad04bb11ed90b8b6bd38e7",
+    "runner.mjs": "d3da952f74729697de23666ff972f715cd6a29ed44c9ab6f9611df5e3aae5e9b",
+    "rust-expert.wasm": "62fc937bd80fceb38cace909925cc2159fb123d975c9c8a5a35cc5d57b2f0f9c",
+    "spec.json": "4c55d564bb500822162445ebbe0d396be8b644bc83c9215804d8072e3bf5431e",
+    "spec.py": "94dc8a2e6bdbea139bdc7ffd35df87542cbfcda384fbe40a8a0f5ab52d844f65",
+    "targets/pipeline33_left_projection_heldout_u32/checked/backend-selection.mjs": "40d2d5f77967f3f4e96d2e3e0d83de6fcfc707d906ee70ebd01ab7cb38e90a87",
+    "targets/pipeline33_left_projection_heldout_u32/checked/compute-0.wgsl": "07b64c1cb0d8727527c32be3fb115907cca585ef07e7eca42de4140050fb226d",
+    "targets/pipeline33_left_projection_heldout_u32/checked/cpu.c": "ca595371f97559ee35c53fc3293a49db0b98a6eaf17d6d6c9928e0cf27c885ca",
+    "targets/pipeline33_left_projection_heldout_u32/checked/cpu.wasm": "b5531f0022126ddd441e77aa1ddf5276d561e5fcf8fbc6e485c8472f22e9caa6",
+    "targets/pipeline33_left_projection_heldout_u32/checked/graph-0-0.wgsl": "ad4bf994fd9917840bc52fe0bc9c1e11e0630d260738379c722ca7c88ec842c7",
+    "targets/pipeline33_left_projection_heldout_u32/checked/graph-1-0.wgsl": "2b16b9ed8540cd71f7a8fb6885e728b4ed5288feb66fb630d77f197330193064",
+    "targets/pipeline33_left_projection_heldout_u32/checked/graph-2-0.wgsl": "e33436879018dd380414dac852517e4d406bcf55d479c8e37b2dc5115d82b5a5",
+    "targets/pipeline33_left_projection_heldout_u32/checked/ink-device.mjs": "ff0c9715bb0284b98404056222dbc5e298a97f3a2b086c43cfa442570fb3095d",
+    "targets/pipeline33_left_projection_heldout_u32/checked/ink-gpu.mjs": "58effef88016a0f0f65e6e570c166870689ac7a8d767a2d856332ce17df9df15",
+    "targets/pipeline33_left_projection_heldout_u32/checked/manifest.json": "10e99e885b97878643c39bf05162f5ba50735f6175cbee804168d3ef314da202",
+    "targets/pipeline33_left_projection_heldout_u32/checked/native/Cargo.lock": "728a699c277b5b88bd2777371af738954802e9919d7945e996bf621e992ac558",
+    "targets/pipeline33_left_projection_heldout_u32/checked/native/Cargo.toml": "7ab1e271016b8340589b6cecb6228941a830c2552fea4f41d224e8d9d710abc4",
+    "targets/pipeline33_left_projection_heldout_u32/checked/native/build.rs": "c52450b31c8b1f3140d3bc6539823b8f87a8cc4758e08bb1c828bc1b3f98b17b",
+    "targets/pipeline33_left_projection_heldout_u32/checked/native/cpu.c": "ca595371f97559ee35c53fc3293a49db0b98a6eaf17d6d6c9928e0cf27c885ca",
+    "targets/pipeline33_left_projection_heldout_u32/checked/native/src/assets.rs": "4302385b5edcc2b3b416dcdb7e669aa5b0bd06ba578c4a4537a68c7e40f29fdb",
+    "targets/pipeline33_left_projection_heldout_u32/checked/native/src/device.rs": "28a9130276abb7cb4bfc395b3031f3708cb1988ae4b09c51d661b6e48ba66bd5",
+    "targets/pipeline33_left_projection_heldout_u32/checked/native/src/lib.rs": "1f9d90a47adf8a2368b0c3af98654c66d57df841c2b4a982430d9d0c825dcb49",
+    "targets/pipeline33_left_projection_heldout_u32/checked/native/src/main.rs": "30b0fa01871915d082405826ab2919e43fa70583a0fe8011cfe28c7855b58e32",
+    "targets/pipeline33_left_projection_heldout_u32/checked/plan.json": "c66a819df41c0940ca08d7a96fb160bf41e97170e14de6f37c6fc64082ee5672",
+    "targets/pipeline33_left_projection_heldout_u32/checked/prepared-wasm.mjs": "cfd128e081b2fab9c35012878255af7f79a7720427c7b94363b0112d67289f06",
+    "targets/pipeline33_left_projection_heldout_u32/checked/program.mjs": "59d73cad8d91a7fe86f5582a7252cf8b51b59522cc1b7ca90f35645e561c3890",
+    "targets/pipeline33_left_projection_heldout_u32/checked.core.json": "906efce6f7291928ee2478862cd46e382026ac364767727878fcf1d478883140",
+    "targets/pipeline33_left_projection_heldout_u32/checked.selection.json": "5933e8f539e19752a85ca0ffbd2601a3da90e64ffec45b6f92af014b66c571f6",
+    "targets/pipeline33_left_projection_heldout_u32/checked.selection.receipt.json": "727064929e2ae8a99a8a0d77017a0716d2a9d8d4d6e9f5d7f770a7f28e518288",
+    "targets/pipeline33_left_projection_heldout_u32/literal/backend-selection.mjs": "40d2d5f77967f3f4e96d2e3e0d83de6fcfc707d906ee70ebd01ab7cb38e90a87",
+    "targets/pipeline33_left_projection_heldout_u32/literal/compute-0.wgsl": "e83ff83860ff830db1650b18bc9a164ecf289a0c5b2b0c3ac19e4c26ab8e5981",
+    "targets/pipeline33_left_projection_heldout_u32/literal/cpu.c": "064b36abd6b4977a2000c59ddd1ff0179dde8d27c88516bc96ed3d099c11e2fa",
+    "targets/pipeline33_left_projection_heldout_u32/literal/cpu.wasm": "983eece348143db323d101a3bc6d68b3f131f44e29bc88f74c8571d648c52746",
+    "targets/pipeline33_left_projection_heldout_u32/literal/graph-0-0.wgsl": "744a6b45e6cb36e3692bd863e22b5e4758e24e2f83d21a87856c7d2d33655a75",
+    "targets/pipeline33_left_projection_heldout_u32/literal/graph-0-1.wgsl": "45de858152ca90da90d9633b472774d97261e32b5234713ac6a3c6d819a166c5",
+    "targets/pipeline33_left_projection_heldout_u32/literal/graph-0-2.wgsl": "45de858152ca90da90d9633b472774d97261e32b5234713ac6a3c6d819a166c5",
+    "targets/pipeline33_left_projection_heldout_u32/literal/graph-0-3.wgsl": "ad4bf994fd9917840bc52fe0bc9c1e11e0630d260738379c722ca7c88ec842c7",
+    "targets/pipeline33_left_projection_heldout_u32/literal/graph-1-0.wgsl": "2b16b9ed8540cd71f7a8fb6885e728b4ed5288feb66fb630d77f197330193064",
+    "targets/pipeline33_left_projection_heldout_u32/literal/graph-2-0.wgsl": "e33436879018dd380414dac852517e4d406bcf55d479c8e37b2dc5115d82b5a5",
+    "targets/pipeline33_left_projection_heldout_u32/literal/ink-device.mjs": "ff0c9715bb0284b98404056222dbc5e298a97f3a2b086c43cfa442570fb3095d",
+    "targets/pipeline33_left_projection_heldout_u32/literal/ink-gpu.mjs": "58effef88016a0f0f65e6e570c166870689ac7a8d767a2d856332ce17df9df15",
+    "targets/pipeline33_left_projection_heldout_u32/literal/manifest.json": "980f276841a91bf79f6f4e2f7723ea61dd81b1a20f402fe998fe416281e4be65",
+    "targets/pipeline33_left_projection_heldout_u32/literal/native/Cargo.lock": "728a699c277b5b88bd2777371af738954802e9919d7945e996bf621e992ac558",
+    "targets/pipeline33_left_projection_heldout_u32/literal/native/Cargo.toml": "7ab1e271016b8340589b6cecb6228941a830c2552fea4f41d224e8d9d710abc4",
+    "targets/pipeline33_left_projection_heldout_u32/literal/native/build.rs": "c52450b31c8b1f3140d3bc6539823b8f87a8cc4758e08bb1c828bc1b3f98b17b",
+    "targets/pipeline33_left_projection_heldout_u32/literal/native/cpu.c": "064b36abd6b4977a2000c59ddd1ff0179dde8d27c88516bc96ed3d099c11e2fa",
+    "targets/pipeline33_left_projection_heldout_u32/literal/native/src/assets.rs": "ac8d2c61d3b546f4f12a4ee1c804778006884ff47e9fac82d97249b1a4419a2e",
+    "targets/pipeline33_left_projection_heldout_u32/literal/native/src/device.rs": "28a9130276abb7cb4bfc395b3031f3708cb1988ae4b09c51d661b6e48ba66bd5",
+    "targets/pipeline33_left_projection_heldout_u32/literal/native/src/lib.rs": "1f9d90a47adf8a2368b0c3af98654c66d57df841c2b4a982430d9d0c825dcb49",
+    "targets/pipeline33_left_projection_heldout_u32/literal/native/src/main.rs": "30b0fa01871915d082405826ab2919e43fa70583a0fe8011cfe28c7855b58e32",
+    "targets/pipeline33_left_projection_heldout_u32/literal/plan.json": "4e15c3af395d1f0714243fbacba9aa2c440c164472582c622295839cfacc2299",
+    "targets/pipeline33_left_projection_heldout_u32/literal/prepared-wasm.mjs": "cfd128e081b2fab9c35012878255af7f79a7720427c7b94363b0112d67289f06",
+    "targets/pipeline33_left_projection_heldout_u32/literal/program.mjs": "486d5b7c884f63412176a6e9f94980f325d6614c18b2ec9ac6e14f797c6108b0",
+    "targets/pipeline33_left_projection_heldout_u32/literal.core.json": "caad42d6f303a22ba67b2193a289be38f87076e800c41d4c4b9fb6eccf6773cc",
+    "targets/pipeline33_left_projection_heldout_u32/oracle-args.json": "91d4ad2d28858daec1aca5dd0b6028dadf6b6c39a8b61c446c803ec3d2530286",
+    "targets/pipeline33_left_projection_heldout_u32/prior/backend-selection.mjs": "40d2d5f77967f3f4e96d2e3e0d83de6fcfc707d906ee70ebd01ab7cb38e90a87",
+    "targets/pipeline33_left_projection_heldout_u32/prior/compute-0.wgsl": "c64cccb9dfbb98d201751524979c8085fab3fd5cdf84999aa9cd0be13f532513",
+    "targets/pipeline33_left_projection_heldout_u32/prior/cpu.c": "2db442b3ff6d2775dcd71f3fa6b5cb4bd0df9ccde627400d5450a7cd59764731",
+    "targets/pipeline33_left_projection_heldout_u32/prior/cpu.wasm": "0fe308b6565444face489eec5f29ea17278070879ce70dc23cabac297e217da9",
+    "targets/pipeline33_left_projection_heldout_u32/prior/graph-0-0.wgsl": "744a6b45e6cb36e3692bd863e22b5e4758e24e2f83d21a87856c7d2d33655a75",
+    "targets/pipeline33_left_projection_heldout_u32/prior/graph-0-1.wgsl": "ad4bf994fd9917840bc52fe0bc9c1e11e0630d260738379c722ca7c88ec842c7",
+    "targets/pipeline33_left_projection_heldout_u32/prior/graph-1-0.wgsl": "2b16b9ed8540cd71f7a8fb6885e728b4ed5288feb66fb630d77f197330193064",
+    "targets/pipeline33_left_projection_heldout_u32/prior/graph-2-0.wgsl": "e33436879018dd380414dac852517e4d406bcf55d479c8e37b2dc5115d82b5a5",
+    "targets/pipeline33_left_projection_heldout_u32/prior/ink-device.mjs": "ff0c9715bb0284b98404056222dbc5e298a97f3a2b086c43cfa442570fb3095d",
+    "targets/pipeline33_left_projection_heldout_u32/prior/ink-gpu.mjs": "58effef88016a0f0f65e6e570c166870689ac7a8d767a2d856332ce17df9df15",
+    "targets/pipeline33_left_projection_heldout_u32/prior/manifest.json": "20e41666ccbfef5b48dd5a47271c66a4b69c48f14c07546e5a0c0162450b2c5f",
+    "targets/pipeline33_left_projection_heldout_u32/prior/native/Cargo.lock": "728a699c277b5b88bd2777371af738954802e9919d7945e996bf621e992ac558",
+    "targets/pipeline33_left_projection_heldout_u32/prior/native/Cargo.toml": "7ab1e271016b8340589b6cecb6228941a830c2552fea4f41d224e8d9d710abc4",
+    "targets/pipeline33_left_projection_heldout_u32/prior/native/build.rs": "c52450b31c8b1f3140d3bc6539823b8f87a8cc4758e08bb1c828bc1b3f98b17b",
+    "targets/pipeline33_left_projection_heldout_u32/prior/native/cpu.c": "2db442b3ff6d2775dcd71f3fa6b5cb4bd0df9ccde627400d5450a7cd59764731",
+    "targets/pipeline33_left_projection_heldout_u32/prior/native/src/assets.rs": "8fdf17be0878c505ecc8b82765f79baaf314d4d5db9769bf39ee4fb9f630c705",
+    "targets/pipeline33_left_projection_heldout_u32/prior/native/src/device.rs": "28a9130276abb7cb4bfc395b3031f3708cb1988ae4b09c51d661b6e48ba66bd5",
+    "targets/pipeline33_left_projection_heldout_u32/prior/native/src/lib.rs": "1f9d90a47adf8a2368b0c3af98654c66d57df841c2b4a982430d9d0c825dcb49",
+    "targets/pipeline33_left_projection_heldout_u32/prior/native/src/main.rs": "30b0fa01871915d082405826ab2919e43fa70583a0fe8011cfe28c7855b58e32",
+    "targets/pipeline33_left_projection_heldout_u32/prior/plan.json": "42b90fc7c9565840a467c4254674fed40f6063dd8ba93acaac028881dc434234",
+    "targets/pipeline33_left_projection_heldout_u32/prior/prepared-wasm.mjs": "cfd128e081b2fab9c35012878255af7f79a7720427c7b94363b0112d67289f06",
+    "targets/pipeline33_left_projection_heldout_u32/prior/program.mjs": "28b905eb4f7abf74f4553ed54a9272ad5232cbcc7baab620fc372acdcd6ea1bf",
+    "targets/pipeline33_left_projection_heldout_u32/prior.core.json": "dff705bf1fe8606168e497ae1a9eda435a7ec981bd5a527124214b40538b9330",
+    "targets/pipeline33_left_projection_heldout_u32/prior.selection.json": "c6015285cfb9ee186c2809601a9580b2567c9866f72ecc4ddcb2cfb287776323",
+    "targets/pipeline33_left_projection_heldout_u32/prior.selection.receipt.json": "6bf9ff98822c2e216dac7e7e1ebed6f8a16629164a9a5b8a03b82168f8708c9d",
+    "targets/pipeline33_left_projection_heldout_u32/source.ink": "a01ef988ab9d84408feda33f381848b163ea660fa7a2947f6b3c22b9e2d76372",
+    "targets/pipeline33_right_projection_heldout_u32/checked/backend-selection.mjs": "40d2d5f77967f3f4e96d2e3e0d83de6fcfc707d906ee70ebd01ab7cb38e90a87",
+    "targets/pipeline33_right_projection_heldout_u32/checked/compute-0.wgsl": "89624a172162794b09807166b574d2bde265b4b9206e4d2e091bc9f6be1d5c9d",
+    "targets/pipeline33_right_projection_heldout_u32/checked/cpu.c": "b250fb2daecb4b6956dffcfb0e58389ac9918cd5f02eebf6639ab5c112e959f0",
+    "targets/pipeline33_right_projection_heldout_u32/checked/cpu.wasm": "d7c3bc5a682b96b0a8c3f7fcc32651bfc3c8d406cb780027139865dd4643289d",
+    "targets/pipeline33_right_projection_heldout_u32/checked/graph-0-0.wgsl": "b8d8d77a38abef17374331650f4261ae1c9524cdfa39301d3773386f94abe0a7",
+    "targets/pipeline33_right_projection_heldout_u32/checked/graph-1-0.wgsl": "2b16b9ed8540cd71f7a8fb6885e728b4ed5288feb66fb630d77f197330193064",
+    "targets/pipeline33_right_projection_heldout_u32/checked/graph-2-0.wgsl": "e33436879018dd380414dac852517e4d406bcf55d479c8e37b2dc5115d82b5a5",
+    "targets/pipeline33_right_projection_heldout_u32/checked/ink-device.mjs": "ff0c9715bb0284b98404056222dbc5e298a97f3a2b086c43cfa442570fb3095d",
+    "targets/pipeline33_right_projection_heldout_u32/checked/ink-gpu.mjs": "58effef88016a0f0f65e6e570c166870689ac7a8d767a2d856332ce17df9df15",
+    "targets/pipeline33_right_projection_heldout_u32/checked/manifest.json": "6ed3085aa24b5dac5beabc956111d3564533bc05fb2408710c182a1b118f54bc",
+    "targets/pipeline33_right_projection_heldout_u32/checked/native/Cargo.lock": "728a699c277b5b88bd2777371af738954802e9919d7945e996bf621e992ac558",
+    "targets/pipeline33_right_projection_heldout_u32/checked/native/Cargo.toml": "7ab1e271016b8340589b6cecb6228941a830c2552fea4f41d224e8d9d710abc4",
+    "targets/pipeline33_right_projection_heldout_u32/checked/native/build.rs": "c52450b31c8b1f3140d3bc6539823b8f87a8cc4758e08bb1c828bc1b3f98b17b",
+    "targets/pipeline33_right_projection_heldout_u32/checked/native/cpu.c": "b250fb2daecb4b6956dffcfb0e58389ac9918cd5f02eebf6639ab5c112e959f0",
+    "targets/pipeline33_right_projection_heldout_u32/checked/native/src/assets.rs": "4b8777ca25bca7b13507cc0f605c963b8eef2c465d7238e7326ca67371007a41",
+    "targets/pipeline33_right_projection_heldout_u32/checked/native/src/device.rs": "28a9130276abb7cb4bfc395b3031f3708cb1988ae4b09c51d661b6e48ba66bd5",
+    "targets/pipeline33_right_projection_heldout_u32/checked/native/src/lib.rs": "1f9d90a47adf8a2368b0c3af98654c66d57df841c2b4a982430d9d0c825dcb49",
+    "targets/pipeline33_right_projection_heldout_u32/checked/native/src/main.rs": "30b0fa01871915d082405826ab2919e43fa70583a0fe8011cfe28c7855b58e32",
+    "targets/pipeline33_right_projection_heldout_u32/checked/plan.json": "a898136462db4238289120ef37fe4572a836f511225419bb5670d1e1727eacec",
+    "targets/pipeline33_right_projection_heldout_u32/checked/prepared-wasm.mjs": "cfd128e081b2fab9c35012878255af7f79a7720427c7b94363b0112d67289f06",
+    "targets/pipeline33_right_projection_heldout_u32/checked/program.mjs": "42149b3c0dd51713a185e7b2666cb8e02eb10537a2bda7314037b68792b3d52b",
+    "targets/pipeline33_right_projection_heldout_u32/checked.core.json": "72a5869928cc1cde3d1880eb742b913cb2bf470dcdb575c6e41d0146f142c41a",
+    "targets/pipeline33_right_projection_heldout_u32/checked.selection.json": "7e70cb061fddcbb8836e08ed7f20f1dba7d4ed023d629c43e25f2a0c2910ae88",
+    "targets/pipeline33_right_projection_heldout_u32/checked.selection.receipt.json": "c9286c68d6ec8ec2d0c7fd3fa8b0865b7f7c1b424bac50b31de04927a1937525",
+    "targets/pipeline33_right_projection_heldout_u32/literal/backend-selection.mjs": "40d2d5f77967f3f4e96d2e3e0d83de6fcfc707d906ee70ebd01ab7cb38e90a87",
+    "targets/pipeline33_right_projection_heldout_u32/literal/compute-0.wgsl": "96a884d4df34e8995ebe1ddeec038bcb3570b12a0c88bff645179c704e26e458",
+    "targets/pipeline33_right_projection_heldout_u32/literal/cpu.c": "3c8f2a4ab40405271bf1e5bc416c6ebdc26b3314a538a7fecf36ecf17f7210c5",
+    "targets/pipeline33_right_projection_heldout_u32/literal/cpu.wasm": "b94a6bbefd7b2d4ecc06ceb5258ca48df8a7dbdfe9ae414bed1e5e5621b6123e",
+    "targets/pipeline33_right_projection_heldout_u32/literal/graph-0-0.wgsl": "744a6b45e6cb36e3692bd863e22b5e4758e24e2f83d21a87856c7d2d33655a75",
+    "targets/pipeline33_right_projection_heldout_u32/literal/graph-0-1.wgsl": "45de858152ca90da90d9633b472774d97261e32b5234713ac6a3c6d819a166c5",
+    "targets/pipeline33_right_projection_heldout_u32/literal/graph-0-2.wgsl": "45de858152ca90da90d9633b472774d97261e32b5234713ac6a3c6d819a166c5",
+    "targets/pipeline33_right_projection_heldout_u32/literal/graph-0-3.wgsl": "b8d8d77a38abef17374331650f4261ae1c9524cdfa39301d3773386f94abe0a7",
+    "targets/pipeline33_right_projection_heldout_u32/literal/graph-1-0.wgsl": "2b16b9ed8540cd71f7a8fb6885e728b4ed5288feb66fb630d77f197330193064",
+    "targets/pipeline33_right_projection_heldout_u32/literal/graph-2-0.wgsl": "e33436879018dd380414dac852517e4d406bcf55d479c8e37b2dc5115d82b5a5",
+    "targets/pipeline33_right_projection_heldout_u32/literal/ink-device.mjs": "ff0c9715bb0284b98404056222dbc5e298a97f3a2b086c43cfa442570fb3095d",
+    "targets/pipeline33_right_projection_heldout_u32/literal/ink-gpu.mjs": "58effef88016a0f0f65e6e570c166870689ac7a8d767a2d856332ce17df9df15",
+    "targets/pipeline33_right_projection_heldout_u32/literal/manifest.json": "b35f0acf2e8f85a7e232efba65ba2a4ac418f0ff74ad57e87c6870a24980ee13",
+    "targets/pipeline33_right_projection_heldout_u32/literal/native/Cargo.lock": "728a699c277b5b88bd2777371af738954802e9919d7945e996bf621e992ac558",
+    "targets/pipeline33_right_projection_heldout_u32/literal/native/Cargo.toml": "7ab1e271016b8340589b6cecb6228941a830c2552fea4f41d224e8d9d710abc4",
+    "targets/pipeline33_right_projection_heldout_u32/literal/native/build.rs": "c52450b31c8b1f3140d3bc6539823b8f87a8cc4758e08bb1c828bc1b3f98b17b",
+    "targets/pipeline33_right_projection_heldout_u32/literal/native/cpu.c": "3c8f2a4ab40405271bf1e5bc416c6ebdc26b3314a538a7fecf36ecf17f7210c5",
+    "targets/pipeline33_right_projection_heldout_u32/literal/native/src/assets.rs": "ab426e02d1c08849e6273fd9a0679d3eb1d81ad83d78280677f88d8a373ac815",
+    "targets/pipeline33_right_projection_heldout_u32/literal/native/src/device.rs": "28a9130276abb7cb4bfc395b3031f3708cb1988ae4b09c51d661b6e48ba66bd5",
+    "targets/pipeline33_right_projection_heldout_u32/literal/native/src/lib.rs": "1f9d90a47adf8a2368b0c3af98654c66d57df841c2b4a982430d9d0c825dcb49",
+    "targets/pipeline33_right_projection_heldout_u32/literal/native/src/main.rs": "30b0fa01871915d082405826ab2919e43fa70583a0fe8011cfe28c7855b58e32",
+    "targets/pipeline33_right_projection_heldout_u32/literal/plan.json": "2259b16271a2006f6fb305bc02e75f082f372de996fe011556d3c810074d6e1f",
+    "targets/pipeline33_right_projection_heldout_u32/literal/prepared-wasm.mjs": "cfd128e081b2fab9c35012878255af7f79a7720427c7b94363b0112d67289f06",
+    "targets/pipeline33_right_projection_heldout_u32/literal/program.mjs": "d4689d7648b6153c9dde4408f41ca6f332443b37e67e0269f483ac97e1657130",
+    "targets/pipeline33_right_projection_heldout_u32/literal.core.json": "0b8def094952e643bd70875c62b8ea2ed6f7ad877aa0d21e1d2af2d133050589",
+    "targets/pipeline33_right_projection_heldout_u32/oracle-args.json": "91d4ad2d28858daec1aca5dd0b6028dadf6b6c39a8b61c446c803ec3d2530286",
+    "targets/pipeline33_right_projection_heldout_u32/prior/backend-selection.mjs": "40d2d5f77967f3f4e96d2e3e0d83de6fcfc707d906ee70ebd01ab7cb38e90a87",
+    "targets/pipeline33_right_projection_heldout_u32/prior/compute-0.wgsl": "07ef58ae6a0088666a4349ae9a78d10d5004aaf238657ba13ca65644c3c566dd",
+    "targets/pipeline33_right_projection_heldout_u32/prior/cpu.c": "e9f0aa65dca975cb643b985dba520de367150e174284f6d86b2979e0ed1c5a42",
+    "targets/pipeline33_right_projection_heldout_u32/prior/cpu.wasm": "f45cc0681d46799b8ee25473d288e383f6248d312c83c3a370d4dc2f31727aac",
+    "targets/pipeline33_right_projection_heldout_u32/prior/graph-0-0.wgsl": "744a6b45e6cb36e3692bd863e22b5e4758e24e2f83d21a87856c7d2d33655a75",
+    "targets/pipeline33_right_projection_heldout_u32/prior/graph-0-1.wgsl": "b8d8d77a38abef17374331650f4261ae1c9524cdfa39301d3773386f94abe0a7",
+    "targets/pipeline33_right_projection_heldout_u32/prior/graph-1-0.wgsl": "2b16b9ed8540cd71f7a8fb6885e728b4ed5288feb66fb630d77f197330193064",
+    "targets/pipeline33_right_projection_heldout_u32/prior/graph-2-0.wgsl": "e33436879018dd380414dac852517e4d406bcf55d479c8e37b2dc5115d82b5a5",
+    "targets/pipeline33_right_projection_heldout_u32/prior/ink-device.mjs": "ff0c9715bb0284b98404056222dbc5e298a97f3a2b086c43cfa442570fb3095d",
+    "targets/pipeline33_right_projection_heldout_u32/prior/ink-gpu.mjs": "58effef88016a0f0f65e6e570c166870689ac7a8d767a2d856332ce17df9df15",
+    "targets/pipeline33_right_projection_heldout_u32/prior/manifest.json": "c13baf16f2c0d13ea4ec7ac7882cdfd1dd9cd18a0811ba4197f108f85ed9ce3c",
+    "targets/pipeline33_right_projection_heldout_u32/prior/native/Cargo.lock": "728a699c277b5b88bd2777371af738954802e9919d7945e996bf621e992ac558",
+    "targets/pipeline33_right_projection_heldout_u32/prior/native/Cargo.toml": "7ab1e271016b8340589b6cecb6228941a830c2552fea4f41d224e8d9d710abc4",
+    "targets/pipeline33_right_projection_heldout_u32/prior/native/build.rs": "c52450b31c8b1f3140d3bc6539823b8f87a8cc4758e08bb1c828bc1b3f98b17b",
+    "targets/pipeline33_right_projection_heldout_u32/prior/native/cpu.c": "e9f0aa65dca975cb643b985dba520de367150e174284f6d86b2979e0ed1c5a42",
+    "targets/pipeline33_right_projection_heldout_u32/prior/native/src/assets.rs": "e5d66cfbeaa1c19ee51336cc31660d3cb55d12f9ad7520338c5199e20a5b4165",
+    "targets/pipeline33_right_projection_heldout_u32/prior/native/src/device.rs": "28a9130276abb7cb4bfc395b3031f3708cb1988ae4b09c51d661b6e48ba66bd5",
+    "targets/pipeline33_right_projection_heldout_u32/prior/native/src/lib.rs": "1f9d90a47adf8a2368b0c3af98654c66d57df841c2b4a982430d9d0c825dcb49",
+    "targets/pipeline33_right_projection_heldout_u32/prior/native/src/main.rs": "30b0fa01871915d082405826ab2919e43fa70583a0fe8011cfe28c7855b58e32",
+    "targets/pipeline33_right_projection_heldout_u32/prior/plan.json": "7122f3e897c753c8c93a4e82d49eb2461c4a6da4e40b6a52010651e3f1327c63",
+    "targets/pipeline33_right_projection_heldout_u32/prior/prepared-wasm.mjs": "cfd128e081b2fab9c35012878255af7f79a7720427c7b94363b0112d67289f06",
+    "targets/pipeline33_right_projection_heldout_u32/prior/program.mjs": "0d53efdb767e8ddc4c4196e6412ef699a145b31eeeb42e30d79c1762237ff076",
+    "targets/pipeline33_right_projection_heldout_u32/prior.core.json": "7e3e71b7631308baab0cd63ae8786662ab57ef1bad9e3c3adb850fff30786560",
+    "targets/pipeline33_right_projection_heldout_u32/prior.selection.json": "7b21a0ce40244427378135f18e9c00d84e7428a6bbf86e0b93b60eeae1e5a322",
+    "targets/pipeline33_right_projection_heldout_u32/prior.selection.receipt.json": "7b7f553aea27e0ad7e21d7583fb7032d6bf4f0ef861bd4ca2585a18b591ce4a5",
+    "targets/pipeline33_right_projection_heldout_u32/source.ink": "b3361955ada625898979ddfc3c871b297862f25510029de11af96ef6f7441a39",
+    "targets/pipeline34_left_projection_u32/checked/backend-selection.mjs": "40d2d5f77967f3f4e96d2e3e0d83de6fcfc707d906ee70ebd01ab7cb38e90a87",
+    "targets/pipeline34_left_projection_u32/checked/compute-0.wgsl": "2c18f3e83050d192125e5b857e2ac424f2eed5316f0d1330470bcc7e8e665f9b",
+    "targets/pipeline34_left_projection_u32/checked/cpu.c": "606c701ef8c4dc00d0630b0b9d648c31bed740e83fabd14624e013fa0c6c7a31",
+    "targets/pipeline34_left_projection_u32/checked/cpu.wasm": "b4371ac3e4bcabbd287da8af0dd72ee6730190e6a0c535b41bb0776005b07f4e",
+    "targets/pipeline34_left_projection_u32/checked/graph-0-0.wgsl": "9f7c7b46e1dc8e2e5192022d9fd5701ad5e552bdd5b18b6320eed7e0fc6e1305",
+    "targets/pipeline34_left_projection_u32/checked/graph-1-0.wgsl": "42e1de6df9665f0ca7d07ddd60a72ebf1ba194d9e992425ab91637b7fed03cc4",
+    "targets/pipeline34_left_projection_u32/checked/graph-1-1.wgsl": "3f4b95ede686c3d5d8e9cf41589ace4335641ac366e6547ec46a8a3a8cb372ab",
+    "targets/pipeline34_left_projection_u32/checked/graph-2-0.wgsl": "42e1de6df9665f0ca7d07ddd60a72ebf1ba194d9e992425ab91637b7fed03cc4",
+    "targets/pipeline34_left_projection_u32/checked/graph-3-0.wgsl": "4e367f662f8d75cb3f6b96280149b07724b140def5e29e11c828d642b499f77e",
+    "targets/pipeline34_left_projection_u32/checked/graph-4-0.wgsl": "4e367f662f8d75cb3f6b96280149b07724b140def5e29e11c828d642b499f77e",
+    "targets/pipeline34_left_projection_u32/checked/ink-device.mjs": "ff0c9715bb0284b98404056222dbc5e298a97f3a2b086c43cfa442570fb3095d",
+    "targets/pipeline34_left_projection_u32/checked/ink-gpu.mjs": "58effef88016a0f0f65e6e570c166870689ac7a8d767a2d856332ce17df9df15",
+    "targets/pipeline34_left_projection_u32/checked/manifest.json": "37c22e8063965034723e001be3cdd70323d3bd3008ad93ea69c6b008588af583",
+    "targets/pipeline34_left_projection_u32/checked/native/Cargo.lock": "728a699c277b5b88bd2777371af738954802e9919d7945e996bf621e992ac558",
+    "targets/pipeline34_left_projection_u32/checked/native/Cargo.toml": "7ab1e271016b8340589b6cecb6228941a830c2552fea4f41d224e8d9d710abc4",
+    "targets/pipeline34_left_projection_u32/checked/native/build.rs": "c52450b31c8b1f3140d3bc6539823b8f87a8cc4758e08bb1c828bc1b3f98b17b",
+    "targets/pipeline34_left_projection_u32/checked/native/cpu.c": "606c701ef8c4dc00d0630b0b9d648c31bed740e83fabd14624e013fa0c6c7a31",
+    "targets/pipeline34_left_projection_u32/checked/native/src/assets.rs": "bfb23cd5bd89137075a71ca2adf2870d39c68b57816c8edc898ece6fcb86b9d2",
+    "targets/pipeline34_left_projection_u32/checked/native/src/device.rs": "28a9130276abb7cb4bfc395b3031f3708cb1988ae4b09c51d661b6e48ba66bd5",
+    "targets/pipeline34_left_projection_u32/checked/native/src/lib.rs": "1f9d90a47adf8a2368b0c3af98654c66d57df841c2b4a982430d9d0c825dcb49",
+    "targets/pipeline34_left_projection_u32/checked/native/src/main.rs": "30b0fa01871915d082405826ab2919e43fa70583a0fe8011cfe28c7855b58e32",
+    "targets/pipeline34_left_projection_u32/checked/plan.json": "7cbc6742fb27897a4d7b5e9a7e8924a07adf203783e75af469210be05c5957eb",
+    "targets/pipeline34_left_projection_u32/checked/prepared-wasm.mjs": "cfd128e081b2fab9c35012878255af7f79a7720427c7b94363b0112d67289f06",
+    "targets/pipeline34_left_projection_u32/checked/program.mjs": "7bd57a2c0b17ac8ccfbb99514f88f28660d45a0f93f0dfb83b4fa78bd759c5be",
+    "targets/pipeline34_left_projection_u32/checked.core.json": "68666a018a311d23b4544e7cb58a9b3dec99f54eeb214b4cfd8abf8b9ca2c2b3",
+    "targets/pipeline34_left_projection_u32/checked.selection.json": "01c2d45aa375c52e2d909016c22f45db7b5f06b7c3bccac6286763be1aabd33a",
+    "targets/pipeline34_left_projection_u32/checked.selection.receipt.json": "5dcd792c16e4dfa2aebcd87a6ea44cb49d9a1f0708409e953bbdecdd35754e8f",
+    "targets/pipeline34_left_projection_u32/literal/backend-selection.mjs": "40d2d5f77967f3f4e96d2e3e0d83de6fcfc707d906ee70ebd01ab7cb38e90a87",
+    "targets/pipeline34_left_projection_u32/literal/compute-0.wgsl": "e8f7dc12647aae20e222d3b0b3b5b467d277ca62f9fce161ce49d6fff74e7d9e",
+    "targets/pipeline34_left_projection_u32/literal/cpu.c": "7207e3064ab58ce089fe9cda4536aa5be19aadc316fe641e8d112c7ea9b6d561",
+    "targets/pipeline34_left_projection_u32/literal/cpu.wasm": "84646de37d4c92f980b7f7bdee048bf55057c86810ff4ea833044fc846e067cb",
+    "targets/pipeline34_left_projection_u32/literal/graph-0-0.wgsl": "de6abbd915cfb635597fe0494633848fbac0d9bd1705a82f7a42c6d01717334b",
+    "targets/pipeline34_left_projection_u32/literal/graph-0-1.wgsl": "9f7c7b46e1dc8e2e5192022d9fd5701ad5e552bdd5b18b6320eed7e0fc6e1305",
+    "targets/pipeline34_left_projection_u32/literal/graph-1-0.wgsl": "42e1de6df9665f0ca7d07ddd60a72ebf1ba194d9e992425ab91637b7fed03cc4",
+    "targets/pipeline34_left_projection_u32/literal/graph-1-1.wgsl": "3f4b95ede686c3d5d8e9cf41589ace4335641ac366e6547ec46a8a3a8cb372ab",
+    "targets/pipeline34_left_projection_u32/literal/graph-2-0.wgsl": "42e1de6df9665f0ca7d07ddd60a72ebf1ba194d9e992425ab91637b7fed03cc4",
+    "targets/pipeline34_left_projection_u32/literal/graph-3-0.wgsl": "4e367f662f8d75cb3f6b96280149b07724b140def5e29e11c828d642b499f77e",
+    "targets/pipeline34_left_projection_u32/literal/graph-4-0.wgsl": "4e367f662f8d75cb3f6b96280149b07724b140def5e29e11c828d642b499f77e",
+    "targets/pipeline34_left_projection_u32/literal/ink-device.mjs": "ff0c9715bb0284b98404056222dbc5e298a97f3a2b086c43cfa442570fb3095d",
+    "targets/pipeline34_left_projection_u32/literal/ink-gpu.mjs": "58effef88016a0f0f65e6e570c166870689ac7a8d767a2d856332ce17df9df15",
+    "targets/pipeline34_left_projection_u32/literal/manifest.json": "71cedb0b1c41aa62e31418a69be56f6f36f73b2e1d58a683ae0155d17aa6e465",
+    "targets/pipeline34_left_projection_u32/literal/native/Cargo.lock": "728a699c277b5b88bd2777371af738954802e9919d7945e996bf621e992ac558",
+    "targets/pipeline34_left_projection_u32/literal/native/Cargo.toml": "7ab1e271016b8340589b6cecb6228941a830c2552fea4f41d224e8d9d710abc4",
+    "targets/pipeline34_left_projection_u32/literal/native/build.rs": "c52450b31c8b1f3140d3bc6539823b8f87a8cc4758e08bb1c828bc1b3f98b17b",
+    "targets/pipeline34_left_projection_u32/literal/native/cpu.c": "7207e3064ab58ce089fe9cda4536aa5be19aadc316fe641e8d112c7ea9b6d561",
+    "targets/pipeline34_left_projection_u32/literal/native/src/assets.rs": "81ab711a578dafac678f85208f205268fab7d4c6be8e70b0e6a5df99d47fcee1",
+    "targets/pipeline34_left_projection_u32/literal/native/src/device.rs": "28a9130276abb7cb4bfc395b3031f3708cb1988ae4b09c51d661b6e48ba66bd5",
+    "targets/pipeline34_left_projection_u32/literal/native/src/lib.rs": "1f9d90a47adf8a2368b0c3af98654c66d57df841c2b4a982430d9d0c825dcb49",
+    "targets/pipeline34_left_projection_u32/literal/native/src/main.rs": "30b0fa01871915d082405826ab2919e43fa70583a0fe8011cfe28c7855b58e32",
+    "targets/pipeline34_left_projection_u32/literal/plan.json": "0a72e37b05543240a1c55cb099d3e6c41f9b7b9c3b55b6a555d11e019e9e8536",
+    "targets/pipeline34_left_projection_u32/literal/prepared-wasm.mjs": "cfd128e081b2fab9c35012878255af7f79a7720427c7b94363b0112d67289f06",
+    "targets/pipeline34_left_projection_u32/literal/program.mjs": "e6779488c5cc54b5700ae707a82e7158be13a972f70bfb2a5716ea24f0e31c01",
+    "targets/pipeline34_left_projection_u32/literal.core.json": "408b11473eb3a689045492a4214296bb23a367bdb7c62bd6a7b7117a2c225ce3",
+    "targets/pipeline34_left_projection_u32/oracle-args.json": "91d4ad2d28858daec1aca5dd0b6028dadf6b6c39a8b61c446c803ec3d2530286",
+    "targets/pipeline34_left_projection_u32/prior/backend-selection.mjs": "40d2d5f77967f3f4e96d2e3e0d83de6fcfc707d906ee70ebd01ab7cb38e90a87",
+    "targets/pipeline34_left_projection_u32/prior/compute-0.wgsl": "e8f7dc12647aae20e222d3b0b3b5b467d277ca62f9fce161ce49d6fff74e7d9e",
+    "targets/pipeline34_left_projection_u32/prior/cpu.c": "7207e3064ab58ce089fe9cda4536aa5be19aadc316fe641e8d112c7ea9b6d561",
+    "targets/pipeline34_left_projection_u32/prior/cpu.wasm": "6ac14903ad30a2edf7ca4301a17fa79fb0891cd5f8e72cb66585a2881516a628",
+    "targets/pipeline34_left_projection_u32/prior/graph-0-0.wgsl": "de6abbd915cfb635597fe0494633848fbac0d9bd1705a82f7a42c6d01717334b",
+    "targets/pipeline34_left_projection_u32/prior/graph-0-1.wgsl": "9f7c7b46e1dc8e2e5192022d9fd5701ad5e552bdd5b18b6320eed7e0fc6e1305",
+    "targets/pipeline34_left_projection_u32/prior/graph-1-0.wgsl": "42e1de6df9665f0ca7d07ddd60a72ebf1ba194d9e992425ab91637b7fed03cc4",
+    "targets/pipeline34_left_projection_u32/prior/graph-1-1.wgsl": "3f4b95ede686c3d5d8e9cf41589ace4335641ac366e6547ec46a8a3a8cb372ab",
+    "targets/pipeline34_left_projection_u32/prior/graph-2-0.wgsl": "42e1de6df9665f0ca7d07ddd60a72ebf1ba194d9e992425ab91637b7fed03cc4",
+    "targets/pipeline34_left_projection_u32/prior/graph-3-0.wgsl": "4e367f662f8d75cb3f6b96280149b07724b140def5e29e11c828d642b499f77e",
+    "targets/pipeline34_left_projection_u32/prior/graph-4-0.wgsl": "4e367f662f8d75cb3f6b96280149b07724b140def5e29e11c828d642b499f77e",
+    "targets/pipeline34_left_projection_u32/prior/ink-device.mjs": "ff0c9715bb0284b98404056222dbc5e298a97f3a2b086c43cfa442570fb3095d",
+    "targets/pipeline34_left_projection_u32/prior/ink-gpu.mjs": "58effef88016a0f0f65e6e570c166870689ac7a8d767a2d856332ce17df9df15",
+    "targets/pipeline34_left_projection_u32/prior/manifest.json": "71cedb0b1c41aa62e31418a69be56f6f36f73b2e1d58a683ae0155d17aa6e465",
+    "targets/pipeline34_left_projection_u32/prior/native/Cargo.lock": "728a699c277b5b88bd2777371af738954802e9919d7945e996bf621e992ac558",
+    "targets/pipeline34_left_projection_u32/prior/native/Cargo.toml": "7ab1e271016b8340589b6cecb6228941a830c2552fea4f41d224e8d9d710abc4",
+    "targets/pipeline34_left_projection_u32/prior/native/build.rs": "c52450b31c8b1f3140d3bc6539823b8f87a8cc4758e08bb1c828bc1b3f98b17b",
+    "targets/pipeline34_left_projection_u32/prior/native/cpu.c": "7207e3064ab58ce089fe9cda4536aa5be19aadc316fe641e8d112c7ea9b6d561",
+    "targets/pipeline34_left_projection_u32/prior/native/src/assets.rs": "81ab711a578dafac678f85208f205268fab7d4c6be8e70b0e6a5df99d47fcee1",
+    "targets/pipeline34_left_projection_u32/prior/native/src/device.rs": "28a9130276abb7cb4bfc395b3031f3708cb1988ae4b09c51d661b6e48ba66bd5",
+    "targets/pipeline34_left_projection_u32/prior/native/src/lib.rs": "1f9d90a47adf8a2368b0c3af98654c66d57df841c2b4a982430d9d0c825dcb49",
+    "targets/pipeline34_left_projection_u32/prior/native/src/main.rs": "30b0fa01871915d082405826ab2919e43fa70583a0fe8011cfe28c7855b58e32",
+    "targets/pipeline34_left_projection_u32/prior/plan.json": "a967cf2de590d6bd23ec38ab14af441453e1520f98e29c7559f8dcb944c96be1",
+    "targets/pipeline34_left_projection_u32/prior/prepared-wasm.mjs": "cfd128e081b2fab9c35012878255af7f79a7720427c7b94363b0112d67289f06",
+    "targets/pipeline34_left_projection_u32/prior/program.mjs": "e6779488c5cc54b5700ae707a82e7158be13a972f70bfb2a5716ea24f0e31c01",
+    "targets/pipeline34_left_projection_u32/prior.core.json": "408b11473eb3a689045492a4214296bb23a367bdb7c62bd6a7b7117a2c225ce3",
+    "targets/pipeline34_left_projection_u32/prior.selection.json": "fdac534f178649806b7bbcdd12c5a0cacb6a28e7925d7af6feeac41c9ef38329",
+    "targets/pipeline34_left_projection_u32/prior.selection.receipt.json": "1e80b5799aefef0bd05bcdaea1fb2ba1c6524142e36ed3b0efd2bcbee6a99014",
+    "targets/pipeline34_left_projection_u32/source.ink": "25a68e37dda0a8307dd3ee7cae0a175859d6e103c752d7a008739346915ec5cb",
+    "targets/pipeline34_right_projection_u32/checked/backend-selection.mjs": "40d2d5f77967f3f4e96d2e3e0d83de6fcfc707d906ee70ebd01ab7cb38e90a87",
+    "targets/pipeline34_right_projection_u32/checked/compute-0.wgsl": "e57a34c1ec684b162bc0c9abc29f8c2d5a0bad0b6a63f6cdc40742f0682e3ea9",
+    "targets/pipeline34_right_projection_u32/checked/cpu.c": "36de47d7be8fd97c4585964e9a439c5c217fa97212e9e5f1b65d1870a1bdf8f1",
+    "targets/pipeline34_right_projection_u32/checked/cpu.wasm": "36aa7d387cc7c4e0e50761e4183a1a40ee4d8b735ad8d58a8023f8ce66fa200c",
+    "targets/pipeline34_right_projection_u32/checked/graph-0-0.wgsl": "c11cc4deb860d9cf4b5aea2fd0da2885f19a98d2a7c71f0d99170dc332251fc7",
+    "targets/pipeline34_right_projection_u32/checked/graph-1-0.wgsl": "42e1de6df9665f0ca7d07ddd60a72ebf1ba194d9e992425ab91637b7fed03cc4",
+    "targets/pipeline34_right_projection_u32/checked/graph-1-1.wgsl": "3f4b95ede686c3d5d8e9cf41589ace4335641ac366e6547ec46a8a3a8cb372ab",
+    "targets/pipeline34_right_projection_u32/checked/graph-2-0.wgsl": "42e1de6df9665f0ca7d07ddd60a72ebf1ba194d9e992425ab91637b7fed03cc4",
+    "targets/pipeline34_right_projection_u32/checked/graph-3-0.wgsl": "4e367f662f8d75cb3f6b96280149b07724b140def5e29e11c828d642b499f77e",
+    "targets/pipeline34_right_projection_u32/checked/graph-4-0.wgsl": "4e367f662f8d75cb3f6b96280149b07724b140def5e29e11c828d642b499f77e",
+    "targets/pipeline34_right_projection_u32/checked/ink-device.mjs": "ff0c9715bb0284b98404056222dbc5e298a97f3a2b086c43cfa442570fb3095d",
+    "targets/pipeline34_right_projection_u32/checked/ink-gpu.mjs": "58effef88016a0f0f65e6e570c166870689ac7a8d767a2d856332ce17df9df15",
+    "targets/pipeline34_right_projection_u32/checked/manifest.json": "b5de6c8064d0c95e579a2190ad86832dba5219d06ff3bce95affbcb294aeac42",
+    "targets/pipeline34_right_projection_u32/checked/native/Cargo.lock": "728a699c277b5b88bd2777371af738954802e9919d7945e996bf621e992ac558",
+    "targets/pipeline34_right_projection_u32/checked/native/Cargo.toml": "7ab1e271016b8340589b6cecb6228941a830c2552fea4f41d224e8d9d710abc4",
+    "targets/pipeline34_right_projection_u32/checked/native/build.rs": "c52450b31c8b1f3140d3bc6539823b8f87a8cc4758e08bb1c828bc1b3f98b17b",
+    "targets/pipeline34_right_projection_u32/checked/native/cpu.c": "36de47d7be8fd97c4585964e9a439c5c217fa97212e9e5f1b65d1870a1bdf8f1",
+    "targets/pipeline34_right_projection_u32/checked/native/src/assets.rs": "3b8d3013993d7fb91caa7f15648d157fcf0c2555f454142f32136151ac1cffae",
+    "targets/pipeline34_right_projection_u32/checked/native/src/device.rs": "28a9130276abb7cb4bfc395b3031f3708cb1988ae4b09c51d661b6e48ba66bd5",
+    "targets/pipeline34_right_projection_u32/checked/native/src/lib.rs": "1f9d90a47adf8a2368b0c3af98654c66d57df841c2b4a982430d9d0c825dcb49",
+    "targets/pipeline34_right_projection_u32/checked/native/src/main.rs": "30b0fa01871915d082405826ab2919e43fa70583a0fe8011cfe28c7855b58e32",
+    "targets/pipeline34_right_projection_u32/checked/plan.json": "2de33f7ff425a7b20c57ba7920c4b9b7d9c2d8ee2717a3960e845a3b7670e10d",
+    "targets/pipeline34_right_projection_u32/checked/prepared-wasm.mjs": "cfd128e081b2fab9c35012878255af7f79a7720427c7b94363b0112d67289f06",
+    "targets/pipeline34_right_projection_u32/checked/program.mjs": "585150a294ac407c60d210de0834934f18d45c58999cae71fe63f213871195dc",
+    "targets/pipeline34_right_projection_u32/checked.core.json": "6cc861bbc5a2999377c29f563866af1075ec84e0a4cb14e529987f6e575c159a",
+    "targets/pipeline34_right_projection_u32/checked.selection.json": "bc8618d2ffda3e16571ee657b1fb5c3d80e8e4998d9da9ba8b74826d7baa06e1",
+    "targets/pipeline34_right_projection_u32/checked.selection.receipt.json": "da7c246706ac2749f9840b65c3f40db8f9e4f9737fa7bfc6a5159e2b207f823a",
+    "targets/pipeline34_right_projection_u32/literal/backend-selection.mjs": "40d2d5f77967f3f4e96d2e3e0d83de6fcfc707d906ee70ebd01ab7cb38e90a87",
+    "targets/pipeline34_right_projection_u32/literal/compute-0.wgsl": "c9711e3acefecdef404c9076d74794c2dadb3a7878bce41708a6ed31a0eee18e",
+    "targets/pipeline34_right_projection_u32/literal/cpu.c": "baac44abe856f42d9b02bf47ede85bc6eeed78d025cee4023aaf10b9796e10e7",
+    "targets/pipeline34_right_projection_u32/literal/cpu.wasm": "7a634edb6c3c78a7e4911ef7c4190a4e241fc04a098f89c1c58b3debc958cec1",
+    "targets/pipeline34_right_projection_u32/literal/graph-0-0.wgsl": "de6abbd915cfb635597fe0494633848fbac0d9bd1705a82f7a42c6d01717334b",
+    "targets/pipeline34_right_projection_u32/literal/graph-0-1.wgsl": "c11cc4deb860d9cf4b5aea2fd0da2885f19a98d2a7c71f0d99170dc332251fc7",
+    "targets/pipeline34_right_projection_u32/literal/graph-1-0.wgsl": "42e1de6df9665f0ca7d07ddd60a72ebf1ba194d9e992425ab91637b7fed03cc4",
+    "targets/pipeline34_right_projection_u32/literal/graph-1-1.wgsl": "3f4b95ede686c3d5d8e9cf41589ace4335641ac366e6547ec46a8a3a8cb372ab",
+    "targets/pipeline34_right_projection_u32/literal/graph-2-0.wgsl": "42e1de6df9665f0ca7d07ddd60a72ebf1ba194d9e992425ab91637b7fed03cc4",
+    "targets/pipeline34_right_projection_u32/literal/graph-3-0.wgsl": "4e367f662f8d75cb3f6b96280149b07724b140def5e29e11c828d642b499f77e",
+    "targets/pipeline34_right_projection_u32/literal/graph-4-0.wgsl": "4e367f662f8d75cb3f6b96280149b07724b140def5e29e11c828d642b499f77e",
+    "targets/pipeline34_right_projection_u32/literal/ink-device.mjs": "ff0c9715bb0284b98404056222dbc5e298a97f3a2b086c43cfa442570fb3095d",
+    "targets/pipeline34_right_projection_u32/literal/ink-gpu.mjs": "58effef88016a0f0f65e6e570c166870689ac7a8d767a2d856332ce17df9df15",
+    "targets/pipeline34_right_projection_u32/literal/manifest.json": "8a80597bb1ddc5b35d940edfd5868eb804aeffde16fee4efd763f573b83e72e3",
+    "targets/pipeline34_right_projection_u32/literal/native/Cargo.lock": "728a699c277b5b88bd2777371af738954802e9919d7945e996bf621e992ac558",
+    "targets/pipeline34_right_projection_u32/literal/native/Cargo.toml": "7ab1e271016b8340589b6cecb6228941a830c2552fea4f41d224e8d9d710abc4",
+    "targets/pipeline34_right_projection_u32/literal/native/build.rs": "c52450b31c8b1f3140d3bc6539823b8f87a8cc4758e08bb1c828bc1b3f98b17b",
+    "targets/pipeline34_right_projection_u32/literal/native/cpu.c": "baac44abe856f42d9b02bf47ede85bc6eeed78d025cee4023aaf10b9796e10e7",
+    "targets/pipeline34_right_projection_u32/literal/native/src/assets.rs": "ec8d066ea1cb0039b1b8b565d8517edd1e04daa1da284afef35148c7c3b7f6f8",
+    "targets/pipeline34_right_projection_u32/literal/native/src/device.rs": "28a9130276abb7cb4bfc395b3031f3708cb1988ae4b09c51d661b6e48ba66bd5",
+    "targets/pipeline34_right_projection_u32/literal/native/src/lib.rs": "1f9d90a47adf8a2368b0c3af98654c66d57df841c2b4a982430d9d0c825dcb49",
+    "targets/pipeline34_right_projection_u32/literal/native/src/main.rs": "30b0fa01871915d082405826ab2919e43fa70583a0fe8011cfe28c7855b58e32",
+    "targets/pipeline34_right_projection_u32/literal/plan.json": "2a317b2717d29c0500922060908e4937884009327bcffec6a70c48abdbb5471c",
+    "targets/pipeline34_right_projection_u32/literal/prepared-wasm.mjs": "cfd128e081b2fab9c35012878255af7f79a7720427c7b94363b0112d67289f06",
+    "targets/pipeline34_right_projection_u32/literal/program.mjs": "ff8d345979a977d3a88d5eb5f8c1a885441593d1a0e4572cac66f854df2a2648",
+    "targets/pipeline34_right_projection_u32/literal.core.json": "81404d295c13e9c2cc73190b56179ae1f2a1b9afa5fa90377b94572035738cfc",
+    "targets/pipeline34_right_projection_u32/oracle-args.json": "91d4ad2d28858daec1aca5dd0b6028dadf6b6c39a8b61c446c803ec3d2530286",
+    "targets/pipeline34_right_projection_u32/prior/backend-selection.mjs": "40d2d5f77967f3f4e96d2e3e0d83de6fcfc707d906ee70ebd01ab7cb38e90a87",
+    "targets/pipeline34_right_projection_u32/prior/compute-0.wgsl": "c9711e3acefecdef404c9076d74794c2dadb3a7878bce41708a6ed31a0eee18e",
+    "targets/pipeline34_right_projection_u32/prior/cpu.c": "baac44abe856f42d9b02bf47ede85bc6eeed78d025cee4023aaf10b9796e10e7",
+    "targets/pipeline34_right_projection_u32/prior/cpu.wasm": "41a9a79f3972be4529d3bb246cdab5ec835536453885cfb837c261c7746f6440",
+    "targets/pipeline34_right_projection_u32/prior/graph-0-0.wgsl": "de6abbd915cfb635597fe0494633848fbac0d9bd1705a82f7a42c6d01717334b",
+    "targets/pipeline34_right_projection_u32/prior/graph-0-1.wgsl": "c11cc4deb860d9cf4b5aea2fd0da2885f19a98d2a7c71f0d99170dc332251fc7",
+    "targets/pipeline34_right_projection_u32/prior/graph-1-0.wgsl": "42e1de6df9665f0ca7d07ddd60a72ebf1ba194d9e992425ab91637b7fed03cc4",
+    "targets/pipeline34_right_projection_u32/prior/graph-1-1.wgsl": "3f4b95ede686c3d5d8e9cf41589ace4335641ac366e6547ec46a8a3a8cb372ab",
+    "targets/pipeline34_right_projection_u32/prior/graph-2-0.wgsl": "42e1de6df9665f0ca7d07ddd60a72ebf1ba194d9e992425ab91637b7fed03cc4",
+    "targets/pipeline34_right_projection_u32/prior/graph-3-0.wgsl": "4e367f662f8d75cb3f6b96280149b07724b140def5e29e11c828d642b499f77e",
+    "targets/pipeline34_right_projection_u32/prior/graph-4-0.wgsl": "4e367f662f8d75cb3f6b96280149b07724b140def5e29e11c828d642b499f77e",
+    "targets/pipeline34_right_projection_u32/prior/ink-device.mjs": "ff0c9715bb0284b98404056222dbc5e298a97f3a2b086c43cfa442570fb3095d",
+    "targets/pipeline34_right_projection_u32/prior/ink-gpu.mjs": "58effef88016a0f0f65e6e570c166870689ac7a8d767a2d856332ce17df9df15",
+    "targets/pipeline34_right_projection_u32/prior/manifest.json": "8a80597bb1ddc5b35d940edfd5868eb804aeffde16fee4efd763f573b83e72e3",
+    "targets/pipeline34_right_projection_u32/prior/native/Cargo.lock": "728a699c277b5b88bd2777371af738954802e9919d7945e996bf621e992ac558",
+    "targets/pipeline34_right_projection_u32/prior/native/Cargo.toml": "7ab1e271016b8340589b6cecb6228941a830c2552fea4f41d224e8d9d710abc4",
+    "targets/pipeline34_right_projection_u32/prior/native/build.rs": "c52450b31c8b1f3140d3bc6539823b8f87a8cc4758e08bb1c828bc1b3f98b17b",
+    "targets/pipeline34_right_projection_u32/prior/native/cpu.c": "baac44abe856f42d9b02bf47ede85bc6eeed78d025cee4023aaf10b9796e10e7",
+    "targets/pipeline34_right_projection_u32/prior/native/src/assets.rs": "ec8d066ea1cb0039b1b8b565d8517edd1e04daa1da284afef35148c7c3b7f6f8",
+    "targets/pipeline34_right_projection_u32/prior/native/src/device.rs": "28a9130276abb7cb4bfc395b3031f3708cb1988ae4b09c51d661b6e48ba66bd5",
+    "targets/pipeline34_right_projection_u32/prior/native/src/lib.rs": "1f9d90a47adf8a2368b0c3af98654c66d57df841c2b4a982430d9d0c825dcb49",
+    "targets/pipeline34_right_projection_u32/prior/native/src/main.rs": "30b0fa01871915d082405826ab2919e43fa70583a0fe8011cfe28c7855b58e32",
+    "targets/pipeline34_right_projection_u32/prior/plan.json": "33dc20b7c20ab16b21d75a266e961dc6a4015133cf588481323a5fa1c8ad2a0e",
+    "targets/pipeline34_right_projection_u32/prior/prepared-wasm.mjs": "cfd128e081b2fab9c35012878255af7f79a7720427c7b94363b0112d67289f06",
+    "targets/pipeline34_right_projection_u32/prior/program.mjs": "ff8d345979a977d3a88d5eb5f8c1a885441593d1a0e4572cac66f854df2a2648",
+    "targets/pipeline34_right_projection_u32/prior.core.json": "81404d295c13e9c2cc73190b56179ae1f2a1b9afa5fa90377b94572035738cfc",
+    "targets/pipeline34_right_projection_u32/prior.selection.json": "4586ee3162c849aac3847337fdf5d067efb5ce67df5c7f4d6fd81f5f7c6d97d6",
+    "targets/pipeline34_right_projection_u32/prior.selection.receipt.json": "4ff62aae298e52c4e3d318367d504af410b6f3c4353ebb66d2564b22d08de8d3",
+    "targets/pipeline34_right_projection_u32/source.ink": "5083c23dd37a4c77efc94ac983db69c1edc1c926d84cb0d5c62c98c401344973"
+  }
+}

@@ -1,0 +1,533 @@
+{
+  "schema": 1,
+  "semantics": "ink-semantic-terms-v1",
+  "input_core_sha256": "2a4de28d5c42c1cf9cf8fa99d280872c7d63fa708a95cf0372c3e58f568a323a",
+  "functions": {
+    "left_word": {
+      "sort": {
+        "Value": "U64"
+      },
+      "node": {
+        "Op": [
+          "binary:+",
+          [
+            {
+              "sort": {
+                "Value": "U64"
+              },
+              "node": {
+                "Op": [
+                  "call:quot_or",
+                  [
+                    {
+                      "sort": {
+                        "Value": "U64"
+                      },
+                      "node": {
+                        "Free": "x"
+                      }
+                    },
+                    {
+                      "sort": {
+                        "Value": "U64"
+                      },
+                      "node": {
+                        "Free": "k"
+                      }
+                    },
+                    {
+                      "sort": {
+                        "Value": "U64"
+                      },
+                      "node": {
+                        "Word": 0
+                      }
+                    }
+                  ]
+                ]
+              }
+            },
+            {
+              "sort": {
+                "Value": "U64"
+              },
+              "node": {
+                "Free": "seed"
+              }
+            }
+          ]
+        ]
+      }
+    },
+    "output_word": {
+      "sort": {
+        "Value": "U64"
+      },
+      "node": {
+        "Op": [
+          "call:choose",
+          [
+            {
+              "sort": {
+                "Value": "Bool"
+              },
+              "node": {
+                "Op": [
+                  "binary:<",
+                  [
+                    {
+                      "sort": {
+                        "Value": "U64"
+                      },
+                      "node": {
+                        "Free": "x"
+                      }
+                    },
+                    {
+                      "sort": {
+                        "Value": "U64"
+                      },
+                      "node": {
+                        "Free": "seed"
+                      }
+                    }
+                  ]
+                ]
+              }
+            },
+            {
+              "sort": {
+                "Value": "U64"
+              },
+              "node": {
+                "Op": [
+                  "binary:+",
+                  [
+                    {
+                      "sort": {
+                        "Value": "U64"
+                      },
+                      "node": {
+                        "Free": "x"
+                      }
+                    },
+                    {
+                      "sort": {
+                        "Value": "U64"
+                      },
+                      "node": {
+                        "Free": "k"
+                      }
+                    }
+                  ]
+                ]
+              }
+            },
+            {
+              "sort": {
+                "Value": "U64"
+              },
+              "node": {
+                "Op": [
+                  "binary:-",
+                  [
+                    {
+                      "sort": {
+                        "Value": "U64"
+                      },
+                      "node": {
+                        "Free": "x"
+                      }
+                    },
+                    {
+                      "sort": {
+                        "Value": "U64"
+                      },
+                      "node": {
+                        "Free": "k"
+                      }
+                    }
+                  ]
+                ]
+              }
+            }
+          ]
+        ]
+      }
+    },
+    "pipeline32_paired_prefix_add_heldout_u64": {
+      "sort": {
+        "Value": {
+          "List": "U64"
+        }
+      },
+      "node": {
+        "Op": [
+          "method:map",
+          [
+            {
+              "sort": {
+                "Value": {
+                  "List": "U64"
+                }
+              },
+              "node": {
+                "Op": [
+                  "method:zip",
+                  [
+                    {
+                      "sort": {
+                        "Value": {
+                          "List": "U64"
+                        }
+                      },
+                      "node": {
+                        "Op": [
+                          "method:scan",
+                          [
+                            {
+                              "sort": {
+                                "Value": {
+                                  "List": "U64"
+                                }
+                              },
+                              "node": {
+                                "Op": [
+                                  "method:map",
+                                  [
+                                    {
+                                      "sort": {
+                                        "Value": {
+                                          "List": "U64"
+                                        }
+                                      },
+                                      "node": {
+                                        "Free": "xs"
+                                      }
+                                    },
+                                    {
+                                      "sort": {
+                                        "Arrow": [
+                                          {
+                                            "Value": "U64"
+                                          },
+                                          {
+                                            "Value": "U64"
+                                          }
+                                        ]
+                                      },
+                                      "node": {
+                                        "Lambda": {
+                                          "sort": {
+                                            "Value": "U64"
+                                          },
+                                          "node": {
+                                            "Op": [
+                                              "call:left_word",
+                                              [
+                                                {
+                                                  "sort": {
+                                                    "Value": "U64"
+                                                  },
+                                                  "node": {
+                                                    "Bound": 0
+                                                  }
+                                                },
+                                                {
+                                                  "sort": {
+                                                    "Value": "U64"
+                                                  },
+                                                  "node": {
+                                                    "Free": "seed"
+                                                  }
+                                                },
+                                                {
+                                                  "sort": {
+                                                    "Value": "U64"
+                                                  },
+                                                  "node": {
+                                                    "Free": "k"
+                                                  }
+                                                }
+                                              ]
+                                            ]
+                                          }
+                                        }
+                                      }
+                                    }
+                                  ]
+                                ]
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    },
+                    {
+                      "sort": {
+                        "Value": {
+                          "List": "U64"
+                        }
+                      },
+                      "node": {
+                        "Op": [
+                          "method:scan",
+                          [
+                            {
+                              "sort": {
+                                "Value": {
+                                  "List": "U64"
+                                }
+                              },
+                              "node": {
+                                "Op": [
+                                  "method:map",
+                                  [
+                                    {
+                                      "sort": {
+                                        "Value": {
+                                          "List": "U64"
+                                        }
+                                      },
+                                      "node": {
+                                        "Free": "ys"
+                                      }
+                                    },
+                                    {
+                                      "sort": {
+                                        "Arrow": [
+                                          {
+                                            "Value": "U64"
+                                          },
+                                          {
+                                            "Value": "U64"
+                                          }
+                                        ]
+                                      },
+                                      "node": {
+                                        "Lambda": {
+                                          "sort": {
+                                            "Value": "U64"
+                                          },
+                                          "node": {
+                                            "Op": [
+                                              "call:right_word",
+                                              [
+                                                {
+                                                  "sort": {
+                                                    "Value": "U64"
+                                                  },
+                                                  "node": {
+                                                    "Bound": 0
+                                                  }
+                                                },
+                                                {
+                                                  "sort": {
+                                                    "Value": "U64"
+                                                  },
+                                                  "node": {
+                                                    "Free": "seed"
+                                                  }
+                                                },
+                                                {
+                                                  "sort": {
+                                                    "Value": "U64"
+                                                  },
+                                                  "node": {
+                                                    "Free": "k"
+                                                  }
+                                                }
+                                              ]
+                                            ]
+                                          }
+                                        }
+                                      }
+                                    }
+                                  ]
+                                ]
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    },
+                    {
+                      "sort": {
+                        "Arrow": [
+                          {
+                            "Value": "U64"
+                          },
+                          {
+                            "Arrow": [
+                              {
+                                "Value": "U64"
+                              },
+                              {
+                                "Value": "U64"
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      "node": {
+                        "Lambda": {
+                          "sort": {
+                            "Arrow": [
+                              {
+                                "Value": "U64"
+                              },
+                              {
+                                "Value": "U64"
+                              }
+                            ]
+                          },
+                          "node": {
+                            "Lambda": {
+                              "sort": {
+                                "Value": "U64"
+                              },
+                              "node": {
+                                "Op": [
+                                  "binary:+",
+                                  [
+                                    {
+                                      "sort": {
+                                        "Value": "U64"
+                                      },
+                                      "node": {
+                                        "Bound": 1
+                                      }
+                                    },
+                                    {
+                                      "sort": {
+                                        "Value": "U64"
+                                      },
+                                      "node": {
+                                        "Bound": 0
+                                      }
+                                    }
+                                  ]
+                                ]
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                ]
+              }
+            },
+            {
+              "sort": {
+                "Arrow": [
+                  {
+                    "Value": "U64"
+                  },
+                  {
+                    "Value": "U64"
+                  }
+                ]
+              },
+              "node": {
+                "Lambda": {
+                  "sort": {
+                    "Value": "U64"
+                  },
+                  "node": {
+                    "Op": [
+                      "call:output_word",
+                      [
+                        {
+                          "sort": {
+                            "Value": "U64"
+                          },
+                          "node": {
+                            "Bound": 0
+                          }
+                        },
+                        {
+                          "sort": {
+                            "Value": "U64"
+                          },
+                          "node": {
+                            "Free": "seed"
+                          }
+                        },
+                        {
+                          "sort": {
+                            "Value": "U64"
+                          },
+                          "node": {
+                            "Free": "k"
+                          }
+                        }
+                      ]
+                    ]
+                  }
+                }
+              }
+            }
+          ]
+        ]
+      }
+    },
+    "right_word": {
+      "sort": {
+        "Value": "U64"
+      },
+      "node": {
+        "Op": [
+          "binary:+",
+          [
+            {
+              "sort": {
+                "Value": "U64"
+              },
+              "node": {
+                "Op": [
+                  "call:rem_or",
+                  [
+                    {
+                      "sort": {
+                        "Value": "U64"
+                      },
+                      "node": {
+                        "Free": "x"
+                      }
+                    },
+                    {
+                      "sort": {
+                        "Value": "U64"
+                      },
+                      "node": {
+                        "Free": "k"
+                      }
+                    },
+                    {
+                      "sort": {
+                        "Value": "U64"
+                      },
+                      "node": {
+                        "Word": 0
+                      }
+                    }
+                  ]
+                ]
+              }
+            },
+            {
+              "sort": {
+                "Value": "U64"
+              },
+              "node": {
+                "Free": "k"
+              }
+            }
+          ]
+        ]
+      }
+    }
+  },
+  "unavailable": []
+}

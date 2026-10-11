@@ -1,0 +1,33 @@
+[
+  {
+    "argv": [
+      "rustc",
+      "--edition=2021",
+      "--crate-type=cdylib",
+      "--target",
+      "wasm32-unknown-unknown",
+      "-C",
+      "opt-level=3",
+      "-C",
+      "panic=abort",
+      "-C",
+      "target-feature=+simd128",
+      "bench/web-stack-proofs-37/expert.rs",
+      "-o",
+      "reports/web-stack-proofs-37-2026-10-11/benchmark-preparation/rust-expert.wasm"
+    ],
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "warning: constant `VECTOR` is never used\n --> bench/web-stack-proofs-37/expert.rs:2:7\n  |\n2 | const VECTOR:[bool;4]=[true,true,true,true];\n  |       ^^^^^^\n  |\n  = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default\n\nwarning: 1 warning emitted\n\n"
+  },
+  {
+    "argv": [
+      "node",
+      "bench/web-stack-proofs-37/control-validation.mjs",
+      "reports/web-stack-proofs-37-2026-10-11/benchmark-preparation"
+    ],
+    "exit_code": 0,
+    "stdout": "passed 96 frames 192 complete outputs; untimed\n",
+    "stderr": ""
+  }
+]

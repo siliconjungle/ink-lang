@@ -1,0 +1,24 @@
+warning: field `graph` is never read
+   --> lowerings/gpu/src/compute.rs:104:5
+    |
+ 98 | struct Emitter<'a> {
+    |        ------- field in this struct
+...
+104 |     graph: bool,
+    |     ^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+   Compiling ink-lowering-js v0.1.0 (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/lowerings/js)
+warning: `ink-lowering-gpu` (lib) generated 1 warning
+   Compiling ink-runtime v0.1.0 (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/runtime)
+   Compiling ink v0.1.0 (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.24s
+     Running tests/collection_pipeline_optimisation.rs (reports/web-stack-proofs-32-2026-10-11/main-integration/cargo-target/debug/deps/collection_pipeline_optimisation-ca87f9336264d8bc)
+
+running 2 tests
+test pipeline_proofs_replay_and_rehashed_false_laws_fail ... ok
+test database_only_selection_removes_pipelines_and_preserves_cpu_results ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 31.57s
+

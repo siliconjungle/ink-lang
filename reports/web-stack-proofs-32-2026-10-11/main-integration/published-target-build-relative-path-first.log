@@ -1,0 +1,17 @@
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/reports/web-stack-proofs-32-2026-10-11/main-integration/published-main-targets-untimed/build-current.py", line 26, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/reports/web-stack-proofs-32-2026-10-11/main-integration/published-main-targets-untimed/build-current.py", line 21, in main
+    run([o.compiler,'build',dest/(version+'.core.json'),'--core','--target','webgpu','--zig',o.zig,'-o',target])
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/reports/web-stack-proofs-32-2026-10-11/main-integration/published-main-targets-untimed/build-current.py", line 16, in run
+    p=subprocess.run(list(map(str,argv)),capture_output=True,text=True,cwd=ROOT); commands.append(dict(argv=list(map(str,argv)),exit_code=p.returncode,stdout=p.stdout,stderr=p.stderr)); (P/'commands.json').write_text(json.dumps(commands,indent=2)+'\n'); assert p.returncode==0,p.stderr+'\n'+p.stdout
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 548, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1955, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '../ink-main-publish'

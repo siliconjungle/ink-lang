@@ -1,0 +1,504 @@
+{
+  "status": "passed",
+  "timed": false,
+  "report": "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/reports/web-stack-proofs-36-2026-10-11/targets-final",
+  "result_kind": "scalar_u32",
+  "compiler_sha256": "04f42856696cbc9a4d5b0523e4a2c5d9d84ae28e0e039f0fd9c305fe2d0a5536",
+  "model_sha256": "5d1158860dba2b72ab6e632c4eceac76c9589de81a687d446f25044fe88481be",
+  "prior_snapshot": "b7d979fd4861a1b82897f142737e9b8161f8c2946e9f7fa6514b50aefd45240b",
+  "current_snapshot": "7f5e7a94b49db567af55f5d1129dd07c5e2b469ebd45cb6e5cbc53595782b2be",
+  "prepared_bindings_verified": 393,
+  "native_bindings_verified": 107,
+  "fixtures": 96,
+  "timed_cells": 24,
+  "strong_controls": {
+    "frames": 96,
+    "complete_outputs": 192,
+    "negative_order_controls": [
+      {
+        "task": "pipeline36_plain_ordered_u32",
+        "frame": "pipeline36_plain_ordered_u32-low-2",
+        "correct": 1173,
+        "incorrect_forward": 1203,
+        "forward_order_rejected": true
+      },
+      {
+        "task": "pipeline36_nested_ordered_u32",
+        "frame": "pipeline36_nested_ordered_u32-low-2",
+        "correct": 1117,
+        "incorrect_forward": 1147,
+        "forward_order_rejected": true
+      },
+      {
+        "task": "pipeline36_filtered_ordered_heldout_u32",
+        "frame": "pipeline36_filtered_ordered_heldout_u32-low-32",
+        "correct": 4294967223,
+        "incorrect_forward": 4294967215,
+        "forward_order_rejected": true
+      },
+      {
+        "task": "pipeline36_concat_ordered_heldout_u32",
+        "frame": "pipeline36_concat_ordered_heldout_u32-low-0",
+        "correct": 4294966791,
+        "incorrect_forward": 3559,
+        "forward_order_rejected": true
+      }
+    ]
+  },
+  "node": {
+    "status": "passed",
+    "host": "node",
+    "timed": false,
+    "validation": 1152,
+    "complete_output_checks": 3072,
+    "actual_gpu_validation": 0,
+    "fallback_validation": 0,
+    "bindings": {
+      "metadata": "2a1ada71ca0b084f1182017cbbf8c250ffc5ae1297faa041b2d1e59b39b84aed",
+      "results": "9d776efd9eea279f5987efa5420c92142d3c52388b961faffead7a3eaeccd103"
+    }
+  },
+  "native": {
+    "status": "prepared",
+    "full_scalar_output_and_input_nonmutation_checks": 384,
+    "samples": 0,
+    "result_kind": "scalar_u32",
+    "boundary": "resident inputs or copied inputs; scalar return consumption and scratch reset inside timer, setup outside; no output destination or cross-host boundary ranking"
+  },
+  "machine_fields": {
+    "spec": "scalar_u32",
+    "all_task_output_kinds": [
+      "scalar_u32"
+    ],
+    "protocol": "u32-scalar-value",
+    "runner": "u32-scalar-value",
+    "native": "scalar_u32"
+  },
+  "boundaries": [
+    "captured-js-value",
+    "captured-wasm-value",
+    "resident-wasm-value",
+    "instrumented-full-gpu-value",
+    "resident-native-value",
+    "captured-native-value"
+  ],
+  "gpu_contract": {
+    "route": "graph-required for all 12 primary targets; parent performs actual GPU device validation",
+    "dispatches": "exact emitted graph node count, including empty inputs",
+    "upload_bytes": "4*(xs.length+ys.length+2 scalar parameters+2 list headers)",
+    "readback_bytes": 4,
+    "ordered_reducer": "scalar fold nodes execute descending serial loops; mapper fusion may reduce parallel preprocessing and timings must establish effects"
+  },
+  "selections": [
+    {
+      "name": "pipeline36_plain_ordered_u32",
+      "prior_applications": 0,
+      "prior_laws": [],
+      "fresh_laws": [
+        "fc18eece24973ea19a566389a3593c42509fee2258a265a5ca032617a2e83b6f"
+      ],
+      "checked_applications": 1,
+      "checked_changes_prior": true,
+      "routes": {
+        "literal": {
+          "graph_required": true,
+          "stages": 2,
+          "nodes": [
+            {
+              "op": "map",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0
+                ],
+                "kind": "same"
+              }
+            },
+            {
+              "op": "foldr",
+              "ordered": true,
+              "capacity": {
+                "args": [],
+                "kind": "one"
+              }
+            }
+          ]
+        },
+        "prior": {
+          "graph_required": true,
+          "stages": 2,
+          "nodes": [
+            {
+              "op": "map",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0
+                ],
+                "kind": "same"
+              }
+            },
+            {
+              "op": "foldr",
+              "ordered": true,
+              "capacity": {
+                "args": [],
+                "kind": "one"
+              }
+            }
+          ]
+        },
+        "checked": {
+          "graph_required": true,
+          "stages": 1,
+          "nodes": [
+            {
+              "op": "foldr",
+              "ordered": true,
+              "capacity": {
+                "args": [],
+                "kind": "one"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "pipeline36_nested_ordered_u32",
+      "prior_applications": 0,
+      "prior_laws": [],
+      "fresh_laws": [
+        "179031cd072a1c8575d868db51acecfed0a51b59b3930ef7f3c6994271b1f77f"
+      ],
+      "checked_applications": 1,
+      "checked_changes_prior": true,
+      "routes": {
+        "literal": {
+          "graph_required": true,
+          "stages": 3,
+          "nodes": [
+            {
+              "op": "map",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0
+                ],
+                "kind": "same"
+              }
+            },
+            {
+              "op": "map",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0
+                ],
+                "kind": "same"
+              }
+            },
+            {
+              "op": "foldr",
+              "ordered": true,
+              "capacity": {
+                "args": [],
+                "kind": "one"
+              }
+            }
+          ]
+        },
+        "prior": {
+          "graph_required": true,
+          "stages": 3,
+          "nodes": [
+            {
+              "op": "map",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0
+                ],
+                "kind": "same"
+              }
+            },
+            {
+              "op": "map",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0
+                ],
+                "kind": "same"
+              }
+            },
+            {
+              "op": "foldr",
+              "ordered": true,
+              "capacity": {
+                "args": [],
+                "kind": "one"
+              }
+            }
+          ]
+        },
+        "checked": {
+          "graph_required": true,
+          "stages": 1,
+          "nodes": [
+            {
+              "op": "foldr",
+              "ordered": true,
+              "capacity": {
+                "args": [],
+                "kind": "one"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "pipeline36_filtered_ordered_heldout_u32",
+      "prior_applications": 0,
+      "prior_laws": [],
+      "fresh_laws": [
+        "c9f9310b4772764c0267b9bda75f3c5a9543d07a25e4e7f149141e29f0b7b4ad"
+      ],
+      "checked_applications": 1,
+      "checked_changes_prior": true,
+      "routes": {
+        "literal": {
+          "graph_required": true,
+          "stages": 3,
+          "nodes": [
+            {
+              "op": "filter",
+              "ordered": true,
+              "capacity": {
+                "args": [
+                  0
+                ],
+                "kind": "same"
+              }
+            },
+            {
+              "op": "map",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0
+                ],
+                "kind": "same"
+              }
+            },
+            {
+              "op": "foldr",
+              "ordered": true,
+              "capacity": {
+                "args": [],
+                "kind": "one"
+              }
+            }
+          ]
+        },
+        "prior": {
+          "graph_required": true,
+          "stages": 3,
+          "nodes": [
+            {
+              "op": "filter",
+              "ordered": true,
+              "capacity": {
+                "args": [
+                  0
+                ],
+                "kind": "same"
+              }
+            },
+            {
+              "op": "map",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0
+                ],
+                "kind": "same"
+              }
+            },
+            {
+              "op": "foldr",
+              "ordered": true,
+              "capacity": {
+                "args": [],
+                "kind": "one"
+              }
+            }
+          ]
+        },
+        "checked": {
+          "graph_required": true,
+          "stages": 1,
+          "nodes": [
+            {
+              "op": "foldr",
+              "ordered": true,
+              "capacity": {
+                "args": [],
+                "kind": "one"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "pipeline36_concat_ordered_heldout_u32",
+      "prior_applications": 1,
+      "prior_laws": [
+        "4a5cc1087ab886d514487cf7f26708d7a469e5d92467ae0d4f801693dadd076a"
+      ],
+      "fresh_laws": [
+        "7936ae41231b7ab91830c9b314840484aa64495497839188f741294aa24cdb74"
+      ],
+      "checked_applications": 1,
+      "checked_changes_prior": true,
+      "routes": {
+        "literal": {
+          "graph_required": true,
+          "stages": 4,
+          "nodes": [
+            {
+              "op": "map",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0
+                ],
+                "kind": "same"
+              }
+            },
+            {
+              "op": "map",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0
+                ],
+                "kind": "same"
+              }
+            },
+            {
+              "op": "concat",
+              "ordered": true,
+              "capacity": {
+                "args": [
+                  0,
+                  1
+                ],
+                "kind": "sum"
+              }
+            },
+            {
+              "op": "foldr",
+              "ordered": true,
+              "capacity": {
+                "args": [],
+                "kind": "one"
+              }
+            }
+          ]
+        },
+        "prior": {
+          "graph_required": true,
+          "stages": 4,
+          "nodes": [
+            {
+              "op": "map",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0
+                ],
+                "kind": "same"
+              }
+            },
+            {
+              "op": "map",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0
+                ],
+                "kind": "same"
+              }
+            },
+            {
+              "op": "foldr",
+              "ordered": true,
+              "capacity": {
+                "args": [],
+                "kind": "one"
+              }
+            },
+            {
+              "op": "foldr",
+              "ordered": true,
+              "capacity": {
+                "args": [],
+                "kind": "one"
+              }
+            }
+          ]
+        },
+        "checked": {
+          "graph_required": true,
+          "stages": 2,
+          "nodes": [
+            {
+              "op": "foldr",
+              "ordered": true,
+              "capacity": {
+                "args": [],
+                "kind": "one"
+              }
+            },
+            {
+              "op": "foldr",
+              "ordered": true,
+              "capacity": {
+                "args": [],
+                "kind": "one"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "correction": {
+    "reason": "Initial untimed Node run used scalar64 resident dispatcher for scalar U32, which has no U32 cases and traps. Corrected harness calls scalar32 and converts signed i32 return to unsigned U32.",
+    "production_changed": false,
+    "initial_artifacts_preserved": true,
+    "changed_prepared_files": [
+      "runner.mjs"
+    ],
+    "receipt_sha256": "257532d8283031be54c21e1de76a2ccfc7b6123405188beb9db8c101767c8f43"
+  },
+  "bindings": {
+    "targets-final/metadata.json": "2a1ada71ca0b084f1182017cbbf8c250ffc5ae1297faa041b2d1e59b39b84aed",
+    "targets-final/spec.json": "a2c1a7eda09881029df2876cc397c950c713872935b63cdfe33c9b3c230c410e",
+    "targets-final/fixtures.json": "2f73d0bcb481c3c1dbbbe20c046213dbec7a6a6ed93921d4049030ccfe6b41c4",
+    "targets-final/node-validation.json": "9d776efd9eea279f5987efa5420c92142d3c52388b961faffead7a3eaeccd103",
+    "targets-final/node-validation-audit.json": "931399230a546c6d6f620a35284f90206059090187b754cff2e43275bb0344df",
+    "targets-final/native/metadata.json": "9755b2c944c595683e0d01ac2bcee5de4d81e23a8eac209a283320a5cb9099f7",
+    "targets-final/native/commands.json": "c3c4e4486a14527d69f8149e48ec0140dee47f5bc085fe76c7781f034a774c20",
+    "benchmark-preparation/scalar32-correction.json": "257532d8283031be54c21e1de76a2ccfc7b6123405188beb9db8c101767c8f43",
+    "benchmark-preparation/control-validation.json": "a3bd0bf61bd0ce4fa472618cb7efbdf56b408dfd58744c322975aa6f1abb4991",
+    "benchmark-preparation/prior-function-hole-diagnostic.json": "6afdd4000fa6b67fe6e6f6d5bfb2b2ee76b81396be5e8927c2bcba00a64ad2b4",
+    "benchmark-preparation/prepare.log": "2c0fe5a934180933196f131792849239fb5797d84ad696ad3d97bb0760506245",
+    "benchmark-preparation/node-validation.log": "ff99591558d9224d50a09bb023204988fe32dd311dc952c69eaf306d71301a16",
+    "benchmark-preparation/node-final-validation.log": "fd2984dbf35c9da6585fe806910b1b563c7b75d0b6604f13d225a7f575cd39b3",
+    "benchmark-preparation/native-final-preparation.log": "f6e669ab1393ae96b5c737ca777b6e88db8b0a88b6ff49ff9e95908c4ffd07a7"
+  }
+}

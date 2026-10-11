@@ -18,7 +18,7 @@ pub fn needed(p: &Program) -> bool {
                     || a.iter().any(expr)
             }
             Expr::Method(x, n, a) => {
-                ["zip", "map_indexed", "at_or", "scan", "sort"].contains(&n.as_str())
+                ["zip", "map_indexed", "at_or", "scan", "sort", "concat"].contains(&n.as_str())
                     || expr(x)
                     || a.iter().any(expr)
             }

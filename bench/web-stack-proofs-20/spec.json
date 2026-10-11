@@ -1,0 +1,203 @@
+{
+  "schema": 1,
+  "rust_abi": "bench_eval(case,xs_ptr,xs_len,ys_ptr,ys_len,seed,k,out)->word_count",
+  "tasks": [
+    {
+      "name": "gated_mapper_sum_u32",
+      "generic_family": "gated_mapper_sum_u32",
+      "operation": "gate_sum",
+      "cohort": "discovery",
+      "gate": "seed<k",
+      "mapper": "quot_or(x+seed,k,seed)",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 0,
+      "fresh_proof_required": true,
+      "gated": true,
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "result_length": "one scalar word"
+    },
+    {
+      "name": "gated_predicate_count_u32",
+      "generic_family": "gated_predicate_count_u32",
+      "operation": "gate_count",
+      "cohort": "discovery",
+      "gate": "seed<k",
+      "predicate": "x<seed",
+      "output": "u64",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 1,
+      "fresh_proof_required": true,
+      "gated": true,
+      "output_kind": "u64",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 2,
+      "result_length": "two scalar words"
+    },
+    {
+      "name": "gated_arbitrary_fold_u32",
+      "generic_family": "gated_arbitrary_fold_u32",
+      "operation": "gate_fold",
+      "cohort": "discovery",
+      "gate": "seed<k",
+      "reducer": "(x+seed)*(a+k)",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 2,
+      "fresh_proof_required": true,
+      "gated": true,
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "result_length": "one scalar word"
+    },
+    {
+      "name": "gated_arbitrary_fold_u32_heldout",
+      "generic_family": "gated_arbitrary_fold_u32",
+      "operation": "gate_fold",
+      "cohort": "heldout",
+      "gate": "seed==k",
+      "reducer": "choose(x<k,a+x*seed,a-x*k)",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 3,
+      "fresh_proof_required": true,
+      "gated": true,
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "result_length": "one scalar word"
+    },
+    {
+      "name": "paired_ordered_score_u32",
+      "generic_family": "self_zip_arbitrary_ordered_fold_u32",
+      "operation": "zip_fold",
+      "cohort": "discovery",
+      "combine": "choose(a<seed,a+b*k,a-b*k)",
+      "reducer": "choose(acc<seed,v-acc,v+acc*k)",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 4,
+      "fresh_proof_required": true,
+      "gated": false,
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "result_length": "one scalar word"
+    },
+    {
+      "name": "paired_ordered_signal_heldout_u32",
+      "generic_family": "self_zip_arbitrary_ordered_fold_u32",
+      "operation": "zip_fold",
+      "cohort": "heldout",
+      "combine": "choose(a>k,a*b+seed,a+b*k)",
+      "reducer": "choose(v<seed,v+acc*k,v-acc)",
+      "output": "u32",
+      "list_inputs": [
+        "xs"
+      ],
+      "index": 5,
+      "fresh_proof_required": true,
+      "gated": false,
+      "output_kind": "u32",
+      "params": [
+        "xs",
+        "seed",
+        "k"
+      ],
+      "scalar": true,
+      "scalar_words": 1,
+      "result_length": "one scalar word"
+    },
+    {
+      "name": "paired_calibrated_u32",
+      "generic_family": "independent_plain_zip_postmap_u32",
+      "operation": "zip_map",
+      "cohort": "discovery",
+      "combine": "choose(a<seed,a+b*k,a-b*k)",
+      "postmap": "choose(v>k,v-seed,v+seed)",
+      "output": "list_u32",
+      "list_inputs": [
+        "xs",
+        "ys"
+      ],
+      "index": 6,
+      "fresh_proof_required": true,
+      "gated": false,
+      "output_kind": "list_u32",
+      "params": [
+        "xs",
+        "ys",
+        "seed",
+        "k"
+      ],
+      "scalar": false,
+      "scalar_words": 1,
+      "result_length": "min(xs.length,ys.length)"
+    },
+    {
+      "name": "paired_contrast_heldout_u32",
+      "generic_family": "independent_plain_zip_postmap_u32",
+      "operation": "zip_map",
+      "cohort": "heldout",
+      "combine": "choose(a>b,a-b,b-a)",
+      "postmap": "choose(v<seed,v*k,v+seed)",
+      "output": "list_u32",
+      "list_inputs": [
+        "xs",
+        "ys"
+      ],
+      "index": 7,
+      "fresh_proof_required": true,
+      "gated": false,
+      "output_kind": "list_u32",
+      "params": [
+        "xs",
+        "ys",
+        "seed",
+        "k"
+      ],
+      "scalar": false,
+      "scalar_words": 1,
+      "result_length": "min(xs.length,ys.length)"
+    }
+  ],
+  "scope": "Four captured-gate reductions with enabled/disabled cells, two same-source ordered zip folds, and two independent-array zip/postmap consumers. Experts hoist runtime flags and fuse original semantics. Gated count is genuine U64; other arithmetic wraps U32. Ordered folds preserve right-fold order. Independent vectors truncate to the shorter input. Natural per-task ABI, matched declared input capture even when a gate disables computation. Preset callback instantiations and profiles are not an external corpus or general language ranking."
+}

@@ -383,15 +383,69 @@ fn general_typed_query_discovers_individual_laws_and_replays_after_database_remo
     )
     .unwrap();
     false_law.to = verified_language::semantic::word(verified_language::core::Type::U32, 1);
-    objects.push(verified_language::registry::Entry::from_law(&false_law).unwrap());
+    let false_entry = verified_language::registry::Entry::from_law(&false_law).unwrap();
+    let false_id = verified_language::registry::identity(&false_entry).unwrap();
+    objects.push(false_entry);
     publish(&database, &objects);
+    // Unselected discovery candidates do not carry transformation authority.
+    let with_unused_false = Command::new(env!("CARGO_BIN_EXE_ink"))
+        .arg("emit-core")
+        .arg(&source)
+        .arg("--optimise")
+        .arg(&database)
+        .arg("-o")
+        .arg(dir.join("unused-false.json"))
+        .output()
+        .unwrap();
+    assert!(
+        with_unused_false.status.success(),
+        "{}",
+        String::from_utf8_lossy(&with_unused_false.stderr)
+    );
+    assert_eq!(
+        fs::read(dir.join("unused-false.json")).unwrap(),
+        fs::read(dir.join("cli.json")).unwrap()
+    );
+    // Explicitly selecting the same hash-valid false proof must fail locally,
+    // and the CLI must preserve an existing output after that proof rejection.
+    let mut forged = package.clone();
+    let mut replaced = false;
+    for step in &mut forged.applications {
+        if step.law == laws[0] {
+            step.law = false_id.clone();
+            replaced = true;
+        }
+    }
+    assert!(replaced, "the forged proof must actually be selected");
+    let selected_roots = forged
+        .applications
+        .iter()
+        .map(|step| step.law.clone())
+        .collect::<BTreeSet<_>>();
+    let view = Command::new("python3")
+        .env("PYTHONPATH", Path::new(env!("CARGO_MANIFEST_DIR")).join("knowledge"))
+        .args(["-c", "import sys,json;from ink_knowledge import Store;print(json.dumps(Store(sys.argv[1]).bundle(json.loads(sys.argv[2]))))"])
+        .arg(&database)
+        .arg(serde_json::to_string(&selected_roots).unwrap())
+        .output()
+        .unwrap();
+    assert!(
+        view.status.success(),
+        "{}",
+        String::from_utf8_lossy(&view.stderr)
+    );
+    forged.knowledge = serde_json::from_slice(&view.stdout).unwrap();
+    let rejection = verified_language::optimisation::check(&module, &forged).unwrap_err();
+    assert!(rejection.contains("semantic normal forms differ"), "{rejection}");
+    let forged_path = dir.join("forged-selection.json");
+    fs::write(&forged_path, serde_json::to_vec(&forged).unwrap()).unwrap();
     let untouched = dir.join("untouched.json");
     fs::write(&untouched, "existing-output").unwrap();
     let rejected = Command::new(env!("CARGO_BIN_EXE_ink"))
         .arg("emit-core")
         .arg(&source)
-        .arg("--optimise")
-        .arg(&database)
+        .arg("--selection")
+        .arg(&forged_path)
         .arg("-o")
         .arg(&untouched)
         .output()

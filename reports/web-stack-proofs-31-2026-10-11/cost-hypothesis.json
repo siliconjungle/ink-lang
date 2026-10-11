@@ -1,0 +1,13 @@
+{
+  "status": "pre_timing_hypothesis",
+  "previous_model_sha256": "9524fee019274e2a5fd57b5ed8ff570dc7b63525f324e9f654efc8f6da0c85ec",
+  "model_sha256": "5d1158860dba2b72ab6e632c4eceac76c9589de81a687d446f25044fe88481be",
+  "new_operation_prices": {
+    "method:zip": 80,
+    "method:map_indexed": 60,
+    "method:scan": 100
+  },
+  "rationale": "Previously unspecified list stages defaulted to unit cost: zip/scan allocations and serial scan work were undervalued relative to map. Indexed map shares map price; zip shares filter price; serial scan is priced above these parallel stages. These structural prices are a generic external profitability hypothesis, used identically for fair prior and new DB before any timings; no law names, function names or timing-derived fit.",
+  "compiler_changes": false,
+  "timing_executed": false
+}

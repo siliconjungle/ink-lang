@@ -1,0 +1,293 @@
+{
+  "schema": 1,
+  "semantics": "ink-semantic-terms-v1",
+  "input_core_sha256": "bafc66fa7ecb93b7b071898c0e0f2bce2187582adf9baf879e2e66ef40844f9c",
+  "functions": {
+    "output_word": {
+      "sort": {
+        "Value": "I32"
+      },
+      "node": {
+        "Op": [
+          "call:choose",
+          [
+            {
+              "sort": {
+                "Value": "Bool"
+              },
+              "node": {
+                "Op": [
+                  "binary:<",
+                  [
+                    {
+                      "sort": {
+                        "Value": "I32"
+                      },
+                      "node": {
+                        "Free": "x"
+                      }
+                    },
+                    {
+                      "sort": {
+                        "Value": "I32"
+                      },
+                      "node": {
+                        "Free": "seed"
+                      }
+                    }
+                  ]
+                ]
+              }
+            },
+            {
+              "sort": {
+                "Value": "I32"
+              },
+              "node": {
+                "Op": [
+                  "binary:+",
+                  [
+                    {
+                      "sort": {
+                        "Value": "I32"
+                      },
+                      "node": {
+                        "Free": "x"
+                      }
+                    },
+                    {
+                      "sort": {
+                        "Value": "I32"
+                      },
+                      "node": {
+                        "Free": "k"
+                      }
+                    }
+                  ]
+                ]
+              }
+            },
+            {
+              "sort": {
+                "Value": "I32"
+              },
+              "node": {
+                "Op": [
+                  "binary:-",
+                  [
+                    {
+                      "sort": {
+                        "Value": "I32"
+                      },
+                      "node": {
+                        "Free": "x"
+                      }
+                    },
+                    {
+                      "sort": {
+                        "Value": "I32"
+                      },
+                      "node": {
+                        "Free": "k"
+                      }
+                    }
+                  ]
+                ]
+              }
+            }
+          ]
+        ]
+      }
+    },
+    "pipeline32_paired_prefix_subtract_i32": {
+      "sort": {
+        "Value": {
+          "List": "I32"
+        }
+      },
+      "node": {
+        "Op": [
+          "method:map",
+          [
+            {
+              "sort": {
+                "Value": {
+                  "List": "I32"
+                }
+              },
+              "node": {
+                "Op": [
+                  "method:zip",
+                  [
+                    {
+                      "sort": {
+                        "Value": {
+                          "List": "I32"
+                        }
+                      },
+                      "node": {
+                        "Op": [
+                          "method:scan",
+                          [
+                            {
+                              "sort": {
+                                "Value": {
+                                  "List": "I32"
+                                }
+                              },
+                              "node": {
+                                "Free": "xs"
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    },
+                    {
+                      "sort": {
+                        "Value": {
+                          "List": "I32"
+                        }
+                      },
+                      "node": {
+                        "Op": [
+                          "method:scan",
+                          [
+                            {
+                              "sort": {
+                                "Value": {
+                                  "List": "I32"
+                                }
+                              },
+                              "node": {
+                                "Free": "ys"
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    },
+                    {
+                      "sort": {
+                        "Arrow": [
+                          {
+                            "Value": "I32"
+                          },
+                          {
+                            "Arrow": [
+                              {
+                                "Value": "I32"
+                              },
+                              {
+                                "Value": "I32"
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      "node": {
+                        "Lambda": {
+                          "sort": {
+                            "Arrow": [
+                              {
+                                "Value": "I32"
+                              },
+                              {
+                                "Value": "I32"
+                              }
+                            ]
+                          },
+                          "node": {
+                            "Lambda": {
+                              "sort": {
+                                "Value": "I32"
+                              },
+                              "node": {
+                                "Op": [
+                                  "binary:-",
+                                  [
+                                    {
+                                      "sort": {
+                                        "Value": "I32"
+                                      },
+                                      "node": {
+                                        "Bound": 1
+                                      }
+                                    },
+                                    {
+                                      "sort": {
+                                        "Value": "I32"
+                                      },
+                                      "node": {
+                                        "Bound": 0
+                                      }
+                                    }
+                                  ]
+                                ]
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                ]
+              }
+            },
+            {
+              "sort": {
+                "Arrow": [
+                  {
+                    "Value": "I32"
+                  },
+                  {
+                    "Value": "I32"
+                  }
+                ]
+              },
+              "node": {
+                "Lambda": {
+                  "sort": {
+                    "Value": "I32"
+                  },
+                  "node": {
+                    "Op": [
+                      "call:output_word",
+                      [
+                        {
+                          "sort": {
+                            "Value": "I32"
+                          },
+                          "node": {
+                            "Bound": 0
+                          }
+                        },
+                        {
+                          "sort": {
+                            "Value": "I32"
+                          },
+                          "node": {
+                            "Free": "seed"
+                          }
+                        },
+                        {
+                          "sort": {
+                            "Value": "I32"
+                          },
+                          "node": {
+                            "Free": "k"
+                          }
+                        }
+                      ]
+                    ]
+                  }
+                }
+              }
+            }
+          ]
+        ]
+      }
+    }
+  },
+  "unavailable": []
+}

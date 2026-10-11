@@ -74,6 +74,10 @@ GPU capability checks and measured profitability are separate decisions. Support
 
 The checker, source correspondence, literal target emission, host bridges and toolchains remain trusted implementations. Hashes authenticate content and snapshots; they do not prove correctness. Research certificates and experiment-specific proof terms are retained under `knowledge/research/` for reproducibility, outside production discovery.
 
+See [owned collection optimisation](docs/owned-optimisation.md),
+[incremental point-query candidates](docs/point-query-delta.md) and
+[measured representation selection](reports/incremental-maintenance-selection/README.md).
+
 See [repository architecture and data contract](docs/repository-architecture.md), [composable optimisation](docs/semantic-optimisation.md), [GPU compute](docs/gpu-compute.md), [state and snapshots](docs/wasm-abi.md), and [remaining language work](PLAN.md). Archived reports preserve their original inputs and evidence.
 
 Benchmark methodology and independent proof-audit work are preserved in
@@ -108,3 +112,17 @@ refinement and stateful replacement admission remain open.
 [Source-bound action effects](docs/action-effects.md) distinguish reads, writes,
 emits, local Result errors and abrupt exits. Database composition laws bind to
 the fixed effect algebra; whole-action/refinement proofs remain required.
+
+The preceding checked web proof batch and its preserved timings are in [batch32](reports/web-stack-proofs-32-2026-10-11/REPORT.md). [Direct main integration](reports/web-stack-proofs-32-2026-10-11/main-integration/REPORT.md) records the merged source revisions, generated-target correctness replay and publication checks.
+
+[Batch33](reports/web-stack-proofs-33-2026-10-11/REPORT.md) adds checked unused-scan projection laws for independent lists. All four tested source contexts select the DB rewrite with the production compiler unchanged. Measured gains over prior Ink include 1.57× browser JS, 1.93× resident Wasm, 2.77× resident native and 3.15× complete GPU calls. Handwritten controls usually remain faster; these results do not establish general native superiority.
+
+[Batch34](reports/web-stack-proofs-34-2026-10-11/REPORT.md) adds six derived unused-map projection endpoints and four source-bound certificates. Against the exact prior catalogue, measured geometric-mean gains are 4.15× Node JS, 1.73× browser JS, 2.60× resident Wasm and 3.86× resident native; complete WebGPU calls are essentially unchanged. This is one general projection family; strong handwritten controls usually remain faster.
+
+[Batch38](reports/web-stack-proofs-38-2026-10-11/REPORT.md) adds six integer same-origin padded indexed-zip fusion endpoints, six Nat-beta supports and four helper-bound certificates. Both mapped values remain observed; an appended suffix and three traversal stages disappear. Across four U32 contexts, prior/checked geometric means are 1.19× Node JS, 1.26× browser JS, 1.05× browser resident Wasm, 1.67× resident native C and 3.35× complete WebGPU requests. Actual GPU dispatches drop four to one, with 20 additional upload bytes and unchanged readback. All 20 classified prior regressions are composed-helper CPU cases and remain archived. Checked Node JS beats its fused control in 15 cells, but native Rust and browser CPU controls generally remain faster; GPU requests lose to both CPU controls in every cell. All 7,560 samples consume full outputs.
+
+[Batch37](reports/web-stack-proofs-37-2026-10-11/REPORT.md) adds six integer independent-list indexed-map projection laws, twelve induction supports and four helper-bound source certificates. They remove an unobserved indexed traversal while preserving zip extent and order. Across four U32 contexts, prior/checked geometric means are 1.45× Node JS, 1.39× browser JS, 1.19× browser resident Wasm and 3.32× resident native C. Full Wasm/GPU requests are near unchanged; five prior cells regress. Native C is close to the fused Rust control, while captured Rust-Wasm remains faster overall. All 7,560 samples consume complete outputs and retain adverse cells.
+
+[Batch36](reports/web-stack-proofs-36-2026-10-11/REPORT.md) adds four helper-bound ordered-fold source certificates, deploying existing generic laws without duplicating mathematics or changing the compiler. Across four scalar U32 reductions, prior/checked geometric means are 1.18× Node JS, 1.30× browser JS, 1.26× browser resident Wasm and 1.62× resident native. GPU stages decrease, but complete GPU requests average only 1.03× and six cells regress. Already-fused handwritten JS is roughly level; Rust controls remain faster overall, and GPU requests lose to both CPU controls in every cell. All 7,560 samples and adverse results are retained.
+
+[Batch35](reports/web-stack-proofs-35-2026-10-11/REPORT.md) adds nine derived observed-map/zip fusion endpoints and four source-bound certificates. Four ordinary selections eliminate intermediate maps while retaining both inputs. Measured prior/checked geometric means are 1.19× Node JS, 1.08× browser JS, 1.37× resident Wasm and 1.74× resident native. Results are mixed: 25 prior comparisons regress, including the right-mapped browser JS family; GPU physical work is unchanged. Strong fused controls and all adverse cells are retained.

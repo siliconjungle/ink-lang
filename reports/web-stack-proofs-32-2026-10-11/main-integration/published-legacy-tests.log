@@ -1,0 +1,159 @@
+   Compiling proc-macro2 v1.0.107
+   Compiling version_check v0.9.5
+   Compiling quote v1.0.47
+   Compiling unicode-ident v1.0.26
+   Compiling serde_core v1.0.229
+   Compiling typenum v1.20.1
+   Compiling autocfg v1.5.1
+   Compiling libc v0.2.190
+   Compiling zmij v1.0.23
+   Compiling generic-array v0.14.7
+   Compiling serde v1.0.229
+   Compiling num-traits v0.2.19
+   Compiling syn v3.0.6
+   Compiling serde_json v1.0.151
+   Compiling cpufeatures v0.2.17
+   Compiling memchr v2.8.3
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling digest v0.10.7
+   Compiling cfg-if v1.0.5
+   Compiling itoa v1.0.18
+   Compiling sha2 v0.10.9
+   Compiling serde_derive v1.0.229
+   Compiling num-integer v0.1.47
+   Compiling num-bigint v0.4.8
+   Compiling ink-core v0.1.0 (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/core)
+   Compiling ink-lowering-c v0.1.0 (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/lowerings/c)
+   Compiling ink-lowering-js v0.1.0 (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/lowerings/js)
+   Compiling ink-lowering-gpu v0.1.0 (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/lowerings/gpu)
+   Compiling ink-lowering-rust v0.1.0 (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/lowerings/rust)
+warning: field `graph` is never read
+   --> lowerings/gpu/src/compute.rs:104:5
+    |
+ 98 | struct Emitter<'a> {
+    |        ------- field in this struct
+...
+104 |     graph: bool,
+    |     ^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+   Compiling ink-lowering-wasm v0.1.0 (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/lowerings/wasm)
+   Compiling ink-runtime v0.1.0 (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/runtime)
+warning: `ink-lowering-gpu` (lib) generated 1 warning
+   Compiling ink v0.1.0 (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 26.33s
+     Running tests/database_maintenance.rs (reports/web-stack-proofs-32-2026-10-11/main-integration/legacy-target/debug/deps/database_maintenance-613a18c5414bdabe)
+
+running 8 tests
+test delta_candidate_requires_its_new_proofs_and_exact_operation_order ... ok
+test portable_bundles_keep_hash_dependency_and_resource_checks ... ok
+test reversible_journal_checks_both_directions_and_exact_expression_scopes ... ok
+test valid_database_math_cannot_change_source_meaning_or_hide_imports ... ok
+test exact_source_updates_use_database_proofs_for_unbounded_signed_values ... ok
+test reversible_journal_restores_all_writes_when_commit_sequence_is_exhausted ... ok
+test database_cache_matches_scan_after_abort_batches_and_future_snapshot_changes ... ok
+test compiled_database_updates_preserve_signed_state_events_and_checkpoints ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 16.87s
+
+     Running tests/hardening.rs (reports/web-stack-proofs-32-2026-10-11/main-integration/legacy-target/debug/deps/hardening-bcbe77f524890bc7)
+
+running 19 tests
+test fuzz_maintenance_certificates ... ok
+test fuzz_row_models ... ok
+test regression_boolean_hint_and_definition_expansion_are_bounded ... ok
+test regression_eval_collection_and_float_frames_are_bounded ... ok
+test fuzz_logic_objects ... ok
+test regression_eval_compute_values_charge_copies_and_preserve_context ... ok
+test regression_eval_nesting_is_bounded ... ok
+test fuzz_lockfiles ... ok
+test regression_logic_substitution_copies_are_charged ... ok
+test regression_parser_bounds_unparenthesised_and_postfix_chains ... ok
+test regression_eval_scope_is_not_copied_per_element ... ok
+test regression_snapshot_schema_expansion_is_bounded ... ok
+test regression_snapshot_int_size_is_bounded ... ok
+test fuzz_equality_objects ... ok
+test regression_eval_list_copies_cost_fuel ... ok
+test fuzz_snapshots ... ok
+test fuzz_evaluation_arguments ... ok
+test fuzz_bitproof_certificates ... ok
+test fuzz_core_modules ... ok
+
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 36.09s
+
+     Running tests/maintenance.rs (reports/web-stack-proofs-32-2026-10-11/main-integration/legacy-target/debug/deps/maintenance-ea094f287b2ec104)
+
+running 4 tests
+test certificate_checks_actual_update_algorithms ... ok
+test state_dependent_projection_is_not_incrementalised ... ok
+test full_width_ids_and_empty_filtered_aggregates_survive_snapshot ... ok
+test maintained_and_scanned_observations_match_across_future_changes ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.99s
+
+     Running tests/ordered_storage.rs (reports/web-stack-proofs-32-2026-10-11/main-integration/legacy-target/debug/deps/ordered_storage-617072138759a1ea)
+
+running 3 tests
+test external_storage_policies_reject_unbound_roots_limits_and_maintenance ... ok
+test columns_remove_row_padding_and_storage_moves_nonclone_values ... ok
+test ordered_buffers_match_tree_through_shifts_replacements_and_promotion ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.85s
+
+     Running tests/snapshots.rs (reports/web-stack-proofs-32-2026-10-11/main-integration/legacy-target/debug/deps/snapshots-671b09cd9bfbb900)
+
+running 3 tests
+test all_value_forms_roundtrip_and_noncanonical_values_are_rejected ... ok
+test golden_payload_order_and_little_endian_integers ... ok
+test portable_reference_snapshots_preserve_future_changes_and_pending_events ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/state_native.rs (reports/web-stack-proofs-32-2026-10-11/main-integration/legacy-target/debug/deps/state_native-452948f9d086cb9b)
+
+running 11 tests
+test range_analysis_uses_full_domains_and_rejects_unbounded_contributions ... ok
+test borrowed_commit_outcomes_reuse_events_and_enforce_the_state_borrow ... ok
+test tampered_native_maintenance_is_rejected_before_emission ... ok
+test direct_typed_frames_match_native_scopes_callbacks_and_snapshots ... ok
+test owned_rows_copy_only_used_remove_results_and_preserve_abort ... ok
+test complete_rows_survive_repeated_abort_and_failed_promotion_with_both_journals ... ok
+test native_state_matches_reference_with_and_without_checked_maintenance ... ok
+test shared_boundary_preserves_nested_control_event_order_and_exhausted_rollback ... ok
+test result_query_and_keep_errors_are_local_until_the_caller_propagates ... ok
+test source_row_projection_preserves_composite_payloads_across_native_abort_and_restore ... ok
+test typed_action_execution_preserves_effect_order_and_contextual_empty_values ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 58.53s
+
+     Running tests/table_maintenance.rs (reports/web-stack-proofs-32-2026-10-11/main-integration/legacy-target/debug/deps/table_maintenance-2a80f0e17ad8b1a6)
+
+running 3 tests
+test unsupported_key_domains_keep_scanning_and_have_no_bounded_cache_plan ... ok
+test rehashed_valid_math_cannot_change_table_meaning_or_source_arithmetic ... ok
+test universal_keyed_history_proof_agrees_with_independent_first_match_table_execution ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.83s
+
+     Running tests/typed_execution.rs (reports/web-stack-proofs-32-2026-10-11/main-integration/legacy-target/debug/deps/typed_execution-f5fc0bb78154e50a)
+
+running 3 tests
+test table_resources_cannot_escape_into_values_and_literal_operations_still_work ... ok
+test slot_scopes_captures_and_callback_error_frames_preserve_observations ... ok
+test archived_native_and_wasm_observations_still_match_direct_execution ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+     Running tests/view_decomposition.rs (reports/web-stack-proofs-32-2026-10-11/main-integration/legacy-target/debug/deps/view_decomposition-c60f9fe7d84f9bfe)
+
+running 5 tests
+test unsigned_fields_cast_to_int_faithfully ... ok
+test wrong_stale_or_tampered_view_evidence_is_rejected ... ok
+test every_supported_pipeline_shape_is_decomposed_automatically ... ok
+test emit_state_proves_every_maintained_view_automatically ... ok
+test logical_pipeline_agrees_with_reference_runtime_on_concrete_rows ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 8.39s
+

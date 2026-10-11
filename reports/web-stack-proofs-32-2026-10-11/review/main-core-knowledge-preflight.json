@@ -1,0 +1,138 @@
+{
+  "schema": 32,
+  "status": "read_only_preflight_complete",
+  "timestamp_utc": "2026-10-10T22:50:40.713809+00:00",
+  "authorization": "User requires direct main integration and no PR; no integration mutations performed during frozen benchmark preparation.",
+  "repositories": {
+    "ink-lang": {
+      "head": "2a1873359e89f78ffa92859fe18b6d08cb8b6036",
+      "origin_main": "97cccdfed0860e3883713742c352103238f07ac1",
+      "merge_base": "2a1873359e89f78ffa92859fe18b6d08cb8b6036",
+      "branch": "main",
+      "upstream_ahead_commits": 164,
+      "overlapping_tracked_paths": [
+        "core/src/check.rs",
+        "core/src/core.rs",
+        "core/src/eval.rs",
+        "core/src/laws.rs",
+        "core/src/lib.rs",
+        "core/src/optimisation.rs",
+        "core/src/registry.rs",
+        "core/src/semantic.rs",
+        "knowledge",
+        "lowerings/c",
+        "lowerings/gpu",
+        "lowerings/js",
+        "lowerings/rust",
+        "lowerings/wasm",
+        "planner",
+        "runtime",
+        "src/main.rs",
+        "tests/compute.rs",
+        "tests/gpu.rs",
+        "tests/semantic_optimisation.rs"
+      ],
+      "untracked_remote_path_collisions": 0
+    },
+    "knowledge": {
+      "head": "0d997d6fe162832d362c4c69be4e6aad731fa74d",
+      "origin_main": "20f0dfd05b302a76241993b771ebf65798ecff65",
+      "merge_base": "0d997d6fe162832d362c4c69be4e6aad731fa74d",
+      "branch": "(detached)",
+      "upstream_ahead_commits": 27,
+      "overlapping_tracked_paths": [
+        "README.md",
+        "ink_knowledge/store.py",
+        "store/names.json",
+        "store/snapshot.json",
+        "tests/test_store.py"
+      ],
+      "untracked_remote_path_collisions": 35
+    }
+  },
+  "canonical_store": {
+    "local_names": 3872,
+    "remote_names": 2813,
+    "local_only_names": 1393,
+    "remote_only_names": 334,
+    "conflicting_names": {},
+    "shared_added_object_ids_checked": 35,
+    "shared_object_semantic_conflicts": [],
+    "recommendation": "Preserve each side immutable objects, observations, trees and snapshots. Union active entry membership and name mapping, then rebuild a new canonical active snapshot through maintained Store API and rebuild disposable SQLite. Do not resolve names/snapshot conflict by taking a whole side."
+  },
+  "critical_compatibility_findings": [
+    {
+      "finding": "Local concat SEQUENCE_SEMANTICS and upstream owned collections LOCAL_SEMANTICS both claim ink-executable-core-v3.",
+      "recommendation": "Reserve upstream v3 for owned collections and introduce distinct current marker for concat or concat+owned. Reject ambiguous archived concat-v3 wires rather than reinterpret silently; reemit legacy concat source under merged engine when needed, preserving all old frozen-compiler archive bytes. Preserve v1/v2 bytes and do not edit old canonical proof bytes. Root explicitly selected this conservative boundary; AGENTS does not require historical research-format compatibility.",
+      "evidence_paths": [
+        "core/src/core.rs",
+        "origin/main:core/src/core.rs",
+        "core/src/definition_context.rs"
+      ]
+    },
+    {
+      "finding": "Upstream adds Type::Buffer and Type::Map, so local exhaustive matches outside textual merge conflicts can fail compilation.",
+      "recommendation": "Audit local compute_values, semantic, definition_context and target/runtime new matches against Buffer and Map. Preserve upstream owned-collection source semantics, local trusted scalar fastpaths and generic definition-context admission."
+    },
+    {
+      "finding": "Upstream observations() independently already implements requested plan filtering before SQL LIMIT and additionally caps candidate plans.",
+      "recommendation": "Keep upstream implementation and both independent regression tests; retain bounded single-snapshot authenticated witness export."
+    },
+    {
+      "finding": "DefinitionContext schema binds typed bodies/signatures/callee hashes, not executable module semantics marker.",
+      "recommendation": "Replay generic mathematical roots unchanged after integration. Batch32 scan/zip/map sources use the old ordinary executable domain and definition contexts do not bind executable markers; unchanged typed helper bodies should remain applicable. Recapture/check source contexts only when elaborated typed bodies differ and regenerate source selection packages when wire markers change. Do not claim frozen batch32 timings measure merged engine."
+    },
+    {
+      "finding": "Multiple root integration hunks overlap; untracked root source paths have no upstream path collisions.",
+      "recommendation": "Resolve check.rs method inference to combine local concat with upstream collection dispatch; retain concat primitive normalization beside repeat_until/local primitives; preserve definition context require_applicable in action-selection branches and public selection constructor; merge CLI definition-context command with upstream module/action commands; preserve all upstream lib modules."
+    }
+  ],
+  "staging_strategy": {
+    "order": [
+      "Finalize benchmark and take explicit content-preserving backup/manifest before mutations.",
+      "Commit task dependency repositories, integrate origin/main without PR, resolve compatibility and run meaningful tests.",
+      "Commit knowledge producers/tests and canonical store data; combine remote canonical DB, admit proofs and run store tests.",
+      "Integrate root main with final independently versioned dependency gitlinks; validate core standalone and full integration.",
+      "Push dependency main commits before root main pins; recheck remote heads immediately before push and use normal non-force push."
+    ],
+    "stage_root": [
+      "Tracked task changes in core/src, src/main.rs, tests and docs.",
+      "New core/src/definition_context.rs, core/tests and two task docs.",
+      "Maintained bench scripts and exact source assets/fixtures, reviewed for generated output before staging.",
+      "Curated compact proof/benchmark reports and receipts sufficient to explain frozen-engine measurements and reproduce them, while preserving full local archive untouched."
+    ],
+    "stage_knowledge": [
+      "producers/*.py, tests/*.py, README and maintained ink_knowledge/store.py integration.",
+      "Canonical store/objects, store/observations, store/trees, store/snapshots plus active names/snapshot.",
+      "Curated small research documentation/receipts only, not cloned store/targets/builds."
+    ],
+    "exclude": [
+      "SQLite indexes, Python caches, compiled executables/shared libraries/Wasm build products unless explicitly maintained conformance fixture.",
+      "reports/**/prior-store and other copied canonical stores; report targets/native builds; nested Cargo targets/node_modules.",
+      "knowledge/research bulk copied stores and generated binaries; generated 3GB research trees and 5GB root report trees are not blanket-stageable."
+    ],
+    "size_evidence": {
+      "root_untracked_bench_files": 468,
+      "root_untracked_bench_raw_bytes": 225140436,
+      "largest_bench_donor_fixture_bytes": 18450161,
+      "knowledge_local_objects": 1952,
+      "knowledge_local_observations": 20840
+    },
+    "note": "Repeated identical fixture content can be represented once by Git blob deduplication while retaining exact frozen recipe paths; inspect before deciding to omit reproducibility inputs."
+  },
+  "tests_proposed_after_timing": [
+    "Core standalone cargo test with knowledge unavailable, preserving external knowledge independence.",
+    "Full root cargo test and targeted definition-context/sequence/shared-work/output-buffer/GPU tests against final backend/runtime pins.",
+    "Knowledge unittest discovery plus checked admission of batch32 generic and deployed roots.",
+    "Untimed final source recipe JS/Rust/Wasm/browser GPU parity with full values, unequal lengths and wrapping extrema; separately disclose merged-engine runtime behavior.",
+    "Canonical union old byte hash preservation and SQLite rebuilding checks."
+  ],
+  "no_mutation_confirmation": {
+    "branch_switch": false,
+    "commit": false,
+    "merge": false,
+    "source_edit": false,
+    "tests_run": false,
+    "only_new_artifact": "reports/web-stack-proofs-32-2026-10-11/review/main-core-knowledge-preflight.json"
+  }
+}

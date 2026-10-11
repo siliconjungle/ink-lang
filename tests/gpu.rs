@@ -16,20 +16,36 @@ fn capability_rejection_preserves_compiled_cpu_and_staged_lowering() {
             .find(|f| f["name"] == name)
             .unwrap()
     };
-    assert_eq!(
-        function("double_filter")["gpu"]["stages"]
+    assert_eq!(manifest["schema"], 2);
+    let operations = |name: &str| {
+        function(name)["graph"]["nodes"]
             .as_array()
             .unwrap()
-            .len(),
-        3
+            .iter()
+            .map(|n| n["op"].as_str().unwrap().to_owned())
+            .collect::<Vec<_>>()
+    };
+    // Every original stage is retained, now including the ordered consumer.
+    assert_eq!(
+        operations("double_filter"),
+        ["filter", "filter", "map", "sum"]
     );
-    assert!(function("ordered")["gpu"].is_null());
-    assert!(function("wide")["gpu"].is_null());
-    assert!(function("lazy")["gpu"].is_null());
-    assert!(function("intermediate_wide")["gpu"].is_null());
-    assert!(function("count_constants")["gpu"].is_null());
-    assert!(!function("constant")["gpu"].is_null());
-    assert!(!function("heavy")["gpu"].is_null());
+    assert_eq!(operations("shadow"), ["map", "map", "sum"]);
+    assert_eq!(operations("ordered"), ["scalar", "foldr"]);
+    let ordered = &function("ordered")["graph"]["nodes"][1];
+    assert_eq!(ordered["ordered"], true);
+    assert!(
+        fs::read_to_string(dir.join(ordered["shader"].as_str().unwrap()))
+            .unwrap()
+            .contains("cursor--")
+    );
+    for name in ["wide", "lazy", "intermediate_wide", "count_constants"] {
+        assert!(function(name)["graph"].is_null(), "{name}");
+        assert!(function(name)["shader"].is_null(), "{name}");
+        assert!(function(name)["fallback_reason"].is_string(), "{name}");
+    }
+    assert!(!function("constant")["graph"].is_null());
+    assert!(!function("heavy")["graph"].is_null());
     let c = fs::read_to_string(dir.join("cpu.c")).unwrap();
     assert!(c.contains("uint32_t"));
     assert!(c.contains("lang_fn_wide"));
