@@ -318,4 +318,4 @@ target toolchains remain trusted; Lean does not prove the generated binaries.
 
 The [path-local sequence candidates](path-local-indexed-tables.md) add generic
 shared-owner preservation, checked compact observations and explicit continuation
-frames for single-site recursion, with proof-view and execution resource bounds.
+frames for bounded recursive call sites, with proof-view and execution resource bounds.

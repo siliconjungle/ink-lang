@@ -66,4 +66,4 @@ than the reads it saves. See [scaling results](../reports/representation-scaling
 
 The [path-local sequence candidates](path-local-indexed-tables.md) add generic
 shared-owner preservation, checked compact observations and explicit continuation
-frames for single-site recursion, with proof-view and execution resource bounds.
+frames for bounded recursive call sites, with proof-view and execution resource bounds.
