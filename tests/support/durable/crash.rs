@@ -8,6 +8,10 @@ impl Store for Crash {
     fn load(&mut self) -> Result<Option<(String, Vec<u8>)>, String> {
         self.0.load()
     }
+    fn append(&mut self, expected: &str, bytes: &[u8]) -> Result<Option<String>, String> {
+        let _ = self.0.append(expected, bytes)?;
+        std::process::exit(73);
+    }
     fn commit(&mut self, expected: Option<&str>, bytes: &[u8]) -> Result<String, String> {
         let _ = self.0.commit(expected, bytes)?;
         std::process::exit(73);

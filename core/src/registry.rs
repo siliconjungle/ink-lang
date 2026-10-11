@@ -297,7 +297,9 @@ fn admit_first_order(context: &mut crate::logic::Context, id: &str, e: &Entry) -
     }
     check_interface(e, body)?;
     let mut local = context.subset(&e.dependencies)?;
-    local.declare(id.to_owned(), &d.declaration)?;
+    local
+        .declare(id.to_owned(), &d.declaration)
+        .map_err(|e| format!("knowledge declaration {id}: {e}"))?;
     context.import(&local, id)?;
     Ok(())
 }

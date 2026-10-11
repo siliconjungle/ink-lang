@@ -193,8 +193,17 @@ pub fn check_registry(
     bundle: &crate::registry::Bundle,
     exports: &[String],
 ) -> LangResult<CheckedDefinition> {
+    Ok(check_registry_with_context(bundle, exports)?.0)
+}
+
+// Reuse the exact context admitted while constructing this definition. Keeping
+// both results in one call avoids checking the same proof closure a second time.
+pub(crate) fn check_registry_with_context(
+    bundle: &crate::registry::Bundle,
+    exports: &[String],
+) -> LangResult<(CheckedDefinition, crate::logic::Context)> {
     let view = crate::registry::CheckedBundle::check(bundle)?;
-    view.first_order_context()?;
+    let context = view.first_order_context()?;
     if exports.is_empty() || exports.len() > 128 {
         return Err("definition export count limit".into());
     }
@@ -227,21 +236,24 @@ pub fn check_registry(
     }
     // Internal lowering adapter only. Entry identities are retained; these
     // bytes cannot pass the separate raw-library hash admission path.
-    Ok(CheckedDefinition {
-        bundle: Bundle {
-            lock: crate::content::Lock {
-                schema: 1,
-                semantics: library::SEMANTICS.into(),
-                objects: bundle.roots.clone(),
+    Ok((
+        CheckedDefinition {
+            bundle: Bundle {
+                lock: crate::content::Lock {
+                    schema: 1,
+                    semantics: library::SEMANTICS.into(),
+                    objects: bundle.roots.clone(),
+                },
+                objects,
             },
-            objects,
+            exports: exports.to_vec(),
+            choices: BTreeMap::new(),
+            bundle_sha256: crate::registry::identity(bundle)?,
+            closure: bundle.objects.keys().cloned().collect(),
+            selection_sha256: None,
         },
-        exports: exports.to_vec(),
-        choices: BTreeMap::new(),
-        bundle_sha256: crate::registry::identity(bundle)?,
-        closure: bundle.objects.keys().cloned().collect(),
-        selection_sha256: None,
-    })
+        context,
+    ))
 }
 pub fn check(
     bundle: &Bundle,
