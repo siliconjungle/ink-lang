@@ -24,7 +24,8 @@ word boundaries, float payloads and captured values have conformance tests.
 Owned `Buffer.map`, `Buffer.map_indexed`, `Buffer.scan` and stable `Buffer.filter` explicitly consume and
 update private storage. Their fixed extensional meanings correspond to the same
 ordered list operations; `freeze` returns the logical list. Database equalities
-select these representations. C and JavaScript no longer infer buffer reuse from
+select these representations, including a whole same-carrier pipeline backed by
+one owner. C and JavaScript no longer infer buffer reuse from
 an immutable collection expression. Explicit destination APIs remain host-owned
 storage mechanisms. Capability/resource limits may require CPU execution.
 
