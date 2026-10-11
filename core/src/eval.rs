@@ -271,7 +271,14 @@ fn expr(
     };
     match e {
         Expr::Call(n, _)
-            if ["repeat_until", "buffer", "buffer_fill", "length"].contains(&n.as_str()) =>
+            if [
+                "repeat_until",
+                "buffer",
+                "buffer_fill",
+                "length",
+                "parallel_map",
+            ]
+            .contains(&n.as_str()) =>
         {
             evaluate_local(e, frame, fuel, ty)
         }
@@ -294,6 +301,7 @@ fn expr(
         Expr::Call(n, _) if n == "quot_or" || n == "rem_or" => {
             evaluate_division(e, frame, fuel, ty)
         }
+        Expr::Method(_, n, _) if n == "drop" || n == "take" => evaluate_slice(e, frame, fuel, ty),
         Expr::Method(_, n, _) if n == "at_or" => evaluate_index(e, frame, fuel, ty),
         Expr::Method(_, n, _) if n == "concat" => evaluate_concat(e, frame, fuel, ty),
         Expr::Method(_, n, _) if ["zip", "map_indexed", "scan", "sort"].contains(&n.as_str()) => {
@@ -328,6 +336,32 @@ struct Frame<'a> {
     types: &'a crate::check::Env,
     p: &'a Program,
     depth: usize,
+}
+
+#[inline(never)]
+fn evaluate_slice(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> LangResult<Value> {
+    let Frame {
+        env,
+        types,
+        p,
+        depth,
+    } = frame;
+    let Expr::Method(x, n, a) = e else {
+        unreachable!()
+    };
+    let Value::List(mut xs) = expr(x, env, types, p, fuel, Some(&ty), depth)? else {
+        unreachable!()
+    };
+    let Value::U32(k) = expr(&a[0], env, types, p, fuel, Some(&Type::U32), depth)? else {
+        unreachable!()
+    };
+    let k = (k as usize).min(xs.len());
+    if n == "drop" {
+        xs.drain(..k);
+    } else {
+        xs.truncate(k);
+    }
+    Ok(Value::List(xs))
 }
 
 #[inline(never)]
@@ -1029,8 +1063,61 @@ fn call_at(
     }
     let types = crate::check::params_env(&f.params)?;
     crate::check::infer_as(&f.body, &types, p, &f.result)?;
-    let env = f.params.iter().map(|(n, _)| n.clone()).zip(args).collect();
-    expr(&f.body, &env, &types, p, fuel, Some(&f.result), depth)
+    let env: Env = f.params.iter().map(|(n, _)| n.clone()).zip(args).collect();
+    if !crate::recursion::recursive(f) {
+        return expr(&f.body, &env, &types, p, fuel, Some(&f.result), depth);
+    }
+    call_recursive(p, f, env, types, fuel, depth)
+}
+
+#[inline(never)]
+fn call_recursive(
+    p: &Program,
+    f: &Function,
+    mut env: Env,
+    types: crate::check::Env,
+    fuel: &mut u64,
+    depth: usize,
+) -> LangResult<Value> {
+    loop {
+        charge(fuel, 1)?;
+        let mut local = env;
+        let mut ts = types.clone();
+        let mut body = &f.body;
+        loop {
+            match body {
+                Expr::Let(n, annotation, a, b) => {
+                    let t = crate::check::infer_context(a, &ts, p, annotation.as_deref())?;
+                    let value = expr(a, &local, &ts, p, fuel, Some(&t), depth)?;
+                    local.insert(n.clone(), value);
+                    ts.insert(n.clone(), t);
+                    body = b;
+                }
+                Expr::Call(n, a) if n == "choose" => {
+                    let condition = expr(&a[0], &local, &ts, p, fuel, Some(&Type::Bool), depth)?;
+                    body = if condition == Value::Bool(true) {
+                        &a[1]
+                    } else {
+                        &a[2]
+                    };
+                }
+                Expr::Call(n, a) if n == &f.name => {
+                    let mut values = vec![];
+                    for (a, (_, t)) in a.iter().zip(&f.params) {
+                        values.push(expr(a, &local, &ts, p, fuel, Some(t), depth)?);
+                    }
+                    env = f
+                        .params
+                        .iter()
+                        .map(|(n, _)| n.clone())
+                        .zip(values)
+                        .collect();
+                    break;
+                }
+                _ => return expr(body, &local, &ts, p, fuel, Some(&f.result), depth),
+            }
+        }
+    }
 }
 
 /// Execute the exact module admitted by the shared selection boundary.
@@ -1052,6 +1139,19 @@ fn evaluate_local(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> LangR
         depth,
     } = frame;
     match e {
+        Expr::Call(n, a) if n == "parallel_map" => {
+            let Type::List(inner) = crate::check::infer(&a[0], types, p)? else {
+                unreachable!()
+            };
+            let Type::List(out) = &ty else { unreachable!() };
+            let Value::List(xs) = expr(&a[0], env, types, p, fuel, None, depth)? else {
+                unreachable!()
+            };
+            expr(&a[1], env, types, p, fuel, Some(&Type::U32), depth)?;
+            Ok(Value::List(indexed_values(
+                xs, &a[2], env, types, p, fuel, &inner, out, depth,
+            )?))
+        }
         Expr::Call(n, a) if n == "length" => {
             let Value::List(xs) = expr(&a[0], env, types, p, fuel, None, depth)? else {
                 unreachable!()
@@ -1135,6 +1235,49 @@ fn evaluate_local(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> LangR
             let v = expr(x, env, types, p, fuel, Some(&xt), depth)?;
             match (v, xt) {
                 (Value::Buffer(b), Type::Buffer(t)) => {
+                    if n == "map_parallel" {
+                        expr(&a[0], env, types, p, fuel, Some(&Type::U32), depth)?;
+                        let xs =
+                            indexed_values(b.freeze(), &a[1], env, types, p, fuel, &t, &t, depth)?;
+                        return Ok(Value::Buffer(crate::temporary::OwnedBuffer::new(xs)));
+                    }
+                    if n == "append" {
+                        let Value::Buffer(other) = expr(
+                            &a[0],
+                            env,
+                            types,
+                            p,
+                            fuel,
+                            Some(&Type::Buffer(t.clone())),
+                            depth,
+                        )?
+                        else {
+                            unreachable!()
+                        };
+                        charge(fuel, other.len() as u64)?;
+                        return Ok(Value::Buffer(b.append(other)));
+                    }
+                    if n == "split_at" {
+                        let Value::U32(at) =
+                            expr(&a[0], env, types, p, fuel, Some(&Type::U32), depth)?
+                        else {
+                            unreachable!()
+                        };
+                        let (left, right) = b.split(at);
+                        let Expr::Lambda(l, rest) = &a[1] else {
+                            unreachable!()
+                        };
+                        let Expr::Lambda(r, body) = rest.as_ref() else {
+                            unreachable!()
+                        };
+                        let mut local = copy_env(env, fuel)?;
+                        let mut ts = types.clone();
+                        local.insert(l.clone(), Value::Buffer(left));
+                        local.insert(r.clone(), Value::Buffer(right));
+                        ts.insert(l.clone(), Type::Buffer(t.clone()));
+                        ts.insert(r.clone(), Type::Buffer(t.clone()));
+                        return expr(body, &local, &ts, p, fuel, Some(&ty), depth);
+                    }
                     if n == "len" {
                         return Ok(Value::U32(b.len()));
                     }
@@ -1218,4 +1361,38 @@ fn evaluate_local(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> LangR
         }
         _ => unreachable!(),
     }
+}
+
+fn indexed_values(
+    xs: Vec<Value>,
+    callback: &Expr,
+    env: &Env,
+    types: &crate::check::Env,
+    p: &Program,
+    fuel: &mut u64,
+    input: &Type,
+    output: &Type,
+    depth: usize,
+) -> LangResult<Vec<Value>> {
+    let Expr::Lambda(index, rest) = callback else {
+        unreachable!()
+    };
+    let Expr::Lambda(item, body) = rest.as_ref() else {
+        unreachable!()
+    };
+    let mut local = copy_env(env, fuel)?;
+    let mut ts = types.clone();
+    ts.insert(index.clone(), Type::U32);
+    ts.insert(item.clone(), input.clone());
+    let mut out = Vec::with_capacity(xs.len());
+    for (i, x) in xs.into_iter().enumerate() {
+        charge(fuel, 1)?;
+        local.insert(
+            index.clone(),
+            Value::U32(i.try_into().map_err(|_| "list exceeds u32")?),
+        );
+        local.insert(item.clone(), x);
+        out.push(expr(body, &local, &ts, p, fuel, Some(output), depth)?);
+    }
+    Ok(out)
 }

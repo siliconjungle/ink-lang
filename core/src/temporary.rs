@@ -49,6 +49,16 @@ impl<T: Clone> OwnedBuffer<T> {
         self.0.borrow_mut().truncate(n as usize);
         self
     }
+    pub fn split(self, at: u32) -> (Self, Self) {
+        let mut xs = self.freeze();
+        let right = xs.split_off((at as usize).min(xs.len()));
+        (Self::new(xs), Self::new(right))
+    }
+    pub fn append(self, other: Self) -> Self {
+        let mut xs = self.freeze();
+        xs.append(&mut other.freeze());
+        Self::new(xs)
+    }
     pub fn freeze(self) -> Vec<T> {
         std::mem::take(&mut *self.0.borrow_mut())
     }
