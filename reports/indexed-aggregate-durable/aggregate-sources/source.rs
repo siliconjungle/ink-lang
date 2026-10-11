@@ -112,90 +112,118 @@ impl<T:InkDataEq> InkDataEq for Option<T>{fn ink_data_eq(&self,other:&Self)->boo
 impl<T:InkDataEq,E:InkDataEq> InkDataEq for Result<T,E>{fn ink_data_eq(&self,other:&Self)->bool{match(self,other){(Ok(a),Ok(b))=>a.ink_data_eq(b),(Err(a),Err(b))=>a.ink_data_eq(b),_=>false}}}
 
 mod temporary {
-// Native ownership is represented directly. Checked source moves the owner;
-// read methods and stopping predicates borrow it. No interior aliasing.
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
-pub struct OwnedBuffer<T>(Vec<T>);
-impl<T: Clone> OwnedBuffer<T> {
-    pub fn new(xs: Vec<T>) -> Self {
-        Self(xs)
-    }
-    pub fn map_inplace(mut self,mut f:impl FnMut(T)->T)->Self {for x in &mut self.0{*x=f(x.clone());}self}
-    pub fn map_indexed_inplace(mut self,mut f:impl FnMut(u32,T)->T)->Self {for(i,x)in self.0.iter_mut().enumerate(){*x=f(i as u32,x.clone());}self}
-    pub fn filter_inplace(mut self,mut f:impl FnMut(T)->bool)->Self {self.0.retain(|x|f(x.clone()));self}
-    pub fn scan_inplace(mut self,mut acc:T,mut add:impl FnMut(T,T)->T)->Self {for x in &mut self.0{acc=add(acc,x.clone());*x=acc.clone();}self}
-    pub fn len(&self) -> u32 {
-        self.0.len().try_into().expect("buffer exceeds u32")
-    }
-    pub fn get(&self, i: u32) -> Option<T> {
-        self.0.get(i as usize).cloned()
-    }
-    pub fn set(mut self, i: u32, value: T) -> Self {
-        if let Some(v) = self.0.get_mut(i as usize) {
-            *v = value;
-        }
-        self
-    }
-    pub fn swap(mut self, a: u32, b: u32) -> Self {
-        if (a as usize) < self.0.len() && (b as usize) < self.0.len() {
-            self.0.swap(a as usize, b as usize);
-        }
-        self
-    }
-    pub fn push(mut self, value: T) -> Self {
-        assert!(self.len() < u32::MAX, "buffer length exhausted");
-        self.0.push(value);
-        self
-    }
-    pub fn pop(mut self) -> Self {
-        self.0.pop();
-        self
-    }
-    pub fn truncate(mut self, n: u32) -> Self {
-        self.0.truncate(n as usize);
-        self
-    }
-    pub fn split(mut self, at: u32) -> (Self, Self) {
-        let right = self.0.split_off((at as usize).min(self.0.len()));
-        (self, Self(right))
-    }
-    pub fn append(mut self, mut other: Self) -> Self {
-        self.0.append(&mut other.0);
-        self
-    }
-    pub fn freeze(self) -> Vec<T> {
-        self.0
-    }
+// Affine owners use a Vec directly until partitioned. Partitions share one
+// allocation with disjoint logical ranges. Checked source cannot retain the old
+// owner or escape a partition; growth detaches a range before it can overlap.
+#[derive(Clone, Debug)]
+enum InkBufferStorage<T> {
+    Owned(Vec<T>),
+    Shared { data:std::rc::Rc<std::cell::RefCell<Vec<T>>>, start:usize, end:usize },
 }
+#[derive(Clone, Debug)]
+pub struct OwnedBuffer<T>(InkBufferStorage<T>);
+impl<T:Clone> OwnedBuffer<T> {
+    pub fn new(xs:Vec<T>)->Self { Self(InkBufferStorage::Owned(xs)) }
+    // Opaque native handles are invocation-local aliases, not source owners.
+    pub fn shared(xs:Vec<T>)->Self { let end=xs.len();Self(InkBufferStorage::Shared{data:std::rc::Rc::new(std::cell::RefCell::new(xs)),start:0,end}) }
+    fn read<R>(&self,f:impl FnOnce(&[T])->R)->R {match &self.0 {
+        InkBufferStorage::Owned(xs)=>f(xs),
+        InkBufferStorage::Shared{start,end,..} if start==end=>f(&[]),
+        InkBufferStorage::Shared{data,start,end}=>f(&data.borrow()[*start..*end]),
+    }}
+    fn edit<R>(&mut self,f:impl FnOnce(&mut [T])->R)->R {match &mut self.0 {
+        InkBufferStorage::Owned(xs)=>f(xs),
+        InkBufferStorage::Shared{start,end,..} if start==end=>f(&mut []),
+        InkBufferStorage::Shared{data,start,end}=>f(&mut data.borrow_mut()[*start..*end]),
+    }}
+    pub fn len(&self)->u32 {let n=match &self.0 {InkBufferStorage::Owned(xs)=>xs.len(),InkBufferStorage::Shared{start,end,..}=>end-start};n.try_into().expect("buffer exceeds u32")}
+    pub fn get(&self,i:u32)->Option<T>{self.read(|xs|xs.get(i as usize).cloned())}
+    pub fn set(mut self,i:u32,value:T)->Self {self.edit(|xs|if let Some(x)=xs.get_mut(i as usize){*x=value});self}
+    pub fn swap(mut self,a:u32,b:u32)->Self {self.edit(|xs|if (a as usize)<xs.len()&&(b as usize)<xs.len(){xs.swap(a as usize,b as usize)});self}
+    pub fn map_inplace(mut self,mut f:impl FnMut(T)->T)->Self {self.edit(|xs|for x in xs{*x=f(x.clone())});self}
+    pub fn map_indexed_inplace(mut self,mut f:impl FnMut(u32,T)->T)->Self {self.edit(|xs|for(i,x)in xs.iter_mut().enumerate(){*x=f(i as u32,x.clone())});self}
+    pub fn scan_inplace(mut self,acc:T,mut f:impl FnMut(T,T)->T)->Self {let mut state=Some(acc);self.edit(|xs|for x in xs{let next=f(state.take().expect("scan state"),x.clone());*x=next.clone();state=Some(next)});self}
+    pub fn filter_inplace(mut self,mut f:impl FnMut(T)->bool)->Self {
+        let kept=self.edit(|xs|{let mut n=0;for i in 0..xs.len(){if f(xs[i].clone()){xs.swap(n,i);n+=1}}n});
+        self.truncate(kept as u32)
+    }
+    pub fn pop(self)->Self {let n=self.len().saturating_sub(1);self.truncate(n)}
+    pub fn truncate(mut self,n:u32)->Self {match &mut self.0 {
+        InkBufferStorage::Owned(xs)=>xs.truncate(n as usize),
+        InkBufferStorage::Shared{start,end,..}=>*end=*start+((*end-*start).min(n as usize)),
+    };self}
+    pub fn push(mut self,value:T)->Self {
+        assert!(self.len()<u32::MAX,"buffer length exhausted");
+        match &mut self.0 {
+            InkBufferStorage::Owned(xs)=>{xs.push(value);return self},
+            InkBufferStorage::Shared{data,start,end} if *start==0&&*end==data.borrow().len()=>{data.borrow_mut().push(value);*end+=1;return self},
+            _=>{},
+        }
+        let mut xs=self.freeze();xs.push(value);Self::new(xs)
+    }
+    pub fn split(self,at:u32)->(Self,Self){
+        if at==0 || at>=self.len(){
+            let empty=if matches!(&self.0,InkBufferStorage::Shared{..}){Self::shared(Vec::new())}else{Self::new(Vec::new())};
+            return if at==0 {(empty,self)}else{(self,empty)}
+        }
+        let (data,start,end)=match self.0 {
+            InkBufferStorage::Owned(xs)=>{let end=xs.len();(std::rc::Rc::new(std::cell::RefCell::new(xs)),0,end)},
+            InkBufferStorage::Shared{data,start,end}=>(data,start,end),
+        };
+        let cut=start+(at as usize).min(end-start);
+        (Self(InkBufferStorage::Shared{data:data.clone(),start,end:cut}),Self(InkBufferStorage::Shared{data,start:cut,end}))
+    }
+    pub fn append(self,other:Self)->Self {
+        if let (InkBufferStorage::Shared{data,start,end},InkBufferStorage::Shared{data:rhs,start:rstart,end:rend})=(&self.0,&other.0) {
+            if std::rc::Rc::ptr_eq(data,rhs)&&end==rstart {return Self(InkBufferStorage::Shared{data:data.clone(),start:*start,end:*rend})}
+        }
+        let mut rhs=other.freeze();
+        let mut left=self;
+        if let InkBufferStorage::Shared{data,start,end}=&mut left.0 {
+            if *start==0&&*end==data.borrow().len(){data.borrow_mut().append(&mut rhs);*end=data.borrow().len();return left}
+        }
+        let mut xs=left.freeze();xs.append(&mut rhs);Self::new(xs)
+    }
+    // Opaque handles obey checked source moves. Other nonempty aliases are
+    // dead after this transfer; empty scoped partitions remain usable.
+    pub fn freeze_handle(self)->Vec<T>{
+        if let InkBufferStorage::Shared{data,start,end}=&self.0 {
+            if start==end{return Vec::new()}
+            if *start==0&&*end==data.borrow().len(){return std::mem::take(&mut *data.borrow_mut())}
+        }
+        self.freeze()
+    }
+    pub fn freeze(self)->Vec<T>{match self.0 {
+        InkBufferStorage::Owned(xs)=>xs,
+        InkBufferStorage::Shared{start,end,..} if start==end=>Vec::new(),
+        InkBufferStorage::Shared{data,start,end}=>match std::rc::Rc::try_unwrap(data) {
+            Ok(cell)=>{let mut xs=cell.into_inner();xs.truncate(end);if start==0{xs}else{xs.drain(..start);xs}},
+            Err(data)=>data.borrow()[start..end].to_vec(),
+        }
+    }}
+}
+impl<T:Clone+PartialEq> PartialEq for OwnedBuffer<T>{fn eq(&self,r:&Self)->bool{self.read(|a|r.read(|b|a==b))}}
+impl<T:Clone+Eq> Eq for OwnedBuffer<T>{}
+impl<T:Clone+PartialOrd> PartialOrd for OwnedBuffer<T>{fn partial_cmp(&self,r:&Self)->Option<std::cmp::Ordering>{self.read(|a|r.read(|b|a.partial_cmp(b)))}}
+impl<T:Clone+Ord> Ord for OwnedBuffer<T>{fn cmp(&self,r:&Self)->std::cmp::Ordering{self.read(|a|r.read(|b|a.cmp(b)))}}
+// Native values own their map. Opaque invocation handles use shared internal
+// storage, with source affine checking still forbidding user-visible aliases.
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
-pub struct OwnedMap<K: Ord, V>(std::collections::BTreeMap<K, V>);
-impl<K: Ord + Clone, V: Clone> OwnedMap<K, V> {
-    pub fn new() -> Self {
-        Self(std::collections::BTreeMap::new())
-    }
-    pub fn len(&self) -> u32 {
-        self.0.len().try_into().expect("map exceeds u32")
-    }
-    pub fn get(&self, k: &K) -> Option<V> {
-        self.0.get(k).cloned()
-    }
-    pub fn contains(&self, k: &K) -> bool {
-        self.0.contains_key(k)
-    }
-    pub fn set(mut self, k: K, v: V) -> Self {
-        self.0.insert(k, v);
-        self
-    }
-    pub fn remove(mut self, k: &K) -> Self {
-        self.0.remove(k);
-        self
-    }
-    pub fn keys(&self) -> Vec<K> {
-        self.0.keys().cloned().collect()
-    }
-    pub fn values(&self) -> Vec<V> {
-        self.0.values().cloned().collect()
-    }
+enum InkMapStorage<K:Ord,V>{Owned(std::collections::BTreeMap<K,V>),Shared(std::rc::Rc<std::cell::RefCell<std::collections::BTreeMap<K,V>>>) }
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub struct OwnedMap<K:Ord,V>(InkMapStorage<K,V>);
+impl<K:Ord+Clone,V:Clone> OwnedMap<K,V>{
+ pub fn new()->Self{Self(InkMapStorage::Owned(std::collections::BTreeMap::new()))}
+ pub fn shared()->Self{Self(InkMapStorage::Shared(std::rc::Rc::new(std::cell::RefCell::new(std::collections::BTreeMap::new()))))}
+ fn read<R>(&self,f:impl FnOnce(&std::collections::BTreeMap<K,V>)->R)->R{match &self.0{InkMapStorage::Owned(m)=>f(m),InkMapStorage::Shared(m)=>f(&m.borrow())}}
+ fn edit<R>(&mut self,f:impl FnOnce(&mut std::collections::BTreeMap<K,V>)->R)->R{match &mut self.0{InkMapStorage::Owned(m)=>f(m),InkMapStorage::Shared(m)=>f(&mut m.borrow_mut())}}
+ pub fn len(&self)->u32{self.read(|m|m.len().try_into().expect("map exceeds u32"))}
+ pub fn get(&self,k:&K)->Option<V>{self.read(|m|m.get(k).cloned())}
+ pub fn contains(&self,k:&K)->bool{self.read(|m|m.contains_key(k))}
+ pub fn set(mut self,k:K,v:V)->Self{self.edit(|m|m.insert(k,v));self}
+ pub fn remove(mut self,k:&K)->Self{self.edit(|m|m.remove(k));self}
+ pub fn keys(&self)->Vec<K>{self.read(|m|m.keys().cloned().collect())}
+ pub fn values(&self)->Vec<V>{self.read(|m|m.values().cloned().collect())}
 }
 
 // Bounded fork/join execution. Each worker owns a disjoint mutable slice;
@@ -955,7 +983,7 @@ pub fn decode(layout: &Layout, bytes: &[u8], limits: Limits) -> R<Logical> {
 
 }
 pub use portable::Limits as SnapshotLimits;
-fn snapshot_layout()->portable::Layout{portable::Layout{program:[52, 20, 97, 227, 197, 216, 139, 58, 45, 98, 73, 196, 205, 50, 83, 26, 202, 227, 210, 13, 109, 164, 33, 109, 207, 238, 49, 79, 213, 123, 165, 218],schema:[217, 47, 159, 252, 204, 85, 237, 70, 76, 82, 248, 36, 231, 99, 128, 206, 40, 43, 134, 247, 81, 235, 124, 169, 208, 7, 125, 5, 136, 138, 247, 164],roots:vec![
+fn snapshot_layout()->portable::Layout{portable::Layout{program:[164, 20, 219, 208, 59, 235, 46, 77, 62, 228, 218, 82, 19, 65, 177, 192, 80, 104, 209, 34, 182, 251, 67, 150, 219, 17, 134, 111, 72, 214, 155, 52],schema:[217, 47, 159, 252, 204, 85, 237, 70, 76, 82, 248, 36, 231, 99, 128, 206, 40, 43, 134, 247, 81, 235, 124, 169, 208, 7, 125, 5, 136, 138, 247, 164],roots:vec![
 ("Rows".into(),portable::Schema::U64,portable::Schema::Record(vec![("value".into(),portable::Schema::U64),("active".into(),portable::Schema::Bool)])),
 ],events:vec![("seen".into(),portable::Schema::U64),
 ]}}
@@ -1017,12 +1045,16 @@ fn keep_l_size(&mut self)->u64{((self.l_Rows.values().filter(|l_row|{l_row.l_act
 #[cfg(target_arch="wasm32")] pub fn parallel_worker(&self,task:&Json)->Result<Json,String>{let start=task["start"].as_u64().and_then(|x|u32::try_from(x).ok()).ok_or("parallel start")?;let items=task["items"].as_array().ok_or("parallel items")?;let captures=task["captures"].as_array().ok_or("parallel captures")?;temporary::with_parallel_worker(||match task["callback"].as_str().ok_or("parallel callback")?{
 _=>Err("unknown compiled parallel callback".into()),})}
 fn action_l_put(&mut self,l_key:u64,l_value:u64,l_active:bool,l_fail:bool)->Result<(),l_Error>{if self.l_Rows.contains_key(&(l_key)) {let _:()={let key=<u64 as Clone>::clone(&l_key);let value=l_Row{l_value:<u64 as Clone>::clone(&l_value),l_active:<bool as Clone>::clone(&l_active)};self.set_l_Rows(key,Some(value),false);};
-} else {let _:()={let key=l_key;let value=l_Row{l_value:<u64 as Clone>::clone(&l_value),l_active:l_active};self.set_l_Rows(key,Some(value),false);};
+{let value=<u64 as Clone>::clone(&l_value);self.staged.push(EventData::l_seen(value));}
+if <bool as Clone>::clone(&l_fail) {return Err(l_Error::l_Failed);
+} else {return Ok(());
 }
+} else {let _:()={let key=l_key;let value=l_Row{l_value:<u64 as Clone>::clone(&l_value),l_active:l_active};self.set_l_Rows(key,Some(value),false);};
 {let value=l_value;self.staged.push(EventData::l_seen(value));}
 if l_fail {return Err(l_Error::l_Failed);
-} else {}
-return Ok(());
+} else {return Ok(());
+}
+}
 }
 pub fn invoke_view_l_put(&mut self,l_key:u64,l_value:u64,l_active:bool,l_fail:bool)->Result<OutcomeView<'_,Result<(),l_Error>>,String>{let result=self.action_l_put(l_key,l_value,l_active,l_fail);
 let version=match transaction::decide(self.version,result.is_ok()){transaction::Decision::Rollback=>{self.rollback();return Ok(OutcomeView{result,committed:false,version:self.version,events:&[]})},transaction::Decision::Exhausted=>{self.rollback();return Err("commit sequence exhausted".into())},transaction::Decision::Commit{version}=>version};self.version=version;if self.host.is_none(){self.undo.clear();}let start=self.outbox.len();self.outbox.extend(transaction::publish(version,self.staged.drain(..)).map(|published|Event{commit:published.commit,position:published.position,data:published.value}));Ok(OutcomeView{result,committed:true,version,events:&self.outbox[start..]})}
@@ -1030,8 +1062,8 @@ pub fn invoke_l_put(&mut self,l_key:u64,l_value:u64,l_active:bool,l_fail:bool)->
 fn action_l_erase(&mut self,l_key:u64,l_fail:bool)->Result<(),l_Error>{let _:Option<l_Row>={let key=<u64 as Clone>::clone(&l_key);self.set_l_Rows(key,None,false)};
 {let value=l_key;self.staged.push(EventData::l_seen(value));}
 if l_fail {return Err(l_Error::l_Failed);
-} else {}
-return Ok(());
+} else {return Ok(());
+}
 }
 pub fn invoke_view_l_erase(&mut self,l_key:u64,l_fail:bool)->Result<OutcomeView<'_,Result<(),l_Error>>,String>{let result=self.action_l_erase(l_key,l_fail);
 let version=match transaction::decide(self.version,result.is_ok()){transaction::Decision::Rollback=>{self.rollback();return Ok(OutcomeView{result,committed:false,version:self.version,events:&[]})},transaction::Decision::Exhausted=>{self.rollback();return Err("commit sequence exhausted".into())},transaction::Decision::Commit{version}=>version};self.version=version;if self.host.is_none(){self.undo.clear();}let start=self.outbox.len();self.outbox.extend(transaction::publish(version,self.staged.drain(..)).map(|published|Event{commit:published.commit,position:published.position,data:published.value}));Ok(OutcomeView{result,committed:true,version,events:&self.outbox[start..]})}
@@ -1054,41 +1086,3 @@ pub fn invoke_json(&mut self,name:&str,args:&Json)->Result<Json,String>{let args
 "total_query"=>{Ok(self.invoke_view_l_total_query()?.to_json())},
 "count_query"=>{Ok(self.invoke_view_l_count_query()?.to_json())},
 _=>Err("unknown action".into())}}}
-#[cfg(not(target_arch = "wasm32"))]
-pub mod durable;
-#[cfg(not(target_arch = "wasm32"))]
-impl durable::CompiledState for State {
-    fn create() -> Self {
-        Self::new()
-    }
-    fn restore(bytes: &[u8]) -> Result<Self, String> {
-        Self::restore(bytes)
-    }
-    fn checkpoint(&self) -> Result<Vec<u8>, String> {
-        self.checkpoint()
-    }
-    fn invoke(
-        &mut self,
-        call: &str,
-        args: &serde_json::Value,
-    ) -> Result<serde_json::Value, String> {
-        self.invoke_json(call, args)
-    }
-    fn pure(&mut self, call: &str, args: &serde_json::Value) -> Result<serde_json::Value, String> {
-        self.call_json(call, args)
-    }
-    fn events(&self) -> Vec<serde_json::Value> {
-        self.outbox().iter().map(Event::to_json).collect()
-    }
-    fn acknowledge(&mut self, commit: u64, position: u64) {
-        self.acknowledge_through(commit, position)
-    }
-    fn begin_transaction(&mut self) -> Result<bool, String> { self.begin_transaction() }
-    fn commit_transaction(&mut self) { self.commit_transaction() }
-    fn rollback_transaction(&mut self) { self.rollback_transaction() }
-    fn version(&self) -> u64 {
-        self.version()
-    }
-}
-#[cfg(not(target_arch = "wasm32"))]
-pub type DurableState = durable::Host<State, durable::FileStore>;

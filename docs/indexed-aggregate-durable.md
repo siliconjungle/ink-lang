@@ -54,10 +54,18 @@ Native, JavaScript and optional Wasm ABI-v1 transaction hooks are available.
 Legacy adapters retain checkpoint/restore fallback. See the durability report for
 wire limits, crash behavior, compatibility and measured host costs.
 
-Candidate costs are recorded against exact request bytes, target and workload,
-then consumed by the existing external representation selector. Check/compile,
-initialisation, checkpoint teardown, action mix and checked migration costs must
-be included when relevant. Ordinary source Map/tree measurements are also reported
-as a control: outperforming a linked-list candidate does not establish a win over
-ordinary compiled source. Selection among the checked representation candidates
-must not be mistaken for a universal choice across all source implementations.
+The existing external database implementation selector compares ordinary source,
+direct linked-list and indexed packages. Measurements bind candidate content,
+compiler bytes, emission lane, hardware and workload. Admission, compilation,
+initialisation, checkpoint teardown, action mix and portable migration costs are
+included when relevant. Both JavaScript and native Rust retain ordinary source for
+the short profile and select indexed storage for the read-heavy profile. Selection
+receipts are replayed through actual emission; there is no new selector or live
+profitability probe. See [measurements and reproduction](../reports/indexed-aggregate-durable/AGGREGATES.md).
+
+Integration includes the language-foundations revision `b54439f3`. Its source
+identity differs while this example's complete action projection is identical.
+Existing mathematical objects are reused only after ordinary universal replay.
+The same external rebind procedure repairs 21 existing fixture bindings and checks
+all their obligations, without changing their mathematical objects. Historical
+immutable snapshots and observations remain available under their original pins.
