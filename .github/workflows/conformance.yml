@@ -90,6 +90,13 @@ jobs:
           cargo test --test distribution --test source_syntax --test action_values --test general_laws --test semantic_optimisation
       - name: Literal CPU and both Wasm lowerings, generated histories and crash recovery
         run: python3 tools/check_feature_parity.py --scope cpu --run --receipt build/enforced-parity/cpu-audit.json
+      - name: Cold indexed proposals, measured batching selection and authenticated corruption
+        env:
+          PYTHONPATH: knowledge:planner
+          INK_COMPILER: target/debug/ink
+        run: |
+          python planner/tests/automatic_candidates_integration.py target/debug/ink planner/tests/fixtures/generic-batching.ink
+          python -m unittest discover -s knowledge/tests -p test_generic_indexed.py
       - name: Retain reproducible programs, seeds and expected outcomes
         if: always()
         uses: actions/upload-artifact@v4
