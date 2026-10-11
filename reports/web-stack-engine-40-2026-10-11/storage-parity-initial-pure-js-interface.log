@@ -1,0 +1,45 @@
+   Compiling ink-lowering-c v0.1.0 (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/lowerings/c)
+warning: field `graph` is never read
+   --> lowerings/gpu/src/compute.rs:147:5
+    |
+141 | struct Emitter<'a> {
+    |        ------- field in this struct
+...
+147 |     graph: bool,
+    |     ^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `ink-lowering-gpu` (lib) generated 1 warning
+   Compiling ink-lowering-wasm v0.1.0 (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/lowerings/wasm)
+   Compiling ink-runtime v0.1.0 (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/runtime)
+   Compiling ink v0.1.0 (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.52s
+     Running tests/composed_storage_parity.rs (target/debug/deps/composed_storage_parity-96f3f4cdfbe46db4)
+
+running 1 test
+wgpu: 80 results matched; 75 GPU calls
+
+thread 'composed_storage_values_and_snapshots_match_every_backend' (8666204) panicked at tests/support/parity.rs:284:5:
+file:///Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/build/generated-parity-memory40/check.mjs:1
+import fs from 'node:fs';import assert from 'node:assert/strict';import {createState,call,metadata} from './program.mjs';
+                                                                         ^^^^^^^^^^^
+SyntaxError: The requested module './program.mjs' does not provide an export named 'createState'
+    at #asyncInstantiate (node:internal/modules/esm/module_job:327:21)
+    at async ModuleJob.run (node:internal/modules/esm/module_job:431:5)
+    at async node:internal/modules/esm/loader:636:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v26.1.0
+
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test composed_storage_values_and_snapshots_match_every_backend ... FAILED
+
+failures:
+
+failures:
+    composed_storage_values_and_snapshots_match_every_backend
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 13.19s
+
+error: test failed, to rerun pass `--test composed_storage_parity`
