@@ -120,14 +120,14 @@
     },
     {
       "gate": "planner search, fitting and exact profile domains",
-      "command": "python3 -m unittest discover -s planner/tests",
+      "command": "PYTHONPATH=knowledge:planner python3 -m unittest discover -s planner/tests",
       "result": "passed",
       "log_sha256": "47a9b1100b72abd91da6a6688df1b63a8f3b5b1eb1fa9216faee1d17f44f2df4",
       "passed_tests": 54
     },
     {
       "gate": "checked fold, owned transformations and installed proposal generation",
-      "command": "INK_BIN=target/debug/ink python3 -m unittest knowledge.tests.test_fold_until_laws knowledge.tests.test_owned_transform_laws knowledge.tests.test_generated_proposals",
+      "command": "PYTHONPATH=knowledge:planner INK_COMPILER=target/debug/ink python3 -m unittest knowledge.tests.test_fold_until_laws knowledge.tests.test_owned_transform_laws knowledge.tests.test_generated_proposals",
       "result": "passed",
       "log_sha256": "f79be3a7ddf3fcea0ce5f5e01a878405d7523f48149553b7263e85f211a824ab",
       "passed_tests": 3
@@ -256,5 +256,6 @@
     "ink-lowering-gpu": "https://github.com/siliconjungle/ink-lowering-gpu/pull/9",
     "ink-lowering-wasm": "https://github.com/siliconjungle/ink-lowering-wasm/pull/8",
     "ink-runtime": "https://github.com/siliconjungle/ink-runtime/pull/11"
-  }
+  },
+  "validation_sequence": "Full lowering suites passed against the canonical core before the final ABI browser-asset repin. Final independent Git graph checks, full shared ABI/host tests and cross-target execution passed after that repin."
 }
