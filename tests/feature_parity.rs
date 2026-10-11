@@ -83,15 +83,15 @@ fn checked() -> (
     )
     .unwrap();
     let a: Request = serde_json::from_str(include_str!(
-        "../knowledge/research/keep-parity/representation-0.json"
+        "../knowledge/research/composable-state/keep/representation-0.json"
     ))
     .unwrap();
     let b: Request = serde_json::from_str(include_str!(
-        "../knowledge/research/keep-parity/representation-1.json"
+        "../knowledge/research/composable-state/keep/representation-1.json"
     ))
     .unwrap();
     let bridge: Bridge = serde_json::from_str(include_str!(
-        "../knowledge/research/keep-parity/migration.json"
+        "../knowledge/research/composable-state/keep/migration.json"
     ))
     .unwrap();
     let a = representation::check(&m, &a).unwrap();
@@ -347,8 +347,8 @@ fn exact_binary32_uses_actual_gpu_dispatch() {
 fn sealed_numeric_primitives_execute_identically_on_every_cpu_target() {
     use sha2::{Digest, Sha256};
     use verified_language::{
-        definition,
         content::Lock,
+        definition,
         library::{self, Bundle, Object},
         logic::{Declaration, Sort, Term},
     };

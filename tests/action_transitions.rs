@@ -783,3 +783,206 @@ fn frozen_whole_action_replay_and_inspection_need_no_producer_or_live_database()
     assert!(!output.status.success());
     assert_eq!(fs::read(&protected).unwrap(), b"keep original");
 }
+
+#[test]
+fn parameterized_write_coalescing_preserves_events_replies_and_outer_rollback() {
+    let source = r#"module coalesced;
+enum Error{Failed,} state Rows:Table<u64,u64> = Table.empty();event seen:u64;event row_seen:Option<u64>;
+change put(key:u64,value:u64)->Result<Unit,Error> writes(Rows){if Rows.contains(key){Rows.replace(key,value);}else{Rows.insert(key,value);}return Ok(());}
+change twice(key:u64,a:u64,b:u64,fail:Bool)->Result<Option<u64>,Error> writes(Rows) emits(seen,row_seen){
+if Rows.contains(key){Rows.replace(key,a);emit seen(a);Rows.replace(key,b);}emit seen(b);if fail{return Err(Error.Failed);}return Ok(Rows.get(key));}
+change erase(key:u64,a:u64)->Result<Unit,Error> writes(Rows){if Rows.contains(key){Rows.replace(key,a);Rows.remove(key);}return Ok(());}
+change nested(key:u64)->Result<Unit,Error> writes(Rows) emits(seen,row_seen){twice(key,11,22,false)?;return Err(Error.Failed);}
+query get(key:u64)->Option<u64> reads(Rows){return Rows.get(key);}
+"#;
+    let changed = source
+        .replace(
+            "Rows.replace(key,a);emit seen(a);Rows.replace(key,b);",
+            "emit seen(a);Rows.replace(key,b);",
+        )
+        .replace("Rows.replace(key,a);Rows.remove(key);", "Rows.remove(key);")
+        .replace("Rows.remove(key);Rows.replace(key,a);", "Rows.remove(key);");
+    let m = module(source);
+    let z = module(&changed);
+    let proof = package(&m, &z, "action-parameterized-coalescing");
+    let checked = optimisation::check(&m, &proof).unwrap();
+    let mut runtime = Runtime::new(m.program().clone()).unwrap();
+    let mut steps = vec![];
+    let mut expected = vec![];
+    for (name, args) in [
+        ("twice", json!([0, 1, 2, false])),
+        ("put", json!([u64::MAX, 9])),
+        ("twice", json!([u64::MAX, 13, 17, false])),
+        ("twice", json!([u64::MAX, 31, 37, true])),
+        ("get", json!([u64::MAX])),
+        ("nested", json!([u64::MAX])),
+        ("get", json!([u64::MAX])),
+        ("erase", json!([u64::MAX, 41])),
+        ("put", json!([0, 9])),
+        ("erase", json!([0, 99])),
+        ("get", json!([0])),
+    ] {
+        let outcome = runtime.invoke_json(name, &args).unwrap();
+        let checkpoint = runtime.checkpoint_portable().unwrap();
+        steps.push(json!({"call":name,"args":args}));
+        expected.push(json!({"reply":{"outcome":outcome.json()},"snapshot":checkpoint}));
+    }
+    parity::conformance_selected(
+        "action-parameterized-coalescing",
+        &checked,
+        source,
+        steps,
+        expected,
+    );
+    // An intervening observed read cannot disappear merely because the final
+    // table is equal. The complete transition must still match its reply.
+    let observed = source.replace(
+        "Rows.replace(key,a);emit seen(a);Rows.replace(key,b);",
+        "Rows.replace(key,a);emit row_seen(Rows.get(key));Rows.replace(key,b);",
+    );
+    let wrong = observed.replace(
+        "Rows.replace(key,a);emit row_seen(Rows.get(key));",
+        "emit row_seen(Rows.get(key));",
+    );
+    let original = module(&observed);
+    let selected = module(&wrong);
+    let proposed = package(&original, &selected, "action-coalescing-observed-rejection");
+    assert!(
+        optimisation::check(&original, &proposed).is_err(),
+        "checker must reject lost intermediate observations"
+    );
+}
+
+#[test]
+fn folded_field_queries_and_nested_calls_have_literal_transition_projection() {
+    let source = r#"module projected_fields;
+enum Error{Failed,}record Row{amount:u64,enabled:Bool,}
+state Rows:Table<u64,Row> = Table.empty();event seen:u64;
+change put(key:u64,value:u64)->Result<u64,Error> writes(Rows) emits(seen){
+ if Rows.contains(key){Rows.replace(key,Row{amount:value,enabled:true});}else{Rows.insert(key,Row{amount:value,enabled:true});}
+ emit seen(value);return Ok(value);}
+query amount(key:u64)->u64 reads(Rows){return Rows.get(key).fold(fn(row)=>row.amount,fn(_)=>0);}
+query enabled(key:u64)->Bool reads(Rows){return Rows.get(key).fold(fn(row)=>row.enabled,fn(_)=>false);}
+change accumulate(key:u64,value:u64)->Result<u64,Error> writes(Rows) emits(seen){
+ let next:u64=Rows.get(key).fold(fn(row)=>row.amount+value,fn(_)=>value);return put(key,next);}
+change fail(key:u64)->Result<Unit,Error> writes(Rows) emits(seen){accumulate(key,13)?;return Err(Error.Failed);}
+query recovered(ok:Bool)->u64 {let result:Result<u64,u64> = choose(ok,Ok(17),Err(19));return result.fold(fn(value)=>value+1,fn(error)=>error+2);}
+"#;
+    let m = module(source);
+    let projection = Projection::derive(&m).unwrap();
+    let context = projection.context().unwrap();
+    let mut runtime = Runtime::new(m.program().clone()).unwrap();
+    let mut steps = vec![];
+    let mut expected = vec![];
+    for (name, args) in [
+        ("amount", json!([0])),
+        ("enabled", json!([0])),
+        ("accumulate", json!([0, 7])),
+        ("amount", json!([0])),
+        ("enabled", json!([0])),
+        ("accumulate", json!([0, 11])),
+        ("fail", json!([0])),
+        ("amount", json!([0])),
+        ("accumulate", json!([u64::MAX, u64::MAX])),
+        ("accumulate", json!([u64::MAX, 1])),
+        ("recovered", json!([true])),
+        ("recovered", json!([false])),
+    ] {
+        let action = m.program().actions.iter().find(|a| a.name == name).unwrap();
+        let previous = runtime.checkpoint().unwrap();
+        let mut arguments = vec![
+            state(&projection, m.program(), &previous),
+            Term::U64(runtime.version()),
+        ];
+        arguments.extend(action.params.iter().zip(args.as_array().unwrap()).map(
+            |((_, ty), value)| {
+                encode(
+                    &projection,
+                    m.program(),
+                    ty,
+                    &Value::from_json(value, ty, m.program()).unwrap(),
+                )
+            },
+        ));
+        let actual = context
+            .evaluate(&[], &call(&projection.actions[name].function, arguments))
+            .unwrap();
+        let outcome = runtime.invoke_json(name, &args).unwrap();
+        let event_type = projection.objects[&projection.events].payload["declaration"]["Datatype"]
+            ["constructors"][1]["fields"][0]["Data"]
+            .as_str()
+            .unwrap();
+        let events =
+            outcome
+                .events
+                .iter()
+                .rev()
+                .fold(c(&projection.events, 0, vec![]), |tail, event| {
+                    c(
+                        &projection.events,
+                        1,
+                        vec![
+                            c(
+                                event_type,
+                                0,
+                                vec![encode(&projection, m.program(), &Type::U64, &event.value)],
+                            ),
+                            tail,
+                        ],
+                    )
+                });
+        let want = c(
+            data(&projection.actions[name].result),
+            0,
+            vec![
+                encode(&projection, m.program(), &action.result, &outcome.result),
+                Term::Bool(outcome.committed),
+                Term::U64(outcome.version),
+                state(&projection, m.program(), &runtime.checkpoint().unwrap()),
+                events,
+            ],
+        );
+        assert_eq!(actual, want, "{name} {args}");
+        steps.push(json!({"call":name,"args":args}));
+        expected.push(json!({"reply":{"outcome":outcome.json()},"snapshot":runtime.checkpoint_portable().unwrap()}));
+    }
+    parity::conformance(
+        "projected-field-folds",
+        m.program().clone(),
+        source,
+        steps,
+        expected,
+    );
+}
+
+#[test]
+fn parameterised_group_queries_preserve_compiled_state_and_abort_boundaries() {
+    let source = include_str!("../examples/grouped-state.ink");
+    let p = parse(source).unwrap();
+    let mut reference = Runtime::new(p.clone()).unwrap();
+    let calls = vec![
+        ("put", json!([0, 7, false])),
+        ("put", json!([1, 7, false])),
+        ("put", json!([2, 9, false])),
+        ("total", json!([7])),
+        ("total", json!([9])),
+        ("put", json!([0, 9, true])),
+        ("total", json!([7])),
+        ("put", json!([0, 9, false])),
+        ("total", json!([7])),
+        ("total", json!([9])),
+        ("erase", json!([1])),
+        ("total", json!([7])),
+        ("put", json!([u64::MAX, u64::MAX, false])),
+        ("total", json!([u64::MAX])),
+        ("total", json!([0])),
+    ];
+    let mut steps = vec![];
+    let mut expected = vec![];
+    for (name, args) in calls {
+        let outcome = reference.invoke_json(name, &args).unwrap();
+        steps.push(json!({"call":name,"args":args}));
+        expected.push(json!({"reply":{"outcome":outcome.json()},"snapshot":reference.checkpoint_portable().unwrap()}));
+    }
+    parity::conformance("parameterised-group-state", p, source, steps, expected);
+}

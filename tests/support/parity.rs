@@ -163,9 +163,17 @@ fn conformance_inner(
             "{}",
             String::from_utf8_lossy(&out.stderr)
         );
-        // Both script CLIs return one ordered JSON array. Single-call CLI
-        // output is NDJSON, but is not the transport used by this helper.
-        let actual: Vec<Value> = serde_json::from_slice(&out.stdout).unwrap();
+        // The packed pure driver writes one receipt per line; the module
+        // driver writes an ordered array. Validate the selected driver's
+        // transport exactly, then compare every receipt below.
+        let actual: Vec<Value> = if packed_pure {
+            serde_json::Deserializer::from_slice(&out.stdout)
+                .into_iter::<Value>()
+                .collect::<Result<_, _>>()
+                .unwrap()
+        } else {
+            serde_json::from_slice(&out.stdout).unwrap()
+        };
         let calls = gpu_steps
             .iter()
             .filter(|s| s["restore"].is_null())
@@ -176,13 +184,16 @@ fn conformance_inner(
             let mut expected_reply = e["reply"].clone();
             let reply = if let Some(name) = s["pure"].as_str() {
                 let f = p.functions.iter().find(|f| f.name == name).unwrap();
-                let descriptor = ink_abi::describe(&f.result, &p.records, &p.enums, &p.ids).unwrap();
+                let descriptor =
+                    ink_abi::describe(&f.result, &p.records, &p.enums, &p.ids).unwrap();
                 // Packed u64 wire values use decimal strings above the safe
                 // JSON range. Compare through the shared ABI, preserving bits.
                 if ink_abi::packed_width(&descriptor).is_ok() {
                     expected_reply = json!({"value":ink_abi::packed::unpack(&ink_abi::packed::pack(&e["reply"]["value"], &descriptor).unwrap(), &descriptor)});
                     json!({"value":ink_abi::packed::unpack(&ink_abi::packed::pack(&a["value"], &descriptor).unwrap(), &descriptor)})
-                } else { json!({"value":a["value"]}) }
+                } else {
+                    json!({"value":a["value"]})
+                }
             } else if a["host_error"].is_string() {
                 a.clone()
             } else {
