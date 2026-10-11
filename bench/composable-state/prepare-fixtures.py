@@ -43,6 +43,10 @@ def prepare(compiler,output):
         receipts.append(dict(name=str(path.relative_to(output)),source=checked['source'],representation=checked['representation']));return path
     def migration(source,directory,name,old,new,request):
         path=write(directory/(name+'.json'),request);run('check-migration',source,old,new,path);return path
+    source=ROOT/'knowledge/research/keep-parity/app.ink';d=output/'keep';m=model(source,'keep')
+    result=generate(m,ROOT/'build/composable-fixtures/keep',cache_query='zero',preserve_cache=True,delta_query=True)
+    left,right=[candidate(source,d,'representation-'+str(i),r)for i,r in enumerate(result['requests'])]
+    migration(source,d,'migration',left,right,result['migration'])
     source=ROOT/'examples/point-query-delta.ink';d=output/'point-delta';m=model(source,'point')
     refresh=generate(m,ROOT/'build/composable-fixtures/point-refresh',cache_query='zero',preserve_cache=True)
     delta=generate(m,ROOT/'build/composable-fixtures/point-delta',cache_query='zero',preserve_cache=True,delta_query=True)
@@ -71,4 +75,4 @@ def prepare(compiler,output):
     write(output/'fixtures-admission.json',dict(schema=1,status='checked',compiler_sha256=compiler_hash,fixtures=receipts,scope='Fresh proposals checked against current source; archived fixture bytes remain unchanged.'))
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--compiler',type=Path,required=True);p.add_argument('--output',type=Path,default=ROOT/'knowledge/research/composable-state');a=p.parse_args();prepare(a.compiler,a.output)
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--compiler',type=Path,required=True);p.add_argument('--output',type=Path,default=ROOT/'knowledge/research/composable-state-current');a=p.parse_args();prepare(a.compiler,a.output)
