@@ -24,6 +24,20 @@ drop from four to one, but complete GPU requests still lose to both CPU controls
 in every measured cell. Resident Wasm/native boundaries can perform very
 differently from calls that also pack/copy inputs and return owned outputs.
 
+## Indexed state calls and lifecycle choice
+
+[The matched indexed-call report](reports/indexed-source-choice-2026-10-12/README.md)
+records whole-table copy removal through generic inverse journals. At 4000 rows,
+native C point queries/writes improve roughly 15×/14.5×, C-Wasm 9.6×/14.1×, and JS
+writes 381×, with approximately unchanged JS queries. These are matched within-lane
+steady-state boundaries, without peak-memory or GPU-device speed claims.
+
+The report also compares existing ordinary Rust with checked cached list layouts:
+ordinary indexed writes win most write-heavy mixes, while retained aggregates win
+read-only work. Supplied database candidates and complete lifecycle observations
+feed an external planner; these measurements do not establish a universal profitable
+cache policy or implement a new indexed maintained representation.
+
 ## Composed lowering and profitability study
 
 [Engine39](reports/web-stack-engine-39-2026-10-11/REPORT.md) diagnoses all
