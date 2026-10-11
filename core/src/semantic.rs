@@ -71,6 +71,23 @@ pub fn children(t: &Term) -> Vec<&Term> {
         _ => vec![],
     }
 }
+/// Rebuild each child once, in semantic visitor order. Callers own recursion,
+/// binder depth and work accounting; this helper makes no rewrite decisions.
+pub fn try_map_children(
+    t: &Term,
+    mut map: impl FnMut(&Term) -> LangResult<Term>,
+) -> LangResult<Term> {
+    let node = match &t.node {
+        Node::Lambda(body) => Node::Lambda(Box::new(map(body)?)),
+        Node::Op(name, args) => Node::Op(
+            name.clone(),
+            args.iter().map(&mut map).collect::<LangResult<_>>()?,
+        ),
+        Node::Cons(head, tail) => Node::Cons(Box::new(map(head)?), Box::new(map(tail)?)),
+        node => node.clone(),
+    };
+    Ok(term(t.sort.clone(), node))
+}
 pub fn replace_child(t: &Term, i: usize, child: Term) -> LangResult<Term> {
     let mut t = t.clone();
     match &mut t.node {
@@ -138,17 +155,14 @@ fn beta_at(t: &Term, arg: &Term, depth: usize, b: &mut Budget) -> LangResult<Ter
             Node::Bound(if i > depth { i - 1 } else { i }),
         ));
     }
-    let mut out = t.clone();
-    for (i, c) in children(t).into_iter().enumerate() {
-        let sub = beta_at(
+    try_map_children(t, |c| {
+        beta_at(
             c,
             arg,
             depth + usize::from(matches!(t.node, Node::Lambda(_))),
             b,
-        )?;
-        out = replace_child(&out, i, sub)?;
-    }
-    Ok(out)
+        )
+    })
 }
 pub fn beta(body: &Term, arg: &Term, b: &mut Budget) -> LangResult<Term> {
     beta_at(body, arg, 0, b)
@@ -166,17 +180,14 @@ pub fn substitute(t: &Term, args: &BTreeMap<String, Term>, b: &mut Budget) -> La
                 return shift(a, depth as isize, 0, b, 0);
             }
         }
-        let mut out = t.clone();
-        for (i, c) in children(t).into_iter().enumerate() {
-            let sub = walk(
+        try_map_children(t, |c| {
+            walk(
                 c,
                 args,
                 depth + usize::from(matches!(t.node, Node::Lambda(_))),
                 b,
-            )?;
-            out = replace_child(&out, i, sub)?;
-        }
-        Ok(out)
+            )
+        })
     }
     walk(t, args, 0, b)
 }
@@ -190,20 +201,14 @@ pub fn unshift_hole(t: &Term, depth: usize) -> LangResult<Term> {
                 return Err("pattern hole captures surrounding binder".into());
             }
         }
-        let mut out = t.clone();
-        for (i, c) in children(t).into_iter().enumerate() {
-            out = replace_child(
-                &out,
-                i,
-                walk(
-                    c,
-                    depth,
-                    local + usize::from(matches!(t.node, Node::Lambda(_))),
-                    b,
-                )?,
-            )?;
-        }
-        Ok(out)
+        try_map_children(t, |c| {
+            walk(
+                c,
+                depth,
+                local + usize::from(matches!(t.node, Node::Lambda(_))),
+                b,
+            )
+        })
     }
     let mut b = Budget::new();
     let out = walk(t, depth, 0, &mut b)?;
@@ -1141,20 +1146,14 @@ pub fn open_scope(t: &Term, names: &[(String, Sort)], b: &mut Budget) -> LangRes
                 return Ok(free(s.clone(), n));
             }
         }
-        let mut out = t.clone();
-        for (i, c) in children(t).into_iter().enumerate() {
-            out = replace_child(
-                &out,
-                i,
-                go(
-                    c,
-                    names,
-                    local + usize::from(matches!(t.node, Node::Lambda(_))),
-                    b,
-                )?,
-            )?;
-        }
-        Ok(out)
+        try_map_children(t, |c| {
+            go(
+                c,
+                names,
+                local + usize::from(matches!(t.node, Node::Lambda(_))),
+                b,
+            )
+        })
     }
     go(t, names, 0, b)
 }
@@ -1166,20 +1165,14 @@ pub fn close_scope(t: &Term, names: &[(String, Sort)], b: &mut Budget) -> LangRe
                 return Ok(term(t.sort.clone(), Node::Bound(local + i)));
             }
         }
-        let mut out = t.clone();
-        for (i, c) in children(t).into_iter().enumerate() {
-            out = replace_child(
-                &out,
-                i,
-                go(
-                    c,
-                    names,
-                    local + usize::from(matches!(t.node, Node::Lambda(_))),
-                    b,
-                )?,
-            )?;
-        }
-        Ok(out)
+        try_map_children(t, |c| {
+            go(
+                c,
+                names,
+                local + usize::from(matches!(t.node, Node::Lambda(_))),
+                b,
+            )
+        })
     }
     go(t, names, 0, b)
 }

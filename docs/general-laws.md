@@ -118,3 +118,12 @@ The old maintained-view command and its specialised certificate path are removed
 - Source programs cannot yet *state* laws. The laws are written by an
   untrusted producer in the logic's JSON form. A surface `law` syntax would
   need generic types and function-typed parameters in the source language.
+
+## Quantified executable induction
+
+The executable semantic checker also supports generalized structural induction
+for natural and list terms. Its branch-local hypothesis can quantify changing
+indices or accumulators, with exact typed instantiation and checks that fixed
+premises do not depend on newly quantified variables. See
+[checked collection edits](collection-edit-laws.md) for its restrictions,
+compiler traversal changes, portable knowledge entries and executable evidence.
