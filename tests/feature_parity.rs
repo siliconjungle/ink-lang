@@ -83,15 +83,15 @@ fn checked() -> (
     )
     .unwrap();
     let a: Request = serde_json::from_str(include_str!(
-        "../knowledge/research/composable-state/keep/representation-0.json"
+        "../knowledge/research/composable-state-current/keep/representation-0.json"
     ))
     .unwrap();
     let b: Request = serde_json::from_str(include_str!(
-        "../knowledge/research/composable-state/keep/representation-1.json"
+        "../knowledge/research/composable-state-current/keep/representation-1.json"
     ))
     .unwrap();
     let bridge: Bridge = serde_json::from_str(include_str!(
-        "../knowledge/research/composable-state/keep/migration.json"
+        "../knowledge/research/composable-state-current/keep/migration.json"
     ))
     .unwrap();
     let a = representation::check(&m, &a).unwrap();
