@@ -132,8 +132,7 @@ transition equality contract. Whole-action equality alone does not admit arbitra
 physical representations, maintained views or their migrations. A separate
 [source-bound representation interface](database-representations.md) now admits
 restricted physical candidates and checked bridges. Legacy aggregate, bounded-cache
-and storage-policy approval is retired from default builds and requires explicit
-historical research mode. Broader source domains and maintained-view correspondence
+and storage-policy approval have been completely removed. Broader source domains and maintained-view correspondence
 remain open. The full production
 acceptance gates in PLAN.md remain active; editor support and schema evolution
 remain excluded. There is no performance or universal-fastest claim from this

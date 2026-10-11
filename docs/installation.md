@@ -35,7 +35,7 @@ frozen selection replay do not need an installed planner or knowledge store.
 
 Optional tools resolve in this order:
 
-1. An explicit `--search-tool PATH` or `--view-tool PATH`.
+1. An explicit `--search-tool PATH`.
 2. `INK_DISTRIBUTION`, pointing to a directory with `planner/` and `knowledge/`.
 3. `share/ink` beside the installed `bin` directory.
 4. The original compiler checkout, for development when no bundle exists.

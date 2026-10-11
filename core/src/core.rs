@@ -120,10 +120,12 @@ pub struct Program {
 
 /// This version fixes the executable representation and its current semantics,
 /// not the larger proposed language or a proof of the Rust implementation.
+pub const CANONICAL_FLOAT_SEMANTICS: &str = "ink-executable-core-v7";
+pub const CONTROL_SEMANTICS: &str = "ink-executable-core-v6";
 pub const SEMANTICS: &str = "ink-executable-core-v1";
 pub const COMPUTE_SEMANTICS: &str = "ink-executable-core-v2";
 pub const LOCAL_SEMANTICS: &str = "ink-executable-core-v3";
-pub const EXACT_FLOAT_SEMANTICS: &str = "ink-executable-core-v6";
+pub const EXACT_FLOAT_SEMANTICS: &str = CANONICAL_FLOAT_SEMANTICS;
 pub const PARALLEL_SEMANTICS: &str = "ink-executable-core-v5";
 pub const SEQUENCE_SEMANTICS: &str = "ink-executable-core-v4";
 pub const MAX_BYTES: usize = 16_000_000;
@@ -141,47 +143,6 @@ struct WireModule {
 #[derive(Clone, Debug)]
 pub struct CheckedModule(WireModule);
 
-fn float_domain(p: &Program) -> bool {
-    fn ty(t: &Type) -> bool {
-        match t {
-            Type::F32 => true,
-            Type::List(x) | Type::Option(x) | Type::Buffer(x) | Type::Vector(x, _) => ty(x),
-            Type::Result(a, b) | Type::Table(a, b) | Type::Map(a, b) => ty(a) || ty(b),
-            _ => false,
-        }
-    }
-    fn expr(e: &Expr) -> bool {
-        match e {
-            Expr::Float(_) => true,
-            Expr::Neg(x) | Expr::Lambda(_, x) | Expr::Field(x, _) | Expr::Try(x) => expr(x),
-            Expr::Binary(_, a, b) => expr(a) || expr(b),
-            Expr::Let(_, t, a, b) => t.as_deref().is_some_and(ty) || expr(a) || expr(b),
-            Expr::Call(_, args) => args.iter().any(expr),
-            Expr::Method(x, _, args) => expr(x) || args.iter().any(expr),
-            Expr::Record(_, fs) => fs.iter().any(|(_, e)| expr(e)),
-            _ => false,
-        }
-    }
-    fn block(xs: &[Statement]) -> bool {
-        xs.iter().any(|s| match s {
-            Statement::Let(_, t, e) => t.as_ref().is_some_and(ty) || expr(e),
-            Statement::Return(e) | Statement::Emit(_, e) | Statement::Expr(e) => expr(e),
-            Statement::If(e, a, b) => expr(e) || block(a) || block(b),
-        })
-    }
-    p.functions
-        .iter()
-        .any(|f| ty(&f.result) || f.params.iter().any(|(_, t)| ty(t)) || expr(&f.body))
-        || p.actions
-            .iter()
-            .any(|f| ty(&f.result) || f.params.iter().any(|(_, t)| ty(t)) || block(&f.body))
-        || p.states
-            .iter()
-            .chain(&p.keeps)
-            .any(|d| ty(&d.ty) || expr(&d.value))
-        || p.records.values().any(|fs| fs.iter().any(|(_, t)| ty(t)))
-        || p.events.values().any(ty)
-}
 
 impl CheckedModule {
     pub fn from_source(program: Program) -> LangResult<Self> {
@@ -190,8 +151,10 @@ impl CheckedModule {
         crate::check::check(&program)?;
         let module = Self(WireModule {
             schema: 1,
-            semantics: if float_domain(&program) {
-                EXACT_FLOAT_SEMANTICS
+            semantics: if canonical_float_needed(&program) {
+                CANONICAL_FLOAT_SEMANTICS
+            } else if control_needed(&program) {
+                CONTROL_SEMANTICS
             } else if crate::recursion::needed(&program) {
                 PARALLEL_SEMANTICS
             } else if sequence {
@@ -223,7 +186,8 @@ impl CheckedModule {
                 LOCAL_SEMANTICS,
                 SEQUENCE_SEMANTICS,
                 PARALLEL_SEMANTICS,
-                EXACT_FLOAT_SEMANTICS,
+                CONTROL_SEMANTICS,
+                CANONICAL_FLOAT_SEMANTICS,
             ]
             .contains(&wire.semantics.as_str())
         {
@@ -512,4 +476,93 @@ fn validate(p: &Program) -> LangResult<(bool, bool)> {
         b.statements(&a.body, 0)?;
     }
     Ok((b.extended, b.sequence))
+}
+
+fn canonical_float_needed(p: &Program) -> bool {
+    fn ty(t: &Type) -> bool {
+        match t {
+            Type::F32 => true,
+            Type::List(x) | Type::Buffer(x) | Type::Option(x) | Type::Vector(x, _) => ty(x),
+            Type::Result(a, b) | Type::Map(a, b) | Type::Table(a, b) => ty(a) || ty(b),
+            _ => false,
+        }
+    }
+    fn expr(e: &Expr) -> bool {
+        let mut found = false;
+        crate::analysis::walk(e, |node| {
+            found |= matches!(node, Expr::Float(_));
+            if let Expr::Let(_, Some(t), _, _) = node {
+                found |= ty(t);
+            }
+        });
+        found
+    }
+    fn statements(ss: &[Statement]) -> bool {
+        ss.iter().any(|s| match s {
+            Statement::Let(_, t, e) => t.as_ref().is_some_and(ty) || expr(e),
+            Statement::If(c, a, b) => expr(c) || statements(a) || statements(b),
+            Statement::Return(e) | Statement::Expr(e) | Statement::Emit(_, e) => expr(e),
+        })
+    }
+    p.records.values().any(|fs| fs.iter().any(|(_, t)| ty(t)))
+        || p.states
+            .iter()
+            .chain(&p.keeps)
+            .any(|d| ty(&d.ty) || expr(&d.value))
+        || p.events.values().any(ty)
+        || p.functions
+            .iter()
+            .any(|f| ty(&f.result) || f.params.iter().any(|(_, t)| ty(t)) || expr(&f.body))
+        || p.actions
+            .iter()
+            .any(|a| ty(&a.result) || a.params.iter().any(|(_, t)| ty(t)) || statements(&a.body))
+}
+fn control_needed(p: &Program) -> bool {
+    fn has(e: &Expr, pure_carriers: bool) -> bool {
+        let mut found = false;
+        crate::analysis::walk(e, |n| {
+            if matches!(n,Expr::Call(name,_) if name=="fold_until"||name=="foldr")
+                || (pure_carriers && matches!(n, Expr::String(_) | Expr::Unit))
+            {
+                found = true;
+            }
+        });
+        found
+    }
+    fn statements(ss: &[Statement]) -> bool {
+        ss.iter().any(|s| match s {
+            Statement::If(c, a, b) => has(c, false) || statements(a) || statements(b),
+            Statement::Let(_, _, e)
+            | Statement::Return(e)
+            | Statement::Expr(e)
+            | Statement::Emit(_, e) => has(e, false),
+        })
+    }
+    // String/Unit already had fixed action semantics. V6 marks their newly
+    // admitted pure-function carriers and the general fold control mechanism.
+    p.functions.iter().any(|f| has(&f.body, true))
+        || p.states
+            .iter()
+            .chain(&p.keeps)
+            .any(|d| has(&d.value, false))
+        || p.actions.iter().any(|a| statements(&a.body))
+}
+#[cfg(test)]
+mod control_domain_tests {
+    use super::*;
+    #[test]
+    fn domain_marks_general_pure_control_without_relabelling_unchanged_actions() {
+        let action = CheckedModule::from_source(
+            crate::syntax::parse("module actions;query unit()->Unit{return ();}").unwrap(),
+        )
+        .unwrap();
+        assert_eq!(action.semantics(), SEMANTICS);
+        let pure = CheckedModule::from_source(
+            crate::syntax::parse("module pure;fn unit()->Unit{return ();}").unwrap(),
+        )
+        .unwrap();
+        assert_eq!(pure.semantics(), CONTROL_SEMANTICS);
+        let fold=CheckedModule::from_source(crate::syntax::parse("module control;fn first(xs:List<u32>)->u32{return fold_until(xs,0,fn(x)=>fn(a)=>x>0,fn(x)=>fn(a)=>x);}").unwrap()).unwrap();
+        assert_eq!(fold.semantics(), CONTROL_SEMANTICS);
+    }
 }

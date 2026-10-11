@@ -28,19 +28,19 @@ The initial adaptive host covers complete captured-input requests; prepared GPU
 sessions are an explicit separate residency capability, not an adaptive resident
 CPU/GPU chooser.
 
-Selection uses a 10% minimum predicted saving, with at most 32 cached decisions.
+Selection uses a 10% minimum predicted saving through the shared ink-abi Rust
+contract, also compiled to Wasm for browsers.
 Input sizes/residency metadata guide choice; no value scanning, repeated execution
 or per-call timer is needed in adaptive policy. This does not imply zero overhead:
 metadata construction, lookup, promise scheduling and transport remain measured
 parts of full execution. Explicit backends remain available. Static JavaScript
-bypasses packing and Wasm initialization.
+bypasses packing and CPU Wasm initialization; the common policy still uses the
+small decision Wasm module.
 
-The opt-in `policy:'profile'` retains historical pure-call alternating profiling
-for evidence collection. Such trials are intentionally expensive and execute
-more than once. `expectedCalls` and `recheckEvery` apply to that profiling policy.
-Training instrumentation is separate from uninstrumented performance evidence.
-Saved profiles must come from representative measurements; source/target hashes
-only associate data and do not prove host or device execution.
+Runtime profitability probes and the old profiling policy are removed. Evidence
+collection and model fitting run offline in the planner. Saved profiles must bind
+representative measurements, exact code, target, boundary and observed domains;
+these bindings do not prove host or device execution.
 
 ## Prepared GPU inputs
 

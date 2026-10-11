@@ -11,7 +11,7 @@ fn exact_float_contract_is_source_bound_and_preserves_transport_bits() {
         "module f;fn q()->Bool{let x:f32=1;return x==x;}",
     ] {
         let checked = CheckedModule::from_source(parse(source).unwrap()).unwrap();
-        assert_eq!(checked.semantics(), "ink-executable-core-v6");
+        assert_eq!(checked.semantics(), "ink-executable-core-v7");
         assert_eq!(
             CheckedModule::from_bytes(&checked.bytes().unwrap())
                 .unwrap()
