@@ -680,10 +680,11 @@ impl Context {
     }
 }
 /// Fixed CPU binary32 semantics over raw 32-bit words. NaN arithmetic payloads
-/// have the existing engine-dependent CPU contract; negation preserves payload.
+/// use the executable-core V6 canonical NaN contract; negation preserves payload.
 pub fn f32_primitive(op:&str,a:u64,b:u64)->LangResult<Term>{
  let x=f32::from_bits(a as u32);let y=f32::from_bits(b as u32);
- Ok(match op {"f32:+"=>Term::U64((x+y).to_bits()as u64),"f32:-"=>Term::U64((x-y).to_bits()as u64),"f32:*"=>Term::U64((x*y).to_bits()as u64),"f32:neg"=>Term::U64((a as u32^0x80000000)as u64),"f32:=="=>Term::Bool(x==y),"f32:!="=>Term::Bool(x!=y),"f32:<"=>Term::Bool(x<y),"f32:<="=>Term::Bool(x<=y),"f32:>"=>Term::Bool(x>y),"f32:>="=>Term::Bool(x>=y),_=>return Err("unsupported binary32 primitive".into())})
+ let bits=|v:f32|if v.is_nan(){0x7fc00000u64}else{v.to_bits()as u64};
+ Ok(match op {"f32:+"=>Term::U64(bits(x+y)),"f32:-"=>Term::U64(bits(x-y)),"f32:*"=>Term::U64(bits(x*y)),"f32:neg"=>Term::U64((a as u32^0x80000000)as u64),"f32:=="=>Term::Bool(x==y),"f32:!="=>Term::Bool(x!=y),"f32:<"=>Term::Bool(x<y),"f32:<="=>Term::Bool(x<=y),"f32:>"=>Term::Bool(x>y),"f32:>="=>Term::Bool(x>=y),_=>return Err("unsupported binary32 primitive".into())})
 }
 fn primitive(op: &str, left: &Sort, right: &Sort) -> LangResult<Sort> {
     if left != right {

@@ -60,3 +60,17 @@ fn exact_float_contract_is_source_bound_and_preserves_transport_bits() {
         Value::F32(2)
     );
 }
+
+#[test]
+fn fixed_definition_float_words_match_source_execution() {
+    use ink_core::logic::{self,Term};
+    let p=parse("module f;fn plus(x:f32,y:f32)->f32{return x+y;}fn minus(x:f32,y:f32)->f32{return x-y;}fn times(x:f32,y:f32)->f32{return x*y;}").unwrap();
+    for a in [0u32,1,0x80000000,0x7f800000,0xff800000,0x7fc12345,0xff812345,0x3f800001] {
+        for b in [0u32,1,0x80000000,0x7f800000,0x7f812345,0x3f800000] {
+            for (name,op) in [("plus","f32:+"),("minus","f32:-"),("times","f32:*")] {
+                let Value::F32(bits)=eval::call(&p,name,vec![Value::F32(a),Value::F32(b)],&mut 100000).unwrap() else {panic!("float")};
+                assert_eq!(logic::f32_primitive(op,a as u64,b as u64).unwrap(),Term::U64(bits as u64));
+            }
+        }
+    }
+}

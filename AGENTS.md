@@ -158,3 +158,12 @@ Measured representation selection belongs in ink-planner and binds exact request
 and bridge bytes; missing comparable evidence retains the baseline. Preserve
 the measured losing candidates and native resource limits. See docs/owned-optimisation.md,
 docs/point-query-delta.md and reports/incremental-maintenance-selection.
+
+The integrated numerical correspondence from e9e7fe9 expands the fixed action
+projection to supported word/f32/Int/vector and collection computations. Its
+general equality/bit proof mechanisms require their own adversarial validation;
+do not describe that dependency integration as an unchanged proof kernel. Fixed
+logical f32 words and literal definitions must retain executable-core V6 canonical
+arithmetic NaNs and payload-preserving identity/negation. The declared-feature CI job must fail for missing CPU capabilities or GPU contract
+requirements. The unrestricted all-GPU audit must still disclose and fail broader
+coverage gaps; host-only execution never counts as a device dispatch.
