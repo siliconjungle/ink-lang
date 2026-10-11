@@ -71,8 +71,8 @@ policy; those synthetic observations are not these benchmark measurements.
 
 ## Reproduction and retained artifacts
 
-- `run1.json`, `run2.json`, `run3.json`: matched Rust scaling and controls.
-- `javascript-undo.json`, `c-wasm-undo.json`, `c-undo-{before,after}{,2,3}.json`:
+- `run-1.json`, `run-2.json`, `run-3.json`: matched Rust scaling and controls.
+- `javascript-undo.json`, `c-wasm-undo.json`, `c-undo-{before,after}{,-2,-3}.json`:
   point-call samples and checksums.
 - `summary.json`, `provenance.json`: reductions, source/support versions and hashes.
 - `javascript-{before,after}.mjs.txt`, `c-host-{before,after}.rs.txt`,
