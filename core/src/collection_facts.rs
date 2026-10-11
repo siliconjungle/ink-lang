@@ -390,6 +390,14 @@ fn flat(t: &Type) -> bool {
 /// layout, after its complete eager evaluation. Shared local values and borrowed
 /// inputs are excluded. All reachable callback list captures are excluded too.
 pub fn reusable_receiver(p: &Program, e: &Expr, env: &check::Env, want: Option<&Type>) -> bool {
+    // Length-preserving placement is safe for existing destination consumers.
+    // Compaction requires a private receiver or a separately sufficient bound.
+    !matches!(e, Expr::Method(_, m, _) if m == "filter")
+        && reusable_private_receiver(p, e, env, want)
+}
+/// Private storage reuse additionally permits stable shrinking compaction.
+/// This does not grant capacity for placing the producer in a final destination.
+pub fn reusable_private_receiver(p: &Program, e: &Expr, env: &check::Env, want: Option<&Type>) -> bool {
     let Expr::Method(receiver, m, args) = e else {
         return false;
     };
@@ -452,7 +460,8 @@ mod tests {
         CheckedModule::from_source(p.clone()).unwrap();
         for (name, expected) in [("safe", true), ("borrowed", false), ("shared", false), ("captured", false)] {
             let f = p.functions.iter().find(|f| f.name == name).unwrap();
-            assert_eq!(reusable_receiver(&p, &f.body, &check::params_env(&f.params).unwrap(), Some(&f.result)), expected, "{name}");
+            assert_eq!(reusable_private_receiver(&p, &f.body, &check::params_env(&f.params).unwrap(), Some(&f.result)), expected, "{name}");
+            assert!(!reusable_receiver(&p, &f.body, &check::params_env(&f.params).unwrap(), Some(&f.result)), "compaction does not grant producer destination capacity");
         }
         let result = facts(&p, "safe");
         assert!(result.length.exact.is_none());
