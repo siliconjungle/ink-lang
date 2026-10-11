@@ -1133,3 +1133,24 @@ print(json.dumps(generate(p,sys.argv[2],cache_query='zero',preserve_cache=True,c
         "{error}"
     );
 }
+
+#[test]
+fn invalid_readonly_transport_never_publishes_prepared_state(){
+ use verified_language::{definition::CheckedDefinition,logic::{Context,Term},LangResult};
+ use verified_language::runtime::representation::Executor;
+ struct Invalid;
+ impl Executor for Invalid{
+  fn execute(&self,d:&CheckedDefinition,c:&Context,f:&str,a:Vec<Term>)->LangResult<Term>{Reference.execute(d,c,f,a)}
+  fn prepare(&self,c:&representation::CheckedRepresentation,p:&Term)->LangResult<Option<Box<dyn std::any::Any>>>{Reference.prepare(c,p)}
+  fn materialise(&self,c:&representation::CheckedRepresentation,p:&dyn std::any::Any)->LangResult<Term>{Reference.materialise(c,p)}
+  fn transition_prepared_readonly(&self,c:&representation::CheckedRepresentation,a:&str,p:&dyn std::any::Any,x:Vec<Term>)->LangResult<Option<(Term,Box<dyn std::any::Any>)>>{
+   let(mut observation,next)=Reference.transition_prepared(c,a,p,x)?;
+   if let Term::Construct{arguments,..}=&mut observation {arguments[1]=Term::Bool(true);}
+   Ok(Some((observation,next)))
+  }
+ }
+ let module=CheckedModule::from_source(parse(include_str!("../examples/point-query-delta.ink")).unwrap()).unwrap();
+ let request:Request=serde_json::from_str(include_str!("../knowledge/research/point-delta/direct.json")).unwrap();
+ let plan=representation::check(&module,&request).unwrap();let mut session=Session::new(plan,Invalid).unwrap();let before=session.checkpoint().unwrap();
+ assert!(session.invoke_json("zero",&json!([])).unwrap_err().contains("read-only"));assert_eq!(session.checkpoint().unwrap(),before);
+}
