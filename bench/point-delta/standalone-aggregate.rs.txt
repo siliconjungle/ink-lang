@@ -1,5 +1,32 @@
 use std::{hint::black_box,time::Instant};
 use verified_language::{core::CheckedModule,stateful::Runtime,syntax::parse};
+// Allocation counts are measured in a separate feature-enabled binary. Timing
+// comparisons use the ordinary binary, without allocator instrumentation.
+#[cfg(feature="allocation-profile")]
+mod allocation_profile {
+ use std::alloc::{GlobalAlloc,Layout,System};
+ use std::sync::atomic::{AtomicBool,AtomicUsize,Ordering::Relaxed};
+ struct Meter;
+ static ENABLED:AtomicBool=AtomicBool::new(false);
+ static REQUESTS:AtomicUsize=AtomicUsize::new(0);
+ static BYTES:AtomicUsize=AtomicUsize::new(0);
+ static LIVE:AtomicUsize=AtomicUsize::new(0);
+ static PEAK:AtomicUsize=AtomicUsize::new(0);
+ static BASE:AtomicUsize=AtomicUsize::new(0);
+ unsafe impl GlobalAlloc for Meter {
+  unsafe fn alloc(&self,l:Layout)->*mut u8 {
+   let p=System.alloc(l);if !p.is_null(){let live=LIVE.fetch_add(l.size(),Relaxed)+l.size();
+    if ENABLED.load(Relaxed){REQUESTS.fetch_add(1,Relaxed);BYTES.fetch_add(l.size(),Relaxed);PEAK.fetch_max(live,Relaxed);}}
+   p
+  }
+  unsafe fn dealloc(&self,p:*mut u8,l:Layout){LIVE.fetch_sub(l.size(),Relaxed);System.dealloc(p,l);}
+ }
+ #[global_allocator]static ALLOCATOR:Meter=Meter;
+ pub fn start(){let base=LIVE.load(Relaxed);BASE.store(base,Relaxed);PEAK.store(base,Relaxed);REQUESTS.store(0,Relaxed);BYTES.store(0,Relaxed);ENABLED.store(true,Relaxed);}
+ pub fn stop()->serde_json::Value{ENABLED.store(false,Relaxed);serde_json::json!({"requests":REQUESTS.load(Relaxed),"requested_bytes":BYTES.load(Relaxed),"peak_additional_live_bytes":PEAK.load(Relaxed).saturating_sub(BASE.load(Relaxed))})}
+}
+fn profile_start(){#[cfg(feature="allocation-profile")]allocation_profile::start();}
+fn profile_stop()->Json{#[cfg(feature="allocation-profile")]{return allocation_profile::stop();}#[cfg(not(feature="allocation-profile"))]{Json::Null}}
 fn call(i:usize,reads:usize,count:usize,query:&str)->(&str,Json){
  if i%100<reads{(query,json!([]))}else{let key=(i*17%count.max(1))as u64;match i%4{
   0=>("erase",json!([key,false])),1=>("put",json!([key,u64::MAX-i as u64,true,false])),
@@ -7,7 +34,7 @@ fn call(i:usize,reads:usize,count:usize,query:&str)->(&str,Json){
 }
 fn main(){
  let module=CheckedModule::from_source(parse(SOURCE).unwrap()).unwrap();
- let labels=["direct","refresh","sum-delta","count-delta"];
+ let labels=LABELS;
  let selected=std::env::var("INK_BENCH_CANDIDATES").unwrap_or(labels.join(","));
  let selected=selected.split(',').collect::<Vec<_>>();assert!(selected.iter().all(|s|labels.contains(s)));
  let queries=std::env::var("INK_BENCH_QUERIES").unwrap_or("total_query,count_query".into());
@@ -15,14 +42,18 @@ fn main(){
  let reads=std::env::var("INK_BENCH_READS").unwrap_or("100,90,50,10,0".into());
  let reads=reads.split(',').map(|s|s.parse::<usize>().unwrap()).collect::<Vec<_>>();assert!(reads.iter().all(|r|*r<=100));
  let rounds=std::env::var("INK_BENCH_ROUNDS").unwrap_or("5".into()).parse::<usize>().unwrap();assert!((1..=20).contains(&rounds));
+ let calls=std::env::var("INK_BENCH_CALLS").unwrap_or("100".into()).parse::<usize>().unwrap();assert!((100..=10000).contains(&calls)&&calls%100==0);
  let sizes:Vec<usize>=std::env::var("INK_BENCH_ROWS").unwrap_or("48,256,1024,2048,4000".into()).split(',').map(|s|s.parse().unwrap()).collect();
- assert!(!sizes.is_empty()&&sizes.len()<=16&&sizes.iter().all(|n|*n>0&&*n<=4000));
+ assert!(!sizes.is_empty()&&sizes.len()<=16&&sizes.iter().all(|n|*n>0&&*n<=100_000));
  let mut measurements=vec![];let mut phases=vec![];
+ let mut oracle_cache=std::collections::BTreeMap::<(usize,String,usize,usize),(Vec<Json>,Vec<u8>,u128)>::new();
  for count in sizes{
-  let mut initial=Runtime::new(module.program().clone()).unwrap();
   let rows=(0..count).map(|i|(i as u64,(i as u64*13+7,i%3!=0))).collect::<std::collections::BTreeMap<_,_>>();
+  // Build large fixtures through ordinary compiled source. Portable restore,
+  // every measured script and its final snapshot still use the independent oracle.
+  let mut initial=ordinary::State::new();
   for (key,(value,active)) in &rows{initial.invoke_json("put",&json!([key,value,active,false])).unwrap();initial.acknowledge_through(u64::MAX,u64::MAX);}
-  let bytes=initial.checkpoint_portable().unwrap();
+  let bytes=initial.checkpoint().unwrap();
   let mut order=(0..labels.len()).collect::<Vec<_>>();if std::env::var_os("INK_BENCH_REVERSE").is_some(){order.reverse();}
   for index in order{
    if !selected.contains(&labels[index]){continue;}
@@ -33,11 +64,17 @@ fn main(){
    for &query in &queries{for reads in &reads{
     let mut samples=vec![];
     for round in 0..rounds{
-     let mut native=Program::restore(index,&bytes).unwrap();let mut indexed=indexed_source::State::restore(&bytes).unwrap();let mut baseline=Runtime::restore_portable(module.program().clone(),&bytes).unwrap();
-     let script=(0..100).map(|i|call(i+round*100,*reads,count,query)).collect::<Vec<_>>();
-     let start=Instant::now();let actual=script.iter().map(|(name,args)|{let reply=native.invoke_json(name,args).unwrap();native.acknowledge_through(u64::MAX,u64::MAX);black_box(reply)}).collect::<Vec<_>>();let native_ns=start.elapsed().as_nanos();
-     let start=Instant::now();let indexed_replies=script.iter().map(|(name,args)|{let reply=indexed.invoke_json(name,args).unwrap();indexed.acknowledge_through(u64::MAX,u64::MAX);black_box(reply)}).collect::<Vec<_>>();let compiled_indexed_source_ns=start.elapsed().as_nanos();assert_eq!(actual,indexed_replies);
-     let start=Instant::now();let expected=script.iter().map(|(name,args)|{let reply=baseline.invoke_json(name,args).unwrap().json();baseline.acknowledge_through(u64::MAX,u64::MAX);black_box(reply)}).collect::<Vec<_>>();let baseline_ink_ns=start.elapsed().as_nanos();assert_eq!(actual,expected);
+     let mut native=Program::restore(index,&bytes).unwrap();let mut ordinary=ordinary::State::restore(&bytes).unwrap();
+     let script=(0..calls).map(|i|call(i+round*calls,*reads,count,query)).collect::<Vec<_>>();
+     profile_start();let start=Instant::now();let actual=script.iter().map(|(name,args)|{let reply=native.invoke_json(name,args).unwrap();native.acknowledge_through(u64::MAX,u64::MAX);black_box(reply)}).collect::<Vec<_>>();let native_ns=start.elapsed().as_nanos();let allocation_profile=profile_stop();
+     let oracle_key=(count,query.to_string(),*reads,round);
+     let (expected,final_snapshot,baseline_ink_ns)=oracle_cache.entry(oracle_key).or_insert_with(||{
+      let mut baseline=Runtime::restore_portable(module.program().clone(),&bytes).unwrap();
+      let start=Instant::now();let expected=script.iter().map(|(name,args)|{let reply=baseline.invoke_json(name,args).unwrap().json();baseline.acknowledge_through(u64::MAX,u64::MAX);black_box(reply)}).collect::<Vec<_>>();let elapsed=start.elapsed().as_nanos();
+      (expected,baseline.checkpoint_portable().unwrap(),elapsed)
+     });assert_eq!(actual,*expected);
+     let start=Instant::now();let compiled=script.iter().map(|(name,args)|{let reply=ordinary.invoke_json(name,args).unwrap();ordinary.acknowledge_through(u64::MAX,u64::MAX);black_box(reply)}).collect::<Vec<_>>();let ordinary_compiled_ink_ns=start.elapsed().as_nanos();assert_eq!(actual,compiled);
+     assert_eq!(ordinary.checkpoint().unwrap(),*final_snapshot);
      let mut hand=rows.clone();let mut version=count as u64;
      let start=Instant::now();let scanner=script.iter().map(|(name,args)|{
       let read=*name==query;let result=if read{json!(hand.values().filter(|(_,active)|*active).fold(0u64,|n,(v,_)|n.wrapping_add(if query=="total_query"{*v}else{1})))}else{
@@ -52,12 +89,12 @@ fn main(){
       let events=if read{json!([])}else{json!([{"commit":version,"position":0,"channel":"seen","value":if *name=="erase"{args[0].clone()}else{args[1].clone()}}])};
       black_box(json!({"result":result,"committed":!read,"version":version,"events":events}))
      }).collect::<Vec<_>>();let handwritten_incremental_rust_ns=start.elapsed().as_nanos();assert_eq!(actual,maintained);
-     assert_eq!(native.checkpoint().unwrap(),baseline.checkpoint_portable().unwrap());assert_eq!(indexed.checkpoint().unwrap(),baseline.checkpoint_portable().unwrap());
-     samples.push(json!({"round":round,"native_ns":native_ns,"compiled_indexed_source_ns":compiled_indexed_source_ns,"baseline_ink_ns":baseline_ink_ns,"handwritten_rust_ns":handwritten_rust_ns,"handwritten_incremental_rust_ns":handwritten_incremental_rust_ns}));
+     assert_eq!(native.checkpoint().unwrap(),*final_snapshot);
+     samples.push(json!({"round":round,"native_ns":native_ns,"baseline_ink_ns":baseline_ink_ns,"ordinary_compiled_ink_ns":ordinary_compiled_ink_ns,"handwritten_rust_ns":handwritten_rust_ns,"handwritten_incremental_rust_ns":handwritten_incremental_rust_ns,"allocation_profile":allocation_profile}));
     }
-    measurements.push(json!({"rows":count,"candidate":labels[index],"query":query,"read_percent":reads,"calls_per_sample":100,"samples":samples}));
+    measurements.push(json!({"rows":count,"candidate":labels[index],"query":query,"read_percent":reads,"calls_per_sample":calls,"samples":samples}));
    }}
   }
  }
- println!("{}",json!({"schema":3,"scope":"ordinary compiled representation programs; complete JSON replies and events; caller-trusted typed inputs; acknowledgement per call; no call-time logical snapshots or proof objects; initialization/migration/checkpoints excluded from steady state; harness links source baseline solely for comparison and outside-loop setup","phases":phases,"measurements":measurements}));
+ println!("{}",json!({"schema":4,"reference_oracle_sampled_once_per_script":true,"instrumented":cfg!(feature="allocation-profile"),"scope":"ordinary compiled representation programs; complete JSON replies and events; caller-trusted typed inputs; acknowledgement per call; no call-time logical snapshots or proof objects; initialization/migration/checkpoints excluded from steady state; harness links source baseline solely for comparison and outside-loop setup","phases":phases,"measurements":measurements}));
 }

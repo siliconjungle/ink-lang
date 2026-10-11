@@ -360,7 +360,7 @@ fn check_with_catalogue(
 /// producer may submit many proposals; none receives authority from the session.
 pub struct SelectionChecker {
     module: CheckedModule,
-    knowledge: crate::registry::Bundle,
+    knowledge: crate::registry::CheckedBundle,
     laws: CheckedCatalogue,
 }
 impl SelectionChecker {
@@ -370,9 +370,25 @@ impl SelectionChecker {
         laws.require_applicable()?;
         Ok(Self {
             module,
-            knowledge,
+            knowledge: checked,
             laws,
         })
+    }
+    /// Atomically admit an overlapping closure from this session's exact pin.
+    /// Failed admission leaves previously checked laws available and unchanged.
+    pub fn extend(&mut self, incoming: crate::registry::Bundle) -> LangResult<usize> {
+        let incoming = crate::registry::CheckedBundle::check(&incoming)?;
+        let view = self.knowledge.merge(incoming)?;
+        let laws = CheckedCatalogue::check_reusing(
+            &view.catalogue()?,
+            self.module.program(),
+            Some(&self.laws),
+        )?;
+        laws.require_applicable()?;
+        let added = laws.closure().len() - self.laws.closure().len();
+        self.knowledge = view;
+        self.laws = laws;
+        Ok(added)
     }
     pub fn check(&self, applications: Vec<Site>) -> LangResult<CheckedSelection> {
         if applications.len() > 4096
@@ -387,7 +403,7 @@ impl SelectionChecker {
             schema: 1,
             semantics: SEMANTICS.into(),
             input_core_sha256: self.module.identity()?,
-            knowledge: self.knowledge.clone(),
+            knowledge: self.knowledge.bundle().clone(),
             applications,
             action_replacement: None,
         };

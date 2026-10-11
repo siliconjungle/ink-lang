@@ -599,3 +599,54 @@ fn aliases_preserve_payload_constructors_and_patterns() {
     assert_eq!(pure(source, "value", json!([])), json!(7));
     assert_eq!(pure(source, "empty", json!([])), json!(0));
 }
+
+#[test]
+fn returning_action_branches_preserve_legacy_fallback_without_executing_it() {
+    let source = r#"module fallback;
+      enum Error{Failed,}
+      event seen:u32;
+      change branch(c:Bool)->Result<u32,Error> emits(seen) {
+        if c {emit seen(1);return Ok(1);} else {emit seen(2);return Ok(2);}
+        emit seen(999);return Err(Error.Failed);
+      }
+    "#;
+    let p = parse(source).unwrap();
+    // Complete-code authentication must still bind the source fallback.
+    assert_eq!(p.actions[0].body.len(), 3);
+    let mut r = Runtime::new(p).unwrap();
+    for (condition, value) in [(true, 1), (false, 2)] {
+        let reply = r.invoke_json("branch", &json!([condition])).unwrap();
+        assert!(reply.committed);
+        assert_eq!(reply.result.json(), json!({"Ok":value}));
+        assert_eq!(reply.events.len(), 1);
+        assert_eq!(reply.events[0].value.json(), json!(value));
+    }
+}
+
+#[test]
+fn mutable_action_branches_rejoin_values_and_discard_caller_continuations_on_return() {
+    let source = r#"module mutable_actions;
+      enum Error{Failed,}
+      event seen:u32;
+      change joined(c:Bool)->Result<u32,Error> emits(seen) {
+        var x:u32=10;
+        if c {x=20;emit seen(x);} else {x=30;emit seen(x);}
+        return Ok(x);
+      }
+      change early(c:Bool)->Result<u32,Error> {
+        var x:u32=10;
+        if c {x=20;return Ok(x);} x=30;return Ok(x);
+      }
+    "#;
+    let mut r = Runtime::new(parse(source).unwrap()).unwrap();
+    for (condition, expected) in [(true, 20), (false, 30)] {
+        let reply = r.invoke_json("joined", &json!([condition])).unwrap();
+        assert!(reply.committed);
+        assert_eq!(reply.result.json(), json!({"Ok":expected}));
+        assert_eq!(reply.events.len(), 1);
+        assert_eq!(reply.events[0].value.json(), json!(expected));
+        let reply = r.invoke_json("early", &json!([condition])).unwrap();
+        assert!(reply.committed);
+        assert_eq!(reply.result.json(), json!({"Ok":expected}));
+    }
+}

@@ -62,6 +62,7 @@ def main():
         planner_scripts = [name for name in git(root / 'planner', 'ls-files', '-z').decode().split('\0')
                            if name and len(Path(name).parts) == 1 and Path(name).suffix == '.py']
         committed(root / 'planner', ['ink_planner', *planner_scripts], resources / 'planner')
+        # Package pinned authoring modules and their shared helpers together.
         committed(root / 'knowledge', ['ink_knowledge', 'store', 'research/general-laws',
                   'producers', 'libraries', 'research/verified-kernel'], resources / 'knowledge')
         manifest = dict(schema=1, source_revision=git(root, 'rev-parse', 'HEAD').decode().strip(), packages=packages,
