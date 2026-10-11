@@ -99,8 +99,10 @@ it does not establish faster execution. See [the evidence index](BENCHMARKS.md).
 
 [Ordered parallel work, owned partitions, checked recursion and GPU scratch](docs/bend-inspired.md)
 are integrated with executable-core V5. Native Rust uses bounded scoped workers;
-other CPU paths preserve sequential values. GPU scratch requires fixed literal
-capacity, and unsupported cases retain compiled CPU fallback. Guarded self
+other CPU paths preserve sequential values. Browser and native GPU scratch
+support bounded split/rejoin and push within 64 elements; resident graph feedback
+preserves capacity and simultaneous assignments. Unsupported cases retain
+compiled CPU fallback. Guarded self
 recursion is checked; tail calls are iterative while non-tail calls retain host
 stack limits. Raw native timing samples record workload-specific gains, not a
 promise that every callback benefits.
