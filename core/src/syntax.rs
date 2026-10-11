@@ -616,8 +616,10 @@ impl Parser {
                     .get(&name)
                     .cloned()
                     .unwrap_or_default();
+                let (requires, ensures) = self.contracts()?;
                 let statements = self.block()?;
                 let body = self.pure_body(&statements, None)?;
+                let body = self.contract_expression(body, &result, &requires, &ensures);
                 p.functions.push(Function {
                     name,
                     params,
@@ -783,8 +785,44 @@ impl Parser {
                 self.mutables.clear();
                 self.pure = false;
                 self.generic_scope.clear();
+                let (requires, mut ensures) = self.contracts()?;
+                let mut captured = Vec::new();
+                let mut capture_names = std::collections::BTreeMap::new();
+                for (name, ty) in &params {
+                    if ensures.iter().any(|(result, c, e)| {
+                        result != name
+                            && (crate::analysis::references_free(c, name)
+                                || crate::analysis::references_free(e, name))
+                    }) {
+                        let fresh = self.fresh_name();
+                        capture_names.insert(name.clone(), fresh.clone());
+                        captured.push(Statement::Let(
+                            fresh,
+                            Some(ty.clone()),
+                            Expr::Var(name.clone()),
+                        ));
+                    }
+                }
+                for (name, c, e) in &mut ensures {
+                    let mut names = capture_names.clone();
+                    names.remove(name);
+                    *c = rename_expression(c, &names);
+                    *e = rename_expression(e, &names);
+                }
                 let statements = self.block()?;
                 let body = self.action_body(&statements, vec![])?;
+                let mut body = self.contract_returns(body, &result, &ensures);
+                for (condition, error) in requires.into_iter().rev() {
+                    let condition = self.readonly_contract(condition);
+                    let error = self.readonly_contract(error);
+                    body = vec![Statement::If(
+                        condition,
+                        body,
+                        vec![Statement::Return(Expr::Call("Err".into(), vec![error]))],
+                    )];
+                }
+                captured.extend(body);
+                let body = captured;
                 p.actions.push(Action {
                     name,
                     kind,
@@ -833,6 +871,117 @@ impl Parser {
             matches: std::mem::take(&mut self.matches),
             constant_parameters: std::mem::take(&mut self.constant_parameters),
         })
+    }
+    // Contracts validate, never assume. Failure is the declared Result error.
+    // They erase into normal lazy branches and lexical result bindings.
+    fn contracts(&mut self) -> LangResult<(Vec<(Expr, Expr)>, Vec<(String, Expr, Expr)>)> {
+        let mut requires = Vec::new();
+        let mut ensures = Vec::new();
+        while matches!(self.peek(), "requires" | "ensures") {
+            if requires.len() + ensures.len() >= 16 {
+                return Err(self.err("contract clause limit exceeded"));
+            }
+            let pre = self.take() == "requires";
+            self.expect("(")?;
+            if pre {
+                if !ensures.is_empty() {
+                    return Err(self.err("requires must precede ensures"));
+                }
+                let condition = self.expr(0)?;
+                self.expect(",")?;
+                let error = self.expr(0)?;
+                requires.push((condition, error));
+            } else {
+                let name = self.name()?;
+                self.expect("=>")?;
+                let condition = self.expr(0)?;
+                self.expect(",")?;
+                let error = self.expr(0)?;
+                ensures.push((name, condition, error));
+            }
+            self.expect(")")?;
+        }
+        Ok((requires, ensures))
+    }
+    fn readonly_contract(&mut self, e: Expr) -> Expr {
+        let a = self.fresh_name();
+        let b = self.fresh_name();
+        let receiver = self.fresh_name();
+        Expr::Let(
+            receiver.clone(),
+            Some(Box::new(Type::Option(Box::new(Type::Unit)))),
+            Box::new(Expr::Call("Some".into(), vec![Expr::Unit])),
+            Box::new(Expr::Method(
+                Box::new(Expr::Var(receiver)),
+                "fold".into(),
+                vec![
+                    Expr::Lambda(a, Box::new(e.clone())),
+                    Expr::Lambda(b, Box::new(e)),
+                ],
+            )),
+        )
+    }
+    fn contract_expression(
+        &mut self,
+        body: Expr,
+        result: &Type,
+        requires: &[(Expr, Expr)],
+        ensures: &[(String, Expr, Expr)],
+    ) -> Expr {
+        let mut body = if ensures.is_empty() {
+            body
+        } else {
+            let fresh = self.fresh_name();
+            let mut continuation = Expr::Var(fresh.clone());
+            for (name, condition, error) in ensures.iter().rev() {
+                let names = std::collections::BTreeMap::from([(name.clone(), fresh.clone())]);
+                let condition = self.readonly_contract(rename_expression(condition, &names));
+                let error = self.readonly_contract(rename_expression(error, &names));
+                continuation = Expr::Call(
+                    "choose".into(),
+                    vec![
+                        condition,
+                        continuation,
+                        Expr::Call("Err".into(), vec![error]),
+                    ],
+                );
+            }
+            Expr::Let(
+                fresh,
+                Some(Box::new(result.clone())),
+                Box::new(body),
+                Box::new(continuation),
+            )
+        };
+        for (condition, error) in requires.iter().rev() {
+            let condition = self.readonly_contract(condition.clone());
+            let error = self.readonly_contract(error.clone());
+            body = Expr::Call(
+                "choose".into(),
+                vec![condition, body, Expr::Call("Err".into(), vec![error])],
+            );
+        }
+        body
+    }
+    fn contract_returns(
+        &mut self,
+        body: Vec<Statement>,
+        result: &Type,
+        ensures: &[(String, Expr, Expr)],
+    ) -> Vec<Statement> {
+        body.into_iter()
+            .map(|statement| match statement {
+                Statement::Return(e) => {
+                    Statement::Return(self.contract_expression(e, result, &[], ensures))
+                }
+                Statement::If(c, a, b) => Statement::If(
+                    c,
+                    self.contract_returns(a, result, ensures),
+                    self.contract_returns(b, result, ensures),
+                ),
+                s => s,
+            })
+            .collect()
     }
     fn block(&mut self) -> LangResult<Vec<Statement>> {
         self.depth += 1;

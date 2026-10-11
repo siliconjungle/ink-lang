@@ -790,12 +790,23 @@ impl Context<'_> {
             Type::Result(a, b) => (*a, *b),
             _ => return Err("fold requires Option or Result".into()),
         };
-        let mut result = want.cloned();
+        let inputs = [a, b];
         let cx = Context {
             in_lambda: true,
             ..*self
         };
-        for (arg, input) in args.iter().zip([a, b]) {
+        let mut result = want.cloned().or_else(|| {
+            args.iter().zip(&inputs).find_map(|(arg, input)| {
+                if let Expr::Lambda(n, body) = arg {
+                    let mut local = env.clone();
+                    local.insert(n.clone(), input.clone());
+                    cx.numeric_hint(body, &local, facts)
+                } else {
+                    None
+                }
+            })
+        });
+        for (arg, input) in args.iter().zip(inputs) {
             let Expr::Lambda(n, body) = arg else {
                 return Err("variant fold requires branch lambdas".into());
             };

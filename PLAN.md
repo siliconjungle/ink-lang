@@ -98,9 +98,10 @@ The bounded implementation and its exact limits are documented in
 [generic language foundations](docs/generic-language-foundations.md). Ordinary
 value consistency, hygienic generics/aliases/constants, payload enums/matching,
 finite local iteration, fixed arrays and nonescaping pure callbacks are
-implemented. External collection/checked-division libraries and 202 checked
+implemented. External collection/checked-division libraries and 247 checked
 finite-list laws provide reusable algorithms and work skipping. CPU conformance
 is mandatory; broad GPU coverage and proof correspondence beyond admitted source
 domains remain open. Compact words/Bytes, scoped views and efficient physical
-updates, practical contracts/refinements and external theorem authoring remain
-acceptance work. Totality is not weakened to admit unrestricted loops or closures.
+updates and static refinements remain acceptance work. Fallible pre/postcondition
+validation and external theorem authoring are implemented through ordinary checked
+values/evidence; neither silently grants assumptions or rewrite authority. Totality is not weakened to admit unrestricted loops or closures.

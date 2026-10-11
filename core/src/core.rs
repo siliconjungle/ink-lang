@@ -144,7 +144,6 @@ struct WireModule {
 #[derive(Clone, Debug)]
 pub struct CheckedModule(WireModule);
 
-
 // New fixed value operations have an explicit execution version. Surface forms
 // that elaborate entirely into older meanings retain those older versions.
 fn value_domain(p: &Program) -> bool {
@@ -263,7 +262,7 @@ fn value_domain(p: &Program) -> bool {
                     )
                 })
             }
-            Expr::String(_) | Expr::Unit => pure,
+            Expr::String(_) | Expr::Unit => false,
             Expr::Var(n) => pure && n == "None",
             Expr::Field(x, _) => {
                 pure && matches!(x.as_ref(), Expr::Var(n) if p.enums.contains_key(n))
@@ -666,6 +665,24 @@ impl Bounds {
         }
         Ok(())
     }
+}
+
+/// Reuse executable value budgets before external tools enter recursive typing.
+pub(crate) fn validate_value_groups<'a>(
+    groups: impl IntoIterator<Item = (&'a [(String, Type)], Vec<&'a Expr>)>,
+) -> LangResult<()> {
+    let mut bounds = Bounds {
+        remaining: 100_000,
+        extended: false,
+        sequence: false,
+    };
+    for (params, expressions) in groups {
+        bounds.params(params)?;
+        for expression in expressions {
+            bounds.expr(expression, 0)?;
+        }
+    }
+    Ok(())
 }
 
 fn validate(p: &Program) -> LangResult<(bool, bool)> {

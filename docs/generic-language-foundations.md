@@ -154,10 +154,60 @@ and preserve the full Cartesian product for duplicate keys. Group keys use the
 existing owned-map key contract. These are baseline algorithms, not performance
 claims: the set implementation and nested-loop join can be quadratic.
 
-The external finite-list producer publishes 202 ordinary laws for length, count,
+The external finite-list producer publishes 247 ordinary laws for length, count,
 lookup and first-nonzero right folds. Proofs use the existing general checker.
 Planner selection is replayed locally; corrupted and rehashed false laws reject.
 The JavaScript compiler's first-nonzero fold shortcut has been removed.
+
+## Fallible contracts and external theorem authoring
+
+Contracts use ordinary `Result` values and explicit error expressions:
+
+```ink
+fn bounded(x:u32)->Result<u32,Error>
+    requires(x>0,Error.Input)
+    ensures(reply=>reply.fold(fn(v)=>v<10,fn(e)=>true),Error.Output)
+    { return Ok(x+1); }
+```
+
+Requirements run before the body. Postconditions run after each normal return,
+against the complete returned value, including `Err`. Each runs in declaration
+order and stops at the first failure. A result is evaluated once. Postconditions
+refer to the original declaration parameters even when a body shadows a name.
+Contract expressions can read permitted state in actions, but cannot write or
+emit. Failed change contracts use ordinary transaction abortion and rollback.
+Functions and actions must declare a compatible `Result`; errors and predicates
+receive normal type checking. At most 16 clauses are allowed, subject to existing
+core depth/work limits. These are explicit runtime validations, not static
+refinement types or facts the compiler can silently assume.
+
+External files can author executable laws using the existing `rewrite` form:
+
+```ink
+module external;
+rewrite cancel(x:Int,y:Int) {
+    from (x-y)+y;
+    to x;
+    proof by normalize;
+}
+```
+
+`ink emit-laws THEOREMS.ink -o BUNDLE.json` checks the complete proof and emits
+canonical entries. `proof by provided` requires `--proofs EVIDENCE.json`, a map
+from declaration labels to existing kernel `proof` and `conditions` fields.
+`--view DEPENDENCIES.json` imports an authenticated dependency closure. The tool
+supports 1..64 laws and standalone pure helper definitions; source imports and
+recursive definition contexts remain unsupported. Exact helper meanings are
+captured and checked through the ordinary definition-context contract.
+
+`knowledge/producers/source_laws.py` publishes those entries into a snapshot.
+Executable application admission continues to reject inline rewrites. A filename,
+label, tactic spelling or database membership grants no rewrite authority.
+`knowledge/libraries/value-laws.ink` publishes exact-integer cancellation,
+doubling and difference-of-squares laws. One bounded polynomial checker handles
+exact coefficients and fixed-width modular coefficients. It bounds degree, term
+count, coefficient bits and limb work. Exact `Int` arithmetic, conversion, sum
+and count have source correspondence; unsupported domains still fail closed.
 
 ## Versions, coverage and limits
 
@@ -174,7 +224,9 @@ compiled fallback. Unrestricted GPU coverage still has explicit gaps, and the
 all-GPU audit must fail them. Conformance is not a proof of native emission.
 
 This foundation does not implement compact `u8`/`u16`, `i64`, `f64`, packed Bytes,
-scoped borrowing, general contracts/refinements or external theorem authoring.
-Those need their own value/ownership, wire and correspondence contracts. Arbitrary
+new scoped borrowing syntax or static refinement types.
+Compact carriers and additional borrowing need their own value/ownership, wire
+and correspondence contracts. Existing owned buffers already support scoped
+exclusive splitting; read traversals retain current borrowing machinery. Arbitrary
 partial functions, effectful escaping closures and dependent proof values remain
 outside the total fragment. No claim is made that the full design draft is closed.

@@ -70,6 +70,13 @@ fn new_surface_and_value_operations_have_complete_backend_parity() {
             json!([{"None":null}]),
             json!({"Err":"Error.Overflow"}),
         ),
+        ("contract_value", json!([0]), json!({"Err":"Error.Failed"})),
+        ("contract_value", json!([3]), json!({"Ok":4})),
+        (
+            "contract_value",
+            json!([9]),
+            json!({"Err":"Error.Overflow"}),
+        ),
         ("text", json!([]), json!("hello")),
         ("unit", json!([]), json!(null)),
         ("point", json!([7]), json!({"x":7,"y":8})),
@@ -138,6 +145,9 @@ fn new_surface_and_value_operations_have_complete_backend_parity() {
         json!({"reply":{"outcome":out.json()},"snapshot":runtime.checkpoint_portable().unwrap()}),
     );
     for (name, args) in [
+        ("contract_put", json!([0])),
+        ("contract_put", json!([10])),
+        ("contract_put", json!([3])),
         ("matched_option", json!([{"Some":7}])),
         ("matched_option", json!([{"None":null}])),
         ("action_callback", json!([7, 3])),

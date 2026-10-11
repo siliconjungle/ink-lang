@@ -11,6 +11,10 @@ fn imported_generic_templates_and_aliases_are_linked_before_elaboration() {
         dir.join("helpers.ink"),
         r#"module helpers;
       type Sequence<T>=List<T>;record Pair<T>{left:T,right:T,}
+      enum Message<T>{Empty,Value(T),}
+      fn apply<T>(x:T,f:fn(T)->T)->T{return f(x);}
+      fn size<T,const N:u32>(xs:Array<T,N>)->u32{return N;}
+      fn message()->Message<u32>{return Message<u32>.Value(7);}
       fn id<T>(x:T)->T{return x;}
       fn pair<T>(x:T)->Pair<T>{return Pair<T>{left:id<T>(x),right:x};}
     "#,
@@ -21,6 +25,8 @@ fn imported_generic_templates_and_aliases_are_linked_before_elaboration() {
         r#"module root;import "helpers.ink" as helpers;
       type Values=helpers.Sequence<u32>;
       fn make(x:u32)->helpers.Pair<u32>{return helpers.pair<u32>(x);}
+      type Message=helpers.Message<u32>;
+      fn checked_imports()->u32{let m=helpers.message();let v=match m{helpers.Message.Empty=>0,helpers.Message.Value(v)=>v,};return helpers.apply<u32>(v,fn(x)=>x+helpers.size<u32,2>(array<u32,2>([1,2])));}
       fn first(xs:Values)->u32{return helpers.id<u32>(xs.at_or(0,0));}
     "#,
     )
@@ -28,6 +34,12 @@ fn imported_generic_templates_and_aliases_are_linked_before_elaboration() {
     let loaded = modules::load(dir.join("main.ink")).unwrap();
     let p = loaded.program;
     CheckedModule::from_source(p.clone()).unwrap();
+    assert_eq!(
+        eval::call(&p, "checked_imports", vec![], &mut 10000)
+            .unwrap()
+            .json(),
+        json!(9)
+    );
     assert_eq!(
         eval::call(&p, "make", vec![eval::Value::U32(7)], &mut 1000)
             .unwrap()
