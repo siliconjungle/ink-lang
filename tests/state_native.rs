@@ -6,24 +6,6 @@ use verified_language::{state_native, stateful::Runtime, syntax::parse};
 // executable between build and run. Hold the lock across each native suite.
 static NATIVE_EXECUTION: std::sync::Mutex<()> = std::sync::Mutex::new(());
 
-const EXTRA: &str = r#"
-keep expensive: Int = sum(Items.values().filter(fn(item) => item.stock > 100).map(fn(item) => Int(item.stock) * Int(item.stock)).map(fn(x) => x));
-keep large_count: Int = count(Items.values().filter(fn(item) => item.stock > 100));
-query derived() -> Int reads(expensive, large_count) { return expensive + large_count; }
-change delete(id: ItemId) -> Result<Unit, Error> writes(Items) { Items.remove(id); return Ok(()); }
-change fail(id: ItemId) -> Result<Unit, Error> writes(Items) emits(stock_changed) { restock(id, 7)?; restock(id, 9)?; return Err(Error.Overflow); }
-change add_and_read(id: ItemId) -> Result<Int, Error> writes(Items) reads(total_units) emits(stock_changed) { restock(id, 3)?; return Ok(total_units); }
-change delete_and_fail(id: ItemId) -> Result<Unit, Error> writes(Items) { Items.remove(id); return Err(Error.Overflow); }
-change ignore_failure(id: ItemId) -> Result<Unit, Error> writes(Items) emits(stock_changed) { restock(id, 1); return Ok(()); }
-query arithmetic(x:u32) -> u32 {return (x * 7) + 3;}
-query negative() -> Int {return Int(2) - Int(5);}
-query literal() -> Result<u32, Error> {return Ok(3);}
-query empty() -> Option<u32> {return None;}
-"#;
-
-fn compile_and_run(dir: &Path, code: &str, script: &[Value]) -> Value {
-    compile_and_run_with_runner(dir, code, script, verified_language::runtime::STATE_RUNNER)
-}
 fn compile_and_run_with_runner(dir: &Path, code: &str, script: &[Value], runner: &str) -> Value {
     fs::create_dir_all(dir.join("src")).unwrap();
     fs::write(dir.join("src/lib.rs"), code).unwrap();
@@ -58,65 +40,6 @@ fn compile_and_run_with_runner(dir: &Path, code: &str, script: &[Value], runner:
         String::from_utf8_lossy(&run.stderr)
     );
     serde_json::from_slice(&run.stdout).unwrap()
-}
-
-fn migrate_and_continue(
-    dir: &Path,
-    p: &verified_language::syntax::Program,
-    script: &[Value],
-    carry: &mut Option<Vec<u8>>,
-) {
-    let mut rt = if let Some(bytes) = carry.as_ref() {
-        Runtime::restore_portable(p.clone(), bytes).unwrap()
-    } else {
-        let mut rt = Runtime::new(p.clone()).unwrap();
-        for step in &script[..500] {
-            rt.invoke_json(step["call"].as_str().unwrap(), &step["args"])
-                .unwrap();
-        }
-        rt.acknowledge_through(rt.version().saturating_sub(1), u64::MAX);
-        rt
-    };
-    let before = rt.checkpoint_portable().unwrap();
-    fs::write(dir.join("restore.bin"), &before).unwrap();
-    let steps = &script[500..1000];
-    let expected: Vec<_> = steps
-        .iter()
-        .map(|s| {
-            rt.invoke_json(s["call"].as_str().unwrap(), &s["args"])
-                .unwrap()
-                .json()
-        })
-        .collect();
-    fs::write(
-        dir.join("continue.json"),
-        serde_json::to_vec(steps).unwrap(),
-    )
-    .unwrap();
-    let run = Command::new(
-        dir.parent()
-            .unwrap()
-            .join("native-test-target/debug/compiled-state"),
-    )
-    .arg(dir.join("continue.json"))
-    .arg("--restore")
-    .arg(dir.join("restore.bin"))
-    .arg("--snapshot-out")
-    .arg(dir.join("native.bin"))
-    .output()
-    .unwrap();
-    assert!(
-        run.status.success(),
-        "{}",
-        String::from_utf8_lossy(&run.stderr)
-    );
-    let got: Value = serde_json::from_slice(&run.stdout).unwrap();
-    assert_eq!(got, json!(expected));
-    let bytes = fs::read(dir.join("native.bin")).unwrap();
-    assert_eq!(bytes, rt.checkpoint_portable().unwrap());
-    let restored = Runtime::restore_portable(p.clone(), &bytes).unwrap();
-    assert_eq!(restored.checkpoint_portable().unwrap(), bytes);
-    *carry = Some(bytes);
 }
 
 #[test]

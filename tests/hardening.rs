@@ -1778,7 +1778,7 @@ fn fuzz_lockfiles() {
             }
             encode(&lock, &objects)
         },
-        |seed, bytes| {
+        |_seed, bytes| {
             let package: Json = serde_json::from_slice(bytes).unwrap();
             let dir = std::env::temp_dir().join(format!(
                 "ink-hardening-{}-{}",
