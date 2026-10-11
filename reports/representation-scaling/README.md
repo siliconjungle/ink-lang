@@ -22,7 +22,7 @@ handwritten maintained aggregate and separately times direct migrations.
 Frozen admission requests, compiled sources and drivers are reproducible from
 `tests/point_delta.rs`, `bench/point-delta/scaling.rs.txt`,
 `bench/point-delta/aggregate.rs.txt` and `bench/point-delta/scaling_compile.py`.
-Final merged-main measurements and exact graph/toolchain provenance will be
-recorded separately; old losing candidates remain archived. Compilation timing
-includes an already-admitted emission stage plus an independently timed native
-compiler, with dependency builds excluded and disclosed.
+Completed merged-main measurements and exact graph/toolchain provenance are in
+[the final report](merged-main-2026-10-11/README.md); old losing candidates remain
+archived. Compilation timing separates CLI checking, emission that repeats checking,
+and an independently timed native compiler, with dependency builds excluded.
