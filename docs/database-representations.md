@@ -1,12 +1,10 @@
 # Database-defined representations and migrations
 
-Ink source syntax is unchanged. The default compiler no longer admits aggregate
-certificates, bounded-total caches or typed storage policies as optimisation
-authority. `representation::check` admits immutable canonical database entries
-against the fixed transition projection of the actual source module. The
-historical paths are available only with `legacy-optimisation-research`, an
-explicit experimental feature that restores their disclosed historical trust.
-It is not part of the production small-core guarantee.
+`representation::check` admits immutable canonical database entries against the
+fixed transition projection of the actual source module. Aggregate certificates,
+bounded-total cache authority, typed storage policies and their experimental
+compatibility paths have been removed. Maintained physical representations use
+the general database proof interface below.
 
 ## Contract
 
@@ -119,13 +117,57 @@ only matching canonical evidence files are read and hash-validated. This improve
 discovery rather than source action execution. The standalone synthetic timings
 and exact baseline are in `reports/knowledge-lookup-performance`.
 
-The reference executor runs checked first-order definitions. The independently
-versioned Rust lowering literally compiles their bodies and emits an executor
-bound to the exact sealed definition identities. It can contain up to sixteen
-representations and sixteen direct migrations. It rejects unknown closures.
-No compiler optimiser chooses algorithms while emitting those definitions.
+`emit-representation` emits a standalone compiled program for the selected
+representation across Rust, C, JavaScript, both Wasm lanes and GPU host lanes.
+All source, definition and preservation checking finishes before
+emission. The generated `State` stores native physical data, version, pending
+events and the portable snapshot layout. Changes invoke the literal checked execute/observe/next functions directly.
+Queries whose normalised observation keeps logical state and version unchanged
+and emits no events compile to the reply alone, retaining the old physical state. C uses a generated type-specific borrowed
+ABI into immutable typed storage; its functions do not repack physical state.
+JavaScript emits literal functions and immutable native constructor objects, with
+an explicit call stack only for functions that depend on inductive recursion;
+other functions use ordinary synchronous calls. Wasm uses the C or Rust program;
+wgpu uses the native C host and WebGPU uses the JavaScript host. Recursive state
+representations execute on the host, consistent with the general GPU contract.
+The executable carries no proof bundle,
+checker context, source AST, `CheckedRepresentation`, generic `Term`/constructor
+transport or executable-identity dispatch. Generated programs import no Ink crate.
+Native/Wasm ordinary
+dependencies are serde_json, sha2 and num-bigint for JSON and the unchanged
+portable snapshot codec.
 
-Native action execution decodes its arguments once, runs the checked execute
+The reference executor remains a proof-aware interpreter for tooling and
+conformance. The explicit `representation_native::lower` bundle interface remains
+available for historical executor/migration research, including up to sixteen
+representations and sixteen direct migrations. It rejects unknown closures.
+Compiled emission uses each backend’s standalone `representation_program` path.
+Emission does not choose a replacement algorithm. Existing definitional
+computation can erase a read-only observation envelope; the residual reply body
+is type-checked before literal emission. This adds no proof-kernel rule.
+
+**Generated calling contract:** callers must supply the declared argument arity,
+types, shapes, tags, canonical numeric ranges and valid native pointer lifetimes.
+Handing in bad data is unsafe. It may crash, trap, return a wrong answer or corrupt
+state; raw native pointer interfaces may corrupt memory. No diagnostic, rollback,
+or parity guarantee applies outside this contract. The application owns input
+validation when it needs it. Source type checking and proof checking remain
+compile-time requirements.
+
+Generated calls perform representation conversion when required by JSON/native
+storage/Wasm/device transport, without a separate runtime type-validation pass.
+They do not decode every logical table or encode a portable snapshot before
+publication. Source-defined Result errors, version exhaustion, event order and
+transaction publication remain part of valid-program semantics. Explicit
+checkpoint/restore still use the bounded, integrity-checked portable codec and
+exact source snapshot identity. Checkpoint resource limits are checkpoint limits,
+not an implicit cap on every invocation; an oversized live state may fail to
+checkpoint. Profile frequency does not establish an input or state invariant.
+Standalone code fixes the implementation at compilation; switching compiled
+implementations currently uses portable checkpoint/restore. The research bundle
+API retains its separately checked direct migration functionality.
+
+The research executor's native action execution decodes its arguments once, runs the checked execute
 function once and applies the checked observation/next projections to the typed
 intermediate. It transports only the two final outputs. The reference and older
 executors retain the equivalent three-call implementation through the default
@@ -148,11 +190,19 @@ ink execute-representation app.ink request.json calls.json --snapshot-out state.
 ink emit-representation app.ink request.json -o definitions.rs
 ```
 
+The generated Rust module exposes `State::new()`, `State::restore(bytes)`,
+`invoke_json(name, args)`, `checkpoint()`, `version()` and
+`acknowledge_through(commit, position)`. Construction and restore require no
+source, request, proof files, producer or checker. Append an application entry
+point or include the module in a Cargo project with the ordinary dependencies
+above. The old `Native: Executor` output is no longer the command's output ABI.
+
 Execution scripts use the existing `{ "call": "name", "args": [...] }` shape
 and may include `{ "migrate": "another-request.json" }`. Runtime callers can use
 `migrate_direct` with a separately checked bridge. Pinned request JSON contains
-all required definitions, proofs and membership witnesses; checking, execution
-and generated native execution need no producer, SQLite index or live database.
+all required definitions, proofs and membership witnesses. Checking and reference
+execution need no producer, SQLite index or live database. Generated standalone
+execution also needs no request JSON or proof/checker objects.
 Planner search and measured cost selection remain external. These commands
 select explicit requests; they do not silently turn an unverified database
 search result into a selection.
@@ -170,23 +220,25 @@ source action execution.
 ## Scope and trust
 
 Admission currently uses the documented `action_model` domain: u64 table keys,
-u64/Bool/Unit/enums/records/Option/Result/List values, supported fixed primitive
+u64/u32/i32/Int/f32, fixed u32/i32/f32 vectors, Bool/Unit/enums/records/Option/Result/List values, supported fixed primitive
 operations, table operations, nested changes/queries, Try, replies and events.
 Unsupported source domains fail closed and continue to use ordinary baseline
-execution. This does not extend representation admission to exact-Int aggregates,
-keeps, floating-point arithmetic, other key domains or all language features.
+execution. Keeps, filtered list traversal, exact-integer reductions, binary32 reductions
+in source order and nominal stored-value equality now have fixed correspondence. Other
+key domains and temporary buffer/map constructs require their own fixed correspondence and
+standalone codec coverage. This is not admission of all language features.
 Those require fixed source correspondence before their candidates can replace
 execution. Retiring their old specialised approval is not claiming that all old
 optimised catalogue entries have been ported to the new contract.
 
-The new path adds no proof-kernel rule and changes no source syntax or snapshot
-wire format. The fixed source projection, general checker, codecs, literal Rust
-emitter, Rust/LLVM and host remain trusted implementations; there is no formal
-compiler-correctness claim. Other CPU/GPU backends retain baseline execution;
-the new physical-definition executor is currently Rust only. Resource failures
+Source syntax and snapshot wire format are unchanged. General word extensionality
+and fixed word/binary32 primitives are disclosed in [the small-core document](small-core-and-knowledge.md#general-mechanisms-added-for-representation-scale). The fixed source projection, general checker, codecs, literal target
+emitters, native/Wasm/JavaScript toolchains and host remain trusted implementations; there is no formal
+compiler-correctness claim. All lowering targets now expose the standalone representation contract.
+GPU device eligibility remains separate from complete host execution. Resource failures
 are host errors, not mathematical proof premises. The reference codec limits a
 table/event list to 4096 entries and source values to depth 32; the general
-checker and native definition dispatcher also retain their existing bounds.
+checker and definition executors use the explicit bounds in that document.
 Persistence still requires the ordinary host durable-write protocol; `Session`
 alone is not a WAL or crash-recovery implementation. Measured performance and
 its workload limits are reported separately in
@@ -197,3 +249,64 @@ outbox entries and byte-identical portable snapshots; exercise baseline restore,
 reverse/generic/direct migration, failed migration and version exhaustion;
 compile cached database definitions and replay them offline; and reject stale
 source, missing action evidence, missing objects and authentic but false proofs.
+
+### Standalone target parity
+
+```sh
+ink emit-representation source.ink request.json --target rust -o program.rs
+ink emit-representation source.ink request.json --target javascript -o program.mjs
+ink emit-representation source.ink request.json --target c -o c-project
+ink emit-representation source.ink request.json --target wasm32 -o wasm-project
+ink emit-representation source.ink request.json --target rust-wasm -o rust-wasm-project
+ink emit-representation source.ink request.json --target wgpu -o native-gpu-host
+ink emit-representation source.ink request.json --target webgpu -o browser-host.mjs
+```
+
+Native/Wasm projects contain literal code, ordinary codec dependencies and the
+handle/buffer state ABI. `cargo build --offline` builds them; Wasm adds
+`--target wasm32-unknown-unknown`. C/Wasm accepts INK_CC/INK_AR cross-compiler
+wrappers. Generated Wasm projects declare an 8 MiB stack, matching the native
+stack budget used for the admitted inductive input limits; conformance includes
+a 4096-element list. JavaScript exports `createState()` with asynchronous `invoke`/
+`invoke_json`, checkpoint and restore. Invocation executes synchronously before
+its promise resolves; restore rejects overlapping operations while decoding.
+Every action executes its checked physical step and observation. Query transport
+uses the same outcome and validation contract. Compact query alternatives are
+explicit database definitions; backends do not derive typed shortcuts from the
+observation envelope. Values use the established exact BigInt/decimal boundary.
+
+The compiler accepts only representations admitted by the fixed source model
+and supported by the standalone codecs. Unsupported source types/operations
+fail closed before emission. Cross-target conformance covers u64 keys,
+u64/u32/i32/f32 and fixed vectors, Bool/Unit/exact Int, nominal records and enums, Option/Result and List,
+including the model's admitted table and collection operations. Each additional
+source domain needs correspondence and standalone codec coverage on every target.
+Ordinary whole-language lowerings retain their existing broader capability
+contract. Checked executor APIs validate source observations before publishing state.
+
+`tests/representation_parity.rs` compares every standalone target using one
+source oracle, exact replies/errors, portable snapshots and pending events. It
+checks restoration after every request, acknowledgement, counter exhaustion,
+malformed snapshots and absence of checker/Ink runtime dependencies. Invocation
+checks deliberately break the snapshot encoder and still require valid calls to
+match the source. Malformed arguments are excluded from compiled conformance. Both Wasm
+lanes are enabled with INK_TEST_ZIG and required in executable conformance CI.
+Compile-time executable reachability starts at the sealed selected exports and
+follows literal function calls and datatype fields. It excludes proof-only and
+unused mathematical dependencies while keeping internal call targets unchanged.
+The generic graph traversal grants no new proof or replacement authority; all
+bundle proofs are still checked before emission. An authenticated unused-datatype
+fixture and selected-export comparison check this boundary.
+
+The Lean model adds conditional backend/history refinement and temporary-arena
+erasure. Its explicit emitter/codec correspondence assumptions remain trusted;
+the model proves the contract, not generated machine code. See
+`reports/representation-parity-2026-10-11` for the local validation record.
+
+Filtered u64 sum/count delta definitions and their checked update/migration laws live in
+[`knowledge/research/filtered-aggregate`](../knowledge/research/filtered-aggregate/README.md).
+The arithmetic and update tactics are external; correctness is independent of profitability.
+
+Caller-trusted code generation and the valid-domain/query-erasure Lean results
+are recorded in `reports/leaner-generated-code-2026-10-11`. Emission, codecs and
+target toolchains remain trusted; Lean does not prove the generated binaries.

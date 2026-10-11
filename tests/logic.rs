@@ -750,3 +750,36 @@ fn conditional_cases_and_general_congruence_close_predicate_assumptions() {
         .check(&[], &[], &Term::U64(3), &Term::U64(3), &context)
         .is_err());
 }
+
+#[test]
+fn word_extensionality_checks_coverage_parts_and_types() {
+    let c=Context::default();let x=var("x");let params=vec![("x".into(),Sort::U64)];
+    let masked=|mask|binary("&",x.clone(),Term::U64(mask));
+    let proof=|parts|Proof::WordExtensionality{from:x.clone(),to:x.clone(),parts};
+    let parts=vec![(u32::MAX as u64,Proof::Refl(masked(u32::MAX as u64))),(u64::MAX<<32,Proof::Refl(masked(u64::MAX<<32)))];
+    c.check(&params,&[],&x,&x,&proof(parts.clone())).unwrap();
+    assert!(c.check(&params,&[],&x,&x,&proof(vec![parts[0].clone()])).unwrap_err().contains("cover"));
+    assert!(c.check(&params,&[],&x,&x,&proof(vec![(u64::MAX,Proof::Refl(Term::U64(0)))])).unwrap_err().contains("mismatch"));
+    assert!(c.check(&params,&[],&x,&x,&proof(vec![(0,Proof::Refl(masked(0))),(u64::MAX,Proof::Refl(masked(u64::MAX)))])).is_err());
+    let bool_proof=Proof::WordExtensionality{from:Term::Bool(true),to:Term::Bool(true),parts:vec![(u64::MAX,Proof::Refl(Term::Bool(true)))]};
+    assert!(c.check(&[],&[],&Term::Bool(true),&Term::Bool(true),&bool_proof).is_err());
+    assert_eq!(c.evaluate(&[],&binary("&",Term::U64(u64::MAX),Term::U64(42))).unwrap(),Term::U64(42));
+}
+
+#[test]
+fn binary32_primitives_preserve_rounding_and_do_not_gain_word_laws(){
+ use verified_language::logic::f32_primitive;
+ assert_eq!(f32_primitive("f32:+",16777216f32.to_bits()as u64,1f32.to_bits()as u64).unwrap(),Term::U64(16777216f32.to_bits()as u64));
+ assert_eq!(f32_primitive("f32:neg",0x7fa12345,0).unwrap(),Term::U64(0xffa12345));
+ assert_eq!(f32_primitive("f32:==",0,0x80000000).unwrap(),Term::Bool(true));
+ assert_eq!(f32_primitive("f32:==",0x7fc12345,0x7fc12345).unwrap(),Term::Bool(false));
+ let c=Context::default();let add=binary("f32:+",Term::U64(0x80000000),Term::U64(0));
+ assert!(c.check(&[],&[],&add,&Term::U64(0x80000000),&Proof::Convert{from:add.clone(),to:Term::U64(0x80000000)}).is_err());
+ let x=var("x");assert!(c.bitvector_problem(&[("x".into(),Sort::U64)],&[],&binary("f32:+",x.clone(),Term::U64(0)),&x).is_err());
+}
+
+#[test]
+fn total_word_division_is_fixed_semantics_without_unchecked_algebra(){
+ let mut c=Context::default();for(op,a,b,want)in [("quot",u64::MAX,3,u64::MAX/3),("rem",u64::MAX,7,u64::MAX%7),("quot",3,0,0),("rem",3,0,0)]{let from=Term::Binary{op:op.into(),left:Box::new(Term::U64(a)),right:Box::new(Term::U64(b))};let to=Term::U64(want);assert!(c.declare(format!("division_{op}_{b}"),&Declaration::Theorem{params:vec![],conditions:vec![],from:from.clone(),to:to.clone(),proof:Proof::Convert{from,to}}).is_ok());}
+ let x=Term::Var("x".into());let div=Term::Binary{op:"quot".into(),left:Box::new(x.clone()),right:Box::new(Term::U64(1))};assert!(c.bitvector_problem(&[("x".into(),Sort::U64)],&[],&div,&x).is_err());
+}

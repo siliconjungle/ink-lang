@@ -815,7 +815,9 @@ fn forged_libraries_bad_exports_and_malformed_values_are_rejected() {
             value(&t)
         ));
     }
-    driver.push_str(&format!("let mut deep=Value::Data{{datatype:\"{list}\".into(),constructor:0,arguments:vec![]}};for _ in 0..66{{deep=Value::Data{{datatype:\"{list}\".into(),constructor:1,arguments:vec![Value::U64(0),deep]}};}} assert!(invoke(\"{root}\",&[deep]).is_err());"));
+    // The existing iterative transport budget permits depth 4096. Exercise
+    // its actual boundary rather than the retired depth-64 limit.
+    driver.push_str(&format!("let mut deep=Value::Data{{datatype:\"{list}\".into(),constructor:0,arguments:vec![]}};for _ in 0..4097{{deep=Value::Data{{datatype:\"{list}\".into(),constructor:1,arguments:vec![Value::U64(0),deep]}};}} assert!(invoke(\"{root}\",&[deep]).is_err());"));
     native("adversarial", &b, &[root], &driver);
 }
 
@@ -954,4 +956,28 @@ fn external_candidate_producer_reproduces_pinned_objects_and_proofs() {
             );
         }
     }
+}
+
+#[test]
+fn executable_reachability_matches_selected_native_emission() {
+    let (b, n) = fixture("definition-candidates/map");
+    let selection: definition_native::SelectionPackage = serde_json::from_slice(
+        &fs::read(
+            Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join("knowledge/research/definition-candidates/map/selection.json"),
+        )
+        .unwrap(),
+    )
+    .unwrap();
+    let exports = [n["map_staged"].clone()];
+    let checked = verified_language::definition::check(&b, &exports, Some(&selection)).unwrap();
+    let reachable = checked.reachable_executable_declarations().unwrap();
+    let emitted = definition_native::lower(&checked).unwrap();
+    assert_eq!(
+        reachable.keys().cloned().collect::<Vec<_>>(),
+        emitted.receipt.executable_closure
+    );
+    assert!(!reachable.contains_key(&n["map_staged"]));
+    assert!(!reachable.contains_key(&n["map_double"]));
+    assert!(reachable.contains_key(&n["map_composed"]));
 }

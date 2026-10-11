@@ -14,6 +14,10 @@ then `step(item)(old_accumulator)`, assigns the result, and terminates if the st
 flag was true. Both callbacks see the same prior state; empty lists return the
 initial value. Item and accumulator types may differ. This is executable-core V6.
 
+F32 programs use executable-core V7: arithmetic rounds to binary32 with gradual
+underflow and one quiet NaN (`0x7fc00000`). Transport, identity and negation preserve
+payload bits. Old executable headers do not authorise this new arithmetic domain.
+
 The database's first-replacement laws use ordinary induction and case proofs to
 select early termination. Its untrusted producer also proposes nested decision
 and captured-work candidates with complete checked proof dependencies. A result

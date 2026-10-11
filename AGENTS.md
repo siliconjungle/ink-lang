@@ -54,3 +54,5 @@ Editor support and schema evolution remain outside James's requested scope.
 Installation, diagnostics, durable snapshots, transaction rollback, recovery and
 portable logical state remain in scope. Keep broader proof ambitions distinct from
 what is currently admitted; see PLAN.md and the domain-specific docs.
+
+Source correspondence covers the admitted scalar, collection, vector and pure closure domains. Preserve fail-closed unsupported keys/operators and standalone representation conformance across CPU, JavaScript, both Wasm and both GPU hosts. Recursive physical state executes on the host. Keep checked Session transport distinct from caller-trusted standalone calls; benchmark checking, compilation, migration and steady state separately.
