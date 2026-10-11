@@ -848,7 +848,7 @@ function read_7(v,d=0,internal=false){if(Object.hasOwn(v,'Some'))return __node(1
 function write_7(v,d=0,snapshot=false){return v.c===0?{None:null}:{Some:write_6(v.a[0],d+1,snapshot)};}
 function read_8(v,d=0,internal=false){if(Object.hasOwn(v,'Ok'))return __node(0,[read_2(v.Ok,d+1,internal)]);return __node(1,[read_5(v.Err,d+1,internal)]);}
 function write_8(v,d=0,snapshot=false){return v.c===0?{Ok:write_2(v.a[0],d+1,snapshot)}:{Err:write_5(v.a[0],d+1,snapshot)};}
-const __meta={"events":[{"name":"seen","type":{"kind":"u64"}}],"roots":[{"key":{"kind":"u64"},"name":"Rows","value":{"fields":[{"name":"value","type":{"kind":"u64"}},{"name":"active","type":{"kind":"bool"}}],"kind":"record","name":"Row"}}],"snapshot":{"program":[52,20,97,227,197,216,139,58,45,98,73,196,205,50,83,26,202,227,210,13,109,164,33,109,207,238,49,79,213,123,165,218],"schema":[217,47,159,252,204,85,237,70,76,82,248,36,231,99,128,206,40,43,134,247,81,235,124,169,208,7,125,5,136,138,247,164]}};
+const __meta={"events":[{"name":"seen","type":{"kind":"u64"}}],"roots":[{"key":{"kind":"u64"},"name":"Rows","value":{"fields":[{"name":"value","type":{"kind":"u64"}},{"name":"active","type":{"kind":"bool"}}],"kind":"record","name":"Row"}}],"snapshot":{"program":[164,20,219,208,59,235,46,77,62,228,218,82,19,65,177,192,80,104,209,34,182,251,67,150,219,17,134,111,72,214,155,52],"schema":[217,47,159,252,204,85,237,70,76,82,248,36,231,99,128,206,40,43,134,247,81,235,124,169,208,7,125,5,136,138,247,164]}};
 function __fromTables(tables){const roots=[];
 {const rows=[...tables[0].entries()];let prior,tail=__node(0,[]);for(let j=rows.length-1;j>=0;j--){const [key,value]=rows[j];tail=__node(1,[key,read_6(value,0,true),tail]);}roots.push(tail);}
 return __node(0,roots);}

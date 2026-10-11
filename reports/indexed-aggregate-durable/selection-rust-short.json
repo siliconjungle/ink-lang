@@ -1,10 +1,16 @@
 {
   "schema": 1,
+  "semantics": "ink-implementation-selection-v1",
   "status": "checked",
-  "selected": "57af103554125c4ab930d3b0fe24ee0a0a57ea1b96b5b934df4bb852af8d3446",
-  "request_sha256": "d06e050db7b9ca6100607a2b3e049616fcc277035b8f48d32bf75390658e7537",
-  "source": "b79d2303fd0e80416ef884f1ebdfb57d7a27c1a1167786e7f6e0ce15e65f665e",
-  "snapshot": "3c31614a5d42e7e5c521280480a6b80e01268d9fdeb0dc234235f1ca3fe915dd",
+  "source": "729114ddfa53867fc418a0ff604989988d062ac2f78e4162b43dc583a6c0c68c",
+  "selected": "307e884f6f72597e0e18fd67fce36fcf739b3cd853278a37c97d746f94b84698",
+  "baseline": "307e884f6f72597e0e18fd67fce36fcf739b3cd853278a37c97d746f94b84698",
+  "compiler_sha256": "a9e3052dfcde378d1a641698e2a445415c57d87cfc39a8f1272de317fac4a788",
+  "emission_target": "rust",
+  "snapshot": "9f9fe3624597957c2c67eb8a2778f0e8ef9827bbfe174a1642bf1df1f83e3513",
+  "package_sha256": "f4759c1709969852672a2404520067162a43aaf710e46277b968cdf9b9189fea",
+  "measurement": "37a3f85d3a9c6761257f405664ad370704fb69e86a3ccd6e9a88f571136393c2",
+  "baseline_measurement": "37a3f85d3a9c6761257f405664ad370704fb69e86a3ccd6e9a88f571136393c2",
   "profile": {
     "initialise": 1,
     "teardown": 1,
@@ -19,8 +25,8 @@
     "hardware": "Apple M2",
     "driver": "macOS-26.5.2-arm64-arm-64bit",
     "toolchain": "rustc 1.96.0 (ac68faa20 2026-05-25)",
-    "backend": "rust-native",
-    "bridge": "frozen-benchmark:af33fc58d6f1b2bdb7c1027e5a5887fac5c1521d148cf8a9f9d84c2a6b8925d3"
+    "backend": "rust",
+    "bridge": "frozen-benchmark:b2c2a2285ac18355865c12e2fd0ca3bc75b04a16473fae46b95b6f03d9654ac4"
   },
   "workload": {
     "shape": {
@@ -32,40 +38,49 @@
     "residency": "in-process preseeded table; JSON action/reply boundary"
   },
   "migration_count": 1,
-  "bridge": null,
-  "bridge_sha256": null,
   "memory_limit": null,
-  "checked": 2,
-  "rejected": [],
-  "remaining": 0,
   "costs": {
     "total_ns": {
-      "d06e050db7b9ca6100607a2b3e049616fcc277035b8f48d32bf75390658e7537": "116536008",
-      "861074f0cb04fada48e2c40a6cf58c53bd69474876ee5d7cd3721d8cf6ff3cd4": "4259112169"
+      "37a3f85d3a9c6761257f405664ad370704fb69e86a3ccd6e9a88f571136393c2": "5830250",
+      "04d19ccdd76119bda9e5469b820e24fc15b80c5282b36550a86130d5ce2c9cc8": "91196598",
+      "bfa7d741d65b68921b694d199a4e9aafa4a7b5eb65b111d65798ee4b33aea346": "2926846235"
     },
     "excluded": {},
     "observations": {
-      "d06e050db7b9ca6100607a2b3e049616fcc277035b8f48d32bf75390658e7537": [
-        "60a64171306f0f9b801f2b4fa0341a966827763ca821db5940b45110ef2a0720",
-        "99a3c283edc7f62f8a80299067d7be7e8363f77bbf173f26c347a786cde84df7",
-        "a05b64b6da0b4594528ef0f2c0b09d3be8fe3db52b595f9894e5356dd2cd38ba",
-        "aae09b862daec64b4f894c07721a2ee68c1252f3230adfe7633ed01ceb8a1a8b",
-        "ac7717a0584749c1a8b3502ff2b98bf294d25ed0de5ad76baf7cfd93f1de254f",
-        "b75c5ef98f81f5acee9aaacf76e8484f6a2cb3aa7d30b5e0c9d479960466e4aa",
-        "d4f8e1081e4628c64b3b4f45acb4c1dfae71c00b25f095675de651fa77eb5c0b"
+      "37a3f85d3a9c6761257f405664ad370704fb69e86a3ccd6e9a88f571136393c2": [
+        "14ff128aa4aabadd276910a0479455ca80fd67812946bc3bd15eab44f0d3474d",
+        "168548ded46b416b07f97fcf8421ac9dfdbb30b45377e42616c37b63fb48cc8a",
+        "2829613c8214b8ed84529fb643e20e6ccb086f5ffc9144e351bb556173241f54",
+        "31916503fb514a6a087a023ed046ab0b3ae86a46c2d525a888e8095ae4f993cb",
+        "7b669802caed619b9bcffb4852355da1078b5e288cd33707924b08837a5a8821",
+        "d598056db9b7d624cfcf5c957feb5611e402a2bdd4199d222ad5bab2197d0a15",
+        "d6135443c14101c28afcbb18ea9ba2264458abd41be6d55808e43a3faebaf166"
       ],
-      "861074f0cb04fada48e2c40a6cf58c53bd69474876ee5d7cd3721d8cf6ff3cd4": [
-        "34058f0ce0b1ce1baea11da1fb701f31211f67e09d528944adef36cf0d4c6f90",
-        "750d789905501b9077e71fe7ac8c5fa1c3a2ff49bdc48eebddc99167d998822a",
-        "b4396f2bdd3bc17f3d803361ba50e2322fb55a82554c5c1a5937c55584c730f7",
-        "b7418be7b922d0f3e9457db716d78d8758b1ec6f55b2ff85b868ac7c59ddcc81",
-        "c2aebd69aae58d900451a066d78e81fd393867841d61207e3729b4360df8cfff",
-        "d564acc4b67465f6d2edb1cb5d91bc738443f2ce02ca0efe898e87f365cc6cbb",
-        "e80ff35909d30c32fbaca5eb869b344342cfe99f4464b5b11b7918da47f5e900",
-        "e9c8c78a79ee3ccc2b51fc400f400cf639d8d6b397d8a9f97f882042a11e2e00"
+      "04d19ccdd76119bda9e5469b820e24fc15b80c5282b36550a86130d5ce2c9cc8": [
+        "0896726010c261086017e573f60a647975a51913a2c8376931a83e7fa48ca656",
+        "63d91aa6e760435fbc48719ab77cc6793cef4565d16d49e7d4142d38bcebe74f",
+        "7998a40148884bff29a66b54546ef94027cffa2a003a4217dec548b52f28a191",
+        "9114f1c80303aef8c38e939acd3f08bc8e6cd8516f8cd5674504972951af42f9",
+        "914572e007bb9e2f8ca1356354d742cfc78727b11af7a9d8b5e5ee8864b6177b",
+        "bf38988d832a886cf1ba69c054f1da39397ca49e8ad210ed91d90adffd027e4a",
+        "d517302e72af7bed2527c2ffda5de34ccabcadd1669ae26f83037d8395ca17fa",
+        "ff4b10b6a0d330b638144539e8b83145a9e42394651f070433e8a24b18831341"
+      ],
+      "bfa7d741d65b68921b694d199a4e9aafa4a7b5eb65b111d65798ee4b33aea346": [
+        "06d507e8a19abd7de4fbc3c4408bc7b4bfe99f86eb7d679ce244b9491ae5dc7f",
+        "2bef62860ad0abe48adf3505b78b010bfc821dd634cee4abc883e9161fe97dfe",
+        "43460acc086795fb10690897646f97c92e24af75a445d0b05931f9d620fec9e0",
+        "44f1b63f144eaf7315c11b0bb886ddd9e90b323982df2cb38d64a7b6dc90bffe",
+        "9d44b526e1eb5e6188fc12aa3eeac4ad2548e6c78d0c8f3988490ebaef86f770",
+        "d0bc5184a279b05fb95bfef174c28520b8bb192bf8d130cf5b53cef710917d41",
+        "dbaf50e690b2b64ae46c2f9ee5247a595370291a2ad5b88e932a4da005400c57",
+        "e42e0fa969bab47cf861cf3b8d0951428cc716695b1ad017a0ed15aafd1636f4"
       ]
     },
     "baseline_comparable": true
   },
-  "scope": "external measured lifecycle selection; replay rechecks request and bridge; no live adaptation"
+  "checked": 3,
+  "rejected": [],
+  "remaining": 0,
+  "scope": "external measured selection of database packages; portable checkpoint/restore migration"
 }

@@ -12,7 +12,8 @@ use verified_language::{
     syntax::parse,
 };
 fn root() -> PathBuf {
-    std::env::var_os("INK_REP_PARITY_ROOT").map(PathBuf::from).unwrap_or_else(||Path::new(env!("CARGO_MANIFEST_DIR")).join("build/representation-parity"))
+    let base=Path::new(env!("CARGO_MANIFEST_DIR"));
+    std::env::var_os("INK_REP_PARITY_ROOT").map(|p|base.join(p)).unwrap_or_else(||base.join("build/representation-parity"))
 }
 fn run(command: &mut Command, log: &Path) {
     let output = command.output().unwrap();
