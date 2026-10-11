@@ -6,6 +6,7 @@ pub mod action_values;
 pub mod aggregate;
 pub mod bitproof;
 pub mod check;
+pub mod collection_facts;
 pub mod core;
 pub mod definition;
 pub mod definition_context;
