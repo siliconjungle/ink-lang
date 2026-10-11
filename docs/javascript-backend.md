@@ -57,6 +57,16 @@ CPU baseline. Runtime enforces resources and handles device failure; it performs
 no profitability probes. Knowledge owns observations and models, and planner
 owns offline fitting. See [the common contract](adaptive-execution.md).
 
+Saved placement profiles jointly select contiguous stage groups and targets,
+including parallel pure JavaScript/Wasm worker branches. GPU group interiors stay
+resident; typed bridges and complete output materialisation are included in
+training. Measured startup is amortised over expected calls. Missing comparable
+CPU evidence or workload domains retain CPU. See
+[execution policies and mixed placement](adaptive-execution.md) for limits,
+profiling and frozen holdout evidence. Native wgpu bundles use their C CPU fallback.
+Browser source editing remains separate work. Stateful calls never enter
+speculative selection.
+
 ## Evidence and trust
 
 Emission manifests bind the checked core identity, semantics version, typed

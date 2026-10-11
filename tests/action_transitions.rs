@@ -471,34 +471,23 @@ fn database_remove_law_admits_a_complete_action_and_rejects_changed_observations
     assert!(optimisation::check(&m, &malformed).is_err());
 }
 #[test]
-fn newly_supported_domains_project_and_remaining_gaps_fail_closed() {
-    for source in [
-        "module supported;query q(x:u32)->u32{return x;}",
-        "module supported;query q(x:String)->String{return x;}",
+fn expanded_existing_domain_types_are_projected() {
+    for s in [
         "module supported;query q(x:String)->Bool{return x==\"🧵 café\";}",
         "module supported;id Owner;query q(x:Owner)->Owner{return x;}",
-        "module supported;keep value:u64=1;query q()->u64 reads(value){return value;}",
-        "module supported;state Rows:Table<u64,u64> = Table.empty();query q()->List<u64> reads(Rows){return Rows.values();}",
-        "module supported;fn divide(x:u64)->u64{return quot_or(x,1,0);}query q(x:u64)->u64{return divide(x);}",
-    ] { Projection::derive(&module(source)).unwrap(); }
-    for source in [
-        "module unsupported;keep value:Int=Int(1);query q()->Int reads(value){return value;}",
+        "module unsupported;query q(x:u32)->u32{return x;}",
+        "module unsupported;query q(x:String)->String{return x;}",
+        "module supported;keep value:Int=1;query q()->Int reads(value){return value;}",
         "module unsupported;state Rows:Table<u32,u64> = Table.empty();query q(k:u32)->Option<u64> reads(Rows){return Rows.get(k);}",
     ] {
-        // These executable programs remain outside the logical projection scope.
-        assert!(Projection::derive(&module(source)).is_err());
+        assert!(Projection::derive(&module(s)).is_ok(),"{s}");
     }
 }
 
 #[test]
-fn supported_keeps_bind_fixed_source_semantics() {
-    for source in [
-        "module supported;keep value:Int=1;query q()->Int reads(value){return value;}",
-        "module supported;keep value:u64=1;query q()->u64 reads(value){return value;}",
-        "module supported;state Rows:Table<u64,u64> =Table.empty();keep value:Option<u64> =Rows.get(0);query q()->Option<u64> reads(Rows,value){return value;}",
-    ] {
-        Projection::derive(&module(source)).unwrap();
-    }
+fn temporary_owned_helpers_have_stateful_correspondence() {
+    let s="module unsupported;fn local(k:u64,x:u32)->u32{let m:Map<u64,u32> =Map.empty();let m=m.set(k,x);return m.get_or(k,0);}query q(k:u64,x:u32)->u32{return local(k,x);}";
+    assert!(Projection::derive(&module(s)).is_ok());
 }
 
 #[test]
@@ -784,4 +773,15 @@ fn frozen_whole_action_replay_and_inspection_need_no_producer_or_live_database()
     ]);
     assert!(!output.status.success());
     assert_eq!(fs::read(&protected).unwrap(), b"keep original");
+}
+
+#[test]
+fn supported_keeps_bind_fixed_source_semantics() {
+    for source in [
+        "module supported;keep value:Int=1;query q()->Int reads(value){return value;}",
+        "module supported;keep value:u64=1;query q()->u64 reads(value){return value;}",
+        "module supported;state Rows:Table<u64,u64> =Table.empty();keep value:Option<u64> =Rows.get(0);query q()->Option<u64> reads(Rows,value){return value;}",
+    ] {
+        Projection::derive(&module(source)).unwrap();
+    }
 }
