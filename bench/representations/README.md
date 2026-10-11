@@ -17,3 +17,5 @@ The benchmark harness links the source baseline for comparisons and outside-loop
 setup. All paths produce complete replies/events. Checkpoint comparison,
 initialization and portable migration are outside steady state; dependency/build
 costs are separate. Keep losing candidates and source/graph/binary provenance.
+
+Completed measurements and validation: [ordinary compiled main](../../reports/representation-scaling/standalone-main-2026-10-11/README.md).
