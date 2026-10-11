@@ -34,7 +34,8 @@ Input sizes/residency metadata guide choice; no value scanning, repeated executi
 or per-call timer is needed in adaptive policy. This does not imply zero overhead:
 metadata construction, lookup, promise scheduling and transport remain measured
 parts of full execution. Explicit backends remain available. Static JavaScript
-bypasses packing and Wasm initialization.
+bypasses packing and CPU Wasm initialization; the common policy still uses the
+small decision Wasm module.
 
 Runtime profitability probes and the old profiling policy are removed. Evidence
 collection and model fitting run offline in the planner. Saved profiles must bind

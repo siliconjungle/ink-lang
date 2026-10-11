@@ -15,6 +15,8 @@ fn signed(xs:List<i32>)->List<i32>{return buffer(xs).map(fn(x)=>x+1).scan().free
 fn wide(xs:List<u64>)->List<u64>{return buffer(xs).map_indexed(fn(i)=>fn(x)=>x+1).scan().freeze();}
 fn float_scan(xs:List<f32>)->List<f32>{return buffer(xs).map(fn(x)=>x).scan().freeze();}
 fn float_first(xs:List<f32>,z:f32)->f32{return fold_until(xs,z,fn(x)=>fn(a)=>x!=x,fn(x)=>fn(a)=>choose(x!=x,x,a));}
+fn wide_concat(a:List<u64>,b:List<u64>)->List<u64>{return a.concat(b);}
+fn float_add(xs:List<f32>)->List<f32>{return xs.map(fn(x)=>x+0.0);}
 fn compact(xs:List<u32>)->List<u32>{return buffer(xs).filter(fn(x)=>x>2).map(fn(x)=>x+1).freeze();}
 "#;
     let p = parse(source).unwrap();
@@ -38,6 +40,8 @@ fn compact(xs:List<u32>)->List<u32>{return buffer(xs).filter(fn(x)=>x>2).map(fn(
             "float_first",
             json!([[{"F32Bits":2143363909u32},0.0],{"F32Bits":2143289345u32}]),
         ),
+        ("wide_concat", json!([[u64::MAX,9007199254740993u64],[0,1]])),
+        ("float_add", json!([[{ "F32Bits": 2143363909u32 },{ "F32Bits": 4286578689u32 },{ "F32Bits": 1u32 },-0.0]])),
         ("compact", json!([[0, 9, 2, 4]])),
         ("compact", json!([[]])),
     ];
@@ -53,7 +57,7 @@ fn compact(xs:List<u32>)->List<u32>{return buffer(xs).filter(fn(x)=>x>2).map(fn(
             .map(|(v, (_, t))| eval::Value::from_program_json(v, t, &p).unwrap())
             .collect();
         let value = eval::call(&p, name, inputs, &mut 1_000_000).unwrap().json();
-        steps.push(json!({"pure":name,"args":args,"expect_gpu":name=="until"}));
+        steps.push(json!({"pure":name,"args":args,"expect_gpu":(["until","wide_concat","float_add"].contains(&name))}));
         expected.push(json!({"reply":{"value":value},"snapshot":snapshot}));
     }
     parity::conformance("universal-control", p, source, steps, expected);

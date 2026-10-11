@@ -8,7 +8,7 @@ proofs. A planner discovers and combines them; a small semantic core checks that
 each accepted change preserves the actual program's meaning.
 
 The ambition is to make better algorithms, storage layouts and execution plans
-reusable across programs. Adding a proved law can improve existing code without
+reusable across programs. Adding a proved law can improve existing code when rebuilt, without
 editing its source or adding a dedicated compiler pass. This already works for
 supported transformations; broader coverage and consistently competitive
 execution remain active engineering work.

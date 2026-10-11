@@ -37,12 +37,15 @@ transport and sign-bit negation retain the original payload.
 Bool, vectors, records and nested lists retain their declared types. Functions,
 lexical bindings, map/filter, indexed map, truncating zip, ordered sums, right
 folds, scans, numeric sort, bounded repeat and lazy branches/fallbacks are
-supported. Inputs are captured and collection operations preserve them.
+supported. Collection operations preserve input values; direct pure entries
+require stable caller-owned arguments. Runtime asynchronous submissions capture
+inputs at their documented boundary.
 Exact Int, strings, IDs, enums, Unit and Option/Result are supported, together with tables, queries, changes, keeps, ordered events and rollback. `createState()` exposes action invocation and asynchronous portable checkpoint/restore. See the [complete parity contract](lowering-parity.md) for the host API and wire forms.
 
-Host ingress/output have a one-million-cell budget. Pure function calls and collection
-iterations share a one-million-step budget per invocation; state invocation uses a 100-million-step budget. These host limits are
-not the reference interpreter's exact fuel accounting.
+Generated pure functions use a caller-trusted ABI without a fuel or cell budget.
+State invocation retains typed ingress with a one-million-cell bound and its
+separate bounded host execution policy. These limits do not reproduce the
+reference interpreter's exact fuel accounting.
 
 ## Browser backend selection
 
