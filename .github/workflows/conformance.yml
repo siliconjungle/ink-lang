@@ -85,12 +85,19 @@ jobs:
       - name: Independent core and source-bound value admission
         run: |
           cargo test --manifest-path core/Cargo.toml --offline
-          cargo test --manifest-path lowerings/rust/Cargo.toml --lib parallel_tests
+          cargo test --manifest-path lowerings/rust/Cargo.toml --lib
           cargo test --test hardening regression_eval_
           cargo test --test temporary_lowering
           CARGO_TARGET_DIR=target cargo test --manifest-path lowerings/gpu/Cargo.toml --test temporary_bounds
           cargo test --test distribution --test source_syntax --test action_values --test general_laws --test semantic_optimisation
           cargo test --test internal_snapshots --test collect_before_build
+      - name: Composable state proofs, publication, journals and bounded search
+        run: |
+          cargo test --test composable_state --test journal_compaction
+          PYTHONPATH=knowledge python3 -m unittest discover -s knowledge/tests -p test_store.py
+          PYTHONPATH=knowledge python3 -m unittest discover -s knowledge/tests -p test_state_calculus.py
+          PYTHONPATH=knowledge python3 -m unittest discover -s knowledge/tests -p test_admit_publication.py
+          PYTHONPATH=planner:knowledge python3 -m unittest discover -s planner/tests -p test_semantic_search.py
       - name: Literal CPU and both Wasm lowerings, generated histories and crash recovery
         run: python3 tools/check_feature_parity.py --scope cpu --run --receipt build/enforced-parity/cpu-audit.json
       - name: Retain reproducible programs, seeds and expected outcomes
