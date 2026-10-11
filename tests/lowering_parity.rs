@@ -358,3 +358,41 @@ fn resident_collection_lengths_survive_feedback() {
     );
     assert_eq!(v["values"]["grown"], json!([1, 1, 1, 1]));
 }
+
+#[test]
+fn indexed_journals_restore_repeated_keys_nested_changes_and_multiple_roots() {
+    let source=r#"module Journal;
+enum Error{Failed,}
+record Row{value:u32,items:List<u32>,}
+state Rows:Table<u32,Row> = Table.empty();
+state Other:Table<String,u32> = Table.empty();
+event seen:u32;
+fn wave(xs:List<u32>)->List<u32>{return xs.map(fn(x)=>x+1);}
+change seed(key:u32,items:List<u32>)->Result<Unit,Error> writes(Rows){if Rows.contains(key){return Err(Error.Failed);}else{Rows.insert(key,Row{value:key,items:items});}return Ok(());}
+change child(key:u32,items:List<u32>)->Result<Unit,Error> writes(Rows) emits(seen){if Rows.contains(key){Rows.replace(key,Row{value:40,items:items});}else{return Err(Error.Failed);}emit seen(40);return Ok(());}
+change churn(key:u32,items:List<u32>,fail:Bool)->Result<Option<Row>,Error> writes(Rows,Other) emits(seen){
+ let saved=Rows.get(key);Rows.remove(key);if Rows.contains(key){Rows.replace(key,Row{value:20,items:items});}else{Rows.insert(key,Row{value:20,items:items});}child(key,items)?;
+ if Rows.contains(key){Rows.replace(key,Row{value:60,items:items});}Rows.remove(999);
+ if Other.contains("temporary"){Other.replace("temporary",1);}else{Other.insert("temporary",1);}if Other.contains("temporary"){Other.replace("temporary",2);}Other.remove("temporary");
+ emit seen(60);if fail{return Err(Error.Failed);}return Ok(saved);
+}
+query rows()->List<Row> reads(Rows){return Rows.values();}
+query others()->List<u32> reads(Other){return Other.values();}
+"#;
+    let p=parse(source).unwrap();
+    let steps=vec![json!({"call":"seed","args":[1,[1,7,9]]}),json!({"call":"seed","args":[5,[5,7,9]]}),
+        json!({"call":"churn","args":[1,[20,40,60],true]}),json!({"call":"rows","args":[]}),
+        json!({"call":"churn","args":[1,[20,40,60],false]}),json!({"call":"churn","args":[37,[20,40,60],true]}),
+        json!({"call":"rows","args":[]}),json!({"call":"others","args":[]}),
+        json!({"call":"churn","args":[37,[20,40,60],false]}),json!({"call":"rows","args":[]}),
+        json!({"pure":"wave","args":[[0,1,u32::MAX]],"expect_gpu":true})];
+    let mut reference=Runtime::new(p.clone()).unwrap();
+    let expected=steps.iter().map(|step|{
+        if let Some(name)=step["pure"].as_str(){
+            let f=p.functions.iter().find(|f|f.name==name).unwrap();
+            let inputs=step["args"].as_array().unwrap().iter().zip(&f.params).map(|(v,(_,t))|eval::Value::from_program_json(v,t,&p).unwrap()).collect();
+            json!({"reply":{"value":eval::call(&p,name,inputs,&mut 100000000).unwrap().json()},"snapshot":reference.checkpoint_portable().unwrap()})
+        } else {json!({"reply":{"outcome":reference.invoke_json(step["call"].as_str().unwrap(),&step["args"]).unwrap().json()},"snapshot":reference.checkpoint_portable().unwrap()})}
+    }).collect();
+    conformance("generated-parity-journal",p,source,steps,expected);
+}
