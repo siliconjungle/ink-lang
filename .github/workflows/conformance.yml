@@ -35,6 +35,10 @@ jobs:
               f.write('INK_TEST_ZIG='+str(pathlib.Path(ziglang.__file__).parent/'zig')+'\n')
               f.write('INK_PARITY_SEEDS=1,7,23,3735928559,'+str(int(os.environ['GITHUB_SHA'][:16],16))+'\n')
           PY
+      - name: Install pinned independent proof checker
+        run: |
+          curl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain leanprover/lean4:v4.19.0
+          echo "INK_TEST_LEAN=$HOME/.elan/bin/lean" >> "$GITHUB_ENV"
       - name: Rebuild disposable knowledge index
         run: python -m ink_knowledge --root . rebuild
         working-directory: knowledge
@@ -52,19 +56,32 @@ jobs:
           PYTHON
           cargo fetch --locked --manifest-path build/host-deps/Cargo.toml
       - name: Runtime policies and failure injection
-        run: node --test runtime/tests/backend-selection.mjs runtime/tests/durable-state.mjs lowerings/gpu/tests/resident-feedback.mjs
+        run: |
+          node --test runtime/tests/backend-selection.mjs runtime/tests/durable-state.mjs
+          node lowerings/gpu/tests/device_graph.mjs
       - name: Independent core and source-bound value admission
         run: |
           cargo test --manifest-path core/Cargo.toml --offline
+          cargo test --manifest-path lowerings/rust/Cargo.toml --lib parallel_tests
+          cargo test --test hardening regression_eval_
+          cargo test --test temporary_lowering
+          CARGO_TARGET_DIR=target cargo test --manifest-path lowerings/gpu/Cargo.toml --test temporary_bounds
           cargo test --test distribution --test source_syntax --test action_values --test general_laws --test semantic_optimisation
       - name: Literal CPU and both Wasm lowerings, generated histories and crash recovery
-        run: cargo test --test lowering_parity --test representation_parity --test standalone_representation --test generated_parity --test durability --test modules --test selected_checkpoint --test action_optimisation --test action_transitions --test numerical_state --test mixed_durability -- --nocapture
+        run: cargo test --test lowering_parity --test representation_parity --test standalone_representation --test generated_parity --test durability --test modules --test selected_checkpoint --test action_optimisation --test action_transitions --test numerical_state --test mixed_durability --test bend_features -- --nocapture
       - name: Retain reproducible programs, seeds and expected outcomes
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: cpu-wasm-conformance
           path: |
+            build/lowering-residency/*.json
+            build/lowering-residency/*.wgsl
+            build/generated-parity-bend/source.ink
+            build/generated-parity-bend/script.json
+            build/generated-parity-bend/expected.json
+            build/generated-parity-bend/gpu-script.json
+            build/boolean-verdict-test/*.lean
             build/mixed-durable-native/source.ink
             build/mixed-durable-native/initial.json
             build/mixed-durable-native/recovery.json
@@ -111,6 +128,8 @@ jobs:
         with:
           submodules: recursive
       - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -139,13 +158,33 @@ jobs:
           PY
           cargo fetch --locked --manifest-path build/gpu-deps/Cargo.toml
       - name: Actual wgpu dispatch and resident feedback
-        run: cargo test --test lowering_parity --test generated_parity --test modules --test selected_checkpoint --test action_optimisation --test action_transitions --test numerical_state --test mixed_durability -- --nocapture
+        run: cargo test --test lowering_parity --test generated_parity --test modules --test selected_checkpoint --test action_optimisation --test action_transitions --test numerical_state --test mixed_durability --test bend_features -- --nocapture
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Browser CPU, JavaScript and actual WebGPU parity
+        run: |
+          python -m pip install ziglang==0.14.1
+          ZIG_RUNNER=$(python -c 'import pathlib,ziglang;print(pathlib.Path(ziglang.__file__).parent/"zig")')
+          INK_TEST_ZIG="$ZIG_RUNNER" cargo test --test bend_features parallel_buffers_recursion_and_scratch_agree_on_all_backends -- --nocapture
+          python bench/gpu/prepare-lowering-parity-browser.py "$ZIG_RUNNER"
+          npm ci --prefix bench/gpu --ignore-scripts --no-audit --no-fund
+          node bench/gpu/lowering-parity-browser.mjs "$(command -v google-chrome)"
       - name: Retain GPU failure reproductions
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: wgpu-conformance
           path: |
+            build/browser-lowering-parity.json
+            build/temporary-c-test/test.c
+            build/lowering-residency/*.json
+            build/lowering-residency/*.wgsl
+            build/generated-parity-bend/source.ink
+            build/generated-parity-bend/script.json
+            build/generated-parity-bend/expected.json
+            build/generated-parity-bend/gpu-script.json
+            build/boolean-verdict-test/*.lean
             build/mixed-durable-native/source.ink
             build/mixed-durable-native/initial.json
             build/mixed-durable-native/recovery.json

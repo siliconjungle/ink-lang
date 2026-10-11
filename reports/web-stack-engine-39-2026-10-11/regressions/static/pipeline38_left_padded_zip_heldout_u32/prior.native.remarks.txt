@@ -1,0 +1,44 @@
+reports/web-stack-proofs-38-2026-10-11/targets/targets/pipeline38_left_padded_zip_heldout_u32/prior/cpu.c:29:30: remark: loop not vectorized: value that could not be identified as reduction is used outside the loop [-Rpass-analysis=loop-vectorize]
+void ink_compute_reset(void){while(ink_blocks){ink_block *b=ink_blocks;ink_blocks=b->next;free(b);}}
+                             ^
+reports/web-stack-proofs-38-2026-10-11/targets/targets/pipeline38_left_padded_zip_heldout_u32/prior/cpu.c:29:30: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+reports/web-stack-proofs-38-2026-10-11/targets/targets/pipeline38_left_padded_zip_heldout_u32/prior/cpu.c:29:30: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+reports/web-stack-proofs-38-2026-10-11/targets/targets/pipeline38_left_padded_zip_heldout_u32/prior/cpu.c:31:38: remark: loop not vectorized: value that could not be identified as reduction is used outside the loop [-Rpass-analysis=loop-vectorize]
+void ink_compute_rewind(size_t mark){while(ink_blocks!=(ink_block*)mark){ink_block*b=ink_blocks;ink_blocks=b->next;free(b);}}
+                                     ^
+reports/web-stack-proofs-38-2026-10-11/targets/targets/pipeline38_left_padded_zip_heldout_u32/prior/cpu.c:31:38: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+reports/web-stack-proofs-38-2026-10-11/targets/targets/pipeline38_left_padded_zip_heldout_u32/prior/cpu.c:31:38: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+reports/web-stack-proofs-38-2026-10-11/targets/targets/pipeline38_left_padded_zip_heldout_u32/prior/cpu.c:93:1: remark: the cost-model indicates that vectorization is not beneficial [-Rpass-missed=loop-vectorize]
+for(size_t t2=0;t2<t0.len;t2++){
+^
+reports/web-stack-proofs-38-2026-10-11/targets/targets/pipeline38_left_padded_zip_heldout_u32/prior/cpu.c:93:1: remark: the cost-model indicates that interleaving is not beneficial [-Rpass-missed=loop-vectorize]
+reports/web-stack-proofs-38-2026-10-11/targets/targets/pipeline38_left_padded_zip_heldout_u32/prior/cpu.c:93:1: remark: vectorized loop (vectorization width: 4, interleaved count: 2) [-Rpass=loop-vectorize]
+reports/web-stack-proofs-38-2026-10-11/targets/targets/pipeline38_left_padded_zip_heldout_u32/prior/cpu.c:37:138: remark: vectorized loop (vectorization width: 16, interleaved count: 2) [-Rpass=loop-vectorize]
+static __attribute__((unused)) void ink_copy(void *to,const void *from,size_t bytes){unsigned char *dst=to;const unsigned char *src=from;for(size_t i=0;i<bytes;i++)dst[i]=src[i];}
+                                                                                                                                         ^
+reports/web-stack-proofs-38-2026-10-11/targets/targets/pipeline38_left_padded_zip_heldout_u32/prior/cpu.c:148:1: remark: the cost-model indicates that interleaving is not beneficial [-Rpass-analysis=loop-vectorize]
+for(size_t t26=0;t26<t24.len;t26++){
+^
+reports/web-stack-proofs-38-2026-10-11/targets/targets/pipeline38_left_padded_zip_heldout_u32/prior/cpu.c:148:1: remark: vectorized loop (vectorization width: 4, interleaved count: 1) [-Rpass=loop-vectorize]
+reports/web-stack-proofs-38-2026-10-11/targets/targets/pipeline38_left_padded_zip_heldout_u32/prior/cpu.c:184:1: remark: the cost-model indicates that vectorization is not beneficial [-Rpass-analysis=loop-vectorize]
+for(size_t t41=0;t41<(t23.len < t39.len ? t23.len : t39.len);t41++){
+^
+reports/web-stack-proofs-38-2026-10-11/targets/targets/pipeline38_left_padded_zip_heldout_u32/prior/cpu.c:184:1: remark: interleaved loop (interleaved count: 2) [-Rpass=loop-vectorize]
+reports/web-stack-proofs-38-2026-10-11/targets/targets/pipeline38_left_padded_zip_heldout_u32/prior/cpu.c:184:1: remark: vectorized loop (vectorization width: 4, interleaved count: 2) [-Rpass=loop-vectorize]
+reports/web-stack-proofs-38-2026-10-11/targets/targets/pipeline38_left_padded_zip_heldout_u32/prior/cpu.c:432:1: remark: the cost-model indicates that vectorization is not beneficial [-Rpass-missed=loop-vectorize]
+for(size_t t2=0;t2<t0.len;t2++){
+^
+reports/web-stack-proofs-38-2026-10-11/targets/targets/pipeline38_left_padded_zip_heldout_u32/prior/cpu.c:432:1: remark: the cost-model indicates that interleaving is not beneficial [-Rpass-missed=loop-vectorize]
+reports/web-stack-proofs-38-2026-10-11/targets/targets/pipeline38_left_padded_zip_heldout_u32/prior/cpu.c:432:1: remark: vectorized loop (vectorization width: 4, interleaved count: 2) [-Rpass=loop-vectorize]
+reports/web-stack-proofs-38-2026-10-11/targets/targets/pipeline38_left_padded_zip_heldout_u32/prior/cpu.c:37:138: remark: vectorized loop (vectorization width: 16, interleaved count: 2) [-Rpass=loop-vectorize]
+static __attribute__((unused)) void ink_copy(void *to,const void *from,size_t bytes){unsigned char *dst=to;const unsigned char *src=from;for(size_t i=0;i<bytes;i++)dst[i]=src[i];}
+                                                                                                                                         ^
+reports/web-stack-proofs-38-2026-10-11/targets/targets/pipeline38_left_padded_zip_heldout_u32/prior/cpu.c:487:1: remark: the cost-model indicates that interleaving is not beneficial [-Rpass-analysis=loop-vectorize]
+for(size_t t26=0;t26<t24.len;t26++){
+^
+reports/web-stack-proofs-38-2026-10-11/targets/targets/pipeline38_left_padded_zip_heldout_u32/prior/cpu.c:487:1: remark: vectorized loop (vectorization width: 4, interleaved count: 1) [-Rpass=loop-vectorize]
+reports/web-stack-proofs-38-2026-10-11/targets/targets/pipeline38_left_padded_zip_heldout_u32/prior/cpu.c:523:1: remark: the cost-model indicates that vectorization is not beneficial [-Rpass-analysis=loop-vectorize]
+for(size_t t41=0;t41<(t23.len < t39.len ? t23.len : t39.len);t41++){
+^
+reports/web-stack-proofs-38-2026-10-11/targets/targets/pipeline38_left_padded_zip_heldout_u32/prior/cpu.c:523:1: remark: interleaved loop (interleaved count: 2) [-Rpass=loop-vectorize]
+reports/web-stack-proofs-38-2026-10-11/targets/targets/pipeline38_left_padded_zip_heldout_u32/prior/cpu.c:523:1: remark: vectorized loop (vectorization width: 4, interleaved count: 2) [-Rpass=loop-vectorize]

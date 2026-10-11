@@ -1,0 +1,133 @@
+{
+  "schema": 1,
+  "compiler_sha256": "f3795f05e115032d8c16638b81671b86a3d083bfcdbf55a355ce71f1508309d7",
+  "source_sha256": "f88ff86fafb4b64b051b00699096a1c4c4c45a24471f4bd96853f9291cd58ff4",
+  "rustc": "rustc 1.96.0 (ac68faa20 2026-05-25)\nbinary: rustc\ncommit-hash: ac68faa20c58cbccd01ee7208bf3b6e93a7d7f96\ncommit-date: 2026-05-25\nhost: aarch64-apple-darwin\nrelease: 1.96.0\nLLVM version: 22.1.2",
+  "revision": "fd1344ff3c62e25edb9054dbb2f7878695b05335",
+  "working_tree": "M .github/workflows/conformance.yml\n M AGENTS.md\n M README.md\n M docs/language-specification-draft.md\n M knowledge\n M lowerings/c\n M lowerings/gpu\n M lowerings/js\n M lowerings/rust\n m lowerings/wasm\n m runtime\n M src/main.rs\n M tools/install.py\n?? bench/bend-inspired/\n?? docs/bend-inspired.md\n?? examples/bend-inspired.ink\n?? tests/bend_features.rs",
+  "threads": 4,
+  "method": "Nine alternating paired rounds. Calibration targets 30 ms per sample, capped at 200 repetitions. Both paths include the same input copy, output allocation and destruction. Runtime only; compilation is excluded. Four requested CPU workers, with sequential fallback for small or nested workloads. 4000 paired bootstrap median-ratio resamples. Work is the same wrapping recurrence in both programs.",
+  "results": [
+    {
+      "median_ns": [
+        152427.02590673574,
+        134253.84615384616
+      ],
+      "n": 64,
+      "repetitions": [
+        193,
+        195
+      ],
+      "samples_ns": [
+        [
+          153083.9792746114,
+          152427.02590673574,
+          152585.92227979275,
+          153483.37823834197,
+          152673.78756476683,
+          131530.00518134714,
+          132384.06735751295,
+          131640.33160621763,
+          132686.52849740934
+        ],
+        [
+          153000.42564102565,
+          154111.9641025641,
+          154253.20512820513,
+          153751.28205128206,
+          134253.84615384616,
+          133630.12820512822,
+          132909.40512820514,
+          133546.5846153846,
+          132568.58974358975
+        ]
+      ],
+      "sequential_over_parallel": 1.1353643137498222,
+      "sequential_over_parallel_ci95": [
+        0.9851096708082465,
+        1.1372023367569866
+      ]
+    },
+    {
+      "median_ns": [
+        7608097.333333333,
+        2059213.8666666667
+      ],
+      "n": 4096,
+      "repetitions": [
+        3,
+        15
+      ],
+      "samples_ns": [
+        [
+          7497027.666666667,
+          7690819.666666667,
+          7608097.333333333,
+          7976514.0,
+          7557805.666666667,
+          7726347.333333333,
+          7595458.333333333,
+          7979208.333333333,
+          7537764.0
+        ],
+        [
+          1974677.8,
+          2059213.8666666667,
+          1953197.2666666666,
+          2123266.6666666665,
+          2019347.2666666666,
+          2109155.6,
+          1997602.8,
+          2141608.3333333335,
+          2063094.4666666666
+        ]
+      ],
+      "sequential_over_parallel": 3.694661082313354,
+      "sequential_over_parallel_ci95": [
+        3.6632419786066674,
+        3.8172121041721336
+      ]
+    },
+    {
+      "median_ns": [
+        115503125.0,
+        29824875.0
+      ],
+      "n": 65536,
+      "repetitions": [
+        1,
+        1
+      ],
+      "samples_ns": [
+        [
+          120931459.0,
+          115983250.0,
+          114858250.0,
+          115993041.0,
+          114705792.0,
+          117276500.0,
+          112900917.0,
+          115503125.0,
+          113922250.0
+        ],
+        [
+          29403750.0,
+          29944500.0,
+          29683916.0,
+          29824875.0,
+          30014458.0,
+          30321375.0,
+          29296417.0,
+          29672459.0,
+          30673667.0
+        ]
+      ],
+      "sequential_over_parallel": 3.872711117816923,
+      "sequential_over_parallel_ci95": [
+        3.80444655946835,
+        3.916462121591611
+      ]
+    }
+  ],
+  "platform": "Darwin Jamess-MacBook-Air-2.local 25.5.0 Darwin Kernel Version 25.5.0: Tue Jun  9 22:27:52 PDT 2026; root:xnu-12377.121.10~1/RELEASE_ARM64_T8112 arm64"
+}

@@ -395,6 +395,7 @@ fn regression_eval_nesting_is_bounded() {
             "fn deep_{i}(x: u64) -> u64 {{ return {body}; }}\n"
         ));
     }
+    source.push_str("fn recursive(n:u64)->u64{return choose(n>0,n*recursive(n-1),1);}");
     bounded("eval-nesting", 20, || {
         let module = CheckedModule::from_source(syntax::parse(&source)?)?;
         let p = module.program();
@@ -404,6 +405,18 @@ fn regression_eval_nesting_is_bounded() {
         assert_eq!(
             eval::call(p, "deep_9", one, &mut 100_000_000)?,
             eval::Value::U64(301)
+        );
+        let error = eval::call(
+            p,
+            "recursive",
+            vec![eval::Value::U64(10000)],
+            &mut 100_000_000,
+        )
+        .unwrap_err();
+        assert!(error.contains("nesting limit"), "{error}");
+        assert_eq!(
+            eval::call(p, "recursive", vec![eval::Value::U64(8)], &mut 100_000_000)?,
+            eval::Value::U64(40320)
         );
         Ok(())
     });

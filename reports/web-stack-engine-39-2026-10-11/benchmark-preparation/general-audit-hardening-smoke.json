@@ -1,0 +1,52 @@
+{
+  "status": "passed",
+  "timed": false,
+  "method": "synthetic structurally complete audit fixture with one-at-a-time missing/duplicate capability records, and stale audit binding negative controls; no performance statistics",
+  "tool_sha256": "a3658f2d4d4c5a6a00c675e59b8f04ed2a381564cdfaef55a5288149c9642aee",
+  "checks": [
+    {
+      "check": "missing-capable-resident",
+      "status": "passed",
+      "rejection": "resident capability coverage"
+    },
+    {
+      "check": "missing-gpu-availability",
+      "status": "passed",
+      "rejection": "GPU availability coverage"
+    },
+    {
+      "check": "duplicate-gpu-availability",
+      "status": "passed",
+      "rejection": "GPU availability coverage"
+    },
+    {
+      "check": "wrong-complete-check-count",
+      "status": "passed",
+      "rejection": "complete output check count"
+    },
+    {
+      "check": "mislabeled-sample-boundary",
+      "status": "passed",
+      "rejection": "sample ownership boundary"
+    },
+    {
+      "check": "complete-capable-resident-and-availability",
+      "status": "passed"
+    },
+    {
+      "check": "stale-results-summary",
+      "status": "passed",
+      "rejection": "saved audit bindings changed before summary"
+    },
+    {
+      "check": "stale-metadata-summary",
+      "status": "passed",
+      "rejection": "saved audit bindings changed before summary"
+    },
+    {
+      "check": "stale-native-main-summary",
+      "status": "passed",
+      "rejection": "native/main metadata changed before summary"
+    }
+  ]
+}
