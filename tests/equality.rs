@@ -8,7 +8,7 @@ use verified_language::{
     core::CheckedModule,
     equality::{self, Proof},
     eval::{self, Value},
-    implementation, native,
+    implementation,
     syntax::{self, Expr, Type},
 };
 static NEXT: AtomicUsize = AtomicUsize::new(0);
