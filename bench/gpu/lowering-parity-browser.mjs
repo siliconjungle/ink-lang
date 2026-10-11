@@ -53,7 +53,7 @@ try {
       }
     }
     let requiredErrors=0;
-    for(const f of fixtures){const info=ink.manifest.functions.find(x=>x.name===f.pure);if(info.gpu)continue;let failed=false;try{await ink.call(f.pure,f.args,{backend:'gpu-required'});}catch{failed=true;}if(!failed)throw Error('unsupported required GPU call fell back');requiredErrors++;}
+    for(const f of fixtures){const info=ink.manifest.functions.find(x=>x.name===f.pure);if(info.gpu)continue;const params=ink.manifest.javascript.functions.find(x=>x.name===f.pure).params,args=f.args.map((v,i)=>typed(v,params[i].type));let reason;try{await ink.call(f.pure,args,{backend:'gpu-required'});}catch(e){reason=e.message;}if(reason!==(info.fallback_reason??'GPU lowering unavailable'))throw Error('unsupported required GPU call did not report its eligibility error: '+reason);requiredErrors++;}
     for(const part of parts.values())await part.dispose();await ink.dispose();return {comparisons:replies.length,gpu_calls:replies.filter(r=>r.backend==='gpu').length,requiredErrors,replies};
   },{base,fixtures});
   const residency=await page.evaluate(async base=>{
@@ -85,7 +85,7 @@ try {
     }
     const growing=await ink.pipeline({inputs:{xs:[1]},steps:[{id:'grown',call:'duplicate',args:[{input:'xs'}]}],iterations:2,feedback:{xs:'grown'},outputs:['grown']},{backend:'gpu'});
     if(growing.backend!=='cpu'||growing.reason!=='feedback changes array shape; compiled CPU pipeline'||JSON.stringify(growing.values.grown)!=='[1,1,1,1]')throw Error('growing feedback fallback mismatch: '+JSON.stringify(growing));
-    let refusedGrowth=false;try{await ink.pipeline({inputs:{xs:[1]},steps:[{id:'grown',call:'duplicate',args:[{input:'xs'}]}],iterations:2,feedback:{xs:'grown'},outputs:['grown']},{backend:'gpu-required'});}catch{refusedGrowth=true;}if(!refusedGrowth)throw Error('required GPU growth silently fell back');
+    let refusedGrowth=false;try{await ink.pipeline({inputs:{xs:[1]},steps:[{id:'grown',call:'duplicate',args:[{input:'xs'}]}],iterations:2,feedback:{xs:'grown'},outputs:['grown']},{backend:'gpu-required'});}catch(e){refusedGrowth=e.message==='feedback changes array shape; compiled CPU pipeline';}if(!refusedGrowth)throw Error('required GPU growth silently fell back');
     replies.push(growing);await ink.dispose();return {comparisons:replies.length,gpu_calls:replies.filter(r=>r.backend==='gpu').length,replies};
   },base);
   assert.equal(residency.gpu_calls,6);
@@ -102,7 +102,7 @@ try {
       const normalize=x=>typeof x==='bigint'?String(x):typeof x==='number'&&Number.isInteger(x)?Object.is(x,-0)?'negative zero':String(x):Array.isArray(x)?x.map(normalize):x&&typeof x==='object'?Object.fromEntries(Object.keys(x).sort().map(k=>[k,normalize(x[k])])):x;
       const exact=v=>JSON.stringify(normalize(v));
       const disabled=await loadInk(root,{gpu:false});let disabledError=false;
-      try{await disabled.call(steps[0].pure,steps[0].args.map((v,i)=>typed(v,ink.manifest.javascript.functions.find(f=>f.name===steps[0].pure).params[i].type)),{backend:'gpu-required'});}catch{disabledError=true;}finally{await disabled.dispose();}
+      try{await disabled.call(steps[0].pure,steps[0].args.map((v,i)=>typed(v,ink.manifest.javascript.functions.find(f=>f.name===steps[0].pure).params[i].type)),{backend:'gpu-required'});}catch(e){disabledError=/gpu|device/i.test(e.message);}finally{await disabled.dispose();}
       if(!disabledError)throw Error('missing device silently fell back');
       let calls=0,dispatches=0;
       try{for(let i=0;i<steps.length;i++)for(const backend of ['cpu','javascript','gpu-required']){

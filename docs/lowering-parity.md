@@ -212,9 +212,9 @@ are still checked by the compiler; the reference interpreter keeps its diagnosti
 checks for tooling.
 
 JSON syntax parsing, explicit checkpoint integrity/size checks, hardware resource
-limits, device eligibility and transaction/version rules remain. The GPU finite
-float eligibility test selects a permitted device domain; it is not input type
-validation. Generated state queries avoid transaction table backups. Standalone
+limits, device eligibility and transaction/version rules remain. GPU eligibility checks the kernel and resource domain; exact binary32
+kernels also preserve exceptional values and raw bits. It is not an input type
+validation contract. Generated state queries avoid transaction table backups. Standalone
 representation calls also avoid whole-state transport and checkpoint validation,
 and statically simplified read-only queries compute the reply directly.
 See `reports/leaner-generated-code-2026-10-11` for executable and Lean evidence.
