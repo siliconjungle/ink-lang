@@ -663,13 +663,12 @@ impl<'a> Lower<'a> {
                     };
                     let mut arguments = vec![];
                     for (i, arg) in args.iter().enumerate() {
+                        let table_expected = match &receiver_ty {
+                            Type::Table(k, v) if table.is_some() && method!="shared_keys" && !matches!(arg,Expr::Lambda(..)) => Some(crate::table_argument(method, i, k, v)),
+                            _ => None,
+                        };
                         let expected = if table.is_some() {
-                            match &receiver_ty {
-                                Type::Table(k, v) => {
-                                    Some(if i == 0 { k.as_ref() } else { v.as_ref() })
-                                }
-                                _ => None,
-                            }
+                            table_expected.as_ref()
                         } else if matches!(arg, Expr::Lambda(..)) {
                             match (&ty, method.as_str()) {
                                 (Type::List(t), "map")
@@ -940,13 +939,24 @@ impl Body {
                     }
                 }
                 Kind::Table {
-                    root, arguments, ..
+                    root, method, arguments
                 } => {
                     let Type::Table(k, v) = &p.states[*root].ty else {
                         return Err("table type".into());
                     };
+                    if method=="shared_keys" {
+                        let Kind::State(other)=&self.nodes[arguments[0]].kind else{return Err("shared_keys root".into());};
+                        let Type::Table(other_key,_)=&p.states[*other].ty else{return Err("shared_keys table".into());};
+                        let a=solver.ty(k);let b=solver.ty(other_key);solver.unify(a,b)?;continue;
+                    }
+                    if method=="sum_by" || method=="count_where" {
+                        let (parameter,result)=lambdas[arguments[0]].clone().ok_or("scan lambda type")?;
+                        let row=solver.ty(v);solver.unify(parameter,row)?;
+                    if method=="sum_by" {solver.unify(out()?,result)?;} else {solver.unify(result,Ty::Atom(Type::Bool))?;solver.unify(out()?,Ty::Atom(Type::Int))?;}
+                        continue;
+                    }
                     for (i, value) in arguments.iter().enumerate() {
-                        let t = solver.ty(if i == 0 { k } else { v });
+                        let t = solver.ty(&crate::action_types::table_argument(method, i, k, v));
                         solver.unify(val(*value)?, t)?;
                     }
                 }
@@ -1016,7 +1026,10 @@ impl Body {
                     method,
                     arguments,
                 } => {
-                    if method == "ok_or" {
+                    if method == "unwrap_or" {
+                        solver.unify(val(*receiver)?, Ty::App(1, vec![out()?]))?;
+                        solver.unify(val(arguments[0])?, out()?)?;
+                    } else if method == "ok_or" {
                         let member = solver.fresh();
                         solver.unify(val(*receiver)?, Ty::App(1, vec![member.clone()]))?;
                         solver.unify(out()?, Ty::App(2, vec![member, val(arguments[0])?]))?;

@@ -125,15 +125,15 @@ fn compiled_point_candidates_need_no_checker_or_runtime() {
     for (label, request) in [
         (
             "direct",
-            include_str!("../knowledge/research/point-delta/direct.json"),
+            include_str!("../knowledge/research/composable-state-current/point-delta/direct.json"),
         ),
         (
             "refresh",
-            include_str!("../knowledge/research/point-delta/refresh.json"),
+            include_str!("../knowledge/research/composable-state-current/point-delta/refresh.json"),
         ),
         (
             "delta",
-            include_str!("../knowledge/research/point-delta/delta.json"),
+            include_str!("../knowledge/research/composable-state-current/point-delta/delta.json"),
         ),
     ] {
         let calls = vec![
@@ -242,13 +242,57 @@ query get(key:u64)->Option<Item> reads(Z){return Z.get(key);}
 }
 
 #[test]
+fn native_event_views_borrow_state_and_explicit_owned_events_survive_publication() {
+    let source=include_str!("../examples/frontier-point-maintenance.ink");
+    let request:Request=serde_json::from_str(include_str!("../knowledge/research/dynamic-point/direct.json")).unwrap();
+    let module=CheckedModule::from_source(parse(source).unwrap()).unwrap();
+    let checked=representation::check(&module,&request).unwrap();
+    let output=root("frontier-native-views");
+    verified_language::representations::emit(&checked,"rust-wasm",&output).unwrap();
+    fs::create_dir_all(output.join("src/bin")).unwrap();
+    fs::write(output.join("src/bin/owned.rs"),r#"
+use ink_compiled_representation::State;
+use serde_json::json;
+fn main(){
+ let mut state=State::new().unwrap();state.invoke_view_put(0,7).unwrap();
+ let first=state.invoke_view_replace(0,13,false).unwrap().into_owned();
+ assert!(first.committed);assert_eq!(first.version,2);assert_eq!(first.events.len(),1);assert_eq!(first.events[0].value,json!(13));
+ state.acknowledge_through(u64::MAX,u64::MAX);
+ let next=state.invoke_view_replace(0,17,false).unwrap().into_owned();
+ assert!(next.committed);assert_eq!(next.version,3);assert_eq!(next.events[0].value,json!(17));
+ let snapshot=state.checkpoint().unwrap();drop(state);
+ let restored=State::restore(&snapshot).unwrap();assert_eq!(restored.version(),3);assert_eq!(restored.outbox_json()[0]["value"],json!(17));
+ assert_eq!(first.events[0].value,json!(13));assert_eq!(first.events[0].commit,2);
+}
+"#).unwrap();
+    fs::write(output.join("src/bin/borrowed.rs"),r#"
+use ink_compiled_representation::State;
+fn main(){
+ let mut state=State::new().unwrap();state.invoke_view_put(0,7).unwrap();
+ let first=state.invoke_view_replace(0,13,false).unwrap();
+ state.invoke_view_replace(0,17,false).unwrap();
+ std::hint::black_box(first.events);
+}
+"#).unwrap();
+    let target=root("frontier-native-views-target");
+    let args=["--offline","--quiet","--manifest-path"];
+    let accepted=Command::new(env!("CARGO")).arg("run").args(args).arg(output.join("Cargo.toml")).args(["--bin","owned","--target-dir"]).arg(&target).output().unwrap();
+    fs::write(output.join("owned.log"),&accepted.stderr).unwrap();
+    assert!(accepted.status.success(),"{}",String::from_utf8_lossy(&accepted.stderr));
+    let rejected=Command::new(env!("CARGO")).arg("check").args(args).arg(output.join("Cargo.toml")).args(["--bin","borrowed","--target-dir"]).arg(&target).output().unwrap();
+    fs::write(output.join("borrowed.log"),&rejected.stderr).unwrap();
+    assert!(!rejected.status.success());
+    assert!(String::from_utf8_lossy(&rejected.stderr).contains("E0499"),"{}",String::from_utf8_lossy(&rejected.stderr));
+}
+
+#[test]
 fn shared_physical_spines_release_without_allocating_or_losing_live_suffixes() {
     let module = CheckedModule::from_source(
         parse(include_str!("../examples/point-query-delta.ink")).unwrap(),
     )
     .unwrap();
     let request: Request = serde_json::from_str(include_str!(
-        "../knowledge/research/point-delta/direct.json"
+        "../knowledge/research/composable-state-current/point-delta/direct.json"
     ))
     .unwrap();
     let checked = representation::check(&module, &request).unwrap();

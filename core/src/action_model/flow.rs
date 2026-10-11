@@ -49,8 +49,7 @@ impl<'p> Lower<'p> {
             let child = |n: NodeId| total.get(n).copied().unwrap_or(false);
             let safe = match &node.kind {
                 Kind::State(_) | Kind::Keep(_) => true,
-                Kind::Float(_)
-                | Kind::Number(_)
+                Kind::Float(_) | Kind::Number(_) | Kind::String(_)
                 | Kind::Bool(_)
                 | Kind::Unit
                 | Kind::None
@@ -66,8 +65,8 @@ impl<'p> Lower<'p> {
                 Kind::PureCall { arguments, .. } => arguments.iter().all(|n| child(*n)),
                 Kind::Builtin { name, arguments } => {
                     [
-                        "Ok", "Err", "Some", "count", "sum", "vec2", "vec3", "vec4", "quot_or",
-                        "rem_or",
+                        "Ok", "Err", "Some", "choose", "count", "sum", "vec2", "vec3", "vec4",
+                        "quot_or", "rem_or",
                     ]
                     .contains(&name.as_str())
                         && arguments.iter().all(|n| child(*n))
@@ -75,7 +74,7 @@ impl<'p> Lower<'p> {
                 Kind::Table {
                     method, arguments, ..
                 } => {
-                    ["get", "contains", "values", "keys"].contains(&method.as_str())
+                    ["get", "contains", "values", "keys", "intersect_keys", "shared_keys", "sum_by", "count_where"].contains(&method.as_str())
                         && arguments.iter().all(|n| child(*n))
                 }
                 Kind::Lambda { body, .. } => child(*body),
@@ -424,6 +423,7 @@ impl<'p> Lower<'p> {
             }
             Kind::Number(_)
             | Kind::Bool(_)
+            | Kind::String(_)
             | Kind::Unit
             | Kind::None
             | Kind::Local(_)
@@ -490,6 +490,49 @@ impl<'p> Lower<'p> {
                         } else {
                             choice(test, stop, resume)
                         })
+                    },
+                    abort,
+                    depth + 1,
+                    calls,
+                )
+            }
+            Kind::Builtin { name, arguments } if name == "choose" => {
+                let [condition, on_true, on_false] = arguments.as_slice() else {
+                    return Err("action model choose arity".into());
+                };
+                self.flow_expr(
+                    scope,
+                    body,
+                    *condition,
+                    env,
+                    state,
+                    events,
+                    &|this, test, state, events| {
+                        let yes = this.flow_expr(
+                            scope,
+                            body,
+                            *on_true,
+                            env,
+                            state.clone(),
+                            events.clone(),
+                            next,
+                            abort,
+                            depth + 1,
+                            calls,
+                        )?;
+                        let no = this.flow_expr(
+                            scope,
+                            body,
+                            *on_false,
+                            env,
+                            state,
+                            events,
+                            next,
+                            abort,
+                            depth + 1,
+                            calls,
+                        )?;
+                        Ok(choice(test, yes, no))
                     },
                     abort,
                     depth + 1,
@@ -630,7 +673,7 @@ impl<'p> Lower<'p> {
                 root,
                 method,
                 arguments,
-            } if ["get", "contains", "insert", "replace", "remove"].contains(&method.as_str()) => {
+            } if ["get", "contains", "insert", "replace", "remove", "put", "put_many", "remove_many"].contains(&method.as_str()) => {
                 self.flow_args(
                     scope,
                     body,
@@ -641,6 +684,17 @@ impl<'p> Lower<'p> {
                     vec![],
                     &|this, xs, state, events| {
                         let table = this.tables[*root].clone();
+                        if method == "put_many" || method == "remove_many" {
+                            let (value,state)=this.bulk_table(*root,method,&xs,state)?;
+                            if let (Term::If { condition, on_true, on_false }, Term::If { condition: state_condition, on_true: true_state, on_false: false_state }) = (&value,&state) {
+                                if condition == state_condition {
+                                    let yes=next(this,*on_true.clone(),*true_state.clone(),events.clone())?;
+                                    let no=next(this,*on_false.clone(),*false_state.clone(),events)?;
+                                    return Ok(choice(*condition.clone(),yes,no));
+                                }
+                            }
+                            return next(this,value,state,events);
+                        }
                         let rows = this.root(state.clone(), *root)?;
                         let present = call(&table.contains, vec![rows.clone(), xs[0].clone()]);
                         match method.as_str() {
@@ -658,9 +712,10 @@ impl<'p> Lower<'p> {
                                     c(id(&sort)?, 0, vec![])
                                 };
                                 let f = match method.as_str() {
-                                    "insert" => table.insert,
-                                    "replace" => table.replace,
-                                    _ => table.remove,
+                                    "insert" => table.insert.clone(),
+                                    "replace" => table.replace.clone(),
+                                    "put" => this.upsert_function(&table)?,
+                                    _ => table.remove.clone(),
                                 };
                                 let mut args = vec![rows];
                                 args.extend(xs);
@@ -797,6 +852,14 @@ impl<'p> Lower<'p> {
         let ExprType::Value(receiver_type) = &body.nodes[receiver].ty else {
             return Err("action model method receiver".into());
         };
+        if method == "unwrap_or" {
+            return self.flow_args(scope, body, &[receiver, arguments[0]], env, state, events, vec![],
+                &|this, xs, state, events| {
+                    let name = this.fresh();
+                    let value = m(xs[0].clone(), vec![(vec![], xs[1].clone()), (vec![name.clone()], v(&name))]);
+                    next(this, value, state, events)
+                }, abort, depth + 1, calls);
+        }
         if method == "ok_or" {
             return self.flow_args(
                 scope,
@@ -816,6 +879,83 @@ impl<'p> Lower<'p> {
                     )?;
                     let some = next(this, c(id(&sort)?, 0, vec![v(&name)]), state, events)?;
                     Ok(m(xs[0].clone(), vec![(vec![], none), (vec![name], some)]))
+                },
+                abort,
+                depth + 1,
+                calls,
+            );
+        }
+        if method == "fold" {
+            let [yes, no] = arguments else {
+                return Err("action model fold arity".into());
+            };
+            let Kind::Lambda {
+                parameter: yes_slot,
+                body: yes_body,
+            } = body.nodes[*yes].kind
+            else {
+                return Err("action model fold callback".into());
+            };
+            let Kind::Lambda {
+                parameter: no_slot,
+                body: no_body,
+            } = body.nodes[*no].kind
+            else {
+                return Err("action model fold callback".into());
+            };
+            return self.flow_expr(
+                scope,
+                body,
+                receiver,
+                env,
+                state,
+                events,
+                &|this, value, state, events| {
+                    let first = this.fresh();
+                    let second = this.fresh();
+                    let branch = |this: &mut Self, parameter, node, input| {
+                        let mut local = env.clone();
+                        local.insert(parameter, input);
+                        this.flow_expr(
+                            scope,
+                            body,
+                            node,
+                            &local,
+                            state.clone(),
+                            events.clone(),
+                            next,
+                            abort,
+                            depth + 1,
+                            calls,
+                        )
+                    };
+                    let branches = match receiver_type {
+                        Type::Option(_) => {
+                            let unit = this.sort(&Type::Unit)?;
+                            vec![
+                                (
+                                    vec![],
+                                    branch(this, no_slot, no_body, c(id(&unit)?, 0, vec![]))?,
+                                ),
+                                (
+                                    vec![first.clone()],
+                                    branch(this, yes_slot, yes_body, v(&first))?,
+                                ),
+                            ]
+                        }
+                        Type::Result(..) => vec![
+                            (
+                                vec![first.clone()],
+                                branch(this, yes_slot, yes_body, v(&first))?,
+                            ),
+                            (
+                                vec![second.clone()],
+                                branch(this, no_slot, no_body, v(&second))?,
+                            ),
+                        ],
+                        _ => return Err("action model fold receiver".into()),
+                    };
+                    Ok(m(value, branches))
                 },
                 abort,
                 depth + 1,

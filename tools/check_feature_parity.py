@@ -30,6 +30,8 @@ def audit(catalog, scope):
         "checked_physical_selection_parity", "representation_parity",
         "bulk_collection_optimisation", "packed_tables", "incremental_selection",
         "standalone_representation", "representations", "point_delta", "language_foundations", "generic_libraries", "law_author", "literal_collection_optimisation",
+        "standalone_representation", "representations", "point_delta",
+        "scalable_state", "scalable_projection",
     }
     if set(catalog["cpu_suites"]) != required_suites or len(catalog["cpu_suites"]) != len(required_suites):
         raise ValueError("missing, duplicate or unknown mandatory conformance suite")
@@ -91,10 +93,20 @@ def main():
     parser.add_argument("--catalog", type=Path, default=ROOT / "tests/feature-parity.json")
     parser.add_argument("--run", action="store_true", help="run required compiled conformance after the inventory passes")
     parser.add_argument("--receipt", type=Path)
+    parser.add_argument("--shard", choices=["all", "general", "representations"], default="all",
+                        help="fixed CPU suite partition; partial receipts identify exactly which suites ran")
     args = parser.parse_args()
     catalog = json.loads(args.catalog.read_text())
     gaps = audit(catalog, args.scope)
+    if args.shard != "all" and args.scope != "cpu":
+        raise ValueError("suite sharding requires CPU scope")
+    suites = catalog["cpu_suites"]
+    if args.shard == "general":
+        suites = [s for s in suites if s != "representation_parity"]
+    elif args.shard == "representations":
+        suites = [s for s in suites if s == "representation_parity"]
     receipt = {"schema": 1, "scope": args.scope, "inventory": "failed" if gaps else "passed", "conformance": "not-run", "gaps": gaps}
+    receipt.update(suite_shard=args.shard, suites=suites)
     for gap in gaps:
         print(f"FAIL {gap['target']}/{gap['feature']}: {gap['reason']}", file=sys.stderr)
     status = 1 if gaps else 0
@@ -107,10 +119,10 @@ def main():
                 raise ValueError("all-target --run requires INK_TEST_CHROME for actual browser GPU checks")
             env["INK_TEST_WGPU"] = "1"
         command = ["cargo", "test", "--locked"]
-        for suite in catalog["cpu_suites"]:
+        for suite in suites:
             command += ["--test", suite]
         status = subprocess.run(command + ["--", "--nocapture", "--test-threads=1"], cwd=ROOT, env=env).returncode
-        receipt["conformance"] = "passed" if status == 0 else "failed"
+        receipt["conformance"] = ("passed" if args.shard == "all" else "shard-passed") if status == 0 else "failed"
         if status == 0 and args.scope in ("all", "contract"):
             status = subprocess.run(["python3", "bench/gpu/prepare-lowering-parity-browser.py", env["INK_TEST_ZIG"]], cwd=ROOT, env=env).returncode
             if status == 0:
