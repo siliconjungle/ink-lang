@@ -1,4 +1,9 @@
-# Representation scaling experiments
+# Historical representation scaling experiments
+
+These measurements used the retired generic stateful representation executor.
+Its active drivers and adapters have been removed. Reproduce them from the
+recorded revisions, rather than interpreting these timings as ordinary compiled
+Ink performance. New measurements use `bench/point-delta/standalone-aggregate.rs.txt`.
 
 The archived preliminary samples were collected while multiple builds and other
 work were active in this checkout. They establish exercised sizes and identify
