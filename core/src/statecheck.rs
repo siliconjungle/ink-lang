@@ -1027,7 +1027,7 @@ pub fn check(p: &Program) -> LangResult<()> {
         };
         validate_type(k, p)?;
         validate_type(v, p)?;
-        if !matches!(&**k, Type::U64 | Type::U32 | Type::I32 | Type::String)
+        if !matches!(&**k, Type::U64 | Type::U32 | Type::I32 | Type::Bool | Type::String)
             && !matches!(&**k,Type::Named(n) if p.ids.contains(n))
         {
             return Err("unsupported persistent key type".into());
