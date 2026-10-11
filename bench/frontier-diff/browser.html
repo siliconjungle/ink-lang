@@ -1,0 +1,15 @@
+<!doctype html><html><meta charset="utf-8"><title>Ink / Frontier diff benchmark</title>
+<style>body{font:16px system-ui;max-width:850px;margin:60px auto;padding:20px}button{font:inherit;padding:10px 20px}pre{white-space:pre-wrap}</style>
+<h1>Ink / Frontier diff benchmark</h1><p>Matching numeric arrays and rows. Five warmed rounds, checked outputs and actual WebGPU dispatch.</p>
+<a href="?prepared=1">Captured-input comparison</a><br><button id="start">Run benchmark</button><pre id="status">Ready</pre>
+<script type="module">
+import {run} from './runner.mjs';
+const button=document.querySelector('#start'),status=document.querySelector('#status');
+button.onclick=async()=>{
+ button.disabled=true;status.textContent='Running…';
+ try{const prepared=new URLSearchParams(location.search).has('prepared');const result=await run(new URL('../../build/frontier-diff/',location.href),{browser:true,prepared,progress:x=>status.textContent=x});
+ const response=await fetch(prepared?'/benchmark-result/prepared':'/benchmark-result',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(result)});if(!response.ok)throw Error(await response.text());
+ window.benchmarkResult=result;status.textContent='Passed: '+result.samples.length+' samples; '+result.availability.length+' checked GPU workloads. Results saved.';
+ }catch(error){status.textContent=error.stack;window.benchmarkError=error.stack;}
+};
+</script></html>
