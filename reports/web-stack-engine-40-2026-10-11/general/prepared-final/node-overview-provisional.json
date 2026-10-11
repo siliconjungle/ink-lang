@@ -1,0 +1,2053 @@
+{
+  "status": "provisional-contention-observed",
+  "metadata_sha256": "68774088a9aafa8f3228c1dddeed013ae91de77d04de73ce94a9e9e9db1ff7b1",
+  "node_summary_sha256": "a69f92757f292ba19b5413aafebeda93e3abceda64a9e3f32a6f3a37c2194ac0",
+  "coefficient_prediction_freeze_sha256": "ce384e5963e8e7d06617aa296db9fe95df36f38f84086213253eb58b8d305dcc",
+  "observed_external_contention": "External build+benchmark began near timing end; process snapshot node-window-processes-during-2.txt preserved. Entire run speed results are provisional.",
+  "db_applications": {
+    "baseline": 0,
+    "candidate": 0
+  },
+  "comparisons": [
+    {
+      "boundary": "captured-js-owned",
+      "reference": "baseline_js_owned",
+      "current": "candidate_js_owned",
+      "cells": 252,
+      "faster": 20,
+      "slower": 14,
+      "inconclusive": 218,
+      "geomean_ratio": 1.0065884150296391,
+      "median_ratio": 1.0012303705657535,
+      "minimum_ratio": 0.48548060373478835,
+      "maximum_ratio": 2.4242170120504034,
+      "families": [
+        {
+          "operation": "affine",
+          "fresh_fit_disjoint": false,
+          "cells": 18,
+          "faster": 1,
+          "slower": 1,
+          "inconclusive": 16,
+          "geomean_ratio": 0.9970271521866348,
+          "median_ratio": 0.9943039935823402,
+          "minimum_ratio": 0.9519865745530275,
+          "maximum_ratio": 1.0647128154153445
+        },
+        {
+          "operation": "branch",
+          "fresh_fit_disjoint": false,
+          "cells": 18,
+          "faster": 1,
+          "slower": 3,
+          "inconclusive": 14,
+          "geomean_ratio": 0.9848029535730043,
+          "median_ratio": 0.9934021784413691,
+          "minimum_ratio": 0.8842548392735861,
+          "maximum_ratio": 1.027522306008686
+        },
+        {
+          "operation": "compaction",
+          "fresh_fit_disjoint": false,
+          "cells": 36,
+          "faster": 0,
+          "slower": 3,
+          "inconclusive": 33,
+          "geomean_ratio": 0.9581090453302057,
+          "median_ratio": 0.9998306117570132,
+          "minimum_ratio": 0.5215194510093785,
+          "maximum_ratio": 1.3061482355330976
+        },
+        {
+          "operation": "compaction_chain",
+          "fresh_fit_disjoint": true,
+          "cells": 36,
+          "faster": 9,
+          "slower": 1,
+          "inconclusive": 26,
+          "geomean_ratio": 1.0684562220165095,
+          "median_ratio": 1.0611559242365454,
+          "minimum_ratio": 0.679526992670046,
+          "maximum_ratio": 1.5160041215083973
+        },
+        {
+          "operation": "gather_reverse",
+          "fresh_fit_disjoint": true,
+          "cells": 18,
+          "faster": 0,
+          "slower": 1,
+          "inconclusive": 17,
+          "geomean_ratio": 1.0036204298734397,
+          "median_ratio": 1.0379610346952435,
+          "minimum_ratio": 0.7965330368238157,
+          "maximum_ratio": 1.1368682331812567
+        },
+        {
+          "operation": "scan",
+          "fresh_fit_disjoint": false,
+          "cells": 18,
+          "faster": 2,
+          "slower": 2,
+          "inconclusive": 14,
+          "geomean_ratio": 1.0146114494430951,
+          "median_ratio": 0.9978019886389362,
+          "minimum_ratio": 0.9386300859112422,
+          "maximum_ratio": 1.4171865940268369
+        },
+        {
+          "operation": "scan_chain",
+          "fresh_fit_disjoint": true,
+          "cells": 18,
+          "faster": 2,
+          "slower": 1,
+          "inconclusive": 15,
+          "geomean_ratio": 1.054652353403488,
+          "median_ratio": 1.0769249171797393,
+          "minimum_ratio": 0.588158761934986,
+          "maximum_ratio": 2.372325099928783
+        },
+        {
+          "operation": "stencil",
+          "fresh_fit_disjoint": false,
+          "cells": 18,
+          "faster": 2,
+          "slower": 0,
+          "inconclusive": 16,
+          "geomean_ratio": 0.9902610387438905,
+          "median_ratio": 1.0023950462223252,
+          "minimum_ratio": 0.48548060373478835,
+          "maximum_ratio": 2.4242170120504034
+        },
+        {
+          "operation": "update",
+          "fresh_fit_disjoint": false,
+          "cells": 36,
+          "faster": 0,
+          "slower": 2,
+          "inconclusive": 34,
+          "geomean_ratio": 1.0072352777032851,
+          "median_ratio": 0.9995685072503633,
+          "minimum_ratio": 0.4921472341304912,
+          "maximum_ratio": 2.1447785434381226
+        },
+        {
+          "operation": "update_recompute",
+          "fresh_fit_disjoint": false,
+          "cells": 36,
+          "faster": 3,
+          "slower": 0,
+          "inconclusive": 33,
+          "geomean_ratio": 0.9937304410745088,
+          "median_ratio": 0.9925490517406217,
+          "minimum_ratio": 0.728105528353214,
+          "maximum_ratio": 1.1845887143369953
+        }
+      ],
+      "new_four_families": {
+        "cells": 72,
+        "faster": 11,
+        "slower": 3,
+        "inconclusive": 58,
+        "geomean_ratio": 1.0484508378348267,
+        "median_ratio": 1.0522369356140175,
+        "minimum_ratio": 0.588158761934986,
+        "maximum_ratio": 2.372325099928783
+      }
+    },
+    {
+      "boundary": "captured-js-owned",
+      "reference": "expert_js_owned",
+      "current": "candidate_js_owned",
+      "cells": 252,
+      "faster": 61,
+      "slower": 61,
+      "inconclusive": 130,
+      "geomean_ratio": 0.8778275027062433,
+      "median_ratio": 1.0068475997476272,
+      "minimum_ratio": 0.07459801305851924,
+      "maximum_ratio": 2.3911603707511597,
+      "families": [
+        {
+          "operation": "affine",
+          "fresh_fit_disjoint": false,
+          "cells": 18,
+          "faster": 5,
+          "slower": 4,
+          "inconclusive": 9,
+          "geomean_ratio": 1.0289985518955276,
+          "median_ratio": 1.0025794240645545,
+          "minimum_ratio": 0.8982534118119821,
+          "maximum_ratio": 1.234194970253364
+        },
+        {
+          "operation": "branch",
+          "fresh_fit_disjoint": false,
+          "cells": 18,
+          "faster": 2,
+          "slower": 5,
+          "inconclusive": 11,
+          "geomean_ratio": 0.9923856732819804,
+          "median_ratio": 0.9883024838871806,
+          "minimum_ratio": 0.8705865422048289,
+          "maximum_ratio": 1.0928022118703875
+        },
+        {
+          "operation": "compaction",
+          "fresh_fit_disjoint": false,
+          "cells": 36,
+          "faster": 10,
+          "slower": 4,
+          "inconclusive": 22,
+          "geomean_ratio": 1.0104848641950146,
+          "median_ratio": 1.012703869830987,
+          "minimum_ratio": 0.5155716271349281,
+          "maximum_ratio": 1.3884343078058923
+        },
+        {
+          "operation": "compaction_chain",
+          "fresh_fit_disjoint": true,
+          "cells": 36,
+          "faster": 0,
+          "slower": 31,
+          "inconclusive": 5,
+          "geomean_ratio": 0.38831156788560495,
+          "median_ratio": 0.4631012462716143,
+          "minimum_ratio": 0.07459801305851924,
+          "maximum_ratio": 1.2147815197038774
+        },
+        {
+          "operation": "gather_reverse",
+          "fresh_fit_disjoint": true,
+          "cells": 18,
+          "faster": 4,
+          "slower": 1,
+          "inconclusive": 13,
+          "geomean_ratio": 1.0741271766788125,
+          "median_ratio": 1.092006259117198,
+          "minimum_ratio": 0.6432800484746005,
+          "maximum_ratio": 1.5764342602283152
+        },
+        {
+          "operation": "scan",
+          "fresh_fit_disjoint": false,
+          "cells": 18,
+          "faster": 11,
+          "slower": 1,
+          "inconclusive": 6,
+          "geomean_ratio": 1.05053111806739,
+          "median_ratio": 1.0674329470209187,
+          "minimum_ratio": 0.8724005654086076,
+          "maximum_ratio": 1.1411227016671206
+        },
+        {
+          "operation": "scan_chain",
+          "fresh_fit_disjoint": true,
+          "cells": 18,
+          "faster": 1,
+          "slower": 1,
+          "inconclusive": 16,
+          "geomean_ratio": 0.9465578285666403,
+          "median_ratio": 0.9335445336586087,
+          "minimum_ratio": 0.5842393395690295,
+          "maximum_ratio": 1.595984545311584
+        },
+        {
+          "operation": "stencil",
+          "fresh_fit_disjoint": false,
+          "cells": 18,
+          "faster": 0,
+          "slower": 4,
+          "inconclusive": 14,
+          "geomean_ratio": 0.8806115076895714,
+          "median_ratio": 0.9611751823314103,
+          "minimum_ratio": 0.4460523361887324,
+          "maximum_ratio": 1.3028929179032807
+        },
+        {
+          "operation": "update",
+          "fresh_fit_disjoint": false,
+          "cells": 36,
+          "faster": 11,
+          "slower": 4,
+          "inconclusive": 21,
+          "geomean_ratio": 1.006718055644366,
+          "median_ratio": 1.037728699212861,
+          "minimum_ratio": 0.3844461694424131,
+          "maximum_ratio": 2.3911603707511597
+        },
+        {
+          "operation": "update_recompute",
+          "fresh_fit_disjoint": false,
+          "cells": 36,
+          "faster": 17,
+          "slower": 6,
+          "inconclusive": 13,
+          "geomean_ratio": 1.0375298314681207,
+          "median_ratio": 1.0467762291048195,
+          "minimum_ratio": 0.47786704950643827,
+          "maximum_ratio": 1.5856039365561854
+        }
+      ],
+      "new_four_families": {
+        "cells": 72,
+        "faster": 5,
+        "slower": 33,
+        "inconclusive": 34,
+        "geomean_ratio": 0.6257356206961174,
+        "median_ratio": 0.8103715978142207,
+        "minimum_ratio": 0.07459801305851924,
+        "maximum_ratio": 1.595984545311584
+      }
+    },
+    {
+      "boundary": "captured-js-value",
+      "reference": "baseline_js_owned",
+      "current": "candidate_js_owned",
+      "cells": 36,
+      "faster": 2,
+      "slower": 2,
+      "inconclusive": 32,
+      "geomean_ratio": 0.9838486392278097,
+      "median_ratio": 0.9826366883672719,
+      "minimum_ratio": 0.37978852944972674,
+      "maximum_ratio": 1.412473224257939,
+      "families": [
+        {
+          "operation": "dot_ordered",
+          "fresh_fit_disjoint": true,
+          "cells": 18,
+          "faster": 1,
+          "slower": 1,
+          "inconclusive": 16,
+          "geomean_ratio": 0.9904410544336918,
+          "median_ratio": 0.9812647987328853,
+          "minimum_ratio": 0.37978852944972674,
+          "maximum_ratio": 1.412473224257939
+        },
+        {
+          "operation": "ordered",
+          "fresh_fit_disjoint": false,
+          "cells": 18,
+          "faster": 1,
+          "slower": 1,
+          "inconclusive": 16,
+          "geomean_ratio": 0.9773001034007681,
+          "median_ratio": 0.9834318981761163,
+          "minimum_ratio": 0.759649631187247,
+          "maximum_ratio": 1.049500079733847
+        }
+      ],
+      "new_four_families": {
+        "cells": 18,
+        "faster": 1,
+        "slower": 1,
+        "inconclusive": 16,
+        "geomean_ratio": 0.9904410544336918,
+        "median_ratio": 0.9812647987328853,
+        "minimum_ratio": 0.37978852944972674,
+        "maximum_ratio": 1.412473224257939
+      }
+    },
+    {
+      "boundary": "captured-js-value",
+      "reference": "expert_js_owned",
+      "current": "candidate_js_owned",
+      "cells": 36,
+      "faster": 17,
+      "slower": 12,
+      "inconclusive": 7,
+      "geomean_ratio": 1.0585974048685503,
+      "median_ratio": 1.1207088885087673,
+      "minimum_ratio": 0.2278939289825606,
+      "maximum_ratio": 2.2723778741840874,
+      "families": [
+        {
+          "operation": "dot_ordered",
+          "fresh_fit_disjoint": true,
+          "cells": 18,
+          "faster": 0,
+          "slower": 12,
+          "inconclusive": 6,
+          "geomean_ratio": 0.7018258660516763,
+          "median_ratio": 0.7408287136693743,
+          "minimum_ratio": 0.2278939289825606,
+          "maximum_ratio": 1.0992272100438292
+        },
+        {
+          "operation": "ordered",
+          "fresh_fit_disjoint": false,
+          "cells": 18,
+          "faster": 17,
+          "slower": 0,
+          "inconclusive": 1,
+          "geomean_ratio": 1.596732921655977,
+          "median_ratio": 1.6046874249436067,
+          "minimum_ratio": 1.1421905669737054,
+          "maximum_ratio": 2.2723778741840874
+        }
+      ],
+      "new_four_families": {
+        "cells": 18,
+        "faster": 0,
+        "slower": 12,
+        "inconclusive": 6,
+        "geomean_ratio": 0.7018258660516763,
+        "median_ratio": 0.7408287136693743,
+        "minimum_ratio": 0.2278939289825606,
+        "maximum_ratio": 1.0992272100438292
+      }
+    },
+    {
+      "boundary": "captured-rust-wasm-owned",
+      "reference": "baseline_rust_wasm_owned",
+      "current": "candidate_rust_wasm_owned",
+      "cells": 252,
+      "faster": 22,
+      "slower": 34,
+      "inconclusive": 196,
+      "geomean_ratio": 0.9881219140402385,
+      "median_ratio": 0.9965459609497358,
+      "minimum_ratio": 0.3966383078763968,
+      "maximum_ratio": 2.8830876209877068,
+      "families": [
+        {
+          "operation": "affine",
+          "fresh_fit_disjoint": false,
+          "cells": 18,
+          "faster": 4,
+          "slower": 0,
+          "inconclusive": 14,
+          "geomean_ratio": 1.0254553244459172,
+          "median_ratio": 1.0156051384670168,
+          "minimum_ratio": 0.7930268194250475,
+          "maximum_ratio": 1.4247097636143322
+        },
+        {
+          "operation": "branch",
+          "fresh_fit_disjoint": false,
+          "cells": 18,
+          "faster": 3,
+          "slower": 1,
+          "inconclusive": 14,
+          "geomean_ratio": 0.9993446427173458,
+          "median_ratio": 1.0030248980542242,
+          "minimum_ratio": 0.9351706297915812,
+          "maximum_ratio": 1.0537204373091706
+        },
+        {
+          "operation": "compaction",
+          "fresh_fit_disjoint": false,
+          "cells": 36,
+          "faster": 1,
+          "slower": 11,
+          "inconclusive": 24,
+          "geomean_ratio": 0.9636017969023118,
+          "median_ratio": 0.9658437597442455,
+          "minimum_ratio": 0.5799944924547722,
+          "maximum_ratio": 1.6780564554826718
+        },
+        {
+          "operation": "compaction_chain",
+          "fresh_fit_disjoint": true,
+          "cells": 36,
+          "faster": 2,
+          "slower": 4,
+          "inconclusive": 30,
+          "geomean_ratio": 0.956589141763408,
+          "median_ratio": 0.9707934190330076,
+          "minimum_ratio": 0.5607405497686867,
+          "maximum_ratio": 1.2437901905344488
+        },
+        {
+          "operation": "gather_reverse",
+          "fresh_fit_disjoint": true,
+          "cells": 18,
+          "faster": 0,
+          "slower": 2,
+          "inconclusive": 16,
+          "geomean_ratio": 0.981129351339014,
+          "median_ratio": 0.9907187162717181,
+          "minimum_ratio": 0.8686131998946627,
+          "maximum_ratio": 1.071612084515791
+        },
+        {
+          "operation": "scan",
+          "fresh_fit_disjoint": false,
+          "cells": 18,
+          "faster": 1,
+          "slower": 3,
+          "inconclusive": 14,
+          "geomean_ratio": 1.0053035657272351,
+          "median_ratio": 1.0012401082357028,
+          "minimum_ratio": 0.9510123311039532,
+          "maximum_ratio": 1.2430806721938876
+        },
+        {
+          "operation": "scan_chain",
+          "fresh_fit_disjoint": true,
+          "cells": 18,
+          "faster": 3,
+          "slower": 2,
+          "inconclusive": 13,
+          "geomean_ratio": 0.9500830081731856,
+          "median_ratio": 0.9685327841763869,
+          "minimum_ratio": 0.6739483211708891,
+          "maximum_ratio": 1.5918500722568252
+        },
+        {
+          "operation": "stencil",
+          "fresh_fit_disjoint": false,
+          "cells": 18,
+          "faster": 1,
+          "slower": 2,
+          "inconclusive": 15,
+          "geomean_ratio": 1.0367705443124264,
+          "median_ratio": 0.9982387905122527,
+          "minimum_ratio": 0.678097378649414,
+          "maximum_ratio": 2.8830876209877068
+        },
+        {
+          "operation": "update",
+          "fresh_fit_disjoint": false,
+          "cells": 36,
+          "faster": 5,
+          "slower": 4,
+          "inconclusive": 27,
+          "geomean_ratio": 0.9655552284443623,
+          "median_ratio": 0.9982398605803878,
+          "minimum_ratio": 0.3966383078763968,
+          "maximum_ratio": 1.7859829874259618
+        },
+        {
+          "operation": "update_recompute",
+          "fresh_fit_disjoint": false,
+          "cells": 36,
+          "faster": 2,
+          "slower": 5,
+          "inconclusive": 29,
+          "geomean_ratio": 1.0356754605388874,
+          "median_ratio": 1.003279936070832,
+          "minimum_ratio": 0.8180753067866564,
+          "maximum_ratio": 1.9176609205672834
+        }
+      ],
+      "new_four_families": {
+        "cells": 72,
+        "faster": 5,
+        "slower": 8,
+        "inconclusive": 59,
+        "geomean_ratio": 0.9610249839327749,
+        "median_ratio": 0.9808714304422903,
+        "minimum_ratio": 0.5607405497686867,
+        "maximum_ratio": 1.5918500722568252
+      }
+    },
+    {
+      "boundary": "captured-rust-wasm-owned",
+      "reference": "expert_rust_wasm_owned",
+      "current": "candidate_rust_wasm_owned",
+      "cells": 252,
+      "faster": 8,
+      "slower": 83,
+      "inconclusive": 161,
+      "geomean_ratio": 0.9439523008774345,
+      "median_ratio": 0.9655663566281363,
+      "minimum_ratio": 0.3543149264932628,
+      "maximum_ratio": 2.6743586351480793,
+      "families": [
+        {
+          "operation": "affine",
+          "fresh_fit_disjoint": false,
+          "cells": 18,
+          "faster": 1,
+          "slower": 3,
+          "inconclusive": 14,
+          "geomean_ratio": 0.9706498337826871,
+          "median_ratio": 0.9868269265507987,
+          "minimum_ratio": 0.8146055982668763,
+          "maximum_ratio": 1.0190006942549843
+        },
+        {
+          "operation": "branch",
+          "fresh_fit_disjoint": false,
+          "cells": 18,
+          "faster": 0,
+          "slower": 6,
+          "inconclusive": 12,
+          "geomean_ratio": 0.9757024106600685,
+          "median_ratio": 0.9786200951998695,
+          "minimum_ratio": 0.9131801827435837,
+          "maximum_ratio": 1.0077484428014538
+        },
+        {
+          "operation": "compaction",
+          "fresh_fit_disjoint": false,
+          "cells": 36,
+          "faster": 1,
+          "slower": 22,
+          "inconclusive": 13,
+          "geomean_ratio": 0.9131787924106678,
+          "median_ratio": 0.9117007589564364,
+          "minimum_ratio": 0.5089544561034478,
+          "maximum_ratio": 1.2514068953989537
+        },
+        {
+          "operation": "compaction_chain",
+          "fresh_fit_disjoint": true,
+          "cells": 36,
+          "faster": 2,
+          "slower": 6,
+          "inconclusive": 28,
+          "geomean_ratio": 0.9334232224508053,
+          "median_ratio": 0.965679047965254,
+          "minimum_ratio": 0.6284612456525193,
+          "maximum_ratio": 2.17865525255608
+        },
+        {
+          "operation": "gather_reverse",
+          "fresh_fit_disjoint": true,
+          "cells": 18,
+          "faster": 0,
+          "slower": 5,
+          "inconclusive": 13,
+          "geomean_ratio": 0.9311716620958145,
+          "median_ratio": 0.9406160852031307,
+          "minimum_ratio": 0.7460251107419278,
+          "maximum_ratio": 1.174833051806988
+        },
+        {
+          "operation": "scan",
+          "fresh_fit_disjoint": false,
+          "cells": 18,
+          "faster": 0,
+          "slower": 9,
+          "inconclusive": 9,
+          "geomean_ratio": 0.97176415048238,
+          "median_ratio": 0.9641870799603948,
+          "minimum_ratio": 0.9248671668913404,
+          "maximum_ratio": 1.0292272436214038
+        },
+        {
+          "operation": "scan_chain",
+          "fresh_fit_disjoint": true,
+          "cells": 18,
+          "faster": 1,
+          "slower": 6,
+          "inconclusive": 11,
+          "geomean_ratio": 0.8729716326830218,
+          "median_ratio": 0.8730837570756054,
+          "minimum_ratio": 0.42971772191943136,
+          "maximum_ratio": 1.8154640109210358
+        },
+        {
+          "operation": "stencil",
+          "fresh_fit_disjoint": false,
+          "cells": 18,
+          "faster": 0,
+          "slower": 4,
+          "inconclusive": 14,
+          "geomean_ratio": 0.9774297603208962,
+          "median_ratio": 0.9771913781873917,
+          "minimum_ratio": 0.3543149264932628,
+          "maximum_ratio": 2.6743586351480793
+        },
+        {
+          "operation": "update",
+          "fresh_fit_disjoint": false,
+          "cells": 36,
+          "faster": 2,
+          "slower": 15,
+          "inconclusive": 19,
+          "geomean_ratio": 0.9339137329626501,
+          "median_ratio": 0.9543712615152011,
+          "minimum_ratio": 0.37463109255515625,
+          "maximum_ratio": 1.6113506577182832
+        },
+        {
+          "operation": "update_recompute",
+          "fresh_fit_disjoint": false,
+          "cells": 36,
+          "faster": 1,
+          "slower": 7,
+          "inconclusive": 28,
+          "geomean_ratio": 0.9810271521882556,
+          "median_ratio": 0.977025076279859,
+          "minimum_ratio": 0.7068313935466185,
+          "maximum_ratio": 1.338406539714543
+        }
+      ],
+      "new_four_families": {
+        "cells": 72,
+        "faster": 3,
+        "slower": 17,
+        "inconclusive": 52,
+        "geomean_ratio": 0.9173747266123362,
+        "median_ratio": 0.9489851553788333,
+        "minimum_ratio": 0.42971772191943136,
+        "maximum_ratio": 2.17865525255608
+      }
+    },
+    {
+      "boundary": "captured-rust-wasm-value",
+      "reference": "baseline_rust_wasm_owned",
+      "current": "candidate_rust_wasm_owned",
+      "cells": 36,
+      "faster": 6,
+      "slower": 0,
+      "inconclusive": 30,
+      "geomean_ratio": 1.141822590624156,
+      "median_ratio": 1.0569902830320914,
+      "minimum_ratio": 0.826168561516948,
+      "maximum_ratio": 3.199567870407829,
+      "families": [
+        {
+          "operation": "dot_ordered",
+          "fresh_fit_disjoint": true,
+          "cells": 18,
+          "faster": 3,
+          "slower": 0,
+          "inconclusive": 15,
+          "geomean_ratio": 1.2811140018618548,
+          "median_ratio": 1.152815397745151,
+          "minimum_ratio": 0.883991254759133,
+          "maximum_ratio": 3.199567870407829
+        },
+        {
+          "operation": "ordered",
+          "fresh_fit_disjoint": false,
+          "cells": 18,
+          "faster": 3,
+          "slower": 0,
+          "inconclusive": 15,
+          "geomean_ratio": 1.0176758872082374,
+          "median_ratio": 1.0165022227221023,
+          "minimum_ratio": 0.826168561516948,
+          "maximum_ratio": 1.275717047145626
+        }
+      ],
+      "new_four_families": {
+        "cells": 18,
+        "faster": 3,
+        "slower": 0,
+        "inconclusive": 15,
+        "geomean_ratio": 1.2811140018618548,
+        "median_ratio": 1.152815397745151,
+        "minimum_ratio": 0.883991254759133,
+        "maximum_ratio": 3.199567870407829
+      }
+    },
+    {
+      "boundary": "captured-rust-wasm-value",
+      "reference": "expert_rust_wasm_owned",
+      "current": "candidate_rust_wasm_owned",
+      "cells": 36,
+      "faster": 2,
+      "slower": 17,
+      "inconclusive": 17,
+      "geomean_ratio": 0.9489488958175529,
+      "median_ratio": 0.9342388842542615,
+      "minimum_ratio": 0.7207042522134995,
+      "maximum_ratio": 1.5917969573236455,
+      "families": [
+        {
+          "operation": "dot_ordered",
+          "fresh_fit_disjoint": true,
+          "cells": 18,
+          "faster": 2,
+          "slower": 2,
+          "inconclusive": 14,
+          "geomean_ratio": 1.0108914536671256,
+          "median_ratio": 1.0197627060573842,
+          "minimum_ratio": 0.7207042522134995,
+          "maximum_ratio": 1.5917969573236455
+        },
+        {
+          "operation": "ordered",
+          "fresh_fit_disjoint": false,
+          "cells": 18,
+          "faster": 0,
+          "slower": 15,
+          "inconclusive": 3,
+          "geomean_ratio": 0.8908018794764467,
+          "median_ratio": 0.8937356628709228,
+          "minimum_ratio": 0.7220631836267415,
+          "maximum_ratio": 0.9852206599117276
+        }
+      ],
+      "new_four_families": {
+        "cells": 18,
+        "faster": 2,
+        "slower": 2,
+        "inconclusive": 14,
+        "geomean_ratio": 1.0108914536671256,
+        "median_ratio": 1.0197627060573842,
+        "minimum_ratio": 0.7207042522134995,
+        "maximum_ratio": 1.5917969573236455
+      }
+    },
+    {
+      "boundary": "captured-wasm-owned",
+      "reference": "baseline_wasm_full",
+      "current": "candidate_wasm_full",
+      "cells": 252,
+      "faster": 214,
+      "slower": 0,
+      "inconclusive": 38,
+      "geomean_ratio": 1.6019864018217043,
+      "median_ratio": 1.6605126401368442,
+      "minimum_ratio": 0.31348463690730244,
+      "maximum_ratio": 3.8693929333616572,
+      "families": [
+        {
+          "operation": "affine",
+          "fresh_fit_disjoint": false,
+          "cells": 18,
+          "faster": 18,
+          "slower": 0,
+          "inconclusive": 0,
+          "geomean_ratio": 1.662561584004721,
+          "median_ratio": 1.7250258299990247,
+          "minimum_ratio": 1.2765752191147377,
+          "maximum_ratio": 2.1794696410515573
+        },
+        {
+          "operation": "branch",
+          "fresh_fit_disjoint": false,
+          "cells": 18,
+          "faster": 17,
+          "slower": 0,
+          "inconclusive": 1,
+          "geomean_ratio": 1.602978461346022,
+          "median_ratio": 1.6873611864304392,
+          "minimum_ratio": 1.1767594337103708,
+          "maximum_ratio": 1.8837362377418945
+        },
+        {
+          "operation": "compaction",
+          "fresh_fit_disjoint": false,
+          "cells": 36,
+          "faster": 28,
+          "slower": 0,
+          "inconclusive": 8,
+          "geomean_ratio": 1.4885399419887502,
+          "median_ratio": 1.5795554839297343,
+          "minimum_ratio": 0.860176345119099,
+          "maximum_ratio": 2.132653319782078
+        },
+        {
+          "operation": "compaction_chain",
+          "fresh_fit_disjoint": true,
+          "cells": 36,
+          "faster": 24,
+          "slower": 0,
+          "inconclusive": 12,
+          "geomean_ratio": 1.5653610674484815,
+          "median_ratio": 1.5292126906828367,
+          "minimum_ratio": 0.9329707324021669,
+          "maximum_ratio": 2.893305391204938
+        },
+        {
+          "operation": "gather_reverse",
+          "fresh_fit_disjoint": true,
+          "cells": 18,
+          "faster": 16,
+          "slower": 0,
+          "inconclusive": 2,
+          "geomean_ratio": 1.6475239649195,
+          "median_ratio": 1.6674942636650192,
+          "minimum_ratio": 1.2606172710514125,
+          "maximum_ratio": 2.6352851240146347
+        },
+        {
+          "operation": "scan",
+          "fresh_fit_disjoint": false,
+          "cells": 18,
+          "faster": 18,
+          "slower": 0,
+          "inconclusive": 0,
+          "geomean_ratio": 1.6535054324002743,
+          "median_ratio": 1.72136656130027,
+          "minimum_ratio": 1.3432759911138703,
+          "maximum_ratio": 2.1140842397283417
+        },
+        {
+          "operation": "scan_chain",
+          "fresh_fit_disjoint": true,
+          "cells": 18,
+          "faster": 16,
+          "slower": 0,
+          "inconclusive": 2,
+          "geomean_ratio": 1.8869837067335806,
+          "median_ratio": 1.7869224661769716,
+          "minimum_ratio": 1.2462443985782585,
+          "maximum_ratio": 3.8693929333616572
+        },
+        {
+          "operation": "stencil",
+          "fresh_fit_disjoint": false,
+          "cells": 18,
+          "faster": 14,
+          "slower": 0,
+          "inconclusive": 4,
+          "geomean_ratio": 1.515757555950589,
+          "median_ratio": 1.5226040278947686,
+          "minimum_ratio": 0.31348463690730244,
+          "maximum_ratio": 2.436188331770546
+        },
+        {
+          "operation": "update",
+          "fresh_fit_disjoint": false,
+          "cells": 36,
+          "faster": 29,
+          "slower": 0,
+          "inconclusive": 7,
+          "geomean_ratio": 1.6000368017937239,
+          "median_ratio": 1.6605126401368442,
+          "minimum_ratio": 0.6913885046321696,
+          "maximum_ratio": 2.3884371455271345
+        },
+        {
+          "operation": "update_recompute",
+          "fresh_fit_disjoint": false,
+          "cells": 36,
+          "faster": 34,
+          "slower": 0,
+          "inconclusive": 2,
+          "geomean_ratio": 1.59380961088594,
+          "median_ratio": 1.6603858816282515,
+          "minimum_ratio": 1.2998538898152052,
+          "maximum_ratio": 1.922944769466889
+        }
+      ],
+      "new_four_families": {
+        "cells": 72,
+        "faster": 56,
+        "slower": 0,
+        "inconclusive": 16,
+        "geomean_ratio": 1.6613350847676385,
+        "median_ratio": 1.6734351692386529,
+        "minimum_ratio": 0.9329707324021669,
+        "maximum_ratio": 3.8693929333616572
+      }
+    },
+    {
+      "boundary": "captured-wasm-owned",
+      "reference": "rust_wasm_full",
+      "current": "candidate_wasm_full",
+      "cells": 252,
+      "faster": 2,
+      "slower": 169,
+      "inconclusive": 81,
+      "geomean_ratio": 0.701347002284842,
+      "median_ratio": 0.8110099941856286,
+      "minimum_ratio": 0.20810292674808503,
+      "maximum_ratio": 2.3633705186986296,
+      "families": [
+        {
+          "operation": "affine",
+          "fresh_fit_disjoint": false,
+          "cells": 18,
+          "faster": 0,
+          "slower": 12,
+          "inconclusive": 6,
+          "geomean_ratio": 0.7609647635417683,
+          "median_ratio": 0.8639318798395523,
+          "minimum_ratio": 0.4705806573934476,
+          "maximum_ratio": 1.0136124948557093
+        },
+        {
+          "operation": "branch",
+          "fresh_fit_disjoint": false,
+          "cells": 18,
+          "faster": 0,
+          "slower": 15,
+          "inconclusive": 3,
+          "geomean_ratio": 0.7341392941393639,
+          "median_ratio": 0.838750143628356,
+          "minimum_ratio": 0.4322982756321832,
+          "maximum_ratio": 0.9782936243232598
+        },
+        {
+          "operation": "compaction",
+          "fresh_fit_disjoint": false,
+          "cells": 36,
+          "faster": 0,
+          "slower": 22,
+          "inconclusive": 14,
+          "geomean_ratio": 0.6562539679759611,
+          "median_ratio": 0.7226198320565529,
+          "minimum_ratio": 0.28264318925194476,
+          "maximum_ratio": 1.090161630537534
+        },
+        {
+          "operation": "compaction_chain",
+          "fresh_fit_disjoint": true,
+          "cells": 36,
+          "faster": 0,
+          "slower": 23,
+          "inconclusive": 13,
+          "geomean_ratio": 0.6436313703711796,
+          "median_ratio": 0.7366900912535219,
+          "minimum_ratio": 0.2705310027651308,
+          "maximum_ratio": 1.3670725088899267
+        },
+        {
+          "operation": "gather_reverse",
+          "fresh_fit_disjoint": true,
+          "cells": 18,
+          "faster": 0,
+          "slower": 11,
+          "inconclusive": 7,
+          "geomean_ratio": 0.7004247230487259,
+          "median_ratio": 0.8103907915690995,
+          "minimum_ratio": 0.4133968242440744,
+          "maximum_ratio": 0.9975582828481593
+        },
+        {
+          "operation": "scan",
+          "fresh_fit_disjoint": false,
+          "cells": 18,
+          "faster": 0,
+          "slower": 13,
+          "inconclusive": 5,
+          "geomean_ratio": 0.7468793302196757,
+          "median_ratio": 0.8604471284113887,
+          "minimum_ratio": 0.473569876416155,
+          "maximum_ratio": 1.0208182706077722
+        },
+        {
+          "operation": "scan_chain",
+          "fresh_fit_disjoint": true,
+          "cells": 18,
+          "faster": 0,
+          "slower": 10,
+          "inconclusive": 8,
+          "geomean_ratio": 0.7453413996057597,
+          "median_ratio": 0.7763259173390917,
+          "minimum_ratio": 0.2945684281689607,
+          "maximum_ratio": 2.242008371708524
+        },
+        {
+          "operation": "stencil",
+          "fresh_fit_disjoint": false,
+          "cells": 18,
+          "faster": 2,
+          "slower": 8,
+          "inconclusive": 8,
+          "geomean_ratio": 0.8045045321101403,
+          "median_ratio": 0.8122890880502132,
+          "minimum_ratio": 0.20810292674808503,
+          "maximum_ratio": 2.3633705186986296
+        },
+        {
+          "operation": "update",
+          "fresh_fit_disjoint": false,
+          "cells": 36,
+          "faster": 0,
+          "slower": 27,
+          "inconclusive": 9,
+          "geomean_ratio": 0.6464231020648912,
+          "median_ratio": 0.7977057574387889,
+          "minimum_ratio": 0.22119709204336477,
+          "maximum_ratio": 1.000815540766874
+        },
+        {
+          "operation": "update_recompute",
+          "fresh_fit_disjoint": false,
+          "cells": 36,
+          "faster": 0,
+          "slower": 28,
+          "inconclusive": 8,
+          "geomean_ratio": 0.7302730413418713,
+          "median_ratio": 0.8479638760801977,
+          "minimum_ratio": 0.29292242344377767,
+          "maximum_ratio": 1.0831080173703347
+        }
+      ],
+      "new_four_families": {
+        "cells": 72,
+        "faster": 0,
+        "slower": 44,
+        "inconclusive": 28,
+        "geomean_ratio": 0.6819425348378506,
+        "median_ratio": 0.758003979977725,
+        "minimum_ratio": 0.2705310027651308,
+        "maximum_ratio": 2.242008371708524
+      }
+    },
+    {
+      "boundary": "captured-wasm-value",
+      "reference": "baseline_wasm_full",
+      "current": "candidate_wasm_full",
+      "cells": 36,
+      "faster": 3,
+      "slower": 2,
+      "inconclusive": 31,
+      "geomean_ratio": 0.9809627912586506,
+      "median_ratio": 1.0156515018816592,
+      "minimum_ratio": 0.6086537436174756,
+      "maximum_ratio": 1.2469406882058343,
+      "families": [
+        {
+          "operation": "dot_ordered",
+          "fresh_fit_disjoint": true,
+          "cells": 18,
+          "faster": 0,
+          "slower": 2,
+          "inconclusive": 16,
+          "geomean_ratio": 0.9416774934751612,
+          "median_ratio": 0.9821490435216853,
+          "minimum_ratio": 0.6086537436174756,
+          "maximum_ratio": 1.1513213914398193
+        },
+        {
+          "operation": "ordered",
+          "fresh_fit_disjoint": false,
+          "cells": 18,
+          "faster": 3,
+          "slower": 0,
+          "inconclusive": 15,
+          "geomean_ratio": 1.021887009620184,
+          "median_ratio": 1.0357735737541685,
+          "minimum_ratio": 0.774941253728481,
+          "maximum_ratio": 1.2469406882058343
+        }
+      ],
+      "new_four_families": {
+        "cells": 18,
+        "faster": 0,
+        "slower": 2,
+        "inconclusive": 16,
+        "geomean_ratio": 0.9416774934751612,
+        "median_ratio": 0.9821490435216853,
+        "minimum_ratio": 0.6086537436174756,
+        "maximum_ratio": 1.1513213914398193
+      }
+    },
+    {
+      "boundary": "captured-wasm-value",
+      "reference": "rust_wasm_full",
+      "current": "candidate_wasm_full",
+      "cells": 36,
+      "faster": 1,
+      "slower": 29,
+      "inconclusive": 6,
+      "geomean_ratio": 0.4246833393108547,
+      "median_ratio": 0.44996794513682326,
+      "minimum_ratio": 0.10747120654295707,
+      "maximum_ratio": 1.1533708596532246,
+      "families": [
+        {
+          "operation": "dot_ordered",
+          "fresh_fit_disjoint": true,
+          "cells": 18,
+          "faster": 1,
+          "slower": 11,
+          "inconclusive": 6,
+          "geomean_ratio": 0.3902613538081084,
+          "median_ratio": 0.3746531745903884,
+          "minimum_ratio": 0.10747120654295707,
+          "maximum_ratio": 1.1533708596532246
+        },
+        {
+          "operation": "ordered",
+          "fresh_fit_disjoint": false,
+          "cells": 18,
+          "faster": 0,
+          "slower": 18,
+          "inconclusive": 0,
+          "geomean_ratio": 0.4621414263245231,
+          "median_ratio": 0.4813688507432373,
+          "minimum_ratio": 0.21726632607053115,
+          "maximum_ratio": 0.9315210377252634
+        }
+      ],
+      "new_four_families": {
+        "cells": 18,
+        "faster": 1,
+        "slower": 11,
+        "inconclusive": 6,
+        "geomean_ratio": 0.3902613538081084,
+        "median_ratio": 0.3746531745903884,
+        "minimum_ratio": 0.10747120654295707,
+        "maximum_ratio": 1.1533708596532246
+      }
+    },
+    {
+      "boundary": "resident-rust-wasm-owned-readback",
+      "reference": "baseline_rust_wasm_resident_owned",
+      "current": "candidate_rust_wasm_resident_owned",
+      "cells": 252,
+      "faster": 20,
+      "slower": 22,
+      "inconclusive": 210,
+      "geomean_ratio": 0.9996644109310796,
+      "median_ratio": 0.9940922607556635,
+      "minimum_ratio": 0.5476902707825474,
+      "maximum_ratio": 3.3900249117480525,
+      "families": [
+        {
+          "operation": "affine",
+          "fresh_fit_disjoint": false,
+          "cells": 18,
+          "faster": 2,
+          "slower": 1,
+          "inconclusive": 15,
+          "geomean_ratio": 0.9970665701178993,
+          "median_ratio": 1.0068469134352869,
+          "minimum_ratio": 0.8153241823264562,
+          "maximum_ratio": 1.11231083926398
+        },
+        {
+          "operation": "branch",
+          "fresh_fit_disjoint": false,
+          "cells": 18,
+          "faster": 4,
+          "slower": 0,
+          "inconclusive": 14,
+          "geomean_ratio": 1.009496228162137,
+          "median_ratio": 1.0111425649494041,
+          "minimum_ratio": 0.9773354078533454,
+          "maximum_ratio": 1.0403764954875372
+        },
+        {
+          "operation": "compaction",
+          "fresh_fit_disjoint": false,
+          "cells": 36,
+          "faster": 1,
+          "slower": 10,
+          "inconclusive": 25,
+          "geomean_ratio": 0.979503826358668,
+          "median_ratio": 0.9690603161040354,
+          "minimum_ratio": 0.80647279304905,
+          "maximum_ratio": 1.5389790043354432
+        },
+        {
+          "operation": "compaction_chain",
+          "fresh_fit_disjoint": true,
+          "cells": 36,
+          "faster": 1,
+          "slower": 1,
+          "inconclusive": 34,
+          "geomean_ratio": 1.0157471586378402,
+          "median_ratio": 1.0055900500497748,
+          "minimum_ratio": 0.7828540331169602,
+          "maximum_ratio": 1.8273781368191968
+        },
+        {
+          "operation": "gather_reverse",
+          "fresh_fit_disjoint": true,
+          "cells": 18,
+          "faster": 1,
+          "slower": 0,
+          "inconclusive": 17,
+          "geomean_ratio": 0.9824073164881375,
+          "median_ratio": 0.9772480445461708,
+          "minimum_ratio": 0.9018622698472293,
+          "maximum_ratio": 1.101225109699609
+        },
+        {
+          "operation": "scan",
+          "fresh_fit_disjoint": false,
+          "cells": 18,
+          "faster": 3,
+          "slower": 0,
+          "inconclusive": 15,
+          "geomean_ratio": 1.0083341981267697,
+          "median_ratio": 1.0101015338549535,
+          "minimum_ratio": 0.8685350533842612,
+          "maximum_ratio": 1.0788021576014208
+        },
+        {
+          "operation": "scan_chain",
+          "fresh_fit_disjoint": true,
+          "cells": 18,
+          "faster": 3,
+          "slower": 1,
+          "inconclusive": 14,
+          "geomean_ratio": 1.0617112276479628,
+          "median_ratio": 1.0866990365166163,
+          "minimum_ratio": 0.5476902707825474,
+          "maximum_ratio": 1.8332982859982228
+        },
+        {
+          "operation": "stencil",
+          "fresh_fit_disjoint": false,
+          "cells": 18,
+          "faster": 0,
+          "slower": 2,
+          "inconclusive": 16,
+          "geomean_ratio": 0.9814451538880302,
+          "median_ratio": 0.9806948228643027,
+          "minimum_ratio": 0.5928836175194648,
+          "maximum_ratio": 3.3900249117480525
+        },
+        {
+          "operation": "update",
+          "fresh_fit_disjoint": false,
+          "cells": 36,
+          "faster": 4,
+          "slower": 2,
+          "inconclusive": 30,
+          "geomean_ratio": 1.010332668563403,
+          "median_ratio": 0.9830994296543007,
+          "minimum_ratio": 0.6835855276284178,
+          "maximum_ratio": 1.589961546966973
+        },
+        {
+          "operation": "update_recompute",
+          "fresh_fit_disjoint": false,
+          "cells": 36,
+          "faster": 1,
+          "slower": 5,
+          "inconclusive": 30,
+          "geomean_ratio": 0.9736991155789271,
+          "median_ratio": 0.9890913718600817,
+          "minimum_ratio": 0.7948864622584093,
+          "maximum_ratio": 1.0525277635993364
+        }
+      ],
+      "new_four_families": {
+        "cells": 72,
+        "faster": 5,
+        "slower": 2,
+        "inconclusive": 65,
+        "geomean_ratio": 1.018514714504575,
+        "median_ratio": 1.0033627195667736,
+        "minimum_ratio": 0.5476902707825474,
+        "maximum_ratio": 1.8332982859982228
+      }
+    },
+    {
+      "boundary": "resident-rust-wasm-owned-readback",
+      "reference": "expert_rust_wasm_resident_owned",
+      "current": "candidate_rust_wasm_resident_owned",
+      "cells": 252,
+      "faster": 11,
+      "slower": 68,
+      "inconclusive": 173,
+      "geomean_ratio": 0.9611446284049469,
+      "median_ratio": 0.9693377750761404,
+      "minimum_ratio": 0.24074673387776818,
+      "maximum_ratio": 1.920839040496333,
+      "families": [
+        {
+          "operation": "affine",
+          "fresh_fit_disjoint": false,
+          "cells": 18,
+          "faster": 2,
+          "slower": 4,
+          "inconclusive": 12,
+          "geomean_ratio": 0.9807001886698591,
+          "median_ratio": 0.985630037902545,
+          "minimum_ratio": 0.7986564940960955,
+          "maximum_ratio": 1.0579768087776176
+        },
+        {
+          "operation": "branch",
+          "fresh_fit_disjoint": false,
+          "cells": 18,
+          "faster": 0,
+          "slower": 3,
+          "inconclusive": 15,
+          "geomean_ratio": 0.9854708546590538,
+          "median_ratio": 0.9880004427331941,
+          "minimum_ratio": 0.9190200564318495,
+          "maximum_ratio": 1.0374637719686968
+        },
+        {
+          "operation": "compaction",
+          "fresh_fit_disjoint": false,
+          "cells": 36,
+          "faster": 0,
+          "slower": 22,
+          "inconclusive": 14,
+          "geomean_ratio": 0.9283450093920371,
+          "median_ratio": 0.9072979524155852,
+          "minimum_ratio": 0.6871708151510675,
+          "maximum_ratio": 1.3735441601549856
+        },
+        {
+          "operation": "compaction_chain",
+          "fresh_fit_disjoint": true,
+          "cells": 36,
+          "faster": 2,
+          "slower": 6,
+          "inconclusive": 28,
+          "geomean_ratio": 0.9618726763018269,
+          "median_ratio": 0.9429827890370432,
+          "minimum_ratio": 0.7230556700546523,
+          "maximum_ratio": 1.2958986829711492
+        },
+        {
+          "operation": "gather_reverse",
+          "fresh_fit_disjoint": true,
+          "cells": 18,
+          "faster": 1,
+          "slower": 3,
+          "inconclusive": 14,
+          "geomean_ratio": 0.9913691199251425,
+          "median_ratio": 0.9646532744535852,
+          "minimum_ratio": 0.8309601957192715,
+          "maximum_ratio": 1.8812077764795239
+        },
+        {
+          "operation": "scan",
+          "fresh_fit_disjoint": false,
+          "cells": 18,
+          "faster": 1,
+          "slower": 2,
+          "inconclusive": 15,
+          "geomean_ratio": 0.9885124277177476,
+          "median_ratio": 0.9836754405790602,
+          "minimum_ratio": 0.8670427291064464,
+          "maximum_ratio": 1.105780624237086
+        },
+        {
+          "operation": "scan_chain",
+          "fresh_fit_disjoint": true,
+          "cells": 18,
+          "faster": 1,
+          "slower": 1,
+          "inconclusive": 16,
+          "geomean_ratio": 0.9900728571096071,
+          "median_ratio": 0.9664899946503502,
+          "minimum_ratio": 0.6340714862940413,
+          "maximum_ratio": 1.474217987322767
+        },
+        {
+          "operation": "stencil",
+          "fresh_fit_disjoint": false,
+          "cells": 18,
+          "faster": 1,
+          "slower": 7,
+          "inconclusive": 10,
+          "geomean_ratio": 0.9943950237837257,
+          "median_ratio": 0.9643313270834528,
+          "minimum_ratio": 0.6128987114649181,
+          "maximum_ratio": 1.4517935804158875
+        },
+        {
+          "operation": "update",
+          "fresh_fit_disjoint": false,
+          "cells": 36,
+          "faster": 2,
+          "slower": 11,
+          "inconclusive": 23,
+          "geomean_ratio": 0.9195261084494125,
+          "median_ratio": 0.9564984251390216,
+          "minimum_ratio": 0.24074673387776818,
+          "maximum_ratio": 1.920839040496333
+        },
+        {
+          "operation": "update_recompute",
+          "fresh_fit_disjoint": false,
+          "cells": 36,
+          "faster": 1,
+          "slower": 9,
+          "inconclusive": 26,
+          "geomean_ratio": 0.9556927942839232,
+          "median_ratio": 0.9749155259162097,
+          "minimum_ratio": 0.574948826048463,
+          "maximum_ratio": 1.0481150263274754
+        }
+      ],
+      "new_four_families": {
+        "cells": 72,
+        "faster": 4,
+        "slower": 10,
+        "inconclusive": 58,
+        "geomean_ratio": 0.9761901683444594,
+        "median_ratio": 0.9621378184809894,
+        "minimum_ratio": 0.6340714862940413,
+        "maximum_ratio": 1.8812077764795239
+      }
+    },
+    {
+      "boundary": "resident-rust-wasm-scalar",
+      "reference": "baseline_rust_wasm_resident_owned",
+      "current": "candidate_rust_wasm_resident_owned",
+      "cells": 36,
+      "faster": 27,
+      "slower": 0,
+      "inconclusive": 9,
+      "geomean_ratio": 1.2143158978460753,
+      "median_ratio": 1.1511923984762604,
+      "minimum_ratio": 0.9801476477482842,
+      "maximum_ratio": 2.1929125180420863,
+      "families": [
+        {
+          "operation": "dot_ordered",
+          "fresh_fit_disjoint": true,
+          "cells": 18,
+          "faster": 12,
+          "slower": 0,
+          "inconclusive": 6,
+          "geomean_ratio": 1.3665610525259677,
+          "median_ratio": 1.290449835788547,
+          "minimum_ratio": 0.9801476477482842,
+          "maximum_ratio": 2.1929125180420863
+        },
+        {
+          "operation": "ordered",
+          "fresh_fit_disjoint": false,
+          "cells": 18,
+          "faster": 15,
+          "slower": 0,
+          "inconclusive": 3,
+          "geomean_ratio": 1.0790319957063899,
+          "median_ratio": 1.0717796054017124,
+          "minimum_ratio": 1.0026438892336493,
+          "maximum_ratio": 1.2104934541966672
+        }
+      ],
+      "new_four_families": {
+        "cells": 18,
+        "faster": 12,
+        "slower": 0,
+        "inconclusive": 6,
+        "geomean_ratio": 1.3665610525259677,
+        "median_ratio": 1.290449835788547,
+        "minimum_ratio": 0.9801476477482842,
+        "maximum_ratio": 2.1929125180420863
+      }
+    },
+    {
+      "boundary": "resident-rust-wasm-scalar",
+      "reference": "expert_rust_wasm_resident_owned",
+      "current": "candidate_rust_wasm_resident_owned",
+      "cells": 36,
+      "faster": 8,
+      "slower": 18,
+      "inconclusive": 10,
+      "geomean_ratio": 1.001019339958021,
+      "median_ratio": 0.9338609310552379,
+      "minimum_ratio": 0.6002623946681208,
+      "maximum_ratio": 1.9947192727191159,
+      "families": [
+        {
+          "operation": "dot_ordered",
+          "fresh_fit_disjoint": true,
+          "cells": 18,
+          "faster": 8,
+          "slower": 3,
+          "inconclusive": 7,
+          "geomean_ratio": 1.1203225895032118,
+          "median_ratio": 1.24604728819264,
+          "minimum_ratio": 0.6002623946681208,
+          "maximum_ratio": 1.9947192727191159
+        },
+        {
+          "operation": "ordered",
+          "fresh_fit_disjoint": false,
+          "cells": 18,
+          "faster": 0,
+          "slower": 15,
+          "inconclusive": 3,
+          "geomean_ratio": 0.8944207037852637,
+          "median_ratio": 0.9237597571540563,
+          "minimum_ratio": 0.7547924766232262,
+          "maximum_ratio": 0.991666523897946
+        }
+      ],
+      "new_four_families": {
+        "cells": 18,
+        "faster": 8,
+        "slower": 3,
+        "inconclusive": 7,
+        "geomean_ratio": 1.1203225895032118,
+        "median_ratio": 1.24604728819264,
+        "minimum_ratio": 0.6002623946681208,
+        "maximum_ratio": 1.9947192727191159
+      }
+    },
+    {
+      "boundary": "resident-wasm-destination",
+      "reference": "baseline_wasm_prepared",
+      "current": "candidate_wasm_prepared",
+      "cells": 252,
+      "faster": 29,
+      "slower": 25,
+      "inconclusive": 198,
+      "geomean_ratio": 1.0137303226810366,
+      "median_ratio": 1.000370772257832,
+      "minimum_ratio": 0.3239886328103618,
+      "maximum_ratio": 3.417505814566983,
+      "families": [
+        {
+          "operation": "affine",
+          "fresh_fit_disjoint": false,
+          "cells": 18,
+          "faster": 3,
+          "slower": 1,
+          "inconclusive": 14,
+          "geomean_ratio": 0.99055089054332,
+          "median_ratio": 0.9979036564509938,
+          "minimum_ratio": 0.8424410197461772,
+          "maximum_ratio": 1.0534768322473158
+        },
+        {
+          "operation": "branch",
+          "fresh_fit_disjoint": false,
+          "cells": 18,
+          "faster": 2,
+          "slower": 0,
+          "inconclusive": 16,
+          "geomean_ratio": 1.0110764653296396,
+          "median_ratio": 0.9953148711167277,
+          "minimum_ratio": 0.9744866784466412,
+          "maximum_ratio": 1.2773889546203019
+        },
+        {
+          "operation": "compaction",
+          "fresh_fit_disjoint": false,
+          "cells": 36,
+          "faster": 4,
+          "slower": 1,
+          "inconclusive": 31,
+          "geomean_ratio": 1.0015920540069745,
+          "median_ratio": 0.9973083997262996,
+          "minimum_ratio": 0.745336423850308,
+          "maximum_ratio": 2.3111103687083974
+        },
+        {
+          "operation": "compaction_chain",
+          "fresh_fit_disjoint": true,
+          "cells": 36,
+          "faster": 2,
+          "slower": 6,
+          "inconclusive": 28,
+          "geomean_ratio": 0.9671379457891833,
+          "median_ratio": 0.979213619823476,
+          "minimum_ratio": 0.5098327860605999,
+          "maximum_ratio": 1.743618662262872
+        },
+        {
+          "operation": "gather_reverse",
+          "fresh_fit_disjoint": true,
+          "cells": 18,
+          "faster": 1,
+          "slower": 3,
+          "inconclusive": 14,
+          "geomean_ratio": 0.9732345132156976,
+          "median_ratio": 1.0133397337625039,
+          "minimum_ratio": 0.6529568795480228,
+          "maximum_ratio": 1.2708246718329808
+        },
+        {
+          "operation": "scan",
+          "fresh_fit_disjoint": false,
+          "cells": 18,
+          "faster": 3,
+          "slower": 0,
+          "inconclusive": 15,
+          "geomean_ratio": 1.005980526042046,
+          "median_ratio": 0.9959298239550093,
+          "minimum_ratio": 0.9864439475891094,
+          "maximum_ratio": 1.0813567282413472
+        },
+        {
+          "operation": "scan_chain",
+          "fresh_fit_disjoint": true,
+          "cells": 18,
+          "faster": 3,
+          "slower": 3,
+          "inconclusive": 12,
+          "geomean_ratio": 1.054474464087714,
+          "median_ratio": 1.0882506294992091,
+          "minimum_ratio": 0.6300999801794143,
+          "maximum_ratio": 1.9211656574998663
+        },
+        {
+          "operation": "stencil",
+          "fresh_fit_disjoint": false,
+          "cells": 18,
+          "faster": 3,
+          "slower": 3,
+          "inconclusive": 12,
+          "geomean_ratio": 1.0159124398977983,
+          "median_ratio": 0.994779994801851,
+          "minimum_ratio": 0.3239886328103618,
+          "maximum_ratio": 3.417505814566983
+        },
+        {
+          "operation": "update",
+          "fresh_fit_disjoint": false,
+          "cells": 36,
+          "faster": 2,
+          "slower": 4,
+          "inconclusive": 30,
+          "geomean_ratio": 1.0964041997994824,
+          "median_ratio": 1.0108456518647584,
+          "minimum_ratio": 0.7510508877408502,
+          "maximum_ratio": 2.565583013780495
+        },
+        {
+          "operation": "update_recompute",
+          "fresh_fit_disjoint": false,
+          "cells": 36,
+          "faster": 6,
+          "slower": 4,
+          "inconclusive": 26,
+          "geomean_ratio": 1.0107109468380477,
+          "median_ratio": 1.0068939309776697,
+          "minimum_ratio": 0.7915981665370497,
+          "maximum_ratio": 1.3488190934711561
+        }
+      ],
+      "new_four_families": {
+        "cells": 72,
+        "faster": 6,
+        "slower": 12,
+        "inconclusive": 54,
+        "geomean_ratio": 0.9898231429331352,
+        "median_ratio": 1.0011358834094932,
+        "minimum_ratio": 0.5098327860605999,
+        "maximum_ratio": 1.9211656574998663
+      }
+    },
+    {
+      "boundary": "resident-wasm-destination",
+      "reference": "rust_wasm_prepared",
+      "current": "candidate_wasm_prepared",
+      "cells": 252,
+      "faster": 11,
+      "slower": 101,
+      "inconclusive": 140,
+      "geomean_ratio": 0.9247506926398159,
+      "median_ratio": 0.933445053764329,
+      "minimum_ratio": 0.34674399410368045,
+      "maximum_ratio": 2.2454943598513086,
+      "families": [
+        {
+          "operation": "affine",
+          "fresh_fit_disjoint": false,
+          "cells": 18,
+          "faster": 1,
+          "slower": 8,
+          "inconclusive": 9,
+          "geomean_ratio": 0.96251838237486,
+          "median_ratio": 0.9710336936123021,
+          "minimum_ratio": 0.8929933196517841,
+          "maximum_ratio": 1.036127714495391
+        },
+        {
+          "operation": "branch",
+          "fresh_fit_disjoint": false,
+          "cells": 18,
+          "faster": 2,
+          "slower": 7,
+          "inconclusive": 9,
+          "geomean_ratio": 0.9852972259375088,
+          "median_ratio": 0.9974728408149909,
+          "minimum_ratio": 0.9195750703491172,
+          "maximum_ratio": 1.0635546004948881
+        },
+        {
+          "operation": "compaction",
+          "fresh_fit_disjoint": false,
+          "cells": 36,
+          "faster": 4,
+          "slower": 11,
+          "inconclusive": 21,
+          "geomean_ratio": 0.967192590729883,
+          "median_ratio": 0.96524224519253,
+          "minimum_ratio": 0.668012763753884,
+          "maximum_ratio": 1.2725454211440341
+        },
+        {
+          "operation": "compaction_chain",
+          "fresh_fit_disjoint": true,
+          "cells": 36,
+          "faster": 1,
+          "slower": 4,
+          "inconclusive": 31,
+          "geomean_ratio": 0.9494823456759349,
+          "median_ratio": 0.9388484900267984,
+          "minimum_ratio": 0.6329509791146051,
+          "maximum_ratio": 1.5187819667350462
+        },
+        {
+          "operation": "gather_reverse",
+          "fresh_fit_disjoint": true,
+          "cells": 18,
+          "faster": 0,
+          "slower": 4,
+          "inconclusive": 14,
+          "geomean_ratio": 0.9196758534036448,
+          "median_ratio": 0.9441019765367409,
+          "minimum_ratio": 0.6810865239002466,
+          "maximum_ratio": 1.0520376243175014
+        },
+        {
+          "operation": "scan",
+          "fresh_fit_disjoint": false,
+          "cells": 18,
+          "faster": 1,
+          "slower": 7,
+          "inconclusive": 10,
+          "geomean_ratio": 0.9819634216535076,
+          "median_ratio": 0.9906640474900856,
+          "minimum_ratio": 0.9146403068066044,
+          "maximum_ratio": 1.1327197826522266
+        },
+        {
+          "operation": "scan_chain",
+          "fresh_fit_disjoint": true,
+          "cells": 18,
+          "faster": 0,
+          "slower": 5,
+          "inconclusive": 13,
+          "geomean_ratio": 1.0302964288552312,
+          "median_ratio": 0.9890307057881242,
+          "minimum_ratio": 0.6667962863803222,
+          "maximum_ratio": 2.2454943598513086
+        },
+        {
+          "operation": "stencil",
+          "fresh_fit_disjoint": false,
+          "cells": 18,
+          "faster": 2,
+          "slower": 7,
+          "inconclusive": 9,
+          "geomean_ratio": 0.907575812700054,
+          "median_ratio": 0.9283390429718781,
+          "minimum_ratio": 0.3591430303705765,
+          "maximum_ratio": 1.5227239935516392
+        },
+        {
+          "operation": "update",
+          "fresh_fit_disjoint": false,
+          "cells": 36,
+          "faster": 0,
+          "slower": 24,
+          "inconclusive": 12,
+          "geomean_ratio": 0.7736966484647348,
+          "median_ratio": 0.7380530050799015,
+          "minimum_ratio": 0.34674399410368045,
+          "maximum_ratio": 1.9388763127606206
+        },
+        {
+          "operation": "update_recompute",
+          "fresh_fit_disjoint": false,
+          "cells": 36,
+          "faster": 0,
+          "slower": 24,
+          "inconclusive": 12,
+          "geomean_ratio": 0.9095494990601646,
+          "median_ratio": 0.9042996038969853,
+          "minimum_ratio": 0.6603035749738309,
+          "maximum_ratio": 1.0851868939003975
+        }
+      ],
+      "new_four_families": {
+        "cells": 72,
+        "faster": 1,
+        "slower": 13,
+        "inconclusive": 58,
+        "geomean_ratio": 0.9613747062053204,
+        "median_ratio": 0.9399324552939807,
+        "minimum_ratio": 0.6329509791146051,
+        "maximum_ratio": 2.2454943598513086
+      }
+    },
+    {
+      "boundary": "resident-wasm-scalar",
+      "reference": "baseline_wasm_prepared",
+      "current": "candidate_wasm_prepared",
+      "cells": 36,
+      "faster": 3,
+      "slower": 3,
+      "inconclusive": 30,
+      "geomean_ratio": 1.0190054743083508,
+      "median_ratio": 1.0001807706917272,
+      "minimum_ratio": 0.5816477377123007,
+      "maximum_ratio": 3.218741521450526,
+      "families": [
+        {
+          "operation": "dot_ordered",
+          "fresh_fit_disjoint": true,
+          "cells": 18,
+          "faster": 3,
+          "slower": 1,
+          "inconclusive": 14,
+          "geomean_ratio": 1.046343175301973,
+          "median_ratio": 1.0072908989588916,
+          "minimum_ratio": 0.5816477377123007,
+          "maximum_ratio": 3.218741521450526
+        },
+        {
+          "operation": "ordered",
+          "fresh_fit_disjoint": false,
+          "cells": 18,
+          "faster": 0,
+          "slower": 2,
+          "inconclusive": 16,
+          "geomean_ratio": 0.9923820226291576,
+          "median_ratio": 0.9951140732510291,
+          "minimum_ratio": 0.9351725146176603,
+          "maximum_ratio": 1.014184689441266
+        }
+      ],
+      "new_four_families": {
+        "cells": 18,
+        "faster": 3,
+        "slower": 1,
+        "inconclusive": 14,
+        "geomean_ratio": 1.046343175301973,
+        "median_ratio": 1.0072908989588916,
+        "minimum_ratio": 0.5816477377123007,
+        "maximum_ratio": 3.218741521450526
+      }
+    },
+    {
+      "boundary": "resident-wasm-scalar",
+      "reference": "rust_wasm_prepared",
+      "current": "candidate_wasm_prepared",
+      "cells": 36,
+      "faster": 6,
+      "slower": 12,
+      "inconclusive": 18,
+      "geomean_ratio": 1.0058982835463655,
+      "median_ratio": 0.9840664541780872,
+      "minimum_ratio": 0.6028984998683143,
+      "maximum_ratio": 1.697585648780292,
+      "families": [
+        {
+          "operation": "dot_ordered",
+          "fresh_fit_disjoint": true,
+          "cells": 18,
+          "faster": 6,
+          "slower": 0,
+          "inconclusive": 12,
+          "geomean_ratio": 1.1308041554242063,
+          "median_ratio": 1.060954843436851,
+          "minimum_ratio": 0.6028984998683143,
+          "maximum_ratio": 1.697585648780292
+        },
+        {
+          "operation": "ordered",
+          "fresh_fit_disjoint": false,
+          "cells": 18,
+          "faster": 0,
+          "slower": 12,
+          "inconclusive": 6,
+          "geomean_ratio": 0.8947892099511688,
+          "median_ratio": 0.959747718142558,
+          "minimum_ratio": 0.7177177272532368,
+          "maximum_ratio": 1.0413652466859504
+        }
+      ],
+      "new_four_families": {
+        "cells": 18,
+        "faster": 6,
+        "slower": 0,
+        "inconclusive": 12,
+        "geomean_ratio": 1.1308041554242063,
+        "median_ratio": 1.060954843436851,
+        "minimum_ratio": 0.6028984998683143,
+        "maximum_ratio": 1.697585648780292
+      }
+    }
+  ],
+  "artifact_identity": [
+    {
+      "task": "general40_affine",
+      "operation": "affine",
+      "identical": {
+        "program.mjs": true,
+        "cpu.c": true
+      }
+    },
+    {
+      "task": "general40_compaction",
+      "operation": "compaction",
+      "identical": {
+        "program.mjs": true,
+        "cpu.c": true
+      }
+    },
+    {
+      "task": "general40_scan",
+      "operation": "scan",
+      "identical": {
+        "program.mjs": true,
+        "cpu.c": true
+      }
+    },
+    {
+      "task": "general40_branch",
+      "operation": "branch",
+      "identical": {
+        "program.mjs": true,
+        "cpu.c": true
+      }
+    },
+    {
+      "task": "general40_ordered",
+      "operation": "ordered",
+      "identical": {
+        "program.mjs": true,
+        "cpu.c": true
+      }
+    },
+    {
+      "task": "general40_stencil",
+      "operation": "stencil",
+      "identical": {
+        "program.mjs": true,
+        "cpu.c": true
+      }
+    },
+    {
+      "task": "general40_update",
+      "operation": "update",
+      "identical": {
+        "program.mjs": true,
+        "cpu.c": true
+      }
+    },
+    {
+      "task": "general40_update_recompute",
+      "operation": "update_recompute",
+      "identical": {
+        "program.mjs": true,
+        "cpu.c": true
+      }
+    },
+    {
+      "task": "general40_compaction_chain",
+      "operation": "compaction_chain",
+      "identical": {
+        "program.mjs": false,
+        "cpu.c": false
+      }
+    },
+    {
+      "task": "general40_scan_chain",
+      "operation": "scan_chain",
+      "identical": {
+        "program.mjs": true,
+        "cpu.c": true
+      }
+    },
+    {
+      "task": "general40_dot_ordered",
+      "operation": "dot_ordered",
+      "identical": {
+        "program.mjs": true,
+        "cpu.c": true
+      }
+    },
+    {
+      "task": "general40_gather_reverse",
+      "operation": "gather_reverse",
+      "identical": {
+        "program.mjs": true,
+        "cpu.c": true
+      }
+    }
+  ],
+  "scope": "Same fixed snapshot/model with zero DB rewrites; physical-emission/source-context comparison. Cell-weighted summaries only within each exact cohort; no cross-host/ownership/language pooling. All nominal classifications/losses retained; reused Engine39 families exploratory.",
+  "bootstrap_scope": "five paired log ratios; 2000 bootstrap draws; exploratory nominal95% percentile interval, no multiplicity correction; >1 favors candidate; no cross-boundary pooling or universal language ranking"
+}

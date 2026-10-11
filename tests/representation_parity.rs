@@ -196,6 +196,11 @@ fn fixtures(module: &CheckedModule, calls: &[(&str, Value)]) -> Value {
     json!(entries)
 }
 fn check(name: &str, source: &str, request: Option<Request>, calls: Vec<(&str, Value)>) {
+    // These emitted projects share package/binary names and a dependency cache.
+    // Cargo releases its lock before we run/copy the result; another fixture
+    // could replace it, or reuse a different C build-script fingerprint.
+    static ARTIFACTS: std::sync::Mutex<()> = std::sync::Mutex::new(());
+    let _artifacts = ARTIFACTS.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
     let dir = root().join(name);
     fs::create_dir_all(&dir).unwrap();
     fs::write(dir.join("source.ink"), source).unwrap();
@@ -618,5 +623,16 @@ fn scalar_physical_storage_has_equal_backend_coverage() {
         run(Command::new("python3").arg("knowledge/producers/scalar_representation.py").arg(dir.join("model.json")).args(["--sort",sort,"-o"]).arg(dir.join("request.json")), &dir.join("producer.log"));
         let request = serde_json::from_slice(&fs::read(dir.join("request.json")).unwrap()).unwrap();
         check(&format!("scalar-{sort}"),source,Some(request),vec![("echo",json!([0])),("echo",json!([u64::MAX]))]);
+    }
+}
+
+#[test]
+fn unused_source_carriers_do_not_break_any_standalone_backend(){
+    let source=include_str!("../knowledge/research/source-representations/app.ink");
+    let calls=vec![("put",json!([0,19])),("get",json!([0])),("zero",json!([])),
+        ("erase",json!([0,true])),("zero",json!([])),("erase",json!([0,false])),("zero",json!([]))];
+    for (name,request) in [("retained-direct",include_str!("../knowledge/research/source-representations/retained-direct.json")),
+        ("retained-query-cache",include_str!("../knowledge/research/source-representations/retained-query-cache.json"))]{
+        check(name,source,Some(serde_json::from_str(request).unwrap()),calls.clone());
     }
 }

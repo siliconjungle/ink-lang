@@ -45,7 +45,7 @@ Scalar source routes transport supported values through the host. Packed compute
 pipelines support resident arrays across steps and iterations. Durable file and
 IndexedDB hosts implement [the declared recovery/delivery contract](durable-host.md).
 Explicit checked representation migrations operate at transaction boundaries;
-their session API alone supplies no durability guarantee. Broader resident bridge
+checkpoint/restore migration alone supplies no durability guarantee. Broader resident bridge
 proofs, stateful placement, automatic live strategy choice and end-to-end backend
 proofs remain work. Neither an entry hash nor source equality establishes them.
 

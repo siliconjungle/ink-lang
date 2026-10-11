@@ -1,0 +1,43 @@
+{
+  "status": "frozen_untimed",
+  "entry": "pipeline38_left_padded_zip_heldout_u32",
+  "source_manifest_sha256": "16052014d1b10ce606d47cc581f678de69d2da175967b3bdb6c30941b7a1f91f",
+  "sizes": [
+    32,
+    65536
+  ],
+  "values": [
+    "low",
+    "high"
+  ],
+  "targets": [
+    "cpu",
+    "adaptive-auto-javascript"
+  ],
+  "repeats_per_context": 2,
+  "orders": [
+    "original",
+    "candidate"
+  ],
+  "calls_per_host": 16,
+  "total_calls": 32,
+  "arguments": "xs[i]=((i*17+3)>>>0) for low, or Math.imul(i,2654435761)>>>0 for high; ys length ceil(n/2), ys[j]=(j*7+11)>>>0; seed=0xffffffff, k=13",
+  "consumer": "length plus sum((i+1)*word) modulo2^32 over every returned word using Math.imul; original/candidate complete output equality checked outside diagnostic spans",
+  "models": "Synthetic saved-profile constant CPU1000/JS1/GPU1000000, empty domains/terms, captured-owned; generic entry scope; no runtime pricing probes. Model is a test fixture only.",
+  "boundaries": "Synchronous capture and packing; CPU arena upload; CPU or JS compiled execution; owned decode; complete output consumer. GPU shader execution not instrumented in this recipe.",
+  "warmup": "No adaptation: two successive calls per frozen context labeled first/repeat; no statistical speed claims from these instrumented calls.",
+  "gate_required": [
+    "authorized=true",
+    "instrumented_attribution=true",
+    "original_host_sha256 matches the prepared clone source; no overlapping performance workers"
+  ],
+  "limits": "Instrumented spans are inclusive and exclude runtime load/setup. They are diagnostic only, not uninstrumented performance, target-correctness proof or generalized speed evidence. Same archived checked algorithm/compiled assets isolate host transfer differences.",
+  "bindings": {
+    "reports/web-stack-engine-40-2026-10-11/transport/attribution.mjs": "5bea9a59cf26e82fc0b9dd392e622b796305cf1799c1baa54e5ae92ecbc6a862",
+    "reports/web-stack-engine-40-2026-10-11/transport/prepare-attribution.py": "eaa5cf27bfcd475da9eb281f37d6cae744ab9bf24bdca45fe3c8d711fdf6ed01",
+    "reports/web-stack-engine-40-2026-10-11/transport/attribution-original-final/attribution-preparation.json": "4d4c30ae63e79521c910cdcd10e147b9f03a696bd46901b17857e0630c3e24e5",
+    "reports/web-stack-engine-40-2026-10-11/transport/attribution-candidate-final-3/attribution-preparation.json": "109ffe3e3186792e79dd986f397537bdce887210011a75ed106fc6035026fa5e",
+    "reports/web-stack-engine-40-2026-10-11/transport/attribution-recipe.mjs": "c124cdbe17fcc314349b8d1dbc649e4d61ed02619531b5672405b9a4db80dd3b"
+  },
+  "span_limits": "Use recorded span parent ids: decode may be inside cpu-total in the candidate and outside it in the original; subtract only actual overlapping child intervals. No raw sum of inclusive spans."
+}

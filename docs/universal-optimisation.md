@@ -60,7 +60,10 @@ utilities and tree budgets also live in core, because they describe the program.
 
 Legacy aggregate certificates, bounded caches, typed storage policies, source
 maintenance evaluators and historical scalar loaders are removed completely.
-Current maintained representations continue through database proofs. Archived
+Current maintained representations compile through database proofs into standalone
+state with transaction semantics and portable checkpoint/restore. The generic
+representation interpreter, runtime sessions, adapters and per-call logical
+snapshot validation are removed. Archived
 reports are evidence data, not an executable compatibility path.
 
 ## Definition unfolding

@@ -166,11 +166,11 @@ interfaces additionally require the documented ownership/capacity contract.
 Applications validate external data before using those caller-trusted interfaces.
 
 JavaScript `createState` retains its typed input boundary and resource budget.
-Proof-selected `Session` calls validate complete observations and logical state
-transport before installing a transition. Invalid transport cannot partially
-publish new state or events. There is no synthetic backend read-only query
-protocol: database definitions express compact queries and cache retention,
-and targets emit those checked definitions literally.
+Representations compile to ordinary standalone state. The generic proof-aware
+Session/executor runtime is removed, including per-call full logical snapshot
+validation. Explicit checkpoint/restore validates portable state and installs a
+new compiled instance only after restore succeeds. Database definitions express
+compact queries and cache retention; targets emit those definitions literally.
 
 Checkpoint integrity, transaction/version rules, device eligibility and hardware
 resource limits remain enforced. These execution boundaries and differential

@@ -55,4 +55,9 @@ Installation, diagnostics, durable snapshots, transaction rollback, recovery and
 portable logical state remain in scope. Keep broader proof ambitions distinct from
 what is currently admitted; see PLAN.md and the domain-specific docs.
 
-Source correspondence covers the admitted scalar, collection, vector and pure closure domains. Preserve fail-closed unsupported keys/operators and standalone representation conformance across CPU, JavaScript, both Wasm and both GPU hosts. Recursive physical state executes on the host. Keep checked Session transport distinct from caller-trusted standalone calls; benchmark checking, compilation, migration and steady state separately.
+Source correspondence covers the admitted scalar, collection, vector and pure closure domains. Preserve fail-closed unsupported keys/operators and standalone representation conformance across CPU, JavaScript, both Wasm and both GPU hosts. Recursive physical state executes on the host. Keep caller-trusted standalone calls and explicit checked codec boundaries distinct; benchmark checking, compilation, migration and steady state separately.
+
+The generic stateful representation executor, research bundle adapters and per-call
+logical snapshot validation are removed. Do not restore them under a new name.
+Compilation checks representation/bridge proofs; ordinary compiled state retains
+transaction semantics and portable checkpoint/restore migration.

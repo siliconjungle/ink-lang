@@ -84,46 +84,46 @@ The database also supplies [fixed-key incremental query maintenance](point-query
 with refresh fallback, and the planner supplies [measured lifecycle selection](../planner/README.md).
 These remain explicit alternatives; correctness does not establish profitability.
 
-## Runtime migration
+## Compiled execution and migration
 
-`ink_runtime::representation::Session` uses a sealed representation. Logical
-portable checkpoints retain the original program/schema identity. Restore may
-encode them into any checked representation of that program, including after
-restoring a snapshot produced by the baseline. Baseline restore also accepts
-these checkpoints.
+Representations are checked before compilation and become ordinary native typed
+state. There is no generic stateful representation runtime in the distribution.
+Versions, transaction rollback and ordered pending events belong to each emitted
+program. Calls do not reconstruct logical tables or encode snapshots for runtime
+validation. Explicit checkpoint/restore retains the original program/schema
+identity and portable snapshot integrity checks.
 
-`migrate` decodes the old physical state and encodes the new one. Endpoint
-proofs already establish logical preservation. A database `bridge` entry can
-instead supply a direct physical conversion; `check_migration` verifies every
-new relation under the old relations and checks exact pinned endpoint closures.
-Both operations complete at a transaction boundary and install the candidate
-only after execution and logical transport checks succeed. Versions, pending
-outbox entries and acknowledgements belong to the host and survive the switch.
-An execution/transport failure leaves the old session intact. Calls stage their
-new state/events and publish only after all checks succeed; aborted calls and
-exhausted successful commits publish no mutation or events.
+Switch a compiled implementation at a transaction boundary by checkpointing the
+old program, restoring those bytes into the compiled target, then publishing the
+new instance only after restore succeeds. Versions, pending events and
+acknowledgements survive; failure retains the old instance. Baseline and compiled
+programs share this logical snapshot namespace. This is a portable migration,
+with codec work at the explicit boundary, not constant-time switching.
 
-The frozen `knowledge/research/layout-switch` bridges switch between the two
-query implementations while retaining their identical cached physical state.
-`producers/representation_bridge.py` proposes an identity function and universal
-preservation proofs for identical relations. Direct execution avoids encoder/cache
-recomputation, while both decodes and logical validation still run. Native tests
-verify this with an encoder counter and future histories. This does not establish
-constant-time switching or a measured migration-latency gain.
+Database bridge entries and `check-migration` still check universal preservation
+against exact endpoint closures. The former proof-aware multi-executor runtime
+and its direct-switch API have been removed. A bridge proof alone does not expose
+a new runtime entrypoint. Optimized native direct bridges would need standalone
+emission and equal backend coverage before becoming executable again.
 
-Cost evidence lookup filters requested plans before limiting its results and uses
-a covering SQLite index. Unrelated plans cannot exhaust the evidence budget;
-only matching canonical evidence files are read and hash-validated. This improves
-discovery rather than source action execution. The standalone synthetic timings
-and exact baseline are in `reports/knowledge-lookup-performance`.
+`execute-representation` is a compile-and-run tool. It checks every requested
+representation and external argument before compiling fixed Rust variants. A
+`migrate` script step performs the same portable checkpoint/restore switch. The
+compiled child has ordinary codec dependencies and contains no checker, proof
+bundle, source AST, generic ground-term transport or interpreter. The tool requires
+a Rust toolchain and cached dependencies (`cargo build --offline --release`);
+`INK_CARGO` can select Cargo. Prefer an already compiled application for normal
+execution. Script inputs and replies are bounded at 16 MB, scripts at 100,000
+steps and bundles at sixteen variants. Source argument nesting/list/integer bounds
+remain 32/4,096/4,090 bits. Source syntax and snapshot container version are unchanged.
 
 `emit-representation` emits a standalone compiled program for the selected
 representation across Rust, C, JavaScript, both Wasm lanes and GPU host lanes.
 All source, definition and preservation checking finishes before
 emission. The generated `State` stores native physical data, version, pending
 events and the portable snapshot layout. Changes invoke the literal checked execute/observe/next functions directly.
-Queries whose normalised observation keeps logical state and version unchanged
-and emits no events compile to the reply alone, retaining the old physical state. C uses a generated type-specific borrowed
+Targets emit the checked execute, observe and next definitions literally.
+Database candidates express compact queries and physical-state retention. C uses a generated type-specific borrowed
 ABI into immutable typed storage; its functions do not repack physical state.
 JavaScript emits literal functions and immutable native constructor objects, with
 an explicit call stack only for functions that depend on inductive recursion;
@@ -137,10 +137,6 @@ Native/Wasm ordinary
 dependencies are serde_json, sha2 and num-bigint for JSON and the unchanged
 portable snapshot codec.
 
-The reference executor remains a proof-aware interpreter for tooling and
-conformance. The explicit `representation_native::lower` bundle interface remains
-available for historical executor/migration research, including up to sixteen
-representations and sixteen direct migrations. It rejects unknown closures.
 Compiled emission uses each backend’s standalone `representation_program` path.
 Emission does not choose a replacement algorithm. Existing definitional
 computation can erase a read-only observation envelope; the residual reply body
@@ -163,20 +159,8 @@ checkpoint/restore still use the bounded, integrity-checked portable codec and
 exact source snapshot identity. Checkpoint resource limits are checkpoint limits,
 not an implicit cap on every invocation; an oversized live state may fail to
 checkpoint. Profile frequency does not establish an input or state invariant.
-Standalone code fixes the implementation at compilation; switching compiled
-implementations currently uses portable checkpoint/restore. The research bundle
-API retains its separately checked direct migration functionality.
-
-The research executor's native action execution decodes its arguments once, runs the checked execute
-function once and applies the checked observation/next projections to the typed
-intermediate. It transports only the two final outputs. The reference and older
-executors retain the equivalent three-call implementation through the default
-`Executor::transition`. Native immutable datatype fields share `Arc` storage;
-clones preserve structural equality and no pointer identity has semantic meaning.
-This sharing is generic across constructor types, not a cache/layout recogniser.
-Ordinary definition emission keeps its existing `Box` ABI. The runtime also
-caches the fixed logical snapshot layout rather than hashing the source on every
-call. Snapshot encoding, resource validation and atomic publication still run.
+Standalone code fixes each implementation at compilation; switching compiled
+implementations uses portable checkpoint/restore.
 
 ## Tooling
 
@@ -198,8 +182,8 @@ point or include the module in a Cargo project with the ordinary dependencies
 above. The old `Native: Executor` output is no longer the command's output ABI.
 
 Execution scripts use the existing `{ "call": "name", "args": [...] }` shape
-and may include `{ "migrate": "another-request.json" }`. Runtime callers can use
-`migrate_direct` with a separately checked bridge. Pinned request JSON contains
+and may include `{ "migrate": "another-request.json" }`. The compile-and-run tool
+checks all variants before running and switches through portable snapshots. Pinned request JSON contains
 all required definitions, proofs and membership witnesses. Checking and reference
 execution need no producer, SQLite index or live database. Generated standalone
 execution also needs no request JSON or proof/checker objects.
@@ -239,8 +223,8 @@ GPU device eligibility remains separate from complete host execution. Resource f
 are host errors, not mathematical proof premises. The reference codec limits a
 table/event list to 4096 entries and source values to depth 32; the general
 checker and definition executors use the explicit bounds in that document.
-Persistence still requires the ordinary host durable-write protocol; `Session`
-alone is not a WAL or crash-recovery implementation. Measured performance and
+Persistence still requires the ordinary host durable-write protocol; compiled
+state alone is not a WAL or crash-recovery implementation. Measured performance and
 its workload limits are reported separately in
 [`reports/representation-performance`](../reports/representation-performance/README.md).
 
@@ -282,7 +266,7 @@ u64/u32/i32/f32 and fixed vectors, Bool/Unit/exact Int, nominal records and enum
 including the model's admitted table and collection operations. Each additional
 source domain needs correspondence and standalone codec coverage on every target.
 Ordinary whole-language lowerings retain their existing broader capability
-contract. Checked executor APIs validate source observations before publishing state.
+contract. The historical proof-aware stateful executor APIs have been removed.
 
 `tests/representation_parity.rs` compares every standalone target using one
 source oracle, exact replies/errors, portable snapshots and pending events. It

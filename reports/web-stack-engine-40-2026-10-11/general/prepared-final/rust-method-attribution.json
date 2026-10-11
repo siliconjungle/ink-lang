@@ -1,0 +1,316 @@
+{
+  "status": "source-attribution-confirmed",
+  "metadata_sha256": "68774088a9aafa8f3228c1dddeed013ae91de77d04de73ce94a9e9e9db1ff7b1",
+  "changed_primary_methods": 12,
+  "total": 12,
+  "default_emitter_route": "lowerings/rust/src/state_native.rs calls crate::pure_rust::body; exact generated public methods archived and measured by adapter",
+  "rust_native_and_wasm_same_adapter_body": true,
+  "adapter_vec_ingress": "two public input Vec copies remain per call on both versions; native/resident transport differs separately",
+  "rows": [
+    {
+      "task": "general40_affine",
+      "baseline_module_path": "rust-target/baseline/general40_affine/src/lib.rs",
+      "candidate_module_path": "rust-target/candidate/general40_affine/src/lib.rs",
+      "baseline_module_sha256": "16b8859f0f23d2e211619ac8d097a0bc9e669ff14a3a8c505310ffbf24b77f47",
+      "candidate_module_sha256": "248733d6a65fc9ce90eb1b42f3c502dae4e0fd11f6b29a50b6352d32dc4f8854",
+      "baseline_primary_sha256": "facb64b7a6ac4d136fb9da42d5f88e6d7051cbdc766e647e8efa7a86f44737a8",
+      "candidate_primary_sha256": "f6c065996f30b49d6978753841f8fc179dd38d644ac16a93cf34f04104c1658d",
+      "primary_identical": false,
+      "baseline_source_sites": {
+        "public_list_vec_clone_sites": 1,
+        "vec_collect_sites": 1,
+        "retain_sites": 0,
+        "iter_mut_sites": 0,
+        "borrowed_item_iter_sites": 0
+      },
+      "candidate_source_sites": {
+        "public_list_vec_clone_sites": 0,
+        "vec_collect_sites": 1,
+        "retain_sites": 0,
+        "iter_mut_sites": 0,
+        "borrowed_item_iter_sites": 1
+      },
+      "exact_primary_diff": "--- baseline\n\n+++ candidate\n\n@@ -1 +1 @@\n\n-pub fn function_l_general40_affine(&self,l_xs:Vec<u32>,l_ys:Vec<u32>,l_seed:u32,l_k:u32)->Vec<u32>{(l_xs.clone()).into_iter().map(|ink_local_0|((ink_local_0.clone()).wrapping_mul(l_k.clone())).wrapping_add(l_seed.clone())).collect::<Vec<_>>()}\n+pub fn function_l_general40_affine(&self,l_xs:Vec<u32>,l_ys:Vec<u32>,l_seed:u32,l_k:u32)->Vec<u32>{((l_xs).iter().cloned()).map(|ink_local_0|((ink_local_0.clone()).wrapping_mul(l_k.clone())).wrapping_add(l_seed.clone())).collect::<Vec<_>>()}"
+    },
+    {
+      "task": "general40_compaction",
+      "baseline_module_path": "rust-target/baseline/general40_compaction/src/lib.rs",
+      "candidate_module_path": "rust-target/candidate/general40_compaction/src/lib.rs",
+      "baseline_module_sha256": "af1ad09223b4e7edf59181f6242f9cfa7ec71d04eae322d078502b1bb289b47c",
+      "candidate_module_sha256": "646d862676a6e44db7a328af033c9df0afd0def0b6ba56b194b9dfa26e044ea7",
+      "baseline_primary_sha256": "2db0f795e862d8d7cc0d35bd31845e427d921695ff4f9915ab1600d31d6f76e1",
+      "candidate_primary_sha256": "d7fe9f03eb58710fb5e18ddecc068ab97bd09040d3736b543847e34468cdf4c7",
+      "primary_identical": false,
+      "baseline_source_sites": {
+        "public_list_vec_clone_sites": 1,
+        "vec_collect_sites": 2,
+        "retain_sites": 0,
+        "iter_mut_sites": 0,
+        "borrowed_item_iter_sites": 0
+      },
+      "candidate_source_sites": {
+        "public_list_vec_clone_sites": 0,
+        "vec_collect_sites": 1,
+        "retain_sites": 0,
+        "iter_mut_sites": 0,
+        "borrowed_item_iter_sites": 1
+      },
+      "exact_primary_diff": "--- baseline\n\n+++ candidate\n\n@@ -1 +1 @@\n\n-pub fn function_l_general40_compaction(&self,l_xs:Vec<u32>,l_ys:Vec<u32>,l_seed:u32,l_k:u32)->Vec<u32>{((l_xs.clone()).into_iter().filter(|ink_ref|{let ink_local_0=ink_ref.clone();(({let ink_local_1=ink_local_0.clone();let ink_local_2=16u32;if ink_local_2==0  {0u32} else {ink_local_1 % ink_local_2}}) < (l_seed.clone()))}).collect::<Vec<_>>()).into_iter().map(|ink_local_3|((ink_local_3.clone()).wrapping_mul(l_k.clone())).wrapping_add(1u32)).collect::<Vec<_>>()}\n+pub fn function_l_general40_compaction(&self,l_xs:Vec<u32>,l_ys:Vec<u32>,l_seed:u32,l_k:u32)->Vec<u32>{{let mut ink_local_4=((l_xs).iter().cloned()).filter(|ink_ref|{let ink_local_0=ink_ref.clone();(({let ink_local_1=ink_local_0.clone();let ink_local_2=16u32;if ink_local_2==0  {0u32} else {ink_local_1 % ink_local_2}}) < (l_seed.clone()))}).collect::<Vec<_>>();for ink_local_5 in 0..ink_local_4.len(){let ink_local_3=ink_local_4[ink_local_5].clone();ink_local_4[ink_local_5]=((ink_local_3.clone()).wrapping_mul(l_k.clone())).wrapping_add(1u32);}ink_local_4}}"
+    },
+    {
+      "task": "general40_scan",
+      "baseline_module_path": "rust-target/baseline/general40_scan/src/lib.rs",
+      "candidate_module_path": "rust-target/candidate/general40_scan/src/lib.rs",
+      "baseline_module_sha256": "fd00bc01eb8c4ef1d39cf5c54bb544cd0bd836bea2dfbc1552cafa26e7b0c37b",
+      "candidate_module_sha256": "0922f616bf505a39e46544c59c15c3b2d6617c49f847f0f433fb05b13e792752",
+      "baseline_primary_sha256": "69c3e61013419d2bde98d5b53fd8c2d59204d28b1fc5581a6b5326a8b1f58ba2",
+      "candidate_primary_sha256": "12a0437418fcd1eb338d9a9424652e78a2130a02217b13faf923141830c6f672",
+      "primary_identical": false,
+      "baseline_source_sites": {
+        "public_list_vec_clone_sites": 1,
+        "vec_collect_sites": 1,
+        "retain_sites": 0,
+        "iter_mut_sites": 0,
+        "borrowed_item_iter_sites": 0
+      },
+      "candidate_source_sites": {
+        "public_list_vec_clone_sites": 0,
+        "vec_collect_sites": 1,
+        "retain_sites": 0,
+        "iter_mut_sites": 0,
+        "borrowed_item_iter_sites": 1
+      },
+      "exact_primary_diff": "--- baseline\n\n+++ candidate\n\n@@ -1 +1 @@\n\n-pub fn function_l_general40_scan(&self,l_xs:Vec<u32>,l_ys:Vec<u32>,l_seed:u32,l_k:u32)->Vec<u32>{{let ink_local_0=l_xs.clone();let mut ink_local_1=0u32;ink_local_0.into_iter().map(|ink_local_2|{ink_local_1=(ink_local_1).wrapping_add(ink_local_2);ink_local_1}).collect::<Vec<_>>()}}\n+pub fn function_l_general40_scan(&self,l_xs:Vec<u32>,l_ys:Vec<u32>,l_seed:u32,l_k:u32)->Vec<u32>{{let mut ink_local_1=0u32;((l_xs).iter().cloned()).map(|ink_local_2|{ink_local_1=(ink_local_1).wrapping_add(ink_local_2);ink_local_1}).collect::<Vec<_>>()}}"
+    },
+    {
+      "task": "general40_branch",
+      "baseline_module_path": "rust-target/baseline/general40_branch/src/lib.rs",
+      "candidate_module_path": "rust-target/candidate/general40_branch/src/lib.rs",
+      "baseline_module_sha256": "756843026bf31e9e223635c1cf165f4a4f337c67a11c03dd71f08de043206f08",
+      "candidate_module_sha256": "e864e380b3f89578762205d71f42571191ec0fef6862b09db3a631c67587d1d2",
+      "baseline_primary_sha256": "a091dd0d617e50a6403a7c617210474a32dad2bd51a15d56059105ec037870db",
+      "candidate_primary_sha256": "4b16c7b28979f1d6f1315595ef3fecad6a5196fe2a426c228d0674bd6080ad5b",
+      "primary_identical": false,
+      "baseline_source_sites": {
+        "public_list_vec_clone_sites": 1,
+        "vec_collect_sites": 1,
+        "retain_sites": 0,
+        "iter_mut_sites": 0,
+        "borrowed_item_iter_sites": 0
+      },
+      "candidate_source_sites": {
+        "public_list_vec_clone_sites": 0,
+        "vec_collect_sites": 1,
+        "retain_sites": 0,
+        "iter_mut_sites": 0,
+        "borrowed_item_iter_sites": 1
+      },
+      "exact_primary_diff": "--- baseline\n\n+++ candidate\n\n@@ -1 +1 @@\n\n-pub fn function_l_general40_branch(&self,l_xs:Vec<u32>,l_ys:Vec<u32>,l_seed:u32,l_k:u32)->Vec<u32>{(l_xs.clone()).into_iter().map(|ink_local_0|if ((ink_local_0.clone()) < (l_seed.clone())) {((ink_local_0.clone()).wrapping_mul(l_k.clone())).wrapping_add(1u32)} else {({let ink_local_1=ink_local_0.clone();let ink_local_2=l_k.clone();if ink_local_2==0  {0u32} else {ink_local_1 / ink_local_2}}).wrapping_add(l_seed.clone())}).collect::<Vec<_>>()}\n+pub fn function_l_general40_branch(&self,l_xs:Vec<u32>,l_ys:Vec<u32>,l_seed:u32,l_k:u32)->Vec<u32>{((l_xs).iter().cloned()).map(|ink_local_0|if ((ink_local_0.clone()) < (l_seed.clone())) {((ink_local_0.clone()).wrapping_mul(l_k.clone())).wrapping_add(1u32)} else {({let ink_local_1=ink_local_0.clone();let ink_local_2=l_k.clone();if ink_local_2==0  {0u32} else {ink_local_1 / ink_local_2}}).wrapping_add(l_seed.clone())}).collect::<Vec<_>>()}"
+    },
+    {
+      "task": "general40_ordered",
+      "baseline_module_path": "rust-target/baseline/general40_ordered/src/lib.rs",
+      "candidate_module_path": "rust-target/candidate/general40_ordered/src/lib.rs",
+      "baseline_module_sha256": "1028f0f016f08b47cdcde9007462bb86449d1259e04bcec3fdf0ded448bf90d2",
+      "candidate_module_sha256": "91d311464728ad3742b2c3aa76b28904a6f27050aa45116caaab0cbf95cca286",
+      "baseline_primary_sha256": "7f1a43010e63448504325701ddfc82a6ae0198b0b1205d8abec535fa70b65c0a",
+      "candidate_primary_sha256": "586d62208ab01a9b64482917d65480a3fd5aa756f5818bc83b960c52863a2652",
+      "primary_identical": false,
+      "baseline_source_sites": {
+        "public_list_vec_clone_sites": 1,
+        "vec_collect_sites": 0,
+        "retain_sites": 0,
+        "iter_mut_sites": 0,
+        "borrowed_item_iter_sites": 0
+      },
+      "candidate_source_sites": {
+        "public_list_vec_clone_sites": 0,
+        "vec_collect_sites": 0,
+        "retain_sites": 0,
+        "iter_mut_sites": 0,
+        "borrowed_item_iter_sites": 1
+      },
+      "exact_primary_diff": "--- baseline\n\n+++ candidate\n\n@@ -1 +1 @@\n\n-pub fn function_l_general40_ordered(&self,l_xs:Vec<u32>,l_ys:Vec<u32>,l_seed:u32,l_k:u32)->u32{{let ink_local_2=l_xs.clone();let mut ink_local_3=l_seed.clone();for ink_local_0 in ink_local_2.into_iter().rev() {let ink_local_1=ink_local_3;ink_local_3=if ((ink_local_1.clone()) < (l_seed.clone())) {(ink_local_0.clone()).wrapping_add((ink_local_1.clone()).wrapping_mul(l_k.clone()))} else {(ink_local_0.clone()).wrapping_sub(ink_local_1.clone())};}ink_local_3}}\n+pub fn function_l_general40_ordered(&self,l_xs:Vec<u32>,l_ys:Vec<u32>,l_seed:u32,l_k:u32)->u32{{let ink_local_3=(l_xs).iter().cloned();let mut ink_local_2=l_seed.clone();for ink_local_0 in ink_local_3.rev() {let ink_local_1=ink_local_2;ink_local_2=if ((ink_local_1.clone()) < (l_seed.clone())) {(ink_local_0.clone()).wrapping_add((ink_local_1.clone()).wrapping_mul(l_k.clone()))} else {(ink_local_0.clone()).wrapping_sub(ink_local_1.clone())};}ink_local_2}}"
+    },
+    {
+      "task": "general40_stencil",
+      "baseline_module_path": "rust-target/baseline/general40_stencil/src/lib.rs",
+      "candidate_module_path": "rust-target/candidate/general40_stencil/src/lib.rs",
+      "baseline_module_sha256": "72860faff2a449940add20368de393dc1ad2128f30ba15b1a723dd928ba71064",
+      "candidate_module_sha256": "aee67fe0100231c9c287619ec1ab583cb7f0605dc71f09b3ce2ca8a5bd038577",
+      "baseline_primary_sha256": "3d67bdfd674eef05fcf7a6727751d85486d20e55d39615062aaf37643823c3a1",
+      "candidate_primary_sha256": "75449d40c643d8ead19f1075976d2466239819533d130b5aa324ba21efff681c",
+      "primary_identical": false,
+      "baseline_source_sites": {
+        "public_list_vec_clone_sites": 1,
+        "vec_collect_sites": 1,
+        "retain_sites": 0,
+        "iter_mut_sites": 0,
+        "borrowed_item_iter_sites": 0
+      },
+      "candidate_source_sites": {
+        "public_list_vec_clone_sites": 0,
+        "vec_collect_sites": 1,
+        "retain_sites": 0,
+        "iter_mut_sites": 0,
+        "borrowed_item_iter_sites": 1
+      },
+      "exact_primary_diff": "--- baseline\n\n+++ candidate\n\n@@ -1 +1 @@\n\n-pub fn function_l_general40_stencil(&self,l_xs:Vec<u32>,l_ys:Vec<u32>,l_seed:u32,l_k:u32)->Vec<u32>{(l_xs.clone()).into_iter().enumerate().map(|(ink_i,ink_local_1)|{let ink_local_0=ink_i as u32;(({let ink_local_2=&l_xs;let ink_local_3=(ink_local_0.clone()).wrapping_sub(1u32);match ink_local_2.get(ink_local_3 as usize){Some(v)=>v.clone(),None=>0u32}}).wrapping_add((ink_local_1.clone()).wrapping_mul(l_k.clone()))).wrapping_add({let ink_local_4=&l_xs;let ink_local_5=(ink_local_0.clone()).wrapping_add(1u32);match ink_local_4.get(ink_local_5 as usize){Some(v)=>v.clone(),None=>0u32}})}).collect::<Vec<_>>()}\n+pub fn function_l_general40_stencil(&self,l_xs:Vec<u32>,l_ys:Vec<u32>,l_seed:u32,l_k:u32)->Vec<u32>{((l_xs).iter().cloned()).enumerate().map(|(ink_i,ink_local_1)|{let ink_local_0=ink_i as u32;(({let ink_local_2=&l_xs;let ink_local_3=(ink_local_0.clone()).wrapping_sub(1u32);match ink_local_2.get(ink_local_3 as usize){Some(v)=>v.clone(),None=>0u32}}).wrapping_add((ink_local_1.clone()).wrapping_mul(l_k.clone()))).wrapping_add({let ink_local_4=&l_xs;let ink_local_5=(ink_local_0.clone()).wrapping_add(1u32);match ink_local_4.get(ink_local_5 as usize){Some(v)=>v.clone(),None=>0u32}})}).collect::<Vec<_>>()}"
+    },
+    {
+      "task": "general40_update",
+      "baseline_module_path": "rust-target/baseline/general40_update/src/lib.rs",
+      "candidate_module_path": "rust-target/candidate/general40_update/src/lib.rs",
+      "baseline_module_sha256": "e1f31b4d8457b17912124b27bd4054a625607cfa94de71a80542ef8dccb0cf99",
+      "candidate_module_sha256": "037749e660d3054c782ef31c9474630c49bfe16bf2c13a2705779f09298d3679",
+      "baseline_primary_sha256": "4a5f559e84b5f1d7f9896ca679fbe343eeddf949833eadefb901aaecc4e093c8",
+      "candidate_primary_sha256": "031a0ea4f5bfd29065f1688b2cc1af46dc2e4226db6e1adda36939ff2d60b252",
+      "primary_identical": false,
+      "baseline_source_sites": {
+        "public_list_vec_clone_sites": 1,
+        "vec_collect_sites": 1,
+        "retain_sites": 0,
+        "iter_mut_sites": 0,
+        "borrowed_item_iter_sites": 0
+      },
+      "candidate_source_sites": {
+        "public_list_vec_clone_sites": 0,
+        "vec_collect_sites": 1,
+        "retain_sites": 0,
+        "iter_mut_sites": 0,
+        "borrowed_item_iter_sites": 1
+      },
+      "exact_primary_diff": "--- baseline\n\n+++ candidate\n\n@@ -1 +1 @@\n\n-pub fn function_l_general40_update(&self,l_xs:Vec<u32>,l_ys:Vec<u32>,l_seed:u32,l_k:u32)->Vec<u32>{(l_xs.clone()).into_iter().enumerate().map(|(ink_i,ink_local_1)|{let ink_local_0=ink_i as u32;if (({let ink_local_2=ink_local_0.clone();let ink_local_3=l_k.clone();if ink_local_3==0  {1u32} else {ink_local_2 % ink_local_3}}) == (0u32)) {{let ink_local_4=&l_ys;let ink_local_5=ink_local_0.clone();match ink_local_4.get(ink_local_5 as usize){Some(v)=>v.clone(),None=>ink_local_1.clone()}}} else {ink_local_1.clone()}}).collect::<Vec<_>>()}\n+pub fn function_l_general40_update(&self,l_xs:Vec<u32>,l_ys:Vec<u32>,l_seed:u32,l_k:u32)->Vec<u32>{((l_xs).iter().cloned()).enumerate().map(|(ink_i,ink_local_1)|{let ink_local_0=ink_i as u32;if (({let ink_local_2=ink_local_0.clone();let ink_local_3=l_k.clone();if ink_local_3==0  {1u32} else {ink_local_2 % ink_local_3}}) == (0u32)) {{let ink_local_4=&l_ys;let ink_local_5=ink_local_0.clone();match ink_local_4.get(ink_local_5 as usize){Some(v)=>v.clone(),None=>ink_local_1.clone()}}} else {ink_local_1.clone()}}).collect::<Vec<_>>()}"
+    },
+    {
+      "task": "general40_update_recompute",
+      "baseline_module_path": "rust-target/baseline/general40_update_recompute/src/lib.rs",
+      "candidate_module_path": "rust-target/candidate/general40_update_recompute/src/lib.rs",
+      "baseline_module_sha256": "a6b991a66eedcb0b452bb672de195e7e4d6a5ef31a4996a979148322fab40efe",
+      "candidate_module_sha256": "ab3ac716e69d844340904420fe09ce05c999c954b9705ad848871a3058c821d0",
+      "baseline_primary_sha256": "06cd180d3861c6227117a7e85a90d2f712d3eceaf035adcb87af28f24664e3cb",
+      "candidate_primary_sha256": "0a86b0590683f4084855bf1a83f2315bdfecab5b57cf6c8a99bf8e1f2a87664d",
+      "primary_identical": false,
+      "baseline_source_sites": {
+        "public_list_vec_clone_sites": 1,
+        "vec_collect_sites": 1,
+        "retain_sites": 0,
+        "iter_mut_sites": 0,
+        "borrowed_item_iter_sites": 0
+      },
+      "candidate_source_sites": {
+        "public_list_vec_clone_sites": 0,
+        "vec_collect_sites": 1,
+        "retain_sites": 0,
+        "iter_mut_sites": 0,
+        "borrowed_item_iter_sites": 1
+      },
+      "exact_primary_diff": "--- baseline\n\n+++ candidate\n\n@@ -1 +1 @@\n\n-pub fn function_l_general40_update_recompute(&self,l_xs:Vec<u32>,l_ys:Vec<u32>,l_seed:u32,l_k:u32)->Vec<u32>{(l_xs.clone()).into_iter().enumerate().map(|(ink_i,ink_local_1)|{let ink_local_0=ink_i as u32;if (({let ink_local_2=ink_local_0.clone();let ink_local_3=l_k.clone();if ink_local_3==0  {1u32} else {ink_local_2 % ink_local_3}}) == (0u32)) {{let ink_local_4=&l_ys;let ink_local_5=ink_local_0.clone();match ink_local_4.get(ink_local_5 as usize){Some(v)=>v.clone(),None=>ink_local_1.clone()}}} else {ink_local_1.clone()}}).collect::<Vec<_>>()}\n+pub fn function_l_general40_update_recompute(&self,l_xs:Vec<u32>,l_ys:Vec<u32>,l_seed:u32,l_k:u32)->Vec<u32>{((l_xs).iter().cloned()).enumerate().map(|(ink_i,ink_local_1)|{let ink_local_0=ink_i as u32;if (({let ink_local_2=ink_local_0.clone();let ink_local_3=l_k.clone();if ink_local_3==0  {1u32} else {ink_local_2 % ink_local_3}}) == (0u32)) {{let ink_local_4=&l_ys;let ink_local_5=ink_local_0.clone();match ink_local_4.get(ink_local_5 as usize){Some(v)=>v.clone(),None=>ink_local_1.clone()}}} else {ink_local_1.clone()}}).collect::<Vec<_>>()}"
+    },
+    {
+      "task": "general40_compaction_chain",
+      "baseline_module_path": "rust-target/baseline/general40_compaction_chain/src/lib.rs",
+      "candidate_module_path": "rust-target/candidate/general40_compaction_chain/src/lib.rs",
+      "baseline_module_sha256": "6d7ac79e50bcfb03490f0004034c6a24f13abccdc2a20f40b975ba03268c600e",
+      "candidate_module_sha256": "bb8e35206ba5836d560332d5ec69637a27c7798bd38d2e90de8addad6f410e0c",
+      "baseline_primary_sha256": "af52fb8899e797b39f3e6d9614f56d331acb4c3a5296ee4897010db9ee27c7ce",
+      "candidate_primary_sha256": "cc864796dca0f86277b7ced247a75a0aec635e9a58181ac1b943a55fbdbd7145",
+      "primary_identical": false,
+      "baseline_source_sites": {
+        "public_list_vec_clone_sites": 1,
+        "vec_collect_sites": 3,
+        "retain_sites": 0,
+        "iter_mut_sites": 0,
+        "borrowed_item_iter_sites": 0
+      },
+      "candidate_source_sites": {
+        "public_list_vec_clone_sites": 0,
+        "vec_collect_sites": 1,
+        "retain_sites": 1,
+        "iter_mut_sites": 0,
+        "borrowed_item_iter_sites": 1
+      },
+      "exact_primary_diff": "--- baseline\n\n+++ candidate\n\n@@ -1 +1 @@\n\n-pub fn function_l_general40_compaction_chain(&self,l_xs:Vec<u32>,l_ys:Vec<u32>,l_seed:u32,l_k:u32)->Vec<u32>{(((l_xs.clone()).into_iter().map(|ink_local_0|{let ink_local_1=ink_local_0.clone();let ink_local_2=l_k.clone();self.function_l_stage_word(ink_local_1,ink_local_2)}).collect::<Vec<_>>()).into_iter().filter(|ink_ref|{let ink_local_3=ink_ref.clone();(({let ink_local_4=ink_local_3.clone();let ink_local_5=16u32;if ink_local_5==0  {0u32} else {ink_local_4 % ink_local_5}}) < (l_seed.clone()))}).collect::<Vec<_>>()).into_iter().map(|ink_local_6|{let ink_local_7=ink_local_6.clone();let ink_local_8=l_seed.clone();let ink_local_9=l_k.clone();self.function_l_repair_word(ink_local_7,ink_local_8,ink_local_9)}).collect::<Vec<_>>()}\n+pub fn function_l_general40_compaction_chain(&self,l_xs:Vec<u32>,l_ys:Vec<u32>,l_seed:u32,l_k:u32)->Vec<u32>{{let mut ink_local_11={let mut ink_local_6=((l_xs).iter().cloned()).map(|ink_local_0|{let ink_local_1=ink_local_0.clone();let ink_local_2=l_k.clone();self.function_l_stage_word(ink_local_1,ink_local_2)}).collect::<Vec<_>>();ink_local_6.retain(|ink_ref|{let ink_local_3=ink_ref.clone();(({let ink_local_4=ink_local_3.clone();let ink_local_5=16u32;if ink_local_5==0  {0u32} else {ink_local_4 % ink_local_5}}) < (l_seed.clone()))});ink_local_6};for ink_local_12 in 0..ink_local_11.len(){let ink_local_7=ink_local_11[ink_local_12].clone();ink_local_11[ink_local_12]={let ink_local_8=ink_local_7.clone();let ink_local_9=l_seed.clone();let ink_local_10=l_k.clone();self.function_l_repair_word(ink_local_8,ink_local_9,ink_local_10)};}ink_local_11}}"
+    },
+    {
+      "task": "general40_scan_chain",
+      "baseline_module_path": "rust-target/baseline/general40_scan_chain/src/lib.rs",
+      "candidate_module_path": "rust-target/candidate/general40_scan_chain/src/lib.rs",
+      "baseline_module_sha256": "d06bd7d87b4be73e83443b5c0903940015298a10840ddf514cdae0a10fec31d8",
+      "candidate_module_sha256": "e42128e45f3d488a21be84615f69127b737b03aac4472e7e731e6a9539ae98a8",
+      "baseline_primary_sha256": "0d0a5cc4ad29f271f4e0055891b43625cefcabfa1e4f407fbb097ff4d0797585",
+      "candidate_primary_sha256": "85ad6e627e4377dda98a078b18525342c8b477be48c42ccef7f2639f4e19ad67",
+      "primary_identical": false,
+      "baseline_source_sites": {
+        "public_list_vec_clone_sites": 1,
+        "vec_collect_sites": 2,
+        "retain_sites": 0,
+        "iter_mut_sites": 0,
+        "borrowed_item_iter_sites": 0
+      },
+      "candidate_source_sites": {
+        "public_list_vec_clone_sites": 0,
+        "vec_collect_sites": 1,
+        "retain_sites": 0,
+        "iter_mut_sites": 1,
+        "borrowed_item_iter_sites": 1
+      },
+      "exact_primary_diff": "--- baseline\n\n+++ candidate\n\n@@ -1 +1 @@\n\n-pub fn function_l_general40_scan_chain(&self,l_xs:Vec<u32>,l_ys:Vec<u32>,l_seed:u32,l_k:u32)->Vec<u32>{{let ink_local_4=(l_xs.clone()).into_iter().map(|ink_local_0|{let ink_local_1=ink_local_0.clone();let ink_local_2=l_seed.clone();let ink_local_3=l_k.clone();self.function_l_scan_word(ink_local_1,ink_local_2,ink_local_3)}).collect::<Vec<_>>();let mut ink_local_5=0u32;ink_local_4.into_iter().map(|ink_local_6|{ink_local_5=(ink_local_5).wrapping_add(ink_local_6);ink_local_5}).collect::<Vec<_>>()}}\n+pub fn function_l_general40_scan_chain(&self,l_xs:Vec<u32>,l_ys:Vec<u32>,l_seed:u32,l_k:u32)->Vec<u32>{{let mut ink_local_4=((l_xs).iter().cloned()).map(|ink_local_0|{let ink_local_1=ink_local_0.clone();let ink_local_2=l_seed.clone();let ink_local_3=l_k.clone();self.function_l_scan_word(ink_local_1,ink_local_2,ink_local_3)}).collect::<Vec<_>>();let mut ink_local_5=0u32;for ink_local_6 in ink_local_4.iter_mut(){ink_local_5=(ink_local_5).wrapping_add(*ink_local_6);*ink_local_6=ink_local_5;}ink_local_4}}"
+    },
+    {
+      "task": "general40_dot_ordered",
+      "baseline_module_path": "rust-target/baseline/general40_dot_ordered/src/lib.rs",
+      "candidate_module_path": "rust-target/candidate/general40_dot_ordered/src/lib.rs",
+      "baseline_module_sha256": "14c1a9c5cac7373d4783b826ca832a0d70e35a1b890c888b866b6b1826f406e5",
+      "candidate_module_sha256": "377bfc02f676da0a3635b5c19bd4a4f6a578b717fdbb6c36fbf02c863ea2eb50",
+      "baseline_primary_sha256": "f81178a907dba9e4e9c3b406bc597d6f9d897aeccfdd6d441fa525a9109b2854",
+      "candidate_primary_sha256": "70540ccd541eca34b29c1e5419fe7971a8d064cefb2a0251db425758384adb43",
+      "primary_identical": false,
+      "baseline_source_sites": {
+        "public_list_vec_clone_sites": 2,
+        "vec_collect_sites": 1,
+        "retain_sites": 0,
+        "iter_mut_sites": 0,
+        "borrowed_item_iter_sites": 0
+      },
+      "candidate_source_sites": {
+        "public_list_vec_clone_sites": 0,
+        "vec_collect_sites": 1,
+        "retain_sites": 0,
+        "iter_mut_sites": 0,
+        "borrowed_item_iter_sites": 2
+      },
+      "exact_primary_diff": "--- baseline\n\n+++ candidate\n\n@@ -1 +1 @@\n\n-pub fn function_l_general40_dot_ordered(&self,l_xs:Vec<u32>,l_ys:Vec<u32>,l_seed:u32,l_k:u32)->u32{{let ink_local_6={let ink_local_2=l_xs.clone();let ink_local_3=l_ys.clone();ink_local_2.into_iter().zip(ink_local_3).map(|(ink_local_0,ink_local_1)|(ink_local_0.clone()).wrapping_mul(ink_local_1.clone())).collect::<Vec<_>>()};let mut ink_local_7=l_seed.clone();for ink_local_4 in ink_local_6.into_iter().rev() {let ink_local_5=ink_local_7;ink_local_7=(ink_local_4.clone()).wrapping_add((ink_local_5.clone()).wrapping_mul(l_k.clone()));}ink_local_7}}\n+pub fn function_l_general40_dot_ordered(&self,l_xs:Vec<u32>,l_ys:Vec<u32>,l_seed:u32,l_k:u32)->u32{{let ink_local_7=({let ink_local_2=(l_xs).iter().cloned();let ink_local_3=(l_ys).iter().cloned();ink_local_2.zip(ink_local_3).map(|(ink_local_0,ink_local_1)|(ink_local_0.clone()).wrapping_mul(ink_local_1.clone())).collect::<Vec<_>>()}).into_iter();let mut ink_local_6=l_seed.clone();for ink_local_4 in ink_local_7.rev() {let ink_local_5=ink_local_6;ink_local_6=(ink_local_4.clone()).wrapping_add((ink_local_5.clone()).wrapping_mul(l_k.clone()));}ink_local_6}}"
+    },
+    {
+      "task": "general40_gather_reverse",
+      "baseline_module_path": "rust-target/baseline/general40_gather_reverse/src/lib.rs",
+      "candidate_module_path": "rust-target/candidate/general40_gather_reverse/src/lib.rs",
+      "baseline_module_sha256": "fc95e5b12247120d1459ed9e07cc284fa9e5d95c0fe7ff862c954b6c0f8ba344",
+      "candidate_module_sha256": "e8582b2227fcccb294d6e36ef28535b916b1233bee03b8cae478f8ab1d48d339",
+      "baseline_primary_sha256": "27c16d5056c887e784bcbc05877cec59a7cc84b0656364264174839db9871ea1",
+      "candidate_primary_sha256": "cfc2faf2f4d6e932e51bbe1d02deaf494046ec748258a2935a492fb62a0ddc80",
+      "primary_identical": false,
+      "baseline_source_sites": {
+        "public_list_vec_clone_sites": 1,
+        "vec_collect_sites": 1,
+        "retain_sites": 0,
+        "iter_mut_sites": 0,
+        "borrowed_item_iter_sites": 0
+      },
+      "candidate_source_sites": {
+        "public_list_vec_clone_sites": 0,
+        "vec_collect_sites": 1,
+        "retain_sites": 0,
+        "iter_mut_sites": 0,
+        "borrowed_item_iter_sites": 1
+      },
+      "exact_primary_diff": "--- baseline\n\n+++ candidate\n\n@@ -1 +1 @@\n\n-pub fn function_l_general40_gather_reverse(&self,l_xs:Vec<u32>,l_ys:Vec<u32>,l_seed:u32,l_k:u32)->Vec<u32>{(l_xs.clone()).into_iter().enumerate().map(|(ink_i,ink_local_1)|{let ink_local_0=ink_i as u32;({let ink_local_2=&l_ys;let ink_local_3=((l_seed.clone()).wrapping_sub(ink_local_0.clone())).wrapping_sub(1u32);match ink_local_2.get(ink_local_3 as usize){Some(v)=>v.clone(),None=>ink_local_1.clone()}}).wrapping_add((ink_local_1.clone()).wrapping_mul(l_k.clone()))}).collect::<Vec<_>>()}\n+pub fn function_l_general40_gather_reverse(&self,l_xs:Vec<u32>,l_ys:Vec<u32>,l_seed:u32,l_k:u32)->Vec<u32>{((l_xs).iter().cloned()).enumerate().map(|(ink_i,ink_local_1)|{let ink_local_0=ink_i as u32;({let ink_local_2=&l_ys;let ink_local_3=((l_seed.clone()).wrapping_sub(ink_local_0.clone())).wrapping_sub(1u32);match ink_local_2.get(ink_local_3 as usize){Some(v)=>v.clone(),None=>ink_local_1.clone()}}).wrapping_add((ink_local_1.clone()).wrapping_mul(l_k.clone()))}).collect::<Vec<_>>()}"
+    }
+  ],
+  "limits": [
+    "Source clone/collect/retain sites are static descriptions, not optimized machine allocation or copy counts.",
+    "LLVM may eliminate/merge source machinery; timing remains provisional under observed contention.",
+    "Exact method extraction/wrapper and target toolchains remain trusted; hashes are provenance, not refinement proofs."
+  ]
+}
