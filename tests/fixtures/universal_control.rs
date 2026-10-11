@@ -1,6 +1,6 @@
 use serde_json::{json, Value};
 use verified_language::{eval, stateful::Runtime, syntax::parse};
-#[path = "support/parity.rs"]
+#[path = "../support/parity.rs"]
 mod parity;
 
 #[test]
