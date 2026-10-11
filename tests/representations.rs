@@ -58,7 +58,7 @@ fn published_retention_entries_compile_and_switch_without_live_catalogue() {
         .map(|name| {
             let request = serde_json::from_slice(
                 &fs::read(format!(
-                    "knowledge/research/source-representations/{name}.json"
+                    "knowledge/research/composable-state-current/source-representations/{name}.json"
                 ))
                 .unwrap(),
             )
@@ -67,7 +67,7 @@ fn published_retention_entries_compile_and_switch_without_live_catalogue() {
         })
         .collect::<Vec<_>>();
     let bridge: Bridge = serde_json::from_slice(
-        &fs::read("knowledge/research/source-representations/retained-migration.json").unwrap(),
+        &fs::read("knowledge/research/composable-state-current/source-representations/retained-migration.json").unwrap(),
     )
     .unwrap();
     representation::check_migration(&plans[0], &plans[1], &bridge.knowledge, &bridge.root).unwrap();
@@ -98,7 +98,7 @@ fn filtered_aggregate_proofs_and_compiled_migrations_cover_updates_and_rollback(
         .map(|label| {
             let request = serde_json::from_slice(
                 &fs::read(format!(
-                    "knowledge/research/filtered-aggregate/{label}.json"
+                    "knowledge/research/composable-state-current/filtered-aggregate/{label}.json"
                 ))
                 .unwrap(),
             )
@@ -109,7 +109,7 @@ fn filtered_aggregate_proofs_and_compiled_migrations_cover_updates_and_rollback(
     for (index, label) in [(2, "sum"), (3, "count")] {
         let bridge: Bridge = serde_json::from_slice(
             &fs::read(format!(
-                "knowledge/research/filtered-aggregate/{label}-forward.json"
+                "knowledge/research/composable-state-current/filtered-aggregate/{label}-forward.json"
             ))
             .unwrap(),
         )
@@ -443,11 +443,11 @@ fn state_reusing_bridge_rejects_a_rehashed_false_preservation_proof() {
     )
     .unwrap();
     let old: Request = serde_json::from_str(include_str!(
-        "../knowledge/research/compact-queries/previous.json"
+        "../knowledge/research/composable-state-current/compact-queries/previous.json"
     ))
     .unwrap();
     let new: Request = serde_json::from_str(include_str!(
-        "../knowledge/research/compact-queries/cached.json"
+        "../knowledge/research/composable-state-current/compact-queries/cached.json"
     ))
     .unwrap();
     let before = representation::check(&module, &old).unwrap();
@@ -457,7 +457,7 @@ sys.path.insert(0,'knowledge')
 sys.path.insert(0,'knowledge/producers')
 from ink_knowledge import Store,identity
 from representations import refs
-p=json.load(open('knowledge/research/layout-switch/forward.json'))
+p=json.load(open('knowledge/research/composable-state-current/compact-queries/forward.json'))
 objects=p['knowledge']['objects'];bridge=objects.pop(p['root'])
 bridge['payload']['preservation']=[{'Refl':{'Var':'logical'}}]
 bridge['dependencies']=sorted(refs(bridge['payload']))

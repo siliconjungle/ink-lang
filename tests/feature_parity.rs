@@ -37,6 +37,51 @@ fn parity_inventory_rejects_missing_targets_and_uncovered_features() {
     };
     assert!(run(&catalog, "cpu").status.success());
     assert!(run(&catalog, "contract").status.success());
+    let mut partitions = vec![];
+    for shard in ["general", "representations"] {
+        let receipt = directory.join(format!("{shard}.json"));
+        let result = Command::new("python3")
+            .arg(&script)
+            .args(["--scope", "cpu", "--shard", shard, "--receipt"])
+            .arg(&receipt)
+            .output()
+            .unwrap();
+        assert!(result.status.success());
+        let value: serde_json::Value = serde_json::from_slice(&fs::read(receipt).unwrap()).unwrap();
+        assert_eq!(value["conformance"], "not-run");
+        assert_eq!(value["suite_shard"], shard);
+        partitions.push(
+            value["suites"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .map(|s| s.as_str().unwrap().to_owned())
+                .collect::<std::collections::BTreeSet<_>>(),
+        );
+    }
+    assert!(partitions[0].is_disjoint(&partitions[1]));
+    assert_eq!(
+        partitions[0]
+            .union(&partitions[1])
+            .cloned()
+            .collect::<std::collections::BTreeSet<_>>(),
+        catalog["cpu_suites"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|s| s.as_str().unwrap().to_owned())
+            .collect()
+    );
+    assert_eq!(
+        Command::new("python3")
+            .arg(&script)
+            .args(["--scope", "contract", "--shard", "general"])
+            .output()
+            .unwrap()
+            .status
+            .code(),
+        Some(2)
+    );
     let mut gpu_gap = catalog.clone();
     gpu_gap["gpu_contract"]["capabilities"]["exact-binary32"]["targets"]["webgpu"] =
         json!({"status":"unsupported","reason":"test fault"});
@@ -83,15 +128,15 @@ fn checked() -> (
     )
     .unwrap();
     let a: Request = serde_json::from_str(include_str!(
-        "../knowledge/research/keep-parity/representation-0.json"
+        "../knowledge/research/composable-state-current/keep/representation-0.json"
     ))
     .unwrap();
     let b: Request = serde_json::from_str(include_str!(
-        "../knowledge/research/keep-parity/representation-1.json"
+        "../knowledge/research/composable-state-current/keep/representation-1.json"
     ))
     .unwrap();
     let bridge: Bridge = serde_json::from_str(include_str!(
-        "../knowledge/research/keep-parity/migration.json"
+        "../knowledge/research/composable-state-current/keep/migration.json"
     ))
     .unwrap();
     let a = representation::check(&m, &a).unwrap();
@@ -347,8 +392,8 @@ fn exact_binary32_uses_actual_gpu_dispatch() {
 fn sealed_numeric_primitives_execute_identically_on_every_cpu_target() {
     use sha2::{Digest, Sha256};
     use verified_language::{
-        definition,
         content::Lock,
+        definition,
         library::{self, Bundle, Object},
         logic::{Declaration, Sort, Term},
     };

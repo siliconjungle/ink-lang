@@ -293,6 +293,10 @@ fn expr(
             evaluate_local(e, frame, fuel, ty)
         }
         Expr::Float(bits) => Ok(Value::F32(*bits)),
+        Expr::String(text) => {
+            charge(fuel, text.len() as u64)?;
+            Ok(Value::Opaque(crate::stateful::Value::String(text.clone())))
+        }
         Expr::Neg(_) => evaluate_negation(e, frame, fuel, ty),
         Expr::Let(..) => evaluate_binding(e, frame, fuel, ty),
         Expr::Record(..) => evaluate_record(e, frame, fuel, ty),
@@ -313,7 +317,7 @@ fn expr(
         Expr::Call(n, _) if n == "choose" => evaluate_choose(e, frame, fuel, ty),
         Expr::Call(n, _) if n == "fold_until" => evaluate_fold_until(e, frame, fuel, ty),
         Expr::Call(n, _) if n == "foldr" || n == "foldl" => evaluate_foldr(e, frame, fuel, ty),
-        Expr::Num(_) | Expr::Bool(_) | Expr::String(_) | Expr::Unit | Expr::Var(_) => {
+        Expr::Num(_) | Expr::Bool(_) | Expr::Unit | Expr::Var(_) => {
             evaluate_literal(e, frame, fuel, ty)
         }
         Expr::Binary(..) => evaluate_binary(e, frame, fuel, ty),
@@ -341,7 +345,6 @@ fn evaluate_literal(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> Lan
             Value::U64(*n)
         }),
         Expr::Bool(b) => Ok(Value::Bool(*b)),
-        Expr::String(s) => Ok(Value::Opaque(crate::stateful::Value::String(s.clone()))),
         Expr::Unit => Ok(Value::Opaque(crate::stateful::Value::Unit)),
         Expr::Var(n) if n == "None" => Ok(Value::Opaque(crate::stateful::Value::Option(None))),
         Expr::Var(n) => copy_value(env.get(n).ok_or_else(|| format!("unbound {n}"))?, fuel),

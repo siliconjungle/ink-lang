@@ -18,13 +18,13 @@ primitive. See `knowledge/producers/indexed_aggregate.py`, its whole-action
 producer, the pinned `knowledge/research/indexed-aggregate/request.json`, and the
 admission receipt in `reports/indexed-aggregate-durable/`.
 
-This producer currently covers the admitted one-table word aggregate example:
-`put`, `erase`, `total_query` and `count_query`. It rejects nested table mutations
-rather than claiming a composed lemma. Additional actions and predicates require
-new source-bound proposals. No new application syntax was introduced. Removal
-leaves empty branches, so sparsity and historical height can accumulate until an
-explicit checkpoint restore rebuilds the tree. Functional rotation correctness
-and metadata are proved; a universal asymptotic height bound is not claimed.
+The original producer covers the one-table word aggregate example. The new
+[typed multi-table producer](general-indexed-batching.md) generalizes row storage,
+query decomposition, state carriers and replace/remove grouping without new
+application syntax. Removal leaves empty branches, so sparsity and historical
+height can accumulate until an explicit checkpoint restore rebuilds the tree.
+Functional rotation correctness and metadata are proved; a universal asymptotic
+height bound is not claimed.
 Recursive representations execute on GPU hosts, not device kernels.
 
 The generic compiler changes are bounded proof-computation reuse, a proof-context
@@ -42,8 +42,9 @@ and a grouped traversal retaining both the first edit's intermediate rows and th
 second edit's final rows. Abstract edit functions make these laws reusable.
 Preserving intermediate results lets a subsequent checked action proof retain
 reads, errors, events and rollback decisions; it does not grant unconditional
-fusion of effectful actions. These are database foundations for future proposals,
-not an assertion that every source action now automatically batches writes.
+fusion of effectful actions. The typed producer now applies checked replace/remove pair traversals to exposed
+updates. The existing measured planner compares grouped and ungrouped proposals;
+other edit families retain their original definitions.
 
 Durable hosts append a deterministic compiled operation with its retry receipt,
 between periodic portable checkpoints. Retained ordinary journals or immutable

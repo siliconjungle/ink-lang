@@ -48,6 +48,13 @@ target features/training coverage, and isolate fused scheduling/representation
 losses. Heldout errors and adverse selections rule out enabling the broad fitted
 model by default. Resident GPU and complete requests retain distinct accounting.
 
+[Mixed pure browser placement](reports/adaptive-placement-2026-10-12/REPORT.md)
+now implements bounded joint partition/target search, resident GPU groups and
+parallel JS/Wasm workers with measured setup, full bridges, feedback and fallback.
+Its scoped implementation gate is complete. Profiles remain opt-in, and broader
+competitive execution, stateful placement and unfamiliar-workload selection retain
+the gates above.
+
 Stateful research should use exact relevant changes to maintain results and
 workload frequencies/lifetime to choose whether maintenance pays. Charge setup,
 proof checking, additional writes, memory and migration. Trial bounded saved-profile
@@ -78,6 +85,25 @@ lifetime evidence determines whether caching is worth its write/setup costs.
 Next physical-state work must reduce traversal, allocation and copying in updates,
 with representation/source proofs and equal backend coverage. Preserve the
 current slow candidates as benchmark controls and report memory and lifecycle costs.
+
+Priority 1 remains open for arbitrary cross-row grouped/ordered maintenance,
+unbounded group discovery, full dependency/storage deduplication and additional
+physical executors. Bounded grouped u64 aggregates, exact per-row ordered
+contributions, proved field projection retention and shared observations are now
+implemented. Existing numerical/keep, String/ID and local-owner
+correspondence, guarded dynamic point deltas, independent cache composition,
+ordinary column/Boolean packing candidates, proved direct column reads, explicit
+packed Rust/Wasm scalar and data-cell storage, direct physical mutations, dense
+and bucket point indexes, generation-stamped scratch, bounded identity memoisation,
+proved aggregate fusion and direct native entry points are included in the
+Frontier integration. Exact whole heap/grid query caches preserve source observations.
+The implementation ledger, measurements and limits are in [Frontier extensions](reports/frontier-extensions/README.md).
+Fixed-key remove/replace delta candidates, List value/count/u64-sum correspondence,
+owned collection laws and external lifecycle/migration/memory selection are implemented;
+[the current measurements](reports/incremental-maintenance-selection/README.md)
+favour the simpler direct layout. Native resource limits and copying costs still
+constrain these prototypes. No performance gate is
+closed by representation correctness tests.
 
 Ownership and representation work must include contiguous/compact layouts,
 fewer copies and allocations, general arenas and ownership inference, narrow

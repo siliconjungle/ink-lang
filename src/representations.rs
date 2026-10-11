@@ -311,6 +311,18 @@ pub fn emit(checked: &CheckedRepresentation, target: &str, output: &Path) -> Lan
             output,
             &ink_lowering_rust::representation_program::lower(checked)?,
         ),
+        "rust-memo" => write(output,&ink_lowering_rust::representation_program::lower_memo(checked)?),
+        "rust-wasm-memo" => project(output,&ink_lowering_rust::representation_program::lower_memo(checked)?,None,target),
+        "rust-packed" => write(
+            output,
+            &ink_lowering_rust::representation_program::lower_packed(checked)?,
+        ),
+        "rust-wasm-packed" => project(
+            output,
+            &ink_lowering_rust::representation_program::lower_packed(checked)?,
+            None,
+            target,
+        ),
         "javascript" | "js" => write(
             output,
             &ink_lowering_js::representation_program::lower(checked)?,

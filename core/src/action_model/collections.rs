@@ -8,11 +8,7 @@ impl Lower<'_> {
         state: &Term,
     ) -> LangResult<Term> {
         let table = self.tables[root].clone();
-        let element = if method == "keys" {
-            Type::U64
-        } else {
-            table.value_type
-        };
+        let element = if method == "keys" { table.key_type } else { table.value_type };
         let output = self.sort(&Type::List(Box::new(element)))?;
         let table_sort = Sort::Data(table.datatype);
         let head = if method == "keys" {
@@ -140,23 +136,18 @@ impl Lower<'_> {
             };
             return self.table_sequence(root, method, state);
         }
-        let [lambda] = arguments else {
-            return Err("list traversal arity".into());
-        };
-        let Kind::Lambda {
-            parameter,
-            body: expression,
-        } = body.nodes[*lambda].kind
-        else {
-            return Err("list traversal lambda".into());
-        };
-        let ExprType::Value(Type::List(_)) = &body.nodes[receiver].ty else {
-            return Err("list traversal receiver".into());
-        };
-        let input_type = match &body.nodes[receiver].ty {
-            ExprType::Value(t) => t,
-            _ => unreachable!(),
-        };
+        let [lambda] = arguments else { return Err("list traversal arity".into()); };
+        let Kind::Lambda { parameter, body: expression } = body.nodes[*lambda].kind else { return Err("list traversal lambda".into()); };
+        if matches!(&body.nodes[receiver].ty,ExprType::Value(Type::Option(_))) && method=="map" {
+            let ExprType::Value(result_type)=&body.nodes[expression].ty else{return Err("option mapper result".into());};
+            let output=self.sort(&Type::Option(Box::new(result_type.clone())))?;
+            let input=self.expr(body,receiver,env,state)?;
+            let name=self.fresh();let mut local=env.clone();local.insert(parameter,v(&name));
+            let mapped=self.expr(body,expression,&local,state)?;
+            return Ok(m(input,vec![(vec![],c(id(&output)?,0,vec![])),(vec![name],c(id(&output)?,1,vec![mapped]))]));
+        }
+        let ExprType::Value(Type::List(_)) = &body.nodes[receiver].ty else { return Err("list traversal receiver".into()); };
+        let input_type = match &body.nodes[receiver].ty { ExprType::Value(t) => t, _ => unreachable!() };
         let input_sort = self.sort(input_type)?;
         let output_type = if method == "filter" {
             input_type.clone()
@@ -172,29 +163,65 @@ impl Lower<'_> {
         let mut recursive = vec![v("traverse_tail")];
         // Conservatively capture state only when the lambda contains a state read.
         // A pure row mapper has no hidden whole-table parameter.
-        fn reads_state(body: &Body, n: NodeId) -> bool {
+        fn dependencies(body: &Body, n: NodeId, slots: &mut BTreeSet<usize>) -> bool {
             match &body.nodes[n].kind {
-                Kind::State(_) | Kind::Keep(_) | Kind::Table { .. } => true,
-                Kind::Field { receiver, .. } | Kind::Neg { value: receiver } => {
-                    reads_state(body, *receiver)
+                Kind::State(_) | Kind::Keep(_) => true,
+                Kind::Table { arguments, .. }
+                | Kind::QueryCall { arguments, .. }
+                | Kind::ChangeCall { arguments, .. } => {
+                    for argument in arguments {
+                        dependencies(body, *argument, slots);
+                    }
+                    true
                 }
+                Kind::Local(slot) => {
+                    slots.insert(*slot);
+                    false
+                }
+                Kind::Field { receiver, .. }
+                | Kind::VectorField { receiver, .. }
+                | Kind::Neg { value: receiver }
+                | Kind::Try { value: receiver } => dependencies(body, *receiver, slots),
                 Kind::Binary { left, right, .. }
                 | Kind::And { left, right }
-                | Kind::Or { left, right } => reads_state(body, *left) || reads_state(body, *right),
-                Kind::Builtin { arguments, .. } | Kind::PureCall { arguments, .. } => {
-                    arguments.iter().any(|x| reads_state(body, *x))
+                | Kind::Or { left, right } => {
+                    dependencies(body, *left, slots) | dependencies(body, *right, slots)
                 }
-                Kind::Record { fields, .. } => fields.iter().any(|(_, x)| reads_state(body, *x)),
+                Kind::Builtin { arguments, .. } | Kind::PureCall { arguments, .. } => arguments
+                    .iter()
+                    .fold(false, |state, x| dependencies(body, *x, slots) | state),
+                Kind::Record { fields, .. } => fields
+                    .iter()
+                    .fold(false, |state, (_, x)| dependencies(body, *x, slots) | state),
+                Kind::Method {
+                    receiver,
+                    arguments,
+                    ..
+                } => {
+                    let state = dependencies(body, *receiver, slots);
+                    arguments
+                        .iter()
+                        .fold(state, |state, x| dependencies(body, *x, slots) | state)
+                }
+                Kind::Lambda {
+                    body: expression, ..
+                } => dependencies(body, *expression, slots),
+                Kind::Bind {
+                    value,
+                    body: expression,
+                    ..
+                } => dependencies(body, *value, slots) | dependencies(body, *expression, slots),
                 Kind::Number(_)
+                | Kind::Float(_)
+                | Kind::String(_)
                 | Kind::Bool(_)
-                | Kind::Local(_)
                 | Kind::Unit
                 | Kind::None
                 | Kind::Enum { .. } => false,
-                _ => true,
             }
         }
-        let stateful = reads_state(body, expression);
+        let mut captured_slots = BTreeSet::new();
+        let stateful = dependencies(body, expression, &mut captured_slots);
         let lambda_state = if stateful {
             params.push(("traverse_state".into(), Sort::Data(self.state.clone())));
             args.push(state.clone());
@@ -205,6 +232,9 @@ impl Lower<'_> {
         };
         let mut local = BTreeMap::new();
         for (slot, term) in env {
+            if !captured_slots.contains(slot) {
+                continue;
+            }
             let name = format!("traverse_capture_{slot}");
             let sort = self.sort(&body.slots[*slot].ty)?;
             params.push((name.clone(), sort));
@@ -237,5 +267,28 @@ impl Lower<'_> {
             recursive: Some(0),
         })?;
         Ok(call(&f, args))
+    }
+}
+
+impl Lower<'_> {
+    pub(super) fn table_scan(&mut self, body:&Body, root:usize, method:&str, lambda:NodeId,
+        env:&BTreeMap<usize,Term>, state:&Term, result_type:&Type) -> LangResult<Term> {
+        let Kind::Lambda {parameter,body:expression}=body.nodes[lambda].kind else {return Err("scan projection lambda".into());};
+        let table=self.tables[root].clone();let result=self.sort(result_type)?;
+        let zero=if *result_type==Type::Int {self.integer_literal(0)?}else{Term::U64(0)};
+        let mut params=vec![("scan_rows".into(),Sort::Data(table.datatype)),("scan_acc".into(),result.clone()),("scan_state".into(),Sort::Data(self.state.clone()))];
+        let mut arguments=vec![self.root(state.clone(),root)?,zero,state.clone()];
+        let mut local=BTreeMap::new();let mut captures=vec![];
+        for (slot,term) in env {
+            let name=format!("scan_capture_{slot}");let sort=self.sort(&body.slots[*slot].ty)?;
+            params.push((name.clone(),sort));arguments.push(term.clone());captures.push(v(&name));local.insert(*slot,v(&name));
+        }
+        local.insert(parameter,v("scan_value"));
+        let contribution=self.expr(body,expression,&local,&v("scan_state"))?;
+        let contribution=if method=="count_where" {choice(contribution,self.integer_literal(1)?,self.integer_literal(0)?)}else{contribution};
+        let next=self.operator(result_type,"+",v("scan_acc"),contribution)?;
+        let mut recur=vec![v("scan_tail"),next,v("scan_state")];recur.extend(captures);
+        let function=self.store(Declaration::Function {params,result,body:m(v("scan_rows"),vec![(vec![],v("scan_acc")),(vec!["scan_key".into(),"scan_value".into(),"scan_tail".into()],Term::SelfCall(recur))]),recursive:Some(0)})?;
+        Ok(call(&function,arguments))
     }
 }

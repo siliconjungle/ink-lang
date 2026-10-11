@@ -150,3 +150,12 @@ mod tests {
         assert!(s.finish(t, 0).is_err());
     }
 }
+
+/// The fixed value argument type of a table operation (table roots are resources).
+pub fn table_argument(method: &str, index: usize, key: &crate::syntax::Type, value: &crate::syntax::Type) -> crate::syntax::Type {
+    use crate::syntax::Type;
+    let t = if index == 0 { key } else { value };
+    if method == "put_many" || (index == 0 && ["intersect_keys", "remove_many"].contains(&method)) {
+        Type::List(Box::new(t.clone()))
+    } else { t.clone() }
+}

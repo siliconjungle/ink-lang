@@ -19,7 +19,22 @@ pub mod snapshot {
     pub use ink_lowering_rust::snapshot_code::schema_code;
 }
 
-pub use ink_runtime as runtime;
+pub mod runtime {
+    pub use ink_runtime::*;
+    const PIPELINE_PLANNER: &str = include_str!("../planner/browser/pipeline-selection.mjs");
+    pub fn emit_gpu(p: &ink_core::syntax::Program, dir: &std::path::Path) -> ink_core::LangResult<()> {
+        ink_runtime::emit_gpu(p, dir)?;
+        install_pipeline_planner(dir, PIPELINE_PLANNER)
+    }
+    pub fn emit_selected(s: &ink_core::optimisation::CheckedSelection, dir: &std::path::Path) -> ink_core::LangResult<()> {
+        ink_runtime::emit_selected(s, dir)?;
+        install_pipeline_planner(dir, PIPELINE_PLANNER)
+    }
+    pub fn emit_routed(r: &ink_core::source_routing::CheckedRouting, dir: &std::path::Path) -> ink_core::LangResult<()> {
+        ink_runtime::emit_routed(r, dir)?;
+        install_pipeline_planner(dir, PIPELINE_PLANNER)
+    }
+}
 
 pub mod distribution;
 /// Filesystem/source module assembly belongs to the distribution.

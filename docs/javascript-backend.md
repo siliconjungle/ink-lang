@@ -57,6 +57,16 @@ CPU baseline. Runtime enforces resources and handles device failure; it performs
 no profitability probes. Knowledge owns observations and models, and planner
 owns offline fitting. See [the common contract](adaptive-execution.md).
 
+Saved placement profiles jointly select contiguous stage groups and targets,
+including parallel pure JavaScript/Wasm worker branches. GPU group interiors stay
+resident; typed bridges and complete output materialisation are included in
+training. Measured startup is amortised over expected calls. Missing comparable
+CPU evidence or workload domains retain CPU. See
+[execution policies and mixed placement](adaptive-execution.md) for limits,
+profiling and frozen holdout evidence. Native wgpu bundles use their C CPU fallback.
+Browser source editing remains separate work. Stateful calls never enter
+speculative selection.
+
 ## Evidence and trust
 
 Emission manifests bind the checked core identity, semantics version, typed
@@ -69,3 +79,9 @@ The standalone lowerer runs 946 reference comparisons in Node, including overflo
 full-width integers, float rounding, particles, nested collections, lazy
 fallbacks and invalid inputs. Integrated Node/browser bundle evidence is recorded
 in [reports/javascript-phase1](../reports/javascript-phase1/REPORT.md).
+
+Pure buffer elements are immutable logical values and may share nested records
+with inputs and outputs. Slot arrays remain privately owned; split-range growth
+detaches. Structural equality uses declared fields and an aggregate identity
+fast path, retaining stored float bits. Host state replies detach their reachable
+values. See [snapshot updates](internal-snapshots.md) for the ownership and private-delta contract.

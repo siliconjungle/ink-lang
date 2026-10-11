@@ -3,7 +3,7 @@
 use crate::LangResult;
 use serde::{Deserialize, Serialize};
 use std::{
-    collections::{BTreeMap, BTreeSet},
+    collections::{BTreeMap, BTreeSet, HashMap},
     sync::Arc,
 };
 
@@ -114,8 +114,13 @@ pub enum Proof {
     /// Exhaustive elimination of an inductive value, without granting any
     /// induction hypothesis. Each branch gets only scrutinee = constructor.
     /// This also permits case analysis beneath existing conditional premises.
+    /// Exactly one subject is required. Variable cases substitute each constructor
+    /// into the goal and premises; scrutinee cases retain them and add its equality.
     Cases {
-        scrutinee: Term,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        scrutinee: Option<Term>,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        variable: Option<String>,
         from: Term,
         to: Term,
         cases: Vec<Case>,
@@ -245,8 +250,8 @@ pub enum Declaration {
 struct Budget {
     remaining: usize,
     bit_work: usize,
-    normal_cache: std::collections::HashMap<Term, Term>,
-    normal_cache_nodes: usize,
+    normal_calls: HashMap<(Term, usize), Term>,
+    normal_nodes: usize,
     normal_context: Option<usize>,
     prepared_cache: Vec<(usize, Env, Equation, Equation, usize)>,
     prepared_nodes: usize,
@@ -256,8 +261,8 @@ impl Budget {
         Self {
             remaining: 1_000_000,
             bit_work: 20_000_000,
-            normal_cache: std::collections::HashMap::new(),
-            normal_cache_nodes: 0,
+            normal_calls: HashMap::new(),
+            normal_nodes: 0,
             normal_context: None,
             prepared_cache: Vec::new(),
             prepared_nodes: 0,
@@ -1542,40 +1547,61 @@ fn bounded_nodes(t: &Term, limit: usize) -> Option<usize> {
 
 fn normal(t: &Term, c: &Context, budget: &mut Budget, depth: usize) -> LangResult<Term> {
     budget.step(depth)?;
-    // Only immutable, locally checked definitions compute here. The cache is
-    // private to this bounded operation and is reset on a context change. Hash
-    // collisions still compare complete typed terms; hashes grant no authority.
-    let context = c as *const Context as usize;
-    if budget.normal_context != Some(context) {
-        budget.normal_cache.clear();
-        budget.normal_cache_nodes = 0;
-        budget.normal_context = Some(context);
-    }
-    if depth <= 64 && !matches!(t, Term::Var(_) | Term::Bool(_) | Term::U64(_)) {
-        if let Some(value) = budget.normal_cache.get(t) {
-            let nodes = bounded_nodes(value, 65536).ok_or("inductive logic memo limit")?;
-            budget.remaining = budget
-                .remaining
-                .checked_sub(nodes)
-                .ok_or("inductive logic resource limit")?;
-            return Ok(value.clone());
+    // Only small calls are memoised. Counting also bounds key construction and
+    // hashing; the complete cache retains at most 16,384 syntax nodes.
+    fn nodes(t: &Term, remaining: &mut usize) -> bool {
+        if *remaining == 0 {
+            return false;
+        }
+        *remaining -= 1;
+        match t {
+            Term::Call { arguments, .. }
+            | Term::Construct { arguments, .. }
+            | Term::SelfCall(arguments) => arguments.iter().all(|t| nodes(t, remaining)),
+            Term::Binary { left, right, .. } => nodes(left, remaining) && nodes(right, remaining),
+            Term::If {
+                condition,
+                on_true,
+                on_false,
+            } => {
+                nodes(condition, remaining)
+                    && nodes(on_true, remaining)
+                    && nodes(on_false, remaining)
+            }
+            Term::Match {
+                scrutinee,
+                branches,
+            } => nodes(scrutinee, remaining) && branches.iter().all(|b| nodes(&b.body, remaining)),
+            _ => true,
         }
     }
-    let started = budget.remaining;
-    let value = normal_uncached(t, c, budget, depth)?;
-    if started.saturating_sub(budget.remaining) >= 32
-        && depth <= 64
-        && !matches!(t, Term::Var(_) | Term::Bool(_) | Term::U64(_))
-        && budget.normal_cache.len() < 128
-    {
-        if let (Some(a), Some(b)) = (bounded_nodes(t, 65536), bounded_nodes(&value, 65536)) {
-            if budget.normal_cache_nodes + a + b <= 131072 {
-                budget.normal_cache.insert(t.clone(), value.clone());
-                budget.normal_cache_nodes += a + b;
+    let context = c as *const Context as usize;
+    if budget.normal_context != Some(context) {
+        budget.normal_calls.clear();
+        budget.normal_nodes = 0;
+        budget.normal_context = Some(context);
+    }
+    let mut key_remaining = 128;
+    let eligible = matches!(t, Term::Call { .. }) && nodes(t, &mut key_remaining);
+    let key = eligible.then(|| (t.clone(), depth));
+    if let Some(key) = &key {
+        if let Some(result) = budget.normal_calls.get(key).cloned() {
+            budget.copy(&result)?;
+            return Ok(result);
+        }
+    }
+    let result = normal_uncached(t, c, budget, depth)?;
+    if let Some(key) = key {
+        let mut result_remaining = 1024;
+        if budget.normal_calls.len() < 128 && nodes(&result, &mut result_remaining) {
+            let count = 128 - key_remaining + 1024 - result_remaining;
+            if budget.normal_nodes + count <= 16_384 {
+                budget.normal_nodes += count;
+                budget.normal_calls.insert(key, result.clone());
             }
         }
     }
-    Ok(value)
+    Ok(result)
 }
 fn normal_uncached(t: &Term, c: &Context, budget: &mut Budget, depth: usize) -> LangResult<Term> {
     let scalar_projection = match t {
@@ -1935,8 +1961,131 @@ fn raw_pair(
 }
 
 #[cfg(test)]
+mod normal_cache_tests {
+    use super::*;
+    fn context(increment: u64) -> Context {
+        let mut c = Context::default();
+        c.declare(
+            "increment".into(),
+            &Declaration::Function {
+                params: vec![("x".into(), Sort::U64)],
+                result: Sort::U64,
+                recursive: None,
+                body: Term::Binary {
+                    op: "+".into(),
+                    left: Box::new(Term::Var("x".into())),
+                    right: Box::new(Term::U64(increment)),
+                },
+            },
+        )
+        .unwrap();
+        c
+    }
+    fn call(n: u64) -> Term {
+        Term::Call {
+            function: "increment".into(),
+            arguments: vec![Term::U64(n)],
+        }
+    }
+    #[test]
+    fn reductions_share_work_only_in_the_same_context_and_depth() {
+        let first = context(1);
+        let second = context(2);
+        let mut budget = Budget::new();
+        assert_eq!(
+            normal(&call(7), &first, &mut budget, 0).unwrap(),
+            Term::U64(8)
+        );
+        let before = budget.remaining;
+        assert_eq!(
+            normal(&call(7), &first, &mut budget, 0).unwrap(),
+            Term::U64(8)
+        );
+        assert_eq!(before - budget.remaining, 2);
+        let before = budget.remaining;
+        normal(&call(7), &first, &mut budget, 1).unwrap();
+        assert!(before - budget.remaining > 1);
+        assert!(normal(&call(7), &first, &mut budget, 129).is_err());
+        assert_eq!(
+            normal(&call(7), &second, &mut budget, 0).unwrap(),
+            Term::U64(9)
+        );
+        assert_eq!(budget.normal_calls.len(), 1);
+        let wrong = Term::Call {
+            function: "absent".into(),
+            arguments: vec![],
+        };
+        assert!(normal(&wrong, &second, &mut budget, 0).is_err());
+        assert!(!budget.normal_calls.contains_key(&(wrong, 0)));
+    }
+    #[test]
+    fn retained_call_syntax_is_bounded() {
+        let c = context(1);
+        let mut budget = Budget::new();
+        for n in 0..1000 {
+            assert_eq!(
+                normal(&call(n), &c, &mut budget, 0).unwrap(),
+                Term::U64(n + 1)
+            );
+        }
+        assert!(budget.normal_calls.len() <= 128);
+        assert!(budget.normal_nodes <= 16_384);
+    }
+}
+
+#[cfg(test)]
 mod alpha_tests {
     use super::*;
+    #[test]
+    fn bounded_memo_reuses_exact_computation_without_changing_normal_forms() {
+        let mut context = Context::default();
+        context
+            .declare(
+                "choose".into(),
+                &Declaration::Function {
+                    params: vec![("condition".into(), Sort::Bool)],
+                    result: Sort::U64,
+                    recursive: None,
+                    body: Term::If {
+                        condition: Box::new(Term::Var("condition".into())),
+                        on_true: Box::new(Term::U64(7)),
+                        on_false: Box::new(Term::U64(9)),
+                    },
+                },
+            )
+            .unwrap();
+        let mut cached = Budget::new();
+        let mut uncached = Budget::new();
+        for argument in [
+            Term::Bool(true),
+            Term::Bool(false),
+            Term::Var("free".into()),
+            Term::Bool(true),
+        ] {
+            let term = Term::Call {
+                function: "choose".into(),
+                arguments: vec![argument],
+            };
+            assert_eq!(
+                normal(&term, &context, &mut cached, 0).unwrap(),
+                normal_uncached(&term, &context, &mut uncached, 0).unwrap()
+            );
+        }
+        assert!(!cached.normal_calls.is_empty());
+        assert!(uncached.normal_calls.is_empty());
+        cached.remaining = 0;
+        assert!(normal(
+            &Term::Call {
+                function: "choose".into(),
+                arguments: vec![Term::Bool(true)]
+            },
+            &context,
+            &mut cached,
+            0
+        )
+        .is_err());
+    }
+
     fn leaf(id: &str) -> Arc<Entry> {
         Arc::new(Entry {
             id: id.into(),
@@ -2037,7 +2186,7 @@ mod alpha_tests {
         let mut budget = Budget::new();
         assert_eq!(normal(&t, &c1, &mut budget, 0).unwrap(), Term::U64(17));
         assert_eq!(normal(&t, &c2, &mut budget, 0).unwrap(), Term::U64(18));
-        assert!(budget.normal_cache.len() <= 128 && budget.normal_cache_nodes <= 131072);
+        assert!(budget.normal_calls.len() <= 128 && budget.normal_nodes <= 16384);
         budget.remaining = 1;
         assert!(normal(&t, &c2, &mut budget, 0).is_err());
         budget.remaining = 1000;
@@ -2405,11 +2554,13 @@ fn proof_references(p: &Proof, out: &mut BTreeSet<String>) {
         }
         Proof::Cases {
             scrutinee,
+            variable: _,
             from,
             to,
             cases,
         } => {
-            terms(&[scrutinee, from, to], out);
+            terms(&[from, to], out);
+            if let Some(scrutinee) = scrutinee {terms(&[scrutinee],out);}
             for case in cases {
                 proof_references(&case.proof, out);
             }
@@ -2659,10 +2810,60 @@ fn derive(
         }
         Proof::Cases {
             scrutinee,
+            variable,
             from,
             to,
             cases,
         } => {
+            if variable.is_some() == scrutinee.is_some() {
+                return Err("constructor cases require exactly one subject".into());
+            }
+            if let Some(variable) = variable {
+            let Some(Sort::Data(id)) = env.get(variable) else {
+                return Err("case variable must have datatype sort".into());
+            };
+            let constructors = c.datatype(id, false)?;
+            if cases.len() != constructors.len() {
+                return Err("cases must cover every constructor".into());
+            }
+            let original = Equation {
+                from: from.clone(),
+                to: to.clone(),
+            };
+            typed_pair(&original, env, c, false, budget)?;
+            // Schemas describe separately generalized induction arguments.
+            // Do not silently reinterpret a schema that captures this variable.
+            independent_induction_premises(&[variable.clone()].into(), &[], schemas, c, budget)?;
+            for (index, (case, constructor)) in cases.iter().zip(constructors).enumerate() {
+                let mut local = branch_env(&case.bindings, &constructor.fields, env, false)?;
+                local.remove(variable);
+                let value = Term::Construct {
+                    datatype: id.clone(),
+                    constructor: index,
+                    arguments: case.bindings.iter().cloned().map(Term::Var).collect(),
+                };
+                let bindings = [(variable.clone(), value)].into();
+                let want = sub_pair(&original, &bindings, c, budget)?;
+                let premises = hypotheses
+                    .iter()
+                    .map(|e| sub_pair(e, &bindings, c, budget))
+                    .collect::<LangResult<Vec<_>>>()?;
+                if !same_equation(&derive(
+                    &case.proof,
+                    &local,
+                    c,
+                    &premises,
+                    schemas,
+                    budget,
+                    depth + 1,
+                )?, &want, c, budget)?
+                {
+                    return Err("constructor case proves a different statement".into());
+                }
+            }
+            normalize_pair(original, c, budget)?
+            } else {
+                let scrutinee = scrutinee.as_ref().unwrap();
             let Sort::Data(id) = infer(scrutinee, env, c, None, false, budget, 0)? else {
                 return Err("constructor cases require an inductive datatype".into());
             };
@@ -2713,6 +2914,7 @@ fn derive(
                 }
             }
             want
+            }
         }
         Proof::Hypothesis(i) => hypotheses
             .get(*i)

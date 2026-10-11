@@ -24,11 +24,22 @@ impl Lower<'_> {
         }
         let result = self.sort(&f.result)?;
         let body = self.pure_term(&tree, &env, &[], 0)?;
+        // Local-owner helpers can remain symbolic until their inductive input
+        // is exposed. These helpers have no SelfCall; the existing structural
+        // definition form is total and emits the same literal body. This avoids
+        // expanding every heap/search branch while proving an outer projection.
+        fn owners(t:&SemanticTerm,p:&Program)->bool {
+            matches!(&t.sort,SemanticSort::Value(ty) if crate::local_collections::owned(ty,p))
+                || semantic::children(t).iter().any(|child|owners(child,p))
+        }
+        let recursive=if owners(&tree,self.program) {
+            params.iter().position(|(_,sort)|matches!(sort,Sort::Data(_)))
+        }else{None};
         let id = self.store(Declaration::Function {
             params,
             result,
             body,
-            recursive: None,
+            recursive,
         })?;
         self.helper_active.remove(&index);
         self.helpers.insert(index, id.clone());
@@ -158,7 +169,7 @@ impl Lower<'_> {
         Ok(call(&function, arguments))
     }
 
-    fn pure_term(
+    pub(super) fn pure_term(
         &mut self,
         t: &SemanticTerm,
         env: &BTreeMap<String, Term>,
@@ -176,6 +187,7 @@ impl Lower<'_> {
         match &t.node {
             Node::Word(n) if matches!(ty, Type::U64 | Type::U32 | Type::I32) => Ok(Term::U64(*n)),
             Node::Word(n) if *ty == Type::Int => self.integer_literal(*n),
+            Node::Unit => Ok(c(id(&sort)?, 0, vec![])),
             Node::Nil => Ok(c(id(&sort)?, 0, vec![])),
             Node::Cons(head, tail) => {
                 let h = self.pure_term(head, env, bound, depth + 1)?;
@@ -184,6 +196,7 @@ impl Lower<'_> {
             }
             Node::Float(bits) => Ok(Term::U64(*bits as u64)),
             Node::Bool(n) => Ok(Term::Bool(*n)),
+            Node::String(text) => self.string_literal(text),
             Node::Free(n) => env
                 .get(n)
                 .cloned()
@@ -195,8 +208,41 @@ impl Lower<'_> {
                 .cloned()
                 .ok_or("unbound action model pure index".into()),
             Node::Op(op, args) => {
+                if op=="call:repeat"||op=="call:repeat_until" {return self.pure_loop(t,op,args,env,bound,depth);}
+                if let Some(value)=self.pure_local(t,op,args,env,bound,depth)? {return Ok(value);}
                 if ["method:map", "method:filter", "call:foldr"].contains(&op.as_str()) {
                     return self.pure_collection(t, op, args, env, bound, depth);
+                }
+                if op == "method:fold" {
+                    let [receiver, yes, no] = args.as_slice() else {
+                        return Err("pure fold arity".into());
+                    };
+                    let value = self.pure_term(receiver, env, bound, depth + 1)?;
+                    let yes_name = self.fresh();
+                    let no_name = self.fresh();
+                    let branch = |this: &mut Self, callback: &SemanticTerm, input: Term| {
+                        let Node::Lambda(body) = &callback.node else {
+                            return Err("pure fold callback".into());
+                        };
+                        let mut local = bound.to_vec();
+                        local.push(input);
+                        this.pure_term(body, env, &local, depth + 1)
+                    };
+                    let branches = match &receiver.sort {
+                        SemanticSort::Value(Type::Option(_)) => {
+                            let unit = self.sort(&Type::Unit)?;
+                            vec![
+                                (vec![], branch(self, no, c(id(&unit)?, 0, vec![]))?),
+                                (vec![yes_name.clone()], branch(self, yes, v(&yes_name))?),
+                            ]
+                        }
+                        SemanticSort::Value(Type::Result(..)) => vec![
+                            (vec![yes_name.clone()], branch(self, yes, v(&yes_name))?),
+                            (vec![no_name.clone()], branch(self, no, v(&no_name))?),
+                        ],
+                        _ => return Err("pure fold receiver".into()),
+                    };
+                    return Ok(m(value, branches));
                 }
                 if op == "neg" && matches!(ty, Type::Int | Type::I32 | Type::F32) {
                     let [value] = args.as_slice() else {

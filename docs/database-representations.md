@@ -67,6 +67,28 @@ migration, and `reports/cache-maintenance-performance` for measured costs.
 Other entries can define different layouts, cache updates and specialisations
 under the same obligations without adding core rules.
 
+`--columnar` now proposes separate inductive key and record-field columns.
+`--packed-booleans` combines a record's Boolean fields into a word column, with
+ordinary bit-vector certificates proving exact flag recovery. Table induction
+establishes encode/decode round trips for arbitrary logical rows, including
+unordered and repeated keys. These definitions supply the same all-action
+obligations as other representations. Columns still use immutable inductive
+values; they do not request native typed-array storage or silently narrow words.
+The producer bounds record width at sixteen and retains full scalar meanings.
+Changing a decoder bit and reauthenticating its closure fails mathematical
+checking. Frozen examples are in `knowledge/research/column-layouts` and
+`knowledge/research/packed-booleans`. No cost measurement or default selection
+is implied by their admission.
+
+`knowledge/producers/representation_product.py` composes source-bound candidates
+using a product state and each component's universal relation. An explicit
+component supplies the observation of each action; every component preserves
+its own future-state relation. Ordinary checked lemmas bound composition, with
+the existing relation and proof-resource limits. The generic decode/encode bridge
+producer now transports every target relation through its initialization proof.
+Composition can duplicate computations and roots; dependency fusion is a further
+optimization requiring its own equations and measurements.
+
 
 `--compact-queries` additionally removes duplicated table roots from query
 intermediates. A cached query's source observation supplies its cached reply and
@@ -162,6 +184,45 @@ checkpoint. Profile frequency does not establish an input or state invariant.
 Standalone code fixes each implementation at compilation; switching compiled
 implementations uses portable checkpoint/restore.
 
+The generated Rust methods `invoke_view_ACTION` accept the definition's native
+carriers and return an `OutcomeView` containing an owned result, commit flag,
+version and a slice of newly committed events borrowed from the outbox. Scalars
+use the fixed Boolean/word carriers; data arguments borrow generated datatypes.
+Canonical source word, float-bit and ID/string contracts still apply. Keeping a
+view alive prevents another mutable state call in Rust. `into_owned` explicitly
+copies events when the caller needs them to outlive that borrow. JSON invocation
+remains available. Event payloads still use the portable codec; this is not a
+typed Wasm ABI or a zero-copy event-payload representation.
+
+Standalone C adapters allocate temporary constructors in typed, stable-address
+chunks with nested call marks. Results acquire immutable ownership before rewind;
+rewind drops exactly the initialized values, retains at most one chunk per used
+datatype, and releases oversized chunk directories. These are generic backend
+allocation mechanics, not a table-layout recogniser. Rust constructor fields
+reuse matched immutable Arc owners; closed constant fields use shared templates.
+Neither mechanism changes source identity or representation proof obligations.
+
+Existing `String` values and keys, nominal IDs, and signed/32-bit keys now have
+fixed correspondence. Strings use UTF-8 Nil/Cons bytes; IDs use two unsigned
+64-bit words. String key order is byte-lexicographic, including the JavaScript
+bridge; signed keys retain signed ordering. Invocation-local buffers, maps and
+bounded loops also project to ordinary total definitions. Their carriers are
+extensional; affine source restrictions still prevent owners from becoming
+persistent state or public arguments/events. Binary structural fuel represents
+the existing bounded loop count without a new iteration proof rule. This admits
+the source algorithms that use these operations, not claims of heap ordering or
+pathfinding optimality beyond the declared source behaviour.
+Helpers that contain local owners and have an inductive input use the existing
+structurally guarded definition form. Their literal bodies contain no SelfCall;
+they remain total, and symbolic input prevents the checker from expanding every
+heap/search branch while proving an outer action projection. This uses existing
+checking rules and preserves previous helper definitions outside the new owner
+domain. Conformance covers the existing ordinary heap/A* program, including
+bounded searches, invalid grids and rollback of a sorted state update.
+
+Semantic terms now carry literals of the already existing String type, with
+checked elaboration/reification and String-only literal typing.
+
 ## Tooling
 
 ```sh
@@ -203,14 +264,17 @@ source action execution.
 
 ## Scope and trust
 
-Admission currently uses the documented `action_model` domain: u64 table keys,
-u64/u32/i32/Int/f32, fixed u32/i32/f32 vectors, Bool/Unit/enums/records/Option/Result/List values, supported fixed primitive
-operations, table operations, nested changes/queries, Try, replies and events.
+Admission currently uses the documented `action_model` domain: u64/u32/i32/Bool,
+UTF-8 String and nominal 128-bit ID table keys; u64/u32/i32/Int/f32, String/ID,
+fixed u32/i32/f32 vectors, Bool/Unit/enums/records/Option/Result/List values;
+supported fixed primitive operations, table operations, nested changes/queries,
+Try, replies and events.
 Unsupported source domains fail closed and continue to use ordinary baseline
 execution. Keeps, filtered list traversal, exact-integer reductions, binary32 reductions
 in source order and nominal stored-value equality now have fixed correspondence. Other
-key domains and temporary buffer/map constructs require their own fixed correspondence and
-standalone codec coverage. This is not admission of all language features.
+key domains and temporary constructs still require fixed correspondence and
+standalone codec coverage. The current Buffer/Map and bounded-loop subset is
+projected through ordinary inductive definitions; unsupported operations fail closed. This is not admission of all language features.
 Those require fixed source correspondence before their candidates can replace
 execution. Retiring their old specialised approval is not claiming that all old
 optimised catalogue entries have been ported to the new contract.
@@ -235,9 +299,33 @@ its workload limits are reported separately in
 
 The representation tests compare future action histories, rollback, ordered
 outbox entries and byte-identical portable snapshots; exercise baseline restore,
-reverse/generic/direct migration, failed migration and version exhaustion;
+portable migration and checked direct bridge proofs, failed migration and version exhaustion;
 compile cached database definitions and replay them offline; and reject stale
 source, missing action evidence, missing objects and authentic but false proofs.
+
+### Explicit packed scalar storage
+
+The Rust targets `rust-packed` and `rust-wasm-packed` lower a checked two-constructor
+scalar spine (empty, or Bool/u64 head plus recursive tail) into immutable chunks.
+Word chunks hold up to 256 cells; values fitting `u32` use 32-bit storage, and a
+larger value promotes that chunk to exact `u64` storage. Boolean chunks hold 64
+bits. This also covers word-carrier numerical columns without changing arithmetic
+or float-bit semantics. Data-headed spines use chunks of up to 128 shared Arc cells; scalar cells retain the narrower word/Boolean storage. Record contents remain ordinary shared data.
+Borrowed views traverse chunks without acquiring per-cell owners; returning or
+storing a suffix acquires an Arc owner. Branches share chunks and copy at most
+one partially occupied chunk when prepending. Destruction releases unique chunks
+iteratively. Strings and source scalar lists use the same refinement; portable
+snapshots and the public typed/JSON/handle ABI retain their logical values.
+
+This is an explicit trusted lowering contract, not a new checker rule or a proof
+of native emission. It does not provide constant-time list indexing, pack every
+record or turn all owner operations into vector operations. The producer's
+`--column-points` option separately supplies ordinary induction proofs for direct
+point search over key/field columns. Standalone query erasure then removes the
+unused private logical-state component, so those reads do not reconstruct every
+row. The separate `--column-mutations` proposal proves literal insert/remove/replace on physical columns. Compiled transition emission removes the unused logical post-state field after checking that next-state and public observations project independently. Unsupported action shapes use the exact checked decode/encode definitions. These options are not selected by default. Matched lifecycle measurements, including losing
+cases and the earlier traversal implementation, live in
+[`reports/frontier-extensions`](../reports/frontier-extensions/README.md).
 
 ## Compile-and-run tooling
 
@@ -259,10 +347,12 @@ executor's direct-switch API is retired as described above.
 
 ```sh
 ink emit-representation source.ink request.json --target rust -o program.rs
+ink emit-representation source.ink request.json --target rust-packed -o packed-program.rs
 ink emit-representation source.ink request.json --target javascript -o program.mjs
 ink emit-representation source.ink request.json --target c -o c-project
 ink emit-representation source.ink request.json --target wasm32 -o wasm-project
 ink emit-representation source.ink request.json --target rust-wasm -o rust-wasm-project
+ink emit-representation source.ink request.json --target rust-wasm-packed -o packed-wasm-project
 ink emit-representation source.ink request.json --target wgpu -o native-gpu-host
 ink emit-representation source.ink request.json --target webgpu -o browser-host.mjs
 ```
@@ -315,6 +405,58 @@ The arithmetic and update tactics are external; correctness is independent of pr
 Caller-trusted code generation and the valid-domain/query-erasure Lean results
 are recorded in `reports/leaner-generated-code-2026-10-11`. Emission, codecs and
 target toolchains remain trusted; Lean does not prove the generated binaries.
+
+### Frontier-inspired maintenance and execution extensions
+
+The knowledge producer now accepts `--ordered-query NAME`, `--fuse-query NAME`,
+`--column-index` and `--dense-slots N`. Exact ordered contributions retain source
+order and duplicates. Aggregate fusion proves a scalar fold against the original
+query and removes intermediate singleton lists. Grouped cache repair covers a
+record of u64 sums/counts over an explicitly source-defined group domain; it does
+not discover arbitrary new groups. Buckets retain base columns and stable even/odd
+subsequences. Dense slots cache keys 0 through N-1 (N <=16) with exact column-search
+fallback for every other key. Both index forms currently rebuild auxiliary data
+on mutations. No source range or uniqueness premise is silently introduced.
+
+Mapped fixed-key caches can retain the previous reply when a replacement preserves
+the actual field projection. This is a proved equality over every old Option row,
+not a field-name invalidation heuristic. The product producer's `--shared` option
+binds one full observation and supplies its projections to every component;
+physical roots may still duplicate storage. Unsupported shapes retain recomputation.
+
+`rust-memo` and `rust-wasm-memo` are explicit lowering targets. Eligible recursive
+scalar-returning pure functions memoize external calls by a weak shared-input
+identity plus function identity and up to four scalar arguments. Recursive internal
+calls and scalar leaves bypass the cache. At most 64 entries retain weak owners;
+no strong input or data result is retained. Exact pointer/type checks prevent
+address reuse from producing a stale hit. This is trusted native emission support,
+not a proof-kernel feature or an automatic profitable target choice.
+
+Native temporary scalar maps use generation-stamped dense scratch for small
+nonnegative keys and exact ordered sparse fallback for other domains. Growth and
+reclamation are bounded; wrapping the generation resets stamps. Public order,
+removal and value semantics are unchanged. Heap/grid source algorithms consume
+this implementation through existing owned-map primitives. This does not authorize
+replacing A* with an algorithm that changes its path, expansion count or limit flag.
+
+`Option.unwrap_or` in actions and queries eagerly evaluates its fallback even
+when the receiver is Some; fallback effects and failures remain observable and
+transactional. It is not a lazy fallback callback, and the pure-function grammar
+has not been expanded by this method.
+
+The ten frozen knowledge fixtures retain closed proof requests and checked
+migration directions. Matched lifecycle measurements, losing variants and external
+planner replay live in `reports/frontier-extensions`. The general checker and its
+resource limits are unchanged; native emitters, codecs and host contracts remain
+explicit trusted components.
+
+Heap and grid fixtures also demonstrate derived caches for complete existing
+source algorithms. The same point-mapper and all-action laws prove the cached
+heap sort or A* reply against every future source history. Grid observations
+include the precise path, expansion count and limit flag. These fixtures retain
+refresh fallback for unsupported dynamic mutation shapes; their recorded read
+benefit is accompanied by setup/update/restore costs. No theorem equating distinct
+pathfinders or changing their tie-breaking policy is claimed.
 
 The [path-local sequence candidates](path-local-indexed-tables.md) add generic
 shared-owner preservation, checked compact observations and explicit continuation
