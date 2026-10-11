@@ -1,0 +1,41 @@
+{
+  "platform": "macOS-26.5.2-arm64-arm-64bit",
+  "scope": "complete Rust compiled-state calls, exact replies/events/acknowledgement; no per-call checkpoints",
+  "process_order": [
+    [
+      "before",
+      "after"
+    ],
+    [
+      "after",
+      "before"
+    ],
+    [
+      "before",
+      "after"
+    ]
+  ],
+  "candidate": "sum-delta",
+  "query": "total_query",
+  "rows": [
+    256,
+    4000
+  ],
+  "read_percent": [
+    100,
+    90,
+    0
+  ],
+  "calls_per_sample": 100,
+  "rounds_per_process": 3,
+  "processes_per_variant": 3,
+  "limitations": [
+    "shared machine load",
+    "native runs before handwritten controls within a sample",
+    "Rust performance only; cross-target checks establish conformance"
+  ],
+  "artifacts": {
+    "before": "0adace013fabc72024c8a6dfcb0ed498c3e23f2af8e028982239ac0e1ebc86da",
+    "after": "8178e2234830bef837b3cad9562bbd191c87240b32106291cabbc6d9d873dab1"
+  }
+}
