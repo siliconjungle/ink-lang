@@ -46,12 +46,14 @@ JSON accepts finite numbers or a single-field `{ "F32Bits": bits }` object.
 Finite numbers round to binary32; values that overflow require the raw-bit form.
 Outputs use finite numbers and the raw-bit form for infinities/NaNs. Stored
 payloads, pass-through helpers, sign-bit negation and checkpoints preserve all
-32 bits, including signaling NaN payloads. Arithmetic NaN payloads can differ
-between CPU engines and are not a portable bitwise promise.
+32 bits, including signaling NaN payloads. Arithmetic NaNs canonicalise to `0x7fc00000` after each operation on every
+backend. Floating programs now carry executable-core V6; source replay rejects
+an older marker. Pass-through and negation still preserve all payload bits.
 
-GPU floats retain the portable WGSL contract, which permits different rounding,
-fusion and subnormal treatment. This change does not claim CPU/GPU bitwise float
-parity or introduce floating-point rewrite authority.
+Eligible GPU float kernels use software binary32 over integer lanes: round to
+nearest, ties to even, gradual underflow and source operation order. They match
+the CPU contract for supported operations; they do not introduce floating-point
+rewrite authority or remove GPU admission/resource limits.
 
 Vectors have two through four components of `u32`, `i32` or `f32`. Constructors
 and component access work directly in actions; other pure computation forms,

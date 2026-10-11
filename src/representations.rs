@@ -56,6 +56,12 @@ pub fn run(cmd: &str, module: CheckedModule, args: &[String]) -> LangResult<()> 
             )?;
         }
         "execute-representation" => {
+            if value("--target").is_some_and(|target| target != "rust") {
+                return Err("execute-representation compiles standalone Rust; use emit-representation --target for other standalone applications".into());
+            }
+            if value("--zig").is_some() || value("--build-dir").is_some() {
+                return Err("standalone execute-representation does not use --zig or --build-dir".into());
+            }
             let script: Value =
                 serde_json::from_slice(&read(args.get(3).ok_or("missing script JSON")?)?)
                     .map_err(|e| e.to_string())?;
@@ -303,9 +309,9 @@ pub fn emit(checked: &CheckedRepresentation, target: &str, output: &Path) -> Lan
             None,
             target,
         ),
-        "c" | "wasm" | "wasm32" | "wgpu" | "gpu" => {
+        "c" | "wasm" | "wasm32" | "c-wasm" | "wgpu" | "gpu" => {
             let emitted = match target {
-                "wasm" | "wasm32" => ink_lowering_wasm::lower_representation(checked)?,
+                "wasm" | "wasm32" | "c-wasm" => ink_lowering_wasm::lower_representation(checked)?,
                 "wgpu" | "gpu" => ink_lowering_gpu::lower_representation(checked)?,
                 _ => ink_lowering_c::representation_program::lower(checked)?,
             };
