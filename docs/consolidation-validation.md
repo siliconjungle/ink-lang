@@ -44,3 +44,9 @@ small-stack evaluator regressions pass locally, including a 200000-element
 nonterminating fold-until traversal. The old mixed-fold rejection assertion was
 updated to reject a Boolean step in a numeric fold; mixed accumulator types are
 now supported and retain dedicated cross-target conformance.
+
+A later hosted GPU fixture found scalar native code referencing GpuRequired
+without defining that backend variant. Scalar and compute hosts now emit a
+single mode definition/parser. The mixed durability fixture requests required
+GPU execution and passes locally through two actual GPU calls, recovery, exact
+checkpoints, retry identity, rollback, acknowledgements and corruption rejection.
