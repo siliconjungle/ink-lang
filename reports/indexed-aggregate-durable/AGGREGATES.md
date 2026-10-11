@@ -21,12 +21,12 @@ Both profiles charge one 4,000-row restore, one checkpoint/disposal, one admissi
 
 | Backend | Profile | Selected | Estimated ordinary lifecycle | Estimated indexed lifecycle |
 |---|---|---|---:|---:|
-| JavaScript | short | ordinary source | 0.023 s | 6.137 s |
-| JavaScript | read-heavy | indexed | 508.793 s | 8.352 s |
-| Native Rust | short | ordinary source | 0.006 s | 2.927 s |
-| Native Rust | read-heavy | indexed | 17.371 s | 3.643 s |
+| JavaScript | short | ordinary source | 0.023 s | 6.895 s |
+| JavaScript | read-heavy | indexed | 508.793 s | 9.110 s |
+| Native Rust | short | ordinary source | 0.006 s | 3.349 s |
+| Native Rust | read-heavy | indexed | 17.371 s | 4.065 s |
 
-Indexed admission is about 2.9 seconds in the measured Release compiler, versus about 27 ms for the direct candidate and 3.4 ms for the empty ordinary selection. JavaScript emission includes another admission and costs about 3.0 seconds for indexed storage. Indexed restore also costs more than ordinary restore. These costs explain why a short action sequence should keep the baseline.
+Indexed admission is about 3.3 seconds in the measured Release compiler, versus about 26 ms for the direct candidate and 3.2 ms for the empty ordinary selection. JavaScript emission includes another admission and costs about 3.3 seconds for indexed storage. Indexed restore also costs more than ordinary restore. These costs explain why a short action sequence should keep the baseline.
 
 The separate direct-to-indexed bridge proves preservation of both target relations, including repaired aggregate metadata. Portable migration measurements start from ordinary source, as required by the final implementation selector; the bridge remains independently admitted database knowledge. Its compact packet can be reconstructed from the immutable pin named in `migration-admission.json`.
 
@@ -41,6 +41,6 @@ python3 reports/indexed-aggregate-durable/aggregate-sources/measure-compiler.py
 python3 reports/indexed-aggregate-durable/aggregate-sources/record-selection.py
 ```
 
-The frozen Rust emissions are compiled standalone with pinned dependencies, thin LTO and one codegen unit. The benchmark adapts the infallible ordinary constructor and removes duplicate C symbol-export attributes only when nesting two independent emissions for a Rust migration measurement. Exact emitted programs, harnesses and compiler/toolchain hashes are recorded in `aggregate-provenance.json`. The older representation-only acquisition recipe is archived as `record-representation-selection.py`; the current comparison uses `record-selection.py`.
+The frozen Rust emissions are compiled standalone with pinned dependencies, thin LTO and one codegen unit. The benchmark adapts the infallible ordinary constructor and removes duplicate C symbol-export attributes only when nesting two independent emissions for a Rust migration measurement. Exact emitted programs, harnesses and compiler/toolchain hashes are recorded in `aggregate-provenance.json`. Execution and migration samples were acquired before the final storage integration; `final-artifact-equality.json` verifies that all six emissions are byte-identical. Compiler costs and selection replay use the final integrated compiler. The older representation-only acquisition recipe is archived as `record-representation-selection.py`; the current comparison uses `record-selection.py`.
 
 Correctness coverage: 15 universal whole-action obligations, separately admitted frame/grouping laws, two migration relations, and freshly rehashed incorrect sum/range/event/intermediate proofs that are rejected by mathematical admission. Backend checks cover native Rust/C, JavaScript, both Wasm paths and both GPU hosts. Actual GPU dispatch is exercised by the numeric conformance suite; this recursive tree executes on GPU hosts. The producer remains restricted to the admitted one-table word/Boolean example, and no universal AVL height bound or automatic effectful action fusion is claimed.
