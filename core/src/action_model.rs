@@ -282,6 +282,13 @@ impl Lower<'_> {
         let s = match ty {
             Type::U64 => Sort::U64,
             Type::Bool => Sort::Bool,
+            Type::List(t) => {
+                let element = self.sort(t)?;
+                Sort::Data(self.data(vec![
+                    ("Nil", vec![]),
+                    ("Cons", vec![element, Sort::SelfType]),
+                ])?)
+            }
             Type::Unit => Sort::Data(self.data(vec![("Unit", vec![])])?),
             Type::Option(t) => {
                 let t = self.sort(t)?;

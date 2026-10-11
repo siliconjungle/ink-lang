@@ -144,3 +144,12 @@ device snapshots and leave final-iteration outputs unchanged. List headers carry
 actual lengths; bounded allocation is independent of shrinking logical length.
 Growing feedback stays on CPU. Keep allocation/dispatch limits and exact transfer
 counters, and retain alias-swap, zero-length and growth regression coverage.
+
+Existing owned collection semantics now participate in pure equality selection;
+primitive correspondence lives in core/src/owned_semantic.rs and ordinary laws
+in ink-knowledge. Stateful List values/count/u64 sum are projected literally.
+Fixed-key query delta maintenance and migration proposals remain external.
+Measured representation selection belongs in ink-planner and binds exact request
+and bridge bytes; missing comparable evidence retains the baseline. Preserve
+the measured losing candidates and native resource limits. See docs/owned-optimisation.md,
+docs/point-query-delta.md and reports/incremental-maintenance-selection.

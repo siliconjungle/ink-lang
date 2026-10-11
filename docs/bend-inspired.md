@@ -151,7 +151,7 @@ The repository-owned knowledge workflow and snapshot selection are unchanged.
 Database search keeps baseline execution for functions whose new primitives
 lack a logical correspondence, reporting those functions as unavailable in
 `emit-semantic`. Other supported functions can still use existing database laws.
-This change does not silently grant rewrite authority for parallel/owned primitives.
+This change does not silently grant rewrite authority for the new parallel-map and partition primitives.
 
 ## Evidence
 
