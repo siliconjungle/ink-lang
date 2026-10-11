@@ -131,14 +131,15 @@ Bend-inspired primitives use executable-core V5 only when needed. Ordered parall
 map has sequential value semantics; grain and INK_THREADS are scheduling hints,
 never independence or proof authority. Reject captured owned storage; each callback
 may create its own temporary owners. Rust workers own disjoint slices, with bounded
-workers and sequential nested/Wasm execution. GPU private buffers require literal
-capacity <=64; unsupported cases retain compiled CPU fallback. Self recursion
+workers and sequential nested/Wasm execution. GPU private buffers require statically bounded
+capacity <=64. Preserve complementary partition provenance and conservative
+branch/loop bounds; growth uses compiled CPU fallback. Self recursion
 requires guarded unsigned descent or a nonempty list tail, with mutual recursion
 rejected. The independent Lean Boolean verdict proves its separate calculus only;
 the Python translator, source correspondence and other checker domains remain
 trusted/unverified, and it grants no new production optimisation authority.
 
-Native GPU graph feedback requires a descriptor for every stage and matching
+Browser and native GPU graph feedback requires a descriptor for every stage and matching
 feedback type/capacity bounds. Preserve simultaneous assignment through distinct
 device snapshots and leave final-iteration outputs unchanged. List headers carry
 actual lengths; bounded allocation is independent of shrinking logical length.
