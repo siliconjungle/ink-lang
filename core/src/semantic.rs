@@ -462,6 +462,16 @@ pub fn validate(t: &Term, env: &Env, p: &Program, b: &mut Budget) -> LangResult<
                         need(a(1)?, t.sort.clone())?;
                         need(a(2)?, arrow(item, arrow(t.sort.clone(), t.sort.clone())))?;
                     }
+                    "method:fold" => {
+                        arity(3)?;
+                        let (yes, no) = match val(a(0)?)? {
+                            Type::Option(inner) => ((**inner).clone(), Type::Unit),
+                            Type::Result(yes, no) => ((**yes).clone(), (**no).clone()),
+                            _ => return Err("fold receiver sort".into()),
+                        };
+                        need(a(1)?, arrow(value(yes), t.sort.clone()))?;
+                        need(a(2)?, arrow(value(no), t.sort.clone()))?;
+                    }
                     "method:map" => {
                         arity(2)?;
                         need(
@@ -952,6 +962,25 @@ pub fn elaborate(e: &Expr, env: &check::Env, p: &Program, want: &Type) -> LangRe
                         out.push(recur(arg, &ty)?);
                     }
                     return Ok(op(s, &format!("method:{n}"), out));
+                }
+                if n == "fold" {
+                    let (yes, no) = match &ty {
+                        Type::Option(inner) => ((**inner).clone(), Type::Unit),
+                        Type::Result(yes, no) => ((**yes).clone(), (**no).clone()),
+                        _ => return Err("fold receiver".into()),
+                    };
+                    if args.len() != 2 {
+                        return Err("fold arity".into());
+                    }
+                    return Ok(op(
+                        s,
+                        "method:fold",
+                        vec![
+                            recur(xs, &ty)?,
+                            lam(&args[0], &[yes], want, env, bound, p, b)?,
+                            lam(&args[1], &[no], want, env, bound, p, b)?,
+                        ],
+                    ));
                 }
                 let Type::List(inner) = &ty else {
                     return Err("list receiver".into());

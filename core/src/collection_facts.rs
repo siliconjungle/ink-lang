@@ -38,6 +38,9 @@ pub struct Facts {
     pub captures: BTreeSet<String>,
     pub ownership: Ownership,
     pub pure_total: bool,
+    /// Facts for each actual record field, preserved through bindings/helpers.
+    /// Missing fields are unknown; metadata never supplies these facts.
+    pub fields: BTreeMap<String, Facts>,
 }
 impl Facts {
     fn unknown(ty: Option<Type>) -> Self {
@@ -48,6 +51,7 @@ impl Facts {
             captures: BTreeSet::new(),
             ownership: Ownership::Unknown,
             pure_total: false,
+            fields: BTreeMap::new(),
         }
     }
     fn scalar(ty: Option<Type>) -> Self {
@@ -109,6 +113,7 @@ struct Analysis<'a> {
     p: &'a Program,
     remaining: usize,
     helpers: Vec<String>,
+    summaries: BTreeMap<String, Facts>,
 }
 fn types(env: &Env) -> check::Env {
     env.iter()
@@ -153,14 +158,23 @@ impl Analysis<'_> {
                 merged(Facts::scalar(inferred), &[x, y])
             }
             Expr::Record(_, fields) => {
-                let args = fields
+                let fields: BTreeMap<_, _> = fields
                     .iter()
-                    .map(|(_, e)| self.walk(e, env, None, next))
-                    .collect::<Vec<_>>();
-                merged(Facts::scalar(inferred), &args)
+                    .map(|(name, e)| (name.clone(), self.walk(e, env, None, next)))
+                    .collect();
+                let mut out = merged(
+                    Facts::scalar(inferred),
+                    &fields.values().cloned().collect::<Vec<_>>(),
+                );
+                out.fields = fields;
+                out
             }
-            Expr::Field(a, _) => {
+            Expr::Field(a, field) => {
                 let x = self.walk(a, env, None, next);
+                if let Some(facts) = x.fields.get(field) {
+                    // The full record is evaluated even when one field is read.
+                    return merged(facts.clone(), &[x]);
+                }
                 let mut out = merged(Facts::scalar(inferred.clone()), &[x]);
                 if matches!(inferred, Some(Type::List(_))) {
                     out.ownership = Ownership::Unknown;
@@ -199,6 +213,11 @@ impl Analysis<'_> {
                         LengthExpr::Max,
                     )
                 };
+                for (name, field) in &a.fields {
+                    if b.fields.get(name) == Some(field) {
+                        out.fields.insert(name.clone(), field.clone());
+                    }
+                }
                 merged(out, &[c, a, b])
             }
             Expr::Call(n, args) if self.p.functions.iter().any(|f| &f.name == n) => {
@@ -217,9 +236,19 @@ impl Analysis<'_> {
                     local.insert(n.clone(), v.clone());
                     values.push(v);
                 }
+                // The source and typed argument facts are fixed for this analysis.
+                // Bound cache size; recursion and exhausted analysis never acquire
+                // facts from a summary for a different call context.
+                let summary_key = format!("{}:{local:?}", f.name);
+                if let Some(out) = self.summaries.get(&summary_key) {
+                    return merged(out.clone(), &values);
+                }
                 self.helpers.push(f.name.clone());
                 let out = self.walk(&f.body, &local, Some(&f.result), next);
                 self.helpers.pop();
+                if self.summaries.len() < 128 && summary_key.len() <= 16_384 && out.pure_total {
+                    self.summaries.insert(summary_key, out.clone());
+                }
                 merged(out, &values)
             }
             Expr::Call(n, args)
@@ -355,16 +384,81 @@ impl Analysis<'_> {
         self.walk(body, &local, want, depth)
     }
 }
+/// A bounded lexical path with no evaluated receiver or action calls. Target
+/// emitters supply field syntax and borrow duration; source traversal is shared.
+pub fn lexical_projection(e: &Expr) -> Option<(&str, Vec<&str>)> {
+    let mut receiver = e;
+    let mut fields = Vec::new();
+    loop {
+        match receiver {
+            Expr::Var(name) => {
+                fields.reverse();
+                return Some((name, fields));
+            }
+            Expr::Field(base, field) if fields.len() < MAX_DEPTH => {
+                fields.push(field.as_str());
+                receiver = base;
+            }
+            _ => return None,
+        }
+    }
+}
+fn input_fields(
+    p: &Program,
+    root: &str,
+    path: &str,
+    ty: &Type,
+    depth: usize,
+    active: &mut BTreeSet<String>,
+    remaining: &mut usize,
+) -> Facts {
+    if *remaining == 0 {
+        return Facts::unknown(Some(ty.clone()));
+    }
+    *remaining -= 1;
+    let mut facts = Facts::input(path, ty);
+    facts.captures = BTreeSet::from([root.into()]);
+    if let Type::Named(name) = ty {
+        if depth < MAX_DEPTH && active.insert(name.clone()) {
+            if let Some(fields) = p.records.get(name) {
+                for (name, ty) in fields {
+                    if *remaining == 0 {
+                        break;
+                    }
+                    let field = input_fields(
+                        p,
+                        root,
+                        &format!("{path}.{name}"),
+                        ty,
+                        depth + 1,
+                        active,
+                        remaining,
+                    );
+                    facts.fields.insert(name.clone(), field);
+                }
+            }
+            active.remove(name);
+        }
+    }
+    facts
+}
 /// Infer from the actual selected typed body. No database metadata is consumed.
 pub fn infer(p: &Program, e: &Expr, env: &check::Env, want: Option<&Type>) -> Facts {
+    let mut inputs_remaining = MAX_NODES;
     let local = env
         .iter()
-        .map(|(n, t)| (n.clone(), Facts::input(n, t)))
+        .map(|(n, t)| {
+            (
+                n.clone(),
+                input_fields(p, n, n, t, 0, &mut BTreeSet::new(), &mut inputs_remaining),
+            )
+        })
         .collect();
     Analysis {
         p,
         remaining: MAX_NODES,
         helpers: Vec::new(),
+        summaries: BTreeMap::new(),
     }
     .walk(e, &local, want, 0)
 }
@@ -441,6 +535,81 @@ mod tests {
             panic!()
         };
         assert!(!returned_alias(b, n));
+    }
+    #[test]
+    fn fields_survive_nested_records_helpers_and_bindings() {
+        let p = parse("module fields; record Lists { first:List<u32>, second:List<u32>, } record Nested { lists:Lists, } fn wrap(xs:List<u32>,ys:List<u32>)->Nested{return Nested{lists:Lists{first:xs.map(fn(x)=>x+1),second:ys}};} fn selected(xs:List<u32>,ys:List<u32>)->List<u32>{let r=wrap(xs,ys);return r.lists.first;} fn borrowed(xs:List<u32>,ys:List<u32>)->List<u32>{return wrap(xs,ys).lists.second;}").unwrap();
+        CheckedModule::from_source(p.clone()).unwrap();
+        let selected = facts(&p, "selected");
+        assert_eq!(selected.length.exact, Some(LengthExpr::Input("xs".into())));
+        assert_eq!(selected.ownership, Ownership::Fresh);
+        assert!(selected.pure_total);
+        // Evaluating the record still reads both arguments.
+        assert_eq!(
+            selected.captures,
+            BTreeSet::from(["xs".into(), "ys".into()])
+        );
+        let borrowed = facts(&p, "borrowed");
+        assert_eq!(borrowed.aliases, BTreeSet::from(["ys".into()]));
+        assert_eq!(borrowed.ownership, Ownership::Borrowed);
+    }
+    #[test]
+    fn repeated_nested_types_cannot_expand_input_facts_without_bound() {
+        let mut p = Program::default();
+        p.records.insert(
+            "R0".into(),
+            vec![("xs".into(), Type::List(Box::new(Type::U32)))],
+        );
+        for depth in 1..12 {
+            p.records.insert(
+                format!("R{depth}"),
+                (0..8)
+                    .map(|field| (format!("f{field}"), Type::Named(format!("R{}", depth - 1))))
+                    .collect(),
+            );
+        }
+        let mut remaining = MAX_NODES;
+        let out = input_fields(
+            &p,
+            "r",
+            "r",
+            &Type::Named("R11".into()),
+            0,
+            &mut BTreeSet::new(),
+            &mut remaining,
+        );
+        fn count(f: &Facts) -> usize {
+            1 + f.fields.values().map(count).sum::<usize>()
+        }
+        assert_eq!(remaining, 0);
+        assert!(count(&out) <= MAX_NODES);
+        assert!(out.fields.len() < 8);
+    }
+    #[test]
+    fn formal_record_fields_have_distinct_borrowed_paths() {
+        let p=parse("module inputs;record R{a:List<u32>,b:List<u32>,}fn a(r:R)->List<u32>{return r.a;}fn b(r:R)->List<u32>{return r.b;}").unwrap();
+        CheckedModule::from_source(p.clone()).unwrap();
+        assert_eq!(facts(&p, "a").aliases, BTreeSet::from(["r.a".into()]));
+        assert_eq!(
+            facts(&p, "b").length.exact,
+            Some(LengthExpr::Input("r.b".into()))
+        );
+        assert_eq!(facts(&p, "a").captures, BTreeSet::from(["r".into()]));
+        let Expr::Field(_, _) = &p.functions[0].body else {
+            panic!()
+        };
+        assert_eq!(
+            lexical_projection(&p.functions[0].body),
+            Some(("r", vec!["a"]))
+        );
+    }
+    #[test]
+    fn incompatible_branch_fields_do_not_supply_storage_facts() {
+        let p=parse("module branches;record R{xs:List<u32>,}fn f(xs:List<u32>,ys:List<u32>,c:Bool)->List<u32>{return choose(c,R{xs:xs},R{xs:ys}).xs;}").unwrap();
+        CheckedModule::from_source(p.clone()).unwrap();
+        let out = facts(&p, "f");
+        assert_eq!(out.ownership, Ownership::Unknown);
+        assert_eq!(out.length.exact, None);
     }
     #[test]
     fn recursion_unknown_effects_and_error_propagation_lose_facts() {
