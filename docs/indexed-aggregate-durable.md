@@ -63,7 +63,7 @@ the short profile and select indexed storage for the read-heavy profile. Selecti
 receipts are replayed through actual emission; there is no new selector or live
 profitability probe. See [measurements and reproduction](../reports/indexed-aggregate-durable/AGGREGATES.md).
 
-Integration includes the language-foundations revision `b54439f3`. Its source
+Integration includes the language-foundations and storage revision `3e826cd2`. Its source
 identity differs while this example's complete action projection is identical.
 Existing mathematical objects are reused only after ordinary universal replay.
 The same external rebind procedure repairs 21 existing fixture bindings and checks

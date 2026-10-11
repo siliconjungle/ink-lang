@@ -23,8 +23,11 @@ provenance = dict(schema=1, hardware=subprocess.check_output(['sysctl', '-n', 'm
     node=subprocess.check_output(['node', '--version'], text=True).strip(),
     rustc=subprocess.check_output(['rustc', '--version'], text=True).strip(),
     candidates=publication['candidates'], frozen_files=frozen,
+    execution_scope='Execution and migration samples acquired before the final storage integration; all six emissions verified byte-identical with the final compiler.',
     scope='Apple M2 shared host; 4000 rows; 16 separate-state warm calls; 96 measured calls; five alternating rounds; no peak-memory measurement',
-    compiler_scope='Exact integrated Release compiler; separately measured admission and JavaScript emission (emission includes its own admission).',
+    executed_artifact_acquisition_compiler_sha256='a9e3052dfcde378d1a641698e2a445415c57d87cfc39a8f1272de317fac4a788',
+    executed_artifact_equality_receipt_sha256=digest(report / 'final-artifact-equality.json'),
+    compiler_scope='Exact final integrated Release compiler; separately measured admission and JavaScript emission (emission includes its own admission).',
     native_compile_scope='Native programs are precompiled: compile count is zero. Admission is backend-independent.',
     migration_scope='Ordinary source checkpoint to candidate restore and old-state disposal; JavaScript forces GC. Checked encode/decode permits portable migration; a separately admitted direct-to-indexed bridge is retained.',
     observation_scope='Per-call integer nanoseconds: batch elapsed divided by call count, rounded down by less than one nanosecond.')
