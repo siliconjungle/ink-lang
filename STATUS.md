@@ -20,7 +20,7 @@ owns packed layouts and one native/browser decision contract; `ink-native-suppor
 owns emitted value/ownership primitives. Shared source analysis belongs in core.
 Legacy optimisation APIs and compatibility features are removed.
 
-The pinned knowledge snapshot contains 4,837 entries, including eight early-exit
+The pinned knowledge snapshot contains 6,726 entries, including eight early-exit
 and 28 owned-transform laws. Counts describe this snapshot, not proof coverage.
 Saved profiles guide eligible execution; runtime does not run profitability probes.
 Historical measurements remain evidence of their recorded revisions, including
@@ -48,7 +48,7 @@ and discovery work. See [the exact scope and measurements](docs/storage-bulk-inc
 [durable hosts](docs/durable-host.md), [modules](docs/modules.md) and
 [installation](docs/installation.md) give the exact contracts.
 Ordinary baseline JavaScript keeps recompute; checked standalone representations
-maintain the admitted fixed-key and filtered aggregate candidates. F32 programs use executable-core V7:
+maintain the admitted fixed-key and filtered aggregate candidates. F32 programs use executable-core V8:
 arithmetic rounds to binary32 and produces canonical NaNs; transport and negation
 preserve payload bits. Packed GPU code uses integer lanes for this contract. Literal GPU scans and sorts are not a claim of
 efficient parallel prefix/sorting algorithms.
@@ -118,8 +118,12 @@ without the producer, SQLite or a current database. Checked selections retain
 the original checkpoint identity; a raw modified program cannot claim it.
 Performance observations are separate and require matching target/workload
 provenance. The planner supports bounded structural selection and measured pure
-route choice plus explicit measured representation selection; general profitability
-remains incomplete.
+route choice plus explicit measured representation selection. [Database implementation selection](docs/state-choice.md) compares supplied entry IDs
+through existing proof-package protocols. Ordinary emission is an empty selection
+package in the database, without a privileged compiler branch. Replay binds the
+source/compiler/target and exact pinned candidate. Supplied lifetime and portable
+migration costs enter external ranking; missing comparable evidence retains the
+supplied baseline. General profitability remains incomplete. Active physical-representation examples are re-authored and universally checked against current source identities. Ordinary action blocks preserve their earlier checked identities; mutable assignments use the V8 continuation machinery. Archived measurements retain their original exact packages.
 
 Repeated database-only proof batches have removed traversals and intermediate
 results with compiler/runtime/lowering sources unchanged. Some selected variants
@@ -130,7 +134,7 @@ it does not establish faster execution. See [the evidence index](BENCHMARKS.md).
 
 [Ordered parallel work, owned partitions, checked recursion and GPU scratch](docs/bend-inspired.md)
 use executable-core V5, with general control/owned transforms in V6 and F32
-arithmetic in V7. Complete native C/Rust use bounded workers; JavaScript and both Wasm paths
+arithmetic in V7 and generic language additions in V8. Complete native C/Rust use bounded workers; JavaScript and both Wasm paths
 use host workers with ordered results. Browser entry points are asynchronous
 and require cross-origin isolation; small or nested work can remain sequential. Browser and native GPU scratch
 support bounded split/rejoin and push within 64 elements; resident graph feedback
@@ -193,6 +197,14 @@ handwritten tree. The indexed candidate added below supersedes the earlier
 statement that indexed physical tables remain unfinished. This allocation fix does not change linear update traversal,
 prove generated compiler correctness or extend GPU device coverage.
 
+Generic inverse journals now remove whole-table copying from ordinary C hosts
+and JavaScript changes. The matched 4000-row point workload measures native C
+queries/writes about 14.9×/14.5× faster, C-Wasm about 9.6×/14.1×, and JavaScript
+writes about 381× faster; JS queries are approximately unchanged. Rust already
+used journals. These are within-lane steady-state results, not cross-language
+rankings or GPU-device claims. Existing cached linked-list writes remain costly:
+ordinary Rust wins write-heavy mixes, while cached aggregates win read-only work.
+See [raw samples, generated code and limits](reports/indexed-source-choice-2026-10-12/README.md).
 
 ## Indexed cached tables and incremental durability
 

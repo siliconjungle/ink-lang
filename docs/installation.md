@@ -14,7 +14,9 @@ ink doctor
 
 The installer builds the CLI with `cargo install --locked` and packages committed
 bytes from the pinned planner and knowledge checkouts, including the canonical
-store and general-law producer. `--cargo PATH` selects Cargo. `--binary PATH`
+store, producer directory and planner entry scripts. New pinned producer modules
+and candidate tools are packaged without a per-producer installer list.
+`--cargo PATH` selects Cargo. `--binary PATH`
 packages an already-built compiler instead. The installation contains `bin/ink`
 and `share/ink`; move the complete directory to relocate it. It uses a fresh,
 dedicated prefix and publishes it only after assembly succeeds. To upgrade,
