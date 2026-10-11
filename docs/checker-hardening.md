@@ -47,9 +47,9 @@ including on Wasm. It does not spawn a large-stack native thread per reference
 call. Small-stack tests cover the reported call chains, collection frames and
 float frames; this is not a claim about every possible host stack configuration.
 
-The current fold fragment requires the element and accumulator numeric types to
-match. Regression coverage retains that contract; it does not add polymorphic
-folds. Existing u32/u64 and compute-v2 signed, float, vector and record semantics
+The current fold fragment supports distinct checked element and accumulator
+carriers. General fold_until has explicit forward stop/step semantics, while
+foldr retains reverse evaluation. Existing u32/u64 and compute-v2 signed, float, vector and record semantics
 remain in the same evaluator.
 
 ## Reproduction
@@ -63,8 +63,7 @@ INK_FUZZ_VERBOSE=1 INK_FUZZ_ITERS=1000 \
 ```
 
 The deterministic mutation harness covers general logic objects, arithmetic
-certificates, historical scalar objects, lockfiles, maintenance certificates,
-row models, portable snapshots, executable modules and evaluation arguments.
+certificates, lockfiles, canonical knowledge objects, portable snapshots, executable modules and evaluation arguments.
 Valid seeds are checked before mutations. The argument corpus includes u32/u64,
 i32, f32, vectors and numeric records. Rehashed mutations can reach semantic
 checking rather than stopping at an object digest.
@@ -81,7 +80,7 @@ This is adversarial regression evidence, not a proof of checker soundness or
 complete fuzz coverage of every current package interface. Native code and GPU
 hosts have different resource policies; reference fuel is not a runtime sandbox
 for generated code. There is no new compiled-program speed claim. Full source
-stateful refinement, remaining aggregate/bounded/layout authority migration,
+stateful refinement, checked representation and layout coverage,
 ownership, durable recovery and independent checker verification remain open.
 
 The mutation harness does not cover every source-parser or JSON state-restore

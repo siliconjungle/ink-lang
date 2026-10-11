@@ -74,12 +74,10 @@ A host supplies persistence, external I/O and event delivery.
 CPU integer arithmetic and evaluation order match Ink. `u64` must not pass through
 an unsafe JavaScript Number; use BigInt or exact decimal input. `Int` has the
 explicit `{Int:"decimal"}` wire form. Exceptional floats use `{F32Bits:bits}`.
-Every backend rounds each f32 operation separately and canonicalises arithmetic
-NaNs to `0x7fc00000`. Pass-through and sign-bit negation preserve payload bits.
-Programs using floats carry executable-core V6; replay rejects a stale marker.
-Eligible GPU kernels evaluate binary32 using integer lanes, preserving subnormal
-values, signed zero and rounding instead of relying on device float behaviour.
-This changes the executable contract; it grants no floating rewrite authority.
+Each f32 arithmetic operation rounds separately and canonicalises arithmetic
+NaNs to `0x7fc00000`; transport and negation preserve payload bits. The packed GPU
+emitter implements binary32 using integer lanes. F32 programs bind executable-core
+V7, with cross-target tests including NaN arithmetic and payload transport.
 
 The GPU collection implementation is literal: filter, inclusive scan and stable
 rank sorting preserve integer semantics, but scans and rank sorts repeat work.
@@ -199,17 +197,12 @@ operations retain the 128-element device admission bound; shapes that cannot
 retain their declared capacity use the complete host path.
 
 
-## Caller-trusted generated arguments
+## Generated arguments and checked state transport
 
-All generated Rust, C, JavaScript, Wasm and GPU host interfaces require arguments
-with the declared arity, types, shapes, tags and canonical ranges. They convert
-representations where transport requires it and do not perform an ingress type
-validation pass. Invalid arguments are unsafe: they may crash/trap, corrupt state
-or return incorrect results, and raw native pointer APIs may corrupt memory.
-There is no invalid-input diagnostic, atomicity or cross-target parity contract.
-Validate external data in the application when required. Source types and proofs
-are still checked by the compiler; the reference interpreter keeps its diagnostic
-checks for tooling.
+Raw generated pure functions and standalone representation calls require arguments
+with their declared arity, types, tags, shapes and ranges. Their native pointer
+interfaces additionally require the documented ownership/capacity contract.
+Applications validate external data before using those caller-trusted interfaces.
 
 JSON syntax parsing, explicit checkpoint integrity/size checks, hardware resource
 limits, device eligibility and transaction/version rules remain. GPU eligibility checks the kernel and resource domain; exact binary32

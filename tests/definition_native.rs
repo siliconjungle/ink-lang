@@ -7,8 +7,8 @@ use std::{
     sync::atomic::{AtomicUsize, Ordering},
 };
 use verified_language::{
+    content::Lock,
     definition_native,
-    knowledge::Lock,
     library::{self, Bundle, Object},
     logic::{Branch, Constructor, Declaration, Proof, Sort, Term},
 };

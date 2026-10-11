@@ -104,11 +104,9 @@ See the package README for the statements.
 
 ## What uses it
 
-Maintained-view proofs (`--prove-views`, [view-decomposition.md](view-decomposition.md))
-are now built entirely from instances of `sum_map`, `sum_filter` and
-`sum_congruence`. The per-program evidence contains no induction. Before this
-change, each program carried one inductive lemma per stage. The bundles are
-also smaller: at most 64 objects, down from up to 118.
+General laws remain reusable mathematical library entries. Current executable
+selection uses source-bound semantic laws and representation preservation proofs.
+The old maintained-view command and its specialised certificate path are removed.
 
 ## Limits
 
@@ -120,3 +118,12 @@ also smaller: at most 64 objects, down from up to 118.
 - Source programs cannot yet *state* laws. The laws are written by an
   untrusted producer in the logic's JSON form. A surface `law` syntax would
   need generic types and function-typed parameters in the source language.
+
+## Quantified executable induction
+
+The executable semantic checker also supports generalized structural induction
+for natural and list terms. Its branch-local hypothesis can quantify changing
+indices or accumulators, with exact typed instantiation and checks that fixed
+premises do not depend on newly quantified variables. See
+[checked collection edits](collection-edit-laws.md) for its restrictions,
+compiler traversal changes, portable knowledge entries and executable evidence.

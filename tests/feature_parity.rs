@@ -348,7 +348,7 @@ fn sealed_numeric_primitives_execute_identically_on_every_cpu_target() {
     use sha2::{Digest, Sha256};
     use verified_language::{
         definition,
-        knowledge::Lock,
+        content::Lock,
         library::{self, Bundle, Object},
         logic::{Declaration, Sort, Term},
     };

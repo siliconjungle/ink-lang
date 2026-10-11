@@ -30,6 +30,8 @@ pub enum Node {
     Word(u64),
     Float(u32),
     Bool(bool),
+    String(String),
+    Unit,
     Nat(u64),
     Lambda(Box<Term>),
     Op(String, Vec<Term>),
@@ -68,6 +70,23 @@ pub fn children(t: &Term) -> Vec<&Term> {
         Node::Cons(a, b) => vec![a, b],
         _ => vec![],
     }
+}
+/// Rebuild each child once, in semantic visitor order. Callers own recursion,
+/// binder depth and work accounting; this helper makes no rewrite decisions.
+pub fn try_map_children(
+    t: &Term,
+    mut map: impl FnMut(&Term) -> LangResult<Term>,
+) -> LangResult<Term> {
+    let node = match &t.node {
+        Node::Lambda(body) => Node::Lambda(Box::new(map(body)?)),
+        Node::Op(name, args) => Node::Op(
+            name.clone(),
+            args.iter().map(&mut map).collect::<LangResult<_>>()?,
+        ),
+        Node::Cons(head, tail) => Node::Cons(Box::new(map(head)?), Box::new(map(tail)?)),
+        node => node.clone(),
+    };
+    Ok(term(t.sort.clone(), node))
 }
 pub fn replace_child(t: &Term, i: usize, child: Term) -> LangResult<Term> {
     let mut t = t.clone();
@@ -136,17 +155,14 @@ fn beta_at(t: &Term, arg: &Term, depth: usize, b: &mut Budget) -> LangResult<Ter
             Node::Bound(if i > depth { i - 1 } else { i }),
         ));
     }
-    let mut out = t.clone();
-    for (i, c) in children(t).into_iter().enumerate() {
-        let sub = beta_at(
+    try_map_children(t, |c| {
+        beta_at(
             c,
             arg,
             depth + usize::from(matches!(t.node, Node::Lambda(_))),
             b,
-        )?;
-        out = replace_child(&out, i, sub)?;
-    }
-    Ok(out)
+        )
+    })
 }
 pub fn beta(body: &Term, arg: &Term, b: &mut Budget) -> LangResult<Term> {
     beta_at(body, arg, 0, b)
@@ -164,17 +180,14 @@ pub fn substitute(t: &Term, args: &BTreeMap<String, Term>, b: &mut Budget) -> La
                 return shift(a, depth as isize, 0, b, 0);
             }
         }
-        let mut out = t.clone();
-        for (i, c) in children(t).into_iter().enumerate() {
-            let sub = walk(
+        try_map_children(t, |c| {
+            walk(
                 c,
                 args,
                 depth + usize::from(matches!(t.node, Node::Lambda(_))),
                 b,
-            )?;
-            out = replace_child(&out, i, sub)?;
-        }
-        Ok(out)
+            )
+        })
     }
     walk(t, args, 0, b)
 }
@@ -188,20 +201,14 @@ pub fn unshift_hole(t: &Term, depth: usize) -> LangResult<Term> {
                 return Err("pattern hole captures surrounding binder".into());
             }
         }
-        let mut out = t.clone();
-        for (i, c) in children(t).into_iter().enumerate() {
-            out = replace_child(
-                &out,
-                i,
-                walk(
-                    c,
-                    depth,
-                    local + usize::from(matches!(t.node, Node::Lambda(_))),
-                    b,
-                )?,
-            )?;
-        }
-        Ok(out)
+        try_map_children(t, |c| {
+            walk(
+                c,
+                depth,
+                local + usize::from(matches!(t.node, Node::Lambda(_))),
+                b,
+            )
+        })
     }
     let mut b = Budget::new();
     let out = walk(t, depth, 0, &mut b)?;
@@ -261,6 +268,13 @@ pub fn validate(t: &Term, env: &Env, p: &Program, b: &mut Budget) -> LangResult<
             },
             Node::Float(_) => need(&t.sort, value(Type::F32))?,
             Node::Bool(_) => need(&t.sort, value(Type::Bool))?,
+            Node::String(s) => {
+                if s.len() > 1_000_000 {
+                    return Err("semantic string literal budget".into());
+                }
+                need(&t.sort, value(Type::String))?;
+            }
+            Node::Unit => need(&t.sort, value(Type::Unit))?,
             Node::Nat(_) => need(&t.sort, Sort::Nat)?,
             Node::Lambda(body) => {
                 let Sort::Arrow(a, c) = &t.sort else {
@@ -421,9 +435,21 @@ pub fn validate(t: &Term, env: &Env, p: &Program, b: &mut Budget) -> LangResult<
                         list(a(0)?)?;
                         need(&t.sort, value(Type::U64))?;
                     }
+                    "call:fold_until" => {
+                        arity(4)?;
+                        let item = value(list(a(0)?)?.clone());
+                        crate::statecheck::validate_type(val(&t.sort)?, p)?;
+                        need(a(1)?, t.sort.clone())?;
+                        need(
+                            a(2)?,
+                            arrow(item.clone(), arrow(t.sort.clone(), value(Type::Bool))),
+                        )?;
+                        need(a(3)?, arrow(item, arrow(t.sort.clone(), t.sort.clone())))?;
+                    }
                     "call:foldr" | "call:foldl" => {
                         arity(3)?;
                         let item = value(list(a(0)?)?.clone());
+                        crate::statecheck::validate_type(val(&t.sort)?, p)?;
                         need(a(1)?, t.sort.clone())?;
                         need(a(2)?, arrow(item, arrow(t.sort.clone(), t.sort.clone())))?;
                     }
@@ -498,8 +524,8 @@ pub fn validate(t: &Term, env: &Env, p: &Program, b: &mut Budget) -> LangResult<
                         arity(2)?;
                         need(a(0)?, t.sort.clone())?;
                         need(a(1)?, value(list(&t.sort)?.clone()))?;
-                        if !check::is_word(list(&t.sort)?) {
-                            return Err("scan accumulator integer sort".into());
+                        if !check::is_number(list(&t.sort)?) {
+                            return Err("scan accumulator numeric sort".into());
                         }
                     }
                     "list.insert" => {
@@ -513,8 +539,12 @@ pub fn validate(t: &Term, env: &Env, p: &Program, b: &mut Budget) -> LangResult<
                     "method:scan" | "method:sort" => {
                         arity(1)?;
                         need(a(0)?, t.sort.clone())?;
-                        if !check::is_word(list(&t.sort)?) {
-                            return Err("scan/sort integer sort".into());
+                        if !(if n == "method:scan" {
+                            check::is_number(list(&t.sort)?)
+                        } else {
+                            check::is_word(list(&t.sort)?)
+                        }) {
+                            return Err("scan numeric / sort integer sort".into());
                         }
                     }
                     n if n.starts_with("binary:") => {
@@ -647,6 +677,8 @@ pub fn elaborate(e: &Expr, env: &check::Env, p: &Program, want: &Type) -> LangRe
             }),
             Expr::Float(n) => Ok(term(s, Node::Float(*n))),
             Expr::Bool(x) => Ok(term(s, Node::Bool(*x))),
+            Expr::String(x) => Ok(term(s, Node::String(x.clone()))),
+            Expr::Unit => Ok(term(s, Node::Unit)),
             Expr::Neg(x) => {
                 if *want == Type::I32 {
                     if let Expr::Num(n) = **x {
@@ -790,16 +822,42 @@ pub fn elaborate(e: &Expr, env: &check::Env, p: &Program, want: &Type) -> LangRe
                         )?;
                         out.push(recur(&args[0], &ty)?);
                     }
-                    "foldr" | "foldl" => {
+                    "fold_until" => {
                         let ty = check::infer(&args[0], env, p)?;
                         let Type::List(item) = &ty else {
-                            return Err("fold list type".into());
+                            return Err("fold_until list type".into());
                         };
                         out.push(recur(&args[0], &ty)?);
                         out.push(recur(&args[1], want)?);
                         out.push(lam(
                             &args[2],
-                            &[*item.clone(), want.clone()],
+                            &[item.as_ref().clone(), want.clone()],
+                            &Type::Bool,
+                            env,
+                            bound,
+                            p,
+                            b,
+                        )?);
+                        out.push(lam(
+                            &args[3],
+                            &[item.as_ref().clone(), want.clone()],
+                            want,
+                            env,
+                            bound,
+                            p,
+                            b,
+                        )?);
+                    }
+                    "foldr" | "foldl" => {
+                        let ty = check::infer(&args[0], env, p)?;
+                        let Type::List(item) = &ty else {
+                            return Err("foldr list type".into());
+                        };
+                        out.push(recur(&args[0], &ty)?);
+                        out.push(recur(&args[1], want)?);
+                        out.push(lam(
+                            &args[2],
+                            &[item.as_ref().clone(), want.clone()],
                             want,
                             env,
                             bound,
@@ -852,6 +910,25 @@ pub fn elaborate(e: &Expr, env: &check::Env, p: &Program, want: &Type) -> LangRe
                 )?;
                 if matches!(ty, Type::Buffer(_) | Type::Map(..)) {
                     let mut out = vec![recur(xs, &ty)?];
+                    if let Type::Buffer(inner) = &ty {
+                        if ["map", "map_indexed", "filter"].contains(&n.as_str()) {
+                            let params = if n != "map_indexed" {
+                                vec![*inner.clone()]
+                            } else {
+                                vec![Type::U32, *inner.clone()]
+                            };
+                            out.push(lam(
+                                &args[0],
+                                &params,
+                                if n == "filter" { &Type::Bool } else { inner },
+                                env,
+                                bound,
+                                p,
+                                b,
+                            )?);
+                            return Ok(op(s, &format!("method:{n}"), out));
+                        }
+                    }
                     let types = crate::owned_semantic::arguments(&ty, n)?;
                     if types.len() != args.len() {
                         return Err("temporary method arity".into());
@@ -981,6 +1058,8 @@ pub fn reify(t: &Term, p: &Program) -> LangResult<Expr> {
                 Expr::Float(*n)
             }
             Node::Bool(x) => Expr::Bool(*x),
+            Node::String(x) => Expr::String(x.clone()),
+            Node::Unit => Expr::Unit,
             Node::Nat(n) => Expr::Num(*n),
             Node::Lambda(body) => {
                 let mut name = format!("__ink_bound_{}", bound.len());
@@ -1116,20 +1195,14 @@ pub fn open_scope(t: &Term, names: &[(String, Sort)], b: &mut Budget) -> LangRes
                 return Ok(free(s.clone(), n));
             }
         }
-        let mut out = t.clone();
-        for (i, c) in children(t).into_iter().enumerate() {
-            out = replace_child(
-                &out,
-                i,
-                go(
-                    c,
-                    names,
-                    local + usize::from(matches!(t.node, Node::Lambda(_))),
-                    b,
-                )?,
-            )?;
-        }
-        Ok(out)
+        try_map_children(t, |c| {
+            go(
+                c,
+                names,
+                local + usize::from(matches!(t.node, Node::Lambda(_))),
+                b,
+            )
+        })
     }
     go(t, names, 0, b)
 }
@@ -1141,20 +1214,14 @@ pub fn close_scope(t: &Term, names: &[(String, Sort)], b: &mut Budget) -> LangRe
                 return Ok(term(t.sort.clone(), Node::Bound(local + i)));
             }
         }
-        let mut out = t.clone();
-        for (i, c) in children(t).into_iter().enumerate() {
-            out = replace_child(
-                &out,
-                i,
-                go(
-                    c,
-                    names,
-                    local + usize::from(matches!(t.node, Node::Lambda(_))),
-                    b,
-                )?,
-            )?;
-        }
-        Ok(out)
+        try_map_children(t, |c| {
+            go(
+                c,
+                names,
+                local + usize::from(matches!(t.node, Node::Lambda(_))),
+                b,
+            )
+        })
     }
     go(t, names, 0, b)
 }

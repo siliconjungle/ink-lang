@@ -23,6 +23,12 @@ pub enum Proof {
     },
     Normalize,
     Hypothesis(usize),
+    /// Instantiate only the quantified parameters of a branch-local induction
+    /// hypothesis. Its recursive argument remains the immediate predecessor.
+    GeneralizedHypothesis {
+        index: usize,
+        arguments: BTreeMap<String, Term>,
+    },
     Sym(Box<Proof>),
     Trans {
         middle: Term,
@@ -42,6 +48,13 @@ pub enum Proof {
     },
     Induction {
         variable: String,
+        names: Vec<String>,
+        base: Box<Proof>,
+        step: Box<Proof>,
+    },
+    GeneralizedInduction {
+        variable: String,
+        generalize: Vec<String>,
         names: Vec<String>,
         base: Box<Proof>,
         step: Box<Proof>,
@@ -76,6 +89,11 @@ pub fn identity<T: Serialize>(v: &T) -> LangResult<String> {
         "{:x}",
         Sha256::digest(serde_json::to_vec(v).map_err(|e| e.to_string())?)
     ))
+}
+#[derive(Clone)]
+struct InductionSchema {
+    params: Env,
+    equation: Equation,
 }
 #[derive(Debug)]
 pub struct CheckedCatalogue {
@@ -221,13 +239,14 @@ impl CheckedCatalogue {
             return Err("checked laws belong to a different executable definition context".into());
         }
         self.require_applicable()?;
-        self.prove_inner(p, env, hyp, goal, proof, b, d)
+        self.prove_inner(p, env, hyp, &[], goal, proof, b, d)
     }
     fn prove_inner(
         &self,
         p: &Program,
         env: &Env,
         hyp: &[Equation],
+        schemas: &[InductionSchema],
         goal: &Equation,
         proof: &Proof,
         b: &mut Budget,
@@ -264,6 +283,7 @@ impl CheckedCatalogue {
                     p,
                     env,
                     hyp,
+                    schemas,
                     &Equation {
                         from: proposition,
                         to: term(value(Type::Bool), Node::Bool(true)),
@@ -274,7 +294,7 @@ impl CheckedCatalogue {
                 )?;
                 let mut local = hyp.to_vec();
                 local.push(equality.clone());
-                self.prove_inner(p, env, &local, goal, body, b, d + 1)
+                self.prove_inner(p, env, &local, schemas, goal, body, b, d + 1)
             }
             Proof::Normalize => {
                 if equivalent(&goal.from, &goal.to, hyp, p, b, 0)? {
@@ -291,10 +311,32 @@ impl CheckedCatalogue {
                     Err("condition does not establish goal".into())
                 }
             }
+            Proof::GeneralizedHypothesis { index, arguments } => {
+                let schema = schemas
+                    .get(*index)
+                    .ok_or("induction schema index out of range")?;
+                if arguments.len() != schema.params.len() {
+                    return Err("induction schema instantiation arity".into());
+                }
+                for (name, sort) in &schema.params {
+                    let arg = arguments
+                        .get(name)
+                        .ok_or("missing induction schema argument")?;
+                    validate(arg, env, p, b)?;
+                    if &arg.sort != sort {
+                        return Err("induction schema argument sort mismatch".into());
+                    }
+                }
+                if sub_equation(&schema.equation, arguments, b)? != *goal {
+                    return Err("induction schema does not establish exact goal".into());
+                }
+                Ok(())
+            }
             Proof::Sym(proof) => self.prove_inner(
                 p,
                 env,
                 hyp,
+                schemas,
                 &Equation {
                     from: goal.to.clone(),
                     to: goal.from.clone(),
@@ -312,6 +354,7 @@ impl CheckedCatalogue {
                     p,
                     env,
                     hyp,
+                    schemas,
                     &Equation {
                         from: goal.from.clone(),
                         to: middle.clone(),
@@ -324,6 +367,7 @@ impl CheckedCatalogue {
                     p,
                     env,
                     hyp,
+                    schemas,
                     &Equation {
                         from: middle.clone(),
                         to: goal.to.clone(),
@@ -353,6 +397,7 @@ impl CheckedCatalogue {
                         p,
                         &local,
                         hyp,
+                        schemas,
                         &Equation { from, to },
                         &proofs[0],
                         b,
@@ -367,6 +412,7 @@ impl CheckedCatalogue {
                         p,
                         &local,
                         hyp,
+                        schemas,
                         &Equation {
                             from: a.clone(),
                             to: c.clone(),
@@ -404,6 +450,7 @@ impl CheckedCatalogue {
                         p,
                         env,
                         hyp,
+                        schemas,
                         &sub_equation(condition, arguments, b)?,
                         proof,
                         b,
@@ -427,7 +474,7 @@ impl CheckedCatalogue {
                         from: condition.clone(),
                         to: term(value(Type::Bool), Node::Bool(flag)),
                     });
-                    self.prove_inner(p, env, &local, goal, proof, b, d + 1)?;
+                    self.prove_inner(p, env, &local, schemas, goal, proof, b, d + 1)?;
                 }
                 Ok(())
             }
@@ -436,13 +483,48 @@ impl CheckedCatalogue {
                 names,
                 base,
                 step,
+            }
+            | Proof::GeneralizedInduction {
+                variable,
+                names,
+                base,
+                step,
+                ..
             } => {
+                let generalize = match proof {
+                    Proof::GeneralizedInduction { generalize, .. } => generalize.as_slice(),
+                    _ => &[],
+                };
+                if generalize.len() > 64 {
+                    return Err("generalized induction parameter count limit".into());
+                }
+                let mut variables = BTreeSet::from([variable.clone()]);
+                let mut params = Env::new();
+                for name in generalize {
+                    if !variables.insert(name.clone()) {
+                        return Err("duplicate or recursive generalized parameter".into());
+                    }
+                    params.insert(
+                        name.clone(),
+                        env.get(name)
+                            .cloned()
+                            .ok_or("unknown generalized parameter")?,
+                    );
+                }
                 let sort = env.get(variable).ok_or("missing induction variable")?;
-                if hyp
-                    .iter()
-                    .any(|h| occurs(&h.from, variable) || occurs(&h.to, variable))
-                {
-                    return Err("induction needs premises independent of its variable".into());
+                for name in &variables {
+                    if hyp
+                        .iter()
+                        .any(|h| occurs(&h.from, name) || occurs(&h.to, name))
+                        || schemas.iter().any(|s| {
+                            !s.params.contains_key(name)
+                                && (occurs(&s.equation.from, name) || occurs(&s.equation.to, name))
+                        })
+                    {
+                        return Err(
+                            "induction needs premises independent of quantified variables".into(),
+                        );
+                    }
                 }
                 if names.iter().any(|n| env.contains_key(n))
                     || names.iter().collect::<BTreeSet<_>>().len() != names.len()
@@ -486,17 +568,28 @@ impl CheckedCatalogue {
                     p,
                     &local,
                     hyp,
+                    schemas,
                     &sub_equation(goal, &sub(zero), b)?,
                     base,
                     b,
                     d + 1,
                 )?;
                 let mut hs = hyp.to_vec();
-                hs.push(sub_equation(goal, &sub(ih_arg), b)?);
+                let mut local_schemas = schemas.to_vec();
+                let equation = sub_equation(goal, &sub(ih_arg), b)?;
+                if matches!(proof, Proof::GeneralizedInduction { .. }) {
+                    local_schemas.push(InductionSchema { params, equation });
+                } else {
+                    hs.push(equation);
+                }
+                if hs.len() + local_schemas.len() > 128 {
+                    return Err("semantic hypothesis count limit".into());
+                }
                 self.prove_inner(
                     p,
                     &local,
                     &hs,
+                    &local_schemas,
                     &sub_equation(goal, &sub(next), b)?,
                     step,
                     b,
@@ -565,10 +658,7 @@ fn normal(t: &Term, hyp: &[Equation], p: &Program, b: &mut Budget, d: usize) -> 
             }
         }
     }
-    let mut out = t.clone();
-    for (i, c) in children(t).into_iter().enumerate() {
-        out = replace_child(&out, i, normal(c, hyp, p, b, d + 1)?)?;
-    }
+    let out = try_map_children(t, |c| normal(c, hyp, p, b, d + 1))?;
     // Equality premises are oriented local facts. Match only exact typed terms.
     for h in hyp {
         if out == h.from && h.from != h.to {
@@ -876,6 +966,27 @@ fn normal(t: &Term, hyp: &[Equation], p: &Program, b: &mut Budget, d: usize) -> 
             )),
             _ => None,
         },
+        ("call:fold_until", [xs, init, stop, step]) => match &xs.node {
+            Node::Nil => Some(init.clone()),
+            Node::Cons(h, tail) => {
+                let stopped = apply(apply(stop.clone(), (**h).clone())?, init.clone())?;
+                let next = apply(apply(step.clone(), (**h).clone())?, init.clone())?;
+                Some(op(
+                    out.sort.clone(),
+                    "call:choose",
+                    vec![
+                        stopped,
+                        next.clone(),
+                        op(
+                            out.sort.clone(),
+                            n,
+                            vec![(**tail).clone(), next, stop.clone(), step.clone()],
+                        ),
+                    ],
+                ))
+            }
+            _ => None,
+        },
         ("call:foldr", [xs, init, f]) => match &xs.node {
             Node::Nil => Some(init.clone()),
             Node::Cons(h, t) => Some(apply(
@@ -940,7 +1051,14 @@ fn normal(t: &Term, hyp: &[Equation], p: &Program, b: &mut Budget, d: usize) -> 
             Some(op(
                 out.sort.clone(),
                 "scan.acc",
-                vec![xs.clone(), word((**t).clone(), 0)],
+                vec![
+                    xs.clone(),
+                    if **t == Type::F32 {
+                        term(value(Type::F32), Node::Float(0))
+                    } else {
+                        word((**t).clone(), 0)
+                    },
+                ],
             ))
         }
         ("scan.acc", [xs, initial]) => match &xs.node {
@@ -999,13 +1117,32 @@ fn normal(t: &Term, hyp: &[Equation], p: &Program, b: &mut Budget, d: usize) -> 
             )),
             _ => None,
         },
-        ("method:at_or", [xs, index, fallback]) => match (&xs.node, &index.node) {
-            (Node::Nil, _) => Some(fallback.clone()),
-            (Node::Cons(h, _), Node::Word(0)) => Some((**h).clone()),
-            (Node::Cons(_, t), Node::Word(i)) => Some(op(
+        ("method:at_or", [xs, index, fallback]) => match &xs.node {
+            Node::Nil => Some(fallback.clone()),
+            Node::Cons(h, tail) => Some(op(
                 out.sort.clone(),
-                n,
-                vec![(**t).clone(), word(Type::U32, i - 1), fallback.clone()],
+                "call:choose",
+                vec![
+                    op(
+                        value(Type::Bool),
+                        "binary:==",
+                        vec![index.clone(), word(Type::U32, 0)],
+                    ),
+                    (**h).clone(),
+                    op(
+                        out.sort.clone(),
+                        n,
+                        vec![
+                            (**tail).clone(),
+                            op(
+                                value(Type::U32),
+                                "binary:-",
+                                vec![index.clone(), word(Type::U32, 1)],
+                            ),
+                            fallback.clone(),
+                        ],
+                    ),
+                ],
             )),
             _ => None,
         },
@@ -1260,6 +1397,59 @@ mod tests {
         (p, checked)
     }
     #[test]
+    fn quantified_induction_respects_free_variables_of_inherited_schemas() {
+        let (p, c) = context();
+        let list = value(Type::List(Box::new(Type::U32)));
+        let i = free(value(Type::U32), "i");
+        let xs = free(list.clone(), "xs");
+        let env = BTreeMap::from([("xs".into(), list), ("i".into(), i.sort.clone())]);
+        let goal = Equation {
+            from: xs.clone(),
+            to: xs,
+        };
+        let proof = Proof::GeneralizedInduction {
+            variable: "xs".into(),
+            generalize: vec!["i".into()],
+            names: vec!["head".into(), "tail".into()],
+            base: Box::new(Proof::Normalize),
+            step: Box::new(Proof::Normalize),
+        };
+        let mut schema = InductionSchema {
+            params: Env::new(),
+            equation: Equation {
+                from: i.clone(),
+                to: i.clone(),
+            },
+        };
+        assert!(c
+            .prove_inner(
+                &p,
+                &env,
+                &[],
+                &[schema.clone()],
+                &goal,
+                &proof,
+                &mut Budget::new(),
+                0
+            )
+            .unwrap_err()
+            .contains("independent"));
+        // A schema-bound parameter is universally quantified already, so it
+        // imposes no fixed assumption on the parameter being generalized.
+        schema.params.insert("i".into(), i.sort);
+        c.prove_inner(
+            &p,
+            &env,
+            &[],
+            &[schema],
+            &goal,
+            &proof,
+            &mut Budget::new(),
+            0,
+        )
+        .unwrap();
+    }
+    #[test]
     fn wrapping_arithmetic_is_checked_for_each_word_width() {
         let (p, c) = context();
         for ty in [Type::U32, Type::U64, Type::I32] {
@@ -1353,6 +1543,26 @@ pub fn open_proof(proof: &Proof, scope: &[(String, Sort)], b: &mut Budget) -> La
         Ok(match proof {
             Proof::Normalize => Proof::Normalize,
             Proof::Hypothesis(i) => Proof::Hypothesis(*i),
+            Proof::GeneralizedHypothesis { index, arguments } => Proof::GeneralizedHypothesis {
+                index: *index,
+                arguments: arguments
+                    .iter()
+                    .map(|(n, t)| Ok((n.clone(), s::open_scope(t, scope, b)?)))
+                    .collect::<LangResult<_>>()?,
+            },
+            Proof::GeneralizedInduction {
+                variable,
+                generalize,
+                names,
+                base,
+                step,
+            } => Proof::GeneralizedInduction {
+                variable: variable.clone(),
+                generalize: generalize.clone(),
+                names: names.clone(),
+                base: Box::new(go(base, scope, b, d + 1)?),
+                step: Box::new(go(step, scope, b, d + 1)?),
+            },
             Proof::Sym(p) => Proof::Sym(Box::new(go(p, scope, b, d + 1)?)),
             Proof::Trans {
                 middle,

@@ -49,20 +49,27 @@ impl<'p> Lower<'p> {
             let child = |n: NodeId| total.get(n).copied().unwrap_or(false);
             let safe = match &node.kind {
                 Kind::State(_) | Kind::Keep(_) => true,
-                Kind::Float(_) | Kind::Number(_)
+                Kind::Float(_)
+                | Kind::Number(_)
                 | Kind::Bool(_)
                 | Kind::Unit
                 | Kind::None
                 | Kind::Local(_)
                 | Kind::Enum { .. } => true,
                 Kind::Record { fields, .. } => fields.iter().all(|(_, n)| child(*n)),
-                Kind::VectorField { receiver, .. } | Kind::Field { receiver, .. } | Kind::Neg { value:receiver } => child(*receiver),
+                Kind::VectorField { receiver, .. }
+                | Kind::Field { receiver, .. }
+                | Kind::Neg { value: receiver } => child(*receiver),
                 Kind::Binary { left, right, .. }
                 | Kind::And { left, right }
                 | Kind::Or { left, right } => child(*left) && child(*right),
                 Kind::PureCall { arguments, .. } => arguments.iter().all(|n| child(*n)),
                 Kind::Builtin { name, arguments } => {
-                    ["Ok", "Err", "Some", "count", "sum", "vec2", "vec3", "vec4", "quot_or", "rem_or"].contains(&name.as_str())
+                    [
+                        "Ok", "Err", "Some", "count", "sum", "vec2", "vec3", "vec4", "quot_or",
+                        "rem_or",
+                    ]
+                    .contains(&name.as_str())
                         && arguments.iter().all(|n| child(*n))
                 }
                 Kind::Table {
@@ -72,7 +79,15 @@ impl<'p> Lower<'p> {
                         && arguments.iter().all(|n| child(*n))
                 }
                 Kind::Lambda { body, .. } => child(*body),
-                Kind::Method { receiver, method, arguments } => ["map", "filter", "keys", "values"].contains(&method.as_str()) && child(*receiver) && arguments.iter().all(|n| child(*n)),
+                Kind::Method {
+                    receiver,
+                    method,
+                    arguments,
+                } => {
+                    ["map", "filter", "keys", "values"].contains(&method.as_str())
+                        && child(*receiver)
+                        && arguments.iter().all(|n| child(*n))
+                }
                 _ => false,
             };
             total.push(safe);
@@ -497,9 +512,11 @@ impl<'p> Lower<'p> {
                     events,
                     vec![],
                     &|this, xs, state, events| {
-                        let ExprType::Value(t)=&body.nodes[*left].ty else {return Err("operator type".into());};
-                        let value=this.operator(t,op,xs[0].clone(),xs[1].clone())?;
-                        next(this,value,state,events)
+                        let ExprType::Value(t) = &body.nodes[*left].ty else {
+                            return Err("operator type".into());
+                        };
+                        let value = this.operator(t, op, xs[0].clone(), xs[1].clone())?;
+                        next(this, value, state, events)
                     },
                     abort,
                     depth + 1,

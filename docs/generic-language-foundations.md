@@ -161,7 +161,7 @@ The JavaScript compiler's first-nonzero fold shortcut has been removed.
 
 ## Versions, coverage and limits
 
-New fixed value meanings bind executable-core V7 when needed. New action expression
+New fixed value meanings bind executable-core V8 when needed. New action expression
 bindings and sum elimination bind typed-actions V3. Existing domains retain their
 older markers where their meanings are unchanged. Re-admission derives the marker
 from the checked program and rejects downgrades. No proof variant was added.

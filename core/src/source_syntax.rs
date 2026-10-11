@@ -192,7 +192,7 @@ fn roles(r: &Roles) -> LangResult<()> {
     }
     let ids = [&r.words, &r.fields, &r.node, &r.nodes, &r.image, &r.program];
     for id in ids {
-        crate::knowledge::identity(id)?;
+        crate::content::identity(id)?;
     }
     let unique = ids.into_iter().collect::<std::collections::BTreeSet<_>>();
     if unique.len() != ids.len() {

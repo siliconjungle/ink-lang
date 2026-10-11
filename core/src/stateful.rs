@@ -98,36 +98,6 @@ impl Value {
         }
         convert(self, 0)
     }
-    fn ty(&self) -> Type {
-        match self {
-            Self::Unit => Type::Unit,
-            Self::Bool(_) => Type::Bool,
-            Self::U32(_) => Type::U32,
-            Self::U64(_) => Type::U64,
-            Self::I32(_) => Type::I32,
-            Self::F32(_) => Type::F32,
-            Self::Vector(xs) => Type::Vector(
-                Box::new(xs.first().map(Value::ty).unwrap_or(Type::Unknown)),
-                xs.len() as u8,
-            ),
-            Self::Int(_) => Type::Int,
-            Self::String(_) => Type::String,
-            Self::Id(n, _) | Self::Record(n, _) | Self::Enum(n, _) => Type::Named(n.clone()),
-            Self::Option(v) => Type::Option(Box::new(
-                v.as_ref().map(|v| v.ty()).unwrap_or(Type::Unknown),
-            )),
-            Self::Result(ok, v) => {
-                if *ok {
-                    Type::Result(Box::new(v.ty()), Box::new(Type::Unknown))
-                } else {
-                    Type::Result(Box::new(Type::Unknown), Box::new(v.ty()))
-                }
-            }
-            Self::List(xs) => {
-                Type::List(Box::new(xs.first().map(Value::ty).unwrap_or(Type::Unknown)))
-            }
-        }
-    }
     pub fn json(&self) -> serde_json::Value {
         use serde_json::json;
         match self {
@@ -307,17 +277,11 @@ impl From<&str> for Failure {
     }
 }
 type Exec<T> = Result<T, Failure>;
-type Env = BTreeMap<String, Value>;
 type Table = BTreeMap<Value, Value>;
 struct Undo {
     root: String,
     key: Value,
     old: Option<Value>,
-    cached: Vec<(String, crate::aggregate::CacheUndo)>,
-}
-struct Cached {
-    plan: crate::aggregate::Plan,
-    total: BigInt,
 }
 
 pub struct Runtime {
@@ -334,8 +298,6 @@ pub struct Runtime {
     undo: Vec<Undo>,
     staged: Vec<(String, Value)>,
     fuel: u64,
-    cached: BTreeMap<String, Cached>,
-    certificate: Option<crate::aggregate::Certificate>,
 }
 impl Runtime {
     pub fn new(program: Program) -> LangResult<Self> {
@@ -367,8 +329,6 @@ impl Runtime {
             undo: vec![],
             staged: vec![],
             fuel: 0,
-            cached: BTreeMap::new(),
-            certificate: None,
         })
     }
     pub fn new_selected(selection: &crate::optimisation::CheckedSelection) -> LangResult<Self> {
@@ -401,73 +361,6 @@ impl Runtime {
     }
     pub fn outbox(&self) -> &[Event] {
         &self.outbox
-    }
-    pub fn maintained_values(&self) -> Vec<String> {
-        self.cached.keys().cloned().collect()
-    }
-    pub fn enable_maintenance(
-        &mut self,
-        c: crate::aggregate::Certificate,
-    ) -> LangResult<Vec<String>> {
-        if !self.undo.is_empty() || !self.staged.is_empty() {
-            return Err("implementation selection requires a transaction boundary".into());
-        }
-        crate::aggregate::verify(&c)?;
-        self.fuel = 100_000_000;
-        let mut candidates = BTreeMap::new();
-        for keep in self.program.keeps.clone() {
-            if let Some(plan) = crate::aggregate::plan_with_certificate(&self.program, &keep, &c) {
-                let rows = self
-                    .tables
-                    .get(&plan.root)
-                    .ok_or("aggregate root is not a table")?
-                    .values()
-                    .cloned()
-                    .collect::<Vec<_>>();
-                let mut total = BigInt::from(0);
-                for row in rows {
-                    total += self.contribution(&plan, row).map_err(|e| match e {
-                        Failure::Host(s) => s,
-                        Failure::Abort(_) => "unexpected error from total projection".into(),
-                    })?;
-                }
-                candidates.insert(keep.name, Cached { plan, total });
-            }
-        }
-        self.cached = candidates;
-        self.certificate = Some(c);
-        Ok(self.maintained_values())
-    }
-    pub fn disable_maintenance(&mut self) -> LangResult<()> {
-        if !self.undo.is_empty() || !self.staged.is_empty() {
-            return Err("implementation selection requires a transaction boundary".into());
-        }
-        self.cached.clear();
-        self.certificate = None;
-        Ok(())
-    }
-    fn contribution(&mut self, plan: &crate::aggregate::Plan, mut value: Value) -> Exec<BigInt> {
-        for (op, var, body) in &plan.stages {
-            let env = [(var.clone(), value.clone())].into();
-            let out = self.expr(body, &env)?;
-            if op == "filter" {
-                match out {
-                    Value::Bool(false) => return Ok(BigInt::from(0)),
-                    Value::Bool(true) => {}
-                    _ => return Err("invalid aggregate predicate".into()),
-                }
-            } else {
-                value = out;
-            }
-        }
-        if plan.count {
-            return Ok(BigInt::from(1));
-        }
-        if let Value::Int(n) = value {
-            Ok(n)
-        } else {
-            Err("exact-sum plan requires Int contribution".into())
-        }
     }
     pub fn acknowledge_through(&mut self, commit: u64, position: u64) {
         self.outbox
@@ -610,17 +503,6 @@ impl Runtime {
             } else {
                 table.remove(&u.key);
             }
-            for (n, undo) in u.cached {
-                let cache = self
-                    .cached
-                    .get_mut(&n)
-                    .expect("stable cache plan during transaction");
-                cache.total = crate::aggregate::restore_journal(
-                    self.certificate.as_ref().expect("stable certificate"),
-                    &cache.total,
-                    undo,
-                );
-            }
         }
         self.staged.clear();
     }
@@ -656,9 +538,9 @@ impl Runtime {
         if let (Value::F32(a), Value::F32(b)) = (&av, &bv) {
             let (a, b) = (f32::from_bits(*a), f32::from_bits(*b));
             return Ok(match op {
-                "+" => Value::F32(crate::eval::arithmetic_f32_bits(a + b)),
-                "-" => Value::F32(crate::eval::arithmetic_f32_bits(a - b)),
-                "*" => Value::F32(crate::eval::arithmetic_f32_bits(a * b)),
+                "+" => Value::F32(crate::logic::canonical_f32_bits(a + b)),
+                "-" => Value::F32(crate::logic::canonical_f32_bits(a - b)),
+                "*" => Value::F32(crate::logic::canonical_f32_bits(a * b)),
                 "==" => Value::Bool(a == b),
                 "!=" => Value::Bool(a != b),
                 "<" => Value::Bool(a < b),
@@ -873,39 +755,10 @@ impl Runtime {
                 } else {
                     Some(self.coerce(vals[1].clone(), &vt)?)
                 };
-                let plans = self
-                    .cached
-                    .iter()
-                    .filter(|(_, c)| &c.plan.root == root)
-                    .map(|(n, c)| (n.clone(), c.plan.clone()))
-                    .collect::<Vec<_>>();
-                let mut prior = Vec::new();
-                let mut updated = Vec::new();
-                for (name, plan) in plans {
-                    let old_value = if let Some(v) = &old {
-                        Some(self.contribution(&plan, v.clone())?)
-                    } else {
-                        None
-                    };
-                    let new_value = if let Some(v) = &next {
-                        Some(self.contribution(&plan, v.clone())?)
-                    } else {
-                        None
-                    };
-                    let (new_total, undo) = crate::aggregate::update_journal(
-                        self.certificate.as_ref().expect("checked plan certificate"),
-                        &self.cached[&name].total,
-                        old_value.as_ref(),
-                        new_value.as_ref(),
-                    );
-                    prior.push((name.clone(), undo));
-                    updated.push((name, new_total));
-                }
                 self.undo.push(Undo {
                     root: root.clone(),
                     key: k.clone(),
                     old: old.clone(),
-                    cached: prior,
                 });
                 let table = self.tables.get_mut(root).expect("known root");
                 if let Some(v) = next {
@@ -913,9 +766,7 @@ impl Runtime {
                 } else {
                     table.remove(&k);
                 }
-                for (name, total) in updated {
-                    self.cached.get_mut(&name).expect("existing plan").total = total;
-                }
+
                 return Ok(if n == "remove" {
                     Value::Option(old.map(Box::new))
                 } else {
@@ -923,220 +774,6 @@ impl Runtime {
                 });
             }
             _ => return Err(format!("unknown table method {n}").into()),
-        }
-    }
-    // Transitional aggregate projections still use source expressions. Actions
-    // and keeps execute only the checked typed tree in actions.rs.
-    fn expr(&mut self, e: &Expr, env: &Env) -> Exec<Value> {
-        self.tick()?;
-        match e {
-            Expr::Let(n, t, value, body) => {
-                let value = self.expr(value, env)?;
-                let value = if let Some(t) = t {
-                    self.coerce(value, t)?
-                } else {
-                    value
-                };
-                let mut local = env.clone();
-                local.insert(n.clone(), value);
-                self.expr(body, &local)
-            }
-            Expr::Float(_) | Expr::Neg(_) => {
-                Err("compute expression belongs in a pure function".into())
-            }
-            Expr::Num(n) => Ok(Value::U64(*n)),
-            Expr::Bool(v) => Ok(Value::Bool(*v)),
-            Expr::String(s) => Ok(Value::String(s.clone())),
-            Expr::Unit => Ok(Value::Unit),
-            Expr::Var(n) => {
-                if let Some(v) = env.get(n) {
-                    return Ok(v.clone());
-                }
-                if n == "None" {
-                    return Ok(Value::Option(None));
-                }
-                if let Some(cache) = self.cached.get(n) {
-                    return Ok(Value::Int(cache.total.clone()));
-                }
-                if let Some(index) = self.program.keeps.iter().position(|k| &k.name == n) {
-                    return self.typed_keep(index);
-                }
-                Err(format!("unbound runtime name {n}").into())
-            }
-            Expr::Record(n, fs) => {
-                let fields = self.program.records[n].clone();
-                let mut out = BTreeMap::new();
-                for (f, e) in fs {
-                    let v = self.expr(e, env)?;
-                    let t = &fields
-                        .iter()
-                        .find(|(name, _)| name == f)
-                        .ok_or("unknown field")?
-                        .1;
-                    out.insert(f.clone(), self.coerce(v, t)?);
-                }
-                Ok(Value::Record(n.clone(), out))
-            }
-            Expr::Field(x, f) => {
-                if let Expr::Var(n) = &**x {
-                    if self.program.enums.get(n).is_some_and(|vs| vs.contains(f)) {
-                        return Ok(Value::Enum(n.clone(), f.clone()));
-                    }
-                }
-                if let Value::Record(_, mut fields) = self.expr(x, env)? {
-                    fields
-                        .remove(f)
-                        .ok_or_else(|| Failure::Host(format!("unknown field {f}")))
-                } else {
-                    Err("field requires record".into())
-                }
-            }
-            Expr::Try(x) => match self.expr(x, env)? {
-                Value::Result(true, v) => Ok(*v),
-                Value::Result(false, e) => Err(Failure::Abort(*e)),
-                _ => Err("? requires Result".into()),
-            },
-            Expr::Binary(op, a, b) => {
-                let mut av = self.expr(a, env)?;
-                if op == "&&" && av == Value::Bool(false) {
-                    return Ok(av);
-                }
-                if op == "||" && av == Value::Bool(true) {
-                    return Ok(av);
-                }
-                let mut bv = self.expr(b, env)?;
-                if matches!(&**a, Expr::Num(_)) {
-                    av = match &bv {
-                        Value::U32(_) => self.coerce(av, &Type::U32)?,
-                        Value::Int(_) => self.coerce(av, &Type::Int)?,
-                        _ => av,
-                    };
-                }
-                if matches!(&**b, Expr::Num(_)) {
-                    bv = match &av {
-                        Value::U32(_) => self.coerce(bv, &Type::U32)?,
-                        Value::Int(_) => self.coerce(bv, &Type::Int)?,
-                        _ => bv,
-                    };
-                }
-                Self::binary(op, av, bv)
-            }
-            Expr::Call(n, args) => {
-                if n == "choose" {
-                    let Value::Bool(condition) = self.expr(&args[0], env)? else {
-                        return Err("choose condition".into());
-                    };
-                    return self.expr(&args[if condition { 1 } else { 2 }], env);
-                }
-                let vals = args
-                    .iter()
-                    .map(|e| self.expr(e, env))
-                    .collect::<Exec<Vec<_>>>()?;
-                if crate::word::primitive(n)
-                    || [
-                        "Ok",
-                        "Err",
-                        "Some",
-                        "Int",
-                        "checked_add",
-                        "checked_sub",
-                        "checked_mul",
-                        "sum",
-                        "count",
-                        "list",
-                    ]
-                    .contains(&n.as_str())
-                {
-                    let result_type = if n == "sum" {
-                        let types = env.iter().map(|(n, v)| (n.clone(), v.ty())).collect();
-                        crate::statecheck::expression_type(&self.program, e, &types)?
-                    } else {
-                        Type::Unit
-                    };
-                    return self.builtin(n, vals, &result_type);
-                }
-                if let Some(index) = self.program.actions.iter().position(|a| &a.name == n) {
-                    return self.typed_action(index, vals, true);
-                }
-                if let Some(index) = self.program.functions.iter().position(|f| &f.name == n) {
-                    return self.pure_call(index, vals);
-                }
-                Err(format!("unknown runtime function {n}").into())
-            }
-            Expr::Method(receiver, n, args) => {
-                if let Expr::Var(root) = &**receiver {
-                    if self.tables.contains_key(root) && !env.contains_key(root) {
-                        let vals = args
-                            .iter()
-                            .map(|a| self.expr(a, env))
-                            .collect::<Exec<Vec<_>>>()?;
-                        return self.table(root, n, vals);
-                    }
-                }
-                let value = self.expr(receiver, env)?;
-                if n == "fold" {
-                    let (branch, input) = match value {
-                        Value::Option(Some(v)) => (0, *v),
-                        Value::Option(None) => (1, Value::Unit),
-                        Value::Result(ok, v) => (if ok { 0 } else { 1 }, *v),
-                        _ => return Err("fold receiver".into()),
-                    };
-                    let Expr::Lambda(n, body) = &args[branch] else {
-                        return Err("fold branch".into());
-                    };
-                    let mut local = env.clone();
-                    local.insert(n.clone(), input);
-                    return self.expr(body, &local);
-                }
-                if n == "ok_or" {
-                    let fallback = self.expr(&args[0], env)?;
-                    return match value {
-                        Value::Option(Some(v)) => Ok(Value::Result(true, v)),
-                        Value::Option(None) => Ok(Value::Result(false, Box::new(fallback))),
-                        _ => Err("ok_or requires Option".into()),
-                    };
-                }
-                let (var, body) = if let Some(Expr::Lambda(v, b)) = args.first() {
-                    (v, b)
-                } else {
-                    return Err("method requires lambda".into());
-                };
-                let apply = |rt: &mut Self, v: Value| {
-                    let mut local = env.clone();
-                    local.insert(var.clone(), v);
-                    rt.expr(body, &local)
-                };
-                match value {
-                    Value::List(xs) => {
-                        let mut out = Vec::new();
-                        for v in xs {
-                            let mapped = apply(self, v.clone())?;
-                            if n == "map" {
-                                out.push(mapped);
-                            } else if mapped == Value::Bool(true) {
-                                out.push(v);
-                            } else if mapped != Value::Bool(false) {
-                                return Err("filter requires Bool".into());
-                            }
-                        }
-                        Ok(Value::List(out))
-                    }
-                    Value::Option(v) => Ok(Value::Option(if let Some(v) = v {
-                        Some(Box::new(apply(self, *v)?))
-                    } else {
-                        None
-                    })),
-                    Value::Result(ok, v) => {
-                        let map = (ok && n == "map") || (!ok && n == "map_err");
-                        Ok(Value::Result(
-                            ok,
-                            if map { Box::new(apply(self, *v)?) } else { v },
-                        ))
-                    }
-                    _ => Err("unsupported receiver".into()),
-                }
-            }
-            Expr::Lambda(..) => Err("lambda cannot execute alone".into()),
         }
     }
 }
