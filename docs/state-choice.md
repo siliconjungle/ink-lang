@@ -82,3 +82,9 @@ Neither model proves future speed, the measurement system, Python/Rust compiler
 correctness or a new indexed maintained representation. Existing persistent-list
 candidates remain controls; competitive new layouts need database definitions,
 universal preservation proofs and their own target measurements.
+
+Shared candidates may replace embedded `knowledge` with
+`knowledge_ref: {"schema":1,"roots":[...]}`. Roots must be sorted, unique and
+exactly match the candidate dependencies. The selector exports and authenticates
+the complete pinned view before ordinary checker replay; the emitted frozen package
+still contains that complete view. This saves database duplication, not checking.

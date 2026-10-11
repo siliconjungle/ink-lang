@@ -518,3 +518,29 @@ print(json.dumps(generate(p,sys.argv[2],cache_query='zero',preserve_cache=True,c
         "{error}"
     );
 }
+
+#[test]
+fn portable_switches_between_packed_and_indexed_states_preserve_pending_events() {
+    let source = include_str!("../knowledge/research/storage-bulk/app.ink");
+    let module = CheckedModule::from_source(parse(source).unwrap()).unwrap();
+    let plans = ["direct", "packed-2", "packed-4", "indexed-4-hot-1023"]
+        .iter()
+        .map(|name| {
+            let request: Request = serde_json::from_slice(
+                &fs::read(format!("knowledge/research/storage-bulk/{name}.json")).unwrap(),
+            )
+            .unwrap();
+            representation::check(&module, &request).unwrap()
+        })
+        .collect::<Vec<_>>();
+    let mut steps = vec![];
+    for i in 0..32u64 {
+        steps.extend([
+            json!({"call":"put","args":[if i%2==0{1023}else{i},i*41]}),
+            json!({"call":"get","args":[1023]}),
+            json!({"call":"erase","args":[i,i%3==0]}),
+            json!({"migrate":(i%4) as usize}),
+        ]);
+    }
+    compiled::history(&module, &plans, steps, "packed-indexed-portable-history");
+}

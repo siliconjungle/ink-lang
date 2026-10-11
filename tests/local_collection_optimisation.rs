@@ -293,7 +293,7 @@ fn database_changes_plans_with_same_compiler_and_all_cpu_paths_agree() {
 }
 
 #[test]
-fn larger_views_match_the_canonical_python_store_tree() {
+fn larger_views_from_legacy_and_bucket_trees_authenticate_in_both_readers() {
     let m = module();
     let mut c = registry::CheckedBundle::check(&view())
         .unwrap()
@@ -331,10 +331,30 @@ fn larger_views_match_the_canonical_python_store_tree() {
     fs::create_dir_all(&dir).unwrap();
     let file = dir.join("bundle.json");
     fs::write(&file, serde_json::to_vec(&bundle).unwrap()).unwrap();
-    let result=Command::new("python3").env("PYTHONPATH","knowledge").arg("-c").arg("import json,sys;from ink_knowledge import Store;b=json.load(open(sys.argv[1]));s=Store.publish(sys.argv[2],b['objects'].values(),{});assert s.snapshot==b['snapshot'];assert all(s.witness(i)==w for i,w in b['membership'].items())").arg(&file).arg(dir.join("store-root")).output().unwrap();
+    let result=Command::new("python3").env("PYTHONPATH","knowledge").arg("-c").arg(r#"import json,sys
+from pathlib import Path
+from ink_knowledge import Store,identity
+from ink_knowledge.store import immutable
+b=json.load(open(sys.argv[1]));s=Store.publish(sys.argv[2],b['objects'].values(),{})
+Path(sys.argv[1]+'.bucket.json').write_text(json.dumps(s.bundle(b['roots'])))
+for w in b['membership'].values():
+ node=dict(schema=1,entries=w['entries']);h=identity(node);immutable(s.data/'trees'/f'{h}.json',node)
+ for step in w['path']:
+  node=dict(schema=1,left=step['sibling'] if step['left'] else h,right=h if step['left'] else step['sibling']);h=identity(node);immutable(s.data/'trees'/f'{h}.json',node)
+ assert h==b['snapshot']['root']
+pin=s.data/'snapshots'/f"{identity(b['snapshot'])}.json";immutable(pin,b['snapshot'])
+assert Store(s.root,pin).bundle(b['roots'])==b
+"#).arg(&file).arg(dir.join("store-root")).output().unwrap();
     assert!(
         result.status.success(),
         "{}",
         String::from_utf8_lossy(&result.stderr)
     );
+    let bucket: registry::Bundle =
+        serde_json::from_slice(&fs::read(format!("{}.bucket.json", file.display())).unwrap())
+            .unwrap();
+    registry::CheckedBundle::check(&bucket)
+        .unwrap()
+        .verify(m.program())
+        .unwrap();
 }

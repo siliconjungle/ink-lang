@@ -56,3 +56,5 @@ pub mod temporary;
 mod owned_semantic;
 
 pub mod value_limits;
+
+pub mod field_projection;

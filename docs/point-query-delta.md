@@ -52,10 +52,18 @@ requests live in `knowledge/research/filtered-aggregate`; the untrusted producer
 is `knowledge/producers/aggregate_delta.py`. All seven representation routes
 share source-oracle conformance, with recursive state executing in GPU host lanes.
 
-This closes filtered additive aggregates for the admitted table domain. Indexed
-physical tables, other reducers/key domains and efficient general aggregates
-remain open. Ordinary compiled calls use the caller-trusted standalone contract
+This closes filtered additive aggregates for the admitted table domain. The
+[indexed cached-table candidate](indexed-aggregate-durable.md) combines them
+with range pruning and maintained tree metadata for that source-bound domain.
+[Knowledge-defined chunks and indexes](storage-bulk-incremental.md) also add packed
+tables, profile-specific dynamic-key lookup and Boolean any/all insertion deltas.
+Other key domains, reducers and general aggregate producers remain open. Ordinary
+compiled calls use the caller-trusted standalone contract
 and avoid full logical snapshot validation on every write. Physical linked-list
 maintenance may still traverse the table. Profitability
 is workload-specific: retain direct execution when cache maintenance costs more
 than the reads it saves. See [scaling results](../reports/representation-scaling/README.md).
+
+The [path-local sequence candidates](path-local-indexed-tables.md) add generic
+shared-owner preservation, checked compact observations and explicit continuation
+frames for bounded recursive call sites, with proof-view and execution resource bounds.

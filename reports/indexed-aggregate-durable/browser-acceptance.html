@@ -1,0 +1,35 @@
+<!doctype html><meta charset="utf-8"><title>Ink durable host acceptance</title><pre id="result">Running browser durability checks…</pre>
+<script type="module">
+import {DurableState,openIndexedDBStore,RecoveryRequired} from './durable-state.mjs';
+import {createState} from './program.mjs';
+import {StatefulModule} from './state-wasm.mjs';
+const result=document.querySelector('#result'),params=new URLSearchParams(location.search);
+const db=params.get('db')||'ink-durability-'+crypto.randomUUID(),id='00000000000000000000000000000001';
+const js={create:createState,restore:async bytes=>{const state=createState();await state.restore(bytes);return state;}};
+const check=(condition,label)=>{if(!condition)throw Error(label);};
+try{
+ if(!params.has('phase')){
+  const host=await DurableState.open({factory:js,store:await openIndexedDBStore(db)});
+  await host.invoke('create','create',[id,'browser 雪\u0000😀',10]);await host.invoke('lost-reply','restock',[id,5]);await host.close();
+  location.replace(`?db=${encodeURIComponent(db)}&phase=recover`);
+ }else{
+  let host=await DurableState.open({factory:js,store:await openIndexedDBStore(db)});const version=await host.version();
+  await host.invoke('lost-reply','restock',[id,5]);check(await host.version()===version,'reload duplicated action');await host.close();
+  for(const backend of ['c','rust']){
+   const wasm=await StatefulModule.instantiate(await (await fetch(`${backend}/target/wasm32-unknown-unknown/release/compiled_state.wasm`)).arrayBuffer());
+   const factory={create:()=>wasm.create(),restore:bytes=>wasm.restore(bytes)};
+   host=await DurableState.open({factory,store:await openIndexedDBStore(db)});
+   check(BigInt((await host.invoke('read-'+backend,'stock_of',[id])).result.Some)===15n,'cross-backend restoration');
+   const stale=await DurableState.open({factory,store:await openIndexedDBStore(db)});
+   await host.invoke('update-'+backend,'restock',[id,0]);
+   try{await stale.invoke('stale-'+backend,'restock',[id,1]);throw Error('stale writer accepted');}catch(e){check(e instanceof RecoveryRequired,'conflict detection');}
+   await stale.close();await host.close();
+  }
+  host=await DurableState.open({factory:js,store:await openIndexedDBStore(db)});let calls=0;const keys=new Set();
+  await host.deliver(async(_,key)=>{calls++;keys.add(key);});check(calls===3&&keys.size===3,'ordered outbox delivery');await host.close();
+  host=await DurableState.open({factory:js,store:await openIndexedDBStore(db)});check((await host.events()).length===0,'acknowledgements not persisted');await host.close();
+  await new Promise((resolve,reject)=>{const request=indexedDB.deleteDatabase(db);request.onsuccess=resolve;request.onerror=()=>reject(request.error);});
+  result.textContent='PASS: IndexedDB page reload, request deduplication, JavaScript ↔ C/Rust Wasm continuation, stale-writer rejection and durable outbox acknowledgements';
+ }
+}catch(e){result.textContent='FAIL: '+(e.stack||e);console.error(e);}
+</script>
