@@ -120,6 +120,7 @@ pub struct Program {
 
 /// This version fixes the executable representation and its current semantics,
 /// not the larger proposed language or a proof of the Rust implementation.
+pub const CONTROL_SEMANTICS: &str = "ink-executable-core-v6";
 pub const SEMANTICS: &str = "ink-executable-core-v1";
 pub const COMPUTE_SEMANTICS: &str = "ink-executable-core-v2";
 pub const LOCAL_SEMANTICS: &str = "ink-executable-core-v3";
@@ -147,7 +148,9 @@ impl CheckedModule {
         crate::check::check(&program)?;
         let module = Self(WireModule {
             schema: 1,
-            semantics: if crate::recursion::needed(&program) {
+            semantics: if control_needed(&program) {
+                CONTROL_SEMANTICS
+            } else if crate::recursion::needed(&program) {
                 PARALLEL_SEMANTICS
             } else if sequence {
                 SEQUENCE_SEMANTICS
@@ -178,6 +181,7 @@ impl CheckedModule {
                 LOCAL_SEMANTICS,
                 SEQUENCE_SEMANTICS,
                 PARALLEL_SEMANTICS,
+                CONTROL_SEMANTICS,
             ]
             .contains(&wire.semantics.as_str())
         {
@@ -466,4 +470,30 @@ fn validate(p: &Program) -> LangResult<(bool, bool)> {
         b.statements(&a.body, 0)?;
     }
     Ok((b.extended, b.sequence))
+}
+
+fn control_needed(p: &Program) -> bool {
+    fn has(e: &Expr) -> bool {
+        let mut found = false;
+        crate::analysis::walk(e, |n| {
+            if matches!(n,Expr::Call(name,_) if name=="fold_until"||name=="foldr")
+                || matches!(n, Expr::String(_) | Expr::Unit)
+            {
+                found = true;
+            }
+        });
+        found
+    }
+    fn statements(ss: &[Statement]) -> bool {
+        ss.iter().any(|s| match s {
+            Statement::If(c, a, b) => has(c) || statements(a) || statements(b),
+            Statement::Let(_, _, e)
+            | Statement::Return(e)
+            | Statement::Expr(e)
+            | Statement::Emit(_, e) => has(e),
+        })
+    }
+    p.functions.iter().any(|f| has(&f.body))
+        || p.states.iter().chain(&p.keeps).any(|d| has(&d.value))
+        || p.actions.iter().any(|a| statements(&a.body))
 }

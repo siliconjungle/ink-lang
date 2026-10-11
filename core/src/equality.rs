@@ -1,4 +1,5 @@
 //! Equality calculus over total scalar semantics, with no algebraic rewrite laws.
+pub const SEMANTICS: &str = "total-scalar-equality-v1";
 use crate::{
     check::{self, Env},
     syntax::{Expr, Program, Type},

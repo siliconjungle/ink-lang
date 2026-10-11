@@ -136,7 +136,11 @@ fn concat_versions_and_contextual_types_are_checked() {
         Value::List(vec![Value::U32(0), Value::U32(u32::MAX)])
     );
     let mut wire: serde_json::Value = serde_json::from_slice(&sequence.bytes().unwrap()).unwrap();
-    for tag in [core::SEMANTICS, core::COMPUTE_SEMANTICS, core::LOCAL_SEMANTICS] {
+    for tag in [
+        core::SEMANTICS,
+        core::COMPUTE_SEMANTICS,
+        core::LOCAL_SEMANTICS,
+    ] {
         wire["semantics"] = json!(tag);
         assert!(CheckedModule::from_bytes(&serde_json::to_vec(&wire).unwrap()).is_err());
     }

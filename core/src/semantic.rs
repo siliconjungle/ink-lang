@@ -30,6 +30,8 @@ pub enum Node {
     Word(u64),
     Float(u32),
     Bool(bool),
+    String(String),
+    Unit,
     Nat(u64),
     Lambda(Box<Term>),
     Op(String, Vec<Term>),
@@ -261,6 +263,13 @@ pub fn validate(t: &Term, env: &Env, p: &Program, b: &mut Budget) -> LangResult<
             },
             Node::Float(_) => need(&t.sort, value(Type::F32))?,
             Node::Bool(_) => need(&t.sort, value(Type::Bool))?,
+            Node::String(s) => {
+                if s.len() > 1_000_000 {
+                    return Err("semantic string literal budget".into());
+                }
+                need(&t.sort, value(Type::String))?;
+            }
+            Node::Unit => need(&t.sort, value(Type::Unit))?,
             Node::Nat(_) => need(&t.sort, Sort::Nat)?,
             Node::Lambda(body) => {
                 let Sort::Arrow(a, c) = &t.sort else {
@@ -406,17 +415,23 @@ pub fn validate(t: &Term, env: &Env, p: &Program, b: &mut Budget) -> LangResult<
                         list(a(0)?)?;
                         need(&t.sort, value(Type::U64))?;
                     }
-                    "call:foldr" => {
-                        arity(3)?;
-                        need(a(0)?, value(Type::List(Box::new(val(&t.sort)?.clone()))))?;
+                    "call:fold_until" => {
+                        arity(4)?;
+                        let item = value(list(a(0)?)?.clone());
+                        crate::statecheck::validate_type(val(&t.sort)?, p)?;
                         need(a(1)?, t.sort.clone())?;
                         need(
                             a(2)?,
-                            arrow(t.sort.clone(), arrow(t.sort.clone(), t.sort.clone())),
+                            arrow(item.clone(), arrow(t.sort.clone(), value(Type::Bool))),
                         )?;
-                        if !check::is_number(val(&t.sort)?) {
-                            return Err("fold numeric sort".into());
-                        }
+                        need(a(3)?, arrow(item, arrow(t.sort.clone(), t.sort.clone())))?;
+                    }
+                    "call:foldr" => {
+                        arity(3)?;
+                        let item = value(list(a(0)?)?.clone());
+                        crate::statecheck::validate_type(val(&t.sort)?, p)?;
+                        need(a(1)?, t.sort.clone())?;
+                        need(a(2)?, arrow(item, arrow(t.sort.clone(), t.sort.clone())))?;
                     }
                     "method:map" => {
                         arity(2)?;
@@ -489,8 +504,8 @@ pub fn validate(t: &Term, env: &Env, p: &Program, b: &mut Budget) -> LangResult<
                         arity(2)?;
                         need(a(0)?, t.sort.clone())?;
                         need(a(1)?, value(list(&t.sort)?.clone()))?;
-                        if !check::is_word(list(&t.sort)?) {
-                            return Err("scan accumulator integer sort".into());
+                        if !check::is_number(list(&t.sort)?) {
+                            return Err("scan accumulator numeric sort".into());
                         }
                     }
                     "list.insert" => {
@@ -504,8 +519,12 @@ pub fn validate(t: &Term, env: &Env, p: &Program, b: &mut Budget) -> LangResult<
                     "method:scan" | "method:sort" => {
                         arity(1)?;
                         need(a(0)?, t.sort.clone())?;
-                        if !check::is_word(list(&t.sort)?) {
-                            return Err("scan/sort integer sort".into());
+                        if !(if n == "method:scan" {
+                            check::is_number(list(&t.sort)?)
+                        } else {
+                            check::is_word(list(&t.sort)?)
+                        }) {
+                            return Err("scan numeric / sort integer sort".into());
                         }
                     }
                     n if n.starts_with("binary:") => {
@@ -638,6 +657,8 @@ pub fn elaborate(e: &Expr, env: &check::Env, p: &Program, want: &Type) -> LangRe
             }),
             Expr::Float(n) => Ok(term(s, Node::Float(*n))),
             Expr::Bool(x) => Ok(term(s, Node::Bool(*x))),
+            Expr::String(x) => Ok(term(s, Node::String(x.clone()))),
+            Expr::Unit => Ok(term(s, Node::Unit)),
             Expr::Neg(x) => {
                 if *want == Type::I32 {
                     if let Expr::Num(n) = **x {
@@ -763,13 +784,42 @@ pub fn elaborate(e: &Expr, env: &check::Env, p: &Program, want: &Type) -> LangRe
                         )?;
                         out.push(recur(&args[0], &ty)?);
                     }
-                    "foldr" => {
-                        let ty = Type::List(Box::new(want.clone()));
+                    "fold_until" => {
+                        let ty = check::infer(&args[0], env, p)?;
+                        let Type::List(item) = &ty else {
+                            return Err("fold_until list type".into());
+                        };
                         out.push(recur(&args[0], &ty)?);
                         out.push(recur(&args[1], want)?);
                         out.push(lam(
                             &args[2],
-                            &[want.clone(), want.clone()],
+                            &[item.as_ref().clone(), want.clone()],
+                            &Type::Bool,
+                            env,
+                            bound,
+                            p,
+                            b,
+                        )?);
+                        out.push(lam(
+                            &args[3],
+                            &[item.as_ref().clone(), want.clone()],
+                            want,
+                            env,
+                            bound,
+                            p,
+                            b,
+                        )?);
+                    }
+                    "foldr" => {
+                        let ty = check::infer(&args[0], env, p)?;
+                        let Type::List(item) = &ty else {
+                            return Err("foldr list type".into());
+                        };
+                        out.push(recur(&args[0], &ty)?);
+                        out.push(recur(&args[1], want)?);
+                        out.push(lam(
+                            &args[2],
+                            &[item.as_ref().clone(), want.clone()],
                             want,
                             env,
                             bound,
@@ -822,6 +872,17 @@ pub fn elaborate(e: &Expr, env: &check::Env, p: &Program, want: &Type) -> LangRe
                 )?;
                 if matches!(ty, Type::Buffer(_) | Type::Map(..)) {
                     let mut out = vec![recur(xs, &ty)?];
+                    if let Type::Buffer(inner) = &ty {
+                        if ["map", "map_indexed"].contains(&n.as_str()) {
+                            let params = if n == "map" {
+                                vec![*inner.clone()]
+                            } else {
+                                vec![Type::U32, *inner.clone()]
+                            };
+                            out.push(lam(&args[0], &params, inner, env, bound, p, b)?);
+                            return Ok(op(s, &format!("method:{n}"), out));
+                        }
+                    }
                     let types = crate::owned_semantic::arguments(&ty, n)?;
                     if types.len() != args.len() {
                         return Err("temporary method arity".into());
@@ -951,6 +1012,8 @@ pub fn reify(t: &Term, p: &Program) -> LangResult<Expr> {
                 Expr::Float(*n)
             }
             Node::Bool(x) => Expr::Bool(*x),
+            Node::String(x) => Expr::String(x.clone()),
+            Node::Unit => Expr::Unit,
             Node::Nat(n) => Expr::Num(*n),
             Node::Lambda(body) => {
                 let mut name = format!("__ink_bound_{}", bound.len());
