@@ -1,0 +1,20 @@
+use std::alloc::{GlobalAlloc,Layout,System};
+use std::sync::atomic::{AtomicBool,AtomicUsize,Ordering::Relaxed};
+use serde_json::json;
+struct Count;
+static ACTIVE:AtomicBool=AtomicBool::new(false);
+static BYTES:AtomicUsize=AtomicUsize::new(0);
+unsafe impl GlobalAlloc for Count {
+ unsafe fn alloc(&self,l:Layout)->*mut u8{let p=System.alloc(l);if ACTIVE.load(Relaxed)&&!p.is_null(){BYTES.fetch_add(l.size(),Relaxed);}p}
+ unsafe fn dealloc(&self,p:*mut u8,l:Layout){System.dealloc(p,l)}
+ unsafe fn realloc(&self,p:*mut u8,l:Layout,n:usize)->*mut u8{let q=System.realloc(p,l,n);if ACTIVE.load(Relaxed)&&!q.is_null(){BYTES.fetch_add(n,Relaxed);}q}
+}
+#[global_allocator]static ALLOCATOR:Count=Count;
+fn filled(rows:u64)->compiled_state::State{let mut s=compiled_state::State::new();for i in 0..rows{s.invoke_json("put",&json!([i,i])).unwrap();}s}
+fn sample(s:&mut compiled_state::State,write:bool)->usize{
+ let args=if write{json!([16,123])}else{json!([16])};
+ BYTES.store(0,Relaxed);ACTIVE.store(true,Relaxed);
+ for _ in 0..100 {let reply=s.invoke_json(if write{"put"}else{"get"},&args).unwrap();assert_eq!(reply["result"],if write{json!({"Ok":null})}else{json!({"Some":16})});}
+ ACTIVE.store(false,Relaxed);BYTES.load(Relaxed)
+}
+fn main(){for write in [false,true]{let mut small=filled(64);let mut large=filled(4000);let a=sample(&mut small,write);let b=sample(&mut large,write);assert!(b<=a+2048,"point operation copied storage proportional to table size: {a} -> {b}");println!("{}",json!({"write":write,"calls":100,"small_rows":64,"large_rows":4000,"small_allocated_bytes":a,"large_allocated_bytes":b}));}}

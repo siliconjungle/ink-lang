@@ -11,19 +11,21 @@ for(let i=0;i<oracle.length;i++){
  else{let reply;try{reply={ok:await (wasm?invokeWire(step):state.invoke_json(step.call,step.args))};}catch(e){reply={error:e.message};}assert.deepEqual(normal(reply),normal(step.reply),`reply ${i}`);}
  const bytes=await checkpoint();assert.deepEqual(Array.from(bytes),step.snapshot.map(Number),`snapshot ${i}`);assert.deepEqual(normal(wasm?state.events():state.outbox),normal(step.outbox),`outbox ${i}`);await restore(bytes);assert.deepEqual(await checkpoint(),bytes,`restored ${i}`);
 }
-const savedState=state;state=wasm?module.create():module.createState();const empty=await checkpoint();const mutation=oracle.find(s=>s.reply?.ok?.committed===true);
+// Query-only programs still exercise transaction boundaries using a valid call.
+const successfulCall=oracle.find(s=>s.call&&s.reply&&Object.hasOwn(s.reply,'ok'));
+const savedState=state;state=wasm?module.create():module.createState();const empty=await checkpoint();const mutation=oracle.find(s=>s.reply?.ok?.committed===true)??successfulCall;
 assert.equal(state.beginTransaction(),true);await state.invoke(mutation.call,mutation.args);if(wasm)state.acknowledge(0xffffffffffffffffn,0xffffffffffffffffn);else state.acknowledge_through(0xffffffffffffffffn,0xffffffffffffffffn);state.rollbackTransaction();assert.deepEqual(await checkpoint(),empty);
 assert.equal(state.beginTransaction(),true);await state.invoke(mutation.call,mutation.args);const candidate=await checkpoint();state.commitTransaction();assert.deepEqual(await checkpoint(),candidate);
 assert.equal(state.beginTransaction(),true);if(wasm)state.acknowledge(0xffffffffffffffffn,0xffffffffffffffffn);else state.acknowledge_through(0xffffffffffffffffn,0xffffffffffffffffn);state.rollbackTransaction();assert.deepEqual(await checkpoint(),candidate);if(wasm)state.dispose();state=savedState;
 const before=await checkpoint();for(const position of [12,before.length-1]){const corrupt=before.slice();corrupt[position]^=1;await assert.rejects(restore(corrupt));assert.deepEqual(await checkpoint(),before);}await assert.rejects(restore(before.slice(0,-1)));assert.deepEqual(await checkpoint(),before);
 if(!wasm){const captured=before.slice(),pending=state.restore(captured);captured.fill(0);await pending;assert.deepEqual(await checkpoint(),before);}
 if(!wasm){
- state=module.createState();const mutation=oracle.find(s=>s.reply?.ok?.committed===true)??oracle.find(s=>s.reply?.ok);
+ state=module.createState();const mutation=oracle.find(s=>s.reply?.ok?.committed===true)??successfulCall;
  const digest=globalThis.crypto.subtle.digest;
  try{globalThis.crypto.subtle.digest=async()=>{throw Error('snapshot encoder must not run during invocation');};assert.deepEqual(normal(await state.invoke_json(mutation.call,mutation.args)),normal(mutation.reply.ok));}
  finally{globalThis.crypto.subtle.digest=digest;}
  const saved=await checkpoint();const pending=state.restore(saved);
- const query=oracle.find(s=>s.reply?.ok?.committed===false);
+ const query=oracle.find(s=>s.reply?.ok?.committed===false)??successfulCall;
  await assert.rejects(state.invoke_json(query.call,query.args),/state operation already in progress/);await pending;
 }
 console.log(`${oracle.length} ${wasm?'Wasm':'JavaScript'} caller-trusted standalone requests passed`);

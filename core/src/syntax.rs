@@ -810,7 +810,14 @@ impl Parser {
                     *e = rename_expression(e, &names);
                 }
                 let statements = self.block()?;
-                let body = self.action_body(&statements, vec![])?;
+                // Ordinary action blocks already have executable scope/return
+                // semantics. Rewriting their branches changes authenticated IR.
+                // Only mutable assignments need the surface continuation pass.
+                let body = if self.action_assignments(&statements) {
+                    self.action_body(&statements, vec![])?
+                } else {
+                    statements
+                };
                 let mut body = self.contract_returns(body, &result, &ensures);
                 for (condition, error) in requires.into_iter().rev() {
                     let condition = self.readonly_contract(condition);
@@ -1259,7 +1266,46 @@ impl Parser {
         self.assignments.insert(marker.clone(), target);
         marker
     }
+    fn action_assignments(&self, body: &[Statement]) -> bool {
+        let mut pending: Vec<_> = body.iter().collect();
+        while let Some(statement) = pending.pop() {
+            match statement {
+                Statement::Let(name, ..) if self.assignments.contains_key(name) => return true,
+                Statement::If(_, a, b) => {
+                    pending.extend(a);
+                    pending.extend(b);
+                }
+                _ => {}
+            }
+        }
+        false
+    }
     fn action_body(
+        &mut self,
+        body: &[Statement],
+        continuation: Vec<Statement>,
+    ) -> LangResult<Vec<Statement>> {
+        // Split at guaranteed returns. Later source statements remain bound and
+        // checked, but a returning segment must not inherit its caller's
+        // continuation. Iteration avoids recursion through long dead tails.
+        let mut result = Vec::new();
+        let mut start = 0;
+        for (i, statement) in body.iter().enumerate() {
+            let returning = match statement {
+                Statement::Return(_) => true,
+                Statement::If(_, a, b) => Self::returns(a) && Self::returns(b),
+                _ => false,
+            };
+            if returning {
+                result.extend(self.action_segment(&body[start..=i], vec![])?);
+                start = i + 1;
+            }
+        }
+        let next = if start == 0 { continuation } else { vec![] };
+        result.extend(self.action_segment(&body[start..], next)?);
+        Ok(result)
+    }
+    fn action_segment(
         &mut self,
         body: &[Statement],
         continuation: Vec<Statement>,
@@ -1277,20 +1323,20 @@ impl Parser {
                 }
                 Statement::If(c, a, b) => {
                     let returning = Self::returns(a) && Self::returns(b);
-                    if returning && i + 1 < body.len() {
-                        return Err(self.err("unreachable statements after returning conditional"));
-                    }
                     let next = if returning {
                         vec![]
                     } else {
-                        out.into_iter().collect()
+                        std::mem::take(&mut out).into_iter().collect()
                     };
                     self.bounded_block(&next)?;
                     let a = self.scoped_branch(a, &Default::default());
                     let b = self.scoped_branch(b, &Default::default());
                     let a = self.action_body(&a, next.clone())?;
                     let b = self.action_body(&b, next)?;
-                    out = vec![Statement::If(c.clone(), a, b)].into();
+                    // Legacy actions may keep a typed fallback after branches
+                    // that both return. Preserve those source statements for
+                    // complete-code binding; execution still stops in the branch.
+                    out.push_front(Statement::If(c.clone(), a, b));
                 }
                 _ => {
                     let first = match first {
