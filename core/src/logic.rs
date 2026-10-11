@@ -685,15 +685,22 @@ impl Context {
         normal(term, self, &mut budget, 0)
     }
 }
-/// Fixed CPU binary32 semantics over raw 32-bit words. NaN arithmetic payloads
-/// have the existing engine-dependent CPU contract; negation preserves payload.
+/// Arithmetic has one portable quiet NaN; transport and negation preserve bits.
+pub fn canonical_f32_bits(value: f32) -> u32 {
+    if value.is_nan() {
+        0x7fc00000
+    } else {
+        value.to_bits()
+    }
+}
+/// Fixed binary32 operations over raw 32-bit words.
 pub fn f32_primitive(op: &str, a: u64, b: u64) -> LangResult<Term> {
     let x = f32::from_bits(a as u32);
     let y = f32::from_bits(b as u32);
     Ok(match op {
-        "f32:+" => Term::U64((x + y).to_bits() as u64),
-        "f32:-" => Term::U64((x - y).to_bits() as u64),
-        "f32:*" => Term::U64((x * y).to_bits() as u64),
+        "f32:+" => Term::U64(canonical_f32_bits(x + y) as u64),
+        "f32:-" => Term::U64(canonical_f32_bits(x - y) as u64),
+        "f32:*" => Term::U64(canonical_f32_bits(x * y) as u64),
         "f32:neg" => Term::U64((a as u32 ^ 0x80000000) as u64),
         "f32:==" => Term::Bool(x == y),
         "f32:!=" => Term::Bool(x != y),
