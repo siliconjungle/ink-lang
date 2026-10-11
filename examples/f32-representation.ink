@@ -13,3 +13,4 @@ query mul(a:f32,b:f32)->f32{return a*b;}
 query neg(a:f32)->f32{return -a;}
 query less(a:f32,b:f32)->Bool{return a<b;}
 query equal(a:f32,b:f32)->Bool{return a==b;}
+query multiply_add(a:f32,b:f32,c:f32)->f32{return a*b+c;}

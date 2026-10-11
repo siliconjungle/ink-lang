@@ -503,6 +503,8 @@ fn binary32_representations_have_equal_backend_coverage() {
             ("add", json!([16777216.0, 1.0])),
             ("sub", json!([1.0, 1.0])),
             ("mul", json!([-0.0, 3.0])),
+            // Multiplication must round before addition; a fused result differs.
+            ("multiply_add", json!([1.0000001192092896, 0.9999998807907104, -1.0])),
             ("add", json!([1.0e-40, 1.0e-40])),
             ("mul", json!([3.4028234663852886e38, 2.0])),
             ("neg", json!([{"F32Bits":0x7fa12345u64}])),
