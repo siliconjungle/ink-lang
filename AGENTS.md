@@ -82,3 +82,12 @@ check ordinary canonical laws, explicit conditions/dependencies and portable
 definition contexts; executable source still rejects inline rewrites. Exact Int
 correspondence uses the same bounded polynomial machinery with exact coefficients,
 never wrapping coefficients. Keep finite laws and authored algorithms in knowledge.
+
+Scoped native/JavaScript buffers share disjoint logical ranges. Preserve affine
+source admission, range-bounded writes, ordered compaction and detachment before
+partial-range growth. Adjacent rejoining may reuse the allocation; a remaining
+range may require materialisation. Opaque native handles share invocation-local
+storage; typed owners retain direct vectors until partitioned. Runtime must embed
+ink-native-support ownership primitives, never the independent reference evaluator.
+Keep partition algorithms in knowledge and measure whole-workload profitability
+separately from clone/allocation mechanism checks.

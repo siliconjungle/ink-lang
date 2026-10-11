@@ -226,7 +226,14 @@ all-GPU audit must fail them. Conformance is not a proof of native emission.
 This foundation does not implement compact `u8`/`u16`, `i64`, `f64`, packed Bytes,
 new scoped borrowing syntax or static refinement types.
 Compact carriers and additional borrowing need their own value/ownership, wire
-and correspondence contracts. Existing owned buffers already support scoped
-exclusive splitting; read traversals retain current borrowing machinery. Arbitrary
+and correspondence contracts. Existing owned buffers support scoped exclusive
+splitting; native and JavaScript
+partitions now share bounded disjoint ranges. Splitting and rejoining adjacent
+ranges does not copy elements. Growth detaches a partial range before writing
+outside it; materialising a remaining range can still copy. Read traversals retain
+current borrowing machinery. Opaque native handles use internal shared storage,
+while typed owners retain direct vectors until partitioned. Emitted ownership
+support lives in ink-native-support, independently of the reference evaluator.
+Arbitrary
 partial functions, effectful escaping closures and dependent proof values remain
 outside the total fragment. No claim is made that the full design draft is closed.
