@@ -1,0 +1,138 @@
+{
+  "schema": 1,
+  "core_revision": "8ebe4e8b5041b45b0c9272bf06fc945c6a82181e",
+  "packages": {
+    "abi": "2ca43fc39b18f8f0a5543521ee44f065569649fe",
+    "native-support": "9ca4817ff1061bd388348e51341847d2ed0cf0de",
+    "lowerings/rust": "5bddf3a9bc8215adb06055309a06460eda7d922d",
+    "lowerings/c": "9dc3846fbb850d023352626b2a6fda4d64036abd",
+    "lowerings/js": "a7bbd6d4311c0a2dbf9a8bb61f7d62ce679a5351",
+    "lowerings/wasm": "0cee330e50e1a9cac985ff598da7035cc991a0e1",
+    "lowerings/gpu": "c4949cb31397acea3cebad9f33e578b075765b84",
+    "runtime": "f7f7f914a97bae51161bec009875226fa566ba23",
+    "knowledge": "a7275b2df099843f2216e7709d117d058adda356",
+    "planner": "e7e60639c1a61dfbf1b5120ed60ffb8002aef3e3"
+  },
+  "final_checks": [
+    {
+      "name": "scalable",
+      "exit_code": 0,
+      "seconds": 39.88032516599924
+    },
+    {
+      "name": "membership",
+      "exit_code": 0,
+      "seconds": 13.770140374996117
+    },
+    {
+      "name": "hostile",
+      "exit_code": 0,
+      "seconds": 8.851385124988155
+    },
+    {
+      "name": "bulk",
+      "exit_code": 0,
+      "seconds": 30.833675333007704
+    },
+    {
+      "name": "gpu",
+      "exit_code": 0,
+      "seconds": 89.53500479200738
+    },
+    {
+      "name": "gpu-u64",
+      "exit_code": 0,
+      "tests": 1
+    },
+    {
+      "name": "c-scratch-before-host-cleanup",
+      "exit_code": 0,
+      "tests": 1
+    }
+  ],
+  "independent_package_tests": [
+    {
+      "package": "lowerings/rust",
+      "head": "5bddf3a9bc8215adb06055309a06460eda7d922d",
+      "exit_code": 0,
+      "seconds": 46.19002091699804
+    },
+    {
+      "package": "lowerings/c",
+      "head": "9dc3846fbb850d023352626b2a6fda4d64036abd",
+      "exit_code": 0,
+      "seconds": 73.03320583401364
+    },
+    {
+      "package": "lowerings/wasm",
+      "head": "0cee330e50e1a9cac985ff598da7035cc991a0e1",
+      "exit_code": 0,
+      "seconds": 3.3783859999966808
+    },
+    {
+      "package": "lowerings/js",
+      "head": "a7bbd6d4311c0a2dbf9a8bb61f7d62ce679a5351",
+      "exit_code": 0,
+      "seconds": 6.837098040996352
+    },
+    {
+      "package": "lowerings/gpu",
+      "head": "c4949cb31397acea3cebad9f33e578b075765b84",
+      "exit_code": 0,
+      "seconds": 9.109570416985662
+    },
+    {
+      "package": "runtime",
+      "head": "f7f7f914a97bae51161bec009875226fa566ba23",
+      "exit_code": 0,
+      "seconds": 4.521774207998533
+    }
+  ],
+  "frozen_proofs": [
+    {
+      "name": "bulk-maintenance",
+      "request_sha256": "c5e6b67d5b9dd0161c3e684398a086d6d8938bf31edffd2cd884df9a6f58877d",
+      "source": "4ada3b2f2d1b0f3eeb0267257e79ddd042966cba2ea0e8a5bb5ccd8f7095bfb4",
+      "representation": "035e8c387264109ab7359defa48e06d6af6bab8f599bc9b15693b9f581189f31",
+      "projection_seconds": 0.06825820899393875,
+      "producer_seconds": 8.72642145800637,
+      "checking_seconds": 19.639007374993525
+    },
+    {
+      "name": "membership-cache",
+      "request_sha256": "a705779cfc9a76676d62c67dfdc0707946d44b5d2381dfe9a1a7de5f6c0ede57",
+      "source": "38d6cdf39225b611498bd4873a3445727c5d50b074d4e049e91e1b534d0c58ee",
+      "representation": "e1e275c0ac2b95ceb73c5c1c910565fdeb98fb6cf1c6e4dec2359191f763c9aa",
+      "projection_seconds": 0.15282995799498167,
+      "producer_seconds": 1.2627462090022163,
+      "checking_seconds": 3.288639416001388
+    }
+  ],
+  "inventory": {
+    "schema": 1,
+    "scope": "contract",
+    "inventory": "passed",
+    "conformance": "not-run",
+    "gaps": []
+  },
+  "cli": "emit-state, emit-rust and Rust build with indexed-slots; plan metadata; invalid layout and non-Rust rejection; offline locked root build",
+  "prior_regressions": [
+    "core standalone tests",
+    "ABI standalone tests",
+    "native-support standalone tests",
+    "planner lifecycle tests (9)",
+    "action IR, transitions, effects, numerics, snapshots, ownership, undo, transaction boundaries and typed execution (39)"
+  ],
+  "parity_targets": [
+    "reference",
+    "Rust ordered",
+    "Rust indexed-slots",
+    "C",
+    "JavaScript",
+    "Rust Wasm",
+    "C Wasm"
+  ],
+  "gpu_contract": "Existing exact f32 and u64 eligible kernels dispatched in native wgpu and browser WebGPU; new table/action operations are host execution.",
+  "trust": "Conformance and timings are evidence, not backend correctness proofs. All admitted maintenance mathematics checked locally.",
+  "documentation_example": "Scalable-state example checked by current compiler"
+}

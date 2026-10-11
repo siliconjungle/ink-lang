@@ -132,10 +132,25 @@ fn prepare_selection(
     };
     verified_language::optimisation::check(&module, &package).map(Some)
 }
+fn emit_state_rust(
+    p: &syntax::Program,
+    selected: Option<&verified_language::optimisation::CheckedSelection>,
+    args: &[String],
+) -> LangResult<String> {
+    let storage = match arg_value(args, "--table-storage")?.as_deref() {
+        None | Some("ordered") => state_native::TableStorage::Ordered,
+        Some("indexed-slots") => state_native::TableStorage::IndexedSlots,
+        _ => return Err("--table-storage must be ordered or indexed-slots".into()),
+    };
+    match selected {
+        Some(s) => state_native::emit_selected_with_table_storage(s, storage),
+        None => state_native::emit_with_table_storage(p, storage),
+    }
+}
 fn run() -> LangResult<()> {
     let args: Vec<String> = env::args().skip(1).collect();
     let cmd = args.first().map(String::as_str).unwrap_or("help");
-    const OPTIONS:&[&str]=&["--budget", "--cargo", "--cc", "--compiler", "--core", "--help", "--implementation", "--lean", "--library", "--native-cpu", "--optimise", "--portable", "--python", "--replacement", "--restore", "--roles", "--route", "--route-proof", "--search-budget", "--search-tool", "--select", "--selection", "--snapshot", "--snapshot-out", "--syntax-roles", "--target", "--value-roles", "--version", "--view", "--wasm-abi", "--zig"];
+    const OPTIONS:&[&str]=&["--budget", "--cargo", "--cc", "--compiler", "--core", "--help", "--implementation", "--lean", "--library", "--native-cpu", "--optimise", "--portable", "--python", "--replacement", "--restore", "--roles", "--route", "--route-proof", "--search-budget", "--search-tool", "--select", "--selection", "--snapshot", "--snapshot-out", "--syntax-roles", "--table-storage", "--target", "--value-roles", "--version", "--view", "--wasm-abi", "--zig"];
     for arg in &args {if arg.starts_with("--")&&!OPTIONS.contains(&arg.as_str()){return Err(format!("unknown option {arg}"));}}
     if cmd == "--version" || cmd == "version" {
         println!("ink {} ({})", env!("CARGO_PKG_VERSION"), core::SEMANTICS);
@@ -467,7 +482,7 @@ fn run() -> LangResult<()> {
             "ink emit-definition LOCK.json EXPORTS.json [--select PACKAGE.json] -o DEFINITION.rs"
         );
         println!("ink emit-core SOURCE -o CORE.json\nink check-core CORE.json\nink emit-actions SOURCE -o ACTIONS.json\nink check-actions SOURCE ACTIONS.json\nink emit-effects SOURCE -o EFFECTS.json\nink check-effects SOURCE EFFECTS.json\nExecution/lowering commands also accept --core to read a checked CORE.json instead of source.\nChecked replacement packages: build/emit-c ... --replacement PACKAGE.json");
-        println!("ink check SOURCE\nink execute SOURCE SCRIPT.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable]\nink run SOURCE FUNCTION ARGS.json\nink build SOURCE --target c|rust|javascript|wasm32|webgpu -o OUTPUT\nink emit-state SOURCE -o DIRECTORY [--wasm-abi]\nink check-representation SOURCE REQUEST.json\nink verify-library LOCK.json");
+        println!("ink check SOURCE\nink execute SOURCE SCRIPT.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable]\nink run SOURCE FUNCTION ARGS.json\nink build SOURCE --target c|rust|javascript|wasm32|webgpu -o OUTPUT\nink emit-state SOURCE -o DIRECTORY [--wasm-abi] [--table-storage ordered|indexed-slots]\nink check-representation SOURCE REQUEST.json\nink verify-library LOCK.json");
 
         return Ok(());
     }
@@ -736,9 +751,7 @@ fn run() -> LangResult<()> {
         "emit-state" => {
             let out = arg_value(&args, "-o")?.ok_or("emit-state requires -o DIRECTORY")?;
             let wasm_abi = args.iter().any(|s| s == "--wasm-abi");
-            let mut code = if let Some(selected) = &semantic_selection {
-                state_native::emit_selected(selected)?
-            } else { state_native::emit(&p)? };
+            let mut code = emit_state_rust(&p,semantic_selection.as_ref(),&args)?;
             if wasm_abi {
                 code.push_str(state_native::WASM_ABI);
             }
@@ -880,6 +893,7 @@ fn run() -> LangResult<()> {
             let selected_core_sha256 = core::CheckedModule::from_source(p.clone())?.identity()?;
             let out = arg_value(&args, "-o")?.ok_or("build requires -o OUTPUT.o")?;
             let target = arg_value(&args, "--target")?.unwrap_or_else(|| "native".into());
+            if cmd=="build" && target!="rust" && arg_value(&args,"--table-storage")?.is_some(){return Err("--table-storage requires the Rust project target".into());}
             if arg_value(&args, "--route-proof")?.is_some()
                 && arg_value(&args, "--route")?.is_none()
             {
@@ -906,11 +920,7 @@ fn run() -> LangResult<()> {
                 return Ok(());
             }
             if cmd == "emit-rust" {
-                let code = if let Some(selected) = &semantic_selection {
-                    state_native::emit_selected(selected)?
-                } else {
-                    state_native::emit(&p)?
-                };
+                let code = emit_state_rust(&p,semantic_selection.as_ref(),&args)?;
                 write(&out, &code)?;
                 return Ok(());
             }
@@ -930,15 +940,11 @@ fn run() -> LangResult<()> {
                     }
                 } else {
                     verified_language::runtime::emit_rust_program(
-                        &if let Some(selected) = &semantic_selection {
-                            state_native::emit_selected(selected)?
-                        } else {
-                            state_native::emit(&p)?
-                        },
+                        &emit_state_rust(&p,semantic_selection.as_ref(),&args)?,
                         Path::new(&out),
                     )?;
                 }
-                write(&format!("{out}/plan.json"),&serde_json::to_string_pretty(&serde_json::json!({"target":target,"input_core_sha256":input_core_sha256,"selected_core_sha256":selected_core_sha256,"semantic_selection":semantic_selection.as_ref().map(|s|s.evidence()),"semantic_package":semantic_selection.as_ref().map(|s|s.package()),"checked_replacement":replacement,"checked_implementation":implementation,"applied_rule_ids":used,"trust":"literal emission and target runtimes/toolchains remain trusted"})).map_err(|e|e.to_string())?)?;
+                write(&format!("{out}/plan.json"),&serde_json::to_string_pretty(&serde_json::json!({"target":target,"table_storage":if target=="rust"{Some(arg_value(&args,"--table-storage")?.unwrap_or_else(||"ordered".into()))}else{None},"input_core_sha256":input_core_sha256,"selected_core_sha256":selected_core_sha256,"semantic_selection":semantic_selection.as_ref().map(|s|s.evidence()),"semantic_package":semantic_selection.as_ref().map(|s|s.package()),"checked_replacement":replacement,"checked_implementation":implementation,"applied_rule_ids":used,"trust":"literal emission and target runtimes/toolchains remain trusted"})).map_err(|e|e.to_string())?)?;
                 println!("wrote complete {target} project to {out}");
                 return Ok(());
             }
