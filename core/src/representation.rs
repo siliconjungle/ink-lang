@@ -290,7 +290,18 @@ pub fn check(module: &CheckedModule, request: &Request) -> LangResult<CheckedRep
         return Err("unresolved physical state".into());
     }
     let math = mathematics(&request.knowledge)?;
-    let context = registry::CheckedBundle::check(&math)?.first_order_context()?;
+    let mut exports = BTreeSet::from([plan.encode.clone(), plan.decode.clone()]);
+    for a in plan.actions.values() {
+        exports.extend([a.execute.clone(), a.next.clone()]);
+        exports.insert(
+            a.compact
+                .as_ref()
+                .map(|c| c.observe.clone())
+                .unwrap_or_else(|| a.observe.clone()),
+        );
+    }
+    let (definition, context) =
+        definition::check_registry_with_context(&math, &exports.into_iter().collect::<Vec<_>>())?;
     let l = &plan.logical_state;
     let p = &plan.physical_state;
     expect(&math, &plan.encode, &[l.clone()], p)?;
@@ -337,7 +348,6 @@ pub fn check(module: &CheckedModule, request: &Request) -> LangResult<CheckedRep
         },
         &plan.snapshot,
     )?;
-    let mut exports = BTreeSet::from([plan.encode.clone(), plan.decode.clone()]);
     for (name, a) in &plan.actions {
         let source = &projection.actions[name];
         let mut physical_args = source
@@ -419,7 +429,6 @@ pub fn check(module: &CheckedModule, request: &Request) -> LangResult<CheckedRep
                 },
                 &compact.proof,
             )?;
-            exports.insert(compact.observe.clone());
         }
         for (i, (r, proof)) in plan.relations.iter().zip(&a.preservation).enumerate() {
             prove(
@@ -436,12 +445,7 @@ pub fn check(module: &CheckedModule, request: &Request) -> LangResult<CheckedRep
                 proof,
             )?;
         }
-        exports.extend([a.execute.clone(), a.next.clone()]);
-        if a.compact.is_none() {
-            exports.insert(a.observe.clone());
-        }
     }
-    let definition = definition::check_registry(&math, &exports.into_iter().collect::<Vec<_>>())?;
     Ok(CheckedRepresentation {
         module: module.clone(),
         projection,
@@ -597,7 +601,8 @@ pub fn check_migration(
         }
     }
     let math = mathematics(bundle)?;
-    let context = registry::CheckedBundle::check(&math)?.first_order_context()?;
+    let (definition, context) =
+        definition::check_registry_with_context(&math, &[migration.function.clone()])?;
     expect(
         &math,
         &migration.function,
@@ -639,7 +644,6 @@ pub fn check_migration(
             proof,
         )?;
     }
-    let definition = definition::check_registry(&math, &[migration.function.clone()])?;
     Ok(CheckedMigration {
         obligations: goals,
         source: from.module.identity()?,

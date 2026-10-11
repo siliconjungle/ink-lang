@@ -234,7 +234,7 @@ struct Budget {
 impl Budget {
     fn new() -> Self {
         Self {
-            remaining: 100_000,
+            remaining: 1_000_000,
             bit_work: 20_000_000,
             normal_cache: std::collections::HashMap::new(),
             normal_cache_nodes: 0,
@@ -1103,6 +1103,10 @@ fn names(
     }
     Ok(())
 }
+/// Bounded capture-avoiding substitution for compile-time structural transforms.
+pub fn substitute_term(term: &Term, bindings: &BTreeMap<String, Term>) -> LangResult<Term> {
+    substitute(term, bindings, &mut Budget::new(), 0)
+}
 // Capture-avoiding simultaneous substitution. Internal fresh names use '$',
 // which untrusted binders cannot use. Inserted terms are never substituted again.
 fn substitute(
@@ -1112,6 +1116,13 @@ fn substitute(
     depth: usize,
 ) -> LangResult<Term> {
     budget.step(depth)?;
+    if bindings
+        .iter()
+        .all(|(name, value)| matches!(value,Term::Var(n)if n==name))
+    {
+        budget.copy(t)?;
+        return Ok(t.clone());
+    }
     Ok(match t {
         Term::Var(n) => match bindings.get(n) {
             Some(value) => {

@@ -13,7 +13,7 @@ use verified_language::{
 };
 fn root() -> PathBuf {
     std::env::var_os("INK_REP_PARITY_ROOT")
-        .map(PathBuf::from)
+        .map(|p| Path::new(env!("CARGO_MANIFEST_DIR")).join(p))
         .unwrap_or_else(|| {
             Path::new(env!("CARGO_MANIFEST_DIR")).join("build/representation-parity")
         })
@@ -240,7 +240,11 @@ fn check(name: &str, source: &str, request: Option<Request>, calls: Vec<(&str, V
         );
         serde_json::from_slice(&fs::read(dir.join("compact-request.json")).unwrap()).unwrap()
     };
-    let unused = add_unused_mathematics(&mut request);
+    let unused = if name == "indexed-aggregate" {
+        vec![]
+    } else {
+        add_unused_mathematics(&mut request)
+    };
     fs::write(
         dir.join("request.json"),
         serde_json::to_vec(&request).unwrap(),
@@ -404,6 +408,20 @@ fn check(name: &str, source: &str, request: Option<Request>, calls: Vec<(&str, V
                     .arg(project.join("check.mjs"))
                     .env("INK_REP_WASM", "1"),
                 &project.join("wasm-run.log"),
+            );
+        }
+    }
+    if name == "indexed-aggregate" {
+        for backend in ["javascript", "rust-wasm", "wasm32"] {
+            if backend != "javascript" && std::env::var_os("INK_TEST_ZIG").is_none() {
+                continue;
+            }
+            run(
+                Command::new("node")
+                    .arg(Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/indexed-durable.mjs"))
+                    .arg(dir.join(backend))
+                    .arg(backend),
+                &dir.join(format!("{backend}-durable.log")),
             );
         }
     }
@@ -837,6 +855,153 @@ fn compact_observations_reject_rehashed_false_proofs_and_wrong_interfaces() {
         assert!(
             representation::check(&module, &bad).is_err(),
             "accepted rehashed compact {field}"
+        );
+    }
+}
+
+#[test]
+fn indexed_cached_sum_count_have_equal_backend_coverage() {
+    let path = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("knowledge/research/indexed-aggregate/request.json");
+    let request: Request = serde_json::from_slice(&fs::read(path).unwrap()).unwrap();
+    let mut calls = vec![];
+    // Opposing insertion orders exercise single and double rotations.
+    for key in [
+        8u64,
+        4,
+        12,
+        2,
+        6,
+        10,
+        14,
+        1,
+        3,
+        5,
+        7,
+        9,
+        11,
+        13,
+        15,
+        0,
+        u64::MAX,
+    ] {
+        calls.push(("put", json!([key, key, key % 2 == 0, false])));
+        calls.push(("total_query", json!([])));
+        calls.push(("count_query", json!([])));
+    }
+    for key in [0u64, 7, 12, u64::MAX, 99, 4, 8] {
+        calls.extend([
+            ("put", json!([key, u64::MAX, true, true])),
+            ("erase", json!([key, true])),
+            ("total_query", json!([])),
+            ("count_query", json!([])),
+            ("put", json!([key, u64::MAX, true, false])),
+            ("total_query", json!([])),
+            ("count_query", json!([])),
+            ("erase", json!([key, false])),
+            ("total_query", json!([])),
+            ("count_query", json!([])),
+        ]);
+    }
+    check(
+        "indexed-aggregate",
+        include_str!("../examples/filtered-aggregate.ink"),
+        Some(request),
+        calls,
+    );
+}
+
+#[test]
+fn packed_and_indexed_chunks_preserve_every_standalone_target() {
+    let source = include_str!("../knowledge/research/storage-bulk/app.ink");
+    let mut calls = vec![("put", json!([1023, 991])), ("get", json!([1023]))];
+    for i in 0..12u64 {
+        calls.extend([
+            ("put", json!([11 - i, u64::MAX - i])),
+            ("get", json!([0])),
+            ("get", json!([11 - i])),
+        ]);
+    }
+    for i in 0..24u64 {
+        calls.extend([
+            ("put", json!([i % 13, i * 31])),
+            ("erase", json!([(i + 3) % 13, i % 3 == 0])),
+            ("get", json!([0])),
+            ("get", json!([i % 13])),
+            ("get", json!([u64::MAX])),
+        ]);
+    }
+    for (name, bytes) in [
+        (
+            "packed-2",
+            include_str!("../knowledge/research/storage-bulk/packed-2.json"),
+        ),
+        (
+            "packed-4",
+            include_str!("../knowledge/research/storage-bulk/packed-4.json"),
+        ),
+        (
+            "indexed-2",
+            include_str!("../knowledge/research/storage-bulk/indexed-2-hot-0.json"),
+        ),
+        (
+            "indexed-4",
+            include_str!("../knowledge/research/storage-bulk/indexed-4-hot-0.json"),
+        ),
+        (
+            "indexed-4-1023",
+            include_str!("../knowledge/research/storage-bulk/indexed-4-hot-1023.json"),
+        ),
+    ] {
+        check(
+            name,
+            source,
+            Some(serde_json::from_str(bytes).unwrap()),
+            calls.clone(),
+        );
+    }
+}
+
+#[test]
+fn boolean_delta_and_refresh_fallbacks_preserve_every_standalone_target() {
+    let source = include_str!("../knowledge/research/storage-bulk/booleans.ink");
+    let mut calls = vec![("any_query", json!([])), ("all_query", json!([]))];
+    for i in 0..28u64 {
+        calls.extend([
+            ("insert", json!([i % 7, i % 2 == 0, i % 6 == 0])),
+            ("any_query", json!([])),
+            ("all_query", json!([])),
+            ("replace", json!([(i + 3) % 7, i % 3 == 0, i % 5 == 0])),
+            ("any_query", json!([])),
+            ("all_query", json!([])),
+            ("erase", json!([(i + 1) % 7, i % 4 == 0])),
+            ("any_query", json!([])),
+            ("all_query", json!([])),
+            ("get", json!([i % 7])),
+        ]);
+    }
+    for i in 0..7 {
+        calls.extend([
+            ("erase", json!([i, false])),
+            ("any_query", json!([])),
+            ("all_query", json!([])),
+        ]);
+    }
+    for (name, bytes) in [
+        (
+            "any-delta",
+            include_str!("../knowledge/research/storage-bulk/any-delta.json"),
+        ),
+        (
+            "all-delta",
+            include_str!("../knowledge/research/storage-bulk/all-delta.json"),
+        ),
+    ] {
+        check(
+            name,
+            source,
+            Some(serde_json::from_str(bytes).unwrap()),
+            calls.clone(),
         );
     }
 }
