@@ -11,6 +11,18 @@ Read [the philosophy and ambitions](docs/vision.md), [the design draft](docs/lan
 Historical counts and milestone receipts are preserved in
 [the previous status snapshot](docs/history/implementation-status-through-2026-10-11.md).
 
+## Integrated composed execution work
+
+[Engine39](reports/web-stack-engine-39-2026-10-11/REPORT.md) adds bounded,
+source-derived collection facts across helper composition and target-specific
+fresh-buffer/destination reuse. Existing caller capacity/disjointness contracts
+remain trusted; no validation wrapper or new syntax is introduced. Runtime hosts
+support saved-profile adaptive selection, explicit static execution and retained
+pure GPU sessions. Broad target component costs and frozen calibration live in the
+planner/knowledge packages, outside proof authority. Their heldout failures prevent
+a default profitability claim. Broad comparisons still trail strong Rust controls;
+measured gains and losses are preserved separately from correctness evidence.
+
 ## Executable language and targets
 
 | Area | Available now | Boundary |

@@ -1,0 +1,152 @@
+{
+  "status": "passed",
+  "commands": [
+    {
+      "name": "prior-js",
+      "kind": "instrumented_profile",
+      "argv": [
+        "/Users/james/.nvm/versions/node/v26.1.0/bin/node",
+        "--trace-opt",
+        "--trace-deopt",
+        "--trace-gc-nvp",
+        "--trace-file-names",
+        "--trace-turbo-inlining",
+        "--cpu-prof",
+        "--cpu-prof-dir=/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/reports/web-stack-engine-39-2026-10-11/regressions/profiles",
+        "--cpu-prof-name=prior-js.cpuprofile",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/bench/diagnose-pipeline38.mjs",
+        "--mode=profile",
+        "--timing-authorized",
+        "--frame=pipeline38_left_padded_zip_heldout_u32-high-65536",
+        "--variant=prior_js_owned",
+        "--calls=256",
+        "--warmups=64",
+        "--output=/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/reports/web-stack-engine-39-2026-10-11/regressions/profile-prior-js.json"
+      ],
+      "exit_code": 0,
+      "log_sha256": "3878549bca7172c2ea45613d07c69e70a9be4a8f1a577140be3e98933a395291"
+    },
+    {
+      "name": "checked-js",
+      "kind": "instrumented_profile",
+      "argv": [
+        "/Users/james/.nvm/versions/node/v26.1.0/bin/node",
+        "--trace-opt",
+        "--trace-deopt",
+        "--trace-gc-nvp",
+        "--trace-file-names",
+        "--trace-turbo-inlining",
+        "--cpu-prof",
+        "--cpu-prof-dir=/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/reports/web-stack-engine-39-2026-10-11/regressions/profiles",
+        "--cpu-prof-name=checked-js.cpuprofile",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/bench/diagnose-pipeline38.mjs",
+        "--mode=profile",
+        "--timing-authorized",
+        "--frame=pipeline38_left_padded_zip_heldout_u32-high-65536",
+        "--variant=checked_js_owned",
+        "--calls=256",
+        "--warmups=64",
+        "--output=/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/reports/web-stack-engine-39-2026-10-11/regressions/profile-checked-js.json"
+      ],
+      "exit_code": 0,
+      "log_sha256": "7994ab4cfe8dd0c26e188f7266fa14d46fb8a3dc4d8d9ebe3063ac17b5010e3d"
+    },
+    {
+      "name": "prior-wasm",
+      "kind": "instrumented_profile",
+      "argv": [
+        "/Users/james/.nvm/versions/node/v26.1.0/bin/node",
+        "--print-wasm-code",
+        "--print-wasm-code-function-index=6",
+        "--trace-wasm-lazy-compilation",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/bench/diagnose-pipeline38.mjs",
+        "--mode=profile",
+        "--timing-authorized",
+        "--frame=pipeline38_left_padded_zip_heldout_u32-high-65536",
+        "--variant=prior_wasm_prepared",
+        "--calls=128",
+        "--warmups=64",
+        "--output=/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/reports/web-stack-engine-39-2026-10-11/regressions/profile-prior-wasm.json"
+      ],
+      "exit_code": 0,
+      "log_sha256": "22dd17f6d11d38f851ba65165328783fdf03f83901361385c537b4c539f641f8"
+    },
+    {
+      "name": "checked-wasm",
+      "kind": "instrumented_profile",
+      "argv": [
+        "/Users/james/.nvm/versions/node/v26.1.0/bin/node",
+        "--print-wasm-code",
+        "--print-wasm-code-function-index=4",
+        "--trace-wasm-lazy-compilation",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/bench/diagnose-pipeline38.mjs",
+        "--mode=profile",
+        "--timing-authorized",
+        "--frame=pipeline38_left_padded_zip_heldout_u32-high-65536",
+        "--variant=checked_wasm_prepared",
+        "--calls=128",
+        "--warmups=64",
+        "--output=/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/reports/web-stack-engine-39-2026-10-11/regressions/profile-checked-wasm.json"
+      ],
+      "exit_code": 0,
+      "log_sha256": "9c2bfa9aa2c03efdce04e5984adc5db989b58805240f4b120709e07b2832f634"
+    },
+    {
+      "name": "reproduce-process-1",
+      "kind": "uninstrumented_fresh_process",
+      "argv": [
+        "/Users/james/.nvm/versions/node/v26.1.0/bin/node",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/bench/diagnose-pipeline38.mjs",
+        "--mode=reproduce",
+        "--timing-authorized",
+        "--frame=regressions",
+        "--variant=prior_js_owned,checked_js_owned,expert_js_owned,control_no_padding_js_owned,control_no_pluszero_js_owned,prior_wasm_prepared,checked_wasm_prepared,prior_novec_wasm_prepared,checked_novec_wasm_prepared,prior_wasm_full,checked_wasm_full",
+        "--warmups=64",
+        "--rounds=9",
+        "--seed=2026113901",
+        "--output=/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/reports/web-stack-engine-39-2026-10-11/regressions/reproduce-process-1.json"
+      ],
+      "exit_code": 0,
+      "log_sha256": "07a044235a2c35c0ceb10e28f65763314ada254f34da8fd980771e97dfb65541"
+    },
+    {
+      "name": "reproduce-process-2",
+      "kind": "uninstrumented_fresh_process",
+      "argv": [
+        "/Users/james/.nvm/versions/node/v26.1.0/bin/node",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/bench/diagnose-pipeline38.mjs",
+        "--mode=reproduce",
+        "--timing-authorized",
+        "--frame=regressions",
+        "--variant=prior_js_owned,checked_js_owned,expert_js_owned,control_no_padding_js_owned,control_no_pluszero_js_owned,prior_wasm_prepared,checked_wasm_prepared,prior_novec_wasm_prepared,checked_novec_wasm_prepared,prior_wasm_full,checked_wasm_full",
+        "--warmups=64",
+        "--rounds=9",
+        "--seed=2026113902",
+        "--output=/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/reports/web-stack-engine-39-2026-10-11/regressions/reproduce-process-2.json"
+      ],
+      "exit_code": 0,
+      "log_sha256": "f35260a0f8eb7efe818bd9de22e9b82f4c6a0c4e1010264b4d561dc0526f28a6"
+    },
+    {
+      "name": "reproduce-process-3",
+      "kind": "uninstrumented_fresh_process",
+      "argv": [
+        "/Users/james/.nvm/versions/node/v26.1.0/bin/node",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/bench/diagnose-pipeline38.mjs",
+        "--mode=reproduce",
+        "--timing-authorized",
+        "--frame=regressions",
+        "--variant=prior_js_owned,checked_js_owned,expert_js_owned,control_no_padding_js_owned,control_no_pluszero_js_owned,prior_wasm_prepared,checked_wasm_prepared,prior_novec_wasm_prepared,checked_novec_wasm_prepared,prior_wasm_full,checked_wasm_full",
+        "--warmups=64",
+        "--rounds=9",
+        "--seed=2026113903",
+        "--output=/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/reports/web-stack-engine-39-2026-10-11/regressions/reproduce-process-3.json"
+      ],
+      "exit_code": 0,
+      "log_sha256": "b6d3491fd5fda548733ec430a465213606eceaf504c20a286163f4d24cab0e82"
+    }
+  ],
+  "script_sha256": "5fe5e9c7a329ba3ddd8051f5e118a9d73dee6136ccade306baae788cd0a808ce",
+  "plan_sha256": "e493768c8e043eb8a9485ecd28f532bdde361dba2be40a42504de39a0a48b516",
+  "readiness_sha256": "d774c7e36d47d39d2ff411f8a5aad11bf877a9e7ed1c91d505a25e338168ccf3"
+}

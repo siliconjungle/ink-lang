@@ -1,0 +1,94 @@
+{
+  "schema": 1,
+  "semantics": "ink-semantic-terms-v1",
+  "input_core_sha256": "dee325d2d4f9a0d1c447e5f81554b34335a2ff6f7dd6489f6ac02a7c89c292a3",
+  "functions": {
+    "general39_affine": {
+      "sort": {
+        "Value": {
+          "List": "U32"
+        }
+      },
+      "node": {
+        "Op": [
+          "method:map",
+          [
+            {
+              "sort": {
+                "Value": {
+                  "List": "U32"
+                }
+              },
+              "node": {
+                "Free": "xs"
+              }
+            },
+            {
+              "sort": {
+                "Arrow": [
+                  {
+                    "Value": "U32"
+                  },
+                  {
+                    "Value": "U32"
+                  }
+                ]
+              },
+              "node": {
+                "Lambda": {
+                  "sort": {
+                    "Value": "U32"
+                  },
+                  "node": {
+                    "Op": [
+                      "binary:+",
+                      [
+                        {
+                          "sort": {
+                            "Value": "U32"
+                          },
+                          "node": {
+                            "Op": [
+                              "binary:*",
+                              [
+                                {
+                                  "sort": {
+                                    "Value": "U32"
+                                  },
+                                  "node": {
+                                    "Bound": 0
+                                  }
+                                },
+                                {
+                                  "sort": {
+                                    "Value": "U32"
+                                  },
+                                  "node": {
+                                    "Free": "k"
+                                  }
+                                }
+                              ]
+                            ]
+                          }
+                        },
+                        {
+                          "sort": {
+                            "Value": "U32"
+                          },
+                          "node": {
+                            "Free": "seed"
+                          }
+                        }
+                      ]
+                    ]
+                  }
+                }
+              }
+            }
+          ]
+        ]
+      }
+    }
+  },
+  "unavailable": []
+}

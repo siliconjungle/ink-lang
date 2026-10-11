@@ -1,0 +1,57 @@
+{
+  "status": "passed",
+  "mode": "profile",
+  "host": "v26.1.0",
+  "execArgv": [
+    "--trace-opt",
+    "--trace-deopt",
+    "--trace-gc-nvp",
+    "--trace-file-names",
+    "--trace-turbo-inlining",
+    "--cpu-prof",
+    "--cpu-prof-dir=/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/reports/web-stack-engine-39-2026-10-11/regressions/profiles",
+    "--cpu-prof-name=prior-js.cpuprofile"
+  ],
+  "argv": {
+    "mode": "profile",
+    "timing-authorized": true,
+    "frame": "pipeline38_left_padded_zip_heldout_u32-high-65536",
+    "variant": "prior_js_owned",
+    "calls": "256",
+    "warmups": "64",
+    "output": "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/reports/web-stack-engine-39-2026-10-11/regressions/profile-prior-js.json"
+  },
+  "profiling_overhead_included": true,
+  "control_sources": {},
+  "causal_scope": "no-padding isolates removed concat allocation/copy, with staged loops retained; no-pluszero isolates four scalar neutral additions. Expert changes several source features and is not a single-factor cause.",
+  "boundaries": "Captured JS copies both inputs and returns fresh owned outputs. Prepared Wasm excludes setup and borrows destination; full Wasm uses unchanged runtime capture/packing/owned unpack. Node results do not reproduce browser engine/environment.",
+  "bindings": {
+    "metadata": "30e0d7dee69815d8815676289a73c3aa7ba49df079b9cbaed7af3a1f89019331",
+    "fixtures": "a1951d464353ddfd3ad08b2a3bb2d4f4ad249cb98860403c96b18ceff134c4a7",
+    "script": "f32e07055800dbc70877f0b864810cb3dbd9b7770249c0d62862ac34c91782b0",
+    "reports/web-stack-proofs-38-2026-10-11/targets/targets/pipeline38_left_padded_zip_heldout_u32/prior/program.mjs": "2402d4d4ed79cf0f19b88f2d70f75b47536fdadb6c1d67331388b472d48b6690"
+  },
+  "validation": [
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-65536",
+      "variant": "prior_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    }
+  ],
+  "calibration": [],
+  "samples": [],
+  "profile_calls": [
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-65536",
+      "variant": "prior_js_owned",
+      "calls": 256,
+      "boundary": "captured-js-owned",
+      "full_word_consumption": true
+    }
+  ],
+  "observable": 1495883136,
+  "script_sha256": "f32e07055800dbc70877f0b864810cb3dbd9b7770249c0d62862ac34c91782b0"
+}

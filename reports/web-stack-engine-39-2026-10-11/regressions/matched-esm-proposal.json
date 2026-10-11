@@ -1,0 +1,143 @@
+{
+  "status": "proposed_not_executed",
+  "timing_authorized": false,
+  "purpose": "Remove Function/sloppy and function-renaming confounds before attributing archived JS fusion losses.",
+  "frames": [
+    "pipeline38_left_padded_zip_heldout_u32-high-4096",
+    "pipeline38_left_padded_zip_heldout_u32-high-65536",
+    "pipeline38_right_padded_zip_heldout_u32-high-4096",
+    "pipeline38_right_padded_zip_heldout_u32-high-65536"
+  ],
+  "variants": [
+    "prior_original_esm",
+    "prior_unchanged_clone_esm",
+    "prior_no_padding_esm",
+    "checked_original_esm",
+    "checked_unchanged_clone_esm",
+    "checked_no_pluszero_esm"
+  ],
+  "module_generation": {
+    "unchanged_clones": "Copy complete archived module bytes unchanged; verify identical SHA. Import from own fresh diagnosis subdirectories. Keep __fn0 name, ESM strictness, helper/destination bodies, original metadata and exports.",
+    "no_padding": "Apply exactly one concat allocation/two-copy-loop replacement only inside primary __fn0 of complete prior module. Bind concat result to mapped prefix; every other byte including all helpers/destination emitter/exports stays unchanged.",
+    "no_pluszero": "Remove exactly four literal +0 occurrences only inside primary __fn0 of complete checked module; keep every other byte unchanged.",
+    "path_confound": "No-op clone vs original remains explicit baseline for module-URL/compilation and import-order differences. Path cannot be identical for independently loaded modules."
+  },
+  "common_boundary": {
+    "input_capture": "Copy both xs and ys with Uint32Array.slice per call. Same wrapper construction and run signature across all variants.",
+    "output": "Fresh owned Array; full length + weighted all-word moduloU32 checksum inside timer; exact outputs/nonmutation/repeated and changed-input lifetime outside timer.",
+    "consumer": "Same common batch loop and checksum routine across variants.",
+    "inlining": "Preserve scalar helper bodies already emitted inline. Do not add/remove consumer or wrapper inlining hints."
+  },
+  "uninstrumented_reproduction": {
+    "processes": 3,
+    "rounds": 9,
+    "seeds": [
+      2026113911,
+      2026113912,
+      2026113913
+    ],
+    "samples_per_process": 216,
+    "total_samples": 648,
+    "warmups_per_variant_fixture": 64,
+    "calibration": "Same frozen 1,double... stop8ms or65536 cap; exact checksum/iteration journal.",
+    "order": "Fixed frame order; independently seeded Fisher-Yates variant order each round.",
+    "separation": "Run only after parent grants exclusive supplemental window. Existing Node/browser measurements preserved.",
+    "statistics": "Retain every pair per frame/process. Conditional4000 seeded within-process bootstrap; three independent process ratios separate. No pooled27round confidence."
+  },
+  "instrumented_evidence": {
+    "profile_frame": "left composed high65536, fixed before new measurements",
+    "profiles": [
+      "prior_unchanged_clone_esm",
+      "prior_no_padding_esm",
+      "checked_unchanged_clone_esm",
+      "checked_no_pluszero_esm"
+    ],
+    "flags": [
+      "--trace-opt",
+      "--trace-deopt",
+      "--trace-file-names",
+      "--trace-turbo-inlining",
+      "--print-opt-code",
+      "--print-opt-code-filter=__fn0"
+    ],
+    "scope": "Separate fresh single-variant processes with64warmups+256calls. Parse actual final optimization tiers/function source URL/inlining decisions/ARM64 generated code. Instrumented timings excluded. No huge TurboFan IR dump.",
+    "allocation_validation": "Untimed instrumented copies count only primary new Array constructions; common capture performs2 typed-array copies separately. Constructor counting changes code and is NOT used for performance attribution. Static primary allocation sites shown below; dynamic counted module must compare full outputs before using count. Heap sample profiles are sampling, not exact object counts.",
+    "limits": "Final code/inlining evidence can rule out specific hypotheses; source-level controlled effect need not isolate a single machine instruction. If no-op baseline is unstable, or no-padding does not isolate source-shape slowdown, retain exact JIT cause unknown."
+  },
+  "source_inventory": [
+    {
+      "task": "pipeline38_left_padded_zip_heldout_u32",
+      "version": "prior",
+      "archived_module_sha256": "2402d4d4ed79cf0f19b88f2d70f75b47536fdadb6c1d67331388b472d48b6690",
+      "primary_sha256": "e8cc5fff94dd6187d32a149cc36ec06e734c64f54fec96d6499c9eb82c647ce5",
+      "primary_function_name": "__fn0",
+      "primary_new_Array_sites": 4,
+      "primary_loops": 5,
+      "inline_helper_markers": [
+        "left_word",
+        "left_signal",
+        "right_word",
+        "right_signal",
+        "pair_word",
+        "pair_signal"
+      ],
+      "source_context": "full strict ESM with original exports, helpers, metadata and destination emitter retained"
+    },
+    {
+      "task": "pipeline38_left_padded_zip_heldout_u32",
+      "version": "checked",
+      "archived_module_sha256": "a50f68556d2e1f7ec8dca664ac0d258ec3a1ecaef290ca878403ae4244904d7c",
+      "primary_sha256": "8290cee14c009b73270efea4c3f85081e8ca289ae612782c7db65603585f9623",
+      "primary_function_name": "__fn0",
+      "primary_new_Array_sites": 1,
+      "primary_loops": 1,
+      "inline_helper_markers": [
+        "left_word",
+        "left_signal",
+        "right_word",
+        "right_signal",
+        "pair_word",
+        "pair_signal"
+      ],
+      "source_context": "full strict ESM with original exports, helpers, metadata and destination emitter retained"
+    },
+    {
+      "task": "pipeline38_right_padded_zip_heldout_u32",
+      "version": "prior",
+      "archived_module_sha256": "0fc32eca4d213f2361b8cfc9ed26d1e4233d1d27a050972407f2290b9373f4c1",
+      "primary_sha256": "37a35dcd9b0f2938ad645290f7ef26bdd8a253859d42dab8a14df06ca7770c1a",
+      "primary_function_name": "__fn0",
+      "primary_new_Array_sites": 4,
+      "primary_loops": 5,
+      "inline_helper_markers": [
+        "left_word",
+        "left_signal",
+        "right_word",
+        "right_signal",
+        "pair_word",
+        "pair_signal"
+      ],
+      "source_context": "full strict ESM with original exports, helpers, metadata and destination emitter retained"
+    },
+    {
+      "task": "pipeline38_right_padded_zip_heldout_u32",
+      "version": "checked",
+      "archived_module_sha256": "48b82d92bcb6acbf65e3ceefe681b71826b55d5cce3cd34161cc9994eb7f667e",
+      "primary_sha256": "8290cee14c009b73270efea4c3f85081e8ca289ae612782c7db65603585f9623",
+      "primary_function_name": "__fn0",
+      "primary_new_Array_sites": 1,
+      "primary_loops": 1,
+      "inline_helper_markers": [
+        "left_word",
+        "left_signal",
+        "right_word",
+        "right_signal",
+        "pair_word",
+        "pair_signal"
+      ],
+      "source_context": "full strict ESM with original exports, helpers, metadata and destination emitter retained"
+    }
+  ],
+  "no_costmodel_changes": true,
+  "no_production_changes": true
+}
