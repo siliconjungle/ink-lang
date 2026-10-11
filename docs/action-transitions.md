@@ -33,7 +33,7 @@ individual database entries; the selection JSON transports a pinned, authenticat
 view and checked proposal, rather than installing an algorithm into the core.
 
 The current source projection supports u64-keyed tables whose values use u64,
-Bool, Unit, enums, records, Option and Result; total word/Boolean expressions and
+Bool, Unit, enums, records, Option, Result and List; total word/Boolean expressions and
 constructors; table get/contains and insert/replace/remove (including their
 returned values); local lets, branches, ordered emits and returns. Nested query
 and change calls, `?`, and Option/Result `map`, `map_err` and `ok_or` now have
@@ -44,7 +44,9 @@ derived from the existing checked binder-safe semantic tree. Helper call depth
 is limited to 32 and the projection's shared work/definition limits still apply.
 All action signatures and used operations
 must lie in this domain. It currently rejects other numeric types, IDs, exact
-integers, strings, lists, keep reads and unsupported primitive operations.
+integers, strings, keep reads and unsupported primitive operations. List values
+and fixed count/u64 sum have [additional literal correspondence](point-query-delta.md);
+other list operations still need explicit support.
 Those features continue to execute through the baseline;
 this projection does not certify their replacement. Proposed definitions and
 continuations have explicit node, byte, depth and declaration limits. Kernel
@@ -126,9 +128,13 @@ The trust boundary still includes the Rust source/primitive projection, fixed
 reference semantics, host codecs, target emission, toolchains and device runtime.
 This is not a proof of generated machine instructions or kernel soundness.
 Resource exhaustion, allocation failure and concurrent execution are outside the
-transition equality contract. The model does not yet admit arbitrary physical
-representations, maintained views or their migrations. Legacy aggregate,
-bounded-cache and layout admission remain migration debt. The full production
+transition equality contract. Whole-action equality alone does not admit arbitrary
+physical representations, maintained views or their migrations. A separate
+[source-bound representation interface](database-representations.md) now admits
+restricted physical candidates and checked bridges. Legacy aggregate, bounded-cache
+and storage-policy approval is retired from default builds and requires explicit
+historical research mode. Broader source domains and maintained-view correspondence
+remain open. The full production
 acceptance gates in PLAN.md remain active; editor support and schema evolution
 remain excluded. There is no performance or universal-fastest claim from this
 example.

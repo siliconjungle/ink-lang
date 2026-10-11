@@ -579,6 +579,9 @@ fn normal(t: &Term, hyp: &[Equation], p: &Program, b: &mut Budget, d: usize) -> 
         return Ok(out);
     };
     let again = |t: &Term, b: &mut Budget| normal(t, hyp, p, b, d + 1);
+    if let Some(reduced) = crate::owned_semantic::reduce(&out)? {
+        return again(&reduced, b);
+    }
     let reduced = match (n.as_str(), a.as_slice()) {
         ("apply", [f, x]) => {
             if let Node::Lambda(body) = &f.node {
@@ -622,6 +625,15 @@ fn normal(t: &Term, hyp: &[Equation], p: &Program, b: &mut Budget, d: usize) -> 
             )),
             _ => None,
         },
+        ("binary:==" | "binary:!=", [left, right])
+            if left == right
+                && matches!(
+                    left.sort,
+                    Sort::Value(Type::U32 | Type::U64 | Type::I32 | Type::Bool)
+                ) =>
+        {
+            Some(term(value(Type::Bool), Node::Bool(n == "binary:==")))
+        }
         ("binary:&&", [c, x]) => match c.node {
             Node::Bool(false) => Some(c.clone()),
             Node::Bool(true) => Some(x.clone()),

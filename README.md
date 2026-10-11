@@ -1,124 +1,184 @@
 # Ink
 
-Ink is a programming language with a small semantic core and proof-backed, data-driven optimisation. Pure functions support word and signed arithmetic, binary32, records/vectors, collections, [checked self recursion and ordered parallel work](docs/bend-inspired.md), bounded loops, [owned local buffers/maps](docs/local-collections.md) and typed higher-order collection operations. Stateful programs add tables, transactions, events, maintained results and portable snapshots.
+**A programming language whose optimisation knowledge can grow independently of its compiler.**
 
-Read the [practical guide](https://siliconjungle.github.io/ink-spec-site/) or the [language reference](https://siliconjungle.github.io/ink-spec-site/reference.html).
+Write typed programs that describe computation, state and permitted changes. An
+external knowledge store supplies alternative implementations and mathematical
+proofs. A planner discovers and combines them; a small semantic core checks that
+each accepted change preserves the actual program's meaning.
 
-The core checks what programs mean and whether proposed changes preserve that meaning. The knowledge store supplies immutable definitions, laws and proofs; the planner searches and selects candidates; the runtime orchestrates physical execution; target packages emit code and operate devices.
+The ambition is to make better algorithms, storage layouts and execution plans
+reusable across programs. Adding a proved law can improve existing code without
+editing its source or adding a dedicated compiler pass. This already works for
+supported transformations; broader coverage and consistently competitive
+execution remain active engineering work.
 
-Physical layouts, cached query implementations and transaction-boundary migrations
-can now be [canonical database entries](docs/database-representations.md), checked
-against every action of unchanged source and compiled literally to Rust. Source
-syntax is unchanged. The current proof path covers the u64 transition subset;
-other domains retain baseline execution. Old aggregate/bounded-cache/storage-policy
-approval is retired from default builds; historical reproduction requires the
-explicit `legacy-optimisation-research` feature.
+Ink is a working prototype with native, JavaScript, WebAssembly and eligible GPU
+execution. The [implementation status](STATUS.md) separates available features,
+proof coverage and work being integrated. The [full language design](docs/language-specification-draft.md)
+also contains proposed features.
 
-## Repositories
+[Practical guide](https://siliconjungle.github.io/ink-spec-site/) ·
+[Language reference](https://siliconjungle.github.io/ink-spec-site/reference.html) ·
+[Design and ambitions](docs/vision.md) · [Benchmark evidence](BENCHMARKS.md)
 
-| Repository | Responsibility |
+## Philosophy
+
+**Keep program meaning stable; let implementation knowledge accumulate.**
+
+Describe the required computation and permitted changes. Make better ways to
+execute them reusable. Proofs establish which alternatives preserve meaning;
+measurements guide which are worthwhile. Keep the semantic core focused on
+meaning and checking, while the store grows its repertoire of implementations.
+Judge progress by less work and better complete execution on real workloads.
+
+## How it works
+
+```mermaid
+flowchart LR
+    S[Typed program] --> C[Semantic core]
+    K[Knowledge: definitions, alternatives, proofs] --> P[Planner: discover and compose]
+    C --> P
+    P --> V[Core: check equivalence and conditions]
+    V --> L[Target lowering]
+    L --> R[Runtime: execute]
+    O[Separate performance observations] --> P
+```
+
+Three questions stay separate:
+
+1. **Is the alternative equivalent?** The core checks its evidence against fixed
+   semantics and the exact program.
+2. **Does it apply here?** Required conditions must be established at the actual
+   application site. A typical input or a past observation cannot prove them.
+3. **Is it worth choosing?** Cost estimates and comparable measurements guide
+   selection. A correct transformation can still run more slowly.
+
+For example, a collection law can replace successive maps with one composed
+map. Other laws remove an unobserved traversal, preserve ordered reductions or
+eliminate sorting before an order-insensitive observation. The database supplies
+the law; the compiler checks its application. Supported stateful candidates can
+also define physical layouts, cached queries and migrations, with preservation
+obligations for every source action.
+
+The knowledge store contains immutable, content-addressed JSON files and pinned
+snapshots, with a rebuildable SQLite discovery index. Its role goes beyond storing
+proof files: it makes typed laws, conditions, dependencies and implementations
+discoverable by the optimiser. Storage grants no mathematical authority.
+Selections carry the needed evidence and can be rechecked offline without a live
+database. See [semantic selection](docs/semantic-optimisation.md),
+[stateful representations](docs/database-representations.md) and
+[the data contract](docs/repository-architecture.md).
+
+## What runs today
+
+| Area | Implemented scope |
 | --- | --- |
-| [`ink-lang`](https://github.com/siliconjungle/ink-lang), `core/` | Fixed language semantics, typed executable representation and general proof checking; independently buildable source tree |
-| [`ink-lang`](https://github.com/siliconjungle/ink-lang), distribution | CLI, pinned dependency assembly and integration tests |
-| [`ink-knowledge`](https://github.com/siliconjungle/ink-knowledge) | Canonical immutable entries, authenticated snapshots, typed discovery API, rebuildable SQLite index and separate performance observations |
-| [`ink-planner`](https://github.com/siliconjungle/ink-planner) | Bounded rewrite search, applicability proof production, cost selection and checked graph proposals |
-| [`ink-runtime`](https://github.com/siliconjungle/ink-runtime) | Backend-neutral graph execution, host ABIs, scheduling, profiling, toolchain invocation and pure fallback |
-| [`ink-lowering-c`](https://github.com/siliconjungle/ink-lowering-c) | Literal portable C and packed value ABI emission |
-| [`ink-lowering-rust`](https://github.com/siliconjungle/ink-lowering-rust) | Stateful/inductive Rust emission and native storage primitives |
-| [`ink-lowering-wasm`](https://github.com/siliconjungle/ink-lowering-wasm) | Checked C-to-Wasm target configuration and exports |
-| [`ink-lowering-js`](https://github.com/siliconjungle/ink-lowering-js) | JavaScript ES modules with explicit Ink numeric semantics |
-| [`ink-lowering-gpu`](https://github.com/siliconjungle/ink-lowering-gpu) | WGSL artifacts, shader primitives and WebGPU/wgpu device adapters |
+| Pure computation | Wrapping words, signed arithmetic, binary32, vectors, records, collections, bounded loops, owned local buffers/maps and [checked recursion/ordered parallel work](docs/bend-inspired.md) |
+| Application state | Typed tables, queries, atomic changes, rollback, ordered events, maintained results and portable snapshots |
+| Targets | Native C/Rust, JavaScript ES modules, C/Rust WebAssembly and eligible WGSL through WebGPU/wgpu |
+| Checked optimisation | Composable expression rewrites, eligible pure action regions and complete action replacements in a documented subset |
+| Physical representations | Database-defined layouts, cached-query implementations and checked transaction-boundary migrations; currently a restricted source domain and Rust definition executor |
+| Incremental work and selection | Fixed-key query delta maintenance with refresh fallback; external selection that charges checking, setup, calls, memory and migration |
+| Deployment | Explicit modules, a small standard library, relocatable installation, diagnostics and durable host adapters |
 
-## Build and use
+Execution support is broader than proof-based replacement support. Numerical state,
+for example, runs on the CPU targets, while the current physical-representation
+proof path excludes floating arithmetic and exact-Int aggregates. GPU execution
+covers eligible pure work; transactions run on the host. [Parallel work, owned partitions, GPU scratch storage and checked recursion](docs/bend-inspired.md)
+now run under explicit target limits. The optional independent Lean verdict checks
+a limited Boolean equality calculus; it does not verify the complete compiler.
+
+The [target parity contract](docs/lowering-parity.md) records exact coverage and
+limits. Complete C emission uses a shared Rust primitive runtime. JavaScript keeps
+are recomputed; GPU floating-point results have a separate WGSL contract.
+
+Recent integration adds [215 owned Buffer/Map laws](docs/owned-optimisation.md),
+List state/action correspondence and [point-query delta candidates](docs/point-query-delta.md).
+The [measured lifecycle profile](reports/incremental-maintenance-selection/README.md)
+selects the simpler direct layout on its small fixture; the proved delta candidate
+remains available without becoming the default.
+
+## Get started
+
+Build with Git and Rust/Cargo:
 
 ```sh
 git clone --recurse-submodules https://github.com/siliconjungle/ink-lang.git
 cd ink-lang
-cargo build --release
-(cd knowledge && python3 -m ink_knowledge --root . rebuild)
-cargo test
-cargo test --manifest-path core/Cargo.toml
-
-# Baseline interpreter and native C/LLVM compilation.
+cargo build --release --locked
+printf '[[1, 2, 3], 2]\n' > arguments.json
 target/release/ink run examples/hello.ink total arguments.json
-target/release/ink build examples/hello.ink -o build/hello
-
-# Search the pinned database, then independently check every proposed change.
-target/release/ink build program.ink \
-  --optimise knowledge/store/snapshot.json -o build/program
-
-# Portable browser/native GPU bundle, with compiled CPU fallback.
-target/release/ink build examples/particles.ink --target webgpu \
-  --zig /path/to/zig -o build/particles
-cargo build --release --manifest-path build/particles/native/Cargo.toml
+# 12
 ```
 
-Core-only builds need no planner, database, runtime or lowering checkout. SQLite uses Python's standard library; installed planner deployments depend on the `ink-knowledge` Python package. The pinned source distribution supplies its explicitly assembled checkout.
+The example is ordinary Ink source:
 
-`--selection selection.json` replays a plan without searching or reading the current database. It contains the exact input identity, an authenticated knowledge view and application proofs. Builds record original and selected identities, proof dependencies, applications and target artifacts. The canonical entry/snapshot/evidence formats replace catalogue selection; there are no compatibility aliases.
+```ink
+fn total(xs: List<u64>, scale: u64) -> u64 {
+    return sum(xs.map(fn(x) => x * scale));
+}
+```
 
-Explicit [module imports and standard helpers](docs/modules.md) work across targets. [Durable host adapters](docs/durable-host.md) supply filesystem/IndexedDB recovery and ordered outbox delivery for native C/Rust and compiled JavaScript/Wasm.
-
-For a relocatable installation with optional pinned tools, run
-`python3 tools/install.py --prefix DIRECTORY`. `ink doctor` diagnoses missing
-tools; `ink explain SOURCE [--selection PACKAGE.json]` inspects a checked program
-and its optimisation plan. See [installation and inspection](docs/installation.md).
-
-Complete CPU targets share the [lowering parity contract](docs/lowering-parity.md), including transactions and portable snapshots. GPU execution uses eligible pure closures with host execution for stateful operations.
-
-## Proofs, capabilities and costs
-
-Rules can compose inside complex expressions and under binders. A database theorem for repeated addition can combine with simplification and collection laws; the core contains general equality/induction checking rather than an optimisation-specific pattern. Explicit conditions require proof at the actual application site. Floating reassociation, state mutation and physical transport cannot borrow a pure word-equality proof.
-
-GPU capability checks and measured profitability are separate decisions. Supported pipelines can keep arrays resident across steps and iterations. Runtime profiling includes allocation, transfer, dispatch and readback; unsupported operations, absent devices, limits or device loss fall back to compiled CPU execution. CPU/GPU floating bit equality is not promised. State/effectful computations are not speculatively replayed.
-
-An optional [independent Lean verdict](docs/bend-inspired.md#independent-boolean-verdict) now checks a limited Boolean equality calculus. It does not verify the complete compiler. The checker, source correspondence, literal target emission, host bridges and toolchains remain trusted implementations. Hashes authenticate content and snapshots; they do not prove correctness. Research certificates and experiment-specific proof terms are retained under `knowledge/research/` for reproducibility, outside production discovery.
-
-See [repository architecture and data contract](docs/repository-architecture.md), [composable optimisation](docs/semantic-optimisation.md), [GPU compute](docs/gpu-compute.md), [state and snapshots](docs/wasm-abi.md), and [remaining language work](PLAN.md). Archived reports preserve their original inputs and evidence.
-
-Benchmark methodology and independent proof-audit work are preserved in
-[benchmark methodology](docs/benchmark-methodology.md),
-[native ownership lowering](docs/native-state-backend.md),
-[transaction-plan research](docs/transaction-plans.md), and
-[independent certificate replay](reports/rup-crosscheck-phase1/REPORT.md).
-
-The [runtime value correspondence bridge](docs/source-value-correspondence.md)
-connects actual typed rows and ordered source keys to checked row/column models.
-It is bounded validation infrastructure; transaction/native refinement and an
-efficient logical integer representation remain open.
-
-[General action values](docs/action-values.md) now bind complete source data and
-the actual action signatures without an aggregate certificate. A flat canonical
-carrier preserves recursive nominal values and full-width words/IDs, with binary
-exact-integer magnitudes. This is data correspondence; logical arithmetic and
-whole-action execution proofs remain open.
-
-Programs can also [compile to JavaScript](docs/javascript-backend.md):
+Compile it, or enable search over the pinned knowledge snapshot:
 
 ```sh
-ink build examples/particles.ink --target javascript -o build/particles.mjs
+target/release/ink build examples/hello.ink --target javascript -o build/hello.mjs
+(cd knowledge && python3 -m ink_knowledge --root . rebuild)
+target/release/ink build examples/hello.ink \
+  --optimise knowledge/store/snapshot.json -o build/hello
 ```
 
-[Typed ordered actions](docs/typed-actions.md) retain the checked types and
-execution order of stateful code. `ink emit-actions` exports the source-bound
-artifact and `ink check-actions` replays it against the complete source module.
-Reference and Rust execution use its retained judgments. Whole-action logical
-refinement and stateful replacement admission remain open.
+Search needs Python; native/Wasm builds use existing target toolchains.
+`--selection selection.json` replays supplied evidence without discovery.
+Core-only builds need no knowledge, planner, runtime or lowering checkout.
 
-[Source-bound action effects](docs/action-effects.md) distinguish reads, writes,
-emits, local Result errors and abrupt exits. Database composition laws bind to
-the fixed effect algebra; whole-action/refinement proofs remain required.
+For installation, optional toolchains and inspection, see
+[installation and diagnostics](docs/installation.md). `ink doctor` reports tool
+availability; `ink explain SOURCE` describes checked types, effects and selections.
+[Particles](examples/particles.ink), [local collections](docs/local-collections.md)
+and [state/host interfaces](docs/wasm-abi.md) show larger programs.
 
-The preceding checked web proof batch and its preserved timings are in [batch32](reports/web-stack-proofs-32-2026-10-11/REPORT.md). [Direct main integration](reports/web-stack-proofs-32-2026-10-11/main-integration/REPORT.md) records the merged source revisions, generated-target correctness replay and publication checks.
+## Performance and direction
 
-[Batch33](reports/web-stack-proofs-33-2026-10-11/REPORT.md) adds checked unused-scan projection laws for independent lists. All four tested source contexts select the DB rewrite with the production compiler unchanged. Measured gains over prior Ink include 1.57× browser JS, 1.93× resident Wasm, 2.77× resident native and 3.15× complete GPU calls. Handwritten controls usually remain faster; these results do not establish general native superiority.
+The strongest demonstrated gains come from removing work: fewer traversals,
+intermediate collections, redundant observations and GPU dispatches. Recent
+database-only batches changed selected code with the production compiler
+unchanged. They improved many measured workloads and also produced regressions.
+Strong handwritten Rust and JavaScript controls often remain faster.
 
-[Batch34](reports/web-stack-proofs-34-2026-10-11/REPORT.md) adds six derived unused-map projection endpoints and four source-bound certificates. Against the exact prior catalogue, measured geometric-mean gains are 4.15× Node JS, 1.73× browser JS, 2.60× resident Wasm and 3.86× resident native; complete WebGPU calls are essentially unchanged. This is one general projection family; strong handwritten controls usually remain faster.
+Current priorities are to carry useful facts through composition into lowering,
+reduce allocation and state-transport costs, broaden proof coverage for existing
+operations, and choose among checked alternatives using target and workload
+evidence. Incremental maintenance should respond to exact changes; profiles can
+decide whether maintaining a cache pays for its setup and writes.
 
-[Batch38](reports/web-stack-proofs-38-2026-10-11/REPORT.md) adds six integer same-origin padded indexed-zip fusion endpoints, six Nat-beta supports and four helper-bound certificates. Both mapped values remain observed; an appended suffix and three traversal stages disappear. Across four U32 contexts, prior/checked geometric means are 1.19× Node JS, 1.26× browser JS, 1.05× browser resident Wasm, 1.67× resident native C and 3.35× complete WebGPU requests. Actual GPU dispatches drop four to one, with 20 additional upload bytes and unchanged readback. All 20 classified prior regressions are composed-helper CPU cases and remain archived. Checked Node JS beats its fused control in 15 cells, but native Rust and browser CPU controls generally remain faster; GPU requests lose to both CPU controls in every cell. All 7,560 samples consume full outputs.
+The goal is competitive complete execution on specified workloads and hardware.
+Construction, copying, proof/search costs, teardown, migration and GPU transfers
+all matter. [Benchmarks](BENCHMARKS.md) distinguish those boundaries and retain
+adverse results. [The plan](PLAN.md) defines acceptance gates; no example establishes
+that Ink is universally fastest.
 
-[Batch37](reports/web-stack-proofs-37-2026-10-11/REPORT.md) adds six integer independent-list indexed-map projection laws, twelve induction supports and four helper-bound source certificates. They remove an unobserved indexed traversal while preserving zip extent and order. Across four U32 contexts, prior/checked geometric means are 1.45× Node JS, 1.39× browser JS, 1.19× browser resident Wasm and 3.32× resident native C. Full Wasm/GPU requests are near unchanged; five prior cells regress. Native C is close to the fused Rust control, while captured Rust-Wasm remains faster overall. All 7,560 samples consume complete outputs and retain adverse cells.
+## Repositories and trust
 
-[Batch36](reports/web-stack-proofs-36-2026-10-11/REPORT.md) adds four helper-bound ordered-fold source certificates, deploying existing generic laws without duplicating mathematics or changing the compiler. Across four scalar U32 reductions, prior/checked geometric means are 1.18× Node JS, 1.30× browser JS, 1.26× browser resident Wasm and 1.62× resident native. GPU stages decrease, but complete GPU requests average only 1.03× and six cells regress. Already-fused handwritten JS is roughly level; Rust controls remain faster overall, and GPU requests lose to both CPU controls in every cell. All 7,560 samples and adverse results are retained.
+| Repository | Responsibility |
+| --- | --- |
+| [ink-lang](https://github.com/siliconjungle/ink-lang), `core/` | Fixed semantics, typed executable representation, reference execution and general evidence checking |
+| [ink-lang](https://github.com/siliconjungle/ink-lang), distribution | CLI, exact dependency assembly and integration tests |
+| [ink-knowledge](https://github.com/siliconjungle/ink-knowledge) | Canonical definitions, candidates, laws, proofs, snapshots, discovery and separate performance observations |
+| [ink-planner](https://github.com/siliconjungle/ink-planner) | Untrusted bounded search, composition, applicability evidence and cost selection |
+| [ink-runtime](https://github.com/siliconjungle/ink-runtime) | Host ABIs, execution, scheduling, profiling, fallback, persistence and delivery |
+| [C](https://github.com/siliconjungle/ink-lowering-c), [Rust](https://github.com/siliconjungle/ink-lowering-rust), [Wasm](https://github.com/siliconjungle/ink-lowering-wasm), [JavaScript](https://github.com/siliconjungle/ink-lowering-js), [GPU](https://github.com/siliconjungle/ink-lowering-gpu) | Literal target emission and device operations |
 
-[Batch35](reports/web-stack-proofs-35-2026-10-11/REPORT.md) adds nine derived observed-map/zip fusion endpoints and four source-bound certificates. Four ordinary selections eliminate intermediate maps while retaining both inputs. Measured prior/checked geometric means are 1.19× Node JS, 1.08× browser JS, 1.37× resident Wasm and 1.74× resident native. Results are mixed: 25 prior comparisons regress, including the right-mapped browser JS family; GPU physical work is unchanged. Strong fused controls and all adverse cells are retained.
+Proof authors and search need not be trusted to choose correct transformations:
+the core rechecks supplied evidence. The Rust checker, source correspondence,
+codecs, lowering, hosts and toolchains remain trusted implementations. A checked
+high-level transformation is not an end-to-end proof of machine code. Lean
+research supports specific mathematical claims and does not verify the complete
+compiler. The [independent Boolean verdict](docs/bend-inspired.md#independent-boolean-verdict)
+proves its separate calculus sound; its translator and source correspondence remain
+unverified. Old aggregate/bounded-cache/storage-policy admission is available only
+through the explicit `legacy-optimisation-research` feature.
+
+See [current status](STATUS.md), [architecture](docs/repository-architecture.md),
+[benchmark methodology](docs/benchmark-methodology.md) and [acceptance gates](PLAN.md).
