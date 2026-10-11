@@ -1,0 +1,35 @@
+
+mod allocation_audit {
+ use std::alloc::{GlobalAlloc,Layout,System};
+ use std::sync::atomic::{AtomicBool,AtomicU64,Ordering::Relaxed};
+ static ENABLED:AtomicBool=AtomicBool::new(false);
+ static CALLS:AtomicU64=AtomicU64::new(0);
+ static BYTES:AtomicU64=AtomicU64::new(0);
+ struct Counted;
+ fn count(size:usize){if ENABLED.load(Relaxed){CALLS.fetch_add(1,Relaxed);BYTES.fetch_add(size as u64,Relaxed);}}
+ unsafe impl GlobalAlloc for Counted {
+  unsafe fn alloc(&self,layout:Layout)->*mut u8{count(layout.size());System.alloc(layout)}
+  unsafe fn alloc_zeroed(&self,layout:Layout)->*mut u8{count(layout.size());System.alloc_zeroed(layout)}
+  unsafe fn realloc(&self,p:*mut u8,layout:Layout,size:usize)->*mut u8{count(size);System.realloc(p,layout,size)}
+  unsafe fn dealloc(&self,p:*mut u8,layout:Layout){System.dealloc(p,layout)}
+ }
+ #[global_allocator] static ALLOCATOR:Counted=Counted;
+ #[no_mangle] pub extern "C" fn allocation_begin(){ENABLED.store(false,Relaxed);CALLS.store(0,Relaxed);BYTES.store(0,Relaxed);ENABLED.store(true,Relaxed);}
+ #[no_mangle] pub extern "C" fn allocation_end(){ENABLED.store(false,Relaxed);}
+ #[no_mangle] pub extern "C" fn allocation_calls()->u64{CALLS.load(Relaxed)}
+ #[no_mangle] pub extern "C" fn allocation_bytes()->u64{BYTES.load(Relaxed)}
+}
+use ink_compiled_representation::State;
+use serde_json::json;
+use std::{hint::black_box,time::Instant};
+fn main(){let boolean=std::env::args().nth(1).as_deref()==Some("boolean");for n in [16u64,128,1024]{
+ let mut state=State::new().unwrap();for i in 0..n{state.invoke_json(if boolean{"insert"}else{"put"},&if boolean{json!([i,true,false])}else{json!([i,i*13])}).unwrap();}state.acknowledge_through(u64::MAX,u64::MAX);
+ let phases=if boolean{vec!["any_query","all_query","insert","replace","erase"]}else{vec!["get-hot","get-cold","put","erase"]};
+ for phase in phases{let iterations=match phase{"insert"=>16,"put"|"replace"|"erase"=>32,_=>512};let mut times=vec![];
+ let args=|i:u64|if boolean{match phase{"insert"=>json!([n+i,true,false]),"replace"=>json!([n-1,i%2==0,false]),"erase"=>json!([n+100,false]),_=>json!([])}}else{match phase{"get-hot"=>json!([1023]),"get-cold"=>json!([n-1]),"put"=>json!([n-1,i+1]),_=>json!([n+100,false])}};
+ let name=if phase.starts_with("get-"){"get"}else{phase};
+ if phase!="insert"{for i in 0..16{black_box(state.invoke_json(name,&args(i)).unwrap());}}state.acknowledge_through(u64::MAX,u64::MAX);
+ for sample in 0..7{allocation_audit::allocation_begin();let start=Instant::now();for i in 0..iterations{black_box(state.invoke_json(name,&args(i+sample*iterations)).unwrap());}allocation_audit::allocation_end();times.push((allocation_audit::allocation_calls(),allocation_audit::allocation_bytes()));state.acknowledge_through(u64::MAX,u64::MAX);}
+ println!("{}",json!({"rows":n,"phase":format!("action:{phase}"),"samples_ns":times,"iterations":iterations,"transport":"public generated Rust invoke_json, including argument/result conversion and events"}));
+ }
+}}

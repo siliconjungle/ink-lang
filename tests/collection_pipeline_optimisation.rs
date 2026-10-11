@@ -272,7 +272,8 @@ fn database_only_selection_removes_pipelines_and_preserves_cpu_results() {
             .iter()
             .map(|x| *x * scale + offset)
             .collect::<Vec<_>>();
-        let v = |x: f32| eval::Value::F32(x.to_bits()).json();
+        // Ink arithmetic canonicalises NaNs; Rust arithmetic may retain payloads.
+        let v = |x: f32| eval::Value::F32(if x.is_nan() { 0x7fc00000 } else { x.to_bits() }).json();
         add(
             "float_fold",
             json!([xs, scale, offset, v(seed)]),
