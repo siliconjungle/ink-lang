@@ -188,7 +188,9 @@ pub enum Declaration {
     /// An uninterpreted sort: no constructors, so it cannot be matched,
     /// constructed or inducted on. Only `Proof::Instance` interprets it. The
     /// name keeps distinct symbols distinct under content addressing.
-    AbstractSort { name: String },
+    AbstractSort {
+        name: String,
+    },
     /// An uninterpreted total function. Its calls never compute. Parameter
     /// names are documentation only; instances bind their own.
     AbstractFunction {
@@ -1721,7 +1723,8 @@ fn statement_references(
 /// Entries a proof relies on. An `Instance` relies on its interpretations, not
 /// on the abstract symbols it interprets: those are discharged by the rule.
 fn proof_references(p: &Proof, out: &mut BTreeSet<String>) {
-    let terms = |ts: &[&Term], out: &mut BTreeSet<String>| ts.iter().for_each(|t| term_references(t, out));
+    let terms =
+        |ts: &[&Term], out: &mut BTreeSet<String>| ts.iter().for_each(|t| term_references(t, out));
     match p {
         Proof::BitVector { from, to, .. } | Proof::Convert { from, to } => terms(&[from, to], out),
         Proof::Substitute {
@@ -2090,7 +2093,9 @@ fn derive(
                 || !functions.keys().eq(want_functions.iter().copied())
                 || !assumptions.keys().eq(want_assumptions.iter().copied())
             {
-                return Err("instance must interpret exactly the theorem's abstract parameters".into());
+                return Err(
+                    "instance must interpret exactly the theorem's abstract parameters".into(),
+                );
             }
             for target in sorts.values() {
                 c.sort(target)?;
@@ -2160,7 +2165,9 @@ fn derive(
                         let actual =
                             alpha_normal(substitute(&actual.body, &rename, budget, 0)?, budget)?;
                         if expected != actual {
-                            return Err("instantiated function body differs from its definition".into());
+                            return Err(
+                                "instantiated function body differs from its definition".into()
+                            );
                         }
                     }
                     _ => return Err("instance definition kind mismatch".into()),

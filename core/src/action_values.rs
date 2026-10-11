@@ -5,9 +5,9 @@ use crate::{
     logic::{Constructor, Declaration, Sort, Term},
     registry::Bundle,
     source_syntax::{self, BoundSyntax},
-    source_values::Limits,
     stateful::Value,
     syntax::{Program, Type},
+    value_limits::Limits,
     LangResult,
 };
 use num_bigint::{BigInt, Sign};
@@ -100,7 +100,7 @@ impl ActionValues {
         }
         let ids = [&roles.node, &roles.nodes, &roles.value];
         for id in ids {
-            crate::knowledge::identity(id)?;
+            crate::content::identity(id)?;
         }
         if ids
             .into_iter()

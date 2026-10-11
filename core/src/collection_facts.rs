@@ -379,67 +379,6 @@ pub fn returned_alias(e: &Expr, name: &str) -> bool {
         _ => false,
     }
 }
-fn flat(t: &Type) -> bool {
-    match t {
-        Type::U32 | Type::I32 | Type::U64 | Type::F32 | Type::Bool => true,
-        Type::Vector(t, _) => flat(t),
-        _ => false,
-    }
-}
-/// Reuse only an unbound fresh receiver, with exactly the same flat element
-/// layout, after its complete eager evaluation. Shared local values and borrowed
-/// inputs are excluded. All reachable callback list captures are excluded too.
-pub fn reusable_receiver(p: &Program, e: &Expr, env: &check::Env, want: Option<&Type>) -> bool {
-    let Expr::Method(receiver, m, args) = e else {
-        return false;
-    };
-    if !["map", "map_indexed", "scan"].contains(&m.as_str())
-        || matches!(receiver.as_ref(), Expr::Var(_))
-    {
-        return false;
-    }
-    if !bounded(e) {
-        return false;
-    }
-    let output = check::infer_context(e, env, p, want).ok();
-    let source = infer(p, receiver, env, output.as_ref());
-    if !source.pure_total || source.ownership != Ownership::Fresh || source.ty != output {
-        return false;
-    }
-    let Some(Type::List(inner)) = output else {
-        return false;
-    };
-    if !flat(&inner) {
-        return false;
-    }
-    if m == "scan" {
-        return true;
-    }
-    let local = env
-        .iter()
-        .map(|(n, t)| (n.clone(), Facts::input(n, t)))
-        .collect();
-    let params = if m == "map_indexed" {
-        vec![Some(Type::U32), Some(*inner.clone())]
-    } else {
-        vec![Some(*inner.clone())]
-    };
-    let mut analysis = Analysis {
-        p,
-        remaining: MAX_NODES,
-        helpers: Vec::new(),
-    };
-    let cb = analysis.callback(&args[0], &local, &params, Some(&inner), 0);
-    cb.pure_total
-        && cb.captures.iter().all(|n| {
-            env.get(n).is_some_and(|t| {
-                !matches!(
-                    t,
-                    Type::List(_) | Type::Buffer(_) | Type::Map(..) | Type::Named(_)
-                )
-            })
-        })
-}
 
 #[cfg(test)]
 mod tests {
@@ -488,27 +427,7 @@ mod tests {
         );
     }
     #[test]
-    fn reuse_requires_unshared_fresh_storage_and_safe_transitive_captures() {
-        let p = fixture();
-        for (n, expected) in [
-            ("safe", true),
-            ("captures", false),
-            ("borrowed", false),
-            ("shared", false),
-            ("shadow", true),
-        ] {
-            let f = p.functions.iter().find(|f| f.name == n).unwrap();
-            assert_eq!(
-                reusable_receiver(
-                    &p,
-                    &f.body,
-                    &check::params_env(&f.params).unwrap(),
-                    Some(&f.result)
-                ),
-                expected,
-                "{n}"
-            );
-        }
+    fn returned_alias_tracks_only_lexical_alias_bindings() {
         let e =
             parse("module a;fn a(xs:List<u32>)->List<u32>{let x=xs;let y=x;return y;}").unwrap();
         let f = &e.functions[0];
