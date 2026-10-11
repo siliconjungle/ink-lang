@@ -1,0 +1,22 @@
+✔ chooses JS or Wasm based on complete measured cost, with cached bounded profiling (2.101833ms)
+✔ GPU setup and transfers can outweigh a faster kernel; availability invalidates profiles (0.843916ms)
+✔ selects GPU when worthwhile, retains baseline on failure and rejects invalid configuration (0.494042ms)
+✔ numerical mismatch removes a profiled scalar GPU candidate; explicit JS remains available (0.306167ms)
+✔ charges module startup once and rechecks warm costs rather than repeatedly taxing a target (0.197958ms)
+✔ adaptive saved profiles choose by size without probing or reading the timer (1.967292ms)
+✔ static bypasses profiles and adaptive requires comparable CPU evidence (0.782542ms)
+✔ profile is privately bound and device failure keeps compiled CPU without speculative verification (0.810041ms)
+✔ bound trusted JS calls preserve wrapping, signed, Bool, U64 and F32 outputs without CPU transport (15.704125ms)
+✔ JS pipeline composes native Bool/list/U64 values and feedback, matching literal references (16.083833ms)
+✔ packed CPU remains available and auto profiling uses equivalent native JS results (14.088083ms)
+✔ scalar host binds native JS and lazily retains its Wasm fallback (7.214333ms)
+✔ saved adaptive JS selection performs exactly one call and never loads Wasm (10.336792ms)
+✔ static JS auto setting bypasses packed ingress and all profiling (5.692541ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 185.882375

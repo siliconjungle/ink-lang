@@ -1,0 +1,4534 @@
+{
+  "status": "passed",
+  "phase": "validate",
+  "actual_browser": true,
+  "host": "adaptive39-web:Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+  "metadata_sha256": "c6573021fe2229df0eb1bc8b55feb40ed7dbc1ec5ecb314988beae2dec652804",
+  "protocol": {
+    "schema": 1,
+    "task": "pipeline38_left_padded_zip_heldout_u32",
+    "training_sizes": [
+      32,
+      65536
+    ],
+    "heldout_sizes": [
+      2048,
+      4096
+    ],
+    "shapes": [
+      "empty-suffix",
+      "long-suffix"
+    ],
+    "values": [
+      "low",
+      "high"
+    ],
+    "boundaries": [
+      "captured-owned",
+      "resident-input-owned-readback"
+    ],
+    "backend_order": [
+      "cpu",
+      "javascript",
+      "gpu"
+    ],
+    "training_rounds": 3,
+    "evaluation_rounds": 3,
+    "warmups": 2,
+    "target_ms": 2,
+    "max_iterations": 1024,
+    "seed": 2026113917,
+    "domains": {
+      "input_elements": [
+        0,
+        262144
+      ],
+      "input_bytes": [
+        8,
+        1048584
+      ],
+      "output_capacity_elements": [
+        0,
+        65536
+      ],
+      "dispatches": [
+        0,
+        1
+      ],
+      "iterations": [
+        1,
+        1
+      ]
+    },
+    "training_features": [
+      "input_elements",
+      "output_capacity_elements"
+    ],
+    "fit": "For each boundary/backend fit nonnegative intercept+input_elements+output_capacity_elements by exact active-set least squares over ALL8training frames, with target y=median training rounds including common full checksum. Value mode has no selector feature; no heldout/semantic/hash-specific coefficient. Immutable saved profile before heldout evaluation.",
+    "static_backend": "cpu",
+    "captured_pricing": "Force eligible backend through saved extreme costs, call backend:auto. This includes automatic transport packing/unpacking/context/promise path even for JS. Explicit JS shortcut is a separate direct control, never a training surrogate.",
+    "resident_pricing": "External createSelector using compiled eligible candidates: preparedCpuCall.run copied to Array; captured snapshot JS returned fresh; real preparedGPU full owned readback. Setup/upload outside resident run.",
+    "selection_accounting": "Record first cache miss and cached run separately; reset selector for repeated miss measurements. Overall chosen execution+context+Promise+checksum measured. No timing probes in adaptive selector; policy adaptive only.",
+    "result": "Owned Array for every backend/boundary, full-word weighted moduloU32 checksum included. Borrowed Wasm view copied within resident timer.",
+    "limits": "One checked recipe/single machine3within-process rounds. Exploratory adaptation experiment, not language ranking or universal proof. FullGPUreadback costs retained; inputshape and values varied. Existing broad-suite results separate."
+  },
+  "scope": "[\"ded7a2e1cba29ee7b0f469ea181fe0a04c6f37706649ca90fe445550fda2dc35\",\"e8562cf47a7730dd27b9089dbec84b3b47aa4394271f6cbab124bd81762f42c2\",\"a50f68556d2e1f7ec8dca664ac0d258ec3a1ecaef290ca878403ae4244904d7c\",\"pipeline38_left_padded_zip_heldout_u32\"]",
+  "target_key": "adaptive39-web:Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+  "source_domain": {
+    "core_sha256": "ded7a2e1cba29ee7b0f469ea181fe0a04c6f37706649ca90fe445550fda2dc35",
+    "cpu_c_sha256": "e8562cf47a7730dd27b9089dbec84b3b47aa4394271f6cbab124bd81762f42c2",
+    "javascript_sha256": "a50f68556d2e1f7ec8dca664ac0d258ec3a1ecaef290ca878403ae4244904d7c",
+    "entry": "pipeline38_left_padded_zip_heldout_u32"
+  },
+  "validation": [
+    {
+      "frame": "training-low-empty-suffix-32",
+      "split": "training",
+      "boundary": "captured-owned",
+      "variant": "auto_path_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "training-low-empty-suffix-32",
+      "split": "training",
+      "boundary": "captured-owned",
+      "variant": "direct_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "training-low-empty-suffix-32",
+      "split": "training",
+      "boundary": "captured-owned",
+      "variant": "auto_path_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "training-low-empty-suffix-32",
+      "split": "training",
+      "boundary": "captured-owned",
+      "variant": "direct_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "training-low-empty-suffix-32",
+      "split": "training",
+      "boundary": "captured-owned",
+      "variant": "auto_path_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 164,
+        "readback_bytes": 132,
+        "dispatches": 1,
+        "live_buffer_bytes": 560
+      }
+    },
+    {
+      "frame": "training-low-empty-suffix-32",
+      "split": "training",
+      "boundary": "captured-owned",
+      "variant": "direct_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 164,
+        "readback_bytes": 132,
+        "dispatches": 1,
+        "live_buffer_bytes": 560
+      }
+    },
+    {
+      "frame": "training-low-empty-suffix-32",
+      "split": "training",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "training-low-empty-suffix-32",
+      "split": "training",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "training-low-empty-suffix-32",
+      "split": "training",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "training-low-empty-suffix-32",
+      "split": "training",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "training-low-empty-suffix-32",
+      "split": "training",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 132,
+        "dispatches": 1,
+        "live_buffer_bytes": 428,
+        "resident": true
+      }
+    },
+    {
+      "frame": "training-low-empty-suffix-32",
+      "split": "training",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 132,
+        "dispatches": 1,
+        "live_buffer_bytes": 428,
+        "resident": true
+      }
+    },
+    {
+      "frame": "training-low-long-suffix-32",
+      "split": "training",
+      "boundary": "captured-owned",
+      "variant": "auto_path_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "training-low-long-suffix-32",
+      "split": "training",
+      "boundary": "captured-owned",
+      "variant": "direct_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "training-low-long-suffix-32",
+      "split": "training",
+      "boundary": "captured-owned",
+      "variant": "auto_path_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "training-low-long-suffix-32",
+      "split": "training",
+      "boundary": "captured-owned",
+      "variant": "direct_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "training-low-long-suffix-32",
+      "split": "training",
+      "boundary": "captured-owned",
+      "variant": "auto_path_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 448,
+        "readback_bytes": 132,
+        "dispatches": 1,
+        "live_buffer_bytes": 844
+      }
+    },
+    {
+      "frame": "training-low-long-suffix-32",
+      "split": "training",
+      "boundary": "captured-owned",
+      "variant": "direct_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 448,
+        "readback_bytes": 132,
+        "dispatches": 1,
+        "live_buffer_bytes": 844
+      }
+    },
+    {
+      "frame": "training-low-long-suffix-32",
+      "split": "training",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "training-low-long-suffix-32",
+      "split": "training",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "training-low-long-suffix-32",
+      "split": "training",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "training-low-long-suffix-32",
+      "split": "training",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "training-low-long-suffix-32",
+      "split": "training",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 132,
+        "dispatches": 1,
+        "live_buffer_bytes": 712,
+        "resident": true
+      }
+    },
+    {
+      "frame": "training-low-long-suffix-32",
+      "split": "training",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 132,
+        "dispatches": 1,
+        "live_buffer_bytes": 712,
+        "resident": true
+      }
+    },
+    {
+      "frame": "training-high-empty-suffix-32",
+      "split": "training",
+      "boundary": "captured-owned",
+      "variant": "auto_path_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "training-high-empty-suffix-32",
+      "split": "training",
+      "boundary": "captured-owned",
+      "variant": "direct_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "training-high-empty-suffix-32",
+      "split": "training",
+      "boundary": "captured-owned",
+      "variant": "auto_path_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "training-high-empty-suffix-32",
+      "split": "training",
+      "boundary": "captured-owned",
+      "variant": "direct_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "training-high-empty-suffix-32",
+      "split": "training",
+      "boundary": "captured-owned",
+      "variant": "auto_path_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 164,
+        "readback_bytes": 132,
+        "dispatches": 1,
+        "live_buffer_bytes": 560
+      }
+    },
+    {
+      "frame": "training-high-empty-suffix-32",
+      "split": "training",
+      "boundary": "captured-owned",
+      "variant": "direct_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 164,
+        "readback_bytes": 132,
+        "dispatches": 1,
+        "live_buffer_bytes": 560
+      }
+    },
+    {
+      "frame": "training-high-empty-suffix-32",
+      "split": "training",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "training-high-empty-suffix-32",
+      "split": "training",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "training-high-empty-suffix-32",
+      "split": "training",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "training-high-empty-suffix-32",
+      "split": "training",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "training-high-empty-suffix-32",
+      "split": "training",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 132,
+        "dispatches": 1,
+        "live_buffer_bytes": 428,
+        "resident": true
+      }
+    },
+    {
+      "frame": "training-high-empty-suffix-32",
+      "split": "training",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 132,
+        "dispatches": 1,
+        "live_buffer_bytes": 428,
+        "resident": true
+      }
+    },
+    {
+      "frame": "training-high-long-suffix-32",
+      "split": "training",
+      "boundary": "captured-owned",
+      "variant": "auto_path_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "training-high-long-suffix-32",
+      "split": "training",
+      "boundary": "captured-owned",
+      "variant": "direct_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "training-high-long-suffix-32",
+      "split": "training",
+      "boundary": "captured-owned",
+      "variant": "auto_path_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "training-high-long-suffix-32",
+      "split": "training",
+      "boundary": "captured-owned",
+      "variant": "direct_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "training-high-long-suffix-32",
+      "split": "training",
+      "boundary": "captured-owned",
+      "variant": "auto_path_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 448,
+        "readback_bytes": 132,
+        "dispatches": 1,
+        "live_buffer_bytes": 844
+      }
+    },
+    {
+      "frame": "training-high-long-suffix-32",
+      "split": "training",
+      "boundary": "captured-owned",
+      "variant": "direct_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 448,
+        "readback_bytes": 132,
+        "dispatches": 1,
+        "live_buffer_bytes": 844
+      }
+    },
+    {
+      "frame": "training-high-long-suffix-32",
+      "split": "training",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "training-high-long-suffix-32",
+      "split": "training",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "training-high-long-suffix-32",
+      "split": "training",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "training-high-long-suffix-32",
+      "split": "training",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "training-high-long-suffix-32",
+      "split": "training",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 132,
+        "dispatches": 1,
+        "live_buffer_bytes": 712,
+        "resident": true
+      }
+    },
+    {
+      "frame": "training-high-long-suffix-32",
+      "split": "training",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 132,
+        "dispatches": 1,
+        "live_buffer_bytes": 712,
+        "resident": true
+      }
+    },
+    {
+      "frame": "training-low-empty-suffix-65536",
+      "split": "training",
+      "boundary": "captured-owned",
+      "variant": "auto_path_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "training-low-empty-suffix-65536",
+      "split": "training",
+      "boundary": "captured-owned",
+      "variant": "direct_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "training-low-empty-suffix-65536",
+      "split": "training",
+      "boundary": "captured-owned",
+      "variant": "auto_path_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "training-low-empty-suffix-65536",
+      "split": "training",
+      "boundary": "captured-owned",
+      "variant": "direct_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "training-low-empty-suffix-65536",
+      "split": "training",
+      "boundary": "captured-owned",
+      "variant": "auto_path_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 262180,
+        "readback_bytes": 262148,
+        "dispatches": 1,
+        "live_buffer_bytes": 1048624
+      }
+    },
+    {
+      "frame": "training-low-empty-suffix-65536",
+      "split": "training",
+      "boundary": "captured-owned",
+      "variant": "direct_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 262180,
+        "readback_bytes": 262148,
+        "dispatches": 1,
+        "live_buffer_bytes": 1048624
+      }
+    },
+    {
+      "frame": "training-low-empty-suffix-65536",
+      "split": "training",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "training-low-empty-suffix-65536",
+      "split": "training",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "training-low-empty-suffix-65536",
+      "split": "training",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "training-low-empty-suffix-65536",
+      "split": "training",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "training-low-empty-suffix-65536",
+      "split": "training",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 262148,
+        "dispatches": 1,
+        "live_buffer_bytes": 786476,
+        "resident": true
+      }
+    },
+    {
+      "frame": "training-low-empty-suffix-65536",
+      "split": "training",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 262148,
+        "dispatches": 1,
+        "live_buffer_bytes": 786476,
+        "resident": true
+      }
+    },
+    {
+      "frame": "training-low-long-suffix-65536",
+      "split": "training",
+      "boundary": "captured-owned",
+      "variant": "auto_path_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "training-low-long-suffix-65536",
+      "split": "training",
+      "boundary": "captured-owned",
+      "variant": "direct_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "training-low-long-suffix-65536",
+      "split": "training",
+      "boundary": "captured-owned",
+      "variant": "auto_path_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "training-low-long-suffix-65536",
+      "split": "training",
+      "boundary": "captured-owned",
+      "variant": "direct_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "training-low-long-suffix-65536",
+      "split": "training",
+      "boundary": "captured-owned",
+      "variant": "auto_path_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 786496,
+        "readback_bytes": 262148,
+        "dispatches": 1,
+        "live_buffer_bytes": 1572940
+      }
+    },
+    {
+      "frame": "training-low-long-suffix-65536",
+      "split": "training",
+      "boundary": "captured-owned",
+      "variant": "direct_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 786496,
+        "readback_bytes": 262148,
+        "dispatches": 1,
+        "live_buffer_bytes": 1572940
+      }
+    },
+    {
+      "frame": "training-low-long-suffix-65536",
+      "split": "training",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "training-low-long-suffix-65536",
+      "split": "training",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "training-low-long-suffix-65536",
+      "split": "training",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "training-low-long-suffix-65536",
+      "split": "training",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "training-low-long-suffix-65536",
+      "split": "training",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 262148,
+        "dispatches": 1,
+        "live_buffer_bytes": 1310792,
+        "resident": true
+      }
+    },
+    {
+      "frame": "training-low-long-suffix-65536",
+      "split": "training",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 262148,
+        "dispatches": 1,
+        "live_buffer_bytes": 1310792,
+        "resident": true
+      }
+    },
+    {
+      "frame": "training-high-empty-suffix-65536",
+      "split": "training",
+      "boundary": "captured-owned",
+      "variant": "auto_path_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "training-high-empty-suffix-65536",
+      "split": "training",
+      "boundary": "captured-owned",
+      "variant": "direct_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "training-high-empty-suffix-65536",
+      "split": "training",
+      "boundary": "captured-owned",
+      "variant": "auto_path_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "training-high-empty-suffix-65536",
+      "split": "training",
+      "boundary": "captured-owned",
+      "variant": "direct_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "training-high-empty-suffix-65536",
+      "split": "training",
+      "boundary": "captured-owned",
+      "variant": "auto_path_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 262180,
+        "readback_bytes": 262148,
+        "dispatches": 1,
+        "live_buffer_bytes": 1048624
+      }
+    },
+    {
+      "frame": "training-high-empty-suffix-65536",
+      "split": "training",
+      "boundary": "captured-owned",
+      "variant": "direct_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 262180,
+        "readback_bytes": 262148,
+        "dispatches": 1,
+        "live_buffer_bytes": 1048624
+      }
+    },
+    {
+      "frame": "training-high-empty-suffix-65536",
+      "split": "training",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "training-high-empty-suffix-65536",
+      "split": "training",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "training-high-empty-suffix-65536",
+      "split": "training",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "training-high-empty-suffix-65536",
+      "split": "training",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "training-high-empty-suffix-65536",
+      "split": "training",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 262148,
+        "dispatches": 1,
+        "live_buffer_bytes": 786476,
+        "resident": true
+      }
+    },
+    {
+      "frame": "training-high-empty-suffix-65536",
+      "split": "training",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 262148,
+        "dispatches": 1,
+        "live_buffer_bytes": 786476,
+        "resident": true
+      }
+    },
+    {
+      "frame": "training-high-long-suffix-65536",
+      "split": "training",
+      "boundary": "captured-owned",
+      "variant": "auto_path_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "training-high-long-suffix-65536",
+      "split": "training",
+      "boundary": "captured-owned",
+      "variant": "direct_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "training-high-long-suffix-65536",
+      "split": "training",
+      "boundary": "captured-owned",
+      "variant": "auto_path_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "training-high-long-suffix-65536",
+      "split": "training",
+      "boundary": "captured-owned",
+      "variant": "direct_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "training-high-long-suffix-65536",
+      "split": "training",
+      "boundary": "captured-owned",
+      "variant": "auto_path_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 786496,
+        "readback_bytes": 262148,
+        "dispatches": 1,
+        "live_buffer_bytes": 1572940
+      }
+    },
+    {
+      "frame": "training-high-long-suffix-65536",
+      "split": "training",
+      "boundary": "captured-owned",
+      "variant": "direct_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 786496,
+        "readback_bytes": 262148,
+        "dispatches": 1,
+        "live_buffer_bytes": 1572940
+      }
+    },
+    {
+      "frame": "training-high-long-suffix-65536",
+      "split": "training",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "training-high-long-suffix-65536",
+      "split": "training",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "training-high-long-suffix-65536",
+      "split": "training",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "training-high-long-suffix-65536",
+      "split": "training",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "training-high-long-suffix-65536",
+      "split": "training",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 262148,
+        "dispatches": 1,
+        "live_buffer_bytes": 1310792,
+        "resident": true
+      }
+    },
+    {
+      "frame": "training-high-long-suffix-65536",
+      "split": "training",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 262148,
+        "dispatches": 1,
+        "live_buffer_bytes": 1310792,
+        "resident": true
+      }
+    },
+    {
+      "frame": "heldout-low-empty-suffix-2048",
+      "split": "heldout",
+      "boundary": "captured-owned",
+      "variant": "auto_path_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "heldout-low-empty-suffix-2048",
+      "split": "heldout",
+      "boundary": "captured-owned",
+      "variant": "direct_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "heldout-low-empty-suffix-2048",
+      "split": "heldout",
+      "boundary": "captured-owned",
+      "variant": "auto_path_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "heldout-low-empty-suffix-2048",
+      "split": "heldout",
+      "boundary": "captured-owned",
+      "variant": "direct_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "heldout-low-empty-suffix-2048",
+      "split": "heldout",
+      "boundary": "captured-owned",
+      "variant": "auto_path_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 8228,
+        "readback_bytes": 8196,
+        "dispatches": 1,
+        "live_buffer_bytes": 32816
+      }
+    },
+    {
+      "frame": "heldout-low-empty-suffix-2048",
+      "split": "heldout",
+      "boundary": "captured-owned",
+      "variant": "direct_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 8228,
+        "readback_bytes": 8196,
+        "dispatches": 1,
+        "live_buffer_bytes": 32816
+      }
+    },
+    {
+      "frame": "heldout-low-empty-suffix-2048",
+      "split": "heldout",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "heldout-low-empty-suffix-2048",
+      "split": "heldout",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "heldout-low-empty-suffix-2048",
+      "split": "heldout",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "heldout-low-empty-suffix-2048",
+      "split": "heldout",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "heldout-low-empty-suffix-2048",
+      "split": "heldout",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 8196,
+        "dispatches": 1,
+        "live_buffer_bytes": 24620,
+        "resident": true
+      }
+    },
+    {
+      "frame": "heldout-low-empty-suffix-2048",
+      "split": "heldout",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 8196,
+        "dispatches": 1,
+        "live_buffer_bytes": 24620,
+        "resident": true
+      }
+    },
+    {
+      "frame": "heldout-low-long-suffix-2048",
+      "split": "heldout",
+      "boundary": "captured-owned",
+      "variant": "auto_path_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "heldout-low-long-suffix-2048",
+      "split": "heldout",
+      "boundary": "captured-owned",
+      "variant": "direct_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "heldout-low-long-suffix-2048",
+      "split": "heldout",
+      "boundary": "captured-owned",
+      "variant": "auto_path_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "heldout-low-long-suffix-2048",
+      "split": "heldout",
+      "boundary": "captured-owned",
+      "variant": "direct_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "heldout-low-long-suffix-2048",
+      "split": "heldout",
+      "boundary": "captured-owned",
+      "variant": "auto_path_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 24640,
+        "readback_bytes": 8196,
+        "dispatches": 1,
+        "live_buffer_bytes": 49228
+      }
+    },
+    {
+      "frame": "heldout-low-long-suffix-2048",
+      "split": "heldout",
+      "boundary": "captured-owned",
+      "variant": "direct_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 24640,
+        "readback_bytes": 8196,
+        "dispatches": 1,
+        "live_buffer_bytes": 49228
+      }
+    },
+    {
+      "frame": "heldout-low-long-suffix-2048",
+      "split": "heldout",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "heldout-low-long-suffix-2048",
+      "split": "heldout",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "heldout-low-long-suffix-2048",
+      "split": "heldout",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "heldout-low-long-suffix-2048",
+      "split": "heldout",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "heldout-low-long-suffix-2048",
+      "split": "heldout",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 8196,
+        "dispatches": 1,
+        "live_buffer_bytes": 41032,
+        "resident": true
+      }
+    },
+    {
+      "frame": "heldout-low-long-suffix-2048",
+      "split": "heldout",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 8196,
+        "dispatches": 1,
+        "live_buffer_bytes": 41032,
+        "resident": true
+      }
+    },
+    {
+      "frame": "heldout-high-empty-suffix-2048",
+      "split": "heldout",
+      "boundary": "captured-owned",
+      "variant": "auto_path_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "heldout-high-empty-suffix-2048",
+      "split": "heldout",
+      "boundary": "captured-owned",
+      "variant": "direct_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "heldout-high-empty-suffix-2048",
+      "split": "heldout",
+      "boundary": "captured-owned",
+      "variant": "auto_path_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "heldout-high-empty-suffix-2048",
+      "split": "heldout",
+      "boundary": "captured-owned",
+      "variant": "direct_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "heldout-high-empty-suffix-2048",
+      "split": "heldout",
+      "boundary": "captured-owned",
+      "variant": "auto_path_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 8228,
+        "readback_bytes": 8196,
+        "dispatches": 1,
+        "live_buffer_bytes": 32816
+      }
+    },
+    {
+      "frame": "heldout-high-empty-suffix-2048",
+      "split": "heldout",
+      "boundary": "captured-owned",
+      "variant": "direct_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 8228,
+        "readback_bytes": 8196,
+        "dispatches": 1,
+        "live_buffer_bytes": 32816
+      }
+    },
+    {
+      "frame": "heldout-high-empty-suffix-2048",
+      "split": "heldout",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "heldout-high-empty-suffix-2048",
+      "split": "heldout",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "heldout-high-empty-suffix-2048",
+      "split": "heldout",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "heldout-high-empty-suffix-2048",
+      "split": "heldout",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "heldout-high-empty-suffix-2048",
+      "split": "heldout",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 8196,
+        "dispatches": 1,
+        "live_buffer_bytes": 24620,
+        "resident": true
+      }
+    },
+    {
+      "frame": "heldout-high-empty-suffix-2048",
+      "split": "heldout",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 8196,
+        "dispatches": 1,
+        "live_buffer_bytes": 24620,
+        "resident": true
+      }
+    },
+    {
+      "frame": "heldout-high-long-suffix-2048",
+      "split": "heldout",
+      "boundary": "captured-owned",
+      "variant": "auto_path_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "heldout-high-long-suffix-2048",
+      "split": "heldout",
+      "boundary": "captured-owned",
+      "variant": "direct_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "heldout-high-long-suffix-2048",
+      "split": "heldout",
+      "boundary": "captured-owned",
+      "variant": "auto_path_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "heldout-high-long-suffix-2048",
+      "split": "heldout",
+      "boundary": "captured-owned",
+      "variant": "direct_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "heldout-high-long-suffix-2048",
+      "split": "heldout",
+      "boundary": "captured-owned",
+      "variant": "auto_path_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 24640,
+        "readback_bytes": 8196,
+        "dispatches": 1,
+        "live_buffer_bytes": 49228
+      }
+    },
+    {
+      "frame": "heldout-high-long-suffix-2048",
+      "split": "heldout",
+      "boundary": "captured-owned",
+      "variant": "direct_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 24640,
+        "readback_bytes": 8196,
+        "dispatches": 1,
+        "live_buffer_bytes": 49228
+      }
+    },
+    {
+      "frame": "heldout-high-long-suffix-2048",
+      "split": "heldout",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "heldout-high-long-suffix-2048",
+      "split": "heldout",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "heldout-high-long-suffix-2048",
+      "split": "heldout",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "heldout-high-long-suffix-2048",
+      "split": "heldout",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "heldout-high-long-suffix-2048",
+      "split": "heldout",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 8196,
+        "dispatches": 1,
+        "live_buffer_bytes": 41032,
+        "resident": true
+      }
+    },
+    {
+      "frame": "heldout-high-long-suffix-2048",
+      "split": "heldout",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 8196,
+        "dispatches": 1,
+        "live_buffer_bytes": 41032,
+        "resident": true
+      }
+    },
+    {
+      "frame": "heldout-low-empty-suffix-4096",
+      "split": "heldout",
+      "boundary": "captured-owned",
+      "variant": "auto_path_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "heldout-low-empty-suffix-4096",
+      "split": "heldout",
+      "boundary": "captured-owned",
+      "variant": "direct_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "heldout-low-empty-suffix-4096",
+      "split": "heldout",
+      "boundary": "captured-owned",
+      "variant": "auto_path_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "heldout-low-empty-suffix-4096",
+      "split": "heldout",
+      "boundary": "captured-owned",
+      "variant": "direct_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "heldout-low-empty-suffix-4096",
+      "split": "heldout",
+      "boundary": "captured-owned",
+      "variant": "auto_path_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 16420,
+        "readback_bytes": 16388,
+        "dispatches": 1,
+        "live_buffer_bytes": 65584
+      }
+    },
+    {
+      "frame": "heldout-low-empty-suffix-4096",
+      "split": "heldout",
+      "boundary": "captured-owned",
+      "variant": "direct_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 16420,
+        "readback_bytes": 16388,
+        "dispatches": 1,
+        "live_buffer_bytes": 65584
+      }
+    },
+    {
+      "frame": "heldout-low-empty-suffix-4096",
+      "split": "heldout",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "heldout-low-empty-suffix-4096",
+      "split": "heldout",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "heldout-low-empty-suffix-4096",
+      "split": "heldout",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "heldout-low-empty-suffix-4096",
+      "split": "heldout",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "heldout-low-empty-suffix-4096",
+      "split": "heldout",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 16388,
+        "dispatches": 1,
+        "live_buffer_bytes": 49196,
+        "resident": true
+      }
+    },
+    {
+      "frame": "heldout-low-empty-suffix-4096",
+      "split": "heldout",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 16388,
+        "dispatches": 1,
+        "live_buffer_bytes": 49196,
+        "resident": true
+      }
+    },
+    {
+      "frame": "heldout-low-long-suffix-4096",
+      "split": "heldout",
+      "boundary": "captured-owned",
+      "variant": "auto_path_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "heldout-low-long-suffix-4096",
+      "split": "heldout",
+      "boundary": "captured-owned",
+      "variant": "direct_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "heldout-low-long-suffix-4096",
+      "split": "heldout",
+      "boundary": "captured-owned",
+      "variant": "auto_path_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "heldout-low-long-suffix-4096",
+      "split": "heldout",
+      "boundary": "captured-owned",
+      "variant": "direct_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "heldout-low-long-suffix-4096",
+      "split": "heldout",
+      "boundary": "captured-owned",
+      "variant": "auto_path_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 49216,
+        "readback_bytes": 16388,
+        "dispatches": 1,
+        "live_buffer_bytes": 98380
+      }
+    },
+    {
+      "frame": "heldout-low-long-suffix-4096",
+      "split": "heldout",
+      "boundary": "captured-owned",
+      "variant": "direct_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 49216,
+        "readback_bytes": 16388,
+        "dispatches": 1,
+        "live_buffer_bytes": 98380
+      }
+    },
+    {
+      "frame": "heldout-low-long-suffix-4096",
+      "split": "heldout",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "heldout-low-long-suffix-4096",
+      "split": "heldout",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "heldout-low-long-suffix-4096",
+      "split": "heldout",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "heldout-low-long-suffix-4096",
+      "split": "heldout",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "heldout-low-long-suffix-4096",
+      "split": "heldout",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 16388,
+        "dispatches": 1,
+        "live_buffer_bytes": 81992,
+        "resident": true
+      }
+    },
+    {
+      "frame": "heldout-low-long-suffix-4096",
+      "split": "heldout",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 16388,
+        "dispatches": 1,
+        "live_buffer_bytes": 81992,
+        "resident": true
+      }
+    },
+    {
+      "frame": "heldout-high-empty-suffix-4096",
+      "split": "heldout",
+      "boundary": "captured-owned",
+      "variant": "auto_path_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "heldout-high-empty-suffix-4096",
+      "split": "heldout",
+      "boundary": "captured-owned",
+      "variant": "direct_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "heldout-high-empty-suffix-4096",
+      "split": "heldout",
+      "boundary": "captured-owned",
+      "variant": "auto_path_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "heldout-high-empty-suffix-4096",
+      "split": "heldout",
+      "boundary": "captured-owned",
+      "variant": "direct_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "heldout-high-empty-suffix-4096",
+      "split": "heldout",
+      "boundary": "captured-owned",
+      "variant": "auto_path_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 16420,
+        "readback_bytes": 16388,
+        "dispatches": 1,
+        "live_buffer_bytes": 65584
+      }
+    },
+    {
+      "frame": "heldout-high-empty-suffix-4096",
+      "split": "heldout",
+      "boundary": "captured-owned",
+      "variant": "direct_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 16420,
+        "readback_bytes": 16388,
+        "dispatches": 1,
+        "live_buffer_bytes": 65584
+      }
+    },
+    {
+      "frame": "heldout-high-empty-suffix-4096",
+      "split": "heldout",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "heldout-high-empty-suffix-4096",
+      "split": "heldout",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "heldout-high-empty-suffix-4096",
+      "split": "heldout",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "heldout-high-empty-suffix-4096",
+      "split": "heldout",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "heldout-high-empty-suffix-4096",
+      "split": "heldout",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 16388,
+        "dispatches": 1,
+        "live_buffer_bytes": 49196,
+        "resident": true
+      }
+    },
+    {
+      "frame": "heldout-high-empty-suffix-4096",
+      "split": "heldout",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 16388,
+        "dispatches": 1,
+        "live_buffer_bytes": 49196,
+        "resident": true
+      }
+    },
+    {
+      "frame": "heldout-high-long-suffix-4096",
+      "split": "heldout",
+      "boundary": "captured-owned",
+      "variant": "auto_path_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "heldout-high-long-suffix-4096",
+      "split": "heldout",
+      "boundary": "captured-owned",
+      "variant": "direct_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "heldout-high-long-suffix-4096",
+      "split": "heldout",
+      "boundary": "captured-owned",
+      "variant": "auto_path_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "heldout-high-long-suffix-4096",
+      "split": "heldout",
+      "boundary": "captured-owned",
+      "variant": "direct_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "heldout-high-long-suffix-4096",
+      "split": "heldout",
+      "boundary": "captured-owned",
+      "variant": "auto_path_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 49216,
+        "readback_bytes": 16388,
+        "dispatches": 1,
+        "live_buffer_bytes": 98380
+      }
+    },
+    {
+      "frame": "heldout-high-long-suffix-4096",
+      "split": "heldout",
+      "boundary": "captured-owned",
+      "variant": "direct_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 49216,
+        "readback_bytes": 16388,
+        "dispatches": 1,
+        "live_buffer_bytes": 98380
+      }
+    },
+    {
+      "frame": "heldout-high-long-suffix-4096",
+      "split": "heldout",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "heldout-high-long-suffix-4096",
+      "split": "heldout",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "heldout-high-long-suffix-4096",
+      "split": "heldout",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "heldout-high-long-suffix-4096",
+      "split": "heldout",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "heldout-high-long-suffix-4096",
+      "split": "heldout",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 16388,
+        "dispatches": 1,
+        "live_buffer_bytes": 81992,
+        "resident": true
+      }
+    },
+    {
+      "frame": "heldout-high-long-suffix-4096",
+      "split": "heldout",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 16388,
+        "dispatches": 1,
+        "live_buffer_bytes": 81992,
+        "resident": true
+      }
+    },
+    {
+      "frame": "edge-low-edge0-0",
+      "split": "edge",
+      "boundary": "captured-owned",
+      "variant": "auto_path_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "edge-low-edge0-0",
+      "split": "edge",
+      "boundary": "captured-owned",
+      "variant": "direct_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "edge-low-edge0-0",
+      "split": "edge",
+      "boundary": "captured-owned",
+      "variant": "auto_path_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "edge-low-edge0-0",
+      "split": "edge",
+      "boundary": "captured-owned",
+      "variant": "direct_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "edge-low-edge0-0",
+      "split": "edge",
+      "boundary": "captured-owned",
+      "variant": "auto_path_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 36,
+        "readback_bytes": 4,
+        "dispatches": 0,
+        "live_buffer_bytes": 48
+      }
+    },
+    {
+      "frame": "edge-low-edge0-0",
+      "split": "edge",
+      "boundary": "captured-owned",
+      "variant": "direct_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 36,
+        "readback_bytes": 4,
+        "dispatches": 0,
+        "live_buffer_bytes": 48
+      }
+    },
+    {
+      "frame": "edge-low-edge0-0",
+      "split": "edge",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "edge-low-edge0-0",
+      "split": "edge",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "edge-low-edge0-0",
+      "split": "edge",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "edge-low-edge0-0",
+      "split": "edge",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "edge-low-edge0-0",
+      "split": "edge",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 4,
+        "dispatches": 0,
+        "live_buffer_bytes": 44,
+        "resident": true
+      }
+    },
+    {
+      "frame": "edge-low-edge0-0",
+      "split": "edge",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 4,
+        "dispatches": 0,
+        "live_buffer_bytes": 44,
+        "resident": true
+      }
+    },
+    {
+      "frame": "edge-low-edge1-0",
+      "split": "edge",
+      "boundary": "captured-owned",
+      "variant": "auto_path_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "edge-low-edge1-0",
+      "split": "edge",
+      "boundary": "captured-owned",
+      "variant": "direct_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "edge-low-edge1-0",
+      "split": "edge",
+      "boundary": "captured-owned",
+      "variant": "auto_path_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "edge-low-edge1-0",
+      "split": "edge",
+      "boundary": "captured-owned",
+      "variant": "direct_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "edge-low-edge1-0",
+      "split": "edge",
+      "boundary": "captured-owned",
+      "variant": "auto_path_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 44,
+        "readback_bytes": 4,
+        "dispatches": 0,
+        "live_buffer_bytes": 56
+      }
+    },
+    {
+      "frame": "edge-low-edge1-0",
+      "split": "edge",
+      "boundary": "captured-owned",
+      "variant": "direct_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 44,
+        "readback_bytes": 4,
+        "dispatches": 0,
+        "live_buffer_bytes": 56
+      }
+    },
+    {
+      "frame": "edge-low-edge1-0",
+      "split": "edge",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "edge-low-edge1-0",
+      "split": "edge",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "edge-low-edge1-0",
+      "split": "edge",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "edge-low-edge1-0",
+      "split": "edge",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "edge-low-edge1-0",
+      "split": "edge",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 4,
+        "dispatches": 0,
+        "live_buffer_bytes": 52,
+        "resident": true
+      }
+    },
+    {
+      "frame": "edge-low-edge1-0",
+      "split": "edge",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 4,
+        "dispatches": 0,
+        "live_buffer_bytes": 52,
+        "resident": true
+      }
+    },
+    {
+      "frame": "edge-low-edge2-0",
+      "split": "edge",
+      "boundary": "captured-owned",
+      "variant": "auto_path_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "edge-low-edge2-0",
+      "split": "edge",
+      "boundary": "captured-owned",
+      "variant": "direct_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "edge-low-edge2-0",
+      "split": "edge",
+      "boundary": "captured-owned",
+      "variant": "auto_path_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "edge-low-edge2-0",
+      "split": "edge",
+      "boundary": "captured-owned",
+      "variant": "direct_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "edge-low-edge2-0",
+      "split": "edge",
+      "boundary": "captured-owned",
+      "variant": "auto_path_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 48,
+        "readback_bytes": 16,
+        "dispatches": 1,
+        "live_buffer_bytes": 96
+      }
+    },
+    {
+      "frame": "edge-low-edge2-0",
+      "split": "edge",
+      "boundary": "captured-owned",
+      "variant": "direct_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 48,
+        "readback_bytes": 16,
+        "dispatches": 1,
+        "live_buffer_bytes": 96
+      }
+    },
+    {
+      "frame": "edge-low-edge2-0",
+      "split": "edge",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "edge-low-edge2-0",
+      "split": "edge",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "edge-low-edge2-0",
+      "split": "edge",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "edge-low-edge2-0",
+      "split": "edge",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "edge-low-edge2-0",
+      "split": "edge",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 16,
+        "dispatches": 1,
+        "live_buffer_bytes": 80,
+        "resident": true
+      }
+    },
+    {
+      "frame": "edge-low-edge2-0",
+      "split": "edge",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 16,
+        "dispatches": 1,
+        "live_buffer_bytes": 80,
+        "resident": true
+      }
+    },
+    {
+      "frame": "edge-low-edge3-0",
+      "split": "edge",
+      "boundary": "captured-owned",
+      "variant": "auto_path_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "edge-low-edge3-0",
+      "split": "edge",
+      "boundary": "captured-owned",
+      "variant": "direct_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "edge-low-edge3-0",
+      "split": "edge",
+      "boundary": "captured-owned",
+      "variant": "auto_path_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "edge-low-edge3-0",
+      "split": "edge",
+      "boundary": "captured-owned",
+      "variant": "direct_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "dispatches": 0
+      }
+    },
+    {
+      "frame": "edge-low-edge3-0",
+      "split": "edge",
+      "boundary": "captured-owned",
+      "variant": "auto_path_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 64,
+        "readback_bytes": 20,
+        "dispatches": 1,
+        "live_buffer_bytes": 124
+      }
+    },
+    {
+      "frame": "edge-low-edge3-0",
+      "split": "edge",
+      "boundary": "captured-owned",
+      "variant": "direct_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 64,
+        "readback_bytes": 20,
+        "dispatches": 1,
+        "live_buffer_bytes": 124
+      }
+    },
+    {
+      "frame": "edge-low-edge3-0",
+      "split": "edge",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "edge-low-edge3-0",
+      "split": "edge",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_cpu",
+      "backend": "cpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "edge-low-edge3-0",
+      "split": "edge",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "edge-low-edge3-0",
+      "split": "edge",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_javascript",
+      "backend": "javascript",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0
+      }
+    },
+    {
+      "frame": "edge-low-edge3-0",
+      "split": "edge",
+      "boundary": "resident-input-owned-readback",
+      "variant": "auto_path_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 20,
+        "dispatches": 1,
+        "live_buffer_bytes": 104,
+        "resident": true
+      }
+    },
+    {
+      "frame": "edge-low-edge3-0",
+      "split": "edge",
+      "boundary": "resident-input-owned-readback",
+      "variant": "direct_gpu",
+      "backend": "gpu",
+      "owned_output": true,
+      "complete_output": true,
+      "nonmutation": true,
+      "caller_mutation_capture": true,
+      "changed_input_lifetime": true,
+      "counters": {
+        "upload_bytes": 0,
+        "readback_bytes": 20,
+        "dispatches": 1,
+        "live_buffer_bytes": 104,
+        "resident": true
+      }
+    }
+  ],
+  "setup": [
+    {
+      "frame": "training-low-empty-suffix-32",
+      "boundary": "resident-input-owned-readback",
+      "gpu": {
+        "upload_bytes": 164,
+        "live_buffer_bytes": 428,
+        "dispatches": 0,
+        "readback_bytes": 0
+      },
+      "wasm_setup_outside_timer": true,
+      "javascript_snapshot_outside_timer": true
+    },
+    {
+      "frame": "training-low-long-suffix-32",
+      "boundary": "resident-input-owned-readback",
+      "gpu": {
+        "upload_bytes": 448,
+        "live_buffer_bytes": 712,
+        "dispatches": 0,
+        "readback_bytes": 0
+      },
+      "wasm_setup_outside_timer": true,
+      "javascript_snapshot_outside_timer": true
+    },
+    {
+      "frame": "training-high-empty-suffix-32",
+      "boundary": "resident-input-owned-readback",
+      "gpu": {
+        "upload_bytes": 164,
+        "live_buffer_bytes": 428,
+        "dispatches": 0,
+        "readback_bytes": 0
+      },
+      "wasm_setup_outside_timer": true,
+      "javascript_snapshot_outside_timer": true
+    },
+    {
+      "frame": "training-high-long-suffix-32",
+      "boundary": "resident-input-owned-readback",
+      "gpu": {
+        "upload_bytes": 448,
+        "live_buffer_bytes": 712,
+        "dispatches": 0,
+        "readback_bytes": 0
+      },
+      "wasm_setup_outside_timer": true,
+      "javascript_snapshot_outside_timer": true
+    },
+    {
+      "frame": "training-low-empty-suffix-65536",
+      "boundary": "resident-input-owned-readback",
+      "gpu": {
+        "upload_bytes": 262180,
+        "live_buffer_bytes": 786476,
+        "dispatches": 0,
+        "readback_bytes": 0
+      },
+      "wasm_setup_outside_timer": true,
+      "javascript_snapshot_outside_timer": true
+    },
+    {
+      "frame": "training-low-long-suffix-65536",
+      "boundary": "resident-input-owned-readback",
+      "gpu": {
+        "upload_bytes": 786496,
+        "live_buffer_bytes": 1310792,
+        "dispatches": 0,
+        "readback_bytes": 0
+      },
+      "wasm_setup_outside_timer": true,
+      "javascript_snapshot_outside_timer": true
+    },
+    {
+      "frame": "training-high-empty-suffix-65536",
+      "boundary": "resident-input-owned-readback",
+      "gpu": {
+        "upload_bytes": 262180,
+        "live_buffer_bytes": 786476,
+        "dispatches": 0,
+        "readback_bytes": 0
+      },
+      "wasm_setup_outside_timer": true,
+      "javascript_snapshot_outside_timer": true
+    },
+    {
+      "frame": "training-high-long-suffix-65536",
+      "boundary": "resident-input-owned-readback",
+      "gpu": {
+        "upload_bytes": 786496,
+        "live_buffer_bytes": 1310792,
+        "dispatches": 0,
+        "readback_bytes": 0
+      },
+      "wasm_setup_outside_timer": true,
+      "javascript_snapshot_outside_timer": true
+    },
+    {
+      "frame": "heldout-low-empty-suffix-2048",
+      "boundary": "resident-input-owned-readback",
+      "gpu": {
+        "upload_bytes": 8228,
+        "live_buffer_bytes": 24620,
+        "dispatches": 0,
+        "readback_bytes": 0
+      },
+      "wasm_setup_outside_timer": true,
+      "javascript_snapshot_outside_timer": true
+    },
+    {
+      "frame": "heldout-low-long-suffix-2048",
+      "boundary": "resident-input-owned-readback",
+      "gpu": {
+        "upload_bytes": 24640,
+        "live_buffer_bytes": 41032,
+        "dispatches": 0,
+        "readback_bytes": 0
+      },
+      "wasm_setup_outside_timer": true,
+      "javascript_snapshot_outside_timer": true
+    },
+    {
+      "frame": "heldout-high-empty-suffix-2048",
+      "boundary": "resident-input-owned-readback",
+      "gpu": {
+        "upload_bytes": 8228,
+        "live_buffer_bytes": 24620,
+        "dispatches": 0,
+        "readback_bytes": 0
+      },
+      "wasm_setup_outside_timer": true,
+      "javascript_snapshot_outside_timer": true
+    },
+    {
+      "frame": "heldout-high-long-suffix-2048",
+      "boundary": "resident-input-owned-readback",
+      "gpu": {
+        "upload_bytes": 24640,
+        "live_buffer_bytes": 41032,
+        "dispatches": 0,
+        "readback_bytes": 0
+      },
+      "wasm_setup_outside_timer": true,
+      "javascript_snapshot_outside_timer": true
+    },
+    {
+      "frame": "heldout-low-empty-suffix-4096",
+      "boundary": "resident-input-owned-readback",
+      "gpu": {
+        "upload_bytes": 16420,
+        "live_buffer_bytes": 49196,
+        "dispatches": 0,
+        "readback_bytes": 0
+      },
+      "wasm_setup_outside_timer": true,
+      "javascript_snapshot_outside_timer": true
+    },
+    {
+      "frame": "heldout-low-long-suffix-4096",
+      "boundary": "resident-input-owned-readback",
+      "gpu": {
+        "upload_bytes": 49216,
+        "live_buffer_bytes": 81992,
+        "dispatches": 0,
+        "readback_bytes": 0
+      },
+      "wasm_setup_outside_timer": true,
+      "javascript_snapshot_outside_timer": true
+    },
+    {
+      "frame": "heldout-high-empty-suffix-4096",
+      "boundary": "resident-input-owned-readback",
+      "gpu": {
+        "upload_bytes": 16420,
+        "live_buffer_bytes": 49196,
+        "dispatches": 0,
+        "readback_bytes": 0
+      },
+      "wasm_setup_outside_timer": true,
+      "javascript_snapshot_outside_timer": true
+    },
+    {
+      "frame": "heldout-high-long-suffix-4096",
+      "boundary": "resident-input-owned-readback",
+      "gpu": {
+        "upload_bytes": 49216,
+        "live_buffer_bytes": 81992,
+        "dispatches": 0,
+        "readback_bytes": 0
+      },
+      "wasm_setup_outside_timer": true,
+      "javascript_snapshot_outside_timer": true
+    },
+    {
+      "frame": "edge-low-edge0-0",
+      "boundary": "resident-input-owned-readback",
+      "gpu": {
+        "upload_bytes": 36,
+        "live_buffer_bytes": 44,
+        "dispatches": 0,
+        "readback_bytes": 0
+      },
+      "wasm_setup_outside_timer": true,
+      "javascript_snapshot_outside_timer": true
+    },
+    {
+      "frame": "edge-low-edge1-0",
+      "boundary": "resident-input-owned-readback",
+      "gpu": {
+        "upload_bytes": 44,
+        "live_buffer_bytes": 52,
+        "dispatches": 0,
+        "readback_bytes": 0
+      },
+      "wasm_setup_outside_timer": true,
+      "javascript_snapshot_outside_timer": true
+    },
+    {
+      "frame": "edge-low-edge2-0",
+      "boundary": "resident-input-owned-readback",
+      "gpu": {
+        "upload_bytes": 48,
+        "live_buffer_bytes": 80,
+        "dispatches": 0,
+        "readback_bytes": 0
+      },
+      "wasm_setup_outside_timer": true,
+      "javascript_snapshot_outside_timer": true
+    },
+    {
+      "frame": "edge-low-edge3-0",
+      "boundary": "resident-input-owned-readback",
+      "gpu": {
+        "upload_bytes": 64,
+        "live_buffer_bytes": 104,
+        "dispatches": 0,
+        "readback_bytes": 0
+      },
+      "wasm_setup_outside_timer": true,
+      "javascript_snapshot_outside_timer": true
+    }
+  ],
+  "warmups": [],
+  "calibration": [],
+  "samples": [],
+  "first_selection_miss": [],
+  "observable": 0,
+  "profile_sha256": null,
+  "limits": "Ownedoutputs+fullwordconsumer inside timers. Captured prices use real backend:auto transport paths forced by saved model; directJSshortcut never substitutes. No online probes. Firstmiss once after explicit warmup, not process-cohort confidence."
+}

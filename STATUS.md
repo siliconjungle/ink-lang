@@ -11,14 +11,26 @@ Read [the philosophy and ambitions](docs/vision.md), [the design draft](docs/lan
 Historical counts and milestone receipts are preserved in
 [the previous status snapshot](docs/history/implementation-status-through-2026-10-11.md).
 
+## Integrated composed execution work
+
+[Engine39](reports/web-stack-engine-39-2026-10-11/REPORT.md) adds bounded,
+source-derived collection facts across helper composition and target-specific
+fresh-buffer/destination reuse. Existing caller capacity/disjointness contracts
+remain trusted; no validation wrapper or new syntax is introduced. Runtime hosts
+support saved-profile adaptive selection, explicit static execution and retained
+pure GPU sessions. Broad target component costs and frozen calibration live in the
+planner/knowledge packages, outside proof authority. Their heldout failures prevent
+a default profitability claim. Broad comparisons still trail strong Rust controls;
+measured gains and losses are preserved separately from correctness evidence.
+
 ## Executable language and targets
 
 | Area | Available now | Boundary |
 | --- | --- | --- |
-| Pure functions | Words, i32/f32, vectors, records, lists, higher-order collection operations, bounded loops, owned buffers/maps | Supported types and resource limits are documented in [local collections](docs/local-collections.md) and [target parity](docs/lowering-parity.md) |
+| Pure functions | Words, i32/f32, vectors, records, lists, higher-order collection operations, bounded loops, owned buffers/maps, guarded self recursion and ordered parallel maps | Supported types and resource limits are documented in [local collections](docs/local-collections.md) and [target parity](docs/lowering-parity.md) |
 | State | Tables, queries, atomic changes, nested calls, Result propagation, rollback, ordered events and maintained results | Sequential source semantics; numerical state is supported, with explicit float-bit and comparison rules |
 | CPU execution | Reference evaluator and literal C, Rust, JavaScript, C-Wasm and Rust-Wasm paths | Complete C uses shared Rust primitives; hosts/toolchains remain trusted |
-| GPU execution | Eligible pure scalar/array work through browser WebGPU and native wgpu, mixed with host execution | Transactions and unsupported values stay on CPU; algorithm, expansion and device limits apply |
+| GPU execution | Eligible pure scalar/array work through browser WebGPU and native wgpu, mixed with host execution | Private scalar scratch buffers up to 64 cells and bounded resident graph feedback are supported; transactions, growing feedback and unsupported values stay on CPU |
 | Persistence | Portable logical snapshots and durable file/IndexedDB hosts, outbox acknowledgements and bounded retry receipts | Declared single-writer/storage guarantees; at-least-once delivery requires receiver deduplication |
 | Usability | Source modules, embedded helpers, relocatable installation, diagnostics and plan inspection | A small library and evolving diagnostics; the design reference includes proposed syntax |
 
@@ -83,6 +95,24 @@ results with compiler/runtime/lowering sources unchanged. Some selected variants
 regress on measured workloads. Proof admission establishes semantic validity;
 it does not establish faster execution. See [the evidence index](BENCHMARKS.md).
 
+## Parallel execution and independent verdict
+
+[Ordered parallel work, owned partitions, checked recursion and GPU scratch](docs/bend-inspired.md)
+are integrated with executable-core V5. Native Rust uses bounded scoped workers;
+other CPU paths preserve sequential values. Browser and native GPU scratch
+support bounded split/rejoin and push within 64 elements; resident graph feedback
+preserves capacity and simultaneous assignments. Unsupported cases retain
+compiled CPU fallback. Guarded self
+recursion is checked; tail calls are iterative while non-tail calls retain host
+stack limits. Raw native timing samples record workload-specific gains, not a
+promise that every callback benefits.
+
+The optional `check-boolean-verdict` command runs Ink's existing check and Lean
+4.19.0 on exact input bytes. Its separate Boolean equality calculus has proved
+soundness; its source translator and the rest of the compiler remain unverified.
+It grants no additional production optimisation authority. See the
+[trust scope and evidence](docs/bend-inspired.md).
+
 ## Work being integrated
 
 These are active implementation/research lanes, not additional guarantees of the
@@ -91,8 +121,6 @@ contracts before relying on them.
 
 | Lane | Concrete work | Remaining gate |
 | --- | --- | --- |
-| Parallel work and ownership | Ordered parallel mapping, owned buffer partition/rejoin, private GPU scratch storage and guarded structural self recursion | Cross-target integration and CI; native Rust parallelism does not imply every target runs concurrently. Tracked in [Ink #4](https://github.com/siliconjungle/ink-lang/pull/4) |
-| Checker assurance | Additional Lean verdict for a bounded Boolean calculus and reproducible translated certificates | Establishes that calculus's soundness; does not verify the complete Rust checker or source translation. Included in #4 |
 | Incremental maintenance costs | Further attribution of plan copying, complete-state transport and validation; broader read/write and lifetime studies | Demonstrate repeatable complete-session gains before generalising cache control; measured small fixtures favour direct lookup |
 | Physical execution | Conservative facts through composed functions, less intermediate allocation/copying and prepared resources | Correctness checks plus complete-call gains on independently varied sizes, shapes and distributions |
 | Profitability and adaptation | Diagnosis of composed-helper regressions, target component costs and saved-profile/static backend policies | Independent evaluation, full selection/setup/transfer costs and stable bounded decisions without repeating effectful actions |
