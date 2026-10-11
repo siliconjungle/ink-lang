@@ -79,7 +79,7 @@ fn checked() -> (
     verified_language::representation::CheckedMigration,
 ) {
     let m = CheckedModule::from_source(
-        parse(include_str!("../knowledge/research/keep-parity/app.ink")).unwrap(),
+        parse(include_str!("../knowledge/research/composable-state/keep/app.ink")).unwrap(),
     )
     .unwrap();
     let a: Request = serde_json::from_str(include_str!(

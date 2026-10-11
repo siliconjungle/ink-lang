@@ -12,9 +12,10 @@ canonical bytes and hashes, float rejection and nesting boundaries.
 The JavaScript benchmark uses 1024 rows, 96 calls, five alternating rounds and
 separate warm-up states. Replies and snapshots agree across ordinary, indexed
 and grouped programs. Medians in this shared-host sample show cached weighted
-and label queries about 73x and 101x faster than ordinary evaluation for the
-ungrouped indexed candidate. Grouped writes lose to ungrouped writes in this
-fixture (roughly 1.2–1.8x slower), and both lose to ordinary Map writes. Dynamic,
+and label queries about 150x and 125x faster than ordinary evaluation for the
+ungrouped indexed candidate. Grouping improves three write patterns relative to
+the indexed candidate (about 8–20%) and slows remove/replace by about 5%.
+Both physical candidates lose to ordinary Map writes. Dynamic,
 owner-parameterized and floating queries keep exact evaluation and are slower
 in the physical candidate. These are workload-specific samples, not a universal
 batching speed claim. Peak memory was not measured.
@@ -25,6 +26,12 @@ is missing, selects grouped/indexed/baseline with synthetic lifecycle costs,
 replays through actual emission and rejects stale target evidence. Synthetic
 policy costs are not performance measurements. Real speed samples remain in
 `javascript.json` with the acquisition manifest in `provenance.json`.
+`select-benchmark.py` imports those real samples through the existing selector:
+warm writes and dynamic reads retain ordinary code, cached reads including setup
+and clean teardown select indexed code, and warm paired erases from an indexed
+baseline select grouped code. Offline proof/search/compiler costs, dirty teardown
+and memory are unpriced; no live migration is claimed. Archived samples retain
+their original compiler bindings under `historical/`.
 
 Reproduce from the pinned distribution:
 
