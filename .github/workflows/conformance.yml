@@ -54,6 +54,7 @@ jobs:
           import os, pathlib, ziglang
           with open(os.environ['GITHUB_ENV'], 'a') as f:
               f.write('INK_TEST_ZIG='+str(pathlib.Path(ziglang.__file__).parent/'zig')+'\n')
+              f.write('INK_ZIG='+str(pathlib.Path(ziglang.__file__).parent/'zig')+'\n')
               f.write('INK_PARITY_SEEDS=1,7,23,3735928559,'+str(int(os.environ['GITHUB_SHA'][:16],16))+'\n')
           PY
       - name: Install pinned independent proof checker

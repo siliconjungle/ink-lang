@@ -94,5 +94,25 @@
         "result_tail": "{\"status\": \"checked\", \"source\": \"07d3b5efb561b8597cfa874b0a78e4e93e30309dbbdecabdc75c5d934d2763ae\", \"representation\": \"0289e08f8a1051c342d6112914e4350c20139bed6f9d0c6d9484f52ad948fb12\"}"
       }
     ]
-  }
+  },
+  "remaining_local_validation": [
+    {
+      "name": "migrations-and-scalable-state",
+      "scope": "10 representation/migration tests and 4 scalable-state tests passed; sequence-tree stopped solely because INK_ZIG was absent, then was independently rerun with the configured compiler",
+      "log_sha256": "74a774c70810007d96d5221e1d47b094e90c3c9d4a281754a308dc43815057a6",
+      "result_tail": "e_checked ... ok\ntest compiled_c_direct_scan_does_not_retain_each_rows_temporary_values ... ok\n\ntest result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 78.51s\n\n     Running tests/sequence_tree.rs (target/debug/deps/sequence_tree-a107e4b4b1a1b8b1)\n\nrunning 1 test\ntest knowledge_sequence_tree_definitions_preserve_order_and_duplicates ... \nthread 'knowledge_sequence_tree_definitions_preserve_order_and_duplicates' (16655701) panicked at tests/sequence_tree.rs:196:10:\nINK_ZIG must name Zig for mandatory C-Wasm sequence-tree coverage\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\nFAILED\n\nfailures:\n\nfailures:\n    knowledge_sequence_tree_definitions_preserve_order_and_duplicates\n\ntest result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.16s\n\nerror: test failed, to rerun pass `--test sequence_tree`\n"
+    },
+    {
+      "name": "sequence-and-standalone",
+      "scope": "Sequence tree and 5 standalone tests passed; standalone Lean check stopped because this rerun omitted INK_TEST_LEAN, then independently passed with Lean configured",
+      "log_sha256": "e2b95993a583b12879c7117506d4f6bcfe1eefce768b143478079f3a3d49dd25",
+      "result_tail": "nd_reductions_keep_exact_snapshots ... ok\ntest compiled_nominal_nested_values_and_multiple_tables ... ok\ntest compiled_point_candidates_need_no_checker_or_runtime ... ok\ntest lean_shared_spine_model_checks_independently ... \nthread 'lean_shared_spine_model_checks_independently' (16662067) panicked at tests/standalone_representation.rs:370:9:\ncomplete parity requires the independent Lean checker\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\nFAILED\ntest native_event_views_borrow_state_and_explicit_owned_events_survive_publication ... ok\ntest shared_physical_spines_release_without_allocating_or_losing_live_suffixes ... ok\n\nfailures:\n\nfailures:\n    lean_shared_spine_model_checks_independently\n\ntest result: FAILED. 5 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 16.44s\n\nerror: test failed, to rerun pass `--test standalone_representation`\n"
+    },
+    {
+      "name": "shared-spine-lean",
+      "scope": "Independent shared-spine Lean proof passed; together with the preceding standalone successes accounts for all 6 standalone tests",
+      "log_sha256": "a36112d5a2ba5940bff3af0d4701692734a4f5d524a920b6b4a3f786432bb663",
+      "result_tail": "    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.15s\n     Running tests/standalone_representation.rs (target/debug/deps/standalone_representation-e1aff3aa0b727379)\n\nrunning 1 test\ntest lean_shared_spine_model_checks_independently ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 5 filtered out; finished in 6.10s\n\n"
+    }
+  ]
 }

@@ -53,3 +53,8 @@ Compact observer projection freshens conflicting lexical binders after inlining
 nested components. The checker continues to reject binder shadowing. Fresh
 positive proof checks and reauthenticated negative grouped-action tests cover
 the integration repairs.
+
+Remaining local validation passes: 10 representation/migration checks, 4 scalable
+state checks, the sequence-tree history across native/C/Wasm/JavaScript, and all
+6 standalone checks including an independently rerun Lean shared-spine proof.
+CI exports the pinned Zig executable under both accepted test variable names.
