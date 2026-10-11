@@ -125,11 +125,12 @@ fn source_transition_roots_cannot_ignore_ordered_event_changes() {
 }
 #[test]
 fn unsupported_domains_and_long_continuations_are_rejected_with_bounded_work() {
+    assert!(Projection::derive(&module("module unsupported; query pass(x:String)->String{return x;}" )).unwrap_err().contains("unsupported action model type"));
     assert!(Projection::derive(&module(
-        "module unsupported; query pass(x:String)->String{return x;}"
+        "module unsupported; state Rows:Table<u32,u64> =Table.empty(); query get(k:u32)->Option<u64> reads(Rows){return Rows.get(k);}"
     ))
     .unwrap_err()
-    .contains("unsupported action model type"));
+    .contains("table keys currently require u64"));
     let body = (0..40)
         .map(|i| format!("let x{i}:u64={i};"))
         .collect::<String>();
@@ -200,7 +201,12 @@ fn total_helper_projection_is_bound_and_bounded_without_external_tools() {
         "return quot_or(x,1,0);",
     ] {
         let app=format!("module unsupported;fn helper(x:u64)->u64{{{body}}}query q(x:u64)->u64{{return helper(x);}}");
-        Projection::derive(&module(&app)).unwrap();
+        let projected = Projection::derive(&module(&app)).unwrap();
+        for word in [0, u64::MAX] {
+            let result=projected.context().unwrap().evaluate(&[], &call(&projected.actions["q"].function, vec![c(&projected.state,0,vec![]),Term::U64(0),Term::U64(word)])).unwrap();
+            let Term::Construct{arguments,..}=result else{panic!()};
+            assert_eq!(arguments[0],Term::U64(word));
+        }
     }
     let mut chain = String::from("module depth;");
     for i in 0..33 {
