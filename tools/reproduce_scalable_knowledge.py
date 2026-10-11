@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Reproduce and locally check the frozen scalable-state candidates."""
 import argparse, gzip, hashlib, json, pathlib, subprocess, time, os
-p=argparse.ArgumentParser(description=__doc__);p.add_argument('--compiler',type=pathlib.Path,default=pathlib.Path('target/debug/ink'));p.add_argument('--candidate-root',type=pathlib.Path,default=pathlib.Path('knowledge/research'));p.add_argument('--output',type=pathlib.Path,default=pathlib.Path('build/scalable-reproduction'));a=p.parse_args();a.compiler=a.compiler.resolve();os.environ["INK_COMPILER"]=str(a.compiler);a.output.mkdir(parents=True,exist_ok=True)
+p=argparse.ArgumentParser(description=__doc__);p.add_argument('--compiler',type=pathlib.Path,default=pathlib.Path('target/debug/ink'));p.add_argument('--candidate-root',type=pathlib.Path,default=pathlib.Path('knowledge/research/scalable-state-current'));p.add_argument('--output',type=pathlib.Path,default=pathlib.Path('build/scalable-reproduction'));a=p.parse_args();a.compiler=a.compiler.resolve();os.environ["INK_COMPILER"]=str(a.compiler);a.output.mkdir(parents=True,exist_ok=True)
 for name,query,tactic in [('bulk-maintenance','quantity_total','--aggregate-query'),('membership-cache','intersection','--membership-query')]:
  d=a.output/name;d.mkdir(exist_ok=True);source=a.candidate_root/name/'source.ink'
  started=time.perf_counter();subprocess.run([str(a.compiler),'emit-action-model',str(source),'-o',str(d/'model.json')],check=True,capture_output=True)
