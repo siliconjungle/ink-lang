@@ -22,6 +22,16 @@ def audit(catalog, scope):
     gpu = ["webgpu", "wgpu"]
     if catalog["schema"] != 1 or catalog["complete_cpu_targets"] != cpu or catalog["gpu_targets"] != gpu:
         raise ValueError("parity target inventory changed or omits a required target")
+    required_suites = {
+        "lowering_parity", "generated_parity", "durability", "modules",
+        "selected_checkpoint", "action_optimisation", "action_transitions",
+        "numerical_state", "mixed_durability", "bend_features", "feature_parity",
+        "temporary_lowering", "composed_storage_parity", "storage_destination_parity",
+        "checked_physical_selection_parity", "representation_parity",
+        "standalone_representation", "representations", "point_delta",
+    }
+    if set(catalog["cpu_suites"]) != required_suites or len(catalog["cpu_suites"]) != len(required_suites):
+        raise ValueError("missing, duplicate or unknown mandatory conformance suite")
     source = (ROOT / "core/src/core.rs").read_text()
     for enum, expected in catalog["source_variants"].items():
         body = re.search(r"pub enum " + enum + r" \{(.*?)\n\}", source, re.S).group(1)

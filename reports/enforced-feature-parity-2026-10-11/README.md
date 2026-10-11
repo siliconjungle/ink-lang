@@ -16,11 +16,10 @@ language parity.
   callback identities, immutable captures and ordered results. Tests require
   multiple actual worker identities and a dispatch-count increase. Small or
   nested work can execute sequentially.
-- Sealed physical definitions execute literally on all five CPU targets through
-  the portable Session tooling and the independently generated standalone
-  applications. The shared suite checks replies/errors, events, exact snapshots,
+- Sealed physical definitions execute literally on all five CPU targets in ordinary standalone
+  applications. The former generic Session/runtime path is retired. The shared suite checks replies/errors, events, exact snapshots,
   restoration, migration and admitted numerical/collection representations.
-- The checked JavaScript representation host maintains admitted fixed-key keep
+- The checked JavaScript standalone application maintains admitted fixed-key keep
   results, including guarded overwrite and removal. Ordinary baseline keeps
   still recompute. These fixtures supply no incremental Int aggregate candidate.
 - Required GPU calls compare full-width u64 and raw binary32 bits, including
@@ -30,7 +29,7 @@ language parity.
   validates replacement checkpoints and publishes atomically. Rejected work
   preserves the original state. Durable native hosts also check crash/retry and
   outbox behavior.
-- The inventory has 15 feature entries and 17 mandatory conformance suites.
+- The inventory has 15 feature entries and 19 mandatory conformance suites.
   Missing targets, unsupported required capabilities, omitted tests and changed
   source Type/Expr/Statement inventories fail. Fault injection exercises these
   failures and the required GPU contract.
@@ -67,14 +66,15 @@ Differential conformance is not a formal compiler-correctness proof or a measure
 speedup. The numerical correspondence integrated from e9e7fe9 includes disclosed
 general equality/bit mechanisms; it is not an unchanged proof-kernel claim.
 
-Portable definition transport is bounded (16 MiB, 100,000 nodes, depth 64).
+Compile-and-run inputs and replies are bounded at 16 MiB, with explicit
+script, variant and source-value limits.
 Standalone generated APIs have their separate documented resource limits and
 caller-trusted argument contract. Browser parallel workers require cross-origin
 isolation and asynchronous entry. Device/private-buffer, composition and repeat
 bounds remain explicit; unsupported required-GPU execution fails. The packed
 pure C ABI uses sequential mapping; the complete C target uses native/host workers.
 
-The local mandatory run passed 62 tests across 17 suites;
+The historical pre-retirement local mandatory run passed 62 tests across 17 suites;
 browser replay passed 499 comparisons and 141 GPU calls. The independent core
 passed 73 checks, with 50 additional admission checks, three standalone Rust
 worker/storage checks and the targeted merged boundary checks.
@@ -89,3 +89,12 @@ rejected its unbraced sentinel assertion loop under `-Werror=misleading-indentat
 The independently published C test fixture now has explicit braces; production
 library source is unchanged. Both standalone fixture tests pass locally. Strict
 GCC warnings remain enabled, and the integration CI verifies the corrected test.
+
+The final integration adopts main's removal of the generic representation runtime.
+The mandatory gate includes `representations` and `point_delta`; fixed-key cache
+histories execute as standalone applications on every CPU target. The numerical
+primitive gate calls literal functions on all five CPU targets, including the
+production literal ES emitter, without a stateful interpreter. The Rust
+compile-and-run convenience CLI is distinct from the all-target emitted
+application contract. Updated standalone integration receipts accompany final
+validation; the earlier JSON receipts remain historical evidence for their pins.

@@ -196,6 +196,11 @@ fn fixtures(module: &CheckedModule, calls: &[(&str, Value)]) -> Value {
     json!(entries)
 }
 fn check(name: &str, source: &str, request: Option<Request>, calls: Vec<(&str, Value)>) {
+    // These emitted projects share package/binary names and a dependency cache.
+    // Cargo releases its lock before we run/copy the result; another fixture
+    // could replace it, or reuse a different C build-script fingerprint.
+    static ARTIFACTS: std::sync::Mutex<()> = std::sync::Mutex::new(());
+    let _artifacts = ARTIFACTS.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
     let dir = root().join(name);
     fs::create_dir_all(&dir).unwrap();
     fs::write(dir.join("source.ink"), source).unwrap();
@@ -314,6 +319,9 @@ fn check(name: &str, source: &str, request: Option<Request>, calls: Vec<(&str, V
             Command::new("node").arg(project.join("check.mjs")),
             &project.join("run.log"),
         );
+    }
+    if std::env::var_os("INK_PARITY_REQUIRE_ALL").is_some() {
+        assert!(std::env::var_os("INK_TEST_ZIG").is_some(), "required standalone parity forbids skipping Wasm");
     }
     if let Ok(zig) = std::env::var("INK_TEST_ZIG") {
         for backend in ["rust-wasm", "wasm32"] {
@@ -628,5 +636,33 @@ fn scalar_physical_storage_has_equal_backend_coverage() {
         run(Command::new("python3").arg("knowledge/producers/scalar_representation.py").arg(dir.join("model.json")).args(["--sort",sort,"-o"]).arg(dir.join("request.json")), &dir.join("producer.log"));
         let request = serde_json::from_slice(&fs::read(dir.join("request.json")).unwrap()).unwrap();
         check(&format!("scalar-{sort}"),source,Some(request),vec![("echo",json!([0])),("echo",json!([u64::MAX]))]);
+    }
+}
+
+#[test]
+fn unused_source_carriers_do_not_break_any_standalone_backend(){
+    let source=include_str!("../knowledge/research/source-representations/app.ink");
+    let calls=vec![("put",json!([0,19])),("get",json!([0])),("zero",json!([])),
+        ("erase",json!([0,true])),("zero",json!([])),("erase",json!([0,false])),("zero",json!([]))];
+    for (name,request) in [("retained-direct",include_str!("../knowledge/research/source-representations/retained-direct.json")),
+        ("retained-query-cache",include_str!("../knowledge/research/source-representations/retained-query-cache.json"))]{
+        check(name,source,Some(serde_json::from_str(request).unwrap()),calls.clone());
+    }
+}
+
+#[test]
+fn fixed_key_keep_deltas_execute_as_standalone_programs_on_every_cpu_target() {
+    let source=include_str!("../knowledge/research/keep-parity/app.ink");
+    let calls=(0..32u64).map(|i|match i%8 {
+        0=>("put",json!([0,i*19])), 1=>("zero",json!([])),
+        2=>("overwrite",json!([u64::MAX-i])), 3=>("get",json!([0])),
+        4=>("clear",json!([])), 5=>("zero",json!([])),
+        6=>("erase",json!([0,true])), _=>("put",json!([1,i*23])),
+    }).collect::<Vec<_>>();
+    for (name,bytes) in [
+        ("fixed-key-baseline",include_str!("../knowledge/research/keep-parity/representation-0.json")),
+        ("fixed-key-cache",include_str!("../knowledge/research/keep-parity/representation-1.json")),
+    ] {
+        check(name,source,Some(serde_json::from_str(bytes).unwrap()),calls.clone());
     }
 }

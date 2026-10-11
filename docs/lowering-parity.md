@@ -165,7 +165,7 @@ CPU CI uses the second command. GPU CI requires actual dispatch for the eligible
 fixtures, including exact u64 and f32 bit patterns. The full audit explicitly
 fails today; a passing CPU or eligible-GPU job is not a full GPU parity claim.
 `tests/feature_parity.rs` fault-injects omitted/unsupported JavaScript capabilities
-and missing coverage, and exercises literal physical executors, guarded cache
+and missing coverage, and exercises ordinary standalone physical programs, guarded cache
 maintenance, async transaction rollback and required-GPU numerical execution.
 
 The `declared-feature-parity` CI job checks complete CPU feature coverage and the
