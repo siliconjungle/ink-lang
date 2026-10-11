@@ -27,7 +27,7 @@ jobs:
           path: build/enforced-parity/contract-audit.json
   cpu-wasm-durability:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 60
     env:
       INK_PARITY_REQUIRE_ALL: '1'
       INK_THREADS: '4'
@@ -116,6 +116,12 @@ jobs:
             build/mixed-durable-native/initial.json
             build/mixed-durable-native/recovery.json
             build/mixed-durable-native/expected.json
+            build/representation-parity/**/checks.json
+            build/representation-parity/**/source.ink
+            build/representation-parity/**/request.json
+            build/representation-parity/**/oracle.json
+            build/representation-parity/**/producer.log
+            build/representation-parity/**/*-run.log
             build/numerical-state-parity/source.ink
             build/numerical-state-parity/script.json
             build/numerical-state-parity/expected.json

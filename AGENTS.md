@@ -167,3 +167,13 @@ logical f32 words and literal definitions must retain executable-core V6 canonic
 arithmetic NaNs and payload-preserving identity/negation. The declared-feature CI job must fail for missing CPU capabilities or GPU contract
 requirements. The unrestricted all-GPU audit must still disclose and fail broader
 coverage gaps; host-only execution never counts as a device dispatch.
+
+Filtered u64 sum/count delta proofs and rollback/migration are now external
+knowledge entries. Numerical representation projection includes the scoped exact
+integer, u32/i32, binary32, fixed vector, stored equality and pure closure domains;
+unsupported keys/operators still fail closed. Rust/C/JavaScript/both Wasm/both GPU
+host lanes share standalone representation conformance. Recursive physical state
+uses GPU hosts, not device shaders. Retain explicit proof/transport bounds and
+separate checked Session transport from caller-trusted standalone calls. Benchmark
+checking, emission/compilation, migration and steady state separately; preserve
+losing candidates and independently maintained handwritten baselines.
