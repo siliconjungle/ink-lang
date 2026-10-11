@@ -1,57 +1,47 @@
 # Completed Ink work integration
 
-This integration combines the completed adaptive pipeline work (`138f9f65`),
-Frontier representations and scalable storage (`4747cc68`), the Frontier diff
-benchmark (`ca8644f9`), database implementation selection from PR #17,
-completed private snapshot sharing/field updates (`62f63f63`), and the
-finished composable-state integration (`f8d0eb31`, PR #22).
-It is based on remote main `7210c73e` and preserves the intervening language,
-ownership, storage, incremental proof and durability changes.
+This audit integrates all completed work identified across the Ink checkouts and
+open pull requests: adaptive JavaScript/Wasm/WebGPU execution (`138f9f65`),
+Frontier representations (`4747cc68`) and diff benchmarks (`ca8644f9`),
+private snapshot sharing (`62f63f63`), composed state optimisation (PR #22,
+`f8d0eb31`), indexed sequence trees and continuation frames (remote main
+`dfaa35f9`), and generic indexed tables and automatic batching (PR #23,
+`d5e76875`). Original branch histories, source-bound proofs, measurements and
+historical snapshots are retained.
 
-`package-audit.json` records the ten independent package revisions. Every finished
-Frontier package commit, and the adaptive planner/runtime commits, is an ancestor
-of its recorded remote main revision. Root commits are integrated with their full
-history rather than copied files.
+`package-audit.json` records the ten independent repositories, their published
+main revisions, and ancestry checks for the completed component commits.
+Package dependencies use exact published Git revisions. The final checker core
+is `03f40b014a1dc44cfeaf387ca3cbe587ee0cd5ba`.
 
-Integration repairs preserve both Option operations, typed and dynamic storage,
-shared opaque aliases through dense-map promotion, durable nested rollback,
-query/transition exports, and source-bound host observers. Pure JavaScript helpers
-omit the unused state fuel primitive. Early-exit fixtures use a non-reserved name.
+The combined checker accepts both published constructor-case proof formats:
+variable substitution with definitional equality, and explicit scrutinee
+equalities. It rejects ambiguous or missing subjects and invalid equations.
+Canonical knowledge serialization retains existing object identities. Bounded
+computation caches charge copying work and do not cache proof authority.
 
-Current proof packets live in `knowledge/research/frontier-extensions-current` and
-`knowledge/research/scalable-state-current`. Historical packets retain their
-recorded compiler identity. The current packets are re-authored and checked for
-this compiler; hashes and archived receipts do not grant proof authority.
+Integration preserves typed and dynamic storage, shared opaque aliases,
+continuations, durable nested rollback, compact checked observations, query and
+transition exports, source-bound host observers, and both Option operations.
 
-`adaptive-browser.json` contains the refreshed real Chrome/Apple Metal checks:
-12 exact placement comparisons, overlapping real workers, owned inputs/outputs,
-feedback, unavailable devices, invalid shaders, and failed workers. Offline
-training and held-out observations are recorded separately. The accompanying
-profile is bound to the exact emitted code, host, planner, device and observed
-domains; it is optional and cannot justify a semantic rewrite.
+Current source-bound packets are in `knowledge/research/frontier-extensions-current`,
+`knowledge/research/scalable-state-current` and
+`knowledge/research/composable-state-current`. The combined authenticated catalogue
+retains 14,268 objects and earlier name bindings under integration namespaces.
+Every node referenced by the active snapshot must exist in the committed
+knowledge checkout; CI independently audits this before rebuilding its
+disposable index. Historical compiler receipts are preserved as evidence of
+those historical runs, never as authority for the current compiler.
 
-This audit excludes the still-active tree/sequence and generalized batching
-implementations. Snapshot sharing and composed-state work finished during the
-audit and are included, with their original measurements and proof artifacts
-preserved.
+Fresh replay checks the same 20 immutable composed choices and fixtures, 204
+general mathematical roots, and source-specific mathematics with the rebuilt
+compiler. CI installs pinned proof authoring tools and Lean, then independently
+checks proofs and literal CPU, both Wasm lowerings, browser JavaScript and actual
+GPU dispatch. Local checks and exact receipt hashes are recorded separately.
 
-Fresh CI installs `python-sat==1.9.dev5` for representation authoring. The solver
-produces candidate certificates; the existing kernel independently checks them.
-
-The packed native compute script emits NDJSON; the state script emits a single
-array. The parity helper now decodes the selected transport before checking exact
-values, receipt counts and required actual GPU dispatch.
-
-The stable partition producer is published separately as
-`knowledge/producers/partition_representation.py`; the indexed cached-tree
-producer retains its existing name. The combined knowledge snapshot retains all
-7,551 authenticated objects from both snapshots and preserves twelve prior name
-bindings under `integrated-prior/`. New producers use the installed namespace.
-
-Compact journals retain bulk-operation before-images and durable outer rollback.
-The combined JavaScript host also retains ordered-key invalidation and detached
-state replies. The composed-state report is preserved at
-`docs/evidence/composable-state/validation.json`.
-
-`adaptive-browser-final.json` and its separate training/profile files repeat the
-12 real-browser comparisons after adding immutable snapshot sharing.
+`adaptive-browser-final.json` records 12 real Chrome/Apple Metal placement
+comparisons, overlapping workers, owned inputs/outputs, feedback and recovery
+from unavailable devices, invalid shaders and failed workers. Its optional
+profile binds emitted code, host, planner, device and observed domains;
+profitability evidence does not justify a semantic rewrite. Original indexed
+and batching measurements remain in their own report directories.
