@@ -20,7 +20,7 @@ owns packed layouts and one native/browser decision contract; `ink-native-suppor
 owns emitted value/ownership primitives. Shared source analysis belongs in core.
 Legacy optimisation APIs and compatibility features are removed.
 
-The pinned knowledge snapshot contains 5,208 entries, including eight early-exit
+The pinned knowledge snapshot contains 6,726 entries, including eight early-exit
 and 28 owned-transform laws. Counts describe this snapshot, not proof coverage.
 Saved profiles guide eligible execution; runtime does not run profitability probes.
 Historical measurements remain evidence of their recorded revisions, including
@@ -191,9 +191,10 @@ and native GPU use this storage host; JavaScript/browser GPU retain GC storage.
 Cross-target observable parity remains checked. See the
 [matched measurements and artifacts](reports/table-ownership-2026-10-11/README.md).
 
-Rust write-heavy cells improve about 1.7–2×, but indexed physical table updates
-remain open: the 4000-row write-only cell still loses by over 900× to a maintained
-handwritten tree. This allocation fix does not change linear update traversal,
+In that ownership-only experiment, Rust write-heavy cells improved about 1.7–2×;
+the 4000-row write-only linked-list cell still lost by over 900× to a maintained
+handwritten tree. The indexed candidate added below supersedes the earlier
+statement that indexed physical tables remain unfinished. This allocation fix does not change linear update traversal,
 prove generated compiler correctness or extend GPU device coverage.
 
 Generic inverse journals now remove whole-table copying from ordinary C hosts
@@ -204,6 +205,22 @@ used journals. These are within-lane steady-state results, not cross-language
 rankings or GPU-device claims. Existing cached linked-list writes remain costly:
 ordinary Rust wins write-heavy mixes, while cached aggregates win read-only work.
 See [raw samples, generated code and limits](reports/indexed-source-choice-2026-10-12/README.md).
+
+## Indexed cached tables and incremental durability
+
+The database now admits an ordered sequence-tree representation combining key
+range pruning with filtered u64 sum/count. Fifteen whole-action obligations cover
+initialisation, snapshots, replies/errors/events/versions and both preserved
+relations. Arbitrary row order and duplicate keys remain in the mathematical
+domain. Source-oracle parity passes all CPU and GPU-host representation lanes.
+Database field frame/dependency and grouped-update laws are also available.
+
+Durable operations now use retained journals or immutable roots and a checksummed
+append log between periodic checkpoints. New query IDs persist receipts only.
+Native/JavaScript process-death recovery, both Wasm paths and IndexedDB browser
+continuation pass. Generic observer demand projection avoids logical flattening
+on each representation call. Existing measured selection remains external.
+See [scope, boundaries and artifacts](docs/indexed-aggregate-durable.md).
 
 ## Generic language foundations
 
