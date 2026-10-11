@@ -1,0 +1,1724 @@
+﻿2026-10-11T21:52:33.7320059Z Current runner version: '2.337.0'
+2026-10-11T21:52:33.7343738Z ##[group]Runner Image Provisioner
+2026-10-11T21:52:33.7344625Z Hosted Compute Agent
+2026-10-11T21:52:33.7345174Z Version: 20261002.596
+2026-10-11T21:52:33.7346218Z Commit: c3d12f3313a95f25162a1503be624f3b0617f8c0
+2026-10-11T21:52:33.7346943Z Build Date: 2026-10-02T22:28:27Z
+2026-10-11T21:52:33.7347569Z Worker ID: {6224b6b9-d2c1-4184-bb95-7305e4723ac7}
+2026-10-11T21:52:33.7348229Z Region: westus3
+2026-10-11T21:52:33.7348745Z Cloud: Azure
+2026-10-11T21:52:33.7349223Z ##[endgroup]
+2026-10-11T21:52:33.7350712Z ##[group]Operating System
+2026-10-11T21:52:33.7351312Z Ubuntu
+2026-10-11T21:52:33.7351837Z 24.04.5
+2026-10-11T21:52:33.7352334Z LTS
+2026-10-11T21:52:33.7352821Z ##[endgroup]
+2026-10-11T21:52:33.7353418Z ##[group]Runner Image
+2026-10-11T21:52:33.7353969Z Image: ubuntu-24.04
+2026-10-11T21:52:33.7354488Z Version: 20261004.327.1
+2026-10-11T21:52:33.7355963Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261004.327/images/ubuntu/Ubuntu2404-Readme.md
+2026-10-11T21:52:33.7357438Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261004.327
+2026-10-11T21:52:33.7358326Z ##[endgroup]
+2026-10-11T21:52:33.7359391Z ##[group]GITHUB_TOKEN Permissions
+2026-10-11T21:52:33.7361351Z Contents: read
+2026-10-11T21:52:33.7361993Z Metadata: read
+2026-10-11T21:52:33.7362531Z ##[endgroup]
+2026-10-11T21:52:33.7364558Z Secret source: Actions
+2026-10-11T21:52:33.7365646Z Cache mode: write
+2026-10-11T21:52:33.7366307Z Prepare workflow directory
+2026-10-11T21:52:33.7744939Z Prepare all required actions
+2026-10-11T21:52:33.7794251Z Getting action download info
+2026-10-11T21:52:34.0705701Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-10-11T21:52:34.1698163Z Download action repository 'dtolnay/rust-toolchain@stable' (SHA:686976e191b89faba57d3206551f0f330d8cb249)
+2026-10-11T21:52:34.4012522Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+2026-10-11T21:52:34.5025597Z Download action repository 'actions/setup-python@v5' (SHA:a26af69be951a213d495a4c3e4e4022e16d87065)
+2026-10-11T21:52:34.5980793Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-10-11T21:52:34.8962869Z Complete job name: cpu-wasm-durability
+2026-10-11T21:52:34.9740378Z ##[group]Run actions/checkout@v4
+2026-10-11T21:52:34.9741321Z with:
+2026-10-11T21:52:34.9741857Z   submodules: recursive
+2026-10-11T21:52:34.9742489Z   repository: siliconjungle/ink-lang
+2026-10-11T21:52:34.9747701Z   token: ***
+2026-10-11T21:52:34.9748161Z   ssh-strict: true
+2026-10-11T21:52:34.9748612Z   ssh-user: git
+2026-10-11T21:52:34.9749073Z   persist-credentials: true
+2026-10-11T21:52:34.9749581Z   clean: true
+2026-10-11T21:52:34.9750049Z   sparse-checkout-cone-mode: true
+2026-10-11T21:52:34.9750585Z   fetch-depth: 1
+2026-10-11T21:52:34.9751026Z   fetch-tags: false
+2026-10-11T21:52:34.9751500Z   show-progress: true
+2026-10-11T21:52:34.9752019Z   lfs: false
+2026-10-11T21:52:34.9752457Z   set-safe-directory: true
+2026-10-11T21:52:34.9752979Z   allow-unsafe-pr-checkout: false
+2026-10-11T21:52:34.9753871Z env:
+2026-10-11T21:52:34.9754301Z   INK_PARITY_REQUIRE_ALL: 1
+2026-10-11T21:52:34.9754793Z   INK_THREADS: 4
+2026-10-11T21:52:34.9755236Z   CARGO_BUILD_JOBS: 2
+2026-10-11T21:52:34.9755930Z ##[endgroup]
+2026-10-11T21:52:35.0745928Z Syncing repository: siliconjungle/ink-lang
+2026-10-11T21:52:35.0749453Z ##[group]Getting Git version info
+2026-10-11T21:52:35.0750553Z Working directory is '/home/runner/work/ink-lang/ink-lang'
+2026-10-11T21:52:35.0752322Z [command]/usr/bin/git version
+2026-10-11T21:52:35.0817478Z git version 2.55.0
+2026-10-11T21:52:35.0843845Z ##[endgroup]
+2026-10-11T21:52:35.0859782Z Temporarily overriding HOME='/home/runner/work/_temp/106a3470-91db-4399-92e8-b492a5a07bca' before making global git config changes
+2026-10-11T21:52:35.0861545Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-11T21:52:35.0865946Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/ink-lang/ink-lang
+2026-10-11T21:52:35.0923600Z Deleting the contents of '/home/runner/work/ink-lang/ink-lang'
+2026-10-11T21:52:35.0929129Z ##[group]Initializing the repository
+2026-10-11T21:52:35.0940441Z [command]/usr/bin/git init /home/runner/work/ink-lang/ink-lang
+2026-10-11T21:52:35.1037592Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-11T21:52:35.1041421Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-11T21:52:35.1044412Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-11T21:52:35.1046478Z hint: call:
+2026-10-11T21:52:35.1047430Z hint:
+2026-10-11T21:52:35.1048539Z hint: 	git config --global init.defaultBranch <name>
+2026-10-11T21:52:35.1049796Z hint:
+2026-10-11T21:52:35.1051067Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-11T21:52:35.1053094Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-11T21:52:35.1054593Z hint:
+2026-10-11T21:52:35.1055563Z hint: 	git branch -m <name>
+2026-10-11T21:52:35.1056540Z hint:
+2026-10-11T21:52:35.1057816Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-11T21:52:35.1059515Z Initialized empty Git repository in /home/runner/work/ink-lang/ink-lang/.git/
+2026-10-11T21:52:35.1061550Z [command]/usr/bin/git remote add origin https://github.com/siliconjungle/ink-lang
+2026-10-11T21:52:35.1103159Z ##[endgroup]
+2026-10-11T21:52:35.1104889Z ##[group]Disabling automatic garbage collection
+2026-10-11T21:52:35.1107537Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-11T21:52:35.1137232Z ##[endgroup]
+2026-10-11T21:52:35.1138767Z ##[group]Setting up auth
+2026-10-11T21:52:35.1145678Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-11T21:52:35.1176668Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-11T21:52:35.1493257Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-11T21:52:35.1526459Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-11T21:52:35.1717639Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-11T21:52:35.1747772Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-11T21:52:35.1923283Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-11T21:52:35.1954947Z ##[endgroup]
+2026-10-11T21:52:35.1956434Z ##[group]Fetching the repository
+2026-10-11T21:52:35.1964492Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +78f0cc06531d62cef4422f49bebd1fd7a3b997d6:refs/remotes/pull/22/merge
+2026-10-11T21:52:42.1361020Z From https://github.com/siliconjungle/ink-lang
+2026-10-11T21:52:42.1362094Z  * [new ref]           78f0cc06531d62cef4422f49bebd1fd7a3b997d6 -> pull/22/merge
+2026-10-11T21:52:42.1364327Z ##[endgroup]
+2026-10-11T21:52:42.1365017Z ##[group]Determining the checkout info
+2026-10-11T21:52:42.1367290Z ##[endgroup]
+2026-10-11T21:52:42.1373098Z [command]/usr/bin/git sparse-checkout disable
+2026-10-11T21:52:42.1418621Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-11T21:52:42.1448609Z ##[group]Checking out the ref
+2026-10-11T21:52:42.1453160Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/22/merge
+2026-10-11T21:52:43.1955236Z Updating files:   6% (2079/33753)
+2026-10-11T21:52:43.2084257Z Updating files:   7% (2363/33753)
+2026-10-11T21:52:43.2370352Z Updating files:   8% (2701/33753)
+2026-10-11T21:52:43.2576726Z Updating files:   9% (3038/33753)
+2026-10-11T21:52:43.2787888Z Updating files:  10% (3376/33753)
+2026-10-11T21:52:43.2935958Z Updating files:  11% (3713/33753)
+2026-10-11T21:52:43.3650941Z Updating files:  12% (4051/33753)
+2026-10-11T21:52:43.3793757Z Updating files:  13% (4388/33753)
+2026-10-11T21:52:43.4113582Z Updating files:  14% (4726/33753)
+2026-10-11T21:52:43.4238355Z Updating files:  15% (5063/33753)
+2026-10-11T21:52:43.4437918Z Updating files:  16% (5401/33753)
+2026-10-11T21:52:43.4708984Z Updating files:  17% (5739/33753)
+2026-10-11T21:52:43.4799926Z Updating files:  18% (6076/33753)
+2026-10-11T21:52:43.4940724Z Updating files:  19% (6414/33753)
+2026-10-11T21:52:43.5352356Z Updating files:  20% (6751/33753)
+2026-10-11T21:52:43.5814857Z Updating files:  21% (7089/33753)
+2026-10-11T21:52:43.6002936Z Updating files:  22% (7426/33753)
+2026-10-11T21:52:43.6577409Z Updating files:  23% (7764/33753)
+2026-10-11T21:52:43.7384718Z Updating files:  24% (8101/33753)
+2026-10-11T21:52:43.7615088Z Updating files:  25% (8439/33753)
+2026-10-11T21:52:43.7746739Z Updating files:  26% (8776/33753)
+2026-10-11T21:52:43.7880239Z Updating files:  27% (9114/33753)
+2026-10-11T21:52:43.8315687Z Updating files:  28% (9451/33753)
+2026-10-11T21:52:43.8440450Z Updating files:  29% (9789/33753)
+2026-10-11T21:52:43.8746141Z Updating files:  30% (10126/33753)
+2026-10-11T21:52:43.8930709Z Updating files:  31% (10464/33753)
+2026-10-11T21:52:43.9069616Z Updating files:  32% (10801/33753)
+2026-10-11T21:52:43.9192157Z Updating files:  33% (11139/33753)
+2026-10-11T21:52:43.9290469Z Updating files:  34% (11477/33753)
+2026-10-11T21:52:43.9394144Z Updating files:  35% (11814/33753)
+2026-10-11T21:52:43.9514437Z Updating files:  36% (12152/33753)
+2026-10-11T21:52:43.9614932Z Updating files:  37% (12489/33753)
+2026-10-11T21:52:43.9714661Z Updating files:  38% (12827/33753)
+2026-10-11T21:52:43.9826110Z Updating files:  39% (13164/33753)
+2026-10-11T21:52:43.9921692Z Updating files:  40% (13502/33753)
+2026-10-11T21:52:44.0082561Z Updating files:  41% (13839/33753)
+2026-10-11T21:52:44.0260064Z Updating files:  42% (14177/33753)
+2026-10-11T21:52:44.0385970Z Updating files:  43% (14514/33753)
+2026-10-11T21:52:44.0512212Z Updating files:  44% (14852/33753)
+2026-10-11T21:52:44.0623863Z Updating files:  45% (15189/33753)
+2026-10-11T21:52:44.0827727Z Updating files:  46% (15527/33753)
+2026-10-11T21:52:44.1174126Z Updating files:  47% (15864/33753)
+2026-10-11T21:52:44.1304201Z Updating files:  48% (16202/33753)
+2026-10-11T21:52:44.1449400Z Updating files:  49% (16539/33753)
+2026-10-11T21:52:44.2186534Z Updating files:  50% (16877/33753)
+2026-10-11T21:52:44.2310055Z Updating files:  50% (17071/33753)
+2026-10-11T21:52:44.2398549Z Updating files:  51% (17215/33753)
+2026-10-11T21:52:44.3233498Z Updating files:  52% (17552/33753)
+2026-10-11T21:52:44.3394287Z Updating files:  53% (17890/33753)
+2026-10-11T21:52:44.3577039Z Updating files:  54% (18227/33753)
+2026-10-11T21:52:44.3865998Z Updating files:  55% (18565/33753)
+2026-10-11T21:52:44.3976189Z Updating files:  56% (18902/33753)
+2026-10-11T21:52:44.8156654Z Updating files:  57% (19240/33753)
+2026-10-11T21:52:45.2014176Z Updating files:  58% (19577/33753)
+2026-10-11T21:52:45.3266819Z Updating files:  58% (19817/33753)
+2026-10-11T21:52:45.4215333Z Updating files:  59% (19915/33753)
+2026-10-11T21:52:45.4709233Z Updating files:  60% (20252/33753)
+2026-10-11T21:52:45.5061782Z Updating files:  61% (20590/33753)
+2026-10-11T21:52:45.5631935Z Updating files:  62% (20927/33753)
+2026-10-11T21:52:45.5860201Z Updating files:  63% (21265/33753)
+2026-10-11T21:52:45.6644443Z Updating files:  64% (21602/33753)
+2026-10-11T21:52:45.6752121Z Updating files:  65% (21940/33753)
+2026-10-11T21:52:45.6886348Z Updating files:  66% (22277/33753)
+2026-10-11T21:52:45.7486518Z Updating files:  67% (22615/33753)
+2026-10-11T21:52:45.8438915Z Updating files:  68% (22953/33753)
+2026-10-11T21:52:45.8873522Z Updating files:  69% (23290/33753)
+2026-10-11T21:52:45.9372344Z Updating files:  70% (23628/33753)
+2026-10-11T21:52:45.9469980Z Updating files:  71% (23965/33753)
+2026-10-11T21:52:45.9566972Z Updating files:  72% (24303/33753)
+2026-10-11T21:52:45.9661375Z Updating files:  73% (24640/33753)
+2026-10-11T21:52:46.1386439Z Updating files:  74% (24978/33753)
+2026-10-11T21:52:46.1852571Z Updating files:  75% (25315/33753)
+2026-10-11T21:52:46.1931361Z Updating files:  75% (25590/33753)
+2026-10-11T21:52:46.2034556Z Updating files:  76% (25653/33753)
+2026-10-11T21:52:46.2135998Z Updating files:  77% (25990/33753)
+2026-10-11T21:52:46.2232099Z Updating files:  78% (26328/33753)
+2026-10-11T21:52:46.2792375Z Updating files:  79% (26665/33753)
+2026-10-11T21:52:46.3153658Z Updating files:  80% (27003/33753)
+2026-10-11T21:52:46.3839894Z Updating files:  81% (27340/33753)
+2026-10-11T21:52:46.3950567Z Updating files:  82% (27678/33753)
+2026-10-11T21:52:46.4036648Z Updating files:  83% (28015/33753)
+2026-10-11T21:52:46.4135631Z Updating files:  84% (28353/33753)
+2026-10-11T21:52:46.4592755Z Updating files:  85% (28691/33753)
+2026-10-11T21:52:46.4708447Z Updating files:  86% (29028/33753)
+2026-10-11T21:52:46.5354611Z Updating files:  87% (29366/33753)
+2026-10-11T21:52:46.5716604Z Updating files:  88% (29703/33753)
+2026-10-11T21:52:46.6205971Z Updating files:  89% (30041/33753)
+2026-10-11T21:52:46.6303575Z Updating files:  90% (30378/33753)
+2026-10-11T21:52:46.7236365Z Updating files:  91% (30716/33753)
+2026-10-11T21:52:46.7707727Z Updating files:  92% (31053/33753)
+2026-10-11T21:52:46.8010765Z Updating files:  93% (31391/33753)
+2026-10-11T21:52:46.8803718Z Updating files:  94% (31728/33753)
+2026-10-11T21:52:46.8907496Z Updating files:  95% (32066/33753)
+2026-10-11T21:52:46.8998153Z Updating files:  96% (32403/33753)
+2026-10-11T21:52:46.9817226Z Updating files:  97% (32741/33753)
+2026-10-11T21:52:47.0368252Z Updating files:  98% (33078/33753)
+2026-10-11T21:52:47.0770086Z Updating files:  99% (33416/33753)
+2026-10-11T21:52:47.0770532Z Updating files: 100% (33753/33753)
+2026-10-11T21:52:47.0770808Z Updating files: 100% (33753/33753), done.
+2026-10-11T21:52:47.1567056Z Note: switching to 'refs/remotes/pull/22/merge'.
+2026-10-11T21:52:47.1568060Z 
+2026-10-11T21:52:47.1569079Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-11T21:52:47.1570281Z changes and commit them, and you can discard any commits you make in this
+2026-10-11T21:52:47.1571672Z state without impacting any branches by switching back to a branch.
+2026-10-11T21:52:47.1572278Z 
+2026-10-11T21:52:47.1572677Z If you want to create a new branch to retain commits you create, you may
+2026-10-11T21:52:47.1573591Z do so (now or later) by using -c with the switch command. Example:
+2026-10-11T21:52:47.1574128Z 
+2026-10-11T21:52:47.1574353Z   git switch -c <new-branch-name>
+2026-10-11T21:52:47.1574707Z 
+2026-10-11T21:52:47.1574921Z Or undo this operation with:
+2026-10-11T21:52:47.1575235Z 
+2026-10-11T21:52:47.1575604Z   git switch -
+2026-10-11T21:52:47.1575864Z 
+2026-10-11T21:52:47.1576272Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-11T21:52:47.1576931Z 
+2026-10-11T21:52:47.1577653Z HEAD is now at 78f0cc06 Merge 033628e8e06feaec99c42217b6be8d96ea161a2f into dfaa35f9d62f2cd12031e60128938e6d15743f8e
+2026-10-11T21:52:47.1640181Z ##[endgroup]
+2026-10-11T21:52:47.1641182Z ##[group]Setting up auth for fetching submodules
+2026-10-11T21:52:47.1646707Z [command]/usr/bin/git config --global http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-11T21:52:47.2558274Z [command]/usr/bin/git config --global --unset-all url.https://github.com/.insteadOf
+2026-10-11T21:52:47.2595648Z [command]/usr/bin/git config --global --add url.https://github.com/.insteadOf git@github.com:
+2026-10-11T21:52:47.3177859Z [command]/usr/bin/git config --global --add url.https://github.com/.insteadOf org-71357672@github.com:
+2026-10-11T21:52:47.3633023Z ##[endgroup]
+2026-10-11T21:52:47.3633928Z ##[group]Fetching submodules
+2026-10-11T21:52:47.3639897Z [command]/usr/bin/git submodule sync --recursive
+2026-10-11T21:52:47.3873880Z [command]/usr/bin/git -c protocol.version=2 submodule update --init --force --depth=1 --recursive
+2026-10-11T21:52:47.4104721Z Submodule 'abi' (https://github.com/siliconjungle/ink-abi) registered for path 'abi'
+2026-10-11T21:52:47.4112037Z Submodule 'knowledge' (https://github.com/siliconjungle/ink-knowledge.git) registered for path 'knowledge'
+2026-10-11T21:52:47.4130618Z Submodule 'lowerings/c' (https://github.com/siliconjungle/ink-lowering-c.git) registered for path 'lowerings/c'
+2026-10-11T21:52:47.4141037Z Submodule 'lowerings/gpu' (https://github.com/siliconjungle/ink-lowering-gpu.git) registered for path 'lowerings/gpu'
+2026-10-11T21:52:47.4147446Z Submodule 'lowerings/js' (https://github.com/siliconjungle/ink-lowering-js.git) registered for path 'lowerings/js'
+2026-10-11T21:52:47.4152400Z Submodule 'lowerings/rust' (https://github.com/siliconjungle/ink-lowering-rust.git) registered for path 'lowerings/rust'
+2026-10-11T21:52:47.4156669Z Submodule 'lowerings/wasm' (https://github.com/siliconjungle/ink-lowering-wasm.git) registered for path 'lowerings/wasm'
+2026-10-11T21:52:47.4162251Z Submodule 'native-support' (https://github.com/siliconjungle/ink-native-support) registered for path 'native-support'
+2026-10-11T21:52:47.4165816Z Submodule 'planner' (https://github.com/siliconjungle/ink-planner.git) registered for path 'planner'
+2026-10-11T21:52:47.5060023Z Submodule 'runtime' (https://github.com/siliconjungle/ink-runtime.git) registered for path 'runtime'
+2026-10-11T21:52:47.5089141Z Cloning into '/home/runner/work/ink-lang/ink-lang/abi'...
+2026-10-11T21:52:48.4344739Z Cloning into '/home/runner/work/ink-lang/ink-lang/knowledge'...
+2026-10-11T21:52:58.3934184Z Cloning into '/home/runner/work/ink-lang/ink-lang/lowerings/c'...
+2026-10-11T21:52:58.9296658Z Cloning into '/home/runner/work/ink-lang/ink-lang/lowerings/gpu'...
+2026-10-11T21:52:59.4724607Z Cloning into '/home/runner/work/ink-lang/ink-lang/lowerings/js'...
+2026-10-11T21:53:00.0102050Z Cloning into '/home/runner/work/ink-lang/ink-lang/lowerings/rust'...
+2026-10-11T21:53:00.5522461Z Cloning into '/home/runner/work/ink-lang/ink-lang/lowerings/wasm'...
+2026-10-11T21:53:00.9883926Z Cloning into '/home/runner/work/ink-lang/ink-lang/native-support'...
+2026-10-11T21:53:01.4905823Z Cloning into '/home/runner/work/ink-lang/ink-lang/planner'...
+2026-10-11T21:53:02.1645006Z Cloning into '/home/runner/work/ink-lang/ink-lang/runtime'...
+2026-10-11T21:53:03.6756584Z From https://github.com/siliconjungle/ink-abi
+2026-10-11T21:53:03.6757231Z  * branch            8808327ff206fcf4764bbfbe1480eb2dc89599b1 -> FETCH_HEAD
+2026-10-11T21:53:03.6827345Z Submodule path 'abi': checked out '8808327ff206fcf4764bbfbe1480eb2dc89599b1'
+2026-10-11T21:53:07.2957788Z From https://github.com/siliconjungle/ink-knowledge
+2026-10-11T21:53:07.2958429Z  * branch                4a0cb7842eca9d76b3d9d963b0381c0984015346 -> FETCH_HEAD
+2026-10-11T21:53:09.1466675Z Submodule path 'knowledge': checked out '4a0cb7842eca9d76b3d9d963b0381c0984015346'
+2026-10-11T21:53:10.1565860Z From https://github.com/siliconjungle/ink-lowering-c
+2026-10-11T21:53:10.1566766Z  * branch            8824b0ac1b22947ecf6ea46b4217bfa68d47da5b -> FETCH_HEAD
+2026-10-11T21:53:10.1632156Z Submodule path 'lowerings/c': checked out '8824b0ac1b22947ecf6ea46b4217bfa68d47da5b'
+2026-10-11T21:53:11.1526661Z From https://github.com/siliconjungle/ink-lowering-gpu
+2026-10-11T21:53:11.1527391Z  * branch            fb0282fd8f7673b754e67c00089d000a43440571 -> FETCH_HEAD
+2026-10-11T21:53:11.1587437Z Submodule path 'lowerings/gpu': checked out 'fb0282fd8f7673b754e67c00089d000a43440571'
+2026-10-11T21:53:12.1192656Z From https://github.com/siliconjungle/ink-lowering-js
+2026-10-11T21:53:12.1193134Z  * branch            798090796e2bc778ab4c650ad056d8809b503c92 -> FETCH_HEAD
+2026-10-11T21:53:12.1255190Z Submodule path 'lowerings/js': checked out '798090796e2bc778ab4c650ad056d8809b503c92'
+2026-10-11T21:53:13.1277759Z From https://github.com/siliconjungle/ink-lowering-rust
+2026-10-11T21:53:13.1278729Z  * branch            03bc203a143aa57c0df0dc67a36a0a7d91065af4 -> FETCH_HEAD
+2026-10-11T21:53:13.1337312Z Submodule path 'lowerings/rust': checked out '03bc203a143aa57c0df0dc67a36a0a7d91065af4'
+2026-10-11T21:53:14.0498380Z From https://github.com/siliconjungle/ink-lowering-wasm
+2026-10-11T21:53:14.0498950Z  * branch            b0448d861a8d4c5f4822c3d241da6ced2a2ea011 -> FETCH_HEAD
+2026-10-11T21:53:14.0545207Z Submodule path 'lowerings/wasm': checked out 'b0448d861a8d4c5f4822c3d241da6ced2a2ea011'
+2026-10-11T21:53:14.9933447Z From https://github.com/siliconjungle/ink-native-support
+2026-10-11T21:53:14.9934242Z  * branch            f9e8ca6e3704e50531777bccdda20c7a278c244d -> FETCH_HEAD
+2026-10-11T21:53:14.9989619Z Submodule path 'native-support': checked out 'f9e8ca6e3704e50531777bccdda20c7a278c244d'
+2026-10-11T21:53:15.9266305Z From https://github.com/siliconjungle/ink-planner
+2026-10-11T21:53:15.9267044Z  * branch            e7014dad822abd7912888f0a916c99548e7675b0 -> FETCH_HEAD
+2026-10-11T21:53:15.9382331Z Submodule path 'planner': checked out 'e7014dad822abd7912888f0a916c99548e7675b0'
+2026-10-11T21:53:16.8829420Z From https://github.com/siliconjungle/ink-runtime
+2026-10-11T21:53:16.8830291Z  * branch            26c5af0baa73cd260fd9f9c50311782521f3e90c -> FETCH_HEAD
+2026-10-11T21:53:16.8895861Z Submodule path 'runtime': checked out '26c5af0baa73cd260fd9f9c50311782521f3e90c'
+2026-10-11T21:53:16.8922859Z [command]/usr/bin/git submodule foreach --recursive git config --local gc.auto 0
+2026-10-11T21:53:16.9129037Z Entering 'abi'
+2026-10-11T21:53:16.9161577Z Entering 'knowledge'
+2026-10-11T21:53:16.9226569Z Entering 'lowerings/c'
+2026-10-11T21:53:16.9258455Z Entering 'lowerings/gpu'
+2026-10-11T21:53:16.9291780Z Entering 'lowerings/js'
+2026-10-11T21:53:16.9322943Z Entering 'lowerings/rust'
+2026-10-11T21:53:16.9354370Z Entering 'lowerings/wasm'
+2026-10-11T21:53:16.9385966Z Entering 'native-support'
+2026-10-11T21:53:16.9416535Z Entering 'planner'
+2026-10-11T21:53:16.9448676Z Entering 'runtime'
+2026-10-11T21:53:16.9487996Z ##[endgroup]
+2026-10-11T21:53:16.9488437Z ##[group]Persisting credentials for submodules
+2026-10-11T21:53:16.9494863Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'url\.https\:\/\/github\.com\/\.insteadOf' && git config --local --unset-all 'url.https://github.com/.insteadOf' || :"
+2026-10-11T21:53:16.9698296Z Entering 'abi'
+2026-10-11T21:53:16.9733753Z Entering 'knowledge'
+2026-10-11T21:53:16.9802843Z Entering 'lowerings/c'
+2026-10-11T21:53:16.9839093Z Entering 'lowerings/gpu'
+2026-10-11T21:53:16.9873797Z Entering 'lowerings/js'
+2026-10-11T21:53:16.9908234Z Entering 'lowerings/rust'
+2026-10-11T21:53:16.9944936Z Entering 'lowerings/wasm'
+2026-10-11T21:53:16.9980987Z Entering 'native-support'
+2026-10-11T21:53:17.0016949Z Entering 'planner'
+2026-10-11T21:53:17.0052843Z Entering 'runtime'
+2026-10-11T21:53:17.0104943Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local 'http.https://github.com/.extraheader' 'AUTHORIZATION: basic ***' && git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-10-11T21:53:17.0306178Z Entering 'abi'
+2026-10-11T21:53:17.0337516Z file:/home/runner/work/ink-lang/ink-lang/.git/modules/abi/config	remote.origin.url
+2026-10-11T21:53:17.0352711Z Entering 'knowledge'
+2026-10-11T21:53:17.0385590Z file:/home/runner/work/ink-lang/ink-lang/.git/modules/knowledge/config	remote.origin.url
+2026-10-11T21:53:17.0435196Z Entering 'lowerings/c'
+2026-10-11T21:53:17.0468572Z file:/home/runner/work/ink-lang/ink-lang/.git/modules/lowerings/c/config	remote.origin.url
+2026-10-11T21:53:17.0483634Z Entering 'lowerings/gpu'
+2026-10-11T21:53:17.0517798Z file:/home/runner/work/ink-lang/ink-lang/.git/modules/lowerings/gpu/config	remote.origin.url
+2026-10-11T21:53:17.0534112Z Entering 'lowerings/js'
+2026-10-11T21:53:17.0566695Z file:/home/runner/work/ink-lang/ink-lang/.git/modules/lowerings/js/config	remote.origin.url
+2026-10-11T21:53:17.0582243Z Entering 'lowerings/rust'
+2026-10-11T21:53:17.0614117Z file:/home/runner/work/ink-lang/ink-lang/.git/modules/lowerings/rust/config	remote.origin.url
+2026-10-11T21:53:17.0629500Z Entering 'lowerings/wasm'
+2026-10-11T21:53:17.0661262Z file:/home/runner/work/ink-lang/ink-lang/.git/modules/lowerings/wasm/config	remote.origin.url
+2026-10-11T21:53:17.0677043Z Entering 'native-support'
+2026-10-11T21:53:17.0709402Z file:/home/runner/work/ink-lang/ink-lang/.git/modules/native-support/config	remote.origin.url
+2026-10-11T21:53:17.0724638Z Entering 'planner'
+2026-10-11T21:53:17.0756380Z file:/home/runner/work/ink-lang/ink-lang/.git/modules/planner/config	remote.origin.url
+2026-10-11T21:53:17.0772035Z Entering 'runtime'
+2026-10-11T21:53:17.0803256Z file:/home/runner/work/ink-lang/ink-lang/.git/modules/runtime/config	remote.origin.url
+2026-10-11T21:53:17.0881134Z [command]/usr/bin/git submodule foreach --recursive git config --local --add 'url.https://github.com/.insteadOf' 'git@github.com:'
+2026-10-11T21:53:17.1087765Z Entering 'abi'
+2026-10-11T21:53:17.1119795Z Entering 'knowledge'
+2026-10-11T21:53:17.1186791Z Entering 'lowerings/c'
+2026-10-11T21:53:17.1219854Z Entering 'lowerings/gpu'
+2026-10-11T21:53:17.1251516Z Entering 'lowerings/js'
+2026-10-11T21:53:17.1282230Z Entering 'lowerings/rust'
+2026-10-11T21:53:17.1313750Z Entering 'lowerings/wasm'
+2026-10-11T21:53:17.1344515Z Entering 'native-support'
+2026-10-11T21:53:17.1377264Z Entering 'planner'
+2026-10-11T21:53:17.1409482Z Entering 'runtime'
+2026-10-11T21:53:17.1451157Z [command]/usr/bin/git submodule foreach --recursive git config --local --add 'url.https://github.com/.insteadOf' 'org-71357672@github.com:'
+2026-10-11T21:53:17.1658944Z Entering 'abi'
+2026-10-11T21:53:17.1692194Z Entering 'knowledge'
+2026-10-11T21:53:17.1757529Z Entering 'lowerings/c'
+2026-10-11T21:53:17.1789551Z Entering 'lowerings/gpu'
+2026-10-11T21:53:17.1821055Z Entering 'lowerings/js'
+2026-10-11T21:53:17.1854061Z Entering 'lowerings/rust'
+2026-10-11T21:53:17.1885210Z Entering 'lowerings/wasm'
+2026-10-11T21:53:17.1916395Z Entering 'native-support'
+2026-10-11T21:53:17.1947109Z Entering 'planner'
+2026-10-11T21:53:17.1979988Z Entering 'runtime'
+2026-10-11T21:53:17.2018606Z ##[endgroup]
+2026-10-11T21:53:17.2055385Z [command]/usr/bin/git log -1 --format=%H
+2026-10-11T21:53:17.2075760Z 78f0cc06531d62cef4422f49bebd1fd7a3b997d6
+2026-10-11T21:53:17.2397648Z ##[group]Run dtolnay/rust-toolchain@stable
+2026-10-11T21:53:17.2397972Z with:
+2026-10-11T21:53:17.2398188Z   targets: wasm32-unknown-unknown
+2026-10-11T21:53:17.2398436Z   toolchain: stable
+2026-10-11T21:53:17.2398632Z env:
+2026-10-11T21:53:17.2398829Z   INK_PARITY_REQUIRE_ALL: 1
+2026-10-11T21:53:17.2399060Z   INK_THREADS: 4
+2026-10-11T21:53:17.2399259Z   CARGO_BUILD_JOBS: 2
+2026-10-11T21:53:17.2399458Z ##[endgroup]
+2026-10-11T21:53:17.2558130Z ##[start-action display=Parse toolchain version;id=__dtolnay_rust-toolchain.parse]
+2026-10-11T21:53:17.2623362Z ##[group]Run if [[ -z $toolchain ]]; then
+2026-10-11T21:53:17.2623842Z [36;1mif [[ -z $toolchain ]]; then[0m
+2026-10-11T21:53:17.2624447Z [36;1m  # GitHub does not enforce `required: true` inputs itself. https://github.com/actions/runner/issues/1070[0m
+2026-10-11T21:53:17.2625094Z [36;1m  echo "'toolchain' is a required input" >&2[0m
+2026-10-11T21:53:17.2625549Z [36;1m  exit 1[0m
+2026-10-11T21:53:17.2626024Z [36;1melif [[ $toolchain =~ ^stable' '[0-9]+' '(year|month|week|day)s?' 'ago$ ]]; then[0m
+2026-10-11T21:53:17.2626494Z [36;1m  if [[ Linux == macOS ]]; then[0m
+2026-10-11T21:53:17.2627088Z [36;1m    echo "toolchain=1.$((($(date -v-$(sed 's/stable \([0-9]*\) \(.\).*/\1\2/' <<< $toolchain) +%s)/60/60/24-16569)/7/6))" >> $GITHUB_OUTPUT[0m
+2026-10-11T21:53:17.2627576Z [36;1m  else[0m
+2026-10-11T21:53:17.2627967Z [36;1m    echo "toolchain=1.$((($(date --date "${toolchain#stable }" +%s)/60/60/24-16569)/7/6))" >> $GITHUB_OUTPUT[0m
+2026-10-11T21:53:17.2628399Z [36;1m  fi[0m
+2026-10-11T21:53:17.2628705Z [36;1melif [[ $toolchain =~ ^stable' 'minus' '[0-9]+' 'releases?$ ]]; then[0m
+2026-10-11T21:53:17.2629200Z [36;1m  echo "toolchain=1.$((($(date +%s)/60/60/24-16569)/7/6-${toolchain//[^0-9]/}))" >> $GITHUB_OUTPUT[0m
+2026-10-11T21:53:17.2629848Z [36;1melif [[ $toolchain =~ ^1\.[0-9]+$ ]]; then[0m
+2026-10-11T21:53:17.2630348Z [36;1m  echo "toolchain=1.$((i=${toolchain#1.}, c=($(date +%s)/60/60/24-16569)/7/6, i+9*i*(10*i<=c)+90*i*(100*i<=c)))" >> $GITHUB_OUTPUT[0m
+2026-10-11T21:53:17.2630810Z [36;1melse[0m
+2026-10-11T21:53:17.2631020Z [36;1m  delimiter=EOF[0m
+2026-10-11T21:53:17.2631367Z [36;1m  while [[ $toolchain == *$delimiter* ]]; do delimiter+=_; done[0m
+2026-10-11T21:53:17.2631886Z [36;1m  printf 'toolchain<<%s\n%s\n%s\n' "$delimiter" "$toolchain" "$delimiter" >> $GITHUB_OUTPUT[0m
+2026-10-11T21:53:17.2632280Z [36;1mfi[0m
+2026-10-11T21:53:17.2926272Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-11T21:53:17.2926633Z env:
+2026-10-11T21:53:17.2926856Z   INK_PARITY_REQUIRE_ALL: 1
+2026-10-11T21:53:17.2927087Z   INK_THREADS: 4
+2026-10-11T21:53:17.2927291Z   CARGO_BUILD_JOBS: 2
+2026-10-11T21:53:17.2927528Z   toolchain: stable
+2026-10-11T21:53:17.2927735Z ##[endgroup]
+2026-10-11T21:53:17.3046445Z ##[end-action id=__dtolnay_rust-toolchain.parse;outcome=success;conclusion=success;duration_ms=48]
+2026-10-11T21:53:17.3051339Z ##[start-action display=Set $CARGO_HOME;id=__dtolnay_rust-toolchain.__run]
+2026-10-11T21:53:17.3086748Z ##[group]Run echo CARGO_HOME=${CARGO_HOME:-"$HOME/.cargo"} >> $GITHUB_ENV
+2026-10-11T21:53:17.3087217Z [36;1mecho CARGO_HOME=${CARGO_HOME:-"$HOME/.cargo"} >> $GITHUB_ENV[0m
+2026-10-11T21:53:17.3122663Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-11T21:53:17.3122987Z env:
+2026-10-11T21:53:17.3123192Z   INK_PARITY_REQUIRE_ALL: 1
+2026-10-11T21:53:17.3123426Z   INK_THREADS: 4
+2026-10-11T21:53:17.3123628Z   CARGO_BUILD_JOBS: 2
+2026-10-11T21:53:17.3123847Z ##[endgroup]
+2026-10-11T21:53:17.3188383Z ##[end-action id=__dtolnay_rust-toolchain.__run;outcome=success;conclusion=success;duration_ms=13]
+2026-10-11T21:53:17.3191044Z ##[start-action display=Install rustup if needed;id=__dtolnay_rust-toolchain.__run_2]
+2026-10-11T21:53:17.3224769Z ##[group]Run if ! command -v rustup &>/dev/null; then
+2026-10-11T21:53:17.3225222Z [36;1mif ! command -v rustup &>/dev/null; then[0m
+2026-10-11T21:53:17.3226467Z [36;1m  curl --proto '=https' --tlsv1.2 --retry 10 --retry-connrefused --location --silent --show-error --fail https://sh.rustup.rs | sh -s -- --default-toolchain none -y[0m
+2026-10-11T21:53:17.3227305Z [36;1m  echo "$CARGO_HOME/bin" >> $GITHUB_PATH[0m
+2026-10-11T21:53:17.3227644Z [36;1mfi[0m
+2026-10-11T21:53:17.3264289Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-11T21:53:17.3264620Z env:
+2026-10-11T21:53:17.3264826Z   INK_PARITY_REQUIRE_ALL: 1
+2026-10-11T21:53:17.3265055Z   INK_THREADS: 4
+2026-10-11T21:53:17.3265254Z   CARGO_BUILD_JOBS: 2
+2026-10-11T21:53:17.3265680Z   CARGO_HOME: /home/runner/.cargo
+2026-10-11T21:53:17.3265936Z ##[endgroup]
+2026-10-11T21:53:17.3323755Z ##[end-action id=__dtolnay_rust-toolchain.__run_2;outcome=success;conclusion=success;duration_ms=13]
+2026-10-11T21:53:17.3326320Z ##[start-action display=Install rustup if needed on windows;id=__dtolnay_rust-toolchain.__run_3]
+2026-10-11T21:53:17.3333692Z ##[end-action id=__dtolnay_rust-toolchain.__run_3;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-10-11T21:53:17.3348525Z ##[start-action display=rustup toolchain install stable;id=__dtolnay_rust-toolchain.__run_4]
+2026-10-11T21:53:17.3369323Z ##[group]Run set -f  # split targets and components on commas and whitespace, without glob expansion
+2026-10-11T21:53:17.3369956Z [36;1mset -f  # split targets and components on commas and whitespace, without glob expansion[0m
+2026-10-11T21:53:17.3370382Z [36;1mflags=()[0m
+2026-10-11T21:53:17.3370655Z [36;1mfor t in ${targets//,/ }; do flags+=(--target "$t"); done[0m
+2026-10-11T21:53:17.3371047Z [36;1mfor c in ${components//,/ }; do flags+=(--component "$c"); done[0m
+2026-10-11T21:53:17.3371525Z [36;1mif [[ $toolchain == nightly && -n $components ]]; then flags+=(--allow-downgrade); fi[0m
+2026-10-11T21:53:17.3371926Z [36;1mlog=$(mktemp)[0m
+2026-10-11T21:53:17.3372295Z [36;1mtrap 'rm -f "$log"' EXIT[0m
+2026-10-11T21:53:17.3372557Z [36;1mfor attempt in 1 2 3 4 5; do[0m
+2026-10-11T21:53:17.3373116Z [36;1m  if rustup toolchain install "$toolchain" "${flags[@]}" --profile minimal --no-self-update --force-non-host 2>&1 | tee "$log"; then[0m
+2026-10-11T21:53:17.3373648Z [36;1m    break[0m
+2026-10-11T21:53:17.3373854Z [36;1m  else[0m
+2026-10-11T21:53:17.3374053Z [36;1m    status=$?[0m
+2026-10-11T21:53:17.3374272Z [36;1m  fi[0m
+2026-10-11T21:53:17.3374558Z [36;1m  if [[ $attempt == 5 ]] || ! grep -Fq 'checksum failed for ' "$log" \[0m
+2026-10-11T21:53:17.3375091Z [36;1m      || ! grep -Fq 'this is likely due to an ongoing update of the official release server' "$log"; then[0m
+2026-10-11T21:53:17.3375711Z [36;1m    exit "$status"[0m
+2026-10-11T21:53:17.3375984Z [36;1m  fi[0m
+2026-10-11T21:53:17.3376326Z [36;1m  echo "Retrying rustup toolchain install in 30 seconds (retry $attempt of 4)" >&2[0m
+2026-10-11T21:53:17.3376736Z [36;1m  sleep 30[0m
+2026-10-11T21:53:17.3376944Z [36;1mdone[0m
+2026-10-11T21:53:17.3411726Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-11T21:53:17.3412069Z env:
+2026-10-11T21:53:17.3412289Z   INK_PARITY_REQUIRE_ALL: 1
+2026-10-11T21:53:17.3412528Z   INK_THREADS: 4
+2026-10-11T21:53:17.3412728Z   CARGO_BUILD_JOBS: 2
+2026-10-11T21:53:17.3412962Z   CARGO_HOME: /home/runner/.cargo
+2026-10-11T21:53:17.3413220Z   toolchain: stable
+2026-10-11T21:53:17.3413442Z   targets: wasm32-unknown-unknown
+2026-10-11T21:53:17.3413685Z   components: 
+2026-10-11T21:53:17.3413894Z   RUSTUP_PERMIT_COPY_RENAME: 1
+2026-10-11T21:53:17.3414128Z ##[endgroup]
+2026-10-11T21:53:18.0740895Z info: syncing channel updates for stable-x86_64-unknown-linux-gnu
+2026-10-11T21:53:18.3697352Z info: latest update on 2026-10-01 for version 1.99.0 (b940084d7 2026-09-28)
+2026-10-11T21:53:18.3911396Z info: downloading component rust-std
+2026-10-11T21:53:20.3231161Z 
+2026-10-11T21:53:20.3306946Z   stable-x86_64-unknown-linux-gnu updated - rustc 1.99.0 (b940084d7 2026-09-28) (from rustc 1.99.0 (b940084d7 2026-09-28))
+2026-10-11T21:53:20.3307439Z 
+2026-10-11T21:53:20.3345882Z ##[end-action id=__dtolnay_rust-toolchain.__run_4;outcome=success;conclusion=success;duration_ms=2999]
+2026-10-11T21:53:20.3352776Z ##[start-action display=rustup default stable;id=__dtolnay_rust-toolchain.__run_5]
+2026-10-11T21:53:20.3371326Z ##[group]Run rustup default "$toolchain" --force-non-host
+2026-10-11T21:53:20.3371738Z [36;1mrustup default "$toolchain" --force-non-host[0m
+2026-10-11T21:53:20.3408153Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-11T21:53:20.3408491Z env:
+2026-10-11T21:53:20.3408703Z   INK_PARITY_REQUIRE_ALL: 1
+2026-10-11T21:53:20.3408939Z   INK_THREADS: 4
+2026-10-11T21:53:20.3409148Z   CARGO_BUILD_JOBS: 2
+2026-10-11T21:53:20.3409374Z   CARGO_HOME: /home/runner/.cargo
+2026-10-11T21:53:20.3409616Z   toolchain: stable
+2026-10-11T21:53:20.3409819Z ##[endgroup]
+2026-10-11T21:53:20.3502977Z info: using existing install for stable-x86_64-unknown-linux-gnu
+2026-10-11T21:53:20.3507275Z info: default toolchain set to stable-x86_64-unknown-linux-gnu
+2026-10-11T21:53:20.3507549Z 
+2026-10-11T21:53:20.3579025Z   stable-x86_64-unknown-linux-gnu unchanged - rustc 1.99.0 (b940084d7 2026-09-28)
+2026-10-11T21:53:20.3579642Z 
+2026-10-11T21:53:20.3592857Z ##[end-action id=__dtolnay_rust-toolchain.__run_5;outcome=success;conclusion=success;duration_ms=23]
+2026-10-11T21:53:20.3596568Z ##[start-action display=Create cachekey;id=__dtolnay_rust-toolchain.rustc-version]
+2026-10-11T21:53:20.3613779Z ##[group]Run DATE=$(rustc +"$toolchain" --version --verbose | sed -ne 's/^commit-date: \(20[0-9][0-9]\)-\([01][0-9]\)-\([0-3][0-9]\)$/\1\2\3/p')
+2026-10-11T21:53:20.3614599Z [36;1mDATE=$(rustc +"$toolchain" --version --verbose | sed -ne 's/^commit-date: \(20[0-9][0-9]\)-\([01][0-9]\)-\([0-3][0-9]\)$/\1\2\3/p')[0m
+2026-10-11T21:53:20.3615228Z [36;1mHASH=$(rustc +"$toolchain" --version --verbose | sed -ne 's/^commit-hash: //p')[0m
+2026-10-11T21:53:20.3615955Z [36;1mecho "cachekey=$(echo $DATE$HASH | head -c12)" >> $GITHUB_OUTPUT[0m
+2026-10-11T21:53:20.3651558Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-11T21:53:20.3651889Z env:
+2026-10-11T21:53:20.3652111Z   INK_PARITY_REQUIRE_ALL: 1
+2026-10-11T21:53:20.3652342Z   INK_THREADS: 4
+2026-10-11T21:53:20.3652546Z   CARGO_BUILD_JOBS: 2
+2026-10-11T21:53:20.3652775Z   CARGO_HOME: /home/runner/.cargo
+2026-10-11T21:53:20.3653016Z   toolchain: stable
+2026-10-11T21:53:20.3653218Z ##[endgroup]
+2026-10-11T21:53:20.4140020Z ##[end-action id=__dtolnay_rust-toolchain.rustc-version;outcome=success;conclusion=success;duration_ms=54]
+2026-10-11T21:53:20.4142374Z ##[start-action display=Disable incremental compilation;id=__dtolnay_rust-toolchain.__run_6]
+2026-10-11T21:53:20.4160591Z ##[group]Run if [ -z "${CARGO_INCREMENTAL+set}" ]; then
+2026-10-11T21:53:20.4160967Z [36;1mif [ -z "${CARGO_INCREMENTAL+set}" ]; then[0m
+2026-10-11T21:53:20.4161288Z [36;1m  echo CARGO_INCREMENTAL=0 >> $GITHUB_ENV[0m
+2026-10-11T21:53:20.4161568Z [36;1mfi[0m
+2026-10-11T21:53:20.4196845Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-11T21:53:20.4197186Z env:
+2026-10-11T21:53:20.4197393Z   INK_PARITY_REQUIRE_ALL: 1
+2026-10-11T21:53:20.4197642Z   INK_THREADS: 4
+2026-10-11T21:53:20.4197846Z   CARGO_BUILD_JOBS: 2
+2026-10-11T21:53:20.4198073Z   CARGO_HOME: /home/runner/.cargo
+2026-10-11T21:53:20.4198316Z ##[endgroup]
+2026-10-11T21:53:20.4258603Z ##[end-action id=__dtolnay_rust-toolchain.__run_6;outcome=success;conclusion=success;duration_ms=11]
+2026-10-11T21:53:20.4260851Z ##[start-action display=Enable colors in Cargo output;id=__dtolnay_rust-toolchain.__run_7]
+2026-10-11T21:53:20.4277872Z ##[group]Run if [ -z "${CARGO_TERM_COLOR+set}" ]; then
+2026-10-11T21:53:20.4278245Z [36;1mif [ -z "${CARGO_TERM_COLOR+set}" ]; then[0m
+2026-10-11T21:53:20.4278575Z [36;1m  echo CARGO_TERM_COLOR=always >> $GITHUB_ENV[0m
+2026-10-11T21:53:20.4278872Z [36;1mfi[0m
+2026-10-11T21:53:20.4313488Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-11T21:53:20.4313851Z env:
+2026-10-11T21:53:20.4314055Z   INK_PARITY_REQUIRE_ALL: 1
+2026-10-11T21:53:20.4314285Z   INK_THREADS: 4
+2026-10-11T21:53:20.4314486Z   CARGO_BUILD_JOBS: 2
+2026-10-11T21:53:20.4314865Z   CARGO_HOME: /home/runner/.cargo
+2026-10-11T21:53:20.4315117Z   CARGO_INCREMENTAL: 0
+2026-10-11T21:53:20.4315332Z ##[endgroup]
+2026-10-11T21:53:20.4374834Z ##[end-action id=__dtolnay_rust-toolchain.__run_7;outcome=success;conclusion=success;duration_ms=11]
+2026-10-11T21:53:20.4378687Z ##[start-action display=Enable Cargo sparse registry;id=__dtolnay_rust-toolchain.__run_8]
+2026-10-11T21:53:20.4397425Z ##[group]Run # implemented in 1.66, stabilized in 1.68, made default in 1.70
+2026-10-11T21:53:20.4397932Z [36;1m# implemented in 1.66, stabilized in 1.68, made default in 1.70[0m
+2026-10-11T21:53:20.4398592Z [36;1mif [ -z "${CARGO_REGISTRIES_CRATES_IO_PROTOCOL+set}" -o -f "/home/runner/work/_temp"/.implicit_cargo_registries_crates_io_protocol ]; then[0m
+2026-10-11T21:53:20.4399286Z [36;1m  if rustc +"$toolchain" --version --verbose | grep -q '^release: 1\.6[89]\.'; then[0m
+2026-10-11T21:53:20.4399861Z [36;1m    touch "/home/runner/work/_temp"/.implicit_cargo_registries_crates_io_protocol || true[0m
+2026-10-11T21:53:20.4400372Z [36;1m    echo CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse >> $GITHUB_ENV[0m
+2026-10-11T21:53:20.4400863Z [36;1m  elif rustc +"$toolchain" --version --verbose | grep -q '^release: 1\.6[67]\.'; then[0m
+2026-10-11T21:53:20.4401406Z [36;1m    touch "/home/runner/work/_temp"/.implicit_cargo_registries_crates_io_protocol || true[0m
+2026-10-11T21:53:20.4401892Z [36;1m    echo CARGO_REGISTRIES_CRATES_IO_PROTOCOL=git >> $GITHUB_ENV[0m
+2026-10-11T21:53:20.4402228Z [36;1m  fi[0m
+2026-10-11T21:53:20.4402428Z [36;1mfi[0m
+2026-10-11T21:53:20.4436615Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-11T21:53:20.4436945Z env:
+2026-10-11T21:53:20.4437155Z   INK_PARITY_REQUIRE_ALL: 1
+2026-10-11T21:53:20.4437390Z   INK_THREADS: 4
+2026-10-11T21:53:20.4437595Z   CARGO_BUILD_JOBS: 2
+2026-10-11T21:53:20.4437952Z   CARGO_HOME: /home/runner/.cargo
+2026-10-11T21:53:20.4438213Z   CARGO_INCREMENTAL: 0
+2026-10-11T21:53:20.4438441Z   CARGO_TERM_COLOR: always
+2026-10-11T21:53:20.4438680Z   toolchain: stable
+2026-10-11T21:53:20.4438885Z ##[endgroup]
+2026-10-11T21:53:20.4731501Z ##[end-action id=__dtolnay_rust-toolchain.__run_8;outcome=success;conclusion=success;duration_ms=35]
+2026-10-11T21:53:20.4735152Z ##[start-action display=Work around spurious network errors in curl 8.0;id=__dtolnay_rust-toolchain.__run_9]
+2026-10-11T21:53:20.4752854Z ##[group]Run # https://rust-lang.zulipchat.com/#narrow/stream/246057-t-cargo/topic/timeout.20investigation
+2026-10-11T21:53:20.4753566Z [36;1m# https://rust-lang.zulipchat.com/#narrow/stream/246057-t-cargo/topic/timeout.20investigation[0m
+2026-10-11T21:53:20.4754157Z [36;1mif rustc +"$toolchain" --version --verbose | grep -q '^release: 1\.7[01]\.'; then[0m
+2026-10-11T21:53:20.4754615Z [36;1m  echo CARGO_HTTP_MULTIPLEXING=false >> $GITHUB_ENV[0m
+2026-10-11T21:53:20.4754928Z [36;1mfi[0m
+2026-10-11T21:53:20.4790575Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-11T21:53:20.4790911Z env:
+2026-10-11T21:53:20.4791129Z   INK_PARITY_REQUIRE_ALL: 1
+2026-10-11T21:53:20.4791358Z   INK_THREADS: 4
+2026-10-11T21:53:20.4791556Z   CARGO_BUILD_JOBS: 2
+2026-10-11T21:53:20.4791775Z   CARGO_HOME: /home/runner/.cargo
+2026-10-11T21:53:20.4792021Z   CARGO_INCREMENTAL: 0
+2026-10-11T21:53:20.4792243Z   CARGO_TERM_COLOR: always
+2026-10-11T21:53:20.4792465Z   toolchain: stable
+2026-10-11T21:53:20.4792663Z ##[endgroup]
+2026-10-11T21:53:20.4966150Z ##[end-action id=__dtolnay_rust-toolchain.__run_9;outcome=success;conclusion=success;duration_ms=22]
+2026-10-11T21:53:20.4970774Z ##[start-action display=rustc +stable --version --verbose;id=__dtolnay_rust-toolchain.__run_10]
+2026-10-11T21:53:20.4988022Z ##[group]Run rustc +"$toolchain" --version --verbose
+2026-10-11T21:53:20.4988403Z [36;1mrustc +"$toolchain" --version --verbose[0m
+2026-10-11T21:53:20.5023652Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-11T21:53:20.5023984Z env:
+2026-10-11T21:53:20.5024188Z   INK_PARITY_REQUIRE_ALL: 1
+2026-10-11T21:53:20.5024552Z   INK_THREADS: 4
+2026-10-11T21:53:20.5024774Z   CARGO_BUILD_JOBS: 2
+2026-10-11T21:53:20.5025005Z   CARGO_HOME: /home/runner/.cargo
+2026-10-11T21:53:20.5025254Z   CARGO_INCREMENTAL: 0
+2026-10-11T21:53:20.5025718Z   CARGO_TERM_COLOR: always
+2026-10-11T21:53:20.5025958Z   toolchain: stable
+2026-10-11T21:53:20.5026161Z ##[endgroup]
+2026-10-11T21:53:20.5179937Z rustc 1.99.0 (b940084d7 2026-09-28)
+2026-10-11T21:53:20.5180701Z binary: rustc
+2026-10-11T21:53:20.5181590Z commit-hash: b940084d7eb6a299eb4bfeb8e34901bc051e7ac4
+2026-10-11T21:53:20.5182158Z commit-date: 2026-09-28
+2026-10-11T21:53:20.5182538Z host: x86_64-unknown-linux-gnu
+2026-10-11T21:53:20.5182913Z release: 1.99.0
+2026-10-11T21:53:20.5183249Z LLVM version: 23.1.1
+2026-10-11T21:53:20.5198332Z ##[end-action id=__dtolnay_rust-toolchain.__run_10;outcome=success;conclusion=success;duration_ms=22]
+2026-10-11T21:53:20.5326283Z ##[group]Run actions/setup-node@v4
+2026-10-11T21:53:20.5326564Z with:
+2026-10-11T21:53:20.5326764Z   node-version: 22
+2026-10-11T21:53:20.5326972Z   always-auth: false
+2026-10-11T21:53:20.5327183Z   check-latest: false
+2026-10-11T21:53:20.5330075Z   token: ***
+2026-10-11T21:53:20.5330268Z env:
+2026-10-11T21:53:20.5330464Z   INK_PARITY_REQUIRE_ALL: 1
+2026-10-11T21:53:20.5330692Z   INK_THREADS: 4
+2026-10-11T21:53:20.5330894Z   CARGO_BUILD_JOBS: 2
+2026-10-11T21:53:20.5331230Z   CARGO_HOME: /home/runner/.cargo
+2026-10-11T21:53:20.5331485Z   CARGO_INCREMENTAL: 0
+2026-10-11T21:53:20.5331706Z   CARGO_TERM_COLOR: always
+2026-10-11T21:53:20.5331932Z ##[endgroup]
+2026-10-11T21:53:20.7069271Z Found in cache @ /opt/hostedtoolcache/node/22.23.3/x64
+2026-10-11T21:53:20.7073952Z (node:3003) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-11T21:53:20.7078140Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-11T21:53:20.7078976Z ##[group]Environment details
+2026-10-11T21:53:23.5485735Z node: v22.23.3
+2026-10-11T21:53:23.5486238Z npm: 10.9.9
+2026-10-11T21:53:23.5486572Z yarn: 1.22.22
+2026-10-11T21:53:23.5487969Z ##[endgroup]
+2026-10-11T21:53:23.5623069Z ##[group]Run actions/setup-python@v5
+2026-10-11T21:53:23.5623353Z with:
+2026-10-11T21:53:23.5623554Z   python-version: 3.12
+2026-10-11T21:53:23.5623786Z   check-latest: false
+2026-10-11T21:53:23.5626873Z   token: ***
+2026-10-11T21:53:23.5627088Z   update-environment: true
+2026-10-11T21:53:23.5627333Z   allow-prereleases: false
+2026-10-11T21:53:23.5627565Z   freethreaded: false
+2026-10-11T21:53:23.5627770Z env:
+2026-10-11T21:53:23.5627959Z   INK_PARITY_REQUIRE_ALL: 1
+2026-10-11T21:53:23.5628194Z   INK_THREADS: 4
+2026-10-11T21:53:23.5628391Z   CARGO_BUILD_JOBS: 2
+2026-10-11T21:53:23.5628608Z   CARGO_HOME: /home/runner/.cargo
+2026-10-11T21:53:23.5628856Z   CARGO_INCREMENTAL: 0
+2026-10-11T21:53:23.5629067Z   CARGO_TERM_COLOR: always
+2026-10-11T21:53:23.5629297Z ##[endgroup]
+2026-10-11T21:53:23.6953700Z ##[group]Installed versions
+2026-10-11T21:53:23.7042973Z (node:3035) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-11T21:53:23.7044411Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-11T21:53:23.7045207Z Successfully set up CPython (3.12.15)
+2026-10-11T21:53:23.7046216Z ##[endgroup]
+2026-10-11T21:53:23.7139904Z ##[group]Run python -m pip install ziglang==0.14.1
+2026-10-11T21:53:23.7140313Z [36;1mpython -m pip install ziglang==0.14.1[0m
+2026-10-11T21:53:23.7140614Z [36;1mpython - <<'PY'[0m
+2026-10-11T21:53:23.7140868Z [36;1mimport os, pathlib, ziglang[0m
+2026-10-11T21:53:23.7141181Z [36;1mwith open(os.environ['GITHUB_ENV'], 'a') as f:[0m
+2026-10-11T21:53:23.7141633Z [36;1m    f.write('INK_TEST_ZIG='+str(pathlib.Path(ziglang.__file__).parent/'zig')+'\n')[0m
+2026-10-11T21:53:23.7142196Z [36;1m    f.write('INK_PARITY_SEEDS=1,7,23,3735928559,'+str(int(os.environ['GITHUB_SHA'][:16],16))+'\n')[0m
+2026-10-11T21:53:23.7142676Z [36;1mPY[0m
+2026-10-11T21:53:23.7333919Z shell: /usr/bin/bash -e {0}
+2026-10-11T21:53:23.7334217Z env:
+2026-10-11T21:53:23.7334446Z   INK_PARITY_REQUIRE_ALL: 1
+2026-10-11T21:53:23.7334697Z   INK_THREADS: 4
+2026-10-11T21:53:23.7334901Z   CARGO_BUILD_JOBS: 2
+2026-10-11T21:53:23.7335129Z   CARGO_HOME: /home/runner/.cargo
+2026-10-11T21:53:23.7335576Z   CARGO_INCREMENTAL: 0
+2026-10-11T21:53:23.7335815Z   CARGO_TERM_COLOR: always
+2026-10-11T21:53:23.7336118Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-11T21:53:23.7336925Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-11T21:53:23.7337962Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-11T21:53:23.7338969Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-11T21:53:23.7339919Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-11T21:53:23.7340807Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-11T21:53:23.7341652Z ##[endgroup]
+2026-10-11T21:53:25.8912347Z Collecting ziglang==0.14.1
+2026-10-11T21:53:25.9663174Z   Downloading ziglang-0.14.1-py3-none-manylinux_2_12_x86_64.manylinux2010_x86_64.musllinux_1_1_x86_64.whl.metadata (2.7 kB)
+2026-10-11T21:53:25.9813738Z Downloading ziglang-0.14.1-py3-none-manylinux_2_12_x86_64.manylinux2010_x86_64.musllinux_1_1_x86_64.whl (83.2 MB)
+2026-10-11T21:53:26.8301563Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 83.2/83.2 MB 102.7 MB/s  0:00:00
+2026-10-11T21:53:27.1823577Z Installing collected packages: ziglang
+2026-10-11T21:53:29.5801035Z Successfully installed ziglang-0.14.1
+2026-10-11T21:53:29.6579500Z ##[group]Run curl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain leanprover/lean4:v4.19.0
+2026-10-11T21:53:29.6580539Z [36;1mcurl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain leanprover/lean4:v4.19.0[0m
+2026-10-11T21:53:29.6581332Z [36;1mecho "INK_TEST_LEAN=$HOME/.elan/bin/lean" >> "$GITHUB_ENV"[0m
+2026-10-11T21:53:29.6617588Z shell: /usr/bin/bash -e {0}
+2026-10-11T21:53:29.6617861Z env:
+2026-10-11T21:53:29.6618077Z   INK_PARITY_REQUIRE_ALL: 1
+2026-10-11T21:53:29.6618313Z   INK_THREADS: 4
+2026-10-11T21:53:29.6618526Z   CARGO_BUILD_JOBS: 2
+2026-10-11T21:53:29.6618762Z   CARGO_HOME: /home/runner/.cargo
+2026-10-11T21:53:29.6619014Z   CARGO_INCREMENTAL: 0
+2026-10-11T21:53:29.6619248Z   CARGO_TERM_COLOR: always
+2026-10-11T21:53:29.6619555Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-11T21:53:29.6620049Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-11T21:53:29.6620474Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-11T21:53:29.6620848Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-11T21:53:29.6621225Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-11T21:53:29.6621619Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-11T21:53:29.6622117Z   INK_TEST_ZIG: /opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/ziglang/zig
+2026-10-11T21:53:29.6622589Z   INK_PARITY_SEEDS: 1,7,23,3735928559,8714689606498214606
+2026-10-11T21:53:29.6622886Z ##[endgroup]
+2026-10-11T21:53:29.7315994Z info: downloading installer
+2026-10-11T21:53:30.1783212Z info: default toolchain set to 'leanprover/lean4:v4.19.0'
+2026-10-11T21:53:30.1949481Z ##[group]Run python -m ink_knowledge --root . rebuild
+2026-10-11T21:53:30.1949878Z [36;1mpython -m ink_knowledge --root . rebuild[0m
+2026-10-11T21:53:30.1986067Z shell: /usr/bin/bash -e {0}
+2026-10-11T21:53:30.1986333Z env:
+2026-10-11T21:53:30.1986537Z   INK_PARITY_REQUIRE_ALL: 1
+2026-10-11T21:53:30.1986789Z   INK_THREADS: 4
+2026-10-11T21:53:30.1986997Z   CARGO_BUILD_JOBS: 2
+2026-10-11T21:53:30.1987223Z   CARGO_HOME: /home/runner/.cargo
+2026-10-11T21:53:30.1987471Z   CARGO_INCREMENTAL: 0
+2026-10-11T21:53:30.1987694Z   CARGO_TERM_COLOR: always
+2026-10-11T21:53:30.1988010Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-11T21:53:30.1988427Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-11T21:53:30.1988830Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-11T21:53:30.1989203Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-11T21:53:30.1989619Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-11T21:53:30.1989988Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-11T21:53:30.1990469Z   INK_TEST_ZIG: /opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/ziglang/zig
+2026-10-11T21:53:30.1990937Z   INK_PARITY_SEEDS: 1,7,23,3735928559,8714689606498214606
+2026-10-11T21:53:30.1991252Z   INK_TEST_LEAN: /home/runner/.elan/bin/lean
+2026-10-11T21:53:30.1991530Z ##[endgroup]
+2026-10-11T21:53:56.8600029Z {"snapshot": "28348d28cdb30a6ab95e93000d07bcc0b688655f3a453444a743bd901943a93e", "entries": 4950}
+2026-10-11T21:53:56.8727085Z ##[group]Run cargo fetch --locked
+2026-10-11T21:53:56.8727385Z [36;1mcargo fetch --locked[0m
+2026-10-11T21:53:56.8727696Z [36;1mcargo fetch --locked --manifest-path core/Cargo.toml[0m
+2026-10-11T21:53:56.8764124Z shell: /usr/bin/bash -e {0}
+2026-10-11T21:53:56.8764399Z env:
+2026-10-11T21:53:56.8764620Z   INK_PARITY_REQUIRE_ALL: 1
+2026-10-11T21:53:56.8764853Z   INK_THREADS: 4
+2026-10-11T21:53:56.8765055Z   CARGO_BUILD_JOBS: 2
+2026-10-11T21:53:56.8765280Z   CARGO_HOME: /home/runner/.cargo
+2026-10-11T21:53:56.8765689Z   CARGO_INCREMENTAL: 0
+2026-10-11T21:53:56.8765915Z   CARGO_TERM_COLOR: always
+2026-10-11T21:53:56.8766214Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-11T21:53:56.8766665Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-11T21:53:56.8767082Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-11T21:53:56.8767447Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-11T21:53:56.8768028Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-11T21:53:56.8768401Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-11T21:53:56.8768891Z   INK_TEST_ZIG: /opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/ziglang/zig
+2026-10-11T21:53:56.8769357Z   INK_PARITY_SEEDS: 1,7,23,3735928559,8714689606498214606
+2026-10-11T21:53:56.8769670Z   INK_TEST_LEAN: /home/runner/.elan/bin/lean
+2026-10-11T21:53:56.8769951Z ##[endgroup]
+2026-10-11T21:53:57.6032655Z [1m[92m    Updating[0m crates.io index
+2026-10-11T21:53:58.2160926Z [1m[92m Downloading[0m crates ...
+2026-10-11T21:53:58.2492349Z [1m[92m  Downloaded[0m sha2 v0.10.9
+2026-10-11T21:53:58.2517908Z [1m[92m  Downloaded[0m cpufeatures v0.2.17
+2026-10-11T21:53:58.2529191Z [1m[92m  Downloaded[0m crypto-common v0.1.7
+2026-10-11T21:53:58.2536886Z [1m[92m  Downloaded[0m generic-array v0.14.7
+2026-10-11T21:53:58.2554248Z [1m[92m  Downloaded[0m quote v1.0.47
+2026-10-11T21:53:58.2581629Z [1m[92m  Downloaded[0m num-integer v0.1.47
+2026-10-11T21:53:58.2598793Z [1m[92m  Downloaded[0m serde_derive v1.0.229
+2026-10-11T21:53:58.2629159Z [1m[92m  Downloaded[0m serde_json v1.0.152
+2026-10-11T21:53:58.2683928Z [1m[92m  Downloaded[0m num-traits v0.2.19
+2026-10-11T21:53:58.2699902Z [1m[92m  Downloaded[0m version_check v0.9.5
+2026-10-11T21:53:58.2707210Z [1m[92m  Downloaded[0m memchr v2.8.3
+2026-10-11T21:53:58.2740345Z [1m[92m  Downloaded[0m block-buffer v0.10.4
+2026-10-11T21:53:58.2745914Z [1m[92m  Downloaded[0m cfg-if v1.0.5
+2026-10-11T21:53:58.2752923Z [1m[92m  Downloaded[0m autocfg v1.5.1
+2026-10-11T21:53:58.2763598Z [1m[92m  Downloaded[0m typenum v1.20.1
+2026-10-11T21:53:58.2787371Z [1m[92m  Downloaded[0m itoa v1.0.18
+2026-10-11T21:53:58.2795731Z [1m[92m  Downloaded[0m unicode-ident v1.0.26
+2026-10-11T21:53:58.2812132Z [1m[92m  Downloaded[0m digest v0.10.7
+2026-10-11T21:53:58.2823003Z [1m[92m  Downloaded[0m zmij v1.0.23
+2026-10-11T21:53:58.2838527Z [1m[92m  Downloaded[0m serde_core v1.0.229
+2026-10-11T21:53:58.2857130Z [1m[92m  Downloaded[0m num-bigint v0.4.8
+2026-10-11T21:53:58.2886560Z [1m[92m  Downloaded[0m proc-macro2 v1.0.107
+2026-10-11T21:53:58.2903905Z [1m[92m  Downloaded[0m serde v1.0.229
+2026-10-11T21:53:58.2928240Z [1m[92m  Downloaded[0m syn v3.0.7
+2026-10-11T21:53:58.2998889Z [1m[92m  Downloaded[0m libc v0.2.190
+2026-10-11T21:53:58.3840533Z [1m[92m Downloading[0m crates ...
+2026-10-11T21:53:58.4172871Z [1m[92m  Downloaded[0m syn v3.0.6
+2026-10-11T21:53:58.4245847Z [1m[92m  Downloaded[0m serde_json v1.0.151
+2026-10-11T21:53:58.4419690Z ##[group]Run mkdir -p build/host-deps/src
+2026-10-11T21:53:58.4420218Z [36;1mmkdir -p build/host-deps/src[0m
+2026-10-11T21:53:58.4420954Z [36;1mcp runtime/hosts/native/Cargo.toml runtime/hosts/native/Cargo.lock build/host-deps/[0m
+2026-10-11T21:53:58.4421665Z [36;1mpython3 - <<'PYTHON'[0m
+2026-10-11T21:53:58.4422082Z [36;1mfrom pathlib import Path[0m
+2026-10-11T21:53:58.4422693Z [36;1mPath('build/host-deps/src/main.rs').write_text('fn main() {}\n')[0m
+2026-10-11T21:53:58.4423433Z [36;1mwith Path('build/host-deps/Cargo.toml').open('a') as f:[0m
+2026-10-11T21:53:58.4424003Z [36;1m    f.write('\n[workspace]\n')[0m
+2026-10-11T21:53:58.4424450Z [36;1mPYTHON[0m
+2026-10-11T21:53:58.4424979Z [36;1mcargo fetch --locked --manifest-path build/host-deps/Cargo.toml[0m
+2026-10-11T21:53:58.4482104Z shell: /usr/bin/bash -e {0}
+2026-10-11T21:53:58.4482526Z env:
+2026-10-11T21:53:58.4482865Z   INK_PARITY_REQUIRE_ALL: 1
+2026-10-11T21:53:58.4483261Z   INK_THREADS: 4
+2026-10-11T21:53:58.4483646Z   CARGO_BUILD_JOBS: 2
+2026-10-11T21:53:58.4484070Z   CARGO_HOME: /home/runner/.cargo
+2026-10-11T21:53:58.4484481Z   CARGO_INCREMENTAL: 0
+2026-10-11T21:53:58.4484832Z   CARGO_TERM_COLOR: always
+2026-10-11T21:53:58.4485326Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-11T21:53:58.4486284Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-11T21:53:58.4486985Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-11T21:53:58.4487874Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-11T21:53:58.4488465Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-11T21:53:58.4489074Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-11T21:53:58.4489899Z   INK_TEST_ZIG: /opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/ziglang/zig
+2026-10-11T21:53:58.4490776Z   INK_PARITY_SEEDS: 1,7,23,3735928559,8714689606498214606
+2026-10-11T21:53:58.4491388Z   INK_TEST_LEAN: /home/runner/.elan/bin/lean
+2026-10-11T21:53:58.4491859Z ##[endgroup]
+2026-10-11T21:53:58.5086140Z [1m[92m    Updating[0m git repository `https://github.com/siliconjungle/ink-abi`
+2026-10-11T21:53:59.0436718Z [1m[92m    Updating[0m crates.io index
+2026-10-11T21:53:59.4270354Z [1m[92m Downloading[0m crates ...
+2026-10-11T21:53:59.4558241Z [1m[92m  Downloaded[0m wasm-bindgen-macro v0.2.129
+2026-10-11T21:53:59.4596057Z [1m[92m  Downloaded[0m wasm-bindgen-shared v0.2.129
+2026-10-11T21:53:59.4609447Z [1m[92m  Downloaded[0m rustversion v1.0.23
+2026-10-11T21:53:59.4626245Z [1m[92m  Downloaded[0m wgpu-core-deps-windows-linux-android v30.0.1
+2026-10-11T21:53:59.4632695Z [1m[92m  Downloaded[0m once_cell v1.21.4
+2026-10-11T21:53:59.4651900Z [1m[92m  Downloaded[0m wgpu-core-deps-emscripten v30.0.1
+2026-10-11T21:53:59.4659247Z [1m[92m  Downloaded[0m android_system_properties v0.1.6
+2026-10-11T21:53:59.4664724Z [1m[92m  Downloaded[0m wasm-bindgen v0.2.129
+2026-10-11T21:53:59.4686404Z [1m[92m  Downloaded[0m bumpalo v3.20.3
+2026-10-11T21:53:59.4707832Z [1m[92m  Downloaded[0m pollster v0.4.0
+2026-10-11T21:53:59.4715205Z [1m[92m  Downloaded[0m wgpu-types v30.0.1
+2026-10-11T21:53:59.4746424Z [1m[92m  Downloaded[0m wasm-bindgen-macro-support v0.2.129
+2026-10-11T21:53:59.4768319Z [1m[92m  Downloaded[0m js-sys v0.3.106
+2026-10-11T21:53:59.4805746Z [1m[92m  Downloaded[0m wgpu v30.0.1
+2026-10-11T21:53:59.4936601Z [1m[92m  Downloaded[0m document-features v0.2.12
+2026-10-11T21:53:59.4943314Z [1m[92m  Downloaded[0m wasm-bindgen-futures v0.4.79
+2026-10-11T21:53:59.4949685Z [1m[92m  Downloaded[0m wgpu-core-deps-apple v30.0.1
+2026-10-11T21:53:59.4957519Z [1m[92m  Downloaded[0m web-sys v0.3.106
+2026-10-11T21:53:59.5648103Z [1m[92m  Downloaded[0m shlex v2.0.1
+2026-10-11T21:53:59.5656937Z [1m[92m  Downloaded[0m find-msvc-tools v0.1.14
+2026-10-11T21:53:59.5667373Z [1m[92m  Downloaded[0m litrs v1.0.0
+2026-10-11T21:53:59.5683659Z [1m[92m  Downloaded[0m futures-core v0.3.34
+2026-10-11T21:53:59.5691545Z [1m[92m  Downloaded[0m slotmap v1.1.1
+2026-10-11T21:53:59.5704956Z [1m[92m  Downloaded[0m pin-project-lite v0.2.17
+2026-10-11T21:53:59.5735363Z [1m[92m  Downloaded[0m raw-window-handle v0.6.2
+2026-10-11T21:53:59.5745693Z [1m[92m  Downloaded[0m indexmap v2.14.2
+2026-10-11T21:53:59.5771565Z [1m[92m  Downloaded[0m cc v1.7.0
+2026-10-11T21:53:59.5795719Z [1m[92m  Downloaded[0m block2 v0.6.2
+2026-10-11T21:53:59.5806418Z [1m[92m  Downloaded[0m profiling v1.0.18
+2026-10-11T21:53:59.5813519Z [1m[92m  Downloaded[0m windows-link v0.2.1
+2026-10-11T21:53:59.5818098Z [1m[92m  Downloaded[0m glow v0.17.0
+2026-10-11T21:53:59.5849354Z [1m[92m  Downloaded[0m static_assertions v1.1.0
+2026-10-11T21:53:59.5857493Z [1m[92m  Downloaded[0m jni-sys v0.4.1
+2026-10-11T21:53:59.5863179Z [1m[92m  Downloaded[0m bytemuck_derive v1.12.1
+2026-10-11T21:53:59.5871345Z [1m[92m  Downloaded[0m log v0.4.34
+2026-10-11T21:53:59.5886404Z [1m[92m  Downloaded[0m windows-threading v0.2.1
+2026-10-11T21:53:59.5891813Z [1m[92m  Downloaded[0m wgpu-core v30.0.1
+2026-10-11T21:53:59.5959905Z [1m[92m  Downloaded[0m thiserror v2.0.21
+2026-10-11T21:53:59.5992844Z [1m[92m  Downloaded[0m bitflags v2.13.2
+2026-10-11T21:53:59.6017523Z [1m[92m  Downloaded[0m jni-sys v0.3.1
+2026-10-11T21:53:59.6023824Z [1m[92m  Downloaded[0m futures-task v0.3.34
+2026-10-11T21:53:59.6030783Z [1m[92m  Downloaded[0m zerocopy v0.8.62
+2026-10-11T21:53:59.6178152Z [1m[92m  Downloaded[0m cfg_aliases v0.2.2
+2026-10-11T21:53:59.6183710Z [1m[92m  Downloaded[0m khronos_api v3.1.0
+2026-10-11T21:53:59.6303495Z [1m[92m  Downloaded[0m windows-interface v0.59.3
+2026-10-11T21:53:59.6308817Z [1m[92m  Downloaded[0m equivalent v1.0.2
+2026-10-11T21:53:59.6314174Z [1m[92m  Downloaded[0m windows-future v0.3.2
+2026-10-11T21:53:59.6322878Z [1m[92m  Downloaded[0m range-alloc v0.1.5
+2026-10-11T21:53:59.6328926Z [1m[92m  Downloaded[0m windows-strings v0.5.1
+2026-10-11T21:53:59.6337386Z [1m[92m  Downloaded[0m windows-implement v0.60.2
+2026-10-11T21:53:59.6343474Z [1m[92m  Downloaded[0m khronos-egl v6.0.0
+2026-10-11T21:53:59.6354708Z [1m[92m  Downloaded[0m objc2-foundation v0.3.2
+2026-10-11T21:53:59.6466601Z [1m[92m  Downloaded[0m jni-sys-macros v0.4.1
+2026-10-11T21:53:59.6470555Z [1m[92m  Downloaded[0m foldhash v0.2.0
+2026-10-11T21:53:59.6478333Z [1m[92m  Downloaded[0m windows-result v0.4.1
+2026-10-11T21:53:59.6486415Z [1m[92m  Downloaded[0m scopeguard v1.2.0
+2026-10-11T21:53:59.6492770Z [1m[92m  Downloaded[0m bit-set v0.10.0
+2026-10-11T21:53:59.6501349Z [1m[92m  Downloaded[0m wayland-sys v0.31.11
+2026-10-11T21:53:59.6508727Z [1m[92m  Downloaded[0m wgpu-naga-bridge v30.0.1
+2026-10-11T21:53:59.6513648Z [1m[92m  Downloaded[0m lock_api v0.4.14
+2026-10-11T21:53:59.6521703Z [1m[92m  Downloaded[0m naga-types v30.0.1
+2026-10-11T21:53:59.6528583Z [1m[92m  Downloaded[0m renderdoc-sys v1.1.0
+2026-10-11T21:53:59.6534139Z [1m[92m  Downloaded[0m raw-window-metal v1.1.0
+2026-10-11T21:53:59.6540916Z [1m[92m  Downloaded[0m tokio v1.53.2
+2026-10-11T21:53:59.6800833Z [1m[92m  Downloaded[0m bit-vec v0.9.1
+2026-10-11T21:53:59.6813961Z [1m[92m  Downloaded[0m objc2-core-graphics v0.3.2
+2026-10-11T21:53:59.6842720Z [1m[92m  Downloaded[0m windows-collections v0.3.2
+2026-10-11T21:53:59.6849880Z [1m[92m  Downloaded[0m termcolor v1.4.1
+2026-10-11T21:53:59.6857678Z [1m[92m  Downloaded[0m parking_lot v0.12.5
+2026-10-11T21:53:59.6872239Z [1m[92m  Downloaded[0m gpu-allocator v0.28.0
+2026-10-11T21:53:59.6889632Z [1m[92m  Downloaded[0m crunchy v0.2.4
+2026-10-11T21:53:59.6894712Z [1m[92m  Downloaded[0m dispatch2 v0.3.1
+2026-10-11T21:53:59.6909975Z [1m[92m  Downloaded[0m codespan-reporting v0.13.1
+2026-10-11T21:53:59.6948654Z [1m[92m  Downloaded[0m arrayvec v0.7.8
+2026-10-11T21:53:59.6960909Z [1m[92m  Downloaded[0m portable-atomic-util v0.2.8
+2026-10-11T21:53:59.6973894Z [1m[92m  Downloaded[0m allocator-api2 v0.2.21
+2026-10-11T21:53:59.6989912Z [1m[92m  Downloaded[0m slab v0.4.12
+2026-10-11T21:53:59.6997821Z [1m[92m  Downloaded[0m windows-numerics v0.3.1
+2026-10-11T21:53:59.7004239Z [1m[92m  Downloaded[0m dlib v0.5.3
+2026-10-11T21:53:59.7009776Z [1m[92m  Downloaded[0m objc2-encode v4.1.0
+2026-10-11T21:53:59.7017645Z [1m[92m  Downloaded[0m presser v0.3.1
+2026-10-11T21:53:59.7027239Z [1m[92m  Downloaded[0m objc2-io-surface v0.3.2
+2026-10-11T21:53:59.7036048Z [1m[92m  Downloaded[0m glutin_wgl_sys v0.6.1
+2026-10-11T21:53:59.7041069Z [1m[92m  Downloaded[0m rustc-hash v1.1.0
+2026-10-11T21:53:59.7046527Z [1m[92m  Downloaded[0m winapi-util v0.1.11
+2026-10-11T21:53:59.7054365Z [1m[92m  Downloaded[0m libloading v0.8.9
+2026-10-11T21:53:59.7067591Z [1m[92m  Downloaded[0m objc2-quartz-core v0.3.2
+2026-10-11T21:53:59.7085604Z [1m[92m  Downloaded[0m gl_generator v0.14.0
+2026-10-11T21:53:59.7094991Z [1m[92m  Downloaded[0m thiserror-impl v2.0.21
+2026-10-11T21:53:59.7103475Z [1m[92m  Downloaded[0m redox_syscall v0.5.18
+2026-10-11T21:53:59.7117513Z [1m[92m  Downloaded[0m pkg-config v0.3.34
+2026-10-11T21:53:59.7125954Z [1m[92m  Downloaded[0m parking_lot_core v0.9.12
+2026-10-11T21:53:59.7138070Z [1m[92m  Downloaded[0m ordered-float v5.5.0
+2026-10-11T21:53:59.7149124Z [1m[92m  Downloaded[0m smallvec v1.16.3
+2026-10-11T21:53:59.7158277Z [1m[92m  Downloaded[0m spirv v0.4.0+sdk-1.4.341.0
+2026-10-11T21:53:59.7167111Z [1m[92m  Downloaded[0m unicode-width v0.2.2
+2026-10-11T21:53:59.7210281Z [1m[92m  Downloaded[0m xml-rs v0.8.29
+2026-10-11T21:53:59.7228071Z [1m[92m  Downloaded[0m bytemuck v1.25.2
+2026-10-11T21:53:59.7247073Z [1m[92m  Downloaded[0m windows-core v0.62.2
+2026-10-11T21:53:59.7263035Z [1m[92m  Downloaded[0m half v2.7.1
+2026-10-11T21:53:59.7279622Z [1m[92m  Downloaded[0m libm v0.2.16
+2026-10-11T21:53:59.7339542Z [1m[92m  Downloaded[0m hashbrown v0.16.1
+2026-10-11T21:53:59.7372447Z [1m[92m  Downloaded[0m zerocopy-derive v0.8.62
+2026-10-11T21:53:59.7440734Z [1m[92m  Downloaded[0m objc2-core-foundation v0.3.2
+2026-10-11T21:53:59.7484008Z [1m[92m  Downloaded[0m hashbrown v0.17.1
+2026-10-11T21:53:59.7550849Z [1m[92m  Downloaded[0m futures-util v0.3.34
+2026-10-11T21:53:59.7620993Z [1m[92m  Downloaded[0m objc2-metal v0.3.2
+2026-10-11T21:53:59.7683518Z [1m[92m  Downloaded[0m portable-atomic v1.15.0
+2026-10-11T21:53:59.7730161Z [1m[92m  Downloaded[0m objc2 v0.6.5
+2026-10-11T21:53:59.7791812Z [1m[92m  Downloaded[0m syn v2.0.119
+2026-10-11T21:53:59.7858966Z [1m[92m  Downloaded[0m ndk-sys v0.6.0+11769913
+2026-10-11T21:53:59.7909125Z [1m[92m  Downloaded[0m wgpu-hal v30.0.1
+2026-10-11T21:53:59.7988318Z [1m[92m  Downloaded[0m ash v0.38.0+1.3.281
+2026-10-11T21:53:59.8087250Z [1m[92m  Downloaded[0m naga v30.0.1
+2026-10-11T21:53:59.8227651Z [1m[92m  Downloaded[0m windows-sys v0.61.2
+2026-10-11T21:53:59.8658176Z [1m[92m  Downloaded[0m windows v0.62.2
+2026-10-11T21:54:00.0908375Z ##[group]Run node --test runtime/tests/backend-selection.mjs runtime/tests/durable-state.mjs
+2026-10-11T21:54:00.0909001Z [36;1mnode --test runtime/tests/backend-selection.mjs runtime/tests/durable-state.mjs[0m
+2026-10-11T21:54:00.0909457Z [36;1mnode lowerings/gpu/tests/device_graph.mjs[0m
+2026-10-11T21:54:00.0946345Z shell: /usr/bin/bash -e {0}
+2026-10-11T21:54:00.0946607Z env:
+2026-10-11T21:54:00.0946809Z   INK_PARITY_REQUIRE_ALL: 1
+2026-10-11T21:54:00.0947043Z   INK_THREADS: 4
+2026-10-11T21:54:00.0947248Z   CARGO_BUILD_JOBS: 2
+2026-10-11T21:54:00.0947482Z   CARGO_HOME: /home/runner/.cargo
+2026-10-11T21:54:00.0947749Z   CARGO_INCREMENTAL: 0
+2026-10-11T21:54:00.0947974Z   CARGO_TERM_COLOR: always
+2026-10-11T21:54:00.0948266Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-11T21:54:00.0948690Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-11T21:54:00.0949094Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-11T21:54:00.0949511Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-11T21:54:00.0949872Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-11T21:54:00.0950238Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-11T21:54:00.0950716Z   INK_TEST_ZIG: /opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/ziglang/zig
+2026-10-11T21:54:00.0951174Z   INK_PARITY_SEEDS: 1,7,23,3735928559,8714689606498214606
+2026-10-11T21:54:00.0951482Z   INK_TEST_LEAN: /home/runner/.elan/bin/lean
+2026-10-11T21:54:00.0951744Z ##[endgroup]
+2026-10-11T21:54:00.1748990Z TAP version 13
+2026-10-11T21:55:08.0117223Z # Subtest: adaptive saved profiles choose by size without probing or reading the timer
+2026-10-11T21:55:08.0146961Z ok 1 - adaptive saved profiles choose by size without probing or reading the timer
+2026-10-11T21:55:08.0162145Z   ---
+2026-10-11T21:55:08.0162540Z   duration_ms: 64.425087
+2026-10-11T21:55:08.0162956Z   type: 'test'
+2026-10-11T21:55:08.0163334Z   ...
+2026-10-11T21:55:08.0164114Z # Subtest: static bypasses profiles and adaptive requires comparable CPU evidence
+2026-10-11T21:55:08.0165150Z ok 2 - static bypasses profiles and adaptive requires comparable CPU evidence
+2026-10-11T21:55:08.0165919Z   ---
+2026-10-11T21:55:08.0166258Z   duration_ms: 1.422239
+2026-10-11T21:55:08.0166632Z   type: 'test'
+2026-10-11T21:55:08.0166951Z   ...
+2026-10-11T21:55:08.0167839Z # Subtest: profile is privately bound and device failure keeps compiled CPU without speculative verification
+2026-10-11T21:55:08.0168606Z ok 3 - profile is privately bound and device failure keeps compiled CPU without speculative verification
+2026-10-11T21:55:08.0169339Z   ---
+2026-10-11T21:55:08.0169533Z   duration_ms: 0.853753
+2026-10-11T21:55:08.0169750Z   type: 'test'
+2026-10-11T21:55:08.0169939Z   ...
+2026-10-11T21:55:08.0170566Z # Subtest: adaptive selects the minimum eligible estimate with margin measured against CPU
+2026-10-11T21:55:08.0171207Z ok 4 - adaptive selects the minimum eligible estimate with margin measured against CPU
+2026-10-11T21:55:08.0171588Z   ---
+2026-10-11T21:55:08.0171792Z   duration_ms: 0.752062
+2026-10-11T21:55:08.0172017Z   type: 'test'
+2026-10-11T21:55:08.0172213Z   ...
+2026-10-11T21:55:08.0172531Z # Subtest: required GPU execution never invokes a CPU fallback
+2026-10-11T21:55:08.0172975Z ok 5 - required GPU execution never invokes a CPU fallback
+2026-10-11T21:55:08.0173276Z   ---
+2026-10-11T21:55:08.0173471Z   duration_ms: 0.459066
+2026-10-11T21:55:08.0173703Z   type: 'test'
+2026-10-11T21:55:08.0173898Z   ...
+2026-10-11T21:55:08.0204777Z # Subtest: capture, serialize concurrent calls and recover exact receipts
+2026-10-11T21:55:08.0206007Z ok 6 - capture, serialize concurrent calls and recover exact receipts
+2026-10-11T21:55:08.0206666Z   ---
+2026-10-11T21:55:08.0207031Z   duration_ms: 23.727782
+2026-10-11T21:55:08.0207466Z   type: 'test'
+2026-10-11T21:55:08.0207820Z   ...
+2026-10-11T21:55:08.0209487Z # Subtest: uncertain write before or after durable publication requires recovery
+2026-10-11T21:55:08.0210853Z ok 7 - uncertain write before or after durable publication requires recovery
+2026-10-11T21:55:08.0211687Z   ---
+2026-10-11T21:55:08.0212253Z   duration_ms: 3.409653
+2026-10-11T21:55:08.0212803Z   type: 'test'
+2026-10-11T21:55:08.0213278Z   ...
+2026-10-11T21:55:08.0214124Z # Subtest: receiver failure leaves pending events; acknowledgement is durable
+2026-10-11T21:55:08.0215266Z ok 8 - receiver failure leaves pending events; acknowledgement is durable
+2026-10-11T21:55:08.0216308Z   ---
+2026-10-11T21:55:08.0216901Z   duration_ms: 2.862236
+2026-10-11T21:55:08.0217476Z   type: 'test'
+2026-10-11T21:55:08.0217976Z   ...
+2026-10-11T21:55:08.0218847Z # Subtest: delivery can repeat after receiver success and failed acknowledgement
+2026-10-11T21:55:08.0220178Z ok 9 - delivery can repeat after receiver success and failed acknowledgement
+2026-10-11T21:55:08.0221020Z   ---
+2026-10-11T21:55:08.0221538Z   duration_ms: 1.817665
+2026-10-11T21:55:08.0222082Z   type: 'test'
+2026-10-11T21:55:08.0222594Z   ...
+2026-10-11T21:55:08.0223431Z # Subtest: action exception rolls back; bounded receipt eviction is explicit
+2026-10-11T21:55:08.0224667Z ok 10 - action exception rolls back; bounded receipt eviction is explicit
+2026-10-11T21:55:08.0225721Z   ---
+2026-10-11T21:55:08.0226275Z   duration_ms: 2.29805
+2026-10-11T21:55:08.0226909Z   type: 'test'
+2026-10-11T21:55:08.0227469Z   ...
+2026-10-11T21:55:08.0228362Z # Subtest: storage conflict rejects a second stale writer
+2026-10-11T21:55:08.0229544Z ok 11 - storage conflict rejects a second stale writer
+2026-10-11T21:55:08.0230428Z   ---
+2026-10-11T21:55:08.0231089Z   duration_ms: 1.700782
+2026-10-11T21:55:08.0231783Z   type: 'test'
+2026-10-11T21:55:08.0232422Z   ...
+2026-10-11T21:55:08.0233635Z # Subtest: real file replacement, ownership, recovery and corruption rejection
+2026-10-11T21:55:08.0235584Z ok 12 - real file replacement, ownership, recovery and corruption rejection
+2026-10-11T21:55:08.0236900Z   ---
+2026-10-11T21:55:08.0237678Z   duration_ms: 13.778788
+2026-10-11T21:55:08.0238380Z   type: 'test'
+2026-10-11T21:55:08.0238905Z   ...
+2026-10-11T21:55:08.0239430Z 1..12
+2026-10-11T21:55:08.0239953Z # tests 12
+2026-10-11T21:55:08.0240477Z # suites 0
+2026-10-11T21:55:08.0241005Z # pass 12
+2026-10-11T21:55:08.0241550Z # fail 0
+2026-10-11T21:55:08.0242091Z # cancelled 0
+2026-10-11T21:55:08.0242697Z # skipped 0
+2026-10-11T21:55:08.0243196Z # todo 0
+2026-10-11T21:55:08.0243743Z # duration_ms 67873.92432
+2026-10-11T21:55:08.0632204Z PASS prepared graph/legacy residency, input capture, no repeated allocations, logical extents, owned output, cleanup
+2026-10-11T21:55:08.0634543Z PASS graph capacity, mixed dynamic lengths, iteration buffer reuse, exact counters, empty stages, input nonmutation, resident feedback, alias swaps, capacity and allocation guards
+2026-10-11T21:55:08.0688016Z ##[group]Run cargo test --manifest-path core/Cargo.toml --offline
+2026-10-11T21:55:08.0688484Z [36;1mcargo test --manifest-path core/Cargo.toml --offline[0m
+2026-10-11T21:55:08.0688896Z [36;1mcargo test --manifest-path lowerings/rust/Cargo.toml --lib[0m
+2026-10-11T21:55:08.0689284Z [36;1mcargo test --test hardening regression_eval_[0m
+2026-10-11T21:55:08.0689605Z [36;1mcargo test --test temporary_lowering[0m
+2026-10-11T21:55:08.0690090Z [36;1mCARGO_TARGET_DIR=target cargo test --manifest-path lowerings/gpu/Cargo.toml --test temporary_bounds[0m
+2026-10-11T21:55:08.0690807Z [36;1mcargo test --test distribution --test source_syntax --test action_values --test general_laws --test semantic_optimisation[0m
+2026-10-11T21:55:08.0728182Z shell: /usr/bin/bash -e {0}
+2026-10-11T21:55:08.0728465Z env:
+2026-10-11T21:55:08.0728674Z   INK_PARITY_REQUIRE_ALL: 1
+2026-10-11T21:55:08.0728902Z   INK_THREADS: 4
+2026-10-11T21:55:08.0729116Z   CARGO_BUILD_JOBS: 2
+2026-10-11T21:55:08.0729397Z   CARGO_HOME: /home/runner/.cargo
+2026-10-11T21:55:08.0729661Z   CARGO_INCREMENTAL: 0
+2026-10-11T21:55:08.0729886Z   CARGO_TERM_COLOR: always
+2026-10-11T21:55:08.0730184Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-11T21:55:08.0730603Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-11T21:55:08.0731013Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-11T21:55:08.0731384Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-11T21:55:08.0731753Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-11T21:55:08.0732120Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-11T21:55:08.0732613Z   INK_TEST_ZIG: /opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/ziglang/zig
+2026-10-11T21:55:08.0733085Z   INK_PARITY_SEEDS: 1,7,23,3735928559,8714689606498214606
+2026-10-11T21:55:08.0733392Z   INK_TEST_LEAN: /home/runner/.elan/bin/lean
+2026-10-11T21:55:08.0733659Z ##[endgroup]
+2026-10-11T21:55:08.1284938Z [1m[92m   Compiling[0m proc-macro2 v1.0.107
+2026-10-11T21:55:08.1285882Z [1m[92m   Compiling[0m version_check v0.9.5
+2026-10-11T21:55:08.2724014Z [1m[92m   Compiling[0m generic-array v0.14.7
+2026-10-11T21:55:08.2987225Z [1m[92m   Compiling[0m quote v1.0.47
+2026-10-11T21:55:08.3276741Z [1m[92m   Compiling[0m unicode-ident v1.0.26
+2026-10-11T21:55:08.4057772Z [1m[92m   Compiling[0m serde_core v1.0.229
+2026-10-11T21:55:08.5030326Z [1m[92m   Compiling[0m typenum v1.20.1
+2026-10-11T21:55:08.7277021Z [1m[92m   Compiling[0m autocfg v1.5.1
+2026-10-11T21:55:08.9217735Z [1m[92m   Compiling[0m num-traits v0.2.19
+2026-10-11T21:55:09.2751655Z [1m[92m   Compiling[0m syn v3.0.6
+2026-10-11T21:55:10.5188316Z [1m[92m   Compiling[0m serde v1.0.229
+2026-10-11T21:55:10.6223402Z [1m[92m   Compiling[0m zmij v1.0.23
+2026-10-11T21:55:10.7254023Z [1m[92m   Compiling[0m serde_derive v1.0.229
+2026-10-11T21:55:11.1245835Z [1m[92m   Compiling[0m block-buffer v0.10.4
+2026-10-11T21:55:11.1716715Z [1m[92m   Compiling[0m crypto-common v0.1.7
+2026-10-11T21:55:11.2060433Z [1m[92m   Compiling[0m serde_json v1.0.151
+2026-10-11T21:55:11.2625092Z [1m[92m   Compiling[0m digest v0.10.7
+2026-10-11T21:55:11.3470154Z [1m[92m   Compiling[0m num-integer v0.1.47
+2026-10-11T21:55:11.7097021Z [1m[92m   Compiling[0m memchr v2.8.3
+2026-10-11T21:55:12.1403474Z [1m[92m   Compiling[0m itoa v1.0.18
+2026-10-11T21:55:12.2208354Z [1m[92m   Compiling[0m cfg-if v1.0.5
+2026-10-11T21:55:12.2390647Z [1m[92m   Compiling[0m cpufeatures v0.2.17
+2026-10-11T21:55:12.2578844Z [1m[92m   Compiling[0m sha2 v0.10.9
+2026-10-11T21:55:12.8076745Z [1m[92m   Compiling[0m num-bigint v0.4.8
+2026-10-11T21:55:13.4968135Z [1m[92m   Compiling[0m ink-core v0.1.0 (/home/runner/work/ink-lang/ink-lang/core)
+2026-10-11T21:55:34.4598063Z [1m[92m    Finished[0m `test` profile [unoptimized + debuginfo] target(s) in 26.37s
+2026-10-11T21:55:34.4614693Z [1m[92m     Running[0m unittests src/lib.rs (core/target/debug/deps/ink_core-57a744a428f993c5)
+2026-10-11T21:55:34.4627666Z 
+2026-10-11T21:55:34.4628058Z running 52 tests
+2026-10-11T21:55:34.4637829Z test action_semantic::tests::copying_branch_facts_consumes_work_per_copied_node ... ok
+2026-10-11T21:55:34.4640401Z test action_types::tests::contextual_types_solve_before_defaults_and_shared_holes_agree ... ok
+2026-10-11T21:55:34.4641743Z test action_types::tests::recursive_types_and_resource_exhaustion_fail_closed ... ok
+2026-10-11T21:55:34.4642988Z test action_values::tests::all_value_work_and_ignored_term_fields_are_bounded ... ok
+2026-10-11T21:55:34.4645066Z test action_semantic::tests::exact_integer_projection_preserves_the_complete_source ... ok
+2026-10-11T21:55:34.4646726Z test action_semantic::tests::exhausted_projection_never_returns_partial_authority ... ok
+2026-10-11T21:55:34.4652194Z test action_values::tests::canonical_membership_rejects_width_nominal_padding_and_tree_corruption ... ok
+2026-10-11T21:55:34.4655696Z test analysis::tests::captures_under_try_record_and_method_are_seen ... ok
+2026-10-11T21:55:34.4686396Z test analysis::tests::shadowing_applies_to_body_but_not_initializer ... ok
+2026-10-11T21:55:34.4689648Z test action_values::tests::flat_images_reject_aliasing_forward_unused_and_noncanonical_order ... ok
+2026-10-11T21:55:34.4716592Z test bitproof::tests::auditing_only_records_accepted_proofs_and_restores_after_panics ... ok
+2026-10-11T21:55:34.5107116Z test action_values::tests::full_width_values_have_compact_canonical_kernel_inhabitants ... ok
+2026-10-11T21:55:34.5166788Z test bitproof::tests::gates_conditionals_and_all_boolean_inputs_agree ... ok
+2026-10-11T21:55:34.5196607Z test bitproof::tests::learned_clauses_are_checked_and_corrupt_hints_fail_closed ... ok
+2026-10-11T21:55:34.5316796Z test bitproof::tests::resource_budgets_are_shared_and_literals_are_bounded ... ok
+2026-10-11T21:55:34.5318148Z test bitproof::tests::type_operator_and_depth_errors_are_not_encoded_as_assumptions ... ok
+2026-10-11T21:55:34.5376784Z test collection_facts::tests::composition_lengths_aliases_and_branch_bounds_are_source_derived ... ok
+2026-10-11T21:55:34.5378069Z test collection_facts::tests::fields_survive_nested_records_helpers_and_bindings ... ok
+2026-10-11T21:55:34.5406587Z test collection_facts::tests::formal_record_fields_have_distinct_borrowed_paths ... ok
+2026-10-11T21:55:34.5426766Z test collection_facts::tests::incompatible_branch_fields_do_not_supply_storage_facts ... ok
+2026-10-11T21:55:34.5456723Z test collection_facts::tests::recursion_unknown_effects_and_error_propagation_lose_facts ... ok
+2026-10-11T21:55:34.6117963Z test bitproof::tests::accepted_short_refutations_have_no_two_variable_model ... ok
+2026-10-11T21:55:34.6156723Z test collection_facts::tests::returned_alias_tracks_only_lexical_alias_bindings ... ok
+2026-10-11T21:55:34.6176946Z test core::control_domain_tests::domain_marks_general_pure_control_without_relabelling_unchanged_actions ... ok
+2026-10-11T21:55:34.6216604Z test effects::tests::exhausted_effect_work_budget_cannot_create_a_partial_judgment ... ok
+2026-10-11T21:55:34.6246318Z test laws::tests::beta_reduction_preserves_free_variables_beneath_binders ... ok
+2026-10-11T21:55:34.6276129Z test laws::tests::false_equalities_and_unknown_primitives_reject ... ok
+2026-10-11T21:55:34.6306370Z test laws::tests::floats_do_not_enter_the_word_polynomial_checker ... ok
+2026-10-11T21:55:34.6326709Z test laws::tests::quantified_induction_respects_free_variables_of_inherited_schemas ... ok
+2026-10-11T21:55:34.6336487Z test laws::tests::wrapping_arithmetic_is_checked_for_each_word_width ... ok
+2026-10-11T21:55:34.6406664Z test logic::alpha_tests::dependency_imports_cannot_overshoot_the_view_capacity ... ok
+2026-10-11T21:55:34.6414644Z test logic::alpha_tests::free_internal_names_and_nested_shadowing_survive_canonicalisation ... ok
+2026-10-11T21:55:34.6419043Z test logic::alpha_tests::normal_cache_is_context_local_and_preserves_work_and_depth_bounds ... ok
+2026-10-11T21:55:34.6421217Z test collection_facts::tests::repeated_nested_types_cannot_expand_input_facts_without_bound ... ok
+2026-10-11T21:55:34.6456579Z test logic::alpha_tests::prepared_memo_never_skips_environment_type_checks ... ok
+2026-10-11T21:55:34.6458001Z test logic::alpha_tests::staged_imports_preserve_exact_visibility_and_are_transactional ... ok
+2026-10-11T21:55:34.6486785Z test logic::normal_cache_tests::reductions_share_work_only_in_the_same_context_and_depth ... ok
+2026-10-11T21:55:34.6546399Z test registry::tests::canonical_identity_matches_shared_json_contract ... ok
+2026-10-11T21:55:34.6576369Z test registry::tests::exact_closure_and_unknown_domains_are_rejected ... ok
+2026-10-11T21:55:34.6586728Z test registry::tests::immutable_membership_and_snapshot_pins_are_checked ... ok
+2026-10-11T21:55:34.6606395Z test registry::tests::mathematical_domains_share_entry_and_evidence_admission ... ok
+2026-10-11T21:55:34.6616659Z test registry::tests::rehashing_false_proofs_or_false_interfaces_does_not_grant_authority ... ok
+2026-10-11T21:55:34.6646333Z test logic::normal_cache_tests::retained_call_syntax_is_bounded ... ok
+2026-10-11T21:55:34.6996962Z test source_syntax::tests::bounded_invalid_values_fail_without_relaxing_kernel_limits ... ok
+2026-10-11T21:55:34.7476956Z test source_syntax::tests::full_module_and_typed_actions_roundtrip_through_unchanged_kernel ... ok
+2026-10-11T21:55:34.7507071Z test stateful::actions::tests::isolated_core_executes_resolved_callback_scopes_without_knowledge_or_lowerings ... ok
+2026-10-11T21:55:34.7508551Z test stateful::actions::tests::table_resources_are_rejected_as_values_by_the_independent_core ... ok
+2026-10-11T21:55:34.7509800Z test transaction::tests::domain_errors_precede_exhaustion_and_success_never_wraps ... ok
+2026-10-11T21:55:34.7510971Z test transaction::tests::nested_result_and_ordered_publication_move_payloads ... ok
+2026-10-11T21:55:34.7777639Z test source_syntax::tests::lossless_unicode_words_order_and_balancing_boundaries ... ok
+2026-10-11T21:55:35.0588872Z test action_values::tests::nominal_order_recursive_records_results_and_wide_lists_preserve_values ... ok
+2026-10-11T21:55:35.5044022Z test bitproof::tests::full_width_wrapping_arithmetic_and_unsigned_order_agree_with_rust ... ok
+2026-10-11T21:55:35.5044798Z 
+2026-10-11T21:55:35.5045845Z test result: ok. 52 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.04s
+2026-10-11T21:55:35.5046487Z 
+2026-10-11T21:55:35.5059021Z [1m[92m     Running[0m tests/action_transitions.rs (core/target/debug/deps/action_transitions-b387a3bbd097f0c5)
+2026-10-11T21:55:35.5071208Z 
+2026-10-11T21:55:35.5071803Z running 7 tests
+2026-10-11T21:55:35.5206948Z test nested_action_expansion_has_a_call_budget_independent_of_source_typing ... ok
+2026-10-11T21:55:35.5354865Z test nested_unknown_results_are_sticky_and_domain_errors_precede_exhaustion ... ok
+2026-10-11T21:55:35.5356418Z test fixed_whole_action_model_checks_and_runs_without_catalogue_or_backend ... ok
+2026-10-11T21:55:35.5539754Z test source_parameter_names_cannot_capture_transaction_model_binders ... ok
+2026-10-11T21:55:35.5593293Z test source_transition_roots_cannot_ignore_ordered_event_changes ... ok
+2026-10-11T21:55:35.5719113Z test total_helper_projection_is_bound_and_bounded_without_external_tools ... ok
+2026-10-11T21:55:35.6132984Z test unsupported_domains_and_long_continuations_are_rejected_with_bounded_work ... ok
+2026-10-11T21:55:35.6133618Z 
+2026-10-11T21:55:35.6134250Z test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s
+2026-10-11T21:55:35.6134832Z 
+2026-10-11T21:55:35.6136943Z [1m[92m     Running[0m tests/bend_features.rs (core/target/debug/deps/bend_features-7094c0ed144e9fe9)
+2026-10-11T21:55:35.6147842Z 
+2026-10-11T21:55:35.6148016Z running 3 tests
+2026-10-11T21:55:35.6189578Z test reject_races_aliases_wrapping_and_false_descent ... ok
+2026-10-11T21:55:35.6231979Z test ordered_work_and_partitioned_owners ... ok
+2026-10-11T21:55:35.6573284Z test decreasing_recursion_is_checked ... ok
+2026-10-11T21:55:35.6573664Z 
+2026-10-11T21:55:35.6574516Z test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+2026-10-11T21:55:35.6574907Z 
+2026-10-11T21:55:35.6576560Z [1m[92m     Running[0m tests/canonical_float.rs (core/target/debug/deps/canonical_float-30b991baca5d0411)
+2026-10-11T21:55:35.6588042Z 
+2026-10-11T21:55:35.6588217Z running 1 test
+2026-10-11T21:55:35.6614152Z test arithmetic_is_canonical_but_transport_and_negation_preserve_payloads ... ok
+2026-10-11T21:55:35.6614742Z 
+2026-10-11T21:55:35.6615339Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-11T21:55:35.6615990Z 
+2026-10-11T21:55:35.6616881Z [1m[92m     Running[0m tests/constructor_cases.rs (core/target/debug/deps/constructor_cases-c0b73156e4be306a)
+2026-10-11T21:55:35.6625996Z 
+2026-10-11T21:55:35.6626372Z running 6 tests
+2026-10-11T21:55:35.6633442Z test conversion_computes_stuck_branch_bodies_without_assuming_equal_results ... ok
+2026-10-11T21:55:35.6634437Z test constructor_cases_cannot_supply_induction_or_unchecked_equalities ... ok
+2026-10-11T21:55:35.6635615Z test exhaustive_constructor_elimination_preserves_conditional_premises ... ok
+2026-10-11T21:55:35.6636670Z test constructor_case_subjects_are_exclusive_and_preserve_wire_bytes ... ok
+2026-10-11T21:55:35.6637729Z test induction_reduces_discarded_arguments_but_rejects_dependent_premises ... ok
+2026-10-11T21:55:36.8607962Z test projection_checks_types_but_does_not_expand_discarded_fields ... ok
+2026-10-11T21:55:36.8608575Z 
+2026-10-11T21:55:36.8609247Z test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.20s
+2026-10-11T21:55:36.8609844Z 
+2026-10-11T21:55:36.8632176Z [1m[92m     Running[0m tests/definition_context.rs (core/target/debug/deps/definition_context-dace18887a68b481)
+2026-10-11T21:55:36.8645961Z 
+2026-10-11T21:55:36.8646155Z running 4 tests
+2026-10-11T21:55:36.8735612Z test rehashed_false_contexts_and_unbound_dependencies_have_no_authority ... ok
+2026-10-11T21:55:36.8790328Z test lexical_capture_context_identity_and_context_free_bytes_are_explicit ... ok
+2026-10-11T21:55:36.9000871Z test portable_admission_requires_exact_original_definitions_at_application ... ok
+2026-10-11T21:55:37.2628702Z test generic_laws_apply_inside_helpers_and_contextual_composed_callers ... ok
+2026-10-11T21:55:37.2629109Z 
+2026-10-11T21:55:37.2629443Z test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.40s
+2026-10-11T21:55:37.2629769Z 
+2026-10-11T21:55:37.2633684Z [1m[92m     Running[0m tests/exact_float.rs (core/target/debug/deps/exact_float-2cbc40e8e571c6ce)
+2026-10-11T21:55:37.2644496Z 
+2026-10-11T21:55:37.2644977Z running 2 tests
+2026-10-11T21:55:37.2665149Z test exact_float_contract_is_source_bound_and_preserves_transport_bits ... ok
+2026-10-11T21:55:37.2693955Z test fixed_definition_float_words_match_source_execution ... ok
+2026-10-11T21:55:37.2694499Z 
+2026-10-11T21:55:37.2695114Z test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-11T21:55:37.2695875Z 
+2026-10-11T21:55:37.2697682Z [1m[92m     Running[0m tests/generalized_semantic_induction.rs (core/target/debug/deps/generalized_semantic_induction-a06987d8c9f3b62b)
+2026-10-11T21:55:37.2710478Z 
+2026-10-11T21:55:37.2710708Z running 5 tests
+2026-10-11T21:55:37.2730992Z test tree_rebuilding_preserves_capture_checks_scope_roundtrips_and_budgets ... ok
+2026-10-11T21:55:37.2756478Z test natural_generalization_uses_only_the_immediate_predecessor ... ok
+2026-10-11T21:55:37.2826335Z test schema_cannot_escape_its_step_or_prove_the_current_constructor ... ok
+2026-10-11T21:55:37.2926963Z test indexed_edit_identities_need_and_admit_generalized_induction ... ok
+2026-10-11T21:55:37.3016607Z test typed_instantiation_and_quantifier_premise_checks_reject_forgery ... ok
+2026-10-11T21:55:37.3016963Z 
+2026-10-11T21:55:37.3017304Z test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+2026-10-11T21:55:37.3017970Z 
+2026-10-11T21:55:37.3020808Z [1m[92m     Running[0m tests/language_foundations.rs (core/target/debug/deps/language_foundations-44aa72be4b1eb25a)
+2026-10-11T21:55:37.3031993Z 
+2026-10-11T21:55:37.3032122Z running 18 tests
+2026-10-11T21:55:37.3058031Z test action_conditionals_do_not_execute_unselected_changes ... ok
+2026-10-11T21:55:37.3080197Z test aliases_preserve_payload_constructors_and_patterns ... ok
+2026-10-11T21:55:37.3097072Z test exact_integer_correspondence_uses_a_bounded_ring_without_wrapping ... ok
+2026-10-11T21:55:37.3116830Z test bounded_generics_and_aliases_elaborate_to_ordinary_core ... ok
+2026-10-11T21:55:37.3118124Z test expanded_values_bind_their_semantics_and_lazy_effect_paths ... ok
+2026-10-11T21:55:37.3119446Z test inferred_counts_are_exact_and_recursion_measures_cannot_be_shadowed_or_wrap ... ok
+2026-10-11T21:55:37.3166706Z test mutable_action_branches_rejoin_values_and_discard_caller_continuations_on_return ... ok
+2026-10-11T21:55:37.3316785Z test fixed_shapes_and_bounded_constant_generics_are_checked_before_execution ... ok
+2026-10-11T21:55:37.3372384Z test payload_enums_and_exhaustive_matching_elaborate_into_nominal_records_and_sums ... ok
+2026-10-11T21:55:37.3398028Z test contracts_validate_explicit_results_and_roll_back_postcondition_failure ... ok
+2026-10-11T21:55:37.3436568Z test pure_callbacks_specialise_with_immutable_captures_and_checked_signatures ... ok
+2026-10-11T21:55:37.3486641Z test returning_action_branches_preserve_legacy_fallback_without_executing_it ... ok
+2026-10-11T21:55:37.3506536Z test shadowing_cannot_reuse_table_presence_facts ... ok
+2026-10-11T21:55:37.3507584Z test pure_helpers_share_exact_values_and_checked_results ... ok
+2026-10-11T21:55:37.3508835Z test pure_result_propagation_and_action_bindings_keep_effect_and_version_boundaries ... ok
+2026-10-11T21:55:37.3529058Z test word_operations_are_total_and_reject_non_words ... ok
+2026-10-11T21:55:37.3529663Z test surface_conditionals_preserve_scope_laziness_and_owned_branches ... ok
+2026-10-11T21:55:37.4038386Z test local_mutation_and_finite_iteration_preserve_scope_and_order ... ok
+2026-10-11T21:55:37.4038933Z 
+2026-10-11T21:55:37.4039601Z test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+2026-10-11T21:55:37.4040209Z 
+2026-10-11T21:55:37.4045196Z [1m[92m     Running[0m tests/law_author.rs (core/target/debug/deps/law_author-8603bc8bcf28b0e3)
+2026-10-11T21:55:37.4054397Z 
+2026-10-11T21:55:37.4054670Z running 2 tests
+2026-10-11T21:55:37.4101012Z test external_authoring_replays_independently_and_source_never_grants_authority ... ok
+2026-10-11T21:55:37.4118597Z test supplied_proofs_keep_conditions_and_exact_definition_context ... ok
+2026-10-11T21:55:37.4119148Z 
+2026-10-11T21:55:37.4119774Z test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+2026-10-11T21:55:37.4120395Z 
+2026-10-11T21:55:37.4122822Z [1m[92m     Running[0m tests/local_collection_proofs.rs (core/target/debug/deps/local_collection_proofs-2919152692a9e8a4)
+2026-10-11T21:55:37.4133145Z 
+2026-10-11T21:55:37.4133292Z running 4 tests
+2026-10-11T21:55:37.4162978Z test malformed_owned_semantic_terms_fail_closed ... ok
+2026-10-11T21:55:37.4164277Z test buffer_observations_preserve_float_bits_and_lazy_fallback ... ok
+2026-10-11T21:55:37.4185760Z test stopping_operational_meaning_matches_reference_indices_and_timing ... ok
+2026-10-11T21:55:39.6997475Z test larger_in_memory_catalogues_use_bounded_authenticated_leaves ... ok
+2026-10-11T21:55:39.6998037Z 
+2026-10-11T21:55:39.6998643Z test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.29s
+2026-10-11T21:55:39.6999166Z 
+2026-10-11T21:55:39.7006635Z [1m[92m     Running[0m tests/local_collections.rs (core/target/debug/deps/local_collections-c3d1fc515ff37dfe)
+2026-10-11T21:55:39.7018561Z 
+2026-10-11T21:55:39.7018746Z running 6 tests
+2026-10-11T21:55:39.7036939Z test external_calls_cannot_export_owned_handles ... ok
+2026-10-11T21:55:39.7066012Z test lazy_reads_and_branch_local_moves_preserve_ownership ... ok
+2026-10-11T21:55:39.7067512Z test ownership_and_persistence_rejections_are_checked_on_core_replay ... ok
+2026-10-11T21:55:39.7080504Z test buffers_move_through_helpers_without_changing_inputs ... ok
+2026-10-11T21:55:39.7105104Z test stopping_is_checked_before_each_step_and_limit_is_explicit ... ok
+2026-10-11T21:55:39.7109432Z test maps_are_reusable_ordered_local_values ... ok
+2026-10-11T21:55:39.7109861Z 
+2026-10-11T21:55:39.7110229Z test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+2026-10-11T21:55:39.7110664Z 
+2026-10-11T21:55:39.7112727Z [1m[92m     Running[0m tests/owned_semantic.rs (core/target/debug/deps/owned_semantic-8bbb18b3c7e902d8)
+2026-10-11T21:55:39.7123651Z 
+2026-10-11T21:55:39.7123951Z running 3 tests
+2026-10-11T21:55:39.7158059Z test owned_values_preserve_nan_payloads_and_scalar_reflexivity_excludes_floats ... ok
+2026-10-11T21:55:39.8258925Z test local_maps_match_order_upsert_removal_and_lazy_reads ... ok
+2026-10-11T21:55:39.8792642Z test buffer_edits_and_owned_iteration_match_reference ... ok
+2026-10-11T21:55:39.8792990Z 
+2026-10-11T21:55:39.8793391Z test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.17s
+2026-10-11T21:55:39.8793715Z 
+2026-10-11T21:55:39.8795578Z [1m[92m     Running[0m tests/sequence.rs (core/target/debug/deps/sequence-c6e265de9e03d1fa)
+2026-10-11T21:55:39.8807056Z 
+2026-10-11T21:55:39.8807321Z running 4 tests
+2026-10-11T21:55:39.8831705Z test semantic_concat_round_trips_source_without_new_syntax ... ok
+2026-10-11T21:55:39.8856554Z test semantic_concat_has_only_typed_definitional_computation ... ok
+2026-10-11T21:55:39.8857846Z test concat_versions_and_contextual_types_are_checked ... ok
+2026-10-11T21:55:39.8859285Z test concat_preserves_order_empty_boundaries_and_all_reference_value_types ... ok
+2026-10-11T21:55:39.8859602Z 
+2026-10-11T21:55:39.8860039Z test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+2026-10-11T21:55:39.8860438Z 
+2026-10-11T21:55:39.8862374Z [1m[92m   Doc-tests[0m ink_core
+2026-10-11T21:55:43.2066265Z 
+2026-10-11T21:55:43.2066874Z running 0 tests
+2026-10-11T21:55:43.2067136Z 
+2026-10-11T21:55:43.2146944Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-11T21:55:43.2147417Z 
+2026-10-11T21:55:43.2559487Z [1m[92m    Updating[0m git repository `https://github.com/siliconjungle/ink-abi`
+2026-10-11T21:55:43.2565232Z [1m[92m    Updating[0m git repository `https://github.com/siliconjungle/ink-lang`
+2026-10-11T21:55:43.3473598Z [1m[92m    Updating[0m git repository `https://github.com/siliconjungle/ink-native-support`
+2026-10-11T21:55:43.3477494Z [1m[92m    Updating[0m crates.io index
+2026-10-11T21:55:43.4615229Z [1m[92m     Locking[0m 28 packages to highest compatible versions
+2026-10-11T21:55:43.4632869Z [1m[92m      Adding[0m generic-array v0.14.7 [1m[33m(available: v0.14.9)[0m
+2026-10-11T21:55:43.4644237Z [1m[92m      Adding[0m num-bigint v0.4.8 [1m[33m(available: v0.5.1)[0m
+2026-10-11T21:55:43.4678836Z [1m[92m      Adding[0m sha2 v0.10.9 [1m[33m(available: v0.11.0)[0m
+2026-10-11T21:55:43.4768608Z [1m[92m Downloading[0m crates ...
+2026-10-11T21:55:43.5596130Z [1m[92m  Downloaded[0m serde_json v1.0.154
+2026-10-11T21:55:43.5772124Z [1m[92m  Downloaded[0m syn v3.0.8
+2026-10-11T21:55:43.6001472Z [1m[92m   Compiling[0m proc-macro2 v1.0.107
+2026-10-11T21:55:43.6010611Z [1m[92m   Compiling[0m unicode-ident v1.0.26
+2026-10-11T21:55:43.6387508Z [1m[92m   Compiling[0m version_check v0.9.5
+2026-10-11T21:55:43.7647765Z [1m[92m   Compiling[0m quote v1.0.47
+2026-10-11T21:55:43.7756877Z [1m[92m   Compiling[0m generic-array v0.14.7
+2026-10-11T21:55:43.8604318Z [1m[92m   Compiling[0m serde_core v1.0.229
+2026-10-11T21:55:43.9760389Z [1m[92m   Compiling[0m autocfg v1.5.1
+2026-10-11T21:55:44.1893786Z [1m[92m   Compiling[0m typenum v1.20.1
+2026-10-11T21:55:44.2867661Z [1m[92m   Compiling[0m syn v3.0.8
+2026-10-11T21:55:44.9068207Z [1m[92m   Compiling[0m num-traits v0.2.19
+2026-10-11T21:55:45.6868683Z [1m[92m   Compiling[0m serde v1.0.229
+2026-10-11T21:55:45.7810522Z [1m[92m   Compiling[0m zmij v1.0.23
+2026-10-11T21:55:45.8795657Z [1m[92m   Compiling[0m serde_derive v1.0.229
+2026-10-11T21:55:46.3526091Z [1m[92m   Compiling[0m serde_json v1.0.154
+2026-10-11T21:55:46.9545143Z [1m[92m   Compiling[0m block-buffer v0.10.4
+2026-10-11T21:55:47.0049509Z [1m[92m   Compiling[0m crypto-common v0.1.7
+2026-10-11T21:55:47.0394053Z [1m[92m   Compiling[0m memchr v2.8.3
+2026-10-11T21:55:47.4635168Z [1m[92m   Compiling[0m itoa v1.0.18
+2026-10-11T21:55:47.8967103Z [1m[92m   Compiling[0m digest v0.10.7
+2026-10-11T21:55:47.9784199Z [1m[92m   Compiling[0m num-integer v0.1.47
+2026-10-11T21:55:48.1666978Z [1m[92m   Compiling[0m cpufeatures v0.2.17
+2026-10-11T21:55:48.1860628Z [1m[92m   Compiling[0m cfg-if v1.0.5
+2026-10-11T21:55:48.2045849Z [1m[92m   Compiling[0m sha2 v0.10.9
+2026-10-11T21:55:48.4308102Z [1m[92m   Compiling[0m num-bigint v0.4.8
+2026-10-11T21:55:48.5231211Z [1m[92m   Compiling[0m ink-abi v0.1.0 (https://github.com/siliconjungle/ink-abi?rev=841a1898ea1c6e8c69845b94aa5f1c79a151d55f#841a1898)
+2026-10-11T21:55:49.0436429Z [1m[92m   Compiling[0m ink-native-support v0.1.0 (https://github.com/siliconjungle/ink-native-support?rev=f9e8ca6e3704e50531777bccdda20c7a278c244d#f9e8ca6e)
+2026-10-11T21:55:49.1107117Z [1m[92m   Compiling[0m ink-core v0.1.0 (https://github.com/siliconjungle/ink-lang?rev=4422e9c60395c1c492ea0594f93cc5574e797f2e#4422e9c6)
+2026-10-11T21:56:02.1402386Z [1m[92m   Compiling[0m ink-lowering-rust v0.1.0 (/home/runner/work/ink-lang/ink-lang/lowerings/rust)
+2026-10-11T21:56:03.0791981Z [1m[92m    Finished[0m `test` profile [unoptimized + debuginfo] target(s) in 19.84s
+2026-10-11T21:56:03.0885944Z [1m[92m     Running[0m unittests src/lib.rs (lowerings/rust/target/debug/deps/ink_lowering_rust-cd6a29e5a68a0448)
+2026-10-11T21:56:03.0896658Z 
+2026-10-11T21:56:03.0897067Z running 3 tests
+2026-10-11T21:56:03.6040623Z test pure_rust::tests::nested_record_reads_clone_only_observed_elements ... ok
+2026-10-11T21:56:03.6477323Z test pure_rust::tests::concat_borrows_operands_and_copies_each_element_once_into_a_fresh_vec ... ok
+2026-10-11T21:56:03.8071338Z test pure_rust::parallel_tests::workers_are_bounded_nested_work_is_sequential_and_updates_reuse_allocation ... ok
+2026-10-11T21:56:03.8071865Z 
+2026-10-11T21:56:03.8072200Z test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.72s
+2026-10-11T21:56:03.8072530Z 
+2026-10-11T21:56:03.8614576Z [1m[92m   Compiling[0m proc-macro2 v1.0.107
+2026-10-11T21:56:03.8615536Z [1m[92m   Compiling[0m unicode-ident v1.0.26
+2026-10-11T21:56:03.9007337Z [1m[92m   Compiling[0m quote v1.0.47
+2026-10-11T21:56:03.9874565Z [1m[92m   Compiling[0m version_check v0.9.5
+2026-10-11T21:56:04.1207073Z [1m[92m   Compiling[0m generic-array v0.14.7
+2026-10-11T21:56:04.1794305Z [1m[92m   Compiling[0m serde_core v1.0.229
+2026-10-11T21:56:04.3989648Z [1m[92m   Compiling[0m autocfg v1.5.1
+2026-10-11T21:56:04.4115937Z [1m[92m   Compiling[0m typenum v1.20.1
+2026-10-11T21:56:04.5883975Z [1m[92m   Compiling[0m num-traits v0.2.19
+2026-10-11T21:56:04.6439799Z [1m[92m   Compiling[0m syn v3.0.7
+2026-10-11T21:56:06.0406245Z [1m[92m   Compiling[0m zmij v1.0.23
+2026-10-11T21:56:06.1235235Z [1m[92m   Compiling[0m serde v1.0.229
+2026-10-11T21:56:06.2331814Z [1m[92m   Compiling[0m serde_derive v1.0.229
+2026-10-11T21:56:06.5411573Z [1m[92m   Compiling[0m serde_json v1.0.152
+2026-10-11T21:56:07.1454614Z [1m[92m   Compiling[0m block-buffer v0.10.4
+2026-10-11T21:56:07.1924595Z [1m[92m   Compiling[0m crypto-common v0.1.7
+2026-10-11T21:56:07.2270746Z [1m[92m   Compiling[0m memchr v2.8.3
+2026-10-11T21:56:07.6633541Z [1m[92m   Compiling[0m itoa v1.0.18
+2026-10-11T21:56:08.2863660Z [1m[92m   Compiling[0m digest v0.10.7
+2026-10-11T21:56:08.3694061Z [1m[92m   Compiling[0m num-integer v0.1.47
+2026-10-11T21:56:08.5739139Z [1m[92m   Compiling[0m cfg-if v1.0.5
+2026-10-11T21:56:08.5916856Z [1m[92m   Compiling[0m cpufeatures v0.2.17
+2026-10-11T21:56:08.6100727Z [1m[92m   Compiling[0m sha2 v0.10.9
+2026-10-11T21:56:08.7331622Z [1m[92m   Compiling[0m num-bigint v0.4.8
+2026-10-11T21:56:08.8181144Z [1m[92m   Compiling[0m ink-abi v0.1.0 (/home/runner/work/ink-lang/ink-lang/abi)
+2026-10-11T21:56:09.3394151Z [1m[92m   Compiling[0m ink-native-support v0.1.0 (/home/runner/work/ink-lang/ink-lang/native-support)
+2026-10-11T21:56:09.4137627Z [1m[92m   Compiling[0m ink-core v0.1.0 (/home/runner/work/ink-lang/ink-lang/core)
+2026-10-11T21:56:15.9307520Z [1m[92m   Compiling[0m ink-lowering-rust v0.1.0 (/home/runner/work/ink-lang/ink-lang/lowerings/rust)
+2026-10-11T21:56:17.7831572Z [1m[92m   Compiling[0m ink-lowering-c v0.1.0 (/home/runner/work/ink-lang/ink-lang/lowerings/c)
+2026-10-11T21:56:19.5214114Z [1m[92m   Compiling[0m ink-lowering-js v0.1.0 (/home/runner/work/ink-lang/ink-lang/lowerings/js)
+2026-10-11T21:56:21.0017397Z [1m[92m   Compiling[0m ink-lowering-gpu v0.1.0 (/home/runner/work/ink-lang/ink-lang/lowerings/gpu)
+2026-10-11T21:56:22.0943893Z [1m[92m   Compiling[0m ink-lowering-wasm v0.1.0 (/home/runner/work/ink-lang/ink-lang/lowerings/wasm)
+2026-10-11T21:56:22.1569517Z [1m[92m   Compiling[0m ink-runtime v0.1.0 (/home/runner/work/ink-lang/ink-lang/runtime)
+2026-10-11T21:56:22.7437085Z [1m[92m   Compiling[0m ink v0.1.0 (/home/runner/work/ink-lang/ink-lang)
+2026-10-11T21:56:28.2885899Z [1m[92m    Finished[0m `test` profile [unoptimized + debuginfo] target(s) in 24.47s
+2026-10-11T21:56:28.2899364Z [1m[92m     Running[0m tests/hardening.rs (target/debug/deps/hardening-ab79f0a2a7b55474)
+2026-10-11T21:56:28.2913431Z 
+2026-10-11T21:56:28.2913896Z running 5 tests
+2026-10-11T21:56:28.4409739Z test regression_eval_nesting_is_bounded ... ok
+2026-10-11T21:56:28.4898122Z test regression_eval_collection_and_float_frames_are_bounded ... ok
+2026-10-11T21:56:29.4086755Z test regression_eval_compute_values_charge_copies_and_preserve_context ... ok
+2026-10-11T21:56:30.1562386Z test regression_eval_scope_is_not_copied_per_element ... ok
+2026-10-11T21:56:33.3863909Z test regression_eval_list_copies_cost_fuel ... ok
+2026-10-11T21:56:33.3864397Z 
+2026-10-11T21:56:33.3865094Z test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 11 filtered out; finished in 5.09s
+2026-10-11T21:56:33.3865879Z 
+2026-10-11T21:56:33.4155931Z [1m[92m   Compiling[0m ink v0.1.0 (/home/runner/work/ink-lang/ink-lang)
+2026-10-11T21:56:33.7071243Z [1m[92m    Finished[0m `test` profile [unoptimized + debuginfo] target(s) in 0.31s
+2026-10-11T21:56:33.7099265Z [1m[92m     Running[0m tests/temporary_lowering.rs (target/debug/deps/temporary_lowering-fc3b60bef4f29c8d)
+2026-10-11T21:56:33.7111268Z 
+2026-10-11T21:56:33.7111794Z running 1 test
+2026-10-11T21:56:38.6628768Z test packed_c_owned_buffers_preserve_input_and_disjoint_views ... ok
+2026-10-11T21:56:38.6629356Z 
+2026-10-11T21:56:38.6629980Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.95s
+2026-10-11T21:56:38.6630581Z 
+2026-10-11T21:56:38.6798906Z [1m[92m    Updating[0m git repository `https://github.com/siliconjungle/ink-abi`
+2026-10-11T21:56:38.6803935Z [1m[92m    Updating[0m git repository `https://github.com/siliconjungle/ink-lang`
+2026-10-11T21:56:38.7708074Z [1m[92m    Updating[0m git repository `https://github.com/siliconjungle/ink-lowering-c`
+2026-10-11T21:56:38.7714318Z [1m[92m    Updating[0m git repository `https://github.com/siliconjungle/ink-lowering-js`
+2026-10-11T21:56:38.7721746Z [1m[92m    Updating[0m crates.io index
+2026-10-11T21:56:38.7730642Z [1m[92m    Updating[0m git repository `https://github.com/siliconjungle/ink-lowering-rust`
+2026-10-11T21:56:38.7735933Z [1m[92m    Updating[0m git repository `https://github.com/siliconjungle/ink-native-support`
+2026-10-11T21:56:38.8322179Z [1m[92m     Locking[0m 31 packages to highest compatible versions
+2026-10-11T21:56:38.8339144Z [1m[92m      Adding[0m generic-array v0.14.7 [1m[33m(available: v0.14.9)[0m
+2026-10-11T21:56:38.8386433Z [1m[92m      Adding[0m sha2 v0.10.9 [1m[33m(available: v0.11.0)[0m
+2026-10-11T21:56:38.8524842Z [1m[92m   Compiling[0m syn v3.0.8
+2026-10-11T21:56:38.8525895Z [1m[92m   Compiling[0m serde_json v1.0.154
+2026-10-11T21:56:39.8568916Z [1m[92m   Compiling[0m ink-native-support v0.1.0 (https://github.com/siliconjungle/ink-native-support?rev=f9e8ca6e3704e50531777bccdda20c7a278c244d#f9e8ca6e)
+2026-10-11T21:56:40.1044967Z [1m[92m   Compiling[0m serde_derive v1.0.229
+2026-10-11T21:56:41.4904742Z [1m[92m   Compiling[0m serde v1.0.229
+2026-10-11T21:56:41.7848999Z [1m[92m   Compiling[0m num-bigint v0.4.8
+2026-10-11T21:56:41.8201402Z [1m[92m   Compiling[0m ink-abi v0.1.0 (https://github.com/siliconjungle/ink-abi?rev=841a1898ea1c6e8c69845b94aa5f1c79a151d55f#841a1898)
+2026-10-11T21:56:42.4699250Z [1m[92m   Compiling[0m ink-core v0.1.0 (https://github.com/siliconjungle/ink-lang?rev=4422e9c60395c1c492ea0594f93cc5574e797f2e#4422e9c6)
+2026-10-11T21:56:48.8817641Z [1m[92m   Compiling[0m ink-lowering-rust v0.1.0 (https://github.com/siliconjungle/ink-lowering-rust?rev=03bc203a143aa57c0df0dc67a36a0a7d91065af4#03bc203a)
+2026-10-11T21:56:50.7454956Z [1m[92m   Compiling[0m ink-lowering-c v0.1.0 (https://github.com/siliconjungle/ink-lowering-c?rev=8824b0ac1b22947ecf6ea46b4217bfa68d47da5b#8824b0ac)
+2026-10-11T21:56:52.5147988Z [1m[92m   Compiling[0m ink-lowering-js v0.1.0 (https://github.com/siliconjungle/ink-lowering-js?rev=798090796e2bc778ab4c650ad056d8809b503c92#79809079)
+2026-10-11T21:56:54.0059376Z [1m[92m   Compiling[0m ink-lowering-gpu v0.1.0 (/home/runner/work/ink-lang/ink-lang/lowerings/gpu)
+2026-10-11T21:56:58.5784983Z [1m[92m    Finished[0m `test` profile [unoptimized + debuginfo] target(s) in 19.90s
+2026-10-11T21:56:58.5892137Z [1m[92m     Running[0m tests/temporary_bounds.rs (target/debug/deps/temporary_bounds-a1d05b5785555c4f)
+2026-10-11T21:56:58.5904415Z 
+2026-10-11T21:56:58.5904749Z running 1 test
+2026-10-11T21:56:58.6023608Z test split_provenance_allows_bounded_rejoin_and_rejects_growth ... ok
+2026-10-11T21:56:58.6024156Z 
+2026-10-11T21:56:58.6024577Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+2026-10-11T21:56:58.6025124Z 
+2026-10-11T21:56:58.6325375Z [1m[92m   Compiling[0m ink v0.1.0 (/home/runner/work/ink-lang/ink-lang)
+2026-10-11T21:57:00.1592175Z [1m[92m    Finished[0m `test` profile [unoptimized + debuginfo] target(s) in 1.54s
+2026-10-11T21:57:00.1617029Z [1m[92m     Running[0m tests/action_values.rs (target/debug/deps/action_values-f12c8b8e3f6b3b35)
+2026-10-11T21:57:00.1631094Z 
+2026-10-11T21:57:00.1631515Z running 4 tests
+2026-10-11T21:57:01.2957013Z test independent_numerical_images_preserve_actual_arguments_results_and_events ... ok
+2026-10-11T21:57:01.4623440Z test independent_encoder_matches_complete_value_domain_and_real_action_observations ... ok
+2026-10-11T21:57:02.1018653Z test authenticated_wrong_carrier_and_changed_source_cannot_forge_correspondence ... ok
+2026-10-11T21:57:02.8850136Z test cli_and_argument_budgets_validate_before_writing_output ... ok
+2026-10-11T21:57:02.8850686Z 
+2026-10-11T21:57:02.8851267Z test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.72s
+2026-10-11T21:57:02.8851884Z 
+2026-10-11T21:57:02.8856524Z [1m[92m     Running[0m tests/distribution.rs (target/debug/deps/distribution-44a3ec2b4e80ddbc)
+2026-10-11T21:57:02.8864008Z 
+2026-10-11T21:57:02.8864154Z running 1 test
+2026-10-11T21:58:02.8866813Z test relocated_install_search_and_independent_offline_replay_need_no_original_paths has been running for over 60 seconds
+2026-10-11T21:59:17.4258774Z test relocated_install_search_and_independent_offline_replay_need_no_original_paths ... ok
+2026-10-11T21:59:17.4259167Z 
+2026-10-11T21:59:17.4259549Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 134.54s
+2026-10-11T21:59:17.4260382Z 
+2026-10-11T21:59:17.4261020Z [1m[92m     Running[0m tests/general_laws.rs (target/debug/deps/general_laws-aca9655155e227a7)
+2026-10-11T21:59:17.4273451Z 
+2026-10-11T21:59:17.4273825Z running 8 tests
+2026-10-11T21:59:17.4282239Z test abstract_symbols_cannot_be_inspected_or_computed ... ok
+2026-10-11T21:59:17.4283370Z test assumption_dependence_is_tracked_even_without_abstract_symbols ... ok
+2026-10-11T21:59:17.4439230Z test general_laws_never_reach_a_conclusion_directly ... ok
+2026-10-11T21:59:17.4486641Z test general_law_instantiates_for_a_concrete_program ... ok
+2026-10-11T21:59:17.4599273Z test instance_rejects_wrong_or_incomplete_interpretations ... ok
+2026-10-11T21:59:17.4646777Z test assumptions_must_be_proved_for_the_interpretation ... ok
+2026-10-11T21:59:17.4648416Z test instantiated_lemmas_are_closed_and_reusable ... ok
+2026-10-11T21:59:17.5979610Z test canonical_store_admits_the_general_laws_and_rejects_a_false_one ... ok
+2026-10-11T21:59:17.5980072Z 
+2026-10-11T21:59:17.5980559Z test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.17s
+2026-10-11T21:59:17.5981000Z 
+2026-10-11T21:59:17.5982970Z [1m[92m     Running[0m tests/semantic_optimisation.rs (target/debug/deps/semantic_optimisation-50e3d2dcfa48ef0e)
+2026-10-11T21:59:17.5996482Z 
+2026-10-11T21:59:17.5996836Z running 17 tests
+2026-10-11T21:59:17.6047212Z test all_executable_expression_forms_round_trip_through_semantic_terms ... ok
+2026-10-11T21:59:17.6048578Z test a_new_catalogue_entry_changes_execution_without_rebuilding_the_compiler ... ok
+2026-10-11T21:59:17.6055801Z test checked_laws_cannot_be_reused_with_different_function_definitions ... ok
+2026-10-11T21:59:17.6072776Z test float_reassociation_and_numeric_equality_as_bit_equality_are_rejected ... ok
+2026-10-11T21:59:17.6084035Z test induction_rejects_a_premise_that_does_not_hold_for_subproblems ... ok
+2026-10-11T21:59:20.2364687Z test altered_bytes_unknown_operations_and_missing_premises_fail_closed ... ok
+2026-10-11T21:59:23.4886747Z test loop_count_and_increment_are_instantiated_generically ... ok
+2026-10-11T21:59:26.2876974Z test branch_conditions_are_proved_at_the_actual_site ... ok
+2026-10-11T21:59:26.2956795Z test operational_list_models_preserve_index_scan_sort_and_float_sum_order ... ok
+2026-10-11T21:59:29.9116169Z test nested_loop_laws_preserve_outer_captures_and_reject_index_dependent_steps ... ok
+2026-10-11T21:59:32.6516749Z test optimisation_preserves_state_declarations_and_transaction_bodies ... ok
+2026-10-11T21:59:35.3316808Z test search_composes_supporting_lemmas_to_discharge_rule_conditions ... ok
+2026-10-11T21:59:35.3876099Z test rules_apply_under_binders_without_capture ... ok
+2026-10-11T21:59:35.5359113Z test the_same_proof_calculus_checks_alternative_routed_compositions ... ok
+2026-10-11T21:59:37.1437531Z test universal_loop_and_collection_laws_check_independently ... ok
+2026-10-11T21:59:37.1956258Z test external_search_and_interpreter_share_the_checked_selection ... ok
+2026-10-11T21:59:38.8745714Z test nested_optimisations_compose_and_enable_further_rules_automatically ... ok
+2026-10-11T21:59:38.8746394Z 
+2026-10-11T21:59:38.8747294Z test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 21.27s
+2026-10-11T21:59:38.8747678Z 
+2026-10-11T21:59:38.8753694Z [1m[92m     Running[0m tests/source_syntax.rs (target/debug/deps/source_syntax-a8240cbadd794793)
+2026-10-11T21:59:38.8761489Z 
+2026-10-11T21:59:38.8761657Z running 3 tests
+2026-10-11T21:59:42.1548242Z test linked_imported_helpers_are_part_of_the_bound_program ... ok
+2026-10-11T21:59:44.6993324Z test cli_replay_checks_source_and_preserves_output_on_rejection ... ok
+2026-10-11T21:59:48.6526295Z test authentic_complete_code_is_bound_and_other_code_cannot_substitute ... ok
+2026-10-11T21:59:48.6555392Z 
+2026-10-11T21:59:48.6556628Z test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 9.78s
+2026-10-11T21:59:48.6557288Z 
+2026-10-11T21:59:48.6620726Z ##[group]Run cargo test --test composable_state --test journal_compaction
+2026-10-11T21:59:48.6621782Z [36;1mcargo test --test composable_state --test journal_compaction[0m
+2026-10-11T21:59:48.6622712Z [36;1mPYTHONPATH=knowledge python3 -m unittest discover -s knowledge/tests -p test_store.py[0m
+2026-10-11T21:59:48.6623828Z [36;1mPYTHONPATH=knowledge python3 -m unittest discover -s knowledge/tests -p test_state_calculus.py[0m
+2026-10-11T21:59:48.6625021Z [36;1mPYTHONPATH=knowledge python3 -m unittest discover -s knowledge/tests -p test_admit_publication.py[0m
+2026-10-11T21:59:48.6626519Z [36;1mPYTHONPATH=planner:knowledge python3 -m unittest discover -s planner/tests -p test_semantic_search.py[0m
+2026-10-11T21:59:48.6671103Z shell: /usr/bin/bash -e {0}
+2026-10-11T21:59:48.6671493Z env:
+2026-10-11T21:59:48.6689125Z   INK_PARITY_REQUIRE_ALL: 1
+2026-10-11T21:59:48.6689547Z   INK_THREADS: 4
+2026-10-11T21:59:48.6689830Z   CARGO_BUILD_JOBS: 2
+2026-10-11T21:59:48.6690243Z   CARGO_HOME: /home/runner/.cargo
+2026-10-11T21:59:48.6690635Z   CARGO_INCREMENTAL: 0
+2026-10-11T21:59:48.6691006Z   CARGO_TERM_COLOR: always
+2026-10-11T21:59:48.6691476Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-11T21:59:48.6692182Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-11T21:59:48.6692878Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-11T21:59:48.6693498Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-11T21:59:48.6694159Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-11T21:59:48.6694823Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-11T21:59:48.6695847Z   INK_TEST_ZIG: /opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/ziglang/zig
+2026-10-11T21:59:48.6696683Z   INK_PARITY_SEEDS: 1,7,23,3735928559,8714689606498214606
+2026-10-11T21:59:48.6697224Z   INK_TEST_LEAN: /home/runner/.elan/bin/lean
+2026-10-11T21:59:48.6697674Z ##[endgroup]
+2026-10-11T21:59:48.7067284Z [1m[92m   Compiling[0m ink v0.1.0 (/home/runner/work/ink-lang/ink-lang)
+2026-10-11T21:59:49.3331231Z [1m[92m    Finished[0m `test` profile [unoptimized + debuginfo] target(s) in 0.64s
+2026-10-11T21:59:49.3353442Z [1m[92m     Running[0m tests/composable_state.rs (target/debug/deps/composable_state-12adbf4c535a9e62)
+2026-10-11T21:59:49.3365863Z 
+2026-10-11T21:59:49.3366239Z running 5 tests
+2026-10-11T21:59:49.3378448Z test constructor_cases_substitute_premises_without_inventing_induction_hypotheses ... ok
+2026-10-11T22:00:10.7043823Z test parameterised_group_repair_is_bound_to_source_query_and_exact_contribution ... ok
+2026-10-11T22:00:13.8135122Z test open_repair_assumptions_cannot_authorize_a_closed_conclusion ... ok
+2026-10-11T22:00:13.8592056Z test parameterized_key_locality_is_instantiated_and_false_key_mapping_is_rejected ... ok
+2026-10-11T22:00:13.9242745Z test field_frontier_requires_a_proof_for_the_actual_row_update ... ok
+2026-10-11T22:00:13.9243166Z 
+2026-10-11T22:00:13.9243550Z test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 24.59s
+2026-10-11T22:00:13.9243902Z 
+2026-10-11T22:00:13.9254984Z [1m[92m     Running[0m tests/journal_compaction.rs (target/debug/deps/journal_compaction-32cf3dc1b30294db)
+2026-10-11T22:00:13.9265051Z 
+2026-10-11T22:00:13.9265339Z running 1 test
+2026-10-11T22:00:13.9276661Z [1m[91merror[0m: test failed, to rerun pass `--test journal_compaction`
+2026-10-11T22:00:13.9277843Z test generated_journals_keep_one_before_image_per_cell ... FAILED
+2026-10-11T22:00:13.9278737Z 
+2026-10-11T22:00:13.9279018Z failures:
+2026-10-11T22:00:13.9279431Z 
+2026-10-11T22:00:13.9280116Z ---- generated_journals_keep_one_before_image_per_cell stdout ----
+2026-10-11T22:00:13.9280875Z 
+2026-10-11T22:00:13.9282015Z thread 'generated_journals_keep_one_before_image_per_cell' (6559) panicked at tests/journal_compaction.rs:12:73:
+2026-10-11T22:00:13.9284391Z called `Result::unwrap()` on an `Err` value: "replace in Rows needs proof that the key is present"
+2026-10-11T22:00:13.9286104Z note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+2026-10-11T22:00:13.9287124Z 
+2026-10-11T22:00:13.9287248Z 
+2026-10-11T22:00:13.9287533Z failures:
+2026-10-11T22:00:13.9291092Z     generated_journals_keep_one_before_image_per_cell
+2026-10-11T22:00:13.9291693Z 
+2026-10-11T22:00:13.9292607Z test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-11T22:00:13.9309968Z 
+2026-10-11T22:00:13.9322542Z ##[error]Process completed with exit code 101.
+2026-10-11T22:00:13.9425747Z ##[group]Run actions/upload-artifact@v4
+2026-10-11T22:00:13.9426263Z with:
+2026-10-11T22:00:13.9426631Z   name: cpu-wasm-conformance
+2026-10-11T22:00:13.9444024Z   path: build/lowering-residency/*.json
+build/lowering-residency/*.wgsl
+build/generated-parity-f32/source.ink
+build/generated-parity-f32/script.json
+build/generated-parity-f32/expected.json
+build/generated-parity-u64/source.ink
+build/generated-parity-u64/script.json
+build/generated-parity-u64/expected.json
+build/enforced-keep-migration/oracle.json
+build/enforced-parity/numeric-definitions/oracle.json
+build/enforced-parity/cpu-audit.json
+build/async-parallel-transactions/source.ink
+build/async-parallel-transactions/script.json
+build/async-parallel-transactions/expected.json
+build/generated-parity-bend/source.ink
+build/generated-parity-bend/script.json
+build/generated-parity-bend/expected.json
+build/generated-parity-bend/gpu-script.json
+build/boolean-verdict-test/*.lean
+build/mixed-durable-native/source.ink
+build/mixed-durable-native/initial.json
+build/mixed-durable-native/recovery.json
+build/mixed-durable-native/expected.json
+build/representation-parity/**/checks.json
+build/representation-parity/**/source.ink
+build/representation-parity/**/request.json
+build/representation-parity/**/oracle.json
+build/representation-parity/**/producer.log
+build/representation-parity/**/*-run.log
+build/numerical-state-parity/source.ink
+build/numerical-state-parity/script.json
+build/numerical-state-parity/expected.json
+build/numerical-state-parity/gpu-script.json
+build/generated-parity/source.ink
+build/generated-parity/seeds.json
+build/generated-parity/script.json
+build/generated-parity/expected.json
+build/lowering-parity/source.ink
+build/lowering-parity/script.json
+build/lowering-parity/expected.json
+build/selected-checkpoint-parity/source.ink
+build/selected-checkpoint-parity/script.json
+build/selected-checkpoint-parity/expected.json
+build/selected-checkpoint-parity/input-core.json
+build/selected-checkpoint-parity/selected-core.json
+build/selected-checkpoint-parity/selection.json
+build/action-transitions-native/*.json
+build/action-transitions-native/source.ink
+build/action-transitions-native-evidence/*.json
+build/action-rule-parity/*.json
+build/action-rule-parity/source.ink
+build/action-rule-search/*.json
+build/action-rule-native-search/*.json
+
+2026-10-11T22:00:13.9462014Z   retention-days: 30
+2026-10-11T22:00:13.9462455Z   if-no-files-found: warn
+2026-10-11T22:00:13.9462922Z   compression-level: 6
+2026-10-11T22:00:13.9463355Z   overwrite: false
+2026-10-11T22:00:13.9463783Z   include-hidden-files: false
+2026-10-11T22:00:13.9464255Z env:
+2026-10-11T22:00:13.9464605Z   INK_PARITY_REQUIRE_ALL: 1
+2026-10-11T22:00:13.9465056Z   INK_THREADS: 4
+2026-10-11T22:00:13.9465517Z   CARGO_BUILD_JOBS: 2
+2026-10-11T22:00:13.9465934Z   CARGO_HOME: /home/runner/.cargo
+2026-10-11T22:00:13.9466410Z   CARGO_INCREMENTAL: 0
+2026-10-11T22:00:13.9466823Z   CARGO_TERM_COLOR: always
+2026-10-11T22:00:13.9467380Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-11T22:00:13.9468205Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-11T22:00:13.9469025Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-11T22:00:13.9469765Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-11T22:00:13.9470519Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-11T22:00:13.9471270Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-11T22:00:13.9472254Z   INK_TEST_ZIG: /opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/ziglang/zig
+2026-10-11T22:00:13.9473445Z   INK_PARITY_SEEDS: 1,7,23,3735928559,8714689606498214606
+2026-10-11T22:00:13.9474068Z   INK_TEST_LEAN: /home/runner/.elan/bin/lean
+2026-10-11T22:00:13.9474588Z ##[endgroup]
+2026-10-11T22:00:14.1250673Z (node:6561) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-11T22:00:14.1252547Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-11T22:00:14.1397947Z Multiple search paths detected. Calculating the least common ancestor of all paths
+2026-10-11T22:00:14.1423575Z The least common ancestor is /home/runner/work/ink-lang/ink-lang/build. This will be the root directory of the artifact
+2026-10-11T22:00:14.1478299Z ##[warning]No files were found with the provided path: build/lowering-residency/*.json
+build/lowering-residency/*.wgsl
+build/generated-parity-f32/source.ink
+build/generated-parity-f32/script.json
+build/generated-parity-f32/expected.json
+build/generated-parity-u64/source.ink
+build/generated-parity-u64/script.json
+build/generated-parity-u64/expected.json
+build/enforced-keep-migration/oracle.json
+build/enforced-parity/numeric-definitions/oracle.json
+build/enforced-parity/cpu-audit.json
+build/async-parallel-transactions/source.ink
+build/async-parallel-transactions/script.json
+build/async-parallel-transactions/expected.json
+build/generated-parity-bend/source.ink
+build/generated-parity-bend/script.json
+build/generated-parity-bend/expected.json
+build/generated-parity-bend/gpu-script.json
+build/boolean-verdict-test/*.lean
+build/mixed-durable-native/source.ink
+build/mixed-durable-native/initial.json
+build/mixed-durable-native/recovery.json
+build/mixed-durable-native/expected.json
+build/representation-parity/**/checks.json
+build/representation-parity/**/source.ink
+build/representation-parity/**/request.json
+build/representation-parity/**/oracle.json
+build/representation-parity/**/producer.log
+build/representation-parity/**/*-run.log
+build/numerical-state-parity/source.ink
+build/numerical-state-parity/script.json
+build/numerical-state-parity/expected.json
+build/numerical-state-parity/gpu-script.json
+build/generated-parity/source.ink
+build/generated-parity/seeds.json
+build/generated-parity/script.json
+build/generated-parity/expected.json
+build/lowering-parity/source.ink
+build/lowering-parity/script.json
+build/lowering-parity/expected.json
+build/selected-checkpoint-parity/source.ink
+build/selected-checkpoint-parity/script.json
+build/selected-checkpoint-parity/expected.json
+build/selected-checkpoint-parity/input-core.json
+build/selected-checkpoint-parity/selected-core.json
+build/selected-checkpoint-parity/selection.json
+build/action-transitions-native/*.json
+build/action-transitions-native/source.ink
+build/action-transitions-native-evidence/*.json
+build/action-rule-parity/*.json
+build/action-rule-parity/source.ink
+build/action-rule-search/*.json
+build/action-rule-native-search/*.json. No artifacts will be uploaded.
+2026-10-11T22:00:14.1695032Z Post job cleanup.
+2026-10-11T22:00:14.2682238Z [command]/usr/bin/git version
+2026-10-11T22:00:14.2729705Z git version 2.55.0
+2026-10-11T22:00:14.2774171Z Temporarily overriding HOME='/home/runner/work/_temp/36edc9b6-4ead-4ea1-8347-8f5bfd535551' before making global git config changes
+2026-10-11T22:00:14.2774968Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-11T22:00:14.2781573Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/ink-lang/ink-lang
+2026-10-11T22:00:14.2818795Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-11T22:00:14.2851317Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-11T22:00:14.3091888Z Entering 'abi'
+2026-10-11T22:00:14.3130456Z Entering 'knowledge'
+2026-10-11T22:00:14.3206829Z Entering 'lowerings/c'
+2026-10-11T22:00:14.3250038Z Entering 'lowerings/gpu'
+2026-10-11T22:00:14.3297942Z Entering 'lowerings/js'
+2026-10-11T22:00:14.3338320Z Entering 'lowerings/rust'
+2026-10-11T22:00:14.3383246Z Entering 'lowerings/wasm'
+2026-10-11T22:00:14.3441704Z Entering 'native-support'
+2026-10-11T22:00:14.3478897Z Entering 'planner'
+2026-10-11T22:00:14.3530025Z Entering 'runtime'
+2026-10-11T22:00:14.3569948Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-11T22:00:14.3597479Z http.https://github.com/.extraheader
+2026-10-11T22:00:14.3621419Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-11T22:00:14.3647035Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-11T22:00:14.3863735Z Entering 'abi'
+2026-10-11T22:00:14.3885152Z http.https://github.com/.extraheader
+2026-10-11T22:00:14.3913898Z Entering 'knowledge'
+2026-10-11T22:00:14.3935141Z http.https://github.com/.extraheader
+2026-10-11T22:00:14.3997218Z Entering 'lowerings/c'
+2026-10-11T22:00:14.4018884Z http.https://github.com/.extraheader
+2026-10-11T22:00:14.4047619Z Entering 'lowerings/gpu'
+2026-10-11T22:00:14.4068891Z http.https://github.com/.extraheader
+2026-10-11T22:00:14.4095930Z Entering 'lowerings/js'
+2026-10-11T22:00:14.4116179Z http.https://github.com/.extraheader
+2026-10-11T22:00:14.4144802Z Entering 'lowerings/rust'
+2026-10-11T22:00:14.4166437Z http.https://github.com/.extraheader
+2026-10-11T22:00:14.4195312Z Entering 'lowerings/wasm'
+2026-10-11T22:00:14.4216165Z http.https://github.com/.extraheader
+2026-10-11T22:00:14.4246679Z Entering 'native-support'
+2026-10-11T22:00:14.4267995Z http.https://github.com/.extraheader
+2026-10-11T22:00:14.4296048Z Entering 'planner'
+2026-10-11T22:00:14.4317770Z http.https://github.com/.extraheader
+2026-10-11T22:00:14.4346440Z Entering 'runtime'
+2026-10-11T22:00:14.4368049Z http.https://github.com/.extraheader
+2026-10-11T22:00:14.4411316Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-11T22:00:14.4443738Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-11T22:00:14.4670638Z Entering 'abi'
+2026-10-11T22:00:14.4687084Z file:/home/runner/work/ink-lang/ink-lang/.git/modules/abi/config	remote.origin.url
+2026-10-11T22:00:14.4701233Z Entering 'knowledge'
+2026-10-11T22:00:14.4717097Z file:/home/runner/work/ink-lang/ink-lang/.git/modules/knowledge/config	remote.origin.url
+2026-10-11T22:00:14.4767414Z Entering 'lowerings/c'
+2026-10-11T22:00:14.4785030Z file:/home/runner/work/ink-lang/ink-lang/.git/modules/lowerings/c/config	remote.origin.url
+2026-10-11T22:00:14.4800303Z Entering 'lowerings/gpu'
+2026-10-11T22:00:14.4817859Z file:/home/runner/work/ink-lang/ink-lang/.git/modules/lowerings/gpu/config	remote.origin.url
+2026-10-11T22:00:14.4833760Z Entering 'lowerings/js'
+2026-10-11T22:00:14.4849981Z file:/home/runner/work/ink-lang/ink-lang/.git/modules/lowerings/js/config	remote.origin.url
+2026-10-11T22:00:14.4864924Z Entering 'lowerings/rust'
+2026-10-11T22:00:14.4882005Z file:/home/runner/work/ink-lang/ink-lang/.git/modules/lowerings/rust/config	remote.origin.url
+2026-10-11T22:00:14.4897662Z Entering 'lowerings/wasm'
+2026-10-11T22:00:14.4914901Z file:/home/runner/work/ink-lang/ink-lang/.git/modules/lowerings/wasm/config	remote.origin.url
+2026-10-11T22:00:14.4930694Z Entering 'native-support'
+2026-10-11T22:00:14.4948743Z file:/home/runner/work/ink-lang/ink-lang/.git/modules/native-support/config	remote.origin.url
+2026-10-11T22:00:14.4963343Z Entering 'planner'
+2026-10-11T22:00:14.4980345Z file:/home/runner/work/ink-lang/ink-lang/.git/modules/planner/config	remote.origin.url
+2026-10-11T22:00:14.4994756Z Entering 'runtime'
+2026-10-11T22:00:14.5011511Z file:/home/runner/work/ink-lang/ink-lang/.git/modules/runtime/config	remote.origin.url
+2026-10-11T22:00:14.5041094Z [command]/usr/bin/git config --file /home/runner/work/ink-lang/ink-lang/.git/modules/abi/config --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-11T22:00:14.5071276Z [command]/usr/bin/git config --file /home/runner/work/ink-lang/ink-lang/.git/modules/knowledge/config --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-11T22:00:14.5098459Z [command]/usr/bin/git config --file /home/runner/work/ink-lang/ink-lang/.git/modules/lowerings/c/config --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-11T22:00:14.5126615Z [command]/usr/bin/git config --file /home/runner/work/ink-lang/ink-lang/.git/modules/lowerings/gpu/config --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-11T22:00:14.5154078Z [command]/usr/bin/git config --file /home/runner/work/ink-lang/ink-lang/.git/modules/lowerings/js/config --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-11T22:00:14.5184524Z [command]/usr/bin/git config --file /home/runner/work/ink-lang/ink-lang/.git/modules/lowerings/rust/config --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-11T22:00:14.5208930Z [command]/usr/bin/git config --file /home/runner/work/ink-lang/ink-lang/.git/modules/lowerings/wasm/config --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-11T22:00:14.5235093Z [command]/usr/bin/git config --file /home/runner/work/ink-lang/ink-lang/.git/modules/native-support/config --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-11T22:00:14.5262150Z [command]/usr/bin/git config --file /home/runner/work/ink-lang/ink-lang/.git/modules/planner/config --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-11T22:00:14.5288327Z [command]/usr/bin/git config --file /home/runner/work/ink-lang/ink-lang/.git/modules/runtime/config --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-11T22:00:14.5436113Z Cleaning up orphan processes
+2026-10-11T22:00:14.5666739Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-node@v4, actions/setup-python@v5, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

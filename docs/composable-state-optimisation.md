@@ -125,3 +125,28 @@ noisy local observations; the raw alternating samples are retained. Indexed join
 construction and shared folds also have workload-dependent costs. The observations
 support workload-sensitive choice, not unconditional substitutions. They do not
 install runtime probes or bypass existing eligibility/comparable-evidence gates.
+
+The main integration retains the newer indexed aggregates, path-local trees,
+durability, shared-owner execution and measured selection machinery. Both
+constructor-case proof forms retain their exact canonical wire bytes; ambiguous
+subjects are rejected. Branch equations use checked definitional conversion, and
+both computation caches preserve context, work and depth bounds. Main's existing
+checker resource limits remain in force.
+
+Journal compaction now respects host transactions: an aborted action restores its
+own before-images while earlier committed actions remain available for host
+commit or rollback. Generated C, Rust and JavaScript regressions cover both scopes.
+The partition index producer is named `partition_index_representation.py`; main's
+`indexed_representation.py` continues to author its separate indexed aggregate.
+Nested observer projections freshen every binder before independently checking
+their equality proofs. The three-component product passes C, Rust, JavaScript and
+both Wasm paths, with complete observations and portable snapshots.
+
+Fresh source-bound requests and admission receipts live in
+`knowledge/research/composable-state/main-integration`; the previous requests,
+receipts and snapshot pins remain archived. `prepare-fixtures.py --output` and
+`prepare-products.py` re-author these proposals against the current compiler.
+`replay-admissions.py --representations-receipt` selects the corresponding immutable
+admission receipt and fails if its source or mathematical core bytes have changed.
+The integration checks are recorded separately in
+[`main-integration.json`](evidence/composable-state/main-integration.json).
