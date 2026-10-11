@@ -1,0 +1,45 @@
+✔ chooses JS or Wasm based on complete measured cost, with cached bounded profiling (3.807542ms)
+✔ GPU setup and transfers can outweigh a faster kernel; availability invalidates profiles (0.440625ms)
+✔ selects GPU when worthwhile, retains baseline on failure and rejects invalid configuration (0.333583ms)
+✔ numerical mismatch removes a profiled scalar GPU candidate; explicit JS remains available (0.2125ms)
+✔ charges module startup once and rechecks warm costs rather than repeatedly taxing a target (0.127958ms)
+✔ adaptive saved profiles choose by size without probing or reading the timer (2.134209ms)
+✔ static bypasses profiles and adaptive requires comparable CPU evidence (1.474583ms)
+✔ profile is privately bound and device failure keeps compiled CPU without speculative verification (1.882292ms)
+✔ adaptive selects the minimum eligible estimate with margin measured against CPU (0.671542ms)
+✔ native JS destination preserves U64/F32 native values and untouched tail without Wasm loading (21.878667ms)
+✔ captured CPU destination returns native BigInt and exact floating bits, with stable ordinary results (8.607167ms)
+✔ prepared CPU calls snapshot once and remain independent of ordinary calls (9.570375ms)
+✔ capture, serialize concurrent calls and recover exact receipts (18.862958ms)
+✔ uncertain write before or after durable publication requires recovery (3.675375ms)
+✔ receiver failure leaves pending events; acknowledgement is durable (1.760208ms)
+✔ delivery can repeat after receiver success and failed acknowledgement (1.399917ms)
+✔ action exception rolls back; bounded receipt eviction is explicit (1.833208ms)
+✔ storage conflict rejects a second stale writer (0.801334ms)
+✔ real file replacement, ownership, recovery and corruption rejection (56.683791ms)
+✔ bound trusted JS calls preserve wrapping, signed, Bool, U64 and F32 outputs without CPU transport (21.684083ms)
+✔ JS pipeline composes native Bool/list/U64 values and feedback, matching literal references (8.213166ms)
+✔ packed CPU remains available and profile-free auto retains equivalent CPU results (5.682875ms)
+✔ scalar host binds native JS and lazily retains its Wasm fallback (12.228541ms)
+✔ saved adaptive JS selection performs exactly one call and never loads Wasm (37.002584ms)
+✔ static JS auto setting bypasses packed ingress and all profiling (9.196ms)
+✔ prepared GPU output selection captures caller plan before queued preparation (5.56925ms)
+✔ adaptive JS reuses its private U32 capture and retains packed-host owned Array outputs (4.704208ms)
+✔ prepared capture and destination persist across scratch rewinds and memory growth (3.261417ms)
+✔ separate prepared instances do not invalidate each other (0.397917ms)
+✔ scalar machine-word results preserve all numeric representations without header/output allocations (20.293958ms)
+✔ modules without scalar exports retain the previous packed result path (8.075834ms)
+✔ failed scalar calls reset the arena and leave the serialized queue usable (20.033709ms)
+✔ runtime/tests/transport40-fixture.mjs (99.793167ms)
+✔ terminal captured CPU results decode before reset across all packed carriers and memory growth (38.700125ms)
+✔ submission snapshots packed arguments before caller mutation (5.466167ms)
+✔ pipeline outputs own values while used packed intermediates survive resets and feedback (8.2075ms)
+✔ CPU destination conversion writes native values once and preserves its tail (10.740916ms)
+ℹ tests 37
+ℹ suites 0
+ℹ pass 37
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 251.303208

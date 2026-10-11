@@ -1,0 +1,400 @@
+warning: field `graph` is never read
+   --> lowerings/gpu/src/compute.rs:147:5
+    |
+141 | struct Emitter<'a> {
+    |        ------- field in this struct
+...
+147 |     graph: bool,
+    |     ^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `ink-lowering-gpu` (lib) generated 1 warning
+   Compiling ink v0.1.0 (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.60s
+     Running tests/composed_storage_parity.rs (target/debug/deps/composed_storage_parity-96f3f4cdfbe46db4)
+
+running 1 test
+
+thread 'composed_storage_values_and_snapshots_match_every_backend' (8683939) panicked at tests/support/parity.rs:105:9:
+warning: constant `SOURCE_ROUTE` is never used
+  --> src/assets.rs:48:11
+   |
+48 | pub const SOURCE_ROUTE:Option<&str>=None;
+   |           ^^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: methods `call_packed_into` and `manifest` are never used
+   --> src/../../gpu/f0/native/src/lib.rs:594:19
+    |
+577 | impl Engine {
+    | ----------- methods in this implementation
+...
+594 |     pub unsafe fn call_packed_into(
+    |                   ^^^^^^^^^^^^^^^^
+...
+606 |     pub fn manifest(&self) -> &Value {
+    |            ^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `ink_compute_into` is never used
+  --> src/../../gpu/f0/native/src/lib.rs:27:8
+   |
+27 |     fn ink_compute_into(
+   |        ^^^^^^^^^^^^^^^^
+
+warning: constant `SOURCE_ROUTE` is never used
+ --> src/../../gpu/f0/native/src/assets.rs:6:11
+  |
+6 | pub const SOURCE_ROUTE:Option<&str>=None;
+  |           ^^^^^^^^^^^^
+
+warning: methods `call_packed_into` and `manifest` are never used
+   --> src/../../gpu/f2/native/src/lib.rs:594:19
+    |
+577 | impl Engine {
+    | ----------- methods in this implementation
+...
+594 |     pub unsafe fn call_packed_into(
+    |                   ^^^^^^^^^^^^^^^^
+...
+606 |     pub fn manifest(&self) -> &Value {
+    |            ^^^^^^^^
+
+warning: function `ink_compute_into` is never used
+  --> src/../../gpu/f2/native/src/lib.rs:27:8
+   |
+27 |     fn ink_compute_into(
+   |        ^^^^^^^^^^^^^^^^
+
+warning: constant `SOURCE_ROUTE` is never used
+  --> src/../../gpu/f2/native/src/assets.rs:10:11
+   |
+10 | pub const SOURCE_ROUTE:Option<&str>=None;
+   |           ^^^^^^^^^^^^
+
+warning: methods `call_packed_into` and `manifest` are never used
+   --> src/../../gpu/f3/native/src/lib.rs:594:19
+    |
+577 | impl Engine {
+    | ----------- methods in this implementation
+...
+594 |     pub unsafe fn call_packed_into(
+    |                   ^^^^^^^^^^^^^^^^
+...
+606 |     pub fn manifest(&self) -> &Value {
+    |            ^^^^^^^^
+
+warning: function `ink_compute_into` is never used
+  --> src/../../gpu/f3/native/src/lib.rs:27:8
+   |
+27 |     fn ink_compute_into(
+   |        ^^^^^^^^^^^^^^^^
+
+warning: constant `SOURCE_ROUTE` is never used
+  --> src/../../gpu/f3/native/src/assets.rs:15:11
+   |
+15 | pub const SOURCE_ROUTE:Option<&str>=None;
+   |           ^^^^^^^^^^^^
+
+warning: methods `call_packed_into` and `manifest` are never used
+   --> src/../../gpu/f5/native/src/lib.rs:594:19
+    |
+577 | impl Engine {
+    | ----------- methods in this implementation
+...
+594 |     pub unsafe fn call_packed_into(
+    |                   ^^^^^^^^^^^^^^^^
+...
+606 |     pub fn manifest(&self) -> &Value {
+    |            ^^^^^^^^
+
+warning: function `ink_compute_into` is never used
+  --> src/../../gpu/f5/native/src/lib.rs:27:8
+   |
+27 |     fn ink_compute_into(
+   |        ^^^^^^^^^^^^^^^^
+
+warning: constant `SOURCE_ROUTE` is never used
+ --> src/../../gpu/f5/native/src/assets.rs:9:11
+  |
+9 | pub const SOURCE_ROUTE:Option<&str>=None;
+  |           ^^^^^^^^^^^^
+
+warning: methods `call_packed_into` and `manifest` are never used
+   --> src/../../gpu/f6/native/src/lib.rs:594:19
+    |
+577 | impl Engine {
+    | ----------- methods in this implementation
+...
+594 |     pub unsafe fn call_packed_into(
+    |                   ^^^^^^^^^^^^^^^^
+...
+606 |     pub fn manifest(&self) -> &Value {
+    |            ^^^^^^^^
+
+warning: function `ink_compute_into` is never used
+  --> src/../../gpu/f6/native/src/lib.rs:27:8
+   |
+27 |     fn ink_compute_into(
+   |        ^^^^^^^^^^^^^^^^
+
+warning: constant `SOURCE_ROUTE` is never used
+ --> src/../../gpu/f6/native/src/assets.rs:8:11
+  |
+8 | pub const SOURCE_ROUTE:Option<&str>=None;
+  |           ^^^^^^^^^^^^
+
+warning: methods `call_packed_into` and `manifest` are never used
+   --> src/../../gpu/f7/native/src/lib.rs:594:19
+    |
+577 | impl Engine {
+    | ----------- methods in this implementation
+...
+594 |     pub unsafe fn call_packed_into(
+    |                   ^^^^^^^^^^^^^^^^
+...
+606 |     pub fn manifest(&self) -> &Value {
+    |            ^^^^^^^^
+
+warning: function `ink_compute_into` is never used
+  --> src/../../gpu/f7/native/src/lib.rs:27:8
+   |
+27 |     fn ink_compute_into(
+   |        ^^^^^^^^^^^^^^^^
+
+warning: constant `SOURCE_ROUTE` is never used
+ --> src/../../gpu/f7/native/src/assets.rs:6:11
+  |
+6 | pub const SOURCE_ROUTE:Option<&str>=None;
+  |           ^^^^^^^^^^^^
+
+warning: methods `manifest` and `call_route` are never used
+   --> src/../../gpu/f9/native/src/lib.rs:188:12
+    |
+178 | impl Engine {
+    | ----------- methods in this implementation
+...
+188 |     pub fn manifest(&self) -> &Value {
+    |            ^^^^^^^^
+...
+193 |     pub fn call_route(&mut self, args: &Value) -> Result<Value> {
+    |            ^^^^^^^^^^
+
+warning: constant `SOURCE_ROUTE` is never used
+ --> src/../../gpu/f9/native/src/assets.rs:8:11
+  |
+8 | pub const SOURCE_ROUTE:Option<&str>=None;
+  |           ^^^^^^^^^^^^
+
+warning: methods `manifest` and `call_route` are never used
+   --> src/../../gpu/f10/native/src/lib.rs:188:12
+    |
+178 | impl Engine {
+    | ----------- methods in this implementation
+...
+188 |     pub fn manifest(&self) -> &Value {
+    |            ^^^^^^^^
+...
+193 |     pub fn call_route(&mut self, args: &Value) -> Result<Value> {
+    |            ^^^^^^^^^^
+
+warning: constant `SOURCE_ROUTE` is never used
+ --> src/../../gpu/f10/native/src/assets.rs:8:11
+  |
+8 | pub const SOURCE_ROUTE:Option<&str>=None;
+  |           ^^^^^^^^^^^^
+
+warning: methods `call_packed_into` and `manifest` are never used
+   --> src/../../gpu/f12/native/src/lib.rs:594:19
+    |
+577 | impl Engine {
+    | ----------- methods in this implementation
+...
+594 |     pub unsafe fn call_packed_into(
+    |                   ^^^^^^^^^^^^^^^^
+...
+606 |     pub fn manifest(&self) -> &Value {
+    |            ^^^^^^^^
+
+warning: function `ink_compute_into` is never used
+  --> src/../../gpu/f12/native/src/lib.rs:27:8
+   |
+27 |     fn ink_compute_into(
+   |        ^^^^^^^^^^^^^^^^
+
+warning: constant `SOURCE_ROUTE` is never used
+ --> src/../../gpu/f12/native/src/assets.rs:8:11
+  |
+8 | pub const SOURCE_ROUTE:Option<&str>=None;
+  |           ^^^^^^^^^^^^
+
+warning: methods `call_packed_into` and `manifest` are never used
+   --> src/../../gpu/f14/native/src/lib.rs:594:19
+    |
+577 | impl Engine {
+    | ----------- methods in this implementation
+...
+594 |     pub unsafe fn call_packed_into(
+    |                   ^^^^^^^^^^^^^^^^
+...
+606 |     pub fn manifest(&self) -> &Value {
+    |            ^^^^^^^^
+
+warning: function `ink_compute_into` is never used
+  --> src/../../gpu/f14/native/src/lib.rs:27:8
+   |
+27 |     fn ink_compute_into(
+   |        ^^^^^^^^^^^^^^^^
+
+warning: constant `SOURCE_ROUTE` is never used
+ --> src/../../gpu/f14/native/src/assets.rs:7:11
+  |
+7 | pub const SOURCE_ROUTE:Option<&str>=None;
+  |           ^^^^^^^^^^^^
+
+warning: methods `call_packed_into` and `manifest` are never used
+   --> src/../../gpu/f15/native/src/lib.rs:594:19
+    |
+577 | impl Engine {
+    | ----------- methods in this implementation
+...
+594 |     pub unsafe fn call_packed_into(
+    |                   ^^^^^^^^^^^^^^^^
+...
+606 |     pub fn manifest(&self) -> &Value {
+    |            ^^^^^^^^
+
+warning: function `ink_compute_into` is never used
+  --> src/../../gpu/f15/native/src/lib.rs:27:8
+   |
+27 |     fn ink_compute_into(
+   |        ^^^^^^^^^^^^^^^^
+
+warning: constant `SOURCE_ROUTE` is never used
+ --> src/../../gpu/f15/native/src/assets.rs:7:11
+  |
+7 | pub const SOURCE_ROUTE:Option<&str>=None;
+  |           ^^^^^^^^^^^^
+
+warning: methods `call_packed_into` and `manifest` are never used
+   --> src/../../gpu/f16/native/src/lib.rs:594:19
+    |
+577 | impl Engine {
+    | ----------- methods in this implementation
+...
+594 |     pub unsafe fn call_packed_into(
+    |                   ^^^^^^^^^^^^^^^^
+...
+606 |     pub fn manifest(&self) -> &Value {
+    |            ^^^^^^^^
+
+warning: function `ink_compute_into` is never used
+  --> src/../../gpu/f16/native/src/lib.rs:27:8
+   |
+27 |     fn ink_compute_into(
+   |        ^^^^^^^^^^^^^^^^
+
+warning: constant `SOURCE_ROUTE` is never used
+ --> src/../../gpu/f16/native/src/assets.rs:7:11
+  |
+7 | pub const SOURCE_ROUTE:Option<&str>=None;
+  |           ^^^^^^^^^^^^
+
+warning: methods `call_packed_into` and `manifest` are never used
+   --> src/../../gpu/f17/native/src/lib.rs:594:19
+    |
+577 | impl Engine {
+    | ----------- methods in this implementation
+...
+594 |     pub unsafe fn call_packed_into(
+    |                   ^^^^^^^^^^^^^^^^
+...
+606 |     pub fn manifest(&self) -> &Value {
+    |            ^^^^^^^^
+
+warning: function `ink_compute_into` is never used
+  --> src/../../gpu/f17/native/src/lib.rs:27:8
+   |
+27 |     fn ink_compute_into(
+   |        ^^^^^^^^^^^^^^^^
+
+warning: constant `SOURCE_ROUTE` is never used
+ --> src/../../gpu/f17/native/src/assets.rs:8:11
+  |
+8 | pub const SOURCE_ROUTE:Option<&str>=None;
+  |           ^^^^^^^^^^^^
+
+error: linking with `cc` failed: exit status: 1
+  |
+  = note:  "cc" "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/build/parity-gpu-target/debug/deps/rustclYHd8L/symbols.o" "<214 object files omitted>" "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/build/parity-gpu-target/debug/deps/{libpollster-6e34b82ae446571d,libcompiled_state,libsha2-0615b54d949e7b6a,libdigest-803286e0aebe47d2,libblock_buffer-09633317d999e6bb,libcrypto_common-224d67bb5cccecd7,libgeneric_array-b27f9771441c5b2c,libtypenum-be5911685742ae6d,libnum_bigint-ad3f5f8d71260106,libnum_integer-7c8f142d6e376e5b,libwgpu-3ba1f7d97bb78ffb,libwgpu_core-91129af9c2afafc3,libwgpu_hal-4c254cc5fd34221c,libraw_window_metal-45ba5bf97742d1d2,liblibloading-716a2d3c8f8625e7,libprofiling-275e750ef65bb791,libwgpu_naga_bridge-01a368532724f367,libobjc2_quartz_core-19c3cb6d747cb1f8,libobjc2_core_graphics-e726338f17fd3d67,libnaga-dab76e88ea037667,liblibm-a89b563b7e73a426,libunicode_ident-ddc059c633f25162,libbit_set-bcbbfc3432be7d42,libbit_vec-93ae436bf6460ae6,libonce_cell-a3b5eae1c8faadc7,libarrayvec-4794e18e07ca61a3,libcodespan_reporting-3fe50a724eb1dba7,libunicode_width-6e8a1ff0ac296e60,libthiserror-b9fe08ee66c0a2be,libhalf-2ad66242a4675700,libzerocopy-91f6bc1afa11607d,libnum_traits-b229225228b0fd70,libparking_lot-70474e83d72cd9c2,libparking_lot_core-139d7dc92f3fe171,liblibc-598765aa44ded5a7,libcfg_if-aea3b32455814e1e,libsmallvec-e2522b8981775699,liblock_api-87331e32bdbe30db,libscopeguard-593c5ebc0f958e32,libobjc2_metal-7ef9bea7f525c1b2,libblock2-97c3a71ffa9d29bb,libobjc2_foundation-eb906b0d4b30ebc0,libobjc2_core_foundation-60e7ebf461ee2aee,libobjc2-2edffa7a7e106cdd,libobjc2_encode-e11eb4884cfe5c87,libwgpu_types-ff54f2dada93c828,libraw_window_handle-404b72f5f37b2d88,libstatic_assertions-243376735dad2b20,liblog-f20ef5828b69282f,libbytemuck-e2ed56ee44743d63,libbitflags-328bd2bbd71e721b,libnaga_types-1042288f1670f37b,libindexmap-d1acb8ec1bdbd754,libequivalent-d61b32b51f7fed3e,librustc_hash-97cff2c4fcbc128a,libhashbrown-f13bdb033b609751,libfoldhash-0a9f384c68612dcb,libserde_json-7f0d1b3f523c9e3e,libmemchr-4d831e3f9de051c6,libzmij-65e3fa454b76e94a,libitoa-f1ae332e353f4621,libserde_core-3ca765cd1aa66e9b}.rlib" "<sysroot>/lib/rustlib/aarch64-apple-darwin/lib/{libstd-*,libpanic_unwind-*,libobject-*,libmemchr-*,libaddr2line-*,libgimli-*,libcfg_if-*,librustc_demangle-*,libstd_detect-*,libhashbrown-*,librustc_std_workspace_alloc-*,libminiz_oxide-*,libadler2-*,libunwind-*,liblibc-*,librustc_std_workspace_core-*,liballoc-*,libcore-*,libcompiler_builtins-*}.rlib" "-lSystem" "-framework" "QuartzCore" "-framework" "CoreGraphics" "-liconv" "-framework" "Metal" "-framework" "Foundation" "-framework" "CoreFoundation" "-lobjc" "-framework" "Foundation" "-lSystem" "-lc" "-lm" "-arch" "arm64" "-mmacosx-version-min=11.0.0" "-L" "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/build/parity-gpu-target/debug/build/ink-module-program-d636294356efe534/out" "-L" "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/build/parity-gpu-target/debug/build/compiled-state-33f36d21d8cec5db/out" "-o" "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/build/parity-gpu-target/debug/deps/ink_module_program-6d4011e6b9b56fa1" "-Wl,-dead_strip" "-nodefaultlibs"
+  = note: some arguments are omitted. use `--verbose` to show all linker arguments
+  = note: ld: warning: object file (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/build/parity-gpu-target/debug/deps/libcompiled_state.rlib(db3b6bfb95261072-program.o)) was built for newer macOS version (13.1) than being linked (11.0)
+          Undefined symbols for architecture arm64:
+            "_ink_part0_ink_compute_call", referenced from:
+                ink_module_program::part0::cpu_call::h24585752f05dc596 in ink_module_program-6d4011e6b9b56fa1.dbfyxjbyrbph17kv2te45coi1.17cw44v.rcgu.o
+            "_ink_part0_ink_compute_reset", referenced from:
+                ink_module_program::part0::cpu_call::h24585752f05dc596 in ink_module_program-6d4011e6b9b56fa1.dbfyxjbyrbph17kv2te45coi1.17cw44v.rcgu.o
+            "_ink_part10_ink_cpu_call", referenced from:
+                ink_module_program::part10::cpu::hc7209001ab709b18 in ink_module_program-6d4011e6b9b56fa1.eovibjvmsvbp3oj5auftvd7zy.17cw44v.rcgu.o
+            "_ink_part12_ink_compute_call", referenced from:
+                ink_module_program::part12::cpu_call::h3493e2ac81a97983 in ink_module_program-6d4011e6b9b56fa1.0xwbd7ezyhmppgd9f35jpmmnr.17cw44v.rcgu.o
+            "_ink_part12_ink_compute_reset", referenced from:
+                ink_module_program::part12::cpu_call::h3493e2ac81a97983 in ink_module_program-6d4011e6b9b56fa1.0xwbd7ezyhmppgd9f35jpmmnr.17cw44v.rcgu.o
+            "_ink_part14_ink_compute_call", referenced from:
+                ink_module_program::part14::cpu_call::hb0d09db0cfa2c254 in ink_module_program-6d4011e6b9b56fa1.agb96xwaxdfgote0g2t6fhzyl.17cw44v.rcgu.o
+            "_ink_part14_ink_compute_reset", referenced from:
+                ink_module_program::part14::cpu_call::hb0d09db0cfa2c254 in ink_module_program-6d4011e6b9b56fa1.agb96xwaxdfgote0g2t6fhzyl.17cw44v.rcgu.o
+            "_ink_part15_ink_compute_call", referenced from:
+                ink_module_program::part15::cpu_call::h571dd2b99856465e in ink_module_program-6d4011e6b9b56fa1.38xq514vbdsjcnha56bkzz7t6.17cw44v.rcgu.o
+            "_ink_part15_ink_compute_reset", referenced from:
+                ink_module_program::part15::cpu_call::h571dd2b99856465e in ink_module_program-6d4011e6b9b56fa1.38xq514vbdsjcnha56bkzz7t6.17cw44v.rcgu.o
+            "_ink_part16_ink_compute_call", referenced from:
+                ink_module_program::part16::cpu_call::hea6a96e18bab8b84 in ink_module_program-6d4011e6b9b56fa1.44yupdsy5nojg2ldt2ygb3ims.17cw44v.rcgu.o
+            "_ink_part16_ink_compute_reset", referenced from:
+                ink_module_program::part16::cpu_call::hea6a96e18bab8b84 in ink_module_program-6d4011e6b9b56fa1.44yupdsy5nojg2ldt2ygb3ims.17cw44v.rcgu.o
+            "_ink_part17_ink_compute_call", referenced from:
+                ink_module_program::part17::cpu_call::h936ceff65fbe5396 in ink_module_program-6d4011e6b9b56fa1.6j0rkane5a4w7ux627ka0vwmn.17cw44v.rcgu.o
+            "_ink_part17_ink_compute_reset", referenced from:
+                ink_module_program::part17::cpu_call::h936ceff65fbe5396 in ink_module_program-6d4011e6b9b56fa1.6j0rkane5a4w7ux627ka0vwmn.17cw44v.rcgu.o
+            "_ink_part2_ink_compute_call", referenced from:
+                ink_module_program::part2::cpu_call::h1e961774d5f33cc2 in ink_module_program-6d4011e6b9b56fa1.byak979ih5n26pannzqnandcc.17cw44v.rcgu.o
+            "_ink_part2_ink_compute_reset", referenced from:
+                ink_module_program::part2::cpu_call::h1e961774d5f33cc2 in ink_module_program-6d4011e6b9b56fa1.byak979ih5n26pannzqnandcc.17cw44v.rcgu.o
+            "_ink_part3_ink_compute_call", referenced from:
+                ink_module_program::part3::cpu_call::h6f1da142d369e617 in ink_module_program-6d4011e6b9b56fa1.c87yt9gzgm1y2xzrp2h4ljulg.17cw44v.rcgu.o
+            "_ink_part3_ink_compute_reset", referenced from:
+                ink_module_program::part3::cpu_call::h6f1da142d369e617 in ink_module_program-6d4011e6b9b56fa1.c87yt9gzgm1y2xzrp2h4ljulg.17cw44v.rcgu.o
+            "_ink_part5_ink_compute_call", referenced from:
+                ink_module_program::part5::cpu_call::h994da06d96921a91 in ink_module_program-6d4011e6b9b56fa1.a2uv6vbrubvztdonf92zo9ahb.17cw44v.rcgu.o
+            "_ink_part5_ink_compute_reset", referenced from:
+                ink_module_program::part5::cpu_call::h994da06d96921a91 in ink_module_program-6d4011e6b9b56fa1.a2uv6vbrubvztdonf92zo9ahb.17cw44v.rcgu.o
+            "_ink_part6_ink_compute_call", referenced from:
+                ink_module_program::part6::cpu_call::h820c90f2443929f3 in ink_module_program-6d4011e6b9b56fa1.9l1bgnvkyewlh4mrx1pdsi7ll.17cw44v.rcgu.o
+            "_ink_part6_ink_compute_reset", referenced from:
+                ink_module_program::part6::cpu_call::h820c90f2443929f3 in ink_module_program-6d4011e6b9b56fa1.9l1bgnvkyewlh4mrx1pdsi7ll.17cw44v.rcgu.o
+            "_ink_part7_ink_compute_call", referenced from:
+                ink_module_program::part7::cpu_call::hff59662eae06d7db in ink_module_program-6d4011e6b9b56fa1.24dh2n6p5s9z941z2bxm4ssr5.17cw44v.rcgu.o
+            "_ink_part7_ink_compute_reset", referenced from:
+                ink_module_program::part7::cpu_call::hff59662eae06d7db in ink_module_program-6d4011e6b9b56fa1.24dh2n6p5s9z941z2bxm4ssr5.17cw44v.rcgu.o
+            "_ink_part9_ink_cpu_call", referenced from:
+                ink_module_program::part9::cpu::hb8352a04c5eef365 in ink_module_program-6d4011e6b9b56fa1.5kd8oz2hqmftiozaj4npo8ol1.17cw44v.rcgu.o
+          ld: symbol(s) not found for architecture arm64
+          clang: error: linker command failed with exit code 1 (use -v to see invocation)
+          
+
+error: could not compile `ink-module-program` (bin "ink-module-program") due to 1 previous error; 37 warnings emitted
+
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test composed_storage_values_and_snapshots_match_every_backend ... FAILED
+
+failures:
+
+failures:
+    composed_storage_values_and_snapshots_match_every_backend
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 17.05s
+
+error: test failed, to rerun pass `--test composed_storage_parity`
