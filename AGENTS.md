@@ -161,6 +161,16 @@ integer, u32/i32, binary32, fixed vector, stored equality and pure closure domai
 unsupported keys/operators still fail closed. Rust/C/JavaScript/both Wasm/both GPU
 host lanes share standalone representation conformance. Recursive physical state
 uses GPU hosts, not device shaders. Retain explicit proof/transport bounds and
-separate checked Session transport from caller-trusted standalone calls. Benchmark
+keep caller-trusted compiled entrypoints and explicit codec boundaries separate. Benchmark
 checking, emission/compilation, migration and steady state separately; preserve
 losing candidates and independently maintained handwritten baselines.
+
+The generic stateful representation executor is removed, including its runtime
+module, transport/frame adapters and public backend bundle adapters. Production
+representation execution uses ordinary standalone programs. `execute-representation`
+checks inputs/variants before compiling fixed Rust code; portable checkpoint/restore
+switches only after the new instance is valid. Preserve general representation and
+bridge checking, all-backend standalone conformance and explicit codec/proof/input
+bounds. Do not restore a renamed stateful interpreter or per-call full logical
+snapshot validation. Old performance reports are historical observations; new
+execution measurements must use the compiled programs and disclose harness scope.
