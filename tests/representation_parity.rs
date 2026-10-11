@@ -206,7 +206,7 @@ fn check(name: &str, source: &str, request: Option<Request>, calls: Vec<(&str, V
     fs::write(dir.join("source.ink"), source).unwrap();
     let module = CheckedModule::from_source(parse(source).unwrap()).unwrap();
     let mut request = request.unwrap_or_else(|| propose(&module, &dir));
-    let unused = add_unused_mathematics(&mut request);
+    let unused = if name=="indexed-aggregate" { vec![] } else { add_unused_mathematics(&mut request) };
     fs::write(
         dir.join("request.json"),
         serde_json::to_vec(&request).unwrap(),
@@ -368,6 +368,12 @@ fn check(name: &str, source: &str, request: Option<Request>, calls: Vec<(&str, V
                     .env("INK_REP_WASM", "1"),
                 &project.join("wasm-run.log"),
             );
+        }
+    }
+    if name=="indexed-aggregate" {
+        for backend in ["javascript","rust-wasm","wasm32"] {
+            if backend!="javascript" && std::env::var_os("INK_TEST_ZIG").is_none(){continue;}
+            run(Command::new("node").arg(Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/indexed-durable.mjs")).arg(dir.join(backend)).arg(backend),&dir.join(format!("{backend}-durable.log")));
         }
     }
     fs::write(dir.join("checks.json"),serde_json::to_vec_pretty(&json!({"requests":oracle.as_array().unwrap().len(),"native":["rust","c","wgpu-host"],"javascript":["javascript","webgpu-host"],"wasm":if std::env::var_os("INK_TEST_ZIG").is_some(){json!(["rust-wasm","c-wasm"])}else{json!("not enabled")},"checks":"exact replies/errors, snapshots and outboxes; restore after every request; acknowledgement; exhausted counter; malformed snapshots; standalone dependency audit"})).unwrap()).unwrap();
@@ -655,4 +661,20 @@ fn fixed_key_keep_deltas_execute_as_standalone_programs_on_every_cpu_target() {
     ] {
         check(name,source,Some(serde_json::from_str(bytes).unwrap()),calls.clone());
     }
+}
+
+#[test]
+fn indexed_cached_sum_count_have_equal_backend_coverage() {
+    let path=Path::new(env!("CARGO_MANIFEST_DIR")).join("knowledge/research/indexed-aggregate/request.json");
+    let request:Request=serde_json::from_slice(&fs::read(path).unwrap()).unwrap();
+    let mut calls=vec![];
+    // Opposing insertion orders exercise single and double rotations.
+    for key in [8u64,4,12,2,6,10,14,1,3,5,7,9,11,13,15,0,u64::MAX] {
+        calls.push(("put",json!([key,key,key%2==0,false])));
+        calls.push(("total_query",json!([])));calls.push(("count_query",json!([])));
+    }
+    for key in [0u64,7,12,u64::MAX,99,4,8] {
+        calls.extend([("put",json!([key,u64::MAX,true,true])),("erase",json!([key,true])),("total_query",json!([])),("count_query",json!([])),("put",json!([key,u64::MAX,true,false])),("total_query",json!([])),("count_query",json!([])),("erase",json!([key,false])),("total_query",json!([])),("count_query",json!([]))]);
+    }
+    check("indexed-aggregate",include_str!("../examples/filtered-aggregate.ink"),Some(request),calls);
 }
