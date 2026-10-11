@@ -423,6 +423,7 @@ impl<'p> Lower<'p> {
             }
             Kind::Number(_)
             | Kind::Bool(_)
+            | Kind::String(_)
             | Kind::Unit
             | Kind::None
             | Kind::Local(_)

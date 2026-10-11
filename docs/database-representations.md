@@ -457,6 +457,7 @@ include the precise path, expansion count and limit flag. These fixtures retain
 refresh fallback for unsupported dynamic mutation shapes; their recorded read
 benefit is accompanied by setup/update/restore costs. No theorem equating distinct
 pathfinders or changing their tie-breaking policy is claimed.
+
 The [path-local sequence candidates](path-local-indexed-tables.md) add generic
 shared-owner preservation, checked compact observations and explicit continuation
 frames for bounded recursive call sites, with proof-view and execution resource bounds.
