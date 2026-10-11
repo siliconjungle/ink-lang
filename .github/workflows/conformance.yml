@@ -200,6 +200,7 @@ jobs:
         run: |
           python -m pip install ziglang==0.14.1
           ZIG_RUNNER=$(python -c 'import pathlib,ziglang;print(pathlib.Path(ziglang.__file__).parent/"zig")')
+          INK_TEST_ZIG="$ZIG_RUNNER" cargo test --test feature_parity gpu -- --nocapture --test-threads=1
           INK_TEST_ZIG="$ZIG_RUNNER" cargo test --test bend_features parallel_buffers_recursion_and_scratch_agree_on_all_backends -- --nocapture
           python bench/gpu/prepare-lowering-parity-browser.py "$ZIG_RUNNER"
           npm ci --prefix bench/gpu --ignore-scripts --no-audit --no-fund
