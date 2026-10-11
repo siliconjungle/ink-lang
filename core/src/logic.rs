@@ -1661,7 +1661,6 @@ mod alpha_tests {
             .unwrap();
         let mut cached = Budget::new();
         let mut uncached = Budget::new();
-        uncached.memo_work = 0;
         for argument in [
             Term::Bool(true),
             Term::Bool(false),
@@ -1674,11 +1673,11 @@ mod alpha_tests {
             };
             assert_eq!(
                 normal(&term, &context, &mut cached, 0).unwrap(),
-                normal(&term, &context, &mut uncached, 0).unwrap()
+                normal_uncached(&term, &context, &mut uncached, 0).unwrap()
             );
         }
-        assert!(cached.normal_entries > 0);
-        assert_eq!(uncached.normal_entries, 0);
+        assert!(!cached.normal_calls.is_empty());
+        assert!(uncached.normal_calls.is_empty());
         cached.remaining = 0;
         assert!(normal(
             &Term::Call {
