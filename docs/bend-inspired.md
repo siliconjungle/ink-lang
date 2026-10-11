@@ -54,18 +54,23 @@ any consumed owner, duplicate owners and borrowing a captured owner in parallel.
 
 Eligible GPU scalar callbacks can use `buffer_fill` with a literal capacity of
 0–64. Each invocation gets a private WGSL fixed-capacity buffer with an explicit
-length. Supported operations include length, lazy `at_or`, set, swap, pop,
-truncate and `map_parallel`; the latter updates that invocation's private buffer
+length. Supported operations include empty construction, length, lazy `at_or`, set, swap,
+pop, truncate, bounded push, consuming split/append and `map_parallel`; the latter updates that invocation's private buffer
 sequentially. Literal bounded repeats and stopping-condition loops are supported.
-Dynamic allocation, push, split/append, larger buffers, arbitrary record elements
+The emitter tracks upper length bounds and the common origin of complementary
+partitions. A dynamic split followed by rejoining its halves fits the original
+bound, including after mapping or shrinking. Independent appends and pushes must
+fit 64; loops must preserve their initial bound and partition provenance. Branches
+merge conservative bounds. Capacity growth, unbounded input-list construction,
+freezing private buffers into lists, larger buffers, arbitrary record elements
 and recursive calls retain the compiled CPU fallback. This is private scratch
 storage, not cross-workgroup shared memory. `scratch_many` in
 [the example](../examples/bend-inspired.ink) is exercised on a real wgpu device.
 
 ## Resident GPU graph feedback
 
-Native wgpu stage graphs can feed results into later iterations when every stage
-has a graph descriptor and each feedback edge preserves its declared type and
+Browser WebGPU and native wgpu stage graphs can feed results into later iterations
+when every stage has a graph descriptor and each feedback edge preserves its declared type and
 upper capacity. Logical list lengths remain in GPU headers, so stable filters
 can shrink a resident list to zero. Integer rank-sort stages now have graph
 descriptors for u32/i32, preserving stable duplicate ordering; this remains a
@@ -88,8 +93,8 @@ compiled CPU execution. Existing dispatch, device and 256 MiB allocation limits
 still apply, including the temporary snapshot buffers. This explains the safety
 argument; it is not a formal verification of shader emission or the driver.
 
-The residency regression checks three iterations of filter/scan/sort, zero-length
-results, odd/even aliased swaps and growing-feedback fallback, including complete
+The native and browser residency regressions check three iterations of
+filter/scan/sort, zero-length results, odd/even aliased swaps and growing-feedback fallback, including complete
 values and exact transfer/dispatch/copy counters. CI retains the plans, replies,
 manifest and shaders on failure.
 
@@ -158,7 +163,15 @@ This change does not silently grant rewrite authority for the new parallel-map a
 `core/tests/bend_features.rs` checks ownership, ordering, wrapping arithmetic,
 guarded descent, rejected aliases/captures and V5 replay. The integration fixture
 compares independent expected values and exact snapshots on C, Rust, JavaScript,
-C-Wasm and Rust-Wasm, plus eligible actual wgpu execution. The native backend
+C-Wasm and Rust-Wasm, plus eligible actual wgpu execution. The expanded fixture
+compares 47 complete results/exact snapshots across five CPU/Wasm paths and exercises 29 actual wgpu calls, including all four scalar
+private-buffer types. A separate packed C test runs under AddressSanitizer and
+UndefinedBehaviorSanitizer, checking construction, freezing, stopping/push,
+clamped splits, disjoint updates, append and input preservation. The browser
+runner replays the same values and resident feedback plans through CPU Wasm,
+JavaScript and actual WebGPU: the recorded Chrome run matched 181 comparisons
+with 35 actual GPU calls, including independent packed C-Wasm fallback checks.
+Device command mocks additionally test allocation failure cleanup and mismatched feedback bounds. The native backend
 unit test checks worker count, sequential nested work, order and retained vector
 pointer/capacity. CI enables both Wasm compilers, pinned Lean and wgpu replay.
 

@@ -42,3 +42,34 @@ fn swap_countdown(n: u64, a: u32, b: u32) -> u32 {
   let a = a + 1;
   return choose(n > 0, swap_countdown(n - 1, b, a), a);
 }
+
+fn partition_scratch(x:u32,at:u32)->u32 {
+    let b:Buffer<u32> =buffer_fill(8,0);
+    let b=repeat(8,b,fn(i)=>fn(b)=>b.set(i,x+i));
+    let b=b.split_at(at,fn(left)=>fn(right)=>
+        left.map_parallel(1,fn(i)=>fn(v)=>v*3+i)
+            .append(right.map_parallel(1,fn(i)=>fn(v)=>v*5+i)));
+    return b.at_or(0,11)+b.at_or(7,13)+b.len();
+}
+fn partition_scratch_many(xs:List<u32>,at:u32)->List<u32> {
+    return parallel_map(xs,1,fn(i)=>fn(x)=>partition_scratch(x,at));
+}
+fn push_scratch(x:u32)->u32 {
+    let b:Buffer<u32> =Buffer.empty();
+    return b.push(x).append(buffer_fill(63,x)).split_at(x,fn(a)=>fn(b)=>b.append(a)).at_or(63,9);
+}
+fn push_scratch_many(xs:List<u32>)->List<u32> {
+    return xs.map(fn(x)=>push_scratch(x));
+}
+fn stopping_scratch_many(xs:List<u32>)->List<u32> {
+    return xs.map(fn(x)=>repeat_until(8,buffer_fill(8,x),fn(b)=>b.len()<=3,fn(i)=>fn(b)=>b.pop()).len());
+}
+fn signed_partition_scratch(xs:List<i32>,at:u32)->List<i32> {
+    return xs.map(fn(x)=>buffer_fill(64,x).split_at(at,fn(a)=>fn(b)=>a.map_parallel(1,fn(i)=>fn(v)=>v*3).append(b)).at_or(0,-7));
+}
+fn float_partition_scratch(xs:List<f32>,at:u32)->List<f32> {
+    return xs.map(fn(x)=>buffer_fill(64,x).split_at(at,fn(a)=>fn(b)=>a.map_parallel(1,fn(i)=>fn(v)=>v+1.5).append(b)).at_or(0,9.5));
+}
+fn bool_partition_scratch(xs:List<Bool>,at:u32)->List<Bool> {
+    return xs.map(fn(x)=>buffer_fill(64,x).split_at(at,fn(a)=>fn(b)=>a.map_parallel(1,fn(i)=>fn(v)=>v==false).append(b)).at_or(0,false));
+}

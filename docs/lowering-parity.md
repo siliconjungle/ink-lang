@@ -11,9 +11,20 @@ yet admit; this is not a claim that those features are implemented.
 | Lists, nested/recursive record values, lexical bindings and acyclic calls | Yes | Yes | Yes | Yes | Flat numeric/Bool arrays and acyclic helpers |
 | Map, filter, indexed map, truncating zip, safe indexed reads | Yes | Yes | Yes | Yes | Eligible array compositions |
 | Ordered reductions, integer scan/sort, bounded repeat, lazy branches | Yes | Yes | Yes | Yes | Eligible array kernels; resource limits can select CPU |
+| Owned buffers/maps, consuming split/append and stopping loops | Yes | Yes | Yes | Yes | Bounded scalar private buffers; dynamic/unsupported cases use CPU |
+| Ordered parallel map and buffer map | Sequential | Native threads | Sequential | Sequential | Eligible output kernels; private-buffer map is sequential per invocation |
+| Guarded self recursion and list drop/take | Yes | Yes | Yes | Yes | CPU host |
 | Tables, queries, changes, checked arithmetic and Result propagation | Yes | Yes | Yes | Yes | CPU host |
 | Keeps, rollback, ordered events and counter exhaustion | Yes | Yes | Yes | Yes | CPU host |
 | Portable checkpoint/restore, outbox acknowledgement | Yes | Yes | Yes | Yes | CPU host |
+
+The same Ink syntax and observable values apply to every complete backend.
+Scheduling parity is narrower: scoped CPU threads currently exist only in native
+Rust. C, JavaScript, C-Wasm and Rust-Wasm execute ordered mapping sequentially.
+Their split/append implementations preserve ownership and partition-local indices,
+but allocation strategy can differ. Browser WebGPU and native wgpu both support
+bounded private split/rejoin and capacity-preserving resident graph feedback.
+See [ordered work and target limits](bend-inspired.md).
 
 GPU-compatible functions can coexist with stateful declarations and unsupported
 value types in one module. The runtime extracts each eligible pure dependency
