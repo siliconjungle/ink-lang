@@ -1,12 +1,10 @@
 # Database-defined representations and migrations
 
-Ink source syntax is unchanged. The default compiler no longer admits aggregate
-certificates, bounded-total caches or typed storage policies as optimisation
-authority. `representation::check` admits immutable canonical database entries
-against the fixed transition projection of the actual source module. The
-historical paths are available only with `legacy-optimisation-research`, an
-explicit experimental feature that restores their disclosed historical trust.
-It is not part of the production small-core guarantee.
+`representation::check` admits immutable canonical database entries against the
+fixed transition projection of the actual source module. Aggregate certificates,
+bounded-total cache authority, typed storage policies and their experimental
+compatibility paths have been removed. Maintained physical representations use
+the general database proof interface below.
 
 ## Contract
 
@@ -124,8 +122,8 @@ representation across Rust, C, JavaScript, both Wasm lanes and GPU host lanes.
 All source, definition and preservation checking finishes before
 emission. The generated `State` stores native physical data, version, pending
 events and the portable snapshot layout. Changes invoke the literal checked execute/observe/next functions directly.
-Queries whose normalised observation keeps logical state and version unchanged
-and emits no events compile to the reply alone, retaining the old physical state. C uses a generated type-specific borrowed
+Targets emit the checked execute, observe and next definitions literally.
+Database candidates express compact queries and physical-state retention. C uses a generated type-specific borrowed
 ABI into immutable typed storage; its functions do not repack physical state.
 JavaScript emits literal functions and immutable native constructor objects, with
 an explicit call stack only for functions that depend on inductive recursion;
@@ -277,10 +275,10 @@ stack budget used for the admitted inductive input limits; conformance includes
 a 4096-element list. JavaScript exports `createState()` with asynchronous `invoke`/
 `invoke_json`, checkpoint and restore. Invocation executes synchronously before
 its promise resolves; restore rejects overlapping operations while decoding.
-Simplified queries also have synchronous `query_NAME(...args)` methods returning
-just the reply. Rust/C native hosts expose analogous typed `query_NAME` methods,
-without JSON conversion or an outcome envelope. The compatibility invocation and
-Wasm handle APIs retain their public reply envelope. Values use the established exact BigInt/decimal integer boundary.
+Every action executes its checked physical step and observation. Query transport
+uses the same outcome and validation contract. Compact query alternatives are
+explicit database definitions; backends do not derive typed shortcuts from the
+observation envelope. Values use the established exact BigInt/decimal boundary.
 
 The compiler accepts only representations admitted by the fixed source model
 and supported by the standalone codecs. Unsupported source types/operations

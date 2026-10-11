@@ -198,6 +198,29 @@ fn infer_with_receiver(
             }
             match &t {
                 Type::Buffer(inner) => match n.as_str() {
+                    "map" | "map_indexed" | "filter" if a.len() == 1 => {
+                        let params = if n != "map_indexed" {
+                            vec![*inner.clone()]
+                        } else {
+                            vec![Type::U32, *inner.clone()]
+                        };
+                        let mut body = &a[0];
+                        let mut local = env.clone();
+                        for t in params {
+                            let Expr::Lambda(name, next) = body else {
+                                return Err("buffer map callback".into());
+                            };
+                            local.insert(name.clone(), t);
+                            body = next;
+                        }
+                        check::infer_as(
+                            body,
+                            &local,
+                            p,
+                            if n == "filter" { &Type::Bool } else { inner },
+                        )?;
+                    }
+                    "scan" if a.is_empty() && check::is_number(inner) => {}
                     "map_parallel" if a.len() == 2 => {
                         return crate::parallel::map_type(x, &a[0], &a[1], env, p, want, true)
                     }
@@ -394,6 +417,27 @@ impl Uses {
                     self.next = first.next.max(second.next);
                     return Ok(());
                 }
+                if matches!(&xt, Type::Buffer(_))
+                    && ["map", "map_indexed", "filter"].contains(&n.as_str())
+                {
+                    let Type::Buffer(inner) = &xt else {
+                        unreachable!()
+                    };
+                    let params = if n != "map_indexed" {
+                        vec![*inner.clone()]
+                    } else {
+                        vec![Type::U32, *inner.clone()]
+                    };
+                    self.callback(
+                        &a[0],
+                        env,
+                        p,
+                        &params,
+                        if n == "filter" { &Type::Bool } else { inner },
+                        false,
+                    )?;
+                    return Ok(());
+                }
                 if n == "map_parallel" {
                     let Type::Buffer(inner) = &xt else {
                         unreachable!()
@@ -483,6 +527,22 @@ impl Uses {
                 for (a, t) in a.iter().zip(args_types.iter()) {
                     self.walk(a, env, p, Some(t), false)?;
                 }
+            }
+            Expr::Call(n, a) if n == "fold_until" => {
+                self.walk(&a[0], env, p, None, false)?;
+                self.walk(&a[1], env, p, Some(&t), false)?;
+                let Type::List(inner) = check::infer(&a[0], env, p)? else {
+                    unreachable!()
+                };
+                self.callback(
+                    &a[2],
+                    env,
+                    p,
+                    &[(*inner).clone(), t.clone()],
+                    &Type::Bool,
+                    false,
+                )?;
+                self.callback(&a[3], env, p, &[*inner, t.clone()], &t, false)?;
             }
             Expr::Call(n, a) if n == "foldr" || n == "foldl" => {
                 self.walk(&a[0], env, p, None, false)?;

@@ -1,0 +1,398 @@
+{
+  "schema": 1,
+  "date": "2026-10-11",
+  "scope": "universal checked knowledge, shared ABI/support, shared policy and complete legacy optimisation removal",
+  "integration_base": "ee293779e12687a610263a9dd4d8f4f12a3c4d52",
+  "core_dependency_revision": "872a034d83e7da821af687329025528377177213",
+  "core_matches_published_dependency": true,
+  "repositories": {
+    "abi": "841a1898ea1c6e8c69845b94aa5f1c79a151d55f",
+    "native-support": "44f6d3f346a88bb91ad45e37be6b0c1d46269d6d",
+    "knowledge": "b244fc437da9c1a86882dcae3d472056adafa36d",
+    "planner": "65ae51a91c7de7555c3b6dc8986352fde6e035b9",
+    "lowerings/rust": "16b5352b58e6e14cde4609dfa89ce172a06328d9",
+    "lowerings/c": "787b0f2822195eb6fccf18cebbb416294bc6e90b",
+    "lowerings/js": "afe4655249b919b9ef3fba822a37bd1fcf969647",
+    "lowerings/gpu": "fe0fd9d59959c74cf6ff5011f9b568b4feef6022",
+    "lowerings/wasm": "284f82182240d9e10c75c0ab204013efb66d325e",
+    "runtime": "5f384e5018820558f314052b2e1c444e2b9d08cc"
+  },
+  "knowledge": {
+    "schema": 1,
+    "scope": "immutable union of current upstream knowledge and checked universal control/owned laws",
+    "parents": [
+      {
+        "snapshot_sha256": "731e64a6c766ff6cb38c3a5f18be80c19995c01d4336ca23c4c6cba649e65cd5",
+        "entries": 2881
+      },
+      {
+        "snapshot_sha256": "8b0489ee8dd3d443aba08e81a4e05ee65d7ff4cc2aef67199095cf2786389cf2",
+        "entries": 3424
+      }
+    ],
+    "snapshot_sha256": "7f9f98b44889114e6cb496a1f67da6984c9c454b76b387da2872f51183168fb0",
+    "entries": 3460,
+    "authority": "member inclusion is discovery only; selected exact closures are replayed by the core before use"
+  },
+  "laws": {
+    "early_exit": 8,
+    "owned_transform": 28,
+    "proof_rules": "ordinary equality, induction, cases and normalization; no backend matcher authority"
+  },
+  "execution_contracts": {
+    "general_control": "ink-executable-core-v6",
+    "canonical_float": "ink-executable-core-v7",
+    "float_nan": "arithmetic 0x7fc00000; transport and negation preserve payload bits",
+    "selection": "one Rust implementation, compiled to Wasm for browsers; saved exact-target profiles; no profitability probes",
+    "representation_execution": "standalone compiled state; checked offline compilation; portable checkpoint/restore migration; no generic interpreter, Session, executor adapters or per-call logical snapshot validation"
+  },
+  "validation": [
+    {
+      "gate": "independent core, canonical F32 and proof boundaries",
+      "command": "cargo test --manifest-path core/Cargo.toml",
+      "result": "passed",
+      "log_sha256": "1ff3da9a2569d42a447d5b278494d287b3a09f4b5725f2f22d42daeeedd9988f",
+      "passed_tests": 73,
+      "failed_tests": 0,
+      "ignored_tests": 0,
+      "stage": "before_standalone_runtime_retirement"
+    },
+    {
+      "gate": "shared ABI native/browser frames, decisions and native destinations",
+      "command": "cargo test --manifest-path abi/Cargo.toml",
+      "result": "passed",
+      "log_sha256": "d9075a817963cc46ae8615fab43210e439632074f4f831217554a9959bc1b3e4",
+      "passed_tests": 5,
+      "failed_tests": 0,
+      "ignored_tests": 0,
+      "stage": "before_standalone_runtime_retirement"
+    },
+    {
+      "gate": "extracted native support",
+      "command": "cargo test --manifest-path native-support/Cargo.toml",
+      "result": "passed",
+      "log_sha256": "14d874a21a999d63e1d03554b7b48aaaba3f5d2ef4800b4834a31e75785462f6",
+      "passed_tests": 2,
+      "failed_tests": 0,
+      "ignored_tests": 0,
+      "stage": "before_standalone_runtime_retirement"
+    },
+    {
+      "gate": "literal Rust and parallel ownership",
+      "command": "cargo test --manifest-path lowerings/rust/Cargo.toml",
+      "result": "passed",
+      "log_sha256": "1c3a7623c13ca193d8afc486983f7f524710520df9b996066f81cde7e183315b",
+      "passed_tests": 2,
+      "failed_tests": 0,
+      "ignored_tests": 0,
+      "stage": "before_standalone_runtime_retirement"
+    },
+    {
+      "gate": "literal C, strict compilation and collection lifetimes",
+      "command": "cargo test --manifest-path lowerings/c/Cargo.toml",
+      "result": "passed",
+      "log_sha256": "5e129082a981d1334a52ccfc5483e220e8ea364d05adf31d3318f04ee3d07878",
+      "passed_tests": 12,
+      "failed_tests": 0,
+      "ignored_tests": 0,
+      "stage": "before_standalone_runtime_retirement"
+    },
+    {
+      "gate": "literal JavaScript and checked state ingress",
+      "command": "cargo test --manifest-path lowerings/js/Cargo.toml",
+      "result": "passed",
+      "log_sha256": "d0aeacb3d6547de3468f54e40505e1c71aa0f4fec8b0a5c7650245dc18fc0d15",
+      "passed_tests": 15,
+      "failed_tests": 0,
+      "ignored_tests": 0,
+      "stage": "before_standalone_runtime_retirement"
+    },
+    {
+      "gate": "literal GPU graph and capability limits",
+      "command": "cargo test --manifest-path lowerings/gpu/Cargo.toml",
+      "result": "passed",
+      "log_sha256": "c33113721f46d2a89c009511d2360164ef749a6b44ca981f2e43f61cda804aec",
+      "passed_tests": 7,
+      "failed_tests": 0,
+      "ignored_tests": 0,
+      "stage": "before_standalone_runtime_retirement"
+    },
+    {
+      "gate": "runtime durable failures and opaque execution",
+      "command": "cargo test --locked --manifest-path runtime/Cargo.toml",
+      "result": "passed",
+      "log_sha256": "eab33de725bf991d02f92f6304b277cad19d9380ec431f09a7ed9ac41f5b46b2",
+      "passed_tests": 6,
+      "failed_tests": 0,
+      "ignored_tests": 0,
+      "stage": "before_standalone_runtime_retirement"
+    },
+    {
+      "gate": "planner search, fitting and exact profile domains",
+      "command": "PYTHONPATH=knowledge:planner python3 -m unittest discover -s planner/tests",
+      "result": "passed",
+      "log_sha256": "47a9b1100b72abd91da6a6688df1b63a8f3b5b1eb1fa9216faee1d17f44f2df4",
+      "passed_tests": 54,
+      "stage": "before_standalone_runtime_retirement"
+    },
+    {
+      "gate": "checked fold, owned transformations and installed proposal generation",
+      "command": "PYTHONPATH=knowledge:planner INK_COMPILER=target/debug/ink python3 -m unittest knowledge.tests.test_fold_until_laws knowledge.tests.test_owned_transform_laws knowledge.tests.test_generated_proposals",
+      "result": "passed",
+      "log_sha256": "f79be3a7ddf3fcea0ce5f5e01a878405d7523f48149553b7263e85f211a824ab",
+      "passed_tests": 3,
+      "stage": "before_standalone_runtime_retirement"
+    },
+    {
+      "gate": "all root test targets compile",
+      "command": "cargo test --no-run",
+      "result": "passed",
+      "log_sha256": "9f76dffb75631531c4b0e3360c09933a1462c67492fe9960d66eeacb6b272301",
+      "compiled_test_targets": 68,
+      "stage": "before_standalone_runtime_retirement"
+    },
+    {
+      "gate": "general control, ownership, U64 and NaN arithmetic on native/JS/actual GPU/both Wasm",
+      "command": "INK_TEST_WGPU=1 INK_TEST_ZIG=/path/to/zig cargo test --test bend_features general_control_and_owned_operations_preserve_cross_target_values -- --nocapture",
+      "result": "passed",
+      "log_sha256": "1d55fe3978e0e630d2ec36ab53985c60b292b0e4d3edd640f9cf5b3078f3d5d9",
+      "passed_tests": 1,
+      "failed_tests": 0,
+      "ignored_tests": 0,
+      "source_results": 16,
+      "actual_gpu_calls": 7,
+      "wasm_lanes": [
+        "c",
+        "rust"
+      ],
+      "stage": "before_standalone_runtime_retirement"
+    },
+    {
+      "gate": "canonical F32 standalone representation lane",
+      "command": "cargo test --test representation_parity binary32_representations_have_equal_backend_coverage",
+      "result": "passed",
+      "log_sha256": "feeea60eeb5164dc125e5c05171af27431575def9e8d01b8add123df97a88fae",
+      "passed_tests": 1,
+      "failed_tests": 0,
+      "ignored_tests": 0,
+      "stage": "before_standalone_runtime_retirement"
+    },
+    {
+      "gate": "standalone representation outputs/events/exact snapshots",
+      "command": "cargo test --test standalone_representation -- --test-threads=1",
+      "result": "passed",
+      "log_sha256": "4720662ab38c05250bfda384248c68ecd4153fe8eb31350200c96a73cd7ef772",
+      "passed_tests": 3,
+      "failed_tests": 0,
+      "ignored_tests": 0,
+      "stage": "before_standalone_runtime_retirement"
+    },
+    {
+      "gate": "state actions, numerical storage, rollback, recovery and complete checkpoints",
+      "command": "cargo test --test snapshots --test transaction_boundary --test table_undo --test selected_checkpoint --test numerical_state --test mixed_durability --test action_transitions --test action_optimisation -- --test-threads=1",
+      "result": "passed",
+      "log_sha256": "40ec41248706c24e2387ae9467f457bad6605657b4b98084c228f3bc0e1c86a6",
+      "passed_tests": 30,
+      "failed_tests": 0,
+      "ignored_tests": 0,
+      "stage": "before_standalone_runtime_retirement"
+    },
+    {
+      "gate": "relocation, installed planning and independent offline replay",
+      "command": "cargo test --test distribution -- --test-threads=1",
+      "result": "passed",
+      "log_sha256": "d9cb5648aca120c8ad2b05fa6298d2f1b8a2334a6f5d06c6c97d39abf30b99e5",
+      "passed_tests": 1,
+      "failed_tests": 0,
+      "ignored_tests": 0,
+      "stage": "before_standalone_runtime_retirement"
+    },
+    {
+      "gate": "complete browser host, policies, durable failures and poisoned transport",
+      "command": "node --test runtime/tests/*.mjs",
+      "result": "passed",
+      "log_sha256": "96b7cba263cf3e13d54dbd9f724b8ae44e52584bb301bd30c045dbf11e0f7baa",
+      "passed_node_entries": 37,
+      "behavioural_tests": 35,
+      "support_module_loads": 2,
+      "stage": "before_standalone_runtime_retirement"
+    },
+    {
+      "gate": "rust independent exact Git dependency graph",
+      "command": "cargo check --manifest-path lowerings/rust/Cargo.toml",
+      "result": "passed",
+      "log_sha256": "4d53a6bd0ba1998481f45c1135cedcfd7e5310edc6976d47a2a6bb505da6e3ea",
+      "stage": "before_standalone_runtime_retirement"
+    },
+    {
+      "gate": "js independent exact Git dependency graph",
+      "command": "cargo check --manifest-path lowerings/js/Cargo.toml",
+      "result": "passed",
+      "log_sha256": "ff8b0a2c8b7770219b78d2fdb32e9e03fba0e77cf7007cb7d803be0c04ab40de",
+      "stage": "before_standalone_runtime_retirement"
+    },
+    {
+      "gate": "c independent exact Git dependency graph",
+      "command": "cargo check --manifest-path lowerings/c/Cargo.toml",
+      "result": "passed",
+      "log_sha256": "ce9c17139c2d88db67a183b3c5aa65c14229d10c0aac57a9cca3633c6838fb48",
+      "stage": "before_standalone_runtime_retirement"
+    },
+    {
+      "gate": "gpu independent exact Git dependency graph",
+      "command": "cargo check --manifest-path lowerings/gpu/Cargo.toml",
+      "result": "passed",
+      "log_sha256": "73a09616d07fa23fdf48321caf7c8ba6993734efe153070990beceb53df63b0b",
+      "stage": "before_standalone_runtime_retirement"
+    },
+    {
+      "gate": "wasm independent exact Git dependency graph",
+      "command": "cargo check --manifest-path lowerings/wasm/Cargo.toml",
+      "result": "passed",
+      "log_sha256": "9523539f5fe54b9ec0d61e8fe343f2803afffae744ef2f123159075273e7abc6",
+      "stage": "before_standalone_runtime_retirement"
+    },
+    {
+      "gate": "runtime independent exact Git dependency graph",
+      "command": "cargo check --manifest-path runtime/Cargo.toml",
+      "result": "passed",
+      "log_sha256": "c2bc2e7c95ec58f7cbca1381079263d3af0ddefd0f1057ce7694a2ac775f735b",
+      "stage": "before_standalone_runtime_retirement"
+    },
+    {
+      "gate": "rust standalone-only reconciliation and exact independent Git dependency graph",
+      "command": "cargo test --manifest-path lowerings/rust/Cargo.toml",
+      "result": "passed",
+      "log_sha256": "9c320036fb00440975b6ece38db5e906ecf3ee306439fa14a7eb8bfe2527b541",
+      "passed_tests": 2,
+      "failed_tests": 0,
+      "ignored_tests": 0,
+      "stage": "after_standalone_runtime_retirement"
+    },
+    {
+      "gate": "js standalone-only reconciliation and exact independent Git dependency graph",
+      "command": "cargo test --manifest-path lowerings/js/Cargo.toml",
+      "result": "passed",
+      "log_sha256": "f536afa7133c45b166ea669533ea7feb826bee7c4425bbca47999d24299dbf88",
+      "passed_tests": 15,
+      "failed_tests": 0,
+      "ignored_tests": 0,
+      "stage": "after_standalone_runtime_retirement"
+    },
+    {
+      "gate": "c standalone-only reconciliation and exact independent Git dependency graph",
+      "command": "cargo test --manifest-path lowerings/c/Cargo.toml",
+      "result": "passed",
+      "log_sha256": "724997ced07538bf813b8b4b7c8fcac99d224cda29bfec34bc20c07b3b9db2f0",
+      "passed_tests": 12,
+      "failed_tests": 0,
+      "ignored_tests": 0,
+      "stage": "after_standalone_runtime_retirement"
+    },
+    {
+      "gate": "gpu standalone-only reconciliation and exact independent Git dependency graph",
+      "command": "cargo test --manifest-path lowerings/gpu/Cargo.toml",
+      "result": "passed",
+      "log_sha256": "9254405ab295f6f6eb5e144da511e62f845d526ac187723c63769acd96ac92b4",
+      "passed_tests": 7,
+      "failed_tests": 0,
+      "ignored_tests": 0,
+      "stage": "after_standalone_runtime_retirement"
+    },
+    {
+      "gate": "wasm standalone-only reconciliation and exact independent Git dependency graph",
+      "command": "cargo test --manifest-path lowerings/wasm/Cargo.toml",
+      "result": "passed",
+      "log_sha256": "de48f52c94e2a42b22a82b803173a91d5e8f83e113969d4b4a0f62aa1b773537",
+      "passed_tests": 0,
+      "failed_tests": 0,
+      "ignored_tests": 0,
+      "stage": "after_standalone_runtime_retirement"
+    },
+    {
+      "gate": "runtime standalone-only reconciliation and exact independent Git dependency graph",
+      "command": "cargo test --manifest-path runtime/Cargo.toml",
+      "result": "passed",
+      "log_sha256": "68f0b27c5b1cbeec43c030a7573963a927f57897f08ce5107086fe3d9d0893ca",
+      "passed_tests": 5,
+      "failed_tests": 0,
+      "ignored_tests": 0,
+      "stage": "after_standalone_runtime_retirement"
+    },
+    {
+      "gate": "all root targets compile after complete interpreter retirement",
+      "command": "cargo test --no-run",
+      "result": "passed",
+      "log_sha256": "b4a7839d84556a3725c82e784fe16fb7367f469452c9897355179d32bc0f342f",
+      "compiled_test_targets": 68,
+      "stage": "after_standalone_runtime_retirement"
+    },
+    {
+      "gate": "complete browser host after standalone-runtime reconciliation",
+      "command": "node --test runtime/tests/*.mjs",
+      "result": "passed",
+      "log_sha256": "f0a2848bf3bd19f53451d6d1da31a8b33c7ff3e5d7b68db86d8ee35f891a5daf",
+      "passed_node_entries": 37,
+      "behavioural_tests": 35,
+      "support_module_loads": 2,
+      "stage": "after_standalone_runtime_retirement"
+    },
+    {
+      "gate": "general checked control and ownership after standalone-runtime retirement, actual GPU and both Wasm",
+      "stage": "after_standalone_runtime_retirement",
+      "command": "INK_TEST_WGPU=1 INK_TEST_ZIG=/path/to/zig cargo test --test bend_features general_control_and_owned_operations_preserve_cross_target_values -- --nocapture",
+      "result": "passed",
+      "log_sha256": "f5f26a55d5b18e7e643d4b2868c4a08900e77e2cecf2f382c5b2d82d47606bce",
+      "passed_tests": 1,
+      "source_results": 16,
+      "actual_gpu_calls": 7,
+      "wasm_lanes": [
+        "c",
+        "rust"
+      ]
+    },
+    {
+      "gate": "compiled-state matrix, exact migration histories, false-proof rejection, frozen CLI replay and standalone outputs",
+      "stage": "after_standalone_runtime_retirement",
+      "command": "INK_TEST_ZIG=/path/to/zig cargo test --test lowering_parity --test representation_parity --test representations --test standalone_representation -- --test-threads=1",
+      "result": "passed",
+      "log_sha256": "61da1bd8e36a98acbf56644d9238c6cffab3c0d242fd9c6394da225b7f5e899f",
+      "passed_tests": 23,
+      "failed_tests": 0,
+      "ignored_tests": 0,
+      "test_groups": {
+        "lowering_parity": 3,
+        "representation_parity": 8,
+        "representations": 9,
+        "standalone_representation": 3
+      },
+      "wasm_lanes": [
+        "c",
+        "rust"
+      ],
+      "source_boundary": "No generic representation interpreter or per-call snapshot validation; all selected variants compiled before execution."
+    }
+  ],
+  "prior_full_representation_gates": {
+    "historical_receipt": "validation-before-retirement-reconciliation.json",
+    "checked_sessions": "Historical gate only. Session/executor APIs and their generic-runtime tests are now removed completely."
+  },
+  "limits": [
+    "Tests do not prove compiler, shader, host, toolchain or device correctness.",
+    "Pure equality laws do not prove allocation-failure behavior, identical fuel use or profitability.",
+    "GPU/device capability and resource limits may select the compiled CPU baseline.",
+    "The broad historical knowledge suite is not claimed green: archived compiler binaries are absent. Current fold/owned/installed-proposal gates passed.",
+    "CI and browser hardware execution are separate from these recorded local gates; actual local wgpu dispatch and both Wasm paths were exercised."
+  ],
+  "pull_requests": {
+    "ink-knowledge": "https://github.com/siliconjungle/ink-knowledge/pull/8",
+    "ink-planner": "https://github.com/siliconjungle/ink-planner/pull/3",
+    "ink-lowering-rust": "https://github.com/siliconjungle/ink-lowering-rust/pull/9",
+    "ink-lowering-c": "https://github.com/siliconjungle/ink-lowering-c/pull/8",
+    "ink-lowering-js": "https://github.com/siliconjungle/ink-lowering-js/pull/7",
+    "ink-lowering-gpu": "https://github.com/siliconjungle/ink-lowering-gpu/pull/9",
+    "ink-lowering-wasm": "https://github.com/siliconjungle/ink-lowering-wasm/pull/8",
+    "ink-runtime": "https://github.com/siliconjungle/ink-runtime/pull/11"
+  },
+  "validation_sequence": "ABI/core/support, general laws, planner, actual GPU/owned-control and state recovery gates passed before the latest standalone-runtime retirement landed. After reconciling that retirement, all five independently Git-pinned lowerings and the runtime were retested; all root targets compile, full browser host gate and compiled-state migration/transport gates are recorded below. All 23 compiled-state tests passed, including frozen CLI replay outside a live catalogue and rehashed false-proof rejection. The final general control/ownership gate also reran 16 results, seven actual GPU dispatches and both Wasm lanes."
+}

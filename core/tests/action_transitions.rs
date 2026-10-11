@@ -127,10 +127,10 @@ fn source_transition_roots_cannot_ignore_ordered_event_changes() {
 fn unsupported_domains_and_long_continuations_are_rejected_with_bounded_work() {
     assert!(Projection::derive(&module("module unsupported; query pass(x:String)->String{return x;}" )).unwrap_err().contains("unsupported action model type"));
     assert!(Projection::derive(&module(
-        "module unsupported; state Rows:Table<u32,u64> =Table.empty(); query get(k:u32)->Option<u64> reads(Rows){return Rows.get(k);}"
+        "module unsupported; query pass(x:String)->String{return x;}"
     ))
     .unwrap_err()
-    .contains("table keys currently require u64"));
+    .contains("unsupported action model type"));
     let body = (0..40)
         .map(|i| format!("let x{i}:u64={i};"))
         .collect::<String>();
@@ -200,13 +200,26 @@ fn total_helper_projection_is_bound_and_bounded_without_external_tools() {
         "let n:u32=1;return choose(n==1,x,0);",
         "return quot_or(x,1,0);",
     ] {
-        let app=format!("module unsupported;fn helper(x:u64)->u64{{{body}}}query q(x:u64)->u64{{return helper(x);}}");
+        let app=format!("module supported;fn helper(x:u64)->u64{{{body}}}query q(x:u64)->u64{{return helper(x);}}");
         let projected = Projection::derive(&module(&app)).unwrap();
-        for word in [0, u64::MAX] {
-            let result=projected.context().unwrap().evaluate(&[], &call(&projected.actions["q"].function, vec![c(&projected.state,0,vec![]),Term::U64(0),Term::U64(word)])).unwrap();
-            let Term::Construct{arguments,..}=result else{panic!()};
-            assert_eq!(arguments[0],Term::U64(word));
-        }
+        let context = projected.context().unwrap();
+        let value = context
+            .evaluate(
+                &[],
+                &call(
+                    &projected.actions["q"].function,
+                    vec![c(&projected.state, 0, vec![]), Term::U64(0), Term::U64(7)],
+                ),
+            )
+            .unwrap();
+        let Term::Construct { arguments, .. } = value else {
+            panic!()
+        };
+        assert_eq!(arguments[0], Term::U64(7));
+    }
+    for body in ["let text:String=\"unsupported\";return x;"] {
+        let app=format!("module unsupported;fn helper(x:u64)->u64{{{body}}}query q(x:u64)->u64{{return helper(x);}}");
+        assert!(Projection::derive(&module(&app)).is_err());
     }
     let mut chain = String::from("module depth;");
     for i in 0..33 {

@@ -48,10 +48,6 @@ impl Runtime {
         Ok(result)
     }
     pub(super) fn typed_keep(&mut self, index: usize) -> Exec<Value> {
-        let name = &self.program.keeps[index].name;
-        if let Some(cache) = self.cached.get(name) {
-            return Ok(Value::Int(cache.total.clone()));
-        }
         let ty = self.program.keeps[index].ty.clone();
         let body = self.keep_bodies[index].clone();
         let mut slots = vec![None; body.slots.len()];

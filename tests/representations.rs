@@ -200,35 +200,6 @@ fn original_program_binding_and_missing_proofs_fail_closed() {
 }
 
 #[test]
-fn retired_specialised_admission_cannot_select_production_optimisations() {
-    if cfg!(feature = "legacy-optimisation-research") {
-        return;
-    }
-    let old = verified_language::syntax::parse(include_str!(
-        "../knowledge/research/sum-maintenance.lang"
-    ))
-    .unwrap();
-    assert!(verified_language::aggregate::prove(&old)
-        .unwrap_err()
-        .contains("retired"));
-    let p = verified_language::syntax::parse(SOURCE).unwrap();
-    let policy = verified_language::storage::Policy {
-        schema: 1,
-        semantics: verified_language::storage::SEMANTICS.into(),
-        maintenance_id: None,
-        roots: std::collections::BTreeMap::from([(
-            "Rows".into(),
-            verified_language::storage::TableStorage {
-                layout: verified_language::storage::Layout::Columns,
-                promote_at: Some(3),
-            },
-        )]),
-    };
-    assert!(policy.check(&p, None).unwrap_err().contains("retired"));
-    assert!(verified_language::state_native::emit_with_storage(&p, None, true, None).is_err());
-}
-
-#[test]
 fn well_hashed_false_proof_is_rejected_after_mathematical_typechecking() {
     let (m, p, root) = proposal(SOURCE, "representation-rehashed-proof");
     let mut request = p.requests[0].clone();

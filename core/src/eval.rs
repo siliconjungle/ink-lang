@@ -329,6 +329,7 @@ fn expr(
             evaluate_array_operation(e, frame, fuel, ty)
         }
         Expr::Call(n, _) if n == "choose" => evaluate_choose(e, frame, fuel, ty),
+        Expr::Call(n, _) if n == "fold_until" => evaluate_fold_until(e, frame, fuel, ty),
         Expr::Call(n, _) if n == "foldr" || n == "foldl" => evaluate_foldr(e, frame, fuel, ty),
         Expr::Num(n) => Ok(if ty == Type::Int {
             Value::Opaque(crate::stateful::Value::Int(num_bigint::BigInt::from(*n)))
@@ -777,6 +778,46 @@ fn evaluate_choose(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> Lang
 }
 
 #[inline(never)]
+fn evaluate_fold_until(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> LangResult<Value> {
+    let Frame { env, types, p, depth } = frame;
+    let Expr::Call(_, args) = e else { unreachable!("expression dispatch") };
+    if args.len() != 4 { return Err("fold_until argument count".into()); }
+    let Value::List(xs) = expr(&args[0], env, types, p, fuel, None, depth)? else {
+        return Err("fold_until needs a list".into());
+    };
+    let mut acc = expr(&args[1], env, types, p, fuel, Some(&ty), depth)?;
+    let Type::List(item_type) = crate::check::infer(&args[0], types, p)? else {
+        return Err("fold_until needs a list".into());
+    };
+    let Expr::Lambda(stop_item, stop_inner) = &args[2] else { return Err("fold_until lambda".into()); };
+    let Expr::Lambda(stop_state, stop_body) = stop_inner.as_ref() else { return Err("fold_until nested lambda".into()); };
+    let Expr::Lambda(step_item, step_inner) = &args[3] else { return Err("fold_until lambda".into()); };
+    let Expr::Lambda(step_state, step_body) = step_inner.as_ref() else { return Err("fold_until nested lambda".into()); };
+    // Capture the enclosing scope once, as foldr does. Both callbacks observe
+    // the old accumulator; only the stop callback needs copies of moved values.
+    let mut stop_env = copy_env(env, fuel)?;
+    let mut step_env = copy_env(env, fuel)?;
+    let mut stop_types = types.clone();
+    stop_types.insert(stop_item.clone(), (*item_type).clone());
+    stop_types.insert(stop_state.clone(), ty.clone());
+    let mut step_types = types.clone();
+    step_types.insert(step_item.clone(), *item_type);
+    step_types.insert(step_state.clone(), ty.clone());
+    for x in xs {
+        stop_env.insert(stop_item.clone(), copy_value(&x, fuel)?);
+        stop_env.insert(stop_state.clone(), copy_value(&acc, fuel)?);
+        let Value::Bool(stopped) = expr(stop_body, &stop_env, &stop_types, p, fuel, Some(&Type::Bool), depth)? else {
+            return Err("fold_until stop condition".into());
+        };
+        step_env.insert(step_item.clone(), x);
+        step_env.insert(step_state.clone(), acc);
+        acc = expr(step_body, &step_env, &step_types, p, fuel, Some(&ty), depth)?;
+        if stopped { break; }
+    }
+    Ok(acc)
+}
+
+#[inline(never)]
 fn evaluate_foldr(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> LangResult<Value> {
     let Frame {
         env,
@@ -854,11 +895,7 @@ fn evaluate_binary(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> Lang
 // transport/negation; arithmetic NaNs have a single cross-target spelling.
 #[inline(never)]
 pub(crate) fn arithmetic_f32_bits(value: f32) -> u32 {
-    if value.is_nan() {
-        0x7fc00000
-    } else {
-        value.to_bits()
-    }
+    crate::logic::canonical_f32_bits(value)
 }
 
 #[inline(never)]
@@ -887,9 +924,9 @@ fn binary_values(op: &str, av: Value, bv: Value) -> LangResult<Value> {
             let a = f32::from_bits(*a);
             let b = f32::from_bits(*b);
             Ok(match op {
-                "+" => Value::F32(arithmetic_f32_bits(a + b)),
-                "-" => Value::F32(arithmetic_f32_bits(a - b)),
-                "*" => Value::F32(arithmetic_f32_bits(a * b)),
+                "+" => Value::F32(crate::logic::canonical_f32_bits(a + b)),
+                "-" => Value::F32(crate::logic::canonical_f32_bits(a - b)),
+                "*" => Value::F32(crate::logic::canonical_f32_bits(a * b)),
                 "<" => Value::Bool(a < b),
                 ">" => Value::Bool(a > b),
                 "<=" => Value::Bool(a <= b),
@@ -1002,7 +1039,7 @@ fn evaluate_apply(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> LangR
                             result =
                                 f32::from_bits(arithmetic_f32_bits(result + f32::from_bits(*b)));
                         }
-                        return Ok(Value::F32(result.to_bits()));
+                        return Ok(Value::F32(crate::logic::canonical_f32_bits(result)));
                     }
                     if ty == Type::I32 {
                         let mut result = 0i32;
@@ -1484,6 +1521,59 @@ fn evaluate_local(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> LangR
             let v = expr(x, env, types, p, fuel, Some(&xt), depth)?;
             match (v, xt) {
                 (Value::Buffer(b), Type::Buffer(t)) => {
+                    if n == "map_indexed" {
+                        let xs =
+                            indexed_values(b.freeze(), &a[0], env, types, p, fuel, &t, &t, depth)?;
+                        return Ok(Value::Buffer(crate::temporary::OwnedBuffer::new(xs)));
+                    }
+                    if n == "map" {
+                        let Expr::Lambda(item, body) = &a[0] else {
+                            unreachable!()
+                        };
+                        let mut local = copy_env(env, fuel)?;
+                        let mut ts = types.clone();
+                        ts.insert(item.clone(), *t.clone());
+                        let mut ys = vec![];
+                        for v in b.freeze() {
+                            local.insert(item.clone(), v);
+                            ys.push(expr(body, &local, &ts, p, fuel, Some(&t), depth)?);
+                        }
+                        return Ok(Value::Buffer(crate::temporary::OwnedBuffer::new(ys)));
+                    }
+                    if n == "filter" {
+                        let Expr::Lambda(item, body) = &a[0] else {
+                            unreachable!()
+                        };
+                        let mut local = copy_env(env, fuel)?;
+                        let mut ts = types.clone();
+                        ts.insert(item.clone(), *t.clone());
+                        let mut ys = vec![];
+                        for v in b.freeze() {
+                            local.insert(item.clone(), v.clone());
+                            if expr(body, &local, &ts, p, fuel, Some(&Type::Bool), depth)?
+                                == Value::Bool(true)
+                            {
+                                ys.push(v);
+                            }
+                        }
+                        return Ok(Value::Buffer(crate::temporary::OwnedBuffer::new(ys)));
+                    }
+                    if n == "scan" {
+                        let mut acc = match t.as_ref() {
+                            Type::U32 => Value::U32(0),
+                            Type::U64 => Value::U64(0),
+                            Type::I32 => Value::I32(0),
+                            Type::F32 => Value::F32(0),
+                            _ => return Err("buffer scan numeric type".into()),
+                        };
+                        let mut ys = vec![];
+                        for v in b.freeze() {
+                            charge(fuel, 1)?;
+                            acc = binary_values("+", acc, v)?;
+                            ys.push(acc.clone());
+                        }
+                        return Ok(Value::Buffer(crate::temporary::OwnedBuffer::new(ys)));
+                    }
                     if n == "map_parallel" {
                         expr(&a[0], env, types, p, fuel, Some(&Type::U32), depth)?;
                         let xs =

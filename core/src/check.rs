@@ -364,27 +364,49 @@ pub fn infer_context(e: &Expr, env: &Env, p: &Program, want: Option<&Type>) -> L
                 _ => Err(format!("{n} requires List<u32> or List<u64>")),
             }
         }
+        Expr::Call(n, args) if n == "fold_until" => {
+            if args.len() != 4 {
+                return Err("fold_until expects list, initial, stop and step callbacks".into());
+            }
+            let Type::List(item_type) = infer(&args[0], env, p)? else {
+                return Err("fold_until needs a list".into());
+            };
+            let result = infer_context(&args[1], env, p, want)?;
+            crate::statecheck::validate_type(&result, p)?;
+            for (callback, output) in [(&args[2], Type::Bool), (&args[3], result.clone())] {
+                let Expr::Lambda(item, rest) = callback else {
+                    return Err("fold_until needs nested lambdas".into());
+                };
+                let Expr::Lambda(acc, body) = rest.as_ref() else {
+                    return Err("fold_until needs nested lambdas".into());
+                };
+                let mut local = env.clone();
+                local.insert(item.clone(), (*item_type).clone());
+                local.insert(acc.clone(), result.clone());
+                infer_as(body, &local, p, &output)?;
+            }
+            Ok(result)
+        }
         Expr::Call(n, args) if n == "foldr" || n == "foldl" => {
             if args.len() != 3 {
-                return Err(
-                    "foldr expects list, initial value and fn(item)=>fn(rest)=>body".into(),
-                );
+                return Err("foldr expects list, initial and step callback".into());
             }
-            let Type::List(t) = infer(&args[0], env, p)? else {
-                return Err("foldr requires a word list".into());
+            let Type::List(item_type) = infer(&args[0], env, p)? else {
+                return Err("foldr needs a list".into());
             };
-            let accumulator = infer_context(&args[1], env, p, want)?;
-            let Expr::Lambda(item, inner) = &args[2] else {
+            let result = infer_context(&args[1], env, p, want)?;
+            crate::statecheck::validate_type(&result, p)?;
+            let Expr::Lambda(item, rest) = &args[2] else {
                 return Err("foldr needs nested lambdas".into());
             };
-            let Expr::Lambda(rest, body) = inner.as_ref() else {
+            let Expr::Lambda(acc, body) = rest.as_ref() else {
                 return Err("foldr needs nested lambdas".into());
             };
             let mut local = env.clone();
-            local.insert(item.clone(), (*t).clone());
-            local.insert(rest.clone(), accumulator.clone());
-            infer_as(body, &local, p, &accumulator)?;
-            Ok(accumulator)
+            local.insert(item.clone(), *item_type);
+            local.insert(acc.clone(), result.clone());
+            infer_as(body, &local, p, &result)?;
+            Ok(result)
         }
         Expr::Call(n, args) => {
             let f = p
@@ -614,6 +636,7 @@ fn calls(e: &Expr, out: &mut BTreeSet<String>) {
                     "checked_mul",
                     "count",
                     "foldr",
+                    "fold_until",
                     "foldl",
                     "choose",
                     "repeat",
@@ -680,6 +703,7 @@ pub fn check(p: &Program) -> LangResult<()> {
                 "checked_mul",
                 "count",
                 "foldr",
+                    "fold_until",
                 "foldl",
                 "choose",
                 "repeat",

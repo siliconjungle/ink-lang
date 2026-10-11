@@ -3,7 +3,7 @@
 These mechanisms borrow useful ideas from Bend while preserving Ink's small
 semantic core and independently versioned knowledge database. They do not adopt
 Bend's interaction-net runtime or implicit parallel scheduling. Programs using
-these mechanisms carry `ink-executable-core-v5`, or V6 when floats occur; older
+these mechanisms carry `ink-executable-core-v5`, or V7 when floats occur; older
 non-floating programs retain their existing semantics identities. Core JSON replay checks the marker and the source.
 
 ## Ordered work

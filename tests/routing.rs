@@ -1,7 +1,7 @@
 use sha2::{Digest, Sha256};
 use std::collections::BTreeMap;
 use verified_language::{
-    knowledge::Lock,
+    content::Lock,
     library::{Bundle, Object, SEMANTICS},
     logic::{Declaration, Proof, Sort, Term},
     routing::{self, Package, Stage, ValueRef},

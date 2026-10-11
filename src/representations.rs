@@ -264,6 +264,8 @@ fn execute_compiled(
             "--manifest-path",
         ])
         .arg(scratch.0.join("Cargo.toml"))
+        .arg("--target-dir")
+        .arg(scratch.0.join("target"))
         .output()
         .map_err(|e| format!("standalone execution requires a Rust toolchain: {e}"))?;
     if !compiled.status.success() {
@@ -346,7 +348,7 @@ fn project(output: &Path, source: &str, c: Option<&str>, target: &str) -> LangRe
     )?;
     write(
         &output.join("state-abi.h"),
-        include_str!("../runtime/hosts/state-abi.h"),
+        ink_abi::STATE_C_HEADER,
     )?;
     write(&output.join("README.md"), &format!("Standalone {target} representation. Build with `cargo build --offline`. For Wasm add `--target wasm32-unknown-unknown` (the project declares an 8 MiB stack); set INK_CC and INK_AR to cross-compiler wrappers for C/Wasm. Exports the ordinary handle/buffer state ABI. C and GPU host projects use literal C functions and typed Rust storage; browser WebGPU uses literal JavaScript host code. Recursive representations execute on the host. No Ink runtime, proof package or checker dependency is linked. Caller arguments must have declared types, arity, shapes and canonical ranges. Generated calls do not type-check input; bad data is unsafe, may crash or produce wrong results, and raw native pointer APIs may corrupt memory. JSON parsing/representation conversion and explicit portable checkpoint integrity checks remain. Source and proof checks happen during compilation.\n"))
 }

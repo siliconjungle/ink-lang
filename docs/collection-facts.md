@@ -26,34 +26,11 @@ to the active emitter stack.
 
 These facts are **not equality admission authority**. Algebraic rewrites and
 work-skipping theorems remain checked database objects. Core primitive meanings
-and the proof kernel have not changed. Backends use the facts only to place and
-reuse storage while executing the literal eager stages in their existing order.
-Any symbolic length consumer must read already materialized arguments rather
-than evaluate a source producer again.
-
-JavaScript, C and Rust can reuse an unbound fresh temporary as the output of a
-map, indexed map, scan, or stable filter when source and result have identical
-flat element types.
-The complete source stage executes before the consuming stage. Borrowed inputs,
-bound/shared receivers, and callback closures with reachable collection captures
-are excluded. Helper closure inspection follows their actual definitions; an
-unknown helper cannot authorize reuse. Unsupported element layouts, zips, and
-sorts retain their existing output allocation. This is conservative:
-a capture of a disjoint list also prevents reuse in the current implementation.
-
-Eligible fresh receivers of length-preserving consumers can also execute into
-caller storage before their consumer updates that prefix in place. A filter
-destination only needs capacity for its final result: the larger receiver is
-materialized privately, then its kept prefix is written to the destination.
-`reusable_receiver` retains the length-preserving placement contract; the separate
-`reusable_private_receiver` capability admits compaction without granting producer
-destination capacity. Ordinary filters compact their eligible private receiver
-in stable source order.
-C retains the returned list count;
-JavaScript retains the receiver Into count explicitly. Conversion-free
-JavaScript paths support this placement; F32/Int output conversion keeps the
-ordinary temporary, so internal bit representations cannot be confused with
-external destination values.
+and the proof kernel have not changed. Backends use descriptive facts for resource bounds and explicit destination
+placement. They do not infer reusable buffers from immutable list expressions.
+Database equalities select explicit owned Buffer operations with fixed semantics.
+Any symbolic length consumer reads already materialized arguments rather than
+evaluating a source producer again.
 
 A terminal `let` whose remaining tail only passes the same list through alias
 binders writes its initializer directly to the caller destination. There is no
@@ -68,11 +45,7 @@ non-aliasing with every reachable caller input. No caller validation or checker
 wrapper is generated. Destination tails remain unwritten; ordinary returned
 results remain live and independent of later destination calls. C emission also
 supplies these storage changes to the Wasm path that compiles generated C;
-Rust reads lexical list bindings through borrowed iterators for maps, filters,
-indexed maps, scans, zips and ordered reductions, avoiding a whole-vector clone.
-Computed receivers finish eagerly before traversal; returned values still own
-their storage. GPU executes its literal resident stages under its existing
-capability and numerical contract; unsupported stages retain CPU fallback.
+other backend emitters must consume the general analysis separately.
 
 Focused tests cover composed helpers, branches, symbolic min/sum/upper bounds,
 lexical aliases and shadowing, recursive/unknown/error fallback, wrapping integer
