@@ -198,8 +198,8 @@ fn infer_with_receiver(
             }
             match &t {
                 Type::Buffer(inner) => match n.as_str() {
-                    "map" | "map_indexed" if a.len() == 1 => {
-                        let params = if n == "map" {
+                    "map" | "map_indexed" | "filter" if a.len() == 1 => {
+                        let params = if n != "map_indexed" {
                             vec![*inner.clone()]
                         } else {
                             vec![Type::U32, *inner.clone()]
@@ -213,7 +213,12 @@ fn infer_with_receiver(
                             local.insert(name.clone(), t);
                             body = next;
                         }
-                        check::infer_as(body, &local, p, inner)?;
+                        check::infer_as(
+                            body,
+                            &local,
+                            p,
+                            if n == "filter" { &Type::Bool } else { inner },
+                        )?;
                     }
                     "scan" if a.is_empty() && check::is_number(inner) => {}
                     "map_parallel" if a.len() == 2 => {
@@ -393,16 +398,25 @@ impl Uses {
                 let read =
                     ["len", "at_or", "get_or", "contains", "keys", "values"].contains(&n.as_str());
                 self.walk(x, env, p, Some(&xt), read)?;
-                if matches!(&xt, Type::Buffer(_)) && ["map", "map_indexed"].contains(&n.as_str()) {
+                if matches!(&xt, Type::Buffer(_))
+                    && ["map", "map_indexed", "filter"].contains(&n.as_str())
+                {
                     let Type::Buffer(inner) = &xt else {
                         unreachable!()
                     };
-                    let params = if n == "map" {
+                    let params = if n != "map_indexed" {
                         vec![*inner.clone()]
                     } else {
                         vec![Type::U32, *inner.clone()]
                     };
-                    self.callback(&a[0], env, p, &params, inner, false)?;
+                    self.callback(
+                        &a[0],
+                        env,
+                        p,
+                        &params,
+                        if n == "filter" { &Type::Bool } else { inner },
+                        false,
+                    )?;
                     return Ok(());
                 }
                 if n == "map_parallel" {

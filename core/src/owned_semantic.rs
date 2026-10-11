@@ -67,13 +67,20 @@ pub fn validate(t: &Term, p: &Program) -> LangResult<bool> {
             if matches!(receiver_ty, Type::Buffer(_) | Type::Map(..)) {
                 crate::statecheck::validate_type(receiver_ty, p)?;
                 if let Type::Buffer(inner) = receiver_ty {
-                    if ["map", "map_indexed"].contains(&name) {
+                    if ["map", "map_indexed", "filter"].contains(&name) {
                         if a.len() != 2 {
                             return Err("buffer map arity".into());
                         }
                         let item = value(*inner.clone());
-                        let callback = if name == "map" {
-                            arrow(item.clone(), item.clone())
+                        let callback = if name != "map_indexed" {
+                            arrow(
+                                item.clone(),
+                                if name == "filter" {
+                                    value(Type::Bool)
+                                } else {
+                                    item.clone()
+                                },
+                            )
                         } else {
                             arrow(value(Type::U32), arrow(item.clone(), item.clone()))
                         };
@@ -246,7 +253,7 @@ pub fn reduce(t: &Term) -> LangResult<Option<Term>> {
             )),
             _ => None,
         },
-        ("method:map" | "method:map_indexed" | "method:scan", args)
+        ("method:map" | "method:map_indexed" | "method:scan" | "method:filter", args)
             if matches!(
                 args.first().map(|x| &x.sort),
                 Some(Sort::Value(Type::Buffer(_)))

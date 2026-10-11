@@ -1291,6 +1291,24 @@ fn evaluate_local(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> LangR
                         }
                         return Ok(Value::Buffer(crate::temporary::OwnedBuffer::new(ys)));
                     }
+                    if n == "filter" {
+                        let Expr::Lambda(item, body) = &a[0] else {
+                            unreachable!()
+                        };
+                        let mut local = copy_env(env, fuel)?;
+                        let mut ts = types.clone();
+                        ts.insert(item.clone(), *t.clone());
+                        let mut ys = vec![];
+                        for v in b.freeze() {
+                            local.insert(item.clone(), v.clone());
+                            if expr(body, &local, &ts, p, fuel, Some(&Type::Bool), depth)?
+                                == Value::Bool(true)
+                            {
+                                ys.push(v);
+                            }
+                        }
+                        return Ok(Value::Buffer(crate::temporary::OwnedBuffer::new(ys)));
+                    }
                     if n == "scan" {
                         let mut acc = match t.as_ref() {
                             Type::U32 => Value::U32(0),

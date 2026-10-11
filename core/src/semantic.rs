@@ -873,13 +873,21 @@ pub fn elaborate(e: &Expr, env: &check::Env, p: &Program, want: &Type) -> LangRe
                 if matches!(ty, Type::Buffer(_) | Type::Map(..)) {
                     let mut out = vec![recur(xs, &ty)?];
                     if let Type::Buffer(inner) = &ty {
-                        if ["map", "map_indexed"].contains(&n.as_str()) {
-                            let params = if n == "map" {
+                        if ["map", "map_indexed", "filter"].contains(&n.as_str()) {
+                            let params = if n != "map_indexed" {
                                 vec![*inner.clone()]
                             } else {
                                 vec![Type::U32, *inner.clone()]
                             };
-                            out.push(lam(&args[0], &params, inner, env, bound, p, b)?);
+                            out.push(lam(
+                                &args[0],
+                                &params,
+                                if n == "filter" { &Type::Bool } else { inner },
+                                env,
+                                bound,
+                                p,
+                                b,
+                            )?);
                             return Ok(op(s, &format!("method:{n}"), out));
                         }
                     }
