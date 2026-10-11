@@ -44,6 +44,7 @@ pub fn infer_context(e: &Expr, env: &Env, p: &Program, want: Option<&Type>) -> L
         return result;
     }
     match e {
+        Expr::String(_) => Ok(Type::String),
         Expr::Float(_) => Ok(Type::F32),
         Expr::Neg(e) => {
             let ty = want

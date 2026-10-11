@@ -1045,6 +1045,14 @@ impl Runtime {
                     }
                 }
                 let value = self.expr(receiver, env)?;
+                if n == "unwrap_or" {
+                    let fallback = self.expr(&args[0], env)?;
+                    return match value {
+                        Value::Option(Some(v)) => Ok(*v),
+                        Value::Option(None) => Ok(fallback),
+                        _ => Err("unwrap_or requires Option".into()),
+                    };
+                }
                 if n == "ok_or" {
                     let fallback = self.expr(&args[0], env)?;
                     return match value {

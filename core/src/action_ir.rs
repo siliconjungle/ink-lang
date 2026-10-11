@@ -932,7 +932,10 @@ impl Body {
                     method,
                     arguments,
                 } => {
-                    if method == "ok_or" {
+                    if method == "unwrap_or" {
+                        solver.unify(val(*receiver)?, Ty::App(1, vec![out()?]))?;
+                        solver.unify(val(arguments[0])?, out()?)?;
+                    } else if method == "ok_or" {
                         let member = solver.fresh();
                         solver.unify(val(*receiver)?, Ty::App(1, vec![member.clone()]))?;
                         solver.unify(out()?, Ty::App(2, vec![member, val(arguments[0])?]))?;

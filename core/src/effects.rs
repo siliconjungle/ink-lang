@@ -598,7 +598,7 @@ impl Checker<'_> {
                 arguments,
             } => {
                 let a = self.expr(body, *receiver, depth + 1)?;
-                if method == "ok_or" {
+                if method == "ok_or" || method == "unwrap_or" {
                     // Fallback evaluation is eager, including for Some receivers.
                     let b = self.arguments(body, arguments, depth)?;
                     let s = self.then(a, b)?;
