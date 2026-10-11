@@ -221,7 +221,12 @@ Source syntax and snapshot wire format are unchanged. General word extensionalit
 and fixed word/binary32 primitives are disclosed in [the small-core document](small-core-and-knowledge.md#general-mechanisms-added-for-representation-scale). The fixed source projection, general checker, codecs, literal target
 emitters, native/Wasm/JavaScript toolchains and host remain trusted implementations; there is no formal
 compiler-correctness claim. All lowering targets now expose the standalone representation contract.
-GPU device eligibility remains separate from complete host execution. Resource failures
+Each generated application invokes the sealed definitions directly, without a
+proof-aware state session or ground-term transport. Checked JavaScript programs
+export `createState` and maintain admitted fixed-key keep caches.
+Ordinary baseline keeps still recompute. The point-query fixtures supply no
+incremental Int aggregate candidate. GPU device eligibility remains separate
+from complete host execution. Resource failures
 are host errors, not mathematical proof premises. The reference codec limits a
 table/event list to 4096 entries and source values to depth 32; the general
 checker and definition executors use the explicit bounds in that document.
@@ -235,6 +240,22 @@ outbox entries and byte-identical portable snapshots; exercise baseline restore,
 reverse/generic/direct migration, failed migration and version exhaustion;
 compile cached database definitions and replay them offline; and reject stale
 source, missing action evidence, missing objects and authentic but false proofs.
+
+## Compile-and-run tooling
+
+```sh
+ink execute-representation app.ink request.json calls.json --snapshot-out saved.inksnap
+ink emit-representation app.ink request.json --target javascript -o application.mjs
+ink emit-representation app.ink request.json --target c -o build/application
+```
+
+`execute-representation` compiles fixed standalone Rust variants after preflight
+checking; it requires Cargo. Use `emit-representation` for the other target
+applications. All five CPU applications share the exact replies, rollback,
+events, checkpoints and restore contract. Portable switching publishes a restored
+new instance only after it is valid; it does not validate a full logical snapshot
+on every call. Direct bridge proofs are still checked, but the former generic
+executor's direct-switch API is retired as described above.
 
 ### Standalone target parity
 

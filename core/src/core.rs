@@ -123,6 +123,7 @@ pub struct Program {
 pub const SEMANTICS: &str = "ink-executable-core-v1";
 pub const COMPUTE_SEMANTICS: &str = "ink-executable-core-v2";
 pub const LOCAL_SEMANTICS: &str = "ink-executable-core-v3";
+pub const EXACT_FLOAT_SEMANTICS: &str = "ink-executable-core-v6";
 pub const PARALLEL_SEMANTICS: &str = "ink-executable-core-v5";
 pub const SEQUENCE_SEMANTICS: &str = "ink-executable-core-v4";
 pub const MAX_BYTES: usize = 16_000_000;
@@ -140,6 +141,48 @@ struct WireModule {
 #[derive(Clone, Debug)]
 pub struct CheckedModule(WireModule);
 
+fn float_domain(p: &Program) -> bool {
+    fn ty(t: &Type) -> bool {
+        match t {
+            Type::F32 => true,
+            Type::List(x) | Type::Option(x) | Type::Buffer(x) | Type::Vector(x, _) => ty(x),
+            Type::Result(a, b) | Type::Table(a, b) | Type::Map(a, b) => ty(a) || ty(b),
+            _ => false,
+        }
+    }
+    fn expr(e: &Expr) -> bool {
+        match e {
+            Expr::Float(_) => true,
+            Expr::Neg(x) | Expr::Lambda(_, x) | Expr::Field(x, _) | Expr::Try(x) => expr(x),
+            Expr::Binary(_, a, b) => expr(a) || expr(b),
+            Expr::Let(_, t, a, b) => t.as_deref().is_some_and(ty) || expr(a) || expr(b),
+            Expr::Call(_, args) => args.iter().any(expr),
+            Expr::Method(x, _, args) => expr(x) || args.iter().any(expr),
+            Expr::Record(_, fs) => fs.iter().any(|(_, e)| expr(e)),
+            _ => false,
+        }
+    }
+    fn block(xs: &[Statement]) -> bool {
+        xs.iter().any(|s| match s {
+            Statement::Let(_, t, e) => t.as_ref().is_some_and(ty) || expr(e),
+            Statement::Return(e) | Statement::Emit(_, e) | Statement::Expr(e) => expr(e),
+            Statement::If(e, a, b) => expr(e) || block(a) || block(b),
+        })
+    }
+    p.functions
+        .iter()
+        .any(|f| ty(&f.result) || f.params.iter().any(|(_, t)| ty(t)) || expr(&f.body))
+        || p.actions
+            .iter()
+            .any(|f| ty(&f.result) || f.params.iter().any(|(_, t)| ty(t)) || block(&f.body))
+        || p.states
+            .iter()
+            .chain(&p.keeps)
+            .any(|d| ty(&d.ty) || expr(&d.value))
+        || p.records.values().any(|fs| fs.iter().any(|(_, t)| ty(t)))
+        || p.events.values().any(ty)
+}
+
 impl CheckedModule {
     pub fn from_source(program: Program) -> LangResult<Self> {
         let (extended, sequence) = validate(&program)?;
@@ -147,7 +190,9 @@ impl CheckedModule {
         crate::check::check(&program)?;
         let module = Self(WireModule {
             schema: 1,
-            semantics: if crate::recursion::needed(&program) {
+            semantics: if float_domain(&program) {
+                EXACT_FLOAT_SEMANTICS
+            } else if crate::recursion::needed(&program) {
                 PARALLEL_SEMANTICS
             } else if sequence {
                 SEQUENCE_SEMANTICS
@@ -178,6 +223,7 @@ impl CheckedModule {
                 LOCAL_SEMANTICS,
                 SEQUENCE_SEMANTICS,
                 PARALLEL_SEMANTICS,
+                EXACT_FLOAT_SEMANTICS,
             ]
             .contains(&wire.semantics.as_str())
         {

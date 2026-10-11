@@ -320,6 +320,9 @@ fn check(name: &str, source: &str, request: Option<Request>, calls: Vec<(&str, V
             &project.join("run.log"),
         );
     }
+    if std::env::var_os("INK_PARITY_REQUIRE_ALL").is_some() {
+        assert!(std::env::var_os("INK_TEST_ZIG").is_some(), "required standalone parity forbids skipping Wasm");
+    }
     if let Ok(zig) = std::env::var("INK_TEST_ZIG") {
         for backend in ["rust-wasm", "wasm32"] {
             let project = dir.join(backend);
@@ -644,5 +647,22 @@ fn unused_source_carriers_do_not_break_any_standalone_backend(){
     for (name,request) in [("retained-direct",include_str!("../knowledge/research/source-representations/retained-direct.json")),
         ("retained-query-cache",include_str!("../knowledge/research/source-representations/retained-query-cache.json"))]{
         check(name,source,Some(serde_json::from_str(request).unwrap()),calls.clone());
+    }
+}
+
+#[test]
+fn fixed_key_keep_deltas_execute_as_standalone_programs_on_every_cpu_target() {
+    let source=include_str!("../knowledge/research/keep-parity/app.ink");
+    let calls=(0..32u64).map(|i|match i%8 {
+        0=>("put",json!([0,i*19])), 1=>("zero",json!([])),
+        2=>("overwrite",json!([u64::MAX-i])), 3=>("get",json!([0])),
+        4=>("clear",json!([])), 5=>("zero",json!([])),
+        6=>("erase",json!([0,true])), _=>("put",json!([1,i*23])),
+    }).collect::<Vec<_>>();
+    for (name,bytes) in [
+        ("fixed-key-baseline",include_str!("../knowledge/research/keep-parity/representation-0.json")),
+        ("fixed-key-cache",include_str!("../knowledge/research/keep-parity/representation-1.json")),
+    ] {
+        check(name,source,Some(serde_json::from_str(bytes).unwrap()),calls.clone());
     }
 }
