@@ -1,15 +1,24 @@
 # Frontier-inspired Ink extensions
 
-This branch implements the scoped compiler/database upgrades. JSON, CRDTs,
+This integration implements the scoped compiler/database upgrades. JSON, CRDTs,
 approximation/LOD and new host capabilities remain excluded. The runtime and ABI
 are retained: compiled standalone programs execute emitted code, while runtime
-supports reference execution, sessions, migration, transport and tooling.
+provides backend assembly, scheduling, transport and tooling. The core retains the
+independent source evaluator; emitted standalone state owns invocation and portable
+checkpoint/restore migration. The generic proof-aware representation executor was
+retired by current main and is not restored here.
+
+The original measurement and validation files below retain their exact pre-merge
+cohort. Main integration additionally preserves shared ABI/native support, iterative
+spine release and current collection-edit admission. Scratch storage now lives in
+`ink-native-support`; migration histories run real compiled JavaScript state through
+the portable contract. Current integration validation is recorded separately.
 
 ## Implemented capabilities
 
 | Area | Implementation | Scope and limits |
 | --- | --- | --- |
-| Per-call state work | Prepared values cache exact node count/depth; public outputs and newly staged events are validated without encoding a checkpoint or reconstructing every logical root. | Checkpoint, restore and migration still materialize and validate logical state. Bounded weak measure caches can evict entries. |
+| Per-call state work | Standalone calls retain native physical values and use checked observation/next projections without encoding a checkpoint or reconstructing every logical root. | Checkpoint, restore and portable migration still materialize logical state. The former generic executor's prepared-value measurement caches are historical and are removed with that executor. |
 | Direct physical changes | `--column-mutations` proves insert/remove/replace on columns and Boolean words. Generic emission removes the unused logical post-state observation after checking independent projections. | Unsupported action shapes use exact decode/encode. Reference execution may still reconstruct; native emission and codecs remain trusted. |
 | Existing types/local computation | Fixed correspondence covers numerical/list/keep values, UTF-8 String, nominal 128-bit IDs, wider keys, Buffer/Map and bounded or early-stopping loops. | No JSON type, float algebraic rewrite authority or persistent owned handles. Existing source/resource bounds remain. |
 | Field dependencies | Mapped fixed-key caches retain the old reply when the actual projection is universally proved unchanged. | Current tactic needs a fixed u64 key and a mapper without extra state captures; other cases repair or refresh. |

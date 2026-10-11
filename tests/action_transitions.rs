@@ -475,7 +475,7 @@ fn expanded_existing_domain_types_are_projected() {
     for s in [
         "module unsupported;query q(x:u32)->u32{return x;}",
         "module unsupported;query q(x:String)->String{return x;}",
-        "module unsupported;keep value:Int=Int(1);query q()->Int reads(value){return value;}",
+        "module supported;keep value:Int=1;query q()->Int reads(value){return value;}",
         "module unsupported;state Rows:Table<u32,u64> = Table.empty();query q(k:u32)->Option<u64> reads(Rows){return Rows.get(k);}",
     ] {
         assert!(Projection::derive(&module(s)).is_ok(),"{s}");
