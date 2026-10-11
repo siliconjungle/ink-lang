@@ -123,6 +123,7 @@ pub struct Program {
 pub const SEMANTICS: &str = "ink-executable-core-v1";
 pub const COMPUTE_SEMANTICS: &str = "ink-executable-core-v2";
 pub const LOCAL_SEMANTICS: &str = "ink-executable-core-v3";
+pub const PARALLEL_SEMANTICS: &str = "ink-executable-core-v5";
 pub const SEQUENCE_SEMANTICS: &str = "ink-executable-core-v4";
 pub const MAX_BYTES: usize = 16_000_000;
 
@@ -146,7 +147,9 @@ impl CheckedModule {
         crate::check::check(&program)?;
         let module = Self(WireModule {
             schema: 1,
-            semantics: if sequence {
+            semantics: if crate::recursion::needed(&program) {
+                PARALLEL_SEMANTICS
+            } else if sequence {
                 SEQUENCE_SEMANTICS
             } else if local {
                 LOCAL_SEMANTICS
@@ -169,8 +172,14 @@ impl CheckedModule {
         let wire: WireModule =
             serde_json::from_slice(bytes).map_err(|e| format!("invalid core module: {e}"))?;
         if wire.schema != 1
-            || ![SEMANTICS, COMPUTE_SEMANTICS, LOCAL_SEMANTICS, SEQUENCE_SEMANTICS]
-                .contains(&wire.semantics.as_str())
+            || ![
+                SEMANTICS,
+                COMPUTE_SEMANTICS,
+                LOCAL_SEMANTICS,
+                SEQUENCE_SEMANTICS,
+                PARALLEL_SEMANTICS,
+            ]
+            .contains(&wire.semantics.as_str())
         {
             return Err("incompatible executable core semantics".into());
         }

@@ -126,3 +126,30 @@ aggregate certificates and typed storage policies. Historical experiments requir
 legacy-optimisation-research; do not enable it silently or count it as small-core
 admission. Keep docs/database-representations.md source-domain, backend, resource
 and trust limits explicit. No new syntax or proof-kernel rule was introduced.
+
+Bend-inspired primitives use executable-core V5 only when needed. Ordered parallel
+map has sequential value semantics; grain and INK_THREADS are scheduling hints,
+never independence or proof authority. Reject captured owned storage; each callback
+may create its own temporary owners. Rust workers own disjoint slices, with bounded
+workers and sequential nested/Wasm execution. GPU private buffers require literal
+capacity <=64; unsupported cases retain compiled CPU fallback. Self recursion
+requires guarded unsigned descent or a nonempty list tail, with mutual recursion
+rejected. The independent Lean Boolean verdict proves its separate calculus only;
+the Python translator, source correspondence and other checker domains remain
+trusted/unverified, and it grants no new production optimisation authority.
+
+Native GPU graph feedback requires a descriptor for every stage and matching
+feedback type/capacity bounds. Preserve simultaneous assignment through distinct
+device snapshots and leave final-iteration outputs unchanged. List headers carry
+actual lengths; bounded allocation is independent of shrinking logical length.
+Growing feedback stays on CPU. Keep allocation/dispatch limits and exact transfer
+counters, and retain alias-swap, zero-length and growth regression coverage.
+
+Existing owned collection semantics now participate in pure equality selection;
+primitive correspondence lives in core/src/owned_semantic.rs and ordinary laws
+in ink-knowledge. Stateful List values/count/u64 sum are projected literally.
+Fixed-key query delta maintenance and migration proposals remain external.
+Measured representation selection belongs in ink-planner and binds exact request
+and bridge bytes; missing comparable evidence retains the baseline. Preserve
+the measured losing candidates and native resource limits. See docs/owned-optimisation.md,
+docs/point-query-delta.md and reports/incremental-maintenance-selection.

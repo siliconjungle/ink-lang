@@ -53,7 +53,8 @@ trusted primitive/correspondence implementations, tested against the reference,
 not a formally verified checker. No new proof rule, privileged theorem name,
 heap primitive or optimiser pattern is added to the core.
 
-Owned mutation, Map operations and owned loop accumulators remain unavailable.
+Owned mutation, Map operations and owned loop accumulators are now covered by
+[the additional fixed correspondence and database laws](owned-optimisation.md).
 The equality domain is total result values. Fuel, allocation failure, host traps,
 timing and physical code generation remain outside the proof. A rewrite can
 therefore change resource consumption, and backend/toolchain correspondence

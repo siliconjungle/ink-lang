@@ -1,12 +1,12 @@
 # Ink Language Specification Draft
 
-**Draft 0.1 — implementation notes updated 10 October 2026**
+**Draft 0.1 — implementation overview updated 11 October 2026**
 
 This language describes data, permitted changes, and required results. Its compiler may change algorithms, storage layouts and execution schedules when it can establish that observable behaviour is preserved. A growing database distributes reusable transformations together with machine-checkable proofs. Local measurements help select the implementations that actually perform well.
 
 The performance ambition is to compete with expert implementations on specified workloads and hardware, then extend that coverage. No language can promise to be the fastest on every program. The engineering objective is to remove avoidable work, approach hardware limits on the remaining work, and make improvements reusable.
 
-This is the full design draft for Ink. The compiler implements the subset described in [STATUS.md](../STATUS.md); the draft is not a claim that every feature below exists. The executable core contract below describes the current shared representation. The `ink` command is primary; `lang` remains a compatibility command for archived experiments.
+This is the full design draft for Ink. The compiler implements the subset described in [STATUS.md](../STATUS.md); the draft is not a claim that every feature below exists. [Philosophy and ambitions](vision.md) explains the organising ideas and current research direction. The executable core contract below describes the current shared representation. The `ink` command is primary; `lang` remains a compatibility command for archived experiments.
 
 ## Implemented architecture
 
@@ -39,7 +39,13 @@ Scalar/inductive mathematics and executable laws use the common registry entry
 boundary. Specialised maintenance/machine proof obligations remain explicit
 mathematical domains; arbitrary entry kinds do not grant executable authority.
 Historical experiment fixtures live under `knowledge/research`, outside production
-discovery. General stateful replacement and migration remain unfinished.
+discovery. Whole-action replacement and database-defined physical representations
+now have source-bound admission paths for a restricted transition domain. The
+representation path checks every action and supports explicit checked migration,
+with literal physical-definition execution currently in Rust. Broader domains,
+keep/exact-Int correspondence, other physical executors and general live adaptation
+remain unfinished. See [whole-action transitions](action-transitions.md),
+[physical representations](database-representations.md) and [status](../STATUS.md).
 
 C, Rust, JavaScript and Wasm implement the currently executable pure and stateful
 language, including exact values, tables, transactions, ordered events, keeps and
@@ -1025,3 +1031,8 @@ The named scripts in earlier examples are requests to the elaborator. For an imp
 Proofs are erased only when they do not determine runtime data. The type system prevents programs from inspecting proof identity. Erasure, equality transport and refinement elimination need explicit rules in the fixed core calculus. A core implementation must publish those rules and its tests alongside the checker.
 
 This interface makes the architecture implementable in stages without claiming the kernel has already been proved sound. The first supported proof vocabulary can be small; unsupported certificates are rejected, and unsupported optional optimisations retain the baseline.
+
+
+The executable-core V5 extension adds ordered parallel mapping, affine buffer
+partitions/rejoining and guarded unsigned/list self recursion. Exact semantics
+and target limits are specified in [the extension](bend-inspired.md).

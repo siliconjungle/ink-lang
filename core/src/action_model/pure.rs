@@ -87,6 +87,37 @@ impl Lower<'_> {
                     .map(|x| self.pure_term(x, env, bound, depth + 1))
                     .collect::<LangResult<Vec<_>>>()?;
                 match op.as_str() {
+                    "call:count" | "call:sum" if xs.len() == 1 => {
+                        let SemanticSort::Value(Type::List(inner)) = &args[0].sort else {
+                            return Err("action model reduction list".into());
+                        };
+                        if op == "call:sum" && **inner != Type::U64 {
+                            return Err("action model sum requires u64".into());
+                        }
+                        let sequence = self.sort(&Type::List(inner.clone()))?;
+                        let result = if op == "call:count" {
+                            b("+", Term::U64(1), Term::SelfCall(vec![v("reduce_tail")]))
+                        } else {
+                            b(
+                                "+",
+                                v("reduce_head"),
+                                Term::SelfCall(vec![v("reduce_tail")]),
+                            )
+                        };
+                        let f = self.function(
+                            vec![("reduce_rows", sequence)],
+                            Sort::U64,
+                            m(
+                                v("reduce_rows"),
+                                vec![
+                                    (vec![], Term::U64(0)),
+                                    (vec!["reduce_head".into(), "reduce_tail".into()], result),
+                                ],
+                            ),
+                            Some(0),
+                        )?;
+                        Ok(call(&f, xs))
+                    }
                     "call:choose" if xs.len() == 3 => {
                         Ok(choice(xs[0].clone(), xs[1].clone(), xs[2].clone()))
                     }

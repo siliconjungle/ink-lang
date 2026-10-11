@@ -28,7 +28,14 @@ pub fn needed(p: &Program) -> bool {
     fn expr(e: &Expr) -> bool {
         match e {
             Expr::Call(n, a) => {
-                ["repeat_until", "buffer", "buffer_fill", "length"].contains(&n.as_str())
+                [
+                    "repeat_until",
+                    "buffer",
+                    "buffer_fill",
+                    "length",
+                    "parallel_map",
+                ]
+                .contains(&n.as_str())
                     || a.iter().any(expr)
             }
             Expr::Method(x, _, a) => {
@@ -81,9 +88,14 @@ fn infer_with_receiver(
     receiver: Option<Type>,
 ) -> Option<LangResult<Type>> {
     let handled = match e {
-        Expr::Call(n, _) => {
-            ["repeat_until", "buffer", "buffer_fill", "length"].contains(&n.as_str())
-        }
+        Expr::Call(n, _) => [
+            "repeat_until",
+            "buffer",
+            "buffer_fill",
+            "length",
+            "parallel_map",
+        ]
+        .contains(&n.as_str()),
         Expr::Method(x, _, _) => {
             matches!(x.as_ref(),Expr::Var(n) if n=="Buffer" || n=="Map")
                 || receiver
@@ -96,6 +108,12 @@ fn infer_with_receiver(
         return None;
     }
     Some((|| match e {
+        Expr::Call(n, a) if n == "parallel_map" => {
+            if a.len() != 3 {
+                return Err("parallel_map expects list, grain and indexed callback".into());
+            }
+            crate::parallel::map_type(&a[0], &a[1], &a[2], env, p, want, false)
+        }
         Expr::Call(n, a) if n == "length" => {
             if a.len() != 1 || !matches!(check::infer(&a[0], env, p)?, Type::List(_)) {
                 return Err("length expects one list".into());
@@ -180,6 +198,28 @@ fn infer_with_receiver(
             }
             match &t {
                 Type::Buffer(inner) => match n.as_str() {
+                    "map_parallel" if a.len() == 2 => {
+                        return crate::parallel::map_type(x, &a[0], &a[1], env, p, want, true)
+                    }
+                    "append" if a.len() == 1 => {
+                        check::infer_as(&a[0], env, p, &t)?;
+                    }
+                    "split_at" if a.len() == 2 => {
+                        check::infer_as(&a[0], env, p, &Type::U32)?;
+                        let Expr::Lambda(left, rest) = &a[1] else {
+                            return Err("split_at requires two owner lambdas".into());
+                        };
+                        let Expr::Lambda(right, body) = rest.as_ref() else {
+                            return Err("split_at requires two owner lambdas".into());
+                        };
+                        if left == right {
+                            return Err("split_at owner names must differ".into());
+                        };
+                        let mut local = env.clone();
+                        local.insert(left.clone(), t.clone());
+                        local.insert(right.clone(), t.clone());
+                        check::infer_as(body, &local, p, &t)?;
+                    }
                     "at_or" if a.len() == 2 => {
                         check::infer_as(&a[0], env, p, &Type::U32)?;
                         check::infer_as(&a[1], env, p, inner)?;
@@ -293,6 +333,15 @@ impl Uses {
                     self.ids.remove(n);
                 }
             }
+            Expr::Call(n, a) if n == "parallel_map" => {
+                let Type::List(inner) = check::infer(&a[0], env, p)? else {
+                    unreachable!()
+                };
+                let Type::List(out) = &t else { unreachable!() };
+                self.walk(&a[0], env, p, None, false)?;
+                self.walk(&a[1], env, p, Some(&Type::U32), false)?;
+                self.callback(&a[2], env, p, &[Type::U32, *inner], out, false)?;
+            }
             Expr::Call(n, a) if n == "choose" => {
                 self.walk(&a[0], env, p, Some(&Type::Bool), false)?;
                 let mut left = self.clone();
@@ -326,12 +375,26 @@ impl Uses {
                 let read =
                     ["len", "at_or", "get_or", "contains", "keys", "values"].contains(&n.as_str());
                 self.walk(x, env, p, Some(&xt), read)?;
+                if n == "map_parallel" {
+                    let Type::Buffer(inner) = &xt else {
+                        unreachable!()
+                    };
+                    self.walk(&a[0], env, p, Some(&Type::U32), false)?;
+                    self.callback(&a[1], env, p, &[Type::U32, *inner.clone()], inner, false)?;
+                    return Ok(());
+                }
+                if n == "split_at" {
+                    self.walk(&a[0], env, p, Some(&Type::U32), false)?;
+                    self.callback(&a[1], env, p, &[xt.clone(), xt.clone()], &xt, false)?;
+                    return Ok(());
+                }
                 let args_types: Vec<Type> = match xt {
                     Type::Buffer(inner) => match n.as_str() {
                         "at_or" | "set" => vec![Type::U32, *inner],
                         "swap" => vec![Type::U32, Type::U32],
                         "push" => vec![*inner],
                         "truncate" => vec![Type::U32],
+                        "append" => vec![t.clone()],
                         _ => vec![],
                     },
                     Type::Map(k, v) => match n.as_str() {

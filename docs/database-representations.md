@@ -82,6 +82,10 @@ do not; this remains an explicit executor/workload choice. Comparable timing
 observations live separately in the database, with unmeasured memory recorded as
 `null`. See `reports/compact-query-performance` for samples and limits.
 
+The database also supplies [fixed-key incremental query maintenance](point-query-delta.md),
+with refresh fallback, and the planner supplies [measured lifecycle selection](../planner/README.md).
+These remain explicit alternatives; correctness does not establish profitability.
+
 ## Runtime migration
 
 `ink_runtime::representation::Session` uses a sealed representation. Logical
@@ -166,7 +170,7 @@ source action execution.
 ## Scope and trust
 
 Admission currently uses the documented `action_model` domain: u64 table keys,
-u64/Bool/Unit/enums/records/Option/Result values, supported fixed primitive
+u64/Bool/Unit/enums/records/Option/Result/List values, supported fixed primitive
 operations, table operations, nested changes/queries, Try, replies and events.
 Unsupported source domains fail closed and continue to use ordinary baseline
 execution. This does not extend representation admission to exact-Int aggregates,

@@ -37,9 +37,8 @@ local bindings, acyclic calls, choose, bounded repeat, vectors, record construct
 and fields, map/filter/zip/indexed map, sum/count/foldr, scan/sort and at_or,
 quot_or/rem_or. Other existing value types can pass through as opaque typed
 parameters and values. The [local-collection extension](local-collection-laws.md) additionally covers
-buffer creation/freeze/read observations, list length and stopping loops with
-ordinary immutable accumulators. Owned mutation, keyed local maps and owned loop
-accumulators remain unavailable to semantic selection. Transactions, table mutations, assertions, try, events
+buffer operations, ordered local maps, list length and stopping loops with
+ordinary or owned accumulators. See [owned collection correspondence and laws](owned-optimisation.md). Transactions, table mutations, assertions, try, events
 and effectful calls are not converted into pure total expressions.
 
 The checker contains fixed operation semantics and general proof rules, not
@@ -140,8 +139,11 @@ their positions and meaning. The private checked selection grants the original
 source program's snapshot identity to selected execution; a raw changed Program
 has its own identity. This grants no schema evolution or authority for later
 independent code changes. Direct transaction rewrites and state/representation
-migration still require trace/refinement evidence. Pure value equalities do not
-remove the remaining aggregate/representation migration debt.
+migration require separate transition/invariant evidence. Pure value equality
+alone supplies no stateful authority; [whole-action transitions](action-transitions.md)
+and [source-bound representations](database-representations.md) provide their own
+restricted admission paths. Broader aggregates/keeps remain open, and old
+specialised approval requires explicit historical research mode.
 
 Validation lives in `tests/semantic_optimisation.rs` and core-only unit tests.
 It covers composed nested rewrites, generic loop counts, overflow, collection

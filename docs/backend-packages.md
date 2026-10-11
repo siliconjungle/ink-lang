@@ -34,9 +34,10 @@ cargo build --manifest-path core/Cargo.toml --offline
 The full CLI needs its backend submodules. Integration tests additionally need
 knowledge. New code-generation primitives belong in the relevant backend; new
 optimisation laws and representation choices belong in knowledge.
-The existing aggregate/bounded/layout authority remains migration debt. Moving
-its emitter does not prove that authority has been removed or its implementation
-has been formally verified.
+Default aggregate/bounded-cache/storage-policy approval is retired; its historical
+emitter requires explicit research mode. Current [source-bound representations](database-representations.md)
+carry separate universal obligations. Moving an emitter between packages does
+not prove its implementation correct or broaden its admission domain.
 
 ## A program can use several targets
 

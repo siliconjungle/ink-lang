@@ -134,7 +134,7 @@ fn buffer_observations_preserve_float_bits_and_lazy_fallback() {
 }
 
 #[test]
-fn unsupported_mutation_maps_and_owned_loop_accumulators_fail_closed() {
+fn malformed_owned_semantic_terms_fail_closed() {
     let module =
         CheckedModule::from_source(parse("module P; fn id(x:u32)->u32{return x;}").unwrap())
             .unwrap();
@@ -146,7 +146,7 @@ fn unsupported_mutation_maps_and_owned_loop_accumulators_fail_closed() {
         s::op(
             buf.clone(),
             "method:push",
-            vec![b.clone(), s::word(Type::U32, 1)],
+            vec![b.clone(), s::word(Type::U64, 1)],
         ),
         s::op(
             s::value(Type::List(Box::new(Type::U32))),
@@ -158,8 +158,8 @@ fn unsupported_mutation_maps_and_owned_loop_accumulators_fail_closed() {
     }
     let source=CheckedModule::from_source(parse("module P; fn edit(xs:List<u32>)->List<u32>{let b=buffer(xs);return b.push(7).freeze();} fn loop(xs:List<u32>)->List<u32>{let b=buffer(xs);let b=repeat_until(3,b,fn(b)=>false,fn(i)=>fn(b)=>b);return b.freeze();}").unwrap()).unwrap();
     let subject = ink_core::optimisation::subject(&source).unwrap();
-    assert!(!subject.functions.contains_key("edit"));
-    assert!(!subject.functions.contains_key("loop"));
+    assert!(subject.functions.contains_key("edit"));
+    assert!(subject.functions.contains_key("loop"));
 }
 
 #[test]
