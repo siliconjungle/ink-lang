@@ -126,7 +126,7 @@ fn source_transition_roots_cannot_ignore_ordered_event_changes() {
 #[test]
 fn unsupported_domains_and_long_continuations_are_rejected_with_bounded_work() {
     assert!(Projection::derive(&module(
-        "module unsupported; query pass(x:u32)->u32{return x;}"
+        "module unsupported; query pass(x:String)->String{return x;}"
     ))
     .unwrap_err()
     .contains("unsupported action model type"));
@@ -200,7 +200,7 @@ fn total_helper_projection_is_bound_and_bounded_without_external_tools() {
         "return quot_or(x,1,0);",
     ] {
         let app=format!("module unsupported;fn helper(x:u64)->u64{{{body}}}query q(x:u64)->u64{{return helper(x);}}");
-        assert!(Projection::derive(&module(&app)).is_err());
+        Projection::derive(&module(&app)).unwrap();
     }
     let mut chain = String::from("module depth;");
     for i in 0..33 {
