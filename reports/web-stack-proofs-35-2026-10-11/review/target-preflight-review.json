@@ -1,0 +1,72 @@
+{
+  "status": "passed",
+  "metadata_sha256": "807bcd6986fb4799ade7e18660234ff9092deb5334833333ef23c2a04dff2ca7",
+  "counts": {
+    "target_bindings": 396,
+    "native_bindings": 107,
+    "production_bindings": 122
+  },
+  "validation": {
+    "node": {
+      "rows": 1152,
+      "complete_output_checks": 3072,
+      "actual_gpu": 0,
+      "fallback": 0
+    },
+    "browser": {
+      "rows": 1440,
+      "complete_output_checks": 3936,
+      "actual_gpu": 288,
+      "fallback": 0
+    },
+    "native": {
+      "rows": 384,
+      "passed": true
+    }
+  },
+  "selections": {
+    "pipeline35_left_observed_u32": {
+      "prior": [],
+      "checked": [
+        "ae36b990f444366c0e5921569c91a44e2791e5fbabfe44074417f61f2c7ef69d"
+      ],
+      "prior_declared_stages": 2,
+      "family": "left",
+      "checked_declared_stages": 1,
+      "both_primary_graph_required": false
+    },
+    "pipeline35_right_observed_u32": {
+      "prior": [],
+      "checked": [
+        "b8c615b286d995c6efb9ffee51fda440595dcb6668e9f040188bca0e78fdd836"
+      ],
+      "prior_declared_stages": 2,
+      "family": "right",
+      "checked_declared_stages": 1,
+      "both_primary_graph_required": false
+    },
+    "pipeline35_both_observed_heldout_u32": {
+      "prior": [],
+      "checked": [
+        "40b3d6a1ff4582ee58a4671482bcce12b5537aabcbeb97f124fddb4307c04f41"
+      ],
+      "prior_declared_stages": 3,
+      "family": "both",
+      "checked_declared_stages": 1,
+      "both_primary_graph_required": false
+    },
+    "pipeline35_nested_observed_heldout_u32": {
+      "prior": [],
+      "checked": [
+        "0c49b9cd0fb506bd6df9fa864c65758f42f11695c981ca27f16524b827011657"
+      ],
+      "prior_declared_stages": 4,
+      "family": "nested",
+      "checked_declared_stages": 1,
+      "both_primary_graph_required": false
+    }
+  },
+  "physical_gpu_contracts": "All 288 actual GPU prevalidation rows independently recomputed by selected function name. Prior/checked primaries legacy route: one dispatch for positive maximum capacity, same transfers/live buffers despite declared graph stages 2/2/3/4 to 1/1/1/1. All literal/prior/checked primaries are legacy shader routes.",
+  "fairness": "Exact same frozen compiler/model, complete prior 2495 objects with no extra shared certificates; 2508-object new union. Four fresh ordinary selections. Strong JS fresh-output and Rust destination controls directly traverse min-length paired prefix and preserve both observed mappers/noncommutative callback; zero divisors/wrap preserved.",
+  "limits": "Untimed preparation only; no profitability or broad language superiority conclusion."
+}

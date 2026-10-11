@@ -1,0 +1,101 @@
+{
+  "status": "passed",
+  "checks": {
+    "exact_prior_snapshots": true,
+    "exact_counts": true,
+    "no_shared_old_additions": true,
+    "exact_old_preservation": true,
+    "names_bound": true,
+    "old_names_preserved": true,
+    "frozen_compiler": true,
+    "all_stage_bindings": true,
+    "all_new_locally_checked": true,
+    "all_old_dependencies_admitted": true,
+    "actual_derived_shortcut_proofs": true,
+    "content_bound_transitive_helpers": true,
+    "alpha_forward_reverse_novelty": true,
+    "source_replays": true,
+    "typed_closed_checks": true,
+    "old_projection_rejections": true,
+    "correctly_rehashed_false_negatives": true,
+    "eight_direct_transitive_negatives": true,
+    "producer_test_bytes_bound": true,
+    "six_tests_pass_pinned": true
+  },
+  "counts": {
+    "prior": 2495,
+    "current": 2508,
+    "new": 13,
+    "locally_checked_closure": 34,
+    "old_dependencies": 21,
+    "typed_closed_checks": 63,
+    "source_frames": 60,
+    "negative_theorems": 3,
+    "helper_mutations": 8
+  },
+  "helpers": [
+    {
+      "name": "pipeline35_left_observed_u32_observed_map_fusion",
+      "bound_helpers": [
+        "combine_words",
+        "left_word",
+        "mix_words",
+        "normalize_left"
+      ],
+      "retained_helper_calls": true
+    },
+    {
+      "name": "pipeline35_right_observed_u32_observed_map_fusion",
+      "bound_helpers": [
+        "combine_words",
+        "mix_words",
+        "normalize_right",
+        "right_word"
+      ],
+      "retained_helper_calls": true
+    },
+    {
+      "name": "pipeline35_both_observed_heldout_u32_observed_map_fusion",
+      "bound_helpers": [
+        "combine_words",
+        "left_word",
+        "mix_words",
+        "normalize_left",
+        "normalize_right",
+        "right_word"
+      ],
+      "retained_helper_calls": true
+    },
+    {
+      "name": "pipeline35_nested_observed_heldout_u32_observed_map_fusion",
+      "bound_helpers": [
+        "combine_words",
+        "left_word",
+        "mix_words",
+        "normalize_left",
+        "normalize_right",
+        "post_word",
+        "right_word",
+        "shift_word"
+      ],
+      "retained_helper_calls": true
+    }
+  ],
+  "roles": {
+    "derived_optimization_endpoint": 9,
+    "definition_bound_source_certificate": 4
+  },
+  "bindings": {
+    "staging/stage.json": "2fc13771332cd23492fb6bfa8a19a7271988c50988bac9265d3c2d0083f5e25d",
+    "staging/commands.json": "0388fcf0fd72dfe9ed9c8ead184245a9848e98585070b2dd66d48de1c653740f",
+    "candidate-rows.json": "f55e730b1f7398a948f0f95703e4b0ecbc73a55f41107fc156b99284be23538c",
+    "proofs/source-witnesses.json": "b6bfac2416a1feb67d7fcff1dfa4e0c4059dfe509cee250a299e8332bdab1904",
+    "proofs/novelty.json": "4ecfb22accc4b9ed29b9c99e794a54dada2b69fd1d7d723229172297e5f30447",
+    "proofs/interpreter.json": "d121d5991b46e07ac768255a05a4692c66746f305b615b48d7542092e187845a",
+    "proofs/unit-tests.log": "9085b42d537305c085f55489c020d5f4492248818888a6c534e7b39d4ab527e5",
+    "proofs/unit-test-receipt.json": "0028a2f18a0cfeff674cfd761888eba1303c0ac5dbb7c8e9b6cb2dded42290e4",
+    "proofs/helper-context-controls.json": "c0dcdb461185dc05f6e3380722043b355d8c7bdfb3e0626f610a6e2ad5cec9dc",
+    "proofs/false-theorem-controls.json": "b9d48df3df42c0476bfd690244a6108a49004a977370f1bf176cff1cbd13dd71"
+  },
+  "scope": "Universal typed pure function laws derived from admitted map identity and postmap fusion; exact source/calculated helper closure. No new kernel or numerical identity; no universal target correspondence or performance claim."
+}

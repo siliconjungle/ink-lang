@@ -1,0 +1,517 @@
+{
+  "status": "passed",
+  "performance_samples": 0,
+  "target_report": "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/reports/web-stack-proofs-35-2026-10-11/targets",
+  "compiler_sha256": "04f42856696cbc9a4d5b0523e4a2c5d9d84ae28e0e039f0fd9c305fe2d0a5536",
+  "prior_snapshot": "7cf9b7ec48a8edd25b05951b8e424ea26444467fc176257aa34ac5a8e40aa644",
+  "current_snapshot": "b7d979fd4861a1b82897f142737e9b8161f8c2946e9f7fa6514b50aefd45240b",
+  "full_prior_verified": true,
+  "selection_scope": "Exact full canonical batch34 2495-object prior; unchanged automatic planner/costmodel, no exact candidate isolation",
+  "node": {
+    "status": "passed",
+    "host": "node",
+    "timed": false,
+    "validation": 1152,
+    "complete_output_checks": 3072,
+    "actual_gpu_validation": 0,
+    "fallback_validation": 0,
+    "bindings": {
+      "metadata": "807bcd6986fb4799ade7e18660234ff9092deb5334833333ef23c2a04dff2ca7",
+      "results": "924e25dc01cf989b0537fac8a414c5006e789cb2d4c15a4d78f202098ac435f3"
+    }
+  },
+  "native": {
+    "complete_validations": 384,
+    "all_passed": true
+  },
+  "recipes": {
+    "pipeline35_left_observed_u32": {
+      "body_operations": {
+        "literal": {
+          "map": 1,
+          "scan": 0,
+          "zip": 1
+        },
+        "prior": {
+          "map": 1,
+          "scan": 0,
+          "zip": 1
+        },
+        "checked": {
+          "map": 0,
+          "scan": 0,
+          "zip": 1
+        }
+      },
+      "fresh_laws": [
+        "ae36b990f444366c0e5921569c91a44e2791e5fbabfe44074417f61f2c7ef69d"
+      ],
+      "gpu": {
+        "literal": {
+          "eligible": true,
+          "fallback_reason": null,
+          "graph_stages": 2,
+          "graph_required": false,
+          "nodes": [
+            {
+              "op": "map",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0
+                ],
+                "kind": "same"
+              }
+            },
+            {
+              "op": "zip",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0,
+                  1
+                ],
+                "kind": "min"
+              }
+            }
+          ]
+        },
+        "prior": {
+          "eligible": true,
+          "fallback_reason": null,
+          "graph_stages": 2,
+          "graph_required": false,
+          "nodes": [
+            {
+              "op": "map",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0
+                ],
+                "kind": "same"
+              }
+            },
+            {
+              "op": "zip",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0,
+                  1
+                ],
+                "kind": "min"
+              }
+            }
+          ]
+        },
+        "checked": {
+          "eligible": true,
+          "fallback_reason": null,
+          "graph_stages": 1,
+          "graph_required": false,
+          "nodes": [
+            {
+              "op": "zip",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0,
+                  1
+                ],
+                "kind": "min"
+              }
+            }
+          ]
+        }
+      },
+      "runtime_route_note": "All three versions use single-shader maximum-extent/header ABI. Logical graph node count is not physical dispatch count."
+    },
+    "pipeline35_right_observed_u32": {
+      "body_operations": {
+        "literal": {
+          "map": 1,
+          "scan": 0,
+          "zip": 1
+        },
+        "prior": {
+          "map": 1,
+          "scan": 0,
+          "zip": 1
+        },
+        "checked": {
+          "map": 0,
+          "scan": 0,
+          "zip": 1
+        }
+      },
+      "fresh_laws": [
+        "b8c615b286d995c6efb9ffee51fda440595dcb6668e9f040188bca0e78fdd836"
+      ],
+      "gpu": {
+        "literal": {
+          "eligible": true,
+          "fallback_reason": null,
+          "graph_stages": 2,
+          "graph_required": false,
+          "nodes": [
+            {
+              "op": "map",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0
+                ],
+                "kind": "same"
+              }
+            },
+            {
+              "op": "zip",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0,
+                  1
+                ],
+                "kind": "min"
+              }
+            }
+          ]
+        },
+        "prior": {
+          "eligible": true,
+          "fallback_reason": null,
+          "graph_stages": 2,
+          "graph_required": false,
+          "nodes": [
+            {
+              "op": "map",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0
+                ],
+                "kind": "same"
+              }
+            },
+            {
+              "op": "zip",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0,
+                  1
+                ],
+                "kind": "min"
+              }
+            }
+          ]
+        },
+        "checked": {
+          "eligible": true,
+          "fallback_reason": null,
+          "graph_stages": 1,
+          "graph_required": false,
+          "nodes": [
+            {
+              "op": "zip",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0,
+                  1
+                ],
+                "kind": "min"
+              }
+            }
+          ]
+        }
+      },
+      "runtime_route_note": "All three versions use single-shader maximum-extent/header ABI. Logical graph node count is not physical dispatch count."
+    },
+    "pipeline35_both_observed_heldout_u32": {
+      "body_operations": {
+        "literal": {
+          "map": 2,
+          "scan": 0,
+          "zip": 1
+        },
+        "prior": {
+          "map": 2,
+          "scan": 0,
+          "zip": 1
+        },
+        "checked": {
+          "map": 0,
+          "scan": 0,
+          "zip": 1
+        }
+      },
+      "fresh_laws": [
+        "40b3d6a1ff4582ee58a4671482bcce12b5537aabcbeb97f124fddb4307c04f41"
+      ],
+      "gpu": {
+        "literal": {
+          "eligible": true,
+          "fallback_reason": null,
+          "graph_stages": 3,
+          "graph_required": false,
+          "nodes": [
+            {
+              "op": "map",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0
+                ],
+                "kind": "same"
+              }
+            },
+            {
+              "op": "map",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0
+                ],
+                "kind": "same"
+              }
+            },
+            {
+              "op": "zip",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0,
+                  1
+                ],
+                "kind": "min"
+              }
+            }
+          ]
+        },
+        "prior": {
+          "eligible": true,
+          "fallback_reason": null,
+          "graph_stages": 3,
+          "graph_required": false,
+          "nodes": [
+            {
+              "op": "map",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0
+                ],
+                "kind": "same"
+              }
+            },
+            {
+              "op": "map",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0
+                ],
+                "kind": "same"
+              }
+            },
+            {
+              "op": "zip",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0,
+                  1
+                ],
+                "kind": "min"
+              }
+            }
+          ]
+        },
+        "checked": {
+          "eligible": true,
+          "fallback_reason": null,
+          "graph_stages": 1,
+          "graph_required": false,
+          "nodes": [
+            {
+              "op": "zip",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0,
+                  1
+                ],
+                "kind": "min"
+              }
+            }
+          ]
+        }
+      },
+      "runtime_route_note": "All three versions use single-shader maximum-extent/header ABI. Logical graph node count is not physical dispatch count."
+    },
+    "pipeline35_nested_observed_heldout_u32": {
+      "body_operations": {
+        "literal": {
+          "map": 3,
+          "scan": 0,
+          "zip": 1
+        },
+        "prior": {
+          "map": 3,
+          "scan": 0,
+          "zip": 1
+        },
+        "checked": {
+          "map": 0,
+          "scan": 0,
+          "zip": 1
+        }
+      },
+      "fresh_laws": [
+        "0c49b9cd0fb506bd6df9fa864c65758f42f11695c981ca27f16524b827011657"
+      ],
+      "gpu": {
+        "literal": {
+          "eligible": true,
+          "fallback_reason": null,
+          "graph_stages": 4,
+          "graph_required": false,
+          "nodes": [
+            {
+              "op": "map",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0
+                ],
+                "kind": "same"
+              }
+            },
+            {
+              "op": "map",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0
+                ],
+                "kind": "same"
+              }
+            },
+            {
+              "op": "map",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0
+                ],
+                "kind": "same"
+              }
+            },
+            {
+              "op": "zip",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0,
+                  1
+                ],
+                "kind": "min"
+              }
+            }
+          ]
+        },
+        "prior": {
+          "eligible": true,
+          "fallback_reason": null,
+          "graph_stages": 4,
+          "graph_required": false,
+          "nodes": [
+            {
+              "op": "map",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0
+                ],
+                "kind": "same"
+              }
+            },
+            {
+              "op": "map",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0
+                ],
+                "kind": "same"
+              }
+            },
+            {
+              "op": "map",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0
+                ],
+                "kind": "same"
+              }
+            },
+            {
+              "op": "zip",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0,
+                  1
+                ],
+                "kind": "min"
+              }
+            }
+          ]
+        },
+        "checked": {
+          "eligible": true,
+          "fallback_reason": null,
+          "graph_stages": 1,
+          "graph_required": false,
+          "nodes": [
+            {
+              "op": "zip",
+              "ordered": false,
+              "capacity": {
+                "args": [
+                  0,
+                  1
+                ],
+                "kind": "min"
+              }
+            }
+          ]
+        }
+      },
+      "runtime_route_note": "All three versions use single-shader maximum-extent/header ABI. Logical graph node count is not physical dispatch count."
+    }
+  },
+  "composition_labels": {
+    "pipeline35_left_observed_u32": "left mapper",
+    "pipeline35_right_observed_u32": "right mapper",
+    "pipeline35_both_observed_heldout_u32": "both mapper composition probe, not statistical holdout",
+    "pipeline35_nested_observed_heldout_u32": "nested left / mapped right composition probe, not statistical holdout"
+  },
+  "bindings": {
+    "reports/web-stack-proofs-35-2026-10-11/targets/metadata.json": "807bcd6986fb4799ade7e18660234ff9092deb5334833333ef23c2a04dff2ca7",
+    "reports/web-stack-proofs-35-2026-10-11/targets/node-validation.json": "924e25dc01cf989b0537fac8a414c5006e789cb2d4c15a4d78f202098ac435f3",
+    "reports/web-stack-proofs-35-2026-10-11/targets/node-validation-audit.json": "2afba0ed7b57b2062ccde064864b2945e9f607dae6da6adc83662f3f23d8dcbf",
+    "reports/web-stack-proofs-35-2026-10-11/targets/native/metadata.json": "7479548727f01ab3f02900f9b6af1137813650da85726497b16c1897b039f8a7",
+    "reports/web-stack-proofs-35-2026-10-11/targets/native/commands.json": "3773862e2e43d71672f4354541cf93b1946e2b65120f3b6560d8c20223b5e1ae",
+    "reports/web-stack-proofs-35-2026-10-11/benchmark-preparation/prior-residual-audit.json": "78e73ac917b373de303dab69c2eb7b440619d6f10d1d43d70caef83b9a762b68",
+    "reports/web-stack-proofs-35-2026-10-11/benchmark-preparation/observed-input-audit.json": "fa1c6046258c3e03926e0fed5f8c9a741c913eeb54992e7a024c7508809c53e8",
+    "reports/web-stack-proofs-35-2026-10-11/benchmark-preparation/control-validation.json": "52ab23a8016b8a4bb27e78b6581209c47815d98cddcfce53b3a42a76a121acba",
+    "reports/web-stack-proofs-35-2026-10-11/benchmark-preparation/prepare.log": "87c9c7d32f0fa3f2eded41fb0af2f1127ecfb72876425be1296732ccaf541de4",
+    "reports/web-stack-proofs-35-2026-10-11/benchmark-preparation/node-validation.log": "fd2984dbf35c9da6585fe806910b1b563c7b75d0b6604f13d225a7f575cd39b3",
+    "reports/web-stack-proofs-35-2026-10-11/benchmark-preparation/native-preparation.log": "f6e669ab1393ae96b5c737ca777b6e88db8b0a88b6ff49ff9e95908c4ffd07a7"
+  },
+  "scope": "Direct derived DB endpoint makes old observed-map algebra usable by ordinary automatic search; no new compiler, core, runtime or backend machinery. Strong controls already fuse observed callbacks and map only the common prefix. No performance claim before serial timing."
+}
