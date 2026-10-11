@@ -43,6 +43,8 @@ fn benchmark_standalone_aggregate_scaling() {
     let patch = manifest.find("[patch.").unwrap();
     let mut patches = manifest[patch..].to_owned();
     for path in [
+        "abi",
+        "native-support",
         "core",
         "lowerings/c",
         "lowerings/gpu",
