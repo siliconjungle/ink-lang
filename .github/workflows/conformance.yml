@@ -52,13 +52,13 @@ jobs:
           PYTHON
           cargo fetch --locked --manifest-path build/host-deps/Cargo.toml
       - name: Runtime policies and failure injection
-        run: node --test runtime/tests/backend-selection.mjs runtime/tests/durable-state.mjs
+        run: node --test runtime/tests/backend-selection.mjs runtime/tests/durable-state.mjs lowerings/gpu/tests/resident-feedback.mjs
       - name: Independent core and source-bound value admission
         run: |
           cargo test --manifest-path core/Cargo.toml --offline
           cargo test --test distribution --test source_syntax --test action_values --test general_laws --test semantic_optimisation
       - name: Literal CPU and both Wasm lowerings, generated histories and crash recovery
-        run: cargo test --test lowering_parity --test generated_parity --test durability --test modules --test selected_checkpoint --test action_optimisation --test action_transitions --test numerical_state --test mixed_durability -- --nocapture
+        run: cargo test --test lowering_parity --test representation_parity --test standalone_representation --test generated_parity --test durability --test modules --test selected_checkpoint --test action_optimisation --test action_transitions --test numerical_state --test mixed_durability -- --nocapture
       - name: Retain reproducible programs, seeds and expected outcomes
         if: always()
         uses: actions/upload-artifact@v4
@@ -69,6 +69,12 @@ jobs:
             build/mixed-durable-native/initial.json
             build/mixed-durable-native/recovery.json
             build/mixed-durable-native/expected.json
+            build/representation-parity/**/checks.json
+            build/representation-parity/**/source.ink
+            build/representation-parity/**/request.json
+            build/representation-parity/**/oracle.json
+            build/representation-parity/**/producer.log
+            build/representation-parity/**/*-run.log
             build/numerical-state-parity/source.ink
             build/numerical-state-parity/script.json
             build/numerical-state-parity/expected.json

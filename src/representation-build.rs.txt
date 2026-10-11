@@ -1,0 +1,11 @@
+use std::{env,path::PathBuf,process::Command};
+fn main(){
+ if env::var("TARGET").unwrap().starts_with("wasm32"){println!("cargo:rustc-link-arg=-zstack-size=8388608");}
+ println!("cargo:rerun-if-changed=representation.c");println!("cargo:rerun-if-env-changed=INK_CC");println!("cargo:rerun-if-env-changed=INK_AR");
+ let dir=PathBuf::from(env::var_os("OUT_DIR").unwrap());let object=dir.join("representation.o");let lib=dir.join("librepresentation.a");
+ let cc=env::var("INK_CC").unwrap_or_else(|_|"clang".into());let mut command=Command::new(cc);
+ if env::var("TARGET").unwrap().starts_with("wasm32")&&env::var_os("INK_CC").is_none(){command.arg("--target=wasm32-unknown-unknown");}
+ assert!(command.args(["-std=c11","-O2","-fPIC","-c","representation.c","-o"]).arg(&object).status().unwrap().success(),"C representation compilation failed");
+ assert!(Command::new(env::var("INK_AR").unwrap_or_else(|_|"ar".into())).arg("rcs").arg(&lib).arg(&object).status().unwrap().success(),"C representation archive failed");
+ println!("cargo:rustc-link-search=native={}",dir.display());println!("cargo:rustc-link-lib=static=representation");
+}
