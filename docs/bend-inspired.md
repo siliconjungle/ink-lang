@@ -117,6 +117,10 @@ The Python translation and its correspondence to source syntax are unverified.
 Lean and its toolchain remain trusted. The command supplies an additional verdict
 and reproducible certificate; it grants no new production optimisation authority.
 The repository-owned knowledge workflow and snapshot selection are unchanged.
+Database search keeps baseline execution for functions whose new primitives
+lack a logical correspondence, reporting those functions as unavailable in
+`emit-semantic`. Other supported functions can still use existing database laws.
+This change does not silently grant rewrite authority for parallel/owned primitives.
 
 ## Evidence
 
