@@ -31,7 +31,7 @@ fn benchmark_standalone_aggregate_scaling() {
     let start = Instant::now();
     let mut code = verified_language::representations::compiled_bundle(&plans).unwrap();
     phases.push(serde_json::json!({"literal_emission_ns":start.elapsed().as_nanos()}));
-    code.push_str(&format!("\nconst SOURCE:&str={source:?};\n"));
+    code.push_str(&format!("\nmod indexed_source {{ {} }}\nconst SOURCE:&str={source:?};\n", verified_language::state_native::emit(module.program()).unwrap()));
     code.push_str(include_str!(
         "../bench/point-delta/standalone-aggregate.rs.txt"
     ));
@@ -117,4 +117,52 @@ fn measured_selection_rechecks_candidates_and_bridges_before_ranking() {
         "{}",
         String::from_utf8_lossy(&output.stderr)
     );
+}
+
+#[test]
+fn lean_lifecycle_selection_model_checks_independently() {
+    let Some(lean)=std::env::var_os("INK_TEST_LEAN") else {
+        assert!(std::env::var_os("INK_PARITY_REQUIRE_ALL").is_none(), "complete parity requires independent Lean checking");
+        return;
+    };
+    for file in ["Selection.lean", "Undo.lean"] {
+        let output=Command::new(&lean).arg(format!("knowledge/research/lifecycle-selection/{file}")).current_dir(env!("CARGO_MANIFEST_DIR")).output().unwrap();
+        assert!(output.status.success(),"{}{}",String::from_utf8_lossy(&output.stdout),String::from_utf8_lossy(&output.stderr));
+        assert!(!String::from_utf8_lossy(&output.stdout).contains("sorryAx"));
+    }
+}
+
+#[test]
+fn database_implementation_selection_rechecks_packages() {
+    let output = Command::new("python3")
+        .args(["planner/tests/implementation_selection_integration.py", env!("CARGO_BIN_EXE_ink"),
+               "examples/point-query-delta.ink", "knowledge/research/point-delta"])
+        .env("PYTHONPATH", "planner:knowledge").output().unwrap();
+    assert!(output.status.success(), "{}{}", String::from_utf8_lossy(&output.stdout), String::from_utf8_lossy(&output.stderr));
+}
+
+#[test]
+fn indexed_point_calls_do_not_copy_whole_tables() {
+    use std::{fs,path::Path};
+    use verified_language::{core::CheckedModule,syntax::parse};
+    let module=CheckedModule::from_source(parse(include_str!("../examples/point-query-delta.ink")).unwrap()).unwrap();
+    let root=Path::new(env!("CARGO_MANIFEST_DIR")).join("build/indexed-undo-alloc");
+    verified_language::runtime::emit_c_program(&module,&root).unwrap();
+    fs::write(root.join("src/main.rs"),include_str!("indexed-undo-alloc.rs.txt")).unwrap();
+    let output=Command::new(env!("CARGO")).args(["build","--offline","--quiet","--manifest-path"]).arg(root.join("Cargo.toml")).arg("--target-dir").arg(root.join("target")).output().unwrap();
+    assert!(output.status.success(),"{}",String::from_utf8_lossy(&output.stderr));
+    let output=Command::new(root.join("target/debug/compiled-state")).output().unwrap();
+    fs::write(root.join("allocations.jsonl"),&output.stdout).unwrap();
+    assert!(output.status.success(),"{}",String::from_utf8_lossy(&output.stderr));
+    fs::write(root.join("program.mjs"),verified_language::javascript::lower(&module).unwrap().javascript).unwrap();
+    fs::write(root.join("no-table-copy.mjs"),r#"
+import assert from 'node:assert/strict';
+let copied=0;const Base=Map;
+globalThis.Map=class extends Base{constructor(source){super(source);if(source instanceof Base)copied+=source.size;}};
+const {createState}=await import('./program.mjs');const state=createState();for(let i=0;i<4000;i++)state.invoke('put',[String(i),String(i)]);copied=0;
+for(let i=0;i<100;i++){state.invoke('get',['16']);state.invoke('put',['16',String(i)]);}
+assert.equal(copied,0,'point calls copied whole JavaScript tables');console.log('point calls copied zero table entries');
+"#).unwrap();
+    let output=Command::new("node").arg(root.join("no-table-copy.mjs")).output().unwrap();
+    assert!(output.status.success(),"{}",String::from_utf8_lossy(&output.stderr));
 }

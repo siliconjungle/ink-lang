@@ -1,0 +1,2342 @@
+#![allow(dead_code)]
+mod portable {
+//! Shared, representation-independent snapshot codec. This module also ships
+//! verbatim in generated applications; it has no AST/evaluator dependency.
+use num_bigint::{BigInt, Sign};
+use serde_json::{json, Value};
+use sha2::{Digest, Sha256};
+use std::cmp::Ordering;
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum Schema {
+    Unit,
+    Bool,
+    U32,
+    U64,
+    I32,
+    F32,
+    Vector(Box<Schema>, u8),
+    Int,
+    String,
+    Id,
+    Record(Vec<(String, Schema)>),
+    Enum(Vec<String>),
+    List(Box<Schema>),
+    Option(Box<Schema>),
+    Result(Box<Schema>, Box<Schema>),
+}
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Layout {
+    pub program: [u8; 32],
+    pub schema: [u8; 32],
+    pub roots: Vec<(String, Schema, Schema)>,
+    pub events: Vec<(String, Schema)>,
+}
+#[derive(Clone, Debug, PartialEq)]
+pub struct Event {
+    pub commit: u64,
+    pub position: u64,
+    pub channel: usize,
+    pub value: Value,
+}
+#[derive(Clone, Debug, PartialEq)]
+pub struct Logical {
+    pub version: u64,
+    pub tables: Vec<Vec<(Value, Value)>>,
+    pub outbox: Vec<Event>,
+}
+#[derive(Clone, Copy, Debug)]
+pub struct Limits {
+    pub bytes: usize,
+    pub values: usize,
+    pub depth: usize,
+}
+impl Default for Limits {
+    fn default() -> Self {
+        Self {
+            bytes: 64 * 1024 * 1024,
+            values: 1_000_000,
+            depth: 128,
+        }
+    }
+}
+/// Magnitude bound for one exact integer. Decimal conversion is superlinear,
+/// so without it a single large Int in a snapshot takes minutes to hours.
+pub const MAX_INT_BYTES: usize = 4096;
+const MAGIC: &[u8; 8] = b"VLSTATE\0";
+const HEADER: usize = 8 + 2 + 2 + 32 + 32 + 8;
+type R<T> = Result<T, String>;
+fn u64_bytes(out: &mut Vec<u8>, v: u64) {
+    out.extend_from_slice(&v.to_le_bytes());
+}
+fn count(out: &mut Vec<u8>, n: usize) {
+    u64_bytes(out, n as u64);
+}
+fn raw(out: &mut Vec<u8>, b: &[u8]) {
+    count(out, b.len());
+    out.extend_from_slice(b);
+}
+fn tag<'a>(v: &'a Value, name: &str) -> R<&'a Value> {
+    let o = v.as_object().ok_or("expected tagged object")?;
+    if o.len() != 1 {
+        return Err("expected exactly one tag".into());
+    }
+    o.get(name).ok_or("unexpected value tag".into())
+}
+fn integer(v: &Value) -> R<BigInt> {
+    let s = tag(v, "Int")?.as_str().ok_or("expected Int string")?;
+    // Every Int within the bound has fewer than 2.41 decimal digits per byte.
+    if s.len() > MAX_INT_BYTES * 5 / 2 + 1 {
+        return Err("snapshot Int exceeds size limit".into());
+    }
+    let n = s.parse::<BigInt>().map_err(|_| "invalid Int")?;
+    if n.bits() > 8 * MAX_INT_BYTES as u64 {
+        return Err("snapshot Int exceeds size limit".into());
+    }
+    if n.to_string() != s {
+        return Err("noncanonical Int".into());
+    }
+    Ok(n)
+}
+fn identifier(v: &Value) -> R<u128> {
+    let s = v.as_str().ok_or("expected ID")?;
+    if s.len() != 32
+        || !s
+            .bytes()
+            .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))
+    {
+        return Err("noncanonical ID".into());
+    }
+    u128::from_str_radix(s, 16).map_err(|e| e.to_string())
+}
+fn compare(t: &Schema, a: &Value, b: &Value) -> R<Ordering> {
+    Ok(match t {
+        Schema::I32 => a
+            .as_i64()
+            .and_then(|n| i32::try_from(n).ok())
+            .ok_or("invalid i32 key")?
+            .cmp(
+                &b.as_i64()
+                    .and_then(|n| i32::try_from(n).ok())
+                    .ok_or("invalid i32 key")?,
+            ),
+        Schema::U32 | Schema::U64 => a
+            .as_u64()
+            .ok_or("invalid key")?
+            .cmp(&b.as_u64().ok_or("invalid key")?),
+        Schema::String => a
+            .as_str()
+            .ok_or("invalid key")?
+            .as_bytes()
+            .cmp(b.as_str().ok_or("invalid key")?.as_bytes()),
+        Schema::Id => identifier(a)?.cmp(&identifier(b)?),
+        _ => return Err("unsupported snapshot key schema".into()),
+    })
+}
+fn tick(left: &mut usize, depth: usize, limits: Limits) -> R<()> {
+    if *left == 0 || depth > limits.depth {
+        return Err("snapshot value/depth limit exceeded".into());
+    }
+    *left -= 1;
+    Ok(())
+}
+fn encode_value(
+    t: &Schema,
+    v: &Value,
+    out: &mut Vec<u8>,
+    left: &mut usize,
+    depth: usize,
+    limits: Limits,
+) -> R<()> {
+    tick(left, depth, limits)?;
+    match t {
+        Schema::Unit => {
+            if !v.is_null() {
+                return Err("expected Unit".into());
+            }
+        }
+        Schema::Bool => out.push(v.as_bool().ok_or("expected Bool")? as u8),
+        Schema::U32 => out.extend_from_slice(
+            &u32::try_from(v.as_u64().ok_or("expected u32")?)
+                .map_err(|_| "u32 overflow")?
+                .to_le_bytes(),
+        ),
+        Schema::U64 => u64_bytes(out, v.as_u64().ok_or("expected u64")?),
+        Schema::I32 => out.extend_from_slice(
+            &i32::try_from(v.as_i64().ok_or("expected i32")?)
+                .map_err(|_| "i32 overflow")?
+                .to_le_bytes(),
+        ),
+        Schema::F32 => {
+            let bits = if let Some(b) = v.get("F32Bits") {
+                if v.as_object().is_none_or(|o| o.len() != 1) {
+                    return Err("expected only F32Bits field".into());
+                }
+                u32::try_from(b.as_u64().ok_or("expected f32 bits")?)
+                    .map_err(|_| "f32 bits overflow")?
+            } else {
+                let f = v.as_f64().ok_or("expected f32")? as f32;
+                if !f.is_finite() {
+                    return Err("finite f32 or F32Bits required".into());
+                }
+                f.to_bits()
+            };
+            out.extend_from_slice(&bits.to_le_bytes());
+        }
+        Schema::Vector(inner, n) => {
+            if !(2..=4).contains(n)
+                || !matches!(inner.as_ref(), Schema::U32 | Schema::I32 | Schema::F32)
+            {
+                return Err("invalid vector schema".into());
+            }
+            let xs = v.as_array().ok_or("expected vector")?;
+            if xs.len() != *n as usize {
+                return Err("vector dimension mismatch".into());
+            }
+            for x in xs {
+                encode_value(inner, x, out, left, depth + 1, limits)?;
+            }
+        }
+        Schema::Int => {
+            let n = integer(v)?;
+            let (sign, b) = n.to_bytes_le();
+            out.push(match sign {
+                Sign::NoSign => 0,
+                Sign::Plus => 1,
+                Sign::Minus => 2,
+            });
+            if sign == Sign::NoSign {
+                raw(out, &[])
+            } else {
+                raw(out, &b)
+            }
+        }
+        Schema::String => raw(out, v.as_str().ok_or("expected String")?.as_bytes()),
+        Schema::Id => out.extend_from_slice(&identifier(v)?.to_le_bytes()),
+        Schema::Enum(names) => {
+            let s = v.as_str().ok_or("expected enum string")?;
+            let index = names
+                .iter()
+                .position(|n| n == s)
+                .ok_or("unknown enum variant")?;
+            out.extend_from_slice(&(index as u32).to_le_bytes());
+        }
+        Schema::Record(fields) => {
+            let obj = v.as_object().ok_or("expected record")?;
+            if obj.len() != fields.len() {
+                return Err("record field mismatch".into());
+            }
+            for (n, t) in fields {
+                encode_value(
+                    t,
+                    obj.get(n).ok_or("missing record field")?,
+                    out,
+                    left,
+                    depth + 1,
+                    limits,
+                )?;
+            }
+        }
+        Schema::List(inner) => {
+            let xs = v.as_array().ok_or("expected List")?;
+            if xs.len() > *left {
+                return Err("snapshot value limit exceeded".into());
+            }
+            count(out, xs.len());
+            for x in xs {
+                encode_value(inner, x, out, left, depth + 1, limits)?;
+            }
+        }
+        Schema::Option(inner) => {
+            if let Ok(x) = tag(v, "Some") {
+                out.push(1);
+                encode_value(inner, x, out, left, depth + 1, limits)?;
+            } else {
+                if !tag(v, "None")?.is_null() {
+                    return Err("invalid None".into());
+                }
+                out.push(0);
+            }
+        }
+        Schema::Result(a, b) => {
+            if let Ok(x) = tag(v, "Ok") {
+                out.push(0);
+                encode_value(a, x, out, left, depth + 1, limits)?;
+            } else {
+                out.push(1);
+                encode_value(b, tag(v, "Err")?, out, left, depth + 1, limits)?;
+            }
+        }
+    }
+    if out.len() > limits.bytes {
+        return Err("snapshot byte limit exceeded".into());
+    }
+    Ok(())
+}
+struct Reader<'a> {
+    bytes: &'a [u8],
+    at: usize,
+    left: usize,
+    limits: Limits,
+}
+impl<'a> Reader<'a> {
+    fn take(&mut self, n: usize) -> R<&'a [u8]> {
+        let end = self.at.checked_add(n).ok_or("snapshot length overflow")?;
+        let b = self.bytes.get(self.at..end).ok_or("truncated snapshot")?;
+        self.at = end;
+        Ok(b)
+    }
+    fn byte(&mut self) -> R<u8> {
+        Ok(self.take(1)?[0])
+    }
+    fn u32(&mut self) -> R<u32> {
+        Ok(u32::from_le_bytes(self.take(4)?.try_into().unwrap()))
+    }
+    fn u64(&mut self) -> R<u64> {
+        Ok(u64::from_le_bytes(self.take(8)?.try_into().unwrap()))
+    }
+    fn len(&mut self) -> R<usize> {
+        usize::try_from(self.u64()?).map_err(|_| "snapshot length not addressable".into())
+    }
+    fn sequence(&mut self) -> R<usize> {
+        let n = self.len()?;
+        if n > self.left {
+            return Err("snapshot value limit exceeded".into());
+        }
+        Ok(n)
+    }
+    fn raw(&mut self) -> R<&'a [u8]> {
+        let n = self.len()?;
+        self.take(n)
+    }
+    fn value(&mut self, t: &Schema, depth: usize) -> R<Value> {
+        tick(&mut self.left, depth, self.limits)?;
+        Ok(match t {
+            Schema::Unit => Value::Null,
+            Schema::Bool => match self.byte()? {
+                0 => json!(false),
+                1 => json!(true),
+                _ => return Err("invalid Bool tag".into()),
+            },
+            Schema::U32 => json!(self.u32()?),
+            Schema::U64 => json!(self.u64()?),
+            Schema::I32 => json!(self.u32()? as i32),
+            Schema::F32 => {
+                let bits = self.u32()?;
+                let f = f32::from_bits(bits);
+                if f.is_finite() {
+                    json!(f)
+                } else {
+                    json!({"F32Bits":bits})
+                }
+            }
+            Schema::Vector(inner, n) => {
+                if !(2..=4).contains(n)
+                    || !matches!(inner.as_ref(), Schema::U32 | Schema::I32 | Schema::F32)
+                {
+                    return Err("invalid vector schema".into());
+                }
+                (0..*n)
+                    .map(|_| self.value(inner, depth + 1))
+                    .collect::<R<Vec<_>>>()?
+                    .into()
+            }
+            Schema::Int => {
+                let sign = self.byte()?;
+                let bytes = self.raw()?;
+                if bytes.len() > MAX_INT_BYTES {
+                    return Err("snapshot Int exceeds size limit".into());
+                }
+                let sign = match sign {
+                    0 if bytes.is_empty() => Sign::NoSign,
+                    1 if !bytes.is_empty() && bytes.last() != Some(&0) => Sign::Plus,
+                    2 if !bytes.is_empty() && bytes.last() != Some(&0) => Sign::Minus,
+                    _ => return Err("noncanonical signed integer".into()),
+                };
+                json!({"Int":BigInt::from_bytes_le(sign,bytes).to_string()})
+            }
+            Schema::String => json!(std::str::from_utf8(self.raw()?).map_err(|_| "invalid UTF-8")?),
+            Schema::Id => json!(format!(
+                "{:032x}",
+                u128::from_le_bytes(self.take(16)?.try_into().unwrap())
+            )),
+            Schema::Enum(names) => {
+                json!(names.get(self.u32()? as usize).ok_or("invalid enum tag")?)
+            }
+            Schema::Record(fields) => {
+                let mut obj = serde_json::Map::new();
+                for (n, t) in fields {
+                    obj.insert(n.clone(), self.value(t, depth + 1)?);
+                }
+                Value::Object(obj)
+            }
+            Schema::List(t) => {
+                let n = self.sequence()?;
+                let mut xs = Vec::new();
+                for _ in 0..n {
+                    xs.push(self.value(t, depth + 1)?);
+                }
+                Value::Array(xs)
+            }
+            Schema::Option(t) => match self.byte()? {
+                0 => json!({"None":null}),
+                1 => json!({"Some":self.value(t,depth+1)?}),
+                _ => return Err("invalid Option tag".into()),
+            },
+            Schema::Result(a, b) => match self.byte()? {
+                0 => json!({"Ok":self.value(a,depth+1)?}),
+                1 => json!({"Err":self.value(b,depth+1)?}),
+                _ => return Err("invalid Result tag".into()),
+            },
+        })
+    }
+}
+fn event_order(e: &Event, version: u64, prior: Option<(u64, u64)>) -> R<()> {
+    if e.commit == 0 || e.commit > version || prior.is_some_and(|p| p >= (e.commit, e.position)) {
+        return Err("invalid snapshot event sequence".into());
+    }
+    Ok(())
+}
+pub fn encode(layout: &Layout, s: &Logical, limits: Limits) -> R<Vec<u8>> {
+    if s.tables.len() != layout.roots.len() {
+        return Err("snapshot root count mismatch".into());
+    }
+    let mut out = Vec::new();
+    let mut left = limits.values;
+    u64_bytes(&mut out, s.version);
+    for (rows, (_, kt, vt)) in s.tables.iter().zip(&layout.roots) {
+        if rows.len() > left / 2 {
+            return Err("snapshot row limit exceeded".into());
+        }
+        count(&mut out, rows.len());
+        let mut prior = None;
+        for (k, v) in rows {
+            if let Some(p) = prior {
+                if compare(kt, p, k)? != Ordering::Less {
+                    return Err("snapshot keys must be strictly ordered".into());
+                }
+            }
+            encode_value(kt, k, &mut out, &mut left, 0, limits)?;
+            encode_value(vt, v, &mut out, &mut left, 0, limits)?;
+            prior = Some(k);
+        }
+    }
+    count(&mut out, s.outbox.len());
+    let mut prior = None;
+    for e in &s.outbox {
+        event_order(e, s.version, prior)?;
+        let (_, t) = layout
+            .events
+            .get(e.channel)
+            .ok_or("unknown event channel")?;
+        u64_bytes(&mut out, e.commit);
+        u64_bytes(&mut out, e.position);
+        out.extend_from_slice(&(e.channel as u32).to_le_bytes());
+        encode_value(t, &e.value, &mut out, &mut left, 0, limits)?;
+        prior = Some((e.commit, e.position));
+    }
+    if HEADER
+        .checked_add(out.len())
+        .and_then(|n| n.checked_add(32))
+        .is_none_or(|n| n > limits.bytes)
+    {
+        return Err("snapshot byte limit exceeded".into());
+    }
+    let mut bytes = Vec::new();
+    bytes.extend_from_slice(MAGIC);
+    bytes.extend_from_slice(&1u16.to_le_bytes());
+    bytes.extend_from_slice(&1u16.to_le_bytes());
+    bytes.extend_from_slice(&layout.program);
+    bytes.extend_from_slice(&layout.schema);
+    count(&mut bytes, out.len());
+    bytes.extend_from_slice(&out);
+    let digest = Sha256::digest(&bytes);
+    bytes.extend_from_slice(&digest);
+    Ok(bytes)
+}
+pub fn decode(layout: &Layout, bytes: &[u8], limits: Limits) -> R<Logical> {
+    if bytes.len() > limits.bytes || bytes.len() < HEADER + 32 {
+        return Err("snapshot byte length invalid".into());
+    }
+    if &bytes[..8] != MAGIC || bytes[8..12] != [1, 0, 1, 0] {
+        return Err("snapshot format or semantics version mismatch".into());
+    }
+    if bytes[12..44] != layout.program || bytes[44..76] != layout.schema {
+        return Err("snapshot program or schema identity mismatch".into());
+    }
+    let n = usize::try_from(u64::from_le_bytes(bytes[76..84].try_into().unwrap()))
+        .map_err(|_| "snapshot length not addressable")?;
+    if HEADER.checked_add(n).and_then(|v| v.checked_add(32)) != Some(bytes.len()) {
+        return Err("snapshot payload length mismatch".into());
+    }
+    let end = bytes.len() - 32;
+    if Sha256::digest(&bytes[..end]).as_slice() != &bytes[end..] {
+        return Err("snapshot integrity check failed".into());
+    }
+    let mut r = Reader {
+        bytes: &bytes[HEADER..end],
+        at: 0,
+        left: limits.values,
+        limits,
+    };
+    let version = r.u64()?;
+    let mut tables = vec![];
+    for (_, kt, vt) in &layout.roots {
+        let n = r.sequence()?;
+        if n > r.left / 2 {
+            return Err("snapshot row limit exceeded".into());
+        }
+        let mut rows: Vec<(Value, Value)> = vec![];
+        for _ in 0..n {
+            let k = r.value(kt, 0)?;
+            let v = r.value(vt, 0)?;
+            if let Some((prior, _)) = rows.last() {
+                if compare(kt, prior, &k)? != Ordering::Less {
+                    return Err("duplicate or unordered snapshot key".into());
+                }
+            }
+            rows.push((k, v));
+        }
+        tables.push(rows);
+    }
+    let n = r.sequence()?;
+    let mut outbox = vec![];
+    let mut prior = None;
+    for _ in 0..n {
+        let commit = r.u64()?;
+        let position = r.u64()?;
+        let channel = r.u32()? as usize;
+        let (_, t) = layout
+            .events
+            .get(channel)
+            .ok_or("unknown snapshot event channel")?;
+        let value = r.value(t, 0)?;
+        let e = Event {
+            commit,
+            position,
+            channel,
+            value,
+        };
+        event_order(&e, version, prior)?;
+        prior = Some((commit, position));
+        outbox.push(e);
+    }
+    if r.at != r.bytes.len() {
+        return Err("trailing snapshot payload".into());
+    }
+    Ok(Logical {
+        version,
+        tables,
+        outbox,
+    })
+}
+
+}
+pub use portable::Limits as SnapshotLimits;
+mod transaction {
+//! Fixed transaction primitives, shared verbatim with generated execution.
+//! These describe the base protocol; they select no optimisation or layout.
+
+pub const SEMANTICS: &str = "ink-change-boundary-v1";
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Decision {
+    Rollback,
+    Commit { version: u64 },
+    Exhausted,
+}
+
+/// A domain error wins over commit exhaustion. The body has already run;
+/// both Rollback and Exhausted require restoration of its tentative effects.
+#[inline]
+pub fn decide(version: u64, succeeded: bool) -> Decision {
+    if !succeeded {
+        Decision::Rollback
+    } else if let Some(version) = version.checked_add(1) {
+        Decision::Commit { version }
+    } else {
+        Decision::Exhausted
+    }
+}
+
+/// A nested change's error cannot be captured or ignored by its caller.
+/// The outer Err exits the caller; the inner Result is its ordinary value.
+#[inline]
+pub fn nested_change<T, E>(result: Result<T, E>) -> Result<Result<T, E>, E> {
+    match result {
+        value @ Ok(_) => Ok(value),
+        Err(error) => Err(error),
+    }
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub struct Publication<T> {
+    pub commit: u64,
+    pub position: u64,
+    pub value: T,
+}
+
+/// Preserve staged order and number the committed suffix from zero, regardless
+/// of earlier outbox contents. Publication neither clones nor reorders payloads.
+pub fn publish<T>(
+    version: u64,
+    staged: impl Iterator<Item = T>,
+) -> impl Iterator<Item = Publication<T>> {
+    staged
+        .enumerate()
+        .map(move |(position, value)| Publication {
+            commit: version,
+            position: position as u64,
+            value,
+        })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn domain_errors_precede_exhaustion_and_success_never_wraps() {
+        for version in [0, 1, 1 << 63, u64::MAX - 1, u64::MAX] {
+            assert_eq!(decide(version, false), Decision::Rollback);
+            assert_eq!(
+                decide(version, true),
+                match version.checked_add(1) {
+                    Some(version) => Decision::Commit { version },
+                    None => Decision::Exhausted,
+                }
+            );
+        }
+    }
+
+    #[test]
+    fn nested_result_and_ordered_publication_move_payloads() {
+        struct Owned(&'static str);
+        assert!(nested_change::<Owned, _>(Err(Owned("error"))).is_err());
+        let value = nested_change::<_, Owned>(Ok(Owned("value")))
+            .ok()
+            .unwrap()
+            .ok()
+            .unwrap();
+        let events: Vec<_> = publish(u64::MAX, [value, Owned("second")].into_iter()).collect();
+        assert_eq!(events[0].commit, u64::MAX);
+        assert_eq!(events[0].position, 0);
+        assert_eq!(events[0].value.0, "value");
+        assert_eq!(events[1].position, 1);
+        assert_eq!(events[1].value.0, "second");
+        assert_eq!(publish::<Owned>(2, std::iter::empty()).count(), 0);
+    }
+}
+
+}
+mod temporary {
+//! Owned, invocation-local storage. Aliasing is rejected by the source checker.
+//! Cloning these internal handles never copies storage or creates a source borrow.
+use std::{cell::RefCell, collections::BTreeMap, rc::Rc};
+
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub struct OwnedBuffer<T>(Rc<RefCell<Vec<T>>>);
+impl<T: Clone> OwnedBuffer<T> {
+    pub fn new(xs: Vec<T>) -> Self {
+        Self(Rc::new(RefCell::new(xs)))
+    }
+    pub fn len(&self) -> u32 {
+        self.0
+            .borrow()
+            .len()
+            .try_into()
+            .expect("buffer exceeds u32")
+    }
+    pub fn with_item<R>(&self, i: u32, f: impl FnOnce(Option<&T>) -> R) -> R {
+        f(self.0.borrow().get(i as usize))
+    }
+    pub fn get(&self, i: u32) -> Option<T> {
+        self.0.borrow().get(i as usize).cloned()
+    }
+    pub fn set(self, i: u32, value: T) -> Self {
+        if let Some(slot) = self.0.borrow_mut().get_mut(i as usize) {
+            *slot = value;
+        }
+        self
+    }
+    pub fn swap(self, a: u32, b: u32) -> Self {
+        {
+            let mut xs = self.0.borrow_mut();
+            if (a as usize) < xs.len() && (b as usize) < xs.len() {
+                xs.swap(a as usize, b as usize);
+            }
+        }
+        self
+    }
+    pub fn push(self, value: T) -> Self {
+        assert!(self.len() < u32::MAX, "buffer length exhausted");
+        self.0.borrow_mut().push(value);
+        self
+    }
+    pub fn pop(self) -> Self {
+        self.0.borrow_mut().pop();
+        self
+    }
+    pub fn truncate(self, n: u32) -> Self {
+        self.0.borrow_mut().truncate(n as usize);
+        self
+    }
+    pub fn split(self, at: u32) -> (Self, Self) {
+        let mut xs = self.freeze();
+        let right = xs.split_off((at as usize).min(xs.len()));
+        (Self::new(xs), Self::new(right))
+    }
+    pub fn append(self, other: Self) -> Self {
+        let mut xs = self.freeze();
+        xs.append(&mut other.freeze());
+        Self::new(xs)
+    }
+    pub fn freeze(self) -> Vec<T> {
+        std::mem::take(&mut *self.0.borrow_mut())
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub struct OwnedMap<K: Ord, V>(Rc<RefCell<BTreeMap<K, V>>>);
+impl<K: Ord + Clone, V: Clone> OwnedMap<K, V> {
+    pub fn new() -> Self {
+        Self(Rc::new(RefCell::new(BTreeMap::new())))
+    }
+    pub fn len(&self) -> u32 {
+        self.0.borrow().len().try_into().expect("map exceeds u32")
+    }
+    pub fn with_value<R>(&self, k: &K, f: impl FnOnce(Option<&V>) -> R) -> R {
+        f(self.0.borrow().get(k))
+    }
+    pub fn with_values<R>(
+        &self,
+        f: impl FnOnce(std::collections::btree_map::Values<'_, K, V>) -> R,
+    ) -> R {
+        f(self.0.borrow().values())
+    }
+    pub fn get(&self, k: &K) -> Option<V> {
+        self.0.borrow().get(k).cloned()
+    }
+    pub fn contains(&self, k: &K) -> bool {
+        self.0.borrow().contains_key(k)
+    }
+    pub fn set(self, k: K, v: V) -> Self {
+        self.0.borrow_mut().insert(k, v);
+        self
+    }
+    pub fn remove(self, k: &K) -> Self {
+        self.0.borrow_mut().remove(k);
+        self
+    }
+    pub fn keys(&self) -> Vec<K> {
+        self.0.borrow().keys().cloned().collect()
+    }
+    pub fn values(&self) -> Vec<V> {
+        self.0.borrow().values().cloned().collect()
+    }
+}
+
+}
+use temporary::{OwnedBuffer,OwnedMap};
+/// Literal tags for the handle-based value ABI. Shared by emitters and support.
+#[repr(u32)]
+#[derive(Clone,Copy,Debug,PartialEq,Eq)]
+pub enum InkValueKind {Unit=0,Bool=1,U32=2,U64=3,I32=4,F32=5,Int=6,String=7,Enum=8}
+impl InkValueKind {
+    pub fn from_raw(n:u32)->Option<Self>{Some(match n{0=>Self::Unit,1=>Self::Bool,2=>Self::U32,3=>Self::U64,4=>Self::I32,5=>Self::F32,6=>Self::Int,7=>Self::String,8=>Self::Enum,_=>return None})}
+}
+// Primitive value/storage runtime for literal emitted C. No parser or evaluator.
+use num_bigint::BigInt;
+use serde_json::{json, Value as Json};
+use std::collections::BTreeMap;
+use std::ffi::{c_char, CStr};
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+enum V {
+    Unit,
+    Bool(bool),
+    U32(u32),
+    U64(u64),
+    I32(i32),
+    F32(u32),
+    Int(BigInt),
+    String(String),
+    Id(String, u128),
+    Record(String, BTreeMap<String, V>),
+    Enum(String),
+    Option(Option<Box<V>>),
+    Result(bool, Box<V>),
+    List(Vec<V>),
+    Vector(Vec<V>),
+    Buffer(OwnedBuffer<V>),
+    Map(OwnedMap<V,V>),
+}
+impl V {
+    fn weight(&self) -> usize {
+        64 + match self {
+            Self::Int(v) => (v.bits() as usize + 7) / 8,
+            Self::String(v) | Self::Enum(v) => v.len(),
+            Self::Record(_, fs) => fs.values().map(Self::weight).sum(),
+            Self::List(xs) | Self::Vector(xs) => xs.iter().map(Self::weight).sum(),
+            Self::Option(Some(v)) | Self::Result(_, v) => v.weight(),
+            _ => 0,
+        }
+    }
+    fn json(&self) -> Json {
+        match self {
+            Self::Buffer(_) | Self::Map(_) => Json::Null,
+            Self::Unit => Json::Null,
+            Self::Bool(v) => json!(v),
+            Self::U32(v) => json!(v),
+            Self::U64(v) => json!(v),
+            Self::I32(v) => json!(v),
+            Self::F32(b) => {
+                let f = f32::from_bits(*b);
+                if f.is_finite() {
+                    json!(f)
+                } else {
+                    json!({"F32Bits":b})
+                }
+            }
+            Self::Int(v) => json!({"Int":v.to_string()}),
+            Self::String(v) | Self::Enum(v) => json!(v),
+            Self::Id(_, v) => json!(format!("{v:032x}")),
+            Self::Record(_, fs) => fs.iter().map(|(k, v)| (k.clone(), v.json())).collect(),
+            Self::Option(Some(v)) => json!({"Some":v.json()}),
+            Self::Option(None) => json!({"None":null}),
+            Self::Result(true, v) => json!({"Ok":v.json()}),
+            Self::Result(false, v) => json!({"Err":v.json()}),
+            Self::List(xs) | Self::Vector(xs) => xs.iter().map(Self::json).collect(),
+        }
+    }
+}
+type R<T> = Result<T, String>;
+fn from_json(v: &Json, t: &Json, meta: &Json, left: &mut usize, depth: usize) -> R<V> {
+    if depth > 128 || *left == 0 {
+        return Err("value resource limit exceeded".into());
+    }
+    *left -= 1;
+    if let Some(kind) = t.as_str() {
+        return Ok(match kind {
+            "Unit" if v.is_null() => V::Unit,
+            "Bool" => V::Bool(v.as_bool().ok_or("expected Bool")?),
+            "U32" => V::U32(
+                v.as_u64()
+                    .and_then(|n| u32::try_from(n).ok())
+                    .ok_or("expected u32")?,
+            ),
+            "U64" => {
+                let n = if let Some(n) = v.as_u64() {
+                    n
+                } else {
+                    let s = v.as_str().ok_or("expected u64")?;
+                    let n = s.parse::<u64>().map_err(|_| "expected u64")?;
+                    if n.to_string() != s {
+                        return Err("noncanonical u64".into());
+                    }
+                    n
+                };
+                V::U64(n)
+            }
+            "I32" => V::I32(
+                v.as_i64()
+                    .and_then(|n| i32::try_from(n).ok())
+                    .ok_or("expected i32")?,
+            ),
+            "F32" => {
+                if let Some(n) = v.as_f64() {
+                    let f = n as f32;
+                    if !f.is_finite() {
+                        return Err("f32 overflow".into());
+                    }
+                    V::F32(f.to_bits())
+                } else {
+                    let o = v.as_object().ok_or("expected F32Bits")?;
+                    if o.len() != 1 {
+                        return Err("expected F32Bits".into());
+                    }
+                    V::F32(
+                        o.get("F32Bits")
+                            .and_then(Json::as_u64)
+                            .and_then(|n| u32::try_from(n).ok())
+                            .ok_or("invalid F32Bits")?,
+                    )
+                }
+            }
+            "Int" => {
+                let text = v
+                    .get("Int")
+                    .and_then(Json::as_str)
+                    .map(str::to_owned)
+                    .unwrap_or_else(|| v.to_string());
+                if text.len() > 1000000 {
+                    return Err("Int input exceeds resource limit".into());
+                }
+                V::Int(text.parse().map_err(|_| "expected Int")?)
+            }
+            "String" => V::String(v.as_str().ok_or("expected String")?.into()),
+            _ => return Err("unsupported primitive type".into()),
+        });
+    }
+    let object = t.as_object().ok_or("invalid compiled type")?;
+    let (kind, inner) = object.iter().next().ok_or("empty compiled type")?;
+    Ok(match kind.as_str() {
+        "List" => V::List(
+            v.as_array()
+                .ok_or("expected List")?
+                .iter()
+                .map(|x| from_json(x, inner, meta, left, depth + 1))
+                .collect::<R<Vec<_>>>()?,
+        ),
+        "Vector" => {
+            let xs = v.as_array().ok_or("expected vector")?;
+            let parts = inner.as_array().ok_or("vector type")?;
+            if xs.len() != parts[1].as_u64().ok_or("vector size")? as usize {
+                return Err("vector dimension mismatch".into());
+            }
+            V::Vector(
+                xs.iter()
+                    .map(|x| from_json(x, &parts[0], meta, left, depth + 1))
+                    .collect::<R<Vec<_>>>()?,
+            )
+        }
+        "Option" => {
+            let obj = v.as_object().ok_or("expected Option")?;
+            if obj.len() != 1 {
+                return Err("expected one tag".into());
+            }
+            if let Some(x) = obj.get("Some") {
+                V::Option(Some(Box::new(from_json(x, inner, meta, left, depth + 1)?)))
+            } else if obj.get("None") == Some(&Json::Null) {
+                V::Option(None)
+            } else {
+                return Err("invalid Option".into());
+            }
+        }
+        "Result" => {
+            let obj = v.as_object().ok_or("expected Result")?;
+            if obj.len() != 1 {
+                return Err("expected one tag".into());
+            }
+            let ts = inner.as_array().ok_or("result type")?;
+            if let Some(x) = obj.get("Ok") {
+                V::Result(true, Box::new(from_json(x, &ts[0], meta, left, depth + 1)?))
+            } else if let Some(x) = obj.get("Err") {
+                V::Result(
+                    false,
+                    Box::new(from_json(x, &ts[1], meta, left, depth + 1)?),
+                )
+            } else {
+                return Err("invalid Result".into());
+            }
+        }
+        "Named" => {
+            let name = inner.as_str().ok_or("named type")?;
+            if meta["ids"]
+                .as_array()
+                .is_some_and(|xs| xs.iter().any(|x| x == name))
+            {
+                let s = v.as_str().ok_or("expected ID")?;
+                if s.len() != 32 || !s.bytes().all(|b| b.is_ascii_hexdigit()) {
+                    return Err("invalid ID".into());
+                }
+                V::Id(
+                    name.into(),
+                    u128::from_str_radix(s, 16).map_err(|_| "invalid ID")?,
+                )
+            } else if name == "ArithmeticError" {
+                if v.as_str() != Some("ArithmeticError.Overflow") {
+                    return Err("invalid arithmetic error".into());
+                }
+                V::Enum("ArithmeticError.Overflow".into())
+            } else if let Some(fs) = meta["records"].get(name).and_then(Json::as_array) {
+                let obj = v.as_object().ok_or("expected record")?;
+                if obj.len() != fs.len() {
+                    return Err("record field mismatch".into());
+                }
+                let mut values = BTreeMap::new();
+                for f in fs {
+                    let key = f[0].as_str().ok_or("field name")?;
+                    values.insert(
+                        key.into(),
+                        from_json(
+                            obj.get(key).ok_or("missing field")?,
+                            &f[1],
+                            meta,
+                            left,
+                            depth + 1,
+                        )?,
+                    );
+                }
+                V::Record(name.into(), values)
+            } else {
+                let s = v.as_str().ok_or("expected enum")?;
+                let prefix = format!("{name}.");
+                let variant = s.strip_prefix(&prefix).ok_or("enum type mismatch")?;
+                if !meta["enums"][name]
+                    .as_array()
+                    .is_some_and(|vs| vs.iter().any(|v| v == variant))
+                {
+                    return Err("invalid enum variant".into());
+                }
+                V::Enum(s.into())
+            }
+        }
+        _ => return Err("unsupported compiled type".into()),
+    })
+}
+#[derive(Clone, Debug)]
+enum Failure {
+    Host(String),
+    Abort(V),
+}
+struct Undo { index: usize, key: V, old: Option<V> }
+pub struct InkContext {
+    values: Vec<V>,
+    error: Option<Failure>,
+    fuel: u64,
+    arena_bytes: usize,
+    meta: Json,
+    tables: Vec<BTreeMap<V, V>>,
+    undo: Vec<Undo>,
+    version: u64,
+    staged: Vec<(String, V)>,
+    outbox: Vec<Event>,
+}
+#[derive(Clone, Debug)]
+pub struct Event {
+    pub commit: u64,
+    pub position: u64,
+    pub channel: String,
+    value: V,
+}
+impl Event {
+    pub fn to_json(&self) -> Json {
+        json!({"commit":self.commit,"position":self.position,"channel":self.channel,"value":self.value.json()})
+    }
+}
+impl InkContext {
+    fn rollback(&mut self) {
+        while let Some(Undo { index, key, old }) = self.undo.pop() {
+            match old {
+                Some(value) => { self.tables[index].insert(key, value); }
+                None => { self.tables[index].remove(&key); }
+            }
+        }
+    }
+    fn put(&mut self, v: V) -> u64 {
+        // Opaque value handles carry fixed-width scalar payloads directly.
+        // Heap values remain arena indices; language and snapshot types do not change.
+        let immediate = match &v {
+            V::Unit => Some((1u64, 0u32)),
+            V::Bool(x) => Some((2, *x as u32)),
+            V::U32(x) => Some((3, *x)),
+            V::I32(x) => Some((4, *x as u32)),
+            V::F32(x) => Some((5, *x)),
+            _ => None,
+        };
+        if let Some((tag, bits)) = immediate {
+            return (tag << 32) | u64::from(bits);
+        }
+        let n = v.weight();
+        if n > 64 * 1024 * 1024 - self.arena_bytes {
+            return self.fail("Ink value arena limit exceeded".into());
+        }
+        self.arena_bytes += n;
+        self.values.push(v);
+        self.values.len() as u64
+    }
+    fn value(&self, h: u64) -> R<V> {
+        let bits = h as u32;
+        match h >> 32 {
+            1 if bits == 0 => Ok(V::Unit),
+            2 if bits <= 1 => Ok(V::Bool(bits != 0)),
+            3 => Ok(V::U32(bits)),
+            4 => Ok(V::I32(bits as i32)),
+            5 => Ok(V::F32(bits)),
+            0 => self
+                .values
+                .get(
+                    usize::try_from(h.checked_sub(1).ok_or("invalid value handle")?)
+                        .map_err(|_| "invalid value handle")?,
+                )
+                .cloned()
+                .ok_or("invalid value handle".into()),
+            _ => Err("invalid value handle".into()),
+        }
+    }
+    fn fail(&mut self, e: String) -> u64 {
+        if self.error.is_none() {
+            self.error = Some(Failure::Host(e))
+        }
+        0
+    }
+    fn result(&mut self, r: R<V>) -> u64 {
+        match r {
+            Ok(v) => self.put(v),
+            Err(e) => self.fail(e),
+        }
+    }
+    fn tick(&mut self) -> bool {
+        if self.error.is_some() {
+            return false;
+        }
+        if self.fuel == 0 {
+            self.fail("Ink execution budget exhausted".into());
+            false
+        } else {
+            self.fuel -= 1;
+            true
+        }
+    }
+    fn primitive(&mut self, op: &str, a: &mut [V]) -> R<V> {
+        if op=="list_length" {let V::List(xs)=&a[0] else{return Err("list length".into())};return Ok(V::U32(xs.len().try_into().map_err(|_|"list exceeds u32")?));}
+        if op=="buffer_empty" {return Ok(V::Buffer(OwnedBuffer::new(vec![])));}
+        if op=="map_empty" {return Ok(V::Map(OwnedMap::new()));}
+        if op=="buffer_new" {let V::List(xs)=std::mem::replace(&mut a[0],V::Unit) else{return Err("buffer list".into())};return Ok(V::Buffer(OwnedBuffer::new(xs)));}
+        if op=="buffer_fill" {
+            let V::U32(n)=a[0] else{return Err("buffer length".into())};if n>1000000{return Err("temporary allocation limit exceeded".into())};
+            let weight=(n as usize).checked_mul(a[1].weight()).ok_or("temporary allocation limit exceeded")?;
+            if weight>64*1024*1024-self.arena_bytes{return Err("temporary allocation limit exceeded".into())};self.arena_bytes+=weight;
+            return Ok(V::Buffer(OwnedBuffer::new(vec![a[1].clone();n as usize])));
+        }
+        if op=="buffer_split" {
+            let V::Buffer(b)=a[0].clone() else{return Err("buffer receiver".into())};
+            let V::U32(at)=a[1] else{return Err("buffer index".into())};
+            let (l,r)=b.split(at);return Ok(V::List(vec![V::Buffer(l),V::Buffer(r)]));
+        }
+        if op=="buffer_append" {
+            let (V::Buffer(left),V::Buffer(right))=(a[0].clone(),a[1].clone()) else{return Err("buffer append".into())};
+            if (left.len() as u64)+(right.len() as u64)>1000000{return Err("temporary allocation limit exceeded".into())};
+            return Ok(V::Buffer(left.append(right)));
+        }
+        if op=="list_drop"||op=="list_take" {
+            let V::List(mut xs)=std::mem::replace(&mut a[0],V::Unit) else{return Err("list slice".into())};
+            let V::U32(k)=a[1] else{return Err("list slice count".into())};let k=(k as usize).min(xs.len());
+            if op=="list_drop"{xs.drain(..k);}else{xs.truncate(k);}
+            return Ok(V::List(xs));
+        }
+        if let Some(method)=op.strip_prefix("buffer_") {
+            let V::Buffer(b)=a[0].clone() else{return Err("buffer receiver".into())};
+            let index=|v:&V|->R<u32>{if let V::U32(x)=v{Ok(*x)}else{Err("buffer index".into())}};
+            return Ok(match method {
+                "len"=>V::U32(b.len()),"freeze"=>V::List(b.freeze()),"pop"=>V::Buffer(b.pop()),
+                "contains"=>V::Bool(index(&a[1])?<b.len()),"get"=>b.get(index(&a[1])?).ok_or("buffer index outside bounds")?,
+                "set"=>V::Buffer(b.set(index(&a[1])?,a[2].clone())),"swap"=>V::Buffer(b.swap(index(&a[1])?,index(&a[2])?)),
+                "push"=>{if b.len()>=1000000{return Err("temporary allocation limit exceeded".into())};let weight=a[1].weight();if weight>64*1024*1024-self.arena_bytes{return Err("temporary allocation limit exceeded".into())};self.arena_bytes+=weight;V::Buffer(b.push(a[1].clone()))},
+                "truncate"=>V::Buffer(b.truncate(index(&a[1])?)),_=>return Err("buffer method".into())
+            });
+        }
+        if let Some(method)=op.strip_prefix("map_") {
+            let V::Map(m)=a[0].clone() else{return Err("map receiver".into())};
+            return Ok(match method {
+                "len"=>V::U32(m.len()),"keys"=>V::List(m.keys()),"values"=>V::List(m.values()),
+                "contains"=>V::Bool(m.contains(&a[1])),"get"=>m.get(&a[1]).ok_or("missing map key")?,
+                "set"=>{let weight=a[1].weight()+a[2].weight();if weight>64*1024*1024-self.arena_bytes{return Err("temporary allocation limit exceeded".into())};self.arena_bytes+=weight;V::Map(m.set(a[1].clone(),a[2].clone()))},
+                "remove"=>V::Map(m.remove(&a[1])),_=>return Err("map method".into())
+            });
+        }
+        if let Some(name) = op.strip_prefix("record:") {
+            let fs = self.meta["records"][name]
+                .as_array()
+                .ok_or("record schema")?;
+            if fs.len() != a.len() {
+                return Err("record arity".into());
+            }
+            return Ok(V::Record(
+                name.into(),
+                fs.iter()
+                    .zip(a.iter_mut())
+                    .map(|(f, v)| (f[0].as_str().unwrap().into(), std::mem::replace(v, V::Unit)))
+                    .collect(),
+            ));
+        }
+        if let Some(field) = op.strip_prefix("field:") {
+            return match &a[0] {
+                V::Record(_, fs) => fs.get(field).cloned().ok_or("unknown field".into()),
+                V::Vector(xs) => ["x", "y", "z", "w"]
+                    .iter()
+                    .position(|f| *f == field)
+                    .and_then(|i| xs.get(i))
+                    .cloned()
+                    .ok_or("unknown component".into()),
+                _ => Err("field requires record/vector".into()),
+            };
+        }
+        if let Some(tag) = op.strip_prefix("tag:") {
+            return Ok(V::Bool(matches!(
+                (&a[0], tag),
+                (V::Option(Some(_)), "Some")
+                    | (V::Result(true, _), "Ok")
+                    | (V::Result(false, _), "Err")
+            )));
+        }
+        if let Some(name) = op.strip_prefix("emit:") {
+            self.staged.push((name.into(), a[0].clone()));
+            return Ok(V::Unit);
+        }
+        if let Some(table) = op.strip_prefix("table:") {
+            let (index, method) = table.split_once(':').ok_or("table operation")?;
+            let index = index.parse::<usize>().map_err(|_| "table index")?;
+            let t = self.tables.get_mut(index).ok_or("table index")?;
+            return Ok(match method {
+                "values" => V::List(t.values().cloned().collect()),
+                "get" => V::Option(t.get(&a[0]).cloned().map(Box::new)),
+                "contains" => V::Bool(t.contains_key(&a[0])),
+                "remove" => {
+                    let old = t.remove(&a[0]);
+                    let result = V::Option(old.clone().map(Box::new));
+                    if old.is_some() { self.undo.push(Undo { index, key: a[0].clone(), old }); }
+                    result
+                },
+                "insert" => {
+                    if t.contains_key(&a[0]) {
+                        return Err("insert key already present".into());
+                    }
+                    let key = a[0].clone();
+                    let old = t.insert(key.clone(), a[1].clone());
+                    self.undo.push(Undo { index, key, old });
+                    V::Unit
+                }
+                "replace" => {
+                    if !t.contains_key(&a[0]) {
+                        return Err("replace key absent".into());
+                    }
+                    let key = a[0].clone();
+                    let old = t.insert(key.clone(), a[1].clone());
+                    self.undo.push(Undo { index, key, old });
+                    V::Unit
+                }
+                _ => return Err("table method".into()),
+            });
+        }
+        Ok(match op {
+            "list" => V::List(vec![]),
+            "vector" => V::Vector(
+                a.iter_mut()
+                    .map(|v| std::mem::replace(v, V::Unit))
+                    .collect(),
+            ),
+            "Some" => V::Option(Some(Box::new(a[0].clone()))),
+            "None" => V::Option(None),
+            "Ok" | "Err" => V::Result(op == "Ok", Box::new(a[0].clone())),
+            "unwrap" => match &a[0] {
+                V::Option(Some(v)) | V::Result(_, v) => *v.clone(),
+                _ => return Err("expected wrapped value".into()),
+            },
+            "try" | "nested_change" => match &a[0] {
+                V::Result(false, e) => {
+                    self.error = Some(Failure::Abort(*e.clone()));
+                    return Ok(V::Unit);
+                }
+                V::Result(true, v) => {
+                    if op == "try" {
+                        *v.clone()
+                    } else {
+                        a[0].clone()
+                    }
+                }
+                _ => return Err("expected Result".into()),
+            },
+            "ok_or" => match &a[0] {
+                V::Option(Some(v)) => V::Result(true, v.clone()),
+                V::Option(None) => V::Result(false, Box::new(a[1].clone())),
+                _ => return Err("expected Option".into()),
+            },
+            "Int" => V::Int(match &a[0] {
+                V::U32(n) => BigInt::from(*n),
+                V::U64(n) => BigInt::from(*n),
+                V::I32(n) => BigInt::from(*n),
+                V::Int(n) => n.clone(),
+                _ => return Err("expected integer".into()),
+            }),
+            "sort" => match &a[0] {
+                V::List(xs) => {
+                    let mut xs = xs.clone();
+                    xs.sort();
+                    V::List(xs)
+                }
+                _ => return Err("expected list".into()),
+            },
+            "div_ok" => V::Bool(!matches!(
+                (&a[0], &a[1]),
+                (_, V::U32(0)) | (_, V::U64(0)) | (_, V::I32(0)) | (V::I32(i32::MIN), V::I32(-1))
+            )),
+            "neg" => match &a[0] {
+                V::U32(n) => V::U32(n.wrapping_neg()),
+                V::U64(n) => V::U64(n.wrapping_neg()),
+                V::I32(n) => V::I32(n.wrapping_neg()),
+                V::F32(n) => V::F32(n ^ 0x80000000),
+                _ => return Err("numeric negation".into()),
+            },
+            "==" | "!=" | "<" | ">" | "<=" | ">=" => {
+                let equal = if let (V::F32(x), V::F32(y)) = (&a[0], &a[1]) {
+                    f32::from_bits(*x) == f32::from_bits(*y)
+                } else {
+                    a[0] == a[1]
+                };
+                let order = if let (V::F32(x), V::F32(y)) = (&a[0], &a[1]) {
+                    f32::from_bits(*x).partial_cmp(&f32::from_bits(*y))
+                } else {
+                    Some(a[0].cmp(&a[1]))
+                };
+                use std::cmp::Ordering::*;
+                V::Bool(match op {
+                    "==" => equal,
+                    "!=" => !equal,
+                    "<" => order == Some(Less),
+                    ">" => order == Some(Greater),
+                    "<=" => matches!(order, Some(Less | Equal)),
+                    _ => matches!(order, Some(Greater | Equal)),
+                })
+            }
+            "checked_add" | "checked_sub" | "checked_mul" => {
+                let value = match (&a[0], &a[1]) {
+                    (V::I32(x), V::I32(y)) => match op {
+                        "checked_add" => x.checked_add(*y),
+                        "checked_sub" => x.checked_sub(*y),
+                        _ => x.checked_mul(*y),
+                    }
+                    .map(V::I32),
+                    (V::U32(x), V::U32(y)) => match op {
+                        "checked_add" => x.checked_add(*y),
+                        "checked_sub" => x.checked_sub(*y),
+                        _ => x.checked_mul(*y),
+                    }
+                    .map(V::U32),
+                    (V::U64(x), V::U64(y)) => match op {
+                        "checked_add" => x.checked_add(*y),
+                        "checked_sub" => x.checked_sub(*y),
+                        _ => x.checked_mul(*y),
+                    }
+                    .map(V::U64),
+                    _ => return Err("checked arithmetic types".into()),
+                };
+                if let Some(v) = value {
+                    V::Result(true, Box::new(v))
+                } else {
+                    V::Result(false, Box::new(V::Enum("ArithmeticError.Overflow".into())))
+                }
+            }
+            "+" | "-" | "*" | "quot" | "rem" => match (&a[0], &a[1]) {
+                (V::U32(x), V::U32(y)) => V::U32(match op {
+                    "+" => x.wrapping_add(*y),
+                    "-" => x.wrapping_sub(*y),
+                    "*" => x.wrapping_mul(*y),
+                    "quot" => x.checked_div(*y).ok_or("invalid division")?,
+                    _ => x.checked_rem(*y).ok_or("invalid division")?,
+                }),
+                (V::U64(x), V::U64(y)) => V::U64(match op {
+                    "+" => x.wrapping_add(*y),
+                    "-" => x.wrapping_sub(*y),
+                    "*" => x.wrapping_mul(*y),
+                    "quot" => x.checked_div(*y).ok_or("invalid division")?,
+                    _ => x.checked_rem(*y).ok_or("invalid division")?,
+                }),
+                (V::I32(x), V::I32(y)) => V::I32(match op {
+                    "+" => x.wrapping_add(*y),
+                    "-" => x.wrapping_sub(*y),
+                    "*" => x.wrapping_mul(*y),
+                    "quot" => x.checked_div(*y).ok_or("invalid division")?,
+                    _ => x.checked_rem(*y).ok_or("invalid division")?,
+                }),
+                (V::F32(x), V::F32(y)) => {
+                    let x = f32::from_bits(*x);
+                    let y = f32::from_bits(*y);
+                    V::F32(arithmetic_f32_bits(
+                        match op {
+                            "+" => x + y,
+                            "-" => x - y,
+                            "*" => x * y,
+                            _ => return Err("float division".into()),
+                        },
+                    ))
+                }
+                (V::Int(x), V::Int(y)) => V::Int(match op {
+                    "+" => x + y,
+                    "-" => x - y,
+                    "*" => x * y,
+                    _ => return Err("exact division unsupported".into()),
+                }),
+                _ => return Err("numeric operand types".into()),
+            },
+            _ => return Err(format!("unknown primitive {op}")),
+        })
+    }
+}
+unsafe extern "C" {
+    fn ink_program_call(
+        ctx: *mut std::ffi::c_void,
+        kind: u32,
+        index: u32,
+        args: *const u64,
+        len: usize,
+    ) -> u64;
+}
+// Transport excludes local owners at the type level. Private worker owners may
+// exist inside callbacks, but cannot be shared or returned across the boundary.
+#[derive(Clone)]
+enum FrozenV {Unit,Bool(bool),U32(u32),U64(u64),I32(i32),F32(u32),Int(BigInt),String(String),Id(String,u128),Record(String,BTreeMap<String,FrozenV>),Enum(String),Option(Option<Box<FrozenV>>),Result(bool,Box<FrozenV>),List(Vec<FrozenV>),Vector(Vec<FrozenV>)}
+impl FrozenV {
+    fn capture(v:V)->R<Self>{Ok(match v{
+        V::Unit=>Self::Unit,V::Bool(x)=>Self::Bool(x),V::U32(x)=>Self::U32(x),V::U64(x)=>Self::U64(x),V::I32(x)=>Self::I32(x),V::F32(x)=>Self::F32(x),V::Int(x)=>Self::Int(x),V::String(x)=>Self::String(x),V::Id(n,x)=>Self::Id(n,x),V::Enum(x)=>Self::Enum(x),
+        V::Record(n,xs)=>Self::Record(n,xs.into_iter().map(|(k,v)|Ok((k,Self::capture(v)?))).collect::<R<_>>()?),
+        V::Option(x)=>Self::Option(x.map(|x|Self::capture(*x).map(Box::new)).transpose()?),V::Result(b,x)=>Self::Result(b,Box::new(Self::capture(*x)?)),
+        V::List(xs)=>Self::List(xs.into_iter().map(Self::capture).collect::<R<_>>()?),V::Vector(xs)=>Self::Vector(xs.into_iter().map(Self::capture).collect::<R<_>>()?),V::Buffer(_)|V::Map(_)=>return Err("owned value crossed parallel boundary".into()),
+    })}
+    fn wire(&self)->Json{match self{
+      Self::Unit=>json!(["Unit"]),Self::Bool(x)=>json!(["Bool",x]),Self::U32(x)=>json!(["U32",x]),Self::U64(x)=>json!(["U64",x.to_string()]),Self::I32(x)=>json!(["I32",x]),Self::F32(x)=>json!(["F32",x]),Self::Int(x)=>json!(["Int",x.to_string()]),Self::String(x)=>json!(["String",x]),Self::Enum(x)=>json!(["Enum",x]),Self::Id(n,x)=>json!(["Id",n,x.to_string()]),Self::Record(n,fs)=>json!(["Record",n,fs.iter().map(|(k,v)|(k.clone(),v.wire())).collect::<serde_json::Map<_,_>>()]),Self::Option(x)=>json!(["Option",x.as_ref().map(|x|x.wire())]),Self::Result(b,x)=>json!(["Result",b,x.wire()]),Self::List(xs)=>json!(["List",xs.iter().map(Self::wire).collect::<Vec<_>>()]),Self::Vector(xs)=>json!(["Vector",xs.iter().map(Self::wire).collect::<Vec<_>>()])}}
+    fn from_wire(v:&Json,depth:usize,budget:&mut usize)->R<Self>{if depth>64||*budget==0{return Err("parallel value limit".into());}*budget-=1;let a=v.as_array().ok_or("parallel value")?;let tag=a.first().and_then(Json::as_str).ok_or("parallel value tag")?;let n=|i:usize|a.get(i).ok_or("parallel value field");let string=|i:usize|n(i)?.as_str().map(str::to_owned).ok_or("parallel string");Ok(match tag{
+      "Unit" if a.len()==1=>Self::Unit,"Bool" if a.len()==2=>Self::Bool(n(1)?.as_bool().ok_or("parallel Bool")?),"U32" if a.len()==2=>Self::U32(n(1)?.as_u64().and_then(|x|x.try_into().ok()).ok_or("parallel U32")?),"U64" if a.len()==2=>Self::U64(string(1)?.parse().map_err(|_|"parallel U64")?),"I32" if a.len()==2=>Self::I32(n(1)?.as_i64().and_then(|x|x.try_into().ok()).ok_or("parallel I32")?),"F32" if a.len()==2=>Self::F32(n(1)?.as_u64().and_then(|x|x.try_into().ok()).ok_or("parallel F32")?),"Int" if a.len()==2=>Self::Int(string(1)?.parse().map_err(|_|"parallel Int")?),"String" if a.len()==2=>Self::String(string(1)?),"Enum" if a.len()==2=>Self::Enum(string(1)?),"Id" if a.len()==3=>Self::Id(string(1)?,string(2)?.parse().map_err(|_|"parallel ID")?),"Record" if a.len()==3=>Self::Record(string(1)?,n(2)?.as_object().ok_or("parallel record")?.iter().map(|(k,v)|Ok((k.clone(),Self::from_wire(v,depth+1,budget)?))).collect::<R<_>>()?),"Option" if a.len()==2=>Self::Option(if n(1)?.is_null(){None}else{Some(Box::new(Self::from_wire(n(1)?,depth+1,budget)?))}),"Result" if a.len()==3=>Self::Result(n(1)?.as_bool().ok_or("parallel Result")?,Box::new(Self::from_wire(n(2)?,depth+1,budget)?)),"List"|"Vector" if a.len()==2=>{let xs=n(1)?.as_array().ok_or("parallel list")?.iter().map(|v|Self::from_wire(v,depth+1,budget)).collect::<R<Vec<_>>>()?;if tag=="List"{Self::List(xs)}else{Self::Vector(xs)}},_=>return Err("parallel value shape".into())})}
+    fn value(self)->V{match self{Self::Unit=>V::Unit,Self::Bool(x)=>V::Bool(x),Self::U32(x)=>V::U32(x),Self::U64(x)=>V::U64(x),Self::I32(x)=>V::I32(x),Self::F32(x)=>V::F32(x),Self::Int(x)=>V::Int(x),Self::String(x)=>V::String(x),Self::Id(n,x)=>V::Id(n,x),Self::Enum(x)=>V::Enum(x),Self::Record(n,xs)=>V::Record(n,xs.into_iter().map(|(k,v)|(k,v.value())).collect()),Self::Option(x)=>V::Option(x.map(|x|Box::new(x.value()))),Self::Result(b,x)=>V::Result(b,Box::new(x.value())),Self::List(xs)=>V::List(xs.into_iter().map(Self::value).collect()),Self::Vector(xs)=>V::Vector(xs.into_iter().map(Self::value).collect())}}
+}
+// Diagnostic receipt counts actual entered OS threads, never planned jobs.
+static INK_PARALLEL_RECEIPT: std::sync::LazyLock<std::sync::Mutex<(u64,std::collections::BTreeSet<String>,std::collections::BTreeSet<String>)>> = std::sync::LazyLock::new(||std::sync::Mutex::new((0,std::collections::BTreeSet::new(),std::collections::BTreeSet::new())));
+fn ink_parallel_start_receipt(){INK_PARALLEL_RECEIPT.lock().expect("parallel receipt lock").2.clear();}
+fn ink_parallel_record_thread(){let mut r=INK_PARALLEL_RECEIPT.lock().expect("parallel receipt lock");r.0+=1;let id=format!("{:?}",std::thread::current().id());r.1.insert(id.clone());r.2.insert(id);}
+pub fn ink_parallel_statistics()->(u64,Vec<String>,Vec<String>){let r=INK_PARALLEL_RECEIPT.lock().expect("parallel receipt lock");(r.0,r.1.iter().cloned().collect(),r.2.iter().cloned().collect())}
+
+// Pure callbacks get independent arenas; no table or event storage crosses workers.
+thread_local! {static PARALLEL_DEPTH: std::cell::Cell<u32> = const { std::cell::Cell::new(0) };}
+unsafe extern "C"{fn ink_parallel_callback(ctx:*mut std::ffi::c_void,callback:u32,index:u32,item:u64,captures:*const u64)->u64;}
+#[no_mangle]
+pub unsafe extern "C" fn ink_parallel(ctx:*mut InkContext,input:u64,grain:u32,callback:u32,captures:*const u64,count:usize,buffer:u32)->u64 {
+    let c=&mut *ctx;
+    let result=(||->R<V>{
+        let input=c.value(input)?;
+        let items=match input { V::List(xs) if buffer==0 => xs, V::Buffer(xs) if buffer==1 => xs.freeze(), _=>return Err("parallel input type".into()) };
+        let handles=if count==0 { &[] } else { std::slice::from_raw_parts(captures,count) };
+        let captures=handles.iter().map(|h|FrozenV::capture(c.value(*h)?)).collect::<R<Vec<_>>>()?;
+        let items=items.into_iter().map(FrozenV::capture).collect::<R<Vec<_>>>()?;
+        let meta=c.meta.clone();
+        #[cfg(target_arch="wasm32")]
+        if !PARALLEL_DEPTH.with(|d|d.get()>0)&&items.len()/(grain.max(1) as usize)>=2{
+            let values=__ink_parallel_host(json!({"callback":callback,"items":items.iter().map(FrozenV::wire).collect::<Vec<_>>(),"captures":captures.iter().map(FrozenV::wire).collect::<Vec<_>>(),"grain":grain}))?;
+            let mut budget=1000000;
+            let output=values.as_array().ok_or("parallel output array")?.iter().map(|v|FrozenV::from_wire(v,0,&mut budget).map(FrozenV::value)).collect::<R<Vec<_>>>()?;
+            if output.len()!=items.len(){return Err("parallel result length".into());}
+            return Ok(if buffer==1{V::Buffer(OwnedBuffer::new(output))}else{V::List(output)});
+        }
+
+        let requested=std::env::var("INK_THREADS").ok().and_then(|x|x.parse::<usize>().ok()).unwrap_or_else(||std::thread::available_parallelism().map(|x|x.get()).unwrap_or(1)).clamp(1,32);
+        let workers=if cfg!(target_arch="wasm32")||PARALLEL_DEPTH.with(|d|d.get()>0) {1} else {requested.min(items.len()/(grain.max(1) as usize)).max(1)};
+        let chunk=items.len().div_ceil(workers).max(1);
+        let run=|start:usize,xs:&[FrozenV]|->R<Vec<FrozenV>>{
+            struct Guard(u32);impl Drop for Guard{fn drop(&mut self){PARALLEL_DEPTH.with(|d|d.set(self.0));}}
+            let _guard=Guard(PARALLEL_DEPTH.with(|d|{let old=d.get();d.set(old+1);old}));
+            let mut local=InkContext{values:vec![],error:None,fuel:100000000,arena_bytes:0,meta:meta.clone(),tables:vec![],undo:vec![],version:0,staged:vec![],outbox:vec![]};
+            let captures=captures.iter().cloned().map(|v|local.put(v.value())).collect::<Vec<_>>();
+            let mut out=Vec::with_capacity(xs.len());
+            for (i,item) in xs.iter().enumerate(){
+                let item=local.put(item.clone().value());
+                let result=ink_parallel_callback((&mut local as *mut InkContext).cast(),callback,(start+i).try_into().map_err(|_|"parallel index limit")?,item,captures.as_ptr());
+                if let Some(error)=local.error.take(){return Err(match error{Failure::Host(e)=>e,Failure::Abort(_)=>"pure callback aborted".into()});}
+                out.push(FrozenV::capture(local.value(result)?)?);
+                // Captures remain valid, invocation-local temporaries do not accumulate.
+                local.values.truncate(captures.iter().filter(|h|**h>>32==0).count());
+                local.arena_bytes=local.values.iter().map(V::weight).sum();
+            }
+            Ok(out)
+        };
+        let output=if workers==1 {run(0,&items)?} else {ink_parallel_start_receipt();std::thread::scope(|scope|{
+            let joins=items.chunks(chunk).enumerate().map(|(i,xs)|scope.spawn(move||{ink_parallel_record_thread();run(i*chunk,xs)})).collect::<Vec<_>>();
+            let mut out=Vec::with_capacity(items.len());
+            for task in joins {out.extend(task.join().map_err(|_|"parallel worker panicked")??);}
+            Ok::<_,String>(out)
+        })?};
+        let output=output.into_iter().map(FrozenV::value).collect();
+        Ok(if buffer==1 {V::Buffer(OwnedBuffer::new(output))} else {V::List(output)})
+    })();
+    c.result(result)
+}
+#[no_mangle]
+pub unsafe extern "C" fn ink_failed(ctx: *mut InkContext) -> bool {
+    (*ctx).error.is_some()
+}
+#[no_mangle]
+pub unsafe extern "C" fn ink_tick(ctx: *mut InkContext) -> bool {
+    (*ctx).tick()
+}
+#[no_mangle]
+pub unsafe extern "C" fn ink_error(ctx: *mut InkContext, text: *const c_char) -> u64 {
+    (*ctx).fail(CStr::from_ptr(text).to_string_lossy().into())
+}
+#[no_mangle]
+pub unsafe extern "C" fn ink_literal(
+    ctx: *mut InkContext,
+    kind: u32,
+    n: u64,
+    text: *const c_char,
+    len: usize,
+) -> u64 {
+    let c = &mut *ctx;
+    if !c.tick() {
+        return 0;
+    }
+    let r = (|| -> R<V> {
+        Ok(match InkValueKind::from_raw(kind).ok_or("invalid literal kind")? {
+            InkValueKind::Unit => V::Unit,
+            InkValueKind::Bool => V::Bool(n != 0),
+            InkValueKind::U32 => V::U32(n as u32),
+            InkValueKind::U64 => V::U64(n),
+            InkValueKind::I32 => V::I32(n as i32),
+            InkValueKind::F32 => V::F32(n as u32),
+            InkValueKind::Int => V::Int(BigInt::from(n)),
+            tag @ (InkValueKind::String | InkValueKind::Enum) => {
+                let text = std::str::from_utf8(std::slice::from_raw_parts(text as *const u8, len))
+                    .map_err(|_| "invalid UTF-8")?
+                    .to_owned();
+                if tag == InkValueKind::String {
+                    V::String(text)
+                } else {
+                    V::Enum(text)
+                }
+            }
+        })
+    })();
+    c.result(r)
+}
+#[no_mangle]
+pub unsafe extern "C" fn ink_op(
+    ctx: *mut InkContext,
+    op: *const c_char,
+    args: *const u64,
+    n: usize,
+) -> u64 {
+    let c = &mut *ctx;
+    if !c.tick() {
+        return 0;
+    }
+    let r = (|| -> R<V> {
+        let op = CStr::from_ptr(op)
+            .to_str()
+            .map_err(|_| "invalid primitive")?;
+        let hs = if n == 0 {
+            &[]
+        } else {
+            std::slice::from_raw_parts(args, n)
+        };
+        // Most primitives have at most four operands; keep their scratch values
+        // on the stack rather than allocating a fresh Vec for every operation.
+        if hs.len() <= 4 {
+            let mut scratch: [V; 4] = std::array::from_fn(|_| V::Unit);
+            for (slot, h) in scratch.iter_mut().zip(hs) {
+                *slot = c.value(*h)?;
+            }
+            c.primitive(op, &mut scratch[..hs.len()])
+        } else {
+            let mut vs = hs.iter().map(|h| c.value(*h)).collect::<R<Vec<_>>>()?;
+            c.primitive(op, &mut vs)
+        }
+    })();
+    if c.error.is_some() {
+        0
+    } else {
+        c.result(r)
+    }
+}
+#[no_mangle]
+pub unsafe extern "C" fn ink_item(ctx: *mut InkContext, h: u64, i: usize) -> u64 {
+    let c = &mut *ctx;
+    let r = match h
+        .checked_sub(1)
+        .and_then(|n| usize::try_from(n).ok())
+        .and_then(|i| c.values.get(i))
+    {
+        Some(V::List(xs) | V::Vector(xs)) => {
+            xs.get(i).cloned().ok_or("index outside collection".into())
+        }
+        _ => Err("expected collection".into()),
+    };
+    c.result(r)
+}
+#[no_mangle]
+pub unsafe extern "C" fn ink_length(ctx: *mut InkContext, h: u64) -> usize {
+    let c = &mut *ctx;
+    match h
+        .checked_sub(1)
+        .and_then(|n| usize::try_from(n).ok())
+        .and_then(|i| c.values.get(i))
+    {
+        Some(V::List(xs) | V::Vector(xs)) => xs.len(),
+        _ => {
+            c.fail("expected collection".into());
+            0
+        }
+    }
+}
+#[no_mangle]
+pub unsafe extern "C" fn ink_append(ctx: *mut InkContext, h: u64, item: u64) {
+    let c = &mut *ctx;
+    if !c.tick() {
+        return;
+    }
+    match c.value(item) {
+        Ok(v) => match h
+            .checked_sub(1)
+            .and_then(|n| usize::try_from(n).ok())
+            .and_then(|i| c.values.get_mut(i))
+        {
+            Some(V::List(xs)) => {
+                let weight = v.weight();
+                if weight > 64 * 1024 * 1024 - c.arena_bytes {
+                    c.fail("Ink value arena limit exceeded".into());
+                } else {
+                    c.arena_bytes += weight;
+                    xs.push(v);
+                }
+            }
+            _ => {
+                c.fail("expected list".into());
+            }
+        },
+        Err(e) => {
+            c.fail(e);
+        }
+    }
+}
+#[no_mangle]
+pub unsafe extern "C" fn ink_bool(ctx: *mut InkContext, h: u64) -> bool {
+    let c = &mut *ctx;
+    match c.value(h) {
+        Ok(V::Bool(v)) => v,
+        _ => {
+            c.fail("expected Bool".into());
+            false
+        }
+    }
+}
+#[no_mangle]
+pub unsafe extern "C" fn ink_u32(ctx: *mut InkContext, h: u64) -> u32 {
+    let c = &mut *ctx;
+    match c.value(h) {
+        Ok(V::U32(v)) => v,
+        _ => {
+            c.fail("expected u32".into());
+            0
+        }
+    }
+}
+#[no_mangle]
+pub unsafe extern "C" fn ink_finish_action(ctx: *mut InkContext, h: u64) -> u64 {
+    let c = &mut *ctx;
+    match c.error.take() {
+        Some(Failure::Abort(v)) => c.put(V::Result(false, Box::new(v))),
+        Some(e) => {
+            c.error = Some(e);
+            0
+        }
+        None => h,
+    }
+}
+pub struct State {
+    ctx: Box<InkContext>,
+}
+impl State {
+    pub fn parallel_statistics()->Json{let(n,ids,last)=ink_parallel_statistics();json!({"workers":n,"workerIds":ids,"lastWorkerIds":last})}
+    pub fn new() -> Self {
+        let meta: Json =
+            serde_json::from_str(include_str!("metadata.json")).expect("compiled metadata");
+        let count = meta["roots"].as_array().unwrap().len();
+        Self {
+            ctx: Box::new(InkContext {
+                meta,
+                tables: vec![BTreeMap::new(); count],
+                undo: vec![],
+                values: vec![],
+                error: None,
+                fuel: 100000000,
+                arena_bytes: 0,
+                version: 0,
+                staged: vec![],
+                outbox: vec![],
+            }),
+        }
+    }
+    #[cfg(target_arch="wasm32")]
+    pub fn parallel_worker(&mut self,task:&Json)->R<Json>{
+        let callback=task["callback"].as_u64().and_then(|x|x.try_into().ok()).ok_or("parallel callback")?;
+        let start=task["start"].as_u64().and_then(|x|u32::try_from(x).ok()).ok_or("parallel start")?;
+        let mut budget=1000000;
+        let captures=task["captures"].as_array().ok_or("parallel captures")?.iter().map(|v|FrozenV::from_wire(v,0,&mut budget).map(|v|self.ctx.put(v.value()))).collect::<R<Vec<_>>>()?;
+        struct Guard(u32);impl Drop for Guard{fn drop(&mut self){PARALLEL_DEPTH.with(|d|d.set(self.0));}}
+        let _guard=Guard(PARALLEL_DEPTH.with(|d|{let old=d.get();d.set(old+1);old}));
+        let captured_count=self.ctx.values.len();let mut out=vec![];
+        for (i,item) in task["items"].as_array().ok_or("parallel items")?.iter().enumerate(){
+            let item=self.ctx.put(FrozenV::from_wire(item,0,&mut budget)?.value());
+            let value=unsafe{ink_parallel_callback((&mut *self.ctx as *mut InkContext).cast(),callback,start.checked_add(i.try_into().map_err(|_|"parallel index")?).ok_or("parallel index")?,item,captures.as_ptr())};
+            if let Some(error)=self.ctx.error.take(){return Err(match error{Failure::Host(e)=>e,Failure::Abort(_)=>"parallel abort".into()});}
+            out.push(FrozenV::capture(self.ctx.value(value)?)?.wire());self.ctx.values.truncate(captured_count);self.ctx.arena_bytes=self.ctx.values.iter().map(V::weight).sum();
+        }Ok(Json::Array(out))
+    }
+    fn call(&mut self, name: &str, args: &Json, kind: u32) -> R<Json> {
+        let section = if kind == 0 { "functions" } else { "actions" };
+        let declarations = self.ctx.meta[section]
+            .as_array()
+            .ok_or("compiled declarations")?;
+        let (index, d) = declarations
+            .iter()
+            .enumerate()
+            .find(|(_, d)| d["name"] == name)
+            .ok_or_else(|| format!("unknown {section} {name}"))?;
+        let change = d["change"].as_bool().unwrap_or(false);
+        if kind==0 && d["internal"].as_bool()==Some(true) {return Err("temporary storage is internal to a pure invocation".into());}
+        let args = args.as_array().ok_or("expected argument array")?;
+        let params = d["params"].as_array().ok_or("compiled parameters")?;
+        if args.len() != params.len() {
+            return Err("argument count mismatch".into());
+        }
+        let mut left = 1000000;
+        let captured = args
+            .iter()
+            .zip(params)
+            .map(|(v, t)| from_json(v, t, &self.ctx.meta, &mut left, 0))
+            .collect::<R<Vec<_>>>()?;
+        self.ctx.values.clear();
+        self.ctx.arena_bytes = 0;
+        self.ctx.error = None;
+        self.ctx.fuel = 100000000;
+        self.ctx.staged.clear();
+        let handles = captured
+            .into_iter()
+            .map(|v| self.ctx.put(v))
+            .collect::<Vec<_>>();
+        let version = self.ctx.version;
+        let h = unsafe {
+            ink_program_call(
+                (&mut *self.ctx as *mut InkContext).cast(),
+                kind,
+                index as u32,
+                handles.as_ptr(),
+                handles.len(),
+            )
+        };
+        let result = if let Some(e) = self.ctx.error.take() {
+            Err(match e {
+                Failure::Host(e) => e,
+                Failure::Abort(_) => "unhandled domain error".into(),
+            })
+        } else {
+            self.ctx.value(h).map(|v| v.json())
+        };
+        if kind == 0 {
+            self.ctx.values.clear();
+            return result;
+        }
+        match result {
+            Err(e) => {
+                self.ctx.rollback();
+                self.ctx.staged.clear();
+                self.ctx.values.clear();
+                Err(e)
+            }
+            Ok(result) => {
+                let succeeded = result.get("Ok").is_some();
+                if change {
+                    let next = match transaction::decide(version, succeeded) {
+                        transaction::Decision::Rollback => {
+                            self.ctx.rollback();
+                            self.ctx.staged.clear();
+                            self.ctx.values.clear();
+                            return Ok(
+                                json!({"result":result,"committed":false,"version":version,"events":[]}),
+                            );
+                        }
+                        transaction::Decision::Exhausted => {
+                            self.ctx.rollback();
+                            self.ctx.staged.clear();
+                            self.ctx.values.clear();
+                            return Err("commit sequence exhausted".into());
+                        }
+                        transaction::Decision::Commit { version } => version,
+                    };
+                    self.ctx.undo.clear();
+                    self.ctx.version = next;
+                    let events = transaction::publish(next, self.ctx.staged.drain(..))
+                        .map(|p| {
+                            let (channel, value) = p.value;
+                            Event {
+                                commit: p.commit,
+                                position: p.position,
+                                channel,
+                                value,
+                            }
+                        })
+                        .collect::<Vec<_>>();
+                    let wire = events.iter().map(Event::to_json).collect::<Vec<_>>();
+                    self.ctx.outbox.extend(events);
+                    self.ctx.values.clear();
+                    Ok(json!({"result":result,"committed":true,"version":next,"events":wire}))
+                } else {
+                    self.ctx.rollback();
+                    self.ctx.staged.clear();
+                    self.ctx.values.clear();
+                    Ok(json!({"result":result,"committed":false,"version":version,"events":[]}))
+                }
+            }
+        }
+    }
+    pub fn call_json(&mut self, name: &str, args: &Json) -> R<Json> {
+        self.call(name, args, 0)
+    }
+    pub fn invoke_json(&mut self, name: &str, args: &Json) -> R<Json> {
+        self.call(name, args, 1)
+    }
+    pub fn version(&self) -> u64 {
+        self.ctx.version
+    }
+    pub fn outbox(&self) -> &[Event] {
+        &self.ctx.outbox
+    }
+    pub fn acknowledge_through(&mut self, commit: u64, position: u64) {
+        self.ctx
+            .outbox
+            .retain(|e| (e.commit, e.position) > (commit, position));
+    }
+    pub fn checkpoint(&self) -> R<Vec<u8>> {
+        self.checkpoint_with_limits(portable::Limits::default())
+    }
+    pub fn checkpoint_with_limits(&self, limits: portable::Limits) -> R<Vec<u8>> {
+        let layout = snapshot_layout(&self.ctx.meta)?;
+        let mut roots = self.ctx.meta["roots"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .enumerate()
+            .collect::<Vec<_>>();
+        roots.sort_by(|a, b| a.1["name"].as_str().cmp(&b.1["name"].as_str()));
+        let tables = roots
+            .iter()
+            .map(|(i, _)| {
+                self.ctx.tables[*i]
+                    .iter()
+                    .map(|(k, v)| (k.json(), v.json()))
+                    .collect()
+            })
+            .collect();
+        let outbox = self
+            .ctx
+            .outbox
+            .iter()
+            .map(|e| {
+                Ok(portable::Event {
+                    commit: e.commit,
+                    position: e.position,
+                    channel: layout
+                        .events
+                        .iter()
+                        .position(|(n, _)| n == &e.channel)
+                        .ok_or("event channel")?,
+                    value: e.value.json(),
+                })
+            })
+            .collect::<R<Vec<_>>>()?;
+        portable::encode(
+            &layout,
+            &portable::Logical {
+                version: self.ctx.version,
+                tables,
+                outbox,
+            },
+            limits,
+        )
+    }
+    pub fn restore(bytes: &[u8]) -> R<Self> {
+        Self::restore_with_limits(bytes, portable::Limits::default())
+    }
+    pub fn restore_with_limits(bytes: &[u8], limits: portable::Limits) -> R<Self> {
+        let mut s = Self::new();
+        let layout = snapshot_layout(&s.ctx.meta)?;
+        let logical = portable::decode(&layout, bytes, limits)?;
+        let mut roots = s.ctx.meta["roots"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .enumerate()
+            .collect::<Vec<_>>();
+        roots.sort_by(|a, b| a.1["name"].as_str().cmp(&b.1["name"].as_str()));
+        let mut left = 1000000;
+        for ((index, r), rows) in roots.iter().zip(logical.tables) {
+            let kt = &r["type"]["Table"][0];
+            let vt = &r["type"]["Table"][1];
+            for (k, v) in rows {
+                s.ctx.tables[*index].insert(
+                    from_json(&k, kt, &s.ctx.meta, &mut left, 0)?,
+                    from_json(&v, vt, &s.ctx.meta, &mut left, 0)?,
+                );
+            }
+        }
+        s.ctx.version = logical.version;
+        let event_names = s.ctx.meta["events"]
+            .as_object()
+            .unwrap()
+            .keys()
+            .cloned()
+            .collect::<Vec<_>>();
+        for e in logical.outbox {
+            let channel = event_names[e.channel].clone();
+            let value = from_json(
+                &e.value,
+                &s.ctx.meta["events"][&channel],
+                &s.ctx.meta,
+                &mut left,
+                0,
+            )?;
+            s.ctx.outbox.push(Event {
+                commit: e.commit,
+                position: e.position,
+                channel,
+                value,
+            });
+        }
+        Ok(s)
+    }
+}
+fn snapshot_schema(t: &Json, meta: &Json) -> R<portable::Schema> {
+    use portable::Schema as S;
+    Ok(if let Some(n) = t.as_str() {
+        match n {
+            "Unit" => S::Unit,
+            "Bool" => S::Bool,
+            "U32" => S::U32,
+            "U64" => S::U64,
+            "I32" => S::I32,
+            "F32" => S::F32,
+            "Int" => S::Int,
+            "String" => S::String,
+            _ => return Err("unsupported state schema".into()),
+        }
+    } else {
+        let (kind, v) = t
+            .as_object()
+            .and_then(|o| o.iter().next())
+            .ok_or("schema")?;
+        match kind.as_str() {
+            "List" => S::List(Box::new(snapshot_schema(v, meta)?)),
+            "Vector" => S::Vector(
+                Box::new(snapshot_schema(&v[0], meta)?),
+                u8::try_from(v[1].as_u64().ok_or("vector dimension")?)
+                    .map_err(|_| "vector dimension")?,
+            ),
+            "Option" => S::Option(Box::new(snapshot_schema(v, meta)?)),
+            "Result" => S::Result(
+                Box::new(snapshot_schema(&v[0], meta)?),
+                Box::new(snapshot_schema(&v[1], meta)?),
+            ),
+            "Named" => {
+                let n = v.as_str().ok_or("named schema")?;
+                if meta["ids"].as_array().unwrap().iter().any(|id| id == n) {
+                    S::Id
+                } else if let Some(fs) = meta["records"].get(n).and_then(Json::as_array) {
+                    S::Record(
+                        fs.iter()
+                            .map(|f| {
+                                Ok((f[0].as_str().unwrap().into(), snapshot_schema(&f[1], meta)?))
+                            })
+                            .collect::<R<Vec<_>>>()?,
+                    )
+                } else {
+                    S::Enum(
+                        meta["enums"][n]
+                            .as_array()
+                            .ok_or("enum schema")?
+                            .iter()
+                            .map(|v| format!("{n}.{}", v.as_str().unwrap()))
+                            .collect(),
+                    )
+                }
+            }
+            _ => return Err("state schema".into()),
+        }
+    })
+}
+fn snapshot_layout(meta: &Json) -> R<portable::Layout> {
+    let mut roots = meta["roots"].as_array().unwrap().iter().collect::<Vec<_>>();
+    roots.sort_by(|a, b| a["name"].as_str().cmp(&b["name"].as_str()));
+    Ok(portable::Layout {
+        program: serde_json::from_value(meta["snapshot_program"].clone())
+            .map_err(|e| e.to_string())?,
+        schema: serde_json::from_value(meta["snapshot_schema"].clone())
+            .map_err(|e| e.to_string())?,
+        roots: roots
+            .iter()
+            .map(|r| {
+                Ok((
+                    r["name"].as_str().unwrap().into(),
+                    snapshot_schema(&r["type"]["Table"][0], meta)?,
+                    snapshot_schema(&r["type"]["Table"][1], meta)?,
+                ))
+            })
+            .collect::<R<_>>()?,
+        events: meta["events"]
+            .as_object()
+            .unwrap()
+            .iter()
+            .map(|(n, t)| Ok((n.clone(), snapshot_schema(t, meta)?)))
+            .collect::<R<_>>()?,
+    })
+}
+
+#[inline(never)]
+fn arithmetic_f32_bits(value:f32)->u32{if value.is_nan(){0x7fc00000}else{value.to_bits()}}
+// Appended verbatim to generated applications. This is a host ABI, not an optimiser.
+mod state_wasm {
+    use super::*;
+    use std::cell::RefCell;
+    const MAX_BUFFER: usize = 64 * 1024 * 1024;
+    const MAX_TOTAL: usize = 128 * 1024 * 1024;
+    const MAX_JSON: usize = 4 * 1024 * 1024;
+    const MAX_BUFFERS: usize = 256;
+    const MAX_STATES: usize = 128;
+    struct Registry {
+        next: u32,
+        states: BTreeMap<u32, State>,
+        buffers: BTreeMap<u32, Vec<u8>>,
+        bytes: usize,
+        error: String,
+    }
+    impl Registry {
+        fn new() -> Self {
+            Self {
+                next: 0,
+                states: BTreeMap::new(),
+                buffers: BTreeMap::new(),
+                bytes: 0,
+                error: String::new(),
+            }
+        }
+        fn id(&mut self) -> Result<u32, String> {
+            self.next = self
+                .next
+                .checked_add(1)
+                .ok_or("ABI handle sequence exhausted")?;
+            Ok(self.next)
+        }
+        fn fail(&mut self, error: impl Into<String>) -> u32 {
+            self.error = error.into();
+            0
+        }
+        fn insert_buffer(&mut self, bytes: Vec<u8>) -> Result<u32, String> {
+            if bytes.len() > MAX_BUFFER
+                || self.buffers.len() >= MAX_BUFFERS
+                || self
+                    .bytes
+                    .checked_add(bytes.len())
+                    .is_none_or(|n| n > MAX_TOTAL)
+            {
+                return Err("ABI buffer limit".into());
+            }
+            let id = self.id()?;
+            self.bytes += bytes.len();
+            self.buffers.insert(id, bytes);
+            Ok(id)
+        }
+        fn reserve_output(&mut self) -> Result<u32, String> {
+            // Reserve an output slot and enough accounting space before a change.
+            if self
+                .bytes
+                .checked_add(MAX_BUFFER)
+                .is_none_or(|n| n > MAX_TOTAL)
+            {
+                return Err("ABI output capacity unavailable".into());
+            }
+            self.insert_buffer(Vec::new())
+        }
+        fn finish(&mut self, id: u32, bytes: Vec<u8>) -> u32 {
+            self.bytes += bytes.len();
+            *self.buffers.get_mut(&id).expect("reserved output slot") = bytes;
+            id
+        }
+        fn envelope(&mut self, id: u32, result: Result<Json, String>, committed: bool) -> u32 {
+            let payload = match result {
+                Ok(value) => serde_json::json!({"ok":value}),
+                Err(message) => {
+                    serde_json::json!({"error":{"message":message,"committed":committed}})
+                }
+            };
+            let mut bytes = serde_json::to_vec(&payload).expect("JSON value serialization");
+            if bytes.len() > MAX_BUFFER {
+                bytes=serde_json::to_vec(&serde_json::json!({"error":{"message":"ABI response exceeds 64 MiB","committed":committed}})).expect("JSON error serialization");
+            }
+            self.finish(id, bytes)
+        }
+    }
+    thread_local! {static REGISTRY:RefCell<Registry>=RefCell::new(Registry::new());}
+    #[no_mangle]
+    pub extern "C" fn lang_abi_version() -> u32 {
+        1
+    }
+    #[no_mangle]
+    pub extern "C" fn lang_buffer_alloc(length: u32) -> u32 {
+        REGISTRY.with(|r| {
+            let mut r = r.borrow_mut();
+            let length = length as usize;
+            if length > MAX_BUFFER
+                || r.buffers.len() >= MAX_BUFFERS
+                || r.bytes.checked_add(length).is_none_or(|n| n > MAX_TOTAL)
+            {
+                return r.fail("ABI buffer limit");
+            }
+            match r.insert_buffer(vec![0; length]) {
+                Ok(id) => id,
+                Err(e) => r.fail(e),
+            }
+        })
+    }
+    #[no_mangle]
+    pub extern "C" fn lang_buffer_ptr(handle: u32) -> usize {
+        REGISTRY.with(|r| {
+            let mut r = r.borrow_mut();
+            match r.buffers.get(&handle) {
+                Some(bytes) => bytes.as_ptr() as usize,
+                None => r.fail("unknown buffer handle") as usize,
+            }
+        })
+    }
+    #[no_mangle]
+    pub extern "C" fn lang_buffer_len(handle: u32) -> u32 {
+        REGISTRY.with(|r| {
+            let mut r = r.borrow_mut();
+            match r.buffers.get(&handle) {
+                Some(bytes) => bytes.len() as u32,
+                None => r.fail("unknown buffer handle"),
+            }
+        })
+    }
+    #[no_mangle]
+    pub extern "C" fn lang_buffer_free(handle: u32) -> u32 {
+        REGISTRY.with(|r| {
+            let mut r = r.borrow_mut();
+            match r.buffers.remove(&handle) {
+                Some(bytes) => {
+                    r.bytes -= bytes.len();
+                    1
+                }
+                None => r.fail("unknown buffer handle"),
+            }
+        })
+    }
+    #[no_mangle]
+    pub extern "C" fn lang_error() -> u32 {
+        REGISTRY.with(|r| {
+            let mut r = r.borrow_mut();
+            let bytes = r.error.as_bytes().to_vec();
+            match r.insert_buffer(bytes) {
+                Ok(id) => id,
+                Err(_) => 0,
+            }
+        })
+    }
+    #[no_mangle]
+    pub extern "C" fn lang_init() -> u32 {
+        REGISTRY.with(|r| {
+            let mut r = r.borrow_mut();
+            if r.states.len() >= MAX_STATES {
+                return r.fail("ABI state handle limit");
+            }
+            match r.id() {
+                Ok(id) => {
+                    r.states.insert(id, State::new());
+                    id
+                }
+                Err(e) => r.fail(e),
+            }
+        })
+    }
+    #[no_mangle]
+    pub extern "C" fn lang_state_drop(handle: u32) -> u32 {
+        REGISTRY.with(|r| {
+            let mut r = r.borrow_mut();
+            if r.states.remove(&handle).is_some() {
+                1
+            } else {
+                r.fail("unknown state handle")
+            }
+        })
+    }
+    #[no_mangle]
+    pub extern "C" fn lang_restore(buffer: u32) -> u32 {
+        REGISTRY.with(|r| {
+            let mut r = r.borrow_mut();
+            if r.states.len() >= MAX_STATES {
+                return r.fail("ABI state handle limit");
+            }
+            let id = match r.id() {
+                Ok(id) => id,
+                Err(e) => return r.fail(e),
+            };
+            let Some(bytes) = r.buffers.get(&buffer) else {
+                return r.fail("unknown buffer handle");
+            };
+            match State::restore(bytes) {
+                Ok(state) => {
+                    r.states.insert(id, state);
+                    id
+                }
+                Err(e) => r.fail(e),
+            }
+        })
+    }
+    #[no_mangle]
+    pub extern "C" fn lang_checkpoint(state: u32) -> u32 {
+        REGISTRY.with(|r| {
+            let mut r = r.borrow_mut();
+            let id = match r.reserve_output() {
+                Ok(id) => id,
+                Err(e) => return r.fail(e),
+            };
+            let result = r
+                .states
+                .get(&state)
+                .ok_or_else(|| "unknown state handle".to_string())
+                .and_then(|s| s.checkpoint());
+            match result {
+                Ok(bytes) => r.finish(id, bytes),
+                Err(e) => {
+                    r.buffers.remove(&id);
+                    r.fail(e)
+                }
+            }
+        })
+    }
+    #[no_mangle]
+    pub extern "C" fn lang_invoke(state: u32, request: u32) -> u32 {
+        REGISTRY.with(|r| {
+            let mut r = r.borrow_mut();
+            let id = match r.reserve_output() {
+                Ok(id) => id,
+                Err(e) => return r.fail(e),
+            };
+            let result = (|| -> Result<Json, String> {
+                let bytes = r.buffers.get(&request).ok_or("unknown buffer handle")?;
+                if bytes.len() > MAX_JSON {
+                    return Err("ABI request exceeds 4 MiB".into());
+                }
+                let message: Json = serde_json::from_slice(bytes).map_err(|e| e.to_string())?;
+                let pure = message.get("pure").and_then(Json::as_str);
+                let name = pure
+                    .or_else(|| message.get("call").and_then(Json::as_str))
+                    .ok_or("request needs call or pure")?;
+                let args = message.get("args").ok_or("request needs args")?;
+                let state = r.states.get_mut(&state).ok_or("unknown state handle")?;
+                if pure.is_some() {
+                    state.call_json(name, args)
+                } else {
+                    state.invoke_json(name, args)
+                }
+            })();
+            let committed = result
+                .as_ref()
+                .ok()
+                .and_then(|v| v.get("committed"))
+                .and_then(Json::as_bool)
+                .unwrap_or(false);
+            r.envelope(id, result, committed)
+        })
+    }
+    #[no_mangle]
+    pub extern "C" fn lang_events(state: u32) -> u32 {
+        REGISTRY.with(|r| {
+            let mut r = r.borrow_mut();
+            let id = match r.reserve_output() {
+                Ok(id) => id,
+                Err(e) => return r.fail(e),
+            };
+            let result = r
+                .states
+                .get(&state)
+                .ok_or_else(|| "unknown state handle".into())
+                .map(|s| Json::Array(s.outbox().iter().map(Event::to_json).collect()));
+            r.envelope(id, result, false)
+        })
+    }
+    #[no_mangle]
+    pub extern "C" fn lang_acknowledge(state: u32, commit: u64, position: u64) -> u32 {
+        REGISTRY.with(|r| {
+            let mut r = r.borrow_mut();
+            match r.states.get_mut(&state) {
+                Some(s) => {
+                    s.acknowledge_through(commit, position);
+                    1
+                }
+                None => r.fail("unknown state handle"),
+            }
+        })
+    }
+    #[no_mangle]
+    pub extern "C" fn lang_version(state: u32) -> u64 {
+        REGISTRY.with(|r| {
+            let mut r = r.borrow_mut();
+            match r.states.get(&state) {
+                Some(s) => s.version(),
+                None => {
+                    r.fail("unknown state handle");
+                    0
+                }
+            }
+        })
+    }
+}
+
+// Per-instance task transport is separate from the state-handle registry. Host
+// scheduling can re-enter this ABI without borrowing or publishing transaction state.
+#[cfg(target_arch="wasm32")]
+thread_local! {static PARALLEL_IO:std::cell::RefCell<Vec<u8>>=const{std::cell::RefCell::new(Vec::new())};}
+#[cfg(target_arch="wasm32")]
+#[link(wasm_import_module="ink_parallel")]
+unsafe extern "C" {#[link_name="run"] fn __ink_parallel_import(ptr:u32,len:u32)->u32;}
+#[cfg(target_arch="wasm32")]
+fn __ink_parallel_host(task:Json)->Result<Json,String>{
+    let bytes=serde_json::to_vec(&task).map_err(|e|e.to_string())?;
+    if bytes.len()>64*1024*1024{return Err("parallel request limit".into());}
+    let length=unsafe{__ink_parallel_import(bytes.as_ptr() as u32,bytes.len() as u32)};
+    PARALLEL_IO.with(|io|{let io=io.borrow();if length as usize!=io.len(){return Err("parallel response length".into());}let reply:Json=serde_json::from_slice(&io).map_err(|e|e.to_string())?;if let Some(error)=reply["error"].as_str(){return Err(error.into());}reply.get("ok").cloned().ok_or("parallel response envelope".into())})
+}
+#[cfg(target_arch="wasm32")]
+#[no_mangle]
+pub extern "C" fn lang_parallel_alloc(len:u32)->u32{if len>64*1024*1024{return 0;}PARALLEL_IO.with(|io|{let mut io=io.borrow_mut();io.resize(len as usize,0);io.as_mut_ptr() as u32})}
+#[cfg(target_arch="wasm32")]
+#[no_mangle]
+pub extern "C" fn lang_parallel_ptr()->u32{PARALLEL_IO.with(|io|io.borrow().as_ptr() as u32)}
+#[cfg(target_arch="wasm32")]
+#[no_mangle]
+pub unsafe extern "C" fn lang_parallel_worker(ptr:u32,len:u32)->u32{
+    let result=(||->Result<Json,String>{if len>64*1024*1024{return Err("parallel request limit".into());}let task:Json=serde_json::from_slice(std::slice::from_raw_parts(ptr as *const u8,len as usize)).map_err(|e|e.to_string())?;State::new().parallel_worker(&task)})();
+    let reply=match result{Ok(v)=>json!({"ok":v}),Err(e)=>json!({"error":e})};
+    let bytes=serde_json::to_vec(&reply).expect("parallel response");if bytes.len()>64*1024*1024{return 0;}
+    let len=bytes.len() as u32;PARALLEL_IO.with(|io|*io.borrow_mut()=bytes);len
+}
+#[cfg(not(target_arch = "wasm32"))]
+pub mod durable;
+#[cfg(not(target_arch = "wasm32"))]
+impl durable::CompiledState for State {
+    fn create() -> Self {
+        Self::new()
+    }
+    fn restore(bytes: &[u8]) -> Result<Self, String> {
+        Self::restore(bytes)
+    }
+    fn checkpoint(&self) -> Result<Vec<u8>, String> {
+        self.checkpoint()
+    }
+    fn invoke(
+        &mut self,
+        call: &str,
+        args: &serde_json::Value,
+    ) -> Result<serde_json::Value, String> {
+        self.invoke_json(call, args)
+    }
+    fn pure(&mut self, call: &str, args: &serde_json::Value) -> Result<serde_json::Value, String> {
+        self.call_json(call, args)
+    }
+    fn events(&self) -> Vec<serde_json::Value> {
+        self.outbox().iter().map(Event::to_json).collect()
+    }
+    fn acknowledge(&mut self, commit: u64, position: u64) {
+        self.acknowledge_through(commit, position)
+    }
+    fn version(&self) -> u64 {
+        self.version()
+    }
+}
+#[cfg(not(target_arch = "wasm32"))]
+pub type DurableState = durable::Host<State, durable::FileStore>;
