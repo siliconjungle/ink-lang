@@ -213,3 +213,6 @@ fn independent_boolean_verdict_checks_exact_theorems() {
     }
     assert_eq!(rules.as_array().unwrap().len(), 2);
 }
+
+#[path = "fixtures/universal_control.rs"]
+mod universal_control;
