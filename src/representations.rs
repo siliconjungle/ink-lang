@@ -5,16 +5,28 @@ use crate::{
     LangResult,
 };
 use serde_json::{json, Value};
-use std::{fs, path::Path};
-fn read(path: &str) -> LangResult<Vec<u8>> {
-    let size = fs::metadata(path).map_err(|e| e.to_string())?.len();
-    if size > 16_000_000 {
+use std::{fs, io::Read, path::Path};
+fn read_bounded(path: &str, limit: usize) -> LangResult<Vec<u8>> {
+    let mut bytes = Vec::new();
+    fs::File::open(path)
+        .map_err(|e| e.to_string())?
+        .take((limit + 1) as u64)
+        .read_to_end(&mut bytes)
+        .map_err(|e| e.to_string())?;
+    if bytes.len() > limit {
         return Err("representation input byte limit".into());
     }
-    fs::read(path).map_err(|e| e.to_string())
+    Ok(bytes)
+}
+fn read(path: &str) -> LangResult<Vec<u8>> {
+    read_bounded(path, 16_000_000)
+}
+fn read_knowledge(path: &str) -> LangResult<Vec<u8>> {
+    read_bounded(path, crate::registry::MAX_VIEW_BYTES)
 }
 pub fn load(module: &CheckedModule, path: &str) -> LangResult<CheckedRepresentation> {
-    let request: Request = serde_json::from_slice(&read(path)?).map_err(|e| e.to_string())?;
+    let request: Request =
+        serde_json::from_slice(&read_knowledge(path)?).map_err(|e| e.to_string())?;
     representation::check(module, &request)
 }
 pub fn run(cmd: &str, module: CheckedModule, args: &[String]) -> LangResult<()> {
@@ -32,7 +44,7 @@ pub fn run(cmd: &str, module: CheckedModule, args: &[String]) -> LangResult<()> 
                 args.get(3).ok_or("missing target representation request")?,
             )?;
             let bridge: Value =
-                serde_json::from_slice(&read(args.get(4).ok_or("missing bridge JSON")?)?)
+                serde_json::from_slice(&read_knowledge(args.get(4).ok_or("missing bridge JSON")?)?)
                     .map_err(|e| e.to_string())?;
             let bundle =
                 serde_json::from_value(bridge["knowledge"].clone()).map_err(|e| e.to_string())?;
@@ -60,7 +72,9 @@ pub fn run(cmd: &str, module: CheckedModule, args: &[String]) -> LangResult<()> 
                 return Err("execute-representation compiles standalone Rust; use emit-representation --target for other standalone applications".into());
             }
             if value("--zig").is_some() || value("--build-dir").is_some() {
-                return Err("standalone execute-representation does not use --zig or --build-dir".into());
+                return Err(
+                    "standalone execute-representation does not use --zig or --build-dir".into(),
+                );
             }
             let script: Value =
                 serde_json::from_slice(&read(args.get(3).ok_or("missing script JSON")?)?)
@@ -358,9 +372,6 @@ fn project(output: &Path, source: &str, c: Option<&str>, target: &str) -> LangRe
         &output.join("state-wasm.mjs"),
         include_str!("../runtime/hosts/state-wasm.mjs"),
     )?;
-    write(
-        &output.join("state-abi.h"),
-        ink_abi::STATE_C_HEADER,
-    )?;
+    write(&output.join("state-abi.h"), ink_abi::STATE_C_HEADER)?;
     write(&output.join("README.md"), &format!("Standalone {target} representation. Build with `cargo build --offline`. For Wasm add `--target wasm32-unknown-unknown` (the project declares an 8 MiB stack); set INK_CC and INK_AR to cross-compiler wrappers for C/Wasm. Exports the ordinary handle/buffer state ABI. C and GPU host projects use literal C functions and typed Rust storage; browser WebGPU uses literal JavaScript host code. Recursive representations execute on the host. No Ink runtime, proof package or checker dependency is linked. Caller arguments must have declared types, arity, shapes and canonical ranges. Generated calls do not type-check input; bad data is unsafe, may crash or produce wrong results, and raw native pointer APIs may corrupt memory. JSON parsing/representation conversion and explicit portable checkpoint integrity checks remain. Source and proof checks happen during compilation.\n"))
 }

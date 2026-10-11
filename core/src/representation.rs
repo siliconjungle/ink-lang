@@ -23,6 +23,17 @@ pub struct Action {
     pub observe: String,
     pub preservation: Vec<Proof>,
     pub observation: Proof,
+    /// A proved projection of the public result, without portable logical state.
+    /// Checkpoint/restore continue to use the separately proved decode function.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub compact: Option<CompactObservation>,
+}
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct CompactObservation {
+    pub observe: String,
+    pub result: Sort,
+    pub proof: Proof,
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -188,6 +199,47 @@ fn post_state(t: Term) -> Term {
         ],
     }
 }
+/// Fixed standalone observation: reply, commit flag, version and ordered events,
+/// or host failure and version. Physical next-state has its own obligation.
+fn compact_projection(t: Term, datatype: &str) -> Term {
+    let branches = vec![
+        (
+            vec![
+                "compact_reply",
+                "compact_commit",
+                "compact_version",
+                "compact_rows",
+                "compact_events",
+            ],
+            0,
+            vec![
+                "compact_reply",
+                "compact_commit",
+                "compact_version",
+                "compact_events",
+            ],
+        ),
+        (
+            vec!["compact_host", "compact_version", "compact_rows"],
+            1,
+            vec!["compact_host", "compact_version"],
+        ),
+    ]
+    .into_iter()
+    .map(|(bindings, constructor, kept)| Branch {
+        bindings: bindings.into_iter().map(String::from).collect(),
+        body: Term::Construct {
+            datatype: datatype.into(),
+            constructor,
+            arguments: kept.into_iter().map(v).collect(),
+        },
+    })
+    .collect();
+    Term::Match {
+        scrutinee: Box::new(t),
+        branches,
+    }
+}
 pub fn check(module: &CheckedModule, request: &Request) -> LangResult<CheckedRepresentation> {
     if request.schema != 1
         || request.semantics != SEMANTICS
@@ -195,7 +247,7 @@ pub fn check(module: &CheckedModule, request: &Request) -> LangResult<CheckedRep
     {
         return Err("representation does not match exact source/semantics".into());
     }
-    if registry::canonical(request)?.len() > crate::core::MAX_BYTES {
+    if registry::canonical(request)?.len() > registry::MAX_VIEW_BYTES {
         return Err("representation byte limit".into());
     }
     let view = registry::CheckedBundle::check(&request.knowledge)?;
@@ -240,7 +292,13 @@ pub fn check(module: &CheckedModule, request: &Request) -> LangResult<CheckedRep
     let math = mathematics(&request.knowledge)?;
     let mut exports = BTreeSet::from([plan.encode.clone(), plan.decode.clone()]);
     for a in plan.actions.values() {
-        exports.extend([a.execute.clone(), a.next.clone(), a.observe.clone()]);
+        exports.extend([a.execute.clone(), a.next.clone()]);
+        exports.insert(
+            a.compact
+                .as_ref()
+                .map(|c| c.observe.clone())
+                .unwrap_or_else(|| a.observe.clone()),
+        );
     }
     let (definition, context) =
         definition::check_registry_with_context(&math, &exports.into_iter().collect::<Vec<_>>())?;
@@ -324,6 +382,54 @@ pub fn check(module: &CheckedModule, request: &Request) -> LangResult<CheckedRep
             },
             &a.observation,
         )?;
+        if let Some(compact) = &a.compact {
+            let Sort::Data(id) = &compact.result else {
+                return Err("compact observation requires datatype".into());
+            };
+            let Sort::Data(original_id) = &source.result else {
+                return Err("source observation datatype".into());
+            };
+            let Declaration::Datatype {
+                constructors: original_fields,
+            } = declaration(&math, original_id)?
+            else {
+                return Err("source observation datatype".into());
+            };
+            let Declaration::Datatype {
+                constructors: compact_fields,
+            } = declaration(&math, id)?
+            else {
+                return Err("compact observation datatype".into());
+            };
+            if original_fields.len() != 2
+                || original_fields[0].fields.len() != 5
+                || original_fields[1].fields.len() != 3
+                || compact_fields.len() != 2
+                || compact_fields[0].fields
+                    != [0, 1, 2, 4].map(|i| original_fields[0].fields[i].clone())
+                || compact_fields[1].fields != [0, 1].map(|i| original_fields[1].fields[i].clone())
+            {
+                return Err("compact observation interface mismatch".into());
+            }
+            expect(
+                &math,
+                &compact.observe,
+                &[a.result.clone()],
+                &compact.result,
+            )?;
+            prove(
+                &context,
+                &mut goals,
+                format!("{name}/compact-observation"),
+                &pa,
+                &conditions,
+                Equation {
+                    from: call(&compact.observe, vec![executed.clone()]),
+                    to: compact_projection(original.clone(), id),
+                },
+                &compact.proof,
+            )?;
+        }
         for (i, (r, proof)) in plan.relations.iter().zip(&a.preservation).enumerate() {
             prove(
                 &context,

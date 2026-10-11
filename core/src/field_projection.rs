@@ -291,6 +291,10 @@ pub fn host_observers(
     let mut declarations = BTreeMap::new();
     let mut functions = BTreeMap::new();
     for (name, action) in &checked.plan().actions {
+        if let Some(compact) = &action.compact {
+            functions.insert(name.clone(), compact.observe.clone());
+            continue;
+        }
         let (id, d) = constructor_fields(checked.definition(), &action.observe, &replacements)?;
         declarations.insert(id.clone(), d);
         functions.insert(name.clone(), id);
