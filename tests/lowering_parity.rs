@@ -243,7 +243,7 @@ fn resident_collection_lengths_survive_feedback() {
     if std::env::var_os("INK_TEST_WGPU").is_none() {
         return;
     }
-    let p=parse("module Resident; fn shrink(xs:List<i32>)->List<i32>{return xs.filter(fn(x)=>x>0);} fn prefix(xs:List<i32>)->List<i32>{return xs.scan();} fn ordered(xs:List<i32>)->List<i32>{return xs.sort();}").unwrap();
+    let p=parse("module Resident; fn shrink(xs:List<i32>)->List<i32>{return xs.filter(fn(x)=>x>0);} fn prefix(xs:List<i32>)->List<i32>{return xs.scan();} fn ordered(xs:List<i32>)->List<i32>{return xs.sort();} fn identity(xs:List<i32>)->List<i32>{return xs;} fn duplicate(xs:List<i32>)->List<i32>{return xs.concat(xs);}").unwrap();
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("build/lowering-residency");
     verified_language::runtime::emit_gpu(&p, &root).unwrap();
     let target = Path::new(env!("CARGO_MANIFEST_DIR")).join("build/parity-residency-target");
@@ -282,7 +282,79 @@ fn resident_collection_lengths_survive_feedback() {
             String::from_utf8_lossy(&out.stderr)
         );
         let v: Value = serde_json::from_slice(&out.stdout).unwrap();
-        assert_eq!(v["backend"], "gpu");
+        fs::write(root.join("response.json"), &out.stdout).unwrap();
+        assert_eq!(v["backend"], "gpu", "resident pipeline response: {v}");
         assert_eq!(v["values"]["ordered"], want);
+        assert_eq!(
+            v["counters"]["upload_bytes"],
+            4 * (xs.as_array().unwrap().len() + 1)
+        );
+        assert_eq!(
+            v["counters"]["readback_bytes"],
+            4 * (want.as_array().unwrap().len() + 1)
+        );
+        assert_eq!(v["counters"]["dispatches"], 9);
+        assert_eq!(
+            v["counters"]["resident_copy_bytes"],
+            16 * (xs.as_array().unwrap().len() + 1)
+        );
     }
+    let run = |name: &str, plan: Value| {
+        let path = root.join(format!("{name}.json"));
+        fs::write(&path, serde_json::to_vec(&plan).unwrap()).unwrap();
+        let out = Command::new(target.join("debug/ink-gpu-program"))
+            .arg("--pipeline")
+            .arg(path)
+            .args(["--backend", "gpu"])
+            .output()
+            .unwrap();
+        assert!(
+            out.status.success(),
+            "{}",
+            String::from_utf8_lossy(&out.stderr)
+        );
+        fs::write(root.join(format!("{name}-response.json")), &out.stdout).unwrap();
+        serde_json::from_slice::<Value>(&out.stdout).unwrap()
+    };
+    // Identity outputs alias input buffers. Feedback assignments must be simultaneous,
+    // and the final iteration's outputs must not be overwritten by a final swap.
+    for iterations in [1, 2, 3] {
+        let a = json!([3, -1, 3]);
+        let b = json!([8, 0, 8]);
+        let plan = json!({"inputs":{"a":a,"b":b},"steps":[
+            {"id":"left","call":"identity","args":[{"input":"a"}]},
+            {"id":"right","call":"identity","args":[{"input":"b"}]},
+            {"id":"unused","call":"shrink","args":[{"input":"a"}]}],
+            "iterations":iterations,"feedback":{"a":"right","b":"left"},"outputs":["left","right"]});
+        let v = run(&format!("swap-{iterations}"), plan);
+        assert_eq!(v["backend"], "gpu", "{v}");
+        assert_eq!(
+            v["values"]["left"],
+            if iterations % 2 == 1 {
+                a.clone()
+            } else {
+                b.clone()
+            }
+        );
+        assert_eq!(
+            v["values"]["right"],
+            if iterations % 2 == 1 { b } else { a }
+        );
+        assert_eq!(v["counters"]["upload_bytes"], 32);
+        assert_eq!(v["counters"]["readback_bytes"], 32);
+        assert_eq!(v["counters"]["resident_copy_bytes"], 64 * (iterations - 1));
+    }
+    // A growing upper bound is not admitted into the fixed resident allocation.
+    let v = run(
+        "growing",
+        json!({"inputs":{"xs":[1]},"steps":[
+        {"id":"grown","call":"duplicate","args":[{"input":"xs"}]}],
+        "iterations":2,"feedback":{"xs":"grown"},"outputs":["grown"]}),
+    );
+    assert_eq!(v["backend"], "cpu");
+    assert_eq!(
+        v["reason"],
+        "feedback changes array shape; compiled CPU pipeline"
+    );
+    assert_eq!(v["values"]["grown"], json!([1, 1, 1, 1]));
 }
