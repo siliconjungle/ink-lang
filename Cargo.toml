@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 default-run = "ink"
 publish = false
+autobins = false
 description = "Ink: a small language with locally checked implementation proofs"
 repository = "https://github.com/siliconjungle/ink-lang"
 
@@ -14,19 +15,13 @@ name = "verified_language"
 name = "ink"
 path = "src/bin/ink.rs"
 
-[[bin]]
-name = "lang"
-path = "src/main.rs"
-
 [workspace]
 members = []
-exclude = ["runtime", "planner", "core", "lowerings/c", "lowerings/rust", "lowerings/wasm", "lowerings/gpu", "lowerings/js", "build", "build/**", "reports", "reports/**"]
+exclude = ["abi", "native-support","runtime", "planner", "core", "lowerings/c", "lowerings/rust", "lowerings/wasm", "lowerings/gpu", "lowerings/js", "build", "build/**", "reports", "reports/**"]
 
-[features]
-# Opt-in reproduction of archived aggregate/layout experiments.
-legacy-optimisation-research = ["ink-core/legacy-optimisation-research"]
 
 [dependencies]
+ink-abi = { path = "abi" }
 ink-runtime = { path = "runtime" }
 ink-core = { path = "core" }
 ink-lowering-c = { path = "lowerings/c" }
@@ -58,3 +53,8 @@ ink-lowering-wasm = { path = "lowerings/wasm" }
 
 [patch."https://github.com/siliconjungle/ink-lowering-js"]
 ink-lowering-js = { path = "lowerings/js" }
+
+[patch."https://github.com/siliconjungle/ink-abi"]
+ink-abi = { path = "abi" }
+[patch."https://github.com/siliconjungle/ink-native-support"]
+ink-native-support = { path = "native-support" }

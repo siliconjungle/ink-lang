@@ -67,10 +67,10 @@ source primitive or proof rule. [Earlier collection laws](docs/local-collection-
 remain available. This does not establish arbitrary heap algorithms or broaden
 the separate stateful preservation domain.
 
-Old aggregate certificates, bounded-cache and typed-storage-policy approval are
-retired from default production builds. Historical reproduction requires the
-explicit `legacy-optimisation-research` feature; it does not extend the current
-small-core guarantee.
+Old aggregate certificates, bounded caches, typed storage policies, source
+maintenance evaluators and historical scalar loaders are removed. Current
+representation admission uses the canonical database proof interface.
+
 
 ## Knowledge, selection and replay
 

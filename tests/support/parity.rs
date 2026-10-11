@@ -88,6 +88,7 @@ fn conformance_inner(
     }
     if std::env::var_os("INK_TEST_WGPU").is_some()
         && (name == "lowering-parity"
+            || name == "universal-control"
             || name.starts_with("generated-parity")
             || name == "modules-parity"
             || name == "numerical-state-parity"
@@ -184,9 +185,9 @@ fn conformance_inner(
         format!(
             "{}{}",
             if let Some(selected) = selected {
-                verified_language::state_native::emit_selected(selected, None).unwrap()
+                verified_language::state_native::emit_selected(selected).unwrap()
             } else {
-                verified_language::state_native::emit(&p, None).unwrap()
+                verified_language::state_native::emit(&p).unwrap()
             },
             verified_language::runtime::STATE_WASM_ABI
         ),
