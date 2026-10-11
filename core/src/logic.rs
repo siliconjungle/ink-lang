@@ -114,8 +114,13 @@ pub enum Proof {
     /// Exhaustive elimination of an inductive value, without granting any
     /// induction hypothesis. Each branch gets only scrutinee = constructor.
     /// This also permits case analysis beneath existing conditional premises.
+    /// Exactly one subject is required. Variable cases substitute each constructor
+    /// into the goal and premises; scrutinee cases retain them and add its equality.
     Cases {
-        scrutinee: Term,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        scrutinee: Option<Term>,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        variable: Option<String>,
         from: Term,
         to: Term,
         cases: Vec<Case>,
@@ -2549,11 +2554,13 @@ fn proof_references(p: &Proof, out: &mut BTreeSet<String>) {
         }
         Proof::Cases {
             scrutinee,
+            variable: _,
             from,
             to,
             cases,
         } => {
-            terms(&[scrutinee, from, to], out);
+            terms(&[from, to], out);
+            if let Some(scrutinee) = scrutinee {terms(&[scrutinee],out);}
             for case in cases {
                 proof_references(&case.proof, out);
             }
@@ -2803,10 +2810,60 @@ fn derive(
         }
         Proof::Cases {
             scrutinee,
+            variable,
             from,
             to,
             cases,
         } => {
+            if variable.is_some() == scrutinee.is_some() {
+                return Err("constructor cases require exactly one subject".into());
+            }
+            if let Some(variable) = variable {
+            let Some(Sort::Data(id)) = env.get(variable) else {
+                return Err("case variable must have datatype sort".into());
+            };
+            let constructors = c.datatype(id, false)?;
+            if cases.len() != constructors.len() {
+                return Err("cases must cover every constructor".into());
+            }
+            let original = Equation {
+                from: from.clone(),
+                to: to.clone(),
+            };
+            typed_pair(&original, env, c, false, budget)?;
+            // Schemas describe separately generalized induction arguments.
+            // Do not silently reinterpret a schema that captures this variable.
+            independent_induction_premises(&[variable.clone()].into(), &[], schemas, c, budget)?;
+            for (index, (case, constructor)) in cases.iter().zip(constructors).enumerate() {
+                let mut local = branch_env(&case.bindings, &constructor.fields, env, false)?;
+                local.remove(variable);
+                let value = Term::Construct {
+                    datatype: id.clone(),
+                    constructor: index,
+                    arguments: case.bindings.iter().cloned().map(Term::Var).collect(),
+                };
+                let bindings = [(variable.clone(), value)].into();
+                let want = sub_pair(&original, &bindings, c, budget)?;
+                let premises = hypotheses
+                    .iter()
+                    .map(|e| sub_pair(e, &bindings, c, budget))
+                    .collect::<LangResult<Vec<_>>>()?;
+                if derive(
+                    &case.proof,
+                    &local,
+                    c,
+                    &premises,
+                    schemas,
+                    budget,
+                    depth + 1,
+                )? != want
+                {
+                    return Err("constructor case proves a different statement".into());
+                }
+            }
+            normalize_pair(original, c, budget)?
+            } else {
+                let scrutinee = scrutinee.as_ref().unwrap();
             let Sort::Data(id) = infer(scrutinee, env, c, None, false, budget, 0)? else {
                 return Err("constructor cases require an inductive datatype".into());
             };
@@ -2857,6 +2914,7 @@ fn derive(
                 }
             }
             want
+            }
         }
         Proof::Hypothesis(i) => hypotheses
             .get(*i)
