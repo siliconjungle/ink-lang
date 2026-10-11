@@ -43,6 +43,7 @@ fn children(k: &Kind) -> Vec<NodeId> {
             .chain(arguments.iter().copied())
             .collect(),
         Kind::Lambda { body, .. } => vec![*body],
+        Kind::Bind { value, body, .. } => vec![*value, *body],
         _ => vec![],
     }
 }
@@ -82,7 +83,18 @@ fn translate(body: &Body, p: &Program, id: NodeId, b: &mut Budget, d: usize) -> 
             .collect::<LangResult<Vec<_>>>()
     };
     Ok(match &n.kind {
-        Kind::Number(n) => s::term(sort, Node::Word(*n)),
+        Kind::Number(n) => {
+            let node = if sort == s::value(Type::F32) {
+                Node::Float((*n as f32).to_bits())
+            } else {
+                Node::Word(*n)
+            };
+            s::term(sort, node)
+        }
+        Kind::Float(n) => s::term(sort, Node::Float(*n)),
+        Kind::Neg { value } => s::op(sort, "neg", args(&[*value], b)?),
+        Kind::String(v) => s::term(sort, Node::String(v.clone())),
+        Kind::Unit => s::term(sort, Node::Unit),
         Kind::Bool(n) => s::term(sort, Node::Bool(*n)),
         Kind::Local(i) => s::free(sort, &format!("__ink_slot_{i}")),
         Kind::Record { name, fields } => {
@@ -111,6 +123,13 @@ fn translate(body: &Body, p: &Program, id: NodeId, b: &mut Budget, d: usize) -> 
         }
         Kind::And { left, right } => s::op(sort, "binary:&&", args(&[*left, *right], b)?),
         Kind::Or { left, right } => s::op(sort, "binary:||", args(&[*left, *right], b)?),
+        Kind::Builtin { name, arguments } if name == "list" => {
+            let mut tail = s::term(sort.clone(), Node::Nil);
+            for item in args(arguments, b)?.into_iter().rev() {
+                tail = s::term(sort.clone(), Node::Cons(Box::new(item), Box::new(tail)));
+            }
+            tail
+        }
         Kind::Builtin { name, arguments } => {
             s::op(sort, &format!("call:{name}"), args(arguments, b)?)
         }
@@ -209,11 +228,11 @@ mod tests {
             .is_empty());
     }
     #[test]
-    fn unsupported_total_value_projection_keeps_the_source_available() {
+    fn exact_integer_projection_preserves_the_complete_source() {
         let m = checked("module m; query f(x:Int)->Int{return x+1;}");
         let before = m.bytes().unwrap();
         let subject = crate::optimisation::subject(&m).unwrap();
-        assert!(!subject.functions.values().any(|t| matches!(&t.node,
+        assert!(subject.functions.values().any(|t| matches!(&t.node,
             Node::Op(op, _) if op == "binary:+")));
         assert_eq!(m.bytes().unwrap(), before);
     }

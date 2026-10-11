@@ -12,6 +12,7 @@ use std::{collections::BTreeMap, sync::Arc};
 
 pub const SEMANTICS: &str = "ink-typed-actions-v1";
 pub const NUMERICAL_SEMANTICS: &str = "ink-typed-actions-v2";
+pub const VALUE_SEMANTICS: &str = "ink-typed-actions-v3";
 const MAX_NODES: usize = 100_000;
 pub type NodeId = usize;
 pub type SlotId = usize;
@@ -107,6 +108,12 @@ pub enum Kind {
     Lambda {
         parameter: SlotId,
         body: NodeId,
+    },
+    Bind {
+        slot: SlotId,
+        value: NodeId,
+        body: NodeId,
+        annotated: bool,
     },
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -204,11 +211,21 @@ impl CheckedActions {
             keeps.push(lower.body);
         }
         let numerical = numerical_domain(p, &actions, &keeps);
+        let values = actions
+            .iter()
+            .chain(&keeps)
+            .flat_map(|b| &b.nodes)
+            .any(|n| {
+                matches!(&n.kind, Kind::Bind { .. })
+                    || matches!(&n.kind,Kind::Method{method,..} if method=="fold")
+            });
         let out = Self {
             module: module.clone(),
             wire: Wire {
                 schema: 1,
-                semantics: if numerical {
+                semantics: if values {
+                    VALUE_SEMANTICS
+                } else if numerical {
                     NUMERICAL_SEMANTICS
                 } else {
                     SEMANTICS
@@ -450,6 +467,23 @@ impl<'a> Lower<'a> {
                     body,
                 },
             )
+        } else if let Expr::Let(name, annotation, value, body) = e {
+            let t = self.value_type(value, annotation.as_deref())?;
+            let value = self.expr(value, Some(&t), env)?;
+            let slot = self.slot(name, t);
+            let mut local = env.clone();
+            local.insert(name.clone(), slot);
+            let t = self.value_type(e, want)?;
+            let body = self.expr(body, Some(&t), &local)?;
+            (
+                ExprType::Value(t),
+                Kind::Bind {
+                    slot,
+                    value,
+                    body,
+                    annotated: annotation.is_some(),
+                },
+            )
         } else {
             let ty = self.value_type(e, want)?;
             let kind = match e {
@@ -570,6 +604,20 @@ impl<'a> Lower<'a> {
                             Some((true, i)) => Some(&self.p.actions[i].params[index].1),
                             Some((false, i)) => Some(&self.p.functions[i].params[index].1),
                             None => match (name.as_str(), &ty) {
+                                (name, _) if crate::word::primitive(name) => {
+                                    Some(if index > 0 && crate::word::count(name) {
+                                        &Type::U32
+                                    } else {
+                                        &ty
+                                    })
+                                }
+                                ("list", Type::List(t)) => Some(t.as_ref()),
+                                ("choose", _) if index == 0 => Some(&Type::Bool),
+                                ("choose", _) => Some(&ty),
+                                (
+                                    "checked_add" | "checked_sub" | "checked_mul",
+                                    Type::Result(t, _),
+                                ) => Some(t.as_ref()),
                                 ("Ok", Type::Result(a, _))
                                 | ("Err", Type::Result(_, a))
                                 | ("Some", Type::Option(a)) => Some(a.as_ref()),
@@ -629,6 +677,7 @@ impl<'a> Lower<'a> {
                                 | (Type::Result(t, _), "map") => Some(t.as_ref()),
                                 (Type::Result(_, t), "map_err") => Some(t.as_ref()),
                                 (_, "filter") => Some(&Type::Bool),
+                                (_, "fold") => Some(&ty),
                                 _ => None,
                             }
                         } else {
@@ -745,6 +794,10 @@ impl Body {
                 children.extend(arguments.iter().copied().zip(args));
             }
             (Kind::Lambda { body, .. }, Expr::Lambda(_, e)) => children.push((*body, e.as_ref())),
+            (Kind::Bind { value, body, .. }, Expr::Let(_, _, a, b)) => {
+                children.push((*value, a.as_ref()));
+                children.push((*body, b.as_ref()));
+            }
             _ => (),
         }
         for (id, e) in children {
@@ -833,6 +886,12 @@ impl Body {
                     solver.unify(a, slots[*parameter].clone())?;
                     solver.unify(b, val(*body)?)?;
                 }
+                Kind::Bind {
+                    slot, value, body, ..
+                } => {
+                    solver.unify(slots[*slot].clone(), val(*value)?)?;
+                    solver.unify(out()?, val(*body)?)?;
+                }
                 Kind::Binary { op, left, right } => {
                     solver.unify(val(*left)?, val(*right)?)?;
                     if ["+", "-", "*"].contains(&op.as_str()) {
@@ -892,6 +951,31 @@ impl Body {
                     }
                 }
                 Kind::Builtin { name, arguments } => match name.as_str() {
+                    name if crate::word::primitive(name) => {
+                        solver.unify(out()?, val(arguments[0])?)?;
+                        if arguments.len() > 1 {
+                            solver.unify(
+                                val(arguments[1])?,
+                                if crate::word::count(name) {
+                                    Ty::Atom(Type::U32)
+                                } else {
+                                    out()?
+                                },
+                            )?;
+                        }
+                    }
+                    "list" => {
+                        let member = solver.fresh();
+                        solver.unify(out()?, Ty::App(0, vec![member.clone()]))?;
+                        for value in arguments {
+                            solver.unify(val(*value)?, member.clone())?;
+                        }
+                    }
+                    "choose" => {
+                        solver.unify(val(arguments[0])?, Ty::Atom(Type::Bool))?;
+                        solver.unify(out()?, val(arguments[1])?)?;
+                        solver.unify(out()?, val(arguments[2])?)?;
+                    }
                     "Some" => solver.unify(out()?, Ty::App(1, vec![val(arguments[0])?]))?,
                     "Ok" | "Err" => {
                         let phantom = solver.fresh();
@@ -936,6 +1020,26 @@ impl Body {
                         let member = solver.fresh();
                         solver.unify(val(*receiver)?, Ty::App(1, vec![member.clone()]))?;
                         solver.unify(out()?, Ty::App(2, vec![member, val(arguments[0])?]))?;
+                    } else if method == "fold" {
+                        let (first, body_first) =
+                            lambdas[arguments[0]].clone().ok_or("fold first branch")?;
+                        let (second, body_second) =
+                            lambdas[arguments[1]].clone().ok_or("fold second branch")?;
+                        let ExprType::Value(t) = &self.nodes[*receiver].ty else {
+                            return Err("fold receiver type".into());
+                        };
+                        match t {
+                            Type::Option(_) => {
+                                solver.unify(val(*receiver)?, Ty::App(1, vec![first]))?;
+                                solver.unify(second, Ty::Atom(Type::Unit))?;
+                            }
+                            Type::Result(..) => {
+                                solver.unify(val(*receiver)?, Ty::App(2, vec![first, second]))?
+                            }
+                            _ => return Err("fold receiver type".into()),
+                        }
+                        solver.unify(out()?, body_first)?;
+                        solver.unify(out()?, body_second)?;
                     } else {
                         let (parameter, body) = lambdas[arguments[0]]
                             .clone()
@@ -1110,6 +1214,17 @@ impl Body {
             ),
             Kind::Lambda { parameter, body } => Expr::Lambda(
                 self.slots[*parameter].name.clone(),
+                Box::new(self.expression(p, *body, replacements)?),
+            ),
+            Kind::Bind {
+                slot,
+                value,
+                body,
+                annotated,
+            } => Expr::Let(
+                self.slots[*slot].name.clone(),
+                annotated.then(|| Box::new(self.slots[*slot].ty.clone())),
+                Box::new(self.expression(p, *value, replacements)?),
                 Box::new(self.expression(p, *body, replacements)?),
             ),
         })

@@ -638,7 +638,7 @@ fn apply(f: Term, arg: Term) -> LangResult<Term> {
 fn zero(t: &Sort) -> LangResult<Term> {
     Ok(match t {
         Sort::Value(Type::F32) => term(t.clone(), Node::Float(0)),
-        Sort::Value(t) if check_word(t) => word(t.clone(), 0),
+        Sort::Value(t) if check_word(t) || *t == Type::Int => word(t.clone(), 0),
         _ => return Err("zero numeric sort".into()),
     })
 }
@@ -673,6 +673,22 @@ fn normal(t: &Term, hyp: &[Equation], p: &Program, b: &mut Budget, d: usize) -> 
         return again(&reduced, b);
     }
     let reduced = match (n.as_str(), a.as_slice()) {
+        ("call:Int", [x]) if x.sort == value(Type::Int) => Some(x.clone()),
+        ("call:Int", [x]) => {
+            if let Node::Word(n) = x.node {
+                if x.sort == value(Type::I32) && (n as u32 as i32) < 0 {
+                    Some(op(
+                        value(Type::Int),
+                        "neg",
+                        vec![word(Type::Int, (n as u32 as i32).unsigned_abs() as u64)],
+                    ))
+                } else {
+                    Some(word(Type::Int, n))
+                }
+            } else {
+                None
+            }
+        }
         ("apply", [f, x]) => {
             if let Node::Lambda(body) = &f.node {
                 Some(beta(body, x, b)?)
@@ -912,12 +928,12 @@ fn normal(t: &Term, hyp: &[Equation], p: &Program, b: &mut Budget, d: usize) -> 
             _ => None,
         },
         ("call:count", [xs]) => match &xs.node {
-            Node::Nil => Some(word(Type::U64, 0)),
+            Node::Nil => Some(word(s::val(&out.sort)?.clone(), 0)),
             Node::Cons(_, t) => Some(op(
                 out.sort.clone(),
                 "binary:+",
                 vec![
-                    word(Type::U64, 1),
+                    word(s::val(&out.sort)?.clone(), 1),
                     op(out.sort.clone(), n, vec![(**t).clone()]),
                 ],
             )),
@@ -950,6 +966,19 @@ fn normal(t: &Term, hyp: &[Equation], p: &Program, b: &mut Budget, d: usize) -> 
                 out.sort.clone(),
                 "binary:+",
                 vec![(**h).clone(), op(out.sort.clone(), n, vec![(**t).clone()])],
+            )),
+            _ => None,
+        },
+        ("call:foldl", [xs, init, f]) => match &xs.node {
+            Node::Nil => Some(init.clone()),
+            Node::Cons(h, t) => Some(op(
+                out.sort.clone(),
+                n,
+                vec![
+                    (**t).clone(),
+                    apply(apply(f.clone(), (**h).clone())?, init.clone())?,
+                    f.clone(),
+                ],
             )),
             _ => None,
         },
@@ -1187,13 +1216,21 @@ fn literal_primitive(t: &Term, p: &Program, b: &mut Budget) -> LangResult<Option
     let Node::Op(n, args) = &t.node else {
         return Ok(None);
     };
-    if !(n.starts_with("binary:") || n == "neg" || n == "call:quot_or" || n == "call:rem_or") {
+    if !(n.starts_with("binary:")
+        || n == "neg"
+        || n == "call:quot_or"
+        || n == "call:rem_or"
+        || n.strip_prefix("call:").is_some_and(crate::word::primitive))
+    {
         return Ok(None);
     }
     if !args
         .iter()
         .all(|a| matches!(a.node, Node::Word(_) | Node::Float(_) | Node::Bool(_)))
     {
+        return Ok(None);
+    }
+    if t.sort == value(Type::Int) || args.iter().any(|a| a.sort == value(Type::Int)) {
         return Ok(None);
     }
     let expr = s::reify(t, p)
@@ -1213,15 +1250,32 @@ fn literal_primitive(t: &Term, p: &Program, b: &mut Budget) -> LangResult<Option
         _ => return Err("literal primitive output".into()),
     }))
 }
-// A general decision procedure for the polynomial fragment of wrapping word
-// semantics. It checks equality; it never installs an optimisation or emits code.
-type Polynomial = BTreeMap<Vec<String>, u64>;
+// A general decision procedure for the polynomial fragment of exact integer
+// and wrapping word semantics. It checks equality; it never installs an optimisation or emits code.
+type Polynomial = BTreeMap<Vec<String>, num_bigint::BigInt>;
 fn polynomial(t: &Term, b: &mut Budget, d: usize) -> LangResult<Polynomial> {
     b.step(d)?;
-    let mask = if t.sort == value(Type::U64) {
-        u64::MAX
+    use num_traits::Zero;
+    // One ring procedure: exact coefficients, or reduction modulo fixed width.
+    // Bound every coefficient and charge limb work before retaining it.
+    let mask = if t.sort == value(Type::Int) {
+        None
     } else {
-        u32::MAX as u64
+        Some(num_bigint::BigInt::from(if t.sort == value(Type::U64) {
+            u64::MAX
+        } else {
+            u32::MAX as u64
+        }))
+    };
+    let coefficient = |x: num_bigint::BigInt, b: &mut Budget| -> LangResult<num_bigint::BigInt> {
+        let x = if let Some(mask) = &mask { x & mask } else { x };
+        if x.bits() > 32768 {
+            return Err("polynomial coefficient bit limit".into());
+        }
+        for _ in 0..x.bits().div_ceil(64).max(1) {
+            b.step(d)?;
+        }
+        Ok(x)
     };
     let add = |mut a: Polynomial,
                c: Polynomial,
@@ -1230,18 +1284,21 @@ fn polynomial(t: &Term, b: &mut Budget, d: usize) -> LangResult<Polynomial> {
      -> LangResult<Polynomial> {
         for (m, k) in c {
             b.step(d)?;
-            let k = if negative { 0u64.wrapping_sub(k) } else { k };
+            let k = if negative { -k } else { k };
             let v = a.entry(m).or_default();
-            *v = v.wrapping_add(k) & mask;
+            *v = coefficient(&*v + k, b)?;
         }
-        a.retain(|_, v| *v != 0);
+        if a.len() > 8192 {
+            return Err("polynomial term limit".into());
+        }
+        a.retain(|_, v| !v.is_zero());
         Ok(a)
     };
     match &t.node {
         Node::Word(n) => Ok(if *n == 0 {
             BTreeMap::new()
         } else {
-            BTreeMap::from([(vec![], *n & mask)])
+            BTreeMap::from([(vec![], coefficient((*n).into(), b)?)])
         }),
         Node::Op(n, a) if n == "neg" => add(BTreeMap::new(), polynomial(&a[0], b, d + 1)?, true, b),
         Node::Op(n, a) if n == "binary:+" || n == "binary:-" => add(
@@ -1264,18 +1321,21 @@ fn polynomial(t: &Term, b: &mut Budget, d: usize) -> LangResult<Polynomial> {
                     }
                     key.sort();
                     let old = out.entry(key).or_default();
-                    *old = old.wrapping_add(k.wrapping_mul(*v)) & mask;
+                    if k.bits().saturating_add(v.bits()) > 32769 {
+                        return Err("polynomial multiplication bit limit".into());
+                    }
+                    *old = coefficient(&*old + &k * v, b)?;
                     if out.len() > 8192 {
                         return Err("word polynomial term limit".into());
                     }
                 }
             }
-            out.retain(|_, v| *v != 0);
+            out.retain(|_, v| !v.is_zero());
             Ok(out)
         }
         _ => Ok(BTreeMap::from([(
             vec![serde_json::to_string(t).map_err(|e| e.to_string())?],
-            1,
+            1.into(),
         )])),
     }
 }
@@ -1351,7 +1411,7 @@ fn equivalent(
     if a.sort != c.sort {
         return Ok(false);
     }
-    if matches!(&a.sort,Sort::Value(t) if check_word(t)) {
+    if matches!(&a.sort,Sort::Value(t) if check_word(t) || *t==Type::Int) {
         return Ok(polynomial(&a, b, 0)? == polynomial(&c, b, 0)?);
     }
     if !same_head(&a, &c) {
