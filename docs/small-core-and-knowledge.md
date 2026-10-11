@@ -490,22 +490,17 @@ replays each ordered hint and requires conflict; variable, clause, hint, step an
 with dependency depth 64 and existing declaration/proof budgets. The source
 projection is bounded by 256 definitions and 20,000 work units.
 
-Ground execution has its own bounds, separate from symbolic proof conversion:
-100,000 constructor nodes, 8,192 constructor depth, 64 fields/arguments and
-16 MB flat transport. The reference and JavaScript frame machines additionally
-bound work to two million and frames to 16,384. Source table/list/event carriers
-remain bounded at 4,096 entries, source value nesting at 32 and exact-integer
-magnitudes at 4,090 bits. A 4,096-row table holding binary integers can require
-nearly 8,192 carrier depth; flat postorder transport and iterative codecs avoid
-JSON parser nesting limits while enforcing these finite bounds.
+The old proof-aware stateful runtime and its ground-value transport/frame machines
+have been removed. Their bounds were execution-tool limits, not proof premises.
+Proof checking retains the limits above. Ordinary compiled entrypoints require
+canonical typed caller inputs; explicit portable checkpoint/restore retains its
+codec resource and integrity bounds. Compile-and-run tooling validates external
+arguments with source nesting/list/integer limits 32/4,096/4,090 bits, caps input
+and reply bytes at 16 MB and compiles at most sixteen fixed variants.
 
-Prepared physical state is private immutable typed storage bound to the exact
-sealed executable identity. Rust shares unchanged children; all standalone
-backends use the same host contract. A proved source query cannot change logical
-state, version or events. Its host path validates ingress/reply and rejects a
-committed flag, changed version or nonempty events, then publishes the next
-related physical state without serialising the unchanged logical checkpoint.
-Changes still stage and validate their full logical snapshot before publication.
-Checkpoint and migration still materialise and validate logical state. This
-host optimisation is trusted implementation work, covered by malformed-query
-publication tests and complete cross-target source-oracle histories.
+Compiled physical state is ordinary immutable typed storage. Rust shares children;
+all standalone backends retain their declared host contract. Transactions stage
+new state and events and publish according to compiled source semantics. Proofs
+are checked before emission. Calls carry no proof objects, generic ground terms or
+whole-state snapshot-validation pass. A portable migration explicitly checkpoints
+and restores at a transaction boundary before replacing the old instance.
