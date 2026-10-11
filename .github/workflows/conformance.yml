@@ -61,6 +61,7 @@ jobs:
         run: |
           cargo test --manifest-path core/Cargo.toml --offline
           cargo test --manifest-path lowerings/rust/Cargo.toml --lib parallel_tests
+          cargo test --test hardening regression_eval_
           cargo test --test distribution --test source_syntax --test action_values --test general_laws --test semantic_optimisation
       - name: Literal CPU and both Wasm lowerings, generated histories and crash recovery
         run: cargo test --test lowering_parity --test generated_parity --test durability --test modules --test selected_checkpoint --test action_optimisation --test action_transitions --test numerical_state --test mixed_durability --test bend_features -- --nocapture
