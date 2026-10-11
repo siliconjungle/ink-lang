@@ -24,6 +24,24 @@ drop from four to one, but complete GPU requests still lose to both CPU controls
 in every measured cell. Resident Wasm/native boundaries can perform very
 differently from calls that also pack/copy inputs and return owned outputs.
 
+## Composed lowering and profitability study
+
+[Engine39](reports/web-stack-engine-39-2026-10-11/REPORT.md) diagnoses all
+20 batch38 regression cells, carries inferred collection facts through helpers,
+and extends destination reuse. Eight tasks cover seven families with independent
+size, shape and distribution changes, strong JS/Rust-Wasm/native Rust controls,
+and separate complete/resident GPU boundaries. The broad runs contain 26,730
+samples. Native destination compaction improves 1.315× over prior Ink, while the
+matched Rust control remains faster. This study applied zero DB rewrites and
+imported 3,762 separate timing observations.
+
+The thirteen-component fitted target models failed the disjoint holdout and remain
+opt-in. A separately frozen size/residency adaptive trial and selector overhead
+experiment are reported in the same study. The twenty-regression diagnosis rules
+out several simple allocation/inlining explanations but does not isolate the
+exact machine-code cause. Source integration has separate untimed replay evidence;
+old host timings are not automatically transferred to merged sources.
+
 ## Recent checked web/native proof batches
 
 The ratios below compare prior Ink time with checked Ink time within each
