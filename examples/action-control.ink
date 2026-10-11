@@ -39,6 +39,7 @@ change capture()->Result<Unit,Error> writes(Rows) emits(seen) {
 }
 change branch(yes:Bool)->Result<u32,Error> writes(Rows) emits(seen) {
     if yes { return Ok(advance(5)?); } else { return Ok(advance(6)?); }
+    return Err(Error.Missing);
 }
 change truth()->Result<Bool,Error> writes(Rows) emits(seen) {
     advance(100)?; return Ok(true);

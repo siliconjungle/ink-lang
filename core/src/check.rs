@@ -49,6 +49,306 @@ pub fn infer_context(e: &Expr, env: &Env, p: &Program, want: Option<&Type>) -> L
         return result;
     }
     match e {
+        Expr::Call(n, _)
+            if crate::word::primitive(n)
+                || [
+                    "Some",
+                    "Ok",
+                    "Err",
+                    "Int",
+                    "checked_add",
+                    "checked_sub",
+                    "checked_mul",
+                    "list",
+                ]
+                .contains(&n.as_str()) =>
+        {
+            infer_value_constructor(e, env, p, want)
+        }
+        Expr::Unit | Expr::String(_) => infer_value_constructor(e, env, p, want),
+        Expr::Var(n) if n == "None" => infer_value_constructor(e, env, p, want),
+        Expr::Field(x, _) if matches!(x.as_ref(), Expr::Var(n) if p.enums.contains_key(n) && !env.contains_key(n)) => {
+            infer_value_constructor(e, env, p, want)
+        }
+        Expr::Float(_) => Ok(Type::F32),
+        Expr::Neg(e) => {
+            let ty = want
+                .filter(|t| is_numeric_value(t))
+                .cloned()
+                .or_else(|| hint(e, env, p))
+                .unwrap_or(Type::I32);
+            if let (Type::I32, Expr::Num(n)) = (&ty, e.as_ref()) {
+                if *n <= 2147483648 {
+                    return Ok(Type::I32);
+                }
+            }
+            infer_as(e, env, p, &ty)?;
+            if !is_numeric_value(&ty) {
+                return Err("negation requires numeric value".into());
+            }
+            Ok(ty)
+        }
+        Expr::Let(n, t, a, b) => {
+            let ty = infer_context(a, env, p, t.as_deref())?;
+            if t.as_deref().is_some_and(|t| t != &ty) {
+                return Err("let binding type mismatch".into());
+            }
+            let mut local = env.clone();
+            local.insert(n.clone(), ty);
+            infer_context(b, &local, p, want)
+        }
+        Expr::Record(n, fields) => {
+            let schema = p.records.get(n).ok_or("unknown record")?;
+            if fields.len() != schema.len() {
+                return Err("record field count mismatch".into());
+            }
+            let mut names = BTreeSet::new();
+            for (name, e) in fields {
+                if !names.insert(name) {
+                    return Err("duplicate record field".into());
+                }
+                let ty = schema
+                    .iter()
+                    .find(|(f, _)| f == name)
+                    .ok_or("unknown record field")?;
+                infer_as(e, env, p, &ty.1)?;
+            }
+            Ok(Type::Named(n.clone()))
+        }
+        Expr::Field(e, n) => match infer(e, env, p)? {
+            Type::Named(record) => p
+                .records
+                .get(&record)
+                .and_then(|fs| fs.iter().find(|(f, _)| f == n))
+                .map(|(_, t)| t.clone())
+                .ok_or("unknown record field".into()),
+            Type::Vector(t, k) => {
+                let index = ["x", "y", "z", "w"]
+                    .iter()
+                    .position(|f| *f == n)
+                    .ok_or("unknown vector component")?;
+                if index >= k as usize {
+                    return Err("vector component outside dimension".into());
+                }
+                Ok(*t)
+            }
+            _ => Err("field access requires record/vector".into()),
+        },
+        Expr::Num(n) => {
+            if want == Some(&Type::Int) {
+                return Ok(Type::Int);
+            }
+            if want == Some(&Type::I32) {
+                if *n > i32::MAX as u64 {
+                    return Err("literal outside i32 range".into());
+                }
+                return Ok(Type::I32);
+            }
+            if want == Some(&Type::F32) {
+                let f = *n as f32;
+                if f as u128 != *n as u128 {
+                    return Err("integer literal is not exact in f32; use a decimal literal".into());
+                }
+                return Ok(Type::F32);
+            }
+            if want == Some(&Type::U32) {
+                if *n > u32::MAX as u64 {
+                    return Err("literal is outside u32 range".into());
+                }
+                Ok(Type::U32)
+            } else {
+                Ok(Type::U64)
+            }
+        }
+        Expr::Bool(_) => Ok(Type::Bool),
+        Expr::Var(n) => env
+            .get(n)
+            .cloned()
+            .ok_or_else(|| format!("unbound name {n}")),
+        Expr::Binary(..) => infer_binary(e, env, p, want),
+        Expr::Call(..) => infer_call(e, env, p, want),
+        Expr::Method(..) => infer_method(e, env, p, want),
+        Expr::Lambda(..) => {
+            Err("lambda is only permitted as a collection operator argument".into())
+        }
+        _ => Err(
+            "stateful expression is not supported inside an expression-only pure function".into(),
+        ),
+    }
+}
+
+pub fn params_env(params: &[(String, Type)]) -> LangResult<Env> {
+    let mut env = Env::new();
+    for (n, t) in params {
+        if env.insert(n.clone(), t.clone()).is_some() {
+            return Err(format!("duplicate parameter {n}"));
+        }
+    }
+    Ok(env)
+}
+
+fn calls(e: &Expr, out: &mut BTreeSet<String>) {
+    match e {
+        Expr::Call(n, args) => {
+            if !crate::word::primitive(n)
+                && ![
+                    "sum",
+                    "list",
+                    "Int",
+                    "Some",
+                    "Ok",
+                    "Err",
+                    "checked_add",
+                    "checked_sub",
+                    "checked_mul",
+                    "count",
+                    "foldr",
+                    "fold_until",
+                    "foldl",
+                    "choose",
+                    "repeat",
+                    "repeat_until",
+                    "buffer",
+                    "buffer_fill",
+                    "parallel_map",
+                    "length",
+                    "vec2",
+                    "vec3",
+                    "vec4",
+                    "quot_or",
+                    "rem_or",
+                ]
+                .contains(&n.as_str())
+            {
+                out.insert(n.clone());
+            }
+            for a in args {
+                calls(a, out);
+            }
+        }
+        Expr::Binary(_, a, b) => {
+            calls(a, out);
+            calls(b, out);
+        }
+        Expr::Method(e, _, args) => {
+            calls(e, out);
+            for a in args {
+                calls(a, out);
+            }
+        }
+        Expr::Lambda(_, e) | Expr::Neg(e) | Expr::Field(e, _) => calls(e, out),
+        Expr::Let(_, _, a, b) => {
+            calls(a, out);
+            calls(b, out);
+        }
+        Expr::Record(_, fields) => {
+            for (_, e) in fields {
+                calls(e, out);
+            }
+        }
+        _ => {}
+    }
+}
+
+pub fn check(p: &Program) -> LangResult<()> {
+    let mut names = BTreeSet::new();
+    for f in &p.functions {
+        for (_, t) in &f.params {
+            crate::statecheck::validate_type(t, p)?;
+        }
+        crate::statecheck::validate_type(&f.result, p)?;
+        if crate::word::primitive(&f.name)
+            || [
+                "sum",
+                "list",
+                "Int",
+                "Some",
+                "Ok",
+                "Err",
+                "checked_add",
+                "checked_sub",
+                "checked_mul",
+                "count",
+                "foldr",
+                "fold_until",
+                "foldl",
+                "choose",
+                "repeat",
+                "repeat_until",
+                "buffer",
+                "buffer_fill",
+                "parallel_map",
+                "length",
+                "vec2",
+                "vec3",
+                "vec4",
+                "quot_or",
+                "rem_or",
+            ]
+            .contains(&f.name.as_str())
+            || !names.insert(f.name.clone())
+        {
+            return Err(format!("reserved or duplicate function {}", f.name));
+        }
+        let got = infer_as(&f.body, &params_env(&f.params)?, p, &f.result)?;
+        if got != f.result {
+            return Err(format!(
+                "{}: declared {:?}, returns {got:?}",
+                f.name, f.result
+            ));
+        }
+    }
+    fn visit(
+        n: &str,
+        p: &Program,
+        stack: &mut BTreeSet<String>,
+        done: &mut BTreeSet<String>,
+    ) -> LangResult<()> {
+        if done.contains(n) {
+            return Ok(());
+        }
+        if stack.len() >= 128 {
+            return Err("function dependency nesting limit exceeded".into());
+        }
+        if !stack.insert(n.into()) {
+            return Err(format!(
+                "recursive call to {n}: no decreasing measure has been proved"
+            ));
+        }
+        let f = p
+            .functions
+            .iter()
+            .find(|f| f.name == n)
+            .ok_or_else(|| format!("unknown function {n}"))?;
+        let mut deps = BTreeSet::new();
+        calls(&f.body, &mut deps);
+        if deps.remove(n) {
+            crate::recursion::check_function(f, p)?;
+        }
+        for d in deps {
+            visit(&d, p, stack, done)?;
+        }
+        stack.remove(n);
+        done.insert(n.into());
+        Ok(())
+    }
+    let mut done = BTreeSet::new();
+    for f in &p.functions {
+        visit(&f.name, p, &mut BTreeSet::new(), &mut done)?;
+    }
+    crate::statecheck::check(p)?;
+    crate::local_collections::check_ownership(p)
+}
+
+// Keep constructor/word temporaries out of ordinary recursive typing frames.
+#[inline(never)]
+fn infer_value_constructor(
+    e: &Expr,
+    env: &Env,
+    p: &Program,
+    want: Option<&Type>,
+) -> LangResult<Type> {
+    match e {
         Expr::Call(n, args) if crate::word::primitive(n) => {
             if args.len() != if n == "word_not" { 1 } else { 2 } {
                 return Err("word operation arity".into());
@@ -150,101 +450,15 @@ pub fn infer_context(e: &Expr, env: &Env, p: &Program, want: Option<&Type>) -> L
             }
             Ok(Type::List(Box::new(ty)))
         }
-        Expr::Float(_) => Ok(Type::F32),
-        Expr::Neg(e) => {
-            let ty = want
-                .filter(|t| is_numeric_value(t))
-                .cloned()
-                .or_else(|| hint(e, env, p))
-                .unwrap_or(Type::I32);
-            if let (Type::I32, Expr::Num(n)) = (&ty, e.as_ref()) {
-                if *n <= 2147483648 {
-                    return Ok(Type::I32);
-                }
-            }
-            infer_as(e, env, p, &ty)?;
-            if !is_numeric_value(&ty) {
-                return Err("negation requires numeric value".into());
-            }
-            Ok(ty)
-        }
-        Expr::Let(n, t, a, b) => {
-            let ty = infer_context(a, env, p, t.as_deref())?;
-            if t.as_deref().is_some_and(|t| t != &ty) {
-                return Err("let binding type mismatch".into());
-            }
-            let mut local = env.clone();
-            local.insert(n.clone(), ty);
-            infer_context(b, &local, p, want)
-        }
-        Expr::Record(n, fields) => {
-            let schema = p.records.get(n).ok_or("unknown record")?;
-            if fields.len() != schema.len() {
-                return Err("record field count mismatch".into());
-            }
-            let mut names = BTreeSet::new();
-            for (name, e) in fields {
-                if !names.insert(name) {
-                    return Err("duplicate record field".into());
-                }
-                let ty = schema
-                    .iter()
-                    .find(|(f, _)| f == name)
-                    .ok_or("unknown record field")?;
-                infer_as(e, env, p, &ty.1)?;
-            }
-            Ok(Type::Named(n.clone()))
-        }
-        Expr::Field(e, n) => match infer(e, env, p)? {
-            Type::Named(record) => p
-                .records
-                .get(&record)
-                .and_then(|fs| fs.iter().find(|(f, _)| f == n))
-                .map(|(_, t)| t.clone())
-                .ok_or("unknown record field".into()),
-            Type::Vector(t, k) => {
-                let index = ["x", "y", "z", "w"]
-                    .iter()
-                    .position(|f| *f == n)
-                    .ok_or("unknown vector component")?;
-                if index >= k as usize {
-                    return Err("vector component outside dimension".into());
-                }
-                Ok(*t)
-            }
-            _ => Err("field access requires record/vector".into()),
-        },
-        Expr::Num(n) => {
-            if want == Some(&Type::Int) {
-                return Ok(Type::Int);
-            }
-            if want == Some(&Type::I32) {
-                if *n > i32::MAX as u64 {
-                    return Err("literal outside i32 range".into());
-                }
-                return Ok(Type::I32);
-            }
-            if want == Some(&Type::F32) {
-                let f = *n as f32;
-                if f as u128 != *n as u128 {
-                    return Err("integer literal is not exact in f32; use a decimal literal".into());
-                }
-                return Ok(Type::F32);
-            }
-            if want == Some(&Type::U32) {
-                if *n > u32::MAX as u64 {
-                    return Err("literal is outside u32 range".into());
-                }
-                Ok(Type::U32)
-            } else {
-                Ok(Type::U64)
-            }
-        }
-        Expr::Bool(_) => Ok(Type::Bool),
-        Expr::Var(n) => env
-            .get(n)
-            .cloned()
-            .ok_or_else(|| format!("unbound name {n}")),
+        _ => unreachable!("value constructor dispatch"),
+    }
+}
+
+// Keep recursive typing frames proportional to the active expression form.
+
+#[inline(never)]
+fn infer_binary(e: &Expr, env: &Env, p: &Program, want: Option<&Type>) -> LangResult<Type> {
+    match e {
         Expr::Binary(op, a, b) => {
             let numeric = if ["+", "-", "*"].contains(&op.as_str()) {
                 want.filter(|t| is_numeric_value(t)).cloned()
@@ -268,6 +482,13 @@ pub fn infer_context(e: &Expr, env: &Env, p: &Program, want: Option<&Type>) -> L
                 _ => Err(format!("operator {op} does not accept {at:?}")),
             }
         }
+        _ => unreachable!("binary typing dispatch"),
+    }
+}
+
+#[inline(never)]
+fn infer_call(e: &Expr, env: &Env, p: &Program, want: Option<&Type>) -> LangResult<Type> {
+    match e {
         Expr::Call(n, args) if ["vec2", "vec3", "vec4"].contains(&n.as_str()) => {
             let k = n.as_bytes()[3] - b'0';
             if args.len() != k as usize {
@@ -422,6 +643,13 @@ pub fn infer_context(e: &Expr, env: &Env, p: &Program, want: Option<&Type>) -> L
             }
             Ok(f.result.clone())
         }
+        _ => unreachable!("call typing dispatch"),
+    }
+}
+
+#[inline(never)]
+fn infer_method(e: &Expr, env: &Env, p: &Program, want: Option<&Type>) -> LangResult<Type> {
+    match e {
         Expr::Method(xs, n, args) => {
             let receiver = infer_context(
                 xs,
@@ -612,174 +840,6 @@ pub fn infer_context(e: &Expr, env: &Env, p: &Program, want: Option<&Type>) -> L
                 _ => Err(format!("unsupported collection method {n}")),
             }
         }
-        Expr::Lambda(..) => {
-            Err("lambda is only permitted as a collection operator argument".into())
-        }
-        _ => Err(
-            "stateful expression is not supported inside an expression-only pure function".into(),
-        ),
+        _ => unreachable!("method typing dispatch"),
     }
-}
-
-pub fn params_env(params: &[(String, Type)]) -> LangResult<Env> {
-    let mut env = Env::new();
-    for (n, t) in params {
-        if env.insert(n.clone(), t.clone()).is_some() {
-            return Err(format!("duplicate parameter {n}"));
-        }
-    }
-    Ok(env)
-}
-
-fn calls(e: &Expr, out: &mut BTreeSet<String>) {
-    match e {
-        Expr::Call(n, args) => {
-            if !crate::word::primitive(n)
-                && ![
-                    "sum",
-                    "list",
-                    "Int",
-                    "Some",
-                    "Ok",
-                    "Err",
-                    "checked_add",
-                    "checked_sub",
-                    "checked_mul",
-                    "count",
-                    "foldr",
-                    "fold_until",
-                    "foldl",
-                    "choose",
-                    "repeat",
-                    "repeat_until",
-                    "buffer",
-                    "buffer_fill",
-                    "parallel_map",
-                    "length",
-                    "vec2",
-                    "vec3",
-                    "vec4",
-                    "quot_or",
-                    "rem_or",
-                ]
-                .contains(&n.as_str())
-            {
-                out.insert(n.clone());
-            }
-            for a in args {
-                calls(a, out);
-            }
-        }
-        Expr::Binary(_, a, b) => {
-            calls(a, out);
-            calls(b, out);
-        }
-        Expr::Method(e, _, args) => {
-            calls(e, out);
-            for a in args {
-                calls(a, out);
-            }
-        }
-        Expr::Lambda(_, e) | Expr::Neg(e) | Expr::Field(e, _) => calls(e, out),
-        Expr::Let(_, _, a, b) => {
-            calls(a, out);
-            calls(b, out);
-        }
-        Expr::Record(_, fields) => {
-            for (_, e) in fields {
-                calls(e, out);
-            }
-        }
-        _ => {}
-    }
-}
-
-pub fn check(p: &Program) -> LangResult<()> {
-    let mut names = BTreeSet::new();
-    for f in &p.functions {
-        for (_, t) in &f.params {
-            crate::statecheck::validate_type(t, p)?;
-        }
-        crate::statecheck::validate_type(&f.result, p)?;
-        if crate::word::primitive(&f.name)
-            || [
-                "sum",
-                "list",
-                "Int",
-                "Some",
-                "Ok",
-                "Err",
-                "checked_add",
-                "checked_sub",
-                "checked_mul",
-                "count",
-                "foldr",
-                "fold_until",
-                "foldl",
-                "choose",
-                "repeat",
-                "repeat_until",
-                "buffer",
-                "buffer_fill",
-                "parallel_map",
-                "length",
-                "vec2",
-                "vec3",
-                "vec4",
-                "quot_or",
-                "rem_or",
-            ]
-            .contains(&f.name.as_str())
-            || !names.insert(f.name.clone())
-        {
-            return Err(format!("reserved or duplicate function {}", f.name));
-        }
-        let got = infer_as(&f.body, &params_env(&f.params)?, p, &f.result)?;
-        if got != f.result {
-            return Err(format!(
-                "{}: declared {:?}, returns {got:?}",
-                f.name, f.result
-            ));
-        }
-    }
-    fn visit(
-        n: &str,
-        p: &Program,
-        stack: &mut BTreeSet<String>,
-        done: &mut BTreeSet<String>,
-    ) -> LangResult<()> {
-        if done.contains(n) {
-            return Ok(());
-        }
-        if stack.len() >= 128 {
-            return Err("function dependency nesting limit exceeded".into());
-        }
-        if !stack.insert(n.into()) {
-            return Err(format!(
-                "recursive call to {n}: no decreasing measure has been proved"
-            ));
-        }
-        let f = p
-            .functions
-            .iter()
-            .find(|f| f.name == n)
-            .ok_or_else(|| format!("unknown function {n}"))?;
-        let mut deps = BTreeSet::new();
-        calls(&f.body, &mut deps);
-        if deps.remove(n) {
-            crate::recursion::check_function(f, p)?;
-        }
-        for d in deps {
-            visit(&d, p, stack, done)?;
-        }
-        stack.remove(n);
-        done.insert(n.into());
-        Ok(())
-    }
-    let mut done = BTreeSet::new();
-    for f in &p.functions {
-        visit(&f.name, p, &mut BTreeSet::new(), &mut done)?;
-    }
-    crate::statecheck::check(p)?;
-    crate::local_collections::check_ownership(p)
 }
