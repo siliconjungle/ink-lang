@@ -15,7 +15,7 @@ for(let i=0;i<oracle.length;i++){
 const before=await checkpoint();for(const position of [12,before.length-1]){const corrupt=before.slice();corrupt[position]^=1;await assert.rejects(restore(corrupt));assert.deepEqual(await checkpoint(),before);}await assert.rejects(restore(before.slice(0,-1)));assert.deepEqual(await checkpoint(),before);
 if(!wasm){const captured=before.slice(),pending=state.restore(captured);captured.fill(0);await pending;assert.deepEqual(await checkpoint(),before);}
 if(!wasm){
- state=module.createState();const mutation=oracle.find(s=>s.reply?.ok?.committed===true);
+ state=module.createState();const mutation=oracle.find(s=>s.reply?.ok?.committed===true)??oracle.find(s=>s.reply?.ok);
  const digest=globalThis.crypto.subtle.digest;
  try{globalThis.crypto.subtle.digest=async()=>{throw Error('snapshot encoder must not run during invocation');};assert.deepEqual(normal(await state.invoke_json(mutation.call,mutation.args)),normal(mutation.reply.ok));}
  finally{globalThis.crypto.subtle.digest=digest;}
