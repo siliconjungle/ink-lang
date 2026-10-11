@@ -45,6 +45,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Install pinned representation proof authoring dependency
+        run: python -m pip install python-sat==1.9.dev5
       - name: Install pinned cross compiler
         run: |
           python -m pip install ziglang==0.14.1

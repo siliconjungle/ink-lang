@@ -30,3 +30,6 @@ domains; it is optional and cannot justify a semantic rewrite.
 
 This audit excludes the still-active balanced-tree, generalized batching,
 composed-state and internal snapshot-sharing implementations.
+
+Fresh CI installs `python-sat==1.9.dev5` for representation authoring. The solver
+produces candidate certificates; the existing kernel independently checks them.
