@@ -48,6 +48,14 @@ fn conformance_inner(
     steps: Vec<Value>,
     expected: Vec<Value>,
 ) {
+    // Emission, building and execution form one operation for these GPU
+    // fixtures: their generated package names and Cargo target are shared.
+    // Lock before emission so source mtimes cannot precede another fixture's
+    // cached build-script outputs, or let it replace the executable before run.
+    static GPU_ARTIFACTS: std::sync::Mutex<()> = std::sync::Mutex::new(());
+    let _gpu_artifacts = std::env::var_os("INK_TEST_WGPU").map(|_| {
+        GPU_ARTIFACTS.lock().unwrap_or_else(|poisoned| poisoned.into_inner())
+    });
     let module = CheckedModule::from_source(p.clone()).unwrap();
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join(format!("build/{name}"));
     fs::create_dir_all(&root).unwrap();
