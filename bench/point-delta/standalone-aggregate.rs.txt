@@ -44,13 +44,16 @@ fn main(){
  let rounds=std::env::var("INK_BENCH_ROUNDS").unwrap_or("5".into()).parse::<usize>().unwrap();assert!((1..=20).contains(&rounds));
  let calls=std::env::var("INK_BENCH_CALLS").unwrap_or("100".into()).parse::<usize>().unwrap();assert!((100..=10000).contains(&calls)&&calls%100==0);
  let sizes:Vec<usize>=std::env::var("INK_BENCH_ROWS").unwrap_or("48,256,1024,2048,4000".into()).split(',').map(|s|s.parse().unwrap()).collect();
- assert!(!sizes.is_empty()&&sizes.len()<=16&&sizes.iter().all(|n|*n>0&&*n<=4000));
+ assert!(!sizes.is_empty()&&sizes.len()<=16&&sizes.iter().all(|n|*n>0&&*n<=100_000));
  let mut measurements=vec![];let mut phases=vec![];
+ let mut oracle_cache=std::collections::BTreeMap::<(usize,String,usize,usize),(Vec<Json>,Vec<u8>,u128)>::new();
  for count in sizes{
-  let mut initial=Runtime::new(module.program().clone()).unwrap();
   let rows=(0..count).map(|i|(i as u64,(i as u64*13+7,i%3!=0))).collect::<std::collections::BTreeMap<_,_>>();
+  // Build large fixtures through ordinary compiled source. Portable restore,
+  // every measured script and its final snapshot still use the independent oracle.
+  let mut initial=ordinary::State::new();
   for (key,(value,active)) in &rows{initial.invoke_json("put",&json!([key,value,active,false])).unwrap();initial.acknowledge_through(u64::MAX,u64::MAX);}
-  let bytes=initial.checkpoint_portable().unwrap();
+  let bytes=initial.checkpoint().unwrap();
   let mut order=(0..labels.len()).collect::<Vec<_>>();if std::env::var_os("INK_BENCH_REVERSE").is_some(){order.reverse();}
   for index in order{
    if !selected.contains(&labels[index]){continue;}
@@ -61,12 +64,17 @@ fn main(){
    for &query in &queries{for reads in &reads{
     let mut samples=vec![];
     for round in 0..rounds{
-     let mut native=Program::restore(index,&bytes).unwrap();let mut baseline=Runtime::restore_portable(module.program().clone(),&bytes).unwrap();let mut ordinary=ordinary::State::restore(&bytes).unwrap();
+     let mut native=Program::restore(index,&bytes).unwrap();let mut ordinary=ordinary::State::restore(&bytes).unwrap();
      let script=(0..calls).map(|i|call(i+round*calls,*reads,count,query)).collect::<Vec<_>>();
      profile_start();let start=Instant::now();let actual=script.iter().map(|(name,args)|{let reply=native.invoke_json(name,args).unwrap();native.acknowledge_through(u64::MAX,u64::MAX);black_box(reply)}).collect::<Vec<_>>();let native_ns=start.elapsed().as_nanos();let allocation_profile=profile_stop();
-     let start=Instant::now();let expected=script.iter().map(|(name,args)|{let reply=baseline.invoke_json(name,args).unwrap().json();baseline.acknowledge_through(u64::MAX,u64::MAX);black_box(reply)}).collect::<Vec<_>>();let baseline_ink_ns=start.elapsed().as_nanos();assert_eq!(actual,expected);
+     let oracle_key=(count,query.to_string(),*reads,round);
+     let (expected,final_snapshot,baseline_ink_ns)=oracle_cache.entry(oracle_key).or_insert_with(||{
+      let mut baseline=Runtime::restore_portable(module.program().clone(),&bytes).unwrap();
+      let start=Instant::now();let expected=script.iter().map(|(name,args)|{let reply=baseline.invoke_json(name,args).unwrap().json();baseline.acknowledge_through(u64::MAX,u64::MAX);black_box(reply)}).collect::<Vec<_>>();let elapsed=start.elapsed().as_nanos();
+      (expected,baseline.checkpoint_portable().unwrap(),elapsed)
+     });assert_eq!(actual,*expected);
      let start=Instant::now();let compiled=script.iter().map(|(name,args)|{let reply=ordinary.invoke_json(name,args).unwrap();ordinary.acknowledge_through(u64::MAX,u64::MAX);black_box(reply)}).collect::<Vec<_>>();let ordinary_compiled_ink_ns=start.elapsed().as_nanos();assert_eq!(actual,compiled);
-     assert_eq!(ordinary.checkpoint().unwrap(),baseline.checkpoint_portable().unwrap());
+     assert_eq!(ordinary.checkpoint().unwrap(),*final_snapshot);
      let mut hand=rows.clone();let mut version=count as u64;
      let start=Instant::now();let scanner=script.iter().map(|(name,args)|{
       let read=*name==query;let result=if read{json!(hand.values().filter(|(_,active)|*active).fold(0u64,|n,(v,_)|n.wrapping_add(if query=="total_query"{*v}else{1})))}else{
@@ -81,12 +89,12 @@ fn main(){
       let events=if read{json!([])}else{json!([{"commit":version,"position":0,"channel":"seen","value":if *name=="erase"{args[0].clone()}else{args[1].clone()}}])};
       black_box(json!({"result":result,"committed":!read,"version":version,"events":events}))
      }).collect::<Vec<_>>();let handwritten_incremental_rust_ns=start.elapsed().as_nanos();assert_eq!(actual,maintained);
-     assert_eq!(native.checkpoint().unwrap(),baseline.checkpoint_portable().unwrap());
+     assert_eq!(native.checkpoint().unwrap(),*final_snapshot);
      samples.push(json!({"round":round,"native_ns":native_ns,"baseline_ink_ns":baseline_ink_ns,"ordinary_compiled_ink_ns":ordinary_compiled_ink_ns,"handwritten_rust_ns":handwritten_rust_ns,"handwritten_incremental_rust_ns":handwritten_incremental_rust_ns,"allocation_profile":allocation_profile}));
     }
     measurements.push(json!({"rows":count,"candidate":labels[index],"query":query,"read_percent":reads,"calls_per_sample":calls,"samples":samples}));
    }}
   }
  }
- println!("{}",json!({"schema":2,"instrumented":cfg!(feature="allocation-profile"),"scope":"ordinary compiled representation programs; complete JSON replies and events; caller-trusted typed inputs; acknowledgement per call; no call-time logical snapshots or proof objects; initialization/migration/checkpoints excluded from steady state; harness links source baseline solely for comparison and outside-loop setup","phases":phases,"measurements":measurements}));
+ println!("{}",json!({"schema":4,"reference_oracle_sampled_once_per_script":true,"instrumented":cfg!(feature="allocation-profile"),"scope":"ordinary compiled representation programs; complete JSON replies and events; caller-trusted typed inputs; acknowledgement per call; no call-time logical snapshots or proof objects; initialization/migration/checkpoints excluded from steady state; harness links source baseline solely for comparison and outside-loop setup","phases":phases,"measurements":measurements}));
 }

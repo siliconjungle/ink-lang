@@ -40,6 +40,7 @@ fn knowledge_sequence_tree_definitions_preserve_order_and_duplicates() {
         "measure",
         "decorate",
         "copy_shape",
+        "copy_shape_via_helper",
     ]
     .map(|n| names[n].clone());
     let checked = definition::check_registry(&bundle, &exports).unwrap();
@@ -160,8 +161,10 @@ unsafe impl std::alloc::GlobalAlloc for Alloc{{unsafe fn alloc(&self,l:std::allo
 fn main(){{let left=Arc::new(D_{tree}::C1(1,10));let right=Arc::new(D_{tree}::C1(2,20));let original=D_{tree}::C2(left.clone(),right.clone(),1,2,2,2);
 let before=REQUESTS.load(Ordering::Relaxed);let copied=f_{copy}(&original);assert_eq!(REQUESTS.load(Ordering::Relaxed),before);
 if let D_{tree}::C2(l,r,..)=&copied{{assert!(Arc::ptr_eq(l,&left));assert!(Arc::ptr_eq(r,&right));}}else{{panic!("wrong constructor");}}
-drop(copied);assert_eq!(Arc::strong_count(&left),2);assert_eq!(Arc::strong_count(&right),2);println!("generic field reconstruction: zero allocations and unchanged shared edges");}}
-"#,tree=names["datatype"],copy=names["copy_shape"]));
+drop(copied);let before=REQUESTS.load(Ordering::Relaxed);let copied=f_{helper}(&original);assert_eq!(REQUESTS.load(Ordering::Relaxed),before);if let D_{tree}::C2(l,r,..)=&copied{{assert!(Arc::ptr_eq(l,&left));assert!(Arc::ptr_eq(r,&right));}}else{{panic!("wrong helper constructor");}}drop(copied);assert_eq!(Arc::strong_count(&left),2);assert_eq!(Arc::strong_count(&right),2);println!("generic field reconstruction through helper: zero allocations and unchanged shared edges");
+let mut rows=D_{table}::C0;for key in (0..100_000u64).rev(){{rows=D_{table}::C1(key,key.wrapping_mul(13),Some(Arc::new(rows)));}}
+let indexed=f_{encode}(&rows);assert_eq!(f_{measure}(&indexed),100_000);let decoded=f_{decode}(&indexed);let mut cursor=&decoded;let mut count=0;loop{{match cursor{{D_{table}::C0=>break,D_{table}::C1(key,value,tail)=>{{assert_eq!(*key,count);assert_eq!(*value,count.wrapping_mul(13));count+=1;cursor=tail.as_deref().unwrap();}}}}}}assert_eq!(count,100_000);drop(decoded);drop(indexed);drop(rows);println!("100000-row typed import, measure, decode and release passed");}}
+"#,tree=names["datatype"],copy=names["copy_shape"],helper=names["copy_shape_via_helper"],table=names["table"],encode=names["encode"],measure=names["measure"],decode=names["decode"]));
     fs::write(work.join("shared.rs"), shared).unwrap();
     command(
         Command::new("rustc")

@@ -46,6 +46,26 @@ pub enum Term {
         branches: Vec<Branch>,
     },
 }
+/// Immediate checked-term children in evaluation order. Structural analysis only.
+pub fn term_children(term: &Term) -> Vec<&Term> {
+    match term {
+        Term::Construct { arguments, .. } | Term::Call { arguments, .. } | Term::SelfCall(arguments) => arguments.iter().collect(),
+        Term::Binary { left, right, .. } => vec![left, right],
+        Term::If { condition, on_true, on_false } => vec![condition, on_true, on_false],
+        Term::Match { scrutinee, branches } => std::iter::once(scrutinee.as_ref()).chain(branches.iter().map(|b| &b.body)).collect(),
+        Term::Var(_) | Term::Bool(_) | Term::U64(_) => vec![],
+    }
+}
+
+/// Iterative traversal avoids consuming the host stack for syntax analysis.
+pub fn walk_term(term: &Term, mut visit: impl FnMut(&Term)) {
+    let mut pending = vec![term];
+    while let Some(term) = pending.pop() {
+        visit(term);
+        pending.extend(term_children(term).into_iter().rev());
+    }
+}
+
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Branch {
@@ -2143,6 +2163,7 @@ fn independent_induction_premises(
     variables: &BTreeSet<String>,
     hypotheses: &[Equation],
     schemas: &[InductionSchema],
+    c: &Context,
     budget: &mut Budget,
 ) -> LangResult<()> {
     for (equation, bound) in hypotheses.iter().map(|e| (e, BTreeSet::new())).chain(
@@ -2157,7 +2178,17 @@ fn independent_induction_premises(
             .iter()
             .any(|v| used.contains(v) && !bound.contains(v))
         {
-            return Err("induction under variable-dependent premises is unsupported".into());
+            // A syntactically mentioned argument can be discarded by an existing
+            // total definition. Test semantic dependence after definitional
+            // reduction only; ambient hypotheses never rewrite this premise.
+            used.clear();
+            let from = compute_mode(&equation.from, c, budget, 0, true)?;
+            let to = compute_mode(&equation.to, c, budget, 0, true)?;
+            names(&from, &mut used, budget, 0)?;
+            names(&to, &mut used, budget, 0)?;
+            if variables.iter().any(|v| used.contains(v) && !bound.contains(v)) {
+                return Err("induction under variable-dependent premises is unsupported".into());
+            }
         }
     }
     Ok(())
@@ -3002,6 +3033,7 @@ fn derive(
                 &[variable.clone()].into(),
                 hypotheses,
                 schemas,
+                c,
                 budget,
             )?;
             for (index, (case, constructor)) in cases.iter().zip(constructors).enumerate() {
@@ -3079,7 +3111,7 @@ fn derive(
             }
             // Fixed assumptions cannot be quantified over new parameter values.
             // Existing schemas are checked for free, rather than bound, uses.
-            independent_induction_premises(&variables, hypotheses, schemas, budget)?;
+            independent_induction_premises(&variables, hypotheses, schemas, c, budget)?;
             let original = Equation {
                 from: from.clone(),
                 to: to.clone(),
