@@ -5,7 +5,7 @@ from pathlib import Path
 p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('--point',type=Path,required=True);p.add_argument('--aggregate',type=Path,required=True);p.add_argument('--compiler',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
 a=p.parse_args();root=Path(__file__).resolve().parents[2];out=a.output.resolve();out.mkdir(parents=True,exist_ok=True)
-def command(*args):return subprocess.run(args,cwd=root,check=True,capture_output=True,text=True).stdout.strip()
+def command(*args):return subprocess.run(args,cwd=root,check=True,capture_output=True,text=True).stdout.rstrip()
 def digest(path):return hashlib.sha256(path.read_bytes()).hexdigest()
 head=command('git','rev-parse','HEAD');main=command('git','rev-parse','origin/main')
 assert head==main,'benchmark must run at fetched merged main'
