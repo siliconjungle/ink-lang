@@ -69,3 +69,8 @@ Existing mathematical objects are reused only after ordinary universal replay.
 The same external rebind procedure repairs 21 existing fixture bindings and checks
 all their obligations, without changing their mathematical objects. Historical
 immutable snapshots and observations remain available under their original pins.
+
+Merge integration also retains the compatible knowledge publication `711938bf`.
+Both immutable catalogues are preserved in a combined discovery snapshot. Nine
+additional storage fixtures replay against the identical current action projection;
+the four measured selection receipts still replay against their original pins.
