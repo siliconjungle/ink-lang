@@ -92,6 +92,8 @@ one signed integer kernel. Malformed ingress fails before state/outbox changes.
 `tests/action_values.rs` and isolated core tests exercise independent encoding and
 adversarial numerical carriers. CI retains the reproduction source and requests.
 
-These are conformance and data-binding checks. Numerical whole-action logical
-projection still fails closed; no numerical replacement proof or native emission
-correctness theorem is implied. Physical representation admission remains open.
+These are conformance and data-binding checks. Whole-action logical projection and physical representation admission now include
+the numerical subset listed in [database representations](database-representations.md),
+with exact integer functions and fixed word/binary32 correspondence. Unsupported
+constructs continue to fail closed. Numerical laws need ordinary checked database
+proofs, and conformance does not establish a native emission correctness theorem.
