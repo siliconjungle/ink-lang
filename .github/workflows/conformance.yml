@@ -106,7 +106,7 @@ jobs:
           PYTHONPATH=planner:knowledge python3 -m unittest discover -s planner/tests -p test_semantic_search.py
           INK_COMPILER="$PWD/target/debug/ink" PYTHONPATH=knowledge python3 -m unittest discover -s knowledge/tests -p test_frontier_extensions.py
       - name: Literal CPU and both Wasm lowerings, generated histories and crash recovery
-        run: python3 tools/check_feature_parity.py --scope cpu --run --receipt build/enforced-parity/cpu-audit.json
+        run: python3 tools/check_feature_parity.py --scope cpu --shard general --run --receipt build/enforced-parity/cpu-audit.json
       - name: Cold indexed proposals, measured batching selection and authenticated corruption
         env:
           PYTHONPATH: knowledge:planner
@@ -174,6 +174,73 @@ jobs:
             build/action-rule-parity/source.ink
             build/action-rule-search/*.json
             build/action-rule-native-search/*.json
+          retention-days: 30
+  cpu-representations:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      INK_PARITY_REQUIRE_ALL: '1'
+      INK_THREADS: '4'
+      CARGO_BUILD_JOBS: '2'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned proof authoring and cross compiler
+        run: |
+          python -m pip install python-sat==1.9.dev5 ziglang==0.14.1
+          python - <<'PY'
+          import os, pathlib, ziglang
+          with open(os.environ['GITHUB_ENV'], 'a') as f:
+              f.write('INK_TEST_ZIG='+str(pathlib.Path(ziglang.__file__).parent/'zig')+'\n')
+              f.write('INK_PARITY_SEEDS=1,7,23,3735928559,'+str(int(os.environ['GITHUB_SHA'][:16],16))+'\n')
+          PY
+      - name: Audit committed catalogue and rebuild disposable index
+        working-directory: knowledge
+        run: |
+          python tools/check_committed_snapshot.py
+          python -m ink_knowledge --root . rebuild
+      - name: Fetch locked compiled host dependencies
+        run: |
+          cargo fetch --locked
+          cargo fetch --locked --manifest-path core/Cargo.toml
+          mkdir -p build/host-deps/src
+          cp runtime/hosts/native/Cargo.toml runtime/hosts/native/Cargo.lock build/host-deps/
+          python3 - <<'PY'
+          from pathlib import Path
+          Path('build/host-deps/src/main.rs').write_text('fn main() {}\n')
+          with Path('build/host-deps/Cargo.toml').open('a') as f:
+              f.write('\n[workspace]\n')
+          PY
+          cargo fetch --locked --manifest-path build/host-deps/Cargo.toml
+      - name: Reauthor current source fixtures through normal proof admission
+        run: |
+          cargo build --release --bin ink
+          python3 bench/composable-state/prepare-fixtures.py --compiler target/release/ink
+      - name: Complete representation histories across all required CPU and host paths
+        run: python3 tools/check_feature_parity.py --scope cpu --shard representations --run --receipt build/enforced-parity/representations-audit.json
+      - name: Retain exact programs, proof packets and host histories
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cpu-representation-conformance
+          path: |
+            build/enforced-parity/representations-audit.json
+            build/representation-parity/**/checks.json
+            build/representation-parity/**/source.ink
+            build/representation-parity/**/request.json
+            build/representation-parity/**/oracle.json
+            build/representation-parity/**/producer.log
+            build/representation-parity/**/*-run.log
           retention-days: 30
   wgpu:
     runs-on: ubuntu-24.04

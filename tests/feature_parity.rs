@@ -37,6 +37,51 @@ fn parity_inventory_rejects_missing_targets_and_uncovered_features() {
     };
     assert!(run(&catalog, "cpu").status.success());
     assert!(run(&catalog, "contract").status.success());
+    let mut partitions = vec![];
+    for shard in ["general", "representations"] {
+        let receipt = directory.join(format!("{shard}.json"));
+        let result = Command::new("python3")
+            .arg(&script)
+            .args(["--scope", "cpu", "--shard", shard, "--receipt"])
+            .arg(&receipt)
+            .output()
+            .unwrap();
+        assert!(result.status.success());
+        let value: serde_json::Value = serde_json::from_slice(&fs::read(receipt).unwrap()).unwrap();
+        assert_eq!(value["conformance"], "not-run");
+        assert_eq!(value["suite_shard"], shard);
+        partitions.push(
+            value["suites"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .map(|s| s.as_str().unwrap().to_owned())
+                .collect::<std::collections::BTreeSet<_>>(),
+        );
+    }
+    assert!(partitions[0].is_disjoint(&partitions[1]));
+    assert_eq!(
+        partitions[0]
+            .union(&partitions[1])
+            .cloned()
+            .collect::<std::collections::BTreeSet<_>>(),
+        catalog["cpu_suites"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|s| s.as_str().unwrap().to_owned())
+            .collect()
+    );
+    assert_eq!(
+        Command::new("python3")
+            .arg(&script)
+            .args(["--scope", "contract", "--shard", "general"])
+            .output()
+            .unwrap()
+            .status
+            .code(),
+        Some(2)
+    );
     let mut gpu_gap = catalog.clone();
     gpu_gap["gpu_contract"]["capabilities"]["exact-binary32"]["targets"]["webgpu"] =
         json!({"status":"unsupported","reason":"test fault"});
