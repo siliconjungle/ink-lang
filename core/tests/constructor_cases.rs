@@ -306,7 +306,7 @@ fn conversion_computes_stuck_branch_bodies_without_assuming_equal_results() {
             &expected,
             &Proof::Convert {
                 from: expression(8),
-                to: expected
+                to: expected.clone()
             }
         )
         .is_err());

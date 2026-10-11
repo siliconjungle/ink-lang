@@ -34,6 +34,12 @@ fn benchmark_standalone_aggregate_scaling() {
     let start = Instant::now();
     let mut code = verified_language::representations::compiled_bundle(&plans).unwrap();
     phases.push(serde_json::json!({"literal_emission_ns":start.elapsed().as_nanos()}));
+    fs::write(
+        root.join("src/ordinary.rs"),
+        ink_lowering_rust::state_native::emit(module.program()).unwrap(),
+    )
+    .unwrap();
+    code.push_str("\n#[path=\"ordinary.rs\"] mod ordinary;\n");
     code.push_str(&format!(
         "\nconst SOURCE:&str={source:?};\nconst LABELS:&[&str]=&{labels:?};\n"
     ));
