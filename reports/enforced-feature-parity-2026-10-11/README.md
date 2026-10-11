@@ -98,3 +98,22 @@ production literal ES emitter, without a stateful interpreter. The Rust
 compile-and-run convenience CLI is distinct from the all-target emitted
 application contract. Updated standalone integration receipts accompany final
 validation; the earlier JSON receipts remain historical evidence for their pins.
+
+## Final standalone validation
+
+The full supported contract passed **75 tests in 19 mandatory suites**, with one
+manual scaling benchmark intentionally ignored. Browser replay passed **499
+comparisons and 141 actual GPU calls**. The independent locked runtime build,
+17 host-policy checks and two device-graph checks also passed.
+
+All three Linux jobs passed on `f774f7a469f2fe4e617163d3aa06b73250421e36`:
+[declared features, CPU/Wasm durability and native/browser GPU conformance](https://github.com/siliconjungle/ink-lang/actions/runs/38119419895).
+The subsequent upstream integration changes only browser fixture isolation and
+historical evidence; compiler, runtime, package pins and semantic tests are
+unchanged. Its explicit isolation assertion was replayed locally with the same
+499 comparisons and 141 GPU calls before merging. Metadata-only receipt changes
+do not add a new compiler-correctness or performance claim.
+
+Current receipts: [contract](standalone-contract.json),
+[browser](standalone-browser.json) and [pins, suite counts and revision provenance](standalone-provenance.json).
+Earlier receipts retain their historical pre-retirement pins and validation scope.
