@@ -39,6 +39,9 @@ fn schema(t: &Type, x: &mut Expansion, depth: usize) -> LangResult<Schema> {
             Box::new(schema(b, x, depth + 1)?),
         ),
         Type::Named(n) if p.ids.contains(n) => Schema::Id,
+        Type::Named(n) if n == "ArithmeticError" => {
+            Schema::Enum(vec!["ArithmeticError.Overflow".into()])
+        }
         Type::Named(n) if p.enums.contains_key(n) => {
             let variants = &p.enums[n];
             x.remaining = x

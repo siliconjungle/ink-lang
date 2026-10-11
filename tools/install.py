@@ -63,7 +63,8 @@ def main():
         committed(root / 'knowledge', ['ink_knowledge', 'store', 'research/general-laws',
                   'producers/__init__.py', 'producers/semantic_laws.py',
                   'producers/definition_context28.py', 'producers/fold_until_laws.py',
-                  'producers/inline_laws.py', 'producers/owned_transform_laws.py',
+                  'producers/inline_laws.py', 'producers/literal_collection_laws.py',
+                  'producers/source_laws.py', 'libraries', 'producers/owned_transform_laws.py',
                   'producers/action_replacement.py',
                   'producers/boolean_verdict.py', 'research/verified-kernel'], resources / 'knowledge')
         manifest = dict(schema=1, source_revision=git(root, 'rev-parse', 'HEAD').decode().strip(), packages=packages,

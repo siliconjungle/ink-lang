@@ -60,7 +60,9 @@ fn conformance_inner(
     // cached build-script outputs, or let it replace the executable before run.
     static GPU_ARTIFACTS: std::sync::Mutex<()> = std::sync::Mutex::new(());
     let _gpu_artifacts = std::env::var_os("INK_TEST_WGPU").map(|_| {
-        GPU_ARTIFACTS.lock().unwrap_or_else(|poisoned| poisoned.into_inner())
+        GPU_ARTIFACTS
+            .lock()
+            .unwrap_or_else(|poisoned| poisoned.into_inner())
     });
     let module = CheckedModule::from_source(p.clone()).unwrap();
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join(format!("build/{name}"));
@@ -106,6 +108,8 @@ fn conformance_inner(
             || name.starts_with("generated-parity")
             || name == "modules-parity"
             || name == "numerical-state-parity"
+            || name == "language-foundations-parity"
+            || name == "generic-libraries-parity"
             || selected.is_some())
     {
         let project = root.join("gpu-module/native");
@@ -159,15 +163,9 @@ fn conformance_inner(
             "{}",
             String::from_utf8_lossy(&out.stderr)
         );
-        let actual: Vec<Value> = if packed_pure {
-            String::from_utf8(out.stdout)
-                .unwrap()
-                .lines()
-                .map(|line| serde_json::from_str(line).unwrap())
-                .collect()
-        } else {
-            serde_json::from_slice(&out.stdout).unwrap()
-        };
+        // Both script CLIs return one ordered JSON array. Single-call CLI
+        // output is NDJSON, but is not the transport used by this helper.
+        let actual: Vec<Value> = serde_json::from_slice(&out.stdout).unwrap();
         let calls = gpu_steps
             .iter()
             .filter(|s| s["restore"].is_null())
