@@ -62,3 +62,10 @@ CI exports the pinned Zig executable under both accepted test variable names.
 Candidate metadata retains its full bounded-view byte allowance. The ordinary
 proof-entry byte limit remains independently enforced. A publication roundtrip
 regression test covers packages larger than that individual-entry allowance.
+
+The final generic completion `c319d5eb` is included. Current Frontier producers
+are checked against freshly projected source and both migration directions;
+archived manifests retain their original immutable bytes. Numeric action tests
+assert the restored legacy identities. Admission replay uses Python file
+discovery so CI and installed tool bundles do not require ripgrep. The required
+GPU conformance job retains all checks with a 60-minute execution allowance.

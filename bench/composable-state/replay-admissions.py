@@ -14,7 +14,7 @@ def replay(compiler,report,math_sources,evidence):
     general=json.loads(general_path.read_text())
     source=json.loads(source_path.read_text())
     assert general['status']==source['status']=='checked'
-    paths=subprocess.check_output(['rg','--files','examples','knowledge/research'],cwd=ROOT,text=True).splitlines()
+    paths=[str(path.relative_to(ROOT)) for folder in ['examples','knowledge/research'] for path in sorted((ROOT/folder).rglob('*.ink')) if path.is_file()]
     sources={sha(ROOT/p):ROOT/p for p in paths if p.endswith('.ink')}
     results=[];mathematics=[]
     def run(*args):
