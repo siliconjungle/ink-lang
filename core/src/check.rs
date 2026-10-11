@@ -10,6 +10,11 @@ pub fn is_number(t: &Type) -> bool {
     is_word(t) || *t == Type::F32
 }
 
+/// Executable numerical values; logical correspondence has its own admission.
+pub fn is_numeric_value(t: &Type) -> bool {
+    is_number(t) || *t == Type::Int
+}
+
 // Unsuffixed literals keep the historical u64 default, but use an expected
 // word type from a signature, operator or collection lambda. No implicit
 // conversion of typed values is permitted.
@@ -35,7 +40,7 @@ pub fn hint(e: &Expr, env: &Env, p: &Program) -> Option<Type> {
         // subtree walk at each enclosing Boolean operator; normal inference
         // below still validates its operands and rejects invalid operators.
         Expr::Binary(..) => None,
-        _ => infer(e, env, p).ok().filter(is_number),
+        _ => infer(e, env, p).ok().filter(is_numeric_value),
     }
 }
 /// Source typing with an explicit expected context, shared by backends.
@@ -44,12 +49,18 @@ pub fn infer_context(e: &Expr, env: &Env, p: &Program, want: Option<&Type>) -> L
         return result;
     }
     match e {
-        Expr::String(_) => Ok(Type::String),
-        Expr::Unit => Ok(Type::Unit),
+        Expr::Call(n, _) if crate::word::primitive(n) || ["Some", "Ok", "Err", "Int", "checked_add", "checked_sub", "checked_mul", "list"].contains(&n.as_str()) => {
+            infer_value_constructor(e, env, p, want)
+        }
+        Expr::Unit | Expr::String(_) => infer_value_constructor(e, env, p, want),
+        Expr::Var(n) if n == "None" => infer_value_constructor(e, env, p, want),
+        Expr::Field(x, _) if matches!(x.as_ref(), Expr::Var(n) if p.enums.contains_key(n) && !env.contains_key(n)) => {
+            infer_value_constructor(e, env, p, want)
+        }
         Expr::Float(_) => Ok(Type::F32),
         Expr::Neg(e) => {
             let ty = want
-                .filter(|t| is_number(t))
+                .filter(|t| is_numeric_value(t))
                 .cloned()
                 .or_else(|| hint(e, env, p))
                 .unwrap_or(Type::I32);
@@ -59,7 +70,7 @@ pub fn infer_context(e: &Expr, env: &Env, p: &Program, want: Option<&Type>) -> L
                 }
             }
             infer_as(e, env, p, &ty)?;
-            if !is_number(&ty) {
+            if !is_numeric_value(&ty) {
                 return Err("negation requires numeric value".into());
             }
             Ok(ty)
@@ -111,6 +122,9 @@ pub fn infer_context(e: &Expr, env: &Env, p: &Program, want: Option<&Type>) -> L
             _ => Err("field access requires record/vector".into()),
         },
         Expr::Num(n) => {
+            if want == Some(&Type::Int) {
+                return Ok(Type::Int);
+            }
             if want == Some(&Type::I32) {
                 if *n > i32::MAX as u64 {
                     return Err("literal outside i32 range".into());
@@ -140,7 +154,7 @@ pub fn infer_context(e: &Expr, env: &Env, p: &Program, want: Option<&Type>) -> L
             .ok_or_else(|| format!("unbound name {n}")),
         Expr::Binary(op, a, b) => {
             let numeric = if ["+", "-", "*"].contains(&op.as_str()) {
-                want.filter(|t| is_number(t)).cloned()
+                want.filter(|t| is_numeric_value(t)).cloned()
             } else {
                 None
             }
@@ -154,9 +168,9 @@ pub fn infer_context(e: &Expr, env: &Env, p: &Program, want: Option<&Type>) -> L
                 ));
             }
             match op.as_str() {
-                "+" | "-" | "*" if is_number(&at) => Ok(at),
-                "<" | ">" | "<=" | ">=" if is_number(&at) => Ok(Type::Bool),
-                "==" | "!=" if is_number(&at) || at == Type::Bool => Ok(Type::Bool),
+                "+" | "-" | "*" if is_numeric_value(&at) => Ok(at),
+                "<" | ">" | "<=" | ">=" if is_numeric_value(&at) => Ok(Type::Bool),
+                "==" | "!=" if !crate::local_collections::owned(&at, p) => Ok(Type::Bool),
                 "&&" | "||" if at == Type::Bool => Ok(Type::Bool),
                 _ => Err(format!("operator {op} does not accept {at:?}")),
             }
@@ -237,17 +251,23 @@ pub fn infer_context(e: &Expr, env: &Env, p: &Program, want: Option<&Type>) -> L
                 return Err(format!("{n} expects one argument"));
             }
             let list_want = if n == "sum" {
-                want.filter(|t| is_number(t))
+                want.filter(|t| is_numeric_value(t))
                     .map(|t| Type::List(Box::new(t.clone())))
             } else {
                 None
             };
             let ty = infer_context(&args[0], env, p, list_want.as_ref())?;
             if n == "count" && matches!(ty, Type::List(_)) {
-                return Ok(Type::U64);
+                return Ok(if want == Some(&Type::U64) {
+                    Type::U64
+                } else {
+                    Type::Int
+                });
             }
             match ty {
-                Type::List(t) if is_number(&t) => Ok(if n == "count" { Type::U64 } else { *t }),
+                Type::List(t) if is_numeric_value(&t) => {
+                    Ok(if n == "count" { Type::U64 } else { *t })
+                }
                 _ => Err(format!("{n} requires List<u32> or List<u64>")),
             }
         }
@@ -274,7 +294,7 @@ pub fn infer_context(e: &Expr, env: &Env, p: &Program, want: Option<&Type>) -> L
             }
             Ok(result)
         }
-        Expr::Call(n, args) if n == "foldr" => {
+        Expr::Call(n, args) if n == "foldr" || n == "foldl" => {
             if args.len() != 3 {
                 return Err("foldr expects list, initial and step callback".into());
             }
@@ -322,6 +342,86 @@ pub fn infer_context(e: &Expr, env: &Env, p: &Program, want: Option<&Type>) -> L
             )?;
             if matches!(receiver, Type::Buffer(_) | Type::Map(..)) {
                 return crate::local_collections::infer_method(e, env, p, want, receiver);
+            }
+            if let Type::Option(inner) = &receiver {
+                if n == "ok_or" && args.len() == 1 {
+                    return Ok(Type::Result(
+                        inner.clone(),
+                        Box::new(infer(&args[0], env, p)?),
+                    ));
+                }
+            }
+            if matches!(receiver, Type::Option(_) | Type::Result(..)) {
+                if n == "fold" {
+                    if args.len() != 2 {
+                        return Err("variant fold requires both branch lambdas".into());
+                    }
+                    let (a, b) = match &receiver {
+                        Type::Option(a) => (a.as_ref().clone(), Type::Unit),
+                        Type::Result(a, b) => (a.as_ref().clone(), b.as_ref().clone()),
+                        _ => unreachable!(),
+                    };
+                    let inputs = [a, b];
+                    let mut output = want.cloned().or_else(|| {
+                        args.iter().zip(&inputs).find_map(|(arg, input)| {
+                            if let Expr::Lambda(var, body) = arg {
+                                let mut local = env.clone();
+                                local.insert(var.clone(), input.clone());
+                                hint(body, &local, p)
+                            } else {
+                                None
+                            }
+                        })
+                    });
+                    for (arg, input) in args.iter().zip(inputs) {
+                        let Expr::Lambda(var, body) = arg else {
+                            return Err("variant fold requires branch lambdas".into());
+                        };
+                        let mut local = env.clone();
+                        local.insert(var.clone(), input);
+                        let result = infer_context(body, &local, p, output.as_ref())?;
+                        if output.as_ref().is_some_and(|t| *t != result) {
+                            return Err("variant fold branches must have equal result types".into());
+                        }
+                        output = Some(result);
+                    }
+                    return Ok(output.unwrap());
+                }
+                if args.len() != 1 {
+                    return Err("variant map requires one lambda".into());
+                }
+                let Expr::Lambda(var, body) = &args[0] else {
+                    return Err("variant map requires a lambda".into());
+                };
+                let inner = match (&receiver, n.as_str()) {
+                    (Type::Option(a), "map")
+                    | (Type::Result(a, _), "map")
+                    | (Type::Result(_, a), "map_err") => a.as_ref(),
+                    _ => return Err("unsupported variant method".into()),
+                };
+                let mut local = env.clone();
+                local.insert(var.clone(), inner.clone());
+                let context = match (want, n.as_str()) {
+                    (Some(Type::Option(a)), "map")
+                    | (Some(Type::Result(a, _)), "map")
+                    | (Some(Type::Result(_, a)), "map_err") => Some(a.as_ref()),
+                    _ => None,
+                };
+                let out = infer_context(body, &local, p, context)?;
+                if crate::local_collections::owned(&out, p) {
+                    return Err("immutable variants cannot own temporary storage".into());
+                }
+                return Ok(match receiver {
+                    Type::Option(_) => Type::Option(Box::new(out)),
+                    Type::Result(a, b) => {
+                        if n == "map" {
+                            Type::Result(Box::new(out), b)
+                        } else {
+                            Type::Result(a, Box::new(out))
+                        }
+                    }
+                    _ => unreachable!(),
+                });
             }
             let Type::List(inner) = receiver else {
                 return Err(format!("method {n} requires a list"));
@@ -441,25 +541,35 @@ pub fn params_env(params: &[(String, Type)]) -> LangResult<Env> {
 fn calls(e: &Expr, out: &mut BTreeSet<String>) {
     match e {
         Expr::Call(n, args) => {
-            if ![
-                "sum",
-                "count",
-                "foldr",
-                "fold_until",
-                "choose",
-                "repeat",
-                "repeat_until",
-                "buffer",
-                "buffer_fill",
-                "parallel_map",
-                "length",
-                "vec2",
-                "vec3",
-                "vec4",
-                "quot_or",
-                "rem_or",
-            ]
-            .contains(&n.as_str())
+            if !crate::word::primitive(n)
+                && ![
+                    "sum",
+                    "list",
+                    "Int",
+                    "Some",
+                    "Ok",
+                    "Err",
+                    "checked_add",
+                    "checked_sub",
+                    "checked_mul",
+                    "count",
+                    "foldr",
+                    "fold_until",
+                    "foldl",
+                    "choose",
+                    "repeat",
+                    "repeat_until",
+                    "buffer",
+                    "buffer_fill",
+                    "parallel_map",
+                    "length",
+                    "vec2",
+                    "vec3",
+                    "vec4",
+                    "quot_or",
+                    "rem_or",
+                ]
+                .contains(&n.as_str())
             {
                 out.insert(n.clone());
             }
@@ -498,25 +608,35 @@ pub fn check(p: &Program) -> LangResult<()> {
             crate::statecheck::validate_type(t, p)?;
         }
         crate::statecheck::validate_type(&f.result, p)?;
-        if [
-            "sum",
-            "count",
-            "foldr",
-            "fold_until",
-            "choose",
-            "repeat",
-            "repeat_until",
-            "buffer",
-            "buffer_fill",
-            "parallel_map",
-            "length",
-            "vec2",
-            "vec3",
-            "vec4",
-            "quot_or",
-            "rem_or",
-        ]
-        .contains(&f.name.as_str())
+        if crate::word::primitive(&f.name)
+            || [
+                "sum",
+                "list",
+                "Int",
+                "Some",
+                "Ok",
+                "Err",
+                "checked_add",
+                "checked_sub",
+                "checked_mul",
+                "count",
+                "foldr",
+                "fold_until",
+                "foldl",
+                "choose",
+                "repeat",
+                "repeat_until",
+                "buffer",
+                "buffer_fill",
+                "parallel_map",
+                "length",
+                "vec2",
+                "vec3",
+                "vec4",
+                "quot_or",
+                "rem_or",
+            ]
+            .contains(&f.name.as_str())
             || !names.insert(f.name.clone())
         {
             return Err(format!("reserved or duplicate function {}", f.name));
@@ -569,4 +689,113 @@ pub fn check(p: &Program) -> LangResult<()> {
     }
     crate::statecheck::check(p)?;
     crate::local_collections::check_ownership(p)
+}
+
+// Keep constructor/word temporaries out of ordinary recursive typing frames.
+#[inline(never)]
+fn infer_value_constructor(e: &Expr, env: &Env, p: &Program, want: Option<&Type>) -> LangResult<Type> {
+    match e {
+        Expr::Call(n, args) if crate::word::primitive(n) => {
+            if args.len() != if n == "word_not" { 1 } else { 2 } {
+                return Err("word operation arity".into());
+            }
+            let context = want
+                .filter(|t| is_word(t))
+                .cloned()
+                .or_else(|| hint(&args[0], env, p));
+            let t = infer_context(&args[0], env, p, context.as_ref())?;
+            if !is_word(&t) {
+                return Err("word operation requires fixed integers".into());
+            }
+            for (a, t) in args.iter().zip(crate::word::arguments(n, &t)) {
+                infer_as(a, env, p, &t)?;
+            }
+            Ok(t)
+        }
+        Expr::Unit => Ok(Type::Unit),
+        Expr::String(_) => Ok(Type::String),
+        Expr::Var(n) if n == "None" => match want {
+            Some(Type::Option(_)) => Ok(want.unwrap().clone()),
+            _ => Err("None needs an expected Option<T> type".into()),
+        },
+        Expr::Field(x, variant) if matches!(x.as_ref(), Expr::Var(n) if p.enums.contains_key(n) && !env.contains_key(n)) =>
+        {
+            let Expr::Var(n) = x.as_ref() else {
+                unreachable!()
+            };
+            if !p.enums[n].contains(variant) {
+                return Err("unknown enum variant".into());
+            }
+            Ok(Type::Named(n.clone()))
+        }
+        Expr::Call(n, args) if ["Some", "Ok", "Err"].contains(&n.as_str()) => {
+            if args.len() != 1 {
+                return Err(format!("{n} expects one argument"));
+            }
+            let inner = match (n.as_str(), want) {
+                ("Some", Some(Type::Option(t)))
+                | ("Ok", Some(Type::Result(t, _)))
+                | ("Err", Some(Type::Result(_, t))) => t.as_ref(),
+                _ => return Err(format!("{n} needs an expected Option/Result type")),
+            };
+            infer_as(&args[0], env, p, inner)?;
+            Ok(want.unwrap().clone())
+        }
+        Expr::Call(n, args) if n == "Int" => {
+            if args.len() != 1
+                || !matches!(
+                    infer(&args[0], env, p)?,
+                    Type::U32 | Type::U64 | Type::I32 | Type::Int
+                )
+            {
+                return Err("Int expects one integer argument".into());
+            }
+            Ok(Type::Int)
+        }
+        Expr::Call(n, args)
+            if ["checked_add", "checked_sub", "checked_mul"].contains(&n.as_str()) =>
+        {
+            if args.len() != 2 {
+                return Err("checked arithmetic expects two arguments".into());
+            }
+            let context = match want {
+                Some(Type::Result(t, _)) if is_word(t) => Some(t.as_ref()),
+                _ => None,
+            };
+            let hint = context
+                .cloned()
+                .or_else(|| hint(&args[0], env, p))
+                .or_else(|| hint(&args[1], env, p));
+            let ty = infer_context(&args[0], env, p, hint.as_ref())?;
+            if !is_word(&ty) {
+                return Err("checked arithmetic requires fixed integers".into());
+            }
+            infer_as(&args[1], env, p, &ty)?;
+            Ok(Type::Result(
+                Box::new(ty),
+                Box::new(Type::Named("ArithmeticError".into())),
+            ))
+        }
+        Expr::Call(n, args) if n == "list" => {
+            let context = match want {
+                Some(Type::List(t)) => Some(&**t),
+                _ => None,
+            };
+            let ty = if let Some(t) = context {
+                t.clone()
+            } else if let Some(first) = args.first() {
+                infer(first, env, p)?
+            } else {
+                return Err("empty list needs an expected List<T> type".into());
+            };
+            if crate::local_collections::owned(&ty, p) {
+                return Err("immutable lists cannot own temporary storage".into());
+            }
+            for item in args {
+                infer_as(item, env, p, &ty)?;
+            }
+            Ok(Type::List(Box::new(ty)))
+        }
+        _ => unreachable!("value constructor dispatch"),
+    }
 }

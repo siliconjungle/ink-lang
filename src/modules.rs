@@ -173,11 +173,14 @@ fn header(path: PathBuf, text: String) -> LangResult<Node> {
     let mut exports = BTreeSet::new();
     let mut records = BTreeSet::new();
     let mut depth = 0i32;
+    let mut declaration_start = true;
     let mut declarations = BTreeSet::new();
     for pair in ts[at..].windows(2) {
         if depth == 0
+            && declaration_start
             && [
-                "fn", "record", "enum", "id", "state", "keep", "event", "change", "query", "rule",
+                "fn", "record", "enum", "id", "type", "state", "keep", "event", "change", "query",
+                "rule",
             ]
             .contains(&pair[0].text.as_str())
         {
@@ -187,13 +190,20 @@ fn header(path: PathBuf, text: String) -> LangResult<Node> {
                 return Err(format!("duplicate or invalid declaration {}", pair[1].text));
             }
             exports.insert(pair[1].text.clone());
-            if pair[0].text == "record" {
+            declaration_start = false;
+            if pair[0].text == "record" || pair[0].text == "type" {
                 records.insert(pair[1].text.clone());
             }
         }
         match pair[0].text.as_str() {
             "{" | "(" | "[" => depth += 1,
-            "}" | ")" | "]" => depth -= 1,
+            "}" | ")" | "]" => {
+                depth -= 1;
+                if pair[0].text == "}" && depth == 0 {
+                    declaration_start = true;
+                }
+            }
+            ";" if depth == 0 => declaration_start = true,
             _ => {}
         }
     }
@@ -235,8 +245,8 @@ fn ty(t: &mut Type, names: &BTreeMap<String, String>) {
                 *n = value.clone();
             }
         }
-        Type::List(x) | Type::Option(x) | Type::Vector(x, _) => ty(x, names),
-        Type::Result(a, b) | Type::Table(a, b) => {
+        Type::List(x) | Type::Buffer(x) | Type::Option(x) | Type::Vector(x, _) => ty(x, names),
+        Type::Result(a, b) | Type::Table(a, b) | Type::Map(a, b) => {
             ty(a, names);
             ty(b, names);
         }
@@ -495,7 +505,7 @@ impl Loader {
         }
         result
     }
-    fn program(&self, index: usize) -> LangResult<Program> {
+    fn program(&self, index: usize) -> LangResult<SurfaceProgram> {
         let node = &self.nodes[index];
         let mut replacements: Vec<(usize, usize, String)> = node
             .imports
@@ -555,10 +565,60 @@ impl Loader {
         mapping.extend(end..node.text.len());
         mapping.push(node.text.len());
         text.push_str(&node.text[end..]);
-        let parsed = parse_with_record_names(&text, imported_records)
+        let mut parsed = parse_surface(&text, imported_records)
             .map_err(|e| source_diagnostic(node, &mapping, e))?;
-        link(parsed, &names(node, index == 0), &aliases)
-            .map_err(|e| format!("{}: {e}", node.path.display()))
+        let mapping = names(node, index == 0);
+        parsed.program = link(parsed.program, &mapping, &aliases)
+            .map_err(|e| format!("{}: {e}", node.path.display()))?;
+        parsed.aliases = parsed
+            .aliases
+            .into_iter()
+            .map(|(mut n, mut t)| {
+                renamed(&mut n, &mapping);
+                ty(&mut t, &mapping);
+                (n, t)
+            })
+            .collect();
+        parsed.parameters = parsed
+            .parameters
+            .into_iter()
+            .map(|(mut n, vars)| {
+                renamed(&mut n, &mapping);
+                (n, vars)
+            })
+            .collect();
+        parsed.constant_parameters = parsed
+            .constant_parameters
+            .into_iter()
+            .map(|(mut n, vars)| {
+                renamed(&mut n, &mapping);
+                (n, vars)
+            })
+            .collect();
+        for (name, args) in parsed.applications.values_mut() {
+            renamed(name, &mapping);
+            for t in args {
+                ty(t, &mapping);
+            }
+        }
+        for (input, output) in parsed.callback_types.values_mut() {
+            ty(input, &mapping);
+            ty(output, &mapping);
+        }
+        parsed.payload_enums = parsed
+            .payload_enums
+            .into_iter()
+            .map(|(mut n, v)| {
+                renamed(&mut n, &mapping);
+                (n, v)
+            })
+            .collect();
+        for arms in parsed.matches.values_mut() {
+            for (root, _, _) in arms {
+                renamed(root, &mapping);
+            }
+        }
+        Ok(parsed)
     }
 }
 fn source_diagnostic(node: &Node, mapping: &[usize], error: String) -> String {
@@ -627,13 +687,24 @@ pub fn load(path: impl AsRef<Path>) -> LangResult<Loaded> {
         total: 0,
     };
     loader.visit(path.as_ref().into())?;
-    let mut program = loader.program(0)?;
+    let mut surface = loader.program(0)?;
+    let program = &mut surface.program;
     if program.module.contains('.') {
         program.module = format!("ink_module_{:x}", Sha256::digest(program.module.as_bytes()));
     }
     let mut displays = vec![];
     for i in 1..loader.nodes.len() {
-        let p = loader.program(i)?;
+        let parsed = loader.program(i)?;
+        surface.aliases.extend(parsed.aliases);
+        surface.parameters.extend(parsed.parameters);
+        surface.applications.extend(parsed.applications);
+        surface.callback_types.extend(parsed.callback_types);
+        surface.payload_enums.extend(parsed.payload_enums);
+        surface.matches.extend(parsed.matches);
+        surface
+            .constant_parameters
+            .extend(parsed.constant_parameters);
+        let p = parsed.program;
         program.functions.extend(p.functions);
         program.actions.extend(p.actions);
         program.rules.extend(p.rules);
@@ -659,6 +730,9 @@ pub fn load(path: impl AsRef<Path>) -> LangResult<Loaded> {
             displays.push((linked, format!("{}.{}", loader.nodes[i].module, original)));
         }
     }
+    let program = surface
+        .elaborate()
+        .map_err(|e| format!("{}: {e}", loader.nodes[0].path.display()))?;
     check::check(&program).map_err(|mut e| {
         let origin = function_error_origin(&loader, &program, &e);
         for (linked, display) in &displays {

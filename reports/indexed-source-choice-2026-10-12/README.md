@@ -7,6 +7,8 @@ machinery. The second requires comparing implementations without privileging a
 cached layout. Selection happens in the external planner over database entries;
 no source-versus-cache recogniser or choice branch is added to the compiler.
 
+The timing artifacts below were produced before the subsequent executable-core V8 integration. Their recorded compiler/support hashes define the claims; regenerated V8 proof packages do not inherit those measurements. Current conformance is checked separately.
+
 ## Matched before/after point calls
 
 `examples/point-query-delta.ink`, 4000 restored rows, 1000 calls per timed batch:

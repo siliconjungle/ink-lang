@@ -257,7 +257,7 @@ fn expr(
     // checked numeric context; do not recheck the entire subtree per operation.
     let ty = match (e, want) {
         (Expr::Binary(op, _, _), Some(t))
-            if ["+", "-", "*"].contains(&op.as_str()) && crate::check::is_number(t) =>
+            if ["+", "-", "*"].contains(&op.as_str()) && crate::check::is_numeric_value(t) =>
         {
             t.clone()
         }
@@ -270,6 +270,9 @@ fn expr(
         depth,
     };
     match e {
+        Expr::Call(n, _) if n == "list" || crate::word::primitive(n) => {
+            evaluate_primitive_call(e, frame, fuel, ty)
+        }
         Expr::Call(n, _)
             if [
                 "repeat_until",
@@ -309,8 +312,10 @@ fn expr(
         }
         Expr::Call(n, _) if n == "choose" => evaluate_choose(e, frame, fuel, ty),
         Expr::Call(n, _) if n == "fold_until" => evaluate_fold_until(e, frame, fuel, ty),
-        Expr::Call(n, _) if n == "foldr" => evaluate_foldr(e, frame, fuel, ty),
-        Expr::Num(n) => Ok(if ty == Type::I32 {
+        Expr::Call(n, _) if n == "foldr" || n == "foldl" => evaluate_foldr(e, frame, fuel, ty),
+        Expr::Num(n) => Ok(if ty == Type::Int {
+            Value::Opaque(crate::stateful::Value::Int(num_bigint::BigInt::from(*n)))
+        } else if ty == Type::I32 {
             Value::I32(*n as i32)
         } else if ty == Type::F32 {
             Value::F32((*n as f32).to_bits())
@@ -322,6 +327,7 @@ fn expr(
         Expr::Bool(b) => Ok(Value::Bool(*b)),
         Expr::String(s) => Ok(Value::Opaque(crate::stateful::Value::String(s.clone()))),
         Expr::Unit => Ok(Value::Opaque(crate::stateful::Value::Unit)),
+        Expr::Var(n) if n == "None" => Ok(Value::Opaque(crate::stateful::Value::Option(None))),
         Expr::Var(n) => copy_value(env.get(n).ok_or_else(|| format!("unbound {n}"))?, fuel),
         Expr::Binary(..) => evaluate_binary(e, frame, fuel, ty),
         Expr::Call(..) => evaluate_apply(e, frame, fuel, ty),
@@ -329,6 +335,45 @@ fn expr(
         Expr::Lambda(..) => Err("lambda cannot be evaluated outside collection operator".into()),
         _ => Err("use stateful execution for this expression".into()),
     }
+}
+
+// Collection and word temporaries must not enlarge every recursive expression
+// frame: the depth guard has to run before exhausting a small host stack.
+#[inline(never)]
+fn evaluate_primitive_call(
+    e: &Expr,
+    frame: Frame<'_>,
+    fuel: &mut u64,
+    ty: Type,
+) -> LangResult<Value> {
+    let Frame {
+        env,
+        types,
+        p,
+        depth,
+    } = frame;
+    let Expr::Call(n, args) = e else {
+        unreachable!("expression dispatch")
+    };
+    if n == "list" {
+        let Type::List(inner) = &ty else {
+            return Err("list result type".into());
+        };
+        return args
+            .iter()
+            .map(|e| expr(e, env, types, p, fuel, Some(inner), depth))
+            .collect::<LangResult<Vec<_>>>()
+            .map(Value::List);
+    }
+    let args = args
+        .iter()
+        .zip(crate::word::arguments(n, &ty))
+        .map(|(e, t)| {
+            expr(e, env, types, p, fuel, Some(&t), depth)
+                .and_then(crate::stateful::Value::from_eval)
+        })
+        .collect::<LangResult<Vec<_>>>()?;
+    crate::word::evaluate(n, &args)?.to_eval()
 }
 
 // A separate frame keeps deeply nested evaluation from reserving stack space
@@ -388,6 +433,9 @@ fn evaluate_negation(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> La
                 Value::U32(x) => Value::U32(x.wrapping_neg()),
                 Value::U64(x) => Value::U64(x.wrapping_neg()),
                 Value::F32(b) => Value::F32(b ^ 0x80000000),
+                Value::Opaque(crate::stateful::Value::Int(x)) => {
+                    Value::Opaque(crate::stateful::Value::Int(-x))
+                }
                 _ => return Err("numeric negation".into()),
             })
         }
@@ -448,6 +496,16 @@ fn evaluate_field(e: &Expr, frame: Frame<'_>, fuel: &mut u64, _ty: Type) -> Lang
     } = frame;
     match e {
         Expr::Field(e, n) => {
+            if let Expr::Var(en) = e.as_ref() {
+                if !env.contains_key(en)
+                    && p.enums.get(en).is_some_and(|variants| variants.contains(n))
+                {
+                    return Ok(Value::Opaque(crate::stateful::Value::Enum(
+                        en.clone(),
+                        n.clone(),
+                    )));
+                }
+            }
             let v = expr(e, env, types, p, fuel, None, depth)?;
             match v {
                 Value::Record(_, fields) => copy_value(fields.get(n).ok_or("missing field")?, fuel),
@@ -789,7 +847,7 @@ fn evaluate_foldr(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> LangR
         depth,
     } = frame;
     match e {
-        Expr::Call(n, args) if n == "foldr" => {
+        Expr::Call(n, args) if n == "foldr" || n == "foldl" => {
             if args.len() != 3 {
                 return Err("foldr argument count".into());
             }
@@ -810,7 +868,11 @@ fn evaluate_foldr(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> LangR
             let mut local_types = types.clone();
             local_types.insert(item.clone(), *item_type);
             local_types.insert(rest.clone(), ty.clone());
-            for x in xs.into_iter().rev() {
+            let mut xs = xs;
+            if n == "foldr" {
+                xs.reverse();
+            }
+            for x in xs {
                 local.insert(item.clone(), x);
                 local.insert(rest.clone(), rest_value);
                 rest_value = expr(body, &local, &local_types, p, fuel, Some(&ty), depth)?;
@@ -831,7 +893,7 @@ fn evaluate_binary(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> Lang
     } = frame;
     match e {
         Expr::Binary(op, a, b) => {
-            let operand_ty = if crate::check::is_number(&ty) {
+            let operand_ty = if crate::check::is_numeric_value(&ty) {
                 Some(ty.clone())
             } else {
                 crate::check::hint(a, types, p).or_else(|| crate::check::hint(b, types, p))
@@ -860,6 +922,25 @@ pub(crate) fn arithmetic_f32_bits(value: f32) -> u32 {
 #[inline(never)]
 fn binary_values(op: &str, av: Value, bv: Value) -> LangResult<Value> {
     match (&av, &bv, op) {
+        (
+            Value::Opaque(crate::stateful::Value::Int(a)),
+            Value::Opaque(crate::stateful::Value::Int(b)),
+            op,
+        ) => {
+            use crate::stateful::Value as S;
+            Ok(match op {
+                "+" => Value::Opaque(S::Int(a + b)),
+                "-" => Value::Opaque(S::Int(a - b)),
+                "*" => Value::Opaque(S::Int(a * b)),
+                "<" => Value::Bool(a < b),
+                ">" => Value::Bool(a > b),
+                "<=" => Value::Bool(a <= b),
+                ">=" => Value::Bool(a >= b),
+                "==" => Value::Bool(a == b),
+                "!=" => Value::Bool(a != b),
+                _ => return Err("exact integer operator".into()),
+            })
+        }
         (Value::F32(a), Value::F32(b), op) => {
             let a = f32::from_bits(*a);
             let b = f32::from_bits(*b);
@@ -918,6 +999,19 @@ fn evaluate_apply(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> LangR
     } = frame;
     match e {
         Expr::Call(n, args) => {
+            if [
+                "Int",
+                "Some",
+                "Ok",
+                "Err",
+                "checked_add",
+                "checked_sub",
+                "checked_mul",
+            ]
+            .contains(&n.as_str())
+            {
+                return evaluate_value_builtin(n, args, frame, fuel, &ty);
+            }
             let expected: Vec<Option<Type>> = if n == "sum" || n == "count" {
                 vec![if n == "sum" {
                     Some(Type::List(Box::new(ty.clone())))
@@ -941,7 +1035,21 @@ fn evaluate_apply(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> LangR
             if n == "sum" || n == "count" {
                 if let Some(Value::List(xs)) = vals.first() {
                     if n == "count" {
-                        return Ok(Value::U64(xs.len() as u64));
+                        return Ok(if ty == Type::Int {
+                            Value::Opaque(crate::stateful::Value::Int(xs.len().into()))
+                        } else {
+                            Value::U64(xs.len() as u64)
+                        });
+                    }
+                    if ty == Type::Int {
+                        let mut sum = num_bigint::BigInt::from(0);
+                        for x in xs {
+                            let Value::Opaque(crate::stateful::Value::Int(x)) = x else {
+                                return Err("exact sum type".into());
+                            };
+                            sum += x;
+                        }
+                        return Ok(Value::Opaque(crate::stateful::Value::Int(sum)));
                     }
                     if ty == Type::F32 {
                         let mut result = 0.0f32;
@@ -1002,6 +1110,83 @@ fn evaluate_map_filter(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> 
     } = frame;
     match e {
         Expr::Method(xs, n, args) => {
+            let receiver_type = crate::check::infer(xs, types, p)?;
+            if matches!(receiver_type, Type::Option(_) | Type::Result(..)) {
+                use crate::stateful::Value as S;
+                let Value::Opaque(value) =
+                    expr(xs, env, types, p, fuel, Some(&receiver_type), depth)?
+                else {
+                    return Err("variant receiver".into());
+                };
+                if n == "fold" {
+                    let (branch, value, input) = match (&value, &receiver_type) {
+                        (S::Option(Some(v)), Type::Option(t)) => {
+                            (0, v.as_ref().clone(), t.as_ref().clone())
+                        }
+                        (S::Option(None), Type::Option(_)) => (1, S::Unit, Type::Unit),
+                        (S::Result(true, v), Type::Result(t, _)) => {
+                            (0, v.as_ref().clone(), t.as_ref().clone())
+                        }
+                        (S::Result(false, v), Type::Result(_, t)) => {
+                            (1, v.as_ref().clone(), t.as_ref().clone())
+                        }
+                        _ => return Err("variant fold carrier".into()),
+                    };
+                    let Expr::Lambda(var, body) = &args[branch] else {
+                        return Err("variant fold callback".into());
+                    };
+                    let mut local = copy_env(env, fuel)?;
+                    local.insert(var.clone(), value.to_eval()?);
+                    let mut local_types = types.clone();
+                    local_types.insert(var.clone(), input);
+                    return expr(body, &local, &local_types, p, fuel, Some(&ty), depth);
+                }
+                if n == "ok_or" {
+                    let error = S::from_eval(expr(&args[0], env, types, p, fuel, None, depth)?)?;
+                    let S::Option(v) = value else {
+                        return Err("ok_or requires Option".into());
+                    };
+                    return Ok(Value::Opaque(match v {
+                        Some(v) => S::Result(true, v),
+                        None => S::Result(false, Box::new(error)),
+                    }));
+                }
+                let (payload, input_type) = match (&value, &receiver_type, n.as_str()) {
+                    (S::Option(Some(v)), Type::Option(t), "map")
+                    | (S::Result(true, v), Type::Result(t, _), "map")
+                    | (S::Result(false, v), Type::Result(_, t), "map_err") => {
+                        (v.as_ref(), t.as_ref())
+                    }
+                    _ => return Ok(Value::Opaque(value)),
+                };
+                let Expr::Lambda(var, body) = &args[0] else {
+                    return Err("variant lambda".into());
+                };
+                let mut local = copy_env(env, fuel)?;
+                local.insert(var.clone(), payload.to_eval()?);
+                let mut ts = types.clone();
+                ts.insert(var.clone(), input_type.clone());
+                let output_type = match (&ty, n.as_str()) {
+                    (Type::Option(t), _)
+                    | (Type::Result(t, _), "map")
+                    | (Type::Result(_, t), "map_err") => t.as_ref(),
+                    _ => return Err("variant output".into()),
+                };
+                let mapped = Box::new(S::from_eval(expr(
+                    body,
+                    &local,
+                    &ts,
+                    p,
+                    fuel,
+                    Some(output_type),
+                    depth,
+                )?)?);
+                return Ok(Value::Opaque(match value {
+                    S::Option(_) => S::Option(Some(mapped)),
+                    S::Result(ok, _) => S::Result(ok, mapped),
+                    _ => unreachable!(),
+                }));
+            }
             let vals = if let Value::List(xs) = expr(
                 xs,
                 env,
@@ -1058,6 +1243,77 @@ fn evaluate_map_filter(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> 
         }
         _ => unreachable!("expression dispatch"),
     }
+}
+
+fn evaluate_value_builtin(
+    n: &str,
+    args: &[Expr],
+    frame: Frame<'_>,
+    fuel: &mut u64,
+    ty: &Type,
+) -> LangResult<Value> {
+    use crate::stateful::Value as S;
+    let context = match (n, ty) {
+        ("Some", Type::Option(t)) | ("Ok", Type::Result(t, _)) | ("Err", Type::Result(_, t)) => {
+            Some(t.as_ref())
+        }
+        ("checked_add" | "checked_sub" | "checked_mul", Type::Result(t, _)) => Some(t.as_ref()),
+        _ => None,
+    };
+    let first = expr(
+        &args[0],
+        frame.env,
+        frame.types,
+        frame.p,
+        fuel,
+        context,
+        frame.depth,
+    )?;
+    let result = match n {
+        "Some" => S::Option(Some(Box::new(S::from_eval(first)?))),
+        "Ok" | "Err" => S::Result(n == "Ok", Box::new(S::from_eval(first)?)),
+        "Int" => S::Int(match first {
+            Value::U32(v) => v.into(),
+            Value::U64(v) => v.into(),
+            Value::I32(v) => v.into(),
+            Value::Opaque(S::Int(v)) => v,
+            _ => return Err("Int input".into()),
+        }),
+        _ => {
+            let second = expr(
+                &args[1],
+                frame.env,
+                frame.types,
+                frame.p,
+                fuel,
+                context,
+                frame.depth,
+            )?;
+            macro_rules! checked {
+                ($a:expr, $b:expr, $variant:ident) => {{
+                    let value = match n {
+                        "checked_add" => $a.checked_add($b),
+                        "checked_sub" => $a.checked_sub($b),
+                        _ => $a.checked_mul($b),
+                    };
+                    value.map(S::$variant)
+                }};
+            }
+            let value = match (first, second) {
+                (Value::U32(a), Value::U32(b)) => checked!(a, b, U32),
+                (Value::U64(a), Value::U64(b)) => checked!(a, b, U64),
+                (Value::I32(a), Value::I32(b)) => checked!(a, b, I32),
+                _ => return Err("checked integer operands".into()),
+            };
+            S::Result(
+                value.is_some(),
+                Box::new(
+                    value.unwrap_or_else(|| S::Enum("ArithmeticError".into(), "Overflow".into())),
+                ),
+            )
+        }
+    };
+    Ok(Value::Opaque(result))
 }
 
 /// Evaluate a closed primitive expression with the reference semantics. Used by

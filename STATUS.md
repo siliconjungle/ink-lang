@@ -41,7 +41,7 @@ losing candidates. See [the operation and trust boundaries](docs/universal-optim
 [durable hosts](docs/durable-host.md), [modules](docs/modules.md) and
 [installation](docs/installation.md) give the exact contracts.
 Ordinary baseline JavaScript keeps recompute; checked standalone representations
-maintain the admitted fixed-key and filtered aggregate candidates. F32 programs use executable-core V7:
+maintain the admitted fixed-key and filtered aggregate candidates. F32 programs use executable-core V8:
 arithmetic rounds to binary32 and produces canonical NaNs; transport and negation
 preserve payload bits. Packed GPU code uses integer lanes for this contract. Literal GPU scans and sorts are not a claim of
 efficient parallel prefix/sorting algorithms.
@@ -116,7 +116,7 @@ through existing proof-package protocols. Ordinary emission is an empty selectio
 package in the database, without a privileged compiler branch. Replay binds the
 source/compiler/target and exact pinned candidate. Supplied lifetime and portable
 migration costs enter external ranking; missing comparable evidence retains the
-supplied baseline. General profitability remains incomplete.
+supplied baseline. General profitability remains incomplete. Active physical-representation examples are re-authored and universally checked against V8 source identities; archived measurements retain their original exact packages.
 
 Repeated database-only proof batches have removed traversals and intermediate
 results with compiler/runtime/lowering sources unchanged. Some selected variants
@@ -127,7 +127,7 @@ it does not establish faster execution. See [the evidence index](BENCHMARKS.md).
 
 [Ordered parallel work, owned partitions, checked recursion and GPU scratch](docs/bend-inspired.md)
 use executable-core V5, with general control/owned transforms in V6 and F32
-arithmetic in V7. Complete native C/Rust use bounded workers; JavaScript and both Wasm paths
+arithmetic in V7 and generic language additions in V8. Complete native C/Rust use bounded workers; JavaScript and both Wasm paths
 use host workers with ordered results. Browser entry points are asynchronous
 and require cross-origin isolation; small or nested work can remain sequential. Browser and native GPU scratch
 support bounded split/rejoin and push within 64 elements; resident graph feedback
@@ -197,3 +197,26 @@ used journals. These are within-lane steady-state results, not cross-language
 rankings or GPU-device claims. Existing cached linked-list writes remain costly:
 ordinary Rust wins write-heavy mixes, while cached aggregates win read-only work.
 See [raw samples, generated code and limits](reports/indexed-source-choice-2026-10-12/README.md).
+
+## Generic language foundations
+
+[Bounded surface and value additions](docs/generic-language-foundations.md) cover
+ordinary pure/action value consistency, lazy conditionals, list literals, exact
+counts, fixed word operations, generics/aliases/constants, payload enums/matching,
+finite local iteration, fixed arrays and pure nonescaping callbacks. Fallible
+pre/postcondition validation uses ordinary Result errors and transaction rollback.
+External theorem authoring checks canonical evidence through the existing kernel.
+Exact integer arithmetic/count/sum now have executable semantic correspondence.
+
+Generic sets, grouping, joins, partition mapping and checked division are external
+Ink definitions. Scoped native/JavaScript buffer partitions share disjoint ranges
+and rejoin adjacent ranges without element copies; growth detaches before overlap.
+Generated ownership support lives in ink-native-support, independent of reference
+execution. Clone counters/backing identity and compiled conformance validate this
+mechanism; complete-workload timing improvements are not claimed here.
+Knowledge supplies 247 finite-list laws and three authored exact-integer laws.
+The compiler's JavaScript fold shortcut is removed. C/Rust/JavaScript/both Wasm
+conformance is mandatory; actual eligible GPU dispatch and compiled fallback retain
+the explicit device capability boundary. This does not close compact numerical
+carriers, packed Bytes, new borrowing syntax, static refinements or the full design
+draft. The scope document records the exact admission and resource limits.
