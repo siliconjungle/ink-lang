@@ -64,7 +64,7 @@ fn existing_string_literals_have_checked_binder_safe_correspondence() {
     let m=module("fn greeting()->String{return \"hello 🌍\";}");
     let body=&m.program().functions[0].body;
     let tree=s::elaborate(body,&BTreeMap::new(),m.program(),&Type::String).unwrap();
-    assert!(matches!(tree.node,Node::Text(_)));
+    assert!(matches!(tree.node,Node::String(_)));
     assert_eq!(s::reify(&tree,m.program()).unwrap(),*body);
     assert_eq!(verified_language::eval::call(m.program(),"greeting",vec![],&mut 1000).unwrap().json(),serde_json::json!("hello 🌍"));
     let invalid=s::term(s::value(Type::U64),tree.node);

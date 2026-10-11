@@ -276,7 +276,7 @@ fn check(name: &str, source: &str, request: Option<Request>, calls: Vec<(&str, V
         // Make checkpoint encoding fail without affecting valid action calls.
         library.push_str("\npub fn check_calls_do_not_encode_snapshot(){let mut state=State::new().unwrap();state.layout.roots.clear();let oracle:Vec<Json>=serde_json::from_str(ORACLE_FOR_CALL_CHECK).unwrap();for step in oracle {if step.get(\"ack\").is_some()||step.get(\"restore\").is_some(){break;}if let(Some(name),Some(args),Some(expected))=(step[\"call\"].as_str(),step.get(\"args\"),step[\"reply\"].get(\"ok\")){assert_eq!(state.invoke_json(name,args).unwrap(),*expected);}}}\n");
         library.push_str(&format!("const ORACLE_FOR_CALL_CHECK:&str={encoded:?};\n"));
-        let types=checked.projection().types.keys().enumerate().map(|(i,t)|(t.clone(),i)).collect::<std::collections::BTreeMap<_,_>>();
+        let types=checked.projection().types.iter().filter(|(_,sort)|match sort{verified_language::logic::Sort::Data(id)=>reachable.contains_key(id),_=>true}).enumerate().map(|(i,(t,_))|(t.clone(),i)).collect::<std::collections::BTreeMap<_,_>>();
         library.push_str("\nfn typed_invoke(state:&mut State,name:&str,args:&Json)->Result<Json,String>{let xs=args.as_array().unwrap();match name{\n");
         for action in &module.program().actions {
             library.push_str(&format!("{:?}=>{{",action.name));let mut inputs=vec![];

@@ -183,5 +183,5 @@ fn unwrap_or_evaluates_fallback_effects_even_when_present_and_rolls_back_failure
     assert_eq!(expected[6]["outcome"]["result"],json!({"Some":7}));
     let root=Path::new(env!("CARGO_MANIFEST_DIR")).join("build/eager-unwrap-or");fs::create_dir_all(&root).unwrap();
     let runner=r#"use compiled_state::State;use serde_json::{Value,json};fn main(){let steps:Vec<Value>=serde_json::from_slice(&std::fs::read(std::env::args().nth(1).unwrap()).unwrap()).unwrap();let mut state=State::new();let mut output=vec![];for step in steps{let outcome=state.invoke_json(step["call"].as_str().unwrap(),&step["args"]).unwrap();output.push(json!({"outcome":outcome,"snapshot":state.checkpoint().unwrap()}));}println!("{}",serde_json::to_string(&output).unwrap());}"#;
-    assert_eq!(compile_and_run_with_runner(&root,&state_native::emit(&p,None).unwrap(),&script,runner),json!(expected));
+    assert_eq!(compile_and_run_with_runner(&root,&state_native::emit(&p).unwrap(),&script,runner),json!(expected));
 }
