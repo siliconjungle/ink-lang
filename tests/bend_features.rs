@@ -44,6 +44,74 @@ fn parallel_buffers_recursion_and_scratch_agree_on_all_backends() {
         steps.push(json!({"pure":name,"args":args,"expect_gpu":gpu}));
         expected.push(json!({"reply":{"value":want},"snapshot":r.checkpoint_portable().unwrap()}));
     }
+    for at in [0u32, 1, 4, 8, u32::MAX] {
+        let xs = vec![0u32, 3, u32::MAX];
+        let split = at.min(8);
+        let want = xs
+            .iter()
+            .map(|&x| {
+                let first = x.wrapping_mul(if split == 0 { 5 } else { 3 });
+                let last = (x.wrapping_add(7))
+                    .wrapping_mul(if split == 8 { 3 } else { 5 })
+                    .wrapping_add(if split == 8 { 7 } else { 7 - split });
+                first.wrapping_add(last).wrapping_add(8)
+            })
+            .collect::<Vec<_>>();
+        steps.push(json!({"pure":"partition_scratch_many","args":[xs,at],"expect_gpu":true}));
+        expected.push(json!({"reply":{"value":want},"snapshot":r.checkpoint_portable().unwrap()}));
+    }
+    for (name, xs, want) in [
+        ("partition_scratch_many", json!([]), json!([])),
+        (
+            "push_scratch_many",
+            json!([0, 3, 4294967295u32]),
+            json!([0, 3, 4294967295u32]),
+        ),
+        ("push_scratch_many", json!([]), json!([])),
+        (
+            "stopping_scratch_many",
+            json!([0, 3, 4294967295u32]),
+            json!([3, 3, 3]),
+        ),
+        ("stopping_scratch_many", json!([]), json!([])),
+    ] {
+        let args = if name == "partition_scratch_many" {
+            json!([xs, 0])
+        } else {
+            json!([xs])
+        };
+        steps.push(json!({"pure":name,"args":args,"expect_gpu":true}));
+        expected.push(json!({"reply":{"value":want},"snapshot":r.checkpoint_portable().unwrap()}));
+    }
+    for at in [0u32, 1, u32::MAX] {
+        let signed = [i32::MIN, -3, 0, i32::MAX];
+        let floats = [-3.5f32, 0.0, 2.5];
+        for (name, xs, want) in [
+            (
+                "signed_partition_scratch",
+                json!(signed),
+                json!(signed.map(|x| if at == 0 { x } else { x.wrapping_mul(3) })),
+            ),
+            (
+                "float_partition_scratch",
+                json!(floats),
+                json!(floats.map(|x| if at == 0 { x } else { x + 1.5 })),
+            ),
+            (
+                "bool_partition_scratch",
+                json!([true, false]),
+                if at == 0 {
+                    json!([true, false])
+                } else {
+                    json!([false, true])
+                },
+            ),
+        ] {
+            steps.push(json!({"pure":name,"args":[xs,at],"expect_gpu":true}));
+            expected
+                .push(json!({"reply":{"value":want},"snapshot":r.checkpoint_portable().unwrap()}));
+        }
+    }
     for n in [0, 1, 17, 1024] {
         let xs = (0..n)
             .map(|i| (i as u32).wrapping_mul(2654435761))
