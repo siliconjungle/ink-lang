@@ -120,7 +120,7 @@ discovery rather than source action execution. The standalone synthetic timings
 and exact baseline are in `reports/knowledge-lookup-performance`.
 
 The reference executor runs checked first-order definitions. The independently
-versioned Rust lowering literally compiles their bodies and emits an executor
+versioned C, Rust and JavaScript lowerings literally compile their bodies and emit executors
 bound to the exact sealed definition identities. It can contain up to sixteen
 representations and sixteen direct migrations. It rejects unknown closures.
 No compiler optimiser chooses algorithms while emitting those definitions.
@@ -174,16 +174,21 @@ u64/Bool/Unit/enums/records/Option/Result/List values, supported fixed primitive
 operations, table operations, nested changes/queries, Try, replies and events.
 Unsupported source domains fail closed and continue to use ordinary baseline
 execution. This does not extend representation admission to exact-Int aggregates,
-keeps, floating-point arithmetic, other key domains or all language features.
+floating-point arithmetic, other key domains or all language features. Keeps
+within the admitted U64/Bool/data domain expand through their fixed source bodies;
+checked point-query candidates reuse results and apply guarded overwrite/remove
+deltas. Exact-Int aggregate keeps remain outside this projection.
 Those require fixed source correspondence before their candidates can replace
 execution. Retiring their old specialised approval is not claiming that all old
 optimised catalogue entries have been ported to the new contract.
 
 The new path adds no proof-kernel rule and changes no source syntax or snapshot
-wire format. The fixed source projection, general checker, codecs, literal Rust
-emitter, Rust/LLVM and host remain trusted implementations; there is no formal
-compiler-correctness claim. Other CPU/GPU backends retain baseline execution;
-the new physical-definition executor is currently Rust only. Resource failures
+wire format. The fixed source projection, general checker, codecs, literal
+emitters, C/Rust/JavaScript/Wasm toolchains and hosts remain trusted; there is no
+formal compiler-correctness claim. All five CPU targets can execute the sealed
+physical definitions through `ink_runtime::representation::compiled::prepare`.
+The JavaScript bundle exports `createRepresentationState`. GPU physical-definition
+execution remains unimplemented. Resource failures
 are host errors, not mathematical proof premises. The reference codec limits a
 table/event list to 4096 entries and source values to depth 32; the general
 checker and native definition dispatcher also retain their existing bounds.
@@ -197,3 +202,25 @@ outbox entries and byte-identical portable snapshots; exercise baseline restore,
 reverse/generic/direct migration, failed migration and version exhaustion;
 compile cached database definitions and replay them offline; and reject stale
 source, missing action evidence, missing objects and authentic but false proofs.
+
+## Portable literal executor tooling
+
+```sh
+ink execute-representation app.ink request.json calls.json --target javascript
+ink execute-representation app.ink request.json calls.json --target c-wasm --zig /path/to/zig
+ink emit-representation app.ink request.json --target javascript -o application.mjs
+ink emit-representation app.ink request.json --target c -o build/definitions
+```
+
+`execute-representation` accepts `c`, `rust`, `javascript`, `c-wasm`, `rust-wasm`
+and never substitutes reference execution. `--build-dir` controls the artifact
+directory. Revisited migration closures reuse an exact registered target; mixing
+targets for one closure is rejected. C/Rust-Wasm and native C definition artifacts
+use a bounded postorder word ABI; JavaScript uses tagged exact values. Inputs
+reject aliases, forward references and unused nodes. C's global word ABI requires
+serial access; the runtime executor serialises its persistent subprocess channel.
+Definition manifests identify sealed code; registering arbitrary artifacts is a
+trusted host decision, not proof of backend correctness. Native Rust application
+bundles and JavaScript bundles can be emitted as source files. Other targets emit
+a directory containing literal definitions and their manifest, for the common
+`Session` host API.

@@ -48,6 +48,12 @@ fn conformance_inner(
     steps: Vec<Value>,
     expected: Vec<Value>,
 ) {
+    if std::env::var_os("INK_PARITY_REQUIRE_ALL").is_some() {
+        assert!(
+            std::env::var_os("INK_TEST_ZIG").is_some(),
+            "complete-target parity forbids skipping Wasm: set INK_TEST_ZIG"
+        );
+    }
     let module = CheckedModule::from_source(p.clone()).unwrap();
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join(format!("build/{name}"));
     fs::create_dir_all(&root).unwrap();
@@ -110,7 +116,11 @@ fn conformance_inner(
         let mut gpu_steps = steps.clone();
         for step in &mut gpu_steps {
             if step["pure"].is_string() {
-                step["backend"] = json!("gpu");
+                step["backend"] = json!(if step["expect_gpu"] == true {
+                    "gpu-required"
+                } else {
+                    "gpu"
+                });
             }
         }
         fs::write(

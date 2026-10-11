@@ -11,6 +11,7 @@ const server=http.createServer(async(req,res)=>{
     const file=path.resolve(root,'.'+new URL(req.url,'http://localhost').pathname);
     if(!file.startsWith(root+path.sep))throw Error('path outside fixture root');
     const bytes=await fs.readFile(file);
+    res.setHeader('Cross-Origin-Opener-Policy','same-origin');res.setHeader('Cross-Origin-Embedder-Policy','require-corp');
     res.setHeader('Content-Type',file.endsWith('.mjs')?'text/javascript':file.endsWith('.wasm')?'application/wasm':'application/json');
     res.end(bytes);
   } catch {res.statusCode=404;res.end();}
@@ -20,10 +21,10 @@ const base=`http://127.0.0.1:${server.address().port}/`;
 let browser;
 try {
   browser=await chromium.launch({executablePath:chrome,headless:true,args:['--enable-unsafe-webgpu',...(process.platform==='linux'?['--use-angle=swiftshader','--enable-unsafe-swiftshader']:[])]});
-  const page=await browser.newPage();await page.goto(base+'build/generated-parity-bend/script.json');
+  const page=await browser.newPage();page.on("console",m=>{if(m.type()==="error")console.error(m.text());});page.on("pageerror",e=>console.error(e));await page.goto(base+'build/generated-parity-bend/script.json');
   const steps=JSON.parse(await fs.readFile('build/generated-parity-bend/script.json','utf8'));
   const expected=JSON.parse(await fs.readFile('build/generated-parity-bend/expected.json','utf8'));
-  const fixtures=steps.map((s,i)=>({...s,expected:expected[i].reply.value}));
+  const fixtures=steps.map((s,i)=>({...s,expected:expected[i].reply.value})).filter(s=>!process.env.INK_BROWSER_FUNCTION||s.pure===process.env.INK_BROWSER_FUNCTION);
   const bend=await page.evaluate(async({base,fixtures})=>{
     const root=new URL('build/generated-parity-bend/gpu-module/',base);
     const {loadInk}=await import(new URL('ink-gpu.mjs',root));
@@ -33,7 +34,9 @@ try {
     for(const f of fixtures)for(const backend of ['cpu','javascript','gpu']) {
       const params=ink.manifest.javascript.functions.find(x=>x.name===f.pure).params;
       const args=f.args.map((v,i)=>typed(v,params[i].type));
-      const r=await ink.call(f.pure,args,{backend});
+      const before=ink.parallelStatistics?.()[backend];
+      let r;try{r=await ink.call(f.pure,args,{backend});}catch(e){throw Error(`${f.pure}/${backend}: ${e.message}`);}
+      if(f.expect_workers&&['cpu','javascript'].includes(backend)){const after=ink.parallelStatistics()[backend];if(after.workers-before.workers<2||after.workerIds.length<2)throw Error(`${f.pure}/${backend}: no distinct worker execution`);}
       if(exact(r.value)!==exact(f.expected))throw Error(`${f.pure}/${backend}: value mismatch`);
       if(backend==='gpu'&&f.expect_gpu&&r.backend!=='gpu')throw Error(`${f.pure}: fallback ${r.reason}`);
       replies.push({function:f.pure,requested:backend,backend:r.backend});

@@ -369,6 +369,41 @@ impl<'p> Lower<'p> {
             return next(self, value, state, events);
         }
         match &n.kind {
+            Kind::Keep(index) => {
+                if calls >= 32 {
+                    return Err("action model keep expansion limit".into());
+                }
+                let keep = scope
+                    .actions
+                    .keep(*index)
+                    .ok_or("action model keep index")?;
+                let frame = self.flow_frame(keep)?;
+                let root = frame.value.ok_or("action model keep root")?;
+                let kept_state = state.clone();
+                let kept_events = events.clone();
+                self.flow_expr(
+                    scope,
+                    &frame,
+                    root,
+                    &Env::new(),
+                    state,
+                    events,
+                    next,
+                    &|this, error| {
+                        if !matches!(ty, Type::Result(..)) {
+                            return Err("abrupt keep requires Result".into());
+                        }
+                        next(
+                            this,
+                            c(id(&sort)?, 1, vec![error]),
+                            kept_state.clone(),
+                            kept_events.clone(),
+                        )
+                    },
+                    depth + 1,
+                    calls + 1,
+                )
+            }
             Kind::Number(_)
             | Kind::Bool(_)
             | Kind::Unit

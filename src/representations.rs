@@ -49,7 +49,22 @@ pub fn run(cmd: &str, module: CheckedModule, args: &[String]) -> LangResult<()> 
         ),
         "emit-representation" => {
             let output = value("-o").ok_or("emit-representation requires -o OUTPUT.rs")?;
-            let source = crate::representation_native::lower(&[checked], &[])?;
+            let source = match value("--target").map(String::as_str).unwrap_or("rust") {
+                "rust" => crate::representation_native::lower(&[checked], &[])?,
+                "javascript" => crate::runtime::representation::javascript::emit(&[checked], &[])?,
+                target => {
+                    let target = crate::runtime::representation::compiled::Target::parse(target)?;
+                    let mut executor = crate::runtime::representation::compiled::Compiled::new();
+                    crate::runtime::representation::compiled::prepare(
+                        &mut executor,
+                        checked.definition(),
+                        target,
+                        Path::new(output),
+                        value("--zig").map(String::as_str),
+                    )?;
+                    return Ok(());
+                }
+            };
             if let Some(parent) = Path::new(output).parent() {
                 if !parent.as_os_str().is_empty() {
                     fs::create_dir_all(parent).map_err(|e| e.to_string())?;
@@ -61,17 +76,36 @@ pub fn run(cmd: &str, module: CheckedModule, args: &[String]) -> LangResult<()> 
             let script: Value =
                 serde_json::from_slice(&read(args.get(3).ok_or("missing script JSON")?)?)
                     .map_err(|e| e.to_string())?;
+            let mut executor = crate::runtime::representation::compiled::Compiled::new();
+            let target = crate::runtime::representation::compiled::Target::parse(
+                value("--target").map(String::as_str).unwrap_or("rust"),
+            )?;
+            let directory = value("--build-dir")
+                .map(|s| Path::new(s))
+                .unwrap_or(Path::new("build/representation-executor"));
+            crate::runtime::representation::compiled::prepare(
+                &mut executor,
+                checked.definition(),
+                target,
+                directory,
+                value("--zig").map(String::as_str),
+            )?;
+            for step in script.as_array().ok_or("script must be an array")? {
+                if let Some(path) = step.get("migrate").and_then(Value::as_str) {
+                    let next = load(&module, path)?;
+                    crate::runtime::representation::compiled::prepare(
+                        &mut executor,
+                        next.definition(),
+                        target,
+                        directory,
+                        value("--zig").map(String::as_str),
+                    )?;
+                }
+            }
             let mut session = if let Some(file) = value("--restore") {
-                crate::runtime::representation::Session::restore(
-                    checked,
-                    &read(file)?,
-                    crate::runtime::representation::Reference,
-                )?
+                crate::runtime::representation::Session::restore(checked, &read(file)?, executor)?
             } else {
-                crate::runtime::representation::Session::new(
-                    checked,
-                    crate::runtime::representation::Reference,
-                )?
+                crate::runtime::representation::Session::new(checked, executor)?
             };
             let mut replies = vec![];
             for step in script.as_array().ok_or("script must be an array")? {
