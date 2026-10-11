@@ -578,7 +578,7 @@ impl CheckedBundle {
 }
 /// Construct a pinned in-memory view for proof producers and focused tests.
 pub fn from_catalogue(c: &Catalogue) -> LangResult<Bundle> {
-    if c.objects.len() > 4096 || c.roots.len() > 4096 {
+    if c.objects.len() > 1024 || c.roots.len() > 1024 {
         return Err("in-memory catalogue exceeds bounded knowledge view".into());
     }
     let objects = c
