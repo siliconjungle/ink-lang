@@ -1,6 +1,6 @@
 # Repository architecture and data contract
 
-The distribution assembles pinned repositories. The core's source lives entirely in `core/src`; `src/` contains CLI/facade code. Search and physical execution are separate packages rather than database scripts or target-specific bundle logic.
+The distribution assembles pinned repositories. The core's source lives entirely in `core/src`; `src/` contains CLI/facade code. Search and physical execution are separate packages rather than database scripts or target-specific bundle logic. This separation lets optimisation knowledge evolve independently while the core checks admission. See [philosophy and ambitions](vision.md) and [current coverage](../STATUS.md).
 
 ```mermaid
 flowchart LR
@@ -26,7 +26,14 @@ Performance observations are separate immutable objects. Comparisons require exa
 
 Executable selection uses `ink-evidence-v1`: input module identity, authenticated knowledge view and ordered applications with substitutions/premise proofs. The old catalogue selection format is rejected. Routing equivalence uses the same knowledge view and proof calculus. Replaying a plan requires its pinned bytes, not a current database or an experiment directory layout.
 
-Scalar and first-order definitions/theorems, and executable semantic laws, enter the canonical registry through one entry/view interface. Their proof terms remain specialised mathematical algebras. The 533 mathematical research entries were readdressed and checked under the new interface; 42 semantic laws use the same storage and snapshot protocol. Research fixtures retain their original formats solely for reproducing existing regression experiments. Program-specific maintenance/machine domains still require their specialised obligations: adding an arbitrary entry kind does not make it executable.
+Scalar and first-order definitions/theorems, executable semantic laws, physical
+representations and bridges enter the canonical registry through the entry/view
+interface. Their admission obligations differ by semantic domain. Exact counts
+belong to pinned snapshots and historical receipts, not the architecture contract.
+Research fixtures retain their original formats for reproduction. Adding an
+arbitrary entry kind does not make it executable. Source-bound representation
+entries need universal observation/invariant-preservation evidence for every
+action; see [the contract and limits](database-representations.md).
 
 ## Physical execution
 
@@ -34,4 +41,10 @@ The planner proposes checked graphs and cost choices. `ink-runtime::execution` c
 
 GPU target emission returns manifest/shader artifacts and owns shader/device operations. Shared runtime assembly supplies C fallback, Wasm compilation, browser/native host ABI, scheduling, profiling and fallback. The GPU lowerer has no C or runtime dependency. Wasm target exports remain in its lowering package; Wasm state host support belongs to runtime.
 
-Scalar source routes transport supported values through the host. Packed compute pipelines support resident arrays across steps and iterations. Broader physical bridge protocols, stateful placement, durable execution and end-to-end backend proofs remain explicit work, not consequences of an entry hash or a source equality proof.
+Scalar source routes transport supported values through the host. Packed compute
+pipelines support resident arrays across steps and iterations. Durable file and
+IndexedDB hosts implement [the declared recovery/delivery contract](durable-host.md).
+Explicit checked representation migrations operate at transaction boundaries;
+their session API alone supplies no durability guarantee. Broader resident bridge
+proofs, stateful placement, automatic live strategy choice and end-to-end backend
+proofs remain work. Neither an entry hash nor source equality establishes them.

@@ -6,6 +6,12 @@ against C, C++ and Rust. The executable subset and its evidence are documented
 in [lowering parity](docs/lowering-parity.md). A successful example does not close
 an entire gate. Editor support and schema evolution are outside the current scope.
 
+The philosophy is to keep program meaning stable while implementation knowledge
+accumulates. Reusable alternatives and proved laws belong in knowledge; the core
+supplies fixed semantics and general checking. Measurements rank admitted
+alternatives. [Design and ambitions](docs/vision.md) explains this separation;
+[status](STATUS.md) distinguishes integrated features from active work.
+
 ## Responsibilities and authority
 
 - **ink-core:** fixed language semantics, checked typed IR, reference execution,
@@ -32,6 +38,20 @@ an entire gate. Editor support and schema evolution are outside the current scop
 | 6 | Trust-boundary hardening | Adversarial/fuzz and independent checking of admission and codecs; connect any external metatheory explicitly to the implemented checker before verification claims. Report concurrency and resource boundaries, raw measurements and remaining trusted components. |
 
 ## Outstanding architecture requirements
+
+Current execution work prioritises precise facts through function composition,
+less intermediate allocation/copying and full-state transport, diagnosis of
+composed-helper regressions, and target-specific profitability. Broader benchmark
+families must vary size, shape and distribution independently and compare full
+results with strong JS, Rust-Wasm and native Rust controls. GPU residency and
+complete requests remain separate boundaries. Generalisation and fewer
+regressions matter more than catalogue size.
+
+Stateful research should use exact relevant changes to maintain results and
+workload frequencies/lifetime to choose whether maintenance pays. Charge setup,
+proof checking, additional writes, memory and migration. Trial bounded saved-profile
+or batch/session selection with an explicit static policy before a general live
+controller; never benchmark an effectful action by executing it speculatively.
 
 Default aggregate, bounded-cache and typed-policy admission is retired. Canonical
 source-bound representation entries now check all-action observation/invariant

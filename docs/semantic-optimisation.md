@@ -139,8 +139,11 @@ their positions and meaning. The private checked selection grants the original
 source program's snapshot identity to selected execution; a raw changed Program
 has its own identity. This grants no schema evolution or authority for later
 independent code changes. Direct transaction rewrites and state/representation
-migration still require trace/refinement evidence. Pure value equalities do not
-remove the remaining aggregate/representation migration debt.
+migration require separate transition/invariant evidence. Pure value equality
+alone supplies no stateful authority; [whole-action transitions](action-transitions.md)
+and [source-bound representations](database-representations.md) provide their own
+restricted admission paths. Broader aggregates/keeps remain open, and old
+specialised approval requires explicit historical research mode.
 
 Validation lives in `tests/semantic_optimisation.rs` and core-only unit tests.
 It covers composed nested rewrites, generic loop counts, overflow, collection
