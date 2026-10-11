@@ -184,6 +184,7 @@ impl Lower<'_> {
             }
             Node::Float(bits) => Ok(Term::U64(*bits as u64)),
             Node::Bool(n) => Ok(Term::Bool(*n)),
+            Node::String(text) => self.string_literal(text),
             Node::Free(n) => env
                 .get(n)
                 .cloned()

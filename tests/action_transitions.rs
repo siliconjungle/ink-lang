@@ -474,12 +474,14 @@ fn database_remove_law_admits_a_complete_action_and_rejects_changed_observations
 fn newly_supported_domains_project_and_remaining_gaps_fail_closed() {
     for source in [
         "module supported;query q(x:u32)->u32{return x;}",
+        "module supported;query q(x:String)->String{return x;}",
+        "module supported;query q(x:String)->Bool{return x==\"🧵 café\";}",
+        "module supported;id Owner;query q(x:Owner)->Owner{return x;}",
         "module supported;keep value:u64=1;query q()->u64 reads(value){return value;}",
         "module supported;state Rows:Table<u64,u64> = Table.empty();query q()->List<u64> reads(Rows){return Rows.values();}",
         "module supported;fn divide(x:u64)->u64{return quot_or(x,1,0);}query q(x:u64)->u64{return divide(x);}",
     ] { Projection::derive(&module(source)).unwrap(); }
     for source in [
-        "module unsupported;query q(x:String)->String{return x;}",
         "module unsupported;keep value:Int=Int(1);query q()->Int reads(value){return value;}",
         "module unsupported;state Rows:Table<u32,u64> = Table.empty();query q(k:u32)->Option<u64> reads(Rows){return Rows.get(k);}",
     ] {

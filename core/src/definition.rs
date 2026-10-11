@@ -29,6 +29,7 @@ pub struct SelectionPackage {
 #[derive(Clone, Debug)]
 pub struct CheckedDefinition {
     bundle: Bundle,
+    executable: BTreeMap<String, Declaration>,
     exports: Vec<String>,
     choices: BTreeMap<String, String>,
     bundle_sha256: String,
@@ -40,22 +41,9 @@ impl CheckedDefinition {
     /// This grants no source replacement authority; backends must also bind
     /// export choices and the sealed executable identity.
     pub fn executable_declarations(&self) -> LangResult<BTreeMap<String, Declaration>> {
-        self.bundle
-            .objects
-            .iter()
-            .filter_map(|(id, bytes)| {
-                let parsed = serde_json::from_str::<Object>(bytes);
-                match parsed {
-                    Ok(Object {
-                        declaration:
-                            d @ (Declaration::Datatype { .. } | Declaration::Function { .. }),
-                        ..
-                    }) => Some(Ok((id.clone(), d))),
-                    Ok(_) => None,
-                    Err(e) => Some(Err(e.to_string())),
-                }
-            })
-            .collect()
+        // This private index is constructed only after admission. Lowering must
+        // not repeatedly deserialize proofs to find executable declarations.
+        Ok(self.executable.clone())
     }
     /// Executable dependency graph rooted at the already selected exports.
     /// Proof dependencies remain checked in the bundle, but are not program
@@ -209,9 +197,16 @@ pub(crate) fn check_registry_with_context(
     }
     let mut unique = BTreeSet::new();
     let mut objects = BTreeMap::new();
+    let mut executable = BTreeMap::new();
     for (id, entry) in &bundle.objects {
         let declaration: Declaration = serde_json::from_value(entry.payload["declaration"].clone())
             .map_err(|e| e.to_string())?;
+        if matches!(
+            declaration,
+            Declaration::Datatype { .. } | Declaration::Function { .. }
+        ) {
+            executable.insert(id.clone(), declaration.clone());
+        }
         let object = Object {
             schema: 1,
             semantics: library::SEMANTICS.into(),
@@ -238,6 +233,7 @@ pub(crate) fn check_registry_with_context(
     // bytes cannot pass the separate raw-library hash admission path.
     Ok((
         CheckedDefinition {
+            executable,
             bundle: Bundle {
                 lock: crate::content::Lock {
                     schema: 1,
@@ -248,7 +244,7 @@ pub(crate) fn check_registry_with_context(
             },
             exports: exports.to_vec(),
             choices: BTreeMap::new(),
-            bundle_sha256: crate::registry::identity(bundle)?,
+            bundle_sha256: crate::registry::bundle_identity(bundle)?,
             closure: bundle.objects.keys().cloned().collect(),
             selection_sha256: None,
         },
@@ -360,6 +356,16 @@ pub fn check(
     }
     Ok(CheckedDefinition {
         bundle: bundle.clone(),
+        executable: objects
+            .iter()
+            .filter_map(|(id, object)| {
+                matches!(
+                    object.declaration,
+                    Declaration::Datatype { .. } | Declaration::Function { .. }
+                )
+                .then(|| (id.clone(), object.declaration.clone()))
+            })
+            .collect(),
         exports: exports.to_vec(),
         choices,
         bundle_sha256,

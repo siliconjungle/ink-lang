@@ -52,6 +52,7 @@ impl<'p> Lower<'p> {
                 Kind::Float(_)
                 | Kind::Number(_)
                 | Kind::Bool(_)
+                | Kind::String(_)
                 | Kind::Unit
                 | Kind::None
                 | Kind::Local(_)
@@ -424,6 +425,7 @@ impl<'p> Lower<'p> {
             }
             Kind::Number(_)
             | Kind::Bool(_)
+            | Kind::String(_)
             | Kind::Unit
             | Kind::None
             | Kind::Local(_)

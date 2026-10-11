@@ -774,3 +774,28 @@ fn boolean_delta_and_refresh_fallbacks_preserve_every_standalone_target() {
         );
     }
 }
+
+#[test]
+fn generic_indexed_products_and_grouped_actions_preserve_all_targets() {
+    let source=include_str!("../examples/general-indexed.ink");
+    let dir=root().join("general-indexed-authoring");fs::create_dir_all(&dir).unwrap();
+    let module=CheckedModule::from_source(parse(source).unwrap()).unwrap();
+    fs::write(dir.join("model.json"),serde_json::to_vec(&verified_language::action_model::Projection::derive(&module).unwrap()).unwrap()).unwrap();
+    let cached=std::env::var("INK_GENERAL_INDEXED_REQUEST").ok();
+    let path=if let Some(path)=cached {PathBuf::from(path)} else {
+        let python=std::env::var("INK_PROOF_PYTHON").unwrap_or_else(|_|"python3".into());
+        run(Command::new(python).args(["-m","producers.generic_indexed"]).arg(dir.join("model.json")).arg("-o").arg(dir.join("request.json")).env("PYTHONPATH",Path::new(env!("CARGO_MANIFEST_DIR")).join("knowledge")).env("INK_COMPILER",env!("CARGO_BIN_EXE_ink")),&dir.join("producer.log"));
+        dir.join("request.json")
+    };
+    let request:Request=serde_json::from_slice(&fs::read(path).unwrap()).unwrap();
+    let row=|key:u64|json!({"value":key.wrapping_mul(17),"active":key%2==0,"trail":[0,key,u64::MAX],"maybe":{"Some":key},"point":[1.25,{"F32Bits":2147483648u64}],"signed":i32::MIN,"exact":{"Int":"-123456789012345678901234567890"},"label":if key%2==0 {"🧵 café"}else{"other"},"owner":"0123456789ABCDEF0123456789ABCDEF","unsigned":u32::MAX,"result":{"Err":"Error.Failed"},"unit":null,"nested":{"Some":{"label":"e\u{301}","shade":"Shade.Dark"}}});
+    let mut calls=vec![];
+    for key in [8,4,12,2,6,10,14,1,3,5,7,9,11,13,15,0,u64::MAX] {
+        calls.push(("put",json!([key,row(key),key,false])));
+        calls.extend([("weighted_query",json!([])),("labelled",json!([])),("any_mark",json!([])),("joined",json!([])),("dynamic",json!([7])),("for_owner",json!(["0123456789abcdef0123456789abcdef"])),("floating",json!([])),("get",json!([key]))]);
+    }
+    for (first,second) in [(8,4),(3,3),(u64::MAX,0),(99,14),(10,99)] {
+        calls.extend([("edits",json!([first,second,42,true])),("edits",json!([first,second,42,false])),("replace_remove",json!([first,second,u64::MAX])),("remove_replace",json!([first,second,0])),("erase",json!([first,second,true])),("erase",json!([first,second,false])),("put",json!([second,row(second),second,true])),("joined",json!([])),("weighted_query",json!([])),("any_mark",json!([]))]);
+    }
+    check("general-indexed",source,Some(request),calls);
+}

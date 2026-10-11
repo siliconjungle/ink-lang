@@ -294,6 +294,10 @@ impl Lower<'_> {
                 Sort::Data(self.data(vec![("Vector", vec![s; *n as usize])])?)
             }
             Type::Bool => Sort::Bool,
+            Type::String => Sort::Data(self.data(vec![
+                ("StringNil", vec![]),
+                ("StringScalar", vec![Sort::U64, Sort::SelfType]),
+            ])?),
             Type::List(t) => {
                 let element = self.sort(t)?;
                 Sort::Data(self.data(vec![
@@ -312,7 +316,9 @@ impl Lower<'_> {
                 Sort::Data(self.data(vec![("Ok", vec![a]), ("Err", vec![e])])?)
             }
             Type::Named(n) => {
-                if let Some(xs) = self.program.enums.get(n).cloned() {
+                if self.program.ids.contains(n) {
+                    Sort::Data(self.data(vec![(format!("Id_{n}").as_str(), vec![Sort::U64, Sort::U64])])?)
+                } else if let Some(xs) = self.program.enums.get(n).cloned() {
                     Sort::Data(
                         self.store(Declaration::Datatype {
                             constructors: xs
@@ -344,6 +350,15 @@ impl Lower<'_> {
         self.active.remove(&key);
         self.types.insert(key, s.clone());
         Ok(s)
+    }
+    fn string_literal(&mut self, text: &str) -> LangResult<Term> {
+        let sort = self.sort(&Type::String)?;
+        let data = id(&sort)?;
+        let mut tail = c(data, 0, vec![]);
+        for scalar in text.chars().rev() {
+            tail = c(data, 1, vec![Term::U64(scalar as u64), tail]);
+        }
+        Ok(tail)
     }
     fn table(&mut self, value_type: &Type) -> LangResult<Table> {
         let val = self.sort(value_type)?;
@@ -547,6 +562,7 @@ impl Lower<'_> {
                 Ok(call(&i.negate, vec![x]))
             }
             Kind::Bool(x) => Ok(Term::Bool(*x)),
+            Kind::String(x) => self.string_literal(x),
             Kind::Unit => {
                 let s = self.sort(ty)?;
                 Ok(c(id(&s)?, 0, vec![]))
