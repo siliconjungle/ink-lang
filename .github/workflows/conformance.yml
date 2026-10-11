@@ -61,7 +61,9 @@ jobs:
           curl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain leanprover/lean4:v4.19.0
           echo "INK_TEST_LEAN=$HOME/.elan/bin/lean" >> "$GITHUB_ENV"
       - name: Rebuild disposable knowledge index
-        run: python -m ink_knowledge --root . rebuild
+        run: |
+          python tools/check_committed_snapshot.py
+          python -m ink_knowledge --root . rebuild
         working-directory: knowledge
       - name: Fetch locked dependencies
         run: |
