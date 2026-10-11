@@ -45,7 +45,10 @@ Eligible fresh receivers of length-preserving consumers can also execute into
 caller storage before their consumer updates that prefix in place. A filter
 destination only needs capacity for its final result: the larger receiver is
 materialized privately, then its kept prefix is written to the destination.
-Ordinary filters compact their eligible private receiver in stable source order.
+`reusable_receiver` retains the length-preserving placement contract; the separate
+`reusable_private_receiver` capability admits compaction without granting producer
+destination capacity. Ordinary filters compact their eligible private receiver
+in stable source order.
 C retains the returned list count;
 JavaScript retains the receiver Into count explicitly. Conversion-free
 JavaScript paths support this placement; F32/Int output conversion keeps the
