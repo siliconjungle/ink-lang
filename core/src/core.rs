@@ -473,11 +473,11 @@ fn validate(p: &Program) -> LangResult<(bool, bool)> {
 }
 
 fn control_needed(p: &Program) -> bool {
-    fn has(e: &Expr) -> bool {
+    fn has(e: &Expr, pure_carriers: bool) -> bool {
         let mut found = false;
         crate::analysis::walk(e, |n| {
             if matches!(n,Expr::Call(name,_) if name=="fold_until"||name=="foldr")
-                || matches!(n, Expr::String(_) | Expr::Unit)
+                || (pure_carriers && matches!(n, Expr::String(_) | Expr::Unit))
             {
                 found = true;
             }
@@ -486,14 +486,38 @@ fn control_needed(p: &Program) -> bool {
     }
     fn statements(ss: &[Statement]) -> bool {
         ss.iter().any(|s| match s {
-            Statement::If(c, a, b) => has(c) || statements(a) || statements(b),
+            Statement::If(c, a, b) => has(c, false) || statements(a) || statements(b),
             Statement::Let(_, _, e)
             | Statement::Return(e)
             | Statement::Expr(e)
-            | Statement::Emit(_, e) => has(e),
+            | Statement::Emit(_, e) => has(e, false),
         })
     }
-    p.functions.iter().any(|f| has(&f.body))
-        || p.states.iter().chain(&p.keeps).any(|d| has(&d.value))
+    // String/Unit already had fixed action semantics. V6 marks their newly
+    // admitted pure-function carriers and the general fold control mechanism.
+    p.functions.iter().any(|f| has(&f.body, true))
+        || p.states
+            .iter()
+            .chain(&p.keeps)
+            .any(|d| has(&d.value, false))
         || p.actions.iter().any(|a| statements(&a.body))
+}
+#[cfg(test)]
+mod control_domain_tests {
+    use super::*;
+    #[test]
+    fn domain_marks_general_pure_control_without_relabelling_unchanged_actions() {
+        let action = CheckedModule::from_source(
+            crate::syntax::parse("module actions;query unit()->Unit{return ();}").unwrap(),
+        )
+        .unwrap();
+        assert_eq!(action.semantics(), SEMANTICS);
+        let pure = CheckedModule::from_source(
+            crate::syntax::parse("module pure;fn unit()->Unit{return ();}").unwrap(),
+        )
+        .unwrap();
+        assert_eq!(pure.semantics(), CONTROL_SEMANTICS);
+        let fold=CheckedModule::from_source(crate::syntax::parse("module control;fn first(xs:List<u32>)->u32{return fold_until(xs,0,fn(x)=>fn(a)=>x>0,fn(x)=>fn(a)=>x);}").unwrap()).unwrap();
+        assert_eq!(fold.semantics(), CONTROL_SEMANTICS);
+    }
 }
