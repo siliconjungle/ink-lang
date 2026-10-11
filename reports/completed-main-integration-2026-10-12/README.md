@@ -45,3 +45,6 @@ from unavailable devices, invalid shaders and failed workers. Its optional
 profile binds emitted code, host, planner, device and observed domains;
 profitability evidence does not justify a semantic rewrite. Original indexed
 and batching measurements remain in their own report directories.
+
+Dynamic point-update producers explicitly use the legacy fixed-key result
+contract when composing cache proofs. The generic proposal API remains separate.
