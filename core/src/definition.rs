@@ -1,7 +1,7 @@
 //! Target-independent admission of executable definitions and replacements.
 use crate::{
     library::{self, Bundle, Object},
-    logic::{Declaration, Proof, Term},
+    logic::{Declaration, Proof, Sort, Term},
     LangResult,
 };
 use serde::{Deserialize, Serialize};
@@ -36,6 +36,139 @@ pub struct CheckedDefinition {
     selection_sha256: Option<String>,
 }
 impl CheckedDefinition {
+    /// Literal executable declarations from this already checked closure.
+    /// This grants no source replacement authority; backends must also bind
+    /// export choices and the sealed executable identity.
+    pub fn executable_declarations(&self) -> LangResult<BTreeMap<String, Declaration>> {
+        self.bundle
+            .objects
+            .iter()
+            .filter_map(|(id, bytes)| {
+                let parsed = serde_json::from_str::<Object>(bytes);
+                match parsed {
+                    Ok(Object {
+                        declaration:
+                            d @ (Declaration::Datatype { .. } | Declaration::Function { .. }),
+                        ..
+                    }) => Some(Ok((id.clone(), d))),
+                    Ok(_) => None,
+                    Err(e) => Some(Err(e.to_string())),
+                }
+            })
+            .collect()
+    }
+    /// Executable dependency graph rooted at the already selected exports.
+    /// Proof dependencies remain checked in the bundle, but are not program
+    /// dependencies. Internal calls retain their original targets.
+    /// This is compile-time reachability, not new admission or proof authority.
+    pub fn reachable_executable_declarations(&self) -> LangResult<BTreeMap<String, Declaration>> {
+        fn sort(s: &Sort, pending: &mut Vec<String>) {
+            if let Sort::Data(id) = s {
+                pending.push(id.clone());
+            }
+        }
+        fn term(
+            t: &Term,
+            pending: &mut Vec<String>,
+            nodes: &mut usize,
+            depth: usize,
+        ) -> LangResult<()> {
+            *nodes += 1;
+            if depth > 128 || *nodes > 100_000 {
+                return Err("definition lowering resource limit".into());
+            }
+            match t {
+                Term::Construct {
+                    datatype,
+                    arguments,
+                    ..
+                } => {
+                    pending.push(datatype.clone());
+                    for a in arguments {
+                        term(a, pending, nodes, depth + 1)?;
+                    }
+                }
+                Term::Call {
+                    function,
+                    arguments,
+                } => {
+                    pending.push(function.clone());
+                    for a in arguments {
+                        term(a, pending, nodes, depth + 1)?;
+                    }
+                }
+                Term::SelfCall(arguments) => {
+                    for a in arguments {
+                        term(a, pending, nodes, depth + 1)?;
+                    }
+                }
+                Term::Binary { left, right, .. } => {
+                    term(left, pending, nodes, depth + 1)?;
+                    term(right, pending, nodes, depth + 1)?;
+                }
+                Term::If {
+                    condition,
+                    on_true,
+                    on_false,
+                } => {
+                    term(condition, pending, nodes, depth + 1)?;
+                    term(on_true, pending, nodes, depth + 1)?;
+                    term(on_false, pending, nodes, depth + 1)?;
+                }
+                Term::Match {
+                    scrutinee,
+                    branches,
+                } => {
+                    term(scrutinee, pending, nodes, depth + 1)?;
+                    for b in branches {
+                        term(&b.body, pending, nodes, depth + 1)?;
+                    }
+                }
+                Term::Var(_) | Term::Bool(_) | Term::U64(_) => (),
+            }
+            Ok(())
+        }
+        let declarations = self.executable_declarations()?;
+        let mut pending = self
+            .exports
+            .iter()
+            .map(|id| self.choices.get(id).unwrap_or(id).clone())
+            .collect::<Vec<_>>();
+        let mut selected = BTreeMap::new();
+        let mut nodes = 0;
+        while let Some(id) = pending.pop() {
+            if selected.contains_key(&id) {
+                continue;
+            }
+            let d = declarations
+                .get(&id)
+                .ok_or("non-executable definition dependency")?;
+            selected.insert(id, d.clone());
+            match d {
+                Declaration::Datatype { constructors } => {
+                    for c in constructors {
+                        for s in &c.fields {
+                            sort(s, &mut pending);
+                        }
+                    }
+                }
+                Declaration::Function {
+                    params,
+                    result,
+                    body,
+                    ..
+                } => {
+                    for (_, s) in params {
+                        sort(s, &mut pending);
+                    }
+                    sort(result, &mut pending);
+                    term(body, &mut pending, &mut nodes, 0)?;
+                }
+                _ => unreachable!("filtered executable declarations"),
+            }
+        }
+        Ok(selected)
+    }
     pub fn bundle(&self) -> &Bundle {
         &self.bundle
     }
