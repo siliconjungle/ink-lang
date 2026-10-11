@@ -24,11 +24,17 @@ fn numerical_actions_have_explicit_version_and_no_float_proof_authority() {
         .unwrap(),
     )
     .unwrap();
-    CheckedActions::from_bytes(
-        &archived,
-        include_bytes!("fixtures/typed-actions-v1-numerical-baseline.json"),
-    )
-    .unwrap();
+    let baseline = include_bytes!("fixtures/typed-actions-v1-numerical-baseline.json");
+    // Current surface elaboration changes scopes and the complete core identity.
+    // A format-v1 artifact still needs the current exact source reconstruction.
+    assert!(CheckedActions::from_bytes(&archived, baseline).is_err());
+    let mut rebound: Json = serde_json::from_slice(baseline).unwrap();
+    rebound["source"] = json!(archived.identity().unwrap());
+    assert!(CheckedActions::from_bytes(&archived, &serde_json::to_vec(&rebound).unwrap()).is_err());
+    let fresh = CheckedActions::elaborate(&archived).unwrap();
+    let fresh_bytes = fresh.bytes().unwrap();
+    assert_eq!(serde_json::from_slice::<Json>(&fresh_bytes).unwrap()["semantics"], "ink-typed-actions-v1");
+    CheckedActions::from_bytes(&archived, &fresh_bytes).unwrap();
     let mut old = wire;
     old["semantics"] = json!("ink-typed-actions-v1");
     assert!(CheckedActions::from_bytes(&m, &serde_json::to_vec(&old).unwrap()).is_err());

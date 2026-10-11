@@ -656,3 +656,98 @@ fn fixed_key_keep_deltas_execute_as_standalone_programs_on_every_cpu_target() {
         check(name,source,Some(serde_json::from_str(bytes).unwrap()),calls.clone());
     }
 }
+
+#[test]
+fn packed_and_indexed_chunks_preserve_every_standalone_target() {
+    let source = include_str!("../knowledge/research/storage-bulk/app.ink");
+    let mut calls = vec![("put", json!([1023, 991])), ("get", json!([1023]))];
+    for i in 0..12u64 {
+        calls.extend([
+            ("put", json!([11 - i, u64::MAX - i])),
+            ("get", json!([0])),
+            ("get", json!([11 - i])),
+        ]);
+    }
+    for i in 0..24u64 {
+        calls.extend([
+            ("put", json!([i % 13, i * 31])),
+            ("erase", json!([(i + 3) % 13, i % 3 == 0])),
+            ("get", json!([0])),
+            ("get", json!([i % 13])),
+            ("get", json!([u64::MAX])),
+        ]);
+    }
+    for (name, bytes) in [
+        (
+            "packed-2",
+            include_str!("../knowledge/research/storage-bulk/packed-2.json"),
+        ),
+        (
+            "packed-4",
+            include_str!("../knowledge/research/storage-bulk/packed-4.json"),
+        ),
+        (
+            "indexed-2",
+            include_str!("../knowledge/research/storage-bulk/indexed-2-hot-0.json"),
+        ),
+        (
+            "indexed-4",
+            include_str!("../knowledge/research/storage-bulk/indexed-4-hot-0.json"),
+        ),
+        (
+            "indexed-4-1023",
+            include_str!("../knowledge/research/storage-bulk/indexed-4-hot-1023.json"),
+        ),
+    ] {
+        check(
+            name,
+            source,
+            Some(serde_json::from_str(bytes).unwrap()),
+            calls.clone(),
+        );
+    }
+}
+
+#[test]
+fn boolean_delta_and_refresh_fallbacks_preserve_every_standalone_target() {
+    let source = include_str!("../knowledge/research/storage-bulk/booleans.ink");
+    let mut calls = vec![("any_query", json!([])), ("all_query", json!([]))];
+    for i in 0..28u64 {
+        calls.extend([
+            ("insert", json!([i % 7, i % 2 == 0, i % 6 == 0])),
+            ("any_query", json!([])),
+            ("all_query", json!([])),
+            ("replace", json!([(i + 3) % 7, i % 3 == 0, i % 5 == 0])),
+            ("any_query", json!([])),
+            ("all_query", json!([])),
+            ("erase", json!([(i + 1) % 7, i % 4 == 0])),
+            ("any_query", json!([])),
+            ("all_query", json!([])),
+            ("get", json!([i % 7])),
+        ]);
+    }
+    for i in 0..7 {
+        calls.extend([
+            ("erase", json!([i, false])),
+            ("any_query", json!([])),
+            ("all_query", json!([])),
+        ]);
+    }
+    for (name, bytes) in [
+        (
+            "any-delta",
+            include_str!("../knowledge/research/storage-bulk/any-delta.json"),
+        ),
+        (
+            "all-delta",
+            include_str!("../knowledge/research/storage-bulk/all-delta.json"),
+        ),
+    ] {
+        check(
+            name,
+            source,
+            Some(serde_json::from_str(bytes).unwrap()),
+            calls.clone(),
+        );
+    }
+}
