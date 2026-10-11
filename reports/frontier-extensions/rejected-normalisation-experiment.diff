@@ -1,0 +1,152 @@
+diff --git a/core/src/logic.rs b/core/src/logic.rs
+index 9c8d08a..d0f2416 100644
+--- a/core/src/logic.rs
++++ b/core/src/logic.rs
+@@ -261,6 +261,7 @@ struct Function {
+     result: Sort,
+     body: Term,
+     recursive: Option<usize>,
++    used: BTreeSet<String>,
+ }
+ #[derive(Clone, Debug)]
+ struct Theorem {
+@@ -535,11 +536,14 @@ impl Context {
+                     };
+                     self.datatype(data, false)?;
+                 }
++                let mut used=BTreeSet::new();
++                names(body,&mut used,&mut budget,0)?;
+                 let pending = Function {
+                     params: params.clone(),
+                     result: result.clone(),
+                     body: body.clone(),
+                     recursive: *recursive,
++                    used,
+                 };
+                 if infer(body, &env, self, Some(&pending), false, &mut budget, 0)? != *result {
+                     return Err("logic function result type mismatch".into());
+@@ -1127,6 +1131,53 @@ fn substitute(
+         _ => t.clone(),
+     })
+ }
++// Expose a constructor without evaluating its fields. Checked first-order
++// functions are total and effect-free, so substitution and constructor projection
++// may discard unused arguments. This is definitional computation, not a law.
++fn head(t: &Term, c: &Context, budget: &mut Budget, depth: usize) -> LangResult<Term> {
++    budget.step(depth)?;
++    match t {
++        Term::Call { function, arguments } => {
++            let f = match &c.entry(function, true)?.kind {
++                Kind::Function(f) => f,
++                Kind::AbstractFunction(..) => { budget.copy(t)?; return Ok(t.clone()); }
++                _ => return Err("expected function".into()),
++            };
++            for arg in arguments { budget.copy(arg)?; }
++            let mut args=arguments.clone();
++            if let Some(i)=f.recursive {
++                args[i]=head(&args[i],c,budget,depth+1)?;
++                if !matches!(args[i],Term::Construct{..}) {
++                    return Ok(Term::Call{function:function.clone(),arguments:args});
++                }
++            }
++            let bindings=f.params.iter().map(|p|p.0.clone()).zip(args).collect();
++            head(&substitute(&f.body,&bindings,budget,depth+1)?,c,budget,depth+1)
++        }
++        Term::Match { scrutinee, branches } => {
++            let scrutinee=head(scrutinee,c,budget,depth+1)?;
++            if let Term::Construct{constructor,arguments,..}=&scrutinee {
++                let branch=branches.get(*constructor).ok_or("unknown match constructor")?;
++                let bindings=branch.bindings.iter().cloned().zip(arguments.iter().cloned()).collect();
++                head(&substitute(&branch.body,&bindings,budget,depth+1)?,c,budget,depth+1)
++            } else {
++                for branch in branches { budget.copy(&branch.body)?; }
++                Ok(Term::Match{scrutinee:Box::new(scrutinee),branches:branches.clone()})
++            }
++        }
++        Term::If { condition, on_true, on_false } => {
++            let condition=normal(condition,c,budget,depth+1)?;
++            match condition {
++                Term::Bool(true)=>head(on_true,c,budget,depth+1),
++                Term::Bool(false)=>head(on_false,c,budget,depth+1),
++                _=>{budget.copy(on_true)?;budget.copy(on_false)?;Ok(Term::If{condition:Box::new(condition),on_true:on_true.clone(),on_false:on_false.clone()})}
++            }
++        }
++        Term::Binary{..}=>normal(t,c,budget,depth+1),
++        Term::SelfCall(_)=>Err("unbound recursive call in computation".into()),
++        _=>{budget.copy(t)?;Ok(t.clone())}
++    }
++}
+ fn normal(t: &Term, c: &Context, budget: &mut Budget, depth: usize) -> LangResult<Term> {
+     budget.step(depth)?;
+     match t {
+@@ -1134,28 +1185,39 @@ fn normal(t: &Term, c: &Context, budget: &mut Budget, depth: usize) -> LangResul
+             function,
+             arguments,
+         } => {
+-            let args = arguments
+-                .iter()
+-                .map(|a| normal(a, c, budget, depth + 1))
+-                .collect::<LangResult<Vec<_>>>()?;
+             let f = match &c.entry(function, true)?.kind {
+                 Kind::Function(f) => f,
+                 // An uninterpreted function never computes.
+                 Kind::AbstractFunction(..) => {
+                     return Ok(Term::Call {
+                         function: function.clone(),
+-                        arguments: args,
++                        arguments: arguments.iter().map(|a|normal(a,c,budget,depth+1)).collect::<LangResult<_>>()?,
+                     })
+                 }
+                 _ => return Err("expected function".into()),
+             };
+-            if f.recursive
+-                .is_some_and(|i| !matches!(args[i], Term::Construct { .. }))
+-            {
+-                return Ok(Term::Call {
+-                    function: function.clone(),
+-                    arguments: args,
+-                });
++            for arg in arguments {budget.copy(arg)?;}
++            let mut args=arguments.clone();
++            // Retain eager normalization of used arguments to avoid duplicating
++            // their symbolic work at each occurrence. A direct constructor
++            // eliminator needs only its scrutinee's tag; unused arguments need
++            // no value at all. Both decisions are about general fixed syntax.
++            let projected=if let Term::Match{scrutinee,..}=&f.body {
++                if let Term::Var(name)=scrutinee.as_ref(){Some(name.as_str())}else{None}
++            }else{None};
++            for (i,(name,_)) in f.params.iter().enumerate() {
++                if f.used.contains(name) {
++                    args[i]=if projected==Some(name.as_str()) {
++                        let exposed=head(&args[i],c,budget,depth+1)?;
++                        if matches!(exposed,Term::Construct{..}){exposed}else{normal(&args[i],c,budget,depth+1)?}
++                    }else{normal(&args[i],c,budget,depth+1)?};
++                }
++            }
++            if let Some(i)=f.recursive {
++                args[i]=head(&args[i],c,budget,depth+1)?;
++                if !matches!(args[i],Term::Construct{..}) {
++                    return Ok(Term::Call{function:function.clone(),arguments:args.iter().map(|a|normal(a,c,budget,depth+1)).collect::<LangResult<_>>()?});
++                }
+             }
+             let bindings = f.params.iter().map(|p| p.0.clone()).zip(args).collect();
+             normal(
+@@ -1185,7 +1247,8 @@ fn normal(t: &Term, c: &Context, budget: &mut Budget, depth: usize) -> LangResul
+             scrutinee,
+             branches,
+         } => {
+-            let scrutinee = normal(scrutinee, c, budget, depth + 1)?;
++            let original_scrutinee=scrutinee;
++            let scrutinee = head(scrutinee, c, budget, depth + 1)?;
+             if let Term::Construct {
+                 constructor,
+                 arguments,
+@@ -1209,7 +1272,7 @@ fn normal(t: &Term, c: &Context, budget: &mut Budget, depth: usize) -> LangResul
+                 )
+             } else {
+                 Ok(Term::Match {
+-                    scrutinee: Box::new(scrutinee),
++                    scrutinee: Box::new(normal(original_scrutinee,c,budget,depth+1)?),
+                     branches: branches.clone(),
+                 })
+             }

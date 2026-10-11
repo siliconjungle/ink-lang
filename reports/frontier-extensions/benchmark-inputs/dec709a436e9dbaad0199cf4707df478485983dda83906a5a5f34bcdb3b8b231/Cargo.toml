@@ -1,0 +1,12 @@
+[package]
+name="ink-packed-storage-bench"
+version="0.1.0"
+edition="2021"
+[workspace]
+[dependencies]
+serde_json={version="1",features=["float_roundtrip"]}
+sha2="0.10"
+num-bigint="0.4"
+[profile.release]
+lto="thin"
+codegen-units=1

@@ -24,11 +24,22 @@ impl Lower<'_> {
         }
         let result = self.sort(&f.result)?;
         let body = self.pure_term(&tree, &env, &[], 0)?;
+        // Local-owner helpers can remain symbolic until their inductive input
+        // is exposed. These helpers have no SelfCall; the existing structural
+        // definition form is total and emits the same literal body. This avoids
+        // expanding every heap/search branch while proving an outer projection.
+        fn owners(t:&SemanticTerm,p:&Program)->bool {
+            matches!(&t.sort,SemanticSort::Value(ty) if crate::local_collections::owned(ty,p))
+                || semantic::children(t).iter().any(|child|owners(child,p))
+        }
+        let recursive=if owners(&tree,self.program) {
+            params.iter().position(|(_,sort)|matches!(sort,Sort::Data(_)))
+        }else{None};
         let id = self.store(Declaration::Function {
             params,
             result,
             body,
-            recursive: None,
+            recursive,
         })?;
         self.helper_active.remove(&index);
         self.helpers.insert(index, id.clone());
@@ -158,7 +169,7 @@ impl Lower<'_> {
         Ok(call(&function, arguments))
     }
 
-    fn pure_term(
+    pub(super) fn pure_term(
         &mut self,
         t: &SemanticTerm,
         env: &BTreeMap<String, Term>,
@@ -184,6 +195,8 @@ impl Lower<'_> {
             }
             Node::Float(bits) => Ok(Term::U64(*bits as u64)),
             Node::Bool(n) => Ok(Term::Bool(*n)),
+            Node::String(text) => self.string_literal(text),
+            Node::Unit => Ok(c(id(&sort)?,0,vec![])),
             Node::Free(n) => env
                 .get(n)
                 .cloned()
@@ -195,23 +208,10 @@ impl Lower<'_> {
                 .cloned()
                 .ok_or("unbound action model pure index".into()),
             Node::Op(op, args) => {
-                if ["method:map", "method:filter", "call:foldr"].contains(&op.as_str()) {
-                    return self.pure_collection(t, op, args, env, bound, depth);
-                }
-                if op == "neg" && matches!(ty, Type::Int | Type::I32 | Type::F32) {
-                    let [value] = args.as_slice() else {
-                        return Err("pure neg arity".into());
-                    };
-                    let x = self.pure_term(value, env, bound, depth + 1)?;
-                    return if *ty == Type::Int {
-                        let i = self.integer()?;
-                        Ok(call(&i.negate, vec![x]))
-                    } else if *ty == Type::F32 {
-                        Ok(b("f32:neg", x, Term::U64(0)))
-                    } else {
-                        self.operator(ty, "-", Term::U64(0), x)
-                    };
-                }
+                if op=="call:repeat"||op=="call:repeat_until" {return self.pure_loop(t,op,args,env,bound,depth);}
+                if let Some(value)=self.pure_local(t,op,args,env,bound,depth)? {return Ok(value);}
+                if ["method:map","method:filter","call:foldr"].contains(&op.as_str()){return self.pure_collection(t,op,args,env,bound,depth);}
+                if op=="neg"&&matches!(ty,Type::Int|Type::I32|Type::F32){let [value]=args.as_slice()else{return Err("pure neg arity".into());};let x=self.pure_term(value,env,bound,depth+1)?;return if *ty==Type::Int{let i=self.integer()?;Ok(call(&i.negate,vec![x]))}else if *ty==Type::F32{Ok(b("f32:neg",x,Term::U64(0)))}else{self.operator(ty,"-",Term::U64(0),x)};}
                 if op == "apply" {
                     let [function, argument] = args.as_slice() else {
                         return Err("action model pure application arity".into());
