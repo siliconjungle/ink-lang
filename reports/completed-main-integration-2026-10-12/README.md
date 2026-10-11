@@ -6,7 +6,7 @@ Frontier representations (`4747cc68`) and diff benchmarks (`ca8644f9`),
 private snapshot sharing (`62f63f63`), composed state optimisation (PR #22,
 `f8d0eb31`), indexed sequence trees and continuation frames (remote main
 `dfaa35f9`), and generic indexed tables and automatic batching (PR #23,
-`d5e76875`). Original branch histories, source-bound proofs, measurements and
+`d5e76875` and final case compatibility `95319af6`). Original branch histories, source-bound proofs, measurements and
 historical snapshots are retained.
 
 `package-audit.json` records the ten independent repositories, their published
@@ -48,3 +48,8 @@ and batching measurements remain in their own report directories.
 
 Dynamic point-update producers explicitly use the legacy fixed-key result
 contract when composing cache proofs. The generic proposal API remains separate.
+
+Compact observer projection freshens conflicting lexical binders after inlining
+nested components. The checker continues to reject binder shadowing. Fresh
+positive proof checks and reauthenticated negative grouped-action tests cover
+the integration repairs.

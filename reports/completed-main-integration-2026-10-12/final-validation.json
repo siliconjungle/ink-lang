@@ -61,5 +61,38 @@
     }
   ],
   "browser_receipt": "adaptive-browser-current.json",
-  "scope": "Fresh focused local checks. Required full CPU, Wasm and actual GPU conformance is gated by the final pull request CI; historical receipts and measurements retain their original identities."
+  "scope": "Fresh focused local checks. Required full CPU, Wasm and actual GPU conformance is gated by the final pull request CI; historical receipts and measurements retain their original identities.",
+  "integration_repairs": {
+    "knowledge_revision": "5d7dea97b0493df2237f5985bde9f236d6fe352d",
+    "producer_sha256": {
+      "point_delta_dynamic.py": "90edcf67c59c7bd248d326f704628f440d716f429d5a9d3b909f170921823d26",
+      "compact_observation.py": "816211cfafecaeb6c8ec2682e6bf4b0e8f9e55264f89b89eab5808515e82ae14"
+    },
+    "initial_representation_run": {
+      "passed": 39,
+      "failed": 3,
+      "log_sha256": "fcb54d366989612587ee88082d9c452c8c229679570cf9c7e44d45878502b1db",
+      "scope": "The three rejected cases triggered repairs and were independently rerun to completion."
+    },
+    "fresh_checks": [
+      {
+        "name": "representation-repairs",
+        "scope": "All three previously failing cases pass on required backends after producer repairs; the prior 39 successes are retained",
+        "log_sha256": "aea360ee7ddf27a4a72039e8f25315744f9552d5e096f734ea40ecf2d8786fc3",
+        "result_tail": "    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.14s\n     Running tests/representation_parity.rs (target/debug/deps/representation_parity-e631cd37e6be510f)\n\nrunning 3 tests\ntest guarded_dynamic_point_deltas_preserve_future_histories_and_migrations ... ok\ntest independently_proved_caches_compose_and_migrate_with_exact_histories ... ok\ntest indexed_storage_composes_with_two_filtered_aggregate_caches ... ok\n\ntest result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 39 filtered out; finished in 103.24s\n\n"
+      },
+      {
+        "name": "generic-rejections",
+        "scope": "Three independently reauthenticated false grouped-key, event and summary claims rejected",
+        "log_sha256": "cd4dd7ba6ec49b056a82ac6774dfb593c706d9c80999163be8074120f3ca1457",
+        "result_tail": ".\n----------------------------------------------------------------------\nRan 1 test in 144.462s\n\nOK\n"
+      },
+      {
+        "name": "compact-observer-proof",
+        "scope": "Fresh canonical proof for nested indexed and filtered aggregate composition",
+        "log_sha256": "ccd53d0ab2c38ebf8ae9383e31f21847f1d41299a3a0196362492afb1521a464",
+        "result_tail": "{\"status\": \"checked\", \"source\": \"07d3b5efb561b8597cfa874b0a78e4e93e30309dbbdecabdc75c5d934d2763ae\", \"representation\": \"0289e08f8a1051c342d6112914e4350c20139bed6f9d0c6d9484f52ad948fb12\"}"
+      }
+    ]
+  }
 }
