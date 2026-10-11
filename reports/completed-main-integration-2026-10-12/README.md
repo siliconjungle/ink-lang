@@ -58,3 +58,7 @@ Remaining local validation passes: 10 representation/migration checks, 4 scalabl
 state checks, the sequence-tree history across native/C/Wasm/JavaScript, and all
 6 standalone checks including an independently rerun Lean shared-spine proof.
 CI exports the pinned Zig executable under both accepted test variable names.
+
+Candidate metadata retains its full bounded-view byte allowance. The ordinary
+proof-entry byte limit remains independently enforced. A publication roundtrip
+regression test covers packages larger than that individual-entry allowance.
