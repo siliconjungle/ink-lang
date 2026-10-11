@@ -1101,3 +1101,29 @@ fn direct_typed_frames_match_native_scopes_callbacks_and_snapshots() {
     .unwrap();
     assert_eq!(native, json!(expected));
 }
+
+#[test]
+fn unwrap_or_evaluates_fallback_effects_even_when_present_and_rolls_back_failure() {
+    let _native=NATIVE_EXECUTION.lock().unwrap();
+    let source=r#"module eager_option;
+    enum Error{Failed,}
+    state Rows:Table<u64,u64> = Table.empty();
+    event seen:u64;
+    change seed()->Result<Unit,Error> writes(Rows){if Rows.contains(0){Rows.replace(0,7);}else{Rows.insert(0,7);}return Ok(());}
+    change fallback(fail:Bool)->Result<u64,Error> writes(Rows) emits(seen){Rows.remove(0);emit seen(99);if fail{return Err(Error.Failed);}return Ok(42);}
+    change read(key:u64,fail:Bool)->Result<u64,Error> writes(Rows) emits(seen){return Ok(Rows.get(key).unwrap_or(fallback(fail)?));}
+    query get()->Option<u64> reads(Rows){return Rows.get(0);}"#;
+    let p=parse(source).unwrap();
+    let script=vec![json!({"call":"seed","args":[]}),json!({"call":"read","args":[0,false]}),json!({"call":"get","args":[]}),json!({"call":"read","args":[1,false]}),json!({"call":"seed","args":[]}),json!({"call":"read","args":[0,true]}),json!({"call":"get","args":[]})];
+    let mut runtime=Runtime::new(p.clone()).unwrap();
+    let expected:Vec<_>=script.iter().map(|step| {let before=runtime.checkpoint_portable().unwrap();let reply=runtime.invoke_json(step["call"].as_str().unwrap(),&step["args"]).unwrap();let after=runtime.checkpoint_portable().unwrap();if !reply.committed{assert_eq!(before,after);}json!({"outcome":reply.json(),"snapshot":after})}).collect();
+    assert_eq!(expected[1]["outcome"]["result"],json!({"Ok":7}));
+    assert_eq!(expected[1]["outcome"]["events"][0]["value"],json!(99));
+    assert_eq!(expected[2]["outcome"]["result"],json!({"None":null}));
+    assert_eq!(expected[3]["outcome"]["result"],json!({"Ok":42}));
+    assert_eq!(expected[5]["outcome"]["result"],json!({"Err":"Error.Failed"}));
+    assert_eq!(expected[6]["outcome"]["result"],json!({"Some":7}));
+    let root=Path::new(env!("CARGO_MANIFEST_DIR")).join("build/eager-unwrap-or");fs::create_dir_all(&root).unwrap();
+    let runner=r#"use compiled_state::State;use serde_json::{Value,json};fn main(){let steps:Vec<Value>=serde_json::from_slice(&std::fs::read(std::env::args().nth(1).unwrap()).unwrap()).unwrap();let mut state=State::new();let mut output=vec![];for step in steps{let outcome=state.invoke_json(step["call"].as_str().unwrap(),&step["args"]).unwrap();output.push(json!({"outcome":outcome,"snapshot":state.checkpoint().unwrap()}));}println!("{}",serde_json::to_string(&output).unwrap());}"#;
+    assert_eq!(compile_and_run_with_runner(&root,&state_native::emit(&p,None).unwrap(),&script,runner),json!(expected));
+}

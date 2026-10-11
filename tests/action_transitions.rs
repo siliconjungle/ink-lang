@@ -471,7 +471,7 @@ fn database_remove_law_admits_a_complete_action_and_rejects_changed_observations
     assert!(optimisation::check(&m, &malformed).is_err());
 }
 #[test]
-fn unsupported_operations_and_domain_types_fail_closed() {
+fn expanded_existing_domain_types_are_projected() {
     for s in [
         "module unsupported;query q(x:u32)->u32{return x;}",
         "module unsupported;query q(x:String)->String{return x;}",
@@ -479,10 +479,14 @@ fn unsupported_operations_and_domain_types_fail_closed() {
         "module unsupported;state Rows:Table<u64,u64> = Table.empty();query q()->List<u64> reads(Rows){return Rows.values();}",
         "module unsupported;fn divide(x:u64)->u64{return quot_or(x,1,0);}query q(x:u64)->u64{return divide(x);}",
     ] {
-        // These are valid executable programs. Projection must reject them;
-        // a frontend error cannot masquerade as a negative admission check.
-        assert!(Projection::derive(&module(s)).is_err());
+        assert!(Projection::derive(&module(s)).is_ok(),"{s}");
     }
+}
+
+#[test]
+fn temporary_owned_helpers_have_stateful_correspondence() {
+    let s="module unsupported;fn local(k:u64,x:u32)->u32{let m:Map<u64,u32> =Map.empty();let m=m.set(k,x);return m.get_or(k,0);}query q(k:u64,x:u32)->u32{return local(k,x);}";
+    assert!(Projection::derive(&module(s)).is_ok());
 }
 
 #[test]

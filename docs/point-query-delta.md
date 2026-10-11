@@ -6,7 +6,26 @@ on `knowledge/producers/representations.py` uses the untrusted
 `point_delta.py` authoring tactic. Successful same-key remove and replace chains
 predict the new cached Option from the old cached reply and action arguments.
 Aborts, host failures and unrelated changes retain the old reply. Unsupported
-insertions or dynamic-key updates refresh from the logical post-state.
+insertions refresh from the logical post-state in that original tactic.
+
+`--dynamic-delta` additionally proves guarded dynamic-key remove and replace
+maintenance, and skips insertion refresh when its key differs from the fixed
+query key. Same-key insertions retain exact refresh. Branching upserts, chained
+updates, aborts and host failures participate in the universal equations.
+The proof producer targets `u64` keys and rejects other key domains explicitly.
+Frozen requests and a reauthenticated false-guard regression live in
+`knowledge/research/dynamic-point`.
+
+Point maintenance also lifts through a total, presence-preserving `Option.map`,
+such as `Rows.get(0).map(fn(row)=>row.amount)`. The physical cache stores the
+projected Option rather than the whole record. Ordinary Option induction and
+conditional congruence transport the already proved remove/replace/insert laws;
+replacement computes the projection from the new row without scanning the table.
+The authoring tactic rejects a mapper that captures additional state. Ordinary
+mapped reads can still capture query arguments. `examples/frontier-field-cache.ink`
+exercises an unread-field change, absence, overflow, aborts, staged record events,
+restoration and captured query arguments. This is a field projection capability;
+it is not general dependency fusion or automatic field-change invalidation.
 
 The source action still supplies its complete observation: reply, commit flag,
 version, logical post-state and staged events. Ordinary database definitions
@@ -41,5 +60,22 @@ The new delta candidate is slower on the measured small fixture. It is retained
 as a proved candidate, not made the default. External selection measures setup,
 checking, execution, teardown, memory and exact migration costs before choosing.
 See [the measurements](../reports/incremental-maintenance-selection/README.md).
-Efficient general aggregates, other source domains and other native physical
-executors remain open work.
+Independent admitted representations can now be composed with
+`knowledge/producers/representation_product.py`, choosing an observation
+component for each source action and preserving every component relation.
+`knowledge/research/product-caches` contains two dynamic point caches and both
+migration directions. The general decode/encode bridge producer now transports
+arbitrary target relations through their checked initialization equations.
+Composition can duplicate work and storage; measurement must justify selection.
+Shared dependency fusion, field-sensitive invalidation, general grouped and
+ordered maintenance, and additional physical layouts remain further work.
+
+The Frontier extension additionally proves preservation of a mapped field cache
+when a replacement retains its actual projection. A label-only change in
+`frontier-field-sensitive.ink` therefore retains the cached amount. This tactic
+currently needs a fixed key and a mapper without additional captured state;
+other updates use exact repair or refresh. Products can use `--shared` to consume
+one complete observation for all maintainers, while retaining every independently
+checked component relation. This shares computation, not necessarily root storage.
+See `knowledge/research/frontier-extensions/fields` and `shared` for frozen proof
+requests and checked migrations, and the Frontier report for lifecycle costs.
