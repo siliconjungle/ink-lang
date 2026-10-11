@@ -282,73 +282,72 @@ pub fn reduce(t: &Term) -> LangResult<Option<Term>> {
                 Some(Sort::Value(Type::Buffer(_)))
             ) =>
         {
-            if let Node::Op(name, xs) = &args[0].node {
-                if name == "call:buffer" {
-                    let xs = xs[0].clone();
-                    let edited = match n.as_str() {
-                        "method:push" => list_edit("local:append", vec![xs, args[1].clone()]),
-                        "method:set" => {
-                            list_edit("local:set", vec![xs, args[1].clone(), args[2].clone()])
-                        }
-                        "method:pop" => list_edit("local:pop", vec![xs]),
-                        "method:truncate" => list_edit("local:truncate", vec![xs, args[1].clone()]),
-                        _ => {
-                            let Type::List(inner) = ty(&xs.sort)? else {
-                                return Err("swap list".into());
-                            };
-                            let valid = op(
-                                value(Type::Bool),
-                                "binary:&&",
-                                vec![
-                                    op(
-                                        value(Type::Bool),
-                                        "local:has-index",
-                                        vec![xs.clone(), args[1].clone()],
-                                    ),
-                                    op(
-                                        value(Type::Bool),
-                                        "local:has-index",
-                                        vec![xs.clone(), args[2].clone()],
-                                    ),
-                                ],
-                            );
-                            // The fallback is unobserved on the guarded path. Read from the original list.
-                            // A separate helper swaps by two indexed edits only after both values are found.
-                            let left = op(
-                                value(*inner.clone()),
-                                "local:swap-read",
-                                vec![xs.clone(), args[1].clone()],
-                            );
-                            let right = op(
-                                value(*inner.clone()),
-                                "local:swap-read",
-                                vec![xs.clone(), args[2].clone()],
-                            );
-                            let first =
-                                list_edit("local:set", vec![xs.clone(), args[1].clone(), right]);
-                            choose(
-                                valid,
-                                list_edit("local:set", vec![first, args[2].clone(), left]),
-                                xs,
-                            )
-                        }
+            // Every owner denotes its frozen sequence, including an opaque
+            // accumulator returned by a fold. This is the fixed extensional
+            // meaning of mutation, independent of any optimisation law.
+            let Type::Buffer(inner) = ty(&args[0].sort)? else {
+                unreachable!()
+            };
+            let xs = match &args[0].node {
+                Node::Op(name, values) if name == "call:buffer" => values[0].clone(),
+                _ => op(
+                    value(Type::List(inner.clone())),
+                    "method:freeze",
+                    vec![args[0].clone()],
+                ),
+            };
+            let edited = match n.as_str() {
+                "method:push" => list_edit("local:append", vec![xs, args[1].clone()]),
+                "method:set" => list_edit("local:set", vec![xs, args[1].clone(), args[2].clone()]),
+                "method:pop" => list_edit("local:pop", vec![xs]),
+                "method:truncate" => list_edit("local:truncate", vec![xs, args[1].clone()]),
+                _ => {
+                    let Type::List(inner) = ty(&xs.sort)? else {
+                        return Err("swap list".into());
                     };
-                    Some(op(t.sort.clone(), "call:buffer", vec![edited]))
-                } else {
-                    None
+                    let valid = op(
+                        value(Type::Bool),
+                        "binary:&&",
+                        vec![
+                            op(
+                                value(Type::Bool),
+                                "local:has-index",
+                                vec![xs.clone(), args[1].clone()],
+                            ),
+                            op(
+                                value(Type::Bool),
+                                "local:has-index",
+                                vec![xs.clone(), args[2].clone()],
+                            ),
+                        ],
+                    );
+                    // The fallback is unobserved on the guarded path. Read from the original list.
+                    // A separate helper swaps by two indexed edits only after both values are found.
+                    let left = op(
+                        value(*inner.clone()),
+                        "local:swap-read",
+                        vec![xs.clone(), args[1].clone()],
+                    );
+                    let right = op(
+                        value(*inner.clone()),
+                        "local:swap-read",
+                        vec![xs.clone(), args[2].clone()],
+                    );
+                    let first = list_edit("local:set", vec![xs.clone(), args[1].clone(), right]);
+                    choose(
+                        valid,
+                        list_edit("local:set", vec![first, args[2].clone(), left]),
+                        xs,
+                    )
                 }
-            } else {
-                None
-            }
+            };
+            Some(op(t.sort.clone(), "call:buffer", vec![edited]))
         }
-        ("local:append", [xs, v]) => match &xs.node {
-            Node::Nil => Some(cons(v.clone(), xs.clone())),
-            Node::Cons(h, tail) => Some(cons(
-                *h.clone(),
-                list_edit(n, vec![*tail.clone(), v.clone()]),
-            )),
-            _ => None,
-        },
+        ("local:append", [xs, v]) => Some(op(
+            xs.sort.clone(),
+            "method:concat",
+            vec![xs.clone(), cons(v.clone(), nil(xs.sort.clone()))],
+        )),
         ("local:set", [xs, i, v]) => match &xs.node {
             Node::Nil => Some(xs.clone()),
             Node::Cons(h, tail) => Some(choose(

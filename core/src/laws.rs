@@ -119,6 +119,15 @@ impl CheckedCatalogue {
         self.laws.keys().cloned().collect()
     }
     pub fn check(c: &Catalogue, p: &Program) -> LangResult<Self> {
+        Self::check_reusing(c, p, None)
+    }
+    /// Reuse only sealed proofs in the same executable context. The caller
+    /// still authenticates each new view; this is not a serialized proof cache.
+    pub(crate) fn check_reusing(
+        c: &Catalogue,
+        p: &Program,
+        previous: Option<&Self>,
+    ) -> LangResult<Self> {
         if c.schema != 1
             || c.semantics != SEMANTICS
             || c.objects.len() > 1024
@@ -137,6 +146,21 @@ impl CheckedCatalogue {
             program_sha256: identity(p)?,
             context_error: None,
         };
+        if let Some(previous) = previous {
+            if previous.program_sha256 != checked.program_sha256 {
+                return Err("proof reuse executable context mismatch".into());
+            }
+            for (id, law) in &previous.laws {
+                if let Some(incoming) = c.objects.get(id) {
+                    if crate::registry::identity(&crate::registry::Entry::from_law(incoming)?)?
+                        != *id
+                    {
+                        return Err("reused law content identity mismatch".into());
+                    }
+                    checked.laws.insert(id.clone(), law.clone());
+                }
+            }
+        }
         let mut active = BTreeSet::new();
         let mut budget = Budget::new();
         fn load(
