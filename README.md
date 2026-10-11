@@ -1,6 +1,6 @@
 # Ink
 
-Ink is a programming language with a small semantic core and proof-backed, data-driven optimisation. Pure functions support word and signed arithmetic, binary32, records/vectors, collections, bounded loops, [owned local buffers/maps](docs/local-collections.md) and typed higher-order collection operations. Stateful programs add tables, transactions, events, maintained results and portable snapshots.
+Ink is a programming language with a small semantic core and proof-backed, data-driven optimisation. Pure functions support word and signed arithmetic, binary32, records/vectors, collections, [checked self recursion and ordered parallel work](docs/bend-inspired.md), bounded loops, [owned local buffers/maps](docs/local-collections.md) and typed higher-order collection operations. Stateful programs add tables, transactions, events, maintained results and portable snapshots.
 
 Read the [practical guide](https://siliconjungle.github.io/ink-spec-site/) or the [language reference](https://siliconjungle.github.io/ink-spec-site/reference.html).
 
@@ -72,7 +72,7 @@ Rules can compose inside complex expressions and under binders. A database theor
 
 GPU capability checks and measured profitability are separate decisions. Supported pipelines can keep arrays resident across steps and iterations. Runtime profiling includes allocation, transfer, dispatch and readback; unsupported operations, absent devices, limits or device loss fall back to compiled CPU execution. CPU/GPU floating bit equality is not promised. State/effectful computations are not speculatively replayed.
 
-The checker, source correspondence, literal target emission, host bridges and toolchains remain trusted implementations. Hashes authenticate content and snapshots; they do not prove correctness. Research certificates and experiment-specific proof terms are retained under `knowledge/research/` for reproducibility, outside production discovery.
+An optional [independent Lean verdict](docs/bend-inspired.md#independent-boolean-verdict) now checks a limited Boolean equality calculus. It does not verify the complete compiler. The checker, source correspondence, literal target emission, host bridges and toolchains remain trusted implementations. Hashes authenticate content and snapshots; they do not prove correctness. Research certificates and experiment-specific proof terms are retained under `knowledge/research/` for reproducibility, outside production discovery.
 
 See [repository architecture and data contract](docs/repository-architecture.md), [composable optimisation](docs/semantic-optimisation.md), [GPU compute](docs/gpu-compute.md), [state and snapshots](docs/wasm-abi.md), and [remaining language work](PLAN.md). Archived reports preserve their original inputs and evidence.
 

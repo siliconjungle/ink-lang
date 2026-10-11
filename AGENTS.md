@@ -126,3 +126,14 @@ aggregate certificates and typed storage policies. Historical experiments requir
 legacy-optimisation-research; do not enable it silently or count it as small-core
 admission. Keep docs/database-representations.md source-domain, backend, resource
 and trust limits explicit. No new syntax or proof-kernel rule was introduced.
+
+Bend-inspired primitives use executable-core V5 only when needed. Ordered parallel
+map has sequential value semantics; grain and INK_THREADS are scheduling hints,
+never independence or proof authority. Reject captured owned storage; each callback
+may create its own temporary owners. Rust workers own disjoint slices, with bounded
+workers and sequential nested/Wasm execution. GPU private buffers require literal
+capacity <=64; unsupported cases retain compiled CPU fallback. Self recursion
+requires guarded unsigned descent or a nonempty list tail, with mutual recursion
+rejected. The independent Lean Boolean verdict proves its separate calculus only;
+the Python translator, source correspondence and other checker domains remain
+trusted/unverified, and it grants no new production optimisation authority.
