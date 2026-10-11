@@ -67,6 +67,8 @@ pub struct Case {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub enum Proof {
+    /// Equality of every bit of a fixed-width word, checked through covering masks.
+    WordExtensionality { from: Term, to: Term, parts: Vec<(u64, Proof)> },
     BitVector {
         from: Term,
         to: Term,
@@ -377,7 +379,7 @@ impl Context {
         (if internal { &self.all } else { &self.visible })
             .get(id)
             .map(Arc::as_ref)
-            .ok_or_else(|| "unknown or undeclared logic entry".into())
+            .ok_or_else(|| format!("unknown or undeclared logic entry {id}"))
     }
     fn datatype(&self, id: &str, internal: bool) -> LangResult<&[Constructor]> {
         match &self.entry(id, internal)?.kind {
@@ -449,7 +451,7 @@ impl Context {
                 }
                 return Err("conflicting checked logic identity".into());
             }
-            if depth > 64 || all.len() >= 128 {
+            if depth > 64 || all.len() >= 512 {
                 return Err("logic context closure limit".into());
             }
             for dep in &entry.dependencies {
@@ -677,12 +679,19 @@ impl Context {
         normal(term, self, &mut budget, 0)
     }
 }
+/// Fixed CPU binary32 semantics over raw 32-bit words. NaN arithmetic payloads
+/// have the existing engine-dependent CPU contract; negation preserves payload.
+pub fn f32_primitive(op:&str,a:u64,b:u64)->LangResult<Term>{
+ let x=f32::from_bits(a as u32);let y=f32::from_bits(b as u32);
+ Ok(match op {"f32:+"=>Term::U64((x+y).to_bits()as u64),"f32:-"=>Term::U64((x-y).to_bits()as u64),"f32:*"=>Term::U64((x*y).to_bits()as u64),"f32:neg"=>Term::U64((a as u32^0x80000000)as u64),"f32:=="=>Term::Bool(x==y),"f32:!="=>Term::Bool(x!=y),"f32:<"=>Term::Bool(x<y),"f32:<="=>Term::Bool(x<=y),"f32:>"=>Term::Bool(x>y),"f32:>="=>Term::Bool(x>=y),_=>return Err("unsupported binary32 primitive".into())})
+}
 fn primitive(op: &str, left: &Sort, right: &Sort) -> LangResult<Sort> {
     if left != right {
         return Err("primitive operand type mismatch".into());
     }
+    if op.starts_with("f32:")&&*left==Sort::U64{return match &op[4..]{"+"|"-"|"*"|"neg"=>Ok(Sort::U64),"=="|"!="|"<"|"<="|">"|">="=>Ok(Sort::Bool),_=>Err("unsupported binary32 primitive".into())};}
     match (op, left) {
-        ("+" | "-" | "*", Sort::U64) => Ok(Sort::U64),
+        ("+" | "-" | "*" | "&" | "quot" | "rem", Sort::U64) => Ok(Sort::U64),
         ("<" | "<=" | ">" | ">=", Sort::U64) => Ok(Sort::Bool),
         ("&&" | "||", Sort::Bool) => Ok(Sort::Bool),
         ("==" | "!=", Sort::Bool | Sort::U64) => Ok(Sort::Bool),
@@ -1221,10 +1230,14 @@ fn normal(t: &Term, c: &Context, budget: &mut Budget, depth: usize) -> LangResul
             let left = normal(left, c, budget, depth + 1)?;
             let right = normal(right, c, budget, depth + 1)?;
             let reduced = match (&left, &right) {
+                (Term::U64(a),Term::U64(b)) if op.starts_with("f32:")=>Some(f32_primitive(op,*a,*b)?),
                 (Term::U64(a), Term::U64(b)) => Some(match op.as_str() {
                     "+" => Term::U64(a.wrapping_add(*b)),
                     "-" => Term::U64(a.wrapping_sub(*b)),
                     "*" => Term::U64(a.wrapping_mul(*b)),
+                    "&" => Term::U64(a & b),
+                    "quot" => Term::U64(a.checked_div(*b).unwrap_or(0)),
+                    "rem" => Term::U64(a.checked_rem(*b).unwrap_or(0)),
                     "==" => Term::Bool(a == b),
                     "!=" => Term::Bool(a != b),
                     "<" => Term::Bool(a < b),
@@ -1723,6 +1736,10 @@ fn statement_references(
 fn proof_references(p: &Proof, out: &mut BTreeSet<String>) {
     let terms = |ts: &[&Term], out: &mut BTreeSet<String>| ts.iter().for_each(|t| term_references(t, out));
     match p {
+        Proof::WordExtensionality { from, to, parts } => {
+            terms(&[from, to], out);
+            for (_, proof) in parts { proof_references(proof, out); }
+        }
         Proof::BitVector { from, to, .. } | Proof::Convert { from, to } => terms(&[from, to], out),
         Proof::Substitute {
             context, equality, ..
@@ -1835,6 +1852,25 @@ fn derive(
     }
     budget.step(depth)?;
     let equation = match p {
+        Proof::WordExtensionality { from, to, parts } => {
+            if parts.is_empty() || parts.len() > 64 || parts.iter().any(|(mask, _)| *mask == 0) {
+                return Err("word extensionality mask limit".into());
+            }
+            let want = prepare(&Equation { from: from.clone(), to: to.clone() }, env, c, budget)?;
+            if infer(&want.from, env, c, None, false, budget, depth + 1)? != Sort::U64 {
+                return Err("word extensionality requires words".into());
+            }
+            if parts.iter().fold(0, |cover, (mask, _)| cover | mask) != u64::MAX {
+                return Err("word extensionality does not cover all bits".into());
+            }
+            for (mask, proof) in parts {
+                let masked = |term: &Term| Term::Binary { op: "&".into(), left: Box::new(term.clone()), right: Box::new(Term::U64(*mask)) };
+                let expected = prepare(&Equation { from: masked(&want.from), to: masked(&want.to) }, env, c, budget)?;
+                let actual = derive(proof, env, c, hypotheses, schemas, budget, depth + 1)?;
+                if actual != expected { return Err("word extensionality part mismatch".into()); }
+            }
+            want
+        }
         Proof::BitVector {
             from,
             to,
