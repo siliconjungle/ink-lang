@@ -83,3 +83,9 @@ Linux replay initially lacked numeric Wasm artifacts because its first numeric
 run had no Zig configured. The browser CI step now explicitly builds both
 required-GPU numeric fixtures with Zig before copying them. The native GPU and
 exact numeric checks had passed; the missing artifact failure was not suppressed.
+
+The first Linux CPU/Wasm run reached the destination-storage oracle before GCC
+rejected its unbraced sentinel assertion loop under `-Werror=misleading-indentation`.
+The independently published C test fixture now has explicit braces; production
+library source is unchanged. Both standalone fixture tests pass locally. Strict
+GCC warnings remain enabled, and the integration CI verifies the corrected test.

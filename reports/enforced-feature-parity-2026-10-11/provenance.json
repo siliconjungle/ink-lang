@@ -103,7 +103,7 @@
   "log_sha256": "c202d6dd30101dd1abffe14ccc596619a37bbaead997bf16fbc411f55afc082b",
   "final_pins": {
     "knowledge": "3b0bf05c6e884130b3121a999ecc952baa773dc3",
-    "lowerings/c": "a0c2b6cc40d9191a4fcdfdeeb4a23b2487afcdaf",
+    "lowerings/c": "f6837b3dda1f57038f0712f824fb6a99aa7cd93f",
     "lowerings/rust": "c648154b1bbe403a2a0cc5c96052a9212deb23b7",
     "lowerings/js": "6a1d24cb3f1bc5448a53f69abb53aec8bd5973f9",
     "lowerings/wasm": "d2669db8dcf85575839dc82c135d4cf981df12b5",
@@ -120,5 +120,12 @@
     "log": "build/enforced-parity/strict-id-integration-final.log"
   },
   "ci_workflow": ".github/workflows/conformance.yml",
-  "ci_result_location": "integration PR check runs"
+  "ci_result_location": "integration PR check runs",
+  "fixture_only_delta": {
+    "revision": "f6837b3dda1f57038f0712f824fb6a99aa7cd93f",
+    "file": "lowerings/c/tests/collection_memory.rs",
+    "change": "braces around sentinel assertion loop; production library source unchanged",
+    "standalone_checks": 2,
+    "log": "build/enforced-parity/c-fixture-final.log"
+  }
 }
