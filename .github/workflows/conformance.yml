@@ -99,8 +99,18 @@ jobs:
           PYTHONPATH=knowledge python3 -m unittest discover -s knowledge/tests -p test_admit_publication.py
           PYTHONPATH=planner:knowledge python3 -m unittest discover -s planner/tests -p test_semantic_search.py
           INK_COMPILER="$PWD/target/debug/ink" PYTHONPATH=knowledge python3 -m unittest discover -s knowledge/tests -p test_frontier_extensions.py
+          python3 bench/composable-state/replay-admissions.py --compiler target/debug/ink --mathematics-source source-group examples/grouped-state.ink
+          cargo test --test sequence_tree
       - name: Literal CPU and both Wasm lowerings, generated histories and crash recovery
         run: python3 tools/check_feature_parity.py --scope cpu --run --receipt build/enforced-parity/cpu-audit.json
+      - name: Cold indexed proposals, measured batching selection and authenticated corruption
+        env:
+          PYTHONPATH: knowledge:planner
+          INK_COMPILER: target/release/ink
+        run: |
+          cargo build --release --bin ink
+          python planner/tests/automatic_candidates_integration.py target/release/ink planner/tests/fixtures/generic-batching.ink
+          python -m unittest discover -s knowledge/tests -p test_generic_indexed.py
       - name: Retain reproducible programs, seeds and expected outcomes
         if: always()
         uses: actions/upload-artifact@v4

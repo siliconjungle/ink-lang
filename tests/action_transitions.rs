@@ -473,6 +473,8 @@ fn database_remove_law_admits_a_complete_action_and_rejects_changed_observations
 #[test]
 fn expanded_existing_domain_types_are_projected() {
     for s in [
+        "module supported;query q(x:String)->Bool{return x==\"🧵 café\";}",
+        "module supported;id Owner;query q(x:Owner)->Owner{return x;}",
         "module unsupported;query q(x:u32)->u32{return x;}",
         "module unsupported;query q(x:String)->String{return x;}",
         "module supported;keep value:Int=1;query q()->Int reads(value){return value;}",
