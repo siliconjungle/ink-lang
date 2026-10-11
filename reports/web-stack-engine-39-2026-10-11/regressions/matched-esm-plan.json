@@ -1,0 +1,151 @@
+{
+  "status": "frozen_not_run",
+  "frames": [
+    "pipeline38_left_padded_zip_heldout_u32-high-4096",
+    "pipeline38_left_padded_zip_heldout_u32-high-65536",
+    "pipeline38_right_padded_zip_heldout_u32-high-4096",
+    "pipeline38_right_padded_zip_heldout_u32-high-65536"
+  ],
+  "variants": [
+    "prior_original_esm",
+    "prior_unchanged_clone_esm",
+    "prior_no_padding_esm",
+    "checked_original_esm",
+    "checked_unchanged_clone_esm",
+    "checked_no_pluszero_esm"
+  ],
+  "processes": 3,
+  "rounds": 9,
+  "total_uninstrumented_samples": 648,
+  "instrumented_frame": "pipeline38_left_padded_zip_heldout_u32-high-65536",
+  "commands": [
+    {
+      "name": "matched-profile-prior_unchanged_clone_esm",
+      "kind": "instrumented_profile",
+      "argv": [
+        "/Users/james/.nvm/versions/node/v26.1.0/bin/node",
+        "--trace-opt",
+        "--trace-deopt",
+        "--trace-file-names",
+        "--trace-turbo-inlining",
+        "--print-opt-code",
+        "--print-opt-code-filter=__fn0",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/bench/diagnose-pipeline38.matched.mjs",
+        "--mode=profile",
+        "--timing-authorized",
+        "--frame=pipeline38_left_padded_zip_heldout_u32-high-65536",
+        "--variant=prior_unchanged_clone_esm",
+        "--calls=256",
+        "--warmups=64",
+        "--output=/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/reports/web-stack-engine-39-2026-10-11/regressions/matched-profile-prior_unchanged_clone_esm.json"
+      ]
+    },
+    {
+      "name": "matched-profile-prior_no_padding_esm",
+      "kind": "instrumented_profile",
+      "argv": [
+        "/Users/james/.nvm/versions/node/v26.1.0/bin/node",
+        "--trace-opt",
+        "--trace-deopt",
+        "--trace-file-names",
+        "--trace-turbo-inlining",
+        "--print-opt-code",
+        "--print-opt-code-filter=__fn0",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/bench/diagnose-pipeline38.matched.mjs",
+        "--mode=profile",
+        "--timing-authorized",
+        "--frame=pipeline38_left_padded_zip_heldout_u32-high-65536",
+        "--variant=prior_no_padding_esm",
+        "--calls=256",
+        "--warmups=64",
+        "--output=/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/reports/web-stack-engine-39-2026-10-11/regressions/matched-profile-prior_no_padding_esm.json"
+      ]
+    },
+    {
+      "name": "matched-profile-checked_unchanged_clone_esm",
+      "kind": "instrumented_profile",
+      "argv": [
+        "/Users/james/.nvm/versions/node/v26.1.0/bin/node",
+        "--trace-opt",
+        "--trace-deopt",
+        "--trace-file-names",
+        "--trace-turbo-inlining",
+        "--print-opt-code",
+        "--print-opt-code-filter=__fn0",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/bench/diagnose-pipeline38.matched.mjs",
+        "--mode=profile",
+        "--timing-authorized",
+        "--frame=pipeline38_left_padded_zip_heldout_u32-high-65536",
+        "--variant=checked_unchanged_clone_esm",
+        "--calls=256",
+        "--warmups=64",
+        "--output=/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/reports/web-stack-engine-39-2026-10-11/regressions/matched-profile-checked_unchanged_clone_esm.json"
+      ]
+    },
+    {
+      "name": "matched-profile-checked_no_pluszero_esm",
+      "kind": "instrumented_profile",
+      "argv": [
+        "/Users/james/.nvm/versions/node/v26.1.0/bin/node",
+        "--trace-opt",
+        "--trace-deopt",
+        "--trace-file-names",
+        "--trace-turbo-inlining",
+        "--print-opt-code",
+        "--print-opt-code-filter=__fn0",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/bench/diagnose-pipeline38.matched.mjs",
+        "--mode=profile",
+        "--timing-authorized",
+        "--frame=pipeline38_left_padded_zip_heldout_u32-high-65536",
+        "--variant=checked_no_pluszero_esm",
+        "--calls=256",
+        "--warmups=64",
+        "--output=/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/reports/web-stack-engine-39-2026-10-11/regressions/matched-profile-checked_no_pluszero_esm.json"
+      ]
+    },
+    {
+      "name": "matched-reproduce-process-1",
+      "kind": "uninstrumented_fresh_process",
+      "argv": [
+        "/Users/james/.nvm/versions/node/v26.1.0/bin/node",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/bench/diagnose-pipeline38.matched.mjs",
+        "--mode=reproduce",
+        "--timing-authorized",
+        "--warmups=64",
+        "--rounds=9",
+        "--seed=2026113911",
+        "--output=/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/reports/web-stack-engine-39-2026-10-11/regressions/matched-reproduce-process-1.json"
+      ]
+    },
+    {
+      "name": "matched-reproduce-process-2",
+      "kind": "uninstrumented_fresh_process",
+      "argv": [
+        "/Users/james/.nvm/versions/node/v26.1.0/bin/node",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/bench/diagnose-pipeline38.matched.mjs",
+        "--mode=reproduce",
+        "--timing-authorized",
+        "--warmups=64",
+        "--rounds=9",
+        "--seed=2026113912",
+        "--output=/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/reports/web-stack-engine-39-2026-10-11/regressions/matched-reproduce-process-2.json"
+      ]
+    },
+    {
+      "name": "matched-reproduce-process-3",
+      "kind": "uninstrumented_fresh_process",
+      "argv": [
+        "/Users/james/.nvm/versions/node/v26.1.0/bin/node",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/bench/diagnose-pipeline38.matched.mjs",
+        "--mode=reproduce",
+        "--timing-authorized",
+        "--warmups=64",
+        "--rounds=9",
+        "--seed=2026113913",
+        "--output=/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/reports/web-stack-engine-39-2026-10-11/regressions/matched-reproduce-process-3.json"
+      ]
+    }
+  ],
+  "gate": "Parent must grant supplemental exclusive window; no execution authorized by preparation.",
+  "limits": "Matched no-op originals/clones expose URL/import context. Every intervention and ratio retained. Instrumented times excluded; constructor counted modules are untimed validation only."
+}

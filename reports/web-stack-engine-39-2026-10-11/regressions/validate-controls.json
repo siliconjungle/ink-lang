@@ -1,0 +1,4288 @@
+{
+  "status": "passed",
+  "mode": "validate",
+  "host": "v26.1.0",
+  "execArgv": [],
+  "argv": {
+    "mode": "validate",
+    "variant": "prior_js_owned,checked_js_owned,expert_js_owned,control_no_padding_js_owned,control_no_pluszero_js_owned,prior_wasm_prepared,checked_wasm_prepared,prior_novec_wasm_prepared,checked_novec_wasm_prepared,prior_wasm_full,checked_wasm_full",
+    "output": "reports/web-stack-engine-39-2026-10-11/regressions/validate-controls.json"
+  },
+  "profiling_overhead_included": false,
+  "control_sources": {
+    "control_no_padding_js_owned/pipeline38_left_padded_zip_heldout_u32": {
+      "source": "function diagnose_no_padding(v0,v1,v2,v3){\nconst v4=v0;\nconst v5=v4.length;\nconst v6=new Array(v5);\nfor(let v7=0;v7<v5;v7++){\nconst v8=v4[v7];\nconst v9=(v7>>>0);\nconst v10=v9;\nconst v11=v8;\nconst v12=v2;\nconst v13=v3;\n/* inline left_word */\nconst v14=v10;\nconst v15=v11;\nconst v16=v12;\nconst v17=v13;\n/* inline left_signal */\nconst v18=v15;\nconst v19=v17;\nlet v20;if(v19===0 ){\nv20=0;}else{\nv20=(Math.trunc(v18/v19)+0);}\nconst v21=v20;\nconst v22=v14;\nconst v23=v17;\nlet v24;if(v23===0 ){\nv24=0;}else{\nv24=((v22%v23)+0);}\nconst v25=v24;\nconst v26=(((v21) + (v25)) >>> 0);\nconst v27=v16;\nv6[v7]=(((v26) + (v27)) >>> 0);\n}\nconst v28=v6;\nconst v29=v1;\nconst v30=v28.length;\nconst v31=v29.length;\nconst v32=v28; // diagnostic: appended suffix is not materialized\nconst v35=v32;\nconst v36=v0;\nconst v37=v36.length;\nconst v38=new Array(v37);\nfor(let v39=0;v39<v37;v39++){\nconst v40=v36[v39];\nconst v41=(v39>>>0);\nconst v42=v41;\nconst v43=v40;\nconst v44=v2;\nconst v45=v3;\n/* inline right_word */\nconst v46=v42;\nconst v47=v43;\nconst v48=v44;\nconst v49=v45;\n/* inline right_signal */\nconst v50=v46;\nconst v51=v48;\nlet v52;if(((v50) < (v51))){\nconst v53=v47;\nconst v54=v49;\nv52=(((v53) + (v54)) >>> 0);}else{\nconst v55=v47;\nconst v56=3;\nv52=(Math.imul(v55,v56) >>> 0);}\nv38[v39]=v52;\n}\nconst v57=v38;\nconst v58=Math.min(v35.length,v57.length);\nconst v59=new Array(v58);\nfor(let v60=0;v60<v58;v60++){\nconst v61=v35[v60];\nconst v62=v57[v60];\nconst v63=v61;\nconst v64=v62;\nconst v65=v2;\nconst v66=v3;\n/* inline pair_word */\nconst v67=v63;\nconst v68=v64;\nconst v69=v65;\nconst v70=v66;\n/* inline pair_signal */\nconst v71=v67;\nconst v72=v68;\nlet v73;if(((v71) < (v72))){\nconst v74=v67;\nconst v75=v70;\nlet v76;if(v75===0 ){\nv76=0;}else{\nv76=(Math.trunc(v74/v75)+0);}\nconst v77=v76;\nconst v78=v68;\nv73=(((v77) + (v78)) >>> 0);}else{\nconst v79=v68;\nconst v80=v70;\nlet v81;if(v80===0 ){\nv81=0;}else{\nv81=((v79%v80)+0);}\nconst v82=v81;\nconst v83=v67;\nv73=(((v82) + (v83)) >>> 0);}\nv59[v60]=v73;\n}\nreturn v59;}\n",
+      "sha256": "8445eb3995cd47d008a93f3c88d9b955d1a16ceb491e01fcccf7abc39f731c25",
+      "scope": "Exact prior source with only concat allocation/copies removed; staged mapper/pair loops retained."
+    },
+    "control_no_pluszero_js_owned/pipeline38_left_padded_zip_heldout_u32": {
+      "source": "function diagnose_no_pluszero(v0,v1,v2,v3){\nconst v4=v0;\nconst v5=v4.length;\nconst v6=new Array(v5);\nfor(let v7=0;v7<v5;v7++){\nconst v8=v4[v7];\nconst v9=(v7>>>0);\nconst v10=v9;\nconst v11=v8;\nconst v12=v2;\nconst v13=v3;\n/* inline left_word */\nconst v14=v10;\nconst v15=v11;\nconst v16=v12;\nconst v17=v13;\n/* inline left_signal */\nconst v18=v15;\nconst v19=v17;\nlet v20;if(v19===0 ){\nv20=0;}else{\nv20=(Math.trunc(v18/v19));}\nconst v21=v20;\nconst v22=v14;\nconst v23=v17;\nlet v24;if(v23===0 ){\nv24=0;}else{\nv24=((v22%v23));}\nconst v25=v24;\nconst v26=(((v21) + (v25)) >>> 0);\nconst v27=v16;\nconst v28=(((v26) + (v27)) >>> 0);\nconst v29=v9;\nconst v30=v8;\nconst v31=v2;\nconst v32=v3;\n/* inline right_word */\nconst v33=v29;\nconst v34=v30;\nconst v35=v31;\nconst v36=v32;\n/* inline right_signal */\nconst v37=v33;\nconst v38=v35;\nlet v39;if(((v37) < (v38))){\nconst v40=v34;\nconst v41=v36;\nv39=(((v40) + (v41)) >>> 0);}else{\nconst v42=v34;\nconst v43=3;\nv39=(Math.imul(v42,v43) >>> 0);}\nconst v44=v39;\nconst v45=v2;\nconst v46=v3;\n/* inline pair_word */\nconst v47=v28;\nconst v48=v44;\nconst v49=v45;\nconst v50=v46;\n/* inline pair_signal */\nconst v51=v47;\nconst v52=v48;\nlet v53;if(((v51) < (v52))){\nconst v54=v47;\nconst v55=v50;\nlet v56;if(v55===0 ){\nv56=0;}else{\nv56=(Math.trunc(v54/v55));}\nconst v57=v56;\nconst v58=v48;\nv53=(((v57) + (v58)) >>> 0);}else{\nconst v59=v48;\nconst v60=v50;\nlet v61;if(v60===0 ){\nv61=0;}else{\nv61=((v59%v60));}\nconst v62=v61;\nconst v63=v47;\nv53=(((v62) + (v63)) >>> 0);}\nv6[v7]=v53;\n}\nreturn v6;}\n",
+      "sha256": "0ad712ed0a77ff715ebd8c9ee2e8ac32521f47fa0c6a387c35293a753c76f6d0",
+      "scope": "Exact checked source with only four +0 operations following total U32 division/remainder removed."
+    },
+    "control_no_padding_js_owned/pipeline38_right_padded_zip_heldout_u32": {
+      "source": "function diagnose_no_padding(v0,v1,v2,v3){\nconst v4=v0;\nconst v5=v4.length;\nconst v6=new Array(v5);\nfor(let v7=0;v7<v5;v7++){\nconst v8=v4[v7];\nconst v9=(v7>>>0);\nconst v10=v9;\nconst v11=v8;\nconst v12=v2;\nconst v13=v3;\n/* inline left_word */\nconst v14=v10;\nconst v15=v11;\nconst v16=v12;\nconst v17=v13;\n/* inline left_signal */\nconst v18=v15;\nconst v19=v17;\nlet v20;if(v19===0 ){\nv20=0;}else{\nv20=(Math.trunc(v18/v19)+0);}\nconst v21=v20;\nconst v22=v14;\nconst v23=v17;\nlet v24;if(v23===0 ){\nv24=0;}else{\nv24=((v22%v23)+0);}\nconst v25=v24;\nconst v26=(((v21) + (v25)) >>> 0);\nconst v27=v16;\nv6[v7]=(((v26) + (v27)) >>> 0);\n}\nconst v28=v6;\nconst v29=v0;\nconst v30=v29.length;\nconst v31=new Array(v30);\nfor(let v32=0;v32<v30;v32++){\nconst v33=v29[v32];\nconst v34=(v32>>>0);\nconst v35=v34;\nconst v36=v33;\nconst v37=v2;\nconst v38=v3;\n/* inline right_word */\nconst v39=v35;\nconst v40=v36;\nconst v41=v37;\nconst v42=v38;\n/* inline right_signal */\nconst v43=v39;\nconst v44=v41;\nlet v45;if(((v43) < (v44))){\nconst v46=v40;\nconst v47=v42;\nv45=(((v46) + (v47)) >>> 0);}else{\nconst v48=v40;\nconst v49=3;\nv45=(Math.imul(v48,v49) >>> 0);}\nv31[v32]=v45;\n}\nconst v50=v31;\nconst v51=v1;\nconst v52=v50.length;\nconst v53=v51.length;\nconst v54=v50; // diagnostic: appended suffix is not materialized\nconst v57=v54;\nconst v58=Math.min(v28.length,v57.length);\nconst v59=new Array(v58);\nfor(let v60=0;v60<v58;v60++){\nconst v61=v28[v60];\nconst v62=v57[v60];\nconst v63=v61;\nconst v64=v62;\nconst v65=v2;\nconst v66=v3;\n/* inline pair_word */\nconst v67=v63;\nconst v68=v64;\nconst v69=v65;\nconst v70=v66;\n/* inline pair_signal */\nconst v71=v67;\nconst v72=v68;\nlet v73;if(((v71) < (v72))){\nconst v74=v67;\nconst v75=v70;\nlet v76;if(v75===0 ){\nv76=0;}else{\nv76=(Math.trunc(v74/v75)+0);}\nconst v77=v76;\nconst v78=v68;\nv73=(((v77) + (v78)) >>> 0);}else{\nconst v79=v68;\nconst v80=v70;\nlet v81;if(v80===0 ){\nv81=0;}else{\nv81=((v79%v80)+0);}\nconst v82=v81;\nconst v83=v67;\nv73=(((v82) + (v83)) >>> 0);}\nv59[v60]=v73;\n}\nreturn v59;}\n",
+      "sha256": "4475640d774aa589958e53c2a1c60d19c504b7d6ef8a8c72171c02ff3be2bf30",
+      "scope": "Exact prior source with only concat allocation/copies removed; staged mapper/pair loops retained."
+    },
+    "control_no_pluszero_js_owned/pipeline38_right_padded_zip_heldout_u32": {
+      "source": "function diagnose_no_pluszero(v0,v1,v2,v3){\nconst v4=v0;\nconst v5=v4.length;\nconst v6=new Array(v5);\nfor(let v7=0;v7<v5;v7++){\nconst v8=v4[v7];\nconst v9=(v7>>>0);\nconst v10=v9;\nconst v11=v8;\nconst v12=v2;\nconst v13=v3;\n/* inline left_word */\nconst v14=v10;\nconst v15=v11;\nconst v16=v12;\nconst v17=v13;\n/* inline left_signal */\nconst v18=v15;\nconst v19=v17;\nlet v20;if(v19===0 ){\nv20=0;}else{\nv20=(Math.trunc(v18/v19));}\nconst v21=v20;\nconst v22=v14;\nconst v23=v17;\nlet v24;if(v23===0 ){\nv24=0;}else{\nv24=((v22%v23));}\nconst v25=v24;\nconst v26=(((v21) + (v25)) >>> 0);\nconst v27=v16;\nconst v28=(((v26) + (v27)) >>> 0);\nconst v29=v9;\nconst v30=v8;\nconst v31=v2;\nconst v32=v3;\n/* inline right_word */\nconst v33=v29;\nconst v34=v30;\nconst v35=v31;\nconst v36=v32;\n/* inline right_signal */\nconst v37=v33;\nconst v38=v35;\nlet v39;if(((v37) < (v38))){\nconst v40=v34;\nconst v41=v36;\nv39=(((v40) + (v41)) >>> 0);}else{\nconst v42=v34;\nconst v43=3;\nv39=(Math.imul(v42,v43) >>> 0);}\nconst v44=v39;\nconst v45=v2;\nconst v46=v3;\n/* inline pair_word */\nconst v47=v28;\nconst v48=v44;\nconst v49=v45;\nconst v50=v46;\n/* inline pair_signal */\nconst v51=v47;\nconst v52=v48;\nlet v53;if(((v51) < (v52))){\nconst v54=v47;\nconst v55=v50;\nlet v56;if(v55===0 ){\nv56=0;}else{\nv56=(Math.trunc(v54/v55));}\nconst v57=v56;\nconst v58=v48;\nv53=(((v57) + (v58)) >>> 0);}else{\nconst v59=v48;\nconst v60=v50;\nlet v61;if(v60===0 ){\nv61=0;}else{\nv61=((v59%v60));}\nconst v62=v61;\nconst v63=v47;\nv53=(((v62) + (v63)) >>> 0);}\nv6[v7]=v53;\n}\nreturn v6;}\n",
+      "sha256": "0ad712ed0a77ff715ebd8c9ee2e8ac32521f47fa0c6a387c35293a753c76f6d0",
+      "scope": "Exact checked source with only four +0 operations following total U32 division/remainder removed."
+    }
+  },
+  "causal_scope": "no-padding isolates removed concat allocation/copy, with staged loops retained; no-pluszero isolates four scalar neutral additions. Expert changes several source features and is not a single-factor cause.",
+  "boundaries": "Captured JS copies both inputs and returns fresh owned outputs. Prepared Wasm excludes setup and borrows destination; full Wasm uses unchanged runtime capture/packing/owned unpack. Node results do not reproduce browser engine/environment.",
+  "bindings": {
+    "metadata": "30e0d7dee69815d8815676289a73c3aa7ba49df079b9cbaed7af3a1f89019331",
+    "fixtures": "a1951d464353ddfd3ad08b2a3bb2d4f4ad249cb98860403c96b18ceff134c4a7",
+    "script": "f32e07055800dbc70877f0b864810cb3dbd9b7770249c0d62862ac34c91782b0",
+    "reports/web-stack-proofs-38-2026-10-11/targets/targets/pipeline38_left_padded_zip_heldout_u32/prior/program.mjs": "2402d4d4ed79cf0f19b88f2d70f75b47536fdadb6c1d67331388b472d48b6690",
+    "reports/web-stack-proofs-38-2026-10-11/targets/targets/pipeline38_left_padded_zip_heldout_u32/checked/program.mjs": "a50f68556d2e1f7ec8dca664ac0d258ec3a1ecaef290ca878403ae4244904d7c",
+    "control_no_padding_js_owned/pipeline38_left_padded_zip_heldout_u32": "8445eb3995cd47d008a93f3c88d9b955d1a16ceb491e01fcccf7abc39f731c25",
+    "control_no_pluszero_js_owned/pipeline38_left_padded_zip_heldout_u32": "0ad712ed0a77ff715ebd8c9ee2e8ac32521f47fa0c6a387c35293a753c76f6d0",
+    "reports/web-stack-proofs-38-2026-10-11/targets/targets/pipeline38_left_padded_zip_heldout_u32/prior/cpu.wasm": "133d3eec3b81229c88765e3cfd2fce6de1f5dd8699b7ac7f82d881235389907a",
+    "reports/web-stack-proofs-38-2026-10-11/targets/targets/pipeline38_left_padded_zip_heldout_u32/checked/cpu.wasm": "b61f8afa949f41e7aade4cd14fd681258a9cc153b26e4679ddb7aa94089b990e",
+    "reports/web-stack-engine-39-2026-10-11/regressions/static/pipeline38_left_padded_zip_heldout_u32/prior.no-vectorize.wasm": "e4b5f98eb34477572475e6eaa2fc55c0d5fb717018b8992d5861875c0cfaca2a",
+    "reports/web-stack-engine-39-2026-10-11/regressions/static/pipeline38_left_padded_zip_heldout_u32/checked.no-vectorize.wasm": "b2e8234eef1089249e9dd245c1ce48e89f79a65def474f9dacb85554a3e26262",
+    "reports/web-stack-proofs-38-2026-10-11/targets/targets/pipeline38_right_padded_zip_heldout_u32/prior/program.mjs": "0fc32eca4d213f2361b8cfc9ed26d1e4233d1d27a050972407f2290b9373f4c1",
+    "reports/web-stack-proofs-38-2026-10-11/targets/targets/pipeline38_right_padded_zip_heldout_u32/checked/program.mjs": "48b82d92bcb6acbf65e3ceefe681b71826b55d5cce3cd34161cc9994eb7f667e",
+    "control_no_padding_js_owned/pipeline38_right_padded_zip_heldout_u32": "4475640d774aa589958e53c2a1c60d19c504b7d6ef8a8c72171c02ff3be2bf30",
+    "control_no_pluszero_js_owned/pipeline38_right_padded_zip_heldout_u32": "0ad712ed0a77ff715ebd8c9ee2e8ac32521f47fa0c6a387c35293a753c76f6d0",
+    "reports/web-stack-proofs-38-2026-10-11/targets/targets/pipeline38_right_padded_zip_heldout_u32/prior/cpu.wasm": "af51eb000c74414df98eb77e79b262074d3d8d1b1855380c371feaf266fd1046",
+    "reports/web-stack-proofs-38-2026-10-11/targets/targets/pipeline38_right_padded_zip_heldout_u32/checked/cpu.wasm": "2ac97c7e31fce0854f1e54525f1e0ed902b6246562a0e30a853190b70c300ae3",
+    "reports/web-stack-engine-39-2026-10-11/regressions/static/pipeline38_right_padded_zip_heldout_u32/prior.no-vectorize.wasm": "e974a422fd5bb2f3380e8089bda9ae37298b187c399f9da830519d434dcb141c",
+    "reports/web-stack-engine-39-2026-10-11/regressions/static/pipeline38_right_padded_zip_heldout_u32/checked.no-vectorize.wasm": "8b593270c73e14a2af257a35966492594caab327ffafd05ccc50a18b24983774"
+  },
+  "validation": [
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-0",
+      "variant": "prior_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-0",
+      "variant": "checked_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-0",
+      "variant": "expert_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-0",
+      "variant": "control_no_padding_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-0",
+      "variant": "control_no_pluszero_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-0",
+      "variant": "prior_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-0",
+      "variant": "checked_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-0",
+      "variant": "prior_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-0",
+      "variant": "checked_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-0",
+      "variant": "prior_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-0",
+      "variant": "checked_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-1",
+      "variant": "prior_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-1",
+      "variant": "checked_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-1",
+      "variant": "expert_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-1",
+      "variant": "control_no_padding_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-1",
+      "variant": "control_no_pluszero_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-1",
+      "variant": "prior_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-1",
+      "variant": "checked_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-1",
+      "variant": "prior_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-1",
+      "variant": "checked_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-1",
+      "variant": "prior_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-1",
+      "variant": "checked_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-2",
+      "variant": "prior_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-2",
+      "variant": "checked_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-2",
+      "variant": "expert_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-2",
+      "variant": "control_no_padding_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-2",
+      "variant": "control_no_pluszero_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-2",
+      "variant": "prior_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-2",
+      "variant": "checked_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-2",
+      "variant": "prior_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-2",
+      "variant": "checked_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-2",
+      "variant": "prior_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-2",
+      "variant": "checked_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-7",
+      "variant": "prior_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-7",
+      "variant": "checked_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-7",
+      "variant": "expert_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-7",
+      "variant": "control_no_padding_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-7",
+      "variant": "control_no_pluszero_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-7",
+      "variant": "prior_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-7",
+      "variant": "checked_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-7",
+      "variant": "prior_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-7",
+      "variant": "checked_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-7",
+      "variant": "prior_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-7",
+      "variant": "checked_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-32",
+      "variant": "prior_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-32",
+      "variant": "checked_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-32",
+      "variant": "expert_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-32",
+      "variant": "control_no_padding_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-32",
+      "variant": "control_no_pluszero_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-32",
+      "variant": "prior_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-32",
+      "variant": "checked_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-32",
+      "variant": "prior_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-32",
+      "variant": "checked_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-32",
+      "variant": "prior_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-32",
+      "variant": "checked_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-129",
+      "variant": "prior_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-129",
+      "variant": "checked_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-129",
+      "variant": "expert_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-129",
+      "variant": "control_no_padding_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-129",
+      "variant": "control_no_pluszero_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-129",
+      "variant": "prior_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-129",
+      "variant": "checked_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-129",
+      "variant": "prior_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-129",
+      "variant": "checked_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-129",
+      "variant": "prior_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-129",
+      "variant": "checked_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-4096",
+      "variant": "prior_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-4096",
+      "variant": "checked_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-4096",
+      "variant": "expert_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-4096",
+      "variant": "control_no_padding_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-4096",
+      "variant": "control_no_pluszero_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-4096",
+      "variant": "prior_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-4096",
+      "variant": "checked_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-4096",
+      "variant": "prior_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-4096",
+      "variant": "checked_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-4096",
+      "variant": "prior_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-4096",
+      "variant": "checked_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-65536",
+      "variant": "prior_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-65536",
+      "variant": "checked_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-65536",
+      "variant": "expert_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-65536",
+      "variant": "control_no_padding_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-65536",
+      "variant": "control_no_pluszero_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-65536",
+      "variant": "prior_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-65536",
+      "variant": "checked_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-65536",
+      "variant": "prior_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-65536",
+      "variant": "checked_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-65536",
+      "variant": "prior_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-low-65536",
+      "variant": "checked_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-0",
+      "variant": "prior_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-0",
+      "variant": "checked_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-0",
+      "variant": "expert_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-0",
+      "variant": "control_no_padding_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-0",
+      "variant": "control_no_pluszero_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-0",
+      "variant": "prior_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-0",
+      "variant": "checked_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-0",
+      "variant": "prior_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-0",
+      "variant": "checked_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-0",
+      "variant": "prior_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-0",
+      "variant": "checked_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-1",
+      "variant": "prior_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-1",
+      "variant": "checked_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-1",
+      "variant": "expert_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-1",
+      "variant": "control_no_padding_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-1",
+      "variant": "control_no_pluszero_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-1",
+      "variant": "prior_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-1",
+      "variant": "checked_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-1",
+      "variant": "prior_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-1",
+      "variant": "checked_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-1",
+      "variant": "prior_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-1",
+      "variant": "checked_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-2",
+      "variant": "prior_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-2",
+      "variant": "checked_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-2",
+      "variant": "expert_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-2",
+      "variant": "control_no_padding_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-2",
+      "variant": "control_no_pluszero_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-2",
+      "variant": "prior_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-2",
+      "variant": "checked_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-2",
+      "variant": "prior_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-2",
+      "variant": "checked_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-2",
+      "variant": "prior_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-2",
+      "variant": "checked_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-7",
+      "variant": "prior_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-7",
+      "variant": "checked_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-7",
+      "variant": "expert_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-7",
+      "variant": "control_no_padding_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-7",
+      "variant": "control_no_pluszero_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-7",
+      "variant": "prior_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-7",
+      "variant": "checked_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-7",
+      "variant": "prior_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-7",
+      "variant": "checked_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-7",
+      "variant": "prior_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-7",
+      "variant": "checked_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-32",
+      "variant": "prior_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-32",
+      "variant": "checked_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-32",
+      "variant": "expert_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-32",
+      "variant": "control_no_padding_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-32",
+      "variant": "control_no_pluszero_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-32",
+      "variant": "prior_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-32",
+      "variant": "checked_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-32",
+      "variant": "prior_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-32",
+      "variant": "checked_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-32",
+      "variant": "prior_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-32",
+      "variant": "checked_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-129",
+      "variant": "prior_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-129",
+      "variant": "checked_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-129",
+      "variant": "expert_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-129",
+      "variant": "control_no_padding_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-129",
+      "variant": "control_no_pluszero_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-129",
+      "variant": "prior_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-129",
+      "variant": "checked_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-129",
+      "variant": "prior_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-129",
+      "variant": "checked_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-129",
+      "variant": "prior_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-129",
+      "variant": "checked_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-4096",
+      "variant": "prior_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-4096",
+      "variant": "checked_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-4096",
+      "variant": "expert_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-4096",
+      "variant": "control_no_padding_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-4096",
+      "variant": "control_no_pluszero_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-4096",
+      "variant": "prior_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-4096",
+      "variant": "checked_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-4096",
+      "variant": "prior_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-4096",
+      "variant": "checked_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-4096",
+      "variant": "prior_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-4096",
+      "variant": "checked_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-65536",
+      "variant": "prior_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-65536",
+      "variant": "checked_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-65536",
+      "variant": "expert_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-65536",
+      "variant": "control_no_padding_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-65536",
+      "variant": "control_no_pluszero_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-65536",
+      "variant": "prior_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-65536",
+      "variant": "checked_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-65536",
+      "variant": "prior_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-65536",
+      "variant": "checked_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-65536",
+      "variant": "prior_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-high-65536",
+      "variant": "checked_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-both-empty",
+      "variant": "prior_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-both-empty",
+      "variant": "checked_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-both-empty",
+      "variant": "expert_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-both-empty",
+      "variant": "control_no_padding_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-both-empty",
+      "variant": "control_no_pluszero_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-both-empty",
+      "variant": "prior_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-both-empty",
+      "variant": "checked_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-both-empty",
+      "variant": "prior_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-both-empty",
+      "variant": "checked_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-both-empty",
+      "variant": "prior_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-both-empty",
+      "variant": "checked_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-xs-empty",
+      "variant": "prior_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-xs-empty",
+      "variant": "checked_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-xs-empty",
+      "variant": "expert_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-xs-empty",
+      "variant": "control_no_padding_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-xs-empty",
+      "variant": "control_no_pluszero_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-xs-empty",
+      "variant": "prior_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-xs-empty",
+      "variant": "checked_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-xs-empty",
+      "variant": "prior_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-xs-empty",
+      "variant": "checked_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-xs-empty",
+      "variant": "prior_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-xs-empty",
+      "variant": "checked_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-suffix-empty",
+      "variant": "prior_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-suffix-empty",
+      "variant": "checked_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-suffix-empty",
+      "variant": "expert_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-suffix-empty",
+      "variant": "control_no_padding_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-suffix-empty",
+      "variant": "control_no_pluszero_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-suffix-empty",
+      "variant": "prior_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-suffix-empty",
+      "variant": "checked_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-suffix-empty",
+      "variant": "prior_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-suffix-empty",
+      "variant": "checked_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-suffix-empty",
+      "variant": "prior_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-suffix-empty",
+      "variant": "checked_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-word-boundaries",
+      "variant": "prior_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-word-boundaries",
+      "variant": "checked_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-word-boundaries",
+      "variant": "expert_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-word-boundaries",
+      "variant": "control_no_padding_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-word-boundaries",
+      "variant": "control_no_pluszero_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-word-boundaries",
+      "variant": "prior_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-word-boundaries",
+      "variant": "checked_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-word-boundaries",
+      "variant": "prior_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-word-boundaries",
+      "variant": "checked_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-word-boundaries",
+      "variant": "prior_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-word-boundaries",
+      "variant": "checked_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-zero-divisor",
+      "variant": "prior_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-zero-divisor",
+      "variant": "checked_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-zero-divisor",
+      "variant": "expert_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-zero-divisor",
+      "variant": "control_no_padding_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-zero-divisor",
+      "variant": "control_no_pluszero_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-zero-divisor",
+      "variant": "prior_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-zero-divisor",
+      "variant": "checked_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-zero-divisor",
+      "variant": "prior_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-zero-divisor",
+      "variant": "checked_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-zero-divisor",
+      "variant": "prior_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-zero-divisor",
+      "variant": "checked_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-index-branch-boundary",
+      "variant": "prior_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-index-branch-boundary",
+      "variant": "checked_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-index-branch-boundary",
+      "variant": "expert_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-index-branch-boundary",
+      "variant": "control_no_padding_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-index-branch-boundary",
+      "variant": "control_no_pluszero_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-index-branch-boundary",
+      "variant": "prior_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-index-branch-boundary",
+      "variant": "checked_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-index-branch-boundary",
+      "variant": "prior_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-index-branch-boundary",
+      "variant": "checked_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-index-branch-boundary",
+      "variant": "prior_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-index-branch-boundary",
+      "variant": "checked_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-long-prefix",
+      "variant": "prior_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-long-prefix",
+      "variant": "checked_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-long-prefix",
+      "variant": "expert_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-long-prefix",
+      "variant": "control_no_padding_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-long-prefix",
+      "variant": "control_no_pluszero_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-long-prefix",
+      "variant": "prior_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-long-prefix",
+      "variant": "checked_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-long-prefix",
+      "variant": "prior_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-long-prefix",
+      "variant": "checked_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-long-prefix",
+      "variant": "prior_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-long-prefix",
+      "variant": "checked_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-long-suffix",
+      "variant": "prior_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-long-suffix",
+      "variant": "checked_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-long-suffix",
+      "variant": "expert_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-long-suffix",
+      "variant": "control_no_padding_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-long-suffix",
+      "variant": "control_no_pluszero_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-long-suffix",
+      "variant": "prior_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-long-suffix",
+      "variant": "checked_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-long-suffix",
+      "variant": "prior_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-long-suffix",
+      "variant": "checked_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-long-suffix",
+      "variant": "prior_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_left_padded_zip_heldout_u32-long-suffix",
+      "variant": "checked_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-0",
+      "variant": "prior_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-0",
+      "variant": "checked_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-0",
+      "variant": "expert_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-0",
+      "variant": "control_no_padding_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-0",
+      "variant": "control_no_pluszero_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-0",
+      "variant": "prior_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-0",
+      "variant": "checked_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-0",
+      "variant": "prior_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-0",
+      "variant": "checked_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-0",
+      "variant": "prior_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-0",
+      "variant": "checked_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-1",
+      "variant": "prior_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-1",
+      "variant": "checked_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-1",
+      "variant": "expert_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-1",
+      "variant": "control_no_padding_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-1",
+      "variant": "control_no_pluszero_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-1",
+      "variant": "prior_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-1",
+      "variant": "checked_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-1",
+      "variant": "prior_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-1",
+      "variant": "checked_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-1",
+      "variant": "prior_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-1",
+      "variant": "checked_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-2",
+      "variant": "prior_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-2",
+      "variant": "checked_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-2",
+      "variant": "expert_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-2",
+      "variant": "control_no_padding_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-2",
+      "variant": "control_no_pluszero_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-2",
+      "variant": "prior_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-2",
+      "variant": "checked_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-2",
+      "variant": "prior_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-2",
+      "variant": "checked_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-2",
+      "variant": "prior_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-2",
+      "variant": "checked_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-7",
+      "variant": "prior_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-7",
+      "variant": "checked_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-7",
+      "variant": "expert_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-7",
+      "variant": "control_no_padding_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-7",
+      "variant": "control_no_pluszero_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-7",
+      "variant": "prior_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-7",
+      "variant": "checked_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-7",
+      "variant": "prior_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-7",
+      "variant": "checked_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-7",
+      "variant": "prior_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-7",
+      "variant": "checked_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-32",
+      "variant": "prior_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-32",
+      "variant": "checked_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-32",
+      "variant": "expert_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-32",
+      "variant": "control_no_padding_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-32",
+      "variant": "control_no_pluszero_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-32",
+      "variant": "prior_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-32",
+      "variant": "checked_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-32",
+      "variant": "prior_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-32",
+      "variant": "checked_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-32",
+      "variant": "prior_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-32",
+      "variant": "checked_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-129",
+      "variant": "prior_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-129",
+      "variant": "checked_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-129",
+      "variant": "expert_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-129",
+      "variant": "control_no_padding_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-129",
+      "variant": "control_no_pluszero_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-129",
+      "variant": "prior_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-129",
+      "variant": "checked_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-129",
+      "variant": "prior_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-129",
+      "variant": "checked_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-129",
+      "variant": "prior_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-129",
+      "variant": "checked_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-4096",
+      "variant": "prior_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-4096",
+      "variant": "checked_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-4096",
+      "variant": "expert_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-4096",
+      "variant": "control_no_padding_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-4096",
+      "variant": "control_no_pluszero_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-4096",
+      "variant": "prior_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-4096",
+      "variant": "checked_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-4096",
+      "variant": "prior_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-4096",
+      "variant": "checked_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-4096",
+      "variant": "prior_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-4096",
+      "variant": "checked_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-65536",
+      "variant": "prior_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-65536",
+      "variant": "checked_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-65536",
+      "variant": "expert_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-65536",
+      "variant": "control_no_padding_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-65536",
+      "variant": "control_no_pluszero_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-65536",
+      "variant": "prior_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-65536",
+      "variant": "checked_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-65536",
+      "variant": "prior_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-65536",
+      "variant": "checked_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-65536",
+      "variant": "prior_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-low-65536",
+      "variant": "checked_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-0",
+      "variant": "prior_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-0",
+      "variant": "checked_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-0",
+      "variant": "expert_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-0",
+      "variant": "control_no_padding_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-0",
+      "variant": "control_no_pluszero_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-0",
+      "variant": "prior_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-0",
+      "variant": "checked_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-0",
+      "variant": "prior_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-0",
+      "variant": "checked_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-0",
+      "variant": "prior_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-0",
+      "variant": "checked_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-1",
+      "variant": "prior_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-1",
+      "variant": "checked_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-1",
+      "variant": "expert_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-1",
+      "variant": "control_no_padding_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-1",
+      "variant": "control_no_pluszero_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-1",
+      "variant": "prior_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-1",
+      "variant": "checked_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-1",
+      "variant": "prior_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-1",
+      "variant": "checked_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-1",
+      "variant": "prior_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-1",
+      "variant": "checked_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-2",
+      "variant": "prior_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-2",
+      "variant": "checked_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-2",
+      "variant": "expert_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-2",
+      "variant": "control_no_padding_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-2",
+      "variant": "control_no_pluszero_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-2",
+      "variant": "prior_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-2",
+      "variant": "checked_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-2",
+      "variant": "prior_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-2",
+      "variant": "checked_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-2",
+      "variant": "prior_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-2",
+      "variant": "checked_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-7",
+      "variant": "prior_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-7",
+      "variant": "checked_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-7",
+      "variant": "expert_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-7",
+      "variant": "control_no_padding_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-7",
+      "variant": "control_no_pluszero_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-7",
+      "variant": "prior_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-7",
+      "variant": "checked_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-7",
+      "variant": "prior_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-7",
+      "variant": "checked_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-7",
+      "variant": "prior_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-7",
+      "variant": "checked_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-32",
+      "variant": "prior_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-32",
+      "variant": "checked_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-32",
+      "variant": "expert_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-32",
+      "variant": "control_no_padding_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-32",
+      "variant": "control_no_pluszero_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-32",
+      "variant": "prior_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-32",
+      "variant": "checked_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-32",
+      "variant": "prior_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-32",
+      "variant": "checked_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-32",
+      "variant": "prior_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-32",
+      "variant": "checked_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-129",
+      "variant": "prior_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-129",
+      "variant": "checked_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-129",
+      "variant": "expert_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-129",
+      "variant": "control_no_padding_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-129",
+      "variant": "control_no_pluszero_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-129",
+      "variant": "prior_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-129",
+      "variant": "checked_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-129",
+      "variant": "prior_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-129",
+      "variant": "checked_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-129",
+      "variant": "prior_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-129",
+      "variant": "checked_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-4096",
+      "variant": "prior_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-4096",
+      "variant": "checked_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-4096",
+      "variant": "expert_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-4096",
+      "variant": "control_no_padding_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-4096",
+      "variant": "control_no_pluszero_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-4096",
+      "variant": "prior_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-4096",
+      "variant": "checked_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-4096",
+      "variant": "prior_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-4096",
+      "variant": "checked_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-4096",
+      "variant": "prior_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-4096",
+      "variant": "checked_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-65536",
+      "variant": "prior_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-65536",
+      "variant": "checked_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-65536",
+      "variant": "expert_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-65536",
+      "variant": "control_no_padding_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-65536",
+      "variant": "control_no_pluszero_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-65536",
+      "variant": "prior_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-65536",
+      "variant": "checked_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-65536",
+      "variant": "prior_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-65536",
+      "variant": "checked_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-65536",
+      "variant": "prior_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-high-65536",
+      "variant": "checked_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-both-empty",
+      "variant": "prior_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-both-empty",
+      "variant": "checked_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-both-empty",
+      "variant": "expert_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-both-empty",
+      "variant": "control_no_padding_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-both-empty",
+      "variant": "control_no_pluszero_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-both-empty",
+      "variant": "prior_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-both-empty",
+      "variant": "checked_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-both-empty",
+      "variant": "prior_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-both-empty",
+      "variant": "checked_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-both-empty",
+      "variant": "prior_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-both-empty",
+      "variant": "checked_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-xs-empty",
+      "variant": "prior_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-xs-empty",
+      "variant": "checked_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-xs-empty",
+      "variant": "expert_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-xs-empty",
+      "variant": "control_no_padding_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-xs-empty",
+      "variant": "control_no_pluszero_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-xs-empty",
+      "variant": "prior_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-xs-empty",
+      "variant": "checked_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-xs-empty",
+      "variant": "prior_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-xs-empty",
+      "variant": "checked_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-xs-empty",
+      "variant": "prior_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-xs-empty",
+      "variant": "checked_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-suffix-empty",
+      "variant": "prior_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-suffix-empty",
+      "variant": "checked_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-suffix-empty",
+      "variant": "expert_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-suffix-empty",
+      "variant": "control_no_padding_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-suffix-empty",
+      "variant": "control_no_pluszero_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-suffix-empty",
+      "variant": "prior_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-suffix-empty",
+      "variant": "checked_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-suffix-empty",
+      "variant": "prior_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-suffix-empty",
+      "variant": "checked_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-suffix-empty",
+      "variant": "prior_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-suffix-empty",
+      "variant": "checked_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-word-boundaries",
+      "variant": "prior_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-word-boundaries",
+      "variant": "checked_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-word-boundaries",
+      "variant": "expert_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-word-boundaries",
+      "variant": "control_no_padding_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-word-boundaries",
+      "variant": "control_no_pluszero_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-word-boundaries",
+      "variant": "prior_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-word-boundaries",
+      "variant": "checked_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-word-boundaries",
+      "variant": "prior_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-word-boundaries",
+      "variant": "checked_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-word-boundaries",
+      "variant": "prior_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-word-boundaries",
+      "variant": "checked_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-zero-divisor",
+      "variant": "prior_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-zero-divisor",
+      "variant": "checked_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-zero-divisor",
+      "variant": "expert_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-zero-divisor",
+      "variant": "control_no_padding_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-zero-divisor",
+      "variant": "control_no_pluszero_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-zero-divisor",
+      "variant": "prior_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-zero-divisor",
+      "variant": "checked_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-zero-divisor",
+      "variant": "prior_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-zero-divisor",
+      "variant": "checked_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-zero-divisor",
+      "variant": "prior_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-zero-divisor",
+      "variant": "checked_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-index-branch-boundary",
+      "variant": "prior_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-index-branch-boundary",
+      "variant": "checked_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-index-branch-boundary",
+      "variant": "expert_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-index-branch-boundary",
+      "variant": "control_no_padding_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-index-branch-boundary",
+      "variant": "control_no_pluszero_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-index-branch-boundary",
+      "variant": "prior_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-index-branch-boundary",
+      "variant": "checked_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-index-branch-boundary",
+      "variant": "prior_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-index-branch-boundary",
+      "variant": "checked_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-index-branch-boundary",
+      "variant": "prior_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-index-branch-boundary",
+      "variant": "checked_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-long-prefix",
+      "variant": "prior_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-long-prefix",
+      "variant": "checked_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-long-prefix",
+      "variant": "expert_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-long-prefix",
+      "variant": "control_no_padding_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-long-prefix",
+      "variant": "control_no_pluszero_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-long-prefix",
+      "variant": "prior_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-long-prefix",
+      "variant": "checked_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-long-prefix",
+      "variant": "prior_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-long-prefix",
+      "variant": "checked_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-long-prefix",
+      "variant": "prior_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-long-prefix",
+      "variant": "checked_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-long-suffix",
+      "variant": "prior_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-long-suffix",
+      "variant": "checked_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-long-suffix",
+      "variant": "expert_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-long-suffix",
+      "variant": "control_no_padding_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-long-suffix",
+      "variant": "control_no_pluszero_js_owned",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-long-suffix",
+      "variant": "prior_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-long-suffix",
+      "variant": "checked_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-long-suffix",
+      "variant": "prior_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-long-suffix",
+      "variant": "checked_novec_wasm_prepared",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-long-suffix",
+      "variant": "prior_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    },
+    {
+      "frame": "pipeline38_right_padded_zip_heldout_u32-long-suffix",
+      "variant": "checked_wasm_full",
+      "passed": true,
+      "full_output": true,
+      "nonmutation": true,
+      "lifetime": "prepared buffers borrowed until next run; owned outputs checked across same-input repeated call"
+    }
+  ],
+  "calibration": [],
+  "samples": [],
+  "profile_calls": [],
+  "observable": 0,
+  "script_sha256": "f32e07055800dbc70877f0b864810cb3dbd9b7770249c0d62862ac34c91782b0"
+}
