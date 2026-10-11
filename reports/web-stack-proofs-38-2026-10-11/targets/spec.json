@@ -1,0 +1,70 @@
+{
+  "tasks": [
+    {
+      "name": "pipeline38_left_padded_zip_u32",
+      "source": "pub fn pipeline38_left_padded_zip_u32(xs:List<u32>,ys:List<u32>,seed:u32,k:u32)->List<u32>{return xs.map_indexed(fn(i)=>fn(x)=>left_word(i,x,seed,k)).concat(ys).zip(xs.map_indexed(fn(i)=>fn(x)=>right_word(i,x,seed,k)),fn(a)=>fn(b)=>pair_word(a,b,seed,k));}\nfn left_word(i:u32,x:u32,seed:u32,k:u32)->u32{return choose(i<seed,x+k,x-seed);}\nfn right_word(i:u32,x:u32,seed:u32,k:u32)->u32{return choose(rem_or(i,3,0)==0,x*k,x+seed);}\nfn pair_word(a:u32,b:u32,seed:u32,k:u32)->u32{return choose(a<b,a+b*k,a-b+seed);}",
+      "family": "left",
+      "list_inputs": 2,
+      "output_kind": "list_u32",
+      "secondary": false,
+      "padded_side": "left",
+      "retained_input": "xs",
+      "suffix_input": "ys",
+      "both_values_observed": true,
+      "fresh_proof_required": true,
+      "role": "same-origin-observed-padded-indexed-zip-fusion",
+      "mechanism": "indexed-pair-fusion-and-padded-suffix-demand-erasure",
+      "callback_cost": "index-dependent mapper choices and noncommutative observed pair helper"
+    },
+    {
+      "name": "pipeline38_right_padded_zip_u32",
+      "source": "pub fn pipeline38_right_padded_zip_u32(xs:List<u32>,ys:List<u32>,seed:u32,k:u32)->List<u32>{return xs.map_indexed(fn(i)=>fn(x)=>left_word(i,x,seed,k)).zip(xs.map_indexed(fn(i)=>fn(x)=>right_word(i,x,seed,k)).concat(ys),fn(a)=>fn(b)=>pair_word(a,b,seed,k));}\nfn left_word(i:u32,x:u32,seed:u32,k:u32)->u32{return choose(i<seed,x+k,x-seed);}\nfn right_word(i:u32,x:u32,seed:u32,k:u32)->u32{return choose(rem_or(i,3,0)==0,x*k,x+seed);}\nfn pair_word(a:u32,b:u32,seed:u32,k:u32)->u32{return choose(a<b,a+b*k,a-b+seed);}",
+      "family": "right",
+      "list_inputs": 2,
+      "output_kind": "list_u32",
+      "secondary": false,
+      "padded_side": "right",
+      "retained_input": "xs",
+      "suffix_input": "ys",
+      "both_values_observed": true,
+      "fresh_proof_required": true,
+      "role": "same-origin-observed-padded-indexed-zip-fusion",
+      "mechanism": "indexed-pair-fusion-and-padded-suffix-demand-erasure",
+      "callback_cost": "index-dependent mapper choices and noncommutative observed pair helper"
+    },
+    {
+      "name": "pipeline38_left_padded_zip_heldout_u32",
+      "source": "pub fn pipeline38_left_padded_zip_heldout_u32(xs:List<u32>,ys:List<u32>,seed:u32,k:u32)->List<u32>{return xs.map_indexed(fn(i)=>fn(x)=>left_word(i,x,seed,k)).concat(ys).zip(xs.map_indexed(fn(i)=>fn(x)=>right_word(i,x,seed,k)),fn(a)=>fn(b)=>pair_word(a,b,seed,k));}\nfn left_word(i:u32,x:u32,seed:u32,k:u32)->u32{return left_signal(i,x,seed,k); }\nfn left_signal(i:u32,x:u32,seed:u32,k:u32)->u32{return quot_or(x,k,0)+rem_or(i,k,0)+seed;}\nfn right_word(i:u32,x:u32,seed:u32,k:u32)->u32{return right_signal(i,x,seed,k); }\nfn right_signal(i:u32,x:u32,seed:u32,k:u32)->u32{return choose(i<seed,x+k,x*3);}\nfn pair_word(a:u32,b:u32,seed:u32,k:u32)->u32{return pair_signal(a,b,seed,k); }\nfn pair_signal(a:u32,b:u32,seed:u32,k:u32)->u32{return choose(a<b,quot_or(a,k,0)+b,rem_or(b,k,0)+a);}",
+      "family": "left",
+      "list_inputs": 2,
+      "output_kind": "list_u32",
+      "secondary": true,
+      "padded_side": "left",
+      "retained_input": "xs",
+      "suffix_input": "ys",
+      "both_values_observed": true,
+      "fresh_proof_required": true,
+      "role": "same-origin-observed-padded-indexed-zip-fusion",
+      "mechanism": "indexed-pair-fusion-and-padded-suffix-demand-erasure",
+      "callback_cost": "two-level divmod/index/conditional pair helpers"
+    },
+    {
+      "name": "pipeline38_right_padded_zip_heldout_u32",
+      "source": "pub fn pipeline38_right_padded_zip_heldout_u32(xs:List<u32>,ys:List<u32>,seed:u32,k:u32)->List<u32>{return xs.map_indexed(fn(i)=>fn(x)=>left_word(i,x,seed,k)).zip(xs.map_indexed(fn(i)=>fn(x)=>right_word(i,x,seed,k)).concat(ys),fn(a)=>fn(b)=>pair_word(a,b,seed,k));}\nfn left_word(i:u32,x:u32,seed:u32,k:u32)->u32{return left_signal(i,x,seed,k); }\nfn left_signal(i:u32,x:u32,seed:u32,k:u32)->u32{return quot_or(x,k,0)+rem_or(i,k,0)+seed;}\nfn right_word(i:u32,x:u32,seed:u32,k:u32)->u32{return right_signal(i,x,seed,k); }\nfn right_signal(i:u32,x:u32,seed:u32,k:u32)->u32{return choose(i<seed,x+k,x*3);}\nfn pair_word(a:u32,b:u32,seed:u32,k:u32)->u32{return pair_signal(a,b,seed,k); }\nfn pair_signal(a:u32,b:u32,seed:u32,k:u32)->u32{return choose(a<b,quot_or(a,k,0)+b,rem_or(b,k,0)+a);}",
+      "family": "right",
+      "list_inputs": 2,
+      "output_kind": "list_u32",
+      "secondary": true,
+      "padded_side": "right",
+      "retained_input": "xs",
+      "suffix_input": "ys",
+      "both_values_observed": true,
+      "fresh_proof_required": true,
+      "role": "same-origin-observed-padded-indexed-zip-fusion",
+      "mechanism": "indexed-pair-fusion-and-padded-suffix-demand-erasure",
+      "callback_cost": "two-level divmod/index/conditional pair helpers"
+    }
+  ],
+  "result_kind": "list_u32",
+  "source_scope": "Both indexed mapper outputs are observed in pair order. Same original xs supplies both mapped prefixes; ys is only an irrelevant padded suffix. Output extent xs.length independent of ys. Plain and scalar-helper composition probes are not statistical holdouts. Wrapping/grouping and input/output ownership retained."
+}

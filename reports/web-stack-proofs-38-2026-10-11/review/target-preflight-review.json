@@ -1,0 +1,77 @@
+{
+  "status": "passed",
+  "metadata_sha256": "30e0d7dee69815d8815676289a73c3aa7ba49df079b9cbaed7af3a1f89019331",
+  "counts": {
+    "target_bindings": 350,
+    "native_bindings": 107,
+    "production_bindings": 122
+  },
+  "validation": {
+    "node": {
+      "rows": 1152,
+      "complete_output_checks": 3072,
+      "actual_gpu": 0,
+      "fallback": 0
+    },
+    "browser": {
+      "rows": 1440,
+      "complete_output_checks": 3936,
+      "actual_gpu": 288,
+      "fallback": 0
+    },
+    "native": {
+      "rows": 384,
+      "passed": true
+    }
+  },
+  "selections": {
+    "pipeline38_left_padded_zip_u32": {
+      "prior": [],
+      "checked": [
+        "f7362c9f25fb1595830a8dde285026c2bec765cf1c657e7916fcf2c6dc82d2c3"
+      ],
+      "prior_declared_stages": 4,
+      "family": "left",
+      "checked_declared_stages": 1,
+      "prior_graph_required": true,
+      "checked_graph_required": false
+    },
+    "pipeline38_right_padded_zip_u32": {
+      "prior": [],
+      "checked": [
+        "4fdea98eb708a6d83d728bfecdbefdcb21034e4b4bfb10fe4015aa32a8e1f42a"
+      ],
+      "prior_declared_stages": 4,
+      "family": "right",
+      "checked_declared_stages": 1,
+      "prior_graph_required": true,
+      "checked_graph_required": false
+    },
+    "pipeline38_left_padded_zip_heldout_u32": {
+      "prior": [],
+      "checked": [
+        "d829bc263913190a9f743c0ca2d9e05434adc5fa9638c9a226dc8593f6a9dc79"
+      ],
+      "prior_declared_stages": 4,
+      "family": "left",
+      "checked_declared_stages": 1,
+      "prior_graph_required": true,
+      "checked_graph_required": false
+    },
+    "pipeline38_right_padded_zip_heldout_u32": {
+      "prior": [],
+      "checked": [
+        "65eba520da6b3e04b73c0acf59bb3e954c221135a19bf99ed7e72558769a2d50"
+      ],
+      "prior_declared_stages": 4,
+      "family": "right",
+      "checked_declared_stages": 1,
+      "prior_graph_required": true,
+      "checked_graph_required": false
+    }
+  },
+  "physical_gpu_contracts": "All 288 actual GPU rows recomputed by named primary. Literal/prior use 4 active graph stages; checked uses legacy shader capacity xs.length (manifest lengths [0]), 1 dispatch if xs is nonempty and 0 otherwise. Graph upload is 4*(nx+ny+4), legacy is 4*(nx+ny+9); both read back 4*(nx+1). Graph live bytes are 4*(5*nx+2*ny+8+max(1,nx)): header and payload staging buffers are read and destroyed sequentially. Legacy live bytes are 4*(4*nx+ny+12). No universal memory saving claim on empty or tiny inputs.",
+  "fairness": "Exact same frozen compiler/model, complete prior 2534 objects with no extra shared certificates; 2550-object new union. Four fresh ordinary selections. Strong JS fresh-output and Rust destination controls directly traverse xs and observe both indexed mappers and noncommutative pair callback once per xs element; irrelevant suffix removed after same-origin structural matching; zero divisors/wrap preserved.",
+  "full_word_consumption": "Web length plus index-weighted U32 checksum reads every output word inside timer; native complete-vector U64 consumption remains separately bounded.",
+  "limits": "Untimed preparation only; no profitability or broad language superiority conclusion."
+}

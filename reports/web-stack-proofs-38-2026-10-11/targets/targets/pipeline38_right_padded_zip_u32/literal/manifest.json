@@ -1,0 +1,771 @@
+{
+  "abi": "packed little-endian 32-bit lanes; GPU lists carry a length header; records in declaration order; vectors unpadded",
+  "backend": "webgpu-wgpu-v2",
+  "collection_strategy": "literal per-output evaluation; filters, ordered scans and stable rank sorts may do quadratic or greater work; profitability must be measured",
+  "core_semantics": "ink-executable-core-v4",
+  "core_sha256": "266bf4b07ec8162e7807e72d55c3e888f2d15e9a60e7c523a310793708e6cf20",
+  "cpu_c_sha256": "719a5e783832b69f5a19e6c05b71a4c3c9567dcc03004bb75dcc4a9eeaaf2141",
+  "destination_abi": {
+    "aliasing": "destination-disjoint-from-all-reachable-inputs",
+    "alignment": 8,
+    "capacity": "trusted",
+    "count": "words32",
+    "name": "ink-packed-into-v1",
+    "ownership": "caller-owned",
+    "prepared_instance": "exclusive",
+    "scratch_lifetime": "call-mark-rewind",
+    "symbol": "ink_compute_into"
+  },
+  "float_contract": "portable f32 follows WGSL permitted floating evaluation, including rounding, reassociation, fusion, flush-to-zero and finite-math assumptions; lowering emits source order; CPU reference uses binary32; bitwise equivalence is not promised",
+  "functions": [
+    {
+      "capacity_mode": "max",
+      "fallback_reason": null,
+      "gpu_max_elements": null,
+      "graph": {
+        "limitations": [
+          "bounded 64 stages and 24 traversal depth",
+          "serial stable filter/scan/concat/ordered reductions",
+          "portable WGSL f32; exact CPU bit identity not promised",
+          "feedback unsupported"
+        ],
+        "nodes": [
+          {
+            "arg_types": [
+              {
+                "element": {
+                  "kind": "u32"
+                },
+                "kind": "list"
+              },
+              {
+                "kind": "u32"
+              },
+              {
+                "kind": "u32"
+              }
+            ],
+            "args": [
+              {
+                "param": 0
+              },
+              {
+                "param": 3
+              },
+              {
+                "param": 2
+              }
+            ],
+            "capacity": {
+              "args": [
+                0
+              ],
+              "kind": "same"
+            },
+            "id": 0,
+            "op": "map_indexed",
+            "ordered": false,
+            "result": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            },
+            "shader": "graph-0-0.wgsl",
+            "workgroup_size": 64
+          },
+          {
+            "arg_types": [
+              {
+                "element": {
+                  "kind": "u32"
+                },
+                "kind": "list"
+              },
+              {
+                "kind": "u32"
+              },
+              {
+                "kind": "u32"
+              }
+            ],
+            "args": [
+              {
+                "param": 0
+              },
+              {
+                "param": 3
+              },
+              {
+                "param": 2
+              }
+            ],
+            "capacity": {
+              "args": [
+                0
+              ],
+              "kind": "same"
+            },
+            "id": 1,
+            "op": "map_indexed",
+            "ordered": false,
+            "result": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            },
+            "shader": "graph-0-1.wgsl",
+            "workgroup_size": 64
+          },
+          {
+            "arg_types": [
+              {
+                "element": {
+                  "kind": "u32"
+                },
+                "kind": "list"
+              },
+              {
+                "element": {
+                  "kind": "u32"
+                },
+                "kind": "list"
+              }
+            ],
+            "args": [
+              {
+                "node": 1
+              },
+              {
+                "param": 1
+              }
+            ],
+            "capacity": {
+              "args": [
+                0,
+                1
+              ],
+              "kind": "sum"
+            },
+            "id": 2,
+            "op": "concat",
+            "ordered": true,
+            "result": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            },
+            "shader": "graph-0-2.wgsl",
+            "workgroup_size": 1
+          },
+          {
+            "arg_types": [
+              {
+                "element": {
+                  "kind": "u32"
+                },
+                "kind": "list"
+              },
+              {
+                "element": {
+                  "kind": "u32"
+                },
+                "kind": "list"
+              },
+              {
+                "kind": "u32"
+              },
+              {
+                "kind": "u32"
+              }
+            ],
+            "args": [
+              {
+                "node": 0
+              },
+              {
+                "node": 2
+              },
+              {
+                "param": 3
+              },
+              {
+                "param": 2
+              }
+            ],
+            "capacity": {
+              "args": [
+                0,
+                1
+              ],
+              "kind": "min"
+            },
+            "id": 3,
+            "op": "zip",
+            "ordered": false,
+            "result": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            },
+            "shader": "graph-0-3.wgsl",
+            "workgroup_size": 64
+          }
+        ],
+        "output": {
+          "node": 3
+        },
+        "result": {
+          "element": {
+            "kind": "u32"
+          },
+          "kind": "list"
+        },
+        "schema": 1,
+        "semantics": "literal eager array stages; ordered sums forward, folds last-to-first; no reassociation or fusion"
+      },
+      "graph_required": true,
+      "index": 0,
+      "lengths": [],
+      "name": "pipeline38_right_padded_zip_u32",
+      "params": [
+        {
+          "name": "xs",
+          "type": {
+            "element": {
+              "kind": "u32"
+            },
+            "kind": "list"
+          }
+        },
+        {
+          "name": "ys",
+          "type": {
+            "element": {
+              "kind": "u32"
+            },
+            "kind": "list"
+          }
+        },
+        {
+          "name": "seed",
+          "type": {
+            "kind": "u32"
+          }
+        },
+        {
+          "name": "k",
+          "type": {
+            "kind": "u32"
+          }
+        }
+      ],
+      "result": {
+        "element": {
+          "kind": "u32"
+        },
+        "kind": "list"
+      },
+      "shader": null
+    },
+    {
+      "capacity_mode": "max",
+      "fallback_reason": null,
+      "gpu_max_elements": null,
+      "graph": {
+        "limitations": [
+          "bounded 64 stages and 24 traversal depth",
+          "serial stable filter/scan/concat/ordered reductions",
+          "portable WGSL f32; exact CPU bit identity not promised",
+          "feedback unsupported"
+        ],
+        "nodes": [
+          {
+            "arg_types": [
+              {
+                "kind": "u32"
+              },
+              {
+                "kind": "u32"
+              },
+              {
+                "kind": "u32"
+              },
+              {
+                "kind": "u32"
+              }
+            ],
+            "args": [
+              {
+                "param": 0
+              },
+              {
+                "param": 3
+              },
+              {
+                "param": 2
+              },
+              {
+                "param": 1
+              }
+            ],
+            "capacity": {
+              "args": [],
+              "kind": "one"
+            },
+            "id": 0,
+            "op": "scalar",
+            "ordered": true,
+            "result": {
+              "kind": "u32"
+            },
+            "shader": "graph-1-0.wgsl",
+            "workgroup_size": 1
+          }
+        ],
+        "output": {
+          "node": 0
+        },
+        "result": {
+          "kind": "u32"
+        },
+        "schema": 1,
+        "semantics": "literal eager array stages; ordered sums forward, folds last-to-first; no reassociation or fusion"
+      },
+      "graph_required": true,
+      "index": 1,
+      "lengths": [],
+      "name": "left_word",
+      "params": [
+        {
+          "name": "i",
+          "type": {
+            "kind": "u32"
+          }
+        },
+        {
+          "name": "x",
+          "type": {
+            "kind": "u32"
+          }
+        },
+        {
+          "name": "seed",
+          "type": {
+            "kind": "u32"
+          }
+        },
+        {
+          "name": "k",
+          "type": {
+            "kind": "u32"
+          }
+        }
+      ],
+      "result": {
+        "kind": "u32"
+      },
+      "shader": null
+    },
+    {
+      "capacity_mode": "max",
+      "fallback_reason": null,
+      "gpu_max_elements": null,
+      "graph": {
+        "limitations": [
+          "bounded 64 stages and 24 traversal depth",
+          "serial stable filter/scan/concat/ordered reductions",
+          "portable WGSL f32; exact CPU bit identity not promised",
+          "feedback unsupported"
+        ],
+        "nodes": [
+          {
+            "arg_types": [
+              {
+                "kind": "u32"
+              },
+              {
+                "kind": "u32"
+              },
+              {
+                "kind": "u32"
+              },
+              {
+                "kind": "u32"
+              }
+            ],
+            "args": [
+              {
+                "param": 0
+              },
+              {
+                "param": 3
+              },
+              {
+                "param": 2
+              },
+              {
+                "param": 1
+              }
+            ],
+            "capacity": {
+              "args": [],
+              "kind": "one"
+            },
+            "id": 0,
+            "op": "scalar",
+            "ordered": true,
+            "result": {
+              "kind": "u32"
+            },
+            "shader": "graph-2-0.wgsl",
+            "workgroup_size": 1
+          }
+        ],
+        "output": {
+          "node": 0
+        },
+        "result": {
+          "kind": "u32"
+        },
+        "schema": 1,
+        "semantics": "literal eager array stages; ordered sums forward, folds last-to-first; no reassociation or fusion"
+      },
+      "graph_required": true,
+      "index": 2,
+      "lengths": [],
+      "name": "right_word",
+      "params": [
+        {
+          "name": "i",
+          "type": {
+            "kind": "u32"
+          }
+        },
+        {
+          "name": "x",
+          "type": {
+            "kind": "u32"
+          }
+        },
+        {
+          "name": "seed",
+          "type": {
+            "kind": "u32"
+          }
+        },
+        {
+          "name": "k",
+          "type": {
+            "kind": "u32"
+          }
+        }
+      ],
+      "result": {
+        "kind": "u32"
+      },
+      "shader": null
+    },
+    {
+      "capacity_mode": "max",
+      "fallback_reason": null,
+      "gpu_max_elements": null,
+      "graph": {
+        "limitations": [
+          "bounded 64 stages and 24 traversal depth",
+          "serial stable filter/scan/concat/ordered reductions",
+          "portable WGSL f32; exact CPU bit identity not promised",
+          "feedback unsupported"
+        ],
+        "nodes": [
+          {
+            "arg_types": [
+              {
+                "kind": "u32"
+              },
+              {
+                "kind": "u32"
+              },
+              {
+                "kind": "u32"
+              },
+              {
+                "kind": "u32"
+              }
+            ],
+            "args": [
+              {
+                "param": 0
+              },
+              {
+                "param": 1
+              },
+              {
+                "param": 3
+              },
+              {
+                "param": 2
+              }
+            ],
+            "capacity": {
+              "args": [],
+              "kind": "one"
+            },
+            "id": 0,
+            "op": "scalar",
+            "ordered": true,
+            "result": {
+              "kind": "u32"
+            },
+            "shader": "graph-3-0.wgsl",
+            "workgroup_size": 1
+          }
+        ],
+        "output": {
+          "node": 0
+        },
+        "result": {
+          "kind": "u32"
+        },
+        "schema": 1,
+        "semantics": "literal eager array stages; ordered sums forward, folds last-to-first; no reassociation or fusion"
+      },
+      "graph_required": true,
+      "index": 3,
+      "lengths": [],
+      "name": "pair_word",
+      "params": [
+        {
+          "name": "a",
+          "type": {
+            "kind": "u32"
+          }
+        },
+        {
+          "name": "b",
+          "type": {
+            "kind": "u32"
+          }
+        },
+        {
+          "name": "seed",
+          "type": {
+            "kind": "u32"
+          }
+        },
+        {
+          "name": "k",
+          "type": {
+            "kind": "u32"
+          }
+        }
+      ],
+      "result": {
+        "kind": "u32"
+      },
+      "shader": null
+    }
+  ],
+  "gpu_list_abi": "ink-gpu-list-v3",
+  "javascript": {
+    "abi": "ink-javascript-trusted-values-v2",
+    "backend": "javascript",
+    "caller_contract": "trusted, well-typed target-native values; no input validation, snapshot capture or host resource budgets",
+    "core_semantics": "ink-executable-core-v4",
+    "core_sha256": "266bf4b07ec8162e7807e72d55c3e888f2d15e9a60e7c523a310793708e6cf20",
+    "destination_abi": {
+      "aliasing": "destination-disjoint-from-all-reachable-inputs",
+      "capacity": "trusted",
+      "count_unit": "elements",
+      "name": "ink-javascript-into-v1",
+      "ownership": "caller-owned",
+      "tail": "unwritten"
+    },
+    "functions": [
+      {
+        "destination": {
+          "abi": "ink-javascript-into-v1",
+          "count_unit": "elements",
+          "ownership": "caller-owned"
+        },
+        "index": 0,
+        "internal": false,
+        "name": "pipeline38_right_padded_zip_u32",
+        "params": [
+          {
+            "name": "xs",
+            "type": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            }
+          },
+          {
+            "name": "ys",
+            "type": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            }
+          },
+          {
+            "name": "seed",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "k",
+            "type": {
+              "kind": "u32"
+            }
+          }
+        ],
+        "result": {
+          "element": {
+            "kind": "u32"
+          },
+          "kind": "list"
+        }
+      },
+      {
+        "destination": null,
+        "index": 1,
+        "internal": false,
+        "name": "left_word",
+        "params": [
+          {
+            "name": "i",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "x",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "seed",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "k",
+            "type": {
+              "kind": "u32"
+            }
+          }
+        ],
+        "result": {
+          "kind": "u32"
+        }
+      },
+      {
+        "destination": null,
+        "index": 2,
+        "internal": false,
+        "name": "right_word",
+        "params": [
+          {
+            "name": "i",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "x",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "seed",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "k",
+            "type": {
+              "kind": "u32"
+            }
+          }
+        ],
+        "result": {
+          "kind": "u32"
+        }
+      },
+      {
+        "destination": null,
+        "index": 3,
+        "internal": false,
+        "name": "pair_word",
+        "params": [
+          {
+            "name": "a",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "b",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "seed",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "k",
+            "type": {
+              "kind": "u32"
+            }
+          }
+        ],
+        "result": {
+          "kind": "u32"
+        }
+      }
+    ],
+    "javascript_sha256": "7c73c7149dd1d6b7ffa09635bae2fc3ba3fec8893d6ff983707822aa10f85db4",
+    "named_types": {},
+    "schema": 1,
+    "scope": "trusted pure functions and temporary collections; state/actions with portable snapshots and ordered transaction events",
+    "state": null,
+    "trusted": [
+      "Ink checker and source correspondence",
+      "JavaScript emitter and representation conversion",
+      "JavaScript engine and host"
+    ]
+  },
+  "proof_claim": "no backend correctness proof or optimisation theorem; profiling establishes profitability only",
+  "runtime_abi": "ink-packed-pipeline-v2",
+  "schema": 2,
+  "shaders": {
+    "graph-0-0.wgsl": "949da18fec1e59c30064233fbdf13503185867b74ea2e068c70396bac476f3ac",
+    "graph-0-1.wgsl": "4f95f6287b13364c43b4fea1857b30f226b427f39a120cca9c32ba45d25ef3c0",
+    "graph-0-2.wgsl": "6e8599067d5e0902160faa7f11d742167a04164a1bedd6cfd019459f3059b53f",
+    "graph-0-3.wgsl": "607d3929d5d9fef174205d27416484ea3fb3a5251803b5aab216b19c25686d44",
+    "graph-1-0.wgsl": "31fbe22f4e7974498453f4f5e8aec0010a838d5a39c94c6e87fe26405be629b1",
+    "graph-2-0.wgsl": "758ccba1b2c21cbdd67c2c78b7749e92fc1fe24606ade038869ea376da546e21",
+    "graph-3-0.wgsl": "a483bffaac3a7ab1f3e70e4498fa7a18582cc03df69500ab41a2082b0dbd4add"
+  },
+  "trust": [
+    "type checker",
+    "literal C and WGSL lowering",
+    "packed ABI and host pipeline execution",
+    "C/LLVM, WebGPU/wgpu and drivers"
+  ]
+}
