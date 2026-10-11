@@ -7,11 +7,13 @@ import path from 'node:path';
 const [chrome,output='build/browser-lowering-parity.json']=process.argv.slice(2);
 const root=process.cwd();
 const server=http.createServer(async(req,res)=>{
+  // Generated parallel functions use real workers and SharedArrayBuffer.
+  res.setHeader('Cross-Origin-Opener-Policy','same-origin');
+  res.setHeader('Cross-Origin-Embedder-Policy','require-corp');
   try {
     const file=path.resolve(root,'.'+new URL(req.url,'http://localhost').pathname);
     if(!file.startsWith(root+path.sep))throw Error('path outside fixture root');
     const bytes=await fs.readFile(file);
-    res.setHeader('Cross-Origin-Opener-Policy','same-origin');res.setHeader('Cross-Origin-Embedder-Policy','require-corp');
     res.setHeader('Content-Type',file.endsWith('.mjs')?'text/javascript':file.endsWith('.wasm')?'application/wasm':'application/json');
     res.end(bytes);
   } catch {res.statusCode=404;res.end();}
@@ -22,6 +24,7 @@ let browser;
 try {
   browser=await chromium.launch({executablePath:chrome,headless:true,args:['--enable-unsafe-webgpu',...(process.platform==='linux'?['--use-angle=swiftshader','--enable-unsafe-swiftshader']:[])]});
   const page=await browser.newPage();page.on("console",m=>{if(m.type()==="error")console.error(m.text());});page.on("pageerror",e=>console.error(e));await page.goto(base+'build/generated-parity-bend/script.json');
+  assert.equal(await page.evaluate(()=>crossOriginIsolated),true,'worker conformance requires an isolated fixture origin');
   const steps=JSON.parse(await fs.readFile('build/generated-parity-bend/script.json','utf8'));
   const expected=JSON.parse(await fs.readFile('build/generated-parity-bend/expected.json','utf8'));
   const fixtures=steps.map((s,i)=>({...s,expected:expected[i].reply.value})).filter(s=>!process.env.INK_BROWSER_FUNCTION||s.pure===process.env.INK_BROWSER_FUNCTION);
