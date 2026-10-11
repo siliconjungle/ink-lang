@@ -188,3 +188,5 @@ See [current status](STATUS.md), [architecture](docs/repository-architecture.md)
 
 [Universal optimisation boundaries](docs/universal-optimisation.md) describe the
 explicit control/owned-buffer primitives, database laws and shared host policy.
+
+[Scalable typed state](docs/scalable-state.md): batch writes, direct table reductions, shared keys, touched-row rollback and locally checked maintenance candidates.
