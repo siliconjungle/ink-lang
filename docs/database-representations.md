@@ -1,12 +1,10 @@
 # Database-defined representations and migrations
 
-Ink source syntax is unchanged. The default compiler no longer admits aggregate
-certificates, bounded-total caches or typed storage policies as optimisation
-authority. `representation::check` admits immutable canonical database entries
-against the fixed transition projection of the actual source module. The
-historical paths are available only with `legacy-optimisation-research`, an
-explicit experimental feature that restores their disclosed historical trust.
-It is not part of the production small-core guarantee.
+`representation::check` admits immutable canonical database entries against the
+fixed transition projection of the actual source module. Aggregate certificates,
+bounded-total cache authority, typed storage policies and their experimental
+compatibility paths have been removed. Maintained physical representations use
+the general database proof interface below.
 
 ## Contract
 
@@ -108,46 +106,46 @@ The database also supplies [fixed-key incremental query maintenance](point-query
 with refresh fallback, and the planner supplies [measured lifecycle selection](../planner/README.md).
 These remain explicit alternatives; correctness does not establish profitability.
 
-## Runtime migration
+## Compiled execution and migration
 
-`ink_runtime::representation::Session` uses a sealed representation. Logical
-portable checkpoints retain the original program/schema identity. Restore may
-encode them into any checked representation of that program, including after
-restoring a snapshot produced by the baseline. Baseline restore also accepts
-these checkpoints.
+Representations are checked before compilation and become ordinary native typed
+state. There is no generic stateful representation runtime in the distribution.
+Versions, transaction rollback and ordered pending events belong to each emitted
+program. Calls do not reconstruct logical tables or encode snapshots for runtime
+validation. Explicit checkpoint/restore retains the original program/schema
+identity and portable snapshot integrity checks.
 
-`migrate` decodes the old physical state and encodes the new one. Endpoint
-proofs already establish logical preservation. A database `bridge` entry can
-instead supply a direct physical conversion; `check_migration` verifies every
-new relation under the old relations and checks exact pinned endpoint closures.
-Both operations complete at a transaction boundary and install the candidate
-only after execution and logical transport checks succeed. Versions, pending
-outbox entries and acknowledgements belong to the host and survive the switch.
-An execution/transport failure leaves the old session intact. Calls stage their
-new state/events and publish only after all checks succeed; aborted calls and
-exhausted successful commits publish no mutation or events.
+Switch a compiled implementation at a transaction boundary by checkpointing the
+old program, restoring those bytes into the compiled target, then publishing the
+new instance only after restore succeeds. Versions, pending events and
+acknowledgements survive; failure retains the old instance. Baseline and compiled
+programs share this logical snapshot namespace. This is a portable migration,
+with codec work at the explicit boundary, not constant-time switching.
 
-The frozen `knowledge/research/layout-switch` bridges switch between the two
-query implementations while retaining their identical cached physical state.
-`producers/representation_bridge.py` proposes an identity function and universal
-preservation proofs for identical relations. Direct execution avoids encoder/cache
-recomputation, while both decodes and logical validation still run. Native tests
-verify this with an encoder counter and future histories. This does not establish
-constant-time switching or a measured migration-latency gain.
+Database bridge entries and `check-migration` still check universal preservation
+against exact endpoint closures. The former proof-aware multi-executor runtime
+and its direct-switch API have been removed. A bridge proof alone does not expose
+a new runtime entrypoint. Optimized native direct bridges would need standalone
+emission and equal backend coverage before becoming executable again.
 
-Cost evidence lookup filters requested plans before limiting its results and uses
-a covering SQLite index. Unrelated plans cannot exhaust the evidence budget;
-only matching canonical evidence files are read and hash-validated. This improves
-discovery rather than source action execution. The standalone synthetic timings
-and exact baseline are in `reports/knowledge-lookup-performance`.
+`execute-representation` is a compile-and-run tool. It checks every requested
+representation and external argument before compiling fixed Rust variants. A
+`migrate` script step performs the same portable checkpoint/restore switch. The
+compiled child has ordinary codec dependencies and contains no checker, proof
+bundle, source AST, generic ground-term transport or interpreter. The tool requires
+a Rust toolchain and cached dependencies (`cargo build --offline --release`);
+`INK_CARGO` can select Cargo. Prefer an already compiled application for normal
+execution. Script inputs and replies are bounded at 16 MB, scripts at 100,000
+steps and bundles at sixteen variants. Source argument nesting/list/integer bounds
+remain 32/4,096/4,090 bits. Source syntax and snapshot container version are unchanged.
 
 `emit-representation` emits a standalone compiled program for the selected
 representation across Rust, C, JavaScript, both Wasm lanes and GPU host lanes.
 All source, definition and preservation checking finishes before
 emission. The generated `State` stores native physical data, version, pending
 events and the portable snapshot layout. Changes invoke the literal checked execute/observe/next functions directly.
-Queries whose normalised observation keeps logical state and version unchanged
-and emits no events compile to the reply alone, retaining the old physical state. C uses a generated type-specific borrowed
+Targets emit the checked execute, observe and next definitions literally.
+Database candidates express compact queries and physical-state retention. C uses a generated type-specific borrowed
 ABI into immutable typed storage; its functions do not repack physical state.
 JavaScript emits literal functions and immutable native constructor objects, with
 an explicit call stack only for functions that depend on inductive recursion;
@@ -161,10 +159,6 @@ Native/Wasm ordinary
 dependencies are serde_json, sha2 and num-bigint for JSON and the unchanged
 portable snapshot codec.
 
-The reference executor remains a proof-aware interpreter for tooling and
-conformance. The explicit `representation_native::lower` bundle interface remains
-available for historical executor/migration research, including up to sixteen
-representations and sixteen direct migrations. It rejects unknown closures.
 Compiled emission uses each backend’s standalone `representation_program` path.
 Emission does not choose a replacement algorithm. Existing definitional
 computation can erase a read-only observation envelope; the residual reply body
@@ -187,38 +181,8 @@ checkpoint/restore still use the bounded, integrity-checked portable codec and
 exact source snapshot identity. Checkpoint resource limits are checkpoint limits,
 not an implicit cap on every invocation; an oversized live state may fail to
 checkpoint. Profile frequency does not establish an input or state invariant.
-Standalone code fixes the implementation at compilation; switching compiled
-implementations currently uses portable checkpoint/restore. The research bundle
-API retains its separately checked direct migration functionality.
-
-The research executor's native action execution decodes its arguments once, runs the checked execute
-function once and applies the checked observation/next projections to the typed
-intermediate. Its prepared path transports only public observation fields and
-keeps the next physical value native. The reference and older
-executors retain the equivalent three-call implementation through the default
-`Executor::transition`. Native immutable datatype fields share `Arc` storage;
-clones preserve structural equality and no pointer identity has semantic meaning.
-This sharing is generic across constructor types, not a cache/layout recogniser.
-Ordinary definition emission keeps its existing `Box` ABI. The runtime also
-caches the fixed logical snapshot layout rather than hashing the source on every
-call. The proof-aware Session also now validates just the public observation
-before atomic publication: result/event codecs, constructor, commit sequence,
-version and abort/query event rules. It neither reconstructs logical tables nor
-encodes a full snapshot or clones the existing outbox on each call. Prepared
-reference values cache their exact expanded node count and depth; private-output
-resource checks use that metadata without traversing shared state. Sharing counts
-every logical occurrence, so it does not relax the output bound. Prepared native
-Rust uses a bounded, thread-local weak identity cache for exact expanded subtree
-size/depth. An unchanged tail can reuse its measure; each occurrence still counts
-in full. Weak owners prevent stale address reuse and retain no values. Reclamation
-is bounded to 4096 entries; generation wrap clears the cache. Eviction can require
-a later full traversal. Both the whole observation and next physical storage
-retain their previous resource limits. A candidate's own execute/observe/decode
-functions can still scan or reconstruct state as part of their declared algorithm;
-the boundary change does not eliminate that work. Checkpoint,
-restore and migration still materialise and validate logical state. These paths
-trust the executor to run the exact sealed definitions; the Session boundary is
-not a detector for arbitrary faults in native execution or private-state codecs.
+Standalone code fixes each implementation at compilation; switching compiled
+implementations uses portable checkpoint/restore.
 
 The generated Rust methods `invoke_view_ACTION` accept the definition's native
 carriers and return an `OutcomeView` containing an owned result, commit flag,
@@ -279,8 +243,8 @@ point or include the module in a Cargo project with the ordinary dependencies
 above. The old `Native: Executor` output is no longer the command's output ABI.
 
 Execution scripts use the existing `{ "call": "name", "args": [...] }` shape
-and may include `{ "migrate": "another-request.json" }`. Runtime callers can use
-`migrate_direct` with a separately checked bridge. Pinned request JSON contains
+and may include `{ "migrate": "another-request.json" }`. The compile-and-run tool
+checks all variants before running and switches through portable snapshots. Pinned request JSON contains
 all required definitions, proofs and membership witnesses. Checking and reference
 execution need no producer, SQLite index or live database. Generated standalone
 execution also needs no request JSON or proof/checker objects.
@@ -319,18 +283,23 @@ Source syntax and snapshot wire format are unchanged. General word extensionalit
 and fixed word/binary32 primitives are disclosed in [the small-core document](small-core-and-knowledge.md#general-mechanisms-added-for-representation-scale). The fixed source projection, general checker, codecs, literal target
 emitters, native/Wasm/JavaScript toolchains and host remain trusted implementations; there is no formal
 compiler-correctness claim. All lowering targets now expose the standalone representation contract.
-GPU device eligibility remains separate from complete host execution. Resource failures
+Each generated application invokes the sealed definitions directly, without a
+proof-aware state session or ground-term transport. Checked JavaScript programs
+export `createState` and maintain admitted fixed-key keep caches.
+Ordinary baseline keeps still recompute. The point-query fixtures supply no
+incremental Int aggregate candidate. GPU device eligibility remains separate
+from complete host execution. Resource failures
 are host errors, not mathematical proof premises. The reference codec limits a
 table/event list to 4096 entries and source values to depth 32; the general
 checker and definition executors use the explicit bounds in that document.
-Persistence still requires the ordinary host durable-write protocol; `Session`
-alone is not a WAL or crash-recovery implementation. Measured performance and
+Persistence still requires the ordinary host durable-write protocol; compiled
+state alone is not a WAL or crash-recovery implementation. Measured performance and
 its workload limits are reported separately in
 [`reports/representation-performance`](../reports/representation-performance/README.md).
 
 The representation tests compare future action histories, rollback, ordered
 outbox entries and byte-identical portable snapshots; exercise baseline restore,
-reverse/generic/direct migration, failed migration and version exhaustion;
+portable migration and checked direct bridge proofs, failed migration and version exhaustion;
 compile cached database definitions and replay them offline; and reject stale
 source, missing action evidence, missing objects and authentic but false proofs.
 
@@ -354,9 +323,25 @@ record or turn all owner operations into vector operations. The producer's
 `--column-points` option separately supplies ordinary induction proofs for direct
 point search over key/field columns. Standalone query erasure then removes the
 unused private logical-state component, so those reads do not reconstruct every
-row. The separate `--column-mutations` proposal proves literal insert/remove/replace on physical columns. Compiled transition emission removes the unused logical post-state field after checking that next-state and public observations project independently. Unsupported action shapes use exact decode/encode; reference execution can still materialize logical rows. These options are not selected by default. Matched lifecycle measurements, including losing
+row. The separate `--column-mutations` proposal proves literal insert/remove/replace on physical columns. Compiled transition emission removes the unused logical post-state field after checking that next-state and public observations project independently. Unsupported action shapes use the exact checked decode/encode definitions. These options are not selected by default. Matched lifecycle measurements, including losing
 cases and the earlier traversal implementation, live in
 [`reports/frontier-extensions`](../reports/frontier-extensions/README.md).
+
+## Compile-and-run tooling
+
+```sh
+ink execute-representation app.ink request.json calls.json --snapshot-out saved.inksnap
+ink emit-representation app.ink request.json --target javascript -o application.mjs
+ink emit-representation app.ink request.json --target c -o build/application
+```
+
+`execute-representation` compiles fixed standalone Rust variants after preflight
+checking; it requires Cargo. Use `emit-representation` for the other target
+applications. All five CPU applications share the exact replies, rollback,
+events, checkpoints and restore contract. Portable switching publishes a restored
+new instance only after it is valid; it does not validate a full logical snapshot
+on every call. Direct bridge proofs are still checked, but the former generic
+executor's direct-switch API is retired as described above.
 
 ### Standalone target parity
 
@@ -380,10 +365,10 @@ stack budget used for the admitted inductive input limits; conformance includes
 a 4096-element list. JavaScript exports `createState()` with asynchronous `invoke`/
 `invoke_json`, checkpoint and restore. Invocation executes synchronously before
 its promise resolves; restore rejects overlapping operations while decoding.
-Simplified queries also have synchronous `query_NAME(...args)` methods returning
-just the reply. Rust/C native hosts expose analogous typed `query_NAME` methods,
-without JSON conversion or an outcome envelope. The compatibility invocation and
-Wasm handle APIs retain their public reply envelope. Values use the established exact BigInt/decimal integer boundary.
+Every action executes its checked physical step and observation. Query transport
+uses the same outcome and validation contract. Compact query alternatives are
+explicit database definitions; backends do not derive typed shortcuts from the
+observation envelope. Values use the established exact BigInt/decimal boundary.
 
 The compiler accepts only representations admitted by the fixed source model
 and supported by the standalone codecs. Unsupported source types/operations
@@ -392,7 +377,7 @@ u64/u32/i32/f32 and fixed vectors, Bool/Unit/exact Int, nominal records and enum
 including the model's admitted table and collection operations. Each additional
 source domain needs correspondence and standalone codec coverage on every target.
 Ordinary whole-language lowerings retain their existing broader capability
-contract. Historical proof-aware executor APIs remain explicitly research tools.
+contract. The historical proof-aware stateful executor APIs have been removed.
 
 `tests/representation_parity.rs` compares every standalone target using one
 source oracle, exact replies/errors, portable snapshots and pending events. It

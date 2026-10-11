@@ -24,7 +24,7 @@ fn compiled_durable_state_recovers_before_reply_and_keeps_outbox() {
                 ink_runtime::emit_c_program(&module, &project).unwrap();
             } else {
                 ink_runtime::emit_rust_program(
-                    &ink_lowering_rust::state_native::emit(module.program(), None).unwrap(),
+                    &ink_lowering_rust::state_native::emit(module.program()).unwrap(),
                     &project,
                 )
                 .unwrap();
@@ -66,7 +66,7 @@ fn generated_native_durable_hosts_recover_and_retry_after_process_death() {
             ink_runtime::emit_c_program(&module, &dir).unwrap();
         } else {
             ink_runtime::emit_rust_program(
-                &ink_lowering_rust::state_native::emit(module.program(), None).unwrap(),
+                &ink_lowering_rust::state_native::emit(module.program()).unwrap(),
                 &dir,
             )
             .unwrap();

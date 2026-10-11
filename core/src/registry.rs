@@ -67,7 +67,7 @@ pub struct Bundle {
     pub membership: BTreeMap<String, Membership>,
 }
 fn identifier(id: &str) -> LangResult<()> {
-    crate::knowledge::identity(id)
+    crate::content::identity(id)
 }
 pub fn canonical<T: Serialize>(value: &T) -> LangResult<Vec<u8>> {
     let v = serde_json::to_value(value).map_err(|e| e.to_string())?;
@@ -451,7 +451,7 @@ impl CheckedBundle {
                 crate::library::SEMANTICS => {
                     admit_first_order(&mut first, id, e)?;
                 }
-                crate::knowledge::SEMANTICS => {
+                crate::equality::SEMANTICS => {
                     check_interface(e, &e.payload)?;
                     let mut local = scalar.subset(&e.dependencies)?;
                     if e.kind == Kind::Definition {
@@ -686,7 +686,7 @@ mod tests {
         let e = Entry {
             schema: 1,
             kind: Kind::Theorem,
-            semantics: crate::knowledge::SEMANTICS.into(),
+            semantics: crate::equality::SEMANTICS.into(),
             dependencies: vec![],
             interface: Interface {
                 parameters: BTreeMap::from([("x".into(), json!("U64"))]),

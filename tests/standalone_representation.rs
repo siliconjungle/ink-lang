@@ -12,7 +12,10 @@ fn root(name: &str) -> PathBuf {
     let root = std::env::var_os("INK_STANDALONE_TEST_ROOT")
         .map(PathBuf::from)
         .unwrap_or_else(|| PathBuf::from(env!("CARGO_MANIFEST_DIR")));
-    let output = std::env::var_os("INK_STANDALONE_ARTIFACT_ROOT").map(PathBuf::from).unwrap_or_else(||root.join("build")).join(name);
+    let output = std::env::var_os("INK_STANDALONE_ARTIFACT_ROOT")
+        .map(PathBuf::from)
+        .unwrap_or_else(|| root.join("build"))
+        .join(name);
     fs::create_dir_all(&output).unwrap();
     output
 }
@@ -280,4 +283,105 @@ fn main(){
     fs::write(output.join("borrowed.log"),&rejected.stderr).unwrap();
     assert!(!rejected.status.success());
     assert!(String::from_utf8_lossy(&rejected.stderr).contains("E0499"),"{}",String::from_utf8_lossy(&rejected.stderr));
+}
+
+#[test]
+fn shared_physical_spines_release_without_allocating_or_losing_live_suffixes() {
+    let module = CheckedModule::from_source(
+        parse(include_str!("../examples/point-query-delta.ink")).unwrap(),
+    )
+    .unwrap();
+    let request: Request = serde_json::from_str(include_str!(
+        "../knowledge/research/point-delta/direct.json"
+    ))
+    .unwrap();
+    let checked = representation::check(&module, &request).unwrap();
+    let mut code = ink_lowering_rust::representation_program::lower(&checked).unwrap();
+    let table = &checked.projection().tables[0].datatype;
+    code.push_str(&format!("\ntype PhysicalRows = D_{table};\n"));
+    code.push_str(r#"
+struct CountAlloc;
+static COUNT:std::sync::atomic::AtomicBool=std::sync::atomic::AtomicBool::new(false);
+static ALLOCS:std::sync::atomic::AtomicUsize=std::sync::atomic::AtomicUsize::new(0);
+static FREES:std::sync::atomic::AtomicUsize=std::sync::atomic::AtomicUsize::new(0);
+unsafe impl std::alloc::GlobalAlloc for CountAlloc{
+ unsafe fn alloc(&self,l:std::alloc::Layout)->*mut u8{
+  if COUNT.load(std::sync::atomic::Ordering::Relaxed){ALLOCS.fetch_add(1,std::sync::atomic::Ordering::Relaxed);}
+  std::alloc::GlobalAlloc::alloc(&std::alloc::System,l)
+ }
+ unsafe fn dealloc(&self,p:*mut u8,l:std::alloc::Layout){
+  if COUNT.load(std::sync::atomic::Ordering::Relaxed){FREES.fetch_add(1,std::sync::atomic::Ordering::Relaxed);}
+  std::alloc::GlobalAlloc::dealloc(&std::alloc::System,p,l)
+ }
+}
+#[global_allocator] static ALLOCATOR:CountAlloc=CountAlloc;
+fn main(){
+ std::thread::Builder::new().stack_size(1024*1024).spawn(||{
+  use std::sync::{Arc,atomic::Ordering::Relaxed};
+  assert_eq!(std::mem::size_of::<Option<Arc<PhysicalRows>>>(),std::mem::size_of::<Arc<PhysicalRows>>());
+  let mut rows=PhysicalRows::C0;
+  for i in 0..100000u64{rows=PhysicalRows::C1(i,i,Some(Arc::new(rows)));}
+  let retained=rows.clone();
+  COUNT.store(true,Relaxed);drop(rows);COUNT.store(false,Relaxed);
+  assert_eq!(ALLOCS.load(Relaxed),0);assert_eq!(FREES.load(Relaxed),0);
+  let mut cursor=&retained;let mut length=0;
+  while let PhysicalRows::C1(key,value,tail)=cursor{
+   assert_eq!(*key,99999-length);assert_eq!(key,value);length+=1;cursor=tail.as_deref().unwrap();
+  }
+  assert_eq!(length,100000);
+  COUNT.store(true,Relaxed);drop(retained);COUNT.store(false,Relaxed);
+  assert_eq!(ALLOCS.load(Relaxed),0);assert_eq!(FREES.load(Relaxed),100000);
+ }).unwrap().join().unwrap();
+ println!("100000 physical nodes: shared suffix retained, exact release, zero allocations, 1 MiB stack");
+}
+"#);
+    let output = root("shared-spine-release");
+    fs::create_dir_all(output.join("src")).unwrap();
+    fs::write(output.join("src/main.rs"), code).unwrap();
+    fs::write(output.join("Cargo.toml"),"[package]\nname=\"shared-spine-release\"\nversion=\"0.1.0\"\nedition=\"2021\"\n[workspace]\n[dependencies]\nserde_json=\"1\"\nsha2=\"0.10\"\nnum-bigint=\"0.4\"\n").unwrap();
+    let target = root("standalone-target");
+    let result = Command::new("cargo")
+        .args(["build", "--offline", "--quiet", "--manifest-path"])
+        .arg(output.join("Cargo.toml"))
+        .arg("--target-dir")
+        .arg(&target)
+        .output()
+        .unwrap();
+    fs::write(output.join("build.log"), &result.stderr).unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let result = Command::new(target.join("debug/shared-spine-release"))
+        .output()
+        .unwrap();
+    fs::write(output.join("run.log"), &result.stdout).unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+}
+
+#[test]
+fn lean_shared_spine_model_checks_independently() {
+    let Some(lean) = std::env::var_os("INK_TEST_LEAN") else {
+        assert!(
+            std::env::var_os("INK_PARITY_REQUIRE_ALL").is_none(),
+            "complete parity requires the independent Lean checker"
+        );
+        return;
+    };
+    let result = Command::new(lean)
+        .arg("knowledge/research/ownership/SharedSpine.lean")
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}{}",
+        String::from_utf8_lossy(&result.stdout),
+        String::from_utf8_lossy(&result.stderr)
+    );
+    assert!(!String::from_utf8_lossy(&result.stdout).contains("sorryAx"));
 }

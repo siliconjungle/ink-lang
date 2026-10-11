@@ -436,7 +436,10 @@ fn general_typed_query_discovers_individual_laws_and_replays_after_database_remo
     );
     forged.knowledge = serde_json::from_slice(&view.stdout).unwrap();
     let rejection = verified_language::optimisation::check(&module, &forged).unwrap_err();
-    assert!(rejection.contains("semantic normal forms differ"), "{rejection}");
+    assert!(
+        rejection.contains("semantic normal forms differ"),
+        "{rejection}"
+    );
     let forged_path = dir.join("forged-selection.json");
     fs::write(&forged_path, serde_json::to_vec(&forged).unwrap()).unwrap();
     let untouched = dir.join("untouched.json");

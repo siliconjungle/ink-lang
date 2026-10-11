@@ -10,9 +10,28 @@ concurrency:
   group: conformance-${{ github.ref }}
   cancel-in-progress: true
 jobs:
+  declared-feature-parity:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Fail on any required CPU or GPU contract gap
+        run: python3 tools/check_feature_parity.py --scope contract --receipt build/enforced-parity/contract-audit.json
+      - name: Retain explicit missing capabilities
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: declared-feature-parity-inventory
+          path: build/enforced-parity/contract-audit.json
   cpu-wasm-durability:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 60
+    env:
+      INK_PARITY_REQUIRE_ALL: '1'
+      INK_THREADS: '4'
+      CARGO_BUILD_JOBS: '2'
     steps:
       - uses: actions/checkout@v4
         with:
@@ -43,7 +62,9 @@ jobs:
         run: python -m ink_knowledge --root . rebuild
         working-directory: knowledge
       - name: Fetch locked dependencies
-        run: cargo fetch --locked
+        run: |
+          cargo fetch --locked
+          cargo fetch --locked --manifest-path core/Cargo.toml
       - name: Fetch pinned compiled host dependencies
         run: |
           mkdir -p build/host-deps/src
@@ -68,7 +89,7 @@ jobs:
           CARGO_TARGET_DIR=target cargo test --manifest-path lowerings/gpu/Cargo.toml --test temporary_bounds
           cargo test --test distribution --test source_syntax --test action_values --test general_laws --test semantic_optimisation
       - name: Literal CPU and both Wasm lowerings, generated histories and crash recovery
-        run: cargo test --test lowering_parity --test representation_parity --test standalone_representation --test generated_parity --test durability --test modules --test selected_checkpoint --test action_optimisation --test action_transitions --test numerical_state --test mixed_durability --test bend_features -- --nocapture
+        run: python3 tools/check_feature_parity.py --scope cpu --run --receipt build/enforced-parity/cpu-audit.json
       - name: Retain reproducible programs, seeds and expected outcomes
         if: always()
         uses: actions/upload-artifact@v4
@@ -77,6 +98,18 @@ jobs:
           path: |
             build/lowering-residency/*.json
             build/lowering-residency/*.wgsl
+            build/generated-parity-f32/source.ink
+            build/generated-parity-f32/script.json
+            build/generated-parity-f32/expected.json
+            build/generated-parity-u64/source.ink
+            build/generated-parity-u64/script.json
+            build/generated-parity-u64/expected.json
+            build/enforced-keep-migration/oracle.json
+            build/enforced-parity/numeric-definitions/oracle.json
+            build/enforced-parity/cpu-audit.json
+            build/async-parallel-transactions/source.ink
+            build/async-parallel-transactions/script.json
+            build/async-parallel-transactions/expected.json
             build/generated-parity-bend/source.ink
             build/generated-parity-bend/script.json
             build/generated-parity-bend/expected.json
@@ -122,6 +155,8 @@ jobs:
     timeout-minutes: 30
     env:
       INK_TEST_WGPU: '1'
+      INK_THREADS: '4'
+      CARGO_BUILD_JOBS: '2'
       WGPU_BACKEND: vulkan
     steps:
       - uses: actions/checkout@v4
@@ -145,7 +180,9 @@ jobs:
           with open(os.environ['GITHUB_ENV'], 'a') as f:
               f.write('INK_PARITY_SEEDS=1,7,23,3735928559,'+str(int(os.environ['GITHUB_SHA'][:16],16))+'\n')
           PY
-      - run: cargo fetch --locked
+      - run: |
+          cargo fetch --locked
+          cargo fetch --locked --manifest-path core/Cargo.toml
       - name: Fetch the pinned device runtime dependencies
         run: |
           mkdir -p build/gpu-deps/src
@@ -157,8 +194,10 @@ jobs:
               f.write('\n[workspace]\n')
           PY
           cargo fetch --locked --manifest-path build/gpu-deps/Cargo.toml
+      - name: Required GPU dispatch, exact u64 and binary32
+        run: cargo test --test feature_parity -- --nocapture --test-threads=1
       - name: Actual wgpu dispatch and resident feedback
-        run: cargo test --test lowering_parity --test generated_parity --test modules --test selected_checkpoint --test action_optimisation --test action_transitions --test numerical_state --test mixed_durability --test bend_features -- --nocapture
+        run: cargo test --test lowering_parity --test generated_parity --test modules --test selected_checkpoint --test action_optimisation --test action_transitions --test numerical_state --test mixed_durability --test bend_features -- --nocapture --test-threads=1
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -166,6 +205,7 @@ jobs:
         run: |
           python -m pip install ziglang==0.14.1
           ZIG_RUNNER=$(python -c 'import pathlib,ziglang;print(pathlib.Path(ziglang.__file__).parent/"zig")')
+          INK_TEST_ZIG="$ZIG_RUNNER" cargo test --test feature_parity gpu -- --nocapture --test-threads=1
           INK_TEST_ZIG="$ZIG_RUNNER" cargo test --test bend_features parallel_buffers_recursion_and_scratch_agree_on_all_backends -- --nocapture
           python bench/gpu/prepare-lowering-parity-browser.py "$ZIG_RUNNER"
           npm ci --prefix bench/gpu --ignore-scripts --no-audit --no-fund
@@ -180,6 +220,14 @@ jobs:
             build/temporary-c-test/test.c
             build/lowering-residency/*.json
             build/lowering-residency/*.wgsl
+            build/generated-parity-f32/source.ink
+            build/generated-parity-f32/script.json
+            build/generated-parity-f32/expected.json
+            build/generated-parity-u64/source.ink
+            build/generated-parity-u64/script.json
+            build/generated-parity-u64/expected.json
+            build/enforced-keep-migration/oracle.json
+            build/enforced-parity/numeric-definitions/oracle.json
             build/generated-parity-bend/source.ink
             build/generated-parity-bend/script.json
             build/generated-parity-bend/expected.json

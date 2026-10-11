@@ -11,17 +11,20 @@ Read [the philosophy and ambitions](docs/vision.md), [the design draft](docs/lan
 Historical counts and milestone receipts are preserved in
 [the previous status snapshot](docs/history/implementation-status-through-2026-10-11.md).
 
-## Integrated composed execution work
+## Universal optimisation boundaries
 
-[Engine39](reports/web-stack-engine-39-2026-10-11/REPORT.md) adds bounded,
-source-derived collection facts across helper composition and target-specific
-fresh-buffer/destination reuse. Existing caller capacity/disjointness contracts
-remain trusted; no validation wrapper or new syntax is introduced. Runtime hosts
-support saved-profile adaptive selection, explicit static execution and retained
-pure GPU sessions. Broad target component costs and frozen calibration live in the
-planner/knowledge packages, outside proof authority. Their heldout failures prevent
-a default profitability claim. Broad comparisons still trail strong Rust controls;
-measured gains and losses are preserved separately from correctness evidence.
+Early termination, owned-buffer reuse and bounded helper unfolding are proposed
+by installed database producers and checked against exact source definitions.
+Backends emit `fold_until` and explicit owned operations literally. `ink-abi`
+owns packed layouts and one native/browser decision contract; `ink-native-support`
+owns emitted value/ownership primitives. Shared source analysis belongs in core.
+Legacy optimisation APIs and compatibility features are removed.
+
+The pinned knowledge snapshot contains 3,460 entries, including eight early-exit
+and 28 owned-transform laws. Counts describe this snapshot, not proof coverage.
+Saved profiles guide eligible execution; runtime does not run profitability probes.
+Historical measurements remain evidence of their recorded revisions, including
+losing candidates. See [the operation and trust boundaries](docs/universal-optimisation.md).
 
 ## Executable language and targets
 
@@ -37,8 +40,10 @@ measured gains and losses are preserved separately from correctness evidence.
 [Numerical state](docs/numerical-state.md), [GPU compute](docs/gpu-compute.md),
 [durable hosts](docs/durable-host.md), [modules](docs/modules.md) and
 [installation](docs/installation.md) give the exact contracts.
-JavaScript maintained results are recomputed. GPU floats follow WGSL and are not
-promised to match CPU bits. Literal GPU scans and sorts are not a claim of
+Ordinary baseline JavaScript keeps recompute; checked standalone representations
+maintain the admitted fixed-key and filtered aggregate candidates. F32 programs use executable-core V7:
+arithmetic rounds to binary32 and produces canonical NaNs; transport and negation
+preserve payload bits. Packed GPU code uses integer lanes for this contract. Literal GPU scans and sorts are not a claim of
 efficient parallel prefix/sorting algorithms.
 
 ## What the proof system can admit
@@ -47,9 +52,9 @@ efficient parallel prefix/sorting algorithms.
 | --- | --- | --- |
 | [Expression selection](docs/semantic-optimisation.md) | Typed laws compose through supported pure expressions, binders and exact helper definitions; applicability premises are checked locally | Execution support does not automatically grant logical correspondence for every primitive |
 | [Pure action regions](docs/action-regions.md) | Eligible total expressions inside queries, changes and keeps can use the same checked selection boundary | Does not by itself replace an entire transaction |
-| [Whole-action transitions](docs/action-transitions.md) | Complete transition equations preserve replies, logical roots, rollback, versions and ordered events; List values/count/u64 sum have fixed correspondence | Restricted u64-keyed, word/Boolean/record/Option/Result/List domain with supported nested calls/helpers; broader numbers, IDs, keeps and other operations need correspondence |
-| [Physical representations](docs/database-representations.md) | Canonical layouts and cached-query implementations supply universal encoding, observation and invariant-preservation evidence for every source action | Restricted transition domain; literal physical-definition execution is currently Rust only |
-| [Migration](docs/database-representations.md#runtime-migration) | Checked decode/encode or direct bridges between exact representations, switching at transaction boundaries | Explicit checked requests; not an autonomous live workload controller or a durability protocol |
+| [Whole-action transitions](docs/action-transitions.md) | Complete transition equations preserve replies, logical roots, rollback, versions and ordered events; List values/count/u64 sum have fixed correspondence | Admitted source projection includes signed/float/exact-integer values, ordered keys, vectors and supported pure helpers; unsupported keys/operators fail closed |
+| [Physical representations](docs/database-representations.md) | Canonical layouts and cached-query implementations supply universal encoding, observation and invariant-preservation evidence for every source action | Admitted scalar/collection/vector/pure-closure domains; standalone execution on C, Rust, JavaScript, both Wasm and GPU host lanes. Recursive state stays on the host |
+| [Migration](docs/database-representations.md#compiled-execution-and-migration) | Portable checkpoint/restore switches between exact compiled variants at transaction boundaries; universal direct-bridge proofs remain checkable | Direct bridge emission is not implemented; publication follows successful restore. No autonomous live controller |
 | [Lifecycle selection](reports/incremental-maintenance-selection/README.md) | External measured choice accounts for checking, initialisation, compilation, action counts, teardown, memory and exact migration costs | Comparable provenance and complete required phases are necessary; replay rechecks the selected request/bridge. This is explicit offline selection |
 | [General laws](docs/general-laws.md) | Abstract sorts/functions, checked interpretations and discharged assumptions support reusable mathematics | Unsupported/open obligations cannot grant closed program authority |
 
@@ -57,8 +62,8 @@ Current representation candidates retain caches across queries, aborted changes
 and supported unrelated changes. [Fixed-key point-query maintenance](docs/point-query-delta.md)
 now handles supported same-key remove/replace chains by delta, with logical
 post-state refresh for unsupported changes. List values/count/u64 sum and measured
-lifecycle selection are integrated. General incremental aggregates, exact-Int/keep
-correspondence, other key domains and additional physical executors remain open.
+lifecycle selection are integrated. General incremental algorithms and automatic live strategy selection remain open;
+source correspondence is bounded by the documented admitted domains.
 
 The integrated expression interface now covers existing Buffer edits/observations,
 ordered Map operations and owned stopping-loop accumulators. [215 ordinary database
@@ -67,10 +72,29 @@ source primitive or proof rule. [Earlier collection laws](docs/local-collection-
 remain available. This does not establish arbitrary heap algorithms or broaden
 the separate stateful preservation domain.
 
-Old aggregate certificates, bounded-cache and typed-storage-policy approval are
-retired from default production builds. Historical reproduction requires the
-explicit `legacy-optimisation-research` feature; it does not extend the current
-small-core guarantee.
+Old aggregate certificates, bounded caches, typed storage policies, source
+maintenance evaluators and historical scalar loaders are removed. Current
+representation admission uses the canonical database proof interface.
+
+
+## Enforced execution coverage
+
+The supported contract covers complete C, Rust, JavaScript and both Wasm paths,
+with eligible exact GPU kernels and explicit host execution for transactions,
+recursive physical state, arbitrary-size integers and general dynamic maps.
+Required-GPU mode fails when device execution is unavailable; host fallback is
+never counted as a device dispatch. Unrestricted device coverage still has gaps,
+reported by the default all-GPU audit. The inventory and 19 mandatory suites are
+in [the parity contract](docs/lowering-parity.md) and
+[the integration evidence](reports/enforced-feature-parity-2026-10-11/README.md).
+Passing this gate does not prove compiler correctness or unrestricted GPU coverage.
+
+Ordinary representation programs carry no proof bundle or stateful interpreter.
+Argument types/shapes/ranges are a caller obligation; malformed data is unsafe.
+Checkpoint integrity and transaction/version rules remain explicit boundaries.
+[The latest published compiled-state scaling experiment](reports/representation-scaling/standalone-main-2026-10-11/README.md)
+shows competitive cached reads and large linked-list update costs. Its source,
+package revisions and workload boundaries determine the timing claim.
 
 ## Knowledge, selection and replay
 
@@ -98,8 +122,10 @@ it does not establish faster execution. See [the evidence index](BENCHMARKS.md).
 ## Parallel execution and independent verdict
 
 [Ordered parallel work, owned partitions, checked recursion and GPU scratch](docs/bend-inspired.md)
-are integrated with executable-core V5. Native Rust uses bounded scoped workers;
-other CPU paths preserve sequential values. Browser and native GPU scratch
+use executable-core V5, with general control/owned transforms in V6 and F32
+arithmetic in V7. Complete native C/Rust use bounded workers; JavaScript and both Wasm paths
+use host workers with ordered results. Browser entry points are asynchronous
+and require cross-origin isolation; small or nested work can remain sequential. Browser and native GPU scratch
 support bounded split/rejoin and push within 64 elements; resident graph feedback
 preserves capacity and simultaneous assignments. Unsupported cases retain
 compiled CPU fallback. Guarded self
@@ -142,3 +168,19 @@ it is not an end-to-end verification of Ink or generated machine code.
 Editor support and schema evolution are outside the current acceptance scope.
 Installation, debugging, crash recovery, broader proof coverage and competitive
 complete execution remain in scope. [PLAN.md](PLAN.md) retains the full gates.
+
+## Physical table ownership
+
+The first ownership improvement detaches shared inductive spine edges without
+allocating empty replacement nodes during release. Generated native storage
+passes a 100000-node shared-copy/release test with zero release allocations and
+an exact free count on a 1 MiB stack. The independently checked Lean ownership
+model states its reference-count/acyclicity assumptions. C, Rust, both Wasm
+and native GPU use this storage host; JavaScript/browser GPU retain GC storage.
+Cross-target observable parity remains checked. See the
+[matched measurements and artifacts](reports/table-ownership-2026-10-11/README.md).
+
+Rust write-heavy cells improve about 1.7–2×, but indexed physical table updates
+remain open: the 4000-row write-only cell still loses by over 900× to a maintained
+handwritten tree. This allocation fix does not change linear update traversal,
+prove generated compiler correctness or extend GPU device coverage.

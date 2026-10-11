@@ -1,0 +1,26 @@
+warning: field `graph` is never read
+   --> lowerings/gpu/src/compute.rs:147:5
+    |
+141 | struct Emitter<'a> {
+    |        ------- field in this struct
+...
+147 |     graph: bool,
+    |     ^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `ink-lowering-gpu` (lib) generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.14s
+     Running tests/storage_destination_parity.rs (target/debug/deps/storage_destination_parity-a0e5f53eb407ab8a)
+
+running 4 tests
+test c::composed_storage_facts_preserve_full_outputs_lifetimes_and_eager_stages ... 357 typed interpreter frames; complete ordinary/Into outputs, NaN payloads, wrapping, extent/tails, allocation counts and independent lifetimes passed
+ok
+test c::unsupported_internal_collection_is_rejected ... ok
+test compaction_destination_needs_only_final_output_capacity ... ok
+test javascript::composed_storage_facts_preserve_full_outputs_lifetimes_and_eager_stages ... 357 typed frames / 1071 complete ordinary+Into comparisons; allocation reuse, helper capture, shared lifetimes, logical extent and tails passed
+
+ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 27.83s
+

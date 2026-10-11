@@ -48,6 +48,20 @@ fn conformance_inner(
     steps: Vec<Value>,
     expected: Vec<Value>,
 ) {
+    if std::env::var_os("INK_PARITY_REQUIRE_ALL").is_some() {
+        assert!(
+            std::env::var_os("INK_TEST_ZIG").is_some(),
+            "complete-target parity forbids skipping Wasm: set INK_TEST_ZIG"
+        );
+    }
+    // Emission, building and execution form one operation for these GPU
+    // fixtures: their generated package names and Cargo target are shared.
+    // Lock before emission so source mtimes cannot precede another fixture's
+    // cached build-script outputs, or let it replace the executable before run.
+    static GPU_ARTIFACTS: std::sync::Mutex<()> = std::sync::Mutex::new(());
+    let _gpu_artifacts = std::env::var_os("INK_TEST_WGPU").map(|_| {
+        GPU_ARTIFACTS.lock().unwrap_or_else(|poisoned| poisoned.into_inner())
+    });
     let module = CheckedModule::from_source(p.clone()).unwrap();
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join(format!("build/{name}"));
     fs::create_dir_all(&root).unwrap();
@@ -88,6 +102,7 @@ fn conformance_inner(
     }
     if std::env::var_os("INK_TEST_WGPU").is_some()
         && (name == "lowering-parity"
+            || name == "universal-control"
             || name.starts_with("generated-parity")
             || name == "modules-parity"
             || name == "numerical-state-parity"
@@ -107,10 +122,22 @@ fn conformance_inner(
             "{}",
             String::from_utf8_lossy(&out.stderr)
         );
+        let packed_pure = fs::read_to_string(project.join("Cargo.toml"))
+            .unwrap()
+            .contains("name = \"ink-gpu-program\"");
         let mut gpu_steps = steps.clone();
         for step in &mut gpu_steps {
             if step["pure"].is_string() {
-                step["backend"] = json!("gpu");
+                step["backend"] = json!(if step["cpu_only"] == true {
+                    "cpu"
+                } else if step["expect_gpu"] == true {
+                    "gpu-required"
+                } else {
+                    "gpu"
+                });
+                if packed_pure {
+                    step["call"] = step["pure"].clone();
+                }
             }
         }
         fs::write(
@@ -118,16 +145,29 @@ fn conformance_inner(
             serde_json::to_vec(&gpu_steps).unwrap(),
         )
         .unwrap();
-        let out = Command::new(target.join("debug/ink-module-program"))
-            .arg(root.join("gpu-script.json"))
-            .output()
-            .unwrap();
+        let mut command = Command::new(target.join(if packed_pure {
+            "debug/ink-gpu-program"
+        } else {
+            "debug/ink-module-program"
+        }));
+        if packed_pure {
+            command.arg("--script");
+        }
+        let out = command.arg(root.join("gpu-script.json")).output().unwrap();
         assert!(
             out.status.success(),
             "{}",
             String::from_utf8_lossy(&out.stderr)
         );
-        let actual: Vec<Value> = serde_json::from_slice(&out.stdout).unwrap();
+        let actual: Vec<Value> = if packed_pure {
+            String::from_utf8(out.stdout)
+                .unwrap()
+                .lines()
+                .map(|line| serde_json::from_str(line).unwrap())
+                .collect()
+        } else {
+            serde_json::from_slice(&out.stdout).unwrap()
+        };
         let calls = gpu_steps
             .iter()
             .filter(|s| s["restore"].is_null())
@@ -135,16 +175,27 @@ fn conformance_inner(
         assert_eq!(actual.len(), expected.len());
         let mut gpu_calls = 0;
         for (i, ((a, e), s)) in actual.iter().zip(&expected).zip(calls).enumerate() {
-            let reply = if s["pure"].is_string() {
-                json!({"value":a["value"]})
+            let mut expected_reply = e["reply"].clone();
+            let reply = if let Some(name) = s["pure"].as_str() {
+                let f = p.functions.iter().find(|f| f.name == name).unwrap();
+                let descriptor = ink_abi::describe(&f.result, &p.records, &p.enums, &p.ids).unwrap();
+                // Packed u64 wire values use decimal strings above the safe
+                // JSON range. Compare through the shared ABI, preserving bits.
+                if ink_abi::packed_width(&descriptor).is_ok() {
+                    expected_reply = json!({"value":ink_abi::packed::unpack(&ink_abi::packed::pack(&e["reply"]["value"], &descriptor).unwrap(), &descriptor)});
+                    json!({"value":ink_abi::packed::unpack(&ink_abi::packed::pack(&a["value"], &descriptor).unwrap(), &descriptor)})
+                } else { json!({"value":a["value"]}) }
             } else if a["host_error"].is_string() {
                 a.clone()
             } else {
                 json!({"outcome":a})
             };
-            assert_eq!(reply, e["reply"], "wgpu result {i}");
+            assert_eq!(reply, expected_reply, "wgpu result {i}");
             if a["backend"] == "gpu" {
                 gpu_calls += 1;
+            }
+            if s["cpu_only"] == true {
+                assert_eq!(a["backend"], "cpu", "explicit CPU float-bit contract: {s}");
             }
             if [
                 "repeated_arrays",
@@ -165,6 +216,48 @@ fn conformance_inner(
             "wgpu: {} results matched; {gpu_calls} GPU calls",
             actual.len()
         );
+        if !packed_pure {
+            let manifest: Value =
+                serde_json::from_slice(&fs::read(root.join("gpu-module/manifest.json")).unwrap())
+                    .unwrap();
+            let rejected = steps
+                .iter()
+                .filter(|step| {
+                    step["pure"].is_string()
+                        && manifest["functions"]
+                            .as_array()
+                            .unwrap()
+                            .iter()
+                            .any(|f| f["name"] == step["pure"] && f["gpu"] == false)
+                })
+                .map(|step| {
+                    let mut step = step.clone();
+                    step["backend"] = json!("gpu-required");
+                    step
+                })
+                .collect::<Vec<_>>();
+            if !rejected.is_empty() {
+                let script = root.join("required-gpu-errors.json");
+                fs::write(&script, serde_json::to_vec(&rejected).unwrap()).unwrap();
+                let output = Command::new(target.join("debug/ink-module-program"))
+                    .arg(script)
+                    .output()
+                    .unwrap();
+                assert!(
+                    output.status.success(),
+                    "{}",
+                    String::from_utf8_lossy(&output.stderr)
+                );
+                let replies: Vec<Value> = serde_json::from_slice(&output.stdout).unwrap();
+                assert_eq!(replies.len(), rejected.len());
+                for reply in replies {
+                    assert!(
+                        reply["host_error"].is_string(),
+                        "required unsupported GPU call fell back: {reply}"
+                    );
+                }
+            }
+        }
     }
     let c = root.join("c");
     if let Some(selected) = selected {
@@ -184,9 +277,9 @@ fn conformance_inner(
         format!(
             "{}{}",
             if let Some(selected) = selected {
-                verified_language::state_native::emit_selected(selected, None).unwrap()
+                verified_language::state_native::emit_selected(selected).unwrap()
             } else {
-                verified_language::state_native::emit(&p, None).unwrap()
+                verified_language::state_native::emit(&p).unwrap()
             },
             verified_language::runtime::STATE_WASM_ABI
         ),

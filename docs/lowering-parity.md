@@ -6,25 +6,27 @@ yet admit; this is not a claim that those features are implemented.
 
 | Executable feature | C | Rust | JavaScript | Wasm | WebGPU / wgpu |
 | --- | --- | --- | --- | --- | --- |
-| Wrapping u32/i32, f32, numeric vectors and flat records | Yes | Yes | Yes | Yes | Eligible 32-bit computations |
-| Full-width u64, exact Int, strings, IDs, enums, Unit, Option/Result | Yes | Yes | Yes | Yes | CPU host |
+| Wrapping u32/i32, f32, numeric vectors and flat records | Yes | Yes | Yes | Yes | Eligible kernels; exact binary32 arithmetic |
+| Full-width u64 | Yes | Yes | Yes | Yes | Exact two-lane arithmetic in eligible kernels |
+| Exact Int, strings, IDs, enums, Unit, Option/Result | Yes | Yes | Yes | Yes | CPU host, except eligible optional scalar reads |
 | Lists, nested/recursive record values, lexical bindings and acyclic calls | Yes | Yes | Yes | Yes | Flat numeric/Bool arrays and acyclic helpers |
 | Map, filter, indexed map, truncating zip, safe indexed reads | Yes | Yes | Yes | Yes | Eligible array compositions |
 | Ordered reductions, integer scan/sort, bounded repeat, lazy branches | Yes | Yes | Yes | Yes | Eligible array kernels; resource limits can select CPU |
 | Owned buffers/maps, consuming split/append and stopping loops | Yes | Yes | Yes | Yes | Bounded scalar private buffers; dynamic/unsupported cases use CPU |
-| Ordered parallel map and buffer map | Sequential | Native threads | Sequential | Sequential | Eligible output kernels; private-buffer map is sequential per invocation |
+| Ordered parallel map and buffer map | Native threads | Native threads | Workers | Host workers for both emitters | Eligible output kernels; private-buffer map is sequential per invocation |
 | Guarded self recursion and list drop/take | Yes | Yes | Yes | Yes | CPU host |
 | Tables, queries, changes, checked arithmetic and Result propagation | Yes | Yes | Yes | Yes | CPU host |
 | Keeps, rollback, ordered events and counter exhaustion | Yes | Yes | Yes | Yes | CPU host |
 | Portable checkpoint/restore, outbox acknowledgement | Yes | Yes | Yes | Yes | CPU host |
 
 The same Ink syntax and observable values apply to every complete backend.
-Scheduling parity is narrower: scoped CPU threads currently exist only in native
-Rust. C, JavaScript, C-Wasm and Rust-Wasm execute ordered mapping sequentially.
-Their split/append implementations preserve ownership and partition-local indices,
-but allocation strategy can differ. Browser WebGPU and native wgpu both support
-bounded private split/rejoin and capacity-preserving resident graph feedback.
-See [ordered work and target limits](bend-inspired.md).
+Scheduling uses bounded native threads for complete C/Rust and module workers for
+JavaScript, C-Wasm and Rust-Wasm. A regression check requires distinct worker IDs;
+matching values alone cannot demonstrate parallel execution. Grain, small inputs
+and nested work can select sequential execution. Packed pure C objects retain
+their smaller sequential ABI. Split/append preserve ownership and partition-local
+indices; allocation strategies differ. Browser hosts need cross-origin isolation
+and asynchronous entry points. See [ordered work and target limits](bend-inspired.md).
 
 GPU-compatible functions can coexist with stateful declarations and unsupported
 value types in one module. The runtime extracts each eligible pure dependency
@@ -33,7 +35,7 @@ execute once on the host, without speculative profiling or replay.
 
 Existing numerical types also cross state, action, keep and event boundaries.
 See [numerical state](numerical-state.md) for signed keys, float data identity,
-wire encoding and the separate GPU float contract.
+wire encoding and the exact binary32 contract.
 
 ## Build and host interfaces
 
@@ -55,12 +57,12 @@ projects contain literal typed Rust; JavaScript modules contain literal ES code.
 `--target object` retains the small packed pure C object interface explicitly.
 
 The runtime emits the same handle/buffer lifecycle ABI for native libraries and
-Wasm (`state-abi.h`, `state-wasm.mjs`). The Wasm host exposes pure calls, action
+Wasm (`state-abi.h`, `state-wasm.mjs`). The Wasm host exposes `pure`/`pureAsync`, `invoke`/`invokeAsync`, action
 invocation, snapshot/restore, events, acknowledgement and disposal. Rust-emitted
 projects can also compile to `wasm32-unknown-unknown` with this ABI.
 
 JavaScript exports `functions`, `call`, `metadata` and `createState`. The state
-object provides `invoke`, `invoke_json`, `version`, `outbox`,
+object provides `invoke`, `invokeAsync`, `invoke_json`, `version`, `outbox`,
 `acknowledge_through`, and asynchronous `checkpoint`/`restore`. WebCrypto hashes
 snapshots in browsers and Node. Snapshots preserve the reference binary format
 and are interchangeable between these targets for the exact same checked program.
@@ -72,9 +74,10 @@ A host supplies persistence, external I/O and event delivery.
 CPU integer arithmetic and evaluation order match Ink. `u64` must not pass through
 an unsafe JavaScript Number; use BigInt or exact decimal input. `Int` has the
 explicit `{Int:"decimal"}` wire form. Exceptional floats use `{F32Bits:bits}`.
-JS rounds each f32 operation separately and preserves negation payloads; arithmetic
-NaN payloads can differ between engines. GPU floats follow the portable WGSL
-contract and are not promised to match CPU bits.
+Each f32 arithmetic operation rounds separately and canonicalises arithmetic
+NaNs to `0x7fc00000`; transport and negation preserve payload bits. The packed GPU
+emitter implements binary32 using integer lanes. F32 programs bind executable-core
+V7, with cross-target tests including NaN arithmetic and payload transport.
 
 The GPU collection implementation is literal: filter, inclusive scan and stable
 rank sorting preserve integer semantics, but scans and rank sorts repeat work.
@@ -82,13 +85,20 @@ They are not parallel prefix or efficient sorting algorithms. Heavy compositions
 have a 128-element GPU admission limit; list-valued repeat is unrolled only up to
 16 iterations. Larger workloads retain the complete CPU path. Eligibility is
 separate from measured profitability. Shader expansion, device limits, missing
-adapters and device failure also select CPU with an explicit reason.
+adapters and device failure select CPU in `auto`/`gpu` modes with an explicit reason.
+Use `gpu-required` to reject every such fallback. Full GPU language coverage is
+still incomplete: exact Int, strings, general maps, recursion and state/action
+execution are not GPU implementations. Hardware resources cannot equal CPU limits.
 
 Collection device buffers carry their actual length, so filtering and unequal
 zip lengths remain correct through resident pipelines. CPU host resource limits
 are explicit implementation policies; they do not reproduce the interpreter's
-exact fuel accounting. JavaScript keeps are recomputed rather than maintained
-incrementally. That affects cost, not their observed value.
+exact fuel accounting. Explicit checked representation bundles execute literal definitions on all five
+CPU paths. The JavaScript representation host maintains admitted fixed-key keeps
+using the sealed database definitions, including guarded overwrite and removal.
+Ordinary baseline emission still recomputes keeps. The new point-query fixtures
+supply no incremental Int aggregate candidate. No unproved recognizer bypasses
+that admission boundary. See [checked representations](database-representations.md).
 
 ## Validation and trust
 
@@ -135,6 +145,36 @@ through the [selected emission APIs](selected-checkpoints.md). Cross-backend
 continuation and durable receipt replay are tested separately from raw-program
 emission, which keeps the changed program’s own namespace.
 
+## Required feature audit
+
+`tests/feature-parity.json` records each target, source variant and required test
+suite. `tools/check_feature_parity.py` rejects omitted targets, missing tests,
+uncovered types and source variants added without a coverage update. This is a
+coverage contract, not proof that a status label implements a capability.
+
+```sh
+# Full audit defaults to ALL targets and currently exits nonzero on GPU gaps.
+python3 tools/check_feature_parity.py --receipt build/enforced-parity/all-audit.json
+# Complete CPU conformance; Wasm must be configured and cannot silently skip.
+INK_TEST_ZIG=/path/to/zig python3 tools/check_feature_parity.py --scope cpu --run
+```
+
+CPU CI uses the second command. GPU CI requires actual dispatch for the eligible
+fixtures, including exact u64 and f32 bit patterns. The full audit explicitly
+fails today; a passing CPU or eligible-GPU job is not a full GPU parity claim.
+`tests/feature_parity.rs` fault-injects omitted/unsupported JavaScript capabilities
+and missing coverage, and exercises ordinary standalone physical programs, guarded cache
+maintenance, async transaction rollback and required-GPU numerical execution.
+
+The `declared-feature-parity` CI job checks complete CPU feature coverage and the
+`eligible-pure-exact-v1` GPU contract: exact eligible u64/binary32 kernels, actual
+dispatch and explicit `gpu-required` errors without fallback. Stateful transactions,
+arbitrary-size Int, general dynamic maps and recursive physical state execute on
+CPU hosts. The unrestricted all-GPU audit remains available with the default
+`tools/check_feature_parity.py` command and fails on its disclosed coverage gaps.
+Run `--scope contract --run` with Zig and Chrome to enforce the supported contract
+through compiled CPU, native GPU and browser GPU execution.
+
 ## Standalone physical representations
 
 Proof-selected physical representations now use standalone compiled code on
@@ -157,22 +197,17 @@ operations retain the 128-element device admission bound; shapes that cannot
 retain their declared capacity use the complete host path.
 
 
-## Caller-trusted generated arguments
+## Generated arguments and checked state transport
 
-All generated Rust, C, JavaScript, Wasm and GPU host interfaces require arguments
-with the declared arity, types, shapes, tags and canonical ranges. They convert
-representations where transport requires it and do not perform an ingress type
-validation pass. Invalid arguments are unsafe: they may crash/trap, corrupt state
-or return incorrect results, and raw native pointer APIs may corrupt memory.
-There is no invalid-input diagnostic, atomicity or cross-target parity contract.
-Validate external data in the application when required. Source types and proofs
-are still checked by the compiler; the reference interpreter keeps its diagnostic
-checks for tooling.
+Raw generated pure functions and standalone representation calls require arguments
+with their declared arity, types, tags, shapes and ranges. Their native pointer
+interfaces additionally require the documented ownership/capacity contract.
+Applications validate external data before using those caller-trusted interfaces.
 
 JSON syntax parsing, explicit checkpoint integrity/size checks, hardware resource
-limits, device eligibility and transaction/version rules remain. The GPU finite
-float eligibility test selects a permitted device domain; it is not input type
-validation. Generated state queries avoid transaction table backups. Standalone
+limits, device eligibility and transaction/version rules remain. GPU eligibility checks the kernel and resource domain; exact binary32
+kernels also preserve exceptional values and raw bits. It is not an input type
+validation contract. Generated state queries avoid transaction table backups. Standalone
 representation calls also avoid whole-state transport and checkpoint validation,
 and statically simplified read-only queries compute the reply directly.
 See `reports/leaner-generated-code-2026-10-11` for executable and Lean evidence.

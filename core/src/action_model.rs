@@ -11,13 +11,13 @@ use crate::{
 };
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
-mod flow;
-mod pure;
 mod collections;
-mod integer;
 mod equality;
 mod keys;
 mod local;
+mod flow;
+mod integer;
+mod pure;
 pub const SEMANTICS: &str = "ink-action-transition-v1";
 const MAX_DEFINITIONS: usize = 256;
 const MAX_WORK: usize = 20_000;
@@ -201,7 +201,7 @@ struct Lower<'a> {
     typed: &'a CheckedActions,
     keep_active: BTreeSet<usize>,
     integer: Option<integer::Integer>,
-    equalities:BTreeMap<String,String>,
+    equalities: BTreeMap<String, String>,
     objects: BTreeMap<String, Entry>,
     types: BTreeMap<String, Sort>,
     active: BTreeSet<String>,
@@ -553,8 +553,15 @@ impl Lower<'_> {
             Kind::Float(bits)=>Ok(Term::U64(*bits as u64)),
             Kind::Neg{value}if *ty==Type::F32=>{let x=self.expr(body,*value,env,state)?;Ok(b("f32:neg",x,Term::U64(0)))},
             Kind::Number(n) if *ty == Type::Int => self.integer_literal(*n),
-            Kind::Neg { value } if *ty == Type::I32 => {let x=self.expr(body,*value,env,state)?;self.operator(ty,"-",Term::U64(0),x)},
-            Kind::Neg { value } if *ty == Type::Int => { let i=self.integer()?;let x=self.expr(body,*value,env,state)?;Ok(call(&i.negate,vec![x])) },
+            Kind::Neg { value } if *ty == Type::I32 => {
+                let x = self.expr(body, *value, env, state)?;
+                self.operator(ty, "-", Term::U64(0), x)
+            }
+            Kind::Neg { value } if *ty == Type::Int => {
+                let i = self.integer()?;
+                let x = self.expr(body, *value, env, state)?;
+                Ok(call(&i.negate, vec![x]))
+            }
             Kind::Bool(x) => Ok(Term::Bool(*x)),
             Kind::Unit => {
                 let s = self.sort(ty)?;
@@ -566,22 +573,62 @@ impl Lower<'_> {
             }
             Kind::State(root) => self.root(state.clone(), *root),
             Kind::Keep(index) => {
-                if !self.keep_active.insert(*index) { return Err("action model keep cycle".into()); }
+                if !self.keep_active.insert(*index) {
+                    return Err("action model keep cycle".into());
+                }
                 let keep = self.typed.keep(*index).ok_or("missing typed keep")?.clone();
-                let result = self.expr(&keep, keep.value.ok_or("missing keep value")?, &BTreeMap::new(), state);
+                let result = self.expr(
+                    &keep,
+                    keep.value.ok_or("missing keep value")?,
+                    &BTreeMap::new(),
+                    state,
+                );
                 self.keep_active.remove(index);
                 result
             }
-            Kind::Builtin{name,arguments}if ["vec2","vec3","vec4"].contains(&name.as_str())=>{let s=self.sort(ty)?;let xs=arguments.iter().map(|i|self.expr(body,*i,env,state)).collect::<LangResult<Vec<_>>>()?;Ok(c(id(&s)?,0,xs))},
-            Kind::VectorField{receiver,component}=>{let value=self.expr(body,*receiver,env,state)?;let ExprType::Value(Type::Vector(_,n))=body.nodes[*receiver].ty else{return Err("vector receiver type".into());};let names=(0..n).map(|_|self.fresh()).collect::<Vec<_>>();Ok(m(value,vec![(names.clone(),v(&names[*component]))]))},
-            Kind::Builtin{name,arguments}if ["quot_or","rem_or"].contains(&name.as_str())=>{let xs=arguments.iter().map(|i|self.expr(body,*i,env,state)).collect::<LangResult<Vec<_>>>()?;self.division(ty,name,xs[0].clone(),xs[1].clone(),xs[2].clone())},
+            Kind::Builtin { name, arguments }
+                if ["vec2", "vec3", "vec4"].contains(&name.as_str()) =>
+            {
+                let s = self.sort(ty)?;
+                let xs = arguments
+                    .iter()
+                    .map(|i| self.expr(body, *i, env, state))
+                    .collect::<LangResult<Vec<_>>>()?;
+                Ok(c(id(&s)?, 0, xs))
+            }
+            Kind::VectorField {
+                receiver,
+                component,
+            } => {
+                let value = self.expr(body, *receiver, env, state)?;
+                let ExprType::Value(Type::Vector(_, n)) = body.nodes[*receiver].ty else {
+                    return Err("vector receiver type".into());
+                };
+                let names = (0..n).map(|_| self.fresh()).collect::<Vec<_>>();
+                Ok(m(value, vec![(names.clone(), v(&names[*component]))]))
+            }
+            Kind::Builtin { name, arguments } if ["quot_or", "rem_or"].contains(&name.as_str()) => {
+                let xs = arguments
+                    .iter()
+                    .map(|i| self.expr(body, *i, env, state))
+                    .collect::<LangResult<Vec<_>>>()?;
+                self.division(ty, name, xs[0].clone(), xs[1].clone(), xs[2].clone())
+            }
             Kind::Builtin { name, arguments } if ["count", "sum"].contains(&name.as_str()) => {
                 self.reduce_expr(body, name, arguments, env, state)
             }
-            Kind::Method { receiver, method, arguments } if ["values", "keys", "map", "filter"].contains(&method.as_str()) => {
+            Kind::Method {
+                receiver,
+                method,
+                arguments,
+            } if ["values", "keys", "map", "filter"].contains(&method.as_str()) => {
                 self.collection_expr(body, *receiver, method, arguments, env, state)
             }
-            Kind::Table { root, method, arguments } if arguments.is_empty() && ["values", "keys"].contains(&method.as_str()) => {
+            Kind::Table {
+                root,
+                method,
+                arguments,
+            } if arguments.is_empty() && ["values", "keys"].contains(&method.as_str()) => {
                 self.table_sequence(*root, method, state)
             }
             Kind::Local(s) => env
@@ -622,8 +669,10 @@ impl Lower<'_> {
                 let lhs = self.expr(body, *left, env, state)?;
                 let rhs = self.expr(body, *right, env, state)?;
                 let t = &body.nodes[*left].ty;
-                let ExprType::Value(t)=t else {return Err("operator operand type".into());};
-                self.operator(t,op,lhs,rhs)
+                let ExprType::Value(t) = t else {
+                    return Err("operator operand type".into());
+                };
+                self.operator(t, op, lhs, rhs)
             }
             Kind::And { left, right } | Kind::Or { left, right } => {
                 let lhs = self.expr(body, *left, env, state)?;
@@ -759,7 +808,7 @@ impl Projection {
             typed: &actions,
             keep_active: BTreeSet::new(),
             integer: None,
-            equalities:BTreeMap::new(),
+            equalities: BTreeMap::new(),
             objects: BTreeMap::new(),
             types: BTreeMap::new(),
             active: BTreeSet::new(),

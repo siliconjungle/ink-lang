@@ -136,7 +136,7 @@ fn parallel_buffers_recursion_and_scratch_agree_on_all_backends() {
             ("partitioned", json!([xs, 0])),
             ("partitioned", json!([xs, u32::MAX])),
         ] {
-            steps.push(json!({"pure":name,"args":args}));
+            steps.push(json!({"pure":name,"args":args,"expect_workers":name=="parallel"&&n==1024}));
             expected
                 .push(json!({"reply":{"value":want},"snapshot":r.checkpoint_portable().unwrap()}));
         }
@@ -213,3 +213,6 @@ fn independent_boolean_verdict_checks_exact_theorems() {
     }
     assert_eq!(rules.as_array().unwrap().len(), 2);
 }
+
+#[path = "fixtures/universal_control.rs"]
+mod universal_control;

@@ -8,7 +8,7 @@ proofs. A planner discovers and combines them; a small semantic core checks that
 each accepted change preserves the actual program's meaning.
 
 The ambition is to make better algorithms, storage layouts and execution plans
-reusable across programs. Adding a proved law can improve existing code without
+reusable across programs. Adding a proved law can improve existing code when rebuilt, without
 editing its source or adding a dedicated compiler pass. This already works for
 supported transformations; broader coverage and consistently competitive
 execution remain active engineering work.
@@ -91,7 +91,8 @@ a limited Boolean equality calculus; it does not verify the complete compiler.
 
 The [target parity contract](docs/lowering-parity.md) records exact coverage and
 limits. Complete C emission uses a shared Rust primitive runtime. JavaScript keeps
-are recomputed; GPU floating-point results have a separate WGSL contract.
+are recomputed. F32 arithmetic uses canonical NaNs and source-order binary32
+operations; the packed GPU emitter implements these through integer lanes.
 
 Recent integration adds [215 owned Buffer/Map laws](docs/owned-optimisation.md),
 List state/action correspondence and [point-query delta candidates](docs/point-query-delta.md).
@@ -167,7 +168,9 @@ that Ink is universally fastest.
 | [ink-lang](https://github.com/siliconjungle/ink-lang), distribution | CLI, exact dependency assembly and integration tests |
 | [ink-knowledge](https://github.com/siliconjungle/ink-knowledge) | Canonical definitions, candidates, laws, proofs, snapshots, discovery and separate performance observations |
 | [ink-planner](https://github.com/siliconjungle/ink-planner) | Untrusted bounded search, composition, applicability evidence and cost selection |
-| [ink-runtime](https://github.com/siliconjungle/ink-runtime) | Host ABIs, execution, scheduling, profiling, fallback, persistence and delivery |
+| [ink-runtime](https://github.com/siliconjungle/ink-runtime) | Execution, scheduling, common decision application, fallback, persistence and delivery |
+| [ink-abi](https://github.com/siliconjungle/ink-abi) | Shared value descriptors, transport, layouts and Rust/Wasm execution decisions |
+| [ink-native-support](https://github.com/siliconjungle/ink-native-support) | Generated typed/dynamic value primitives, owned collections and state exports |
 | [C](https://github.com/siliconjungle/ink-lowering-c), [Rust](https://github.com/siliconjungle/ink-lowering-rust), [Wasm](https://github.com/siliconjungle/ink-lowering-wasm), [JavaScript](https://github.com/siliconjungle/ink-lowering-js), [GPU](https://github.com/siliconjungle/ink-lowering-gpu) | Literal target emission and device operations |
 
 Proof authors and search need not be trusted to choose correct transformations:
@@ -177,8 +180,11 @@ high-level transformation is not an end-to-end proof of machine code. Lean
 research supports specific mathematical claims and does not verify the complete
 compiler. The [independent Boolean verdict](docs/bend-inspired.md#independent-boolean-verdict)
 proves its separate calculus sound; its translator and source correspondence remain
-unverified. Old aggregate/bounded-cache/storage-policy admission is available only
-through the explicit `legacy-optimisation-research` feature.
+unverified. Old aggregate certificates, bounded caches, typed storage policies and historical
+scalar loaders have been removed. There is no legacy admission feature.
 
 See [current status](STATUS.md), [architecture](docs/repository-architecture.md),
 [benchmark methodology](docs/benchmark-methodology.md) and [acceptance gates](PLAN.md).
+
+[Universal optimisation boundaries](docs/universal-optimisation.md) describe the
+explicit control/owned-buffer primitives, database laws and shared host policy.
