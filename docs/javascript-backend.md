@@ -79,3 +79,9 @@ The standalone lowerer runs 946 reference comparisons in Node, including overflo
 full-width integers, float rounding, particles, nested collections, lazy
 fallbacks and invalid inputs. Integrated Node/browser bundle evidence is recorded
 in [reports/javascript-phase1](../reports/javascript-phase1/REPORT.md).
+
+Pure buffer elements are immutable logical values and may share nested records
+with inputs and outputs. Slot arrays remain privately owned; split-range growth
+detaches. Structural equality uses declared fields and an aggregate identity
+fast path, retaining stored float bits. Host state replies detach their reachable
+values. See [snapshot updates](internal-snapshots.md) for the ownership and private-delta contract.
