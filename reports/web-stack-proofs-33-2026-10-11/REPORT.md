@@ -55,7 +55,7 @@ Most handwritten controls still win. Expert-time / checked-time geometric means 
 
 Complete GPU calls improve against prior GPU in all 24 cells, but remain slower than the CPU controls: expert-JS / checked-GPU 0.010× and full Rust-Wasm / checked-GPU 0.029×, with all 24 cells favoring each CPU control. Transfer and scheduling costs dominate this tested size range. Counter instrumentation is charged to GPU calls. These are full-call comparisons, not kernel throughput or a recommendation to always choose GPU.
 
-GPU raw checked calls read back the larger input capacity; heldout checked calls use the graph route and remove two scan buffers, but retain the unused map. CPU heap peak is unmeasured. Output destinations are borrowed in resident cohorts and owned in full-call cohorts. Compile-time proof selection is unchanged; no runtime load/state optimization policy was installed.
+GPU raw checked calls read back the larger input capacity; heldout checked calls also use the single-shader route after both scans are removed, and retain the unused map. Their two declared graph nodes are metadata, not two physical dispatches. CPU heap peak is unmeasured. Output destinations are borrowed in resident cohorts and owned in full-call cohorts. Compile-time proof selection is unchanged; no runtime load/state optimization policy was installed.
 
 ## Evidence and reproduction
 
@@ -74,3 +74,5 @@ Reproduce proof checks with `PYTHONPATH=knowledge:planner INK_PIPELINE33_PROOFS_
 [Observation import](observations.json) records 840 new empirical groups, bringing the total to 22,580. All 21,740 previous observation files retain their exact bytes. [Final verification](verification.json) also verifies the unchanged 122 production sources and frozen compiler. The [independent performance review](review/final-performance-review.json) replays all 672 comparisons from raw samples. Publication does not install a runtime selection or cost-model policy.
 
 The knowledge repository is committed directly on `main` at `8edf20f7a360a044da5bfa247c19fcebfcbc9112`. The distribution integrates that exact submodule pin.
+
+GPU-route wording corrected in batch34: every checked primary function has `graph_required=false`. Original report text is preserved in [batch34 corrections](../web-stack-proofs-34-2026-10-11/corrections/batch33-REPORT-original.md). Recorded targets, timings, counters and analysis are unchanged.

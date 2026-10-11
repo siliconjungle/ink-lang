@@ -1,0 +1,316 @@
+{
+  "status": "passed",
+  "prior_snapshot": "3c78ba2b4059c318afafca2f087c774139c00dc666288c207598b7c91abb2957",
+  "compiler_sha256": "04f42856696cbc9a4d5b0523e4a2c5d9d84ae28e0e039f0fd9c305fe2d0a5536",
+  "model_sha256": "5d1158860dba2b72ab6e632c4eceac76c9589de81a687d446f25044fe88481be",
+  "rows": {
+    "pipeline34_left_projection_u32": {
+      "scope": "exact_batch34_source_API",
+      "source_sha256": "25a68e37dda0a8307dd3ee7cae0a175859d6e103c752d7a008739346915ec5cb",
+      "prior_selection_sha256": "fdac534f178649806b7bbcdd12c5a0cacb6a28e7925d7af6feeac41c9ef38329",
+      "selected_roots": [],
+      "initial_cost": 346,
+      "selected_cost": 346,
+      "changed": false,
+      "body": {
+        "Method": [
+          {
+            "Method": [
+              {
+                "Var": "xs"
+              },
+              "map",
+              [
+                {
+                  "Lambda": [
+                    "x",
+                    {
+                      "Call": [
+                        "discarded_word",
+                        [
+                          {
+                            "Var": "x"
+                          },
+                          {
+                            "Var": "seed"
+                          },
+                          {
+                            "Var": "k"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                }
+              ]
+            ]
+          },
+          "zip",
+          [
+            {
+              "Var": "ys"
+            },
+            {
+              "Lambda": [
+                "unused",
+                {
+                  "Lambda": [
+                    "y",
+                    {
+                      "Call": [
+                        "selected_word",
+                        [
+                          {
+                            "Var": "y"
+                          },
+                          {
+                            "Var": "seed"
+                          },
+                          {
+                            "Var": "k"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        ]
+      }
+    },
+    "pipeline34_right_projection_u32": {
+      "scope": "exact_batch34_source_API",
+      "source_sha256": "5083c23dd37a4c77efc94ac983db69c1edc1c926d84cb0d5c62c98c401344973",
+      "prior_selection_sha256": "4586ee3162c849aac3847337fdf5d067efb5ce67df5c7f4d6fd81f5f7c6d97d6",
+      "selected_roots": [],
+      "initial_cost": 346,
+      "selected_cost": 346,
+      "changed": false,
+      "body": {
+        "Method": [
+          {
+            "Var": "xs"
+          },
+          "zip",
+          [
+            {
+              "Method": [
+                {
+                  "Var": "ys"
+                },
+                "map",
+                [
+                  {
+                    "Lambda": [
+                      "x",
+                      {
+                        "Call": [
+                          "discarded_word",
+                          [
+                            {
+                              "Var": "x"
+                            },
+                            {
+                              "Var": "seed"
+                            },
+                            {
+                              "Var": "k"
+                            }
+                          ]
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              ]
+            },
+            {
+              "Lambda": [
+                "y",
+                {
+                  "Lambda": [
+                    "unused",
+                    {
+                      "Call": [
+                        "selected_word",
+                        [
+                          {
+                            "Var": "y"
+                          },
+                          {
+                            "Var": "seed"
+                          },
+                          {
+                            "Var": "k"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        ]
+      }
+    },
+    "pipeline33_left_projection_heldout_u32": {
+      "scope": "exact_batch34_source_API",
+      "source_sha256": "a01ef988ab9d84408feda33f381848b163ea660fa7a2947f6b3c22b9e2d76372",
+      "prior_selection_sha256": "83b50b666aa08e5d51c3d60dd1e3952d07d568d569dca4defbf51877a530823a",
+      "selected_roots": [
+        "681ebbedc117b1d92e3b19238c45de1737b9f8bddc9916fb59d3b29dae7f0003"
+      ],
+      "initial_cost": 545,
+      "selected_cost": 345,
+      "changed": true,
+      "body": {
+        "Method": [
+          {
+            "Method": [
+              {
+                "Var": "xs"
+              },
+              "map",
+              [
+                {
+                  "Lambda": [
+                    "__ink_bound_0",
+                    {
+                      "Call": [
+                        "discarded_word",
+                        [
+                          {
+                            "Var": "__ink_bound_0"
+                          },
+                          {
+                            "Var": "seed"
+                          },
+                          {
+                            "Var": "k"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                }
+              ]
+            ]
+          },
+          "zip",
+          [
+            {
+              "Var": "ys"
+            },
+            {
+              "Lambda": [
+                "__ink_bound_0",
+                {
+                  "Lambda": [
+                    "__ink_bound_1",
+                    {
+                      "Call": [
+                        "selected_word",
+                        [
+                          {
+                            "Var": "__ink_bound_1"
+                          },
+                          {
+                            "Var": "seed"
+                          },
+                          {
+                            "Var": "k"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        ]
+      }
+    },
+    "pipeline33_right_projection_heldout_u32": {
+      "scope": "exact_batch34_source_API",
+      "source_sha256": "b3361955ada625898979ddfc3c871b297862f25510029de11af96ef6f7441a39",
+      "prior_selection_sha256": "d3af63546873af49c0c08a32ce0149c52826cf3230b4ec9a75b3b58de768daf5",
+      "selected_roots": [
+        "f1017646daada0e82e8a75325144542634fec21a648707f259f12e256045ab3d"
+      ],
+      "initial_cost": 545,
+      "selected_cost": 345,
+      "changed": true,
+      "body": {
+        "Method": [
+          {
+            "Var": "xs"
+          },
+          "zip",
+          [
+            {
+              "Method": [
+                {
+                  "Var": "ys"
+                },
+                "map",
+                [
+                  {
+                    "Lambda": [
+                      "__ink_bound_0",
+                      {
+                        "Call": [
+                          "discarded_word",
+                          [
+                            {
+                              "Var": "__ink_bound_0"
+                            },
+                            {
+                              "Var": "seed"
+                            },
+                            {
+                              "Var": "k"
+                            }
+                          ]
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              ]
+            },
+            {
+              "Lambda": [
+                "__ink_bound_0",
+                {
+                  "Lambda": [
+                    "__ink_bound_1",
+                    {
+                      "Call": [
+                        "selected_word",
+                        [
+                          {
+                            "Var": "__ink_bound_0"
+                          },
+                          {
+                            "Var": "seed"
+                          },
+                          {
+                            "Var": "k"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        ]
+      }
+    }
+  }
+}
