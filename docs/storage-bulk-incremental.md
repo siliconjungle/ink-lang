@@ -65,8 +65,10 @@ arbitrary adjacent state writes or reorder observable intermediate reads.
 The fixed semantic denotation now describes buffer mutations on opaque buffer
 values through their frozen sequence, allowing induction over an owned loop
 accumulator. This adds no primitive, parser form, target pattern or new proof rule.
-The independently implemented evaluator and existing native buffer support are
-unchanged. Arithmetic is not reassociated; moving binary32 values preserves bits.
+The independently implemented evaluator retains the same semantics; literal and
+word-constructor conversion use separate frames so bounded evaluation also fits
+the hardening tests' small stacks. Existing native buffer support is unchanged.
+Arithmetic is not reassociated; moving binary32 values preserves bits.
 
 ## More incremental queries
 
