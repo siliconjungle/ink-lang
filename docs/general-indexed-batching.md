@@ -6,9 +6,21 @@ from checked datatype constructors, rather than a `value`/Boolean field template
 The admitted serializable rows include U64/U32/I32/F32, Bool, Unit, exact Int,
 String, nominal IDs, vectors, lists, options, results, records and enums, including
 nested combinations. `examples/general-indexed.ink` exercises those types and two
-tables with different row types. Table keys remain U64 in the source-transition
-projection. Temporary Buffer/Map ownership values and recursive nominal records
-are outside this source correspondence domain.
+tables with different row types. Indexed keys include U64, U32, I32, Bool,
+UTF-8 strings and nominal 128-bit IDs, using the exact source ordering/equality
+definitions. Bounds and routing implications receive ordinary structural and
+scalar proofs; a producer declaration is never an ordering assumption.
+Temporary Buffer/Map ownership values remain outside persistent row codecs.
+
+Finite recursive nominal records, including mutual recursion through options,
+lists, results and vectors, use a source-derived inductive tree carrier. Distinct
+nominal tags and structural field adapters preserve their source JSON shapes.
+Other wrappers retain ordinary datatypes. The mathematical carrier also has
+totalized behavior for invalid encodings; valid source values are checked at
+explicit codec boundaries. Source correspondence and host codecs remain trusted
+components, separately exercised against the independent reference evaluator.
+Portable schemas use lexically bound references with byte/value/depth limits;
+references add no wire bytes. Snapshot identities still bind the complete source.
 
 The producer examines typed query subexpressions throughout actions. It proposes
 products of independently proved U64 additive and Boolean OR/AND summaries.
@@ -20,15 +32,18 @@ reductions and other expressions without an admitted decomposition retain exact
 source evaluation. Arbitrary predicates do not imply a constant-size summary or
 constant-time query. Failed proposals retain the ordinary baseline.
 
-Database grouped traversal laws cover all four ordered replace/remove pairs.
+Database grouped traversal laws cover all nine ordered insert/replace/remove pairs.
 For keys within a node's range, both edits share a traversal and rebuild metadata
 once per parent. The other branch uses the original sequential definitions.
 The laws preserve logical rows and cache/range/height metadata for arbitrary
 physical roots after repair, including duplicate logical keys. Complete action
 proofs additionally preserve intermediate reads, replies, errors, events,
-versions and rollback. Insertion remains the existing checked rotation algorithm;
-it does not use these non-inserting pair laws. Longer actions can use adjacent
-pairs wherever the translated typed expression exposes them.
+versions and rollback. Insertion-containing pairs share routing and rebuild or
+balance the common parent once; rotations still use the existing checked laws.
+A virtual greater-key query after removal avoids constructing an intermediate
+parent just to choose an insertion branch. Ordered enumeration and duplicate
+keys are included in the obligations. Longer actions can use adjacent pairs
+wherever the translated typed expression exposes them.
 
 State-threading result carriers receive structural encode/decode adapters and
 ordinary round-trip proofs. Pure application values retain their original types.

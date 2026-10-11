@@ -19,6 +19,8 @@ mod local;
 mod flow;
 mod integer;
 mod pure;
+pub(crate) mod recursive_values;
+pub use recursive_values::{RecursiveField,RecursiveRecord};
 pub const SEMANTICS: &str = "ink-action-transition-v1";
 const MAX_DEFINITIONS: usize = 256;
 const MAX_WORK: usize = 20_000;
@@ -187,6 +189,8 @@ pub struct Projection {
     pub state: String,
     pub events: String,
     pub types: BTreeMap<String, Sort>,
+    #[serde(default,skip_serializing_if="BTreeMap::is_empty")]
+    pub recursive_records: BTreeMap<String,RecursiveRecord>,
     pub tables: Vec<Table>,
     pub actions: BTreeMap<String, Action>,
     pub objects: BTreeMap<String, Entry>,
@@ -205,6 +209,10 @@ struct Lower<'a> {
     equalities: BTreeMap<String, String>,
     objects: BTreeMap<String, Entry>,
     types: BTreeMap<String, Sort>,
+    recursive_records: BTreeMap<String,RecursiveRecord>,
+    recursive_tree: Option<String>,
+    tree_codecs: BTreeMap<String,(String,String)>,
+    tree_nth: Option<String>,
     active: BTreeSet<String>,
     tables: Vec<Table>,
     state: String,
@@ -658,6 +666,9 @@ impl Lower<'_> {
                 }
                 let count = self.program.records[name].len();
                 let s = self.sort(ty)?;
+                if self.recursive_records.contains_key(name) {
+                    return self.recursive_record(name,(0..count).map(|i|values.remove(&i).expect("checked record")).collect());
+                }
                 Ok(c(
                     id(&s)?,
                     0,
@@ -672,6 +683,7 @@ impl Lower<'_> {
                 field,
             } => {
                 let r = self.expr(body, *receiver, env, state)?;
+                if self.recursive_records.contains_key(record) {return self.recursive_field(record,*field,r);}
                 let names = (0..self.program.records[record].len())
                     .map(|_| self.fresh())
                     .collect::<Vec<_>>();
@@ -833,6 +845,10 @@ impl Projection {
             equalities: BTreeMap::new(),
             objects: BTreeMap::new(),
             types: BTreeMap::new(),
+            recursive_records: BTreeMap::new(),
+            recursive_tree: None,
+            tree_codecs: BTreeMap::new(),
+            tree_nth: None,
             active: BTreeSet::new(),
             tables: vec![],
             state: String::new(),
@@ -848,6 +864,7 @@ impl Projection {
             loop_fuel: None,
             helper_active: BTreeSet::new(),
         };
+        l.prepare_recursive_records()?;
         // Domain validation includes unused signatures; an unsupported value may
         // not acquire authority just because a branch happens not to evaluate it.
         for a in &p.actions {
@@ -977,6 +994,7 @@ impl Projection {
             state: l.state,
             events: l.events,
             types: l.types,
+            recursive_records: l.recursive_records,
             tables: l.tables,
             actions: descriptions,
             objects: l.objects,
