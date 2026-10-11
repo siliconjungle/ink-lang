@@ -1,6 +1,6 @@
 # Implementation status
 
-Overview reviewed **11 October 2026** against the distribution and its independently
+Overview reviewed **12 October 2026** against the distribution and its independently
 versioned packages. Ink is a working prototype. Execution, proof-based replacement
 and measured performance have different coverage; the full design draft is wider
 than all three. Package changes become distribution features only when their pins
@@ -22,6 +22,14 @@ pure GPU sessions. Broad target component costs and frozen calibration live in t
 planner/knowledge packages, outside proof authority. Their heldout failures prevent
 a default profitability claim. Broad comparisons still trail strong Rust controls;
 measured gains and losses are preserved separately from correctness evidence.
+
+[Mixed adaptive placement](reports/adaptive-placement-2026-10-12/REPORT.md) is
+implemented for compiled pure browser pipelines: bounded planner partition/target
+search, resident GPU groups, native JavaScript bridges, Wasm/JS workers, dependency
+joins, simultaneous feedback, measured cold startup and CPU fallback. Offline
+training and frozen complete-request holdouts are separate from execution.
+Profiles remain opt-in and workload-bound; this closes the implementation gate
+for this pipeline feature, while broad competitive execution remains open.
 
 ## Executable language and targets
 
@@ -99,7 +107,9 @@ it does not establish faster execution. See [the evidence index](BENCHMARKS.md).
 
 [Ordered parallel work, owned partitions, checked recursion and GPU scratch](docs/bend-inspired.md)
 are integrated with executable-core V5. Native Rust uses bounded scoped workers;
-other CPU paths preserve sequential values. Browser and native GPU scratch
+other CPU paths preserve sequential values within each function. The browser
+pipeline runtime can distribute independent pure groups across bounded Wasm/JS
+workers. Browser and native GPU scratch
 support bounded split/rejoin and push within 64 elements; resident graph feedback
 preserves capacity and simultaneous assignments. Unsupported cases retain
 compiled CPU fallback. Guarded self
@@ -123,7 +133,7 @@ contracts before relying on them.
 | --- | --- | --- |
 | Incremental maintenance costs | Further attribution of plan copying, complete-state transport and validation; broader read/write and lifetime studies | Demonstrate repeatable complete-session gains before generalising cache control; measured small fixtures favour direct lookup |
 | Physical execution | Conservative facts through composed functions, less intermediate allocation/copying and prepared resources | Correctness checks plus complete-call gains on independently varied sizes, shapes and distributions |
-| Profitability and adaptation | Diagnosis of composed-helper regressions, target component costs and saved-profile/static backend policies | Independent evaluation, full selection/setup/transfer costs and stable bounded decisions without repeating effectful actions |
+| Broader profitability | Generalise completed saved-profile mixed placement to unfamiliar workloads and representation lifecycles | Independent program/distribution evaluation and repeatable complete-session gains; no speculative effect execution |
 
 ## Ambition and assurance
 
