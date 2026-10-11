@@ -82,6 +82,10 @@ jobs:
         run: |
           node --test runtime/tests/backend-selection.mjs runtime/tests/durable-state.mjs
           node lowerings/gpu/tests/device_graph.mjs
+      - name: Reauthor current source fixtures through normal proof admission
+        run: |
+          cargo build --release --bin ink
+          python3 bench/composable-state/prepare-fixtures.py --compiler target/release/ink
       - name: Independent core and source-bound value admission
         run: |
           cargo test --manifest-path core/Cargo.toml --offline
