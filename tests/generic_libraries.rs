@@ -65,6 +65,42 @@ fn external_generic_libraries_have_deterministic_semantics_and_backend_parity() 
             json!([[{"key":2,"value":20},{"key":1,"value":10}],[{"key":2,"value":true},{"key":2,"value":false}]]),
             json!([{"key":2,"left":20,"right":true},{"key":2,"left":20,"right":false}]),
         ),
+        (
+            "joined_indexed",
+            json!([[{"key":2,"value":20},{"key":1,"value":10},{"key":2,"value":21}],[{"key":2,"value":true},{"key":1,"value":false},{"key":2,"value":false}]]),
+            json!([{"key":2,"left":20,"right":true},{"key":2,"left":20,"right":false},{"key":1,"left":10,"right":false},{"key":2,"left":21,"right":true},{"key":2,"left":21,"right":false}]),
+        ),
+        (
+            "joined_indexed",
+            json!([[],[{"key":2,"value":true}]]),
+            json!([]),
+        ),
+        (
+            "joined_indexed",
+            json!([[{"key":2,"value":20}],[]]),
+            json!([]),
+        ),
+        ("paired", json!([[1, 2, 3]]), json!({"first":6,"second":45})),
+        ("paired", json!([[]]), json!({"first":0,"second":1})),
+        ("smallest", json!([[9, 1, 3, 1, 7], 3]), json!([1, 1, 3])),
+        ("smallest", json!([[9, 1, 3], 0]), json!([])),
+        (
+            "smallest",
+            json!([[9, 1, 3], 4294967295u32]),
+            json!([1, 3, 9]),
+        ),
+        ("smallest", json!([[], 3]), json!([])),
+        (
+            "ranked",
+            json!([[{"key":2,"value":20},{"key":1,"value":10},{"key":1,"value":11},{"key":2,"value":21}],3]),
+            json!([{"key":1,"value":10},{"key":1,"value":11},{"key":2,"value":20}]),
+        ),
+        (
+            "grouped_totals",
+            json!([[{"key":2,"value":1},{"key":1,"value":4},{"key":2,"value":2},{"key":2,"value":3}]]),
+            json!([{"key":2,"totals":{"first":6,"second":45}},{"key":1,"totals":{"first":4,"second":7}}]),
+        ),
+        ("grouped_totals", json!([[]]), json!([])),
         ("transformed", json!([[1, 2, 3], 10]), json!([11, 12, 13])),
         ("total", json!([[1, 2, 3]]), json!(6)),
     ];

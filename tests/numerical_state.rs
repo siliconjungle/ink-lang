@@ -24,9 +24,16 @@ fn numerical_actions_have_explicit_version_and_no_float_proof_authority() {
         .unwrap(),
     )
     .unwrap();
-    CheckedActions::from_bytes(
+    // The archived fixture predates the parser's current control-flow lowering.
+    // Preserve its original bytes and reject its stale source binding.
+    assert!(CheckedActions::from_bytes(
         &archived,
         include_bytes!("fixtures/typed-actions-v1-numerical-baseline.json"),
+    )
+    .is_err());
+    CheckedActions::from_bytes(
+        &archived,
+        include_bytes!("fixtures/typed-actions-v1-current-control.json"),
     )
     .unwrap();
     let mut old = wire;

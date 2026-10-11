@@ -616,6 +616,16 @@ impl Lower<'_> {
                     .collect::<LangResult<Vec<_>>>()?;
                 self.division(ty, name, xs[0].clone(), xs[1].clone(), xs[2].clone())
             }
+            Kind::Builtin { name, arguments } if name == "choose" => {
+                let [condition, on_true, on_false] = arguments.as_slice() else {
+                    return Err("action model choose arity".into());
+                };
+                Ok(choice(
+                    self.expr(body, *condition, env, state)?,
+                    self.expr(body, *on_true, env, state)?,
+                    self.expr(body, *on_false, env, state)?,
+                ))
+            }
             Kind::Builtin { name, arguments } if ["count", "sum"].contains(&name.as_str()) => {
                 self.reduce_expr(body, name, arguments, env, state)
             }
