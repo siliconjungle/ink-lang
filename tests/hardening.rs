@@ -344,7 +344,8 @@ fn regression_eval_scope_is_not_copied_per_element() {
     let p = syntax::parse(
         "module m;
          fn f(xs: List<u64>) -> u64 { return sum(xs.map(fn(x) => x * 3 + 1).filter(fn(y) => y > 10)); }
-         fn g(xs: List<u64>) -> u64 { return foldr(xs, 0, fn(x) => fn(r) => x + r); }",
+         fn g(xs: List<u64>) -> u64 { return foldr(xs, 0, fn(x) => fn(r) => x + r); }
+         fn h(xs: List<u64>) -> u64 { return fold_until(xs, 0, fn(x) => fn(r) => false, fn(x) => fn(r) => x + r); }",
     )
     .unwrap();
     bounded("eval-scope", 20, || {
@@ -352,8 +353,10 @@ fn regression_eval_scope_is_not_copied_per_element() {
         let want: u64 = (0..n).map(|x| x * 3 + 1).filter(|y| *y > 10).sum();
         let got = eval::call(&p, "f", vec![u64_list(n)], &mut 100_000_000)?;
         assert_eq!(got, eval::Value::U64(want));
-        let got = eval::call(&p, "g", vec![u64_list(n)], &mut 100_000_000)?;
-        assert_eq!(got, eval::Value::U64(n * (n - 1) / 2));
+        for function in ["g", "h"] {
+            let got = eval::call(&p, function, vec![u64_list(n)], &mut 100_000_000)?;
+            assert_eq!(got, eval::Value::U64(n * (n - 1) / 2));
+        }
         Ok(())
     });
 }
@@ -486,10 +489,10 @@ fn regression_eval_compute_values_charge_copies_and_preserve_context() {
             .iter_mut()
             .find(|f| f.name == "positives")
             .unwrap()
-            .result = Type::U64;
+            .body = syntax::parse("module bad; fn f(xs:List<u32>)->u32{return foldr(xs,0,fn(x)=>fn(r)=>choose(x>0,true,r));}").unwrap().functions.remove(0).body;
         assert!(
             CheckedModule::from_source(invalid).is_err(),
-            "the current fold subset requires matching element and accumulator types"
+            "a Boolean step cannot produce the declared numeric accumulator"
         );
         let rows = |n| {
             eval::Value::List(

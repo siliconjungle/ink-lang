@@ -308,41 +308,7 @@ fn expr(
             evaluate_array_operation(e, frame, fuel, ty)
         }
         Expr::Call(n, _) if n == "choose" => evaluate_choose(e, frame, fuel, ty),
-        Expr::Call(n, args) if n == "fold_until" => {
-            let Value::List(xs) = expr(&args[0], env, types, p, fuel, None, depth)? else {
-                return Err("fold_until needs a list".into());
-            };
-            let mut acc = expr(&args[1], env, types, p, fuel, Some(&ty), depth)?;
-            let Type::List(item_type) = crate::check::infer(&args[0], types, p)? else {
-                unreachable!()
-            };
-            for x in xs {
-                let mut run = |callback: &Expr, output: &Type| -> LangResult<Value> {
-                    let Expr::Lambda(item, inner) = callback else {
-                        return Err("fold_until lambda".into());
-                    };
-                    let Expr::Lambda(state, body) = inner.as_ref() else {
-                        return Err("fold_until nested lambda".into());
-                    };
-                    let mut local = copy_env(env, fuel)?;
-                    let mut local_types = types.clone();
-                    local.insert(item.clone(), x.clone());
-                    local_types.insert(item.clone(), (*item_type).clone());
-                    local.insert(state.clone(), acc.clone());
-                    local_types.insert(state.clone(), ty.clone());
-                    expr(body, &local, &local_types, p, fuel, Some(output), depth)
-                };
-                let Value::Bool(stopped) = run(&args[2], &Type::Bool)? else {
-                    return Err("fold_until stop condition".into());
-                };
-                let next = run(&args[3], &ty)?;
-                acc = next;
-                if stopped {
-                    break;
-                }
-            }
-            Ok(acc)
-        }
+        Expr::Call(n, _) if n == "fold_until" => evaluate_fold_until(e, frame, fuel, ty),
         Expr::Call(n, _) if n == "foldr" => evaluate_foldr(e, frame, fuel, ty),
         Expr::Num(n) => Ok(if ty == Type::I32 {
             Value::I32(*n as i32)
@@ -772,6 +738,46 @@ fn evaluate_choose(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> Lang
         }
         _ => unreachable!("expression dispatch"),
     }
+}
+
+#[inline(never)]
+fn evaluate_fold_until(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> LangResult<Value> {
+    let Frame { env, types, p, depth } = frame;
+    let Expr::Call(_, args) = e else { unreachable!("expression dispatch") };
+    if args.len() != 4 { return Err("fold_until argument count".into()); }
+    let Value::List(xs) = expr(&args[0], env, types, p, fuel, None, depth)? else {
+        return Err("fold_until needs a list".into());
+    };
+    let mut acc = expr(&args[1], env, types, p, fuel, Some(&ty), depth)?;
+    let Type::List(item_type) = crate::check::infer(&args[0], types, p)? else {
+        return Err("fold_until needs a list".into());
+    };
+    let Expr::Lambda(stop_item, stop_inner) = &args[2] else { return Err("fold_until lambda".into()); };
+    let Expr::Lambda(stop_state, stop_body) = stop_inner.as_ref() else { return Err("fold_until nested lambda".into()); };
+    let Expr::Lambda(step_item, step_inner) = &args[3] else { return Err("fold_until lambda".into()); };
+    let Expr::Lambda(step_state, step_body) = step_inner.as_ref() else { return Err("fold_until nested lambda".into()); };
+    // Capture the enclosing scope once, as foldr does. Both callbacks observe
+    // the old accumulator; only the stop callback needs copies of moved values.
+    let mut stop_env = copy_env(env, fuel)?;
+    let mut step_env = copy_env(env, fuel)?;
+    let mut stop_types = types.clone();
+    stop_types.insert(stop_item.clone(), (*item_type).clone());
+    stop_types.insert(stop_state.clone(), ty.clone());
+    let mut step_types = types.clone();
+    step_types.insert(step_item.clone(), *item_type);
+    step_types.insert(step_state.clone(), ty.clone());
+    for x in xs {
+        stop_env.insert(stop_item.clone(), copy_value(&x, fuel)?);
+        stop_env.insert(stop_state.clone(), copy_value(&acc, fuel)?);
+        let Value::Bool(stopped) = expr(stop_body, &stop_env, &stop_types, p, fuel, Some(&Type::Bool), depth)? else {
+            return Err("fold_until stop condition".into());
+        };
+        step_env.insert(step_item.clone(), x);
+        step_env.insert(step_state.clone(), acc);
+        acc = expr(step_body, &step_env, &step_types, p, fuel, Some(&ty), depth)?;
+        if stopped { break; }
+    }
+    Ok(acc)
 }
 
 #[inline(never)]

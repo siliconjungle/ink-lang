@@ -35,3 +35,12 @@ Chrome/WebGPU, worker receipts and all 19 mandatory CPU suites. Their result mus
 be checked before distribution merge. These tests are not compiler-correctness
 proofs. Full GPU device coverage remains distinct from eligible kernels and CPU
 host execution; unrestricted device gaps remain explicit in the inventory.
+
+The first hosted replay exposed two additional integration defects. Inline
+fold-until evaluation enlarged every recursive expression frame enough to exceed
+the bounded Linux stack. Its evaluator now has a separate non-inlined frame,
+captures the enclosing scope once, and charges callback value copies. All five
+small-stack evaluator regressions pass locally, including a 200000-element
+nonterminating fold-until traversal. The old mixed-fold rejection assertion was
+updated to reject a Boolean step in a numeric fold; mixed accumulator types are
+now supported and retain dedicated cross-target conformance.
