@@ -7,7 +7,7 @@ use std::{
     sync::Arc,
 };
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub enum Sort {
     Bool,
@@ -15,7 +15,7 @@ pub enum Sort {
     Data(String),
     SelfType,
 }
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub enum Term {
     Var(String),
@@ -46,13 +46,13 @@ pub enum Term {
         branches: Vec<Branch>,
     },
 }
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Branch {
     pub bindings: Vec<String>,
     pub body: Term,
 }
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Equation {
     pub from: Term,
@@ -90,6 +90,15 @@ pub enum Proof {
         to: Term,
         on_false: Box<Proof>,
         on_true: Box<Proof>,
+    },
+    /// Exhaustive elimination of an inductive value, without granting any
+    /// induction hypothesis. Each branch gets only scrutinee = constructor.
+    /// This also permits case analysis beneath existing conditional premises.
+    Cases {
+        scrutinee: Term,
+        from: Term,
+        to: Term,
+        cases: Vec<Case>,
     },
     Refl(Term),
     Convert {
@@ -216,12 +225,22 @@ pub enum Declaration {
 struct Budget {
     remaining: usize,
     bit_work: usize,
+    normal_cache: std::collections::HashMap<Term, Term>,
+    normal_cache_nodes: usize,
+    normal_context: Option<usize>,
+    prepared_cache: Vec<(usize, Env, Equation, Equation, usize)>,
+    prepared_nodes: usize,
 }
 impl Budget {
     fn new() -> Self {
         Self {
             remaining: 100_000,
             bit_work: 20_000_000,
+            normal_cache: std::collections::HashMap::new(),
+            normal_cache_nodes: 0,
+            normal_context: None,
+            prepared_cache: Vec::new(),
+            prepared_nodes: 0,
         }
     }
     fn step(&mut self, depth: usize) -> LangResult<()> {
@@ -448,28 +467,34 @@ impl Context {
         }
         fn collect(
             entry: &Arc<Entry>,
-            all: &mut BTreeMap<String, Arc<Entry>>,
+            existing: &BTreeMap<String, Arc<Entry>>,
+            pending: &mut BTreeMap<String, Arc<Entry>>,
             depth: usize,
         ) -> LangResult<()> {
-            if let Some(old) = all.get(&entry.id) {
+            if let Some(old) = existing.get(&entry.id).or_else(|| pending.get(&entry.id)) {
                 if Arc::ptr_eq(old, entry) {
                     return Ok(());
                 }
                 return Err("conflicting checked logic identity".into());
             }
-            if depth > 64 || all.len() >= 512 {
+            if depth > 64 || existing.len() + pending.len() >= crate::registry::MAX_VIEW_ENTRIES {
                 return Err("logic context closure limit".into());
             }
             for dep in &entry.dependencies {
-                collect(dep, all, depth + 1)?
+                collect(dep, existing, pending, depth + 1)?
             }
-            all.insert(entry.id.clone(), entry.clone());
+            // Dependencies may have filled the remaining capacity.
+            if existing.len() + pending.len() >= crate::registry::MAX_VIEW_ENTRIES {
+                return Err("logic context closure limit".into());
+            }
+            pending.insert(entry.id.clone(), entry.clone());
             Ok(())
         }
-        // Transactional: a failed import cannot leave an enlarged hidden context.
-        let mut all = self.all.clone();
-        collect(&entry, &mut all, 0)?;
-        self.all = all;
+        // Stage only new entries. A failed import leaves both contexts unchanged,
+        // without copying the already checked dependency closure on each import.
+        let mut pending = BTreeMap::new();
+        collect(&entry, &self.all, &mut pending, 0)?;
+        self.all.extend(pending);
         self.visible.insert(entry.id.clone(), entry);
         Ok(())
     }
@@ -568,7 +593,12 @@ impl Context {
             } => {
                 let statement = self.statement(params, conditions, from, to, &mut budget)?;
                 let (env, hypotheses, equation) = &statement;
-                if derive(proof, env, self, hypotheses, &[], &mut budget, 0)? != *equation {
+                if !same_equation(
+                    &derive(proof, env, self, hypotheses, &[], &mut budget, 0)?,
+                    equation,
+                    self,
+                    &mut budget,
+                )? {
                     return Err("inductive proof proves a different statement".into());
                 }
                 statement_references(params, conditions, from, to, &mut references);
@@ -638,15 +668,16 @@ impl Context {
         }
         let hypotheses = conditions
             .iter()
-            .map(|e| prepare(e, &env, self, budget))
+            .map(|e| raw_pair(e.clone(), &env, self, false, budget))
             .collect::<LangResult<Vec<_>>>()?;
-        let equation = prepare(
-            &Equation {
+        let equation = raw_pair(
+            Equation {
                 from: from.clone(),
                 to: to.clone(),
             },
             &env,
             self,
+            false,
             budget,
         )?;
         Ok((env, hypotheses, equation))
@@ -664,7 +695,12 @@ impl Context {
     ) -> LangResult<()> {
         let mut budget = Budget::new();
         let (env, hypotheses, want) = self.statement(params, conditions, from, to, &mut budget)?;
-        if derive(proof, &env, self, &hypotheses, &[], &mut budget, 0)? != want {
+        if !same_equation(
+            &derive(proof, &env, self, &hypotheses, &[], &mut budget, 0)?,
+            &want,
+            self,
+            &mut budget,
+        )? {
             return Err("inductive proof proves a different statement".into());
         }
         let mut references = BTreeSet::new();
@@ -1159,8 +1195,379 @@ fn substitute(
         _ => t.clone(),
     })
 }
+/// Expose an elimination discriminator without normalising constructor fields.
+/// All terms are checked before conversion. This only changes evaluation order
+/// for the existing total definitions; it introduces no equations or axioms.
+fn head(t: &Term, c: &Context, budget: &mut Budget, depth: usize) -> LangResult<Term> {
+    budget.step(depth)?;
+    match t {
+        Term::Call {
+            function,
+            arguments,
+        } => {
+            let Kind::Function(f) = &c.entry(function, true)?.kind else {
+                budget.copy(t)?;
+                return Ok(t.clone());
+            };
+            for argument in arguments {
+                budget.copy(argument)?;
+            }
+            let mut args = arguments.clone();
+            if let Some(i) = f.recursive {
+                args[i] = head(&args[i], c, budget, depth + 1)?;
+                if !matches!(args[i], Term::Construct { .. }) {
+                    return Ok(Term::Call {
+                        function: function.clone(),
+                        arguments: args,
+                    });
+                }
+            }
+            let bindings = f.params.iter().map(|p| p.0.clone()).zip(args).collect();
+            head(
+                &substitute(&f.body, &bindings, budget, depth + 1)?,
+                c,
+                budget,
+                depth + 1,
+            )
+        }
+        Term::Match {
+            scrutinee,
+            branches,
+        } => {
+            let value = head(scrutinee, c, budget, depth + 1)?;
+            if let Term::Construct {
+                constructor,
+                arguments,
+                ..
+            } = value
+            {
+                let branch = branches
+                    .get(constructor)
+                    .ok_or("unknown match constructor")?;
+                let bindings = branch.bindings.iter().cloned().zip(arguments).collect();
+                head(
+                    &substitute(&branch.body, &bindings, budget, depth + 1)?,
+                    c,
+                    budget,
+                    depth + 1,
+                )
+            } else {
+                for b in branches {
+                    budget.copy(&b.body)?;
+                }
+                Ok(Term::Match {
+                    scrutinee: Box::new(value),
+                    branches: branches.clone(),
+                })
+            }
+        }
+        Term::If {
+            condition,
+            on_true,
+            on_false,
+        } => {
+            let value = head(condition, c, budget, depth + 1)?;
+            match value {
+                Term::Bool(true) => head(on_true, c, budget, depth + 1),
+                Term::Bool(false) => head(on_false, c, budget, depth + 1),
+                _ => {
+                    budget.copy(on_true)?;
+                    budget.copy(on_false)?;
+                    Ok(Term::If {
+                        condition: Box::new(value),
+                        on_true: on_true.clone(),
+                        on_false: on_false.clone(),
+                    })
+                }
+            }
+        }
+        Term::Binary { op, left, right } => {
+            let a = head(left, c, budget, depth + 1)?;
+            if !matches!(a, Term::Bool(_) | Term::U64(_)) {
+                budget.copy(t)?;
+                return Ok(t.clone());
+            }
+            let b = head(right, c, budget, depth + 1)?;
+            if !matches!(b, Term::Bool(_) | Term::U64(_)) {
+                budget.copy(t)?;
+                return Ok(t.clone());
+            }
+            normal(
+                &Term::Binary {
+                    op: op.clone(),
+                    left: Box::new(a),
+                    right: Box::new(b),
+                },
+                c,
+                budget,
+                depth + 1,
+            )
+        }
+        Term::Construct { .. } => {
+            budget.copy(t)?;
+            Ok(t.clone())
+        }
+        _ => normal(t, c, budget, depth + 1),
+    }
+}
+/// A demand-driven computation strategy for the same fixed total definitions.
+/// The weaker strategy retains stuck branches; the stronger strategy also
+/// computes their bodies. Both only perform fixed, type-checked reductions.
+/// Equal results suffice for conversion; weak results are never assumed canonical.
+fn compute_mode(
+    t: &Term,
+    c: &Context,
+    budget: &mut Budget,
+    depth: usize,
+    reduce_branches: bool,
+) -> LangResult<Term> {
+    budget.step(depth)?;
+    match t {
+        Term::Call {
+            function,
+            arguments,
+        } => {
+            let Kind::Function(f) = &c.entry(function, true)?.kind else {
+                return Ok(Term::Call {
+                    function: function.clone(),
+                    arguments: arguments
+                        .iter()
+                        .map(|a| compute_mode(a, c, budget, depth + 1, reduce_branches))
+                        .collect::<LangResult<_>>()?,
+                });
+            };
+            for a in arguments {
+                budget.copy(a)?;
+            }
+            let mut args = arguments.clone();
+            if let Some(i) = f.recursive {
+                args[i] = head(&args[i], c, budget, depth + 1)?;
+                if !matches!(args[i], Term::Construct { .. }) {
+                    return Ok(Term::Call {
+                        function: function.clone(),
+                        arguments: args
+                            .iter()
+                            .map(|a| compute_mode(a, c, budget, depth + 1, reduce_branches))
+                            .collect::<LangResult<_>>()?,
+                    });
+                }
+            }
+            let bindings = f.params.iter().map(|p| p.0.clone()).zip(args).collect();
+            compute_mode(
+                &substitute(&f.body, &bindings, budget, depth + 1)?,
+                c,
+                budget,
+                depth + 1,
+                reduce_branches,
+            )
+        }
+        Term::Match {
+            scrutinee,
+            branches,
+        } => {
+            let value = head(scrutinee, c, budget, depth + 1)?;
+            if let Term::Construct {
+                constructor,
+                arguments,
+                ..
+            } = value
+            {
+                let branch = branches
+                    .get(constructor)
+                    .ok_or("unknown match constructor")?;
+                let bindings = branch.bindings.iter().cloned().zip(arguments).collect();
+                compute_mode(
+                    &substitute(&branch.body, &bindings, budget, depth + 1)?,
+                    c,
+                    budget,
+                    depth + 1,
+                    reduce_branches,
+                )
+            } else {
+                let branches = if reduce_branches {
+                    branches
+                        .iter()
+                        .map(|b| {
+                            Ok(Branch {
+                                bindings: b.bindings.clone(),
+                                body: compute_mode(&b.body, c, budget, depth + 1, true)?,
+                            })
+                        })
+                        .collect::<LangResult<_>>()?
+                } else {
+                    for b in branches {
+                        budget.copy(&b.body)?;
+                    }
+                    branches.clone()
+                };
+                Ok(Term::Match {
+                    scrutinee: Box::new(compute_mode(
+                        &value,
+                        c,
+                        budget,
+                        depth + 1,
+                        reduce_branches,
+                    )?),
+                    branches,
+                })
+            }
+        }
+        Term::If {
+            condition,
+            on_true,
+            on_false,
+        } => {
+            let condition = compute_mode(condition, c, budget, depth + 1, reduce_branches)?;
+            match condition {
+                Term::Bool(true) => compute_mode(on_true, c, budget, depth + 1, reduce_branches),
+                Term::Bool(false) => compute_mode(on_false, c, budget, depth + 1, reduce_branches),
+                _ => Ok(Term::If {
+                    condition: Box::new(condition),
+                    on_true: Box::new(compute_mode(
+                        on_true,
+                        c,
+                        budget,
+                        depth + 1,
+                        reduce_branches,
+                    )?),
+                    on_false: Box::new(compute_mode(
+                        on_false,
+                        c,
+                        budget,
+                        depth + 1,
+                        reduce_branches,
+                    )?),
+                }),
+            }
+        }
+        Term::Construct {
+            datatype,
+            constructor,
+            arguments,
+        } => Ok(Term::Construct {
+            datatype: datatype.clone(),
+            constructor: *constructor,
+            arguments: arguments
+                .iter()
+                .map(|a| compute_mode(a, c, budget, depth + 1, reduce_branches))
+                .collect::<LangResult<_>>()?,
+        }),
+        Term::Binary { op, left, right } => {
+            let a = compute_mode(left, c, budget, depth + 1, reduce_branches)?;
+            let b = compute_mode(right, c, budget, depth + 1, reduce_branches)?;
+            let literal = matches!(a, Term::U64(_) | Term::Bool(_))
+                && matches!(b, Term::U64(_) | Term::Bool(_));
+            let value = Term::Binary {
+                op: op.clone(),
+                left: Box::new(a),
+                right: Box::new(b),
+            };
+            if literal {
+                normal(&value, c, budget, depth + 1)
+            } else {
+                Ok(value)
+            }
+        }
+        Term::SelfCall(_) => Err("unbound recursive call in computation".into()),
+        _ => Ok(t.clone()),
+    }
+}
+fn bounded_nodes(t: &Term, limit: usize) -> Option<usize> {
+    let mut pending = vec![(t, 0usize)];
+    let mut count = 0;
+    while let Some((t, depth)) = pending.pop() {
+        count += 1;
+        if count > limit || depth > 64 {
+            return None;
+        }
+        match t {
+            Term::Construct { arguments, .. }
+            | Term::Call { arguments, .. }
+            | Term::SelfCall(arguments) => pending.extend(arguments.iter().map(|t| (t, depth + 1))),
+            Term::Binary { left, right, .. } => {
+                pending.extend([(&**left, depth + 1), (&**right, depth + 1)])
+            }
+            Term::If {
+                condition,
+                on_true,
+                on_false,
+            } => pending.extend([
+                (&**condition, depth + 1),
+                (&**on_true, depth + 1),
+                (&**on_false, depth + 1),
+            ]),
+            Term::Match {
+                scrutinee,
+                branches,
+            } => {
+                pending.push((&**scrutinee, depth + 1));
+                pending.extend(branches.iter().map(|b| (&b.body, depth + 1)));
+            }
+            _ => {}
+        }
+    }
+    Some(count)
+}
+
 fn normal(t: &Term, c: &Context, budget: &mut Budget, depth: usize) -> LangResult<Term> {
     budget.step(depth)?;
+    // Only immutable, locally checked definitions compute here. The cache is
+    // private to this bounded operation and is reset on a context change. Hash
+    // collisions still compare complete typed terms; hashes grant no authority.
+    let context = c as *const Context as usize;
+    if budget.normal_context != Some(context) {
+        budget.normal_cache.clear();
+        budget.normal_cache_nodes = 0;
+        budget.normal_context = Some(context);
+    }
+    if depth <= 64 && !matches!(t, Term::Var(_) | Term::Bool(_) | Term::U64(_)) {
+        if let Some(value) = budget.normal_cache.get(t) {
+            let nodes = bounded_nodes(value, 65536).ok_or("inductive logic memo limit")?;
+            budget.remaining = budget
+                .remaining
+                .checked_sub(nodes)
+                .ok_or("inductive logic resource limit")?;
+            return Ok(value.clone());
+        }
+    }
+    let started = budget.remaining;
+    let value = normal_uncached(t, c, budget, depth)?;
+    if started.saturating_sub(budget.remaining) >= 32
+        && depth <= 64
+        && !matches!(t, Term::Var(_) | Term::Bool(_) | Term::U64(_))
+        && budget.normal_cache.len() < 128
+    {
+        if let (Some(a), Some(b)) = (bounded_nodes(t, 65536), bounded_nodes(&value, 65536)) {
+            if budget.normal_cache_nodes + a + b <= 131072 {
+                budget.normal_cache.insert(t.clone(), value.clone());
+                budget.normal_cache_nodes += a + b;
+            }
+        }
+    }
+    Ok(value)
+}
+fn normal_uncached(t: &Term, c: &Context, budget: &mut Budget, depth: usize) -> LangResult<Term> {
+    let scalar_projection = match t {
+        Term::Call { function, .. } => {
+            matches!(&c.entry(function,true)?.kind,Kind::Function(f) if f.recursive.is_none() && matches!(f.result,Sort::Bool|Sort::U64) && match &f.body {
+                Term::Var(_)|Term::U64(_)|Term::Bool(_)=>true,
+                Term::Match{branches,..}=>branches.iter().all(|b|matches!(b.body,Term::Var(_)|Term::U64(_)|Term::Bool(_))),
+                _=>false,
+            })
+        }
+        Term::Match { branches, .. } => branches
+            .iter()
+            .all(|b| matches!(b.body, Term::Var(_) | Term::U64(_) | Term::Bool(_))),
+        _ => false,
+    };
+    if scalar_projection {
+        let exposed = head(t, c, budget, depth + 1)?;
+        // Primitive atoms have a unique normal form. A stuck elimination must
+        // use ordinary argument normalisation to preserve lexical canonicality.
+        if matches!(exposed, Term::Var(_) | Term::Bool(_) | Term::U64(_)) {
+            return Ok(exposed);
+        }
+    }
     match t {
         Term::Call {
             function,
@@ -1172,7 +1579,6 @@ fn normal(t: &Term, c: &Context, budget: &mut Budget, depth: usize) -> LangResul
                 .collect::<LangResult<Vec<_>>>()?;
             let f = match &c.entry(function, true)?.kind {
                 Kind::Function(f) => f,
-                // An uninterpreted function never computes.
                 Kind::AbstractFunction(..) => {
                     return Ok(Term::Call {
                         function: function.clone(),
@@ -1318,6 +1724,9 @@ fn typed_pair(
 // Free variables are preserved, including internal names, so canonicalisation
 // cannot turn variable capture into an equality.
 fn alpha_normal(t: Term, budget: &mut Budget) -> LangResult<Term> {
+    alpha_normal_impl(t, budget, false)
+}
+fn alpha_normal_impl(t: Term, budget: &mut Budget, public_free: bool) -> LangResult<Term> {
     fn free(
         t: &Term,
         bound: &BTreeSet<String>,
@@ -1370,7 +1779,7 @@ fn alpha_normal(t: Term, budget: &mut Budget) -> LangResult<Term> {
         Ok(())
     }
     fn rename(
-        t: &Term,
+        mut t: Term,
         env: &BTreeMap<String, String>,
         avoid: &BTreeSet<String>,
         next: &mut usize,
@@ -1378,60 +1787,42 @@ fn alpha_normal(t: Term, budget: &mut Budget) -> LangResult<Term> {
         depth: usize,
     ) -> LangResult<Term> {
         budget.step(depth)?;
-        Ok(match t {
-            Term::Var(n) => Term::Var(env.get(n).unwrap_or(n).clone()),
-            Term::Binary { op, left, right } => Term::Binary {
-                op: op.clone(),
-                left: Box::new(rename(left, env, avoid, next, budget, depth + 1)?),
-                right: Box::new(rename(right, env, avoid, next, budget, depth + 1)?),
-            },
-            Term::Construct {
-                datatype,
-                constructor,
-                arguments,
-            } => Term::Construct {
-                datatype: datatype.clone(),
-                constructor: *constructor,
-                arguments: arguments
-                    .iter()
-                    .map(|a| rename(a, env, avoid, next, budget, depth + 1))
-                    .collect::<LangResult<_>>()?,
-            },
-            Term::Call {
-                function,
-                arguments,
-            } => Term::Call {
-                function: function.clone(),
-                arguments: arguments
-                    .iter()
-                    .map(|a| rename(a, env, avoid, next, budget, depth + 1))
-                    .collect::<LangResult<_>>()?,
-            },
-            Term::SelfCall(arguments) => Term::SelfCall(
-                arguments
-                    .iter()
-                    .map(|a| rename(a, env, avoid, next, budget, depth + 1))
-                    .collect::<LangResult<_>>()?,
-            ),
+        let take = |t: &mut Term| std::mem::replace(t, Term::Bool(false));
+        match &mut t {
+            Term::Var(n) => {
+                if let Some(fresh) = env.get(n) {
+                    *n = fresh.clone();
+                }
+            }
+            Term::Construct { arguments, .. }
+            | Term::Call { arguments, .. }
+            | Term::SelfCall(arguments) => {
+                for a in arguments {
+                    *a = rename(take(a), env, avoid, next, budget, depth + 1)?;
+                }
+            }
+            Term::Binary { left, right, .. } => {
+                for a in [left, right] {
+                    **a = rename(take(a), env, avoid, next, budget, depth + 1)?;
+                }
+            }
             Term::If {
                 condition,
                 on_true,
                 on_false,
-            } => Term::If {
-                condition: Box::new(rename(condition, env, avoid, next, budget, depth + 1)?),
-                on_true: Box::new(rename(on_true, env, avoid, next, budget, depth + 1)?),
-                on_false: Box::new(rename(on_false, env, avoid, next, budget, depth + 1)?),
-            },
+            } => {
+                for a in [condition, on_true, on_false] {
+                    **a = rename(take(a), env, avoid, next, budget, depth + 1)?;
+                }
+            }
             Term::Match {
                 scrutinee,
                 branches,
             } => {
-                let scrutinee = Box::new(rename(scrutinee, env, avoid, next, budget, depth + 1)?);
-                let mut cases = Vec::new();
-                for b in branches {
+                **scrutinee = rename(take(scrutinee), env, avoid, next, budget, depth + 1)?;
+                for branch in branches {
                     let mut local = env.clone();
-                    let mut bindings = Vec::new();
-                    for old in &b.bindings {
+                    for name in &mut branch.bindings {
                         let fresh = loop {
                             let n = format!("$a{}", *next);
                             *next += 1;
@@ -1439,43 +1830,188 @@ fn alpha_normal(t: Term, budget: &mut Budget) -> LangResult<Term> {
                                 break n;
                             }
                         };
-                        local.insert(old.clone(), fresh.clone());
-                        bindings.push(fresh);
+                        local.insert(name.clone(), fresh.clone());
+                        *name = fresh;
                     }
-                    cases.push(Branch {
-                        bindings,
-                        body: rename(&b.body, &local, avoid, next, budget, depth + 1)?,
-                    });
-                }
-                Term::Match {
-                    scrutinee,
-                    branches: cases,
+                    branch.body = rename(
+                        take(&mut branch.body),
+                        &local,
+                        avoid,
+                        next,
+                        budget,
+                        depth + 1,
+                    )?;
                 }
             }
-            _ => t.clone(),
-        })
+            _ => {}
+        }
+        Ok(t)
     }
     if matches!(t, Term::Var(_) | Term::Bool(_) | Term::U64(_)) {
         return Ok(t);
     }
     let mut avoid = BTreeSet::new();
     let mut has_match = false;
-    free(&t, &BTreeSet::new(), &mut avoid, &mut has_match, budget, 0)?;
-    if !has_match {
-        return Ok(t);
+    if !public_free {
+        free(&t, &BTreeSet::new(), &mut avoid, &mut has_match, budget, 0)?;
+        if !has_match {
+            return Ok(t);
+        }
     }
-    rename(&t, &BTreeMap::new(), &avoid, &mut 0, budget, 0)
+    rename(t, &BTreeMap::new(), &avoid, &mut 0, budget, 0)
 }
 fn normalize_pair(e: Equation, c: &Context, budget: &mut Budget) -> LangResult<Equation> {
     Ok(Equation {
-        from: alpha_normal(normal(&e.from, c, budget, 0)?, budget)?,
-        to: alpha_normal(normal(&e.to, c, budget, 0)?, budget)?,
+        from: alpha_normal_impl(normal(&e.from, c, budget, 0)?, budget, true)?,
+        to: alpha_normal_impl(normal(&e.to, c, budget, 0)?, budget, true)?,
     })
+}
+fn same_term(a: &Term, b: &Term, c: &Context, budget: &mut Budget) -> LangResult<bool> {
+    budget.step(0)?;
+    if a == b {
+        return Ok(true);
+    }
+    budget.copy(a)?;
+    budget.copy(b)?;
+    if alpha_normal_impl(a.clone(), budget, true)? == alpha_normal_impl(b.clone(), budget, true)? {
+        return Ok(true);
+    }
+    let left = alpha_normal_impl(compute_mode(a, c, budget, 0, false)?, budget, true)?;
+    let right = alpha_normal_impl(compute_mode(b, c, budget, 0, false)?, budget, true)?;
+    if left == right {
+        return Ok(true);
+    }
+    let left = alpha_normal_impl(compute_mode(a, c, budget, 0, true)?, budget, true)?;
+    let right = alpha_normal_impl(compute_mode(b, c, budget, 0, true)?, budget, true)?;
+    if left == right {
+        return Ok(true);
+    }
+    Ok(alpha_normal_impl(normal(a, c, budget, 0)?, budget, true)?
+        == alpha_normal_impl(normal(b, c, budget, 0)?, budget, true)?)
+}
+fn same_equation(a: &Equation, b: &Equation, c: &Context, budget: &mut Budget) -> LangResult<bool> {
+    Ok(same_term(&a.from, &b.from, c, budget)? && same_term(&a.to, &b.to, c, budget)?)
+}
+fn raw_pair(
+    e: Equation,
+    env: &Env,
+    c: &Context,
+    internal: bool,
+    budget: &mut Budget,
+) -> LangResult<Equation> {
+    typed_pair(&e, env, c, internal, budget)?;
+    Ok(e)
 }
 
 #[cfg(test)]
 mod alpha_tests {
     use super::*;
+    fn leaf(id: &str) -> Arc<Entry> {
+        Arc::new(Entry {
+            id: id.into(),
+            kind: Kind::Function(Function {
+                params: vec![],
+                result: Sort::Bool,
+                body: Term::Bool(false),
+                recursive: None,
+            }),
+            dependencies: vec![],
+            parameters: BTreeSet::new(),
+        })
+    }
+    #[test]
+    fn staged_imports_preserve_exact_visibility_and_are_transactional() {
+        let shared = leaf("shared");
+        let fresh = leaf("fresh");
+        let mut context = Context::default();
+        context.install(shared.clone()).unwrap();
+        let mut root = (*leaf("root")).clone();
+        root.dependencies = vec![fresh.clone(), leaf("shared")];
+        assert!(context.install(Arc::new(root)).is_err());
+        assert_eq!(context.all.len(), 1);
+        assert_eq!(context.visible.len(), 1);
+        assert!(context.entry("fresh", true).is_err());
+        let mut root = (*leaf("root")).clone();
+        root.dependencies = vec![fresh, shared];
+        context.install(Arc::new(root)).unwrap();
+        assert_eq!(context.all.len(), 3);
+        assert!(context.entry("fresh", false).is_err());
+        let subset = context.subset(&["root".into()]).unwrap();
+        assert_eq!(subset.visible.len(), 1);
+        assert_eq!(subset.all.len(), 3);
+    }
+    #[test]
+    fn dependency_imports_cannot_overshoot_the_view_capacity() {
+        let mut context = Context::default();
+        for i in 0..crate::registry::MAX_VIEW_ENTRIES - 1 {
+            context.install(leaf(&format!("entry_{i}"))).unwrap();
+        }
+        let mut root = (*leaf("root")).clone();
+        root.dependencies = vec![leaf("last_dependency")];
+        assert!(context.install(Arc::new(root)).is_err());
+        assert_eq!(context.all.len(), crate::registry::MAX_VIEW_ENTRIES - 1);
+        assert!(context.entry("last_dependency", true).is_err());
+        context.install(leaf("last")).unwrap();
+        assert!(context.install(leaf("overflow")).is_err());
+        assert_eq!(context.all.len(), crate::registry::MAX_VIEW_ENTRIES);
+    }
+    #[test]
+    fn prepared_memo_never_skips_environment_type_checks() {
+        let context = Context::default();
+        let mut budget = Budget::new();
+        let expression = (0..24).fold(Term::Var("input".into()), |left, _| Term::Binary {
+            op: "+".into(),
+            left: Box::new(left),
+            right: Box::new(Term::U64(0)),
+        });
+        let goal = Equation {
+            from: expression.clone(),
+            to: expression,
+        };
+        let words = Env::from([("input".into(), Sort::U64)]);
+        assert!(prepare(&goal, &words, &context, &mut budget).is_ok());
+        assert!(!budget.prepared_cache.is_empty());
+        let booleans = Env::from([("input".into(), Sort::Bool)]);
+        assert!(prepare(&goal, &booleans, &context, &mut budget).is_err());
+        assert!(prepare(&goal, &Env::new(), &context, &mut budget).is_err());
+        budget.remaining = 0;
+        assert!(prepare(&goal, &words, &context, &mut budget).is_err());
+    }
+    #[test]
+    fn normal_cache_is_context_local_and_preserves_work_and_depth_bounds() {
+        let make = |word| {
+            let mut c = Context::default();
+            c.declare(
+                "constant".into(),
+                &Declaration::Function {
+                    params: vec![],
+                    result: Sort::U64,
+                    body: (0..20).fold(Term::U64(word), |t, _| Term::Binary {
+                        op: "+".into(),
+                        left: Box::new(t),
+                        right: Box::new(Term::U64(0)),
+                    }),
+                    recursive: None,
+                },
+            )
+            .unwrap();
+            c
+        };
+        let c1 = make(17);
+        let c2 = make(18);
+        let t = Term::Call {
+            function: "constant".into(),
+            arguments: vec![],
+        };
+        let mut budget = Budget::new();
+        assert_eq!(normal(&t, &c1, &mut budget, 0).unwrap(), Term::U64(17));
+        assert_eq!(normal(&t, &c2, &mut budget, 0).unwrap(), Term::U64(18));
+        assert!(budget.normal_cache.len() <= 128 && budget.normal_cache_nodes <= 131072);
+        budget.remaining = 1;
+        assert!(normal(&t, &c2, &mut budget, 0).is_err());
+        budget.remaining = 1000;
+        assert!(normal(&t, &c2, &mut budget, 129).is_err());
+    }
     #[test]
     fn free_internal_names_and_nested_shadowing_survive_canonicalisation() {
         let t = Term::Match {
@@ -1521,9 +2057,43 @@ mod alpha_tests {
     }
 }
 fn prepare(e: &Equation, env: &Env, c: &Context, budget: &mut Budget) -> LangResult<Equation> {
+    budget.step(0)?;
+    let context = c as *const Context as usize;
+    if let Some((_, _, _, value, nodes)) = budget
+        .prepared_cache
+        .iter()
+        .find(|(cx, vars, goal, _, _)| *cx == context && vars == env && goal == e)
+    {
+        budget.remaining = budget
+            .remaining
+            .checked_sub(*nodes)
+            .ok_or("inductive logic resource limit")?;
+        return Ok(value.clone());
+    }
+    let started = budget.remaining;
     typed_pair(e, env, c, false, budget)?;
-    normalize_pair(e.clone(), c, budget)
+    let value = normalize_pair(e.clone(), c, budget)?;
+    // The bounded memo pool accounts for its own storage copies. Hits still
+    // charge every copied result node to ordinary checking work. Complete
+    // environments, contexts and terms are compared; no hash proves equality.
+    if env.len() <= 128
+        && started.saturating_sub(budget.remaining) >= 64
+        && budget.prepared_cache.len() < 32
+    {
+        let counts = [&value.from, &value.to, &e.from, &e.to].map(|t| bounded_nodes(t, 65536));
+        if let [Some(a), Some(b), Some(d), Some(f)] = counts {
+            let nodes = a + b + d + f;
+            if nodes <= 65536 && budget.prepared_nodes + nodes <= 131072 {
+                budget
+                    .prepared_cache
+                    .push((context, env.clone(), e.clone(), value.clone(), a + b));
+                budget.prepared_nodes += nodes;
+            }
+        }
+    }
+    Ok(value)
 }
+
 fn instance(
     params: &[(String, Sort)],
     arguments: &[Term],
@@ -1550,17 +2120,13 @@ fn instance(
 fn sub_pair(
     e: &Equation,
     bindings: &BTreeMap<String, Term>,
-    c: &Context,
+    _c: &Context,
     budget: &mut Budget,
 ) -> LangResult<Equation> {
-    normalize_pair(
-        Equation {
-            from: substitute(&e.from, bindings, budget, 0)?,
-            to: substitute(&e.to, bindings, budget, 0)?,
-        },
-        c,
-        budget,
-    )
+    Ok(Equation {
+        from: substitute(&e.from, bindings, budget, 0)?,
+        to: substitute(&e.to, bindings, budget, 0)?,
+    })
 }
 fn independent_induction_premises(
     variables: &BTreeSet<String>,
@@ -1795,6 +2361,17 @@ fn proof_references(p: &Proof, out: &mut BTreeSet<String>) {
             proof_references(on_false, out);
             proof_references(on_true, out);
         }
+        Proof::Cases {
+            scrutinee,
+            from,
+            to,
+            cases,
+        } => {
+            terms(&[scrutinee, from, to], out);
+            for case in cases {
+                proof_references(&case.proof, out);
+            }
+        }
         Proof::BoolCases {
             from,
             to,
@@ -1893,13 +2470,14 @@ fn derive(
             if parts.is_empty() || parts.len() > 64 || parts.iter().any(|(mask, _)| *mask == 0) {
                 return Err("word extensionality mask limit".into());
             }
-            let want = prepare(
-                &Equation {
+            let want = raw_pair(
+                Equation {
                     from: from.clone(),
                     to: to.clone(),
                 },
                 env,
                 c,
+                false,
                 budget,
             )?;
             if infer(&want.from, env, c, None, false, budget, depth + 1)? != Sort::U64 {
@@ -1924,7 +2502,7 @@ fn derive(
                     budget,
                 )?;
                 let actual = derive(proof, env, c, hypotheses, schemas, budget, depth + 1)?;
-                if actual != expected {
+                if !same_equation(&actual, &expected, c, budget)? {
                     return Err("word extensionality part mismatch".into());
                 }
             }
@@ -1939,13 +2517,14 @@ fn derive(
             if selected.len() > 128 {
                 return Err("bit proof hypothesis count limit".into());
             }
-            let want = prepare(
-                &Equation {
+            let want = raw_pair(
+                Equation {
                     from: from.clone(),
                     to: to.clone(),
                 },
                 env,
                 c,
+                false,
                 budget,
             )?;
             let premises = selected
@@ -1957,8 +2536,17 @@ fn derive(
                         .ok_or_else(|| "unknown bit proof hypothesis".to_owned())
                 })
                 .collect::<LangResult<Vec<_>>>()?;
-            let problem =
-                crate::bitproof::problem_with_work(env, &premises, &want, &mut budget.bit_work)?;
+            let computed = normalize_pair(want.clone(), c, budget)?;
+            let premises = premises
+                .into_iter()
+                .map(|e| normalize_pair(e, c, budget))
+                .collect::<LangResult<Vec<_>>>()?;
+            let problem = crate::bitproof::problem_with_work(
+                env,
+                &premises,
+                &computed,
+                &mut budget.bit_work,
+            )?;
             crate::bitproof::verify_with_work(&problem, certificate, &mut budget.bit_work)?;
             want
         }
@@ -1991,13 +2579,14 @@ fn derive(
             if infer(condition, env, c, None, false, budget, 0)? != Sort::Bool {
                 return Err("case condition must be Bool".into());
             }
-            let want = prepare(
-                &Equation {
+            let want = raw_pair(
+                Equation {
                     from: from.clone(),
                     to: to.clone(),
                 },
                 env,
                 c,
+                false,
                 budget,
             )?;
             if hypotheses.len() + schemas.len() >= 128 {
@@ -2005,17 +2594,80 @@ fn derive(
             }
             for (value, proof) in [(false, on_false), (true, on_true)] {
                 let mut local = hypotheses.to_vec();
-                local.push(prepare(
-                    &Equation {
+                local.push(raw_pair(
+                    Equation {
                         from: condition.clone(),
                         to: Term::Bool(value),
                     },
                     env,
                     c,
+                    false,
                     budget,
                 )?);
-                if derive(proof, env, c, &local, schemas, budget, depth + 1)? != want {
+                if !same_equation(
+                    &derive(proof, env, c, &local, schemas, budget, depth + 1)?,
+                    &want,
+                    c,
+                    budget,
+                )? {
                     return Err("Boolean condition branch proves a different statement".into());
+                }
+            }
+            want
+        }
+        Proof::Cases {
+            scrutinee,
+            from,
+            to,
+            cases,
+        } => {
+            let Sort::Data(id) = infer(scrutinee, env, c, None, false, budget, 0)? else {
+                return Err("constructor cases require an inductive datatype".into());
+            };
+            let constructors = c.datatype(&id, false)?;
+            if cases.len() != constructors.len() {
+                return Err("constructor cases must cover every constructor".into());
+            }
+            if hypotheses.len() + schemas.len() >= 128 {
+                return Err("logic hypothesis count limit".into());
+            }
+            let original = Equation {
+                from: from.clone(),
+                to: to.clone(),
+            };
+            let want = raw_pair(original.clone(), env, c, false, budget)?;
+            for (index, (case, constructor)) in cases.iter().zip(constructors).enumerate() {
+                let local = branch_env(&case.bindings, &constructor.fields, env, false)?;
+                let mut local_hypotheses = hypotheses.to_vec();
+                local_hypotheses.push(raw_pair(
+                    Equation {
+                        from: scrutinee.clone(),
+                        to: Term::Construct {
+                            datatype: id.clone(),
+                            constructor: index,
+                            arguments: case.bindings.iter().cloned().map(Term::Var).collect(),
+                        },
+                    },
+                    &local,
+                    c,
+                    false,
+                    budget,
+                )?);
+                if !same_equation(
+                    &derive(
+                        &case.proof,
+                        &local,
+                        c,
+                        &local_hypotheses,
+                        schemas,
+                        budget,
+                        depth + 1,
+                    )?,
+                    &want,
+                    c,
+                    budget,
+                )? {
+                    return Err("constructor case proves a different statement".into());
                 }
             }
             want
@@ -2031,26 +2683,28 @@ fn derive(
             let bindings = instance(&schema.params, arguments, env, c, budget)?;
             sub_pair(&schema.equation, &bindings, c, budget)?
         }
-        Proof::Refl(t) => prepare(
-            &Equation {
+        Proof::Refl(t) => raw_pair(
+            Equation {
                 from: t.clone(),
                 to: t.clone(),
             },
             env,
             c,
+            false,
             budget,
         )?,
         Proof::Convert { from, to } => {
-            let e = prepare(
-                &Equation {
+            let e = raw_pair(
+                Equation {
                     from: from.clone(),
                     to: to.clone(),
                 },
                 env,
                 c,
+                false,
                 budget,
             )?;
-            if e.from != e.to {
+            if !same_term(&e.from, &e.to, c, budget)? {
                 return Err("definitional computation does not prove equality".into());
             }
             e
@@ -2065,7 +2719,7 @@ fn derive(
         Proof::Trans(p, q) => {
             let a = derive(p, env, c, hypotheses, schemas, budget, depth + 1)?;
             let b = derive(q, env, c, hypotheses, schemas, budget, depth + 1)?;
-            if a.to != b.from {
+            if !same_term(&a.to, &b.from, c, budget)? {
                 return Err("logic transitivity middle differs".into());
             }
             Equation {
@@ -2145,9 +2799,12 @@ fn derive(
             }
             let bindings = instance(&t.params, arguments, env, c, budget)?;
             for (condition, proof) in t.conditions.iter().zip(premises) {
-                if derive(proof, env, c, hypotheses, schemas, budget, depth + 1)?
-                    != sub_pair(condition, &bindings, c, budget)?
-                {
+                if !same_equation(
+                    &derive(proof, env, c, hypotheses, schemas, budget, depth + 1)?,
+                    &sub_pair(condition, &bindings, c, budget)?,
+                    c,
+                    budget,
+                )? {
                     return Err("logic theorem premise proves a different statement".into());
                 }
             }
@@ -2280,7 +2937,12 @@ fn derive(
                     .map(|e| normalize_pair(s.equation(e, budget)?, c, budget))
                     .collect::<LangResult<Vec<_>>>()?;
                 let want = normalize_pair(s.equation(&a.equation, budget)?, c, budget)?;
-                if derive(proof, &local, c, &hypotheses, &[], budget, depth + 1)? != want {
+                if !same_equation(
+                    &derive(proof, &local, c, &hypotheses, &[], budget, depth + 1)?,
+                    &want,
+                    c,
+                    budget,
+                )? {
                     return Err("assumption discharge proves a different statement".into());
                 }
             }
@@ -2294,9 +2956,12 @@ fn derive(
                 .collect::<LangResult<Vec<_>>>()?;
             let bindings = instance(&params, arguments, env, c, budget)?;
             for (condition, proof) in t.conditions.iter().zip(premises) {
-                if derive(proof, env, c, hypotheses, schemas, budget, depth + 1)?
-                    != sub_pair(&s.equation(condition, budget)?, &bindings, c, budget)?
-                {
+                if !same_equation(
+                    &derive(proof, env, c, hypotheses, schemas, budget, depth + 1)?,
+                    &sub_pair(&s.equation(condition, budget)?, &bindings, c, budget)?,
+                    c,
+                    budget,
+                )? {
                     return Err("logic theorem premise proves a different statement".into());
                 }
             }
@@ -2351,20 +3016,24 @@ fn derive(
                 if local_hypotheses.len() + schemas.len() > 128 {
                     return Err("logic hypothesis count limit".into());
                 }
-                if derive(
-                    &case.proof,
-                    &local,
+                if !same_equation(
+                    &derive(
+                        &case.proof,
+                        &local,
+                        c,
+                        &local_hypotheses,
+                        schemas,
+                        budget,
+                        depth + 1,
+                    )?,
+                    &want,
                     c,
-                    &local_hypotheses,
-                    schemas,
                     budget,
-                    depth + 1,
-                )? != want
-                {
+                )? {
                     return Err("induction branch proves a different statement".into());
                 }
             }
-            normalize_pair(original, c, budget)?
+            original
         }
         Proof::GeneralizedInduction {
             variable,
@@ -2431,20 +3100,24 @@ fn derive(
                 if local_schemas.len() + hypotheses.len() > 128 {
                     return Err("logic hypothesis count limit".into());
                 }
-                if derive(
-                    &case.proof,
-                    &local,
+                if !same_equation(
+                    &derive(
+                        &case.proof,
+                        &local,
+                        c,
+                        hypotheses,
+                        &local_schemas,
+                        budget,
+                        depth + 1,
+                    )?,
+                    &want,
                     c,
-                    hypotheses,
-                    &local_schemas,
                     budget,
-                    depth + 1,
-                )? != want
-                {
+                )? {
                     return Err("generalized induction branch proves a different statement".into());
                 }
             }
-            normalize_pair(original, c, budget)?
+            original
         }
         Proof::BoolCases {
             variable,
@@ -2484,13 +3157,41 @@ fn derive(
                         })
                     })
                     .collect::<LangResult<Vec<_>>>()?;
-                if derive(proof, &local, c, &hs, &local_schemas, budget, depth + 1)? != want {
+                if !same_equation(
+                    &derive(proof, &local, c, &hs, &local_schemas, budget, depth + 1)?,
+                    &want,
+                    c,
+                    budget,
+                )? {
                     return Err("Boolean branch proves a different statement".into());
                 }
             }
-            normalize_pair(original, c, budget)?
+            original
         }
     };
-    typed_pair(&equation, env, c, true, budget)?;
-    normalize_pair(equation, c, budget)
+    // Rules retain the typed expressions they establish. Only congruence or
+    // interpretation forms new terms requiring another type check; computation
+    // is needed when matching endpoints, never as an ambient proof rewrite.
+    if matches!(
+        p,
+        Proof::WordExtensionality { .. }
+            | Proof::BitVector { .. }
+            | Proof::BoolSplit { .. }
+            | Proof::Cases { .. }
+            | Proof::Hypothesis(_)
+            | Proof::GeneralizedHypothesis { .. }
+            | Proof::Refl(_)
+            | Proof::Convert { .. }
+            | Proof::Sym(_)
+            | Proof::Trans(..)
+            | Proof::Use { .. }
+            | Proof::Induction { .. }
+            | Proof::GeneralizedInduction { .. }
+            | Proof::BoolCases { .. }
+    ) {
+        Ok(equation)
+    } else {
+        typed_pair(&equation, env, c, true, budget)?;
+        Ok(equation)
+    }
 }
