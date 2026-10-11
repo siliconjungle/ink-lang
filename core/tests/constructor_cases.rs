@@ -348,3 +348,20 @@ fn induction_reduces_discarded_arguments_but_rejects_dependent_premises() {
     let dependent = Equation {from:from.clone(),to:data(0,vec![])};
     assert!(c.check(&params,&[dependent],&from,&from,&proof).is_err());
 }
+
+#[test]
+fn variable_cases_compare_checked_definitional_equations_after_substitution() {
+    let c = context();
+    let params = vec![("input".into(), Sort::Data("optional".into()))];
+    let goal = projected(v("input"));
+    let proof = Proof::Cases {
+        variable: Some("input".into()), scrutinee: None,
+        from: goal.clone(), to: goal.clone(),
+        cases: vec![Case { bindings: vec![], proof: Proof::Refl(Term::U64(0)) },
+                    Case { bindings: vec!["value".into()], proof: Proof::Refl(v("value")) }],
+    };
+    c.check(&params, &[], &goal, &goal, &proof).unwrap();
+    let mut wrong = proof;
+    if let Proof::Cases { cases, .. } = &mut wrong {cases[0].proof = Proof::Refl(Term::U64(1));}
+    assert!(c.check(&params, &[], &goal, &goal, &wrong).is_err());
+}
