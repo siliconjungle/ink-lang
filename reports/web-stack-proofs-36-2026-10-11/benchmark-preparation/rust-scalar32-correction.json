@@ -1,0 +1,38 @@
+{
+  "status": "prepared",
+  "timed": false,
+  "parent_metadata_sha256": "2a1ada71ca0b084f1182017cbbf8c250ffc5ae1297faa041b2d1e59b39b84aed",
+  "previous_correction_sha256": "257532d8283031be54c21e1de76a2ccfc7b6123405188beb9db8c101767c8f43",
+  "changed_prepared_files": [
+    "control-validation.mjs",
+    "expert.rs",
+    "runner.mjs",
+    "rust-expert.wasm"
+  ],
+  "added_prepared_files": [
+    "control-rebuild-commands.json"
+  ],
+  "changes": {
+    "control-validation.mjs": {
+      "before": "ac2c950835ab0a791087668598657536df8276d807b05f2a2664b0e405140281",
+      "after": "e047f4b5a08916c7410a3e3ec6e3f0a0f803782c332cf1c5b2377007cb4728ce"
+    },
+    "expert.rs": {
+      "before": "90c583ccd3c217b04fa7df7a45816dbc7ecc89346256131af9a071817e261482",
+      "after": "34d7af6c17cb2f83fd483235b693e627128773b333bda4e99b7e1e1839ba8b45"
+    },
+    "runner.mjs": {
+      "before": "37d144de71ceab0fddef427ec922792319f0dfd67a34fc101158ee78c0274f2d",
+      "after": "ececea7cb6447cf7cea2e619a398fa758f697506edead12d6f10c578f3004933"
+    },
+    "rust-expert.wasm": {
+      "before": "6465054bdf3c2024637f0fa7b6b2f61317b1d30146e78d117b6c744deab69525",
+      "after": "775450e501aa23e64a1e78b6c04741e8a066f523fc0ab18f08213c845490a7bb"
+    }
+  },
+  "reason": "Strong Rust-Wasm U32 controls return direct u32 export converted to unsigned Number. No result-buffer allocation/readback or BigInt conversion in timed scalar controls; original fold algorithm unchanged; two-word native adapter preserved.",
+  "emitted_targets_and_selection_proofs_changed": false,
+  "initial_and_first_final_artifacts_preserved": true,
+  "command_journal_sha256": "b177af95d3c86b0f5c88b899196a2c25ed5944a39f794c98068bdcb465aafa8f",
+  "after_metadata_sha256": "5db902a7b9baaa1fafa934ddfeff51a62904678b38694e866b5373c13b629188"
+}
