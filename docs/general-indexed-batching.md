@@ -32,7 +32,7 @@ pairs wherever the translated typed expression exposes them.
 
 State-threading result carriers receive structural encode/decode adapters and
 ordinary round-trip proofs. Pure application values retain their original types.
-These definitions live in knowledge. The compiler adds general String/ID
+These definitions live in knowledge. The integrated compiler supplies general String/ID
 correspondence and precise closure capture dependencies. Authenticated proof
 views allow 4096 objects and 64 MB; representation dependency lists allow 512
 entries. Existing proof nesting, descent and term budgets remain enforced.

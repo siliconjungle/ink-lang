@@ -95,9 +95,10 @@ jobs:
       - name: Cold indexed proposals, measured batching selection and authenticated corruption
         env:
           PYTHONPATH: knowledge:planner
-          INK_COMPILER: target/debug/ink
+          INK_COMPILER: target/release/ink
         run: |
-          python planner/tests/automatic_candidates_integration.py target/debug/ink planner/tests/fixtures/generic-batching.ink
+          cargo build --release --bin ink
+          python planner/tests/automatic_candidates_integration.py target/release/ink planner/tests/fixtures/generic-batching.ink
           python -m unittest discover -s knowledge/tests -p test_generic_indexed.py
       - name: Retain reproducible programs, seeds and expected outcomes
         if: always()

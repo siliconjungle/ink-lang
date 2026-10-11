@@ -51,7 +51,6 @@ impl<'p> Lower<'p> {
                 Kind::State(_) | Kind::Keep(_) => true,
                 Kind::Float(_) | Kind::Number(_) | Kind::String(_)
                 | Kind::Bool(_)
-                | Kind::String(_)
                 | Kind::Unit
                 | Kind::None
                 | Kind::Local(_)
