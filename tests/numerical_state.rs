@@ -24,18 +24,17 @@ fn numerical_actions_have_explicit_version_and_no_float_proof_authority() {
         .unwrap(),
     )
     .unwrap();
-    // The archived fixture predates the parser's current control-flow lowering.
-    // Preserve its original bytes and reject its stale source binding.
-    assert!(CheckedActions::from_bytes(
-        &archived,
-        include_bytes!("fixtures/typed-actions-v1-numerical-baseline.json"),
-    )
-    .is_err());
+    // Main preserves the original ordinary action blocks. Accept their exact
+    // source-bound image, while retaining the intermediate CPS image as a
+    // negative fixture; neither version label nor provenance grants authority.
     CheckedActions::from_bytes(
         &archived,
+        include_bytes!("fixtures/typed-actions-v1-numerical-baseline.json"),
+    ).unwrap();
+    assert!(CheckedActions::from_bytes(
+        &archived,
         include_bytes!("fixtures/typed-actions-v1-current-control.json"),
-    )
-    .unwrap();
+    ).is_err());
     let mut old = wire;
     old["semantics"] = json!("ink-typed-actions-v1");
     assert!(CheckedActions::from_bytes(&m, &serde_json::to_vec(&old).unwrap()).is_err());
