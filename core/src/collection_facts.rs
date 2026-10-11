@@ -393,7 +393,7 @@ pub fn reusable_receiver(p: &Program, e: &Expr, env: &check::Env, want: Option<&
     let Expr::Method(receiver, m, args) = e else {
         return false;
     };
-    if !["map", "map_indexed", "scan"].contains(&m.as_str())
+    if !["map", "map_indexed", "scan", "filter"].contains(&m.as_str())
         || matches!(receiver.as_ref(), Expr::Var(_))
     {
         return false;
@@ -429,7 +429,8 @@ pub fn reusable_receiver(p: &Program, e: &Expr, env: &check::Env, want: Option<&
         remaining: MAX_NODES,
         helpers: Vec::new(),
     };
-    let cb = analysis.callback(&args[0], &local, &params, Some(&inner), 0);
+    let callback_result = if m == "filter" { &Type::Bool } else { &inner };
+    let cb = analysis.callback(&args[0], &local, &params, Some(callback_result), 0);
     cb.pure_total
         && cb.captures.iter().all(|n| {
             env.get(n).is_some_and(|t| {
@@ -445,6 +446,18 @@ pub fn reusable_receiver(p: &Program, e: &Expr, env: &check::Env, want: Option<&
 mod tests {
     use super::*;
     use crate::{core::CheckedModule, syntax::parse};
+    #[test]
+    fn stable_compaction_reuses_only_private_same_layout_storage() {
+        let p = parse("module Compact;fn make(xs:List<u32>)->List<u32>{return xs.map(fn(x)=>x+1);}fn keep(v:u32,t:u32)->Bool{return v>t;}fn safe(xs:List<u32>,t:u32)->List<u32>{return make(xs).filter(fn(v)=>keep(v,t));}fn borrowed(xs:List<u32>)->List<u32>{return xs.filter(fn(v)=>v>0);}fn shared(xs:List<u32>)->List<u32>{let tmp=make(xs);return tmp.filter(fn(v)=>v>0);}fn captured(xs:List<u32>)->List<u32>{return make(xs).filter(fn(v)=>xs.at_or(v,0)>0);}").unwrap();
+        CheckedModule::from_source(p.clone()).unwrap();
+        for (name, expected) in [("safe", true), ("borrowed", false), ("shared", false), ("captured", false)] {
+            let f = p.functions.iter().find(|f| f.name == name).unwrap();
+            assert_eq!(reusable_receiver(&p, &f.body, &check::params_env(&f.params).unwrap(), Some(&f.result)), expected, "{name}");
+        }
+        let result = facts(&p, "safe");
+        assert!(result.length.exact.is_none());
+        assert!(result.length.upper_bound.is_some());
+    }
     fn fixture() -> Program {
         let p=parse("module facts;fn id(xs:List<u32>)->List<u32>{return xs;}fn make(xs:List<u32>)->List<u32>{return xs.map(fn(x)=>x+1);}fn nested(xs:List<u32>)->List<u32>{return make(id(xs));}fn exact(xs:List<u32>,ys:List<u32>,c:Bool)->List<u32>{return choose(c,nested(xs),xs.map(fn(x)=>x*2));}fn bounds(xs:List<u32>,ys:List<u32>,c:Bool)->List<u32>{return choose(c,xs.filter(fn(x)=>x>0),ys);}fn joined(xs:List<u32>,ys:List<u32>)->List<u32>{return make(xs).concat(ys).zip(xs,fn(x)=>fn(y)=>x+y);}fn read(xs:List<u32>,x:u32)->u32{return xs.at_or(x,0);}fn safe(xs:List<u32>)->List<u32>{return nested(xs).map_indexed(fn(i)=>fn(x)=>x+i);}fn captures(xs:List<u32>)->List<u32>{return nested(xs).map(fn(x)=>read(xs,x));}fn borrowed(xs:List<u32>)->List<u32>{return id(xs).map(fn(x)=>x+1);}fn shared(xs:List<u32>)->List<u32>{let a=make(xs);return a.map(fn(x)=>x+1);}fn shadow(xs:List<u32>)->List<u32>{return make(xs).map(fn(xs)=>xs+1);}").unwrap();
         CheckedModule::from_source(p.clone()).unwrap();
