@@ -26,3 +26,10 @@ offline proof checking, compilation, live migration or memory. The four-action
 write comparison is a mechanism comparison; its teardown uses the final cached
 query cohort, not a dirty write cohort. Those omissions must remain explicit in
 any selection profile.
+
+`selection/` records the existing lifecycle ranker using these exact compiler,
+backend and workload observations. Writes and dynamic predicates retain ordinary
+storage; cached-read profiles select a checked physical candidate. The erase-only
+comparison records its measured winner without assuming that grouping wins.
+These observations are bound to the retained acquisition compiler hash; another
+compiler requires fresh comparable evidence or retains the baseline.
