@@ -38,6 +38,9 @@ pub enum Proof {
         right: Box<Proof>,
     },
     Congruence(Vec<Proof>),
+    /// Function extensionality with an explicitly fresh universal parameter.
+    /// Names provide scope only; the body must prove the applied endpoints.
+    Forall { parameter: String, body: Box<Proof> },
     Use {
         law: String,
         arguments: BTreeMap<String, Term>,
@@ -150,6 +153,7 @@ fn general_proof(p: &Proof) -> bool {
         Proof::Sym(p) => general_proof(p),
         Proof::Trans { left, right, .. } => general_proof(left) || general_proof(right),
         Proof::Congruence(ps) => ps.iter().any(general_proof),
+        Proof::Forall { body, .. } => general_proof(body),
         Proof::Cases { on_false, on_true, .. } => general_proof(on_false) || general_proof(on_true),
         Proof::Induction { base, step, .. } | Proof::GeneralizedInduction { base, step, .. } => {
             general_proof(base) || general_proof(step)
@@ -507,7 +511,7 @@ impl CheckedCatalogue {
                     left,
                     b,
                     d + 1,
-                )?;
+                ).map_err(|e|format!("transitivity left: {e}"))?;
                 self.prove_inner(
                     p,
                     env,
@@ -520,7 +524,22 @@ impl CheckedCatalogue {
                     right,
                     b,
                     d + 1,
-                )
+                ).map_err(|e|format!("transitivity right: {e}"))
+            }
+            Proof::Forall { parameter, body } => {
+                if parameter.is_empty() || parameter.len()>128 || env.contains_key(parameter)
+                    || !parameter.bytes().all(|c|c.is_ascii_alphanumeric()||c==b'_') {
+                    return Err("extensionality parameter must be fresh and bounded".into());
+                }
+                let (Node::Lambda(from),Node::Lambda(to),Sort::Arrow(input,_))=
+                    (&goal.from.node,&goal.to.node,&goal.from.sort) else {
+                    return Err("extensionality requires two typed lambdas".into());
+                };
+                let argument=free((**input).clone(),parameter);
+                let mut local=env.clone();local.insert(parameter.clone(),argument.sort.clone());
+                self.prove_inner(p,&local,hyp,schemas,&Equation{
+                    from:beta(from,&argument,b)?,to:beta(to,&argument,b)?,
+                },body,b,d+1)
             }
             Proof::Congruence(proofs) => {
                 let mut from = goal.from.clone();
@@ -1149,7 +1168,9 @@ fn normal(t: &Term, hyp: &[Equation], p: &Program, b: &mut Budget, d: usize) -> 
         ("value:equal", [left,right]) => {
             let boolean=|x|term(value(Type::Bool),Node::Bool(x));
             let eq=|a:Term,b:Term|op(value(Type::Bool),"value:equal",vec![a,b]);
-            if left==right {Some(boolean(true))} else {match (&left.node,&right.node) {
+            if matches!(&left.sort,Sort::Value(t)if check_word(t)) {
+                Some(op(value(Type::Bool),"binary:==",vec![left.clone(),right.clone()]))
+            } else if left==right {Some(boolean(true))} else {match (&left.node,&right.node) {
                 (Node::Cons(a,b),Node::Cons(c,d))=>Some(op(value(Type::Bool),"binary:&&",vec![eq((**a).clone(),(**c).clone()),eq((**b).clone(),(**d).clone())])),
                 (Node::Nil,Node::Cons(..))|(Node::Cons(..),Node::Nil)=>Some(boolean(false)),
                 (Node::Word(a),Node::Word(b))=>Some(boolean(a==b)),
@@ -1172,11 +1193,13 @@ fn normal(t: &Term, hyp: &[Equation], p: &Program, b: &mut Budget, d: usize) -> 
         ("binary:&&", [c, x]) => match c.node {
             Node::Bool(false) => Some(c.clone()),
             Node::Bool(true) => Some(x.clone()),
+            _ if x.node==Node::Bool(true) => Some(c.clone()),
             _ => None,
         },
         ("binary:||", [c, x]) => match c.node {
             Node::Bool(true) => Some(c.clone()),
             Node::Bool(false) => Some(x.clone()),
+            _ if x.node==Node::Bool(false) => Some(c.clone()),
             _ => None,
         },
         ("call:choose", [c, a, e]) => match c.node {
@@ -1933,7 +1956,7 @@ fn equivalent(
             }
         }
     }
-    let facts = hyp
+    let mut facts = hyp
         .iter()
         .map(|h| {
             Ok(Equation {
@@ -1942,6 +1965,27 @@ fn equivalent(
             })
         })
         .collect::<LangResult<Vec<_>>>()?;
+    // A premise can itself contain a parameter established by another premise.
+    // In particular, an induction hypothesis retains the original callback,
+    // while a contract may establish one of that callback's captures. Normalize
+    // both sides with the other equations, never using a premise to prove itself.
+    // Every intermediate equation is still a consequence of the original facts.
+    if facts.len()>1 {
+        for _ in 0..8 {
+            let previous=facts.clone();
+            for i in 0..previous.len() {
+                let others=previous.iter().enumerate().filter(|(j,_)|*j!=i)
+                    .map(|(_,e)|e.clone()).collect::<Vec<_>>();
+                let derived=Equation {from:normal(&previous[i].from,&others,p,b,0)?,
+                    to:normal(&previous[i].to,&others,p,b,0)?};
+                if derived.from!=derived.to && !facts.contains(&derived) {
+                    if facts.len()>=1024{return Err("semantic derived fact count limit".into())}
+                    facts.push(derived);
+                }
+            }
+            if facts==previous {break}
+        }
+    }
     let a = normal(a, &facts, p, b, 0)?;
     let c = normal(c, &facts, p, b, 0)?;
     if a == c {
@@ -2125,6 +2169,9 @@ pub fn open_proof(proof: &Proof, scope: &[(String, Sort)], b: &mut Budget) -> La
             Proof::Linear { premises } => Proof::Linear { premises: premises.clone() },
             Proof::Normalize => Proof::Normalize,
             Proof::Hypothesis(i) => Proof::Hypothesis(*i),
+            Proof::Forall { parameter, body } => Proof::Forall {
+                parameter:parameter.clone(),body:Box::new(go(body,scope,b,d+1)?),
+            },
             Proof::GeneralizedHypothesis { index, arguments } => Proof::GeneralizedHypothesis {
                 index: *index,
                 arguments: arguments

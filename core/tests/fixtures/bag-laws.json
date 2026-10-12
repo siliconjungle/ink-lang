@@ -1,0 +1,3647 @@
+[
+  {
+    "schema": 1,
+    "semantics": "ink-conditional-laws-v1",
+    "params": {
+      "item": {
+        "Value": "U32"
+      },
+      "x": {
+        "Value": "U32"
+      },
+      "xs": {
+        "Value": {
+          "List": "U32"
+        }
+      }
+    },
+    "conditions": [],
+    "from": {
+      "sort": {
+        "Value": "Int"
+      },
+      "node": {
+        "Op": [
+          "call:count",
+          [
+            {
+              "sort": {
+                "Value": {
+                  "List": "U32"
+                }
+              },
+              "node": {
+                "Op": [
+                  "method:filter",
+                  [
+                    {
+                      "sort": {
+                        "Value": {
+                          "List": "U32"
+                        }
+                      },
+                      "node": {
+                        "Op": [
+                          "list.insert",
+                          [
+                            {
+                              "sort": {
+                                "Value": "U32"
+                              },
+                              "node": {
+                                "Free": "x"
+                              }
+                            },
+                            {
+                              "sort": {
+                                "Value": {
+                                  "List": "U32"
+                                }
+                              },
+                              "node": {
+                                "Free": "xs"
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    },
+                    {
+                      "sort": {
+                        "Arrow": [
+                          {
+                            "Value": "U32"
+                          },
+                          {
+                            "Value": "Bool"
+                          }
+                        ]
+                      },
+                      "node": {
+                        "Lambda": {
+                          "sort": {
+                            "Value": "Bool"
+                          },
+                          "node": {
+                            "Op": [
+                              "value:equal",
+                              [
+                                {
+                                  "sort": {
+                                    "Value": "U32"
+                                  },
+                                  "node": {
+                                    "Bound": 0
+                                  }
+                                },
+                                {
+                                  "sort": {
+                                    "Value": "U32"
+                                  },
+                                  "node": {
+                                    "Free": "item"
+                                  }
+                                }
+                              ]
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  ]
+                ]
+              }
+            }
+          ]
+        ]
+      }
+    },
+    "to": {
+      "sort": {
+        "Value": "Int"
+      },
+      "node": {
+        "Op": [
+          "binary:+",
+          [
+            {
+              "sort": {
+                "Value": "Int"
+              },
+              "node": {
+                "Op": [
+                  "call:choose",
+                  [
+                    {
+                      "sort": {
+                        "Value": "Bool"
+                      },
+                      "node": {
+                        "Op": [
+                          "value:equal",
+                          [
+                            {
+                              "sort": {
+                                "Value": "U32"
+                              },
+                              "node": {
+                                "Free": "x"
+                              }
+                            },
+                            {
+                              "sort": {
+                                "Value": "U32"
+                              },
+                              "node": {
+                                "Free": "item"
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    },
+                    {
+                      "sort": {
+                        "Value": "Int"
+                      },
+                      "node": {
+                        "Word": 1
+                      }
+                    },
+                    {
+                      "sort": {
+                        "Value": "Int"
+                      },
+                      "node": {
+                        "Word": 0
+                      }
+                    }
+                  ]
+                ]
+              }
+            },
+            {
+              "sort": {
+                "Value": "Int"
+              },
+              "node": {
+                "Op": [
+                  "call:count",
+                  [
+                    {
+                      "sort": {
+                        "Value": {
+                          "List": "U32"
+                        }
+                      },
+                      "node": {
+                        "Op": [
+                          "method:filter",
+                          [
+                            {
+                              "sort": {
+                                "Value": {
+                                  "List": "U32"
+                                }
+                              },
+                              "node": {
+                                "Free": "xs"
+                              }
+                            },
+                            {
+                              "sort": {
+                                "Arrow": [
+                                  {
+                                    "Value": "U32"
+                                  },
+                                  {
+                                    "Value": "Bool"
+                                  }
+                                ]
+                              },
+                              "node": {
+                                "Lambda": {
+                                  "sort": {
+                                    "Value": "Bool"
+                                  },
+                                  "node": {
+                                    "Op": [
+                                      "value:equal",
+                                      [
+                                        {
+                                          "sort": {
+                                            "Value": "U32"
+                                          },
+                                          "node": {
+                                            "Bound": 0
+                                          }
+                                        },
+                                        {
+                                          "sort": {
+                                            "Value": "U32"
+                                          },
+                                          "node": {
+                                            "Free": "item"
+                                          }
+                                        }
+                                      ]
+                                    ]
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    }
+                  ]
+                ]
+              }
+            }
+          ]
+        ]
+      }
+    },
+    "proof": {
+      "Induction": {
+        "variable": "xs",
+        "names": [
+          "head",
+          "tail"
+        ],
+        "base": {
+          "Cases": {
+            "condition": {
+              "sort": {
+                "Value": "Bool"
+              },
+              "node": {
+                "Op": [
+                  "value:equal",
+                  [
+                    {
+                      "sort": {
+                        "Value": "U32"
+                      },
+                      "node": {
+                        "Free": "x"
+                      }
+                    },
+                    {
+                      "sort": {
+                        "Value": "U32"
+                      },
+                      "node": {
+                        "Free": "item"
+                      }
+                    }
+                  ]
+                ]
+              }
+            },
+            "on_false": "Normalize",
+            "on_true": "Normalize"
+          }
+        },
+        "step": {
+          "Cases": {
+            "condition": {
+              "sort": {
+                "Value": "Bool"
+              },
+              "node": {
+                "Op": [
+                  "binary:<=",
+                  [
+                    {
+                      "sort": {
+                        "Value": "U32"
+                      },
+                      "node": {
+                        "Free": "x"
+                      }
+                    },
+                    {
+                      "sort": {
+                        "Value": "U32"
+                      },
+                      "node": {
+                        "Free": "head"
+                      }
+                    }
+                  ]
+                ]
+              }
+            },
+            "on_true": {
+              "Cases": {
+                "condition": {
+                  "sort": {
+                    "Value": "Bool"
+                  },
+                  "node": {
+                    "Op": [
+                      "value:equal",
+                      [
+                        {
+                          "sort": {
+                            "Value": "U32"
+                          },
+                          "node": {
+                            "Free": "x"
+                          }
+                        },
+                        {
+                          "sort": {
+                            "Value": "U32"
+                          },
+                          "node": {
+                            "Free": "item"
+                          }
+                        }
+                      ]
+                    ]
+                  }
+                },
+                "on_false": "Normalize",
+                "on_true": "Normalize"
+              }
+            },
+            "on_false": {
+              "Cases": {
+                "condition": {
+                  "sort": {
+                    "Value": "Bool"
+                  },
+                  "node": {
+                    "Op": [
+                      "value:equal",
+                      [
+                        {
+                          "sort": {
+                            "Value": "U32"
+                          },
+                          "node": {
+                            "Free": "head"
+                          }
+                        },
+                        {
+                          "sort": {
+                            "Value": "U32"
+                          },
+                          "node": {
+                            "Free": "item"
+                          }
+                        }
+                      ]
+                    ]
+                  }
+                },
+                "on_false": "Normalize",
+                "on_true": "Normalize"
+              }
+            }
+          }
+        }
+      }
+    },
+    "dependencies": []
+  },
+  {
+    "schema": 1,
+    "semantics": "ink-conditional-laws-v1",
+    "params": {
+      "item": {
+        "Value": "U32"
+      },
+      "xs": {
+        "Value": {
+          "List": "U32"
+        }
+      }
+    },
+    "conditions": [],
+    "from": {
+      "sort": {
+        "Value": "Int"
+      },
+      "node": {
+        "Op": [
+          "call:count",
+          [
+            {
+              "sort": {
+                "Value": {
+                  "List": "U32"
+                }
+              },
+              "node": {
+                "Op": [
+                  "method:filter",
+                  [
+                    {
+                      "sort": {
+                        "Value": {
+                          "List": "U32"
+                        }
+                      },
+                      "node": {
+                        "Op": [
+                          "method:sort",
+                          [
+                            {
+                              "sort": {
+                                "Value": {
+                                  "List": "U32"
+                                }
+                              },
+                              "node": {
+                                "Free": "xs"
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    },
+                    {
+                      "sort": {
+                        "Arrow": [
+                          {
+                            "Value": "U32"
+                          },
+                          {
+                            "Value": "Bool"
+                          }
+                        ]
+                      },
+                      "node": {
+                        "Lambda": {
+                          "sort": {
+                            "Value": "Bool"
+                          },
+                          "node": {
+                            "Op": [
+                              "value:equal",
+                              [
+                                {
+                                  "sort": {
+                                    "Value": "U32"
+                                  },
+                                  "node": {
+                                    "Bound": 0
+                                  }
+                                },
+                                {
+                                  "sort": {
+                                    "Value": "U32"
+                                  },
+                                  "node": {
+                                    "Free": "item"
+                                  }
+                                }
+                              ]
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  ]
+                ]
+              }
+            }
+          ]
+        ]
+      }
+    },
+    "to": {
+      "sort": {
+        "Value": "Int"
+      },
+      "node": {
+        "Op": [
+          "call:count",
+          [
+            {
+              "sort": {
+                "Value": {
+                  "List": "U32"
+                }
+              },
+              "node": {
+                "Op": [
+                  "method:filter",
+                  [
+                    {
+                      "sort": {
+                        "Value": {
+                          "List": "U32"
+                        }
+                      },
+                      "node": {
+                        "Free": "xs"
+                      }
+                    },
+                    {
+                      "sort": {
+                        "Arrow": [
+                          {
+                            "Value": "U32"
+                          },
+                          {
+                            "Value": "Bool"
+                          }
+                        ]
+                      },
+                      "node": {
+                        "Lambda": {
+                          "sort": {
+                            "Value": "Bool"
+                          },
+                          "node": {
+                            "Op": [
+                              "value:equal",
+                              [
+                                {
+                                  "sort": {
+                                    "Value": "U32"
+                                  },
+                                  "node": {
+                                    "Bound": 0
+                                  }
+                                },
+                                {
+                                  "sort": {
+                                    "Value": "U32"
+                                  },
+                                  "node": {
+                                    "Free": "item"
+                                  }
+                                }
+                              ]
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  ]
+                ]
+              }
+            }
+          ]
+        ]
+      }
+    },
+    "proof": {
+      "Induction": {
+        "variable": "xs",
+        "names": [
+          "head",
+          "tail"
+        ],
+        "base": "Normalize",
+        "step": {
+          "Trans": {
+            "middle": {
+              "sort": {
+                "Value": "Int"
+              },
+              "node": {
+                "Op": [
+                  "call:count",
+                  [
+                    {
+                      "sort": {
+                        "Value": {
+                          "List": "U32"
+                        }
+                      },
+                      "node": {
+                        "Op": [
+                          "method:filter",
+                          [
+                            {
+                              "sort": {
+                                "Value": {
+                                  "List": "U32"
+                                }
+                              },
+                              "node": {
+                                "Op": [
+                                  "list.insert",
+                                  [
+                                    {
+                                      "sort": {
+                                        "Value": "U32"
+                                      },
+                                      "node": {
+                                        "Free": "head"
+                                      }
+                                    },
+                                    {
+                                      "sort": {
+                                        "Value": {
+                                          "List": "U32"
+                                        }
+                                      },
+                                      "node": {
+                                        "Op": [
+                                          "method:sort",
+                                          [
+                                            {
+                                              "sort": {
+                                                "Value": {
+                                                  "List": "U32"
+                                                }
+                                              },
+                                              "node": {
+                                                "Free": "tail"
+                                              }
+                                            }
+                                          ]
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                ]
+                              }
+                            },
+                            {
+                              "sort": {
+                                "Arrow": [
+                                  {
+                                    "Value": "U32"
+                                  },
+                                  {
+                                    "Value": "Bool"
+                                  }
+                                ]
+                              },
+                              "node": {
+                                "Lambda": {
+                                  "sort": {
+                                    "Value": "Bool"
+                                  },
+                                  "node": {
+                                    "Op": [
+                                      "value:equal",
+                                      [
+                                        {
+                                          "sort": {
+                                            "Value": "U32"
+                                          },
+                                          "node": {
+                                            "Bound": 0
+                                          }
+                                        },
+                                        {
+                                          "sort": {
+                                            "Value": "U32"
+                                          },
+                                          "node": {
+                                            "Free": "item"
+                                          }
+                                        }
+                                      ]
+                                    ]
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    }
+                  ]
+                ]
+              }
+            },
+            "left": "Normalize",
+            "right": {
+              "Trans": {
+                "middle": {
+                  "sort": {
+                    "Value": "Int"
+                  },
+                  "node": {
+                    "Op": [
+                      "binary:+",
+                      [
+                        {
+                          "sort": {
+                            "Value": "Int"
+                          },
+                          "node": {
+                            "Op": [
+                              "call:choose",
+                              [
+                                {
+                                  "sort": {
+                                    "Value": "Bool"
+                                  },
+                                  "node": {
+                                    "Op": [
+                                      "value:equal",
+                                      [
+                                        {
+                                          "sort": {
+                                            "Value": "U32"
+                                          },
+                                          "node": {
+                                            "Free": "head"
+                                          }
+                                        },
+                                        {
+                                          "sort": {
+                                            "Value": "U32"
+                                          },
+                                          "node": {
+                                            "Free": "item"
+                                          }
+                                        }
+                                      ]
+                                    ]
+                                  }
+                                },
+                                {
+                                  "sort": {
+                                    "Value": "Int"
+                                  },
+                                  "node": {
+                                    "Word": 1
+                                  }
+                                },
+                                {
+                                  "sort": {
+                                    "Value": "Int"
+                                  },
+                                  "node": {
+                                    "Word": 0
+                                  }
+                                }
+                              ]
+                            ]
+                          }
+                        },
+                        {
+                          "sort": {
+                            "Value": "Int"
+                          },
+                          "node": {
+                            "Op": [
+                              "call:count",
+                              [
+                                {
+                                  "sort": {
+                                    "Value": {
+                                      "List": "U32"
+                                    }
+                                  },
+                                  "node": {
+                                    "Op": [
+                                      "method:filter",
+                                      [
+                                        {
+                                          "sort": {
+                                            "Value": {
+                                              "List": "U32"
+                                            }
+                                          },
+                                          "node": {
+                                            "Op": [
+                                              "method:sort",
+                                              [
+                                                {
+                                                  "sort": {
+                                                    "Value": {
+                                                      "List": "U32"
+                                                    }
+                                                  },
+                                                  "node": {
+                                                    "Free": "tail"
+                                                  }
+                                                }
+                                              ]
+                                            ]
+                                          }
+                                        },
+                                        {
+                                          "sort": {
+                                            "Arrow": [
+                                              {
+                                                "Value": "U32"
+                                              },
+                                              {
+                                                "Value": "Bool"
+                                              }
+                                            ]
+                                          },
+                                          "node": {
+                                            "Lambda": {
+                                              "sort": {
+                                                "Value": "Bool"
+                                              },
+                                              "node": {
+                                                "Op": [
+                                                  "value:equal",
+                                                  [
+                                                    {
+                                                      "sort": {
+                                                        "Value": "U32"
+                                                      },
+                                                      "node": {
+                                                        "Bound": 0
+                                                      }
+                                                    },
+                                                    {
+                                                      "sort": {
+                                                        "Value": "U32"
+                                                      },
+                                                      "node": {
+                                                        "Free": "item"
+                                                      }
+                                                    }
+                                                  ]
+                                                ]
+                                              }
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    ]
+                                  }
+                                }
+                              ]
+                            ]
+                          }
+                        }
+                      ]
+                    ]
+                  }
+                },
+                "left": {
+                  "Use": {
+                    "law": "f7a05f6e3db963a5e4c90ae72ab44dec01e497ba96f57de5deecf12230eec5a1",
+                    "arguments": {
+                      "xs": {
+                        "sort": {
+                          "Value": {
+                            "List": "U32"
+                          }
+                        },
+                        "node": {
+                          "Op": [
+                            "method:sort",
+                            [
+                              {
+                                "sort": {
+                                  "Value": {
+                                    "List": "U32"
+                                  }
+                                },
+                                "node": {
+                                  "Free": "tail"
+                                }
+                              }
+                            ]
+                          ]
+                        }
+                      },
+                      "x": {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Free": "head"
+                        }
+                      },
+                      "item": {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Free": "item"
+                        }
+                      }
+                    },
+                    "premises": []
+                  }
+                },
+                "right": {
+                  "Cases": {
+                    "condition": {
+                      "sort": {
+                        "Value": "Bool"
+                      },
+                      "node": {
+                        "Op": [
+                          "value:equal",
+                          [
+                            {
+                              "sort": {
+                                "Value": "U32"
+                              },
+                              "node": {
+                                "Free": "head"
+                              }
+                            },
+                            {
+                              "sort": {
+                                "Value": "U32"
+                              },
+                              "node": {
+                                "Free": "item"
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    },
+                    "on_false": "Normalize",
+                    "on_true": "Normalize"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "dependencies": [
+      "f7a05f6e3db963a5e4c90ae72ab44dec01e497ba96f57de5deecf12230eec5a1"
+    ]
+  },
+  {
+    "schema": 1,
+    "semantics": "ink-conditional-laws-v1",
+    "params": {
+      "xs": {
+        "Value": {
+          "List": "U32"
+        }
+      }
+    },
+    "conditions": [],
+    "from": {
+      "sort": {
+        "Arrow": [
+          {
+            "Value": "U32"
+          },
+          {
+            "Value": "Int"
+          }
+        ]
+      },
+      "node": {
+        "Lambda": {
+          "sort": {
+            "Value": "Int"
+          },
+          "node": {
+            "Op": [
+              "call:count",
+              [
+                {
+                  "sort": {
+                    "Value": {
+                      "List": "U32"
+                    }
+                  },
+                  "node": {
+                    "Op": [
+                      "method:filter",
+                      [
+                        {
+                          "sort": {
+                            "Value": {
+                              "List": "U32"
+                            }
+                          },
+                          "node": {
+                            "Op": [
+                              "method:sort",
+                              [
+                                {
+                                  "sort": {
+                                    "Value": {
+                                      "List": "U32"
+                                    }
+                                  },
+                                  "node": {
+                                    "Free": "xs"
+                                  }
+                                }
+                              ]
+                            ]
+                          }
+                        },
+                        {
+                          "sort": {
+                            "Arrow": [
+                              {
+                                "Value": "U32"
+                              },
+                              {
+                                "Value": "Bool"
+                              }
+                            ]
+                          },
+                          "node": {
+                            "Lambda": {
+                              "sort": {
+                                "Value": "Bool"
+                              },
+                              "node": {
+                                "Op": [
+                                  "value:equal",
+                                  [
+                                    {
+                                      "sort": {
+                                        "Value": "U32"
+                                      },
+                                      "node": {
+                                        "Bound": 0
+                                      }
+                                    },
+                                    {
+                                      "sort": {
+                                        "Value": "U32"
+                                      },
+                                      "node": {
+                                        "Bound": 1
+                                      }
+                                    }
+                                  ]
+                                ]
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    ]
+                  }
+                }
+              ]
+            ]
+          }
+        }
+      }
+    },
+    "to": {
+      "sort": {
+        "Arrow": [
+          {
+            "Value": "U32"
+          },
+          {
+            "Value": "Int"
+          }
+        ]
+      },
+      "node": {
+        "Lambda": {
+          "sort": {
+            "Value": "Int"
+          },
+          "node": {
+            "Op": [
+              "call:count",
+              [
+                {
+                  "sort": {
+                    "Value": {
+                      "List": "U32"
+                    }
+                  },
+                  "node": {
+                    "Op": [
+                      "method:filter",
+                      [
+                        {
+                          "sort": {
+                            "Value": {
+                              "List": "U32"
+                            }
+                          },
+                          "node": {
+                            "Free": "xs"
+                          }
+                        },
+                        {
+                          "sort": {
+                            "Arrow": [
+                              {
+                                "Value": "U32"
+                              },
+                              {
+                                "Value": "Bool"
+                              }
+                            ]
+                          },
+                          "node": {
+                            "Lambda": {
+                              "sort": {
+                                "Value": "Bool"
+                              },
+                              "node": {
+                                "Op": [
+                                  "value:equal",
+                                  [
+                                    {
+                                      "sort": {
+                                        "Value": "U32"
+                                      },
+                                      "node": {
+                                        "Bound": 0
+                                      }
+                                    },
+                                    {
+                                      "sort": {
+                                        "Value": "U32"
+                                      },
+                                      "node": {
+                                        "Bound": 1
+                                      }
+                                    }
+                                  ]
+                                ]
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    ]
+                  }
+                }
+              ]
+            ]
+          }
+        }
+      }
+    },
+    "proof": {
+      "Forall": {
+        "parameter": "observed",
+        "body": {
+          "Use": {
+            "law": "f4d1baf09deadc78dff5c89fbd9d5f8ef772c02ed170a613a1ee6499cfd41147",
+            "arguments": {
+              "xs": {
+                "sort": {
+                  "Value": {
+                    "List": "U32"
+                  }
+                },
+                "node": {
+                  "Free": "xs"
+                }
+              },
+              "item": {
+                "sort": {
+                  "Value": "U32"
+                },
+                "node": {
+                  "Free": "observed"
+                }
+              }
+            },
+            "premises": []
+          }
+        }
+      }
+    },
+    "dependencies": [
+      "f4d1baf09deadc78dff5c89fbd9d5f8ef772c02ed170a613a1ee6499cfd41147"
+    ]
+  },
+  {
+    "schema": 1,
+    "semantics": "ink-conditional-laws-v1",
+    "params": {
+      "item": {
+        "Value": "U64"
+      },
+      "x": {
+        "Value": "U64"
+      },
+      "xs": {
+        "Value": {
+          "List": "U64"
+        }
+      }
+    },
+    "conditions": [],
+    "from": {
+      "sort": {
+        "Value": "Int"
+      },
+      "node": {
+        "Op": [
+          "call:count",
+          [
+            {
+              "sort": {
+                "Value": {
+                  "List": "U64"
+                }
+              },
+              "node": {
+                "Op": [
+                  "method:filter",
+                  [
+                    {
+                      "sort": {
+                        "Value": {
+                          "List": "U64"
+                        }
+                      },
+                      "node": {
+                        "Op": [
+                          "list.insert",
+                          [
+                            {
+                              "sort": {
+                                "Value": "U64"
+                              },
+                              "node": {
+                                "Free": "x"
+                              }
+                            },
+                            {
+                              "sort": {
+                                "Value": {
+                                  "List": "U64"
+                                }
+                              },
+                              "node": {
+                                "Free": "xs"
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    },
+                    {
+                      "sort": {
+                        "Arrow": [
+                          {
+                            "Value": "U64"
+                          },
+                          {
+                            "Value": "Bool"
+                          }
+                        ]
+                      },
+                      "node": {
+                        "Lambda": {
+                          "sort": {
+                            "Value": "Bool"
+                          },
+                          "node": {
+                            "Op": [
+                              "value:equal",
+                              [
+                                {
+                                  "sort": {
+                                    "Value": "U64"
+                                  },
+                                  "node": {
+                                    "Bound": 0
+                                  }
+                                },
+                                {
+                                  "sort": {
+                                    "Value": "U64"
+                                  },
+                                  "node": {
+                                    "Free": "item"
+                                  }
+                                }
+                              ]
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  ]
+                ]
+              }
+            }
+          ]
+        ]
+      }
+    },
+    "to": {
+      "sort": {
+        "Value": "Int"
+      },
+      "node": {
+        "Op": [
+          "binary:+",
+          [
+            {
+              "sort": {
+                "Value": "Int"
+              },
+              "node": {
+                "Op": [
+                  "call:choose",
+                  [
+                    {
+                      "sort": {
+                        "Value": "Bool"
+                      },
+                      "node": {
+                        "Op": [
+                          "value:equal",
+                          [
+                            {
+                              "sort": {
+                                "Value": "U64"
+                              },
+                              "node": {
+                                "Free": "x"
+                              }
+                            },
+                            {
+                              "sort": {
+                                "Value": "U64"
+                              },
+                              "node": {
+                                "Free": "item"
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    },
+                    {
+                      "sort": {
+                        "Value": "Int"
+                      },
+                      "node": {
+                        "Word": 1
+                      }
+                    },
+                    {
+                      "sort": {
+                        "Value": "Int"
+                      },
+                      "node": {
+                        "Word": 0
+                      }
+                    }
+                  ]
+                ]
+              }
+            },
+            {
+              "sort": {
+                "Value": "Int"
+              },
+              "node": {
+                "Op": [
+                  "call:count",
+                  [
+                    {
+                      "sort": {
+                        "Value": {
+                          "List": "U64"
+                        }
+                      },
+                      "node": {
+                        "Op": [
+                          "method:filter",
+                          [
+                            {
+                              "sort": {
+                                "Value": {
+                                  "List": "U64"
+                                }
+                              },
+                              "node": {
+                                "Free": "xs"
+                              }
+                            },
+                            {
+                              "sort": {
+                                "Arrow": [
+                                  {
+                                    "Value": "U64"
+                                  },
+                                  {
+                                    "Value": "Bool"
+                                  }
+                                ]
+                              },
+                              "node": {
+                                "Lambda": {
+                                  "sort": {
+                                    "Value": "Bool"
+                                  },
+                                  "node": {
+                                    "Op": [
+                                      "value:equal",
+                                      [
+                                        {
+                                          "sort": {
+                                            "Value": "U64"
+                                          },
+                                          "node": {
+                                            "Bound": 0
+                                          }
+                                        },
+                                        {
+                                          "sort": {
+                                            "Value": "U64"
+                                          },
+                                          "node": {
+                                            "Free": "item"
+                                          }
+                                        }
+                                      ]
+                                    ]
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    }
+                  ]
+                ]
+              }
+            }
+          ]
+        ]
+      }
+    },
+    "proof": {
+      "Induction": {
+        "variable": "xs",
+        "names": [
+          "head",
+          "tail"
+        ],
+        "base": {
+          "Cases": {
+            "condition": {
+              "sort": {
+                "Value": "Bool"
+              },
+              "node": {
+                "Op": [
+                  "value:equal",
+                  [
+                    {
+                      "sort": {
+                        "Value": "U64"
+                      },
+                      "node": {
+                        "Free": "x"
+                      }
+                    },
+                    {
+                      "sort": {
+                        "Value": "U64"
+                      },
+                      "node": {
+                        "Free": "item"
+                      }
+                    }
+                  ]
+                ]
+              }
+            },
+            "on_false": "Normalize",
+            "on_true": "Normalize"
+          }
+        },
+        "step": {
+          "Cases": {
+            "condition": {
+              "sort": {
+                "Value": "Bool"
+              },
+              "node": {
+                "Op": [
+                  "binary:<=",
+                  [
+                    {
+                      "sort": {
+                        "Value": "U64"
+                      },
+                      "node": {
+                        "Free": "x"
+                      }
+                    },
+                    {
+                      "sort": {
+                        "Value": "U64"
+                      },
+                      "node": {
+                        "Free": "head"
+                      }
+                    }
+                  ]
+                ]
+              }
+            },
+            "on_true": {
+              "Cases": {
+                "condition": {
+                  "sort": {
+                    "Value": "Bool"
+                  },
+                  "node": {
+                    "Op": [
+                      "value:equal",
+                      [
+                        {
+                          "sort": {
+                            "Value": "U64"
+                          },
+                          "node": {
+                            "Free": "x"
+                          }
+                        },
+                        {
+                          "sort": {
+                            "Value": "U64"
+                          },
+                          "node": {
+                            "Free": "item"
+                          }
+                        }
+                      ]
+                    ]
+                  }
+                },
+                "on_false": "Normalize",
+                "on_true": "Normalize"
+              }
+            },
+            "on_false": {
+              "Cases": {
+                "condition": {
+                  "sort": {
+                    "Value": "Bool"
+                  },
+                  "node": {
+                    "Op": [
+                      "value:equal",
+                      [
+                        {
+                          "sort": {
+                            "Value": "U64"
+                          },
+                          "node": {
+                            "Free": "head"
+                          }
+                        },
+                        {
+                          "sort": {
+                            "Value": "U64"
+                          },
+                          "node": {
+                            "Free": "item"
+                          }
+                        }
+                      ]
+                    ]
+                  }
+                },
+                "on_false": "Normalize",
+                "on_true": "Normalize"
+              }
+            }
+          }
+        }
+      }
+    },
+    "dependencies": []
+  },
+  {
+    "schema": 1,
+    "semantics": "ink-conditional-laws-v1",
+    "params": {
+      "item": {
+        "Value": "U64"
+      },
+      "xs": {
+        "Value": {
+          "List": "U64"
+        }
+      }
+    },
+    "conditions": [],
+    "from": {
+      "sort": {
+        "Value": "Int"
+      },
+      "node": {
+        "Op": [
+          "call:count",
+          [
+            {
+              "sort": {
+                "Value": {
+                  "List": "U64"
+                }
+              },
+              "node": {
+                "Op": [
+                  "method:filter",
+                  [
+                    {
+                      "sort": {
+                        "Value": {
+                          "List": "U64"
+                        }
+                      },
+                      "node": {
+                        "Op": [
+                          "method:sort",
+                          [
+                            {
+                              "sort": {
+                                "Value": {
+                                  "List": "U64"
+                                }
+                              },
+                              "node": {
+                                "Free": "xs"
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    },
+                    {
+                      "sort": {
+                        "Arrow": [
+                          {
+                            "Value": "U64"
+                          },
+                          {
+                            "Value": "Bool"
+                          }
+                        ]
+                      },
+                      "node": {
+                        "Lambda": {
+                          "sort": {
+                            "Value": "Bool"
+                          },
+                          "node": {
+                            "Op": [
+                              "value:equal",
+                              [
+                                {
+                                  "sort": {
+                                    "Value": "U64"
+                                  },
+                                  "node": {
+                                    "Bound": 0
+                                  }
+                                },
+                                {
+                                  "sort": {
+                                    "Value": "U64"
+                                  },
+                                  "node": {
+                                    "Free": "item"
+                                  }
+                                }
+                              ]
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  ]
+                ]
+              }
+            }
+          ]
+        ]
+      }
+    },
+    "to": {
+      "sort": {
+        "Value": "Int"
+      },
+      "node": {
+        "Op": [
+          "call:count",
+          [
+            {
+              "sort": {
+                "Value": {
+                  "List": "U64"
+                }
+              },
+              "node": {
+                "Op": [
+                  "method:filter",
+                  [
+                    {
+                      "sort": {
+                        "Value": {
+                          "List": "U64"
+                        }
+                      },
+                      "node": {
+                        "Free": "xs"
+                      }
+                    },
+                    {
+                      "sort": {
+                        "Arrow": [
+                          {
+                            "Value": "U64"
+                          },
+                          {
+                            "Value": "Bool"
+                          }
+                        ]
+                      },
+                      "node": {
+                        "Lambda": {
+                          "sort": {
+                            "Value": "Bool"
+                          },
+                          "node": {
+                            "Op": [
+                              "value:equal",
+                              [
+                                {
+                                  "sort": {
+                                    "Value": "U64"
+                                  },
+                                  "node": {
+                                    "Bound": 0
+                                  }
+                                },
+                                {
+                                  "sort": {
+                                    "Value": "U64"
+                                  },
+                                  "node": {
+                                    "Free": "item"
+                                  }
+                                }
+                              ]
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  ]
+                ]
+              }
+            }
+          ]
+        ]
+      }
+    },
+    "proof": {
+      "Induction": {
+        "variable": "xs",
+        "names": [
+          "head",
+          "tail"
+        ],
+        "base": "Normalize",
+        "step": {
+          "Trans": {
+            "middle": {
+              "sort": {
+                "Value": "Int"
+              },
+              "node": {
+                "Op": [
+                  "call:count",
+                  [
+                    {
+                      "sort": {
+                        "Value": {
+                          "List": "U64"
+                        }
+                      },
+                      "node": {
+                        "Op": [
+                          "method:filter",
+                          [
+                            {
+                              "sort": {
+                                "Value": {
+                                  "List": "U64"
+                                }
+                              },
+                              "node": {
+                                "Op": [
+                                  "list.insert",
+                                  [
+                                    {
+                                      "sort": {
+                                        "Value": "U64"
+                                      },
+                                      "node": {
+                                        "Free": "head"
+                                      }
+                                    },
+                                    {
+                                      "sort": {
+                                        "Value": {
+                                          "List": "U64"
+                                        }
+                                      },
+                                      "node": {
+                                        "Op": [
+                                          "method:sort",
+                                          [
+                                            {
+                                              "sort": {
+                                                "Value": {
+                                                  "List": "U64"
+                                                }
+                                              },
+                                              "node": {
+                                                "Free": "tail"
+                                              }
+                                            }
+                                          ]
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                ]
+                              }
+                            },
+                            {
+                              "sort": {
+                                "Arrow": [
+                                  {
+                                    "Value": "U64"
+                                  },
+                                  {
+                                    "Value": "Bool"
+                                  }
+                                ]
+                              },
+                              "node": {
+                                "Lambda": {
+                                  "sort": {
+                                    "Value": "Bool"
+                                  },
+                                  "node": {
+                                    "Op": [
+                                      "value:equal",
+                                      [
+                                        {
+                                          "sort": {
+                                            "Value": "U64"
+                                          },
+                                          "node": {
+                                            "Bound": 0
+                                          }
+                                        },
+                                        {
+                                          "sort": {
+                                            "Value": "U64"
+                                          },
+                                          "node": {
+                                            "Free": "item"
+                                          }
+                                        }
+                                      ]
+                                    ]
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    }
+                  ]
+                ]
+              }
+            },
+            "left": "Normalize",
+            "right": {
+              "Trans": {
+                "middle": {
+                  "sort": {
+                    "Value": "Int"
+                  },
+                  "node": {
+                    "Op": [
+                      "binary:+",
+                      [
+                        {
+                          "sort": {
+                            "Value": "Int"
+                          },
+                          "node": {
+                            "Op": [
+                              "call:choose",
+                              [
+                                {
+                                  "sort": {
+                                    "Value": "Bool"
+                                  },
+                                  "node": {
+                                    "Op": [
+                                      "value:equal",
+                                      [
+                                        {
+                                          "sort": {
+                                            "Value": "U64"
+                                          },
+                                          "node": {
+                                            "Free": "head"
+                                          }
+                                        },
+                                        {
+                                          "sort": {
+                                            "Value": "U64"
+                                          },
+                                          "node": {
+                                            "Free": "item"
+                                          }
+                                        }
+                                      ]
+                                    ]
+                                  }
+                                },
+                                {
+                                  "sort": {
+                                    "Value": "Int"
+                                  },
+                                  "node": {
+                                    "Word": 1
+                                  }
+                                },
+                                {
+                                  "sort": {
+                                    "Value": "Int"
+                                  },
+                                  "node": {
+                                    "Word": 0
+                                  }
+                                }
+                              ]
+                            ]
+                          }
+                        },
+                        {
+                          "sort": {
+                            "Value": "Int"
+                          },
+                          "node": {
+                            "Op": [
+                              "call:count",
+                              [
+                                {
+                                  "sort": {
+                                    "Value": {
+                                      "List": "U64"
+                                    }
+                                  },
+                                  "node": {
+                                    "Op": [
+                                      "method:filter",
+                                      [
+                                        {
+                                          "sort": {
+                                            "Value": {
+                                              "List": "U64"
+                                            }
+                                          },
+                                          "node": {
+                                            "Op": [
+                                              "method:sort",
+                                              [
+                                                {
+                                                  "sort": {
+                                                    "Value": {
+                                                      "List": "U64"
+                                                    }
+                                                  },
+                                                  "node": {
+                                                    "Free": "tail"
+                                                  }
+                                                }
+                                              ]
+                                            ]
+                                          }
+                                        },
+                                        {
+                                          "sort": {
+                                            "Arrow": [
+                                              {
+                                                "Value": "U64"
+                                              },
+                                              {
+                                                "Value": "Bool"
+                                              }
+                                            ]
+                                          },
+                                          "node": {
+                                            "Lambda": {
+                                              "sort": {
+                                                "Value": "Bool"
+                                              },
+                                              "node": {
+                                                "Op": [
+                                                  "value:equal",
+                                                  [
+                                                    {
+                                                      "sort": {
+                                                        "Value": "U64"
+                                                      },
+                                                      "node": {
+                                                        "Bound": 0
+                                                      }
+                                                    },
+                                                    {
+                                                      "sort": {
+                                                        "Value": "U64"
+                                                      },
+                                                      "node": {
+                                                        "Free": "item"
+                                                      }
+                                                    }
+                                                  ]
+                                                ]
+                                              }
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    ]
+                                  }
+                                }
+                              ]
+                            ]
+                          }
+                        }
+                      ]
+                    ]
+                  }
+                },
+                "left": {
+                  "Use": {
+                    "law": "54898bfb9b6e09a17ba6bee6adefc67722165aa96e3aeccc9e557ce8305c3e8b",
+                    "arguments": {
+                      "xs": {
+                        "sort": {
+                          "Value": {
+                            "List": "U64"
+                          }
+                        },
+                        "node": {
+                          "Op": [
+                            "method:sort",
+                            [
+                              {
+                                "sort": {
+                                  "Value": {
+                                    "List": "U64"
+                                  }
+                                },
+                                "node": {
+                                  "Free": "tail"
+                                }
+                              }
+                            ]
+                          ]
+                        }
+                      },
+                      "x": {
+                        "sort": {
+                          "Value": "U64"
+                        },
+                        "node": {
+                          "Free": "head"
+                        }
+                      },
+                      "item": {
+                        "sort": {
+                          "Value": "U64"
+                        },
+                        "node": {
+                          "Free": "item"
+                        }
+                      }
+                    },
+                    "premises": []
+                  }
+                },
+                "right": {
+                  "Cases": {
+                    "condition": {
+                      "sort": {
+                        "Value": "Bool"
+                      },
+                      "node": {
+                        "Op": [
+                          "value:equal",
+                          [
+                            {
+                              "sort": {
+                                "Value": "U64"
+                              },
+                              "node": {
+                                "Free": "head"
+                              }
+                            },
+                            {
+                              "sort": {
+                                "Value": "U64"
+                              },
+                              "node": {
+                                "Free": "item"
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    },
+                    "on_false": "Normalize",
+                    "on_true": "Normalize"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "dependencies": [
+      "54898bfb9b6e09a17ba6bee6adefc67722165aa96e3aeccc9e557ce8305c3e8b"
+    ]
+  },
+  {
+    "schema": 1,
+    "semantics": "ink-conditional-laws-v1",
+    "params": {
+      "xs": {
+        "Value": {
+          "List": "U64"
+        }
+      }
+    },
+    "conditions": [],
+    "from": {
+      "sort": {
+        "Arrow": [
+          {
+            "Value": "U64"
+          },
+          {
+            "Value": "Int"
+          }
+        ]
+      },
+      "node": {
+        "Lambda": {
+          "sort": {
+            "Value": "Int"
+          },
+          "node": {
+            "Op": [
+              "call:count",
+              [
+                {
+                  "sort": {
+                    "Value": {
+                      "List": "U64"
+                    }
+                  },
+                  "node": {
+                    "Op": [
+                      "method:filter",
+                      [
+                        {
+                          "sort": {
+                            "Value": {
+                              "List": "U64"
+                            }
+                          },
+                          "node": {
+                            "Op": [
+                              "method:sort",
+                              [
+                                {
+                                  "sort": {
+                                    "Value": {
+                                      "List": "U64"
+                                    }
+                                  },
+                                  "node": {
+                                    "Free": "xs"
+                                  }
+                                }
+                              ]
+                            ]
+                          }
+                        },
+                        {
+                          "sort": {
+                            "Arrow": [
+                              {
+                                "Value": "U64"
+                              },
+                              {
+                                "Value": "Bool"
+                              }
+                            ]
+                          },
+                          "node": {
+                            "Lambda": {
+                              "sort": {
+                                "Value": "Bool"
+                              },
+                              "node": {
+                                "Op": [
+                                  "value:equal",
+                                  [
+                                    {
+                                      "sort": {
+                                        "Value": "U64"
+                                      },
+                                      "node": {
+                                        "Bound": 0
+                                      }
+                                    },
+                                    {
+                                      "sort": {
+                                        "Value": "U64"
+                                      },
+                                      "node": {
+                                        "Bound": 1
+                                      }
+                                    }
+                                  ]
+                                ]
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    ]
+                  }
+                }
+              ]
+            ]
+          }
+        }
+      }
+    },
+    "to": {
+      "sort": {
+        "Arrow": [
+          {
+            "Value": "U64"
+          },
+          {
+            "Value": "Int"
+          }
+        ]
+      },
+      "node": {
+        "Lambda": {
+          "sort": {
+            "Value": "Int"
+          },
+          "node": {
+            "Op": [
+              "call:count",
+              [
+                {
+                  "sort": {
+                    "Value": {
+                      "List": "U64"
+                    }
+                  },
+                  "node": {
+                    "Op": [
+                      "method:filter",
+                      [
+                        {
+                          "sort": {
+                            "Value": {
+                              "List": "U64"
+                            }
+                          },
+                          "node": {
+                            "Free": "xs"
+                          }
+                        },
+                        {
+                          "sort": {
+                            "Arrow": [
+                              {
+                                "Value": "U64"
+                              },
+                              {
+                                "Value": "Bool"
+                              }
+                            ]
+                          },
+                          "node": {
+                            "Lambda": {
+                              "sort": {
+                                "Value": "Bool"
+                              },
+                              "node": {
+                                "Op": [
+                                  "value:equal",
+                                  [
+                                    {
+                                      "sort": {
+                                        "Value": "U64"
+                                      },
+                                      "node": {
+                                        "Bound": 0
+                                      }
+                                    },
+                                    {
+                                      "sort": {
+                                        "Value": "U64"
+                                      },
+                                      "node": {
+                                        "Bound": 1
+                                      }
+                                    }
+                                  ]
+                                ]
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    ]
+                  }
+                }
+              ]
+            ]
+          }
+        }
+      }
+    },
+    "proof": {
+      "Forall": {
+        "parameter": "observed",
+        "body": {
+          "Use": {
+            "law": "31437c72a610786b1d9326cdaf9ada1cb33fa13615cb75a843c5637904d7fbf3",
+            "arguments": {
+              "xs": {
+                "sort": {
+                  "Value": {
+                    "List": "U64"
+                  }
+                },
+                "node": {
+                  "Free": "xs"
+                }
+              },
+              "item": {
+                "sort": {
+                  "Value": "U64"
+                },
+                "node": {
+                  "Free": "observed"
+                }
+              }
+            },
+            "premises": []
+          }
+        }
+      }
+    },
+    "dependencies": [
+      "31437c72a610786b1d9326cdaf9ada1cb33fa13615cb75a843c5637904d7fbf3"
+    ]
+  },
+  {
+    "schema": 1,
+    "semantics": "ink-conditional-laws-v1",
+    "params": {
+      "item": {
+        "Value": "I32"
+      },
+      "x": {
+        "Value": "I32"
+      },
+      "xs": {
+        "Value": {
+          "List": "I32"
+        }
+      }
+    },
+    "conditions": [],
+    "from": {
+      "sort": {
+        "Value": "Int"
+      },
+      "node": {
+        "Op": [
+          "call:count",
+          [
+            {
+              "sort": {
+                "Value": {
+                  "List": "I32"
+                }
+              },
+              "node": {
+                "Op": [
+                  "method:filter",
+                  [
+                    {
+                      "sort": {
+                        "Value": {
+                          "List": "I32"
+                        }
+                      },
+                      "node": {
+                        "Op": [
+                          "list.insert",
+                          [
+                            {
+                              "sort": {
+                                "Value": "I32"
+                              },
+                              "node": {
+                                "Free": "x"
+                              }
+                            },
+                            {
+                              "sort": {
+                                "Value": {
+                                  "List": "I32"
+                                }
+                              },
+                              "node": {
+                                "Free": "xs"
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    },
+                    {
+                      "sort": {
+                        "Arrow": [
+                          {
+                            "Value": "I32"
+                          },
+                          {
+                            "Value": "Bool"
+                          }
+                        ]
+                      },
+                      "node": {
+                        "Lambda": {
+                          "sort": {
+                            "Value": "Bool"
+                          },
+                          "node": {
+                            "Op": [
+                              "value:equal",
+                              [
+                                {
+                                  "sort": {
+                                    "Value": "I32"
+                                  },
+                                  "node": {
+                                    "Bound": 0
+                                  }
+                                },
+                                {
+                                  "sort": {
+                                    "Value": "I32"
+                                  },
+                                  "node": {
+                                    "Free": "item"
+                                  }
+                                }
+                              ]
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  ]
+                ]
+              }
+            }
+          ]
+        ]
+      }
+    },
+    "to": {
+      "sort": {
+        "Value": "Int"
+      },
+      "node": {
+        "Op": [
+          "binary:+",
+          [
+            {
+              "sort": {
+                "Value": "Int"
+              },
+              "node": {
+                "Op": [
+                  "call:choose",
+                  [
+                    {
+                      "sort": {
+                        "Value": "Bool"
+                      },
+                      "node": {
+                        "Op": [
+                          "value:equal",
+                          [
+                            {
+                              "sort": {
+                                "Value": "I32"
+                              },
+                              "node": {
+                                "Free": "x"
+                              }
+                            },
+                            {
+                              "sort": {
+                                "Value": "I32"
+                              },
+                              "node": {
+                                "Free": "item"
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    },
+                    {
+                      "sort": {
+                        "Value": "Int"
+                      },
+                      "node": {
+                        "Word": 1
+                      }
+                    },
+                    {
+                      "sort": {
+                        "Value": "Int"
+                      },
+                      "node": {
+                        "Word": 0
+                      }
+                    }
+                  ]
+                ]
+              }
+            },
+            {
+              "sort": {
+                "Value": "Int"
+              },
+              "node": {
+                "Op": [
+                  "call:count",
+                  [
+                    {
+                      "sort": {
+                        "Value": {
+                          "List": "I32"
+                        }
+                      },
+                      "node": {
+                        "Op": [
+                          "method:filter",
+                          [
+                            {
+                              "sort": {
+                                "Value": {
+                                  "List": "I32"
+                                }
+                              },
+                              "node": {
+                                "Free": "xs"
+                              }
+                            },
+                            {
+                              "sort": {
+                                "Arrow": [
+                                  {
+                                    "Value": "I32"
+                                  },
+                                  {
+                                    "Value": "Bool"
+                                  }
+                                ]
+                              },
+                              "node": {
+                                "Lambda": {
+                                  "sort": {
+                                    "Value": "Bool"
+                                  },
+                                  "node": {
+                                    "Op": [
+                                      "value:equal",
+                                      [
+                                        {
+                                          "sort": {
+                                            "Value": "I32"
+                                          },
+                                          "node": {
+                                            "Bound": 0
+                                          }
+                                        },
+                                        {
+                                          "sort": {
+                                            "Value": "I32"
+                                          },
+                                          "node": {
+                                            "Free": "item"
+                                          }
+                                        }
+                                      ]
+                                    ]
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    }
+                  ]
+                ]
+              }
+            }
+          ]
+        ]
+      }
+    },
+    "proof": {
+      "Induction": {
+        "variable": "xs",
+        "names": [
+          "head",
+          "tail"
+        ],
+        "base": {
+          "Cases": {
+            "condition": {
+              "sort": {
+                "Value": "Bool"
+              },
+              "node": {
+                "Op": [
+                  "value:equal",
+                  [
+                    {
+                      "sort": {
+                        "Value": "I32"
+                      },
+                      "node": {
+                        "Free": "x"
+                      }
+                    },
+                    {
+                      "sort": {
+                        "Value": "I32"
+                      },
+                      "node": {
+                        "Free": "item"
+                      }
+                    }
+                  ]
+                ]
+              }
+            },
+            "on_false": "Normalize",
+            "on_true": "Normalize"
+          }
+        },
+        "step": {
+          "Cases": {
+            "condition": {
+              "sort": {
+                "Value": "Bool"
+              },
+              "node": {
+                "Op": [
+                  "binary:<=",
+                  [
+                    {
+                      "sort": {
+                        "Value": "I32"
+                      },
+                      "node": {
+                        "Free": "x"
+                      }
+                    },
+                    {
+                      "sort": {
+                        "Value": "I32"
+                      },
+                      "node": {
+                        "Free": "head"
+                      }
+                    }
+                  ]
+                ]
+              }
+            },
+            "on_true": {
+              "Cases": {
+                "condition": {
+                  "sort": {
+                    "Value": "Bool"
+                  },
+                  "node": {
+                    "Op": [
+                      "value:equal",
+                      [
+                        {
+                          "sort": {
+                            "Value": "I32"
+                          },
+                          "node": {
+                            "Free": "x"
+                          }
+                        },
+                        {
+                          "sort": {
+                            "Value": "I32"
+                          },
+                          "node": {
+                            "Free": "item"
+                          }
+                        }
+                      ]
+                    ]
+                  }
+                },
+                "on_false": "Normalize",
+                "on_true": "Normalize"
+              }
+            },
+            "on_false": {
+              "Cases": {
+                "condition": {
+                  "sort": {
+                    "Value": "Bool"
+                  },
+                  "node": {
+                    "Op": [
+                      "value:equal",
+                      [
+                        {
+                          "sort": {
+                            "Value": "I32"
+                          },
+                          "node": {
+                            "Free": "head"
+                          }
+                        },
+                        {
+                          "sort": {
+                            "Value": "I32"
+                          },
+                          "node": {
+                            "Free": "item"
+                          }
+                        }
+                      ]
+                    ]
+                  }
+                },
+                "on_false": "Normalize",
+                "on_true": "Normalize"
+              }
+            }
+          }
+        }
+      }
+    },
+    "dependencies": []
+  },
+  {
+    "schema": 1,
+    "semantics": "ink-conditional-laws-v1",
+    "params": {
+      "item": {
+        "Value": "I32"
+      },
+      "xs": {
+        "Value": {
+          "List": "I32"
+        }
+      }
+    },
+    "conditions": [],
+    "from": {
+      "sort": {
+        "Value": "Int"
+      },
+      "node": {
+        "Op": [
+          "call:count",
+          [
+            {
+              "sort": {
+                "Value": {
+                  "List": "I32"
+                }
+              },
+              "node": {
+                "Op": [
+                  "method:filter",
+                  [
+                    {
+                      "sort": {
+                        "Value": {
+                          "List": "I32"
+                        }
+                      },
+                      "node": {
+                        "Op": [
+                          "method:sort",
+                          [
+                            {
+                              "sort": {
+                                "Value": {
+                                  "List": "I32"
+                                }
+                              },
+                              "node": {
+                                "Free": "xs"
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    },
+                    {
+                      "sort": {
+                        "Arrow": [
+                          {
+                            "Value": "I32"
+                          },
+                          {
+                            "Value": "Bool"
+                          }
+                        ]
+                      },
+                      "node": {
+                        "Lambda": {
+                          "sort": {
+                            "Value": "Bool"
+                          },
+                          "node": {
+                            "Op": [
+                              "value:equal",
+                              [
+                                {
+                                  "sort": {
+                                    "Value": "I32"
+                                  },
+                                  "node": {
+                                    "Bound": 0
+                                  }
+                                },
+                                {
+                                  "sort": {
+                                    "Value": "I32"
+                                  },
+                                  "node": {
+                                    "Free": "item"
+                                  }
+                                }
+                              ]
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  ]
+                ]
+              }
+            }
+          ]
+        ]
+      }
+    },
+    "to": {
+      "sort": {
+        "Value": "Int"
+      },
+      "node": {
+        "Op": [
+          "call:count",
+          [
+            {
+              "sort": {
+                "Value": {
+                  "List": "I32"
+                }
+              },
+              "node": {
+                "Op": [
+                  "method:filter",
+                  [
+                    {
+                      "sort": {
+                        "Value": {
+                          "List": "I32"
+                        }
+                      },
+                      "node": {
+                        "Free": "xs"
+                      }
+                    },
+                    {
+                      "sort": {
+                        "Arrow": [
+                          {
+                            "Value": "I32"
+                          },
+                          {
+                            "Value": "Bool"
+                          }
+                        ]
+                      },
+                      "node": {
+                        "Lambda": {
+                          "sort": {
+                            "Value": "Bool"
+                          },
+                          "node": {
+                            "Op": [
+                              "value:equal",
+                              [
+                                {
+                                  "sort": {
+                                    "Value": "I32"
+                                  },
+                                  "node": {
+                                    "Bound": 0
+                                  }
+                                },
+                                {
+                                  "sort": {
+                                    "Value": "I32"
+                                  },
+                                  "node": {
+                                    "Free": "item"
+                                  }
+                                }
+                              ]
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  ]
+                ]
+              }
+            }
+          ]
+        ]
+      }
+    },
+    "proof": {
+      "Induction": {
+        "variable": "xs",
+        "names": [
+          "head",
+          "tail"
+        ],
+        "base": "Normalize",
+        "step": {
+          "Trans": {
+            "middle": {
+              "sort": {
+                "Value": "Int"
+              },
+              "node": {
+                "Op": [
+                  "call:count",
+                  [
+                    {
+                      "sort": {
+                        "Value": {
+                          "List": "I32"
+                        }
+                      },
+                      "node": {
+                        "Op": [
+                          "method:filter",
+                          [
+                            {
+                              "sort": {
+                                "Value": {
+                                  "List": "I32"
+                                }
+                              },
+                              "node": {
+                                "Op": [
+                                  "list.insert",
+                                  [
+                                    {
+                                      "sort": {
+                                        "Value": "I32"
+                                      },
+                                      "node": {
+                                        "Free": "head"
+                                      }
+                                    },
+                                    {
+                                      "sort": {
+                                        "Value": {
+                                          "List": "I32"
+                                        }
+                                      },
+                                      "node": {
+                                        "Op": [
+                                          "method:sort",
+                                          [
+                                            {
+                                              "sort": {
+                                                "Value": {
+                                                  "List": "I32"
+                                                }
+                                              },
+                                              "node": {
+                                                "Free": "tail"
+                                              }
+                                            }
+                                          ]
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                ]
+                              }
+                            },
+                            {
+                              "sort": {
+                                "Arrow": [
+                                  {
+                                    "Value": "I32"
+                                  },
+                                  {
+                                    "Value": "Bool"
+                                  }
+                                ]
+                              },
+                              "node": {
+                                "Lambda": {
+                                  "sort": {
+                                    "Value": "Bool"
+                                  },
+                                  "node": {
+                                    "Op": [
+                                      "value:equal",
+                                      [
+                                        {
+                                          "sort": {
+                                            "Value": "I32"
+                                          },
+                                          "node": {
+                                            "Bound": 0
+                                          }
+                                        },
+                                        {
+                                          "sort": {
+                                            "Value": "I32"
+                                          },
+                                          "node": {
+                                            "Free": "item"
+                                          }
+                                        }
+                                      ]
+                                    ]
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    }
+                  ]
+                ]
+              }
+            },
+            "left": "Normalize",
+            "right": {
+              "Trans": {
+                "middle": {
+                  "sort": {
+                    "Value": "Int"
+                  },
+                  "node": {
+                    "Op": [
+                      "binary:+",
+                      [
+                        {
+                          "sort": {
+                            "Value": "Int"
+                          },
+                          "node": {
+                            "Op": [
+                              "call:choose",
+                              [
+                                {
+                                  "sort": {
+                                    "Value": "Bool"
+                                  },
+                                  "node": {
+                                    "Op": [
+                                      "value:equal",
+                                      [
+                                        {
+                                          "sort": {
+                                            "Value": "I32"
+                                          },
+                                          "node": {
+                                            "Free": "head"
+                                          }
+                                        },
+                                        {
+                                          "sort": {
+                                            "Value": "I32"
+                                          },
+                                          "node": {
+                                            "Free": "item"
+                                          }
+                                        }
+                                      ]
+                                    ]
+                                  }
+                                },
+                                {
+                                  "sort": {
+                                    "Value": "Int"
+                                  },
+                                  "node": {
+                                    "Word": 1
+                                  }
+                                },
+                                {
+                                  "sort": {
+                                    "Value": "Int"
+                                  },
+                                  "node": {
+                                    "Word": 0
+                                  }
+                                }
+                              ]
+                            ]
+                          }
+                        },
+                        {
+                          "sort": {
+                            "Value": "Int"
+                          },
+                          "node": {
+                            "Op": [
+                              "call:count",
+                              [
+                                {
+                                  "sort": {
+                                    "Value": {
+                                      "List": "I32"
+                                    }
+                                  },
+                                  "node": {
+                                    "Op": [
+                                      "method:filter",
+                                      [
+                                        {
+                                          "sort": {
+                                            "Value": {
+                                              "List": "I32"
+                                            }
+                                          },
+                                          "node": {
+                                            "Op": [
+                                              "method:sort",
+                                              [
+                                                {
+                                                  "sort": {
+                                                    "Value": {
+                                                      "List": "I32"
+                                                    }
+                                                  },
+                                                  "node": {
+                                                    "Free": "tail"
+                                                  }
+                                                }
+                                              ]
+                                            ]
+                                          }
+                                        },
+                                        {
+                                          "sort": {
+                                            "Arrow": [
+                                              {
+                                                "Value": "I32"
+                                              },
+                                              {
+                                                "Value": "Bool"
+                                              }
+                                            ]
+                                          },
+                                          "node": {
+                                            "Lambda": {
+                                              "sort": {
+                                                "Value": "Bool"
+                                              },
+                                              "node": {
+                                                "Op": [
+                                                  "value:equal",
+                                                  [
+                                                    {
+                                                      "sort": {
+                                                        "Value": "I32"
+                                                      },
+                                                      "node": {
+                                                        "Bound": 0
+                                                      }
+                                                    },
+                                                    {
+                                                      "sort": {
+                                                        "Value": "I32"
+                                                      },
+                                                      "node": {
+                                                        "Free": "item"
+                                                      }
+                                                    }
+                                                  ]
+                                                ]
+                                              }
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    ]
+                                  }
+                                }
+                              ]
+                            ]
+                          }
+                        }
+                      ]
+                    ]
+                  }
+                },
+                "left": {
+                  "Use": {
+                    "law": "979e4dac3d33c22ca1d34eb64abb72aaaa8fa9d22dea082e58b19744dea3440d",
+                    "arguments": {
+                      "xs": {
+                        "sort": {
+                          "Value": {
+                            "List": "I32"
+                          }
+                        },
+                        "node": {
+                          "Op": [
+                            "method:sort",
+                            [
+                              {
+                                "sort": {
+                                  "Value": {
+                                    "List": "I32"
+                                  }
+                                },
+                                "node": {
+                                  "Free": "tail"
+                                }
+                              }
+                            ]
+                          ]
+                        }
+                      },
+                      "x": {
+                        "sort": {
+                          "Value": "I32"
+                        },
+                        "node": {
+                          "Free": "head"
+                        }
+                      },
+                      "item": {
+                        "sort": {
+                          "Value": "I32"
+                        },
+                        "node": {
+                          "Free": "item"
+                        }
+                      }
+                    },
+                    "premises": []
+                  }
+                },
+                "right": {
+                  "Cases": {
+                    "condition": {
+                      "sort": {
+                        "Value": "Bool"
+                      },
+                      "node": {
+                        "Op": [
+                          "value:equal",
+                          [
+                            {
+                              "sort": {
+                                "Value": "I32"
+                              },
+                              "node": {
+                                "Free": "head"
+                              }
+                            },
+                            {
+                              "sort": {
+                                "Value": "I32"
+                              },
+                              "node": {
+                                "Free": "item"
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    },
+                    "on_false": "Normalize",
+                    "on_true": "Normalize"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "dependencies": [
+      "979e4dac3d33c22ca1d34eb64abb72aaaa8fa9d22dea082e58b19744dea3440d"
+    ]
+  },
+  {
+    "schema": 1,
+    "semantics": "ink-conditional-laws-v1",
+    "params": {
+      "xs": {
+        "Value": {
+          "List": "I32"
+        }
+      }
+    },
+    "conditions": [],
+    "from": {
+      "sort": {
+        "Arrow": [
+          {
+            "Value": "I32"
+          },
+          {
+            "Value": "Int"
+          }
+        ]
+      },
+      "node": {
+        "Lambda": {
+          "sort": {
+            "Value": "Int"
+          },
+          "node": {
+            "Op": [
+              "call:count",
+              [
+                {
+                  "sort": {
+                    "Value": {
+                      "List": "I32"
+                    }
+                  },
+                  "node": {
+                    "Op": [
+                      "method:filter",
+                      [
+                        {
+                          "sort": {
+                            "Value": {
+                              "List": "I32"
+                            }
+                          },
+                          "node": {
+                            "Op": [
+                              "method:sort",
+                              [
+                                {
+                                  "sort": {
+                                    "Value": {
+                                      "List": "I32"
+                                    }
+                                  },
+                                  "node": {
+                                    "Free": "xs"
+                                  }
+                                }
+                              ]
+                            ]
+                          }
+                        },
+                        {
+                          "sort": {
+                            "Arrow": [
+                              {
+                                "Value": "I32"
+                              },
+                              {
+                                "Value": "Bool"
+                              }
+                            ]
+                          },
+                          "node": {
+                            "Lambda": {
+                              "sort": {
+                                "Value": "Bool"
+                              },
+                              "node": {
+                                "Op": [
+                                  "value:equal",
+                                  [
+                                    {
+                                      "sort": {
+                                        "Value": "I32"
+                                      },
+                                      "node": {
+                                        "Bound": 0
+                                      }
+                                    },
+                                    {
+                                      "sort": {
+                                        "Value": "I32"
+                                      },
+                                      "node": {
+                                        "Bound": 1
+                                      }
+                                    }
+                                  ]
+                                ]
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    ]
+                  }
+                }
+              ]
+            ]
+          }
+        }
+      }
+    },
+    "to": {
+      "sort": {
+        "Arrow": [
+          {
+            "Value": "I32"
+          },
+          {
+            "Value": "Int"
+          }
+        ]
+      },
+      "node": {
+        "Lambda": {
+          "sort": {
+            "Value": "Int"
+          },
+          "node": {
+            "Op": [
+              "call:count",
+              [
+                {
+                  "sort": {
+                    "Value": {
+                      "List": "I32"
+                    }
+                  },
+                  "node": {
+                    "Op": [
+                      "method:filter",
+                      [
+                        {
+                          "sort": {
+                            "Value": {
+                              "List": "I32"
+                            }
+                          },
+                          "node": {
+                            "Free": "xs"
+                          }
+                        },
+                        {
+                          "sort": {
+                            "Arrow": [
+                              {
+                                "Value": "I32"
+                              },
+                              {
+                                "Value": "Bool"
+                              }
+                            ]
+                          },
+                          "node": {
+                            "Lambda": {
+                              "sort": {
+                                "Value": "Bool"
+                              },
+                              "node": {
+                                "Op": [
+                                  "value:equal",
+                                  [
+                                    {
+                                      "sort": {
+                                        "Value": "I32"
+                                      },
+                                      "node": {
+                                        "Bound": 0
+                                      }
+                                    },
+                                    {
+                                      "sort": {
+                                        "Value": "I32"
+                                      },
+                                      "node": {
+                                        "Bound": 1
+                                      }
+                                    }
+                                  ]
+                                ]
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    ]
+                  }
+                }
+              ]
+            ]
+          }
+        }
+      }
+    },
+    "proof": {
+      "Forall": {
+        "parameter": "observed",
+        "body": {
+          "Use": {
+            "law": "9a269467ac667e3d5a8586f19a23899f9b8c494a8c4f11a3aa5d0e458ca5584d",
+            "arguments": {
+              "xs": {
+                "sort": {
+                  "Value": {
+                    "List": "I32"
+                  }
+                },
+                "node": {
+                  "Free": "xs"
+                }
+              },
+              "item": {
+                "sort": {
+                  "Value": "I32"
+                },
+                "node": {
+                  "Free": "observed"
+                }
+              }
+            },
+            "premises": []
+          }
+        }
+      }
+    },
+    "dependencies": [
+      "9a269467ac667e3d5a8586f19a23899f9b8c494a8c4f11a3aa5d0e458ca5584d"
+    ]
+  }
+]

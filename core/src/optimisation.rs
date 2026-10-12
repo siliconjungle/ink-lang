@@ -3,7 +3,7 @@
 use crate::{
     core::CheckedModule,
     laws::{Catalogue, CheckedCatalogue, Equation, Proof},
-    semantic::{self as s, Budget, Env, Node, Sort, Term},
+    semantic::{self as s, Budget, Env, Term},
     LangResult,
 };
 use serde::{Deserialize, Serialize};
@@ -72,15 +72,27 @@ pub struct Subject {
     pub semantics: String,
     pub input_core_sha256: String,
     pub functions: BTreeMap<String, Term>,
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub contexts: BTreeMap<String, Vec<crate::contracts::SiteFacts>>,
     pub unavailable: Vec<String>,
 }
 pub fn subject(module: &CheckedModule) -> LangResult<Subject> {
     let p = module.program();
     let mut functions = BTreeMap::new();
+    let mut contexts = BTreeMap::new();
     let mut unavailable = vec![];
+    let facts_catalogue = CheckedCatalogue::check(&Catalogue {
+        schema: 1, semantics: crate::laws::SEMANTICS.into(), roots: vec![], objects: BTreeMap::new(),
+    }, p)?;
     for f in &p.functions {
         match s::elaborate(&f.body, &crate::check::params_env(&f.params)?, p, &f.result) {
             Ok(t) => {
+                match crate::contracts::facts::describe(p, &f.name, &t, &f.params,
+                    crate::contracts::facts::entry(p, &f.name)?, &facts_catalogue) {
+                    Ok(facts) if !facts.is_empty() => { contexts.insert(f.name.clone(), facts); },
+                    Err(e) => unavailable.push(format!("function {} fact export: {e}", f.name)),
+                    _ => (),
+                }
                 functions.insert(f.name.clone(), t);
             }
             Err(e) => unavailable.push(format!("function {}: {e}", f.name)),
@@ -89,6 +101,12 @@ pub fn subject(module: &CheckedModule) -> LangResult<Subject> {
     match crate::action_semantic::Regions::derive(module, &mut Budget::new()) {
         Ok(regions) => {
             for (key, r) in regions.entries {
+                match crate::contracts::facts::describe(p, &key, &r.term, &r.proof_params,
+                    r.facts, &facts_catalogue) {
+                    Ok(facts) if !facts.is_empty() => { contexts.insert(key.clone(), facts); },
+                    Err(e) => unavailable.push(format!("region {key} fact export: {e}")),
+                    _ => (),
+                }
                 functions.insert(key, r.term);
             }
         }
@@ -99,6 +117,7 @@ pub fn subject(module: &CheckedModule) -> LangResult<Subject> {
         semantics: s::SEMANTICS.into(),
         input_core_sha256: module.identity()?,
         functions,
+        contexts,
         unavailable,
     })
 }
@@ -214,48 +233,18 @@ fn check_with_catalogue(
         let params = parameters
             .get(&application.function)
             .ok_or("selection function/region missing")?;
-        let mut env: Env = params
-            .iter()
-            .map(|(n, t)| (n.clone(), s::value(t.clone())))
-            .collect();
         let body = bodies
             .get(&application.function)
             .ok_or("selection body missing")?;
-        let mut target = body;
-        let mut scope = vec![];
-        let mut facts = if let Some(r) = regions.entries.get(&application.function) {
+        let facts = if let Some(r) = regions.entries.get(&application.function) {
             crate::action_semantic::copy_facts(&r.facts, &mut budget)?
         } else {
-            vec![]
+            crate::contracts::facts::entry(p, &application.function)?
         };
-        for index in &application.path {
-            budget.step(scope.len())?;
-            if let Node::Op(n, args) = &target.node {
-                let flag = match (n.as_str(), *index) {
-                    ("call:choose", 1) | ("binary:&&", 1) => Some(true),
-                    ("call:choose", 2) | ("binary:||", 1) => Some(false),
-                    _ => None,
-                };
-                if let Some(flag) = flag {
-                    facts.push(Equation {
-                        from: s::open_scope(&args[0], &scope, &mut budget)?,
-                        to: s::term(s::value(crate::core::Type::Bool), Node::Bool(flag)),
-                    });
-                }
-            }
-            if let (Node::Lambda(_), Sort::Arrow(parameter, _)) = (&target.node, &target.sort) {
-                let mut name = format!("__ink_scope_{}", scope.len());
-                while env.contains_key(&name) {
-                    name.push('_')
-                }
-                env.insert(name.clone(), (**parameter).clone());
-                scope.push((name, (**parameter).clone()));
-            }
-            target = s::children(target)
-                .get(*index)
-                .copied()
-                .ok_or("selection path out of range")?;
-        }
+        let context = crate::contracts::facts::at(p, body, params, facts,
+            &application.path, laws, &mut budget)?;
+        let (target, env, scope, facts) = (context.target, context.parameters,
+            context.binders, context.conditions);
         let arguments = application
             .arguments
             .iter()
