@@ -18,10 +18,26 @@ pub enum Schema {
     String,
     Id,
     Record(Vec<(String, Schema)>),
+    Bind(String,Box<Schema>),
+    Ref(String),
     Enum(Vec<String>),
     List(Box<Schema>),
     Option(Box<Schema>),
     Result(Box<Schema>, Box<Schema>),
+}
+/// Literal snapshot descriptors, distinct from public value ABI descriptors.
+pub fn descriptor(s:&Schema)->Value {
+    match s {
+        Schema::Bind(n,t)=>json!({"kind":"bind","name":n,"body":descriptor(t)}),
+        Schema::Ref(n)=>json!({"kind":"ref","name":n}),
+        Schema::Record(fs)=>json!({"kind":"record","fields":fs.iter().map(|(n,t)|json!({"name":n,"type":descriptor(t)})).collect::<Vec<_>>()}),
+        Schema::Enum(xs)=>json!({"kind":"enum","variants":xs}),
+        Schema::List(t)=>json!({"kind":"list","element":descriptor(t)}),
+        Schema::Option(t)=>json!({"kind":"option","element":descriptor(t)}),
+        Schema::Result(a,b)=>json!({"kind":"result","ok":descriptor(a),"error":descriptor(b)}),
+        Schema::Vector(t,n)=>json!({"kind":"vector","element":descriptor(t),"size":n}),
+        _=>json!({"kind":match s {Schema::Unit=>"unit",Schema::Bool=>"bool",Schema::U32=>"u32",Schema::U64=>"u64",Schema::I32=>"i32",Schema::F32=>"f32",Schema::Int=>"int",Schema::String=>"string",Schema::Id=>"id",_=>unreachable!()}}),
+    }
 }
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Layout {
@@ -109,6 +125,7 @@ fn identifier(v: &Value) -> R<u128> {
 }
 fn compare(t: &Schema, a: &Value, b: &Value) -> R<Ordering> {
     Ok(match t {
+        Schema::Bool=>a.as_bool().ok_or("invalid Bool key")?.cmp(&b.as_bool().ok_or("invalid Bool key")?),
         Schema::I32 => a
             .as_i64()
             .and_then(|n| i32::try_from(n).ok())
@@ -138,16 +155,26 @@ fn tick(left: &mut usize, depth: usize, limits: Limits) -> R<()> {
     *left -= 1;
     Ok(())
 }
-fn encode_value(
-    t: &Schema,
+fn encode_value<'s>(
+    t: &'s Schema,
     v: &Value,
     out: &mut Vec<u8>,
     left: &mut usize,
     depth: usize,
     limits: Limits,
+    bindings: &mut Vec<(&'s str,&'s Schema)>,
 ) -> R<()> {
     tick(left, depth, limits)?;
     match t {
+        Schema::Bind(name,body) => {
+            bindings.push((name,body));
+            let result=encode_value(body,v,out,left,depth+1,limits,bindings);
+            bindings.pop();result?;
+        }
+        Schema::Ref(name) => {
+            let body=bindings.iter().rev().find(|(n,_)|*n==name).map(|(_,s)|*s).ok_or("unbound recursive snapshot schema")?;
+            encode_value(body,v,out,left,depth+1,limits,bindings)?;
+        }
         Schema::Unit => {
             if !v.is_null() {
                 return Err("expected Unit".into());
@@ -192,7 +219,7 @@ fn encode_value(
                 return Err("vector dimension mismatch".into());
             }
             for x in xs {
-                encode_value(inner, x, out, left, depth + 1, limits)?;
+                encode_value(inner, x, out, left, depth + 1, limits,bindings)?;
             }
         }
         Schema::Int => {
@@ -232,6 +259,7 @@ fn encode_value(
                     left,
                     depth + 1,
                     limits,
+                    bindings,
                 )?;
             }
         }
@@ -242,13 +270,13 @@ fn encode_value(
             }
             count(out, xs.len());
             for x in xs {
-                encode_value(inner, x, out, left, depth + 1, limits)?;
+                encode_value(inner, x, out, left, depth + 1, limits,bindings)?;
             }
         }
         Schema::Option(inner) => {
             if let Ok(x) = tag(v, "Some") {
                 out.push(1);
-                encode_value(inner, x, out, left, depth + 1, limits)?;
+                encode_value(inner, x, out, left, depth + 1, limits,bindings)?;
             } else {
                 if !tag(v, "None")?.is_null() {
                     return Err("invalid None".into());
@@ -259,10 +287,10 @@ fn encode_value(
         Schema::Result(a, b) => {
             if let Ok(x) = tag(v, "Ok") {
                 out.push(0);
-                encode_value(a, x, out, left, depth + 1, limits)?;
+                encode_value(a, x, out, left, depth + 1, limits,bindings)?;
             } else {
                 out.push(1);
-                encode_value(b, tag(v, "Err")?, out, left, depth + 1, limits)?;
+                encode_value(b, tag(v, "Err")?, out, left, depth + 1, limits,bindings)?;
             }
         }
     }
@@ -308,8 +336,18 @@ impl<'a> Reader<'a> {
         self.take(n)
     }
     fn value(&mut self, t: &Schema, depth: usize) -> R<Value> {
+        self.value_scoped(t,depth,&mut vec![])
+    }
+    fn value_scoped<'s>(&mut self,t:&'s Schema,depth:usize,bindings:&mut Vec<(&'s str,&'s Schema)>)->R<Value>{
         tick(&mut self.left, depth, self.limits)?;
         Ok(match t {
+            Schema::Bind(name,body) => {
+                bindings.push((name,body));let result=self.value_scoped(body,depth+1,bindings);bindings.pop();result?
+            }
+            Schema::Ref(name) => {
+                let body=bindings.iter().rev().find(|(n,_)|*n==name).map(|(_,s)|*s).ok_or("unbound recursive snapshot schema")?;
+                self.value_scoped(body,depth+1,bindings)?
+            }
             Schema::Unit => Value::Null,
             Schema::Bool => match self.byte()? {
                 0 => json!(false),
@@ -335,7 +373,7 @@ impl<'a> Reader<'a> {
                     return Err("invalid vector schema".into());
                 }
                 (0..*n)
-                    .map(|_| self.value(inner, depth + 1))
+                    .map(|_| self.value_scoped(inner, depth + 1,bindings))
                     .collect::<R<Vec<_>>>()?
                     .into()
             }
@@ -364,7 +402,7 @@ impl<'a> Reader<'a> {
             Schema::Record(fields) => {
                 let mut obj = serde_json::Map::new();
                 for (n, t) in fields {
-                    obj.insert(n.clone(), self.value(t, depth + 1)?);
+                    obj.insert(n.clone(), self.value_scoped(t, depth + 1,bindings)?);
                 }
                 Value::Object(obj)
             }
@@ -372,18 +410,18 @@ impl<'a> Reader<'a> {
                 let n = self.sequence()?;
                 let mut xs = Vec::new();
                 for _ in 0..n {
-                    xs.push(self.value(t, depth + 1)?);
+                    xs.push(self.value_scoped(t, depth + 1,bindings)?);
                 }
                 Value::Array(xs)
             }
             Schema::Option(t) => match self.byte()? {
                 0 => json!({"None":null}),
-                1 => json!({"Some":self.value(t,depth+1)?}),
+                1 => json!({"Some":self.value_scoped(t,depth+1,bindings)?}),
                 _ => return Err("invalid Option tag".into()),
             },
             Schema::Result(a, b) => match self.byte()? {
-                0 => json!({"Ok":self.value(a,depth+1)?}),
-                1 => json!({"Err":self.value(b,depth+1)?}),
+                0 => json!({"Ok":self.value_scoped(a,depth+1,bindings)?}),
+                1 => json!({"Err":self.value_scoped(b,depth+1,bindings)?}),
                 _ => return Err("invalid Result tag".into()),
             },
         })
@@ -414,8 +452,8 @@ pub fn encode(layout: &Layout, s: &Logical, limits: Limits) -> R<Vec<u8>> {
                     return Err("snapshot keys must be strictly ordered".into());
                 }
             }
-            encode_value(kt, k, &mut out, &mut left, 0, limits)?;
-            encode_value(vt, v, &mut out, &mut left, 0, limits)?;
+            encode_value(kt, k, &mut out, &mut left, 0, limits,&mut vec![])?;
+            encode_value(vt, v, &mut out, &mut left, 0, limits,&mut vec![])?;
             prior = Some(k);
         }
     }
@@ -430,7 +468,7 @@ pub fn encode(layout: &Layout, s: &Logical, limits: Limits) -> R<Vec<u8>> {
         u64_bytes(&mut out, e.commit);
         u64_bytes(&mut out, e.position);
         out.extend_from_slice(&(e.channel as u32).to_le_bytes());
-        encode_value(t, &e.value, &mut out, &mut left, 0, limits)?;
+        encode_value(t, &e.value, &mut out, &mut left, 0, limits,&mut vec![])?;
         prior = Some((e.commit, e.position));
     }
     if HEADER
@@ -527,4 +565,29 @@ pub fn decode(layout: &Layout, bytes: &[u8], limits: Limits) -> R<Logical> {
         tables,
         outbox,
     })
+}
+
+#[cfg(test)]
+mod recursive_schema_tests {
+    use super::*;
+    fn node(next:Schema)->Schema {Schema::Record(vec![("value".into(),Schema::U64),("next".into(),Schema::Option(Box::new(next)))])}
+    fn layout(value:Schema)->Layout {Layout{program:[1;32],schema:[2;32],roots:vec![("Rows".into(),Schema::U64,value)],events:vec![]}}
+    #[test]
+    fn recursive_schema_preserves_wire_bytes_and_rejects_truncation() {
+        let bound=layout(Schema::Bind("Node".into(),Box::new(node(Schema::Ref("Node".into())))));
+        let unrolled=layout(node(node(Schema::Unit)));
+        let logical=Logical{version:4,tables:vec![vec![(json!(3),json!({"value":7,"next":{"Some":{"value":9,"next":{"None":null}}}}))]],outbox:vec![]};
+        let bytes=encode(&bound,&logical,Limits::default()).unwrap();
+        assert_eq!(bytes,encode(&unrolled,&logical,Limits::default()).unwrap());
+        assert_eq!(logical,decode(&bound,&bytes,Limits::default()).unwrap());
+        assert!(decode(&bound,&bytes[..bytes.len()-1],Limits::default()).is_err());
+        assert!(decode(&bound,&bytes,Limits{depth:3,..Limits::default()}).unwrap_err().contains("depth"));
+    }
+    #[test]
+    fn schema_references_cannot_escape_or_loop_without_consuming_budget() {
+        let logical=Logical{version:0,tables:vec![vec![(json!(0),Value::Null)]],outbox:vec![]};
+        assert!(encode(&layout(Schema::Ref("Missing".into())),&logical,Limits::default()).unwrap_err().contains("unbound"));
+        let cyclic=layout(Schema::Bind("X".into(),Box::new(Schema::Ref("X".into()))));
+        assert!(encode(&cyclic,&logical,Limits{depth:8,..Limits::default()}).unwrap_err().contains("depth"));
+    }
 }
