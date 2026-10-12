@@ -1,0 +1,286 @@
+{
+  "schema": 1,
+  "semantics": "ink-semantic-terms-v1",
+  "input_core_sha256": "de0b37ddb9679078d9aa6030d4faabfee76e27d389ab1952329aefb2be9a0ea8",
+  "functions": {
+    "run": {
+      "sort": {
+        "Value": {
+          "List": {
+            "Named": "Particle"
+          }
+        }
+      },
+      "node": {
+        "Op": [
+          "method:map",
+          [
+            {
+              "sort": {
+                "Value": {
+                  "List": {
+                    "Named": "Particle"
+                  }
+                }
+              },
+              "node": {
+                "Free": "xs"
+              }
+            },
+            {
+              "sort": {
+                "Arrow": [
+                  {
+                    "Value": {
+                      "Named": "Particle"
+                    }
+                  },
+                  {
+                    "Value": {
+                      "Named": "Particle"
+                    }
+                  }
+                ]
+              },
+              "node": {
+                "Lambda": {
+                  "sort": {
+                    "Value": {
+                      "Named": "Particle"
+                    }
+                  },
+                  "node": {
+                    "Op": [
+                      "record:Particle",
+                      [
+                        {
+                          "sort": {
+                            "Value": "F32"
+                          },
+                          "node": {
+                            "Op": [
+                              "binary:+",
+                              [
+                                {
+                                  "sort": {
+                                    "Value": "F32"
+                                  },
+                                  "node": {
+                                    "Op": [
+                                      "field:x",
+                                      [
+                                        {
+                                          "sort": {
+                                            "Value": {
+                                              "Named": "Particle"
+                                            }
+                                          },
+                                          "node": {
+                                            "Bound": 0
+                                          }
+                                        }
+                                      ]
+                                    ]
+                                  }
+                                },
+                                {
+                                  "sort": {
+                                    "Value": "F32"
+                                  },
+                                  "node": {
+                                    "Op": [
+                                      "binary:*",
+                                      [
+                                        {
+                                          "sort": {
+                                            "Value": "F32"
+                                          },
+                                          "node": {
+                                            "Op": [
+                                              "field:vx",
+                                              [
+                                                {
+                                                  "sort": {
+                                                    "Value": {
+                                                      "Named": "Particle"
+                                                    }
+                                                  },
+                                                  "node": {
+                                                    "Bound": 0
+                                                  }
+                                                }
+                                              ]
+                                            ]
+                                          }
+                                        },
+                                        {
+                                          "sort": {
+                                            "Value": "F32"
+                                          },
+                                          "node": {
+                                            "Free": "dt"
+                                          }
+                                        }
+                                      ]
+                                    ]
+                                  }
+                                }
+                              ]
+                            ]
+                          }
+                        },
+                        {
+                          "sort": {
+                            "Value": "F32"
+                          },
+                          "node": {
+                            "Op": [
+                              "binary:+",
+                              [
+                                {
+                                  "sort": {
+                                    "Value": "F32"
+                                  },
+                                  "node": {
+                                    "Op": [
+                                      "field:y",
+                                      [
+                                        {
+                                          "sort": {
+                                            "Value": {
+                                              "Named": "Particle"
+                                            }
+                                          },
+                                          "node": {
+                                            "Bound": 0
+                                          }
+                                        }
+                                      ]
+                                    ]
+                                  }
+                                },
+                                {
+                                  "sort": {
+                                    "Value": "F32"
+                                  },
+                                  "node": {
+                                    "Op": [
+                                      "binary:*",
+                                      [
+                                        {
+                                          "sort": {
+                                            "Value": "F32"
+                                          },
+                                          "node": {
+                                            "Op": [
+                                              "field:vy",
+                                              [
+                                                {
+                                                  "sort": {
+                                                    "Value": {
+                                                      "Named": "Particle"
+                                                    }
+                                                  },
+                                                  "node": {
+                                                    "Bound": 0
+                                                  }
+                                                }
+                                              ]
+                                            ]
+                                          }
+                                        },
+                                        {
+                                          "sort": {
+                                            "Value": "F32"
+                                          },
+                                          "node": {
+                                            "Free": "dt"
+                                          }
+                                        }
+                                      ]
+                                    ]
+                                  }
+                                }
+                              ]
+                            ]
+                          }
+                        },
+                        {
+                          "sort": {
+                            "Value": "F32"
+                          },
+                          "node": {
+                            "Op": [
+                              "field:vx",
+                              [
+                                {
+                                  "sort": {
+                                    "Value": {
+                                      "Named": "Particle"
+                                    }
+                                  },
+                                  "node": {
+                                    "Bound": 0
+                                  }
+                                }
+                              ]
+                            ]
+                          }
+                        },
+                        {
+                          "sort": {
+                            "Value": "F32"
+                          },
+                          "node": {
+                            "Op": [
+                              "field:vy",
+                              [
+                                {
+                                  "sort": {
+                                    "Value": {
+                                      "Named": "Particle"
+                                    }
+                                  },
+                                  "node": {
+                                    "Bound": 0
+                                  }
+                                }
+                              ]
+                            ]
+                          }
+                        },
+                        {
+                          "sort": {
+                            "Value": "Bool"
+                          },
+                          "node": {
+                            "Op": [
+                              "field:active",
+                              [
+                                {
+                                  "sort": {
+                                    "Value": {
+                                      "Named": "Particle"
+                                    }
+                                  },
+                                  "node": {
+                                    "Bound": 0
+                                  }
+                                }
+                              ]
+                            ]
+                          }
+                        }
+                      ]
+                    ]
+                  }
+                }
+              }
+            }
+          ]
+        ]
+      }
+    }
+  },
+  "unavailable": []
+}

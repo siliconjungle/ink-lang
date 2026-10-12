@@ -1,0 +1,499 @@
+{
+  "schema": 1,
+  "semantics": "ink-semantic-terms-v1",
+  "input_core_sha256": "4353976cdb705e415e24e54597fcc71b87812fcff845d5d66e13aa13c678fc12",
+  "functions": {
+    "intersects": {
+      "sort": {
+        "Value": "Bool"
+      },
+      "node": {
+        "Op": [
+          "binary:&&",
+          [
+            {
+              "sort": {
+                "Value": "Bool"
+              },
+              "node": {
+                "Op": [
+                  "binary:&&",
+                  [
+                    {
+                      "sort": {
+                        "Value": "Bool"
+                      },
+                      "node": {
+                        "Op": [
+                          "binary:&&",
+                          [
+                            {
+                              "sort": {
+                                "Value": "Bool"
+                              },
+                              "node": {
+                                "Op": [
+                                  "binary:<=",
+                                  [
+                                    {
+                                      "sort": {
+                                        "Value": "U32"
+                                      },
+                                      "node": {
+                                        "Op": [
+                                          "field:minX",
+                                          [
+                                            {
+                                              "sort": {
+                                                "Value": {
+                                                  "Named": "Box"
+                                                }
+                                              },
+                                              "node": {
+                                                "Free": "a"
+                                              }
+                                            }
+                                          ]
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "sort": {
+                                        "Value": "U32"
+                                      },
+                                      "node": {
+                                        "Op": [
+                                          "field:maxX",
+                                          [
+                                            {
+                                              "sort": {
+                                                "Value": {
+                                                  "Named": "Box"
+                                                }
+                                              },
+                                              "node": {
+                                                "Free": "b"
+                                              }
+                                            }
+                                          ]
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                ]
+                              }
+                            },
+                            {
+                              "sort": {
+                                "Value": "Bool"
+                              },
+                              "node": {
+                                "Op": [
+                                  "binary:<=",
+                                  [
+                                    {
+                                      "sort": {
+                                        "Value": "U32"
+                                      },
+                                      "node": {
+                                        "Op": [
+                                          "field:minY",
+                                          [
+                                            {
+                                              "sort": {
+                                                "Value": {
+                                                  "Named": "Box"
+                                                }
+                                              },
+                                              "node": {
+                                                "Free": "a"
+                                              }
+                                            }
+                                          ]
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "sort": {
+                                        "Value": "U32"
+                                      },
+                                      "node": {
+                                        "Op": [
+                                          "field:maxY",
+                                          [
+                                            {
+                                              "sort": {
+                                                "Value": {
+                                                  "Named": "Box"
+                                                }
+                                              },
+                                              "node": {
+                                                "Free": "b"
+                                              }
+                                            }
+                                          ]
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                ]
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    },
+                    {
+                      "sort": {
+                        "Value": "Bool"
+                      },
+                      "node": {
+                        "Op": [
+                          "binary:>=",
+                          [
+                            {
+                              "sort": {
+                                "Value": "U32"
+                              },
+                              "node": {
+                                "Op": [
+                                  "field:maxX",
+                                  [
+                                    {
+                                      "sort": {
+                                        "Value": {
+                                          "Named": "Box"
+                                        }
+                                      },
+                                      "node": {
+                                        "Free": "a"
+                                      }
+                                    }
+                                  ]
+                                ]
+                              }
+                            },
+                            {
+                              "sort": {
+                                "Value": "U32"
+                              },
+                              "node": {
+                                "Op": [
+                                  "field:minX",
+                                  [
+                                    {
+                                      "sort": {
+                                        "Value": {
+                                          "Named": "Box"
+                                        }
+                                      },
+                                      "node": {
+                                        "Free": "b"
+                                      }
+                                    }
+                                  ]
+                                ]
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    }
+                  ]
+                ]
+              }
+            },
+            {
+              "sort": {
+                "Value": "Bool"
+              },
+              "node": {
+                "Op": [
+                  "binary:>=",
+                  [
+                    {
+                      "sort": {
+                        "Value": "U32"
+                      },
+                      "node": {
+                        "Op": [
+                          "field:maxY",
+                          [
+                            {
+                              "sort": {
+                                "Value": {
+                                  "Named": "Box"
+                                }
+                              },
+                              "node": {
+                                "Free": "a"
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    },
+                    {
+                      "sort": {
+                        "Value": "U32"
+                      },
+                      "node": {
+                        "Op": [
+                          "field:minY",
+                          [
+                            {
+                              "sort": {
+                                "Value": {
+                                  "Named": "Box"
+                                }
+                              },
+                              "node": {
+                                "Free": "b"
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    }
+                  ]
+                ]
+              }
+            }
+          ]
+        ]
+      }
+    },
+    "run": {
+      "sort": {
+        "Value": "Bool"
+      },
+      "node": {
+        "Op": [
+          "call:foldl",
+          [
+            {
+              "sort": {
+                "Value": {
+                  "List": "Bool"
+                }
+              },
+              "node": {
+                "Op": [
+                  "method:map",
+                  [
+                    {
+                      "sort": {
+                        "Value": {
+                          "List": {
+                            "Named": "Box"
+                          }
+                        }
+                      },
+                      "node": {
+                        "Op": [
+                          "method:filter",
+                          [
+                            {
+                              "sort": {
+                                "Value": {
+                                  "List": {
+                                    "Named": "Box"
+                                  }
+                                }
+                              },
+                              "node": {
+                                "Free": "xs"
+                              }
+                            },
+                            {
+                              "sort": {
+                                "Arrow": [
+                                  {
+                                    "Value": {
+                                      "Named": "Box"
+                                    }
+                                  },
+                                  {
+                                    "Value": "Bool"
+                                  }
+                                ]
+                              },
+                              "node": {
+                                "Lambda": {
+                                  "sort": {
+                                    "Value": "Bool"
+                                  },
+                                  "node": {
+                                    "Op": [
+                                      "binary:>=",
+                                      [
+                                        {
+                                          "sort": {
+                                            "Value": "U32"
+                                          },
+                                          "node": {
+                                            "Op": [
+                                              "field:minX",
+                                              [
+                                                {
+                                                  "sort": {
+                                                    "Value": {
+                                                      "Named": "Box"
+                                                    }
+                                                  },
+                                                  "node": {
+                                                    "Bound": 0
+                                                  }
+                                                }
+                                              ]
+                                            ]
+                                          }
+                                        },
+                                        {
+                                          "sort": {
+                                            "Value": "U32"
+                                          },
+                                          "node": {
+                                            "Word": 16
+                                          }
+                                        }
+                                      ]
+                                    ]
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    },
+                    {
+                      "sort": {
+                        "Arrow": [
+                          {
+                            "Value": {
+                              "Named": "Box"
+                            }
+                          },
+                          {
+                            "Value": "Bool"
+                          }
+                        ]
+                      },
+                      "node": {
+                        "Lambda": {
+                          "sort": {
+                            "Value": "Bool"
+                          },
+                          "node": {
+                            "Op": [
+                              "call:intersects",
+                              [
+                                {
+                                  "sort": {
+                                    "Value": {
+                                      "Named": "Box"
+                                    }
+                                  },
+                                  "node": {
+                                    "Bound": 0
+                                  }
+                                },
+                                {
+                                  "sort": {
+                                    "Value": {
+                                      "Named": "Box"
+                                    }
+                                  },
+                                  "node": {
+                                    "Free": "q"
+                                  }
+                                }
+                              ]
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  ]
+                ]
+              }
+            },
+            {
+              "sort": {
+                "Value": "Bool"
+              },
+              "node": {
+                "Bool": false
+              }
+            },
+            {
+              "sort": {
+                "Arrow": [
+                  {
+                    "Value": "Bool"
+                  },
+                  {
+                    "Arrow": [
+                      {
+                        "Value": "Bool"
+                      },
+                      {
+                        "Value": "Bool"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "node": {
+                "Lambda": {
+                  "sort": {
+                    "Arrow": [
+                      {
+                        "Value": "Bool"
+                      },
+                      {
+                        "Value": "Bool"
+                      }
+                    ]
+                  },
+                  "node": {
+                    "Lambda": {
+                      "sort": {
+                        "Value": "Bool"
+                      },
+                      "node": {
+                        "Op": [
+                          "binary:||",
+                          [
+                            {
+                              "sort": {
+                                "Value": "Bool"
+                              },
+                              "node": {
+                                "Bound": 0
+                              }
+                            },
+                            {
+                              "sort": {
+                                "Value": "Bool"
+                              },
+                              "node": {
+                                "Bound": 1
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        ]
+      }
+    }
+  },
+  "unavailable": []
+}
