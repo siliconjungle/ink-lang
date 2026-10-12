@@ -124,7 +124,7 @@ capability and complete lifecycle profitability remain separate gates.
 ## Validation
 
 `tests/database_planning.rs` and `tools/database_planning_conformance.py` exercise a
-real action rewrite → representation → compact observer → properties → discovered
+real action rewrite → representation → compact observer → residual execution → properties → discovered
 endpoint theorem → physical choice → pure route chain. The independent original
 source supplies replies, errors, ordered events and exact portable checkpoints.
 The executable tests include failed changes, acknowledgement, transaction rollback,
@@ -137,3 +137,21 @@ exhaustion. Store tests authenticate paged measurements across 1200 candidates a
 2400 observations, including forged disposable-index rows. Registry tests prevent
 new representation parameters or semantic domains from silently lacking discovery.
 Conformance establishes tested correspondence; it is not a universal speed claim.
+
+The checked validation receipts are in
+`reports/database-planning-2026-10-12/checks.json` and `registry-audit.json`.
+The mandatory CPU run passed 136 tests in 29 suites. Browser validation compared
+22 exact state histories and required an actual WebGPU stage. The registry audit
+covered 14,268 authenticated entries and 1,605 operation names, visiting all 36
+families under its discovery budget. Separate package-loaded sequence-tree
+authoring and kernel admission validate the import repair found by that audit.
+
+A broader historical Python sweep ran 311 tests: 110 passed, 136 skipped and 65
+reported missing archived research fixtures or frozen compiler binaries. Those
+historical files were not replaced with current proofs or compilers. The current
+planner, registry, store, candidate-publication and independently pinned package
+checks pass; the receipt lists every historical missing-file error.
+
+The relocated bundle test passes recursive planning and candidate publication.
+It then removes planner/database resources and empties `PATH`; frozen replay
+produces byte-identical Rust output using only the installed checker.

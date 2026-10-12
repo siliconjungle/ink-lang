@@ -115,6 +115,7 @@ jobs:
         run: |
           cargo build --release --bin ink
           python planner/tests/automatic_candidates_integration.py target/release/ink planner/tests/fixtures/generic-batching.ink
+          python planner/tests/compiled_pool_integration.py target/release/ink examples/point-query-delta.ink
           python -m unittest discover -s knowledge/tests -p test_generic_indexed.py
       - name: Retain reproducible programs, seeds and expected outcomes
         if: always()
