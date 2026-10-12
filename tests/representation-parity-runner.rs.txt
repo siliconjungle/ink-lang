@@ -2,7 +2,8 @@ fn main(){
  ink_compiled_representation::check_calls_do_not_encode_snapshot();
  let mut state=State::new().unwrap();let oracle:Vec<Json>=serde_json::from_str(ORACLE).unwrap();
  for (i,step) in oracle.iter().enumerate(){
-  if let Some(bytes)=step.get("restore"){state=State::restore(&serde_json::from_value::<Vec<u8>>(bytes.clone()).unwrap()).unwrap();}
+  if let Some(bytes)=step.get("reject_restore"){assert!(State::restore(&serde_json::from_value::<Vec<u8>>(bytes.clone()).unwrap()).err().unwrap().contains("invariant"));}
+  else if let Some(bytes)=step.get("restore"){state=State::restore(&serde_json::from_value::<Vec<u8>>(bytes.clone()).unwrap()).unwrap();}
   else if let Some(ack)=step.get("ack"){state.acknowledge_through(ack[0].as_u64().unwrap(),ack[1].as_u64().unwrap());}
   else{let reply=match state.invoke_json(step["call"].as_str().unwrap(),&step["args"]){Ok(v)=>json!({"ok":v}),Err(e)=>json!({"error":e})};assert_eq!(reply,step["reply"],"reply {i}");}
   let bytes:Vec<u8>=serde_json::from_value(step["snapshot"].clone()).unwrap();assert_eq!(state.checkpoint().unwrap(),bytes,"snapshot {i}");assert_eq!(state.outbox_json(),step["outbox"],"outbox {i}");state=State::restore(&bytes).unwrap();assert_eq!(state.checkpoint().unwrap(),bytes);

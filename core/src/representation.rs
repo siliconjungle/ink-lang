@@ -13,6 +13,7 @@ use crate::{
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 pub const SEMANTICS: &str = "ink-source-representation-v1";
+pub const DOMAIN_SEMANTICS: &str = "ink-source-representation-v2";
 pub const MIGRATION_SEMANTICS: &str = "ink-representation-migration-v1";
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -38,6 +39,10 @@ pub struct CompactObservation {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Plan {
+    /// Restrict admission to the exact checked source's valid logical states.
+    /// Snapshot ingress checks source predicates before physical encoding.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub source_domain: bool,
     /// Exact fixed source definitions are part of the entry dependency closure.
     pub source_objects: Vec<String>,
     pub logical_state: Sort,
@@ -70,6 +75,10 @@ pub struct CheckedRepresentation {
     obligations: Vec<Obligation>,
 }
 impl CheckedRepresentation {
+    pub fn source_invariant_guards(&self) -> Vec<&crate::action_model::Action> {
+        self.module.program().contracts.invariant_checks.iter()
+            .map(|name| &self.projection.actions[name]).collect()
+    }
     pub fn snapshot_module(&self) -> &CheckedModule { &self.snapshot_module }
     pub(crate) fn set_snapshot_module(&mut self, module: &CheckedModule) {
         self.snapshot_module=module.clone();
@@ -248,9 +257,27 @@ fn compact_projection(t: Term, datatype: &str) -> Term {
         branches,
     }
 }
+fn guard_value(action: &crate::action_model::Action, args: Vec<Term>) -> LangResult<Term> {
+    let Sort::Data(_) = &action.result else { return Err("source guard observation type".into()) };
+    Ok(Term::Match {
+        scrutinee: Box::new(call(&action.function, args)),
+        branches: vec![
+            Branch { bindings: ["__domain_reply", "__domain_commit", "__domain_version", "__domain_state", "__domain_events"].into_iter().map(String::from).collect(), body: v("__domain_reply") },
+            Branch { bindings: ["__domain_error", "__domain_error_version", "__domain_error_state"].into_iter().map(String::from).collect(), body: Term::Bool(false) },
+        ],
+    })
+}
+fn domain(module: &CheckedModule, projection: &Projection, logical: Term) -> LangResult<Vec<Equation>> {
+    let _=module;
+    let bindings=BTreeMap::from([("logical".into(),logical)]);
+    projection.source_domain.iter().map(|equation|Ok(Equation {
+        from: crate::logic::substitute_term(&equation.from,&bindings)?,
+        to: crate::logic::substitute_term(&equation.to,&bindings)?,
+    })).collect()
+}
 pub fn check(module: &CheckedModule, request: &Request) -> LangResult<CheckedRepresentation> {
     if request.schema != 1
-        || request.semantics != SEMANTICS
+        || !matches!(request.semantics.as_str(), SEMANTICS | DOMAIN_SEMANTICS)
         || request.input_core_sha256 != module.identity()?
     {
         return Err("representation does not match exact source/semantics".into());
@@ -263,10 +290,13 @@ pub fn check(module: &CheckedModule, request: &Request) -> LangResult<CheckedRep
         return Err("representation is not a pinned root".into());
     }
     let entry = &request.knowledge.objects[&request.representation];
-    if entry.kind != Kind::Representation || entry.semantics != SEMANTICS {
+    if entry.kind != Kind::Representation || entry.semantics != request.semantics {
         return Err("incompatible representation entry".into());
     }
     let plan: Plan = serde_json::from_value(entry.payload.clone()).map_err(|e| e.to_string())?;
+    if request.semantics != if plan.source_domain { DOMAIN_SEMANTICS } else { SEMANTICS } {
+        return Err("representation logical-domain semantics mismatch".into());
+    }
     // Interface and dependency closure are derived, never trusted search labels.
     if registry::canonical(entry)? != registry::canonical(&plan.entry()?)? {
         return Err("representation interface/dependency mismatch".into());
@@ -299,6 +329,11 @@ pub fn check(module: &CheckedModule, request: &Request) -> LangResult<CheckedRep
     }
     let math = mathematics(&request.knowledge)?;
     let mut exports = BTreeSet::from([plan.encode.clone(), plan.decode.clone()]);
+    // Original source guards are literal executable definitions. They cannot be
+    // substituted by a physical implementation that assumes their conclusion.
+    for name in &module.program().contracts.invariant_checks {
+        exports.insert(projection.actions[name].function.clone());
+    }
     for a in plan.actions.values() {
         exports.extend([a.execute.clone(), a.next.clone()]);
         exports.insert(
@@ -330,7 +365,7 @@ pub fn check(module: &CheckedModule, request: &Request) -> LangResult<CheckedRep
             &mut goals,
             format!("initialisation/{i}"),
             &[("logical".into(), l.clone())],
-            &[],
+            &if plan.source_domain { domain(module, &projection, v("logical"))? } else { vec![] },
             relation(r, call(&plan.encode, vec![v("logical")]), v("logical")),
             proof,
         )?;
@@ -339,11 +374,12 @@ pub fn check(module: &CheckedModule, request: &Request) -> LangResult<CheckedRep
         ("physical".into(), p.clone()),
         ("logical".into(), l.clone()),
     ];
-    let conditions: Vec<_> = plan
+    let mut conditions: Vec<_> = plan
         .relations
         .iter()
         .map(|r| relation(r, v("physical"), v("logical")))
         .collect();
+    if plan.source_domain { conditions.extend(domain(module, &projection, v("logical"))?); }
     prove(
         &context,
         &mut goals,
@@ -372,6 +408,16 @@ pub fn check(module: &CheckedModule, request: &Request) -> LangResult<CheckedRep
         }
         let mut pa = params.clone();
         pa.extend_from_slice(&source.params[1..]);
+        let mut action_conditions = conditions.clone();
+        if plan.source_domain {
+            if let Some(guard) = module.program().contracts.precondition_checks.get(name) {
+                let mut args = vec![v("logical")];
+                args.extend(source.params[1..].iter().map(|x| v(&x.0)));
+                action_conditions.push(Equation {
+                    from: guard_value(&projection.actions[guard], args)?, to: Term::Bool(true),
+                });
+            }
+        }
         let mut args = vec![v("physical")];
         args.extend(source.params[1..].iter().map(|x| v(&x.0)));
         let executed = call(&a.execute, args);
@@ -383,7 +429,7 @@ pub fn check(module: &CheckedModule, request: &Request) -> LangResult<CheckedRep
             &mut goals,
             format!("{name}/observation"),
             &pa,
-            &conditions,
+            &action_conditions,
             Equation {
                 from: call(&a.observe, vec![executed.clone()]),
                 to: original.clone(),
@@ -430,7 +476,7 @@ pub fn check(module: &CheckedModule, request: &Request) -> LangResult<CheckedRep
                 &mut goals,
                 format!("{name}/compact-observation"),
                 &pa,
-                &conditions,
+                &action_conditions,
                 Equation {
                     from: call(&compact.observe, vec![executed.clone()]),
                     to: compact_projection(original.clone(), id),
@@ -444,7 +490,7 @@ pub fn check(module: &CheckedModule, request: &Request) -> LangResult<CheckedRep
                 &mut goals,
                 format!("{name}/preservation/{i}"),
                 &pa,
-                &conditions,
+                &action_conditions,
                 relation(
                     r,
                     call(&a.next, vec![executed.clone()]),
@@ -498,7 +544,7 @@ impl Plan {
         Ok(Entry {
             schema: 1,
             kind: Kind::Representation,
-            semantics: SEMANTICS.into(),
+            semantics: if self.source_domain { DOMAIN_SEMANTICS } else { SEMANTICS }.into(),
             dependencies: deps.into_iter().collect(),
             interface: registry::Interface {
                 parameters: BTreeMap::from([(
@@ -508,7 +554,7 @@ impl Plan {
                 result: serde_json::to_value(&self.physical_state).unwrap(),
                 operations: self.actions.keys().cloned().collect(),
                 effects: vec!["source-transitions".into()],
-                conditions: vec![],
+                conditions: if self.source_domain { vec![serde_json::json!({"source_domain":"checked-source-invariants"})] } else { vec![] },
             },
             payload,
         })
@@ -628,12 +674,15 @@ pub fn check_migration(
         ("physical".into(), from.plan.physical_state.clone()),
         ("logical".into(), from.plan.logical_state.clone()),
     ];
-    let conditions: Vec<_> = from
+    let mut conditions: Vec<_> = from
         .plan
         .relations
         .iter()
         .map(|r| relation(r, v("physical"), v("logical")))
         .collect();
+    if from.plan.source_domain || to.plan.source_domain {
+        conditions.extend(domain(&from.module, &from.projection, v("logical"))?);
+    }
     let mut goals = vec![];
     for (i, (r, proof)) in to
         .plan

@@ -6,7 +6,8 @@ function invokeWire(step){if(!step.wire)return state.invoke(step.call,step.args)
 const checkpoint=async()=>wasm?state.snapshot():state.checkpoint();
 async function restore(bytes){if(wasm){const next=module.restore(bytes);state.dispose();state=next;}else await state.restore(bytes);}
 for(let i=0;i<oracle.length;i++){
- const step=oracle[i];if(step.restore)await restore(new Uint8Array(step.restore.map(Number)));
+ const step=oracle[i];if(step.reject_restore)await assert.rejects(restore(new Uint8Array(step.reject_restore.map(Number))),/invariant/);
+ else if(step.restore)await restore(new Uint8Array(step.restore.map(Number)));
  else if(step.ack){if(wasm)state.acknowledge(...step.ack);else state.acknowledge_through(...step.ack);}
  else{let reply;try{reply={ok:await (wasm?invokeWire(step):state.invoke_json(step.call,step.args))};}catch(e){reply={error:e.message};}assert.deepEqual(normal(reply),normal(step.reply),`reply ${i}`);}
  const bytes=await checkpoint();assert.deepEqual(Array.from(bytes),step.snapshot.map(Number),`snapshot ${i}`);assert.deepEqual(normal(wasm?state.events():state.outbox),normal(step.outbox),`outbox ${i}`);await restore(bytes);assert.deepEqual(await checkpoint(),bytes,`restored ${i}`);

@@ -364,7 +364,7 @@ impl CheckedBundle {
                 || obj.dependencies.len()
                     > if obj.semantics == "ink-implementation-candidate-v1" {
                         MAX_VIEW_ENTRIES
-                    } else if obj.semantics == "ink-source-representation-v1" {
+                    } else if matches!(obj.semantics.as_str(), "ink-source-representation-v1" | "ink-source-representation-v2") {
                         512
                     } else {
                         128
