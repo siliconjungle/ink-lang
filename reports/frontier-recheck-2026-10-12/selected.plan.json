@@ -1,0 +1,1462 @@
+{
+  "applied_rule_ids": [],
+  "backend": {
+    "abi": "ink-javascript-trusted-values-v2",
+    "backend": "javascript",
+    "caller_contract": "trusted, well-typed target-native values; no input validation, snapshot capture or host resource budgets",
+    "core_semantics": "ink-executable-core-v8",
+    "core_sha256": "62675dc4991fc844291d74e2cc1f786cdf026e6374ee1109dbaa057ed34fe556",
+    "destination_abi": {
+      "aliasing": "destination-disjoint-from-all-reachable-inputs",
+      "capacity": "trusted",
+      "count_unit": "elements",
+      "name": "ink-javascript-into-v1",
+      "ownership": "caller-owned",
+      "tail": "unwritten"
+    },
+    "functions": [
+      {
+        "destination": {
+          "abi": "ink-javascript-into-v1",
+          "count_unit": "elements",
+          "ownership": "caller-owned"
+        },
+        "index": 0,
+        "internal": false,
+        "name": "scalar_diff",
+        "parallel": false,
+        "params": [
+          {
+            "name": "before",
+            "type": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            }
+          },
+          {
+            "name": "after",
+            "type": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            }
+          }
+        ],
+        "result": {
+          "element": {
+            "fields": [
+              {
+                "name": "index",
+                "type": {
+                  "kind": "u32"
+                }
+              },
+              {
+                "name": "value",
+                "type": {
+                  "kind": "u32"
+                }
+              }
+            ],
+            "kind": "record",
+            "name": "Edit"
+          },
+          "kind": "list"
+        }
+      },
+      {
+        "destination": {
+          "abi": "ink-javascript-into-v1",
+          "count_unit": "elements",
+          "ownership": "caller-owned"
+        },
+        "index": 1,
+        "internal": false,
+        "name": "scalar_hint",
+        "parallel": false,
+        "params": [
+          {
+            "name": "before",
+            "type": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            }
+          },
+          {
+            "name": "after",
+            "type": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            }
+          },
+          {
+            "name": "dirty",
+            "type": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            }
+          }
+        ],
+        "result": {
+          "element": {
+            "fields": [
+              {
+                "name": "index",
+                "type": {
+                  "kind": "u32"
+                }
+              },
+              {
+                "name": "value",
+                "type": {
+                  "kind": "u32"
+                }
+              }
+            ],
+            "kind": "record",
+            "name": "Edit"
+          },
+          "kind": "list"
+        }
+      },
+      {
+        "destination": {
+          "abi": "ink-javascript-into-v1",
+          "count_unit": "elements",
+          "ownership": "caller-owned"
+        },
+        "index": 2,
+        "internal": false,
+        "name": "scalar_apply",
+        "parallel": false,
+        "params": [
+          {
+            "name": "before",
+            "type": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            }
+          },
+          {
+            "name": "edits",
+            "type": {
+              "element": {
+                "fields": [
+                  {
+                    "name": "index",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "value",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  }
+                ],
+                "kind": "record",
+                "name": "Edit"
+              },
+              "kind": "list"
+            }
+          }
+        ],
+        "result": {
+          "element": {
+            "kind": "u32"
+          },
+          "kind": "list"
+        }
+      },
+      {
+        "destination": {
+          "abi": "ink-javascript-into-v1",
+          "count_unit": "elements",
+          "ownership": "caller-owned"
+        },
+        "index": 3,
+        "internal": false,
+        "name": "scalar_apply_probe",
+        "parallel": false,
+        "params": [
+          {
+            "name": "before",
+            "type": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            }
+          },
+          {
+            "name": "edits",
+            "type": {
+              "element": {
+                "fields": [
+                  {
+                    "name": "index",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "value",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  }
+                ],
+                "kind": "record",
+                "name": "Edit"
+              },
+              "kind": "list"
+            }
+          }
+        ],
+        "result": {
+          "element": {
+            "kind": "u32"
+          },
+          "kind": "list"
+        }
+      },
+      {
+        "destination": null,
+        "index": 4,
+        "internal": false,
+        "name": "row_changed",
+        "parallel": false,
+        "params": [
+          {
+            "name": "a",
+            "type": {
+              "fields": [
+                {
+                  "name": "id",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "x",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "y",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "score",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "flags",
+                  "type": {
+                    "kind": "u32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "Row"
+            }
+          },
+          {
+            "name": "b",
+            "type": {
+              "fields": [
+                {
+                  "name": "id",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "x",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "y",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "score",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "flags",
+                  "type": {
+                    "kind": "u32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "Row"
+            }
+          }
+        ],
+        "result": {
+          "kind": "bool"
+        }
+      },
+      {
+        "destination": {
+          "abi": "ink-javascript-into-v1",
+          "count_unit": "elements",
+          "ownership": "caller-owned"
+        },
+        "index": 5,
+        "internal": false,
+        "name": "rows_diff",
+        "parallel": false,
+        "params": [
+          {
+            "name": "before",
+            "type": {
+              "element": {
+                "fields": [
+                  {
+                    "name": "id",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "x",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "y",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "score",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "flags",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  }
+                ],
+                "kind": "record",
+                "name": "Row"
+              },
+              "kind": "list"
+            }
+          },
+          {
+            "name": "after",
+            "type": {
+              "element": {
+                "fields": [
+                  {
+                    "name": "id",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "x",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "y",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "score",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "flags",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  }
+                ],
+                "kind": "record",
+                "name": "Row"
+              },
+              "kind": "list"
+            }
+          }
+        ],
+        "result": {
+          "element": {
+            "fields": [
+              {
+                "name": "index",
+                "type": {
+                  "kind": "u32"
+                }
+              },
+              {
+                "name": "id",
+                "type": {
+                  "kind": "u32"
+                }
+              },
+              {
+                "name": "x",
+                "type": {
+                  "kind": "u32"
+                }
+              },
+              {
+                "name": "y",
+                "type": {
+                  "kind": "u32"
+                }
+              },
+              {
+                "name": "score",
+                "type": {
+                  "kind": "u32"
+                }
+              },
+              {
+                "name": "flags",
+                "type": {
+                  "kind": "u32"
+                }
+              }
+            ],
+            "kind": "record",
+            "name": "RowEdit"
+          },
+          "kind": "list"
+        }
+      },
+      {
+        "destination": {
+          "abi": "ink-javascript-into-v1",
+          "count_unit": "elements",
+          "ownership": "caller-owned"
+        },
+        "index": 6,
+        "internal": false,
+        "name": "rows_hint",
+        "parallel": false,
+        "params": [
+          {
+            "name": "before",
+            "type": {
+              "element": {
+                "fields": [
+                  {
+                    "name": "id",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "x",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "y",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "score",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "flags",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  }
+                ],
+                "kind": "record",
+                "name": "Row"
+              },
+              "kind": "list"
+            }
+          },
+          {
+            "name": "after",
+            "type": {
+              "element": {
+                "fields": [
+                  {
+                    "name": "id",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "x",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "y",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "score",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "flags",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  }
+                ],
+                "kind": "record",
+                "name": "Row"
+              },
+              "kind": "list"
+            }
+          },
+          {
+            "name": "dirty",
+            "type": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            }
+          }
+        ],
+        "result": {
+          "element": {
+            "fields": [
+              {
+                "name": "index",
+                "type": {
+                  "kind": "u32"
+                }
+              },
+              {
+                "name": "id",
+                "type": {
+                  "kind": "u32"
+                }
+              },
+              {
+                "name": "x",
+                "type": {
+                  "kind": "u32"
+                }
+              },
+              {
+                "name": "y",
+                "type": {
+                  "kind": "u32"
+                }
+              },
+              {
+                "name": "score",
+                "type": {
+                  "kind": "u32"
+                }
+              },
+              {
+                "name": "flags",
+                "type": {
+                  "kind": "u32"
+                }
+              }
+            ],
+            "kind": "record",
+            "name": "RowEdit"
+          },
+          "kind": "list"
+        }
+      },
+      {
+        "destination": {
+          "abi": "ink-javascript-into-v1",
+          "count_unit": "elements",
+          "ownership": "caller-owned"
+        },
+        "index": 7,
+        "internal": false,
+        "name": "rows_apply",
+        "parallel": false,
+        "params": [
+          {
+            "name": "before",
+            "type": {
+              "element": {
+                "fields": [
+                  {
+                    "name": "id",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "x",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "y",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "score",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "flags",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  }
+                ],
+                "kind": "record",
+                "name": "Row"
+              },
+              "kind": "list"
+            }
+          },
+          {
+            "name": "edits",
+            "type": {
+              "element": {
+                "fields": [
+                  {
+                    "name": "index",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "id",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "x",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "y",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "score",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "flags",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  }
+                ],
+                "kind": "record",
+                "name": "RowEdit"
+              },
+              "kind": "list"
+            }
+          }
+        ],
+        "result": {
+          "element": {
+            "fields": [
+              {
+                "name": "id",
+                "type": {
+                  "kind": "u32"
+                }
+              },
+              {
+                "name": "x",
+                "type": {
+                  "kind": "u32"
+                }
+              },
+              {
+                "name": "y",
+                "type": {
+                  "kind": "u32"
+                }
+              },
+              {
+                "name": "score",
+                "type": {
+                  "kind": "u32"
+                }
+              },
+              {
+                "name": "flags",
+                "type": {
+                  "kind": "u32"
+                }
+              }
+            ],
+            "kind": "record",
+            "name": "Row"
+          },
+          "kind": "list"
+        }
+      },
+      {
+        "destination": {
+          "abi": "ink-javascript-into-v1",
+          "count_unit": "elements",
+          "ownership": "caller-owned"
+        },
+        "index": 8,
+        "internal": false,
+        "name": "scalar_final",
+        "parallel": false,
+        "params": [
+          {
+            "name": "before",
+            "type": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            }
+          },
+          {
+            "name": "after",
+            "type": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            }
+          }
+        ],
+        "result": {
+          "element": {
+            "kind": "u32"
+          },
+          "kind": "list"
+        }
+      },
+      {
+        "destination": {
+          "abi": "ink-javascript-into-v1",
+          "count_unit": "elements",
+          "ownership": "caller-owned"
+        },
+        "index": 9,
+        "internal": false,
+        "name": "rows_final",
+        "parallel": false,
+        "params": [
+          {
+            "name": "before",
+            "type": {
+              "element": {
+                "fields": [
+                  {
+                    "name": "id",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "x",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "y",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "score",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "flags",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  }
+                ],
+                "kind": "record",
+                "name": "Row"
+              },
+              "kind": "list"
+            }
+          },
+          {
+            "name": "after",
+            "type": {
+              "element": {
+                "fields": [
+                  {
+                    "name": "id",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "x",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "y",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "score",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "flags",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  }
+                ],
+                "kind": "record",
+                "name": "Row"
+              },
+              "kind": "list"
+            }
+          }
+        ],
+        "result": {
+          "element": {
+            "fields": [
+              {
+                "name": "id",
+                "type": {
+                  "kind": "u32"
+                }
+              },
+              {
+                "name": "x",
+                "type": {
+                  "kind": "u32"
+                }
+              },
+              {
+                "name": "y",
+                "type": {
+                  "kind": "u32"
+                }
+              },
+              {
+                "name": "score",
+                "type": {
+                  "kind": "u32"
+                }
+              },
+              {
+                "name": "flags",
+                "type": {
+                  "kind": "u32"
+                }
+              }
+            ],
+            "kind": "record",
+            "name": "Row"
+          },
+          "kind": "list"
+        }
+      },
+      {
+        "destination": null,
+        "index": 10,
+        "internal": false,
+        "name": "__ink_instance_1f018c25adf096b4ad929c97e86bcdbd1fa142b1f95b354d7d65d4a49dc5c0ad",
+        "parallel": false,
+        "params": [
+          {
+            "name": "a",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "b",
+            "type": {
+              "kind": "u32"
+            }
+          }
+        ],
+        "result": {
+          "kind": "bool"
+        }
+      },
+      {
+        "destination": {
+          "abi": "ink-javascript-into-v1",
+          "count_unit": "elements",
+          "ownership": "caller-owned"
+        },
+        "index": 11,
+        "internal": false,
+        "name": "__ink_instance_967b5c07a10b998a02d5996e314d57f51de6393641ac3fde6175e75965e1eceb",
+        "parallel": false,
+        "params": [
+          {
+            "name": "before",
+            "type": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            }
+          },
+          {
+            "name": "after",
+            "type": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            }
+          }
+        ],
+        "result": {
+          "element": {
+            "kind": "u32"
+          },
+          "kind": "list"
+        }
+      },
+      {
+        "destination": null,
+        "index": 12,
+        "internal": false,
+        "name": "__ink_instance_a4757017519de1bfe09ff072b9064260b318068596c0c3cf363c9454ccfefdab",
+        "parallel": false,
+        "params": [
+          {
+            "name": "a",
+            "type": {
+              "fields": [
+                {
+                  "name": "id",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "x",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "y",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "score",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "flags",
+                  "type": {
+                    "kind": "u32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "Row"
+            }
+          },
+          {
+            "name": "b",
+            "type": {
+              "fields": [
+                {
+                  "name": "id",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "x",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "y",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "score",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "flags",
+                  "type": {
+                    "kind": "u32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "Row"
+            }
+          }
+        ],
+        "result": {
+          "kind": "bool"
+        }
+      },
+      {
+        "destination": {
+          "abi": "ink-javascript-into-v1",
+          "count_unit": "elements",
+          "ownership": "caller-owned"
+        },
+        "index": 13,
+        "internal": false,
+        "name": "__ink_instance_ce5d94d936ea64b05fa5aacd44611b38607a4dbd28e4c4d90d828b0b7b17ce53",
+        "parallel": false,
+        "params": [
+          {
+            "name": "before",
+            "type": {
+              "element": {
+                "fields": [
+                  {
+                    "name": "id",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "x",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "y",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "score",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "flags",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  }
+                ],
+                "kind": "record",
+                "name": "Row"
+              },
+              "kind": "list"
+            }
+          },
+          {
+            "name": "after",
+            "type": {
+              "element": {
+                "fields": [
+                  {
+                    "name": "id",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "x",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "y",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "score",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "flags",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  }
+                ],
+                "kind": "record",
+                "name": "Row"
+              },
+              "kind": "list"
+            }
+          }
+        ],
+        "result": {
+          "element": {
+            "fields": [
+              {
+                "name": "id",
+                "type": {
+                  "kind": "u32"
+                }
+              },
+              {
+                "name": "x",
+                "type": {
+                  "kind": "u32"
+                }
+              },
+              {
+                "name": "y",
+                "type": {
+                  "kind": "u32"
+                }
+              },
+              {
+                "name": "score",
+                "type": {
+                  "kind": "u32"
+                }
+              },
+              {
+                "name": "flags",
+                "type": {
+                  "kind": "u32"
+                }
+              }
+            ],
+            "kind": "record",
+            "name": "Row"
+          },
+          "kind": "list"
+        }
+      }
+    ],
+    "javascript_sha256": "e0b2ac3d61ebe72e7a7d46f9e108c2fac8e6e39d053377f88b9898ab74a6b240",
+    "named_types": {
+      "Edit": {
+        "fields": [
+          {
+            "name": "index",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "value",
+            "type": {
+              "kind": "u32"
+            }
+          }
+        ],
+        "kind": "record",
+        "name": "Edit"
+      },
+      "Row": {
+        "fields": [
+          {
+            "name": "id",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "x",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "y",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "score",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "flags",
+            "type": {
+              "kind": "u32"
+            }
+          }
+        ],
+        "kind": "record",
+        "name": "Row"
+      },
+      "RowEdit": {
+        "fields": [
+          {
+            "name": "index",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "id",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "x",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "y",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "score",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "flags",
+            "type": {
+              "kind": "u32"
+            }
+          }
+        ],
+        "kind": "record",
+        "name": "RowEdit"
+      },
+      "__ink_instance_3132d4cb48c5223a9cc5bf932cedfc87b4a5c826c6ab37c1eefd8a8bf9fb9276": {
+        "fields": [
+          {
+            "name": "value",
+            "type": {
+              "kind": "u32"
+            }
+          }
+        ],
+        "kind": "record",
+        "name": "__ink_instance_3132d4cb48c5223a9cc5bf932cedfc87b4a5c826c6ab37c1eefd8a8bf9fb9276"
+      },
+      "__ink_instance_36ba1b7acc573ffd472a575553ca4b1175623fc806283d063e21cee6153db135": {
+        "fields": [
+          {
+            "name": "value",
+            "type": {
+              "fields": [
+                {
+                  "name": "id",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "x",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "y",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "score",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "flags",
+                  "type": {
+                    "kind": "u32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "Row"
+            }
+          }
+        ],
+        "kind": "record",
+        "name": "__ink_instance_36ba1b7acc573ffd472a575553ca4b1175623fc806283d063e21cee6153db135"
+      },
+      "__ink_instance_6052c827a2a9462d835aebf57ef9395ebe986c99bcc72b4d790ebb408d2c26a7": {
+        "fields": [
+          {
+            "name": "index",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "out",
+            "type": {
+              "kind": "temporary"
+            }
+          }
+        ],
+        "kind": "record",
+        "name": "__ink_instance_6052c827a2a9462d835aebf57ef9395ebe986c99bcc72b4d790ebb408d2c26a7"
+      },
+      "__ink_instance_bc78c4031cc3aae4b4d10841c140425e9db2d9134cfda1b1cf43efabcbb00edb": {
+        "fields": [
+          {
+            "name": "index",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "out",
+            "type": {
+              "kind": "temporary"
+            }
+          }
+        ],
+        "kind": "record",
+        "name": "__ink_instance_bc78c4031cc3aae4b4d10841c140425e9db2d9134cfda1b1cf43efabcbb00edb"
+      }
+    },
+    "schema": 1,
+    "scope": "trusted pure functions and temporary collections; state/actions with portable snapshots and ordered transaction events",
+    "selection": {
+      "applied_laws": [],
+      "closure": [],
+      "input_core_sha256": "62675dc4991fc844291d74e2cc1f786cdf026e6374ee1109dbaa057ed34fe556",
+      "selected_core_sha256": "62675dc4991fc844291d74e2cc1f786cdf026e6374ee1109dbaa057ed34fe556",
+      "semantics": "ink-evidence-v1",
+      "snapshot_sha256": "789d3d71437737f27ed736f17be9c107a5594150a985fe7049813b47c0f4dbbe"
+    },
+    "state": null,
+    "trusted": [
+      "Ink checker and source correspondence",
+      "JavaScript emitter and representation conversion",
+      "JavaScript engine and host"
+    ]
+  },
+  "checked_implementation": null,
+  "checked_replacement": null,
+  "input_core_sha256": "62675dc4991fc844291d74e2cc1f786cdf026e6374ee1109dbaa057ed34fe556",
+  "selected_core_sha256": "62675dc4991fc844291d74e2cc1f786cdf026e6374ee1109dbaa057ed34fe556",
+  "semantic_package": {
+    "applications": [],
+    "input_core_sha256": "62675dc4991fc844291d74e2cc1f786cdf026e6374ee1109dbaa057ed34fe556",
+    "knowledge": {
+      "membership": {},
+      "objects": {},
+      "roots": [],
+      "schema": 1,
+      "snapshot": {
+        "root": "79338cf35b1dbd60c569a0cf737a75ed65aeda28b0b8ff645f2d0046847c13d7",
+        "schema": 1,
+        "semantics": "ink-knowledge-snapshot-v1"
+      }
+    },
+    "schema": 1,
+    "semantics": "ink-evidence-v1"
+  },
+  "semantic_selection": {
+    "applied_laws": [],
+    "closure": [],
+    "input_core_sha256": "62675dc4991fc844291d74e2cc1f786cdf026e6374ee1109dbaa057ed34fe556",
+    "selected_core_sha256": "62675dc4991fc844291d74e2cc1f786cdf026e6374ee1109dbaa057ed34fe556",
+    "semantics": "ink-evidence-v1",
+    "snapshot_sha256": "789d3d71437737f27ed736f17be9c107a5594150a985fe7049813b47c0f4dbbe"
+  },
+  "source": "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-frontier-extensions-2026-10-11/bench/frontier-recheck/workload.ink",
+  "target": "javascript",
+  "trust": "checked transformations; JavaScript emission and engine remain trusted"
+}
