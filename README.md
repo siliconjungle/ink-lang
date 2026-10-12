@@ -201,3 +201,5 @@ range fill/copy machinery and external voxel, codec and ECS libraries, with chec
 database laws and complete-call native measurements.
 
 Database-authored recursive compilation and frozen replay: [database planning](docs/database-planning.md).
+
+[Competitive workloads](docs/competitive-workloads.md): real block-mesh/Flecs/LZ4/Zstd comparisons, generic final-use ownership, and knowledge-owned voxel/adaptive codec algorithms.

@@ -101,3 +101,11 @@ invariants remain ordinary database laws. Voxel/codec/ECS algorithms stay in
 knowledge libraries. New range operations have CPU execution/GPU-host fallback;
 real eligible numeric dispatch does not imply device range support. See
 `docs/bulk-buffer-workloads.md` and the mandatory generic_libraries coverage.
+
+General final-use facts live in core/src/last_use.rs and refer only to the borrowed
+expression tree. Preserve fresh lexical identities, evaluation order, conservative
+branch handling and sharing of repeated callback captures. Rust literal emission
+may move final-use values; no domain matcher or equality rule follows from these
+facts. Keep real upstream benchmarks and lifecycle/output-size controls in
+bench/competitive-workloads; measured voxel/codec algorithms remain knowledge
+libraries. Formats and performance observations never grant rewrite authority.

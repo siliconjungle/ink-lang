@@ -25,12 +25,13 @@ def main():
     parser.add_argument('--planner',action='store_true')
     args=parser.parse_args();compiler=args.compiler.resolve();out=args.output.resolve()
     out.mkdir(parents=True,exist_ok=True)
+    os.environ['PYTHONPATH']=os.pathsep.join([str(ROOT/'knowledge'),str(ROOT/'planner'),os.environ.get('PYTHONPATH','')])
     source=ROOT/'examples/access-point-cache.ink'
     phases=[]
     def invoke(command,success=True):
         start=time.perf_counter_ns()
         p=subprocess.run([str(x)for x in command],cwd=ROOT,capture_output=True,text=True,
-                         env={**os.environ,'INK_COMPILER':str(compiler),'PYTHONPATH':str(ROOT/'knowledge')},timeout=300)
+                         env={**os.environ,'INK_COMPILER':str(compiler),'PYTHONPATH':os.environ['PYTHONPATH']},timeout=300)
         phases.append(dict(command=str(command[1]),elapsed_ns=time.perf_counter_ns()-start))
         if success and p.returncode:raise ValueError(p.stderr)
         if not success and not p.returncode:raise ValueError('false artifact was accepted')
@@ -122,9 +123,15 @@ def main():
     if args.planner:
         from ink_planner.automatic_candidates import propose
         from ink_planner.implementation_selection import invoke as compiler_invoke,check_package
+        from ink_knowledge.recipes import load
+        registry,_=load();registry['recipes']=[r for r in registry['recipes'] if r['id']=='precise-point-cache']
+        registry_path=out/'point-registry.json';registry_path.write_text(json.dumps(registry))
         store,baseline,candidates,discovery=propose(compiler,source,model['source'],out/'automatic-database',
-            compiler_invoke,check_package,out/'core.json',timeout=120,proposal_timeout=120)
-        assert any(n['proposal']=='point-cache:watched' and n['status']=='checked' for n in discovery),discovery
+            compiler_invoke,check_package,out/'core.json',timeout=120,proposal_timeout=300,
+            registry_path=registry_path,budget=4,state_limit=4,time_seconds=300)
+        assert candidates,discovery
+        assert any(r.get('recipe')=='precise-point-cache' and r.get('status')=='visited'
+                   for n in discovery for r in n.get('recipes',[])),discovery
         result['planner']=dict(baseline=baseline,candidates=candidates,notes=discovery,snapshot=store.snapshot_id)
     (out/'results.json').write_text(json.dumps(result,indent=2)+'\n')
     print(json.dumps(dict(status='checked',output=str(out/'results.json'),mechanism=result['mechanism'],

@@ -11,7 +11,7 @@ import argparse,hashlib,json,os,shlex,statistics,subprocess,sys,time
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2];HERE=Path(__file__).resolve().parent
 sys.path.insert(0,str(ROOT/'bench'));import methodology
-p=argparse.ArgumentParser(description=__doc__);p.add_argument('--before',type=Path,required=True);p.add_argument('--after',type=Path,default=ROOT/'target/debug/ink');p.add_argument('--upstreams',type=Path,required=True);p.add_argument('--output',type=Path,default=HERE/'results.json');a=p.parse_args()
+p=argparse.ArgumentParser(description=__doc__);p.add_argument('--before',type=Path,required=True);p.add_argument('--after',type=Path,default=ROOT/'target/debug/ink');p.add_argument('--upstreams',type=Path,required=True);p.add_argument('--output',type=Path,default=ROOT/'build/competitive-bench/current.json');a=p.parse_args()
 up=a.upstreams.resolve();build=ROOT/'build/competitive-bench';build.mkdir(parents=True,exist_ok=True)
 def call(argv,**kw):return subprocess.run(list(map(str,argv)),check=True,**kw)
 def digest(path):return hashlib.sha256(path.read_bytes()).hexdigest()
@@ -40,5 +40,9 @@ for row in rows:row['median_ns']=statistics.median(row['samples_ns']);row['input
 for row in rows:
  key=(row['family'],row['pattern'],row['n'],row['phase']);comparison=[r for r in rows if (r['family'],r['pattern'],r['n'],r['phase'])==key and r['variant']in {'ink_before','ink_rle_before'}]
  if comparison:row['relative_to_before']=dict(zip(['ratio','ci_low','ci_high'],methodology.ratio_ci(row['samples_ns'],comparison[0]['samples_ns'])))
-report=dict(schema=1,rounds=11,seed=104729,method=__doc__,environment=methodology.environment(),upstreams=metadata,installed_codecs={name:subprocess.check_output(['pkg-config','--modversion',name],text=True).strip()for name in ['liblz4','libzstd']},compilation=compilation,flags={'rust':'-C target-cpu=native, release, no LTO','flecs':'-O3 -DNDEBUG, native CPU','driver':'-O3, native CPU, assertions enabled'},source_hashes={str(path.relative_to(ROOT)):digest(path)for path in [HERE/'main.ink',HERE/'adapter.rs',HERE/'driver.c',HERE/'flecs-adapter.c',ROOT/'knowledge/libraries/voxel_surface.ink',ROOT/'knowledge/libraries/codecs.ink']},observations=observations,results=rows)
+linked_images={}
+for name,stem in [('liblz4','liblz4'),('libzstd','libzstd')]:
+ libdir=Path(subprocess.check_output(['pkg-config','--variable=libdir',name],text=True).strip());lib=(libdir/(stem+'.'+methodology.shared_suffix())).resolve()
+ linked_images[name]=dict(path=str(lib),sha256=digest(lib))
+report=dict(schema=1,rounds=11,seed=104729,method=__doc__,environment=methodology.environment(),upstreams=metadata,linked_codec_images=linked_images,installed_codecs={name:subprocess.check_output(['pkg-config','--modversion',name],text=True).strip()for name in ['liblz4','libzstd']},compilation=compilation,flags={'rust':'-C target-cpu=native, release, no LTO','flecs':'-O3 -DNDEBUG, native CPU','driver':'-O3, native CPU, assertions enabled'},source_hashes={str(path.relative_to(ROOT)):digest(path)for path in [HERE/'main.ink',HERE/'adapter.rs',HERE/'driver.c',HERE/'flecs-adapter.c',ROOT/'knowledge/libraries/voxel_surface.ink',ROOT/'knowledge/libraries/codecs.ink',ROOT/'knowledge/libraries/adaptive_word_codec.ink',ROOT/'core/src/last_use.rs',ROOT/'lowerings/rust/src/pure_rust.rs',ROOT/'native-support/src/owned-values.rs.txt',HERE/'Cargo.lock']},observations=observations,results=rows)
 a.output.write_text(json.dumps(report,indent=2)+'\n');print('Saved',len(rows),'cells to',a.output)
