@@ -130,3 +130,6 @@ fn external_generic_libraries_have_deterministic_semantics_and_backend_parity() 
         expected,
     );
 }
+
+#[path = "support/bulk_workloads.rs"]
+mod bulk_workloads;

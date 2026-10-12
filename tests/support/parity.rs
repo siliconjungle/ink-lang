@@ -130,6 +130,7 @@ fn conformance_inner(
             || name == "numerical-state-parity"
             || name == "language-foundations-parity"
             || name == "generic-libraries-parity"
+            || name == "bulk-workloads-parity"
             || selected.is_some())
     {
         let project = root.join("gpu-module/native");

@@ -91,3 +91,13 @@ storage; typed owners retain direct vectors until partitioned. Runtime must embe
 ink-native-support ownership primitives, never the independent reference evaluator.
 Keep partition algorithms in knowledge and measure whole-workload profitability
 separately from clone/allocation mechanism checks.
+
+Bulk `Buffer.fill_range` and `copy_within` bind executable-core V9. Keep fixed
+clipped/snapshot meanings and independent reference execution in core. Preserve
+affine admission, left-to-right argument evaluation and scoped partition bounds;
+range arithmetic must not wrap. The kernel's recursive list meanings are fixed
+semantics, not optimisation recognisers. Zero/empty work elimination and length
+invariants remain ordinary database laws. Voxel/codec/ECS algorithms stay in
+knowledge libraries. New range operations have CPU execution/GPU-host fallback;
+real eligible numeric dispatch does not imply device range support. See
+`docs/bulk-buffer-workloads.md` and the mandatory generic_libraries coverage.

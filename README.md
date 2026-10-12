@@ -195,3 +195,7 @@ See [current status](STATUS.md), [architecture](docs/repository-architecture.md)
 explicit control/owned-buffer primitives, database laws and shared host policy.
 
 [Scalable typed state](docs/scalable-state.md): batch writes, direct table reductions, shared keys, touched-row rollback and locally checked maintenance candidates.
+
+[Bulk buffer workload foundations](docs/bulk-buffer-workloads.md) add general
+range fill/copy machinery and external voxel, codec and ECS libraries, with checked
+database laws and complete-call native measurements.
