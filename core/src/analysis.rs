@@ -271,6 +271,19 @@ pub fn typed_walk(
                 pending.push((&args[1], env.clone(), want.clone(), depth + 1));
                 pending.push((&args[2], env, want, depth + 1));
             }
+            Expr::Call(name, args) if program.functions.iter().any(|f| &f.name == name) => {
+                let callee = program.functions.iter().find(|f| &f.name == name).unwrap();
+                for (arg, (_, ty)) in args.iter().zip(&callee.params) {
+                    pending.push((arg, env.clone(), Some(ty.clone()), depth + 1));
+                }
+            }
+            Expr::Binary(op, left, right)
+                if ["+", "-", "*", "&", "|", "^", "&&", "||"].contains(&op.as_str()) =>
+            {
+                let ty = crate::check::infer_context(e, &env, program, want.as_ref()).ok();
+                pending.push((left, env.clone(), ty.clone(), depth + 1));
+                pending.push((right, env, ty, depth + 1));
+            }
             Expr::Lambda(_, _) => (),
             _ => {
                 for child in children(e) {

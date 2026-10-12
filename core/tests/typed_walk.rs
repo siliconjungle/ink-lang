@@ -8,6 +8,9 @@ pub fn folded(xs:List<Row>)->Acc{return foldl(xs,Acc{key:0},fn(row)=>fn(acc)=>Ac
 pub fn until(xs:List<Row>)->u32{return fold_until(xs,0,fn(row)=>fn(acc)=>row.key>acc,fn(row)=>fn(acc)=>row.key+acc);}
 pub fn indexed(xs:List<Row>)->List<u32>{return xs.map_indexed(fn(i)=>fn(row)=>row.key+i);}
 pub fn zipped(xs:List<Row>,ys:List<Acc>)->List<u32>{return xs.zip(ys,fn(row)=>fn(acc)=>row.key+acc.key);}
+fn consume(value:u32)->u32{return value;}
+pub fn argument(xs:List<Row>)->u32{return consume(foldl(xs,0,fn(row)=>fn(acc)=>row.key+acc));}
+pub fn arithmetic(xs:List<Row>)->u32{return foldl(xs,0,fn(row)=>fn(acc)=>row.key+acc)+1;}
 pub fn shadow(xs:List<Row>,row:Row)->u32{return foldr(xs,row.key,fn(row)=>fn(acc)=>row.key+acc);}
 "#;
     let m = CheckedModule::from_source(syntax::parse(source).unwrap()).unwrap();
@@ -24,6 +27,8 @@ pub fn shadow(xs:List<Row>,row:Row)->u32{return foldr(xs,row.key,fn(row)=>fn(acc
             }
         })
         .unwrap();
-        assert_eq!(fields, BTreeSet::from(["key".to_owned()]));
+        if f.name != "consume" {
+            assert_eq!(fields, BTreeSet::from(["key".to_owned()]));
+        }
     }
 }
