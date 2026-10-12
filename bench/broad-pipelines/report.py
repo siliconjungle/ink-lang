@@ -32,4 +32,4 @@ labels=['Full index rebuild','Read 2,048 proofs','Template matching'];ax.barh(la
 for i,v in enumerate(values):ax.text(v+.1,i,f'{v:.1f}×',va='center')
 ax.set_xlim(0,max(values)*1.25)
 fig.suptitle('Ink: compiler machinery, database laws and planning costs measured separately',fontsize=14)
-fig.savefig(D/'performance.png',dpi=170);fig.savefig(D/'performance.svg');print(json.dumps(dict(rows=len(summary),significant_regressions=len(small['regressions']),figure=str(D/'performance.png'))))
+fig.savefig(D/'performance.png',dpi=170);fig.savefig(D/'performance.svg');svg=D/'performance.svg';svg.write_text('\n'.join(x.rstrip()for x in svg.read_text().splitlines())+'\n');print(json.dumps(dict(rows=len(summary),significant_regressions=len(small['regressions']),figure=str(D/'performance.png'))))
