@@ -95,15 +95,17 @@ array access. Particle rendering remains the application's responsibility.
 
 ## Floating-point contract
 
-Executable core v2 explicitly introduces portable f32 computation. Its GPU
-arithmetic follows [WGSL floating-point evaluation](https://www.w3.org/TR/WGSL/#floating-point-evaluation),
-including permitted rounding, reassociation, fusion, subnormal flushing and
-finite-math assumptions. Lowering emits the source operation structure; it does
-not introduce a float reduction tree or collection fusion. Hardware may still
-apply transformations allowed by WGSL. A GPU result is not promised to be
-bit-identical to a CPU result, and float-dependent branches can consequently
-differ. This contract is unsuitable for exact accounting or reproducible IEEE
-exception handling. Select CPU when those stronger behaviours are required.
+Source f32 operations use integer-lane binary32 helpers in WGSL: rounding to
+nearest with ties to even, gradual underflow, signed zero and canonical
+arithmetic NaN. Pass-through and negation retain payload bits. Source sums and
+scans retain their operation order; the parallel integer schedules do not
+reassociate floating-point source computations. Target emission and device
+execution remain trusted implementations of this contract.
+
+Session `read` reductions are separate host operations. Their f32 kernels use
+[WGSL floating-point evaluation](https://www.w3.org/TR/WGSL/#floating-point-evaluation)
+and tree order, so their summaries can differ from CPU reductions. They do not
+change the stored source values or grant source rewrite authority.
 
 The reference evaluator and generated CPU code use binary32 arithmetic without
 fast-math; C contraction is disabled. Hosts round finite JSON numbers to f32 at
@@ -193,7 +195,8 @@ Reads:
   reduction over a list (or scalar) of u32, i32, f32, u64, Bool or u32/i32/f32
   vectors, optionally of a dotted record field. Two passes, a few words back.
   Integer sums wrap exactly. f32 device sums use tree order, so they can differ
-  from the CPU's element order in the last bits; min and max are exact. Empty
+  from the CPU's element order, including cancellation and overflow differences.
+  Float read reductions follow WGSL hardware arithmetic; integer min and max are exact. Empty
   lists give `null` for min and max and zero for sums.
 
 `write(input, value)` replaces a named input for the next step. When feedback

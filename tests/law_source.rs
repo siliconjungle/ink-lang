@@ -300,3 +300,20 @@ fn option_and_result_values_have_constructors_and_cases() {
         "semantic normal forms differ",
     );
 }
+
+#[test]
+fn variant_elaboration_preserves_enclosing_error_variables() {
+    author(
+        "module t;
+         law ok_or_hygiene(o: Option<u32>, __ink_variant_other: u32) {
+             o.ok_or(__ink_variant_other)
+                 == o.fold(fn(v) => Ok(v), fn(u) => Err(__ink_variant_other));
+             proof by cases o { none => normalize; some(v) => normalize; };
+         }
+         law nested_hygiene(xs: List<Option<u32>>) {
+             xs.map(fn(__ink_variant_other) => __ink_variant_other.ok_or(7))
+                 == xs.map(fn(o) => o.fold(fn(v) => Ok(v), fn(u) => Err(7)));
+             proof by induction xs;
+         }",
+    ).unwrap();
+}

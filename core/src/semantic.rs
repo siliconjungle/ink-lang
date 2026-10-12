@@ -1000,8 +1000,17 @@ pub fn elaborate(e: &Expr, env: &check::Env, p: &Program, want: &Type) -> LangRe
                     && ["map", "map_err", "ok_or"].contains(&n.as_str())
                     && args.len() == 1
                 {
-                    let value = "__ink_variant_value".to_string();
-                    let other = "__ink_variant_other".to_string();
+                    // Generated fold binders must not capture the error
+                    // expression of ok_or or an enclosing lexical variable.
+                    let fresh = |base: &str| {
+                        let mut name = base.to_string();
+                        while env.contains_key(&name) {
+                            name.push('_');
+                        }
+                        name
+                    };
+                    let value = fresh("__ink_variant_value");
+                    let other = fresh("__ink_variant_other");
                     let keep = |c: &str, x: &str| {
                         Expr::Lambda(x.into(), Box::new(Expr::Call(c.into(), vec![Expr::Var(x.into())])))
                     };
