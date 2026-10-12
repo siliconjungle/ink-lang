@@ -10,6 +10,19 @@ machine and workload. Archived inputs/results remain immutable. A ratio from one
 call boundary cannot rank another. Read [the methodology](docs/benchmark-methodology.md)
 and each report's limits before interpreting a headline.
 
+## Reusable law growth and complete execution
+
+[The latest proof-growth study](docs/proof-growth-epoch3.md) grows reusable pipeline
+families from 11 to 18 and checks 144 concrete typed instances. With the compiler
+held fixed, the 16-family checkpoint has geometric-mean ratios of 2.17× for designed
+JavaScript inputs and 2.39× for the actual AST/mesh input cohorts, versus the
+zero-family baseline. Native Rust and Rust-Wasm ratios are 1.10× and 1.08× at that
+checkpoint. The fused GPU numeric cohort is 0.79× and therefore slower on average.
+Those selected source kernels are not a population estimate for arbitrary software.
+The report retains acquisition boundaries, complete-call costs, compiler effects,
+forced alternatives and adverse cells. [The preceding broad study](docs/broad-performance-research.md)
+separately diagnoses conversion, proof loading and discovery costs.
+
 ## What the recent work demonstrates
 
 Database-only laws can remove entire traversals and intermediate results with the
