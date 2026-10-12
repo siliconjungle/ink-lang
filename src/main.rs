@@ -91,7 +91,7 @@ fn prepare_selection(
             } else {
                 verified_language::distribution::resource("planner/plan.py")?
             };
-            let budget = arg_value(args, "--search-budget")?.unwrap_or_else(|| "128".into());
+            let budget = arg_value(args, "--search-budget")?.unwrap_or_else(|| "4096".into());
             let python = arg_value(args, "--python")?.unwrap_or_else(|| "python3".into());
             let mut command = Command::new(&python);
             command
@@ -112,14 +112,12 @@ fn prepare_selection(
                     command.arg("--cache-context").arg(context);
                 }
             }
-            let result = command
-                .output()
-                .map_err(|e| {
-                    format!(
-                        "cannot start {python} for {}: {e}; use --python PATH",
-                        tool.display()
-                    )
-                })?;
+            let result = command.output().map_err(|e| {
+                format!(
+                    "cannot start {python} for {}: {e}; use --python PATH",
+                    tool.display()
+                )
+            })?;
             if !result.status.success() {
                 return Err(format!(
                     "external search failed: {}",
@@ -137,6 +135,35 @@ fn prepare_selection(
         result?
     };
     verified_language::optimisation::check(&module, &package).map(Some)
+}
+fn planning_state(
+    checked: &verified_language::planning::CheckedPlan,
+) -> LangResult<serde_json::Value> {
+    Ok(
+        serde_json::json!({"source":checked.module().identity()?,"core":serde_json::from_slice::<serde_json::Value>(&checked.module().bytes()?).map_err(|e|e.to_string())?,
+        "representation":checked.representation().map(|r|r.request()),
+        "definition_choices":checked.representation().map(|r|r.definition().choices()),
+        "definitions":checked.representation().map(|r|r.definition().reachable_executable_declarations()).transpose()?,
+        "physical":checked.physical().map(|p|p.plan()),"properties":checked.properties().iter().map(|p|p.package()).collect::<Vec<_>>(),
+        "route":checked.route().map(|r|r.package())}),
+    )
+}
+fn planning_capability(
+    checked: &verified_language::planning::CheckedPlan,
+    target: &str,
+) -> LangResult<()> {
+    let scratch = env::temp_dir().join(format!(
+        "ink-capability-{}-{}",
+        std::process::id(),
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map_err(|e| e.to_string())?
+            .as_nanos()
+    ));
+    fs::create_dir_all(&scratch).map_err(|e| e.to_string())?;
+    let result = verified_language::compiled_plans::emit(checked, target, &scratch.join("program"));
+    let _ = fs::remove_dir_all(scratch);
+    result
 }
 fn emit_state_rust(
     p: &syntax::Program,
@@ -158,6 +185,13 @@ fn run() -> LangResult<()> {
     let cmd = args.first().map(String::as_str).unwrap_or("help");
     const OPTIONS: &[&str] = &[
         "--budget",
+        "--plan",
+        "--registry",
+        "--state-limit",
+        "--planning-seconds",
+        "--profile",
+        "--workload",
+        "--target-profile",
         "--cargo",
         "--cc",
         "--compiler",
@@ -184,6 +218,9 @@ fn run() -> LangResult<()> {
         "--selection",
         "--snapshot",
         "--snapshot-out",
+        "--state-out",
+        "--physical-plan",
+        "--representation",
         "--syntax-roles",
         "--table-storage",
         "--target",
@@ -211,6 +248,70 @@ fn run() -> LangResult<()> {
         );
         return Ok(());
     }
+    if cmd == "compile" {
+        let input = args.get(1).ok_or("compile requires SOURCE")?;
+        let output = arg_value(&args, "-o")?.ok_or("compile requires -o OUTPUT")?;
+        let target = arg_value(&args, "--target")?.unwrap_or_else(|| "rust".into());
+        if let Some(packet) = arg_value(&args, "--plan")? {
+            let module = if args.iter().any(|a| a == "--core") {
+                core::CheckedModule::from_bytes(&read_bounded(input, core::MAX_BYTES)?)?
+            } else {
+                core::CheckedModule::from_source(source(input)?)?
+            };
+            let package = serde_json::from_slice(&read_bounded(
+                &packet,
+                verified_language::registry::MAX_VIEW_BYTES,
+            )?)
+            .map_err(|e| e.to_string())?;
+            let plan = verified_language::planning::check(&module, &package)?;
+            return verified_language::compiled_plans::emit(&plan, &target, Path::new(&output));
+        }
+        let knowledge = arg_value(&args, "--optimise")?
+            .ok_or("compile requires --optimise KNOWLEDGE_DIRECTORY or --plan PACKET.json")?;
+        let tool = verified_language::distribution::resource("planner/compile_plan.py")?;
+        let python = arg_value(&args, "--python")?.unwrap_or_else(|| "python3".into());
+        let mut command = Command::new(python);
+        command
+            .arg(tool)
+            .arg("--compiler")
+            .arg(env::current_exe().map_err(|e| e.to_string())?)
+            .arg("--source")
+            .arg(input)
+            .arg("--knowledge-root")
+            .arg(knowledge)
+            .arg("--target")
+            .arg(target)
+            .arg("--emit")
+            .arg(&output)
+            .arg("-o")
+            .arg(format!("{output}.planning.json"));
+        for (flag, option) in [
+            ("--search-budget", "--budget"),
+            ("--state-limit", "--state-limit"),
+            ("--planning-seconds", "--time-seconds"),
+            ("--registry", "--registry"),
+            ("--snapshot", "--snapshot"),
+            ("--profile", "--profile"),
+            ("--workload", "--workload"),
+            ("--target-profile", "--target-profile"),
+        ] {
+            if let Some(value) = arg_value(&args, flag)? {
+                command.arg(option).arg(value);
+            }
+        }
+        if args.iter().any(|a| a == "--core") {
+            command.arg("--core");
+        }
+        let result = command.output().map_err(|e| e.to_string())?;
+        if !result.status.success() {
+            return Err(format!(
+                "compiled planning failed: {}",
+                String::from_utf8_lossy(&result.stderr)
+            ));
+        }
+        println!("{}", String::from_utf8_lossy(&result.stdout).trim());
+        return Ok(());
+    }
     if cmd == "modules" {
         let path = args.get(1).ok_or("modules requires SOURCE")?;
         let loaded = verified_language::modules::load(path)?;
@@ -219,6 +320,55 @@ fn run() -> LangResult<()> {
             "{}",
             serde_json::to_string_pretty(&output).map_err(|e| e.to_string())?
         );
+        return Ok(());
+    }
+    if cmd == "plan-session" {
+        let input = args.get(1).ok_or("plan-session requires CORE.json")?;
+        let module = core::CheckedModule::from_bytes(&read_bounded(input, core::MAX_BYTES)?)?;
+        let mut checker = verified_language::planning::Checker::new(module);
+        let target = arg_value(&args, "--target")?;
+        use std::io::{BufRead, Write};
+        let stdin = std::io::stdin();
+        let mut input = stdin.lock();
+        println!("{}", serde_json::json!({"ready":true}));
+        std::io::stdout().flush().map_err(|e| e.to_string())?;
+        loop {
+            let mut line = Vec::new();
+            let count = input
+                .by_ref()
+                .take((verified_language::registry::MAX_VIEW_BYTES + 1) as u64)
+                .read_until(b'\n', &mut line)
+                .map_err(|e| e.to_string())?;
+            if count == 0 {
+                break;
+            }
+            if count > verified_language::registry::MAX_VIEW_BYTES {
+                return Err("plan session request byte limit".into());
+            }
+            let result = (|| {
+                let packet: verified_language::planning::Package =
+                    serde_json::from_slice(&line).map_err(|e| e.to_string())?;
+                let checked = checker.check(&packet)?;
+                let capability =
+                    target
+                        .as_ref()
+                        .map(|target| match planning_capability(&checked, target) {
+                            Ok(()) => serde_json::json!({"emittable":true}),
+                            Err(reason) => serde_json::json!({"emittable":false,"reason":reason}),
+                        });
+                Ok::<_, String>(
+                    serde_json::json!({"status":"checked","plan_sha256":verified_language::registry::identity(&packet)?,"state":planning_state(&checked)?,"reused_steps":checker.reused_steps(),"capability":capability}),
+                )
+            })();
+            println!(
+                "{}",
+                match result {
+                    Ok(value) => value,
+                    Err(error) => serde_json::json!({"error":error}),
+                }
+            );
+            std::io::stdout().flush().map_err(|e| e.to_string())?;
+        }
         return Ok(());
     }
     if cmd == "selection-session" {
@@ -282,9 +432,11 @@ fn run() -> LangResult<()> {
             return Err("knowledge-check requires CORE.json VIEW.json".into());
         }
         let module = core::CheckedModule::from_bytes(&read_bounded(&args[1], core::MAX_BYTES)?)?;
-        let bundle: verified_language::registry::Bundle =
-            serde_json::from_slice(&read_bounded(&args[2], verified_language::registry::MAX_VIEW_BYTES)?)
-                .map_err(|e| e.to_string())?;
+        let bundle: verified_language::registry::Bundle = serde_json::from_slice(&read_bounded(
+            &args[2],
+            verified_language::registry::MAX_VIEW_BYTES,
+        )?)
+        .map_err(|e| e.to_string())?;
         let checked = verified_language::registry::CheckedBundle::check(&bundle)?;
         let entries = checked.verify(module.program())?;
         println!(
@@ -561,7 +713,7 @@ fn run() -> LangResult<()> {
     }
 
     if cmd == "help" || cmd == "--help" {
-        println!("ink --version\nink doctor [--python PATH]\nink explain SOURCE [--core] [--selection PACKAGE.json | --optimise SNAPSHOT.json]\nink modules SOURCE");
+        println!("ink compile SOURCE --optimise KNOWLEDGE_DIRECTORY [--snapshot SNAPSHOT.json] --target rust|c|javascript|rust-wasm|c-wasm|wgpu|webgpu -o OUTPUT\nink compile SOURCE --plan PACKET.json --target TARGET -o OUTPUT\nink check-plan SOURCE PACKET.json [--core]\nink --version\nink doctor [--python PATH]\nink explain SOURCE [--core] [--selection PACKAGE.json | --optimise SNAPSHOT.json]\nink modules SOURCE");
         println!("ink check-boolean-verdict THEOREM.json --lean PATH -o CERTIFICATE.lean");
         println!("ink emit-laws THEOREMS.ink [--proofs EVIDENCE.json] [--view DEPENDENCIES.json] -o BUNDLE.json");
         println!("ink emit-semantic SOURCE [--core] -o SUBJECT.json\nink check-selection CORE.json PACKAGE.json\nExecution, lowering and core emission accept --optimise KNOWLEDGE_DIRECTORY or SNAPSHOT.json (external search) or --selection PACKAGE.json (checked replay). Optional --search-tool PATH, --search-budget N, --python PATH and --plan-cache DIRECTORY [--plan-cache-context FILE]. INK_DISTRIBUTION locates an optional installed tool bundle.");
@@ -593,6 +745,61 @@ fn run() -> LangResult<()> {
     } else {
         None
     };
+    if matches!(
+        cmd,
+        "check-plan" | "emit-plan" | "check-properties" | "check-physical-plan"
+    ) {
+        let module = core::CheckedModule::from_source(p.clone())?;
+        let packet = args.get(2).ok_or("missing checked planning package")?;
+        let bytes = read_bounded(packet, verified_language::registry::MAX_VIEW_BYTES)?;
+        if cmd == "check-properties" {
+            let package = serde_json::from_slice(&bytes).map_err(|e| e.to_string())?;
+            let checked = verified_language::property::check(&module, &package)?;
+            println!(
+                "{}",
+                serde_json::json!({"status":"checked","source":module.identity()?,"equations":checked.equations()})
+            );
+            return Ok(());
+        }
+        if cmd == "check-physical-plan" {
+            let package = serde_json::from_slice(&bytes).map_err(|e| e.to_string())?;
+            let representation = arg_value(&args, "--representation")?
+                .map(|path| verified_language::representations::load(&module, &path))
+                .transpose()?;
+            let checked =
+                verified_language::physical::check(&module, representation.as_ref(), &package)?;
+            println!(
+                "{}",
+                serde_json::json!({"status":"checked","source":module.identity()?,"physical":checked.plan()})
+            );
+            return Ok(());
+        }
+        let package = serde_json::from_slice(&bytes).map_err(|e| e.to_string())?;
+        let checked = verified_language::planning::check(&module, &package)?;
+        let state = planning_state(&checked)?;
+        if let Some(out) = arg_value(&args, "--state-out")? {
+            write(
+                &out,
+                &serde_json::to_string(&state).map_err(|e| e.to_string())?,
+            )?;
+        }
+        if cmd == "check-plan" {
+            if let Some(target) = arg_value(&args, "--target")? {
+                planning_capability(&checked, &target)?;
+            }
+        }
+        if cmd == "emit-plan" {
+            let out = arg_value(&args, "-o")?.ok_or("emit-plan requires -o OUTPUT")?;
+            let target = arg_value(&args, "--target")?.unwrap_or_else(|| "rust".into());
+            verified_language::compiled_plans::emit(&checked, &target, Path::new(&out))?;
+        }
+        println!(
+            "{}",
+            serde_json::json!({"status":"checked","input":module.identity()?,"selected":checked.module().identity()?,
+            "steps":checked.package().steps.len(),"plan_sha256":verified_language::registry::identity(checked.package())?,"state":state})
+        );
+        return Ok(());
+    }
     let semantic_selection = prepare_selection(&args, &p)?;
     if let Some(selected) = &semantic_selection {
         p = selected.module().program().clone();
@@ -645,8 +852,11 @@ fn run() -> LangResult<()> {
                 serde_json::from_slice(&read_bounded(&file, 16_384)?).map_err(|e| e.to_string())?;
             let file =
                 arg_value(&args, "--view")?.ok_or("action values require --view VIEW.json")?;
-            let view = serde_json::from_slice(&read_bounded(&file, verified_language::registry::MAX_VIEW_BYTES)?)
-                .map_err(|e| e.to_string())?;
+            let view = serde_json::from_slice(&read_bounded(
+                &file,
+                verified_language::registry::MAX_VIEW_BYTES,
+            )?)
+            .map_err(|e| e.to_string())?;
             let codec = verified_language::action_values::ActionValues::bind(
                 &actions, &view, &syntax, &roles,
             )?;
@@ -719,9 +929,10 @@ fn run() -> LangResult<()> {
             } else {
                 let file = arg_value(&args, "--view")?
                     .ok_or("check-source-syntax requires --view VIEW.json")?;
-                let bundle: verified_language::registry::Bundle =
-                    serde_json::from_slice(&read_bounded(&file, verified_language::registry::MAX_VIEW_BYTES)?)
-                        .map_err(|e| e.to_string())?;
+                let bundle: verified_language::registry::Bundle = serde_json::from_slice(
+                    &read_bounded(&file, verified_language::registry::MAX_VIEW_BYTES)?,
+                )
+                .map_err(|e| e.to_string())?;
                 verified_language::source_syntax::BoundSyntax::bind(&actions, &bundle, &roles)?;
             }
             println!(
@@ -843,7 +1054,7 @@ fn run() -> LangResult<()> {
         "emit-state" => {
             let out = arg_value(&args, "-o")?.ok_or("emit-state requires -o DIRECTORY")?;
             let wasm_abi = args.iter().any(|s| s == "--wasm-abi");
-            let mut code = emit_state_rust(&p,semantic_selection.as_ref(),&args)?;
+            let mut code = emit_state_rust(&p, semantic_selection.as_ref(), &args)?;
             if wasm_abi {
                 code.push_str(state_native::WASM_ABI);
             }
@@ -985,7 +1196,10 @@ fn run() -> LangResult<()> {
             let selected_core_sha256 = core::CheckedModule::from_source(p.clone())?.identity()?;
             let out = arg_value(&args, "-o")?.ok_or("build requires -o OUTPUT.o")?;
             let target = arg_value(&args, "--target")?.unwrap_or_else(|| "native".into());
-            if cmd=="build" && target!="rust" && arg_value(&args,"--table-storage")?.is_some(){return Err("--table-storage requires the Rust project target".into());}
+            if cmd == "build" && target != "rust" && arg_value(&args, "--table-storage")?.is_some()
+            {
+                return Err("--table-storage requires the Rust project target".into());
+            }
             if arg_value(&args, "--route-proof")?.is_some()
                 && arg_value(&args, "--route")?.is_none()
             {
@@ -1012,7 +1226,7 @@ fn run() -> LangResult<()> {
                 return Ok(());
             }
             if cmd == "emit-rust" {
-                let code = emit_state_rust(&p,semantic_selection.as_ref(),&args)?;
+                let code = emit_state_rust(&p, semantic_selection.as_ref(), &args)?;
                 write(&out, &code)?;
                 return Ok(());
             }
@@ -1032,7 +1246,7 @@ fn run() -> LangResult<()> {
                     }
                 } else {
                     verified_language::runtime::emit_rust_program(
-                        &emit_state_rust(&p,semantic_selection.as_ref(),&args)?,
+                        &emit_state_rust(&p, semantic_selection.as_ref(), &args)?,
                         Path::new(&out),
                     )?;
                 }

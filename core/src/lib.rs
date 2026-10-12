@@ -58,4 +58,7 @@ mod owned_semantic;
 pub mod value_limits;
 
 pub mod field_projection;
+pub mod property;
+pub mod physical;
+pub mod planning;
 pub use action_types::table_argument;
