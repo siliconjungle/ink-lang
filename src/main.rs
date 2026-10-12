@@ -743,7 +743,7 @@ fn run() -> LangResult<()> {
         println!(
             "ink emit-definition LOCK.json EXPORTS.json [--select PACKAGE.json] -o DEFINITION.rs"
         );
-        println!("ink emit-core SOURCE -o CORE.json\nink check-core CORE.json\nink emit-actions SOURCE -o ACTIONS.json\nink check-actions SOURCE ACTIONS.json\nink emit-effects SOURCE -o EFFECTS.json\nink check-effects SOURCE EFFECTS.json\nink emit-access SOURCE -o ACCESS.json\nink check-access SOURCE ACCESS.json\nExecution/lowering commands also accept --core to read a checked CORE.json instead of source.\nChecked replacement packages: build/emit-c ... --replacement PACKAGE.json");
+        println!("ink emit-core SOURCE -o CORE.json\nink check-core CORE.json\nink extend-core SOURCE REQUEST.json [--core] -o CORE.json\nink emit-actions SOURCE -o ACTIONS.json\nink check-actions SOURCE ACTIONS.json\nink emit-effects SOURCE -o EFFECTS.json\nink check-effects SOURCE EFFECTS.json\nink emit-access SOURCE -o ACCESS.json\nink check-access SOURCE ACCESS.json\nExecution/lowering commands also accept --core to read a checked CORE.json instead of source.\nChecked replacement packages: build/emit-c ... --replacement PACKAGE.json");
         println!("ink check SOURCE\nink execute SOURCE SCRIPT.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable]\nink run SOURCE FUNCTION ARGS.json\nink build SOURCE --target c|rust|javascript|wasm32|webgpu -o OUTPUT\nink emit-state SOURCE -o DIRECTORY [--wasm-abi] [--table-storage ordered|indexed-slots]\nink check-representation SOURCE REQUEST.json\nink verify-library LOCK.json");
 
         return Ok(());
@@ -794,6 +794,15 @@ fn run() -> LangResult<()> {
     if cmd=="check-contracts" {
         let module=core::CheckedModule::from_source(p)?;
         println!("{}",serde_json::json!({"status":"checked","semantics":verified_language::contracts::SEMANTICS,"core_sha256":module.identity()?,"specifications":module.program().contracts.specifications.len(),"invariants":module.program().contracts.invariants.len()}));return Ok(());
+    }
+    if cmd=="extend-core" {
+        let module=core::CheckedModule::from_source(p)?;
+        let file=args.get(2).ok_or("extend-core requires REQUEST.json")?;
+        let request=serde_json::from_slice(&read_bounded(file,verified_language::registry::MAX_VIEW_BYTES)?).map_err(|e|e.to_string())?;
+        let selected=verified_language::source_extension::check(&module,&request)?;
+        let output=arg_value(&args,"-o")?.ok_or("extend-core requires -o CORE.json")?;
+        write(&output,&String::from_utf8(selected.bytes()?).map_err(|e|e.to_string())?)?;
+        println!("{}",serde_json::json!({"status":"checked","input":module.identity()?,"core_sha256":selected.identity()?,"scope":"Conservative typed definitions; no source replacement authority"}));return Ok(());
     }
     let source_program_sha256 = format!(
         "{:x}",

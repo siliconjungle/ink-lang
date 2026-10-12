@@ -1,0 +1,1328 @@
+[
+  {
+    "schema": 1,
+    "semantics": "ink-conditional-laws-v1",
+    "params": {
+      "xs": {
+        "Value": {
+          "List": "U32"
+        }
+      },
+      "ys": {
+        "Value": {
+          "List": "U32"
+        }
+      }
+    },
+    "conditions": [],
+    "from": {
+      "sort": {
+        "Value": "Bool"
+      },
+      "node": {
+        "Op": [
+          "binary:<=",
+          [
+            {
+              "sort": {
+                "Value": "Int"
+              },
+              "node": {
+                "Op": [
+                  "call:count",
+                  [
+                    {
+                      "sort": {
+                        "Value": {
+                          "List": "U32"
+                        }
+                      },
+                      "node": {
+                        "Op": [
+                          "method:concat",
+                          [
+                            {
+                              "sort": {
+                                "Value": {
+                                  "List": "U32"
+                                }
+                              },
+                              "node": {
+                                "Free": "xs"
+                              }
+                            },
+                            {
+                              "sort": {
+                                "Value": {
+                                  "List": "U32"
+                                }
+                              },
+                              "node": {
+                                "Free": "ys"
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    }
+                  ]
+                ]
+              }
+            },
+            {
+              "sort": {
+                "Value": "Int"
+              },
+              "node": {
+                "Op": [
+                  "binary:+",
+                  [
+                    {
+                      "sort": {
+                        "Value": "Int"
+                      },
+                      "node": {
+                        "Op": [
+                          "call:count",
+                          [
+                            {
+                              "sort": {
+                                "Value": {
+                                  "List": "U32"
+                                }
+                              },
+                              "node": {
+                                "Free": "xs"
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    },
+                    {
+                      "sort": {
+                        "Value": "Int"
+                      },
+                      "node": {
+                        "Op": [
+                          "call:count",
+                          [
+                            {
+                              "sort": {
+                                "Value": {
+                                  "List": "U32"
+                                }
+                              },
+                              "node": {
+                                "Free": "ys"
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    }
+                  ]
+                ]
+              }
+            }
+          ]
+        ]
+      }
+    },
+    "to": {
+      "sort": {
+        "Value": "Bool"
+      },
+      "node": {
+        "Bool": true
+      }
+    },
+    "proof": {
+      "Induction": {
+        "variable": "xs",
+        "names": [
+          "head",
+          "tail"
+        ],
+        "base": {
+          "Linear": {
+            "premises": []
+          }
+        },
+        "step": {
+          "Linear": {
+            "premises": [
+              [
+                0,
+                1
+              ]
+            ]
+          }
+        }
+      }
+    },
+    "dependencies": []
+  },
+  {
+    "schema": 1,
+    "semantics": "ink-conditional-laws-v1",
+    "params": {
+      "xs": {
+        "Value": {
+          "List": "I32"
+        }
+      },
+      "ys": {
+        "Value": {
+          "List": "I32"
+        }
+      }
+    },
+    "conditions": [],
+    "from": {
+      "sort": {
+        "Value": "Bool"
+      },
+      "node": {
+        "Op": [
+          "binary:<=",
+          [
+            {
+              "sort": {
+                "Value": "Int"
+              },
+              "node": {
+                "Op": [
+                  "call:count",
+                  [
+                    {
+                      "sort": {
+                        "Value": {
+                          "List": "I32"
+                        }
+                      },
+                      "node": {
+                        "Op": [
+                          "method:concat",
+                          [
+                            {
+                              "sort": {
+                                "Value": {
+                                  "List": "I32"
+                                }
+                              },
+                              "node": {
+                                "Free": "xs"
+                              }
+                            },
+                            {
+                              "sort": {
+                                "Value": {
+                                  "List": "I32"
+                                }
+                              },
+                              "node": {
+                                "Free": "ys"
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    }
+                  ]
+                ]
+              }
+            },
+            {
+              "sort": {
+                "Value": "Int"
+              },
+              "node": {
+                "Op": [
+                  "binary:+",
+                  [
+                    {
+                      "sort": {
+                        "Value": "Int"
+                      },
+                      "node": {
+                        "Op": [
+                          "call:count",
+                          [
+                            {
+                              "sort": {
+                                "Value": {
+                                  "List": "I32"
+                                }
+                              },
+                              "node": {
+                                "Free": "xs"
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    },
+                    {
+                      "sort": {
+                        "Value": "Int"
+                      },
+                      "node": {
+                        "Op": [
+                          "call:count",
+                          [
+                            {
+                              "sort": {
+                                "Value": {
+                                  "List": "I32"
+                                }
+                              },
+                              "node": {
+                                "Free": "ys"
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    }
+                  ]
+                ]
+              }
+            }
+          ]
+        ]
+      }
+    },
+    "to": {
+      "sort": {
+        "Value": "Bool"
+      },
+      "node": {
+        "Bool": true
+      }
+    },
+    "proof": {
+      "Induction": {
+        "variable": "xs",
+        "names": [
+          "head",
+          "tail"
+        ],
+        "base": {
+          "Linear": {
+            "premises": []
+          }
+        },
+        "step": {
+          "Linear": {
+            "premises": [
+              [
+                0,
+                1
+              ]
+            ]
+          }
+        }
+      }
+    },
+    "dependencies": []
+  },
+  {
+    "schema": 1,
+    "semantics": "ink-conditional-laws-v1",
+    "params": {
+      "xs": {
+        "Value": {
+          "List": "U64"
+        }
+      },
+      "ys": {
+        "Value": {
+          "List": "U64"
+        }
+      }
+    },
+    "conditions": [],
+    "from": {
+      "sort": {
+        "Value": "Bool"
+      },
+      "node": {
+        "Op": [
+          "binary:<=",
+          [
+            {
+              "sort": {
+                "Value": "Int"
+              },
+              "node": {
+                "Op": [
+                  "call:count",
+                  [
+                    {
+                      "sort": {
+                        "Value": {
+                          "List": "U64"
+                        }
+                      },
+                      "node": {
+                        "Op": [
+                          "method:concat",
+                          [
+                            {
+                              "sort": {
+                                "Value": {
+                                  "List": "U64"
+                                }
+                              },
+                              "node": {
+                                "Free": "xs"
+                              }
+                            },
+                            {
+                              "sort": {
+                                "Value": {
+                                  "List": "U64"
+                                }
+                              },
+                              "node": {
+                                "Free": "ys"
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    }
+                  ]
+                ]
+              }
+            },
+            {
+              "sort": {
+                "Value": "Int"
+              },
+              "node": {
+                "Op": [
+                  "binary:+",
+                  [
+                    {
+                      "sort": {
+                        "Value": "Int"
+                      },
+                      "node": {
+                        "Op": [
+                          "call:count",
+                          [
+                            {
+                              "sort": {
+                                "Value": {
+                                  "List": "U64"
+                                }
+                              },
+                              "node": {
+                                "Free": "xs"
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    },
+                    {
+                      "sort": {
+                        "Value": "Int"
+                      },
+                      "node": {
+                        "Op": [
+                          "call:count",
+                          [
+                            {
+                              "sort": {
+                                "Value": {
+                                  "List": "U64"
+                                }
+                              },
+                              "node": {
+                                "Free": "ys"
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    }
+                  ]
+                ]
+              }
+            }
+          ]
+        ]
+      }
+    },
+    "to": {
+      "sort": {
+        "Value": "Bool"
+      },
+      "node": {
+        "Bool": true
+      }
+    },
+    "proof": {
+      "Induction": {
+        "variable": "xs",
+        "names": [
+          "head",
+          "tail"
+        ],
+        "base": {
+          "Linear": {
+            "premises": []
+          }
+        },
+        "step": {
+          "Linear": {
+            "premises": [
+              [
+                0,
+                1
+              ]
+            ]
+          }
+        }
+      }
+    },
+    "dependencies": []
+  },
+  {
+    "schema": 1,
+    "semantics": "ink-conditional-laws-v1",
+    "params": {
+      "xs": {
+        "Value": {
+          "List": "F32"
+        }
+      },
+      "ys": {
+        "Value": {
+          "List": "F32"
+        }
+      }
+    },
+    "conditions": [],
+    "from": {
+      "sort": {
+        "Value": "Bool"
+      },
+      "node": {
+        "Op": [
+          "binary:<=",
+          [
+            {
+              "sort": {
+                "Value": "Int"
+              },
+              "node": {
+                "Op": [
+                  "call:count",
+                  [
+                    {
+                      "sort": {
+                        "Value": {
+                          "List": "F32"
+                        }
+                      },
+                      "node": {
+                        "Op": [
+                          "method:concat",
+                          [
+                            {
+                              "sort": {
+                                "Value": {
+                                  "List": "F32"
+                                }
+                              },
+                              "node": {
+                                "Free": "xs"
+                              }
+                            },
+                            {
+                              "sort": {
+                                "Value": {
+                                  "List": "F32"
+                                }
+                              },
+                              "node": {
+                                "Free": "ys"
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    }
+                  ]
+                ]
+              }
+            },
+            {
+              "sort": {
+                "Value": "Int"
+              },
+              "node": {
+                "Op": [
+                  "binary:+",
+                  [
+                    {
+                      "sort": {
+                        "Value": "Int"
+                      },
+                      "node": {
+                        "Op": [
+                          "call:count",
+                          [
+                            {
+                              "sort": {
+                                "Value": {
+                                  "List": "F32"
+                                }
+                              },
+                              "node": {
+                                "Free": "xs"
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    },
+                    {
+                      "sort": {
+                        "Value": "Int"
+                      },
+                      "node": {
+                        "Op": [
+                          "call:count",
+                          [
+                            {
+                              "sort": {
+                                "Value": {
+                                  "List": "F32"
+                                }
+                              },
+                              "node": {
+                                "Free": "ys"
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    }
+                  ]
+                ]
+              }
+            }
+          ]
+        ]
+      }
+    },
+    "to": {
+      "sort": {
+        "Value": "Bool"
+      },
+      "node": {
+        "Bool": true
+      }
+    },
+    "proof": {
+      "Induction": {
+        "variable": "xs",
+        "names": [
+          "head",
+          "tail"
+        ],
+        "base": {
+          "Linear": {
+            "premises": []
+          }
+        },
+        "step": {
+          "Linear": {
+            "premises": [
+              [
+                0,
+                1
+              ]
+            ]
+          }
+        }
+      }
+    },
+    "dependencies": []
+  },
+  {
+    "schema": 1,
+    "semantics": "ink-conditional-laws-v1",
+    "params": {
+      "xs": {
+        "Value": {
+          "List": "Bool"
+        }
+      },
+      "ys": {
+        "Value": {
+          "List": "Bool"
+        }
+      }
+    },
+    "conditions": [],
+    "from": {
+      "sort": {
+        "Value": "Bool"
+      },
+      "node": {
+        "Op": [
+          "binary:<=",
+          [
+            {
+              "sort": {
+                "Value": "Int"
+              },
+              "node": {
+                "Op": [
+                  "call:count",
+                  [
+                    {
+                      "sort": {
+                        "Value": {
+                          "List": "Bool"
+                        }
+                      },
+                      "node": {
+                        "Op": [
+                          "method:concat",
+                          [
+                            {
+                              "sort": {
+                                "Value": {
+                                  "List": "Bool"
+                                }
+                              },
+                              "node": {
+                                "Free": "xs"
+                              }
+                            },
+                            {
+                              "sort": {
+                                "Value": {
+                                  "List": "Bool"
+                                }
+                              },
+                              "node": {
+                                "Free": "ys"
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    }
+                  ]
+                ]
+              }
+            },
+            {
+              "sort": {
+                "Value": "Int"
+              },
+              "node": {
+                "Op": [
+                  "binary:+",
+                  [
+                    {
+                      "sort": {
+                        "Value": "Int"
+                      },
+                      "node": {
+                        "Op": [
+                          "call:count",
+                          [
+                            {
+                              "sort": {
+                                "Value": {
+                                  "List": "Bool"
+                                }
+                              },
+                              "node": {
+                                "Free": "xs"
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    },
+                    {
+                      "sort": {
+                        "Value": "Int"
+                      },
+                      "node": {
+                        "Op": [
+                          "call:count",
+                          [
+                            {
+                              "sort": {
+                                "Value": {
+                                  "List": "Bool"
+                                }
+                              },
+                              "node": {
+                                "Free": "ys"
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    }
+                  ]
+                ]
+              }
+            }
+          ]
+        ]
+      }
+    },
+    "to": {
+      "sort": {
+        "Value": "Bool"
+      },
+      "node": {
+        "Bool": true
+      }
+    },
+    "proof": {
+      "Induction": {
+        "variable": "xs",
+        "names": [
+          "head",
+          "tail"
+        ],
+        "base": {
+          "Linear": {
+            "premises": []
+          }
+        },
+        "step": {
+          "Linear": {
+            "premises": [
+              [
+                0,
+                1
+              ]
+            ]
+          }
+        }
+      }
+    },
+    "dependencies": []
+  },
+  {
+    "schema": 1,
+    "semantics": "ink-conditional-laws-v1",
+    "params": {
+      "xs": {
+        "Value": {
+          "List": "String"
+        }
+      },
+      "ys": {
+        "Value": {
+          "List": "String"
+        }
+      }
+    },
+    "conditions": [],
+    "from": {
+      "sort": {
+        "Value": "Bool"
+      },
+      "node": {
+        "Op": [
+          "binary:<=",
+          [
+            {
+              "sort": {
+                "Value": "Int"
+              },
+              "node": {
+                "Op": [
+                  "call:count",
+                  [
+                    {
+                      "sort": {
+                        "Value": {
+                          "List": "String"
+                        }
+                      },
+                      "node": {
+                        "Op": [
+                          "method:concat",
+                          [
+                            {
+                              "sort": {
+                                "Value": {
+                                  "List": "String"
+                                }
+                              },
+                              "node": {
+                                "Free": "xs"
+                              }
+                            },
+                            {
+                              "sort": {
+                                "Value": {
+                                  "List": "String"
+                                }
+                              },
+                              "node": {
+                                "Free": "ys"
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    }
+                  ]
+                ]
+              }
+            },
+            {
+              "sort": {
+                "Value": "Int"
+              },
+              "node": {
+                "Op": [
+                  "binary:+",
+                  [
+                    {
+                      "sort": {
+                        "Value": "Int"
+                      },
+                      "node": {
+                        "Op": [
+                          "call:count",
+                          [
+                            {
+                              "sort": {
+                                "Value": {
+                                  "List": "String"
+                                }
+                              },
+                              "node": {
+                                "Free": "xs"
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    },
+                    {
+                      "sort": {
+                        "Value": "Int"
+                      },
+                      "node": {
+                        "Op": [
+                          "call:count",
+                          [
+                            {
+                              "sort": {
+                                "Value": {
+                                  "List": "String"
+                                }
+                              },
+                              "node": {
+                                "Free": "ys"
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    }
+                  ]
+                ]
+              }
+            }
+          ]
+        ]
+      }
+    },
+    "to": {
+      "sort": {
+        "Value": "Bool"
+      },
+      "node": {
+        "Bool": true
+      }
+    },
+    "proof": {
+      "Induction": {
+        "variable": "xs",
+        "names": [
+          "head",
+          "tail"
+        ],
+        "base": {
+          "Linear": {
+            "premises": []
+          }
+        },
+        "step": {
+          "Linear": {
+            "premises": [
+              [
+                0,
+                1
+              ]
+            ]
+          }
+        }
+      }
+    },
+    "dependencies": []
+  },
+  {
+    "schema": 1,
+    "semantics": "ink-conditional-laws-v1",
+    "params": {
+      "xs": {
+        "Value": {
+          "List": "Int"
+        }
+      },
+      "ys": {
+        "Value": {
+          "List": "Int"
+        }
+      }
+    },
+    "conditions": [],
+    "from": {
+      "sort": {
+        "Value": "Bool"
+      },
+      "node": {
+        "Op": [
+          "binary:<=",
+          [
+            {
+              "sort": {
+                "Value": "Int"
+              },
+              "node": {
+                "Op": [
+                  "call:count",
+                  [
+                    {
+                      "sort": {
+                        "Value": {
+                          "List": "Int"
+                        }
+                      },
+                      "node": {
+                        "Op": [
+                          "method:concat",
+                          [
+                            {
+                              "sort": {
+                                "Value": {
+                                  "List": "Int"
+                                }
+                              },
+                              "node": {
+                                "Free": "xs"
+                              }
+                            },
+                            {
+                              "sort": {
+                                "Value": {
+                                  "List": "Int"
+                                }
+                              },
+                              "node": {
+                                "Free": "ys"
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    }
+                  ]
+                ]
+              }
+            },
+            {
+              "sort": {
+                "Value": "Int"
+              },
+              "node": {
+                "Op": [
+                  "binary:+",
+                  [
+                    {
+                      "sort": {
+                        "Value": "Int"
+                      },
+                      "node": {
+                        "Op": [
+                          "call:count",
+                          [
+                            {
+                              "sort": {
+                                "Value": {
+                                  "List": "Int"
+                                }
+                              },
+                              "node": {
+                                "Free": "xs"
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    },
+                    {
+                      "sort": {
+                        "Value": "Int"
+                      },
+                      "node": {
+                        "Op": [
+                          "call:count",
+                          [
+                            {
+                              "sort": {
+                                "Value": {
+                                  "List": "Int"
+                                }
+                              },
+                              "node": {
+                                "Free": "ys"
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    }
+                  ]
+                ]
+              }
+            }
+          ]
+        ]
+      }
+    },
+    "to": {
+      "sort": {
+        "Value": "Bool"
+      },
+      "node": {
+        "Bool": true
+      }
+    },
+    "proof": {
+      "Induction": {
+        "variable": "xs",
+        "names": [
+          "head",
+          "tail"
+        ],
+        "base": {
+          "Linear": {
+            "premises": []
+          }
+        },
+        "step": {
+          "Linear": {
+            "premises": [
+              [
+                0,
+                1
+              ]
+            ]
+          }
+        }
+      }
+    },
+    "dependencies": []
+  },
+  {
+    "schema": 1,
+    "semantics": "ink-conditional-laws-v1",
+    "params": {
+      "xs": {
+        "Value": {
+          "List": {
+            "List": "U32"
+          }
+        }
+      },
+      "ys": {
+        "Value": {
+          "List": {
+            "List": "U32"
+          }
+        }
+      }
+    },
+    "conditions": [],
+    "from": {
+      "sort": {
+        "Value": "Bool"
+      },
+      "node": {
+        "Op": [
+          "binary:<=",
+          [
+            {
+              "sort": {
+                "Value": "Int"
+              },
+              "node": {
+                "Op": [
+                  "call:count",
+                  [
+                    {
+                      "sort": {
+                        "Value": {
+                          "List": {
+                            "List": "U32"
+                          }
+                        }
+                      },
+                      "node": {
+                        "Op": [
+                          "method:concat",
+                          [
+                            {
+                              "sort": {
+                                "Value": {
+                                  "List": {
+                                    "List": "U32"
+                                  }
+                                }
+                              },
+                              "node": {
+                                "Free": "xs"
+                              }
+                            },
+                            {
+                              "sort": {
+                                "Value": {
+                                  "List": {
+                                    "List": "U32"
+                                  }
+                                }
+                              },
+                              "node": {
+                                "Free": "ys"
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    }
+                  ]
+                ]
+              }
+            },
+            {
+              "sort": {
+                "Value": "Int"
+              },
+              "node": {
+                "Op": [
+                  "binary:+",
+                  [
+                    {
+                      "sort": {
+                        "Value": "Int"
+                      },
+                      "node": {
+                        "Op": [
+                          "call:count",
+                          [
+                            {
+                              "sort": {
+                                "Value": {
+                                  "List": {
+                                    "List": "U32"
+                                  }
+                                }
+                              },
+                              "node": {
+                                "Free": "xs"
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    },
+                    {
+                      "sort": {
+                        "Value": "Int"
+                      },
+                      "node": {
+                        "Op": [
+                          "call:count",
+                          [
+                            {
+                              "sort": {
+                                "Value": {
+                                  "List": {
+                                    "List": "U32"
+                                  }
+                                }
+                              },
+                              "node": {
+                                "Free": "ys"
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    }
+                  ]
+                ]
+              }
+            }
+          ]
+        ]
+      }
+    },
+    "to": {
+      "sort": {
+        "Value": "Bool"
+      },
+      "node": {
+        "Bool": true
+      }
+    },
+    "proof": {
+      "Induction": {
+        "variable": "xs",
+        "names": [
+          "head",
+          "tail"
+        ],
+        "base": {
+          "Linear": {
+            "premises": []
+          }
+        },
+        "step": {
+          "Linear": {
+            "premises": [
+              [
+                0,
+                1
+              ]
+            ]
+          }
+        }
+      }
+    },
+    "dependencies": []
+  }
+]
