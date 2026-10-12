@@ -79,11 +79,13 @@ NaNs to `0x7fc00000`; transport and negation preserve payload bits. The packed G
 emitter implements binary32 using integer lanes. F32 programs bind executable-core
 V7, with cross-target tests including NaN arithmetic and payload transport.
 
-The GPU collection implementation is literal: filter, inclusive scan and stable
-rank sorting preserve integer semantics, but scans and rank sorts repeat work.
-They are not parallel prefix or efficient sorting algorithms. Heavy compositions
-have a 128-element GPU admission limit; list-valued repeat is unrolled only up to
-16 iterations. Larger workloads retain the complete CPU path. Eligibility is
+Graph stages run integer scan, sort and sum and any-type filter and concat as
+parallel multi-pass schedules (block scan, stable radix sort, partial sums,
+flag-scan-scatter), with exact integer semantics; see
+[GPU compute](gpu-compute.md). Collection work nested inside a per-element
+lambda stays literal in a direct shader, bounded at 1,024 elements (128 when a
+sort runs per element); list-valued repeat is unrolled only up to 16
+iterations. Larger workloads retain the complete CPU path. Eligibility is
 separate from measured profitability. Shader expansion, device limits, missing
 adapters and device failure select CPU in `auto`/`gpu` modes with an explicit reason.
 Use `gpu-required` to reject every such fallback. Full GPU language coverage is
@@ -192,8 +194,8 @@ Resident stage-graph feedback now captures source buffers before simultaneous
 input updates and observes final outputs before another update. Identity output
 aliases, one/two/three-iteration swaps and shrinking/empty filter/scan/sort loops
 are covered by actual wgpu tests. The browser device command builder uses the
-same ordering and has an independent buffer/command-model test. Heavy literal
-operations retain the 128-element device admission bound; shapes that cannot
+same ordering and has an independent buffer/command-model test. Literal per-element
+collection work retains its device admission bound (1,024, or 128 with a sort); shapes that cannot
 retain their declared capacity use the complete host path.
 
 
