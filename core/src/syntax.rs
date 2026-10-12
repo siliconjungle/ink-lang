@@ -138,6 +138,9 @@ struct Parser {
     matches: std::collections::BTreeMap<String, Vec<(String, String, Vec<String>)>>,
     constant_parameters: std::collections::BTreeMap<String, std::collections::BTreeSet<String>>,
     constant_scope: std::collections::BTreeSet<String>,
+    /// External law sources accept `law` declarations; executable ones never do.
+    law_mode: bool,
+    laws: Vec<crate::law_syntax::LawDecl>,
 }
 impl Parser {
     // Precedence parsing builds left-associated and postfix chains in a loop,
@@ -241,9 +244,23 @@ impl Parser {
             "fn" => {
                 self.expect("(")?;
                 let input = self.ty()?;
+                // Laws may write `fn(A, B) -> C` for the curried `fn(A) -> fn(B) -> C`.
+                let mut rest = vec![];
+                while self.law_mode && self.eat(",") {
+                    rest.push(self.ty()?);
+                }
                 self.expect(")")?;
                 self.expect("->")?;
-                let output = self.ty()?;
+                let mut output = self.ty()?;
+                for later in rest.into_iter().rev() {
+                    let name = format!(
+                        "__ink_callback_type_{}_{}",
+                        self.application_prefix, self.fresh
+                    );
+                    self.fresh += 1;
+                    self.callback_types.insert(name.clone(), (later, output));
+                    output = Type::Named(name);
+                }
                 let name = format!(
                     "__ink_callback_type_{}_{}",
                     self.application_prefix, self.fresh
@@ -479,10 +496,18 @@ impl Parser {
             )
         } else if self.eat("fn") {
             self.expect("(")?;
-            let n = self.name()?;
+            let mut names = vec![self.name()?];
+            // Laws may write `fn(a, b) => e` for the curried `fn(a) => fn(b) => e`.
+            while self.law_mode && self.eat(",") {
+                names.push(self.name()?);
+            }
             self.expect(")")?;
             self.expect("=>")?;
-            Expr::Lambda(n, Box::new(self.expr(0)?))
+            let mut body = self.expr(0)?;
+            for n in names.into_iter().rev() {
+                body = Expr::Lambda(n, Box::new(body));
+            }
+            body
         } else if self.eat("true") {
             Expr::Bool(true)
         } else if self.eat("false") {
@@ -883,6 +908,18 @@ impl Parser {
                     emits,
                     body,
                 });
+            } else if self.peek() == "law" {
+                if !self.law_mode {
+                    return Err(self.err(
+                        "law declarations are external authoring source; check them with ink emit-laws",
+                    ));
+                }
+                self.take();
+                let law = self.law_declaration()?;
+                if self.laws.len() >= 64 {
+                    return Err(self.err("law declaration limit exceeded"));
+                }
+                self.laws.push(law);
             } else if self.eat("rewrite") {
                 let name = self.name()?;
                 let params = self.params()?;
@@ -1810,6 +1847,34 @@ pub fn parse_surface(
     s: &str,
     imported_records: impl IntoIterator<Item = String>,
 ) -> LangResult<SurfaceProgram> {
+    parser(s, imported_records, false)?.program()
+}
+
+/// An external law source: its helper declarations and its `law` and
+/// `rewrite` declarations. Laws are not executable declarations.
+pub struct LawSource {
+    pub program: Program,
+    pub laws: Vec<crate::law_syntax::LawDecl>,
+}
+
+/// Parse an external law source. Function types of law parameters are
+/// resolved here and do not reach executable elaboration.
+pub fn parse_law_source(s: &str) -> LangResult<LawSource> {
+    let mut p = parser(s, std::iter::empty(), true)?;
+    // Law parameter function types were resolved and removed while parsing.
+    let surface = p.program()?;
+    let laws = std::mem::take(&mut p.laws);
+    Ok(LawSource {
+        program: surface.elaborate()?,
+        laws,
+    })
+}
+
+fn parser(
+    s: &str,
+    imported_records: impl IntoIterator<Item = String>,
+    law_mode: bool,
+) -> LangResult<Parser> {
     if s.len() > 1_000_000 {
         return Err("source exceeds 1 MB parser limit".into());
     }
@@ -1825,7 +1890,7 @@ pub fn parse_surface(
         .chain(imported_records)
         .collect();
     let state_names=ts.windows(2).filter(|w|w[0].text=="state").map(|w|w[1].text.clone()).collect();
-    Parser {
+    Ok(Parser {
         state_names,
         ts,
         at: 0,
@@ -1846,6 +1911,435 @@ pub fn parse_surface(
         matches: Default::default(),
         constant_parameters: Default::default(),
         constant_scope: Default::default(),
+        law_mode,
+        laws: vec![],
+    })
+}
+
+
+/// Law declarations and their proof tactics (external law sources only).
+impl Parser {
+    fn law_declaration(&mut self) -> LangResult<crate::law_syntax::LawDecl> {
+        use crate::law_syntax::{AssumeDecl, LawDecl, Tactic};
+        let name = self.name()?;
+        let mut types = vec![];
+        if self.eat("<") {
+            loop {
+                if types.len() >= 16 {
+                    return Err(self.err("law type parameter limit exceeded"));
+                }
+                types.push(self.name()?);
+                if self.peek() == ">" || self.peek() == ">=" {
+                    self.expect(">")?;
+                    break;
+                }
+                self.expect(",")?;
+            }
+        }
+        let before: std::collections::BTreeSet<String> =
+            self.callback_types.keys().cloned().collect();
+        let raw = self.params()?;
+        let params = raw
+            .into_iter()
+            .map(|(n, t)| Ok((n, self.law_sort(&t, 0)?)))
+            .collect::<LangResult<Vec<_>>>()?;
+        self.mutables.clear();
+        self.pure = true;
+        self.generic_scope = types.clone();
+        self.constant_scope = Default::default();
+        self.expect("{")?;
+        let mut requires = vec![];
+        let mut assumes = vec![];
+        let mut statement = None;
+        let mut proof = None;
+        while !self.eat("}") {
+            if self.eat("requires") {
+                let label = if self.ts.get(self.at + 1).is_some_and(|t| t.text == ":")
+                    && self.peek().bytes().all(|c| c.is_ascii_alphanumeric() || c == b'_')
+                {
+                    let n = self.name()?;
+                    self.expect(":")?;
+                    Some(n)
+                } else {
+                    None
+                };
+                requires.push((label, self.expr(0)?));
+                self.expect(";")?;
+            } else if self.eat("assume") {
+                let name = self.name()?;
+                let params = self.params()?;
+                let mut conditions = vec![];
+                if self.eat("requires") {
+                    loop {
+                        conditions.push(self.expr(0)?);
+                        if !self.eat(",") {
+                            break;
+                        }
+                    }
+                }
+                self.expect(":")?;
+                let (from, to) = Self::equation(self.expr(0)?);
+                self.expect(";")?;
+                assumes.push(AssumeDecl {
+                    name,
+                    params,
+                    requires: conditions,
+                    from,
+                    to,
+                });
+            } else if self.eat("proof") {
+                if proof.is_some() {
+                    return Err(self.err("duplicate law proof"));
+                }
+                self.expect("by")?;
+                proof = Some(self.tactic()?);
+                self.expect(";")?;
+            } else if self.eat("from") {
+                if statement.is_some() {
+                    return Err(self.err("duplicate law statement"));
+                }
+                let from = self.expr(0)?;
+                self.expect(";")?;
+                self.expect("to")?;
+                let to = self.expr(0)?;
+                self.expect(";")?;
+                statement = Some((from, to));
+            } else {
+                if statement.is_some() {
+                    return Err(self.err("duplicate law statement"));
+                }
+                let e = self.expr(0)?;
+                self.expect(";")?;
+                statement = Some(Self::equation(e));
+            }
+        }
+        // Function types of law parameters never reach executable elaboration.
+        let created: Vec<String> = self
+            .callback_types
+            .keys()
+            .filter(|k| !before.contains(*k))
+            .cloned()
+            .collect();
+        for k in created {
+            self.callback_types.remove(&k);
+        }
+        self.generic_scope.clear();
+        let (from, to) = statement.ok_or_else(|| self.err("law requires a statement"))?;
+        Ok(LawDecl {
+            name,
+            types,
+            params,
+            requires,
+            assumes,
+            from,
+            to,
+            proof: proof.unwrap_or(Tactic::Normalize),
+        })
     }
-    .program()
+    /// A top-level `a == b` is the equation a = b; any other statement is a
+    /// Bool fact `e = true`.
+    fn equation(e: Expr) -> (Expr, Expr) {
+        match e {
+            Expr::Binary(op, a, b) if op == "==" => (*a, *b),
+            e => (e, Expr::Bool(true)),
+        }
+    }
+    fn law_sort(&self, t: &Type, depth: usize) -> LangResult<crate::semantic::Sort> {
+        if depth > 16 {
+            return Err("law function type nesting limit".into());
+        }
+        Ok(match t {
+            Type::Named(n) if self.callback_types.contains_key(n) => {
+                let (a, b) = &self.callback_types[n];
+                crate::semantic::arrow(self.law_sort(a, depth + 1)?, self.law_sort(b, depth + 1)?)
+            }
+            t => {
+                if self.contains_callback(t) {
+                    return Err("function types may only be law parameters".into());
+                }
+                crate::semantic::value(t.clone())
+            }
+        })
+    }
+    fn contains_callback(&self, t: &Type) -> bool {
+        match t {
+            Type::Named(n) => self.callback_types.contains_key(n),
+            Type::List(x) | Type::Buffer(x) | Type::Option(x) | Type::Vector(x, _) => {
+                self.contains_callback(x)
+            }
+            Type::Map(a, b) | Type::Table(a, b) | Type::Result(a, b) => {
+                self.contains_callback(a) || self.contains_callback(b)
+            }
+            _ => false,
+        }
+    }
+    fn tactics(&mut self) -> LangResult<Vec<crate::law_syntax::Tactic>> {
+        self.expect("(")?;
+        let mut out = vec![];
+        if !self.eat(")") {
+            loop {
+                if out.len() >= 64 {
+                    return Err(self.err("tactic list limit exceeded"));
+                }
+                out.push(self.tactic()?);
+                if self.eat(")") {
+                    break;
+                }
+                self.expect(",")?;
+            }
+        }
+        Ok(out)
+    }
+    fn tactic(&mut self) -> LangResult<crate::law_syntax::Tactic> {
+        use crate::law_syntax::{HypothesisRef, Tactic};
+        self.depth += 1;
+        if self.depth > 128 {
+            return Err(self.err("proof nesting limit exceeded"));
+        }
+        let word = self.name()?;
+        let t = match word.as_str() {
+            "normalize" | "computation" => Tactic::Normalize,
+            "provided" => Tactic::Provided,
+            "hypothesis" => {
+                let token = self.take();
+                Tactic::Hypothesis(if token.bytes().all(|c| c.is_ascii_digit()) {
+                    HypothesisRef::Index(token.parse().map_err(|_| "hypothesis index")?)
+                } else {
+                    HypothesisRef::Name(token)
+                })
+            }
+            "ih" => {
+                let mut args = vec![];
+                if self.eat("(") {
+                    loop {
+                        let n = self.name()?;
+                        self.expect("=")?;
+                        args.push((n, self.expr(0)?));
+                        if self.eat(")") {
+                            break;
+                        }
+                        self.expect(",")?;
+                    }
+                }
+                Tactic::Ih(args)
+            }
+            "symmetry" => {
+                self.expect("(")?;
+                let t = self.tactic()?;
+                self.expect(")")?;
+                Tactic::Symmetry(Box::new(t))
+            }
+            "congruence" => Tactic::Congruence(self.tactics()?),
+            "calc" => {
+                self.expect("{")?;
+                self.expect("_")?;
+                let mut middles = vec![];
+                let mut proofs = vec![];
+                loop {
+                    self.expect("==")?;
+                    let e = self.expr(0)?;
+                    self.expect("by")?;
+                    proofs.push(self.tactic()?);
+                    self.expect(";")?;
+                    if matches!(&e, Expr::Var(n) if n == "_") {
+                        break;
+                    }
+                    if middles.len() >= 64 {
+                        return Err(self.err("calculation step limit exceeded"));
+                    }
+                    middles.push(e);
+                }
+                self.expect("}")?;
+                Tactic::Calc { middles, proofs }
+            }
+            "cases" => {
+                let condition = self.expr(0)?;
+                self.expect("{")?;
+                if matches!(self.peek(), "none" | "some" | "ok" | "err") {
+                    let Expr::Var(variable) = condition else {
+                        return Err(self.err("variant cases take a variable"));
+                    };
+                    let mut slots: [Option<(Option<String>, Tactic)>; 4] = Default::default();
+                    while !self.eat("}") {
+                        let label = self.take();
+                        let at = ["none", "some", "ok", "err"]
+                            .iter()
+                            .position(|l| *l == label)
+                            .ok_or_else(|| self.err("variant cases are none/some or ok/err"))?;
+                        let binder = if at == 0 {
+                            None
+                        } else {
+                            self.expect("(")?;
+                            let n = self.name()?;
+                            self.expect(")")?;
+                            Some(n)
+                        };
+                        self.expect("=>")?;
+                        let t = self.tactic()?;
+                        self.expect(";")?;
+                        if slots[at].replace((binder, t)).is_some() {
+                            return Err(self.err("duplicate variant case"));
+                        }
+                    }
+                    let [none, some, ok, err] = slots;
+                    let t = match (none, some, ok, err) {
+                        (Some((_, a)), Some((Some(v), c)), None, None) => Tactic::Variants {
+                            variable,
+                            names: vec![v],
+                            first: Box::new(a),
+                            second: Box::new(c),
+                        },
+                        (None, None, Some((Some(v), a)), Some((Some(e), c))) => Tactic::Variants {
+                            variable,
+                            names: vec![v, e],
+                            first: Box::new(a),
+                            second: Box::new(c),
+                        },
+                        _ => return Err(self.err("variant cases need none and some, or ok and err")),
+                    };
+                    self.depth -= 1;
+                    return Ok(t);
+                }
+                let mut on_true = None;
+                let mut on_false = None;
+                for _ in 0..2 {
+                    let flag = self.take();
+                    self.expect("=>")?;
+                    let t = self.tactic()?;
+                    self.expect(";")?;
+                    let slot = match flag.as_str() {
+                        "true" => &mut on_true,
+                        "false" => &mut on_false,
+                        _ => return Err(self.err("cases branches are true and false")),
+                    };
+                    if slot.replace(t).is_some() {
+                        return Err(self.err("duplicate cases branch"));
+                    }
+                }
+                self.expect("}")?;
+                Tactic::Cases {
+                    condition,
+                    on_true: Box::new(on_true.ok_or("missing true branch")?),
+                    on_false: Box::new(on_false.ok_or("missing false branch")?),
+                }
+            }
+            "induction" => {
+                let variable = self.name()?;
+                let mut generalizing = vec![];
+                if self.eat("generalizing") {
+                    self.expect("(")?;
+                    loop {
+                        generalizing.push(self.name()?);
+                        if self.eat(")") {
+                            break;
+                        }
+                        self.expect(",")?;
+                    }
+                }
+                let mut names = vec![];
+                let mut base = Tactic::Normalize;
+                let mut step = Tactic::Normalize;
+                if self.eat("{") {
+                    while !self.eat("}") {
+                        let case = self.name()?;
+                        match case.as_str() {
+                            "nil" => {
+                                self.expect("=>")?;
+                                base = self.tactic()?;
+                            }
+                            "cons" => {
+                                self.expect("(")?;
+                                names.push(self.name()?);
+                                self.expect(",")?;
+                                names.push(self.name()?);
+                                self.expect(")")?;
+                                self.expect("=>")?;
+                                step = self.tactic()?;
+                            }
+                            _ => return Err(self.err("induction cases are nil and cons(head, tail)")),
+                        }
+                        self.expect(";")?;
+                    }
+                }
+                Tactic::Induction {
+                    variable,
+                    generalizing,
+                    names,
+                    base: Box::new(base),
+                    step: Box::new(step),
+                }
+            }
+            "use" => {
+                let law = self.name()?;
+                let types = if self.peek() == "<" {
+                    self.type_arguments()?
+                } else {
+                    vec![]
+                };
+                let args = self.args()?;
+                let mut premises = vec![];
+                let mut assumptions = vec![];
+                let mut exact = false;
+                loop {
+                    if self.eat("requires") {
+                        premises = self.tactics()?;
+                    } else if self.eat("assuming") {
+                        assumptions = self.tactics()?;
+                    } else if self.eat("exactly") {
+                        exact = true;
+                    } else {
+                        break;
+                    }
+                }
+                Tactic::Use {
+                    law,
+                    types,
+                    args,
+                    premises,
+                    assumptions,
+                    exact,
+                }
+            }
+            "assumption" => {
+                let name = self.name()?;
+                let args = self.args()?;
+                let mut premises = vec![];
+                let mut exact = false;
+                loop {
+                    if self.eat("requires") {
+                        premises = self.tactics()?;
+                    } else if self.eat("exactly") {
+                        exact = true;
+                    } else {
+                        break;
+                    }
+                }
+                Tactic::Assumption {
+                    name,
+                    args,
+                    premises,
+                    exact,
+                }
+            }
+            "assert" => {
+                let (from, to) = match self.expr(0)? {
+                    Expr::Binary(op, a, b) if op == "==" => (*a, *b),
+                    _ => return Err(self.err("assert takes an equality")),
+                };
+                self.expect("by")?;
+                let premise = self.tactic()?;
+                self.expect("then")?;
+                let body = self.tactic()?;
+                Tactic::Assert {
+                    from,
+                    to,
+                    premise: Box::new(premise),
+                    body: Box::new(body),
+                }
+            }
+            other => return Err(format!("unknown proof tactic {other}")),
+        };
+        self.depth -= 1;
+        Ok(t)
+    }
 }

@@ -201,6 +201,8 @@ fn larger_in_memory_catalogues_use_bounded_authenticated_leaves() {
             vec![x, s::word(Type::U32, n as u64)],
         );
         let law = Law {
+            types: vec![],
+            assumptions: vec![],
             schema: 1,
             semantics: laws::SEMANTICS.into(),
             params: BTreeMap::from([("x".into(), s::value(Type::U32))]),

@@ -42,6 +42,20 @@ pub enum Proof {
         law: String,
         arguments: BTreeMap<String, Term>,
         premises: Vec<Proof>,
+        /// A general law's type parameters, each instantiated by a type.
+        #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+        types: BTreeMap<String, Type>,
+        /// One proof per assumption of the used law, of its instance.
+        #[serde(default, skip_serializing_if = "Vec::is_empty")]
+        assumptions: Vec<Proof>,
+    },
+    /// Use an assumption of the law being proved, instantiating its own
+    /// quantified parameters. Only valid inside that law's proof.
+    Assume {
+        index: usize,
+        arguments: BTreeMap<String, Term>,
+        #[serde(default, skip_serializing_if = "Vec::is_empty")]
+        premises: Vec<Proof>,
     },
     Cases {
         condition: Term,
@@ -53,6 +67,15 @@ pub enum Proof {
         names: Vec<String>,
         base: Box<Proof>,
         step: Box<Proof>,
+    },
+    /// Exhaustive case analysis of an Option or Result variable: `None` and
+    /// `Some(names[0])`, or `Ok(names[0])` and `Err(names[1])`. The variable
+    /// is replaced in the goal and in every hypothesis; no induction.
+    Variants {
+        variable: String,
+        names: Vec<String>,
+        first: Box<Proof>,
+        second: Box<Proof>,
     },
     GeneralizedInduction {
         variable: String,
@@ -75,6 +98,27 @@ pub struct Law {
     pub dependencies: Vec<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub definition_context: Option<crate::definition_context::DefinitionContext>,
+    /// Type parameters: opaque types with no operations of their own while
+    /// the law is proved, so the proof holds for every instantiation.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub types: Vec<String>,
+    /// Quantified hypotheses about the parameters (for example that a
+    /// function parameter is associative). Proofs use them with
+    /// `Proof::Assume`; every use of the law proves their instances.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub assumptions: Vec<Assumption>,
+}
+/// `forall params. conditions => from = to`, over the law's parameters and
+/// its own quantified parameters (disjoint from the law's).
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct Assumption {
+    pub name: String,
+    pub params: Env,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub conditions: Vec<Equation>,
+    pub from: Term,
+    pub to: Term,
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -85,6 +129,34 @@ pub struct Catalogue {
     pub objects: BTreeMap<String, Law>,
 }
 pub const SEMANTICS: &str = "ink-conditional-laws-v1";
+/// Laws with type parameters or assumptions, or whose proofs instantiate them.
+/// Every other law keeps `SEMANTICS`, so existing identities never fork.
+pub const GENERAL_SEMANTICS: &str = "ink-general-laws-v1";
+/// The marker a law's content requires. A checked law must carry exactly it.
+pub fn required_semantics(law: &Law) -> &'static str {
+    if !law.types.is_empty() || !law.assumptions.is_empty() || general_proof(&law.proof) {
+        GENERAL_SEMANTICS
+    } else {
+        SEMANTICS
+    }
+}
+fn general_proof(p: &Proof) -> bool {
+    match p {
+        Proof::Assume { .. } | Proof::Variants { .. } => true,
+        Proof::Use { types, assumptions, premises, .. } => {
+            !types.is_empty() || !assumptions.is_empty() || premises.iter().any(general_proof)
+        }
+        Proof::AssertEquality { premise, body, .. } => general_proof(premise) || general_proof(body),
+        Proof::Sym(p) => general_proof(p),
+        Proof::Trans { left, right, .. } => general_proof(left) || general_proof(right),
+        Proof::Congruence(ps) => ps.iter().any(general_proof),
+        Proof::Cases { on_false, on_true, .. } => general_proof(on_false) || general_proof(on_true),
+        Proof::Induction { base, step, .. } | Proof::GeneralizedInduction { base, step, .. } => {
+            general_proof(base) || general_proof(step)
+        }
+        Proof::Normalize | Proof::Linear { .. } | Proof::Hypothesis(_) | Proof::GeneralizedHypothesis { .. } => false,
+    }
+}
 pub fn identity<T: Serialize>(v: &T) -> LangResult<String> {
     use sha2::{Digest, Sha256};
     Ok(format!(
@@ -100,6 +172,8 @@ struct InductionSchema {
 #[derive(Debug)]
 pub struct CheckedCatalogue {
     laws: BTreeMap<String, Law>,
+    /// The assumptions of the law whose proof is being checked, if any.
+    assumptions: Vec<Assumption>,
     roots: Vec<String>,
     sha256: String,
     program_sha256: String,
@@ -143,6 +217,7 @@ impl CheckedCatalogue {
         crate::core::CheckedModule::from_source(p.clone())?;
         let mut checked = Self {
             laws: BTreeMap::new(),
+            assumptions: vec![],
             roots: c.roots.clone(),
             sha256: identity(c)?,
             program_sha256: identity(p)?,
@@ -186,21 +261,40 @@ impl CheckedCatalogue {
                 return Err("law content identity mismatch".into());
             }
             if law.schema != 1
-                || law.semantics != SEMANTICS
+                || law.semantics != required_semantics(law)
                 || law.params.len() > 128
                 || law.conditions.len() > 128
                 || law.dependencies.len() > 128
+                || law.types.len() > 16
+                || law.assumptions.len() > 32
             {
                 return Err("incompatible or oversized law".into());
             }
             // A portable law is proved only in its explicit definition context.
             // Context-free entries cannot borrow named definitions from p.
-            let proof_program = match &law.definition_context {
+            let mut proof_program = match &law.definition_context {
                 Some(context) => context.check()?,
                 None => Program::default(),
             };
+            // Type parameters are fresh opaque identifier types while the law
+            // is proved. No semantic operation inspects, compares or builds
+            // their values, so the proof is parametric in them. They are not
+            // part of the definition context a use must match.
+            for t in &law.types {
+                type_parameter_name(t)?;
+                if proof_program.ids.contains(t)
+                    || proof_program.records.contains_key(t)
+                    || proof_program.enums.contains_key(t)
+                    || law.types.iter().filter(|x| *x == t).count() > 1
+                {
+                    return Err("law type parameter collides with a declared type".into());
+                }
+                proof_program.ids.push(t.clone());
+            }
+            validate_assumptions(law, &proof_program, b)?;
             let mut imports = CheckedCatalogue {
                 laws: BTreeMap::new(),
+                assumptions: law.assumptions.clone(),
                 roots: vec![],
                 sha256: String::new(),
                 program_sha256: identity(&proof_program)?,
@@ -455,24 +549,105 @@ impl CheckedCatalogue {
                 law,
                 arguments,
                 premises,
+                types,
+                assumptions,
             } => {
                 let law = self.law(law)?;
-                if arguments.len() != law.params.len() || premises.len() != law.conditions.len() {
+                if arguments.len() != law.params.len()
+                    || premises.len() != law.conditions.len()
+                    || assumptions.len() != law.assumptions.len()
+                    || types.len() != law.types.len()
+                    || law.types.iter().any(|t| !types.contains_key(t))
+                {
                     return Err("law instantiation arity".into());
                 }
-                for (n, sort) in &law.params {
+                for ty in types.values() {
+                    if *ty == Type::Unknown {
+                        return Err("unresolved law type argument".into());
+                    }
+                    crate::statecheck::validate_type(ty, p)?;
+                }
+                let inst = Instance::new(law, types, b)?;
+                for (n, sort) in &inst.params {
                     let arg = arguments.get(n).ok_or("missing law argument")?;
                     validate(arg, env, p, b)?;
                     if &arg.sort != sort {
                         return Err("law argument sort mismatch".into());
                     }
                 }
-                let from = substitute(&law.from, arguments, b)?;
-                let to = substitute(&law.to, arguments, b)?;
+                let from = substitute(&inst.from, arguments, b)?;
+                let to = substitute(&inst.to, arguments, b)?;
                 if from != goal.from || to != goal.to {
                     return Err("law does not match exact application endpoints".into());
                 }
-                for (condition, proof) in law.conditions.iter().zip(premises) {
+                for (condition, proof) in inst.conditions.iter().zip(premises) {
+                    self.prove_inner(
+                        p,
+                        env,
+                        hyp,
+                        schemas,
+                        &sub_equation(condition, arguments, b)?,
+                        proof,
+                        b,
+                        d + 1,
+                    )?;
+                }
+                // Each assumption is proved for this instance, universally in
+                // its own parameters (fresh here), under its own conditions.
+                for (assumption, proof) in inst.assumptions.iter().zip(assumptions) {
+                    let mut local = env.clone();
+                    let mut rename = arguments.clone();
+                    for (n, sort) in &assumption.params {
+                        let fresh_name = fresh(&local, &format!("__assumed_{n}"));
+                        local.insert(fresh_name.clone(), sort.clone());
+                        rename.insert(n.clone(), free(sort.clone(), &fresh_name));
+                    }
+                    let mut local_hyp = hyp.to_vec();
+                    for c in &assumption.conditions {
+                        local_hyp.push(sub_equation(c, &rename, b)?);
+                    }
+                    if local_hyp.len() + schemas.len() > 128 {
+                        return Err("semantic hypothesis count limit".into());
+                    }
+                    let goal = Equation {
+                        from: substitute(&assumption.from, &rename, b)?,
+                        to: substitute(&assumption.to, &rename, b)?,
+                    };
+                    // Induction schemas mention only enclosing variables; an
+                    // assumption instance may not use them for its fresh ones.
+                    self.prove_inner(p, &local, &local_hyp, &[], &goal, proof, b, d + 1)?;
+                }
+                Ok(())
+            }
+            Proof::Assume {
+                index,
+                arguments,
+                premises,
+            } => {
+                let assumption = self
+                    .assumptions
+                    .get(*index)
+                    .ok_or("assumption index out of range")?;
+                if arguments.len() != assumption.params.len()
+                    || premises.len() != assumption.conditions.len()
+                {
+                    return Err("assumption instantiation arity".into());
+                }
+                for (name, sort) in &assumption.params {
+                    let arg = arguments.get(name).ok_or("missing assumption argument")?;
+                    validate(arg, env, p, b)?;
+                    if &arg.sort != sort {
+                        return Err("assumption argument sort mismatch".into());
+                    }
+                }
+                let equation = Equation {
+                    from: substitute(&assumption.from, arguments, b)?,
+                    to: substitute(&assumption.to, arguments, b)?,
+                };
+                if equation != *goal {
+                    return Err("assumption does not establish exact goal".into());
+                }
+                for (condition, proof) in assumption.conditions.iter().zip(premises) {
                     self.prove_inner(
                         p,
                         env,
@@ -502,6 +677,67 @@ impl CheckedCatalogue {
                         to: term(value(Type::Bool), Node::Bool(flag)),
                     });
                     self.prove_inner(p, env, &local, schemas, goal, proof, b, d + 1)?;
+                }
+                Ok(())
+            }
+            Proof::Variants {
+                variable,
+                names,
+                first,
+                second,
+            } => {
+                let sort = env.get(variable).ok_or("missing case variable")?.clone();
+                let expected = if matches!(sort, Sort::Value(Type::Result(..))) { 2 } else { 1 };
+                if names.len() != expected
+                    || names.iter().any(|n| env.contains_key(n) || n == variable)
+                {
+                    return Err("variant cases need fresh payload names".into());
+                }
+                if schemas.iter().any(|s| {
+                    s.params.contains_key(variable)
+                        || occurs(&s.equation.from, variable)
+                        || occurs(&s.equation.to, variable)
+                }) {
+                    return Err("variant cases under an induction schema on the variable".into());
+                }
+                let (cases, payloads): ([(&str, bool); 2], [Type; 2]) = match &sort {
+                    Sort::Value(Type::Option(t)) => (
+                        [("call:None", false), ("call:Some", true)],
+                        [Type::Unit, (**t).clone()],
+                    ),
+                    Sort::Value(Type::Result(t, e)) => (
+                        [("call:Ok", true), ("call:Err", true)],
+                        [(**t).clone(), (**e).clone()],
+                    ),
+                    _ => return Err("variant cases need an Option or Result variable".into()),
+                };
+                for (k, (((constructor, carries), payload), proof)) in
+                    cases.into_iter().zip(payloads).zip([first, second]).enumerate()
+                {
+                    let name = &names[if expected == 2 { k } else { 0 }];
+                    let mut local = env.clone();
+                    local.remove(variable);
+                    let args = if carries {
+                        local.insert(name.clone(), value(payload.clone()));
+                        vec![free(value(payload), name)]
+                    } else {
+                        vec![]
+                    };
+                    let sub = BTreeMap::from([(variable.clone(), op(sort.clone(), constructor, args))]);
+                    let local_hyp = hyp
+                        .iter()
+                        .map(|h| sub_equation(h, &sub, b))
+                        .collect::<LangResult<Vec<_>>>()?;
+                    self.prove_inner(
+                        p,
+                        &local,
+                        &local_hyp,
+                        schemas,
+                        &sub_equation(goal, &sub, b)?,
+                        proof,
+                        b,
+                        d + 1,
+                    )?;
                 }
                 Ok(())
             }
@@ -625,6 +861,130 @@ impl CheckedCatalogue {
             }
         }
     }
+}
+/// Type parameter names are plain identifiers, distinct from generated names.
+fn type_parameter_name(t: &str) -> LangResult<()> {
+    if t.is_empty()
+        || t.len() > 64
+        || !t.as_bytes()[0].is_ascii_alphabetic()
+        || !t.bytes().all(|c| c.is_ascii_alphanumeric() || c == b'_')
+    {
+        return Err("invalid law type parameter".into());
+    }
+    Ok(())
+}
+/// Assumptions are well-sorted equations over the law's parameters and their
+/// own disjoint parameters.
+fn validate_assumptions(law: &Law, p: &Program, b: &mut Budget) -> LangResult<()> {
+    let mut names = BTreeSet::new();
+    for a in &law.assumptions {
+        if !names.insert(&a.name) || a.name.is_empty() || a.name.len() > 64 || a.params.len() > 16 || a.conditions.len() > 16 {
+            return Err("invalid or duplicate law assumption".into());
+        }
+        let mut env = law.params.clone();
+        for (n, sort) in &a.params {
+            if env.insert(n.clone(), sort.clone()).is_some() {
+                return Err("assumption parameter shadows a law parameter".into());
+            }
+        }
+        for e in a.conditions.iter().chain([&Equation { from: a.from.clone(), to: a.to.clone() }]) {
+            validate(&e.from, &env, p, b)?;
+            validate(&e.to, &env, p, b)?;
+            if e.from.sort != e.to.sort {
+                return Err("assumption sort mismatch".into());
+            }
+        }
+    }
+    Ok(())
+}
+/// A law with its type parameters replaced. Term parameters stay free.
+pub struct Instance {
+    pub params: Env,
+    pub conditions: Vec<Equation>,
+    pub from: Term,
+    pub to: Term,
+    pub assumptions: Vec<Assumption>,
+}
+impl Instance {
+    pub fn new(law: &Law, types: &BTreeMap<String, Type>, b: &mut Budget) -> LangResult<Self> {
+        let sort = |s: &Sort, b: &mut Budget| type_sort(s, types, b, 0);
+        let term = |t: &Term, b: &mut Budget| type_term(t, types, b, 0);
+        let eq = |e: &Equation, b: &mut Budget| -> LangResult<Equation> {
+            Ok(Equation { from: type_term(&e.from, types, b, 0)?, to: type_term(&e.to, types, b, 0)? })
+        };
+        Ok(Self {
+            params: law
+                .params
+                .iter()
+                .map(|(n, s)| Ok((n.clone(), sort(s, b)?)))
+                .collect::<LangResult<_>>()?,
+            conditions: law.conditions.iter().map(|c| eq(c, b)).collect::<LangResult<_>>()?,
+            from: term(&law.from, b)?,
+            to: term(&law.to, b)?,
+            assumptions: law
+                .assumptions
+                .iter()
+                .map(|a| {
+                    Ok(Assumption {
+                        name: a.name.clone(),
+                        params: a
+                            .params
+                            .iter()
+                            .map(|(n, s)| Ok((n.clone(), sort(s, b)?)))
+                            .collect::<LangResult<_>>()?,
+                        conditions: a.conditions.iter().map(|c| eq(c, b)).collect::<LangResult<_>>()?,
+                        from: term(&a.from, b)?,
+                        to: term(&a.to, b)?,
+                    })
+                })
+                .collect::<LangResult<_>>()?,
+        })
+    }
+}
+/// Replace type parameters throughout a type.
+pub fn type_type(t: &Type, types: &BTreeMap<String, Type>) -> Type {
+    let go = |t: &Type| Box::new(type_type(t, types));
+    match t {
+        Type::Named(n) => types.get(n).cloned().unwrap_or_else(|| t.clone()),
+        Type::List(x) => Type::List(go(x)),
+        Type::Buffer(x) => Type::Buffer(go(x)),
+        Type::Option(x) => Type::Option(go(x)),
+        Type::Vector(x, k) => Type::Vector(go(x), *k),
+        Type::Map(k, v) => Type::Map(go(k), go(v)),
+        Type::Result(a, e) => Type::Result(go(a), go(e)),
+        Type::Table(k, v) => Type::Table(go(k), go(v)),
+        _ => t.clone(),
+    }
+}
+fn type_sort(s: &Sort, types: &BTreeMap<String, Type>, b: &mut Budget, d: usize) -> LangResult<Sort> {
+    b.step(d)?;
+    Ok(match s {
+        Sort::Value(t) => Sort::Value(type_type(t, types)),
+        Sort::Arrow(a, c) => arrow(type_sort(a, types, b, d + 1)?, type_sort(c, types, b, d + 1)?),
+        Sort::Nat => Sort::Nat,
+    })
+}
+/// Replace type parameters in every sort of a term. Operation names carry no
+/// types that a parameter could occupy (parameters are never records).
+pub fn type_term(t: &Term, types: &BTreeMap<String, Type>, b: &mut Budget, d: usize) -> LangResult<Term> {
+    if types.is_empty() {
+        return Ok(t.clone());
+    }
+    b.step(d)?;
+    let sort = type_sort(&t.sort, types, b, d + 1)?;
+    let node = match &t.node {
+        Node::Lambda(body) => Node::Lambda(Box::new(type_term(body, types, b, d + 1)?)),
+        Node::Op(n, args) => Node::Op(
+            n.clone(),
+            args.iter().map(|a| type_term(a, types, b, d + 1)).collect::<LangResult<_>>()?,
+        ),
+        Node::Cons(h, tail) => Node::Cons(
+            Box::new(type_term(h, types, b, d + 1)?),
+            Box::new(type_term(tail, types, b, d + 1)?),
+        ),
+        other => other.clone(),
+    };
+    Ok(Term { sort, node })
 }
 fn fresh(env: &Env, base: &str) -> String {
     let mut n = base.to_string();
@@ -930,6 +1290,19 @@ fn normal(t: &Term, hyp: &[Equation], p: &Program, b: &mut Budget, d: usize) -> 
                 None
             }
         }
+        ("method:fold", [x, on_value, on_other]) => match &x.node {
+            Node::Op(c, v) if (c == "call:Some" || c == "call:Ok") && v.len() == 1 => {
+                Some(apply(on_value.clone(), v[0].clone())?)
+            }
+            Node::Op(c, v) if c == "call:Err" && v.len() == 1 => {
+                Some(apply(on_other.clone(), v[0].clone())?)
+            }
+            Node::Op(c, v) if c == "call:None" && v.is_empty() => Some(apply(
+                on_other.clone(),
+                term(value(Type::Unit), Node::Unit),
+            )?),
+            _ => None,
+        },
         ("call:length", [xs]) => match &xs.node {
             Node::Nil => Some(word(Type::U32, 0)),
             Node::Cons(_, tail) => Some(op(
@@ -1719,8 +2092,30 @@ pub fn open_proof(proof: &Proof, scope: &[(String, Sort)], b: &mut Budget) -> La
                 law,
                 arguments,
                 premises,
+                types,
+                assumptions,
             } => Proof::Use {
                 law: law.clone(),
+                arguments: arguments
+                    .iter()
+                    .map(|(n, t)| Ok((n.clone(), s::open_scope(t, scope, b)?)))
+                    .collect::<LangResult<_>>()?,
+                premises: premises
+                    .iter()
+                    .map(|p| go(p, scope, b, d + 1))
+                    .collect::<LangResult<_>>()?,
+                types: types.clone(),
+                assumptions: assumptions
+                    .iter()
+                    .map(|p| go(p, scope, b, d + 1))
+                    .collect::<LangResult<_>>()?,
+            },
+            Proof::Assume {
+                index,
+                arguments,
+                premises,
+            } => Proof::Assume {
+                index: *index,
                 arguments: arguments
                     .iter()
                     .map(|(n, t)| Ok((n.clone(), s::open_scope(t, scope, b)?)))
@@ -1749,6 +2144,17 @@ pub fn open_proof(proof: &Proof, scope: &[(String, Sort)], b: &mut Budget) -> La
                 names: names.clone(),
                 base: Box::new(go(base, scope, b, d + 1)?),
                 step: Box::new(go(step, scope, b, d + 1)?),
+            },
+            Proof::Variants {
+                variable,
+                names,
+                first,
+                second,
+            } => Proof::Variants {
+                variable: variable.clone(),
+                names: names.clone(),
+                first: Box::new(go(first, scope, b, d + 1)?),
+                second: Box::new(go(second, scope, b, d + 1)?),
             },
             Proof::AssertEquality {
                 equality,

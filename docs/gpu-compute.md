@@ -59,15 +59,34 @@ native host links generated C. Neither host links an Ink interpreter.
 
 Array kernels can compose collection expressions and lazy list branches. Bounded
 list-valued repeat unrolls up to 16 iterations; larger expansions select CPU.
-Filter/scan/stable-rank sort are literal algorithms, not efficient parallel
-primitives. Heavy compositions have a 128-element GPU admission limit. Actual
-length headers preserve filtering and truncation through resident pipelines.
-Eligibility does not establish that GPU execution is faster.
+Actual length headers preserve filtering and truncation through resident
+pipelines. Eligibility does not establish that GPU execution is faster.
+
+Graph stages run these collection operations as parallel multi-pass schedules
+(256-wide workgroups, up to 256³ elements per stage):
+
+| Operation | Element types | Schedule |
+|---|---|---|
+| `scan` | u32, i32, u64 | three-level block scan (5 passes) |
+| `sort` | u32, i32, u64 | stable LSD radix sort, 8-bit digits (4 per 32-bit lane), each digit a histogram, a scan and a stable placement |
+| `sum` | u32, i32, u64 | grid-stride partial sums, then one combining group |
+| `filter` | any packed type, including records | predicate flags, in-place scan, scatter; the header carries the kept count |
+| `concat` | any packed type | one copy pass per element |
+
+Integer results are exact (wrapping where the source wraps), so they equal the
+compiled CPU bit for bit. f32 `sum`, `foldr` and `count` keep their sequential
+source order: the floating-point contract below does not admit a reduction
+tree. Each schedule is data in the manifest (`schedule.passes`, `scratch`); a
+host only binds buffers and dispatches. Collection work nested inside a
+per-element lambda stays in a direct shader with an element bound: 1,024 for
+filter/scan per element, 128 when a sort runs per element.
 
 Stateful programs, exact Int arrays, opaque values and nested heap structures
 use the complete CPU host. See [lowering parity](lowering-parity.md) for mixed
-module assembly, host APIs and resource boundaries. There is no automatic scatter,
-parallel float reduction, graphics renderer or stateful GPU execution.
+module assembly, host APIs and resource boundaries. There is no source-level
+scatter, f32 reduction tree, graphics renderer or stateful GPU execution, and
+feedback that grows a list (for example `xs.concat(ys)` fed back to `xs`) runs
+on the CPU.
 
 `matrix4` in the particle example demonstrates indexed reads and a bounded
 inner loop for a small matrix product. It is literal lowering, not a tiled BLAS
@@ -76,15 +95,17 @@ array access. Particle rendering remains the application's responsibility.
 
 ## Floating-point contract
 
-Executable core v2 explicitly introduces portable f32 computation. Its GPU
-arithmetic follows [WGSL floating-point evaluation](https://www.w3.org/TR/WGSL/#floating-point-evaluation),
-including permitted rounding, reassociation, fusion, subnormal flushing and
-finite-math assumptions. Lowering emits the source operation structure; it does
-not introduce a float reduction tree or collection fusion. Hardware may still
-apply transformations allowed by WGSL. A GPU result is not promised to be
-bit-identical to a CPU result, and float-dependent branches can consequently
-differ. This contract is unsuitable for exact accounting or reproducible IEEE
-exception handling. Select CPU when those stronger behaviours are required.
+Source f32 operations use integer-lane binary32 helpers in WGSL: rounding to
+nearest with ties to even, gradual underflow, signed zero and canonical
+arithmetic NaN. Pass-through and negation retain payload bits. Source sums and
+scans retain their operation order; the parallel integer schedules do not
+reassociate floating-point source computations. Target emission and device
+execution remain trusted implementations of this contract.
+
+Session `read` reductions are separate host operations. Their f32 kernels use
+[WGSL floating-point evaluation](https://www.w3.org/TR/WGSL/#floating-point-evaluation)
+and tree order, so their summaries can differ from CPU reductions. They do not
+change the stored source values or grant source rewrite authority.
 
 The reference evaluator and generated CPU code use binary32 arithmetic without
 fast-math; C contraction is disabled. Hosts round finite JSON numbers to f32 at
@@ -138,9 +159,73 @@ effects.
 The GPU host uploads each initial constant/input once, allocates two banks of
 step buffers, and alternates them between iterations. Intermediate results stay
 on device, with no per-step readbacks. Only named final outputs are copied back.
-Buffers are scoped to one pipeline invocation and released afterwards. This is
-residency across steps/iterations, not persistent GPU handles across separate
-host calls, durable storage, snapshots or rewinding.
+A `pipeline` call's buffers are released afterwards; a session (below) keeps
+them across host calls. Neither is durable storage, a snapshot or rewinding.
+
+## Resident sessions
+
+A session uploads its inputs once and keeps every value on the device across
+host calls. Nothing runs until `step`, and nothing is read back until `read`:
+
+```js
+const ink = await loadInk(new URL('./', import.meta.url));
+const sim = await ink.open(plan);              // backend: 'auto' (default), 'gpu', 'gpu-required', 'cpu'
+await sim.step(10_000);                        // no readback
+const {value: alive} = await sim.read({step: 'next', reduce: 'sum'});   // a few words
+const {value: corner} = await sim.read({step: 'next', slice: [0, 64]});
+await sim.write('cells', seed);                // replace an input for the next step
+await sim.step(500);
+const {values} = await sim.read({outputs: ['next']});                   // whole values
+await sim.close();
+```
+
+`plan` is the pipeline plan without `iterations`. `open(plan)` followed by
+`step(a)`, `step(b)` and `read({outputs})` gives exactly the result of
+`pipeline({...plan, iterations: a + b})`, on the GPU and on the CPU. `auto`
+opens on the GPU whenever the plan is eligible and the device starts; otherwise
+the session runs on the compiled CPU with identical semantics and reports the
+reason (`session.backend`, `session.reason`). `gpu-required` fails instead.
+
+Reads:
+
+- `{outputs: [ids]}`: whole step values, as `pipeline` returns them.
+- `{step, length: true}`: a list's logical length (4 bytes read back).
+- `{step, slice: [start, count]}`: part of a list, clamped to its length.
+- `{step, reduce: 'sum' | 'min' | 'max' | 'bounds', field: 'a.b'}`: a device
+  reduction over a list (or scalar) of u32, i32, f32, u64, Bool or u32/i32/f32
+  vectors, optionally of a dotted record field. Two passes, a few words back.
+  Integer sums wrap exactly. f32 device sums use tree order, so they can differ
+  from the CPU's element order, including cancellation and overflow differences.
+  Float read reductions follow WGSL hardware arithmetic; integer min and max are exact. Empty
+  lists give `null` for min and max and zero for sums.
+
+`write(input, value)` replaces a named input for the next step. When feedback
+carries that input, the carried value (its step's last output) is replaced.
+Element-wise sessions keep every input's length; graph sessions accept list
+lengths up to the capacity they were opened with.
+
+`session.buffer(stepId)` returns `{buffer, offset, header, type, capacity}`:
+the `GPUBuffer` holding a step's current value. Element 0 starts at `offset`;
+when `header` is set, word 0 is the logical length. Pass your renderer's device
+as `loadInk(url, {device})` and bind the buffer directly (it has STORAGE,
+VERTEX, COPY_SRC and COPY_DST usage), with no readback. A view is valid until
+the session's next `step`, `write` or `close`. `ink.gpuDevice()` returns the
+device in use. `session.finish()` waits for submitted work (measurement only;
+reads wait anyway).
+
+Native hosts offer the same operations: `Engine::open(&plan, backend)`,
+`step(id, n)`, `read(id, &request)`, `write(id, input, &value)`,
+`view(id, step) -> View` (a `wgpu::Buffer`), `finish(id)` and `close(id)`, and
+`Engine::with_device(device, queue)` for an application's own wgpu device.
+`--script` accepts `{"open": PLAN, "as": NAME, "backend": ...}`,
+`{"session": NAME, "step": N}`, `{"session": NAME, "read": REQUEST}`,
+`{"session": NAME, "write": {"input": ..., "value": ...}}`,
+`{"session": NAME, "close": true}` and `{"session": NAME}` (finish); any
+session entry accepts `"wait": true`, and every output line carries `seconds`.
+
+Long steps are encoded in bounded command buffers (2,048 dispatches each, many
+dispatches per compute pass), so a million iterations never build one giant
+submission. One iteration's stages must fit in a command buffer.
 
 For a single function, use `ink.call(name, args, { backend })`; `run` is an alias.
 `loadInk` also accepts a default backend. Scalar lists accept JavaScript arrays
@@ -166,9 +251,9 @@ and Wasm hosts copy results before resetting. Direct C callers must reset their
 thread-local arena after consuming returned values. Nested/recursive layouts
 are rejected before lowering.
 
-Pipelines are limited to 64 steps, 10,000 iterations, 65,536 total dispatches and
-a 256 MiB GPU live-buffer budget including uploads, both banks, metadata and
-readbacks. Individual input/output arrays are bounded to 256 MiB at the host
+Pipelines are limited to 64 steps, 1,000,000 iterations (per `pipeline` call or
+per session `step`), 64Mi total dispatches and a 256 MiB GPU live-buffer budget
+including uploads, both banks, metadata, schedule scratch and readbacks. Individual input/output arrays are bounded to 256 MiB at the host
 boundary. Adapter binding, buffer and dispatch limits are checked separately.
 These are execution limits, not optimization theorems. GPU unavailability,
 device loss, allocation/validation/shader failures and capability/size limits
@@ -195,6 +280,31 @@ node bench/gpu/compute-browser.mjs http://127.0.0.1:8765/ build/particles/fixtur
 node bench/gpu/compute-browser-selection.mjs http://127.0.0.1:8765/ reports/gpu-phase2/browser-selection.json /path/to/chrome
 python3 bench/gpu/compute-selection.py build/particles/native/target/release/ink-gpu-program build/particles reports/gpu-phase2/native-selection.json
 ```
+
+Sessions and parallel schedules have differential checks of their own, run
+against a software Vulkan device (lavapipe) in development:
+
+```sh
+# Native wgpu host: each program is a bundle's native/target/release/ink-gpu-program.
+python3 bench/gpu/parallel-check.py GPU_PARALLEL_PROGRAM --large 300000
+python3 bench/gpu/session-check.py GPU_SESSION_PROGRAM PARTICLES_PROGRAM GPU_PARALLEL_PROGRAM
+# Browser host under Node with Dawn (npm install webgpu; INK_NODE_WEBGPU=path/to/webgpu/index.js).
+node bench/gpu/parallel-check.mjs build/gpu-parallel --large 300000
+node bench/gpu/session-check.mjs build/gpu-session build/particles build/gpu-parallel
+# Steady-state cost per iteration, one-off transfer and break-even iterations.
+python3 bench/gpu/residency.py --session GPU_SESSION_PROGRAM --particles PARTICLES_PROGRAM --out residency.json
+node bench/gpu/residency.mjs build/gpu-session build/particles --out residency-browser.json
+```
+
+`examples/gpu-parallel.ink` and `examples/gpu-session.ink` build these bundles.
+The parallel checks compare every schedule against the compiled CPU at the
+block boundaries (0, 1, 255–257, 65,535–65,537 and larger); the session checks
+compare GPU sessions with CPU sessions and one-shot pipelines through split
+steps, small reads, writes and buffer views. The residency benchmark reports
+GPU and CPU steady-state time per iteration, the one-off upload and readback,
+a one-shot pipeline per iteration (the pre-session behaviour) and the
+break-even iteration count. On a software adapter it measures the mechanism,
+not GPU performance.
 
 Independent Python oracles cover wrapping integers and binary32 values; native C
 array tests also run under address/undefined-behaviour sanitizers. Browser/native

@@ -59,7 +59,7 @@ fn expression(p:&Program,typing:&crate::statecheck::Typing,e:&Expr,env:&crate::c
   if name=="choose" && args.len()==3 && crate::check::infer_as(&args[0],env,p,&Type::Bool).is_ok(){
    expression(p,typing,&args[0],env,facts,owner,serial,out)?;
    for (branch,flag) in [(1,true),(2,false)] {
-    let mut local=facts.to_vec();local.push(Expr::Binary("==".into(),Box::new(args[0].clone()),Box::new(Expr::Bool(flag))));
+    let mut local=facts.to_vec();local.push(if flag{args[0].clone()}else{Expr::Binary("==".into(),Box::new(args[0].clone()),Box::new(Expr::Bool(false)))});
     expression(p,typing,&args[branch],env,&local,owner,serial,out)?;
    }
    return Ok(());
@@ -68,7 +68,7 @@ fn expression(p:&Program,typing:&crate::statecheck::Typing,e:&Expr,env:&crate::c
  if let Expr::Binary(op,a,b)=e {
   if (op=="&&"||op=="||") && crate::check::infer_as(a,env,p,&Type::Bool).is_ok(){
    expression(p,typing,a,env,facts,owner,serial,out)?;
-   let mut local=facts.to_vec();local.push(Expr::Binary("==".into(),a.clone(),Box::new(Expr::Bool(op=="&&"))));
+   let mut local=facts.to_vec();local.push(if op=="&&"{(**a).clone()}else{Expr::Binary("==".into(),a.clone(),Box::new(Expr::Bool(false)))});
    return expression(p,typing,b,env,&local,owner,serial,out);
   }
  }
