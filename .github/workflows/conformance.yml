@@ -83,7 +83,7 @@ jobs:
           cargo fetch --locked --manifest-path build/host-deps/Cargo.toml
       - name: Runtime policies and failure injection
         run: |
-          node --test runtime/tests/backend-selection.mjs runtime/tests/durable-state.mjs
+          node --test runtime/tests/backend-selection.mjs runtime/tests/durable-state.mjs runtime/tests/route-resources.mjs runtime/tests/usage-profile.mjs
           node lowerings/gpu/tests/device_graph.mjs
       - name: Independent core and source-bound value admission
         run: |
@@ -93,11 +93,12 @@ jobs:
           cargo test --test temporary_lowering
           CARGO_TARGET_DIR=target cargo test --manifest-path lowerings/gpu/Cargo.toml --test temporary_bounds
           cargo test --test distribution --test source_syntax --test action_values --test general_laws --test semantic_optimisation
-          cargo test --test internal_snapshots --test collect_before_build
+          cargo test --test internal_snapshots --test collect_before_build --test proved_refinement_parity
       - name: Composable state proofs, publication, journals and bounded search
         run: |
           cargo test --test composable_state --test journal_compaction --test indexed_laws
           PYTHONPATH=planner:knowledge python3 -m unittest discover -s planner/tests -p test_compiled_planning.py
+          PYTHONPATH=planner:knowledge python3 -m unittest discover -s planner/tests -p test_usage_profiles.py
           PYTHONPATH=planner:knowledge python3 -m unittest discover -s knowledge/tests -p test_planning_recipes.py
           PYTHONPATH=knowledge python3 -m unittest discover -s knowledge/tests -p test_store.py
           PYTHONPATH=knowledge python3 -m unittest discover -s knowledge/tests -p test_state_calculus.py
