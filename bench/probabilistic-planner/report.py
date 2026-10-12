@@ -8,16 +8,21 @@ def median(rows,key='ns'):return statistics.median(r[key] for r in rows)
 def table(headers,rows):return '\n'.join(['| '+' | '.join(headers)+' |','| '+' | '.join(['---']*len(headers))+' |',*['| '+' | '.join(map(str,r))+' |' for r in rows]])
 g=read('gpu.json');p=read('planning.json');ann=read('neighbourhood.json');large=read('neighbourhood-large.json');adaptive=read('adaptive.json');tuning=read('autotune.json')
 lines=['# Probabilistic planning and exact-result accelerators — 2026-10-12','',
+'Learned search ranking and its trainer have been removed. Recorded learned-model samples below, when present, describe historical revisions; current commands omit that strategy.','',
 'All new machinery is opt-in. Proposals, embeddings and measurements have no proof authority. The independent compiler checks source-bound selections. No automatic runtime profile is installed and no online profitability probes are added.','',
 'Apple M2, Chrome '+g['browser']+', hardware Apple/Metal WebGPU; Python 3.12.3, Node 26.1.0, Zig 0.15.2. Shared-host observations are exploratory. Raw samples, losses, setup and source/emission identities are retained.','',
 '## Complete planning cost','',
 'Seven alternating repetitions; a heldout 17-term word expression plus a constant, trained on a separate 13-term source. Every output package was individually checked. The 64-candidate-proof budget excludes unchanged admission and final replay. The pinned base catalogue has 42 objects; typed discovery loads 18 law objects, and ordinary producers also propose derived laws. Structural selected cost is not execution speed.','']
+historical_learned=any(r['label']=='learned' for r in p['samples'])
+if not historical_learned:
+    lines=[line.replace(', trained on a separate 13-term source', '') for line in lines]
 rows=[]
 for label in ['baseline','stochastic','learned','parallel','accelerated-discovery','hnsw']:
+    if not any(r['label']==label for r in p['samples']):continue
     rs=[r for r in p['samples'] if r['label']==label]
     rows.append([label,f'{median(rs)/1e6:.2f}',f'{min(r["ns"] for r in rs)/1e6:.2f}–{max(r["ns"] for r in rs)/1e6:.2f}',','.join(map(str,sorted({r['selected_cost'] for r in rs})))])
 lines += [table(['Approach','Median ms','Range ms','Selected cost'],rows),'',
-'Initial cost was 79; every approach selected 77. Learned ranking and two-worker search lose on this fixture. HNSW adds work at this catalogue size. Stochastic search has a lower overall median but inconsistent training timings; the adaptive holdout policy consequently retains ordinary search. Earlier acceptance-only ranking and a run overlapping validation remain under `initial-planning`, excluded from final tables.','',
+'Initial cost was 79; every approach selected 77. Learned ranking and two-worker search lose on this fixture. HNSW adds work at this catalogue size. Stochastic search has a lower overall median but inconsistent training timings; the adaptive holdout policy consequently retains ordinary search. Earlier acceptance-only ranking and a run overlapping validation remain under `initial-planning`, excluded from final tables.' if historical_learned else 'Current source has no learned search ranking model. Complete planning times and selected structural costs are reported above; costs are search estimates rather than runtime measurements.','',
 '## Adaptive search','',
 'The wrapper matches saved observations to catalogue size, source-node count, budgets, exact source/catalogue pins, target, Python and compiler/planner/producer identity. Unobserved sizes and stale contexts fall back. A candidate needs >10% training and every heldout complete-call gain, with equal or better checked structural cost. Existing child timings charge per-call index construction. Wrapper overhead is separately measured.','',
 table(['Complete wrapper call','Median ms','Chosen strategy'],[[label,f'{median([r for r in adaptive["samples"] if r["label"]==label])/1e6:.2f}',','.join(sorted({r['decision']['strategy'] for r in adaptive['samples'] if r['label']==label}))] for label in ['ordinary','adaptive']]),'',
