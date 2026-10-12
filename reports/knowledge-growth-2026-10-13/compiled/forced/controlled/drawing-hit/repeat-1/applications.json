@@ -1,0 +1,840 @@
+[
+  {
+    "function": "run",
+    "path": [],
+    "law": "fca76009acdf87006abf6cc033edc450a66c60ce51c8b05f3e2aae0622888019",
+    "arguments": {
+      "xs": {
+        "sort": {
+          "Value": {
+            "List": {
+              "Named": "Box"
+            }
+          }
+        },
+        "node": {
+          "Free": "xs"
+        }
+      },
+      "q": {
+        "sort": {
+          "Value": {
+            "Named": "Box"
+          }
+        },
+        "node": {
+          "Free": "q"
+        }
+      }
+    },
+    "premises": []
+  },
+  {
+    "function": "run",
+    "path": [],
+    "law": "cf5a1598f19c42ffc2606785bb042c0b833309cba6081245a430b97961395748",
+    "arguments": {
+      "xs": {
+        "sort": {
+          "Value": {
+            "List": {
+              "Named": "Box"
+            }
+          }
+        },
+        "node": {
+          "Op": [
+            "method:filter",
+            [
+              {
+                "sort": {
+                  "Value": {
+                    "List": {
+                      "Named": "Box"
+                    }
+                  }
+                },
+                "node": {
+                  "Free": "xs"
+                }
+              },
+              {
+                "sort": {
+                  "Arrow": [
+                    {
+                      "Value": {
+                        "Named": "Box"
+                      }
+                    },
+                    {
+                      "Value": "Bool"
+                    }
+                  ]
+                },
+                "node": {
+                  "Lambda": {
+                    "sort": {
+                      "Value": "Bool"
+                    },
+                    "node": {
+                      "Op": [
+                        "binary:>=",
+                        [
+                          {
+                            "sort": {
+                              "Value": "U32"
+                            },
+                            "node": {
+                              "Op": [
+                                "field:minX",
+                                [
+                                  {
+                                    "sort": {
+                                      "Value": {
+                                        "Named": "Box"
+                                      }
+                                    },
+                                    "node": {
+                                      "Bound": 0
+                                    }
+                                  }
+                                ]
+                              ]
+                            }
+                          },
+                          {
+                            "sort": {
+                              "Value": "U32"
+                            },
+                            "node": {
+                              "Word": 16
+                            }
+                          }
+                        ]
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          ]
+        }
+      },
+      "f": {
+        "sort": {
+          "Arrow": [
+            {
+              "Value": {
+                "Named": "Box"
+              }
+            },
+            {
+              "Value": "Bool"
+            }
+          ]
+        },
+        "node": {
+          "Lambda": {
+            "sort": {
+              "Value": "Bool"
+            },
+            "node": {
+              "Op": [
+                "call:intersects",
+                [
+                  {
+                    "sort": {
+                      "Value": {
+                        "Named": "Box"
+                      }
+                    },
+                    "node": {
+                      "Bound": 0
+                    }
+                  },
+                  {
+                    "sort": {
+                      "Value": {
+                        "Named": "Box"
+                      }
+                    },
+                    "node": {
+                      "Free": "q"
+                    }
+                  }
+                ]
+              ]
+            }
+          }
+        }
+      },
+      "z": {
+        "sort": {
+          "Value": "Bool"
+        },
+        "node": {
+          "Bool": false
+        }
+      },
+      "stop": {
+        "sort": {
+          "Arrow": [
+            {
+              "Value": "Bool"
+            },
+            {
+              "Arrow": [
+                {
+                  "Value": "Bool"
+                },
+                {
+                  "Value": "Bool"
+                }
+              ]
+            }
+          ]
+        },
+        "node": {
+          "Lambda": {
+            "sort": {
+              "Arrow": [
+                {
+                  "Value": "Bool"
+                },
+                {
+                  "Value": "Bool"
+                }
+              ]
+            },
+            "node": {
+              "Lambda": {
+                "node": {
+                  "Bound": 0
+                },
+                "sort": {
+                  "Value": "Bool"
+                }
+              }
+            }
+          }
+        }
+      },
+      "step": {
+        "sort": {
+          "Arrow": [
+            {
+              "Value": "Bool"
+            },
+            {
+              "Arrow": [
+                {
+                  "Value": "Bool"
+                },
+                {
+                  "Value": "Bool"
+                }
+              ]
+            }
+          ]
+        },
+        "node": {
+          "Lambda": {
+            "sort": {
+              "Arrow": [
+                {
+                  "Value": "Bool"
+                },
+                {
+                  "Value": "Bool"
+                }
+              ]
+            },
+            "node": {
+              "Lambda": {
+                "sort": {
+                  "Value": "Bool"
+                },
+                "node": {
+                  "Op": [
+                    "binary:||",
+                    [
+                      {
+                        "node": {
+                          "Bound": 0
+                        },
+                        "sort": {
+                          "Value": "Bool"
+                        }
+                      },
+                      {
+                        "sort": {
+                          "Value": "Bool"
+                        },
+                        "node": {
+                          "Op": [
+                            "apply",
+                            [
+                              {
+                                "sort": {
+                                  "Arrow": [
+                                    {
+                                      "Value": "Bool"
+                                    },
+                                    {
+                                      "Value": "Bool"
+                                    }
+                                  ]
+                                },
+                                "node": {
+                                  "Lambda": {
+                                    "sort": {
+                                      "Value": "Bool"
+                                    },
+                                    "node": {
+                                      "Bound": 0
+                                    }
+                                  }
+                                }
+                              },
+                              {
+                                "node": {
+                                  "Bound": 1
+                                },
+                                "sort": {
+                                  "Value": "Bool"
+                                }
+                              }
+                            ]
+                          ]
+                        }
+                      }
+                    ]
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "premises": []
+  },
+  {
+    "function": "run",
+    "path": [],
+    "law": "2634261d5fdeb1c25e746ad625e01d877afe565e14a2952df9c58f6099702e5d",
+    "arguments": {
+      "xs": {
+        "sort": {
+          "Value": {
+            "List": {
+              "Named": "Box"
+            }
+          }
+        },
+        "node": {
+          "Free": "xs"
+        }
+      },
+      "p": {
+        "sort": {
+          "Arrow": [
+            {
+              "Value": {
+                "Named": "Box"
+              }
+            },
+            {
+              "Value": "Bool"
+            }
+          ]
+        },
+        "node": {
+          "Lambda": {
+            "sort": {
+              "Value": "Bool"
+            },
+            "node": {
+              "Op": [
+                "binary:>=",
+                [
+                  {
+                    "sort": {
+                      "Value": "U32"
+                    },
+                    "node": {
+                      "Op": [
+                        "field:minX",
+                        [
+                          {
+                            "sort": {
+                              "Value": {
+                                "Named": "Box"
+                              }
+                            },
+                            "node": {
+                              "Bound": 0
+                            }
+                          }
+                        ]
+                      ]
+                    }
+                  },
+                  {
+                    "sort": {
+                      "Value": "U32"
+                    },
+                    "node": {
+                      "Word": 16
+                    }
+                  }
+                ]
+              ]
+            }
+          }
+        }
+      },
+      "z": {
+        "sort": {
+          "Value": "Bool"
+        },
+        "node": {
+          "Bool": false
+        }
+      },
+      "stop": {
+        "sort": {
+          "Arrow": [
+            {
+              "Value": {
+                "Named": "Box"
+              }
+            },
+            {
+              "Arrow": [
+                {
+                  "Value": "Bool"
+                },
+                {
+                  "Value": "Bool"
+                }
+              ]
+            }
+          ]
+        },
+        "node": {
+          "Lambda": {
+            "sort": {
+              "Arrow": [
+                {
+                  "Value": "Bool"
+                },
+                {
+                  "Value": "Bool"
+                }
+              ]
+            },
+            "node": {
+              "Lambda": {
+                "sort": {
+                  "Value": "Bool"
+                },
+                "node": {
+                  "Op": [
+                    "apply",
+                    [
+                      {
+                        "sort": {
+                          "Arrow": [
+                            {
+                              "Value": "Bool"
+                            },
+                            {
+                              "Value": "Bool"
+                            }
+                          ]
+                        },
+                        "node": {
+                          "Op": [
+                            "apply",
+                            [
+                              {
+                                "sort": {
+                                  "Arrow": [
+                                    {
+                                      "Value": "Bool"
+                                    },
+                                    {
+                                      "Arrow": [
+                                        {
+                                          "Value": "Bool"
+                                        },
+                                        {
+                                          "Value": "Bool"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                "node": {
+                                  "Lambda": {
+                                    "sort": {
+                                      "Arrow": [
+                                        {
+                                          "Value": "Bool"
+                                        },
+                                        {
+                                          "Value": "Bool"
+                                        }
+                                      ]
+                                    },
+                                    "node": {
+                                      "Lambda": {
+                                        "node": {
+                                          "Bound": 0
+                                        },
+                                        "sort": {
+                                          "Value": "Bool"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              {
+                                "sort": {
+                                  "Value": "Bool"
+                                },
+                                "node": {
+                                  "Op": [
+                                    "apply",
+                                    [
+                                      {
+                                        "sort": {
+                                          "Arrow": [
+                                            {
+                                              "Value": {
+                                                "Named": "Box"
+                                              }
+                                            },
+                                            {
+                                              "Value": "Bool"
+                                            }
+                                          ]
+                                        },
+                                        "node": {
+                                          "Lambda": {
+                                            "sort": {
+                                              "Value": "Bool"
+                                            },
+                                            "node": {
+                                              "Op": [
+                                                "call:intersects",
+                                                [
+                                                  {
+                                                    "sort": {
+                                                      "Value": {
+                                                        "Named": "Box"
+                                                      }
+                                                    },
+                                                    "node": {
+                                                      "Bound": 0
+                                                    }
+                                                  },
+                                                  {
+                                                    "sort": {
+                                                      "Value": {
+                                                        "Named": "Box"
+                                                      }
+                                                    },
+                                                    "node": {
+                                                      "Free": "q"
+                                                    }
+                                                  }
+                                                ]
+                                              ]
+                                            }
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "node": {
+                                          "Bound": 1
+                                        },
+                                        "sort": {
+                                          "Value": {
+                                            "Named": "Box"
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  ]
+                                }
+                              }
+                            ]
+                          ]
+                        }
+                      },
+                      {
+                        "node": {
+                          "Bound": 0
+                        },
+                        "sort": {
+                          "Value": "Bool"
+                        }
+                      }
+                    ]
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "step": {
+        "sort": {
+          "Arrow": [
+            {
+              "Value": {
+                "Named": "Box"
+              }
+            },
+            {
+              "Arrow": [
+                {
+                  "Value": "Bool"
+                },
+                {
+                  "Value": "Bool"
+                }
+              ]
+            }
+          ]
+        },
+        "node": {
+          "Lambda": {
+            "sort": {
+              "Arrow": [
+                {
+                  "Value": "Bool"
+                },
+                {
+                  "Value": "Bool"
+                }
+              ]
+            },
+            "node": {
+              "Lambda": {
+                "sort": {
+                  "Value": "Bool"
+                },
+                "node": {
+                  "Op": [
+                    "apply",
+                    [
+                      {
+                        "sort": {
+                          "Arrow": [
+                            {
+                              "Value": "Bool"
+                            },
+                            {
+                              "Value": "Bool"
+                            }
+                          ]
+                        },
+                        "node": {
+                          "Op": [
+                            "apply",
+                            [
+                              {
+                                "sort": {
+                                  "Arrow": [
+                                    {
+                                      "Value": "Bool"
+                                    },
+                                    {
+                                      "Arrow": [
+                                        {
+                                          "Value": "Bool"
+                                        },
+                                        {
+                                          "Value": "Bool"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                "node": {
+                                  "Lambda": {
+                                    "sort": {
+                                      "Arrow": [
+                                        {
+                                          "Value": "Bool"
+                                        },
+                                        {
+                                          "Value": "Bool"
+                                        }
+                                      ]
+                                    },
+                                    "node": {
+                                      "Lambda": {
+                                        "sort": {
+                                          "Value": "Bool"
+                                        },
+                                        "node": {
+                                          "Op": [
+                                            "binary:||",
+                                            [
+                                              {
+                                                "node": {
+                                                  "Bound": 0
+                                                },
+                                                "sort": {
+                                                  "Value": "Bool"
+                                                }
+                                              },
+                                              {
+                                                "sort": {
+                                                  "Value": "Bool"
+                                                },
+                                                "node": {
+                                                  "Op": [
+                                                    "apply",
+                                                    [
+                                                      {
+                                                        "sort": {
+                                                          "Arrow": [
+                                                            {
+                                                              "Value": "Bool"
+                                                            },
+                                                            {
+                                                              "Value": "Bool"
+                                                            }
+                                                          ]
+                                                        },
+                                                        "node": {
+                                                          "Lambda": {
+                                                            "sort": {
+                                                              "Value": "Bool"
+                                                            },
+                                                            "node": {
+                                                              "Bound": 0
+                                                            }
+                                                          }
+                                                        }
+                                                      },
+                                                      {
+                                                        "node": {
+                                                          "Bound": 1
+                                                        },
+                                                        "sort": {
+                                                          "Value": "Bool"
+                                                        }
+                                                      }
+                                                    ]
+                                                  ]
+                                                }
+                                              }
+                                            ]
+                                          ]
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              {
+                                "sort": {
+                                  "Value": "Bool"
+                                },
+                                "node": {
+                                  "Op": [
+                                    "apply",
+                                    [
+                                      {
+                                        "sort": {
+                                          "Arrow": [
+                                            {
+                                              "Value": {
+                                                "Named": "Box"
+                                              }
+                                            },
+                                            {
+                                              "Value": "Bool"
+                                            }
+                                          ]
+                                        },
+                                        "node": {
+                                          "Lambda": {
+                                            "sort": {
+                                              "Value": "Bool"
+                                            },
+                                            "node": {
+                                              "Op": [
+                                                "call:intersects",
+                                                [
+                                                  {
+                                                    "sort": {
+                                                      "Value": {
+                                                        "Named": "Box"
+                                                      }
+                                                    },
+                                                    "node": {
+                                                      "Bound": 0
+                                                    }
+                                                  },
+                                                  {
+                                                    "sort": {
+                                                      "Value": {
+                                                        "Named": "Box"
+                                                      }
+                                                    },
+                                                    "node": {
+                                                      "Free": "q"
+                                                    }
+                                                  }
+                                                ]
+                                              ]
+                                            }
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "node": {
+                                          "Bound": 1
+                                        },
+                                        "sort": {
+                                          "Value": {
+                                            "Named": "Box"
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  ]
+                                }
+                              }
+                            ]
+                          ]
+                        }
+                      },
+                      {
+                        "node": {
+                          "Bound": 0
+                        },
+                        "sort": {
+                          "Value": "Bool"
+                        }
+                      }
+                    ]
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "premises": []
+  }
+]
