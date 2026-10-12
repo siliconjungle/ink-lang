@@ -257,7 +257,9 @@ impl Entry {
         })
     }
     pub fn law(&self) -> LangResult<Law> {
-        if self.kind != Kind::Rewrite || self.semantics != laws::SEMANTICS {
+        if self.kind != Kind::Rewrite
+            || (self.semantics != laws::SEMANTICS && self.semantics != laws::GENERAL_SEMANTICS)
+        {
             return Err("entry is not an executable rewrite".into());
         }
         let mut payload = self.payload.clone();
@@ -531,7 +533,7 @@ impl CheckedBundle {
         for id in &self.order {
             let e = &self.bundle.objects[id];
             match e.semantics.as_str() {
-                laws::SEMANTICS => {
+                laws::SEMANTICS | laws::GENERAL_SEMANTICS => {
                     semantic_objects.insert(id.clone(), e.law()?);
                     semantic_roots.push(id.clone());
                 }

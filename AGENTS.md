@@ -86,7 +86,10 @@ and hygienic result bindings. Preserve declaration order, original parameter
 captures, single result evaluation, explicit Result errors and transaction rollback.
 They are validations, not static assumptions. External emit-laws authoring must
 check ordinary canonical laws, explicit conditions/dependencies and portable
-definition contexts; executable source still rejects inline rewrites. Exact Int
+definition contexts; executable source still rejects inline rewrites and `law`
+declarations. `law` is the one source form for laws (`rewrite` is its concrete
+case); general laws (type parameters, assumptions) carry ink-general-laws-v1
+and reach programs only through concrete instances that prove their assumptions. Exact Int
 correspondence uses the same bounded polynomial machinery with exact coefficients,
 never wrapping coefficients. Keep finite laws and authored algorithms in knowledge.
 

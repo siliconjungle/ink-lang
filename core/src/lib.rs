@@ -18,6 +18,7 @@ pub mod equality;
 pub mod eval;
 pub mod implementation;
 pub mod law_author;
+pub mod law_syntax;
 pub mod laws;
 pub mod library;
 pub mod logic;

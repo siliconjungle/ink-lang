@@ -667,7 +667,7 @@ fn run() -> LangResult<()> {
             .ok_or("emit-laws requires an external theorem SOURCE")?;
         let bytes = read_bounded(path, 1_000_000)?;
         let text = std::str::from_utf8(&bytes).map_err(|e| e.to_string())?;
-        let program = syntax::parse(text)?;
+        let source = syntax::parse_law_source(text)?;
         let proofs = arg_value(&args, "--proofs")?
             .map(|p| {
                 read_bounded(&p, 4_000_000)
@@ -681,7 +681,8 @@ fn run() -> LangResult<()> {
                     .and_then(|b| serde_json::from_slice(&b).map_err(|e| e.to_string()))
             })
             .transpose()?;
-        let authored = verified_language::law_author::compile(program, proofs, deps.as_ref())?;
+        let authored =
+            verified_language::law_author::compile_source(source, proofs, deps.as_ref())?;
         let output = arg_value(&args, "-o")?.ok_or("emit-laws requires -o BUNDLE.json")?;
         write(
             &output,
@@ -689,7 +690,7 @@ fn run() -> LangResult<()> {
         )?;
         println!(
             "{}",
-            serde_json::json!({"status":"checked","names":authored.names,"snapshot":authored.bundle.snapshot,"scope":"External executable laws checked by the existing general kernel; source declarations do not grant optimisation authority."})
+            serde_json::json!({"status":"checked","names":authored.names,"snapshot":authored.bundle.snapshot,"scope":"External laws (law and rewrite declarations) checked by the semantic law kernel; source declarations do not grant optimisation authority."})
         );
         return Ok(());
     }

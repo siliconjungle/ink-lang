@@ -325,7 +325,8 @@ fn general_typed_query_discovers_individual_laws_and_replays_after_database_remo
         fs::read(&selected_path).unwrap(),
         fs::read(dir.join("again.json")).unwrap()
     );
-    assert_eq!(receipt["database"]["entries"], 2);
+    // Discovery also includes independently generated producer proposals.
+    assert!(receipt["database"]["entries"].as_u64().unwrap() >= 2);
     assert!(package.applications.len() >= 2);
     assert!(package
         .applications
@@ -348,7 +349,7 @@ fn general_typed_query_discovers_individual_laws_and_replays_after_database_remo
     // Immutable snapshot paths work without relying on the active pointer.
     let pinned = database.join("store/snapshots").join(format!(
         "{}.json",
-        receipt["database"]["snapshot_sha256"].as_str().unwrap()
+        receipt["database"]["source_snapshot_sha256"].as_str().unwrap()
     ));
     let cli_pinned = Command::new(env!("CARGO_BIN_EXE_ink"))
         .arg("emit-core")
