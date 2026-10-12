@@ -360,7 +360,9 @@ impl CheckedBundle {
                 || obj.semantics.is_empty()
                 || !obj.payload.is_object()
                 || obj.dependencies.len()
-                    > if obj.semantics == "ink-source-representation-v1" {
+                    > if obj.semantics == "ink-implementation-candidate-v1" {
+                        MAX_VIEW_ENTRIES
+                    } else if obj.semantics == "ink-source-representation-v1" {
                         512
                     } else {
                         128
@@ -368,7 +370,7 @@ impl CheckedBundle {
                 || !sorted(&obj.dependencies)
                 || !sorted(&obj.interface.operations)
                 || !sorted(&obj.interface.effects)
-                || bytes.len() > MAX_ENTRY_BYTES
+                || bytes.len() > if obj.semantics=="ink-implementation-candidate-v1" {MAX_VIEW_BYTES}else{MAX_ENTRY_BYTES}
                 || format!("{:x}", Sha256::digest(&bytes)) != *id
             {
                 return Err("knowledge entry schema/content mismatch".into());
