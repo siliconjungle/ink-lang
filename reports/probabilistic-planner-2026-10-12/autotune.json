@@ -1,0 +1,579 @@
+{
+  "schema": 1,
+  "receipts": [
+    {
+      "schema": 1,
+      "seed": 173,
+      "budget": 3,
+      "expected_calls": 256,
+      "context": {
+        "target": "{\"adapter\": {\"architecture\": \"metal-3\", \"isFallbackAdapter\": false, \"vendor\": \"apple\"}, \"browser\": \"154.0.8037.98\", \"cpu\": \"Apple M2\"}",
+        "code": "1755a1037c64aeea7647ea698a7b73b350205579ab6b84eb7d2340ba01c24d81",
+        "boundary": "complete owned output including transfers",
+        "workload": "score:4096"
+      },
+      "observations": [
+        {
+          "index": 0,
+          "configuration": {
+            "backend": "Ink JavaScript"
+          },
+          "observation": {
+            "correct": true,
+            "fallback": false,
+            "samples_ns": [
+              212500,
+              175000,
+              175000,
+              187500
+            ],
+            "setup_ns": 7718750,
+            "setup_scope": "derived: full first-use median at 65536 minus training warm median; shared-page caches"
+          },
+          "objective_ns": 211401.3671875
+        },
+        {
+          "index": 2,
+          "configuration": {
+            "backend": "Ink GPU"
+          },
+          "observation": {
+            "correct": true,
+            "fallback": false,
+            "samples_ns": [
+              1150000,
+              1362500,
+              1187500,
+              1425000
+            ],
+            "setup_ns": 11725000,
+            "setup_scope": "derived: full first-use median at 65536 minus training warm median; shared-page caches"
+          },
+          "objective_ns": 1320800.78125
+        },
+        {
+          "index": 1,
+          "configuration": {
+            "backend": "Ink Wasm"
+          },
+          "observation": {
+            "correct": true,
+            "fallback": false,
+            "samples_ns": [
+              375000,
+              337500,
+              287500,
+              312500
+            ],
+            "setup_ns": 8775000,
+            "setup_scope": "derived: full first-use median at 65536 minus training warm median; shared-page caches"
+          },
+          "objective_ns": 359277.34375
+        }
+      ],
+      "proposal": {
+        "backend": "Ink JavaScript"
+      },
+      "selected": {
+        "backend": "Ink JavaScript"
+      },
+      "released": false,
+      "heldout": [],
+      "authority": "offline profitability proposal only; eligibility/proof replay belongs to existing checker; no online trials",
+      "training_sha256": "a9d4c8e91eb094d66c6b3dc2db23bb794adf384da0c3b23d14c4d21f98a2076b",
+      "evidence_sha256": "4a7fb196e5adc2c500859403d0267cf3daa0849512d4c488b0628c9b61c2ac96",
+      "artifact": "61a1a6b3b3588733a61fa4d856b93a0b996ad626205a20b34059956ed6023a94"
+    },
+    {
+      "schema": 1,
+      "seed": 173,
+      "budget": 3,
+      "expected_calls": 256,
+      "context": {
+        "target": "{\"adapter\": {\"architecture\": \"metal-3\", \"isFallbackAdapter\": false, \"vendor\": \"apple\"}, \"browser\": \"154.0.8037.98\", \"cpu\": \"Apple M2\"}",
+        "code": "1755a1037c64aeea7647ea698a7b73b350205579ab6b84eb7d2340ba01c24d81",
+        "boundary": "complete owned output including transfers",
+        "workload": "score:65536"
+      },
+      "observations": [
+        {
+          "index": 0,
+          "configuration": {
+            "backend": "Ink JavaScript"
+          },
+          "observation": {
+            "correct": true,
+            "fallback": false,
+            "samples_ns": [
+              3050000,
+              3350000,
+              2750000,
+              2950000
+            ],
+            "setup_ns": 4900000,
+            "setup_scope": "derived: full first-use median at 65536 minus training warm median; shared-page caches"
+          },
+          "objective_ns": 3019140.625
+        },
+        {
+          "index": 2,
+          "configuration": {
+            "backend": "Ink GPU"
+          },
+          "observation": {
+            "correct": true,
+            "fallback": false,
+            "samples_ns": [
+              9200000,
+              6550000,
+              6050000,
+              6150000
+            ],
+            "setup_ns": 6650000,
+            "setup_scope": "derived: full first-use median at 65536 minus training warm median; shared-page caches"
+          },
+          "objective_ns": 6375976.5625
+        },
+        {
+          "index": 1,
+          "configuration": {
+            "backend": "Ink Wasm"
+          },
+          "observation": {
+            "correct": true,
+            "fallback": false,
+            "samples_ns": [
+              4750000,
+              4500000,
+              4350000,
+              4350000
+            ],
+            "setup_ns": 4675000,
+            "setup_scope": "derived: full first-use median at 65536 minus training warm median; shared-page caches"
+          },
+          "objective_ns": 4443261.71875
+        }
+      ],
+      "proposal": {
+        "backend": "Ink JavaScript"
+      },
+      "selected": {
+        "backend": "Ink JavaScript"
+      },
+      "released": false,
+      "heldout": [],
+      "authority": "offline profitability proposal only; eligibility/proof replay belongs to existing checker; no online trials",
+      "training_sha256": "bf9b29eed69b0182669c8c0d916c742e6ae3cc3f1f76fe211d6788df2964c091",
+      "evidence_sha256": "4a7fb196e5adc2c500859403d0267cf3daa0849512d4c488b0628c9b61c2ac96",
+      "artifact": "bf24eb3ce5db50276357877ab7b9eb9b30ff32e30886c681dea1beec967d6b71"
+    },
+    {
+      "schema": 1,
+      "seed": 173,
+      "budget": 3,
+      "expected_calls": 256,
+      "context": {
+        "target": "{\"adapter\": {\"architecture\": \"metal-3\", \"isFallbackAdapter\": false, \"vendor\": \"apple\"}, \"browser\": \"154.0.8037.98\", \"cpu\": \"Apple M2\"}",
+        "code": "1755a1037c64aeea7647ea698a7b73b350205579ab6b84eb7d2340ba01c24d81",
+        "boundary": "complete owned output including transfers",
+        "workload": "score:1048576"
+      },
+      "observations": [
+        {
+          "index": 0,
+          "configuration": {
+            "backend": "Ink JavaScript"
+          },
+          "observation": {
+            "correct": true,
+            "fallback": false,
+            "samples_ns": [
+              49100000,
+              42600000,
+              41400000,
+              40200000
+            ],
+            "setup_ns": 0,
+            "setup_scope": "derived: full first-use median at 65536 minus training warm median; shared-page caches"
+          },
+          "objective_ns": 42000000.0
+        },
+        {
+          "index": 2,
+          "configuration": {
+            "backend": "Ink GPU"
+          },
+          "observation": {
+            "correct": true,
+            "fallback": false,
+            "samples_ns": [
+              125800000,
+              84600000,
+              121000000,
+              88600000
+            ],
+            "setup_ns": 0,
+            "setup_scope": "derived: full first-use median at 65536 minus training warm median; shared-page caches"
+          },
+          "objective_ns": 104800000.0
+        },
+        {
+          "index": 1,
+          "configuration": {
+            "backend": "Ink Wasm"
+          },
+          "observation": {
+            "correct": true,
+            "fallback": false,
+            "samples_ns": [
+              88700000,
+              71200000,
+              88200000,
+              67900000
+            ],
+            "setup_ns": 0,
+            "setup_scope": "derived: full first-use median at 65536 minus training warm median; shared-page caches"
+          },
+          "objective_ns": 79700000.0
+        }
+      ],
+      "proposal": {
+        "backend": "Ink JavaScript"
+      },
+      "selected": {
+        "backend": "Ink JavaScript"
+      },
+      "released": false,
+      "heldout": [],
+      "authority": "offline profitability proposal only; eligibility/proof replay belongs to existing checker; no online trials",
+      "training_sha256": "b419f249a1f657aa9eef4b9bc6acab98c3638d7b04ed39a0afc8957971a8d6ea",
+      "evidence_sha256": "4a7fb196e5adc2c500859403d0267cf3daa0849512d4c488b0628c9b61c2ac96",
+      "artifact": "55ee213e88387f80afa1622538eb0d88ee482e13b46c6ba4487f68fe01ef9ea5"
+    },
+    {
+      "schema": 1,
+      "seed": 173,
+      "budget": 3,
+      "expected_calls": 256,
+      "context": {
+        "target": "{\"adapter\": {\"architecture\": \"metal-3\", \"isFallbackAdapter\": false, \"vendor\": \"apple\"}, \"browser\": \"154.0.8037.98\", \"cpu\": \"Apple M2\"}",
+        "code": "1755a1037c64aeea7647ea698a7b73b350205579ab6b84eb7d2340ba01c24d81",
+        "boundary": "complete owned output including transfers",
+        "workload": "evaluate:4096"
+      },
+      "observations": [
+        {
+          "index": 0,
+          "configuration": {
+            "backend": "Ink JavaScript"
+          },
+          "observation": {
+            "correct": true,
+            "fallback": false,
+            "samples_ns": [
+              2587500,
+              2550000,
+              2512500,
+              2575000
+            ],
+            "setup_ns": 45937500,
+            "setup_scope": "derived: full first-use median at 65536 minus training warm median; shared-page caches"
+          },
+          "objective_ns": 2741943.359375
+        },
+        {
+          "index": 2,
+          "configuration": {
+            "backend": "Ink GPU"
+          },
+          "observation": {
+            "correct": true,
+            "fallback": false,
+            "samples_ns": [
+              887500,
+              1037500,
+              987500,
+              1337500
+            ],
+            "setup_ns": 9787500,
+            "setup_scope": "derived: full first-use median at 65536 minus training warm median; shared-page caches"
+          },
+          "objective_ns": 1050732.421875
+        },
+        {
+          "index": 1,
+          "configuration": {
+            "backend": "Ink Wasm"
+          },
+          "observation": {
+            "correct": true,
+            "fallback": false,
+            "samples_ns": [
+              1900000,
+              1762500,
+              1762500,
+              1762500
+            ],
+            "setup_ns": 31537500,
+            "setup_scope": "derived: full first-use median at 65536 minus training warm median; shared-page caches"
+          },
+          "objective_ns": 1885693.359375
+        }
+      ],
+      "proposal": {
+        "backend": "Ink GPU"
+      },
+      "selected": {
+        "backend": "Ink GPU"
+      },
+      "released": true,
+      "heldout": [
+        {
+          "round": 4,
+          "correct": true,
+          "baseline_ns": 2625000.0,
+          "candidate_ns": 1037500.0014901161,
+          "baseline_total_ns": 717937500.0,
+          "candidate_total_ns": 275387500.3814697
+        },
+        {
+          "round": 5,
+          "correct": true,
+          "baseline_ns": 2550000.000745058,
+          "candidate_ns": 1037499.9977648258,
+          "baseline_total_ns": 698737500.1907349,
+          "candidate_total_ns": 275387499.4277954
+        },
+        {
+          "round": 6,
+          "correct": true,
+          "baseline_ns": 2550000.000745058,
+          "candidate_ns": 975000.0014901161,
+          "baseline_total_ns": 698737500.1907349,
+          "candidate_total_ns": 259387500.38146973
+        }
+      ],
+      "authority": "offline profitability proposal only; eligibility/proof replay belongs to existing checker; no online trials",
+      "training_sha256": "24d41c139fac0e3872b44ad0416a3487d34c0b2034ecc18496637aaad1e08ef9",
+      "evidence_sha256": "4a7fb196e5adc2c500859403d0267cf3daa0849512d4c488b0628c9b61c2ac96",
+      "artifact": "24f5ea7146aaabd985ffdaadd4fa6830ca19ae18d0588c4a7a956a8338580bcd"
+    },
+    {
+      "schema": 1,
+      "seed": 173,
+      "budget": 3,
+      "expected_calls": 256,
+      "context": {
+        "target": "{\"adapter\": {\"architecture\": \"metal-3\", \"isFallbackAdapter\": false, \"vendor\": \"apple\"}, \"browser\": \"154.0.8037.98\", \"cpu\": \"Apple M2\"}",
+        "code": "1755a1037c64aeea7647ea698a7b73b350205579ab6b84eb7d2340ba01c24d81",
+        "boundary": "complete owned output including transfers",
+        "workload": "evaluate:65536"
+      },
+      "observations": [
+        {
+          "index": 0,
+          "configuration": {
+            "backend": "Ink JavaScript"
+          },
+          "observation": {
+            "correct": true,
+            "fallback": false,
+            "samples_ns": [
+              39950000,
+              41400000,
+              42200000,
+              41250000
+            ],
+            "setup_ns": 7175000,
+            "setup_scope": "derived: full first-use median at 65536 minus training warm median; shared-page caches"
+          },
+          "objective_ns": 41353027.34375
+        },
+        {
+          "index": 2,
+          "configuration": {
+            "backend": "Ink GPU"
+          },
+          "observation": {
+            "correct": true,
+            "fallback": false,
+            "samples_ns": [
+              4550000,
+              4700000,
+              4650000,
+              4600000
+            ],
+            "setup_ns": 6175000,
+            "setup_scope": "derived: full first-use median at 65536 minus training warm median; shared-page caches"
+          },
+          "objective_ns": 4649121.09375
+        },
+        {
+          "index": 1,
+          "configuration": {
+            "backend": "Ink Wasm"
+          },
+          "observation": {
+            "correct": true,
+            "fallback": false,
+            "samples_ns": [
+              27500000,
+              28950000,
+              28600000,
+              28600000
+            ],
+            "setup_ns": 4700000,
+            "setup_scope": "derived: full first-use median at 65536 minus training warm median; shared-page caches"
+          },
+          "objective_ns": 28618359.375
+        }
+      ],
+      "proposal": {
+        "backend": "Ink GPU"
+      },
+      "selected": {
+        "backend": "Ink GPU"
+      },
+      "released": true,
+      "heldout": [
+        {
+          "round": 4,
+          "correct": true,
+          "baseline_ns": 41799999.99701977,
+          "candidate_ns": 4649999.991059303,
+          "baseline_total_ns": 10707974999.23706,
+          "candidate_total_ns": 1196574997.7111816
+        },
+        {
+          "round": 5,
+          "correct": true,
+          "baseline_ns": 42950000.00298023,
+          "candidate_ns": 5549999.997019768,
+          "baseline_total_ns": 11002375000.76294,
+          "candidate_total_ns": 1426974999.2370605
+        },
+        {
+          "round": 6,
+          "correct": true,
+          "baseline_ns": 42150000.005960464,
+          "candidate_ns": 6599999.9940395355,
+          "baseline_total_ns": 10797575001.525879,
+          "candidate_total_ns": 1695774998.474121
+        }
+      ],
+      "authority": "offline profitability proposal only; eligibility/proof replay belongs to existing checker; no online trials",
+      "training_sha256": "8d046feb9e69403c7fc3594d1657acc7135094b5aa2e238044a972efe25484ea",
+      "evidence_sha256": "4a7fb196e5adc2c500859403d0267cf3daa0849512d4c488b0628c9b61c2ac96",
+      "artifact": "28bff8b17a40c78d08e4e54a0799ecc1cfbf721d87ccb82d146656ba121af1c2"
+    },
+    {
+      "schema": 1,
+      "seed": 173,
+      "budget": 3,
+      "expected_calls": 256,
+      "context": {
+        "target": "{\"adapter\": {\"architecture\": \"metal-3\", \"isFallbackAdapter\": false, \"vendor\": \"apple\"}, \"browser\": \"154.0.8037.98\", \"cpu\": \"Apple M2\"}",
+        "code": "1755a1037c64aeea7647ea698a7b73b350205579ab6b84eb7d2340ba01c24d81",
+        "boundary": "complete owned output including transfers",
+        "workload": "evaluate:1048576"
+      },
+      "observations": [
+        {
+          "index": 0,
+          "configuration": {
+            "backend": "Ink JavaScript"
+          },
+          "observation": {
+            "correct": true,
+            "fallback": false,
+            "samples_ns": [
+              657200000,
+              663200000,
+              673400000,
+              670800000
+            ],
+            "setup_ns": 0,
+            "setup_scope": "derived: full first-use median at 65536 minus training warm median; shared-page caches"
+          },
+          "objective_ns": 667000000.0
+        },
+        {
+          "index": 2,
+          "configuration": {
+            "backend": "Ink GPU"
+          },
+          "observation": {
+            "correct": true,
+            "fallback": false,
+            "samples_ns": [
+              63700000,
+              65700000,
+              63400000,
+              72200000
+            ],
+            "setup_ns": 0,
+            "setup_scope": "derived: full first-use median at 65536 minus training warm median; shared-page caches"
+          },
+          "objective_ns": 64700000.0
+        },
+        {
+          "index": 1,
+          "configuration": {
+            "backend": "Ink Wasm"
+          },
+          "observation": {
+            "correct": true,
+            "fallback": false,
+            "samples_ns": [
+              464200000,
+              455500000,
+              456300000,
+              462600000
+            ],
+            "setup_ns": 0,
+            "setup_scope": "derived: full first-use median at 65536 minus training warm median; shared-page caches"
+          },
+          "objective_ns": 459450000.0
+        }
+      ],
+      "proposal": {
+        "backend": "Ink GPU"
+      },
+      "selected": {
+        "backend": "Ink GPU"
+      },
+      "released": true,
+      "heldout": [
+        {
+          "round": 4,
+          "correct": true,
+          "baseline_ns": 717799999.9821186,
+          "candidate_ns": 64799999.98211861,
+          "baseline_total_ns": 183756799995.42236,
+          "candidate_total_ns": 16588799995.422363
+        },
+        {
+          "round": 5,
+          "correct": true,
+          "baseline_ns": 662500000.0,
+          "candidate_ns": 70400000.00596046,
+          "baseline_total_ns": 169600000000.0,
+          "candidate_total_ns": 18022400001.52588
+        },
+        {
+          "round": 6,
+          "correct": true,
+          "baseline_ns": 653599999.9940395,
+          "candidate_ns": 65099999.994039536,
+          "baseline_total_ns": 167321599998.47412,
+          "candidate_total_ns": 16665599998.474121
+        }
+      ],
+      "authority": "offline profitability proposal only; eligibility/proof replay belongs to existing checker; no online trials",
+      "training_sha256": "cc9db763bfa45990387a221a329defcf378fdde55da4a8e9400576d8ce27ac6c",
+      "evidence_sha256": "4a7fb196e5adc2c500859403d0267cf3daa0849512d4c488b0628c9b61c2ac96",
+      "artifact": "360be8190975ace67ff2eab2d6e7c17783b4b127d4b3f23693654263e4a32a25"
+    }
+  ],
+  "scope": "offline replay of measured alternatives; disjoint warm rounds; first-use estimate charged; no runtime profile installed or automatic target admission"
+}

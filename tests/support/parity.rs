@@ -130,6 +130,8 @@ fn conformance_inner(
             || name == "numerical-state-parity"
             || name == "language-foundations-parity"
             || name == "generic-libraries-parity"
+            || name == "bulk-workloads-parity"
+            || name == "competitive-workloads-parity"
             || selected.is_some())
     {
         let project = root.join("gpu-module/native");
@@ -183,16 +185,17 @@ fn conformance_inner(
             "{}",
             String::from_utf8_lossy(&out.stderr)
         );
-        // Packed compute scripts emit one receipt per line; module scripts
-        // emit a single ordered array. Decode the selected host's transport.
-        let actual: Vec<Value> = if packed_pure {
+        // Hosts may return one ordered array or packed receipts per line.
+        // Decode the complete array before interpreting individual lines.
+        let actual: Vec<Value> = if let Ok(receipts) = serde_json::from_slice(&out.stdout) {
+            receipts
+        } else {
+            assert!(packed_pure, "module host must return an ordered receipt array");
             std::str::from_utf8(&out.stdout)
                 .unwrap()
                 .lines()
                 .map(|line| serde_json::from_str(line).unwrap())
                 .collect()
-        } else {
-            serde_json::from_slice(&out.stdout).unwrap()
         };
         let calls = gpu_steps
             .iter()
@@ -226,7 +229,7 @@ fn conformance_inner(
             if s["cpu_only"] == true {
                 assert_eq!(a["backend"], "cpu", "explicit CPU float-bit contract: {s}");
             }
-            if [
+            if ([
                 "repeated_arrays",
                 "choose_arrays",
                 "composition",
@@ -236,6 +239,7 @@ fn conformance_inner(
                 "flags",
             ]
             .contains(&s["pure"].as_str().unwrap_or(""))
+                && s["cpu_only"] != true)
                 || s["expect_gpu"] == true
             {
                 assert_eq!(a["backend"], "gpu", "expected eligible GPU kernel: {s}");

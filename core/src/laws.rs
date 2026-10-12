@@ -21,6 +21,8 @@ pub enum Proof {
         premise: Box<Proof>,
         body: Box<Proof>,
     },
+    /// Nonnegative linear combination of exact-integer inequalities.
+    Linear { premises: Vec<(usize, u64)> },
     Normalize,
     Hypothesis(usize),
     /// Instantiate only the quantified parameters of a branch-local induction
@@ -384,6 +386,7 @@ impl CheckedCatalogue {
             }
         }
         match proof {
+            Proof::Linear { premises } => linear(p, hyp, goal, premises, b),
             Proof::AssertEquality {
                 equality,
                 premise,
@@ -1647,6 +1650,46 @@ fn literal_primitive(t: &Term, p: &Program, b: &mut Budget) -> LangResult<Option
         _ => return Err("literal primitive output".into()),
     }))
 }
+// A small certificate checker, not an optimiser or theorem-name registry.
+// Each exact Int comparison supplies a nonnegative polynomial. The goal follows
+// if its gap minus the supplied nonnegative combination is a nonnegative constant.
+fn linear(p: &Program, hyp: &[Equation], goal: &Equation, premises: &[(usize,u64)], b: &mut Budget) -> LangResult<()> {
+    use num_traits::{Zero, Signed};
+    if premises.len() > 256 { return Err("linear certificate size limit".into()); }
+    fn gap(e: &Equation, facts: &[Equation], p: &Program, b: &mut Budget) -> LangResult<Polynomial> {
+        if e.to != term(value(Type::Bool), Node::Bool(true)) { return Err("linear goal must assert a proposition".into()); }
+        let t = normal(&e.from, facts, p, b, 0)?;
+        if t == e.to { return Ok(BTreeMap::new()); }
+        let Node::Op(n, a) = &t.node else { return Err("linear proposition is not a comparison".into()); };
+        if a.len()!=2 || a.iter().any(|a| a.sort != value(Type::Int)) { return Err("linear comparisons require exact Int operands".into()); }
+        let (left,right,strict) = match n.as_str() {
+            "binary:<=" => (&a[0],&a[1],false), "binary:<" => (&a[0],&a[1],true),
+            "binary:>=" => (&a[1],&a[0],false), "binary:>" => (&a[1],&a[0],true),
+            _ => return Err("unsupported linear comparison".into()),
+        };
+        let mut out = polynomial(&op(value(Type::Int), "binary:-", vec![right.clone(),left.clone()]), b, 0)?;
+        if strict { *out.entry(vec![]).or_default() -= 1; }
+        Ok(out)
+    }
+    let mut residual = gap(goal, hyp, p, b)?;
+    for &(index,weight) in premises {
+        b.step(0)?;
+        let premise = hyp.get(index).ok_or("linear premise index")?;
+        if weight == 0 { continue; }
+        for (monomial,coefficient) in gap(premise, &[], p, b)? {
+            let v = residual.entry(monomial).or_default();
+            *v -= coefficient * num_bigint::BigInt::from(weight);
+            if v.bits()>32768 { return Err("linear coefficient bit limit".into()); }
+        }
+        if residual.len()>8192 { return Err("linear term limit".into()); }
+    }
+    residual.retain(|_,v| !v.is_zero());
+    if residual.iter().any(|(m,v)| !m.is_empty() || v.is_negative()) {
+        return Err("linear certificate leaves a nonconstant or negative remainder".into());
+    }
+    Ok(())
+}
+
 // A general decision procedure for the polynomial fragment of exact integer
 // and wrapping word semantics. It checks equality; it never installs an optimisation or emits code.
 type Polynomial = BTreeMap<Vec<String>, num_bigint::BigInt>;
@@ -1980,6 +2023,7 @@ pub fn open_proof(proof: &Proof, scope: &[(String, Sort)], b: &mut Budget) -> La
             })
         };
         Ok(match proof {
+            Proof::Linear { premises } => Proof::Linear { premises: premises.clone() },
             Proof::Normalize => Proof::Normalize,
             Proof::Hypothesis(i) => Proof::Hypothesis(*i),
             Proof::GeneralizedHypothesis { index, arguments } => Proof::GeneralizedHypothesis {

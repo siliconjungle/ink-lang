@@ -6,6 +6,13 @@ laws, work skipping, range specialisations, maintained representations and layou
 alternatives belong in the independently pinned `ink-knowledge` database.
 No target matcher, theorem whitelist or hash may grant rewrite authority.
 
+At James's request, fixed JavaScript scalar-keep retention is implementation
+machinery: checked effects derive root dependencies, concrete mutations invalidate
+them, failed actions restore cache before-images, and restore/host rollback clear
+auxiliary caches. This preserves deterministic evaluation of the same source; it
+grants no algebraic replacement or maintained-layout authority. More selective
+state/field/algorithm replacements continue to require database proofs.
+
 The distribution pins C, Rust, JavaScript, Wasm and GPU lowering packages.
 Each backend emits checked programs literally and reports unsupported capabilities.
 General visitors, lexical binding and expression limits belong in core analysis.
@@ -94,3 +101,38 @@ storage; typed owners retain direct vectors until partitioned. Runtime must embe
 ink-native-support ownership primitives, never the independent reference evaluator.
 Keep partition algorithms in knowledge and measure whole-workload profitability
 separately from clone/allocation mechanism checks.
+
+Bulk `Buffer.fill_range` and `copy_within` bind executable-core V9. Keep fixed
+clipped/snapshot meanings and independent reference execution in core. Preserve
+affine admission, left-to-right argument evaluation and scoped partition bounds;
+range arithmetic must not wrap. The kernel's recursive list meanings are fixed
+semantics, not optimisation recognisers. Zero/empty work elimination and length
+invariants remain ordinary database laws. Voxel/codec/ECS algorithms stay in
+knowledge libraries. New range operations have CPU execution/GPU-host fallback;
+real eligible numeric dispatch does not imply device range support. See
+`docs/bulk-buffer-workloads.md` and the mandatory generic_libraries coverage.
+
+General final-use facts live in core/src/last_use.rs and refer only to the borrowed
+expression tree. Preserve fresh lexical identities, evaluation order, conservative
+branch handling and sharing of repeated callback captures. Rust literal emission
+may move final-use values; no domain matcher or equality rule follows from these
+facts. Keep real upstream benchmarks and lifecycle/output-size controls in
+bench/competitive-workloads; measured voxel/codec algorithms remain knowledge
+libraries. Formats and performance observations never grant rewrite authority.
+
+Source physical capabilities now include optional direct Buffer owners and checked
+flat scalar columns on Rust/Rust-Wasm. Bounds and unchanged-field certificates bind
+an exact module, function and child path; source aliases retain numeric types and
+wrapping semantics. RUP verification, existing semantic equality and inductive
+codec round trips are mandatory; rehashing metadata never grants access or permits
+skipping a write. Layout codecs are fixed source-shape meanings; solver search,
+proof construction, layout proposals and fusion specialise in ink-knowledge.
+Packed lanes widen on values that do not fit and preserve raw float bits in plain
+lanes. Profiles rank replayed candidates only; absent comparable lifecycle evidence
+retains the baseline. Unsupported target selections must fail explicitly. Physical
+planning does not change executable-core V9 or public serialisation formats.
+
+Finish completed, validated work by merging and publishing it on `main` in the
+distribution and every changed independent package repository. Report the verified
+main revision. Feature branches and worktrees are staging areas during active work;
+keep work isolated when James explicitly requests a draft or separate branch.

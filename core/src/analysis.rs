@@ -112,3 +112,18 @@ mod tests {
         );
     }
 }
+
+/// Stable source paths paired with this expression tree's borrowed node addresses.
+pub fn paths(e: &Expr) -> std::collections::BTreeMap<usize, Vec<usize>> {
+    let mut result = std::collections::BTreeMap::new();
+    let mut pending = vec![(e, vec![])];
+    while let Some((e, path)) = pending.pop() {
+        result.insert(e as *const Expr as usize, path.clone());
+        for (i, child) in children(e).into_iter().enumerate() {
+            let mut p = path.clone();
+            p.push(i);
+            pending.push((child, p));
+        }
+    }
+    result
+}

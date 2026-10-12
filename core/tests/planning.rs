@@ -93,12 +93,13 @@ fn physical_metadata_cannot_select_missing_source_or_fake_definition_sites() {
         semantics: physical::SEMANTICS.into(),
         input_core_sha256: m.identity().unwrap(),
         representation: None,
-        tables: Default::default(),
+        tables: Default::default(), buffers:Default::default(), bounds:None, columns:vec![],column_maps:None,
         borrow_reads: vec![],
         borrow_rows: vec![],
         definitions: Default::default(),
         packed_datatypes: vec![],
         memo_functions: vec![],
+        reservations: vec![],
     };
     physical::check(&m, None, &p).unwrap();
     let mut wrong = p.clone();
