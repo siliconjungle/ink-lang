@@ -114,6 +114,23 @@ Rust, JavaScript and both Wasm paths with `INK_PARITY_REQUIRE_ALL=1` and Zig.
 The measured report and retained raw samples live under
 `reports/signals-state-2026-10-12`; they do not establish universal superiority.
 
+## Dense GPU compute comparison
+
+The separate [hardware WebGPU report](../reports/gpu-signals-2026-10-12/README.md)
+compares complete changed-input requests against production Svelte derived values,
+Preact computed values and plain JavaScript at 4,096, 65,536 and 1,048,576 elements.
+It measures cheap transforms and reductions, data-dependent arithmetic and coupled
+feedback with GPU-resident intermediate arrays. Upload, dispatch, synchronization
+and full CPU-visible output acquisition are included; fresh-page first-use results
+are reported separately. Controls use efficient array kernels and reusable feedback
+buffers, with one reactive update per request.
+
+Actual GPU receipts, exact output checks, all samples and the emitted bundle are
+retained. This measures explicit GPU execution of eligible pure functions. It does
+not establish automatic routing profitability, rendering speed or state/delta
+performance. The current emitted cheap reduction is sequential on the GPU; its
+results should not be interpreted as a measurement of parallel reduction machinery.
+
 ## What signals can express that current Ink cannot safely optimize
 
 Pure dynamic dependencies are representable in Ink: a selector plus the selected
