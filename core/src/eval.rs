@@ -1664,6 +1664,37 @@ fn evaluate_local(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> LangR
                     if n == "pop" {
                         return Ok(Value::Buffer(b.pop()));
                     }
+                    if n == "copy_within" || n == "fill_range" {
+                        let Value::U32(first) =
+                            expr(&a[0], env, types, p, fuel, Some(&Type::U32), depth)?
+                        else {
+                            unreachable!()
+                        };
+                        let Value::U32(second) =
+                            expr(&a[1], env, types, p, fuel, Some(&Type::U32), depth)?
+                        else {
+                            unreachable!()
+                        };
+                        if n == "fill_range" {
+                            let v = expr(&a[2], env, types, p, fuel, Some(&t), depth)?;
+                            let touched = second.min(b.len().saturating_sub(first));
+                            charge(fuel, (touched as u64).saturating_mul(1 + weight(&v)))?;
+                            return Ok(Value::Buffer(b.fill_range(first, second, v)));
+                        }
+                        let Value::U32(count) =
+                            expr(&a[2], env, types, p, fuel, Some(&Type::U32), depth)?
+                        else {
+                            unreachable!()
+                        };
+                        let touched = count
+                            .min(b.len().saturating_sub(first))
+                            .min(b.len().saturating_sub(second));
+                        // Charge reachable value copies before allocating the snapshot.
+                        for index in first..first.saturating_add(touched) {
+                            b.with_item(index, |v| charge(fuel, 1 + weight(v.unwrap())))?;
+                        }
+                        return Ok(Value::Buffer(b.copy_within(first, second, count)));
+                    }
                     let Value::U32(i) = (if n == "push" {
                         Value::U32(0)
                     } else {

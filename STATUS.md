@@ -252,3 +252,24 @@ conformance is mandatory; actual eligible GPU dispatch and compiled fallback ret
 the explicit device capability boundary. This does not close compact numerical
 carriers, packed Bytes, new borrowing syntax, static refinements or the full design
 draft. The scope document records the exact admission and resource limits.
+
+## Bulk buffer workload foundations
+
+[General owned range operations](docs/bulk-buffer-workloads.md) bind executable
+core V9 without extending source grammar. Clipped range fill and overlapping
+snapshot copy execute literally on all five CPU targets and GPU hosts, with
+bounded partition writes and native allocation reuse. Knowledge supplies ordinary
+voxel box painting, run-length/packed-word codecs and ECS column movement/gathering,
+plus 48 checked laws; the existing planner selects admitted work elimination.
+Cross-target observations include malformed inputs, rollback and snapshots, and
+one real eligible wgpu numeric dispatch. Native workload measurements improve over
+scalar Ink loops but remain workload-bound and often lose to handwritten Rust.
+These foundations do not provide a complete sparse voxel engine, archetype ECS,
+byte ABI, region scheduler or device bulk-range executor.
+
+Competitive workload evidence now compares unit-face extraction with block-mesh,
+a homogeneous dense component update with Flecs (including cached queries and
+bulk creation), and word codecs with LZ4/Zstd. General final-use movement removes
+Rust copies without changing syntax; voxel traversal and adaptive raw/RLE formats
+remain ordinary knowledge libraries. Results establish specific kernel gaps and
+improvements, not full-engine competitiveness. See docs/competitive-workloads.md.

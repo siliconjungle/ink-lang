@@ -1,0 +1,75 @@
+{
+  "schema": 1,
+  "benchmark": "bench/competitive-workloads/final.json",
+  "baseline": "43e5033e3026729f96e48a88d6a296d1b606e579",
+  "core_tests": 135,
+  "generic_suite": {
+    "tests": 5,
+    "existing_observations": 30,
+    "bulk_observations": 86,
+    "new_observations": 40,
+    "selected_observations": 4,
+    "targets": [
+      "reference",
+      "C",
+      "Rust",
+      "JavaScript",
+      "C-Wasm",
+      "Rust-Wasm",
+      "wgpu host"
+    ],
+    "eligible_gpu": true,
+    "required_gpu_errors": true
+  },
+  "planning_conformance": "passed",
+  "independent_pins": "passed",
+  "knowledge_snapshot": {
+    "root": "6bdfceae6ba7db915eaed769eb9197984083e9d3c6a323f1bad40dc9f9bc7256",
+    "schema": 1,
+    "semantics": "ink-knowledge-snapshot-v1"
+  },
+  "notes": [
+    "Synthetic workloads against real implementations; no full engine ranking",
+    "No universal proof of voxel traversal replacement is installed",
+    "Adaptive codec is a distinct explicitly tagged word format",
+    "Explicit owned map and push inline hint are not selected from these measurements"
+  ],
+  "revisions": {
+    "knowledge": "031cf57eb07c3270f896e61f782223cd11a21962",
+    "planner": "f6f3dc0f697f2836653e7886edb887305c73b292",
+    "native-support": "c5613fc7c28134fd5242240b8776137b387ec9ce",
+    "lowerings/rust": "ce423dec8f5672ecde396ae248565f8234239f0b",
+    "lowerings/c": "5e9b308f28fda3060a8e6e1efc1503605bfba6c5",
+    "lowerings/js": "9d57b8ca0b92e1420af56496e0f7c9c081391d73",
+    "lowerings/gpu": "7f919a63bb54989b2ff5cdd986fc6b23bcccb3e2",
+    "lowerings/wasm": "5ab053acb8cd40d015cfa6d33bee0bc4ac38b54f",
+    "runtime": "3d0e87ce99953a2693679c84f5d1c8c8d4fc48a8"
+  },
+  "inventory": {
+    "scope": "contract",
+    "status": "passed",
+    "gaps": 0
+  },
+  "complete_generic_suite": "5 passed",
+  "database_plan_seconds": 267.18,
+  "benchmark_cells": 150,
+  "point_recipe_replay": "passed",
+  "logs": {
+    "competitive-core-tests.log": {
+      "sha256": "ff73511846176f3969eaa520a9f2b08137936098a4a8293c86ae98c09ad383a7",
+      "result": "passed"
+    },
+    "competitive-complete-parity.log": {
+      "sha256": "419ab2fdd7fd0bce753b714c1991036a0a7315cd47d63739682981fadf0d0f8e",
+      "result": "passed"
+    },
+    "competitive-planning-parity.log": {
+      "sha256": "211f3c7761f361b3454ee4d631e948e243ed7fab376a79ddc4afd860c161206c",
+      "result": "passed"
+    },
+    "competitive-point-check-final.log": {
+      "sha256": "74ea9a51f418179d3bf1f0e05781287547944ba98b6ef056495c2fbe0261c8e5",
+      "result": "passed"
+    }
+  }
+}

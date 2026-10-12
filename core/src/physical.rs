@@ -26,6 +26,13 @@ pub enum Definitions {
     Packed,
     Memo,
 }
+#[derive(Clone, Copy, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum Buffers {
+    #[default]
+    Scoped,
+    Direct,
+}
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Plan {
@@ -36,6 +43,14 @@ pub struct Plan {
     pub representation: Option<String>,
     #[serde(default)]
     pub tables: Tables,
+    #[serde(default)]
+    pub buffers: Buffers,
+    #[serde(default)]
+    pub columns: Vec<crate::column_codec::Layout>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub column_maps: Option<crate::column_codec::MapPackage>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub bounds: Option<crate::bounds::Package>,
     #[serde(default)]
     pub borrow_reads: Vec<String>,
     #[serde(default)]
@@ -50,8 +65,12 @@ pub struct Plan {
 #[derive(Clone, Debug)]
 pub struct CheckedPhysicalPlan {
     plan: Plan,
+    bounds: crate::bounds::CheckedBounds,
+    column_maps: crate::column_codec::CheckedMaps,
 }
 impl CheckedPhysicalPlan {
+    pub fn column_maps(&self) -> &crate::column_codec::CheckedMaps { &self.column_maps }
+    pub fn bounds(&self) -> &crate::bounds::CheckedBounds { &self.bounds }
     pub fn plan(&self) -> &Plan {
         &self.plan
     }
@@ -276,5 +295,10 @@ pub fn check(
     {
         return Err("physical definition sites require a checked representation".into());
     }
-    Ok(CheckedPhysicalPlan { plan: plan.clone() })
+    if plan.columns.len()>64 || !plan.columns.windows(2).all(|w|w[0].record<w[1].record){return Err("column layout ordering/count limit".into())}
+    if representation.is_some()&&(!plan.columns.is_empty()||plan.bounds.is_some()||plan.column_maps.is_some()||plan.buffers!=Buffers::Scoped){return Err("source column choices do not apply to definition representations".into())}
+    for layout in &plan.columns {crate::column_codec::check(module.program(),layout)?;}
+    let bounds=plan.bounds.as_ref().map(|p|crate::bounds::check(module,p)).transpose()?.unwrap_or_default();
+    let column_maps=plan.column_maps.as_ref().map(|p|crate::column_codec::check_maps(module,&plan.columns,p)).transpose()?.unwrap_or_default();
+    Ok(CheckedPhysicalPlan { plan: plan.clone(),bounds,column_maps })
 }
