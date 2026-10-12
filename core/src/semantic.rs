@@ -1279,7 +1279,10 @@ pub fn reify(t: &Term, p: &Program) -> LangResult<Expr> {
                     };
                     application(args[0].clone(), args[1].clone(), val(x)?, 0)?
                 } else if n == "call:None" {
-                    Expr::Var("None".into())
+                    // Preserve the carried type when a surrounding operation
+                    // must infer its receiver without an expected type.
+                    Expr::Let("__ink_empty".into(),Some(Box::new(val(&t.sort)?.clone())),
+                        Box::new(Expr::Var("None".into())),Box::new(Expr::Var("__ink_empty".into())))
                 } else if n.starts_with("call:") {
                     Expr::Call(n[5..].into(), args)
                 } else if n.starts_with("method:") {
