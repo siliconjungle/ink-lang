@@ -106,6 +106,7 @@ memory costs are not universal facts. No general speedup is claimed from these
 changes: proofs can erase work, but physical alternatives require comparable
 measurements and can be slower for a particular workload.
 
-This branch starts from the existing bulk-buffer/final-use compiler foundation
-(`0022139c`). Its review is stacked on that baseline so those existing changes
-are not mixed into this feature diff.
+This integration includes the bulk-buffer/final-use compiler foundation
+(`0022139c`) and is combined with current main. The foundation adds general
+owned-buffer range semantics, lexical last-use analysis and source-bound access
+checking; its workload evidence is documented separately.
