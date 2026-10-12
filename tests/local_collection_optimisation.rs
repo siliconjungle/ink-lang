@@ -316,6 +316,8 @@ fn larger_views_from_legacy_and_bucket_trees_authenticate_in_both_readers() {
             proof: Proof::Normalize,
             dependencies: vec![],
             definition_context: None,
+            types: vec![],
+            assumptions: vec![],
         };
         let extra = one(law);
         c.roots.extend(extra.roots);
