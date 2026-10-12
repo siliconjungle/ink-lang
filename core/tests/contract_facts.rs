@@ -99,3 +99,11 @@ fn action_bindings_that_shadow_the_initializer_do_not_create_false_aliases() {
     let valid=source.replace("let x:u32=x+1","let x:u32=0");
     CheckedModule::from_source(syntax::parse(&valid).unwrap()).unwrap();
 }
+
+#[test]
+fn ieee_preconditions_do_not_authorise_a_float_bit_replacement() {
+    let module=CheckedModule::from_source(syntax::parse("module float_facts;spec fn zero(x:f32)->f32 requires x==0.0;ensures result==0.0;implementation original for zero{return x;}").unwrap()).unwrap();
+    let x=s::free(s::value(Type::F32),"x");let zero=s::term(s::value(Type::F32),Node::Float(0));
+    let packet=selection(&module,"zero",vec![],x.clone(),zero.clone(),vec![Equation{from:x.clone(),to:zero}],BTreeMap::from([("x".into(),x)]));
+    assert!(optimisation::check(&module,&packet).is_err(),"IEEE equality includes both signs of zero; bit replacement is stronger");
+}
