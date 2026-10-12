@@ -151,7 +151,7 @@ fn conformance_inner(
         let packed_pure = fs::read_to_string(project.join("Cargo.toml"))
             .unwrap()
             .contains("name = \"ink-gpu-program\"");
-        let mut gpu_steps = steps.clone();
+        let mut gpu_steps:Vec<_> = steps.iter().filter(|s|s["reject_restore"].is_null()).cloned().collect();
         for step in &mut gpu_steps {
             if step["pure"].is_string() {
                 step["backend"] = json!(if step["cpu_only"] == true {

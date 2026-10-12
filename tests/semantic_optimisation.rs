@@ -37,6 +37,7 @@ fn pack(m: &CheckedModule, c: Catalogue, applications: Vec<Site>) -> Package {
         knowledge: verified_language::registry::from_catalogue(&c).unwrap(),
         applications,
         action_replacement: None,
+        contract_refinement: None,
     }
 }
 fn pick(c: &Catalogue, operation: &str, ty: &Type) -> String {

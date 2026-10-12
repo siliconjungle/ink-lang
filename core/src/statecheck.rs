@@ -1071,9 +1071,6 @@ pub fn check(p: &Program) -> LangResult<()> {
                 return Err(format!("parameter shadows state or keep {n}"));
             }
         }
-        if a.kind == ActionKind::Change && !matches!(a.result, Type::Result(..)) {
-            return Err("change must return Result".into());
-        }
         if a.kind == ActionKind::Query && (!a.writes.is_empty() || !a.emits.is_empty()) {
             return Err("query cannot write or emit".into());
         }

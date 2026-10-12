@@ -91,6 +91,7 @@ fn proved_bound_erases_runtime_work_on_all_targets() {
             premises: vec![],
         }],
         action_replacement: None,
+        contract_refinement: None,
     };
     let selected = optimisation::check(&input, &packet).unwrap();
     assert_eq!(

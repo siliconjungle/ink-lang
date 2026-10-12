@@ -273,3 +273,16 @@ bulk creation), and word codecs with LZ4/Zstd. General final-use movement remove
 Rust copies without changing syntax; voxel traversal and adaptive raw/RLE formats
 remain ordinary knowledge libraries. Results establish specific kernel gaps and
 improvements, not full-engine competitiveness. See docs/competitive-workloads.md.
+
+### Source contracts and refinement
+
+Implemented: `spec fn/query/change`, static `requires`/`ensures`, `before`,
+committed-state `invariant`, private value state and assignment, generic/callback
+specifications, named implementations, finite multiset equality and uniqueness
+predicates, and normal-return commits for non-Result changes. Every implementation
+and caller is checked. Canonical database laws and state theorems supply external
+proofs; the planner discovers proof-carrying contract refinements. Public checked
+hosts enforce preconditions and reject invariant-violating snapshots.
+
+See [source contracts](docs/source-contracts.md) for syntax, proof authoring,
+trusted boundaries, CPU/GPU coverage and the admitted state-proof domain.

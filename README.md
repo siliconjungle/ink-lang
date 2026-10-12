@@ -204,3 +204,5 @@ database laws and complete-call native measurements.
 Database-authored recursive compilation and frozen replay: [database planning](docs/database-planning.md).
 
 [Competitive workloads](docs/competitive-workloads.md): real block-mesh/Flecs/LZ4/Zstd comparisons, generic final-use ownership, and knowledge-owned voxel/adaptive codec algorithms.
+
+[Source specifications and invariants](docs/source-contracts.md) describe the checked syntax, database proof authoring and implementation refinement workflow.

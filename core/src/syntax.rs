@@ -132,6 +132,7 @@ struct Parser {
     generated_records: std::collections::BTreeMap<String, Vec<(String, Type)>>,
     generic_scope: Vec<String>,
     pure: bool,
+    state_names: std::collections::BTreeSet<String>,
     callback_types: std::collections::BTreeMap<String, (Type, Type)>,
     payload_enums: std::collections::BTreeMap<String, Vec<String>>,
     matches: std::collections::BTreeMap<String, Vec<(String, String, Vec<String>)>>,
@@ -602,7 +603,49 @@ impl Parser {
         self.expect(";")?;
         while self.peek() != "<eof>" {
             self.eat("pub");
-            if self.eat("fn") {
+            let private = self.eat("private");
+            if private && self.peek() != "state" { return Err(self.err("private applies to state declarations")); }
+            if private {
+                p.contracts.private_states.push(self.ts.get(self.at + 1).ok_or("missing private state")?.text.clone());
+            }
+            if self.eat("spec") {
+                let kind = match self.take().as_str() {
+                    "fn" => None,
+                    "change" => Some(ActionKind::Change),
+                    "query" => Some(ActionKind::Query),
+                    _ => return Err(self.err("spec requires fn, query or change")),
+                };
+                let name = self.name()?;
+                self.type_parameters(&name)?;
+                let params = self.params()?;
+                self.expect("->")?;
+                let result = self.ty()?;
+                let (mut reads, mut writes, mut emits) = (vec![],vec![],vec![]);
+                while ["reads","writes","emits"].contains(&self.peek()) {
+                    let cap = self.take(); self.expect("(")?;
+                    let mut ns = vec![];
+                    if !self.eat(")") { loop { ns.push(self.name()?); if self.eat(")") { break; } self.expect(",")?; } }
+                    match cap.as_str() { "reads" => reads.extend(ns), "writes" => writes.extend(ns), _ => emits.extend(ns) }
+                }
+                self.pure = kind.is_none();
+                let (mut requires, mut ensures) = (vec![], vec![]);
+                while ["requires","ensures"].contains(&self.peek()) {
+                    let pre = self.take() == "requires";
+                    let predicate = self.expr(0)?; self.expect(";")?;
+                    if pre { requires.push(predicate); } else { ensures.push(predicate); }
+                    if requires.len()+ensures.len()>64 { return Err(self.err("specification clause limit")); }
+                }
+                self.eat(";");
+                p.contracts.specifications.push(crate::contracts::Specification { name, kind, params, result, reads,writes,emits,requires,ensures });
+            } else if self.eat("implementation") {
+                let name = self.name()?; self.expect("for")?; let specification = self.name()?;
+                self.mutables.clear();
+                self.pure = p.contracts.specifications.iter().find(|s|s.name==specification).is_some_and(|s|s.kind.is_none());
+                let body = self.block()?;
+                p.contracts.implementations.push(crate::contracts::Implementation { name, specification, body });
+            } else if self.eat("invariant") {
+                p.contracts.invariants.push(self.expr(0)?); self.expect(";")?;
+            } else if self.eat("fn") {
                 let name = self.name()?;
                 self.type_parameters(&name)?;
                 let params = self.params()?;
@@ -866,6 +909,27 @@ impl Parser {
                 return Err(self.err("unsupported declaration"));
             }
         }
+        // A default implementation is a deterministic source-order choice.
+        // Every declared implementation is checked, including unselected ones.
+        let mut defaults = std::collections::BTreeSet::new();
+        for implementation in &p.contracts.implementations {
+            if let Some(parameters)=self.parameters.get(&implementation.specification).cloned(){
+                self.parameters.insert(implementation.name.clone(),parameters);
+                if let Some(constants)=self.constant_parameters.get(&implementation.specification).cloned(){self.constant_parameters.insert(implementation.name.clone(),constants);}
+            }
+            let spec = p.contracts.specifications.iter().find(|s|s.name==implementation.specification)
+                .ok_or_else(||format!("unknown specification {}",implementation.specification))?;
+            if let Some(kind) = &spec.kind {
+                let action = Action { name: implementation.name.clone(), kind:kind.clone(), params:spec.params.clone(), result:spec.result.clone(), reads:spec.reads.clone(), writes:spec.writes.clone(), emits:spec.emits.clone(), body:implementation.body.clone() };
+                if defaults.insert(spec.name.clone()) { let mut default=action.clone(); default.name=spec.name.clone(); p.actions.push(default); }
+                p.actions.push(action);
+            } else {
+                let body = self.pure_body(&implementation.body,None)?;
+                let function = Function { name:implementation.name.clone(), params:spec.params.clone(), result:spec.result.clone(), body };
+                if defaults.insert(spec.name.clone()) { let mut default=function.clone(); default.name=spec.name.clone(); p.functions.push(default); }
+                p.functions.push(function);
+            }
+        }
         p.records
             .extend(std::mem::take(&mut self.generated_records));
         Ok(SurfaceProgram {
@@ -1035,6 +1099,12 @@ impl Parser {
                 body.extend(self.while_loop()?);
             } else if self.ts.get(self.at + 1).is_some_and(|t| t.text == "=") {
                 let n = self.name()?;
+                if self.state_names.contains(&n) && !self.mutables.contains_key(&n) {
+                    if self.pure { return Err(self.err("pure functions cannot assign state")); }
+                    self.expect("=")?; let value=self.expr(0)?; self.expect(";")?;
+                    body.push(Statement::Expr(Expr::Call("__ink_state_assign".into(),vec![Expr::Var(n),value])));
+                    continue;
+                }
                 let t = self
                     .mutables
                     .get(&n)
@@ -1679,7 +1749,7 @@ fn expression_weight(e: &Expr) -> usize {
     bytes
 }
 
-fn rename_expression(e: &Expr, names: &std::collections::BTreeMap<String, String>) -> Expr {
+pub(crate) fn rename_expression(e: &Expr, names: &std::collections::BTreeMap<String, String>) -> Expr {
     let rename = |x: &Expr| Box::new(rename_expression(x, names));
     match e {
         Expr::Var(n) => Expr::Var(names.get(n).unwrap_or(n).clone()),
@@ -1754,7 +1824,9 @@ pub fn parse_surface(
         .map(|w| w[1].text.clone())
         .chain(imported_records)
         .collect();
+    let state_names=ts.windows(2).filter(|w|w[0].text=="state").map(|w|w[1].text.clone()).collect();
     Parser {
+        state_names,
         ts,
         at: 0,
         depth: 0,

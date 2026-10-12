@@ -28,6 +28,8 @@ pub struct Package {
     pub applications: Vec<Site>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub action_replacement: Option<crate::action_model::Replacement>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub contract_refinement: Option<crate::contracts::Refinement>,
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -114,6 +116,30 @@ pub fn check(module: &CheckedModule, package: &Package) -> LangResult<CheckedSel
             > 16_000_000
     {
         return Err("selection package limit".into());
+    }
+    if let Some(refinement)=&package.contract_refinement {
+        if !package.applications.is_empty()||package.action_replacement.is_some(){return Err("compose refinement and equality selections as separate checked steps".into());}
+        crate::registry::CheckedBundle::check(&package.knowledge)?;
+        let selected=crate::contracts::check_refinement(module,refinement)?;
+        let mut closure=vec![];
+        for bundle in [&refinement.evidence.knowledge,&refinement.evidence.state_knowledge].into_iter().flatten(){closure.extend(bundle.objects.keys().cloned());}
+        closure.sort();closure.dedup();
+        let mut applied_laws=std::collections::BTreeSet::new();
+        fn references(v:&serde_json::Value,out:&mut std::collections::BTreeSet<String>){
+            match v {
+                serde_json::Value::Object(fields)=>for (key,value) in fields {
+                    if key=="law"||key=="theorem"{if let Some(id)=value.as_str(){out.insert(id.into());}}
+                    references(value,out);
+                },
+                serde_json::Value::Array(values)=>for value in values{references(value,out);},
+                _=>(),
+            }
+        }
+        references(&serde_json::to_value(&refinement.evidence.proofs).map_err(|e|e.to_string())?,&mut applied_laws);
+        references(&serde_json::to_value(&refinement.evidence.state_proofs).map_err(|e|e.to_string())?,&mut applied_laws);
+        return Ok(CheckedSelection{input:module.clone(),module:selected.clone(),package:package.clone(),evidence:Evidence{
+            semantics:SEMANTICS.into(),input_core_sha256:module.identity()?,selected_core_sha256:selected.identity()?,snapshot_sha256:crate::registry::identity(&package.knowledge.snapshot)?,closure,applied_laws:applied_laws.into_iter().collect(),
+        }});
     }
     if let Some(replacement) = &package.action_replacement {
         if !package.applications.is_empty() {
@@ -406,6 +432,7 @@ impl SelectionChecker {
             knowledge: self.knowledge.bundle().clone(),
             applications,
             action_replacement: None,
+        contract_refinement: None,
         };
         check_with_catalogue(&self.module, &package, &self.laws)
     }

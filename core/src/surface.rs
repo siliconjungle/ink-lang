@@ -126,6 +126,8 @@ impl SurfaceProgram {
                     .iter()
                     .any(|(_, t)| matches!(t,Type::Named(n) if e.callback_types.contains_key(n)))
         });
+        e.output.contracts.specifications.retain(|s|!e.parameters.contains_key(&s.name) && !s.params.iter().any(|(_,t)|matches!(t,Type::Named(n) if e.callback_types.contains_key(n))));
+        e.output.contracts.implementations.retain(|i| e.output.contracts.specifications.iter().any(|s|s.name==i.specification));
         e.output
             .records
             .retain(|n, _| !e.parameters.contains_key(n));
@@ -149,6 +151,12 @@ impl SurfaceProgram {
                 original.result = f.result.clone();
             }
         }
+        for d in &mut p.states {
+            d.ty=e.ty(&d.ty,&env,0)?;
+            e.expr(&mut d.value,&env,0)?;
+        }
+        crate::contracts::cells::lower(&mut p)?;
+        e.templates.states=p.states.clone(); e.templates.keeps=p.keeps.clone();
         for f in &mut p.functions {
             e.function(f, &env, 0)?;
         }
@@ -184,6 +192,17 @@ impl SurfaceProgram {
             e.expr(&mut r.from, &env, 0)?;
             e.expr(&mut r.to, &env, 0)?;
         }
+        for spec in &mut p.contracts.specifications {
+            for (_, t) in &mut spec.params { *t=e.ty(t,&env,0)?; }
+            spec.result=e.ty(&spec.result,&env,0)?;
+            e.locals=spec.params.iter().map(|(n,_)|n.clone()).collect();
+            e.locals.insert("result".into());
+            e.local_types=spec.params.iter().cloned().collect();
+            e.local_types.insert("result".into(),spec.result.clone());
+            for predicate in spec.requires.iter_mut().chain(&mut spec.ensures) { e.expr(predicate,&env,0)?; }
+        }
+        e.locals.clear(); e.local_types.clear();
+        for predicate in &mut p.contracts.invariants { e.expr(predicate,&env,0)?; }
         // Unused non-generic aliases must also resolve, including cycles.
         let names: Vec<_> = e
             .aliases
@@ -195,6 +214,8 @@ impl SurfaceProgram {
         for n in names {
             unused.push(e.ty(&Type::Named(n), &env, 0)?);
         }
+        p.contracts.specifications.extend(e.output.contracts.specifications);
+        p.contracts.implementations.extend(e.output.contracts.implementations);
         p.functions.extend(e.output.functions);
         p.records.extend(e.output.records);
         for t in unused {
@@ -206,6 +227,8 @@ impl SurfaceProgram {
                 _ => crate::statecheck::validate_type(&t, &p)?,
             }
         }
+        for implementation in &mut p.contracts.implementations { implementation.body.clear(); }
+        crate::contracts::install_guards(&mut p)?;
         Ok(p)
     }
 }
@@ -302,6 +325,7 @@ impl Elaborator {
             f.name = instance.clone();
             self.function(&mut f, &bindings, depth + 1)?;
             self.output.functions.push(f);
+            self.instance_contract(&name,&instance,&bindings,&args,depth+1)?;
         } else if let Some(fields) = self.templates.records.get(&name).cloned() {
             self.instances.insert(instance.clone(), instance.clone());
             self.instance_bases.insert(instance.clone(), name.clone());
@@ -321,6 +345,30 @@ impl Elaborator {
             return Err("generic application is not a type".into());
         }
         Ok(instance)
+    }
+    fn instance_contract(&mut self,name:&str,instance:&str,bindings:&BTreeMap<String,Type>,args:&[Type],depth:usize)->LangResult<()> {
+        if let Some(mut spec)=self.templates.contracts.specifications.iter().find(|s|s.name==name).cloned(){
+            if spec.kind.is_some(){return Err("generic action specifications require concrete signatures".into());}
+            spec.name=instance.into();
+            for (_,t) in &mut spec.params{*t=self.ty(t,bindings,depth+1)?;}
+            spec.result=self.ty(&spec.result,bindings,depth+1)?;
+            let outer=std::mem::replace(&mut self.locals,spec.params.iter().map(|(n,_)|n.clone()).chain(std::iter::once("result".into())).collect());
+            let outer_types=std::mem::replace(&mut self.local_types,spec.params.iter().cloned().chain(std::iter::once(("result".into(),spec.result.clone()))).collect());
+            for e in spec.requires.iter_mut().chain(&mut spec.ensures){self.expr(e,bindings,depth+1)?;}
+            self.locals=outer;self.local_types=outer_types;
+            self.output.contracts.specifications.push(spec);
+            let implementations=self.templates.contracts.implementations.iter().filter(|i|i.specification==name).cloned().collect::<Vec<_>>();
+            for mut i in implementations {
+                let key=self.fresh_prefix();self.applications.insert(key.clone(),(i.name.clone(),args.to_vec()));
+                i.name=self.application(&key,&BTreeMap::new(),depth+1,true)?;
+                i.specification=instance.into();i.body.clear();
+                self.output.contracts.implementations.push(i);
+            }
+        } else if let Some(owner)=self.templates.contracts.implementations.iter().find(|i|i.name==name).map(|i|i.specification.clone()){
+            let key=self.fresh_prefix();self.applications.insert(key.clone(),(owner,args.to_vec()));
+            self.application(&key,&BTreeMap::new(),depth+1,true)?;
+        }
+        Ok(())
     }
     fn ty(&mut self, t: &Type, env: &BTreeMap<String, Type>, depth: usize) -> LangResult<Type> {
         self.step(depth)?;
@@ -401,6 +449,11 @@ impl Elaborator {
     }
     fn expr(&mut self, e: &mut Expr, env: &BTreeMap<String, Type>, depth: usize) -> LangResult<()> {
         self.step(depth)?;
+        let shadowed=matches!(e,Expr::Call(n,_) if self.locals.contains(n)||self.templates.functions.iter().any(|f|&f.name==n));
+        if let Some(lowered) = if shadowed { None } else { crate::contracts::collections::lower(e, &self.fresh_prefix())? } {
+            *e=lowered;
+            return self.expr(e,env,depth+1);
+        }
         match e {
             Expr::Var(n) if env.get(n).and_then(constant).is_some() => {
                 *e = Expr::Num(constant(&env[n]).unwrap() as u64);
@@ -966,7 +1019,47 @@ impl Elaborator {
             Box::new(body),
         ))
     }
-    fn inline_callback_call(
+    fn inline_callback_call(&mut self,key:&str,args:&[Expr],env:&BTreeMap<String,Type>,depth:usize)->LangResult<Expr> {
+        let (name,type_args)=self.applications.get(key).cloned().unwrap_or((key.into(),vec![]));
+        let owner=self.templates.contracts.implementations.iter().find(|i|i.name==name).map(|i|i.specification.clone()).unwrap_or(name.clone());
+        let Some(spec)=self.templates.contracts.specifications.iter().find(|s|s.name==owner).cloned() else{return self.inline_callback_call_raw(key,args,env,depth);};
+        let prefix=self.fresh_prefix();let target=format!("{prefix}_spec");
+        let vars=self.parameters.get(&owner).cloned().unwrap_or_default();
+        let types=self.arguments(&owner,&vars,&type_args,env,depth+1)?;
+        let bindings=vars.into_iter().zip(types).collect();
+        let result=self.ty(&spec.result,&bindings,depth+1)?;
+        let mut free=BTreeSet::new();for a in args{free.extend(free_variables(a,&BTreeSet::new()));}
+        let params=self.local_types.iter().filter(|(n,_)|free.contains(*n)).map(|(n,t)|(n.clone(),t.clone())).collect::<Vec<_>>();
+        let mut requires=vec![];let mut ensures=vec![];
+        for (post,clauses) in [(false,&spec.requires),(true,&spec.ensures)] {
+            for clause in clauses {
+                let helper=self.fresh_prefix();let mut ps=spec.params.clone();let mut actual=args.to_vec();
+                if post{ps.push(("result".into(),spec.result.clone()));actual.push(Expr::Var("result".into()));}
+                self.templates.functions.push(Function{name:helper.clone(),params:ps,result:Type::Bool,body:clause.clone()});
+                if let Some(vars)=self.parameters.get(&owner).cloned(){self.parameters.insert(helper.clone(),vars);}
+                if let Some(cs)=self.constant_parameters.get(&owner).cloned(){self.constant_parameters.insert(helper.clone(),cs);}
+                let helper_key=self.fresh_prefix();self.applications.insert(helper_key.clone(),(helper.clone(),type_args.clone()));
+                let old=self.local_types.insert("result".into(),result.clone());
+                let value=self.inline_callback_call_raw(&helper_key,&actual,env,depth+1)?;
+                if let Some(t)=old{self.local_types.insert("result".into(),t);}else{self.local_types.remove("result");}
+                self.templates.functions.retain(|f|f.name!=helper);self.parameters.remove(&helper);self.constant_parameters.remove(&helper);
+                if post{ensures.push(value)}else{requires.push(value)}
+            }
+        }
+        self.output.contracts.specifications.push(crate::contracts::Specification{name:target.clone(),kind:None,params:params.clone(),result:result.clone(),reads:vec![],writes:vec![],emits:vec![],requires,ensures});
+        let candidates=self.templates.contracts.implementations.iter().filter(|i|i.specification==owner).map(|i|i.name.clone()).collect::<Vec<_>>();
+        let mut selected=target.clone();
+        for (index,candidate) in std::iter::once(owner.clone()).chain(candidates).enumerate(){
+            let candidate_key=self.fresh_prefix();self.applications.insert(candidate_key.clone(),(candidate.clone(),type_args.clone()));
+            let body=self.inline_callback_call_raw(&candidate_key,args,env,depth+1)?;
+            let concrete=if index==0{target.clone()}else{format!("{prefix}_impl{index}")};
+            if candidate==name{selected=concrete.clone();}
+            self.output.functions.push(Function{name:concrete.clone(),params:params.clone(),result:result.clone(),body});
+            if index>0{self.output.contracts.implementations.push(crate::contracts::Implementation{name:concrete,specification:target.clone(),body:vec![]});}
+        }
+        Ok(Expr::Call(selected,params.iter().map(|(n,_)|Expr::Var(n.clone())).collect()))
+    }
+    fn inline_callback_call_raw(
         &mut self,
         key: &str,
         args: &[Expr],

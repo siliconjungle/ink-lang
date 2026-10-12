@@ -758,6 +758,24 @@ fn normal(t: &Term, hyp: &[Equation], p: &Program, b: &mut Budget, d: usize) -> 
             )),
             _ => None,
         },
+        ("binary:==" | "binary:!=", [left,right]) if matches!(&left.sort,Sort::Value(t) if !crate::check::is_numeric_value(t) && *t!=Type::Bool) => {
+            let eq=op(value(Type::Bool),"value:equal",vec![left.clone(),right.clone()]);
+            Some(if n=="binary:=="{eq}else{op(value(Type::Bool),"binary:==",vec![eq,term(value(Type::Bool),Node::Bool(false))])})
+        }
+        ("value:equal", [left,right]) => {
+            let boolean=|x|term(value(Type::Bool),Node::Bool(x));
+            let eq=|a:Term,b:Term|op(value(Type::Bool),"value:equal",vec![a,b]);
+            if left==right {Some(boolean(true))} else {match (&left.node,&right.node) {
+                (Node::Cons(a,b),Node::Cons(c,d))=>Some(op(value(Type::Bool),"binary:&&",vec![eq((**a).clone(),(**c).clone()),eq((**b).clone(),(**d).clone())])),
+                (Node::Nil,Node::Cons(..))|(Node::Cons(..),Node::Nil)=>Some(boolean(false)),
+                (Node::Word(a),Node::Word(b))=>Some(boolean(a==b)),
+                (Node::Float(a),Node::Float(b))=>Some(boolean(a==b)),
+                (Node::Bool(a),Node::Bool(b))=>Some(boolean(a==b)),
+                (Node::String(a),Node::String(b))=>Some(boolean(a==b)),
+                (Node::Op(a,x),Node::Op(c,y)) if a==c && a.starts_with("record:") && x.len()==y.len()=>Some(x.iter().zip(y).rev().fold(boolean(true),|rest,(x,y)|op(value(Type::Bool),"binary:&&",vec![eq(x.clone(),y.clone()),rest]))),
+                _=>None,
+            }}
+        }
         ("binary:==" | "binary:!=", [left, right])
             if left == right
                 && matches!(
@@ -1250,6 +1268,15 @@ fn literal_primitive(t: &Term, p: &Program, b: &mut Budget) -> LangResult<Option
         || n.strip_prefix("call:").is_some_and(crate::word::primitive))
     {
         return Ok(None);
+    }
+    if args.len()==2 && args.iter().all(|a|a.sort==value(Type::Int)) && ["binary:==","binary:!=","binary:<","binary:<=","binary:>","binary:>="].contains(&n.as_str()) {
+        use num_traits::{Zero,Signed};
+        let gap=polynomial(&op(value(Type::Int),"binary:-",args.clone()),b,0)?;
+        if gap.keys().all(|key|key.is_empty()) {
+            let x=gap.get(&vec![]).cloned().unwrap_or_default();
+            let yes=match n.as_str(){"binary:=="=>x.is_zero(),"binary:!="=>!x.is_zero(),"binary:<"=>x.is_negative(),"binary:<="=>!x.is_positive(),"binary:>"=>x.is_positive(),_=>!x.is_negative()};
+            return Ok(Some(term(value(Type::Bool),Node::Bool(yes))));
+        }
     }
     if !args
         .iter()
