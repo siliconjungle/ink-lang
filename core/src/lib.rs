@@ -24,6 +24,7 @@ pub mod library;
 pub mod logic;
 pub mod machine;
 pub mod optimisation;
+pub mod source_extension;
 pub mod parallel;
 pub mod recursion;
 pub mod registry;

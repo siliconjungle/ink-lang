@@ -176,3 +176,12 @@ fn capacity_contract_binds_record_projection_and_rejects_unrelated_or_stale_fact
     plan.reservations[0].evidence.input_core_sha256 = "0".repeat(64);
     assert!(ink_core::physical::check(&module, None, &plan).is_err());
 }
+
+#[test]
+fn database_allocation_formulas_are_universal_across_carriers(){
+ let module=CheckedModule::from_source(parse("module allocation;fn id(x:u32)->u32{return x;}").unwrap()).unwrap();
+ let laws:Vec<Law>=serde_json::from_str(include_str!("fixtures/allocation-laws.json")).unwrap();assert_eq!(laws.len(),8);
+ for law in laws{
+  let id=registry::identity(&registry::Entry::from_law(&law).unwrap()).unwrap();let catalogue=Catalogue{schema:1,semantics:laws::SEMANTICS.into(),roots:vec![id.clone()],objects:BTreeMap::from([(id,law)])};CheckedCatalogue::check(&catalogue,module.program()).unwrap();
+ }
+}
