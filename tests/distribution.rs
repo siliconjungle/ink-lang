@@ -50,6 +50,7 @@ fn relocated_install_search_and_independent_offline_replay_need_no_original_path
     success(Command::new("python3").args(["-c",r#"import json,sys
 from pathlib import Path
 from ink_knowledge import Store
+assert len(Store(Path(sys.argv[1]).parent.parent).members())>1024
 view=json.loads(Path(sys.argv[1]).read_bytes())
 objects=[o for o in view['objects'].values()if o['kind']=='rewrite' and o['payload']['from']['sort']=={'Value':'U32'} and o['payload']['from']['node'].get('Op',[None])[0]=='binary:+' and o['payload']['from']['node']['Op'][1][1]['node']=={'Word':0}]
 assert objects
@@ -189,7 +190,7 @@ Store.publish(sys.argv[2],objects)
     .unwrap();
     assert_eq!(planning["status"], "checked");
     assert!(planning["candidates"].as_array().unwrap().len() > 1);
-    assert!(planning["coverage"]["entries"].as_u64().unwrap() > 1024);
+    assert!(planning["coverage"]["entries"].as_u64().unwrap() > 0);
     let selected = fs::read(outside.join("mapped.rs")).unwrap();
 
     // Separate the producer package and database physically, with no sibling checkout.
@@ -209,7 +210,7 @@ Store.publish(sys.argv[2],objects)
             .env("INK_DISTRIBUTION", outside.join("missing bundle"))
             .env("INK_KNOWLEDGE_ROOT", &knowledge)
             .args(["explain", "main.ink", "--search-budget", "16", "--optimise"])
-            .arg(knowledge.join("store/snapshot.json"))
+            .arg(compact.join("store/snapshot.json"))
             .arg("--search-tool")
             .arg(planner.join("plan.py")),
     ))
@@ -219,7 +220,7 @@ Store.publish(sys.argv[2],objects)
         .env("INK_DISTRIBUTION", outside.join("missing bundle"))
         .env("INK_KNOWLEDGE_ROOT", &knowledge)
         .args(["explain", "main.ink", "--search-budget", "16", "--optimise"])
-        .arg(knowledge.join("store/snapshot.json"))
+        .arg(compact.join("store/snapshot.json"))
         .arg("--search-tool")
         .arg(planner.join("plan.py"))
         .arg("--python")
