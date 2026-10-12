@@ -37,6 +37,79 @@ pub struct CheckedDefinition {
     selection_sha256: Option<String>,
 }
 impl CheckedDefinition {
+    /// Replay equalities over an already admitted registry context. Export
+    /// wrappers change; internal immutable calls retain their original bodies.
+    pub(crate) fn select_registry(
+        &mut self,
+        context: &crate::logic::Context,
+        proposals: &[Replacement],
+    ) -> LangResult<()> {
+        if proposals.len() > 128 {
+            return Err("definition proposal count limit".into());
+        }
+        let mut changed = BTreeSet::new();
+        for proposal in proposals {
+            let mut bases = self
+                .choices
+                .iter()
+                .filter(|(_, to)| **to == proposal.original)
+                .map(|(from, _)| from.clone())
+                .collect::<Vec<_>>();
+            if bases.is_empty() && self.exports.contains(&proposal.original) {
+                bases.push(proposal.original.clone());
+            }
+            if bases.is_empty() {
+                return Err("definition choice is not a current export".into());
+            }
+            for base in &bases {
+                if !changed.insert(base.clone()) {
+                    return Err("duplicate definition choice".into());
+                }
+            }
+            let (
+                Some(Declaration::Function { params, result, .. }),
+                Some(Declaration::Function {
+                    params: to_params,
+                    result: to_result,
+                    ..
+                }),
+            ) = (
+                self.executable.get(&proposal.original),
+                self.executable.get(&proposal.replacement),
+            )
+            else {
+                return Err("definition choice endpoints must be admitted functions".into());
+            };
+            if result != to_result
+                || params.iter().map(|(_, t)| t).collect::<Vec<_>>()
+                    != to_params.iter().map(|(_, t)| t).collect::<Vec<_>>()
+            {
+                return Err("definition choice signature mismatch".into());
+            }
+            let arguments = params
+                .iter()
+                .map(|(n, _)| Term::Var(n.clone()))
+                .collect::<Vec<_>>();
+            context.check(
+                params,
+                &[],
+                &Term::Call {
+                    function: proposal.original.clone(),
+                    arguments: arguments.clone(),
+                },
+                &Term::Call {
+                    function: proposal.replacement.clone(),
+                    arguments,
+                },
+                &proposal.proof,
+            )?;
+            for base in bases {
+                self.choices.insert(base, proposal.replacement.clone());
+            }
+        }
+        self.selection_sha256 = Some(crate::registry::identity(&self.choices)?);
+        Ok(())
+    }
     /// Literal executable declarations from this already checked closure.
     /// This grants no source replacement authority; backends must also bind
     /// export choices and the sealed executable identity.
@@ -190,8 +263,7 @@ pub(crate) fn check_registry_with_context(
     bundle: &crate::registry::Bundle,
     exports: &[String],
 ) -> LangResult<(CheckedDefinition, crate::logic::Context)> {
-    let view = crate::registry::CheckedBundle::check(bundle)?;
-    let context = view.first_order_context()?;
+    let context = crate::registry::CheckedBundle::checked_first_order_context(bundle)?;
     if exports.is_empty() || exports.len() > 128 {
         return Err("definition export count limit".into());
     }
@@ -199,7 +271,7 @@ pub(crate) fn check_registry_with_context(
     let mut objects = BTreeMap::new();
     let mut executable = BTreeMap::new();
     for (id, entry) in &bundle.objects {
-        let declaration: Declaration = serde_json::from_value(entry.payload["declaration"].clone())
+        let declaration = Declaration::deserialize(&entry.payload["declaration"])
             .map_err(|e| e.to_string())?;
         if matches!(
             declaration,

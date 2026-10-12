@@ -27,7 +27,7 @@ def audit(catalog, scope):
         "selected_checkpoint", "action_optimisation", "action_transitions",
         "numerical_state", "mixed_durability", "bend_features", "feature_parity",
         "temporary_lowering", "composed_storage_parity", "storage_destination_parity",
-        "checked_physical_selection_parity", "representation_parity",
+        "checked_physical_selection_parity", "representation_parity", "database_planning",
         "bulk_collection_optimisation", "packed_tables", "incremental_selection",
         "standalone_representation", "representations", "point_delta", "language_foundations", "generic_libraries", "law_author", "literal_collection_optimisation",
         "standalone_representation", "representations", "point_delta",

@@ -63,7 +63,7 @@ pub struct Package {
     pub stages: Vec<Stage>,
     pub output: ValueRef,
 }
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct CheckedRouting {
     module: CheckedModule,
     package: Package,
@@ -78,6 +78,48 @@ pub struct Equivalence {
     pub proof: crate::laws::Proof,
 }
 impl CheckedRouting {
+    /// A pure component of a stateful module keeps the same immutable function
+    /// declarations. Re-admit the complete graph and its equality evidence in
+    /// that component; no original proof or source hash is silently rebound.
+    pub fn pure_component(&self) -> LangResult<CheckedRouting> {
+        let mut program = self.module.program().clone();
+        let mut names = BTreeSet::from([self.package.entry.clone()]);
+        names.extend(self.package.stages.iter().map(|s| s.function.clone()));
+        loop {
+            let before = names.len();
+            for f in &program.functions {
+                if names.contains(&f.name) {
+                    crate::check::calls(&f.body, &mut names);
+                }
+            }
+            if names.len() == before {
+                break;
+            }
+        }
+        program.functions.retain(|f| names.contains(&f.name));
+        program.states.clear();
+        program.keeps.clear();
+        program.actions.clear();
+        program.events.clear();
+        // Drop only declarations absent from the complete pure function image;
+        // actual owned carrier dependencies remain subject to backend admission.
+        let functions = serde_json::to_string(&program.functions).map_err(|e| e.to_string())?;
+        let records = serde_json::to_string(&program.records).map_err(|e| e.to_string())?;
+        program.enums.retain(|n, _| {
+            functions.contains(&format!("{n:?}")) || records.contains(&format!("{n:?}"))
+        });
+        program.ids.retain(|n| {
+            functions.contains(&format!("{n:?}")) || records.contains(&format!("{n:?}"))
+        });
+        let module = CheckedModule::from_source(program)?;
+        let mut package = self.package.clone();
+        package.input_core_sha256 = module.identity()?;
+        if let Some(evidence) = &self.equivalence {
+            check_equivalent(&module, &package, evidence)
+        } else {
+            check(&module, &package)
+        }
+    }
     pub fn equivalence(&self) -> Option<&Equivalence> {
         self.equivalence.as_ref()
     }
@@ -150,7 +192,7 @@ fn check_internal(
     if equivalence.is_none() && module.semantics() != crate::core::SEMANTICS {
         return Err("literal source routing v1 requires deterministic executable core v1; compute v2 needs its own observation contract".into());
     }
-    let source = module.pure_program()?;
+    let source = module.program();
     if p.schema != 1
         || p.semantics
             != if equivalence.is_some() {

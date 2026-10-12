@@ -61,6 +61,7 @@ pub struct Request {
 #[derive(Clone, Debug)]
 pub struct CheckedRepresentation {
     module: CheckedModule,
+    snapshot_module: CheckedModule,
     projection: Projection,
     request: Request,
     plan: Plan,
@@ -69,6 +70,13 @@ pub struct CheckedRepresentation {
     obligations: Vec<Obligation>,
 }
 impl CheckedRepresentation {
+    pub fn snapshot_module(&self) -> &CheckedModule { &self.snapshot_module }
+    pub(crate) fn set_snapshot_module(&mut self, module: &CheckedModule) {
+        self.snapshot_module=module.clone();
+    }
+    pub(crate) fn select_definitions(&mut self, proposals: &[definition::Replacement]) -> LangResult<()> {
+        self.definition.select_registry(&self.context,proposals)
+    }
     pub fn module(&self) -> &CheckedModule {
         &self.module
     }
@@ -250,8 +258,8 @@ pub fn check(module: &CheckedModule, request: &Request) -> LangResult<CheckedRep
     if registry::canonical(request)?.len() > registry::MAX_VIEW_BYTES {
         return Err("representation byte limit".into());
     }
-    let view = registry::CheckedBundle::check(&request.knowledge)?;
-    if !view.bundle().roots.contains(&request.representation) {
+    registry::CheckedBundle::authenticate(&request.knowledge)?;
+    if !request.knowledge.roots.contains(&request.representation) {
         return Err("representation is not a pinned root".into());
     }
     let entry = &request.knowledge.objects[&request.representation];
@@ -446,8 +454,12 @@ pub fn check(module: &CheckedModule, request: &Request) -> LangResult<CheckedRep
             )?;
         }
     }
+    // The literal witness and context own everything needed after admission.
+    // Release the projected JSON before sealing the public request copy.
+    drop(math);
     Ok(CheckedRepresentation {
         module: module.clone(),
+        snapshot_module: module.clone(),
         projection,
         request: request.clone(),
         plan,
