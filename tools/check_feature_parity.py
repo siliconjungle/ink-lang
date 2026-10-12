@@ -31,7 +31,7 @@ def audit(catalog, scope):
         "bulk_collection_optimisation", "packed_tables", "incremental_selection",
         "standalone_representation", "representations", "point_delta", "language_foundations", "generic_libraries", "law_author", "literal_collection_optimisation",
         "standalone_representation", "representations", "point_delta",
-        "scalable_state", "scalable_projection",
+        "scalable_state", "scalable_projection", "source_contracts", "law_source",
     }
     if set(catalog["cpu_suites"]) != required_suites or len(catalog["cpu_suites"]) != len(required_suites):
         raise ValueError("missing, duplicate or unknown mandatory conformance suite")
@@ -111,8 +111,14 @@ def main():
         print(f"FAIL {gap['target']}/{gap['feature']}: {gap['reason']}", file=sys.stderr)
     status = 1 if gaps else 0
     if not gaps and args.run:
+        try:
+            from pysat.solvers import Glucose3
+        except ImportError as error:
+            raise ValueError("--run requires the knowledge dependency python-sat==1.9.dev5") from error
         if not os.environ.get("INK_TEST_ZIG"):
             raise ValueError("--run requires INK_TEST_ZIG; skipping Wasm is forbidden")
+        if not os.environ.get("INK_TEST_LEAN"):
+            raise ValueError("--run requires INK_TEST_LEAN for independent lifecycle proof checking")
         env = {**os.environ, "INK_PARITY_REQUIRE_ALL": "1", "INK_THREADS": "4"}
         if args.scope in ("all", "contract"):
             if not os.environ.get("INK_TEST_CHROME"):

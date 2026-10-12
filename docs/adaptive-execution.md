@@ -55,6 +55,12 @@ captured-input request. Setup and device/shader initialization are separate.
 The host serializes runs; close releases storage and engine/device loss rejects
 future use. The literal selected route remains the computation authority.
 
+Resident sessions (`engine.open(plan)`) are the mutable, feedback-carrying
+counterpart: iterations, small reads, writes and buffer views over storage that
+stays on the device across host calls. Sessions use no profitability trials:
+`auto` opens on the GPU whenever the plan is eligible. See
+[GPU compute](gpu-compute.md#resident-sessions).
+
 ## Mixed pipeline placement
 
 Packed browser bundles now ship the independent planner's bounded partition search.

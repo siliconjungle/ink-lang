@@ -61,6 +61,11 @@ the law; the compiler checks its application. Supported stateful candidates can
 also define physical layouts, cached queries and migrations, with preservation
 obligations for every source action.
 
+[Source-derived point dependencies](docs/key-sensitive-access.md) follow aliases,
+helpers and input guards without new syntax. The planner uses them to discover
+proved point-cache maintenance candidates, retaining conservative refresh paths
+for unsupported accesses and the existing measured profitability gate.
+
 The knowledge store contains immutable, content-addressed JSON files and pinned
 snapshots, with a rebuildable SQLite discovery index. Its role goes beyond storing
 proof files: it makes typed laws, conditions, dependencies and implementations
@@ -90,8 +95,9 @@ now run under explicit target limits. The optional independent Lean verdict chec
 a limited Boolean equality calculus; it does not verify the complete compiler.
 
 The [target parity contract](docs/lowering-parity.md) records exact coverage and
-limits. Complete C emission uses a shared Rust primitive runtime. JavaScript keeps
-are recomputed. F32 arithmetic uses canonical NaNs and source-order binary32
+limits. Complete C emission uses a shared Rust primitive runtime. JavaScript scalar
+keeps retain results until a checked source dependency changes; composite keeps
+retain their existing ownership path. F32 arithmetic uses canonical NaNs and source-order binary32
 operations; the packed GPU emitter implements these through integer lanes.
 
 Recent integration adds [215 owned Buffer/Map laws](docs/owned-optimisation.md),
@@ -191,4 +197,12 @@ explicit control/owned-buffer primitives, database laws and shared host policy.
 
 [Scalable typed state](docs/scalable-state.md): batch writes, direct table reductions, shared keys, touched-row rollback and locally checked maintenance candidates.
 
+[Bulk buffer workload foundations](docs/bulk-buffer-workloads.md) add general
+range fill/copy machinery and external voxel, codec and ECS libraries, with checked
+database laws and complete-call native measurements.
+
 Database-authored recursive compilation and frozen replay: [database planning](docs/database-planning.md).
+
+[Competitive workloads](docs/competitive-workloads.md): real block-mesh/Flecs/LZ4/Zstd comparisons, generic final-use ownership, and knowledge-owned voxel/adaptive codec algorithms.
+
+[Source specifications and invariants](docs/source-contracts.md) describe the checked syntax, database proof authoring and implementation refinement workflow.

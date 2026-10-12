@@ -356,7 +356,7 @@ fn name(n: &str) -> LangResult<()> {
         || !n.bytes().all(|b| b.is_ascii_alphanumeric() || b == b'_')
         || n.as_bytes()[0].is_ascii_digit()
     {
-        return Err("invalid logic binder name".into());
+        return Err(format!("invalid logic binder name {n:?}"));
     }
     Ok(())
 }
@@ -1724,7 +1724,14 @@ fn normal_uncached(t: &Term, c: &Context, budget: &mut Budget, depth: usize) -> 
         Term::Binary { op, left, right } => {
             let left = normal(left, c, budget, depth + 1)?;
             let right = normal(right, c, budget, depth + 1)?;
+            let identical = if op=="==" || op=="!=" {
+                if left==right {true} else {
+                    budget.copy(&left)?; budget.copy(&right)?;
+                    alpha_normal_impl(left.clone(),budget,true)?==alpha_normal_impl(right.clone(),budget,true)?
+                }
+            }else{false};
             let reduced = match (&left, &right) {
+                _ if identical => Some(Term::Bool(op == "==")),
                 (Term::U64(a), Term::U64(b)) if op.starts_with("f32:") => {
                     Some(f32_primitive(op, *a, *b)?)
                 }

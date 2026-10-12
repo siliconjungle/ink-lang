@@ -92,7 +92,7 @@ fn refs(value: &serde_json::Value, out: &mut BTreeSet<String>) {
 }
 // Public normal forms use ordinary, globally fresh binders. Kernel-internal
 // alpha names are never a producer protocol or a relaxation of binder checking.
-fn public_normal(t: &Term, env: &BTreeMap<String, String>, next: &mut usize) -> Term {
+pub(crate) fn public_normal(t: &Term, env: &BTreeMap<String, String>, next: &mut usize) -> Term {
     let recurse = |x: &Term, n: &mut usize| public_normal(x, env, n);
     match t {
         Term::Var(n) => v(env.get(n).unwrap_or(n)),
@@ -556,6 +556,12 @@ impl Lower<'_> {
             return Err("action model lambda is unsupported".into());
         };
         match &n.kind {
+            Kind::Bind { slot,value,body:inner,.. } => {
+                let value=self.expr(body,*value,env,state)?;
+                let mut env=env.clone();env.insert(*slot,value);
+                self.expr(body,*inner,&env,state)
+            }
+
             Kind::String(text) => self.string_literal(text),
             Kind::Number(n) if matches!(ty,Type::U64|Type::U32|Type::I32) => Ok(Term::U64(*n)),
             Kind::Number(n) if *ty==Type::F32 => Ok(Term::U64((*n as f32).to_bits()as u64)),
@@ -594,6 +600,26 @@ impl Lower<'_> {
                 );
                 self.keep_active.remove(index);
                 result
+            }
+            Kind::Builtin { name, arguments } if name == "list" => {
+                let sort = self.sort(ty)?;
+                let xs = arguments.iter().map(|i| self.expr(body, *i, env, state)).collect::<LangResult<Vec<_>>>()?;
+                let mut result = c(id(&sort)?, 0, vec![]);
+                for x in xs.into_iter().rev() { result = c(id(&sort)?, 1, vec![x, result]); }
+                Ok(result)
+            }
+            Kind::Method { receiver, method, arguments } if method == "unwrap_or" => {
+                let value = self.expr(body, *receiver, env, state)?;
+                let fallback = self.expr(body, arguments[0], env, state)?;
+                let name = self.fresh();
+                Ok(m(value, vec![(vec![], fallback), (vec![name.clone()], v(&name))]))
+            }
+            Kind::Method { receiver, method, arguments } if method == "concat" => {
+                let Type::List(element) = ty else { return Err("concat list type".into()); };
+                let a = self.expr(body, *receiver, env, state)?;
+                let z = self.expr(body, arguments[0], env, state)?;
+                let f = self.sequence_op(element, "concat")?;
+                Ok(call(&f, vec![a,z]))
             }
             Kind::Builtin { name, arguments }
                 if ["vec2", "vec3", "vec4"].contains(&name.as_str()) =>
@@ -781,6 +807,10 @@ impl Lower<'_> {
                 0,
                 vec![result, Term::Bool(false), v("version"), v("initial"), empty],
             ));
+        }
+        if !matches!(result_type, Type::Result(..)) {
+            return Ok(choice(b("==", v("version"), Term::U64(u64::MAX)), self.host(observation, 1),
+                c(observation, 0, vec![result, Term::Bool(true), b("+",v("version"),Term::U64(1)), state, events])));
         }
         let Sort::Data(result_id) = self.sort(result_type)? else {
             return Err("change result carrier".into());

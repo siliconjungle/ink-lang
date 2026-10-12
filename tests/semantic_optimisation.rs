@@ -37,6 +37,7 @@ fn pack(m: &CheckedModule, c: Catalogue, applications: Vec<Site>) -> Package {
         knowledge: verified_language::registry::from_catalogue(&c).unwrap(),
         applications,
         action_replacement: None,
+        contract_refinement: None,
     }
 }
 fn pick(c: &Catalogue, operation: &str, ty: &Type) -> String {
@@ -284,6 +285,8 @@ fn a_new_catalogue_entry_changes_execution_without_rebuilding_the_compiler() {
         proof: Proof::Normalize,
         dependencies: vec![],
         definition_context: None,
+        types: vec![],
+        assumptions: vec![],
     };
     let id = verified_language::registry::identity(
         &verified_language::registry::Entry::from_law(&law).unwrap(),
@@ -772,6 +775,8 @@ fn search_composes_supporting_lemmas_to_discharge_rule_conditions() {
         proof: Proof::Congruence(vec![Proof::Hypothesis(0)]),
         dependencies: vec![identity_id.clone()],
         definition_context: None,
+        types: vec![],
+        assumptions: vec![],
     };
     let id = verified_language::registry::identity(
         &verified_language::registry::Entry::from_law(&law).unwrap(),

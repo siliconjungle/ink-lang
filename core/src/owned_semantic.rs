@@ -10,6 +10,8 @@ pub fn arguments(ty: &Type, name: &str) -> LangResult<Vec<Type>> {
     Ok(match (ty, name) {
         (Type::Buffer(t), "at_or" | "set") => vec![Type::U32, *t.clone()],
         (Type::Buffer(_), "swap") => vec![Type::U32, Type::U32],
+        (Type::Buffer(_), "copy_within") => vec![Type::U32, Type::U32, Type::U32],
+        (Type::Buffer(t), "fill_range") => vec![Type::U32, Type::U32, *t.clone()],
         (Type::Buffer(t), "push") => vec![*t.clone()],
         (Type::Buffer(_), "truncate") => vec![Type::U32],
         (Type::Buffer(_), "freeze" | "len" | "pop" | "scan") => vec![],
@@ -137,7 +139,35 @@ pub fn validate(t: &Term, p: &Program) -> LangResult<bool> {
             Some((s, t.sort.clone()))
         }
         "local:pop" => Some((vec![t.sort.clone()], t.sort.clone())),
-        "local:truncate" => Some((vec![t.sort.clone(), value(Type::U32)], t.sort.clone())),
+        "local:fill-range" | "local:copy-range" | "local:copy-from" => {
+            let Type::List(inner) = ty(&t.sort)? else {
+                return Err("range edit list".into());
+            };
+            Some((
+                match n.as_str() {
+                    "local:fill-range" => vec![
+                        t.sort.clone(),
+                        value(Type::U32),
+                        value(Type::U32),
+                        value(*inner.clone()),
+                    ],
+                    "local:copy-range" => vec![
+                        t.sort.clone(),
+                        value(Type::U32),
+                        value(Type::U32),
+                        value(Type::U32),
+                    ],
+                    _ => vec![
+                        t.sort.clone(),
+                        t.sort.clone(),
+                        value(Type::U32),
+                        value(Type::U32),
+                    ],
+                },
+                t.sort.clone(),
+            ))
+        }
+        "local:truncate" | "local:drop" => Some((vec![t.sort.clone(), value(Type::U32)], t.sort.clone())),
         "local:keys-insert" | "local:keys-remove" => {
             let Type::List(k) = ty(&t.sort)? else {
                 return Err("key list".into());
@@ -185,7 +215,7 @@ pub fn validate(t: &Term, p: &Program) -> LangResult<bool> {
         if a.len() != args.len() {
             return Err("temporary helper arity".into());
         }
-        if matches!(n.as_str(), "local:pop" | "local:truncate")
+        if matches!(n.as_str(), "local:pop" | "local:truncate" | "local:drop")
             && !matches!(ty(&t.sort)?, Type::List(_))
         {
             return Err("temporary helper list".into());
@@ -276,11 +306,14 @@ pub fn reduce(t: &Term) -> LangResult<Option<Term>> {
                 None
             }
         }
-        ("method:push" | "method:set" | "method:pop" | "method:truncate" | "method:swap", args)
-            if matches!(
-                args.first().map(|x| &x.sort),
-                Some(Sort::Value(Type::Buffer(_)))
-            ) =>
+        (
+            "method:push" | "method:set" | "method:pop" | "method:truncate" | "method:swap"
+            | "method:fill_range" | "method:copy_within",
+            args,
+        ) if matches!(
+            args.first().map(|x| &x.sort),
+            Some(Sort::Value(Type::Buffer(_)))
+        ) =>
         {
             // Every owner denotes its frozen sequence, including an opaque
             // accumulator returned by a fold. This is the fixed extensional
@@ -301,6 +334,14 @@ pub fn reduce(t: &Term) -> LangResult<Option<Term>> {
                 "method:set" => list_edit("local:set", vec![xs, args[1].clone(), args[2].clone()]),
                 "method:pop" => list_edit("local:pop", vec![xs]),
                 "method:truncate" => list_edit("local:truncate", vec![xs, args[1].clone()]),
+                "method:fill_range" => list_edit(
+                    "local:fill-range",
+                    vec![xs, args[1].clone(), args[2].clone(), args[3].clone()],
+                ),
+                "method:copy_within" => list_edit(
+                    "local:copy-range",
+                    vec![xs, args[1].clone(), args[2].clone(), args[3].clone()],
+                ),
                 _ => {
                     let Type::List(inner) = ty(&xs.sort)? else {
                         return Err("swap list".into());
@@ -342,6 +383,122 @@ pub fn reduce(t: &Term) -> LangResult<Option<Term>> {
                 }
             };
             Some(op(t.sort.clone(), "call:buffer", vec![edited]))
+        }
+        ("local:fill-range", [xs, start, count, v]) => {
+            if matches!(count.node, Node::Word(0)) {
+                Some(xs.clone())
+            } else {
+                match &xs.node {
+                    Node::Nil => Some(xs.clone()),
+                    Node::Cons(h, tail) => Some(choose(
+                        eq(count.clone(), word(Type::U32, 0)),
+                        xs.clone(),
+                        choose(
+                            eq(start.clone(), word(Type::U32, 0)),
+                            cons(
+                                v.clone(),
+                                list_edit(
+                                    n,
+                                    vec![
+                                        *tail.clone(),
+                                        word(Type::U32, 0),
+                                        dec(count.clone()),
+                                        v.clone(),
+                                    ],
+                                ),
+                            ),
+                            cons(
+                                *h.clone(),
+                                list_edit(
+                                    n,
+                                    vec![
+                                        *tail.clone(),
+                                        dec(start.clone()),
+                                        count.clone(),
+                                        v.clone(),
+                                    ],
+                                ),
+                            ),
+                        ),
+                    )),
+                    _ => None,
+                }
+            }
+        }
+        ("local:copy-range", [xs, source, destination, count]) => {
+            Some(if matches!(count.node, Node::Word(0)) {
+                xs.clone()
+            } else {
+                list_edit(
+                    "local:copy-from",
+                    vec![
+                        xs.clone(),
+                        op(
+                            xs.sort.clone(),
+                        "local:drop",
+                            vec![xs.clone(), source.clone()],
+                        ),
+                        destination.clone(),
+                        count.clone(),
+                    ],
+                )
+            })
+        }
+        ("local:copy-from", [xs, source, destination, count]) => {
+            if matches!(count.node, Node::Word(0)) {
+                Some(xs.clone())
+            } else {
+                match &xs.node {
+                    Node::Nil => Some(xs.clone()),
+                    Node::Cons(h, tail) => {
+                        let copied = match &source.node {
+                            Node::Nil => xs.clone(),
+                            Node::Cons(v, rest) => cons(
+                                *v.clone(),
+                                list_edit(
+                                    n,
+                                    vec![
+                                        *tail.clone(),
+                                        *rest.clone(),
+                                        word(Type::U32, 0),
+                                        dec(count.clone()),
+                                    ],
+                                ),
+                            ),
+                            _ => return Ok(None),
+                        };
+                        Some(choose(
+                            eq(count.clone(), word(Type::U32, 0)),
+                            xs.clone(),
+                            choose(
+                                eq(destination.clone(), word(Type::U32, 0)),
+                                copied,
+                                cons(
+                                    *h.clone(),
+                                    list_edit(
+                                        n,
+                                        vec![
+                                            *tail.clone(),
+                                            source.clone(),
+                                            dec(destination.clone()),
+                                            count.clone(),
+                                        ],
+                                    ),
+                                ),
+                            ),
+                        ))
+                    }
+                    _ => None,
+                }
+            }
+        }
+        ("local:drop", [xs, count]) => {
+            if matches!(count.node, Node::Word(0)) {Some(xs.clone())}
+            else {match &xs.node {
+                Node::Nil => Some(xs.clone()),
+                Node::Cons(_, tail) => Some(choose(eq(count.clone(), word(Type::U32,0)), xs.clone(),list_edit(n, vec![*tail.clone(),dec(count.clone())]))),
+                _ => None,
+            }}
         }
         ("local:append", [xs, v]) => Some(op(
             xs.sort.clone(),

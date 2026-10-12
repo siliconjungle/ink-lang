@@ -145,7 +145,7 @@ fn planning_state(
         "definition_choices":checked.representation().map(|r|r.definition().choices()),
         "definitions":checked.representation().map(|r|r.definition().reachable_executable_declarations()).transpose()?,
         "physical":checked.physical().map(|p|p.plan()),"properties":checked.properties().iter().map(|p|p.package()).collect::<Vec<_>>(),
-        "route":checked.route().map(|r|r.package())}),
+        "resources":checked.resources().map(|r|r.plan()),"route":checked.route().map(|r|r.package())}),
     )
 }
 fn planning_capability(
@@ -199,6 +199,7 @@ fn run() -> LangResult<()> {
         "--core",
         "--help",
         "--implementation",
+        "--entry",
         "--lean",
         "--library",
         "--native-cpu",
@@ -217,6 +218,8 @@ fn run() -> LangResult<()> {
         "--search-tool",
         "--select",
         "--selection",
+        "--contract-proofs",
+        "--refinement-bodies",
         "--snapshot",
         "--snapshot-out",
         "--state-out",
@@ -257,7 +260,9 @@ fn run() -> LangResult<()> {
             let module = if args.iter().any(|a| a == "--core") {
                 core::CheckedModule::from_bytes(&read_bounded(input, core::MAX_BYTES)?)?
             } else {
-                core::CheckedModule::from_source(source(input)?)?
+                { let mut p=source(input)?;
+                    if let Some(path)=arg_value(&args,"--contract-proofs")? { verified_language::contracts::attach(&mut p,serde_json::from_slice(&read_bounded(&path,verified_language::registry::MAX_VIEW_BYTES)?).map_err(|e|e.to_string())?)?; }
+                    core::CheckedModule::from_source(p)? }
             };
             let package = serde_json::from_slice(&read_bounded(
                 &packet,
@@ -292,6 +297,7 @@ fn run() -> LangResult<()> {
             ("--planning-seconds", "--time-seconds"),
             ("--registry", "--registry"),
             ("--snapshot", "--snapshot"),
+            ("--contract-proofs", "--contract-proofs"),
             ("--profile", "--profile"),
             ("--workload", "--workload"),
             ("--target-profile", "--target-profile"),
@@ -663,7 +669,7 @@ fn run() -> LangResult<()> {
             .ok_or("emit-laws requires an external theorem SOURCE")?;
         let bytes = read_bounded(path, 1_000_000)?;
         let text = std::str::from_utf8(&bytes).map_err(|e| e.to_string())?;
-        let program = syntax::parse(text)?;
+        let source = syntax::parse_law_source(text)?;
         let proofs = arg_value(&args, "--proofs")?
             .map(|p| {
                 read_bounded(&p, 4_000_000)
@@ -677,7 +683,8 @@ fn run() -> LangResult<()> {
                     .and_then(|b| serde_json::from_slice(&b).map_err(|e| e.to_string()))
             })
             .transpose()?;
-        let authored = verified_language::law_author::compile(program, proofs, deps.as_ref())?;
+        let authored =
+            verified_language::law_author::compile_source(source, proofs, deps.as_ref())?;
         let output = arg_value(&args, "-o")?.ok_or("emit-laws requires -o BUNDLE.json")?;
         write(
             &output,
@@ -685,7 +692,7 @@ fn run() -> LangResult<()> {
         )?;
         println!(
             "{}",
-            serde_json::json!({"status":"checked","names":authored.names,"snapshot":authored.bundle.snapshot,"scope":"External executable laws checked by the existing general kernel; source declarations do not grant optimisation authority."})
+            serde_json::json!({"status":"checked","names":authored.names,"snapshot":authored.bundle.snapshot,"scope":"External laws (law and rewrite declarations) checked by the semantic law kernel; source declarations do not grant optimisation authority."})
         );
         return Ok(());
     }
@@ -717,6 +724,7 @@ fn run() -> LangResult<()> {
     if cmd == "help" || cmd == "--help" {
         println!("ink compile SOURCE --optimise KNOWLEDGE_DIRECTORY [--snapshot SNAPSHOT.json] --target rust|c|javascript|rust-wasm|c-wasm|wgpu|webgpu -o OUTPUT\nink compile SOURCE --plan PACKET.json --target TARGET -o OUTPUT\nink check-plan SOURCE PACKET.json [--core]\nink --version\nink doctor [--python PATH]\nink explain SOURCE [--core] [--selection PACKAGE.json | --optimise SNAPSHOT.json]\nink modules SOURCE");
         println!("ink check-boolean-verdict THEOREM.json --lean PATH -o CERTIFICATE.lean");
+        println!("ink emit-contract-obligations SOURCE -o OBLIGATIONS.json\nink check-contracts SOURCE [--contract-proofs EVIDENCE.json]\nAll source build/execution commands accept --contract-proofs EVIDENCE.json.");
         println!("ink emit-laws THEOREMS.ink [--proofs EVIDENCE.json] [--view DEPENDENCIES.json] -o BUNDLE.json");
         println!("ink emit-semantic SOURCE [--core] -o SUBJECT.json\nink check-selection CORE.json PACKAGE.json\nExecution, lowering and core emission accept --optimise KNOWLEDGE_DIRECTORY or SNAPSHOT.json (external search) or --selection PACKAGE.json (checked replay). Optional --search-tool PATH, --search-budget N, --python PATH and --plan-cache DIRECTORY [--plan-cache-context FILE]. INK_DISTRIBUTION locates an optional installed tool bundle.");
         println!("ink check-representation SOURCE REQUEST.json\nink emit-representation SOURCE REQUEST.json [--target rust|rust-packed|rust-memo|c|javascript|wasm32|c-wasm|rust-wasm|rust-wasm-packed|rust-wasm-memo|wgpu|webgpu] -o OUTPUT\nink execute-representation SOURCE REQUEST.json SCRIPT.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] (compiles standalone Rust; requires Cargo; script supports call and portable migrate steps)");
@@ -727,7 +735,7 @@ fn run() -> LangResult<()> {
         println!(
             "ink emit-definition LOCK.json EXPORTS.json [--select PACKAGE.json] -o DEFINITION.rs"
         );
-        println!("ink emit-core SOURCE -o CORE.json\nink check-core CORE.json\nink emit-actions SOURCE -o ACTIONS.json\nink check-actions SOURCE ACTIONS.json\nink emit-effects SOURCE -o EFFECTS.json\nink check-effects SOURCE EFFECTS.json\nExecution/lowering commands also accept --core to read a checked CORE.json instead of source.\nChecked replacement packages: build/emit-c ... --replacement PACKAGE.json");
+        println!("ink emit-core SOURCE -o CORE.json\nink check-core CORE.json\nink emit-actions SOURCE -o ACTIONS.json\nink check-actions SOURCE ACTIONS.json\nink emit-effects SOURCE -o EFFECTS.json\nink check-effects SOURCE EFFECTS.json\nink emit-access SOURCE -o ACCESS.json\nink check-access SOURCE ACCESS.json\nExecution/lowering commands also accept --core to read a checked CORE.json instead of source.\nChecked replacement packages: build/emit-c ... --replacement PACKAGE.json");
         println!("ink check SOURCE\nink execute SOURCE SCRIPT.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable]\nink run SOURCE FUNCTION ARGS.json\nink build SOURCE --target c|rust|javascript|wasm32|webgpu -o OUTPUT\nink emit-state SOURCE -o DIRECTORY [--wasm-abi] [--table-storage ordered|indexed-slots]\nink check-representation SOURCE REQUEST.json\nink verify-library LOCK.json");
 
         return Ok(());
@@ -738,6 +746,47 @@ fn run() -> LangResult<()> {
     } else {
         source(path)?
     };
+    if let Some(file)=arg_value(&args,"--contract-proofs")? {
+        let evidence=serde_json::from_slice(&read_bounded(&file,verified_language::registry::MAX_VIEW_BYTES)?).map_err(|e|e.to_string())?;
+        verified_language::contracts::attach(&mut p,evidence)?;
+    }
+    if let Some(file)=arg_value(&args,"--refinement-bodies")? {
+        if !["emit-contract-obligations","check-contract-proof"].contains(&cmd){return Err("refinement bodies are an authoring input; use checked selection to execute".into());}
+        let bodies=serde_json::from_slice(&read_bounded(&file,core::MAX_BYTES)?).map_err(|e|e.to_string())?;
+        p=verified_language::contracts::prepare(&core::CheckedModule::from_source(p)?,&bodies)?;
+    }
+    if cmd=="check-contract-proof" {
+        let name=args.get(2).ok_or("missing obligation name")?;
+        let file=args.get(3).ok_or("missing proof file")?;
+        let v:serde_json::Value=serde_json::from_slice(&read_bounded(file,verified_language::registry::MAX_VIEW_BYTES)?).map_err(|e|e.to_string())?;
+        let bundle=v.get("knowledge").filter(|v|!v.is_null()).map(|v|serde_json::from_value(v.clone()).map_err(|e|e.to_string())).transpose()?;
+        verified_language::contracts::check_proof(&p,name,v.get("proof").ok_or("missing proof")?.clone(),bundle.as_ref())?;
+        println!("checked contract obligation {name}");return Ok(());
+    }
+    if cmd=="emit-contract-obligations" {
+        let pure=verified_language::contracts::obligations(&p)?;
+        let state=if verified_language::contracts::needs_state(&p)? {Some(verified_language::contracts::state_obligations(&p)?)}else{None};
+        let mut executable=p.clone();executable.contracts=verified_language::contracts::Contracts::default();
+        let executable=core::CheckedModule::from_source(executable)?;
+        fn called_helpers(value:&serde_json::Value,program:&syntax::Program,names:&mut std::collections::BTreeSet<String>){
+            match value {
+                serde_json::Value::String(value)=>if let Some(name)=value.strip_prefix("call:"){if program.functions.iter().any(|f|f.name==name){names.insert(name.into());}},
+                serde_json::Value::Array(values)=>for value in values{called_helpers(value,program,names);},
+                serde_json::Value::Object(fields)=>for value in fields.values(){called_helpers(value,program,names);},
+                _=>(),
+            }
+        }
+        let mut roots=std::collections::BTreeSet::new();
+        called_helpers(&serde_json::to_value(&pure).map_err(|e|e.to_string())?,&p,&mut roots);
+        let definition_context=verified_language::definition_context::DefinitionContext::capture(&executable,&roots.into_iter().collect::<Vec<_>>())?;
+        let output=arg_value(&args,"-o")?.ok_or("emit-contract-obligations requires -o FILE.json")?;
+        write(&output,&serde_json::to_string_pretty(&serde_json::json!({"schema":1,"semantics":verified_language::contracts::SEMANTICS,"source_sha256":verified_language::contracts::subject_identity(&p)?,"pure":pure,"state":state,"definition_context":definition_context})).map_err(|e|e.to_string())?)?;
+        println!("wrote {output}; obligations are not accepted proofs");return Ok(());
+    }
+    if cmd=="check-contracts" {
+        let module=core::CheckedModule::from_source(p)?;
+        println!("{}",serde_json::json!({"status":"checked","semantics":verified_language::contracts::SEMANTICS,"core_sha256":module.identity()?,"specifications":module.program().contracts.specifications.len(),"invariants":module.program().contracts.invariants.len()}));return Ok(());
+    }
     let source_program_sha256 = format!(
         "{:x}",
         Sha256::digest(serde_json::to_vec(&p).map_err(|e| e.to_string())?)
@@ -1005,6 +1054,49 @@ fn run() -> LangResult<()> {
                 "{}",
                 serde_json::json!({"status":"checked","semantics":verified_language::action_ir::SEMANTICS,"source":actions.source_identity(),"actions_sha256":actions.identity()?,"trust":"Source checking, typed elaboration and execution adapters remain trusted; no action-body refinement proof"})
             );
+        }
+        "emit-column-codec" => {
+            let record=arg_value(&args,"--entry")?.ok_or("emit-column-codec requires --entry RECORD")?;
+            let schema=verified_language::column_codec::schema(&p,&record)?;
+            let out=arg_value(&args,"-o")?.ok_or("emit-column-codec requires -o")?;
+            write(&out,&serde_json::to_string(&schema).map_err(|e|e.to_string())?)?;
+            println!("{}",serde_json::json!({"status":"codec-semantics","fields":schema.fields.len()}));
+        }
+        "emit-bounds-obligations" => {
+            let module=core::CheckedModule::from_source(p)?;
+            let goals=verified_language::bounds::obligations(&module)?;
+            let out=arg_value(&args,"-o")?.ok_or("emit-bounds-obligations requires -o")?;
+            write(&out,&serde_json::to_string(&serde_json::json!({"schema":1,"semantics":verified_language::bounds::SEMANTICS,"source":module.identity()?,"map_obligations":verified_language::bounds::map_obligations(&module)?,"obligations":goals})).map_err(|e|e.to_string())?)?;
+            println!("{}",serde_json::json!({"status":"source-bound","sites":goals.len()}));
+        }
+        "emit-access" | "check-access" => {
+            let module = core::CheckedModule::from_source(p)?;
+            let actions = verified_language::action_ir::CheckedActions::elaborate(&module)?;
+            let access = if cmd == "check-access" {
+                let file = args
+                    .get(2)
+                    .ok_or("check-access requires SOURCE ACCESS.json")?;
+                let mut bytes = Vec::new();
+                fs::File::open(file)
+                    .map_err(|e| e.to_string())?
+                    .take(core::MAX_BYTES as u64 + 1)
+                    .read_to_end(&mut bytes)
+                    .map_err(|e| e.to_string())?;
+                verified_language::access::CheckedAccess::from_bytes(&actions, &bytes)?
+            } else {
+                verified_language::access::CheckedAccess::derive(&actions)?
+            };
+            if cmd == "emit-access" {
+                let out = arg_value(&args, "-o")?.ok_or("emit-access requires -o ACCESS.json")?;
+                write(
+                    &out,
+                    &String::from_utf8(access.bytes()?).map_err(|e| e.to_string())?,
+                )?;
+            }
+            println!("{}", serde_json::json!({"status":"checked",
+                "semantics":verified_language::access::SEMANTICS,
+                "source":access.source_identity(), "actions_sha256":access.actions_identity(),
+                "trust":"Conservative source-bound point accesses. No cache-retention, replacement or scheduling authority."}));
         }
         "emit-effects" | "check-effects" => {
             let module = core::CheckedModule::from_source(p)?;

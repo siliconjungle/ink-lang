@@ -314,6 +314,11 @@ pub fn validate(t: &Term, env: &Env, p: &Program, b: &mut Budget) -> LangResult<
                     return Ok(());
                 }
                 match n.as_str() {
+                    "value:equal" => {
+                        arity(2)?; need(a(1)?,a(0)?.clone())?;
+                        if crate::local_collections::owned(val(a(0)?)?,p){return Err("owned equality".into());}
+                        need(&t.sort,value(Type::Bool))?;
+                    }
                     "apply" => {
                         arity(2)?;
                         let Sort::Arrow(x, y) = a(0)? else {
@@ -421,6 +426,22 @@ pub fn validate(t: &Term, env: &Env, p: &Program, b: &mut Budget) -> LangResult<
                         arity(ts.len())?;
                         for (a, t) in args.iter().zip(ts) {
                             need(&a.sort, value(t))?;
+                        }
+                    }
+                    "call:Some" | "call:Ok" | "call:Err" => {
+                        arity(1)?;
+                        let inner = match (n.as_str(), val(&t.sort)?) {
+                            ("call:Some", Type::Option(x))
+                            | ("call:Ok", Type::Result(x, _))
+                            | ("call:Err", Type::Result(_, x)) => (**x).clone(),
+                            _ => return Err("variant constructor sort".into()),
+                        };
+                        need(a(0)?, value(inner))?;
+                    }
+                    "call:None" => {
+                        arity(0)?;
+                        if !matches!(val(&t.sort)?, Type::Option(_)) {
+                            return Err("variant constructor sort".into());
                         }
                     }
                     "call:Int" => {
@@ -581,7 +602,7 @@ pub fn validate(t: &Term, env: &Env, p: &Program, b: &mut Budget) -> LangResult<
                             "<" | ">" | "<=" | ">=" if check::is_numeric_value(ty) => {
                                 value(Type::Bool)
                             }
-                            "==" | "!=" if check::is_numeric_value(ty) || *ty == Type::Bool => {
+                            "==" | "!=" if !crate::local_collections::owned(ty,p) => {
                                 value(Type::Bool)
                             }
                             "&&" | "||" if *ty == Type::Bool => value(Type::Bool),
@@ -690,6 +711,10 @@ pub fn elaborate(e: &Expr, env: &check::Env, p: &Program, want: &Type) -> LangRe
         let s = value(want.clone());
         let mut recur = |e: &Expr, t: &Type| go(e, env, bound, p, t, b);
         match e {
+            // Variant constructors are fixed value meanings (Option/Result).
+            Expr::Var(n) if n == "None" && matches!(want, Type::Option(_)) => {
+                Ok(op(s, "call:None", vec![]))
+            }
             Expr::Var(n) => Ok(term(
                 s,
                 match bound.iter().rev().position(|(x, _)| x == n) {
@@ -823,6 +848,18 @@ pub fn elaborate(e: &Expr, env: &check::Env, p: &Program, want: &Type) -> LangRe
                             p,
                             b,
                         )?);
+                    }
+                    "Some" | "Ok" | "Err" => {
+                        let inner = match (n.as_str(), want) {
+                            ("Some", Type::Option(t))
+                            | ("Ok", Type::Result(t, _))
+                            | ("Err", Type::Result(_, t)) => (**t).clone(),
+                            _ => return Err("variant constructor sort".into()),
+                        };
+                        if args.len() != 1 {
+                            return Err("variant constructor arity".into());
+                        }
+                        out.push(recur(&args[0], &inner)?);
                     }
                     "choose" => {
                         out.push(recur(&args[0], &Type::Bool)?);
@@ -968,6 +1005,47 @@ pub fn elaborate(e: &Expr, env: &check::Env, p: &Program, want: &Type) -> LangRe
                         out.push(recur(arg, &ty)?);
                     }
                     return Ok(op(s, &format!("method:{n}"), out));
+                }
+                // Variant maps are folds that rebuild the variant.
+                if matches!(ty, Type::Option(_) | Type::Result(..))
+                    && ["map", "map_err", "ok_or"].contains(&n.as_str())
+                    && args.len() == 1
+                {
+                    // Generated fold binders must not capture the error
+                    // expression of ok_or or an enclosing lexical variable.
+                    let fresh = |base: &str| {
+                        let mut name = base.to_string();
+                        while env.contains_key(&name) {
+                            name.push('_');
+                        }
+                        name
+                    };
+                    let value = fresh("__ink_variant_value");
+                    let other = fresh("__ink_variant_other");
+                    let keep = |c: &str, x: &str| {
+                        Expr::Lambda(x.into(), Box::new(Expr::Call(c.into(), vec![Expr::Var(x.into())])))
+                    };
+                    let wrap = |c: &str, f: &Expr| -> LangResult<Expr> {
+                        let Expr::Lambda(x, body) = f else {
+                            return Err("variant map requires a lambda".into());
+                        };
+                        Ok(Expr::Lambda(x.clone(), Box::new(Expr::Call(c.into(), vec![(**body).clone()]))))
+                    };
+                    let (yes, no) = match (&ty, n.as_str()) {
+                        (Type::Option(_), "map") => (
+                            wrap("Some", &args[0])?,
+                            Expr::Lambda(other.clone(), Box::new(Expr::Var("None".into()))),
+                        ),
+                        (Type::Option(_), "ok_or") => (
+                            keep("Ok", &value),
+                            Expr::Lambda(other.clone(), Box::new(Expr::Call("Err".into(), vec![args[0].clone()]))),
+                        ),
+                        (Type::Result(..), "map") => (wrap("Ok", &args[0])?, keep("Err", &other)),
+                        (Type::Result(..), "map_err") => (keep("Ok", &value), wrap("Err", &args[0])?),
+                        _ => return Err("unsupported variant method".into()),
+                    };
+                    let folded = Expr::Method(xs.clone(), "fold".into(), vec![yes, no]);
+                    return recur(&folded, want);
                 }
                 if n == "fold" {
                     let (yes, no) = match &ty {
@@ -1129,7 +1207,9 @@ pub fn reify(t: &Term, p: &Program) -> LangResult<Expr> {
                     .iter()
                     .map(|x| go(x, bound, free, p))
                     .collect::<LangResult<Vec<_>>>()?;
-                if n == "nat.word" {
+                if n == "value:equal" {
+                    return Ok(Expr::Binary("==".into(),Box::new(Expr::Call("list".into(),vec![args[0].clone()])),Box::new(Expr::Call("list".into(),vec![args[1].clone()]))));
+                } else if n == "nat.word" {
                     let Node::Nat(k) = a[0].node else {
                         return Err("nonliteral natural cannot execute".into());
                     };
@@ -1177,6 +1257,8 @@ pub fn reify(t: &Term, p: &Program) -> LangResult<Expr> {
                         Box::new(args[1].clone()),
                         body.clone(),
                     )
+                } else if n == "call:None" {
+                    Expr::Var("None".into())
                 } else if n.starts_with("call:") {
                     Expr::Call(n[5..].into(), args)
                 } else if n.starts_with("method:") {

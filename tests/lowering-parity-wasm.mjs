@@ -6,6 +6,7 @@ for(const backend of ['c','rust']){
  const module=await StatefulModule.instantiate(new Uint8Array(fs.readFileSync(new URL(`${backend}/target/wasm32-unknown-unknown/debug/compiled_state.wasm`,import.meta.url))));
  let state=module.create(),index=0;
  for(const step of steps){
+  if(step.reject_restore){const before=state.snapshot();assert.throws(()=>module.restore(new Uint8Array(step.reject_restore.map(Number))),/invariant/);assert.deepEqual(state.snapshot(),before);continue;}
   if(step.restore){state.dispose();state=module.restore(new Uint8Array(step.restore.map(Number)));continue;}
   const before=module.parallelStatistics();
   let reply;try{if(step.async){const pending=step.pure?state.pureAsync(step.pure,step.args):state.invokeAsync(step.call,step.args);if(!step.pure){assert.throws(()=>state.invoke(step.call,step.args),/operation already in progress/);assert.throws(()=>state.snapshot(),/operation already in progress/);}reply=step.pure?{value:await pending}:{outcome:await pending};}else reply=step.pure?{value:state.pure(step.pure,step.args)}:{outcome:state.invoke(step.call,step.args)};}catch(e){reply={host_error:e.message};}

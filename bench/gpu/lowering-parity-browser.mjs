@@ -70,7 +70,8 @@ try {
         if(JSON.stringify(r.values)!==JSON.stringify({ordered:want}))throw Error(`resident/${backend}: value mismatch`);
         if(backend==='gpu') {
           if(r.backend!=='gpu')throw Error(`resident fallback: ${r.reason}`);
-          if(r.counters.upload_bytes!==4*(input.length+1)||r.counters.readback_bytes!==4*(want.length+1)||r.counters.dispatches!==9||r.counters.resident_copy_bytes!==16*(input.length+1))throw Error('resident counters mismatch');
+          // Match the native fixture: 7 filter + 5 scan + 29 radix-sort passes per iteration.
+          if(r.counters.upload_bytes!==4*(input.length+1)||r.counters.readback_bytes!==4*(want.length+1)||r.counters.dispatches!==123||r.counters.resident_copy_bytes!==16*(input.length+1))throw Error('resident counters mismatch: '+JSON.stringify({input,counters:r.counters}));
         }
         replies.push(r);
       }
@@ -82,7 +83,7 @@ try {
         const r=await ink.pipeline(pipeline,{backend});
         const expected=iterations%2?{left:a,right:b}:{left:b,right:a};
         if(JSON.stringify(r.values)!==JSON.stringify(expected))throw Error(`swap/${backend}: value mismatch`);
-        if(backend==='gpu'&&(r.backend!=='gpu'||r.counters.upload_bytes!==32||r.counters.readback_bytes!==32||r.counters.dispatches!==iterations||r.counters.resident_copy_bytes!==64*(iterations-1)))throw Error('swap backend/counters mismatch');
+        if(backend==='gpu'&&(r.backend!=='gpu'||r.counters.upload_bytes!==32||r.counters.readback_bytes!==32||r.counters.dispatches!==7*iterations||r.counters.resident_copy_bytes!==64*(iterations-1)))throw Error('swap backend/counters mismatch: '+JSON.stringify(r));
         replies.push(r);
       }
     }
@@ -119,7 +120,37 @@ try {
       return {domain:name,comparisons:calls,gpu_calls:steps.length,dispatches};
     },{base,name,script,expected}));
   }
-  const receipt={status:'passed',browser:browser.version(),bend,residency,numerics};
+  const contracts=[];
+  for(const name of ['source-contracts-parity','total-changes-parity','state-contracts-parity','action-contract-refinement',...Array.from({length:4},(_,i)=>`contract-refinement-${i}`)]){
+    const script=await fs.readFile(`build/${name}/script.json`,'utf8');
+    const expected=await fs.readFile(`build/${name}/expected.json`,'utf8');
+    contracts.push(await page.evaluate(async({base,name,script,expected})=>{
+      const root=new URL(`build/${name}/gpu-module/`,base);
+      const {loadInk}=await import(new URL('ink-gpu.mjs',root));
+      const {parseExactJSON}=await import(new URL('state-wasm.mjs',root));
+      const host=await loadInk(root),steps=parseExactJSON(script),wanted=parseExactJSON(expected);
+      const normalize=v=>typeof v==='bigint'?String(v):typeof v==='number'&&Number.isInteger(v)?Object.is(v,-0)?'negative zero':String(v):Array.isArray(v)?v.map(normalize):v&&typeof v==='object'?Object.fromEntries(Object.keys(v).sort().map(k=>[k,normalize(v[k])])):v;
+      const exact=v=>JSON.stringify(normalize(v));
+      const typed=(v,t)=>t.kind==='ref'?typed(v,host.manifest.javascript.named_types[t.name]):t.kind==='u64'?BigInt(v):t.kind==='u32'||t.kind==='i32'?Number(v):t.kind==='f32'?typeof v==='object'?{F32Bits:Number(v.F32Bits)}:Number(v):t.kind==='list'||t.kind==='vector'?v.map(x=>typed(x,t.element)):t.kind==='record'?Object.fromEntries(t.fields.map(f=>[f.name,typed(v[f.name],f.type)])):v;
+      let comparisons=0,gpu_calls=0,rejectedRestores=0;
+      try{for(const backend of ['cpu','javascript','gpu']){
+        const jsState=backend==='javascript'&&host.manifest.javascript.state!=null;const state=jsState?host.createJavaScriptState():host.createState();let index=0;
+        const snapshot=async()=>Array.from(jsState?await state.checkpoint():state.snapshot());
+        try{for(const step of steps){
+          if(step.reject_restore){const before=await snapshot();let rejected=false;try{if(jsState)await state.restore(step.reject_restore.map(Number));else host.restoreState(new Uint8Array(step.reject_restore.map(Number))).dispose();}catch(e){rejected=/invariant/.test(e.message);}if(!rejected||exact(await snapshot())!==exact(before))throw Error(`${name}/${backend}: invariant restore was not atomic`);rejectedRestores++;continue;}
+          let reply;
+          try{
+            if(step.pure){const f=host.manifest.javascript.functions.find(f=>f.name===step.pure),args=step.args.map((v,i)=>typed(v,f.params[i].type));const request=backend==='gpu'?(step.cpu_only?'cpu':step.expect_gpu?'gpu-required':'gpu'):backend;const result=await host.call(step.pure,args,{backend:request});if(request==='gpu-required'){if(result.backend!=='gpu')throw Error('required GPU fell back');gpu_calls++;}reply={value:result.value};}
+            else {const action=host.manifest.javascript.state.actions.find(a=>a.name===step.call);const args=step.args.map((v,i)=>typed(v,action.params[i].type));reply={outcome:state.invoke(step.call,args)};}
+          }catch(e){reply={host_error:e.message};}
+          if(exact(reply)!==exact(wanted[index].reply)||exact(await snapshot())!==exact(wanted[index].snapshot))throw Error(`${name}/${backend}/${index}: contract value or snapshot differs: ${exact(reply)}`);
+          index++;comparisons++;
+        }}finally{state.dispose?.();}
+      }}finally{await host.dispose();}
+      return {name,comparisons,gpu_calls,rejectedRestores};
+    },{base,name,script,expected}));
+  }
+  const receipt={status:'passed',browser:browser.version(),bend,residency,numerics,contracts};
   await fs.writeFile(output,JSON.stringify(receipt,null,2)+'\n');
-  console.log(JSON.stringify({status:receipt.status,browser:receipt.browser,comparisons:bend.comparisons+residency.comparisons+numerics.reduce((n,r)=>n+r.comparisons,0),gpu_calls:bend.gpu_calls+residency.gpu_calls+numerics.reduce((n,r)=>n+r.gpu_calls,0)}));
+  console.log(JSON.stringify({status:receipt.status,browser:receipt.browser,comparisons:bend.comparisons+residency.comparisons+numerics.reduce((n,r)=>n+r.comparisons,0)+contracts.reduce((n,r)=>n+r.comparisons,0),gpu_calls:bend.gpu_calls+residency.gpu_calls+numerics.reduce((n,r)=>n+r.gpu_calls,0)+contracts.reduce((n,r)=>n+r.gpu_calls,0)}));
 } finally {await browser?.close();await new Promise(resolve=>server.close(resolve));}

@@ -76,6 +76,7 @@ store=Store.publish(root/'knowledge',[entry],{'select-before-build':key})
         input_core_sha256: m.identity().unwrap(),
         knowledge: view,
         action_replacement: None,
+        contract_refinement: None,
         applications: vec![Site {
             function: "selected".into(),
             path: vec![],

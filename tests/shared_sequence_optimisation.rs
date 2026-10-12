@@ -47,7 +47,9 @@ fn plan(m: &CheckedModule, dir: &Path, root: &Path) -> Package {
         .arg(root.join("store/snapshot.json"))
         .arg("--knowledge-root")
         .arg(root)
-        .args(["--budget", "4096", "--rounds", "32", "-o"])
+        .args(["--budget", "4096", "--rounds", "32", "--cache-dir"])
+        .arg(dir.join("search-cache"))
+        .arg("-o")
         .arg(dir.join("selection.json"))
         .output()
         .unwrap();
@@ -316,7 +318,10 @@ fn same_sequence_is_required_and_fusion_matches_all_cpu_paths() {
             .iter()
             .map(|b| {
                 let x = f32::from_bits(*b);
-                eval::Value::F32(((x * scale + offset) * (x + 1.0)).to_bits()).json()
+                let result = (x * scale + offset) * (x + 1.0);
+                // Arithmetic canonicalises NaNs; identity transport below preserves payloads.
+                let bits = if result.is_nan() { 0x7fc00000 } else { result.to_bits() };
+                eval::Value::F32(bits).json()
             })
             .collect::<Vec<_>>();
         let unchanged = bits

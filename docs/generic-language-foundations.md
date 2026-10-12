@@ -181,7 +181,10 @@ receive normal type checking. At most 16 clauses are allowed, subject to existin
 core depth/work limits. These are explicit runtime validations, not static
 refinement types or facts the compiler can silently assume.
 
-External files can author executable laws using the existing `rewrite` form:
+External files author laws in Ink's one law form, `law`, which adds type
+parameters, function parameters, conditions, quantified assumptions and proof
+tactics (see [laws in source](laws-in-source.md)). The concrete `rewrite` form
+remains its special case:
 
 ```ink
 module external;
