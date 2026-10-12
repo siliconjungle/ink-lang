@@ -119,7 +119,8 @@ bounded and incomplete; an unsuccessful search requires another ordinary proof,
 not an unchecked annotation. State predicates are limited to observations the
 existing action projection can represent; unsupported observations fail closed.
 
-The optimisation producer finds witnesses of `ensures result == expression`:
+The optimisation producer currently proposes pure-function witnesses of
+`ensures result == expression`:
 
 ```sh
 PYTHONPATH=knowledge python3 -m producers.contract_candidates \
@@ -137,8 +138,10 @@ These are reusable checked laws, including
 
 A candidate embeds replacement bodies plus checked contract evidence in the
 normal implementation database protocol. The `contract-witnesses` recipe makes
-these proposals discoverable by the planner. Refinement rechecks all named
-implementations, callers and invariants of the selected module. This permits
+these proposals discoverable by the planner. Refinement accepts both pure expression bodies and action statement bodies and
+rechecks all named implementations, callers and invariants of the selected module.
+Automatic candidate discovery currently searches the pure-function witness form;
+action candidates require explicitly supplied bodies and ordinary state evidence. This permits
 behavioral refinement without pretending that two allowed outputs are exactly
 equal. Layout changes still use the separate representation/codec proof system.
 
@@ -163,3 +166,7 @@ false proofs, stale evidence, metadata tampering, generic clauses, float equalit
 and private imports. Tests establish conformance evidence, not a proof of backend
 or driver correctness. Benchmarks report whole-call timings separately from
 proof checking, compilation and setup.
+
+The [implementation and validation report](../reports/source-contracts-2026-10-12/README.md)
+records canonical proof identities, cross-target receipts and complete-call
+measurements for the four optimisation examples.

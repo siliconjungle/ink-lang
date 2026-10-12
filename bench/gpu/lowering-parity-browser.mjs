@@ -70,7 +70,8 @@ try {
         if(JSON.stringify(r.values)!==JSON.stringify({ordered:want}))throw Error(`resident/${backend}: value mismatch`);
         if(backend==='gpu') {
           if(r.backend!=='gpu')throw Error(`resident fallback: ${r.reason}`);
-          if(r.counters.upload_bytes!==4*(input.length+1)||r.counters.readback_bytes!==4*(want.length+1)||r.counters.dispatches!==9||r.counters.resident_copy_bytes!==16*(input.length+1))throw Error('resident counters mismatch');
+          // Match the native fixture: 7 filter + 5 scan + 29 radix-sort passes per iteration.
+          if(r.counters.upload_bytes!==4*(input.length+1)||r.counters.readback_bytes!==4*(want.length+1)||r.counters.dispatches!==123||r.counters.resident_copy_bytes!==16*(input.length+1))throw Error('resident counters mismatch: '+JSON.stringify({input,counters:r.counters}));
         }
         replies.push(r);
       }
@@ -82,7 +83,7 @@ try {
         const r=await ink.pipeline(pipeline,{backend});
         const expected=iterations%2?{left:a,right:b}:{left:b,right:a};
         if(JSON.stringify(r.values)!==JSON.stringify(expected))throw Error(`swap/${backend}: value mismatch`);
-        if(backend==='gpu'&&(r.backend!=='gpu'||r.counters.upload_bytes!==32||r.counters.readback_bytes!==32||r.counters.dispatches!==iterations||r.counters.resident_copy_bytes!==64*(iterations-1)))throw Error('swap backend/counters mismatch');
+        if(backend==='gpu'&&(r.backend!=='gpu'||r.counters.upload_bytes!==32||r.counters.readback_bytes!==32||r.counters.dispatches!==7*iterations||r.counters.resident_copy_bytes!==64*(iterations-1)))throw Error('swap backend/counters mismatch: '+JSON.stringify(r));
         replies.push(r);
       }
     }
@@ -120,7 +121,7 @@ try {
     },{base,name,script,expected}));
   }
   const contracts=[];
-  for(const name of ['source-contracts-parity','total-changes-parity','state-contracts-parity',...Array.from({length:4},(_,i)=>`contract-refinement-${i}`)]){
+  for(const name of ['source-contracts-parity','total-changes-parity','state-contracts-parity','action-contract-refinement',...Array.from({length:4},(_,i)=>`contract-refinement-${i}`)]){
     const script=await fs.readFile(`build/${name}/script.json`,'utf8');
     const expected=await fs.readFile(`build/${name}/expected.json`,'utf8');
     contracts.push(await page.evaluate(async({base,name,script,expected})=>{
@@ -140,7 +141,7 @@ try {
           let reply;
           try{
             if(step.pure){const f=host.manifest.javascript.functions.find(f=>f.name===step.pure),args=step.args.map((v,i)=>typed(v,f.params[i].type));const request=backend==='gpu'?(step.cpu_only?'cpu':step.expect_gpu?'gpu-required':'gpu'):backend;const result=await host.call(step.pure,args,{backend:request});if(request==='gpu-required'){if(result.backend!=='gpu')throw Error('required GPU fell back');gpu_calls++;}reply={value:result.value};}
-            else reply={outcome:state.invoke(step.call,step.args)};
+            else {const action=host.manifest.javascript.state.actions.find(a=>a.name===step.call);const args=step.args.map((v,i)=>typed(v,action.params[i].type));reply={outcome:state.invoke(step.call,args)};}
           }catch(e){reply={host_error:e.message};}
           if(exact(reply)!==exact(wanted[index].reply)||exact(await snapshot())!==exact(wanted[index].snapshot))throw Error(`${name}/${backend}/${index}: contract value or snapshot differs: ${exact(reply)}`);
           index++;comparisons++;
