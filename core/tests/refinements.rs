@@ -149,6 +149,8 @@ fn capacity_contract_binds_record_projection_and_rejects_unrelated_or_stale_fact
         ),
         value: s::term(s::value(Type::Bool), Node::Bool(true)),
         proof: Proof::Use {
+            types: Default::default(),
+            assumptions: vec![],
             law: id,
             arguments: BTreeMap::from([
                 ("xs".into(), args[0].clone()),
