@@ -25,8 +25,15 @@ with tempfile.TemporaryDirectory(prefix='ink-probabilistic-integration-') as tmp
  output=tmp/'parallel.json'
  subprocess.run([sys.executable,'-m','ink_planner.parallel_search','--compiler',compiler,'--core',core,'--knowledge-root',store.root,'--snapshot',snapshot,'--workers','2','--budget','8','-o',output],env=env,check=True,capture_output=True)
  receipt=json.loads(output.with_suffix('.receipt.json').read_text());assert receipt['attempts']<=8
+ assert all('receipt' in run for run in receipt['runs'])
  subprocess.run([compiler,'check-selection',core,output],check=True,capture_output=True)
- fallback=tmp/'fallback.json'
- subprocess.run([sys.executable,'-m','ink_planner.semantic_search','--compiler',compiler,'--core',core,'--knowledge-root',store.root,'--snapshot',snapshot,'--search-strategy','stochastic','--selfhost-endpoint','http://127.0.0.1:1/compute','--budget','8','-o',fallback],env=env,check=True,capture_output=True)
+ fallback=tmp/'fallback.json';trace=tmp/'search-trace.json'
+ subprocess.run([sys.executable,'-m','ink_planner.semantic_search','--compiler',compiler,'--core',core,'--knowledge-root',store.root,'--snapshot',snapshot,'--search-strategy','stochastic','--selfhost-endpoint','http://127.0.0.1:1/compute','--budget','8','--search-trace',trace,'-o',fallback],env=env,check=True,capture_output=True)
  subprocess.run([compiler,'check-selection',core,fallback],check=True,capture_output=True)
- print(json.dumps(dict(status='passed',checks=['source-bound synthesized proof','authenticated false theorem rejected','parallel global proof budget','final parallel proof replay','unavailable selfhost retains checked result'])))
+ observed=json.loads(trace.read_text());assert observed['snapshot']==store.snapshot_id and 'rows' in observed
+ target=tmp/'target.json';target.write_text('{}');adaptive=tmp/'adaptive.json'
+ subprocess.run([sys.executable,'-m','ink_planner.adaptive_search','--compiler',compiler,'--core',core,'--knowledge-root',store.root,'--snapshot',snapshot,'--target-context',target,'--budget','8','-o',adaptive],env=env,check=True,capture_output=True)
+ receipt=json.loads(adaptive.with_suffix('.adaptive.json').read_text());assert receipt['adaptive']['decision']['strategy']=='baseline'
+ assert 'model' not in receipt['adaptive']['context']
+ subprocess.run([compiler,'check-selection',core,adaptive],check=True,capture_output=True)
+ print(json.dumps(dict(status='passed',checks=['source-bound synthesized proof','authenticated false theorem rejected','parallel global proof budget','final parallel proof replay','unavailable selfhost retains checked result','trace binds original snapshot','adaptive deterministic fallback without model'])))
