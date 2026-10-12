@@ -1,0 +1,275 @@
+//! Source contracts are proof obligations, never trusted annotations.
+//! Specifications describe admitted behaviour. Implementations and database laws
+//! remain untrusted until the existing semantic/inductive kernels check them.
+use crate::{core::*, laws::{self, Catalogue, CheckedCatalogue, Equation, Proof}, semantic as s, LangResult};
+use serde::{Deserialize, Serialize};
+use std::collections::{BTreeMap, BTreeSet};
+
+mod state;
+mod calls;
+mod refinement;
+pub use refinement::{Body,Refinement,prepare,check_refinement};
+pub(crate) mod collections;
+pub(crate) mod cells;
+pub use state::{StateObligation, StateObligations};
+
+pub const SEMANTICS: &str = "ink-contracts-v1";
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct Contracts {
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub specifications: Vec<Specification>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub implementations: Vec<Implementation>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub invariants: Vec<Expr>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub private_states: Vec<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub invariant_checks: Vec<String>,
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub precondition_checks: BTreeMap<String,String>,
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub proofs: BTreeMap<String, Proof>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub knowledge: Option<crate::registry::Bundle>,
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub state_proofs: BTreeMap<String,crate::logic::Proof>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub state_knowledge: Option<crate::registry::Bundle>,
+}
+impl Contracts {
+    pub fn is_empty(&self) -> bool {
+        self.specifications.is_empty() && self.implementations.is_empty()
+            && self.invariants.is_empty() && self.private_states.is_empty() && self.invariant_checks.is_empty() && self.precondition_checks.is_empty()
+            && self.proofs.is_empty() && self.knowledge.is_none() && self.state_proofs.is_empty() && self.state_knowledge.is_none()
+    }
+}
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct Specification {
+    pub name: String,
+    pub kind: Option<ActionKind>,
+    pub params: Vec<(String, Type)>,
+    pub result: Type,
+    pub reads: Vec<String>,
+    pub writes: Vec<String>,
+    pub emits: Vec<String>,
+    pub requires: Vec<Expr>,
+    pub ensures: Vec<Expr>,
+}
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct Implementation {
+    pub name: String,
+    pub specification: String,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub body: Vec<Statement>,
+}
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct Obligation {
+    pub name: String,
+    pub params: s::Env,
+    pub conditions: Vec<Equation>,
+    pub goal: Equation,
+}
+fn assertion(t:s::Term)->Equation {
+    if let s::Node::Op(n,args)=&t.node {
+        if n=="binary:==" && args.len()==2 && args[0].sort!=s::value(Type::F32) {
+            return Equation{from:args[0].clone(),to:args[1].clone()};
+        }
+    }
+    Equation{from:t,to:truth()}
+}
+fn truth() -> s::Term { s::term(s::value(Type::Bool), s::Node::Bool(true)) }
+fn predicate(e: &Expr, env: &crate::check::Env, p: &Program) -> LangResult<s::Term> {
+    crate::check::infer_as(e, env, p, &Type::Bool)?;
+    s::elaborate(e, env, p, &Type::Bool)
+}
+/// Pure obligations are exported verbatim for untrusted proof production.
+pub fn obligations(p: &Program) -> LangResult<Vec<Obligation>> {
+    let mut out = Vec::new();
+    let mut names = BTreeSet::new();
+    for spec in &p.contracts.specifications {
+        if !names.insert(&spec.name) || spec.ensures.is_empty() {
+            return Err("duplicate specification or missing ensures clause".into());
+        }
+        if spec.kind.is_some() { continue; }
+        let params = crate::check::params_env(&spec.params)?;
+        if params.contains_key("result") { return Err("result is reserved in specifications".into()); }
+        let conditions = spec.requires.iter().map(|e| Ok(assertion(predicate(e, &params, p)?))).collect::<LangResult<Vec<_>>>()?;
+        let mut env = params.clone(); env.insert("result".into(), spec.result.clone());
+        for name in std::iter::once(&spec.name).chain(p.contracts.implementations.iter().filter(|i| i.specification == spec.name).map(|i| &i.name)) {
+            let f = p.functions.iter().find(|f| &f.name == name).ok_or("missing executable implementation")?;
+            if f.params != spec.params || f.result != spec.result { return Err("implementation signature differs from specification".into()); }
+            let body = s::elaborate(&f.body, &params, p, &f.result)?;
+            for (i, e) in spec.ensures.iter().enumerate() {
+                let from = s::substitute(&predicate(e, &env, p)?, &BTreeMap::from([("result".into(),body.clone())]), &mut s::Budget::new())?;
+                out.push(Obligation { name: format!("{name}:ensures:{i}"), params: params.iter().map(|(n,t)|(n.clone(),s::value(t.clone()))).collect(), conditions: conditions.clone(), goal: assertion(from) });
+            }
+        }
+        if !p.contracts.implementations.iter().any(|i| i.specification == spec.name) { return Err(format!("specification {} has no implementation",spec.name)); }
+    }
+    if !p.contracts.specifications.iter().any(|s|s.kind.is_none()&&!s.requires.is_empty()){return Ok(out);}
+    for f in &p.functions {
+        let env = crate::check::params_env(&f.params)?;
+        let owner = p.contracts.specifications.iter().find(|s| s.name==f.name || p.contracts.implementations.iter().any(|i|i.name==f.name && i.specification==s.name));
+        let conditions = if let Some(spec)=owner { spec.requires.iter().map(|e|Ok(assertion(predicate(e,&env,p)?))).collect::<LangResult<Vec<_>>>()? } else {vec![]};
+        let term = s::elaborate(&f.body,&env,p,&f.result)?;
+        let semantic_env = env.iter().map(|(n,t)|(n.clone(),s::value(t.clone()))).collect();
+        call_obligations(&term,p,&semantic_env,&conditions,&[],&f.name,&mut vec![],&mut out,&mut s::Budget::new())?;
+    }
+    Ok(out)
+}
+fn call_obligations(t:&s::Term,p:&Program,env:&s::Env,conditions:&[Equation],scope:&[(String,s::Sort)],owner:&str,path:&mut Vec<usize>,out:&mut Vec<Obligation>,budget:&mut s::Budget)->LangResult<()> {
+    budget.step(path.len())?;
+    if let s::Node::Op(n,args)=&t.node {
+        if let Some(name)=n.strip_prefix("call:") {
+            if let Some(spec)=p.contracts.specifications.iter().find(|s|s.kind.is_none() && (s.name==name || p.contracts.implementations.iter().any(|i|i.name==name && i.specification==s.name))) {
+                let parameters=crate::check::params_env(&spec.params)?;
+                let substitutions=spec.params.iter().zip(args).map(|((n,_),a)|Ok((n.clone(),s::open_scope(a,scope,budget)?))).collect::<LangResult<BTreeMap<_,_>>>()?;
+                for (i,e) in spec.requires.iter().enumerate() {
+                    let from=s::substitute(&predicate(e,&parameters,p)?,&substitutions,budget)?;
+                    out.push(Obligation{name:format!("{owner}:call:{path:?}:requires:{i}"),params:env.clone(),conditions:conditions.to_vec(),goal:assertion(from)});
+                }
+            }
+        }
+    }
+    let mut local=env.clone(); let mut scope=scope.to_vec();
+    if let s::Node::Lambda(_)=&t.node {
+        let s::Sort::Arrow(input,_)=&t.sort else {return Err("invalid contract binder".into());};
+        let mut n=format!("__contract_binder_{}",scope.len()); while local.contains_key(&n) {n.push('_');}
+        local.insert(n.clone(),(**input).clone());scope.push((n,(**input).clone()));
+    }
+    for (i,child) in s::children(t).into_iter().enumerate() {
+        let mut facts=conditions.to_vec();
+        if let s::Node::Op(n,args)=&t.node {
+            let flag=match (n.as_str(),i) {("call:choose",1)|("binary:&&",1)=>Some(true),("call:choose",2)|("binary:||",1)=>Some(false),_=>None};
+            if let Some(v)=flag {facts.push(Equation{from:s::open_scope(&args[0],&scope,budget)?,to:s::term(s::value(Type::Bool),s::Node::Bool(v))});}
+        }
+        path.push(i);call_obligations(child,p,&local,&facts,&scope,owner,path,out,budget)?;path.pop();
+    }
+    Ok(())
+}
+pub fn check(module: &CheckedModule) -> LangResult<()> {
+    let p = module.program(); let c = &p.contracts;
+    if c.is_empty() { return Ok(()); }
+    if c.specifications.len() + c.implementations.len() + c.invariants.len() > 256
+        || c.proofs.len() > 4096 || c.state_proofs.len() > 4096 {
+        return Err("contract resource limit".into());
+    }
+    let mut implementations = BTreeSet::new();
+    for implementation in &c.implementations {
+        if !implementation.body.is_empty() || !implementations.insert(&implementation.name)
+            || c.specifications.iter().any(|s|s.name==implementation.name)
+            || !c.specifications.iter().any(|s|s.name==implementation.specification) {
+            return Err("invalid executable implementation metadata".into());
+        }
+    }
+    if c.private_states.iter().collect::<BTreeSet<_>>().len()!=c.private_states.len() {
+        return Err("duplicate private state".into());
+    }
+    if c.invariants.len()!=c.invariant_checks.len(){return Err("missing invariant ingress checks".into());}
+    for (predicate,name) in c.invariants.iter().zip(&c.invariant_checks){
+        let action=p.actions.iter().find(|a|&a.name==name).ok_or("missing invariant check action")?;
+        if action.kind!=ActionKind::Query||!action.params.is_empty()||action.result!=Type::Bool||!action.writes.is_empty()||!action.emits.is_empty()||serde_json::to_value(&action.body).map_err(|e|e.to_string())? != serde_json::to_value(vec![Statement::Return(predicate.clone())]).map_err(|e|e.to_string())? {return Err("invariant ingress check differs from predicate".into());}
+    }
+    let mut expected_checks=BTreeSet::new();
+    for spec in &c.specifications {
+        if spec.requires.is_empty(){continue;}
+        for name in std::iter::once(&spec.name).chain(c.implementations.iter().filter(|i|i.specification==spec.name).map(|i|&i.name)) {
+            expected_checks.insert(name.clone());
+            let guard=c.precondition_checks.get(name).ok_or("missing precondition ingress guard")?;
+            if c.precondition_checks.contains_key(guard){return Err("precondition guard cannot itself require a precondition".into());}
+            let expected=conjunction(&spec.requires);
+            let valid=if spec.kind.is_none(){
+                p.functions.iter().any(|f|&f.name==guard && f.params==spec.params && f.result==Type::Bool && serde_json::to_value(&f.body).ok()==serde_json::to_value(&expected).ok())
+            }else{
+                p.actions.iter().any(|a|&a.name==guard && a.kind==ActionKind::Query && a.params==spec.params && a.result==Type::Bool && a.writes.is_empty() && a.emits.is_empty() && serde_json::to_value(&a.body).ok()==serde_json::to_value(vec![Statement::Return(expected.clone())]).ok())
+            };
+            if !valid{return Err("precondition ingress guard differs from specification".into());}
+        }
+    }
+    if !expected_checks.iter().eq(c.precondition_checks.keys()){return Err("unexpected precondition ingress guard".into());}
+    for name in &c.private_states {if !p.states.iter().any(|s|&s.name==name){return Err("unknown private state".into());}}
+
+    if c.specifications.len() + c.implementations.len() + c.invariants.len() > 256 || c.proofs.len() > 4096 { return Err("contract resource limit".into()); }
+    state::check(module)?;
+    let catalogue = if let Some(bundle) = &c.knowledge { crate::registry::CheckedBundle::check(bundle)?.catalogue()? } else { Catalogue { schema:1, semantics:laws::SEMANTICS.into(), roots:vec![], objects:BTreeMap::new() } };
+    let mut executable=p.clone(); executable.contracts=Contracts::default();
+    let laws = CheckedCatalogue::check(&catalogue,&executable)?;
+    let goals = obligations(p)?;
+    let mut used = BTreeSet::new();
+    for g in goals {
+        let proof = c.proofs.get(&g.name).unwrap_or(&Proof::Normalize);
+        laws.prove(&executable,&g.params,&g.conditions,&g.goal,proof,&mut s::Budget::new(),0).map_err(|e|format!("contract {}: {e}",g.name))?;
+        used.insert(g.name);
+    }
+    if c.proofs.keys().any(|n|!used.contains(n)) { return Err("proof supplied for unknown contract obligation".into()); }
+    Ok(())
+}
+
+pub fn needs_state(program:&Program)->LangResult<bool>{Ok(!program.contracts.invariants.is_empty()||program.contracts.specifications.iter().any(|s|s.kind.is_some())||!calls::actions(program)?.is_empty())}
+
+pub fn state_obligations(program:&Program)->LangResult<StateObligations>{state::derive(program)}
+
+#[derive(Clone,Debug,Serialize,Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct Evidence {
+    pub schema:u32,
+    pub semantics:String,
+    pub source_sha256:String,
+    #[serde(default)] pub proofs:BTreeMap<String,Proof>,
+    #[serde(default)] pub state_proofs:BTreeMap<String,crate::logic::Proof>,
+    #[serde(default)] pub knowledge:Option<crate::registry::Bundle>,
+    #[serde(default)] pub state_knowledge:Option<crate::registry::Bundle>,
+}
+pub fn subject_identity(p:&Program)->LangResult<String>{
+    let mut p=p.clone();p.contracts.proofs.clear();p.contracts.state_proofs.clear();p.contracts.knowledge=None;p.contracts.state_knowledge=None;
+    crate::registry::identity(&p)
+}
+pub fn attach(p:&mut Program,e:Evidence)->LangResult<()> {
+    if e.schema!=1||e.semantics!=SEMANTICS||e.source_sha256!=subject_identity(p)? {return Err("contract evidence does not match exact source/semantics".into());}
+    p.contracts.proofs=e.proofs;p.contracts.state_proofs=e.state_proofs;p.contracts.knowledge=e.knowledge;p.contracts.state_knowledge=e.state_knowledge;
+    Ok(())
+}
+
+fn conjunction(predicates:&[Expr])->Expr {
+    predicates.iter().rev().cloned().fold(Expr::Bool(true),|rest,e|Expr::Binary("&&".into(),Box::new(e),Box::new(rest)))
+}
+/// Add ordinary readonly query bodies used only at untrusted snapshot ingress.
+/// Their exact bodies are rechecked with the declared invariants.
+pub(crate) fn install_guards(p:&mut Program)->LangResult<()> {
+    if !p.contracts.invariant_checks.is_empty(){return Err("source supplies generated invariant checks".into());}
+    for (i,predicate) in p.contracts.invariants.iter().enumerate(){
+        let mut name=format!("__ink_invariant_{i}");
+        while p.actions.iter().any(|a|a.name==name)||p.functions.iter().any(|a|a.name==name)||p.states.iter().chain(&p.keeps).any(|s|s.name==name){name.push('_');}
+        p.actions.push(Action{name:name.clone(),kind:ActionKind::Query,params:vec![],result:Type::Bool,reads:p.states.iter().chain(&p.keeps).map(|s|s.name.clone()).collect(),writes:vec![],emits:vec![],body:vec![Statement::Return(predicate.clone())]});
+        p.contracts.invariant_checks.push(name);
+    }
+    for (i,spec) in p.contracts.specifications.clone().iter().enumerate(){
+        if spec.requires.is_empty(){continue;}
+        let mut guard=format!("__ink_requires_{i}");
+        while p.functions.iter().any(|f|f.name==guard)||p.actions.iter().any(|a|a.name==guard)||p.states.iter().chain(&p.keeps).any(|s|s.name==guard){guard.push('_');}
+        let body=conjunction(&spec.requires);
+        if spec.kind.is_none(){p.functions.push(Function{name:guard.clone(),params:spec.params.clone(),result:Type::Bool,body});}
+        else{p.actions.push(Action{name:guard.clone(),kind:ActionKind::Query,params:spec.params.clone(),result:Type::Bool,reads:p.states.iter().chain(&p.keeps).map(|s|s.name.clone()).collect(),writes:vec![],emits:vec![],body:vec![Statement::Return(body)]});}
+        for name in std::iter::once(&spec.name).chain(p.contracts.implementations.iter().filter(|j|j.specification==spec.name).map(|j|&j.name)){p.contracts.precondition_checks.insert(name.clone(),guard.clone());}
+    }
+    Ok(())
+}
+
+/// Check one externally proposed derivation for the source-derived obligation.
+/// This authoring endpoint does not admit a module or an implementation.
+pub fn check_proof(p:&Program,name:&str,proof:serde_json::Value,bundle:Option<&crate::registry::Bundle>)->LangResult<()> {
+    if let Some(g)=obligations(p)?.into_iter().find(|g|g.name==name){
+        let catalogue=if let Some(b)=bundle{crate::registry::CheckedBundle::check(b)?.catalogue()?}else{Catalogue{schema:1,semantics:laws::SEMANTICS.into(),roots:vec![],objects:BTreeMap::new()}};
+        let mut executable=p.clone();executable.contracts=Contracts::default();
+        let laws=CheckedCatalogue::check(&catalogue,&executable)?;
+        return laws.prove(&executable,&g.params,&g.conditions,&g.goal,&serde_json::from_value(proof).map_err(|e|e.to_string())?,&mut s::Budget::new(),0);
+    }
+    let derived=state::derive(p)?;
+    let cx=state::context(&derived,bundle)?;
+    let g=derived.obligations.iter().find(|g|g.name==name).ok_or("unknown contract obligation")?;
+    cx.check(&g.params,&g.conditions,&g.goal.from,&g.goal.to,&serde_json::from_value(proof).map_err(|e|e.to_string())?)
+}

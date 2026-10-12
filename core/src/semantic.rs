@@ -314,6 +314,11 @@ pub fn validate(t: &Term, env: &Env, p: &Program, b: &mut Budget) -> LangResult<
                     return Ok(());
                 }
                 match n.as_str() {
+                    "value:equal" => {
+                        arity(2)?; need(a(1)?,a(0)?.clone())?;
+                        if crate::local_collections::owned(val(a(0)?)?,p){return Err("owned equality".into());}
+                        need(&t.sort,value(Type::Bool))?;
+                    }
                     "apply" => {
                         arity(2)?;
                         let Sort::Arrow(x, y) = a(0)? else {
@@ -575,7 +580,7 @@ pub fn validate(t: &Term, env: &Env, p: &Program, b: &mut Budget) -> LangResult<
                             "<" | ">" | "<=" | ">=" if check::is_numeric_value(ty) => {
                                 value(Type::Bool)
                             }
-                            "==" | "!=" if check::is_numeric_value(ty) || *ty == Type::Bool => {
+                            "==" | "!=" if !crate::local_collections::owned(ty,p) => {
                                 value(Type::Bool)
                             }
                             "&&" | "||" if *ty == Type::Bool => value(Type::Bool),
@@ -1122,7 +1127,9 @@ pub fn reify(t: &Term, p: &Program) -> LangResult<Expr> {
                     .iter()
                     .map(|x| go(x, bound, free, p))
                     .collect::<LangResult<Vec<_>>>()?;
-                if n == "nat.word" {
+                if n == "value:equal" {
+                    return Ok(Expr::Binary("==".into(),Box::new(Expr::Call("list".into(),vec![args[0].clone()])),Box::new(Expr::Call("list".into(),vec![args[1].clone()]))));
+                } else if n == "nat.word" {
                     let Node::Nat(k) = a[0].node else {
                         return Err("nonliteral natural cannot execute".into());
                     };

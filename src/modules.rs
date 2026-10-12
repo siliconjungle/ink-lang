@@ -107,6 +107,7 @@ struct Node {
     deps: Vec<usize>,
     tokens: Vec<Token>,
     exports: BTreeSet<String>,
+    private_states: BTreeSet<String>,
     records: BTreeSet<String>,
 }
 fn header(path: PathBuf, text: String) -> LangResult<Node> {
@@ -170,6 +171,7 @@ fn header(path: PathBuf, text: String) -> LangResult<Node> {
             end,
         });
     }
+    let private_states=ts.windows(3).filter(|w|w[0].text=="private" && w[1].text=="state").map(|w|w[2].text.clone()).collect();
     let mut exports = BTreeSet::new();
     let mut records = BTreeSet::new();
     let mut depth = 0i32;
@@ -180,7 +182,7 @@ fn header(path: PathBuf, text: String) -> LangResult<Node> {
             && declaration_start
             && [
                 "fn", "record", "enum", "id", "type", "state", "keep", "event", "change", "query",
-                "rule",
+                "rule", "implementation",
             ]
             .contains(&pair[0].text.as_str())
         {
@@ -218,6 +220,7 @@ fn header(path: PathBuf, text: String) -> LangResult<Node> {
         deps: vec![],
         tokens: ts,
         exports,
+        private_states,
         records,
     })
 }
@@ -426,6 +429,18 @@ fn link(
         expr(&mut r.from, names, &locals, aliases)?;
         expr(&mut r.to, names, &locals, aliases)?;
     }
+    for spec in &mut p.contracts.specifications {
+        renamed(&mut spec.name,names);
+        let mut locals=params(&mut spec.params,names,aliases)?;
+        ty(&mut spec.result,names);
+        for n in spec.reads.iter_mut().chain(&mut spec.writes).chain(&mut spec.emits){renamed(n,names);}
+        for e in &mut spec.requires{expr(e,names,&locals,aliases)?;}
+        locals.insert("result".into());
+        for e in &mut spec.ensures{expr(e,names,&locals,aliases)?;}
+    }
+    for imp in &mut p.contracts.implementations {renamed(&mut imp.name,names);renamed(&mut imp.specification,names);}
+    for e in &mut p.contracts.invariants{expr(e,names,&BTreeSet::new(),aliases)?;}
+    for n in &mut p.contracts.private_states{renamed(n,names);}
     Ok(p)
 }
 struct Loader {
@@ -536,6 +551,9 @@ impl Loader {
                     || window[1].text != "."
                 {
                     continue;
+                }
+                if target.private_states.contains(&window[2].text) {
+                    return Err(format!("private state {} cannot be imported",window[2].text));
                 }
                 let value = target_names.get(&window[2].text).ok_or_else(|| {
                     format!(
@@ -705,6 +723,10 @@ pub fn load(path: impl AsRef<Path>) -> LangResult<Loaded> {
             .constant_parameters
             .extend(parsed.constant_parameters);
         let p = parsed.program;
+        program.contracts.specifications.extend(p.contracts.specifications);
+        program.contracts.implementations.extend(p.contracts.implementations);
+        program.contracts.invariants.extend(p.contracts.invariants);
+        program.contracts.private_states.extend(p.contracts.private_states);
         program.functions.extend(p.functions);
         program.actions.extend(p.actions);
         program.rules.extend(p.rules);

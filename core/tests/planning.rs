@@ -66,6 +66,7 @@ fn repeated_layers_have_no_artificial_round_ceiling() {
         knowledge: empty(),
         applications: vec![],
         action_replacement: None,
+        contract_refinement: None,
     };
     let mut steps = vec![];
     for _ in 0..130 {

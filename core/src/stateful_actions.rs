@@ -33,7 +33,7 @@ impl Runtime {
             result => result?.ok_or("missing return")?,
         };
         let result = self.coerce(result, &result_type)?;
-        if nested && kind == ActionKind::Change {
+        if nested && kind == ActionKind::Change && matches!(result_type, Type::Result(..)) {
             let result = match result {
                 Value::Result(true, value) => Ok(value),
                 Value::Result(false, error) => Err(error),

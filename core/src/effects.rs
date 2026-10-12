@@ -311,6 +311,9 @@ impl Checker<'_> {
         // Domain propagation exits a read-only declaration locally as Err.
         // Its caller sees that Result value, and chooses whether to propagate.
         let p = self.actions.module().program();
+        if action && !matches!(p.actions[index].result,Type::Result(..)) && out.paths.iter().any(|p|p.exit==Exit::Abort) {
+            return Err("non-Result action can abort".into());
+        }
         let local = !action || p.actions[index].kind == ActionKind::Query;
         if local {
             let result = if action {

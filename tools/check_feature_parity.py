@@ -31,7 +31,7 @@ def audit(catalog, scope):
         "bulk_collection_optimisation", "packed_tables", "incremental_selection",
         "standalone_representation", "representations", "point_delta", "language_foundations", "generic_libraries", "law_author", "literal_collection_optimisation",
         "standalone_representation", "representations", "point_delta",
-        "scalable_state", "scalable_projection",
+        "scalable_state", "scalable_projection", "source_contracts",
     }
     if set(catalog["cpu_suites"]) != required_suites or len(catalog["cpu_suites"]) != len(required_suites):
         raise ValueError("missing, duplicate or unknown mandatory conformance suite")

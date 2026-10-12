@@ -1348,6 +1348,10 @@ pub(crate) fn closed(e: &Expr, p: &Program, want: &Type, fuel: &mut u64) -> Lang
 }
 
 pub fn call(p: &Program, name: &str, args: Vec<Value>, fuel: &mut u64) -> LangResult<Value> {
+    if !p.contracts.is_empty(){crate::core::CheckedModule::from_source(p.clone())?;}
+    call_verified(p,name,args,fuel)
+}
+pub(crate) fn call_verified(p:&Program,name:&str,args:Vec<Value>,fuel:&mut u64)->LangResult<Value>{
     crate::check::check(p)?;
     let f = p
         .functions
@@ -1360,6 +1364,9 @@ pub fn call(p: &Program, name: &str, args: Vec<Value>, fuel: &mut u64) -> LangRe
             .any(|(_, t)| crate::local_collections::owned(t, p))
     {
         return Err("temporary storage is internal to a pure invocation".into());
+    }
+    if let Some(guard)=p.contracts.precondition_checks.get(name){
+        if call_at(p,guard,args.clone(),fuel,0)?!=Value::Bool(true){return Err("contract precondition failed".into());}
     }
     call_at(p, name, args, fuel, 0)
 }

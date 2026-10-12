@@ -116,6 +116,8 @@ pub struct Program {
     pub keeps: Vec<BindingDecl>,
     pub events: std::collections::BTreeMap<String, Type>,
     pub actions: Vec<Action>,
+    #[serde(default, skip_serializing_if = "crate::contracts::Contracts::is_empty")]
+    pub contracts: crate::contracts::Contracts,
 }
 
 /// This version fixes the executable representation and its current semantics,
@@ -127,6 +129,7 @@ pub const COMPUTE_SEMANTICS: &str = "ink-executable-core-v2";
 pub const LOCAL_SEMANTICS: &str = "ink-executable-core-v3";
 pub const EXACT_FLOAT_SEMANTICS: &str = CANONICAL_FLOAT_SEMANTICS;
 pub const VALUE_SEMANTICS: &str = "ink-executable-core-v8";
+pub const CONTRACT_SEMANTICS: &str = "ink-executable-core-v10";
 pub const BULK_BUFFER_SEMANTICS: &str = "ink-executable-core-v9";
 pub const PARALLEL_SEMANTICS: &str = "ink-executable-core-v5";
 pub const SEQUENCE_SEMANTICS: &str = "ink-executable-core-v4";
@@ -445,7 +448,9 @@ impl CheckedModule {
         crate::check::check(&program)?;
         let module = Self(WireModule {
             schema: 1,
-            semantics: if bulk_buffer_needed(&program) {
+            semantics: if !program.contracts.is_empty() || program.actions.iter().any(|a| a.kind==ActionKind::Change && !matches!(a.result,Type::Result(..))) {
+                CONTRACT_SEMANTICS
+            } else if bulk_buffer_needed(&program) {
                 BULK_BUFFER_SEMANTICS
             } else if value_domain(&program) {
                 VALUE_SEMANTICS
@@ -468,6 +473,7 @@ impl CheckedModule {
             program,
         });
         module.bytes()?;
+        crate::contracts::check(&module)?;
         Ok(module)
     }
 
@@ -488,6 +494,7 @@ impl CheckedModule {
                 CANONICAL_FLOAT_SEMANTICS,
                 VALUE_SEMANTICS,
                 BULK_BUFFER_SEMANTICS,
+                CONTRACT_SEMANTICS,
             ]
             .contains(&wire.semantics.as_str())
         {

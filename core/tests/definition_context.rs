@@ -36,6 +36,7 @@ fn package(m: &CheckedModule, c: &Catalogue, applications: Vec<Site>) -> Package
         knowledge: registry::from_catalogue(c).unwrap(),
         applications,
         action_replacement: None,
+        contract_refinement: None,
     }
 }
 fn normalize(m: &CheckedModule, from: &str, to: s::Term, roots: &[&str]) -> Law {

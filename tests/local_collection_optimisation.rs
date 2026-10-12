@@ -123,6 +123,7 @@ fn all_new_proofs_check_and_rehashed_false_proofs_are_rejected() {
             premises: vec![],
         }],
         action_replacement: None,
+        contract_refinement: None,
     };
     assert!(optimisation::check(&p, &package).is_err());
     package.applications[0].premises.push(Proof::Normalize);

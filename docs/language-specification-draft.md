@@ -1,6 +1,6 @@
 # Ink Language Specification Draft
 
-**Draft 0.1 — implementation overview updated 11 October 2026**
+**Draft 0.1 — implementation overview updated 12 October 2026**
 
 This language describes data, permitted changes, and required results. Its compiler may change algorithms, storage layouts and execution schedules when it can establish that observable behaviour is preserved. A growing database distributes reusable transformations together with machine-checkable proofs. Local measurements help select the implementations that actually perform well.
 
@@ -9,6 +9,14 @@ The performance ambition is to compete with expert implementations on specified 
 This is the full design draft for Ink. The compiler implements the subset described in [STATUS.md](../STATUS.md); the draft is not a claim that every feature below exists. [Philosophy and ambitions](vision.md) explains the organising ideas and current research direction. The executable core contract below describes the current shared representation. The `ink` command is primary; `lang` remains a compatibility command for archived experiments.
 
 ## Implemented architecture
+
+Source specifications now have an implemented, proof-carrying subset:
+`spec fn/query/change`, static `requires` and `ensures`, `before` observations,
+committed-state invariants, private value state, named implementations and finite
+multiset/uniqueness predicates. See [the executable syntax and trust boundaries](source-contracts.md).
+The planner discovers checked refinements through the independent knowledge
+registry; all CPU lowerings use the same admitted core. This does not implement
+every prospective proof form described later in this draft.
 
 The semantic core owns `core/src`: types, executable semantics, reference
 execution and general evidence checking. It builds independently. The

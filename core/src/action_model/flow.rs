@@ -386,6 +386,11 @@ impl<'p> Lower<'p> {
             return next(self, value, state, events);
         }
         match &n.kind {
+            Kind::Bind { slot,value,body:inner,.. } => self.flow_expr(scope,body,*value,env,state,events,&|this,value,state,events|{
+                let mut local=env.clone();local.insert(*slot,value);
+                this.flow_expr(scope,body,*inner,&local,state,events,next,abort,depth+1,calls)
+            },abort,depth+1,calls),
+
             Kind::Keep(index) => {
                 if calls >= 32 {
                     return Err("action model keep expansion limit".into());
@@ -788,7 +793,7 @@ impl<'p> Lower<'p> {
         let env = arguments.into_iter().enumerate().collect();
         let sort = self.sort(&action.result)?;
         let ret = |this: &mut Self, value: Term, state: Term, events: Term| {
-            if action.kind == ActionKind::Query {
+            if action.kind == ActionKind::Query || !matches!(action.result, Type::Result(..)) {
                 return next(this, value, state, events);
             }
             if let Some((success, field)) = result_field(&value, &sort)? {
