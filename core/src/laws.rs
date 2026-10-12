@@ -154,7 +154,7 @@ fn general_proof(p: &Proof) -> bool {
         Proof::Induction { base, step, .. } | Proof::GeneralizedInduction { base, step, .. } => {
             general_proof(base) || general_proof(step)
         }
-        Proof::Normalize | Proof::Hypothesis(_) | Proof::GeneralizedHypothesis { .. } => false,
+        Proof::Normalize | Proof::Linear { .. } | Proof::Hypothesis(_) | Proof::GeneralizedHypothesis { .. } => false,
     }
 }
 pub fn identity<T: Serialize>(v: &T) -> LangResult<String> {
