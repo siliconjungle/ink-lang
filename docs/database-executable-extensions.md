@@ -120,3 +120,5 @@ The machine-readable results and compiler identity are recorded in
 [database-expressivity-evidence.json](database-expressivity-evidence.json).
 
 Cold standalone semantic search now initialises its disposable index before producer discovery. Relocated installs therefore use indexed queries instead of repeated full-catalogue scans; the index still supplies discovery hints and every selected proof replays.
+
+Planning-session receipts bind the raw request separately from the checked, default-normalised plan. Optional physical fields therefore no longer cause valid database proposals to be discarded as a hash mismatch. The checker still replays every step and the planner still enforces profitability independently.
