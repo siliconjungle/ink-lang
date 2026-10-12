@@ -183,6 +183,31 @@ pub fn check(
     if plan.reservations.len()>4096 || representation.is_some() && !plan.reservations.is_empty() {
         return Err("oversized or unsupported source reservations".into());
     }
+    // A capacity expression executes before the body. Its calls must not add
+    // a recursion cycle through any other instrumented function.
+    if !plan.reservations.is_empty() {
+        use std::collections::BTreeMap;
+        let names=module.program().functions.iter().map(|f|f.name.clone()).collect::<BTreeSet<_>>();
+        let calls=|e:&crate::syntax::Expr|{
+            let mut result=BTreeSet::new();let mut pending=vec![e];
+            while let Some(e)=pending.pop(){
+                if let crate::syntax::Expr::Call(n,_)=e{if names.contains(n){result.insert(n.clone());}}
+                pending.extend(crate::analysis::children(e));
+            }
+            result
+        };
+        let mut graph=module.program().functions.iter().map(|f|(f.name.clone(),calls(&f.body))).collect::<BTreeMap<_,_>>();
+        for r in &plan.reservations {if let Some(e)=&r.capacity{graph.entry(r.function.clone()).or_default().extend(calls(e));}}
+        let mut work=0usize;
+        for r in &plan.reservations {if let Some(e)=&r.capacity{
+            let mut pending=calls(e).into_iter().collect::<Vec<_>>();let mut seen=BTreeSet::new();
+            while let Some(n)=pending.pop(){
+                work+=1;if work>1_000_000{return Err("reservation dependency walk limit".into());}
+                if n==r.function{return Err("reservation expression creates a recursive execution path".into());}
+                if seen.insert(n.clone()){if let Some(edges)=graph.get(&n){pending.extend(edges.iter().cloned());}}
+            }
+        }}
+    }
     let mut reserved = BTreeSet::new();
     for reservation in &plan.reservations {
         use crate::semantic::{self as s,Node};

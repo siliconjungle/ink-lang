@@ -364,6 +364,7 @@ fn run() -> LangResult<()> {
             let result = (|| {
                 let packet: verified_language::planning::Package =
                     serde_json::from_slice(&line).map_err(|e| e.to_string())?;
+                let request: serde_json::Value = serde_json::from_slice(&line).map_err(|e|e.to_string())?;
                 let checked = checker.check(&packet)?;
                 let capability =
                     target
@@ -373,7 +374,7 @@ fn run() -> LangResult<()> {
                             Err(reason) => serde_json::json!({"emittable":false,"reason":reason}),
                         });
                 Ok::<_, String>(
-                    serde_json::json!({"status":"checked","plan_sha256":verified_language::registry::identity(&packet)?,"state":planning_state(&checked)?,"reused_steps":checker.reused_steps(),"capability":capability}),
+                    serde_json::json!({"status":"checked","request_sha256":verified_language::registry::identity(&request)?,"plan_sha256":verified_language::registry::identity(&packet)?,"state":planning_state(&checked)?,"reused_steps":checker.reused_steps(),"capability":capability}),
                 )
             })();
             println!(
