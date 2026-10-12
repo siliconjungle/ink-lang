@@ -63,6 +63,7 @@ fn proof_selected_slice_map_preserves_empty_bounds_and_wrapping_across_targets()
             premises: vec![],
         }],
         action_replacement: None,
+        contract_refinement: None,
     };
     let selected = optimisation::check(&module, &package).unwrap();
     let runtime = Runtime::new(module.program().clone()).unwrap();

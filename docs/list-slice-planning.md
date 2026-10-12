@@ -113,3 +113,9 @@ wider-budget diagnostics answer different questions. A valid law can improve
 execution while remaining undiscovered under a compilation deadline. Catalogue
 object count includes typed instances and proof supports; it is not a count of
 independent useful algorithms.
+
+Planning effort and live producer scheduling are documented in
+[`ink-planner/docs/search-scheduling.md`](../planner/docs/search-scheduling.md).
+`--planning-effort thorough` explores a wider set of checked implementations;
+explicit time, attempt and state flags remain available. The proof and measurement
+gates described above remain in place.

@@ -1,0 +1,439 @@
+{
+  "schema": 1,
+  "scope": "Matched-budget post-hoc search diagnostic on previously inspected real D3 ports; fixed executable compiler and catalogue; offline selection then independent evaluation; not a fresh generalisation estimate",
+  "protocol": {
+    "schema": 1,
+    "compiler_sha256": "0e1f1edf45e3e31ec81f63e579311f84e47e89f6219dd4bbe486494429f54b6c",
+    "snapshot": "c229a32e50ff8e7dda0145cb75cc7723cbf9325d97452ed9dbeeeaf232e638aa",
+    "python": "3.12.3 (v3.12.3:f6650f9ad7, Apr  9 2024, 08:18:47) [Clang 13.0.0 (clang-1300.0.29.30)]",
+    "programs": [
+      "d3-count",
+      "d3-sum",
+      "d3-count-accessor",
+      "d3-sum-accessor"
+    ],
+    "planning_seconds": [
+      8,
+      30
+    ],
+    "proof_budget": 2048,
+    "semantic_proof_budget": 4096,
+    "state_limit": 32,
+    "scope": "Matched-budget post-hoc search diagnostic on previously inspected real D3 ports; fixed executable compiler and catalogue; offline selection then independent evaluation; not a fresh generalisation estimate",
+    "producer_sha256": {
+      "before": "aac473bcda59dc4caedc3c9b06c6ad5e70de04f30d2799f9ccd7cb7a10f86659",
+      "after": "ecdba777e81ff1a13bc53f4c7bd73998d397149090f6a92c2088f0e1e7a1ce5b"
+    }
+  },
+  "summary": {
+    "8": {
+      "before_median": 16.048151228998904,
+      "after_median": 10.72236124999472,
+      "before_states": [
+        6,
+        6,
+        8,
+        5
+      ],
+      "after_states": [
+        20,
+        19,
+        23,
+        16
+      ]
+    },
+    "30": {
+      "before_median": 41.12949131251662,
+      "after_median": 16.212536875507794,
+      "before_states": [
+        32,
+        32,
+        23,
+        31
+      ],
+      "after_states": [
+        32,
+        32,
+        32,
+        32
+      ]
+    },
+    "d3-count": {
+      "8": 1.0,
+      "30": 1.0
+    },
+    "d3-sum": {
+      "8": 1.0,
+      "30": 1.0
+    },
+    "d3-count-accessor": {
+      "8": 1.0038705635896195,
+      "30": 1.0
+    },
+    "d3-sum-accessor": {
+      "8": 0.9957851544253117,
+      "30": 1.0
+    }
+  },
+  "compilations": [
+    {
+      "lane": "before",
+      "program": "d3-count",
+      "planning_seconds": 8,
+      "status": 0,
+      "complete_compile_seconds": 15.982246333005605,
+      "admitted_states": 6,
+      "attempts": 8,
+      "selected_steps": 1,
+      "selected_kinds": [
+        "rewrite"
+      ],
+      "stop_reason": "fixed-point",
+      "exploration_seconds": 7.959144624997862,
+      "retained_bytes": 190209,
+      "rejections": 0,
+      "artifact_sha256": "0a12317e19727c0231ef1bbf59d28419a8be9191c27dea48e96bbfbb79624c93",
+      "compiler_sha256": "0e1f1edf45e3e31ec81f63e579311f84e47e89f6219dd4bbe486494429f54b6c",
+      "producer_sha256": "aac473bcda59dc4caedc3c9b06c6ad5e70de04f30d2799f9ccd7cb7a10f86659"
+    },
+    {
+      "lane": "after",
+      "program": "d3-count",
+      "planning_seconds": 8,
+      "status": 0,
+      "complete_compile_seconds": 11.418066999991424,
+      "admitted_states": 20,
+      "attempts": 37,
+      "selected_steps": 1,
+      "selected_kinds": [
+        "rewrite"
+      ],
+      "stop_reason": "time",
+      "exploration_seconds": 8.007779624982504,
+      "retained_bytes": 1588615,
+      "rejections": 1,
+      "artifact_sha256": "0a12317e19727c0231ef1bbf59d28419a8be9191c27dea48e96bbfbb79624c93",
+      "compiler_sha256": "0e1f1edf45e3e31ec81f63e579311f84e47e89f6219dd4bbe486494429f54b6c",
+      "producer_sha256": "ecdba777e81ff1a13bc53f4c7bd73998d397149090f6a92c2088f0e1e7a1ce5b"
+    },
+    {
+      "lane": "after",
+      "program": "d3-sum",
+      "planning_seconds": 8,
+      "status": 0,
+      "complete_compile_seconds": 9.988868708023801,
+      "admitted_states": 19,
+      "attempts": 37,
+      "selected_steps": 1,
+      "selected_kinds": [
+        "rewrite"
+      ],
+      "stop_reason": "time",
+      "exploration_seconds": 8.016865540994331,
+      "retained_bytes": 654770,
+      "rejections": 2,
+      "artifact_sha256": "82600ef3fa7f4d3272eae3701b9d5e0ecd3e1f2282fb3c67b76b0ff078582727",
+      "compiler_sha256": "0e1f1edf45e3e31ec81f63e579311f84e47e89f6219dd4bbe486494429f54b6c",
+      "producer_sha256": "ecdba777e81ff1a13bc53f4c7bd73998d397149090f6a92c2088f0e1e7a1ce5b"
+    },
+    {
+      "lane": "before",
+      "program": "d3-sum",
+      "planning_seconds": 8,
+      "status": 0,
+      "complete_compile_seconds": 16.591198208014248,
+      "admitted_states": 6,
+      "attempts": 6,
+      "selected_steps": 1,
+      "selected_kinds": [
+        "rewrite"
+      ],
+      "stop_reason": "fixed-point",
+      "exploration_seconds": 7.938136625016341,
+      "retained_bytes": 197880,
+      "rejections": 0,
+      "artifact_sha256": "82600ef3fa7f4d3272eae3701b9d5e0ecd3e1f2282fb3c67b76b0ff078582727",
+      "compiler_sha256": "0e1f1edf45e3e31ec81f63e579311f84e47e89f6219dd4bbe486494429f54b6c",
+      "producer_sha256": "aac473bcda59dc4caedc3c9b06c6ad5e70de04f30d2799f9ccd7cb7a10f86659"
+    },
+    {
+      "lane": "before",
+      "program": "d3-count-accessor",
+      "planning_seconds": 8,
+      "status": 0,
+      "complete_compile_seconds": 15.005293958005495,
+      "admitted_states": 8,
+      "attempts": 10,
+      "selected_steps": 1,
+      "selected_kinds": [
+        "rewrite"
+      ],
+      "stop_reason": "time",
+      "exploration_seconds": 8.000693875015713,
+      "retained_bytes": 317404,
+      "rejections": 0,
+      "artifact_sha256": "5e5acef21ea7efeb609301cc40955b4864a1118d2c40088960d17db5c3207da6",
+      "compiler_sha256": "0e1f1edf45e3e31ec81f63e579311f84e47e89f6219dd4bbe486494429f54b6c",
+      "producer_sha256": "aac473bcda59dc4caedc3c9b06c6ad5e70de04f30d2799f9ccd7cb7a10f86659"
+    },
+    {
+      "lane": "after",
+      "program": "d3-count-accessor",
+      "planning_seconds": 8,
+      "status": 0,
+      "complete_compile_seconds": 12.892732625012286,
+      "admitted_states": 23,
+      "attempts": 40,
+      "selected_steps": 1,
+      "selected_kinds": [
+        "properties"
+      ],
+      "stop_reason": "time",
+      "exploration_seconds": 8.015998499991838,
+      "retained_bytes": 4512881,
+      "rejections": 1,
+      "artifact_sha256": "9c4bceb55867a79e5870c15e1af84b7fc6b602eed4093da4721adb9a7440b5d3",
+      "compiler_sha256": "0e1f1edf45e3e31ec81f63e579311f84e47e89f6219dd4bbe486494429f54b6c",
+      "producer_sha256": "ecdba777e81ff1a13bc53f4c7bd73998d397149090f6a92c2088f0e1e7a1ce5b"
+    },
+    {
+      "lane": "after",
+      "program": "d3-sum-accessor",
+      "planning_seconds": 8,
+      "status": 0,
+      "complete_compile_seconds": 10.026655499998014,
+      "admitted_states": 16,
+      "attempts": 33,
+      "selected_steps": 1,
+      "selected_kinds": [
+        "properties"
+      ],
+      "stop_reason": "time",
+      "exploration_seconds": 8.00099116700585,
+      "retained_bytes": 612344,
+      "rejections": 1,
+      "artifact_sha256": "cd9d3512541ccb74fd8a3010e2fb63240eddecf61c556b7f47b48cefa17f8588",
+      "compiler_sha256": "0e1f1edf45e3e31ec81f63e579311f84e47e89f6219dd4bbe486494429f54b6c",
+      "producer_sha256": "ecdba777e81ff1a13bc53f4c7bd73998d397149090f6a92c2088f0e1e7a1ce5b"
+    },
+    {
+      "lane": "before",
+      "program": "d3-sum-accessor",
+      "planning_seconds": 8,
+      "status": 0,
+      "complete_compile_seconds": 16.114056124992203,
+      "admitted_states": 5,
+      "attempts": 7,
+      "selected_steps": 1,
+      "selected_kinds": [
+        "rewrite"
+      ],
+      "stop_reason": "fixed-point",
+      "exploration_seconds": 7.928933333023451,
+      "retained_bytes": 194486,
+      "rejections": 0,
+      "artifact_sha256": "02b68127cf99383267cb14bcab9e6237df53fb3cd175c4da9d0cc339ed4756de",
+      "compiler_sha256": "0e1f1edf45e3e31ec81f63e579311f84e47e89f6219dd4bbe486494429f54b6c",
+      "producer_sha256": "aac473bcda59dc4caedc3c9b06c6ad5e70de04f30d2799f9ccd7cb7a10f86659"
+    },
+    {
+      "lane": "before",
+      "program": "d3-count",
+      "planning_seconds": 30,
+      "status": 0,
+      "complete_compile_seconds": 41.154860833019484,
+      "admitted_states": 32,
+      "attempts": 50,
+      "selected_steps": 1,
+      "selected_kinds": [
+        "rewrite"
+      ],
+      "stop_reason": "states",
+      "exploration_seconds": 28.800232665991643,
+      "retained_bytes": 5477407,
+      "rejections": 1,
+      "artifact_sha256": "0a12317e19727c0231ef1bbf59d28419a8be9191c27dea48e96bbfbb79624c93",
+      "compiler_sha256": "0e1f1edf45e3e31ec81f63e579311f84e47e89f6219dd4bbe486494429f54b6c",
+      "producer_sha256": "aac473bcda59dc4caedc3c9b06c6ad5e70de04f30d2799f9ccd7cb7a10f86659"
+    },
+    {
+      "lane": "after",
+      "program": "d3-count",
+      "planning_seconds": 30,
+      "status": 0,
+      "complete_compile_seconds": 12.084234000009019,
+      "admitted_states": 32,
+      "attempts": 50,
+      "selected_steps": 1,
+      "selected_kinds": [
+        "rewrite"
+      ],
+      "stop_reason": "states",
+      "exploration_seconds": 7.216581499989843,
+      "retained_bytes": 5477407,
+      "rejections": 1,
+      "artifact_sha256": "0a12317e19727c0231ef1bbf59d28419a8be9191c27dea48e96bbfbb79624c93",
+      "compiler_sha256": "0e1f1edf45e3e31ec81f63e579311f84e47e89f6219dd4bbe486494429f54b6c",
+      "producer_sha256": "ecdba777e81ff1a13bc53f4c7bd73998d397149090f6a92c2088f0e1e7a1ce5b"
+    },
+    {
+      "lane": "after",
+      "program": "d3-sum",
+      "planning_seconds": 30,
+      "status": 0,
+      "complete_compile_seconds": 17.41139579200535,
+      "admitted_states": 32,
+      "attempts": 70,
+      "selected_steps": 1,
+      "selected_kinds": [
+        "rewrite"
+      ],
+      "stop_reason": "states",
+      "exploration_seconds": 14.260639999993145,
+      "retained_bytes": 1364443,
+      "rejections": 4,
+      "artifact_sha256": "82600ef3fa7f4d3272eae3701b9d5e0ecd3e1f2282fb3c67b76b0ff078582727",
+      "compiler_sha256": "0e1f1edf45e3e31ec81f63e579311f84e47e89f6219dd4bbe486494429f54b6c",
+      "producer_sha256": "ecdba777e81ff1a13bc53f4c7bd73998d397149090f6a92c2088f0e1e7a1ce5b"
+    },
+    {
+      "lane": "before",
+      "program": "d3-sum",
+      "planning_seconds": 30,
+      "status": 0,
+      "complete_compile_seconds": 38.16496666701278,
+      "admitted_states": 32,
+      "attempts": 61,
+      "selected_steps": 2,
+      "selected_kinds": [
+        "rewrite",
+        "properties"
+      ],
+      "stop_reason": "states",
+      "exploration_seconds": 28.193940291996114,
+      "retained_bytes": 1315011,
+      "rejections": 4,
+      "artifact_sha256": "82600ef3fa7f4d3272eae3701b9d5e0ecd3e1f2282fb3c67b76b0ff078582727",
+      "compiler_sha256": "0e1f1edf45e3e31ec81f63e579311f84e47e89f6219dd4bbe486494429f54b6c",
+      "producer_sha256": "aac473bcda59dc4caedc3c9b06c6ad5e70de04f30d2799f9ccd7cb7a10f86659"
+    },
+    {
+      "lane": "before",
+      "program": "d3-count-accessor",
+      "planning_seconds": 30,
+      "status": 0,
+      "complete_compile_seconds": 41.38631112501025,
+      "admitted_states": 23,
+      "attempts": 40,
+      "selected_steps": 1,
+      "selected_kinds": [
+        "properties"
+      ],
+      "stop_reason": "time",
+      "exploration_seconds": 30.259888041007798,
+      "retained_bytes": 4512881,
+      "rejections": 1,
+      "artifact_sha256": "9c4bceb55867a79e5870c15e1af84b7fc6b602eed4093da4721adb9a7440b5d3",
+      "compiler_sha256": "0e1f1edf45e3e31ec81f63e579311f84e47e89f6219dd4bbe486494429f54b6c",
+      "producer_sha256": "aac473bcda59dc4caedc3c9b06c6ad5e70de04f30d2799f9ccd7cb7a10f86659"
+    },
+    {
+      "lane": "after",
+      "program": "d3-count-accessor",
+      "planning_seconds": 30,
+      "status": 0,
+      "complete_compile_seconds": 15.013677959010238,
+      "admitted_states": 32,
+      "attempts": 50,
+      "selected_steps": 1,
+      "selected_kinds": [
+        "properties"
+      ],
+      "stop_reason": "states",
+      "exploration_seconds": 8.247507249994669,
+      "retained_bytes": 8458850,
+      "rejections": 1,
+      "artifact_sha256": "9c4bceb55867a79e5870c15e1af84b7fc6b602eed4093da4721adb9a7440b5d3",
+      "compiler_sha256": "0e1f1edf45e3e31ec81f63e579311f84e47e89f6219dd4bbe486494429f54b6c",
+      "producer_sha256": "ecdba777e81ff1a13bc53f4c7bd73998d397149090f6a92c2088f0e1e7a1ce5b"
+    },
+    {
+      "lane": "after",
+      "program": "d3-sum-accessor",
+      "planning_seconds": 30,
+      "status": 0,
+      "complete_compile_seconds": 29.1967949999962,
+      "admitted_states": 32,
+      "attempts": 69,
+      "selected_steps": 2,
+      "selected_kinds": [
+        "rewrite",
+        "properties"
+      ],
+      "stop_reason": "states",
+      "exploration_seconds": 22.014630916004535,
+      "retained_bytes": 1510461,
+      "rejections": 2,
+      "artifact_sha256": "02b68127cf99383267cb14bcab9e6237df53fb3cd175c4da9d0cc339ed4756de",
+      "compiler_sha256": "0e1f1edf45e3e31ec81f63e579311f84e47e89f6219dd4bbe486494429f54b6c",
+      "producer_sha256": "ecdba777e81ff1a13bc53f4c7bd73998d397149090f6a92c2088f0e1e7a1ce5b"
+    },
+    {
+      "lane": "before",
+      "program": "d3-sum-accessor",
+      "planning_seconds": 30,
+      "status": 0,
+      "complete_compile_seconds": 41.10412179201376,
+      "admitted_states": 31,
+      "attempts": 66,
+      "selected_steps": 2,
+      "selected_kinds": [
+        "rewrite",
+        "properties"
+      ],
+      "stop_reason": "time",
+      "exploration_seconds": 30.002318625018233,
+      "retained_bytes": 1435759,
+      "rejections": 2,
+      "artifact_sha256": "02b68127cf99383267cb14bcab9e6237df53fb3cd175c4da9d0cc339ed4756de",
+      "compiler_sha256": "0e1f1edf45e3e31ec81f63e579311f84e47e89f6219dd4bbe486494429f54b6c",
+      "producer_sha256": "aac473bcda59dc4caedc3c9b06c6ad5e70de04f30d2799f9ccd7cb7a10f86659"
+    }
+  ],
+  "discovery": {
+    "identical_root_count": 1130,
+    "before_seconds": [
+      0.42817062500398606,
+      0.2347088749811519,
+      0.22899658299866132,
+      0.23307250000652857,
+      0.23126050000428222,
+      0.23647916701156646,
+      0.22203487498336472
+    ],
+    "after_seconds": [
+      0.08413641701918095,
+      0.01657379200332798,
+      0.01737608399707824,
+      0.017033749987604097,
+      0.01742787499097176,
+      0.01696470900787972,
+      0.016673583013471216
+    ]
+  },
+  "validation": {
+    "distinct_inputs": 68,
+    "successful_compilations": 16,
+    "successful_validation_timing_memory_processes": 12,
+    "typed_proof_roots_rechecked": 1232,
+    "proof_failures": []
+  },
+  "limitations": [
+    "Post-hoc four-program diagnostic; not new blinded generalisation evidence.",
+    "Single compile per matrix cell; seven discovery repetitions and eleven runtime timing rounds per nonempty input.",
+    "Count/sum artifacts identical across all aliases; thirty-second accessor before/after artifacts identical.",
+    "Differing eight-second accessor runtime timing within 0.5% of parity; no new runtime speedup demonstrated.",
+    "Memory is sampled heap/RSS and post-GC retained deltas, not exact live peak or total allocation.",
+    "Two final changes use a heap for equivalent head ordering and fix time-exhaustion receipts; frozen after comparison archive predates these."
+  ]
+}
