@@ -145,7 +145,7 @@ fn planning_state(
         "definition_choices":checked.representation().map(|r|r.definition().choices()),
         "definitions":checked.representation().map(|r|r.definition().reachable_executable_declarations()).transpose()?,
         "physical":checked.physical().map(|p|p.plan()),"properties":checked.properties().iter().map(|p|p.package()).collect::<Vec<_>>(),
-        "route":checked.route().map(|r|r.package())}),
+        "resources":checked.resources().map(|r|r.plan()),"route":checked.route().map(|r|r.package())}),
     )
 }
 fn planning_capability(
@@ -198,6 +198,7 @@ fn run() -> LangResult<()> {
         "--core",
         "--help",
         "--implementation",
+        "--entry",
         "--lean",
         "--library",
         "--native-cpu",
@@ -726,7 +727,7 @@ fn run() -> LangResult<()> {
         println!(
             "ink emit-definition LOCK.json EXPORTS.json [--select PACKAGE.json] -o DEFINITION.rs"
         );
-        println!("ink emit-core SOURCE -o CORE.json\nink check-core CORE.json\nink emit-actions SOURCE -o ACTIONS.json\nink check-actions SOURCE ACTIONS.json\nink emit-effects SOURCE -o EFFECTS.json\nink check-effects SOURCE EFFECTS.json\nExecution/lowering commands also accept --core to read a checked CORE.json instead of source.\nChecked replacement packages: build/emit-c ... --replacement PACKAGE.json");
+        println!("ink emit-core SOURCE -o CORE.json\nink check-core CORE.json\nink emit-actions SOURCE -o ACTIONS.json\nink check-actions SOURCE ACTIONS.json\nink emit-effects SOURCE -o EFFECTS.json\nink check-effects SOURCE EFFECTS.json\nink emit-access SOURCE -o ACCESS.json\nink check-access SOURCE ACCESS.json\nExecution/lowering commands also accept --core to read a checked CORE.json instead of source.\nChecked replacement packages: build/emit-c ... --replacement PACKAGE.json");
         println!("ink check SOURCE\nink execute SOURCE SCRIPT.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable]\nink run SOURCE FUNCTION ARGS.json\nink build SOURCE --target c|rust|javascript|wasm32|webgpu -o OUTPUT\nink emit-state SOURCE -o DIRECTORY [--wasm-abi] [--table-storage ordered|indexed-slots]\nink check-representation SOURCE REQUEST.json\nink verify-library LOCK.json");
 
         return Ok(());
@@ -1004,6 +1005,49 @@ fn run() -> LangResult<()> {
                 "{}",
                 serde_json::json!({"status":"checked","semantics":verified_language::action_ir::SEMANTICS,"source":actions.source_identity(),"actions_sha256":actions.identity()?,"trust":"Source checking, typed elaboration and execution adapters remain trusted; no action-body refinement proof"})
             );
+        }
+        "emit-column-codec" => {
+            let record=arg_value(&args,"--entry")?.ok_or("emit-column-codec requires --entry RECORD")?;
+            let schema=verified_language::column_codec::schema(&p,&record)?;
+            let out=arg_value(&args,"-o")?.ok_or("emit-column-codec requires -o")?;
+            write(&out,&serde_json::to_string(&schema).map_err(|e|e.to_string())?)?;
+            println!("{}",serde_json::json!({"status":"codec-semantics","fields":schema.fields.len()}));
+        }
+        "emit-bounds-obligations" => {
+            let module=core::CheckedModule::from_source(p)?;
+            let goals=verified_language::bounds::obligations(&module)?;
+            let out=arg_value(&args,"-o")?.ok_or("emit-bounds-obligations requires -o")?;
+            write(&out,&serde_json::to_string(&serde_json::json!({"schema":1,"semantics":verified_language::bounds::SEMANTICS,"source":module.identity()?,"map_obligations":verified_language::bounds::map_obligations(&module)?,"obligations":goals})).map_err(|e|e.to_string())?)?;
+            println!("{}",serde_json::json!({"status":"source-bound","sites":goals.len()}));
+        }
+        "emit-access" | "check-access" => {
+            let module = core::CheckedModule::from_source(p)?;
+            let actions = verified_language::action_ir::CheckedActions::elaborate(&module)?;
+            let access = if cmd == "check-access" {
+                let file = args
+                    .get(2)
+                    .ok_or("check-access requires SOURCE ACCESS.json")?;
+                let mut bytes = Vec::new();
+                fs::File::open(file)
+                    .map_err(|e| e.to_string())?
+                    .take(core::MAX_BYTES as u64 + 1)
+                    .read_to_end(&mut bytes)
+                    .map_err(|e| e.to_string())?;
+                verified_language::access::CheckedAccess::from_bytes(&actions, &bytes)?
+            } else {
+                verified_language::access::CheckedAccess::derive(&actions)?
+            };
+            if cmd == "emit-access" {
+                let out = arg_value(&args, "-o")?.ok_or("emit-access requires -o ACCESS.json")?;
+                write(
+                    &out,
+                    &String::from_utf8(access.bytes()?).map_err(|e| e.to_string())?,
+                )?;
+            }
+            println!("{}", serde_json::json!({"status":"checked",
+                "semantics":verified_language::access::SEMANTICS,
+                "source":access.source_identity(), "actions_sha256":access.actions_identity(),
+                "trust":"Conservative source-bound point accesses. No cache-retention, replacement or scheduling authority."}));
         }
         "emit-effects" | "check-effects" => {
             let module = core::CheckedModule::from_source(p)?;

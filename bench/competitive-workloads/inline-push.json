@@ -1,0 +1,4129 @@
+{
+  "schema": 1,
+  "rounds": 11,
+  "seed": 104729,
+  "method": "Pinned upstream comparisons, shared separately compiled C timing driver.\n\nNo cross-boundary LTO. Every cell validates complete outputs before timing.\nInk RLE, LZ4 and Zstd have different formats: report size and speed together.\nBefore/after compiler binaries must be built from the same source except the\nlexical last-use emission change. Fresh upstream checkouts can be prepared by\npassing --upstreams; no upstream code is vendored into Ink's trusted core.\n",
+  "environment": {
+    "platform": "macOS-26.5.2-arm64-arm-64bit",
+    "machine": "arm64",
+    "cpu": "Apple M2",
+    "logical_cpus": 8,
+    "python": "3.12.3",
+    "rustc": "rustc 1.96.0 (ac68faa20 2026-05-25)\nbinary: rustc\ncommit-hash: ac68faa20c58cbccd01ee7208bf3b6e93a7d7f96\ncommit-date: 2026-05-25\nhost: aarch64-apple-darwin\nrelease: 1.96.0\nLLVM version: 22.1.2",
+    "clang": "Apple clang version 14.0.0 (clang-1400.0.29.202)\nTarget: arm64-apple-darwin25.5.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin",
+    "rustc_llvm_major": 22,
+    "clang_llvm_major": null,
+    "git": {
+      "ink-lang": {
+        "commit": "c0db2b5eca4adc3d82192399d2ee31c41e55d656",
+        "dirty": true
+      },
+      "knowledge": {
+        "commit": "e257eb5cd4338234fb69196853aaaacc036eb389",
+        "dirty": true
+      },
+      "lowering-c": {
+        "commit": "54df7495583ee10035845792a362133eb754e219",
+        "dirty": false
+      },
+      "lowering-gpu": {
+        "commit": "f0fbacf301301307f209e6966ccd5f1faf8df907",
+        "dirty": false
+      },
+      "lowering-js": {
+        "commit": "b5ea5042cf25dbb7872cef062ecf492b2a3ba4bb",
+        "dirty": false
+      },
+      "lowering-rust": {
+        "commit": "70f5a022f9e549513e98f12e09dbe49860c437a5",
+        "dirty": true
+      },
+      "lowering-wasm": {
+        "commit": "2f5aa08a79018d79840aef28fbc4a5f21d187364",
+        "dirty": false
+      }
+    },
+    "warnings": [
+      "Apple Clang version does not identify its upstream LLVM major; backend version matching is unestablished",
+      "uncommitted changes in a measured checkout"
+    ]
+  },
+  "upstreams": {
+    "block-mesh": {
+      "revision": "6194e3580f826eefcc905dfa2386460a403396f7",
+      "dirty": false
+    },
+    "flecs": {
+      "revision": "9e874bca2c05b60612cf5b671988adefc0785820",
+      "dirty": false
+    },
+    "lz4": {
+      "revision": "8aba903e7260c8d5a1ffb94405d72d1ee77ce317",
+      "dirty": false
+    },
+    "zstd": {
+      "revision": "49cf51799ea051457f57243527aa2058f999f005",
+      "dirty": false
+    }
+  },
+  "installed_codecs": {
+    "liblz4": "1.10.0",
+    "libzstd": "1.5.7"
+  },
+  "compilation": [
+    {
+      "variant": "before",
+      "ns": 1514438542,
+      "compiler_sha256": "93eb1b02884582e7ce0e24bc3ff4b19bcf87972fda823b982428b743e3152def",
+      "emitted_sha256": "6fbb319024c7c3b9a7ea21706bbbea806e0f928fb2a6c042d97014c4928e5129"
+    },
+    {
+      "variant": "after",
+      "ns": 2802577500,
+      "compiler_sha256": "73b2ecb3ec3f95a168efa24a1b6257207df31bfcd01ee711144ef79319b2550b",
+      "emitted_sha256": "a845d5aefdf42bb648c51403dce54331bcc28352066ec0479d939f9996705153"
+    }
+  ],
+  "source_hashes": {
+    "bench/competitive-workloads/main.ink": "c8105a515cbde6a0794a6aa863878a8f527ab8d51f0896c5f4a2d12a6a592b58",
+    "bench/competitive-workloads/adapter.rs": "eccd4dc2bf648ab54681d55e3d5f712c2dd8f48d7149f2a4891e3fc612f847e8",
+    "bench/competitive-workloads/driver.c": "39356f11969bb9b34642a26420e08a1f35bbf60bb31f7a05757b241e01a0ca6c",
+    "bench/competitive-workloads/flecs-adapter.c": "19addfc9fff9eb12d4bb8e7a9042be65a3907f27e151d922c18c7ec874e3af9c",
+    "knowledge/libraries/voxel_surface.ink": "136cb3d82aef8fd0b6f8d3cf53cce12c7ee8ab52443a0036544785362c932ea0",
+    "knowledge/libraries/codecs.ink": "6895e3b10108c8bde63c94d1edc9ee06c03ddeec20375e555af8bf139a5364a6"
+  },
+  "results": [
+    {
+      "family": "voxel_faces",
+      "pattern": "empty",
+      "n": 16,
+      "variant": "ink_before",
+      "phase": "lifecycle",
+      "output_bytes": 0,
+      "samples_ns": [
+        2700.0,
+        2700.0,
+        2750.0,
+        2700.0,
+        2700.0,
+        2700.0,
+        2750.0,
+        2750.0,
+        2700.0,
+        2750.0,
+        2750.0
+      ],
+      "median_ns": 2700.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 1.0,
+        "ci_low": 1.0,
+        "ci_high": 1.0
+      }
+    },
+    {
+      "family": "voxel_faces",
+      "pattern": "empty",
+      "n": 16,
+      "variant": "ink",
+      "phase": "lifecycle",
+      "output_bytes": 0,
+      "samples_ns": [
+        2400.0,
+        2400.0,
+        2400.0,
+        2400.0,
+        2400.0,
+        2400.0,
+        2350.0,
+        2350.0,
+        2350.0,
+        2350.0,
+        2400.0
+      ],
+      "median_ns": 2400.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 0.8888888888888888,
+        "ci_low": 0.8545454545454545,
+        "ci_high": 0.8888888888888888
+      }
+    },
+    {
+      "family": "voxel_faces",
+      "pattern": "empty",
+      "n": 16,
+      "variant": "block_mesh",
+      "phase": "lifecycle",
+      "output_bytes": 0,
+      "samples_ns": [
+        3000.0,
+        3000.0,
+        3000.0,
+        3050.0,
+        3000.0,
+        3000.0,
+        3000.0,
+        3050.0,
+        3050.0,
+        3000.0,
+        3000.0
+      ],
+      "median_ns": 3000.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 1.1111111111111112,
+        "ci_low": 1.0909090909090908,
+        "ci_high": 1.1296296296296295
+      }
+    },
+    {
+      "family": "voxel_faces",
+      "pattern": "empty",
+      "n": 16,
+      "variant": "ink_linear",
+      "phase": "lifecycle",
+      "output_bytes": 0,
+      "samples_ns": [
+        3050.0,
+        3000.0,
+        3000.0,
+        3000.0,
+        3050.0,
+        3050.0,
+        3000.0,
+        3000.0,
+        3000.0,
+        3000.0,
+        3000.0
+      ],
+      "median_ns": 3000.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 1.1111111111111112,
+        "ci_low": 1.0909090909090908,
+        "ci_high": 1.1296296296296295
+      }
+    },
+    {
+      "family": "voxel_faces",
+      "pattern": "solid",
+      "n": 16,
+      "variant": "ink_before",
+      "phase": "lifecycle",
+      "output_bytes": 24576,
+      "samples_ns": [
+        20100.0,
+        20300.0,
+        20550.0,
+        20550.0,
+        21050.0,
+        20350.0,
+        20350.0,
+        21050.0,
+        20850.0,
+        21000.0,
+        20900.0
+      ],
+      "median_ns": 20550.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 1.0,
+        "ci_low": 1.0,
+        "ci_high": 1.0
+      }
+    },
+    {
+      "family": "voxel_faces",
+      "pattern": "solid",
+      "n": 16,
+      "variant": "ink",
+      "phase": "lifecycle",
+      "output_bytes": 24576,
+      "samples_ns": [
+        19850.0,
+        19650.0,
+        19400.0,
+        19550.0,
+        19400.0,
+        19750.0,
+        19850.0,
+        20000.0,
+        20000.0,
+        20050.0,
+        22200.0
+      ],
+      "median_ns": 19850.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 0.9659367396593674,
+        "ci_low": 0.9404761904761905,
+        "ci_high": 0.9754299754299754
+      }
+    },
+    {
+      "family": "voxel_faces",
+      "pattern": "solid",
+      "n": 16,
+      "variant": "block_mesh",
+      "phase": "lifecycle",
+      "output_bytes": 18432,
+      "samples_ns": [
+        9650.0,
+        9650.0,
+        9650.0,
+        9650.0,
+        10300.0,
+        9550.0,
+        10200.0,
+        9900.0,
+        9950.0,
+        9900.0,
+        9900.0
+      ],
+      "median_ns": 9900.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 0.48175182481751827,
+        "ci_low": 0.46958637469586373,
+        "ci_high": 0.4864864864864865
+      }
+    },
+    {
+      "family": "voxel_faces",
+      "pattern": "solid",
+      "n": 16,
+      "variant": "ink_linear",
+      "phase": "lifecycle",
+      "output_bytes": 24576,
+      "samples_ns": [
+        22200.0,
+        22150.0,
+        22400.0,
+        22500.0,
+        24150.0,
+        22250.0,
+        22350.0,
+        22900.0,
+        23050.0,
+        23000.0,
+        23100.0
+      ],
+      "median_ns": 22500.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 1.094890510948905,
+        "ci_low": 1.0900243309002433,
+        "ci_high": 1.105263157894737
+      }
+    },
+    {
+      "family": "voxel_faces",
+      "pattern": "checkerboard",
+      "n": 16,
+      "variant": "ink_before",
+      "phase": "lifecycle",
+      "output_bytes": 196608,
+      "samples_ns": [
+        74600.0,
+        74000.0,
+        73800.0,
+        74000.0,
+        74400.0,
+        73800.0,
+        74000.0,
+        74400.0,
+        74000.0,
+        83200.0,
+        75800.0
+      ],
+      "median_ns": 74000.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 1.0,
+        "ci_low": 1.0,
+        "ci_high": 1.0
+      }
+    },
+    {
+      "family": "voxel_faces",
+      "pattern": "checkerboard",
+      "n": 16,
+      "variant": "ink",
+      "phase": "lifecycle",
+      "output_bytes": 196608,
+      "samples_ns": [
+        74400.0,
+        74400.0,
+        74400.0,
+        74600.0,
+        74200.0,
+        74200.0,
+        74200.0,
+        74200.0,
+        83000.0,
+        75200.0,
+        74600.0
+      ],
+      "median_ns": 74400.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 1.0054054054054054,
+        "ci_low": 0.9973118279569892,
+        "ci_high": 1.008108108108108
+      }
+    },
+    {
+      "family": "voxel_faces",
+      "pattern": "checkerboard",
+      "n": 16,
+      "variant": "block_mesh",
+      "phase": "lifecycle",
+      "output_bytes": 147456,
+      "samples_ns": [
+        15400.0,
+        15400.0,
+        15600.0,
+        15600.0,
+        15400.0,
+        15600.0,
+        15400.0,
+        15200.0,
+        15400.0,
+        16800.0,
+        17200.0
+      ],
+      "median_ns": 15400.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 0.20810810810810812,
+        "ci_low": 0.20698924731182797,
+        "ci_high": 0.21081081081081082
+      }
+    },
+    {
+      "family": "voxel_faces",
+      "pattern": "checkerboard",
+      "n": 16,
+      "variant": "ink_linear",
+      "phase": "lifecycle",
+      "output_bytes": 196608,
+      "samples_ns": [
+        78000.0,
+        78800.0,
+        74200.0,
+        74400.0,
+        74600.0,
+        73800.0,
+        74200.0,
+        74000.0,
+        74400.0,
+        83400.0,
+        74800.0
+      ],
+      "median_ns": 74400.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 1.0054054054054054,
+        "ci_low": 0.9973118279569892,
+        "ci_high": 1.0483870967741935
+      }
+    },
+    {
+      "family": "voxel_faces",
+      "pattern": "terrain",
+      "n": 16,
+      "variant": "ink_before",
+      "phase": "lifecycle",
+      "output_bytes": 30656,
+      "samples_ns": [
+        19200.0,
+        19650.0,
+        20000.0,
+        20300.0,
+        20000.0,
+        20000.0,
+        19900.0,
+        19900.0,
+        18650.0,
+        19050.0,
+        18650.0
+      ],
+      "median_ns": 19900.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 1.0,
+        "ci_low": 1.0,
+        "ci_high": 1.0
+      }
+    },
+    {
+      "family": "voxel_faces",
+      "pattern": "terrain",
+      "n": 16,
+      "variant": "ink",
+      "phase": "lifecycle",
+      "output_bytes": 30656,
+      "samples_ns": [
+        18400.0,
+        17900.0,
+        18500.0,
+        19100.0,
+        19000.0,
+        19000.0,
+        19000.0,
+        18950.0,
+        19150.0,
+        17850.0,
+        17900.0
+      ],
+      "median_ns": 18950.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 0.9522613065326633,
+        "ci_low": 0.910941475826972,
+        "ci_high": 0.9895833333333334
+      }
+    },
+    {
+      "family": "voxel_faces",
+      "pattern": "terrain",
+      "n": 16,
+      "variant": "block_mesh",
+      "phase": "lifecycle",
+      "output_bytes": 22992,
+      "samples_ns": [
+        9100.0,
+        8850.0,
+        10400.0,
+        9450.0,
+        9350.0,
+        9400.0,
+        9450.0,
+        9450.0,
+        8850.0,
+        10050.0,
+        8900.0
+      ],
+      "median_ns": 9400.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 0.4723618090452261,
+        "ci_low": 0.4529262086513995,
+        "ci_high": 0.49343832020997375
+      }
+    },
+    {
+      "family": "voxel_faces",
+      "pattern": "terrain",
+      "n": 16,
+      "variant": "ink_linear",
+      "phase": "lifecycle",
+      "output_bytes": 30656,
+      "samples_ns": [
+        20050.0,
+        20050.0,
+        20850.0,
+        20900.0,
+        20800.0,
+        20750.0,
+        20800.0,
+        20750.0,
+        21400.0,
+        19500.0,
+        19550.0
+      ],
+      "median_ns": 20750.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 1.0427135678391959,
+        "ci_low": 1.020356234096692,
+        "ci_high": 1.0892388451443569
+      }
+    },
+    {
+      "family": "voxel_faces",
+      "pattern": "sparse",
+      "n": 16,
+      "variant": "ink_before",
+      "phase": "lifecycle",
+      "output_bytes": 18848,
+      "samples_ns": [
+        9250.0,
+        9300.0,
+        9200.0,
+        9250.0,
+        9050.0,
+        9200.0,
+        9150.0,
+        9200.0,
+        9200.0,
+        9200.0,
+        9200.0
+      ],
+      "median_ns": 9200.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 1.0,
+        "ci_low": 1.0,
+        "ci_high": 1.0
+      }
+    },
+    {
+      "family": "voxel_faces",
+      "pattern": "sparse",
+      "n": 16,
+      "variant": "ink",
+      "phase": "lifecycle",
+      "output_bytes": 18848,
+      "samples_ns": [
+        8750.0,
+        8750.0,
+        8700.0,
+        8650.0,
+        8650.0,
+        8650.0,
+        8600.0,
+        8650.0,
+        8750.0,
+        8600.0,
+        8700.0
+      ],
+      "median_ns": 8650.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 0.9402173913043478,
+        "ci_low": 0.9402173913043478,
+        "ci_high": 0.9510869565217391
+      }
+    },
+    {
+      "family": "voxel_faces",
+      "pattern": "sparse",
+      "n": 16,
+      "variant": "block_mesh",
+      "phase": "lifecycle",
+      "output_bytes": 14136,
+      "samples_ns": [
+        5600.0,
+        5350.0,
+        5350.0,
+        5300.0,
+        5300.0,
+        5300.0,
+        5350.0,
+        5350.0,
+        5350.0,
+        5350.0,
+        5300.0
+      ],
+      "median_ns": 5350.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 0.5815217391304348,
+        "ci_low": 0.5760869565217391,
+        "ci_high": 0.5815217391304348
+      }
+    },
+    {
+      "family": "voxel_faces",
+      "pattern": "sparse",
+      "n": 16,
+      "variant": "ink_linear",
+      "phase": "lifecycle",
+      "output_bytes": 18848,
+      "samples_ns": [
+        9600.0,
+        9700.0,
+        9550.0,
+        9550.0,
+        9600.0,
+        9550.0,
+        9500.0,
+        9550.0,
+        9500.0,
+        9550.0,
+        9550.0
+      ],
+      "median_ns": 9550.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 1.0380434782608696,
+        "ci_low": 1.0324324324324323,
+        "ci_high": 1.0434782608695652
+      }
+    },
+    {
+      "family": "voxel_faces",
+      "pattern": "empty",
+      "n": 32,
+      "variant": "ink_before",
+      "phase": "lifecycle",
+      "output_bytes": 0,
+      "samples_ns": [
+        20700.0,
+        21100.0,
+        20600.0,
+        20550.0,
+        20650.0,
+        20900.0,
+        23900.0,
+        21600.0,
+        21650.0,
+        21500.0,
+        21950.0
+      ],
+      "median_ns": 21100.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 1.0,
+        "ci_low": 1.0,
+        "ci_high": 1.0
+      }
+    },
+    {
+      "family": "voxel_faces",
+      "pattern": "empty",
+      "n": 32,
+      "variant": "ink",
+      "phase": "lifecycle",
+      "output_bytes": 0,
+      "samples_ns": [
+        18350.0,
+        18400.0,
+        19650.0,
+        18350.0,
+        18350.0,
+        18350.0,
+        19250.0,
+        19150.0,
+        19150.0,
+        19100.0,
+        19600.0
+      ],
+      "median_ns": 19100.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 0.9052132701421801,
+        "ci_low": 0.8720379146919431,
+        "ci_high": 0.9251207729468599
+      }
+    },
+    {
+      "family": "voxel_faces",
+      "pattern": "empty",
+      "n": 32,
+      "variant": "block_mesh",
+      "phase": "lifecycle",
+      "output_bytes": 0,
+      "samples_ns": [
+        23900.0,
+        23750.0,
+        23900.0,
+        23900.0,
+        23800.0,
+        23950.0,
+        25850.0,
+        24750.0,
+        24950.0,
+        24900.0,
+        26250.0
+      ],
+      "median_ns": 23950.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 1.1350710900473933,
+        "ci_low": 1.132701421800948,
+        "ci_high": 1.158139534883721
+      }
+    },
+    {
+      "family": "voxel_faces",
+      "pattern": "empty",
+      "n": 32,
+      "variant": "ink_linear",
+      "phase": "lifecycle",
+      "output_bytes": 0,
+      "samples_ns": [
+        21000.0,
+        21500.0,
+        22300.0,
+        20950.0,
+        20950.0,
+        20950.0,
+        21900.0,
+        21850.0,
+        21750.0,
+        21800.0,
+        22200.0
+      ],
+      "median_ns": 21750.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 1.0308056872037914,
+        "ci_low": 1.0023923444976077,
+        "ci_high": 1.0532687651331718
+      }
+    },
+    {
+      "family": "voxel_faces",
+      "pattern": "solid",
+      "n": 32,
+      "variant": "ink_before",
+      "phase": "lifecycle",
+      "output_bytes": 98304,
+      "samples_ns": [
+        127350.0,
+        130100.0,
+        126100.0,
+        128700.0,
+        121800.0,
+        123150.0,
+        122700.0,
+        130600.0,
+        126750.0,
+        125700.0,
+        129800.0
+      ],
+      "median_ns": 126750.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 1.0,
+        "ci_low": 1.0,
+        "ci_high": 1.0
+      }
+    },
+    {
+      "family": "voxel_faces",
+      "pattern": "solid",
+      "n": 32,
+      "variant": "ink",
+      "phase": "lifecycle",
+      "output_bytes": 98304,
+      "samples_ns": [
+        127450.0,
+        131000.0,
+        123850.0,
+        132100.0,
+        119200.0,
+        119650.0,
+        121950.0,
+        122750.0,
+        125850.0,
+        132650.0,
+        124550.0
+      ],
+      "median_ns": 124550.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 0.9826429980276135,
+        "ci_low": 0.9595531587057011,
+        "ci_high": 1.028661170003926
+      }
+    },
+    {
+      "family": "voxel_faces",
+      "pattern": "solid",
+      "n": 32,
+      "variant": "block_mesh",
+      "phase": "lifecycle",
+      "output_bytes": 73728,
+      "samples_ns": [
+        63100.0,
+        66200.0,
+        61250.0,
+        59800.0,
+        60350.0,
+        59700.0,
+        64000.0,
+        60950.0,
+        62400.0,
+        61200.0,
+        61600.0
+      ],
+      "median_ns": 61250.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 0.4832347140039448,
+        "ci_low": 0.4718798151001541,
+        "ci_high": 0.5002030044660982
+      }
+    },
+    {
+      "family": "voxel_faces",
+      "pattern": "solid",
+      "n": 32,
+      "variant": "ink_linear",
+      "phase": "lifecycle",
+      "output_bytes": 98304,
+      "samples_ns": [
+        150450.0,
+        151100.0,
+        149200.0,
+        154350.0,
+        148200.0,
+        144050.0,
+        144800.0,
+        148400.0,
+        153500.0,
+        153450.0,
+        147450.0
+      ],
+      "median_ns": 149200.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 1.1771203155818541,
+        "ci_low": 1.1432973805855162,
+        "ci_high": 1.2106508875739646
+      }
+    },
+    {
+      "family": "voxel_faces",
+      "pattern": "checkerboard",
+      "n": 32,
+      "variant": "ink_before",
+      "phase": "lifecycle",
+      "output_bytes": 1572864,
+      "samples_ns": [
+        591400.0,
+        589800.0,
+        606800.0,
+        594200.0,
+        597200.0,
+        575000.0,
+        587200.0,
+        575200.0,
+        574000.0,
+        595000.0,
+        576600.0
+      ],
+      "median_ns": 589800.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 1.0,
+        "ci_low": 1.0,
+        "ci_high": 1.0
+      }
+    },
+    {
+      "family": "voxel_faces",
+      "pattern": "checkerboard",
+      "n": 32,
+      "variant": "ink",
+      "phase": "lifecycle",
+      "output_bytes": 1572864,
+      "samples_ns": [
+        605200.0,
+        595600.0,
+        601200.0,
+        596800.0,
+        601000.0,
+        616800.0,
+        587800.0,
+        579600.0,
+        579000.0,
+        605200.0,
+        579200.0
+      ],
+      "median_ns": 596800.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 1.0118684299762633,
+        "ci_low": 1.0010217983651226,
+        "ci_high": 1.0426638917793964
+      }
+    },
+    {
+      "family": "voxel_faces",
+      "pattern": "checkerboard",
+      "n": 32,
+      "variant": "block_mesh",
+      "phase": "lifecycle",
+      "output_bytes": 1179648,
+      "samples_ns": [
+        121000.0,
+        121200.0,
+        120400.0,
+        120400.0,
+        123000.0,
+        125200.0,
+        117400.0,
+        116200.0,
+        117400.0,
+        114000.0,
+        114600.0
+      ],
+      "median_ns": 120400.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 0.20413699559172602,
+        "ci_low": 0.1973109243697479,
+        "ci_high": 0.20931849791376914
+      }
+    },
+    {
+      "family": "voxel_faces",
+      "pattern": "checkerboard",
+      "n": 32,
+      "variant": "ink_linear",
+      "phase": "lifecycle",
+      "output_bytes": 1572864,
+      "samples_ns": [
+        593600.0,
+        591400.0,
+        596800.0,
+        597200.0,
+        598000.0,
+        611200.0,
+        588800.0,
+        582600.0,
+        575200.0,
+        605600.0,
+        588600.0
+      ],
+      "median_ns": 593600.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 1.0064428619871142,
+        "ci_low": 1.0027127839945744,
+        "ci_high": 1.0350329517863337
+      }
+    },
+    {
+      "family": "voxel_faces",
+      "pattern": "terrain",
+      "n": 32,
+      "variant": "ink_before",
+      "phase": "lifecycle",
+      "output_bytes": 120832,
+      "samples_ns": [
+        98250.0,
+        98400.0,
+        98250.0,
+        99050.0,
+        99400.0,
+        99500.0,
+        99450.0,
+        98200.0,
+        99950.0,
+        98850.0,
+        102150.0
+      ],
+      "median_ns": 99050.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 1.0,
+        "ci_low": 1.0,
+        "ci_high": 1.0
+      }
+    },
+    {
+      "family": "voxel_faces",
+      "pattern": "terrain",
+      "n": 32,
+      "variant": "ink",
+      "phase": "lifecycle",
+      "output_bytes": 120832,
+      "samples_ns": [
+        97100.0,
+        97500.0,
+        97150.0,
+        98900.0,
+        96000.0,
+        96200.0,
+        97800.0,
+        97850.0,
+        97350.0,
+        96050.0,
+        96400.0
+      ],
+      "median_ns": 97150.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 0.9808177688036346,
+        "ci_low": 0.9678068410462777,
+        "ci_high": 0.9908536585365854
+      }
+    },
+    {
+      "family": "voxel_faces",
+      "pattern": "terrain",
+      "n": 32,
+      "variant": "block_mesh",
+      "phase": "lifecycle",
+      "output_bytes": 90624,
+      "samples_ns": [
+        49350.0,
+        52450.0,
+        49450.0,
+        49400.0,
+        49850.0,
+        52600.0,
+        49500.0,
+        49350.0,
+        49450.0,
+        49600.0,
+        50500.0
+      ],
+      "median_ns": 49500.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 0.49974760222110043,
+        "ci_low": 0.4972347913524384,
+        "ci_high": 0.5080482897384306
+      }
+    },
+    {
+      "family": "voxel_faces",
+      "pattern": "terrain",
+      "n": 32,
+      "variant": "ink_linear",
+      "phase": "lifecycle",
+      "output_bytes": 120832,
+      "samples_ns": [
+        116100.0,
+        112700.0,
+        111700.0,
+        109350.0,
+        110150.0,
+        110050.0,
+        111200.0,
+        109400.0,
+        112200.0,
+        109200.0,
+        109400.0
+      ],
+      "median_ns": 110150.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 1.1120646138313983,
+        "ci_low": 1.1006036217303823,
+        "ci_high": 1.1368956743002545
+      }
+    },
+    {
+      "family": "voxel_faces",
+      "pattern": "sparse",
+      "n": 32,
+      "variant": "ink_before",
+      "phase": "lifecycle",
+      "output_bytes": 159424,
+      "samples_ns": [
+        71650.0,
+        69800.0,
+        71850.0,
+        73500.0,
+        69900.0,
+        69750.0,
+        69300.0,
+        69500.0,
+        71900.0,
+        69500.0,
+        69900.0
+      ],
+      "median_ns": 69900.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 1.0,
+        "ci_low": 1.0,
+        "ci_high": 1.0
+      }
+    },
+    {
+      "family": "voxel_faces",
+      "pattern": "sparse",
+      "n": 32,
+      "variant": "ink",
+      "phase": "lifecycle",
+      "output_bytes": 159424,
+      "samples_ns": [
+        68850.0,
+        68400.0,
+        67950.0,
+        69400.0,
+        68650.0,
+        70350.0,
+        71000.0,
+        68550.0,
+        70750.0,
+        68150.0,
+        68350.0
+      ],
+      "median_ns": 68650.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 0.9821173104434907,
+        "ci_low": 0.9554627696590118,
+        "ci_high": 1.0086021505376344
+      }
+    },
+    {
+      "family": "voxel_faces",
+      "pattern": "sparse",
+      "n": 32,
+      "variant": "block_mesh",
+      "phase": "lifecycle",
+      "output_bytes": 119568,
+      "samples_ns": [
+        50350.0,
+        45300.0,
+        48200.0,
+        46450.0,
+        45600.0,
+        48450.0,
+        47400.0,
+        47600.0,
+        44850.0,
+        47950.0,
+        46500.0
+      ],
+      "median_ns": 47400.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 0.6781115879828327,
+        "ci_low": 0.6464857341684064,
+        "ci_high": 0.6899280575539568
+      }
+    },
+    {
+      "family": "voxel_faces",
+      "pattern": "sparse",
+      "n": 32,
+      "variant": "ink_linear",
+      "phase": "lifecycle",
+      "output_bytes": 159424,
+      "samples_ns": [
+        71550.0,
+        69650.0,
+        69750.0,
+        70300.0,
+        71400.0,
+        69750.0,
+        71500.0,
+        70050.0,
+        69700.0,
+        73200.0,
+        69650.0
+      ],
+      "median_ns": 70050.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 1.002145922746781,
+        "ci_low": 0.9707724425887265,
+        "ci_high": 1.025089605734767
+      }
+    },
+    {
+      "family": "ecs_update",
+      "pattern": "all_entities_pos_vel",
+      "n": 1024,
+      "variant": "ink_before",
+      "phase": "steady_step",
+      "output_bytes": 8192,
+      "samples_ns": [
+        273.438,
+        281.25,
+        289.062,
+        281.25,
+        320.312,
+        289.062,
+        273.438,
+        296.875,
+        343.75,
+        296.875,
+        289.062
+      ],
+      "median_ns": 289.062,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 1.0,
+        "ci_low": 1.0,
+        "ci_high": 1.0
+      }
+    },
+    {
+      "family": "ecs_update",
+      "pattern": "all_entities_pos_vel",
+      "n": 1024,
+      "variant": "ink_before",
+      "phase": "lifecycle_128_steps",
+      "output_bytes": 8192,
+      "samples_ns": [
+        37000.0,
+        36000.0,
+        37000.0,
+        37000.0,
+        41000.0,
+        38000.0,
+        36000.0,
+        39000.0,
+        45000.0,
+        39000.0,
+        38000.0
+      ],
+      "median_ns": 38000.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 1.0,
+        "ci_low": 1.0,
+        "ci_high": 1.0
+      }
+    },
+    {
+      "family": "ecs_update",
+      "pattern": "all_entities_pos_vel",
+      "n": 1024,
+      "variant": "ink",
+      "phase": "steady_step",
+      "output_bytes": 8192,
+      "samples_ns": [
+        156.25,
+        156.25,
+        156.25,
+        164.062,
+        156.25,
+        164.062,
+        156.25,
+        156.25,
+        195.312,
+        171.875,
+        164.062
+      ],
+      "median_ns": 156.25,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 0.5405414755312009,
+        "ci_low": 0.5263157894736842,
+        "ci_high": 0.5833315555555556
+      }
+    },
+    {
+      "family": "ecs_update",
+      "pattern": "all_entities_pos_vel",
+      "n": 1024,
+      "variant": "ink",
+      "phase": "lifecycle_128_steps",
+      "output_bytes": 8192,
+      "samples_ns": [
+        21000.0,
+        20000.0,
+        23000.0,
+        21000.0,
+        21000.0,
+        21000.0,
+        21000.0,
+        21000.0,
+        25000.0,
+        22000.0,
+        21000.0
+      ],
+      "median_ns": 21000.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 0.5526315789473685,
+        "ci_low": 0.5384615384615384,
+        "ci_high": 0.5789473684210527
+      }
+    },
+    {
+      "family": "ecs_update",
+      "pattern": "all_entities_pos_vel",
+      "n": 1024,
+      "variant": "ink_owned_map",
+      "phase": "steady_step",
+      "output_bytes": 8192,
+      "samples_ns": [
+        195.312,
+        187.5,
+        195.312,
+        195.312,
+        187.5,
+        203.125,
+        187.5,
+        187.5,
+        195.312,
+        195.312,
+        203.125
+      ],
+      "median_ns": 195.312,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 0.6756751146812795,
+        "ci_low": 0.631578947368421,
+        "ci_high": 0.6944426666666668
+      }
+    },
+    {
+      "family": "ecs_update",
+      "pattern": "all_entities_pos_vel",
+      "n": 1024,
+      "variant": "ink_owned_map",
+      "phase": "lifecycle_128_steps",
+      "output_bytes": 8192,
+      "samples_ns": [
+        25000.0,
+        25000.0,
+        26000.0,
+        26000.0,
+        25000.0,
+        26000.0,
+        25000.0,
+        25000.0,
+        26000.0,
+        27000.0,
+        26000.0
+      ],
+      "median_ns": 26000.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 0.6842105263157895,
+        "ci_low": 0.6410256410256411,
+        "ci_high": 0.7027027027027027
+      }
+    },
+    {
+      "family": "ecs_update",
+      "pattern": "all_entities_pos_vel",
+      "n": 1024,
+      "variant": "flecs",
+      "phase": "steady_step",
+      "output_bytes": 8192,
+      "samples_ns": [
+        140.625,
+        132.812,
+        140.625,
+        132.812,
+        156.25,
+        320.312,
+        140.625,
+        140.625,
+        140.625,
+        148.438,
+        132.812
+      ],
+      "median_ns": 140.625,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 0.4864873279780808,
+        "ci_low": 0.4594585244687991,
+        "ci_high": 0.5135161314873625
+      }
+    },
+    {
+      "family": "ecs_update",
+      "pattern": "all_entities_pos_vel",
+      "n": 1024,
+      "variant": "flecs",
+      "phase": "lifecycle_128_steps",
+      "output_bytes": 8192,
+      "samples_ns": [
+        539000.0,
+        533000.0,
+        533000.0,
+        544000.0,
+        541000.0,
+        588000.0,
+        555000.0,
+        593000.0,
+        555000.0,
+        550000.0,
+        540000.0
+      ],
+      "median_ns": 544000.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 14.31578947368421,
+        "ci_low": 13.871794871794872,
+        "ci_high": 15.0
+      }
+    },
+    {
+      "family": "ecs_update",
+      "pattern": "all_entities_pos_vel",
+      "n": 8192,
+      "variant": "ink_before",
+      "phase": "steady_step",
+      "output_bytes": 65536,
+      "samples_ns": [
+        2414.062,
+        2226.562,
+        2242.188,
+        2250.0,
+        2203.125,
+        2242.188,
+        2335.938,
+        2437.5,
+        2257.812,
+        2257.812,
+        2296.875
+      ],
+      "median_ns": 2257.812,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 1.0,
+        "ci_low": 1.0,
+        "ci_high": 1.0
+      }
+    },
+    {
+      "family": "ecs_update",
+      "pattern": "all_entities_pos_vel",
+      "n": 8192,
+      "variant": "ink_before",
+      "phase": "lifecycle_128_steps",
+      "output_bytes": 65536,
+      "samples_ns": [
+        315000.0,
+        290000.0,
+        293000.0,
+        294000.0,
+        288000.0,
+        293000.0,
+        304000.0,
+        319000.0,
+        295000.0,
+        295000.0,
+        299000.0
+      ],
+      "median_ns": 295000.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 1.0,
+        "ci_low": 1.0,
+        "ci_high": 1.0
+      }
+    },
+    {
+      "family": "ecs_update",
+      "pattern": "all_entities_pos_vel",
+      "n": 8192,
+      "variant": "ink",
+      "phase": "steady_step",
+      "output_bytes": 65536,
+      "samples_ns": [
+        1289.062,
+        1250.0,
+        1210.938,
+        1210.938,
+        1210.938,
+        1234.375,
+        1242.188,
+        1289.062,
+        1242.188,
+        1242.188,
+        1289.062
+      ],
+      "median_ns": 1242.188,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 0.5501733536716078,
+        "ci_low": 0.5317726754734072,
+        "ci_high": 0.5612242721088435
+      }
+    },
+    {
+      "family": "ecs_update",
+      "pattern": "all_entities_pos_vel",
+      "n": 8192,
+      "variant": "ink",
+      "phase": "lifecycle_128_steps",
+      "output_bytes": 65536,
+      "samples_ns": [
+        171000.0,
+        166000.0,
+        160000.0,
+        160000.0,
+        160000.0,
+        165000.0,
+        164000.0,
+        170000.0,
+        164000.0,
+        164000.0,
+        170000.0
+      ],
+      "median_ns": 164000.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 0.5559322033898305,
+        "ci_low": 0.5396825396825397,
+        "ci_high": 0.568561872909699
+      }
+    },
+    {
+      "family": "ecs_update",
+      "pattern": "all_entities_pos_vel",
+      "n": 8192,
+      "variant": "ink_owned_map",
+      "phase": "steady_step",
+      "output_bytes": 65536,
+      "samples_ns": [
+        1523.438,
+        1507.812,
+        1460.938,
+        1460.938,
+        1460.938,
+        1500.0,
+        1500.0,
+        1554.688,
+        1500.0,
+        1500.0,
+        1500.0
+      ],
+      "median_ns": 1500.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 0.6643600087164033,
+        "ci_low": 0.6421403307793272,
+        "ci_high": 0.6689893978560227
+      }
+    },
+    {
+      "family": "ecs_update",
+      "pattern": "all_entities_pos_vel",
+      "n": 8192,
+      "variant": "ink_owned_map",
+      "phase": "lifecycle_128_steps",
+      "output_bytes": 65536,
+      "samples_ns": [
+        200000.0,
+        199000.0,
+        193000.0,
+        192000.0,
+        192000.0,
+        197000.0,
+        197000.0,
+        205000.0,
+        197000.0,
+        197000.0,
+        197000.0
+      ],
+      "median_ns": 197000.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 0.6677966101694915,
+        "ci_low": 0.6480263157894737,
+        "ci_high": 0.6745762711864407
+      }
+    },
+    {
+      "family": "ecs_update",
+      "pattern": "all_entities_pos_vel",
+      "n": 8192,
+      "variant": "flecs",
+      "phase": "steady_step",
+      "output_bytes": 65536,
+      "samples_ns": [
+        562.5,
+        531.25,
+        539.062,
+        617.188,
+        539.062,
+        546.875,
+        546.875,
+        554.688,
+        546.875,
+        546.875,
+        554.688
+      ],
+      "median_ns": 546.875,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 0.2422145865111887,
+        "ci_low": 0.23411366226329636,
+        "ci_high": 0.246528
+      }
+    },
+    {
+      "family": "ecs_update",
+      "pattern": "all_entities_pos_vel",
+      "n": 8192,
+      "variant": "flecs",
+      "phase": "lifecycle_128_steps",
+      "output_bytes": 65536,
+      "samples_ns": [
+        3043000.0,
+        2910000.0,
+        2840000.0,
+        3013000.0,
+        2865000.0,
+        2917000.0,
+        2923000.0,
+        2898000.0,
+        2900000.0,
+        2916000.0,
+        2924000.0
+      ],
+      "median_ns": 2916000.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 9.884745762711864,
+        "ci_low": 9.615131578947368,
+        "ci_high": 9.955631399317406
+      }
+    },
+    {
+      "family": "ecs_update",
+      "pattern": "all_entities_pos_vel",
+      "n": 65536,
+      "variant": "ink_before",
+      "phase": "steady_step",
+      "output_bytes": 524288,
+      "samples_ns": [
+        21046.875,
+        21531.25,
+        21273.438,
+        21664.062,
+        21195.312,
+        21304.688,
+        21757.812,
+        20609.375,
+        20828.125,
+        20703.125,
+        20695.312
+      ],
+      "median_ns": 21195.312,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 1.0,
+        "ci_low": 1.0,
+        "ci_high": 1.0
+      }
+    },
+    {
+      "family": "ecs_update",
+      "pattern": "all_entities_pos_vel",
+      "n": 65536,
+      "variant": "ink_before",
+      "phase": "lifecycle_128_steps",
+      "output_bytes": 524288,
+      "samples_ns": [
+        2735000.0,
+        2799000.0,
+        2767000.0,
+        2817000.0,
+        2757000.0,
+        2770000.0,
+        2828000.0,
+        2680000.0,
+        2707000.0,
+        2691000.0,
+        2692000.0
+      ],
+      "median_ns": 2757000.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 1.0,
+        "ci_low": 1.0,
+        "ci_high": 1.0
+      }
+    },
+    {
+      "family": "ecs_update",
+      "pattern": "all_entities_pos_vel",
+      "n": 65536,
+      "variant": "ink",
+      "phase": "steady_step",
+      "output_bytes": 524288,
+      "samples_ns": [
+        9937.5,
+        10687.5,
+        10062.5,
+        10195.312,
+        10250.0,
+        10320.312,
+        10296.875,
+        9945.312,
+        10132.812,
+        9960.938,
+        9937.5
+      ],
+      "median_ns": 10132.812,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 0.47806854647857977,
+        "ci_low": 0.47253152783964364,
+        "ci_high": 0.4864966001500375
+      }
+    },
+    {
+      "family": "ecs_update",
+      "pattern": "all_entities_pos_vel",
+      "n": 65536,
+      "variant": "ink",
+      "phase": "lifecycle_128_steps",
+      "output_bytes": 524288,
+      "samples_ns": [
+        1316000.0,
+        1409000.0,
+        1331000.0,
+        1347000.0,
+        1355000.0,
+        1363000.0,
+        1362000.0,
+        1315000.0,
+        1340000.0,
+        1316000.0,
+        1313000.0
+      ],
+      "median_ns": 1340000.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 0.4860355458832064,
+        "ci_low": 0.48102638236357065,
+        "ci_high": 0.49501292944218694
+      }
+    },
+    {
+      "family": "ecs_update",
+      "pattern": "all_entities_pos_vel",
+      "n": 65536,
+      "variant": "ink_owned_map",
+      "phase": "steady_step",
+      "output_bytes": 524288,
+      "samples_ns": [
+        13203.125,
+        13195.312,
+        13742.188,
+        12937.5,
+        13648.438,
+        12570.312,
+        12929.688,
+        12632.812,
+        12343.75,
+        12382.812,
+        12414.062
+      ],
+      "median_ns": 12929.688,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 0.6100258396762454,
+        "ci_low": 0.5908923606988208,
+        "ci_high": 0.6269487512991834
+      }
+    },
+    {
+      "family": "ecs_update",
+      "pattern": "all_entities_pos_vel",
+      "n": 65536,
+      "variant": "ink_owned_map",
+      "phase": "lifecycle_128_steps",
+      "output_bytes": 524288,
+      "samples_ns": [
+        1732000.0,
+        1730000.0,
+        1801000.0,
+        1699000.0,
+        1799000.0,
+        1651000.0,
+        1698000.0,
+        1658000.0,
+        1622000.0,
+        1626000.0,
+        1630000.0
+      ],
+      "median_ns": 1698000.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 0.6158868335146899,
+        "ci_low": 0.5966750993856161,
+        "ci_high": 0.6325411334552102
+      }
+    },
+    {
+      "family": "ecs_update",
+      "pattern": "all_entities_pos_vel",
+      "n": 65536,
+      "variant": "flecs",
+      "phase": "steady_step",
+      "output_bytes": 524288,
+      "samples_ns": [
+        7593.75,
+        7218.75,
+        7421.875,
+        7421.875,
+        7625.0,
+        7281.25,
+        7273.438,
+        7281.25,
+        7281.25,
+        7289.062,
+        7242.188
+      ],
+      "median_ns": 7281.25,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 0.34353115443641496,
+        "ci_low": 0.3381712626995646,
+        "ci_high": 0.3526354862657758
+      }
+    },
+    {
+      "family": "ecs_update",
+      "pattern": "all_entities_pos_vel",
+      "n": 65536,
+      "variant": "flecs",
+      "phase": "lifecycle_128_steps",
+      "output_bytes": 524288,
+      "samples_ns": [
+        22546000.0,
+        22518000.0,
+        22600000.0,
+        23052000.0,
+        22697000.0,
+        22608000.0,
+        22771000.0,
+        22597000.0,
+        22624000.0,
+        22507000.0,
+        22376000.0
+      ],
+      "median_ns": 22600000.0,
+      "input_bytes": null,
+      "relative_to_before": {
+        "ratio": 8.197315923104824,
+        "ci_low": 8.07717041800643,
+        "ci_high": 8.394130757800891
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "uniform",
+      "n": 4096,
+      "variant": "ink_rle_before",
+      "phase": "encode_lifecycle",
+      "output_bytes": 12,
+      "samples_ns": [
+        9125.0,
+        9125.0,
+        9062.5,
+        9093.75,
+        9093.75,
+        9531.25,
+        9281.25,
+        9437.5,
+        9093.75,
+        9125.0,
+        9093.75
+      ],
+      "median_ns": 9125.0,
+      "input_bytes": 16384,
+      "relative_to_before": {
+        "ratio": 1.0,
+        "ci_low": 1.0,
+        "ci_high": 1.0
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "uniform",
+      "n": 4096,
+      "variant": "ink_rle_before",
+      "phase": "decode_lifecycle",
+      "output_bytes": 12,
+      "samples_ns": [
+        562.5,
+        562.5,
+        468.75,
+        562.5,
+        875.0,
+        531.25,
+        500.0,
+        500.0,
+        531.25,
+        500.0,
+        468.75
+      ],
+      "median_ns": 531.25,
+      "input_bytes": 16384,
+      "relative_to_before": {
+        "ratio": 1.0,
+        "ci_low": 1.0,
+        "ci_high": 1.0
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "uniform",
+      "n": 4096,
+      "variant": "ink_rle",
+      "phase": "encode_lifecycle",
+      "output_bytes": 12,
+      "samples_ns": [
+        1906.25,
+        1875.0,
+        1906.25,
+        1906.25,
+        1875.0,
+        1906.25,
+        1937.5,
+        1906.25,
+        1875.0,
+        1875.0,
+        1906.25
+      ],
+      "median_ns": 1906.25,
+      "input_bytes": 16384,
+      "relative_to_before": {
+        "ratio": 0.2089041095890411,
+        "ci_low": 0.2053872053872054,
+        "ci_high": 0.20962199312714777
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "uniform",
+      "n": 4096,
+      "variant": "ink_rle",
+      "phase": "decode_lifecycle",
+      "output_bytes": 12,
+      "samples_ns": [
+        781.25,
+        562.5,
+        468.75,
+        406.25,
+        406.25,
+        406.25,
+        437.5,
+        562.5,
+        406.25,
+        750.0,
+        687.5
+      ],
+      "median_ns": 468.75,
+      "input_bytes": 16384,
+      "relative_to_before": {
+        "ratio": 0.8823529411764706,
+        "ci_low": 0.7222222222222222,
+        "ci_high": 1.375
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "uniform",
+      "n": 4096,
+      "variant": "lz4",
+      "phase": "encode_lifecycle",
+      "output_bytes": 78,
+      "samples_ns": [
+        1281.25,
+        1312.5,
+        1281.25,
+        1218.75,
+        1343.75,
+        1312.5,
+        1343.75,
+        1343.75,
+        1281.25,
+        1250.0,
+        1218.75
+      ],
+      "median_ns": 1281.25,
+      "input_bytes": 16384,
+      "relative_to_before": {
+        "ratio": 0.1404109589041096,
+        "ci_low": 0.136986301369863,
+        "ci_high": 0.14726027397260275
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "uniform",
+      "n": 4096,
+      "variant": "lz4",
+      "phase": "decode_lifecycle",
+      "output_bytes": 78,
+      "samples_ns": [
+        3781.25,
+        3781.25,
+        3781.25,
+        3750.0,
+        3750.0,
+        3750.0,
+        3968.75,
+        3843.75,
+        3781.25,
+        3781.25,
+        3781.25
+      ],
+      "median_ns": 3781.25,
+      "input_bytes": 16384,
+      "relative_to_before": {
+        "ratio": 7.117647058823529,
+        "ci_low": 6.722222222222222,
+        "ci_high": 7.5625
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "uniform",
+      "n": 4096,
+      "variant": "zstd_level_1",
+      "phase": "encode_lifecycle",
+      "output_bytes": 22,
+      "samples_ns": [
+        2531.25,
+        2500.0,
+        2531.25,
+        2500.0,
+        2500.0,
+        3125.0,
+        2500.0,
+        2468.75,
+        2500.0,
+        2468.75,
+        2500.0
+      ],
+      "median_ns": 2500.0,
+      "input_bytes": 16384,
+      "relative_to_before": {
+        "ratio": 0.273972602739726,
+        "ci_low": 0.26936026936026936,
+        "ci_high": 0.2773972602739726
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "uniform",
+      "n": 4096,
+      "variant": "zstd_level_1",
+      "phase": "decode_lifecycle",
+      "output_bytes": 22,
+      "samples_ns": [
+        4718.75,
+        4750.0,
+        4718.75,
+        4781.25,
+        4781.25,
+        4937.5,
+        4750.0,
+        4718.75,
+        4718.75,
+        4750.0,
+        4718.75
+      ],
+      "median_ns": 4750.0,
+      "input_bytes": 16384,
+      "relative_to_before": {
+        "ratio": 8.941176470588236,
+        "ci_low": 8.38888888888889,
+        "ci_high": 9.5
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "uniform",
+      "n": 4096,
+      "variant": "ink_adaptive",
+      "phase": "encode_lifecycle",
+      "output_bytes": 16,
+      "samples_ns": [
+        2500.0,
+        2468.75,
+        2500.0,
+        2468.75,
+        2468.75,
+        2625.0,
+        2500.0,
+        2500.0,
+        2468.75,
+        2468.75,
+        2437.5
+      ],
+      "median_ns": 2468.75,
+      "input_bytes": 16384,
+      "relative_to_before": {
+        "ratio": 0.2705479452054795,
+        "ci_low": 0.26936026936026936,
+        "ci_high": 0.27491408934707906
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "uniform",
+      "n": 4096,
+      "variant": "ink_adaptive",
+      "phase": "decode_lifecycle",
+      "output_bytes": 16,
+      "samples_ns": [
+        437.5,
+        406.25,
+        406.25,
+        406.25,
+        437.5,
+        437.5,
+        562.5,
+        406.25,
+        406.25,
+        406.25,
+        437.5
+      ],
+      "median_ns": 406.25,
+      "input_bytes": 16384,
+      "relative_to_before": {
+        "ratio": 0.7647058823529411,
+        "ci_low": 0.7222222222222222,
+        "ci_high": 0.875
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "runs_16",
+      "n": 4096,
+      "variant": "ink_rle_before",
+      "phase": "encode_lifecycle",
+      "output_bytes": 132,
+      "samples_ns": [
+        9468.75,
+        9781.25,
+        9406.25,
+        9468.75,
+        9437.5,
+        9500.0,
+        9718.75,
+        9437.5,
+        9406.25,
+        9437.5,
+        9406.25
+      ],
+      "median_ns": 9437.5,
+      "input_bytes": 16384,
+      "relative_to_before": {
+        "ratio": 1.0,
+        "ci_low": 1.0,
+        "ci_high": 1.0
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "runs_16",
+      "n": 4096,
+      "variant": "ink_rle_before",
+      "phase": "decode_lifecycle",
+      "output_bytes": 132,
+      "samples_ns": [
+        625.0,
+        625.0,
+        593.75,
+        625.0,
+        593.75,
+        625.0,
+        593.75,
+        593.75,
+        625.0,
+        593.75,
+        625.0
+      ],
+      "median_ns": 625.0,
+      "input_bytes": 16384,
+      "relative_to_before": {
+        "ratio": 1.0,
+        "ci_low": 1.0,
+        "ci_high": 1.0
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "runs_16",
+      "n": 4096,
+      "variant": "ink_rle",
+      "phase": "encode_lifecycle",
+      "output_bytes": 132,
+      "samples_ns": [
+        2281.25,
+        2281.25,
+        2281.25,
+        2718.75,
+        2281.25,
+        2281.25,
+        2250.0,
+        2312.5,
+        2281.25,
+        2250.0,
+        2281.25
+      ],
+      "median_ns": 2281.25,
+      "input_bytes": 16384,
+      "relative_to_before": {
+        "ratio": 0.24172185430463577,
+        "ci_low": 0.24013157894736842,
+        "ci_high": 0.2425249169435216
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "runs_16",
+      "n": 4096,
+      "variant": "ink_rle",
+      "phase": "decode_lifecycle",
+      "output_bytes": 132,
+      "samples_ns": [
+        750.0,
+        500.0,
+        531.25,
+        500.0,
+        468.75,
+        468.75,
+        500.0,
+        656.25,
+        500.0,
+        656.25,
+        625.0
+      ],
+      "median_ns": 500.0,
+      "input_bytes": 16384,
+      "relative_to_before": {
+        "ratio": 0.8,
+        "ci_low": 0.8,
+        "ci_high": 1.105263157894737
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "runs_16",
+      "n": 4096,
+      "variant": "lz4",
+      "phase": "encode_lifecycle",
+      "output_bytes": 134,
+      "samples_ns": [
+        1562.5,
+        1593.75,
+        1593.75,
+        1562.5,
+        1750.0,
+        1687.5,
+        1718.75,
+        1593.75,
+        1625.0,
+        1562.5,
+        1593.75
+      ],
+      "median_ns": 1593.75,
+      "input_bytes": 16384,
+      "relative_to_before": {
+        "ratio": 0.16887417218543047,
+        "ci_low": 0.16501650165016502,
+        "ci_high": 0.1782178217821782
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "runs_16",
+      "n": 4096,
+      "variant": "lz4",
+      "phase": "decode_lifecycle",
+      "output_bytes": 134,
+      "samples_ns": [
+        968.75,
+        1000.0,
+        1000.0,
+        1343.75,
+        968.75,
+        968.75,
+        1000.0,
+        1000.0,
+        968.75,
+        968.75,
+        968.75
+      ],
+      "median_ns": 968.75,
+      "input_bytes": 16384,
+      "relative_to_before": {
+        "ratio": 1.55,
+        "ci_low": 1.55,
+        "ci_high": 1.6842105263157894
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "runs_16",
+      "n": 4096,
+      "variant": "zstd_level_1",
+      "phase": "encode_lifecycle",
+      "output_bytes": 69,
+      "samples_ns": [
+        2812.5,
+        2781.25,
+        2781.25,
+        2812.5,
+        2781.25,
+        2812.5,
+        2812.5,
+        2781.25,
+        2781.25,
+        2812.5,
+        2781.25
+      ],
+      "median_ns": 2781.25,
+      "input_bytes": 16384,
+      "relative_to_before": {
+        "ratio": 0.2947019867549669,
+        "ci_low": 0.29372937293729373,
+        "ci_high": 0.2980132450331126
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "runs_16",
+      "n": 4096,
+      "variant": "zstd_level_1",
+      "phase": "decode_lifecycle",
+      "output_bytes": 69,
+      "samples_ns": [
+        3937.5,
+        3937.5,
+        3968.75,
+        3875.0,
+        3968.75,
+        3968.75,
+        3968.75,
+        3968.75,
+        3968.75,
+        3968.75,
+        3968.75
+      ],
+      "median_ns": 3968.75,
+      "input_bytes": 16384,
+      "relative_to_before": {
+        "ratio": 6.35,
+        "ci_low": 6.3,
+        "ci_high": 6.684210526315789
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "runs_16",
+      "n": 4096,
+      "variant": "ink_adaptive",
+      "phase": "encode_lifecycle",
+      "output_bytes": 136,
+      "samples_ns": [
+        2843.75,
+        3156.25,
+        2843.75,
+        2812.5,
+        2875.0,
+        3093.75,
+        2843.75,
+        2843.75,
+        2843.75,
+        2843.75,
+        2843.75
+      ],
+      "median_ns": 2843.75,
+      "input_bytes": 16384,
+      "relative_to_before": {
+        "ratio": 0.30132450331125826,
+        "ci_low": 0.2993421052631579,
+        "ci_high": 0.304635761589404
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "runs_16",
+      "n": 4096,
+      "variant": "ink_adaptive",
+      "phase": "decode_lifecycle",
+      "output_bytes": 136,
+      "samples_ns": [
+        500.0,
+        500.0,
+        500.0,
+        500.0,
+        500.0,
+        531.25,
+        500.0,
+        500.0,
+        468.75,
+        500.0,
+        500.0
+      ],
+      "median_ns": 500.0,
+      "input_bytes": 16384,
+      "relative_to_before": {
+        "ratio": 0.8,
+        "ci_low": 0.8,
+        "ci_high": 0.8421052631578947
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "terrain_columns",
+      "n": 4096,
+      "variant": "ink_rle_before",
+      "phase": "encode_lifecycle",
+      "output_bytes": 1028,
+      "samples_ns": [
+        11187.5,
+        10687.5,
+        10625.0,
+        10687.5,
+        10625.0,
+        10625.0,
+        10687.5,
+        10687.5,
+        10687.5,
+        10687.5,
+        10812.5
+      ],
+      "median_ns": 10687.5,
+      "input_bytes": 16384,
+      "relative_to_before": {
+        "ratio": 1.0,
+        "ci_low": 1.0,
+        "ci_high": 1.0
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "terrain_columns",
+      "n": 4096,
+      "variant": "ink_rle_before",
+      "phase": "decode_lifecycle",
+      "output_bytes": 1028,
+      "samples_ns": [
+        1500.0,
+        1406.25,
+        1406.25,
+        1406.25,
+        1406.25,
+        1437.5,
+        1406.25,
+        1406.25,
+        1437.5,
+        1406.25,
+        1406.25
+      ],
+      "median_ns": 1406.25,
+      "input_bytes": 16384,
+      "relative_to_before": {
+        "ratio": 1.0,
+        "ci_low": 1.0,
+        "ci_high": 1.0
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "terrain_columns",
+      "n": 4096,
+      "variant": "ink_rle",
+      "phase": "encode_lifecycle",
+      "output_bytes": 1028,
+      "samples_ns": [
+        3156.25,
+        3250.0,
+        3187.5,
+        3187.5,
+        3187.5,
+        3187.5,
+        3187.5,
+        3187.5,
+        3187.5,
+        3187.5,
+        3218.75
+      ],
+      "median_ns": 3187.5,
+      "input_bytes": 16384,
+      "relative_to_before": {
+        "ratio": 0.2982456140350877,
+        "ci_low": 0.2982456140350877,
+        "ci_high": 0.3
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "terrain_columns",
+      "n": 4096,
+      "variant": "ink_rle",
+      "phase": "decode_lifecycle",
+      "output_bytes": 1028,
+      "samples_ns": [
+        1218.75,
+        937.5,
+        906.25,
+        906.25,
+        875.0,
+        906.25,
+        906.25,
+        1031.25,
+        906.25,
+        1093.75,
+        968.75
+      ],
+      "median_ns": 906.25,
+      "input_bytes": 16384,
+      "relative_to_before": {
+        "ratio": 0.6444444444444445,
+        "ci_low": 0.6304347826086957,
+        "ci_high": 0.7333333333333333
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "terrain_columns",
+      "n": 4096,
+      "variant": "lz4",
+      "phase": "encode_lifecycle",
+      "output_bytes": 756,
+      "samples_ns": [
+        3406.25,
+        2906.25,
+        2843.75,
+        2843.75,
+        2875.0,
+        2875.0,
+        2875.0,
+        2875.0,
+        2843.75,
+        2875.0,
+        2843.75
+      ],
+      "median_ns": 2875.0,
+      "input_bytes": 16384,
+      "relative_to_before": {
+        "ratio": 0.26900584795321636,
+        "ci_low": 0.26608187134502925,
+        "ci_high": 0.27058823529411763
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "terrain_columns",
+      "n": 4096,
+      "variant": "lz4",
+      "phase": "decode_lifecycle",
+      "output_bytes": 756,
+      "samples_ns": [
+        1000.0,
+        875.0,
+        875.0,
+        875.0,
+        875.0,
+        906.25,
+        875.0,
+        875.0,
+        875.0,
+        875.0,
+        906.25
+      ],
+      "median_ns": 875.0,
+      "input_bytes": 16384,
+      "relative_to_before": {
+        "ratio": 0.6222222222222222,
+        "ci_low": 0.6086956521739131,
+        "ci_high": 0.6444444444444445
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "terrain_columns",
+      "n": 4096,
+      "variant": "zstd_level_1",
+      "phase": "encode_lifecycle",
+      "output_bytes": 232,
+      "samples_ns": [
+        5187.5,
+        5281.25,
+        5093.75,
+        5125.0,
+        5187.5,
+        5125.0,
+        5125.0,
+        5125.0,
+        5187.5,
+        5125.0,
+        5156.25
+      ],
+      "median_ns": 5125.0,
+      "input_bytes": 16384,
+      "relative_to_before": {
+        "ratio": 0.47953216374269003,
+        "ci_low": 0.47953216374269003,
+        "ci_high": 0.4853801169590643
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "terrain_columns",
+      "n": 4096,
+      "variant": "zstd_level_1",
+      "phase": "decode_lifecycle",
+      "output_bytes": 232,
+      "samples_ns": [
+        2250.0,
+        2093.75,
+        2031.25,
+        2031.25,
+        2000.0,
+        2000.0,
+        2031.25,
+        2000.0,
+        2000.0,
+        2000.0,
+        2000.0
+      ],
+      "median_ns": 2000.0,
+      "input_bytes": 16384,
+      "relative_to_before": {
+        "ratio": 1.4222222222222223,
+        "ci_low": 1.391304347826087,
+        "ci_high": 1.4444444444444444
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "terrain_columns",
+      "n": 4096,
+      "variant": "ink_adaptive",
+      "phase": "encode_lifecycle",
+      "output_bytes": 1032,
+      "samples_ns": [
+        3750.0,
+        3781.25,
+        3812.5,
+        3781.25,
+        3843.75,
+        3781.25,
+        3812.5,
+        3843.75,
+        3812.5,
+        3812.5,
+        3812.5
+      ],
+      "median_ns": 3812.5,
+      "input_bytes": 16384,
+      "relative_to_before": {
+        "ratio": 0.3567251461988304,
+        "ci_low": 0.3538011695906433,
+        "ci_high": 0.3588235294117647
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "terrain_columns",
+      "n": 4096,
+      "variant": "ink_adaptive",
+      "phase": "decode_lifecycle",
+      "output_bytes": 1032,
+      "samples_ns": [
+        937.5,
+        906.25,
+        937.5,
+        906.25,
+        906.25,
+        937.5,
+        906.25,
+        906.25,
+        906.25,
+        906.25,
+        906.25
+      ],
+      "median_ns": 906.25,
+      "input_bytes": 16384,
+      "relative_to_before": {
+        "ratio": 0.6444444444444445,
+        "ci_low": 0.6304347826086957,
+        "ci_high": 0.6666666666666666
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "random",
+      "n": 4096,
+      "variant": "ink_rle_before",
+      "phase": "encode_lifecycle",
+      "output_bytes": 32772,
+      "samples_ns": [
+        51593.75,
+        51375.0,
+        51093.75,
+        51406.25,
+        51093.75,
+        51250.0,
+        52406.25,
+        51187.5,
+        51656.25,
+        51375.0,
+        51281.25
+      ],
+      "median_ns": 51375.0,
+      "input_bytes": 16384,
+      "relative_to_before": {
+        "ratio": 1.0,
+        "ci_low": 1.0,
+        "ci_high": 1.0
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "random",
+      "n": 4096,
+      "variant": "ink_rle_before",
+      "phase": "decode_lifecycle",
+      "output_bytes": 32772,
+      "samples_ns": [
+        35781.25,
+        36031.25,
+        36468.75,
+        36031.25,
+        35406.25,
+        36000.0,
+        36312.5,
+        35625.0,
+        35750.0,
+        36906.25,
+        35687.5
+      ],
+      "median_ns": 36000.0,
+      "input_bytes": 16384,
+      "relative_to_before": {
+        "ratio": 1.0,
+        "ci_low": 1.0,
+        "ci_high": 1.0
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "random",
+      "n": 4096,
+      "variant": "ink_rle",
+      "phase": "encode_lifecycle",
+      "output_bytes": 32772,
+      "samples_ns": [
+        43125.0,
+        41531.25,
+        41468.75,
+        41500.0,
+        42250.0,
+        41531.25,
+        41375.0,
+        41562.5,
+        41656.25,
+        41531.25,
+        41906.25
+      ],
+      "median_ns": 41531.25,
+      "input_bytes": 16384,
+      "relative_to_before": {
+        "ratio": 0.8083941605839416,
+        "ci_low": 0.80557238037553,
+        "ci_high": 0.8171846435100548
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "random",
+      "n": 4096,
+      "variant": "ink_rle",
+      "phase": "decode_lifecycle",
+      "output_bytes": 32772,
+      "samples_ns": [
+        15875.0,
+        15843.75,
+        15875.0,
+        16375.0,
+        15875.0,
+        15843.75,
+        16375.0,
+        15875.0,
+        15875.0,
+        15875.0,
+        15875.0
+      ],
+      "median_ns": 15875.0,
+      "input_bytes": 16384,
+      "relative_to_before": {
+        "ratio": 0.4409722222222222,
+        "ci_low": 0.43717728055077454,
+        "ci_high": 0.4448336252189142
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "random",
+      "n": 4096,
+      "variant": "lz4",
+      "phase": "encode_lifecycle",
+      "output_bytes": 16450,
+      "samples_ns": [
+        1718.75,
+        1687.5,
+        1687.5,
+        1593.75,
+        1593.75,
+        1625.0,
+        1656.25,
+        1593.75,
+        1687.5,
+        1625.0,
+        1687.5
+      ],
+      "median_ns": 1656.25,
+      "input_bytes": 16384,
+      "relative_to_before": {
+        "ratio": 0.03223844282238443,
+        "ci_low": 0.031078610603290677,
+        "ci_high": 0.032926829268292684
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "random",
+      "n": 4096,
+      "variant": "lz4",
+      "phase": "decode_lifecycle",
+      "output_bytes": 16450,
+      "samples_ns": [
+        593.75,
+        906.25,
+        625.0,
+        812.5,
+        625.0,
+        625.0,
+        812.5,
+        781.25,
+        593.75,
+        812.5,
+        593.75
+      ],
+      "median_ns": 625.0,
+      "input_bytes": 16384,
+      "relative_to_before": {
+        "ratio": 0.017361111111111112,
+        "ci_low": 0.016593886462882096,
+        "ci_high": 0.022549869904596703
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "random",
+      "n": 4096,
+      "variant": "zstd_level_1",
+      "phase": "encode_lifecycle",
+      "output_bytes": 16394,
+      "samples_ns": [
+        9031.25,
+        8843.75,
+        8875.0,
+        8781.25,
+        9156.25,
+        8843.75,
+        9031.25,
+        8843.75,
+        8937.5,
+        8812.5,
+        9093.75
+      ],
+      "median_ns": 8875.0,
+      "input_bytes": 16384,
+      "relative_to_before": {
+        "ratio": 0.17274939172749393,
+        "ci_low": 0.17203647416413373,
+        "ci_high": 0.1761121267519805
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "random",
+      "n": 4096,
+      "variant": "zstd_level_1",
+      "phase": "decode_lifecycle",
+      "output_bytes": 16394,
+      "samples_ns": [
+        812.5,
+        656.25,
+        781.25,
+        718.75,
+        687.5,
+        718.75,
+        750.0,
+        718.75,
+        718.75,
+        687.5,
+        750.0
+      ],
+      "median_ns": 718.75,
+      "input_bytes": 16384,
+      "relative_to_before": {
+        "ratio": 0.019965277777777776,
+        "ci_low": 0.019080659150043366,
+        "ci_high": 0.02096069868995633
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "random",
+      "n": 4096,
+      "variant": "ink_adaptive",
+      "phase": "encode_lifecycle",
+      "output_bytes": 16392,
+      "samples_ns": [
+        1593.75,
+        1687.5,
+        1531.25,
+        1593.75,
+        1468.75,
+        1406.25,
+        1437.5,
+        1406.25,
+        1468.75,
+        1562.5,
+        1468.75
+      ],
+      "median_ns": 1468.75,
+      "input_bytes": 16384,
+      "relative_to_before": {
+        "ratio": 0.028588807785888078,
+        "ci_low": 0.028031687995124923,
+        "ci_high": 0.03102189781021898
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "random",
+      "n": 4096,
+      "variant": "ink_adaptive",
+      "phase": "decode_lifecycle",
+      "output_bytes": 16392,
+      "samples_ns": [
+        968.75,
+        906.25,
+        875.0,
+        812.5,
+        843.75,
+        812.5,
+        812.5,
+        875.0,
+        812.5,
+        812.5,
+        875.0
+      ],
+      "median_ns": 843.75,
+      "input_bytes": 16384,
+      "relative_to_before": {
+        "ratio": 0.0234375,
+        "ci_low": 0.022375215146299483,
+        "ci_high": 0.024518388791593695
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "uniform",
+      "n": 65536,
+      "variant": "ink_rle_before",
+      "phase": "encode_lifecycle",
+      "output_bytes": 12,
+      "samples_ns": [
+        147093.75,
+        147906.25,
+        148656.25,
+        147781.25,
+        148156.25,
+        147312.5,
+        146062.5,
+        145531.25,
+        145968.75,
+        145593.75,
+        147593.75
+      ],
+      "median_ns": 147312.5,
+      "input_bytes": 262144,
+      "relative_to_before": {
+        "ratio": 1.0,
+        "ci_low": 1.0,
+        "ci_high": 1.0
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "uniform",
+      "n": 65536,
+      "variant": "ink_rle_before",
+      "phase": "decode_lifecycle",
+      "output_bytes": 12,
+      "samples_ns": [
+        6156.25,
+        5375.0,
+        6437.5,
+        5156.25,
+        5093.75,
+        4968.75,
+        5031.25,
+        4687.5,
+        4656.25,
+        4625.0,
+        4843.75
+      ],
+      "median_ns": 5031.25,
+      "input_bytes": 262144,
+      "relative_to_before": {
+        "ratio": 1.0,
+        "ci_low": 1.0,
+        "ci_high": 1.0
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "uniform",
+      "n": 65536,
+      "variant": "ink_rle",
+      "phase": "encode_lifecycle",
+      "output_bytes": 12,
+      "samples_ns": [
+        29718.75,
+        30812.5,
+        30031.25,
+        30968.75,
+        29468.75,
+        29500.0,
+        29218.75,
+        29375.0,
+        29218.75,
+        29312.5,
+        29250.0
+      ],
+      "median_ns": 29468.75,
+      "input_bytes": 262144,
+      "relative_to_before": {
+        "ratio": 0.2000424268137463,
+        "ci_low": 0.19860258310395934,
+        "ci_high": 0.2032142101924297
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "uniform",
+      "n": 65536,
+      "variant": "ink_rle",
+      "phase": "decode_lifecycle",
+      "output_bytes": 12,
+      "samples_ns": [
+        6250.0,
+        4843.75,
+        6218.75,
+        6312.5,
+        6375.0,
+        6093.75,
+        6031.25,
+        6031.25,
+        6125.0,
+        6250.0,
+        6062.5
+      ],
+      "median_ns": 6125.0,
+      "input_bytes": 262144,
+      "relative_to_before": {
+        "ratio": 1.2173913043478262,
+        "ci_low": 1.1569767441860466,
+        "ci_high": 1.3066666666666666
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "uniform",
+      "n": 65536,
+      "variant": "lz4",
+      "phase": "encode_lifecycle",
+      "output_bytes": 1041,
+      "samples_ns": [
+        16281.25,
+        16156.25,
+        16093.75,
+        16531.25,
+        16062.5,
+        16093.75,
+        16062.5,
+        16218.75,
+        15968.75,
+        16031.25,
+        15968.75
+      ],
+      "median_ns": 16093.75,
+      "input_bytes": 262144,
+      "relative_to_before": {
+        "ratio": 0.10924904539669071,
+        "ci_low": 0.10861740419225069,
+        "ci_high": 0.11031124285411814
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "uniform",
+      "n": 65536,
+      "variant": "lz4",
+      "phase": "decode_lifecycle",
+      "output_bytes": 1041,
+      "samples_ns": [
+        62375.0,
+        62531.25,
+        62093.75,
+        62250.0,
+        62906.25,
+        62468.75,
+        64468.75,
+        62250.0,
+        63500.0,
+        63468.75,
+        61000.0
+      ],
+      "median_ns": 62468.75,
+      "input_bytes": 262144,
+      "relative_to_before": {
+        "ratio": 12.416149068322982,
+        "ci_low": 11.604651162790697,
+        "ci_high": 13.34
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "uniform",
+      "n": 65536,
+      "variant": "zstd_level_1",
+      "phase": "encode_lifecycle",
+      "output_bytes": 36,
+      "samples_ns": [
+        20250.0,
+        20718.75,
+        19875.0,
+        19812.5,
+        20562.5,
+        19781.25,
+        20250.0,
+        19875.0,
+        19937.5,
+        19812.5,
+        19781.25
+      ],
+      "median_ns": 19875.0,
+      "input_bytes": 262144,
+      "relative_to_before": {
+        "ratio": 0.13491726771319473,
+        "ci_low": 0.13414891373128032,
+        "ci_high": 0.13766730401529637
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "uniform",
+      "n": 65536,
+      "variant": "zstd_level_1",
+      "phase": "decode_lifecycle",
+      "output_bytes": 36,
+      "samples_ns": [
+        75406.25,
+        77000.0,
+        77343.75,
+        87531.25,
+        75281.25,
+        76937.5,
+        78093.75,
+        76531.25,
+        75593.75,
+        76437.5,
+        76406.25
+      ],
+      "median_ns": 76531.25,
+      "input_bytes": 262144,
+      "relative_to_before": {
+        "ratio": 15.211180124223603,
+        "ci_low": 14.313953488372093,
+        "ci_high": 16.326666666666668
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "uniform",
+      "n": 65536,
+      "variant": "ink_adaptive",
+      "phase": "encode_lifecycle",
+      "output_bytes": 16,
+      "samples_ns": [
+        38187.5,
+        38250.0,
+        38062.5,
+        38875.0,
+        37875.0,
+        37937.5,
+        38156.25,
+        38593.75,
+        37843.75,
+        38000.0,
+        39750.0
+      ],
+      "median_ns": 38156.25,
+      "input_bytes": 262144,
+      "relative_to_before": {
+        "ratio": 0.25901569792108614,
+        "ci_low": 0.2571368153943751,
+        "ci_high": 0.26204238921001927
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "uniform",
+      "n": 65536,
+      "variant": "ink_adaptive",
+      "phase": "decode_lifecycle",
+      "output_bytes": 16,
+      "samples_ns": [
+        6125.0,
+        6250.0,
+        6375.0,
+        6343.75,
+        6250.0,
+        6281.25,
+        6562.5,
+        6406.25,
+        6281.25,
+        6281.25,
+        6125.0
+      ],
+      "median_ns": 6281.25,
+      "input_bytes": 262144,
+      "relative_to_before": {
+        "ratio": 1.2484472049689441,
+        "ci_low": 1.1627906976744187,
+        "ci_high": 1.34
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "runs_16",
+      "n": 65536,
+      "variant": "ink_rle_before",
+      "phase": "encode_lifecycle",
+      "output_bytes": 132,
+      "samples_ns": [
+        155562.5,
+        146031.25,
+        151531.25,
+        146375.0,
+        149187.5,
+        146250.0,
+        148125.0,
+        145531.25,
+        147000.0,
+        150718.75,
+        154687.5
+      ],
+      "median_ns": 148125.0,
+      "input_bytes": 262144,
+      "relative_to_before": {
+        "ratio": 1.0,
+        "ci_low": 1.0,
+        "ci_high": 1.0
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "runs_16",
+      "n": 65536,
+      "variant": "ink_rle_before",
+      "phase": "decode_lifecycle",
+      "output_bytes": 132,
+      "samples_ns": [
+        5531.25,
+        5343.75,
+        5406.25,
+        5281.25,
+        5281.25,
+        5281.25,
+        5250.0,
+        5218.75,
+        5218.75,
+        5312.5,
+        6187.5
+      ],
+      "median_ns": 5281.25,
+      "input_bytes": 262144,
+      "relative_to_before": {
+        "ratio": 1.0,
+        "ci_low": 1.0,
+        "ci_high": 1.0
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "runs_16",
+      "n": 65536,
+      "variant": "ink_rle",
+      "phase": "encode_lifecycle",
+      "output_bytes": 132,
+      "samples_ns": [
+        30531.25,
+        31906.25,
+        30250.0,
+        30687.5,
+        32187.5,
+        30125.0,
+        30781.25,
+        30250.0,
+        30031.25,
+        30781.25,
+        31656.25
+      ],
+      "median_ns": 30687.5,
+      "input_bytes": 262144,
+      "relative_to_before": {
+        "ratio": 0.20717299578059073,
+        "ci_low": 0.20148484223551247,
+        "ci_high": 0.21219103477167994
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "runs_16",
+      "n": 65536,
+      "variant": "ink_rle",
+      "phase": "decode_lifecycle",
+      "output_bytes": 132,
+      "samples_ns": [
+        6187.5,
+        6156.25,
+        6218.75,
+        6187.5,
+        6031.25,
+        6156.25,
+        6093.75,
+        6218.75,
+        6093.75,
+        6250.0,
+        6375.0
+      ],
+      "median_ns": 6187.5,
+      "input_bytes": 262144,
+      "relative_to_before": {
+        "ratio": 1.1715976331360947,
+        "ci_low": 1.1445086705202312,
+        "ci_high": 1.1775147928994083
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "runs_16",
+      "n": 65536,
+      "variant": "lz4",
+      "phase": "encode_lifecycle",
+      "output_bytes": 1110,
+      "samples_ns": [
+        19093.75,
+        17250.0,
+        17031.25,
+        17781.25,
+        16968.75,
+        16968.75,
+        17000.0,
+        16968.75,
+        17000.0,
+        17031.25,
+        17000.0
+      ],
+      "median_ns": 17000.0,
+      "input_bytes": 262144,
+      "relative_to_before": {
+        "ratio": 0.11476793248945148,
+        "ci_low": 0.11239430810476386,
+        "ci_high": 0.11784799316823227
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "runs_16",
+      "n": 65536,
+      "variant": "lz4",
+      "phase": "decode_lifecycle",
+      "output_bytes": 1110,
+      "samples_ns": [
+        15250.0,
+        13937.5,
+        14625.0,
+        14812.5,
+        13937.5,
+        13968.75,
+        13937.5,
+        13968.75,
+        14031.25,
+        13968.75,
+        14000.0
+      ],
+      "median_ns": 13968.75,
+      "input_bytes": 262144,
+      "relative_to_before": {
+        "ratio": 2.6449704142011834,
+        "ci_low": 2.5895953757225434,
+        "ci_high": 2.7529411764705882
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "runs_16",
+      "n": 65536,
+      "variant": "zstd_level_1",
+      "phase": "encode_lifecycle",
+      "output_bytes": 79,
+      "samples_ns": [
+        24062.5,
+        21718.75,
+        20125.0,
+        21843.75,
+        20156.25,
+        20000.0,
+        20093.75,
+        20656.25,
+        20125.0,
+        20000.0,
+        21531.25
+      ],
+      "median_ns": 20156.25,
+      "input_bytes": 262144,
+      "relative_to_before": {
+        "ratio": 0.1360759493670886,
+        "ci_low": 0.13331951067800124,
+        "ci_high": 0.14774659863945577
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "runs_16",
+      "n": 65536,
+      "variant": "zstd_level_1",
+      "phase": "decode_lifecycle",
+      "output_bytes": 79,
+      "samples_ns": [
+        93406.25,
+        79062.5,
+        77437.5,
+        78500.0,
+        78750.0,
+        77031.25,
+        76937.5,
+        75437.5,
+        76875.0,
+        77375.0,
+        78937.5
+      ],
+      "median_ns": 77437.5,
+      "input_bytes": 262144,
+      "relative_to_before": {
+        "ratio": 14.662721893491124,
+        "ci_low": 14.323699421965317,
+        "ci_high": 14.911242603550296
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "runs_16",
+      "n": 65536,
+      "variant": "ink_adaptive",
+      "phase": "encode_lifecycle",
+      "output_bytes": 136,
+      "samples_ns": [
+        39218.75,
+        39906.25,
+        38937.5,
+        38843.75,
+        38843.75,
+        38718.75,
+        39031.25,
+        38781.25,
+        39000.0,
+        38906.25,
+        39000.0
+      ],
+      "median_ns": 38937.5,
+      "input_bytes": 262144,
+      "relative_to_before": {
+        "ratio": 0.26286919831223626,
+        "ci_low": 0.25696019797896474,
+        "ci_high": 0.2664389410760034
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "runs_16",
+      "n": 65536,
+      "variant": "ink_adaptive",
+      "phase": "decode_lifecycle",
+      "output_bytes": 136,
+      "samples_ns": [
+        6093.75,
+        6250.0,
+        6000.0,
+        6562.5,
+        6281.25,
+        6468.75,
+        6218.75,
+        6093.75,
+        6093.75,
+        6781.25,
+        6062.5
+      ],
+      "median_ns": 6218.75,
+      "input_bytes": 262144,
+      "relative_to_before": {
+        "ratio": 1.1775147928994083,
+        "ci_low": 1.1271676300578035,
+        "ci_high": 1.2248520710059172
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "terrain_columns",
+      "n": 65536,
+      "variant": "ink_rle_before",
+      "phase": "encode_lifecycle",
+      "output_bytes": 16388,
+      "samples_ns": [
+        172812.5,
+        173625.0,
+        247250.0,
+        228062.5,
+        273968.75,
+        176281.25,
+        267937.5,
+        175468.75,
+        188187.5,
+        176781.25,
+        216468.75
+      ],
+      "median_ns": 188187.5,
+      "input_bytes": 262144,
+      "relative_to_before": {
+        "ratio": 1.0,
+        "ci_low": 1.0,
+        "ci_high": 1.0
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "terrain_columns",
+      "n": 65536,
+      "variant": "ink_rle_before",
+      "phase": "decode_lifecycle",
+      "output_bytes": 16388,
+      "samples_ns": [
+        25312.5,
+        22968.75,
+        39906.25,
+        45156.25,
+        23437.5,
+        23406.25,
+        44656.25,
+        23343.75,
+        24437.5,
+        23531.25,
+        23593.75
+      ],
+      "median_ns": 23593.75,
+      "input_bytes": 262144,
+      "relative_to_before": {
+        "ratio": 1.0,
+        "ci_low": 1.0,
+        "ci_high": 1.0
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "terrain_columns",
+      "n": 65536,
+      "variant": "ink_rle",
+      "phase": "encode_lifecycle",
+      "output_bytes": 16388,
+      "samples_ns": [
+        47281.25,
+        48968.75,
+        107125.0,
+        47687.5,
+        77000.0,
+        49625.0,
+        48531.25,
+        47906.25,
+        48062.5,
+        47937.5,
+        50750.0
+      ],
+      "median_ns": 48531.25,
+      "input_bytes": 262144,
+      "relative_to_before": {
+        "ratio": 0.2578877449352375,
+        "ci_low": 0.1980535894843276,
+        "ci_high": 0.2815103705016841
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "terrain_columns",
+      "n": 65536,
+      "variant": "ink_rle",
+      "phase": "decode_lifecycle",
+      "output_bytes": 16388,
+      "samples_ns": [
+        13625.0,
+        14031.25,
+        14593.75,
+        13812.5,
+        14218.75,
+        14093.75,
+        13937.5,
+        18437.5,
+        13968.75,
+        14375.0,
+        14250.0
+      ],
+      "median_ns": 14093.75,
+      "input_bytes": 262144,
+      "relative_to_before": {
+        "ratio": 0.5973509933774834,
+        "ci_low": 0.35160532498042285,
+        "ci_high": 0.6108897742363878
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "terrain_columns",
+      "n": 65536,
+      "variant": "lz4",
+      "phase": "encode_lifecycle",
+      "output_bytes": 8443,
+      "samples_ns": [
+        35125.0,
+        35062.5,
+        35375.0,
+        35156.25,
+        35781.25,
+        35625.0,
+        69781.25,
+        35406.25,
+        36843.75,
+        36406.25,
+        34812.5
+      ],
+      "median_ns": 35406.25,
+      "input_bytes": 262144,
+      "relative_to_before": {
+        "ratio": 0.18814347392892727,
+        "ci_low": 0.14320020222446916,
+        "ci_high": 0.2024041011136645
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "terrain_columns",
+      "n": 65536,
+      "variant": "lz4",
+      "phase": "decode_lifecycle",
+      "output_bytes": 8443,
+      "samples_ns": [
+        9093.75,
+        9125.0,
+        9187.5,
+        9375.0,
+        9187.5,
+        9625.0,
+        22562.5,
+        9218.75,
+        9437.5,
+        9343.75,
+        10031.25
+      ],
+      "median_ns": 9343.75,
+      "input_bytes": 262144,
+      "relative_to_before": {
+        "ratio": 0.39602649006622515,
+        "ci_low": 0.2341425215348473,
+        "ci_high": 0.40794701986754967
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "terrain_columns",
+      "n": 65536,
+      "variant": "zstd_level_1",
+      "phase": "encode_lifecycle",
+      "output_bytes": 1431,
+      "samples_ns": [
+        47531.25,
+        47687.5,
+        49250.0,
+        48062.5,
+        58906.25,
+        48031.25,
+        52687.5,
+        49281.25,
+        49375.0,
+        47937.5,
+        51531.25
+      ],
+      "median_ns": 49250.0,
+      "input_bytes": 262144,
+      "relative_to_before": {
+        "ratio": 0.2617070740617735,
+        "ci_low": 0.19919110212335692,
+        "ci_high": 0.27956036163800746
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "terrain_columns",
+      "n": 65536,
+      "variant": "zstd_level_1",
+      "phase": "decode_lifecycle",
+      "output_bytes": 1431,
+      "samples_ns": [
+        16406.25,
+        16500.0,
+        16468.75,
+        16343.75,
+        19625.0,
+        16531.25,
+        16500.0,
+        16343.75,
+        17500.0,
+        16406.25,
+        16593.75
+      ],
+      "median_ns": 16500.0,
+      "input_bytes": 262144,
+      "relative_to_before": {
+        "ratio": 0.6993377483443709,
+        "ci_low": 0.41268598277212215,
+        "ci_high": 0.7053333333333334
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "terrain_columns",
+      "n": 65536,
+      "variant": "ink_adaptive",
+      "phase": "encode_lifecycle",
+      "output_bytes": 16392,
+      "samples_ns": [
+        56812.5,
+        56750.0,
+        57781.25,
+        59125.0,
+        59531.25,
+        61062.5,
+        63156.25,
+        57937.5,
+        62406.25,
+        60156.25,
+        57625.0
+      ],
+      "median_ns": 59125.0,
+      "input_bytes": 262144,
+      "relative_to_before": {
+        "ratio": 0.31418133510461643,
+        "ci_low": 0.2391304347826087,
+        "ci_high": 0.34125155114341427
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "terrain_columns",
+      "n": 65536,
+      "variant": "ink_adaptive",
+      "phase": "decode_lifecycle",
+      "output_bytes": 16392,
+      "samples_ns": [
+        13875.0,
+        13937.5,
+        15625.0,
+        14156.25,
+        14187.5,
+        16437.5,
+        14562.5,
+        14187.5,
+        14250.0,
+        14218.75,
+        14125.0
+      ],
+      "median_ns": 14187.5,
+      "input_bytes": 262144,
+      "relative_to_before": {
+        "ratio": 0.6013245033112583,
+        "ci_low": 0.35630383711824587,
+        "ci_high": 0.6088117489986649
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "random",
+      "n": 65536,
+      "variant": "ink_rle_before",
+      "phase": "encode_lifecycle",
+      "output_bytes": 524292,
+      "samples_ns": [
+        851468.75,
+        848656.25,
+        784250.0,
+        834218.75,
+        819656.25,
+        800937.5,
+        814562.5,
+        945031.25,
+        1206718.75,
+        1307468.75,
+        917781.25
+      ],
+      "median_ns": 848656.25,
+      "input_bytes": 262144,
+      "relative_to_before": {
+        "ratio": 1.0,
+        "ci_low": 1.0,
+        "ci_high": 1.0
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "random",
+      "n": 65536,
+      "variant": "ink_rle_before",
+      "phase": "decode_lifecycle",
+      "output_bytes": 524292,
+      "samples_ns": [
+        563718.75,
+        610437.5,
+        531718.75,
+        564500.0,
+        533562.5,
+        571906.25,
+        552562.5,
+        717937.5,
+        949593.75,
+        915156.25,
+        718968.75
+      ],
+      "median_ns": 571906.25,
+      "input_bytes": 262144,
+      "relative_to_before": {
+        "ratio": 1.0,
+        "ci_low": 1.0,
+        "ci_high": 1.0
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "random",
+      "n": 65536,
+      "variant": "ink_rle",
+      "phase": "encode_lifecycle",
+      "output_bytes": 524292,
+      "samples_ns": [
+        709125.0,
+        687125.0,
+        654062.5,
+        700031.25,
+        673531.25,
+        675437.5,
+        673406.25,
+        666687.5,
+        1735593.75,
+        848312.5,
+        679531.25
+      ],
+      "median_ns": 679531.25,
+      "input_bytes": 262144,
+      "relative_to_before": {
+        "ratio": 0.8007143646205398,
+        "ci_low": 0.7190569094937337,
+        "ci_high": 0.8391459074733096
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "random",
+      "n": 65536,
+      "variant": "ink_rle",
+      "phase": "decode_lifecycle",
+      "output_bytes": 524292,
+      "samples_ns": [
+        285156.25,
+        261656.25,
+        282250.0,
+        267968.75,
+        276187.5,
+        259781.25,
+        274843.75,
+        261875.0,
+        478468.75,
+        362093.75,
+        270687.5
+      ],
+      "median_ns": 274843.75,
+      "input_bytes": 262144,
+      "relative_to_before": {
+        "ratio": 0.4805748319763947,
+        "ci_low": 0.3764941104881123,
+        "ci_high": 0.5051483613817538
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "random",
+      "n": 65536,
+      "variant": "lz4",
+      "phase": "encode_lifecycle",
+      "output_bytes": 263173,
+      "samples_ns": [
+        15375.0,
+        15031.25,
+        14062.5,
+        14812.5,
+        15312.5,
+        13875.0,
+        15125.0,
+        13031.25,
+        75812.5,
+        41062.5,
+        15406.25
+      ],
+      "median_ns": 15125.0,
+      "input_bytes": 262144,
+      "relative_to_before": {
+        "ratio": 0.017822292594911072,
+        "ci_low": 0.016139466784704962,
+        "ci_high": 0.018681611956231654
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "random",
+      "n": 65536,
+      "variant": "lz4",
+      "phase": "decode_lifecycle",
+      "output_bytes": 263173,
+      "samples_ns": [
+        9375.0,
+        9906.25,
+        8125.0,
+        8593.75,
+        9375.0,
+        8375.0,
+        8375.0,
+        7843.75,
+        25375.0,
+        23406.25,
+        9562.5
+      ],
+      "median_ns": 9375.0,
+      "input_bytes": 262144,
+      "relative_to_before": {
+        "ratio": 0.016392546855363094,
+        "ci_low": 0.011970053103508314,
+        "ci_high": 0.0169664065151001
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "random",
+      "n": 65536,
+      "variant": "zstd_level_1",
+      "phase": "encode_lifecycle",
+      "output_bytes": 262159,
+      "samples_ns": [
+        31812.5,
+        30843.75,
+        28375.0,
+        30312.5,
+        31937.5,
+        29281.25,
+        31156.25,
+        35156.25,
+        80812.5,
+        228812.5,
+        50968.75
+      ],
+      "median_ns": 31812.5,
+      "input_bytes": 262144,
+      "relative_to_before": {
+        "ratio": 0.037485731119048495,
+        "ci_low": 0.03633639258288069,
+        "ci_high": 0.055534747522898296
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "random",
+      "n": 65536,
+      "variant": "zstd_level_1",
+      "phase": "decode_lifecycle",
+      "output_bytes": 262159,
+      "samples_ns": [
+        11593.75,
+        9875.0,
+        7968.75,
+        8375.0,
+        8281.25,
+        8437.5,
+        8125.0,
+        10906.25,
+        11062.5,
+        25906.25,
+        15718.75
+      ],
+      "median_ns": 9875.0,
+      "input_bytes": 262144,
+      "relative_to_before": {
+        "ratio": 0.01726681602098246,
+        "ci_low": 0.014753292169826786,
+        "ci_high": 0.020272116277799027
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "random",
+      "n": 65536,
+      "variant": "ink_adaptive",
+      "phase": "encode_lifecycle",
+      "output_bytes": 262152,
+      "samples_ns": [
+        23156.25,
+        26156.25,
+        21812.5,
+        21875.0,
+        22000.0,
+        20937.5,
+        21468.75,
+        21562.5,
+        30218.75,
+        53687.5,
+        23437.5
+      ],
+      "median_ns": 22000.0,
+      "input_bytes": 262144,
+      "relative_to_before": {
+        "ratio": 0.025923334683507014,
+        "ci_low": 0.023766556573257516,
+        "ci_high": 0.030718978236136087
+      }
+    },
+    {
+      "family": "codec",
+      "pattern": "random",
+      "n": 65536,
+      "variant": "ink_adaptive",
+      "phase": "decode_lifecycle",
+      "output_bytes": 262152,
+      "samples_ns": [
+        14562.5,
+        15593.75,
+        13843.75,
+        13656.25,
+        13625.0,
+        13500.0,
+        14750.0,
+        13468.75,
+        18500.0,
+        40968.75,
+        14968.75
+      ],
+      "median_ns": 14562.5,
+      "input_bytes": 262144,
+      "relative_to_before": {
+        "ratio": 0.025463089448664007,
+        "ci_low": 0.01928266736310612,
+        "ci_high": 0.02616553024003548
+      }
+    }
+  ]
+}

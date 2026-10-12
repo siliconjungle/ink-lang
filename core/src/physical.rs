@@ -26,6 +26,22 @@ pub enum Definitions {
     Packed,
     Memo,
 }
+#[derive(Clone, Copy, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum Buffers {
+    #[default]
+    Scoped,
+    Direct,
+}
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct Reservation {
+    pub function: String,
+    pub parameter: String,
+    #[serde(default)]
+    pub fields: Vec<String>,
+    pub evidence: crate::property::Package,
+}
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Plan {
@@ -37,6 +53,14 @@ pub struct Plan {
     #[serde(default)]
     pub tables: Tables,
     #[serde(default)]
+    pub buffers: Buffers,
+    #[serde(default)]
+    pub columns: Vec<crate::column_codec::Layout>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub column_maps: Option<crate::column_codec::MapPackage>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub bounds: Option<crate::bounds::Package>,
+    #[serde(default)]
     pub borrow_reads: Vec<String>,
     #[serde(default)]
     pub borrow_rows: Vec<String>,
@@ -46,12 +70,18 @@ pub struct Plan {
     pub packed_datatypes: Vec<String>,
     #[serde(default)]
     pub memo_functions: Vec<String>,
+    #[serde(default)]
+    pub reservations: Vec<Reservation>,
 }
 #[derive(Clone, Debug)]
 pub struct CheckedPhysicalPlan {
     plan: Plan,
+    bounds: crate::bounds::CheckedBounds,
+    column_maps: crate::column_codec::CheckedMaps,
 }
 impl CheckedPhysicalPlan {
+    pub fn column_maps(&self) -> &crate::column_codec::CheckedMaps { &self.column_maps }
+    pub fn bounds(&self) -> &crate::bounds::CheckedBounds { &self.bounds }
     pub fn plan(&self) -> &Plan {
         &self.plan
     }
@@ -146,6 +176,34 @@ pub fn check(
         return Err(
             "source table/read strategies do not apply to definition representations".into(),
         );
+    }
+    if plan.reservations.len()>4096 || representation.is_some() && !plan.reservations.is_empty() {
+        return Err("oversized or unsupported source reservations".into());
+    }
+    let mut reserved = BTreeSet::new();
+    for reservation in &plan.reservations {
+        use crate::semantic::{self as s,Node};
+        let p=module.program();
+        let f=p.functions.iter().find(|f|f.name==reservation.function).ok_or("reservation function missing")?;
+        let param=f.params.iter().find(|(n,_)|*n==reservation.parameter).ok_or("reservation parameter missing")?;
+        if !reserved.insert(&f.name) || !matches!(f.result,crate::syntax::Type::List(_)) {
+            return Err("reservation requires unique finite sequence result/input".into());
+        }
+        let env=crate::check::params_env(&f.params)?;
+        let body=s::elaborate(&f.body,&env,p,&f.result)?;
+        if reservation.fields.len()>64 { return Err("reservation projection depth limit".into()); }
+        let mut projection=crate::syntax::Expr::Var(param.0.clone());
+        for field in &reservation.fields { projection=crate::syntax::Expr::Field(Box::new(projection),field.clone()); }
+        let capacity_type=crate::check::infer_context(&projection,&env,p,None)?;
+        if !matches!(capacity_type,crate::syntax::Type::List(_)) { return Err("reservation capacity is not a finite sequence".into()); }
+        let capacity=s::elaborate(&projection,&env,p,&capacity_type)?;
+        let count=|v|s::op(s::value(crate::syntax::Type::Int),"call:count",vec![v]);
+        let expected=crate::laws::Equation {
+            from:s::op(s::value(crate::syntax::Type::Bool),"binary:<=",vec![count(body),count(capacity)]),
+            to:s::term(s::value(crate::syntax::Type::Bool),Node::Bool(true)),
+        };
+        let facts=crate::property::check(module,&reservation.evidence)?;
+        if !facts.equations().iter().any(|e|e==&expected) { return Err("reservation lacks a proved exact cardinality bound".into()); }
     }
     // Generic lexical type validation is independent of strategy authoring.
     // A source hash alone cannot turn a scalar variable into a list borrow.
@@ -276,5 +334,10 @@ pub fn check(
     {
         return Err("physical definition sites require a checked representation".into());
     }
-    Ok(CheckedPhysicalPlan { plan: plan.clone() })
+    if plan.columns.len()>64 || !plan.columns.windows(2).all(|w|w[0].record<w[1].record){return Err("column layout ordering/count limit".into())}
+    if representation.is_some()&&(!plan.columns.is_empty()||plan.bounds.is_some()||plan.column_maps.is_some()||plan.buffers!=Buffers::Scoped){return Err("source column choices do not apply to definition representations".into())}
+    for layout in &plan.columns {crate::column_codec::check(module.program(),layout)?;}
+    let bounds=plan.bounds.as_ref().map(|p|crate::bounds::check(module,p)).transpose()?.unwrap_or_default();
+    let column_maps=plan.column_maps.as_ref().map(|p|crate::column_codec::check_maps(module,&plan.columns,p)).transpose()?.unwrap_or_default();
+    Ok(CheckedPhysicalPlan { plan: plan.clone(),bounds,column_maps })
 }

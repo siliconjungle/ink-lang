@@ -22,10 +22,11 @@ pub fn emit(plan: &CheckedPlan, target: &str, output: &Path) -> LangResult<()> {
     }
     if !matches!(target, "rust" | "rust-wasm")
         && physical.is_some_and(|p| {
-            p.tables != Tables::Ordered
+            !p.columns.is_empty() || p.column_maps.is_some() || p.bounds.is_some() || p.buffers != ink_core::physical::Buffers::Scoped || p.tables != Tables::Ordered
                 || !p.borrow_reads.is_empty()
                 || !p.borrow_rows.is_empty()
                 || p.definitions != Definitions::Shared
+                || !p.reservations.is_empty()
         })
     {
         return Err("requested physical sites require the Rust or Rust-Wasm capability; select a compatible database plan".into());
@@ -50,21 +51,26 @@ pub fn emit(plan: &CheckedPlan, target: &str, output: &Path) -> LangResult<()> {
             "rust-wasm" => {
                 let source = ink_lowering_rust::state_native::emit_planned(plan)?;
                 crate::runtime::emit_rust_program(
-                    &(source + crate::runtime::STATE_WASM_ABI),
+                    &source,
                     output,
                 )?;
             }
             "c" | "c-wasm" => crate::runtime::emit_c_program_planned(plan, output)?,
             "javascript" => write(output, ink_lowering_js::lower_planned(plan)?.javascript)?,
             "wgpu" | "webgpu" => {
-                if let Some(route) = plan.route() {
-                    crate::runtime::emit_routed(route, output)?;
+                if plan.route().is_some() {
+                    crate::runtime::emit_routed_planned(plan, output)?;
                 } else {
                     crate::runtime::emit_planned(plan, output)?;
                 }
             }
             _ => return Err("unsupported compiled plan emission target".into()),
         }
+    }
+    if matches!(target,"wgpu"|"webgpu") && plan.route().is_some() {
+        let directory=output;
+        let directory=if plan.representation().is_some(){directory.join("route")}else{directory.to_path_buf()};
+        crate::runtime::install_usage_identity(&directory,&plan.original().identity()?)?;
     }
     write(
         &output.with_extension("plan.json"),
@@ -91,7 +97,7 @@ fn emit_state_route(plan: &CheckedPlan, target: &str, output: &Path) -> LangResu
         return Err("state route needs a GPU host target".into());
     }
     if plan.physical().is_some_and(|p| {
-        p.plan().tables != Tables::Ordered
+        !p.plan().columns.is_empty() || p.plan().column_maps.is_some() || p.plan().bounds.is_some() || p.plan().buffers != ink_core::physical::Buffers::Scoped || p.plan().tables != Tables::Ordered
             || !p.plan().borrow_reads.is_empty()
             || !p.plan().borrow_rows.is_empty()
             || p.plan().definitions != Definitions::Shared
@@ -99,7 +105,8 @@ fn emit_state_route(plan: &CheckedPlan, target: &str, output: &Path) -> LangResu
         return Err("GPU state facade requires host-compatible physical choices".into());
     }
     fs::create_dir_all(output).map_err(|e| e.to_string())?;
-    crate::runtime::emit_routed(route, &output.join("route"))?;
+    crate::runtime::emit_routed_planned(plan, &output.join("route"))?;
+    crate::runtime::install_usage_identity(&output.join("route"),&plan.original().identity()?)?;
     let entry = &route.package().entry;
     let javascript = ink_lowering_js::lower(plan.module())?;
     write(&output.join("pure.mjs"), javascript.javascript)?;
