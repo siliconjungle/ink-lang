@@ -106,7 +106,9 @@ fn add_unused_mathematics(request: &mut Request) -> Vec<String> {
     b.membership.clear();
     let ids = b.objects.keys().cloned().collect::<Vec<_>>();
     let mut level = ids
-        .chunks(64)
+        // Small authenticated leaves keep large proof views within the package
+        // budget without changing the unreachable-object admission check.
+        .chunks(2)
         .map(|xs| {
             let entries = xs.to_vec();
             for x in xs {

@@ -190,8 +190,7 @@ pub(crate) fn check_registry_with_context(
     bundle: &crate::registry::Bundle,
     exports: &[String],
 ) -> LangResult<(CheckedDefinition, crate::logic::Context)> {
-    let view = crate::registry::CheckedBundle::check(bundle)?;
-    let context = view.first_order_context()?;
+    let context = crate::registry::CheckedBundle::checked_first_order_context(bundle)?;
     if exports.is_empty() || exports.len() > 128 {
         return Err("definition export count limit".into());
     }
@@ -199,7 +198,7 @@ pub(crate) fn check_registry_with_context(
     let mut objects = BTreeMap::new();
     let mut executable = BTreeMap::new();
     for (id, entry) in &bundle.objects {
-        let declaration: Declaration = serde_json::from_value(entry.payload["declaration"].clone())
+        let declaration = Declaration::deserialize(&entry.payload["declaration"])
             .map_err(|e| e.to_string())?;
         if matches!(
             declaration,

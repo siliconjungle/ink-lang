@@ -250,8 +250,8 @@ pub fn check(module: &CheckedModule, request: &Request) -> LangResult<CheckedRep
     if registry::canonical(request)?.len() > registry::MAX_VIEW_BYTES {
         return Err("representation byte limit".into());
     }
-    let view = registry::CheckedBundle::check(&request.knowledge)?;
-    if !view.bundle().roots.contains(&request.representation) {
+    registry::CheckedBundle::authenticate(&request.knowledge)?;
+    if !request.knowledge.roots.contains(&request.representation) {
         return Err("representation is not a pinned root".into());
     }
     let entry = &request.knowledge.objects[&request.representation];
@@ -446,6 +446,9 @@ pub fn check(module: &CheckedModule, request: &Request) -> LangResult<CheckedRep
             )?;
         }
     }
+    // The literal witness and context own everything needed after admission.
+    // Release the projected JSON before sealing the public request copy.
+    drop(math);
     Ok(CheckedRepresentation {
         module: module.clone(),
         projection,
