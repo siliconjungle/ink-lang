@@ -207,6 +207,8 @@ Database-authored recursive compilation and frozen replay: [database planning](d
 
 [Source specifications and invariants](docs/source-contracts.md) describe the checked syntax, database proof authoring and implementation refinement workflow.
 
+[Discovery reuse and traversal elimination](docs/discovery-reuse.md): frozen-core proof additions, structural matching, bounded file allocations and complete-call ablation curves.
+
 ## License
 
 Ink code and documentation are [MIT licensed](LICENSE). Third-party dependencies,
