@@ -94,6 +94,7 @@ jobs:
           CARGO_TARGET_DIR=target cargo test --manifest-path lowerings/gpu/Cargo.toml --test temporary_bounds
           cargo test --test distribution --test source_syntax --test action_values --test general_laws --test semantic_optimisation
           cargo test --test internal_snapshots --test collect_before_build --test proved_refinement_parity
+          cargo test --test physical_capabilities --test borrowed_native_reads
       - name: Composable state proofs, publication, journals and bounded search
         run: |
           cargo test --test composable_state --test journal_compaction --test indexed_laws
@@ -298,7 +299,7 @@ jobs:
       - name: Install pinned proof authoring
         run: python -m pip install python-sat==1.9.dev5
       - name: Required GPU dispatch, exact u64 and binary32
-        run: cargo test --test feature_parity --test database_planning -- --nocapture --test-threads=1
+        run: cargo test --test feature_parity --test database_planning --test physical_capabilities --test proved_refinement_parity -- --nocapture --test-threads=1
       - name: Actual wgpu dispatch and resident feedback
         run: cargo test --test lowering_parity --test generated_parity --test modules --test selected_checkpoint --test action_optimisation --test action_transitions --test numerical_state --test mixed_durability --test bend_features -- --nocapture --test-threads=1
       - uses: actions/setup-python@v5

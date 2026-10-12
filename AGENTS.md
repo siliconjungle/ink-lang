@@ -128,3 +128,8 @@ Packed lanes widen on values that do not fit and preserve raw float bits in plai
 lanes. Profiles rank replayed candidates only; absent comparable lifecycle evidence
 retains the baseline. Unsupported target selections must fail explicitly. Physical
 planning does not change executable-core V9 or public serialisation formats.
+
+Finish completed, validated work by merging and publishing it on `main` in the
+distribution and every changed independent package repository. Report the verified
+main revision. Feature branches and worktrees are staging areas during active work;
+keep work isolated when James explicitly requests a draft or separate branch.

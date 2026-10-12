@@ -185,16 +185,17 @@ fn conformance_inner(
             "{}",
             String::from_utf8_lossy(&out.stderr)
         );
-        // Packed compute scripts emit one receipt per line; module scripts
-        // emit a single ordered array. Decode the selected host's transport.
-        let actual: Vec<Value> = if packed_pure {
+        // Hosts may return one ordered array or packed receipts per line.
+        // Decode the complete array before interpreting individual lines.
+        let actual: Vec<Value> = if let Ok(receipts) = serde_json::from_slice(&out.stdout) {
+            receipts
+        } else {
+            assert!(packed_pure, "module host must return an ordered receipt array");
             std::str::from_utf8(&out.stdout)
                 .unwrap()
                 .lines()
                 .map(|line| serde_json::from_str(line).unwrap())
                 .collect()
-        } else {
-            serde_json::from_slice(&out.stdout).unwrap()
         };
         let calls = gpu_steps
             .iter()
