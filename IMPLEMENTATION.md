@@ -32,8 +32,8 @@ exact independent package pins. Existing checkouts are untouched.
 - [x] Invariant-aware refinement and representations.
 - [x] General witness discovery and algorithm proposals.
 - [x] Reusable proof library and canonical publication.
-- [ ] Cross-target, adversarial, discovery/replay, and performance evidence.
-- [ ] Documentation, package integration, and publication.
+- [x] Cross-target, adversarial, discovery/replay, and performance evidence.
+- [x] Documentation, package integration, and publication.
 
 Committed-state invariants need not hold during a transaction. Optimisation may
 use one only at a boundary where it is established, or with a checked proof for
@@ -52,5 +52,14 @@ numeric approximation is not implicitly authorised.
 - Unique-state queries become constant. Sorted-state queries skip repeated sorting
   and read minimum directly, using literal word-sort source correspondence.
 - Complete CPU/Wasm comparisons for loose witnesses and both invariant examples.
-- Current focused knowledge and planner suites, standalone Rust/JS packages and
-  core-only checks pass. Full mandatory target gate and final publication pending.
+- Core-only: 191 tests; merged knowledge: 55; final planner: 125; standalone
+  Rust/JS: 13/17; Lean translator: 10. All pass.
+- All 33 mandatory compiled suites pass (168 tests, 525 native GPU calls).
+  Browser replay passes 649 comparisons and 145 actual GPU calls. The browser
+  leg was completed separately after installing its missing pinned dependency;
+  the initial failed invocation receipt is preserved in the evidence.
+- Both canonical invariant implementations authenticate and replay after merging
+  the newer upstream publication. Every changed independent package is on main;
+  the distribution integrates exact pins and preserves newer upstream work.
+- Evidence records bounded search, independent proof domains, absent archived
+  test fixtures, and separate performance/correctness claims explicitly.

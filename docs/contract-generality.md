@@ -109,11 +109,29 @@ python3 -m producers.invariant_representations build/model.json \
   --compiler target/debug/ink -o build/invariant-candidates.json
 ```
 
-Extract a request from `requests`, then use `check-representation` and
-`emit-representation` with the original source and its contract evidence.
+Extract a request and replay it against the same checked source image:
+
+```sh
+python3 -c "import json; p=json.load(open('build/invariant-candidates.json')); json.dump(p['requests'][0],open('build/invariant-request.json','w'))"
+target/debug/ink emit-core examples/invariant-algorithms.ink \\
+  --contract-proofs build/invariant-proofs/evidence.json -o build/invariant.core.json
+target/debug/ink check-representation build/invariant.core.json \\
+  build/invariant-request.json --core
+target/debug/ink emit-representation build/invariant.core.json \\
+  build/invariant-request.json --core --target javascript -o build/invariant.mjs
+```
+
 The automatic planner discovers the same families from its pinned recipe
 registry. Correctness permits a candidate; measured comparable lifecycle
 evidence determines whether to prefer it.
+
+The canonical database also publishes the checked examples as
+`invariant-examples/unique/implementation` and
+`invariant-examples/sorted/implementation`, with 22 named source-bound state
+obligations. Planner retrieval authenticates their shared proof closures and
+replays the request against the original contract-bearing core image. These
+examples are bound to their sources; the producers and reusable laws supply
+the general capabilities.
 
 For source-law authoring and publication from the knowledge checkout:
 
@@ -127,6 +145,18 @@ refreshes the disposable index before further search; scanning the full
 canonical publication repeatedly is unnecessary authoring work.
 
 ## Evidence and limits
+
+Saved receipts are in `docs/evidence/contract-generality/validation.json` and its
+companion files. All 33 mandatory compiled suites passed: 168 tests and 525
+recorded native GPU calls. Browser replay passed 649 comparisons and 145 actual
+GPU calls. Its leg ran separately after installing a missing pinned browser
+dependency; the original failed invocation receipt is retained. The merged
+knowledge/planner suites passed 55/125 tests, alongside 191 core-only tests,
+13 Rust-backend tests, 17 JavaScript-backend tests and 10 Lean-translator tests.
+
+The complete archived knowledge suite depends on ignored historical fixtures
+and frozen compiler paths absent from this isolated checkout. Its attempted run
+is not counted as passing; current affected modules passed the focused suites.
 
 Core adversarial tests reject unguarded use, false preconditions, capture and
 false function equalities. Distribution tests replay loose witnesses and compare
