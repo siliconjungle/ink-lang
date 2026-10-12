@@ -201,6 +201,9 @@ The new 11-template conformance subject uses 57 full inference attempts instead
 of 2,035 exhaustive template/site pairs, with identical matches. This measures
 matching, not complete compilation or a larger-library performance law.
 Source-algorithm discovery shares this index; proof checking stays independent.
+The reproducible ordinary-planner run records 3.63 s for complete compilation,
+including offline acquisition and emission, on its small isolated catalogue.
+That is separate from the full-catalogue cold rebuild cost above.
 
 Raw observations, hashes, diagnostic protocols and intervals are in
 [the evidence directory](evidence/broad-performance/summary.json).
