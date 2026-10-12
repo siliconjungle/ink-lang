@@ -33,7 +33,9 @@ eligible GPU execution checked in the GPU job.
 All 36 local distribution branches were audited. The old unsquashed generic-language
 and composable-state development histories were superseded by PR18/PR21 and later
 constructor-case integration; their features are already present in main. The audit
-records these separately from branches whose complete heads are ancestors of main.
+records those ancestry integrations separately. Every audited branch head is now
+an ancestor of main, while the current implementation remains unchanged by those
+two historical merges.
 
 `AGENTS.md` now requires completed, validated work to be merged and published on main
 in the distribution and every changed independent package repository. Completion
