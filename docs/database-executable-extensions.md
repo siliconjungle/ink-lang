@@ -70,7 +70,7 @@ Rust and Rust-Wasm capacity plans can carry an ordinary typed `capacity` express
 for example `count(xs) + count(ys)`, instead of only one input-list projection.
 A source-bound theorem must prove, in exact integers, that the result length is
 at most that expression. The physical checker rejects unrelated, stale or false
-bounds and affine input consumption. The backend emits the expression and generic
+bounds, affine input consumption and capacity calls that introduce recursion. The backend emits the expression and generic
 collector. An unrepresentable machine-size hint falls back to normal growth; it
 never truncates output. Recursive collectors and unsupported result sites fail
 explicitly. More expensive bound computations still need profitability evidence.

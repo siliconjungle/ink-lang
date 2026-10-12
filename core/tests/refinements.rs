@@ -168,6 +168,9 @@ fn capacity_contract_binds_record_projection_and_rejects_unrelated_or_stale_fact
     };
     let mut plan:ink_core::physical::Plan=serde_json::from_value(serde_json::json!({"schema":1,"semantics":ink_core::physical::SEMANTICS,"input_core_sha256":module.identity().unwrap(),"reservations":[{"function":"select","parameter":"input","fields":["rows"],"evidence":evidence}]})).unwrap();
     ink_core::physical::check(&module, None, &plan).unwrap();
+    let mut recursive=plan.clone();recursive.reservations[0].parameter.clear();recursive.reservations[0].fields.clear();
+    recursive.reservations[0].capacity=Some(ink_core::syntax::Expr::Call("count".into(),vec![ink_core::syntax::Expr::Call("select".into(),vec![ink_core::syntax::Expr::Var("input".into())])]));
+    assert!(ink_core::physical::check(&module,None,&recursive).unwrap_err().contains("recursive execution path"));
     plan.reservations[0].fields = vec![];
     assert!(ink_core::physical::check(&module, None, &plan).is_err());
     plan.reservations[0].fields = vec!["missing".into()];
