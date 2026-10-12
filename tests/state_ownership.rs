@@ -4,10 +4,52 @@
 //! reference. Generated programs must still match the reference runtime on
 //! results, events, versions and aborts.
 use serde_json::{json, Value};
-use std::{fs, path::Path, process::Command};
+use std::{
+    fs,
+    io::Write,
+    path::Path,
+    process::{Command, Stdio},
+};
 use verified_language::{state_native, stateful::Runtime, syntax::parse};
 
 static NATIVE_EXECUTION: std::sync::Mutex<()> = std::sync::Mutex::new(());
+
+// Strategy authoring stays in knowledge. The core checks the source-bound
+// physical packet before the lowering may borrow any stored-row site.
+fn emit_borrowed_rows(p: &verified_language::syntax::Program) -> String {
+    use verified_language::{core::CheckedModule, planning};
+    let module = CheckedModule::from_source(p.clone()).unwrap();
+    let context = json!({"source":module.identity().unwrap(),
+        "core":serde_json::from_slice::<Value>(&module.bytes().unwrap()).unwrap(),
+        "emit_target":"rust"});
+    let root = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let mut author = Command::new("python3")
+        .args(["-c", "import json,sys;from producers.planning_recipes import physical;c=json.load(sys.stdin);rows=list(physical(c,[dict(tables='ordered',borrow=True)],[]));print(json.dumps(next(r['step'] for r in rows if r['step']['package']['borrow_rows'])))"])
+        .env("PYTHONPATH", root.join("knowledge"))
+        .stdin(Stdio::piped()).stdout(Stdio::piped()).stderr(Stdio::piped())
+        .spawn().unwrap();
+    author
+        .stdin
+        .take()
+        .unwrap()
+        .write_all(&serde_json::to_vec(&context).unwrap())
+        .unwrap();
+    let output = author.wait_with_output().unwrap();
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let step: planning::Step = serde_json::from_slice(&output.stdout).unwrap();
+    let package = planning::Package {
+        schema: 1,
+        semantics: planning::SEMANTICS.into(),
+        input_core_sha256: module.identity().unwrap(),
+        steps: vec![step],
+    };
+    let checked = planning::check(&module, &package).unwrap();
+    state_native::emit_planned(&checked).unwrap()
+}
 
 const SOURCE: &str = r#"module owned;
 record Item { name: String, stock: u32, }
@@ -121,7 +163,7 @@ fn compile_and_run(dir: &Path, code: &str, runner: &str, script: &[Value]) -> Va
 fn ownership_lowering_matches_reference_and_borrows_rows() {
     let _native = NATIVE_EXECUTION.lock().unwrap();
     let p = parse(SOURCE).unwrap();
-    let code = state_native::emit(&p).unwrap();
+    let code = emit_borrowed_rows(&p);
     // The read-modify-write change borrows the stored row and keeps only the
     // two fields it still needs; nothing clones the whole row.
     let restock = code
@@ -174,7 +216,7 @@ fn ownership_lowering_matches_reference_and_borrows_rows() {
     assert_eq!(got, json!(expected));
     let plain = compile_and_run(
         &root.join("plain"),
-        &code,
+        &state_native::emit(&p).unwrap(),
         verified_language::runtime::STATE_RUNNER,
         &script,
     );
@@ -184,7 +226,7 @@ fn ownership_lowering_matches_reference_and_borrows_rows() {
 #[test]
 fn rows_still_read_whole_after_a_write_are_cloned_before_it() {
     let p = parse(SOURCE).unwrap();
-    let code = state_native::emit(&p).unwrap();
+    let code = emit_borrowed_rows(&p);
     let rename = code
         .split("fn action_l_rename(")
         .nth(1)
@@ -233,7 +275,7 @@ query derived_map() -> List<Int> reads(Items, units) {{
 "#
     );
     let p = parse(&source).unwrap();
-    let code = state_native::emit(&p).unwrap();
+    let code = emit_borrowed_rows(&p);
     let mut calls = vec![
         json!({"call":"helper_map","args":[]}),
         json!({"call":"create","args":["a", "alpha", 0]}),

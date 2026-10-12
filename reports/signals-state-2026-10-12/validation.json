@@ -1,0 +1,114 @@
+{
+  "date": "2026-10-12",
+  "status": "focused_checks_passed; historical_suite_has_environment_errors",
+  "pins": {
+    "abi": "c800d60a4f49790dced13fc930b84ba7815d60a0",
+    "knowledge": "f28e8e4968f7d3bb41ccb2fe60b8a2c414ddeaef",
+    "lowerings/c": "870479f3ddd51f1febded0f09f54134d706298d2",
+    "lowerings/rust": "32f0a2febf9bb899759f6508103deb1e669817ce",
+    "lowerings/js": "696d203565fe6392378a0fd665dcbfb797d79378",
+    "lowerings/wasm": "e8a9943c0055ecebe5438dcf72fbbfbb70491522",
+    "lowerings/gpu": "55074b1fc4e24bd455a43ed6303d9f57e54bb3bb",
+    "native-support": "7426b306fb58be3ffb10cdb72c52c541c9a697c5",
+    "planner": "a83fc87999aeabaa48120e0c3692ad0d74ec4a27",
+    "runtime": "b23177de7b590e3b077fe5912d8d4b32669cba13"
+  },
+  "tests": [
+    {
+      "command": "cargo test --locked --manifest-path lowerings/js/Cargo.toml",
+      "status": "passed",
+      "tests": 15
+    },
+    {
+      "command": "INK_PARITY_REQUIRE_ALL=1 INK_TEST_ZIG=<Zig 0.15.2> cargo test --locked --test signals_state --test generated_parity --test numerical_state --test state_ownership --test language_foundations",
+      "status": "passed",
+      "tests": 14,
+      "targets": [
+        "C",
+        "Rust",
+        "JavaScript",
+        "C-Wasm",
+        "Rust-Wasm"
+      ],
+      "notes": "New state suite has six JS-specific mechanism/oracle tests; existing generated/numerical/ownership/foundation suites require both Wasm paths."
+    },
+    {
+      "command": "cargo test --locked --test javascript",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "command": "cargo test --locked --test journal_compaction --test reactive_dependencies --test transaction_boundary",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "command": "INK_RECURSIVE_INDEXED_REQUEST=<cached checked request> INK_PARITY_REQUIRE_ALL=1 INK_TEST_ZIG=<Zig 0.15.2> cargo test --locked --test representation_parity recursive_rows_and_mutual_links_preserve_portable_histories -- --exact",
+      "status": "passed",
+      "tests": 1,
+      "notes": "Replays the existing 34 MB mathematical request with current checker and compares complete recursive row/link histories; proposal search is outside this validation."
+    },
+    {
+      "command": "cargo check --manifest-path lowerings/rust/Cargo.toml",
+      "status": "passed"
+    },
+    {
+      "command": "npm test",
+      "status": "passed",
+      "scope": "two rounds, 256 rows; correctness smoke only"
+    },
+    {
+      "command": "cd knowledge && python3 -m unittest discover -s tests -q",
+      "status": "failed",
+      "tests": 297,
+      "errors": 61,
+      "skipped": 135,
+      "seconds": 1193.553,
+      "examples": [
+        "missing reports/web-engine-28-2026-10-11/context/candidate-view.json",
+        "missing reports/web-engine-28-2026-10-11/context/candidate-store/store/snapshot.json",
+        "missing historical research/toolchain/ink-sequence-proofs executable",
+        "historical imports referring to the absent top-level knowledge module from the standalone package cwd"
+      ],
+      "scope": "Broad historical experiment suite; this run is not claimed to pass. New law closure admission and concrete negative instances were checked separately."
+    },
+    {
+      "command": "cd knowledge && python3 -m unittest discover -s tests -p test_store.py -q",
+      "status": "passed",
+      "tests": 19
+    },
+    {
+      "command": "cd knowledge && python3 -m unittest discover -s tests -p test_incremental_store.py -q",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "command": "npm run prepare:frozen && npm test",
+      "status": "passed",
+      "scope": "SHA-256-verified frozen-module replay; two-round correctness smoke, not a performance claim"
+    },
+    {
+      "command": "INK_PARITY_REQUIRE_ALL=1 INK_TEST_ZIG=<Zig 0.15.2> cargo test --locked --test signals_state --test numerical_state",
+      "status": "passed",
+      "tests": 9,
+      "scope": "After dropping shared-context reuse; numerical suite requires native C/Rust, JS and both Wasm paths."
+    }
+  ],
+  "mathematical_admission": [
+    "../../docs/evidence/signals-state/reactive-laws.json",
+    "../../docs/evidence/signals-state/reactive-laws-final-check.json"
+  ],
+  "detected_regressions": [
+    {
+      "revision": "ink-lowering-rust 8ce7fed",
+      "failure": "failed later action erased earlier committed host action",
+      "resolution": "32f0a2febf9bb899759f6508103deb1e669817ce",
+      "check": "journal_compaction passed after carrying forward existing invocation-mark rollback fix"
+    }
+  ],
+  "limitations": [
+    "No proof of backend implementation correctness is claimed by conformance tests.",
+    "State-only benchmark excludes DOM/rendering, total lifecycle, native/GPU timing, peak allocation and durability.",
+    "Shared host had background work; timings are exploratory."
+  ]
+}
