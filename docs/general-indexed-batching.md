@@ -53,7 +53,10 @@ views allow 8192 objects and 128 MB; representation dependency lists allow 512
 entries. Existing proof nesting, descent and term budgets remain enforced.
 The sealed definition witness also keeps a private executable declaration index,
 avoiding repeated proof parsing during lowering. It is populated only after
-admission. No aggregate or grouping algorithm is recognized by the compiler or
+admission. Registry admission borrows authenticated JSON through the same
+membership and kernel checks, and releases projected transport data before
+sealing the public request. This avoids retaining duplicate large proof views;
+no proof is skipped. No aggregate or grouping algorithm is recognized by the compiler or
 lowerings.
 
 `planner/select_implementation.py` now automatically proposes and checks indexed
@@ -77,3 +80,14 @@ and outboxes on Rust, C, JavaScript, both Wasm lanes and both GPU host paths.
 Recursive physical state runs on GPU hosts. This test does not claim device
 execution or a formal proof of the lowerings. The benchmark and automatic
 selection reproduction are in `reports/generic-indexed-batching/`.
+
+The wider regression fixture `examples/indexed-key-types.ink` uses six tables,
+all six admitted key orders and every ordered edit pair. Recursive direct and
+mutual rows are covered by `examples/recursive-indexed.ink`. Their source-bound
+catalogue pins and admission receipts live in
+`knowledge/research/indexed-extensions/`; requests are reconstructed from
+ordinary authenticated store objects, avoiding a repository blob over 100 MB.
+The required representation CI shard reauthors these source fixtures and runs
+all existing tests; its time allowance is 120 minutes for the expanded workload.
+Freshly authenticated insertion routing and string ordering corruptions must
+fail mathematical admission.
