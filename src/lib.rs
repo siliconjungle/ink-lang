@@ -41,3 +41,5 @@ pub mod distribution;
 pub mod modules;
 
 pub mod representations;
+
+pub mod compiled_plans;

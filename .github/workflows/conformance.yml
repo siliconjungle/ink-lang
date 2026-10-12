@@ -96,7 +96,9 @@ jobs:
           cargo test --test internal_snapshots --test collect_before_build
       - name: Composable state proofs, publication, journals and bounded search
         run: |
-          cargo test --test composable_state --test journal_compaction
+          cargo test --test composable_state --test journal_compaction --test indexed_laws
+          PYTHONPATH=planner:knowledge python3 -m unittest discover -s planner/tests -p test_compiled_planning.py
+          PYTHONPATH=planner:knowledge python3 -m unittest discover -s knowledge/tests -p test_planning_recipes.py
           PYTHONPATH=knowledge python3 -m unittest discover -s knowledge/tests -p test_store.py
           PYTHONPATH=knowledge python3 -m unittest discover -s knowledge/tests -p test_state_calculus.py
           PYTHONPATH=knowledge python3 -m unittest discover -s knowledge/tests -p test_admit_publication.py
@@ -113,7 +115,11 @@ jobs:
         run: |
           cargo build --release --bin ink
           python planner/tests/automatic_candidates_integration.py target/release/ink planner/tests/fixtures/generic-batching.ink
+          python planner/tests/compiled_pool_integration.py target/release/ink examples/point-query-delta.ink
           python -m unittest discover -s knowledge/tests -p test_generic_indexed.py
+          python -m unittest discover -s knowledge/tests -p test_generic_extensions.py
+          python -m unittest discover -s knowledge/tests -p test_point_authoring_hygiene.py
+          python -m unittest discover -s planner/tests -p test_proposal_recipe.py
       - name: Retain reproducible programs, seeds and expected outcomes
         if: always()
         uses: actions/upload-artifact@v4
@@ -176,7 +182,7 @@ jobs:
           retention-days: 30
   cpu-representations:
     runs-on: ubuntu-24.04
-    timeout-minutes: 60
+    timeout-minutes: 120
     env:
       INK_PARITY_REQUIRE_ALL: '1'
       INK_THREADS: '4'
@@ -285,8 +291,13 @@ jobs:
               f.write('\n[workspace]\n')
           PY
           cargo fetch --locked --manifest-path build/gpu-deps/Cargo.toml
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned proof authoring
+        run: python -m pip install python-sat==1.9.dev5
       - name: Required GPU dispatch, exact u64 and binary32
-        run: cargo test --test feature_parity -- --nocapture --test-threads=1
+        run: cargo test --test feature_parity --test database_planning -- --nocapture --test-threads=1
       - name: Actual wgpu dispatch and resident feedback
         run: cargo test --test lowering_parity --test generated_parity --test modules --test selected_checkpoint --test action_optimisation --test action_transitions --test numerical_state --test mixed_durability --test bend_features -- --nocapture --test-threads=1
       - uses: actions/setup-python@v5
@@ -301,6 +312,8 @@ jobs:
           python bench/gpu/prepare-lowering-parity-browser.py "$ZIG_RUNNER"
           npm ci --prefix bench/gpu --ignore-scripts --no-audit --no-fund
           node bench/gpu/lowering-parity-browser.mjs "$(command -v google-chrome)"
+          python bench/gpu/prepare-database-plan-browser.py "$ZIG_RUNNER"
+          node bench/gpu/database-plan-browser.mjs "$(command -v google-chrome)"
       - name: Retain GPU failure reproductions
         if: always()
         uses: actions/upload-artifact@v4
@@ -308,6 +321,10 @@ jobs:
           name: wgpu-conformance
           path: |
             build/browser-lowering-parity.json
+            build/database-plan-browser.json
+            build/database-plan-conformance/checks.json
+            build/database-plan-conformance/routed-plan.json
+            build/database-plan-conformance/oracle.json
             build/temporary-c-test/test.c
             build/lowering-residency/*.json
             build/lowering-residency/*.wgsl

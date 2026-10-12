@@ -41,7 +41,9 @@ fn relocated_install_search_and_independent_offline_replay_need_no_original_path
     fs::create_dir_all(&outside).unwrap();
     let resources = relocated.join("share/ink");
     assert!(resources.join("planner/select_implementation.py").is_file());
-    assert!(resources.join("knowledge/producers/implementation_candidates.py").is_file());
+    assert!(resources
+        .join("knowledge/producers/implementation_candidates.py")
+        .is_file());
     let command = || {
         let mut c = Command::new(&exe);
         c.current_dir(&outside)
@@ -100,7 +102,7 @@ fn relocated_install_search_and_independent_offline_replay_need_no_original_path
 
     let info: Value = serde_json::from_slice(&success(
         command()
-            .args(["explain", "main.ink", "--optimise"])
+            .args(["explain", "main.ink", "--search-budget", "16", "--optimise"])
             .arg(resources.join("knowledge/store/snapshot.json")),
     ))
     .unwrap();
@@ -111,7 +113,15 @@ fn relocated_install_search_and_independent_offline_replay_need_no_original_path
         .is_empty());
     success(
         command()
-            .args(["build", "main.ink", "--target", "javascript", "--optimise"])
+            .args([
+                "build",
+                "main.ink",
+                "--target",
+                "javascript",
+                "--search-budget",
+                "16",
+                "--optimise",
+            ])
             .arg(resources.join("knowledge/store/snapshot.json"))
             .args(["-o", "program.mjs"]),
     );
@@ -122,6 +132,54 @@ fn relocated_install_search_and_independent_offline_replay_need_no_original_path
         serde_json::to_vec(&plan["semantic_package"]).unwrap(),
     )
     .unwrap();
+
+    // Recursive planning also runs solely from the relocated bundle. Select a
+    // small published strategy domain to make this packaging check bounded.
+    let mut registry: Value = serde_json::from_slice(
+        &fs::read(resources.join("knowledge/ink_knowledge/implementation-recipes.json")).unwrap(),
+    )
+    .unwrap();
+    registry["recipes"]
+        .as_array_mut()
+        .unwrap()
+        .retain(|r| r["function"] == "physical");
+    fs::write(
+        outside.join("registry.json"),
+        serde_json::to_vec(&registry).unwrap(),
+    )
+    .unwrap();
+    fs::write(
+        outside.join("mapped.ink"),
+        "module moved; fn mapped(xs:List<u32>)->List<u32>{return xs.map(fn(x)=>x+1);}",
+    )
+    .unwrap();
+    success(
+        command()
+            .args(["compile", "mapped.ink", "--optimise"])
+            .arg(resources.join("knowledge"))
+            .args([
+                "--registry",
+                "registry.json",
+                "--target",
+                "rust",
+                "--search-budget",
+                "4",
+                "--state-limit",
+                "8",
+                "--planning-seconds",
+                "60",
+                "-o",
+                "mapped.rs",
+            ]),
+    );
+    let planning: Value = serde_json::from_slice(
+        &fs::read(outside.join("mapped.rs.planning.json.receipt.json")).unwrap(),
+    )
+    .unwrap();
+    assert_eq!(planning["status"], "checked");
+    assert!(planning["candidates"].as_array().unwrap().len() > 1);
+    assert!(planning["coverage"]["entries"].as_u64().unwrap() > 1024);
+    let selected = fs::read(outside.join("mapped.rs")).unwrap();
 
     // Separate the producer package and database physically, with no sibling checkout.
     let planner = outside.join("independent planner");
@@ -139,7 +197,7 @@ fn relocated_install_search_and_independent_offline_replay_need_no_original_path
         command()
             .env("INK_DISTRIBUTION", outside.join("missing bundle"))
             .env("INK_KNOWLEDGE_ROOT", &knowledge)
-            .args(["explain", "main.ink", "--optimise"])
+            .args(["explain", "main.ink", "--search-budget", "16", "--optimise"])
             .arg(knowledge.join("store/snapshot.json"))
             .arg("--search-tool")
             .arg(planner.join("plan.py")),
@@ -149,7 +207,7 @@ fn relocated_install_search_and_independent_offline_replay_need_no_original_path
     let no_python = command()
         .env("INK_DISTRIBUTION", outside.join("missing bundle"))
         .env("INK_KNOWLEDGE_ROOT", &knowledge)
-        .args(["explain", "main.ink", "--optimise"])
+        .args(["explain", "main.ink", "--search-budget", "16", "--optimise"])
         .arg(knowledge.join("store/snapshot.json"))
         .arg("--search-tool")
         .arg(planner.join("plan.py"))
@@ -163,6 +221,25 @@ fn relocated_install_search_and_independent_offline_replay_need_no_original_path
     // Frozen checking cannot accidentally call Python or discover a repository.
     fs::remove_dir_all(&planner).unwrap();
     fs::remove_dir_all(&knowledge).unwrap();
+    success(
+        command()
+            .env("PATH", "")
+            .env("INK_DISTRIBUTION", outside.join("missing bundle"))
+            .args([
+                "compile",
+                "mapped.ink",
+                "--plan",
+                "mapped.rs.planning.json",
+                "--target",
+                "rust",
+                "-o",
+                "mapped-replayed.rs",
+            ]),
+    );
+    assert_eq!(
+        selected,
+        fs::read(outside.join("mapped-replayed.rs")).unwrap()
+    );
     let frozen: Value = serde_json::from_slice(&success(
         command()
             .env("PATH", "")

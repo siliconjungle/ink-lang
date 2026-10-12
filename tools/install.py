@@ -65,6 +65,8 @@ def main():
         # Package pinned authoring modules and their shared helpers together.
         committed(root / 'knowledge', ['ink_knowledge', 'store', 'research/general-laws',
                   'producers', 'libraries', 'research/verified-kernel'], resources / 'knowledge')
+        # Relocatable authoring dependencies: no virtualenv shebang embeds the staging path.
+        subprocess.run([os.sys.executable,'-m','pip','install','--disable-pip-version-check','--no-compile','--target',str(resources/'python-site'),'python-sat==1.9.dev5'],check=True)
         manifest = dict(schema=1, source_revision=git(root, 'rev-parse', 'HEAD').decode().strip(), packages=packages,
                         source_checkout_dirty=bool(git(root, 'status', '--porcelain')),
                         binary_source='explicit --binary input' if args.binary else 'cargo install of the current checkout',
