@@ -155,3 +155,11 @@ checks pass; the receipt lists every historical missing-file error.
 The relocated bundle test passes recursive planning and candidate publication.
 It then removes planner/database resources and empties `PATH`; frozen replay
 produces byte-identical Rust output using only the installed checker.
+
+PR28 was integrated with current main’s Boolean keys, recursive nominal rows,
+small authenticated proof leaves and borrowed admission. The combined graph
+passes121 standalone core tests,71 planner tests,22 store tests, all54 grouping
+law families, all-key and recursive-row histories on every CPU lane, actual
+wgpu/WebGPU execution, and relocated cold discovery plus offline replay.
+`main-integration-checks.json` preserves exact package/compiler provenance and
+keeps earlier benchmark acquisition identities separate from this refactor.
