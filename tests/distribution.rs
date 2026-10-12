@@ -102,7 +102,7 @@ fn relocated_install_search_and_independent_offline_replay_need_no_original_path
 
     let info: Value = serde_json::from_slice(&success(
         command()
-            .args(["explain", "main.ink", "--optimise"])
+            .args(["explain", "main.ink", "--search-budget", "16", "--optimise"])
             .arg(resources.join("knowledge/store/snapshot.json")),
     ))
     .unwrap();
@@ -113,7 +113,15 @@ fn relocated_install_search_and_independent_offline_replay_need_no_original_path
         .is_empty());
     success(
         command()
-            .args(["build", "main.ink", "--target", "javascript", "--optimise"])
+            .args([
+                "build",
+                "main.ink",
+                "--target",
+                "javascript",
+                "--search-budget",
+                "16",
+                "--optimise",
+            ])
             .arg(resources.join("knowledge/store/snapshot.json"))
             .args(["-o", "program.mjs"]),
     );
@@ -124,43 +132,6 @@ fn relocated_install_search_and_independent_offline_replay_need_no_original_path
         serde_json::to_vec(&plan["semantic_package"]).unwrap(),
     )
     .unwrap();
-
-    // Separate the producer package and database physically, with no sibling checkout.
-    let planner = outside.join("independent planner");
-    let knowledge = outside.join("independent database");
-    fs::rename(resources.join("planner"), &planner).unwrap();
-    fs::rename(resources.join("knowledge"), &knowledge).unwrap();
-    let partial: Value = serde_json::from_slice(&success(command().arg("doctor"))).unwrap();
-    assert!(partial["resources"]
-        .as_array()
-        .unwrap()
-        .iter()
-        .all(|r| r["available"] == false));
-
-    let independent: Value = serde_json::from_slice(&success(
-        command()
-            .env("INK_DISTRIBUTION", outside.join("missing bundle"))
-            .env("INK_KNOWLEDGE_ROOT", &knowledge)
-            .args(["explain", "main.ink", "--optimise"])
-            .arg(knowledge.join("store/snapshot.json"))
-            .arg("--search-tool")
-            .arg(planner.join("plan.py")),
-    ))
-    .unwrap();
-    assert_eq!(info["selection"], independent["selection"]);
-    let no_python = command()
-        .env("INK_DISTRIBUTION", outside.join("missing bundle"))
-        .env("INK_KNOWLEDGE_ROOT", &knowledge)
-        .args(["explain", "main.ink", "--optimise"])
-        .arg(knowledge.join("store/snapshot.json"))
-        .arg("--search-tool")
-        .arg(planner.join("plan.py"))
-        .arg("--python")
-        .arg(outside.join("missing python"))
-        .output()
-        .unwrap();
-    assert!(!no_python.status.success());
-    assert!(String::from_utf8_lossy(&no_python.stderr).contains("--python PATH"));
 
     // Recursive planning also runs solely from the relocated bundle. Select a
     // small published strategy domain to make this packaging check bounded.
@@ -209,6 +180,43 @@ fn relocated_install_search_and_independent_offline_replay_need_no_original_path
     assert!(planning["candidates"].as_array().unwrap().len() > 1);
     assert!(planning["coverage"]["entries"].as_u64().unwrap() > 1024);
     let selected = fs::read(outside.join("mapped.rs")).unwrap();
+
+    // Separate the producer package and database physically, with no sibling checkout.
+    let planner = outside.join("independent planner");
+    let knowledge = outside.join("independent database");
+    fs::rename(resources.join("planner"), &planner).unwrap();
+    fs::rename(resources.join("knowledge"), &knowledge).unwrap();
+    let partial: Value = serde_json::from_slice(&success(command().arg("doctor"))).unwrap();
+    assert!(partial["resources"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .all(|r| r["available"] == false));
+
+    let independent: Value = serde_json::from_slice(&success(
+        command()
+            .env("INK_DISTRIBUTION", outside.join("missing bundle"))
+            .env("INK_KNOWLEDGE_ROOT", &knowledge)
+            .args(["explain", "main.ink", "--search-budget", "16", "--optimise"])
+            .arg(knowledge.join("store/snapshot.json"))
+            .arg("--search-tool")
+            .arg(planner.join("plan.py")),
+    ))
+    .unwrap();
+    assert_eq!(info["selection"], independent["selection"]);
+    let no_python = command()
+        .env("INK_DISTRIBUTION", outside.join("missing bundle"))
+        .env("INK_KNOWLEDGE_ROOT", &knowledge)
+        .args(["explain", "main.ink", "--search-budget", "16", "--optimise"])
+        .arg(knowledge.join("store/snapshot.json"))
+        .arg("--search-tool")
+        .arg(planner.join("plan.py"))
+        .arg("--python")
+        .arg(outside.join("missing python"))
+        .output()
+        .unwrap();
+    assert!(!no_python.status.success());
+    assert!(String::from_utf8_lossy(&no_python.stderr).contains("--python PATH"));
 
     // Frozen checking cannot accidentally call Python or discover a repository.
     fs::remove_dir_all(&planner).unwrap();

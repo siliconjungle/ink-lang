@@ -20,7 +20,7 @@ try{
   const {parseExactJSON}=await import(new URL('runtime/hosts/state-wasm.mjs',base));
   const oracle=parseExactJSON(await(await fetch(new URL(fixture+'/oracle.json',base))).text());
   const {loadInk}=await import(new URL('ink-plan.mjs',folder));const host=await loadInk(folder);const state=host.createState();
-  const normal=v=>typeof v==='bigint'?v.toString():typeof v==='number'&&Number.isInteger(v)?String(v):Array.isArray(v)?v.map(normal):v&&typeof v==='object'?Object.fromEntries(Object.entries(v).map(([k,x])=>[k,normal(x)])):v;
+  const normal=v=>typeof v==='bigint'?v.toString():typeof v==='number'&&Number.isInteger(v)?String(v):Array.isArray(v)?v.map(normal):v&&typeof v==='object'?Object.fromEntries(Object.entries(v).sort(([a],[b])=>a.localeCompare(b)).map(([k,x])=>[k,normal(x)])):v;
   const equal=(a,b,label)=>{if(JSON.stringify(normal(a))!==JSON.stringify(normal(b)))throw Error(label);};
   let comparisons=0;
   for(const step of oracle){
