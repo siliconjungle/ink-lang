@@ -1,6 +1,6 @@
 # Implementation status
 
-Overview reviewed **12 October 2026** against the distribution and its independently
+Overview reviewed **13 October 2026** against the distribution and its independently
 versioned packages. Ink is a working prototype. Execution, proof-based replacement
 and measured performance have different coverage; the full design draft is wider
 than all three. Package changes become distribution features only when their pins
@@ -11,6 +11,25 @@ Read [the philosophy and ambitions](docs/vision.md), [the design draft](docs/lan
 Historical counts and milestone receipts are preserved in
 [the previous status snapshot](docs/history/implementation-status-through-2026-10-11.md).
 
+## Recent integrated capabilities
+
+[Database planning](docs/database-planning.md) recursively composes independently
+checked transformation layers and physical strategies. [Observed usage](docs/proved-usage-planning.md)
+guides offline exploration and measured lifecycle selection; resource plans bind
+final-use releases and admission credits, with runtime checks for future overload.
+[Database-authored algorithms](docs/database-executable-extensions.md) can introduce
+checked typed helpers and scratch types before proving their replacement.
+[Source specifications](docs/source-contracts.md) create implementation, caller and
+invariant obligations rather than trusted annotations. V9 binds bulk buffer ranges;
+V10 binds source contracts. General dependent types remain outside this scope.
+
+The [proof-growth study](docs/proof-growth-epoch3.md) records reusable law growth,
+complete-call costs and regressions with each compiler held fixed. Its deliberately
+chosen kernels are not an unseen-program generalisation estimate. The standalone
+[MIT browser editor](https://github.com/siliconjungle/ink-environment) compiles and runs
+single-file programs locally; its external knowledge-search and import limits are
+separate from the distribution compiler's capabilities.
+
 ## Universal optimisation boundaries
 
 Early termination, owned-buffer reuse and bounded helper unfolding are proposed
@@ -20,8 +39,10 @@ owns packed layouts and one native/browser decision contract; `ink-native-suppor
 owns emitted value/ownership primitives. Shared source analysis belongs in core.
 Legacy optimisation APIs and compatibility features are removed.
 
-The pinned knowledge snapshot contains 6,726 entries, including eight early-exit
-and 28 owned-transform laws. Counts describe this snapshot, not proof coverage.
+The historical universal-optimisation snapshot contained 6,726 entries, including
+eight early-exit and 28 owned-transform laws. That count belongs to its recorded
+revision; the current catalogue has grown substantially. Exact current membership
+is bound by `knowledge/store/snapshot.json`, not by this historical count.
 Saved profiles guide eligible execution; runtime does not run profitability probes.
 Historical measurements remain evidence of their recorded revisions, including
 losing candidates. See [the operation and trust boundaries](docs/universal-optimisation.md).
@@ -55,8 +76,10 @@ for this pipeline feature, while broad competitive execution remains open.
 [Numerical state](docs/numerical-state.md), [GPU compute](docs/gpu-compute.md),
 [durable hosts](docs/durable-host.md), [modules](docs/modules.md) and
 [installation](docs/installation.md) give the exact contracts.
-Ordinary baseline JavaScript keeps recompute; checked standalone representations
-maintain the admitted fixed-key and filtered aggregate candidates. F32 programs use executable-core V8:
+Ordinary JavaScript retains deterministic scalar keeps until actual checked table
+dependencies change, with rollback and restore handling. Composite keeps retain
+their ownership path. Checked standalone representations can additionally maintain
+admitted fixed-key and aggregate candidates through proved update algorithms. F32 programs use executable-core V8:
 arithmetic rounds to binary32 and produces canonical NaNs; transport and negation
 preserve payload bits. Packed GPU code uses integer lanes for this contract. Literal GPU scans and sorts are not a claim of
 efficient parallel prefix/sorting algorithms.

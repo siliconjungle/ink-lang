@@ -61,9 +61,13 @@ def main():
         resources = stage / 'share' / 'ink'
         planner_scripts = [name for name in git(root / 'planner', 'ls-files', '-z').decode().split('\0')
                            if name and len(Path(name).parts) == 1 and Path(name).suffix == '.py']
-        committed(root / 'planner', ['ink_planner', *planner_scripts], resources / 'planner')
+        committed(root, ['LICENSE'], resources)
+        for package in ['abi', 'native-support', 'runtime', 'lowerings/c', 'lowerings/rust',
+                        'lowerings/js', 'lowerings/wasm', 'lowerings/gpu']:
+            committed(root / package, ['LICENSE'], resources / 'licenses' / package)
+        committed(root / 'planner', ['LICENSE', 'ink_planner', *planner_scripts], resources / 'planner')
         # Package pinned authoring modules and their shared helpers together.
-        committed(root / 'knowledge', ['ink_knowledge', 'store', 'research/general-laws',
+        committed(root / 'knowledge', ['LICENSE', 'ink_knowledge', 'store', 'research/general-laws',
                   'producers', 'libraries', 'research/verified-kernel'], resources / 'knowledge')
         # Relocatable authoring dependencies: no virtualenv shebang embeds the staging path.
         subprocess.run([os.sys.executable,'-m','pip','install','--disable-pip-version-check','--no-compile','--target',str(resources/'python-site'),'python-sat==1.9.dev5'],check=True)
