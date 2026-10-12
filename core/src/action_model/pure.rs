@@ -281,6 +281,34 @@ impl Lower<'_> {
                     .map(|x| self.pure_term(x, env, bound, depth + 1))
                     .collect::<LangResult<Vec<_>>>()?;
                 match op.as_str() {
+                    "method:sort" if xs.len()==1 => {
+                        let SemanticSort::Value(Type::List(element))=&args[0].sort else {
+                            return Err("sort correspondence requires a list".into());
+                        };
+                        if !matches!(**element,Type::U32|Type::U64|Type::I32){
+                            return Err("sort correspondence supports exact word order".into());
+                        }
+                        // Literal stable insertion-sort meaning of the existing
+                        // primitive. This is correspondence, not a rewrite or an
+                        // invariant recogniser; replacement still needs a proof.
+                        let sequence=self.sort(&Type::List(element.clone()))?;
+                        let datatype=id(&sequence)?.to_owned();
+                        let scalar=self.sort(element)?;
+                        let inserted=c(&datatype,1,vec![v("sort_item"),v("sort_rows")]);
+                        let after=c(&datatype,1,vec![v("sort_head"),Term::SelfCall(vec![v("sort_item"),v("sort_tail")])]);
+                        let condition=self.operator(element,"<=",v("sort_item"),v("sort_head"))?;
+                        let insert=self.function(vec![("sort_item",scalar),("sort_rows",sequence.clone())],sequence.clone(),
+                            m(v("sort_rows"),vec![
+                                (vec![],c(&datatype,1,vec![v("sort_item"),c(&datatype,0,vec![])])),
+                                (vec!["sort_head".into(),"sort_tail".into()],choice(condition,inserted,after)),
+                            ]),Some(1))?;
+                        let sorted=self.function(vec![("sort_rows",sequence.clone())],sequence,
+                            m(v("sort_rows"),vec![
+                                (vec![],c(&datatype,0,vec![])),
+                                (vec!["sort_head".into(),"sort_tail".into()],call(&insert,vec![v("sort_head"),Term::SelfCall(vec![v("sort_tail")])])),
+                            ]),Some(0))?;
+                        Ok(call(&sorted,xs))
+                    }
                     "call:count" | "call:sum" if xs.len() == 1 => {
                         let SemanticSort::Value(Type::List(inner)) = &args[0].sort else {
                             return Err("action model reduction list".into());

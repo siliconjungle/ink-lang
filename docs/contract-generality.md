@@ -44,6 +44,12 @@ Committed invariants need not hold inside a transaction. The example
 transition, including nested calls, remains the representation obligation.
 Only an outer query on valid committed state becomes constant.
 
+`sorted-invariant-algorithms.ink` gives a second kind of benefit: the equality
+`order(Ready) == Ready` lets the same producer remove repeated sorting and
+read the minimum from the first element directly. The existing u32/u64/i32
+sorting primitive now has a literal insertion-sort state correspondence. It
+adds no privileged optimisation rule and grants no floating-order assumption.
+
 ## Loose specifications and bounded search
 
 `producers.contract_candidates` searches result equalities, disjunctive
