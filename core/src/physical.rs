@@ -160,12 +160,14 @@ pub fn check(
             if nodes > 1_000_000 {
                 return Err("physical source walk limit".into());
             }
-            if crate::collection_facts::lexical_projection(e).is_some()
-                && matches!(
-                    crate::check::infer(e, &env, p),
-                    Ok(crate::syntax::Type::List(_))
+            let lexical = crate::collection_facts::lexical_projection(e);
+            let rooted = lexical.as_ref().is_some_and(|(root, _)| {
+                matches!(
+                    env.get(*root),
+                    Some(crate::syntax::Type::Named(_) | crate::syntax::Type::List(_))
                 )
-            {
+            });
+            if rooted && crate::check::infer(e, &env, p).is_ok() {
                 read_sites.insert(registry::identity(e)?);
             }
             use crate::syntax::{Expr, Type};
