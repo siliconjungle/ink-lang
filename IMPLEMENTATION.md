@@ -28,10 +28,10 @@ exact independent package pins. Existing checkouts are untouched.
 
 - [x] Inspect current code and exact dependency pins.
 - [x] Create an isolated distribution worktree and initialise exact submodules.
-- [ ] Scoped facts and contract composition.
-- [ ] Invariant-aware refinement and representations.
-- [ ] General witness discovery and algorithm proposals.
-- [ ] Reusable proof library and canonical publication.
+- [x] Scoped facts and contract composition.
+- [x] Invariant-aware refinement and representations.
+- [x] General witness discovery and algorithm proposals.
+- [x] Reusable proof library and canonical publication.
 - [ ] Cross-target, adversarial, discovery/replay, and performance evidence.
 - [ ] Documentation, package integration, and publication.
 
@@ -39,3 +39,18 @@ Committed-state invariants need not hold during a transaction. Optimisation may
 use one only at a boundary where it is established, or with a checked proof for
 the exact intermediate state. Loose contracts preserve every stated observation;
 numeric approximation is not implicitly authorised.
+
+## Implemented evidence
+
+- Scoped preconditions, conjunction/branch facts, checked pure postconditions,
+  hygienic bindings and action-call composition; IEEE equality does not erase bits.
+- Valid-domain representation admission, original logical guards before encoding,
+  exact observations and preservation; nested temporary invariant violations remain visible.
+- 71 checked algebra/multiplicity/multiset laws and 24 instantiation templates.
+- Independent Lean checks of 71 concrete laws; generic potentially floating identity
+  and first-order state obligations retain their separate admitted domains.
+- Unique-state queries become constant. Sorted-state queries skip repeated sorting
+  and read minimum directly, using literal word-sort source correspondence.
+- Complete CPU/Wasm comparisons for loose witnesses and both invariant examples.
+- Current focused knowledge and planner suites, standalone Rust/JS packages and
+  core-only checks pass. Full mandatory target gate and final publication pending.
