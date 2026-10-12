@@ -91,3 +91,11 @@ fn an_unreachable_false_precondition_cannot_launder_a_postcondition() {
     assert!(optimisation::subject(&module).unwrap().contexts.get("safe").into_iter().flatten().all(|site|!site.conditions.iter().any(|fact|format!("{:?}",fact.from).contains("call:impossible"))));
     assert!(CheckedModule::from_source(syntax::parse(&source.replace("choose(p,false,false)","impossible()")).unwrap()).is_err());
 }
+
+#[test]
+fn action_bindings_that_shadow_the_initializer_do_not_create_false_aliases() {
+    let source="module action_shadow;spec fn zero(y:u32)->u32 requires y==0;ensures result==0;implementation accepted for zero{return 0;}query bad(x:u32)->u32{let x:u32=x+1;return zero(x);}";
+    assert!(CheckedModule::from_source(syntax::parse(source).unwrap()).is_err());
+    let valid=source.replace("let x:u32=x+1","let x:u32=0");
+    CheckedModule::from_source(syntax::parse(&valid).unwrap()).unwrap();
+}
