@@ -133,3 +133,6 @@ fn external_generic_libraries_have_deterministic_semantics_and_backend_parity() 
 
 #[path = "support/bulk_workloads.rs"]
 mod bulk_workloads;
+
+#[path = "support/competitive_workloads.rs"]
+mod competitive_workloads;

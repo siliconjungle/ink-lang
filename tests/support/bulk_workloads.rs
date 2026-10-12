@@ -68,6 +68,15 @@ fn voxel_codec_ecs_and_range_workloads_match_independent_oracles_on_all_targets(
     let p = program();
     let mut rt = Runtime::new(p.clone()).unwrap();
     let mut cases: Vec<(&str, Value, Value)> = vec![];
+    cases.extend([
+        ("twice", json!([[2,0,1]]), json!({"first":[2,0,1],"second":[2,0,1]})),
+        ("shadowed", json!([[2,0,1]]), json!([0,1])),
+        ("captured", json!([[2,0,1]]), json!([1,2,0])),
+        ("branch_reuse", json!([[2,0,1],true]), json!({"first":[0,1],"second":[2,0,1]})),
+        ("branch_reuse", json!([[2,0,1],false]), json!({"first":[2],"second":[2,0,1]})),
+        ("after_map", json!([[2,0,1]]), json!({"first":[3,1,2],"second":[2,0,1]})),
+        ("parallel_capture", json!([[2,0,1]]), json!([1,2,0])),
+    ]);
     for (w, h, d) in [(1u32, 1u32, 1u32), (3, 2, 2), (4, 3, 2)] {
         let cells = (0..w * h * d).collect::<Vec<_>>();
         for (x, y, z, nx, ny, nz) in [

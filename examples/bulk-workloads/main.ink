@@ -33,3 +33,10 @@ fn copy_strings(xs:List<String>,source:u32,destination:u32,count:u32)->List<Stri
 fn fill_float(xs:List<f32>,start:u32,count:u32,v:f32)->List<f32>{return buffer(xs).fill_range(start,count,v).freeze();}
 fn pack(xs:List<u32>)->Result<List<u32>,codecs.DecodeError>{return codecs.pack_octets(xs);}
 fn unpack(xs:List<u32>,maximum:u32)->Result<List<u32>,codecs.DecodeError>{return codecs.unpack_octets(xs,maximum);}
+record PairLists { first:List<u32>, second:List<u32>, }
+fn twice(xs:List<u32>)->PairLists{return PairLists{first:xs,second:xs};}
+fn shadowed(xs:List<u32>)->List<u32>{let xs=xs.drop(1);return xs;}
+fn captured(xs:List<u32>)->List<u32>{return xs.map(fn(i)=>xs.at_or(i,9));}
+fn branch_reuse(xs:List<u32>,pick:Bool)->PairLists{let a=choose(pick,xs.drop(1),xs.take(1));return PairLists{first:a,second:xs};}
+fn after_map(xs:List<u32>)->PairLists{let a=buffer(xs).map(fn(i)=>i+1).freeze();return PairLists{first:a,second:xs};}
+fn parallel_capture(xs:List<u32>)->List<u32>{return parallel_map(xs,1,fn(i)=>fn(value)=>xs.at_or(value,9));}
