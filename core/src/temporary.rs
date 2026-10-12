@@ -36,6 +36,28 @@ impl<T: Clone> OwnedBuffer<T> {
         }
         self
     }
+    pub fn fill_range(self, start: u32, count: u32, value: T) -> Self {
+        let mut xs = self.0.borrow_mut();
+        let start = (start as usize).min(xs.len());
+        let count = (count as usize).min(xs.len() - start);
+        xs[start..start + count].fill(value);
+        drop(xs);
+        self
+    }
+    pub fn copy_within(self, source: u32, destination: u32, count: u32) -> Self {
+        let mut xs = self.0.borrow_mut();
+        let source = (source as usize).min(xs.len());
+        let destination = (destination as usize).min(xs.len());
+        let count = (count as usize)
+            .min(xs.len() - source)
+            .min(xs.len() - destination);
+        // The independent evaluator uses a snapshot; native support instead
+        // chooses a safe traversal direction without allocating scratch.
+        let copied = xs[source..source + count].to_vec();
+        xs[destination..destination + count].clone_from_slice(&copied);
+        drop(xs);
+        self
+    }
     pub fn push(self, value: T) -> Self {
         assert!(self.len() < u32::MAX, "buffer length exhausted");
         self.0.borrow_mut().push(value);

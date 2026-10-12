@@ -22,7 +22,7 @@ pub fn emit(plan: &CheckedPlan, target: &str, output: &Path) -> LangResult<()> {
     }
     if !matches!(target, "rust" | "rust-wasm")
         && physical.is_some_and(|p| {
-            p.tables != Tables::Ordered
+            !p.columns.is_empty() || p.column_maps.is_some() || p.bounds.is_some() || p.buffers != ink_core::physical::Buffers::Scoped || p.tables != Tables::Ordered
                 || !p.borrow_reads.is_empty()
                 || !p.borrow_rows.is_empty()
                 || p.definitions != Definitions::Shared
@@ -50,7 +50,7 @@ pub fn emit(plan: &CheckedPlan, target: &str, output: &Path) -> LangResult<()> {
             "rust-wasm" => {
                 let source = ink_lowering_rust::state_native::emit_planned(plan)?;
                 crate::runtime::emit_rust_program(
-                    &(source + crate::runtime::STATE_WASM_ABI),
+                    &source,
                     output,
                 )?;
             }
@@ -91,7 +91,7 @@ fn emit_state_route(plan: &CheckedPlan, target: &str, output: &Path) -> LangResu
         return Err("state route needs a GPU host target".into());
     }
     if plan.physical().is_some_and(|p| {
-        p.plan().tables != Tables::Ordered
+        !p.plan().columns.is_empty() || p.plan().column_maps.is_some() || p.plan().bounds.is_some() || p.plan().buffers != ink_core::physical::Buffers::Scoped || p.plan().tables != Tables::Ordered
             || !p.plan().borrow_reads.is_empty()
             || !p.plan().borrow_rows.is_empty()
             || p.plan().definitions != Definitions::Shared

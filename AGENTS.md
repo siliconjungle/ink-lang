@@ -91,3 +91,33 @@ storage; typed owners retain direct vectors until partitioned. Runtime must embe
 ink-native-support ownership primitives, never the independent reference evaluator.
 Keep partition algorithms in knowledge and measure whole-workload profitability
 separately from clone/allocation mechanism checks.
+
+Bulk `Buffer.fill_range` and `copy_within` bind executable-core V9. Keep fixed
+clipped/snapshot meanings and independent reference execution in core. Preserve
+affine admission, left-to-right argument evaluation and scoped partition bounds;
+range arithmetic must not wrap. The kernel's recursive list meanings are fixed
+semantics, not optimisation recognisers. Zero/empty work elimination and length
+invariants remain ordinary database laws. Voxel/codec/ECS algorithms stay in
+knowledge libraries. New range operations have CPU execution/GPU-host fallback;
+real eligible numeric dispatch does not imply device range support. See
+`docs/bulk-buffer-workloads.md` and the mandatory generic_libraries coverage.
+
+General final-use facts live in core/src/last_use.rs and refer only to the borrowed
+expression tree. Preserve fresh lexical identities, evaluation order, conservative
+branch handling and sharing of repeated callback captures. Rust literal emission
+may move final-use values; no domain matcher or equality rule follows from these
+facts. Keep real upstream benchmarks and lifecycle/output-size controls in
+bench/competitive-workloads; measured voxel/codec algorithms remain knowledge
+libraries. Formats and performance observations never grant rewrite authority.
+
+Source physical capabilities now include optional direct Buffer owners and checked
+flat scalar columns on Rust/Rust-Wasm. Bounds and unchanged-field certificates bind
+an exact module, function and child path; source aliases retain numeric types and
+wrapping semantics. RUP verification, existing semantic equality and inductive
+codec round trips are mandatory; rehashing metadata never grants access or permits
+skipping a write. Layout codecs are fixed source-shape meanings; solver search,
+proof construction, layout proposals and fusion specialise in ink-knowledge.
+Packed lanes widen on values that do not fit and preserve raw float bits in plain
+lanes. Profiles rank replayed candidates only; absent comparable lifecycle evidence
+retains the baseline. Unsupported target selections must fail explicitly. Physical
+planning does not change executable-core V9 or public serialisation formats.
