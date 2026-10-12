@@ -293,7 +293,8 @@ fn resident_collection_lengths_survive_feedback() {
             v["counters"]["readback_bytes"],
             4 * (want.as_array().unwrap().len() + 1)
         );
-        assert_eq!(v["counters"]["dispatches"], 9);
+        // Three iterations of seven filter, five scan and 29 radix-sort passes.
+        assert_eq!(v["counters"]["dispatches"], 123);
         assert_eq!(
             v["counters"]["resident_copy_bytes"],
             16 * (xs.as_array().unwrap().len() + 1)

@@ -319,7 +319,8 @@
       ],
       "tests": [
         "temporary_lowering",
-        "bend_features"
+        "bend_features",
+        "generic_libraries"
       ],
       "targets": {
         "c": {
@@ -620,6 +621,44 @@
           "reason": "Generic elaboration uses eligible existing kernels; expanded exact/variant values execute on the compiled CPU host."
         }
       }
+    },
+    {
+      "id": "proof-carrying-source-contracts",
+      "types": [],
+      "tests": [
+        "source_contracts",
+        "law_source"
+      ],
+      "targets": {
+        "c": {
+          "status": "implemented",
+          "reason": "Static contracts checked before lowering; complete host enforces preconditions, transaction invariants and snapshot ingress. Eligible pure computations use device dispatch; guarded compute pipelines use CPU."
+        },
+        "rust": {
+          "status": "implemented",
+          "reason": "Static contracts checked before lowering; complete host enforces preconditions, transaction invariants and snapshot ingress. Eligible pure computations use device dispatch; guarded compute pipelines use CPU."
+        },
+        "javascript": {
+          "status": "implemented",
+          "reason": "Static contracts checked before lowering; complete host enforces preconditions, transaction invariants and snapshot ingress. Eligible pure computations use device dispatch; guarded compute pipelines use CPU."
+        },
+        "c-wasm": {
+          "status": "implemented",
+          "reason": "Static contracts checked before lowering; complete host enforces preconditions, transaction invariants and snapshot ingress. Eligible pure computations use device dispatch; guarded compute pipelines use CPU."
+        },
+        "rust-wasm": {
+          "status": "implemented",
+          "reason": "Static contracts checked before lowering; complete host enforces preconditions, transaction invariants and snapshot ingress. Eligible pure computations use device dispatch; guarded compute pipelines use CPU."
+        },
+        "webgpu": {
+          "status": "partial",
+          "reason": "Static contracts checked before lowering; complete host enforces preconditions, transaction invariants and snapshot ingress. Eligible pure computations use device dispatch; guarded compute pipelines use CPU."
+        },
+        "wgpu": {
+          "status": "partial",
+          "reason": "Static contracts checked before lowering; complete host enforces preconditions, transaction invariants and snapshot ingress. Eligible pure computations use device dispatch; guarded compute pipelines use CPU."
+        }
+      }
     }
   ],
   "cpu_suites": [
@@ -651,7 +690,9 @@
     "incremental_selection",
     "scalable_state",
     "scalable_projection",
-    "database_planning"
+    "database_planning",
+    "source_contracts",
+    "law_source"
   ],
   "gpu_contract": {
     "semantics": "eligible-pure-exact-v1",

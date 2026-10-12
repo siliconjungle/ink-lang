@@ -116,6 +116,8 @@ pub struct Program {
     pub keeps: Vec<BindingDecl>,
     pub events: std::collections::BTreeMap<String, Type>,
     pub actions: Vec<Action>,
+    #[serde(default, skip_serializing_if = "crate::contracts::Contracts::is_empty")]
+    pub contracts: crate::contracts::Contracts,
 }
 
 /// This version fixes the executable representation and its current semantics,
@@ -127,6 +129,8 @@ pub const COMPUTE_SEMANTICS: &str = "ink-executable-core-v2";
 pub const LOCAL_SEMANTICS: &str = "ink-executable-core-v3";
 pub const EXACT_FLOAT_SEMANTICS: &str = CANONICAL_FLOAT_SEMANTICS;
 pub const VALUE_SEMANTICS: &str = "ink-executable-core-v8";
+pub const CONTRACT_SEMANTICS: &str = "ink-executable-core-v10";
+pub const BULK_BUFFER_SEMANTICS: &str = "ink-executable-core-v9";
 pub const PARALLEL_SEMANTICS: &str = "ink-executable-core-v5";
 pub const SEQUENCE_SEMANTICS: &str = "ink-executable-core-v4";
 pub const MAX_BYTES: usize = 16_000_000;
@@ -407,6 +411,36 @@ fn value_domain(p: &Program) -> bool {
         .any(|k| expr(&k.value, &Default::default(), p, Some(&k.ty), false))
 }
 
+fn bulk_buffer_needed(p: &Program) -> bool {
+    let mut found = false;
+    let mut visit = |e: &Expr| {
+        crate::analysis::walk(e, |e| {
+            found |= matches!(e, Expr::Method(_, name, _) if name == "fill_range" || name == "copy_within");
+        })
+    };
+    for f in &p.functions {
+        visit(&f.body);
+    }
+    for s in p.states.iter().chain(&p.keeps) {
+        visit(&s.value);
+    }
+    let mut statements: Vec<_> = p.actions.iter().flat_map(|a| &a.body).collect();
+    while let Some(s) = statements.pop() {
+        match s {
+            Statement::Let(_, _, e)
+            | Statement::Return(e)
+            | Statement::Emit(_, e)
+            | Statement::Expr(e) => visit(e),
+            Statement::If(e, yes, no) => {
+                visit(e);
+                statements.extend(yes);
+                statements.extend(no);
+            }
+        }
+    }
+    found
+}
+
 impl CheckedModule {
     pub fn from_source(program: Program) -> LangResult<Self> {
         let (extended, sequence) = validate(&program)?;
@@ -414,7 +448,11 @@ impl CheckedModule {
         crate::check::check(&program)?;
         let module = Self(WireModule {
             schema: 1,
-            semantics: if value_domain(&program) {
+            semantics: if !program.contracts.is_empty() || program.actions.iter().any(|a| a.kind==ActionKind::Change && !matches!(a.result,Type::Result(..))) {
+                CONTRACT_SEMANTICS
+            } else if bulk_buffer_needed(&program) {
+                BULK_BUFFER_SEMANTICS
+            } else if value_domain(&program) {
                 VALUE_SEMANTICS
             } else if canonical_float_needed(&program) {
                 CANONICAL_FLOAT_SEMANTICS
@@ -435,6 +473,7 @@ impl CheckedModule {
             program,
         });
         module.bytes()?;
+        crate::contracts::check(&module)?;
         Ok(module)
     }
 
@@ -454,6 +493,8 @@ impl CheckedModule {
                 CONTROL_SEMANTICS,
                 CANONICAL_FLOAT_SEMANTICS,
                 VALUE_SEMANTICS,
+                BULK_BUFFER_SEMANTICS,
+                CONTRACT_SEMANTICS,
             ]
             .contains(&wire.semantics.as_str())
         {

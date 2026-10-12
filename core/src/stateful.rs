@@ -404,6 +404,10 @@ impl Runtime {
             .map(|(v, (_, t))| self.coerce(v, t))
             .collect::<LangResult<Vec<_>>>()?;
         self.fuel = 100_000_000;
+        if let Some(guard)=self.program.contracts.precondition_checks.get(name).cloned(){
+            let guard=self.program.actions.iter().position(|a|a.name==guard).ok_or("missing contract precondition guard")?;
+            if self.typed_action(guard,args.clone(),false).map_err(|_|"contract precondition evaluation failed")?!=Value::Bool(true){return Err("contract precondition failed".into());}
+        }
         self.undo.clear();
         self.staged.clear();
         let result = self.typed_action(index, args, false);
@@ -441,7 +445,8 @@ impl Runtime {
                     events: vec![],
                 })
             }
-            Ok(Value::Result(succeeded, v)) => {
+            Ok(result) => {
+                let succeeded = !matches!(&result, Value::Result(false, _));
                 let next = match crate::transaction::decide(self.version, succeeded) {
                     crate::transaction::Decision::Commit { version } => version,
                     crate::transaction::Decision::Exhausted => {
@@ -451,7 +456,7 @@ impl Runtime {
                     crate::transaction::Decision::Rollback => {
                         self.rollback();
                         return Ok(Outcome {
-                            result: Value::Result(false, v),
+                            result,
                             committed: false,
                             version: self.version,
                             events: vec![],
@@ -470,7 +475,7 @@ impl Runtime {
                     .collect::<Vec<_>>();
                 self.outbox.extend(events.iter().cloned());
                 Ok(Outcome {
-                    result: Value::Result(true, v),
+                    result,
                     committed: true,
                     version: next,
                     events,
@@ -484,10 +489,6 @@ impl Runtime {
                     version: self.version,
                     events: vec![],
                 })
-            }
-            Ok(_) => {
-                self.rollback();
-                Err("change did not return Result".into())
             }
             Err(Failure::Host(e)) => {
                 self.rollback();
@@ -718,7 +719,7 @@ impl Runtime {
             .iter()
             .map(Value::to_eval)
             .collect::<LangResult<Vec<_>>>()?;
-        let result = crate::eval::call(&self.program, &f.name, inputs, &mut self.fuel)?;
+        let result = crate::eval::call_verified(&self.program, &f.name, inputs, &mut self.fuel)?;
         return Ok(self.coerce(Value::from_eval(result)?, &f.result)?);
     }
     fn table(&mut self, root: &String, n: &str, vals: Vec<Value>) -> Exec<Value> {
@@ -943,7 +944,14 @@ impl Runtime {
             })
             .collect::<LangResult<Vec<_>>>()?;
         rt.version = logical.version;
+        rt.validate_invariants()?;
         Ok(rt)
+    }
+    fn validate_invariants(&mut self)->LangResult<()> {
+        for name in self.program.contracts.invariant_checks.clone(){
+            if self.invoke(&name,vec![])?.result!=Value::Bool(true){return Err(format!("snapshot violates invariant {name}"));}
+        }
+        Ok(())
     }
     pub fn restore(program: Program, bytes: &[u8]) -> LangResult<Self> {
         Self::restore_into(Self::new(program)?, bytes)
@@ -1011,6 +1019,7 @@ impl Runtime {
         }
         rt.version = s.version;
         rt.outbox = s.outbox;
+        rt.validate_invariants()?;
         Ok(rt)
     }
 }

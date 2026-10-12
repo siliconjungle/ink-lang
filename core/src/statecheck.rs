@@ -728,6 +728,11 @@ impl Context<'_> {
                         _ => T::Unit,
                     });
                 }
+                if n == "concat" {
+                    if !matches!(&t, T::List(_)) || args.len() != 1 { return Err("concat expects one list".into()); }
+                    self.expected(&args[0], &t, env, facts)?;
+                    return Ok(t);
+                }
                 if n == "unwrap_or" {
                     if let T::Option(v) = &t {
                         if args.len() != 1 { return Err("unwrap_or expects one fallback".into()); }
@@ -1070,9 +1075,6 @@ pub fn check(p: &Program) -> LangResult<()> {
             if p.states.iter().chain(&p.keeps).any(|s| &s.name == n) {
                 return Err(format!("parameter shadows state or keep {n}"));
             }
-        }
-        if a.kind == ActionKind::Change && !matches!(a.result, Type::Result(..)) {
-            return Err("change must return Result".into());
         }
         if a.kind == ActionKind::Query && (!a.writes.is_empty() || !a.emits.is_empty()) {
             return Err("query cannot write or emit".into());

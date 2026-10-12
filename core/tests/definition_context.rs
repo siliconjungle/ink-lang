@@ -36,6 +36,7 @@ fn package(m: &CheckedModule, c: &Catalogue, applications: Vec<Site>) -> Package
         knowledge: registry::from_catalogue(c).unwrap(),
         applications,
         action_replacement: None,
+        contract_refinement: None,
     }
 }
 fn normalize(m: &CheckedModule, from: &str, to: s::Term, roots: &[&str]) -> Law {
@@ -46,6 +47,8 @@ fn normalize(m: &CheckedModule, from: &str, to: s::Term, roots: &[&str]) -> Law 
         .find(|f| f.name == from)
         .unwrap();
     Law {
+        types: vec![],
+        assumptions: vec![],
         schema: 1,
         semantics: laws::SEMANTICS.into(),
         params: f
@@ -167,6 +170,8 @@ fn rehashed_false_contexts_and_unbound_dependencies_have_no_authority() {
     no_context.definition_context = None;
     assert!(CheckedCatalogue::check(&catalogue(vec![no_context.clone()]), m.program()).is_err());
     no_context.proof = Proof::Use {
+        types: Default::default(),
+        assumptions: vec![],
         law: id(&good),
         arguments: BTreeMap::from([("x".into(), x)]),
         premises: vec![],
@@ -212,6 +217,8 @@ fn map_fusion(t: Type) -> Law {
         ],
     );
     Law {
+        types: vec![],
+        assumptions: vec![],
         schema: 1,
         semantics: laws::SEMANTICS.into(),
         params: BTreeMap::from([
@@ -290,6 +297,8 @@ fn generic_laws_apply_inside_helpers_and_contextual_composed_callers() {
                 middle,
                 left: Box::new(Proof::Normalize),
                 right: Box::new(Proof::Use {
+                    types: Default::default(),
+                    assumptions: vec![],
                     law: id(&generic),
                     arguments: arguments.clone(),
                     premises: vec![],

@@ -33,7 +33,7 @@ impl Runtime {
             result => result?.ok_or("missing return")?,
         };
         let result = self.coerce(result, &result_type)?;
-        if nested && kind == ActionKind::Change {
+        if nested && kind == ActionKind::Change && matches!(result_type, Type::Result(..)) {
             let result = match result {
                 Value::Result(true, value) => Ok(value),
                 Value::Result(false, error) => Err(error),
@@ -271,6 +271,12 @@ impl Runtime {
                 arguments,
             } => {
                 let receiver = self.typed_expr(body, *receiver, slots)?;
+                if method == "concat" {
+                    let Value::List(mut left) = receiver else { return Err("concat list receiver".into()); };
+                    let Value::List(right) = self.typed_expr(body, arguments[0], slots)? else { return Err("concat list argument".into()); };
+                    left.extend(right);
+                    return Ok(Value::List(left));
+                }
                 if method == "fold" {
                     let (branch, input) = match receiver {
                         Value::Option(Some(v)) => (0, *v),

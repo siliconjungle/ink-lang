@@ -1,4 +1,5 @@
 pub mod action_ir;
+pub mod access;
 pub mod action_model;
 mod action_semantic;
 mod action_types;
@@ -17,6 +18,7 @@ pub mod equality;
 pub mod eval;
 pub mod implementation;
 pub mod law_author;
+pub mod law_syntax;
 pub mod laws;
 pub mod library;
 pub mod logic;
@@ -59,6 +61,14 @@ pub mod value_limits;
 
 pub mod field_projection;
 pub mod property;
+pub mod contracts;
 pub mod physical;
 pub mod planning;
 pub use action_types::table_argument;
+
+pub mod last_use;
+
+pub mod bounds;
+
+pub mod column_codec;
+pub mod resources;

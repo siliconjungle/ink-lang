@@ -311,6 +311,9 @@ impl Checker<'_> {
         // Domain propagation exits a read-only declaration locally as Err.
         // Its caller sees that Result value, and chooses whether to propagate.
         let p = self.actions.module().program();
+        if action && !matches!(p.actions[index].result,Type::Result(..)) && out.paths.iter().any(|p|p.exit==Exit::Abort) {
+            return Err("non-Result action can abort".into());
+        }
         let local = !action || p.actions[index].kind == ActionKind::Query;
         if local {
             let result = if action {
@@ -627,8 +630,8 @@ impl Checker<'_> {
                 arguments,
             } => {
                 let a = self.expr(body, *receiver, depth + 1)?;
-                if method == "ok_or" || method == "unwrap_or" {
-                    // Fallback evaluation is eager, including for Some receivers.
+                if method == "ok_or" || method == "unwrap_or" || method == "concat" {
+                    // Value arguments are eager, including Some fallbacks and list concatenation.
                     let b = self.arguments(body, arguments, depth)?;
                     let s = self.then(a, b)?;
                     self.tags(s, output)?

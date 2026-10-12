@@ -16,7 +16,7 @@ shutil.copyfile(root / 'c/target/wasm32-unknown-unknown/debug/compiled_state.was
 symbols = ['ink_compute_call', 'ink_compute_into', 'ink_compute_mark',
            'ink_compute_rewind', 'ink_compute_scalar32', 'ink_compute_scalar64',
            'ink_compute_reset', 'ink_alloc', '__heap_base']
-numeric = [Path('build/generated-parity-u64'), Path('build/generated-parity-f32')]
+numeric = [Path('build/generated-parity-u64'), Path('build/generated-parity-f32'), Path('build/source-contracts-parity'), Path('build/total-changes-parity'), Path('build/state-contracts-parity'), Path('build/action-contract-refinement'), *[Path(f'build/contract-refinement-{i}') for i in range(4)]]
 for fixture in numeric:
     source = json.loads((fixture / 'c/manifest.json').read_text())
     target = json.loads((fixture / 'gpu-module/manifest.json').read_text())

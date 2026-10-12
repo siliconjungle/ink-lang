@@ -21,6 +21,38 @@ fn root() -> PathBuf {
             Path::new(env!("CARGO_MANIFEST_DIR")).join("build/representation-parity")
         })
 }
+
+#[test]
+fn access_guided_point_cache_preserves_aliases_calls_fallbacks_and_rollback_on_every_target() {
+    let source=include_str!("../examples/access-point-cache.ink");
+    let module=CheckedModule::from_source(parse(source).unwrap()).unwrap();
+    let dir=root().join("access-guided-point-cache");fs::create_dir_all(&dir).unwrap();
+    fs::write(dir.join("model.json"),serde_json::to_vec(&verified_language::action_model::Projection::derive(&module).unwrap()).unwrap()).unwrap();
+    let actions=verified_language::action_ir::CheckedActions::elaborate(&module).unwrap();
+    let access=verified_language::access::CheckedAccess::derive(&actions).unwrap();
+    fs::write(dir.join("access.json"),access.bytes().unwrap()).unwrap();
+    run(Command::new("python3").args(["-m","producers.access_cache"])
+        .env("PYTHONPATH",Path::new(env!("CARGO_MANIFEST_DIR")).join("knowledge"))
+        .env("INK_COMPILER",env!("CARGO_BIN_EXE_ink"))
+        .arg(dir.join("model.json")).arg("--access").arg(dir.join("access.json"))
+        .args(["--query","watched","-o"]).arg(dir.join("request.json")),&dir.join("producer.log"));
+    let request:Request=serde_json::from_slice(&fs::read(dir.join("request.json")).unwrap()).unwrap();
+    let notes:Value=serde_json::from_slice(&fs::read(dir.join("request.discovery.json")).unwrap()).unwrap();
+    assert_eq!(notes["actions"]["edit"]["eligible"],json!(true));
+    assert_eq!(notes["actions"]["put"]["strategy"],json!("guarded maintenance"));
+    assert_eq!(notes["actions"]["edit"]["strategy"],json!("guarded maintenance"));
+    assert_eq!(notes["actions"]["from_state"]["eligible"],json!(false));
+    assert_eq!(notes["actions"]["remove_many"]["eligible"],json!(false));
+    check("access-guided-point-cache",source,Some(request),vec![
+        ("watched",json!([])),("put",json!([0,10])),("put",json!([1,0])),
+        ("edit",json!([{"id":2},20,false])),("watched",json!([])),
+        ("edit",json!([{"id":0},99,true])),("watched",json!([])),
+        ("from_state",json!([1,42])),("watched",json!([])),
+        ("from_state",json!([99,1])),("remove_many",json!([[1,0,1]])),
+        ("watched",json!([])),("scan",json!([])),("put",json!([0,7])),
+        ("edit",json!([{"id":0},8,false])),("watched",json!([])),
+    ]);
+}
 fn run(command: &mut Command, log: &Path) {
     let output = command.output().unwrap();
     fs::write(log, &output.stderr).unwrap();
