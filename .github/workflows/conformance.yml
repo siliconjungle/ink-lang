@@ -96,7 +96,7 @@ jobs:
           cargo test --test internal_snapshots --test collect_before_build
       - name: Composable state proofs, publication, journals and bounded search
         run: |
-          cargo test --test composable_state --test journal_compaction
+          cargo test --test composable_state --test journal_compaction --test indexed_laws
           PYTHONPATH=knowledge python3 -m unittest discover -s knowledge/tests -p test_store.py
           PYTHONPATH=knowledge python3 -m unittest discover -s knowledge/tests -p test_state_calculus.py
           PYTHONPATH=knowledge python3 -m unittest discover -s knowledge/tests -p test_admit_publication.py
