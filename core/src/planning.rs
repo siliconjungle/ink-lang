@@ -23,6 +23,7 @@ pub struct Route {
 #[serde(tag = "kind", content = "package", rename_all = "snake_case")]
 pub enum Step {
     Rewrite(optimisation::Package),
+    Extension(crate::source_extension::Request),
     Representation(representation::Request),
     Definitions(DefinitionSelection),
     Properties(property::Package),
@@ -78,9 +79,13 @@ fn interface(original: &CheckedModule, selected: &CheckedModule) -> LangResult<(
     let a = original.program();
     let b = selected.program();
     if a.module != b.module
-        || crate::snapshot::layout(a)?.schema != crate::snapshot::layout(b)?.schema
+        || crate::snapshot::layout(a)?.roots != crate::snapshot::layout(b)?.roots
+        || crate::snapshot::layout(a)?.events != crate::snapshot::layout(b)?.events
         || a.actions.len() != b.actions.len()
-        || a.functions.len() != b.functions.len()
+        || a.functions.len() > b.functions.len()
+        || a.ids.iter().any(|n|!b.ids.contains(n))
+        || a.records.iter().any(|(n,v)|b.records.get(n)!=Some(v))
+        || a.enums.iter().any(|(n,v)|b.enums.get(n)!=Some(v))
         || crate::registry::canonical(&a.states)? != crate::registry::canonical(&b.states)?
     {
         return Err("composed plan changes the original public state/interface".into());
@@ -145,6 +150,13 @@ fn check_from(
     checked.package = package.clone();
     for step in &package.steps[done..] {
         match step {
+            Step::Extension(p) => {
+                let selected=crate::source_extension::check(&checked.module,p)?;
+                interface(original,&selected)?;
+                checked.module=selected;
+                checked.representation=None;checked.physical=None;checked.properties.clear();
+                checked.definitions.clear();checked.route=None;checked.resources=None;
+            }
             Step::Rewrite(p) => {
                 let selected = optimisation::check(&checked.module, p)?;
                 interface(original, selected.module())?;

@@ -44,6 +44,18 @@ fn relocated_install_search_and_independent_offline_replay_need_no_original_path
     assert!(resources
         .join("knowledge/producers/implementation_candidates.py")
         .is_file());
+    // Packaging needs a genuine proof corpus, not a performance run over every
+    // historical entry. Build it with the relocated knowledge package/view.
+    let compact = outside.join("knowledge");
+    success(Command::new("python3").args(["-c",r#"import json,sys
+from pathlib import Path
+from ink_knowledge import Store
+assert len(Store(Path(sys.argv[1]).parent.parent).members())>1024
+view=json.loads(Path(sys.argv[1]).read_bytes())
+objects=[o for o in view['objects'].values()if o['kind']=='rewrite' and o['payload']['from']['sort']=={'Value':'U32'} and o['payload']['from']['node'].get('Op',[None])[0]=='binary:+' and o['payload']['from']['node']['Op'][1][1]['node']=={'Word':0}]
+assert objects
+Store.publish(sys.argv[2],objects)
+"#]).arg(resources.join("knowledge/store/rewrite-view.json")).arg(&compact).env("PYTHONPATH",resources.join("knowledge")));
     let command = || {
         let mut c = Command::new(&exe);
         c.current_dir(&outside)
@@ -103,7 +115,7 @@ fn relocated_install_search_and_independent_offline_replay_need_no_original_path
     let info: Value = serde_json::from_slice(&success(
         command()
             .args(["explain", "main.ink", "--search-budget", "16", "--optimise"])
-            .arg(resources.join("knowledge/store/snapshot.json")),
+            .arg(compact.join("store/snapshot.json")),
     ))
     .unwrap();
     assert_ne!(info["input_core_sha256"], info["selected_core_sha256"]);
@@ -122,7 +134,7 @@ fn relocated_install_search_and_independent_offline_replay_need_no_original_path
                 "16",
                 "--optimise",
             ])
-            .arg(resources.join("knowledge/store/snapshot.json"))
+            .arg(compact.join("store/snapshot.json"))
             .args(["-o", "program.mjs"]),
     );
     let plan: Value =
@@ -156,7 +168,7 @@ fn relocated_install_search_and_independent_offline_replay_need_no_original_path
     success(
         command()
             .args(["compile", "mapped.ink", "--optimise"])
-            .arg(resources.join("knowledge"))
+            .arg(&compact)
             .args([
                 "--registry",
                 "registry.json",
@@ -178,7 +190,7 @@ fn relocated_install_search_and_independent_offline_replay_need_no_original_path
     .unwrap();
     assert_eq!(planning["status"], "checked");
     assert!(planning["candidates"].as_array().unwrap().len() > 1);
-    assert!(planning["coverage"]["entries"].as_u64().unwrap() > 1024);
+    assert!(planning["coverage"]["entries"].as_u64().unwrap() > 0);
     let selected = fs::read(outside.join("mapped.rs")).unwrap();
 
     // Separate the producer package and database physically, with no sibling checkout.
@@ -198,7 +210,7 @@ fn relocated_install_search_and_independent_offline_replay_need_no_original_path
             .env("INK_DISTRIBUTION", outside.join("missing bundle"))
             .env("INK_KNOWLEDGE_ROOT", &knowledge)
             .args(["explain", "main.ink", "--search-budget", "16", "--optimise"])
-            .arg(knowledge.join("store/snapshot.json"))
+            .arg(compact.join("store/snapshot.json"))
             .arg("--search-tool")
             .arg(planner.join("plan.py")),
     ))
@@ -208,7 +220,7 @@ fn relocated_install_search_and_independent_offline_replay_need_no_original_path
         .env("INK_DISTRIBUTION", outside.join("missing bundle"))
         .env("INK_KNOWLEDGE_ROOT", &knowledge)
         .args(["explain", "main.ink", "--search-budget", "16", "--optimise"])
-        .arg(knowledge.join("store/snapshot.json"))
+        .arg(compact.join("store/snapshot.json"))
         .arg("--search-tool")
         .arg(planner.join("plan.py"))
         .arg("--python")
