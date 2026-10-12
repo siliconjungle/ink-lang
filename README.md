@@ -206,3 +206,8 @@ Database-authored recursive compilation and frozen replay: [database planning](d
 [Competitive workloads](docs/competitive-workloads.md): real block-mesh/Flecs/LZ4/Zstd comparisons, generic final-use ownership, and knowledge-owned voxel/adaptive codec algorithms.
 
 [Source specifications and invariants](docs/source-contracts.md) describe the checked syntax, database proof authoring and implementation refinement workflow.
+
+## License
+
+Ink code and documentation are [MIT licensed](LICENSE). Third-party dependencies,
+vendored projects, fonts and research datasets retain their own licenses and notices.
