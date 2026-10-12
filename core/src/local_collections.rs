@@ -257,6 +257,16 @@ fn infer_with_receiver(
                             check::infer_as(e, env, p, &Type::U32)?;
                         }
                     }
+                    "copy_within" if a.len() == 3 => {
+                        for e in a {
+                            check::infer_as(e, env, p, &Type::U32)?;
+                        }
+                    }
+                    "fill_range" if a.len() == 3 => {
+                        check::infer_as(&a[0], env, p, &Type::U32)?;
+                        check::infer_as(&a[1], env, p, &Type::U32)?;
+                        check::infer_as(&a[2], env, p, inner)?;
+                    }
                     "push" if a.len() == 1 => {
                         check::infer_as(&a[0], env, p, inner)?;
                     }
@@ -478,6 +488,8 @@ impl Uses {
                     Type::Buffer(inner) => match n.as_str() {
                         "at_or" | "set" => vec![Type::U32, *inner],
                         "swap" => vec![Type::U32, Type::U32],
+                        "copy_within" => vec![Type::U32, Type::U32, Type::U32],
+                        "fill_range" => vec![Type::U32, Type::U32, *inner],
                         "push" => vec![*inner],
                         "truncate" => vec![Type::U32],
                         "append" => vec![t.clone()],
