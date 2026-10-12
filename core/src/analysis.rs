@@ -127,3 +127,170 @@ pub fn paths(e: &Expr) -> std::collections::BTreeMap<usize, Vec<usize>> {
     }
     result
 }
+
+/// Visit checked pure source with lexical types, including fixed callback scopes.
+/// This exposes admissible places; it neither chooses borrowing nor grants a
+/// rewrite. Unknown callback scopes are skipped. Resource exhaustion is an error.
+pub fn typed_walk(
+    program: &crate::core::Program,
+    function: &crate::core::Function,
+    mut visit: impl FnMut(&Expr, &crate::check::Env),
+) -> crate::LangResult<()> {
+    use crate::core::Type;
+    type Pending<'a> = (&'a Expr, crate::check::Env, Option<Type>, usize);
+    fn callback<'a>(
+        expression: &'a Expr,
+        parameters: &[Type],
+        result: Option<Type>,
+        env: &crate::check::Env,
+        depth: usize,
+        pending: &mut Vec<Pending<'a>>,
+    ) {
+        let mut body = expression;
+        let mut local = env.clone();
+        let mut depth = depth;
+        for ty in parameters {
+            let Expr::Lambda(name, nested) = body else {
+                pending.push((body, local, None, depth));
+                return;
+            };
+            local.insert(name.clone(), ty.clone());
+            body = nested;
+            depth += 1;
+        }
+        pending.push((body, local, result, depth));
+    }
+    let mut pending = vec![(
+        &function.body,
+        crate::check::params_env(&function.params)?,
+        Some(function.result.clone()),
+        0usize,
+    )];
+    let mut nodes = 0usize;
+    while let Some((e, env, want, depth)) = pending.pop() {
+        nodes += 1;
+        if nodes > 1_000_000 || depth > 256 {
+            return Err("typed source walk limit".into());
+        }
+        visit(e, &env);
+        match e {
+            Expr::Let(name, annotation, initial, body) => {
+                let ty =
+                    crate::check::infer_context(initial, &env, program, annotation.as_deref())?;
+                let mut local = env.clone();
+                local.insert(name.clone(), ty.clone());
+                pending.push((body, local, want, depth + 1));
+                pending.push((initial, env, Some(ty), depth + 1));
+            }
+            Expr::Record(name, fields) => {
+                for (field, value) in fields {
+                    let ty = program
+                        .records
+                        .get(name)
+                        .and_then(|fs| fs.iter().find(|(n, _)| n == field))
+                        .map(|(_, t)| t.clone());
+                    pending.push((value, env.clone(), ty, depth + 1));
+                }
+            }
+            Expr::Call(name, args)
+                if ["foldr", "foldl", "fold_until"].contains(&name.as_str())
+                    && args.len() == if name == "fold_until" { 4 } else { 3 } =>
+            {
+                let result = crate::check::infer_context(e, &env, program, want.as_ref())?;
+                let Type::List(item) = crate::check::infer(&args[0], &env, program)? else {
+                    return Err("typed fold receiver".into());
+                };
+                let parameters = [*item, result.clone()];
+                for (i, arg) in args.iter().enumerate().skip(2) {
+                    callback(
+                        arg,
+                        &parameters,
+                        Some(if name == "fold_until" && i == 2 {
+                            Type::Bool
+                        } else {
+                            result.clone()
+                        }),
+                        &env,
+                        depth + 1,
+                        &mut pending,
+                    );
+                }
+                pending.push((&args[1], env.clone(), Some(result), depth + 1));
+                pending.push((&args[0], env, None, depth + 1));
+            }
+            Expr::Method(receiver, name, args)
+                if ["map", "filter", "map_indexed", "zip"].contains(&name.as_str())
+                    && args.len() == if name == "zip" { 2 } else { 1 } =>
+            {
+                let input = crate::check::infer(receiver, &env, program)?;
+                let item = match input {
+                    Type::List(t) | Type::Vector(t, _) => *t,
+                    _ => return Err("typed sequence receiver".into()),
+                };
+                let result = crate::check::infer_context(e, &env, program, want.as_ref())?;
+                let output = match result {
+                    Type::List(t) | Type::Vector(t, _) => Some(*t),
+                    _ => None,
+                };
+                if name == "zip" {
+                    let Type::List(other) = crate::check::infer(&args[0], &env, program)? else {
+                        return Err("typed zip receiver".into());
+                    };
+                    callback(
+                        &args[1],
+                        &[item, *other],
+                        output,
+                        &env,
+                        depth + 1,
+                        &mut pending,
+                    );
+                    pending.push((&args[0], env.clone(), None, depth + 1));
+                } else {
+                    let parameters = if name == "map_indexed" {
+                        vec![Type::U32, item]
+                    } else {
+                        vec![item]
+                    };
+                    callback(
+                        &args[0],
+                        &parameters,
+                        if name == "filter" {
+                            Some(Type::Bool)
+                        } else {
+                            output
+                        },
+                        &env,
+                        depth + 1,
+                        &mut pending,
+                    );
+                }
+                pending.push((receiver, env, None, depth + 1));
+            }
+            Expr::Call(name, args) if name == "choose" && args.len() == 3 => {
+                pending.push((&args[0], env.clone(), Some(Type::Bool), depth + 1));
+                pending.push((&args[1], env.clone(), want.clone(), depth + 1));
+                pending.push((&args[2], env, want, depth + 1));
+            }
+            Expr::Call(name, args) if program.functions.iter().any(|f| &f.name == name) => {
+                let callee = program.functions.iter().find(|f| &f.name == name).unwrap();
+                for (arg, (_, ty)) in args.iter().zip(&callee.params) {
+                    pending.push((arg, env.clone(), Some(ty.clone()), depth + 1));
+                }
+            }
+            Expr::Binary(op, left, right)
+                if ["+", "-", "*", "&", "|", "^", "&&", "||"].contains(&op.as_str()) =>
+            {
+                let ty = crate::check::infer_context(e, &env, program, want.as_ref()).ok();
+                pending.push((left, env.clone(), ty.clone(), depth + 1));
+                pending.push((right, env, ty, depth + 1));
+            }
+            Expr::Lambda(_, _) => (),
+            _ => {
+                for child in children(e) {
+                    pending.push((child, env.clone(), None, depth + 1));
+                }
+            }
+        }
+    }
+    Ok(())
+}
