@@ -1026,7 +1026,10 @@ impl Body {
                     method,
                     arguments,
                 } => {
-                    if method == "unwrap_or" {
+                    if method == "concat" {
+                        solver.unify(out()?, val(*receiver)?)?;
+                        solver.unify(out()?, val(arguments[0])?)?;
+                    } else if method == "unwrap_or" {
                         solver.unify(val(*receiver)?, Ty::App(1, vec![out()?]))?;
                         solver.unify(val(arguments[0])?, out()?)?;
                     } else if method == "ok_or" {

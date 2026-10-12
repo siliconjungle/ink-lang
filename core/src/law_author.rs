@@ -312,6 +312,19 @@ impl<'a> Scope<'a> {
     /// Calls of function parameters go to their helpers; partial and bare
     /// uses are eta-expanded. Lambda and let binders shadow parameters.
     fn transform(&self, e: &Expr, shadow: &mut Vec<String>) -> LangResult<Expr> {
+        let shadowed=matches!(e,Expr::Call(name,_) if shadow.contains(name)||self.fns.contains_key(name)||self.aug.functions.iter().any(|f|&f.name==name));
+        if !shadowed {
+            let prefix=loop {
+                let index=self.fresh.get();self.fresh.set(index+1);
+                let prefix=format!("__law_collection_{index}");
+                let mut collision=shadow.iter().any(|name|name.starts_with(&prefix));
+                crate::analysis::walk(e,|e|match e{Expr::Var(n)|Expr::Lambda(n,_)|Expr::Let(n,_,_,_)=>collision|=n.starts_with(&prefix),_=>()});
+                if !collision{break prefix;}
+            };
+            if let Some(lowered)=crate::contracts::collections::lower(e,&prefix)? {
+                return self.transform(&lowered,shadow);
+            }
+        }
         let visible = |n: &str, shadow: &Vec<String>| {
             !shadow.iter().any(|x| x == n) && self.fns.contains_key(n)
         };
@@ -427,7 +440,8 @@ impl<'a> Scope<'a> {
     }
     /// `a == b` is an equation; any other condition is a Bool fact.
     fn condition(&self, e: &Expr, env: &check::Env) -> LangResult<Equation> {
-        match e {
+        let e=self.transform(e,&mut vec![])?;
+        match &e {
             Expr::Binary(o, a, c) if o == "==" => self.pair(a, c, env),
             e => {
                 let (from, _) = self.value(e, env, Some(&Type::Bool))?;

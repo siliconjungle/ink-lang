@@ -49,6 +49,7 @@ impl<'p> Lower<'p> {
             let child = |n: NodeId| total.get(n).copied().unwrap_or(false);
             let safe = match &node.kind {
                 Kind::State(_) | Kind::Keep(_) => true,
+                Kind::Bind { value, body, .. } => child(*value) && child(*body),
                 Kind::Float(_) | Kind::Number(_) | Kind::String(_)
                 | Kind::Bool(_)
                 | Kind::Unit
@@ -66,7 +67,7 @@ impl<'p> Lower<'p> {
                 Kind::Builtin { name, arguments } => {
                     [
                         "Ok", "Err", "Some", "choose", "count", "sum", "vec2", "vec3", "vec4",
-                        "quot_or", "rem_or",
+                        "quot_or", "rem_or", "list",
                     ]
                     .contains(&name.as_str())
                         && arguments.iter().all(|n| child(*n))
@@ -83,7 +84,7 @@ impl<'p> Lower<'p> {
                     method,
                     arguments,
                 } => {
-                    ["map", "filter", "keys", "values"].contains(&method.as_str())
+                    ["map", "filter", "keys", "values", "unwrap_or", "concat"].contains(&method.as_str())
                         && child(*receiver)
                         && arguments.iter().all(|n| child(*n))
                 }

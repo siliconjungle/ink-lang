@@ -728,6 +728,11 @@ impl Context<'_> {
                         _ => T::Unit,
                     });
                 }
+                if n == "concat" {
+                    if !matches!(&t, T::List(_)) || args.len() != 1 { return Err("concat expects one list".into()); }
+                    self.expected(&args[0], &t, env, facts)?;
+                    return Ok(t);
+                }
                 if n == "unwrap_or" {
                     if let T::Option(v) = &t {
                         if args.len() != 1 { return Err("unwrap_or expects one fallback".into()); }

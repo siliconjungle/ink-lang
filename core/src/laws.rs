@@ -270,6 +270,30 @@ impl CheckedCatalogue {
             {
                 return Err("incompatible or oversized law".into());
             }
+            // Scalar equality dispatches on the concrete value type (notably
+            // IEEE f32). It is not parametric over an opaque type variable.
+            // Structural value:equal remains uniform, including inside lists.
+            if !law.types.is_empty() {
+                let data=serde_json::to_value(law).map_err(|e|e.to_string())?;
+                let mut pending=vec![&data];
+                while let Some(value)=pending.pop() {
+                    b.step(d+1)?;
+                    match value {
+                        serde_json::Value::Object(fields)=>{
+                            if let Some(op)=fields.get("Op").and_then(serde_json::Value::as_array) {
+                                if op.len()==2 && matches!(op[0].as_str(),Some("binary:=="|"binary:!=")) {
+                                    if let Some(name)=op[1][0]["sort"]["Value"]["Named"].as_str() {
+                                        if law.types.iter().any(|t|t==name){return Err("unsupported binary semantic operation on opaque type parameter".into());}
+                                    }
+                                }
+                            }
+                            pending.extend(fields.values());
+                        },
+                        serde_json::Value::Array(values)=>pending.extend(values),
+                        _=>(),
+                    }
+                }
+            }
             // A portable law is proved only in its explicit definition context.
             // Context-free entries cannot borrow named definitions from p.
             let mut proof_program = match &law.definition_context {

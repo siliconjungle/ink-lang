@@ -199,6 +199,7 @@ fn package(m: &CheckedModule, c: &Catalogue, law: &str, args: BTreeMap<String, s
             premises: vec![],
         }],
         action_replacement: None,
+        contract_refinement: None,
     }
 }
 
@@ -316,4 +317,19 @@ fn variant_elaboration_preserves_enclosing_error_variables() {
              proof by induction xs;
          }",
     ).unwrap();
+}
+#[test]
+fn collection_observations_are_shared_by_contracts_and_source_laws(){
+ let a=author(&std::fs::read_to_string("knowledge/libraries/contract-laws.ink").unwrap()).unwrap();
+ assert_eq!(a.names.len(),6);
+ assert!(author("module wrong;law false_bag(){(multiset(list(1,1))==multiset(list(1)))==true;}").is_err());
+ assert!(author("module wrong;law false_unique(){unique(list(1,1))==true;}").is_err());
+}
+#[test]
+fn raw_generic_laws_cannot_treat_numeric_equality_as_bit_identity(){
+ let authored=author("module parametric;law identity<T>(x:T){x==x;}").unwrap();
+ let mut c=catalogue(&authored);let mut law=c.objects.values().next().unwrap().clone();
+ let x=law.from.clone();law.from=s::op(s::value(syntax::Type::Bool),"binary:==",vec![x.clone(),x]);law.to=s::term(s::value(syntax::Type::Bool),Node::Bool(true));
+ let id=registry::identity(&registry::Entry::from_law(&law).unwrap()).unwrap();c.roots=vec![id.clone()];c.objects=BTreeMap::from([(id,law)]);
+ assert!(CheckedCatalogue::check(&c,&Program::default()).is_err());
 }

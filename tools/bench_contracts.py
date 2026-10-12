@@ -20,7 +20,7 @@ for ident in report['candidates']:
 configuration=out/'configuration.json';configuration.write_text(json.dumps(dict(baseline=str(baseline),candidates=candidates)))
 raw=subprocess.check_output(['node',str(ROOT/'tools/bench_contracts.mjs'),str(configuration)],text=True);result=json.loads(raw);compiler_hash=hashlib.sha256(compiler.read_bytes()).hexdigest();observations=[];summary=[]
 for c in candidates:
- for rows in [64,4096,65536]:
+ for rows in ([16,64,256] if c['function']=='ids_are_unique' else [64,4096,65536]):
   samples=[m for m in result['measurements']if m['candidate']==c['id']and m['rows']==rows]
   workload=dict(shape=dict(function=c['function'],rows=rows),distribution='ascending-distinct',concurrency=1,residency='immutable-host-arrays')
   for label,ident in [('baseline',report['baseline']),('selected',c['id'])]:
