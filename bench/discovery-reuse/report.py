@@ -47,5 +47,5 @@ def main():
   for name in summary['native'][target]:
    cells=[r for r in data['results']if r['fn']==name and r['size']>0];ax.plot([r['size']for r in cells],[statistics.median(r['samples_ns']['literal'])/statistics.median(r['samples_ns']['selected'])for r in cells],marker='o',label=name)
   ax.set(xlabel='Rows per input',ylabel='Original / selected complete JSON call',title=target+': conversion and output charged',xscale='log');ax.axhline(1,color='grey',linestyle='--');ax.legend(fontsize=8)
- fig.tight_layout();fig.savefig(out/'curves.png',dpi=180);fig.savefig(out/'curves.svg');print(json.dumps(summary,indent=2))
+ fig.tight_layout();fig.savefig(out/'curves.png',dpi=180);fig.savefig(out/'curves.svg');svg=out/'curves.svg';svg.write_text('\n'.join(line.rstrip()for line in svg.read_text().splitlines())+'\n');print(json.dumps(summary,indent=2))
 if __name__=='__main__':main()
