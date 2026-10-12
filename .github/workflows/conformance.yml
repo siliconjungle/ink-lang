@@ -96,7 +96,7 @@ jobs:
           cargo test --test internal_snapshots --test collect_before_build
       - name: Composable state proofs, publication, journals and bounded search
         run: |
-          cargo test --test composable_state --test journal_compaction
+          cargo test --test composable_state --test journal_compaction --test indexed_laws
           PYTHONPATH=knowledge python3 -m unittest discover -s knowledge/tests -p test_store.py
           PYTHONPATH=knowledge python3 -m unittest discover -s knowledge/tests -p test_state_calculus.py
           PYTHONPATH=knowledge python3 -m unittest discover -s knowledge/tests -p test_admit_publication.py
@@ -114,6 +114,9 @@ jobs:
           cargo build --release --bin ink
           python planner/tests/automatic_candidates_integration.py target/release/ink planner/tests/fixtures/generic-batching.ink
           python -m unittest discover -s knowledge/tests -p test_generic_indexed.py
+          python -m unittest discover -s knowledge/tests -p test_generic_extensions.py
+          python -m unittest discover -s knowledge/tests -p test_point_authoring_hygiene.py
+          python -m unittest discover -s planner/tests -p test_proposal_recipe.py
       - name: Retain reproducible programs, seeds and expected outcomes
         if: always()
         uses: actions/upload-artifact@v4
@@ -176,7 +179,7 @@ jobs:
           retention-days: 30
   cpu-representations:
     runs-on: ubuntu-24.04
-    timeout-minutes: 60
+    timeout-minutes: 120
     env:
       INK_PARITY_REQUIRE_ALL: '1'
       INK_THREADS: '4'
