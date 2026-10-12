@@ -102,3 +102,137 @@ fn parametric_pipelines_reify_curried_callbacks_and_preserve_all_targets() {
         expected,
     );
 }
+
+#[test]
+fn database_adapters_compose_and_preserve_application_kernels_across_targets() {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR"));
+    for count in [16, 18] {
+        let dir = root.join(format!("build/proof-growth-conformance-{count}"));
+        let mut command = Command::new("python3");
+        if count == 18 {
+            command
+                .arg(root.join("bench/proof-growth/author.py"))
+                .arg("--option");
+        } else {
+            command.arg(root.join("bench/proof-growth/author.py"));
+        }
+        let output = command
+            .args(["--compiler", env!("CARGO_BIN_EXE_ink"), "--source"])
+            .arg(root.join("bench/proof-growth/corpus.ink"))
+            .arg("--directory")
+            .arg(&dir)
+            .arg("--count")
+            .arg(count.to_string())
+            .output()
+            .unwrap();
+        assert!(
+            output.status.success(),
+            "{}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+        let source = include_str!("../bench/proof-growth/corpus.ink");
+        let original = CheckedModule::from_source(syntax::parse(source).unwrap()).unwrap();
+        let package: optimisation::Package =
+            serde_json::from_slice(&fs::read(dir.join("selection.json")).unwrap()).unwrap();
+        let receipt: serde_json::Value =
+            serde_json::from_slice(&fs::read(dir.join("receipt.json")).unwrap()).unwrap();
+        assert_eq!(receipt["unavailable"], json!([]));
+        for name in [
+            "helper_pipeline",
+            "drawing_layers",
+            "mapped_left",
+            "checksum",
+            "first_label",
+            "first_value",
+            "any_visible",
+            "particle_bounds",
+            "chained",
+            "numeric_left",
+        ] {
+            assert!(
+                package.applications.iter().any(|a| a.function == name),
+                "missing {name}"
+            );
+        }
+        assert!(
+            package
+                .applications
+                .iter()
+                .filter(|a| a.function == "chained")
+                .count()
+                >= 3
+        );
+        let selected = optimisation::check(&original, &package).unwrap();
+        let snapshot = Runtime::new(original.program().clone())
+            .unwrap()
+            .checkpoint_portable()
+            .unwrap();
+        let nodes = json!([
+            {"key":0,"flag":true,"label":"雪\u{0}😀","weight":-0.0},
+            {"key":u32::MAX,"flag":true,"label":"second","weight":{"F32Bits":2143363909u32}},
+            {"key":17,"flag":false,"label":"third","weight":1.0e20}
+        ]);
+        let particles = json!([
+            {"x":-0.0,"y":-7.0,"mass":1.0,"alive":true,"label":"a"},
+            {"x":0.0,"y":9.0,"mass":-0.0,"alive":false,"label":"b"},
+            {"x":8.0,"y":-0.0,"mass":999.0,"alive":true,"label":"c"}
+        ]);
+        let mut requests = vec![];
+        for xs in [json!([]), nodes.clone()] {
+            for cut in [0, 17, u32::MAX] {
+                for name in [
+                    "helper_pipeline",
+                    "drawing_layers",
+                    "mapped_left",
+                    "first_label",
+                    "first_value",
+                    "any_visible",
+                    "chained",
+                ] {
+                    requests.push((name, json!([xs, cut])));
+                }
+            }
+            requests.push(("checksum", json!([xs])));
+        }
+        for xs in [json!([]), particles] {
+            requests.push(("particle_bounds", json!([xs])));
+        }
+        for xs in [json!([]), json!([0, 1, u32::MAX, 17, 0x80000000u32])] {
+            requests.push(("numeric_left", json!([xs])));
+        }
+        let mut steps = vec![];
+        let mut expected = vec![];
+        for (name, args) in requests {
+            let f = original
+                .program()
+                .functions
+                .iter()
+                .find(|f| f.name == name)
+                .unwrap();
+            let values = args
+                .as_array()
+                .unwrap()
+                .iter()
+                .zip(&f.params)
+                .map(|(v, (_, t))| {
+                    eval::Value::from_program_json(v, t, original.program()).unwrap()
+                })
+                .collect::<Vec<_>>();
+            let result =
+                eval::call(original.program(), name, values.clone(), &mut 1000000).unwrap();
+            assert_eq!(
+                eval::call(selected.module().program(), name, values, &mut 1000000).unwrap(),
+                result
+            );
+            steps.push(json!({"pure":name,"args":args,"expect_gpu":name=="numeric_left"}));
+            expected.push(json!({"reply":{"value":result.json()},"snapshot":snapshot}));
+        }
+        parity::conformance_selected(
+            &format!("generated-parity-proof-growth-{count}"),
+            &selected,
+            source,
+            steps,
+            expected,
+        );
+    }
+}
