@@ -1160,6 +1160,35 @@ pub fn elaborate(e: &Expr, env: &check::Env, p: &Program, want: &Type) -> LangRe
 }
 /// Reification is checked again against the executable module before admission.
 pub fn reify(t: &Term, p: &Program) -> LangResult<Expr> {
+    // A partially applied known callback reifies to value bindings enclosing a
+    // lambda. Push the next application through those bindings, preserving
+    // left-to-right evaluation and evaluating each argument exactly once. No
+    // function value or algorithm-specific beta rewrite enters executable IR.
+    fn application(
+        function: Expr,
+        argument: Expr,
+        parameter: &Type,
+        depth: usize,
+    ) -> LangResult<Expr> {
+        if depth > 256 {
+            return Err("callback application reification depth limit".into());
+        }
+        match function {
+            Expr::Lambda(name, body) => Ok(Expr::Let(
+                name,
+                Some(Box::new(parameter.clone())),
+                Box::new(argument),
+                body,
+            )),
+            Expr::Let(name, annotation, initial, body) => Ok(Expr::Let(
+                name,
+                annotation,
+                initial,
+                Box::new(application(*body, argument, parameter, depth + 1)?),
+            )),
+            _ => Err("unresolved function hole cannot execute".into()),
+        }
+    }
     fn go(t: &Term, bound: &mut Vec<String>, free: &[String], p: &Program) -> LangResult<Expr> {
         Ok(match &t.node {
             Node::Free(n) => Expr::Var(n.clone()),
@@ -1245,18 +1274,10 @@ pub fn reify(t: &Term, p: &Program) -> LangResult<Expr> {
                 } else if n == "neg" {
                     Expr::Neg(Box::new(args[0].clone()))
                 } else if n == "apply" {
-                    let Expr::Lambda(name, body) = &args[0] else {
-                        return Err("unresolved function hole cannot execute".into());
-                    };
                     let Sort::Arrow(x, _) = &a[0].sort else {
                         return Err("apply sort".into());
                     };
-                    Expr::Let(
-                        name.clone(),
-                        Some(Box::new(val(x)?.clone())),
-                        Box::new(args[1].clone()),
-                        body.clone(),
-                    )
+                    application(args[0].clone(), args[1].clone(), val(x)?, 0)?
                 } else if n == "call:None" {
                     Expr::Var("None".into())
                 } else if n.starts_with("call:") {
