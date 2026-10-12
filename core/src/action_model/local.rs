@@ -5,7 +5,7 @@ use super::*;
 use crate::semantic::{Node, Sort as SemanticSort, Term as SemanticTerm};
 
 impl Lower<'_> {
-    fn sequence_op(&mut self, element: &Type, name: &str) -> LangResult<String> {
+    pub(super) fn sequence_op(&mut self, element: &Type, name: &str) -> LangResult<String> {
         let key = format!(
             "{name}:{}",
             serde_json::to_string(element).map_err(|e| e.to_string())?

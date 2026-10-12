@@ -53,6 +53,8 @@ fn proved_bound_erases_runtime_work_on_all_targets() {
     // General beta/conversion followed by the database inequality; no compiler
     // guard recogniser or erased runtime requires/ensures assumption.
     let wrapper = Law {
+        types: vec![],
+        assumptions: vec![],
         schema: 1,
         semantics: verified_language::laws::SEMANTICS.into(),
         params: BTreeMap::from([("xs".into(), filter[0].sort.clone())]),
@@ -64,6 +66,8 @@ fn proved_bound_erases_runtime_work_on_all_targets() {
             left: Box::new(verified_language::laws::Proof::Normalize),
             right: Box::new(verified_language::laws::Proof::Use {
                 law: bound_id.clone(),
+                types: BTreeMap::new(),
+                assumptions: vec![],
                 arguments,
                 premises: vec![],
             }),

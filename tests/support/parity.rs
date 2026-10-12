@@ -151,7 +151,11 @@ fn conformance_inner(
         let packed_pure = fs::read_to_string(project.join("Cargo.toml"))
             .unwrap()
             .contains("name = \"ink-gpu-program\"");
-        let mut gpu_steps:Vec<_> = steps.iter().filter(|s|s["reject_restore"].is_null()).cloned().collect();
+        let mut gpu_steps: Vec<_> = steps
+            .iter()
+            .filter(|s| s["reject_restore"].is_null())
+            .cloned()
+            .collect();
         for step in &mut gpu_steps {
             if step["pure"].is_string() {
                 step["backend"] = json!(if step["cpu_only"] == true {
@@ -190,7 +194,10 @@ fn conformance_inner(
         let actual: Vec<Value> = if let Ok(receipts) = serde_json::from_slice(&out.stdout) {
             receipts
         } else {
-            assert!(packed_pure, "module host must return an ordered receipt array");
+            assert!(
+                packed_pure,
+                "module host must return an ordered receipt array"
+            );
             std::str::from_utf8(&out.stdout)
                 .unwrap()
                 .lines()

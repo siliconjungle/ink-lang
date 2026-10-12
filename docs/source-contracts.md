@@ -80,8 +80,14 @@ negative zero differ; identical NaN bit patterns count as the same element.
 Scalar `f32 ==` still has IEEE numeric equality, including nonreflexive NaN.
 
 These observations grant exactly the flexibility stated in a contract. A bag
-postcondition can permit a different order; it does not permit changing counts,
-events, errors, or another clause. Unique IDs can justify an optimisation only
+postcondition can permit a different order while preserving multiplicities.
+Every other clause still applies.
+[The state example](../examples/state-contracts.ink) combines a private list,
+a unique-ID invariant, guarded replacement and multiset queries. A specification deliberately leaves behavior
+unconstrained where no clause restricts it; `emits` restricts event channels,
+not the exact event history. Current postconditions observe returned values and
+state. Preserve an exact event history through the existing whole-action equality
+proof route when it is part of the required behavior. Unique IDs can justify an optimisation only
 when an ordinary proof connects uniqueness to that transformation.
 
 ## Proofs and the independent database
@@ -104,7 +110,9 @@ and `ink-contracts-v1` semantics. New modules use executable-core V10; modules
 without the new features retain their existing identities.
 
 The knowledge producer proposes normalization, hypothesis, constructor-case and
-induction proofs and replays them through `check-contract-proof`. Accepted pure
+induction proofs and replays them through `check-contract-proof`. Alpha-equivalent generated
+traversals are connected by ordinary induction theorems; their names never
+stand in for a proof. Accepted pure
 laws and state theorems are canonical database objects with explicit dependency
 closures. Their hashes and names confer no authority. Automatic proof search is
 bounded and incomplete; an unsuccessful search requires another ordinary proof,
@@ -118,6 +126,14 @@ PYTHONPATH=knowledge python3 -m producers.contract_candidates \
   examples/contract-optimisations.ink build/contract-candidates \
   --compiler target/debug/ink
 ```
+
+The examples eliminate a zero-valued scan, an identity map, a redundant sort
+under a sortedness precondition, and a repeated uniqueness scan under a unique-ID
+precondition. Public validation remains in measured calls; internally established
+facts do not require a second scan. The source library `knowledge/libraries/contract-laws.ink` also publishes bag
+multiplicity and conditional laws under `contract-laws/` database names.
+These are reusable checked laws, including
+`contracts.unique-id-check-erasure`, rather than compiler-recognized patterns.
 
 A candidate embeds replacement bodies plus checked contract evidence in the
 normal implementation database protocol. The `contract-witnesses` recipe makes

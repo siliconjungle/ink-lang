@@ -9,9 +9,9 @@ const baseline=await import(pathToFileURL(configuration.baseline));
 const measurements=[];
 for(const candidate of configuration.candidates){
  const selected=await import(pathToFileURL(candidate.path));
- for(const rows of [64,4096,65536]){
-  const xs=Array.from({length:rows},(_,i)=>candidate.function==='copy'?i:BigInt(i));
-  const args=[xs],calls=rows>4096?16:rows>64?64:256;
+ for(const rows of candidate.function==='ids_are_unique'?[16,64,256]:[64,4096,65536]){
+  const xs=Array.from({length:rows},(_,i)=>candidate.function==='ids_are_unique'?{id:i,value:i}:candidate.function==='copy'?i:BigInt(i));
+  const args=[xs],calls=candidate.function==='ids_are_unique'?4:rows>4096?16:rows>64?64:256;
   const expected=baseline.call(candidate.function,args);
   assert.deepEqual(selected.call(candidate.function,args),expected);
   // Warm both implementations on the same captured immutable values.
