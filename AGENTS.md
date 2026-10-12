@@ -6,6 +6,13 @@ laws, work skipping, range specialisations, maintained representations and layou
 alternatives belong in the independently pinned `ink-knowledge` database.
 No target matcher, theorem whitelist or hash may grant rewrite authority.
 
+At James's request, fixed JavaScript scalar-keep retention is implementation
+machinery: checked effects derive root dependencies, concrete mutations invalidate
+them, failed actions restore cache before-images, and restore/host rollback clear
+auxiliary caches. This preserves deterministic evaluation of the same source; it
+grants no algebraic replacement or maintained-layout authority. More selective
+state/field/algorithm replacements continue to require database proofs.
+
 The distribution pins C, Rust, JavaScript, Wasm and GPU lowering packages.
 Each backend emits checked programs literally and reports unsupported capabilities.
 General visitors, lexical binding and expression limits belong in core analysis.
