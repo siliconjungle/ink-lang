@@ -58,6 +58,16 @@ fn propose_with(module: &CheckedModule, dir: &Path, options: &[&str]) -> Vec<Req
         serde_json::from_slice(&fs::read(dir.join("proposal.json")).unwrap()).unwrap();
     serde_json::from_value(value["requests"].clone()).unwrap()
 }
+fn database_residual(module:&CheckedModule,request:&Request,dir:&Path)->Request {
+    fs::create_dir_all(dir).unwrap();
+    fs::write(dir.join("input.json"),serde_json::to_vec(request).unwrap()).unwrap();
+    run(Command::new("python3").arg(Path::new(env!("CARGO_MANIFEST_DIR")).join("knowledge/producers/compact_observation.py"))
+        .arg(dir.join("input.json")).args(["--store"]).arg(dir.join("compact-store")).arg("-o").arg(dir.join("compact.json")),&dir.join("compact.log"));
+    fs::write(dir.join("model.json"),serde_json::to_vec(&verified_language::action_model::Projection::derive(module).unwrap()).unwrap()).unwrap();
+    run(Command::new("python3").arg(Path::new(env!("CARGO_MANIFEST_DIR")).join("knowledge/producers/residual_execution.py"))
+        .arg(dir.join("model.json")).arg(dir.join("compact.json")).arg("--store").arg(dir.join("residual-store")).arg("-o").arg(dir.join("residual.json")),&dir.join("residual.log"));
+    serde_json::from_slice(&fs::read(dir.join("residual.json")).unwrap()).unwrap()
+}
 // Authenticated but unreachable mathematics must not become generated runtime
 // data. In particular, C must not emit an arena for a type Rust never emitted.
 fn add_unused_mathematics(request: &mut Request) -> Vec<String> {
@@ -1005,9 +1015,9 @@ fn proved_column_point_reads_avoid_reconstructing_logical_rows() {
     let dir = root().join("frontier-column-points");
     let requests = propose_with(&module, &dir, &["--column-points"]);
     for request in &requests {representation::check(&module, request).unwrap();}
-    let checked = representation::check(&module, &requests[0]).unwrap();
-    let queries = ink_lowering_rust::representation_query::declarations(&checked).unwrap();
-    let query = &queries[&format!("q_{}",checked.plan().actions["get"].execute)];
+    let residual=database_residual(&module,&requests[0],&dir.join("db-residual"));
+    let checked = representation::check(&module, &residual).unwrap();
+    let query = &checked.definition().reachable_executable_declarations().unwrap()[&checked.plan().actions["get"].execute];
     let declarations = checked.definition().reachable_executable_declarations().unwrap();
     fn walk(t:&Term, declarations:&std::collections::BTreeMap<String,Declaration>,table:&str,visited:&mut std::collections::BTreeSet<String>) {
         match t {
@@ -1030,7 +1040,7 @@ fn proved_column_point_reads_avoid_reconstructing_logical_rows() {
     let baseline=propose_with(&module,&dir.join("plain-baseline"),&["--columnar"]).remove(0);
     let before=representation::check(&module,&baseline).unwrap();
     let mut bridges=Vec::new();
-    for (label,a,z,old,new) in [("forward",&baseline,&requests[0],&before,&checked),("reverse",&requests[0],&baseline,&checked,&before)] {
+    for (label,a,z,old,new) in [("forward",&baseline,&residual,&before,&checked),("reverse",&residual,&baseline,&checked,&before)] {
         let folder=dir.join(label);fs::create_dir_all(&folder).unwrap();
         fs::write(folder.join("before.json"),serde_json::to_vec(a).unwrap()).unwrap();
         fs::write(folder.join("after.json"),serde_json::to_vec(z).unwrap()).unwrap();
@@ -1047,7 +1057,7 @@ fn proved_column_point_reads_avoid_reconstructing_logical_rows() {
         assert_eq!(session.invoke_json(name,args).unwrap(),oracle.invoke_json(name,args).unwrap().json());
         assert_eq!(session.checkpoint().unwrap(),oracle.checkpoint_portable().unwrap());
     }
-    check("frontier-column-points",source,Some(requests[0].clone()),calls);
+    check("frontier-column-points",source,Some(residual),calls);
 }
 
 #[test]
@@ -1058,8 +1068,8 @@ fn proved_column_mutations_preserve_history_without_logical_reconstruction() {
     let dir = root().join("frontier-column-mutations");
     let requests = propose_with(&module, &dir, &["--column-mutations", "--packed-booleans"]);
     for request in &requests { representation::check(&module, request).unwrap(); }
-    let checked = representation::check(&module, &requests[0]).unwrap();
-    let transitions = ink_lowering_rust::representation_transition::declarations(&checked).unwrap();
+    let residual=database_residual(&module,&requests[0],&dir.join("db-residual"));
+    let checked = representation::check(&module, &residual).unwrap();
     let declarations = checked.definition().reachable_executable_declarations().unwrap();
     fn walk(t: &Term, declarations: &std::collections::BTreeMap<String, Declaration>, table: &str, visited: &mut std::collections::BTreeSet<String>) {
         match t {
@@ -1073,7 +1083,7 @@ fn proved_column_mutations_preserve_history_without_logical_reconstruction() {
         }
     }
     for name in ["put", "erase"] {
-        let Declaration::Function { body, .. } = &transitions[&format!("t_{}",checked.plan().actions[name].execute)] else { panic!("not a transition") };
+        let Declaration::Function { body, .. } = &declarations[&checked.plan().actions[name].execute] else { panic!("not a transition") };
         walk(body, &declarations, &checked.projection().tables[0].datatype, &mut Default::default());
     }
     let mut calls=vec![("get",json!([0]))];
@@ -1082,7 +1092,7 @@ fn proved_column_mutations_preserve_history_without_logical_reconstruction() {
         ("get",json!([key])), ("rows",json!([])),
         ("erase",json!([key,i%3==0])), ("get",json!([key])),
     ]); }
-    check("frontier-column-mutations",source,Some(requests[0].clone()),calls);
+    check("frontier-column-mutations",source,Some(residual),calls);
 }
 
 #[test]
