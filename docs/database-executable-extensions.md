@@ -118,3 +118,5 @@ a separate F32 instance rejects an invalid distributive arithmetic proof.
 
 The machine-readable results and compiler identity are recorded in
 [database-expressivity-evidence.json](database-expressivity-evidence.json).
+
+Cold standalone semantic search now initialises its disposable index before producer discovery. Relocated installs therefore use indexed queries instead of repeated full-catalogue scans; the index still supplies discovery hints and every selected proof replays.
