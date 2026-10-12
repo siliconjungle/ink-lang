@@ -1,0 +1,1718 @@
+{
+  "applied_rule_ids": [
+    "b0de50753ae48f24acd69477735b842c38f99e4469b92f0ce19a37e7ebf8b166"
+  ],
+  "backend": {
+    "abi": "ink-javascript-trusted-values-v2",
+    "backend": "javascript",
+    "caller_contract": "trusted, well-typed target-native values; no input validation, snapshot capture or host resource budgets",
+    "core_semantics": "ink-executable-core-v6",
+    "core_sha256": "df7d781dd817e91cd5b8cc71299413bc78e7b11827927ea503eb182e241153bd",
+    "destination_abi": {
+      "aliasing": "destination-disjoint-from-all-reachable-inputs",
+      "capacity": "trusted",
+      "count_unit": "elements",
+      "name": "ink-javascript-into-v1",
+      "ownership": "caller-owned",
+      "tail": "unwritten"
+    },
+    "functions": [
+      {
+        "destination": null,
+        "index": 0,
+        "internal": false,
+        "name": "run",
+        "parallel": false,
+        "params": [
+          {
+            "name": "xs",
+            "type": {
+              "element": {
+                "fields": [
+                  {
+                    "name": "key",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "label",
+                    "type": {
+                      "kind": "string"
+                    }
+                  },
+                  {
+                    "name": "active",
+                    "type": {
+                      "kind": "bool"
+                    }
+                  }
+                ],
+                "kind": "record",
+                "name": "Node"
+              },
+              "kind": "list"
+            }
+          },
+          {
+            "name": "cut",
+            "type": {
+              "kind": "u32"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "string"
+        }
+      }
+    ],
+    "javascript_sha256": "106fa7f628f87080102b0ec6418b935bcfddb09826eff3255229da90bd521c0d",
+    "named_types": {
+      "Node": {
+        "fields": [
+          {
+            "name": "key",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "label",
+            "type": {
+              "kind": "string"
+            }
+          },
+          {
+            "name": "active",
+            "type": {
+              "kind": "bool"
+            }
+          }
+        ],
+        "kind": "record",
+        "name": "Node"
+      }
+    },
+    "schema": 1,
+    "scope": "trusted pure functions and temporary collections; state/actions with portable snapshots and ordered transaction events",
+    "selection": {
+      "applied_laws": [
+        "b0de50753ae48f24acd69477735b842c38f99e4469b92f0ce19a37e7ebf8b166"
+      ],
+      "closure": [
+        "ad9764a2a0beb73a63f8bd6161c4d3b094c6f4b11cf5d7240f6d2b581a04494b",
+        "b0de50753ae48f24acd69477735b842c38f99e4469b92f0ce19a37e7ebf8b166"
+      ],
+      "input_core_sha256": "c0d643d6882adf3fb46e55fcfd2f1ac9c58bdc6ea6b54a4deb5096bcfa70a68a",
+      "selected_core_sha256": "df7d781dd817e91cd5b8cc71299413bc78e7b11827927ea503eb182e241153bd",
+      "semantics": "ink-evidence-v1",
+      "snapshot_sha256": "2127cba2a2300ea059bb8b0a5837f0cab7b6898ace0669f3373ace2b153e7952"
+    },
+    "state": null,
+    "trusted": [
+      "Ink checker and source correspondence",
+      "JavaScript emitter and representation conversion",
+      "JavaScript engine and host"
+    ]
+  },
+  "checked_implementation": null,
+  "checked_replacement": null,
+  "input_core_sha256": "c0d643d6882adf3fb46e55fcfd2f1ac9c58bdc6ea6b54a4deb5096bcfa70a68a",
+  "selected_core_sha256": "df7d781dd817e91cd5b8cc71299413bc78e7b11827927ea503eb182e241153bd",
+  "semantic_package": {
+    "applications": [
+      {
+        "arguments": {
+          "cut": {
+            "node": {
+              "Free": "cut"
+            },
+            "sort": {
+              "Value": "U32"
+            }
+          },
+          "xs": {
+            "node": {
+              "Free": "xs"
+            },
+            "sort": {
+              "Value": {
+                "List": {
+                  "Named": "Node"
+                }
+              }
+            }
+          }
+        },
+        "function": "run",
+        "law": "b0de50753ae48f24acd69477735b842c38f99e4469b92f0ce19a37e7ebf8b166",
+        "path": [],
+        "premises": []
+      }
+    ],
+    "input_core_sha256": "c0d643d6882adf3fb46e55fcfd2f1ac9c58bdc6ea6b54a4deb5096bcfa70a68a",
+    "knowledge": {
+      "membership": {
+        "ad9764a2a0beb73a63f8bd6161c4d3b094c6f4b11cf5d7240f6d2b581a04494b": {
+          "entries": [
+            "28c34c1c139a8f54e8cd2f9edffa5388da865fe467793ecdd8f5ea598c8630b9",
+            "83a3451049d987ca2238a560f5ccc2922db71208e63cf8bdc5c008ae5fee50a6",
+            "ad9764a2a0beb73a63f8bd6161c4d3b094c6f4b11cf5d7240f6d2b581a04494b",
+            "b0de50753ae48f24acd69477735b842c38f99e4469b92f0ce19a37e7ebf8b166",
+            "d772b42ab196c50768f0387df7eadeee8769e139fa65515ce6ff07b2e815ca93"
+          ],
+          "path": []
+        },
+        "b0de50753ae48f24acd69477735b842c38f99e4469b92f0ce19a37e7ebf8b166": {
+          "entries": [
+            "28c34c1c139a8f54e8cd2f9edffa5388da865fe467793ecdd8f5ea598c8630b9",
+            "83a3451049d987ca2238a560f5ccc2922db71208e63cf8bdc5c008ae5fee50a6",
+            "ad9764a2a0beb73a63f8bd6161c4d3b094c6f4b11cf5d7240f6d2b581a04494b",
+            "b0de50753ae48f24acd69477735b842c38f99e4469b92f0ce19a37e7ebf8b166",
+            "d772b42ab196c50768f0387df7eadeee8769e139fa65515ce6ff07b2e815ca93"
+          ],
+          "path": []
+        }
+      },
+      "objects": {
+        "ad9764a2a0beb73a63f8bd6161c4d3b094c6f4b11cf5d7240f6d2b581a04494b": {
+          "dependencies": [],
+          "interface": {
+            "conditions": [],
+            "effects": [],
+            "operations": [
+              "apply",
+              "call:choose",
+              "call:fold_until",
+              "call:foldr"
+            ],
+            "parameters": {
+              "f": {
+                "Arrow": [
+                  {
+                    "Value": {
+                      "Named": "Node"
+                    }
+                  },
+                  {
+                    "Value": "String"
+                  }
+                ]
+              },
+              "p": {
+                "Arrow": [
+                  {
+                    "Value": {
+                      "Named": "Node"
+                    }
+                  },
+                  {
+                    "Value": "Bool"
+                  }
+                ]
+              },
+              "xs": {
+                "Value": {
+                  "List": {
+                    "Named": "Node"
+                  }
+                }
+              },
+              "z": {
+                "Value": "String"
+              }
+            },
+            "result": {
+              "Value": "String"
+            }
+          },
+          "kind": "rewrite",
+          "payload": {
+            "conditions": [],
+            "definition_context": {
+              "definitions": {},
+              "enums": {},
+              "records": {
+                "Node": [
+                  [
+                    "key",
+                    "U32"
+                  ],
+                  [
+                    "label",
+                    "String"
+                  ],
+                  [
+                    "active",
+                    "Bool"
+                  ]
+                ]
+              },
+              "schema": 1
+            },
+            "from": {
+              "node": {
+                "Op": [
+                  "call:foldr",
+                  [
+                    {
+                      "node": {
+                        "Free": "xs"
+                      },
+                      "sort": {
+                        "Value": {
+                          "List": {
+                            "Named": "Node"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "node": {
+                        "Free": "z"
+                      },
+                      "sort": {
+                        "Value": "String"
+                      }
+                    },
+                    {
+                      "node": {
+                        "Lambda": {
+                          "node": {
+                            "Lambda": {
+                              "node": {
+                                "Op": [
+                                  "call:choose",
+                                  [
+                                    {
+                                      "node": {
+                                        "Op": [
+                                          "apply",
+                                          [
+                                            {
+                                              "node": {
+                                                "Free": "p"
+                                              },
+                                              "sort": {
+                                                "Arrow": [
+                                                  {
+                                                    "Value": {
+                                                      "Named": "Node"
+                                                    }
+                                                  },
+                                                  {
+                                                    "Value": "Bool"
+                                                  }
+                                                ]
+                                              }
+                                            },
+                                            {
+                                              "node": {
+                                                "Bound": 1
+                                              },
+                                              "sort": {
+                                                "Value": {
+                                                  "Named": "Node"
+                                                }
+                                              }
+                                            }
+                                          ]
+                                        ]
+                                      },
+                                      "sort": {
+                                        "Value": "Bool"
+                                      }
+                                    },
+                                    {
+                                      "node": {
+                                        "Op": [
+                                          "apply",
+                                          [
+                                            {
+                                              "node": {
+                                                "Free": "f"
+                                              },
+                                              "sort": {
+                                                "Arrow": [
+                                                  {
+                                                    "Value": {
+                                                      "Named": "Node"
+                                                    }
+                                                  },
+                                                  {
+                                                    "Value": "String"
+                                                  }
+                                                ]
+                                              }
+                                            },
+                                            {
+                                              "node": {
+                                                "Bound": 1
+                                              },
+                                              "sort": {
+                                                "Value": {
+                                                  "Named": "Node"
+                                                }
+                                              }
+                                            }
+                                          ]
+                                        ]
+                                      },
+                                      "sort": {
+                                        "Value": "String"
+                                      }
+                                    },
+                                    {
+                                      "node": {
+                                        "Bound": 0
+                                      },
+                                      "sort": {
+                                        "Value": "String"
+                                      }
+                                    }
+                                  ]
+                                ]
+                              },
+                              "sort": {
+                                "Value": "String"
+                              }
+                            }
+                          },
+                          "sort": {
+                            "Arrow": [
+                              {
+                                "Value": "String"
+                              },
+                              {
+                                "Value": "String"
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      "sort": {
+                        "Arrow": [
+                          {
+                            "Value": {
+                              "Named": "Node"
+                            }
+                          },
+                          {
+                            "Arrow": [
+                              {
+                                "Value": "String"
+                              },
+                              {
+                                "Value": "String"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                ]
+              },
+              "sort": {
+                "Value": "String"
+              }
+            },
+            "params": {
+              "f": {
+                "Arrow": [
+                  {
+                    "Value": {
+                      "Named": "Node"
+                    }
+                  },
+                  {
+                    "Value": "String"
+                  }
+                ]
+              },
+              "p": {
+                "Arrow": [
+                  {
+                    "Value": {
+                      "Named": "Node"
+                    }
+                  },
+                  {
+                    "Value": "Bool"
+                  }
+                ]
+              },
+              "xs": {
+                "Value": {
+                  "List": {
+                    "Named": "Node"
+                  }
+                }
+              },
+              "z": {
+                "Value": "String"
+              }
+            },
+            "proof": {
+              "Induction": {
+                "base": "Normalize",
+                "names": [
+                  "head",
+                  "tail"
+                ],
+                "step": {
+                  "Cases": {
+                    "condition": {
+                      "node": {
+                        "Op": [
+                          "apply",
+                          [
+                            {
+                              "node": {
+                                "Free": "p"
+                              },
+                              "sort": {
+                                "Arrow": [
+                                  {
+                                    "Value": {
+                                      "Named": "Node"
+                                    }
+                                  },
+                                  {
+                                    "Value": "Bool"
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "node": {
+                                "Free": "head"
+                              },
+                              "sort": {
+                                "Value": {
+                                  "Named": "Node"
+                                }
+                              }
+                            }
+                          ]
+                        ]
+                      },
+                      "sort": {
+                        "Value": "Bool"
+                      }
+                    },
+                    "on_false": "Normalize",
+                    "on_true": "Normalize"
+                  }
+                },
+                "variable": "xs"
+              }
+            },
+            "to": {
+              "node": {
+                "Op": [
+                  "call:fold_until",
+                  [
+                    {
+                      "node": {
+                        "Free": "xs"
+                      },
+                      "sort": {
+                        "Value": {
+                          "List": {
+                            "Named": "Node"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "node": {
+                        "Free": "z"
+                      },
+                      "sort": {
+                        "Value": "String"
+                      }
+                    },
+                    {
+                      "node": {
+                        "Lambda": {
+                          "node": {
+                            "Lambda": {
+                              "node": {
+                                "Op": [
+                                  "apply",
+                                  [
+                                    {
+                                      "node": {
+                                        "Free": "p"
+                                      },
+                                      "sort": {
+                                        "Arrow": [
+                                          {
+                                            "Value": {
+                                              "Named": "Node"
+                                            }
+                                          },
+                                          {
+                                            "Value": "Bool"
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "node": {
+                                        "Bound": 1
+                                      },
+                                      "sort": {
+                                        "Value": {
+                                          "Named": "Node"
+                                        }
+                                      }
+                                    }
+                                  ]
+                                ]
+                              },
+                              "sort": {
+                                "Value": "Bool"
+                              }
+                            }
+                          },
+                          "sort": {
+                            "Arrow": [
+                              {
+                                "Value": "String"
+                              },
+                              {
+                                "Value": "Bool"
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      "sort": {
+                        "Arrow": [
+                          {
+                            "Value": {
+                              "Named": "Node"
+                            }
+                          },
+                          {
+                            "Arrow": [
+                              {
+                                "Value": "String"
+                              },
+                              {
+                                "Value": "Bool"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "node": {
+                        "Lambda": {
+                          "node": {
+                            "Lambda": {
+                              "node": {
+                                "Op": [
+                                  "call:choose",
+                                  [
+                                    {
+                                      "node": {
+                                        "Op": [
+                                          "apply",
+                                          [
+                                            {
+                                              "node": {
+                                                "Free": "p"
+                                              },
+                                              "sort": {
+                                                "Arrow": [
+                                                  {
+                                                    "Value": {
+                                                      "Named": "Node"
+                                                    }
+                                                  },
+                                                  {
+                                                    "Value": "Bool"
+                                                  }
+                                                ]
+                                              }
+                                            },
+                                            {
+                                              "node": {
+                                                "Bound": 1
+                                              },
+                                              "sort": {
+                                                "Value": {
+                                                  "Named": "Node"
+                                                }
+                                              }
+                                            }
+                                          ]
+                                        ]
+                                      },
+                                      "sort": {
+                                        "Value": "Bool"
+                                      }
+                                    },
+                                    {
+                                      "node": {
+                                        "Op": [
+                                          "apply",
+                                          [
+                                            {
+                                              "node": {
+                                                "Free": "f"
+                                              },
+                                              "sort": {
+                                                "Arrow": [
+                                                  {
+                                                    "Value": {
+                                                      "Named": "Node"
+                                                    }
+                                                  },
+                                                  {
+                                                    "Value": "String"
+                                                  }
+                                                ]
+                                              }
+                                            },
+                                            {
+                                              "node": {
+                                                "Bound": 1
+                                              },
+                                              "sort": {
+                                                "Value": {
+                                                  "Named": "Node"
+                                                }
+                                              }
+                                            }
+                                          ]
+                                        ]
+                                      },
+                                      "sort": {
+                                        "Value": "String"
+                                      }
+                                    },
+                                    {
+                                      "node": {
+                                        "Bound": 0
+                                      },
+                                      "sort": {
+                                        "Value": "String"
+                                      }
+                                    }
+                                  ]
+                                ]
+                              },
+                              "sort": {
+                                "Value": "String"
+                              }
+                            }
+                          },
+                          "sort": {
+                            "Arrow": [
+                              {
+                                "Value": "String"
+                              },
+                              {
+                                "Value": "String"
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      "sort": {
+                        "Arrow": [
+                          {
+                            "Value": {
+                              "Named": "Node"
+                            }
+                          },
+                          {
+                            "Arrow": [
+                              {
+                                "Value": "String"
+                              },
+                              {
+                                "Value": "String"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                ]
+              },
+              "sort": {
+                "Value": "String"
+              }
+            }
+          },
+          "schema": 1,
+          "semantics": "ink-conditional-laws-v1"
+        },
+        "b0de50753ae48f24acd69477735b842c38f99e4469b92f0ce19a37e7ebf8b166": {
+          "dependencies": [
+            "ad9764a2a0beb73a63f8bd6161c4d3b094c6f4b11cf5d7240f6d2b581a04494b"
+          ],
+          "interface": {
+            "conditions": [],
+            "effects": [],
+            "operations": [
+              "apply",
+              "binary:==",
+              "call:choose",
+              "call:fold_until",
+              "call:foldr",
+              "field:key",
+              "field:label"
+            ],
+            "parameters": {
+              "cut": {
+                "Value": "U32"
+              },
+              "xs": {
+                "Value": {
+                  "List": {
+                    "Named": "Node"
+                  }
+                }
+              }
+            },
+            "result": {
+              "Value": "String"
+            }
+          },
+          "kind": "rewrite",
+          "payload": {
+            "conditions": [],
+            "definition_context": {
+              "definitions": {},
+              "enums": {},
+              "records": {
+                "Node": [
+                  [
+                    "key",
+                    "U32"
+                  ],
+                  [
+                    "label",
+                    "String"
+                  ],
+                  [
+                    "active",
+                    "Bool"
+                  ]
+                ]
+              },
+              "schema": 1
+            },
+            "from": {
+              "node": {
+                "Op": [
+                  "call:foldr",
+                  [
+                    {
+                      "node": {
+                        "Free": "xs"
+                      },
+                      "sort": {
+                        "Value": {
+                          "List": {
+                            "Named": "Node"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "node": {
+                        "String": "missing"
+                      },
+                      "sort": {
+                        "Value": "String"
+                      }
+                    },
+                    {
+                      "node": {
+                        "Lambda": {
+                          "node": {
+                            "Lambda": {
+                              "node": {
+                                "Op": [
+                                  "call:choose",
+                                  [
+                                    {
+                                      "node": {
+                                        "Op": [
+                                          "binary:==",
+                                          [
+                                            {
+                                              "node": {
+                                                "Op": [
+                                                  "field:key",
+                                                  [
+                                                    {
+                                                      "node": {
+                                                        "Bound": 1
+                                                      },
+                                                      "sort": {
+                                                        "Value": {
+                                                          "Named": "Node"
+                                                        }
+                                                      }
+                                                    }
+                                                  ]
+                                                ]
+                                              },
+                                              "sort": {
+                                                "Value": "U32"
+                                              }
+                                            },
+                                            {
+                                              "node": {
+                                                "Free": "cut"
+                                              },
+                                              "sort": {
+                                                "Value": "U32"
+                                              }
+                                            }
+                                          ]
+                                        ]
+                                      },
+                                      "sort": {
+                                        "Value": "Bool"
+                                      }
+                                    },
+                                    {
+                                      "node": {
+                                        "Op": [
+                                          "field:label",
+                                          [
+                                            {
+                                              "node": {
+                                                "Bound": 1
+                                              },
+                                              "sort": {
+                                                "Value": {
+                                                  "Named": "Node"
+                                                }
+                                              }
+                                            }
+                                          ]
+                                        ]
+                                      },
+                                      "sort": {
+                                        "Value": "String"
+                                      }
+                                    },
+                                    {
+                                      "node": {
+                                        "Bound": 0
+                                      },
+                                      "sort": {
+                                        "Value": "String"
+                                      }
+                                    }
+                                  ]
+                                ]
+                              },
+                              "sort": {
+                                "Value": "String"
+                              }
+                            }
+                          },
+                          "sort": {
+                            "Arrow": [
+                              {
+                                "Value": "String"
+                              },
+                              {
+                                "Value": "String"
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      "sort": {
+                        "Arrow": [
+                          {
+                            "Value": {
+                              "Named": "Node"
+                            }
+                          },
+                          {
+                            "Arrow": [
+                              {
+                                "Value": "String"
+                              },
+                              {
+                                "Value": "String"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                ]
+              },
+              "sort": {
+                "Value": "String"
+              }
+            },
+            "params": {
+              "cut": {
+                "Value": "U32"
+              },
+              "xs": {
+                "Value": {
+                  "List": {
+                    "Named": "Node"
+                  }
+                }
+              }
+            },
+            "proof": {
+              "Trans": {
+                "left": "Normalize",
+                "middle": {
+                  "node": {
+                    "Op": [
+                      "call:foldr",
+                      [
+                        {
+                          "node": {
+                            "Free": "xs"
+                          },
+                          "sort": {
+                            "Value": {
+                              "List": {
+                                "Named": "Node"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "node": {
+                            "String": "missing"
+                          },
+                          "sort": {
+                            "Value": "String"
+                          }
+                        },
+                        {
+                          "node": {
+                            "Lambda": {
+                              "node": {
+                                "Lambda": {
+                                  "node": {
+                                    "Op": [
+                                      "call:choose",
+                                      [
+                                        {
+                                          "node": {
+                                            "Op": [
+                                              "apply",
+                                              [
+                                                {
+                                                  "node": {
+                                                    "Lambda": {
+                                                      "node": {
+                                                        "Op": [
+                                                          "binary:==",
+                                                          [
+                                                            {
+                                                              "node": {
+                                                                "Op": [
+                                                                  "field:key",
+                                                                  [
+                                                                    {
+                                                                      "node": {
+                                                                        "Bound": 0
+                                                                      },
+                                                                      "sort": {
+                                                                        "Value": {
+                                                                          "Named": "Node"
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  ]
+                                                                ]
+                                                              },
+                                                              "sort": {
+                                                                "Value": "U32"
+                                                              }
+                                                            },
+                                                            {
+                                                              "node": {
+                                                                "Free": "cut"
+                                                              },
+                                                              "sort": {
+                                                                "Value": "U32"
+                                                              }
+                                                            }
+                                                          ]
+                                                        ]
+                                                      },
+                                                      "sort": {
+                                                        "Value": "Bool"
+                                                      }
+                                                    }
+                                                  },
+                                                  "sort": {
+                                                    "Arrow": [
+                                                      {
+                                                        "Value": {
+                                                          "Named": "Node"
+                                                        }
+                                                      },
+                                                      {
+                                                        "Value": "Bool"
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                {
+                                                  "node": {
+                                                    "Bound": 1
+                                                  },
+                                                  "sort": {
+                                                    "Value": {
+                                                      "Named": "Node"
+                                                    }
+                                                  }
+                                                }
+                                              ]
+                                            ]
+                                          },
+                                          "sort": {
+                                            "Value": "Bool"
+                                          }
+                                        },
+                                        {
+                                          "node": {
+                                            "Op": [
+                                              "apply",
+                                              [
+                                                {
+                                                  "node": {
+                                                    "Lambda": {
+                                                      "node": {
+                                                        "Op": [
+                                                          "field:label",
+                                                          [
+                                                            {
+                                                              "node": {
+                                                                "Bound": 0
+                                                              },
+                                                              "sort": {
+                                                                "Value": {
+                                                                  "Named": "Node"
+                                                                }
+                                                              }
+                                                            }
+                                                          ]
+                                                        ]
+                                                      },
+                                                      "sort": {
+                                                        "Value": "String"
+                                                      }
+                                                    }
+                                                  },
+                                                  "sort": {
+                                                    "Arrow": [
+                                                      {
+                                                        "Value": {
+                                                          "Named": "Node"
+                                                        }
+                                                      },
+                                                      {
+                                                        "Value": "String"
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                {
+                                                  "node": {
+                                                    "Bound": 1
+                                                  },
+                                                  "sort": {
+                                                    "Value": {
+                                                      "Named": "Node"
+                                                    }
+                                                  }
+                                                }
+                                              ]
+                                            ]
+                                          },
+                                          "sort": {
+                                            "Value": "String"
+                                          }
+                                        },
+                                        {
+                                          "node": {
+                                            "Bound": 0
+                                          },
+                                          "sort": {
+                                            "Value": "String"
+                                          }
+                                        }
+                                      ]
+                                    ]
+                                  },
+                                  "sort": {
+                                    "Value": "String"
+                                  }
+                                }
+                              },
+                              "sort": {
+                                "Arrow": [
+                                  {
+                                    "Value": "String"
+                                  },
+                                  {
+                                    "Value": "String"
+                                  }
+                                ]
+                              }
+                            }
+                          },
+                          "sort": {
+                            "Arrow": [
+                              {
+                                "Value": {
+                                  "Named": "Node"
+                                }
+                              },
+                              {
+                                "Arrow": [
+                                  {
+                                    "Value": "String"
+                                  },
+                                  {
+                                    "Value": "String"
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    ]
+                  },
+                  "sort": {
+                    "Value": "String"
+                  }
+                },
+                "right": {
+                  "Use": {
+                    "arguments": {
+                      "f": {
+                        "node": {
+                          "Lambda": {
+                            "node": {
+                              "Op": [
+                                "field:label",
+                                [
+                                  {
+                                    "node": {
+                                      "Bound": 0
+                                    },
+                                    "sort": {
+                                      "Value": {
+                                        "Named": "Node"
+                                      }
+                                    }
+                                  }
+                                ]
+                              ]
+                            },
+                            "sort": {
+                              "Value": "String"
+                            }
+                          }
+                        },
+                        "sort": {
+                          "Arrow": [
+                            {
+                              "Value": {
+                                "Named": "Node"
+                              }
+                            },
+                            {
+                              "Value": "String"
+                            }
+                          ]
+                        }
+                      },
+                      "p": {
+                        "node": {
+                          "Lambda": {
+                            "node": {
+                              "Op": [
+                                "binary:==",
+                                [
+                                  {
+                                    "node": {
+                                      "Op": [
+                                        "field:key",
+                                        [
+                                          {
+                                            "node": {
+                                              "Bound": 0
+                                            },
+                                            "sort": {
+                                              "Value": {
+                                                "Named": "Node"
+                                              }
+                                            }
+                                          }
+                                        ]
+                                      ]
+                                    },
+                                    "sort": {
+                                      "Value": "U32"
+                                    }
+                                  },
+                                  {
+                                    "node": {
+                                      "Free": "cut"
+                                    },
+                                    "sort": {
+                                      "Value": "U32"
+                                    }
+                                  }
+                                ]
+                              ]
+                            },
+                            "sort": {
+                              "Value": "Bool"
+                            }
+                          }
+                        },
+                        "sort": {
+                          "Arrow": [
+                            {
+                              "Value": {
+                                "Named": "Node"
+                              }
+                            },
+                            {
+                              "Value": "Bool"
+                            }
+                          ]
+                        }
+                      },
+                      "xs": {
+                        "node": {
+                          "Free": "xs"
+                        },
+                        "sort": {
+                          "Value": {
+                            "List": {
+                              "Named": "Node"
+                            }
+                          }
+                        }
+                      },
+                      "z": {
+                        "node": {
+                          "String": "missing"
+                        },
+                        "sort": {
+                          "Value": "String"
+                        }
+                      }
+                    },
+                    "law": "ad9764a2a0beb73a63f8bd6161c4d3b094c6f4b11cf5d7240f6d2b581a04494b",
+                    "premises": []
+                  }
+                }
+              }
+            },
+            "to": {
+              "node": {
+                "Op": [
+                  "call:fold_until",
+                  [
+                    {
+                      "node": {
+                        "Free": "xs"
+                      },
+                      "sort": {
+                        "Value": {
+                          "List": {
+                            "Named": "Node"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "node": {
+                        "String": "missing"
+                      },
+                      "sort": {
+                        "Value": "String"
+                      }
+                    },
+                    {
+                      "node": {
+                        "Lambda": {
+                          "node": {
+                            "Lambda": {
+                              "node": {
+                                "Op": [
+                                  "apply",
+                                  [
+                                    {
+                                      "node": {
+                                        "Lambda": {
+                                          "node": {
+                                            "Op": [
+                                              "binary:==",
+                                              [
+                                                {
+                                                  "node": {
+                                                    "Op": [
+                                                      "field:key",
+                                                      [
+                                                        {
+                                                          "node": {
+                                                            "Bound": 0
+                                                          },
+                                                          "sort": {
+                                                            "Value": {
+                                                              "Named": "Node"
+                                                            }
+                                                          }
+                                                        }
+                                                      ]
+                                                    ]
+                                                  },
+                                                  "sort": {
+                                                    "Value": "U32"
+                                                  }
+                                                },
+                                                {
+                                                  "node": {
+                                                    "Free": "cut"
+                                                  },
+                                                  "sort": {
+                                                    "Value": "U32"
+                                                  }
+                                                }
+                                              ]
+                                            ]
+                                          },
+                                          "sort": {
+                                            "Value": "Bool"
+                                          }
+                                        }
+                                      },
+                                      "sort": {
+                                        "Arrow": [
+                                          {
+                                            "Value": {
+                                              "Named": "Node"
+                                            }
+                                          },
+                                          {
+                                            "Value": "Bool"
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "node": {
+                                        "Bound": 1
+                                      },
+                                      "sort": {
+                                        "Value": {
+                                          "Named": "Node"
+                                        }
+                                      }
+                                    }
+                                  ]
+                                ]
+                              },
+                              "sort": {
+                                "Value": "Bool"
+                              }
+                            }
+                          },
+                          "sort": {
+                            "Arrow": [
+                              {
+                                "Value": "String"
+                              },
+                              {
+                                "Value": "Bool"
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      "sort": {
+                        "Arrow": [
+                          {
+                            "Value": {
+                              "Named": "Node"
+                            }
+                          },
+                          {
+                            "Arrow": [
+                              {
+                                "Value": "String"
+                              },
+                              {
+                                "Value": "Bool"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "node": {
+                        "Lambda": {
+                          "node": {
+                            "Lambda": {
+                              "node": {
+                                "Op": [
+                                  "call:choose",
+                                  [
+                                    {
+                                      "node": {
+                                        "Op": [
+                                          "apply",
+                                          [
+                                            {
+                                              "node": {
+                                                "Lambda": {
+                                                  "node": {
+                                                    "Op": [
+                                                      "binary:==",
+                                                      [
+                                                        {
+                                                          "node": {
+                                                            "Op": [
+                                                              "field:key",
+                                                              [
+                                                                {
+                                                                  "node": {
+                                                                    "Bound": 0
+                                                                  },
+                                                                  "sort": {
+                                                                    "Value": {
+                                                                      "Named": "Node"
+                                                                    }
+                                                                  }
+                                                                }
+                                                              ]
+                                                            ]
+                                                          },
+                                                          "sort": {
+                                                            "Value": "U32"
+                                                          }
+                                                        },
+                                                        {
+                                                          "node": {
+                                                            "Free": "cut"
+                                                          },
+                                                          "sort": {
+                                                            "Value": "U32"
+                                                          }
+                                                        }
+                                                      ]
+                                                    ]
+                                                  },
+                                                  "sort": {
+                                                    "Value": "Bool"
+                                                  }
+                                                }
+                                              },
+                                              "sort": {
+                                                "Arrow": [
+                                                  {
+                                                    "Value": {
+                                                      "Named": "Node"
+                                                    }
+                                                  },
+                                                  {
+                                                    "Value": "Bool"
+                                                  }
+                                                ]
+                                              }
+                                            },
+                                            {
+                                              "node": {
+                                                "Bound": 1
+                                              },
+                                              "sort": {
+                                                "Value": {
+                                                  "Named": "Node"
+                                                }
+                                              }
+                                            }
+                                          ]
+                                        ]
+                                      },
+                                      "sort": {
+                                        "Value": "Bool"
+                                      }
+                                    },
+                                    {
+                                      "node": {
+                                        "Op": [
+                                          "apply",
+                                          [
+                                            {
+                                              "node": {
+                                                "Lambda": {
+                                                  "node": {
+                                                    "Op": [
+                                                      "field:label",
+                                                      [
+                                                        {
+                                                          "node": {
+                                                            "Bound": 0
+                                                          },
+                                                          "sort": {
+                                                            "Value": {
+                                                              "Named": "Node"
+                                                            }
+                                                          }
+                                                        }
+                                                      ]
+                                                    ]
+                                                  },
+                                                  "sort": {
+                                                    "Value": "String"
+                                                  }
+                                                }
+                                              },
+                                              "sort": {
+                                                "Arrow": [
+                                                  {
+                                                    "Value": {
+                                                      "Named": "Node"
+                                                    }
+                                                  },
+                                                  {
+                                                    "Value": "String"
+                                                  }
+                                                ]
+                                              }
+                                            },
+                                            {
+                                              "node": {
+                                                "Bound": 1
+                                              },
+                                              "sort": {
+                                                "Value": {
+                                                  "Named": "Node"
+                                                }
+                                              }
+                                            }
+                                          ]
+                                        ]
+                                      },
+                                      "sort": {
+                                        "Value": "String"
+                                      }
+                                    },
+                                    {
+                                      "node": {
+                                        "Bound": 0
+                                      },
+                                      "sort": {
+                                        "Value": "String"
+                                      }
+                                    }
+                                  ]
+                                ]
+                              },
+                              "sort": {
+                                "Value": "String"
+                              }
+                            }
+                          },
+                          "sort": {
+                            "Arrow": [
+                              {
+                                "Value": "String"
+                              },
+                              {
+                                "Value": "String"
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      "sort": {
+                        "Arrow": [
+                          {
+                            "Value": {
+                              "Named": "Node"
+                            }
+                          },
+                          {
+                            "Arrow": [
+                              {
+                                "Value": "String"
+                              },
+                              {
+                                "Value": "String"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                ]
+              },
+              "sort": {
+                "Value": "String"
+              }
+            }
+          },
+          "schema": 1,
+          "semantics": "ink-conditional-laws-v1"
+        }
+      },
+      "roots": [
+        "b0de50753ae48f24acd69477735b842c38f99e4469b92f0ce19a37e7ebf8b166"
+      ],
+      "schema": 1,
+      "snapshot": {
+        "root": "f602a9f542af14925024ca33e5aa763c467991546375132c47b9db75ea6590d8",
+        "schema": 1,
+        "semantics": "ink-knowledge-snapshot-v1"
+      }
+    },
+    "schema": 1,
+    "semantics": "ink-evidence-v1"
+  },
+  "semantic_selection": {
+    "applied_laws": [
+      "b0de50753ae48f24acd69477735b842c38f99e4469b92f0ce19a37e7ebf8b166"
+    ],
+    "closure": [
+      "ad9764a2a0beb73a63f8bd6161c4d3b094c6f4b11cf5d7240f6d2b581a04494b",
+      "b0de50753ae48f24acd69477735b842c38f99e4469b92f0ce19a37e7ebf8b166"
+    ],
+    "input_core_sha256": "c0d643d6882adf3fb46e55fcfd2f1ac9c58bdc6ea6b54a4deb5096bcfa70a68a",
+    "selected_core_sha256": "df7d781dd817e91cd5b8cc71299413bc78e7b11827927ea503eb182e241153bd",
+    "semantics": "ink-evidence-v1",
+    "snapshot_sha256": "2127cba2a2300ea059bb8b0a5837f0cab7b6898ace0669f3373ace2b153e7952"
+  },
+  "source": "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-knowledge-growth-2026-10-13/source/reports/knowledge-growth-2026-10-13/corpus/ast-ancestor.ink",
+  "target": "javascript",
+  "trust": "checked transformations; JavaScript emission and engine remain trusted"
+}
