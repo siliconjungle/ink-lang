@@ -159,7 +159,8 @@ Correctness evidence includes 99 reference requests across C/Rust/JS/both Wasm
 paths and the wgpu host, with six actual eligible GPU calls, exact values and
 snapshots; curried capture/once-only bindings; input demand escapes/shadowing;
 conversion aliasing, schema separation, later-call mutation, raw floats and
-special property names; and false source applications. Existing representation
+special property names; and false source applications. The relocated/offline installation and replay
+test also passes in 110.64 s. Existing representation
 and transaction checks remain required. The representation-only CI shard's Lean
 preflight is corrected to require Lean when its selected suites actually use it;
 general/all shards still require the independent lifecycle checker.
