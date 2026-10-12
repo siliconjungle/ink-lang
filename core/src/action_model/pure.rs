@@ -361,7 +361,11 @@ impl Lower<'_> {
                             }
                         })
                     }
-                    _ if op.starts_with("record:") => Ok(c(id(&sort)?, 0, xs)),
+                    _ if op.starts_with("record:") => {
+                        let name=&op[7..];
+                        if self.recursive_records.contains_key(name) {self.recursive_record(name,xs)}
+                        else {Ok(c(id(&sort)?,0,xs))}
+                    },
                     _ if op.starts_with("field:") && xs.len() == 1 => {
                         if let SemanticSort::Value(Type::Vector(_, n)) = &args[0].sort {
                             let component = ["x", "y", "z", "w"]
@@ -382,6 +386,7 @@ impl Lower<'_> {
                             .iter()
                             .position(|(n, _)| n == &op[6..])
                             .ok_or("action model pure field index")?;
+                        if self.recursive_records.contains_key(record) {return self.recursive_field(record,field,xs[0].clone());}
                         let names = (0..fields.len()).map(|_| self.fresh()).collect::<Vec<_>>();
                         Ok(m(xs[0].clone(), vec![(names.clone(), v(&names[field]))]))
                     }
