@@ -23,6 +23,21 @@ The report retains acquisition boundaries, complete-call costs, compiler effects
 forced alternatives and adverse cells. [The preceding broad study](docs/broad-performance-research.md)
 separately diagnoses conversion, proof loading and discovery costs.
 
+## Frozen knowledge growth, 13 October 2026
+
+[The fixed-corpus study](reports/knowledge-growth-2026-10-13/README.md) adds two
+reusable proof families while retaining the same compiler and independently pinned
+packages. Forced alternatives improve the ten-operation nonempty cohort by
+1.483× (95% timing interval 1.470–1.498×), with 35 robust gain cells and 15
+regression cells. All 30 builds using the installed ordinary defaults retain the
+baseline; the study demonstrates no automatic execution gain.
+
+The report retains 33,528 raw timing samples, 127 separate memory processes,
+3,671 freshly replayed candidate plans, family removals, upstream provenance and
+complete cost/uncertainty records. Most programs are partial typed kernels and
+source authoring can favour the laws; this is not whole-software generalisation.
+Historical epochs and the newer integration machinery remain distinct.
+
 ## What the recent work demonstrates
 
 Database-only laws can remove entire traversals and intermediate results with the
