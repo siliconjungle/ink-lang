@@ -1,0 +1,601 @@
+{
+  "schema": 1,
+  "semantics": "ink-semantic-terms-v1",
+  "input_core_sha256": "609bcbbf83a55faace1c01c21c43ce2069ce14c4a247ef1dae29247d9401a4c0",
+  "functions": {
+    "contains": {
+      "sort": {
+        "Value": "Bool"
+      },
+      "node": {
+        "Op": [
+          "call:foldl",
+          [
+            {
+              "sort": {
+                "Value": {
+                  "List": "U32"
+                }
+              },
+              "node": {
+                "Free": "xs"
+              }
+            },
+            {
+              "sort": {
+                "Value": "Bool"
+              },
+              "node": {
+                "Bool": false
+              }
+            },
+            {
+              "sort": {
+                "Arrow": [
+                  {
+                    "Value": "U32"
+                  },
+                  {
+                    "Arrow": [
+                      {
+                        "Value": "Bool"
+                      },
+                      {
+                        "Value": "Bool"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "node": {
+                "Lambda": {
+                  "sort": {
+                    "Arrow": [
+                      {
+                        "Value": "Bool"
+                      },
+                      {
+                        "Value": "Bool"
+                      }
+                    ]
+                  },
+                  "node": {
+                    "Lambda": {
+                      "sort": {
+                        "Value": "Bool"
+                      },
+                      "node": {
+                        "Op": [
+                          "binary:||",
+                          [
+                            {
+                              "sort": {
+                                "Value": "Bool"
+                              },
+                              "node": {
+                                "Bound": 0
+                              }
+                            },
+                            {
+                              "sort": {
+                                "Value": "Bool"
+                              },
+                              "node": {
+                                "Op": [
+                                  "binary:==",
+                                  [
+                                    {
+                                      "sort": {
+                                        "Value": "U32"
+                                      },
+                                      "node": {
+                                        "Bound": 1
+                                      }
+                                    },
+                                    {
+                                      "sort": {
+                                        "Value": "U32"
+                                      },
+                                      "node": {
+                                        "Free": "x"
+                                      }
+                                    }
+                                  ]
+                                ]
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        ]
+      }
+    },
+    "run": {
+      "sort": {
+        "Value": {
+          "List": "U32"
+        }
+      },
+      "node": {
+        "Op": [
+          "apply",
+          [
+            {
+              "sort": {
+                "Arrow": [
+                  {
+                    "Value": {
+                      "List": "U32"
+                    }
+                  },
+                  {
+                    "Value": {
+                      "List": "U32"
+                    }
+                  }
+                ]
+              },
+              "node": {
+                "Lambda": {
+                  "sort": {
+                    "Value": {
+                      "List": "U32"
+                    }
+                  },
+                  "node": {
+                    "Op": [
+                      "apply",
+                      [
+                        {
+                          "sort": {
+                            "Arrow": [
+                              {
+                                "Value": {
+                                  "Named": "__ink_loop_7ffbebe14e03c87ce472d07a0730652e389294fd2d35582c49f6f96b53fd8155_1"
+                                }
+                              },
+                              {
+                                "Value": {
+                                  "List": "U32"
+                                }
+                              }
+                            ]
+                          },
+                          "node": {
+                            "Lambda": {
+                              "sort": {
+                                "Value": {
+                                  "List": "U32"
+                                }
+                              },
+                              "node": {
+                                "Op": [
+                                  "apply",
+                                  [
+                                    {
+                                      "sort": {
+                                        "Arrow": [
+                                          {
+                                            "Value": {
+                                              "List": "U32"
+                                            }
+                                          },
+                                          {
+                                            "Value": {
+                                              "List": "U32"
+                                            }
+                                          }
+                                        ]
+                                      },
+                                      "node": {
+                                        "Lambda": {
+                                          "sort": {
+                                            "Value": {
+                                              "List": "U32"
+                                            }
+                                          },
+                                          "node": {
+                                            "Bound": 0
+                                          }
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "sort": {
+                                        "Value": {
+                                          "List": "U32"
+                                        }
+                                      },
+                                      "node": {
+                                        "Op": [
+                                          "field:out",
+                                          [
+                                            {
+                                              "sort": {
+                                                "Value": {
+                                                  "Named": "__ink_loop_7ffbebe14e03c87ce472d07a0730652e389294fd2d35582c49f6f96b53fd8155_1"
+                                                }
+                                              },
+                                              "node": {
+                                                "Bound": 0
+                                              }
+                                            }
+                                          ]
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                ]
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "sort": {
+                            "Value": {
+                              "Named": "__ink_loop_7ffbebe14e03c87ce472d07a0730652e389294fd2d35582c49f6f96b53fd8155_1"
+                            }
+                          },
+                          "node": {
+                            "Op": [
+                              "call:foldl",
+                              [
+                                {
+                                  "sort": {
+                                    "Value": {
+                                      "List": "U32"
+                                    }
+                                  },
+                                  "node": {
+                                    "Free": "xs"
+                                  }
+                                },
+                                {
+                                  "sort": {
+                                    "Value": {
+                                      "Named": "__ink_loop_7ffbebe14e03c87ce472d07a0730652e389294fd2d35582c49f6f96b53fd8155_1"
+                                    }
+                                  },
+                                  "node": {
+                                    "Op": [
+                                      "record:__ink_loop_7ffbebe14e03c87ce472d07a0730652e389294fd2d35582c49f6f96b53fd8155_1",
+                                      [
+                                        {
+                                          "sort": {
+                                            "Value": {
+                                              "List": "U32"
+                                            }
+                                          },
+                                          "node": {
+                                            "Bound": 0
+                                          }
+                                        }
+                                      ]
+                                    ]
+                                  }
+                                },
+                                {
+                                  "sort": {
+                                    "Arrow": [
+                                      {
+                                        "Value": "U32"
+                                      },
+                                      {
+                                        "Arrow": [
+                                          {
+                                            "Value": {
+                                              "Named": "__ink_loop_7ffbebe14e03c87ce472d07a0730652e389294fd2d35582c49f6f96b53fd8155_1"
+                                            }
+                                          },
+                                          {
+                                            "Value": {
+                                              "Named": "__ink_loop_7ffbebe14e03c87ce472d07a0730652e389294fd2d35582c49f6f96b53fd8155_1"
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  "node": {
+                                    "Lambda": {
+                                      "sort": {
+                                        "Arrow": [
+                                          {
+                                            "Value": {
+                                              "Named": "__ink_loop_7ffbebe14e03c87ce472d07a0730652e389294fd2d35582c49f6f96b53fd8155_1"
+                                            }
+                                          },
+                                          {
+                                            "Value": {
+                                              "Named": "__ink_loop_7ffbebe14e03c87ce472d07a0730652e389294fd2d35582c49f6f96b53fd8155_1"
+                                            }
+                                          }
+                                        ]
+                                      },
+                                      "node": {
+                                        "Lambda": {
+                                          "sort": {
+                                            "Value": {
+                                              "Named": "__ink_loop_7ffbebe14e03c87ce472d07a0730652e389294fd2d35582c49f6f96b53fd8155_1"
+                                            }
+                                          },
+                                          "node": {
+                                            "Op": [
+                                              "apply",
+                                              [
+                                                {
+                                                  "sort": {
+                                                    "Arrow": [
+                                                      {
+                                                        "Value": {
+                                                          "List": "U32"
+                                                        }
+                                                      },
+                                                      {
+                                                        "Value": {
+                                                          "Named": "__ink_loop_7ffbebe14e03c87ce472d07a0730652e389294fd2d35582c49f6f96b53fd8155_1"
+                                                        }
+                                                      }
+                                                    ]
+                                                  },
+                                                  "node": {
+                                                    "Lambda": {
+                                                      "sort": {
+                                                        "Value": {
+                                                          "Named": "__ink_loop_7ffbebe14e03c87ce472d07a0730652e389294fd2d35582c49f6f96b53fd8155_1"
+                                                        }
+                                                      },
+                                                      "node": {
+                                                        "Op": [
+                                                          "call:choose",
+                                                          [
+                                                            {
+                                                              "sort": {
+                                                                "Value": "Bool"
+                                                              },
+                                                              "node": {
+                                                                "Op": [
+                                                                  "binary:==",
+                                                                  [
+                                                                    {
+                                                                      "sort": {
+                                                                        "Value": "Bool"
+                                                                      },
+                                                                      "node": {
+                                                                        "Op": [
+                                                                          "call:contains",
+                                                                          [
+                                                                            {
+                                                                              "sort": {
+                                                                                "Value": {
+                                                                                  "List": "U32"
+                                                                                }
+                                                                              },
+                                                                              "node": {
+                                                                                "Bound": 0
+                                                                              }
+                                                                            },
+                                                                            {
+                                                                              "sort": {
+                                                                                "Value": "U32"
+                                                                              },
+                                                                              "node": {
+                                                                                "Bound": 2
+                                                                              }
+                                                                            }
+                                                                          ]
+                                                                        ]
+                                                                      }
+                                                                    },
+                                                                    {
+                                                                      "sort": {
+                                                                        "Value": "Bool"
+                                                                      },
+                                                                      "node": {
+                                                                        "Bool": false
+                                                                      }
+                                                                    }
+                                                                  ]
+                                                                ]
+                                                              }
+                                                            },
+                                                            {
+                                                              "sort": {
+                                                                "Value": {
+                                                                  "Named": "__ink_loop_7ffbebe14e03c87ce472d07a0730652e389294fd2d35582c49f6f96b53fd8155_1"
+                                                                }
+                                                              },
+                                                              "node": {
+                                                                "Op": [
+                                                                  "apply",
+                                                                  [
+                                                                    {
+                                                                      "sort": {
+                                                                        "Arrow": [
+                                                                          {
+                                                                            "Value": {
+                                                                              "List": "U32"
+                                                                            }
+                                                                          },
+                                                                          {
+                                                                            "Value": {
+                                                                              "Named": "__ink_loop_7ffbebe14e03c87ce472d07a0730652e389294fd2d35582c49f6f96b53fd8155_1"
+                                                                            }
+                                                                          }
+                                                                        ]
+                                                                      },
+                                                                      "node": {
+                                                                        "Lambda": {
+                                                                          "sort": {
+                                                                            "Value": {
+                                                                              "Named": "__ink_loop_7ffbebe14e03c87ce472d07a0730652e389294fd2d35582c49f6f96b53fd8155_1"
+                                                                            }
+                                                                          },
+                                                                          "node": {
+                                                                            "Op": [
+                                                                              "record:__ink_loop_7ffbebe14e03c87ce472d07a0730652e389294fd2d35582c49f6f96b53fd8155_1",
+                                                                              [
+                                                                                {
+                                                                                  "sort": {
+                                                                                    "Value": {
+                                                                                      "List": "U32"
+                                                                                    }
+                                                                                  },
+                                                                                  "node": {
+                                                                                    "Bound": 0
+                                                                                  }
+                                                                                }
+                                                                              ]
+                                                                            ]
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    },
+                                                                    {
+                                                                      "sort": {
+                                                                        "Value": {
+                                                                          "List": "U32"
+                                                                        }
+                                                                      },
+                                                                      "node": {
+                                                                        "Op": [
+                                                                          "method:concat",
+                                                                          [
+                                                                            {
+                                                                              "sort": {
+                                                                                "Value": {
+                                                                                  "List": "U32"
+                                                                                }
+                                                                              },
+                                                                              "node": {
+                                                                                "Bound": 0
+                                                                              }
+                                                                            },
+                                                                            {
+                                                                              "sort": {
+                                                                                "Value": {
+                                                                                  "List": "U32"
+                                                                                }
+                                                                              },
+                                                                              "node": {
+                                                                                "Cons": [
+                                                                                  {
+                                                                                    "sort": {
+                                                                                      "Value": "U32"
+                                                                                    },
+                                                                                    "node": {
+                                                                                      "Bound": 2
+                                                                                    }
+                                                                                  },
+                                                                                  {
+                                                                                    "sort": {
+                                                                                      "Value": {
+                                                                                        "List": "U32"
+                                                                                      }
+                                                                                    },
+                                                                                    "node": "Nil"
+                                                                                  }
+                                                                                ]
+                                                                              }
+                                                                            }
+                                                                          ]
+                                                                        ]
+                                                                      }
+                                                                    }
+                                                                  ]
+                                                                ]
+                                                              }
+                                                            },
+                                                            {
+                                                              "sort": {
+                                                                "Value": {
+                                                                  "Named": "__ink_loop_7ffbebe14e03c87ce472d07a0730652e389294fd2d35582c49f6f96b53fd8155_1"
+                                                                }
+                                                              },
+                                                              "node": {
+                                                                "Op": [
+                                                                  "record:__ink_loop_7ffbebe14e03c87ce472d07a0730652e389294fd2d35582c49f6f96b53fd8155_1",
+                                                                  [
+                                                                    {
+                                                                      "sort": {
+                                                                        "Value": {
+                                                                          "List": "U32"
+                                                                        }
+                                                                      },
+                                                                      "node": {
+                                                                        "Bound": 0
+                                                                      }
+                                                                    }
+                                                                  ]
+                                                                ]
+                                                              }
+                                                            }
+                                                          ]
+                                                        ]
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                {
+                                                  "sort": {
+                                                    "Value": {
+                                                      "List": "U32"
+                                                    }
+                                                  },
+                                                  "node": {
+                                                    "Op": [
+                                                      "field:out",
+                                                      [
+                                                        {
+                                                          "sort": {
+                                                            "Value": {
+                                                              "Named": "__ink_loop_7ffbebe14e03c87ce472d07a0730652e389294fd2d35582c49f6f96b53fd8155_1"
+                                                            }
+                                                          },
+                                                          "node": {
+                                                            "Bound": 0
+                                                          }
+                                                        }
+                                                      ]
+                                                    ]
+                                                  }
+                                                }
+                                              ]
+                                            ]
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              ]
+                            ]
+                          }
+                        }
+                      ]
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "sort": {
+                "Value": {
+                  "List": "U32"
+                }
+              },
+              "node": "Nil"
+            }
+          ]
+        ]
+      }
+    }
+  },
+  "unavailable": []
+}
