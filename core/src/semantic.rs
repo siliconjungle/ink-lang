@@ -490,6 +490,12 @@ pub fn validate(t: &Term, env: &Env, p: &Program, b: &mut Budget) -> LangResult<
                         need(a(0)?, t.sort.clone())?;
                         need(a(1)?, t.sort.clone())?;
                     }
+                    "method:take" | "method:drop" => {
+                        arity(2)?;
+                        list(&t.sort)?;
+                        need(a(0)?, t.sort.clone())?;
+                        need(a(1)?, value(Type::U32))?;
+                    }
                     "method:map_indexed" => {
                         arity(2)?;
                         need(
@@ -927,7 +933,7 @@ pub fn elaborate(e: &Expr, env: &check::Env, p: &Program, want: &Type) -> LangRe
                     xs,
                     env,
                     p,
-                    if n == "filter" || n == "concat" {
+                    if matches!(n.as_str(), "filter" | "concat" | "take" | "drop") {
                         Some(want)
                     } else {
                         None
@@ -989,6 +995,7 @@ pub fn elaborate(e: &Expr, env: &check::Env, p: &Program, want: &Type) -> LangRe
                 let mut out = vec![receiver];
                 match n.as_str() {
                     "concat" => out.push(recur(&args[0], &ty)?),
+                    "take" | "drop" => out.push(recur(&args[0], &Type::U32)?),
                     "map" | "map_indexed" => {
                         let Type::List(output) = want else {
                             return Err("map output".into());

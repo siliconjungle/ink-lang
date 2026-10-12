@@ -812,6 +812,54 @@ fn normal(t: &Term, hyp: &[Equation], p: &Program, b: &mut Budget, d: usize) -> 
             )),
             _ => None,
         },
+        // Fixed list-slice semantics: an unsigned count is clamped at the list
+        // length. Recurse on the tail only in the nonzero branch, so U32 zero
+        // never executes the wrapping decrement. This is evaluation, not an
+        // optimisation law; commutation and reconstruction need external proofs.
+        ("method:take" | "method:drop", [xs, count]) => {
+            let zero = count.node == Node::Word(0);
+            if zero {
+                Some(if n == "method:drop" {
+                    xs.clone()
+                } else {
+                    term(out.sort.clone(), Node::Nil)
+                })
+            } else {
+                match &xs.node {
+                    Node::Nil => Some(xs.clone()),
+                    Node::Cons(head, tail) => {
+                        let remaining = op(
+                            value(Type::U32),
+                            "binary:-",
+                            vec![count.clone(), word(Type::U32, 1)],
+                        );
+                        let rest = op(out.sort.clone(), n, vec![(**tail).clone(), remaining]);
+                        let (empty, nonzero) = if n == "method:take" {
+                            (
+                                term(out.sort.clone(), Node::Nil),
+                                term(out.sort.clone(), Node::Cons(head.clone(), Box::new(rest))),
+                            )
+                        } else {
+                            (xs.clone(), rest)
+                        };
+                        Some(op(
+                            out.sort.clone(),
+                            "call:choose",
+                            vec![
+                                op(
+                                    value(Type::Bool),
+                                    "binary:==",
+                                    vec![count.clone(), word(Type::U32, 0)],
+                                ),
+                                empty,
+                                nonzero,
+                            ],
+                        ))
+                    }
+                    _ => None,
+                }
+            }
+        }
         ("call:repeat_until", [count, init, stop, step]) => {
             let next = apply(apply(step.clone(), word(Type::U32, 0))?, init.clone())?;
             Some(op(
