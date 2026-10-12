@@ -8,8 +8,11 @@ use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 use std::collections::{BTreeMap, BTreeSet};
-pub const MAX_VIEW_ENTRIES: usize = 4096;
-pub const MAX_VIEW_BYTES: usize = 64_000_000;
+// Six independent ordered table domains with all nine checked edit pairs use
+// 4,730 entries and 107 MB before authentication paths. Keep a finite package
+// allowance; individual entries and every kernel computation budget stay fixed.
+pub const MAX_VIEW_ENTRIES: usize = 8192;
+pub const MAX_VIEW_BYTES: usize = 128_000_000;
 pub const MAX_ENTRY_BYTES: usize = 16_000_000;
 pub const SNAPSHOT_SEMANTICS: &str = "ink-knowledge-snapshot-v1";
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -309,7 +312,7 @@ fn admit_first_order(context: &mut crate::logic::Context, id: &str, e: &Entry) -
     struct Payload {
         declaration: crate::logic::Declaration,
     }
-    let d: Payload = serde_json::from_value(e.payload.clone()).map_err(|x| x.to_string())?;
+    let d = Payload::deserialize(&e.payload).map_err(|x| x.to_string())?;
     let value = serde_json::to_value(&d.declaration).map_err(|x| x.to_string())?;
     let body = value
         .as_object()
@@ -331,6 +334,12 @@ fn admit_first_order(context: &mut crate::logic::Context, id: &str, e: &Entry) -
 /// Bounded proof views may contain definitions for several physical roots.
 impl CheckedBundle {
     pub fn check(b: &Bundle) -> LangResult<Self> {
+        let order = Self::authenticate(b)?;
+        Ok(Self { bundle: b.clone(), order, snapshot_id: identity(&b.snapshot)? })
+    }
+    /// Authenticate borrowed bytes through the same complete bounded checks.
+    /// The returned topology grants no mathematical authority.
+    pub(crate) fn authenticate(b: &Bundle) -> LangResult<Vec<String>> {
         if b.schema != 1
             || b.snapshot.schema != 1
             || b.snapshot.semantics != SNAPSHOT_SEMANTICS
@@ -428,11 +437,19 @@ impl CheckedBundle {
         if done.len() != b.objects.len() {
             return Err("unreferenced knowledge objects".into());
         }
-        Ok(Self {
-            bundle: b.clone(),
-            order,
-            snapshot_id: identity(&b.snapshot)?,
-        })
+        Ok(order)
+    }
+    pub(crate) fn checked_first_order_context(b: &Bundle) -> LangResult<crate::logic::Context> {
+        let order = Self::authenticate(b)?;
+        let mut context = crate::logic::Context::default();
+        for id in order {
+            let entry = &b.objects[&id];
+            if entry.semantics != crate::library::SEMANTICS {
+                return Err("first-order scope contains an incompatible domain".into());
+            }
+            admit_first_order(&mut context, &id, entry)?;
+        }
+        Ok(context)
     }
     /// Combine two sealed, complete views without reauthenticating old bytes.
     /// No unchecked bundle can enter here; each endpoint has already verified
@@ -707,6 +724,28 @@ mod tests {
             br#"{"a":true,"b":2}"#
         );
         assert!(canonical(&json!(1.5)).is_err());
+    }
+    #[test]
+    fn borrowed_admission_replays_proofs_and_authentication() {
+        let b=view(theorem());
+        CheckedBundle::check(&b).unwrap().first_order_context().unwrap();
+        CheckedBundle::checked_first_order_context(&b).unwrap();
+        let mut false_law=theorem();
+        false_law.payload["declaration"]["Theorem"]["to"]=json!({"U64":0});
+        let forged=view(false_law);
+        let owned=CheckedBundle::check(&forged).unwrap().first_order_context().unwrap_err();
+        let borrowed=CheckedBundle::checked_first_order_context(&forged).unwrap_err();
+        assert_eq!(owned,borrowed);
+        let mut missing=b.clone();missing.membership.clear();
+        assert_eq!(CheckedBundle::check(&missing).unwrap_err(),CheckedBundle::checked_first_order_context(&missing).unwrap_err());
+    }
+    #[test]
+    fn enlarged_package_allowance_keeps_entry_and_root_limits_fail_closed() {
+        let mut b=view(theorem());
+        b.roots=(0..=MAX_VIEW_ENTRIES).map(|i|format!("{i:064x}")).collect();
+        assert_eq!(CheckedBundle::check(&b).unwrap_err(),"knowledge view schema/size limit");
+        let mut e=theorem();e.payload["padding"]=json!("x".repeat(MAX_ENTRY_BYTES));
+        assert_eq!(CheckedBundle::check(&view(e)).unwrap_err(),"knowledge entry schema/content mismatch");
     }
     #[test]
     fn borrowed_bundle_encoding_preserves_bytes_hashes_and_rejection_bounds() {
