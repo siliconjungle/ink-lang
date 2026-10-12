@@ -266,3 +266,10 @@ one real eligible wgpu numeric dispatch. Native workload measurements improve ov
 scalar Ink loops but remain workload-bound and often lose to handwritten Rust.
 These foundations do not provide a complete sparse voxel engine, archetype ECS,
 byte ABI, region scheduler or device bulk-range executor.
+
+Competitive workload evidence now compares unit-face extraction with block-mesh,
+a homogeneous dense component update with Flecs (including cached queries and
+bulk creation), and word codecs with LZ4/Zstd. General final-use movement removes
+Rust copies without changing syntax; voxel traversal and adaptive raw/RLE formats
+remain ordinary knowledge libraries. Results establish specific kernel gaps and
+improvements, not full-engine competitiveness. See docs/competitive-workloads.md.
