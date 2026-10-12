@@ -236,6 +236,11 @@ fn check_with_catalogue(
             .map(|(n, t)| Ok((n.clone(), s::open_scope(t, &scope, &mut budget)?)))
             .collect::<LangResult<BTreeMap<_, _>>>()?;
         let law = laws.law(&application.law)?;
+        // A general law holds only for instances whose assumptions are
+        // proved. It reaches programs through a concrete law that uses it.
+        if !law.types.is_empty() || !law.assumptions.is_empty() {
+            return Err("general laws apply through checked instances, not directly".into());
+        }
         // Local binders become fresh universal parameters, never assumptions.
         for (n, sort) in &law.params {
             let arg = arguments.get(n).ok_or("missing selection argument")?;
