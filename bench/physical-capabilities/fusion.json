@@ -1,0 +1,355 @@
+{
+  "schema": 1,
+  "method": "Checked record/scalar fusion; complete output oracle and lifecycle timings.",
+  "environment": {
+    "platform": "macOS-26.5.2-arm64-arm-64bit",
+    "machine": "arm64",
+    "cpu": "Apple M2",
+    "logical_cpus": 8,
+    "python": "3.12.3",
+    "rustc": "rustc 1.96.0 (ac68faa20 2026-05-25)\nbinary: rustc\ncommit-hash: ac68faa20c58cbccd01ee7208bf3b6e93a7d7f96\ncommit-date: 2026-05-25\nhost: aarch64-apple-darwin\nrelease: 1.96.0\nLLVM version: 22.1.2",
+    "clang": "Apple clang version 14.0.0 (clang-1400.0.29.202)\nTarget: arm64-apple-darwin25.5.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin",
+    "rustc_llvm_major": 22,
+    "clang_llvm_major": null,
+    "git": {
+      "ink-lang": {
+        "commit": "54db6b2ff194dd452d8cc224e13089a31da712c6",
+        "dirty": true
+      },
+      "knowledge": {
+        "commit": "0c727bb5c895e44ad96024c9b41f59cfb094d062",
+        "dirty": false
+      },
+      "lowering-c": {
+        "commit": "cefc24314affe142d6cda10aafe4b732c5bcc926",
+        "dirty": false
+      },
+      "lowering-gpu": {
+        "commit": "5a0d240461e0ac48fdfe32fe552ca71e19d656d8",
+        "dirty": false
+      },
+      "lowering-js": {
+        "commit": "6f60891e89db087a8e0eb0be0bc582e644e44cf4",
+        "dirty": false
+      },
+      "lowering-rust": {
+        "commit": "a52fe8fd01637336e250a1d1306f670cef18ab91",
+        "dirty": false
+      },
+      "lowering-wasm": {
+        "commit": "ec8749a4509ecd1692dbac2060a3742ee5419e5c",
+        "dirty": false
+      }
+    },
+    "warnings": [
+      "Apple Clang version does not identify its upstream LLVM major; backend version matching is unestablished",
+      "uncommitted changes in a measured checkout"
+    ]
+  },
+  "rounds": 11,
+  "seed": 104729,
+  "compiler_sha256": "9a907f02a5144375a3583d5aa05695d0c54049c2702bdcd599359ebcd148fd06",
+  "selection_sha256": "02e461938ba11a95b2d05059c5697149c57857f9a6eb4eb5d16d91e79b78be52",
+  "artifacts": [
+    {
+      "variant": "baseline",
+      "emitted_sha256": "b395f81374e460525f73cc6300ec1b8c26e4921921a8ce6e41ec798630a2def0",
+      "lock_sha256": "eb3ec44d044b1f87235322c97d2a80925d8cc60ae43fe9fb692c5695c9fd60bc"
+    },
+    {
+      "variant": "fused",
+      "emitted_sha256": "fc953e6b695ecb32d051632e1be5aa9844bb10308f227348a49ffc217d8e98cb",
+      "lock_sha256": "eb3ec44d044b1f87235322c97d2a80925d8cc60ae43fe9fb692c5695c9fd60bc"
+    }
+  ],
+  "results": [
+    {
+      "family": "record_map_map",
+      "n": 1024,
+      "variant": "baseline",
+      "samples_ns": [
+        3656.25,
+        3656.25,
+        3656.25,
+        3671.875,
+        3656.25,
+        3656.25,
+        3656.25,
+        3656.25,
+        3656.25,
+        3671.875,
+        3687.5
+      ],
+      "median_ns": 3656.25,
+      "relative_to_baseline": {
+        "ratio": 1.0,
+        "ci_low": 1.0,
+        "ci_high": 1.0
+      }
+    },
+    {
+      "family": "record_map_map",
+      "n": 1024,
+      "variant": "fused",
+      "samples_ns": [
+        3796.875,
+        3656.25,
+        3656.25,
+        3656.25,
+        3640.625,
+        3656.25,
+        3656.25,
+        3656.25,
+        3656.25,
+        3640.625,
+        3734.375
+      ],
+      "median_ns": 3656.25,
+      "relative_to_baseline": {
+        "ratio": 1.0,
+        "ci_low": 0.9957446808510638,
+        "ci_high": 1.0
+      }
+    },
+    {
+      "family": "record_map_fold",
+      "n": 1024,
+      "variant": "baseline",
+      "samples_ns": [
+        4734.375,
+        3812.5,
+        3484.375,
+        3328.125,
+        3328.125,
+        3640.625,
+        3218.75,
+        2984.375,
+        2984.375,
+        2984.375,
+        2984.375
+      ],
+      "median_ns": 3328.125,
+      "relative_to_baseline": {
+        "ratio": 1.0,
+        "ci_low": 1.0,
+        "ci_high": 1.0
+      }
+    },
+    {
+      "family": "record_map_fold",
+      "n": 1024,
+      "variant": "fused",
+      "samples_ns": [
+        3921.875,
+        3906.25,
+        3453.125,
+        3406.25,
+        3406.25,
+        3421.875,
+        3671.875,
+        3031.25,
+        3031.25,
+        3031.25,
+        3031.25
+      ],
+      "median_ns": 3406.25,
+      "relative_to_baseline": {
+        "ratio": 1.0234741784037558,
+        "ci_low": 0.9399141630901288,
+        "ci_high": 1.1032863849765258
+      }
+    },
+    {
+      "family": "record_map_map",
+      "n": 8192,
+      "variant": "baseline",
+      "samples_ns": [
+        30500.0,
+        24890.625,
+        25171.875,
+        21234.375,
+        21187.5,
+        20203.125,
+        18343.75,
+        18375.0,
+        18375.0,
+        16359.375,
+        16359.375
+      ],
+      "median_ns": 20203.125,
+      "relative_to_baseline": {
+        "ratio": 1.0,
+        "ci_low": 1.0,
+        "ci_high": 1.0
+      }
+    },
+    {
+      "family": "record_map_map",
+      "n": 8192,
+      "variant": "fused",
+      "samples_ns": [
+        30484.375,
+        25281.25,
+        24328.125,
+        21218.75,
+        21515.625,
+        21187.5,
+        18359.375,
+        18343.75,
+        18562.5,
+        17125.0,
+        16343.75
+      ],
+      "median_ns": 21187.5,
+      "relative_to_baseline": {
+        "ratio": 1.048723897911833,
+        "ci_low": 0.9774011299435028,
+        "ci_high": 1.048723897911833
+      }
+    },
+    {
+      "family": "record_map_fold",
+      "n": 8192,
+      "variant": "baseline",
+      "samples_ns": [
+        15218.75,
+        15359.375,
+        15296.875,
+        15203.125,
+        14218.75,
+        14250.0,
+        14203.125,
+        13500.0,
+        13468.75,
+        13437.5,
+        13578.125
+      ],
+      "median_ns": 14218.75,
+      "relative_to_baseline": {
+        "ratio": 1.0,
+        "ci_low": 1.0,
+        "ci_high": 1.0
+      }
+    },
+    {
+      "family": "record_map_fold",
+      "n": 8192,
+      "variant": "fused",
+      "samples_ns": [
+        16390.625,
+        16640.625,
+        16578.125,
+        16046.875,
+        15468.75,
+        15343.75,
+        15359.375,
+        14562.5,
+        14500.0,
+        14500.0,
+        14500.0
+      ],
+      "median_ns": 15359.375,
+      "relative_to_baseline": {
+        "ratio": 1.0802197802197802,
+        "ci_low": 1.0554984583761562,
+        "ci_high": 1.0879120879120878
+      }
+    },
+    {
+      "family": "record_map_map",
+      "n": 65536,
+      "variant": "baseline",
+      "samples_ns": [
+        97750.0,
+        96859.375,
+        97062.5,
+        96609.375,
+        96703.125,
+        96593.75,
+        96968.75,
+        97281.25,
+        96750.0,
+        96859.375,
+        96750.0
+      ],
+      "median_ns": 96859.375,
+      "relative_to_baseline": {
+        "ratio": 1.0,
+        "ci_low": 1.0,
+        "ci_high": 1.0
+      }
+    },
+    {
+      "family": "record_map_map",
+      "n": 65536,
+      "variant": "fused",
+      "samples_ns": [
+        95265.625,
+        95093.75,
+        95093.75,
+        95140.625,
+        95046.875,
+        95593.75,
+        95218.75,
+        95156.25,
+        95531.25,
+        95031.25,
+        95078.125
+      ],
+      "median_ns": 95140.625,
+      "relative_to_baseline": {
+        "ratio": 0.9822552024520084,
+        "ci_low": 0.980360592401803,
+        "ci_high": 0.9846576227390181
+      }
+    },
+    {
+      "family": "record_map_fold",
+      "n": 65536,
+      "variant": "baseline",
+      "samples_ns": [
+        96062.5,
+        96578.125,
+        97906.25,
+        96046.875,
+        96421.875,
+        96718.75,
+        96343.75,
+        95921.875,
+        96109.375,
+        96093.75,
+        96031.25
+      ],
+      "median_ns": 96109.375,
+      "relative_to_baseline": {
+        "ratio": 1.0,
+        "ci_low": 1.0,
+        "ci_high": 1.0
+      }
+    },
+    {
+      "family": "record_map_fold",
+      "n": 65536,
+      "variant": "fused",
+      "samples_ns": [
+        105437.5,
+        104062.5,
+        104218.75,
+        106578.125,
+        104359.375,
+        104328.125,
+        104515.625,
+        104062.5,
+        103984.375,
+        104250.0,
+        104187.5
+      ],
+      "median_ns": 104250.0,
+      "relative_to_baseline": {
+        "ratio": 1.0847016745244675,
+        "ci_low": 1.0791134120692445,
+        "ci_high": 1.087996096291477
+      }
+    }
+  ]
+}

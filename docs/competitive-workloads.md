@@ -162,3 +162,12 @@ and packed component/byte layouts with checked encode/decode boundaries. Ownersh
 analysis belongs in general checking; discovery, layout alternatives, algorithm
 variants and ranking remain database/planner work. Profiles rank already valid
 alternatives. They never justify dropping checks or changing a format.
+
+## Checked physical capabilities
+
+The next implementation adds proof-bound reads, direct affine Buffer storage,
+dense and lossless packed scalar columns, unchanged-column map proofs, and
+record/scalar fusion. See [capability details and current ablations](checked-physical-capabilities.md).
+The new reports compare physical plans of the current compiler and have their own
+protocol and compiler identities; their absolute timings do not form a historical
+before/after comparison with the report above.

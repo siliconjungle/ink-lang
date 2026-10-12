@@ -198,6 +198,7 @@ fn run() -> LangResult<()> {
         "--core",
         "--help",
         "--implementation",
+        "--entry",
         "--lean",
         "--library",
         "--native-cpu",
@@ -1003,6 +1004,20 @@ fn run() -> LangResult<()> {
                 "{}",
                 serde_json::json!({"status":"checked","semantics":verified_language::action_ir::SEMANTICS,"source":actions.source_identity(),"actions_sha256":actions.identity()?,"trust":"Source checking, typed elaboration and execution adapters remain trusted; no action-body refinement proof"})
             );
+        }
+        "emit-column-codec" => {
+            let record=arg_value(&args,"--entry")?.ok_or("emit-column-codec requires --entry RECORD")?;
+            let schema=verified_language::column_codec::schema(&p,&record)?;
+            let out=arg_value(&args,"-o")?.ok_or("emit-column-codec requires -o")?;
+            write(&out,&serde_json::to_string(&schema).map_err(|e|e.to_string())?)?;
+            println!("{}",serde_json::json!({"status":"codec-semantics","fields":schema.fields.len()}));
+        }
+        "emit-bounds-obligations" => {
+            let module=core::CheckedModule::from_source(p)?;
+            let goals=verified_language::bounds::obligations(&module)?;
+            let out=arg_value(&args,"-o")?.ok_or("emit-bounds-obligations requires -o")?;
+            write(&out,&serde_json::to_string(&serde_json::json!({"schema":1,"semantics":verified_language::bounds::SEMANTICS,"source":module.identity()?,"map_obligations":verified_language::bounds::map_obligations(&module)?,"obligations":goals})).map_err(|e|e.to_string())?)?;
+            println!("{}",serde_json::json!({"status":"source-bound","sites":goals.len()}));
         }
         "emit-access" | "check-access" => {
             let module = core::CheckedModule::from_source(p)?;
