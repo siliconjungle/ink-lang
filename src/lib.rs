@@ -30,6 +30,8 @@ pub mod runtime {
         ink_runtime::emit_selected(s, dir)?;
         install_pipeline_planner(dir, PIPELINE_PLANNER)
     }
+    pub use ink_runtime::install_usage_identity;
+    pub fn emit_routed_planned(p: &ink_core::planning::CheckedPlan, dir: &std::path::Path) -> ink_core::LangResult<()> { ink_runtime::emit_routed_planned(p, dir) }
     pub fn emit_routed(r: &ink_core::source_routing::CheckedRouting, dir: &std::path::Path) -> ink_core::LangResult<()> {
         ink_runtime::emit_routed(r, dir)?;
         install_pipeline_planner(dir, PIPELINE_PLANNER)
