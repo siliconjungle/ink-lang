@@ -118,3 +118,9 @@ The source programs were chosen to exercise these capabilities. Real input data
 does not make them an unseen-source generalisation test. The charts do not establish
 an accelerating database-performance growth law. They measure search scalability,
 transport cost and particular executable alternatives under explicit boundaries.
+
+The next iteration is documented in [Cheaper discovery and fewer traversals](discovery-reuse.md):
+local proof-instance reuse, finer source-site discrimination, bounded canonical
+file allocations and six additional universal traversal-elimination families.
+Its ablations keep core/backends frozen and report complete trusted JS and
+conversion-heavy native/Wasm calls separately.
