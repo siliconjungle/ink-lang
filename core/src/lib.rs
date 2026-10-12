@@ -1,4 +1,5 @@
 pub mod action_ir;
+pub mod access;
 pub mod action_model;
 mod action_semantic;
 mod action_types;

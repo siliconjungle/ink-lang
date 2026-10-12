@@ -61,6 +61,11 @@ the law; the compiler checks its application. Supported stateful candidates can
 also define physical layouts, cached queries and migrations, with preservation
 obligations for every source action.
 
+[Source-derived point dependencies](docs/key-sensitive-access.md) follow aliases,
+helpers and input guards without new syntax. The planner uses them to discover
+proved point-cache maintenance candidates, retaining conservative refresh paths
+for unsupported accesses and the existing measured profitability gate.
+
 The knowledge store contains immutable, content-addressed JSON files and pinned
 snapshots, with a rebuildable SQLite discovery index. Its role goes beyond storing
 proof files: it makes typed laws, conditions, dependencies and implementations

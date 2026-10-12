@@ -1,0 +1,306 @@
+{
+  "scope": "Local Node JS literal output; 32 rows, 128 unrelated writes and 512 point reads; seven warm samples. No universal speed or profitability claim.",
+  "target": {
+    "node": "v26.1.0",
+    "platform": "darwin",
+    "architecture": "arm64"
+  },
+  "mechanism": {
+    "direct": {
+      "unrelated_writes": 128,
+      "watched_lookups": 0
+    },
+    "refresh": {
+      "unrelated_writes": 128,
+      "watched_lookups": 4224
+    },
+    "access": {
+      "unrelated_writes": 128,
+      "watched_lookups": 0
+    }
+  },
+  "timing_ns": {
+    "direct": [
+      3508458,
+      3489458,
+      2204667,
+      2343917,
+      2920584,
+      6608666,
+      6165333
+    ],
+    "refresh": [
+      2121791,
+      2189500,
+      1361875,
+      1852375,
+      1318375,
+      1460375,
+      1784458
+    ],
+    "access": [
+      1477250,
+      1386250,
+      1702250,
+      1341000,
+      1114500,
+      1095666,
+      1118833
+    ]
+  },
+  "construction_ns": {
+    "direct": [
+      344291,
+      333083,
+      216667,
+      244667,
+      164042,
+      650667,
+      461667
+    ],
+    "refresh": [
+      408458,
+      356375,
+      264917,
+      299916,
+      217917,
+      217125,
+      331541
+    ],
+    "access": [
+      274500,
+      377834,
+      259666,
+      258959,
+      246833,
+      199500,
+      233541
+    ]
+  },
+  "checkpoint_ns": {
+    "direct": [
+      4403875,
+      542459,
+      422375,
+      427125,
+      363208,
+      758250,
+      4891291
+    ],
+    "refresh": [
+      1289333,
+      639750,
+      418167,
+      788500,
+      341417,
+      1795166,
+      985125
+    ],
+    "access": [
+      1383750,
+      645958,
+      784250,
+      682125,
+      419417,
+      404333,
+      1236250
+    ]
+  },
+  "phases": [
+    {
+      "command": "emit-core",
+      "elapsed_ns": 41886125
+    },
+    {
+      "command": "emit-access",
+      "elapsed_ns": 13020125
+    },
+    {
+      "command": "emit-action-model",
+      "elapsed_ns": 50690125
+    },
+    {
+      "command": "check-access",
+      "elapsed_ns": 11814125
+    },
+    {
+      "command": "-m",
+      "elapsed_ns": 598620083
+    },
+    {
+      "command": "check-representation",
+      "elapsed_ns": 270462208
+    },
+    {
+      "command": "emit-representation",
+      "elapsed_ns": 259635792
+    },
+    {
+      "command": "check-representation",
+      "elapsed_ns": 263929000
+    },
+    {
+      "command": "emit-representation",
+      "elapsed_ns": 262403791
+    },
+    {
+      "command": "check-representation",
+      "elapsed_ns": 660040042
+    },
+    {
+      "command": "emit-representation",
+      "elapsed_ns": 637377209
+    },
+    {
+      "command": "check-access",
+      "elapsed_ns": 9278417
+    },
+    {
+      "command": "check-representation",
+      "elapsed_ns": 464842042
+    },
+    {
+      "command": "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-key-dependencies-2026-10-12/tools/access-cache-workload.mjs",
+      "elapsed_ns": 168365709
+    }
+  ],
+  "source": "16fcaadde84f664ddde8be49b7af64d3bc6ae3a49239061576cc0d72aea9979c",
+  "compiler_sha256": "79c4d6173fa9463e5fd7c0c147e2467614f1628db10c38847534175f16b8efc0",
+  "planner": {
+    "baseline": "f9d69c57ed622f543aa68c5675b07f035de775c79e9a3d932d4485ab7fb12925",
+    "candidates": [
+      "9d771587eb025b6161924d48aaee5f8a5dbfdd246220a4d412ce90f4f3ddb55c",
+      "19348e71d0e6d9ce87b8eec20329e4a99f8d272c3621557f681b67d219aa5616"
+    ],
+    "notes": [
+      {
+        "proposal": "point-cache:watched",
+        "status": "checked",
+        "discovery": {
+          "source": "16fcaadde84f664ddde8be49b7af64d3bc6ae3a49239061576cc0d72aea9979c",
+          "query": "watched",
+          "actions": {
+            "edit": {
+              "eligible": true,
+              "writes": [
+                {
+                  "root": "Items",
+                  "mode": "write",
+                  "scope": {
+                    "Point": {
+                      "key_type": "U64",
+                      "key": {
+                        "Field": [
+                          {
+                            "Parameter": 0
+                          },
+                          "id"
+                        ]
+                      }
+                    }
+                  },
+                  "conditions": []
+                }
+              ],
+              "reason": "point writes; propose guarded repair and other-key reuse",
+              "strategy": "guarded maintenance"
+            },
+            "from_state": {
+              "eligible": false,
+              "writes": [
+                {
+                  "root": "Items",
+                  "mode": "write",
+                  "scope": {
+                    "Whole": {
+                      "reason": "key depends on state, callback data, or unsupported pure expression"
+                    }
+                  },
+                  "conditions": []
+                }
+              ],
+              "reason": "whole-root or unsupported-key write; refresh fallback",
+              "strategy": "refresh fallback"
+            },
+            "put": {
+              "eligible": true,
+              "writes": [
+                {
+                  "root": "Items",
+                  "mode": "write",
+                  "scope": {
+                    "Point": {
+                      "key_type": "U64",
+                      "key": {
+                        "Parameter": 0
+                      }
+                    }
+                  },
+                  "conditions": []
+                }
+              ],
+              "reason": "point writes; propose guarded repair and other-key reuse",
+              "strategy": "guarded maintenance"
+            },
+            "remove_many": {
+              "eligible": false,
+              "writes": [
+                {
+                  "root": "Items",
+                  "mode": "write",
+                  "scope": {
+                    "Whole": {
+                      "reason": "remove_many accesses a collection"
+                    }
+                  },
+                  "conditions": []
+                }
+              ],
+              "reason": "whole-root or unsupported-key write; refresh fallback",
+              "strategy": "refresh fallback"
+            },
+            "scan": {
+              "eligible": false,
+              "writes": [],
+              "reason": "no writes to query root",
+              "strategy": "query"
+            },
+            "watched": {
+              "eligible": false,
+              "writes": [],
+              "reason": "no writes to query root",
+              "strategy": "query"
+            }
+          },
+          "trust": "Discovery hints only; universal source/action equations grant admission."
+        }
+      },
+      {
+        "proposal": "indexed",
+        "status": "declined",
+        "reason": "ts': [{'Call': {'function': 'bd19c103059fc129111e8c915a8889bf28188e3f3f76d6bf0c28cc8c4a8506cc', 'arguments': [{'Call': {'function': '6a95de4781a623a37a4f61414e612cafee7645d8d519b5d04d90933c3b193d87', 'arguments': [{'Call': {'function': '360daf4bbf26966258535d7c4ba9f74e9da32fbbfe3a63691481c7447fd068be', 'arguments': [{'Call': {'function': 'bd19c103059fc129111e8c915a8889bf28188e3f3f76d6bf0c28cc8c4a8506cc', 'arguments': [{'Var': 'indexed_root_0'}]}}, {'Var': 'equational_case_0_field_0'}, {'Var': 'arg_1'}]}}]}}]}}]}}, {'Construct': {'datatype': 'd3150a5a0d0ac06af59f5c7df027cc91a5d7bcc629912edde38b9c88cafb9503', 'constructor': 0, 'arguments': []}}]}}, {'Construct': {'datatype': '58788cd20bc916321274c785efdcf210722ea0798ecb83d4f3c00af15f410f7b', 'constructor': 0, 'arguments': [{'Construct': {'datatype': 'a2feeac70238768b459cab3c2a8555eb2ad922cf6792fd5cee09f6b232bb2386', 'constructor': 0, 'arguments': [{'Construct': {'datatype': 'baa9fb170ac2322a5cbf5fab9c84873a889f82bfd5054af51e8177bfc75689\n"
+      },
+      {
+        "proposal": "grouped",
+        "status": "checked",
+        "discovery": []
+      }
+    ],
+    "snapshot": "be2329a051aae7a78fd854128b1584c5e52cb8b62e2d5c6f22ffa2f3153f0b10"
+  },
+  "validation": {
+    "core_library_tests": 55,
+    "access_tests": 6,
+    "effect_tests": 7,
+    "producer_tests": 3,
+    "authoring_hygiene_tests": 3,
+    "target_conformance": "C/Rust/JavaScript/C-Wasm/Rust-Wasm plus GPU host lanes; values, errors, events, snapshots, restore and version exhaustion",
+    "proof_obligations": 14,
+    "negative_controls": {
+      "forged_access": "rejected",
+      "authenticated_false_retention": "rejected",
+      "reason": "error: first-order entry 80b34fcd405b3f7a8efcb178d1d1396994aa5e539bdd24dcad109723e0b6c563: definitional computation does not prove equality\n"
+    },
+    "historical_fixture": "test_dynamic_point frozen-byte comparison also fails on pinned baseline; modified/default producer output confirmed byte-identical to baseline"
+  }
+}
