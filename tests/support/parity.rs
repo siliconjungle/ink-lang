@@ -21,7 +21,7 @@ pub(crate) fn conformance(
     steps: Vec<Value>,
     expected: Vec<Value>,
 ) {
-    conformance_inner(name, p, None, None, source, steps, expected)
+    conformance_inner(name, p, None, None, None, source, steps, expected)
 }
 #[allow(dead_code)]
 pub(crate) fn conformance_selected(
@@ -35,6 +35,7 @@ pub(crate) fn conformance_selected(
         name,
         selected.module().program().clone(),
         Some(selected),
+        None,
         None,
         source,
         steps,
@@ -53,7 +54,27 @@ pub(crate) fn conformance_indexed(
         name,
         p,
         None,
+        None,
         Some(verified_language::state_native::TableStorage::IndexedSlots),
+        source,
+        steps,
+        expected,
+    )
+}
+#[allow(dead_code)]
+pub(crate) fn conformance_planned(
+    name: &str,
+    plan: &verified_language::planning::CheckedPlan,
+    source: &str,
+    steps: Vec<Value>,
+    expected: Vec<Value>,
+) {
+    conformance_inner(
+        name,
+        plan.module().program().clone(),
+        None,
+        Some(plan),
+        None,
         source,
         steps,
         expected,
@@ -63,6 +84,7 @@ fn conformance_inner(
     name: &str,
     p: verified_language::syntax::Program,
     selected: Option<&verified_language::optimisation::CheckedSelection>,
+    planned: Option<&verified_language::planning::CheckedPlan>,
     table_storage: Option<verified_language::state_native::TableStorage>,
     source: &str,
     steps: Vec<Value>,
@@ -116,7 +138,9 @@ fn conformance_inner(
     )
     .unwrap();
     if std::env::var_os("INK_TEST_GPU").is_some() || std::env::var_os("INK_TEST_WGPU").is_some() {
-        if let Some(selected) = selected {
+        if let Some(plan) = planned {
+            verified_language::runtime::emit_planned(plan, &root.join("gpu-module")).unwrap();
+        } else if let Some(selected) = selected {
             verified_language::runtime::emit_selected(selected, &root.join("gpu-module")).unwrap();
         } else {
             verified_language::runtime::emit_gpu(&p, &root.join("gpu-module")).unwrap();
@@ -132,7 +156,8 @@ fn conformance_inner(
             || name == "generic-libraries-parity"
             || name == "bulk-workloads-parity"
             || name == "competitive-workloads-parity"
-            || selected.is_some())
+            || selected.is_some()
+            || planned.is_some())
     {
         let project = root.join("gpu-module/native");
         let target = Path::new(env!("CARGO_MANIFEST_DIR")).join("build/parity-gpu-target");
@@ -300,7 +325,9 @@ fn conformance_inner(
         }
     }
     let c = root.join("c");
-    if let Some(selected) = selected {
+    if let Some(plan) = planned {
+        verified_language::runtime::emit_c_program_planned(plan, &c).unwrap();
+    } else if let Some(selected) = selected {
         verified_language::runtime::emit_c_program_selected(selected, &c).unwrap();
     } else {
         verified_language::runtime::emit_c_program(&module, &c).unwrap();
@@ -316,7 +343,9 @@ fn conformance_inner(
         rust.join("src/lib.rs"),
         format!(
             "{}{}",
-            if let Some(selected) = selected {
+            if let Some(plan) = planned {
+                verified_language::state_native::emit_planned(plan).unwrap()
+            } else if let Some(selected) = selected {
                 verified_language::state_native::emit_selected(selected).unwrap()
             } else {
                 verified_language::state_native::emit_with_table_storage(
@@ -386,7 +415,11 @@ fn conformance_inner(
     }
     fs::write(
         root.join("program.mjs"),
-        if let Some(selected) = selected {
+        if let Some(plan) = planned {
+            verified_language::javascript::lower_planned(plan)
+                .unwrap()
+                .javascript
+        } else if let Some(selected) = selected {
             verified_language::javascript::lower_selected(selected)
                 .unwrap()
                 .javascript

@@ -163,3 +163,5 @@ law families, all-key and recursive-row histories on every CPU lane, actual
 wgpu/WebGPU execution, and relocated cold discovery plus offline replay.
 `main-integration-checks.json` preserves exact package/compiler provenance and
 keeps earlier benchmark acquisition identities separate from this refactor.
+
+Database algorithms can also introduce checked source helpers and intermediate types before proving replacements. See [database-authored algorithms](database-executable-extensions.md) for the extension protocol, generic recipe and physical description capabilities.
