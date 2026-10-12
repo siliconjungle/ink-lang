@@ -1,0 +1,83 @@
+{
+  "schema": 1,
+  "scope": "General owned buffer range machinery; external voxel codec and ECS libraries; checked database work elimination.",
+  "core_revision": "fdd78297cbe90a45e2d32fc745e9b42297fd83e7",
+  "package_revisions": {
+    "native-support": "b6a28229aea7f4c277af30e92999ce491628fe6d",
+    "lowerings/rust": "35b9421ecde2af8303e5c15027d7dfe9a2d582bf",
+    "lowerings/c": "5f131aa8261ddf6ad9b8d8bdeee8251015de5bab",
+    "lowerings/js": "8b18ebf32db343872790b94b6da85c0b9c30bfcf",
+    "lowerings/gpu": "fbacb67e046e805380949e987d7ba0e3126ef61c",
+    "lowerings/wasm": "44a4c4f52a28ff23c19c56dcae461d569c203bd8",
+    "runtime": "a097b4c00792a4937d41bbbef885d1b98a5afd6a",
+    "knowledge": "e82b9cf6203781e8e3fe08fddd2c299a9c5f2f34"
+  },
+  "knowledge_snapshot": {
+    "root": "08d14123162c4bbfc7c0753db08381ac7fc5ab381acfe1e1d177e0b70406573f",
+    "schema": 1,
+    "semantics": "ink-knowledge-snapshot-v1"
+  },
+  "laws": {
+    "checked": 48,
+    "source_discovery_roots": 40,
+    "operational_dependencies": 8,
+    "rehashed_false_length": "rejected"
+  },
+  "validation": {
+    "independent_core_tests": 89,
+    "native_support_typed_tests": 7,
+    "knowledge_publication_tests": 2,
+    "mandatory_generic_libraries_tests": 4,
+    "new_workload_observations_per_target": 79,
+    "selected_observations_per_target": 4,
+    "cpu_targets": [
+      "C",
+      "Rust",
+      "JavaScript",
+      "C-Wasm",
+      "Rust-Wasm"
+    ],
+    "gpu": "wgpu host fallback plus one actual eligible numeric array kernel; selected programs also execute through the GPU backend",
+    "portable_snapshots_and_restore": true,
+    "rollback_and_events": true,
+    "kernel_range_meanings_match_independent_oracles": true,
+    "inventory_contract_audit": "passed",
+    "standalone_packages": "JS, Rust, C, GPU, Wasm and runtime checked with their exact Git pins; unpublished revisions were populated via local Git mirrors, then offline checks passed."
+  },
+  "source_sha256": {
+    "examples/bulk-workloads/main.ink": "9fbb3347ce4229262d677d776a0e4f65221e0f313b4c788c642bce52f57087aa",
+    "examples/bulk-workloads/optimisation.ink": "0558b3ddb3e2f7b91555fbd9a655a5e7cf371c37faac4fe710c9a1e941f3cfc5",
+    "knowledge/libraries/buffers.ink": "31530e11acab8489ff0a12bd5a89e0b6ae78a5491aa69eb4746ccb8b39cbb73c",
+    "knowledge/libraries/voxels.ink": "8fdbcbe51ff2528df7973ac24fc4c903087a622d4e66d97f82e55dbbb34323ed",
+    "knowledge/libraries/codecs.ink": "6895e3b10108c8bde63c94d1edc9ee06c03ddeec20375e555af8bf139a5364a6",
+    "knowledge/libraries/ecs.ink": "95edbddc7a9334863ae076b48a3e4a5a9e3e5a599c3de88419ca66aab88bfc2c"
+  },
+  "benchmark": "bench/bulk-buffers/results.json",
+  "limits": [
+    "No compiler/backend correctness theorem",
+    "No generic codec roundtrip theorem",
+    "CPU execution for bulk ranges; no device range executor",
+    "No sparse spatial representation, spatial dependency scheduler or full archetype ECS",
+    "Packed octets use a u32 word stream; no Bytes ABI",
+    "Measurements cover native complete calls for these fixtures, not complete engines or general codec superiority"
+  ],
+  "benchmark_median_scalar_over_bulk_ranges": {
+    "voxel_box_paint": [
+      3.0367827388456443,
+      3.2571691222870154
+    ],
+    "run_decode": [
+      13.846320527727698,
+      47.942535444538
+    ],
+    "ecs_column_erase": [
+      4.529161865150469,
+      5.42621285217347
+    ]
+  },
+  "benchmark_median_ink_over_rust_range": [
+    0.957664519627816,
+    3.7508206765845857
+  ],
+  "benchmark_compiler_sha256": "91ca79a42d72c5eb134da0d58dce8dc39b6cd89b65e144b26dec99ac72ac28a2"
+}
