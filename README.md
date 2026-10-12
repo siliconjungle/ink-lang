@@ -90,8 +90,9 @@ now run under explicit target limits. The optional independent Lean verdict chec
 a limited Boolean equality calculus; it does not verify the complete compiler.
 
 The [target parity contract](docs/lowering-parity.md) records exact coverage and
-limits. Complete C emission uses a shared Rust primitive runtime. JavaScript keeps
-are recomputed. F32 arithmetic uses canonical NaNs and source-order binary32
+limits. Complete C emission uses a shared Rust primitive runtime. JavaScript scalar
+keeps retain results until a checked source dependency changes; composite keeps
+retain their existing ownership path. F32 arithmetic uses canonical NaNs and source-order binary32
 operations; the packed GPU emitter implements these through integer lanes.
 
 Recent integration adds [215 owned Buffer/Map laws](docs/owned-optimisation.md),

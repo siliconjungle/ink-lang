@@ -1,0 +1,2266 @@
+{
+  "date": "2026-10-12",
+  "scope": "Exploratory Node state-only comparison; aggregate calls use a common awaited interface (cached Ink export is async); point calls are synchronous; no DOM, rendering, durability, or total lifecycle claim; observer phases explicitly include connected derived consumers and effect scheduling. Ink calls include versions/events/transaction machinery; signal controls do not. Before and current use the same checked core, source and representation request; the before JavaScript backend is pinned at e9a45c390c3a6a9ffbfe756e2423d280f7a9f430. Current artifacts were freshly emitted after these changes; the checked tree uses the same proof request. Bound lanes use trusted scalar carriers, owned composite capture and result-only replies, with events retained in Ink outboxes.",
+  "hardware": "Apple M2",
+  "node": "v26.1.0",
+  "platform": "darwin",
+  "arch": "arm64",
+  "versions": {
+    "@preact/signals-core": "1.14.4",
+    "svelte": "5.57.2"
+  },
+  "inkWorkspaceRevision": "e850884195466c19bbb6d5334d82f14eb31a3c44",
+  "inkLoweringRevision": "6886e75b0b9730c2c3a7d2e4cb10a0093cc86207",
+  "baselineLoweringRevision": "e9a45c390c3a6a9ffbfe756e2423d280f7a9f430",
+  "hashes": {
+    "bench.mjs": "8d5db756cb915afea4654ec520a9342ceab0845d4e24cda3c7d4a7d30d05e250",
+    "models.svelte.js": "7d37eba2021303d987f98d21f66b589ee8bf4778af3b407da1193bfbe77b761c",
+    "models.mjs": "578c7e892c9b9887e9c4da5858e1ff2d7182fb084ece45e0d0f1e96c8057000e",
+    "point.ink": "4bbf67165cdc2f91a1dc896a9955e49d3b1bf4084bda373ed3ea62ac24596ffd",
+    "package-lock.json": "de59463f314c3e8a4daa9e8dec2afa27a239b42d77bbc91904dd8ea7c2e1eac6",
+    "../../examples/filtered-aggregate.ink": "f774f738409c64715bde96f2a9af3f5a608187d0a1fddf5aa644da82f1a79b12",
+    "../../knowledge/research/indexed-aggregate/request.json": "861074f0cb04fada48e2c40a6cf58c53bd69474876ee5d7cd3721d8cf6ff3cd4",
+    "../../build/signals-state/before/aggregate.mjs": "7d5ba6b91898701da72fefc08f152730898b160161335b031594d88737828671",
+    "../../build/signals-state/before/point.mjs": "e93d24320bbd8007b279768dc8245725924c467fee4e5dd6a2f39a01c14aa611",
+    "../../build/signals-state/before/indexed.mjs": "0f511d06a065dbd4fa0c6c67ddb11b8aa1d5b2e9d728238d4a5aaeab117004d3",
+    "../../build/signals-state/after/aggregate.mjs": "3eeac3383e1016e8abd9547ff51d25382f66766be518604fe3d970e494d78536",
+    "../../build/signals-state/after/point.mjs": "5b0ab874956fc7893ec0f011019c4edcaf37b326355b516247fb82a21b24cbb6",
+    "../../build/signals-state/after/indexed.mjs": "48dacabe3d2816da37743171721857ec0f9c2f280ccef5d4c9725f22ec99c0fa"
+  },
+  "validations": [
+    {
+      "label": "Svelte deep derived",
+      "fullWidthHistory": true,
+      "beforeRepeatedReads": {
+        "sumRuns": 32,
+        "countRuns": 27
+      },
+      "afterRepeatedReads": {
+        "sumRuns": 32,
+        "countRuns": 27
+      }
+    },
+    {
+      "label": "SvelteMap derived",
+      "fullWidthHistory": true,
+      "beforeRepeatedReads": {
+        "sumRuns": 48,
+        "countRuns": 48
+      },
+      "afterRepeatedReads": {
+        "sumRuns": 48,
+        "countRuns": 48
+      }
+    },
+    {
+      "label": "Preact computed",
+      "fullWidthHistory": true,
+      "beforeRepeatedReads": {
+        "sumRuns": 48,
+        "countRuns": 48,
+        "chunk": 32
+      },
+      "afterRepeatedReads": {
+        "sumRuns": 48,
+        "countRuns": 48,
+        "chunk": 32
+      }
+    },
+    {
+      "label": "Preact chunk64",
+      "fullWidthHistory": true,
+      "beforeRepeatedReads": {
+        "sumRuns": 48,
+        "countRuns": 48,
+        "chunk": 64
+      },
+      "afterRepeatedReads": {
+        "sumRuns": 48,
+        "countRuns": 48,
+        "chunk": 64
+      }
+    },
+    {
+      "label": "Svelte manual delta",
+      "fullWidthHistory": true,
+      "beforeRepeatedReads": {
+        "manualDelta": true
+      },
+      "afterRepeatedReads": {
+        "manualDelta": true
+      }
+    },
+    {
+      "label": "Preact manual delta",
+      "fullWidthHistory": true,
+      "beforeRepeatedReads": {
+        "manualDelta": true
+      },
+      "afterRepeatedReads": {
+        "manualDelta": true
+      }
+    },
+    {
+      "label": "Ink before",
+      "fullWidthHistory": true,
+      "beforeRepeatedReads": null,
+      "afterRepeatedReads": null
+    },
+    {
+      "label": "Ink current",
+      "fullWidthHistory": true,
+      "beforeRepeatedReads": null,
+      "afterRepeatedReads": null
+    },
+    {
+      "label": "Ink current bound",
+      "fullWidthHistory": true,
+      "beforeRepeatedReads": null,
+      "afterRepeatedReads": null
+    },
+    {
+      "label": "Ink checked tree before",
+      "fullWidthHistory": true,
+      "beforeRepeatedReads": null,
+      "afterRepeatedReads": null
+    },
+    {
+      "label": "Ink checked tree current",
+      "fullWidthHistory": true,
+      "beforeRepeatedReads": null,
+      "afterRepeatedReads": null
+    },
+    {
+      "label": "Ink checked tree bound",
+      "fullWidthHistory": true,
+      "beforeRepeatedReads": null,
+      "afterRepeatedReads": null
+    }
+  ],
+  "setupSamples": [
+    {
+      "label": "Svelte deep derived",
+      "rows": 256,
+      "ns": 159000,
+      "note": "single cold construction observation"
+    },
+    {
+      "label": "SvelteMap derived",
+      "rows": 256,
+      "ns": 189041,
+      "note": "single cold construction observation"
+    },
+    {
+      "label": "Preact computed",
+      "rows": 256,
+      "ns": 127292,
+      "note": "single cold construction observation"
+    },
+    {
+      "label": "Preact chunk64",
+      "rows": 256,
+      "ns": 139209,
+      "note": "single cold construction observation"
+    },
+    {
+      "label": "Svelte manual delta",
+      "rows": 256,
+      "ns": 145209,
+      "note": "single cold construction observation"
+    },
+    {
+      "label": "Preact manual delta",
+      "rows": 256,
+      "ns": 127667,
+      "note": "single cold construction observation"
+    },
+    {
+      "label": "Ink before",
+      "rows": 256,
+      "ns": 2846709,
+      "note": "single cold construction observation"
+    },
+    {
+      "label": "Ink current",
+      "rows": 256,
+      "ns": 3735208,
+      "note": "single cold construction observation"
+    },
+    {
+      "label": "Ink current bound",
+      "rows": 256,
+      "ns": 1492000,
+      "note": "single cold construction observation"
+    },
+    {
+      "label": "Ink checked tree before",
+      "rows": 256,
+      "ns": 27377667,
+      "note": "includes ordinary seed and checkpoint/restore"
+    },
+    {
+      "label": "Ink checked tree current",
+      "rows": 256,
+      "ns": 18702000,
+      "note": "includes ordinary seed and checkpoint/restore"
+    },
+    {
+      "label": "Ink checked tree bound",
+      "rows": 256,
+      "ns": 20472875,
+      "note": "includes ordinary seed and checkpoint/restore"
+    }
+  ],
+  "observedSamples": [
+    {
+      "label": "Svelte deep observed",
+      "rows": 256,
+      "phase": "observed-update-and-aggregate",
+      "round": 0,
+      "units": 512,
+      "writesPerUnit": 1,
+      "ns": 433360792,
+      "nsPerUnit": 846407.796875
+    },
+    {
+      "label": "SvelteMap observed",
+      "rows": 256,
+      "phase": "observed-update-and-aggregate",
+      "round": 0,
+      "units": 512,
+      "writesPerUnit": 1,
+      "ns": 38118083,
+      "nsPerUnit": 74449.380859375
+    },
+    {
+      "label": "Preact computed observed",
+      "rows": 256,
+      "phase": "observed-update-and-aggregate",
+      "round": 0,
+      "units": 512,
+      "writesPerUnit": 1,
+      "ns": 16110334,
+      "nsPerUnit": 31465.49609375
+    },
+    {
+      "label": "Preact chunk64 observed",
+      "rows": 256,
+      "phase": "observed-update-and-aggregate",
+      "round": 0,
+      "units": 512,
+      "writesPerUnit": 1,
+      "ns": 4766750,
+      "nsPerUnit": 9310.05859375
+    },
+    {
+      "label": "Preact chunk64 observed",
+      "rows": 256,
+      "phase": "observed-update-and-aggregate",
+      "round": 1,
+      "units": 512,
+      "writesPerUnit": 1,
+      "ns": 4933709,
+      "nsPerUnit": 9636.150390625
+    },
+    {
+      "label": "Preact computed observed",
+      "rows": 256,
+      "phase": "observed-update-and-aggregate",
+      "round": 1,
+      "units": 512,
+      "writesPerUnit": 1,
+      "ns": 34916542,
+      "nsPerUnit": 68196.37109375
+    },
+    {
+      "label": "SvelteMap observed",
+      "rows": 256,
+      "phase": "observed-update-and-aggregate",
+      "round": 1,
+      "units": 512,
+      "writesPerUnit": 1,
+      "ns": 52404042,
+      "nsPerUnit": 102351.64453125
+    },
+    {
+      "label": "Svelte deep observed",
+      "rows": 256,
+      "phase": "observed-update-and-aggregate",
+      "round": 1,
+      "units": 512,
+      "writesPerUnit": 1,
+      "ns": 268851333,
+      "nsPerUnit": 525100.259765625
+    },
+    {
+      "label": "Svelte deep observed",
+      "rows": 256,
+      "phase": "observed-unchanged-read",
+      "round": 0,
+      "units": 2000,
+      "writesPerUnit": 0,
+      "ns": 4011583,
+      "nsPerUnit": 2005.7915
+    },
+    {
+      "label": "SvelteMap observed",
+      "rows": 256,
+      "phase": "observed-unchanged-read",
+      "round": 0,
+      "units": 2000,
+      "writesPerUnit": 0,
+      "ns": 7031791,
+      "nsPerUnit": 3515.8955
+    },
+    {
+      "label": "Preact computed observed",
+      "rows": 256,
+      "phase": "observed-unchanged-read",
+      "round": 0,
+      "units": 2000,
+      "writesPerUnit": 0,
+      "ns": 14169500,
+      "nsPerUnit": 7084.75
+    },
+    {
+      "label": "Preact chunk64 observed",
+      "rows": 256,
+      "phase": "observed-unchanged-read",
+      "round": 0,
+      "units": 2000,
+      "writesPerUnit": 0,
+      "ns": 19461792,
+      "nsPerUnit": 9730.896
+    },
+    {
+      "label": "Preact chunk64 observed",
+      "rows": 256,
+      "phase": "observed-unchanged-read",
+      "round": 1,
+      "units": 2000,
+      "writesPerUnit": 0,
+      "ns": 4641584,
+      "nsPerUnit": 2320.792
+    },
+    {
+      "label": "Preact computed observed",
+      "rows": 256,
+      "phase": "observed-unchanged-read",
+      "round": 1,
+      "units": 2000,
+      "writesPerUnit": 0,
+      "ns": 3559083,
+      "nsPerUnit": 1779.5415
+    },
+    {
+      "label": "SvelteMap observed",
+      "rows": 256,
+      "phase": "observed-unchanged-read",
+      "round": 1,
+      "units": 2000,
+      "writesPerUnit": 0,
+      "ns": 9164625,
+      "nsPerUnit": 4582.3125
+    },
+    {
+      "label": "Svelte deep observed",
+      "rows": 256,
+      "phase": "observed-unchanged-read",
+      "round": 1,
+      "units": 2000,
+      "writesPerUnit": 0,
+      "ns": 5800250,
+      "nsPerUnit": 2900.125
+    }
+  ],
+  "samples": [
+    {
+      "label": "Svelte deep derived",
+      "rows": 256,
+      "phase": "write-only",
+      "round": 0,
+      "units": 2048,
+      "writesPerUnit": 1,
+      "ns": 50817625,
+      "nsPerUnit": 24813.29345703125
+    },
+    {
+      "label": "SvelteMap derived",
+      "rows": 256,
+      "phase": "write-only",
+      "round": 0,
+      "units": 2048,
+      "writesPerUnit": 1,
+      "ns": 17298291,
+      "nsPerUnit": 8446.43115234375
+    },
+    {
+      "label": "Preact computed",
+      "rows": 256,
+      "phase": "write-only",
+      "round": 0,
+      "units": 2048,
+      "writesPerUnit": 1,
+      "ns": 7465417,
+      "nsPerUnit": 3645.22314453125
+    },
+    {
+      "label": "Preact chunk64",
+      "rows": 256,
+      "phase": "write-only",
+      "round": 0,
+      "units": 2048,
+      "writesPerUnit": 1,
+      "ns": 2802083,
+      "nsPerUnit": 1368.20458984375
+    },
+    {
+      "label": "Svelte manual delta",
+      "rows": 256,
+      "phase": "write-only",
+      "round": 0,
+      "units": 2048,
+      "writesPerUnit": 1,
+      "ns": 12473208,
+      "nsPerUnit": 6090.43359375
+    },
+    {
+      "label": "Preact manual delta",
+      "rows": 256,
+      "phase": "write-only",
+      "round": 0,
+      "units": 2048,
+      "writesPerUnit": 1,
+      "ns": 4211584,
+      "nsPerUnit": 2056.4375
+    },
+    {
+      "label": "Ink before",
+      "rows": 256,
+      "phase": "write-only",
+      "round": 0,
+      "units": 2048,
+      "writesPerUnit": 1,
+      "ns": 17309709,
+      "nsPerUnit": 8452.00634765625
+    },
+    {
+      "label": "Ink current",
+      "rows": 256,
+      "phase": "write-only",
+      "round": 0,
+      "units": 2048,
+      "writesPerUnit": 1,
+      "ns": 22924084,
+      "nsPerUnit": 11193.400390625
+    },
+    {
+      "label": "Ink current bound",
+      "rows": 256,
+      "phase": "write-only",
+      "round": 0,
+      "units": 2048,
+      "writesPerUnit": 1,
+      "ns": 8278917,
+      "nsPerUnit": 4042.43994140625
+    },
+    {
+      "label": "Ink checked tree before",
+      "rows": 256,
+      "phase": "write-only",
+      "round": 0,
+      "units": 2048,
+      "writesPerUnit": 1,
+      "ns": 278707875,
+      "nsPerUnit": 136087.82958984375
+    },
+    {
+      "label": "Ink checked tree current",
+      "rows": 256,
+      "phase": "write-only",
+      "round": 0,
+      "units": 2048,
+      "writesPerUnit": 1,
+      "ns": 38622042,
+      "nsPerUnit": 18858.4189453125
+    },
+    {
+      "label": "Ink checked tree bound",
+      "rows": 256,
+      "phase": "write-only",
+      "round": 0,
+      "units": 2048,
+      "writesPerUnit": 1,
+      "ns": 96794833,
+      "nsPerUnit": 47263.10205078125
+    },
+    {
+      "label": "Ink checked tree bound",
+      "rows": 256,
+      "phase": "write-only",
+      "round": 1,
+      "units": 2048,
+      "writesPerUnit": 1,
+      "ns": 16566500,
+      "nsPerUnit": 8089.111328125
+    },
+    {
+      "label": "Ink checked tree current",
+      "rows": 256,
+      "phase": "write-only",
+      "round": 1,
+      "units": 2048,
+      "writesPerUnit": 1,
+      "ns": 79246875,
+      "nsPerUnit": 38694.76318359375
+    },
+    {
+      "label": "Ink checked tree before",
+      "rows": 256,
+      "phase": "write-only",
+      "round": 1,
+      "units": 2048,
+      "writesPerUnit": 1,
+      "ns": 117646416,
+      "nsPerUnit": 57444.5390625
+    },
+    {
+      "label": "Ink current bound",
+      "rows": 256,
+      "phase": "write-only",
+      "round": 1,
+      "units": 2048,
+      "writesPerUnit": 1,
+      "ns": 8511417,
+      "nsPerUnit": 4155.96533203125
+    },
+    {
+      "label": "Ink current",
+      "rows": 256,
+      "phase": "write-only",
+      "round": 1,
+      "units": 2048,
+      "writesPerUnit": 1,
+      "ns": 13092000,
+      "nsPerUnit": 6392.578125
+    },
+    {
+      "label": "Ink before",
+      "rows": 256,
+      "phase": "write-only",
+      "round": 1,
+      "units": 2048,
+      "writesPerUnit": 1,
+      "ns": 19709167,
+      "nsPerUnit": 9623.61669921875
+    },
+    {
+      "label": "Preact manual delta",
+      "rows": 256,
+      "phase": "write-only",
+      "round": 1,
+      "units": 2048,
+      "writesPerUnit": 1,
+      "ns": 9667416,
+      "nsPerUnit": 4720.41796875
+    },
+    {
+      "label": "Svelte manual delta",
+      "rows": 256,
+      "phase": "write-only",
+      "round": 1,
+      "units": 2048,
+      "writesPerUnit": 1,
+      "ns": 13943500,
+      "nsPerUnit": 6808.349609375
+    },
+    {
+      "label": "Preact chunk64",
+      "rows": 256,
+      "phase": "write-only",
+      "round": 1,
+      "units": 2048,
+      "writesPerUnit": 1,
+      "ns": 8657458,
+      "nsPerUnit": 4227.2744140625
+    },
+    {
+      "label": "Preact computed",
+      "rows": 256,
+      "phase": "write-only",
+      "round": 1,
+      "units": 2048,
+      "writesPerUnit": 1,
+      "ns": 2097833,
+      "nsPerUnit": 1024.33251953125
+    },
+    {
+      "label": "SvelteMap derived",
+      "rows": 256,
+      "phase": "write-only",
+      "round": 1,
+      "units": 2048,
+      "writesPerUnit": 1,
+      "ns": 45049959,
+      "nsPerUnit": 21997.05029296875
+    },
+    {
+      "label": "Svelte deep derived",
+      "rows": 256,
+      "phase": "write-only",
+      "round": 1,
+      "units": 2048,
+      "writesPerUnit": 1,
+      "ns": 21504292,
+      "nsPerUnit": 10500.142578125
+    },
+    {
+      "label": "Svelte deep derived",
+      "rows": 256,
+      "phase": "update-and-aggregate",
+      "round": 0,
+      "units": 1024,
+      "writesPerUnit": 1,
+      "ns": 415333292,
+      "nsPerUnit": 405598.91796875
+    },
+    {
+      "label": "SvelteMap derived",
+      "rows": 256,
+      "phase": "update-and-aggregate",
+      "round": 0,
+      "units": 1024,
+      "writesPerUnit": 1,
+      "ns": 94490584,
+      "nsPerUnit": 92275.9609375
+    },
+    {
+      "label": "Preact computed",
+      "rows": 256,
+      "phase": "update-and-aggregate",
+      "round": 0,
+      "units": 1024,
+      "writesPerUnit": 1,
+      "ns": 57371083,
+      "nsPerUnit": 56026.4482421875
+    },
+    {
+      "label": "Preact chunk64",
+      "rows": 256,
+      "phase": "update-and-aggregate",
+      "round": 0,
+      "units": 1024,
+      "writesPerUnit": 1,
+      "ns": 45726959,
+      "nsPerUnit": 44655.2333984375
+    },
+    {
+      "label": "Svelte manual delta",
+      "rows": 256,
+      "phase": "update-and-aggregate",
+      "round": 0,
+      "units": 1024,
+      "writesPerUnit": 1,
+      "ns": 5627250,
+      "nsPerUnit": 5495.361328125
+    },
+    {
+      "label": "Preact manual delta",
+      "rows": 256,
+      "phase": "update-and-aggregate",
+      "round": 0,
+      "units": 1024,
+      "writesPerUnit": 1,
+      "ns": 3407375,
+      "nsPerUnit": 3327.5146484375
+    },
+    {
+      "label": "Ink before",
+      "rows": 256,
+      "phase": "update-and-aggregate",
+      "round": 0,
+      "units": 1024,
+      "writesPerUnit": 1,
+      "ns": 180908917,
+      "nsPerUnit": 176668.8642578125
+    },
+    {
+      "label": "Ink current",
+      "rows": 256,
+      "phase": "update-and-aggregate",
+      "round": 0,
+      "units": 1024,
+      "writesPerUnit": 1,
+      "ns": 234335500,
+      "nsPerUnit": 228843.26171875
+    },
+    {
+      "label": "Ink current bound",
+      "rows": 256,
+      "phase": "update-and-aggregate",
+      "round": 0,
+      "units": 1024,
+      "writesPerUnit": 1,
+      "ns": 128704083,
+      "nsPerUnit": 125687.5810546875
+    },
+    {
+      "label": "Ink checked tree before",
+      "rows": 256,
+      "phase": "update-and-aggregate",
+      "round": 0,
+      "units": 1024,
+      "writesPerUnit": 1,
+      "ns": 37464042,
+      "nsPerUnit": 36585.978515625
+    },
+    {
+      "label": "Ink checked tree current",
+      "rows": 256,
+      "phase": "update-and-aggregate",
+      "round": 0,
+      "units": 1024,
+      "writesPerUnit": 1,
+      "ns": 28384333,
+      "nsPerUnit": 27719.0751953125
+    },
+    {
+      "label": "Ink checked tree bound",
+      "rows": 256,
+      "phase": "update-and-aggregate",
+      "round": 0,
+      "units": 1024,
+      "writesPerUnit": 1,
+      "ns": 32848166,
+      "nsPerUnit": 32078.287109375
+    },
+    {
+      "label": "Ink checked tree bound",
+      "rows": 256,
+      "phase": "update-and-aggregate",
+      "round": 1,
+      "units": 1024,
+      "writesPerUnit": 1,
+      "ns": 16631416,
+      "nsPerUnit": 16241.6171875
+    },
+    {
+      "label": "Ink checked tree current",
+      "rows": 256,
+      "phase": "update-and-aggregate",
+      "round": 1,
+      "units": 1024,
+      "writesPerUnit": 1,
+      "ns": 27215500,
+      "nsPerUnit": 26577.63671875
+    },
+    {
+      "label": "Ink checked tree before",
+      "rows": 256,
+      "phase": "update-and-aggregate",
+      "round": 1,
+      "units": 1024,
+      "writesPerUnit": 1,
+      "ns": 57610875,
+      "nsPerUnit": 56260.6201171875
+    },
+    {
+      "label": "Ink current bound",
+      "rows": 256,
+      "phase": "update-and-aggregate",
+      "round": 1,
+      "units": 1024,
+      "writesPerUnit": 1,
+      "ns": 209142334,
+      "nsPerUnit": 204240.560546875
+    },
+    {
+      "label": "Ink current",
+      "rows": 256,
+      "phase": "update-and-aggregate",
+      "round": 1,
+      "units": 1024,
+      "writesPerUnit": 1,
+      "ns": 189763708,
+      "nsPerUnit": 185316.12109375
+    },
+    {
+      "label": "Ink before",
+      "rows": 256,
+      "phase": "update-and-aggregate",
+      "round": 1,
+      "units": 1024,
+      "writesPerUnit": 1,
+      "ns": 453553042,
+      "nsPerUnit": 442922.892578125
+    },
+    {
+      "label": "Preact manual delta",
+      "rows": 256,
+      "phase": "update-and-aggregate",
+      "round": 1,
+      "units": 1024,
+      "writesPerUnit": 1,
+      "ns": 27105583,
+      "nsPerUnit": 26470.2958984375
+    },
+    {
+      "label": "Svelte manual delta",
+      "rows": 256,
+      "phase": "update-and-aggregate",
+      "round": 1,
+      "units": 1024,
+      "writesPerUnit": 1,
+      "ns": 9681250,
+      "nsPerUnit": 9454.345703125
+    },
+    {
+      "label": "Preact chunk64",
+      "rows": 256,
+      "phase": "update-and-aggregate",
+      "round": 1,
+      "units": 1024,
+      "writesPerUnit": 1,
+      "ns": 20852750,
+      "nsPerUnit": 20364.013671875
+    },
+    {
+      "label": "Preact computed",
+      "rows": 256,
+      "phase": "update-and-aggregate",
+      "round": 1,
+      "units": 1024,
+      "writesPerUnit": 1,
+      "ns": 174167125,
+      "nsPerUnit": 170085.0830078125
+    },
+    {
+      "label": "SvelteMap derived",
+      "rows": 256,
+      "phase": "update-and-aggregate",
+      "round": 1,
+      "units": 1024,
+      "writesPerUnit": 1,
+      "ns": 108178334,
+      "nsPerUnit": 105642.904296875
+    },
+    {
+      "label": "Svelte deep derived",
+      "rows": 256,
+      "phase": "update-and-aggregate",
+      "round": 1,
+      "units": 1024,
+      "writesPerUnit": 1,
+      "ns": 474942459,
+      "nsPerUnit": 463810.9951171875
+    },
+    {
+      "label": "Svelte deep derived",
+      "rows": 256,
+      "phase": "burst32-and-aggregate",
+      "round": 0,
+      "units": 128,
+      "writesPerUnit": 32,
+      "ns": 138442083,
+      "nsPerUnit": 1081578.7734375
+    },
+    {
+      "label": "SvelteMap derived",
+      "rows": 256,
+      "phase": "burst32-and-aggregate",
+      "round": 0,
+      "units": 128,
+      "writesPerUnit": 32,
+      "ns": 47466708,
+      "nsPerUnit": 370833.65625
+    },
+    {
+      "label": "Preact computed",
+      "rows": 256,
+      "phase": "burst32-and-aggregate",
+      "round": 0,
+      "units": 128,
+      "writesPerUnit": 32,
+      "ns": 9253042,
+      "nsPerUnit": 72289.390625
+    },
+    {
+      "label": "Preact chunk64",
+      "rows": 256,
+      "phase": "burst32-and-aggregate",
+      "round": 0,
+      "units": 128,
+      "writesPerUnit": 32,
+      "ns": 16488167,
+      "nsPerUnit": 128813.8046875
+    },
+    {
+      "label": "Svelte manual delta",
+      "rows": 256,
+      "phase": "burst32-and-aggregate",
+      "round": 0,
+      "units": 128,
+      "writesPerUnit": 32,
+      "ns": 28535250,
+      "nsPerUnit": 222931.640625
+    },
+    {
+      "label": "Preact manual delta",
+      "rows": 256,
+      "phase": "burst32-and-aggregate",
+      "round": 0,
+      "units": 128,
+      "writesPerUnit": 32,
+      "ns": 9332791,
+      "nsPerUnit": 72912.4296875
+    },
+    {
+      "label": "Ink before",
+      "rows": 256,
+      "phase": "burst32-and-aggregate",
+      "round": 0,
+      "units": 128,
+      "writesPerUnit": 32,
+      "ns": 102983083,
+      "nsPerUnit": 804555.3359375
+    },
+    {
+      "label": "Ink current",
+      "rows": 256,
+      "phase": "burst32-and-aggregate",
+      "round": 0,
+      "units": 128,
+      "writesPerUnit": 32,
+      "ns": 69342041,
+      "nsPerUnit": 541734.6953125
+    },
+    {
+      "label": "Ink current bound",
+      "rows": 256,
+      "phase": "burst32-and-aggregate",
+      "round": 0,
+      "units": 128,
+      "writesPerUnit": 32,
+      "ns": 51579708,
+      "nsPerUnit": 402966.46875
+    },
+    {
+      "label": "Ink checked tree before",
+      "rows": 256,
+      "phase": "burst32-and-aggregate",
+      "round": 0,
+      "units": 128,
+      "writesPerUnit": 32,
+      "ns": 353255417,
+      "nsPerUnit": 2759807.9453125
+    },
+    {
+      "label": "Ink checked tree current",
+      "rows": 256,
+      "phase": "burst32-and-aggregate",
+      "round": 0,
+      "units": 128,
+      "writesPerUnit": 32,
+      "ns": 49034625,
+      "nsPerUnit": 383083.0078125
+    },
+    {
+      "label": "Ink checked tree bound",
+      "rows": 256,
+      "phase": "burst32-and-aggregate",
+      "round": 0,
+      "units": 128,
+      "writesPerUnit": 32,
+      "ns": 29423375,
+      "nsPerUnit": 229870.1171875
+    },
+    {
+      "label": "Ink checked tree bound",
+      "rows": 256,
+      "phase": "burst32-and-aggregate",
+      "round": 1,
+      "units": 128,
+      "writesPerUnit": 32,
+      "ns": 50722334,
+      "nsPerUnit": 396268.234375
+    },
+    {
+      "label": "Ink checked tree current",
+      "rows": 256,
+      "phase": "burst32-and-aggregate",
+      "round": 1,
+      "units": 128,
+      "writesPerUnit": 32,
+      "ns": 52824750,
+      "nsPerUnit": 412693.359375
+    },
+    {
+      "label": "Ink checked tree before",
+      "rows": 256,
+      "phase": "burst32-and-aggregate",
+      "round": 1,
+      "units": 128,
+      "writesPerUnit": 32,
+      "ns": 247569167,
+      "nsPerUnit": 1934134.1171875
+    },
+    {
+      "label": "Ink current bound",
+      "rows": 256,
+      "phase": "burst32-and-aggregate",
+      "round": 1,
+      "units": 128,
+      "writesPerUnit": 32,
+      "ns": 72599000,
+      "nsPerUnit": 567179.6875
+    },
+    {
+      "label": "Ink current",
+      "rows": 256,
+      "phase": "burst32-and-aggregate",
+      "round": 1,
+      "units": 128,
+      "writesPerUnit": 32,
+      "ns": 43675667,
+      "nsPerUnit": 341216.1484375
+    },
+    {
+      "label": "Ink before",
+      "rows": 256,
+      "phase": "burst32-and-aggregate",
+      "round": 1,
+      "units": 128,
+      "writesPerUnit": 32,
+      "ns": 86688083,
+      "nsPerUnit": 677250.6484375
+    },
+    {
+      "label": "Preact manual delta",
+      "rows": 256,
+      "phase": "burst32-and-aggregate",
+      "round": 1,
+      "units": 128,
+      "writesPerUnit": 32,
+      "ns": 10035250,
+      "nsPerUnit": 78400.390625
+    },
+    {
+      "label": "Svelte manual delta",
+      "rows": 256,
+      "phase": "burst32-and-aggregate",
+      "round": 1,
+      "units": 128,
+      "writesPerUnit": 32,
+      "ns": 29278917,
+      "nsPerUnit": 228741.5390625
+    },
+    {
+      "label": "Preact chunk64",
+      "rows": 256,
+      "phase": "burst32-and-aggregate",
+      "round": 1,
+      "units": 128,
+      "writesPerUnit": 32,
+      "ns": 7898125,
+      "nsPerUnit": 61704.1015625
+    },
+    {
+      "label": "Preact computed",
+      "rows": 256,
+      "phase": "burst32-and-aggregate",
+      "round": 1,
+      "units": 128,
+      "writesPerUnit": 32,
+      "ns": 24008834,
+      "nsPerUnit": 187569.015625
+    },
+    {
+      "label": "SvelteMap derived",
+      "rows": 256,
+      "phase": "burst32-and-aggregate",
+      "round": 1,
+      "units": 128,
+      "writesPerUnit": 32,
+      "ns": 34451375,
+      "nsPerUnit": 269151.3671875
+    },
+    {
+      "label": "Svelte deep derived",
+      "rows": 256,
+      "phase": "burst32-and-aggregate",
+      "round": 1,
+      "units": 128,
+      "writesPerUnit": 32,
+      "ns": 113498125,
+      "nsPerUnit": 886704.1015625
+    },
+    {
+      "label": "Svelte deep derived",
+      "rows": 256,
+      "phase": "unchanged-read",
+      "round": 0,
+      "units": 2000,
+      "writesPerUnit": 0,
+      "ns": 47896542,
+      "nsPerUnit": 23948.271
+    },
+    {
+      "label": "SvelteMap derived",
+      "rows": 256,
+      "phase": "unchanged-read",
+      "round": 0,
+      "units": 2000,
+      "writesPerUnit": 0,
+      "ns": 36173875,
+      "nsPerUnit": 18086.9375
+    },
+    {
+      "label": "Preact computed",
+      "rows": 256,
+      "phase": "unchanged-read",
+      "round": 0,
+      "units": 2000,
+      "writesPerUnit": 0,
+      "ns": 13815708,
+      "nsPerUnit": 6907.854
+    },
+    {
+      "label": "Preact chunk64",
+      "rows": 256,
+      "phase": "unchanged-read",
+      "round": 0,
+      "units": 2000,
+      "writesPerUnit": 0,
+      "ns": 5070667,
+      "nsPerUnit": 2535.3335
+    },
+    {
+      "label": "Svelte manual delta",
+      "rows": 256,
+      "phase": "unchanged-read",
+      "round": 0,
+      "units": 2000,
+      "writesPerUnit": 0,
+      "ns": 5863500,
+      "nsPerUnit": 2931.75
+    },
+    {
+      "label": "Preact manual delta",
+      "rows": 256,
+      "phase": "unchanged-read",
+      "round": 0,
+      "units": 2000,
+      "writesPerUnit": 0,
+      "ns": 32566125,
+      "nsPerUnit": 16283.0625
+    },
+    {
+      "label": "Ink before",
+      "rows": 256,
+      "phase": "unchanged-read",
+      "round": 0,
+      "units": 2000,
+      "writesPerUnit": 0,
+      "ns": 234593667,
+      "nsPerUnit": 117296.8335
+    },
+    {
+      "label": "Ink current",
+      "rows": 256,
+      "phase": "unchanged-read",
+      "round": 0,
+      "units": 2000,
+      "writesPerUnit": 0,
+      "ns": 5983084,
+      "nsPerUnit": 2991.542
+    },
+    {
+      "label": "Ink current bound",
+      "rows": 256,
+      "phase": "unchanged-read",
+      "round": 0,
+      "units": 2000,
+      "writesPerUnit": 0,
+      "ns": 7482250,
+      "nsPerUnit": 3741.125
+    },
+    {
+      "label": "Ink checked tree before",
+      "rows": 256,
+      "phase": "unchanged-read",
+      "round": 0,
+      "units": 2000,
+      "writesPerUnit": 0,
+      "ns": 4815209,
+      "nsPerUnit": 2407.6045
+    },
+    {
+      "label": "Ink checked tree current",
+      "rows": 256,
+      "phase": "unchanged-read",
+      "round": 0,
+      "units": 2000,
+      "writesPerUnit": 0,
+      "ns": 6071500,
+      "nsPerUnit": 3035.75
+    },
+    {
+      "label": "Ink checked tree bound",
+      "rows": 256,
+      "phase": "unchanged-read",
+      "round": 0,
+      "units": 2000,
+      "writesPerUnit": 0,
+      "ns": 4832292,
+      "nsPerUnit": 2416.146
+    },
+    {
+      "label": "Ink checked tree bound",
+      "rows": 256,
+      "phase": "unchanged-read",
+      "round": 1,
+      "units": 2000,
+      "writesPerUnit": 0,
+      "ns": 3512125,
+      "nsPerUnit": 1756.0625
+    },
+    {
+      "label": "Ink checked tree current",
+      "rows": 256,
+      "phase": "unchanged-read",
+      "round": 1,
+      "units": 2000,
+      "writesPerUnit": 0,
+      "ns": 7720333,
+      "nsPerUnit": 3860.1665
+    },
+    {
+      "label": "Ink checked tree before",
+      "rows": 256,
+      "phase": "unchanged-read",
+      "round": 1,
+      "units": 2000,
+      "writesPerUnit": 0,
+      "ns": 7425417,
+      "nsPerUnit": 3712.7085
+    },
+    {
+      "label": "Ink current bound",
+      "rows": 256,
+      "phase": "unchanged-read",
+      "round": 1,
+      "units": 2000,
+      "writesPerUnit": 0,
+      "ns": 5980709,
+      "nsPerUnit": 2990.3545
+    },
+    {
+      "label": "Ink current",
+      "rows": 256,
+      "phase": "unchanged-read",
+      "round": 1,
+      "units": 2000,
+      "writesPerUnit": 0,
+      "ns": 12420000,
+      "nsPerUnit": 6210
+    },
+    {
+      "label": "Ink before",
+      "rows": 256,
+      "phase": "unchanged-read",
+      "round": 1,
+      "units": 2000,
+      "writesPerUnit": 0,
+      "ns": 263133042,
+      "nsPerUnit": 131566.521
+    },
+    {
+      "label": "Preact manual delta",
+      "rows": 256,
+      "phase": "unchanged-read",
+      "round": 1,
+      "units": 2000,
+      "writesPerUnit": 0,
+      "ns": 3774750,
+      "nsPerUnit": 1887.375
+    },
+    {
+      "label": "Svelte manual delta",
+      "rows": 256,
+      "phase": "unchanged-read",
+      "round": 1,
+      "units": 2000,
+      "writesPerUnit": 0,
+      "ns": 3279583,
+      "nsPerUnit": 1639.7915
+    },
+    {
+      "label": "Preact chunk64",
+      "rows": 256,
+      "phase": "unchanged-read",
+      "round": 1,
+      "units": 2000,
+      "writesPerUnit": 0,
+      "ns": 4698959,
+      "nsPerUnit": 2349.4795
+    },
+    {
+      "label": "Preact computed",
+      "rows": 256,
+      "phase": "unchanged-read",
+      "round": 1,
+      "units": 2000,
+      "writesPerUnit": 0,
+      "ns": 5770792,
+      "nsPerUnit": 2885.396
+    },
+    {
+      "label": "SvelteMap derived",
+      "rows": 256,
+      "phase": "unchanged-read",
+      "round": 1,
+      "units": 2000,
+      "writesPerUnit": 0,
+      "ns": 27369333,
+      "nsPerUnit": 13684.6665
+    },
+    {
+      "label": "Svelte deep derived",
+      "rows": 256,
+      "phase": "unchanged-read",
+      "round": 1,
+      "units": 2000,
+      "writesPerUnit": 0,
+      "ns": 48684417,
+      "nsPerUnit": 24342.2085
+    },
+    {
+      "label": "Svelte deep derived",
+      "rows": 256,
+      "phase": "point-update-and-read",
+      "round": 0,
+      "units": 20000,
+      "writesPerUnit": 1,
+      "ns": 67471500,
+      "nsPerUnit": 3373.575
+    },
+    {
+      "label": "SvelteMap derived",
+      "rows": 256,
+      "phase": "point-update-and-read",
+      "round": 0,
+      "units": 20000,
+      "writesPerUnit": 1,
+      "ns": 28869333,
+      "nsPerUnit": 1443.46665
+    },
+    {
+      "label": "Preact computed",
+      "rows": 256,
+      "phase": "point-update-and-read",
+      "round": 0,
+      "units": 20000,
+      "writesPerUnit": 1,
+      "ns": 7196250,
+      "nsPerUnit": 359.8125
+    },
+    {
+      "label": "Preact chunk64",
+      "rows": 256,
+      "phase": "point-update-and-read",
+      "round": 0,
+      "units": 20000,
+      "writesPerUnit": 1,
+      "ns": 14795709,
+      "nsPerUnit": 739.78545
+    },
+    {
+      "label": "Svelte manual delta",
+      "rows": 256,
+      "phase": "point-update-and-read",
+      "round": 0,
+      "units": 20000,
+      "writesPerUnit": 1,
+      "ns": 21516917,
+      "nsPerUnit": 1075.84585
+    },
+    {
+      "label": "Preact manual delta",
+      "rows": 256,
+      "phase": "point-update-and-read",
+      "round": 0,
+      "units": 20000,
+      "writesPerUnit": 1,
+      "ns": 26416291,
+      "nsPerUnit": 1320.81455
+    },
+    {
+      "label": "Ink before",
+      "rows": 256,
+      "phase": "point-update-and-read",
+      "round": 0,
+      "units": 20000,
+      "writesPerUnit": 1,
+      "ns": 310636416,
+      "nsPerUnit": 15531.8208
+    },
+    {
+      "label": "Ink current",
+      "rows": 256,
+      "phase": "point-update-and-read",
+      "round": 0,
+      "units": 20000,
+      "writesPerUnit": 1,
+      "ns": 92607125,
+      "nsPerUnit": 4630.35625
+    },
+    {
+      "label": "Ink current bound",
+      "rows": 256,
+      "phase": "point-update-and-read",
+      "round": 0,
+      "units": 20000,
+      "writesPerUnit": 1,
+      "ns": 53112417,
+      "nsPerUnit": 2655.62085
+    },
+    {
+      "label": "Ink current bound",
+      "rows": 256,
+      "phase": "point-update-and-read",
+      "round": 1,
+      "units": 20000,
+      "writesPerUnit": 1,
+      "ns": 88324375,
+      "nsPerUnit": 4416.21875
+    },
+    {
+      "label": "Ink current",
+      "rows": 256,
+      "phase": "point-update-and-read",
+      "round": 1,
+      "units": 20000,
+      "writesPerUnit": 1,
+      "ns": 39137875,
+      "nsPerUnit": 1956.89375
+    },
+    {
+      "label": "Ink before",
+      "rows": 256,
+      "phase": "point-update-and-read",
+      "round": 1,
+      "units": 20000,
+      "writesPerUnit": 1,
+      "ns": 142968458,
+      "nsPerUnit": 7148.4229
+    },
+    {
+      "label": "Preact manual delta",
+      "rows": 256,
+      "phase": "point-update-and-read",
+      "round": 1,
+      "units": 20000,
+      "writesPerUnit": 1,
+      "ns": 15121791,
+      "nsPerUnit": 756.08955
+    },
+    {
+      "label": "Svelte manual delta",
+      "rows": 256,
+      "phase": "point-update-and-read",
+      "round": 1,
+      "units": 20000,
+      "writesPerUnit": 1,
+      "ns": 22021667,
+      "nsPerUnit": 1101.08335
+    },
+    {
+      "label": "Preact chunk64",
+      "rows": 256,
+      "phase": "point-update-and-read",
+      "round": 1,
+      "units": 20000,
+      "writesPerUnit": 1,
+      "ns": 22329209,
+      "nsPerUnit": 1116.46045
+    },
+    {
+      "label": "Preact computed",
+      "rows": 256,
+      "phase": "point-update-and-read",
+      "round": 1,
+      "units": 20000,
+      "writesPerUnit": 1,
+      "ns": 19688333,
+      "nsPerUnit": 984.41665
+    },
+    {
+      "label": "SvelteMap derived",
+      "rows": 256,
+      "phase": "point-update-and-read",
+      "round": 1,
+      "units": 20000,
+      "writesPerUnit": 1,
+      "ns": 29755792,
+      "nsPerUnit": 1487.7896
+    },
+    {
+      "label": "Svelte deep derived",
+      "rows": 256,
+      "phase": "point-update-and-read",
+      "round": 1,
+      "units": 20000,
+      "writesPerUnit": 1,
+      "ns": 63712334,
+      "nsPerUnit": 3185.6167
+    },
+    {
+      "label": "Svelte deep observed",
+      "rows": 256,
+      "phase": "observed-update-and-aggregate",
+      "round": 0,
+      "units": 512,
+      "writesPerUnit": 1,
+      "ns": 433360792,
+      "nsPerUnit": 846407.796875
+    },
+    {
+      "label": "SvelteMap observed",
+      "rows": 256,
+      "phase": "observed-update-and-aggregate",
+      "round": 0,
+      "units": 512,
+      "writesPerUnit": 1,
+      "ns": 38118083,
+      "nsPerUnit": 74449.380859375
+    },
+    {
+      "label": "Preact computed observed",
+      "rows": 256,
+      "phase": "observed-update-and-aggregate",
+      "round": 0,
+      "units": 512,
+      "writesPerUnit": 1,
+      "ns": 16110334,
+      "nsPerUnit": 31465.49609375
+    },
+    {
+      "label": "Preact chunk64 observed",
+      "rows": 256,
+      "phase": "observed-update-and-aggregate",
+      "round": 0,
+      "units": 512,
+      "writesPerUnit": 1,
+      "ns": 4766750,
+      "nsPerUnit": 9310.05859375
+    },
+    {
+      "label": "Preact chunk64 observed",
+      "rows": 256,
+      "phase": "observed-update-and-aggregate",
+      "round": 1,
+      "units": 512,
+      "writesPerUnit": 1,
+      "ns": 4933709,
+      "nsPerUnit": 9636.150390625
+    },
+    {
+      "label": "Preact computed observed",
+      "rows": 256,
+      "phase": "observed-update-and-aggregate",
+      "round": 1,
+      "units": 512,
+      "writesPerUnit": 1,
+      "ns": 34916542,
+      "nsPerUnit": 68196.37109375
+    },
+    {
+      "label": "SvelteMap observed",
+      "rows": 256,
+      "phase": "observed-update-and-aggregate",
+      "round": 1,
+      "units": 512,
+      "writesPerUnit": 1,
+      "ns": 52404042,
+      "nsPerUnit": 102351.64453125
+    },
+    {
+      "label": "Svelte deep observed",
+      "rows": 256,
+      "phase": "observed-update-and-aggregate",
+      "round": 1,
+      "units": 512,
+      "writesPerUnit": 1,
+      "ns": 268851333,
+      "nsPerUnit": 525100.259765625
+    },
+    {
+      "label": "Svelte deep observed",
+      "rows": 256,
+      "phase": "observed-unchanged-read",
+      "round": 0,
+      "units": 2000,
+      "writesPerUnit": 0,
+      "ns": 4011583,
+      "nsPerUnit": 2005.7915
+    },
+    {
+      "label": "SvelteMap observed",
+      "rows": 256,
+      "phase": "observed-unchanged-read",
+      "round": 0,
+      "units": 2000,
+      "writesPerUnit": 0,
+      "ns": 7031791,
+      "nsPerUnit": 3515.8955
+    },
+    {
+      "label": "Preact computed observed",
+      "rows": 256,
+      "phase": "observed-unchanged-read",
+      "round": 0,
+      "units": 2000,
+      "writesPerUnit": 0,
+      "ns": 14169500,
+      "nsPerUnit": 7084.75
+    },
+    {
+      "label": "Preact chunk64 observed",
+      "rows": 256,
+      "phase": "observed-unchanged-read",
+      "round": 0,
+      "units": 2000,
+      "writesPerUnit": 0,
+      "ns": 19461792,
+      "nsPerUnit": 9730.896
+    },
+    {
+      "label": "Preact chunk64 observed",
+      "rows": 256,
+      "phase": "observed-unchanged-read",
+      "round": 1,
+      "units": 2000,
+      "writesPerUnit": 0,
+      "ns": 4641584,
+      "nsPerUnit": 2320.792
+    },
+    {
+      "label": "Preact computed observed",
+      "rows": 256,
+      "phase": "observed-unchanged-read",
+      "round": 1,
+      "units": 2000,
+      "writesPerUnit": 0,
+      "ns": 3559083,
+      "nsPerUnit": 1779.5415
+    },
+    {
+      "label": "SvelteMap observed",
+      "rows": 256,
+      "phase": "observed-unchanged-read",
+      "round": 1,
+      "units": 2000,
+      "writesPerUnit": 0,
+      "ns": 9164625,
+      "nsPerUnit": 4582.3125
+    },
+    {
+      "label": "Svelte deep observed",
+      "rows": 256,
+      "phase": "observed-unchanged-read",
+      "round": 1,
+      "units": 2000,
+      "writesPerUnit": 0,
+      "ns": 5800250,
+      "nsPerUnit": 2900.125
+    }
+  ],
+  "summary": [
+    {
+      "label": "Svelte deep derived",
+      "rows": 256,
+      "phase": "write-only",
+      "medianNs": 24813.29345703125,
+      "minNs": 10500.142578125,
+      "maxNs": 24813.29345703125,
+      "repetitions": 2
+    },
+    {
+      "label": "Svelte deep derived",
+      "rows": 256,
+      "phase": "update-and-aggregate",
+      "medianNs": 463810.9951171875,
+      "minNs": 405598.91796875,
+      "maxNs": 463810.9951171875,
+      "repetitions": 2
+    },
+    {
+      "label": "Svelte deep derived",
+      "rows": 256,
+      "phase": "burst32-and-aggregate",
+      "medianNs": 1081578.7734375,
+      "minNs": 886704.1015625,
+      "maxNs": 1081578.7734375,
+      "repetitions": 2
+    },
+    {
+      "label": "Svelte deep derived",
+      "rows": 256,
+      "phase": "unchanged-read",
+      "medianNs": 24342.2085,
+      "minNs": 23948.271,
+      "maxNs": 24342.2085,
+      "repetitions": 2
+    },
+    {
+      "label": "Svelte deep derived",
+      "rows": 256,
+      "phase": "point-update-and-read",
+      "medianNs": 3373.575,
+      "minNs": 3185.6167,
+      "maxNs": 3373.575,
+      "repetitions": 2
+    },
+    {
+      "label": "SvelteMap derived",
+      "rows": 256,
+      "phase": "write-only",
+      "medianNs": 21997.05029296875,
+      "minNs": 8446.43115234375,
+      "maxNs": 21997.05029296875,
+      "repetitions": 2
+    },
+    {
+      "label": "SvelteMap derived",
+      "rows": 256,
+      "phase": "update-and-aggregate",
+      "medianNs": 105642.904296875,
+      "minNs": 92275.9609375,
+      "maxNs": 105642.904296875,
+      "repetitions": 2
+    },
+    {
+      "label": "SvelteMap derived",
+      "rows": 256,
+      "phase": "burst32-and-aggregate",
+      "medianNs": 370833.65625,
+      "minNs": 269151.3671875,
+      "maxNs": 370833.65625,
+      "repetitions": 2
+    },
+    {
+      "label": "SvelteMap derived",
+      "rows": 256,
+      "phase": "unchanged-read",
+      "medianNs": 18086.9375,
+      "minNs": 13684.6665,
+      "maxNs": 18086.9375,
+      "repetitions": 2
+    },
+    {
+      "label": "SvelteMap derived",
+      "rows": 256,
+      "phase": "point-update-and-read",
+      "medianNs": 1487.7896,
+      "minNs": 1443.46665,
+      "maxNs": 1487.7896,
+      "repetitions": 2
+    },
+    {
+      "label": "Preact computed",
+      "rows": 256,
+      "phase": "write-only",
+      "medianNs": 3645.22314453125,
+      "minNs": 1024.33251953125,
+      "maxNs": 3645.22314453125,
+      "repetitions": 2
+    },
+    {
+      "label": "Preact computed",
+      "rows": 256,
+      "phase": "update-and-aggregate",
+      "medianNs": 170085.0830078125,
+      "minNs": 56026.4482421875,
+      "maxNs": 170085.0830078125,
+      "repetitions": 2
+    },
+    {
+      "label": "Preact computed",
+      "rows": 256,
+      "phase": "burst32-and-aggregate",
+      "medianNs": 187569.015625,
+      "minNs": 72289.390625,
+      "maxNs": 187569.015625,
+      "repetitions": 2
+    },
+    {
+      "label": "Preact computed",
+      "rows": 256,
+      "phase": "unchanged-read",
+      "medianNs": 6907.854,
+      "minNs": 2885.396,
+      "maxNs": 6907.854,
+      "repetitions": 2
+    },
+    {
+      "label": "Preact computed",
+      "rows": 256,
+      "phase": "point-update-and-read",
+      "medianNs": 984.41665,
+      "minNs": 359.8125,
+      "maxNs": 984.41665,
+      "repetitions": 2
+    },
+    {
+      "label": "Preact chunk64",
+      "rows": 256,
+      "phase": "write-only",
+      "medianNs": 4227.2744140625,
+      "minNs": 1368.20458984375,
+      "maxNs": 4227.2744140625,
+      "repetitions": 2
+    },
+    {
+      "label": "Preact chunk64",
+      "rows": 256,
+      "phase": "update-and-aggregate",
+      "medianNs": 44655.2333984375,
+      "minNs": 20364.013671875,
+      "maxNs": 44655.2333984375,
+      "repetitions": 2
+    },
+    {
+      "label": "Preact chunk64",
+      "rows": 256,
+      "phase": "burst32-and-aggregate",
+      "medianNs": 128813.8046875,
+      "minNs": 61704.1015625,
+      "maxNs": 128813.8046875,
+      "repetitions": 2
+    },
+    {
+      "label": "Preact chunk64",
+      "rows": 256,
+      "phase": "unchanged-read",
+      "medianNs": 2535.3335,
+      "minNs": 2349.4795,
+      "maxNs": 2535.3335,
+      "repetitions": 2
+    },
+    {
+      "label": "Preact chunk64",
+      "rows": 256,
+      "phase": "point-update-and-read",
+      "medianNs": 1116.46045,
+      "minNs": 739.78545,
+      "maxNs": 1116.46045,
+      "repetitions": 2
+    },
+    {
+      "label": "Svelte manual delta",
+      "rows": 256,
+      "phase": "write-only",
+      "medianNs": 6808.349609375,
+      "minNs": 6090.43359375,
+      "maxNs": 6808.349609375,
+      "repetitions": 2
+    },
+    {
+      "label": "Svelte manual delta",
+      "rows": 256,
+      "phase": "update-and-aggregate",
+      "medianNs": 9454.345703125,
+      "minNs": 5495.361328125,
+      "maxNs": 9454.345703125,
+      "repetitions": 2
+    },
+    {
+      "label": "Svelte manual delta",
+      "rows": 256,
+      "phase": "burst32-and-aggregate",
+      "medianNs": 228741.5390625,
+      "minNs": 222931.640625,
+      "maxNs": 228741.5390625,
+      "repetitions": 2
+    },
+    {
+      "label": "Svelte manual delta",
+      "rows": 256,
+      "phase": "unchanged-read",
+      "medianNs": 2931.75,
+      "minNs": 1639.7915,
+      "maxNs": 2931.75,
+      "repetitions": 2
+    },
+    {
+      "label": "Svelte manual delta",
+      "rows": 256,
+      "phase": "point-update-and-read",
+      "medianNs": 1101.08335,
+      "minNs": 1075.84585,
+      "maxNs": 1101.08335,
+      "repetitions": 2
+    },
+    {
+      "label": "Preact manual delta",
+      "rows": 256,
+      "phase": "write-only",
+      "medianNs": 4720.41796875,
+      "minNs": 2056.4375,
+      "maxNs": 4720.41796875,
+      "repetitions": 2
+    },
+    {
+      "label": "Preact manual delta",
+      "rows": 256,
+      "phase": "update-and-aggregate",
+      "medianNs": 26470.2958984375,
+      "minNs": 3327.5146484375,
+      "maxNs": 26470.2958984375,
+      "repetitions": 2
+    },
+    {
+      "label": "Preact manual delta",
+      "rows": 256,
+      "phase": "burst32-and-aggregate",
+      "medianNs": 78400.390625,
+      "minNs": 72912.4296875,
+      "maxNs": 78400.390625,
+      "repetitions": 2
+    },
+    {
+      "label": "Preact manual delta",
+      "rows": 256,
+      "phase": "unchanged-read",
+      "medianNs": 16283.0625,
+      "minNs": 1887.375,
+      "maxNs": 16283.0625,
+      "repetitions": 2
+    },
+    {
+      "label": "Preact manual delta",
+      "rows": 256,
+      "phase": "point-update-and-read",
+      "medianNs": 1320.81455,
+      "minNs": 756.08955,
+      "maxNs": 1320.81455,
+      "repetitions": 2
+    },
+    {
+      "label": "Ink before",
+      "rows": 256,
+      "phase": "write-only",
+      "medianNs": 9623.61669921875,
+      "minNs": 8452.00634765625,
+      "maxNs": 9623.61669921875,
+      "repetitions": 2
+    },
+    {
+      "label": "Ink before",
+      "rows": 256,
+      "phase": "update-and-aggregate",
+      "medianNs": 442922.892578125,
+      "minNs": 176668.8642578125,
+      "maxNs": 442922.892578125,
+      "repetitions": 2
+    },
+    {
+      "label": "Ink before",
+      "rows": 256,
+      "phase": "burst32-and-aggregate",
+      "medianNs": 804555.3359375,
+      "minNs": 677250.6484375,
+      "maxNs": 804555.3359375,
+      "repetitions": 2
+    },
+    {
+      "label": "Ink before",
+      "rows": 256,
+      "phase": "unchanged-read",
+      "medianNs": 131566.521,
+      "minNs": 117296.8335,
+      "maxNs": 131566.521,
+      "repetitions": 2
+    },
+    {
+      "label": "Ink before",
+      "rows": 256,
+      "phase": "point-update-and-read",
+      "medianNs": 15531.8208,
+      "minNs": 7148.4229,
+      "maxNs": 15531.8208,
+      "repetitions": 2
+    },
+    {
+      "label": "Ink current",
+      "rows": 256,
+      "phase": "write-only",
+      "medianNs": 11193.400390625,
+      "minNs": 6392.578125,
+      "maxNs": 11193.400390625,
+      "repetitions": 2
+    },
+    {
+      "label": "Ink current",
+      "rows": 256,
+      "phase": "update-and-aggregate",
+      "medianNs": 228843.26171875,
+      "minNs": 185316.12109375,
+      "maxNs": 228843.26171875,
+      "repetitions": 2
+    },
+    {
+      "label": "Ink current",
+      "rows": 256,
+      "phase": "burst32-and-aggregate",
+      "medianNs": 541734.6953125,
+      "minNs": 341216.1484375,
+      "maxNs": 541734.6953125,
+      "repetitions": 2
+    },
+    {
+      "label": "Ink current",
+      "rows": 256,
+      "phase": "unchanged-read",
+      "medianNs": 6210,
+      "minNs": 2991.542,
+      "maxNs": 6210,
+      "repetitions": 2
+    },
+    {
+      "label": "Ink current",
+      "rows": 256,
+      "phase": "point-update-and-read",
+      "medianNs": 4630.35625,
+      "minNs": 1956.89375,
+      "maxNs": 4630.35625,
+      "repetitions": 2
+    },
+    {
+      "label": "Ink current bound",
+      "rows": 256,
+      "phase": "write-only",
+      "medianNs": 4155.96533203125,
+      "minNs": 4042.43994140625,
+      "maxNs": 4155.96533203125,
+      "repetitions": 2
+    },
+    {
+      "label": "Ink current bound",
+      "rows": 256,
+      "phase": "update-and-aggregate",
+      "medianNs": 204240.560546875,
+      "minNs": 125687.5810546875,
+      "maxNs": 204240.560546875,
+      "repetitions": 2
+    },
+    {
+      "label": "Ink current bound",
+      "rows": 256,
+      "phase": "burst32-and-aggregate",
+      "medianNs": 567179.6875,
+      "minNs": 402966.46875,
+      "maxNs": 567179.6875,
+      "repetitions": 2
+    },
+    {
+      "label": "Ink current bound",
+      "rows": 256,
+      "phase": "unchanged-read",
+      "medianNs": 3741.125,
+      "minNs": 2990.3545,
+      "maxNs": 3741.125,
+      "repetitions": 2
+    },
+    {
+      "label": "Ink current bound",
+      "rows": 256,
+      "phase": "point-update-and-read",
+      "medianNs": 4416.21875,
+      "minNs": 2655.62085,
+      "maxNs": 4416.21875,
+      "repetitions": 2
+    },
+    {
+      "label": "Ink checked tree before",
+      "rows": 256,
+      "phase": "write-only",
+      "medianNs": 136087.82958984375,
+      "minNs": 57444.5390625,
+      "maxNs": 136087.82958984375,
+      "repetitions": 2
+    },
+    {
+      "label": "Ink checked tree before",
+      "rows": 256,
+      "phase": "update-and-aggregate",
+      "medianNs": 56260.6201171875,
+      "minNs": 36585.978515625,
+      "maxNs": 56260.6201171875,
+      "repetitions": 2
+    },
+    {
+      "label": "Ink checked tree before",
+      "rows": 256,
+      "phase": "burst32-and-aggregate",
+      "medianNs": 2759807.9453125,
+      "minNs": 1934134.1171875,
+      "maxNs": 2759807.9453125,
+      "repetitions": 2
+    },
+    {
+      "label": "Ink checked tree before",
+      "rows": 256,
+      "phase": "unchanged-read",
+      "medianNs": 3712.7085,
+      "minNs": 2407.6045,
+      "maxNs": 3712.7085,
+      "repetitions": 2
+    },
+    {
+      "label": "Ink checked tree current",
+      "rows": 256,
+      "phase": "write-only",
+      "medianNs": 38694.76318359375,
+      "minNs": 18858.4189453125,
+      "maxNs": 38694.76318359375,
+      "repetitions": 2
+    },
+    {
+      "label": "Ink checked tree current",
+      "rows": 256,
+      "phase": "update-and-aggregate",
+      "medianNs": 27719.0751953125,
+      "minNs": 26577.63671875,
+      "maxNs": 27719.0751953125,
+      "repetitions": 2
+    },
+    {
+      "label": "Ink checked tree current",
+      "rows": 256,
+      "phase": "burst32-and-aggregate",
+      "medianNs": 412693.359375,
+      "minNs": 383083.0078125,
+      "maxNs": 412693.359375,
+      "repetitions": 2
+    },
+    {
+      "label": "Ink checked tree current",
+      "rows": 256,
+      "phase": "unchanged-read",
+      "medianNs": 3860.1665,
+      "minNs": 3035.75,
+      "maxNs": 3860.1665,
+      "repetitions": 2
+    },
+    {
+      "label": "Ink checked tree bound",
+      "rows": 256,
+      "phase": "write-only",
+      "medianNs": 47263.10205078125,
+      "minNs": 8089.111328125,
+      "maxNs": 47263.10205078125,
+      "repetitions": 2
+    },
+    {
+      "label": "Ink checked tree bound",
+      "rows": 256,
+      "phase": "update-and-aggregate",
+      "medianNs": 32078.287109375,
+      "minNs": 16241.6171875,
+      "maxNs": 32078.287109375,
+      "repetitions": 2
+    },
+    {
+      "label": "Ink checked tree bound",
+      "rows": 256,
+      "phase": "burst32-and-aggregate",
+      "medianNs": 396268.234375,
+      "minNs": 229870.1171875,
+      "maxNs": 396268.234375,
+      "repetitions": 2
+    },
+    {
+      "label": "Ink checked tree bound",
+      "rows": 256,
+      "phase": "unchanged-read",
+      "medianNs": 2416.146,
+      "minNs": 1756.0625,
+      "maxNs": 2416.146,
+      "repetitions": 2
+    },
+    {
+      "label": "Svelte deep observed",
+      "rows": 256,
+      "phase": "observed-update-and-aggregate",
+      "medianNs": 846407.796875,
+      "minNs": 525100.259765625,
+      "maxNs": 846407.796875,
+      "repetitions": 2
+    },
+    {
+      "label": "Svelte deep observed",
+      "rows": 256,
+      "phase": "observed-unchanged-read",
+      "medianNs": 2900.125,
+      "minNs": 2005.7915,
+      "maxNs": 2900.125,
+      "repetitions": 2
+    },
+    {
+      "label": "SvelteMap observed",
+      "rows": 256,
+      "phase": "observed-update-and-aggregate",
+      "medianNs": 102351.64453125,
+      "minNs": 74449.380859375,
+      "maxNs": 102351.64453125,
+      "repetitions": 2
+    },
+    {
+      "label": "SvelteMap observed",
+      "rows": 256,
+      "phase": "observed-unchanged-read",
+      "medianNs": 4582.3125,
+      "minNs": 3515.8955,
+      "maxNs": 4582.3125,
+      "repetitions": 2
+    },
+    {
+      "label": "Preact computed observed",
+      "rows": 256,
+      "phase": "observed-update-and-aggregate",
+      "medianNs": 68196.37109375,
+      "minNs": 31465.49609375,
+      "maxNs": 68196.37109375,
+      "repetitions": 2
+    },
+    {
+      "label": "Preact computed observed",
+      "rows": 256,
+      "phase": "observed-unchanged-read",
+      "medianNs": 7084.75,
+      "minNs": 1779.5415,
+      "maxNs": 7084.75,
+      "repetitions": 2
+    },
+    {
+      "label": "Preact chunk64 observed",
+      "rows": 256,
+      "phase": "observed-update-and-aggregate",
+      "medianNs": 9636.150390625,
+      "minNs": 9310.05859375,
+      "maxNs": 9636.150390625,
+      "repetitions": 2
+    },
+    {
+      "label": "Preact chunk64 observed",
+      "rows": 256,
+      "phase": "observed-unchanged-read",
+      "medianNs": 9730.896,
+      "minNs": 2320.792,
+      "maxNs": 9730.896,
+      "repetitions": 2
+    }
+  ],
+  "blackhole": "1073855"
+}
