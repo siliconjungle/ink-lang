@@ -69,3 +69,4 @@ pub mod last_use;
 pub mod bounds;
 
 pub mod column_codec;
+pub mod resources;
