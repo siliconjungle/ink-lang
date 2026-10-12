@@ -25,6 +25,8 @@ pub enum Definitions {
     Shared,
     Packed,
     Memo,
+    /// Independent per-site choices; packing and memoisation may compose.
+    Selected,
 }
 #[derive(Clone, Copy, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
@@ -112,8 +114,8 @@ fn ids(values: &[String]) -> LangResult<()> {
 }
 fn definitions(plan: &Plan, definition: &CheckedDefinition) -> LangResult<()> {
     let ds = definition.reachable_executable_declarations()?;
-    if plan.definitions != Definitions::Packed && !plan.packed_datatypes.is_empty()
-        || plan.definitions != Definitions::Memo && !plan.memo_functions.is_empty()
+    if !matches!(plan.definitions, Definitions::Packed | Definitions::Selected) && !plan.packed_datatypes.is_empty()
+        || !matches!(plan.definitions, Definitions::Memo | Definitions::Selected) && !plan.memo_functions.is_empty()
     {
         return Err("physical definition strategy/site mismatch".into());
     }
@@ -329,4 +331,30 @@ pub fn check(
     let bounds=plan.bounds.as_ref().map(|p|crate::bounds::check(module,p)).transpose()?.unwrap_or_default();
     let column_maps=plan.column_maps.as_ref().map(|p|crate::column_codec::check_maps(module,&plan.columns,p)).transpose()?.unwrap_or_default();
     Ok(CheckedPhysicalPlan { plan: plan.clone(),bounds,column_maps })
+}
+
+#[cfg(test)]
+mod composition_tests {
+    use super::*;
+    fn checked() -> (CheckedDefinition, String, String) {
+        let mut bundle=crate::library::Bundle{lock:crate::content::Lock{schema:1,semantics:crate::library::SEMANTICS.into(),objects:vec![]},objects:Default::default()};
+        let mut add=|declaration:Declaration,dependencies:Vec<String>|{
+            let object=crate::library::Object{schema:1,semantics:crate::library::SEMANTICS.into(),name:"carrier".into(),dependencies,declaration};
+            let bytes=serde_json::to_string(&object).unwrap();
+            use sha2::{Digest,Sha256};let id=format!("{:x}",Sha256::digest(bytes.as_bytes()));
+            bundle.lock.objects.push(id.clone());bundle.objects.insert(id.clone(),bytes);id
+        };
+        let datatype=add(Declaration::Datatype{constructors:vec![crate::logic::Constructor{name:"Empty".into(),fields:vec![]},crate::logic::Constructor{name:"Row".into(),fields:vec![Sort::U64,Sort::Bool,Sort::SelfType]}]},vec![]);
+        let function=add(Declaration::Function{params:vec![("xs".into(),Sort::Data(datatype.clone()))],result:Sort::Bool,body:crate::logic::Term::Bool(true),recursive:None},vec![datatype.clone()]);
+        let checked=crate::definition::check(&bundle,&[function.clone()],None).unwrap();
+        (checked,datatype,function)
+    }
+    #[test]
+    fn independent_sites_compose_but_cannot_bypass_capability_checks(){
+        let (checked,datatype,function)=checked();
+        let mut plan:Plan=serde_json::from_value(serde_json::json!({"schema":1,"semantics":SEMANTICS,"input_core_sha256":"0".repeat(64),"definitions":"selected","packed_datatypes":[datatype],"memo_functions":[function]})).unwrap();
+        definitions(&plan,&checked).unwrap();
+        plan.definitions=Definitions::Packed;assert!(definitions(&plan,&checked).is_err());
+        plan.definitions=Definitions::Selected;plan.memo_functions=vec!["0".repeat(64)];assert!(definitions(&plan,&checked).is_err());
+    }
 }
