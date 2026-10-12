@@ -191,3 +191,5 @@ See [current status](STATUS.md), [architecture](docs/repository-architecture.md)
 explicit control/owned-buffer primitives, database laws and shared host policy.
 
 [Scalable typed state](docs/scalable-state.md): batch writes, direct table reductions, shared keys, touched-row rollback and locally checked maintenance candidates.
+
+Database-authored recursive compilation and frozen replay: [database planning](docs/database-planning.md).

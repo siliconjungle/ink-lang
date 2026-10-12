@@ -96,3 +96,14 @@ Validation: 70 planner unit tests; 19 store tests plus 4 exact-accelerator/artif
 `artifact-hashes.json` authenticates frozen source, models, canonical stores, packages and emitted browser/Wasm/WGSL modules. `measured-artifacts.tar.gz` excludes dependencies, caches and unused native projects. `validation.json` records verification, compiler identity and exact child revisions. Conformance is not a backend proof.
 
 Reproduction: [commands](../../bench/probabilistic-planner/README.md), [architecture and trust](../../docs/probabilistic-planning.md). Raw data: `planning.json`, `adaptive.json`, `gpu.json`, `autotune.json`, `neighbourhood.json`, `neighbourhood-large.json`, `bridge.json`. The separate Svelte/Preact GPU comparison remains in the sibling GPU report.
+
+## Integration with current main
+
+`merge-validation.json` records conformance after preserving main’s full catalogue,
+layered planning, typed memo search and explicit physical strategies. It rechecks
+79 planner tests, 35 focused knowledge tests, 15 JavaScript package tests, state
+and composed-plan histories, required C/Rust/JS/both-Wasm parity and actual fresh
+hardware GPU kernels. Ownership tests now author and check the explicit physical
+borrow plan and retain the ordinary baseline and all prior mechanism/semantic
+assertions. Historical timing tables above continue to describe their frozen
+measured revisions; integration validation does not establish new timings.

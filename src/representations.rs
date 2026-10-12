@@ -354,7 +354,7 @@ fn write(output: &Path, source: &str) -> LangResult<()> {
     }
     fs::write(output, source).map_err(|e| e.to_string())
 }
-fn project(output: &Path, source: &str, c: Option<&str>, target: &str) -> LangResult<()> {
+pub(crate) fn project(output: &Path, source: &str, c: Option<&str>, target: &str) -> LangResult<()> {
     let mut source = source.to_owned();
     source.push_str(crate::runtime::REPRESENTATION_ABI_SOURCE);
     write(&output.join("src/lib.rs"), &source)?;

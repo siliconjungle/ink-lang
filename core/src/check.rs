@@ -187,7 +187,7 @@ pub fn params_env(params: &[(String, Type)]) -> LangResult<Env> {
     Ok(env)
 }
 
-fn calls(e: &Expr, out: &mut BTreeSet<String>) {
+pub(crate) fn calls(e: &Expr, out: &mut BTreeSet<String>) {
     match e {
         Expr::Call(n, args) => {
             if !crate::word::primitive(n)
