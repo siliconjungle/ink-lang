@@ -28,7 +28,7 @@ fn demanded_fields_follow_bindings_callbacks_and_whole_observations() {
     assert_eq!(demand("length(xs)")[0], set(&[]));
     assert_eq!(demand("r.key")[1], set(&["key"]));
     assert_eq!(demand("choose(xs==xs,1,0)")[0], None);
-    assert_eq!(demand("helper(xs)")[0], None);
+    assert_eq!(demand("helper(xs)")[0], set(&[]));
     assert_eq!(demand("length(xs.filter(fn(r)=>r.key>cut))")[1], set(&[]));
 }
 #[test]
@@ -53,4 +53,51 @@ pub fn zipped(xs:List<Row>,ys:List<Row>)->List<u32>{return xs.zip(ys,fn(x)=>fn(y
             _ => assert!(d.iter().all(Option::is_none)),
         }
     }
+}
+
+#[test]
+fn helper_calls_track_provenance_with_separate_scopes_and_early_stop() {
+    let source = r#"module Helpers;
+record Row{key:u32,value:f32,flag:Bool,}
+fn key(r:Row)->u32{return r.key;}
+fn selected(xs:List<Row>)->List<Row>{return xs.filter(fn(x)=>x.flag);}
+fn result(xs:List<Row>)->u32{return fold_until(selected(xs),0,fn(x)=>fn(acc)=>x.key>7,fn(x)=>fn(acc)=>key(x)+acc);}
+pub fn run(xs:List<Row>)->u32{return result(xs);}
+pub fn escape(xs:List<Row>)->List<Row>{return selected(xs);}
+pub fn equal(xs:List<Row>)->Bool{return selected(xs)==xs;}
+"#;
+    let m = CheckedModule::from_source(syntax::parse(source).unwrap()).unwrap();
+    for f in &m.program().functions {
+        let d = input_demand::fields(f, m.program());
+        match f.name.as_str() {
+            "key" => assert_eq!(d[0], set(&["key"])),
+            "run" | "result" => assert_eq!(d[0], set(&["flag", "key"])),
+            _ => assert_eq!(d[0], None),
+        }
+    }
+}
+#[test]
+fn cycles_and_expansion_budget_fail_closed() {
+    let source="module Recursion; record Row{key:u32,value:f32,flag:Bool,} pub fn run(xs:List<Row>)->u32{return length(xs);}";
+    let m = CheckedModule::from_source(syntax::parse(source).unwrap()).unwrap();
+    let mut p = m.program().clone();
+    p.functions[0].body =
+        ink_core::core::Expr::Call("run".into(), vec![ink_core::core::Expr::Var("xs".into())]);
+    assert_eq!(input_demand::fields(&p.functions[0], &p)[0], None);
+    let mut p = m.program().clone();
+    p.functions[0].name = "h0".into();
+    for i in 1..19 {
+        let mut f = p.functions[0].clone();
+        f.name = format!("h{i}");
+        let call = ink_core::core::Expr::Call(
+            format!("h{}", i - 1),
+            vec![ink_core::core::Expr::Var("xs".into())],
+        );
+        f.body = ink_core::core::Expr::Binary("+".into(), Box::new(call.clone()), Box::new(call));
+        p.functions.push(f);
+    }
+    assert_eq!(
+        input_demand::fields(p.functions.last().unwrap(), &p)[0],
+        None
+    );
 }
