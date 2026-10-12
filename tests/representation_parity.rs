@@ -64,6 +64,34 @@ fn source_invariants_simplify_queries_without_leaking_into_nested_actions() {
 }
 
 #[test]
+fn sorted_state_invariants_remove_repeated_sorting_and_enable_direct_minimum(){
+    use verified_language::contracts;
+    let source=include_str!("../examples/sorted-invariant-algorithms.ink");
+    let dir=root().join("sorted-invariant-authoring");fs::create_dir_all(&dir).unwrap();
+    let knowledge=Path::new(env!("CARGO_MANIFEST_DIR")).join("knowledge");
+    run(Command::new("python3").current_dir(env!("CARGO_MANIFEST_DIR"))
+        .env("PYTHONPATH",&knowledge).args(["-m","producers.contract_proofs","examples/sorted-invariant-algorithms.ink"])
+        .arg(&dir).args(["--compiler",env!("CARGO_BIN_EXE_ink")]),&dir.join("author.log"));
+    let mut program=parse(source).unwrap();contracts::attach(&mut program,serde_json::from_slice(&fs::read(dir.join("evidence.json")).unwrap()).unwrap()).unwrap();
+    let module=CheckedModule::from_source(program).unwrap();
+    fs::write(dir.join("model.json"),serde_json::to_vec(&verified_language::action_model::Projection::derive(&module).unwrap()).unwrap()).unwrap();
+    run(Command::new("python3").current_dir(env!("CARGO_MANIFEST_DIR"))
+        .env("PYTHONPATH",&knowledge).args(["-m","producers.invariant_representations"])
+        .arg(dir.join("model.json")).args(["--compiler",env!("CARGO_BIN_EXE_ink"),"-o"]).arg(dir.join("candidates.json")),&dir.join("producer.log"));
+    let report:Value=serde_json::from_slice(&fs::read(dir.join("candidates.json")).unwrap()).unwrap();
+    for query in ["minimum","sorted_copy"]{assert!(report["changed"].as_array().unwrap().contains(&json!(query)));}
+    let request:Request=serde_json::from_value(report["requests"][0].clone()).unwrap();
+    let checked=representation::check(&module,&request).unwrap();
+    let mut state=CompiledState::new(checked).unwrap();
+    assert!(state.invoke_json("replace_all",&json!([[2,1]])).unwrap_err().contains("precondition"));
+    check_module("sorted-invariant-observations",source,module,Some(request),vec![
+        ("minimum",json!([])),("replace_all",json!([[1,1,2,3]])),("minimum",json!([])),
+        ("sorted_copy",json!([])),("contents",json!([])),("replace_all",json!([[u32::MAX,u32::MAX]])),
+        ("minimum",json!([])),("clear",json!([])),("minimum",json!([])),
+    ]);
+}
+
+#[test]
 fn access_guided_point_cache_preserves_aliases_calls_fallbacks_and_rollback_on_every_target() {
     let source=include_str!("../examples/access-point-cache.ink");
     let module=CheckedModule::from_source(parse(source).unwrap()).unwrap();
@@ -352,12 +380,12 @@ fn check_module(name: &str, source: &str, module:CheckedModule, request: Option<
         .unwrap();
     assert!(unused.iter().all(|id| !reachable.contains_key(id)));
     let mut oracle = fixtures(&module, &calls);
-    if name=="invariant-observations" {
+    if name=="invariant-observations"||name=="sorted-invariant-observations" {
         let entries=oracle.as_array_mut().unwrap();let last=entries.last().unwrap().clone();
         let layout=verified_language::snapshot::layout(module.program()).unwrap();
         let bytes:Vec<u8>=serde_json::from_value(last["snapshot"].clone()).unwrap();
         let mut logical=verified_language::snapshot_wire::decode(&layout,&bytes,Default::default()).unwrap();
-        logical.tables[0]=vec![(json!(0),json!([1,1]))];
+        logical.tables[0]=vec![(json!(0),if name=="invariant-observations"{json!([1,1])}else{json!([2,1])})];
         let invalid=verified_language::snapshot_wire::encode(&layout,&logical,Default::default()).unwrap();
         entries.push(json!({"reject_restore":invalid,"snapshot":last["snapshot"],"outbox":last["outbox"]}));
     }
