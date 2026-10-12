@@ -30,11 +30,13 @@ impl Origin {
 /// may observe, including through callbacks and aliases. Only flat record roots
 /// (or lists of records) are projected; nested field converters stay complete.
 pub fn fields(function: &Function, program: &Program) -> Vec<Option<BTreeSet<String>>> {
-    struct Walk {
+    struct Walk<'a> {
+        program: &'a Program,
+        active: BTreeSet<String>,
         nodes: usize,
         demands: Vec<Option<BTreeSet<String>>>,
     }
-    impl Walk {
+    impl Walk<'_> {
         fn whole(&mut self, origin: &Origin) {
             for i in origin.rows.iter().chain(&origin.lists) {
                 self.demands[*i] = None;
@@ -140,7 +142,8 @@ pub fn fields(function: &Function, program: &Program) -> Vec<Option<BTreeSet<Str
                     }
                 }
                 Expr::Call(name, args)
-                    if ["foldr", "foldl"].contains(&name.as_str()) && args.len() == 3 =>
+                    if ["foldr", "foldl", "fold_until"].contains(&name.as_str())
+                        && args.len() == if name == "fold_until" { 4 } else { 3 } =>
                 {
                     let source = self.visit(&args[0], env);
                     self.whole(&Origin {
@@ -151,8 +154,16 @@ pub fn fields(function: &Function, program: &Program) -> Vec<Option<BTreeSet<Str
                     // The accumulator may carry input rows between iterations.
                     // Demand it completely rather than assume a fixed point.
                     self.whole(&initial);
-                    let result =
-                        self.callback(&args[2], &[source.elements(), Origin::default()], env);
+                    if name == "fold_until" {
+                        let stop =
+                            self.callback(&args[2], &[source.elements(), Origin::default()], env);
+                        self.whole(&stop);
+                    }
+                    let result = self.callback(
+                        &args[args.len() - 1],
+                        &[source.elements(), Origin::default()],
+                        env,
+                    );
                     self.whole(&result);
                     Origin::default()
                 }
@@ -173,6 +184,44 @@ pub fn fields(function: &Function, program: &Program) -> Vec<Option<BTreeSet<Str
                     result.union(self.visit(&args[2], env));
                     result
                 }
+                Expr::Call(name, args)
+                    if self.program.functions.iter().any(|f| &f.name == name) =>
+                {
+                    let inputs: Vec<_> = args.iter().map(|arg| self.visit(arg, env)).collect();
+                    let function = self
+                        .program
+                        .functions
+                        .iter()
+                        .find(|f| &f.name == name)
+                        .unwrap();
+                    // A recursive edge or exhausted budget conservatively demands
+                    // all its inputs. Top-level helpers have their own lexical scope.
+                    if function.params.len() != inputs.len()
+                        || self.active.len() >= 64
+                        || self.active.contains(name)
+                        || !bounded(&function.body)
+                        || self
+                            .program
+                            .contracts
+                            .precondition_checks
+                            .contains_key(name)
+                    {
+                        for input in &inputs {
+                            self.whole(input);
+                        }
+                        return Origin::default();
+                    }
+                    let local = function
+                        .params
+                        .iter()
+                        .zip(inputs)
+                        .map(|((param, _), input)| (param.clone(), input))
+                        .collect();
+                    self.active.insert(name.clone());
+                    let result = self.visit(&function.body, &local);
+                    self.active.remove(name);
+                    result
+                }
                 Expr::Lambda(name, body) => {
                     let mut local = env.clone();
                     local.insert(name.clone(), Origin::default());
@@ -190,22 +239,12 @@ pub fn fields(function: &Function, program: &Program) -> Vec<Option<BTreeSet<Str
             }
         }
     }
-    // The checked grammar bounds arities. Fail closed for unusually deep trees
-    // before descending recursively, including nested callbacks/aliases.
-    let mut pending = vec![(&function.body, 0usize)];
-    let mut nodes = 0;
-    while let Some((e, depth)) = pending.pop() {
-        nodes += 1;
-        if depth > 128 || nodes > 100_000 {
-            return vec![None; function.params.len()];
-        }
-        pending.extend(
-            crate::analysis::children(e)
-                .into_iter()
-                .map(|e| (e, depth + 1)),
-        );
+    if !bounded(&function.body) {
+        return vec![None; function.params.len()];
     }
     let mut w = Walk {
+        program,
+        active: BTreeSet::from([function.name.clone()]),
         nodes: 0,
         demands: vec![None; function.params.len()],
     };
@@ -236,4 +275,23 @@ pub fn fields(function: &Function, program: &Program) -> Vec<Option<BTreeSet<Str
     let result = w.visit(&function.body, &env);
     w.whole(&result);
     w.demands
+}
+
+// Check each reachable helper before recursion; the shared visit budget also
+// bounds repeated expansion of a DAG. Exceeding it closes every projection.
+fn bounded(body: &Expr) -> bool {
+    let mut pending = vec![(body, 0usize)];
+    let mut nodes = 0;
+    while let Some((e, depth)) = pending.pop() {
+        nodes += 1;
+        if depth > 128 || nodes > 100_000 {
+            return false;
+        }
+        pending.extend(
+            crate::analysis::children(e)
+                .into_iter()
+                .map(|e| (e, depth + 1)),
+        );
+    }
+    true
 }
