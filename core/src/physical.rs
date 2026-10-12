@@ -251,68 +251,16 @@ pub fn check(
     let p = module.program();
     let mut read_sites = BTreeSet::new();
     for f in &p.functions {
-        let env = crate::check::params_env(&f.params)?;
-        let mut pending = vec![(&f.body, env)];
-        let mut nodes = 0;
-        while let Some((e, env)) = pending.pop() {
-            nodes += 1;
-            if nodes > 1_000_000 {
-                return Err("physical source walk limit".into());
-            }
+        let mut failure = None;
+        crate::analysis::typed_walk(p, f, |e, env| {
             let lexical = crate::collection_facts::lexical_projection(e);
-            let rooted = lexical.as_ref().is_some_and(|(root, _)| {
-                matches!(
-                    env.get(*root),
-                    Some(crate::syntax::Type::Named(_) | crate::syntax::Type::List(_))
-                )
-            });
-            if rooted && crate::check::infer(e, &env, p).is_ok() {
-                read_sites.insert(registry::identity(e)?);
+            let rooted = lexical.as_ref().is_some_and(|(root, _)| matches!(
+                env.get(*root), Some(crate::syntax::Type::Named(_) | crate::syntax::Type::List(_))));
+            if rooted && crate::check::infer(e, env, p).is_ok() {
+                match registry::identity(e) { Ok(id) => {read_sites.insert(id);}, Err(e) => failure=Some(e) }
             }
-            use crate::syntax::{Expr, Type};
-            match e {
-                Expr::Let(n, t, a, b) => {
-                    pending.push((a, env.clone()));
-                    let mut local = env;
-                    local.insert(
-                        n.clone(),
-                        t.as_ref()
-                            .map(|t| Ok(*t.clone()))
-                            .unwrap_or_else(|| crate::check::infer(a, &local, p))?,
-                    );
-                    pending.push((b, local));
-                }
-                Expr::Method(a, _, args) => {
-                    let receiver = crate::check::infer(a, &env, p).ok();
-                    pending.push((a, env.clone()));
-                    for arg in args {
-                        if let (Expr::Lambda(n, b), Some(Type::List(t))) = (arg, &receiver) {
-                            let mut local = env.clone();
-                            local.insert(n.clone(), *t.clone());
-                            pending.push((b, local));
-                        } else {
-                            pending.push((arg, env.clone()));
-                        }
-                    }
-                }
-                Expr::Binary(_, a, b) => {
-                    pending.push((a, env.clone()));
-                    pending.push((b, env));
-                }
-                Expr::Neg(a) | Expr::Try(a) | Expr::Field(a, _) => pending.push((a, env)),
-                Expr::Call(_, args) => {
-                    for a in args {
-                        pending.push((a, env.clone()));
-                    }
-                }
-                Expr::Record(_, fields) => {
-                    for (_, a) in fields {
-                        pending.push((a, env.clone()));
-                    }
-                }
-                _ => (),
-            }
-        }
+        })?;
+        if let Some(error) = failure {return Err(error)}
     }
     let program = serde_json::to_value(p).map_err(|e| e.to_string())?;
     let tables: BTreeSet<_> = p
