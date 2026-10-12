@@ -46,3 +46,22 @@ fn packed_key_value_snapshots_and_combined_capabilities_match_the_reference(){
  }
  assert_eq!(data["validation"],json!(expected));
 }
+
+#[test]
+fn traversal_elimination_preserves_values_across_targets(){
+ let root=Path::new(env!("CARGO_MANIFEST_DIR"));let dir=root.join("build/traversal-elimination-conformance");fs::create_dir_all(&dir).unwrap();
+ let output=Command::new("python3").arg(root.join("bench/discovery-reuse/traversals.py")).args(["--author-only","--compiler",env!("CARGO_BIN_EXE_ink"),"--output"]).arg(&dir).output().unwrap();
+ assert!(output.status.success(),"{}",String::from_utf8_lossy(&output.stderr));
+ let source=include_str!("../bench/discovery-reuse/traversals.ink");let original=CheckedModule::from_source(syntax::parse(source).unwrap()).unwrap();
+ let packet:planning::Package=serde_json::from_slice(&fs::read(dir.join("plan.json")).unwrap()).unwrap();let plan=planning::check(&original,&packet).unwrap();
+ let runtime=Runtime::new(original.program().clone()).unwrap();let mut steps=vec![];let mut expected=vec![];
+ let row=json!({"key":u32::MAX,"label":"λ\u{0000}","flag":false});
+ for xs in [json!([]),json!([row.clone()]),json!([row.clone(),{"key":0,"label":"","flag":true},row])]{
+  for (name,args)in[("visible",json!([xs])),("discarded",json!([xs])),("keep_left",json!([xs,"seed-λ"])),("keep_right",json!([xs,u64::MAX])),("combined_count",json!([xs,xs])),("combined_length",json!([xs,xs]))]{
+   let f=original.program().functions.iter().find(|f|f.name==name).unwrap();let values=args.as_array().unwrap().iter().zip(&f.params).map(|(v,(_,t))|eval::Value::from_program_json(v,t,original.program()).unwrap()).collect::<Vec<_>>();
+   let oracle=eval::call(original.program(),name,values.clone(),&mut 1_000_000).unwrap().json();assert_eq!(eval::call(plan.module().program(),name,values,&mut 1_000_000).unwrap().json(),oracle);
+   steps.push(json!({"pure":name,"args":args}));expected.push(json!({"reply":{"value":oracle},"snapshot":runtime.checkpoint_portable().unwrap()}));
+  }
+ }
+ parity::conformance_planned("traversal-elimination-parity",&plan,source,steps,expected);
+}
