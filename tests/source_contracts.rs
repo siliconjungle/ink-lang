@@ -340,3 +340,75 @@ fn unique_state_invariants_and_bag_queries_across_targets() {
     steps.push(json!({"reject_restore":forged}));
     parity::conformance("state-contracts-parity", p, &source, steps, expected);
 }
+
+#[test]
+fn action_refinement_preserves_guards_and_checks_selected_postconditions() {
+    use contracts::{Body, Evidence, Refinement};
+    use std::collections::BTreeMap;
+    let source = "module action_refinement; spec query pick(n:u64)->u64 requires n==0; ensures result==1 || result==2; implementation first for pick{return 1;} query read()->u64{return pick(0);}";
+    let module = CheckedModule::from_source(syntax::parse(source).unwrap()).unwrap();
+    let bodies = BTreeMap::from([(
+        "pick".into(),
+        Body::Action(vec![syntax::Statement::Return(syntax::Expr::Num(2))]),
+    )]);
+    let prepared = contracts::prepare(&module, &bodies).unwrap();
+    let evidence = Evidence {
+        schema: 1,
+        semantics: contracts::SEMANTICS.into(),
+        source_sha256: contracts::subject_identity(&prepared).unwrap(),
+        proofs: Default::default(),
+        state_proofs: Default::default(),
+        knowledge: None,
+        state_knowledge: None,
+    };
+    let knowledge = serde_json::from_value(json!({"schema":1,"snapshot":{"schema":1,"semantics":"ink-knowledge-snapshot-v1","root":registry::identity(&json!({"schema":1,"entries":[]})).unwrap()},"roots":[],"objects":{},"membership":{}})).unwrap();
+    let packet = optimisation::Package {
+        schema: 1,
+        semantics: optimisation::SEMANTICS.into(),
+        input_core_sha256: module.identity().unwrap(),
+        knowledge,
+        applications: vec![],
+        action_replacement: None,
+        contract_refinement: Some(Refinement { bodies, evidence }),
+    };
+    let selected = optimisation::check(&module, &packet).unwrap();
+    let mut runtime = Runtime::new_selected(&selected).unwrap();
+    let mut steps = vec![];
+    let mut expected = vec![];
+    for (name, args) in [
+        ("pick", json!([0])),
+        ("read", json!([])),
+        ("pick", json!([1])),
+        ("first", json!([0])),
+    ] {
+        let reply = match runtime.invoke_json(name, &args) {
+            Ok(out) => json!({"outcome":out.json()}),
+            Err(error) => json!({"host_error":error}),
+        };
+        steps.push(json!({"call":name,"args":args}));
+        expected.push(json!({"reply":reply,"snapshot":runtime.checkpoint_portable().unwrap()}));
+    }
+    assert_eq!(expected[0]["reply"]["outcome"]["result"], json!(2));
+    assert_eq!(expected[1]["reply"]["outcome"]["result"], json!(2));
+    assert!(expected[2]["reply"]["host_error"]
+        .as_str()
+        .unwrap()
+        .contains("precondition"));
+    assert_eq!(expected[3]["reply"]["outcome"]["result"], json!(1));
+    parity::conformance_selected(
+        "action-contract-refinement",
+        &selected,
+        source,
+        steps,
+        expected,
+    );
+    let mut bad = packet;
+    let refinement = bad.contract_refinement.as_mut().unwrap();
+    refinement.bodies.insert(
+        "pick".into(),
+        Body::Action(vec![syntax::Statement::Return(syntax::Expr::Num(3))]),
+    );
+    let prepared = contracts::prepare(&module, &refinement.bodies).unwrap();
+    refinement.evidence.source_sha256 = contracts::subject_identity(&prepared).unwrap();
+    assert!(optimisation::check(&module, &bad).is_err());
+}

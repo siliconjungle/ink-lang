@@ -111,8 +111,14 @@ def main():
         print(f"FAIL {gap['target']}/{gap['feature']}: {gap['reason']}", file=sys.stderr)
     status = 1 if gaps else 0
     if not gaps and args.run:
+        try:
+            from pysat.solvers import Glucose3
+        except ImportError as error:
+            raise ValueError("--run requires the knowledge dependency python-sat==1.9.dev5") from error
         if not os.environ.get("INK_TEST_ZIG"):
             raise ValueError("--run requires INK_TEST_ZIG; skipping Wasm is forbidden")
+        if not os.environ.get("INK_TEST_LEAN"):
+            raise ValueError("--run requires INK_TEST_LEAN for independent lifecycle proof checking")
         env = {**os.environ, "INK_PARITY_REQUIRE_ALL": "1", "INK_THREADS": "4"}
         if args.scope in ("all", "contract"):
             if not os.environ.get("INK_TEST_CHROME"):
