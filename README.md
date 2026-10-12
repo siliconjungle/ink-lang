@@ -83,13 +83,13 @@ database. See [semantic selection](docs/semantic-optimisation.md),
 | Application state | Typed tables, queries, atomic changes, rollback, ordered events, maintained results and portable snapshots |
 | Targets | Native C/Rust, JavaScript ES modules, C/Rust WebAssembly and eligible WGSL through WebGPU/wgpu |
 | Checked optimisation | Composable expression rewrites, eligible pure action regions and complete action replacements in a documented subset |
-| Physical representations | Database-defined layouts, cached-query implementations and checked transaction-boundary migrations; currently a restricted source domain and Rust definition executor |
+| Physical representations | Database-defined layouts, cached-query implementations and checked transaction-boundary migrations; source/action preservation proofs and standalone CPU/Wasm execution, with target-specific physical capabilities |
 | Incremental work and selection | Fixed-key query delta maintenance with refresh fallback; external selection that charges checking, setup, calls, memory and migration |
 | Deployment | Explicit modules, a small standard library, relocatable installation, diagnostics and durable host adapters |
 
-Execution support is broader than proof-based replacement support. Numerical state,
-for example, runs on the CPU targets, while the current physical-representation
-proof path excludes floating arithmetic and exact-Int aggregates. GPU execution
+Execution support is broader than proof-based replacement support. Source/action
+correspondence and physical capabilities each have explicit admitted domains;
+unsupported operators and layouts fail closed. GPU execution
 covers eligible pure work; transactions run on the host. [Parallel work, owned partitions, GPU scratch storage and checked recursion](docs/bend-inspired.md)
 now run under explicit target limits. The optional independent Lean verdict checks
 a limited Boolean equality calculus; it does not verify the complete compiler.
@@ -206,3 +206,8 @@ Database-authored recursive compilation and frozen replay: [database planning](d
 [Competitive workloads](docs/competitive-workloads.md): real block-mesh/Flecs/LZ4/Zstd comparisons, generic final-use ownership, and knowledge-owned voxel/adaptive codec algorithms.
 
 [Source specifications and invariants](docs/source-contracts.md) describe the checked syntax, database proof authoring and implementation refinement workflow.
+
+## License
+
+Ink code and documentation are [MIT licensed](LICENSE). Third-party dependencies,
+vendored projects, fonts and research datasets retain their own licenses and notices.
