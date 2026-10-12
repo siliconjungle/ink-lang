@@ -12,6 +12,7 @@ struct Expansion<'a> {
     p: &'a Program,
     stack: Vec<String>,
     remaining: usize,
+    recursive: std::collections::BTreeSet<String>,
 }
 fn schema(t: &Type, x: &mut Expansion, depth: usize) -> LangResult<Schema> {
     if depth > 128 {
@@ -52,7 +53,7 @@ fn schema(t: &Type, x: &mut Expansion, depth: usize) -> LangResult<Schema> {
         }
         Type::Named(n) if p.records.contains_key(n) => {
             if x.stack.contains(n) {
-                return Err("recursive portable snapshot schemas are not implemented".into());
+                return Ok(Schema::Ref(n.clone()));
             }
             x.stack.push(n.clone());
             let fs = p.records[n]
@@ -60,7 +61,7 @@ fn schema(t: &Type, x: &mut Expansion, depth: usize) -> LangResult<Schema> {
                 .map(|(n, t)| Ok((n.clone(), schema(t, x, depth + 1)?)))
                 .collect::<LangResult<Vec<_>>>()?;
             x.stack.pop();
-            Schema::Record(fs)
+            if x.recursive.contains(n) {Schema::Bind(n.clone(),Box::new(Schema::Record(fs)))} else {Schema::Record(fs)}
         }
         _ => return Err(format!("unsupported snapshot schema {t:?}")),
     })
@@ -70,6 +71,7 @@ pub fn layout(p: &Program) -> LangResult<Layout> {
         p,
         stack: vec![],
         remaining: MAX_SCHEMA_NODES,
+        recursive: crate::action_model::recursive_values::cyclic_records(p),
     };
     let mut states: Vec<_> = p.states.iter().collect();
     states.sort_by_key(|s| &s.name);

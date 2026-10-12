@@ -90,6 +90,16 @@ fn propose_with(module: &CheckedModule, dir: &Path, options: &[&str]) -> Vec<Req
         serde_json::from_slice(&fs::read(dir.join("proposal.json")).unwrap()).unwrap();
     serde_json::from_value(value["requests"].clone()).unwrap()
 }
+fn database_residual(module:&CheckedModule,request:&Request,dir:&Path)->Request {
+    fs::create_dir_all(dir).unwrap();
+    fs::write(dir.join("input.json"),serde_json::to_vec(request).unwrap()).unwrap();
+    run(Command::new("python3").arg(Path::new(env!("CARGO_MANIFEST_DIR")).join("knowledge/producers/compact_observation.py"))
+        .arg(dir.join("input.json")).args(["--store"]).arg(dir.join("compact-store")).arg("-o").arg(dir.join("compact.json")),&dir.join("compact.log"));
+    fs::write(dir.join("model.json"),serde_json::to_vec(&verified_language::action_model::Projection::derive(module).unwrap()).unwrap()).unwrap();
+    run(Command::new("python3").arg(Path::new(env!("CARGO_MANIFEST_DIR")).join("knowledge/producers/residual_execution.py"))
+        .arg(dir.join("model.json")).arg(dir.join("compact.json")).arg("--store").arg(dir.join("residual-store")).arg("-o").arg(dir.join("residual.json")),&dir.join("residual.log"));
+    serde_json::from_slice(&fs::read(dir.join("residual.json")).unwrap()).unwrap()
+}
 // Authenticated but unreachable mathematics must not become generated runtime
 // data. In particular, C must not emit an arena for a type Rust never emitted.
 fn add_unused_mathematics(request: &mut Request) -> Vec<String> {
@@ -138,7 +148,9 @@ fn add_unused_mathematics(request: &mut Request) -> Vec<String> {
     b.membership.clear();
     let ids = b.objects.keys().cloned().collect::<Vec<_>>();
     let mut level = ids
-        .chunks(64)
+        // Small authenticated leaves keep large proof views within the package
+        // budget without changing the unreachable-object admission check.
+        .chunks(2)
         .map(|xs| {
             let entries = xs.to_vec();
             for x in xs {
@@ -1037,9 +1049,9 @@ fn proved_column_point_reads_avoid_reconstructing_logical_rows() {
     let dir = root().join("frontier-column-points");
     let requests = propose_with(&module, &dir, &["--column-points"]);
     for request in &requests {representation::check(&module, request).unwrap();}
-    let checked = representation::check(&module, &requests[0]).unwrap();
-    let queries = ink_lowering_rust::representation_query::declarations(&checked).unwrap();
-    let query = &queries[&format!("q_{}",checked.plan().actions["get"].execute)];
+    let residual=database_residual(&module,&requests[0],&dir.join("db-residual"));
+    let checked = representation::check(&module, &residual).unwrap();
+    let query = &checked.definition().reachable_executable_declarations().unwrap()[&checked.plan().actions["get"].execute];
     let declarations = checked.definition().reachable_executable_declarations().unwrap();
     fn walk(t:&Term, declarations:&std::collections::BTreeMap<String,Declaration>,table:&str,visited:&mut std::collections::BTreeSet<String>) {
         match t {
@@ -1062,7 +1074,7 @@ fn proved_column_point_reads_avoid_reconstructing_logical_rows() {
     let baseline=propose_with(&module,&dir.join("plain-baseline"),&["--columnar"]).remove(0);
     let before=representation::check(&module,&baseline).unwrap();
     let mut bridges=Vec::new();
-    for (label,a,z,old,new) in [("forward",&baseline,&requests[0],&before,&checked),("reverse",&requests[0],&baseline,&checked,&before)] {
+    for (label,a,z,old,new) in [("forward",&baseline,&residual,&before,&checked),("reverse",&residual,&baseline,&checked,&before)] {
         let folder=dir.join(label);fs::create_dir_all(&folder).unwrap();
         fs::write(folder.join("before.json"),serde_json::to_vec(a).unwrap()).unwrap();
         fs::write(folder.join("after.json"),serde_json::to_vec(z).unwrap()).unwrap();
@@ -1079,7 +1091,7 @@ fn proved_column_point_reads_avoid_reconstructing_logical_rows() {
         assert_eq!(session.invoke_json(name,args).unwrap(),oracle.invoke_json(name,args).unwrap().json());
         assert_eq!(session.checkpoint().unwrap(),oracle.checkpoint_portable().unwrap());
     }
-    check("frontier-column-points",source,Some(requests[0].clone()),calls);
+    check("frontier-column-points",source,Some(residual),calls);
 }
 
 #[test]
@@ -1090,8 +1102,8 @@ fn proved_column_mutations_preserve_history_without_logical_reconstruction() {
     let dir = root().join("frontier-column-mutations");
     let requests = propose_with(&module, &dir, &["--column-mutations", "--packed-booleans"]);
     for request in &requests { representation::check(&module, request).unwrap(); }
-    let checked = representation::check(&module, &requests[0]).unwrap();
-    let transitions = ink_lowering_rust::representation_transition::declarations(&checked).unwrap();
+    let residual=database_residual(&module,&requests[0],&dir.join("db-residual"));
+    let checked = representation::check(&module, &residual).unwrap();
     let declarations = checked.definition().reachable_executable_declarations().unwrap();
     fn walk(t: &Term, declarations: &std::collections::BTreeMap<String, Declaration>, table: &str, visited: &mut std::collections::BTreeSet<String>) {
         match t {
@@ -1105,7 +1117,7 @@ fn proved_column_mutations_preserve_history_without_logical_reconstruction() {
         }
     }
     for name in ["put", "erase"] {
-        let Declaration::Function { body, .. } = &transitions[&format!("t_{}",checked.plan().actions[name].execute)] else { panic!("not a transition") };
+        let Declaration::Function { body, .. } = &declarations[&checked.plan().actions[name].execute] else { panic!("not a transition") };
         walk(body, &declarations, &checked.projection().tables[0].datatype, &mut Default::default());
     }
     let mut calls=vec![("get",json!([0]))];
@@ -1114,7 +1126,7 @@ fn proved_column_mutations_preserve_history_without_logical_reconstruction() {
         ("get",json!([key])), ("rows",json!([])),
         ("erase",json!([key,i%3==0])), ("get",json!([key])),
     ]); }
-    check("frontier-column-mutations",source,Some(requests[0].clone()),calls);
+    check("frontier-column-mutations",source,Some(residual),calls);
 }
 
 #[test]
@@ -1636,6 +1648,51 @@ fn generic_indexed_products_and_grouped_actions_preserve_all_targets() {
         calls.extend([("edits",json!([first,second,42,true])),("edits",json!([first,second,42,false])),("replace_remove",json!([first,second,u64::MAX])),("remove_replace",json!([first,second,0])),("erase",json!([first,second,true])),("erase",json!([first,second,false])),("put",json!([second,row(second),second,true])),("joined",json!([])),("weighted_query",json!([])),("any_mark",json!([]))]);
     }
     check("general-indexed",source,Some(request),calls);
+}
+
+fn generic_proposal(source:&str,label:&str,cache:&str)->Request {
+    if let Ok(path)=std::env::var(cache) {return serde_json::from_slice(&fs::read(path).unwrap()).unwrap();}
+    let dir=root().join(label);fs::create_dir_all(&dir).unwrap();
+    let module=CheckedModule::from_source(parse(source).unwrap()).unwrap();
+    fs::write(dir.join("model.json"),serde_json::to_vec(&verified_language::action_model::Projection::derive(&module).unwrap()).unwrap()).unwrap();
+    let python=std::env::var("INK_PROOF_PYTHON").unwrap_or_else(|_|"python3".into());
+    run(Command::new(python).args(["-m","producers.generic_indexed"]).arg(dir.join("model.json")).arg("-o").arg(dir.join("request.json")).env("PYTHONPATH",Path::new(env!("CARGO_MANIFEST_DIR")).join("knowledge")).env("INK_COMPILER",env!("CARGO_BIN_EXE_ink")),&dir.join("producer.log"));
+    serde_json::from_slice(&fs::read(dir.join("request.json")).unwrap()).unwrap()
+}
+
+#[test]
+fn recursive_rows_and_mutual_links_preserve_portable_histories() {
+    let source=include_str!("../examples/recursive-indexed.ink");
+    let request=generic_proposal(source,"recursive-indexed-authoring","INK_RECURSIVE_INDEXED_REQUEST");
+    let leaf=|n:u64|json!({"value":n,"children":[],"next":{"None":null}});
+    let row=json!({"value":11,"children":[leaf(3),leaf(5)],"next":{"Some":leaf(7)}});
+    let link=json!({"label":"outer 🌍","right":{"Some":{"weight":u32::MAX,"left":{"Some":{"label":"inner","right":{"None":null}}}}}});
+    let mut calls=vec![];
+    for key in [8,4,12,2,6,10,14,1,3,5,7,9,11,13,15,0,u64::MAX] {
+        calls.extend([("put",json!([key,row,false])),("get",json!([key])),("children",json!([key])),("next",json!([key])),("total",json!([]))]);
+    }
+    for (a,b) in [(8,4),(3,3),(u64::MAX,0),(99,14),(10,99)] {
+        calls.extend([("replace_pair",json!([a,b,leaf(a)])),("put",json!([b,leaf(b),true])),("get",json!([b])),("total",json!([])),("same",json!([row,row]))]);
+    }
+    for key in ["","a","aa","e\u{301}","é","\u{e000}","🧵"] {calls.extend([("link",json!([key,link])),("link_right",json!([key]))]);}
+    check("recursive-indexed",source,Some(request),calls);
+}
+
+#[test]
+fn all_key_orders_and_nine_edit_pairs_preserve_complete_histories() {
+    let source=include_str!("../examples/indexed-key-types.ink");
+    let request=generic_proposal(source,"indexed-key-types-authoring","INK_INDEXED_KEYS_REQUEST");
+    let mut calls=vec![];
+    for key in [8,4,12,2,6,10,14,1,3,5,7,9,11,13,15,0,u64::MAX] {calls.push(("put",json!([key,key])));}
+    for (a,b) in [(8,4),(3,3),(u64::MAX,0),(99,14),(10,99),(20,21),(100,0)] {
+        calls.extend([("rr",json!([a,b,42,true])),("rr",json!([a,b,42,false])),("rd",json!([a,b,1])),("ri",json!([a,b,2])),("dr",json!([a,b,3])),("dd",json!([a,b])),("di",json!([a,b,4])),("ir",json!([a,b,5])),("id",json!([a,b,6])),("ii",json!([a,b,7,true])),("ii",json!([a,b,7,false])),("get",json!([a])),("get",json!([b])),("total",json!([])),("joined",json!([]))]);
+    }
+    for (a,b) in [("","a"),("a","aa"),("e\u{301}","é"),("\u{e000}","🧵"),("same","same")] {calls.extend([("string_pair",json!([a,b,9])),("string_get",json!([a])),("string_get",json!([b])),("joined",json!([]))]);}
+    for (a,b) in [("00000000000000000000000000000000","ffffffffffffffffffffffffffffffff"),("00000000000000010000000000000000","0000000000000000ffffffffffffffff"),("0123456789abcdef0123456789abcdef","0123456789abcdef0123456789abcdef")] {calls.extend([("id_pair",json!([a,b,10])),("id_get",json!([a])),("id_get",json!([b]))]);}
+    for (a,b) in [(i32::MIN,i32::MAX),(-1,0),(0,-1),(7,7)] {calls.extend([("signed_pair",json!([a,b,11])),("signed_get",json!([a])),("signed_get",json!([b]))]);}
+    for (a,b) in [(0,u32::MAX),(u32::MAX,0),(7,7)] {calls.extend([("word_pair",json!([a,b,12])),("word_get",json!([a])),("word_get",json!([b]))]);}
+    for (a,b) in [(false,true),(true,false),(true,true)] {calls.extend([("flag_pair",json!([a,b,13])),("flag_get",json!([a])),("flag_get",json!([b])),("joined",json!([]))]);}
+    check("indexed-key-types",source,Some(request),calls);
 }
 
 #[test]

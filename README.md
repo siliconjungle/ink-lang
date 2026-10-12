@@ -199,3 +199,5 @@ explicit control/owned-buffer primitives, database laws and shared host policy.
 [Bulk buffer workload foundations](docs/bulk-buffer-workloads.md) add general
 range fill/copy machinery and external voxel, codec and ECS libraries, with checked
 database laws and complete-call native measurements.
+
+Database-authored recursive compilation and frozen replay: [database planning](docs/database-planning.md).
