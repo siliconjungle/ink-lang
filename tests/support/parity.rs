@@ -228,7 +228,7 @@ fn conformance_inner(
             if s["cpu_only"] == true {
                 assert_eq!(a["backend"], "cpu", "explicit CPU float-bit contract: {s}");
             }
-            if [
+            if ([
                 "repeated_arrays",
                 "choose_arrays",
                 "composition",
@@ -238,6 +238,7 @@ fn conformance_inner(
                 "flags",
             ]
             .contains(&s["pure"].as_str().unwrap_or(""))
+                && s["cpu_only"] != true)
                 || s["expect_gpu"] == true
             {
                 assert_eq!(a["backend"], "gpu", "expected eligible GPU kernel: {s}");

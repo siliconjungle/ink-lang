@@ -109,3 +109,15 @@ may move final-use values; no domain matcher or equality rule follows from these
 facts. Keep real upstream benchmarks and lifecycle/output-size controls in
 bench/competitive-workloads; measured voxel/codec algorithms remain knowledge
 libraries. Formats and performance observations never grant rewrite authority.
+
+Source physical capabilities now include optional direct Buffer owners and checked
+flat scalar columns on Rust/Rust-Wasm. Bounds and unchanged-field certificates bind
+an exact module, function and child path; source aliases retain numeric types and
+wrapping semantics. RUP verification, existing semantic equality and inductive
+codec round trips are mandatory; rehashing metadata never grants access or permits
+skipping a write. Layout codecs are fixed source-shape meanings; solver search,
+proof construction, layout proposals and fusion specialise in ink-knowledge.
+Packed lanes widen on values that do not fit and preserve raw float bits in plain
+lanes. Profiles rank replayed candidates only; absent comparable lifecycle evidence
+retains the baseline. Unsupported target selections must fail explicitly. Physical
+planning does not change executable-core V9 or public serialisation formats.
