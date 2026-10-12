@@ -35,6 +35,15 @@ pub enum Buffers {
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
+pub struct Reservation {
+    pub function: String,
+    pub parameter: String,
+    #[serde(default)]
+    pub fields: Vec<String>,
+    pub evidence: crate::property::Package,
+}
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Plan {
     pub schema: u32,
     pub semantics: String,
@@ -61,6 +70,8 @@ pub struct Plan {
     pub packed_datatypes: Vec<String>,
     #[serde(default)]
     pub memo_functions: Vec<String>,
+    #[serde(default)]
+    pub reservations: Vec<Reservation>,
 }
 #[derive(Clone, Debug)]
 pub struct CheckedPhysicalPlan {
@@ -165,6 +176,34 @@ pub fn check(
         return Err(
             "source table/read strategies do not apply to definition representations".into(),
         );
+    }
+    if plan.reservations.len()>4096 || representation.is_some() && !plan.reservations.is_empty() {
+        return Err("oversized or unsupported source reservations".into());
+    }
+    let mut reserved = BTreeSet::new();
+    for reservation in &plan.reservations {
+        use crate::semantic::{self as s,Node};
+        let p=module.program();
+        let f=p.functions.iter().find(|f|f.name==reservation.function).ok_or("reservation function missing")?;
+        let param=f.params.iter().find(|(n,_)|*n==reservation.parameter).ok_or("reservation parameter missing")?;
+        if !reserved.insert(&f.name) || !matches!(f.result,crate::syntax::Type::List(_)) {
+            return Err("reservation requires unique finite sequence result/input".into());
+        }
+        let env=crate::check::params_env(&f.params)?;
+        let body=s::elaborate(&f.body,&env,p,&f.result)?;
+        if reservation.fields.len()>64 { return Err("reservation projection depth limit".into()); }
+        let mut projection=crate::syntax::Expr::Var(param.0.clone());
+        for field in &reservation.fields { projection=crate::syntax::Expr::Field(Box::new(projection),field.clone()); }
+        let capacity_type=crate::check::infer_context(&projection,&env,p,None)?;
+        if !matches!(capacity_type,crate::syntax::Type::List(_)) { return Err("reservation capacity is not a finite sequence".into()); }
+        let capacity=s::elaborate(&projection,&env,p,&capacity_type)?;
+        let count=|v|s::op(s::value(crate::syntax::Type::Int),"call:count",vec![v]);
+        let expected=crate::laws::Equation {
+            from:s::op(s::value(crate::syntax::Type::Bool),"binary:<=",vec![count(body),count(capacity)]),
+            to:s::term(s::value(crate::syntax::Type::Bool),Node::Bool(true)),
+        };
+        let facts=crate::property::check(module,&reservation.evidence)?;
+        if !facts.equations().iter().any(|e|e==&expected) { return Err("reservation lacks a proved exact cardinality bound".into()); }
     }
     // Generic lexical type validation is independent of strategy authoring.
     // A source hash alone cannot turn a scalar variable into a list borrow.

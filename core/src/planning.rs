@@ -2,7 +2,7 @@
 //! order and repetition are external search choices, never admission rules.
 use crate::{
     core::CheckedModule, definition::Replacement, optimisation, physical, property, representation,
-    source_routing, LangResult,
+    source_routing, resources, LangResult,
 };
 use serde::{Deserialize, Serialize};
 pub const SEMANTICS: &str = "ink-compiled-plan-v1";
@@ -28,6 +28,7 @@ pub enum Step {
     Properties(property::Package),
     Physical(physical::Plan),
     Routing(Route),
+    Resources(resources::Plan),
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -46,6 +47,7 @@ pub struct CheckedPlan {
     properties: Vec<property::CheckedProperties>,
     definitions: Vec<Vec<Replacement>>,
     route: Option<source_routing::CheckedRouting>,
+    resources: Option<resources::CheckedResources>,
     package: Package,
 }
 impl CheckedPlan {
@@ -67,6 +69,7 @@ impl CheckedPlan {
     pub fn route(&self) -> Option<&source_routing::CheckedRouting> {
         self.route.as_ref()
     }
+    pub fn resources(&self) -> Option<&resources::CheckedResources> { self.resources.as_ref() }
     pub fn package(&self) -> &Package {
         &self.package
     }
@@ -136,6 +139,7 @@ fn check_from(
         properties: vec![],
         definitions: vec![],
         route: None,
+        resources: None,
         package: package.clone(),
     });
     checked.package = package.clone();
@@ -153,6 +157,7 @@ fn check_from(
                 checked.properties.clear();
                 checked.definitions.clear();
                 checked.route = None;
+                checked.resources = None;
             }
             Step::Representation(p) => {
                 let mut r = representation::check(&checked.module, p)?;
@@ -191,7 +196,11 @@ fn check_from(
                     p,
                 )?)
             }
+            Step::Resources(p) => {
+                checked.resources = Some(resources::check(checked.route.as_ref().ok_or("resource plan needs a checked graph")?, p)?);
+            }
             Step::Routing(p) => {
+                checked.resources = None;
                 checked.route = Some(if let Some(e) = &p.equivalence {
                     source_routing::check_equivalent(&checked.module, &p.package, e)?
                 } else {

@@ -145,7 +145,7 @@ fn planning_state(
         "definition_choices":checked.representation().map(|r|r.definition().choices()),
         "definitions":checked.representation().map(|r|r.definition().reachable_executable_declarations()).transpose()?,
         "physical":checked.physical().map(|p|p.plan()),"properties":checked.properties().iter().map(|p|p.package()).collect::<Vec<_>>(),
-        "route":checked.route().map(|r|r.package())}),
+        "resources":checked.resources().map(|r|r.plan()),"route":checked.route().map(|r|r.package())}),
     )
 }
 fn planning_capability(

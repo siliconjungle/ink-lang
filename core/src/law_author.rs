@@ -63,7 +63,7 @@ fn dependencies(
             dependencies(premise, out, budget, depth + 1)?;
             dependencies(body, out, budget, depth + 1)?;
         }
-        Proof::Normalize | Proof::Hypothesis(_) | Proof::GeneralizedHypothesis { .. } => {}
+        Proof::Linear { .. } | Proof::Normalize | Proof::Hypothesis(_) | Proof::GeneralizedHypothesis { .. } => {}
     }
     Ok(())
 }
