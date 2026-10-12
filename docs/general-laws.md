@@ -115,9 +115,11 @@ The old maintained-view command and its specialised certificate path are removed
   the laws.
 - Datatypes are not parameterised. A general list is a datatype over an
   abstract element sort, mapped to the program's concrete list sort.
-- Source programs cannot yet *state* laws. The laws are written by an
-  untrusted producer in the logic's JSON form. A surface `law` syntax would
-  need generic types and function-typed parameters in the source language.
+- These first-order entries are written by an untrusted producer in the
+  logic's JSON form. Source laws now have one form, `law`, with type
+  parameters, function parameters and assumptions, checked by the semantic law
+  kernel; the same eight laws are stated there (see
+  [laws in source](laws-in-source.md)).
 
 ## Quantified executable induction
 
