@@ -37,7 +37,10 @@ pub enum Buffers {
 #[serde(deny_unknown_fields)]
 pub struct Reservation {
     pub function: String,
+    #[serde(default)]
     pub parameter: String,
+    #[serde(default,skip_serializing_if="Option::is_none")]
+    pub capacity:Option<crate::syntax::Expr>,
     #[serde(default)]
     pub fields: Vec<String>,
     pub evidence: crate::property::Package,
@@ -120,9 +123,9 @@ fn definitions(plan: &Plan, definition: &CheckedDefinition) -> LangResult<()> {
         };
         if !(cs.len() == 2
             && cs[0].fields.is_empty()
-            && cs[1].fields.len() == 2
-            && cs[1].fields[1] == Sort::SelfType
-            && matches!(cs[1].fields[0], Sort::Bool | Sort::U64 | Sort::Data(_)))
+            && (2..=17).contains(&cs[1].fields.len())
+            && cs[1].fields.last() == Some(&Sort::SelfType)
+            && cs[1].fields[..cs[1].fields.len()-1].iter().all(|s|matches!(s,Sort::Bool|Sort::U64|Sort::Data(_))))
         {
             return Err("packed carrier does not satisfy the literal spine ABI".into());
         }
@@ -180,26 +183,64 @@ pub fn check(
     if plan.reservations.len()>4096 || representation.is_some() && !plan.reservations.is_empty() {
         return Err("oversized or unsupported source reservations".into());
     }
+    // A capacity expression executes before the body. Its calls must not add
+    // a recursion cycle through any other instrumented function.
+    if !plan.reservations.is_empty() {
+        use std::collections::BTreeMap;
+        let names=module.program().functions.iter().map(|f|f.name.clone()).collect::<BTreeSet<_>>();
+        let calls=|e:&crate::syntax::Expr|{
+            let mut result=BTreeSet::new();let mut pending=vec![e];
+            while let Some(e)=pending.pop(){
+                if let crate::syntax::Expr::Call(n,_)=e{if names.contains(n){result.insert(n.clone());}}
+                pending.extend(crate::analysis::children(e));
+            }
+            result
+        };
+        let mut graph=module.program().functions.iter().map(|f|(f.name.clone(),calls(&f.body))).collect::<BTreeMap<_,_>>();
+        for r in &plan.reservations {if let Some(e)=&r.capacity{graph.entry(r.function.clone()).or_default().extend(calls(e));}}
+        let mut work=0usize;
+        for r in &plan.reservations {if let Some(e)=&r.capacity{
+            let mut pending=calls(e).into_iter().collect::<Vec<_>>();let mut seen=BTreeSet::new();
+            while let Some(n)=pending.pop(){
+                work+=1;if work>1_000_000{return Err("reservation dependency walk limit".into());}
+                if n==r.function{return Err("reservation expression creates a recursive execution path".into());}
+                if seen.insert(n.clone()){if let Some(edges)=graph.get(&n){pending.extend(edges.iter().cloned());}}
+            }
+        }}
+    }
     let mut reserved = BTreeSet::new();
     for reservation in &plan.reservations {
         use crate::semantic::{self as s,Node};
         let p=module.program();
         let f=p.functions.iter().find(|f|f.name==reservation.function).ok_or("reservation function missing")?;
-        let param=f.params.iter().find(|(n,_)|*n==reservation.parameter).ok_or("reservation parameter missing")?;
         if !reserved.insert(&f.name) || !matches!(f.result,crate::syntax::Type::List(_)) {
             return Err("reservation requires unique finite sequence result/input".into());
         }
         let env=crate::check::params_env(&f.params)?;
         let body=s::elaborate(&f.body,&env,p,&f.result)?;
-        if reservation.fields.len()>64 { return Err("reservation projection depth limit".into()); }
-        let mut projection=crate::syntax::Expr::Var(param.0.clone());
-        for field in &reservation.fields { projection=crate::syntax::Expr::Field(Box::new(projection),field.clone()); }
-        let capacity_type=crate::check::infer_context(&projection,&env,p,None)?;
-        if !matches!(capacity_type,crate::syntax::Type::List(_)) { return Err("reservation capacity is not a finite sequence".into()); }
-        let capacity=s::elaborate(&projection,&env,p,&capacity_type)?;
         let count=|v|s::op(s::value(crate::syntax::Type::Int),"call:count",vec![v]);
+        let capacity=if let Some(expression)=&reservation.capacity {
+            if !reservation.parameter.is_empty()||!reservation.fields.is_empty(){return Err("reservation capacity forms are exclusive".into());}
+            let mut pending=vec![expression];
+            while let Some(e)=pending.pop(){
+                if let crate::syntax::Expr::Var(n)=e {if env.get(n).is_some_and(|t|crate::local_collections::owned(t,p)){return Err("reservation expression cannot consume an affine input".into());}}
+                pending.extend(crate::analysis::children(e));
+            }
+            let ty=crate::check::infer_context(expression,&env,p,None)?;
+            if !matches!(ty,crate::syntax::Type::Int|crate::syntax::Type::U32|crate::syntax::Type::U64){return Err("reservation expression must return an exact count or unsigned word".into());}
+            let term=s::elaborate(expression,&env,p,&ty)?;
+            if ty==crate::syntax::Type::Int {term}else{s::op(s::value(crate::syntax::Type::Int),"call:Int",vec![term])}
+        } else {
+            let param=f.params.iter().find(|(n,_)|*n==reservation.parameter).ok_or("reservation parameter missing")?;
+            if reservation.fields.len()>64 {return Err("reservation projection depth limit".into());}
+            let mut projection=crate::syntax::Expr::Var(param.0.clone());
+            for field in &reservation.fields{projection=crate::syntax::Expr::Field(Box::new(projection),field.clone());}
+            let ty=crate::check::infer_context(&projection,&env,p,None)?;
+            if !matches!(ty,crate::syntax::Type::List(_)){return Err("reservation capacity is not a finite sequence".into());}
+            count(s::elaborate(&projection,&env,p,&ty)?)
+        };
         let expected=crate::laws::Equation {
-            from:s::op(s::value(crate::syntax::Type::Bool),"binary:<=",vec![count(body),count(capacity)]),
+            from:s::op(s::value(crate::syntax::Type::Bool),"binary:<=",vec![count(body),capacity]),
             to:s::term(s::value(crate::syntax::Type::Bool),Node::Bool(true)),
         };
         let facts=crate::property::check(module,&reservation.evidence)?;
