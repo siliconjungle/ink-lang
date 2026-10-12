@@ -124,6 +124,7 @@ voxel improvement must not be attributed to unchecked neighbor reads.
 
 At 65,536 rows, checked record map/map and record map/fold fusion lifecycle ratios
 are:
+
 - record_map_map: 0.982× [0.980, 0.985].
 - record_map_fold: 1.085× [1.079, 1.088].
 
