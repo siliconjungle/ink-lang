@@ -5,7 +5,7 @@ substantial loop-elimination gains and smaller collection gains. Profitability
 depends on the target: self-zip is about 4% slower in JavaScript, and most Wasm
 and GPU collection comparisons show no established improvement.
 
-The batch adds **52 checked laws: 24 numeric, 20 collection and 8 Frontier-inspired
+The batch adds **52 checked laws: 24 numeric, 20 collection and 8 no-op write
 pure word laws**, advancing the catalogue from 648 to 700 entries. The
 [publication receipt](/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/reports/web-stack-proofs-2026-10-10/publication.json)
 records admission of all 52 and preservation of the old immutable snapshot.
