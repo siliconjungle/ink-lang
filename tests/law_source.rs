@@ -333,3 +333,16 @@ fn raw_generic_laws_cannot_treat_numeric_equality_as_bit_identity(){
  let id=registry::identity(&registry::Entry::from_law(&law).unwrap()).unwrap();c.roots=vec![id.clone()];c.objects=BTreeMap::from([(id,law)]);
  assert!(CheckedCatalogue::check(&c,&Program::default()).is_err());
 }
+
+#[test]
+fn storage_observation_laws_check_generic_and_owned_instances() {
+    let source=include_str!("../knowledge/libraries/storage-observations.ink");
+    let authored=author(source).unwrap();
+    for name in ["foldl_observe_append","buffer_push_append","list_append_fold","buffer_append_fold"] {
+        assert!(authored.names.contains_key(name));
+    }
+    CheckedCatalogue::check(&catalogue(&authored),&Program::default()).unwrap();
+    let wrong=format!("{source}\nlaw bad(xs:List<u32>,initial:List<u32>){{foldl(xs,initial,fn(item,acc)=>acc)==initial.concat(xs);proof by use foldl_observe_append<u32,List<u32>>(xs,initial,fn(item,acc)=>acc,fn(acc)=>acc);}}");
+    let error=author(&wrong).err().expect("unchecked step assumption accepted");
+    assert!(error.contains("semantic normal forms differ"),"{error}");
+}
