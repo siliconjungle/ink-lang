@@ -28,6 +28,11 @@ assume the very invariant they validate. Core admission reconstructs the exact
 constructor, validator, inferred contracts and state guards and rejects altered
 metadata or raw construction outside those authenticated bodies.
 
+Collection observation syntax resolves in its declaring module before import
+graphs and templates are combined. An importer's same-named function cannot
+replace the library's invariant predicate. Callback parameters retain their
+lexical binding even when a module declares a helper with the same name.
+
 Checked public value/JSON entry points validate the predicates. Checked internal
 calls discharge the same requirements statically. Existing caller-trusted native
 typed/packed entry points keep their input-contract responsibility. Portable

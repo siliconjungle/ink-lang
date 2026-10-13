@@ -113,6 +113,18 @@ support. Missing capability stays explicit while implementation continues.
 - Local checkpoint commits are distribution
   `fcd82cfafc2c4e5c0e0f654206611bf981244f4b` and knowledge
   `1a963549659e62298d2f83a8516c323f90d9ff64`. Neither is published on remote main.
+- Import isolation testing exposed an importing module's same-named `unique`
+  function changing the library's invariant elaboration. Collection syntax now
+  resolves in its defining module before graph assembly; linked callback calls
+  also retain local parameter bindings. Regressions reject the duplicate-value
+  construction and invalid runtime input while retaining ordinary same-named
+  source functions. The updated complete core suite passed 207 tests, and all
+  six module plus five value-invariant integration tests passed with the compiled
+  CPU/Wasm and eligible GPU host legs enabled. Receipts are
+  `core-tests-lexical-final.log` and `lexical-target-parity.log`. The unaffected
+  interface core image remains byte-identical and the canonical state packet
+  still replays. Complete abstract-interface and module-visibility work remains
+  open; this fix is not a claim that field opacity is implemented.
 - Remaining requirements include actual abstract opacity/interfaces, general
   storage and externalisation, authored termination, local frame/loop relations,
   broader cross-consumer fact transport, compositional incremental maintenance,
