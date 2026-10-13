@@ -12,6 +12,7 @@ pub(super) struct CallCondition {
     pub observations: Option<Vec<(String, Type, Expr)>>,
     pub guarantee: Option<ResultGuarantee>,
     pub requirement: Option<CallRequirement>,
+    pub consumer: Option<usize>,
 }
 #[derive(Clone)]
 pub(super) struct CallRequirement {
@@ -262,6 +263,7 @@ fn expression(
                 guarantee: None,
                 requirement: Some(CallRequirement {site:e as *const Expr as usize,
                     params:spec.params.clone(),predicate:predicate.clone()}),
+                consumer: None,
             });
             *serial += 1;
         }
@@ -356,12 +358,21 @@ fn callback_conditions(
     ) else {
         return Ok(None);
     };
-    pure_env.retain(|name, _| {
-        crate::analysis::references_free(&value, name)
-            || facts
-                .iter()
-                .any(|e| crate::analysis::references_free(e, name))
-    });
+    let mut needed=crate::analysis::free_variables(&value);
+    for fact in facts {needed.extend(crate::analysis::free_variables(fact));}
+    // A captured query can depend on caller locals that disappear from the
+    // reified pure predicate. Retain those inputs for its readonly observation.
+    loop {
+        let before=needed.len();
+        for (name,_,expression) in &observations {
+            if needed.contains(name) {
+                needed.extend(crate::analysis::free_variables(expression).into_iter()
+                    .filter(|n|env.contains_key(n)));
+            }
+        }
+        if needed.len()==before {break;}
+    }
+    pure_env.retain(|name, _|needed.contains(name));
     observations.retain(|(name, _, _)| pure_env.contains_key(name));
     // Unsupported total-value correspondence retains the original, stronger
     // action obligation. It never becomes an assumed callback guarantee.
@@ -395,6 +406,7 @@ fn callback_conditions(
                 return Ok(None);
             }
             if crate::analysis::references_free(&predicate, &name)
+                || observations.iter().any(|(_,_,e)|crate::analysis::references_free(e,&name))
                 || conditions
                     .iter()
                     .any(|e| crate::analysis::references_free(e, &name))
@@ -402,6 +414,8 @@ fn callback_conditions(
                 params.push((name, ty));
             }
         }
+        let consumer=params.iter().all(|(name,_)|env.contains_key(name))
+            .then_some(e as *const Expr as usize);
         out.push(CallCondition {
             name: format!("{owner}:action-call:{}:requires", next + index),
             owner: owner.into(),
@@ -411,6 +425,7 @@ fn callback_conditions(
             observations: Some(observations.clone()),
             guarantee: None,
             requirement: None,
+            consumer,
         });
     }
     Ok(Some(out))
@@ -437,7 +452,7 @@ fn capture_queries<'a>(
     }
     if let Expr::Method(receiver, name, args) = e {
         if let Expr::Var(root) = receiver.as_ref() {
-            if scope == 0
+            if (scope == 0 || args.iter().all(|e|crate::analysis::free_variables(e).is_empty()))
                 && global.contains(root)
                 && p.states.iter().any(|s| s.name == *root)
                 && ["get", "contains", "values", "keys", "intersect_keys"].contains(&name.as_str())
@@ -462,7 +477,7 @@ fn capture_queries<'a>(
     }
     if let Expr::Call(name, args) = e {
         if let Some(action) = p.actions.iter().find(|a| &a.name == name) {
-            if scope != 0
+            if (scope != 0 && (!args.is_empty() || !unconditional_readonly(p,name)))
                 || action.kind != ActionKind::Query
                 || !action.writes.is_empty()
                 || !action.emits.is_empty()
@@ -628,6 +643,39 @@ fn capture_queries<'a>(
         _ => e.clone(),
     })
 }
+
+/// State observations independent of callback binders may be sampled at entry
+/// only when their complete source closure has no conditional call contracts.
+/// Unknown/dependent/contract-bearing queries retain the stronger path. This
+/// structural capability grants no rewrite or result guarantee by name.
+fn unconditional_readonly(p:&Program,name:&str)->bool {
+    let mut pending=vec![name.to_owned()];let mut seen=BTreeSet::new();
+    while let Some(name)=pending.pop() {
+        if !seen.insert(name.clone()){continue;}
+        if let Some(spec)=specification(p,&name) {
+            if spec.requires.iter().chain(&spec.ensures).any(|e|!matches!(e,Expr::Bool(true))) {return false;}
+        }
+        let mut expressions=vec![];
+        if let Some(a)=p.actions.iter().find(|a|a.name==name) {
+            if a.kind!=ActionKind::Query || !a.writes.is_empty() || !a.emits.is_empty(){return false;}
+            let mut statements=a.body.iter().collect::<Vec<_>>();
+            while let Some(s)=statements.pop() {
+                match s {
+                    Statement::Let(_,_,e)|Statement::Return(e)|Statement::Emit(_,e)|Statement::Expr(e)=>expressions.push(e),
+                    Statement::If(e,yes,no)=>{expressions.push(e);statements.extend(yes);statements.extend(no);},
+                }
+            }
+        } else if let Some(f)=p.functions.iter().find(|f|f.name==name) {
+            expressions.push(&f.body);
+        } else {continue;}
+        for e in expressions {
+            crate::analysis::walk(e,|e|if let Expr::Call(name,_)=e {
+                if p.actions.iter().any(|a|a.name==*name) || p.functions.iter().any(|f|f.name==*name) {pending.push(name.clone());}
+            });
+        }
+    }
+    true
+}
 fn equation_expression(e: &Equation, p: &Program) -> LangResult<Expr> {
     let predicate = if e.to.node == s::Node::Bool(true) {
         e.from.clone()
@@ -740,6 +788,7 @@ fn binding_facts(
                             ensure: ensure.clone(),
                         }),
                         requirement: None,
+                        consumer: None,
                     });
                     *serial += 1;
                 }
@@ -771,6 +820,26 @@ fn binding_facts(
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn callback_consumers_keep_state_observations_out_of_lexical_parameters() {
+        let p=crate::syntax::parse(include_str!("../../tests/fixtures/action-callback-values.ink")).unwrap();
+        let goals=actions(&p).unwrap();
+        for g in goals.iter().filter(|g|g.owner=="current") {
+            assert!(g.consumer.is_some(),"params={:?}, observations={:?}",g.params,g.observations);
+            assert!(g.params.is_empty(),"{:?}",g.params);
+        }
+    }
+    #[test]
+    fn closed_state_reads_inside_callbacks_keep_the_consumer_entry_site() {
+        let p=crate::syntax::parse("module entry;private state Counter:u32=1;
+         spec fn read(x:u32,c:u32)->u32 requires c>0;ensures result==x;
+         implementation body for read{return x;}
+         change repair(xs:List<u32>)->Result<Unit,String> writes(Counter){Counter=2;
+          let values=xs.map(fn(x)=>read(x,Counter));return Ok(());}").unwrap();
+        for g in actions(&p).unwrap().iter().filter(|g|g.owner=="repair") {
+            assert!(g.consumer.is_some(),"params={:?}, observations={:?}",g.params,g.observations);
+        }
+    }
     #[test]
     fn action_domains_remove_callback_parameters_before_transition_projection() {
         let p = crate::syntax::parse(include_str!(

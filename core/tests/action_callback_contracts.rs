@@ -20,9 +20,10 @@ fn callback_requirements_bind_actual_action_parameters_and_state_observations() 
         );
         if owner == "current" {
             assert!(
-                goals.iter().all(|g| g.params.len() == 2),
-                "{:?}",
-                goals.iter().map(|g| &g.params).collect::<Vec<_>>()
+                goals.iter().all(|g| g.params.len() == 2+p.actions.iter().find(|a|a.name==owner).unwrap().params.len()),
+                "goals={:?}, source={:?}",
+                goals.iter().map(|g| &g.params).collect::<Vec<_>>(),
+                p.actions.iter().find(|a|a.name==owner).unwrap().params,
             );
             assert!(goals.iter().all(|g| !g.conditions.is_empty()));
         }

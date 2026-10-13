@@ -27,6 +27,7 @@ impl Scope<'_> {
 struct Frame<'a> {
     body: &'a Body,
     total: Vec<bool>,
+    value_total: Vec<bool>,
 }
 impl std::ops::Deref for Frame<'_> {
     type Target = Body;
@@ -82,10 +83,11 @@ impl<'p> Lower<'p> {
     // summary distinguishes total expression evaluation from control/effects;
     // it selects no alternate algorithm and carries no proof authority.
     fn flow_frame<'b>(&mut self, body: &'b Body, observed: Option<NodeId>) -> LangResult<Frame<'b>> {
-        let mut total = Vec::with_capacity(body.nodes.len());
+        let mut total:Vec<bool> = Vec::with_capacity(body.nodes.len());
+        let mut value_total = Vec::with_capacity(body.nodes.len());
         for node in &body.nodes {
             self.tick()?;
-            let child = |n: NodeId| total.get(n).copied().unwrap_or(false);
+            let child = |n: NodeId| value_total.get(n).copied().unwrap_or(false);
             let safe = match &node.kind {
                 Kind::State(_) | Kind::Keep(_) => true,
                 Kind::Bind { value, body, .. } => child(*value) && child(*body),
@@ -129,9 +131,15 @@ impl<'p> Lower<'p> {
                 }
                 _ => false,
             };
-            total.push(safe && observed != Some(total.len()));
+            value_total.push(safe);
+            // Observation visitation is separate from total value meaning. An
+            // entry check can evaluate its complete pure subtree afterwards,
+            // while ancestors must still sequence down to the monitored site.
+            let blocked = crate::action_model::observations::children(&node.kind).iter()
+                .any(|n|value_total[*n] && !total[*n]);
+            total.push(safe && !blocked && observed != Some(total.len()));
         }
-        Ok(Frame { body, total })
+        Ok(Frame { body, total, value_total })
     }
     pub(super) fn action_flow(
         &mut self,
@@ -415,6 +423,10 @@ impl<'p> Lower<'p> {
         depth: usize,
         calls: usize,
     ) -> LangResult<Term> {
+        if scope.target(body.body)==Some(node) && matches!(scope.probe,Some(SiteObservation::Entry(_))) {
+            return self.check_observation(scope,env,vec![],state.clone(),events.clone(),
+                &|this|this.flow_expr_value(scope,body,node,env,state.clone(),events.clone(),next,abort,depth,calls),calls);
+        }
         if scope.target(body.body) == Some(node) && matches!(scope.probe,Some(SiteObservation::Value(_))) {
             return self.flow_expr_value(
                 scope, body, node, env, state, events,
@@ -479,7 +491,8 @@ impl<'p> Lower<'p> {
             return Err("standalone action model lambda is unsupported".into());
         };
         let sort = self.sort(ty)?;
-        if body.total[node] {
+        if body.total[node] || (body.value_total[node] && scope.target(body.body)==Some(node)
+            && matches!(scope.probe,Some(SiteObservation::Entry(_)))) {
             let value = self.expr(body, node, env, &state)?;
             return next(self, value, state, events);
         }
@@ -984,6 +997,15 @@ impl<'p> Lower<'p> {
         let ExprType::Value(receiver_type) = &body.nodes[receiver].ty else {
             return Err("action model method receiver".into());
         };
+        if matches!(receiver_type,Type::List(_)) && ["map","filter"].contains(&method) {
+            let [lambda]=arguments else{return Err("list traversal arity".into());};
+            if !body.value_total[*lambda] {return Err("list callback requires total value correspondence".into());}
+            return self.flow_expr(scope,body,receiver,env,state,events,
+                &|this,value,state,events| {
+                    let value=this.collection_value(body,receiver,method,arguments,env,&state,Some(value))?;
+                    next(this,value,state,events)
+                },abort,depth+1,calls);
+        }
         if method == "unwrap_or" {
             return self.flow_args(scope, body, &[receiver, arguments[0]], env, state, events, vec![],
                 &|this, xs, state, events| {

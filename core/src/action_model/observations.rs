@@ -22,34 +22,48 @@ pub struct CallObservation {
     pub predicate: String,
     pub slots: Vec<usize>,
 }
+/// Check immediately before evaluating an expression. Predicate parameters are
+/// selected lexical slots; state is observed at the entry to the expression.
+#[derive(Clone, Debug)]
+pub struct EntryObservation {
+    pub action: String,
+    pub node: NodeId,
+    pub predicate: String,
+    pub slots: Vec<usize>,
+}
 #[derive(Clone, Debug)]
 pub enum SiteObservation {
     Value(ValueObservation),
     Call(CallObservation),
+    Entry(EntryObservation),
 }
 impl SiteObservation {
     pub(super) fn action(&self) -> &str {
         match self {
             Self::Value(v) => &v.action,
             Self::Call(v) => &v.action,
+            Self::Entry(v) => &v.action,
         }
     }
     pub(super) fn node(&self) -> NodeId {
         match self {
             Self::Value(v) => v.node,
             Self::Call(v) => v.node,
+            Self::Entry(v) => v.node,
         }
     }
     pub(super) fn predicate(&self) -> &str {
         match self {
             Self::Value(v) => &v.predicate,
             Self::Call(v) => &v.predicate,
+            Self::Entry(v) => &v.predicate,
         }
     }
     pub(super) fn slots(&self) -> &[usize] {
         match self {
             Self::Value(v) => &v.slots,
             Self::Call(v) => &v.slots,
+            Self::Entry(v) => &v.slots,
         }
     }
 }
@@ -59,7 +73,7 @@ pub struct ObservationFunction {
     pub params: Vec<(String, Sort)>,
 }
 
-fn children(kind: &Kind) -> Vec<NodeId> {
+pub(super) fn children(kind: &Kind) -> Vec<NodeId> {
     match kind {
         Kind::Bind { value, body, .. } => vec![*value, *body],
         Kind::Record { fields, .. } => fields.iter().map(|(_, n)| *n).collect(),
@@ -159,6 +173,7 @@ impl Lower<'_> {
             })
             .collect::<Result<Vec<_>, _>>()?;
         match request {
+            SiteObservation::Entry(_) => (),
             SiteObservation::Value(_) => argument_types.push(value_type.clone()),
             SiteObservation::Call(_) => {
                 let arguments = match &node.kind {

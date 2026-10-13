@@ -19,7 +19,7 @@ mod keys;
 mod local;
 mod flow;
 mod observations;
-pub use observations::{ValueObservation, CallObservation, SiteObservation, ObservationFunction};
+pub use observations::{ValueObservation, CallObservation, EntryObservation, SiteObservation, ObservationFunction};
 mod integer;
 mod pure;
 pub(crate) mod recursive_values;

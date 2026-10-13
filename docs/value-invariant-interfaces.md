@@ -175,11 +175,26 @@ It reconstructs exact call sites and lexical captures locally; proof packets can
 supply alternative site maps. Shadowed bindings retain the selected slot identity.
 Direct source-call requirements also use these observations. Generated predicate
 parameters avoid free names, bound names and existing state/keep names, preserving
-the callee's lexical meaning. Callback requirements retain their existing domain
-transport and conservative state checks; keep initializers retain conservative
-checks. Callback/loop observation domains,
+the callee's lexical meaning. `EntryObservation` now samples an expression's entry
+state and lexical slots. Supported callback-domain predicates use that point after
+preceding writes and bindings. State reads with closed arguments can be sampled
+there; zero-argument readonly queries additionally require an entire source closure
+with no nontrivial call contracts. Dependent queries and unsupported domains retain
+the stronger checks. Readonly receiver queries retain all required lexical inputs.
+Keep initializers retain conservative checks. Broader callback/loop domains,
 compositional frame relations, nested replacement domains and database proof
 families remain unfinished. This is not completion of local relational reasoning.
+
+Observation visitation and total value correspondence are distinct summaries.
+Ancestors sequence down to an entry site, then an ordinary pure subtree can use
+its existing value meaning. List map/filter can consume a readonly query's actual
+receiver value through the same correspondence. No executable hoisting follows.
+
+Database proof search now transports constructor payload equalities through Match
+projections and follows relevant relational premises after a payload has been
+extracted. It can separately prove a concrete recursive observation result, then
+reuse that closed theorem by congruence inside a collection proof. Every candidate
+and projected equality replays through the ordinary first-order kernel.
 
 ## Current evidence and remaining scope
 
