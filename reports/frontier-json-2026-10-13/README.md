@@ -4,6 +4,33 @@ The all-metrics target remains unmet. Read-heavy state and retained JSON editing
 win in these fixtures; row updates, conversion and portable-message codecs lose.
 This is a shared development host, not a controlled laboratory.
 
+## Published session-codec release
+
+`session-release-cohorts-40-42.json` binds distribution `eaa24856`, ABI `0279510`
+and JS `21d7391`, with complete full revisions, code hashes and three independent
+processes. Each process has nine rotated rounds. The fresh release medians are:
+
+| Boundary | Ink µs/call | Frontier main/control µs/call |
+| --- | ---: | ---: |
+| 4096-row replacement | 3.451 | 1.074 |
+| 4096-row mixed operations | 47.143 | 157.734 |
+| 4096-row read-heavy, literal Ink | 200.954 | 613.583 |
+| 4096-row read-heavy, checked indexed Ink | 7.908 | 613.583 |
+| 512-field retained immutable JSON edit | 8.357 | 101.105 |
+| 512-field text → edit → text | 829.260 | 102.893 |
+| Portable message encode | 1.172 | 1.617 |
+| Portable message decode | 2.303 | 0.922 |
+| Agreed-schema message encode | 1.641 | 1.617 |
+| Agreed-schema message decode | 2.312 | 0.922 |
+
+Portable encoding wins this cohort. Compact encoding is close to the control,
+while both decode lanes remain slower. The compact update remains 15 bytes
+versus 84 portable bytes and 20 Frontier bytes. Setup and peak memory are still
+not ranked. Different host conditions prevent treating absolute times from the
+following historical cohort as a controlled before/after comparison.
+
+## Earlier integrated and development cohorts
+
 The integrated ABI `6d67e5d` / JS `bfd920a` cohort is frozen in
 `integrated-status-cohorts-20-22.json`, with exact full revisions and code hashes.
 Numbers are medians of three process medians, each from nine rotated rounds:
