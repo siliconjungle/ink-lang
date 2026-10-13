@@ -133,7 +133,7 @@ across subsequent writes.
 Direct writes and nested changes can now re-establish an invariant before a later
 query. The checked repair fixtures exercise both abort rollback and a successful
 commit with events in source order. Synthetic keep-initializer result checks retain
-the conservative arbitrary-state treatment. Before-call requirements, compositional
+the conservative arbitrary-state treatment. Callback call domains, compositional
 frame/loop relations, nested replacements and other uses of state-dependent
 contracts remain part of the broader audit. Binding types
 come from the actual action typing traversal; inference no longer reinterprets a
@@ -141,12 +141,19 @@ change call as a synthetic query.
 
 ## Source-site observation foundation
 
-`Projection::derive_observations` now derives Bool safety functions for exact
+`Projection::derive_observations` derives Bool safety functions for exact
 value-expression sites in a checked action tree. A request identifies the action,
 node, lexical argument slots and a checked readonly Bool query. The query receives
 those local values and the expression's actual result, and observes the state at
 that point. Selectors choose a source site; they supply no transition meaning or
 proof authority. Every generated definition and proof uses the existing kernel.
+
+`Projection::derive_site_observations` additionally supports `CallObservation`.
+It evaluates source arguments in order, checks the readonly predicate on those
+actual values and the resulting state, then invokes the callee. The callee's own
+writes cannot satisfy its entry requirement. Argument expressions are not rerun
+to construct a predicate. Fixed primitives enclosing a monitored call consume
+already-evaluated typed values through their existing value meanings.
 
 The projection shares the original transition continuations. Earlier writes,
 nested calls, lazy branches, intermediate reads and ordered events therefore
@@ -166,7 +173,11 @@ correspondence. Explicit slots preserve lexical identities.
 Contract generation connects captured action-result clauses to these observations.
 It reconstructs exact call sites and lexical captures locally; proof packets cannot
 supply alternative site maps. Shadowed bindings retain the selected slot identity.
-Before-call requirements, callback/loop observation domains,
+Direct source-call requirements also use these observations. Generated predicate
+parameters avoid free names, bound names and existing state/keep names, preserving
+the callee's lexical meaning. Callback requirements retain their existing domain
+transport and conservative state checks; keep initializers retain conservative
+checks. Callback/loop observation domains,
 compositional frame relations, nested replacement domains and database proof
 families remain unfinished. This is not completion of local relational reasoning.
 

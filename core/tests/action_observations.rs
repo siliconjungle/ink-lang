@@ -1,6 +1,6 @@
 use ink_core::{
     action_ir::{CheckedActions, Kind},
-    action_model::{Projection, ValueObservation},
+    action_model::{CallObservation, Projection, SiteObservation, ValueObservation},
     core::CheckedModule,
     logic::Term,
     syntax,
@@ -41,6 +41,18 @@ query success(value:Result<u32,String>)->Bool{return value.fold(fn(x)=>x>0,fn(_)
 query reject(value:Result<Unit,String>)->Bool{return false;}
 change query_error()->Result<Unit,String>{let captured=failed_query();return Err("outer");}
 query mapped(xs:List<u32>)->List<u32>{return xs.map(fn(x)=>double(x));}
+change set(x:u32)->Result<u32,String> writes(Counter) emits(Seen){Counter=x;emit Seen(x);return Ok(x);}
+fn first(a:u32,b:u32)->u32{return a;}
+query before_args(a:u32,b:u32)->Bool reads(Counter){return a==0 && b==2 && Counter==2;}
+change arguments()->Result<Unit,String> writes(Counter) emits(Seen){
+ let value=first(set(0)?,set(2)?);return Err("rollback");
+}
+change reversed()->Result<Unit,String> writes(Counter) emits(Seen){
+ let value=first(set(2)?,set(0)?);return Err("rollback");
+}
+query before_state(x:u32)->Bool reads(Counter){return x>0 && Counter>0;}
+change fix(x:u32)->Result<Unit,String> writes(Counter){Counter=1;return Ok(());}
+change too_late()->Result<Unit,String> writes(Counter){Counter=0;let value=fix(1);return Ok(());}
 "#;
 
 fn module() -> CheckedModule {
@@ -78,7 +90,10 @@ fn request(module: &CheckedModule, action: &str, occurrence: usize) -> ValueObse
     }
 }
 fn check(module: &CheckedModule, request: ValueObservation, args: Vec<Term>) -> Term {
-    let (model, functions) = Projection::derive_observations(module, &[request]).unwrap();
+    check_site(module, SiteObservation::Value(request), args)
+}
+fn check_site(module: &CheckedModule, request: SiteObservation, args: Vec<Term>) -> Term {
+    let (model, functions) = Projection::derive_site_observations(module, &[request]).unwrap();
     let initial = Term::Construct {
         datatype: model.state.clone(),
         constructor: 0,
@@ -105,6 +120,48 @@ fn check(module: &CheckedModule, request: ValueObservation, args: Vec<Term>) -> 
             },
         )
         .unwrap()
+}
+
+#[test]
+fn preconditions_observe_ordered_arguments_before_the_callee_can_repair_state() {
+    let m = module();
+    let actions = CheckedActions::elaborate(&m).unwrap();
+    for (owner, predicate, want) in [
+        ("arguments", "before_args", true),
+        ("reversed", "before_args", false),
+        ("too_late", "before_state", false),
+    ] {
+        let index = m
+            .program()
+            .actions
+            .iter()
+            .position(|a| a.name == owner)
+            .unwrap();
+        let node = actions
+            .action(index)
+            .unwrap()
+            .nodes
+            .iter()
+            .position(|n| match &n.kind {
+                Kind::PureCall { function, .. } => m.program().functions[*function].name == "first",
+                Kind::ChangeCall { action, .. } => m.program().actions[*action].name == "fix",
+                _ => false,
+            })
+            .unwrap();
+        assert_eq!(
+            check_site(
+                &m,
+                SiteObservation::Call(CallObservation {
+                    action: owner.into(),
+                    node,
+                    predicate: predicate.into(),
+                    slots: vec![],
+                }),
+                vec![]
+            ),
+            Term::Bool(want)
+        );
+    }
 }
 #[test]
 fn observes_repaired_state_and_preserves_failure_across_later_abort() {

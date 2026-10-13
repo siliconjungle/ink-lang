@@ -308,3 +308,34 @@ fn checked_action_result_guarantees_preserve_boundaries_across_targets() {
  }).collect();
  parity::conformance("invariant-value-result-guarantees",p,&fs::read_to_string(file).unwrap(),steps,expected);
 }
+
+#[test]
+fn before_call_checks_preserve_argument_effects_and_transaction_boundaries_across_targets() {
+ let file=Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/call-preconditions/main.ink");
+ let mut p=modules::load(&file).unwrap().program;
+ verified_language::contracts::attach(&mut p,serde_json::from_str(include_str!("fixtures/call-preconditions/proofs.json")).unwrap()).unwrap();
+ CheckedModule::from_source(p.clone()).unwrap();
+ let mut runtime=Runtime::new(p.clone()).unwrap();
+ let steps=vec![
+  json!({"call":"current","args":[]}),
+  json!({"call":"repaired","args":[]}),
+  json!({"call":"current","args":[]}),
+  json!({"call":"arguments","args":[]}),
+  json!({"call":"current","args":[]}),
+  json!({"call":"take","args":[0]}),
+  json!({"call":"set","args":[0]}),
+  json!({"call":"take","args":[1]}),
+  json!({"call":"repaired","args":[]}),
+  json!({"call":"current","args":[]}),
+  json!({"call":"arguments","args":[]}),
+  json!({"call":"current","args":[]}),
+  json!({"pure":"numeric","args":[[0,u32::MAX]],"expect_gpu":true}),
+ ];
+ let expected:Vec<Value>=steps.iter().map(|step|{
+  let reply=if let Some(name)=step["pure"].as_str(){
+   match eval::call(&p,name,vec![eval::Value::List(vec![eval::Value::U32(0),eval::Value::U32(u32::MAX)])],&mut 1_000_000){Ok(v)=>json!({"value":v.json()}),Err(e)=>json!({"host_error":e})}
+  }else{match runtime.invoke_json(step["call"].as_str().unwrap(),&step["args"]){Ok(v)=>json!({"outcome":v.json()}),Err(e)=>json!({"host_error":e})}};
+  json!({"reply":reply,"snapshot":runtime.checkpoint_portable().unwrap()})
+ }).collect();
+ parity::conformance("invariant-value-before-call",p,&fs::read_to_string(file).unwrap(),steps,expected);
+}

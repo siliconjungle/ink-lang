@@ -13,6 +13,46 @@ pub struct ValueObservation {
     pub predicate: String,
     pub slots: Vec<usize>,
 }
+/// Check after all arguments have evaluated, immediately before invocation.
+/// Predicate parameters are selected lexical slots followed by actual arguments.
+#[derive(Clone, Debug)]
+pub struct CallObservation {
+    pub action: String,
+    pub node: NodeId,
+    pub predicate: String,
+    pub slots: Vec<usize>,
+}
+#[derive(Clone, Debug)]
+pub enum SiteObservation {
+    Value(ValueObservation),
+    Call(CallObservation),
+}
+impl SiteObservation {
+    pub(super) fn action(&self) -> &str {
+        match self {
+            Self::Value(v) => &v.action,
+            Self::Call(v) => &v.action,
+        }
+    }
+    pub(super) fn node(&self) -> NodeId {
+        match self {
+            Self::Value(v) => v.node,
+            Self::Call(v) => v.node,
+        }
+    }
+    pub(super) fn predicate(&self) -> &str {
+        match self {
+            Self::Value(v) => &v.predicate,
+            Self::Call(v) => &v.predicate,
+        }
+    }
+    pub(super) fn slots(&self) -> &[usize] {
+        match self {
+            Self::Value(v) => &v.slots,
+            Self::Call(v) => &v.slots,
+        }
+    }
+}
 #[derive(Clone, Debug)]
 pub struct ObservationFunction {
     pub function: String,
@@ -57,23 +97,23 @@ fn children(kind: &Kind) -> Vec<NodeId> {
 }
 
 impl Lower<'_> {
-    pub(super) fn value_observation(
+    pub(super) fn site_observation(
         &mut self,
         actions: &CheckedActions,
-        request: &ValueObservation,
+        request: &SiteObservation,
     ) -> LangResult<ObservationFunction> {
         let index = self
             .program
             .actions
             .iter()
-            .position(|a| a.name == request.action)
+            .position(|a| a.name == request.action())
             .ok_or("unknown source observation action")?;
         let body = actions
             .action(index)
             .ok_or("missing source observation body")?;
         let node = body
             .nodes
-            .get(request.node)
+            .get(request.node())
             .ok_or("unknown source observation node")?;
         let ExprType::Value(value_type) = &node.ty else {
             return Err("source observation requires a value expression".into());
@@ -92,14 +132,14 @@ impl Lower<'_> {
                 }
             }
         }
-        if inside_callback[request.node] {
+        if inside_callback[request.node()] {
             return Err("source observations inside callbacks are unsupported".into());
         }
         let predicate = self
             .program
             .actions
             .iter()
-            .find(|a| a.name == request.predicate)
+            .find(|a| a.name == request.predicate())
             .ok_or("unknown source observation predicate")?;
         if predicate.kind != ActionKind::Query
             || !predicate.writes.is_empty()
@@ -109,7 +149,7 @@ impl Lower<'_> {
             return Err("source observation predicate must be a readonly Bool query".into());
         }
         let mut argument_types = request
-            .slots
+            .slots()
             .iter()
             .map(|s| {
                 body.slots
@@ -118,7 +158,23 @@ impl Lower<'_> {
                     .ok_or("unknown source observation slot")
             })
             .collect::<Result<Vec<_>, _>>()?;
-        argument_types.push(value_type.clone());
+        match request {
+            SiteObservation::Value(_) => argument_types.push(value_type.clone()),
+            SiteObservation::Call(_) => {
+                let arguments = match &node.kind {
+                    Kind::PureCall { arguments, .. }
+                    | Kind::QueryCall { arguments, .. }
+                    | Kind::ChangeCall { arguments, .. } => arguments,
+                    _ => return Err("call observation requires an invocation node".into()),
+                };
+                for argument in arguments {
+                    let ExprType::Value(ty) = &body.nodes[*argument].ty else {
+                        return Err("call observation arguments must be values".into());
+                    };
+                    argument_types.push(ty.clone());
+                }
+            }
+        }
         if argument_types
             != predicate
                 .params
