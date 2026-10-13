@@ -215,3 +215,17 @@ connect that syntax to 71 reusable checked laws and the planner's implementation
 
 Ink code and documentation are [MIT licensed](LICENSE). Third-party dependencies,
 vendored projects, fonts and research datasets retain their own licenses and notices.
+
+
+### JSON and portable compiled values
+
+`import "std:json" as json;` supplies a recursive JSON datatype and ordinary
+knowledge-library operations. JSON adapters preserve exact numeric tokens and
+unknown fields; generic typed codecs validate records, collections and numeric
+ranges. Schema-bound binary values can stay compiled across an external network,
+with borrowed validation and raw pure-call entrypoints on CPU/Wasm hosts.
+See [the contract](docs/json-and-portable-values.md) and [the example](examples/json/main.ink).
+Six checked database laws cover object-list lookup, projection and fusion; core
+adds stable payload identities and shared recursive-type facts. Codec/lowering
+correctness remains operationally trusted; no speedup or zero-copy execution is
+claimed by these conformance results.
