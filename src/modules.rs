@@ -412,6 +412,14 @@ fn link(
         ty(&mut b.ty, names);
         expr(&mut b.value, names, &BTreeSet::new(), aliases)?;
     }
+    let measures=std::mem::take(&mut p.termination.measures);
+    for (mut name,mut measure) in measures {
+        let f=p.functions.iter().find(|f|f.name==name).ok_or("termination function missing during linking")?;
+        let locals=f.params.iter().map(|(n,_)|n.clone()).collect();
+        renamed(&mut name,names);
+        expr(&mut measure,names,&locals,aliases)?;
+        p.termination.measures.insert(name,measure);
+    }
     for f in &mut p.functions {
         renamed(&mut f.name, names);
         let locals = params(&mut f.params, names, aliases)?;
@@ -716,6 +724,14 @@ fn function_error_origin<'a>(
     None
 }
 pub fn load(path: impl AsRef<Path>) -> LangResult<Loaded> {
+    load_impl(path,false)
+}
+/// Source assembly for exporting unproved termination obligations. This returns
+/// raw Program data, never a CheckedModule or executable admission witness.
+pub fn load_for_termination(path:impl AsRef<Path>)->LangResult<Loaded> {
+    load_impl(path,true)
+}
+fn load_impl(path:impl AsRef<Path>,authoring:bool)->LangResult<Loaded> {
     let mut loader = Loader {
         nodes: vec![],
         indices: BTreeMap::new(),
@@ -754,6 +770,7 @@ pub fn load(path: impl AsRef<Path>) -> LangResult<Loaded> {
         program.contracts.invariants.extend(p.contracts.invariants);
         program.contracts.private_states.extend(p.contracts.private_states);
         program.contracts.value_invariants.extend(p.contracts.value_invariants);
+        program.termination.measures.extend(p.termination.measures);
         program.functions.extend(p.functions);
         program.actions.extend(p.actions);
         program.rules.extend(p.rules);
@@ -782,7 +799,7 @@ pub fn load(path: impl AsRef<Path>) -> LangResult<Loaded> {
     let program = surface
         .elaborate()
         .map_err(|e| format!("{}: {e}", loader.nodes[0].path.display()))?;
-    check::check(&program).map_err(|mut e| {
+    (if authoring {check::check_termination_source(&program)} else {check::check(&program)}).map_err(|mut e| {
         let origin = function_error_origin(&loader, &program, &e);
         for (linked, display) in &displays {
             e = e.replace(linked, display);

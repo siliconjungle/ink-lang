@@ -413,3 +413,100 @@ support. Missing capability stays explicit while implementation continues.
   conformance/authoring results.
 - Knowledge staging checkpoint: `ecd91d1aaac3718c9dc3e80466803fd415b3fc64`.
   The full programme remains active; this is not remote main publication.
+
+## Continued general machinery (14 October)
+
+The full six-workstream objective remains open. The following additional features
+are implemented in the staging checkout; they do not mark the programme complete:
+
+- Refined-element Buffer copying now replays six pure and eleven source-action
+  obligations, using reusable fold observation/preservation laws. Fifteen replies,
+  invalid ingress, invalid checksummed restoration, abort and exact snapshots
+  passed across C/Rust/JavaScript/both Wasm and the wgpu host, including one actual
+  eligible GPU dispatch (`owned-storage-parity-v3.log`).
+- Authored unsigned measures bind every recursive call to a source-derived strict
+  decrease goal and independently verified RUP proof. Derived distance, variable
+  subtraction, imports and generic String payloads execute. Lexicographic products
+  support later resets after an earlier decrease; increasing the first component
+  is a solver counterexample. The final packet covers five call sites. See
+  `docs/authored-termination-measures.md` and `termination-lex-database.log`.
+- Proper immutable subvalue descent admits recursive record/list and Option chains
+  and imported generic tree traversals. Reconstructed parents, ancestor calls and
+  loop accumulators cannot grant descent. Ten tree replies and snapshots passed
+  all CPU/Wasm targets and the wgpu host with one actual numerical GPU control
+  (`recursive-tree-parity.log`). This does not complete source recursive induction
+  or recursive refined-value correspondence (`docs/structural-source-descent.md`).
+- General structural equality facts now pass through Boolean relational premises
+  while scalar IEEE equality remains excluded from bit identity. Six ordinary
+  database fold/frame/simulation laws, three scoped range observation laws and
+  eleven incremental algebra laws check. Wrong frames, missing assumptions,
+  omitted join cross terms and incorrect deletion signs reject
+  (`law-regressions-v3.log`, `docs/local-relational-laws.md`).
+- Scoped clipped read-only Buffer borrows preserve the original owner and reject
+  mutation, capture consumption, parameter-time owner consumption and escape.
+  Native slices share payloads; reference snapshots remain independent. Nineteen
+  baseline replies passed all CPU/Wasm targets and wgpu host, with one real GPU
+  control, and selected direct Rust/Rust-Wasm parity passed. A bounded borrowed
+  loop emits one checked read certificate; four potentially unsafe read sites are
+  declined (`scoped-range-selected-parity.log`, `docs/scoped-buffer-views.md`).
+- The complete standalone core suite passed 275 tests across 48 binaries/doc
+  runs (`core-structural-final.log`). Subsequent fixture/product and range-argument
+  checks and the broader integration regression run have separate final receipts.
+- Whole JavaScript copied-window/borrowed-window/handwritten calls have raw
+  interleaved typed/wire samples for small, large and empty windows at five input
+  sizes. The database algorithm skips empty range work while retaining the outer
+  loop's resource semantics. Results are mixed, with workload/boundary regressions
+  retained. Concurrent local work limits performance conclusions. No automatic
+  profitability or broad speedup follows. Raw records are in
+  `docs/evidence/general-machinery/scoped-range-performance*.json`.
+
+Still required: interchangeable abstract representations and complete owner
+interfaces; provenance-bearing storage and general source-bound layout relations;
+recursive source induction/validator/codec proofs; effectful region-frame proofs
+covering intermediate reads, abort and ordered events; proof transport through
+changed selected source and broader lowering consumers; complete compositional
+maintained representations/history/lifecycle/memory/performance evidence; and
+verified main integration/publication in each changed independent repository.
+
+The final updated standalone core suite passed 276 tests in 48 test/doc runs
+(`core-final-v2.log`). Read-only callback contracts now use the actual clipped
+view domain; an empty view still checks its one callback invocation. Parameter-time
+consumption of the borrowed owner rejects (`borrow-callback-contracts.log`).
+Selected direct and packed-column Rust/Rust-Wasm carriers passed; the column test
+includes widening u32::MAX beyond its selected 8-bit lane
+(`scoped-range-columns-parity.log`). A generated-code audit finds exactly one
+literal unchecked read and retains the four uncertified reads.
+
+Local canonical publication added 123 entries and 50 names at snapshot
+`6bbb39a8d0ef0dc86ef14a03d264f8330db2889d71227439a2c3cda1b6f59e12`.
+All ten storage-observation, six local-relation, eleven incremental and three view
+laws independently replay against an unrelated empty source context. Owned pure/
+state contracts, all five decreasing calls and the source read capability replay
+from repinned canonical bundles. Nine additional column codec entries replay at
+snapshot `7c0226b3b51f32946f2d50caab8ad23f1aa4b666464f09c8d18a6a99a92cc8a8`.
+Receipts are in `docs/evidence/general-machinery/publication-v2.json` and
+`columns-publication.json`; these are pinned local snapshots, not main publication.
+
+Planner discovery classifies termination entries as source-proof dependencies,
+without assigning them replacement authority. A bounded planner run on the
+measure-bearing source checked its plan and retained the baseline for lack of
+comparable lifecycle evidence (`measure-planner-v2.log`). Source import, proof
+attachment and standalone package pins remain separate checks.
+
+The broader complete-target regression run passed all 43 tests across abstract
+interfaces, source laws, imports, storage regions and value invariants
+(`target-regressions-v4.log`). A fresh final scoped-borrow run passed 20 replies,
+exact snapshots, baseline C/Rust/JavaScript/both Wasm, wgpu host plus one actual
+GPU control, and selected packed-column Rust/Rust-Wasm (`scoped-range-final-parity.log`).
+Independent package suites passed with the new exact core/support dependency pins:
+13 Rust lowering, 17 JavaScript lowering, 13 C lowering, 7 runtime and 19 native
+support tests. The 15 database contract regressions, 4 adversarial termination
+producer tests and 7 discovery tests passed. The JavaScript native-surface audit
+now excludes the separate checked wire codec while retaining all prior native
+performance/safety assertions; this fixes two stale whole-file assertions.
+
+Core checkpoint `96cf06db81e083ba39c34dbe216a96def7a15bfa` and the changed
+independent packages are published on staging branches to make exact dependencies
+fetchable. They are not merged into remote main. Main has accumulated independent
+changes while this programme was staged; integration must preserve those changes
+and rerun the complete checks. The full workstreams above remain open.

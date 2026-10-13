@@ -77,9 +77,11 @@ Generic fixtures exercise integers, Unicode strings, ordinary records containing
 variable-length payloads, and nested lists without adding a compiler strategy.
 The former `words` payload field and observer are now named `items`. This is an
 active-library API change; historical source views retain their exact old bodies.
-A refined-element probe still needs loop-preservation evidence; generic type
-parameters do not grant validity to a newly accumulated sequence. The failed
-probe is not admitted or counted as supported conformance.
+The original refined-element probe is retained as a failed proposal. A subsequent
+owned copying fixture now supplies independently checked fold-preservation laws
+and source/action evidence; generic parameters still grant no validity by name.
+The admission and ingress boundaries are described in
+`docs/value-invariant-interfaces.md`.
 
 `storage-observations.ink` supplies a general left-fold observation theorem:
 if each step appends its element to the observed sequence, observing the complete
@@ -100,3 +102,9 @@ single-request authoring produce identical generic-fixture evidence. Schema
 rejection is a failed proposal, never a checked fact. Tests cover pure/state
 proofs, rejected attempts followed by valid ones, changed source, and oversized
 requests. No profitability claim follows from this authoring mechanism.
+
+Scoped read-only ranges now have fixed source semantics and literal execution,
+including direct owners and selected flat columns on Rust/Rust-Wasm. The checked
+loop index reaches an unchecked read only at its certified source site. Other
+reads retain clipping/fallback checks. See `docs/scoped-buffer-views.md` for scope,
+copy/borrow differences, receipts and remaining general storage requirements.

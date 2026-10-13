@@ -21,6 +21,17 @@ fn arg_value(args: &[String], flag: &str) -> LangResult<Option<String>> {
 fn source(path: &str) -> LangResult<syntax::Program> {
     Ok(verified_language::modules::load(path)?.program)
 }
+fn source_with_evidence(path:&str,args:&[String])->LangResult<syntax::Program> {
+    let termination=arg_value(args,"--termination-proofs")?;
+    let mut p=if termination.is_some() {verified_language::modules::load_for_termination(path)?.program} else {source(path)?};
+    if let Some(file)=termination {
+        p.termination.knowledge=Some(serde_json::from_slice(&read_bounded(&file,verified_language::registry::MAX_VIEW_BYTES)?).map_err(|e|e.to_string())?);
+    }
+    if let Some(file)=arg_value(args,"--contract-proofs")? {
+        verified_language::contracts::attach(&mut p,serde_json::from_slice(&read_bounded(&file,verified_language::registry::MAX_VIEW_BYTES)?).map_err(|e|e.to_string())?)?;
+    }
+    Ok(p)
+}
 fn write(path: &str, text: &str) -> LangResult<()> {
     if let Some(p) = Path::new(path).parent() {
         if !p.as_os_str().is_empty() {
@@ -226,6 +237,7 @@ fn run() -> LangResult<()> {
         "--select",
         "--selection",
         "--contract-proofs",
+        "--termination-proofs",
         "--refinement-bodies",
         "--snapshot",
         "--snapshot-out",
@@ -267,9 +279,7 @@ fn run() -> LangResult<()> {
             let module = if args.iter().any(|a| a == "--core") {
                 core::CheckedModule::from_bytes(&read_bounded(input, core::MAX_BYTES)?)?
             } else {
-                { let mut p=source(input)?;
-                    if let Some(path)=arg_value(&args,"--contract-proofs")? { verified_language::contracts::attach(&mut p,serde_json::from_slice(&read_bounded(&path,verified_language::registry::MAX_VIEW_BYTES)?).map_err(|e|e.to_string())?)?; }
-                    core::CheckedModule::from_source(p)? }
+                core::CheckedModule::from_source(source_with_evidence(input,&args)?)?
             };
             let package = serde_json::from_slice(&read_bounded(
                 &packet,
@@ -309,6 +319,7 @@ fn run() -> LangResult<()> {
             ("--registry", "--registry"),
             ("--snapshot", "--snapshot"),
             ("--contract-proofs", "--contract-proofs"),
+            ("--termination-proofs", "--termination-proofs"),
             ("--profile", "--profile"),
             ("--workload", "--workload"),
             ("--target-profile", "--target-profile"),
@@ -740,6 +751,7 @@ fn run() -> LangResult<()> {
         println!("ink compile SOURCE --optimise KNOWLEDGE_DIRECTORY [--snapshot SNAPSHOT.json] --target rust|c|javascript|rust-wasm|c-wasm|wgpu|webgpu -o OUTPUT\nink compile SOURCE --plan PACKET.json --target TARGET -o OUTPUT\nink check-plan SOURCE PACKET.json [--core]\nink --version\nink doctor [--python PATH]\nink explain SOURCE [--core] [--selection PACKAGE.json | --optimise SNAPSHOT.json]\nink modules SOURCE");
         println!("ink check-boolean-verdict THEOREM.json --lean PATH -o CERTIFICATE.lean");
         println!("ink emit-contract-obligations SOURCE -o OBLIGATIONS.json\nink check-contract-proof-stream SOURCE (bounded NDJSON authoring attempts)\nink check-contracts SOURCE [--contract-proofs EVIDENCE.json]\nAll source build/execution commands accept --contract-proofs EVIDENCE.json.");
+        println!("ink emit-termination-obligations SOURCE -o GOALS.json\nink check-termination SOURCE --termination-proofs BUNDLE.json\nSource compilation/execution accepts --termination-proofs BUNDLE.json; measures grant no authority without checked evidence.");
         println!("ink emit-laws THEOREMS.ink [--proofs EVIDENCE.json] [--view DEPENDENCIES.json] -o BUNDLE.json");
         println!("ink emit-semantic SOURCE [--core] -o SUBJECT.json\nink check-selection CORE.json PACKAGE.json\nExecution, lowering and core emission accept --optimise KNOWLEDGE_DIRECTORY or SNAPSHOT.json (external search) or --selection PACKAGE.json (checked replay). Optional --search-tool PATH, --search-budget N, --python PATH and --plan-cache DIRECTORY [--plan-cache-context FILE]. INK_DISTRIBUTION locates an optional installed tool bundle.");
         println!("ink check-representation SOURCE REQUEST.json\nink emit-representation SOURCE REQUEST.json [--target rust|rust-packed|rust-memo|c|javascript|wasm32|c-wasm|rust-wasm|rust-wasm-packed|rust-wasm-memo|wgpu|webgpu] -o OUTPUT\nink execute-representation SOURCE REQUEST.json SCRIPT.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] (compiles standalone Rust; requires Cargo; script supports call and portable migrate steps)");
@@ -758,12 +770,27 @@ fn run() -> LangResult<()> {
     let path = args.get(1).ok_or("missing source path")?;
     let mut p = if cmd == "check-core" || args.iter().any(|arg| arg == "--core") {
         core::CheckedModule::from_bytes(&read_bounded(path, core::MAX_BYTES)?)?.into_program()
+    } else if cmd=="emit-termination-obligations" || arg_value(&args,"--termination-proofs")?.is_some() {
+        verified_language::modules::load_for_termination(path)?.program
     } else {
         source(path)?
     };
+    if let Some(file)=arg_value(&args,"--termination-proofs")? {
+        p.termination.knowledge=Some(serde_json::from_slice(&read_bounded(&file,verified_language::registry::MAX_VIEW_BYTES)?).map_err(|e|e.to_string())?);
+    }
     if let Some(file)=arg_value(&args,"--contract-proofs")? {
         let evidence=serde_json::from_slice(&read_bounded(&file,verified_language::registry::MAX_VIEW_BYTES)?).map_err(|e|e.to_string())?;
         verified_language::contracts::attach(&mut p,evidence)?;
+    }
+    if cmd=="emit-termination-obligations" {
+        let output=arg_value(&args,"-o")?.ok_or("emit-termination-obligations requires -o FILE.json")?;
+        let goals=verified_language::termination::obligations(&p)?;
+        write(&output,&serde_json::to_string_pretty(&serde_json::json!({"schema":1,"semantics":verified_language::termination::SEMANTICS,"source":verified_language::termination::subject_identity(&p)?,"obligations":goals})).map_err(|e|e.to_string())?)?;
+        println!("wrote {output}; every recursive call requires a checked certificate");return Ok(());
+    }
+    if cmd=="check-termination" {
+        verified_language::termination::check(&p)?;
+        println!("checked universal descent; source contracts still require their own admission");return Ok(());
     }
     if let Some(file)=arg_value(&args,"--refinement-bodies")? {
         if !["emit-contract-obligations","check-contract-proof","check-contract-proof-stream"].contains(&cmd){return Err("refinement bodies are an authoring input; use checked selection to execute".into());}
