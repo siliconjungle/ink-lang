@@ -524,3 +524,36 @@ equivalent startup and a general Ink JSON snapshot diff remain missing.
 See `../../bench/frontier-json/README.md` for exact commands, timing boundaries,
 control preparation and limitations. Backend/codec conformance tests do not
 constitute formal compiler or codec proofs.
+
+## Direct agreed-schema JSON emission
+
+The optional JavaScript `JsonCodec.parseCompact` and `TypedJsonCodec.parseCompact`
+paths emit schema-directed session bytes directly from tokens. They avoid a
+logical datatype tree, retain canonical count prefixes and exact record order,
+and run the full compact schema validator on the finished bytes. Generic bounded
+writer frames and deferred counts are shared machinery; no compiler JSON
+recogniser or new equality authority was added. Portable values/checkpoints and
+the existing logical APIs remain unchanged.
+
+`compact-json-stream-summary.json` keeps both candidates and all paired data.
+The final count-patch candidate handles one-byte deferred counts without a
+temporary array or shifting the payload. Three numeric 512-field processes give
+1.167× / 1.183× / 1.175× speedups over the frozen logical parse/encode boundary.
+Single-process controls give 1.007× for nested 512-field input and 1.095× for
+nested 4096-field input, but 0.967× for Unicode 512-field and 0.705× for Unicode
+4-field input. Direct emission is therefore an explicit alternative, not a
+universal replacement. Portable streaming controls are 0.996×–1.083×; message
+encode/decode controls show no observed regression. These fixture controls need
+repeats before making a stable workload ranking. Timings consume byte length,
+after complete bytes and decoded/rendered values pass preflight.
+
+The initial insertion candidate's small/large/transport sequence is conservatively
+excluded from ranking because a subsequent compiler build may have overlapped
+the end of that sequence. Raw evidence is preserved; the final candidate suite
+ran with no compilation, tests or profiling concurrently. Exact source, module
+hashes, baseline, both candidates, harnesses and conformance fixtures are archived
+in `artifacts/compact-json-stream/`. ABI and mandatory JSON/state CPU suites
+validate resource failures, count-width transitions, reordered/prototype-named
+records, Unicode, exact numbers, callback failure/reentry and portable parity.
+These operational tests do not prove backend correctness. The all-metrics
+Frontier objective remains open.
