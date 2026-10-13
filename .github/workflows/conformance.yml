@@ -6,6 +6,11 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+defaults:
+  run:
+    # Default bash behaviour, plus failure annotations that stay readable
+    # where raw logs are not (tools/ci_step.sh).
+    shell: bash tools/ci_step.sh {0}
 concurrency:
   # A newer push to a pull request supersedes its previous run. Every commit
   # that lands on main gets its own group: a shared group would still cancel
@@ -70,6 +75,7 @@ jobs:
           python tools/check_committed_snapshot.py
           python -m ink_knowledge --root . rebuild
         working-directory: knowledge
+        shell: bash
       - name: Fetch locked dependencies
         run: |
           cargo fetch --locked
@@ -223,6 +229,7 @@ jobs:
           PY
       - name: Audit committed catalogue and rebuild disposable index
         working-directory: knowledge
+        shell: bash
         run: |
           python tools/check_committed_snapshot.py
           python -m ink_knowledge --root . rebuild
