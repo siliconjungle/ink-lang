@@ -127,6 +127,12 @@ The generic materialising scanner remains an independent conformance oracle.
 JSON and typed JSON share an exact token cursor; number text is not converted
 through JavaScript Number. Sparse logical arrays reject during JSON rendering.
 
+The plain JavaScript pure `call` API borrows stable caller inputs and can share
+their containers in its result. Callers manage that aliasing. Stateful replies
+and binary calls retain their own capture/encoding ownership boundaries.
+Benchmarks distinguish retained sharing from fully detached mutable JSON trees;
+text output is an owned string without requiring a detached intermediate tree.
+
 ## Compiler, database and trust boundary
 
 Compiler changes are stable, hygienic naming of all payload enums and a shared generic recursive-record analysis. C checkpoint schema construction now handles bound recursive types with explicit budgets. JSON
