@@ -131,6 +131,7 @@ impl SurfaceProgram {
         e.output
             .records
             .retain(|n, _| !e.parameters.contains_key(n));
+        e.output.contracts.value_invariants.retain(|n, _| !e.parameters.contains_key(n));
         // Remove the output while walking to permit generated declarations.
         let mut p = std::mem::take(&mut e.output);
         let env = BTreeMap::new();
@@ -203,6 +204,12 @@ impl SurfaceProgram {
         }
         e.locals.clear(); e.local_types.clear();
         for predicate in &mut p.contracts.invariants { e.expr(predicate,&env,0)?; }
+        for (name, predicate) in &mut p.contracts.value_invariants {
+            e.locals = BTreeSet::from(["value".into()]);
+            e.local_types = BTreeMap::from([("value".into(), Type::Named(name.clone()))]);
+            e.expr(predicate, &env, 0)?;
+        }
+        e.locals.clear(); e.local_types.clear();
         // Unused non-generic aliases must also resolve, including cycles.
         let names: Vec<_> = e
             .aliases
@@ -216,6 +223,7 @@ impl SurfaceProgram {
         }
         p.contracts.specifications.extend(e.output.contracts.specifications);
         p.contracts.implementations.extend(e.output.contracts.implementations);
+        p.contracts.value_invariants.extend(e.output.contracts.value_invariants);
         p.functions.extend(e.output.functions);
         p.records.extend(e.output.records);
         for t in unused {
@@ -228,6 +236,7 @@ impl SurfaceProgram {
             }
         }
         for implementation in &mut p.contracts.implementations { implementation.body.clear(); }
+        crate::contracts::values::install(&mut p)?;
         crate::contracts::install_guards(&mut p)?;
         Ok(p)
     }
@@ -334,6 +343,14 @@ impl Elaborator {
                 .map(|(n, t)| Ok((n, self.ty(&t, &bindings, depth + 1)?)))
                 .collect::<LangResult<Vec<_>>>()?;
             self.output.records.insert(instance.clone(), fields);
+            if let Some(mut predicate) = self.templates.contracts.value_invariants.get(&name).cloned() {
+                let locals = std::mem::replace(&mut self.locals, BTreeSet::from(["value".into()]));
+                let types = std::mem::replace(&mut self.local_types,
+                    BTreeMap::from([("value".into(), Type::Named(instance.clone()))]));
+                self.expr(&mut predicate, &bindings, depth + 1)?;
+                self.locals = locals; self.local_types = types;
+                self.output.contracts.value_invariants.insert(instance.clone(), predicate);
+            }
         } else if let Some(t) = self.aliases.get(&name).cloned() {
             // Alias instances return the canonical target, never a nominal type.
             let resolved = self.ty(&t, &bindings, depth + 1)?;

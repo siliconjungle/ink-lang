@@ -154,6 +154,7 @@ fn conformance_inner(
             || name == "numerical-state-parity"
             || name == "language-foundations-parity"
             || name == "generic-libraries-parity"
+            || name.starts_with("invariant-value")
             || name == "bulk-workloads-parity"
             || name == "competitive-workloads-parity"
             || selected.is_some()
@@ -237,7 +238,9 @@ fn conformance_inner(
         let mut gpu_calls = 0;
         for (i, ((a, e), s)) in actual.iter().zip(&expected).zip(calls).enumerate() {
             let mut expected_reply = e["reply"].clone();
-            let reply = if let Some(name) = s["pure"].as_str() {
+            let reply = if a["host_error"].is_string() {
+                a.clone()
+            } else if let Some(name) = s["pure"].as_str() {
                 let f = p.functions.iter().find(|f| f.name == name).unwrap();
                 let descriptor =
                     ink_abi::describe(&f.result, &p.records, &p.enums, &p.ids).unwrap();
@@ -249,8 +252,6 @@ fn conformance_inner(
                 } else {
                     json!({"value":a["value"]})
                 }
-            } else if a["host_error"].is_string() {
-                a.clone()
             } else {
                 json!({"outcome":a})
             };
@@ -258,7 +259,7 @@ fn conformance_inner(
             if a["backend"] == "gpu" {
                 gpu_calls += 1;
             }
-            if s["cpu_only"] == true {
+            if s["cpu_only"] == true && a["host_error"].is_null() {
                 assert_eq!(a["backend"], "cpu", "explicit CPU float-bit contract: {s}");
             }
             if ([

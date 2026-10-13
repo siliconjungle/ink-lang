@@ -1177,6 +1177,7 @@ fn normal(t: &Term, hyp: &[Equation], p: &Program, b: &mut Budget, d: usize) -> 
                 (Node::Float(a),Node::Float(b))=>Some(boolean(a==b)),
                 (Node::Bool(a),Node::Bool(b))=>Some(boolean(a==b)),
                 (Node::String(a),Node::String(b))=>Some(boolean(a==b)),
+                (Node::Op(a,x),Node::Op(c,y)) if a.starts_with("enum:") && c.starts_with("enum:") && x.is_empty() && y.is_empty()=>Some(boolean(a==c)),
                 (Node::Op(a,x),Node::Op(c,y)) if a==c && a.starts_with("record:") && x.len()==y.len()=>Some(x.iter().zip(y).rev().fold(boolean(true),|rest,(x,y)|op(value(Type::Bool),"binary:&&",vec![eq(x.clone(),y.clone()),rest]))),
                 _=>None,
             }}

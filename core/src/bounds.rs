@@ -572,7 +572,18 @@ fn derive(
             let v = w.fresh(t);
             env.insert(n.clone(), (t.clone(), v));
         }
-        w.visit(&f.body, &env, &[], &mut vec![], Some(&f.result), 0)?;
+        // The admitted module has checked every caller and its public ingress.
+        // Carry those exact interface premises into the physical obligation;
+        // unsupported scalar structure stays an opaque typed value. A producer
+        // must still prove the site's actual bound under these premises.
+        let mut facts = vec![];
+        if let Some(specification) = crate::contracts::specification(p, &f.name) {
+            for predicate in &specification.requires {
+                let condition = w.scalar(predicate, &env, &Type::Bool, 0)?;
+                facts.push(eq(condition, Term::Bool(true)));
+            }
+        }
+        w.visit(&f.body, &env, &facts, &mut vec![], Some(&f.result), 0)?;
         out.extend(w.out);
         maps.extend(w.map_out);
         if out.len() + maps.len() > 4096 {

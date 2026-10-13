@@ -418,3 +418,11 @@ fn lexical_capture_context_identity_and_context_free_bytes_are_explicit() {
         .sha256 = "0".repeat(64);
     assert!(CheckedCatalogue::check(&catalogue(vec![tampered]), &Default::default()).is_err());
 }
+
+#[test]
+fn exact_int_literal_contexts_replay_without_inserting_conversions() {
+    let m = module("fn count_once(xs:List<u32>)->Bool{return count(xs)==1;} fn literal()->Int{return 1;}");
+    let context=DefinitionContext::capture(&m,&["count_once".into(),"literal".into()]).unwrap();
+    context.check().unwrap();
+    context.matches(m.program()).unwrap();
+}

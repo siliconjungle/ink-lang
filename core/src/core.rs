@@ -130,6 +130,7 @@ pub const LOCAL_SEMANTICS: &str = "ink-executable-core-v3";
 pub const EXACT_FLOAT_SEMANTICS: &str = CANONICAL_FLOAT_SEMANTICS;
 pub const VALUE_SEMANTICS: &str = "ink-executable-core-v8";
 pub const CONTRACT_SEMANTICS: &str = "ink-executable-core-v10";
+pub const VALUE_INVARIANT_SEMANTICS: &str = "ink-executable-core-v11";
 pub const BULK_BUFFER_SEMANTICS: &str = "ink-executable-core-v9";
 pub const PARALLEL_SEMANTICS: &str = "ink-executable-core-v5";
 pub const SEQUENCE_SEMANTICS: &str = "ink-executable-core-v4";
@@ -448,7 +449,9 @@ impl CheckedModule {
         crate::check::check(&program)?;
         let module = Self(WireModule {
             schema: 1,
-            semantics: if !program.contracts.is_empty() || program.actions.iter().any(|a| a.kind==ActionKind::Change && !matches!(a.result,Type::Result(..))) {
+            semantics: if !program.contracts.value_invariants.is_empty() {
+                VALUE_INVARIANT_SEMANTICS
+            } else if !program.contracts.is_empty() || program.actions.iter().any(|a| a.kind==ActionKind::Change && !matches!(a.result,Type::Result(..))) {
                 CONTRACT_SEMANTICS
             } else if bulk_buffer_needed(&program) {
                 BULK_BUFFER_SEMANTICS
@@ -495,6 +498,7 @@ impl CheckedModule {
                 VALUE_SEMANTICS,
                 BULK_BUFFER_SEMANTICS,
                 CONTRACT_SEMANTICS,
+                VALUE_INVARIANT_SEMANTICS,
             ]
             .contains(&wire.semantics.as_str())
         {
@@ -775,6 +779,21 @@ fn validate(p: &Program) -> LangResult<(bool, bool)> {
     for (n, fields) in &p.records {
         b.name(n)?;
         b.params(fields)?;
+    }
+    for (name, predicate) in &p.contracts.value_invariants {
+        b.name(name)?;
+        b.expr(predicate, 0)?;
+    }
+    for (ty, constructor) in &p.contracts.value_constructors {
+        b.name(ty)?;
+        b.name(constructor)?;
+    }
+    for (name,ty) in &p.contracts.value_validators { b.name(name)?; b.ty(ty,0)?; }
+    for (name, spec) in &p.contracts.inferred {
+        b.name(name)?;
+        b.params(&spec.params)?;
+        b.ty(&spec.result, 0)?;
+        for predicate in spec.requires.iter().chain(&spec.ensures) { b.expr(predicate, 0)?; }
     }
     for (n, variants) in &p.enums {
         b.name(n)?;

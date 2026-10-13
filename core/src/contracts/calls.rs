@@ -11,9 +11,7 @@ pub(super) struct CallCondition {
 }
 pub(super) fn actions(p: &Program) -> LangResult<Vec<CallCondition>> {
     let mut out = vec![];
-    if !p
-        .contracts
-        .specifications
+    if !specifications(p)
         .iter()
         .any(|s| !s.requires.is_empty())
     {
@@ -39,13 +37,7 @@ pub(super) fn actions(p: &Program) -> LangResult<Vec<CallCondition>> {
         })
         .collect::<Vec<_>>();
     for action in p.actions.iter().chain(&keep_actions) {
-        let owner = p.contracts.specifications.iter().find(|s| {
-            s.name == action.name
-                || p.contracts
-                    .implementations
-                    .iter()
-                    .any(|i| i.name == action.name && i.specification == s.name)
-        });
+        let owner = specification(p, &action.name);
         let env = crate::check::params_env(&action.params)?;
         let facts = owner
             .map(|s| {
@@ -202,13 +194,7 @@ fn expression(
         vec![]
     };
     for (name, args) in calls {
-        let Some(spec) = p.contracts.specifications.iter().find(|s| {
-            &s.name == name
-                || p.contracts
-                    .implementations
-                    .iter()
-                    .any(|i| &i.name == name && i.specification == s.name)
-        }) else {
+        let Some(spec) = specification(p, name) else {
             continue;
         };
         for predicate in &spec.requires {
@@ -279,19 +265,27 @@ fn expression(
     Ok(())
 }
 
-/// Only immutable pure results become persistent lexical facts. In particular,
-/// a state read or nested action result cannot retain a predicate across writes.
-/// The complete module separately checks this call's actual preconditions and
-/// the pure implementation's postconditions before admitting these consequences.
+/// Immutable result-only guarantees can survive later writes. State observations
+/// never become persistent facts: action clauses must typecheck as pure predicates
+/// of the captured result and pure immutable arguments. The complete module
+/// separately proves every callee postcondition and caller precondition.
 fn binding_facts(p:&Program,env:&crate::check::Env,name:&str,ty:&Type,value:&Expr,facts:&mut Vec<Expr>)->LangResult<()> {
-    if crate::analysis::references_free(value,name)||crate::check::infer_as(value,env,p,ty).is_err(){return Ok(())}
-    let bound=Expr::Var(name.into());
-    let (left,right)=if *ty==Type::F32 {
-        (Expr::Call("list".into(),vec![bound]),Expr::Call("list".into(),vec![value.clone()]))
-    }else{(bound,value.clone())};
-    facts.push(Expr::Binary("==".into(),Box::new(left),Box::new(right)));
+    if crate::analysis::references_free(value,name) || crate::local_collections::owned(ty,p) { return Ok(()) }
+    let pure = crate::check::infer_as(value,env,p,ty).is_ok();
+    if pure {
+        let bound=Expr::Var(name.into());
+        let (left,right)=if *ty==Type::F32 {
+            (Expr::Call("list".into(),vec![bound]),Expr::Call("list".into(),vec![value.clone()]))
+        }else{(bound,value.clone())};
+        facts.push(Expr::Binary("==".into(),Box::new(left),Box::new(right)));
+    }
     if let Expr::Call(callee,args)=value {
-        if let Some(spec)=p.contracts.specifications.iter().find(|s|s.kind.is_none()&&(s.name==*callee||p.contracts.implementations.iter().any(|i|i.name==*callee&&i.specification==s.name))) {
+        if let Some(spec)=specification(p,callee) {
+            if spec.result != *ty || spec.params.len()!=args.len() { return Ok(()) }
+            if !pure && (spec.kind.is_none() || spec.params.iter().zip(args)
+                .any(|((_,ty),arg)|crate::check::infer_as(arg,env,p,ty).is_err())) { return Ok(()) }
+            let predicate_env = spec.params.iter().cloned()
+                .chain(std::iter::once(("result".into(),ty.clone()))).collect();
             let mut names=BTreeMap::new();
             for (index,n)in spec.params.iter().map(|(n,_)|n.as_str()).chain(std::iter::once("result")).enumerate(){
                 let mut fresh=format!("__ink_binding_{index}");
@@ -299,6 +293,7 @@ fn binding_facts(p:&Program,env:&crate::check::Env,name:&str,ty:&Type,value:&Exp
                 names.insert(n.into(),fresh);
             }
             for ensure in &spec.ensures {
+                if !pure && crate::check::infer_as(ensure,&predicate_env,p,&Type::Bool).is_err() { continue }
                 let mut predicate=crate::syntax::rename_expression(ensure,&names);
                 predicate=Expr::Let(names["result"].clone(),Some(Box::new(ty.clone())),Box::new(Expr::Var(name.into())),Box::new(predicate));
                 for ((n,t),arg)in spec.params.iter().zip(args).rev(){predicate=Expr::Let(names[n].clone(),Some(Box::new(t.clone())),Box::new(arg.clone()),Box::new(predicate))}

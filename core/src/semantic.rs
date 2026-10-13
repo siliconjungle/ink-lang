@@ -167,6 +167,23 @@ fn beta_at(t: &Term, arg: &Term, depth: usize, b: &mut Budget) -> LangResult<Ter
 pub fn beta(body: &Term, arg: &Term, b: &mut Budget) -> LangResult<Term> {
     beta_at(body, arg, 0, b)
 }
+/// Capture-avoiding beta computation only. This exposes the fixed meaning of
+/// lexical bindings without unfolding helpers or choosing an optimisation law.
+pub fn beta_normalize(t: &Term, budget: &mut Budget) -> LangResult<Term> {
+    fn walk(t: &Term, budget: &mut Budget, depth: usize) -> LangResult<Term> {
+        budget.step(depth)?;
+        let term = try_map_children(t, |child| walk(child, budget, depth + 1))?;
+        if let Node::Op(name, args) = &term.node {
+            if name == "apply" && args.len() == 2 {
+                if let Node::Lambda(body) = &args[0].node {
+                    return walk(&beta(body, &args[1], budget)?, budget, depth + 1);
+                }
+            }
+        }
+        Ok(term)
+    }
+    walk(t, budget, 0)
+}
 pub fn substitute(t: &Term, args: &BTreeMap<String, Term>, b: &mut Budget) -> LangResult<Term> {
     fn walk(
         t: &Term,
@@ -311,6 +328,15 @@ pub fn validate(t: &Term, env: &Env, p: &Program, b: &mut Budget) -> LangResult<
                     }
                 };
                 if crate::owned_semantic::validate(t, p)? {
+                    return Ok(());
+                }
+                if let Some(literal)=n.strip_prefix("enum:") {
+                    let (name,encoded)=literal.rsplit_once(':').ok_or("enum semantic literal")?;
+                    let index:usize=encoded.parse().map_err(|_|"enum semantic variant index")?;
+                    if index.to_string()!=encoded{return Err("noncanonical semantic enum index".into())}
+                    let variants=p.enums.get(name).ok_or("unknown semantic enum")?;
+                    if index>=variants.len(){return Err("semantic enum variant outside declaration".into())}
+                    arity(0)?;need(&t.sort,value(Type::Named(name.into())))?;
                     return Ok(());
                 }
                 match n.as_str() {
@@ -775,6 +801,14 @@ pub fn elaborate(e: &Expr, env: &check::Env, p: &Program, want: &Type) -> LangRe
                 Ok(op(s, &format!("record:{n}"), args))
             }
             Expr::Field(x, n) => {
+                if let Expr::Var(name)=x.as_ref() {
+                    if !env.contains_key(name) {
+                        if let Some(variants)=p.enums.get(name) {
+                            let index=variants.iter().position(|variant|variant==n).ok_or("unknown semantic enum variant")?;
+                            return Ok(op(s,&format!("enum:{name}:{index}"),vec![]));
+                        }
+                    }
+                }
                 let ty = check::infer(x, env, p)?;
                 Ok(op(s, &format!("field:{n}"), vec![recur(x, &ty)?]))
             }
@@ -1202,7 +1236,10 @@ pub fn reify(t: &Term, p: &Program) -> LangResult<Expr> {
             ),
             Node::Word(n) => {
                 if t.sort == value(Type::Int) {
-                    Expr::Call("Int".into(), vec![Expr::Num(*n)])
+                    // A source literal already acquires Int from its checked
+                    // context. Adding an Int() conversion changes the exact
+                    // semantic tree and breaks portable definition replay.
+                    Expr::Num(*n)
                 } else if t.sort == value(Type::I32) && *n > i32::MAX as u64 {
                     Expr::Neg(Box::new(Expr::Num(
                         ((*n as u32) as i32).unsigned_abs() as u64
@@ -1236,7 +1273,12 @@ pub fn reify(t: &Term, p: &Program) -> LangResult<Expr> {
                     .iter()
                     .map(|x| go(x, bound, free, p))
                     .collect::<LangResult<Vec<_>>>()?;
-                if n == "value:equal" {
+                if let Some(literal)=n.strip_prefix("enum:") {
+                    let (name,index)=literal.rsplit_once(':').ok_or("reified enum literal")?;
+                    let index:usize=index.parse().map_err(|_|"reified enum index")?;
+                    let variant=p.enums.get(name).and_then(|variants|variants.get(index)).ok_or("unknown reified enum variant")?;
+                    return Ok(Expr::Field(Box::new(Expr::Var(name.into())),variant.clone()));
+                } else if n == "value:equal" {
                     return Ok(Expr::Binary("==".into(),Box::new(Expr::Call("list".into(),vec![args[0].clone()])),Box::new(Expr::Call("list".into(),vec![args[1].clone()]))));
                 } else if n == "nat.word" {
                     let Node::Nat(k) = a[0].node else {

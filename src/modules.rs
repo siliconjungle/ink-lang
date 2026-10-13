@@ -438,6 +438,12 @@ fn link(
         locals.insert("result".into());
         for e in &mut spec.ensures{expr(e,names,&locals,aliases)?;}
     }
+    let invariants = std::mem::take(&mut p.contracts.value_invariants);
+    for (mut name, mut predicate) in invariants {
+        renamed(&mut name, names);
+        expr(&mut predicate, names, &BTreeSet::from(["value".into()]), aliases)?;
+        p.contracts.value_invariants.insert(name, predicate);
+    }
     for imp in &mut p.contracts.implementations {renamed(&mut imp.name,names);renamed(&mut imp.specification,names);}
     for e in &mut p.contracts.invariants{expr(e,names,&BTreeSet::new(),aliases)?;}
     for n in &mut p.contracts.private_states{renamed(n,names);}
@@ -728,6 +734,7 @@ pub fn load(path: impl AsRef<Path>) -> LangResult<Loaded> {
         program.contracts.implementations.extend(p.contracts.implementations);
         program.contracts.invariants.extend(p.contracts.invariants);
         program.contracts.private_states.extend(p.contracts.private_states);
+        program.contracts.value_invariants.extend(p.contracts.value_invariants);
         program.functions.extend(p.functions);
         program.actions.extend(p.actions);
         program.rules.extend(p.rules);
