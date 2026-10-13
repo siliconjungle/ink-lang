@@ -31,6 +31,20 @@ suites passed, including every supported child shape under a prototype-key
 record, frame mutations, lowered budgets, exact snapshots, rollback and
 forged-proof rejection. The Frontier/all-metrics target remains open.
 
+ABI `49ea093` and JavaScript `f720ae2` publish the selected change; the standalone
+JavaScript suite passed too. The module adds 888 bytes (0.226%).
+`wire-child-release-cohorts-150-152.json` binds published distribution `886f6b34`
+and an emitted module byte-for-byte identical to the paired candidate. Three
+fresh processes, 200 warmup calls and nine rotated rounds give compact decoding
+0.644 µs and portable 0.736 µs versus Frontier 0.429 µs: Ink still takes
+1.50×/1.72× longer. Per-process compact Ink is 0.493–0.794 µs, portable
+0.713–1.227 µs and Frontier 0.311–0.783 µs. All processes, including the outlier,
+are retained. The cohort uses the full harness's mixed-schema setup and shows
+high variation; its absolute times cannot establish a causal regression or gain
+against older releases or isolated paired experiments. Further phase/profile
+controls remain necessary. State, encoding, text conversion, startup and memory
+are not reranked here; the full goal remains unmet.
+
 ## Schema-derived decoder resources
 
 Decoder binding computes auxiliary requirements across the entire recursive
