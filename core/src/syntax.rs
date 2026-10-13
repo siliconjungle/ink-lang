@@ -757,9 +757,12 @@ impl Parser {
                     let parameters = self.parameters.get(&n).cloned().unwrap_or_default();
                     let mut types = vec![];
                     for (i, fields) in payloads.into_iter().enumerate() {
-                        let record =
-                            format!("__ink_payload_{}_{}", self.application_prefix, self.fresh);
-                        self.fresh += 1;
+                        // A nominal payload's identity depends on its declaring
+                        // module/type/variant, not unrelated executable text.
+                        // Its fields still bind the complete checked schema.
+                        let stamp=serde_json::to_vec(&(&p.module,&n,&vars[i])).map_err(|e|e.to_string())?;
+                        let record=format!("__ink_payload_{:x}",Sha256::digest(stamp));
+                        if p.records.contains_key(&record) {return Err(self.err("generated payload name collision"));}
                         p.records.insert(
                             record.clone(),
                             fields

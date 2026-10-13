@@ -659,6 +659,38 @@
           "reason": "Static contracts checked before lowering; complete host enforces preconditions, transaction invariants and snapshot ingress. Eligible pure computations use device dispatch; guarded compute pipelines use CPU."
         }
       }
+    },
+    {
+      "id": "json-library-and-portable-values",
+      "types": [],
+      "tests": [
+        "json_tooling"
+      ],
+      "targets": {
+        "c": {
+          "status": "implemented"
+        },
+        "rust": {
+          "status": "implemented"
+        },
+        "javascript": {
+          "status": "implemented"
+        },
+        "c-wasm": {
+          "status": "implemented"
+        },
+        "rust-wasm": {
+          "status": "implemented"
+        },
+        "webgpu": {
+          "status": "unsupported",
+          "reason": "Recursive JSON values execute on the host; binary transport adds no device JSON capability."
+        },
+        "wgpu": {
+          "status": "unsupported",
+          "reason": "Recursive JSON values execute on the host; binary transport adds no device JSON capability."
+        }
+      }
     }
   ],
   "cpu_suites": [
@@ -694,7 +726,8 @@
     "source_contracts",
     "law_source",
     "database_source_algorithms",
-    "pipeline_templates"
+    "pipeline_templates",
+    "json_tooling"
   ],
   "gpu_contract": {
     "semantics": "eligible-pure-exact-v1",

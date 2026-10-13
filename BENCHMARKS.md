@@ -25,6 +25,16 @@ separately diagnoses conversion, proof loading and discovery costs.
 
 ## Frozen knowledge growth, 13 October 2026
 
+[The independent automatic-delivery replication](reports/automatic-delivery-2026-10-13/README.md)
+measures ordinary balanced compilation on eight fresh typed kernels. Complete
+JavaScript calls improve by 1.718× across 96 nonempty cases versus the previous
+planner. With the new machinery frozen, six template objects covering two reusable
+schemes add 1.196× over the base catalogue, chiefly through one Unicode query.
+Automatic selection rises from 0/8 to 6/8. Cold compilation remains about 70 seconds;
+24 repeat builds take a median 0.473 seconds with fresh proof replay. The report
+retains adverse cases, complete output checks, memory observations and exact code
+archives. These synthetic kernel results do not estimate arbitrary applications.
+
 [The fixed-corpus study](reports/knowledge-growth-2026-10-13/README.md) adds two
 reusable proof families while retaining the same compiler and independently pinned
 packages. Forced alternatives improve the ten-operation nonempty cohort by
@@ -39,6 +49,17 @@ source authoring can favour the laws; this is not whole-software generalisation.
 Historical epochs and the newer integration machinery remain distinct.
 
 ## What the recent work demonstrates
+
+[The separate automatic-machinery epoch](reports/automatic-planning-2026-10-13/README.md)
+changes proof production, composed discovery and measured selection. Ordinary
+balanced compilation chooses alternatives in 10/16 fixed typed operations or
+partial kernels, versus 0/16 before, without supplied selections. Its JavaScript
+cohort reports 1.697× execution gain (timing-only 95% interval 1.679–1.716×);
+the six reserved sources report 1.953×. Fourteen nonempty and five empty robust
+regressions remain visible. Synthetic probes are not actual user distributions.
+Warm compilation has a 0.410-second median with fresh complete proof replay;
+cold discovery and acquisition still cost tens of seconds. E1's fixed compiler
+and database-growth evidence remain immutable and separate from this epoch.
 
 Database-only laws can remove entire traversals and intermediate results with the
 production compiler unchanged. Composed maps, indexed maps, zips, folds and unused
