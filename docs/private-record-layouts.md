@@ -59,3 +59,49 @@ words, flat record sequences and guarded dictionaries remain separate work. The
 previous layout-only prototypes do not establish compiled performance for those
 representations. General arbitrary JSON snapshot diff also remains a capability
 gap in the Frontier comparison.
+
+## Captured private value boundaries
+
+JavaScript emission now supplies `compiledValues[function].params`, `.result` and
+`callCompiled(function, handles)`. Each lazy codec can `capture` a logical value,
+`decode` portable bytes, `decodeCompact` agreed-schema bytes, `encode`/`encodeCompact`
+a handle, or `materialize` an owned public value. Handles are frozen empty objects;
+their private payloads and type/owner brands live only in the emitting module's
+closure. Foreign-module, forged and wrong-type handles reject. A matching portable
+schema does not make a foreign private storage carrier interchangeable: cross-module
+transfer goes through checked bytes and a fresh receiving handle.
+
+Capture validates and owns the complete logical input before conversion. Its
+limits are the existing wire-value limits, distinct from state input limits.
+Capture cost is explicit and must enter lifecycle selection; it is not a new
+assumption that arbitrary host objects remain immutable across calls. Repeated
+compiled calls borrow the private immutable value and preserve source preconditions.
+Materialization copies every public container and retains the original logical
+node/depth/byte charges, including erased wrappers. Private-only outputs are a
+different boundary from mutable detached public outputs.
+
+Binary pure calls now validate the entire request and materialize private carriers
+literally. They execute checked functions and write private results directly,
+with the same public schema, framing, checks and output limits. The ABI's complete
+validator runs before each compiler reader and after `encodeWith` emission. The
+synthetic argument envelope stays a record even when a source record has the same
+name and a selected elision. Source-type handle codecs have no synthetic envelope.
+A wire-ineligible signature remains rejected by ordinary binary entrypoints.
+
+For a JSON document already parsed directly to agreed-schema bytes:
+
+```javascript
+const input = compiledValues.identity.params[0];
+const handle = input.decodeCompact(json.parseCompact(text));
+const reply = callCompiled('identity', [handle]);
+const transport = compiledValues.identity.result.encodeCompact(reply);
+// Materialize only at the public rendering boundary.
+const logical = compiledValues.identity.result.materialize(reply);
+```
+
+These are generic emitted boundaries for first-order types, not a new JSON source
+primitive or a source rewrite. The existing database codec proofs still authorize
+private record choices. The byte validators, literal readers/writers, ownership
+copiers and backend remain trusted machinery. State actions keep their existing
+capture and transactional APIs; this addition does not silently bypass their
+separate capture budgets or expose mutable state nodes.

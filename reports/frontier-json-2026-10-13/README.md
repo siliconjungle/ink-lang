@@ -697,3 +697,51 @@ JavaScript, producer/recipe and mandatory CPU JSON/state checks pass; the latter
 includes GPU host observations, not arbitrary real-device JSON coverage.
 The all-metrics Frontier goal and arbitrary JSON snapshot-diff capability remain
 unfulfilled. See `docs/private-record-layouts.md` for admission and trust scope.
+
+## Captured private values and literal binary calls (242–247)
+
+`compiled-values-cohorts-242-247.json` reports three fresh processes per boundary,
+with 512-field prepared documents, 200 warmups, 50 ms pilots and nine rotated
+rounds on the same shared Node/M2 host. Process 241 is retained as diagnostic data
+and excluded because source eligibility emission overlapped setup.
+
+| Captured-input boundary | Median µs/call |
+| --- | ---: |
+| Ink detached owned output | 36.536 |
+| Frontier detached owned output | 104.964 |
+| Ink retained private output | 3.283 |
+| Ink compact encoded output | 216.493 |
+| Ink logical input and owned output, selected layout | 322.471 |
+
+The captured owned boundary is **2.87× faster** than its paired Frontier lane.
+Both lanes start from independently owned captured inputs and return complete
+mutable detached outputs. Capture is excluded from hot calls and recorded
+separately: initial Ink validation/capture/conversion takes roughly 2.8 ms in these
+processes, versus approximately 45 µs for the Frontier clone. The private-output
+and encoded-output lanes are different boundaries, with no matched Frontier win
+claimed. Complete observations, detached identities, source reuse after output
+mutation, and exact portable/compact bytes pass preflight.
+
+The existing full binary text pipeline with the selected layout takes 797.950 µs
+in processes 245–247. Its literal input/result bridge removes logical conversion
+from binary execution; this remains much slower than Frontier's text boundary.
+Historical selected-module numbers from 217–237 are a different emitter/ABI epoch
+and are not a paired causal speedup control. The logical text pipeline remains
+830.311 µs with the selected layout. Public message codecs retain their existing
+logical contract. Additional capture, memory, compilation and default-carrier
+controls remain necessary before a whole-lifecycle or all-metrics claim.
+
+The frozen ten-program JavaScript corpus completed before these handle changes:
+ten compile, seven have admitted rewrite alternatives, sixteen laws are admitted
+(two reused across programs), and none is selected under default evidence gates.
+All quick searches stop at their time budget. The new record recipe is deferred
+in all ten receipts, including `compact-set`, whose elaboration contains an
+eligible single-field loop carrier. Recipe dispatch now interleaves stages before
+repeating a stage; the updated focused result is reported separately. Listing a
+recipe is not proof that its candidates were explored or selected.
+
+The interleaved quick rerun of `compact-set` still defers record elision under its
+eight-second search cap. Its admitted alternatives rise from 20 to 21, but that
+does not establish new-layout exploration or profitability. A balanced focused
+run is separate evidence; the scheduling unit test only establishes dispatch
+diversity when a stage has a worker opportunity.
