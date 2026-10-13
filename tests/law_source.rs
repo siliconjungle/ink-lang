@@ -333,3 +333,35 @@ fn raw_generic_laws_cannot_treat_numeric_equality_as_bit_identity(){
  let id=registry::identity(&registry::Entry::from_law(&law).unwrap()).unwrap();c.roots=vec![id.clone()];c.objects=BTreeMap::from([(id,law)]);
  assert!(CheckedCatalogue::check(&c,&Program::default()).is_err());
 }
+
+#[test]
+fn order_analysis_is_an_authored_tactic() {
+    let ok = author(
+        "module m;\nfn max(x: u32, y: u32) -> u32 { return choose(x > y, x, y); }\n\
+         law max_swap(a: u32, b: u32, s: u32) {\n  max(a, max(b, s)) == max(b, max(a, s));\n  proof by order(a, b, s) then normalize;\n}\n\
+         law clamp_bound(x: i32, lo: i32, hi: i32) {\n  requires lo <= hi;\n  choose(choose(x < lo, lo, x) > hi, hi, choose(x < lo, lo, x)) <= hi == true;\n  proof by order(x, lo, hi) then normalize;\n}\n",
+    )
+    .unwrap();
+    let c = catalogue(&ok);
+    for name in ["max_swap", "clamp_bound"] {
+        let law = &c.objects[&ok.names[name]];
+        assert_eq!(law.semantics, laws::GENERAL_SEMANTICS, "a new proof form carries the newer marker");
+        assert!(matches!(law.proof, laws::Proof::Order { .. }));
+    }
+    // Without transitivity normalisation alone fails, and a false claim
+    // fails in some ordering.
+    rejects(
+        "module m;\nfn max(x: u32, y: u32) -> u32 { return choose(x > y, x, y); }\n\
+         law max_swap(a: u32, b: u32, s: u32) {\n  max(a, max(b, s)) == max(b, max(a, s));\n  proof by normalize;\n}\n",
+        "semantic normal forms differ",
+    );
+    rejects(
+        "module m;\nfn max(x: u32, y: u32) -> u32 { return choose(x > y, x, y); }\n\
+         law max_drop(a: u32, b: u32, s: u32) {\n  max(a, max(b, s)) == max(a, s);\n  proof by order(a, b, s) then normalize;\n}\n",
+        "semantic normal forms differ",
+    );
+    rejects(
+        "module m;\nlaw floats(a: f32, b: f32) {\n  choose(a > b, a, b) == choose(b < a, a, b);\n  proof by order(a, b) then normalize;\n}\n",
+        "words or exact Int",
+    );
+}

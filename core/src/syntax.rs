@@ -2340,6 +2340,15 @@ impl Parser {
                     body: Box::new(body),
                 }
             }
+            "order" => {
+                let atoms = self.args()?;
+                self.expect("then")?;
+                let body = self.tactic()?;
+                Tactic::Order {
+                    atoms,
+                    body: Box::new(body),
+                }
+            }
             other => return Err(format!("unknown proof tactic {other}")),
         };
         self.depth -= 1;

@@ -11,6 +11,8 @@ state Other:Table<u64,u64> = Table.empty();
 event seen:u64;
 change put(key:u64,value:u64)->Result<Unit,Error> writes(Rows){if Rows.contains(key){Rows.replace(key,value);}else{Rows.insert(key,value);}return Ok(());}
 change mark(key:u64)->Result<Unit,Error> writes(Other) emits(seen){Other.remove(key);emit seen(key);return Ok(());}
+change erase(key:u64)->Result<Unit,Error> writes(Rows){Rows.remove(key);return Ok(());}
+change set(key:u64,value:u64)->Result<Unit,Error> writes(Rows){if Rows.contains(key){Rows.replace(key,value);}return Ok(());}
 change note(key:u64)->Result<Unit,Error> writes(Other) emits(seen){Other.remove(key);emit seen(key);return Ok(());}
 query get(key:u64)->Option<u64> reads(Rows){return Rows.get(key);}
 query total()->u64 reads(Rows){return sum(Rows.values());}
@@ -42,4 +44,17 @@ class Certificates(unittest.TestCase):
             # Forced attempts on pairs the analysis reports as conflicts.
             self.assertEqual(certify(COMPILER,path,'mark','note',ROOT/'knowledge',Path(d)/'certs')['certificate'],'rejected')
             self.assertEqual(certify(COMPILER,path,'put','put',ROOT/'knowledge',Path(d)/'certs')['certificate'],'rejected')
+    def test_two_removals_commute_even_for_equal_keys(self):
+        # Analysis reports commute_when (point writes of one root); the
+        # two-key removal lemma certifies the stronger, unconditional fact.
+        with tempfile.TemporaryDirectory() as d:
+            path=Path(d)/'a.ink';path.write_text(SOURCE)
+            report=describe(COMPILER,path)
+            row=next(r for r in report['pairs'] if r['first'].startswith('erase') and r['second'].startswith('erase'))
+            self.assertEqual(row['relation'],'commute_when')
+            ok=certify(COMPILER,path,'erase','erase',ROOT/'knowledge',Path(d)/'certs')
+            self.assertEqual(ok['certificate'],'checked',ok)
+            # A replacement guarded by a presence test needs distinct keys
+            # (the lookup moves past the removal), which is not certified.
+            self.assertEqual(certify(COMPILER,path,'erase','set',ROOT/'knowledge',Path(d)/'certs')['certificate'],'rejected')
 if __name__=='__main__':unittest.main()

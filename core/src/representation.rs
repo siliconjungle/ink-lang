@@ -301,6 +301,13 @@ pub fn check(module: &CheckedModule, request: &Request) -> LangResult<CheckedRep
     if registry::canonical(entry)? != registry::canonical(&plan.entry()?)? {
         return Err("representation interface/dependency mismatch".into());
     }
+    // A purely functional module has no state to represent. Admitting the
+    // request would only duplicate its pure plans, and representation targets
+    // emit state lifecycles rather than the module's pure entries.
+    let program = module.program();
+    if program.states.is_empty() && program.actions.is_empty() && program.keeps.is_empty() {
+        return Err("representation needs source state: the module declares no state, actions or keeps".into());
+    }
     let projection = Projection::derive(module)?;
     if plan.logical_state != Sort::Data(projection.state.clone())
         || plan.actions.keys().ne(projection.actions.keys())
