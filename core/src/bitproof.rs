@@ -20,14 +20,31 @@ pub struct Step {
     /// Zero-based indices into the original CNF followed by accepted clauses.
     pub hints: Vec<usize>,
 }
+/// Selects a fixed, reconstructed Boolean encoding, never proof authority.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum Encoding {
+    #[default]
+    LiteralV1,
+    SharedV2,
+}
+impl Encoding {
+    fn is_literal(&self) -> bool {
+        *self == Self::LiteralV1
+    }
+}
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Certificate {
+    #[serde(default, skip_serializing_if = "Encoding::is_literal")]
+    pub encoding: Encoding,
     pub problem_sha256: String,
     pub steps: Vec<Step>,
 }
 #[derive(Clone, Debug, Serialize)]
 pub struct Problem {
+    #[serde(skip_serializing_if = "Encoding::is_literal")]
+    encoding: Encoding,
     semantics: &'static str,
     variables: usize,
     clauses: Vec<Vec<i32>>,
@@ -51,6 +68,8 @@ enum Value {
     Word(Vec<i32>),
 }
 struct Circuit {
+    encoding: Encoding,
+    gates: BTreeMap<(u8, i32, i32), i32>,
     variables: usize,
     clauses: Vec<Vec<i32>>,
     inputs: BTreeMap<String, Value>,
@@ -73,7 +92,39 @@ impl Circuit {
         self.clauses.push(clause);
         Ok(())
     }
-    fn gate(&mut self, op: &str, a: i32, b: i32) -> LangResult<i32> {
+    fn gate(&mut self, op: &str, mut a: i32, mut b: i32) -> LangResult<i32> {
+        let kind = match op {
+            "and" => 0,
+            "or" => 1,
+            "xor" => 2,
+            _ => return Err("unknown Boolean gate".into()),
+        };
+        if self.encoding == Encoding::SharedV2 {
+            let reduced = match op {
+                "and" if a == -1 || b == -1 || a == -b => Some(-1),
+                "and" if a == 1 || a == b => Some(b),
+                "and" if b == 1 => Some(a),
+                "or" if a == 1 || b == 1 || a == -b => Some(1),
+                "or" if a == -1 || a == b => Some(b),
+                "or" if b == -1 => Some(a),
+                "xor" if a == b => Some(-1),
+                "xor" if a == -b => Some(1),
+                "xor" if a == -1 => Some(b),
+                "xor" if b == -1 => Some(a),
+                "xor" if a == 1 => Some(-b),
+                "xor" if b == 1 => Some(-a),
+                _ => None,
+            };
+            if let Some(value) = reduced {
+                return Ok(value);
+            }
+            if a > b {
+                std::mem::swap(&mut a, &mut b);
+            }
+            if let Some(value) = self.gates.get(&(kind, a, b)) {
+                return Ok(*value);
+            }
+        }
         let z = self.fresh()?;
         let clauses = match op {
             "and" => vec![vec![-z, a], vec![-z, b], vec![z, -a, -b]],
@@ -88,6 +139,9 @@ impl Circuit {
         };
         for clause in clauses {
             self.clause(clause)?;
+        }
+        if self.encoding == Encoding::SharedV2 {
+            self.gates.insert((kind, a, b), z);
         }
         Ok(z)
     }
@@ -260,7 +314,27 @@ pub(crate) fn problem_with_work(
     goal: &Equation,
     work: &mut usize,
 ) -> LangResult<Problem> {
+    problem_with_encoding_and_work(env, hypotheses, goal, Encoding::LiteralV1, work)
+}
+pub fn problem_with_encoding(
+    env: &BTreeMap<String, Sort>,
+    hypotheses: &[Equation],
+    goal: &Equation,
+    encoding: Encoding,
+) -> LangResult<Problem> {
+    let mut work = MAX_WORK;
+    problem_with_encoding_and_work(env, hypotheses, goal, encoding, &mut work)
+}
+pub(crate) fn problem_with_encoding_and_work(
+    env: &BTreeMap<String, Sort>,
+    hypotheses: &[Equation],
+    goal: &Equation,
+    encoding: Encoding,
+    work: &mut usize,
+) -> LangResult<Problem> {
     let mut circuit = Circuit {
+        encoding,
+        gates: BTreeMap::new(),
         variables: 1,
         clauses: vec![vec![1]],
         inputs: BTreeMap::new(),
@@ -276,7 +350,10 @@ pub(crate) fn problem_with_work(
     let b = circuit.term(&goal.to, env, 0)?;
     let different = circuit.unequal(a, b)?;
     circuit.clause(vec![different])?;
-    let semantics = "total-scalar-u64-bit-cnf-v1";
+    let semantics = match encoding {
+        Encoding::LiteralV1 => "total-scalar-u64-bit-cnf-v1",
+        Encoding::SharedV2 => "total-scalar-u64-bit-cnf-shared-v2",
+    };
     let cost = circuit.variables
         + circuit.clauses.len()
         + circuit.clauses.iter().map(Vec::len).sum::<usize>()
@@ -290,6 +367,7 @@ pub(crate) fn problem_with_work(
     ))
     .map_err(|e| e.to_string())?;
     Ok(Problem {
+        encoding,
         semantics,
         variables: circuit.variables,
         clauses: circuit.clauses,
@@ -353,6 +431,9 @@ pub(crate) fn verify_with_work(
     proof: &Certificate,
     work: &mut usize,
 ) -> LangResult<()> {
+    if proof.encoding != problem.encoding {
+        return Err("bit circuit encoding mismatch".into());
+    }
     if proof.problem_sha256 != problem.sha256 {
         return Err("bit proof circuit identity mismatch".into());
     }
@@ -461,6 +542,8 @@ mod tests {
 
     fn empty_circuit() -> Circuit {
         Circuit {
+            encoding: Encoding::LiteralV1,
+            gates: BTreeMap::new(),
             variables: 1,
             clauses: vec![vec![1]],
             inputs: BTreeMap::new(),
@@ -665,6 +748,7 @@ mod tests {
     }
     fn toy(clauses: Vec<Vec<i32>>) -> Problem {
         Problem {
+            encoding: Encoding::LiteralV1,
             semantics: "test",
             variables: 3,
             clauses,
@@ -672,8 +756,80 @@ mod tests {
             sha256: "test".into(),
         }
     }
+    #[test]
+    fn shared_gates_preserve_every_boolean_assignment_and_share_commuted_inputs() {
+        for encoding in [Encoding::LiteralV1, Encoding::SharedV2] {
+            for op in ["and", "or", "xor"] {
+                for ai in 0..6 {
+                    for bi in 0..6 {
+                        let mut c = empty_circuit();
+                        c.encoding = encoding;
+                        let x = c.fresh().unwrap();
+                        let y = c.fresh().unwrap();
+                        let inputs = [-1, 1, x, -x, y, -y];
+                        let a = inputs[ai];
+                        let b = inputs[bi];
+                        let out = c.gate(op, a, b).unwrap();
+                        let swapped = c.gate(op, b, a).unwrap();
+                        if encoding == Encoding::SharedV2 {
+                            assert_eq!(out, swapped);
+                        }
+                        let mut seen = [false; 4];
+                        for mask in 0..1usize << (c.variables - 1) {
+                            let truth = |lit: i32| {
+                                let bit = lit.unsigned_abs() as usize;
+                                let v = bit == 1 || mask & (1 << (bit - 2)) != 0;
+                                if lit > 0 {
+                                    v
+                                } else {
+                                    !v
+                                }
+                            };
+                            if !c
+                                .clauses
+                                .iter()
+                                .all(|clause| clause.iter().any(|lit| truth(*lit)))
+                            {
+                                continue;
+                            }
+                            seen[(truth(x) as usize) * 2 + truth(y) as usize] = true;
+                            let expected = match op {
+                                "and" => truth(a) && truth(b),
+                                "or" => truth(a) || truth(b),
+                                _ => truth(a) ^ truth(b),
+                            };
+                            assert_eq!(truth(out), expected);
+                            assert_eq!(truth(swapped), expected);
+                        }
+                        assert!(seen.iter().all(|v| *v));
+                    }
+                }
+            }
+        }
+    }
+    #[test]
+    fn legacy_certificate_encoding_is_implicit_and_mode_substitution_is_rejected() {
+        let cert = proof(vec![step(&[], &[0, 1])]);
+        let bytes = serde_json::to_value(&cert).unwrap();
+        assert!(bytes.get("encoding").is_none());
+        assert_eq!(
+            serde_json::from_value::<Certificate>(bytes)
+                .unwrap()
+                .encoding,
+            Encoding::LiteralV1
+        );
+        let problem = toy(vec![vec![1], vec![-1]]);
+        let mut forged = cert;
+        forged.encoding = Encoding::SharedV2;
+        assert!(verify(&problem, &forged).is_err());
+        assert!(serde_json::from_value::<Certificate>(
+            serde_json::json!({"encoding":"future","problem_sha256":"test","steps":[]})
+        )
+        .is_err());
+    }
     fn proof(steps: Vec<Step>) -> Certificate {
         Certificate {
+            encoding: Encoding::LiteralV1,
             problem_sha256: "test".into(),
             steps,
         }

@@ -368,6 +368,18 @@ impl Context {
         from: &Term,
         to: &Term,
     ) -> LangResult<crate::bitproof::Problem> {
+        self.bitvector_problem_with_encoding(
+            params, conditions, from, to, crate::bitproof::Encoding::LiteralV1,
+        )
+    }
+    pub fn bitvector_problem_with_encoding(
+        &self,
+        params: &[(String, Sort)],
+        conditions: &[Equation],
+        from: &Term,
+        to: &Term,
+        encoding: crate::bitproof::Encoding,
+    ) -> LangResult<crate::bitproof::Problem> {
         let env = self.env(params)?;
         let mut budget = Budget::new();
         if conditions.len() > 64 {
@@ -386,7 +398,7 @@ impl Context {
             self,
             &mut budget,
         )?;
-        crate::bitproof::problem(&env, &conditions, &goal)
+        crate::bitproof::problem_with_encoding(&env, &conditions, &goal, encoding)
     }
     /// Read-only correspondence check against a previously checked direct import.
     /// Does not install declarations or extend the trusted set of equalities.
@@ -2748,10 +2760,11 @@ fn derive(
                 .into_iter()
                 .map(|e| normalize_pair(e, c, budget))
                 .collect::<LangResult<Vec<_>>>()?;
-            let problem = crate::bitproof::problem_with_work(
+            let problem = crate::bitproof::problem_with_encoding_and_work(
                 env,
                 &premises,
                 &computed,
+                certificate.encoding,
                 &mut budget.bit_work,
             )?;
             crate::bitproof::verify_with_work(&problem, certificate, &mut budget.bit_work)?;

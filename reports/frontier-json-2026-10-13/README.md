@@ -606,3 +606,45 @@ into a checked argument record with `encodeWith`. `TypedJsonCodec` follows the
 declared source record/sum shapes; it does not implicitly make an embedded library
 Json field transparent. The compiled compact-call composition is now checked
 against the ordinary encode/call result in the JSON conformance suite.
+
+## Private value layout probes and proof infrastructure
+
+`private-layout-probe-cohorts-214-216.json` explores generic carrier layouts,
+without changing the compiled implementation. One-field records elide, nested
+sums flatten, tag/payload words use guarded exact integers, and two-field record
+sequences may use native objects only when duplicate keys and the full original
+key order are preserved. Numeric strings use the compact branch only when
+conversion back is exactly equal; other tokens retain their full spelling.
+Usage-derived key templates keep exact guards and fallback. Declared record
+field templates come from the source descriptor. No JSON field name grants
+compiler authority.
+
+Three fresh processes retain 32 prepared 512-field documents or 4096 independently
+owned rows in plain Maps. Layout-only retained heap medians are:
+
+| Carrier | JSON bytes | Row bytes |
+| --- | ---: | ---: |
+| Native ordinary-value copy control | 131,256 | 707,776 |
+| Ordinary Ink logical tree | 4,349,920 | 2,905,656 |
+| Guarded native-object sequences | 62,656 | 740,960 |
+| Guarded templates from usage/source fields | 83,688 | 683,968 |
+
+These experiments motivate compiler integration; they do not establish a
+Frontier or compiled-state win. Prepared inputs, copying/conversion, input graphs,
+imports and setup have explicitly different boundaries from the actual lifecycle
+comparison. Parsing/action execution/transactions are absent here. Native copy
+uses `structuredClone`, which retains markedly different wide-object shapes from
+`JSON.parse`; comparing one native representation with the other would be
+misleading. The template alternative has a CPU and compilation-size tradeoff.
+All variants reconstruct exact source values/wire bytes and reject changed
+resource budgets; numeric-key ordering, duplicate-key fallback, prototypes,
+recursive sums and raw float bits have targeted controls. Core/backend proofs and
+complete histories remain required before selecting a private layout.
+
+Proof authoring hit the 16 MB object limit with literal circuits. The explicit
+`shared-v2` circuit mode now folds/reuses Boolean gates while retaining default
+legacy CNF bytes. A representative obligation shrinks from 78,828 to 1,763
+clauses. 48 tagged-word equations for 1–12 tag bits replay through ordinary RUP,
+with bounds as premises. See `docs/shared-bit-circuits.md` for scope, tests and
+the two independently reproduced baseline hardening failures. No new source
+optimisation or private layout is admitted merely by these measurements/proofs.

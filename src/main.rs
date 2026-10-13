@@ -213,6 +213,7 @@ fn run() -> LangResult<()> {
         "--entry",
         "--lean",
         "--library",
+        "--circuit",
         "--native-cpu",
         "--optimise",
         "--plan-cache",
@@ -675,8 +676,14 @@ fn run() -> LangResult<()> {
         } else {
             verified_language::logic::Context::default()
         };
-        let problem =
-            context.bitvector_problem(&goal.params, &goal.conditions, &goal.from, &goal.to)?;
+        let encoding = match arg_value(&args, "--circuit")?.as_deref() {
+            None | Some("literal-v1") => verified_language::bitproof::Encoding::LiteralV1,
+            Some("shared-v2") => verified_language::bitproof::Encoding::SharedV2,
+            _ => return Err("unsupported bit circuit encoding".into()),
+        };
+        let problem = context.bitvector_problem_with_encoding(
+            &goal.params, &goal.conditions, &goal.from, &goal.to, encoding,
+        )?;
         let output = arg_value(&args, "-o")?.ok_or("missing -o")?;
         write(
             &output,
