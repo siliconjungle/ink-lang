@@ -1090,9 +1090,17 @@ fn normal(t: &Term, hyp: &[Equation], p: &Program, b: &mut Budget, d: usize) -> 
     }
     let out = try_map_children(t, |c| normal(c, hyp, p, b, d + 1))?;
     // Equality premises are oriented local facts. Match only exact typed terms.
-    for h in hyp {
+    for (index, h) in hyp.iter().enumerate() {
         if out == h.from && h.from != h.to {
-            return normal(&h.to, &[], p, b, d + 1);
+            // Keep transporting facts through aliases and projections. Dropping
+            // all premises here loses even a short callback-binding chain.
+            // Remove the applied equation on this branch so cyclic or expanding
+            // hypotheses cannot reuse it indefinitely; the normal proof budget
+            // also bounds the remaining substitutions.
+            let remaining = hyp.iter().enumerate()
+                .filter(|(i, _)| *i != index)
+                .map(|(_, equation)| equation.clone()).collect::<Vec<_>>();
+            return normal(&h.to, &remaining, p, b, d + 1);
         }
     }
     let Node::Op(n, a) = &out.node else {

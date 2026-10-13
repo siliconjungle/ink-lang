@@ -57,7 +57,8 @@ support. Missing capability stays explicit while implementation continues.
 - Immutable nominal record predicates and hygienic generic construction are
   implemented. Core reconstructs constructors, raw nested validators, inferred
   interface contracts and snapshot/state guards from the real source types.
-  This does not yet provide field opacity or interchangeable abstract interfaces.
+  Field opacity is now implemented; interchangeable abstract implementations and
+  owner interfaces remain unfinished.
 - Established source equations become ordinary conditional database laws with
   narrowed definition contexts. Interface preconditions now also reach exact
   physical bounds obligations: the indexed-sequence example uses one guarantee
@@ -125,7 +126,50 @@ support. Missing capability stays explicit while implementation continues.
   interface core image remains byte-identical and the canonical state packet
   still replays. Complete abstract-interface and module-visibility work remains
   open; this fix is not a claim that field opacity is implemented.
-- Remaining requirements include actual abstract opacity/interfaces, general
+- Source `abstract record` declarations now hide construction and fields across
+  actual module imports, generic specialisation and callback inlining. Aliases,
+  nested records, actions, state expressions and contract clauses retain the
+  restriction. Origins avoid source-name capture and erase before executable
+  encoding; the four database value interfaces now use it. Their existing core
+  image remains byte-identical (`abstract-image-replay.log`).
+- General equality normalization now follows alias chains without discarding all
+  remaining premises on the first replacement. Regressions cover a twelve-value
+  chain, a missing predicate premise and cyclic aliases. A read-only action's
+  call obligations can use checked boundary invariants; mutating actions and keep
+  initialization retain their independent obligations. Generated long nominal
+  constructor labels also fit the existing first-order kernel's input bounds.
+- The imported generic abstract value-state fixture authors and independently
+  replays nine pure and ten state obligations. Its pure closure has eight objects
+  and its first-order closure has 55. Source evidence is frozen in
+  `tests/fixtures/abstract-interfaces/proofs.json`; the successful authoring receipt
+  is `abstract-proof-authoring-v2.log`. The earlier failed authoring attempt is
+  retained in `abstract-proof-authoring.log`, where missing stable-state premises
+  correctly prevented admission. The frozen successful compiler is recorded in
+  `build/general-machinery/frozen-abstract-state/compiler.json`.
+- The final standalone core run passed 214 tests in
+  `core-tests-abstract-final.log`. Sixteen affected database tests passed in
+  `abstract-producer-tests.log`. The four abstract-interface, six module and five
+  value-invariant tests passed with C/Rust/JavaScript, both Wasm paths and eligible
+  wgpu legs enabled (`abstract-target-parity-final.log`). The abstract fixture
+  compared ten replies and exact snapshots with one actual numeric GPU dispatch;
+  its predicate/state work executes on the host. Five broader feature-parity
+  checks passed in the earlier run; its inventory test then caught the missing
+  new suite in the auditing script. After fixing the script, that inventory test
+  passed independently in `abstract-feature-inventory.log`.
+- The local canonical snapshot is now
+  `8c5ad9027b69996066dd28403de4a763b9bf0e7c47b6c721110e58961f6782df`.
+  It retains the preceding snapshot and contributes/reuses 63 objects with 19
+  names under `abstract-interfaces/`; the exported publication view independently
+  replayed in `abstract-published-replay.log`. Knowledge staging checkpoint:
+  `71b99644908120def7415e7a1ed302204dd179fa`. This is not remote publication.
+- A further positive composition probe remains rejected: mapping the public
+  observer over a validated `List<Hidden<u32>>`. The current call obligation treats
+  the callback parameter as arbitrary and loses its relationship to the iterated
+  list (`abstract-composition-probe.ink` and `.log` under `build/general-machinery`).
+  General callback-domain/call-obligation transport is the next interface/fact
+  extension. Do not assume a raw validator's element predicate merely from its
+  nominal type; validation must retain its independent untrusted-input meaning.
+- Remaining requirements include interchangeable abstract interfaces and owners, general
   storage and externalisation, authored termination, local frame/loop relations,
   broader cross-consumer fact transport, compositional incremental maintenance,
   canonical database publication, full performance evidence and integrated main

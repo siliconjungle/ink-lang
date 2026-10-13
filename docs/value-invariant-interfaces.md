@@ -33,6 +33,40 @@ graphs and templates are combined. An importer's same-named function cannot
 replace the library's invariant predicate. Callback parameters retain their
 lexical binding even when a module declares a helper with the same name.
 
+## Abstract record interfaces
+
+`abstract record` hides construction and fields outside the declaring module.
+It composes with a value predicate:
+
+```ink
+module checked_sequences;
+abstract refined record Indexed { items:List<u32>, index:u32, }
+ invariant value.index<length(value.items);
+fn lookup(value:Indexed,fallback:u32)->u32 {
+ return value.items.at_or(value.index,fallback);
+}
+```
+
+Importers can pass and return this type and call its public operations. Direct
+construction or field access rejects, including through type aliases, nested
+records, callback bodies, state expressions and contract predicates. Generic
+instances retain their declaring module. Callback specialisation preserves both
+the library's permitted accesses and the caller's restrictions; moving a lambda
+into a library body does not change its origin. Generated source markers avoid
+all modules' identifiers and are removed before executable encoding.
+
+Opacity is checked during source assembly. The executable core still describes
+the logical record and independently checks every mathematical invariant. Wire
+descriptors and snapshots retain the logical schema; source opacity does not
+conceal wire fields or authenticate a value merely because it came through an
+interface. Public ingress still validates the predicate. Ordinary physical
+representation admission remains necessary to change storage.
+
+The existing four database interfaces now use abstract declarations. Their core
+image is byte-identical to the preceding public-record version. This establishes
+that this source visibility change adds no executable wrapper or runtime check;
+it is not a timing claim about alternative algorithms or representations.
+
 Checked public value/JSON entry points validate the predicates. Checked internal
 calls discharge the same requirements statically. Existing caller-trusted native
 typed/packed entry points keep their input-contract responsibility. Portable
@@ -62,6 +96,20 @@ condition, while fixed premises are independent of the induction variable. The
 producer may propose that theorem; core replay establishes it. No original-state
 validity premise is silently reused for a different recursive tail.
 
+Equality normalization transports checked facts through typed alias chains,
+including callback bindings and projections. An applied equation is removed
+while normalizing its replacement, so cyclic or expanding premises cannot
+reuse that equation indefinitely; existing proof work and depth limits remain.
+No IEEE equality becomes a stronger float-bit equality through this transport.
+
+Read-only action call obligations can use established invocation-boundary
+invariants because their checked write footprint is empty. These premises are
+separate global observations, so local names cannot reinterpret them. Mutating
+actions receive no such state premise for intermediate calls, and keep
+initialization cannot assume an invariant before establishing it. This is a
+limited stable-state fact transport; general local mutation/frame reasoning
+still requires implementation.
+
 ## Current evidence and remaining scope
 
 The frozen value-state proof packet contains one pure obligation and eleven state
@@ -72,8 +120,22 @@ The indexed-read plan has a separate native/Rust-Wasm conformance test. Selected
 physical-read capabilities remain explicitly unsupported on the other emitters.
 Test invocation receipts are recorded in `docs/general-machinery-plan.md`.
 
-This is the invariant foundation, not the completed abstract-interface request.
-Record fields remain visible. Representation opacity, interchangeable abstract
+The imported abstract-interface fixture additionally carries nine pure and ten
+state proofs, with eight pure objects and 55 objects in its first-order closure.
+The ordinary database producer authors those proofs and the core replays them.
+Long generated nominal names receive bounded descriptive constructor labels in
+the action model; the kernel's binder limits are unchanged. Deliberately colliding
+source labels cannot collapse the two fixture record sorts. Existing short labels
+retain their previous encoding.
+
+The final abstract/module/value integration suites pass on C, Rust, JavaScript,
+both Wasm paths and the eligible wgpu host/device legs. A separate positive probe
+still fails for `xs.map(fn(v)=>library.observe(v))` on a validated list of refined
+values: the callback-call obligation loses the element's relationship to the
+list. General transport through callback domains remains required; granting a
+predicate to raw validator elements merely from their type would be unsound.
+
+This is not the completed abstract-interface request. Interchangeable abstract
 implementations and checked owner interfaces still need implementation. Recursive
 values containing refinements also need general recursive validator/termination
 machinery; invariant-bearing temporary owners currently reject. External input

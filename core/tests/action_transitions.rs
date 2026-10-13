@@ -29,6 +29,24 @@ fn data(s: &Sort) -> &str {
 }
 const APP:&str="module bound; enum Error{Failed,} state Rows:Table<u64,u64> = Table.empty(); event seen:u64; change erase(k:u64,fail:Bool)->Result<Unit,Error> writes(Rows) emits(seen){Rows.remove(k); emit seen(10); emit seen(20); if fail{return Err(Error.Failed);}return Ok(());} query get(k:u64)->Option<u64> reads(Rows){return Rows.get(k);}";
 #[test]
+fn long_source_constructor_labels_are_bounded_without_colliding_with_source_names() {
+    use sha2::{Digest,Sha256};
+    let long=format!("LongRecord{}","x".repeat(80));
+    let mut hash=Sha256::new();hash.update(long.as_bytes());hash.update(0u32.to_le_bytes());
+    let digest=format!("{:x}",hash.finalize());let collision=format!("ink_{}",&digest[..60]);
+    let enum_name=format!("LongEnum{}","x".repeat(80));
+    let event=format!("LongEvent{}","x".repeat(80));
+    let src=format!("module labels;record {long}{{value:u64,}}record {collision}{{value:u64,}}
+      enum {enum_name}{{First,Second,}} event {event}:{long};
+      query read(v:{long})->u64{{return v.value;}}
+      query other(v:{collision})->u64{{return v.value;}}
+      query variant(v:{enum_name})->{enum_name}{{return v;}}");
+    let model=Projection::derive(&module(&src)).unwrap();model.context().unwrap();
+    let long_key=serde_json::to_string(&ink_core::core::Type::Named(long)).unwrap();
+    let collision_key=serde_json::to_string(&ink_core::core::Type::Named(collision)).unwrap();
+    assert_ne!(model.types[&long_key],model.types[&collision_key]);
+}
+#[test]
 fn fixed_whole_action_model_checks_and_runs_without_catalogue_or_backend() {
     let model = Projection::derive(&module(APP)).unwrap();
     let context = model.context().unwrap();
