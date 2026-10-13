@@ -265,16 +265,19 @@ parameters and premises. Every helper and use still replays; the kernel's proof
 nesting and canonical-object limits remain unchanged. A 40-step unbalanced proof
 rejects at the kernel depth limit, while the reassociated proof checks.
 
-Dependent readonly query calls inside callbacks, conditional query observations,
-ownership-bearing accumulators, general fold preservation proofs and direct
-pure-loop expressions in actions still need further correspondence work. The
-existing stronger obligations remain for unsupported paths; no validity premise
-is granted from their nominal types.
+`owned-values.ink` now supplies a generic Buffer-backed copying algorithm whose
+fold observation and refined-element preservation are checked by ordinary laws.
+The fixture replays six pure and eleven state obligations. Invalid ingress and
+checksummed invalid restoration reject; action abort retains the original state
+and event history. Left-fold source/action projection and the database producer
+retain exact accumulator order and typed source contexts. This supports the
+tested refined-element copying path; unsupported owner/query callback domains
+retain their stronger obligations.
 
 This is not the completed abstract-interface request. Interchangeable abstract
 implementations and checked owner interfaces still need implementation. Recursive
 values containing refinements also need general recursive validator/termination
-machinery; invariant-bearing temporary owners currently reject. External input
+machinery; arbitrary invariant-bearing temporary owner interfaces remain open. External input
 validation can be expensive (for example, checking the sorted-word predicate
 executes sorting). No whole-workload speedup is claimed from proof replay or
 conformance. The full storage, termination, local relation, fact transport and

@@ -324,6 +324,18 @@ fn collection_observations_are_shared_by_contracts_and_source_laws(){
  assert_eq!(a.names.len(),6);
  assert!(author("module wrong;law false_bag(){(multiset(list(1,1))==multiset(list(1)))==true;}").is_err());
  assert!(author("module wrong;law false_unique(){unique(list(1,1))==true;}").is_err());
+ // Ordinary declarations and lexical callback parameters take precedence over
+ // observation syntax in law terms and proof tactics as they do in programs.
+ assert!(author("module shadow;fn unique(x:u32)->Bool{return false;}law bad(){unique(1)==true;}").is_err());
+ author("module shadow;law use_callback(xs:List<u32>,unique:fn(List<u32>)->Bool){requires known:unique(xs);unique(xs)==true;proof by hypothesis known;}").unwrap();
+}
+
+#[test]
+fn scoped_buffer_observation_laws_use_fixed_clipped_slice_meanings(){
+ let source=include_str!("../knowledge/libraries/buffer-view-laws.ink");
+ let authored=author(source).unwrap();assert_eq!(authored.names.len(),3);
+ CheckedCatalogue::check(&catalogue(&authored),&Program::default()).unwrap();
+ assert!(author("module wrong;law bad(){buffer(list(1,2)).borrow_range(1,1,fn(view)=>view.at_or(0,99))==1;}").is_err());
 }
 #[test]
 fn raw_generic_laws_cannot_treat_numeric_equality_as_bit_identity(){
@@ -338,11 +350,42 @@ fn raw_generic_laws_cannot_treat_numeric_equality_as_bit_identity(){
 fn storage_observation_laws_check_generic_and_owned_instances() {
     let source=include_str!("../knowledge/libraries/storage-observations.ink");
     let authored=author(source).unwrap();
-    for name in ["foldl_observe_append","buffer_push_append","list_append_fold","buffer_append_fold"] {
+    for name in ["foldl_observe_append","buffer_push_append","list_append_fold","buffer_append_fold",
+        "foldl_preserves","all_concat","buffer_all_push","buffer_fold_preserves"] {
         assert!(authored.names.contains_key(name));
     }
     CheckedCatalogue::check(&catalogue(&authored),&Program::default()).unwrap();
     let wrong=format!("{source}\nlaw bad(xs:List<u32>,initial:List<u32>){{foldl(xs,initial,fn(item,acc)=>acc)==initial.concat(xs);proof by use foldl_observe_append<u32,List<u32>>(xs,initial,fn(item,acc)=>acc,fn(acc)=>acc);}}");
     let error=author(&wrong).err().expect("unchecked step assumption accepted");
     assert!(error.contains("semantic normal forms differ"),"{error}");
+    let wrong=format!("{source}\nlaw invalid(xs:List<u32>,initial:u32){{choose(initial<10&&foldr(xs,true,fn(item,ok)=>item<10&&ok),foldl(xs,initial,fn(item,acc)=>99)<10,true)==true;proof by use foldl_preserves<u32,u32>(xs,initial,fn(item,acc)=>99,fn(state)=>state<10,fn(item)=>item<10);}}");
+    assert!(author(&wrong).is_err(),"a nonpreserving step received a fold invariant");
+}
+
+#[test]
+fn local_relations_compose_checked_loop_steps_and_reject_false_frames() {
+    let source=include_str!("../knowledge/libraries/local-relations.ink");
+    let authored=author(source).unwrap();
+    for name in ["foldl_frame","foldl_relates","foldl_simulates","independent_record_frame","buffer_list_relation"] {
+        assert!(authored.names.contains_key(name));
+    }
+    CheckedCatalogue::check(&catalogue(&authored),&Program::default()).unwrap();
+    let wrong=format!("{source}\nlaw corrupt_frame(xs:List<u32>,initial:Independent){{foldl(xs,initial,fn(item,acc)=>Independent{{total:acc.total+item,retained:!acc.retained}}).retained==initial.retained;proof by use foldl_frame<u32,Independent,Bool>(xs,initial,fn(item,acc)=>Independent{{total:acc.total+item,retained:!acc.retained}},fn(acc)=>acc.retained);}}");
+    assert!(author(&wrong).is_err(),"a changed footprint was admitted as an unchanged frame");
+    let wrong=format!("{source}\nlaw corrupt_relation(xs:List<u32>,p:List<u32>,l:List<u32>){{choose(p==l,foldl(xs,p,fn(item,acc)=>acc)==foldl(xs,l,fn(item,acc)=>acc.concat([item])),true)==true;proof by use foldl_simulates<u32,List<u32>,List<u32>>(xs,p,l,fn(item,acc)=>acc,fn(item,acc)=>acc.concat([item]),fn(p,l)=>p==l) assuming(normalize);}}");
+    assert!(author(&wrong).is_err(),"a discarding step was admitted as a sequence simulation");
+}
+
+#[test]
+fn simultaneous_join_deltas_retain_the_cross_term_and_signed_deletions_cancel() {
+    let source=include_str!("../knowledge/libraries/incremental-laws.ink");
+    let authored=author(source).unwrap();
+    for name in ["join_sum_both_deltas","weighted_deletion_cancels","filtered_group_sum_append"] {
+        assert!(authored.names.contains_key(name));
+    }
+    CheckedCatalogue::check(&catalogue(&authored),&Program::default()).unwrap();
+    // Both original inputs are empty, but the two new rows join. Omitting the
+    // change/change term would claim zero rather than one.
+    assert!(author("module wrong;law missing_cross(){foldr(list(1),Int(0),fn(x,acc)=>foldr(list(1),Int(0),fn(y,a)=>Int(1)+a)+acc)==Int(0);}").is_err());
+    assert!(author("module wrong;law wrong_sign(){Int(7)+Int(7)==Int(0);}").is_err());
 }
