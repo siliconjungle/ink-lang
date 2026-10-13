@@ -21,13 +21,14 @@ admitted candidate) and the candidate packages.
     python3 bench/planning-corpus/work_model.py build/measured -o bench/planning-corpus/work-model
 """
 import argparse, json, math, statistics, subprocess, sys
+from fractions import Fraction
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
 sys.path.insert(0, str(ROOT / 'planner'))
 sys.path.insert(0, str(ROOT / 'knowledge'))
-from ink_planner.work_model import FEATURES, RUNNER, SEMANTICS, instrument, predict, select, validate_model  # noqa: E402
+from ink_planner.work_model import FEATURES, RUNNER, SEMANTICS, call_weights, instrument, predict, select, validate_model  # noqa: E402
 
 MIN_GAIN, Z = 0.05, 2.0
 
@@ -56,7 +57,7 @@ def paired_speedups(acquisition):
 def count_iterations(directory, receipt, work, compiler):
     """Target iterations for receipts recorded before the planner counted them."""
     calls = json.loads((directory / 'workload.json').read_text())
-    weights = [calls['profile'][phase] for phase, rows in calls['phases'].items() for _ in rows]
+    weights = call_weights(calls)
     calls = [dict(function=r['function'], args=r['args']) for rows in calls['phases'].values() for r in rows]
     scratch = directory / 'counted'
     scratch.mkdir(exist_ok=True)
@@ -95,10 +96,10 @@ def program_data(directory, compiler):
     rows = {r['measurement']: r for r in work['rows']}
     pairs = {}
     for feature, field in (('reference_fuel', 'weighted'), ('target_iterations', 'weighted_iterations')):
-        pairs[feature] = [dict(measurement=m, work_ratio=int(rows[base][field]) / int(rows[m][field]), speedup=s, steps=rows[m]['steps'])
+        pairs[feature] = [dict(measurement=m, work_ratio=float(Fraction(rows[base][field]) / Fraction(rows[m][field])), speedup=s, steps=rows[m]['steps'])
                           for m, s in timed.items()
-                          if m in rows and field in rows[m] and field in rows[base] and int(rows[m][field]) > 0
-                          and rows[m][field] != rows[base][field]]
+                          if m in rows and field in rows[m] and field in rows[base] and Fraction(rows[m][field]) > 0
+                          and Fraction(rows[m][field]) != Fraction(rows[base][field])]
     return dict(receipt=receipt, work=work, measurements=measurements, eligible=eligible, pairs=pairs)
 
 
