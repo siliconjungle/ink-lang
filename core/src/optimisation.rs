@@ -178,7 +178,7 @@ pub fn check(module: &CheckedModule, package: &Package) -> LangResult<CheckedSel
                 snapshot_sha256: crate::registry::identity(&package.knowledge.snapshot)?,
                 closure: package.knowledge.objects.keys().cloned().collect(),
                 applied_laws: crate::action_model::used_theorems(
-                    &replacement.proofs,
+                    replacement,
                     &package.knowledge,
                 )?,
             },

@@ -89,7 +89,10 @@ current slow candidates as benchmark controls and report memory and lifecycle co
 
 Priority 1 remains open for arbitrary cross-row grouped/ordered maintenance,
 unbounded group discovery, full dependency/storage deduplication and additional
-physical executors. Bounded grouped u64 aggregates, exact per-row ordered
+physical executors. Strictly sorted tables are now a checked inductive
+invariant of transition equality ([action algebra](docs/action-algebra.md)).
+Ordered maintenance proofs may assume it once preservation is proved; none use
+it yet beyond certified commutation of writes to different keys. Bounded grouped u64 aggregates, exact per-row ordered
 contributions, proved field projection retention and shared observations are now
 implemented. Existing numerical/keep, String/ID and local-owner
 correspondence, guarded dynamic point deltas, independent cache composition,
