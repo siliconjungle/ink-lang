@@ -745,3 +745,10 @@ eight-second search cap. Its admitted alternatives rise from 20 to 21, but that
 does not establish new-layout exploration or profitability. A balanced focused
 run is separate evidence; the scheduling unit test only establishes dispatch
 diversity when a stage has a worker opportunity.
+
+The balanced focused run completes in 95.258 seconds end to end (60-second
+search cap), visits the record-elision recipe and receives two proposals in
+0.561 seconds. The checker admits the resulting physical alternatives. Default
+selection still retains the baseline at the measurement-evidence gate. This is
+actual discovery/admission on an unchanged eligible frozen program, not proof of
+a runtime speedup or a claim that the quick budget explores every family.
