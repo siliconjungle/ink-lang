@@ -1,0 +1,2323 @@
+{
+  "schema": 1,
+  "provenance": {
+    "captured_at": "2026-10-13T08:15:15.450Z",
+    "hashes": {
+      "bench/frontier-json/state.ink": "f98f971b59e11d0983af3cbbd9a472f2d55b4e5720556de1f31b19b12ae866a4",
+      "bench/frontier-json/prepare.py": "d4040dee385095446525ece11523b5dec6cb5eb269937b4836d8fc439cc05713",
+      "bench/frontier-json/run.mjs": "b50be0aead9e8c1f635ce200417310c483239abaee78f13b014f76afed52c1d3",
+      "bench/frontier-json/json-kernels.mjs": "828cf04568901ac1b2d4c61636b3b7506ea59b8ef6c1f213f5bf4cc8f3165f29",
+      "bench/frontier-json/src/main.rs": "295a467a214ce257f5d41e5fa8304649d2b21cb1beabefc19565d763856b597d",
+      "bench/frontier-json/package-lock.json": "3cc5c3e6c05c279b921df5c2b1a232d2b5f6a114f0a674d2d5d1946840d75a52",
+      "bench/frontier-json/Cargo.lock": "66cecb01a676b2fef9d944feab7ce7d7876e9133c7095f4c0eba566e6ae125f9",
+      "bench/frontier-json/provenance.mjs": "1f7d263503b8b29586a854afc362a59977eb689a28cbdac865d33a00149c1241",
+      "build/frontier-json/fixtures.json": "f03846851a92e4968589f0daa0ae4bb1768f323a3cf90486017e89c58cf62145",
+      "build/frontier-json/preparation.json": "66de374003f86e3cf80ab497b29845762bf6d00d473b858fdc4f94577df278ca",
+      "build/frontier-json/ink.mjs": "da6437126d9c47c66b2b85984b971a736943360770e08315aa260ce75ced2182",
+      "target/debug/ink": "6174520d4666375b4a3e827bc34a6d204ad3124140d3f8d56d9a071b27b462db",
+      "build/frontier-json/ink-indexed.mjs": "7aa19686dd2fbbf3ced38f05237748de574f0d31d005b4bd747d0a723278f674",
+      "build/frontier-json/indexed.plan.json": "9c999ba5286d9056a802d3924cd33d089d21fa88f7a2ca7e9004adb6707d7d7f",
+      "build/frontier-json/target/release/ink-frontier-json-benchmark": "f1b8433e354ff184b7a3af6c74261758b6e89bafc44c8345b457a75a9fe28be7"
+    },
+    "revisions": {
+      ".": "a09be9f7e523a0595e6fa7bd8f73f85b5a82339c",
+      "abi": "972229604ac4787fc47e02f56831f614d7d42eaa",
+      "core": "a09be9f7e523a0595e6fa7bd8f73f85b5a82339c",
+      "native-support": "eea3285a3ea1847c0dda237c3c988178e4a00f4c",
+      "runtime": "308fe01c65747b6a685231785f4f677d71d77b02",
+      "knowledge": "3cfd93cb9e8698b29c5d52b2e31d52419da5a447",
+      "planner": "cbafcdd0e10e65ded513a2298eb32d30a73c421b",
+      "lowerings/c": "10f9a549c6e99e477d81e747f5926e21c709edfa",
+      "lowerings/rust": "a3556b21f5cad90adfdcf9d48d8ebd82f3da63de",
+      "lowerings/js": "a254a8e132dbc0f5580f3736a28839860e6247a0",
+      "lowerings/wasm": "004389520708b23a7d36e4773312875b372b0f88",
+      "lowerings/gpu": "6e0f261b88eee4f3d971da95916e036c849e29aa",
+      "build/frontier": "2c72dbb4030e2695b682d3e49ec82d8c5c8ffec2",
+      "build/frontier-state-main": "9ff840ea690e55fd8c064934f92a26c1603a63fa",
+      "build/frontier-engine": "1fdd01b67367ccd2b1088b0148b558896935856e",
+      "build/frontier-codec": "7835c68e60ecb400f82d26436bd8e8855a7ba9b9"
+    },
+    "node": "v26.1.0",
+    "target": {
+      "cpu": "Apple M2",
+      "platform": "darwin",
+      "arch": "arm64",
+      "release": "25.5.0"
+    },
+    "host_isolation": "Shared development host; no exclusive CPU reservation. Repeated process cohorts and rotated lane order, not a controlled laboratory."
+  },
+  "instrumented": false,
+  "node": "v26.1.0",
+  "target": {
+    "cpu": "Apple M2",
+    "platform": "darwin",
+    "arch": "arm64",
+    "release": "25.5.0"
+  },
+  "process": 70,
+  "rounds": 9,
+  "state_api": "watcher-free; full transactions, rollback, versions, events and acknowledgement supplied in adapter where Frontier omits them",
+  "timing_boundary": "retained compiled data; actual in-process calls; native IPC/checkpoints/capture/setup excluded; input capture/output replies included",
+  "measurements": [
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "ink-js-prepared",
+      "process": 70,
+      "round": 0,
+      "repeats": 4,
+      "calls": 512,
+      "elapsed_ns": "20076333",
+      "checksum": 563596254
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-core-patch",
+      "process": 70,
+      "round": 0,
+      "repeats": 2,
+      "calls": 256,
+      "elapsed_ns": "35604833",
+      "checksum": 92127157
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "ink-js",
+      "process": 70,
+      "round": 0,
+      "repeats": 4,
+      "calls": 512,
+      "elapsed_ns": "22784083",
+      "checksum": 563596254
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-core-dirty",
+      "process": 70,
+      "round": 0,
+      "repeats": 1,
+      "calls": 128,
+      "elapsed_ns": "90634458",
+      "checksum": 26354508
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "ink-js-db-indexed",
+      "process": 70,
+      "round": 0,
+      "repeats": 13,
+      "calls": 1664,
+      "elapsed_ns": "78434917",
+      "checksum": 3577134514
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-state-main-prepared-patch",
+      "process": 70,
+      "round": 0,
+      "repeats": 2,
+      "calls": 256,
+      "elapsed_ns": "34556667",
+      "checksum": 92127157
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-state-release-commit",
+      "process": 70,
+      "round": 0,
+      "repeats": 1,
+      "calls": 128,
+      "elapsed_ns": "185196041",
+      "checksum": 26354508
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-state-main-commit",
+      "process": 70,
+      "round": 0,
+      "repeats": 1,
+      "calls": 128,
+      "elapsed_ns": "187122708",
+      "checksum": 26354508
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-state-main-patch",
+      "process": 70,
+      "round": 0,
+      "repeats": 2,
+      "calls": 256,
+      "elapsed_ns": "34253792",
+      "checksum": 92127157
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-state-release-patch",
+      "process": 70,
+      "round": 0,
+      "repeats": 2,
+      "calls": 256,
+      "elapsed_ns": "34370625",
+      "checksum": 92127157
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "ink-js-bound",
+      "process": 70,
+      "round": 0,
+      "repeats": 4,
+      "calls": 512,
+      "elapsed_ns": "22308375",
+      "checksum": 563596254
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-core-diff",
+      "process": 70,
+      "round": 0,
+      "repeats": 1,
+      "calls": 128,
+      "elapsed_ns": "192014334",
+      "checksum": 26354508
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "ink-js-bound",
+      "process": 70,
+      "round": 1,
+      "repeats": 4,
+      "calls": 512,
+      "elapsed_ns": "24540834",
+      "checksum": 563596254
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-state-main-prepared-patch",
+      "process": 70,
+      "round": 1,
+      "repeats": 2,
+      "calls": 256,
+      "elapsed_ns": "35654083",
+      "checksum": 92127157
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-state-release-commit",
+      "process": 70,
+      "round": 1,
+      "repeats": 1,
+      "calls": 128,
+      "elapsed_ns": "184629125",
+      "checksum": 26354508
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-core-diff",
+      "process": 70,
+      "round": 1,
+      "repeats": 1,
+      "calls": 128,
+      "elapsed_ns": "193280875",
+      "checksum": 26354508
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-state-main-commit",
+      "process": 70,
+      "round": 1,
+      "repeats": 1,
+      "calls": 128,
+      "elapsed_ns": "192502209",
+      "checksum": 26354508
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-state-release-patch",
+      "process": 70,
+      "round": 1,
+      "repeats": 2,
+      "calls": 256,
+      "elapsed_ns": "34137584",
+      "checksum": 92127157
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-core-patch",
+      "process": 70,
+      "round": 1,
+      "repeats": 2,
+      "calls": 256,
+      "elapsed_ns": "34900708",
+      "checksum": 92127157
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "ink-js-prepared",
+      "process": 70,
+      "round": 1,
+      "repeats": 4,
+      "calls": 512,
+      "elapsed_ns": "22397583",
+      "checksum": 563596254
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "ink-js-db-indexed",
+      "process": 70,
+      "round": 1,
+      "repeats": 13,
+      "calls": 1664,
+      "elapsed_ns": "64722667",
+      "checksum": 3577134514
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-state-main-patch",
+      "process": 70,
+      "round": 1,
+      "repeats": 2,
+      "calls": 256,
+      "elapsed_ns": "36681792",
+      "checksum": 92127157
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "ink-js",
+      "process": 70,
+      "round": 1,
+      "repeats": 4,
+      "calls": 512,
+      "elapsed_ns": "21953541",
+      "checksum": 563596254
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-core-dirty",
+      "process": 70,
+      "round": 1,
+      "repeats": 1,
+      "calls": 128,
+      "elapsed_ns": "89718500",
+      "checksum": 26354508
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "ink-js-prepared",
+      "process": 70,
+      "round": 2,
+      "repeats": 4,
+      "calls": 512,
+      "elapsed_ns": "21778709",
+      "checksum": 563596254
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "ink-js-bound",
+      "process": 70,
+      "round": 2,
+      "repeats": 4,
+      "calls": 512,
+      "elapsed_ns": "22494292",
+      "checksum": 563596254
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-state-main-patch",
+      "process": 70,
+      "round": 2,
+      "repeats": 2,
+      "calls": 256,
+      "elapsed_ns": "34624834",
+      "checksum": 92127157
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-state-release-commit",
+      "process": 70,
+      "round": 2,
+      "repeats": 1,
+      "calls": 128,
+      "elapsed_ns": "183930917",
+      "checksum": 26354508
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-core-patch",
+      "process": 70,
+      "round": 2,
+      "repeats": 2,
+      "calls": 256,
+      "elapsed_ns": "34169417",
+      "checksum": 92127157
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-state-main-prepared-patch",
+      "process": 70,
+      "round": 2,
+      "repeats": 2,
+      "calls": 256,
+      "elapsed_ns": "34538708",
+      "checksum": 92127157
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "ink-js",
+      "process": 70,
+      "round": 2,
+      "repeats": 4,
+      "calls": 512,
+      "elapsed_ns": "23312459",
+      "checksum": 563596254
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "ink-js-db-indexed",
+      "process": 70,
+      "round": 2,
+      "repeats": 13,
+      "calls": 1664,
+      "elapsed_ns": "63506833",
+      "checksum": 3577134514
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-core-dirty",
+      "process": 70,
+      "round": 2,
+      "repeats": 1,
+      "calls": 128,
+      "elapsed_ns": "89698917",
+      "checksum": 26354508
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-core-diff",
+      "process": 70,
+      "round": 2,
+      "repeats": 1,
+      "calls": 128,
+      "elapsed_ns": "186230583",
+      "checksum": 26354508
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-state-release-patch",
+      "process": 70,
+      "round": 2,
+      "repeats": 2,
+      "calls": 256,
+      "elapsed_ns": "34288750",
+      "checksum": 92127157
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-state-main-commit",
+      "process": 70,
+      "round": 2,
+      "repeats": 1,
+      "calls": 128,
+      "elapsed_ns": "183558542",
+      "checksum": 26354508
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-core-dirty",
+      "process": 70,
+      "round": 3,
+      "repeats": 1,
+      "calls": 128,
+      "elapsed_ns": "89514916",
+      "checksum": 26354508
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "ink-js-db-indexed",
+      "process": 70,
+      "round": 3,
+      "repeats": 13,
+      "calls": 1664,
+      "elapsed_ns": "64663375",
+      "checksum": 3577134514
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-state-main-patch",
+      "process": 70,
+      "round": 3,
+      "repeats": 2,
+      "calls": 256,
+      "elapsed_ns": "34578292",
+      "checksum": 92127157
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-core-diff",
+      "process": 70,
+      "round": 3,
+      "repeats": 1,
+      "calls": 128,
+      "elapsed_ns": "186442875",
+      "checksum": 26354508
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-state-release-patch",
+      "process": 70,
+      "round": 3,
+      "repeats": 2,
+      "calls": 256,
+      "elapsed_ns": "34225083",
+      "checksum": 92127157
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-state-main-prepared-patch",
+      "process": 70,
+      "round": 3,
+      "repeats": 2,
+      "calls": 256,
+      "elapsed_ns": "34435750",
+      "checksum": 92127157
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "ink-js-prepared",
+      "process": 70,
+      "round": 3,
+      "repeats": 4,
+      "calls": 512,
+      "elapsed_ns": "21695750",
+      "checksum": 563596254
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-state-release-commit",
+      "process": 70,
+      "round": 3,
+      "repeats": 1,
+      "calls": 128,
+      "elapsed_ns": "183927875",
+      "checksum": 26354508
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "ink-js-bound",
+      "process": 70,
+      "round": 3,
+      "repeats": 4,
+      "calls": 512,
+      "elapsed_ns": "22702583",
+      "checksum": 563596254
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-state-main-commit",
+      "process": 70,
+      "round": 3,
+      "repeats": 1,
+      "calls": 128,
+      "elapsed_ns": "184270208",
+      "checksum": 26354508
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "ink-js",
+      "process": 70,
+      "round": 3,
+      "repeats": 4,
+      "calls": 512,
+      "elapsed_ns": "22390500",
+      "checksum": 563596254
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-core-patch",
+      "process": 70,
+      "round": 3,
+      "repeats": 2,
+      "calls": 256,
+      "elapsed_ns": "36421792",
+      "checksum": 92127157
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-state-main-patch",
+      "process": 70,
+      "round": 4,
+      "repeats": 2,
+      "calls": 256,
+      "elapsed_ns": "35343083",
+      "checksum": 92127157
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "ink-js-db-indexed",
+      "process": 70,
+      "round": 4,
+      "repeats": 13,
+      "calls": 1664,
+      "elapsed_ns": "67654875",
+      "checksum": 3577134514
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "ink-js",
+      "process": 70,
+      "round": 4,
+      "repeats": 4,
+      "calls": 512,
+      "elapsed_ns": "22699083",
+      "checksum": 563596254
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-state-release-patch",
+      "process": 70,
+      "round": 4,
+      "repeats": 2,
+      "calls": 256,
+      "elapsed_ns": "35255000",
+      "checksum": 92127157
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-core-dirty",
+      "process": 70,
+      "round": 4,
+      "repeats": 1,
+      "calls": 128,
+      "elapsed_ns": "89455458",
+      "checksum": 26354508
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-state-main-prepared-patch",
+      "process": 70,
+      "round": 4,
+      "repeats": 2,
+      "calls": 256,
+      "elapsed_ns": "34669125",
+      "checksum": 92127157
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-core-patch",
+      "process": 70,
+      "round": 4,
+      "repeats": 2,
+      "calls": 256,
+      "elapsed_ns": "34741125",
+      "checksum": 92127157
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "ink-js-bound",
+      "process": 70,
+      "round": 4,
+      "repeats": 4,
+      "calls": 512,
+      "elapsed_ns": "23157625",
+      "checksum": 563596254
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-state-release-commit",
+      "process": 70,
+      "round": 4,
+      "repeats": 1,
+      "calls": 128,
+      "elapsed_ns": "183219291",
+      "checksum": 26354508
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-state-main-commit",
+      "process": 70,
+      "round": 4,
+      "repeats": 1,
+      "calls": 128,
+      "elapsed_ns": "183496208",
+      "checksum": 26354508
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "ink-js-prepared",
+      "process": 70,
+      "round": 4,
+      "repeats": 4,
+      "calls": 512,
+      "elapsed_ns": "21260958",
+      "checksum": 563596254
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-core-diff",
+      "process": 70,
+      "round": 4,
+      "repeats": 1,
+      "calls": 128,
+      "elapsed_ns": "186172042",
+      "checksum": 26354508
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "ink-js-db-indexed",
+      "process": 70,
+      "round": 5,
+      "repeats": 13,
+      "calls": 1664,
+      "elapsed_ns": "66295959",
+      "checksum": 3577134514
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-core-diff",
+      "process": 70,
+      "round": 5,
+      "repeats": 1,
+      "calls": 128,
+      "elapsed_ns": "186613667",
+      "checksum": 26354508
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-state-release-patch",
+      "process": 70,
+      "round": 5,
+      "repeats": 2,
+      "calls": 256,
+      "elapsed_ns": "34467584",
+      "checksum": 92127157
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-state-main-commit",
+      "process": 70,
+      "round": 5,
+      "repeats": 1,
+      "calls": 128,
+      "elapsed_ns": "182898375",
+      "checksum": 26354508
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-state-main-prepared-patch",
+      "process": 70,
+      "round": 5,
+      "repeats": 2,
+      "calls": 256,
+      "elapsed_ns": "34622500",
+      "checksum": 92127157
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-core-patch",
+      "process": 70,
+      "round": 5,
+      "repeats": 2,
+      "calls": 256,
+      "elapsed_ns": "34347084",
+      "checksum": 92127157
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-state-main-patch",
+      "process": 70,
+      "round": 5,
+      "repeats": 2,
+      "calls": 256,
+      "elapsed_ns": "34746000",
+      "checksum": 92127157
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-core-dirty",
+      "process": 70,
+      "round": 5,
+      "repeats": 1,
+      "calls": 128,
+      "elapsed_ns": "89088500",
+      "checksum": 26354508
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "ink-js-bound",
+      "process": 70,
+      "round": 5,
+      "repeats": 4,
+      "calls": 512,
+      "elapsed_ns": "25299292",
+      "checksum": 563596254
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "ink-js",
+      "process": 70,
+      "round": 5,
+      "repeats": 4,
+      "calls": 512,
+      "elapsed_ns": "22586417",
+      "checksum": 563596254
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-state-release-commit",
+      "process": 70,
+      "round": 5,
+      "repeats": 1,
+      "calls": 128,
+      "elapsed_ns": "184780875",
+      "checksum": 26354508
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "ink-js-prepared",
+      "process": 70,
+      "round": 5,
+      "repeats": 4,
+      "calls": 512,
+      "elapsed_ns": "20693209",
+      "checksum": 563596254
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "ink-js",
+      "process": 70,
+      "round": 6,
+      "repeats": 4,
+      "calls": 512,
+      "elapsed_ns": "22155500",
+      "checksum": 563596254
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "ink-js-prepared",
+      "process": 70,
+      "round": 6,
+      "repeats": 4,
+      "calls": 512,
+      "elapsed_ns": "21778000",
+      "checksum": 563596254
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-core-patch",
+      "process": 70,
+      "round": 6,
+      "repeats": 2,
+      "calls": 256,
+      "elapsed_ns": "34569875",
+      "checksum": 92127157
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-state-release-commit",
+      "process": 70,
+      "round": 6,
+      "repeats": 1,
+      "calls": 128,
+      "elapsed_ns": "186331584",
+      "checksum": 26354508
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-core-diff",
+      "process": 70,
+      "round": 6,
+      "repeats": 1,
+      "calls": 128,
+      "elapsed_ns": "187386834",
+      "checksum": 26354508
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-core-dirty",
+      "process": 70,
+      "round": 6,
+      "repeats": 1,
+      "calls": 128,
+      "elapsed_ns": "88785709",
+      "checksum": 26354508
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "ink-js-bound",
+      "process": 70,
+      "round": 6,
+      "repeats": 4,
+      "calls": 512,
+      "elapsed_ns": "24551417",
+      "checksum": 563596254
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-state-main-commit",
+      "process": 70,
+      "round": 6,
+      "repeats": 1,
+      "calls": 128,
+      "elapsed_ns": "189204083",
+      "checksum": 26354508
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-state-main-patch",
+      "process": 70,
+      "round": 6,
+      "repeats": 2,
+      "calls": 256,
+      "elapsed_ns": "34314541",
+      "checksum": 92127157
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-state-main-prepared-patch",
+      "process": 70,
+      "round": 6,
+      "repeats": 2,
+      "calls": 256,
+      "elapsed_ns": "34495625",
+      "checksum": 92127157
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "ink-js-db-indexed",
+      "process": 70,
+      "round": 6,
+      "repeats": 13,
+      "calls": 1664,
+      "elapsed_ns": "63543959",
+      "checksum": 3577134514
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-state-release-patch",
+      "process": 70,
+      "round": 6,
+      "repeats": 2,
+      "calls": 256,
+      "elapsed_ns": "34699334",
+      "checksum": 92127157
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-core-diff",
+      "process": 70,
+      "round": 7,
+      "repeats": 1,
+      "calls": 128,
+      "elapsed_ns": "184737917",
+      "checksum": 26354508
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-state-release-commit",
+      "process": 70,
+      "round": 7,
+      "repeats": 1,
+      "calls": 128,
+      "elapsed_ns": "183171250",
+      "checksum": 26354508
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "ink-js-bound",
+      "process": 70,
+      "round": 7,
+      "repeats": 4,
+      "calls": 512,
+      "elapsed_ns": "22292375",
+      "checksum": 563596254
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "ink-js",
+      "process": 70,
+      "round": 7,
+      "repeats": 4,
+      "calls": 512,
+      "elapsed_ns": "23622166",
+      "checksum": 563596254
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "ink-js-db-indexed",
+      "process": 70,
+      "round": 7,
+      "repeats": 13,
+      "calls": 1664,
+      "elapsed_ns": "64125584",
+      "checksum": 3577134514
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "ink-js-prepared",
+      "process": 70,
+      "round": 7,
+      "repeats": 4,
+      "calls": 512,
+      "elapsed_ns": "20801833",
+      "checksum": 563596254
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-state-release-patch",
+      "process": 70,
+      "round": 7,
+      "repeats": 2,
+      "calls": 256,
+      "elapsed_ns": "35289250",
+      "checksum": 92127157
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-core-patch",
+      "process": 70,
+      "round": 7,
+      "repeats": 2,
+      "calls": 256,
+      "elapsed_ns": "34860917",
+      "checksum": 92127157
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-core-dirty",
+      "process": 70,
+      "round": 7,
+      "repeats": 1,
+      "calls": 128,
+      "elapsed_ns": "90714042",
+      "checksum": 26354508
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-state-main-commit",
+      "process": 70,
+      "round": 7,
+      "repeats": 1,
+      "calls": 128,
+      "elapsed_ns": "184137417",
+      "checksum": 26354508
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-state-main-prepared-patch",
+      "process": 70,
+      "round": 7,
+      "repeats": 2,
+      "calls": 256,
+      "elapsed_ns": "34101834",
+      "checksum": 92127157
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-state-main-patch",
+      "process": 70,
+      "round": 7,
+      "repeats": 2,
+      "calls": 256,
+      "elapsed_ns": "34022875",
+      "checksum": 92127157
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-core-patch",
+      "process": 70,
+      "round": 8,
+      "repeats": 2,
+      "calls": 256,
+      "elapsed_ns": "34350291",
+      "checksum": 92127157
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "ink-js-db-indexed",
+      "process": 70,
+      "round": 8,
+      "repeats": 13,
+      "calls": 1664,
+      "elapsed_ns": "64307417",
+      "checksum": 3577134514
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "ink-js-prepared",
+      "process": 70,
+      "round": 8,
+      "repeats": 4,
+      "calls": 512,
+      "elapsed_ns": "23139083",
+      "checksum": 563596254
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "ink-js-bound",
+      "process": 70,
+      "round": 8,
+      "repeats": 4,
+      "calls": 512,
+      "elapsed_ns": "24125042",
+      "checksum": 563596254
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "ink-js",
+      "process": 70,
+      "round": 8,
+      "repeats": 4,
+      "calls": 512,
+      "elapsed_ns": "22341458",
+      "checksum": 563596254
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-core-dirty",
+      "process": 70,
+      "round": 8,
+      "repeats": 1,
+      "calls": 128,
+      "elapsed_ns": "88616333",
+      "checksum": 26354508
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-state-release-commit",
+      "process": 70,
+      "round": 8,
+      "repeats": 1,
+      "calls": 128,
+      "elapsed_ns": "188845459",
+      "checksum": 26354508
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-state-main-patch",
+      "process": 70,
+      "round": 8,
+      "repeats": 2,
+      "calls": 256,
+      "elapsed_ns": "34724708",
+      "checksum": 92127157
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-state-main-commit",
+      "process": 70,
+      "round": 8,
+      "repeats": 1,
+      "calls": 128,
+      "elapsed_ns": "184061042",
+      "checksum": 26354508
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-core-diff",
+      "process": 70,
+      "round": 8,
+      "repeats": 1,
+      "calls": 128,
+      "elapsed_ns": "189972834",
+      "checksum": 26354508
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-state-release-patch",
+      "process": 70,
+      "round": 8,
+      "repeats": 2,
+      "calls": 256,
+      "elapsed_ns": "35423875",
+      "checksum": 92127157
+    },
+    {
+      "fixture": "mixed-4096",
+      "rows": 4096,
+      "workload": "mixed",
+      "lane": "frontier-state-main-prepared-patch",
+      "process": 70,
+      "round": 8,
+      "repeats": 2,
+      "calls": 256,
+      "elapsed_ns": "34264625",
+      "checksum": 92127157
+    }
+  ],
+  "setup": [
+    {
+      "fixture": "mixed-4096",
+      "lane": "ink-js-prepared",
+      "process": 70,
+      "round": 0,
+      "initialise_ns": "33647417",
+      "prepare_ns": "316958"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-core-patch",
+      "process": 70,
+      "round": 0,
+      "initialise_ns": "1386958",
+      "prepare_ns": "375"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "ink-js",
+      "process": 70,
+      "round": 0,
+      "initialise_ns": "29758750",
+      "prepare_ns": "458"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-core-dirty",
+      "process": 70,
+      "round": 0,
+      "initialise_ns": "1446750",
+      "prepare_ns": "208"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "ink-js-db-indexed",
+      "process": 70,
+      "round": 0,
+      "initialise_ns": "91299625",
+      "prepare_ns": "500"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-state-main-prepared-patch",
+      "process": 70,
+      "round": 0,
+      "initialise_ns": "1485541",
+      "prepare_ns": "20042"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-state-release-commit",
+      "process": 70,
+      "round": 0,
+      "initialise_ns": "1342833",
+      "prepare_ns": "125"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-state-main-commit",
+      "process": 70,
+      "round": 0,
+      "initialise_ns": "1362417",
+      "prepare_ns": "250"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-state-main-patch",
+      "process": 70,
+      "round": 0,
+      "initialise_ns": "1398125",
+      "prepare_ns": "166"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-state-release-patch",
+      "process": 70,
+      "round": 0,
+      "initialise_ns": "1327834",
+      "prepare_ns": "167"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "ink-js-bound",
+      "process": 70,
+      "round": 0,
+      "initialise_ns": "35287750",
+      "prepare_ns": "375"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-core-diff",
+      "process": 70,
+      "round": 0,
+      "initialise_ns": "1411917",
+      "prepare_ns": "41"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "ink-js-bound",
+      "process": 70,
+      "round": 1,
+      "initialise_ns": "30172584",
+      "prepare_ns": "333"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-state-main-prepared-patch",
+      "process": 70,
+      "round": 1,
+      "initialise_ns": "1817417",
+      "prepare_ns": "23250"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-state-release-commit",
+      "process": 70,
+      "round": 1,
+      "initialise_ns": "1599334",
+      "prepare_ns": "459"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-core-diff",
+      "process": 70,
+      "round": 1,
+      "initialise_ns": "1413458",
+      "prepare_ns": "125"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-state-main-commit",
+      "process": 70,
+      "round": 1,
+      "initialise_ns": "1396167",
+      "prepare_ns": "584"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-state-release-patch",
+      "process": 70,
+      "round": 1,
+      "initialise_ns": "1399583",
+      "prepare_ns": "125"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-core-patch",
+      "process": 70,
+      "round": 1,
+      "initialise_ns": "1320583",
+      "prepare_ns": "167"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "ink-js-prepared",
+      "process": 70,
+      "round": 1,
+      "initialise_ns": "26653583",
+      "prepare_ns": "140542"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "ink-js-db-indexed",
+      "process": 70,
+      "round": 1,
+      "initialise_ns": "84291750",
+      "prepare_ns": "542"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-state-main-patch",
+      "process": 70,
+      "round": 1,
+      "initialise_ns": "1802417",
+      "prepare_ns": "291"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "ink-js",
+      "process": 70,
+      "round": 1,
+      "initialise_ns": "40502750",
+      "prepare_ns": "375"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-core-dirty",
+      "process": 70,
+      "round": 1,
+      "initialise_ns": "1398250",
+      "prepare_ns": "83"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "ink-js-prepared",
+      "process": 70,
+      "round": 2,
+      "initialise_ns": "26157583",
+      "prepare_ns": "132708"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "ink-js-bound",
+      "process": 70,
+      "round": 2,
+      "initialise_ns": "32245917",
+      "prepare_ns": "542"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-state-main-patch",
+      "process": 70,
+      "round": 2,
+      "initialise_ns": "1383792",
+      "prepare_ns": "209"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-state-release-commit",
+      "process": 70,
+      "round": 2,
+      "initialise_ns": "1331834",
+      "prepare_ns": "375"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-core-patch",
+      "process": 70,
+      "round": 2,
+      "initialise_ns": "1359708",
+      "prepare_ns": "167"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-state-main-prepared-patch",
+      "process": 70,
+      "round": 2,
+      "initialise_ns": "1365666",
+      "prepare_ns": "31375"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "ink-js",
+      "process": 70,
+      "round": 2,
+      "initialise_ns": "28449167",
+      "prepare_ns": "500"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "ink-js-db-indexed",
+      "process": 70,
+      "round": 2,
+      "initialise_ns": "84323792",
+      "prepare_ns": "500"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-core-dirty",
+      "process": 70,
+      "round": 2,
+      "initialise_ns": "1351375",
+      "prepare_ns": "125"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-core-diff",
+      "process": 70,
+      "round": 2,
+      "initialise_ns": "1313042",
+      "prepare_ns": "41"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-state-release-patch",
+      "process": 70,
+      "round": 2,
+      "initialise_ns": "1370584",
+      "prepare_ns": "208"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-state-main-commit",
+      "process": 70,
+      "round": 2,
+      "initialise_ns": "1291167",
+      "prepare_ns": "83"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-core-dirty",
+      "process": 70,
+      "round": 3,
+      "initialise_ns": "1391917",
+      "prepare_ns": "84"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "ink-js-db-indexed",
+      "process": 70,
+      "round": 3,
+      "initialise_ns": "83876208",
+      "prepare_ns": "667"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-state-main-patch",
+      "process": 70,
+      "round": 3,
+      "initialise_ns": "1819167",
+      "prepare_ns": "417"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-core-diff",
+      "process": 70,
+      "round": 3,
+      "initialise_ns": "1402500",
+      "prepare_ns": "125"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-state-release-patch",
+      "process": 70,
+      "round": 3,
+      "initialise_ns": "1374916",
+      "prepare_ns": "125"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-state-main-prepared-patch",
+      "process": 70,
+      "round": 3,
+      "initialise_ns": "1377458",
+      "prepare_ns": "19875"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "ink-js-prepared",
+      "process": 70,
+      "round": 3,
+      "initialise_ns": "35774333",
+      "prepare_ns": "158334"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-state-release-commit",
+      "process": 70,
+      "round": 3,
+      "initialise_ns": "1680958",
+      "prepare_ns": "292"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "ink-js-bound",
+      "process": 70,
+      "round": 3,
+      "initialise_ns": "23565333",
+      "prepare_ns": "584"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-state-main-commit",
+      "process": 70,
+      "round": 3,
+      "initialise_ns": "1375166",
+      "prepare_ns": "209"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "ink-js",
+      "process": 70,
+      "round": 3,
+      "initialise_ns": "34011209",
+      "prepare_ns": "667"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-core-patch",
+      "process": 70,
+      "round": 3,
+      "initialise_ns": "1804333",
+      "prepare_ns": "250"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-state-main-patch",
+      "process": 70,
+      "round": 4,
+      "initialise_ns": "1329583",
+      "prepare_ns": "42"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "ink-js-db-indexed",
+      "process": 70,
+      "round": 4,
+      "initialise_ns": "85055042",
+      "prepare_ns": "583"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "ink-js",
+      "process": 70,
+      "round": 4,
+      "initialise_ns": "36736208",
+      "prepare_ns": "875"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-state-release-patch",
+      "process": 70,
+      "round": 4,
+      "initialise_ns": "1477917",
+      "prepare_ns": "166"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-core-dirty",
+      "process": 70,
+      "round": 4,
+      "initialise_ns": "1359333",
+      "prepare_ns": "42"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-state-main-prepared-patch",
+      "process": 70,
+      "round": 4,
+      "initialise_ns": "1419583",
+      "prepare_ns": "21708"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-core-patch",
+      "process": 70,
+      "round": 4,
+      "initialise_ns": "1369667",
+      "prepare_ns": "41"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "ink-js-bound",
+      "process": 70,
+      "round": 4,
+      "initialise_ns": "29327916",
+      "prepare_ns": "791"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-state-release-commit",
+      "process": 70,
+      "round": 4,
+      "initialise_ns": "1666750",
+      "prepare_ns": "334"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-state-main-commit",
+      "process": 70,
+      "round": 4,
+      "initialise_ns": "1328333",
+      "prepare_ns": "292"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "ink-js-prepared",
+      "process": 70,
+      "round": 4,
+      "initialise_ns": "34224583",
+      "prepare_ns": "216041"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-core-diff",
+      "process": 70,
+      "round": 4,
+      "initialise_ns": "1399458",
+      "prepare_ns": "459"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "ink-js-db-indexed",
+      "process": 70,
+      "round": 5,
+      "initialise_ns": "84728583",
+      "prepare_ns": "625"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-core-diff",
+      "process": 70,
+      "round": 5,
+      "initialise_ns": "1362750",
+      "prepare_ns": "166"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-state-release-patch",
+      "process": 70,
+      "round": 5,
+      "initialise_ns": "1368583",
+      "prepare_ns": "209"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-state-main-commit",
+      "process": 70,
+      "round": 5,
+      "initialise_ns": "1331166",
+      "prepare_ns": "250"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-state-main-prepared-patch",
+      "process": 70,
+      "round": 5,
+      "initialise_ns": "1417333",
+      "prepare_ns": "20292"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-core-patch",
+      "process": 70,
+      "round": 5,
+      "initialise_ns": "1289875",
+      "prepare_ns": "41"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-state-main-patch",
+      "process": 70,
+      "round": 5,
+      "initialise_ns": "1401125",
+      "prepare_ns": "42"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-core-dirty",
+      "process": 70,
+      "round": 5,
+      "initialise_ns": "1341583",
+      "prepare_ns": "42"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "ink-js-bound",
+      "process": 70,
+      "round": 5,
+      "initialise_ns": "31179500",
+      "prepare_ns": "458"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "ink-js",
+      "process": 70,
+      "round": 5,
+      "initialise_ns": "22750708",
+      "prepare_ns": "542"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-state-release-commit",
+      "process": 70,
+      "round": 5,
+      "initialise_ns": "1587208",
+      "prepare_ns": "167"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "ink-js-prepared",
+      "process": 70,
+      "round": 5,
+      "initialise_ns": "34365458",
+      "prepare_ns": "170916"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "ink-js",
+      "process": 70,
+      "round": 6,
+      "initialise_ns": "25798250",
+      "prepare_ns": "458"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "ink-js-prepared",
+      "process": 70,
+      "round": 6,
+      "initialise_ns": "23144750",
+      "prepare_ns": "143792"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-core-patch",
+      "process": 70,
+      "round": 6,
+      "initialise_ns": "1571500",
+      "prepare_ns": "416"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-state-release-commit",
+      "process": 70,
+      "round": 6,
+      "initialise_ns": "1398584",
+      "prepare_ns": "41"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-core-diff",
+      "process": 70,
+      "round": 6,
+      "initialise_ns": "1360083",
+      "prepare_ns": "167"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-core-dirty",
+      "process": 70,
+      "round": 6,
+      "initialise_ns": "1626583",
+      "prepare_ns": "333"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "ink-js-bound",
+      "process": 70,
+      "round": 6,
+      "initialise_ns": "29246500",
+      "prepare_ns": "583"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-state-main-commit",
+      "process": 70,
+      "round": 6,
+      "initialise_ns": "1477000",
+      "prepare_ns": "250"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-state-main-patch",
+      "process": 70,
+      "round": 6,
+      "initialise_ns": "1688833",
+      "prepare_ns": "417"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-state-main-prepared-patch",
+      "process": 70,
+      "round": 6,
+      "initialise_ns": "1405209",
+      "prepare_ns": "19792"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "ink-js-db-indexed",
+      "process": 70,
+      "round": 6,
+      "initialise_ns": "85478958",
+      "prepare_ns": "792"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-state-release-patch",
+      "process": 70,
+      "round": 6,
+      "initialise_ns": "1409250",
+      "prepare_ns": "167"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-core-diff",
+      "process": 70,
+      "round": 7,
+      "initialise_ns": "1300584",
+      "prepare_ns": "125"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-state-release-commit",
+      "process": 70,
+      "round": 7,
+      "initialise_ns": "1457834",
+      "prepare_ns": "416"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "ink-js-bound",
+      "process": 70,
+      "round": 7,
+      "initialise_ns": "35287583",
+      "prepare_ns": "417"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "ink-js",
+      "process": 70,
+      "round": 7,
+      "initialise_ns": "26683084",
+      "prepare_ns": "875"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "ink-js-db-indexed",
+      "process": 70,
+      "round": 7,
+      "initialise_ns": "86534833",
+      "prepare_ns": "708"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "ink-js-prepared",
+      "process": 70,
+      "round": 7,
+      "initialise_ns": "37222666",
+      "prepare_ns": "171958"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-state-release-patch",
+      "process": 70,
+      "round": 7,
+      "initialise_ns": "1389917",
+      "prepare_ns": "250"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-core-patch",
+      "process": 70,
+      "round": 7,
+      "initialise_ns": "1372166",
+      "prepare_ns": "125"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-core-dirty",
+      "process": 70,
+      "round": 7,
+      "initialise_ns": "1339166",
+      "prepare_ns": "375"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-state-main-commit",
+      "process": 70,
+      "round": 7,
+      "initialise_ns": "1362875",
+      "prepare_ns": "292"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-state-main-prepared-patch",
+      "process": 70,
+      "round": 7,
+      "initialise_ns": "1391417",
+      "prepare_ns": "19250"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-state-main-patch",
+      "process": 70,
+      "round": 7,
+      "initialise_ns": "1296750",
+      "prepare_ns": "167"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-core-patch",
+      "process": 70,
+      "round": 8,
+      "initialise_ns": "1277792",
+      "prepare_ns": "167"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "ink-js-db-indexed",
+      "process": 70,
+      "round": 8,
+      "initialise_ns": "87087417",
+      "prepare_ns": "875"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "ink-js-prepared",
+      "process": 70,
+      "round": 8,
+      "initialise_ns": "28513125",
+      "prepare_ns": "167167"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "ink-js-bound",
+      "process": 70,
+      "round": 8,
+      "initialise_ns": "24100583",
+      "prepare_ns": "667"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "ink-js",
+      "process": 70,
+      "round": 8,
+      "initialise_ns": "22088459",
+      "prepare_ns": "459"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-core-dirty",
+      "process": 70,
+      "round": 8,
+      "initialise_ns": "1520291",
+      "prepare_ns": "250"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-state-release-commit",
+      "process": 70,
+      "round": 8,
+      "initialise_ns": "1359833",
+      "prepare_ns": "167"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-state-main-patch",
+      "process": 70,
+      "round": 8,
+      "initialise_ns": "1427459",
+      "prepare_ns": "292"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-state-main-commit",
+      "process": 70,
+      "round": 8,
+      "initialise_ns": "1312375",
+      "prepare_ns": "125"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-core-diff",
+      "process": 70,
+      "round": 8,
+      "initialise_ns": "1439541",
+      "prepare_ns": "83"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-state-release-patch",
+      "process": 70,
+      "round": 8,
+      "initialise_ns": "1328750",
+      "prepare_ns": "83"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-state-main-prepared-patch",
+      "process": 70,
+      "round": 8,
+      "initialise_ns": "1403125",
+      "prepare_ns": "20000"
+    }
+  ],
+  "validation": [
+    {
+      "fixture": "mixed-4096",
+      "lane": "ink-js-bound",
+      "full_replies": true,
+      "logical_state": true,
+      "exact_portable_snapshot": true,
+      "snapshot_sha256": "a3719756b92366180b3c27871087d53762df39f809dc9a246925fb25ec41d4c4"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "ink-js-prepared",
+      "full_replies": true,
+      "logical_state": true,
+      "exact_portable_snapshot": true,
+      "snapshot_sha256": "a3719756b92366180b3c27871087d53762df39f809dc9a246925fb25ec41d4c4"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-core-dirty",
+      "full_replies": true,
+      "logical_state": true,
+      "exact_portable_snapshot": false,
+      "snapshot_sha256": null
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-core-diff",
+      "full_replies": true,
+      "logical_state": true,
+      "exact_portable_snapshot": false,
+      "snapshot_sha256": null
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "ink-js",
+      "full_replies": true,
+      "logical_state": true,
+      "exact_portable_snapshot": true,
+      "snapshot_sha256": "a3719756b92366180b3c27871087d53762df39f809dc9a246925fb25ec41d4c4"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-state-main-commit",
+      "full_replies": true,
+      "logical_state": true,
+      "exact_portable_snapshot": false,
+      "snapshot_sha256": null
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-state-release-commit",
+      "full_replies": true,
+      "logical_state": true,
+      "exact_portable_snapshot": false,
+      "snapshot_sha256": null
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-state-main-prepared-patch",
+      "full_replies": true,
+      "logical_state": true,
+      "exact_portable_snapshot": false,
+      "snapshot_sha256": null
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-state-release-patch",
+      "full_replies": true,
+      "logical_state": true,
+      "exact_portable_snapshot": false,
+      "snapshot_sha256": null
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-core-patch",
+      "full_replies": true,
+      "logical_state": true,
+      "exact_portable_snapshot": false,
+      "snapshot_sha256": null
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "ink-js-db-indexed",
+      "full_replies": true,
+      "logical_state": true,
+      "exact_portable_snapshot": true,
+      "snapshot_sha256": "a3719756b92366180b3c27871087d53762df39f809dc9a246925fb25ec41d4c4"
+    },
+    {
+      "fixture": "mixed-4096",
+      "lane": "frontier-state-main-patch",
+      "full_replies": true,
+      "logical_state": true,
+      "exact_portable_snapshot": false,
+      "snapshot_sha256": null
+    }
+  ]
+}
