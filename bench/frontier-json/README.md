@@ -63,3 +63,11 @@ diagnostic comparisons, separate from the Frontier cohorts. `profile.mjs` starts
 CPU profiling after warmup; profiled results never establish speed gains. No run
 has exclusive CPU reservation. Retained/peak memory and equivalent startup are
 not yet ranked, and no report establishes an all-metrics victory.
+
+The `text` paired mode measures parsing, checked rendering and complete known
+editing. `text-bytes` additionally UTF-8 encodes every rendered result, including
+any deferred string flattening. Both accept `--fields=1..10000` and
+`--text-fixture=numeric|unicode|nested`; use a unique `--run` label for every
+process/fixture. Compare both consumption boundaries before accepting changes
+to string construction. Fixture construction and codec binding stay outside
+timing; validation and resource accounting remain inside.

@@ -1,8 +1,36 @@
 # Frontier state and JSON evidence, 13 October 2026
 
 The all-metrics target remains unmet. Read-heavy state and retained JSON editing
-win in these fixtures; row updates, conversion and portable-message codecs lose.
+win in these fixtures; row updates, conversion and message decoding still lose.
 This is a shared development host, not a controlled laboratory.
+
+## Incremental checked text rendering
+
+The JSON boundary now accumulates validated output into a string rather than
+retaining an array of fragments and joining it. Every shape, numeric-token,
+Unicode, duplicate-name and text/wire resource check remains in the same order.
+This is ABI string construction, not a database algorithm replacement or new
+proof authority. The exact emitted candidates, source, regression fixtures and
+harness are archived in `artifacts/json-render-rope/`.
+ABI `5aa034a` and JavaScript `b8c36c3` publish the change. Full ABI and standalone
+JavaScript suites passed, as did mandatory cross-target JSON/state parity:
+five JSON tests and two maintained-state tests, including exact portable state,
+rollback and forged-proof rejection. Logs and full package revisions are archived.
+
+Three paired processes with complete UTF-8 output consumption give rendering
+speedups of 1.153×, 1.092× and 1.164× (median 1.153×). Complete text editing
+improves 1.053×, 1.041× and 1.091× (median 1.053×). The separate text-only
+boundary improves rendering 1.131×, 1.285× and 1.157×; consumer flattening is
+therefore measured explicitly rather than assumed free. Four-field Unicode and
+4096-field nested UTF-8-consumed fixtures improve rendering 1.109×/1.256× and
+complete editing 1.143×/1.107×. Parsing is unchanged by the source edit; its
+measured variation is noise, not a claimed gain.
+
+Literal JSON constructors and applying the ASCII length regexp to short strings
+show no consistent benefit and are rejected. All raw reports remain intact in
+`json-render-rope-summary.json`. These are paired implementation diagnostics;
+they establish no new Frontier, startup or peak-memory ranking. The text gap
+and the full all-metrics target remain open.
 
 ## Literal wire materialisation
 
@@ -70,7 +98,7 @@ The literal/runtime helper cost and earlier execution must remain visible when
 choosing a boundary. Exact modules, sources, profile samples and diagnostic
 harnesses are archived under `artifacts/owned-values/`.
 
-## Current release: fresh Frontier comparison
+## Earlier complete Frontier comparison
 
 `json-boundary-release-cohorts-80-82.json` binds distribution `91ddf323`, ABI
 `4e7af56` and JS `1e8dd79`, with three fresh processes and nine rotated rounds.
@@ -92,9 +120,9 @@ identity intersection before timing.
 | Portable message encode/decode | 0.832 / 1.375 | 1.149 / 0.700 |
 | Agreed-schema message encode/decode | 0.649 / 0.965 | 1.149 / 0.700 |
 
-The retained sharing win does not establish a detached-output win. Ink currently
-uses native `structuredClone` of its larger logical datatype tree for detachment;
-a typed owned-copy implementation is an unresolved optimisation opportunity.
+The retained sharing win does not establish a detached-output win. At this
+earlier epoch Ink used native `structuredClone` of its larger logical datatype
+tree for detachment; the owned-value section above measures its replacement.
 Indexed replacement costs 20.419 µs, so the supplied query alternative has an
 update tradeoff and is not the automatic default. Binary JSON validation is
 272.481 µs versus 69.911 µs for Frontier's JSON text parsing/validation, with

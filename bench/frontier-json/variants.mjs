@@ -8,6 +8,10 @@ const paths={baseline,candidate};
 const label=path.basename(candidate,'.mjs');if(!/^[a-z0-9-]+$/.test(label))throw Error('candidate label');
 const runLabel=process.argv.find(a=>a.startsWith('--run='))?.slice('--run='.length);
 const copyKind=process.argv.find(a=>a.startsWith('--copy='))?.slice('--copy='.length)??'capture';
+const textFields=Number(process.argv.find(a=>a.startsWith('--fields='))?.slice('--fields='.length)??512);
+const textFixture=process.argv.find(a=>a.startsWith('--text-fixture='))?.slice('--text-fixture='.length)??'numeric';
+if(!Number.isSafeInteger(textFields)||textFields<1||textFields>10000)throw Error('invalid text field count');
+if(!['numeric','unicode','nested'].includes(textFixture))throw Error('invalid text fixture');
 if(!['capture','trusted'].includes(copyKind))throw Error('copy kind');
 if(runLabel&&!/^[a-z0-9-]+$/.test(runLabel))throw Error('run label');
 const reportPath=path.join(root,`reports/frontier-json-2026-10-13/variants-${mode}-${label}${runLabel?'-'+runLabel:''}.json`);
@@ -38,12 +42,13 @@ if(mode==='codec'){
    (groups[operation]??={})[name]=run;
   }
  }
-}else if(mode==='text'){
- const text=JSON.stringify(Object.fromEntries(Array.from({length:512},(_,i)=>['k'+String(i).padStart(5,'0'),i])));
+}else if(mode==='text'||mode==='text-bytes'){
+ const encoder=new TextEncoder(),consume=mode==='text-bytes'?text=>encoder.encode(text).length:text=>text.length;
+ const text=JSON.stringify(Object.fromEntries(Array.from({length:textFields},(_,i)=>['k'+String(i).padStart(5,'0'),textFixture==='unicode'?`雪😀${i}\n"\\`:textFixture==='nested'?{items:[i,true,null,'雪😀'],enabled:false}:i])));
  for(const[name,ink]of Object.entries(modules)){
   const json=new ink.JsonCodec(ink.valueCodecs.identity.result),value=json.parse(text),next=ink.parseJson('777');
   assert.equal(json.stringify(value),text);
-  for(const[operation,run]of Object.entries({'parse-owned-json':()=>json.parse(text).payload?1:0,'render-checked-json':()=>json.stringify(value).length,'text-edit-text':()=>json.stringify(ink.call('set_document',[json.parse(text),'k00000',next]).Ok).length})){
+  for(const[operation,run]of Object.entries({'parse-owned-json':()=>json.parse(text).payload?1:0,'render-checked-json':()=>consume(json.stringify(value)),'text-edit-text':()=>consume(json.stringify(ink.call('set_document',[json.parse(text),'k00000',next]).Ok))})){
    (groups[operation]??={})[name]=run;
   }
  }
@@ -74,4 +79,4 @@ for(const[operation,lanes]of Object.entries(groups)){
  }
 }
 for(const[k,p]of Object.entries(paths))assert.equal(createHash('sha256').update(fs.readFileSync(path.resolve(root,p))).digest('hex'),hashes[k],'artifact changed during timing');
-fs.writeFileSync(reportPath,JSON.stringify({schema:1,diagnostic_experiment:true,instrumented:process.execArgv.some(a=>a.startsWith("--cpu-prof")||a.startsWith("--prof")||a.startsWith("--trace")),copy_kind:copyKind,paths,hashes,measurements,sink,scope:'Paired source candidate experiment on a shared host. Setup excluded; compare candidate ratios, not historical absolute timings.'},null,2)+'\n',{flag:'wx'});
+fs.writeFileSync(reportPath,JSON.stringify({schema:1,diagnostic_experiment:true,instrumented:process.execArgv.some(a=>a.startsWith("--cpu-prof")||a.startsWith("--prof")||a.startsWith("--trace")),copy_kind:copyKind,text_fields:textFields,text_fixture:textFixture,consume_utf8:mode==='text-bytes',paths,hashes,measurements,sink,scope:'Paired source candidate experiment on a shared host. Setup excluded; compare candidate ratios, not historical absolute timings.'},null,2)+'\n',{flag:'wx'});
