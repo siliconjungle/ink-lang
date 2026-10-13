@@ -8,10 +8,13 @@ permissions:
   contents: read
 concurrency:
   group: conformance-${{ github.ref }}
-  cancel-in-progress: true
+  # Superseded pull-request pushes may be cancelled, but every commit that
+  # lands on main must finish, otherwise a breakage is never attributed.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
   declared-feature-parity:
     runs-on: ubuntu-24.04
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -70,6 +73,9 @@ jobs:
         run: |
           cargo fetch --locked
           cargo fetch --locked --manifest-path core/Cargo.toml
+          # The runtime tests run `cargo --locked`; a stale lock must fail
+          # here, by name, rather than inside the first runtime test.
+          cargo fetch --locked --manifest-path runtime/Cargo.toml
       - name: Fetch pinned compiled host dependencies
         run: |
           mkdir -p build/host-deps/src
