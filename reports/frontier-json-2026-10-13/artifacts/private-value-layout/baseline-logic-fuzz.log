@@ -1,0 +1,21 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s
+     Running tests/hardening.rs (/Users/james/Library/Caches/InkReuse/cargo/5c/e4a41c0dcd7cbc/debug/deps/hardening-6f488e6598382d7b)
+
+running 1 test
+test fuzz_logic_objects ... FAILED
+
+failures:
+
+---- fuzz_logic_objects stdout ----
+
+thread 'fuzz_logic_objects' (30789019) panicked at tests/hardening.rs:1453:33:
+corpus object 8a344de1a96e984acde0f373c7e57b7c4ab9942c8869c06b7d85c24a33f8d380: bit proof circuit identity mismatch
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    fuzz_logic_objects
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 15 filtered out; finished in 0.30s
+
+error: test failed, to rerun pass `--test hardening`

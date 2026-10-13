@@ -1594,6 +1594,7 @@ fn fuzz_bitproof_certificates() {
             if rng.one_in(10) {
                 // Whole-document JSON mutation is costly on large certificates.
                 let small = bitproof::Certificate {
+                    encoding: certificate.encoding,
                     problem_sha256: certificate.problem_sha256.clone(),
                     steps: certificate.steps.iter().take(40).cloned().collect(),
                 };
