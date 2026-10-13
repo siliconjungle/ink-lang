@@ -112,7 +112,7 @@ jobs:
           cargo test --test physical_capabilities --test borrowed_native_reads
       - name: Composable state proofs, publication, journals and bounded search
         run: |
-          cargo test --test composable_state --test journal_compaction --test indexed_laws --test composable_knowledge
+          cargo test --test composable_state --test journal_compaction --test indexed_laws --test composable_knowledge --test sorted_tables
           PYTHONPATH=planner:knowledge python3 -m unittest discover -s planner/tests -p test_compiled_planning.py
           PYTHONPATH=planner:knowledge python3 -m unittest discover -s planner/tests -p test_usage_profiles.py
           PYTHONPATH=planner:knowledge python3 -m unittest discover -s knowledge/tests -p test_planning_recipes.py

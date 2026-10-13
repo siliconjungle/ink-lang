@@ -80,7 +80,7 @@ def relate(first, second, access, effects):
     left, right = (first + '#1', second + '#2') if first == second else (first, second)
     an = [f'{left}.{n}' for n, _ in a['parameters']]
     bn = [f'{right}.{n}' for n, _ in b['parameters']]
-    reasons, conditions = [], []
+    reasons, conditions, keys = [], [], []
     for x, y in itertools.product(a['accesses'], b['accesses']):
         if x['root'] != y['root'] or (x['mode'] != 'write' and y['mode'] != 'write'):
             continue
@@ -95,6 +95,10 @@ def relate(first, second, access, effects):
                 reasons.append(f"{what} the same constant key {render(kx, an)}")
             continue
         guard = guards(x, an) + guards(y, bn)
+        if not guard and set(kx) == {'Parameter'} and set(ky) == {'Parameter'}:
+            keys.append([kx['Parameter'], ky['Parameter']])
+        else:
+            keys.append(None)
         condition = f'{render(kx, an)} != {render(ky, bn)}'
         if guard:
             condition += ' or not (' + ' and '.join(guard) + ')'
@@ -106,7 +110,11 @@ def relate(first, second, access, effects):
     if reasons:
         return dict(relation='conflict', reasons=reasons)
     if conditions:
-        return dict(relation='commute_when', conditions=conditions)
+        row = dict(relation='commute_when', conditions=conditions)
+        if keys and None not in keys:
+            # Parameter positions whose difference the condition requires.
+            row['key_parameters'] = [list(k) for k in dict.fromkeys(map(tuple, keys))]
+        return row
     return dict(relation='commute')
 
 
@@ -161,11 +169,14 @@ def error_type(action):
     return json.dumps(result['Result'][1], sort_keys=True) if isinstance(result, dict) and 'Result' in result else None
 
 
-def pair_source(text, first, second, swapped):
+def pair_source(text, first, second, swapped, keys=None):
     """A change calling both actions and returning both replies, in one order.
 
     Nested calls share tentative state; an Err from either aborts the pair in
     both orders. The replies record makes reply changes observable too.
+    With `keys` (parameter positions that must differ), the swapped order runs
+    only when every pair of keys differs; otherwise the original order runs.
+    Equality with the unswapped pair is then the conditional commutation.
     """
     errors = {error_type(a) for a in (first, second) if a['kind'] == 'Change'}
     if len(errors) > 1 or None in errors:
@@ -176,6 +187,7 @@ def pair_source(text, first, second, swapped):
         names = [f'{slot}_{n}' for n, _ in action['params']]
         params += [f'{n}:{ink_type(t)}' for n, (_, t) in zip(names, action['params'])]
         calls.append(f"let {slot}={action['name']}({','.join(names)});")
+    original = list(calls)
     if swapped:
         calls.reverse()
     clause = lambda word, roots: f' {word}({",".join(sorted(set(roots)))})' if roots else ''
@@ -184,15 +196,21 @@ def pair_source(text, first, second, swapped):
     emits = [e for a in (first, second) for e in a.get('emits', [])]
     if not writes:
         raise ValueError('pair of queries')
+    done = 'return Ok(__PairReplies{first:first,second:second});'
+    body = ''.join(calls) + done
+    if keys:
+        differ = ' && '.join(f"first_{first['params'][i][0]} != second_{second['params'][j][0]}" for i, j in keys)
+        body = 'if ' + differ + ' {' + ''.join(calls) + done + '}' + ''.join(original) + done
     return (text + f"\nrecord __PairReplies {{ first:{ink_type(first['result'])}, second:{ink_type(second['result'])}, }}\n"
             + f"change __pair({','.join(params)})->Result<__PairReplies,{error}>{clause('reads', reads)}{clause('writes', writes)}{clause('emits', emits)}"
-            + '{' + ''.join(calls) + 'return Ok(__PairReplies{first:first,second:second});}\n')
+            + '{' + body + '}\n')
 
 
-def certify(compiler, source, first, second, knowledge, directory):
-    """Ask the existing whole-action equality checker to admit `a;b == b;a`."""
+def certify(compiler, source, first, second, knowledge, directory, keys=None):
+    """Ask the existing whole-action equality checker to admit `a;b == b;a`,
+    or with `keys`, `a;b == (keys differ ? b;a : a;b)` on sorted tables."""
     root = Path(__file__).resolve().parents[1]
-    d = Path(directory) / f'{first}--{second}'
+    d = Path(directory) / (f'{first}--{second}' + ('--keys-differ' if keys else ''))
     d.mkdir(parents=True, exist_ok=True)
     text = Path(source).read_text()
     run = lambda *command: subprocess.run([str(c) for c in command], capture_output=True, text=True)
@@ -203,19 +221,21 @@ def certify(compiler, source, first, second, knowledge, directory):
     actions = {a['name']: a for a in json.loads(core.read_text())['program']['actions']}
     try:
         (d / 'ab.ink').write_text(pair_source(text, actions[first], actions[second], False))
-        (d / 'ba.ink').write_text(pair_source(text, actions[first], actions[second], True))
+        (d / 'ba.ink').write_text(pair_source(text, actions[first], actions[second], True, keys))
     except (ValueError, KeyError) as error:
         return dict(certificate='unavailable', reason=str(error))
     for name in ('ab', 'ba'):
+        sorted_tables = ['--sorted-tables', d / f'{name}-sorted.json'] if keys and name == 'ab' else []
         for command in (['emit-core', d / f'{name}.ink', '-o', d / f'{name}-core.json'],
-                        ['emit-action-model', d / f'{name}.ink', '-o', d / f'{name}-model.json']):
+                        ['emit-action-model', d / f'{name}.ink', '-o', d / f'{name}-model.json', *sorted_tables]):
             result = run(compiler, *command)
             if result.returncode:
                 return dict(certificate='unavailable', reason=result.stderr.strip()[-300:])
     environment = dict(__import__('os').environ, PYTHONPATH=f"{root / 'knowledge'}:{root / 'planner'}")
     proposal = subprocess.run([__import__('sys').executable, str(root / 'knowledge/producers/action_replacement.py'),
                                str(d / 'ab-model.json'), str(d / 'ba-model.json'), str(d / 'ba-core.json'),
-                               '--knowledge', str(knowledge), '-o', str(d / 'proposal/selection.json')],
+                               '--knowledge', str(knowledge), '-o', str(d / 'proposal/selection.json'),
+                               *(['--sorted-tables', str(d / 'ab-sorted.json')] if keys else [])],
                               capture_output=True, text=True, env=environment)
     if proposal.returncode:
         return dict(certificate='unavailable', reason=proposal.stderr.strip()[-300:])
@@ -223,7 +243,7 @@ def certify(compiler, source, first, second, knowledge, directory):
     if result.returncode:
         return dict(certificate='rejected', reason=result.stderr.strip()[-300:])
     evidence = json.loads(result.stdout)
-    return dict(certificate='checked', selection=str(d / 'proposal/selection.json'),
+    return dict(certificate='checked' if not keys else 'checked when keys differ', selection=str(d / 'proposal/selection.json'),
                 input_core_sha256=evidence['input_core_sha256'], selected_core_sha256=evidence['selected_core_sha256'])
 
 
@@ -256,7 +276,12 @@ def main():
             # removals, a removal and a replacement); a checked certificate
             # then states the stronger fact.
             if row['relation'] in ('commute', 'commute_when'):
-                row.update(certify(args.compiler, args.source, row['first'].split('#')[0], row['second'].split('#')[0], args.knowledge, args.certify))
+                first, second = row['first'].split('#')[0], row['second'].split('#')[0]
+                row.update(certify(args.compiler, args.source, first, second, args.knowledge, args.certify))
+                # Otherwise certify the conditional fact on sorted tables.
+                if row['certificate'] != 'checked' and row.get('key_parameters'):
+                    row.update(certify(args.compiler, args.source, first, second, args.knowledge, args.certify,
+                                       row['key_parameters']))
     if args.output:
         args.output.write_text(json.dumps(report, indent=2) + '\n')
     print(markdown(report), end='')
