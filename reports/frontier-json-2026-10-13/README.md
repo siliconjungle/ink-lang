@@ -4,6 +4,41 @@ The all-metrics target remains unmet. Read-heavy state and retained JSON editing
 win in these fixtures; row updates, conversion and message decoding still lose.
 This is a shared development host, not a controlled laboratory.
 
+## Schema-derived decoder resources
+
+Decoder binding computes auxiliary requirements across the entire recursive
+descriptor graph. Compact decoding omits its DataView when no fixed numeric lane
+can need it; generic record decoding allocates its reusable property descriptor
+only when a record wider than four fields is reachable. Flags remain in private
+codec binding state, leaving the shared encode/decode plan shape unchanged.
+All framing, tag, Unicode and resource checks remain active. This is fixed ABI
+resource machinery, not an algebraic database rewrite or proof of the backend.
+
+Three paired update-message processes give portable decode speedups of 1.476×,
+1.651× and 1.546× (median 1.546×); compact decode is 1.184×, 1.446× and 1.406×
+(median 1.406×). Encoding is approximately unchanged; incidental timing gains
+are not attributed to this decoder-only change. Numeric-list decoding is near
+unchanged, wide-record decoding has a small median gain, and recursive numeric
+portable decoding improves in all three controls. These diagnostics cover the
+specific fixtures and shallow timed consumers, not every possible schema/use.
+Full-value preflight and separate conformance checks remain mandatory.
+
+The first variant put flags on shared plan objects and regressed encoding in
+wider-schema controls. Private flags remove that change; a later lazy descriptor
+variant had a small wide-record compact-decoding tradeoff. The selected version
+reserves required descriptors before reading and keeps the original record loop.
+All four exact candidates and raw measurements are retained in
+`wire-decode-resources-summary.json` and `artifacts/wire-decode-resources/`.
+Full ABI and mandatory JSON/state suites passed, including recursive numeric
+reachability, wide/prototype-key records, malformed-byte mutations, lowered
+budgets, exact snapshots, rollback and forged-proof rejection. A DataView-spy
+test confirms the omitted allocation on a nonnumeric recursive compact schema,
+and its reservation for a numeric branch not selected by the particular value.
+These paired results do not establish a new Frontier or lifecycle ranking.
+ABI `6ae7c57` and JavaScript `cc3f1e3` publish the selected implementation. The
+standalone JavaScript suite also passed. This generated module adds 256 bytes
+(0.065%); equivalent startup and peak-memory rankings remain unmeasured.
+
 ## Immutable default policies and scalar encoder limits
 
 Value codecs now reuse private immutable default policies; every invocation
