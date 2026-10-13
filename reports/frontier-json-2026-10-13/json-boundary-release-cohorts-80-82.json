@@ -1,0 +1,1236 @@
+{
+  "schema": 1,
+  "status": "all-metrics target unmet",
+  "provenance": {
+    "hashes": {
+      "bench/frontier-json/state.ink": "f98f971b59e11d0983af3cbbd9a472f2d55b4e5720556de1f31b19b12ae866a4",
+      "bench/frontier-json/prepare.py": "d4040dee385095446525ece11523b5dec6cb5eb269937b4836d8fc439cc05713",
+      "bench/frontier-json/run.mjs": "bcd7fe9e32e535b11e57356c3223f83fd689e5efb6b5bf3aac328eb98a425a9d",
+      "bench/frontier-json/json-kernels.mjs": "945ab1e1f4c8ecf8e72e1eca550b642c482a568e517bbbe985ece946e00d68b3",
+      "bench/frontier-json/src/main.rs": "295a467a214ce257f5d41e5fa8304649d2b21cb1beabefc19565d763856b597d",
+      "bench/frontier-json/package-lock.json": "3cc5c3e6c05c279b921df5c2b1a232d2b5f6a114f0a674d2d5d1946840d75a52",
+      "bench/frontier-json/Cargo.lock": "66cecb01a676b2fef9d944feab7ce7d7876e9133c7095f4c0eba566e6ae125f9",
+      "bench/frontier-json/provenance.mjs": "1f7d263503b8b29586a854afc362a59977eb689a28cbdac865d33a00149c1241",
+      "build/frontier-json/fixtures.json": "f03846851a92e4968589f0daa0ae4bb1768f323a3cf90486017e89c58cf62145",
+      "build/frontier-json/preparation.json": "06dfcaeafd14eb481818561b1a1303ff3e619f9fecad6adaa0e18d864b38c27a",
+      "build/frontier-json/ink.mjs": "b6db1aa3a5548b94d277b0aa34a44ec17dc614315c1914c556871dab8b149270",
+      "target/debug/ink": "aa7276a5b14bd1a43f08f579be9403d2b4670217ea94efcff28ccc4d351a92ab",
+      "build/frontier-json/ink-indexed.mjs": "7aa19686dd2fbbf3ced38f05237748de574f0d31d005b4bd747d0a723278f674",
+      "build/frontier-json/indexed.plan.json": "9c999ba5286d9056a802d3924cd33d089d21fa88f7a2ca7e9004adb6707d7d7f",
+      "build/frontier-json/target/release/ink-frontier-json-benchmark": "f1b8433e354ff184b7a3af6c74261758b6e89bafc44c8345b457a75a9fe28be7"
+    },
+    "revisions": {
+      ".": "91ddf323d16887ab5df7393aa2e837396402f1f3",
+      "abi": "4e7af56ee7c0ecc5635da11f7610f0a48a56e852",
+      "core": "91ddf323d16887ab5df7393aa2e837396402f1f3",
+      "native-support": "eea3285a3ea1847c0dda237c3c988178e4a00f4c",
+      "runtime": "8056b498bbff1a4af1a3aa2f4bcb930765fd0bcb",
+      "knowledge": "3cfd93cb9e8698b29c5d52b2e31d52419da5a447",
+      "planner": "cbafcdd0e10e65ded513a2298eb32d30a73c421b",
+      "lowerings/c": "6fd50e7e4119b70931289911c3adde234b673275",
+      "lowerings/rust": "69dcd49a13863ae4a21853d0c4da1cd9372e7906",
+      "lowerings/js": "1e8dd79e8eb72deecf794267c218b56286d8e958",
+      "lowerings/wasm": "7096b55e47320284af87feddf97c4363a07ee2cb",
+      "lowerings/gpu": "77f48a14c2c183947203c937880b2d0fac3bdb24",
+      "build/frontier": "2c72dbb4030e2695b682d3e49ec82d8c5c8ffec2",
+      "build/frontier-state-main": "9ff840ea690e55fd8c064934f92a26c1603a63fa",
+      "build/frontier-engine": "1fdd01b67367ccd2b1088b0148b558896935856e",
+      "build/frontier-codec": "7835c68e60ecb400f82d26436bd8e8855a7ba9b9"
+    },
+    "target": {
+      "cpu": "Apple M2",
+      "platform": "darwin",
+      "arch": "arm64",
+      "release": "25.5.0"
+    },
+    "node": "v26.1.0"
+  },
+  "processes": [
+    80,
+    81,
+    82
+  ],
+  "source_reports": [
+    "reports/frontier-json-2026-10-13/state-targeted-replace-4096-80.json",
+    "reports/frontier-json-2026-10-13/state-targeted-mixed-4096-80.json",
+    "reports/frontier-json-2026-10-13/state-targeted-read-heavy-4096-80.json",
+    "reports/frontier-json-2026-10-13/json-80.json",
+    "reports/frontier-json-2026-10-13/state-targeted-replace-4096-81.json",
+    "reports/frontier-json-2026-10-13/state-targeted-mixed-4096-81.json",
+    "reports/frontier-json-2026-10-13/state-targeted-read-heavy-4096-81.json",
+    "reports/frontier-json-2026-10-13/json-81.json",
+    "reports/frontier-json-2026-10-13/state-targeted-replace-4096-82.json",
+    "reports/frontier-json-2026-10-13/state-targeted-mixed-4096-82.json",
+    "reports/frontier-json-2026-10-13/state-targeted-read-heavy-4096-82.json",
+    "reports/frontier-json-2026-10-13/json-82.json"
+  ],
+  "measurements": [
+    {
+      "workload": "edit-message-decode",
+      "size": 4,
+      "lane": "frontier-patch-decode",
+      "median_ns_per_call": 1107.0741169658368,
+      "process_medians_ns": {
+        "80": 1086.8496240601503,
+        "81": 1107.0741169658368,
+        "82": 1162.843366452367
+      },
+      "process_median_min_ns": 1086.8496240601503,
+      "process_median_max_ns": 1162.843366452367
+    },
+    {
+      "workload": "edit-message-decode",
+      "size": 4,
+      "lane": "ink-agreed-schema-decode",
+      "median_ns_per_call": 1233.4689564068692,
+      "process_medians_ns": {
+        "80": 1187.4738603094938,
+        "81": 1244.2913651712495,
+        "82": 1233.4689564068692
+      },
+      "process_median_min_ns": 1187.4738603094938,
+      "process_median_max_ns": 1244.2913651712495
+    },
+    {
+      "workload": "edit-message-decode",
+      "size": 4,
+      "lane": "ink-typed-wire-decode",
+      "median_ns_per_call": 1455.9181415929204,
+      "process_medians_ns": {
+        "80": 1474.6731229076997,
+        "81": 1431.3649858109584,
+        "82": 1455.9181415929204
+      },
+      "process_median_min_ns": 1431.3649858109584,
+      "process_median_max_ns": 1474.6731229076997
+    },
+    {
+      "workload": "edit-message-decode",
+      "size": 64,
+      "lane": "frontier-patch-decode",
+      "median_ns_per_call": 774.7061774401606,
+      "process_medians_ns": {
+        "80": 774.7061774401606,
+        "81": 841.9761215629522,
+        "82": 706.4504101416853
+      },
+      "process_median_min_ns": 706.4504101416853,
+      "process_median_max_ns": 841.9761215629522
+    },
+    {
+      "workload": "edit-message-decode",
+      "size": 64,
+      "lane": "ink-agreed-schema-decode",
+      "median_ns_per_call": 997.5420347677401,
+      "process_medians_ns": {
+        "80": 997.5420347677401,
+        "81": 961.9350282485875,
+        "82": 1010.4391260600834
+      },
+      "process_median_min_ns": 961.9350282485875,
+      "process_median_max_ns": 1010.4391260600834
+    },
+    {
+      "workload": "edit-message-decode",
+      "size": 64,
+      "lane": "ink-typed-wire-decode",
+      "median_ns_per_call": 1409.502823677055,
+      "process_medians_ns": {
+        "80": 1463.0215113072256,
+        "81": 1251.576923076923,
+        "82": 1409.502823677055
+      },
+      "process_median_min_ns": 1251.576923076923,
+      "process_median_max_ns": 1463.0215113072256
+    },
+    {
+      "workload": "edit-message-decode",
+      "size": 512,
+      "lane": "frontier-patch-decode",
+      "median_ns_per_call": 700.3061897204249,
+      "process_medians_ns": {
+        "80": 721.3998232546396,
+        "81": 700.3061897204249,
+        "82": 647.192502158096
+      },
+      "process_median_min_ns": 647.192502158096,
+      "process_median_max_ns": 721.3998232546396
+    },
+    {
+      "workload": "edit-message-decode",
+      "size": 512,
+      "lane": "ink-agreed-schema-decode",
+      "median_ns_per_call": 965.1886636326024,
+      "process_medians_ns": {
+        "80": 967.5244173140954,
+        "81": 965.1886636326024,
+        "82": 950.2440533479994
+      },
+      "process_median_min_ns": 950.2440533479994,
+      "process_median_max_ns": 967.5244173140954
+    },
+    {
+      "workload": "edit-message-decode",
+      "size": 512,
+      "lane": "ink-typed-wire-decode",
+      "median_ns_per_call": 1374.5768493675737,
+      "process_medians_ns": {
+        "80": 1374.5768493675737,
+        "81": 1397.7715630885123,
+        "82": 1367.263381321521
+      },
+      "process_median_min_ns": 1367.263381321521,
+      "process_median_max_ns": 1397.7715630885123
+    },
+    {
+      "workload": "edit-message-encode",
+      "size": 4,
+      "lane": "frontier-patch-encode",
+      "median_ns_per_call": 1633.089358245329,
+      "process_medians_ns": {
+        "80": 1633.089358245329,
+        "81": 1663.01108033241,
+        "82": 1568.9854593522803
+      },
+      "process_median_min_ns": 1568.9854593522803,
+      "process_median_max_ns": 1663.01108033241
+    },
+    {
+      "workload": "edit-message-encode",
+      "size": 4,
+      "lane": "ink-agreed-schema-encode",
+      "median_ns_per_call": 1026.826874115983,
+      "process_medians_ns": {
+        "80": 1266.3151895126816,
+        "81": 720.4634586466166,
+        "82": 1026.826874115983
+      },
+      "process_median_min_ns": 720.4634586466166,
+      "process_median_max_ns": 1266.3151895126816
+    },
+    {
+      "workload": "edit-message-encode",
+      "size": 4,
+      "lane": "ink-typed-wire-encode",
+      "median_ns_per_call": 1111.995185878577,
+      "process_medians_ns": {
+        "80": 1111.995185878577,
+        "81": 1318.6297791498457,
+        "82": 885.0749772105743
+      },
+      "process_median_min_ns": 885.0749772105743,
+      "process_median_max_ns": 1318.6297791498457
+    },
+    {
+      "workload": "edit-message-encode",
+      "size": 64,
+      "lane": "frontier-patch-encode",
+      "median_ns_per_call": 1131.0387781629115,
+      "process_medians_ns": {
+        "80": 1271.8918918918919,
+        "81": 1131.0387781629115,
+        "82": 1082.7397496763056
+      },
+      "process_median_min_ns": 1082.7397496763056,
+      "process_median_max_ns": 1271.8918918918919
+    },
+    {
+      "workload": "edit-message-encode",
+      "size": 64,
+      "lane": "ink-agreed-schema-encode",
+      "median_ns_per_call": 1029.1330235759765,
+      "process_medians_ns": {
+        "80": 1029.1330235759765,
+        "81": 1054.7287456763154,
+        "82": 1026.2188385269121
+      },
+      "process_median_min_ns": 1026.2188385269121,
+      "process_median_max_ns": 1054.7287456763154
+    },
+    {
+      "workload": "edit-message-encode",
+      "size": 64,
+      "lane": "ink-typed-wire-encode",
+      "median_ns_per_call": 825.1540856031129,
+      "process_medians_ns": {
+        "80": 825.1540856031129,
+        "81": 810.8700081499593,
+        "82": 843.6057457212714
+      },
+      "process_median_min_ns": 810.8700081499593,
+      "process_median_max_ns": 843.6057457212714
+    },
+    {
+      "workload": "edit-message-encode",
+      "size": 512,
+      "lane": "frontier-patch-encode",
+      "median_ns_per_call": 1149.0128976784179,
+      "process_medians_ns": {
+        "80": 1172.364171231487,
+        "81": 1149.0128976784179,
+        "82": 1097.0703497615261
+      },
+      "process_median_min_ns": 1097.0703497615261,
+      "process_median_max_ns": 1172.364171231487
+    },
+    {
+      "workload": "edit-message-encode",
+      "size": 512,
+      "lane": "ink-agreed-schema-encode",
+      "median_ns_per_call": 649.4859411180946,
+      "process_medians_ns": {
+        "80": 967.7865625,
+        "81": 637.182852143482,
+        "82": 649.4859411180946
+      },
+      "process_median_min_ns": 637.182852143482,
+      "process_median_max_ns": 967.7865625
+    },
+    {
+      "workload": "edit-message-encode",
+      "size": 512,
+      "lane": "ink-typed-wire-encode",
+      "median_ns_per_call": 832.4011673151751,
+      "process_medians_ns": {
+        "80": 829.457933972311,
+        "81": 832.4011673151751,
+        "82": 845.8148763381322
+      },
+      "process_median_min_ns": 829.457933972311,
+      "process_median_max_ns": 845.8148763381322
+    },
+    {
+      "workload": "external-document-validate",
+      "size": 4,
+      "lane": "frontier-json-text-parse-validate",
+      "median_ns_per_call": 849.3627019089574,
+      "process_medians_ns": {
+        "80": 849.3627019089574,
+        "81": 833.5459544383347,
+        "82": 862.6506024096385
+      },
+      "process_median_min_ns": 833.5459544383347,
+      "process_median_max_ns": 862.6506024096385
+    },
+    {
+      "workload": "external-document-validate",
+      "size": 4,
+      "lane": "ink-binary-json-validate",
+      "median_ns_per_call": 8780.102564102564,
+      "process_medians_ns": {
+        "80": 9211.828859060402,
+        "81": 8780.102564102564,
+        "82": 8608.239376770538
+      },
+      "process_median_min_ns": 8608.239376770538,
+      "process_median_max_ns": 9211.828859060402
+    },
+    {
+      "workload": "external-document-validate",
+      "size": 64,
+      "lane": "frontier-json-text-parse-validate",
+      "median_ns_per_call": 4770.627554383652,
+      "process_medians_ns": {
+        "80": 4770.627554383652,
+        "81": 4893.060836501902,
+        "82": 4645.626764244642
+      },
+      "process_median_min_ns": 4645.626764244642,
+      "process_median_max_ns": 4893.060836501902
+    },
+    {
+      "workload": "external-document-validate",
+      "size": 64,
+      "lane": "ink-binary-json-validate",
+      "median_ns_per_call": 47367.495495495496,
+      "process_medians_ns": {
+        "80": 38149.891774891774,
+        "81": 53983.75,
+        "82": 47367.495495495496
+      },
+      "process_median_min_ns": 38149.891774891774,
+      "process_median_max_ns": 53983.75
+    },
+    {
+      "workload": "external-document-validate",
+      "size": 512,
+      "lane": "frontier-json-text-parse-validate",
+      "median_ns_per_call": 69910.71428571429,
+      "process_medians_ns": {
+        "80": 70035.43537414966,
+        "81": 69910.71428571429,
+        "82": 69192.30769230769
+      },
+      "process_median_min_ns": 69192.30769230769,
+      "process_median_max_ns": 70035.43537414966
+    },
+    {
+      "workload": "external-document-validate",
+      "size": 512,
+      "lane": "ink-binary-json-validate",
+      "median_ns_per_call": 272481.47222222225,
+      "process_medians_ns": {
+        "80": 275185.6060606061,
+        "81": 272481.47222222225,
+        "82": 262285.71428571426
+      },
+      "process_median_min_ns": 262285.71428571426,
+      "process_median_max_ns": 275185.6060606061
+    },
+    {
+      "workload": "json-text-input-edit-text-output",
+      "size": 4,
+      "lane": "frontier-json-text-known-edit",
+      "median_ns_per_call": 725.7397491558129,
+      "process_medians_ns": {
+        "80": 750.3076739752145,
+        "81": 725.7397491558129,
+        "82": 698.970447284345
+      },
+      "process_median_min_ns": 698.970447284345,
+      "process_median_max_ns": 750.3076739752145
+    },
+    {
+      "workload": "json-text-input-edit-text-output",
+      "size": 4,
+      "lane": "ink-binary-pipeline",
+      "median_ns_per_call": 84278.14285714286,
+      "process_medians_ns": {
+        "80": 94926.87755102041,
+        "81": 84114.08333333333,
+        "82": 84278.14285714286
+      },
+      "process_median_min_ns": 84114.08333333333,
+      "process_median_max_ns": 94926.87755102041
+    },
+    {
+      "workload": "json-text-input-edit-text-output",
+      "size": 4,
+      "lane": "ink-json-text-pipeline",
+      "median_ns_per_call": 16719.32663316583,
+      "process_medians_ns": {
+        "80": 18188.935222672066,
+        "81": 15265.45945945946,
+        "82": 16719.32663316583
+      },
+      "process_median_min_ns": 15265.45945945946,
+      "process_median_max_ns": 18188.935222672066
+    },
+    {
+      "workload": "json-text-input-edit-text-output",
+      "size": 64,
+      "lane": "frontier-json-text-known-edit",
+      "median_ns_per_call": 2781.855302576393,
+      "process_medians_ns": {
+        "80": 2796.6656142365096,
+        "81": 2780.9032062915912,
+        "82": 2781.855302576393
+      },
+      "process_median_min_ns": 2780.9032062915912,
+      "process_median_max_ns": 2796.6656142365096
+    },
+    {
+      "workload": "json-text-input-edit-text-output",
+      "size": 64,
+      "lane": "ink-binary-pipeline",
+      "median_ns_per_call": 421945.0909090909,
+      "process_medians_ns": {
+        "80": 421945.0909090909,
+        "81": 419329.6956521739,
+        "82": 443603.14285714284
+      },
+      "process_median_min_ns": 419329.6956521739,
+      "process_median_max_ns": 443603.14285714284
+    },
+    {
+      "workload": "json-text-input-edit-text-output",
+      "size": 64,
+      "lane": "ink-json-text-pipeline",
+      "median_ns_per_call": 97318.56962025317,
+      "process_medians_ns": {
+        "80": 99536.53086419753,
+        "81": 97318.56962025317,
+        "82": 97188.5
+      },
+      "process_median_min_ns": 97188.5,
+      "process_median_max_ns": 99536.53086419753
+    },
+    {
+      "workload": "json-text-input-edit-text-output",
+      "size": 512,
+      "lane": "frontier-json-text-known-edit",
+      "median_ns_per_call": 77871.81679389313,
+      "process_medians_ns": {
+        "80": 77871.81679389313,
+        "81": 78604.96899224806,
+        "82": 77585.6507936508
+      },
+      "process_median_min_ns": 77585.6507936508,
+      "process_median_max_ns": 78604.96899224806
+    },
+    {
+      "workload": "json-text-input-edit-text-output",
+      "size": 512,
+      "lane": "ink-binary-pipeline",
+      "median_ns_per_call": 2118575.0,
+      "process_medians_ns": {
+        "80": 2118575.0,
+        "81": 2087670.8,
+        "82": 2137295.8
+      },
+      "process_median_min_ns": 2087670.8,
+      "process_median_max_ns": 2137295.8
+    },
+    {
+      "workload": "json-text-input-edit-text-output",
+      "size": 512,
+      "lane": "ink-json-text-pipeline",
+      "median_ns_per_call": 642309.9375,
+      "process_medians_ns": {
+        "80": 638803.9411764706,
+        "81": 642309.9375,
+        "82": 647237.0
+      },
+      "process_median_min_ns": 638803.9411764706,
+      "process_median_max_ns": 647237.0
+    },
+    {
+      "workload": "known-edit-detached",
+      "size": 4,
+      "lane": "frontier-owned-known-patch",
+      "median_ns_per_call": 1286.6680075721722,
+      "process_medians_ns": {
+        "80": 1350.0749665327978,
+        "81": 1234.3122383649347,
+        "82": 1286.6680075721722
+      },
+      "process_median_min_ns": 1234.3122383649347,
+      "process_median_max_ns": 1350.0749665327978
+    },
+    {
+      "workload": "known-edit-detached",
+      "size": 4,
+      "lane": "ink-js-owned-json-set",
+      "median_ns_per_call": 19549.838362068964,
+      "process_medians_ns": {
+        "80": 20220.265909090907,
+        "81": 18636.021505376346,
+        "82": 19549.838362068964
+      },
+      "process_median_min_ns": 18636.021505376346,
+      "process_median_max_ns": 20220.265909090907
+    },
+    {
+      "workload": "known-edit-detached",
+      "size": 64,
+      "lane": "frontier-owned-known-patch",
+      "median_ns_per_call": 5967.069895769467,
+      "process_medians_ns": {
+        "80": 5967.069895769467,
+        "81": 5916.316326530612,
+        "82": 6019.364193746168
+      },
+      "process_median_min_ns": 5916.316326530612,
+      "process_median_max_ns": 6019.364193746168
+    },
+    {
+      "workload": "known-edit-detached",
+      "size": 64,
+      "lane": "ink-js-owned-json-set",
+      "median_ns_per_call": 111035.91954022988,
+      "process_medians_ns": {
+        "80": 111035.91954022988,
+        "81": 109952.06451612903,
+        "82": 112442.33720930232
+      },
+      "process_median_min_ns": 109952.06451612903,
+      "process_median_max_ns": 112442.33720930232
+    },
+    {
+      "workload": "known-edit-detached",
+      "size": 512,
+      "lane": "frontier-owned-known-patch",
+      "median_ns_per_call": 98348.52083333333,
+      "process_medians_ns": {
+        "80": 98348.52083333333,
+        "81": 100389.32291666667,
+        "82": 97850.54347826086
+      },
+      "process_median_min_ns": 97850.54347826086,
+      "process_median_max_ns": 100389.32291666667
+    },
+    {
+      "workload": "known-edit-detached",
+      "size": 512,
+      "lane": "ink-js-owned-json-set",
+      "median_ns_per_call": 785333.3076923077,
+      "process_medians_ns": {
+        "80": 788955.0769230769,
+        "81": 776910.2307692308,
+        "82": 785333.3076923077
+      },
+      "process_median_min_ns": 776910.2307692308,
+      "process_median_max_ns": 788955.0769230769
+    },
+    {
+      "workload": "known-edit-immutable",
+      "size": 4,
+      "lane": "frontier-immutable-known-patch",
+      "median_ns_per_call": 54.54369860393957,
+      "process_medians_ns": {
+        "80": 54.42354580285615,
+        "81": 54.54369860393957,
+        "82": 55.69498525073746
+      },
+      "process_median_min_ns": 54.42354580285615,
+      "process_median_max_ns": 55.69498525073746
+    },
+    {
+      "workload": "known-edit-immutable",
+      "size": 4,
+      "lane": "ink-js-compiled-json-set",
+      "median_ns_per_call": 394.6849220103986,
+      "process_medians_ns": {
+        "80": 470.9143169997262,
+        "81": 364.69861878453037,
+        "82": 394.6849220103986
+      },
+      "process_median_min_ns": 364.69861878453037,
+      "process_median_max_ns": 470.9143169997262
+    },
+    {
+      "workload": "known-edit-immutable",
+      "size": 64,
+      "lane": "frontier-immutable-known-patch",
+      "median_ns_per_call": 2052.991315535542,
+      "process_medians_ns": {
+        "80": 2084.7679968701095,
+        "81": 2045.5558639833448,
+        "82": 2052.991315535542
+      },
+      "process_median_min_ns": 2045.5558639833448,
+      "process_median_max_ns": 2084.7679968701095
+    },
+    {
+      "workload": "known-edit-immutable",
+      "size": 64,
+      "lane": "ink-js-compiled-json-set",
+      "median_ns_per_call": 440.60885333333334,
+      "process_medians_ns": {
+        "80": 440.60885333333334,
+        "81": 419.8020878642888,
+        "82": 442.76378201749765
+      },
+      "process_median_min_ns": 419.8020878642888,
+      "process_median_max_ns": 442.76378201749765
+    },
+    {
+      "workload": "known-edit-immutable",
+      "size": 512,
+      "lane": "frontier-immutable-known-patch",
+      "median_ns_per_call": 73133.1328125,
+      "process_medians_ns": {
+        "80": 75566.89908256881,
+        "81": 73133.1328125,
+        "82": 72135.76666666666
+      },
+      "process_median_min_ns": 72135.76666666666,
+      "process_median_max_ns": 75566.89908256881
+    },
+    {
+      "workload": "known-edit-immutable",
+      "size": 512,
+      "lane": "ink-js-compiled-json-set",
+      "median_ns_per_call": 3099.7546391752576,
+      "process_medians_ns": {
+        "80": 3202.273051754908,
+        "81": 3099.7546391752576,
+        "82": 3094.821831869511
+      },
+      "process_median_min_ns": 3094.821831869511,
+      "process_median_max_ns": 3202.273051754908
+    },
+    {
+      "workload": "mixed",
+      "size": 4096,
+      "lane": "frontier-core-diff",
+      "median_ns_per_call": 1426171.546875,
+      "process_medians_ns": {
+        "80": 1488786.4609375,
+        "81": 1426171.546875,
+        "82": 1408824.8671875
+      },
+      "process_median_min_ns": 1408824.8671875,
+      "process_median_max_ns": 1488786.4609375
+    },
+    {
+      "workload": "mixed",
+      "size": 4096,
+      "lane": "frontier-core-dirty",
+      "median_ns_per_call": 684648.765625,
+      "process_medians_ns": {
+        "80": 718528.3203125,
+        "81": 684648.765625,
+        "82": 680477.2109375
+      },
+      "process_median_min_ns": 680477.2109375,
+      "process_median_max_ns": 718528.3203125
+    },
+    {
+      "workload": "mixed",
+      "size": 4096,
+      "lane": "frontier-core-patch",
+      "median_ns_per_call": 132326.01171875,
+      "process_medians_ns": {
+        "80": 136985.1875,
+        "81": 132326.01171875,
+        "82": 131295.734375
+      },
+      "process_median_min_ns": 131295.734375,
+      "process_median_max_ns": 136985.1875
+    },
+    {
+      "workload": "mixed",
+      "size": 4096,
+      "lane": "frontier-state-main-commit",
+      "median_ns_per_call": 1410215.4921875,
+      "process_medians_ns": {
+        "80": 1451693.03125,
+        "81": 1410215.4921875,
+        "82": 1399737.3046875
+      },
+      "process_median_min_ns": 1399737.3046875,
+      "process_median_max_ns": 1451693.03125
+    },
+    {
+      "workload": "mixed",
+      "size": 4096,
+      "lane": "frontier-state-main-patch",
+      "median_ns_per_call": 132490.3984375,
+      "process_medians_ns": {
+        "80": 137357.09765625,
+        "81": 132490.3984375,
+        "82": 131234.375
+      },
+      "process_median_min_ns": 131234.375,
+      "process_median_max_ns": 137357.09765625
+    },
+    {
+      "workload": "mixed",
+      "size": 4096,
+      "lane": "frontier-state-main-prepared-patch",
+      "median_ns_per_call": 131779.13671875,
+      "process_medians_ns": {
+        "80": 141979.8203125,
+        "81": 131779.13671875,
+        "82": 131379.8828125
+      },
+      "process_median_min_ns": 131379.8828125,
+      "process_median_max_ns": 141979.8203125
+    },
+    {
+      "workload": "mixed",
+      "size": 4096,
+      "lane": "frontier-state-release-commit",
+      "median_ns_per_call": 1409209.9609375,
+      "process_medians_ns": {
+        "80": 1492770.8359375,
+        "81": 1409209.9609375,
+        "82": 1393308.59375
+      },
+      "process_median_min_ns": 1393308.59375,
+      "process_median_max_ns": 1492770.8359375
+    },
+    {
+      "workload": "mixed",
+      "size": 4096,
+      "lane": "frontier-state-release-patch",
+      "median_ns_per_call": 132521.64453125,
+      "process_medians_ns": {
+        "80": 134432.78125,
+        "81": 132521.64453125,
+        "82": 131648.4375
+      },
+      "process_median_min_ns": 131648.4375,
+      "process_median_max_ns": 134432.78125
+    },
+    {
+      "workload": "mixed",
+      "size": 4096,
+      "lane": "ink-js",
+      "median_ns_per_call": 41902.99609375,
+      "process_medians_ns": {
+        "80": 44215.33203125,
+        "81": 41902.99609375,
+        "82": 41497.640625
+      },
+      "process_median_min_ns": 41497.640625,
+      "process_median_max_ns": 44215.33203125
+    },
+    {
+      "workload": "mixed",
+      "size": 4096,
+      "lane": "ink-js-bound",
+      "median_ns_per_call": 41872.478515625,
+      "process_medians_ns": {
+        "80": 45880.126953125,
+        "81": 41434.08203125,
+        "82": 41872.478515625
+      },
+      "process_median_min_ns": 41434.08203125,
+      "process_median_max_ns": 45880.126953125
+    },
+    {
+      "workload": "mixed",
+      "size": 4096,
+      "lane": "ink-js-db-indexed",
+      "median_ns_per_call": 34088.54296875,
+      "process_medians_ns": {
+        "80": 39008.02951388889,
+        "81": 33987.328125,
+        "82": 34088.54296875
+      },
+      "process_median_min_ns": 33987.328125,
+      "process_median_max_ns": 39008.02951388889
+    },
+    {
+      "workload": "mixed",
+      "size": 4096,
+      "lane": "ink-js-prepared",
+      "median_ns_per_call": 40669.3515625,
+      "process_medians_ns": {
+        "80": 42150.9765625,
+        "81": 40669.3515625,
+        "82": 40381.591796875
+      },
+      "process_median_min_ns": 40381.591796875,
+      "process_median_max_ns": 42150.9765625
+    },
+    {
+      "workload": "read-heavy",
+      "size": 4096,
+      "lane": "frontier-core-diff",
+      "median_ns_per_call": 720964.84375,
+      "process_medians_ns": {
+        "80": 720964.84375,
+        "81": 780184.7534722222,
+        "82": 720179.9791666666
+      },
+      "process_median_min_ns": 720179.9791666666,
+      "process_median_max_ns": 780184.7534722222
+    },
+    {
+      "workload": "read-heavy",
+      "size": 4096,
+      "lane": "frontier-core-dirty",
+      "median_ns_per_call": 530440.8263888889,
+      "process_medians_ns": {
+        "80": 529687.5,
+        "81": 568400.6076388889,
+        "82": 530440.8263888889
+      },
+      "process_median_min_ns": 529687.5,
+      "process_median_max_ns": 568400.6076388889
+    },
+    {
+      "workload": "read-heavy",
+      "size": 4096,
+      "lane": "frontier-core-patch",
+      "median_ns_per_call": 377156.8263888889,
+      "process_medians_ns": {
+        "80": 373708.3333333333,
+        "81": 398275.1736111111,
+        "82": 377156.8263888889
+      },
+      "process_median_min_ns": 373708.3333333333,
+      "process_median_max_ns": 398275.1736111111
+    },
+    {
+      "workload": "read-heavy",
+      "size": 4096,
+      "lane": "frontier-state-main-commit",
+      "median_ns_per_call": 712015.9131944445,
+      "process_medians_ns": {
+        "80": 712015.9131944445,
+        "81": 756703.8472222222,
+        "82": 709175.9236111111
+      },
+      "process_median_min_ns": 709175.9236111111,
+      "process_median_max_ns": 756703.8472222222
+    },
+    {
+      "workload": "read-heavy",
+      "size": 4096,
+      "lane": "frontier-state-main-patch",
+      "median_ns_per_call": 380551.50694444444,
+      "process_medians_ns": {
+        "80": 380551.50694444444,
+        "81": 403545.4270833333,
+        "82": 380026.90972222225
+      },
+      "process_median_min_ns": 380026.90972222225,
+      "process_median_max_ns": 403545.4270833333
+    },
+    {
+      "workload": "read-heavy",
+      "size": 4096,
+      "lane": "frontier-state-main-prepared-patch",
+      "median_ns_per_call": 378395.8333333333,
+      "process_medians_ns": {
+        "80": 378193.28819444444,
+        "81": 403112.2708333333,
+        "82": 378395.8333333333
+      },
+      "process_median_min_ns": 378193.28819444444,
+      "process_median_max_ns": 403112.2708333333
+    },
+    {
+      "workload": "read-heavy",
+      "size": 4096,
+      "lane": "frontier-state-release-commit",
+      "median_ns_per_call": 729110.8194444445,
+      "process_medians_ns": {
+        "80": 729110.8194444445,
+        "81": 751166.8125,
+        "82": 709581.7430555555
+      },
+      "process_median_min_ns": 709581.7430555555,
+      "process_median_max_ns": 751166.8125
+    },
+    {
+      "workload": "read-heavy",
+      "size": 4096,
+      "lane": "frontier-state-release-patch",
+      "median_ns_per_call": 377843.6076388889,
+      "process_medians_ns": {
+        "80": 377532.6979166667,
+        "81": 404033.99652777775,
+        "82": 377843.6076388889
+      },
+      "process_median_min_ns": 377532.6979166667,
+      "process_median_max_ns": 404033.99652777775
+    },
+    {
+      "workload": "read-heavy",
+      "size": 4096,
+      "lane": "ink-js",
+      "median_ns_per_call": 134719.90625,
+      "process_medians_ns": {
+        "80": 134719.90625,
+        "81": 143436.05555555556,
+        "82": 132570.60069444444
+      },
+      "process_median_min_ns": 132570.60069444444,
+      "process_median_max_ns": 143436.05555555556
+    },
+    {
+      "workload": "read-heavy",
+      "size": 4096,
+      "lane": "ink-js-bound",
+      "median_ns_per_call": 132677.375,
+      "process_medians_ns": {
+        "80": 132677.375,
+        "81": 144018.37152777778,
+        "82": 131911.74652777778
+      },
+      "process_median_min_ns": 131911.74652777778,
+      "process_median_max_ns": 144018.37152777778
+    },
+    {
+      "workload": "read-heavy",
+      "size": 4096,
+      "lane": "ink-js-db-indexed",
+      "median_ns_per_call": 5013.804398148148,
+      "process_medians_ns": {
+        "80": 4748.372395833333,
+        "81": 6493.899594907408,
+        "82": 5013.804398148148
+      },
+      "process_median_min_ns": 4748.372395833333,
+      "process_median_max_ns": 6493.899594907408
+    },
+    {
+      "workload": "read-heavy",
+      "size": 4096,
+      "lane": "ink-js-prepared",
+      "median_ns_per_call": 134700.37847222222,
+      "process_medians_ns": {
+        "80": 134700.37847222222,
+        "81": 144598.95833333334,
+        "82": 132600.69444444444
+      },
+      "process_median_min_ns": 132600.69444444444,
+      "process_median_max_ns": 144598.95833333334
+    },
+    {
+      "workload": "replace",
+      "size": 4096,
+      "lane": "frontier-core-diff",
+      "median_ns_per_call": 1569036.453125,
+      "process_medians_ns": {
+        "80": 1629213.53125,
+        "81": 1558309.890625,
+        "82": 1569036.453125
+      },
+      "process_median_min_ns": 1558309.890625,
+      "process_median_max_ns": 1629213.53125
+    },
+    {
+      "workload": "replace",
+      "size": 4096,
+      "lane": "frontier-core-dirty",
+      "median_ns_per_call": 704432.296875,
+      "process_medians_ns": {
+        "80": 720199.21875,
+        "81": 700581.375,
+        "82": 704432.296875
+      },
+      "process_median_min_ns": 700581.375,
+      "process_median_max_ns": 720199.21875
+    },
+    {
+      "workload": "replace",
+      "size": 4096,
+      "lane": "frontier-core-patch",
+      "median_ns_per_call": 782.688083022388,
+      "process_medians_ns": {
+        "80": 782.688083022388,
+        "81": 766.7546741452992,
+        "82": 911.875274122807
+      },
+      "process_median_min_ns": 766.7546741452992,
+      "process_median_max_ns": 911.875274122807
+    },
+    {
+      "workload": "replace",
+      "size": 4096,
+      "lane": "frontier-state-main-commit",
+      "median_ns_per_call": 1534867.84375,
+      "process_medians_ns": {
+        "80": 1598692.703125,
+        "81": 1534867.84375,
+        "82": 1533678.390625
+      },
+      "process_median_min_ns": 1533678.390625,
+      "process_median_max_ns": 1598692.703125
+    },
+    {
+      "workload": "replace",
+      "size": 4096,
+      "lane": "frontier-state-main-patch",
+      "median_ns_per_call": 735.7531142611684,
+      "process_medians_ns": {
+        "80": 735.7531142611684,
+        "81": 670.6681910569106,
+        "82": 759.6466529187817
+      },
+      "process_median_min_ns": 670.6681910569106,
+      "process_median_max_ns": 759.6466529187817
+    },
+    {
+      "workload": "replace",
+      "size": 4096,
+      "lane": "frontier-state-main-prepared-patch",
+      "median_ns_per_call": 452.345275297619,
+      "process_medians_ns": {
+        "80": 452.345275297619,
+        "81": 406.2256016042781,
+        "82": 533.5579044117648
+      },
+      "process_median_min_ns": 406.2256016042781,
+      "process_median_max_ns": 533.5579044117648
+    },
+    {
+      "workload": "replace",
+      "size": 4096,
+      "lane": "frontier-state-release-commit",
+      "median_ns_per_call": 1539713.546875,
+      "process_medians_ns": {
+        "80": 1611727.21875,
+        "81": 1533839.84375,
+        "82": 1539713.546875
+      },
+      "process_median_min_ns": 1533839.84375,
+      "process_median_max_ns": 1611727.21875
+    },
+    {
+      "workload": "replace",
+      "size": 4096,
+      "lane": "frontier-state-release-patch",
+      "median_ns_per_call": 709.8896861587983,
+      "process_medians_ns": {
+        "80": 709.8896861587983,
+        "81": 601.8106168566775,
+        "82": 807.7325994318181
+      },
+      "process_median_min_ns": 601.8106168566775,
+      "process_median_max_ns": 807.7325994318181
+    },
+    {
+      "workload": "replace",
+      "size": 4096,
+      "lane": "ink-js",
+      "median_ns_per_call": 2439.8421266233768,
+      "process_medians_ns": {
+        "80": 2439.8421266233768,
+        "81": 2514.4796989051097,
+        "82": 2231.2457997311826
+      },
+      "process_median_min_ns": 2231.2457997311826,
+      "process_median_max_ns": 2514.4796989051097
+    },
+    {
+      "workload": "replace",
+      "size": 4096,
+      "lane": "ink-js-bound",
+      "median_ns_per_call": 2529.768318965517,
+      "process_medians_ns": {
+        "80": 2456.654743975904,
+        "81": 2529.768318965517,
+        "82": 2570.8304771505377
+      },
+      "process_median_min_ns": 2456.654743975904,
+      "process_median_max_ns": 2570.8304771505377
+    },
+    {
+      "workload": "replace",
+      "size": 4096,
+      "lane": "ink-js-db-indexed",
+      "median_ns_per_call": 20419.131696428572,
+      "process_medians_ns": {
+        "80": 20419.131696428572,
+        "81": 19637.477864583332,
+        "82": 29369.79375
+      },
+      "process_median_min_ns": 19637.477864583332,
+      "process_median_max_ns": 29369.79375
+    },
+    {
+      "workload": "replace",
+      "size": 4096,
+      "lane": "ink-js-prepared",
+      "median_ns_per_call": 784.3185483870968,
+      "process_medians_ns": {
+        "80": 784.3185483870968,
+        "81": 1123.209375,
+        "82": 762.6492086909872
+      },
+      "process_median_min_ns": 762.6492086909872,
+      "process_median_max_ns": 1123.209375
+    },
+    {
+      "workload": "snapshot-difference-and-immutable-apply",
+      "size": 4,
+      "lane": "frontier-dirty-diff-and-apply",
+      "median_ns_per_call": 333.2177707259024,
+      "process_medians_ns": {
+        "80": 393.4501573976915,
+        "81": 313.4934962554198,
+        "82": 333.2177707259024
+      },
+      "process_median_min_ns": 313.4934962554198,
+      "process_median_max_ns": 393.4501573976915
+    },
+    {
+      "workload": "snapshot-difference-and-immutable-apply",
+      "size": 4,
+      "lane": "frontier-full-diff-and-apply",
+      "median_ns_per_call": 417.46912181303117,
+      "process_medians_ns": {
+        "80": 481.1305075292805,
+        "81": 414.2035694366983,
+        "82": 417.46912181303117
+      },
+      "process_median_min_ns": 414.2035694366983,
+      "process_median_max_ns": 481.1305075292805
+    },
+    {
+      "workload": "snapshot-difference-and-immutable-apply",
+      "size": 64,
+      "lane": "frontier-dirty-diff-and-apply",
+      "median_ns_per_call": 2253.2877772047445,
+      "process_medians_ns": {
+        "80": 2294.8587426826166,
+        "81": 2227.9461692538807,
+        "82": 2253.2877772047445
+      },
+      "process_median_min_ns": 2227.9461692538807,
+      "process_median_max_ns": 2294.8587426826166
+    },
+    {
+      "workload": "snapshot-difference-and-immutable-apply",
+      "size": 64,
+      "lane": "frontier-full-diff-and-apply",
+      "median_ns_per_call": 4318.7827050997785,
+      "process_medians_ns": {
+        "80": 4535.537313432836,
+        "81": 4318.7827050997785,
+        "82": 4316.269841269841
+      },
+      "process_median_min_ns": 4316.269841269841,
+      "process_median_max_ns": 4535.537313432836
+    },
+    {
+      "workload": "snapshot-difference-and-immutable-apply",
+      "size": 512,
+      "lane": "frontier-dirty-diff-and-apply",
+      "median_ns_per_call": 73234.75609756098,
+      "process_medians_ns": {
+        "80": 73013.24031007753,
+        "81": 75044.4705882353,
+        "82": 73234.75609756098
+      },
+      "process_median_min_ns": 73013.24031007753,
+      "process_median_max_ns": 75044.4705882353
+    },
+    {
+      "workload": "snapshot-difference-and-immutable-apply",
+      "size": 512,
+      "lane": "frontier-full-diff-and-apply",
+      "median_ns_per_call": 165071.03278688525,
+      "process_medians_ns": {
+        "80": 165050.37313432837,
+        "81": 168365.32142857142,
+        "82": 165071.03278688525
+      },
+      "process_median_min_ns": 165050.37313432837,
+      "process_median_max_ns": 168365.32142857142
+    }
+  ],
+  "sizes": [
+    {
+      "fields": 4,
+      "json_bytes": 102,
+      "ink_document_bytes": 497,
+      "ink_compact_document_bytes": 110,
+      "frontier_patch_bytes": 20,
+      "ink_update_bytes": 84,
+      "ink_compact_update_bytes": 15
+    },
+    {
+      "fields": 64,
+      "json_bytes": 816,
+      "ink_document_bytes": 3071,
+      "ink_compact_document_bytes": 884,
+      "frontier_patch_bytes": 20,
+      "ink_update_bytes": 84,
+      "ink_compact_update_bytes": 15
+    },
+    {
+      "fields": 512,
+      "json_bytes": 6604,
+      "ink_document_bytes": 22747,
+      "ink_compact_document_bytes": 7121,
+      "frontier_patch_bytes": 20,
+      "ink_update_bytes": 84,
+      "ink_compact_update_bytes": 15
+    }
+  ],
+  "aggregation": "Median of per-process medians of rotated timing rounds",
+  "limits": [
+    "Shared development host; no exclusive CPU reservation",
+    "Database indexed state is a supplied checked alternative, not the default selection",
+    "JSON binary and Frontier patch formats have different contracts",
+    "No equivalent startup or peak-memory ranking; no general Ink JSON snapshot diff"
+  ]
+}

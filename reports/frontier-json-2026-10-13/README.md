@@ -4,6 +4,41 @@ The all-metrics target remains unmet. Read-heavy state and retained JSON editing
 win in these fixtures; row updates, conversion and portable-message codecs lose.
 This is a shared development host, not a controlled laboratory.
 
+## Current release: fresh Frontier comparison
+
+`json-boundary-release-cohorts-80-82.json` binds distribution `91ddf323`, ABI
+`4e7af56` and JS `1e8dd79`, with three fresh processes and nine rotated rounds.
+Full replies, state, rollback, events, versions and exact Ink snapshots passed
+preflight. The JSON suite now separates sharing from fully detached outputs;
+both libraries' owned lanes clone their result and reject any input/output object
+identity intersection before timing.
+
+| Boundary | Ink µs/call | Frontier main/control µs/call |
+| --- | ---: | ---: |
+| 4096-row replacement | 2.440 | 0.736 |
+| Prepared replacement, preparation excluded for both | 0.784 | 0.452 |
+| Mixed operations | 41.903 | 132.490 |
+| Read-heavy, literal Ink | 134.720 | 380.552 |
+| Read-heavy, supplied checked indexed Ink | 5.014 | 380.552 |
+| 512-field retained JSON edit, sharing allowed | 3.100 | 73.133 |
+| Fully detached mutable JSON output | 785.333 | 98.349 |
+| Text → edit → text | 642.310 | 77.872 |
+| Portable message encode/decode | 0.832 / 1.375 | 1.149 / 0.700 |
+| Agreed-schema message encode/decode | 0.649 / 0.965 | 1.149 / 0.700 |
+
+The retained sharing win does not establish a detached-output win. Ink currently
+uses native `structuredClone` of its larger logical datatype tree for detachment;
+a typed owned-copy implementation is an unresolved optimisation opportunity.
+Indexed replacement costs 20.419 µs, so the supplied query alternative has an
+update tradeoff and is not the automatic default. Binary JSON validation is
+272.481 µs versus 69.911 µs for Frontier's JSON text parsing/validation, with
+different input contracts. The complete binary editing pipeline is 2118.575 µs.
+Updates remain 15 compact / 84 portable / 20 Frontier bytes. Compact requires
+an agreed schema/format. Startup, peak memory and arbitrary Ink snapshot diff
+remain unranked or unsupported; the all-metrics target is unmet. Absolute times
+from older releases are not controlled before/after measurements. Exact emitted
+modules, harnesses, fixtures and preparation are in `artifacts/boundary-release/`.
+
 ## JSON boundary and bound scan follow-up
 
 ABI `4e7af56` binds portable validation/visitation to a separate immutable-schema
