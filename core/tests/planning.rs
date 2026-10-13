@@ -101,7 +101,6 @@ fn physical_metadata_cannot_select_missing_source_or_fake_definition_sites() {
         definitions: Default::default(),
         packed_datatypes: vec![],
         memo_functions: vec![],
-        sum_spines: vec![],
         reservations: vec![],
     };
     physical::check(&m, None, &p).unwrap();
