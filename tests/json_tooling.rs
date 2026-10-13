@@ -230,7 +230,7 @@ fn javascript_and_rust_codecs_and_compiled_binary_calls_agree() {
     fs::write(root.join("guard-bad.bin"),guard_input.encode(&json!({"x":0}),l).unwrap()).unwrap();
     fs::write(root.join("check.mjs"),r#"
 import assert from 'node:assert/strict';import fs from 'node:fs';
-import {ValueCodec,JsonCodec,parseJson,stringifyJson,callBinary,callCompact,valueCodecs,metadata,createValueCodec,TypedJsonCodec} from './module.mjs';
+import {ValueCodec,JsonCodec,parseJson,stringifyJson,callBinary,callCompact,callOwned,valueCodecs,metadata,createValueCodec,TypedJsonCodec} from './module.mjs';
 const f=JSON.parse(fs.readFileSync(new URL('./fixtures.json',import.meta.url)));
 const values=new ValueCodec(f.schema),json=new JsonCodec(values);
 const computed=await createValueCodec(f.schema.root,f.schema.named);assert.equal(computed.descriptor.identity,f.schema.identity);
@@ -249,6 +249,11 @@ assert.throws(()=>callBinary('guarded',new Uint8Array(fs.readFileSync(new URL('.
 const packetReply=callBinary('echo_packet',new Uint8Array(fs.readFileSync(new URL('./packet-request.bin',import.meta.url))));
 assert.deepEqual(Buffer.from(packetReply),fs.readFileSync(new URL('./packet-expected.bin',import.meta.url)));
 const packetValue=valueCodecs.echo_packet.arguments.decode(new Uint8Array(fs.readFileSync(new URL('./packet-request.bin',import.meta.url))));
+const ownedPacket=callOwned('echo_packet',[packetValue.packet]);
+assert.deepEqual(valueCodecs.echo_packet.result.encode(ownedPacket),packetReply);
+const packetBefore=structuredClone(packetValue);ownedPacket.vector[0]={F32Bits:0};ownedPacket.exact.Int='0';assert.deepEqual(packetValue,packetBefore);
+assert.throws(()=>callOwned('guarded',[0]),/precondition/);assert.throws(()=>callOwned('toString',[]),/unsupported/);
+assert.throws(()=>callOwned('echo_packet',[packetValue.packet],{nodes:0}));
 const compactPacket=valueCodecs.echo_packet.arguments.compact().encode(packetValue),beforePacket=compactPacket.slice();
 const compactReply=callCompact('echo_packet',compactPacket);assert.deepEqual(compactPacket,beforePacket);
 assert.deepEqual(valueCodecs.echo_packet.result.encode(valueCodecs.echo_packet.result.compact().decode(compactReply)),packetReply);

@@ -22,7 +22,8 @@ for(const n of (smoke?[4]:[4,64,512]).filter(n=>fieldFilter===undefined||n===Num
  assert.deepEqual(JSON.parse(json.stringifyBinary(resultWire)),target);assert.deepEqual(JSON.parse(json.stringify(ink.call('set_document',[compiled,key,value]).Ok)),target);assert.deepEqual(applyPatchImmutable(doc,patch,{cloneValues:true}),target);assert.deepEqual(doc[key],0);assert.deepEqual(decodePatch(patchWire),patch);assert.deepEqual(message.decode(messageWire),typedMessage);assert.deepEqual(compactMessage.decode(compactMessageWire),typedMessage);assert.deepEqual(json.values.compact().decode(compactDocument),compiled);
  // Both plain Ink and Frontier's single-set path share unchanged subtrees.
  // Fully detached mutable outputs are a separate, matched ownership boundary.
- const ownedEdit=()=>structuredClone(ink.call('set_document',[compiled,key,value]).Ok);
+ const ownedEdit=()=>ink.callOwned('set_document',[compiled,key,value]).Ok;
+ const checkedOwnedEdit=()=>json.values.capture(ink.call('set_document',[compiled,key,value]).Ok);
  const ownedFrontier=()=>structuredClone(applyPatchImmutable(doc,patch,{cloneValues:true}));
  const detached=ownedEdit();assert.deepEqual(JSON.parse(json.stringify(detached)),target);
  detached.payload.Err.Err.Err.Err.Err.item0[0].value.payload.Err.Err.Ok.item0='999';
@@ -38,6 +39,8 @@ for(const n of (smoke?[4]:[4,64,512]).filter(n=>fieldFilter===undefined||n===Num
   },
   'known-edit-detached':{
     'ink-js-owned-json-set':()=>ownedEdit().payload?next:0,
+    'ink-js-checked-owned-json-set':()=>checkedOwnedEdit().payload?next:0,
+    'ink-js-structured-clone-json-set':()=>structuredClone(ink.call('set_document',[compiled,key,value]).Ok).payload?next:0,
     'frontier-owned-known-patch':()=>ownedFrontier()[key],
   },
   'snapshot-difference-and-immutable-apply':{

@@ -30,6 +30,9 @@ if(mode.startsWith('row')){
  else if(mode==='json-parse')run=()=>json.parse(text).payload?1:0;
  else if(mode==='json-stringify')run=()=>json.stringify(logical).length;
  else if(mode==='json-edit')run=()=>ink.call('set_document',[logical,'k00000',value]).Ok.payload?1:0;
+ else if(mode==='json-copy-checked')run=()=>json.values.capture(logical).payload?1:0;
+ else if(mode==='json-copy-trusted')run=()=>json.values.copy(logical).payload?1:0;
+ else if(mode==='json-owned')run=()=>ink.callOwned('set_document',[logical,'k00000',value]).Ok.payload?1:0;
  else throw Error('unknown profile mode');
 }
 let sink=0;for(let i=0;i<500;i++)sink^=run(i);
