@@ -41,8 +41,8 @@ fn automatic_choices_preserve_wrapping_float_order_errors_and_snapshots() {
         steps.push(json!({"pure":name,"args":args}));
         expected.push(json!({"reply":{"value":value},"snapshot":runtime.checkpoint_portable().unwrap()}));
     }
-    parity::conformance_planned("automatic-compilation-parity",&plan,&fs::read_to_string(source).unwrap(),steps.clone(),expected.clone());
-    if packet!=alternate_packet {
-        parity::conformance_planned("automatic-compilation-alternative",&alternate,&fs::read_to_string(source).unwrap(),steps,expected);
+    parity::conformance_planned("automatic-compilation-parity",&plan,&fs::read_to_string(&source).unwrap(),steps.clone(),expected.clone());
+    if serde_json::to_value(&packet).unwrap()!=serde_json::to_value(&alternate_packet).unwrap() {
+        parity::conformance_planned("automatic-compilation-alternative",&alternate,&fs::read_to_string(&source).unwrap(),steps,expected);
     }
 }
