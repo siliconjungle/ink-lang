@@ -268,8 +268,10 @@ fn check_with_catalogue(
         {
             return Err("selection instantiation arity".into());
         }
-        for (condition, proof) in law.conditions.iter().zip(&application.premises) {
+        for (index, (condition, proof)) in law.conditions.iter().zip(&application.premises).enumerate() {
             let proof = crate::laws::open_proof(proof, &scope, &mut budget)?;
+            // The index and law identity are diagnostics for untrusted search
+            // receipts only; they never select or weaken a premise obligation.
             laws.prove(
                 p,
                 &env,
@@ -278,7 +280,8 @@ fn check_with_catalogue(
                 &proof,
                 &mut budget,
                 0,
-            )?;
+            )
+            .map_err(|error| format!("premise {index} of {}: {error}", application.law))?;
         }
         let from = s::substitute(&law.from, &arguments, &mut budget)?;
         let to = s::substitute(&law.to, &arguments, &mut budget)?;

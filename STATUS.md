@@ -30,6 +30,23 @@ chosen kernels are not an unseen-program generalisation estimate. The standalone
 single-file programs locally; its external knowledge-search and import limits are
 separate from the distribution compiler's capabilities.
 
+Planning is now observable end to end. Semantic search records near misses
+(matched laws the checker rejected, with the failed premise as stated and as
+instantiated), compiled-planning receipts carry a stage funnel and per-recipe
+time, and `ink_planner.corpus` evaluates installed knowledge on the frozen
+[planning corpus](bench/planning-corpus/README.md). On its ten held-out programs
+the defaults still select the baseline everywhere, because no comparable
+measurements exist ([results](bench/planning-corpus/results-2026-10-13.md)).
+[Structure laws](docs/structure-laws.md) state early exit for absorbing
+accumulators and sort erasure before commuting fold steps once. They reach
+programs through plan-time instances that `knowledge-check` admits per module,
+and are admitted in 5 of the 10 held-out programs. Measured selection requires
+its bootstrap interval to lie below the baseline before switching.
+[Knowledge health](docs/knowledge-health.md) and
+[action algebra](docs/action-algebra.md) reports, the latter with checked
+commutation certificates for disjoint actions, are diagnostics without
+selection authority.
+
 ## Universal optimisation boundaries
 
 Early termination, owned-buffer reuse and bounded helper unfolding are proposed
