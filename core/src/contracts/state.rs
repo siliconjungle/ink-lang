@@ -361,11 +361,38 @@ pub(super) fn derive(source: &Program) -> LangResult<StateObligations> {
     }
     let mut call_checks = vec![];
     let mut guarantee_checks = vec![];
+    let mut prefix_checks = vec![];
     for g in super::calls::actions(source)? {
         let stable_state = source.actions.iter()
             .any(|a| a.name == g.owner && a.writes.is_empty());
         if let Some(guarantee)=g.guarantee {
             let spec=super::specification(source,&guarantee.callee).ok_or("missing result guarantee specification")?;
+            if source.actions.iter().any(|a|a.name==g.owner) {
+                // Bind the postcondition to the actual captured value and the
+                // lexical arguments at this source site. Local facts will be
+                // established by the prefix, not assumed at arbitrary state.
+                let mut names=BTreeMap::new();
+                for (i,name) in spec.params.iter().map(|(n,_)|n.as_str())
+                    .chain(std::iter::once("result")).enumerate() {
+                    let mut fresh=format!("__ink_observed_{i}");
+                    while g.params.iter().any(|(n,_)|n==&fresh)
+                        || crate::analysis::references_free(&guarantee.ensure,&fresh)
+                        || guarantee.arguments.iter().any(|e|crate::analysis::references_free(e,&fresh))
+                        || names.values().any(|n|n==&fresh) {fresh.push('_');}
+                    names.insert(name.to_owned(),fresh);
+                }
+                let mut predicate=crate::syntax::rename_expression(&guarantee.ensure,&names);
+                for ((name,ty),argument) in spec.params.iter().zip(&guarantee.arguments).rev() {
+                    predicate=Expr::Let(names[name].clone(),Some(Box::new(ty.clone())),
+                        Box::new(argument.clone()),Box::new(predicate));
+                }
+                let locals=g.params.iter().filter(|(n,_)|crate::analysis::references_free(&predicate,n))
+                    .cloned().collect::<Vec<_>>();
+                let mut params=locals.clone();params.push((names["result"].clone(),spec.result.clone()));
+                let post=ghosts.query(params,Type::Bool,predicate)?;
+                prefix_checks.push((g.name,g.owner,guarantee.site,locals,post));
+                continue;
+            }
             let anchor=ghosts.query(g.params.clone(),Type::Bool,Expr::Bool(true))?;
             let mut arguments=vec![];
             for ((_,ty),value) in spec.params.iter().zip(guarantee.arguments) {
@@ -399,7 +426,22 @@ pub(super) fn derive(source: &Program) -> LangResult<StateObligations> {
         call_checks.push((g.name, name, conditions, stable_state));
     }
     let checked = CheckedModule::from_source(ghosts.p)?;
-    let model = Projection::derive(&checked)?;
+    let typed=crate::action_ir::CheckedActions::elaborate(&checked)?;
+    let mut requests=vec![];
+    let mut site_maps=BTreeMap::new();
+    for (_,owner,site,locals,post) in &prefix_checks {
+        let index=source.actions.iter().position(|a|&a.name==owner).ok_or("missing observed caller")?;
+        if !site_maps.contains_key(owner) {
+            site_maps.insert(owner.clone(),typed.action(index).ok_or("missing observed caller tree")?
+                .source_sites(&source.actions[index])?);
+        }
+        let (node,env)=site_maps[owner].get(site).ok_or("missing captured result source site")?;
+        let slots=locals.iter().map(|(name,_)|env.get(name).copied().ok_or("missing captured lexical slot"))
+            .collect::<Result<Vec<_>,_>>()?;
+        requests.push(crate::action_model::ValueObservation{action:owner.clone(),node:*node,
+            predicate:post.clone(),slots});
+    }
+    let (model,observations) = Projection::derive_observations(&checked,&requests)?;
     let cx = model.context()?;
     let initial = Term::Construct {
         datatype: model.state.clone(),
@@ -415,6 +457,24 @@ pub(super) fn derive(source: &Program) -> LangResult<StateObligations> {
             .collect(),
     };
     let mut goals = vec![];
+    for ((label,owner,_,_,_),observation) in prefix_checks.iter().zip(&observations) {
+        let params=&observation.params;
+        let args=params[2..].iter().map(|(n,_)|var(n)).collect::<Vec<_>>();
+        let mut conditions=vec![];
+        for invariant in &invariants {
+            conditions.push(yes(query_value(&model,&cx,invariant,params,
+                var("initial"),var("version"),vec![])?));
+        }
+        if let Some((_,requires,_))=specs.iter().find(|(names,_,_)|names.contains(owner)) {
+            for predicate in requires {
+                conditions.push(yes(query_value(&model,&cx,predicate,params,
+                    var("initial"),var("version"),args.clone())?));
+            }
+        }
+        let term=call(&observation.function,params.iter().map(|(n,_)|var(n)).collect());
+        let goal=crate::action_model::public_normal(&cx.evaluate(params,&term)?,&BTreeMap::new(),&mut 0);
+        goals.push(StateObligation{name:label.clone(),params:params.clone(),conditions,goal:yes(goal)});
+    }
     for (label, name, conditions, stable_state) in call_checks {
         let a = &model.actions[&name];
         let params = &a.params;

@@ -1,6 +1,7 @@
 module result_guarantees;
 private state Counter:u32=1;
 invariant Counter>0;
+event Repaired:u32;
 spec query positive()->u32 reads(Counter) ensures result>0;
 implementation read for positive{return Counter;}
 spec fn need(x:u32)->u32 requires x>0;ensures result==x;
@@ -18,5 +19,14 @@ change safe_echo()->Result<Unit,String> writes(Counter){
 }
 change safe_change()->Result<Unit,String> writes(Counter){
  Counter=0;let captured=allocate(1);let seen=consume(captured);return Err("rollback");
+}
+change repair()->Result<Unit,String> writes(Counter) emits(Repaired){
+ Counter=0;emit Repaired(0);Counter=1;let captured=positive();let seen=need(captured);emit Repaired(captured);return Err("rollback");
+}
+change repair_nested()->Result<Unit,String> writes(Counter) emits(Repaired){
+ Counter=0;emit Repaired(0);let updated=allocate(1);let captured=positive();let seen=need(captured);emit Repaired(captured);return Err("rollback");
+}
+change repair_commit()->Result<Unit,String> writes(Counter) emits(Repaired){
+ Counter=0;emit Repaired(0);Counter=2;let captured=positive();let seen=need(captured);emit Repaired(captured);return Ok(());
 }
 fn numeric(xs:List<u32>)->List<u32>{return xs.map(fn(x)=>x+1);}

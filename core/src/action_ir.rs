@@ -749,11 +749,8 @@ impl<'a> Lower<'a> {
 }
 
 impl Body {
-    fn bind_expr(&self, id: NodeId, e: &Expr, types: &mut BTreeMap<usize, Type>) -> LangResult<()> {
+    fn source_children<'a>(&self, id: NodeId, e: &'a Expr) -> Vec<(NodeId, &'a Expr)> {
         let node = &self.nodes[id];
-        if let ExprType::Value(ty) = &node.ty {
-            types.insert(e as *const Expr as usize, ty.clone());
-        }
         let mut children = vec![];
         match (&node.kind, e) {
             (Kind::Record { fields, .. }, Expr::Record(_, source)) => {
@@ -799,10 +796,69 @@ impl Body {
             }
             _ => (),
         }
-        for (id, e) in children {
+        children
+    }
+    fn bind_expr(&self, id: NodeId, e: &Expr, types: &mut BTreeMap<usize, Type>) -> LangResult<()> {
+        if let ExprType::Value(ty) = &self.nodes[id].ty {
+            types.insert(e as *const Expr as usize, ty.clone());
+        }
+        for (id, e) in self.source_children(id, e) {
             self.bind_expr(id, e, types)?;
         }
         Ok(())
+    }
+    /// Pair this sealed elaboration with its source, retaining lexical slots at
+    /// each site. Addresses are transient lookup keys for the borrowed source;
+    /// the caller reconstructs both sides, and no address is accepted on wire.
+    pub(crate) fn source_sites(&self, action: &Action)
+        -> LangResult<BTreeMap<usize, (NodeId, BTreeMap<String, SlotId>)>> {
+        type Sites = BTreeMap<usize, (NodeId, BTreeMap<String, SlotId>)>;
+        fn expr(body: &Body, id: NodeId, e: &Expr,
+            env: &BTreeMap<String, SlotId>, sites: &mut Sites) -> LangResult<()> {
+            sites.insert(e as *const Expr as usize, (id, env.clone()));
+            let children = body.source_children(id,e);
+            match (&body.nodes[id].kind,e) {
+                (Kind::Bind{slot,..}, Expr::Let(name,_,_,_)) => {
+                    let [(value,a),(inner,b)] = children.as_slice() else {
+                        return Err("source site binding mismatch".into());
+                    };
+                    expr(body,*value,a,env,sites)?;
+                    let mut local=env.clone();local.insert(name.clone(),*slot);
+                    expr(body,*inner,b,&local,sites)?;
+                }
+                (Kind::Lambda{parameter,..},Expr::Lambda(name,_)) => {
+                    let mut local=env.clone();local.insert(name.clone(),*parameter);
+                    for (id,e) in children {expr(body,id,e,&local,sites)?;}
+                }
+                _ => for (id,e) in children {expr(body,id,e,env,sites)?;},
+            }
+            Ok(())
+        }
+        fn block(body: &Body, steps: &[Instruction], statements: &[Statement],
+            env: &mut BTreeMap<String, SlotId>, sites: &mut Sites) -> LangResult<()> {
+            if steps.len()!=statements.len() {return Err("source site block mismatch".into());}
+            for (step,statement) in steps.iter().zip(statements) {
+                match (step,statement) {
+                    (Instruction::Let{slot,value,..},Statement::Let(name,_,e)) => {
+                        expr(body,*value,e,env,sites)?;env.insert(name.clone(),*slot);
+                    }
+                    (Instruction::Return(value),Statement::Return(e))
+                    | (Instruction::Eval(value),Statement::Expr(e))
+                    | (Instruction::Emit{value,..},Statement::Emit(_,e)) => expr(body,*value,e,env,sites)?,
+                    (Instruction::If{condition,on_true,on_false},Statement::If(e,yes,no)) => {
+                        expr(body,*condition,e,env,sites)?;
+                        block(body,on_true,yes,&mut env.clone(),sites)?;
+                        block(body,on_false,no,&mut env.clone(),sites)?;
+                    }
+                    _ => return Err("source site instruction mismatch".into()),
+                }
+            }
+            Ok(())
+        }
+        let mut env=action.params.iter().enumerate().map(|(slot,(name,_))|(name.clone(),slot)).collect();
+        let mut sites=BTreeMap::new();
+        block(self,&self.instructions,&action.body,&mut env,&mut sites)?;
+        Ok(sites)
     }
     fn bind_block(
         &self,
