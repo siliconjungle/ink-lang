@@ -264,6 +264,18 @@ const directDocument=json.parseCompact('{"title":"hello","unknown":1e10000}');
 const directRequest=valueCodecs.mark_received.arguments.compact().encodeWith(w=>w.frame(()=>w.bytes(directDocument.subarray(1))));
 assert.deepEqual(callCompact('mark_received',directRequest),compactJson);
 
+const host={title:'hello',unknown:{count:9007199254740993n,items:[true,null,'snow']}};
+const hostDocument=json.fromJS(host),hostRequest=valueCodecs.mark_received.arguments.encode({document:hostDocument});
+const hostReply=callBinary('mark_received',hostRequest),hostResult=valueCodecs.mark_received.result.decode(hostReply).Ok;
+assert.deepEqual(json.toJS(hostResult,{numbers:'bigint'}),{received:true,...host});
+assert.throws(()=>json.toJS(hostResult),/precision/);
+assert.deepEqual(json.toJS(callOwned('mark_received',[hostDocument]).Ok,{numbers:'bigint'}),{received:true,...host});
+const shortReply=callCompact('mark_received',valueCodecs.mark_received.arguments.compact().encode({document:hostDocument}));
+assert.deepEqual(valueCodecs.mark_received.result.encode(valueCodecs.mark_received.result.compact().decode(shortReply)),hostReply);
+host.unknown.items[0]=false;assert.equal(json.toJS(hostResult,{numbers:'bigint'}).unknown.items[0],true);
+fs.writeFileSync(new URL('./js-object-request.bin',import.meta.url),hostRequest);
+fs.writeFileSync(new URL('./js-object-reply.bin',import.meta.url),hostReply);
+
 const ordered=new TypedJsonCodec(valueCodecs.echo_packet.arguments),parsed=ordered.parseBinary('{"packet":{"unit":null,"result":{"Err":"雪"},"optional":{"Some":4},"mode":"Mode.Off","tag":"0123456789abcdef0123456789abcdef","vector":[-0,0.1],"bits":2,"exact":-123456789012345678901234567890,"word":-2147483648,"wide":18446744073709551615}}');
 assert.deepEqual(Array.from(parsed),Array.from(valueCodecs.echo_packet.arguments.encode(ordered.parse('{"packet":{"unit":null,"result":{"Err":"雪"},"optional":{"Some":4},"mode":"Mode.Off","tag":"0123456789abcdef0123456789abcdef","vector":[-0,0.1],"bits":2,"exact":-123456789012345678901234567890,"word":-2147483648,"wide":18446744073709551615}}'))));
 for(const text of ['{"x":0,"x":1}','{"x":0,"\\u0078":1}','[1,]','01','+1','1.','1e','NaN','"\\ud800"','true false'])assert.throws(()=>json.parseBinary(text));
@@ -328,6 +340,13 @@ console.log('JSON and binary cross-language conformance passed');
             fs::read(root.join("reply.bin")).unwrap()
         );
         assert_eq!(fs::read(dir.join("packet-reply.bin")).unwrap(),fs::read(root.join("packet-expected.bin")).unwrap());
+        let host_reply = dir.join("js-object-reply.bin");
+        let host_run = Command::new(dir.join("target/debug/compiled-state"))
+            .arg(root.join("js-object-request.bin")).arg(&host_reply)
+            .arg(root.join("packet-request.bin")).arg(dir.join("packet-reply.bin"))
+            .arg(root.join("guard-bad.bin")).output().unwrap();
+        assert!(host_run.status.success(), "{}", String::from_utf8_lossy(&host_run.stderr));
+        assert_eq!(fs::read(host_reply).unwrap(), fs::read(root.join("js-object-reply.bin")).unwrap());
         if let Ok(zig) = std::env::var("INK_TEST_ZIG") {
             let mut command = Command::new(env!("CARGO"));
             command
@@ -380,6 +399,11 @@ console.log('JSON and binary cross-language conformance passed');
 import fs from 'node:fs';import assert from 'node:assert/strict';import {StatefulModule} from './state-wasm.mjs';import {metadata} from './module.mjs';
 const index=Object.keys(metadata.wire.functions).filter(n=>!metadata.wire.functions[n].unsupported).sort().indexOf('mark_received');
 const request=new Uint8Array(fs.readFileSync(new URL('./request.bin',import.meta.url))),expected=fs.readFileSync(new URL('./reply.bin',import.meta.url));
+const hostRequest=new Uint8Array(fs.readFileSync(new URL('./js-object-request.bin',import.meta.url))),hostExpected=fs.readFileSync(new URL('./js-object-reply.bin',import.meta.url));
+for(const backend of ['c','rust']){
+ const module=await StatefulModule.instantiate(new Uint8Array(fs.readFileSync(new URL(`${backend}/target/wasm32-unknown-unknown/debug/compiled_state.wasm`,import.meta.url))));
+ const state=module.create();assert.deepEqual(Buffer.from(state.pureBinary(index,hostRequest)),hostExpected);state.dispose();
+}
 for(const backend of ['c','rust']){const module=await StatefulModule.instantiate(new Uint8Array(fs.readFileSync(new URL(`${backend}/target/wasm32-unknown-unknown/debug/compiled_state.wasm`,import.meta.url))));const state=module.create();const before=state.snapshot();const guardIndex=Object.keys(metadata.wire.functions).filter(n=>!metadata.wire.functions[n].unsupported).sort().indexOf('guarded');assert.throws(()=>state.pureBinary(guardIndex,new Uint8Array(fs.readFileSync(new URL('./guard-bad.bin',import.meta.url)))),/precondition/);assert.deepEqual(Buffer.from(state.pureBinary(index,request)),expected);const packetIndex=Object.keys(metadata.wire.functions).filter(n=>!metadata.wire.functions[n].unsupported).sort().indexOf('echo_packet');assert.deepEqual(Buffer.from(state.pureBinary(packetIndex,new Uint8Array(fs.readFileSync(new URL('./packet-request.bin',import.meta.url))))),fs.readFileSync(new URL('./packet-expected.bin',import.meta.url)));const bad=request.slice();bad[8]^=1;assert.throws(()=>state.pureBinary(index,bad),/schema/);assert.deepEqual(state.snapshot(),before);assert.throws(()=>state.pureBinary(4294967295,request),/index/);state.dispose();console.log(`${backend} raw binary Wasm matched`);}
 "#).unwrap();
         let run = Command::new("node")
