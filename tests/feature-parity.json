@@ -691,6 +691,38 @@
           "reason": "Recursive JSON values execute on the host; binary transport adds no device JSON capability."
         }
       }
+    },
+    {
+      "id": "invariant-bearing-values",
+      "types": [],
+      "tests": [
+        "value_invariants"
+      ],
+      "targets": {
+        "c": {
+          "status": "implemented"
+        },
+        "rust": {
+          "status": "implemented"
+        },
+        "javascript": {
+          "status": "implemented"
+        },
+        "c-wasm": {
+          "status": "implemented"
+        },
+        "rust-wasm": {
+          "status": "implemented"
+        },
+        "webgpu": {
+          "status": "partial",
+          "reason": "Value predicates validate on the host; unrelated eligible pure numeric work still dispatches."
+        },
+        "wgpu": {
+          "status": "partial",
+          "reason": "Value predicates validate on the host; unrelated eligible pure numeric work still dispatches."
+        }
+      }
     }
   ],
   "cpu_suites": [
@@ -727,7 +759,8 @@
     "law_source",
     "database_source_algorithms",
     "pipeline_templates",
-    "json_tooling"
+    "json_tooling",
+    "value_invariants"
   ],
   "gpu_contract": {
     "semantics": "eligible-pure-exact-v1",

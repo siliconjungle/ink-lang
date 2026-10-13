@@ -1,7 +1,10 @@
 # Ink architecture
 
 Ink separates program meaning from accumulated implementation knowledge.
-Keep fixed primitive semantics and general checking in `core/src`. Optimisation
+Keep fixed primitive semantics and general checking in `core/src`. Core growth
+should unlock a disproportionately larger space of reusable implementation
+knowledge; absolute core size is not the objective. Prefer composable mechanisms
+over one new compiler case per optimisation. Optimisation
 laws, work skipping, range specialisations, maintained representations and layout
 alternatives belong in the independently pinned `ink-knowledge` database.
 No target matcher, theorem whitelist or hash may grant rewrite authority.

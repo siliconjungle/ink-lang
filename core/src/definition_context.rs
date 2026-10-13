@@ -211,7 +211,22 @@ impl DefinitionContext {
             }
             let body = s::elaborate(&f.body, &crate::check::params_env(&f.params)?, p, &f.result)?;
             if body != d.body {
-                return Err(format!("definition context body differs: {name}"));
+                fn mismatch(a: &Term, b: &Term, path: &mut Vec<usize>) -> String {
+                    if a.sort != b.sort { return format!("{path:?}: sort {:?} versus {:?}", a.sort, b.sort) }
+                    let left=s::children(a); let right=s::children(b);
+                    if left.len()==right.len() {
+                        for (index,(a,b)) in left.iter().zip(right).enumerate() {
+                            if a!=&b {path.push(index);return mismatch(a,b,path)}
+                        }
+                    }
+                    fn head(node:&s::Node)->String { match node {
+                        s::Node::Op(name,_)=>name.clone(),
+                        s::Node::Lambda(_)=>"lambda".into(),
+                        other=>format!("{other:?}"),
+                    } }
+                    format!("{path:?}: {} versus {}",head(&a.node),head(&b.node))
+                }
+                return Err(format!("definition context body differs: {name}, {}",mismatch(&body,&d.body,&mut vec![])));
             }
         }
         Ok(())

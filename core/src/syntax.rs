@@ -628,6 +628,8 @@ impl Parser {
         self.expect(";")?;
         while self.peek() != "<eof>" {
             self.eat("pub");
+            let refined = self.eat("refined");
+            if refined && self.peek() != "record" { return Err(self.err("refined applies to record declarations")); }
             let private = self.eat("private");
             if private && self.peek() != "state" { return Err(self.err("private applies to state declarations")); }
             if private {
@@ -721,6 +723,12 @@ impl Parser {
                 }
                 if p.records.insert(n.clone(), fields).is_some() {
                     return Err(format!("duplicate record {n}"));
+                }
+                if refined {
+                    self.expect("invariant")?;
+                    self.pure = true;
+                    p.contracts.value_invariants.insert(n, self.expr(0)?);
+                    self.expect(";")?;
                 }
             } else if self.eat("enum") {
                 let n = self.name()?;

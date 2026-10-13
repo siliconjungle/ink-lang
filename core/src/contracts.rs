@@ -17,12 +17,24 @@ pub use refinement::{check_refinement, prepare, Body, Refinement};
 pub use facts::SiteFacts;
 pub(crate) mod cells;
 pub(crate) mod collections;
+pub mod values;
 pub use state::{StateObligation, StateObligations};
 
 pub const SEMANTICS: &str = "ink-contracts-v1";
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Contracts {
+    /// Predicates on immutable nominal values, in the single `value` binder.
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub value_invariants: BTreeMap<String, Expr>,
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub value_constructors: BTreeMap<String, String>,
+    /// Fixed, raw-value validation bodies; these do not assume their inputs valid.
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub value_validators: BTreeMap<String, Type>,
+    /// Derived type obligations, authenticated again against the actual module.
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub inferred: BTreeMap<String, Specification>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub specifications: Vec<Specification>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -46,7 +58,11 @@ pub struct Contracts {
 }
 impl Contracts {
     pub fn is_empty(&self) -> bool {
-        self.specifications.is_empty()
+        self.value_invariants.is_empty()
+            && self.value_constructors.is_empty()
+            && self.value_validators.is_empty()
+            && self.inferred.is_empty()
+            && self.specifications.is_empty()
             && self.implementations.is_empty()
             && self.invariants.is_empty()
             && self.private_states.is_empty()
@@ -56,6 +72,39 @@ impl Contracts {
             && self.knowledge.is_none()
             && self.state_proofs.is_empty()
             && self.state_knowledge.is_none()
+    }
+}
+
+/// Explicit behavioural specifications and exact, source-derived value contracts
+/// use the same existing proof and ingress interfaces. Inferred contracts do not
+/// make an ordinary function eligible for specification refinement.
+pub fn specifications(p: &Program) -> Vec<Specification> {
+    let mut out = p.contracts.specifications.clone();
+    for (name, inferred) in &p.contracts.inferred {
+        if let Some(spec) = out.iter_mut().find(|s| &s.name == name) {
+            spec.requires.extend(inferred.requires.clone());
+            spec.ensures.extend(inferred.ensures.clone());
+        } else {
+            out.push(inferred.clone());
+        }
+    }
+    out
+}
+
+pub(crate) fn specification(p: &Program, name: &str) -> Option<Specification> {
+    let owner = p.contracts.implementations.iter().find(|i| i.name == name)
+        .map_or(name, |i| i.specification.as_str());
+    let explicit = p.contracts.specifications.iter().find(|s| s.name == owner);
+    let inferred = p.contracts.inferred.get(owner);
+    match (explicit, inferred) {
+        (Some(spec), Some(inferred)) => {
+            let mut spec = spec.clone();
+            spec.requires.extend(inferred.requires.clone());
+            spec.ensures.extend(inferred.ensures.clone());
+            Some(spec)
+        }
+        (Some(spec), None) | (None, Some(spec)) => Some(spec.clone()),
+        _ => None,
     }
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -105,13 +154,15 @@ fn truth() -> s::Term {
 }
 fn predicate(e: &Expr, env: &crate::check::Env, p: &Program) -> LangResult<s::Term> {
     crate::check::infer_as(e, env, p, &Type::Bool)?;
-    s::elaborate(e, env, p, &Type::Bool)
+    let term = s::elaborate(e, env, p, &Type::Bool)?;
+    if p.contracts.value_invariants.is_empty() { Ok(term) }
+    else { s::beta_normalize(&term, &mut s::Budget::new()) }
 }
 /// Pure obligations are exported verbatim for untrusted proof production.
 pub fn obligations(p: &Program) -> LangResult<Vec<Obligation>> {
     let mut out = Vec::new();
     let mut names = BTreeSet::new();
-    for spec in &p.contracts.specifications {
+    for spec in &specifications(p) {
         if !names.insert(&spec.name) || spec.ensures.is_empty() {
             return Err("duplicate specification or missing ensures clause".into());
         }
@@ -163,7 +214,7 @@ pub fn obligations(p: &Program) -> LangResult<Vec<Obligation>> {
                 });
             }
         }
-        if !p
+        if !p.contracts.inferred.contains_key(&spec.name) && !p
             .contracts
             .implementations
             .iter()
@@ -172,9 +223,7 @@ pub fn obligations(p: &Program) -> LangResult<Vec<Obligation>> {
             return Err(format!("specification {} has no implementation", spec.name));
         }
     }
-    if !p
-        .contracts
-        .specifications
+    if !specifications(p)
         .iter()
         .any(|s| s.kind.is_none() && !s.requires.is_empty())
     {
@@ -187,13 +236,7 @@ pub fn obligations(p: &Program) -> LangResult<Vec<Obligation>> {
     }, &executable)?;
     for f in &p.functions {
         let env = crate::check::params_env(&f.params)?;
-        let owner = p.contracts.specifications.iter().find(|s| {
-            s.name == f.name
-                || p.contracts
-                    .implementations
-                    .iter()
-                    .any(|i| i.name == f.name && i.specification == s.name)
-        });
+        let owner = specification(p, &f.name);
         let mut conditions = if let Some(spec) = owner {
             spec.requires
                 .iter()
@@ -246,14 +289,7 @@ fn call_obligations(
     budget.step(path.len())?;
     if let s::Node::Op(n, args) = &t.node {
         if let Some(name) = n.strip_prefix("call:") {
-            if let Some(spec) = p.contracts.specifications.iter().find(|s| {
-                s.kind.is_none()
-                    && (s.name == name
-                        || p.contracts
-                            .implementations
-                            .iter()
-                            .any(|i| i.name == name && i.specification == s.name))
-            }) {
+            if let Some(spec) = specification(p, name).filter(|s| s.kind.is_none()) {
                 let parameters = crate::check::params_env(&spec.params)?;
                 let substitutions = spec
                     .params
@@ -324,6 +360,7 @@ pub fn check(module: &CheckedModule) -> LangResult<()> {
     if c.is_empty() {
         return Ok(());
     }
+    values::check(p)?;
     if c.specifications.len() + c.implementations.len() + c.invariants.len() > 256
         || c.proofs.len() > 4096
         || c.state_proofs.len() > 4096
@@ -370,7 +407,7 @@ pub fn check(module: &CheckedModule) -> LangResult<()> {
         }
     }
     let mut expected_checks = BTreeSet::new();
-    for spec in &c.specifications {
+    for spec in &specifications(p) {
         if spec.requires.is_empty() {
             continue;
         }
@@ -466,9 +503,7 @@ pub fn check(module: &CheckedModule) -> LangResult<()> {
 
 pub fn needs_state(program: &Program) -> LangResult<bool> {
     Ok(!program.contracts.invariants.is_empty()
-        || program
-            .contracts
-            .specifications
+        || specifications(program)
             .iter()
             .any(|s| s.kind.is_some())
         || !calls::actions(program)?.is_empty())
@@ -552,7 +587,7 @@ pub(crate) fn install_guards(p: &mut Program) -> LangResult<()> {
         });
         p.contracts.invariant_checks.push(name);
     }
-    for (i, spec) in p.contracts.specifications.clone().iter().enumerate() {
+    for (i, spec) in specifications(p).iter().enumerate() {
         if spec.requires.is_empty() {
             continue;
         }

@@ -260,7 +260,7 @@ pub(super) fn derive(source: &Program) -> LangResult<StateObligations> {
         invariants.push(ghosts.query(vec![], Type::Bool, e.clone())?);
     }
     let mut specs = vec![];
-    for spec in contracts.specifications.iter().filter(|s| s.kind.is_some()) {
+    for spec in specifications(source).iter().filter(|s| s.kind.is_some()) {
         if spec.params.iter().any(|(n, _)| n == "result") {
             return Err("result is reserved in specifications".into());
         }
@@ -291,7 +291,7 @@ pub(super) fn derive(source: &Program) -> LangResult<StateObligations> {
                     .map(|i| i.name.clone()),
             )
             .collect::<Vec<_>>();
-        if names.len() < 2 {
+        if names.len() < 2 && !contracts.inferred.contains_key(&spec.name) {
             return Err(format!("specification {} has no implementation", spec.name));
         }
         for name in &names {
@@ -542,7 +542,7 @@ pub(super) fn context(
 pub(super) fn check(module: &CheckedModule) -> LangResult<()> {
     let c = &module.program().contracts;
     if c.invariants.is_empty()
-        && !c.specifications.iter().any(|s| s.kind.is_some())
+        && !specifications(module.program()).iter().any(|s| s.kind.is_some())
         && super::calls::actions(module.program())?.is_empty()
     {
         if !c.state_proofs.is_empty() || c.state_knowledge.is_some() {
