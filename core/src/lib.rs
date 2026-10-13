@@ -1,4 +1,5 @@
 pub mod action_ir;
+pub mod action_shape;
 pub mod access;
 pub mod action_model;
 mod action_semantic;
@@ -23,6 +24,7 @@ pub mod laws;
 pub mod library;
 pub mod logic;
 pub mod machine;
+pub mod maintained;
 pub mod optimisation;
 pub mod source_extension;
 pub mod parallel;
