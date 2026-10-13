@@ -150,6 +150,17 @@ fn construction_preservation_and_type_facts_are_checked() {
 }
 
 #[test]
+fn collection_named_source_functions_keep_their_lexical_meaning() {
+    let module=checked("module lexical;
+      fn unique(x:u32)->Bool{return x==7;}
+      fn multiset(x:u32)->Bool{return x==7;}
+      fn singleton(x:u32)->Bool{return x==8;}
+      fn own(x:u32)->Bool{return unique(x) && multiset(x) && !singleton(x);}").unwrap();
+    assert_eq!(eval::call(module.program(),"own",vec![eval::Value::U32(7)],&mut 10_000).unwrap(),eval::Value::Bool(true));
+    assert_eq!(eval::call(module.program(),"own",vec![eval::Value::U32(8)],&mut 10_000).unwrap(),eval::Value::Bool(false));
+}
+
+#[test]
 fn public_ingress_validates_once_and_internal_calls_use_proved_facts() {
     let module = checked(&format!(
         "{SMALL}

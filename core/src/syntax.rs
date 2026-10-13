@@ -980,6 +980,7 @@ impl Parser {
         }
         p.records
             .extend(std::mem::take(&mut self.generated_records));
+        crate::contracts::collections::resolve(&mut p)?;
         Ok(SurfaceProgram {
             program: p,
             aliases: std::mem::take(&mut self.aliases),

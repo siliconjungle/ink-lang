@@ -119,6 +119,29 @@ fn imported_value_declarations_and_predicate_capture_are_linked() {
 }
 
 #[test]
+fn an_importer_cannot_shadow_the_library_invariant_predicate() {
+    let root=Path::new(env!("CARGO_MANIFEST_DIR"));
+    let dir=root.join("build/invariant-import-isolation");
+    fs::create_dir_all(&dir).unwrap();
+    let library=root.join("knowledge/libraries/invariant-values.ink");
+    let import=format!("module isolation; import {} as checked;",serde_json::to_string(library.to_str().unwrap()).unwrap());
+    let invalid=format!("{import} fn unique(items:List<u32>)->Bool{{return true;}}
+        fn make()->checked.Unique<u32>{{return checked.wrap_unique<u32>([1,1]);}}");
+    fs::write(dir.join("invalid.ink"),invalid).unwrap();
+    let p=verified_language::modules::load(dir.join("invalid.ink")).unwrap().program;
+    assert!(CheckedModule::from_source(p).is_err());
+    let valid=format!("{import} fn unique(items:List<u32>)->Bool{{return true;}}
+        fn imported(value:checked.Unique<u32>)->Bool{{return checked.known_unique<u32>(value);}}");
+    fs::write(dir.join("valid.ink"),valid).unwrap();
+    let p=verified_language::modules::load(dir.join("valid.ink")).unwrap().program;
+    CheckedModule::from_source(p.clone()).unwrap();
+    let f=p.functions.iter().find(|f|f.name=="imported").unwrap();
+    let arg=eval::Value::from_program_json(&json!({"items":[1,1]}),&f.params[0].1,&p).unwrap();
+    assert_eq!(eval::call(&p,"imported",vec![arg],&mut 100_000).unwrap_err(),"contract precondition failed");
+    assert_eq!(eval::call(&p,"unique",vec![eval::Value::List(vec![])],&mut 1000).unwrap(),eval::Value::Bool(true));
+}
+
+#[test]
 fn invariant_values_preserve_state_events_rollback_and_checked_restore_across_targets() {
     use verified_language::{contracts, syntax};
     let source = include_str!("../core/tests/fixtures/invariant-value-state.ink");

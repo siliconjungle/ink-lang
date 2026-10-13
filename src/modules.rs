@@ -274,7 +274,7 @@ fn expr(
             }
         }
         Expr::Call(n, args) => {
-            renamed(n, names);
+            if !locals.contains(n) { renamed(n, names); }
             for a in args {
                 expr(a, names, locals, aliases)?;
             }

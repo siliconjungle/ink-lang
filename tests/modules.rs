@@ -3,6 +3,23 @@ use std::{fs, path::Path};
 use verified_language::{core::CheckedModule, eval, modules, stateful::Runtime};
 #[path = "support/parity.rs"]
 mod parity;
+
+#[test]
+fn imported_callback_parameters_shadow_same_named_helpers() {
+    let dir=Path::new("build/module-callback-shadowing");
+    fs::create_dir_all(dir).unwrap();
+    fs::write(dir.join("library.ink"),"module shadowing_library;
+      fn unique(x:u32)->Bool{return true;}
+      fn apply(x:u32,unique:fn(u32)->Bool)->Bool{return unique(x);}").unwrap();
+    fs::write(dir.join("main.ink"),"module shadowing_root;
+      import \"library.ink\" as helper;
+      fn run(x:u32)->Bool{return helper.apply(x,fn(n)=>n==7);}").unwrap();
+    let p=modules::load(dir.join("main.ink")).unwrap().program;
+    CheckedModule::from_source(p.clone()).unwrap();
+    for (input,want) in [(7,true),(8,false)] {
+      assert_eq!(eval::call(&p,"run",vec![eval::Value::U32(input)],&mut 10_000).unwrap(),eval::Value::Bool(want));
+    }
+}
 #[test]
 fn imported_generic_templates_and_aliases_are_linked_before_elaboration() {
     let dir = Path::new("build/generic-modules");

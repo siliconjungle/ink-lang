@@ -19,7 +19,10 @@ pub struct SurfaceProgram {
 }
 
 impl SurfaceProgram {
-    pub fn elaborate(self) -> LangResult<Program> {
+    pub fn elaborate(mut self) -> LangResult<Program> {
+        // Parsed modules have already resolved their own lexical calls. This
+        // also covers source-law tools that construct a surface program directly.
+        crate::contracts::collections::resolve(&mut self.program)?;
         let occupied = surface_names(&self.program)?;
         let mut e = Elaborator {
             templates: self.program.clone(),
