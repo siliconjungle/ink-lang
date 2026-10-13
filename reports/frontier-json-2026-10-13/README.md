@@ -32,6 +32,18 @@ show no consistent benefit and are rejected. All raw reports remain intact in
 they establish no new Frontier, startup or peak-memory ranking. The text gap
 and the full all-metrics target remain open.
 
+`json-render-release-cohorts-110-112.json` binds published distribution `61e2ced5`,
+ABI `5aa034a` and JavaScript `b8c36c3`. The compiler-emitted module is byte-for-byte
+identical to the measured rope candidate (391,822 bytes, 17 bytes smaller than
+its baseline). Three fresh processes, 200 warmup calls and nine rotated rounds
+give median text → known edit → text times of 414.879 µs for Ink and 88.889 µs
+for Frontier: Ink still takes 4.67× longer. Per-process Ink is 401.633–514.313 µs
+and Frontier 87.408–89.732 µs. The Ink binary pipeline is 1632.449 µs and crosses
+extra transport boundaries. Complete fixture preflight passes. Host conditions
+vary; compare paired experiments for causal before/after evidence rather than
+absolute times from earlier cohorts. This cohort does not rerank state workloads,
+message codecs, detached logical output, startup or memory.
+
 ## Literal wire materialisation
 
 ABI `116e779` and JS `184e96a` add trusted literal materialisers for
