@@ -1,0 +1,163 @@
+{
+  "applied_rule_ids": [],
+  "backend": {
+    "abi": "ink-javascript-trusted-values-v2",
+    "backend": "javascript",
+    "caller_contract": "trusted, well-typed target-native values; no input validation, snapshot capture or host resource budgets",
+    "core_semantics": "ink-executable-core-v8",
+    "core_sha256": "1d729c13158d7f3b70fe6c74e92718aee182ed56d978be2d1199ba2065eb2f75",
+    "destination_abi": {
+      "aliasing": "destination-disjoint-from-all-reachable-inputs",
+      "capacity": "trusted",
+      "count_unit": "elements",
+      "name": "ink-javascript-into-v1",
+      "ownership": "caller-owned",
+      "tail": "unwritten"
+    },
+    "functions": [
+      {
+        "destination": null,
+        "index": 0,
+        "internal": false,
+        "name": "run",
+        "parallel": false,
+        "params": [
+          {
+            "name": "xs",
+            "type": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "fields": [
+            {
+              "name": "valid",
+              "type": {
+                "kind": "bool"
+              }
+            },
+            {
+              "name": "lo",
+              "type": {
+                "kind": "u32"
+              }
+            },
+            {
+              "name": "hi",
+              "type": {
+                "kind": "u32"
+              }
+            }
+          ],
+          "kind": "record",
+          "name": "Bounds"
+        }
+      }
+    ],
+    "javascript_sha256": "d23aac82b8c75610ea6f5a06d48e52c62d012eedab4af6c543155870d73794e5",
+    "named_types": {
+      "Bounds": {
+        "fields": [
+          {
+            "name": "valid",
+            "type": {
+              "kind": "bool"
+            }
+          },
+          {
+            "name": "lo",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "hi",
+            "type": {
+              "kind": "u32"
+            }
+          }
+        ],
+        "kind": "record",
+        "name": "Bounds"
+      }
+    },
+    "schema": 1,
+    "scope": "trusted pure functions and temporary collections; state/actions with portable snapshots and ordered transaction events",
+    "state": null,
+    "trusted": [
+      "Ink checker and source correspondence",
+      "JavaScript emitter and representation conversion",
+      "JavaScript engine and host"
+    ],
+    "wire": {
+      "format": "ink-value-wire-v1",
+      "functions": {
+        "run": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "40c474b26407b61251cf7479f9144e6f4df9a1f1b14620d3209a5615b8fa85a4",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "xs",
+                  "type": {
+                    "element": {
+                      "kind": "u32"
+                    },
+                    "kind": "list"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "25f88ecdd80df29b61695476a87448c53a72e3ec6148d6463f7290fafc70207d",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "valid",
+                  "type": {
+                    "kind": "bool"
+                  }
+                },
+                {
+                  "name": "lo",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "hi",
+                  "type": {
+                    "kind": "u32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "Bounds"
+            }
+          }
+        }
+      }
+    }
+  },
+  "checked_implementation": null,
+  "checked_replacement": null,
+  "input_core_sha256": "1d729c13158d7f3b70fe6c74e92718aee182ed56d978be2d1199ba2065eb2f75",
+  "selected_core_sha256": "1d729c13158d7f3b70fe6c74e92718aee182ed56d978be2d1199ba2065eb2f75",
+  "semantic_package": null,
+  "semantic_selection": null,
+  "source": "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-generalisation-epoch2/bench/native-f32-epoch/corpus/d3-extent.ink",
+  "target": "javascript",
+  "trust": "checked transformations; JavaScript emission and engine remain trusted"
+}

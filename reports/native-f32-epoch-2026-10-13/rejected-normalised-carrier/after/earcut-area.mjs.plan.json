@@ -1,0 +1,179 @@
+{
+  "applied_rule_ids": [],
+  "backend": {
+    "abi": "ink-javascript-trusted-values-v2",
+    "backend": "javascript",
+    "caller_contract": "trusted, well-typed target-native values; no input validation, snapshot capture or host resource budgets",
+    "core_semantics": "ink-executable-core-v8",
+    "core_sha256": "30a30a7b8d91fc0ac0ddce6133c5c8a6cc584e899b8f9fd2207d7e422c08cc81",
+    "destination_abi": {
+      "aliasing": "destination-disjoint-from-all-reachable-inputs",
+      "capacity": "trusted",
+      "count_unit": "elements",
+      "name": "ink-javascript-into-v1",
+      "ownership": "caller-owned",
+      "tail": "unwritten"
+    },
+    "f32_storage": "native-number-with-exact-nonfinite-tags",
+    "functions": [
+      {
+        "destination": null,
+        "index": 0,
+        "internal": false,
+        "name": "run",
+        "parallel": false,
+        "params": [
+          {
+            "name": "xs",
+            "type": {
+              "element": {
+                "fields": [
+                  {
+                    "name": "x",
+                    "type": {
+                      "kind": "i32"
+                    }
+                  },
+                  {
+                    "name": "y",
+                    "type": {
+                      "kind": "i32"
+                    }
+                  }
+                ],
+                "kind": "record",
+                "name": "P"
+              },
+              "kind": "list"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "i32"
+        }
+      }
+    ],
+    "javascript_sha256": "43f7354ded3c5b17683807667faf1b83cd91a69ca51bb5a5991897f6323fd0ec",
+    "named_types": {
+      "P": {
+        "fields": [
+          {
+            "name": "x",
+            "type": {
+              "kind": "i32"
+            }
+          },
+          {
+            "name": "y",
+            "type": {
+              "kind": "i32"
+            }
+          }
+        ],
+        "kind": "record",
+        "name": "P"
+      },
+      "Scan": {
+        "fields": [
+          {
+            "name": "last",
+            "type": {
+              "fields": [
+                {
+                  "name": "x",
+                  "type": {
+                    "kind": "i32"
+                  }
+                },
+                {
+                  "name": "y",
+                  "type": {
+                    "kind": "i32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "P"
+            }
+          },
+          {
+            "name": "area",
+            "type": {
+              "kind": "i32"
+            }
+          }
+        ],
+        "kind": "record",
+        "name": "Scan"
+      }
+    },
+    "schema": 1,
+    "scope": "trusted pure functions and temporary collections; state/actions with portable snapshots and ordered transaction events",
+    "state": null,
+    "trusted": [
+      "Ink checker and source correspondence",
+      "JavaScript emitter and representation conversion",
+      "JavaScript engine and host"
+    ],
+    "wire": {
+      "format": "ink-value-wire-v1",
+      "functions": {
+        "run": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "74464fde9cbd08ccccf7b775695731b7a5d804a3aef42f5354b67175f2cc8ef9",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "xs",
+                  "type": {
+                    "element": {
+                      "fields": [
+                        {
+                          "name": "x",
+                          "type": {
+                            "kind": "i32"
+                          }
+                        },
+                        {
+                          "name": "y",
+                          "type": {
+                            "kind": "i32"
+                          }
+                        }
+                      ],
+                      "kind": "record",
+                      "name": "P"
+                    },
+                    "kind": "list"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "1bb0908ee390705670f4abf58ac6c0a9c2169980baddae72f22e79e40e59ec3f",
+            "named": {},
+            "root": {
+              "kind": "i32"
+            }
+          }
+        }
+      }
+    }
+  },
+  "checked_implementation": null,
+  "checked_replacement": null,
+  "input_core_sha256": "30a30a7b8d91fc0ac0ddce6133c5c8a6cc584e899b8f9fd2207d7e422c08cc81",
+  "selected_core_sha256": "30a30a7b8d91fc0ac0ddce6133c5c8a6cc584e899b8f9fd2207d7e422c08cc81",
+  "semantic_package": null,
+  "semantic_selection": null,
+  "source": "bench/real-software-delivery/corpus/earcut-area.ink",
+  "target": "javascript",
+  "trust": "checked transformations; JavaScript emission and engine remain trusted"
+}
