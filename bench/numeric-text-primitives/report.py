@@ -22,4 +22,5 @@ for lane in ['rust-json','c-packed','wgpu-required']:
  rows=[x for x in info['native_gpu']if x['name']=='float_ops'];ax[1].plot([x['size']for x in rows],[x['medians_ns'][lane]/1e6 for x in rows],marker='o',label=lane)
 ax[1].set_xscale('log');ax[1].set_yscale('log');ax[1].set_xlabel('Input elements');ax[1].set_ylabel('Complete call + output consumption (ms)');ax[1].set_title('Float operations through native host APIs');ax[1].legend(fontsize=8);ax[1].grid(alpha=.15)
 fig.savefig(o/'curves.png',dpi=180);fig.savefig(o/'curves.svg')
+p=o/'curves.svg';p.write_text('\n'.join(x.rstrip() for x in p.read_text().splitlines())+'\n')
 print(info['numerical_gmean_normalisation_speedup'])
