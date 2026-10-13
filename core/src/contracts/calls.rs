@@ -92,7 +92,8 @@ fn block(
                     crate::statecheck::expression_type(p, e, &env)?
                 };
                 facts.retain(|f| !crate::analysis::references_free(f, n));
-                env.insert(n.clone(), t);
+                let previous=env.clone();env.insert(n.clone(), t.clone());
+                binding_facts(p,&previous,n,&t,e,&mut facts)?;
             }
             Statement::Return(e) | Statement::Emit(_, e) | Statement::Expr(e) => {
                 expression(p, typing, e, &env, &facts, owner, serial, out)?
@@ -138,11 +139,12 @@ fn expression(
         };
         let mut local = env.clone();
         local.insert(name.clone(), ty);
-        let facts = facts
+        let mut facts = facts
             .iter()
             .filter(|f| !crate::analysis::references_free(f, name))
             .cloned()
             .collect::<Vec<_>>();
+        binding_facts(p,env,name,&local[name],value,&mut facts)?;
         return expression(p, typing, body, &local, &facts, owner, serial, out);
     }
     if let Expr::Lambda(name, body) = e {
@@ -274,5 +276,36 @@ fn expression(
         }
         _ => (),
     }
+    Ok(())
+}
+
+/// Only immutable pure results become persistent lexical facts. In particular,
+/// a state read or nested action result cannot retain a predicate across writes.
+/// The complete module separately checks this call's actual preconditions and
+/// the pure implementation's postconditions before admitting these consequences.
+fn binding_facts(p:&Program,env:&crate::check::Env,name:&str,ty:&Type,value:&Expr,facts:&mut Vec<Expr>)->LangResult<()> {
+    if crate::analysis::references_free(value,name)||crate::check::infer_as(value,env,p,ty).is_err(){return Ok(())}
+    let bound=Expr::Var(name.into());
+    let (left,right)=if *ty==Type::F32 {
+        (Expr::Call("list".into(),vec![bound]),Expr::Call("list".into(),vec![value.clone()]))
+    }else{(bound,value.clone())};
+    facts.push(Expr::Binary("==".into(),Box::new(left),Box::new(right)));
+    if let Expr::Call(callee,args)=value {
+        if let Some(spec)=p.contracts.specifications.iter().find(|s|s.kind.is_none()&&(s.name==*callee||p.contracts.implementations.iter().any(|i|i.name==*callee&&i.specification==s.name))) {
+            let mut names=BTreeMap::new();
+            for (index,n)in spec.params.iter().map(|(n,_)|n.as_str()).chain(std::iter::once("result")).enumerate(){
+                let mut fresh=format!("__ink_binding_{index}");
+                while env.contains_key(&fresh)||fresh==name||spec.ensures.iter().chain(args).any(|e|crate::analysis::references_free(e,&fresh))||names.values().any(|n|n==&fresh){fresh.push('_')}
+                names.insert(n.into(),fresh);
+            }
+            for ensure in &spec.ensures {
+                let mut predicate=crate::syntax::rename_expression(ensure,&names);
+                predicate=Expr::Let(names["result"].clone(),Some(Box::new(ty.clone())),Box::new(Expr::Var(name.into())),Box::new(predicate));
+                for ((n,t),arg)in spec.params.iter().zip(args).rev(){predicate=Expr::Let(names[n].clone(),Some(Box::new(t.clone())),Box::new(arg.clone()),Box::new(predicate))}
+                facts.push(predicate);
+            }
+        }
+    }
+    if facts.len()>1024{return Err("action contract fact count limit".into())}
     Ok(())
 }

@@ -23,6 +23,75 @@ fn root() -> PathBuf {
 }
 
 #[test]
+fn source_invariants_simplify_queries_without_leaking_into_nested_actions() {
+    use verified_language::{contracts,registry};
+    let source=include_str!("../examples/invariant-algorithms.ink");
+    let dir=root().join("invariant-observations-authoring");fs::create_dir_all(&dir).unwrap();
+    run(Command::new("python3").current_dir(env!("CARGO_MANIFEST_DIR"))
+        .env("PYTHONPATH",format!("{}:{}",Path::new(env!("CARGO_MANIFEST_DIR")).join("knowledge").display(),Path::new(env!("CARGO_MANIFEST_DIR")).join("planner").display()))
+        .args(["-m","producers.contract_proofs","examples/invariant-algorithms.ink"])
+        .arg(&dir).args(["--compiler",env!("CARGO_BIN_EXE_ink")]),&dir.join("author.log"));
+    let mut program=parse(source).unwrap();contracts::attach(&mut program,serde_json::from_slice(&fs::read(dir.join("evidence.json")).unwrap()).unwrap()).unwrap();
+    let module=CheckedModule::from_source(program).unwrap();
+    fs::write(dir.join("model.json"),serde_json::to_vec(&verified_language::action_model::Projection::derive(&module).unwrap()).unwrap()).unwrap();
+    run(Command::new("python3").current_dir(env!("CARGO_MANIFEST_DIR"))
+        .env("PYTHONPATH",Path::new(env!("CARGO_MANIFEST_DIR")).join("knowledge"))
+        .args(["-m","producers.invariant_representations"])
+        .arg(dir.join("model.json")).args(["--compiler",env!("CARGO_BIN_EXE_ink"),"-o"]).arg(dir.join("candidates.json")),&dir.join("producer.log"));
+    let report:Value=serde_json::from_slice(&fs::read(dir.join("candidates.json")).unwrap()).unwrap();
+    assert!(report["changed"].as_array().unwrap().contains(&json!("known_unique")));
+    let request:Request=serde_json::from_value(report["requests"][0].clone()).unwrap();
+    let checked=representation::check(&module,&request).unwrap();
+    assert_eq!(request.semantics,representation::DOMAIN_SEMANTICS);
+    assert!(!checked.obligations().is_empty());
+    let mut mismatched=request.clone();mismatched.semantics=representation::SEMANTICS.into();assert!(representation::check(&module,&mismatched).is_err());
+    let mut false_plan=request.knowledge.objects[&request.representation].clone();false_plan.payload["source_domain"]=json!(false);
+    assert_ne!(registry::identity(&false_plan).unwrap(),request.representation);
+    let mut runtime=CompiledState::new(checked.clone()).unwrap();
+    runtime.invoke_json("replace_all",&json!([[1,2,3]])).unwrap();
+    let before=runtime.checkpoint().unwrap();
+    assert!(runtime.invoke_json("replace_all",&json!([[1,1]])).unwrap_err().contains("precondition"));
+    assert_eq!(runtime.checkpoint().unwrap(),before);
+    let layout=verified_language::snapshot::layout(module.program()).unwrap();
+    let mut logical=verified_language::snapshot_wire::decode(&layout,&before,Default::default()).unwrap();
+    logical.tables[0]=vec![(json!(0),json!([1,1]))];
+    let forged=verified_language::snapshot_wire::encode(&layout,&logical,Default::default()).unwrap();
+    assert!(CompiledState::restore(checked,&forged).err().unwrap().contains("invariant"));
+    check_module("invariant-observations",source,module,Some(request),vec![
+        ("known_unique",json!([])),("replace_all",json!([[1,2,3]])),("contents",json!([])),
+        ("transient",json!([])),("known_unique",json!([])),("clear",json!([])),("contents",json!([])),
+    ]);
+}
+
+#[test]
+fn sorted_state_invariants_remove_repeated_sorting_and_enable_direct_minimum(){
+    use verified_language::contracts;
+    let source=include_str!("../examples/sorted-invariant-algorithms.ink");
+    let dir=root().join("sorted-invariant-authoring");fs::create_dir_all(&dir).unwrap();
+    let knowledge=Path::new(env!("CARGO_MANIFEST_DIR")).join("knowledge");
+    run(Command::new("python3").current_dir(env!("CARGO_MANIFEST_DIR"))
+        .env("PYTHONPATH",&knowledge).args(["-m","producers.contract_proofs","examples/sorted-invariant-algorithms.ink"])
+        .arg(&dir).args(["--compiler",env!("CARGO_BIN_EXE_ink")]),&dir.join("author.log"));
+    let mut program=parse(source).unwrap();contracts::attach(&mut program,serde_json::from_slice(&fs::read(dir.join("evidence.json")).unwrap()).unwrap()).unwrap();
+    let module=CheckedModule::from_source(program).unwrap();
+    fs::write(dir.join("model.json"),serde_json::to_vec(&verified_language::action_model::Projection::derive(&module).unwrap()).unwrap()).unwrap();
+    run(Command::new("python3").current_dir(env!("CARGO_MANIFEST_DIR"))
+        .env("PYTHONPATH",&knowledge).args(["-m","producers.invariant_representations"])
+        .arg(dir.join("model.json")).args(["--compiler",env!("CARGO_BIN_EXE_ink"),"-o"]).arg(dir.join("candidates.json")),&dir.join("producer.log"));
+    let report:Value=serde_json::from_slice(&fs::read(dir.join("candidates.json")).unwrap()).unwrap();
+    for query in ["minimum","sorted_copy"]{assert!(report["changed"].as_array().unwrap().contains(&json!(query)));}
+    let request:Request=serde_json::from_value(report["requests"][0].clone()).unwrap();
+    let checked=representation::check(&module,&request).unwrap();
+    let mut state=CompiledState::new(checked).unwrap();
+    assert!(state.invoke_json("replace_all",&json!([[2,1]])).unwrap_err().contains("precondition"));
+    check_module("sorted-invariant-observations",source,module,Some(request),vec![
+        ("minimum",json!([])),("replace_all",json!([[1,1,2,3]])),("minimum",json!([])),
+        ("sorted_copy",json!([])),("contents",json!([])),("replace_all",json!([[u32::MAX,u32::MAX]])),
+        ("minimum",json!([])),("clear",json!([])),("minimum",json!([])),
+    ]);
+}
+
+#[test]
 fn access_guided_point_cache_preserves_aliases_calls_fallbacks_and_rollback_on_every_target() {
     let source=include_str!("../examples/access-point-cache.ink");
     let module=CheckedModule::from_source(parse(source).unwrap()).unwrap();
@@ -251,6 +320,10 @@ fn fixtures(module: &CheckedModule, calls: &[(&str, Value)]) -> Value {
     json!(entries)
 }
 fn check(name: &str, source: &str, request: Option<Request>, calls: Vec<(&str, Value)>) {
+    let module = CheckedModule::from_source(parse(source).unwrap()).unwrap();
+    check_module(name,source,module,request,calls);
+}
+fn check_module(name: &str, source: &str, module:CheckedModule, request: Option<Request>, calls: Vec<(&str, Value)>) {
     // These emitted projects share package/binary names and a dependency cache.
     // Cargo releases its lock before we run/copy the result; another fixture
     // could replace it, or reuse a different C build-script fingerprint.
@@ -261,7 +334,6 @@ fn check(name: &str, source: &str, request: Option<Request>, calls: Vec<(&str, V
     let dir = root().join(name);
     fs::create_dir_all(&dir).unwrap();
     fs::write(dir.join("source.ink"), source).unwrap();
-    let module = CheckedModule::from_source(parse(source).unwrap()).unwrap();
     let request = request.unwrap_or_else(|| propose(&module, &dir));
     let mut request = if request.knowledge.objects[&request.representation].payload["actions"]
         .as_object()
@@ -307,7 +379,16 @@ fn check(name: &str, source: &str, request: Option<Request>, calls: Vec<(&str, V
         .reachable_executable_declarations()
         .unwrap();
     assert!(unused.iter().all(|id| !reachable.contains_key(id)));
-    let oracle = fixtures(&module, &calls);
+    let mut oracle = fixtures(&module, &calls);
+    if name=="invariant-observations"||name=="sorted-invariant-observations" {
+        let entries=oracle.as_array_mut().unwrap();let last=entries.last().unwrap().clone();
+        let layout=verified_language::snapshot::layout(module.program()).unwrap();
+        let bytes:Vec<u8>=serde_json::from_value(last["snapshot"].clone()).unwrap();
+        let mut logical=verified_language::snapshot_wire::decode(&layout,&bytes,Default::default()).unwrap();
+        logical.tables[0]=vec![(json!(0),if name=="invariant-observations"{json!([1,1])}else{json!([2,1])})];
+        let invalid=verified_language::snapshot_wire::encode(&layout,&logical,Default::default()).unwrap();
+        entries.push(json!({"reject_restore":invalid,"snapshot":last["snapshot"],"outbox":last["outbox"]}));
+    }
     let encoded = serde_json::to_string(&oracle).unwrap();
     fs::write(dir.join("oracle.json"), &encoded).unwrap();
     let c = ink_lowering_c::representation_program::lower(&checked).unwrap();
@@ -367,7 +448,7 @@ fn check(name: &str, source: &str, request: Option<Request>, calls: Vec<(&str, V
             let channels=module.program().events.keys().collect::<Vec<_>>();
             library.push_str(&format!("let view=state.invoke_view_{}({})?;let channels:&[&str]=&{channels:?};let result=write_{reply}(&view.result,0)?;let events:Vec<Json>=view.events.iter().map(|e|json!({{\"commit\":e.commit,\"position\":e.position,\"channel\":channels[e.channel],\"value\":e.value}})).collect();Ok(json!({{\"result\":result,\"committed\":view.committed,\"version\":view.version,\"events\":events}}))}},\n",action.name,inputs.join(",")));
         }
-        library.push_str("_=>Err(format!(\"unknown action {name}\"))}}\npub fn check_typed_entrypoints(){let mut state=State::new().unwrap();let oracle:Vec<Json>=serde_json::from_str(ORACLE_FOR_CALL_CHECK).unwrap();for step in oracle{if let Some(bytes)=step.get(\"restore\"){let bytes:Vec<u8>=serde_json::from_value(bytes.clone()).unwrap();state=State::restore(&bytes).unwrap();}else if let Some(ack)=step.get(\"ack\"){state.acknowledge_through(ack[0].as_u64().unwrap(),ack[1].as_u64().unwrap());}else{let reply=match typed_invoke(&mut state,step[\"call\"].as_str().unwrap(),&step[\"args\"]){Ok(v)=>json!({\"ok\":v}),Err(e)=>json!({\"error\":e})};assert_eq!(reply,step[\"reply\"]);}assert_eq!(json!(state.checkpoint().unwrap()),step[\"snapshot\"]);assert_eq!(state.outbox_json(),step[\"outbox\"]);}}\n");
+        library.push_str("_=>Err(format!(\"unknown action {name}\"))}}\npub fn check_typed_entrypoints(){let mut state=State::new().unwrap();let oracle:Vec<Json>=serde_json::from_str(ORACLE_FOR_CALL_CHECK).unwrap();for step in oracle{if let Some(bytes)=step.get(\"reject_restore\"){assert!(State::restore(&serde_json::from_value::<Vec<u8>>(bytes.clone()).unwrap()).err().unwrap().contains(\"invariant\"));}else if let Some(bytes)=step.get(\"restore\"){let bytes:Vec<u8>=serde_json::from_value(bytes.clone()).unwrap();state=State::restore(&bytes).unwrap();}else if let Some(ack)=step.get(\"ack\"){state.acknowledge_through(ack[0].as_u64().unwrap(),ack[1].as_u64().unwrap());}else{let reply=match typed_invoke(&mut state,step[\"call\"].as_str().unwrap(),&step[\"args\"]){Ok(v)=>json!({\"ok\":v}),Err(e)=>json!({\"error\":e})};assert_eq!(reply,step[\"reply\"]);}assert_eq!(json!(state.checkpoint().unwrap()),step[\"snapshot\"]);assert_eq!(state.outbox_json(),step[\"outbox\"]);}}\n");
         fs::write(project.join("src/lib.rs"), library).unwrap();
         fs::create_dir_all(project.join("src/bin")).unwrap();
         let runner=include_str!("representation-parity-runner.rs.txt").replace("fn main(){","fn main(){ink_compiled_representation::check_typed_entrypoints();").replace("fn main() {","fn main() {ink_compiled_representation::check_typed_entrypoints();");

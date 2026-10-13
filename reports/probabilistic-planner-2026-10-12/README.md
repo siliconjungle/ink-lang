@@ -1,5 +1,10 @@
 # Probabilistic planning and exact-result accelerators — 2026-10-12
 
+Historical measurements below describe the recorded October 12 revisions. The
+learned search ranking model, trainer and model flag were subsequently removed
+after the complete-planning comparison showed a loss. Current deterministic and
+stochastic search commands are in the benchmark README.
+
 All new machinery is opt-in. Proposals, embeddings and measurements have no proof authority. The independent compiler checks source-bound selections. No automatic runtime profile is installed and no online profitability probes are added.
 
 Apple M2, Chrome 154.0.8037.98, hardware Apple/Metal WebGPU; Python 3.12.3, Node 26.1.0, Zig 0.15.2. Shared-host observations are exploratory. Raw samples, losses, setup and source/emission identities are retained.

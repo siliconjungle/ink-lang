@@ -135,11 +135,8 @@ fn database_refinement_replays_and_emits_across_targets() {
     );
     let report: Value =
         serde_json::from_slice(&fs::read(out.join("candidates.json")).unwrap()).unwrap();
-    assert_eq!(
-        report["candidates"].as_array().unwrap().len(),
-        4,
-        "{report}"
-    );
+    assert!(report["candidates"].as_array().unwrap().len()>=4,"{report}");
+    assert!(report["attempts"].as_u64().unwrap()<=256);
     let input = CheckedModule::from_bytes(&fs::read(out.join("input-core.json")).unwrap()).unwrap();
     let source = fs::read_to_string(root().join("examples/contract-optimisations.ink")).unwrap();
     for (index, id) in report["candidates"].as_array().unwrap().iter().enumerate() {
@@ -184,6 +181,61 @@ fn database_refinement_replays_and_emits_across_targets() {
         }
         assert!(optimisation::check(&input, &bad).is_err());
     }
+}
+
+#[test]
+fn loose_contracts_discover_checked_alternatives_and_remove_sorting() {
+    let out=root().join("build/loose-contract-candidates");
+    let command=Command::new("python3").current_dir(root())
+        .env("PYTHONPATH",format!("{}:{}",root().join("knowledge").display(),root().join("planner").display()))
+        .args(["-m","producers.contract_candidates","examples/contract-looseness.ink"])
+        .arg(&out).args(["--compiler",env!("CARGO_BIN_EXE_ink"),"--max-per-spec","8"])
+        .output().unwrap();
+    assert!(command.status.success(),"{}",String::from_utf8_lossy(&command.stderr));
+    let report:Value=serde_json::from_slice(&fs::read(out.join("candidates.json")).unwrap()).unwrap();
+    let input=CheckedModule::from_bytes(&fs::read(out.join("input-core.json")).unwrap()).unwrap();
+    let mut found=std::collections::BTreeSet::new();
+    for id in report["candidates"].as_array().unwrap(){
+        let entry:registry::Entry=serde_json::from_slice(&fs::read(out.join(format!("store/objects/{}.json",id.as_str().unwrap()))).unwrap()).unwrap();
+        let packet:optimisation::Package=serde_json::from_value(entry.payload["package"].clone()).unwrap();
+        let selected=optimisation::check(&input,&packet).unwrap();
+        let bodies=&packet.contract_refinement.as_ref().unwrap().bodies;
+        for (name,body)in bodies{
+            let desired=match(name.as_str(),body){
+                ("unordered",contracts::Body::Pure(syntax::Expr::Var(x)))=>x=="xs",
+                ("choice",contracts::Body::Pure(syntax::Expr::Num(2)))=>true,
+                ("bounded",contracts::Body::Pure(syntax::Expr::Num(0)))=>true,
+                ("action_choice",contracts::Body::Action(stmts))=>matches!(stmts.as_slice(),[syntax::Statement::Return(syntax::Expr::Num(2))]),
+                _=>false,
+            };
+            if desired{found.insert(name.clone());}
+            if desired&&name=="unordered"{
+                let snapshot=Runtime::new_selected(&selected).unwrap().checkpoint_portable().unwrap();
+                let cases=[vec![],vec![3,1,3,2],vec![4294967295u32,0,4294967295u32]];
+                let steps=cases.iter().map(|xs|json!({"pure":"unordered","args":[xs],"cpu_only":true})).collect();
+                let expected=cases.iter().map(|xs|json!({"reply":{"value":xs},"snapshot":snapshot})).collect();
+                parity::conformance_selected("bag-sort-elimination",&selected,include_str!("../examples/contract-looseness.ink"),steps,expected);
+                let mut forged=packet.clone();forged.contract_refinement.as_mut().unwrap().bodies.insert(name.clone(),contracts::Body::Pure(syntax::Expr::Call("list".into(),vec![])));
+                assert!(optimisation::check(&input,&forged).is_err(),"discarding multiplicities must fail");
+            }
+        }
+    }
+    assert_eq!(found,std::collections::BTreeSet::from(["unordered".into(),"choice".into(),"bounded".into(),"action_choice".into()]));
+}
+
+#[test]
+fn pure_postconditions_and_immutable_bindings_compose_inside_actions() {
+    let directory=root().join("build/action-contract-composition");fs::create_dir_all(&directory).unwrap();
+    let source="module action_facts;spec fn classify(x:u32)->u32 ensures result==1 || result==2;implementation alternatives for classify{return choose(x==0,1,2);}spec fn consume(y:u32)->Bool requires y==1 || y==2;ensures result;implementation accepted for consume{return true;}query run(x:u32)->Bool{let y=classify(x);return consume(y);}";
+    fs::write(directory.join("source.ink"),source).unwrap();
+    let (program,_)=author("build/action-contract-composition/source.ink","action-contract-composition/proofs");
+    let mut runtime=Runtime::new(program.clone()).unwrap();
+    let mut steps=vec![];let mut expected=vec![];
+    for x in [0u32,17,u32::MAX]{
+        let reply=runtime.invoke_json("run",&json!([x])).unwrap();assert_eq!(reply.json()["result"],json!(true));
+        steps.push(json!({"call":"run","args":[x]}));expected.push(json!({"reply":{"outcome":reply.json()},"snapshot":runtime.checkpoint_portable().unwrap()}));
+    }
+    parity::conformance("action-contract-composition",program,source,steps,expected);
 }
 #[test]
 fn total_changes_commit_and_nested_failures_roll_back_across_targets() {

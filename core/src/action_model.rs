@@ -194,6 +194,12 @@ pub struct Projection {
     pub tables: Vec<Table>,
     pub actions: BTreeMap<String, Action>,
     pub objects: BTreeMap<String, Entry>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub source_invariants: Vec<String>,
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub source_preconditions: BTreeMap<String, String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub source_domain: Vec<crate::logic::Equation>,
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -1028,7 +1034,14 @@ impl Projection {
             tables: l.tables,
             actions: descriptions,
             objects: l.objects,
+            source_invariants: p.contracts.invariant_checks.clone(),
+            source_preconditions: p.contracts.precondition_checks.iter()
+                .filter(|(name, _)| p.actions.iter().any(|a| &a.name == *name))
+                .map(|(n, g)| (n.clone(), g.clone())).collect(),
+            source_domain: vec![],
         };
+        let (domain_objects,domain)=crate::contracts::state::source_domain(p)?;
+        out.objects.extend(domain_objects);out.source_domain=domain;
         if registry::canonical(&out)?.len() > crate::core::MAX_BYTES {
             return Err("action model byte limit".into());
         }

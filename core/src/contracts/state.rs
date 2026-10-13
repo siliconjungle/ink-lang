@@ -211,6 +211,44 @@ fn query_value(
     }
     extract(value, &action.result)
 }
+/// Exact logical-state constraints from source predicates. Structural equality
+/// is projected as equality of values; scalar IEEE float equality remains a
+/// Boolean predicate and cannot grant equality of bit representations.
+pub(crate) fn source_domain(source: &Program) -> LangResult<(BTreeMap<String,crate::registry::Entry>,Vec<Eqn>)> {
+    if source.contracts.invariants.is_empty() { return Ok((BTreeMap::new(),vec![])) }
+    let mut p=source.clone();p.contracts=Contracts::default();
+    let mut ghosts=Ghosts{p,next:0};let mut observations=vec![];
+    fn predicates(e:&Expr,out:&mut Vec<Expr>){
+        if let Expr::Binary(op,a,b)=e {
+            if op=="&&" {predicates(a,out);predicates(b,out);return}
+        }
+        out.push(e.clone());
+    }
+    let mut values=vec![];
+    for invariant in &source.contracts.invariants {predicates(invariant,&mut values)}
+    for predicate in values {
+        if let Expr::Binary(op,left,right)=&predicate {
+            if op=="==" {
+                let ty=crate::statecheck::expression_type(&ghosts.p,left,&BTreeMap::new())?;
+                if ty!=Type::F32 {
+                    let a=ghosts.query(vec![],ty.clone(),(**left).clone())?;
+                    let z=ghosts.query(vec![],ty,(**right).clone())?;
+                    observations.push((a,Some(z)));continue
+                }
+            }
+        }
+        observations.push((ghosts.query(vec![],Type::Bool,predicate)?,None));
+    }
+    let checked=CheckedModule::from_source(ghosts.p)?;
+    let model=Projection::derive(&checked)?;let cx=model.context()?;
+    let params=vec![("logical".into(),Sort::Data(model.state.clone()))];
+    let mut equations=vec![];
+    for (a,z) in observations {
+        let value=|name:&str|query_value(&model,&cx,name,&params,var("logical"),Term::U64(0),vec![]);
+        equations.push(Eqn{from:value(&a)?,to:match z{Some(z)=>value(&z)?,None=>Term::Bool(true)}});
+    }
+    Ok((model.objects,equations))
+}
 pub(super) fn derive(source: &Program) -> LangResult<StateObligations> {
     let contracts = &source.contracts;
     let mut p = source.clone();
