@@ -1524,6 +1524,45 @@ impl Parser {
         }
         Ok(())
     }
+    fn loop_variables(
+        &self,
+        body: &[Statement],
+        outer: &std::collections::BTreeMap<String, Type>,
+    ) -> std::collections::BTreeMap<String, Type> {
+        fn assigned(
+            parser: &Parser,
+            body: &[Statement],
+            outer: &std::collections::BTreeMap<String, Type>,
+            mut shadowed: std::collections::BTreeSet<String>,
+            out: &mut std::collections::BTreeSet<String>,
+        ) {
+            for statement in body {
+                match statement {
+                    Statement::Let(name, _, _) => {
+                        if let Some(target) = parser.assignments.get(name) {
+                            if outer.contains_key(target) && !shadowed.contains(target) {
+                                out.insert(target.clone());
+                            }
+                        } else if outer.contains_key(name) {
+                            shadowed.insert(name.clone());
+                        }
+                    }
+                    Statement::If(_, yes, no) => {
+                        assigned(parser, yes, outer, shadowed.clone(), out);
+                        assigned(parser, no, outer, shadowed.clone(), out);
+                    }
+                    _ => (),
+                }
+            }
+        }
+        let mut writes = std::collections::BTreeSet::new();
+        assigned(self, body, outer, Default::default(), &mut writes);
+        outer
+            .iter()
+            .filter(|(name, _)| writes.contains(*name))
+            .map(|(n, t)| (n.clone(), t.clone()))
+            .collect()
+    }
     fn for_loop(&mut self) -> LangResult<Vec<Statement>> {
         let item = self.name()?;
         self.expect("in")?;
@@ -1543,13 +1582,14 @@ impl Parser {
         } else {
             None
         };
-        let variables = self.mutables.clone();
+        let outer_variables = self.mutables.clone();
+        self.mutables.remove(&item);
+        let body = self.block()?;
+        self.mutables = outer_variables.clone();
+        let variables = self.loop_variables(&body, &outer_variables);
         if variables.len() > 16 {
             return Err(self.err("loop state exceeds 16 mutable locals"));
         }
-        self.mutables.remove(&item);
-        let body = self.block()?;
-        self.mutables = variables.clone();
         fn control(body: &[Statement]) -> bool {
             body.iter().any(|s| match s {
                 Statement::Return(_) | Statement::Emit(..) => true,
@@ -1666,11 +1706,12 @@ impl Parser {
         if limit > 65536 {
             return Err(self.err("while exceeds iteration bound"));
         }
-        let variables = self.mutables.clone();
+        let outer_variables = self.mutables.clone();
+        let body = self.block()?;
+        let variables = self.loop_variables(&body, &outer_variables);
         if variables.len() > 16 {
             return Err(self.err("loop state exceeds 16 mutable locals"));
         }
-        let body = self.block()?;
         fn control(body: &[Statement]) -> bool {
             body.iter().any(|s| match s {
                 Statement::Return(_) | Statement::Emit(..) => true,
