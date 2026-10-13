@@ -94,3 +94,11 @@ request writes under one deadline. Waiting for a newline after a partial respons
 or writing a request to a checker that stopped consuming input cannot bypass that
 deadline. Regression tests cover both hangs and exact large/multiple responses.
 Compiler stderr is discarded by this protocol, whose checked errors arrive in JSON.
+
+The bounded automatic maintenance-only selection run checks three proposals but
+admits only the baseline under a 30-second per-check budget. Its independent
+lifecycle acquisition and held-out traces validate that retained baseline. This
+run does not demonstrate automatic selection of the faster implementation; the
+explicit composed packets used in the paired benchmarks separately pass replay.
+The receipt and its rejection reasons are archived rather than interpreted as a
+profitability loss.
