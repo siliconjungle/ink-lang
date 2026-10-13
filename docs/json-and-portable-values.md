@@ -118,6 +118,15 @@ witness after the caller mutates a buffer. The binary pure-call boundaries valid
 again. Structural wire validation alone does not establish source preconditions;
 executed public functions still check their declared preconditions.
 
+JavaScript binds portable validation and visitation operations lazily to the
+immutable descriptor. The scan plan and cursor are separate from decoding;
+recursive children retain complete frame, Unicode, discriminant and resource
+checks. Selected visitor names restrict callbacks, never validation. Callbacks
+run in postorder with the same byte spans and no exposed internal cursor.
+The generic materialising scanner remains an independent conformance oracle.
+JSON and typed JSON share an exact token cursor; number text is not converted
+through JavaScript Number. Sparse logical arrays reject during JSON rendering.
+
 ## Compiler, database and trust boundary
 
 Compiler changes are stable, hygienic naming of all payload enums and a shared generic recursive-record analysis. C checkpoint schema construction now handles bound recursive types with explicit budgets. JSON

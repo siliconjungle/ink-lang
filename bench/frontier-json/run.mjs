@@ -5,6 +5,8 @@ import {createStateEngine as mainState}from'../../build/frontier-state-main/dist
 const ROOT=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../..'),D=path.join(ROOT,'build/frontier-json'),OUT=path.join(ROOT,'reports/frontier-json-2026-10-13');fs.mkdirSync(OUT,{recursive:true});
 const processIndex=Number(process.argv[2]??0),smoke=process.argv.includes('--smoke'),rounds=smoke?1:9;
 const fixtureFilter=process.argv.find(a=>a.startsWith('--fixture='))?.split('=')[1];
+const reportPath=path.join(OUT,`state-${fixtureFilter?'targeted-'+fixtureFilter+'-'+processIndex:smoke?'smoke':processIndex}.json`);
+if(fs.existsSync(reportPath))throw Error('report exists; choose a fresh process ID');
 const provenanceAtStart=provenance(ROOT);
 const fixtures=JSON.parse(fs.readFileSync(path.join(D,'fixtures.json'))),raw=[],validation=[],setup=[];
 const lanes=['ink-rust-ordered','ink-rust-borrow','ink-rust-indexed','ink-rust-indexed-borrow','ink-js','ink-js-bound','ink-js-prepared','ink-js-db-indexed','frontier-core-patch','frontier-core-diff','frontier-core-dirty','frontier-state-release-patch','frontier-state-main-patch','frontier-state-main-prepared-patch','frontier-state-release-commit','frontier-state-main-commit'].filter(lane=>!process.argv.includes('--javascript-only')||!lane.startsWith('ink-rust'));
@@ -73,5 +75,5 @@ try{
   console.error(`${processIndex}: ${f.id}: all outcomes/state verified, ${rounds} rotated rounds`);
  }
  const report={schema:1,provenance:provenanceAtStart,instrumented:process.execArgv.some(a=>a.startsWith('--cpu-prof')||a.startsWith('--prof')||a.startsWith('--trace')),node:process.version,target:{cpu:os.cpus()[0].model,platform:os.platform(),arch:os.arch(),release:os.release()},process:processIndex,rounds,state_api:'watcher-free; full transactions, rollback, versions, events and acknowledgement supplied in adapter where Frontier omits them',timing_boundary:'retained compiled data; actual in-process calls; native IPC/checkpoints/capture/setup excluded; input capture/output replies included',measurements:raw,setup,validation};
- fs.writeFileSync(path.join(OUT,`state-${fixtureFilter?'targeted-'+fixtureFilter+'-'+processIndex:smoke?'smoke':processIndex}.json`),JSON.stringify(report,null,2)+'\n');
+ fs.writeFileSync(reportPath,JSON.stringify(report,null,2)+'\n',{flag:'wx'});
 }finally{native.stdin.end();}
