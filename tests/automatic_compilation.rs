@@ -17,7 +17,9 @@ fn automatic_choices_preserve_wrapping_float_order_errors_and_snapshots() {
     let module=CheckedModule::from_source(program.clone()).unwrap();
     let packet=serde_json::from_slice(&fs::read(output.join("plan.json")).unwrap()).unwrap();
     let plan=planning::check(&module,&packet).unwrap();
-    assert!(!plan.package().steps.is_empty(),"strong map/take case should select a checked alternative");
+    let alternate_packet=serde_json::from_slice(&fs::read(output.join("conformance-plan.json")).unwrap()).unwrap();
+    let alternate=planning::check(&module,&alternate_packet).unwrap();
+    assert!(!alternate.package().steps.is_empty(),"automatic discovery must admit a checked alternative");
     let runtime=Runtime::new(program.clone()).unwrap();
     let mut steps=vec![];let mut expected=vec![];
     for (name,args) in [
@@ -39,5 +41,8 @@ fn automatic_choices_preserve_wrapping_float_order_errors_and_snapshots() {
         steps.push(json!({"pure":name,"args":args}));
         expected.push(json!({"reply":{"value":value},"snapshot":runtime.checkpoint_portable().unwrap()}));
     }
-    parity::conformance_planned("automatic-compilation-parity",&plan,&fs::read_to_string(source).unwrap(),steps,expected);
+    parity::conformance_planned("automatic-compilation-parity",&plan,&fs::read_to_string(source).unwrap(),steps.clone(),expected.clone());
+    if packet!=alternate_packet {
+        parity::conformance_planned("automatic-compilation-alternative",&alternate,&fs::read_to_string(source).unwrap(),steps,expected);
+    }
 }
