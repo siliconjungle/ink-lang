@@ -64,3 +64,9 @@ in `bench/signals-state/README.md`. Recheck `compact.json` against
 `examples/filtered-aggregate.ink` before emission. Existing mandatory indexed
 aggregate conformance authors the same compact projection and checks native,
 JavaScript, both Wasm hosts, aborts, wraparound, events and exact snapshots.
+
+`integrated-indexed.mjs.gz` retains the later freshly emitted artifact with
+portable JSON/binary entrypoints; `integrated-artifact.json` binds its backend
+and hash. It was checked during source preparation and is distinct from the
+artifact measured in `compacted-results.json`. Integration adds no new timing
+claim to the 8.387 µs measurement.

@@ -1,0 +1,20 @@
+   Compiling ink v0.1.0 (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-contract-generality-2026-10-13/build/performance-generality-2026-10-13/distribution-integration)
+error[E0382]: use of moved value: `source`
+  --> tests/automatic_compilation.rs:46:104
+   |
+ 9 |     let source=root.join("bench/automatic-planning/correctness.ink");
+   |         ------ move occurs because `source` has type `PathBuf`, which does not implement the `Copy` trait
+...
+44 |     parity::conformance_planned("automatic-compilation-parity",&plan,&fs::read_to_string(source).unwrap(),steps.clone(),expected.clo...
+   |                                                                                          ------ value moved here
+45 |     if serde_json::to_value(&packet).unwrap()!=serde_json::to_value(&alternate_packet).unwrap() {
+46 |         parity::conformance_planned("automatic-compilation-alternative",&alternate,&fs::read_to_string(source).unwrap(),steps,expect...
+   |                                                                                                        ^^^^^^ value used here after move
+   |
+help: consider borrowing `source`
+   |
+44 |     parity::conformance_planned("automatic-compilation-parity",&plan,&fs::read_to_string(&source).unwrap(),steps.clone(),expected.clone());
+   |                                                                                          +
+
+For more information about this error, try `rustc --explain E0382`.
+error: could not compile `ink` (test "automatic_compilation") due to 1 previous error
