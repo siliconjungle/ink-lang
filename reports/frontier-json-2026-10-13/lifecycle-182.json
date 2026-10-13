@@ -1,0 +1,580 @@
+{
+  "schema": 1,
+  "provenance": {
+    "captured_at": "2026-10-13T15:41:30.152Z",
+    "hashes": {
+      "bench/frontier-json/state.ink": "f98f971b59e11d0983af3cbbd9a472f2d55b4e5720556de1f31b19b12ae866a4",
+      "bench/frontier-json/prepare.py": "d4040dee385095446525ece11523b5dec6cb5eb269937b4836d8fc439cc05713",
+      "bench/frontier-json/run.mjs": "68488f1e42322d19111254f1a5333428541388c371e2fd01af7745b8973920cb",
+      "bench/frontier-json/state-adapters.mjs": "2a7c24ff7778690f0ff6090d31afc45e26f7f6bd2909c3ae619c8e055ea79694",
+      "bench/frontier-json/json-kernels.mjs": "66985f5be207c4f170c0ccd3822f91f8f7f2c257b1b6abc9f3e5ab5e566f67c5",
+      "bench/frontier-json/src/main.rs": "295a467a214ce257f5d41e5fa8304649d2b21cb1beabefc19565d763856b597d",
+      "bench/frontier-json/package-lock.json": "3cc5c3e6c05c279b921df5c2b1a232d2b5f6a114f0a674d2d5d1946840d75a52",
+      "bench/frontier-json/Cargo.lock": "66cecb01a676b2fef9d944feab7ce7d7876e9133c7095f4c0eba566e6ae125f9",
+      "bench/frontier-json/provenance.mjs": "13459553d3b246749d71562e50b41085165e9fd13469e1a8bf9b29ce27308daf",
+      "build/frontier-json/fixtures.json": "f03846851a92e4968589f0daa0ae4bb1768f323a3cf90486017e89c58cf62145",
+      "build/frontier-json/preparation.json": "945bb6ebd6460d5a9ac33342e3d2e9e0d852dc14f604149b8297e2547a6773a1",
+      "build/frontier-json/ink.mjs": "a3e4dd199bd66efaa794be629ace508961158c59ac7958168b2fc5fce3cdbc90",
+      "target/debug/ink": "4c09d2c758731afe9ef809587c4ca81d749ab101223485a809b0d8e9a34040c1",
+      "build/frontier-json/ink-indexed.mjs": "7aa19686dd2fbbf3ced38f05237748de574f0d31d005b4bd747d0a723278f674",
+      "build/frontier-json/indexed.plan.json": "9c999ba5286d9056a802d3924cd33d089d21fa88f7a2ca7e9004adb6707d7d7f",
+      "build/frontier-json/target/release/ink-frontier-json-benchmark": "f1b8433e354ff184b7a3af6c74261758b6e89bafc44c8345b457a75a9fe28be7",
+      "build/frontier-json/compact-stream-release.mjs": "a5fbb1fed7cb79123290f62a25541cffc12697d14c865d98ba7dd87655c76167",
+      "bench/frontier-json/lifecycle-compare.mjs": "d14bd6ac0d1fcb46baa170e8e88f69536ce83f6abbd321c786d20a2b8352ff96"
+    },
+    "revisions": {
+      ".": "de75b0bbe216ff045410b860f47e73e40b5cb9fd",
+      "abi": "d948c2985e1aaec5ab2061056d65ea4d8ebaf3b9",
+      "core": "de75b0bbe216ff045410b860f47e73e40b5cb9fd",
+      "native-support": "eea3285a3ea1847c0dda237c3c988178e4a00f4c",
+      "runtime": "8cd382c935c211b6cfc40ba49cd8f6726eaedfbd",
+      "knowledge": "3cfd93cb9e8698b29c5d52b2e31d52419da5a447",
+      "planner": "cbafcdd0e10e65ded513a2298eb32d30a73c421b",
+      "lowerings/c": "21621f8b5918b088cb0a779cfda26510c978174c",
+      "lowerings/rust": "e7b7622dcbe319e4799d29651795b26dba538507",
+      "lowerings/js": "d9a27a0f5dcf56b71f2e7936b1ef9645ad908bc4",
+      "lowerings/wasm": "1b9a58d94f49e299865345775f5d1604f2d5c50f",
+      "lowerings/gpu": "be2e900902e4287564800622cb69566be3af8b4c",
+      "build/frontier": "2c72dbb4030e2695b682d3e49ec82d8c5c8ffec2",
+      "build/frontier-state-main": "9ff840ea690e55fd8c064934f92a26c1603a63fa",
+      "build/frontier-engine": "1fdd01b67367ccd2b1088b0148b558896935856e",
+      "build/frontier-codec": "7835c68e60ecb400f82d26436bd8e8855a7ba9b9"
+    },
+    "node": "v26.1.0",
+    "target": {
+      "cpu": "Apple M2",
+      "platform": "darwin",
+      "arch": "arm64",
+      "release": "25.5.0"
+    },
+    "host_isolation": "Shared development host; no exclusive CPU reservation. Repeated process cohorts and rotated lane order, not a controlled laboratory."
+  },
+  "process": 182,
+  "fields": 512,
+  "retained_documents": 32,
+  "rows": 4096,
+  "compact_input": "direct",
+  "measurements": [
+    {
+      "scenario": "json-tree",
+      "lane": "ink",
+      "process": 182,
+      "compact_input": "direct",
+      "module": "build/frontier-json/compact-stream-release.mjs",
+      "import_ns": "6335666",
+      "construction_ns": "610500",
+      "first_use_ns": "1507542",
+      "retain_ns": "6709500",
+      "bytes_per_document": null,
+      "beforeImport": {
+        "rss": 61095936,
+        "heapTotal": 8011776,
+        "heapUsed": 4798648,
+        "external": 2308725,
+        "arrayBuffers": 28927
+      },
+      "afterImport": {
+        "rss": 66174976,
+        "heapTotal": 8683520,
+        "heapUsed": 5868432,
+        "external": 2703443,
+        "arrayBuffers": 28935
+      },
+      "afterConstruction": {
+        "rss": 66404352,
+        "heapTotal": 8683520,
+        "heapUsed": 5923624,
+        "external": 2308817,
+        "arrayBuffers": 29015
+      },
+      "beforeRetain": {
+        "rss": 80084992,
+        "heapTotal": 13402112,
+        "heapUsed": 6213824,
+        "external": 2308817,
+        "arrayBuffers": 29015
+      },
+      "afterRetain": {
+        "rss": 85934080,
+        "heapTotal": 18907136,
+        "heapUsed": 10029112,
+        "external": 2308817,
+        "arrayBuffers": 29015
+      },
+      "afterRelease": {
+        "rss": 90570752,
+        "heapTotal": 20480000,
+        "heapUsed": 6280640,
+        "external": 2308817,
+        "arrayBuffers": 29015
+      },
+      "retained_delta_bytes": {
+        "heapUsed": 3815288,
+        "external": 0,
+        "arrayBuffers": 0,
+        "rss": 5849088
+      },
+      "retained_buffer_bytes": null,
+      "retained_phase_peak_rss_bytes": 85934080,
+      "process_peak_rss_bytes": 90570752,
+      "verified": true,
+      "scope": "Text to independently owned complete JSON trees; parsing/validation included. Both render the exact shared-domain fixture."
+    },
+    {
+      "scenario": "json-tree",
+      "lane": "frontier",
+      "process": 182,
+      "compact_input": "direct",
+      "module": null,
+      "import_ns": "1493958",
+      "construction_ns": "12375",
+      "first_use_ns": "361833",
+      "retain_ns": "2642458",
+      "bytes_per_document": null,
+      "beforeImport": {
+        "rss": 61161472,
+        "heapTotal": 8011776,
+        "heapUsed": 4798648,
+        "external": 2308725,
+        "arrayBuffers": 28927
+      },
+      "afterImport": {
+        "rss": 62046208,
+        "heapTotal": 8011776,
+        "heapUsed": 4786736,
+        "external": 2329672,
+        "arrayBuffers": 28927
+      },
+      "afterConstruction": {
+        "rss": 62046208,
+        "heapTotal": 8011776,
+        "heapUsed": 4785016,
+        "external": 2308729,
+        "arrayBuffers": 28927
+      },
+      "beforeRetain": {
+        "rss": 68960256,
+        "heapTotal": 10108928,
+        "heapUsed": 4857248,
+        "external": 2308729,
+        "arrayBuffers": 28927
+      },
+      "afterRetain": {
+        "rss": 70057984,
+        "heapTotal": 11157504,
+        "heapUsed": 5647856,
+        "external": 2308729,
+        "arrayBuffers": 28927
+      },
+      "afterRelease": {
+        "rss": 70090752,
+        "heapTotal": 10371072,
+        "heapUsed": 4882000,
+        "external": 2308729,
+        "arrayBuffers": 28927
+      },
+      "retained_delta_bytes": {
+        "heapUsed": 790608,
+        "external": 0,
+        "arrayBuffers": 0,
+        "rss": 1097728
+      },
+      "retained_buffer_bytes": null,
+      "retained_phase_peak_rss_bytes": 70057984,
+      "process_peak_rss_bytes": 70090752,
+      "verified": true,
+      "scope": "Text to independently owned complete JSON trees; parsing/validation included. Both render the exact shared-domain fixture."
+    },
+    {
+      "scenario": "state",
+      "lane": "ink",
+      "process": 182,
+      "compact_input": "direct",
+      "module": "build/frontier-json/compact-stream-release.mjs",
+      "import_ns": "6534541",
+      "construction_ns": "405917",
+      "first_use_ns": "943458",
+      "retain_ns": "16571958",
+      "bytes_per_document": null,
+      "beforeImport": {
+        "rss": 61095936,
+        "heapTotal": 8011776,
+        "heapUsed": 4798632,
+        "external": 2308725,
+        "arrayBuffers": 28927
+      },
+      "afterImport": {
+        "rss": 66142208,
+        "heapTotal": 8683520,
+        "heapUsed": 5868416,
+        "external": 2703443,
+        "arrayBuffers": 28935
+      },
+      "afterConstruction": {
+        "rss": 66224128,
+        "heapTotal": 8683520,
+        "heapUsed": 5915840,
+        "external": 2308737,
+        "arrayBuffers": 28935
+      },
+      "beforeRetain": {
+        "rss": 66355200,
+        "heapTotal": 8683520,
+        "heapUsed": 5968248,
+        "external": 2308737,
+        "arrayBuffers": 28935
+      },
+      "afterRetain": {
+        "rss": 83755008,
+        "heapTotal": 19693568,
+        "heapUsed": 9214696,
+        "external": 2308737,
+        "arrayBuffers": 28935
+      },
+      "afterRelease": {
+        "rss": 83853312,
+        "heapTotal": 18120704,
+        "heapUsed": 6188504,
+        "external": 2308737,
+        "arrayBuffers": 28935
+      },
+      "retained_delta_bytes": {
+        "heapUsed": 3246448,
+        "external": 0,
+        "arrayBuffers": 0,
+        "rss": 17399808
+      },
+      "retained_buffer_bytes": null,
+      "retained_phase_peak_rss_bytes": 83755008,
+      "process_peak_rss_bytes": 83951616,
+      "verified": true,
+      "scope": "Equivalent per-row public puts, full source reply/event/version checks and acknowledgement; fixture conversion and assertions included in initialization, with no timed throughput claim."
+    },
+    {
+      "scenario": "state",
+      "lane": "frontier",
+      "process": 182,
+      "compact_input": "direct",
+      "module": null,
+      "import_ns": "12958708",
+      "construction_ns": "315167",
+      "first_use_ns": "408500",
+      "retain_ns": "5159208",
+      "bytes_per_document": null,
+      "beforeImport": {
+        "rss": 61030400,
+        "heapTotal": 8011776,
+        "heapUsed": 4798632,
+        "external": 2308725,
+        "arrayBuffers": 28927
+      },
+      "afterImport": {
+        "rss": 65404928,
+        "heapTotal": 10518528,
+        "heapUsed": 6197224,
+        "external": 3135749,
+        "arrayBuffers": 29183
+      },
+      "afterConstruction": {
+        "rss": 65454080,
+        "heapTotal": 10518528,
+        "heapUsed": 6224952,
+        "external": 2308985,
+        "arrayBuffers": 29183
+      },
+      "beforeRetain": {
+        "rss": 65486848,
+        "heapTotal": 10518528,
+        "heapUsed": 6241600,
+        "external": 2308985,
+        "arrayBuffers": 29183
+      },
+      "afterRetain": {
+        "rss": 72318976,
+        "heapTotal": 11780096,
+        "heapUsed": 7080464,
+        "external": 2308985,
+        "arrayBuffers": 29183
+      },
+      "afterRelease": {
+        "rss": 72433664,
+        "heapTotal": 12042240,
+        "heapUsed": 7062952,
+        "external": 2308985,
+        "arrayBuffers": 29183
+      },
+      "retained_delta_bytes": {
+        "heapUsed": 838864,
+        "external": 0,
+        "arrayBuffers": 0,
+        "rss": 6832128
+      },
+      "retained_buffer_bytes": null,
+      "retained_phase_peak_rss_bytes": 72351744,
+      "process_peak_rss_bytes": 72433664,
+      "verified": true,
+      "scope": "Equivalent per-row public puts, full source reply/event/version checks and acknowledgement; fixture conversion and assertions included in initialization, with no timed throughput claim."
+    },
+    {
+      "scenario": "transport",
+      "lane": "ink",
+      "process": 182,
+      "compact_input": "direct",
+      "module": "build/frontier-json/compact-stream-release.mjs",
+      "import_ns": "5875958",
+      "construction_ns": "607416",
+      "first_use_ns": "3302209",
+      "retain_ns": "14819666",
+      "bytes_per_document": 22747,
+      "beforeImport": {
+        "rss": 61079552,
+        "heapTotal": 8011776,
+        "heapUsed": 4798648,
+        "external": 2308725,
+        "arrayBuffers": 28927
+      },
+      "afterImport": {
+        "rss": 66109440,
+        "heapTotal": 8683520,
+        "heapUsed": 5868432,
+        "external": 2703443,
+        "arrayBuffers": 28935
+      },
+      "afterConstruction": {
+        "rss": 66453504,
+        "heapTotal": 8683520,
+        "heapUsed": 5923608,
+        "external": 2308817,
+        "arrayBuffers": 29015
+      },
+      "beforeRetain": {
+        "rss": 82051072,
+        "heapTotal": 11829248,
+        "heapUsed": 6259976,
+        "external": 2387079,
+        "arrayBuffers": 51762
+      },
+      "afterRetain": {
+        "rss": 82509824,
+        "heapTotal": 11567104,
+        "heapUsed": 6223560,
+        "external": 3288076,
+        "arrayBuffers": 779666
+      },
+      "afterRelease": {
+        "rss": 82673664,
+        "heapTotal": 11567104,
+        "heapUsed": 6217184,
+        "external": 3059468,
+        "arrayBuffers": 74509
+      },
+      "retained_delta_bytes": {
+        "heapUsed": -36416,
+        "external": 900997,
+        "arrayBuffers": 727904,
+        "rss": 458752
+      },
+      "retained_buffer_bytes": 727904,
+      "retained_phase_peak_rss_bytes": 82706432,
+      "process_peak_rss_bytes": 82706432,
+      "verified": true,
+      "scope": "Text to independently owned complete-document buffers. Ink portable typed value versus Frontier root-set patch; distinct protocol contracts."
+    },
+    {
+      "scenario": "transport",
+      "lane": "frontier",
+      "process": 182,
+      "compact_input": "direct",
+      "module": null,
+      "import_ns": "8238125",
+      "construction_ns": "12542",
+      "first_use_ns": "1595917",
+      "retain_ns": "10165541",
+      "bytes_per_document": 5620,
+      "beforeImport": {
+        "rss": 60801024,
+        "heapTotal": 8011776,
+        "heapUsed": 4798720,
+        "external": 2308725,
+        "arrayBuffers": 28927
+      },
+      "afterImport": {
+        "rss": 63586304,
+        "heapTotal": 9486336,
+        "heapUsed": 5682872,
+        "external": 2786392,
+        "arrayBuffers": 29439
+      },
+      "afterConstruction": {
+        "rss": 63668224,
+        "heapTotal": 8962048,
+        "heapUsed": 5685576,
+        "external": 2309241,
+        "arrayBuffers": 29439
+      },
+      "beforeRetain": {
+        "rss": 72581120,
+        "heapTotal": 10797056,
+        "heapUsed": 5958464,
+        "external": 2467118,
+        "arrayBuffers": 35059
+      },
+      "afterRetain": {
+        "rss": 72728576,
+        "heapTotal": 11059200,
+        "heapUsed": 5929208,
+        "external": 2656011,
+        "arrayBuffers": 214899
+      },
+      "afterRelease": {
+        "rss": 72925184,
+        "heapTotal": 11059200,
+        "heapUsed": 5963008,
+        "external": 2494701,
+        "arrayBuffers": 40679
+      },
+      "retained_delta_bytes": {
+        "heapUsed": -29256,
+        "external": 188893,
+        "arrayBuffers": 179840,
+        "rss": 147456
+      },
+      "retained_buffer_bytes": 179840,
+      "retained_phase_peak_rss_bytes": 72728576,
+      "process_peak_rss_bytes": 72925184,
+      "verified": true,
+      "scope": "Text to independently owned complete-document buffers. Ink portable typed value versus Frontier root-set patch; distinct protocol contracts."
+    },
+    {
+      "scenario": "transport-compact",
+      "lane": "ink",
+      "process": 182,
+      "compact_input": "direct",
+      "module": "build/frontier-json/compact-stream-release.mjs",
+      "import_ns": "5876542",
+      "construction_ns": "578458",
+      "first_use_ns": "3854208",
+      "retain_ns": "23072417",
+      "bytes_per_document": 7121,
+      "beforeImport": {
+        "rss": 60997632,
+        "heapTotal": 8011776,
+        "heapUsed": 4798656,
+        "external": 2308725,
+        "arrayBuffers": 28927
+      },
+      "afterImport": {
+        "rss": 66125824,
+        "heapTotal": 8683520,
+        "heapUsed": 5868440,
+        "external": 2703443,
+        "arrayBuffers": 28935
+      },
+      "afterConstruction": {
+        "rss": 66502656,
+        "heapTotal": 8683520,
+        "heapUsed": 5923616,
+        "external": 2308817,
+        "arrayBuffers": 29015
+      },
+      "beforeRetain": {
+        "rss": 78217216,
+        "heapTotal": 11829248,
+        "heapUsed": 6280648,
+        "external": 2384870,
+        "arrayBuffers": 36136
+      },
+      "afterRetain": {
+        "rss": 78413824,
+        "heapTotal": 11567104,
+        "heapUsed": 6273232,
+        "external": 2572226,
+        "arrayBuffers": 264008
+      },
+      "afterRelease": {
+        "rss": 82706432,
+        "heapTotal": 15761408,
+        "heapUsed": 6285432,
+        "external": 2543810,
+        "arrayBuffers": 43257
+      },
+      "retained_delta_bytes": {
+        "heapUsed": -7416,
+        "external": 187356,
+        "arrayBuffers": 227872,
+        "rss": 196608
+      },
+      "retained_buffer_bytes": 227872,
+      "retained_phase_peak_rss_bytes": 78413824,
+      "process_peak_rss_bytes": 82706432,
+      "verified": true,
+      "scope": "Text to independently owned complete-document buffers. Ink agreed-schema direct parseCompact(text) versus Frontier root-set patch; schema negotiation out of band, conversion boundary explicit."
+    },
+    {
+      "scenario": "transport-compact",
+      "lane": "frontier",
+      "process": 182,
+      "compact_input": "direct",
+      "module": null,
+      "import_ns": "8064084",
+      "construction_ns": "13792",
+      "first_use_ns": "1648958",
+      "retain_ns": "9677500",
+      "bytes_per_document": 5620,
+      "beforeImport": {
+        "rss": 61145088,
+        "heapTotal": 8011776,
+        "heapUsed": 4798728,
+        "external": 2308725,
+        "arrayBuffers": 28927
+      },
+      "afterImport": {
+        "rss": 63913984,
+        "heapTotal": 9486336,
+        "heapUsed": 5682880,
+        "external": 2786392,
+        "arrayBuffers": 29439
+      },
+      "afterConstruction": {
+        "rss": 64012288,
+        "heapTotal": 8962048,
+        "heapUsed": 5685584,
+        "external": 2309241,
+        "arrayBuffers": 29439
+      },
+      "beforeRetain": {
+        "rss": 72843264,
+        "heapTotal": 10797056,
+        "heapUsed": 5958472,
+        "external": 2467118,
+        "arrayBuffers": 35059
+      },
+      "afterRetain": {
+        "rss": 72974336,
+        "heapTotal": 11059200,
+        "heapUsed": 5931920,
+        "external": 2656011,
+        "arrayBuffers": 214899
+      },
+      "afterRelease": {
+        "rss": 73072640,
+        "heapTotal": 11059200,
+        "heapUsed": 5963400,
+        "external": 2494701,
+        "arrayBuffers": 40679
+      },
+      "retained_delta_bytes": {
+        "heapUsed": -26552,
+        "external": 188893,
+        "arrayBuffers": 179840,
+        "rss": 131072
+      },
+      "retained_buffer_bytes": 179840,
+      "retained_phase_peak_rss_bytes": 72974336,
+      "process_peak_rss_bytes": 73072640,
+      "verified": true,
+      "scope": "Text to independently owned complete-document buffers. Ink agreed-schema direct parseCompact(text) versus Frontier root-set patch; schema negotiation out of band, conversion boundary explicit."
+    }
+  ],
+  "scope": "Eight independent fresh processes per cohort, alternating library order. Capability-specific import, construction, first-use and retained phases. Shared safe-integer/Unicode JSON observations; Ink additionally preserves exact tokens/order. Forced-GC retained deltas and whole-process maxRSS include runtime/harness/verification; no exact allocation or statistical peak bound."
+}
