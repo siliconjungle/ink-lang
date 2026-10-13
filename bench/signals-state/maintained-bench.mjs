@@ -58,13 +58,26 @@ async function ink(artifact,init){
 let sink=0n;
 const samples=[],validations=[];
 const factories=[
- ...modules.map(a=>({label:a.label,create:init=>ink(a,init),baseline:a.label==='Ink baseline'})),
+ ...modules.map(a=>({label:a.label,create:init=>ink(a,init),baseline:a.baseline??a.label==='Ink baseline'})),
  {label:'Preact manual delta',create:init=>delta(init)},
  {label:'Preact delta + commits/events',create:init=>committedDelta(init)},
  {label:'Svelte manual delta',create:init=>svelte.deltaRows(init)},
  {label:'Preact computed',create:init=>derived(init),baseline:true}
 ];
 const phases=['sync-update-and-aggregate','awaited-update-and-aggregate','sync-unchanged-read','sync-burst32','sync-observed-update'];
+// Warm shared generated bodies on a small state before comparing table sizes.
+// Otherwise the first (smallest) size also pays for evolving V8 optimisation.
+const warmInitial=Array.from({length:8},(_,i)=>({value:BigInt(i),active:i%2===0}));
+for(const f of factories){
+ const m=await f.create(warmInitial);let close=null;
+ for(let i=0;i<20000;i++){
+  if(i===10000)close=m.connect?.(()=>{});
+  m.put(BigInt(i%8),i%19===0?word(-1n):BigInt(i),i%3===0);
+  sink^=m.total()^m.count();
+  if(i%2048===2047)m.clear?.();
+ }
+ close?.();m.clear?.();
+}
 for(const n of cfg.rows??[256,4096,16384]){
  const initial=Array.from({length:n},(_,i)=>({value:BigInt(i),active:i%2===0}));
  const reference=await ink(modules[0],initial),manual=committedDelta(initial);
@@ -127,4 +140,5 @@ for(const label of factories.map(f=>f.label))for(const rows of cfg.rows??[256,40
 }
 console.log(JSON.stringify({schema:1,date:new Date().toISOString(),process_index:cfg.process_index,node:process.version,hardware:cpus()[0].model,
  artifacts:modules.map(({label,path,sha256})=>({label,path,sha256})),validations,samples,summary,sink:String(sink),
+ warmup:{sharedBodyCallsPerLane:20000,rows:8,connectedCalls:10000,phaseRounds:3},
  scope:'State-only; synchronous prebound result-only Ink retains versions/events/atomic failures. Raw controls omit them; separate commits/events control matches this hot action only, without portable restore or general source transactions. Matched synchronous and awaited windows; full-width U64 controls; no DOM; cold setup/restore excluded here and measured separately by planner lifecycles; connected Ink has two independently owned query subscriptions versus one batched signals effect'}));
