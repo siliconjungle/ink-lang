@@ -1,4 +1,4 @@
-# Frontier-inspired Ink extensions
+# Incremental state Ink extensions
 
 This integration implements the scoped compiler/database upgrades. JSON, CRDTs,
 approximation/LOD and new host capabilities remain excluded. The runtime and ABI

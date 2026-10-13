@@ -79,7 +79,7 @@ database. See [semantic selection](docs/semantic-optimisation.md),
 
 | Area | Implemented scope |
 | --- | --- |
-| Pure computation | Wrapping words, signed arithmetic, binary32, vectors, records, collections, bounded loops, owned local buffers/maps and [checked recursion/ordered parallel work](docs/bend-inspired.md) |
+| Pure computation | Wrapping words, signed arithmetic, binary32, vectors, records, collections, bounded loops, owned local buffers/maps and [checked recursion/ordered parallel work](docs/parallel-execution.md) |
 | Application state | Typed tables, queries, atomic changes, rollback, ordered events, maintained results and portable snapshots |
 | Targets | Native C/Rust, JavaScript ES modules, C/Rust WebAssembly and eligible WGSL through WebGPU/wgpu |
 | Checked optimisation | Composable expression rewrites, eligible pure action regions and complete action replacements in a documented subset |
@@ -90,7 +90,7 @@ database. See [semantic selection](docs/semantic-optimisation.md),
 Execution support is broader than proof-based replacement support. Source/action
 correspondence and physical capabilities each have explicit admitted domains;
 unsupported operators and layouts fail closed. GPU execution
-covers eligible pure work; transactions run on the host. [Parallel work, owned partitions, GPU scratch storage and checked recursion](docs/bend-inspired.md)
+covers eligible pure work; transactions run on the host. [Parallel work, owned partitions, GPU scratch storage and checked recursion](docs/parallel-execution.md)
 now run under explicit target limits. The optional independent Lean verdict checks
 a limited Boolean equality calculus; it does not verify the complete compiler.
 
@@ -184,7 +184,7 @@ the core rechecks supplied evidence. The Rust checker, source correspondence,
 codecs, lowering, hosts and toolchains remain trusted implementations. A checked
 high-level transformation is not an end-to-end proof of machine code. Lean
 research supports specific mathematical claims and does not verify the complete
-compiler. The [independent Boolean verdict](docs/bend-inspired.md#independent-boolean-verdict)
+compiler. The [independent Boolean verdict](docs/parallel-execution.md#independent-boolean-verdict)
 proves its separate calculus sound; its translator and source correspondence remain
 unverified. Old aggregate certificates, bounded caches, typed storage policies and historical
 scalar loaders have been removed. There is no legacy admission feature.
