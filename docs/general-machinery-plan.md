@@ -340,3 +340,44 @@ support. Missing capability stays explicit while implementation continues.
   canonical database publication, full performance evidence and integrated main
   publication. None is waived by the foundation above. See
   `docs/value-invariant-interfaces.md` for the current mechanism and limits.
+- Word-storage library groundwork now builds an arena of variable-size rows and
+  a chunked sequence from the same owned-buffer/record/loop primitives. Neither
+  adds a data-structure strategy case. Success values retain checked span/width
+  invariants at imported interfaces and raw ingress. Handles are relative slots
+  and extents, not allocation provenance or borrow-lifetime evidence.
+- Nested builders exposed over-broad loop state. Source loops now carry only
+  assigned outer locals, keeping unmodified values as lexical captures. Six
+  regressions cover nested owners, bounded loops, conditional assignment,
+  shadowing, invalid consumption and the limit on actual carried variables.
+  Empty-option definition replay preserves constructor trees and explicit source
+  bindings; proof-produced receivers obtain type hints only when needed.
+- Database search now proposes cases through known applications and closed local
+  callbacks, including positive predicates compared with Boolean literals.
+  Combined catalogue admission keeps the existing work/depth budget per entry,
+  with bounded catalogue/dependency traversal and size limits. Resource tests
+  prove independently bounded entries compose and a single oversized proof rejects.
+  `eval::call_checked` reuses a sealed module's admission while retaining input
+  validators and fuel; raw-program execution still checks admission.
+- The imported storage fixture replays thirty pure obligations with twenty-two
+  canonical objects. Local snapshot is
+  `e018db7c5d2868e1316fe6e1762437b30c9f15d2c7c73bd913213861f7bfe45a`.
+  Its published source view replays and a freshly rehashed false proof rejects.
+  The final checks pass 263 core tests, thirteen affected database tests and two
+  storage integration tests. Thirty-one replies, ordered events and exact
+  snapshots match across C/Rust/JavaScript/both Wasm paths and the wgpu host, with
+  one actual numeric GPU dispatch. The debug fixture uses an explicit 16 MiB
+  test-thread stack after the initial 2 MiB run overflowed.
+- This is storage groundwork, not universal codec/layout proof or performance
+  acceptance. General element types, direct views/borrowing, sparse indexes,
+  compact trees, strategy extraction, recursive termination, local relations,
+  broader fact consumers, incremental maintenance and integrated publication
+  remain required. Details: `docs/storage-regions-foundation.md`. Receipt:
+  `docs/evidence/general-machinery/storage-regions.json`. Logs:
+  `storage-core-verified.log`, `storage-contract-db-tests-final.log`,
+  `storage-target-parity-final.log`, `storage-published-replay-final.log`, and
+  `storage-forged-replay-v2.log`.
+- The earlier nine abstract-interface and five value-invariant integration tests
+  also pass across the same complete CPU/Wasm and eligible wgpu paths with the
+  updated checker (`storage-interface-regressions.log`).
+- Knowledge staging checkpoint: `81e435a64853e665113b0a3e673e55983aed8893`.
+  This is a local foundation checkpoint while the full programme remains active.

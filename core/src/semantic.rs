@@ -1321,14 +1321,57 @@ pub fn reify(t: &Term, p: &Program) -> LangResult<Expr> {
                     };
                     application(args[0].clone(), args[1].clone(), val(x)?, 0)?
                 } else if n == "call:None" {
-                    // Preserve the carried type when a surrounding operation
-                    // must infer its receiver without an expected type.
-                    Expr::Let("__ink_empty".into(),Some(Box::new(val(&t.sort)?.clone())),
-                        Box::new(Expr::Var("None".into())),Box::new(Expr::Var("__ink_empty".into())))
+                    // Checked source already supplies the constructor's type
+                    // through its enclosing expression or an explicit typed
+                    // binding. Inserting another binding changes the exact
+                    // semantic tree and prevents portable definition replay.
+                    Expr::Var("None".into())
                 } else if n.starts_with("call:") {
                     Expr::Call(n[5..].into(), args)
                 } else if n.starts_with("method:") {
-                    Expr::Method(Box::new(args[0].clone()), n[7..].into(), args[1..].to_vec())
+                    let mut receiver = args[0].clone();
+                    let mut env = check::Env::new();
+                    fn environment(t: &Term, bound: &[String], local: usize, env: &mut check::Env) {
+                        if let Sort::Value(ty) = &t.sort {
+                            let name = match &t.node {
+                                Node::Free(name) => Some(name),
+                                Node::Bound(index) if *index >= local => {
+                                    bound.iter().rev().nth(index - local)
+                                }
+                                _ => None,
+                            };
+                            if let Some(name) = name {
+                                env.insert(name.clone(), ty.clone());
+                            }
+                        }
+                        for child in children(t) {
+                            environment(
+                                child,
+                                bound,
+                                local + usize::from(matches!(t.node, Node::Lambda(_))),
+                                env,
+                            );
+                        }
+                    }
+                    environment(&a[0], bound, 0, &mut env);
+                    let ty = val(&a[0].sort)?;
+                    if check::infer(&receiver, &env, p).as_ref() != Ok(ty) {
+                        // Proof-produced empty receivers may need a type that
+                        // ordinary source supplied through a binding. Insert
+                        // one only when inference actually needs it, keeping
+                        // captured source definitions exact on round trip.
+                        let mut name = "__ink_receiver".to_string();
+                        while free.contains(&name) || bound.contains(&name) {
+                            name.push('_');
+                        }
+                        receiver = Expr::Let(
+                            name.clone(),
+                            Some(Box::new(ty.clone())),
+                            Box::new(receiver),
+                            Box::new(Expr::Var(name)),
+                        );
+                    }
+                    Expr::Method(Box::new(receiver), n[7..].into(), args[1..].to_vec())
                 } else if n.starts_with("field:") {
                     Expr::Field(Box::new(args[0].clone()), n[6..].into())
                 } else if n.starts_with("record:") {

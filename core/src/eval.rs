@@ -1351,6 +1351,16 @@ pub fn call(p: &Program, name: &str, args: Vec<Value>, fuel: &mut u64) -> LangRe
     if !p.contracts.is_empty(){crate::core::CheckedModule::from_source(p.clone())?;}
     call_verified(p,name,args,fuel)
 }
+/// Reuse a sealed module's admission while retaining ordinary argument checks,
+/// ingress predicates and evaluation fuel. Raw programs still use `call`.
+pub fn call_checked(
+    module: &crate::core::CheckedModule,
+    name: &str,
+    args: Vec<Value>,
+    fuel: &mut u64,
+) -> LangResult<Value> {
+    call_verified(module.program(), name, args, fuel)
+}
 pub(crate) fn call_verified(p:&Program,name:&str,args:Vec<Value>,fuel:&mut u64)->LangResult<Value>{
     crate::check::check(p)?;
     let f = p
@@ -1458,7 +1468,7 @@ pub fn call_selected(
     args: Vec<Value>,
     fuel: &mut u64,
 ) -> LangResult<Value> {
-    call(selected.module().program(), name, args, fuel)
+    call_checked(selected.module(), name, args, fuel)
 }
 
 #[inline(never)]

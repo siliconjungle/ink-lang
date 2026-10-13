@@ -319,7 +319,13 @@ impl CheckedCatalogue {
                 }
                 proof_program.ids.push(t.clone());
             }
-            validate_assumptions(law, &proof_program, b)?;
+            // Proof work is bounded per immutable entry. Dependency admission
+            // retains the catalogue budget and each entry is checked once;
+            // composing independently bounded libraries must not consume a
+            // preceding entry's allowance. Catalogue bytes/counts and proof
+            // depth still bound the complete admission.
+            let mut proof_budget = Budget::new();
+            validate_assumptions(law, &proof_program, &mut proof_budget)?;
             let mut imports = CheckedCatalogue {
                 laws: BTreeMap::new(),
                 assumptions: law.assumptions.clone(),
@@ -345,7 +351,7 @@ impl CheckedCatalogue {
                     to: law.to.clone(),
                 },
                 &law.proof,
-                b,
+                &mut proof_budget,
                 0,
             )?;
             out.laws.insert(id.into(), law.clone());
