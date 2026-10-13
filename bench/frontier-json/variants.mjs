@@ -7,6 +7,8 @@ const baseline=process.argv.find(a=>a.startsWith('--baseline='))?.slice('--basel
 const paths={baseline,candidate};
 const label=path.basename(candidate,'.mjs');if(!/^[a-z0-9-]+$/.test(label))throw Error('candidate label');
 const runLabel=process.argv.find(a=>a.startsWith('--run='))?.slice('--run='.length);
+const copyKind=process.argv.find(a=>a.startsWith('--copy='))?.slice('--copy='.length)??'capture';
+if(!['capture','trusted'].includes(copyKind))throw Error('copy kind');
 if(runLabel&&!/^[a-z0-9-]+$/.test(runLabel))throw Error('run label');
 const reportPath=path.join(root,`reports/frontier-json-2026-10-13/variants-${mode}-${label}${runLabel?'-'+runLabel:''}.json`);
 if(fs.existsSync(reportPath))throw Error('report already exists; choose a fresh --run label');
@@ -22,6 +24,17 @@ if(mode==='codec'){
   const binaryPipeline=()=>{const doc=json.parseBinary(text),request=args.encodeWith(w=>w.frame(w=>{w.bytes(doc.subarray(40));w.frame(w=>w.text('k00000'));w.bytes(nextWire.subarray(40));})),reply=ink.callBinary('set_document',request);assert.equal(reply[44],0);const result=new Uint8Array(40+reply.length-45);result.set(doc.subarray(0,40));result.set(reply.subarray(45),40);return json.stringifyBinary(result);};
   assert.equal(JSON.parse(binaryPipeline()).k00000,777);
   for(const[operation,run]of Object.entries({'logical-validation':()=>json.values.validateValue(value)?1:0,'binary-encode':()=>json.values.encode(value).length,'binary-decode':()=>json.values.decode(wire).payload?1:0,'text-edit-text':()=>json.stringify(ink.call('set_document',[json.parse(text),'k00000',next]).Ok).length,'binary-schema-validation':()=>json.values.validate(wire)?1:0,'binary-json-validation':()=>json.validateBinary(wire)?1:0,'binary-edit-text':()=>binaryPipeline().length})){
+   (groups[operation]??={})[name]=run;
+  }
+ }
+}else if(mode==='ownership'){
+ const text=JSON.stringify(Object.fromEntries(Array.from({length:512},(_,i)=>['k'+String(i).padStart(5,'0'),i])));
+ for(const[name,ink]of Object.entries(modules)){
+  const json=new ink.JsonCodec(ink.valueCodecs.identity.result),value=json.parse(text),next=ink.parseJson('777');
+  const copy=name==='candidate'?v=>copyKind==='trusted'?json.values.copy(v):json.values.capture(v):v=>structuredClone(v);
+  const edit=name==='candidate'&&copyKind==='trusted'?()=>ink.callOwned('set_document',[value,'k00000',next]).Ok:()=>copy(ink.call('set_document',[value,'k00000',next]).Ok);
+  const owned=copy(value);assert.deepEqual(owned,value);owned.payload.Err.Err.Err.Err.Err.item0[0].key='changed';assert.equal(json.stringify(value),text);
+  for(const[operation,run]of Object.entries({'copy-owned-json':()=>copy(value).payload?1:0,'edit-owned-json':()=>edit().payload?1:0})){
    (groups[operation]??={})[name]=run;
   }
  }
@@ -61,4 +74,4 @@ for(const[operation,lanes]of Object.entries(groups)){
  }
 }
 for(const[k,p]of Object.entries(paths))assert.equal(createHash('sha256').update(fs.readFileSync(path.resolve(root,p))).digest('hex'),hashes[k],'artifact changed during timing');
-fs.writeFileSync(reportPath,JSON.stringify({schema:1,diagnostic_experiment:true,instrumented:process.execArgv.some(a=>a.startsWith("--cpu-prof")||a.startsWith("--prof")||a.startsWith("--trace")),paths,hashes,measurements,sink,scope:'Paired source candidate experiment on a shared host. Setup excluded; compare candidate ratios, not historical absolute timings.'},null,2)+'\n',{flag:'wx'});
+fs.writeFileSync(reportPath,JSON.stringify({schema:1,diagnostic_experiment:true,instrumented:process.execArgv.some(a=>a.startsWith("--cpu-prof")||a.startsWith("--prof")||a.startsWith("--trace")),copy_kind:copyKind,paths,hashes,measurements,sink,scope:'Paired source candidate experiment on a shared host. Setup excluded; compare candidate ratios, not historical absolute timings.'},null,2)+'\n',{flag:'wx'});

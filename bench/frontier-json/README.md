@@ -49,8 +49,10 @@ Frontier-only.
 
 The plain retained JSON edit uses Ink's caller-trusted pure ABI. Both it and
 Frontier's single-set path can share unchanged input subtrees. The separate
-`known-edit-detached` group adds `structuredClone` to both results and verifies
-that neither result aliases any caller input object before timing. Use that group
+`known-edit-detached` group uses `callOwned` for Ink and `structuredClone` of
+Frontier's result, and verifies that neither result aliases any caller input
+object before timing. Separate Ink lanes retain checked `ValueCodec.capture`
+and the historical `structuredClone` mechanism as controls. Use that group
 for fully detached mutable output comparisons. The sharing group measures
 callers managing immutable inputs/results, not fully detached host values.
 The text pipeline returns owned text and needs no detached intermediate tree.

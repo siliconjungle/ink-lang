@@ -130,6 +130,12 @@ through JavaScript Number. Sparse logical arrays reject during JSON rendering.
 The plain JavaScript pure `call` API borrows stable caller inputs and can share
 their containers in its result. Callers manage that aliasing. Stateful replies
 and binary calls retain their own capture/encoding ownership boundaries.
+`callOwned` keeps that trusted input contract and uses literal type-directed
+copies to return a detached canonical logical value. Declared preconditions still
+execute, and result copying obeys ABI byte/node/depth bounds; pure execution has
+no timeout. `ValueCodec.capture` validates and owns external logical values in
+one traversal; `ValueCodec.copy` requires already valid, stable values. Neither
+operation grants rewrite authority or proves the backend correct.
 Benchmarks distinguish retained sharing from fully detached mutable JSON trees;
 text output is an owned string without requiring a detached intermediate tree.
 
