@@ -7,9 +7,10 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: conformance-${{ github.ref }}
-  # Superseded pull-request pushes may be cancelled, but every commit that
-  # lands on main must finish, otherwise a breakage is never attributed.
+  # A newer push to a pull request supersedes its previous run. Every commit
+  # that lands on main gets its own group: a shared group would still cancel
+  # pending runs, so a breakage could land without ever being attributed.
+  group: conformance-${{ github.event_name == 'pull_request' && github.ref || github.sha }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
   declared-feature-parity:
@@ -95,7 +96,9 @@ jobs:
         run: |
           cargo test --manifest-path core/Cargo.toml --offline
           cargo test --manifest-path lowerings/rust/Cargo.toml --lib
-          cargo test --test hardening regression_eval_
+          # The whole suite: fuzz_logic_objects re-declares every first-order
+          # knowledge object, so checker changes cannot silently strand proofs.
+          cargo test --test hardening
           cargo test --test temporary_lowering
           CARGO_TARGET_DIR=target cargo test --manifest-path lowerings/gpu/Cargo.toml --test temporary_bounds
           cargo test --test distribution --test source_syntax --test action_values --test general_laws --test semantic_optimisation
