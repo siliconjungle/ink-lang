@@ -102,7 +102,9 @@ Record forced-GC heap/external/buffer deltas, exact owned backing-buffer bytes,
 peak RSS before verification and whole-process peak RSS separately. GC deltas may
 be negative and peak RSS includes runtime/harness/JIT overhead, so neither is an
 exact allocation count or a statistical memory bound. Compact negotiation is
-outside the buffer; its construction currently includes logical parse then encode.
+outside the buffer. `--compact-input=logical` (the default) measures logical parse
+then encode; `--compact-input=direct` explicitly measures `parseCompact`. The
+chosen boundary is recorded in every parent and child report.
 Historical reports are immutable and differing harness/source epochs must not be
 pooled. `lifecycle-cohorts-167-169.json` is the complete repeated control.
 
@@ -111,3 +113,10 @@ baseline implementation without overwriting a frozen artifact. The runner binds
 its hash before timing and verifies it afterward. The separately supplied indexed
 alternative remains `build/frontier-json/ink-indexed.mjs`, with its own recorded
 hash; selecting a baseline module does not silently rebuild or replace that lane.
+
+`variants.mjs compact-json <candidate> --baseline=<frozen module> --run=<fresh label>`
+compares direct compact emission with the frozen logical parse/encode path. It
+checks exact bytes and complete decoded/rendered values before timing. Numeric,
+Unicode, nested, small and large inputs are separate controls; portable streaming
+is retained as a regression control. The timed consumer reads the result length,
+so this diagnostic does not rank full application consumption.

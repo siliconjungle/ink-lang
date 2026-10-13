@@ -12,6 +12,7 @@ const ROOT=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../..');
 const self=fileURLToPath(import.meta.url),flag=name=>process.argv.find(a=>a.startsWith('--'+name+'='))?.slice(name.length+3);
 const modulePath=flag('ink-module')??'build/frontier-json/wire-child-release.mjs';
 const processIndex=Number(process.argv[2]??0),child=process.argv.includes('--child');
+const compactInput=flag('compact-input')??'logical';if(!['logical','direct'].includes(compactInput))throw Error('invalid compact input');
 const fields=Number(flag('fields')??512),retained=Number(flag('retained')??32),rows=Number(flag('rows')??4096);
 for(const [name,n,max]of [['process',processIndex,1000000],['fields',fields,10000],['retained',retained,256],['rows',rows,10000]])
  if(!Number.isSafeInteger(n)||n<(name==='process'?0:1)||n>max)throw Error('invalid '+name);
@@ -27,7 +28,7 @@ if(!child){
  for(const name of ['lifecycle-compare.mjs','state-adapters.mjs'])before.hashes['bench/frontier-json/'+name]=hash(path.join(ROOT,'bench/frontier-json',name));
  const measurements=[];
  for(const scenario of ['json-tree','state','transport','transport-compact'])for(const lane of processIndex%2?['frontier','ink']:['ink','frontier']){
-  const result=spawnSync(process.execPath,['--expose-gc',self,String(processIndex),'--child',`--scenario=${scenario}`,`--lane=${lane}`,`--ink-module=${modulePath}`,`--fields=${fields}`,`--retained=${retained}`,`--rows=${rows}`],{cwd:ROOT,encoding:'utf8',maxBuffer:1024*1024});
+  const result=spawnSync(process.execPath,['--expose-gc',self,String(processIndex),'--child',`--scenario=${scenario}`,`--lane=${lane}`,`--ink-module=${modulePath}`,`--fields=${fields}`,`--retained=${retained}`,`--rows=${rows}`,`--compact-input=${compactInput}`],{cwd:ROOT,encoding:'utf8',maxBuffer:1024*1024});
   if(result.status!==0)throw Error(`${scenario}/${lane}: ${result.stderr||result.stdout}`);
   measurements.push(JSON.parse(result.stdout));
  }
@@ -35,7 +36,7 @@ if(!child){
  for(const name of ['lifecycle-compare.mjs','state-adapters.mjs'])after.hashes['bench/frontier-json/'+name]=hash(path.join(ROOT,'bench/frontier-json',name));
  assert.deepEqual(after.hashes,before.hashes);
  assert.deepEqual(after.revisions,before.revisions);assert.equal(hash(path.resolve(ROOT,modulePath)),moduleHash);
- const report={schema:1,provenance:before,process:processIndex,fields,retained_documents:retained,rows,measurements,
+ const report={schema:1,provenance:before,process:processIndex,fields,retained_documents:retained,rows,compact_input:compactInput,measurements,
   scope:'Eight independent fresh processes per cohort, alternating library order. Capability-specific import, construction, first-use and retained phases. Shared safe-integer/Unicode JSON observations; Ink additionally preserves exact tokens/order. Forced-GC retained deltas and whole-process maxRSS include runtime/harness/verification; no exact allocation or statistical peak bound.'};
  fs.writeFileSync(output,JSON.stringify(report,null,2)+'\n',{flag:'wx'});console.log(output);process.exit(0);
 }
@@ -69,7 +70,7 @@ if(scenario==='json-tree'){
 }else if(scenario.startsWith('transport')){
  const construct=timed(()=>lane==='ink'?new ink.JsonCodec(ink.valueCodecs.identity.result):null),json=construct.value;constructNs=construct.ns;afterConstruction=memory();
  const compact=json&&scenario==='transport-compact'?json.values.compact():null;
- const make=()=>compact?compact.encode(json.parse(text)):json?json.parseBinary(text):codecApi.encodePatch([[0,[],JSON.parse(text)]]);
+ const make=()=>compact?(compactInput==='direct'?json.parseCompact(text):compact.encode(json.parse(text))):json?json.parseBinary(text):codecApi.encodePatch([[0,[],JSON.parse(text)]]);
  verify=bytes=>assert.equal(compact?json.stringify(compact.decode(bytes)):json?json.stringifyBinary(bytes):JSON.stringify(codecApi.decodePatch(bytes)[0][2]),text);
  const first=timed(make);firstNs=first.ns;verify(first.value);bytesPerDocument=first.value.length;
  for(let i=0;i<100;i++)make();beforeRetain=memory();
@@ -94,6 +95,6 @@ if(scenario==='json-tree'){
 }
 const retainedDelta=Object.fromEntries(['heapUsed','external','arrayBuffers','rss'].map(key=>[key,afterRetain[key]-beforeRetain[key]]));
 release();const afterRelease=memory();
-console.log(JSON.stringify({scenario,lane,process:processIndex,module:lane==='ink'?modulePath:null,import_ns:importNs,construction_ns:constructNs,first_use_ns:firstNs,retain_ns:retainNs,bytes_per_document:bytesPerDocument,
+console.log(JSON.stringify({scenario,lane,process:processIndex,compact_input:compactInput,module:lane==='ink'?modulePath:null,import_ns:importNs,construction_ns:constructNs,first_use_ns:firstNs,retain_ns:retainNs,bytes_per_document:bytesPerDocument,
  beforeImport,afterImport,afterConstruction,beforeRetain,afterRetain,afterRelease,retained_delta_bytes:retainedDelta,retained_buffer_bytes:retainedBufferBytes,retained_phase_peak_rss_bytes:phasePeak,process_peak_rss_bytes:process.resourceUsage().maxRSS*1024,
- verified:true,scope:scenario==='state'?'Equivalent per-row public puts, full source reply/event/version checks and acknowledgement; fixture conversion and assertions included in initialization, with no timed throughput claim.':scenario==='transport-compact'?'Text to independently owned complete-document buffers. Ink agreed-schema encode(parse(text)) versus Frontier root-set patch; schema negotiation out of band, extra logical conversion explicit.':scenario==='transport'?'Text to independently owned complete-document buffers. Ink portable typed value versus Frontier root-set patch; distinct protocol contracts.':'Text to independently owned complete JSON trees; parsing/validation included. Both render the exact shared-domain fixture.'}));
+ verified:true,scope:scenario==='state'?'Equivalent per-row public puts, full source reply/event/version checks and acknowledgement; fixture conversion and assertions included in initialization, with no timed throughput claim.':scenario==='transport-compact'?`Text to independently owned complete-document buffers. Ink agreed-schema ${compactInput==='direct'?'direct parseCompact(text)':'encode(parse(text))'} versus Frontier root-set patch; schema negotiation out of band, conversion boundary explicit.`:scenario==='transport'?'Text to independently owned complete-document buffers. Ink portable typed value versus Frontier root-set patch; distinct protocol contracts.':'Text to independently owned complete JSON trees; parsing/validation included. Both render the exact shared-domain fixture.'}));

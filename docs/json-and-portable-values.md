@@ -69,6 +69,25 @@ checked. Results and buffers are owned. This optional JavaScript transport does
 not change `ink-value-wire-v1`, native signatures or state snapshots, and native
 backends do not yet expose direct compact calls.
 
+JavaScript `JsonCodec.parseCompact(text, limits)` and
+`TypedJsonCodec.parseCompact(text, limits)` construct those agreed-schema bytes
+directly from JSON tokens, without a temporary logical tree. Both paths validate
+the completed value against the full schema. Input text and final compact bytes
+each obey the byte limit, and source/wire node and depth checks remain distinct.
+This optional construction path leaves `parse`, `parseBinary` and checkpoints
+unchanged. Measurements must choose between direct emission and logical
+parse/encode for the actual workload: bypassing a tree is not a universal speed
+guarantee.
+
+```js
+import {TypedJsonCodec, valueCodecs, callCompact} from './json.mjs';
+const requests = new TypedJsonCodec(valueCodecs.mark_received.arguments);
+// The connection negotiates arguments/result schema identities beforehand.
+const request = requests.parseCompact('{"document":{"title":"hello"}}');
+const reply = callCompact('mark_received', request);
+const result = valueCodecs.mark_received.result.compact().decode(reply);
+```
+
 ```js
 import {ValueCodec,JsonCodec,valueCodecs,callBinary,metadata} from './json.mjs';
 // The identity function returns the library Json type itself.

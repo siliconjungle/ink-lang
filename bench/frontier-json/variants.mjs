@@ -33,6 +33,16 @@ if(mode==='codec'){
    (groups[operation]??={})[name]=run;
   }
  }
+}else if(mode==='compact-json'){
+ const text=JSON.stringify(Object.fromEntries(Array.from({length:textFields},(_,i)=>['k'+String(i).padStart(5,'0'),textFixture==='unicode'?`雪😀${i}\n"\\`:textFixture==='nested'?{items:[i,true,null,'雪😀'],enabled:false}:i])));
+ let expected;
+ for(const[name,ink]of Object.entries(modules)){
+  const json=new ink.JsonCodec(ink.valueCodecs.identity.result),compact=json.values.compact();
+  const make=name==='candidate'?()=>json.parseCompact(text):()=>compact.encode(json.parse(text));
+  const bytes=make();expected??=bytes;assert.deepEqual(bytes,expected);assert.equal(json.stringify(compact.decode(bytes)),text);
+  (groups['text-to-compact']??={})[name]=()=>make().length;
+  (groups['portable-stream-control']??={})[name]=()=>json.parseBinary(text).length;
+ }
 }else if(mode==='ownership'){
  const text=JSON.stringify(Object.fromEntries(Array.from({length:512},(_,i)=>['k'+String(i).padStart(5,'0'),i])));
  for(const[name,ink]of Object.entries(modules)){
