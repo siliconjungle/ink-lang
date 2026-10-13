@@ -39,4 +39,9 @@ selection, never proof, applicability or profitability authority.
 
 ## Results
 
-See [results-2026-10-13.md](results-2026-10-13.md).
+- [results-2026-10-13.md](results-2026-10-13.md): planning funnel and near misses.
+- [results-measured-2026-10-13.md](results-measured-2026-10-13.md): selection
+  from development inputs, timed on held-out inputs.
+- [results-defaults-2026-10-14.md](results-defaults-2026-10-14.md): the ordinary
+  default compile with no supplied inputs, timed on held-out inputs
+  (`measured.py --defaults`).
