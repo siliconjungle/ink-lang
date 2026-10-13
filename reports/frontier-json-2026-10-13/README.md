@@ -557,3 +557,18 @@ validate resource failures, count-width transitions, reordered/prototype-named
 records, Unicode, exact numbers, callback failure/reentry and portable parity.
 These operational tests do not prove backend correctness. The all-metrics
 Frontier objective remains open.
+
+`compact-stream-lifecycle-cohorts-180-185.json` reruns eight fresh-process
+lifecycle controls per cohort against published distribution `de75b0bb`, with
+direct and logical compact construction alternating across three cohorts each.
+The 32-document initialization medians are 17.099 ms for direct Ink, 25.771 ms
+for logical parse/encode Ink, and 9.465 / 9.136 ms for their separate Frontier
+root-set-patch controls. Direct construction improves this Ink phase by 1.51×,
+but still takes 1.81× longer than its Frontier control. These are complete
+initialization phases, not per-call throughput or interchangeable formats.
+Compact buffers remain exactly 7,121 bytes per document versus Frontier's 5,620;
+portable Ink remains 22,747. Direct compact pre-verification process peak RSS
+is 77.40 MB, versus logical Ink 83.59 MB and its Frontier control 73.12 MB.
+Whole-process/JIT/GC effects prevent an exact allocation or universal memory
+claim. Owned-tree and live-state footprint gaps persist. No compiler/test/profile
+job ran concurrently with this measured sequence.
