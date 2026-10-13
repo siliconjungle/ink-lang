@@ -71,7 +71,10 @@ closure. Foreign-module, forged and wrong-type handles reject. A matching portab
 schema does not make a foreign private storage carrier interchangeable: cross-module
 transfer goes through checked bytes and a fresh receiving handle.
 
-Capture validates and owns the complete logical input before conversion. Its
+Capture validates, owns and converts the complete logical input in one literal
+traversal. The emitter follows the shared wire descriptor and fixed resource
+policy; it does not choose a layout. Private capture avoids building an owned
+logical intermediate, and one codec serves private decoding and writing. Its
 limits are the existing wire-value limits, distinct from state input limits.
 Capture cost is explicit and must enter lifecycle selection; it is not a new
 assumption that arbitrary host objects remain immutable across calls. Repeated

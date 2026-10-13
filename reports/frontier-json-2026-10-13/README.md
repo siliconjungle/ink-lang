@@ -752,3 +752,47 @@ search cap), visits the record-elision recipe and receives two proposals in
 selection still retains the baseline at the measurement-evidence gate. This is
 actual discovery/admission on an unchanged eligible frozen program, not proof of
 a runtime speedup or a claim that the quick budget explores every family.
+
+## Fused external capture (254–259)
+
+`fused-capture-cohorts-254-259.json` compares exact previous and new emitted
+modules in three fresh processes each, alternating implementations. Source,
+physical plan, ABI and benchmark runner are identical; only the JavaScript
+emitter changes. Complete owned outputs, detached identities, repeated source
+use after mutation and exact portable/compact bytes pass the same preflight.
+
+| Boundary | Previous Ink µs | Fused Ink µs | Paired Frontier µs |
+| --- | ---: | ---: | ---: |
+| Warm capture of all three arguments | 580.693 | 89.770 | 23.159 (document clone only) |
+| Capture, edit and detached owned output | 616.112 | 124.542 | 126.854 |
+| Prepared edit and detached owned output | 36.139 | 36.482 | 103.290 |
+| Prepared edit and compact output | 214.505 | 219.323 | — |
+
+Fusing checked validation, ownership and private conversion reduces warm capture
+by **6.47×** and the capture/edit/owned lifecycle by **4.95×** against the paired
+previous module. Prepared owned execution is **2.83× faster** than Frontier.
+The fresh-input owned lifecycle is close to Frontier on this fixture; its small
+difference is not a robust speed-win claim. Frontier ingress clones a native
+document without Ink's typed validation and Ink starts with its logical typed
+value, so these lifecycle observations do not compare JSON parsing.
+
+Cold codec construction takes 571.459 → 418.000 µs; first capture after that
+construction takes 2,660.458 → 1,619.208 µs. Cold import takes 11.099 → 11.885 ms,
+with more emitted literal helper code. These are diagnostic single observations
+per process, aggregated across three processes, not warm steady-state costs.
+Do not combine the initial phase numbers with earlier cohorts that included
+lazy construction inside first capture. The earlier exploratory 248–253 runner
+is a distinct diagnostic setup; it is excluded from this final cohort.
+
+The general emitter follows the existing wire descriptor, retains logical
+node/depth/byte charges and declaration-order validation, and accepts only the
+existing checked layout selection. No algorithm or layout policy moves into
+the compiler. The private codec now shares construction with its writer.
+JavaScript's full suite, adversarial validation/resource/accessor comparisons,
+and the mandatory JSON/maintained-state CPU/JavaScript/Wasm/GPU-host parity
+suites pass. Backend emission remains trusted separately from database proofs.
+
+This does not change the measured text pipeline, prepared state update or
+retained-memory gaps. No all-metrics, complete diff implementation or whole
+compiler correctness claim follows. Exact modules, source changes and checks
+are archived in `artifacts/fused-external-capture`.
