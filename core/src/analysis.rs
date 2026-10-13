@@ -1,6 +1,6 @@
 //! Shared structural and lexical analysis. This module grants no rewrite authority.
-use crate::core::Expr;
-use std::collections::BTreeSet;
+use crate::core::{Expr,Type,Program};
+use std::collections::{BTreeMap,BTreeSet};
 
 /// Immediate children in source evaluation order. Exhaustive over executable IR.
 pub fn children(e: &Expr) -> Vec<&Expr> {
@@ -293,4 +293,29 @@ pub fn typed_walk(
         }
     }
     Ok(())
+}
+
+fn type_children(ty: &Type, out: &mut BTreeSet<String>) {
+    match ty {
+        Type::Named(n) => { out.insert(n.clone()); }
+        Type::List(t) | Type::Option(t) | Type::Vector(t, _) | Type::Buffer(t) => type_children(t, out),
+        Type::Result(a,b) | Type::Table(a,b) | Type::Map(a,b) => { type_children(a,out);type_children(b,out); }
+        _ => (),
+    }
+}
+/// All nominal records on a recursive type path. No representation selection
+/// follows from this fact; consumers keep their own ownership/codec checks.
+pub fn cyclic_records(p: &Program) -> BTreeSet<String> {
+    let edges=p.records.iter().map(|(n,fs)| {
+        let mut xs=BTreeSet::new();for (_,t) in fs {type_children(t,&mut xs);}
+        (n.clone(),xs)
+    }).collect::<BTreeMap<_,_>>();
+    edges.keys().filter(|root| {
+        let mut pending=edges[*root].iter().cloned().collect::<Vec<_>>();let mut seen=BTreeSet::new();
+        while let Some(n)=pending.pop() {
+            if &n==*root {return true;}
+            if seen.insert(n.clone()) {if let Some(xs)=edges.get(&n) {pending.extend(xs.iter().cloned());}}
+        }
+        false
+    }).cloned().collect()
 }
