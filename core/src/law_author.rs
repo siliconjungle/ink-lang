@@ -63,7 +63,9 @@ fn dependencies(
                 dependencies(p, out, budget, depth + 1)?;
             }
         }
-        Proof::Forall { body, .. } => dependencies(body, out, budget, depth + 1)?,
+        Proof::Forall { body, .. } | Proof::Order { body, .. } => {
+            dependencies(body, out, budget, depth + 1)?
+        }
         Proof::Cases {
             on_false, on_true, ..
         } => {
@@ -1114,6 +1116,21 @@ impl Lower<'_> {
                     equality,
                     premise: Box::new(premise),
                     body: Box::new(body),
+                }
+            }
+            Tactic::Order { atoms, body } => {
+                let mut terms = vec![];
+                let mut sort: Option<Type> = None;
+                for a in atoms {
+                    let (t, ty) = self.scope.value(a, &values, sort.as_ref())?;
+                    sort.get_or_insert(ty);
+                    terms.push(t);
+                }
+                // Region facts are appended after the existing hypotheses, so
+                // the body's hypothesis references keep their meaning.
+                Proof::Order {
+                    atoms: terms,
+                    body: Box::new(self.lower(body, goal, cx, depth + 1)?),
                 }
             }
         })

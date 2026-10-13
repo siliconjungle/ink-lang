@@ -245,15 +245,18 @@ def main():
     parser.add_argument('--compiler', type=Path, required=True)
     parser.add_argument('--source', type=Path, required=True)
     parser.add_argument('--certify', type=Path, metavar='DIRECTORY',
-                        help='for each unconditional "commute" pair, ask the whole-action equality checker to admit a;b == b;a')
+                        help='for each commuting or conditionally commuting pair, ask the whole-action equality checker to admit a;b == b;a unconditionally')
     parser.add_argument('--knowledge', type=Path, default=Path(__file__).resolve().parents[1] / 'knowledge')
     parser.add_argument('-o', '--output', type=Path)
     args = parser.parse_args()
     report = describe(args.compiler, args.source)
     if args.certify:
         for row in report['pairs']:
-            if row['relation'] == 'commute':
-                row.update(certify(args.compiler, args.source, row['first'], row['second'], args.knowledge, args.certify))
+            # A `commute_when` pair may still commute unconditionally (two
+            # removals, a removal and a replacement); a checked certificate
+            # then states the stronger fact.
+            if row['relation'] in ('commute', 'commute_when'):
+                row.update(certify(args.compiler, args.source, row['first'].split('#')[0], row['second'].split('#')[0], args.knowledge, args.certify))
     if args.output:
         args.output.write_text(json.dumps(report, indent=2) + '\n')
     print(markdown(report), end='')

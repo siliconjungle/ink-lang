@@ -65,7 +65,10 @@ not rewrite roots, since the checker never applies them directly.
 | `a + x` | absorbing | none: no absorbing state |
 | `x + a` after `sort()` | sort erasure | admitted, and selected by structural cost |
 | `choose(x > k, a + 1, a)` after `sort()` | sort erasure | admitted after a case split on `x > k` |
-| `choose(x > a, x, a)` (maximum) after `sort()` | sort erasure | not admitted |
+| `choose(x > a, x, a)` (maximum), u32 and i32 | sort erasure | admitted by order analysis |
+| `choose(x < a, x, a)` (minimum), u64 | sort erasure | admitted by order analysis |
+| a maximum clamped at a captured `cap` | sort erasure | admitted by order analysis (4 atoms) |
+| `x` (keep the first item) after `sort()` | sort erasure | none: not order-independent |
 | `[x].concat(a)` after `sort()` | sort erasure | none: order-sensitive |
 
 The emitted JavaScript for the product checks `acc === 0n` each iteration and
@@ -74,9 +77,10 @@ reaches zero part-way through.
 
 ## Limits
 
-- The maximum is correct but unproved: its swap needs antisymmetry of `>`, which
-  normalisation does not decide. The same order decision procedure is what
-  min/max/top-k maintenance needs ([incremental operators](incremental-operators.md)).
+- Order analysis ([below](#order-analysis)) decides comparisons among at most
+  five atoms of one sort. Steps that compare derived values (`x + 1 > a`)
+  need the atoms chosen accordingly; the instance producer only offers the
+  comparison operands it finds.
 - Witnesses are deliberately small. An absorbing state that is not a canonical
   constant or a literal in the site is not found.
 - Instances are checked at planning time, costing one `knowledge-check` process
@@ -84,3 +88,57 @@ reaches zero part-way through.
 - Admission is not selection. An early exit adds a test to every iteration, and
   the study in `reports/knowledge-growth-2026-10-13` measured both gains and
   losses for the Boolean case. Measured selection still decides.
+
+## Order analysis
+
+Swapping the steps of a maximum needs transitivity and antisymmetry of `>`,
+which normalisation cannot supply. The kernel therefore has one more proof
+step, `Proof::Order { atoms, body }`, written in law sources as
+`order(a, b, s) then normalize`:
+
+```ink
+fn max(x: u32, y: u32) -> u32 { return choose(x > y, x, y); }
+law max_swap(a: u32, b: u32, s: u32) {
+    max(a, max(b, s)) == max(b, max(a, s));
+    proof by order(a, b, s) then normalize;
+}
+```
+
+It checks `body` once for every weak ordering of the atoms: 3 orderings for
+two atoms, 13 for three, 75 for four, 541 for five.
+
+**Hypotheses added in each ordering.**
+- Atoms that are equal in that ordering are rewritten to their class's first
+  member.
+- Each comparison between class representatives becomes `true` or `false`.
+  Only operators that occur in the normalised goal or hypotheses get these
+  facts.
+
+**Why it is sound.**
+- Under any valuation the atoms fall into exactly one weak ordering, and every
+  fact emitted for that ordering is true there.
+- An ordering is skipped only if it cannot occur:
+  - two literal atoms contradict it, with signed comparison for i32; or
+  - normalising a hypothesis under the ordering's facts gives `true == false`.
+
+**Restrictions.**
+- Atoms must be 2–5 distinct terms of one sort: u32, u64, i32 or exact Int.
+- `f32` is refused because NaN is unordered.
+
+A new proof form carries the newer law marker (`ink-general-laws-v1`), so
+older checkers reject such laws instead of misreading them.
+
+**Instances.** `ink_knowledge/structure_instances.py` offers this proof for an
+assumption whose sides compare a few atoms, after looking through `choose`
+results. The kernel then decides, as with every other strategy.
+
+**Tests.**
+- `core/src/laws.rs`, `order_analysis_*`:
+  - maxima and minima swap for every sort and operator;
+  - false claims are rejected;
+  - transitivity is derived from hypotheses, and fails without them;
+  - limits and types are enforced;
+  - literal signedness is handled.
+- `tests/law_source.rs`, `order_analysis_is_an_authored_tactic`.
+- `knowledge/tests/test_structure_instances.py`,
+  `test_extrema_steps_commute_by_order_analysis`.
