@@ -1,0 +1,3263 @@
+{
+  "schema": 1,
+  "provenance": {
+    "captured_at": "2026-10-13T04:02:55.980Z",
+    "hashes": {
+      "bench/frontier-json/state.ink": "f98f971b59e11d0983af3cbbd9a472f2d55b4e5720556de1f31b19b12ae866a4",
+      "bench/frontier-json/prepare.py": "d4040dee385095446525ece11523b5dec6cb5eb269937b4836d8fc439cc05713",
+      "bench/frontier-json/run.mjs": "b50be0aead9e8c1f635ce200417310c483239abaee78f13b014f76afed52c1d3",
+      "bench/frontier-json/json-kernels.mjs": "205e114883df09e452524bed66314e1f0473f44d9d488c961bff46cb7d59c25b",
+      "bench/frontier-json/src/main.rs": "295a467a214ce257f5d41e5fa8304649d2b21cb1beabefc19565d763856b597d",
+      "bench/frontier-json/package-lock.json": "3cc5c3e6c05c279b921df5c2b1a232d2b5f6a114f0a674d2d5d1946840d75a52",
+      "bench/frontier-json/Cargo.lock": "66cecb01a676b2fef9d944feab7ce7d7876e9133c7095f4c0eba566e6ae125f9",
+      "bench/frontier-json/provenance.mjs": "1f7d263503b8b29586a854afc362a59977eb689a28cbdac865d33a00149c1241",
+      "build/frontier-json/fixtures.json": "f03846851a92e4968589f0daa0ae4bb1768f323a3cf90486017e89c58cf62145",
+      "build/frontier-json/preparation.json": "d552d0abf604a8aa136a68ee96e0957903a2968df762f8b3825b7711b5d95edf",
+      "build/frontier-json/ink.mjs": "e805aaa1a409da69a2a417a75bce6bee04e15029fef53af8f855600425a9b71b",
+      "target/debug/ink": "b8c4fb9aaf6d440d67e5ac620ba443df2aa1033c5809f91c1a0196aac1a86607",
+      "build/frontier-json/ink-indexed.mjs": "16c33af63fb7fcf16220c7799ead886e3312f16c8b05c42e34bbc1801a5ba323",
+      "build/frontier-json/indexed.plan.json": "9c999ba5286d9056a802d3924cd33d089d21fa88f7a2ca7e9004adb6707d7d7f",
+      "build/frontier-json/target/release/ink-frontier-json-benchmark": "cb60e1b05b9f1e8a2abb44f221fde567adbc6bd8a0cb9e962027de635e3a1c1a"
+    },
+    "revisions": {
+      ".": "fcf83004c511e19147e824e5a416345f3584c610",
+      "abi": "86cfed4103923be4f37d954a0604fb81ad6d2b59",
+      "core": "fcf83004c511e19147e824e5a416345f3584c610",
+      "native-support": "dfdf22da74dd38d708a8ccc44b80ef764e298d9a",
+      "runtime": "150cf2b4dd8102f9547cb073d385d47b54eb910e",
+      "knowledge": "b0e7d9a8b1285933fccfcc3e104e9514ac4c14f4",
+      "planner": "b809f2e1f3725d51be9ceda44c897d2895837c4b",
+      "lowerings/c": "8e903aadbecb72123791ef295472beb712a625d0",
+      "lowerings/rust": "a847f67835f31b00e136b47d578084c23f0156af",
+      "lowerings/js": "51799a2360a0dd06e15609fa87b08ab4c56b7fc4",
+      "lowerings/wasm": "8bae8074c9e0bf053140011aa089d3280fba1872",
+      "lowerings/gpu": "e41c8092c69b94b4bad7ffe97a4df3da3eeb94a9",
+      "build/frontier": "2c72dbb4030e2695b682d3e49ec82d8c5c8ffec2",
+      "build/frontier-state-main": "9ff840ea690e55fd8c064934f92a26c1603a63fa",
+      "build/frontier-engine": "1fdd01b67367ccd2b1088b0148b558896935856e",
+      "build/frontier-codec": "7835c68e60ecb400f82d26436bd8e8855a7ba9b9"
+    },
+    "node": "v26.1.0",
+    "target": {
+      "cpu": "Apple M2",
+      "platform": "darwin",
+      "arch": "arm64",
+      "release": "25.5.0"
+    },
+    "host_isolation": "Shared development host; no exclusive CPU reservation. Repeated process cohorts and rotated lane order, not a controlled laboratory."
+  },
+  "instrumented": false,
+  "node": "v26.1.0",
+  "process": 1,
+  "rounds": 9,
+  "measurements": [
+    {
+      "operation": "known-edit-immutable",
+      "fields": 4,
+      "lane": "ink-js-compiled-json-set",
+      "process": 1,
+      "round": 0,
+      "calls": 1202,
+      "elapsed_ns": "1445291"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 4,
+      "lane": "frontier-immutable-known-patch",
+      "process": 1,
+      "round": 0,
+      "calls": 2050,
+      "elapsed_ns": "877000"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 4,
+      "lane": "frontier-immutable-known-patch",
+      "process": 1,
+      "round": 1,
+      "calls": 2050,
+      "elapsed_ns": "1057792"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 4,
+      "lane": "ink-js-compiled-json-set",
+      "process": 1,
+      "round": 1,
+      "calls": 1202,
+      "elapsed_ns": "1627291"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 4,
+      "lane": "ink-js-compiled-json-set",
+      "process": 1,
+      "round": 2,
+      "calls": 1202,
+      "elapsed_ns": "692958"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 4,
+      "lane": "frontier-immutable-known-patch",
+      "process": 1,
+      "round": 2,
+      "calls": 2050,
+      "elapsed_ns": "115791"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 4,
+      "lane": "frontier-immutable-known-patch",
+      "process": 1,
+      "round": 3,
+      "calls": 2050,
+      "elapsed_ns": "112166"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 4,
+      "lane": "ink-js-compiled-json-set",
+      "process": 1,
+      "round": 3,
+      "calls": 1202,
+      "elapsed_ns": "781125"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 4,
+      "lane": "ink-js-compiled-json-set",
+      "process": 1,
+      "round": 4,
+      "calls": 1202,
+      "elapsed_ns": "955042"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 4,
+      "lane": "frontier-immutable-known-patch",
+      "process": 1,
+      "round": 4,
+      "calls": 2050,
+      "elapsed_ns": "112250"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 4,
+      "lane": "frontier-immutable-known-patch",
+      "process": 1,
+      "round": 5,
+      "calls": 2050,
+      "elapsed_ns": "288333"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 4,
+      "lane": "ink-js-compiled-json-set",
+      "process": 1,
+      "round": 5,
+      "calls": 1202,
+      "elapsed_ns": "715250"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 4,
+      "lane": "ink-js-compiled-json-set",
+      "process": 1,
+      "round": 6,
+      "calls": 1202,
+      "elapsed_ns": "3273208"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 4,
+      "lane": "frontier-immutable-known-patch",
+      "process": 1,
+      "round": 6,
+      "calls": 2050,
+      "elapsed_ns": "312208"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 4,
+      "lane": "frontier-immutable-known-patch",
+      "process": 1,
+      "round": 7,
+      "calls": 2050,
+      "elapsed_ns": "115375"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 4,
+      "lane": "ink-js-compiled-json-set",
+      "process": 1,
+      "round": 7,
+      "calls": 1202,
+      "elapsed_ns": "725416"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 4,
+      "lane": "ink-js-compiled-json-set",
+      "process": 1,
+      "round": 8,
+      "calls": 1202,
+      "elapsed_ns": "1195708"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 4,
+      "lane": "frontier-immutable-known-patch",
+      "process": 1,
+      "round": 8,
+      "calls": 2050,
+      "elapsed_ns": "141625"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 4,
+      "lane": "frontier-dirty-diff-and-apply",
+      "process": 1,
+      "round": 0,
+      "calls": 2215,
+      "elapsed_ns": "2984667"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 4,
+      "lane": "frontier-full-diff-and-apply",
+      "process": 1,
+      "round": 0,
+      "calls": 708,
+      "elapsed_ns": "2014458"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 4,
+      "lane": "frontier-full-diff-and-apply",
+      "process": 1,
+      "round": 1,
+      "calls": 708,
+      "elapsed_ns": "602750"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 4,
+      "lane": "frontier-dirty-diff-and-apply",
+      "process": 1,
+      "round": 1,
+      "calls": 2215,
+      "elapsed_ns": "815750"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 4,
+      "lane": "frontier-dirty-diff-and-apply",
+      "process": 1,
+      "round": 2,
+      "calls": 2215,
+      "elapsed_ns": "806417"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 4,
+      "lane": "frontier-full-diff-and-apply",
+      "process": 1,
+      "round": 2,
+      "calls": 708,
+      "elapsed_ns": "362500"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 4,
+      "lane": "frontier-full-diff-and-apply",
+      "process": 1,
+      "round": 3,
+      "calls": 708,
+      "elapsed_ns": "406333"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 4,
+      "lane": "frontier-dirty-diff-and-apply",
+      "process": 1,
+      "round": 3,
+      "calls": 2215,
+      "elapsed_ns": "940750"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 4,
+      "lane": "frontier-dirty-diff-and-apply",
+      "process": 1,
+      "round": 4,
+      "calls": 2215,
+      "elapsed_ns": "740417"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 4,
+      "lane": "frontier-full-diff-and-apply",
+      "process": 1,
+      "round": 4,
+      "calls": 708,
+      "elapsed_ns": "369792"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 4,
+      "lane": "frontier-full-diff-and-apply",
+      "process": 1,
+      "round": 5,
+      "calls": 708,
+      "elapsed_ns": "318875"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 4,
+      "lane": "frontier-dirty-diff-and-apply",
+      "process": 1,
+      "round": 5,
+      "calls": 2215,
+      "elapsed_ns": "660875"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 4,
+      "lane": "frontier-dirty-diff-and-apply",
+      "process": 1,
+      "round": 6,
+      "calls": 2215,
+      "elapsed_ns": "640209"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 4,
+      "lane": "frontier-full-diff-and-apply",
+      "process": 1,
+      "round": 6,
+      "calls": 708,
+      "elapsed_ns": "548541"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 4,
+      "lane": "frontier-full-diff-and-apply",
+      "process": 1,
+      "round": 7,
+      "calls": 708,
+      "elapsed_ns": "328583"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 4,
+      "lane": "frontier-dirty-diff-and-apply",
+      "process": 1,
+      "round": 7,
+      "calls": 2215,
+      "elapsed_ns": "617542"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 4,
+      "lane": "frontier-dirty-diff-and-apply",
+      "process": 1,
+      "round": 8,
+      "calls": 2215,
+      "elapsed_ns": "539833"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 4,
+      "lane": "frontier-full-diff-and-apply",
+      "process": 1,
+      "round": 8,
+      "calls": 708,
+      "elapsed_ns": "286084"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 4,
+      "lane": "frontier-json-text-known-edit",
+      "process": 1,
+      "round": 0,
+      "calls": 3922,
+      "elapsed_ns": "2923583"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 4,
+      "lane": "ink-json-text-pipeline",
+      "process": 1,
+      "round": 0,
+      "calls": 98,
+      "elapsed_ns": "6992375"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 4,
+      "lane": "ink-binary-pipeline",
+      "process": 1,
+      "round": 0,
+      "calls": 51,
+      "elapsed_ns": "11522791"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 4,
+      "lane": "ink-binary-pipeline",
+      "process": 1,
+      "round": 1,
+      "calls": 51,
+      "elapsed_ns": "10538542"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 4,
+      "lane": "ink-json-text-pipeline",
+      "process": 1,
+      "round": 1,
+      "calls": 98,
+      "elapsed_ns": "7003750"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 4,
+      "lane": "frontier-json-text-known-edit",
+      "process": 1,
+      "round": 1,
+      "calls": 3922,
+      "elapsed_ns": "3201625"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 4,
+      "lane": "ink-binary-pipeline",
+      "process": 1,
+      "round": 2,
+      "calls": 51,
+      "elapsed_ns": "11668875"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 4,
+      "lane": "frontier-json-text-known-edit",
+      "process": 1,
+      "round": 2,
+      "calls": 3922,
+      "elapsed_ns": "2915416"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 4,
+      "lane": "ink-json-text-pipeline",
+      "process": 1,
+      "round": 2,
+      "calls": 98,
+      "elapsed_ns": "6279542"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 4,
+      "lane": "frontier-json-text-known-edit",
+      "process": 1,
+      "round": 3,
+      "calls": 3922,
+      "elapsed_ns": "2593583"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 4,
+      "lane": "ink-json-text-pipeline",
+      "process": 1,
+      "round": 3,
+      "calls": 98,
+      "elapsed_ns": "5521792"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 4,
+      "lane": "ink-binary-pipeline",
+      "process": 1,
+      "round": 3,
+      "calls": 51,
+      "elapsed_ns": "10330916"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 4,
+      "lane": "ink-binary-pipeline",
+      "process": 1,
+      "round": 4,
+      "calls": 51,
+      "elapsed_ns": "10283083"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 4,
+      "lane": "frontier-json-text-known-edit",
+      "process": 1,
+      "round": 4,
+      "calls": 3922,
+      "elapsed_ns": "3039417"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 4,
+      "lane": "ink-json-text-pipeline",
+      "process": 1,
+      "round": 4,
+      "calls": 98,
+      "elapsed_ns": "7136167"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 4,
+      "lane": "frontier-json-text-known-edit",
+      "process": 1,
+      "round": 5,
+      "calls": 3922,
+      "elapsed_ns": "2654000"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 4,
+      "lane": "ink-json-text-pipeline",
+      "process": 1,
+      "round": 5,
+      "calls": 98,
+      "elapsed_ns": "8849041"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 4,
+      "lane": "ink-binary-pipeline",
+      "process": 1,
+      "round": 5,
+      "calls": 51,
+      "elapsed_ns": "9801500"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 4,
+      "lane": "frontier-json-text-known-edit",
+      "process": 1,
+      "round": 6,
+      "calls": 3922,
+      "elapsed_ns": "3062667"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 4,
+      "lane": "ink-json-text-pipeline",
+      "process": 1,
+      "round": 6,
+      "calls": 98,
+      "elapsed_ns": "6242167"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 4,
+      "lane": "ink-binary-pipeline",
+      "process": 1,
+      "round": 6,
+      "calls": 51,
+      "elapsed_ns": "9778791"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 4,
+      "lane": "ink-binary-pipeline",
+      "process": 1,
+      "round": 7,
+      "calls": 51,
+      "elapsed_ns": "9255042"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 4,
+      "lane": "ink-json-text-pipeline",
+      "process": 1,
+      "round": 7,
+      "calls": 98,
+      "elapsed_ns": "5998500"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 4,
+      "lane": "frontier-json-text-known-edit",
+      "process": 1,
+      "round": 7,
+      "calls": 3922,
+      "elapsed_ns": "2903291"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 4,
+      "lane": "frontier-json-text-known-edit",
+      "process": 1,
+      "round": 8,
+      "calls": 3922,
+      "elapsed_ns": "3614458"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 4,
+      "lane": "ink-json-text-pipeline",
+      "process": 1,
+      "round": 8,
+      "calls": 98,
+      "elapsed_ns": "6069000"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 4,
+      "lane": "ink-binary-pipeline",
+      "process": 1,
+      "round": 8,
+      "calls": 51,
+      "elapsed_ns": "9419417"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 4,
+      "lane": "ink-binary-json-validate",
+      "process": 1,
+      "round": 0,
+      "calls": 287,
+      "elapsed_ns": "5149375"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 4,
+      "lane": "frontier-json-text-parse-validate",
+      "process": 1,
+      "round": 0,
+      "calls": 2858,
+      "elapsed_ns": "3742541"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 4,
+      "lane": "frontier-json-text-parse-validate",
+      "process": 1,
+      "round": 1,
+      "calls": 2858,
+      "elapsed_ns": "2963750"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 4,
+      "lane": "ink-binary-json-validate",
+      "process": 1,
+      "round": 1,
+      "calls": 287,
+      "elapsed_ns": "7896375"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 4,
+      "lane": "ink-binary-json-validate",
+      "process": 1,
+      "round": 2,
+      "calls": 287,
+      "elapsed_ns": "8311500"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 4,
+      "lane": "frontier-json-text-parse-validate",
+      "process": 1,
+      "round": 2,
+      "calls": 2858,
+      "elapsed_ns": "4836917"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 4,
+      "lane": "frontier-json-text-parse-validate",
+      "process": 1,
+      "round": 3,
+      "calls": 2858,
+      "elapsed_ns": "3767500"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 4,
+      "lane": "ink-binary-json-validate",
+      "process": 1,
+      "round": 3,
+      "calls": 287,
+      "elapsed_ns": "19415834"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 4,
+      "lane": "ink-binary-json-validate",
+      "process": 1,
+      "round": 4,
+      "calls": 287,
+      "elapsed_ns": "11731958"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 4,
+      "lane": "frontier-json-text-parse-validate",
+      "process": 1,
+      "round": 4,
+      "calls": 2858,
+      "elapsed_ns": "9737000"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 4,
+      "lane": "frontier-json-text-parse-validate",
+      "process": 1,
+      "round": 5,
+      "calls": 2858,
+      "elapsed_ns": "2614125"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 4,
+      "lane": "ink-binary-json-validate",
+      "process": 1,
+      "round": 5,
+      "calls": 287,
+      "elapsed_ns": "10642291"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 4,
+      "lane": "ink-binary-json-validate",
+      "process": 1,
+      "round": 6,
+      "calls": 287,
+      "elapsed_ns": "8148417"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 4,
+      "lane": "frontier-json-text-parse-validate",
+      "process": 1,
+      "round": 6,
+      "calls": 2858,
+      "elapsed_ns": "4979750"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 4,
+      "lane": "frontier-json-text-parse-validate",
+      "process": 1,
+      "round": 7,
+      "calls": 2858,
+      "elapsed_ns": "6343875"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 4,
+      "lane": "ink-binary-json-validate",
+      "process": 1,
+      "round": 7,
+      "calls": 287,
+      "elapsed_ns": "14965541"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 4,
+      "lane": "ink-binary-json-validate",
+      "process": 1,
+      "round": 8,
+      "calls": 287,
+      "elapsed_ns": "6951208"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 4,
+      "lane": "frontier-json-text-parse-validate",
+      "process": 1,
+      "round": 8,
+      "calls": 2858,
+      "elapsed_ns": "6126209"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 4,
+      "lane": "frontier-patch-encode",
+      "process": 1,
+      "round": 0,
+      "calls": 1292,
+      "elapsed_ns": "5549416"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 4,
+      "lane": "ink-typed-wire-encode",
+      "process": 1,
+      "round": 0,
+      "calls": 1249,
+      "elapsed_ns": "8364209"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 4,
+      "lane": "ink-typed-wire-encode",
+      "process": 1,
+      "round": 1,
+      "calls": 1249,
+      "elapsed_ns": "7597417"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 4,
+      "lane": "frontier-patch-encode",
+      "process": 1,
+      "round": 1,
+      "calls": 1292,
+      "elapsed_ns": "5194292"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 4,
+      "lane": "frontier-patch-encode",
+      "process": 1,
+      "round": 2,
+      "calls": 1292,
+      "elapsed_ns": "4202291"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 4,
+      "lane": "ink-typed-wire-encode",
+      "process": 1,
+      "round": 2,
+      "calls": 1249,
+      "elapsed_ns": "8854959"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 4,
+      "lane": "ink-typed-wire-encode",
+      "process": 1,
+      "round": 3,
+      "calls": 1249,
+      "elapsed_ns": "5587959"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 4,
+      "lane": "frontier-patch-encode",
+      "process": 1,
+      "round": 3,
+      "calls": 1292,
+      "elapsed_ns": "3272291"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 4,
+      "lane": "frontier-patch-encode",
+      "process": 1,
+      "round": 4,
+      "calls": 1292,
+      "elapsed_ns": "7702084"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 4,
+      "lane": "ink-typed-wire-encode",
+      "process": 1,
+      "round": 4,
+      "calls": 1249,
+      "elapsed_ns": "15786291"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 4,
+      "lane": "ink-typed-wire-encode",
+      "process": 1,
+      "round": 5,
+      "calls": 1249,
+      "elapsed_ns": "111257291"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 4,
+      "lane": "frontier-patch-encode",
+      "process": 1,
+      "round": 5,
+      "calls": 1292,
+      "elapsed_ns": "10394292"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 4,
+      "lane": "frontier-patch-encode",
+      "process": 1,
+      "round": 6,
+      "calls": 1292,
+      "elapsed_ns": "3445959"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 4,
+      "lane": "ink-typed-wire-encode",
+      "process": 1,
+      "round": 6,
+      "calls": 1249,
+      "elapsed_ns": "44614333"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 4,
+      "lane": "ink-typed-wire-encode",
+      "process": 1,
+      "round": 7,
+      "calls": 1249,
+      "elapsed_ns": "102960708"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 4,
+      "lane": "frontier-patch-encode",
+      "process": 1,
+      "round": 7,
+      "calls": 1292,
+      "elapsed_ns": "7038125"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 4,
+      "lane": "frontier-patch-encode",
+      "process": 1,
+      "round": 8,
+      "calls": 1292,
+      "elapsed_ns": "6719125"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 4,
+      "lane": "ink-typed-wire-encode",
+      "process": 1,
+      "round": 8,
+      "calls": 1249,
+      "elapsed_ns": "20523750"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 4,
+      "lane": "ink-typed-wire-decode",
+      "process": 1,
+      "round": 0,
+      "calls": 1688,
+      "elapsed_ns": "13274917"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 4,
+      "lane": "frontier-patch-decode",
+      "process": 1,
+      "round": 0,
+      "calls": 1568,
+      "elapsed_ns": "2311875"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 4,
+      "lane": "frontier-patch-decode",
+      "process": 1,
+      "round": 1,
+      "calls": 1568,
+      "elapsed_ns": "1401208"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 4,
+      "lane": "ink-typed-wire-decode",
+      "process": 1,
+      "round": 1,
+      "calls": 1688,
+      "elapsed_ns": "10418292"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 4,
+      "lane": "ink-typed-wire-decode",
+      "process": 1,
+      "round": 2,
+      "calls": 1688,
+      "elapsed_ns": "11647458"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 4,
+      "lane": "frontier-patch-decode",
+      "process": 1,
+      "round": 2,
+      "calls": 1568,
+      "elapsed_ns": "11024667"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 4,
+      "lane": "frontier-patch-decode",
+      "process": 1,
+      "round": 3,
+      "calls": 1568,
+      "elapsed_ns": "2985958"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 4,
+      "lane": "ink-typed-wire-decode",
+      "process": 1,
+      "round": 3,
+      "calls": 1688,
+      "elapsed_ns": "14919625"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 4,
+      "lane": "ink-typed-wire-decode",
+      "process": 1,
+      "round": 4,
+      "calls": 1688,
+      "elapsed_ns": "10492542"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 4,
+      "lane": "frontier-patch-decode",
+      "process": 1,
+      "round": 4,
+      "calls": 1568,
+      "elapsed_ns": "3952166"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 4,
+      "lane": "frontier-patch-decode",
+      "process": 1,
+      "round": 5,
+      "calls": 1568,
+      "elapsed_ns": "2938208"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 4,
+      "lane": "ink-typed-wire-decode",
+      "process": 1,
+      "round": 5,
+      "calls": 1688,
+      "elapsed_ns": "4763584"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 4,
+      "lane": "ink-typed-wire-decode",
+      "process": 1,
+      "round": 6,
+      "calls": 1688,
+      "elapsed_ns": "5317958"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 4,
+      "lane": "frontier-patch-decode",
+      "process": 1,
+      "round": 6,
+      "calls": 1568,
+      "elapsed_ns": "1780375"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 4,
+      "lane": "frontier-patch-decode",
+      "process": 1,
+      "round": 7,
+      "calls": 1568,
+      "elapsed_ns": "2058166"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 4,
+      "lane": "ink-typed-wire-decode",
+      "process": 1,
+      "round": 7,
+      "calls": 1688,
+      "elapsed_ns": "6302292"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 4,
+      "lane": "ink-typed-wire-decode",
+      "process": 1,
+      "round": 8,
+      "calls": 1688,
+      "elapsed_ns": "3752125"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 4,
+      "lane": "frontier-patch-decode",
+      "process": 1,
+      "round": 8,
+      "calls": 1568,
+      "elapsed_ns": "1856917"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 64,
+      "lane": "frontier-immutable-known-patch",
+      "process": 1,
+      "round": 0,
+      "calls": 2953,
+      "elapsed_ns": "6698333"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 64,
+      "lane": "ink-js-compiled-json-set",
+      "process": 1,
+      "round": 0,
+      "calls": 3074,
+      "elapsed_ns": "4571209"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 64,
+      "lane": "ink-js-compiled-json-set",
+      "process": 1,
+      "round": 1,
+      "calls": 3074,
+      "elapsed_ns": "2726542"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 64,
+      "lane": "frontier-immutable-known-patch",
+      "process": 1,
+      "round": 1,
+      "calls": 2953,
+      "elapsed_ns": "6681208"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 64,
+      "lane": "frontier-immutable-known-patch",
+      "process": 1,
+      "round": 2,
+      "calls": 2953,
+      "elapsed_ns": "7765375"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 64,
+      "lane": "ink-js-compiled-json-set",
+      "process": 1,
+      "round": 2,
+      "calls": 3074,
+      "elapsed_ns": "1495292"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 64,
+      "lane": "ink-js-compiled-json-set",
+      "process": 1,
+      "round": 3,
+      "calls": 3074,
+      "elapsed_ns": "5977709"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 64,
+      "lane": "frontier-immutable-known-patch",
+      "process": 1,
+      "round": 3,
+      "calls": 2953,
+      "elapsed_ns": "6565708"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 64,
+      "lane": "frontier-immutable-known-patch",
+      "process": 1,
+      "round": 4,
+      "calls": 2953,
+      "elapsed_ns": "7091417"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 64,
+      "lane": "ink-js-compiled-json-set",
+      "process": 1,
+      "round": 4,
+      "calls": 3074,
+      "elapsed_ns": "2441917"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 64,
+      "lane": "ink-js-compiled-json-set",
+      "process": 1,
+      "round": 5,
+      "calls": 3074,
+      "elapsed_ns": "5090375"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 64,
+      "lane": "frontier-immutable-known-patch",
+      "process": 1,
+      "round": 5,
+      "calls": 2953,
+      "elapsed_ns": "7563083"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 64,
+      "lane": "frontier-immutable-known-patch",
+      "process": 1,
+      "round": 6,
+      "calls": 2953,
+      "elapsed_ns": "6385958"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 64,
+      "lane": "ink-js-compiled-json-set",
+      "process": 1,
+      "round": 6,
+      "calls": 3074,
+      "elapsed_ns": "3086250"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 64,
+      "lane": "ink-js-compiled-json-set",
+      "process": 1,
+      "round": 7,
+      "calls": 3074,
+      "elapsed_ns": "5233250"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 64,
+      "lane": "frontier-immutable-known-patch",
+      "process": 1,
+      "round": 7,
+      "calls": 2953,
+      "elapsed_ns": "7051166"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 64,
+      "lane": "frontier-immutable-known-patch",
+      "process": 1,
+      "round": 8,
+      "calls": 2953,
+      "elapsed_ns": "6211042"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 64,
+      "lane": "ink-js-compiled-json-set",
+      "process": 1,
+      "round": 8,
+      "calls": 3074,
+      "elapsed_ns": "6872250"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 64,
+      "lane": "frontier-full-diff-and-apply",
+      "process": 1,
+      "round": 0,
+      "calls": 881,
+      "elapsed_ns": "4552792"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 64,
+      "lane": "frontier-dirty-diff-and-apply",
+      "process": 1,
+      "round": 0,
+      "calls": 3504,
+      "elapsed_ns": "8794042"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 64,
+      "lane": "frontier-dirty-diff-and-apply",
+      "process": 1,
+      "round": 1,
+      "calls": 3504,
+      "elapsed_ns": "10510500"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 64,
+      "lane": "frontier-full-diff-and-apply",
+      "process": 1,
+      "round": 1,
+      "calls": 881,
+      "elapsed_ns": "4086666"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 64,
+      "lane": "frontier-full-diff-and-apply",
+      "process": 1,
+      "round": 2,
+      "calls": 881,
+      "elapsed_ns": "3915458"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 64,
+      "lane": "frontier-dirty-diff-and-apply",
+      "process": 1,
+      "round": 2,
+      "calls": 3504,
+      "elapsed_ns": "9026916"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 64,
+      "lane": "frontier-dirty-diff-and-apply",
+      "process": 1,
+      "round": 3,
+      "calls": 3504,
+      "elapsed_ns": "8335542"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 64,
+      "lane": "frontier-full-diff-and-apply",
+      "process": 1,
+      "round": 3,
+      "calls": 881,
+      "elapsed_ns": "4685958"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 64,
+      "lane": "frontier-full-diff-and-apply",
+      "process": 1,
+      "round": 4,
+      "calls": 881,
+      "elapsed_ns": "3773750"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 64,
+      "lane": "frontier-dirty-diff-and-apply",
+      "process": 1,
+      "round": 4,
+      "calls": 3504,
+      "elapsed_ns": "8507542"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 64,
+      "lane": "frontier-dirty-diff-and-apply",
+      "process": 1,
+      "round": 5,
+      "calls": 3504,
+      "elapsed_ns": "7714208"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 64,
+      "lane": "frontier-full-diff-and-apply",
+      "process": 1,
+      "round": 5,
+      "calls": 881,
+      "elapsed_ns": "4253750"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 64,
+      "lane": "frontier-full-diff-and-apply",
+      "process": 1,
+      "round": 6,
+      "calls": 881,
+      "elapsed_ns": "3687500"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 64,
+      "lane": "frontier-dirty-diff-and-apply",
+      "process": 1,
+      "round": 6,
+      "calls": 3504,
+      "elapsed_ns": "7803916"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 64,
+      "lane": "frontier-dirty-diff-and-apply",
+      "process": 1,
+      "round": 7,
+      "calls": 3504,
+      "elapsed_ns": "8391083"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 64,
+      "lane": "frontier-full-diff-and-apply",
+      "process": 1,
+      "round": 7,
+      "calls": 881,
+      "elapsed_ns": "4004042"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 64,
+      "lane": "frontier-full-diff-and-apply",
+      "process": 1,
+      "round": 8,
+      "calls": 881,
+      "elapsed_ns": "4221625"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 64,
+      "lane": "frontier-dirty-diff-and-apply",
+      "process": 1,
+      "round": 8,
+      "calls": 3504,
+      "elapsed_ns": "7753667"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 64,
+      "lane": "frontier-json-text-known-edit",
+      "process": 1,
+      "round": 0,
+      "calls": 3306,
+      "elapsed_ns": "9474958"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 64,
+      "lane": "ink-binary-pipeline",
+      "process": 1,
+      "round": 0,
+      "calls": 14,
+      "elapsed_ns": "14129208"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 64,
+      "lane": "ink-json-text-pipeline",
+      "process": 1,
+      "round": 0,
+      "calls": 27,
+      "elapsed_ns": "8216000"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 64,
+      "lane": "ink-json-text-pipeline",
+      "process": 1,
+      "round": 1,
+      "calls": 27,
+      "elapsed_ns": "7473417"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 64,
+      "lane": "ink-binary-pipeline",
+      "process": 1,
+      "round": 1,
+      "calls": 14,
+      "elapsed_ns": "12576792"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 64,
+      "lane": "frontier-json-text-known-edit",
+      "process": 1,
+      "round": 1,
+      "calls": 3306,
+      "elapsed_ns": "9302125"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 64,
+      "lane": "frontier-json-text-known-edit",
+      "process": 1,
+      "round": 2,
+      "calls": 3306,
+      "elapsed_ns": "8868375"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 64,
+      "lane": "ink-binary-pipeline",
+      "process": 1,
+      "round": 2,
+      "calls": 14,
+      "elapsed_ns": "14334583"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 64,
+      "lane": "ink-json-text-pipeline",
+      "process": 1,
+      "round": 2,
+      "calls": 27,
+      "elapsed_ns": "7928041"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 64,
+      "lane": "ink-json-text-pipeline",
+      "process": 1,
+      "round": 3,
+      "calls": 27,
+      "elapsed_ns": "6807334"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 64,
+      "lane": "ink-binary-pipeline",
+      "process": 1,
+      "round": 3,
+      "calls": 14,
+      "elapsed_ns": "13628083"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 64,
+      "lane": "frontier-json-text-known-edit",
+      "process": 1,
+      "round": 3,
+      "calls": 3306,
+      "elapsed_ns": "9733166"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 64,
+      "lane": "ink-json-text-pipeline",
+      "process": 1,
+      "round": 4,
+      "calls": 27,
+      "elapsed_ns": "8978167"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 64,
+      "lane": "ink-binary-pipeline",
+      "process": 1,
+      "round": 4,
+      "calls": 14,
+      "elapsed_ns": "14125416"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 64,
+      "lane": "frontier-json-text-known-edit",
+      "process": 1,
+      "round": 4,
+      "calls": 3306,
+      "elapsed_ns": "9345167"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 64,
+      "lane": "ink-json-text-pipeline",
+      "process": 1,
+      "round": 5,
+      "calls": 27,
+      "elapsed_ns": "10234625"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 64,
+      "lane": "frontier-json-text-known-edit",
+      "process": 1,
+      "round": 5,
+      "calls": 3306,
+      "elapsed_ns": "9305875"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 64,
+      "lane": "ink-binary-pipeline",
+      "process": 1,
+      "round": 5,
+      "calls": 14,
+      "elapsed_ns": "12315958"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 64,
+      "lane": "ink-json-text-pipeline",
+      "process": 1,
+      "round": 6,
+      "calls": 27,
+      "elapsed_ns": "9217875"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 64,
+      "lane": "ink-binary-pipeline",
+      "process": 1,
+      "round": 6,
+      "calls": 14,
+      "elapsed_ns": "14540375"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 64,
+      "lane": "frontier-json-text-known-edit",
+      "process": 1,
+      "round": 6,
+      "calls": 3306,
+      "elapsed_ns": "9876333"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 64,
+      "lane": "frontier-json-text-known-edit",
+      "process": 1,
+      "round": 7,
+      "calls": 3306,
+      "elapsed_ns": "9226875"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 64,
+      "lane": "ink-binary-pipeline",
+      "process": 1,
+      "round": 7,
+      "calls": 14,
+      "elapsed_ns": "13555667"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 64,
+      "lane": "ink-json-text-pipeline",
+      "process": 1,
+      "round": 7,
+      "calls": 27,
+      "elapsed_ns": "8469959"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 64,
+      "lane": "frontier-json-text-known-edit",
+      "process": 1,
+      "round": 8,
+      "calls": 3306,
+      "elapsed_ns": "9925417"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 64,
+      "lane": "ink-binary-pipeline",
+      "process": 1,
+      "round": 8,
+      "calls": 14,
+      "elapsed_ns": "15039917"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 64,
+      "lane": "ink-json-text-pipeline",
+      "process": 1,
+      "round": 8,
+      "calls": 27,
+      "elapsed_ns": "8868750"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 64,
+      "lane": "frontier-json-text-parse-validate",
+      "process": 1,
+      "round": 0,
+      "calls": 1745,
+      "elapsed_ns": "8725417"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 64,
+      "lane": "ink-binary-json-validate",
+      "process": 1,
+      "round": 0,
+      "calls": 54,
+      "elapsed_ns": "7795166"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 64,
+      "lane": "ink-binary-json-validate",
+      "process": 1,
+      "round": 1,
+      "calls": 54,
+      "elapsed_ns": "6406833"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 64,
+      "lane": "frontier-json-text-parse-validate",
+      "process": 1,
+      "round": 1,
+      "calls": 1745,
+      "elapsed_ns": "9180417"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 64,
+      "lane": "frontier-json-text-parse-validate",
+      "process": 1,
+      "round": 2,
+      "calls": 1745,
+      "elapsed_ns": "8626875"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 64,
+      "lane": "ink-binary-json-validate",
+      "process": 1,
+      "round": 2,
+      "calls": 54,
+      "elapsed_ns": "8298208"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 64,
+      "lane": "ink-binary-json-validate",
+      "process": 1,
+      "round": 3,
+      "calls": 54,
+      "elapsed_ns": "6531042"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 64,
+      "lane": "frontier-json-text-parse-validate",
+      "process": 1,
+      "round": 3,
+      "calls": 1745,
+      "elapsed_ns": "9233458"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 64,
+      "lane": "frontier-json-text-parse-validate",
+      "process": 1,
+      "round": 4,
+      "calls": 1745,
+      "elapsed_ns": "9280291"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 64,
+      "lane": "ink-binary-json-validate",
+      "process": 1,
+      "round": 4,
+      "calls": 54,
+      "elapsed_ns": "8669500"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 64,
+      "lane": "ink-binary-json-validate",
+      "process": 1,
+      "round": 5,
+      "calls": 54,
+      "elapsed_ns": "6719250"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 64,
+      "lane": "frontier-json-text-parse-validate",
+      "process": 1,
+      "round": 5,
+      "calls": 1745,
+      "elapsed_ns": "9869166"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 64,
+      "lane": "frontier-json-text-parse-validate",
+      "process": 1,
+      "round": 6,
+      "calls": 1745,
+      "elapsed_ns": "9075125"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 64,
+      "lane": "ink-binary-json-validate",
+      "process": 1,
+      "round": 6,
+      "calls": 54,
+      "elapsed_ns": "8226459"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 64,
+      "lane": "ink-binary-json-validate",
+      "process": 1,
+      "round": 7,
+      "calls": 54,
+      "elapsed_ns": "6641708"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 64,
+      "lane": "frontier-json-text-parse-validate",
+      "process": 1,
+      "round": 7,
+      "calls": 1745,
+      "elapsed_ns": "9241375"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 64,
+      "lane": "frontier-json-text-parse-validate",
+      "process": 1,
+      "round": 8,
+      "calls": 1745,
+      "elapsed_ns": "8604750"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 64,
+      "lane": "ink-binary-json-validate",
+      "process": 1,
+      "round": 8,
+      "calls": 54,
+      "elapsed_ns": "8296000"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 64,
+      "lane": "ink-typed-wire-encode",
+      "process": 1,
+      "round": 0,
+      "calls": 1597,
+      "elapsed_ns": "6902459"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 64,
+      "lane": "frontier-patch-encode",
+      "process": 1,
+      "round": 0,
+      "calls": 3822,
+      "elapsed_ns": "6093042"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 64,
+      "lane": "frontier-patch-encode",
+      "process": 1,
+      "round": 1,
+      "calls": 3822,
+      "elapsed_ns": "4815667"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 64,
+      "lane": "ink-typed-wire-encode",
+      "process": 1,
+      "round": 1,
+      "calls": 1597,
+      "elapsed_ns": "5304500"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 64,
+      "lane": "ink-typed-wire-encode",
+      "process": 1,
+      "round": 2,
+      "calls": 1597,
+      "elapsed_ns": "6335625"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 64,
+      "lane": "frontier-patch-encode",
+      "process": 1,
+      "round": 2,
+      "calls": 3822,
+      "elapsed_ns": "5245292"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 64,
+      "lane": "frontier-patch-encode",
+      "process": 1,
+      "round": 3,
+      "calls": 3822,
+      "elapsed_ns": "5820667"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 64,
+      "lane": "ink-typed-wire-encode",
+      "process": 1,
+      "round": 3,
+      "calls": 1597,
+      "elapsed_ns": "7105375"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 64,
+      "lane": "ink-typed-wire-encode",
+      "process": 1,
+      "round": 4,
+      "calls": 1597,
+      "elapsed_ns": "3771792"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 64,
+      "lane": "frontier-patch-encode",
+      "process": 1,
+      "round": 4,
+      "calls": 3822,
+      "elapsed_ns": "5495167"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 64,
+      "lane": "frontier-patch-encode",
+      "process": 1,
+      "round": 5,
+      "calls": 3822,
+      "elapsed_ns": "5167042"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 64,
+      "lane": "ink-typed-wire-encode",
+      "process": 1,
+      "round": 5,
+      "calls": 1597,
+      "elapsed_ns": "6594417"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 64,
+      "lane": "ink-typed-wire-encode",
+      "process": 1,
+      "round": 6,
+      "calls": 1597,
+      "elapsed_ns": "6883125"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 64,
+      "lane": "frontier-patch-encode",
+      "process": 1,
+      "round": 6,
+      "calls": 3822,
+      "elapsed_ns": "4954000"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 64,
+      "lane": "frontier-patch-encode",
+      "process": 1,
+      "round": 7,
+      "calls": 3822,
+      "elapsed_ns": "5412333"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 64,
+      "lane": "ink-typed-wire-encode",
+      "process": 1,
+      "round": 7,
+      "calls": 1597,
+      "elapsed_ns": "7048583"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 64,
+      "lane": "ink-typed-wire-encode",
+      "process": 1,
+      "round": 8,
+      "calls": 1597,
+      "elapsed_ns": "5283167"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 64,
+      "lane": "frontier-patch-encode",
+      "process": 1,
+      "round": 8,
+      "calls": 3822,
+      "elapsed_ns": "5345416"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 64,
+      "lane": "frontier-patch-decode",
+      "process": 1,
+      "round": 0,
+      "calls": 6250,
+      "elapsed_ns": "4637166"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 64,
+      "lane": "ink-typed-wire-decode",
+      "process": 1,
+      "round": 0,
+      "calls": 2206,
+      "elapsed_ns": "5824458"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 64,
+      "lane": "ink-typed-wire-decode",
+      "process": 1,
+      "round": 1,
+      "calls": 2206,
+      "elapsed_ns": "5553667"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 64,
+      "lane": "frontier-patch-decode",
+      "process": 1,
+      "round": 1,
+      "calls": 6250,
+      "elapsed_ns": "5054209"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 64,
+      "lane": "frontier-patch-decode",
+      "process": 1,
+      "round": 2,
+      "calls": 6250,
+      "elapsed_ns": "5153042"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 64,
+      "lane": "ink-typed-wire-decode",
+      "process": 1,
+      "round": 2,
+      "calls": 2206,
+      "elapsed_ns": "5878375"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 64,
+      "lane": "ink-typed-wire-decode",
+      "process": 1,
+      "round": 3,
+      "calls": 2206,
+      "elapsed_ns": "6490834"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 64,
+      "lane": "frontier-patch-decode",
+      "process": 1,
+      "round": 3,
+      "calls": 6250,
+      "elapsed_ns": "4559875"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 64,
+      "lane": "frontier-patch-decode",
+      "process": 1,
+      "round": 4,
+      "calls": 6250,
+      "elapsed_ns": "4787916"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 64,
+      "lane": "ink-typed-wire-decode",
+      "process": 1,
+      "round": 4,
+      "calls": 2206,
+      "elapsed_ns": "6064625"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 64,
+      "lane": "ink-typed-wire-decode",
+      "process": 1,
+      "round": 5,
+      "calls": 2206,
+      "elapsed_ns": "6094875"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 64,
+      "lane": "frontier-patch-decode",
+      "process": 1,
+      "round": 5,
+      "calls": 6250,
+      "elapsed_ns": "6220208"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 64,
+      "lane": "frontier-patch-decode",
+      "process": 1,
+      "round": 6,
+      "calls": 6250,
+      "elapsed_ns": "2279083"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 64,
+      "lane": "ink-typed-wire-decode",
+      "process": 1,
+      "round": 6,
+      "calls": 2206,
+      "elapsed_ns": "6553041"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 64,
+      "lane": "ink-typed-wire-decode",
+      "process": 1,
+      "round": 7,
+      "calls": 2206,
+      "elapsed_ns": "6292709"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 64,
+      "lane": "frontier-patch-decode",
+      "process": 1,
+      "round": 7,
+      "calls": 6250,
+      "elapsed_ns": "5209583"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 64,
+      "lane": "frontier-patch-decode",
+      "process": 1,
+      "round": 8,
+      "calls": 6250,
+      "elapsed_ns": "2269167"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 64,
+      "lane": "ink-typed-wire-decode",
+      "process": 1,
+      "round": 8,
+      "calls": 2206,
+      "elapsed_ns": "6339333"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 512,
+      "lane": "ink-js-compiled-json-set",
+      "process": 1,
+      "round": 0,
+      "calls": 460,
+      "elapsed_ns": "3088750"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 512,
+      "lane": "frontier-immutable-known-patch",
+      "process": 1,
+      "round": 0,
+      "calls": 104,
+      "elapsed_ns": "8398666"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 512,
+      "lane": "frontier-immutable-known-patch",
+      "process": 1,
+      "round": 1,
+      "calls": 104,
+      "elapsed_ns": "9452958"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 512,
+      "lane": "ink-js-compiled-json-set",
+      "process": 1,
+      "round": 1,
+      "calls": 460,
+      "elapsed_ns": "1654416"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 512,
+      "lane": "ink-js-compiled-json-set",
+      "process": 1,
+      "round": 2,
+      "calls": 460,
+      "elapsed_ns": "4183042"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 512,
+      "lane": "frontier-immutable-known-patch",
+      "process": 1,
+      "round": 2,
+      "calls": 104,
+      "elapsed_ns": "8686125"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 512,
+      "lane": "frontier-immutable-known-patch",
+      "process": 1,
+      "round": 3,
+      "calls": 104,
+      "elapsed_ns": "10124000"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 512,
+      "lane": "ink-js-compiled-json-set",
+      "process": 1,
+      "round": 3,
+      "calls": 460,
+      "elapsed_ns": "1609042"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 512,
+      "lane": "ink-js-compiled-json-set",
+      "process": 1,
+      "round": 4,
+      "calls": 460,
+      "elapsed_ns": "4163250"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 512,
+      "lane": "frontier-immutable-known-patch",
+      "process": 1,
+      "round": 4,
+      "calls": 104,
+      "elapsed_ns": "8327500"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 512,
+      "lane": "frontier-immutable-known-patch",
+      "process": 1,
+      "round": 5,
+      "calls": 104,
+      "elapsed_ns": "9620083"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 512,
+      "lane": "ink-js-compiled-json-set",
+      "process": 1,
+      "round": 5,
+      "calls": 460,
+      "elapsed_ns": "1694083"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 512,
+      "lane": "ink-js-compiled-json-set",
+      "process": 1,
+      "round": 6,
+      "calls": 460,
+      "elapsed_ns": "3886084"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 512,
+      "lane": "frontier-immutable-known-patch",
+      "process": 1,
+      "round": 6,
+      "calls": 104,
+      "elapsed_ns": "8061625"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 512,
+      "lane": "frontier-immutable-known-patch",
+      "process": 1,
+      "round": 7,
+      "calls": 104,
+      "elapsed_ns": "8466750"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 512,
+      "lane": "ink-js-compiled-json-set",
+      "process": 1,
+      "round": 7,
+      "calls": 460,
+      "elapsed_ns": "1574500"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 512,
+      "lane": "ink-js-compiled-json-set",
+      "process": 1,
+      "round": 8,
+      "calls": 460,
+      "elapsed_ns": "3885542"
+    },
+    {
+      "operation": "known-edit-immutable",
+      "fields": 512,
+      "lane": "frontier-immutable-known-patch",
+      "process": 1,
+      "round": 8,
+      "calls": 104,
+      "elapsed_ns": "8376791"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 512,
+      "lane": "frontier-dirty-diff-and-apply",
+      "process": 1,
+      "round": 0,
+      "calls": 130,
+      "elapsed_ns": "11446792"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 512,
+      "lane": "frontier-full-diff-and-apply",
+      "process": 1,
+      "round": 0,
+      "calls": 63,
+      "elapsed_ns": "11239916"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 512,
+      "lane": "frontier-full-diff-and-apply",
+      "process": 1,
+      "round": 1,
+      "calls": 63,
+      "elapsed_ns": "11272042"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 512,
+      "lane": "frontier-dirty-diff-and-apply",
+      "process": 1,
+      "round": 1,
+      "calls": 130,
+      "elapsed_ns": "10752792"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 512,
+      "lane": "frontier-dirty-diff-and-apply",
+      "process": 1,
+      "round": 2,
+      "calls": 130,
+      "elapsed_ns": "11408667"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 512,
+      "lane": "frontier-full-diff-and-apply",
+      "process": 1,
+      "round": 2,
+      "calls": 63,
+      "elapsed_ns": "12042375"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 512,
+      "lane": "frontier-full-diff-and-apply",
+      "process": 1,
+      "round": 3,
+      "calls": 63,
+      "elapsed_ns": "11775875"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 512,
+      "lane": "frontier-dirty-diff-and-apply",
+      "process": 1,
+      "round": 3,
+      "calls": 130,
+      "elapsed_ns": "11430583"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 512,
+      "lane": "frontier-dirty-diff-and-apply",
+      "process": 1,
+      "round": 4,
+      "calls": 130,
+      "elapsed_ns": "11251209"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 512,
+      "lane": "frontier-full-diff-and-apply",
+      "process": 1,
+      "round": 4,
+      "calls": 63,
+      "elapsed_ns": "11355792"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 512,
+      "lane": "frontier-full-diff-and-apply",
+      "process": 1,
+      "round": 5,
+      "calls": 63,
+      "elapsed_ns": "11279917"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 512,
+      "lane": "frontier-dirty-diff-and-apply",
+      "process": 1,
+      "round": 5,
+      "calls": 130,
+      "elapsed_ns": "11266667"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 512,
+      "lane": "frontier-dirty-diff-and-apply",
+      "process": 1,
+      "round": 6,
+      "calls": 130,
+      "elapsed_ns": "10047250"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 512,
+      "lane": "frontier-full-diff-and-apply",
+      "process": 1,
+      "round": 6,
+      "calls": 63,
+      "elapsed_ns": "11257500"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 512,
+      "lane": "frontier-full-diff-and-apply",
+      "process": 1,
+      "round": 7,
+      "calls": 63,
+      "elapsed_ns": "11561875"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 512,
+      "lane": "frontier-dirty-diff-and-apply",
+      "process": 1,
+      "round": 7,
+      "calls": 130,
+      "elapsed_ns": "10628417"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 512,
+      "lane": "frontier-dirty-diff-and-apply",
+      "process": 1,
+      "round": 8,
+      "calls": 130,
+      "elapsed_ns": "10308750"
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "fields": 512,
+      "lane": "frontier-full-diff-and-apply",
+      "process": 1,
+      "round": 8,
+      "calls": 63,
+      "elapsed_ns": "11558250"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 512,
+      "lane": "frontier-json-text-known-edit",
+      "process": 1,
+      "round": 0,
+      "calls": 123,
+      "elapsed_ns": "10852250"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 512,
+      "lane": "ink-json-text-pipeline",
+      "process": 1,
+      "round": 0,
+      "calls": 10,
+      "elapsed_ns": "23707083"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 512,
+      "lane": "ink-binary-pipeline",
+      "process": 1,
+      "round": 0,
+      "calls": 10,
+      "elapsed_ns": "51917541"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 512,
+      "lane": "ink-binary-pipeline",
+      "process": 1,
+      "round": 1,
+      "calls": 10,
+      "elapsed_ns": "42090917"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 512,
+      "lane": "ink-json-text-pipeline",
+      "process": 1,
+      "round": 1,
+      "calls": 10,
+      "elapsed_ns": "22189625"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 512,
+      "lane": "frontier-json-text-known-edit",
+      "process": 1,
+      "round": 1,
+      "calls": 123,
+      "elapsed_ns": "10583625"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 512,
+      "lane": "ink-binary-pipeline",
+      "process": 1,
+      "round": 2,
+      "calls": 10,
+      "elapsed_ns": "50010459"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 512,
+      "lane": "frontier-json-text-known-edit",
+      "process": 1,
+      "round": 2,
+      "calls": 123,
+      "elapsed_ns": "10345292"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 512,
+      "lane": "ink-json-text-pipeline",
+      "process": 1,
+      "round": 2,
+      "calls": 10,
+      "elapsed_ns": "20113667"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 512,
+      "lane": "ink-binary-pipeline",
+      "process": 1,
+      "round": 3,
+      "calls": 10,
+      "elapsed_ns": "49438542"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 512,
+      "lane": "ink-json-text-pipeline",
+      "process": 1,
+      "round": 3,
+      "calls": 10,
+      "elapsed_ns": "20000792"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 512,
+      "lane": "frontier-json-text-known-edit",
+      "process": 1,
+      "round": 3,
+      "calls": 123,
+      "elapsed_ns": "10675542"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 512,
+      "lane": "ink-binary-pipeline",
+      "process": 1,
+      "round": 4,
+      "calls": 10,
+      "elapsed_ns": "56076417"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 512,
+      "lane": "frontier-json-text-known-edit",
+      "process": 1,
+      "round": 4,
+      "calls": 123,
+      "elapsed_ns": "11359542"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 512,
+      "lane": "ink-json-text-pipeline",
+      "process": 1,
+      "round": 4,
+      "calls": 10,
+      "elapsed_ns": "25164041"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 512,
+      "lane": "frontier-json-text-known-edit",
+      "process": 1,
+      "round": 5,
+      "calls": 123,
+      "elapsed_ns": "10994208"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 512,
+      "lane": "ink-json-text-pipeline",
+      "process": 1,
+      "round": 5,
+      "calls": 10,
+      "elapsed_ns": "21432458"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 512,
+      "lane": "ink-binary-pipeline",
+      "process": 1,
+      "round": 5,
+      "calls": 10,
+      "elapsed_ns": "53924000"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 512,
+      "lane": "ink-binary-pipeline",
+      "process": 1,
+      "round": 6,
+      "calls": 10,
+      "elapsed_ns": "44706709"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 512,
+      "lane": "frontier-json-text-known-edit",
+      "process": 1,
+      "round": 6,
+      "calls": 123,
+      "elapsed_ns": "10244583"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 512,
+      "lane": "ink-json-text-pipeline",
+      "process": 1,
+      "round": 6,
+      "calls": 10,
+      "elapsed_ns": "22536791"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 512,
+      "lane": "ink-binary-pipeline",
+      "process": 1,
+      "round": 7,
+      "calls": 10,
+      "elapsed_ns": "49589083"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 512,
+      "lane": "frontier-json-text-known-edit",
+      "process": 1,
+      "round": 7,
+      "calls": 123,
+      "elapsed_ns": "10661583"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 512,
+      "lane": "ink-json-text-pipeline",
+      "process": 1,
+      "round": 7,
+      "calls": 10,
+      "elapsed_ns": "23058333"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 512,
+      "lane": "frontier-json-text-known-edit",
+      "process": 1,
+      "round": 8,
+      "calls": 123,
+      "elapsed_ns": "10324458"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 512,
+      "lane": "ink-json-text-pipeline",
+      "process": 1,
+      "round": 8,
+      "calls": 10,
+      "elapsed_ns": "20326209"
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "fields": 512,
+      "lane": "ink-binary-pipeline",
+      "process": 1,
+      "round": 8,
+      "calls": 10,
+      "elapsed_ns": "52221041"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 512,
+      "lane": "ink-binary-json-validate",
+      "process": 1,
+      "round": 0,
+      "calls": 15,
+      "elapsed_ns": "14401792"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 512,
+      "lane": "frontier-json-text-parse-validate",
+      "process": 1,
+      "round": 0,
+      "calls": 134,
+      "elapsed_ns": "13777041"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 512,
+      "lane": "frontier-json-text-parse-validate",
+      "process": 1,
+      "round": 1,
+      "calls": 134,
+      "elapsed_ns": "10488291"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 512,
+      "lane": "ink-binary-json-validate",
+      "process": 1,
+      "round": 1,
+      "calls": 15,
+      "elapsed_ns": "15867917"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 512,
+      "lane": "ink-binary-json-validate",
+      "process": 1,
+      "round": 2,
+      "calls": 15,
+      "elapsed_ns": "11382916"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 512,
+      "lane": "frontier-json-text-parse-validate",
+      "process": 1,
+      "round": 2,
+      "calls": 134,
+      "elapsed_ns": "10047625"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 512,
+      "lane": "frontier-json-text-parse-validate",
+      "process": 1,
+      "round": 3,
+      "calls": 134,
+      "elapsed_ns": "9737333"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 512,
+      "lane": "ink-binary-json-validate",
+      "process": 1,
+      "round": 3,
+      "calls": 15,
+      "elapsed_ns": "16568625"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 512,
+      "lane": "ink-binary-json-validate",
+      "process": 1,
+      "round": 4,
+      "calls": 15,
+      "elapsed_ns": "11528250"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 512,
+      "lane": "frontier-json-text-parse-validate",
+      "process": 1,
+      "round": 4,
+      "calls": 134,
+      "elapsed_ns": "13625041"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 512,
+      "lane": "frontier-json-text-parse-validate",
+      "process": 1,
+      "round": 5,
+      "calls": 134,
+      "elapsed_ns": "13387208"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 512,
+      "lane": "ink-binary-json-validate",
+      "process": 1,
+      "round": 5,
+      "calls": 15,
+      "elapsed_ns": "17645166"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 512,
+      "lane": "ink-binary-json-validate",
+      "process": 1,
+      "round": 6,
+      "calls": 15,
+      "elapsed_ns": "17592750"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 512,
+      "lane": "frontier-json-text-parse-validate",
+      "process": 1,
+      "round": 6,
+      "calls": 134,
+      "elapsed_ns": "12571041"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 512,
+      "lane": "frontier-json-text-parse-validate",
+      "process": 1,
+      "round": 7,
+      "calls": 134,
+      "elapsed_ns": "13279375"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 512,
+      "lane": "ink-binary-json-validate",
+      "process": 1,
+      "round": 7,
+      "calls": 15,
+      "elapsed_ns": "18070042"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 512,
+      "lane": "ink-binary-json-validate",
+      "process": 1,
+      "round": 8,
+      "calls": 15,
+      "elapsed_ns": "11505833"
+    },
+    {
+      "operation": "external-document-validate",
+      "fields": 512,
+      "lane": "frontier-json-text-parse-validate",
+      "process": 1,
+      "round": 8,
+      "calls": 134,
+      "elapsed_ns": "12163250"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 512,
+      "lane": "frontier-patch-encode",
+      "process": 1,
+      "round": 0,
+      "calls": 4404,
+      "elapsed_ns": "8296208"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 512,
+      "lane": "ink-typed-wire-encode",
+      "process": 1,
+      "round": 0,
+      "calls": 1172,
+      "elapsed_ns": "6385041"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 512,
+      "lane": "ink-typed-wire-encode",
+      "process": 1,
+      "round": 1,
+      "calls": 1172,
+      "elapsed_ns": "8019958"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 512,
+      "lane": "frontier-patch-encode",
+      "process": 1,
+      "round": 1,
+      "calls": 4404,
+      "elapsed_ns": "7333917"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 512,
+      "lane": "frontier-patch-encode",
+      "process": 1,
+      "round": 2,
+      "calls": 4404,
+      "elapsed_ns": "10125375"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 512,
+      "lane": "ink-typed-wire-encode",
+      "process": 1,
+      "round": 2,
+      "calls": 1172,
+      "elapsed_ns": "7303542"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 512,
+      "lane": "ink-typed-wire-encode",
+      "process": 1,
+      "round": 3,
+      "calls": 1172,
+      "elapsed_ns": "5731583"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 512,
+      "lane": "frontier-patch-encode",
+      "process": 1,
+      "round": 3,
+      "calls": 4404,
+      "elapsed_ns": "7380041"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 512,
+      "lane": "frontier-patch-encode",
+      "process": 1,
+      "round": 4,
+      "calls": 4404,
+      "elapsed_ns": "4099459"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 512,
+      "lane": "ink-typed-wire-encode",
+      "process": 1,
+      "round": 4,
+      "calls": 1172,
+      "elapsed_ns": "9413750"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 512,
+      "lane": "ink-typed-wire-encode",
+      "process": 1,
+      "round": 5,
+      "calls": 1172,
+      "elapsed_ns": "4578625"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 512,
+      "lane": "frontier-patch-encode",
+      "process": 1,
+      "round": 5,
+      "calls": 4404,
+      "elapsed_ns": "5431291"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 512,
+      "lane": "frontier-patch-encode",
+      "process": 1,
+      "round": 6,
+      "calls": 4404,
+      "elapsed_ns": "7047833"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 512,
+      "lane": "ink-typed-wire-encode",
+      "process": 1,
+      "round": 6,
+      "calls": 1172,
+      "elapsed_ns": "6669125"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 512,
+      "lane": "ink-typed-wire-encode",
+      "process": 1,
+      "round": 7,
+      "calls": 1172,
+      "elapsed_ns": "4675792"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 512,
+      "lane": "frontier-patch-encode",
+      "process": 1,
+      "round": 7,
+      "calls": 4404,
+      "elapsed_ns": "7708166"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 512,
+      "lane": "frontier-patch-encode",
+      "process": 1,
+      "round": 8,
+      "calls": 4404,
+      "elapsed_ns": "7201375"
+    },
+    {
+      "operation": "edit-message-encode",
+      "fields": 512,
+      "lane": "ink-typed-wire-encode",
+      "process": 1,
+      "round": 8,
+      "calls": 1172,
+      "elapsed_ns": "7793958"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 512,
+      "lane": "ink-typed-wire-decode",
+      "process": 1,
+      "round": 0,
+      "calls": 800,
+      "elapsed_ns": "2824500"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 512,
+      "lane": "frontier-patch-decode",
+      "process": 1,
+      "round": 0,
+      "calls": 3572,
+      "elapsed_ns": "5990458"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 512,
+      "lane": "frontier-patch-decode",
+      "process": 1,
+      "round": 1,
+      "calls": 3572,
+      "elapsed_ns": "5215250"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 512,
+      "lane": "ink-typed-wire-decode",
+      "process": 1,
+      "round": 1,
+      "calls": 800,
+      "elapsed_ns": "3511125"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 512,
+      "lane": "ink-typed-wire-decode",
+      "process": 1,
+      "round": 2,
+      "calls": 800,
+      "elapsed_ns": "3460834"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 512,
+      "lane": "frontier-patch-decode",
+      "process": 1,
+      "round": 2,
+      "calls": 3572,
+      "elapsed_ns": "5482958"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 512,
+      "lane": "frontier-patch-decode",
+      "process": 1,
+      "round": 3,
+      "calls": 3572,
+      "elapsed_ns": "1715709"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 512,
+      "lane": "ink-typed-wire-decode",
+      "process": 1,
+      "round": 3,
+      "calls": 800,
+      "elapsed_ns": "3575625"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 512,
+      "lane": "ink-typed-wire-decode",
+      "process": 1,
+      "round": 4,
+      "calls": 800,
+      "elapsed_ns": "3914500"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 512,
+      "lane": "frontier-patch-decode",
+      "process": 1,
+      "round": 4,
+      "calls": 3572,
+      "elapsed_ns": "6370791"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 512,
+      "lane": "frontier-patch-decode",
+      "process": 1,
+      "round": 5,
+      "calls": 3572,
+      "elapsed_ns": "4386667"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 512,
+      "lane": "ink-typed-wire-decode",
+      "process": 1,
+      "round": 5,
+      "calls": 800,
+      "elapsed_ns": "3973500"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 512,
+      "lane": "ink-typed-wire-decode",
+      "process": 1,
+      "round": 6,
+      "calls": 800,
+      "elapsed_ns": "2781917"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 512,
+      "lane": "frontier-patch-decode",
+      "process": 1,
+      "round": 6,
+      "calls": 3572,
+      "elapsed_ns": "5668833"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 512,
+      "lane": "frontier-patch-decode",
+      "process": 1,
+      "round": 7,
+      "calls": 3572,
+      "elapsed_ns": "1839500"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 512,
+      "lane": "ink-typed-wire-decode",
+      "process": 1,
+      "round": 7,
+      "calls": 800,
+      "elapsed_ns": "3871792"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 512,
+      "lane": "ink-typed-wire-decode",
+      "process": 1,
+      "round": 8,
+      "calls": 800,
+      "elapsed_ns": "3515541"
+    },
+    {
+      "operation": "edit-message-decode",
+      "fields": 512,
+      "lane": "frontier-patch-decode",
+      "process": 1,
+      "round": 8,
+      "calls": 3572,
+      "elapsed_ns": "3985209"
+    }
+  ],
+  "sizes": [
+    {
+      "fields": 4,
+      "json_bytes": 102,
+      "ink_document_bytes": 497,
+      "frontier_patch_bytes": 20,
+      "ink_update_bytes": 84
+    },
+    {
+      "fields": 64,
+      "json_bytes": 816,
+      "ink_document_bytes": 3071,
+      "frontier_patch_bytes": 20,
+      "ink_update_bytes": 84
+    },
+    {
+      "fields": 512,
+      "json_bytes": 6604,
+      "ink_document_bytes": 22747,
+      "frontier_patch_bytes": 20,
+      "ink_update_bytes": 84
+    }
+  ],
+  "validation": [
+    {
+      "fields": 4,
+      "source_unchanged": true,
+      "known_edit_value": true,
+      "binary_pipeline_value": true,
+      "edit_message_roundtrip": true
+    },
+    {
+      "fields": 64,
+      "source_unchanged": true,
+      "known_edit_value": true,
+      "binary_pipeline_value": true,
+      "edit_message_roundtrip": true
+    },
+    {
+      "fields": 512,
+      "source_unchanged": true,
+      "known_edit_value": true,
+      "binary_pipeline_value": true,
+      "edit_message_roundtrip": true
+    }
+  ],
+  "sink": 393032,
+  "capability_gap": "Ink does not currently expose a general arbitrary JSON snapshot diff or the Frontier patch opcode vocabulary. Diff-discovery controls are Frontier-only; compiled Ink receives known source edits.",
+  "scope": "Shared safe-integer/Unicode JSON domain; JSON member order and exact number token spelling are additional Ink observations not measured here; binary formats carry distinct schema/protocol overhead."
+}
