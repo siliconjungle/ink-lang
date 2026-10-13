@@ -227,7 +227,7 @@ mod parity;
 fn asynchronous_parallel_transactions_publish_atomically_and_roll_back() {
     let source = format!(
         "{}\n{}",
-        include_str!("../examples/bend-inspired.ink"),
+        include_str!("../examples/parallel-execution.ink"),
         r#"
 enum Error {Stopped,}
 state Batches:Table<u64,u32> =Table.empty();

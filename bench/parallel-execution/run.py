@@ -3,16 +3,16 @@
 import hashlib,json,os,subprocess,statistics,random
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2];HERE=Path(__file__).resolve().parent
-OUT=ROOT/'build/bend-benchmark';OUT.mkdir(parents=True,exist_ok=True)
-compiler=ROOT/'target/debug/ink';source=ROOT/'examples/bend-inspired.ink';project=OUT/'program'
+OUT=ROOT/'build/parallel-execution-benchmark';OUT.mkdir(parents=True,exist_ok=True)
+compiler=ROOT/'target/debug/ink';source=ROOT/'examples/parallel-execution.ink';project=OUT/'program'
 subprocess.run([compiler,'build',source,'--target','rust','-o',project],check=True)
 cargo=project/'Cargo.toml';cargo.write_text(cargo.read_text().replace('["rlib","cdylib","staticlib"]','["rlib"]'))
 driver=OUT/'driver';(driver/'src').mkdir(parents=True,exist_ok=True)
-(driver/'Cargo.toml').write_text('[package]\nname="bend-inspired-bench"\nversion="0.1.0"\nedition="2021"\n[dependencies]\ncompiled-state={path="../program"}\nserde_json="=1.0.151"\n[workspace]\n')
+(driver/'Cargo.toml').write_text('[package]\nname="parallel-execution-bench"\nversion="0.1.0"\nedition="2021"\n[dependencies]\ncompiled-state={path="../program"}\nserde_json="=1.0.151"\n[workspace]\n')
 (driver/'src/main.rs').write_text((HERE/'driver.rs').read_text())
 subprocess.run(['cargo','build','--release','--manifest-path',driver/'Cargo.toml'],check=True)
 env=os.environ.copy();env['INK_THREADS']='4'
-results=json.loads(subprocess.check_output([driver/'target/release/bend-inspired-bench'],env=env,text=True))
+results=json.loads(subprocess.check_output([driver/'target/release/parallel-execution-bench'],env=env,text=True))
 rng=random.Random(1)
 for r in results:
  a,b=r['samples_ns'];ratios=[]

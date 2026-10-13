@@ -23,7 +23,7 @@ axes[0,0].set_xlabel('Cumulative additional reusable proof families');axes[0,1].
 axes[1,0].set_yscale('log');axes[1,0].set_ylabel('Compilation / acquisition seconds per program');axes[1,0].set_xlabel('Cumulative additional reusable proof families');axes[1,0].legend(fontsize=8)
 axes[1,1].set_ylabel('Programs with a robust gain / 10');axes[1,1].set_ylim(-.3,10.3);axes[1,1].set_xlabel('Cumulative additional reusable proof families');axes[1,1].legend(fontsize=8)
 fig.suptitle('Frozen Ink E1: capability and ordinary selection remain separate',fontsize=15)
-fig.supxlabel('Ten typed upstream-inspired operations; many are partial kernels. Equal program / size / distribution weights.\nNonempty cohort: 180 cases. Timing intervals resample rounds, not a population of software. Compilation boundaries differ by lane.',fontsize=9)
+fig.supxlabel('Ten typed upstream-derived operations; many are partial kernels. Equal program / size / distribution weights.\nNonempty cohort: 180 cases. Timing intervals resample rounds, not a population of software. Compilation boundaries differ by lane.',fontsize=9)
 for ext in ['png','svg']:fig.savefig(OUT/f'performance-and-cost.{ext}',dpi=180)
 # Show every program, preserving unchanged controls and measured adverse cells.
 fig,ax=plt.subplots(figsize=(12,6),layout='constrained');data=[next(r for r in curves if r['lane']=='forced'and r['checkpoint']==p)for p in points]
