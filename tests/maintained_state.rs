@@ -47,7 +47,13 @@ fn general_source_controller_preserves_native_js_wasm_and_gpu_host_observations(
         expected
             .push(json!({"reply":{"outcome":reply},"snapshot":rt.checkpoint_portable().unwrap()}));
     }
-    parity::conformance("maintained-source-controller", p, &source, steps, expected);
+    // Exercise the planned baseline as well as literal state support, including
+    // the actual required GPU lane for paint when complete parity is requested.
+    let module = CheckedModule::from_source(p).unwrap();
+    let packet = planning::Package { schema:1, semantics:planning::SEMANTICS.into(),
+        input_core_sha256:module.identity().unwrap(), steps:vec![] };
+    let plan=planning::check(&module,&packet).unwrap();
+    parity::conformance_planned("maintained-source-controller", &plan, &source, steps, expected);
 }
 fn normal(v: &Value) -> Value {
     match v {
@@ -159,6 +165,9 @@ fn arbitrary_schema_products_preserve_histories_rollback_and_portable_state_and_
         .split("export function createState").next().unwrap();
     assert!(!native.contains("__node("), "flat native contributions must erase constructors");
     assert!(!native.contains("__deepCall"), "bounded native definitions must erase recursion wrappers");
+    fs::write(dir.join("instrumented.mjs"),generated.replacen(
+        "function __viewValue(view,value,key,oldValue,newValue){",
+        "function __viewValue(view,value,key,oldValue,newValue){globalThis.__viewWork=(globalThis.__viewWork||0)+1;",1)).unwrap();
     fs::write(
         dir.join("baseline.mjs"),
         verified_language::javascript::lower(&module)
@@ -261,6 +270,15 @@ for(const name of ['baseline','map','dense']){
  assert.deepEqual(await state.checkpoint(),exhausted);
 }
 console.log('3 source/maintained-map/dense variants: exact histories, wrapping, nested failures, cache reads, host rollback, restore, subscriptions and portable snapshots passed');
+const {createState}=await import('./instrumented.mjs'),state=createState();
+const row={amount:18446744073709551615n,weight:17n,included:true};
+globalThis.__viewWork=0;
+assert.deepEqual(state.bind('write',{resultOnly:true})(1n,row,true),{Err:'Error.Cancelled'});
+assert.equal(globalThis.__viewWork,0,'aborted single-cell action must skip auxiliary maintenance');
+assert.equal(state.bind('weight',{resultOnly:true})(),0n);
+assert.deepEqual(state.bind('observed',{resultOnly:true})(1n,row,true),{Err:'Error.Cancelled'});
+assert.equal(globalThis.__viewWork,1,'a staged keep read evaluates only the requested view');
+assert.equal(state.bind('weight',{resultOnly:true})(),0n);
 "#).unwrap();
     let out = Command::new("node")
         .arg(dir.join("run.mjs"))

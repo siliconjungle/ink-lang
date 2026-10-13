@@ -70,31 +70,80 @@ Measured on small modules (`tools/test_action_algebra.py`):
 | query of `Rows` and writer of `Other` | commute | checked |
 | two `erase(key)` calls | commute_when | **checked, unconditionally** (removals commute even for equal keys) |
 | two emitters of `seen` | conflict | rejected (event order differs) |
-| `put(key)` and `put(other)` | commute_when | rejected (see below) |
-| `erase(key)` and a presence-guarded `set(other)` | commute_when | rejected (see below) |
+| `put(key)` and `put(other)` | commute_when | rejected unconditionally; **checked when keys differ** |
+| `erase(key)` and `put(other)` | commute_when | rejected unconditionally; **checked when keys differ** |
+| `get(key)` and `put(other)` | commute_when | **checked when keys differ** |
+
+## Conditional certificates on sorted tables
+
+When the unconditional certificate fails and every conflict compares two plain
+parameters, `--certify` asks for the conditional fact instead. The twin runs
+the swapped order only when the keys differ:
+
+```ink
+change __pair(first_key:u64, second_key:u64, second_value:u64)->... {
+  if first_key != second_key { let second=put(second_key,second_value); let first=erase(first_key); return Ok(...); }
+  let first=erase(first_key); let second=put(second_key,second_value); return Ok(...);
+}
+```
+
+Equality with the unswapped pair is exactly "the two calls commute when their
+keys differ". That fact is false on arbitrary row lists. Removing key `a` and
+inserting key `b` lands `b` in a different place on `[(5,_),(0,_)]`, depending
+on order. It is true on every state a source table can reach, because source
+tables are ordered maps.
+
+The checker states this domain as a **checked invariant**, not an axiom
+(`core/src/action_model/sorted.rs`, `ink-sorted-tables-v1`):
+
+1. From the projection it derives `sorted` and `above(rows, bound)` per table.
+   They use the table's own insertion order, so they cannot disagree with it.
+2. It checks that every table of the initial state (empty) is sorted, by
+   computation.
+3. It checks one supplied proof per original action and table. Each proves
+   that, from a state whose tables are all sorted, both observation
+   constructors (`Reply` and `Host`) return a sorted table.
+4. Only then does it check each action equality with "every table is sorted"
+   as hypotheses.
+
+The selected actions equal the original ones on sorted states, so they
+preserve the invariant too. Restored states satisfy it because portable
+snapshot decoding rejects duplicate or unordered keys, under the same order.
+
+The proofs come from `knowledge/producers/sorted_rows.py`. It uses 26 general
+laws published in `state-calculus`, stated over word-keyed rows with abstract
+values and reaching programs only through `Proof::Instance`:
+
+- preservation under remove, replace and insert of an absent key;
+- remove/insert commutation on sorted rows;
+- insert/insert, replace/insert and replace/replace commutation of different
+  keys, on any rows;
+- lookups past writes of other keys;
+- bit-blasted word facts.
+
+The producer's search normalises, rewrites with hypotheses and laws, and splits
+on conditions. The kernel replays every step.
+
+On the module in `tests/sorted_tables.rs` (two tables), these pairs are all
+**checked when keys differ**: `put`/`put`, `erase`/`put`, `get`/`put`,
+`erase`/`get` and `erase`/`erase`. Each takes 10 s – 2 min, including the
+proof search. The test also shows the checker rejects the certificate when:
+
+- the invariant is removed;
+- a preservation proof is replaced;
+- one action's proofs are dropped;
+- the swap runs without the key guard.
 
 ## Limits and next steps
 
-- **Conditional pairs are not certified.** Pairs that commute only when their
-  keys differ need two more pieces, and their certificate would state the
-  conditional fact:
-  - a pair action guarded by the key test;
-  - leaf rewriting under that branch's hypothesis. This means rewriting lookups
-    through another key's update (the published `lookup_general_remove` and
-    `lookup_general_replace` give `get(remove(r,k),q) = choose(q==k, none,
-    get(r,q))`), then discharging `q==k` from the hypothesis. That needs a
-    symmetric word-inequality lemma, because the hypothesis and the lemma may
-    compare the keys in opposite orders.
-
-  The producer has neither yet.
-- **Inserts cannot be certified at all without a checker change.** Insertion
-  is sorted, and on an unsorted row list two inserts of distinct keys produce
-  different lists in each order. Since the checker quantifies over every
-  logical state, including unsorted ones that no source table can reach,
-  `put`/`put` and `put`/`erase` are false over that domain. Certifying them
-  needs the transition checker to assume the projection's own well-formedness
-  (strictly sorted keys). That would be a checked invariant of the projection,
-  not a new axiom, and it is a core change in its own right.
+- **Only word keys.** The general laws cover `u64`/`u32` keys ordered by `<`.
+  Other key types get the derived predicates and the invariant check, but no
+  laws, so their equalities are proved only where no law is needed.
+- **Plain parameter keys only.** A conflict on a computed key, or one
+  guarded by another condition, is not attempted conditionally.
+- **Search cost.** Proofs carry the normalised transition at every rewrite
+  (0.8–2.9 MB per pair here). Larger actions may hit the checker's
+  16 MB input limit before they hit a proof failure.
 - **Commit versions still differ.** Commuting calls still receive different
   commit versions in each order. A batch or multi-writer contract would have
   to state which per-call observations it preserves; the current sequential
