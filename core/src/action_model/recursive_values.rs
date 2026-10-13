@@ -18,28 +18,7 @@ pub struct RecursiveRecord {
     pub fields: Vec<RecursiveField>,
 }
 
-fn children(ty: &Type, out: &mut BTreeSet<String>) {
-    match ty {
-        Type::Named(n) => { out.insert(n.clone()); }
-        Type::List(t) | Type::Option(t) | Type::Vector(t, _) | Type::Buffer(t) => children(t, out),
-        Type::Result(a,b) | Type::Table(a,b) | Type::Map(a,b) => { children(a,out);children(b,out); }
-        _ => (),
-    }
-}
-pub(crate) fn cyclic_records(p: &Program) -> BTreeSet<String> {
-    let edges=p.records.iter().map(|(n,fs)| {
-        let mut xs=BTreeSet::new();for (_,t) in fs {children(t,&mut xs);}
-        (n.clone(),xs)
-    }).collect::<BTreeMap<_,_>>();
-    edges.keys().filter(|root| {
-        let mut pending=edges[*root].iter().cloned().collect::<Vec<_>>();let mut seen=BTreeSet::new();
-        while let Some(n)=pending.pop() {
-            if &n==*root {return true;}
-            if seen.insert(n.clone()) {if let Some(xs)=edges.get(&n) {pending.extend(xs.iter().cloned());}}
-        }
-        false
-    }).cloned().collect()
-}
+pub(crate) fn cyclic_records(p:&Program)->BTreeSet<String>{crate::analysis::cyclic_records(p)}
 
 impl Projection {
     /// Literal host field adapters derived from the complete checked source.
