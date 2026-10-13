@@ -12,6 +12,15 @@ mod parity;
 fn root() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).to_path_buf()
 }
+#[test]
+fn public_compiler_calibrates_checked_candidates_and_rejects_overlapping_holdout() {
+    let output=Command::new("python3").current_dir(root())
+        .args(["tools/offline_holdout_conformance.py","--compiler",env!("CARGO_BIN_EXE_ink"),"--root","build/offline-holdout-conformance"])
+        .output().unwrap();
+    assert!(output.status.success(),"{}",String::from_utf8_lossy(&output.stderr));
+    let report:Value=serde_json::from_slice(&fs::read(root().join("build/offline-holdout-conformance/checks.json")).unwrap()).unwrap();
+    assert_eq!(report["status"],json!("passed"));assert_eq!(report["cases"].as_array().unwrap().len(),2);
+}
 fn author(file: &str, output: &str) -> (syntax::Program, PathBuf) {
     let dir = root().join("build").join(output);
     fs::create_dir_all(&dir).unwrap();
