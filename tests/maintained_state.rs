@@ -111,6 +111,17 @@ fn arbitrary_schema_products_preserve_histories_rollback_and_portable_state_and_
         .contains("replacement"));
     let mut forged = packet.clone();
     if let planning::Step::Maintained(ref mut p) = forged.steps[0] {
+        p.views[0].update.as_mut().unwrap().proof = Proof::Refl(Term::U64(0));
+    }
+    assert!(planning::check(&module, &forged).unwrap_err().contains("update"));
+    let mut forged = packet.clone();
+    if let planning::Step::Maintained(ref mut p) = forged.steps[0] {
+        let choice = p.views.iter_mut().find_map(|v|v.contribution_choice.as_mut()).unwrap();
+        choice.proof = Proof::Refl(Term::U64(0));
+    }
+    assert!(planning::check(&module, &forged).unwrap_err().contains("contribution choice"));
+    let mut forged = packet.clone();
+    if let planning::Step::Maintained(ref mut p) = forged.steps[0] {
         p.views[0].factorisation = Proof::Refl(Term::U64(0));
     }
     assert!(planning::check(&module, &forged)
@@ -143,6 +154,11 @@ fn arbitrary_schema_products_preserve_histories_rollback_and_portable_state_and_
             .javascript,
     )
     .unwrap();
+    let generated = fs::read_to_string(dir.join("map.mjs")).unwrap();
+    let native = generated.split("const __compiledMaintained=").nth(1).unwrap()
+        .split("export function createState").next().unwrap();
+    assert!(!native.contains("__node("), "flat native contributions must erase constructors");
+    assert!(!native.contains("__deepCall"), "bounded native definitions must erase recursion wrappers");
     fs::write(
         dir.join("baseline.mjs"),
         verified_language::javascript::lower(&module)
