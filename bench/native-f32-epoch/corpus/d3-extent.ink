@@ -1,0 +1,1 @@
+module Extent;record Bounds{valid:Bool,lo:u32,hi:u32,} pub fn run(xs:List<u32>)->Bounds{return foldl(xs,Bounds{valid:false,lo:0,hi:0},fn(x)=>fn(b)=>choose(b.valid,Bounds{valid:true,lo:choose(x<b.lo,x,b.lo),hi:choose(x>b.hi,x,b.hi)},Bounds{valid:true,lo:x,hi:x}));}

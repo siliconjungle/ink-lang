@@ -1,0 +1,400 @@
+{
+  "applied_rule_ids": [],
+  "backend": {
+    "abi": "ink-javascript-trusted-values-v2",
+    "backend": "javascript",
+    "caller_contract": "trusted, well-typed target-native values; no input validation, snapshot capture or host resource budgets",
+    "core_semantics": "ink-executable-core-v7",
+    "core_sha256": "327ff0ce8045176bee4e534bbcef5d5513e2db980e5ea8737fa7c4448fcf6b32",
+    "destination_abi": {
+      "aliasing": "destination-disjoint-from-all-reachable-inputs",
+      "capacity": "trusted",
+      "count_unit": "elements",
+      "name": "ink-javascript-into-v1",
+      "ownership": "caller-owned",
+      "tail": "unwritten"
+    },
+    "f32_storage": "native-number-with-exact-nonfinite-tags",
+    "functions": [
+      {
+        "destination": null,
+        "index": 0,
+        "internal": false,
+        "name": "distance",
+        "parallel": false,
+        "params": [
+          {
+            "name": "p",
+            "type": {
+              "fields": [
+                {
+                  "name": "a",
+                  "type": {
+                    "fields": [
+                      {
+                        "name": "x",
+                        "type": {
+                          "kind": "f32"
+                        }
+                      },
+                      {
+                        "name": "y",
+                        "type": {
+                          "kind": "f32"
+                        }
+                      }
+                    ],
+                    "kind": "record",
+                    "name": "V"
+                  }
+                },
+                {
+                  "name": "b",
+                  "type": {
+                    "fields": [
+                      {
+                        "name": "x",
+                        "type": {
+                          "kind": "f32"
+                        }
+                      },
+                      {
+                        "name": "y",
+                        "type": {
+                          "kind": "f32"
+                        }
+                      }
+                    ],
+                    "kind": "record",
+                    "name": "V"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "Pair"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "f32"
+        }
+      },
+      {
+        "destination": {
+          "abi": "ink-javascript-into-v1",
+          "count_unit": "elements",
+          "ownership": "caller-owned"
+        },
+        "index": 1,
+        "internal": false,
+        "name": "run",
+        "parallel": false,
+        "params": [
+          {
+            "name": "xs",
+            "type": {
+              "element": {
+                "fields": [
+                  {
+                    "name": "a",
+                    "type": {
+                      "fields": [
+                        {
+                          "name": "x",
+                          "type": {
+                            "kind": "f32"
+                          }
+                        },
+                        {
+                          "name": "y",
+                          "type": {
+                            "kind": "f32"
+                          }
+                        }
+                      ],
+                      "kind": "record",
+                      "name": "V"
+                    }
+                  },
+                  {
+                    "name": "b",
+                    "type": {
+                      "fields": [
+                        {
+                          "name": "x",
+                          "type": {
+                            "kind": "f32"
+                          }
+                        },
+                        {
+                          "name": "y",
+                          "type": {
+                            "kind": "f32"
+                          }
+                        }
+                      ],
+                      "kind": "record",
+                      "name": "V"
+                    }
+                  }
+                ],
+                "kind": "record",
+                "name": "Pair"
+              },
+              "kind": "list"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "element": {
+            "kind": "f32"
+          },
+          "kind": "list"
+        }
+      }
+    ],
+    "javascript_sha256": "4a07137502c66fe0d85f39e7e2a71f756876524366d758e2cc2814a38bf0d899",
+    "named_types": {
+      "Pair": {
+        "fields": [
+          {
+            "name": "a",
+            "type": {
+              "fields": [
+                {
+                  "name": "x",
+                  "type": {
+                    "kind": "f32"
+                  }
+                },
+                {
+                  "name": "y",
+                  "type": {
+                    "kind": "f32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "V"
+            }
+          },
+          {
+            "name": "b",
+            "type": {
+              "fields": [
+                {
+                  "name": "x",
+                  "type": {
+                    "kind": "f32"
+                  }
+                },
+                {
+                  "name": "y",
+                  "type": {
+                    "kind": "f32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "V"
+            }
+          }
+        ],
+        "kind": "record",
+        "name": "Pair"
+      },
+      "V": {
+        "fields": [
+          {
+            "name": "x",
+            "type": {
+              "kind": "f32"
+            }
+          },
+          {
+            "name": "y",
+            "type": {
+              "kind": "f32"
+            }
+          }
+        ],
+        "kind": "record",
+        "name": "V"
+      }
+    },
+    "schema": 1,
+    "scope": "trusted pure functions and temporary collections; state/actions with portable snapshots and ordered transaction events",
+    "state": null,
+    "trusted": [
+      "Ink checker and source correspondence",
+      "JavaScript emitter and representation conversion",
+      "JavaScript engine and host"
+    ],
+    "wire": {
+      "format": "ink-value-wire-v1",
+      "functions": {
+        "distance": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "5075a6c1d9fa06b2c7b6b5ccd4ca9f062e551b07cffc4c95a1dae6ed58732546",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "p",
+                  "type": {
+                    "fields": [
+                      {
+                        "name": "a",
+                        "type": {
+                          "fields": [
+                            {
+                              "name": "x",
+                              "type": {
+                                "kind": "f32"
+                              }
+                            },
+                            {
+                              "name": "y",
+                              "type": {
+                                "kind": "f32"
+                              }
+                            }
+                          ],
+                          "kind": "record",
+                          "name": "V"
+                        }
+                      },
+                      {
+                        "name": "b",
+                        "type": {
+                          "fields": [
+                            {
+                              "name": "x",
+                              "type": {
+                                "kind": "f32"
+                              }
+                            },
+                            {
+                              "name": "y",
+                              "type": {
+                                "kind": "f32"
+                              }
+                            }
+                          ],
+                          "kind": "record",
+                          "name": "V"
+                        }
+                      }
+                    ],
+                    "kind": "record",
+                    "name": "Pair"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "fde3b27ba939906c22dbea906c407580e89648dd4d5a55c4f4001e45157ebe45",
+            "named": {},
+            "root": {
+              "kind": "f32"
+            }
+          }
+        },
+        "run": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "f508f4fd1f7235f469124920428524471908144b9cf4a061cf5216875f321918",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "xs",
+                  "type": {
+                    "element": {
+                      "fields": [
+                        {
+                          "name": "a",
+                          "type": {
+                            "fields": [
+                              {
+                                "name": "x",
+                                "type": {
+                                  "kind": "f32"
+                                }
+                              },
+                              {
+                                "name": "y",
+                                "type": {
+                                  "kind": "f32"
+                                }
+                              }
+                            ],
+                            "kind": "record",
+                            "name": "V"
+                          }
+                        },
+                        {
+                          "name": "b",
+                          "type": {
+                            "fields": [
+                              {
+                                "name": "x",
+                                "type": {
+                                  "kind": "f32"
+                                }
+                              },
+                              {
+                                "name": "y",
+                                "type": {
+                                  "kind": "f32"
+                                }
+                              }
+                            ],
+                            "kind": "record",
+                            "name": "V"
+                          }
+                        }
+                      ],
+                      "kind": "record",
+                      "name": "Pair"
+                    },
+                    "kind": "list"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "0cbb9d1ff6b72318080ea11a6297b384d97178624f821e3901cca51ec8ad4477",
+            "named": {},
+            "root": {
+              "element": {
+                "kind": "f32"
+              },
+              "kind": "list"
+            }
+          }
+        }
+      }
+    }
+  },
+  "checked_implementation": null,
+  "checked_replacement": null,
+  "input_core_sha256": "327ff0ce8045176bee4e534bbcef5d5513e2db980e5ea8737fa7c4448fcf6b32",
+  "selected_core_sha256": "327ff0ce8045176bee4e534bbcef5d5513e2db980e5ea8737fa7c4448fcf6b32",
+  "semantic_package": null,
+  "semantic_selection": null,
+  "source": "bench/native-f32-epoch/corpus/gl-vec2-distance.ink",
+  "target": "javascript",
+  "trust": "checked transformations; JavaScript emission and engine remain trusted"
+}

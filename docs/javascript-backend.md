@@ -27,8 +27,11 @@ BigInt, safe integer Numbers or canonical decimal strings. Unsafe Numbers and
 implicit coercions reject; outputs remain BigInt, so JSON hosts must encode
 those explicitly (for example as decimal strings).
 
-`f32` uses a bit representation internally and rounds after each arithmetic
-operation. Negation preserves payloads and flips the sign bit. Host values use
+`f32` uses native Numbers with exact exceptional tags in pure modules; state
+modules retain the bit representation. Every arithmetic operation rounds separately
+to binary32. Pure field-only record consumers borrow stable inputs and normalize
+scalar reads without recursively packing their containers. Whole-value escape and
+equality retain eager invocation-local capture. Negation preserves payloads and flips the sign bit. Host values use
 finite Numbers or `{F32Bits: bits}`; exceptional output is never silently turned
 into JSON null. The emitter preserves operation order, signed zero and
 subnormals. Arithmetic-produced NaNs use the canonical quiet payload `0x7fc00000`;

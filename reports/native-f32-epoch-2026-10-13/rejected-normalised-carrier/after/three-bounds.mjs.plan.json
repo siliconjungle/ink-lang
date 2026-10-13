@@ -1,0 +1,356 @@
+{
+  "applied_rule_ids": [],
+  "backend": {
+    "abi": "ink-javascript-trusted-values-v2",
+    "backend": "javascript",
+    "caller_contract": "trusted, well-typed target-native values; no input validation, snapshot capture or host resource budgets",
+    "core_semantics": "ink-executable-core-v8",
+    "core_sha256": "f6374c601c1705a2c20e848c459c19f69d0e6e86f6c2b7f16f33d5f3ab702d65",
+    "destination_abi": {
+      "aliasing": "destination-disjoint-from-all-reachable-inputs",
+      "capacity": "trusted",
+      "count_unit": "elements",
+      "name": "ink-javascript-into-v1",
+      "ownership": "caller-owned",
+      "tail": "unwritten"
+    },
+    "f32_storage": "native-number-with-exact-nonfinite-tags",
+    "functions": [
+      {
+        "destination": null,
+        "index": 0,
+        "internal": false,
+        "name": "run",
+        "parallel": false,
+        "params": [
+          {
+            "name": "xs",
+            "type": {
+              "element": {
+                "fields": [
+                  {
+                    "name": "x",
+                    "type": {
+                      "kind": "f32"
+                    }
+                  },
+                  {
+                    "name": "y",
+                    "type": {
+                      "kind": "f32"
+                    }
+                  },
+                  {
+                    "name": "z",
+                    "type": {
+                      "kind": "f32"
+                    }
+                  }
+                ],
+                "kind": "record",
+                "name": "P"
+              },
+              "kind": "list"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "fields": [
+            {
+              "name": "valid",
+              "type": {
+                "kind": "bool"
+              }
+            },
+            {
+              "name": "min",
+              "type": {
+                "fields": [
+                  {
+                    "name": "x",
+                    "type": {
+                      "kind": "f32"
+                    }
+                  },
+                  {
+                    "name": "y",
+                    "type": {
+                      "kind": "f32"
+                    }
+                  },
+                  {
+                    "name": "z",
+                    "type": {
+                      "kind": "f32"
+                    }
+                  }
+                ],
+                "kind": "record",
+                "name": "P"
+              }
+            },
+            {
+              "name": "max",
+              "type": {
+                "fields": [
+                  {
+                    "name": "x",
+                    "type": {
+                      "kind": "f32"
+                    }
+                  },
+                  {
+                    "name": "y",
+                    "type": {
+                      "kind": "f32"
+                    }
+                  },
+                  {
+                    "name": "z",
+                    "type": {
+                      "kind": "f32"
+                    }
+                  }
+                ],
+                "kind": "record",
+                "name": "P"
+              }
+            }
+          ],
+          "kind": "record",
+          "name": "Bounds"
+        }
+      }
+    ],
+    "javascript_sha256": "411caaca4017a64b69704979ae87708f565f84017258dff9f311ce0b30aa95ea",
+    "named_types": {
+      "Bounds": {
+        "fields": [
+          {
+            "name": "valid",
+            "type": {
+              "kind": "bool"
+            }
+          },
+          {
+            "name": "min",
+            "type": {
+              "fields": [
+                {
+                  "name": "x",
+                  "type": {
+                    "kind": "f32"
+                  }
+                },
+                {
+                  "name": "y",
+                  "type": {
+                    "kind": "f32"
+                  }
+                },
+                {
+                  "name": "z",
+                  "type": {
+                    "kind": "f32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "P"
+            }
+          },
+          {
+            "name": "max",
+            "type": {
+              "fields": [
+                {
+                  "name": "x",
+                  "type": {
+                    "kind": "f32"
+                  }
+                },
+                {
+                  "name": "y",
+                  "type": {
+                    "kind": "f32"
+                  }
+                },
+                {
+                  "name": "z",
+                  "type": {
+                    "kind": "f32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "P"
+            }
+          }
+        ],
+        "kind": "record",
+        "name": "Bounds"
+      },
+      "P": {
+        "fields": [
+          {
+            "name": "x",
+            "type": {
+              "kind": "f32"
+            }
+          },
+          {
+            "name": "y",
+            "type": {
+              "kind": "f32"
+            }
+          },
+          {
+            "name": "z",
+            "type": {
+              "kind": "f32"
+            }
+          }
+        ],
+        "kind": "record",
+        "name": "P"
+      }
+    },
+    "schema": 1,
+    "scope": "trusted pure functions and temporary collections; state/actions with portable snapshots and ordered transaction events",
+    "state": null,
+    "trusted": [
+      "Ink checker and source correspondence",
+      "JavaScript emitter and representation conversion",
+      "JavaScript engine and host"
+    ],
+    "wire": {
+      "format": "ink-value-wire-v1",
+      "functions": {
+        "run": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "8fb793bcb0ef0ba9a995f2da812f4d5500fa3662b2536d3f1fbc3cde1743d1df",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "xs",
+                  "type": {
+                    "element": {
+                      "fields": [
+                        {
+                          "name": "x",
+                          "type": {
+                            "kind": "f32"
+                          }
+                        },
+                        {
+                          "name": "y",
+                          "type": {
+                            "kind": "f32"
+                          }
+                        },
+                        {
+                          "name": "z",
+                          "type": {
+                            "kind": "f32"
+                          }
+                        }
+                      ],
+                      "kind": "record",
+                      "name": "P"
+                    },
+                    "kind": "list"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "613735f3c416442f1110ef3c71d553e69b5e4fc1d981af32cb6b3899ba00d19d",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "valid",
+                  "type": {
+                    "kind": "bool"
+                  }
+                },
+                {
+                  "name": "min",
+                  "type": {
+                    "fields": [
+                      {
+                        "name": "x",
+                        "type": {
+                          "kind": "f32"
+                        }
+                      },
+                      {
+                        "name": "y",
+                        "type": {
+                          "kind": "f32"
+                        }
+                      },
+                      {
+                        "name": "z",
+                        "type": {
+                          "kind": "f32"
+                        }
+                      }
+                    ],
+                    "kind": "record",
+                    "name": "P"
+                  }
+                },
+                {
+                  "name": "max",
+                  "type": {
+                    "fields": [
+                      {
+                        "name": "x",
+                        "type": {
+                          "kind": "f32"
+                        }
+                      },
+                      {
+                        "name": "y",
+                        "type": {
+                          "kind": "f32"
+                        }
+                      },
+                      {
+                        "name": "z",
+                        "type": {
+                          "kind": "f32"
+                        }
+                      }
+                    ],
+                    "kind": "record",
+                    "name": "P"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "Bounds"
+            }
+          }
+        }
+      }
+    }
+  },
+  "checked_implementation": null,
+  "checked_replacement": null,
+  "input_core_sha256": "f6374c601c1705a2c20e848c459c19f69d0e6e86f6c2b7f16f33d5f3ab702d65",
+  "selected_core_sha256": "f6374c601c1705a2c20e848c459c19f69d0e6e86f6c2b7f16f33d5f3ab702d65",
+  "semantic_package": null,
+  "semantic_selection": null,
+  "source": "bench/real-software-delivery/corpus/three-bounds.ink",
+  "target": "javascript",
+  "trust": "checked transformations; JavaScript emission and engine remain trusted"
+}
