@@ -1,13 +1,17 @@
 import {provenance} from './provenance.mjs';
-import fs from 'node:fs';import path from 'node:path';import os from 'node:os';import assert from 'node:assert/strict';import {spawn}from'node:child_process';import {createInterface}from'node:readline';import {createHash}from'node:crypto';import {fileURLToPath}from'node:url';
+import fs from 'node:fs';import path from 'node:path';import os from 'node:os';import assert from 'node:assert/strict';import {spawn}from'node:child_process';import {createInterface}from'node:readline';import {createHash}from'node:crypto';import {fileURLToPath,pathToFileURL}from'node:url';
 import {cloneJson}from'@shapeshift-labs/frontier/clone';import {diff}from'@shapeshift-labs/frontier/diff';import {applyPatch,applyPatchImmutable}from'@shapeshift-labs/frontier/apply';import {OP_SET,OP_REMOVE}from'@shapeshift-labs/frontier/constants';import {createStateEngine as releasedState}from'@shapeshift-labs/frontier-state';import {encodePatch,decodePatch}from'@shapeshift-labs/frontier-codec';
-import {createStateEngine as mainState}from'../../build/frontier-state-main/dist/index.js';import * as ink from '../../build/frontier-json/ink.mjs';import * as indexed from '../../build/frontier-json/ink-indexed.mjs';
+import {createStateEngine as mainState}from'../../build/frontier-state-main/dist/index.js';import * as indexed from '../../build/frontier-json/ink-indexed.mjs';
 const ROOT=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../..'),D=path.join(ROOT,'build/frontier-json'),OUT=path.join(ROOT,'reports/frontier-json-2026-10-13');fs.mkdirSync(OUT,{recursive:true});
 const processIndex=Number(process.argv[2]??0),smoke=process.argv.includes('--smoke'),rounds=smoke?1:9;
 const fixtureFilter=process.argv.find(a=>a.startsWith('--fixture='))?.split('=')[1];
 const reportPath=path.join(OUT,`state-${fixtureFilter?'targeted-'+fixtureFilter+'-'+processIndex:smoke?'smoke-'+processIndex:processIndex}.json`);
 if(fs.existsSync(reportPath))throw Error('report exists; choose a fresh process ID');
+const modulePath=process.argv.find(a=>a.startsWith('--ink-module='))?.slice('--ink-module='.length)??'build/frontier-json/ink.mjs';
+const ink=await import(pathToFileURL(path.resolve(ROOT,modulePath)).href);
 const provenanceAtStart=provenance(ROOT);
+const selectedModuleHash=createHash('sha256').update(fs.readFileSync(path.resolve(ROOT,modulePath))).digest('hex');
+provenanceAtStart.hashes[modulePath]=selectedModuleHash;
 const fixtures=JSON.parse(fs.readFileSync(path.join(D,'fixtures.json'))),raw=[],validation=[],setup=[];
 const lanes=['ink-rust-ordered','ink-rust-borrow','ink-rust-indexed','ink-rust-indexed-borrow','ink-js','ink-js-bound','ink-js-prepared','ink-js-db-indexed','frontier-core-patch','frontier-core-diff','frontier-core-dirty','frontier-state-release-patch','frontier-state-main-patch','frontier-state-main-prepared-patch','frontier-state-release-commit','frontier-state-main-commit'].filter(lane=>!process.argv.includes('--javascript-only')||!lane.startsWith('ink-rust'));
 const native=spawn(path.join(D,'target/release/ink-frontier-json-benchmark'),[path.join(D,'fixtures.json')],{stdio:['pipe','pipe','inherit']}),pending=[];
@@ -74,6 +78,7 @@ try{
   }
   console.error(`${processIndex}: ${f.id}: all outcomes/state verified, ${rounds} rotated rounds`);
  }
- const report={schema:1,provenance:provenanceAtStart,instrumented:process.execArgv.some(a=>a.startsWith('--cpu-prof')||a.startsWith('--prof')||a.startsWith('--trace')),node:process.version,target:{cpu:os.cpus()[0].model,platform:os.platform(),arch:os.arch(),release:os.release()},process:processIndex,rounds,state_api:'watcher-free; full transactions, rollback, versions, events and acknowledgement supplied in adapter where Frontier omits them',timing_boundary:'retained compiled data; actual in-process calls; native IPC/checkpoints/capture/setup excluded; input capture/output replies included',measurements:raw,setup,validation};
+ assert.equal(createHash('sha256').update(fs.readFileSync(path.resolve(ROOT,modulePath))).digest('hex'),selectedModuleHash,'selected module changed during timing');
+ const report={schema:1,javascript_module:modulePath,provenance:provenanceAtStart,instrumented:process.execArgv.some(a=>a.startsWith('--cpu-prof')||a.startsWith('--prof')||a.startsWith('--trace')),node:process.version,target:{cpu:os.cpus()[0].model,platform:os.platform(),arch:os.arch(),release:os.release()},process:processIndex,rounds,state_api:'watcher-free; full transactions, rollback, versions, events and acknowledgement supplied in adapter where Frontier omits them',timing_boundary:'retained compiled data; actual in-process calls; native IPC/checkpoints/capture/setup excluded; input capture/output replies included',measurements:raw,setup,validation};
  fs.writeFileSync(reportPath,JSON.stringify(report,null,2)+'\n',{flag:'wx'});
 }finally{native.stdin.end();}

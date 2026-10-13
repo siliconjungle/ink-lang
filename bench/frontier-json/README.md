@@ -71,3 +71,14 @@ any deferred string flattening. Both accept `--fields=1..10000` and
 process/fixture. Compare both consumption boundaries before accepting changes
 to string construction. Fixture construction and codec binding stay outside
 timing; validation and resource accounting remain inside.
+
+The paired `transport` mode accepts `--budget=default|reduced`. Reduced mode
+supplies explicit 128-byte/32-node/16-depth limits to both implementations;
+default mode exercises the ordinary omitted-options API. Keep those resource
+policies separate when aggregating timings.
+
+State comparisons accept `--ink-module=<emitted module>` to select an exact
+baseline implementation without overwriting a frozen artifact. The runner binds
+its hash before timing and verifies it afterward. The separately supplied indexed
+alternative remains `build/frontier-json/ink-indexed.mjs`, with its own recorded
+hash; selecting a baseline module does not silently rebuild or replace that lane.
