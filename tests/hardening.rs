@@ -581,17 +581,30 @@ fn regression_logic_substitution_copies_are_charged() {
         let big = apply(tree(&Term::Var("y".into()), 14));
         let e = c.evaluate(&params, &big).unwrap_err();
         assert!(e.contains("resource limit"), "{e}");
+        // Syntactically identical sides are accepted without computing, so the
+        // conversion target must differ to force substitution.
+        let shifted = Term::Binary {
+            op: "+".into(),
+            left: Box::new(big.clone()),
+            right: Box::new(Term::U64(0)),
+        };
         let proof = Proof::Convert {
+            from: big.clone(),
+            to: shifted.clone(),
+        };
+        let e = c.check(&params, &[], &big, &shifted, &proof).unwrap_err();
+        assert!(e.contains("resource limit"), "{e}");
+        // Identical sides still check cheaply: reflexivity needs no copies.
+        let same = Proof::Convert {
             from: big.clone(),
             to: big.clone(),
         };
-        let e = c.check(&params, &[], &big, &big, &proof).unwrap_err();
-        assert!(e.contains("resource limit"), "{e}");
+        c.check(&params, &[], &big, &big, &same)?;
         let theorem = Declaration::Theorem {
             params: params.to_vec(),
             conditions: vec![],
             from: big.clone(),
-            to: big.clone(),
+            to: shifted.clone(),
             proof,
         };
         let e = c.declare("t".into(), &theorem).unwrap_err();
