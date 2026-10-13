@@ -739,7 +739,7 @@ fn run() -> LangResult<()> {
     if cmd == "help" || cmd == "--help" {
         println!("ink compile SOURCE --optimise KNOWLEDGE_DIRECTORY [--snapshot SNAPSHOT.json] --target rust|c|javascript|rust-wasm|c-wasm|wgpu|webgpu -o OUTPUT\nink compile SOURCE --plan PACKET.json --target TARGET -o OUTPUT\nink check-plan SOURCE PACKET.json [--core]\nink --version\nink doctor [--python PATH]\nink explain SOURCE [--core] [--selection PACKAGE.json | --optimise SNAPSHOT.json]\nink modules SOURCE");
         println!("ink check-boolean-verdict THEOREM.json --lean PATH -o CERTIFICATE.lean");
-        println!("ink emit-contract-obligations SOURCE -o OBLIGATIONS.json\nink check-contracts SOURCE [--contract-proofs EVIDENCE.json]\nAll source build/execution commands accept --contract-proofs EVIDENCE.json.");
+        println!("ink emit-contract-obligations SOURCE -o OBLIGATIONS.json\nink check-contract-proof-stream SOURCE (bounded NDJSON authoring attempts)\nink check-contracts SOURCE [--contract-proofs EVIDENCE.json]\nAll source build/execution commands accept --contract-proofs EVIDENCE.json.");
         println!("ink emit-laws THEOREMS.ink [--proofs EVIDENCE.json] [--view DEPENDENCIES.json] -o BUNDLE.json");
         println!("ink emit-semantic SOURCE [--core] -o SUBJECT.json\nink check-selection CORE.json PACKAGE.json\nExecution, lowering and core emission accept --optimise KNOWLEDGE_DIRECTORY or SNAPSHOT.json (external search) or --selection PACKAGE.json (checked replay). Optional --search-tool PATH, --search-budget N, --python PATH and --plan-cache DIRECTORY [--plan-cache-context FILE]. INK_DISTRIBUTION locates an optional installed tool bundle.");
         println!("ink check-representation SOURCE REQUEST.json\nink emit-representation SOURCE REQUEST.json [--target rust|rust-packed|rust-memo|c|javascript|wasm32|c-wasm|rust-wasm|rust-wasm-packed|rust-wasm-memo|wgpu|webgpu] -o OUTPUT\nink execute-representation SOURCE REQUEST.json SCRIPT.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] (compiles standalone Rust; requires Cargo; script supports call and portable migrate steps)");
@@ -766,9 +766,59 @@ fn run() -> LangResult<()> {
         verified_language::contracts::attach(&mut p,evidence)?;
     }
     if let Some(file)=arg_value(&args,"--refinement-bodies")? {
-        if !["emit-contract-obligations","check-contract-proof"].contains(&cmd){return Err("refinement bodies are an authoring input; use checked selection to execute".into());}
+        if !["emit-contract-obligations","check-contract-proof","check-contract-proof-stream"].contains(&cmd){return Err("refinement bodies are an authoring input; use checked selection to execute".into());}
         let bodies=serde_json::from_slice(&read_bounded(&file,core::MAX_BYTES)?).map_err(|e|e.to_string())?;
         p=verified_language::contracts::prepare(&core::CheckedModule::from_source(p)?,&bodies)?;
+    }
+    if cmd == "check-contract-proof-stream" {
+        use std::io::{BufRead, Write};
+        #[derive(serde::Deserialize)]
+        #[serde(deny_unknown_fields)]
+        struct Attempt {
+            name: String,
+            proof: serde_json::Value,
+            knowledge: Option<verified_language::registry::Bundle>,
+        }
+        let mut context = verified_language::contracts::ProofContext::new(&p)?;
+        let identity = context.source_identity()?;
+        let input = std::io::stdin();
+        let mut input = input.lock();
+        let output = std::io::stdout();
+        let mut output = output.lock();
+        writeln!(
+            output,
+            "{}",
+            serde_json::json!({"status":"ready","source_sha256":identity})
+        )
+        .map_err(|e| e.to_string())?;
+        output.flush().map_err(|e| e.to_string())?;
+        loop {
+            let mut bytes = Vec::new();
+            let size = (&mut input)
+                .take((verified_language::registry::MAX_VIEW_BYTES + 1) as u64)
+                .read_until(b'\n', &mut bytes)
+                .map_err(|e| e.to_string())?;
+            if size == 0 {
+                break;
+            }
+            if size > verified_language::registry::MAX_VIEW_BYTES {
+                return Err("contract proof request byte limit".into());
+            }
+            let answer = match serde_json::from_slice::<Attempt>(&bytes) {
+                Ok(attempt) => {
+                    match context.check(&attempt.name, attempt.proof, attempt.knowledge.as_ref()) {
+                        Ok(()) => serde_json::json!({"status":"checked","name":attempt.name}),
+                        Err(error) => {
+                            serde_json::json!({"status":"rejected","name":attempt.name,"error":error})
+                        }
+                    }
+                }
+                Err(error) => serde_json::json!({"status":"rejected","error":error.to_string()}),
+            };
+            writeln!(output, "{answer}").map_err(|e| e.to_string())?;
+            output.flush().map_err(|e| e.to_string())?;
+        }
+        return Ok(());
     }
     if cmd=="check-contract-proof" {
         let name=args.get(2).ok_or("missing obligation name")?;

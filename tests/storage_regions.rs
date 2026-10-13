@@ -49,7 +49,7 @@ fn storage_interfaces_execute_and_validate_boundaries_across_targets() {
 fn storage_interfaces_run() {
     let checked = program();
     let p = checked.program().clone();
-    let arena = json!({"words":[5,6,7],"spans":[
+    let arena = json!({"items":[5,6,7],"spans":[
         {"start":0,"count":0},{"start":0,"count":2},{"start":2,"count":1}]});
     let arena_error = p
         .enums
@@ -133,17 +133,17 @@ fn storage_interfaces_run() {
         ),
         (
             "arena_lookup",
-            json!([{"words":[1],"spans":[{"start":2,"count":0}]},0]),
+            json!([{"items":[1],"spans":[{"start":2,"count":0}]},0]),
             invalid.clone(),
         ),
         (
             "arena_lookup",
-            json!([{"words":[1],"spans":[{"start":0,"count":u32::MAX}]},0]),
+            json!([{"items":[1],"spans":[{"start":0,"count":u32::MAX}]},0]),
             invalid.clone(),
         ),
         (
             "arena_lookup",
-            json!([{"words":[1],"spans":[{"start":u32::MAX,"count":2}]},0]),
+            json!([{"items":[1],"spans":[{"start":u32::MAX,"count":2}]},0]),
             invalid.clone(),
         ),
         (
@@ -249,4 +249,148 @@ fn storage_proofs_run() {
     verified_language::contracts::attach(&mut p, serde_json::from_value(evidence).unwrap())
         .unwrap();
     assert!(CheckedModule::from_source(p).is_err());
+}
+
+#[test]
+fn generic_storage_preserves_strings_records_and_nested_payloads_across_targets() {
+    fixture_thread(generic_storage_run);
+}
+fn generic_storage_run() {
+    let file =
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/storage-generic/main.ink");
+    let mut p = modules::load(&file).unwrap().program;
+    verified_language::contracts::attach(
+        &mut p,
+        serde_json::from_str(include_str!("fixtures/storage-generic/proofs.json")).unwrap(),
+    )
+    .unwrap();
+    let checked = CheckedModule::from_source(p).unwrap();
+    let p = checked.program().clone();
+    let arena_error = p
+        .enums
+        .iter()
+        .find(|(_, v)| v == &&vec!["Limit".to_string(), "Invalid".to_string()])
+        .unwrap()
+        .0;
+    let chunk_error = p
+        .enums
+        .iter()
+        .find(|(_, v)| {
+            v == &&vec![
+                "Width".to_string(),
+                "Limit".to_string(),
+                "Invalid".to_string(),
+            ]
+        })
+        .unwrap()
+        .0;
+    let first = json!({"name":"α","values":[0,u32::MAX]});
+    let second = json!({"name":"","values":[]});
+    let cases = vec![
+        ("text_rows", json!([[], 0]), json!({"value":{"Ok":[]}})),
+        (
+            "text_rows",
+            json!([[[], ["α", ""], ["line\nend"]], 3]),
+            json!({"value":{"Ok":[[],["α",""],["line\nend"]]}}),
+        ),
+        (
+            "text_rows",
+            json!([[["a", "b"]], 1]),
+            json!({"value":{"Err":format!("{arena_error}.Limit")}}),
+        ),
+        (
+            "text_chunks",
+            json!([["α", "", "z"], 2]),
+            json!({"value":{"Ok":[["α",""],["z"]]}}),
+        ),
+        ("text_chunks", json!([[], 1]), json!({"value":{"Ok":[]}})),
+        (
+            "text_chunks",
+            json!([["a"], 0]),
+            json!({"value":{"Err":format!("{chunk_error}.Width")}}),
+        ),
+        (
+            "record_rows",
+            json!([[[], [first, second], [first]], 3]),
+            json!({"value":{"Ok":[[],[first,second],[first]]}}),
+        ),
+        (
+            "record_rows",
+            json!([[[first]], 0]),
+            json!({"value":{"Err":format!("{arena_error}.Limit")}}),
+        ),
+        (
+            "record_chunks",
+            json!([[first, second, first], 2]),
+            json!({"value":{"Ok":[first,second,first]}}),
+        ),
+        (
+            "record_chunks",
+            json!([[], u32::MAX]),
+            json!({"value":{"Ok":[]}}),
+        ),
+        (
+            "nested_rows",
+            json!([[[[], [1, 2]], [], [[3]]], 3]),
+            json!({"value":{"Ok":[[[],[1,2]],[],[[3]]]}}),
+        ),
+        (
+            "nested_rows",
+            json!([[[[1, 2]]], 0]),
+            json!({"value":{"Err":format!("{arena_error}.Limit")}}),
+        ),
+        (
+            "text_read",
+            json!([{"items":["α",""],"spans":[{"start":0,"count":2}]},{"slot":0,"extent":1}]),
+            json!({"value":{"Some":["α",""]}}),
+        ),
+        (
+            "text_read",
+            json!([{"items":["α"],"spans":[{"start":0,"count":1}]},{"slot":0,"extent":2}]),
+            json!({"value":{"None":null}}),
+        ),
+        (
+            "text_read",
+            json!([{"items":["α"],"spans":[{"start":0,"count":2}]},{"slot":0,"extent":1}]),
+            json!({"host_error":"contract precondition failed"}),
+        ),
+    ];
+    let snapshot = Runtime::new(p.clone())
+        .unwrap()
+        .checkpoint_portable()
+        .unwrap();
+    let mut steps = vec![];
+    let mut expected = vec![];
+    for (name, args, reply) in cases {
+        assert_eq!(pure(&checked, name, &args), reply, "{name} {args}");
+        steps.push(json!({"pure":name,"args":args,"cpu_only":true}));
+        expected.push(json!({"reply":reply,"snapshot":snapshot}));
+    }
+    let args = json!([[0, u32::MAX]]);
+    let reply = pure(&checked, "numeric", &args);
+    assert_eq!(reply, json!({"value":[1,0]}));
+    steps.push(json!({"pure":"numeric","args":args,"expect_gpu":true}));
+    expected.push(json!({"reply":reply,"snapshot":snapshot}));
+    parity::conformance(
+        "invariant-value-storage-generic",
+        p,
+        &fs::read_to_string(file).unwrap(),
+        steps,
+        expected,
+    );
+}
+
+#[test]
+fn generic_storage_handles_reject_element_type_confusion_and_representation_access() {
+    let dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("build/storage-generic-rejection");
+    fs::create_dir_all(&dir).unwrap();
+    let prefix="module storage_rejection;import \"../../knowledge/libraries/storage-regions.ink\" as arena;";
+    for source in [
+        "fn wrong(value:arena.Arena<String>,handle:arena.Handle<u32>)->Option<List<String>>{return arena.read<String>(value,handle);}",
+        "fn reveal(value:arena.Arena<String>)->List<String>{return value.items;}",
+        "fn forge()->arena.Handle<String>{return arena.Handle<String>{slot:0,extent:1};}",
+    ] {
+        let file=dir.join("main.ink");fs::write(&file,format!("{prefix}{source}")).unwrap();
+        assert!(modules::load(&file).is_err(),"{source}");
+    }
 }

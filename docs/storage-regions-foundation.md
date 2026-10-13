@@ -3,15 +3,15 @@
 This is work toward the physical-storage substrate in
 [the programme plan](general-machinery-plan.md), not completion of that substrate.
 
-`knowledge/libraries/storage-regions.ink` constructs an immutable word arena from
-variable-length rows. One owned word buffer holds payloads; another holds start
+`knowledge/libraries/storage-regions.ink` constructs an immutable typed arena from
+variable-length rows. One owned element buffer holds payloads; another holds start
 and length pairs. Empty rows retain their own spans. Construction checks exact
 collection counts before converting lengths to wrapping words, and checks the
 requested capacity without relying on overflowing addition. The abstract arena
-invariant requires each span to fit the supplied word sequence. Imported source
+invariant requires each span to fit the supplied element sequence. Imported source
 cannot construct the arena or read its fields directly.
 
-A handle is a checked relative slot and extent. `read` checks the extent against
+`Arena<T>`, `Chunked<T>` and `Handle<T>` use a shared element type. A handle is a checked relative slot and extent. Source cannot use an integer handle to read a string arena. `read` checks the extent against
 the supplied arena before looking up its span. Handles deliberately have no
 allocation identity: a handle with the same extent can address a different arena.
 They are relative coordinates, not evidence of provenance or a borrow lifetime.
@@ -49,7 +49,7 @@ also decides its comparison with a Boolean literal. These are bounded search
 choices, not kernel rules or privileged validator names. An escaping binder is
 not a proposed case condition. Every branch still has to prove the original goal.
 
-Remaining work includes general element types, checked region/borrow lifetimes,
+Remaining work includes broader invariant-bearing element/owner proofs, checked region/borrow lifetimes,
 direct range views and destination reuse, source-bound representation relations,
 universal codec laws, sparse indexes and compact trees, extraction of existing
 physical strategy knowledge, and comparable lifecycle performance measurements.
@@ -71,3 +71,32 @@ limits. Raw `Program` calls still perform admission. The storage fixture uses
 this API instead of replaying its full catalogue for every small reference input.
 The fixture's debug checking runs on an explicit 16 MiB test thread stack; its
 initial default 2 MiB test-thread run overflowed before target comparisons.
+
+
+Generic fixtures exercise integers, Unicode strings, ordinary records containing
+variable-length payloads, and nested lists without adding a compiler strategy.
+The former `words` payload field and observer are now named `items`. This is an
+active-library API change; historical source views retain their exact old bodies.
+A refined-element probe still needs loop-preservation evidence; generic type
+parameters do not grant validity to a newly accumulated sequence. The failed
+probe is not admitted or counted as supported conformance.
+
+`storage-observations.ink` supplies a general left-fold observation theorem:
+if each step appends its element to the observed sequence, observing the complete
+fold yields the initial observation followed by the input. Generalized induction
+checks the theorem, and every instance must prove the step assumption. Separate
+list and owned-buffer instances and the buffer push/append law replay in the
+ordinary kernel. An instance whose step discards the element rejects. These laws
+provide reusable reasoning for storage/codec observers; they do not yet prove the
+arena or chunked-sequence codec round trips.
+
+`contracts::ProofContext` and `check-contract-proof-stream` keep the source and
+its derived obligations immutable during authoring. The bounded NDJSON protocol
+replays each proof and dependency bundle and retains existing work/depth and
+transport limits. Its ready frame binds the source identity; changing a file does
+not change that context or make its verdict apply to the changed source. Final
+module admission still derives and checks all obligations. Stream and independent
+single-request authoring produce identical generic-fixture evidence. Schema
+rejection is a failed proposal, never a checked fact. Tests cover pure/state
+proofs, rejected attempts followed by valid ones, changed source, and oversized
+requests. No profitability claim follows from this authoring mechanism.

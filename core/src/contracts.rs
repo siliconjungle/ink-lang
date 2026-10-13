@@ -697,42 +697,92 @@ pub fn check_proof(
     proof: serde_json::Value,
     bundle: Option<&crate::registry::Bundle>,
 ) -> LangResult<()> {
-    if let Some(g) = obligations(p)?.into_iter().find(|g| g.name == name) {
-        let catalogue = if let Some(b) = bundle {
-            crate::registry::CheckedBundle::check(b)?.catalogue()?
-        } else {
-            Catalogue {
+    ProofContext::new(p)?.check(name, proof, bundle)
+}
+
+/// An immutable source context for repeated authoring attempts. Its executable
+/// structure and source-derived obligations are reused; every proposed proof
+/// and dependency bundle is still checked independently. This does not admit
+/// the source contracts or make the original program executable.
+pub struct ProofContext {
+    source: Program,
+    executable: CheckedModule,
+    pure: BTreeMap<String, Obligation>,
+    empty_catalogue: CheckedCatalogue,
+    state: Option<StateObligations>,
+}
+impl ProofContext {
+    pub fn new(p: &Program) -> LangResult<Self> {
+        let pure = obligations(p)?
+            .into_iter()
+            .map(|g| (g.name.clone(), g))
+            .collect();
+        let mut executable = p.clone();
+        executable.contracts = Contracts::default();
+        let executable = CheckedModule::from_source(executable)?;
+        let empty_catalogue = CheckedCatalogue::check(
+            &Catalogue {
                 schema: 1,
                 semantics: laws::SEMANTICS.into(),
                 roots: vec![],
                 objects: BTreeMap::new(),
-            }
-        };
-        let mut executable = p.clone();
-        executable.contracts = Contracts::default();
-        let laws = CheckedCatalogue::check(&catalogue, &executable)?;
-        return laws.prove(
-            &executable,
+            },
+            executable.program(),
+        )?;
+        Ok(Self {
+            source: p.clone(),
+            executable,
+            pure,
+            empty_catalogue,
+            state: None,
+        })
+    }
+    pub fn source_identity(&self) -> LangResult<String> {
+        subject_identity(&self.source)
+    }
+    pub fn check(
+        &mut self,
+        name: &str,
+        proof: serde_json::Value,
+        bundle: Option<&crate::registry::Bundle>,
+    ) -> LangResult<()> {
+        if let Some(g) = self.pure.get(name) {
+            let catalogue = if let Some(b) = bundle {
+                Some(crate::registry::CheckedBundle::check(b)?.catalogue()?)
+            } else {
+                None
+            };
+            let checked = catalogue
+                .as_ref()
+                .map(|c| CheckedCatalogue::check(c, self.executable.program()))
+                .transpose()?;
+            let laws = checked.as_ref().unwrap_or(&self.empty_catalogue);
+            return laws.prove(
+                self.executable.program(),
+                &g.params,
+                &g.conditions,
+                &g.goal,
+                &serde_json::from_value(proof).map_err(|e| e.to_string())?,
+                &mut s::Budget::new(),
+                0,
+            );
+        }
+        if self.state.is_none() {
+            self.state = Some(state::derive(&self.source)?);
+        }
+        let derived = self.state.as_ref().expect("derived state context");
+        let cx = state::context(derived, bundle)?;
+        let g = derived
+            .obligations
+            .iter()
+            .find(|g| g.name == name)
+            .ok_or("unknown contract obligation")?;
+        cx.check(
             &g.params,
             &g.conditions,
-            &g.goal,
+            &g.goal.from,
+            &g.goal.to,
             &serde_json::from_value(proof).map_err(|e| e.to_string())?,
-            &mut s::Budget::new(),
-            0,
-        );
+        )
     }
-    let derived = state::derive(p)?;
-    let cx = state::context(&derived, bundle)?;
-    let g = derived
-        .obligations
-        .iter()
-        .find(|g| g.name == name)
-        .ok_or("unknown contract obligation")?;
-    cx.check(
-        &g.params,
-        &g.conditions,
-        &g.goal.from,
-        &g.goal.to,
-        &serde_json::from_value(proof).map_err(|e| e.to_string())?,
-    )
 }

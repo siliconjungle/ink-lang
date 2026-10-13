@@ -381,3 +381,35 @@ support. Missing capability stays explicit while implementation continues.
   updated checker (`storage-interface-regressions.log`).
 - Knowledge staging checkpoint: `81e435a64853e665113b0a3e673e55983aed8893`.
   This is a local foundation checkpoint while the full programme remains active.
+- Storage libraries now share generic element parameters: `Arena<T>`,
+  `Chunked<T>` and typed relative `Handle<T>`. Payload storage/observation is
+  named `items`. Strings, ordinary records with variable-sized fields and nested
+  lists reuse the same builders. Source rejects element-type-confused handles
+  and representation access. No new physical strategy case was introduced.
+- Repeated authoring can retain an immutable `contracts::ProofContext` through
+  `check-contract-proof-stream`. Each proposal and dependency bundle still
+  replays with the existing limits. The source identity is fixed at readiness;
+  this does not admit the original source contracts. Pure/state, changed-source,
+  malformed-request, byte-limit and rejected-then-valid tests pass. Generic
+  fixture evidence is identical to independent single-request authoring.
+- `storage-observations.ink` adds a general left-fold observer theorem with a
+  checked per-step assumption, generic buffer push/append, and list/owned-buffer
+  instances. Six ordinary canonical laws replay; a discarding step instance
+  rejects. These are reasoning components, not arena/chunk codec proofs.
+- Local publication retains historical entries and adds/reuses 22 objects for
+  27 generic integer obligations, 30 objects for 30 heterogeneous-payload
+  obligations, and six observer laws. Current snapshot is
+  `f8fd3a6375c939ad07b6d7269bd4a434c9900a5c51b066556fbfe9c3d3b2272c`.
+  Published source/observer views replay. Checks pass 265 core tests, fifteen
+  affected database tests, four storage tests, three stream tests and the observer
+  authoring test. Forty-seven replies and exact snapshots match across all five
+  CPU/Wasm paths and the wgpu host, including two actual numeric GPU dispatches.
+  Receipt: `docs/evidence/general-machinery/storage-generic.json`.
+- A refined-element probe still needs owned-loop preservation evidence and is
+  not admitted. Checked borrowing/views, codec relations, new storage families,
+  strategy extraction, authored recursion, local relations, broader fact
+  transport, maintenance, performance acceptance and integrated publication
+  remain part of the full objective. No performance claim follows from these
+  conformance/authoring results.
+- Knowledge staging checkpoint: `ecd91d1aaac3718c9dc3e80466803fd415b3fc64`.
+  The full programme remains active; this is not remote main publication.
