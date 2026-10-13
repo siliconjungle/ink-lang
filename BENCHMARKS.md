@@ -40,6 +40,17 @@ Historical epochs and the newer integration machinery remain distinct.
 
 ## What the recent work demonstrates
 
+[The separate automatic-machinery epoch](reports/automatic-planning-2026-10-13/README.md)
+changes proof production, composed discovery and measured selection. Ordinary
+balanced compilation chooses alternatives in 10/16 fixed typed operations or
+partial kernels, versus 0/16 before, without supplied selections. Its JavaScript
+cohort reports 1.697× execution gain (timing-only 95% interval 1.679–1.716×);
+the six reserved sources report 1.953×. Fourteen nonempty and five empty robust
+regressions remain visible. Synthetic probes are not actual user distributions.
+Warm compilation has a 0.410-second median with fresh complete proof replay;
+cold discovery and acquisition still cost tens of seconds. E1's fixed compiler
+and database-growth evidence remain immutable and separate from this epoch.
+
 Database-only laws can remove entire traversals and intermediate results with the
 production compiler unchanged. Composed maps, indexed maps, zips, folds and unused
 scan/projection work provide more reach than isolated arithmetic identities.
