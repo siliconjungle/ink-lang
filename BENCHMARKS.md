@@ -25,6 +25,16 @@ separately diagnoses conversion, proof loading and discovery costs.
 
 ## Frozen knowledge growth, 13 October 2026
 
+[The independent automatic-delivery replication](reports/automatic-delivery-2026-10-13/README.md)
+measures ordinary balanced compilation on eight fresh typed kernels. Complete
+JavaScript calls improve by 1.718× across 96 nonempty cases versus the previous
+planner. With the new machinery frozen, six template objects covering two reusable
+schemes add 1.196× over the base catalogue, chiefly through one Unicode query.
+Automatic selection rises from 0/8 to 6/8. Cold compilation remains about 70 seconds;
+24 repeat builds take a median 0.473 seconds with fresh proof replay. The report
+retains adverse cases, complete output checks, memory observations and exact code
+archives. These synthetic kernel results do not estimate arbitrary applications.
+
 [The fixed-corpus study](reports/knowledge-growth-2026-10-13/README.md) adds two
 reusable proof families while retaining the same compiler and independently pinned
 packages. Forced alternatives improve the ten-operation nonempty cohort by
