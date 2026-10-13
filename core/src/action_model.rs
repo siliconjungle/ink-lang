@@ -235,6 +235,59 @@ struct Lower<'a> {
     loop_fuel: Option<(String,String,String)>,
     helper_active: BTreeSet<usize>,
 }
+/// Closed mathematical carrier for one checked source value. This exports fixed
+/// source correspondence independently of whole-action projection or search.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct ValueCarrier {
+    pub sort: Sort,
+    pub objects: BTreeMap<String, Entry>,
+}
+pub fn value_carrier(module: &CheckedModule, ty: &Type) -> LangResult<ValueCarrier> {
+    let typed = CheckedActions::elaborate(module)?;
+    let mut lower = Lower::new(module.program(), &typed);
+    lower.reserve_recursive_records()?;
+    let sort = lower.sort(ty)?;
+    let mut pending=match &sort {Sort::Data(id)=>vec![id.clone()],_=>vec![]};
+    let mut objects=BTreeMap::new();
+    while let Some(id)=pending.pop() {
+        if objects.contains_key(&id){continue;}
+        let entry=lower.objects.get(&id).ok_or("value carrier declaration missing")?;
+        pending.extend(entry.dependencies.iter().cloned());objects.insert(id,entry.clone());
+    }
+    Ok(ValueCarrier { sort, objects })
+}
+impl<'a> Lower<'a> {
+    fn new(program: &'a Program, typed: &'a CheckedActions) -> Self {
+        Self {
+            program,
+            typed,
+            keep_active: BTreeSet::new(),
+            integer: None,
+            equalities: BTreeMap::new(),
+            objects: BTreeMap::new(),
+            types: BTreeMap::new(),
+            recursive_records: BTreeMap::new(),
+            recursive_tree: None,
+            tree_codecs: BTreeMap::new(),
+            tree_nth: None,
+            active: BTreeSet::new(),
+            tables: vec![],
+            state: String::new(),
+            event: String::new(),
+            events: String::new(),
+            snoc: String::new(),
+            boxes: BTreeMap::new(),
+            fresh: 0,
+            work: MAX_WORK,
+            helpers: BTreeMap::new(),
+            local_ops: BTreeMap::new(),
+            local_maps: BTreeMap::new(),
+            loop_fuel: None,
+            helper_active: BTreeSet::new(),
+        }
+
+    }
+}
 impl Lower<'_> {
     fn tick(&mut self) -> LangResult<()> {
         self.work = self.work.checked_sub(1).ok_or("action model work limit")?;
@@ -892,33 +945,7 @@ impl Projection {
             return Err("action model node limit".into());
         }
         let p = module.program();
-        let mut l = Lower {
-            program: p,
-            typed: &actions,
-            keep_active: BTreeSet::new(),
-            integer: None,
-            equalities: BTreeMap::new(),
-            objects: BTreeMap::new(),
-            types: BTreeMap::new(),
-            recursive_records: BTreeMap::new(),
-            recursive_tree: None,
-            tree_codecs: BTreeMap::new(),
-            tree_nth: None,
-            active: BTreeSet::new(),
-            tables: vec![],
-            state: String::new(),
-            event: String::new(),
-            events: String::new(),
-            snoc: String::new(),
-            boxes: BTreeMap::new(),
-            fresh: 0,
-            work: MAX_WORK,
-            helpers: BTreeMap::new(),
-            local_ops: BTreeMap::new(),
-            local_maps: BTreeMap::new(),
-            loop_fuel: None,
-            helper_active: BTreeSet::new(),
-        };
+        let mut l = Lower::new(p, &actions);
         l.prepare_recursive_records()?;
         // Domain validation includes unused signatures; an unsupported value may
         // not acquire authority just because a branch happens not to evaluate it.

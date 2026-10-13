@@ -38,9 +38,9 @@ impl Projection {
 }
 
 impl Lower<'_> {
-    pub(super) fn prepare_recursive_records(&mut self) -> LangResult<()> {
+    pub(super) fn reserve_recursive_records(&mut self) -> LangResult<BTreeSet<String>> {
         let names=cyclic_records(self.program);
-        if names.is_empty() {return Ok(());}
+        if names.is_empty() {return Ok(names);}
         let tree=self.data(vec![
             ("RecursiveEmpty",vec![]),
             ("RecursiveWord",vec![Sort::U64]),
@@ -54,6 +54,10 @@ impl Lower<'_> {
             self.types.insert(serde_json::to_string(&Type::Named(n.clone())).map_err(|e|e.to_string())?,Sort::Data(tree.clone()));
             self.recursive_records.insert(n.clone(),RecursiveRecord {datatype:tree.clone(),tag:tag as u64,fields:vec![]});
         }
+        Ok(names)
+    }
+    pub(super) fn prepare_recursive_records(&mut self) -> LangResult<()> {
+        let names=self.reserve_recursive_records()?;
         for n in names {
             let mut fields=vec![];
             for (_,t) in self.program.records[&n].clone() {

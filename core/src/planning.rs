@@ -80,6 +80,10 @@ impl CheckedPlan {
         if !dense&&self.physical.as_ref().is_some_and(|p|!p.plan().dense_prefixes.is_empty()){return Err("target does not support dense source table prefixes".into());}
         Ok(())
     }
+    pub fn require_record_elision_capability(&self, supported:bool)->LangResult<()> {
+        if !supported && self.physical.as_ref().is_some_and(|p|!p.plan().record_elisions.is_empty()) {return Err("target does not support source record elision".into());}
+        Ok(())
+    }
     pub fn package(&self) -> &Package {
         &self.package
     }
