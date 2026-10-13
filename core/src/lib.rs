@@ -79,3 +79,5 @@ pub mod column_codec;
 pub mod resources;
 
 pub mod input_demand;
+
+pub mod record_codec;

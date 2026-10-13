@@ -1145,6 +1145,14 @@ fn run() -> LangResult<()> {
                 serde_json::json!({"status":"checked","semantics":verified_language::action_ir::SEMANTICS,"source":actions.source_identity(),"actions_sha256":actions.identity()?,"trust":"Source checking, typed elaboration and execution adapters remain trusted; no action-body refinement proof"})
             );
         }
+        "emit-record-codec" => {
+            let record=arg_value(&args,"--entry")?.ok_or("emit-record-codec requires --entry RECORD")?;
+            let module=core::CheckedModule::from_source(p)?;
+            let schema=verified_language::record_codec::schema(&module,&record)?;
+            let out=arg_value(&args,"-o")?.ok_or("emit-record-codec requires -o")?;
+            write(&out,&serde_json::to_string(&schema).map_err(|e|e.to_string())?)?;
+            println!("{}",serde_json::json!({"status":"codec-semantics","field":schema.field}));
+        }
         "emit-column-codec" => {
             let record=arg_value(&args,"--entry")?.ok_or("emit-column-codec requires --entry RECORD")?;
             let schema=verified_language::column_codec::schema(&p,&record)?;
