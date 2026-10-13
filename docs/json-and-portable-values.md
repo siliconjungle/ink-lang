@@ -57,6 +57,18 @@ or contracts; usage profiles only guide representation profitability.
 Networking, framing, compression and connection management stay outside Ink.
 A buffer can pass through a relay unchanged, without reconstructing JSON text.
 
+For a JavaScript connection that agrees on the exact schema identity beforehand,
+`valueCodecs.fn.arguments.compact()` and `.result.compact()` expose
+`ink-value-session-v1`. Generated JavaScript `callCompact(name, bytes, limits)`
+executes the same pure function and preconditions through that codec. It uses one
+version byte, canonical variable-length text/count prefixes and schema-directed
+fields, without the portable format's hash or per-node frames. Both peers must
+agree on the codec's `.identity` and `.format`; bytes alone cannot detect use of
+the wrong schema. All type, Unicode, tag, node/depth and byte bounds remain
+checked. Results and buffers are owned. This optional JavaScript transport does
+not change `ink-value-wire-v1`, native signatures or state snapshots, and native
+backends do not yet expose direct compact calls.
+
 ```js
 import {ValueCodec,JsonCodec,valueCodecs,callBinary,metadata} from './json.mjs';
 // The identity function returns the library Json type itself.
@@ -112,15 +124,41 @@ Compiler changes are stable, hygienic naming of all payload enums and a shared g
 algorithms and datatype definitions stay in knowledge. General schema derivation,
 byte codecs, bounded validation and entrypoint plumbing live in ABI/support,
 lowerings and runtime. No JSON-specific rewrite or storage strategy is selected
-by core. Six database laws cover lookup after put, empty lookup, projection
+by core. Eight database laws cover lookup after put, first-match early exit, empty lookup, projection
 idempotence, projection/map fusion and concrete String instances. Their proof
 bytes and premises are checked through the ordinary law machinery; profiles and
 schema hashes confer no rewrite authority.
 
 Transport implementation is operationally trusted. Its conformance tests do not
-prove backend/codec correctness. This baseline materializes target values for a
-compiled call, uses a temporary generic carrier in native adapters and copies at
-Wasm memory boundaries. It does not promise zero-copy mutation, a globally optimal
-layout or measured speedups. Direct borrowed validation/relay already avoids a
-JSON document tree. Further direct typed decoding, lazy/indexed layouts and fusion
-need explicit implementations, correspondence proofs and lifecycle measurements.
+prove backend/codec correctness. Both JSON codecs now stream text directly into
+schema-bound frames and render frames directly to text. Scalars may allocate
+individual string/number tokens; neither path builds a complete JSON AST or an
+intermediate serde_json value tree. Typed text records accept any member order;
+already ordered fields need no reorder copy. Unknown, missing or duplicate names,
+invalid numbers, forged frames and lowered resource-limit violations reject.
+
+Generated Rust binary calls decode directly into the emitted native types through
+`BinaryValue` and encode those types through the ABI's bounded `Encoder`. C calls
+decode directly into their ordinary typed value arena and emit frames from arena
+values. Both paths preserve preconditions, raw f32 bits and exact Int. Wasm uses
+the same implementations, with copies at its memory boundary. Calls still
+materialise native values, and source algorithms retain their normal ownership
+costs; this is not zero-copy execution of arbitrary compiled programs.
+
+Rust validated views also offer declaration-order `fields()` traversal and an
+optional `SequenceIndex` with O(1) reads. Index construction scans once and retains
+four bytes per element. `wire_packed::pack_flat(view)` bridges supported flat
+numeric records/vectors/lists directly into the existing compute word layout,
+without a generic value carrier. Non-finite f32 bits survive packing and set the
+separate `finite` eligibility flag. Arbitrary JSON objects do not qualify for
+flat numeric packing.
+
+The ABI benchmark in `abi/examples/value_boundaries.rs` measures construction,
+whole lifecycles and resident reads separately. The knowledge producer
+`value_boundary_measurements.py` publishes immutable observations bound to exact
+code, target, shape and phase. The existing generic lifecycle planner ranks them;
+missing comparable evidence retains the baseline. These are host boundary
+alternatives, separate from source rewrites. No compiler recognition case or
+benchmark result grants mathematical authority. See the measured report in
+`reports/value-boundaries-2026-10-13` and the Frontier comparison in
+`reports/frontier-json-2026-10-13` for current numbers and limits.
