@@ -1,0 +1,1 @@
+module Lerp; record V{x:f32,y:f32,z:f32,} record Pair{a:V,b:V,} pub fn run(xs:List<Pair>,t:f32)->List<V>{return xs.map(fn(p)=>V{x:p.a.x+t*(p.b.x-p.a.x),y:p.a.y+t*(p.b.y-p.a.y),z:p.a.z+t*(p.b.z-p.a.z)});}
