@@ -29,6 +29,22 @@ fn data(s: &Sort) -> &str {
 }
 const APP:&str="module bound; enum Error{Failed,} state Rows:Table<u64,u64> = Table.empty(); event seen:u64; change erase(k:u64,fail:Bool)->Result<Unit,Error> writes(Rows) emits(seen){Rows.remove(k); emit seen(10); emit seen(20); if fail{return Err(Error.Failed);}return Ok(());} query get(k:u64)->Option<u64> reads(Rows){return Rows.get(k);}";
 #[test]
+fn generated_payload_constructor_labels_fit_the_logic_language() {
+    let source = r#"module payload_projection;
+enum Tree { Leaf(u32), Node(List<Tree>), }
+state Rows:Table<String,Tree> = Table.empty();
+change put(key:String,value:Tree)->Unit writes(Rows) { Rows.put(key,value);return (); }
+query get(key:String)->Option<Tree> reads(Rows) { return Rows.get(key); }
+"#;
+    let checked = module(source);
+    assert!(checked.program().records.keys().any(|name| name.len() > 64));
+    let first = Projection::derive(&checked).unwrap();
+    let second = Projection::derive(&checked).unwrap();
+    assert_eq!(serde_json::to_value(&first.objects).unwrap(), serde_json::to_value(&second.objects).unwrap());
+    first.context().unwrap();
+    assert!(first.recursive_records.len() > 0);
+}
+#[test]
 fn fixed_whole_action_model_checks_and_runs_without_catalogue_or_backend() {
     let model = Projection::derive(&module(APP)).unwrap();
     let context = model.context().unwrap();

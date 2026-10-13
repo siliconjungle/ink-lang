@@ -7,7 +7,7 @@ WebGPU calls. The owned-buffer fixture carries core identity
 with 29 actual native wgpu calls. `browser.json` retains device counters and
 aliased-swap/fallback receipts.
 
-`examples/bend-inspired.ink` and `tests/bend_features.rs` retain the input programs
+`examples/parallel-execution.ink` and `tests/bend_features.rs` retain the input programs
 and independent expected values. `tests/temporary_lowering.rs` exercises packed
 C under AddressSanitizer/UndefinedBehaviorSanitizer. The GPU package's
 `tests/temporary_bounds.rs` checks split provenance, branch merges, loop growth

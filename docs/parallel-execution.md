@@ -1,8 +1,7 @@
 # Ordered parallel work, owned partitions and checked recursion
 
-These mechanisms borrow useful ideas from Bend while preserving Ink's small
-semantic core and independently versioned knowledge database. They do not adopt
-Bend's interaction-net runtime or implicit parallel scheduling. Programs using
+Ordered parallel work, owned partitions and checked recursion use Ink's small
+semantic core and independently versioned knowledge database. Programs using
 these mechanisms carry `ink-executable-core-v5`, or V7 when floats occur; older
 non-floating programs retain their existing semantics identities. Core JSON replay checks the marker and the source.
 
@@ -72,7 +71,7 @@ merge conservative bounds. Capacity growth, unbounded input-list construction,
 freezing private buffers into lists, larger buffers, arbitrary record elements
 and recursive calls retain the compiled CPU fallback. This is private scratch
 storage, not cross-workgroup shared memory. `scratch_many` in
-[the example](../examples/bend-inspired.ink) is exercised on a real wgpu device.
+[the example](../examples/parallel-execution.ink) is exercised on a real wgpu device.
 
 ## Resident GPU graph feedback
 
@@ -182,12 +181,12 @@ Device command mocks additionally test allocation failure cleanup and mismatched
 parallel case. The native Rust backend unit test checks worker count, sequential nested work, order and retained vector
 pointer/capacity. CI enables both Wasm compilers, pinned Lean and wgpu replay.
 
-`bench/bend-inspired/run.py` measures the same 1,024-step wrapping recurrence in
+`bench/parallel-execution/run.py` measures the same 1,024-step wrapping recurrence in
 sequential and parallel native Rust, including input copies, output allocation and
 destruction, with four requested workers. Raw paired samples and 95% bootstrap
-intervals are in `bench/bend-inspired/results.json`. On the recorded machine,
+intervals are in `bench/parallel-execution/results.json`. On the recorded machine,
 the final run reports 3.69× at 4,096 elements and 3.87× at 65,536 elements.
 The initial run (retained separately) reported 3.07× and 3.49× respectively.
 The 64-element case stays sequential; its final interval includes parity.
 This is one workload and an explicit parallel-source comparison, not a general
-compiler or Bend performance claim. Compilation is excluded from runtime timing.
+compiler performance claim. Compilation is excluded from runtime timing.

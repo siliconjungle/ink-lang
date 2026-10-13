@@ -163,7 +163,7 @@ it does not establish faster execution. See [the evidence index](BENCHMARKS.md).
 
 ## Parallel execution and independent verdict
 
-[Ordered parallel work, owned partitions, checked recursion and GPU scratch](docs/bend-inspired.md)
+[Ordered parallel work, owned partitions, checked recursion and GPU scratch](docs/parallel-execution.md)
 use executable-core V5, with general control/owned transforms in V6 and F32
 arithmetic in V7 and generic language additions in V8. Complete native C/Rust use bounded workers; JavaScript and both Wasm paths
 use host workers with ordered results. Browser entry points are asynchronous
@@ -179,7 +179,7 @@ The optional `check-boolean-verdict` command runs Ink's existing check and Lean
 4.19.0 on exact input bytes. Its separate Boolean equality calculus has proved
 soundness; its source translator and the rest of the compiler remain unverified.
 It grants no additional production optimisation authority. See the
-[trust scope and evidence](docs/bend-inspired.md).
+[trust scope and evidence](docs/parallel-execution.md).
 
 ## Work being integrated
 

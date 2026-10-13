@@ -49,7 +49,7 @@ optimisation paths visibly transitional until their authority is removed.
 
 The objective is to implement the language specified in docs/language-specification-draft.md and evaluate it against C, C++ and Rust. The full objective remains active until its implementation and evaluation requirements are satisfied. Early benchmark kernels are milestones, not substitutes for the language.
 
-The requested Goose-inspired changes are also binding: contiguous/compact representations, fewer copies and allocations, general arenas/ownership inference, narrow relative links, variable-size inline data/enums and construction directly into final destinations. Representation choices should come from the database, with actual native correspondence and future-update safety; typed storage policy alone does not complete that requirement. Benchmark construction/teardown and retained memory as well as execution, and keep matching layout controls.
+The requested memory-efficiency changes are also binding: contiguous/compact representations, fewer copies and allocations, general arenas/ownership inference, narrow relative links, variable-size inline data/enums and construction directly into final destinations. Representation choices should come from the database, with actual native correspondence and future-update safety; typed storage policy alone does not complete that requirement. Benchmark construction/teardown and retained memory as well as execution, and keep matching layout controls.
 
 ## GPU execution milestone
 

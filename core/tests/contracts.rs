@@ -199,3 +199,13 @@ fn list_state_invariants_reject_duplicate_initial_ids() {
     assert!(checked("module duplicate;record Job{id:u32,value:u32,}private state Ready:List<Job>=[Job{id:1,value:2},Job{id:1,value:3}];invariant unique_ids(Ready);").is_err());
     checked("module empty;record Job{id:u32,value:u32,}private state Ready:List<Job>=[];invariant unique_ids(Ready);").unwrap();
 }
+
+#[test]
+fn call_obligations_ignore_unrelated_values_but_still_check_guarded_calls() {
+    let source="module mixed;enum Mode{On,Off,}fn mode()->Mode{return Mode.On;}spec fn positive(x:u32)->u32 requires x>0;ensures result==x;implementation copy for positive{return x;}fn allowed()->u32{return positive(1);}";
+    ink_core::core::CheckedModule::from_source(ink_core::syntax::parse(source).unwrap()).unwrap();
+    let bad=source.replace("positive(1)","positive(0)");
+    assert!(ink_core::core::CheckedModule::from_source(ink_core::syntax::parse(&bad).unwrap()).is_err());
+    let indirect=source.replace("fn allowed()->u32{return positive(1);}","fn unchecked(x:u32)->u32{return positive(x);}fn entry()->u32{return unchecked(1);}");
+    assert!(ink_core::core::CheckedModule::from_source(ink_core::syntax::parse(&indirect).unwrap()).is_err());
+}

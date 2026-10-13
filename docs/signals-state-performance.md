@@ -1,4 +1,4 @@
-# Signal-inspired state execution
+# Dependency-tracked state execution
 
 The JavaScript target now retains deterministic scalar keeps, binds typed action
 entrypoints, compiles owned result copies from their declared schemas, and uses
@@ -167,6 +167,6 @@ The final JavaScript baseline is upstream `e9a45c390c3a6a9ffbfe756e2423d280f7a9f
 Its independently published lowering requires source/schema support from existing
 core commit `04f1b73286bf1ccae959018e48ec32e84946dc0d`. The distribution carries that
 prerequisite separately and pins the corresponding published C/Rust/Wasm/GPU
-lowerings. These prerequisites are existing work, not signal-inspired gains. Integration also
+lowerings. These prerequisites are existing work, not gains from dependency tracking. Integration also
 preserves the existing invocation journal boundary in the newly published Rust
 lowering: a failed later action must not erase an earlier successful host action.

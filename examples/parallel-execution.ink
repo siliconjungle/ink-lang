@@ -1,4 +1,4 @@
-module bend_inspired;
+module parallel_execution;
 
 fn work(x:u32)->u32 {
     return repeat(1024,x,fn(i)=>fn(a)=>a*1664525+1013904223+i);
