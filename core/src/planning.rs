@@ -81,7 +81,11 @@ impl CheckedPlan {
         Ok(())
     }
     pub fn require_record_elision_capability(&self, supported:bool)->LangResult<()> {
-        if !supported && self.physical.as_ref().is_some_and(|p|!p.plan().record_elisions.is_empty()) {return Err("target does not support source record elision".into());}
+        self.require_source_layout_capabilities(supported,false)
+    }
+    pub fn require_source_layout_capabilities(&self, records:bool, sums:bool)->LangResult<()> {
+        if !records && self.physical.as_ref().is_some_and(|p|!p.plan().record_elisions.is_empty()) {return Err("target does not support source record elision".into());}
+        if !sums && self.physical.as_ref().is_some_and(|p|!p.plan().sum_spines.is_empty()) {return Err("target does not support source sum spines".into());}
         Ok(())
     }
     pub fn package(&self) -> &Package {

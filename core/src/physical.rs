@@ -73,6 +73,8 @@ pub struct Plan {
     pub columns: Vec<crate::column_codec::Layout>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub record_elisions: Vec<crate::record_codec::Layout>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub sum_spines: Vec<crate::sum_codec::Layout>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub column_maps: Option<crate::column_codec::MapPackage>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -351,6 +353,10 @@ pub fn check(
     if plan.record_elisions.len()>256 || !plan.record_elisions.windows(2).all(|w|w[0].record<w[1].record) {return Err("record elision ordering/count limit".into());}
     if representation.is_some() && !plan.record_elisions.is_empty() {return Err("source record elision does not apply to definition representations".into());}
     for layout in &plan.record_elisions {crate::record_codec::check(module,layout)?;}
+    let sum_keys=plan.sum_spines.iter().map(|layout|serde_json::to_string(&layout.sum_type).map_err(|e|e.to_string())).collect::<LangResult<Vec<_>>>()?;
+    if sum_keys.len()>256 || !sum_keys.windows(2).all(|w|w[0]<w[1]) { return Err("sum spine ordering/count limit".into()); }
+    if representation.is_some() && !plan.sum_spines.is_empty() { return Err("source sum spines do not apply to definition representations".into()); }
+    for layout in &plan.sum_spines {crate::sum_codec::check(module,layout)?;}
     for layout in &plan.columns {crate::column_codec::check(module.program(),layout)?;}
     let bounds=plan.bounds.as_ref().map(|p|crate::bounds::check(module,p)).transpose()?.unwrap_or_default();
     let column_maps=plan.column_maps.as_ref().map(|p|crate::column_codec::check_maps(module,&plan.columns,p)).transpose()?.unwrap_or_default();
