@@ -82,6 +82,30 @@ fn action_callers_establish_preconditions() {
     assert!(checked(&format!("{prefix} query bad()->u64{{return f(1);}}")).is_err());
 }
 #[test]
+fn stable_state_facts_apply_only_to_readonly_invocations_and_cannot_be_captured() {
+    let source="module stable;private state N:u64=0;invariant N==0;
+      spec fn zero(n:u64)->u64 requires n==0;ensures result==n;
+      implementation direct for zero{return n;}
+      query read()->u64 reads(N){return zero(N);}
+      query unproved(x:u64)->u64{return zero(x);}
+      change mutate()->Result<Unit,String> writes(N){N=1;let x=zero(N);N=0;return Ok(());}
+      keep Initial:u64=zero(N);";
+    let p=syntax::parse(source).unwrap();
+    let goals=ink_core::contracts::state_obligations(&p).unwrap();
+    let read=goals.obligations.iter().find(|g|g.name=="read:action-call:0:requires").unwrap();
+    assert_eq!(read.conditions.len(),1);
+    let unproved=goals.obligations.iter().find(|g|g.name=="unproved:action-call:0:requires").unwrap();
+    assert_eq!(unproved.conditions,read.conditions,"the global invariant was reinterpreted for a parameter");
+    let mutate=goals.obligations.iter().find(|g|g.name=="mutate:action-call:0:requires").unwrap();
+    assert!(mutate.conditions.is_empty(),"an intermediate write inherited a boundary invariant");
+    let initial=goals.obligations.iter().find(|g|g.name=="keep:Initial:action-call:0:requires").unwrap();
+    assert!(initial.conditions.is_empty(),"initialization assumed an invariant before establishing it");
+    assert!(ink_core::contracts::check_proof(&p,&unproved.name,
+        serde_json::to_value(ink_core::logic::Proof::Hypothesis(0)).unwrap(),None).is_err());
+    assert!(syntax::parse(&format!("{source}query shadow(N:u64)->u64{{return zero(N);}}"))
+        .unwrap_err().contains("parameter shadows value state"));
+}
+#[test]
 fn public_preconditions_and_total_change_runtime() {
     use ink_core::{
         eval,

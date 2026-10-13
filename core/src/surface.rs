@@ -16,9 +16,18 @@ pub struct SurfaceProgram {
     pub payload_enums: BTreeMap<String, Vec<String>>,
     pub matches: BTreeMap<String, Vec<(String, String, Vec<String>)>>,
     pub constant_parameters: BTreeMap<String, BTreeSet<String>>,
+    /// Source abstraction is an interface property, not a mathematical axiom.
+    pub abstract_records: BTreeMap<String, String>,
+    pub access_origins: BTreeMap<String, String>,
 }
 
 impl SurfaceProgram {
+    pub fn mark_accesses(&mut self) -> LangResult<()> {
+        self.mark_accesses_avoiding(&BTreeSet::new())
+    }
+    pub fn mark_accesses_avoiding(&mut self, names:&BTreeSet<String>) -> LangResult<()> {
+        crate::abstraction::mark(&mut self.program, &mut self.access_origins, names)
+    }
     pub fn elaborate(mut self) -> LangResult<Program> {
         // Parsed modules have already resolved their own lexical calls. This
         // also covers source-law tools that construct a surface program directly.
@@ -42,6 +51,8 @@ impl SurfaceProgram {
             constant_parameters: self.constant_parameters,
             arrays: BTreeMap::new(),
             occupied,
+            abstract_records: self.abstract_records,
+            access_origins: self.access_origins,
         };
         if e.parameters.len() + e.aliases.len() > 1024 {
             return Err("surface declaration limit exceeded".into());
@@ -239,6 +250,7 @@ impl SurfaceProgram {
             }
         }
         for implementation in &mut p.contracts.implementations { implementation.body.clear(); }
+        crate::abstraction::check_and_strip(&mut p, &e.abstract_records, &e.access_origins)?;
         crate::contracts::values::install(&mut p)?;
         crate::contracts::install_guards(&mut p)?;
         Ok(p)
@@ -263,6 +275,8 @@ struct Elaborator {
     constant_parameters: BTreeMap<String, BTreeSet<String>>,
     arrays: BTreeMap<String, (Type, u32)>,
     occupied: BTreeSet<String>,
+    abstract_records: BTreeMap<String, String>,
+    access_origins: BTreeMap<String, String>,
 }
 impl Elaborator {
     fn fresh_prefix(&mut self) -> String {
@@ -341,6 +355,9 @@ impl Elaborator {
         } else if let Some(fields) = self.templates.records.get(&name).cloned() {
             self.instances.insert(instance.clone(), instance.clone());
             self.instance_bases.insert(instance.clone(), name.clone());
+            if let Some(owner)=self.abstract_records.get(&name).cloned() {
+                self.abstract_records.insert(instance.clone(),owner);
+            }
             let fields = fields
                 .into_iter()
                 .map(|(n, t)| Ok((n, self.ty(&t, &bindings, depth + 1)?)))
@@ -468,6 +485,14 @@ impl Elaborator {
         result
     }
     fn expr(&mut self, e: &mut Expr, env: &BTreeMap<String, Type>, depth: usize) -> LangResult<()> {
+        // Provenance wrappers have no computation or binder use. Preserve them
+        // through specialisation without changing the ordinary elaboration's
+        // fresh-name sequence or exposing them as executable declarations.
+        if let Expr::Let(name,_,_,body)=e {
+            if self.access_origins.contains_key(name) {
+                return self.expr(body,env,depth);
+            }
+        }
         self.step(depth)?;
         let shadowed=matches!(e,Expr::Call(n,_) if self.locals.contains(n)||self.templates.functions.iter().any(|f|&f.name==n));
         if let Some(lowered) = if shadowed { None } else { crate::contracts::collections::lower(e, &self.fresh_prefix())? } {
@@ -1116,7 +1141,7 @@ impl Elaborator {
             .map(|(i, (n, _))| (n.clone(), format!("{prefix}_p{i}")))
             .collect();
         let mut serial = 0;
-        let mut body = hygienic(&f.body, &mut names, &prefix, &mut serial);
+        let mut body = hygienic(&f.body, &mut names, &prefix, &mut serial, &self.access_origins);
         let mut values = vec![];
         let mut callbacks = BTreeMap::new();
         for (i, ((_, t), arg)) in f.params.iter().zip(args).enumerate() {
@@ -1228,18 +1253,26 @@ fn hygienic(
     names: &mut BTreeMap<String, String>,
     prefix: &str,
     serial: &mut usize,
+    origins: &BTreeMap<String,String>,
 ) -> Expr {
+    if let Expr::Let(name,annotation,initial,body)=e {
+        if origins.contains_key(name) {
+            return Expr::Let(name.clone(),annotation.clone(),
+                Box::new(hygienic(initial,names,prefix,serial,origins)),
+                Box::new(hygienic(body,names,prefix,serial,origins)));
+        }
+    }
     let rename = |n: &String, names: &BTreeMap<String, String>| names.get(n).unwrap_or(n).clone();
     match e {
         Expr::Var(n) => Expr::Var(rename(n, names)),
         Expr::Call(n, a) => Expr::Call(
             rename(n, names),
             a.iter()
-                .map(|a| hygienic(a, names, prefix, serial))
+                .map(|a| hygienic(a, names, prefix, serial, origins))
                 .collect(),
         ),
         Expr::Let(n, t, a, b) => {
-            let a = hygienic(a, names, prefix, serial);
+            let a = hygienic(a, names, prefix, serial, origins);
             let mut local = names.clone();
             let fresh = format!("{prefix}_v{}", *serial);
             *serial += 1;
@@ -1248,7 +1281,7 @@ fn hygienic(
                 fresh,
                 t.clone(),
                 Box::new(a),
-                Box::new(hygienic(b, &mut local, prefix, serial)),
+                Box::new(hygienic(b, &mut local, prefix, serial, origins)),
             )
         }
         Expr::Lambda(n, b) => {
@@ -1256,27 +1289,27 @@ fn hygienic(
             let fresh = format!("{prefix}_v{}", *serial);
             *serial += 1;
             local.insert(n.clone(), fresh.clone());
-            Expr::Lambda(fresh, Box::new(hygienic(b, &mut local, prefix, serial)))
+            Expr::Lambda(fresh, Box::new(hygienic(b, &mut local, prefix, serial, origins)))
         }
-        Expr::Neg(x) => Expr::Neg(Box::new(hygienic(x, names, prefix, serial))),
-        Expr::Try(x) => Expr::Try(Box::new(hygienic(x, names, prefix, serial))),
-        Expr::Field(x, n) => Expr::Field(Box::new(hygienic(x, names, prefix, serial)), n.clone()),
+        Expr::Neg(x) => Expr::Neg(Box::new(hygienic(x, names, prefix, serial, origins))),
+        Expr::Try(x) => Expr::Try(Box::new(hygienic(x, names, prefix, serial, origins))),
+        Expr::Field(x, n) => Expr::Field(Box::new(hygienic(x, names, prefix, serial, origins)), n.clone()),
         Expr::Method(x, n, a) => Expr::Method(
-            Box::new(hygienic(x, names, prefix, serial)),
+            Box::new(hygienic(x, names, prefix, serial, origins)),
             n.clone(),
             a.iter()
-                .map(|a| hygienic(a, names, prefix, serial))
+                .map(|a| hygienic(a, names, prefix, serial, origins))
                 .collect(),
         ),
         Expr::Binary(n, a, b) => Expr::Binary(
             n.clone(),
-            Box::new(hygienic(a, names, prefix, serial)),
-            Box::new(hygienic(b, names, prefix, serial)),
+            Box::new(hygienic(a, names, prefix, serial, origins)),
+            Box::new(hygienic(b, names, prefix, serial, origins)),
         ),
         Expr::Record(n, fs) => Expr::Record(
             n.clone(),
             fs.iter()
-                .map(|(n, a)| (n.clone(), hygienic(a, names, prefix, serial)))
+                .map(|(n, a)| (n.clone(), hygienic(a, names, prefix, serial, origins)))
                 .collect(),
         ),
         _ => e.clone(),

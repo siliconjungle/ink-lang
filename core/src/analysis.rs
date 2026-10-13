@@ -218,18 +218,64 @@ pub fn typed_walk(
                 pending.push((&args[1], env.clone(), Some(result), depth + 1));
                 pending.push((&args[0], env, None, depth + 1));
             }
+            Expr::Method(receiver,name,args) if ["fold","map","map_err"].contains(&name.as_str())
+                && matches!(crate::check::infer(receiver,&env,program)?,Type::Option(_)|Type::Result(..)) => {
+                let input=crate::check::infer(receiver,&env,program)?;
+                let result=crate::check::infer_context(e,&env,program,want.as_ref())?;
+                if name=="fold" {
+                    let parameters=match input {Type::Option(t)=>vec![*t,Type::Unit],Type::Result(a,b)=>vec![*a,*b],_=>unreachable!()};
+                    for (arg,parameter) in args.iter().zip(parameters){callback(arg,&[parameter],Some(result.clone()),&env,depth+1,&mut pending);}
+                } else {
+                    let (parameter,output)=match (input,result,name.as_str()) {
+                        (Type::Option(a),Type::Option(b),"map")=>(*a,*b),
+                        (Type::Result(a,_),Type::Result(b,_),"map")=>(*a,*b),
+                        (Type::Result(_,a),Type::Result(_,b),"map_err")=>(*a,*b),
+                        _=>return Err("typed variant callback".into()),
+                    };
+                    callback(&args[0],&[parameter],Some(output),&env,depth+1,&mut pending);
+                }
+                pending.push((receiver,env,None,depth+1));
+            }
+            Expr::Call(name,args) if ["repeat","repeat_until"].contains(&name.as_str()) => {
+                let result=crate::check::infer_context(e,&env,program,want.as_ref())?;
+                let step=if name=="repeat" {2}else{3};
+                callback(&args[step],&[Type::U32,result.clone()],Some(result.clone()),&env,depth+1,&mut pending);
+                if step==3 {callback(&args[2],&[result.clone()],Some(Type::Bool),&env,depth+1,&mut pending);}
+                pending.push((&args[1],env.clone(),Some(result),depth+1));
+                pending.push((&args[0],env,Some(Type::U32),depth+1));
+            }
+            Expr::Call(name,args) if name=="parallel_map" && args.len()==3 => {
+                let Type::List(input)=crate::check::infer(&args[0],&env,program)? else{return Err("typed parallel receiver".into())};
+                let Type::List(output)=crate::check::infer_context(e,&env,program,want.as_ref())? else{return Err("typed parallel result".into())};
+                callback(&args[2],&[Type::U32,*input],Some(*output),&env,depth+1,&mut pending);
+                pending.push((&args[1],env.clone(),Some(Type::U32),depth+1));pending.push((&args[0],env,None,depth+1));
+            }
+            Expr::Method(receiver,name,args) if name=="split_at" && args.len()==2 => {
+                let input=crate::check::infer(receiver,&env,program)?;
+                if !matches!(input,Type::Buffer(_)){return Err("typed split receiver".into())}
+                callback(&args[1],&[input.clone(),input.clone()],Some(input),&env,depth+1,&mut pending);
+                pending.push((&args[0],env.clone(),Some(Type::U32),depth+1));pending.push((receiver,env,None,depth+1));
+            }
+            Expr::Method(receiver,name,args) if name=="map_parallel" && args.len()==2 => {
+                let input=crate::check::infer(receiver,&env,program)?;
+                let item=match input{Type::List(t)|Type::Buffer(t)=>*t,_=>return Err("typed parallel receiver".into())};
+                let result=crate::check::infer_context(e,&env,program,want.as_ref())?;
+                let output=match result{Type::List(t)|Type::Buffer(t)=>*t,_=>return Err("typed parallel result".into())};
+                callback(&args[1],&[Type::U32,item],Some(output),&env,depth+1,&mut pending);
+                pending.push((&args[0],env.clone(),Some(Type::U32),depth+1));pending.push((receiver,env,None,depth+1));
+            }
             Expr::Method(receiver, name, args)
                 if ["map", "filter", "map_indexed", "zip"].contains(&name.as_str())
                     && args.len() == if name == "zip" { 2 } else { 1 } =>
             {
                 let input = crate::check::infer(receiver, &env, program)?;
                 let item = match input {
-                    Type::List(t) | Type::Vector(t, _) => *t,
+                    Type::List(t) | Type::Vector(t, _) | Type::Buffer(t) => *t,
                     _ => return Err("typed sequence receiver".into()),
                 };
                 let result = crate::check::infer_context(e, &env, program, want.as_ref())?;
                 let output = match result {
-                    Type::List(t) | Type::Vector(t, _) => Some(*t),
+                    Type::List(t) | Type::Vector(t, _) | Type::Buffer(t) => Some(*t),
                     _ => None,
                 };
                 if name == "zip" {

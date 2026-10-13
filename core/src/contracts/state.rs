@@ -320,7 +320,15 @@ pub(super) fn derive(source: &Program) -> LangResult<StateObligations> {
         for e in g.conditions {
             conditions.push(ghosts.query(g.params.clone(), Type::Bool, e)?);
         }
-        call_checks.push((g.name, name, conditions));
+        // Invariants hold at a checked invocation boundary. A source action
+        // with no write capability observes that same state throughout, so its
+        // call-site goals may use the boundary invariant. Mutating actions and
+        // synthetic keep-initializer checks do not receive this assumption.
+        // Use separate zero-argument ghosts: a local/parameter named like a
+        // state slot must not capture the invariant's global observation.
+        let stable_state = source.actions.iter()
+            .any(|a| a.name == g.owner && a.writes.is_empty());
+        call_checks.push((g.name, name, conditions, stable_state));
     }
     let checked = CheckedModule::from_source(ghosts.p)?;
     let model = Projection::derive(&checked)?;
@@ -339,7 +347,7 @@ pub(super) fn derive(source: &Program) -> LangResult<StateObligations> {
             .collect(),
     };
     let mut goals = vec![];
-    for (label, name, conditions) in call_checks {
+    for (label, name, conditions, stable_state) in call_checks {
         let a = &model.actions[&name];
         let params = &a.params;
         let args = params[2..].iter().map(|(n, _)| var(n)).collect::<Vec<_>>();
@@ -352,7 +360,7 @@ pub(super) fn derive(source: &Program) -> LangResult<StateObligations> {
             var("version"),
             args.clone(),
         )?);
-        let conditions = conditions
+        let mut conditions = conditions
             .iter()
             .map(|n| {
                 Ok(yes(query_value(
@@ -366,6 +374,12 @@ pub(super) fn derive(source: &Program) -> LangResult<StateObligations> {
                 )?))
             })
             .collect::<LangResult<Vec<_>>>()?;
+        if stable_state {
+            for invariant in &invariants {
+                conditions.push(yes(query_value(&model, &cx, invariant, params,
+                    var("initial"), var("version"), vec![])?));
+            }
+        }
         goals.push(StateObligation {
             name: label,
             params: params.clone(),

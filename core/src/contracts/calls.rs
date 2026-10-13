@@ -5,6 +5,7 @@ use super::*;
 #[derive(Clone)]
 pub(super) struct CallCondition {
     pub name: String,
+    pub owner: String,
     pub params: Vec<(String, Type)>,
     pub conditions: Vec<Expr>,
     pub predicate: Expr,
@@ -222,6 +223,7 @@ fn expression(
             }
             out.push(CallCondition {
                 name: format!("{owner}:action-call:{}:requires", *serial),
+                owner: owner.into(),
                 params: env
                     .iter()
                     .filter(|(n, _)| {

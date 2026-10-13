@@ -109,6 +109,7 @@ struct Node {
     exports: BTreeSet<String>,
     private_states: BTreeSet<String>,
     records: BTreeSet<String>,
+    has_abstract_records: bool,
 }
 fn header(path: PathBuf, text: String) -> LangResult<Node> {
     let ts = tokens(&text)?;
@@ -177,7 +178,9 @@ fn header(path: PathBuf, text: String) -> LangResult<Node> {
     let mut depth = 0i32;
     let mut declaration_start = true;
     let mut declarations = BTreeSet::new();
+    let mut has_abstract_records=false;
     for pair in ts[at..].windows(2) {
+        if depth==0 && declaration_start && pair[0].text=="abstract" {has_abstract_records=true;}
         if depth == 0
             && declaration_start
             && [
@@ -222,6 +225,7 @@ fn header(path: PathBuf, text: String) -> LangResult<Node> {
         exports,
         private_states,
         records,
+        has_abstract_records,
     })
 }
 fn names(node: &Node, root: bool) -> BTreeMap<String, String> {
@@ -592,9 +596,17 @@ impl Loader {
         text.push_str(&node.text[end..]);
         let mut parsed = parse_surface(&text, imported_records)
             .map_err(|e| source_diagnostic(node, &mapping, e))?;
+        if self.nodes.iter().any(|node|node.has_abstract_records) {
+            let occupied=self.nodes.iter().flat_map(|node|node.tokens.iter())
+                .filter(|token|identifier(&token.text)).map(|token|token.text.clone()).collect();
+            parsed.mark_accesses_avoiding(&occupied)?;
+        }
         let mapping = names(node, index == 0);
         parsed.program = link(parsed.program, &mapping, &aliases)
             .map_err(|e| format!("{}: {e}", node.path.display()))?;
+        parsed.abstract_records=parsed.abstract_records.into_iter().map(|(mut name,owner)|{
+            renamed(&mut name,&mapping);(name,owner)
+        }).collect();
         parsed.aliases = parsed
             .aliases
             .into_iter()
@@ -720,6 +732,13 @@ pub fn load(path: impl AsRef<Path>) -> LangResult<Loaded> {
     let mut displays = vec![];
     for i in 1..loader.nodes.len() {
         let parsed = loader.program(i)?;
+        surface.abstract_records.extend(parsed.abstract_records);
+        for (name,origin) in parsed.access_origins {
+            if surface.access_origins.get(&name).is_some_and(|previous|previous!=&origin) {
+                return Err("source origin collision".into());
+            }
+            surface.access_origins.insert(name,origin);
+        }
         surface.aliases.extend(parsed.aliases);
         surface.parameters.extend(parsed.parameters);
         surface.applications.extend(parsed.applications);

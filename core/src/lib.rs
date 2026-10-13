@@ -5,6 +5,7 @@ mod action_semantic;
 mod action_types;
 pub mod action_values;
 pub mod analysis;
+mod abstraction;
 pub mod bitproof;
 pub mod check;
 pub mod collection_facts;

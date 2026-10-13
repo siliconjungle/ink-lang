@@ -626,10 +626,13 @@ impl Parser {
             p.module.push_str(&self.name()?);
         }
         self.expect(";")?;
+        let mut abstract_records=std::collections::BTreeMap::new();
         while self.peek() != "<eof>" {
             self.eat("pub");
+            let abstract_record=self.eat("abstract");
             let refined = self.eat("refined");
             if refined && self.peek() != "record" { return Err(self.err("refined applies to record declarations")); }
+            if abstract_record && self.peek() != "record" { return Err(self.err("abstract applies to record declarations")); }
             let private = self.eat("private");
             if private && self.peek() != "state" { return Err(self.err("private applies to state declarations")); }
             if private {
@@ -724,6 +727,7 @@ impl Parser {
                 if p.records.insert(n.clone(), fields).is_some() {
                     return Err(format!("duplicate record {n}"));
                 }
+                if abstract_record {abstract_records.insert(n.clone(),p.module.clone());}
                 if refined {
                     self.expect("invariant")?;
                     self.pure = true;
@@ -981,7 +985,7 @@ impl Parser {
         p.records
             .extend(std::mem::take(&mut self.generated_records));
         crate::contracts::collections::resolve(&mut p)?;
-        Ok(SurfaceProgram {
+        let mut surface=SurfaceProgram {
             program: p,
             aliases: std::mem::take(&mut self.aliases),
             parameters: std::mem::take(&mut self.parameters),
@@ -990,7 +994,11 @@ impl Parser {
             payload_enums: std::mem::take(&mut self.payload_enums),
             matches: std::mem::take(&mut self.matches),
             constant_parameters: std::mem::take(&mut self.constant_parameters),
-        })
+            abstract_records,
+            access_origins: Default::default(),
+        };
+        if !surface.abstract_records.is_empty() {surface.mark_accesses()?;}
+        Ok(surface)
     }
     // Contracts validate, never assume. Failure is the declared Result error.
     // They erase into normal lazy branches and lexical result bindings.
