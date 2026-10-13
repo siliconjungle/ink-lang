@@ -239,3 +239,39 @@ fn imported_abstract_values_compose_through_actual_callback_domains_across_targe
     }).collect();
     parity::conformance("invariant-value-abstract-composition",p,&fs::read_to_string(file).unwrap(),steps,expected);
 }
+
+#[test]
+fn abstract_action_callbacks_preserve_state_events_and_invalid_ingress_across_targets() {
+    let file=Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/action-abstract-composition/main.ink");
+    let mut p=modules::load(&file).unwrap().program;
+    verified_language::contracts::attach(&mut p,serde_json::from_str(include_str!("fixtures/action-abstract-composition/proofs.json")).unwrap()).unwrap();
+    CheckedModule::from_source(p.clone()).unwrap();
+    let mut runtime=Runtime::new(p.clone()).unwrap();
+    let steps=vec![
+        json!({"call":"current","args":[]}),
+        json!({"call":"items","args":[[{"item":1,"valid":true},{"item":2,"valid":true}]]}),
+        json!({"call":"items","args":[[{"item":1,"valid":false}]]}),
+        json!({"call":"maybe","args":[{"Some":{"item":7,"valid":true}}]}),
+        json!({"call":"maybe","args":[{"None":null}]}),
+        json!({"call":"either","args":[{"Ok":{"item":8,"valid":true}}]}),
+        json!({"call":"either","args":[{"Err":{"item":9,"valid":true}}]}),
+        json!({"call":"either","args":[{"Err":{"item":9,"valid":false}}]}),
+        json!({"call":"store","args":[[{"item":1,"valid":true},{"item":2,"valid":true}]]}),
+        json!({"call":"current","args":[]}),
+        json!({"call":"abort","args":[[{"item":11,"valid":true}]]}),
+        json!({"call":"current","args":[]}),
+        json!({"call":"store","args":[[{"item":11,"valid":false}]]}),
+        json!({"call":"current","args":[]}),
+        json!({"pure":"numeric","args":[[0,u32::MAX]],"expect_gpu":true}),
+    ];
+    let expected:Vec<Value>=steps.iter().map(|step| {
+        let reply=if let Some(name)=step["pure"].as_str() {
+            let args=vec![eval::Value::List(vec![eval::Value::U32(0),eval::Value::U32(u32::MAX)])];
+            match eval::call(&p,name,args,&mut 1_000_000){Ok(v)=>json!({"value":v.json()}),Err(e)=>json!({"host_error":e})}
+        }else{
+            match runtime.invoke_json(step["call"].as_str().unwrap(),&step["args"]){Ok(v)=>json!({"outcome":v.json()}),Err(e)=>json!({"host_error":e})}
+        };
+        json!({"reply":reply,"snapshot":runtime.checkpoint_portable().unwrap()})
+    }).collect();
+    parity::conformance("invariant-value-action-composition",p,&fs::read_to_string(file).unwrap(),steps,expected);
+}

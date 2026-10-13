@@ -1,0 +1,68 @@
+{
+  "schema": 1,
+  "status": "partial-implementation",
+  "previous_snapshot": "76f9c298d1759aba67bf7a0e9f57d0dfc7068b4f3f9751be205703954a906996",
+  "snapshot": "d82ee95630dc9a95bedd53bcd53370f7f8002026dfb3744c849472dcab327347",
+  "snapshot_root": "6edf539488a6c863e107a611405212861d5e97a5c7203535dc9828d7e60641b8",
+  "contributed_or_reused_objects": 296,
+  "named": 54,
+  "fixtures": {
+    "action-callbacks": {
+      "source_sha256": "61cabc27b84ecfbfd707eb0d252f9cc8992cdc3b1ace6c5e710fa9d6429b4eaf",
+      "pure": 2,
+      "state": 25
+    },
+    "action-abstract-composition": {
+      "source_sha256": "2740352560b84147ea7789a345d43d0a001707f8993d62d1f9f4f4c69c2622e3",
+      "pure": 2,
+      "state": 25
+    }
+  },
+  "compiler": {
+    "compiler_sha256": "6bb99fcd692084ac1e40f2c4c8251947791f2b647acd08a4d90243fe97735ef1",
+    "scope": "final action callback observation, guard and constructor correspondence"
+  },
+  "checks": {
+    "core_tests": 228,
+    "database_tests": 19,
+    "abstract_integration_tests": 6,
+    "action_replies": 15,
+    "action_gpu_calls": 1,
+    "targets": [
+      "C",
+      "Rust",
+      "JavaScript",
+      "C-Wasm",
+      "Rust-Wasm",
+      "eligible wgpu"
+    ],
+    "logs": [
+      "action-callback-core-final-v4.log",
+      "action-callback-db-tests.log",
+      "action-callback-target-parity-final.log",
+      "action-callback-published-replay-final.log",
+      "action-abstract-published-replay-final.log",
+      "action-proof-balance-replay-v2.log"
+    ]
+  },
+  "source_packets": {
+    "core/tests/fixtures/action-callback-values-proofs.json": "168cebf4243edf7f69e56e2b335d1f6fcfa4551a2d21d239d45d6635d6e1979e",
+    "tests/fixtures/action-abstract-composition/proofs.json": "4427bd9d7a28a390ee73df12f1dfcb4e54d724b76bef720b3916e762371befd0"
+  },
+  "scope": "Source-bound pure callback obligations in action expressions, typed readonly observations, exact scoped guards, eager fallback requirements and fixed pure variant correspondence. Proof-only helpers do not alter executable source.",
+  "remaining": [
+    "dependent readonly query calls inside callbacks",
+    "conditional query observations",
+    "ownership-bearing accumulators",
+    "general fold preservation families",
+    "direct pure-loop expressions in actions",
+    "interchangeable abstract interfaces and owner protocols",
+    "general storage and strategy externalisation",
+    "recursive source datatypes and authored termination",
+    "local mutation/frame/loop relations",
+    "broader lowering fact consumers",
+    "compositional incremental maintenance",
+    "whole-workload performance evidence",
+    "verified publication on main in all changed repositories"
+  ]
+}

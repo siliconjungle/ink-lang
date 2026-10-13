@@ -183,6 +183,43 @@ support. Missing capability stays explicit while implementation continues.
   runtime performance claim follows. Action callback transport, owned accumulator predicates and reusable arbitrary
   fold preservation proofs remain open. Receipt:
   `docs/evidence/general-machinery/callback-domains.json`.
+- Action pure-expression callback obligations now share the semantic consumer
+  domains. Typed readonly observations connect state-table reads to those domains;
+  actual readonly action-call preconditions remain checked separately. Boundary
+  state invariants remain restricted to actions with no writes. Eager fallback
+  requirements and compound guards retain their execution scope, and the action
+  model now covers the existing pure Option/Result constructors.
+- Standalone and imported abstract action fixtures each author/replay two pure
+  and 25 state obligations. Frozen packets live in the core and distribution
+  fixtures. The previous failed attempts are retained in the
+  `action-callback-proof-authoring*.log` files. The successful standalone attempt
+  is `action-callback-proof-authoring-v5.log`; the imported attempt is
+  `action-abstract-proof-authoring.log`.
+- State proof authors now balance transitivity and close deep branches under
+  exact typed parameters and premises. The checker still replays every helper
+  and verifies each use's premises. Existing proof-stack and canonical-object
+  nesting limits are unchanged. `action-proof-balance-replay-v2.log` records an
+  ordinary 40-step proof rejecting at the kernel limit and its balanced form
+  checking. The first probe hit the JSON nesting limit instead and is retained.
+- The final standalone core suite passed 228 tests in
+  `action-callback-core-final-v4.log`; 19 affected database tests passed in
+  `action-callback-db-tests.log`. All six abstract integration tests passed in
+  `action-callback-target-parity-final.log`. The new action fixture matches 15
+  replies and exact snapshots across C/Rust/JS/both Wasm paths, with one eligible
+  numeric GPU dispatch. Earlier abstract value and pure-composition fixtures
+  retain their ten and 16 replies respectively and their device controls.
+- Local canonical publication contributes/reuses 296 objects and 54 names for
+  the two action fixtures. Snapshot identity is
+  `d82ee95630dc9a95bedd53bcd53370f7f8002026dfb3744c849472dcab327347`.
+  Both exported views replay with the final frozen compiler in
+  `action-callback-published-replay-final.log` and
+  `action-abstract-published-replay-final.log`. This is a staging publication;
+  no remote main or runtime performance claim follows. Receipt:
+  `docs/evidence/general-machinery/action-callback-domains.json`.
+- Remaining callback paths include dependent query calls inside callbacks,
+  conditional query observations, ownership-bearing accumulators, general fold
+  preservation laws and direct pure-loop expressions in action bodies. These
+  paths retain conservative admission; they are not waived by the fixtures.
 - Remaining requirements include interchangeable abstract interfaces and owners, general
   storage and externalisation, authored termination, local frame/loop relations,
   broader cross-consumer fact transport, compositional incremental maintenance,

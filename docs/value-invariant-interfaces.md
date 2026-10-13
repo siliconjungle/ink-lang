@@ -155,9 +155,35 @@ The imported composition fixture carries 19 independently replayed pure
 obligations and 17 canonical objects. Two Result branches use ordinary exhaustive
 variant proofs proposed by the database producer. Raw inputs still undergo their
 independent validation, and unsupported inner callback domains retain the
-stronger universal obligation. Action-body callback domains, ownership-bearing
-accumulator predicates and general preservation proofs for arbitrary folds still
-need further composition work; this change covers the pure semantic call path.
+stronger universal obligation. Action bodies now reuse this pure-expression obligation path. State reads outside
+callbacks become explicitly typed observations, evaluated by proof-only readonly
+queries. Table lookups and readonly action calls retain their original value
+meaning; the latter's preconditions remain separate obligations. State invariants
+are still supplied only to source actions with an empty write footprint. Captured
+immutable input/result facts remain independent of later writes.
+
+The action observation bridge uses ordinary pure-function correspondence instead
+of adding callback primitives to the action language. It preserves the eager
+fallback of action `unwrap_or` by binding that value before the variant fold;
+requirements in the fallback cannot hide behind a `Some` branch. True branch
+facts use the same checked assertion interpretation as contract clauses, including
+compound guards and the exclusion of scalar IEEE equality from bit equality.
+Pure variant constructors also have their existing fixed datatype correspondence
+in the action model. None of these proof-only helpers enters executable code.
+
+The standalone and imported abstract action fixtures each replay two pure and 25
+state obligations. They exercise observations, commits, ordered events, rollback
+and invalid inputs. State proof producers reassociate transitivity chains and
+close deep branches as conditional helper theorems under their exact typed
+parameters and premises. Every helper and use still replays; the kernel's proof
+nesting and canonical-object limits remain unchanged. A 40-step unbalanced proof
+rejects at the kernel depth limit, while the reassociated proof checks.
+
+Dependent readonly query calls inside callbacks, conditional query observations,
+ownership-bearing accumulators, general fold preservation proofs and direct
+pure-loop expressions in actions still need further correspondence work. The
+existing stronger obligations remain for unsupported paths; no validity premise
+is granted from their nominal types.
 
 This is not the completed abstract-interface request. Interchangeable abstract
 implementations and checked owner interfaces still need implementation. Recursive

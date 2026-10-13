@@ -282,6 +282,7 @@ fn call_obligations(
     executable: &Program,
 ) -> LangResult<()> {
     let mut conditions = conditions.to_vec();
+    facts::expand_conjunctions(&mut conditions)?;
     // Postconditions are introduced only in call-site obligations. Every
     // implementation's own postconditions are checked independently above;
     // using a callee contract cannot justify that same contract circularly.
@@ -330,10 +331,11 @@ fn call_obligations(
                 _ => None,
             };
             if let Some(v) = flag {
-                facts.push(Equation {
-                    from: s::open_scope(&args[0], &scope, budget)?,
-                    to: s::term(s::value(Type::Bool), s::Node::Bool(v)),
-                });
+                let condition = s::open_scope(&args[0], &scope, budget)?;
+                facts.push(if v { assertion(condition) } else { Equation {
+                    from: condition,
+                    to: s::term(s::value(Type::Bool), s::Node::Bool(false)),
+                }});
             }
             if n == "apply" && i == 0 && args.len() == 2 {
                 if let (s::Node::Lambda(_), s::Sort::Arrow(parameter, _)) = (&args[0].node, &args[0].sort) {
@@ -354,6 +356,55 @@ fn call_obligations(
     }
     Ok(())
 }
+
+/// Shared pure-expression call obligations for readonly computation inside an
+/// action. State observations are supplied as typed free values by the action
+/// walker; this grants no state invariant or fact across a mutation.
+fn expression_obligations(
+    p: &Program,
+    e: &Expr,
+    env: &crate::check::Env,
+    facts: &[Expr],
+) -> LangResult<Vec<Obligation>> {
+    let ty = crate::check::infer(e, env, p)?;
+    let term = s::elaborate(e, env, p, &ty)?;
+    let mut conditions = facts
+        .iter()
+        .map(|e| Ok(assertion(predicate(e, env, p)?)))
+        .collect::<LangResult<Vec<_>>>()?;
+    facts::expand_conjunctions(&mut conditions)?;
+    let semantic_env = env
+        .iter()
+        .map(|(n, t)| (n.clone(), s::value(t.clone())))
+        .collect();
+    let mut executable = p.clone();
+    executable.contracts = Contracts::default();
+    let catalogue = CheckedCatalogue::check(
+        &Catalogue {
+            schema: 1,
+            semantics: laws::SEMANTICS.into(),
+            roots: vec![],
+            objects: BTreeMap::new(),
+        },
+        &executable,
+    )?;
+    let mut out = vec![];
+    call_obligations(
+        &term,
+        p,
+        &semantic_env,
+        &conditions,
+        &[],
+        "expression",
+        &mut vec![],
+        &mut out,
+        &mut s::Budget::new(),
+        &catalogue,
+        &executable,
+    )?;
+    Ok(out)
+}
+
 pub fn check(module: &CheckedModule) -> LangResult<()> {
     let p = module.program();
     let c = &p.contracts;
