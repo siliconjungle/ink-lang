@@ -246,6 +246,7 @@ fn run() -> LangResult<()> {
         "--refinement-bodies",
         "--snapshot",
         "--snapshot-out",
+        "--sorted-tables",
         "--state-out",
         "--physical-plan",
         "--representation",
@@ -1188,6 +1189,15 @@ fn run() -> LangResult<()> {
                 &out,
                 &serde_json::to_string_pretty(&model).map_err(|e| e.to_string())?,
             )?;
+            // Derived sortedness predicates, for producers that prove the
+            // invariant; the checker recomputes them and grants nothing here.
+            if let Some(path) = arg_value(&args, "--sorted-tables")? {
+                write(
+                    &path,
+                    &serde_json::to_string_pretty(&model.sorted_tables()?)
+                        .map_err(|e| e.to_string())?,
+                )?;
+            }
             println!(
                 "{}",
                 serde_json::json!({"status":"projected", "semantics":verified_language::action_model::SEMANTICS,

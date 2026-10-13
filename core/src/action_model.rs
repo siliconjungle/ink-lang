@@ -22,6 +22,8 @@ mod observations;
 pub use observations::{ValueObservation, CallObservation, EntryObservation, SiteObservation, ObservationFunction};
 mod integer;
 mod pure;
+mod sorted;
+pub use sorted::{SortedProofs, SortedTables, SORTED_SEMANTICS};
 pub(crate) mod recursive_values;
 pub use recursive_values::{RecursiveField,RecursiveRecord};
 pub const SEMANTICS: &str = "ink-action-transition-v1";
@@ -228,6 +230,11 @@ pub struct Projection {
 pub struct Replacement {
     pub selected: serde_json::Value,
     pub proofs: BTreeMap<String, Proof>,
+    /// Optional: first establish strictly sorted tables as an inductive
+    /// invariant of the original module, then check every action equality
+    /// under it. Without it, equalities quantify over all row lists.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sorted_tables: Option<SortedProofs>,
 }
 struct Lower<'a> {
     program: &'a Program,
@@ -1260,6 +1267,11 @@ pub(crate) fn check(
     if r.proofs.keys().ne(before.actions.keys()) {
         return Err("action replacement requires exactly every action proof".into());
     }
+    let sorted = r
+        .sorted_tables
+        .as_ref()
+        .map(|proofs| before.check_sorted(bundle, &context, proofs))
+        .transpose()?;
     for (name, a) in &before.actions {
         let z = &after.actions[name];
         if a.params != z.params || a.result != z.result {
@@ -1269,10 +1281,17 @@ pub(crate) fn check(
             return Err("source transition must be an enabled database root".into());
         }
         let args = a.params.iter().map(|(n, _)| v(n)).collect::<Vec<_>>();
+        let hypotheses = match &sorted {
+            Some(sorted) => before.sorted_hypotheses(
+                sorted,
+                v(&a.params.first().ok_or("action without state")?.0),
+            ),
+            None => vec![],
+        };
         context
             .check(
                 &a.params,
-                &[],
+                &hypotheses,
                 &call(&a.function, args.clone()),
                 &call(&z.function, args),
                 &r.proofs[name],
@@ -1285,11 +1304,15 @@ pub(crate) fn check(
 /// Actual theorem references in the supplied proof terms, rather than action
 /// names or every unused theorem in the authenticated view.
 pub(crate) fn used_theorems(
-    proofs: &BTreeMap<String, Proof>,
+    replacement: &Replacement,
     bundle: &registry::Bundle,
 ) -> LangResult<Vec<String>> {
     let mut references = BTreeSet::new();
-    for p in proofs.values() {
+    let invariant = replacement
+        .sorted_tables
+        .iter()
+        .flat_map(|s| s.actions.values().flatten());
+    for p in replacement.proofs.values().chain(invariant) {
         refs(
             &serde_json::to_value(p).map_err(|e| e.to_string())?,
             &mut references,
