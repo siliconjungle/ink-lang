@@ -18,6 +18,8 @@ mod equality;
 mod keys;
 mod local;
 mod flow;
+mod observations;
+pub use observations::{ValueObservation, ObservationFunction};
 mod integer;
 mod pure;
 pub(crate) mod recursive_values;
@@ -882,6 +884,14 @@ impl Lower<'_> {
 }
 impl Projection {
     pub fn derive(module: &CheckedModule) -> LangResult<Self> {
+        Ok(Self::derive_observations(module, &[])?.0)
+    }
+    /// Project source-site predicates through the same ordered execution used
+    /// for transitions. Requests select checked source nodes, never meanings.
+    pub fn derive_observations(
+        module: &CheckedModule,
+        observations: &[ValueObservation],
+    ) -> LangResult<(Self, Vec<ObservationFunction>)> {
         let actions = CheckedActions::elaborate(module)?;
         let mut nodes = 0usize;
         for i in 0..module.program().actions.len() {
@@ -1043,6 +1053,10 @@ impl Projection {
                 },
             );
         }
+        let mut observed = vec![];
+        for observation in observations {
+            observed.push(l.value_observation(&actions, observation)?);
+        }
         let mut out = Self {
             schema: 1,
             semantics: SEMANTICS.into(),
@@ -1099,7 +1113,7 @@ impl Projection {
         if registry::canonical(&out)?.len() > crate::core::MAX_BYTES {
             return Err("action model byte limit".into());
         }
-        Ok(out)
+        Ok((out, observed))
     }
     fn reachable(&self) -> LangResult<BTreeSet<String>> {
         let mut pending = self
