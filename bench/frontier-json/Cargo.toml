@@ -1,0 +1,16 @@
+[package]
+name="ink-frontier-json-benchmark"
+version="0.1.0"
+edition="2021"
+license="MIT"
+[dependencies]
+serde_json={version="=1.0.151",features=["float_roundtrip"]}
+ink-abi={path="../../abi"}
+ordered={package="ink-frontier-ordered",path="../../build/frontier-json/native-ordered"}
+ordered_borrow={package="ink-frontier-ordered-borrow",path="../../build/frontier-json/native-ordered-borrow"}
+indexed={package="ink-frontier-indexed",path="../../build/frontier-json/native-indexed_slots"}
+indexed_borrow={package="ink-frontier-indexed-borrow",path="../../build/frontier-json/native-indexed_slots-borrow"}
+[profile.release]
+lto="thin"
+codegen-units=1
+[workspace]
