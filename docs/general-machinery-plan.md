@@ -162,13 +162,27 @@ support. Missing capability stays explicit while implementation continues.
   names under `abstract-interfaces/`; the exported publication view independently
   replayed in `abstract-published-replay.log`. Knowledge staging checkpoint:
   `71b99644908120def7415e7a1ed302204dd179fa`. This is not remote publication.
-- A further positive composition probe remains rejected: mapping the public
-  observer over a validated `List<Hidden<u32>>`. The current call obligation treats
-  the callback parameter as arbitrary and loses its relationship to the iterated
-  list (`abstract-composition-probe.ink` and `.log` under `build/general-machinery`).
-  General callback-domain/call-obligation transport is the next interface/fact
-  extension. Do not assume a raw validator's element predicate merely from its
-  nominal type; validation must retain its independent untrusted-input meaning.
+- The previously rejected `List<Hidden<u32>>` observer probe now checks. Pure
+  callback-call obligations quantify over the fixed consumer's actual domain
+  using existing semantic terms and ordinary proof replay. List/variant domains,
+  exact application, indexed map/zip, folds and bounded/early-stop loops share
+  this transport. Accumulator traces preserve direction, zero work and the
+  stopping fold's final step; no nominal predicate is granted to raw inputs.
+  The imported composition fixture authors/replays 19 pure obligations with a
+  17-object closure, including two ordinary Result case proofs. General database
+  variant proposals use fresh payload names and the kernel's required marker.
+  The final standalone run passed 223 core tests in `callback-core-final.log`;
+  all five abstract integration tests passed in `callback-target-parity-final.log`.
+  The new fixture matches 16 replies/snapshots across C/Rust/JS/both Wasm paths
+  with one actual eligible GPU control dispatch. The prior abstract state fixture
+  still matches ten replies/snapshots and its eligible dispatch. The canonical
+  view replays in `callback-published-replay.log`; snapshot identity is
+  `76f9c298d1759aba67bf7a0e9f57d0dfc7068b4f3f9751be205703954a906996`.
+  Seventeen affected database tests passed in `callback-db-tests-final.log`
+  and `callback-db-regressions.log`. This is local staging publication and no
+  runtime performance claim follows. Action callback transport, owned accumulator predicates and reusable arbitrary
+  fold preservation proofs remain open. Receipt:
+  `docs/evidence/general-machinery/callback-domains.json`.
 - Remaining requirements include interchangeable abstract interfaces and owners, general
   storage and externalisation, authored termination, local frame/loop relations,
   broader cross-consumer fact transport, compositional incremental maintenance,

@@ -10,6 +10,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 
 mod calls;
+mod callbacks;
 pub(crate) mod facts;
 mod refinement;
 pub(crate) mod state;
@@ -316,10 +317,7 @@ fn call_obligations(
         let s::Sort::Arrow(input, _) = &t.sort else {
             return Err("invalid contract binder".into());
         };
-        let mut n = format!("__contract_binder_{}", scope.len());
-        while local.contains_key(&n) {
-            n.push('_');
-        }
+        let n = callbacks::binder_name(&local, scope.len());
         local.insert(n.clone(), (**input).clone());
         scope.push((n, (**input).clone()));
     }
@@ -339,8 +337,7 @@ fn call_obligations(
             }
             if n == "apply" && i == 0 && args.len() == 2 {
                 if let (s::Node::Lambda(_), s::Sort::Arrow(parameter, _)) = (&args[0].node, &args[0].sort) {
-                    let mut name = format!("__contract_binder_{}", scope.len());
-                    while local.contains_key(&name) { name.push('_') }
+                    let name = callbacks::binder_name(&local, scope.len());
                     facts.push(Equation {
                         from: s::free((**parameter).clone(), &name),
                         to: s::open_scope(&args[1], &scope, budget)?,
@@ -349,8 +346,11 @@ fn call_obligations(
             }
         }
         path.push(i);
+        let start = out.len();
         call_obligations(child, p, &local, &facts, &scope, owner, path, out, budget, catalogue, executable)?;
         path.pop();
+        callbacks::lift(t, i, &local, &conditions, &scope, &mut out[start..], budget,
+            catalogue, executable)?;
     }
     Ok(())
 }
