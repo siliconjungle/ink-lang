@@ -83,6 +83,11 @@ records. Every format passes complete-value preflight; timed decode consumes
 result truthiness, so this is an API-return diagnostic rather than a complete
 downstream traversal or serialization measurement.
 
+Diagnostic `profile.mjs` modes `message-portable` and `message-compact` decode
+the dynamic Update schema after setup/warmup and consume its key and numeric
+payload. Inspector samples identify implementation costs; they never establish
+benchmark speed gains.
+
 State comparisons accept `--ink-module=<emitted module>` to select an exact
 baseline implementation without overwriting a frozen artifact. The runner binds
 its hash before timing and verifies it afterward. The separately supplied indexed

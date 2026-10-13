@@ -4,6 +4,33 @@ The all-metrics target remains unmet. Read-heavy state and retained JSON editing
 win in these fixtures; row updates, conversion and message decoding still lose.
 This is a shared development host, not a controlled laboratory.
 
+## Bound child readers
+
+Record/sum reading dominates the sampled message-decode profiles. The selected
+ABI change separates reading bodies from checked node entrypoints and binds a
+single-field record's child reader directly. Both node/depth charges and both
+portable frame-end checks remain in their original order; child values are
+constructed before their parent. No schema budget, Unicode/tag check or source
+algorithm is removed. This is fixed typed ABI lowering, not a database theorem.
+
+Three paired processes give median portable/compact message decode speedups
+of 1.355×/1.099× against the schema-resource release. The numeric-list control
+improves 1.845× portable and 1.620× compact. This control does not use the
+record fast path; the refactored binding/read function organisation affects its
+execution too. Wider-record, recursive numeric and encoding results vary and are
+retained rather than interpreted as universal gains. The complete binary editing
+diagnostic improves 1.073× in one process; that is not a release ranking.
+
+A generic iterative unary-chain reader regressed compact messages (0.779×)
+and recursive numeric portable decoding (0.615×) and is rejected. All modules,
+sources, harnesses, profiles and raw results are retained under
+`artifacts/wire-child-reader/` and `wire-child-reader-summary.json`. Timed codec
+controls use shallow consumers with complete-value preflight; sampled profiles
+are diagnostics, not benchmark evidence. Full ABI and mandatory JSON/state
+suites passed, including every supported child shape under a prototype-key
+record, frame mutations, lowered budgets, exact snapshots, rollback and
+forged-proof rejection. The Frontier/all-metrics target remains open.
+
 ## Schema-derived decoder resources
 
 Decoder binding computes auxiliary requirements across the entire recursive
