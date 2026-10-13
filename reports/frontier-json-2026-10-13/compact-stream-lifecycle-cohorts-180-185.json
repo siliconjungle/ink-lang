@@ -1,0 +1,1283 @@
+{
+  "schema": 1,
+  "provenance": {
+    "captured_at": "2026-10-13T15:41:26.606Z",
+    "hashes": {
+      "bench/frontier-json/state.ink": "f98f971b59e11d0983af3cbbd9a472f2d55b4e5720556de1f31b19b12ae866a4",
+      "bench/frontier-json/prepare.py": "d4040dee385095446525ece11523b5dec6cb5eb269937b4836d8fc439cc05713",
+      "bench/frontier-json/run.mjs": "68488f1e42322d19111254f1a5333428541388c371e2fd01af7745b8973920cb",
+      "bench/frontier-json/state-adapters.mjs": "2a7c24ff7778690f0ff6090d31afc45e26f7f6bd2909c3ae619c8e055ea79694",
+      "bench/frontier-json/json-kernels.mjs": "66985f5be207c4f170c0ccd3822f91f8f7f2c257b1b6abc9f3e5ab5e566f67c5",
+      "bench/frontier-json/src/main.rs": "295a467a214ce257f5d41e5fa8304649d2b21cb1beabefc19565d763856b597d",
+      "bench/frontier-json/package-lock.json": "3cc5c3e6c05c279b921df5c2b1a232d2b5f6a114f0a674d2d5d1946840d75a52",
+      "bench/frontier-json/Cargo.lock": "66cecb01a676b2fef9d944feab7ce7d7876e9133c7095f4c0eba566e6ae125f9",
+      "bench/frontier-json/provenance.mjs": "13459553d3b246749d71562e50b41085165e9fd13469e1a8bf9b29ce27308daf",
+      "build/frontier-json/fixtures.json": "f03846851a92e4968589f0daa0ae4bb1768f323a3cf90486017e89c58cf62145",
+      "build/frontier-json/preparation.json": "945bb6ebd6460d5a9ac33342e3d2e9e0d852dc14f604149b8297e2547a6773a1",
+      "build/frontier-json/ink.mjs": "a3e4dd199bd66efaa794be629ace508961158c59ac7958168b2fc5fce3cdbc90",
+      "target/debug/ink": "4c09d2c758731afe9ef809587c4ca81d749ab101223485a809b0d8e9a34040c1",
+      "build/frontier-json/ink-indexed.mjs": "7aa19686dd2fbbf3ced38f05237748de574f0d31d005b4bd747d0a723278f674",
+      "build/frontier-json/indexed.plan.json": "9c999ba5286d9056a802d3924cd33d089d21fa88f7a2ca7e9004adb6707d7d7f",
+      "build/frontier-json/target/release/ink-frontier-json-benchmark": "f1b8433e354ff184b7a3af6c74261758b6e89bafc44c8345b457a75a9fe28be7",
+      "build/frontier-json/compact-stream-release.mjs": "a5fbb1fed7cb79123290f62a25541cffc12697d14c865d98ba7dd87655c76167",
+      "bench/frontier-json/lifecycle-compare.mjs": "d14bd6ac0d1fcb46baa170e8e88f69536ce83f6abbd321c786d20a2b8352ff96"
+    },
+    "revisions": {
+      ".": "de75b0bbe216ff045410b860f47e73e40b5cb9fd",
+      "abi": "d948c2985e1aaec5ab2061056d65ea4d8ebaf3b9",
+      "core": "de75b0bbe216ff045410b860f47e73e40b5cb9fd",
+      "native-support": "eea3285a3ea1847c0dda237c3c988178e4a00f4c",
+      "runtime": "8cd382c935c211b6cfc40ba49cd8f6726eaedfbd",
+      "knowledge": "3cfd93cb9e8698b29c5d52b2e31d52419da5a447",
+      "planner": "cbafcdd0e10e65ded513a2298eb32d30a73c421b",
+      "lowerings/c": "21621f8b5918b088cb0a779cfda26510c978174c",
+      "lowerings/rust": "e7b7622dcbe319e4799d29651795b26dba538507",
+      "lowerings/js": "d9a27a0f5dcf56b71f2e7936b1ef9645ad908bc4",
+      "lowerings/wasm": "1b9a58d94f49e299865345775f5d1604f2d5c50f",
+      "lowerings/gpu": "be2e900902e4287564800622cb69566be3af8b4c",
+      "build/frontier": "2c72dbb4030e2695b682d3e49ec82d8c5c8ffec2",
+      "build/frontier-state-main": "9ff840ea690e55fd8c064934f92a26c1603a63fa",
+      "build/frontier-engine": "1fdd01b67367ccd2b1088b0148b558896935856e",
+      "build/frontier-codec": "7835c68e60ecb400f82d26436bd8e8855a7ba9b9"
+    },
+    "node": "v26.1.0",
+    "target": {
+      "cpu": "Apple M2",
+      "platform": "darwin",
+      "arch": "arm64",
+      "release": "25.5.0"
+    },
+    "host_isolation": "Shared development host; no exclusive CPU reservation. Repeated process cohorts and rotated lane order, not a controlled laboratory."
+  },
+  "reports": [
+    "lifecycle-180.json",
+    "lifecycle-181.json",
+    "lifecycle-182.json",
+    "lifecycle-183.json",
+    "lifecycle-184.json",
+    "lifecycle-185.json"
+  ],
+  "groups": {
+    "direct": {
+      "json-tree": {
+        "ink": {
+          "import_ns": {
+            "values": [
+              7049167.0,
+              6335666.0,
+              5795042.0
+            ],
+            "median": 6335666.0
+          },
+          "construction_ns": {
+            "values": [
+              1591583.0,
+              610500.0,
+              578709.0
+            ],
+            "median": 610500.0
+          },
+          "first_use_ns": {
+            "values": [
+              4341250.0,
+              1507542.0,
+              1298208.0
+            ],
+            "median": 1507542.0
+          },
+          "retain_ns": {
+            "values": [
+              6642208.0,
+              6709500.0,
+              5530542.0
+            ],
+            "median": 6642208.0
+          },
+          "retained_buffer_bytes": null,
+          "bytes_per_document": null,
+          "retained_phase_peak_rss_bytes": {
+            "values": [
+              85508096.0,
+              85934080.0,
+              85491712.0
+            ],
+            "median": 85508096.0
+          },
+          "retained_heap_delta_bytes": {
+            "values": [
+              3815664,
+              3815288,
+              3815360
+            ],
+            "median": 3815360
+          },
+          "retained_arraybuffer_delta_bytes": {
+            "values": [
+              0,
+              0,
+              0
+            ],
+            "median": 0
+          },
+          "process_peak_rss_bytes": {
+            "values": [
+              90226688,
+              90570752,
+              90193920
+            ],
+            "median": 90226688
+          }
+        },
+        "frontier": {
+          "import_ns": {
+            "values": [
+              5556667.0,
+              1493958.0,
+              1341167.0
+            ],
+            "median": 1493958.0
+          },
+          "construction_ns": {
+            "values": [
+              11625.0,
+              12375.0,
+              11833.0
+            ],
+            "median": 11833.0
+          },
+          "first_use_ns": {
+            "values": [
+              391541.0,
+              361833.0,
+              368125.0
+            ],
+            "median": 368125.0
+          },
+          "retain_ns": {
+            "values": [
+              2270166.0,
+              2642458.0,
+              2346833.0
+            ],
+            "median": 2346833.0
+          },
+          "retained_buffer_bytes": null,
+          "bytes_per_document": null,
+          "retained_phase_peak_rss_bytes": {
+            "values": [
+              69926912.0,
+              70057984.0,
+              70090752.0
+            ],
+            "median": 70057984.0
+          },
+          "retained_heap_delta_bytes": {
+            "values": [
+              790608,
+              790608,
+              790608
+            ],
+            "median": 790608
+          },
+          "retained_arraybuffer_delta_bytes": {
+            "values": [
+              0,
+              0,
+              0
+            ],
+            "median": 0
+          },
+          "process_peak_rss_bytes": {
+            "values": [
+              69976064,
+              70090752,
+              70107136
+            ],
+            "median": 70090752
+          }
+        }
+      },
+      "state": {
+        "ink": {
+          "import_ns": {
+            "values": [
+              5742084.0,
+              6534541.0,
+              5476458.0
+            ],
+            "median": 5742084.0
+          },
+          "construction_ns": {
+            "values": [
+              644875.0,
+              405917.0,
+              402750.0
+            ],
+            "median": 405917.0
+          },
+          "first_use_ns": {
+            "values": [
+              891125.0,
+              943458.0,
+              912750.0
+            ],
+            "median": 912750.0
+          },
+          "retain_ns": {
+            "values": [
+              16699583.0,
+              16571958.0,
+              15377041.0
+            ],
+            "median": 16571958.0
+          },
+          "retained_buffer_bytes": null,
+          "bytes_per_document": null,
+          "retained_phase_peak_rss_bytes": {
+            "values": [
+              83296256.0,
+              83755008.0,
+              82771968.0
+            ],
+            "median": 83296256.0
+          },
+          "retained_heap_delta_bytes": {
+            "values": [
+              3241640,
+              3246448,
+              3241984
+            ],
+            "median": 3241984
+          },
+          "retained_arraybuffer_delta_bytes": {
+            "values": [
+              0,
+              0,
+              0
+            ],
+            "median": 0
+          },
+          "process_peak_rss_bytes": {
+            "values": [
+              83591168,
+              83951616,
+              82886656
+            ],
+            "median": 83591168
+          }
+        },
+        "frontier": {
+          "import_ns": {
+            "values": [
+              21229792.0,
+              12958708.0,
+              11740042.0
+            ],
+            "median": 12958708.0
+          },
+          "construction_ns": {
+            "values": [
+              300500.0,
+              315167.0,
+              307375.0
+            ],
+            "median": 307375.0
+          },
+          "first_use_ns": {
+            "values": [
+              360125.0,
+              408500.0,
+              349583.0
+            ],
+            "median": 360125.0
+          },
+          "retain_ns": {
+            "values": [
+              4620375.0,
+              5159208.0,
+              4603666.0
+            ],
+            "median": 4620375.0
+          },
+          "retained_buffer_bytes": null,
+          "bytes_per_document": null,
+          "retained_phase_peak_rss_bytes": {
+            "values": [
+              72417280.0,
+              72351744.0,
+              72433664.0
+            ],
+            "median": 72417280.0
+          },
+          "retained_heap_delta_bytes": {
+            "values": [
+              838864,
+              838864,
+              838864
+            ],
+            "median": 838864
+          },
+          "retained_arraybuffer_delta_bytes": {
+            "values": [
+              0,
+              0,
+              0
+            ],
+            "median": 0
+          },
+          "process_peak_rss_bytes": {
+            "values": [
+              72482816,
+              72433664,
+              72531968
+            ],
+            "median": 72482816
+          }
+        }
+      },
+      "transport": {
+        "ink": {
+          "import_ns": {
+            "values": [
+              5937584.0,
+              5875958.0,
+              5877083.0
+            ],
+            "median": 5877083.0
+          },
+          "construction_ns": {
+            "values": [
+              574166.0,
+              607416.0,
+              592708.0
+            ],
+            "median": 592708.0
+          },
+          "first_use_ns": {
+            "values": [
+              2925083.0,
+              3302209.0,
+              2868709.0
+            ],
+            "median": 2925083.0
+          },
+          "retain_ns": {
+            "values": [
+              14152375.0,
+              14819666.0,
+              13951041.0
+            ],
+            "median": 14152375.0
+          },
+          "retained_buffer_bytes": {
+            "values": [
+              727904.0,
+              727904.0,
+              727904.0
+            ],
+            "median": 727904.0
+          },
+          "bytes_per_document": {
+            "values": [
+              22747.0,
+              22747.0,
+              22747.0
+            ],
+            "median": 22747.0
+          },
+          "retained_phase_peak_rss_bytes": {
+            "values": [
+              80969728.0,
+              82706432.0,
+              84246528.0
+            ],
+            "median": 82706432.0
+          },
+          "retained_heap_delta_bytes": {
+            "values": [
+              -35928,
+              -36416,
+              -35648
+            ],
+            "median": -35928
+          },
+          "retained_arraybuffer_delta_bytes": {
+            "values": [
+              727904,
+              727904,
+              727904
+            ],
+            "median": 727904
+          },
+          "process_peak_rss_bytes": {
+            "values": [
+              80986112,
+              82706432,
+              84426752
+            ],
+            "median": 82706432
+          }
+        },
+        "frontier": {
+          "import_ns": {
+            "values": [
+              13288583.0,
+              8238125.0,
+              8379625.0
+            ],
+            "median": 8379625.0
+          },
+          "construction_ns": {
+            "values": [
+              11292.0,
+              12542.0,
+              11875.0
+            ],
+            "median": 11875.0
+          },
+          "first_use_ns": {
+            "values": [
+              1540167.0,
+              1595917.0,
+              1583500.0
+            ],
+            "median": 1583500.0
+          },
+          "retain_ns": {
+            "values": [
+              9081000.0,
+              10165541.0,
+              10117292.0
+            ],
+            "median": 10117292.0
+          },
+          "retained_buffer_bytes": {
+            "values": [
+              179840.0,
+              179840.0,
+              179840.0
+            ],
+            "median": 179840.0
+          },
+          "bytes_per_document": {
+            "values": [
+              5620.0,
+              5620.0,
+              5620.0
+            ],
+            "median": 5620.0
+          },
+          "retained_phase_peak_rss_bytes": {
+            "values": [
+              73039872.0,
+              72728576.0,
+              72974336.0
+            ],
+            "median": 72974336.0
+          },
+          "retained_heap_delta_bytes": {
+            "values": [
+              -26552,
+              -29256,
+              -28904
+            ],
+            "median": -28904
+          },
+          "retained_arraybuffer_delta_bytes": {
+            "values": [
+              179840,
+              179840,
+              179840
+            ],
+            "median": 179840
+          },
+          "process_peak_rss_bytes": {
+            "values": [
+              73138176,
+              72925184,
+              73105408
+            ],
+            "median": 73105408
+          }
+        }
+      },
+      "transport-compact": {
+        "ink": {
+          "import_ns": {
+            "values": [
+              6501042.0,
+              5876542.0,
+              5843584.0
+            ],
+            "median": 5876542.0
+          },
+          "construction_ns": {
+            "values": [
+              663625.0,
+              578458.0,
+              599667.0
+            ],
+            "median": 599667.0
+          },
+          "first_use_ns": {
+            "values": [
+              3943292.0,
+              3854208.0,
+              3103041.0
+            ],
+            "median": 3854208.0
+          },
+          "retain_ns": {
+            "values": [
+              16283167.0,
+              23072417.0,
+              17099042.0
+            ],
+            "median": 17099042.0
+          },
+          "retained_buffer_bytes": {
+            "values": [
+              227872.0,
+              227872.0,
+              227872.0
+            ],
+            "median": 227872.0
+          },
+          "bytes_per_document": {
+            "values": [
+              7121.0,
+              7121.0,
+              7121.0
+            ],
+            "median": 7121.0
+          },
+          "retained_phase_peak_rss_bytes": {
+            "values": [
+              77398016.0,
+              78413824.0,
+              77234176.0
+            ],
+            "median": 77398016.0
+          },
+          "retained_heap_delta_bytes": {
+            "values": [
+              -5992,
+              -7416,
+              -4880
+            ],
+            "median": -5992
+          },
+          "retained_arraybuffer_delta_bytes": {
+            "values": [
+              227872,
+              227872,
+              227872
+            ],
+            "median": 227872
+          },
+          "process_peak_rss_bytes": {
+            "values": [
+              81723392,
+              82706432,
+              81559552
+            ],
+            "median": 81723392
+          }
+        },
+        "frontier": {
+          "import_ns": {
+            "values": [
+              8069625.0,
+              8064084.0,
+              7533458.0
+            ],
+            "median": 8064084.0
+          },
+          "construction_ns": {
+            "values": [
+              12750.0,
+              13792.0,
+              9958.0
+            ],
+            "median": 12750.0
+          },
+          "first_use_ns": {
+            "values": [
+              1535875.0,
+              1648958.0,
+              1544542.0
+            ],
+            "median": 1544542.0
+          },
+          "retain_ns": {
+            "values": [
+              9465417.0,
+              9677500.0,
+              9040875.0
+            ],
+            "median": 9465417.0
+          },
+          "retained_buffer_bytes": {
+            "values": [
+              179840.0,
+              179840.0,
+              179840.0
+            ],
+            "median": 179840.0
+          },
+          "bytes_per_document": {
+            "values": [
+              5620.0,
+              5620.0,
+              5620.0
+            ],
+            "median": 5620.0
+          },
+          "retained_phase_peak_rss_bytes": {
+            "values": [
+              73203712.0,
+              72974336.0,
+              73121792.0
+            ],
+            "median": 73121792.0
+          },
+          "retained_heap_delta_bytes": {
+            "values": [
+              -26552,
+              -26552,
+              -26200
+            ],
+            "median": -26552
+          },
+          "retained_arraybuffer_delta_bytes": {
+            "values": [
+              179840,
+              179840,
+              179840
+            ],
+            "median": 179840
+          },
+          "process_peak_rss_bytes": {
+            "values": [
+              73302016,
+              73072640,
+              73220096
+            ],
+            "median": 73220096
+          }
+        }
+      }
+    },
+    "logical": {
+      "json-tree": {
+        "ink": {
+          "import_ns": {
+            "values": [
+              5723750.0,
+              5802375.0,
+              5886833.0
+            ],
+            "median": 5802375.0
+          },
+          "construction_ns": {
+            "values": [
+              591709.0,
+              579583.0,
+              611458.0
+            ],
+            "median": 591709.0
+          },
+          "first_use_ns": {
+            "values": [
+              1882625.0,
+              1255125.0,
+              1326875.0
+            ],
+            "median": 1326875.0
+          },
+          "retain_ns": {
+            "values": [
+              6216750.0,
+              5087167.0,
+              5802083.0
+            ],
+            "median": 5802083.0
+          },
+          "retained_buffer_bytes": null,
+          "bytes_per_document": null,
+          "retained_phase_peak_rss_bytes": {
+            "values": [
+              85606400.0,
+              84721664.0,
+              85622784.0
+            ],
+            "median": 85606400.0
+          },
+          "retained_heap_delta_bytes": {
+            "values": [
+              3815360,
+              3815384,
+              3815360
+            ],
+            "median": 3815360
+          },
+          "retained_arraybuffer_delta_bytes": {
+            "values": [
+              0,
+              0,
+              0
+            ],
+            "median": 0
+          },
+          "process_peak_rss_bytes": {
+            "values": [
+              90357760,
+              89473024,
+              90357760
+            ],
+            "median": 90357760
+          }
+        },
+        "frontier": {
+          "import_ns": {
+            "values": [
+              1623875.0,
+              1350292.0,
+              1360958.0
+            ],
+            "median": 1360958.0
+          },
+          "construction_ns": {
+            "values": [
+              33416.0,
+              9958.0,
+              10333.0
+            ],
+            "median": 10333.0
+          },
+          "first_use_ns": {
+            "values": [
+              360000.0,
+              371250.0,
+              452708.0
+            ],
+            "median": 371250.0
+          },
+          "retain_ns": {
+            "values": [
+              2296125.0,
+              2469333.0,
+              2276000.0
+            ],
+            "median": 2296125.0
+          },
+          "retained_buffer_bytes": null,
+          "bytes_per_document": null,
+          "retained_phase_peak_rss_bytes": {
+            "values": [
+              70205440.0,
+              69992448.0,
+              69976064.0
+            ],
+            "median": 69992448.0
+          },
+          "retained_heap_delta_bytes": {
+            "values": [
+              790608,
+              790608,
+              790608
+            ],
+            "median": 790608
+          },
+          "retained_arraybuffer_delta_bytes": {
+            "values": [
+              0,
+              0,
+              0
+            ],
+            "median": 0
+          },
+          "process_peak_rss_bytes": {
+            "values": [
+              70221824,
+              70025216,
+              69992448
+            ],
+            "median": 70025216
+          }
+        }
+      },
+      "state": {
+        "ink": {
+          "import_ns": {
+            "values": [
+              5823958.0,
+              5377000.0,
+              6258833.0
+            ],
+            "median": 5823958.0
+          },
+          "construction_ns": {
+            "values": [
+              390333.0,
+              417334.0,
+              409041.0
+            ],
+            "median": 409041.0
+          },
+          "first_use_ns": {
+            "values": [
+              965750.0,
+              885000.0,
+              1063792.0
+            ],
+            "median": 965750.0
+          },
+          "retain_ns": {
+            "values": [
+              15866166.0,
+              14436084.0,
+              15527791.0
+            ],
+            "median": 15527791.0
+          },
+          "retained_buffer_bytes": null,
+          "bytes_per_document": null,
+          "retained_phase_peak_rss_bytes": {
+            "values": [
+              82640896.0,
+              82739200.0,
+              82608128.0
+            ],
+            "median": 82640896.0
+          },
+          "retained_heap_delta_bytes": {
+            "values": [
+              3241488,
+              3241144,
+              3241488
+            ],
+            "median": 3241488
+          },
+          "retained_arraybuffer_delta_bytes": {
+            "values": [
+              0,
+              0,
+              0
+            ],
+            "median": 0
+          },
+          "process_peak_rss_bytes": {
+            "values": [
+              82853888,
+              83083264,
+              82771968
+            ],
+            "median": 82853888
+          }
+        },
+        "frontier": {
+          "import_ns": {
+            "values": [
+              12001958.0,
+              11662125.0,
+              11915209.0
+            ],
+            "median": 11915209.0
+          },
+          "construction_ns": {
+            "values": [
+              303584.0,
+              304625.0,
+              315125.0
+            ],
+            "median": 304625.0
+          },
+          "first_use_ns": {
+            "values": [
+              419084.0,
+              362458.0,
+              374709.0
+            ],
+            "median": 374709.0
+          },
+          "retain_ns": {
+            "values": [
+              4971542.0,
+              5083791.0,
+              4751208.0
+            ],
+            "median": 4971542.0
+          },
+          "retained_buffer_bytes": null,
+          "bytes_per_document": null,
+          "retained_phase_peak_rss_bytes": {
+            "values": [
+              72318976.0,
+              72237056.0,
+              72433664.0
+            ],
+            "median": 72318976.0
+          },
+          "retained_heap_delta_bytes": {
+            "values": [
+              838672,
+              838864,
+              838672
+            ],
+            "median": 838672
+          },
+          "retained_arraybuffer_delta_bytes": {
+            "values": [
+              0,
+              0,
+              0
+            ],
+            "median": 0
+          },
+          "process_peak_rss_bytes": {
+            "values": [
+              72368128,
+              72335360,
+              72499200
+            ],
+            "median": 72368128
+          }
+        }
+      },
+      "transport": {
+        "ink": {
+          "import_ns": {
+            "values": [
+              5677709.0,
+              5626542.0,
+              5664708.0
+            ],
+            "median": 5664708.0
+          },
+          "construction_ns": {
+            "values": [
+              618041.0,
+              606625.0,
+              566667.0
+            ],
+            "median": 606625.0
+          },
+          "first_use_ns": {
+            "values": [
+              2981250.0,
+              3398542.0,
+              2961500.0
+            ],
+            "median": 2981250.0
+          },
+          "retain_ns": {
+            "values": [
+              14029250.0,
+              14051666.0,
+              13860292.0
+            ],
+            "median": 14029250.0
+          },
+          "retained_buffer_bytes": {
+            "values": [
+              727904.0,
+              727904.0,
+              727904.0
+            ],
+            "median": 727904.0
+          },
+          "bytes_per_document": {
+            "values": [
+              22747.0,
+              22747.0,
+              22747.0
+            ],
+            "median": 22747.0
+          },
+          "retained_phase_peak_rss_bytes": {
+            "values": [
+              83230720.0,
+              80347136.0,
+              81559552.0
+            ],
+            "median": 81559552.0
+          },
+          "retained_heap_delta_bytes": {
+            "values": [
+              -35928,
+              -35536,
+              -36464
+            ],
+            "median": -35928
+          },
+          "retained_arraybuffer_delta_bytes": {
+            "values": [
+              727904,
+              727904,
+              727904
+            ],
+            "median": 727904
+          },
+          "process_peak_rss_bytes": {
+            "values": [
+              83345408,
+              80609280,
+              81707008
+            ],
+            "median": 81707008
+          }
+        },
+        "frontier": {
+          "import_ns": {
+            "values": [
+              7979291.0,
+              7685292.0,
+              8032042.0
+            ],
+            "median": 7979291.0
+          },
+          "construction_ns": {
+            "values": [
+              9875.0,
+              10250.0,
+              13250.0
+            ],
+            "median": 10250.0
+          },
+          "first_use_ns": {
+            "values": [
+              2075959.0,
+              1533500.0,
+              1595375.0
+            ],
+            "median": 1595375.0
+          },
+          "retain_ns": {
+            "values": [
+              13715667.0,
+              9090417.0,
+              9990958.0
+            ],
+            "median": 9990958.0
+          },
+          "retained_buffer_bytes": {
+            "values": [
+              179840.0,
+              179840.0,
+              179840.0
+            ],
+            "median": 179840.0
+          },
+          "bytes_per_document": {
+            "values": [
+              5620.0,
+              5620.0,
+              5620.0
+            ],
+            "median": 5620.0
+          },
+          "retained_phase_peak_rss_bytes": {
+            "values": [
+              73007104.0,
+              72876032.0,
+              72974336.0
+            ],
+            "median": 72974336.0
+          },
+          "retained_heap_delta_bytes": {
+            "values": [
+              -26200,
+              -26200,
+              -28904
+            ],
+            "median": -26200
+          },
+          "retained_arraybuffer_delta_bytes": {
+            "values": [
+              179840,
+              179840,
+              179840
+            ],
+            "median": 179840
+          },
+          "process_peak_rss_bytes": {
+            "values": [
+              73170944,
+              73056256,
+              73105408
+            ],
+            "median": 73105408
+          }
+        }
+      },
+      "transport-compact": {
+        "ink": {
+          "import_ns": {
+            "values": [
+              5577750.0,
+              5611291.0,
+              5634084.0
+            ],
+            "median": 5611291.0
+          },
+          "construction_ns": {
+            "values": [
+              585541.0,
+              584542.0,
+              578125.0
+            ],
+            "median": 584542.0
+          },
+          "first_use_ns": {
+            "values": [
+              2646833.0,
+              3249709.0,
+              2750167.0
+            ],
+            "median": 2750167.0
+          },
+          "retain_ns": {
+            "values": [
+              25923375.0,
+              25770708.0,
+              25766084.0
+            ],
+            "median": 25770708.0
+          },
+          "retained_buffer_bytes": {
+            "values": [
+              227872.0,
+              227872.0,
+              227872.0
+            ],
+            "median": 227872.0
+          },
+          "bytes_per_document": {
+            "values": [
+              7121.0,
+              7121.0,
+              7121.0
+            ],
+            "median": 7121.0
+          },
+          "retained_phase_peak_rss_bytes": {
+            "values": [
+              83673088.0,
+              83591168.0,
+              83329024.0
+            ],
+            "median": 83591168.0
+          },
+          "retained_heap_delta_bytes": {
+            "values": [
+              -45664,
+              -51088,
+              -45480
+            ],
+            "median": -45664
+          },
+          "retained_arraybuffer_delta_bytes": {
+            "values": [
+              227872,
+              227872,
+              227872
+            ],
+            "median": 227872
+          },
+          "process_peak_rss_bytes": {
+            "values": [
+              83705856,
+              83804160,
+              83361792
+            ],
+            "median": 83705856
+          }
+        },
+        "frontier": {
+          "import_ns": {
+            "values": [
+              8170375.0,
+              7897334.0,
+              7818833.0
+            ],
+            "median": 7897334.0
+          },
+          "construction_ns": {
+            "values": [
+              12584.0,
+              10125.0,
+              14125.0
+            ],
+            "median": 12584.0
+          },
+          "first_use_ns": {
+            "values": [
+              1566917.0,
+              1622917.0,
+              1742542.0
+            ],
+            "median": 1622917.0
+          },
+          "retain_ns": {
+            "values": [
+              9135750.0,
+              9006000.0,
+              12046542.0
+            ],
+            "median": 9135750.0
+          },
+          "retained_buffer_bytes": {
+            "values": [
+              179840.0,
+              179840.0,
+              179840.0
+            ],
+            "median": 179840.0
+          },
+          "bytes_per_document": {
+            "values": [
+              5620.0,
+              5620.0,
+              5620.0
+            ],
+            "median": 5620.0
+          },
+          "retained_phase_peak_rss_bytes": {
+            "values": [
+              73154560.0,
+              73072640.0,
+              72892416.0
+            ],
+            "median": 73072640.0
+          },
+          "retained_heap_delta_bytes": {
+            "values": [
+              -26200,
+              -26200,
+              -26200
+            ],
+            "median": -26200
+          },
+          "retained_arraybuffer_delta_bytes": {
+            "values": [
+              179840,
+              179840,
+              179840
+            ],
+            "median": 179840
+          },
+          "process_peak_rss_bytes": {
+            "values": [
+              73318400,
+              73220096,
+              72990720
+            ],
+            "median": 73220096
+          }
+        }
+      }
+    }
+  },
+  "scope": "Six independent cohorts, direct and logical compact construction kept separate. Eight fresh child processes per cohort; full source controls. Import/constructor/first-use/retain times separate; retained GC heap and whole-process peak are diagnostic, not exact allocations or statistical bounds. Compact document and Frontier root-set patch have distinct protocol/schema contracts."
+}

@@ -1,0 +1,925 @@
+{
+  "schema": 1,
+  "compiler_sha256": "3ad8e23e29b54ea32121dd6739da53b82663a31702f86fd372278234b6d0fc3d",
+  "source_sha256": "f98f971b59e11d0983af3cbbd9a472f2d55b4e5720556de1f31b19b12ae866a4",
+  "core": "011e1e96f60d9e2e64eeb79b7ac93de4adf862c65bdd7014ef43f59ffa24996c",
+  "recipe": {
+    "function": "physical",
+    "id": "literal-physical-alternatives",
+    "inputs": [
+      "core",
+      "representation",
+      "definitions"
+    ],
+    "module": "producers.planning_recipes",
+    "obligations": [
+      "typed-carrier-ownership-and-lifetime-capabilities"
+    ],
+    "parameters": {
+      "composition_limit": 256,
+      "definition_strategies": [
+        {
+          "eligible": {
+            "and": [
+              {
+                "eq": [
+                  {
+                    "length": {
+                      "path": [
+                        "subject",
+                        "Datatype",
+                        "constructors"
+                      ]
+                    }
+                  },
+                  {
+                    "literal": 2
+                  }
+                ]
+              },
+              {
+                "eq": [
+                  {
+                    "path": [
+                      "subject",
+                      "Datatype",
+                      "constructors",
+                      0,
+                      "fields"
+                    ]
+                  },
+                  {
+                    "literal": []
+                  }
+                ]
+              },
+              {
+                "ge": [
+                  {
+                    "length": {
+                      "path": [
+                        "subject",
+                        "Datatype",
+                        "constructors",
+                        1,
+                        "fields"
+                      ]
+                    }
+                  },
+                  {
+                    "literal": 2
+                  }
+                ]
+              },
+              {
+                "le": [
+                  {
+                    "length": {
+                      "path": [
+                        "subject",
+                        "Datatype",
+                        "constructors",
+                        1,
+                        "fields"
+                      ]
+                    }
+                  },
+                  {
+                    "literal": 17
+                  }
+                ]
+              },
+              {
+                "eq": [
+                  {
+                    "path": [
+                      "subject",
+                      "Datatype",
+                      "constructors",
+                      1,
+                      "fields",
+                      -1
+                    ]
+                  },
+                  {
+                    "literal": "SelfType"
+                  }
+                ]
+              },
+              {
+                "all": [
+                  {
+                    "slice": [
+                      {
+                        "path": [
+                          "subject",
+                          "Datatype",
+                          "constructors",
+                          1,
+                          "fields"
+                        ]
+                      },
+                      {
+                        "literal": 0
+                      },
+                      {
+                        "literal": -1
+                      }
+                    ]
+                  },
+                  {
+                    "or": [
+                      {
+                        "in": [
+                          {
+                            "path": [
+                              "item"
+                            ]
+                          },
+                          {
+                            "literal": [
+                              "Bool",
+                              "U64"
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "has": [
+                          {
+                            "path": [
+                              "item"
+                            ]
+                          },
+                          {
+                            "literal": "Data"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "site_field": "packed_datatypes",
+          "sites": "individual",
+          "targets": [
+            "rust",
+            "rust-wasm"
+          ]
+        },
+        {
+          "eligible": {
+            "and": [
+              {
+                "eq": [
+                  {
+                    "length": {
+                      "path": [
+                        "subject",
+                        "Datatype",
+                        "constructors"
+                      ]
+                    }
+                  },
+                  {
+                    "literal": 2
+                  }
+                ]
+              },
+              {
+                "eq": [
+                  {
+                    "path": [
+                      "subject",
+                      "Datatype",
+                      "constructors",
+                      0,
+                      "fields"
+                    ]
+                  },
+                  {
+                    "literal": []
+                  }
+                ]
+              },
+              {
+                "ge": [
+                  {
+                    "length": {
+                      "path": [
+                        "subject",
+                        "Datatype",
+                        "constructors",
+                        1,
+                        "fields"
+                      ]
+                    }
+                  },
+                  {
+                    "literal": 2
+                  }
+                ]
+              },
+              {
+                "le": [
+                  {
+                    "length": {
+                      "path": [
+                        "subject",
+                        "Datatype",
+                        "constructors",
+                        1,
+                        "fields"
+                      ]
+                    }
+                  },
+                  {
+                    "literal": 17
+                  }
+                ]
+              },
+              {
+                "eq": [
+                  {
+                    "path": [
+                      "subject",
+                      "Datatype",
+                      "constructors",
+                      1,
+                      "fields",
+                      -1
+                    ]
+                  },
+                  {
+                    "literal": "SelfType"
+                  }
+                ]
+              },
+              {
+                "all": [
+                  {
+                    "slice": [
+                      {
+                        "path": [
+                          "subject",
+                          "Datatype",
+                          "constructors",
+                          1,
+                          "fields"
+                        ]
+                      },
+                      {
+                        "literal": 0
+                      },
+                      {
+                        "literal": -1
+                      }
+                    ]
+                  },
+                  {
+                    "or": [
+                      {
+                        "in": [
+                          {
+                            "path": [
+                              "item"
+                            ]
+                          },
+                          {
+                            "literal": [
+                              "Bool",
+                              "U64"
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "has": [
+                          {
+                            "path": [
+                              "item"
+                            ]
+                          },
+                          {
+                            "literal": "Data"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "site_field": "packed_datatypes",
+          "sites": "all",
+          "targets": [
+            "rust",
+            "rust-wasm"
+          ]
+        },
+        {
+          "eligible": {
+            "and": [
+              {
+                "in": [
+                  {
+                    "path": [
+                      "subject",
+                      "Function",
+                      "result"
+                    ]
+                  },
+                  {
+                    "literal": [
+                      "Bool",
+                      "U64"
+                    ]
+                  }
+                ]
+              },
+              {
+                "le": [
+                  {
+                    "length": {
+                      "path": [
+                        "subject",
+                        "Function",
+                        "params"
+                      ]
+                    }
+                  },
+                  {
+                    "literal": 5
+                  }
+                ]
+              },
+              {
+                "all": [
+                  {
+                    "path": [
+                      "subject",
+                      "Function",
+                      "params"
+                    ]
+                  },
+                  {
+                    "or": [
+                      {
+                        "in": [
+                          {
+                            "path": [
+                              "item",
+                              1
+                            ]
+                          },
+                          {
+                            "literal": [
+                              "Bool",
+                              "U64"
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "has": [
+                          {
+                            "path": [
+                              "item",
+                              1
+                            ]
+                          },
+                          {
+                            "literal": "Data"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "eq": [
+                  {
+                    "count": [
+                      {
+                        "path": [
+                          "subject",
+                          "Function",
+                          "params"
+                        ]
+                      },
+                      {
+                        "has": [
+                          {
+                            "path": [
+                              "item",
+                              1
+                            ]
+                          },
+                          {
+                            "literal": "Data"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "literal": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "site_field": "memo_functions",
+          "sites": "individual",
+          "targets": [
+            "rust",
+            "rust-wasm"
+          ]
+        },
+        {
+          "eligible": {
+            "and": [
+              {
+                "in": [
+                  {
+                    "path": [
+                      "subject",
+                      "Function",
+                      "result"
+                    ]
+                  },
+                  {
+                    "literal": [
+                      "Bool",
+                      "U64"
+                    ]
+                  }
+                ]
+              },
+              {
+                "le": [
+                  {
+                    "length": {
+                      "path": [
+                        "subject",
+                        "Function",
+                        "params"
+                      ]
+                    }
+                  },
+                  {
+                    "literal": 5
+                  }
+                ]
+              },
+              {
+                "all": [
+                  {
+                    "path": [
+                      "subject",
+                      "Function",
+                      "params"
+                    ]
+                  },
+                  {
+                    "or": [
+                      {
+                        "in": [
+                          {
+                            "path": [
+                              "item",
+                              1
+                            ]
+                          },
+                          {
+                            "literal": [
+                              "Bool",
+                              "U64"
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "has": [
+                          {
+                            "path": [
+                              "item",
+                              1
+                            ]
+                          },
+                          {
+                            "literal": "Data"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "eq": [
+                  {
+                    "count": [
+                      {
+                        "path": [
+                          "subject",
+                          "Function",
+                          "params"
+                        ]
+                      },
+                      {
+                        "has": [
+                          {
+                            "path": [
+                              "item",
+                              1
+                            ]
+                          },
+                          {
+                            "literal": "Data"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "literal": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "site_field": "memo_functions",
+          "sites": "all",
+          "targets": [
+            "rust",
+            "rust-wasm"
+          ]
+        }
+      ],
+      "source_strategies": [
+        {
+          "borrow": false,
+          "buffers": "scoped",
+          "requires_tables": false,
+          "tables": "ordered",
+          "targets": [
+            "rust",
+            "rust-wasm"
+          ]
+        },
+        {
+          "borrow": true,
+          "buffers": "scoped",
+          "requires_tables": false,
+          "tables": "ordered",
+          "targets": [
+            "rust",
+            "rust-wasm"
+          ]
+        },
+        {
+          "borrow": false,
+          "buffers": "scoped",
+          "requires_tables": true,
+          "tables": "indexed_slots",
+          "targets": [
+            "rust",
+            "rust-wasm"
+          ]
+        },
+        {
+          "borrow": true,
+          "buffers": "scoped",
+          "requires_tables": true,
+          "tables": "indexed_slots",
+          "targets": [
+            "rust",
+            "rust-wasm"
+          ]
+        },
+        {
+          "borrow": false,
+          "buffers": "direct",
+          "requires_tables": false,
+          "tables": "ordered",
+          "targets": [
+            "rust",
+            "rust-wasm"
+          ]
+        },
+        {
+          "borrow": true,
+          "buffers": "direct",
+          "requires_tables": false,
+          "tables": "ordered",
+          "targets": [
+            "rust",
+            "rust-wasm"
+          ]
+        },
+        {
+          "borrow": false,
+          "buffers": "direct",
+          "requires_tables": true,
+          "tables": "indexed_slots",
+          "targets": [
+            "rust",
+            "rust-wasm"
+          ]
+        },
+        {
+          "borrow": true,
+          "buffers": "direct",
+          "requires_tables": true,
+          "tables": "indexed_slots",
+          "targets": [
+            "rust",
+            "rust-wasm"
+          ]
+        }
+      ]
+    },
+    "requires": [
+      "core"
+    ],
+    "stage": "physical"
+  },
+  "registry_sha256": "1586e619534790aab78b8a42a66a6f0ea8eb98edbeaeca14c13926877267ffe8",
+  "plans": {
+    "ordered": {
+      "packet": {
+        "schema": 1,
+        "semantics": "ink-compiled-plan-v1",
+        "input_core_sha256": "011e1e96f60d9e2e64eeb79b7ac93de4adf862c65bdd7014ef43f59ffa24996c",
+        "steps": [
+          {
+            "kind": "physical",
+            "package": {
+              "schema": 1,
+              "semantics": "ink-physical-plan-v1",
+              "input_core_sha256": "011e1e96f60d9e2e64eeb79b7ac93de4adf862c65bdd7014ef43f59ffa24996c",
+              "tables": "ordered",
+              "buffers": "scoped",
+              "definitions": "shared",
+              "borrow_reads": [],
+              "borrow_rows": [],
+              "packed_datatypes": [],
+              "memo_functions": [],
+              "reservations": []
+            }
+          }
+        ]
+      },
+      "path": "build/frontier-json/ordered.plan.json",
+      "directory": "native-ordered"
+    },
+    "ordered-borrow": {
+      "packet": {
+        "schema": 1,
+        "semantics": "ink-compiled-plan-v1",
+        "input_core_sha256": "011e1e96f60d9e2e64eeb79b7ac93de4adf862c65bdd7014ef43f59ffa24996c",
+        "steps": [
+          {
+            "kind": "physical",
+            "package": {
+              "schema": 1,
+              "semantics": "ink-physical-plan-v1",
+              "input_core_sha256": "011e1e96f60d9e2e64eeb79b7ac93de4adf862c65bdd7014ef43f59ffa24996c",
+              "tables": "ordered",
+              "buffers": "scoped",
+              "definitions": "shared",
+              "borrow_reads": [
+                "1cabfc026f1c7029ac7b26d73b57651957419fa5a86b62e4d5fa946fb65fad7c",
+                "24de3f50ba14081566ea1eb0d11c6bea5b98a6bf20cacaf865b3e1eec08e1bca",
+                "26f0f75db06b362687612061fddcb53cbcea0012c9e5f28af900a11ac9db8b75",
+                "2b573d57dab0296b5d99be26cc06cbc7287b33404d0d8f28e38b0dd870fb14ab",
+                "2cd34f71f4758af2edda52fdfe6d09d5b645f6a92e9983a9dc97343a85fe1b51",
+                "3b21ccbd596264e6edb112a7a7d88cdc856ee3908c00b85cdec1595c79000b13",
+                "509b5751f740026ee87bfa30ed1eadae141bcdb18dc634f71f734708bf50d3d4",
+                "6383f70118f10e1da873cc775cb8123a421ef26cd7517565cae36b0ec0212da8",
+                "643409f1e6d20191cb022633da16c7c21f0a3a2821a766d0630ebaa2f9727560",
+                "666dc150247e8bafa9b218024caf3f707fc804e7812808c3c270cb47964c3c83",
+                "69e5f4c4e0c4497e7f586bebe30023ddf46539978a364831793b19e44a79fe98",
+                "7e0cce87d1e1c4d638bc687a564a1cdd899e4201fa0a79765418c704968705cc",
+                "8535e846dafc7decfb93b9f497a04f051774fbc570964f422f1c4bd6d4f1e19a",
+                "aa73fc4c1070028ee4cd84935a48e5af257985df8ceb759835fe64442d404a78",
+                "b8e20d14c6b152d9045547722d4b49197a2427b4d37291dd0a1c7a700a68067e",
+                "d1ac6213ec0d2ead1d8d74f78067f8f6c45626c9119d80423e99cd2b7cee3b2e",
+                "dab8da871e232b9995691a6872b170de5496341198dd49753fd782c3e3d749f3",
+                "f665c99dc4513328c82ebcfbf2976bfb3f67fc63ae77c042bdcc56a961c885fc"
+              ],
+              "borrow_rows": [
+                "5a183b87445ee7a3833c367acd02fd1b7d39dd34ed4ea1a9c1fd8e83b41545e5"
+              ],
+              "packed_datatypes": [],
+              "memo_functions": [],
+              "reservations": []
+            }
+          }
+        ]
+      },
+      "path": "build/frontier-json/ordered-borrow.plan.json",
+      "directory": "native-ordered-borrow"
+    },
+    "indexed_slots": {
+      "packet": {
+        "schema": 1,
+        "semantics": "ink-compiled-plan-v1",
+        "input_core_sha256": "011e1e96f60d9e2e64eeb79b7ac93de4adf862c65bdd7014ef43f59ffa24996c",
+        "steps": [
+          {
+            "kind": "physical",
+            "package": {
+              "schema": 1,
+              "semantics": "ink-physical-plan-v1",
+              "input_core_sha256": "011e1e96f60d9e2e64eeb79b7ac93de4adf862c65bdd7014ef43f59ffa24996c",
+              "tables": "indexed_slots",
+              "buffers": "scoped",
+              "definitions": "shared",
+              "borrow_reads": [],
+              "borrow_rows": [],
+              "packed_datatypes": [],
+              "memo_functions": [],
+              "reservations": []
+            }
+          }
+        ]
+      },
+      "path": "build/frontier-json/indexed_slots.plan.json",
+      "directory": "native-indexed_slots"
+    },
+    "indexed_slots-borrow": {
+      "packet": {
+        "schema": 1,
+        "semantics": "ink-compiled-plan-v1",
+        "input_core_sha256": "011e1e96f60d9e2e64eeb79b7ac93de4adf862c65bdd7014ef43f59ffa24996c",
+        "steps": [
+          {
+            "kind": "physical",
+            "package": {
+              "schema": 1,
+              "semantics": "ink-physical-plan-v1",
+              "input_core_sha256": "011e1e96f60d9e2e64eeb79b7ac93de4adf862c65bdd7014ef43f59ffa24996c",
+              "tables": "indexed_slots",
+              "buffers": "scoped",
+              "definitions": "shared",
+              "borrow_reads": [
+                "1cabfc026f1c7029ac7b26d73b57651957419fa5a86b62e4d5fa946fb65fad7c",
+                "24de3f50ba14081566ea1eb0d11c6bea5b98a6bf20cacaf865b3e1eec08e1bca",
+                "26f0f75db06b362687612061fddcb53cbcea0012c9e5f28af900a11ac9db8b75",
+                "2b573d57dab0296b5d99be26cc06cbc7287b33404d0d8f28e38b0dd870fb14ab",
+                "2cd34f71f4758af2edda52fdfe6d09d5b645f6a92e9983a9dc97343a85fe1b51",
+                "3b21ccbd596264e6edb112a7a7d88cdc856ee3908c00b85cdec1595c79000b13",
+                "509b5751f740026ee87bfa30ed1eadae141bcdb18dc634f71f734708bf50d3d4",
+                "6383f70118f10e1da873cc775cb8123a421ef26cd7517565cae36b0ec0212da8",
+                "643409f1e6d20191cb022633da16c7c21f0a3a2821a766d0630ebaa2f9727560",
+                "666dc150247e8bafa9b218024caf3f707fc804e7812808c3c270cb47964c3c83",
+                "69e5f4c4e0c4497e7f586bebe30023ddf46539978a364831793b19e44a79fe98",
+                "7e0cce87d1e1c4d638bc687a564a1cdd899e4201fa0a79765418c704968705cc",
+                "8535e846dafc7decfb93b9f497a04f051774fbc570964f422f1c4bd6d4f1e19a",
+                "aa73fc4c1070028ee4cd84935a48e5af257985df8ceb759835fe64442d404a78",
+                "b8e20d14c6b152d9045547722d4b49197a2427b4d37291dd0a1c7a700a68067e",
+                "d1ac6213ec0d2ead1d8d74f78067f8f6c45626c9119d80423e99cd2b7cee3b2e",
+                "dab8da871e232b9995691a6872b170de5496341198dd49753fd782c3e3d749f3",
+                "f665c99dc4513328c82ebcfbf2976bfb3f67fc63ae77c042bdcc56a961c885fc"
+              ],
+              "borrow_rows": [
+                "5a183b87445ee7a3833c367acd02fd1b7d39dd34ed4ea1a9c1fd8e83b41545e5"
+              ],
+              "packed_datatypes": [],
+              "memo_functions": [],
+              "reservations": []
+            }
+          }
+        ]
+      },
+      "path": "build/frontier-json/indexed_slots-borrow.plan.json",
+      "directory": "native-indexed_slots-borrow"
+    }
+  },
+  "phases": [
+    {
+      "command": [
+        "emit-core",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/bench/frontier-json/state.ink",
+        "-o",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/build/frontier-json/core.json"
+      ],
+      "elapsed_ns": 2932875791,
+      "receipt": "{\"actions\":4,\"core_sha256\":\"011e1e96f60d9e2e64eeb79b7ac93de4adf862c65bdd7014ef43f59ffa24996c\",\"functions\":19,\"semantics\":\"ink-executable-core-v8\",\"status\":\"checked\",\"trust\":\"Rust structural/type/effect checks; no proof of checker or backend correctness\"}"
+    },
+    {
+      "command": [
+        "check-plan",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/build/frontier-json/core.json",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/build/frontier-json/ordered.plan.json",
+        "--core"
+      ],
+      "elapsed_ns": 73902875,
+      "receipt": "{\"input\":\"011e1e96f60d9e2e64eeb79b7ac93de4adf862c65bdd7014ef43f59ffa24996c\",\"plan_sha256\":\"e3667921ac5bba56092351be6c82230d1f593dc2b9df27f913a8b488a4ab96ee\",\"selected\":\"011e1e96f60d9e2e64eeb79b7ac93de4adf862c65bdd7014ef43f59ffa24996c\",\"state\":{\"core\":{\"program\":{\"actions\":[{\"body\":[{\"Expr\":{\"Method\":[{\"Var\":\"Rows\"},\"put\",[{\"Var\":\"key\"},{\"Var\":\"row\"}]]}},{\"Emit\":[\"seen\",{\"Field\":[{\"Var\":\"row\"},\"value\"]}]},{\"If\":[{\"Var\":\"fail\"},[{\"Return\":{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"Error\"},\"Failed\"]}]]}}],[]]},{\"Return\":{\"Call\":[\"Ok\",[\"Unit\"]]}}],\"emits\":[\"seen\"],\"kind\":\"Change\",\"name\":\"put\",\"params\":[[\"key\",\"String\"],[\"row\",{\"Named\":\"Row\"}],[\"fail\",\"Bool\"]],\"reads\":[],\"result\":{\"Result\":[\"Unit\",{\"Named\":\"Error\"}]},\"writes\":[\"Rows\"]},{\"body\":[{\"Expr\":{\"Method\":[{\"Var\":\"Rows\"},\"remove\",[{\"Var\":\"key\"}]]}},{\"Emit\":[\"seen\",{\"Num\":0}]},{\"If\":[{\"Var\":\"fail\"},[{\"Return\":{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"Error\"},\"Failed\"]}]]}}],[]]},{\"Return\":{\"Call\":[\"Ok\",[\"Unit\"]]}}],\"emits\":[\"seen\"],\"kind\":\"Change\",\"name\":\"erase\",\"params\":[[\"key\",\"String\"],[\"fail\",\"Bool\"]],\"reads\":[],\"result\":{\"Result\":[\"Unit\",{\"Named\":\"Error\"}]},\"writes\":[\"Rows\"]},{\"body\":[{\"Return\":{\"Call\":[\"sum\",[{\"Method\":[{\"Method\":[{\"Method\":[{\"Var\":\"Rows\"},\"values\",[]]},\"filter\",[{\"Lambda\":[\"row\",{\"Field\":[{\"Var\":\"row\"},\"active\"]}]}]]},\"map\",[{\"Lambda\":[\"row\",{\"Field\":[{\"Var\":\"row\"},\"value\"]}]}]]}]]}}],\"emits\":[],\"kind\":\"Query\",\"name\":\"total\",\"params\":[],\"reads\":[\"Rows\"],\"result\":\"U32\",\"writes\":[]},{\"body\":[{\"Return\":{\"Method\":[{\"Var\":\"Rows\"},\"get\",[{\"Var\":\"key\"}]]}}],\"emits\":[],\"kind\":\"Query\",\"name\":\"row\",\"params\":[[\"key\",\"String\"]],\"reads\":[\"Rows\"],\"result\":{\"Option\":{\"Named\":\"Row\"}},\"writes\":[]}],\"enums\":{\"Error\":[\"Failed\"],\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\":[\"ExpectedObject\",\"ExpectedArray\",\"ExpectedBoolean\",\"ExpectedNumber\",\"ExpectedString\"]},\"events\":{\"seen\":\"U32\"},\"functions\":[{\"body\":{\"Call\":[\"ink_mad008ef4986d9f0222e8592e1b0d53b594ed67eab0548e67ceabe4308ff8638b\",[{\"Var\":\"document\"},{\"Var\":\"key\"},{\"Var\":\"value\"}]]},\"name\":\"set_document\",\"params\":[[\"document\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}],[\"key\",\"String\"],[\"value\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}]],\"result\":{\"Result\":[{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"},{\"Named\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"}]}},{\"body\":{\"Var\":\"document\"},\"name\":\"identity\",\"params\":[[\"document\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}]],\"result\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"body\":{\"Record\":[\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\",[[\"payload\",{\"Call\":[\"Ok\",[{\"Record\":[\"__ink_payload_dd3f88ecb1e96c7ceee99cebd542718942d6e2ff44637670e6aa06aeb54b2550\",[]]}]]}]]]},\"name\":\"ink_m5c5479101d38cd5d28f66110c880ad28b6ee3ee64fddb98300dda927c645c107\",\"params\":[],\"result\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"body\":{\"Record\":[\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\",[[\"payload\",{\"Call\":[\"Err\",[{\"Call\":[\"Ok\",[{\"Record\":[\"__ink_payload_bff999f8a2a326529afcad49253e4e2a1fd440bbdd336be755288693fe5957e7\",[[\"item0\",{\"Var\":\"value\"}]]]}]]}]]}]]]},\"name\":\"ink_mbf312e22e5ab893385ef1935f8250f16e090d4da8dd41bc1577df1ba636fdc13\",\"params\":[[\"value\",\"Bool\"]],\"result\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"body\":{\"Record\":[\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\",[[\"payload\",{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Ok\",[{\"Record\":[\"__ink_payload_a82bf7eb015d981339eb3e20eeff3358ebb91e9aa8e78dab18648569bd18706e\",[[\"item0\",{\"Var\":\"token\"}]]]}]]}]]}]]}]]]},\"name\":\"ink_mee36d9721e4db57ba82a41d18344d03b18dc98a5d22319238b436d9aa6c8a6c1\",\"params\":[[\"token\",\"String\"]],\"result\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"body\":{\"Record\":[\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\",[[\"payload\",{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Ok\",[{\"Record\":[\"__ink_payload_34632bbd9a8f7a60bed4b0ed3a45d7a5adfc2900c7a8d37f4469b76a609fa5e2\",[[\"item0\",{\"Var\":\"value\"}]]]}]]}]]}]]}]]}]]]},\"name\":\"ink_mca67a4ea249e8eba3cf6e453e86dd061695d9d9afaf7edcf587f8cd1cbc055c9\",\"params\":[[\"value\",\"String\"]],\"result\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"body\":{\"Record\":[\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\",[[\"payload\",{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Ok\",[{\"Record\":[\"__ink_payload_dcbf99b07cb62cbb8182f115cec1fac21e0a41bfd60fa5f2457127913327b1c8\",[[\"item0\",{\"Var\":\"values\"}]]]}]]}]]}]]}]]}]]}]]]},\"name\":\"ink_me5c9745ee2d98ddc2c32843ec24ea225963aff43ce357055dd9a61b18d1d4982\",\"params\":[[\"values\",{\"List\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}}]],\"result\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"body\":{\"Record\":[\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\",[[\"payload\",{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Record\":[\"__ink_payload_78bdb60e43bbf3d610e8c872cdcf4babee88d930550a58c7f150b03b655eda19\",[[\"item0\",{\"Var\":\"members\"}]]]}]]}]]}]]}]]}]]}]]]},\"name\":\"ink_mb0e8aa1d34f7cc5fc940000b63bdc043068202b64206a7da02cade0c4e386a22\",\"params\":[[\"members\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}}]],\"result\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"body\":{\"Call\":[\"foldr\",[{\"Var\":\"members\"},{\"Var\":\"None\"},{\"Lambda\":[\"member\",{\"Lambda\":[\"rest\",{\"Call\":[\"choose\",[{\"Binary\":[\"==\",{\"Field\":[{\"Var\":\"member\"},\"key\"]},{\"Var\":\"key\"}]},{\"Call\":[\"Some\",[{\"Field\":[{\"Var\":\"member\"},\"value\"]}]]},{\"Var\":\"rest\"}]]}]}]}]]},\"name\":\"ink_m2383a37c8f0f060d8454d784560b1928c68c5b404b4b5fd5bfff2e7fa4fddcbe\",\"params\":[[\"members\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}}],[\"key\",\"String\"]],\"result\":{\"Option\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}}},{\"body\":{\"Let\":[\"__ink_surface_65\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"},{\"Var\":\"value\"},{\"Method\":[{\"Field\":[{\"Var\":\"__ink_surface_65\"},\"payload\"]},\"fold\",[{\"Lambda\":[\"__ink_surface_66\",{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedObject\"]}]]}]},{\"Lambda\":[\"__ink_surface_66_rest\",{\"Method\":[{\"Var\":\"__ink_surface_66_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_67\",{\"Let\":[\"v\",\"Bool\",{\"Field\":[{\"Var\":\"__ink_surface_67\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedObject\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_67_rest\",{\"Method\":[{\"Var\":\"__ink_surface_67_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_68\",{\"Let\":[\"v\",\"String\",{\"Field\":[{\"Var\":\"__ink_surface_68\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedObject\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_68_rest\",{\"Method\":[{\"Var\":\"__ink_surface_68_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_69\",{\"Let\":[\"v\",\"String\",{\"Field\":[{\"Var\":\"__ink_surface_69\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedObject\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_69_rest\",{\"Method\":[{\"Var\":\"__ink_surface_69_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_70\",{\"Let\":[\"v\",{\"List\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"Field\":[{\"Var\":\"__ink_surface_70\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedObject\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_70_rest\",{\"Let\":[\"__ink_surface_71\",null,{\"Var\":\"__ink_surface_70_rest\"},{\"Let\":[\"members\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}},{\"Field\":[{\"Var\":\"__ink_surface_71\"},\"item0\"]},{\"Call\":[\"Ok\",[{\"Call\":[\"ink_m2383a37c8f0f060d8454d784560b1928c68c5b404b4b5fd5bfff2e7fa4fddcbe\",[{\"Var\":\"members\"},{\"Var\":\"key\"}]]}]]}]}]}]}]]}]}]]}]}]]}]}]]}]}]]}]},\"name\":\"ink_m5d18bbf4cd5236cf3a3bce3bc0ef39b2ca5d48cc74c98fd149a78715c7abf0fc\",\"params\":[[\"value\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}],[\"key\",\"String\"]],\"result\":{\"Result\":[{\"Option\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"Named\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"}]}},{\"body\":{\"Let\":[\"__ink_surface_132\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"},{\"Var\":\"value\"},{\"Method\":[{\"Field\":[{\"Var\":\"__ink_surface_132\"},\"payload\"]},\"fold\",[{\"Lambda\":[\"__ink_surface_133\",{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedObject\"]}]]}]},{\"Lambda\":[\"__ink_surface_133_rest\",{\"Method\":[{\"Var\":\"__ink_surface_133_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_134\",{\"Let\":[\"v\",\"Bool\",{\"Field\":[{\"Var\":\"__ink_surface_134\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedObject\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_134_rest\",{\"Method\":[{\"Var\":\"__ink_surface_134_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_135\",{\"Let\":[\"v\",\"String\",{\"Field\":[{\"Var\":\"__ink_surface_135\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedObject\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_135_rest\",{\"Method\":[{\"Var\":\"__ink_surface_135_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_136\",{\"Let\":[\"v\",\"String\",{\"Field\":[{\"Var\":\"__ink_surface_136\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedObject\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_136_rest\",{\"Method\":[{\"Var\":\"__ink_surface_136_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_137\",{\"Let\":[\"v\",{\"List\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"Field\":[{\"Var\":\"__ink_surface_137\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedObject\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_137_rest\",{\"Let\":[\"__ink_surface_138\",null,{\"Var\":\"__ink_surface_137_rest\"},{\"Let\":[\"items\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}},{\"Field\":[{\"Var\":\"__ink_surface_138\"},\"item0\"]},{\"Call\":[\"Ok\",[{\"Var\":\"items\"}]]}]}]}]}]]}]}]]}]}]]}]}]]}]}]]}]},\"name\":\"ink_md87d2855f042e634a3f3b8c068533029f73d510386d43bf00bc9d0bcd07e5c8c\",\"params\":[[\"value\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}]],\"result\":{\"Result\":[{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}},{\"Named\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"}]}},{\"body\":{\"Let\":[\"__ink_surface_198\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"},{\"Var\":\"value\"},{\"Method\":[{\"Field\":[{\"Var\":\"__ink_surface_198\"},\"payload\"]},\"fold\",[{\"Lambda\":[\"__ink_surface_199\",{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedArray\"]}]]}]},{\"Lambda\":[\"__ink_surface_199_rest\",{\"Method\":[{\"Var\":\"__ink_surface_199_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_200\",{\"Let\":[\"v\",\"Bool\",{\"Field\":[{\"Var\":\"__ink_surface_200\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedArray\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_200_rest\",{\"Method\":[{\"Var\":\"__ink_surface_200_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_201\",{\"Let\":[\"v\",\"String\",{\"Field\":[{\"Var\":\"__ink_surface_201\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedArray\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_201_rest\",{\"Method\":[{\"Var\":\"__ink_surface_201_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_202\",{\"Let\":[\"v\",\"String\",{\"Field\":[{\"Var\":\"__ink_surface_202\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedArray\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_202_rest\",{\"Method\":[{\"Var\":\"__ink_surface_202_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_203\",{\"Let\":[\"items\",{\"List\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"Field\":[{\"Var\":\"__ink_surface_203\"},\"item0\"]},{\"Call\":[\"Ok\",[{\"Var\":\"items\"}]]}]}]},{\"Lambda\":[\"__ink_surface_203_rest\",{\"Let\":[\"__ink_surface_204\",null,{\"Var\":\"__ink_surface_203_rest\"},{\"Let\":[\"v\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}},{\"Field\":[{\"Var\":\"__ink_surface_204\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedArray\"]}]]}]}]}]}]]}]}]]}]}]]}]}]]}]}]]}]},\"name\":\"ink_m20157316281aa2312519e1609fa4690b136f16e4ef71773eb2a47a1fa3a406de\",\"params\":[[\"value\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}]],\"result\":{\"Result\":[{\"List\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"Named\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"}]}},{\"body\":{\"Let\":[\"__ink_surface_264\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"},{\"Var\":\"value\"},{\"Method\":[{\"Field\":[{\"Var\":\"__ink_surface_264\"},\"payload\"]},\"fold\",[{\"Lambda\":[\"__ink_surface_265\",{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedString\"]}]]}]},{\"Lambda\":[\"__ink_surface_265_rest\",{\"Method\":[{\"Var\":\"__ink_surface_265_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_266\",{\"Let\":[\"v\",\"Bool\",{\"Field\":[{\"Var\":\"__ink_surface_266\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedString\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_266_rest\",{\"Method\":[{\"Var\":\"__ink_surface_266_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_267\",{\"Let\":[\"v\",\"String\",{\"Field\":[{\"Var\":\"__ink_surface_267\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedString\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_267_rest\",{\"Method\":[{\"Var\":\"__ink_surface_267_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_268\",{\"Let\":[\"v\",\"String\",{\"Field\":[{\"Var\":\"__ink_surface_268\"},\"item0\"]},{\"Call\":[\"Ok\",[{\"Var\":\"v\"}]]}]}]},{\"Lambda\":[\"__ink_surface_268_rest\",{\"Method\":[{\"Var\":\"__ink_surface_268_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_269\",{\"Let\":[\"v\",{\"List\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"Field\":[{\"Var\":\"__ink_surface_269\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedString\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_269_rest\",{\"Let\":[\"__ink_surface_270\",null,{\"Var\":\"__ink_surface_269_rest\"},{\"Let\":[\"v\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}},{\"Field\":[{\"Var\":\"__ink_surface_270\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedString\"]}]]}]}]}]}]]}]}]]}]}]]}]}]]}]}]]}]},\"name\":\"ink_me72555cbb304777e5aa4f9e3c006554a0e08baef4b0d7d5315bbdb8d73619005\",\"params\":[[\"value\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}]],\"result\":{\"Result\":[\"String\",{\"Named\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"}]}},{\"body\":{\"Let\":[\"__ink_surface_330\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"},{\"Var\":\"value\"},{\"Method\":[{\"Field\":[{\"Var\":\"__ink_surface_330\"},\"payload\"]},\"fold\",[{\"Lambda\":[\"__ink_surface_331\",{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedNumber\"]}]]}]},{\"Lambda\":[\"__ink_surface_331_rest\",{\"Method\":[{\"Var\":\"__ink_surface_331_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_332\",{\"Let\":[\"v\",\"Bool\",{\"Field\":[{\"Var\":\"__ink_surface_332\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedNumber\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_332_rest\",{\"Method\":[{\"Var\":\"__ink_surface_332_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_333\",{\"Let\":[\"v\",\"String\",{\"Field\":[{\"Var\":\"__ink_surface_333\"},\"item0\"]},{\"Call\":[\"Ok\",[{\"Var\":\"v\"}]]}]}]},{\"Lambda\":[\"__ink_surface_333_rest\",{\"Method\":[{\"Var\":\"__ink_surface_333_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_334\",{\"Let\":[\"v\",\"String\",{\"Field\":[{\"Var\":\"__ink_surface_334\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedNumber\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_334_rest\",{\"Method\":[{\"Var\":\"__ink_surface_334_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_335\",{\"Let\":[\"v\",{\"List\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"Field\":[{\"Var\":\"__ink_surface_335\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedNumber\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_335_rest\",{\"Let\":[\"__ink_surface_336\",null,{\"Var\":\"__ink_surface_335_rest\"},{\"Let\":[\"v\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}},{\"Field\":[{\"Var\":\"__ink_surface_336\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedNumber\"]}]]}]}]}]}]]}]}]]}]}]]}]}]]}]}]]}]},\"name\":\"ink_m0799e9661dd281b944df2c23f24248caf4bf5ffd20f6d9a7e2fe778ce1a073d2\",\"params\":[[\"value\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}]],\"result\":{\"Result\":[\"String\",{\"Named\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"}]}},{\"body\":{\"Let\":[\"__ink_surface_396\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"},{\"Var\":\"value\"},{\"Method\":[{\"Field\":[{\"Var\":\"__ink_surface_396\"},\"payload\"]},\"fold\",[{\"Lambda\":[\"__ink_surface_397\",{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedBoolean\"]}]]}]},{\"Lambda\":[\"__ink_surface_397_rest\",{\"Method\":[{\"Var\":\"__ink_surface_397_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_398\",{\"Let\":[\"v\",\"Bool\",{\"Field\":[{\"Var\":\"__ink_surface_398\"},\"item0\"]},{\"Call\":[\"Ok\",[{\"Var\":\"v\"}]]}]}]},{\"Lambda\":[\"__ink_surface_398_rest\",{\"Method\":[{\"Var\":\"__ink_surface_398_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_399\",{\"Let\":[\"v\",\"String\",{\"Field\":[{\"Var\":\"__ink_surface_399\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedBoolean\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_399_rest\",{\"Method\":[{\"Var\":\"__ink_surface_399_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_400\",{\"Let\":[\"v\",\"String\",{\"Field\":[{\"Var\":\"__ink_surface_400\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedBoolean\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_400_rest\",{\"Method\":[{\"Var\":\"__ink_surface_400_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_401\",{\"Let\":[\"v\",{\"List\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"Field\":[{\"Var\":\"__ink_surface_401\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedBoolean\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_401_rest\",{\"Let\":[\"__ink_surface_402\",null,{\"Var\":\"__ink_surface_401_rest\"},{\"Let\":[\"v\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}},{\"Field\":[{\"Var\":\"__ink_surface_402\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedBoolean\"]}]]}]}]}]}]]}]}]]}]}]]}]}]]}]}]]}]},\"name\":\"ink_m992ba36e5bbedf39b7f14a42b10f872b6c0c9a2ea93b89b3fc52f4d549687c80\",\"params\":[[\"value\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}]],\"result\":{\"Result\":[\"Bool\",{\"Named\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"}]}},{\"body\":{\"Method\":[{\"Call\":[\"list\",[{\"Record\":[\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\",[[\"key\",{\"Var\":\"key\"}],[\"value\",{\"Var\":\"value\"}]]]}]]},\"concat\",[{\"Method\":[{\"Var\":\"members\"},\"filter\",[{\"Lambda\":[\"member\",{\"Binary\":[\"!=\",{\"Field\":[{\"Var\":\"member\"},\"key\"]},{\"Var\":\"key\"}]}]}]]}]]},\"name\":\"ink_md6609e67dc544a99f2a87bd888df500ffda6c2a250ac3bb96e169677f36aa0ca\",\"params\":[[\"members\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}}],[\"key\",\"String\"],[\"value\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}]],\"result\":{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}}},{\"body\":{\"Method\":[{\"Call\":[\"ink_md87d2855f042e634a3f3b8c068533029f73d510386d43bf00bc9d0bcd07e5c8c\",[{\"Var\":\"value\"}]]},\"fold\",[{\"Lambda\":[\"__ink_local_6\",{\"Let\":[\"items\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}},{\"Var\":\"__ink_local_6\"},{\"Call\":[\"Ok\",[{\"Record\":[\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\",[[\"payload\",{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Record\":[\"__ink_payload_78bdb60e43bbf3d610e8c872cdcf4babee88d930550a58c7f150b03b655eda19\",[[\"item0\",{\"Call\":[\"ink_md6609e67dc544a99f2a87bd888df500ffda6c2a250ac3bb96e169677f36aa0ca\",[{\"Var\":\"items\"},{\"Var\":\"key\"},{\"Var\":\"replacement\"}]]}]]]}]]}]]}]]}]]}]]}]]]}]]}]}]},{\"Lambda\":[\"__ink_local_7\",{\"Call\":[\"Err\",[{\"Var\":\"__ink_local_7\"}]]}]}]]},\"name\":\"ink_mad008ef4986d9f0222e8592e1b0d53b594ed67eab0548e67ceabe4308ff8638b\",\"params\":[[\"value\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}],[\"key\",\"String\"],[\"replacement\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}]],\"result\":{\"Result\":[{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"},{\"Named\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"}]}},{\"body\":{\"Method\":[{\"Call\":[\"ink_md87d2855f042e634a3f3b8c068533029f73d510386d43bf00bc9d0bcd07e5c8c\",[{\"Var\":\"value\"}]]},\"fold\",[{\"Lambda\":[\"__ink_local_8\",{\"Let\":[\"items\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}},{\"Var\":\"__ink_local_8\"},{\"Call\":[\"Ok\",[{\"Record\":[\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\",[[\"payload\",{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Record\":[\"__ink_payload_78bdb60e43bbf3d610e8c872cdcf4babee88d930550a58c7f150b03b655eda19\",[[\"item0\",{\"Method\":[{\"Var\":\"items\"},\"filter\",[{\"Lambda\":[\"member\",{\"Binary\":[\"!=\",{\"Field\":[{\"Var\":\"member\"},\"key\"]},{\"Var\":\"key\"}]}]}]]}]]]}]]}]]}]]}]]}]]}]]]}]]}]}]},{\"Lambda\":[\"__ink_local_9\",{\"Call\":[\"Err\",[{\"Var\":\"__ink_local_9\"}]]}]}]]},\"name\":\"ink_m6daa56a5bc5a861d85247ffa7c539a517219bed2c2c205e9798247b46093c271\",\"params\":[[\"value\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}],[\"key\",\"String\"]],\"result\":{\"Result\":[{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"},{\"Named\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"}]}},{\"body\":{\"Method\":[{\"Call\":[\"ink_md87d2855f042e634a3f3b8c068533029f73d510386d43bf00bc9d0bcd07e5c8c\",[{\"Var\":\"value\"}]]},\"fold\",[{\"Lambda\":[\"__ink_local_10\",{\"Let\":[\"items\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}},{\"Var\":\"__ink_local_10\"},{\"Call\":[\"Ok\",[{\"Record\":[\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\",[[\"payload\",{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Record\":[\"__ink_payload_78bdb60e43bbf3d610e8c872cdcf4babee88d930550a58c7f150b03b655eda19\",[[\"item0\",{\"Method\":[{\"Var\":\"items\"},\"filter\",[{\"Lambda\":[\"member\",{\"Call\":[\"foldl\",[{\"Var\":\"keys\"},{\"Bool\":false},{\"Lambda\":[\"key\",{\"Lambda\":[\"found\",{\"Binary\":[\"||\",{\"Var\":\"found\"},{\"Binary\":[\"==\",{\"Var\":\"key\"},{\"Field\":[{\"Var\":\"member\"},\"key\"]}]}]}]}]}]]}]}]]}]]]}]]}]]}]]}]]}]]}]]]}]]}]}]},{\"Lambda\":[\"__ink_local_11\",{\"Call\":[\"Err\",[{\"Var\":\"__ink_local_11\"}]]}]}]]},\"name\":\"ink_m55d79925938089d1d4f5680a132089bb2dbc200f324c50670835f2f3730f3837\",\"params\":[[\"value\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}],[\"keys\",{\"List\":\"String\"}]],\"result\":{\"Result\":[{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"},{\"Named\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"}]}}],\"ids\":[],\"keeps\":[],\"module\":\"json_state_benchmark\",\"records\":{\"Row\":[[\"value\",\"U32\"],[\"active\",\"Bool\"],[\"metadata\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}]],\"__ink_payload_34632bbd9a8f7a60bed4b0ed3a45d7a5adfc2900c7a8d37f4469b76a609fa5e2\":[[\"item0\",\"String\"]],\"__ink_payload_78bdb60e43bbf3d610e8c872cdcf4babee88d930550a58c7f150b03b655eda19\":[[\"item0\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}}]],\"__ink_payload_a82bf7eb015d981339eb3e20eeff3358ebb91e9aa8e78dab18648569bd18706e\":[[\"item0\",\"String\"]],\"__ink_payload_bff999f8a2a326529afcad49253e4e2a1fd440bbdd336be755288693fe5957e7\":[[\"item0\",\"Bool\"]],\"__ink_payload_dcbf99b07cb62cbb8182f115cec1fac21e0a41bfd60fa5f2457127913327b1c8\":[[\"item0\",{\"List\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}}]],\"__ink_payload_dd3f88ecb1e96c7ceee99cebd542718942d6e2ff44637670e6aa06aeb54b2550\":[],\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\":[[\"key\",\"String\"],[\"value\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}]],\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\":[[\"payload\",{\"Result\":[{\"Named\":\"__ink_payload_dd3f88ecb1e96c7ceee99cebd542718942d6e2ff44637670e6aa06aeb54b2550\"},{\"Result\":[{\"Named\":\"__ink_payload_bff999f8a2a326529afcad49253e4e2a1fd440bbdd336be755288693fe5957e7\"},{\"Result\":[{\"Named\":\"__ink_payload_a82bf7eb015d981339eb3e20eeff3358ebb91e9aa8e78dab18648569bd18706e\"},{\"Result\":[{\"Named\":\"__ink_payload_34632bbd9a8f7a60bed4b0ed3a45d7a5adfc2900c7a8d37f4469b76a609fa5e2\"},{\"Result\":[{\"Named\":\"__ink_payload_dcbf99b07cb62cbb8182f115cec1fac21e0a41bfd60fa5f2457127913327b1c8\"},{\"Named\":\"__ink_payload_78bdb60e43bbf3d610e8c872cdcf4babee88d930550a58c7f150b03b655eda19\"}]}]}]}]}]}]]},\"rules\":[],\"states\":[{\"name\":\"Rows\",\"ty\":{\"Table\":[\"String\",{\"Named\":\"Row\"}]},\"value\":{\"Method\":[{\"Var\":\"Table\"},\"empty\",[]]}}]},\"schema\":1,\"semantics\":\"ink-executable-core-v8\"},\"definition_choices\":null,\"definitions\":null,\"physical\":{\"borrow_reads\":[],\"borrow_rows\":[],\"buffers\":\"scoped\",\"columns\":[],\"definitions\":\"shared\",\"input_core_sha256\":\"011e1e96f60d9e2e64eeb79b7ac93de4adf862c65bdd7014ef43f59ffa24996c\",\"memo_functions\":[],\"packed_datatypes\":[],\"reservations\":[],\"schema\":1,\"semantics\":\"ink-physical-plan-v1\",\"tables\":\"ordered\"},\"properties\":[],\"representation\":null,\"resources\":null,\"route\":null,\"source\":\"011e1e96f60d9e2e64eeb79b7ac93de4adf862c65bdd7014ef43f59ffa24996c\"},\"status\":\"checked\",\"steps\":1}"
+    },
+    {
+      "command": [
+        "compile",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/bench/frontier-json/state.ink",
+        "--plan",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/build/frontier-json/ordered.plan.json",
+        "--target",
+        "rust",
+        "-o",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/build/frontier-json/native-ordered.rs"
+      ],
+      "elapsed_ns": 490688750,
+      "receipt": ""
+    },
+    {
+      "command": [
+        "check-plan",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/build/frontier-json/core.json",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/build/frontier-json/ordered-borrow.plan.json",
+        "--core"
+      ],
+      "elapsed_ns": 80825167,
+      "receipt": "{\"input\":\"011e1e96f60d9e2e64eeb79b7ac93de4adf862c65bdd7014ef43f59ffa24996c\",\"plan_sha256\":\"64078cdff399bbe732737add5b36a1086d413ce9a6b0561c3708bb65f018e469\",\"selected\":\"011e1e96f60d9e2e64eeb79b7ac93de4adf862c65bdd7014ef43f59ffa24996c\",\"state\":{\"core\":{\"program\":{\"actions\":[{\"body\":[{\"Expr\":{\"Method\":[{\"Var\":\"Rows\"},\"put\",[{\"Var\":\"key\"},{\"Var\":\"row\"}]]}},{\"Emit\":[\"seen\",{\"Field\":[{\"Var\":\"row\"},\"value\"]}]},{\"If\":[{\"Var\":\"fail\"},[{\"Return\":{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"Error\"},\"Failed\"]}]]}}],[]]},{\"Return\":{\"Call\":[\"Ok\",[\"Unit\"]]}}],\"emits\":[\"seen\"],\"kind\":\"Change\",\"name\":\"put\",\"params\":[[\"key\",\"String\"],[\"row\",{\"Named\":\"Row\"}],[\"fail\",\"Bool\"]],\"reads\":[],\"result\":{\"Result\":[\"Unit\",{\"Named\":\"Error\"}]},\"writes\":[\"Rows\"]},{\"body\":[{\"Expr\":{\"Method\":[{\"Var\":\"Rows\"},\"remove\",[{\"Var\":\"key\"}]]}},{\"Emit\":[\"seen\",{\"Num\":0}]},{\"If\":[{\"Var\":\"fail\"},[{\"Return\":{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"Error\"},\"Failed\"]}]]}}],[]]},{\"Return\":{\"Call\":[\"Ok\",[\"Unit\"]]}}],\"emits\":[\"seen\"],\"kind\":\"Change\",\"name\":\"erase\",\"params\":[[\"key\",\"String\"],[\"fail\",\"Bool\"]],\"reads\":[],\"result\":{\"Result\":[\"Unit\",{\"Named\":\"Error\"}]},\"writes\":[\"Rows\"]},{\"body\":[{\"Return\":{\"Call\":[\"sum\",[{\"Method\":[{\"Method\":[{\"Method\":[{\"Var\":\"Rows\"},\"values\",[]]},\"filter\",[{\"Lambda\":[\"row\",{\"Field\":[{\"Var\":\"row\"},\"active\"]}]}]]},\"map\",[{\"Lambda\":[\"row\",{\"Field\":[{\"Var\":\"row\"},\"value\"]}]}]]}]]}}],\"emits\":[],\"kind\":\"Query\",\"name\":\"total\",\"params\":[],\"reads\":[\"Rows\"],\"result\":\"U32\",\"writes\":[]},{\"body\":[{\"Return\":{\"Method\":[{\"Var\":\"Rows\"},\"get\",[{\"Var\":\"key\"}]]}}],\"emits\":[],\"kind\":\"Query\",\"name\":\"row\",\"params\":[[\"key\",\"String\"]],\"reads\":[\"Rows\"],\"result\":{\"Option\":{\"Named\":\"Row\"}},\"writes\":[]}],\"enums\":{\"Error\":[\"Failed\"],\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\":[\"ExpectedObject\",\"ExpectedArray\",\"ExpectedBoolean\",\"ExpectedNumber\",\"ExpectedString\"]},\"events\":{\"seen\":\"U32\"},\"functions\":[{\"body\":{\"Call\":[\"ink_mad008ef4986d9f0222e8592e1b0d53b594ed67eab0548e67ceabe4308ff8638b\",[{\"Var\":\"document\"},{\"Var\":\"key\"},{\"Var\":\"value\"}]]},\"name\":\"set_document\",\"params\":[[\"document\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}],[\"key\",\"String\"],[\"value\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}]],\"result\":{\"Result\":[{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"},{\"Named\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"}]}},{\"body\":{\"Var\":\"document\"},\"name\":\"identity\",\"params\":[[\"document\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}]],\"result\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"body\":{\"Record\":[\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\",[[\"payload\",{\"Call\":[\"Ok\",[{\"Record\":[\"__ink_payload_dd3f88ecb1e96c7ceee99cebd542718942d6e2ff44637670e6aa06aeb54b2550\",[]]}]]}]]]},\"name\":\"ink_m5c5479101d38cd5d28f66110c880ad28b6ee3ee64fddb98300dda927c645c107\",\"params\":[],\"result\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"body\":{\"Record\":[\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\",[[\"payload\",{\"Call\":[\"Err\",[{\"Call\":[\"Ok\",[{\"Record\":[\"__ink_payload_bff999f8a2a326529afcad49253e4e2a1fd440bbdd336be755288693fe5957e7\",[[\"item0\",{\"Var\":\"value\"}]]]}]]}]]}]]]},\"name\":\"ink_mbf312e22e5ab893385ef1935f8250f16e090d4da8dd41bc1577df1ba636fdc13\",\"params\":[[\"value\",\"Bool\"]],\"result\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"body\":{\"Record\":[\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\",[[\"payload\",{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Ok\",[{\"Record\":[\"__ink_payload_a82bf7eb015d981339eb3e20eeff3358ebb91e9aa8e78dab18648569bd18706e\",[[\"item0\",{\"Var\":\"token\"}]]]}]]}]]}]]}]]]},\"name\":\"ink_mee36d9721e4db57ba82a41d18344d03b18dc98a5d22319238b436d9aa6c8a6c1\",\"params\":[[\"token\",\"String\"]],\"result\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"body\":{\"Record\":[\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\",[[\"payload\",{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Ok\",[{\"Record\":[\"__ink_payload_34632bbd9a8f7a60bed4b0ed3a45d7a5adfc2900c7a8d37f4469b76a609fa5e2\",[[\"item0\",{\"Var\":\"value\"}]]]}]]}]]}]]}]]}]]]},\"name\":\"ink_mca67a4ea249e8eba3cf6e453e86dd061695d9d9afaf7edcf587f8cd1cbc055c9\",\"params\":[[\"value\",\"String\"]],\"result\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"body\":{\"Record\":[\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\",[[\"payload\",{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Ok\",[{\"Record\":[\"__ink_payload_dcbf99b07cb62cbb8182f115cec1fac21e0a41bfd60fa5f2457127913327b1c8\",[[\"item0\",{\"Var\":\"values\"}]]]}]]}]]}]]}]]}]]}]]]},\"name\":\"ink_me5c9745ee2d98ddc2c32843ec24ea225963aff43ce357055dd9a61b18d1d4982\",\"params\":[[\"values\",{\"List\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}}]],\"result\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"body\":{\"Record\":[\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\",[[\"payload\",{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Record\":[\"__ink_payload_78bdb60e43bbf3d610e8c872cdcf4babee88d930550a58c7f150b03b655eda19\",[[\"item0\",{\"Var\":\"members\"}]]]}]]}]]}]]}]]}]]}]]]},\"name\":\"ink_mb0e8aa1d34f7cc5fc940000b63bdc043068202b64206a7da02cade0c4e386a22\",\"params\":[[\"members\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}}]],\"result\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"body\":{\"Call\":[\"foldr\",[{\"Var\":\"members\"},{\"Var\":\"None\"},{\"Lambda\":[\"member\",{\"Lambda\":[\"rest\",{\"Call\":[\"choose\",[{\"Binary\":[\"==\",{\"Field\":[{\"Var\":\"member\"},\"key\"]},{\"Var\":\"key\"}]},{\"Call\":[\"Some\",[{\"Field\":[{\"Var\":\"member\"},\"value\"]}]]},{\"Var\":\"rest\"}]]}]}]}]]},\"name\":\"ink_m2383a37c8f0f060d8454d784560b1928c68c5b404b4b5fd5bfff2e7fa4fddcbe\",\"params\":[[\"members\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}}],[\"key\",\"String\"]],\"result\":{\"Option\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}}},{\"body\":{\"Let\":[\"__ink_surface_65\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"},{\"Var\":\"value\"},{\"Method\":[{\"Field\":[{\"Var\":\"__ink_surface_65\"},\"payload\"]},\"fold\",[{\"Lambda\":[\"__ink_surface_66\",{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedObject\"]}]]}]},{\"Lambda\":[\"__ink_surface_66_rest\",{\"Method\":[{\"Var\":\"__ink_surface_66_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_67\",{\"Let\":[\"v\",\"Bool\",{\"Field\":[{\"Var\":\"__ink_surface_67\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedObject\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_67_rest\",{\"Method\":[{\"Var\":\"__ink_surface_67_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_68\",{\"Let\":[\"v\",\"String\",{\"Field\":[{\"Var\":\"__ink_surface_68\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedObject\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_68_rest\",{\"Method\":[{\"Var\":\"__ink_surface_68_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_69\",{\"Let\":[\"v\",\"String\",{\"Field\":[{\"Var\":\"__ink_surface_69\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedObject\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_69_rest\",{\"Method\":[{\"Var\":\"__ink_surface_69_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_70\",{\"Let\":[\"v\",{\"List\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"Field\":[{\"Var\":\"__ink_surface_70\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedObject\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_70_rest\",{\"Let\":[\"__ink_surface_71\",null,{\"Var\":\"__ink_surface_70_rest\"},{\"Let\":[\"members\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}},{\"Field\":[{\"Var\":\"__ink_surface_71\"},\"item0\"]},{\"Call\":[\"Ok\",[{\"Call\":[\"ink_m2383a37c8f0f060d8454d784560b1928c68c5b404b4b5fd5bfff2e7fa4fddcbe\",[{\"Var\":\"members\"},{\"Var\":\"key\"}]]}]]}]}]}]}]]}]}]]}]}]]}]}]]}]}]]}]},\"name\":\"ink_m5d18bbf4cd5236cf3a3bce3bc0ef39b2ca5d48cc74c98fd149a78715c7abf0fc\",\"params\":[[\"value\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}],[\"key\",\"String\"]],\"result\":{\"Result\":[{\"Option\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"Named\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"}]}},{\"body\":{\"Let\":[\"__ink_surface_132\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"},{\"Var\":\"value\"},{\"Method\":[{\"Field\":[{\"Var\":\"__ink_surface_132\"},\"payload\"]},\"fold\",[{\"Lambda\":[\"__ink_surface_133\",{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedObject\"]}]]}]},{\"Lambda\":[\"__ink_surface_133_rest\",{\"Method\":[{\"Var\":\"__ink_surface_133_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_134\",{\"Let\":[\"v\",\"Bool\",{\"Field\":[{\"Var\":\"__ink_surface_134\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedObject\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_134_rest\",{\"Method\":[{\"Var\":\"__ink_surface_134_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_135\",{\"Let\":[\"v\",\"String\",{\"Field\":[{\"Var\":\"__ink_surface_135\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedObject\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_135_rest\",{\"Method\":[{\"Var\":\"__ink_surface_135_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_136\",{\"Let\":[\"v\",\"String\",{\"Field\":[{\"Var\":\"__ink_surface_136\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedObject\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_136_rest\",{\"Method\":[{\"Var\":\"__ink_surface_136_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_137\",{\"Let\":[\"v\",{\"List\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"Field\":[{\"Var\":\"__ink_surface_137\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedObject\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_137_rest\",{\"Let\":[\"__ink_surface_138\",null,{\"Var\":\"__ink_surface_137_rest\"},{\"Let\":[\"items\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}},{\"Field\":[{\"Var\":\"__ink_surface_138\"},\"item0\"]},{\"Call\":[\"Ok\",[{\"Var\":\"items\"}]]}]}]}]}]]}]}]]}]}]]}]}]]}]}]]}]},\"name\":\"ink_md87d2855f042e634a3f3b8c068533029f73d510386d43bf00bc9d0bcd07e5c8c\",\"params\":[[\"value\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}]],\"result\":{\"Result\":[{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}},{\"Named\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"}]}},{\"body\":{\"Let\":[\"__ink_surface_198\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"},{\"Var\":\"value\"},{\"Method\":[{\"Field\":[{\"Var\":\"__ink_surface_198\"},\"payload\"]},\"fold\",[{\"Lambda\":[\"__ink_surface_199\",{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedArray\"]}]]}]},{\"Lambda\":[\"__ink_surface_199_rest\",{\"Method\":[{\"Var\":\"__ink_surface_199_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_200\",{\"Let\":[\"v\",\"Bool\",{\"Field\":[{\"Var\":\"__ink_surface_200\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedArray\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_200_rest\",{\"Method\":[{\"Var\":\"__ink_surface_200_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_201\",{\"Let\":[\"v\",\"String\",{\"Field\":[{\"Var\":\"__ink_surface_201\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedArray\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_201_rest\",{\"Method\":[{\"Var\":\"__ink_surface_201_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_202\",{\"Let\":[\"v\",\"String\",{\"Field\":[{\"Var\":\"__ink_surface_202\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedArray\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_202_rest\",{\"Method\":[{\"Var\":\"__ink_surface_202_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_203\",{\"Let\":[\"items\",{\"List\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"Field\":[{\"Var\":\"__ink_surface_203\"},\"item0\"]},{\"Call\":[\"Ok\",[{\"Var\":\"items\"}]]}]}]},{\"Lambda\":[\"__ink_surface_203_rest\",{\"Let\":[\"__ink_surface_204\",null,{\"Var\":\"__ink_surface_203_rest\"},{\"Let\":[\"v\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}},{\"Field\":[{\"Var\":\"__ink_surface_204\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedArray\"]}]]}]}]}]}]]}]}]]}]}]]}]}]]}]}]]}]},\"name\":\"ink_m20157316281aa2312519e1609fa4690b136f16e4ef71773eb2a47a1fa3a406de\",\"params\":[[\"value\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}]],\"result\":{\"Result\":[{\"List\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"Named\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"}]}},{\"body\":{\"Let\":[\"__ink_surface_264\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"},{\"Var\":\"value\"},{\"Method\":[{\"Field\":[{\"Var\":\"__ink_surface_264\"},\"payload\"]},\"fold\",[{\"Lambda\":[\"__ink_surface_265\",{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedString\"]}]]}]},{\"Lambda\":[\"__ink_surface_265_rest\",{\"Method\":[{\"Var\":\"__ink_surface_265_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_266\",{\"Let\":[\"v\",\"Bool\",{\"Field\":[{\"Var\":\"__ink_surface_266\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedString\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_266_rest\",{\"Method\":[{\"Var\":\"__ink_surface_266_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_267\",{\"Let\":[\"v\",\"String\",{\"Field\":[{\"Var\":\"__ink_surface_267\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedString\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_267_rest\",{\"Method\":[{\"Var\":\"__ink_surface_267_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_268\",{\"Let\":[\"v\",\"String\",{\"Field\":[{\"Var\":\"__ink_surface_268\"},\"item0\"]},{\"Call\":[\"Ok\",[{\"Var\":\"v\"}]]}]}]},{\"Lambda\":[\"__ink_surface_268_rest\",{\"Method\":[{\"Var\":\"__ink_surface_268_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_269\",{\"Let\":[\"v\",{\"List\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"Field\":[{\"Var\":\"__ink_surface_269\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedString\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_269_rest\",{\"Let\":[\"__ink_surface_270\",null,{\"Var\":\"__ink_surface_269_rest\"},{\"Let\":[\"v\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}},{\"Field\":[{\"Var\":\"__ink_surface_270\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedString\"]}]]}]}]}]}]]}]}]]}]}]]}]}]]}]}]]}]},\"name\":\"ink_me72555cbb304777e5aa4f9e3c006554a0e08baef4b0d7d5315bbdb8d73619005\",\"params\":[[\"value\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}]],\"result\":{\"Result\":[\"String\",{\"Named\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"}]}},{\"body\":{\"Let\":[\"__ink_surface_330\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"},{\"Var\":\"value\"},{\"Method\":[{\"Field\":[{\"Var\":\"__ink_surface_330\"},\"payload\"]},\"fold\",[{\"Lambda\":[\"__ink_surface_331\",{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedNumber\"]}]]}]},{\"Lambda\":[\"__ink_surface_331_rest\",{\"Method\":[{\"Var\":\"__ink_surface_331_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_332\",{\"Let\":[\"v\",\"Bool\",{\"Field\":[{\"Var\":\"__ink_surface_332\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedNumber\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_332_rest\",{\"Method\":[{\"Var\":\"__ink_surface_332_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_333\",{\"Let\":[\"v\",\"String\",{\"Field\":[{\"Var\":\"__ink_surface_333\"},\"item0\"]},{\"Call\":[\"Ok\",[{\"Var\":\"v\"}]]}]}]},{\"Lambda\":[\"__ink_surface_333_rest\",{\"Method\":[{\"Var\":\"__ink_surface_333_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_334\",{\"Let\":[\"v\",\"String\",{\"Field\":[{\"Var\":\"__ink_surface_334\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedNumber\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_334_rest\",{\"Method\":[{\"Var\":\"__ink_surface_334_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_335\",{\"Let\":[\"v\",{\"List\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"Field\":[{\"Var\":\"__ink_surface_335\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedNumber\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_335_rest\",{\"Let\":[\"__ink_surface_336\",null,{\"Var\":\"__ink_surface_335_rest\"},{\"Let\":[\"v\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}},{\"Field\":[{\"Var\":\"__ink_surface_336\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedNumber\"]}]]}]}]}]}]]}]}]]}]}]]}]}]]}]}]]}]},\"name\":\"ink_m0799e9661dd281b944df2c23f24248caf4bf5ffd20f6d9a7e2fe778ce1a073d2\",\"params\":[[\"value\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}]],\"result\":{\"Result\":[\"String\",{\"Named\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"}]}},{\"body\":{\"Let\":[\"__ink_surface_396\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"},{\"Var\":\"value\"},{\"Method\":[{\"Field\":[{\"Var\":\"__ink_surface_396\"},\"payload\"]},\"fold\",[{\"Lambda\":[\"__ink_surface_397\",{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedBoolean\"]}]]}]},{\"Lambda\":[\"__ink_surface_397_rest\",{\"Method\":[{\"Var\":\"__ink_surface_397_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_398\",{\"Let\":[\"v\",\"Bool\",{\"Field\":[{\"Var\":\"__ink_surface_398\"},\"item0\"]},{\"Call\":[\"Ok\",[{\"Var\":\"v\"}]]}]}]},{\"Lambda\":[\"__ink_surface_398_rest\",{\"Method\":[{\"Var\":\"__ink_surface_398_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_399\",{\"Let\":[\"v\",\"String\",{\"Field\":[{\"Var\":\"__ink_surface_399\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedBoolean\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_399_rest\",{\"Method\":[{\"Var\":\"__ink_surface_399_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_400\",{\"Let\":[\"v\",\"String\",{\"Field\":[{\"Var\":\"__ink_surface_400\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedBoolean\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_400_rest\",{\"Method\":[{\"Var\":\"__ink_surface_400_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_401\",{\"Let\":[\"v\",{\"List\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"Field\":[{\"Var\":\"__ink_surface_401\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedBoolean\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_401_rest\",{\"Let\":[\"__ink_surface_402\",null,{\"Var\":\"__ink_surface_401_rest\"},{\"Let\":[\"v\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}},{\"Field\":[{\"Var\":\"__ink_surface_402\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedBoolean\"]}]]}]}]}]}]]}]}]]}]}]]}]}]]}]}]]}]},\"name\":\"ink_m992ba36e5bbedf39b7f14a42b10f872b6c0c9a2ea93b89b3fc52f4d549687c80\",\"params\":[[\"value\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}]],\"result\":{\"Result\":[\"Bool\",{\"Named\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"}]}},{\"body\":{\"Method\":[{\"Call\":[\"list\",[{\"Record\":[\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\",[[\"key\",{\"Var\":\"key\"}],[\"value\",{\"Var\":\"value\"}]]]}]]},\"concat\",[{\"Method\":[{\"Var\":\"members\"},\"filter\",[{\"Lambda\":[\"member\",{\"Binary\":[\"!=\",{\"Field\":[{\"Var\":\"member\"},\"key\"]},{\"Var\":\"key\"}]}]}]]}]]},\"name\":\"ink_md6609e67dc544a99f2a87bd888df500ffda6c2a250ac3bb96e169677f36aa0ca\",\"params\":[[\"members\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}}],[\"key\",\"String\"],[\"value\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}]],\"result\":{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}}},{\"body\":{\"Method\":[{\"Call\":[\"ink_md87d2855f042e634a3f3b8c068533029f73d510386d43bf00bc9d0bcd07e5c8c\",[{\"Var\":\"value\"}]]},\"fold\",[{\"Lambda\":[\"__ink_local_6\",{\"Let\":[\"items\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}},{\"Var\":\"__ink_local_6\"},{\"Call\":[\"Ok\",[{\"Record\":[\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\",[[\"payload\",{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Record\":[\"__ink_payload_78bdb60e43bbf3d610e8c872cdcf4babee88d930550a58c7f150b03b655eda19\",[[\"item0\",{\"Call\":[\"ink_md6609e67dc544a99f2a87bd888df500ffda6c2a250ac3bb96e169677f36aa0ca\",[{\"Var\":\"items\"},{\"Var\":\"key\"},{\"Var\":\"replacement\"}]]}]]]}]]}]]}]]}]]}]]}]]]}]]}]}]},{\"Lambda\":[\"__ink_local_7\",{\"Call\":[\"Err\",[{\"Var\":\"__ink_local_7\"}]]}]}]]},\"name\":\"ink_mad008ef4986d9f0222e8592e1b0d53b594ed67eab0548e67ceabe4308ff8638b\",\"params\":[[\"value\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}],[\"key\",\"String\"],[\"replacement\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}]],\"result\":{\"Result\":[{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"},{\"Named\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"}]}},{\"body\":{\"Method\":[{\"Call\":[\"ink_md87d2855f042e634a3f3b8c068533029f73d510386d43bf00bc9d0bcd07e5c8c\",[{\"Var\":\"value\"}]]},\"fold\",[{\"Lambda\":[\"__ink_local_8\",{\"Let\":[\"items\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}},{\"Var\":\"__ink_local_8\"},{\"Call\":[\"Ok\",[{\"Record\":[\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\",[[\"payload\",{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Record\":[\"__ink_payload_78bdb60e43bbf3d610e8c872cdcf4babee88d930550a58c7f150b03b655eda19\",[[\"item0\",{\"Method\":[{\"Var\":\"items\"},\"filter\",[{\"Lambda\":[\"member\",{\"Binary\":[\"!=\",{\"Field\":[{\"Var\":\"member\"},\"key\"]},{\"Var\":\"key\"}]}]}]]}]]]}]]}]]}]]}]]}]]}]]]}]]}]}]},{\"Lambda\":[\"__ink_local_9\",{\"Call\":[\"Err\",[{\"Var\":\"__ink_local_9\"}]]}]}]]},\"name\":\"ink_m6daa56a5bc5a861d85247ffa7c539a517219bed2c2c205e9798247b46093c271\",\"params\":[[\"value\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}],[\"key\",\"String\"]],\"result\":{\"Result\":[{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"},{\"Named\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"}]}},{\"body\":{\"Method\":[{\"Call\":[\"ink_md87d2855f042e634a3f3b8c068533029f73d510386d43bf00bc9d0bcd07e5c8c\",[{\"Var\":\"value\"}]]},\"fold\",[{\"Lambda\":[\"__ink_local_10\",{\"Let\":[\"items\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}},{\"Var\":\"__ink_local_10\"},{\"Call\":[\"Ok\",[{\"Record\":[\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\",[[\"payload\",{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Record\":[\"__ink_payload_78bdb60e43bbf3d610e8c872cdcf4babee88d930550a58c7f150b03b655eda19\",[[\"item0\",{\"Method\":[{\"Var\":\"items\"},\"filter\",[{\"Lambda\":[\"member\",{\"Call\":[\"foldl\",[{\"Var\":\"keys\"},{\"Bool\":false},{\"Lambda\":[\"key\",{\"Lambda\":[\"found\",{\"Binary\":[\"||\",{\"Var\":\"found\"},{\"Binary\":[\"==\",{\"Var\":\"key\"},{\"Field\":[{\"Var\":\"member\"},\"key\"]}]}]}]}]}]]}]}]]}]]]}]]}]]}]]}]]}]]}]]]}]]}]}]},{\"Lambda\":[\"__ink_local_11\",{\"Call\":[\"Err\",[{\"Var\":\"__ink_local_11\"}]]}]}]]},\"name\":\"ink_m55d79925938089d1d4f5680a132089bb2dbc200f324c50670835f2f3730f3837\",\"params\":[[\"value\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}],[\"keys\",{\"List\":\"String\"}]],\"result\":{\"Result\":[{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"},{\"Named\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"}]}}],\"ids\":[],\"keeps\":[],\"module\":\"json_state_benchmark\",\"records\":{\"Row\":[[\"value\",\"U32\"],[\"active\",\"Bool\"],[\"metadata\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}]],\"__ink_payload_34632bbd9a8f7a60bed4b0ed3a45d7a5adfc2900c7a8d37f4469b76a609fa5e2\":[[\"item0\",\"String\"]],\"__ink_payload_78bdb60e43bbf3d610e8c872cdcf4babee88d930550a58c7f150b03b655eda19\":[[\"item0\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}}]],\"__ink_payload_a82bf7eb015d981339eb3e20eeff3358ebb91e9aa8e78dab18648569bd18706e\":[[\"item0\",\"String\"]],\"__ink_payload_bff999f8a2a326529afcad49253e4e2a1fd440bbdd336be755288693fe5957e7\":[[\"item0\",\"Bool\"]],\"__ink_payload_dcbf99b07cb62cbb8182f115cec1fac21e0a41bfd60fa5f2457127913327b1c8\":[[\"item0\",{\"List\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}}]],\"__ink_payload_dd3f88ecb1e96c7ceee99cebd542718942d6e2ff44637670e6aa06aeb54b2550\":[],\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\":[[\"key\",\"String\"],[\"value\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}]],\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\":[[\"payload\",{\"Result\":[{\"Named\":\"__ink_payload_dd3f88ecb1e96c7ceee99cebd542718942d6e2ff44637670e6aa06aeb54b2550\"},{\"Result\":[{\"Named\":\"__ink_payload_bff999f8a2a326529afcad49253e4e2a1fd440bbdd336be755288693fe5957e7\"},{\"Result\":[{\"Named\":\"__ink_payload_a82bf7eb015d981339eb3e20eeff3358ebb91e9aa8e78dab18648569bd18706e\"},{\"Result\":[{\"Named\":\"__ink_payload_34632bbd9a8f7a60bed4b0ed3a45d7a5adfc2900c7a8d37f4469b76a609fa5e2\"},{\"Result\":[{\"Named\":\"__ink_payload_dcbf99b07cb62cbb8182f115cec1fac21e0a41bfd60fa5f2457127913327b1c8\"},{\"Named\":\"__ink_payload_78bdb60e43bbf3d610e8c872cdcf4babee88d930550a58c7f150b03b655eda19\"}]}]}]}]}]}]]},\"rules\":[],\"states\":[{\"name\":\"Rows\",\"ty\":{\"Table\":[\"String\",{\"Named\":\"Row\"}]},\"value\":{\"Method\":[{\"Var\":\"Table\"},\"empty\",[]]}}]},\"schema\":1,\"semantics\":\"ink-executable-core-v8\"},\"definition_choices\":null,\"definitions\":null,\"physical\":{\"borrow_reads\":[\"1cabfc026f1c7029ac7b26d73b57651957419fa5a86b62e4d5fa946fb65fad7c\",\"24de3f50ba14081566ea1eb0d11c6bea5b98a6bf20cacaf865b3e1eec08e1bca\",\"26f0f75db06b362687612061fddcb53cbcea0012c9e5f28af900a11ac9db8b75\",\"2b573d57dab0296b5d99be26cc06cbc7287b33404d0d8f28e38b0dd870fb14ab\",\"2cd34f71f4758af2edda52fdfe6d09d5b645f6a92e9983a9dc97343a85fe1b51\",\"3b21ccbd596264e6edb112a7a7d88cdc856ee3908c00b85cdec1595c79000b13\",\"509b5751f740026ee87bfa30ed1eadae141bcdb18dc634f71f734708bf50d3d4\",\"6383f70118f10e1da873cc775cb8123a421ef26cd7517565cae36b0ec0212da8\",\"643409f1e6d20191cb022633da16c7c21f0a3a2821a766d0630ebaa2f9727560\",\"666dc150247e8bafa9b218024caf3f707fc804e7812808c3c270cb47964c3c83\",\"69e5f4c4e0c4497e7f586bebe30023ddf46539978a364831793b19e44a79fe98\",\"7e0cce87d1e1c4d638bc687a564a1cdd899e4201fa0a79765418c704968705cc\",\"8535e846dafc7decfb93b9f497a04f051774fbc570964f422f1c4bd6d4f1e19a\",\"aa73fc4c1070028ee4cd84935a48e5af257985df8ceb759835fe64442d404a78\",\"b8e20d14c6b152d9045547722d4b49197a2427b4d37291dd0a1c7a700a68067e\",\"d1ac6213ec0d2ead1d8d74f78067f8f6c45626c9119d80423e99cd2b7cee3b2e\",\"dab8da871e232b9995691a6872b170de5496341198dd49753fd782c3e3d749f3\",\"f665c99dc4513328c82ebcfbf2976bfb3f67fc63ae77c042bdcc56a961c885fc\"],\"borrow_rows\":[\"5a183b87445ee7a3833c367acd02fd1b7d39dd34ed4ea1a9c1fd8e83b41545e5\"],\"buffers\":\"scoped\",\"columns\":[],\"definitions\":\"shared\",\"input_core_sha256\":\"011e1e96f60d9e2e64eeb79b7ac93de4adf862c65bdd7014ef43f59ffa24996c\",\"memo_functions\":[],\"packed_datatypes\":[],\"reservations\":[],\"schema\":1,\"semantics\":\"ink-physical-plan-v1\",\"tables\":\"ordered\"},\"properties\":[],\"representation\":null,\"resources\":null,\"route\":null,\"source\":\"011e1e96f60d9e2e64eeb79b7ac93de4adf862c65bdd7014ef43f59ffa24996c\"},\"status\":\"checked\",\"steps\":1}"
+    },
+    {
+      "command": [
+        "compile",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/bench/frontier-json/state.ink",
+        "--plan",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/build/frontier-json/ordered-borrow.plan.json",
+        "--target",
+        "rust",
+        "-o",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/build/frontier-json/native-ordered-borrow.rs"
+      ],
+      "elapsed_ns": 448654250,
+      "receipt": ""
+    },
+    {
+      "command": [
+        "check-plan",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/build/frontier-json/core.json",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/build/frontier-json/indexed_slots.plan.json",
+        "--core"
+      ],
+      "elapsed_ns": 67358000,
+      "receipt": "{\"input\":\"011e1e96f60d9e2e64eeb79b7ac93de4adf862c65bdd7014ef43f59ffa24996c\",\"plan_sha256\":\"4ca11f8aa80994102536b4a2a0754f39f3bcbf21dbadd891e37eb53a80be9203\",\"selected\":\"011e1e96f60d9e2e64eeb79b7ac93de4adf862c65bdd7014ef43f59ffa24996c\",\"state\":{\"core\":{\"program\":{\"actions\":[{\"body\":[{\"Expr\":{\"Method\":[{\"Var\":\"Rows\"},\"put\",[{\"Var\":\"key\"},{\"Var\":\"row\"}]]}},{\"Emit\":[\"seen\",{\"Field\":[{\"Var\":\"row\"},\"value\"]}]},{\"If\":[{\"Var\":\"fail\"},[{\"Return\":{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"Error\"},\"Failed\"]}]]}}],[]]},{\"Return\":{\"Call\":[\"Ok\",[\"Unit\"]]}}],\"emits\":[\"seen\"],\"kind\":\"Change\",\"name\":\"put\",\"params\":[[\"key\",\"String\"],[\"row\",{\"Named\":\"Row\"}],[\"fail\",\"Bool\"]],\"reads\":[],\"result\":{\"Result\":[\"Unit\",{\"Named\":\"Error\"}]},\"writes\":[\"Rows\"]},{\"body\":[{\"Expr\":{\"Method\":[{\"Var\":\"Rows\"},\"remove\",[{\"Var\":\"key\"}]]}},{\"Emit\":[\"seen\",{\"Num\":0}]},{\"If\":[{\"Var\":\"fail\"},[{\"Return\":{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"Error\"},\"Failed\"]}]]}}],[]]},{\"Return\":{\"Call\":[\"Ok\",[\"Unit\"]]}}],\"emits\":[\"seen\"],\"kind\":\"Change\",\"name\":\"erase\",\"params\":[[\"key\",\"String\"],[\"fail\",\"Bool\"]],\"reads\":[],\"result\":{\"Result\":[\"Unit\",{\"Named\":\"Error\"}]},\"writes\":[\"Rows\"]},{\"body\":[{\"Return\":{\"Call\":[\"sum\",[{\"Method\":[{\"Method\":[{\"Method\":[{\"Var\":\"Rows\"},\"values\",[]]},\"filter\",[{\"Lambda\":[\"row\",{\"Field\":[{\"Var\":\"row\"},\"active\"]}]}]]},\"map\",[{\"Lambda\":[\"row\",{\"Field\":[{\"Var\":\"row\"},\"value\"]}]}]]}]]}}],\"emits\":[],\"kind\":\"Query\",\"name\":\"total\",\"params\":[],\"reads\":[\"Rows\"],\"result\":\"U32\",\"writes\":[]},{\"body\":[{\"Return\":{\"Method\":[{\"Var\":\"Rows\"},\"get\",[{\"Var\":\"key\"}]]}}],\"emits\":[],\"kind\":\"Query\",\"name\":\"row\",\"params\":[[\"key\",\"String\"]],\"reads\":[\"Rows\"],\"result\":{\"Option\":{\"Named\":\"Row\"}},\"writes\":[]}],\"enums\":{\"Error\":[\"Failed\"],\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\":[\"ExpectedObject\",\"ExpectedArray\",\"ExpectedBoolean\",\"ExpectedNumber\",\"ExpectedString\"]},\"events\":{\"seen\":\"U32\"},\"functions\":[{\"body\":{\"Call\":[\"ink_mad008ef4986d9f0222e8592e1b0d53b594ed67eab0548e67ceabe4308ff8638b\",[{\"Var\":\"document\"},{\"Var\":\"key\"},{\"Var\":\"value\"}]]},\"name\":\"set_document\",\"params\":[[\"document\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}],[\"key\",\"String\"],[\"value\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}]],\"result\":{\"Result\":[{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"},{\"Named\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"}]}},{\"body\":{\"Var\":\"document\"},\"name\":\"identity\",\"params\":[[\"document\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}]],\"result\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"body\":{\"Record\":[\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\",[[\"payload\",{\"Call\":[\"Ok\",[{\"Record\":[\"__ink_payload_dd3f88ecb1e96c7ceee99cebd542718942d6e2ff44637670e6aa06aeb54b2550\",[]]}]]}]]]},\"name\":\"ink_m5c5479101d38cd5d28f66110c880ad28b6ee3ee64fddb98300dda927c645c107\",\"params\":[],\"result\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"body\":{\"Record\":[\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\",[[\"payload\",{\"Call\":[\"Err\",[{\"Call\":[\"Ok\",[{\"Record\":[\"__ink_payload_bff999f8a2a326529afcad49253e4e2a1fd440bbdd336be755288693fe5957e7\",[[\"item0\",{\"Var\":\"value\"}]]]}]]}]]}]]]},\"name\":\"ink_mbf312e22e5ab893385ef1935f8250f16e090d4da8dd41bc1577df1ba636fdc13\",\"params\":[[\"value\",\"Bool\"]],\"result\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"body\":{\"Record\":[\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\",[[\"payload\",{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Ok\",[{\"Record\":[\"__ink_payload_a82bf7eb015d981339eb3e20eeff3358ebb91e9aa8e78dab18648569bd18706e\",[[\"item0\",{\"Var\":\"token\"}]]]}]]}]]}]]}]]]},\"name\":\"ink_mee36d9721e4db57ba82a41d18344d03b18dc98a5d22319238b436d9aa6c8a6c1\",\"params\":[[\"token\",\"String\"]],\"result\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"body\":{\"Record\":[\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\",[[\"payload\",{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Ok\",[{\"Record\":[\"__ink_payload_34632bbd9a8f7a60bed4b0ed3a45d7a5adfc2900c7a8d37f4469b76a609fa5e2\",[[\"item0\",{\"Var\":\"value\"}]]]}]]}]]}]]}]]}]]]},\"name\":\"ink_mca67a4ea249e8eba3cf6e453e86dd061695d9d9afaf7edcf587f8cd1cbc055c9\",\"params\":[[\"value\",\"String\"]],\"result\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"body\":{\"Record\":[\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\",[[\"payload\",{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Ok\",[{\"Record\":[\"__ink_payload_dcbf99b07cb62cbb8182f115cec1fac21e0a41bfd60fa5f2457127913327b1c8\",[[\"item0\",{\"Var\":\"values\"}]]]}]]}]]}]]}]]}]]}]]]},\"name\":\"ink_me5c9745ee2d98ddc2c32843ec24ea225963aff43ce357055dd9a61b18d1d4982\",\"params\":[[\"values\",{\"List\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}}]],\"result\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"body\":{\"Record\":[\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\",[[\"payload\",{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Record\":[\"__ink_payload_78bdb60e43bbf3d610e8c872cdcf4babee88d930550a58c7f150b03b655eda19\",[[\"item0\",{\"Var\":\"members\"}]]]}]]}]]}]]}]]}]]}]]]},\"name\":\"ink_mb0e8aa1d34f7cc5fc940000b63bdc043068202b64206a7da02cade0c4e386a22\",\"params\":[[\"members\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}}]],\"result\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"body\":{\"Call\":[\"foldr\",[{\"Var\":\"members\"},{\"Var\":\"None\"},{\"Lambda\":[\"member\",{\"Lambda\":[\"rest\",{\"Call\":[\"choose\",[{\"Binary\":[\"==\",{\"Field\":[{\"Var\":\"member\"},\"key\"]},{\"Var\":\"key\"}]},{\"Call\":[\"Some\",[{\"Field\":[{\"Var\":\"member\"},\"value\"]}]]},{\"Var\":\"rest\"}]]}]}]}]]},\"name\":\"ink_m2383a37c8f0f060d8454d784560b1928c68c5b404b4b5fd5bfff2e7fa4fddcbe\",\"params\":[[\"members\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}}],[\"key\",\"String\"]],\"result\":{\"Option\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}}},{\"body\":{\"Let\":[\"__ink_surface_65\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"},{\"Var\":\"value\"},{\"Method\":[{\"Field\":[{\"Var\":\"__ink_surface_65\"},\"payload\"]},\"fold\",[{\"Lambda\":[\"__ink_surface_66\",{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedObject\"]}]]}]},{\"Lambda\":[\"__ink_surface_66_rest\",{\"Method\":[{\"Var\":\"__ink_surface_66_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_67\",{\"Let\":[\"v\",\"Bool\",{\"Field\":[{\"Var\":\"__ink_surface_67\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedObject\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_67_rest\",{\"Method\":[{\"Var\":\"__ink_surface_67_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_68\",{\"Let\":[\"v\",\"String\",{\"Field\":[{\"Var\":\"__ink_surface_68\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedObject\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_68_rest\",{\"Method\":[{\"Var\":\"__ink_surface_68_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_69\",{\"Let\":[\"v\",\"String\",{\"Field\":[{\"Var\":\"__ink_surface_69\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedObject\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_69_rest\",{\"Method\":[{\"Var\":\"__ink_surface_69_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_70\",{\"Let\":[\"v\",{\"List\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"Field\":[{\"Var\":\"__ink_surface_70\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedObject\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_70_rest\",{\"Let\":[\"__ink_surface_71\",null,{\"Var\":\"__ink_surface_70_rest\"},{\"Let\":[\"members\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}},{\"Field\":[{\"Var\":\"__ink_surface_71\"},\"item0\"]},{\"Call\":[\"Ok\",[{\"Call\":[\"ink_m2383a37c8f0f060d8454d784560b1928c68c5b404b4b5fd5bfff2e7fa4fddcbe\",[{\"Var\":\"members\"},{\"Var\":\"key\"}]]}]]}]}]}]}]]}]}]]}]}]]}]}]]}]}]]}]},\"name\":\"ink_m5d18bbf4cd5236cf3a3bce3bc0ef39b2ca5d48cc74c98fd149a78715c7abf0fc\",\"params\":[[\"value\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}],[\"key\",\"String\"]],\"result\":{\"Result\":[{\"Option\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"Named\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"}]}},{\"body\":{\"Let\":[\"__ink_surface_132\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"},{\"Var\":\"value\"},{\"Method\":[{\"Field\":[{\"Var\":\"__ink_surface_132\"},\"payload\"]},\"fold\",[{\"Lambda\":[\"__ink_surface_133\",{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedObject\"]}]]}]},{\"Lambda\":[\"__ink_surface_133_rest\",{\"Method\":[{\"Var\":\"__ink_surface_133_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_134\",{\"Let\":[\"v\",\"Bool\",{\"Field\":[{\"Var\":\"__ink_surface_134\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedObject\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_134_rest\",{\"Method\":[{\"Var\":\"__ink_surface_134_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_135\",{\"Let\":[\"v\",\"String\",{\"Field\":[{\"Var\":\"__ink_surface_135\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedObject\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_135_rest\",{\"Method\":[{\"Var\":\"__ink_surface_135_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_136\",{\"Let\":[\"v\",\"String\",{\"Field\":[{\"Var\":\"__ink_surface_136\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedObject\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_136_rest\",{\"Method\":[{\"Var\":\"__ink_surface_136_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_137\",{\"Let\":[\"v\",{\"List\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"Field\":[{\"Var\":\"__ink_surface_137\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedObject\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_137_rest\",{\"Let\":[\"__ink_surface_138\",null,{\"Var\":\"__ink_surface_137_rest\"},{\"Let\":[\"items\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}},{\"Field\":[{\"Var\":\"__ink_surface_138\"},\"item0\"]},{\"Call\":[\"Ok\",[{\"Var\":\"items\"}]]}]}]}]}]]}]}]]}]}]]}]}]]}]}]]}]},\"name\":\"ink_md87d2855f042e634a3f3b8c068533029f73d510386d43bf00bc9d0bcd07e5c8c\",\"params\":[[\"value\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}]],\"result\":{\"Result\":[{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}},{\"Named\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"}]}},{\"body\":{\"Let\":[\"__ink_surface_198\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"},{\"Var\":\"value\"},{\"Method\":[{\"Field\":[{\"Var\":\"__ink_surface_198\"},\"payload\"]},\"fold\",[{\"Lambda\":[\"__ink_surface_199\",{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedArray\"]}]]}]},{\"Lambda\":[\"__ink_surface_199_rest\",{\"Method\":[{\"Var\":\"__ink_surface_199_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_200\",{\"Let\":[\"v\",\"Bool\",{\"Field\":[{\"Var\":\"__ink_surface_200\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedArray\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_200_rest\",{\"Method\":[{\"Var\":\"__ink_surface_200_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_201\",{\"Let\":[\"v\",\"String\",{\"Field\":[{\"Var\":\"__ink_surface_201\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedArray\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_201_rest\",{\"Method\":[{\"Var\":\"__ink_surface_201_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_202\",{\"Let\":[\"v\",\"String\",{\"Field\":[{\"Var\":\"__ink_surface_202\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedArray\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_202_rest\",{\"Method\":[{\"Var\":\"__ink_surface_202_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_203\",{\"Let\":[\"items\",{\"List\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"Field\":[{\"Var\":\"__ink_surface_203\"},\"item0\"]},{\"Call\":[\"Ok\",[{\"Var\":\"items\"}]]}]}]},{\"Lambda\":[\"__ink_surface_203_rest\",{\"Let\":[\"__ink_surface_204\",null,{\"Var\":\"__ink_surface_203_rest\"},{\"Let\":[\"v\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}},{\"Field\":[{\"Var\":\"__ink_surface_204\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedArray\"]}]]}]}]}]}]]}]}]]}]}]]}]}]]}]}]]}]},\"name\":\"ink_m20157316281aa2312519e1609fa4690b136f16e4ef71773eb2a47a1fa3a406de\",\"params\":[[\"value\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}]],\"result\":{\"Result\":[{\"List\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"Named\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"}]}},{\"body\":{\"Let\":[\"__ink_surface_264\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"},{\"Var\":\"value\"},{\"Method\":[{\"Field\":[{\"Var\":\"__ink_surface_264\"},\"payload\"]},\"fold\",[{\"Lambda\":[\"__ink_surface_265\",{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedString\"]}]]}]},{\"Lambda\":[\"__ink_surface_265_rest\",{\"Method\":[{\"Var\":\"__ink_surface_265_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_266\",{\"Let\":[\"v\",\"Bool\",{\"Field\":[{\"Var\":\"__ink_surface_266\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedString\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_266_rest\",{\"Method\":[{\"Var\":\"__ink_surface_266_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_267\",{\"Let\":[\"v\",\"String\",{\"Field\":[{\"Var\":\"__ink_surface_267\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedString\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_267_rest\",{\"Method\":[{\"Var\":\"__ink_surface_267_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_268\",{\"Let\":[\"v\",\"String\",{\"Field\":[{\"Var\":\"__ink_surface_268\"},\"item0\"]},{\"Call\":[\"Ok\",[{\"Var\":\"v\"}]]}]}]},{\"Lambda\":[\"__ink_surface_268_rest\",{\"Method\":[{\"Var\":\"__ink_surface_268_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_269\",{\"Let\":[\"v\",{\"List\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"Field\":[{\"Var\":\"__ink_surface_269\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedString\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_269_rest\",{\"Let\":[\"__ink_surface_270\",null,{\"Var\":\"__ink_surface_269_rest\"},{\"Let\":[\"v\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}},{\"Field\":[{\"Var\":\"__ink_surface_270\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedString\"]}]]}]}]}]}]]}]}]]}]}]]}]}]]}]}]]}]},\"name\":\"ink_me72555cbb304777e5aa4f9e3c006554a0e08baef4b0d7d5315bbdb8d73619005\",\"params\":[[\"value\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}]],\"result\":{\"Result\":[\"String\",{\"Named\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"}]}},{\"body\":{\"Let\":[\"__ink_surface_330\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"},{\"Var\":\"value\"},{\"Method\":[{\"Field\":[{\"Var\":\"__ink_surface_330\"},\"payload\"]},\"fold\",[{\"Lambda\":[\"__ink_surface_331\",{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedNumber\"]}]]}]},{\"Lambda\":[\"__ink_surface_331_rest\",{\"Method\":[{\"Var\":\"__ink_surface_331_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_332\",{\"Let\":[\"v\",\"Bool\",{\"Field\":[{\"Var\":\"__ink_surface_332\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedNumber\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_332_rest\",{\"Method\":[{\"Var\":\"__ink_surface_332_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_333\",{\"Let\":[\"v\",\"String\",{\"Field\":[{\"Var\":\"__ink_surface_333\"},\"item0\"]},{\"Call\":[\"Ok\",[{\"Var\":\"v\"}]]}]}]},{\"Lambda\":[\"__ink_surface_333_rest\",{\"Method\":[{\"Var\":\"__ink_surface_333_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_334\",{\"Let\":[\"v\",\"String\",{\"Field\":[{\"Var\":\"__ink_surface_334\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedNumber\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_334_rest\",{\"Method\":[{\"Var\":\"__ink_surface_334_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_335\",{\"Let\":[\"v\",{\"List\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"Field\":[{\"Var\":\"__ink_surface_335\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedNumber\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_335_rest\",{\"Let\":[\"__ink_surface_336\",null,{\"Var\":\"__ink_surface_335_rest\"},{\"Let\":[\"v\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}},{\"Field\":[{\"Var\":\"__ink_surface_336\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedNumber\"]}]]}]}]}]}]]}]}]]}]}]]}]}]]}]}]]}]},\"name\":\"ink_m0799e9661dd281b944df2c23f24248caf4bf5ffd20f6d9a7e2fe778ce1a073d2\",\"params\":[[\"value\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}]],\"result\":{\"Result\":[\"String\",{\"Named\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"}]}},{\"body\":{\"Let\":[\"__ink_surface_396\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"},{\"Var\":\"value\"},{\"Method\":[{\"Field\":[{\"Var\":\"__ink_surface_396\"},\"payload\"]},\"fold\",[{\"Lambda\":[\"__ink_surface_397\",{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedBoolean\"]}]]}]},{\"Lambda\":[\"__ink_surface_397_rest\",{\"Method\":[{\"Var\":\"__ink_surface_397_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_398\",{\"Let\":[\"v\",\"Bool\",{\"Field\":[{\"Var\":\"__ink_surface_398\"},\"item0\"]},{\"Call\":[\"Ok\",[{\"Var\":\"v\"}]]}]}]},{\"Lambda\":[\"__ink_surface_398_rest\",{\"Method\":[{\"Var\":\"__ink_surface_398_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_399\",{\"Let\":[\"v\",\"String\",{\"Field\":[{\"Var\":\"__ink_surface_399\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedBoolean\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_399_rest\",{\"Method\":[{\"Var\":\"__ink_surface_399_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_400\",{\"Let\":[\"v\",\"String\",{\"Field\":[{\"Var\":\"__ink_surface_400\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedBoolean\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_400_rest\",{\"Method\":[{\"Var\":\"__ink_surface_400_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_401\",{\"Let\":[\"v\",{\"List\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"Field\":[{\"Var\":\"__ink_surface_401\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedBoolean\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_401_rest\",{\"Let\":[\"__ink_surface_402\",null,{\"Var\":\"__ink_surface_401_rest\"},{\"Let\":[\"v\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}},{\"Field\":[{\"Var\":\"__ink_surface_402\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedBoolean\"]}]]}]}]}]}]]}]}]]}]}]]}]}]]}]}]]}]},\"name\":\"ink_m992ba36e5bbedf39b7f14a42b10f872b6c0c9a2ea93b89b3fc52f4d549687c80\",\"params\":[[\"value\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}]],\"result\":{\"Result\":[\"Bool\",{\"Named\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"}]}},{\"body\":{\"Method\":[{\"Call\":[\"list\",[{\"Record\":[\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\",[[\"key\",{\"Var\":\"key\"}],[\"value\",{\"Var\":\"value\"}]]]}]]},\"concat\",[{\"Method\":[{\"Var\":\"members\"},\"filter\",[{\"Lambda\":[\"member\",{\"Binary\":[\"!=\",{\"Field\":[{\"Var\":\"member\"},\"key\"]},{\"Var\":\"key\"}]}]}]]}]]},\"name\":\"ink_md6609e67dc544a99f2a87bd888df500ffda6c2a250ac3bb96e169677f36aa0ca\",\"params\":[[\"members\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}}],[\"key\",\"String\"],[\"value\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}]],\"result\":{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}}},{\"body\":{\"Method\":[{\"Call\":[\"ink_md87d2855f042e634a3f3b8c068533029f73d510386d43bf00bc9d0bcd07e5c8c\",[{\"Var\":\"value\"}]]},\"fold\",[{\"Lambda\":[\"__ink_local_6\",{\"Let\":[\"items\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}},{\"Var\":\"__ink_local_6\"},{\"Call\":[\"Ok\",[{\"Record\":[\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\",[[\"payload\",{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Record\":[\"__ink_payload_78bdb60e43bbf3d610e8c872cdcf4babee88d930550a58c7f150b03b655eda19\",[[\"item0\",{\"Call\":[\"ink_md6609e67dc544a99f2a87bd888df500ffda6c2a250ac3bb96e169677f36aa0ca\",[{\"Var\":\"items\"},{\"Var\":\"key\"},{\"Var\":\"replacement\"}]]}]]]}]]}]]}]]}]]}]]}]]]}]]}]}]},{\"Lambda\":[\"__ink_local_7\",{\"Call\":[\"Err\",[{\"Var\":\"__ink_local_7\"}]]}]}]]},\"name\":\"ink_mad008ef4986d9f0222e8592e1b0d53b594ed67eab0548e67ceabe4308ff8638b\",\"params\":[[\"value\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}],[\"key\",\"String\"],[\"replacement\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}]],\"result\":{\"Result\":[{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"},{\"Named\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"}]}},{\"body\":{\"Method\":[{\"Call\":[\"ink_md87d2855f042e634a3f3b8c068533029f73d510386d43bf00bc9d0bcd07e5c8c\",[{\"Var\":\"value\"}]]},\"fold\",[{\"Lambda\":[\"__ink_local_8\",{\"Let\":[\"items\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}},{\"Var\":\"__ink_local_8\"},{\"Call\":[\"Ok\",[{\"Record\":[\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\",[[\"payload\",{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Record\":[\"__ink_payload_78bdb60e43bbf3d610e8c872cdcf4babee88d930550a58c7f150b03b655eda19\",[[\"item0\",{\"Method\":[{\"Var\":\"items\"},\"filter\",[{\"Lambda\":[\"member\",{\"Binary\":[\"!=\",{\"Field\":[{\"Var\":\"member\"},\"key\"]},{\"Var\":\"key\"}]}]}]]}]]]}]]}]]}]]}]]}]]}]]]}]]}]}]},{\"Lambda\":[\"__ink_local_9\",{\"Call\":[\"Err\",[{\"Var\":\"__ink_local_9\"}]]}]}]]},\"name\":\"ink_m6daa56a5bc5a861d85247ffa7c539a517219bed2c2c205e9798247b46093c271\",\"params\":[[\"value\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}],[\"key\",\"String\"]],\"result\":{\"Result\":[{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"},{\"Named\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"}]}},{\"body\":{\"Method\":[{\"Call\":[\"ink_md87d2855f042e634a3f3b8c068533029f73d510386d43bf00bc9d0bcd07e5c8c\",[{\"Var\":\"value\"}]]},\"fold\",[{\"Lambda\":[\"__ink_local_10\",{\"Let\":[\"items\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}},{\"Var\":\"__ink_local_10\"},{\"Call\":[\"Ok\",[{\"Record\":[\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\",[[\"payload\",{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Record\":[\"__ink_payload_78bdb60e43bbf3d610e8c872cdcf4babee88d930550a58c7f150b03b655eda19\",[[\"item0\",{\"Method\":[{\"Var\":\"items\"},\"filter\",[{\"Lambda\":[\"member\",{\"Call\":[\"foldl\",[{\"Var\":\"keys\"},{\"Bool\":false},{\"Lambda\":[\"key\",{\"Lambda\":[\"found\",{\"Binary\":[\"||\",{\"Var\":\"found\"},{\"Binary\":[\"==\",{\"Var\":\"key\"},{\"Field\":[{\"Var\":\"member\"},\"key\"]}]}]}]}]}]]}]}]]}]]]}]]}]]}]]}]]}]]}]]]}]]}]}]},{\"Lambda\":[\"__ink_local_11\",{\"Call\":[\"Err\",[{\"Var\":\"__ink_local_11\"}]]}]}]]},\"name\":\"ink_m55d79925938089d1d4f5680a132089bb2dbc200f324c50670835f2f3730f3837\",\"params\":[[\"value\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}],[\"keys\",{\"List\":\"String\"}]],\"result\":{\"Result\":[{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"},{\"Named\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"}]}}],\"ids\":[],\"keeps\":[],\"module\":\"json_state_benchmark\",\"records\":{\"Row\":[[\"value\",\"U32\"],[\"active\",\"Bool\"],[\"metadata\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}]],\"__ink_payload_34632bbd9a8f7a60bed4b0ed3a45d7a5adfc2900c7a8d37f4469b76a609fa5e2\":[[\"item0\",\"String\"]],\"__ink_payload_78bdb60e43bbf3d610e8c872cdcf4babee88d930550a58c7f150b03b655eda19\":[[\"item0\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}}]],\"__ink_payload_a82bf7eb015d981339eb3e20eeff3358ebb91e9aa8e78dab18648569bd18706e\":[[\"item0\",\"String\"]],\"__ink_payload_bff999f8a2a326529afcad49253e4e2a1fd440bbdd336be755288693fe5957e7\":[[\"item0\",\"Bool\"]],\"__ink_payload_dcbf99b07cb62cbb8182f115cec1fac21e0a41bfd60fa5f2457127913327b1c8\":[[\"item0\",{\"List\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}}]],\"__ink_payload_dd3f88ecb1e96c7ceee99cebd542718942d6e2ff44637670e6aa06aeb54b2550\":[],\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\":[[\"key\",\"String\"],[\"value\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}]],\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\":[[\"payload\",{\"Result\":[{\"Named\":\"__ink_payload_dd3f88ecb1e96c7ceee99cebd542718942d6e2ff44637670e6aa06aeb54b2550\"},{\"Result\":[{\"Named\":\"__ink_payload_bff999f8a2a326529afcad49253e4e2a1fd440bbdd336be755288693fe5957e7\"},{\"Result\":[{\"Named\":\"__ink_payload_a82bf7eb015d981339eb3e20eeff3358ebb91e9aa8e78dab18648569bd18706e\"},{\"Result\":[{\"Named\":\"__ink_payload_34632bbd9a8f7a60bed4b0ed3a45d7a5adfc2900c7a8d37f4469b76a609fa5e2\"},{\"Result\":[{\"Named\":\"__ink_payload_dcbf99b07cb62cbb8182f115cec1fac21e0a41bfd60fa5f2457127913327b1c8\"},{\"Named\":\"__ink_payload_78bdb60e43bbf3d610e8c872cdcf4babee88d930550a58c7f150b03b655eda19\"}]}]}]}]}]}]]},\"rules\":[],\"states\":[{\"name\":\"Rows\",\"ty\":{\"Table\":[\"String\",{\"Named\":\"Row\"}]},\"value\":{\"Method\":[{\"Var\":\"Table\"},\"empty\",[]]}}]},\"schema\":1,\"semantics\":\"ink-executable-core-v8\"},\"definition_choices\":null,\"definitions\":null,\"physical\":{\"borrow_reads\":[],\"borrow_rows\":[],\"buffers\":\"scoped\",\"columns\":[],\"definitions\":\"shared\",\"input_core_sha256\":\"011e1e96f60d9e2e64eeb79b7ac93de4adf862c65bdd7014ef43f59ffa24996c\",\"memo_functions\":[],\"packed_datatypes\":[],\"reservations\":[],\"schema\":1,\"semantics\":\"ink-physical-plan-v1\",\"tables\":\"indexed_slots\"},\"properties\":[],\"representation\":null,\"resources\":null,\"route\":null,\"source\":\"011e1e96f60d9e2e64eeb79b7ac93de4adf862c65bdd7014ef43f59ffa24996c\"},\"status\":\"checked\",\"steps\":1}"
+    },
+    {
+      "command": [
+        "compile",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/bench/frontier-json/state.ink",
+        "--plan",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/build/frontier-json/indexed_slots.plan.json",
+        "--target",
+        "rust",
+        "-o",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/build/frontier-json/native-indexed_slots.rs"
+      ],
+      "elapsed_ns": 434948333,
+      "receipt": ""
+    },
+    {
+      "command": [
+        "check-plan",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/build/frontier-json/core.json",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/build/frontier-json/indexed_slots-borrow.plan.json",
+        "--core"
+      ],
+      "elapsed_ns": 76442458,
+      "receipt": "{\"input\":\"011e1e96f60d9e2e64eeb79b7ac93de4adf862c65bdd7014ef43f59ffa24996c\",\"plan_sha256\":\"c52ecda19ed357da0730c3e383c66fe855e7c3fe68d51720ffdb3abefc59da2b\",\"selected\":\"011e1e96f60d9e2e64eeb79b7ac93de4adf862c65bdd7014ef43f59ffa24996c\",\"state\":{\"core\":{\"program\":{\"actions\":[{\"body\":[{\"Expr\":{\"Method\":[{\"Var\":\"Rows\"},\"put\",[{\"Var\":\"key\"},{\"Var\":\"row\"}]]}},{\"Emit\":[\"seen\",{\"Field\":[{\"Var\":\"row\"},\"value\"]}]},{\"If\":[{\"Var\":\"fail\"},[{\"Return\":{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"Error\"},\"Failed\"]}]]}}],[]]},{\"Return\":{\"Call\":[\"Ok\",[\"Unit\"]]}}],\"emits\":[\"seen\"],\"kind\":\"Change\",\"name\":\"put\",\"params\":[[\"key\",\"String\"],[\"row\",{\"Named\":\"Row\"}],[\"fail\",\"Bool\"]],\"reads\":[],\"result\":{\"Result\":[\"Unit\",{\"Named\":\"Error\"}]},\"writes\":[\"Rows\"]},{\"body\":[{\"Expr\":{\"Method\":[{\"Var\":\"Rows\"},\"remove\",[{\"Var\":\"key\"}]]}},{\"Emit\":[\"seen\",{\"Num\":0}]},{\"If\":[{\"Var\":\"fail\"},[{\"Return\":{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"Error\"},\"Failed\"]}]]}}],[]]},{\"Return\":{\"Call\":[\"Ok\",[\"Unit\"]]}}],\"emits\":[\"seen\"],\"kind\":\"Change\",\"name\":\"erase\",\"params\":[[\"key\",\"String\"],[\"fail\",\"Bool\"]],\"reads\":[],\"result\":{\"Result\":[\"Unit\",{\"Named\":\"Error\"}]},\"writes\":[\"Rows\"]},{\"body\":[{\"Return\":{\"Call\":[\"sum\",[{\"Method\":[{\"Method\":[{\"Method\":[{\"Var\":\"Rows\"},\"values\",[]]},\"filter\",[{\"Lambda\":[\"row\",{\"Field\":[{\"Var\":\"row\"},\"active\"]}]}]]},\"map\",[{\"Lambda\":[\"row\",{\"Field\":[{\"Var\":\"row\"},\"value\"]}]}]]}]]}}],\"emits\":[],\"kind\":\"Query\",\"name\":\"total\",\"params\":[],\"reads\":[\"Rows\"],\"result\":\"U32\",\"writes\":[]},{\"body\":[{\"Return\":{\"Method\":[{\"Var\":\"Rows\"},\"get\",[{\"Var\":\"key\"}]]}}],\"emits\":[],\"kind\":\"Query\",\"name\":\"row\",\"params\":[[\"key\",\"String\"]],\"reads\":[\"Rows\"],\"result\":{\"Option\":{\"Named\":\"Row\"}},\"writes\":[]}],\"enums\":{\"Error\":[\"Failed\"],\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\":[\"ExpectedObject\",\"ExpectedArray\",\"ExpectedBoolean\",\"ExpectedNumber\",\"ExpectedString\"]},\"events\":{\"seen\":\"U32\"},\"functions\":[{\"body\":{\"Call\":[\"ink_mad008ef4986d9f0222e8592e1b0d53b594ed67eab0548e67ceabe4308ff8638b\",[{\"Var\":\"document\"},{\"Var\":\"key\"},{\"Var\":\"value\"}]]},\"name\":\"set_document\",\"params\":[[\"document\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}],[\"key\",\"String\"],[\"value\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}]],\"result\":{\"Result\":[{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"},{\"Named\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"}]}},{\"body\":{\"Var\":\"document\"},\"name\":\"identity\",\"params\":[[\"document\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}]],\"result\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"body\":{\"Record\":[\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\",[[\"payload\",{\"Call\":[\"Ok\",[{\"Record\":[\"__ink_payload_dd3f88ecb1e96c7ceee99cebd542718942d6e2ff44637670e6aa06aeb54b2550\",[]]}]]}]]]},\"name\":\"ink_m5c5479101d38cd5d28f66110c880ad28b6ee3ee64fddb98300dda927c645c107\",\"params\":[],\"result\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"body\":{\"Record\":[\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\",[[\"payload\",{\"Call\":[\"Err\",[{\"Call\":[\"Ok\",[{\"Record\":[\"__ink_payload_bff999f8a2a326529afcad49253e4e2a1fd440bbdd336be755288693fe5957e7\",[[\"item0\",{\"Var\":\"value\"}]]]}]]}]]}]]]},\"name\":\"ink_mbf312e22e5ab893385ef1935f8250f16e090d4da8dd41bc1577df1ba636fdc13\",\"params\":[[\"value\",\"Bool\"]],\"result\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"body\":{\"Record\":[\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\",[[\"payload\",{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Ok\",[{\"Record\":[\"__ink_payload_a82bf7eb015d981339eb3e20eeff3358ebb91e9aa8e78dab18648569bd18706e\",[[\"item0\",{\"Var\":\"token\"}]]]}]]}]]}]]}]]]},\"name\":\"ink_mee36d9721e4db57ba82a41d18344d03b18dc98a5d22319238b436d9aa6c8a6c1\",\"params\":[[\"token\",\"String\"]],\"result\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"body\":{\"Record\":[\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\",[[\"payload\",{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Ok\",[{\"Record\":[\"__ink_payload_34632bbd9a8f7a60bed4b0ed3a45d7a5adfc2900c7a8d37f4469b76a609fa5e2\",[[\"item0\",{\"Var\":\"value\"}]]]}]]}]]}]]}]]}]]]},\"name\":\"ink_mca67a4ea249e8eba3cf6e453e86dd061695d9d9afaf7edcf587f8cd1cbc055c9\",\"params\":[[\"value\",\"String\"]],\"result\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"body\":{\"Record\":[\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\",[[\"payload\",{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Ok\",[{\"Record\":[\"__ink_payload_dcbf99b07cb62cbb8182f115cec1fac21e0a41bfd60fa5f2457127913327b1c8\",[[\"item0\",{\"Var\":\"values\"}]]]}]]}]]}]]}]]}]]}]]]},\"name\":\"ink_me5c9745ee2d98ddc2c32843ec24ea225963aff43ce357055dd9a61b18d1d4982\",\"params\":[[\"values\",{\"List\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}}]],\"result\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"body\":{\"Record\":[\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\",[[\"payload\",{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Record\":[\"__ink_payload_78bdb60e43bbf3d610e8c872cdcf4babee88d930550a58c7f150b03b655eda19\",[[\"item0\",{\"Var\":\"members\"}]]]}]]}]]}]]}]]}]]}]]]},\"name\":\"ink_mb0e8aa1d34f7cc5fc940000b63bdc043068202b64206a7da02cade0c4e386a22\",\"params\":[[\"members\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}}]],\"result\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"body\":{\"Call\":[\"foldr\",[{\"Var\":\"members\"},{\"Var\":\"None\"},{\"Lambda\":[\"member\",{\"Lambda\":[\"rest\",{\"Call\":[\"choose\",[{\"Binary\":[\"==\",{\"Field\":[{\"Var\":\"member\"},\"key\"]},{\"Var\":\"key\"}]},{\"Call\":[\"Some\",[{\"Field\":[{\"Var\":\"member\"},\"value\"]}]]},{\"Var\":\"rest\"}]]}]}]}]]},\"name\":\"ink_m2383a37c8f0f060d8454d784560b1928c68c5b404b4b5fd5bfff2e7fa4fddcbe\",\"params\":[[\"members\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}}],[\"key\",\"String\"]],\"result\":{\"Option\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}}},{\"body\":{\"Let\":[\"__ink_surface_65\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"},{\"Var\":\"value\"},{\"Method\":[{\"Field\":[{\"Var\":\"__ink_surface_65\"},\"payload\"]},\"fold\",[{\"Lambda\":[\"__ink_surface_66\",{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedObject\"]}]]}]},{\"Lambda\":[\"__ink_surface_66_rest\",{\"Method\":[{\"Var\":\"__ink_surface_66_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_67\",{\"Let\":[\"v\",\"Bool\",{\"Field\":[{\"Var\":\"__ink_surface_67\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedObject\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_67_rest\",{\"Method\":[{\"Var\":\"__ink_surface_67_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_68\",{\"Let\":[\"v\",\"String\",{\"Field\":[{\"Var\":\"__ink_surface_68\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedObject\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_68_rest\",{\"Method\":[{\"Var\":\"__ink_surface_68_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_69\",{\"Let\":[\"v\",\"String\",{\"Field\":[{\"Var\":\"__ink_surface_69\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedObject\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_69_rest\",{\"Method\":[{\"Var\":\"__ink_surface_69_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_70\",{\"Let\":[\"v\",{\"List\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"Field\":[{\"Var\":\"__ink_surface_70\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedObject\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_70_rest\",{\"Let\":[\"__ink_surface_71\",null,{\"Var\":\"__ink_surface_70_rest\"},{\"Let\":[\"members\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}},{\"Field\":[{\"Var\":\"__ink_surface_71\"},\"item0\"]},{\"Call\":[\"Ok\",[{\"Call\":[\"ink_m2383a37c8f0f060d8454d784560b1928c68c5b404b4b5fd5bfff2e7fa4fddcbe\",[{\"Var\":\"members\"},{\"Var\":\"key\"}]]}]]}]}]}]}]]}]}]]}]}]]}]}]]}]}]]}]},\"name\":\"ink_m5d18bbf4cd5236cf3a3bce3bc0ef39b2ca5d48cc74c98fd149a78715c7abf0fc\",\"params\":[[\"value\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}],[\"key\",\"String\"]],\"result\":{\"Result\":[{\"Option\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"Named\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"}]}},{\"body\":{\"Let\":[\"__ink_surface_132\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"},{\"Var\":\"value\"},{\"Method\":[{\"Field\":[{\"Var\":\"__ink_surface_132\"},\"payload\"]},\"fold\",[{\"Lambda\":[\"__ink_surface_133\",{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedObject\"]}]]}]},{\"Lambda\":[\"__ink_surface_133_rest\",{\"Method\":[{\"Var\":\"__ink_surface_133_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_134\",{\"Let\":[\"v\",\"Bool\",{\"Field\":[{\"Var\":\"__ink_surface_134\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedObject\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_134_rest\",{\"Method\":[{\"Var\":\"__ink_surface_134_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_135\",{\"Let\":[\"v\",\"String\",{\"Field\":[{\"Var\":\"__ink_surface_135\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedObject\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_135_rest\",{\"Method\":[{\"Var\":\"__ink_surface_135_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_136\",{\"Let\":[\"v\",\"String\",{\"Field\":[{\"Var\":\"__ink_surface_136\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedObject\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_136_rest\",{\"Method\":[{\"Var\":\"__ink_surface_136_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_137\",{\"Let\":[\"v\",{\"List\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"Field\":[{\"Var\":\"__ink_surface_137\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedObject\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_137_rest\",{\"Let\":[\"__ink_surface_138\",null,{\"Var\":\"__ink_surface_137_rest\"},{\"Let\":[\"items\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}},{\"Field\":[{\"Var\":\"__ink_surface_138\"},\"item0\"]},{\"Call\":[\"Ok\",[{\"Var\":\"items\"}]]}]}]}]}]]}]}]]}]}]]}]}]]}]}]]}]},\"name\":\"ink_md87d2855f042e634a3f3b8c068533029f73d510386d43bf00bc9d0bcd07e5c8c\",\"params\":[[\"value\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}]],\"result\":{\"Result\":[{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}},{\"Named\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"}]}},{\"body\":{\"Let\":[\"__ink_surface_198\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"},{\"Var\":\"value\"},{\"Method\":[{\"Field\":[{\"Var\":\"__ink_surface_198\"},\"payload\"]},\"fold\",[{\"Lambda\":[\"__ink_surface_199\",{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedArray\"]}]]}]},{\"Lambda\":[\"__ink_surface_199_rest\",{\"Method\":[{\"Var\":\"__ink_surface_199_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_200\",{\"Let\":[\"v\",\"Bool\",{\"Field\":[{\"Var\":\"__ink_surface_200\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedArray\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_200_rest\",{\"Method\":[{\"Var\":\"__ink_surface_200_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_201\",{\"Let\":[\"v\",\"String\",{\"Field\":[{\"Var\":\"__ink_surface_201\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedArray\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_201_rest\",{\"Method\":[{\"Var\":\"__ink_surface_201_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_202\",{\"Let\":[\"v\",\"String\",{\"Field\":[{\"Var\":\"__ink_surface_202\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedArray\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_202_rest\",{\"Method\":[{\"Var\":\"__ink_surface_202_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_203\",{\"Let\":[\"items\",{\"List\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"Field\":[{\"Var\":\"__ink_surface_203\"},\"item0\"]},{\"Call\":[\"Ok\",[{\"Var\":\"items\"}]]}]}]},{\"Lambda\":[\"__ink_surface_203_rest\",{\"Let\":[\"__ink_surface_204\",null,{\"Var\":\"__ink_surface_203_rest\"},{\"Let\":[\"v\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}},{\"Field\":[{\"Var\":\"__ink_surface_204\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedArray\"]}]]}]}]}]}]]}]}]]}]}]]}]}]]}]}]]}]},\"name\":\"ink_m20157316281aa2312519e1609fa4690b136f16e4ef71773eb2a47a1fa3a406de\",\"params\":[[\"value\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}]],\"result\":{\"Result\":[{\"List\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"Named\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"}]}},{\"body\":{\"Let\":[\"__ink_surface_264\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"},{\"Var\":\"value\"},{\"Method\":[{\"Field\":[{\"Var\":\"__ink_surface_264\"},\"payload\"]},\"fold\",[{\"Lambda\":[\"__ink_surface_265\",{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedString\"]}]]}]},{\"Lambda\":[\"__ink_surface_265_rest\",{\"Method\":[{\"Var\":\"__ink_surface_265_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_266\",{\"Let\":[\"v\",\"Bool\",{\"Field\":[{\"Var\":\"__ink_surface_266\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedString\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_266_rest\",{\"Method\":[{\"Var\":\"__ink_surface_266_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_267\",{\"Let\":[\"v\",\"String\",{\"Field\":[{\"Var\":\"__ink_surface_267\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedString\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_267_rest\",{\"Method\":[{\"Var\":\"__ink_surface_267_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_268\",{\"Let\":[\"v\",\"String\",{\"Field\":[{\"Var\":\"__ink_surface_268\"},\"item0\"]},{\"Call\":[\"Ok\",[{\"Var\":\"v\"}]]}]}]},{\"Lambda\":[\"__ink_surface_268_rest\",{\"Method\":[{\"Var\":\"__ink_surface_268_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_269\",{\"Let\":[\"v\",{\"List\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"Field\":[{\"Var\":\"__ink_surface_269\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedString\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_269_rest\",{\"Let\":[\"__ink_surface_270\",null,{\"Var\":\"__ink_surface_269_rest\"},{\"Let\":[\"v\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}},{\"Field\":[{\"Var\":\"__ink_surface_270\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedString\"]}]]}]}]}]}]]}]}]]}]}]]}]}]]}]}]]}]},\"name\":\"ink_me72555cbb304777e5aa4f9e3c006554a0e08baef4b0d7d5315bbdb8d73619005\",\"params\":[[\"value\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}]],\"result\":{\"Result\":[\"String\",{\"Named\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"}]}},{\"body\":{\"Let\":[\"__ink_surface_330\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"},{\"Var\":\"value\"},{\"Method\":[{\"Field\":[{\"Var\":\"__ink_surface_330\"},\"payload\"]},\"fold\",[{\"Lambda\":[\"__ink_surface_331\",{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedNumber\"]}]]}]},{\"Lambda\":[\"__ink_surface_331_rest\",{\"Method\":[{\"Var\":\"__ink_surface_331_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_332\",{\"Let\":[\"v\",\"Bool\",{\"Field\":[{\"Var\":\"__ink_surface_332\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedNumber\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_332_rest\",{\"Method\":[{\"Var\":\"__ink_surface_332_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_333\",{\"Let\":[\"v\",\"String\",{\"Field\":[{\"Var\":\"__ink_surface_333\"},\"item0\"]},{\"Call\":[\"Ok\",[{\"Var\":\"v\"}]]}]}]},{\"Lambda\":[\"__ink_surface_333_rest\",{\"Method\":[{\"Var\":\"__ink_surface_333_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_334\",{\"Let\":[\"v\",\"String\",{\"Field\":[{\"Var\":\"__ink_surface_334\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedNumber\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_334_rest\",{\"Method\":[{\"Var\":\"__ink_surface_334_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_335\",{\"Let\":[\"v\",{\"List\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"Field\":[{\"Var\":\"__ink_surface_335\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedNumber\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_335_rest\",{\"Let\":[\"__ink_surface_336\",null,{\"Var\":\"__ink_surface_335_rest\"},{\"Let\":[\"v\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}},{\"Field\":[{\"Var\":\"__ink_surface_336\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedNumber\"]}]]}]}]}]}]]}]}]]}]}]]}]}]]}]}]]}]},\"name\":\"ink_m0799e9661dd281b944df2c23f24248caf4bf5ffd20f6d9a7e2fe778ce1a073d2\",\"params\":[[\"value\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}]],\"result\":{\"Result\":[\"String\",{\"Named\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"}]}},{\"body\":{\"Let\":[\"__ink_surface_396\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"},{\"Var\":\"value\"},{\"Method\":[{\"Field\":[{\"Var\":\"__ink_surface_396\"},\"payload\"]},\"fold\",[{\"Lambda\":[\"__ink_surface_397\",{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedBoolean\"]}]]}]},{\"Lambda\":[\"__ink_surface_397_rest\",{\"Method\":[{\"Var\":\"__ink_surface_397_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_398\",{\"Let\":[\"v\",\"Bool\",{\"Field\":[{\"Var\":\"__ink_surface_398\"},\"item0\"]},{\"Call\":[\"Ok\",[{\"Var\":\"v\"}]]}]}]},{\"Lambda\":[\"__ink_surface_398_rest\",{\"Method\":[{\"Var\":\"__ink_surface_398_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_399\",{\"Let\":[\"v\",\"String\",{\"Field\":[{\"Var\":\"__ink_surface_399\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedBoolean\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_399_rest\",{\"Method\":[{\"Var\":\"__ink_surface_399_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_400\",{\"Let\":[\"v\",\"String\",{\"Field\":[{\"Var\":\"__ink_surface_400\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedBoolean\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_400_rest\",{\"Method\":[{\"Var\":\"__ink_surface_400_rest\"},\"fold\",[{\"Lambda\":[\"__ink_surface_401\",{\"Let\":[\"v\",{\"List\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}},{\"Field\":[{\"Var\":\"__ink_surface_401\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedBoolean\"]}]]}]}]},{\"Lambda\":[\"__ink_surface_401_rest\",{\"Let\":[\"__ink_surface_402\",null,{\"Var\":\"__ink_surface_401_rest\"},{\"Let\":[\"v\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}},{\"Field\":[{\"Var\":\"__ink_surface_402\"},\"item0\"]},{\"Call\":[\"Err\",[{\"Field\":[{\"Var\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"},\"ExpectedBoolean\"]}]]}]}]}]}]]}]}]]}]}]]}]}]]}]}]]}]},\"name\":\"ink_m992ba36e5bbedf39b7f14a42b10f872b6c0c9a2ea93b89b3fc52f4d549687c80\",\"params\":[[\"value\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}]],\"result\":{\"Result\":[\"Bool\",{\"Named\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"}]}},{\"body\":{\"Method\":[{\"Call\":[\"list\",[{\"Record\":[\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\",[[\"key\",{\"Var\":\"key\"}],[\"value\",{\"Var\":\"value\"}]]]}]]},\"concat\",[{\"Method\":[{\"Var\":\"members\"},\"filter\",[{\"Lambda\":[\"member\",{\"Binary\":[\"!=\",{\"Field\":[{\"Var\":\"member\"},\"key\"]},{\"Var\":\"key\"}]}]}]]}]]},\"name\":\"ink_md6609e67dc544a99f2a87bd888df500ffda6c2a250ac3bb96e169677f36aa0ca\",\"params\":[[\"members\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}}],[\"key\",\"String\"],[\"value\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}]],\"result\":{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}}},{\"body\":{\"Method\":[{\"Call\":[\"ink_md87d2855f042e634a3f3b8c068533029f73d510386d43bf00bc9d0bcd07e5c8c\",[{\"Var\":\"value\"}]]},\"fold\",[{\"Lambda\":[\"__ink_local_6\",{\"Let\":[\"items\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}},{\"Var\":\"__ink_local_6\"},{\"Call\":[\"Ok\",[{\"Record\":[\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\",[[\"payload\",{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Record\":[\"__ink_payload_78bdb60e43bbf3d610e8c872cdcf4babee88d930550a58c7f150b03b655eda19\",[[\"item0\",{\"Call\":[\"ink_md6609e67dc544a99f2a87bd888df500ffda6c2a250ac3bb96e169677f36aa0ca\",[{\"Var\":\"items\"},{\"Var\":\"key\"},{\"Var\":\"replacement\"}]]}]]]}]]}]]}]]}]]}]]}]]]}]]}]}]},{\"Lambda\":[\"__ink_local_7\",{\"Call\":[\"Err\",[{\"Var\":\"__ink_local_7\"}]]}]}]]},\"name\":\"ink_mad008ef4986d9f0222e8592e1b0d53b594ed67eab0548e67ceabe4308ff8638b\",\"params\":[[\"value\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}],[\"key\",\"String\"],[\"replacement\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}]],\"result\":{\"Result\":[{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"},{\"Named\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"}]}},{\"body\":{\"Method\":[{\"Call\":[\"ink_md87d2855f042e634a3f3b8c068533029f73d510386d43bf00bc9d0bcd07e5c8c\",[{\"Var\":\"value\"}]]},\"fold\",[{\"Lambda\":[\"__ink_local_8\",{\"Let\":[\"items\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}},{\"Var\":\"__ink_local_8\"},{\"Call\":[\"Ok\",[{\"Record\":[\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\",[[\"payload\",{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Record\":[\"__ink_payload_78bdb60e43bbf3d610e8c872cdcf4babee88d930550a58c7f150b03b655eda19\",[[\"item0\",{\"Method\":[{\"Var\":\"items\"},\"filter\",[{\"Lambda\":[\"member\",{\"Binary\":[\"!=\",{\"Field\":[{\"Var\":\"member\"},\"key\"]},{\"Var\":\"key\"}]}]}]]}]]]}]]}]]}]]}]]}]]}]]]}]]}]}]},{\"Lambda\":[\"__ink_local_9\",{\"Call\":[\"Err\",[{\"Var\":\"__ink_local_9\"}]]}]}]]},\"name\":\"ink_m6daa56a5bc5a861d85247ffa7c539a517219bed2c2c205e9798247b46093c271\",\"params\":[[\"value\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}],[\"key\",\"String\"]],\"result\":{\"Result\":[{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"},{\"Named\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"}]}},{\"body\":{\"Method\":[{\"Call\":[\"ink_md87d2855f042e634a3f3b8c068533029f73d510386d43bf00bc9d0bcd07e5c8c\",[{\"Var\":\"value\"}]]},\"fold\",[{\"Lambda\":[\"__ink_local_10\",{\"Let\":[\"items\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}},{\"Var\":\"__ink_local_10\"},{\"Call\":[\"Ok\",[{\"Record\":[\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\",[[\"payload\",{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Call\":[\"Err\",[{\"Record\":[\"__ink_payload_78bdb60e43bbf3d610e8c872cdcf4babee88d930550a58c7f150b03b655eda19\",[[\"item0\",{\"Method\":[{\"Var\":\"items\"},\"filter\",[{\"Lambda\":[\"member\",{\"Call\":[\"foldl\",[{\"Var\":\"keys\"},{\"Bool\":false},{\"Lambda\":[\"key\",{\"Lambda\":[\"found\",{\"Binary\":[\"||\",{\"Var\":\"found\"},{\"Binary\":[\"==\",{\"Var\":\"key\"},{\"Field\":[{\"Var\":\"member\"},\"key\"]}]}]}]}]}]]}]}]]}]]]}]]}]]}]]}]]}]]}]]]}]]}]}]},{\"Lambda\":[\"__ink_local_11\",{\"Call\":[\"Err\",[{\"Var\":\"__ink_local_11\"}]]}]}]]},\"name\":\"ink_m55d79925938089d1d4f5680a132089bb2dbc200f324c50670835f2f3730f3837\",\"params\":[[\"value\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}],[\"keys\",{\"List\":\"String\"}]],\"result\":{\"Result\":[{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"},{\"Named\":\"ink_ma6ccc711a182f5a2575b68a1630ea86a855fb78b15dea9e6d788c583eee3a4eb\"}]}}],\"ids\":[],\"keeps\":[],\"module\":\"json_state_benchmark\",\"records\":{\"Row\":[[\"value\",\"U32\"],[\"active\",\"Bool\"],[\"metadata\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}]],\"__ink_payload_34632bbd9a8f7a60bed4b0ed3a45d7a5adfc2900c7a8d37f4469b76a609fa5e2\":[[\"item0\",\"String\"]],\"__ink_payload_78bdb60e43bbf3d610e8c872cdcf4babee88d930550a58c7f150b03b655eda19\":[[\"item0\",{\"List\":{\"Named\":\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\"}}]],\"__ink_payload_a82bf7eb015d981339eb3e20eeff3358ebb91e9aa8e78dab18648569bd18706e\":[[\"item0\",\"String\"]],\"__ink_payload_bff999f8a2a326529afcad49253e4e2a1fd440bbdd336be755288693fe5957e7\":[[\"item0\",\"Bool\"]],\"__ink_payload_dcbf99b07cb62cbb8182f115cec1fac21e0a41bfd60fa5f2457127913327b1c8\":[[\"item0\",{\"List\":{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}}]],\"__ink_payload_dd3f88ecb1e96c7ceee99cebd542718942d6e2ff44637670e6aa06aeb54b2550\":[],\"ink_m823309142b2685b3a65d1c240843dcfed7c1e6a964f2bd941ba741adb1a384ce\":[[\"key\",\"String\"],[\"value\",{\"Named\":\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\"}]],\"ink_mb8980dfd2092455f08e830a4f6c2980fe2b118f1f2b6966e921b3afccfceb634\":[[\"payload\",{\"Result\":[{\"Named\":\"__ink_payload_dd3f88ecb1e96c7ceee99cebd542718942d6e2ff44637670e6aa06aeb54b2550\"},{\"Result\":[{\"Named\":\"__ink_payload_bff999f8a2a326529afcad49253e4e2a1fd440bbdd336be755288693fe5957e7\"},{\"Result\":[{\"Named\":\"__ink_payload_a82bf7eb015d981339eb3e20eeff3358ebb91e9aa8e78dab18648569bd18706e\"},{\"Result\":[{\"Named\":\"__ink_payload_34632bbd9a8f7a60bed4b0ed3a45d7a5adfc2900c7a8d37f4469b76a609fa5e2\"},{\"Result\":[{\"Named\":\"__ink_payload_dcbf99b07cb62cbb8182f115cec1fac21e0a41bfd60fa5f2457127913327b1c8\"},{\"Named\":\"__ink_payload_78bdb60e43bbf3d610e8c872cdcf4babee88d930550a58c7f150b03b655eda19\"}]}]}]}]}]}]]},\"rules\":[],\"states\":[{\"name\":\"Rows\",\"ty\":{\"Table\":[\"String\",{\"Named\":\"Row\"}]},\"value\":{\"Method\":[{\"Var\":\"Table\"},\"empty\",[]]}}]},\"schema\":1,\"semantics\":\"ink-executable-core-v8\"},\"definition_choices\":null,\"definitions\":null,\"physical\":{\"borrow_reads\":[\"1cabfc026f1c7029ac7b26d73b57651957419fa5a86b62e4d5fa946fb65fad7c\",\"24de3f50ba14081566ea1eb0d11c6bea5b98a6bf20cacaf865b3e1eec08e1bca\",\"26f0f75db06b362687612061fddcb53cbcea0012c9e5f28af900a11ac9db8b75\",\"2b573d57dab0296b5d99be26cc06cbc7287b33404d0d8f28e38b0dd870fb14ab\",\"2cd34f71f4758af2edda52fdfe6d09d5b645f6a92e9983a9dc97343a85fe1b51\",\"3b21ccbd596264e6edb112a7a7d88cdc856ee3908c00b85cdec1595c79000b13\",\"509b5751f740026ee87bfa30ed1eadae141bcdb18dc634f71f734708bf50d3d4\",\"6383f70118f10e1da873cc775cb8123a421ef26cd7517565cae36b0ec0212da8\",\"643409f1e6d20191cb022633da16c7c21f0a3a2821a766d0630ebaa2f9727560\",\"666dc150247e8bafa9b218024caf3f707fc804e7812808c3c270cb47964c3c83\",\"69e5f4c4e0c4497e7f586bebe30023ddf46539978a364831793b19e44a79fe98\",\"7e0cce87d1e1c4d638bc687a564a1cdd899e4201fa0a79765418c704968705cc\",\"8535e846dafc7decfb93b9f497a04f051774fbc570964f422f1c4bd6d4f1e19a\",\"aa73fc4c1070028ee4cd84935a48e5af257985df8ceb759835fe64442d404a78\",\"b8e20d14c6b152d9045547722d4b49197a2427b4d37291dd0a1c7a700a68067e\",\"d1ac6213ec0d2ead1d8d74f78067f8f6c45626c9119d80423e99cd2b7cee3b2e\",\"dab8da871e232b9995691a6872b170de5496341198dd49753fd782c3e3d749f3\",\"f665c99dc4513328c82ebcfbf2976bfb3f67fc63ae77c042bdcc56a961c885fc\"],\"borrow_rows\":[\"5a183b87445ee7a3833c367acd02fd1b7d39dd34ed4ea1a9c1fd8e83b41545e5\"],\"buffers\":\"scoped\",\"columns\":[],\"definitions\":\"shared\",\"input_core_sha256\":\"011e1e96f60d9e2e64eeb79b7ac93de4adf862c65bdd7014ef43f59ffa24996c\",\"memo_functions\":[],\"packed_datatypes\":[],\"reservations\":[],\"schema\":1,\"semantics\":\"ink-physical-plan-v1\",\"tables\":\"indexed_slots\"},\"properties\":[],\"representation\":null,\"resources\":null,\"route\":null,\"source\":\"011e1e96f60d9e2e64eeb79b7ac93de4adf862c65bdd7014ef43f59ffa24996c\"},\"status\":\"checked\",\"steps\":1}"
+    },
+    {
+      "command": [
+        "compile",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/bench/frontier-json/state.ink",
+        "--plan",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/build/frontier-json/indexed_slots-borrow.plan.json",
+        "--target",
+        "rust",
+        "-o",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/build/frontier-json/native-indexed_slots-borrow.rs"
+      ],
+      "elapsed_ns": 452385292,
+      "receipt": ""
+    },
+    {
+      "command": [
+        "build",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/bench/frontier-json/state.ink",
+        "--target",
+        "javascript",
+        "-o",
+        "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/build/frontier-json/ink.mjs"
+      ],
+      "elapsed_ns": 432908625,
+      "receipt": "wrote JavaScript module /Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/build/frontier-json/ink.mjs; 0 checked rule applications"
+    }
+  ]
+}

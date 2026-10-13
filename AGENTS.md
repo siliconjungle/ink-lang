@@ -135,7 +135,43 @@ lanes. Profiles rank replayed candidates only; absent comparable lifecycle evide
 retains the baseline. Unsupported target selections must fail explicitly. Physical
 planning does not change executable-core V9 or public serialisation formats.
 
+Maintained source folds use ink-maintained-fold-v1: exact source factorisation,
+commutative group laws and insertion/deletion/replacement equations replay in core.
+Contributions and group operations remain database definitions, emitted literally.
+The fixed native cell/fold controller and codecs remain trusted; this is not whole
+compiler correctness. Restore rebuilds folds from validated rows and rollback
+restores before-images. Dense prefixes require exact fallback outside their range.
+Single-cell bounds and fresh-result ownership facts are structural core analyses,
+never algorithm authority. Current maintained/dense capabilities are JavaScript
+only; unsupported targets fail explicitly. State lifecycle measurements require
+independent source histories, exact snapshots, fresh processes and held-out traces.
+
+Measure generalisation, not entry count. Evaluate knowledge changes on the frozen
+`bench/planning-corpus` (programs enter before laws aimed at them) with
+`ink_planner.corpus`, and report the funnel, near misses and cross-program reuse.
+Compiled planning publishes candidates into the knowledge root it is given, so
+evaluations run against a private copy. Near-miss receipts, corpus and knowledge
+health reports, and `tools/action_algebra.py` relations are untrusted
+observations: never proof premises, applicability hints for admission, or
+selection authority. Structure laws (general laws with assumptions about a whole
+fold step) reach programs only through plan-time instances admitted by
+`knowledge-check`; keep that library free of carrier-, operator- or
+program-specific statements. A commutation claim needs a checked whole-action
+equality of the swapped pair, not the access analysis.
+
 Finish completed, validated work by merging and publishing it on `main` in the
 distribution and every changed independent package repository. Report the verified
-main revision. Feature branches and worktrees are staging areas during active work;
+main revision. When a pin bump changes a crate another pinned crate depends on
+(the C lowering pins ink-lowering-rust), refresh `runtime/Cargo.lock` in the same
+change (`cargo metadata` without `--locked`); CI's locked fetch fails otherwise.
+A run is verified only when every job finishes green; failing steps report their
+error lines as annotations (`tools/ci_step.sh`). Feature branches and worktrees are staging areas during active work;
 keep work isolated when James explicitly requests a draft or separate branch.
+
+Executable core V11 adds fixed F32 sqrt/division, explicit conversion, classification,
+named rounding, fixed-width counts and UTF-8 byte operations. Preserve exact
+rounding, canonical arithmetic NaNs, raw reinterpretation and fallible boundaries.
+Derived math/text algorithms and bounded approximations remain knowledge source;
+never substitute them for exact computation without ordinary equality authority.
+GPU numeric operations use integer lanes; host fallback is not device coverage.
+See docs/numeric-text-primitives.md and its required cross-target suites.

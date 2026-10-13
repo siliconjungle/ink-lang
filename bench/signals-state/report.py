@@ -13,7 +13,7 @@ model=(r/'bench/signals-state/models.mjs').read_bytes();(out/'modules/svelte-mod
 (out/'module-manifest.json').write_text(json.dumps(modules,indent=2)+'\n')
 def value(label,phase,n=4096):
  return next(x['medianNs']/1000 for x in v['summary'] if x['label']==label and x['phase']==phase and x['rows']==n)
-lines=['# Signal-inspired state execution — retained comparison','',
+lines=['# Dependency-tracked state execution — retained comparison','',
 'Exploratory state-only Node comparison on '+v['hardware']+' ('+v['node']+', '+v['platform']+'/'+v['arch']+'). Seven alternating repetitions at 256, 4096 and 16384 rows. The machine was shared with concurrent work; raw samples and ranges are retained. These results do not establish a framework-wide or rendering advantage.','',
 'Before uses the independently published JavaScript backend `'+v['baselineLoweringRevision']+'`; current uses `'+v['inkLoweringRevision']+'`. Both were emitted with the same checked core, source, and aggregate proof request. Baseline/current artifacts and SHA-256 hashes are retained. The earlier initial-distribution comparison is retained under `earlier-pinned-run/`; it predates upstream recursion improvements and the final owned-result copier.','',
 '## 4096-row medians','',

@@ -19,6 +19,20 @@ JavaScript backend with the same current checked core, source and representation
 request. Compiler/setup/admission time is outside the timed loops. Rebuilding after
 source changes measures those new artifacts, not the retained result.
 
+Source preparation now authors and replays an explicit compact-observation proof
+for the indexed tree and supplies that same request to both emitters. It avoids
+building unused logical-state observations through database equality evidence;
+the current backend has no historical envelope-erasure shortcut. Frozen replay
+still verifies the original archived artifacts.
+
+A bounded focused run can use `SIGNAL_ROWS=4096 SIGNAL_ROUNDS=5
+SIGNAL_CURRENT_ONLY=1 SIGNAL_OUTPUT=OUTPUT.json node --conditions=browser bench.mjs`.
+Sizes are 32–16384 and rounds 1–31. Without `--expose-gc`, forced collections
+between lanes are disabled. The output records these settings and the execution
+timestamp; current-only applies to aggregate/tree headlines, while the point
+loop retains its historical before control. `SIGNAL_TREE_REQUEST` may record
+the active request hash. Full defaults and frozen replay remain available.
+
 The production Svelte module and exact npm lock are used for both replay modes.
 Run under Node with the browser export condition, as the scripts specify. `npm test`
 is a two-round, 256-row correctness/smoke run; it is not a performance result.

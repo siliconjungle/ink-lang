@@ -6,6 +6,11 @@ bounded-total cache authority, typed storage policies and their experimental
 compatibility paths have been removed. Maintained physical representations use
 the general database proof interface below.
 
+Source tables can also use [maintained folds](maintained-folds.md), admitted by
+exact source factorisation, commutative group laws and cell preservation proofs.
+Their fixed native cell/fold controller is trusted separately from the complete
+database-defined representation protocol described here.
+
 ## Contract
 
 A representation entry supplies arbitrary total first-order definitions for its
@@ -406,7 +411,7 @@ Caller-trusted code generation and the valid-domain/query-erasure Lean results
 are recorded in `reports/leaner-generated-code-2026-10-11`. Emission, codecs and
 target toolchains remain trusted; Lean does not prove the generated binaries.
 
-### Frontier-inspired maintenance and execution extensions
+### Incremental state maintenance and execution extensions
 
 The knowledge producer now accepts `--ordered-query NAME`, `--fuse-query NAME`,
 `--column-index` and `--dense-slots N`. Exact ordered contributions retain source

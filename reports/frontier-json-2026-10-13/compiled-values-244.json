@@ -1,0 +1,383 @@
+{
+  "schema": 1,
+  "process": 244,
+  "module": "build/record-elision/private-values.mjs",
+  "module_sha256": "442c0629c9e5b041800e937940eff8d8d2efa77788c6013860ccb298a40f4841",
+  "provenance": {
+    "captured_at": "2026-10-13T19:36:02.481Z",
+    "hashes": {
+      "bench/frontier-json/state.ink": "f98f971b59e11d0983af3cbbd9a472f2d55b4e5720556de1f31b19b12ae866a4",
+      "bench/frontier-json/prepare.py": "d4040dee385095446525ece11523b5dec6cb5eb269937b4836d8fc439cc05713",
+      "bench/frontier-json/run.mjs": "68488f1e42322d19111254f1a5333428541388c371e2fd01af7745b8973920cb",
+      "bench/frontier-json/state-adapters.mjs": "2a7c24ff7778690f0ff6090d31afc45e26f7f6bd2909c3ae619c8e055ea79694",
+      "bench/frontier-json/json-kernels.mjs": "66985f5be207c4f170c0ccd3822f91f8f7f2c257b1b6abc9f3e5ab5e566f67c5",
+      "bench/frontier-json/src/main.rs": "295a467a214ce257f5d41e5fa8304649d2b21cb1beabefc19565d763856b597d",
+      "bench/frontier-json/package-lock.json": "3cc5c3e6c05c279b921df5c2b1a232d2b5f6a114f0a674d2d5d1946840d75a52",
+      "bench/frontier-json/Cargo.lock": "66cecb01a676b2fef9d944feab7ce7d7876e9133c7095f4c0eba566e6ae125f9",
+      "bench/frontier-json/provenance.mjs": "13459553d3b246749d71562e50b41085165e9fd13469e1a8bf9b29ce27308daf",
+      "build/frontier-json/fixtures.json": "f03846851a92e4968589f0daa0ae4bb1768f323a3cf90486017e89c58cf62145",
+      "build/frontier-json/preparation.json": "945bb6ebd6460d5a9ac33342e3d2e9e0d852dc14f604149b8297e2547a6773a1",
+      "build/frontier-json/ink.mjs": "a3e4dd199bd66efaa794be629ace508961158c59ac7958168b2fc5fce3cdbc90",
+      "target/debug/ink": "d3394e17807ec9bef003a85207256fd537ff07ca69932309d3ef3bf6598e45a7",
+      "build/frontier-json/ink-indexed.mjs": "7aa19686dd2fbbf3ced38f05237748de574f0d31d005b4bd747d0a723278f674",
+      "build/frontier-json/indexed.plan.json": "9c999ba5286d9056a802d3924cd33d089d21fa88f7a2ca7e9004adb6707d7d7f",
+      "build/frontier-json/target/release/ink-frontier-json-benchmark": "f1b8433e354ff184b7a3af6c74261758b6e89bafc44c8345b457a75a9fe28be7"
+    },
+    "revisions": {
+      ".": "831027a1ea29f42262c567087eab0e1144d316cf",
+      "abi": "90a7a93c6be095cb906601ec2b40c8a1467adbdf",
+      "core": "831027a1ea29f42262c567087eab0e1144d316cf",
+      "native-support": "eea3285a3ea1847c0dda237c3c988178e4a00f4c",
+      "runtime": "04a9d4b2e90ac618d30040fbee169864679f3654",
+      "knowledge": "bc1cbc1e26aca28f9bd49d12d6341e67e44cc108",
+      "planner": "5dd9523c5f5b97df517c12b610d5ba126dc785cf",
+      "lowerings/c": "f8e928abe0c2e8a5608d75f9d37e7fb795a997d4",
+      "lowerings/rust": "76a8855bade21404699c533a52077c9e91cd0556",
+      "lowerings/js": "9709133845e667fe90774787be09c8c61287bb22",
+      "lowerings/wasm": "78ad662e6699e573c4bf58c43a2d459b1b50ed58",
+      "lowerings/gpu": "4bf709cd94d228edff31260c4e6ee5a7226e67ff",
+      "build/frontier": "2c72dbb4030e2695b682d3e49ec82d8c5c8ffec2",
+      "build/frontier-state-main": "9ff840ea690e55fd8c064934f92a26c1603a63fa",
+      "build/frontier-engine": "1fdd01b67367ccd2b1088b0148b558896935856e",
+      "build/frontier-codec": "7835c68e60ecb400f82d26436bd8e8855a7ba9b9"
+    },
+    "node": "v26.1.0",
+    "target": {
+      "cpu": "Apple M2",
+      "platform": "darwin",
+      "arch": "arm64",
+      "release": "25.5.0"
+    },
+    "host_isolation": "Shared development host; no exclusive CPU reservation. Repeated process cohorts and rotated lane order, not a controlled laboratory."
+  },
+  "node": "v26.1.0",
+  "import_ns": "11107625",
+  "capture_ns": "2733000",
+  "frontier_capture_ns": "47708",
+  "direct_compact_decode_ns": "1389292",
+  "measurements": [
+    {
+      "lane": "ink-logical-edit-owned",
+      "round": 0,
+      "calls": 159,
+      "elapsed_ns": "48520750",
+      "checksum": 81567
+    },
+    {
+      "lane": "ink-captured-edit-compact-output",
+      "round": 0,
+      "calls": 270,
+      "elapsed_ns": "50998750",
+      "checksum": 1923480
+    },
+    {
+      "lane": "ink-captured-edit-private",
+      "round": 0,
+      "calls": 21240,
+      "elapsed_ns": "83589833",
+      "checksum": 10896120
+    },
+    {
+      "lane": "frontier-captured-edit-owned",
+      "round": 0,
+      "calls": 462,
+      "elapsed_ns": "44581916",
+      "checksum": 237006
+    },
+    {
+      "lane": "ink-captured-edit-owned",
+      "round": 0,
+      "calls": 1067,
+      "elapsed_ns": "37031625",
+      "checksum": 547371
+    },
+    {
+      "lane": "ink-captured-edit-compact-output",
+      "round": 1,
+      "calls": 270,
+      "elapsed_ns": "58630042",
+      "checksum": 1923480
+    },
+    {
+      "lane": "ink-captured-edit-owned",
+      "round": 1,
+      "calls": 1067,
+      "elapsed_ns": "39579333",
+      "checksum": 547371
+    },
+    {
+      "lane": "ink-captured-edit-private",
+      "round": 1,
+      "calls": 21240,
+      "elapsed_ns": "74276833",
+      "checksum": 10896120
+    },
+    {
+      "lane": "frontier-captured-edit-owned",
+      "round": 1,
+      "calls": 462,
+      "elapsed_ns": "48045833",
+      "checksum": 237006
+    },
+    {
+      "lane": "ink-logical-edit-owned",
+      "round": 1,
+      "calls": 159,
+      "elapsed_ns": "50542083",
+      "checksum": 81567
+    },
+    {
+      "lane": "ink-logical-edit-owned",
+      "round": 2,
+      "calls": 159,
+      "elapsed_ns": "65575958",
+      "checksum": 81567
+    },
+    {
+      "lane": "ink-captured-edit-owned",
+      "round": 2,
+      "calls": 1067,
+      "elapsed_ns": "57328792",
+      "checksum": 547371
+    },
+    {
+      "lane": "ink-captured-edit-private",
+      "round": 2,
+      "calls": 21240,
+      "elapsed_ns": "147614292",
+      "checksum": 10896120
+    },
+    {
+      "lane": "ink-captured-edit-compact-output",
+      "round": 2,
+      "calls": 270,
+      "elapsed_ns": "137597291",
+      "checksum": 1923480
+    },
+    {
+      "lane": "frontier-captured-edit-owned",
+      "round": 2,
+      "calls": 462,
+      "elapsed_ns": "111657125",
+      "checksum": 237006
+    },
+    {
+      "lane": "ink-captured-edit-private",
+      "round": 3,
+      "calls": 21240,
+      "elapsed_ns": "148413542",
+      "checksum": 10896120
+    },
+    {
+      "lane": "ink-captured-edit-compact-output",
+      "round": 3,
+      "calls": 270,
+      "elapsed_ns": "60023125",
+      "checksum": 1923480
+    },
+    {
+      "lane": "ink-logical-edit-owned",
+      "round": 3,
+      "calls": 159,
+      "elapsed_ns": "53738917",
+      "checksum": 81567
+    },
+    {
+      "lane": "frontier-captured-edit-owned",
+      "round": 3,
+      "calls": 462,
+      "elapsed_ns": "50515208",
+      "checksum": 237006
+    },
+    {
+      "lane": "ink-captured-edit-owned",
+      "round": 3,
+      "calls": 1067,
+      "elapsed_ns": "41766333",
+      "checksum": 547371
+    },
+    {
+      "lane": "ink-logical-edit-owned",
+      "round": 4,
+      "calls": 159,
+      "elapsed_ns": "52208458",
+      "checksum": 81567
+    },
+    {
+      "lane": "ink-captured-edit-owned",
+      "round": 4,
+      "calls": 1067,
+      "elapsed_ns": "41099709",
+      "checksum": 547371
+    },
+    {
+      "lane": "ink-captured-edit-private",
+      "round": 4,
+      "calls": 21240,
+      "elapsed_ns": "79847375",
+      "checksum": 10896120
+    },
+    {
+      "lane": "frontier-captured-edit-owned",
+      "round": 4,
+      "calls": 462,
+      "elapsed_ns": "63031833",
+      "checksum": 237006
+    },
+    {
+      "lane": "ink-captured-edit-compact-output",
+      "round": 4,
+      "calls": 270,
+      "elapsed_ns": "63672375",
+      "checksum": 1923480
+    },
+    {
+      "lane": "ink-captured-edit-private",
+      "round": 5,
+      "calls": 21240,
+      "elapsed_ns": "85926250",
+      "checksum": 10896120
+    },
+    {
+      "lane": "ink-captured-edit-owned",
+      "round": 5,
+      "calls": 1067,
+      "elapsed_ns": "47070542",
+      "checksum": 547371
+    },
+    {
+      "lane": "ink-logical-edit-owned",
+      "round": 5,
+      "calls": 159,
+      "elapsed_ns": "58290125",
+      "checksum": 81567
+    },
+    {
+      "lane": "ink-captured-edit-compact-output",
+      "round": 5,
+      "calls": 270,
+      "elapsed_ns": "61943291",
+      "checksum": 1923480
+    },
+    {
+      "lane": "frontier-captured-edit-owned",
+      "round": 5,
+      "calls": 462,
+      "elapsed_ns": "63859750",
+      "checksum": 237006
+    },
+    {
+      "lane": "ink-logical-edit-owned",
+      "round": 6,
+      "calls": 159,
+      "elapsed_ns": "56119250",
+      "checksum": 81567
+    },
+    {
+      "lane": "ink-captured-edit-compact-output",
+      "round": 6,
+      "calls": 270,
+      "elapsed_ns": "57584542",
+      "checksum": 1923480
+    },
+    {
+      "lane": "ink-captured-edit-owned",
+      "round": 6,
+      "calls": 1067,
+      "elapsed_ns": "39251791",
+      "checksum": 547371
+    },
+    {
+      "lane": "frontier-captured-edit-owned",
+      "round": 6,
+      "calls": 462,
+      "elapsed_ns": "50244542",
+      "checksum": 237006
+    },
+    {
+      "lane": "ink-captured-edit-private",
+      "round": 6,
+      "calls": 21240,
+      "elapsed_ns": "69909583",
+      "checksum": 10896120
+    },
+    {
+      "lane": "ink-logical-edit-owned",
+      "round": 7,
+      "calls": 159,
+      "elapsed_ns": "54424875",
+      "checksum": 81567
+    },
+    {
+      "lane": "ink-captured-edit-owned",
+      "round": 7,
+      "calls": 1067,
+      "elapsed_ns": "42067916",
+      "checksum": 547371
+    },
+    {
+      "lane": "ink-captured-edit-private",
+      "round": 7,
+      "calls": 21240,
+      "elapsed_ns": "70093250",
+      "checksum": 10896120
+    },
+    {
+      "lane": "ink-captured-edit-compact-output",
+      "round": 7,
+      "calls": 270,
+      "elapsed_ns": "57850917",
+      "checksum": 1923480
+    },
+    {
+      "lane": "frontier-captured-edit-owned",
+      "round": 7,
+      "calls": 462,
+      "elapsed_ns": "51073375",
+      "checksum": 237006
+    },
+    {
+      "lane": "ink-captured-edit-compact-output",
+      "round": 8,
+      "calls": 270,
+      "elapsed_ns": "67955375",
+      "checksum": 1923480
+    },
+    {
+      "lane": "ink-captured-edit-owned",
+      "round": 8,
+      "calls": 1067,
+      "elapsed_ns": "51906917",
+      "checksum": 547371
+    },
+    {
+      "lane": "ink-captured-edit-private",
+      "round": 8,
+      "calls": 21240,
+      "elapsed_ns": "87629084",
+      "checksum": 10896120
+    },
+    {
+      "lane": "frontier-captured-edit-owned",
+      "round": 8,
+      "calls": 462,
+      "elapsed_ns": "54974917",
+      "checksum": 237006
+    },
+    {
+      "lane": "ink-logical-edit-owned",
+      "round": 8,
+      "calls": 159,
+      "elapsed_ns": "62604708",
+      "checksum": 81567
+    }
+  ],
+  "sink": 11783818,
+  "validation": {
+    "complete_outputs": true,
+    "source_unchanged": true,
+    "owned_outputs": true,
+    "exact_portable_and_compact_bytes": true
+  },
+  "scope": "Prepared independently captured inputs, capture excluded from hot calls and reported separately. Both owned lanes return detached mutable complete outputs. Private-only and encoded-output lanes are different boundaries and have no matched Frontier claim. Shared host; three fresh processes required."
+}

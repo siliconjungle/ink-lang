@@ -6,12 +6,21 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+defaults:
+  run:
+    # Default bash behaviour, plus failure annotations that stay readable
+    # where raw logs are not (tools/ci_step.sh).
+    shell: bash tools/ci_step.sh {0}
 concurrency:
-  group: conformance-${{ github.ref }}
-  cancel-in-progress: true
+  # A newer push to a pull request supersedes its previous run. Every commit
+  # that lands on main gets its own group: a shared group would still cancel
+  # pending runs, so a breakage could land without ever being attributed.
+  group: conformance-${{ github.event_name == 'pull_request' && github.ref || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
   declared-feature-parity:
     runs-on: ubuntu-24.04
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -66,10 +75,14 @@ jobs:
           python tools/check_committed_snapshot.py
           python -m ink_knowledge --root . rebuild
         working-directory: knowledge
+        shell: bash
       - name: Fetch locked dependencies
         run: |
           cargo fetch --locked
           cargo fetch --locked --manifest-path core/Cargo.toml
+          # The runtime tests run `cargo --locked`; a stale lock must fail
+          # here, by name, rather than inside the first runtime test.
+          cargo fetch --locked --manifest-path runtime/Cargo.toml
       - name: Fetch pinned compiled host dependencies
         run: |
           mkdir -p build/host-deps/src
@@ -89,7 +102,9 @@ jobs:
         run: |
           cargo test --manifest-path core/Cargo.toml --offline
           cargo test --manifest-path lowerings/rust/Cargo.toml --lib
-          cargo test --test hardening regression_eval_
+          # The whole suite: fuzz_logic_objects re-declares every first-order
+          # knowledge object, so checker changes cannot silently strand proofs.
+          cargo test --test hardening
           cargo test --test temporary_lowering
           CARGO_TARGET_DIR=target cargo test --manifest-path lowerings/gpu/Cargo.toml --test temporary_bounds
           cargo test --test distribution --test source_syntax --test action_values --test general_laws --test semantic_optimisation
@@ -214,6 +229,7 @@ jobs:
           PY
       - name: Audit committed catalogue and rebuild disposable index
         working-directory: knowledge
+        shell: bash
         run: |
           python tools/check_committed_snapshot.py
           python -m ink_knowledge --root . rebuild

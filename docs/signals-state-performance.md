@@ -1,4 +1,4 @@
-# Signal-inspired state execution
+# Dependency-tracked state execution
 
 The JavaScript target now retains deterministic scalar keeps, binds typed action
 entrypoints, compiles owned result copies from their declared schemas, and uses
@@ -50,7 +50,9 @@ structured cloning. Zero-argument read-only bound calls omit mutation bookkeepin
 Checked representation bundles expose the same `bind` surface synchronously.
 Their existing `invoke`/`invoke_json` interfaces remain asynchronous. This is an
 explicit API boundary, not an implicit profitability policy or a change to source
-transactions. It does not add durability, schema evolution or UI subscriptions.
+transactions. State subscriptions, batching and explicit host transactions are
+now available on both implementations; see [maintained folds](maintained-folds.md).
+These APIs publish state observations without introducing UI or DOM semantics.
 
 ## Pure definition call machinery
 
@@ -165,6 +167,6 @@ The final JavaScript baseline is upstream `e9a45c390c3a6a9ffbfe756e2423d280f7a9f
 Its independently published lowering requires source/schema support from existing
 core commit `04f1b73286bf1ccae959018e48ec32e84946dc0d`. The distribution carries that
 prerequisite separately and pins the corresponding published C/Rust/Wasm/GPU
-lowerings. These prerequisites are existing work, not signal-inspired gains. Integration also
+lowerings. These prerequisites are existing work, not gains from dependency tracking. Integration also
 preserves the existing invocation journal boundary in the newly published Rust
 lowering: a failed later action must not erase an earlier successful host action.

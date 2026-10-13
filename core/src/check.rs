@@ -190,7 +190,7 @@ pub fn params_env(params: &[(String, Type)]) -> LangResult<Env> {
 pub(crate) fn calls(e: &Expr, out: &mut BTreeSet<String>) {
     match e {
         Expr::Call(n, args) => {
-            if !crate::word::primitive(n)
+            if !crate::word::primitive(n) && !crate::primitives::primitive(n)
                 && ![
                     "sum",
                     "list",
@@ -265,7 +265,7 @@ fn check_impl(p:&Program, authoring:bool)->LangResult<()> {
             crate::statecheck::validate_type(t, p)?;
         }
         crate::statecheck::validate_type(&f.result, p)?;
-        if crate::word::primitive(&f.name)
+        if crate::word::primitive(&f.name) || crate::primitives::primitive(&f.name)
             || [
                 "sum",
                 "list",
@@ -499,6 +499,13 @@ fn infer_binary(e: &Expr, env: &Env, p: &Program, want: Option<&Type>) -> LangRe
 #[inline(never)]
 fn infer_call(e: &Expr, env: &Env, p: &Program, want: Option<&Type>) -> LangResult<Type> {
     match e {
+        Expr::Call(n, args) if crate::primitives::primitive(n) => {
+            let first = if crate::primitives::bit_count(n) { args.first().map(|x| infer(x,env,p)).transpose()? } else {None};
+            let (params, result) = crate::primitives::signature(n, first.as_ref())?;
+            if args.len()!=params.len(){return Err(format!("{n}: argument count mismatch"));}
+            for (arg,ty) in args.iter().zip(params) {infer_as(arg,env,p,&ty)?;}
+            Ok(result)
+        }
         Expr::Call(n, args) if ["vec2", "vec3", "vec4"].contains(&n.as_str()) => {
             let k = n.as_bytes()[3] - b'0';
             if args.len() != k as usize {

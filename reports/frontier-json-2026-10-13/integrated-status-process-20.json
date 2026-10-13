@@ -1,0 +1,914 @@
+{
+  "schema": 1,
+  "status": "all-metrics target unmet",
+  "provenance": {
+    "hashes": {
+      "bench/frontier-json/state.ink": "f98f971b59e11d0983af3cbbd9a472f2d55b4e5720556de1f31b19b12ae866a4",
+      "bench/frontier-json/prepare.py": "d4040dee385095446525ece11523b5dec6cb5eb269937b4836d8fc439cc05713",
+      "bench/frontier-json/run.mjs": "b50be0aead9e8c1f635ce200417310c483239abaee78f13b014f76afed52c1d3",
+      "bench/frontier-json/json-kernels.mjs": "d4ea29eac869ab9e6baea56a7f1eb08b9a022aed70a65a40af3cdfcd352ccc5e",
+      "bench/frontier-json/src/main.rs": "295a467a214ce257f5d41e5fa8304649d2b21cb1beabefc19565d763856b597d",
+      "bench/frontier-json/package-lock.json": "3cc5c3e6c05c279b921df5c2b1a232d2b5f6a114f0a674d2d5d1946840d75a52",
+      "bench/frontier-json/Cargo.lock": "66cecb01a676b2fef9d944feab7ce7d7876e9133c7095f4c0eba566e6ae125f9",
+      "bench/frontier-json/provenance.mjs": "1f7d263503b8b29586a854afc362a59977eb689a28cbdac865d33a00149c1241",
+      "build/frontier-json/fixtures.json": "f03846851a92e4968589f0daa0ae4bb1768f323a3cf90486017e89c58cf62145",
+      "build/frontier-json/preparation.json": "64a577d9fef9adbc98cde83f9325b958a93c8406d747c6f83b6c41fef6f298b3",
+      "build/frontier-json/ink.mjs": "024b2594d48c4aa9040ea77033ff964b276aabd92c15511267a89abfdca94567",
+      "target/debug/ink": "883262266d65ed61797b88b8d6f4cfcce92069c7509c2fc52fdc9a51f20675ba",
+      "build/frontier-json/ink-indexed.mjs": "4af7e0a74d9e1b64e881681408d7405c1acb8e48eeac1096970e5db4d4991c19",
+      "build/frontier-json/indexed.plan.json": "9c999ba5286d9056a802d3924cd33d089d21fa88f7a2ca7e9004adb6707d7d7f",
+      "build/frontier-json/target/release/ink-frontier-json-benchmark": "cb60e1b05b9f1e8a2abb44f221fde567adbc6bd8a0cb9e962027de635e3a1c1a"
+    },
+    "revisions": {
+      ".": "5361831c28d07e628d435e7102a15556dc5d4386",
+      "abi": "6d67e5d563c630df60b7e1631931c9a16b1d1d53",
+      "core": "5361831c28d07e628d435e7102a15556dc5d4386",
+      "native-support": "dfdf22da74dd38d708a8ccc44b80ef764e298d9a",
+      "runtime": "6b569550cd2a5ce5b36ece8f8f921dace8c87fe1",
+      "knowledge": "1efe42b27d3b7a64532ab84e637121eeefe0ee18",
+      "planner": "47ad25f970138d4b9f47f4c1397c65e240b802d0",
+      "lowerings/c": "0c6685400236d4f9d84611d8c4a2fa830e4a6a79",
+      "lowerings/rust": "07412bc454418f950aa172d506ed5daa8d7a4ad9",
+      "lowerings/js": "bfd920a79620d2187731b0dd58e22fcba464db7d",
+      "lowerings/wasm": "81584fa21236b00d3fd613f4cbc158b7e5b8d462",
+      "lowerings/gpu": "8def8b99df23feade67ff634d403ecd7cc2e8356",
+      "build/frontier": "2c72dbb4030e2695b682d3e49ec82d8c5c8ffec2",
+      "build/frontier-state-main": "9ff840ea690e55fd8c064934f92a26c1603a63fa",
+      "build/frontier-engine": "1fdd01b67367ccd2b1088b0148b558896935856e",
+      "build/frontier-codec": "7835c68e60ecb400f82d26436bd8e8855a7ba9b9"
+    },
+    "target": {
+      "cpu": "Apple M2",
+      "platform": "darwin",
+      "arch": "arm64",
+      "release": "25.5.0"
+    },
+    "node": "v26.1.0"
+  },
+  "processes": [
+    20
+  ],
+  "source_reports": [
+    "reports/frontier-json-2026-10-13/state-targeted-replace-4096-20.json",
+    "reports/frontier-json-2026-10-13/state-targeted-mixed-4096-20.json",
+    "reports/frontier-json-2026-10-13/state-targeted-read-heavy-4096-20.json",
+    "reports/frontier-json-2026-10-13/json-20.json"
+  ],
+  "measurements": [
+    {
+      "workload": "edit-message-decode",
+      "size": 4,
+      "lane": "frontier-patch-decode",
+      "median_ns_per_call": 1000.2974419988102,
+      "process_medians_ns": {
+        "20": 1000.2974419988102
+      },
+      "process_median_min_ns": 1000.2974419988102,
+      "process_median_max_ns": 1000.2974419988102
+    },
+    {
+      "workload": "edit-message-decode",
+      "size": 4,
+      "lane": "ink-typed-wire-decode",
+      "median_ns_per_call": 2139.385149201943,
+      "process_medians_ns": {
+        "20": 2139.385149201943
+      },
+      "process_median_min_ns": 2139.385149201943,
+      "process_median_max_ns": 2139.385149201943
+    },
+    {
+      "workload": "edit-message-decode",
+      "size": 64,
+      "lane": "frontier-patch-decode",
+      "median_ns_per_call": 883.1474190726159,
+      "process_medians_ns": {
+        "20": 883.1474190726159
+      },
+      "process_median_min_ns": 883.1474190726159,
+      "process_median_max_ns": 883.1474190726159
+    },
+    {
+      "workload": "edit-message-decode",
+      "size": 64,
+      "lane": "ink-typed-wire-decode",
+      "median_ns_per_call": 2128.772294077604,
+      "process_medians_ns": {
+        "20": 2128.772294077604
+      },
+      "process_median_min_ns": 2128.772294077604,
+      "process_median_max_ns": 2128.772294077604
+    },
+    {
+      "workload": "edit-message-decode",
+      "size": 512,
+      "lane": "frontier-patch-decode",
+      "median_ns_per_call": 622.9470550981634,
+      "process_medians_ns": {
+        "20": 622.9470550981634
+      },
+      "process_median_min_ns": 622.9470550981634,
+      "process_median_max_ns": 622.9470550981634
+    },
+    {
+      "workload": "edit-message-decode",
+      "size": 512,
+      "lane": "ink-typed-wire-decode",
+      "median_ns_per_call": 2386.7446393762184,
+      "process_medians_ns": {
+        "20": 2386.7446393762184
+      },
+      "process_median_min_ns": 2386.7446393762184,
+      "process_median_max_ns": 2386.7446393762184
+    },
+    {
+      "workload": "edit-message-encode",
+      "size": 4,
+      "lane": "frontier-patch-encode",
+      "median_ns_per_call": 1537.393665158371,
+      "process_medians_ns": {
+        "20": 1537.393665158371
+      },
+      "process_median_min_ns": 1537.393665158371,
+      "process_median_max_ns": 1537.393665158371
+    },
+    {
+      "workload": "edit-message-encode",
+      "size": 4,
+      "lane": "ink-typed-wire-encode",
+      "median_ns_per_call": 3877.2788203753353,
+      "process_medians_ns": {
+        "20": 3877.2788203753353
+      },
+      "process_median_min_ns": 3877.2788203753353,
+      "process_median_max_ns": 3877.2788203753353
+    },
+    {
+      "workload": "edit-message-encode",
+      "size": 64,
+      "lane": "frontier-patch-encode",
+      "median_ns_per_call": 1067.8248962655603,
+      "process_medians_ns": {
+        "20": 1067.8248962655603
+      },
+      "process_median_min_ns": 1067.8248962655603,
+      "process_median_max_ns": 1067.8248962655603
+    },
+    {
+      "workload": "edit-message-encode",
+      "size": 64,
+      "lane": "ink-typed-wire-encode",
+      "median_ns_per_call": 3313.5418269230768,
+      "process_medians_ns": {
+        "20": 3313.5418269230768
+      },
+      "process_median_min_ns": 3313.5418269230768,
+      "process_median_max_ns": 3313.5418269230768
+    },
+    {
+      "workload": "edit-message-encode",
+      "size": 512,
+      "lane": "frontier-patch-encode",
+      "median_ns_per_call": 1469.6561264822135,
+      "process_medians_ns": {
+        "20": 1469.6561264822135
+      },
+      "process_median_min_ns": 1469.6561264822135,
+      "process_median_max_ns": 1469.6561264822135
+    },
+    {
+      "workload": "edit-message-encode",
+      "size": 512,
+      "lane": "ink-typed-wire-encode",
+      "median_ns_per_call": 4015.731827805222,
+      "process_medians_ns": {
+        "20": 4015.731827805222
+      },
+      "process_median_min_ns": 4015.731827805222,
+      "process_median_max_ns": 4015.731827805222
+    },
+    {
+      "workload": "external-document-validate",
+      "size": 4,
+      "lane": "frontier-json-text-parse-validate",
+      "median_ns_per_call": 855.702404414663,
+      "process_medians_ns": {
+        "20": 855.702404414663
+      },
+      "process_median_min_ns": 855.702404414663,
+      "process_median_max_ns": 855.702404414663
+    },
+    {
+      "workload": "external-document-validate",
+      "size": 4,
+      "lane": "ink-binary-json-validate",
+      "median_ns_per_call": 11469.745652173913,
+      "process_medians_ns": {
+        "20": 11469.745652173913
+      },
+      "process_median_min_ns": 11469.745652173913,
+      "process_median_max_ns": 11469.745652173913
+    },
+    {
+      "workload": "external-document-validate",
+      "size": 64,
+      "lane": "frontier-json-text-parse-validate",
+      "median_ns_per_call": 4875.433471933472,
+      "process_medians_ns": {
+        "20": 4875.433471933472
+      },
+      "process_median_min_ns": 4875.433471933472,
+      "process_median_max_ns": 4875.433471933472
+    },
+    {
+      "workload": "external-document-validate",
+      "size": 64,
+      "lane": "ink-binary-json-validate",
+      "median_ns_per_call": 67833.33333333333,
+      "process_medians_ns": {
+        "20": 67833.33333333333
+      },
+      "process_median_min_ns": 67833.33333333333,
+      "process_median_max_ns": 67833.33333333333
+    },
+    {
+      "workload": "external-document-validate",
+      "size": 512,
+      "lane": "frontier-json-text-parse-validate",
+      "median_ns_per_call": 69089.37404580152,
+      "process_medians_ns": {
+        "20": 69089.37404580152
+      },
+      "process_median_min_ns": 69089.37404580152,
+      "process_median_max_ns": 69089.37404580152
+    },
+    {
+      "workload": "external-document-validate",
+      "size": 512,
+      "lane": "ink-binary-json-validate",
+      "median_ns_per_call": 351164.3333333333,
+      "process_medians_ns": {
+        "20": 351164.3333333333
+      },
+      "process_median_min_ns": 351164.3333333333,
+      "process_median_max_ns": 351164.3333333333
+    },
+    {
+      "workload": "json-text-input-edit-text-output",
+      "size": 4,
+      "lane": "frontier-json-text-known-edit",
+      "median_ns_per_call": 714.6042363433668,
+      "process_medians_ns": {
+        "20": 714.6042363433668
+      },
+      "process_median_min_ns": 714.6042363433668,
+      "process_median_max_ns": 714.6042363433668
+    },
+    {
+      "workload": "json-text-input-edit-text-output",
+      "size": 4,
+      "lane": "ink-binary-pipeline",
+      "median_ns_per_call": 144778.88709677418,
+      "process_medians_ns": {
+        "20": 144778.88709677418
+      },
+      "process_median_min_ns": 144778.88709677418,
+      "process_median_max_ns": 144778.88709677418
+    },
+    {
+      "workload": "json-text-input-edit-text-output",
+      "size": 4,
+      "lane": "ink-json-text-pipeline",
+      "median_ns_per_call": 15368.359420289855,
+      "process_medians_ns": {
+        "20": 15368.359420289855
+      },
+      "process_median_min_ns": 15368.359420289855,
+      "process_median_max_ns": 15368.359420289855
+    },
+    {
+      "workload": "json-text-input-edit-text-output",
+      "size": 64,
+      "lane": "frontier-json-text-known-edit",
+      "median_ns_per_call": 2813.712186160441,
+      "process_medians_ns": {
+        "20": 2813.712186160441
+      },
+      "process_median_min_ns": 2813.712186160441,
+      "process_median_max_ns": 2813.712186160441
+    },
+    {
+      "workload": "json-text-input-edit-text-output",
+      "size": 64,
+      "lane": "ink-binary-pipeline",
+      "median_ns_per_call": 767363.4444444445,
+      "process_medians_ns": {
+        "20": 767363.4444444445
+      },
+      "process_median_min_ns": 767363.4444444445,
+      "process_median_max_ns": 767363.4444444445
+    },
+    {
+      "workload": "json-text-input-edit-text-output",
+      "size": 64,
+      "lane": "ink-json-text-pipeline",
+      "median_ns_per_call": 91572.7951807229,
+      "process_medians_ns": {
+        "20": 91572.7951807229
+      },
+      "process_median_min_ns": 91572.7951807229,
+      "process_median_max_ns": 91572.7951807229
+    },
+    {
+      "workload": "json-text-input-edit-text-output",
+      "size": 512,
+      "lane": "frontier-json-text-known-edit",
+      "median_ns_per_call": 77554.56349206349,
+      "process_medians_ns": {
+        "20": 77554.56349206349
+      },
+      "process_median_min_ns": 77554.56349206349,
+      "process_median_max_ns": 77554.56349206349
+    },
+    {
+      "workload": "json-text-input-edit-text-output",
+      "size": 512,
+      "lane": "ink-binary-pipeline",
+      "median_ns_per_call": 3436083.3,
+      "process_medians_ns": {
+        "20": 3436083.3
+      },
+      "process_median_min_ns": 3436083.3,
+      "process_median_max_ns": 3436083.3
+    },
+    {
+      "workload": "json-text-input-edit-text-output",
+      "size": 512,
+      "lane": "ink-json-text-pipeline",
+      "median_ns_per_call": 672672.2666666667,
+      "process_medians_ns": {
+        "20": 672672.2666666667
+      },
+      "process_median_min_ns": 672672.2666666667,
+      "process_median_max_ns": 672672.2666666667
+    },
+    {
+      "workload": "known-edit-immutable",
+      "size": 4,
+      "lane": "frontier-immutable-known-patch",
+      "median_ns_per_call": 54.160493827160494,
+      "process_medians_ns": {
+        "20": 54.160493827160494
+      },
+      "process_median_min_ns": 54.160493827160494,
+      "process_median_max_ns": 54.160493827160494
+    },
+    {
+      "workload": "known-edit-immutable",
+      "size": 4,
+      "lane": "ink-js-compiled-json-set",
+      "median_ns_per_call": 639.8204068658614,
+      "process_medians_ns": {
+        "20": 639.8204068658614
+      },
+      "process_median_min_ns": 639.8204068658614,
+      "process_median_max_ns": 639.8204068658614
+    },
+    {
+      "workload": "known-edit-immutable",
+      "size": 64,
+      "lane": "frontier-immutable-known-patch",
+      "median_ns_per_call": 2033.2987987987988,
+      "process_medians_ns": {
+        "20": 2033.2987987987988
+      },
+      "process_median_min_ns": 2033.2987987987988,
+      "process_median_max_ns": 2033.2987987987988
+    },
+    {
+      "workload": "known-edit-immutable",
+      "size": 64,
+      "lane": "ink-js-compiled-json-set",
+      "median_ns_per_call": 1396.949631055502,
+      "process_medians_ns": {
+        "20": 1396.949631055502
+      },
+      "process_median_min_ns": 1396.949631055502,
+      "process_median_max_ns": 1396.949631055502
+    },
+    {
+      "workload": "known-edit-immutable",
+      "size": 512,
+      "lane": "frontier-immutable-known-patch",
+      "median_ns_per_call": 79705.95238095238,
+      "process_medians_ns": {
+        "20": 79705.95238095238
+      },
+      "process_median_min_ns": 79705.95238095238,
+      "process_median_max_ns": 79705.95238095238
+    },
+    {
+      "workload": "known-edit-immutable",
+      "size": 512,
+      "lane": "ink-js-compiled-json-set",
+      "median_ns_per_call": 3355.4255813953487,
+      "process_medians_ns": {
+        "20": 3355.4255813953487
+      },
+      "process_median_min_ns": 3355.4255813953487,
+      "process_median_max_ns": 3355.4255813953487
+    },
+    {
+      "workload": "mixed",
+      "size": 4096,
+      "lane": "frontier-core-diff",
+      "median_ns_per_call": 1503800.78125,
+      "process_medians_ns": {
+        "20": 1503800.78125
+      },
+      "process_median_min_ns": 1503800.78125,
+      "process_median_max_ns": 1503800.78125
+    },
+    {
+      "workload": "mixed",
+      "size": 4096,
+      "lane": "frontier-core-dirty",
+      "median_ns_per_call": 709034.8359375,
+      "process_medians_ns": {
+        "20": 709034.8359375
+      },
+      "process_median_min_ns": 709034.8359375,
+      "process_median_max_ns": 709034.8359375
+    },
+    {
+      "workload": "mixed",
+      "size": 4096,
+      "lane": "frontier-core-patch",
+      "median_ns_per_call": 137083.8203125,
+      "process_medians_ns": {
+        "20": 137083.8203125
+      },
+      "process_median_min_ns": 137083.8203125,
+      "process_median_max_ns": 137083.8203125
+    },
+    {
+      "workload": "mixed",
+      "size": 4096,
+      "lane": "frontier-state-main-commit",
+      "median_ns_per_call": 1611102.2109375,
+      "process_medians_ns": {
+        "20": 1611102.2109375
+      },
+      "process_median_min_ns": 1611102.2109375,
+      "process_median_max_ns": 1611102.2109375
+    },
+    {
+      "workload": "mixed",
+      "size": 4096,
+      "lane": "frontier-state-main-patch",
+      "median_ns_per_call": 139602.375,
+      "process_medians_ns": {
+        "20": 139602.375
+      },
+      "process_median_min_ns": 139602.375,
+      "process_median_max_ns": 139602.375
+    },
+    {
+      "workload": "mixed",
+      "size": 4096,
+      "lane": "frontier-state-main-prepared-patch",
+      "median_ns_per_call": 138636.5546875,
+      "process_medians_ns": {
+        "20": 138636.5546875
+      },
+      "process_median_min_ns": 138636.5546875,
+      "process_median_max_ns": 138636.5546875
+    },
+    {
+      "workload": "mixed",
+      "size": 4096,
+      "lane": "frontier-state-release-commit",
+      "median_ns_per_call": 1525761.390625,
+      "process_medians_ns": {
+        "20": 1525761.390625
+      },
+      "process_median_min_ns": 1525761.390625,
+      "process_median_max_ns": 1525761.390625
+    },
+    {
+      "workload": "mixed",
+      "size": 4096,
+      "lane": "frontier-state-release-patch",
+      "median_ns_per_call": 136426.59765625,
+      "process_medians_ns": {
+        "20": 136426.59765625
+      },
+      "process_median_min_ns": 136426.59765625,
+      "process_median_max_ns": 136426.59765625
+    },
+    {
+      "workload": "mixed",
+      "size": 4096,
+      "lane": "ink-js",
+      "median_ns_per_call": 43878.091796875,
+      "process_medians_ns": {
+        "20": 43878.091796875
+      },
+      "process_median_min_ns": 43878.091796875,
+      "process_median_max_ns": 43878.091796875
+    },
+    {
+      "workload": "mixed",
+      "size": 4096,
+      "lane": "ink-js-bound",
+      "median_ns_per_call": 45900.8453125,
+      "process_medians_ns": {
+        "20": 45900.8453125
+      },
+      "process_median_min_ns": 45900.8453125,
+      "process_median_max_ns": 45900.8453125
+    },
+    {
+      "workload": "mixed",
+      "size": 4096,
+      "lane": "ink-js-db-indexed",
+      "median_ns_per_call": 39505.59303977273,
+      "process_medians_ns": {
+        "20": 39505.59303977273
+      },
+      "process_median_min_ns": 39505.59303977273,
+      "process_median_max_ns": 39505.59303977273
+    },
+    {
+      "workload": "mixed",
+      "size": 4096,
+      "lane": "ink-js-prepared",
+      "median_ns_per_call": 43382.59375,
+      "process_medians_ns": {
+        "20": 43382.59375
+      },
+      "process_median_min_ns": 43382.59375,
+      "process_median_max_ns": 43382.59375
+    },
+    {
+      "workload": "read-heavy",
+      "size": 4096,
+      "lane": "frontier-core-diff",
+      "median_ns_per_call": 806605.7604166666,
+      "process_medians_ns": {
+        "20": 806605.7604166666
+      },
+      "process_median_min_ns": 806605.7604166666,
+      "process_median_max_ns": 806605.7604166666
+    },
+    {
+      "workload": "read-heavy",
+      "size": 4096,
+      "lane": "frontier-core-dirty",
+      "median_ns_per_call": 609265.3333333334,
+      "process_medians_ns": {
+        "20": 609265.3333333334
+      },
+      "process_median_min_ns": 609265.3333333334,
+      "process_median_max_ns": 609265.3333333334
+    },
+    {
+      "workload": "read-heavy",
+      "size": 4096,
+      "lane": "frontier-core-patch",
+      "median_ns_per_call": 436865.59375,
+      "process_medians_ns": {
+        "20": 436865.59375
+      },
+      "process_median_min_ns": 436865.59375,
+      "process_median_max_ns": 436865.59375
+    },
+    {
+      "workload": "read-heavy",
+      "size": 4096,
+      "lane": "frontier-state-main-commit",
+      "median_ns_per_call": 795759.1145833334,
+      "process_medians_ns": {
+        "20": 795759.1145833334
+      },
+      "process_median_min_ns": 795759.1145833334,
+      "process_median_max_ns": 795759.1145833334
+    },
+    {
+      "workload": "read-heavy",
+      "size": 4096,
+      "lane": "frontier-state-main-patch",
+      "median_ns_per_call": 406140.625,
+      "process_medians_ns": {
+        "20": 406140.625
+      },
+      "process_median_min_ns": 406140.625,
+      "process_median_max_ns": 406140.625
+    },
+    {
+      "workload": "read-heavy",
+      "size": 4096,
+      "lane": "frontier-state-main-prepared-patch",
+      "median_ns_per_call": 425497.97222222225,
+      "process_medians_ns": {
+        "20": 425497.97222222225
+      },
+      "process_median_min_ns": 425497.97222222225,
+      "process_median_max_ns": 425497.97222222225
+    },
+    {
+      "workload": "read-heavy",
+      "size": 4096,
+      "lane": "frontier-state-release-commit",
+      "median_ns_per_call": 824024.3055555555,
+      "process_medians_ns": {
+        "20": 824024.3055555555
+      },
+      "process_median_min_ns": 824024.3055555555,
+      "process_median_max_ns": 824024.3055555555
+    },
+    {
+      "workload": "read-heavy",
+      "size": 4096,
+      "lane": "frontier-state-release-patch",
+      "median_ns_per_call": 409046.15277777775,
+      "process_medians_ns": {
+        "20": 409046.15277777775
+      },
+      "process_median_min_ns": 409046.15277777775,
+      "process_median_max_ns": 409046.15277777775
+    },
+    {
+      "workload": "read-heavy",
+      "size": 4096,
+      "lane": "ink-js",
+      "median_ns_per_call": 139941.26388888888,
+      "process_medians_ns": {
+        "20": 139941.26388888888
+      },
+      "process_median_min_ns": 139941.26388888888,
+      "process_median_max_ns": 139941.26388888888
+    },
+    {
+      "workload": "read-heavy",
+      "size": 4096,
+      "lane": "ink-js-bound",
+      "median_ns_per_call": 152000.14583333334,
+      "process_medians_ns": {
+        "20": 152000.14583333334
+      },
+      "process_median_min_ns": 152000.14583333334,
+      "process_median_max_ns": 152000.14583333334
+    },
+    {
+      "workload": "read-heavy",
+      "size": 4096,
+      "lane": "ink-js-db-indexed",
+      "median_ns_per_call": 6867.975308641975,
+      "process_medians_ns": {
+        "20": 6867.975308641975
+      },
+      "process_median_min_ns": 6867.975308641975,
+      "process_median_max_ns": 6867.975308641975
+    },
+    {
+      "workload": "read-heavy",
+      "size": 4096,
+      "lane": "ink-js-prepared",
+      "median_ns_per_call": 140912.18055555556,
+      "process_medians_ns": {
+        "20": 140912.18055555556
+      },
+      "process_median_min_ns": 140912.18055555556,
+      "process_median_max_ns": 140912.18055555556
+    },
+    {
+      "workload": "replace",
+      "size": 4096,
+      "lane": "frontier-core-diff",
+      "median_ns_per_call": 1567792.328125,
+      "process_medians_ns": {
+        "20": 1567792.328125
+      },
+      "process_median_min_ns": 1567792.328125,
+      "process_median_max_ns": 1567792.328125
+    },
+    {
+      "workload": "replace",
+      "size": 4096,
+      "lane": "frontier-core-dirty",
+      "median_ns_per_call": 703543.609375,
+      "process_medians_ns": {
+        "20": 703543.609375
+      },
+      "process_median_min_ns": 703543.609375,
+      "process_median_max_ns": 703543.609375
+    },
+    {
+      "workload": "replace",
+      "size": 4096,
+      "lane": "frontier-core-patch",
+      "median_ns_per_call": 763.261811023622,
+      "process_medians_ns": {
+        "20": 763.261811023622
+      },
+      "process_median_min_ns": 763.261811023622,
+      "process_median_max_ns": 763.261811023622
+    },
+    {
+      "workload": "replace",
+      "size": 4096,
+      "lane": "frontier-state-main-commit",
+      "median_ns_per_call": 1577742.1875,
+      "process_medians_ns": {
+        "20": 1577742.1875
+      },
+      "process_median_min_ns": 1577742.1875,
+      "process_median_max_ns": 1577742.1875
+    },
+    {
+      "workload": "replace",
+      "size": 4096,
+      "lane": "frontier-state-main-patch",
+      "median_ns_per_call": 710.7342192691029,
+      "process_medians_ns": {
+        "20": 710.7342192691029
+      },
+      "process_median_min_ns": 710.7342192691029,
+      "process_median_max_ns": 710.7342192691029
+    },
+    {
+      "workload": "replace",
+      "size": 4096,
+      "lane": "frontier-state-main-prepared-patch",
+      "median_ns_per_call": 421.14574878246754,
+      "process_medians_ns": {
+        "20": 421.14574878246754
+      },
+      "process_median_min_ns": 421.14574878246754,
+      "process_median_max_ns": 421.14574878246754
+    },
+    {
+      "workload": "replace",
+      "size": 4096,
+      "lane": "frontier-state-release-commit",
+      "median_ns_per_call": 1553284.515625,
+      "process_medians_ns": {
+        "20": 1553284.515625
+      },
+      "process_median_min_ns": 1553284.515625,
+      "process_median_max_ns": 1553284.515625
+    },
+    {
+      "workload": "replace",
+      "size": 4096,
+      "lane": "frontier-state-release-patch",
+      "median_ns_per_call": 679.4649920886076,
+      "process_medians_ns": {
+        "20": 679.4649920886076
+      },
+      "process_median_min_ns": 679.4649920886076,
+      "process_median_max_ns": 679.4649920886076
+    },
+    {
+      "workload": "replace",
+      "size": 4096,
+      "lane": "ink-js",
+      "median_ns_per_call": 2584.0398936170213,
+      "process_medians_ns": {
+        "20": 2584.0398936170213
+      },
+      "process_median_min_ns": 2584.0398936170213,
+      "process_median_max_ns": 2584.0398936170213
+    },
+    {
+      "workload": "replace",
+      "size": 4096,
+      "lane": "ink-js-bound",
+      "median_ns_per_call": 2678.2125276548672,
+      "process_medians_ns": {
+        "20": 2678.2125276548672
+      },
+      "process_median_min_ns": 2678.2125276548672,
+      "process_median_max_ns": 2678.2125276548672
+    },
+    {
+      "workload": "replace",
+      "size": 4096,
+      "lane": "ink-js-db-indexed",
+      "median_ns_per_call": 20970.8125,
+      "process_medians_ns": {
+        "20": 20970.8125
+      },
+      "process_median_min_ns": 20970.8125,
+      "process_median_max_ns": 20970.8125
+    },
+    {
+      "workload": "replace",
+      "size": 4096,
+      "lane": "ink-js-prepared",
+      "median_ns_per_call": 881.815625,
+      "process_medians_ns": {
+        "20": 881.815625
+      },
+      "process_median_min_ns": 881.815625,
+      "process_median_max_ns": 881.815625
+    },
+    {
+      "workload": "snapshot-difference-and-immutable-apply",
+      "size": 4,
+      "lane": "frontier-dirty-diff-and-apply",
+      "median_ns_per_call": 319.40451745379875,
+      "process_medians_ns": {
+        "20": 319.40451745379875
+      },
+      "process_median_min_ns": 319.40451745379875,
+      "process_median_max_ns": 319.40451745379875
+    },
+    {
+      "workload": "snapshot-difference-and-immutable-apply",
+      "size": 4,
+      "lane": "frontier-full-diff-and-apply",
+      "median_ns_per_call": 425.73851203501096,
+      "process_medians_ns": {
+        "20": 425.73851203501096
+      },
+      "process_median_min_ns": 425.73851203501096,
+      "process_median_max_ns": 425.73851203501096
+    },
+    {
+      "workload": "snapshot-difference-and-immutable-apply",
+      "size": 64,
+      "lane": "frontier-dirty-diff-and-apply",
+      "median_ns_per_call": 2316.54705586311,
+      "process_medians_ns": {
+        "20": 2316.54705586311
+      },
+      "process_median_min_ns": 2316.54705586311,
+      "process_median_max_ns": 2316.54705586311
+    },
+    {
+      "workload": "snapshot-difference-and-immutable-apply",
+      "size": 64,
+      "lane": "frontier-full-diff-and-apply",
+      "median_ns_per_call": 4415.3026584867075,
+      "process_medians_ns": {
+        "20": 4415.3026584867075
+      },
+      "process_median_min_ns": 4415.3026584867075,
+      "process_median_max_ns": 4415.3026584867075
+    },
+    {
+      "workload": "snapshot-difference-and-immutable-apply",
+      "size": 512,
+      "lane": "frontier-dirty-diff-and-apply",
+      "median_ns_per_call": 75156.9009009009,
+      "process_medians_ns": {
+        "20": 75156.9009009009
+      },
+      "process_median_min_ns": 75156.9009009009,
+      "process_median_max_ns": 75156.9009009009
+    },
+    {
+      "workload": "snapshot-difference-and-immutable-apply",
+      "size": 512,
+      "lane": "frontier-full-diff-and-apply",
+      "median_ns_per_call": 171886.30508474575,
+      "process_medians_ns": {
+        "20": 171886.30508474575
+      },
+      "process_median_min_ns": 171886.30508474575,
+      "process_median_max_ns": 171886.30508474575
+    }
+  ],
+  "sizes": [
+    {
+      "fields": 4,
+      "json_bytes": 102,
+      "ink_document_bytes": 497,
+      "frontier_patch_bytes": 20,
+      "ink_update_bytes": 84
+    },
+    {
+      "fields": 64,
+      "json_bytes": 816,
+      "ink_document_bytes": 3071,
+      "frontier_patch_bytes": 20,
+      "ink_update_bytes": 84
+    },
+    {
+      "fields": 512,
+      "json_bytes": 6604,
+      "ink_document_bytes": 22747,
+      "frontier_patch_bytes": 20,
+      "ink_update_bytes": 84
+    }
+  ],
+  "aggregation": "Median of per-process medians of rotated timing rounds",
+  "limits": [
+    "Shared development host; no exclusive CPU reservation",
+    "Database indexed state is a supplied checked alternative, not the default selection",
+    "JSON binary and Frontier patch formats have different contracts",
+    "No equivalent startup or peak-memory ranking; no general Ink JSON snapshot diff"
+  ]
+}

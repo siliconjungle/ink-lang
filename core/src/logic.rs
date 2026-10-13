@@ -368,6 +368,18 @@ impl Context {
         from: &Term,
         to: &Term,
     ) -> LangResult<crate::bitproof::Problem> {
+        self.bitvector_problem_with_encoding(
+            params, conditions, from, to, crate::bitproof::Encoding::LiteralV1,
+        )
+    }
+    pub fn bitvector_problem_with_encoding(
+        &self,
+        params: &[(String, Sort)],
+        conditions: &[Equation],
+        from: &Term,
+        to: &Term,
+        encoding: crate::bitproof::Encoding,
+    ) -> LangResult<crate::bitproof::Problem> {
         let env = self.env(params)?;
         let mut budget = Budget::new();
         if conditions.len() > 64 {
@@ -386,7 +398,7 @@ impl Context {
             self,
             &mut budget,
         )?;
-        crate::bitproof::problem(&env, &conditions, &goal)
+        crate::bitproof::problem_with_encoding(&env, &conditions, &goal, encoding)
     }
     /// Read-only correspondence check against a previously checked direct import.
     /// Does not install declarations or extend the trusted set of equalities.
@@ -762,6 +774,13 @@ pub fn f32_primitive(op: &str, a: u64, b: u64) -> LangResult<Term> {
         "f32:+" => Term::U64(canonical_f32_bits(x + y) as u64),
         "f32:-" => Term::U64(canonical_f32_bits(x - y) as u64),
         "f32:*" => Term::U64(canonical_f32_bits(x * y) as u64),
+        "f32:sqrt" => Term::U64(crate::primitives::sqrt_bits(a as u32) as u64),
+        "f32:div" => Term::U64(canonical_f32_bits(x / y) as u64),
+        "f32:floor" => Term::U64(canonical_f32_bits(x.floor()) as u64),
+        "f32:ceil" => Term::U64(canonical_f32_bits(x.ceil()) as u64),
+        "f32:trunc" => Term::U64(canonical_f32_bits(x.trunc()) as u64),
+        "f32:round_ties_even" => Term::U64(canonical_f32_bits(x.round_ties_even()) as u64),
+        "f32:is_nan" => Term::Bool(x.is_nan()),"f32:is_finite" => Term::Bool(x.is_finite()),
         "f32:neg" => Term::U64((a as u32 ^ 0x80000000) as u64),
         "f32:==" => Term::Bool(x == y),
         "f32:!=" => Term::Bool(x != y),
@@ -778,8 +797,8 @@ fn primitive(op: &str, left: &Sort, right: &Sort) -> LangResult<Sort> {
     }
     if op.starts_with("f32:") && *left == Sort::U64 {
         return match &op[4..] {
-            "+" | "-" | "*" | "neg" => Ok(Sort::U64),
-            "==" | "!=" | "<" | "<=" | ">" | ">=" => Ok(Sort::Bool),
+            "+" | "-" | "*" | "neg" | "sqrt" | "div" | "floor" | "ceil" | "trunc" | "round_ties_even" => Ok(Sort::U64),
+            "==" | "!=" | "<" | "<=" | ">" | ">=" | "is_nan" | "is_finite" => Ok(Sort::Bool),
             _ => Err("unsupported binary32 primitive".into()),
         };
     }
@@ -2741,10 +2760,11 @@ fn derive(
                 .into_iter()
                 .map(|e| normalize_pair(e, c, budget))
                 .collect::<LangResult<Vec<_>>>()?;
-            let problem = crate::bitproof::problem_with_work(
+            let problem = crate::bitproof::problem_with_encoding_and_work(
                 env,
                 &premises,
                 &computed,
+                certificate.encoding,
                 &mut budget.bit_work,
             )?;
             crate::bitproof::verify_with_work(&problem, certificate, &mut budget.bit_work)?;

@@ -227,7 +227,7 @@ mod parity;
 fn asynchronous_parallel_transactions_publish_atomically_and_roll_back() {
     let source = format!(
         "{}\n{}",
-        include_str!("../examples/bend-inspired.ink"),
+        include_str!("../examples/parallel-execution.ink"),
         r#"
 enum Error {Stopped,}
 state Batches:Table<u64,u32> =Table.empty();
@@ -408,10 +408,10 @@ fn sealed_numeric_primitives_execute_identically_on_every_cpu_target() {
     let mut functions = vec![];
     for op in [
         "f32:+", "f32:-", "f32:*", "f32:neg", "f32:==", "f32:!=", "f32:<", "f32:<=", "f32:>",
-        "f32:>=", "quot", "rem", "&",
+        "f32:>=", "f32:sqrt", "f32:div", "f32:floor", "f32:ceil", "f32:trunc", "f32:round_ties_even", "f32:is_nan", "f32:is_finite", "quot", "rem", "&",
     ] {
         let compare =
-            op.starts_with("f32:") && !matches!(op, "f32:+" | "f32:-" | "f32:*" | "f32:neg");
+            matches!(op,"f32:=="|"f32:!="|"f32:<"|"f32:<="|"f32:>"|"f32:>="|"f32:is_nan"|"f32:is_finite");
         let object = Object {
             schema: 1,
             semantics: library::SEMANTICS.into(),

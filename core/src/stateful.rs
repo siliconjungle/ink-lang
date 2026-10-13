@@ -594,6 +594,7 @@ impl Runtime {
         }
     }
     fn builtin(&mut self, n: &str, vals: Vec<Value>, result_type: &Type) -> Exec<Value> {
+        if crate::primitives::primitive(n) { return Ok(crate::primitives::evaluate(n,&vals)?); }
         if crate::word::primitive(n) {
             return Ok(crate::word::evaluate(n, &vals)?);
         }

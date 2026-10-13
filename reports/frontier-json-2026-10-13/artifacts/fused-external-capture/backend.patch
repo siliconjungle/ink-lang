@@ -1,0 +1,116 @@
+diff --git a/src/compiled_values.mjs b/src/compiled_values.mjs
+index 9ac3ef0..9c963a5 100644
+--- a/src/compiled_values.mjs
++++ b/src/compiled_values.mjs
+@@ -12,13 +12,12 @@ function __compiledUnwrap(handle,identity){
+  return entry.value;
+ }
+ function __compiledCodec(schema,capture,read,write,copy){
+- const publicCodec=new ValueCodec(schema),privateCodec=createCompiledValueCodec(schema,read);
++ const privateCodec=createCompiledValueCodec(schema,read),publicCodec=privateCodec;
+  const identity=schema.identity;
+  const codec=Object.freeze({
+   identity,
+   capture(value,limits={}){
+-   const owned=publicCodec.capture(value,limits);
+-   return __compiledHandle(identity,capture(owned,new WeakMap()));
++   return __compiledHandle(identity,capture(value,createValueCaptureBudget(limits),0));
+   },
+   decode(bytes,limits={}){return __compiledHandle(identity,privateCodec.decode(bytes,limits));},
+   decodeCompact(bytes,limits={}){return __compiledHandle(identity,privateCodec.compact().decode(bytes,limits));},
+@@ -26,7 +25,7 @@ function __compiledCodec(schema,capture,read,write,copy){
+   encodeCompact(handle,limits={}){const value=__compiledUnwrap(handle,identity);return publicCodec.compact().encodeWith(writer=>write(writer,value,true),limits);},
+   materialize(handle,limits={}){return copy(__compiledUnwrap(handle,identity),createValueCaptureBudget(limits),0);},
+  });
+- __compiledBindings.set(codec,{publicCodec,write});return codec;
++ __compiledBindings.set(codec,{publicCodec,write,capture});return codec;
+ }
+ 
+ function __compiledEncodeResult(entry,value,limits,compact){
+diff --git a/src/compiled_values.rs b/src/compiled_values.rs
+index 5f8ba8b..c91a756 100644
+--- a/src/compiled_values.rs
++++ b/src/compiled_values.rs
+@@ -98,7 +98,6 @@ pub(super) fn emit(
+     p: &Program,
+     elisions: &BTreeSet<String>,
+     native_f32: bool,
+-    conversion: bool,
+ ) -> LangResult<String> {
+     let named = p
+         .records
+@@ -110,6 +109,7 @@ pub(super) fn emit(
+             ))
+         })
+         .collect::<LangResult<BTreeMap<_, _>>>()?;
++    let mut capture = super::value_capture::Captures::new(elisions, native_f32);
+     let mut read = super::wire_values::WireValues::private(elisions, native_f32);
+     let mut owned = super::owned_values::OwnedValues::private(p, elisions, native_f32);
+     let mut write = Writers {
+@@ -154,11 +154,7 @@ pub(super) fn emit(
+             let name = format!("__compiledCodec{}", roots.len());
+             // Factories remain lazy so unused exported value boundaries do not
+             // eagerly construct recursive codecs at module initialization.
+-            let capture = if conversion {
+-                format!("__representation({logical},false,true)")
+-            } else {
+-                "value=>value".into()
+-            };
++            let capture = capture.compile(&schema["root"], &schema["named"])?;
+             definitions.push_str(&format!("let {name}Value;function {name}(){{return {name}Value??=__compiledCodec({schema},{capture},{reader},{writer},{copy});}}\n"));
+             roots.insert(key, name.clone());
+             codecs.push(name);
+@@ -184,7 +180,8 @@ pub(super) fn emit(
+                 .unwrap_or("null".into())
+         ));
+     }
+-    let mut source = read.source()
++    let mut source = capture.source()
++        + &read.source()
+         + &owned
+             .source()
+             .replace("__ownedValue", "__compiledOwnedValue");
+diff --git a/src/lib.rs b/src/lib.rs
+index 170dbd9..69895cc 100644
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -16,6 +16,7 @@ mod value_layout;
+ mod owned_values;
+ mod wire_values;
+ mod compiled_values;
++mod value_capture;
+ mod primitives;
+ type Env = BTreeMap<String, (String, Type)>;
+ fn quote(s: &str) -> String {
+@@ -1703,7 +1704,7 @@ export function callOwned(name,args,limits={}){
+  const result=__ownedImplementations[name](...args);return __ownedFunctions[name](result,createValueCaptureBudget(limits),0);
+ }
+ "#);
+-    javascript.push_str(&compiled_values::emit(p,elisions,native_f32,needs_conversion)?);
++    javascript.push_str(&compiled_values::emit(p,elisions,native_f32)?);
+     for (i, f) in p.functions.iter().enumerate() {
+         if matches!(f.result, Type::List(_))
+             && (!elisions.is_empty() || interface["functions"][i]["result"]["element"]
+diff --git a/tests/record_elision.rs b/tests/record_elision.rs
+index 0437dc2..2ea5923 100644
+--- a/tests/record_elision.rs
++++ b/tests/record_elision.rs
+@@ -134,7 +134,7 @@ fn eq(a:Packet,b:Packet)->Bool{return a==b;}
+     assert_eq!(selected.manifest["wire"], ordinary.manifest["wire"]);
+     let dir = std::env::temp_dir().join(format!("ink-record-elision-{}", std::process::id()));
+     fs::create_dir_all(&dir).unwrap();
+-    let extra="\nexport {__stateMetadata,__stateInputCaptures};export function captureProbe(value,cells,depth){const a=__stateMetadata.actions.find(a=>a.name==='echo'),budget={cells};try {const owned=__stateInputCaptures[a.index][0](value,budget,depth);return {value:__stateOutput(owned,a.params[0].type),cells:budget.cells};}catch(e){return {error:e.message,cells:budget.cells};}}";
++    let extra="\nexport {__stateMetadata,__stateInputCaptures};export function wireCaptureProbe(value,limits,literal){const codec=compiledValues.identity.params[0];let budget;try {budget=createValueCaptureBudget(limits);const owned=literal?__compiledBindings.get(codec).capture(value,budget,0):wireCapturePlan(wireValuePlan(valueCodecs.identity.result)).capture(value,budget,0);const result=literal?codec.materialize(__compiledHandle(codec.identity,owned)):owned;return {value:result,remaining:budget.remaining,bytes:budget.bytes};}catch(e){return {error:e.message,remaining:budget?.remaining,bytes:budget?.bytes};}}export function captureProbe(value,cells,depth){const a=__stateMetadata.actions.find(a=>a.name==='echo'),budget={cells};try {const owned=__stateInputCaptures[a.index][0](value,budget,depth);return {value:__stateOutput(owned,a.params[0].type),cells:budget.cells};}catch(e){return {error:e.message,cells:budget.cells};}}";
+     fs::write(dir.join("private.mjs"), selected.javascript + extra).unwrap();
+     fs::write(dir.join("ordinary.mjs"), ordinary.javascript + extra).unwrap();
+     fs::write(dir.join("test.mjs"),r#"
+@@ -173,6 +173,9 @@ for(const limits of [{values:0},{values:2},{depth:0},{depth:2},{bytes:200}]){con
+ const c=ink.compiledValues.collision,collisionResult=ink.callCompiled('collision',[c.params[0].capture({value:3}),c.params[1].capture(4)]);assert.equal(c.result.materialize(collisionResult),7);const collisionBytes=ink.valueCodecs.collision.arguments.encode({value:{value:3},other:4});assert.deepEqual(ink.callBinary('collision',collisionBytes),plain.callBinary('collision',collisionBytes));
+ const inputCodec=ink.compiledValues.identity.params[0],resultCodec=ink.compiledValues.identity.result;
+ const inputHandle=inputCodec.capture(packet),resultHandle=ink.callCompiled('identity',[inputHandle]);
++for(const value of [...invalid,{...packet,extra:1},{...packet,exact:{value:{Int:'-0'}}},{...packet,proto:{['__proto__']:'\ud800'}},{...packet,float:{value:Infinity}}])for(const limits of [{nodes:0},{nodes:1},{nodes:2},{nodes:5},{nodes:20},{nodes:1000000},{depth:0},{depth:1},{depth:3},{depth:128},{bytes:0},{bytes:40},{bytes:41},{bytes:50},{bytes:200},{bytes:16777216}])assert.deepEqual(ink.wireCaptureProbe(value,limits,true),ink.wireCaptureProbe(value,limits,false));
++for(const limits of [{nodes:1},{nodes:2},{nodes:10},{nodes:1000000},{bytes:40},{bytes:100},{depth:2}]){const trace=literal=>{const reads=[],host={};for(const key of Object.keys(packet))Object.defineProperty(host,key,{enumerable:true,get(){reads.push(key);return packet[key];}});return {result:ink.wireCaptureProbe(host,limits,literal),reads};};assert.deepEqual(trace(true),trace(false));}
++
+ assert.equal(Object.isFrozen(inputHandle),true);assert.equal(Object.getPrototypeOf(inputHandle),null);assert.deepEqual(Object.keys(inputHandle),[]);
+ assert.deepEqual(resultCodec.materialize(resultHandle),p);
+ const publicReply=resultCodec.materialize(resultHandle);publicReply.pair.first.value.value.words[0]=88;assert.equal(resultCodec.materialize(resultHandle).pair.first.value.value.words[0],1);

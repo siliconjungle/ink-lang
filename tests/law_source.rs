@@ -389,3 +389,35 @@ fn simultaneous_join_deltas_retain_the_cross_term_and_signed_deletions_cancel() 
     assert!(author("module wrong;law missing_cross(){foldr(list(1),Int(0),fn(x,acc)=>foldr(list(1),Int(0),fn(y,a)=>Int(1)+a)+acc)==Int(0);}").is_err());
     assert!(author("module wrong;law wrong_sign(){Int(7)+Int(7)==Int(0);}").is_err());
 }
+
+#[test]
+fn order_analysis_is_an_authored_tactic() {
+    let ok = author(
+        "module m;\nfn max(x: u32, y: u32) -> u32 { return choose(x > y, x, y); }\n\
+         law max_swap(a: u32, b: u32, s: u32) {\n  max(a, max(b, s)) == max(b, max(a, s));\n  proof by order(a, b, s) then normalize;\n}\n\
+         law clamp_bound(x: i32, lo: i32, hi: i32) {\n  requires lo <= hi;\n  choose(choose(x < lo, lo, x) > hi, hi, choose(x < lo, lo, x)) <= hi == true;\n  proof by order(x, lo, hi) then normalize;\n}\n",
+    )
+    .unwrap();
+    let c = catalogue(&ok);
+    for name in ["max_swap", "clamp_bound"] {
+        let law = &c.objects[&ok.names[name]];
+        assert_eq!(law.semantics, laws::GENERAL_SEMANTICS, "a new proof form carries the newer marker");
+        assert!(matches!(law.proof, laws::Proof::Order { .. }));
+    }
+    // Without transitivity normalisation alone fails, and a false claim
+    // fails in some ordering.
+    rejects(
+        "module m;\nfn max(x: u32, y: u32) -> u32 { return choose(x > y, x, y); }\n\
+         law max_swap(a: u32, b: u32, s: u32) {\n  max(a, max(b, s)) == max(b, max(a, s));\n  proof by normalize;\n}\n",
+        "semantic normal forms differ",
+    );
+    rejects(
+        "module m;\nfn max(x: u32, y: u32) -> u32 { return choose(x > y, x, y); }\n\
+         law max_drop(a: u32, b: u32, s: u32) {\n  max(a, max(b, s)) == max(a, s);\n  proof by order(a, b, s) then normalize;\n}\n",
+        "semantic normal forms differ",
+    );
+    rejects(
+        "module m;\nlaw floats(a: f32, b: f32) {\n  choose(a > b, a, b) == choose(b < a, a, b);\n  proof by order(a, b) then normalize;\n}\n",
+        "words or exact Int",
+    );
+}

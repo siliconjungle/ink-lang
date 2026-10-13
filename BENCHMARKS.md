@@ -10,6 +10,24 @@ machine and workload. Archived inputs/results remain immutable. A ratio from one
 call boundary cannot rank another. Read [the methodology](docs/benchmark-methodology.md)
 and each report's limits before interpreting a headline.
 
+## Frontier state and JSON boundaries
+
+[The matched state/JSON comparison](reports/frontier-json-2026-10-13/README.md)
+retains complete replies, rollback, versions, events and exact Ink checkpoints.
+In the integrated three-process JavaScript cohort, mixed state is 3.18× faster
+than the frozen Frontier main control, and a supplied checked indexed alternative
+is 67.1× faster on the 4096-row read-heavy fixture. Ordinary row replacement is
+3.77× slower. The indexed plan is not the automatic default and makes updates
+more expensive. A plain source query, rather than a scalar keep, is measured.
+
+Retained 512-field JSON editing is 11.5× faster in that cohort; text → edit → text
+is 9.68× slower. Full binary conversion is measured separately and remains slower.
+Subsequent codec experiments reduce redundant schema/encoding work. Optional
+agreed-schema transport reduces the update from 84 to 15 bytes, versus Frontier's
+20-byte patch, with distinct protocol contracts. Startup and peak memory are not
+yet ranked; this does not establish all-metrics superiority. Raw samples,
+fingerprints, rejected candidates and shared-host variation remain in the report.
+
 ## Reusable law growth and complete execution
 
 [The latest proof-growth study](docs/proof-growth-epoch3.md) grows reusable pipeline
@@ -22,6 +40,26 @@ Those selected source kernels are not a population estimate for arbitrary softwa
 The report retains acquisition boundaries, complete-call costs, compiler effects,
 forced alternatives and adverse cells. [The preceding broad study](docs/broad-performance-research.md)
 separately diagnoses conversion, proof loading and discovery costs.
+
+## Real upstream kernels and compilation cost
+
+[The frozen real-kernel follow-up](reports/real-software-delivery-2026-10-13/README.md)
+uses separate development and held-out sources from D3, Earcut, Three.js,
+gl-matrix and CodeMirror. Twenty-eight newly checked objects produce no new
+selected implementation across five executable held-out kernels; every emitted
+artifact remains the literal baseline. A sixth string-length port is unsupported
+in that measured pre-JSON compiler. All 228 upstream/reference comparisons pass.
+The upstream control cohort is mixed: D3 max and Earcut are faster in Ink, while
+float-heavy calls are much slower; internal float conversion costs are diagnosed
+separately. This is a bounded kernel study, not a library or population ranking.
+
+Development profiling also exposes compact Merkle-tree publication cost. Repacking
+the same canonical IDs with the existing 64-entry leaf format reduces publication
+node calls from 41,297 to 1,085. Matching-source cold acquisitions improve, with
+shared-host/single-acquisition limitations retained. Complete repacked cold-build
+medians remain 35–52 seconds for quick and about 100 seconds for balanced; fifteen
+cached builds take a median 0.448 seconds with fresh proof replay. The report keeps
+partial compact results, every loss and setup/environment failures distinct.
 
 ## Frozen knowledge growth, 13 October 2026
 

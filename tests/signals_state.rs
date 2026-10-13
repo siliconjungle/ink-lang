@@ -36,6 +36,26 @@ fn run_node(path: &std::path::Path) {
         String::from_utf8_lossy(&out.stderr)
     );
 }
+
+#[test]
+fn scalar_bound_carriers_survive_publication_reentry_and_failures() {
+    let module=CheckedModule::from_source(parse(include_str!("../examples/filtered-aggregate.ink")).unwrap()).unwrap();
+    let mut code=verified_language::javascript::lower(&module).unwrap().javascript;
+    code.push_str(r#"
+import assert from 'node:assert/strict';
+const state=createState(),put=state.bind('put'),sum=state.bind('total_query',{resultOnly:true});
+let reentered=false;
+const close=state.subscribe('total_query',[],value=>{if(value===7n&&!reentered){reentered=true;put(2n,9n,true,false);}},{immediate:false});
+const outer=put(1n,7n,true,false);
+assert.equal(outer.version,1n);assert.deepEqual(outer.events,[{commit:1n,position:0n,channel:'seen',value:7n}]);
+assert.equal(state.version,2n);assert.equal(sum(),16n);
+assert.deepEqual(state.outbox.map(e=>[e.commit,e.value]),[[1n,7n],[2n,9n]]);
+assert.equal(put(1n,99n,false,true).committed,false);assert.equal(sum(),16n);
+assert.equal(put(1n,10n,true,false).version,3n);assert.equal(sum(),19n);
+close();
+"#);
+    let directory=dir("scalar-bound-reentry");fs::create_dir_all(&directory).unwrap();let path=directory.join("run.mjs");fs::write(&path,code).unwrap();run_node(&path);
+}
 #[test]
 fn scalar_keeps_retain_exact_values_across_actions_abort_restore_and_host_rollback() {
     let p = parse(SOURCE).unwrap();
@@ -105,6 +125,50 @@ const publicEvents=state.outbox;publicEvents.length=0;assert(state.outbox.length
     let path = dir.join("run.mjs");
     fs::write(&path, code).unwrap();
     run_node(&path);
+}
+
+#[test]
+fn compiled_subscriptions_preserve_commit_boundaries_ownership_and_listener_isolation() {
+    let module=CheckedModule::from_source(parse(SOURCE).unwrap()).unwrap();
+    let mut code=verified_language::javascript::lower(&module).unwrap().javascript;
+    code.push_str(r#"
+import assert from 'node:assert/strict';
+const state=createState(),seen=[],rows=[];
+const stop=state.subscribe('total_query',[],v=>seen.push(v));
+const stopRows=state.subscribe('rows',[],v=>{rows.push(v.map(r=>r.value));v.length=0;});
+assert.deepEqual(seen,[0n]);assert.deepEqual(rows,[[]]);
+state.invoke('other',[0n,9n]);assert.deepEqual(seen,[0n]);
+state.invoke('put',[0n,{value:11n,active:true}]);assert.deepEqual(seen,[0n,11n]);
+const snap=await state.checkpoint(),version=state.version,eventCount=state.outbox.length;
+state.invoke('observed_abort',[0n,{value:99n,active:false}]);
+assert.equal(state.version,version);assert.equal(state.outbox.length,eventCount);
+assert.deepEqual(seen,[0n,11n]);assert.deepEqual(rows,[[],[11n]]);
+state.batch(()=>{state.invoke('put',[0n,{value:12n,active:true}]);state.invoke('put',[0n,{value:11n,active:true}]);});
+assert.deepEqual(seen,[0n,11n]);assert.deepEqual(rows,[[],[11n]]);
+state.beginTransaction();state.invoke('put',[0n,{value:17n,active:true}]);
+assert.equal(state.bind('total_query',{resultOnly:true})(),17n);assert.deepEqual(seen,[0n,11n]);
+state.rollbackTransaction();assert.deepEqual(seen,[0n,11n]);assert.equal(state.bind('total_query',{resultOnly:true})(),11n);
+state.transaction(s=>{s.invoke('put',[0n,{value:13n,active:true}]);s.invoke('put',[1n,{value:4n,active:true}]);});
+assert.deepEqual(seen,[0n,11n,17n]);assert.deepEqual(rows.at(-1),[13n,4n]);
+const beforeRollback=await state.checkpoint();
+assert.throws(()=>state.transaction(s=>{s.invoke('put',[0n,{value:700n,active:true}]);throw Error('cancel');}),/cancel/);
+assert.deepEqual(await state.checkpoint(),beforeRollback);assert.deepEqual(seen,[0n,11n,17n]);
+assert.throws(()=>state.transaction(s=>{s.invoke('put',[0n,{value:700n,active:true}]);s.invoke('observed_abort',[1n,{value:88n,active:true}]);}),/transaction action failed/);
+assert.deepEqual(await state.checkpoint(),beforeRollback);assert.deepEqual(seen,[0n,11n,17n]);
+assert.throws(()=>state.transaction(async s=>s.invoke('put',[0n,{value:700n,active:true}])),/synchronous/);
+assert.deepEqual(await state.checkpoint(),beforeRollback);
+let notified=0;const stopBad=state.subscribe('total_query',[],()=>{throw Error('consumer');},{immediate:false});
+const stopGood=state.subscribe('total_query',[],()=>{notified++;},{immediate:false});
+state.invoke('put',[0n,{value:14n,active:true}]);assert.equal(notified,1);assert.equal(state.bind('total_query',{resultOnly:true})(),18n);
+const errors=state.takeSubscriptionErrors();assert.equal(errors.length,1);assert.equal(errors[0].phase,'listener');assert.match(errors[0].error.message,/consumer/);
+assert.deepEqual(state.takeSubscriptionErrors(),[]);stopBad();stopGood();
+await assert.rejects(state.restore(new Uint8Array([0])));assert.equal(seen.at(-1),18n);
+await state.restore(snap);assert.equal(seen.at(-1),11n);assert.deepEqual(rows.at(-1),[11n]);
+let reentered=false;const stopReentrant=state.subscribe('total_query',[],v=>{if(v===21n&&!reentered){reentered=true;state.invoke('put',[0n,{value:22n,active:true}]);}},{immediate:false});
+state.invoke('put',[0n,{value:21n,active:true}]);assert.equal(seen.at(-1),22n);assert.deepEqual(state.takeSubscriptionErrors(),[]);
+stop();stop();stopRows();stopReentrant();const length=seen.length;state.invoke('put',[0n,{value:99n,active:true}]);assert.equal(seen.length,length);
+"#);
+    let dir=dir("observers");fs::create_dir_all(&dir).unwrap();let path=dir.join("run.mjs");fs::write(&path,code).unwrap();run_node(&path);
 }
 
 #[test]
@@ -207,6 +271,15 @@ const old=await state.checkpoint();state.beginTransaction();put(0n,999n,true,fal
 assert.equal(readValue(),source.invoke('total_query',[]).result);
 assert.throws(()=>state.bind('missing'),/unknown action/);
 assert(state.invoke('total_query',[]) instanceof Promise);
+const notified=[];const stop=state.subscribe('total_query',[],v=>notified.push(v));
+const baselineNotifications=notified.length;
+state.batch(()=>{put(0n,17n,true,false);put(0n,18n,true,false);});assert.equal(notified.length,baselineNotifications+1);
+const boundary=await state.checkpoint(),beforeFailure=notified.length;
+assert.throws(()=>state.transaction(()=>{put(0n,99n,true,false);erase(1n,true);}),/transaction action failed/);
+assert.deepEqual(await state.checkpoint(),boundary);assert.equal(notified.length,beforeFailure);
+let reentered=false;const stopAgain=state.subscribe('count_query',[],()=>{if(!reentered){reentered=true;put(0n,19n,true,false);}},{immediate:false});
+const v=state.version,outer=put(1n,10n,true,false);assert.equal(outer.version,v+1n);assert(reentered);
+stop();stopAgain();assert.deepEqual(state.takeSubscriptionErrors(),[]);
 "#);
     let path = dir.join("run.mjs");
     fs::write(&path, code).unwrap();

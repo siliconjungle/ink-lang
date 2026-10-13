@@ -256,6 +256,59 @@ struct Lower<'a> {
     loop_fuel: Option<(String,String,String)>,
     helper_active: BTreeSet<usize>,
 }
+/// Closed mathematical carrier for one checked source value. This exports fixed
+/// source correspondence independently of whole-action projection or search.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct ValueCarrier {
+    pub sort: Sort,
+    pub objects: BTreeMap<String, Entry>,
+}
+pub fn value_carrier(module: &CheckedModule, ty: &Type) -> LangResult<ValueCarrier> {
+    let typed = CheckedActions::elaborate(module)?;
+    let mut lower = Lower::new(module.program(), &typed);
+    lower.reserve_recursive_records()?;
+    let sort = lower.sort(ty)?;
+    let mut pending=match &sort {Sort::Data(id)=>vec![id.clone()],_=>vec![]};
+    let mut objects=BTreeMap::new();
+    while let Some(id)=pending.pop() {
+        if objects.contains_key(&id){continue;}
+        let entry=lower.objects.get(&id).ok_or("value carrier declaration missing")?;
+        pending.extend(entry.dependencies.iter().cloned());objects.insert(id,entry.clone());
+    }
+    Ok(ValueCarrier { sort, objects })
+}
+impl<'a> Lower<'a> {
+    fn new(program: &'a Program, typed: &'a CheckedActions) -> Self {
+        Self {
+            program,
+            typed,
+            keep_active: BTreeSet::new(),
+            integer: None,
+            equalities: BTreeMap::new(),
+            objects: BTreeMap::new(),
+            types: BTreeMap::new(),
+            recursive_records: BTreeMap::new(),
+            recursive_tree: None,
+            tree_codecs: BTreeMap::new(),
+            tree_nth: None,
+            active: BTreeSet::new(),
+            tables: vec![],
+            state: String::new(),
+            event: String::new(),
+            events: String::new(),
+            snoc: String::new(),
+            boxes: BTreeMap::new(),
+            fresh: 0,
+            work: MAX_WORK,
+            helpers: BTreeMap::new(),
+            local_ops: BTreeMap::new(),
+            local_maps: BTreeMap::new(),
+            loop_fuel: None,
+            helper_active: BTreeSet::new(),
+        }
+
+    }
+}
 impl Lower<'_> {
     fn tick(&mut self) -> LangResult<()> {
         self.work = self.work.checked_sub(1).ok_or("action model work limit")?;
@@ -266,8 +319,20 @@ impl Lower<'_> {
         self.fresh += 1;
         n
     }
-    fn store(&mut self, d: Declaration) -> LangResult<String> {
+    fn store(&mut self, mut d: Declaration) -> LangResult<String> {
         self.tick()?;
+        if let Declaration::Datatype { constructors } = &mut d {
+            // Generated source names can exceed the proof language's binder
+            // limit. Constructor labels carry no computation: keep a stable,
+            // bounded label while retaining source/type correspondence separately.
+            for constructor in constructors {
+                let name = &constructor.name;
+                if name.len() > 64 {
+                    let digest = format!("{:x}", Sha256::digest(name.as_bytes()));
+                    constructor.name = format!("c{}", &digest[..63]);
+                }
+            }
+        }
         let mut dependencies = BTreeSet::new();
         refs(
             &serde_json::to_value(&d).map_err(|e| e.to_string())?,
@@ -629,6 +694,12 @@ impl Lower<'_> {
                 self.keep_active.remove(index);
                 result
             }
+            Kind::Builtin { name,arguments } if ["sqrt","f32_div","floor","ceil","trunc","round_ties_even","is_nan","is_finite","f32_bits","f32_from_bits"].contains(&name.as_str()) => {
+                let x=self.expr(body,arguments[0],env,state)?;
+                if name=="f32_bits"||name=="f32_from_bits" {return Ok(b("&",x,Term::U64(u32::MAX as u64)));}
+                let y=if name=="f32_div"{self.expr(body,arguments[1],env,state)?}else{Term::U64(0)};
+                Ok(b(&format!("f32:{}",if name=="f32_div"{"div"}else{name}),x,y))
+            }
             Kind::Builtin { name, arguments } if name == "list" => {
                 let sort = self.sort(ty)?;
                 let xs = arguments.iter().map(|i| self.expr(body, *i, env, state)).collect::<LangResult<Vec<_>>>()?;
@@ -909,33 +980,7 @@ impl Projection {
             return Err("action model node limit".into());
         }
         let p = module.program();
-        let mut l = Lower {
-            program: p,
-            typed: &actions,
-            keep_active: BTreeSet::new(),
-            integer: None,
-            equalities: BTreeMap::new(),
-            objects: BTreeMap::new(),
-            types: BTreeMap::new(),
-            recursive_records: BTreeMap::new(),
-            recursive_tree: None,
-            tree_codecs: BTreeMap::new(),
-            tree_nth: None,
-            active: BTreeSet::new(),
-            tables: vec![],
-            state: String::new(),
-            event: String::new(),
-            events: String::new(),
-            snoc: String::new(),
-            boxes: BTreeMap::new(),
-            fresh: 0,
-            work: MAX_WORK,
-            helpers: BTreeMap::new(),
-            local_ops: BTreeMap::new(),
-            local_maps: BTreeMap::new(),
-            loop_fuel: None,
-            helper_active: BTreeSet::new(),
-        };
+        let mut l = Lower::new(p, &actions);
         l.prepare_recursive_records()?;
         // Domain validation includes unused signatures; an unsupported value may
         // not acquire authority just because a branch happens not to evaluate it.

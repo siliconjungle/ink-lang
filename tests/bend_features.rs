@@ -4,7 +4,7 @@ use verified_language::{eval, stateful::Runtime, syntax::parse};
 mod parity;
 #[test]
 fn parallel_buffers_recursion_and_scratch_agree_on_all_backends() {
-    let src = include_str!("../examples/bend-inspired.ink");
+    let src = include_str!("../examples/parallel-execution.ink");
     let p = parse(src).unwrap();
     let r = Runtime::new(p.clone()).unwrap();
     let mut steps = vec![];
