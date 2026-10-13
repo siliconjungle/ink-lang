@@ -4,6 +4,34 @@ The all-metrics target remains unmet. Read-heavy state and retained JSON editing
 win in these fixtures; row updates, conversion and portable-message codecs lose.
 This is a shared development host, not a controlled laboratory.
 
+## Combined decoder/Core release
+
+`decoder-release-cohorts-70-72.json` records the complete distribution at
+`a09be9f7`, with descriptor-bound portable/compact decoding, the final canonical
+count fast path, and the integrated Core/ownership/numeric primitive changes.
+Full artifact/source/revision bindings are in the report. Every fixture has three
+fresh processes and nine rotated rounds. The medians include:
+
+| Boundary | Ink µs/call | Frontier main/control µs/call |
+| --- | ---: | ---: |
+| 4096-row replacement | 3.570 | 0.872 |
+| 4096-row mixed operations | 48.502 | 156.799 |
+| 4096-row read-heavy, literal Ink | 153.281 | 444.016 |
+| 4096-row read-heavy, checked indexed Ink | 5.589 | 444.016 |
+| 512-field retained JSON edit | 8.516 | 91.522 |
+| 512-field text → edit → text | 838.927 | 97.317 |
+| Portable message encode/decode | 1.523 / 1.830 | 1.562 / 0.925 |
+| Agreed-schema message encode/decode | 0.749 / 1.370 | 1.562 / 0.925 |
+
+Compact encoding wins by about 2.08× and its update remains 15 bytes versus
+Frontier's 20. Portable encoding is close to the control in this cohort. Both
+decoders still lose, as do ordinary row replacement and JSON text conversion.
+The full binary conversion pipeline is 3043.925 µs versus the 97.317 µs text
+control, with different transport boundaries. Supplied indexed state wins queries
+but costs 27.742 µs for replacement. All-metrics superiority remains unproven.
+The new Core primitive/math/text suites and C/JS in-place ownership conformance
+passed before this integrated measurement; tests are not backend correctness proofs.
+
 ## Descriptor-bound decoder follow-up
 
 The decoder experiments retain complete scalar, Unicode, tag, frame, count,
