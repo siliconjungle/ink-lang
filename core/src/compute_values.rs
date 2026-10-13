@@ -14,7 +14,7 @@ pub fn needed(p: &Program) -> bool {
                 true
             }
             Expr::Call(n, a) => {
-                ["repeat", "vec2", "vec3", "vec4", "quot_or", "rem_or"].contains(&n.as_str())
+                crate::primitives::primitive(n) || ["repeat", "vec2", "vec3", "vec4", "quot_or", "rem_or"].contains(&n.as_str())
                     || a.iter().any(expr)
             }
             Expr::Method(x, n, a) => {
