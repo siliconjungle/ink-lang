@@ -189,7 +189,7 @@ contracts before relying on them.
 
 | Lane | Concrete work | Remaining gate |
 | --- | --- | --- |
-| [General reusable machinery](docs/general-machinery-plan.md) | Checked value predicates, abstract record interfaces, source-bound fact transport, ordinary database proof closures and source-site observation foundation | Observation-to-contract integration, interchangeable/owned interfaces, general storage, authored termination, local frame/loop reasoning, compositional maintenance, performance acceptance and integrated publication |
+| [General reusable machinery](docs/general-machinery-plan.md) | Checked value predicates, abstract record interfaces, source-bound fact transport, ordinary database proof closures and actual-prefix checks for captured action results | Before-call and callback observation domains, interchangeable/owned interfaces, general storage, authored termination, local frame/loop reasoning, compositional maintenance, performance acceptance and integrated publication |
 | Incremental maintenance costs | Further attribution of plan copying, complete-state transport and validation; broader read/write and lifetime studies | Demonstrate repeatable complete-session gains before generalising cache control; measured small fixtures favour direct lookup |
 | Physical execution | Conservative facts through composed functions, less intermediate allocation/copying and prepared resources | Correctness checks plus complete-call gains on independently varied sizes, shapes and distributions |
 | Broader profitability | Generalise completed saved-profile mixed placement to unfamiliar workloads and representation lifecycles | Independent program/distribution evaluation and repeatable complete-session gains; no speculative effect execution |

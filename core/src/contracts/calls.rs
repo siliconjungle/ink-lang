@@ -14,6 +14,7 @@ pub(super) struct CallCondition {
 }
 #[derive(Clone)]
 pub(super) struct ResultGuarantee {
+    pub site: usize,
     pub callee: String,
     pub arguments: Vec<Expr>,
     pub ensure: Expr,
@@ -721,6 +722,7 @@ fn binding_facts(
                         predicate: Expr::Bool(true),
                         observations: None,
                         guarantee: Some(ResultGuarantee {
+                            site: value as *const Expr as usize,
                             callee: callee.clone(),
                             arguments: args.clone(),
                             ensure: ensure.clone(),

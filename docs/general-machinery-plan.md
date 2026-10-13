@@ -261,6 +261,30 @@ support. Missing capability stays explicit while implementation continues.
   tests pass with C/Rust/JS/both Wasm paths and eligible wgpu work enabled in
   `action-observation-target-parity.log`. These are conformance checks, not
   observation-runtime or proof-production performance measurements.
+- Captured action-result checks now reconstruct exact nodes and lexical slots
+  from the sealed action tree and original source, then prove the clause through
+  the actual caller prefix. Entry invariants/caller requirements apply only to
+  initial state; local facts and intermediate writes are computed. Direct repairs,
+  nested-change repairs, shadowed locals, abort rollback and ordered commit events
+  are checked. Synthetic keep initializers retain conservative checks. Before-call
+  requirements and complete frame/loop/replacement domains remain open.
+- The database producer authors and independently replays four pure/38 state
+  obligations for the extended repair fixture and one pure/twelve state obligations
+  for field order. Canonical publication contributes/reuses 134 and 41 objects;
+  its current local snapshot is
+  `d1d3e32a56afdb1ef0159e410f7b13117b64190c146bc161e256b720c8e1a7c5`.
+  The order closure reuses current members without changing the snapshot root.
+  Published views replay independently (`prefix-guarantees-published-replay.log`,
+  `prefix-order-published-replay.log`). The broken-state probe still rejects with
+  an actual `false = true` observation (`prefix-broken-rejection.log`).
+- The final suite passes 239 standalone core tests, ten affected database tests
+  and seven abstract integration tests. The result fixture now compares fifteen
+  replies and exact snapshots across C/Rust/JS/both Wasm paths with an eligible
+  GPU control dispatch. Logs: `prefix-guarantees-core-all.log`,
+  `prefix-guarantees-db-tests.log`, `prefix-guarantees-target-parity.log`. Receipt:
+  `docs/evidence/general-machinery/prefix-guarantees.json`. This is partial local
+  staging progress, not full programme completion, performance acceptance or
+  remote main publication.
 - Remaining requirements include interchangeable abstract interfaces and owners, general
   storage and externalisation, authored termination, local frame/loop relations,
   broader cross-consumer fact transport, compositional incremental maintenance,

@@ -437,7 +437,15 @@ impl<'p> Lower<'p> {
                         &predicate_scope, predicate, args, state.clone(), events.clone(),
                         &|this, test, _, _| {
                             let continuation = next(this, value.clone(), state.clone(), events.clone())?;
-                            Ok(choice(test, continuation, Term::Bool(false)))
+                            // Safety composes by Bool conjunction. Retain the
+                            // predicate directly for an already-safe suffix;
+                            // this avoids manufacturing a redundant conditional
+                            // between a boundary premise and its exact use.
+                            Ok(if continuation == Term::Bool(true) {
+                                test
+                            } else {
+                                choice(test, continuation, Term::Bool(false))
+                            })
                         }, &|_, _| Ok(Term::Bool(false)), calls + 1,
                     )
                 }, abort, depth, calls,

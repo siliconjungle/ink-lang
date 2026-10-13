@@ -114,12 +114,13 @@ still requires implementation.
 
 A result-only postcondition is not necessarily independent of the callee's
 initial state. Before transporting an action's postcondition into an immutable
-binding fact, core now derives an additional source-bound obligation. It executes
-the exact callee transition on the actual arguments and checks the selected result
-clause under that call's separately checked preconditions. Host failure does not
-establish a captured result. Read-only callers can use checked boundary invariants;
-mutating callers receive no such ambient premise. Trivial true clauses require no
-additional state reasoning.
+binding fact, core derives an additional source-bound obligation. For source
+actions it executes the actual caller prefix and checks the selected result clause
+at the captured call site. The checker reconstructs that site's node and lexical
+slots from the sealed action tree and its original source. Entry invariants and
+caller requirements constrain the initial state; they are not assumptions about
+the state after a write. Local bindings and earlier writes establish the observed
+arguments and state through execution. Trivial true clauses need no extra goal.
 
 The rejected probe sets a positive counter to zero, calls a query whose positivity
 postcondition depends on the counter invariant, and then relies on that result
@@ -129,10 +130,12 @@ uses and query/change results whose guarantees follow from their actual argument
 without a boundary state assumption. Immutable established results remain usable
 across subsequent writes.
 
-This is conservative call-site reasoning, not a complete state-prefix or frame
-system. Re-establishing an invariant through writes still needs local relational
-proofs about the actual intermediate state. Nested replacements and other uses of
-state-dependent contracts remain part of that broader audit. Binding types now
+Direct writes and nested changes can now re-establish an invariant before a later
+query. The checked repair fixtures exercise both abort rollback and a successful
+commit with events in source order. Synthetic keep-initializer result checks retain
+the conservative arbitrary-state treatment. Before-call requirements, compositional
+frame/loop relations, nested replacements and other uses of state-dependent
+contracts remain part of the broader audit. Binding types
 come from the actual action typing traversal; inference no longer reinterprets a
 change call as a synthetic query.
 
@@ -160,9 +163,10 @@ unchanged when observations are requested. Malformed sites/signatures and sites
 inside callback bodies reject; the latter still execute through pure callback
 correspondence. Explicit slots preserve lexical identities.
 
-Contract generation still uses the conservative result-guarantee checks above.
-Connecting exact call sites and their captured arguments to these observations
-is the next step. Before-call requirements, callback/loop observation domains,
+Contract generation connects captured action-result clauses to these observations.
+It reconstructs exact call sites and lexical captures locally; proof packets cannot
+supply alternative site maps. Shadowed bindings retain the selected slot identity.
+Before-call requirements, callback/loop observation domains,
 compositional frame relations, nested replacement domains and database proof
 families remain unfinished. This is not completion of local relational reasoning.
 
