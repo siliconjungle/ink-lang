@@ -360,7 +360,31 @@ pub(super) fn derive(source: &Program) -> LangResult<StateObligations> {
         specs.push((names, requires, post));
     }
     let mut call_checks = vec![];
+    let mut guarantee_checks = vec![];
     for g in super::calls::actions(source)? {
+        let stable_state = source.actions.iter()
+            .any(|a| a.name == g.owner && a.writes.is_empty());
+        if let Some(guarantee)=g.guarantee {
+            let spec=super::specification(source,&guarantee.callee).ok_or("missing result guarantee specification")?;
+            let anchor=ghosts.query(g.params.clone(),Type::Bool,Expr::Bool(true))?;
+            let mut arguments=vec![];
+            for ((_,ty),value) in spec.params.iter().zip(guarantee.arguments) {
+                arguments.push(ghosts.query(g.params.clone(),ty.clone(),value)?);
+            }
+            let mut requires=vec![];
+            for predicate in &spec.requires {
+                requires.push(ghosts.query(spec.params.clone(),Type::Bool,predicate.clone())?);
+            }
+            let mut parameters=spec.params.clone();
+            parameters.push(("result".into(),spec.result.clone()));
+            let post=ghosts.query(parameters,Type::Bool,guarantee.ensure)?;
+            let mut conditions=vec![];
+            for predicate in g.conditions {
+                conditions.push(ghosts.query(g.params.clone(),Type::Bool,predicate)?);
+            }
+            guarantee_checks.push((g.name,anchor,guarantee.callee,arguments,requires,post,conditions,stable_state));
+            continue;
+        }
         let name = ghosts.observation_query(g.params.clone(), g.predicate, &g.observations)?;
         let mut conditions = vec![];
         for e in g.conditions {
@@ -372,8 +396,6 @@ pub(super) fn derive(source: &Program) -> LangResult<StateObligations> {
         // synthetic keep-initializer checks do not receive this assumption.
         // Use separate zero-argument ghosts: a local/parameter named like a
         // state slot must not capture the invariant's global observation.
-        let stable_state = source.actions.iter()
-            .any(|a| a.name == g.owner && a.writes.is_empty());
         call_checks.push((g.name, name, conditions, stable_state));
     }
     let checked = CheckedModule::from_source(ghosts.p)?;
@@ -432,6 +454,38 @@ pub(super) fn derive(source: &Program) -> LangResult<StateObligations> {
             conditions,
             goal,
         });
+    }
+    for (label,anchor,callee,arguments,requires,post,conditions,stable_state) in guarantee_checks {
+        let params=&model.actions[&anchor].params;
+        let local_args=params[2..].iter().map(|(n,_)|var(n)).collect::<Vec<_>>();
+        let values=arguments.iter().map(|name|query_value(&model,&cx,name,params,
+            var("initial"),var("version"),local_args.clone())).collect::<LangResult<Vec<_>>>()?;
+        let mut conditions=conditions.iter().map(|name|Ok(yes(query_value(&model,&cx,name,params,
+            var("initial"),var("version"),local_args.clone())?))).collect::<LangResult<Vec<_>>>()?;
+        // These requirements have separate call obligations. The result clause
+        // is conditional on the same actual arguments and current state.
+        for name in requires {
+            conditions.push(yes(query_value(&model,&cx,&name,params,var("initial"),var("version"),values.clone())?));
+        }
+        if stable_state {
+            for invariant in &invariants {
+                conditions.push(yes(query_value(&model,&cx,invariant,params,var("initial"),var("version"),vec![])?));
+            }
+        }
+        let action=&model.actions[&callee];
+        let observation=match &action.result {Sort::Data(name)=>name,_=>return Err("result guarantee observation sort".into())};
+        let declaration:logic::Declaration=serde_json::from_value(model.objects[observation].payload["declaration"].clone()).map_err(|e|e.to_string())?;
+        let logic::Declaration::Datatype{constructors}=declaration else{return Err("result guarantee observation datatype".into())};
+        let bindings=(0..5).map(|i|format!("__guarantee_reply_{i}")).collect::<Vec<_>>();
+        let mut local=params.clone();local.extend(bindings.iter().cloned().zip(constructors[0].fields.clone()));
+        let mut post_args=values.clone();post_args.push(var(&bindings[0]));
+        let body=query_value(&model,&cx,&post,&local,var(&bindings[3]),var(&bindings[2]),post_args)?;
+        let mut args=vec![var("initial"),var("version")];args.extend(values);
+        let goal=Term::Match{scrutinee:Box::new(call(&action.function,args)),branches:vec![
+            Branch{bindings,body},
+            Branch{bindings:vec!["__guarantee_host_code".into(),"__guarantee_host_version".into(),"__guarantee_host_state".into()],body:Term::Bool(true)},
+        ]};
+        goals.push(StateObligation{name:label,params:params.clone(),conditions,goal:yes(goal)});
     }
     for (i, n) in invariants.iter().enumerate() {
         goals.push(StateObligation {

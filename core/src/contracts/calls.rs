@@ -10,6 +10,13 @@ pub(super) struct CallCondition {
     pub conditions: Vec<Expr>,
     pub predicate: Expr,
     pub observations: Option<Vec<(String, Type, Expr)>>,
+    pub guarantee: Option<ResultGuarantee>,
+}
+#[derive(Clone)]
+pub(super) struct ResultGuarantee {
+    pub callee: String,
+    pub arguments: Vec<Expr>,
+    pub ensure: Expr,
 }
 pub(super) fn actions(p: &Program) -> LangResult<Vec<CallCondition>> {
     let mut out = vec![];
@@ -83,11 +90,12 @@ fn block(
                 let t = if let Some(t) = ty {
                     t.clone()
                 } else {
-                    crate::statecheck::expression_type(p, e, &env)?
+                    typing.values.get(&(e as *const Expr as usize))
+                        .ok_or("missing checked action binding type")?.clone()
                 };
                 facts.retain(|f| !crate::analysis::references_free(f, n));
                 let previous=env.clone();env.insert(n.clone(), t.clone());
-                binding_facts(p,&previous,n,&t,e,&mut facts)?;
+                binding_facts(p,&previous,n,&t,e,&mut facts,owner,serial,out)?;
             }
             Statement::Return(e) | Statement::Emit(_, e) | Statement::Expr(e) => {
                 expression(p, typing, e, &env, &facts, owner, serial, out)?
@@ -134,7 +142,8 @@ fn expression(
         let ty = if let Some(ty) = annotation {
             (**ty).clone()
         } else {
-            crate::statecheck::expression_type(p, value, env)?
+            typing.values.get(&(value.as_ref() as *const Expr as usize))
+                .ok_or("missing checked action expression binding type")?.clone()
         };
         let mut local = env.clone();
         local.insert(name.clone(), ty);
@@ -143,7 +152,7 @@ fn expression(
             .filter(|f| !crate::analysis::references_free(f, name))
             .cloned()
             .collect::<Vec<_>>();
-        binding_facts(p,env,name,&local[name],value,&mut facts)?;
+        binding_facts(p,env,name,&local[name],value,&mut facts,owner,serial,out)?;
         return expression(p, typing, body, &local, &facts, owner, serial, out);
     }
     if let Expr::Lambda(name, body) = e {
@@ -241,6 +250,7 @@ fn expression(
                 conditions: facts.to_vec(),
                 predicate: value,
                 observations: None,
+                guarantee: None,
             });
             *serial += 1;
         }
@@ -388,6 +398,7 @@ fn callback_conditions(
             conditions,
             predicate,
             observations: Some(observations.clone()),
+            guarantee: None,
         });
     }
     Ok(Some(out))
@@ -622,39 +633,123 @@ fn equation_expression(e: &Equation, p: &Program) -> LangResult<Expr> {
 /// never become persistent facts: action clauses must typecheck as pure predicates
 /// of the captured result and pure immutable arguments. The complete module
 /// separately proves every callee postcondition and caller precondition.
-fn binding_facts(p:&Program,env:&crate::check::Env,name:&str,ty:&Type,value:&Expr,facts:&mut Vec<Expr>)->LangResult<()> {
-    if crate::analysis::references_free(value,name) || crate::local_collections::owned(ty,p) { return Ok(()) }
-    let pure = crate::check::infer_as(value,env,p,ty).is_ok();
-    if pure {
-        let bound=Expr::Var(name.into());
-        let (left,right)=if *ty==Type::F32 {
-            (Expr::Call("list".into(),vec![bound]),Expr::Call("list".into(),vec![value.clone()]))
-        }else{(bound,value.clone())};
-        facts.push(Expr::Binary("==".into(),Box::new(left),Box::new(right)));
+fn binding_facts(
+    p: &Program,
+    env: &crate::check::Env,
+    name: &str,
+    ty: &Type,
+    value: &Expr,
+    facts: &mut Vec<Expr>,
+    owner: &str,
+    serial: &mut usize,
+    out: &mut Vec<CallCondition>,
+) -> LangResult<()> {
+    if crate::analysis::references_free(value, name) || crate::local_collections::owned(ty, p) {
+        return Ok(());
     }
-    if let Expr::Call(callee,args)=value {
-        if let Some(spec)=specification(p,callee) {
-            if spec.result != *ty || spec.params.len()!=args.len() { return Ok(()) }
-            if !pure && (spec.kind.is_none() || spec.params.iter().zip(args)
-                .any(|((_,ty),arg)|crate::check::infer_as(arg,env,p,ty).is_err())) { return Ok(()) }
-            let predicate_env = spec.params.iter().cloned()
-                .chain(std::iter::once(("result".into(),ty.clone()))).collect();
-            let mut names=BTreeMap::new();
-            for (index,n)in spec.params.iter().map(|(n,_)|n.as_str()).chain(std::iter::once("result")).enumerate(){
-                let mut fresh=format!("__ink_binding_{index}");
-                while env.contains_key(&fresh)||fresh==name||spec.ensures.iter().chain(args).any(|e|crate::analysis::references_free(e,&fresh))||names.values().any(|n|n==&fresh){fresh.push('_')}
-                names.insert(n.into(),fresh);
+    let pure = crate::check::infer_as(value, env, p, ty).is_ok();
+    if pure {
+        let bound = Expr::Var(name.into());
+        let (left, right) = if *ty == Type::F32 {
+            (
+                Expr::Call("list".into(), vec![bound]),
+                Expr::Call("list".into(), vec![value.clone()]),
+            )
+        } else {
+            (bound, value.clone())
+        };
+        facts.push(Expr::Binary("==".into(), Box::new(left), Box::new(right)));
+    }
+    if let Expr::Call(callee, args) = value {
+        if let Some(spec) = specification(p, callee) {
+            if spec.result != *ty || spec.params.len() != args.len() {
+                return Ok(());
             }
-            for ensure in &spec.ensures {
-                if !pure && crate::check::infer_as(ensure,&predicate_env,p,&Type::Bool).is_err() { continue }
-                let mut predicate=crate::syntax::rename_expression(ensure,&names);
-                predicate=Expr::Let(names["result"].clone(),Some(Box::new(ty.clone())),Box::new(Expr::Var(name.into())),Box::new(predicate));
-                for ((n,t),arg)in spec.params.iter().zip(args).rev(){predicate=Expr::Let(names[n].clone(),Some(Box::new(t.clone())),Box::new(arg.clone()),Box::new(predicate))}
+            if !pure
+                && (spec.kind.is_none()
+                    || spec
+                        .params
+                        .iter()
+                        .zip(args)
+                        .any(|((_, ty), arg)| crate::check::infer_as(arg, env, p, ty).is_err()))
+            {
+                return Ok(());
+            }
+            let predicate_env = spec
+                .params
+                .iter()
+                .cloned()
+                .chain(std::iter::once(("result".into(), ty.clone())))
+                .collect();
+            let mut names = BTreeMap::new();
+            for (index, n) in spec
+                .params
+                .iter()
+                .map(|(n, _)| n.as_str())
+                .chain(std::iter::once("result"))
+                .enumerate()
+            {
+                let mut fresh = format!("__ink_binding_{index}");
+                while env.contains_key(&fresh)
+                    || fresh == name
+                    || spec
+                        .ensures
+                        .iter()
+                        .chain(args)
+                        .any(|e| crate::analysis::references_free(e, &fresh))
+                    || names.values().any(|n| n == &fresh)
+                {
+                    fresh.push('_')
+                }
+                names.insert(n.into(), fresh);
+            }
+            let prior = facts.clone();
+            for (index, ensure) in spec.ensures.iter().enumerate() {
+                if !pure && crate::check::infer_as(ensure, &predicate_env, p, &Type::Bool).is_err()
+                {
+                    continue;
+                }
+                if !pure && !matches!(ensure, Expr::Bool(true)) {
+                    // Action guarantees may depend on boundary state invariants.
+                    // Establish the exact result clause at this call before
+                    // transporting it as an immutable captured-value fact.
+                    out.push(CallCondition {
+                        name: format!("{owner}:action-guarantee:{}:ensures:{index}", *serial),
+                        owner: owner.into(),
+                        params: env.iter().map(|(n, t)| (n.clone(), t.clone())).collect(),
+                        conditions: prior.clone(),
+                        predicate: Expr::Bool(true),
+                        observations: None,
+                        guarantee: Some(ResultGuarantee {
+                            callee: callee.clone(),
+                            arguments: args.clone(),
+                            ensure: ensure.clone(),
+                        }),
+                    });
+                    *serial += 1;
+                }
+                let mut predicate = crate::syntax::rename_expression(ensure, &names);
+                predicate = Expr::Let(
+                    names["result"].clone(),
+                    Some(Box::new(ty.clone())),
+                    Box::new(Expr::Var(name.into())),
+                    Box::new(predicate),
+                );
+                for ((n, t), arg) in spec.params.iter().zip(args).rev() {
+                    predicate = Expr::Let(
+                        names[n].clone(),
+                        Some(Box::new(t.clone())),
+                        Box::new(arg.clone()),
+                        Box::new(predicate),
+                    )
+                }
                 facts.push(predicate);
             }
         }
     }
-    if facts.len()>1024{return Err("action contract fact count limit".into())}
+    if facts.len() > 1024 {
+        return Err("action contract fact count limit".into());
+    }
     Ok(())
 }
 

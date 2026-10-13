@@ -349,8 +349,8 @@ fn construction_preserves_action_field_order_and_events() {
     let mut program = syntax::parse(include_str!("fixtures/value-invariant-order.ink")).unwrap();
     // Independently authored ordinary first-order evidence covers both normal
     // execution and version exhaustion. Core-only replay needs no database.
-    program.contracts.state_proofs =
-        serde_json::from_str(include_str!("fixtures/value-invariant-order-proofs.json")).unwrap();
+    contracts::attach(&mut program,
+        serde_json::from_str(include_str!("fixtures/value-invariant-order-evidence.json")).unwrap()).unwrap();
     let module = CheckedModule::from_source(program).unwrap();
     let mut runtime = Runtime::new(module.into_program()).unwrap();
     let outcome = runtime

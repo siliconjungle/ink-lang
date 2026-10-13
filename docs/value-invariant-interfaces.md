@@ -110,6 +110,32 @@ initialization cannot assume an invariant before establishing it. This is a
 limited stable-state fact transport; general local mutation/frame reasoning
 still requires implementation.
 
+## Action result guarantees
+
+A result-only postcondition is not necessarily independent of the callee's
+initial state. Before transporting an action's postcondition into an immutable
+binding fact, core now derives an additional source-bound obligation. It executes
+the exact callee transition on the actual arguments and checks the selected result
+clause under that call's separately checked preconditions. Host failure does not
+establish a captured result. Read-only callers can use checked boundary invariants;
+mutating callers receive no such ambient premise. Trivial true clauses require no
+additional state reasoning.
+
+The rejected probe sets a positive counter to zero, calls a query whose positivity
+postcondition depends on the counter invariant, and then relies on that result
+while aborting the outer transaction. The old checker accepted this sequence;
+the new result-guarantee obligation rejects it. Positive tests retain read-only
+uses and query/change results whose guarantees follow from their actual arguments
+without a boundary state assumption. Immutable established results remain usable
+across subsequent writes.
+
+This is conservative call-site reasoning, not a complete state-prefix or frame
+system. Re-establishing an invariant through writes still needs local relational
+proofs about the actual intermediate state. Nested replacements and other uses of
+state-dependent contracts remain part of that broader audit. Binding types now
+come from the actual action typing traversal; inference no longer reinterprets a
+change call as a synthetic query.
+
 ## Current evidence and remaining scope
 
 The frozen value-state proof packet contains one pure obligation and eleven state

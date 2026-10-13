@@ -220,6 +220,28 @@ support. Missing capability stays explicit while implementation continues.
   conditional query observations, ownership-bearing accumulators, general fold
   preservation laws and direct pure-loop expressions in action bodies. These
   paths retain conservative admission; they are not waived by the fixtures.
+- An adversarial nested-query probe exposed state-dependent result guarantees
+  being transported after a write invalidated their boundary premise. The old
+  frozen compiler authored two pure/eight state proofs for the unsafe source,
+  while reference execution reported a failed precondition. Receipts are
+  `nested-query-boundary-authoring.log` and `nested-query-boundary-runtime.log`.
+  New source-bound action-result guarantee obligations reject that probe at
+  `broken:action-guarantee:0:ensures:0`; the rejected authoring receipt is
+  `nested-query-boundary-rejection.log`.
+- Positive result-guarantee fixtures author/replay four pure and 27 state
+  obligations. The field-order fixture was re-authored with one pure/twelve state
+  obligations for the added guarantee checks. Actual action typing supplies
+  binding types, including calls to changes. General intermediate-state/prefix
+  relations and nested state-dependent replacement domains remain open.
+- The completed result-guarantee checkpoint passes 232 standalone core tests
+  (`result-guarantee-core-final-v3.log`). The new nine-reply fixture matches values,
+  errors and exact snapshots across C/Rust/JS/both Wasm paths with one eligible
+  GPU control dispatch (`result-guarantee-target-parity.log`). Canonical views
+  replayed against the final frozen compiler. Local snapshots are
+  `451e5cd950ac7d64c74d801eebfdca998548df96c3d08cb21ffac7d4a752d3a5`
+  and `4e1a40bc0d29039336e71edf41cf4566698fb1db4b3dac7858fbb31e699a1665`.
+  Receipt: `docs/evidence/general-machinery/result-guarantees.json`. This is local
+  staging evidence, not completion of the full programme or remote publication.
 - Remaining requirements include interchangeable abstract interfaces and owners, general
   storage and externalisation, authored termination, local frame/loop relations,
   broader cross-consumer fact transport, compositional incremental maintenance,
