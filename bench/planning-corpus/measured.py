@@ -7,6 +7,8 @@ For each corpus program:
 2. Run the ordinary compiled planner with `--measure-workload` against a private
    copy of the knowledge root. It times every admitted candidate on those
    inputs and selects through the lifecycle rank and its uncertainty guard.
+   With `--defaults` no inputs are supplied at all: the compile is exactly the
+   ordinary default, which acquires its own bounded synthetic typed probes.
 3. Emit the baseline and the selection, check equal outputs, and time both
    with paired, interleaved samples on every evaluation input. Evaluation
    inputs never reach selection.
@@ -43,15 +45,18 @@ def evaluate_program(program, fixtures, args, out):
                                   distribution='development:' + '+'.join(sorted({f['distribution'] for f in development})),
                                   concurrency=1, residency='host'))
     (d / 'workload.json').write_text(json.dumps(workload))
-    record = dict(name=name, development=[f['path'] for f in development], evaluation_inputs=len(evaluation))
+    record = dict(name=name, development=[] if args.defaults else [f['path'] for f in development],
+                  evaluation_inputs=len(evaluation), mode='defaults' if args.defaults else 'development-workload')
     with tempfile.TemporaryDirectory(prefix='ink-measured-', dir=args.scratch) as temporary:
         scratch = Path(temporary) / 'knowledge'
-        subprocess.run(['cp', '-al', str(args.knowledge_root), str(scratch)], check=True)
+        sys.path.insert(0, str(ROOT / 'planner'))
+        from ink_planner.corpus import private_copy
+        private_copy(args.knowledge_root, scratch)
         env = dict(os.environ, PYTHONPATH=os.pathsep.join([str(ROOT / 'planner'), str(scratch)]))
         started = time.monotonic()
         run([sys.executable, '-m', 'ink_planner.compiled_planning', '--compiler', args.compiler, '--source', source,
              '--knowledge-root', scratch, '--target', 'javascript', '--planning-effort', args.planning_effort,
-             '--measure-workload', d / 'workload.json', '--measure-timeout', '600',
+             *([] if args.defaults else ['--measure-workload', d / 'workload.json', '--measure-timeout', '600']),
              *(['--work-workload', d / 'workload.json', '--keep-candidates', d / 'candidates'] if args.work else []),
              '--emit', d / 'selected.mjs', '-o', d / 'plan.json'], timeout=3600, env=env)
         record['planning_seconds'] = round(time.monotonic() - started, 2)
@@ -127,6 +132,7 @@ def main():
     parser.add_argument('--programs')
     parser.add_argument('--scratch', type=Path)
     parser.add_argument('--reference-compiler', type=Path, help='also time against this compiler\'s unplanned output (the previous default)')
+    parser.add_argument('--defaults', action='store_true', help='select with the ordinary default compile (automatic synthetic probes), supplying no inputs')
     parser.add_argument('--work', action='store_true', help='also record reference work and keep candidate packages for work_model.py')
     parser.add_argument('-o', '--output', type=Path, required=True)
     args = parser.parse_args()
