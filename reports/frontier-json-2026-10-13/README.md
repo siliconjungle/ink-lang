@@ -648,3 +648,52 @@ clauses. 48 tagged-word equations for 1–12 tag bits replay through ordinary RU
 with bounds as premises. See `docs/shared-bit-circuits.md` for scope, tests and
 the two independently reproduced baseline hardening failures. No new source
 optimisation or private layout is admitted merely by these measurements/proofs.
+
+## Compiled record elision (217–237)
+
+`record-elision-cohorts-217-237.json` measures the first compiled private layout,
+with six source-bound record sites and ordinary bidirectional database proofs.
+The complete source program and public/wire/checkpoint observations remain equal.
+Three fresh processes per boundary/implementation use the existing 512-field JSON
+and 4096-row state fixtures, nine rotated rounds and the shared Node 26.1 / M2
+host. JSON uses 200 warmups and 50 ms pilots. Lifecycle cohorts use eight fresh
+children each, with forced-GC retained observations separate from throughput.
+
+| Boundary | Ordinary Ink | Selected elision | Frontier |
+| --- | ---: | ---: | ---: |
+| Detached edit from prepared logical inputs (µs) | 37.211 | 327.627 | 100.744 / 102.046 |
+| Text → known edit → text (µs) | 291.770 | 892.851 | 81.173 / 80.411 |
+| 4096-row replacement (µs) | 2.846 | 2.321 | 0.702 / 0.726 |
+| Prepared replacement, preparation excluded (µs) | 0.792 | 0.796 | 0.475 / 0.461 |
+| Live state retained heap (bytes) | 3,243,984 | 2,326,048 | 838,672 |
+| Public owned JSON trees retained heap (bytes) | 3,815,360 | 3,815,264 | 790,608 |
+
+Selected state retains **28.3% less heap** and ordinary replacement takes **18.4%
+less time** than the ordinary carrier in these cohorts. Frontier still wins both
+boundaries. Prepared replacement is approximately unchanged. Public JSON trees
+keep their mutable logical format, so this layout does not reduce their memory.
+Forced-GC deltas and shared-host times are observations, not universal guarantees.
+
+Selecting private wrappers for the entire module makes logical pure calls much
+slower: the input tree must be converted and the output reconstructed. The recipe
+therefore remains an alternative requiring comparable lifecycle selection, not a
+new unconditional default. A private captured-value boundary and literal wire
+materialisation/writing are the next integration work; layout-only prototype
+numbers remain ineligible as compiled performance evidence.
+
+The previous release is rerun in processes 235–237: its detached result costs
+36.369 µs versus its Frontier control 102.728 µs. Therefore the historical change
+from 53 to 37 µs is **not** evidence of a new compiler speedup. Both ordinary
+releases win that ownership boundary. Direct owned-result copying is verified
+implementation machinery; these JSON observations do not establish its separate
+profitability. Message microbenchmarks differ from the prior focused cohorts and
+must not be pooled across operation order or process epochs.
+
+The measured modules embed the pre-concurrent JavaScript object-adapter ABI.
+Their exact bytes, source, plan, proofs and logs are archived under
+`artifacts/compiled-record-elision`. Publication preserves the subsequent explicit
+object adapters; these numbers remain bound to the archived modules. Full Core,
+JavaScript, producer/recipe and mandatory CPU JSON/state checks pass; the latter
+includes GPU host observations, not arbitrary real-device JSON coverage.
+The all-metrics Frontier goal and arbitrary JSON snapshot-diff capability remain
+unfulfilled. See `docs/private-record-layouts.md` for admission and trust scope.
