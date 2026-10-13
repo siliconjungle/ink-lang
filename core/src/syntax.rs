@@ -690,6 +690,13 @@ impl Parser {
                     .cloned()
                     .unwrap_or_default();
                 let (requires, ensures) = self.contracts()?;
+                if self.eat("decreases") {
+                    let measure = self.expr(0)?;
+                    self.expect(";")?;
+                    if p.termination.measures.insert(name.clone(), measure).is_some() {
+                        return Err(self.err("duplicate termination measure"));
+                    }
+                }
                 let statements = self.block()?;
                 let body = self.pure_body(&statements, None)?;
                 let body = self.contract_expression(body, &result, &requires, &ensures);

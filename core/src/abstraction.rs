@@ -26,6 +26,7 @@ fn expressions(p: &Program, mut visit: impl FnMut(&Expr)) {
     for f in &p.functions {
         visit(&f.body);
     }
+    for measure in p.termination.measures.values() { visit(measure); }
     for a in &p.actions {
         block(&a.body, &mut visit);
     }
@@ -73,6 +74,7 @@ fn mutate(p: &mut Program, visit: &mut impl FnMut(&mut Expr) -> LangResult<()>) 
     for f in &mut p.functions {
         visit(&mut f.body)?;
     }
+    for measure in p.termination.measures.values_mut() { visit(measure)?; }
     for a in &mut p.actions {
         block(&mut a.body, visit)?;
     }
@@ -402,6 +404,11 @@ pub(crate) fn check_and_strip(
     if !opaque.is_empty() {
         for f in &p.functions {
             inspect(p, f, opaque, origins)?;
+        }
+        for (name,measure) in &p.termination.measures {
+            let f=p.functions.iter().find(|f| &f.name==name).ok_or("termination function missing")?;
+            let result=crate::check::infer(measure,&crate::check::params_env(&f.params)?,p)?;
+            inspect(p,&Function {name:name.clone(),params:f.params.clone(),result,body:measure.clone()},opaque,origins)?;
         }
         for a in &p.actions {
             let types = crate::statecheck::action_typing(p, a)?;

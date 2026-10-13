@@ -251,6 +251,14 @@ pub(crate) fn calls(e: &Expr, out: &mut BTreeSet<String>) {
 }
 
 pub fn check(p: &Program) -> LangResult<()> {
+    check_impl(p,false)
+}
+/// Unsealed authoring inputs still receive typing, ownership and dependency
+/// checks. Only the authored-descent certificates are left as exported goals.
+pub fn check_termination_source(p:&Program)->LangResult<()> {
+    check_impl(p,true)
+}
+fn check_impl(p:&Program, authoring:bool)->LangResult<()> {
     let mut names = BTreeSet::new();
     for f in &p.functions {
         for (_, t) in &f.params {
@@ -298,6 +306,8 @@ pub fn check(p: &Program) -> LangResult<()> {
             ));
         }
     }
+    if authoring { crate::termination::obligations(p)?; }
+    else { crate::termination::check(p)?; }
     fn visit(
         n: &str,
         p: &Program,
@@ -322,7 +332,7 @@ pub fn check(p: &Program) -> LangResult<()> {
             .ok_or_else(|| format!("unknown function {n}"))?;
         let mut deps = BTreeSet::new();
         calls(&f.body, &mut deps);
-        if deps.remove(n) {
+        if deps.remove(n) && !p.termination.measures.contains_key(n) {
             crate::recursion::check_function(f, p)?;
         }
         for d in deps {

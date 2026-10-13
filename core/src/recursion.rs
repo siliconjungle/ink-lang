@@ -154,7 +154,8 @@ fn walk(
     }
     Ok(())
 }
-pub fn check_function(f: &Function, _p: &Program) -> LangResult<()> {
+pub fn check_function(f: &Function, p: &Program) -> LangResult<()> {
+    if crate::structural_descent::check(f,p).is_ok(){return Ok(())}
     for (index, (name, t)) in f.params.iter().enumerate() {
         let list = matches!(t, Type::List(_));
         if (list || matches!(t, Type::U32 | Type::U64))

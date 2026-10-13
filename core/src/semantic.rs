@@ -1013,6 +1013,12 @@ pub fn elaborate(e: &Expr, env: &check::Env, p: &Program, want: &Type) -> LangRe
                 if matches!(ty, Type::Buffer(_) | Type::Map(..)) {
                     let mut out = vec![recur(xs, &ty)?];
                     if let Type::Buffer(inner) = &ty {
+                        if n=="borrow_range" {
+                            out.push(recur(&args[0],&Type::U32)?);
+                            out.push(recur(&args[1],&Type::U32)?);
+                            out.push(lam(&args[2],&[ty.clone()],want,env,bound,p,b)?);
+                            return Ok(op(s,"method:borrow_range",out));
+                        }
                         if ["map", "map_indexed", "filter"].contains(&n.as_str()) {
                             let params = if n != "map_indexed" {
                                 vec![*inner.clone()]

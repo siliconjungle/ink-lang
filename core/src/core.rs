@@ -116,6 +116,8 @@ pub struct Program {
     pub keeps: Vec<BindingDecl>,
     pub events: std::collections::BTreeMap<String, Type>,
     pub actions: Vec<Action>,
+    #[serde(default, skip_serializing_if = "crate::termination::Declarations::is_empty")]
+    pub termination: crate::termination::Declarations,
     #[serde(default, skip_serializing_if = "crate::contracts::Contracts::is_empty")]
     pub contracts: crate::contracts::Contracts,
 }
@@ -131,6 +133,8 @@ pub const EXACT_FLOAT_SEMANTICS: &str = CANONICAL_FLOAT_SEMANTICS;
 pub const VALUE_SEMANTICS: &str = "ink-executable-core-v8";
 pub const CONTRACT_SEMANTICS: &str = "ink-executable-core-v10";
 pub const VALUE_INVARIANT_SEMANTICS: &str = "ink-executable-core-v11";
+pub const MEASURE_SEMANTICS: &str = "ink-executable-core-v12";
+pub const BORROW_RANGE_SEMANTICS: &str = "ink-executable-core-v13";
 pub const BULK_BUFFER_SEMANTICS: &str = "ink-executable-core-v9";
 pub const PARALLEL_SEMANTICS: &str = "ink-executable-core-v5";
 pub const SEQUENCE_SEMANTICS: &str = "ink-executable-core-v4";
@@ -442,6 +446,18 @@ fn bulk_buffer_needed(p: &Program) -> bool {
     found
 }
 
+fn borrow_range_needed(p:&Program)->bool {
+    let mut found=false;
+    let mut visit=|e:&Expr|crate::analysis::walk(e,|e|found|=matches!(e,Expr::Method(_,n,_) if n=="borrow_range"));
+    for f in &p.functions {visit(&f.body);}
+    for b in p.states.iter().chain(&p.keeps) {visit(&b.value);}
+    let mut blocks:Vec<_>=p.actions.iter().map(|a|a.body.as_slice()).collect();
+    while let Some(block)=blocks.pop() {for statement in block {match statement {
+        Statement::If(e,a,b)=>{visit(e);blocks.extend([a.as_slice(),b.as_slice()]);}
+        Statement::Let(_,_,e)|Statement::Expr(e)|Statement::Return(e)|Statement::Emit(_,e)=>visit(e),
+    }}}
+    found
+}
 impl CheckedModule {
     pub fn from_source(program: Program) -> LangResult<Self> {
         let (extended, sequence) = validate(&program)?;
@@ -449,7 +465,11 @@ impl CheckedModule {
         crate::check::check(&program)?;
         let module = Self(WireModule {
             schema: 1,
-            semantics: if !program.contracts.value_invariants.is_empty() {
+            semantics: if borrow_range_needed(&program) {
+                BORROW_RANGE_SEMANTICS
+            } else if !program.termination.is_empty() {
+                MEASURE_SEMANTICS
+            } else if !program.contracts.value_invariants.is_empty() {
                 VALUE_INVARIANT_SEMANTICS
             } else if !program.contracts.is_empty() || program.actions.iter().any(|a| a.kind==ActionKind::Change && !matches!(a.result,Type::Result(..))) {
                 CONTRACT_SEMANTICS
@@ -499,6 +519,8 @@ impl CheckedModule {
                 BULK_BUFFER_SEMANTICS,
                 CONTRACT_SEMANTICS,
                 VALUE_INVARIANT_SEMANTICS,
+                MEASURE_SEMANTICS,
+                BORROW_RANGE_SEMANTICS,
             ]
             .contains(&wire.semantics.as_str())
         {
@@ -779,6 +801,10 @@ fn validate(p: &Program) -> LangResult<(bool, bool)> {
     for (n, fields) in &p.records {
         b.name(n)?;
         b.params(fields)?;
+    }
+    for (name, measure) in &p.termination.measures {
+        b.name(name)?;
+        b.expr(measure,0)?;
     }
     for (name, predicate) in &p.contracts.value_invariants {
         b.name(name)?;

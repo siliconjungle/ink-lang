@@ -28,6 +28,7 @@ pub mod optimisation;
 pub mod source_extension;
 pub mod parallel;
 pub mod recursion;
+pub mod termination;
 pub mod registry;
 pub mod representation;
 pub mod routing;
@@ -71,6 +72,7 @@ pub use action_types::table_argument;
 pub mod last_use;
 
 pub mod bounds;
+mod structural_descent;
 
 pub mod column_codec;
 pub mod resources;

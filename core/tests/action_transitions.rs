@@ -385,3 +385,26 @@ fn nested_action_expansion_has_a_call_budget_independent_of_source_typing() {
         .unwrap_err()
         .contains("nested call depth limit"));
 }
+
+#[test]
+fn pure_left_folds_project_current_accumulators_and_owned_record_carriers() {
+    let source="module folds;
+      fn left(xs:List<u32>,base:u32)->u32{return foldl(xs,0,fn(x)=>fn(acc)=>acc*base+x);}
+      fn right(xs:List<u32>,base:u32)->u32{return foldr(xs,0,fn(x)=>fn(acc)=>acc*base+x);}
+      fn copied(xs:List<u32>)->List<u32>{var output:Buffer<u32>=Buffer.empty();for x in xs{output=output.push(x);}return output.freeze();}
+      query left_value(xs:List<u32>,base:u32)->u32{return left(xs,base);}
+      query right_value(xs:List<u32>,base:u32)->u32{return right(xs,base);}
+      query copied_value(xs:List<u32>)->List<u32>{return copied(xs);}";
+    let checked=module(source);let model=Projection::derive(&checked).unwrap();let context=model.context().unwrap();
+    let list=data(&model.types["{\"List\":\"U32\"}"]);
+    let rows=[1,2,3].into_iter().rev().fold(c(list,0,vec![]),|tail,x|c(list,1,vec![Term::U64(x),tail]));
+    let state=c(&model.state,0,vec![]);
+    for (query,expected) in [("left_value",Term::U64(123)),("right_value",Term::U64(321)),("copied_value",rows.clone())] {
+        let mut args=vec![state.clone(),Term::U64(0),rows.clone()];if query!="copied_value"{args.push(Term::U64(10));}
+        let actual=context.evaluate(&[],&call(&model.actions[query].function,args)).unwrap();
+        let Term::Construct{arguments,..}=actual else {panic!()};
+        assert_eq!(arguments[0],expected,"{query}");assert_eq!(arguments[3],state);assert_eq!(arguments[4],c(&model.events,0,vec![]));
+    }
+    let empty=context.evaluate(&[],&call(&model.actions["left_value"].function,vec![state,Term::U64(0),c(list,0,vec![]),Term::U64(10)])).unwrap();
+    let Term::Construct{arguments,..}=empty else {panic!()};assert_eq!(arguments[0],Term::U64(0));
+}

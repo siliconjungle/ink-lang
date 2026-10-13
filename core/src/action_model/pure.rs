@@ -55,7 +55,7 @@ impl Lower<'_> {
         bound: &[Term],
         depth: usize,
     ) -> LangResult<Term> {
-        let (lambda, initial) = if op == "call:foldr" {
+        let (lambda, initial) = if matches!(op, "call:foldr" | "call:foldl") {
             (&args[2], Some(&args[1]))
         } else {
             (&args[1], None)
@@ -129,7 +129,7 @@ impl Lower<'_> {
         } else {
             c(id(&output)?, 0, vec![])
         };
-        let recur = Term::SelfCall(recursive);
+        let recur = Term::SelfCall(recursive.clone());
         let Node::Lambda(body) = &lambda.node else {
             return Err("pure traversal lambda".into());
         };
@@ -138,12 +138,17 @@ impl Lower<'_> {
             let Node::Lambda(body) = &body.node else {
                 return Err("pure fold accumulator".into());
             };
-            local_bound.push(recur.clone());
+            // A left fold gives the step the current accumulator before
+            // recursing. A right fold gives it the already folded tail.
+            local_bound.push(if op == "call:foldl" { v("pure_initial") } else { recur.clone() });
             self.pure_term(body, &local_env, &local_bound, depth + 1)?
         } else {
             self.pure_term(body, &local_env, &local_bound, depth + 1)?
         };
-        let cons = if op == "call:foldr" {
+        let cons = if op == "call:foldl" {
+            *recursive.last_mut().ok_or("left fold accumulator")? = mapped;
+            Term::SelfCall(recursive)
+        } else if op == "call:foldr" {
             mapped
         } else if op == "method:filter" {
             choice(
@@ -208,9 +213,13 @@ impl Lower<'_> {
                 .cloned()
                 .ok_or("unbound action model pure index".into()),
             Node::Op(op, args) => {
+                if op=="method:borrow_range" {
+                    let reduced=crate::owned_semantic::reduce(t)?.ok_or("borrow_range correspondence")?;
+                    return self.pure_term(&reduced,env,bound,depth+1);
+                }
                 if op=="call:repeat"||op=="call:repeat_until" {return self.pure_loop(t,op,args,env,bound,depth);}
                 if let Some(value)=self.pure_local(t,op,args,env,bound,depth)? {return Ok(value);}
-                if ["method:map", "method:filter", "call:foldr"].contains(&op.as_str()) {
+                if ["method:map", "method:filter", "call:foldr", "call:foldl"].contains(&op.as_str()) {
                     return self.pure_collection(t, op, args, env, bound, depth);
                 }
                 if op == "method:fold" {
