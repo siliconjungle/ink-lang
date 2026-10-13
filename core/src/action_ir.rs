@@ -603,6 +603,12 @@ impl<'a> Lower<'a> {
                         let expected = match target {
                             Some((true, i)) => Some(&self.p.actions[i].params[index].1),
                             Some((false, i)) => Some(&self.p.functions[i].params[index].1),
+                            None if crate::primitives::primitive(name) => {
+                                let first=args.first().and_then(|a|self.typing.values.get(&(a as *const Expr as usize)));
+                                let (params,_)=crate::primitives::signature(name,first)?;
+                                arguments.push(self.expr(arg,Some(&params[index]),env)?);
+                                continue;
+                            }
                             None => match (name.as_str(), &ty) {
                                 (name, _) if crate::word::primitive(name) => {
                                     Some(if index > 0 && crate::word::count(name) {
@@ -961,6 +967,12 @@ impl Body {
                     }
                 }
                 Kind::Builtin { name, arguments } => match name.as_str() {
+                    name if crate::primitives::primitive(name) => {
+                        let first=arguments.first().and_then(|a|match &self.nodes[*a].ty{ExprType::Value(t)=>Some(t),_=>None});
+                        let (params,result)=crate::primitives::signature(name,first)?;
+                        let rt=solver.ty(&result);solver.unify(out()?,rt)?;
+                        for (arg,ty) in arguments.iter().zip(params){let rt=solver.ty(&ty);solver.unify(val(*arg)?,rt)?;}
+                    }
                     name if crate::word::primitive(name) => {
                         solver.unify(out()?, val(arguments[0])?)?;
                         if arguments.len() > 1 {
