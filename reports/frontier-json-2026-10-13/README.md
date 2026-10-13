@@ -4,6 +4,46 @@ The all-metrics target remains unmet. Read-heavy state and retained JSON editing
 win in these fixtures; row updates, conversion and portable-message codecs lose.
 This is a shared development host, not a controlled laboratory.
 
+## Owned-value release and phase controls
+
+Distribution `d211fbb3` publishes ABI `e605df8` and JS `1c5082e`.
+`ValueCodec.capture` validates and returns an owned canonical logical tree in one
+traversal, without binary buffers. `copy` assumes stable, already valid values.
+`callOwned` keeps the pure-call trusted input contract and emits literal typed
+result copying with static field names. It checks resource budgets and retains
+preconditions; unsupported owned capabilities do not disable ordinary calls.
+Algorithms and equality authority remain in knowledge. Full ABI/JS and mandatory
+JSON/state integration suites passed, including exact float bits, integers,
+recursion, detachment, limits, preconditions and portable snapshots.
+
+`owned-values-paired-summary.json` records a 15.45× median process speedup over
+the historical Ink structured-clone mechanism for warmed complete owned editing.
+The compiler adds 16,812 bytes (4.63%) to this fixture's generated module.
+Generic checked copying improves about 2.5× and generic trusted copying about
+3.2×; profiling identified dynamic record keys as the remaining copying cost.
+The compiler emits ordinary declared types literally, without JSON recognition
+or runtime source generation. Tests do not prove backend correctness.
+
+`owned-release-cohorts-90-92.json` retains the complete early-execution suite.
+With its three-call warmup and ten-call pilot, the detached lane still loses.
+It is an earlier-execution measurement, not the warmed throughput result. Warmup,
+pilot duration and shared-host conditions differ; these do not isolate one cause.
+Those results are not
+discarded or replaced. `owned-warm-cohorts-93-95.json` applies 200 warmup calls
+to every library/lane and 50 ms pilots, then nine rotated rounds in three fresh
+processes. Median warmed detached-output times are 61.768 µs for Ink and
+104.943 µs for Frontier, a 1.70× Ink win. Per-process Ink is 54.995–64.631 µs;
+Frontier is 100.672–106.313 µs. Checked Ink copying remains slower than Frontier.
+Both primary owned comparators pass independent value and complete object-identity
+detachment checks; generic capture also has separate ABI conformance coverage.
+
+This is a warmed detached-edit result, not an all-metrics, startup or memory win.
+Other known gaps include ordinary replacement, JSON text conversion, message
+decoding, general snapshot diff and equivalent lifecycle/memory comparisons.
+The literal/runtime helper cost and earlier execution must remain visible when
+choosing a boundary. Exact modules, sources, profile samples and diagnostic
+harnesses are archived under `artifacts/owned-values/`.
+
 ## Current release: fresh Frontier comparison
 
 `json-boundary-release-cohorts-80-82.json` binds distribution `91ddf323`, ABI
