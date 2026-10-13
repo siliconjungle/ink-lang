@@ -36,6 +36,31 @@ both candidates, source, tests and old/new harnesses are archived in
 `artifacts/wire-scalar-budgets/`. These paired diagnostics do not establish a
 Frontier, startup or memory win. The all-metrics target remains open.
 
+`wire-scalar-release-cohorts-120-132.json` binds published distribution `72852dfc`,
+ABI `72b2643` and JavaScript `1cbc5f9`. The compiler-emitted module exactly matches
+the paired scalar-budget candidate. Three fresh processes per message operation,
+200 warmup calls and nine rotated rounds give the following process medians:
+
+| Message boundary | Ink µs/call | Frontier µs/call |
+| --- | ---: | ---: |
+| Portable encode | 0.690 | 0.691 |
+| Agreed-schema encode | 0.489 | 0.691 |
+| Portable decode | 0.692 | 0.352 |
+| Agreed-schema decode | 0.469 | 0.352 |
+
+Compact encoding wins 1.41×; portable encoding is approximately tied. Compact
+and portable decoding still take 1.33×/1.97× longer. Update sizes remain
+15 compact / 84 portable / 20 Frontier bytes, with distinct protocol contracts.
+The same release's three replacement processes preserve complete outcomes,
+logical state and exact Ink snapshots. Ordinary replacement is 2.627 µs versus
+Frontier main 0.693 µs; prepared replacement is 1.004 µs versus 0.487 µs with
+preparation excluded for both. The indexed lane remains a separately supplied,
+older frozen artifact, explicitly hash-bound; it is not automatically regenerated
+by baseline selection. The source algorithm has not changed. Host conditions vary;
+absolute times from previous releases are not causal before/after evidence.
+Queries, detached JSON output, text pipelines, startup and memory are not reranked
+by this cohort, and the full performance goal remains unmet.
+
 ## Incremental checked text rendering
 
 The JSON boundary now accumulates validated output into a string rather than
