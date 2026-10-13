@@ -21,6 +21,10 @@ if(mode.startsWith('row')){
  let script=f.script.map(s=>({...s,args:[s.args[0],row(s.args[1]),false]}));
  if(mode==='row-prepared')script=script.map(s=>({...s,token:state.prepare(s.call,s.args)}));
  run=i=>{const s=script[i%script.length],r=s.token?state.invokePrepared(s.token):state.invoke(s.call,s.args);state.acknowledgeThrough(0xffffffffffffffffn,0xffffffffffffffffn);return Number(r.version)+r.events.length;};
+}else if(mode==='message-portable'||mode==='message-compact'){
+ const values=ink.valueCodecs.identity.result,codec=await ink.createValueCodec({kind:'record',name:'Update',fields:[{name:'key',type:{kind:'string'}},{name:'value',type:values.descriptor.root}]},values.descriptor.named);
+ const decoder=mode==='message-compact'?codec.compact():codec,bytes=decoder.encode({key:'k00000',value:ink.parseJson('777')});
+ run=()=>{const value=decoder.decode(bytes);return value.key.length+Number(value.value.payload.Err.Err.Ok.item0);};
 }else{
  const doc=Object.fromEntries(Array.from({length:512},(_,i)=>['k'+String(i).padStart(5,'0'),i]));
  doc.unknown={nested:['雪',true,null,3],enabled:false};
