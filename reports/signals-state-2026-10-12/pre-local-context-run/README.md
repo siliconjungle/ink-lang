@@ -1,4 +1,4 @@
-# Signal-inspired state execution — retained comparison
+# Dependency-tracked state execution — retained comparison
 
 Exploratory state-only Node comparison on Apple M2 (v26.1.0, darwin/arm64). Seven alternating repetitions at 256, 4096 and 16384 rows. The machine was shared with concurrent work; raw samples and ranges are retained. These results do not establish a framework-wide or rendering advantage.
 

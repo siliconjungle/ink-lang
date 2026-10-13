@@ -51,11 +51,90 @@ checks. Option and Result use explicit `{Some:...}`, `{None:null}`, `{Ok:...}` o
 codec preserves all raw f32 bits. Arbitrary future shapes require checked guards
 or contracts; usage profiles only guide representation profitability.
 
+## Plain objects at the JavaScript boundary
+
+JavaScript applications can use `JsonCodec.fromJS` and `JsonCodec.toJS` without a
+JSON text round trip or a declared record for each incoming object shape:
+
+```js
+import {JsonCodec, valueCodecs, callOwned} from './json.mjs';
+const documents = new JsonCodec(valueCodecs.identity.result);
+const input = {title: 'hello', unknown: {items: [true, null, 3]}};
+const result = callOwned('mark_received', [documents.fromJS(input)]);
+if (Object.hasOwn(result, 'Ok')) console.log(documents.toJS(result.Ok));
+```
+
+These are explicit JavaScript host adapters to the same recursive `Json` type.
+They do not add source primitives, alter portable schemas/checkpoints, or run in
+native Rust/C/Wasm execution. Existing calls and codecs do not invoke them.
+Their source bytes are included in generated JavaScript; traversal work and
+allocation occur only when the methods are called. The resulting logical value
+can use ordinary calls or existing portable/compact binary calls. A JavaScript
+host may also encode it and hand the unchanged portable bytes to a native or
+Wasm consumer. No adapter is inserted into that consumer's computation.
+
+The input domain is null, booleans, well-formed strings, finite Numbers, BigInts,
+dense plain arrays, and current-realm plain objects with ordinary or null
+prototypes. All object fields must be enumerable own string-keyed data
+properties. Undefined, functions, symbols, accessors, hidden properties,
+non-finite numbers, class instances, sparse/decorated arrays and cycles reject.
+`toJSON` and getters are not invoked. Inputs must remain stable; Proxy reflection
+can execute traps, so this is not a sandbox for hostile JavaScript code.
+
+Containers are detached, repeated references become independent values, and
+returned objects have ordinary prototypes with safe own `__proto__` properties.
+Numeric spelling and JSON member order are not generally preserved by plain JS
+values. BigInt becomes an exact integer token; JSON has no separate BigInt tag.
+`toJS` defaults to `numbers: 'number'`, rejecting non-finite results and decimal
+values that change when reserialized as a Number. `numbers: 'bigint'` requires
+integral values of at most 4096 decimal digits; `numbers: 'string'` preserves all
+numeric tokens as strings. Negative zero survives Number conversion. Existing
+portable byte/node/depth budgets apply to both methods.
+
+Known record schemas should still use direct typed calls or `ValueCodec.capture`;
+they need no dynamic-JSON conversion and can accept supported typed-array inputs.
+
 ## Keep values compiled across the network
 
 `ink-value-wire-v1` is a portable typed value format, owned by the ABI package.
 Networking, framing, compression and connection management stay outside Ink.
 A buffer can pass through a relay unchanged, without reconstructing JSON text.
+
+For a JavaScript connection that agrees on the exact schema identity beforehand,
+`valueCodecs.fn.arguments.compact()` and `.result.compact()` expose
+`ink-value-session-v1`. Generated JavaScript `callCompact(name, bytes, limits)`
+executes the same pure function and preconditions through that codec. It uses one
+version byte, canonical variable-length text/count prefixes and schema-directed
+fields, without the portable format's hash or per-node frames. Both peers must
+agree on the codec's `.identity` and `.format`; bytes alone cannot detect use of
+the wrong schema. All type, Unicode, tag, node/depth and byte bounds remain
+checked. Results and buffers are owned. This optional JavaScript transport does
+not change `ink-value-wire-v1`, native signatures or state snapshots, and native
+backends do not yet expose direct compact calls.
+
+JavaScript `JsonCodec.parseCompact(text, limits)` and
+`TypedJsonCodec.parseCompact(text, limits)` construct those agreed-schema bytes
+directly from JSON tokens, without a temporary logical tree. Both paths validate
+the completed value against the full schema. Input text and final compact bytes
+each obey the byte limit, and source/wire node and depth checks remain distinct.
+This optional construction path leaves `parse`, `parseBinary` and checkpoints
+unchanged. `TypedJsonCodec` uses the declared record/sum shapes; arbitrary JSON
+inside a library `Json` field uses `JsonCodec` and validated buffer composition.
+Measurements must choose between direct emission and logical
+parse/encode for the actual workload: bypassing a tree is not a universal speed
+guarantee.
+
+```js
+import {JsonCodec, valueCodecs, callCompact} from './json.mjs';
+const documents = new JsonCodec(valueCodecs.identity.result);
+const document = documents.parseCompact('{"title":"hello"}');
+const requests = valueCodecs.mark_received.arguments.compact();
+// Compose validated document bytes into the one-field argument record.
+// The connection negotiates arguments/result schema identities beforehand.
+const request = requests.encodeWith(w => w.frame(() => w.bytes(document.subarray(1))));
+const reply = callCompact('mark_received', request);
+const result = valueCodecs.mark_received.result.compact().decode(reply);
+```
 
 ```js
 import {ValueCodec,JsonCodec,valueCodecs,callBinary,metadata} from './json.mjs';
@@ -106,21 +185,74 @@ witness after the caller mutates a buffer. The binary pure-call boundaries valid
 again. Structural wire validation alone does not establish source preconditions;
 executed public functions still check their declared preconditions.
 
+JavaScript binds portable validation and visitation operations lazily to the
+immutable descriptor. The scan plan and cursor are separate from decoding;
+recursive children retain complete frame, Unicode, discriminant and resource
+checks. Selected visitor names restrict callbacks, never validation. Callbacks
+run in postorder with the same byte spans and no exposed internal cursor.
+The generic materialising scanner remains an independent conformance oracle.
+Compiler-derived JavaScript codecs may validate the complete buffer and then
+materialise it with literal typed readers and static field names. Arbitrary
+runtime schemas retain generic decoding. The materialisers are trusted backend
+code; their callbacks are not an untrusted extension mechanism or a proof of
+meaning. Full validation precedes synchronous owned materialisation for both
+portable and compact formats, with their existing schema and resource contracts.
+JSON and typed JSON share an exact token cursor; number text is not converted
+through JavaScript Number. Sparse logical arrays reject during JSON rendering.
+
+The plain JavaScript pure `call` API borrows stable caller inputs and can share
+their containers in its result. Callers manage that aliasing. Stateful replies
+and binary calls retain their own capture/encoding ownership boundaries.
+`callOwned` keeps that trusted input contract and uses literal type-directed
+copies to return a detached canonical logical value. Declared preconditions still
+execute, and result copying obeys ABI byte/node/depth bounds; pure execution has
+no timeout. `ValueCodec.capture` validates and owns external logical values in
+one traversal; `ValueCodec.copy` requires already valid, stable values. Neither
+operation grants rewrite authority or proves the backend correct.
+Benchmarks distinguish retained sharing from fully detached mutable JSON trees;
+text output is an owned string without requiring a detached intermediate tree.
+
 ## Compiler, database and trust boundary
 
 Compiler changes are stable, hygienic naming of all payload enums and a shared generic recursive-record analysis. C checkpoint schema construction now handles bound recursive types with explicit budgets. JSON
 algorithms and datatype definitions stay in knowledge. General schema derivation,
 byte codecs, bounded validation and entrypoint plumbing live in ABI/support,
 lowerings and runtime. No JSON-specific rewrite or storage strategy is selected
-by core. Six database laws cover lookup after put, empty lookup, projection
+by core. Eight database laws cover lookup after put, first-match early exit, empty lookup, projection
 idempotence, projection/map fusion and concrete String instances. Their proof
 bytes and premises are checked through the ordinary law machinery; profiles and
 schema hashes confer no rewrite authority.
 
 Transport implementation is operationally trusted. Its conformance tests do not
-prove backend/codec correctness. This baseline materializes target values for a
-compiled call, uses a temporary generic carrier in native adapters and copies at
-Wasm memory boundaries. It does not promise zero-copy mutation, a globally optimal
-layout or measured speedups. Direct borrowed validation/relay already avoids a
-JSON document tree. Further direct typed decoding, lazy/indexed layouts and fusion
-need explicit implementations, correspondence proofs and lifecycle measurements.
+prove backend/codec correctness. Both JSON codecs now stream text directly into
+schema-bound frames and render frames directly to text. Scalars may allocate
+individual string/number tokens; neither path builds a complete JSON AST or an
+intermediate serde_json value tree. Typed text records accept any member order;
+already ordered fields need no reorder copy. Unknown, missing or duplicate names,
+invalid numbers, forged frames and lowered resource-limit violations reject.
+
+Generated Rust binary calls decode directly into the emitted native types through
+`BinaryValue` and encode those types through the ABI's bounded `Encoder`. C calls
+decode directly into their ordinary typed value arena and emit frames from arena
+values. Both paths preserve preconditions, raw f32 bits and exact Int. Wasm uses
+the same implementations, with copies at its memory boundary. Calls still
+materialise native values, and source algorithms retain their normal ownership
+costs; this is not zero-copy execution of arbitrary compiled programs.
+
+Rust validated views also offer declaration-order `fields()` traversal and an
+optional `SequenceIndex` with O(1) reads. Index construction scans once and retains
+four bytes per element. `wire_packed::pack_flat(view)` bridges supported flat
+numeric records/vectors/lists directly into the existing compute word layout,
+without a generic value carrier. Non-finite f32 bits survive packing and set the
+separate `finite` eligibility flag. Arbitrary JSON objects do not qualify for
+flat numeric packing.
+
+The ABI benchmark in `abi/examples/value_boundaries.rs` measures construction,
+whole lifecycles and resident reads separately. The knowledge producer
+`value_boundary_measurements.py` publishes immutable observations bound to exact
+code, target, shape and phase. The existing generic lifecycle planner ranks them;
+missing comparable evidence retains the baseline. These are host boundary
+alternatives, separate from source rewrites. No compiler recognition case or
+benchmark result grants mathematical authority. See the measured report in
+`reports/value-boundaries-2026-10-13` and the Frontier comparison in
+`reports/frontier-json-2026-10-13` for current numbers and limits.

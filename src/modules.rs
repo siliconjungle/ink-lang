@@ -487,6 +487,8 @@ impl Loader {
         let text = match path.to_str() {
             Some("std:words") => include_str!("../stdlib/words.ink").into(),
             Some("std:lists") => include_str!("../stdlib/lists.ink").into(),
+            Some("std:text") => include_str!("../knowledge/libraries/text.ink").into(),
+            Some("std:math") => include_str!("../knowledge/libraries/math.ink").into(),
             Some("std:json") => include_str!("../knowledge/libraries/json.ink").into(),
             Some(s) if s.starts_with("std:") => return Err(format!("unknown standard module {s}")),
             _ => {

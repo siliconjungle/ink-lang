@@ -477,6 +477,13 @@ impl Context<'_> {
                     }
                     return self.expected(e, &t, env, facts);
                 }
+                if crate::primitives::primitive(n) {
+                    let first=if crate::primitives::bit_count(n){args.first().map(|e|self.infer(e,env,facts)).transpose()?}else{None};
+                    let (params,result)=crate::primitives::signature(n,first.as_ref())?;
+                    if args.len()!=params.len(){return Err(format!("{n}: argument count mismatch"));}
+                    for (arg,ty) in args.iter().zip(params){self.expected(arg,&ty,env,facts)?;}
+                    return Ok(result);
+                }
                 match n.as_str() {
                     "choose" => {
                         if args.len() != 3 {

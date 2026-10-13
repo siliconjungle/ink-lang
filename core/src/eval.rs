@@ -1016,6 +1016,12 @@ fn evaluate_apply(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> LangR
     } = frame;
     match e {
         Expr::Call(n, args) => {
+            if crate::primitives::primitive(n) {
+                let first=if crate::primitives::bit_count(n){args.first().map(|e|crate::check::infer(e,types,p)).transpose()?}else{None};
+                let (params,_)=crate::primitives::signature(n,first.as_ref())?;
+                let vals=args.iter().zip(params).map(|(e,t)|expr(e,env,types,p,fuel,Some(&t),depth).and_then(crate::stateful::Value::from_eval)).collect::<LangResult<Vec<_>>>()?;
+                return crate::primitives::evaluate(n,&vals)?.to_eval();
+            }
             if [
                 "Int",
                 "Some",

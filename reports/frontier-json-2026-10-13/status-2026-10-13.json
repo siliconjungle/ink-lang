@@ -1,0 +1,234 @@
+{
+  "schema": 1,
+  "status": "development measurements; all-metrics target unmet",
+  "aggregation": "median of nine rotated rounds per lane; one fresh process per selected state fixture and one fresh process for JSON; shared development host",
+  "state_contract": "retained state; complete replies, errors, rollback, versions and events checked; exact portable snapshots checked for Ink variants",
+  "measurements": [
+    {
+      "workload": "replace",
+      "rows": 4096,
+      "lane": "ink-js",
+      "median_ns_per_call": 5326.1036184210525,
+      "source_report": "state-targeted-replace-4096-3.json"
+    },
+    {
+      "workload": "replace",
+      "rows": 4096,
+      "lane": "ink-js-prepared",
+      "median_ns_per_call": 1277.7961687853108,
+      "source_report": "state-targeted-replace-4096-3.json"
+    },
+    {
+      "workload": "replace",
+      "rows": 4096,
+      "lane": "ink-js-db-indexed",
+      "median_ns_per_call": 38738.71527777778,
+      "source_report": "state-targeted-replace-4096-3.json"
+    },
+    {
+      "workload": "replace",
+      "rows": 4096,
+      "lane": "frontier-state-main-patch",
+      "median_ns_per_call": 1292.6603618421052,
+      "source_report": "state-targeted-replace-4096-3.json"
+    },
+    {
+      "workload": "replace",
+      "rows": 4096,
+      "lane": "frontier-state-main-prepared-patch",
+      "median_ns_per_call": 842.2430616258741,
+      "source_report": "state-targeted-replace-4096-3.json"
+    },
+    {
+      "workload": "mixed",
+      "rows": 4096,
+      "lane": "ink-js",
+      "median_ns_per_call": 44395.401041666664,
+      "source_report": "state-targeted-mixed-4096-3.json"
+    },
+    {
+      "workload": "mixed",
+      "rows": 4096,
+      "lane": "ink-js-prepared",
+      "median_ns_per_call": 42838.134765625,
+      "source_report": "state-targeted-mixed-4096-3.json"
+    },
+    {
+      "workload": "mixed",
+      "rows": 4096,
+      "lane": "ink-js-db-indexed",
+      "median_ns_per_call": 43725.2197265625,
+      "source_report": "state-targeted-mixed-4096-3.json"
+    },
+    {
+      "workload": "mixed",
+      "rows": 4096,
+      "lane": "frontier-state-main-patch",
+      "median_ns_per_call": 152040.8515625,
+      "source_report": "state-targeted-mixed-4096-3.json"
+    },
+    {
+      "workload": "mixed",
+      "rows": 4096,
+      "lane": "frontier-state-main-prepared-patch",
+      "median_ns_per_call": 149628.25390625,
+      "source_report": "state-targeted-mixed-4096-3.json"
+    },
+    {
+      "workload": "read-heavy",
+      "rows": 4096,
+      "lane": "ink-js",
+      "median_ns_per_call": 245056.27777777778,
+      "source_report": "state-targeted-read-heavy-4096-3.json"
+    },
+    {
+      "workload": "read-heavy",
+      "rows": 4096,
+      "lane": "ink-js-prepared",
+      "median_ns_per_call": 225427.65972222222,
+      "source_report": "state-targeted-read-heavy-4096-3.json"
+    },
+    {
+      "workload": "read-heavy",
+      "rows": 4096,
+      "lane": "ink-js-db-indexed",
+      "median_ns_per_call": 14766.13136574074,
+      "source_report": "state-targeted-read-heavy-4096-3.json"
+    },
+    {
+      "workload": "read-heavy",
+      "rows": 4096,
+      "lane": "frontier-state-main-patch",
+      "median_ns_per_call": 842472.8020833334,
+      "source_report": "state-targeted-read-heavy-4096-3.json"
+    },
+    {
+      "workload": "read-heavy",
+      "rows": 4096,
+      "lane": "frontier-state-main-prepared-patch",
+      "median_ns_per_call": 841203.2708333334,
+      "source_report": "state-targeted-read-heavy-4096-3.json"
+    },
+    {
+      "workload": "known-edit-immutable",
+      "fields": 512,
+      "lane": "frontier-immutable-known-patch",
+      "median_ns_per_call": 84683.59375,
+      "source_report": "json-2.json"
+    },
+    {
+      "workload": "known-edit-immutable",
+      "fields": 512,
+      "lane": "ink-js-compiled-json-set",
+      "median_ns_per_call": 5215.277777777777,
+      "source_report": "json-2.json"
+    },
+    {
+      "workload": "snapshot-difference-and-immutable-apply",
+      "fields": 512,
+      "lane": "frontier-full-diff-and-apply",
+      "median_ns_per_call": 193078.53846153847,
+      "source_report": "json-2.json"
+    },
+    {
+      "workload": "snapshot-difference-and-immutable-apply",
+      "fields": 512,
+      "lane": "frontier-dirty-diff-and-apply",
+      "median_ns_per_call": 85689.30172413793,
+      "source_report": "json-2.json"
+    },
+    {
+      "workload": "json-text-input-edit-text-output",
+      "fields": 512,
+      "lane": "ink-json-text-pipeline",
+      "median_ns_per_call": 1609087.5,
+      "source_report": "json-2.json"
+    },
+    {
+      "workload": "json-text-input-edit-text-output",
+      "fields": 512,
+      "lane": "ink-binary-pipeline",
+      "median_ns_per_call": 4232687.5,
+      "source_report": "json-2.json"
+    },
+    {
+      "workload": "json-text-input-edit-text-output",
+      "fields": 512,
+      "lane": "frontier-json-text-known-edit",
+      "median_ns_per_call": 88028.36134453781,
+      "source_report": "json-2.json"
+    },
+    {
+      "workload": "external-document-validate",
+      "fields": 512,
+      "lane": "frontier-json-text-parse-validate",
+      "median_ns_per_call": 79208.64885496184,
+      "source_report": "json-2.json"
+    },
+    {
+      "workload": "external-document-validate",
+      "fields": 512,
+      "lane": "ink-binary-json-validate",
+      "median_ns_per_call": 937041.6666666666,
+      "source_report": "json-2.json"
+    },
+    {
+      "workload": "edit-message-encode",
+      "fields": 512,
+      "lane": "ink-typed-wire-encode",
+      "median_ns_per_call": 4557.715798045602,
+      "source_report": "json-2.json"
+    },
+    {
+      "workload": "edit-message-encode",
+      "fields": 512,
+      "lane": "frontier-patch-encode",
+      "median_ns_per_call": 1277.1392832995266,
+      "source_report": "json-2.json"
+    },
+    {
+      "workload": "edit-message-decode",
+      "fields": 512,
+      "lane": "frontier-patch-decode",
+      "median_ns_per_call": 793.5970766685052,
+      "source_report": "json-2.json"
+    },
+    {
+      "workload": "edit-message-decode",
+      "fields": 512,
+      "lane": "ink-typed-wire-decode",
+      "median_ns_per_call": 2887.823239120682,
+      "source_report": "json-2.json"
+    }
+  ],
+  "json_sizes": [
+    {
+      "fields": 4,
+      "json_bytes": 102,
+      "ink_document_bytes": 497,
+      "frontier_patch_bytes": 20,
+      "ink_update_bytes": 84
+    },
+    {
+      "fields": 64,
+      "json_bytes": 816,
+      "ink_document_bytes": 3071,
+      "frontier_patch_bytes": 20,
+      "ink_update_bytes": 84
+    },
+    {
+      "fields": 512,
+      "json_bytes": 6604,
+      "ink_document_bytes": 22747,
+      "frontier_patch_bytes": 20,
+      "ink_update_bytes": 84
+    }
+  ],
+  "limitations": [
+    "Not the final repeated-process cohort comparison.",
+    "Maintained indexed plan is a checked database alternative, not a universal default winner.",
+    "No peak-memory comparison yet.",
+    "JSON wire formats have different protocol contents.",
+    "Setup and compilation excluded from these steady-state numbers."
+  ]
+}

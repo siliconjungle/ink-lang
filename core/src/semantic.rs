@@ -372,6 +372,12 @@ pub fn validate(t: &Term, env: &Env, p: &Program, b: &mut Budget) -> LangResult<
                             return Err("numeric negation sort".into());
                         }
                     }
+                    n if n.strip_prefix("call:").is_some_and(crate::primitives::primitive) => {
+                        let first=args.first().map(|a|val(&a.sort)).transpose()?;
+                        let (params,result)=crate::primitives::signature(&n[5..],first)?;
+                        arity(params.len())?;need(&t.sort,value(result))?;
+                        for (arg,ty) in args.iter().zip(params){need(&arg.sort,value(ty))?;}
+                    }
                     "call:choose" => {
                         arity(3)?;
                         need(a(0)?, value(Type::Bool))?;
@@ -828,6 +834,11 @@ pub fn elaborate(e: &Expr, env: &check::Env, p: &Program, want: &Type) -> LangRe
                 }
                 let mut out = Vec::new();
                 match n.as_str() {
+                    name if crate::primitives::primitive(name) => {
+                        let first=if crate::primitives::bit_count(name){args.first().map(|a|check::infer(a,env,p)).transpose()?}else{None};
+                        let (params,_)=crate::primitives::signature(name,first.as_ref())?;
+                        for (arg,ty) in args.iter().zip(params){out.push(recur(arg,&ty)?);}
+                    }
                     "repeat_until" => {
                         out.push(recur(&args[0], &Type::U32)?);
                         out.push(recur(&args[1], want)?);
@@ -1256,7 +1267,7 @@ pub fn reify(t: &Term, p: &Program) -> LangResult<Expr> {
             }
             Node::Float(n) => {
                 if !f32::from_bits(*n).is_finite() {
-                    return Err("nonfinite source literal".into());
+                    return Ok(Expr::Call("f32_from_bits".into(),vec![Expr::Num(*n as u64)]));
                 }
                 Expr::Float(*n)
             }

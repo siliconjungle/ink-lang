@@ -1,0 +1,166 @@
+{
+  "schema": 1,
+  "source_reports": [
+    "reports/frontier-json-2026-10-13/json-targeted-61.json",
+    "reports/frontier-json-2026-10-13/json-targeted-62.json",
+    "reports/frontier-json-2026-10-13/json-targeted-63.json"
+  ],
+  "processes": [
+    61,
+    62,
+    63
+  ],
+  "measurements": [
+    {
+      "operation": "edit-message-decode",
+      "lane": "frontier-patch-decode",
+      "median_ns_per_call": 1050.4099513250405,
+      "process_medians_ns": {
+        "61": 1015.93864013267,
+        "62": 1050.4099513250405,
+        "63": 1071.5890928725703
+      }
+    },
+    {
+      "operation": "edit-message-decode",
+      "lane": "ink-agreed-schema-decode",
+      "median_ns_per_call": 1163.1946935724964,
+      "process_medians_ns": {
+        "61": 1163.1946935724964,
+        "62": 1153.364849833148,
+        "63": 1243.4539759036145
+      }
+    },
+    {
+      "operation": "edit-message-decode",
+      "lane": "ink-typed-wire-decode",
+      "median_ns_per_call": 1421.3782495667244,
+      "process_medians_ns": {
+        "61": 1386.8671180702497,
+        "62": 1421.3782495667244,
+        "63": 1439.333184457347
+      }
+    },
+    {
+      "operation": "edit-message-encode",
+      "lane": "frontier-patch-encode",
+      "median_ns_per_call": 1579.5275952693823,
+      "process_medians_ns": {
+        "61": 1567.7221485411142,
+        "62": 1594.2861169837913,
+        "63": 1579.5275952693823
+      }
+    },
+    {
+      "operation": "edit-message-encode",
+      "lane": "ink-agreed-schema-encode",
+      "median_ns_per_call": 841.119609438568,
+      "process_medians_ns": {
+        "61": 889.4318059299192,
+        "62": 802.7356911447084,
+        "63": 841.119609438568
+      }
+    },
+    {
+      "operation": "edit-message-encode",
+      "lane": "ink-typed-wire-encode",
+      "median_ns_per_call": 1054.09375,
+      "process_medians_ns": {
+        "61": 851.3936766955635,
+        "62": 1066.498377838782,
+        "63": 1054.09375
+      }
+    },
+    {
+      "operation": "external-document-validate",
+      "lane": "frontier-json-text-parse-validate",
+      "median_ns_per_call": 70073.17647058824,
+      "process_medians_ns": {
+        "61": 70154.20512820513,
+        "62": 68995.0366972477,
+        "63": 70073.17647058824
+      }
+    },
+    {
+      "operation": "external-document-validate",
+      "lane": "ink-binary-json-validate",
+      "median_ns_per_call": 404304.46153846156,
+      "process_medians_ns": {
+        "61": 398050.9259259259,
+        "62": 404304.46153846156,
+        "63": 414285.26923076925
+      }
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "lane": "frontier-json-text-known-edit",
+      "median_ns_per_call": 78462.890625,
+      "process_medians_ns": {
+        "61": 79597.47706422018,
+        "62": 78462.890625,
+        "63": 78286.82170542635
+      }
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "lane": "ink-binary-pipeline",
+      "median_ns_per_call": 2457133.3,
+      "process_medians_ns": {
+        "61": 2457133.3,
+        "62": 2521170.9,
+        "63": 2454137.5
+      }
+    },
+    {
+      "operation": "json-text-input-edit-text-output",
+      "lane": "ink-json-text-pipeline",
+      "median_ns_per_call": 674976.5625,
+      "process_medians_ns": {
+        "61": 674976.5625,
+        "62": 680585.9375,
+        "63": 670380.1875
+      }
+    },
+    {
+      "operation": "known-edit-immutable",
+      "lane": "frontier-immutable-known-patch",
+      "median_ns_per_call": 79180.55555555556,
+      "process_medians_ns": {
+        "61": 79070.44047619047,
+        "62": 79180.55555555556,
+        "63": 81523.14814814815
+      }
+    },
+    {
+      "operation": "known-edit-immutable",
+      "lane": "ink-js-compiled-json-set",
+      "median_ns_per_call": 5135.309278350515,
+      "process_medians_ns": {
+        "61": 5135.309278350515,
+        "62": 5749.890957446809,
+        "63": 5076.051075268817
+      }
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "lane": "frontier-dirty-diff-and-apply",
+      "median_ns_per_call": 80841.82524271845,
+      "process_medians_ns": {
+        "61": 80841.82524271845,
+        "62": 76939.28571428571,
+        "63": 81742.04545454546
+      }
+    },
+    {
+      "operation": "snapshot-difference-and-immutable-apply",
+      "lane": "frontier-full-diff-and-apply",
+      "median_ns_per_call": 172866.67272727273,
+      "process_medians_ns": {
+        "61": 173406.62962962964,
+        "62": 168117.1320754717,
+        "63": 172866.67272727273
+      }
+    }
+  ],
+  "scope": "Three fresh targeted processes with nine rotated rounds each. Shared development host; ordinary portable and agreed-schema transport have distinct contracts. This is not all-metrics superiority."
+}

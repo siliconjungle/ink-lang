@@ -26,7 +26,7 @@ matching values alone cannot demonstrate parallel execution. Grain, small inputs
 and nested work can select sequential execution. Packed pure C objects retain
 their smaller sequential ABI. Split/append preserve ownership and partition-local
 indices; allocation strategies differ. Browser hosts need cross-origin isolation
-and asynchronous entry points. See [ordered work and target limits](bend-inspired.md).
+and asynchronous entry points. See [ordered work and target limits](parallel-execution.md).
 
 GPU-compatible functions can coexist with stateful declarations and unsupported
 value types in one module. The runtime extracts each eligible pure dependency

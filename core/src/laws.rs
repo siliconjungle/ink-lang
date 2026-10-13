@@ -65,6 +65,12 @@ pub enum Proof {
         on_false: Box<Proof>,
         on_true: Box<Proof>,
     },
+    /// Exhaustive case analysis over the relative order of two to five atoms
+    /// of one totally ordered sort (unsigned or signed words, exact Int). The
+    /// body is checked once per weak ordering of the atoms, with that
+    /// ordering's comparisons and equalities as appended hypotheses. See
+    /// `order_regions`.
+    Order { atoms: Vec<Term>, body: Box<Proof> },
     Induction {
         variable: String,
         names: Vec<String>,
@@ -145,7 +151,7 @@ pub fn required_semantics(law: &Law) -> &'static str {
 }
 fn general_proof(p: &Proof) -> bool {
     match p {
-        Proof::Assume { .. } | Proof::Variants { .. } => true,
+        Proof::Assume { .. } | Proof::Variants { .. } | Proof::Order { .. } => true,
         Proof::Use { types, assumptions, premises, .. } => {
             !types.is_empty() || !assumptions.is_empty() || premises.iter().any(general_proof)
         }
@@ -726,6 +732,14 @@ impl CheckedCatalogue {
                         to: term(value(Type::Bool), Node::Bool(flag)),
                     });
                     self.prove_inner(p, env, &local, schemas, goal, proof, b, d + 1)?;
+                }
+                Ok(())
+            }
+            Proof::Order { atoms, body } => {
+                for facts in order_regions(p, env, hyp, goal, atoms, b, d)? {
+                    let mut local = hyp.to_vec();
+                    local.extend(facts);
+                    self.prove_inner(p, env, &local, schemas, goal, body, b, d + 1)?;
                 }
                 Ok(())
             }
@@ -1746,6 +1760,7 @@ fn literal_primitive(t: &Term, p: &Program, b: &mut Budget) -> LangResult<Option
     };
     if !(n.starts_with("binary:")
         || n == "neg"
+        || n.strip_prefix("call:").is_some_and(crate::primitives::primitive)
         || n == "call:quot_or"
         || n == "call:rem_or"
         || n.strip_prefix("call:").is_some_and(crate::word::primitive))
@@ -1763,11 +1778,11 @@ fn literal_primitive(t: &Term, p: &Program, b: &mut Budget) -> LangResult<Option
     }
     if !args
         .iter()
-        .all(|a| matches!(a.node, Node::Word(_) | Node::Float(_) | Node::Bool(_)))
+        .all(|a| matches!(a.node, Node::Word(_) | Node::Float(_) | Node::Bool(_) | Node::String(_)))
     {
         return Ok(None);
     }
-    if t.sort == value(Type::Int) || args.iter().any(|a| a.sort == value(Type::Int)) {
+    if t.sort == value(Type::Int) || (n != "call:f32_from_int" && args.iter().any(|a| a.sort == value(Type::Int))) {
         return Ok(None);
     }
     let expr = s::reify(t, p)
@@ -1784,8 +1799,186 @@ fn literal_primitive(t: &Term, p: &Program, b: &mut Budget) -> LangResult<Option
         crate::eval::Value::U64(n) => word(Type::U64, n),
         crate::eval::Value::F32(n) => term(value(Type::F32), Node::Float(n)),
         crate::eval::Value::Bool(x) => term(value(Type::Bool), Node::Bool(x)),
+        crate::eval::Value::Opaque(crate::stateful::Value::String(x)) => term(value(Type::String),Node::String(x)),
+        crate::eval::Value::Opaque(crate::stateful::Value::Option(x)) => {
+            let Type::Option(inner)=ty else{return Err("literal option type".into())};
+            if let Some(x)=x {let child=match *x {
+                crate::stateful::Value::String(x)=>term(value(Type::String),Node::String(x)),
+                crate::stateful::Value::U32(x)=>word(Type::U32,x as u64),
+                crate::stateful::Value::U64(x)=>word(Type::U64,x),
+                crate::stateful::Value::I32(x)=>word(Type::I32,x as u32 as u64),
+                crate::stateful::Value::Int(x)=>{
+                    let (sign,digits)=x.to_u32_digits();let mut result=word(Type::Int,0);
+                    for digit in digits.iter().rev(){result=op(value(Type::Int),"binary:+",vec![op(value(Type::Int),"binary:*",vec![result,word(Type::Int,4294967296)]),word(Type::Int,*digit as u64)]);}
+                    if sign==num_bigint::Sign::Minus {op(value(Type::Int),"neg",vec![result])}else{result}
+                },
+                _=>return Err("literal option value".into())};
+                let _=inner;op(value(ty.clone()),"call:Some",vec![child])
+            }else{op(value(ty.clone()),"call:None",vec![])}
+        },
         _ => return Err("literal primitive output".into()),
     }))
+}
+const ORDER_COMPARISONS: [&str; 6] = [
+    "binary:<",
+    "binary:<=",
+    "binary:>",
+    "binary:>=",
+    "binary:==",
+    "binary:!=",
+];
+/// A decision procedure for comparisons among a few atoms of one totally
+/// ordered sort: unsigned and signed words and exact Int, never f32 (NaN is
+/// unordered). It returns one hypothesis list per weak ordering of the atoms.
+///
+/// Soundness: under any valuation the atoms' values induce exactly one weak
+/// ordering, and in it every emitted fact is true. Atoms of one class equal
+/// its first member (the representative), and a comparison between two
+/// representatives is decided by their class ranks. A region is dropped only
+/// when it cannot occur: two literal atoms contradict it, or normalisation
+/// under its facts turns a hypothesis into `true == false`. Every other
+/// region is returned, so the caller's body proof covers every valuation that
+/// satisfies the hypotheses. Comparison facts mention only operators that
+/// occur in the normalised goal or hypotheses; a subset of true facts is
+/// still true, so this only bounds the work.
+fn order_regions(
+    p: &Program,
+    env: &Env,
+    hyp: &[Equation],
+    goal: &Equation,
+    atoms: &[Term],
+    b: &mut Budget,
+    d: usize,
+) -> LangResult<Vec<Vec<Equation>>> {
+    if !(2..=5).contains(&atoms.len()) {
+        return Err("order analysis takes two to five atoms".into());
+    }
+    let sort = atoms[0].sort.clone();
+    let ty = match &sort {
+        Sort::Value(t @ (Type::U32 | Type::U64 | Type::I32 | Type::Int)) => t.clone(),
+        _ => return Err("order atoms must be words or exact Int".into()),
+    };
+    let mut normalised: Vec<Term> = vec![];
+    for a in atoms {
+        validate(a, env, p, b)?;
+        if a.sort != sort {
+            return Err("order atoms differ in sort".into());
+        }
+        let n = normal(a, &[], p, b, d + 1)?;
+        if normalised.contains(&n) {
+            return Err("order atoms must be distinct".into());
+        }
+        normalised.push(n);
+    }
+    fn scan(t: &Term, sort: &Sort, out: &mut BTreeSet<&'static str>, b: &mut Budget, d: usize) -> LangResult<()> {
+        b.step(d)?;
+        if let Node::Op(n, a) = &t.node {
+            if let Some(name) = ORDER_COMPARISONS.iter().find(|c| **c == n.as_str()) {
+                if a.len() == 2 && &a[0].sort == sort {
+                    out.insert(name);
+                }
+            }
+        }
+        for c in children(t) {
+            scan(c, sort, out, b, d + 1)?;
+        }
+        Ok(())
+    }
+    let mut used = BTreeSet::new();
+    for t in [&goal.from, &goal.to] {
+        scan(&normal(t, hyp, p, b, d + 1)?, &sort, &mut used, b, d + 1)?;
+    }
+    for h in hyp {
+        scan(&h.from, &sort, &mut used, b, d + 1)?;
+        scan(&h.to, &sort, &mut used, b, d + 1)?;
+    }
+    // With no comparison in sight only the class equalities can matter.
+    let literal = |t: &Term| -> Option<i128> {
+        match t.node {
+            Node::Word(w) if ty == Type::I32 => Some(w as u32 as i32 as i128),
+            Node::Word(w) => Some(w as i128),
+            _ => None,
+        }
+    };
+    let boolean = |x: bool| term(value(Type::Bool), Node::Bool(x));
+    let n = normalised.len();
+    let mut ranks = vec![0usize; n];
+    let mut out = vec![];
+    loop {
+        b.step(d)?;
+        let classes = ranks.iter().max().map_or(0, |m| m + 1);
+        let surjective = (0..classes).all(|r| ranks.contains(&r));
+        let consistent = (0..n).all(|i| {
+            (0..n).all(|j| match (literal(&normalised[i]), literal(&normalised[j])) {
+                (Some(x), Some(y)) => x.cmp(&y) == ranks[i].cmp(&ranks[j]),
+                _ => true,
+            })
+        });
+        if surjective && consistent {
+            let representative: Vec<usize> = (0..classes)
+                .map(|r| ranks.iter().position(|x| *x == r).unwrap())
+                .collect();
+            let mut facts = vec![];
+            for i in 0..n {
+                let r = representative[ranks[i]];
+                if r != i {
+                    facts.push(Equation {
+                        from: normalised[i].clone(),
+                        to: normalised[r].clone(),
+                    });
+                }
+            }
+            for x in 0..classes {
+                for y in 0..classes {
+                    for name in &used {
+                        let holds = match *name {
+                            "binary:<" => x < y,
+                            "binary:<=" => x <= y,
+                            "binary:>" => x > y,
+                            "binary:>=" => x >= y,
+                            "binary:==" => x == y,
+                            _ => x != y,
+                        };
+                        facts.push(Equation {
+                            from: op(
+                                value(Type::Bool),
+                                name,
+                                vec![
+                                    normalised[representative[x]].clone(),
+                                    normalised[representative[y]].clone(),
+                                ],
+                            ),
+                            to: boolean(holds),
+                        });
+                    }
+                }
+            }
+            let mut refuted = false;
+            for h in hyp {
+                let from = normal(&h.from, &facts, p, b, d + 1)?;
+                let to = normal(&h.to, &facts, p, b, d + 1)?;
+                if matches!((&from.node, &to.node), (Node::Bool(x), Node::Bool(y)) if x != y) {
+                    refuted = true;
+                    break;
+                }
+            }
+            if !refuted {
+                out.push(facts);
+            }
+        }
+        let mut i = 0;
+        loop {
+            if i == n {
+                return Ok(out);
+            }
+            ranks[i] += 1;
+            if ranks[i] < n {
+                break;
+            }
+            ranks[i] = 0;
+            i += 1;
+        }
+    }
 }
 // A small certificate checker, not an optimiser or theorem-name registry.
 // Each exact Int comparison supplies a nonnegative polynomial. The goal follows
@@ -2191,6 +2384,111 @@ mod tests {
             )
             .is_err());
     }
+    fn pick(name: &str, x: &Term, y: &Term) -> Term {
+        op(
+            x.sort.clone(),
+            "call:choose",
+            vec![
+                op(value(Type::Bool), name, vec![x.clone(), y.clone()]),
+                x.clone(),
+                y.clone(),
+            ],
+        )
+    }
+    fn order_env(ty: &Type, names: &[&str]) -> (Env, Vec<Term>) {
+        let s = value(ty.clone());
+        let env = names.iter().map(|n| (n.to_string(), s.clone())).collect();
+        (env, names.iter().map(|n| free(s.clone(), n)).collect())
+    }
+    fn order(atoms: &[Term]) -> Proof {
+        Proof::Order {
+            atoms: atoms.to_vec(),
+            body: Box::new(Proof::Normalize),
+        }
+    }
+    #[test]
+    fn order_analysis_proves_that_maxima_and_minima_swap() {
+        let (p, c) = context();
+        for ty in [Type::U32, Type::U64, Type::I32, Type::Int] {
+            for name in ["binary:>", "binary:<", "binary:>=", "binary:<="] {
+                let (env, v) = order_env(&ty, &["a", "b", "s"]);
+                let goal = Equation {
+                    from: pick(name, &v[0], &pick(name, &v[1], &v[2])),
+                    to: pick(name, &v[1], &pick(name, &v[0], &v[2])),
+                };
+                let prove = |proof: &Proof| c.prove(&p, &env, &[], &goal, proof, &mut Budget::new(), 0);
+                assert!(prove(&Proof::Normalize).is_err(), "{ty:?} {name} needs order analysis");
+                prove(&order(&v)).unwrap_or_else(|e| panic!("{ty:?} {name}: {e}"));
+            }
+        }
+    }
+    #[test]
+    fn order_analysis_rejects_false_order_claims() {
+        let (p, c) = context();
+        for ty in [Type::U32, Type::I32, Type::Int] {
+            let (env, v) = order_env(&ty, &["a", "b", "s"]);
+            let max = |x: &Term, y: &Term| pick("binary:>", x, y);
+            for (from, to) in [
+                (max(&v[0], &v[1]), v[0].clone()),
+                (max(&v[0], &max(&v[1], &v[2])), max(&v[0], &v[2])),
+                // max and min do not commute with each other.
+                (max(&v[0], &pick("binary:<", &v[1], &v[2])), pick("binary:<", &v[1], &max(&v[0], &v[2]))),
+            ] {
+                let goal = Equation { from, to };
+                assert!(c.prove(&p, &env, &[], &goal, &order(&v), &mut Budget::new(), 0).is_err());
+            }
+        }
+    }
+    #[test]
+    fn order_analysis_derives_transitivity_from_hypotheses() {
+        let (p, c) = context();
+        let (env, v) = order_env(&Type::I32, &["a", "b", "c"]);
+        let less = |x: &Term, y: &Term| op(value(Type::Bool), "binary:<", vec![x.clone(), y.clone()]);
+        let yes = term(value(Type::Bool), Node::Bool(true));
+        let hyp = [
+            Equation { from: less(&v[0], &v[1]), to: yes.clone() },
+            Equation { from: less(&v[1], &v[2]), to: yes.clone() },
+        ];
+        let goal = Equation { from: less(&v[0], &v[2]), to: yes.clone() };
+        assert!(c.prove(&p, &env, &hyp, &goal, &Proof::Normalize, &mut Budget::new(), 0).is_err());
+        c.prove(&p, &env, &hyp, &goal, &order(&v), &mut Budget::new(), 0).unwrap();
+        // Without the second premise the conclusion does not follow.
+        assert!(c.prove(&p, &env, &hyp[..1], &goal, &order(&v), &mut Budget::new(), 0).is_err());
+    }
+    #[test]
+    fn order_analysis_is_bounded_and_typed() {
+        let (p, c) = context();
+        let (env, v) = order_env(&Type::U32, &["a", "b", "c", "d", "e", "f"]);
+        let goal = Equation { from: v[0].clone(), to: v[0].clone() };
+        let run = |atoms: &[Term]| c.prove(&p, &env, &[], &goal, &order(atoms), &mut Budget::new(), 0);
+        assert!(run(&v).unwrap_err().contains("two to five"));
+        assert!(run(&v[..1]).unwrap_err().contains("two to five"));
+        assert!(run(&[v[0].clone(), v[0].clone()]).unwrap_err().contains("distinct"));
+        run(&v[..5]).unwrap();
+        let (fenv, f) = order_env(&Type::F32, &["x", "y"]);
+        let fgoal = Equation { from: f[0].clone(), to: f[0].clone() };
+        assert!(c.prove(&p, &fenv, &[], &fgoal, &order(&f), &mut Budget::new(), 0).unwrap_err().contains("words or exact Int"));
+        let (_, w) = order_env(&Type::U64, &["a"]);
+        assert!(run(&[v[0].clone(), w[0].clone()]).is_err());
+    }
+    #[test]
+    fn order_analysis_respects_literal_atoms_and_signedness() {
+        let (p, c) = context();
+        // For I32, 4294967295 is -1, so it is below 0 and `max(m, 0)` is 0
+        // whenever m is that literal; the region that orders the two literals
+        // the other way never occurs.
+        for (ty, expect) in [(Type::I32, 0u64), (Type::U32, 4294967295)] {
+            let (env, v) = order_env(&ty, &["x"]);
+            let minus_one = word(ty.clone(), 4294967295);
+            let zero = word(ty.clone(), 0);
+            let goal = Equation {
+                from: pick("binary:>", &minus_one, &zero),
+                to: word(ty.clone(), expect),
+            };
+            c.prove(&p, &env, &[], &goal, &order(&[minus_one.clone(), zero.clone(), v[0].clone()]), &mut Budget::new(), 0)
+                .unwrap_or_else(|e| panic!("{ty:?}: {e}"));
+        }
+    }
 }
 /// Premise certificates use the application's binder context, just like its
 /// arguments. Open that context uniformly in every term carried by the proof.
@@ -2290,6 +2588,13 @@ pub fn open_proof(proof: &Proof, scope: &[(String, Sort)], b: &mut Budget) -> La
                 condition: s::open_scope(condition, scope, b)?,
                 on_false: Box::new(go(on_false, scope, b, d + 1)?),
                 on_true: Box::new(go(on_true, scope, b, d + 1)?),
+            },
+            Proof::Order { atoms, body } => Proof::Order {
+                atoms: atoms
+                    .iter()
+                    .map(|t| s::open_scope(t, scope, b))
+                    .collect::<LangResult<_>>()?,
+                body: Box::new(go(body, scope, b, d + 1)?),
             },
             Proof::Induction {
                 variable,

@@ -156,7 +156,8 @@ fn planning_state(
         "definition_choices":checked.representation().map(|r|r.definition().choices()),
         "definitions":checked.representation().map(|r|r.definition().reachable_executable_declarations()).transpose()?,
         "physical":checked.physical().map(|p|p.plan()),"properties":checked.properties().iter().map(|p|p.package()).collect::<Vec<_>>(),
-        "resources":checked.resources().map(|r|r.plan()),"route":checked.route().map(|r|r.package())}),
+        "resources":checked.resources().map(|r|r.plan()),"route":checked.route().map(|r|r.package()),
+        "maintained":checked.maintained().map(|v|Ok::<_,String>(serde_json::json!({"package_sha256":verified_language::registry::identity(v.package())?,"keeps":v.package().views.iter().map(|v|&v.keep).collect::<Vec<_>>()}))).transpose()?}),
     )
 }
 fn planning_capability(
@@ -208,8 +209,11 @@ fn run() -> LangResult<()> {
         "--workload",
         "--target-profile",
         "--measure-workload",
-        "--measurement-mode",
+        "--measure-holdout",
+        "--minimum-measured-gain-ppm",
+        "--measure-processes",
         "--measure-timeout",
+        "--measurement-mode",
         "--planning-cache",
         "--cargo",
         "--cc",
@@ -220,6 +224,7 @@ fn run() -> LangResult<()> {
         "--entry",
         "--lean",
         "--library",
+        "--circuit",
         "--native-cpu",
         "--optimise",
         "--plan-cache",
@@ -324,8 +329,11 @@ fn run() -> LangResult<()> {
             ("--workload", "--workload"),
             ("--target-profile", "--target-profile"),
             ("--measure-workload", "--measure-workload"),
-            ("--measurement-mode", "--measurement-mode"),
+            ("--measure-holdout", "--measure-holdout"),
+            ("--minimum-measured-gain-ppm", "--minimum-measured-gain-ppm"),
+            ("--measure-processes", "--measure-processes"),
             ("--measure-timeout", "--measure-timeout"),
+            ("--measurement-mode", "--measurement-mode"),
             ("--planning-cache", "--cache"),
         ] {
             if let Some(value) = arg_value(&args, flag)? {
@@ -679,8 +687,14 @@ fn run() -> LangResult<()> {
         } else {
             verified_language::logic::Context::default()
         };
-        let problem =
-            context.bitvector_problem(&goal.params, &goal.conditions, &goal.from, &goal.to)?;
+        let encoding = match arg_value(&args, "--circuit")?.as_deref() {
+            None | Some("literal-v1") => verified_language::bitproof::Encoding::LiteralV1,
+            Some("shared-v2") => verified_language::bitproof::Encoding::SharedV2,
+            _ => return Err("unsupported bit circuit encoding".into()),
+        };
+        let problem = context.bitvector_problem_with_encoding(
+            &goal.params, &goal.conditions, &goal.from, &goal.to, encoding,
+        )?;
         let output = arg_value(&args, "-o")?.ok_or("missing -o")?;
         write(
             &output,
@@ -899,9 +913,15 @@ fn run() -> LangResult<()> {
     };
     if matches!(
         cmd,
-        "check-plan" | "emit-plan" | "check-properties" | "check-physical-plan"
+        "check-plan" | "emit-plan" | "check-properties" | "check-physical-plan" | "emit-maintained-subjects" | "plan-work"
     ) {
         let module = core::CheckedModule::from_source(p.clone())?;
+        if cmd=="emit-maintained-subjects" {
+            let subjects=verified_language::maintained::subjects(&module)?;
+            let output=serde_json::to_string(&subjects).map_err(|e|e.to_string())?;
+            if let Some(path)=arg_value(&args,"-o")? {write(&path,&output)?;} else {println!("{output}");}
+            return Ok(());
+        }
         let packet = args.get(2).ok_or("missing checked planning package")?;
         let bytes = read_bounded(packet, verified_language::registry::MAX_VIEW_BYTES)?;
         if cmd == "check-properties" {
@@ -928,6 +948,52 @@ fn run() -> LangResult<()> {
         }
         let package = serde_json::from_slice(&bytes).map_err(|e| e.to_string())?;
         let checked = verified_language::planning::check(&module, &package)?;
+        if cmd == "plan-work" {
+            // Reference-interpreter work of the plan's checked selected module
+            // on one call. Machine independent and deterministic; it measures
+            // semantic work only, so representation and physical choices that
+            // keep the selected module unchanged report the baseline's work.
+            // CALLS.json: [{"function": name, "args": [...]}, ...], at most 512.
+            let calls = args.get(3).ok_or("plan-work requires CALLS.json")?;
+            let selected = checked.module().program();
+            let json: serde_json::Value = serde_json::from_slice(&read_bounded(calls, 64_000_000)?)
+                .map_err(|e| e.to_string())?;
+            let rows = json.as_array().ok_or("calls must be a JSON array")?;
+            if rows.is_empty() || rows.len() > 512 {
+                return Err("plan-work takes 1..512 calls".into());
+            }
+            let mut fuels = vec![];
+            let mut values = vec![];
+            for row in rows {
+                let name = row["function"].as_str().ok_or("call needs a function name")?;
+                let vals = row["args"].as_array().ok_or("call needs an argument array")?;
+                let f = selected
+                    .functions
+                    .iter()
+                    .find(|f| f.name == name)
+                    .ok_or("function not found")?;
+                if vals.len() != f.params.len() {
+                    return Err("argument count mismatch".into());
+                }
+                let vs = vals
+                    .iter()
+                    .zip(&f.params)
+                    .map(|(v, (_, t))| eval::Value::from_program_json(v, t, selected))
+                    .collect::<LangResult<Vec<_>>>()?;
+                let limit = 4_000_000_000u64;
+                let mut fuel = limit;
+                values.push(eval::call(selected, name, vs, &mut fuel)?.json());
+                fuels.push((limit - fuel).to_string());
+            }
+            println!(
+                "{}",
+                serde_json::json!({"status":"checked","semantics":"ink-reference-work-v1","input":module.identity()?,
+                "selected":checked.module().identity()?,"plan_sha256":verified_language::registry::identity(checked.package())?,
+                "fuel":fuels,"values":values,
+                "scope":"Reference interpreter fuel of the checked selected module per call; not a target timing"})
+            );
+            return Ok(());
+        }
         let state = planning_state(&checked)?;
         if let Some(out) = arg_value(&args, "--state-out")? {
             write(
@@ -1155,6 +1221,31 @@ fn run() -> LangResult<()> {
                 "{}",
                 serde_json::json!({"status":"checked","semantics":verified_language::action_ir::SEMANTICS,"source":actions.source_identity(),"actions_sha256":actions.identity()?,"trust":"Source checking, typed elaboration and execution adapters remain trusted; no action-body refinement proof"})
             );
+        }
+        "emit-sum-codecs" => {
+            let module=core::CheckedModule::from_source(p)?;
+            let mut schemas=Vec::new();
+            for ty in verified_language::sum_codec::source_types(&module)? {
+                if let Ok(schema)=verified_language::sum_codec::schema(&module,&ty) { schemas.push(schema); }
+            }
+            let out=arg_value(&args,"-o")?.ok_or("emit-sum-codecs requires -o")?;
+            write(&out,&serde_json::to_string(&schemas).map_err(|e|e.to_string())?)?;
+            println!("{}",serde_json::json!({"status":"codec-semantics","sums":schemas.len()}));
+        }
+        "check-sum-codec" => {
+            let module=core::CheckedModule::from_source(p)?;
+            let path=args.get(2).ok_or("check-sum-codec requires LAYOUT.json")?;
+            let layout=serde_json::from_slice(&read_bounded(path,verified_language::registry::MAX_VIEW_BYTES)?).map_err(|e|e.to_string())?;
+            verified_language::sum_codec::check(&module,&layout)?;
+            println!("{}",serde_json::json!({"status":"checked","source":module.identity()?}));
+        }
+        "emit-record-codec" => {
+            let record=arg_value(&args,"--entry")?.ok_or("emit-record-codec requires --entry RECORD")?;
+            let module=core::CheckedModule::from_source(p)?;
+            let schema=verified_language::record_codec::schema(&module,&record)?;
+            let out=arg_value(&args,"-o")?.ok_or("emit-record-codec requires -o")?;
+            write(&out,&serde_json::to_string(&schema).map_err(|e|e.to_string())?)?;
+            println!("{}",serde_json::json!({"status":"codec-semantics","field":schema.field}));
         }
         "emit-column-codec" => {
             let record=arg_value(&args,"--entry")?.ok_or("emit-column-codec requires --entry RECORD")?;

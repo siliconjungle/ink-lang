@@ -84,6 +84,23 @@ pub fn mentions_variable(e: &Expr, name: &str) -> bool {
 mod tests {
     use super::*;
     #[test]
+    fn contextual_walk_retains_variant_callback_and_constructor_types() {
+        let checked = crate::core::CheckedModule::from_source(crate::syntax::parse(
+            "module walk;fn mapped(x:Result<u32,Bool>)->Result<u32,Bool>{return x.map(fn(v)=>v+1);} fn errors(x:Result<u32,Bool>)->Result<u32,Bool>{return x.map_err(fn(v)=>v);} fn fold(x:Result<u32,Bool>)->u32{return x.fold(fn(v)=>v,fn(b)=>0);} fn optional(x:Option<u32>)->Option<u32>{return x.map(fn(v)=>v+1);} fn typed()->Result<u32,Bool>{return Ok(0);}",
+        ).unwrap()).unwrap();
+        let p=checked.program();
+        let mut numbers=Vec::new();
+        for f in &p.functions {
+            typed_walk_context(p,f,|e,env,want| {
+                if matches!(e,Expr::Num(_)) {
+                    numbers.push(crate::check::infer_context(e,env,p,want).unwrap());
+                }
+            }).unwrap();
+        }
+        assert!(!numbers.is_empty());
+        assert!(numbers.iter().all(|t| *t==Type::U32));
+    }
+    #[test]
     fn shadowing_applies_to_body_but_not_initializer() {
         let v = |n: &str| Box::new(Expr::Var(n.into()));
         let e = Expr::Let(
@@ -144,6 +161,15 @@ pub fn typed_walk(
     function: &crate::core::Function,
     mut visit: impl FnMut(&Expr, &crate::check::Env),
 ) -> crate::LangResult<()> {
+    typed_walk_context(program,function,|expression,env,_|visit(expression,env))
+}
+/// Preserve the expected type when exposing lexical source judgments. Consumers
+/// must not reinterpret contextually typed literals with an unrelated default.
+pub fn typed_walk_context(
+    program: &crate::core::Program,
+    function: &crate::core::Function,
+    mut visit: impl FnMut(&Expr, &crate::check::Env, Option<&crate::core::Type>),
+) -> crate::LangResult<()> {
     use crate::core::Type;
     type Pending<'a> = (&'a Expr, crate::check::Env, Option<Type>, usize);
     fn callback<'a>(
@@ -180,7 +206,7 @@ pub fn typed_walk(
         if nodes > 1_000_000 || depth > 256 {
             return Err("typed source walk limit".into());
         }
-        visit(e, &env);
+        visit(e, &env, want.as_ref());
         match e {
             Expr::Let(name, annotation, initial, body) => {
                 let ty =
@@ -271,6 +297,15 @@ pub fn typed_walk(
                 let output=match result{Type::List(t)|Type::Buffer(t)=>*t,_=>return Err("typed parallel result".into())};
                 callback(&args[1],&[Type::U32,item],Some(output),&env,depth+1,&mut pending);
                 pending.push((&args[0],env.clone(),Some(Type::U32),depth+1));pending.push((receiver,env,None,depth+1));
+            }
+            Expr::Call(name,args) if ["Ok","Err","Some"].contains(&name.as_str()) && args.len()==1 => {
+                let result=crate::check::infer_context(e,&env,program,want.as_ref())?;
+                let child=match (name.as_str(),result) {
+                    ("Some",Type::Option(a))|("Ok",Type::Result(a,_))=>*a,
+                    ("Err",Type::Result(_,b))=>*b,
+                    _=>return Err("typed constructor correspondence".into()),
+                };
+                pending.push((&args[0],env,Some(child),depth+1));
             }
             Expr::Method(receiver, name, args)
                 if ["map", "filter", "map_indexed", "zip"].contains(&name.as_str())

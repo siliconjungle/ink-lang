@@ -1,4 +1,5 @@
 pub mod action_ir;
+pub mod action_shape;
 pub mod access;
 pub mod action_model;
 mod action_semantic;
@@ -24,6 +25,7 @@ pub mod laws;
 pub mod library;
 pub mod logic;
 pub mod machine;
+pub mod maintained;
 pub mod optimisation;
 pub mod source_extension;
 pub mod parallel;
@@ -44,6 +46,7 @@ pub mod syntax;
 pub mod transaction;
 pub mod transaction_model;
 pub mod word;
+pub mod primitives;
 
 pub type LangResult<T> = Result<T, String>;
 
@@ -70,6 +73,7 @@ pub mod planning;
 pub use action_types::table_argument;
 
 pub mod last_use;
+pub mod in_place;
 
 pub mod bounds;
 mod structural_descent;
@@ -78,3 +82,6 @@ pub mod column_codec;
 pub mod resources;
 
 pub mod input_demand;
+
+pub mod record_codec;
+pub mod sum_codec;

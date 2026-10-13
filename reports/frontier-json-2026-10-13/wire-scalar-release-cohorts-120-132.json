@@ -1,0 +1,294 @@
+{
+  "schema": 1,
+  "groups": {
+    "encode": {
+      "reports": [
+        "json-targeted-120.json",
+        "json-targeted-121.json",
+        "json-targeted-122.json"
+      ],
+      "provenance": {
+        "captured_at": "2026-10-13T13:04:44.310Z",
+        "hashes": {
+          "bench/frontier-json/state.ink": "f98f971b59e11d0983af3cbbd9a472f2d55b4e5720556de1f31b19b12ae866a4",
+          "bench/frontier-json/prepare.py": "d4040dee385095446525ece11523b5dec6cb5eb269937b4836d8fc439cc05713",
+          "bench/frontier-json/run.mjs": "a617e43569b88a77e9eef92c6db4287f0b439402ac6b9058e40fe38900401068",
+          "bench/frontier-json/json-kernels.mjs": "66985f5be207c4f170c0ccd3822f91f8f7f2c257b1b6abc9f3e5ab5e566f67c5",
+          "bench/frontier-json/src/main.rs": "295a467a214ce257f5d41e5fa8304649d2b21cb1beabefc19565d763856b597d",
+          "bench/frontier-json/package-lock.json": "3cc5c3e6c05c279b921df5c2b1a232d2b5f6a114f0a674d2d5d1946840d75a52",
+          "bench/frontier-json/Cargo.lock": "66cecb01a676b2fef9d944feab7ce7d7876e9133c7095f4c0eba566e6ae125f9",
+          "bench/frontier-json/provenance.mjs": "1f7d263503b8b29586a854afc362a59977eb689a28cbdac865d33a00149c1241",
+          "build/frontier-json/fixtures.json": "f03846851a92e4968589f0daa0ae4bb1768f323a3cf90486017e89c58cf62145",
+          "build/frontier-json/preparation.json": "945bb6ebd6460d5a9ac33342e3d2e9e0d852dc14f604149b8297e2547a6773a1",
+          "build/frontier-json/ink.mjs": "a3e4dd199bd66efaa794be629ace508961158c59ac7958168b2fc5fce3cdbc90",
+          "target/debug/ink": "17c4886d583fb58884b4056132b7b2821b6188d694e0179d1aecc92355323bc4",
+          "build/frontier-json/ink-indexed.mjs": "7aa19686dd2fbbf3ced38f05237748de574f0d31d005b4bd747d0a723278f674",
+          "build/frontier-json/indexed.plan.json": "9c999ba5286d9056a802d3924cd33d089d21fa88f7a2ca7e9004adb6707d7d7f",
+          "build/frontier-json/target/release/ink-frontier-json-benchmark": "f1b8433e354ff184b7a3af6c74261758b6e89bafc44c8345b457a75a9fe28be7",
+          "build/frontier-json/wire-scalar-release.mjs": "1fd3313c0ea8b73237d41baac191df9f0152f9f13d6454ec610e500521144099"
+        },
+        "revisions": {
+          ".": "72852dfcec2ee50bc9a2cac3bef8edb52e68d08f",
+          "abi": "72b2643af6b64765baaf7193afb6bee843bc5e41",
+          "core": "72852dfcec2ee50bc9a2cac3bef8edb52e68d08f",
+          "native-support": "eea3285a3ea1847c0dda237c3c988178e4a00f4c",
+          "runtime": "84249082d6c9a36e638c6294049c7e8d7f8b91e9",
+          "knowledge": "3cfd93cb9e8698b29c5d52b2e31d52419da5a447",
+          "planner": "cbafcdd0e10e65ded513a2298eb32d30a73c421b",
+          "lowerings/c": "ab96f3581576153a80c5c04f30a20c393f6155c3",
+          "lowerings/rust": "6d2de59893e06d219ef4d30a8414f26931596e23",
+          "lowerings/js": "1cbc5f9f026ad549375f7be0b2e48ac2ae7652c4",
+          "lowerings/wasm": "9235d3949dbc3776b2287beb3a0edeb12be76163",
+          "lowerings/gpu": "4515274d1ee85a8baae471d366f8ce9da64df685",
+          "build/frontier": "2c72dbb4030e2695b682d3e49ec82d8c5c8ffec2",
+          "build/frontier-state-main": "9ff840ea690e55fd8c064934f92a26c1603a63fa",
+          "build/frontier-engine": "1fdd01b67367ccd2b1088b0148b558896935856e",
+          "build/frontier-codec": "7835c68e60ecb400f82d26436bd8e8855a7ba9b9"
+        },
+        "node": "v26.1.0",
+        "target": {
+          "cpu": "Apple M2",
+          "platform": "darwin",
+          "arch": "arm64",
+          "release": "25.5.0"
+        },
+        "host_isolation": "Shared development host; no exclusive CPU reservation. Repeated process cohorts and rotated lane order, not a controlled laboratory."
+      },
+      "process_medians_us": {
+        "frontier-patch-encode": [
+          0.6910206429373096,
+          0.6902392653532511,
+          0.8486625280832446
+        ],
+        "ink-agreed-schema-encode": [
+          0.4886119369403153,
+          0.4822188349954669,
+          0.5736369289474614
+        ],
+        "ink-typed-wire-encode": [
+          0.689764644323396,
+          0.6727089488433952,
+          0.7738366034666803
+        ]
+      },
+      "median_process_us": {
+        "frontier-patch-encode": 0.6910206429373096,
+        "ink-agreed-schema-encode": 0.4886119369403153,
+        "ink-typed-wire-encode": 0.689764644323396
+      },
+      "warmup_calls": 200,
+      "scope": "Warmed message codecs"
+    },
+    "decode": {
+      "reports": [
+        "json-targeted-130.json",
+        "json-targeted-131.json",
+        "json-targeted-132.json"
+      ],
+      "provenance": {
+        "captured_at": "2026-10-13T13:04:47.751Z",
+        "hashes": {
+          "bench/frontier-json/state.ink": "f98f971b59e11d0983af3cbbd9a472f2d55b4e5720556de1f31b19b12ae866a4",
+          "bench/frontier-json/prepare.py": "d4040dee385095446525ece11523b5dec6cb5eb269937b4836d8fc439cc05713",
+          "bench/frontier-json/run.mjs": "a617e43569b88a77e9eef92c6db4287f0b439402ac6b9058e40fe38900401068",
+          "bench/frontier-json/json-kernels.mjs": "66985f5be207c4f170c0ccd3822f91f8f7f2c257b1b6abc9f3e5ab5e566f67c5",
+          "bench/frontier-json/src/main.rs": "295a467a214ce257f5d41e5fa8304649d2b21cb1beabefc19565d763856b597d",
+          "bench/frontier-json/package-lock.json": "3cc5c3e6c05c279b921df5c2b1a232d2b5f6a114f0a674d2d5d1946840d75a52",
+          "bench/frontier-json/Cargo.lock": "66cecb01a676b2fef9d944feab7ce7d7876e9133c7095f4c0eba566e6ae125f9",
+          "bench/frontier-json/provenance.mjs": "1f7d263503b8b29586a854afc362a59977eb689a28cbdac865d33a00149c1241",
+          "build/frontier-json/fixtures.json": "f03846851a92e4968589f0daa0ae4bb1768f323a3cf90486017e89c58cf62145",
+          "build/frontier-json/preparation.json": "945bb6ebd6460d5a9ac33342e3d2e9e0d852dc14f604149b8297e2547a6773a1",
+          "build/frontier-json/ink.mjs": "a3e4dd199bd66efaa794be629ace508961158c59ac7958168b2fc5fce3cdbc90",
+          "target/debug/ink": "17c4886d583fb58884b4056132b7b2821b6188d694e0179d1aecc92355323bc4",
+          "build/frontier-json/ink-indexed.mjs": "7aa19686dd2fbbf3ced38f05237748de574f0d31d005b4bd747d0a723278f674",
+          "build/frontier-json/indexed.plan.json": "9c999ba5286d9056a802d3924cd33d089d21fa88f7a2ca7e9004adb6707d7d7f",
+          "build/frontier-json/target/release/ink-frontier-json-benchmark": "f1b8433e354ff184b7a3af6c74261758b6e89bafc44c8345b457a75a9fe28be7",
+          "build/frontier-json/wire-scalar-release.mjs": "1fd3313c0ea8b73237d41baac191df9f0152f9f13d6454ec610e500521144099"
+        },
+        "revisions": {
+          ".": "72852dfcec2ee50bc9a2cac3bef8edb52e68d08f",
+          "abi": "72b2643af6b64765baaf7193afb6bee843bc5e41",
+          "core": "72852dfcec2ee50bc9a2cac3bef8edb52e68d08f",
+          "native-support": "eea3285a3ea1847c0dda237c3c988178e4a00f4c",
+          "runtime": "84249082d6c9a36e638c6294049c7e8d7f8b91e9",
+          "knowledge": "3cfd93cb9e8698b29c5d52b2e31d52419da5a447",
+          "planner": "cbafcdd0e10e65ded513a2298eb32d30a73c421b",
+          "lowerings/c": "ab96f3581576153a80c5c04f30a20c393f6155c3",
+          "lowerings/rust": "6d2de59893e06d219ef4d30a8414f26931596e23",
+          "lowerings/js": "1cbc5f9f026ad549375f7be0b2e48ac2ae7652c4",
+          "lowerings/wasm": "9235d3949dbc3776b2287beb3a0edeb12be76163",
+          "lowerings/gpu": "4515274d1ee85a8baae471d366f8ce9da64df685",
+          "build/frontier": "2c72dbb4030e2695b682d3e49ec82d8c5c8ffec2",
+          "build/frontier-state-main": "9ff840ea690e55fd8c064934f92a26c1603a63fa",
+          "build/frontier-engine": "1fdd01b67367ccd2b1088b0148b558896935856e",
+          "build/frontier-codec": "7835c68e60ecb400f82d26436bd8e8855a7ba9b9"
+        },
+        "node": "v26.1.0",
+        "target": {
+          "cpu": "Apple M2",
+          "platform": "darwin",
+          "arch": "arm64",
+          "release": "25.5.0"
+        },
+        "host_isolation": "Shared development host; no exclusive CPU reservation. Repeated process cohorts and rotated lane order, not a controlled laboratory."
+      },
+      "process_medians_us": {
+        "frontier-patch-decode": [
+          0.35220712594991904,
+          0.4687091908161837,
+          0.33849697000303003
+        ],
+        "ink-agreed-schema-decode": [
+          0.4686063637666619,
+          0.5568950788918293,
+          0.46276284527997236
+        ],
+        "ink-typed-wire-decode": [
+          0.6470926652480383,
+          0.7736248307177567,
+          0.6918868004402675
+        ]
+      },
+      "median_process_us": {
+        "frontier-patch-decode": 0.35220712594991904,
+        "ink-agreed-schema-decode": 0.4686063637666619,
+        "ink-typed-wire-decode": 0.6918868004402675
+      },
+      "warmup_calls": 200,
+      "scope": "Warmed message codecs"
+    },
+    "replace": {
+      "reports": [
+        "state-targeted-replace-4096-120.json",
+        "state-targeted-replace-4096-121.json",
+        "state-targeted-replace-4096-122.json"
+      ],
+      "provenance": {
+        "captured_at": "2026-10-13T13:04:50.391Z",
+        "hashes": {
+          "bench/frontier-json/state.ink": "f98f971b59e11d0983af3cbbd9a472f2d55b4e5720556de1f31b19b12ae866a4",
+          "bench/frontier-json/prepare.py": "d4040dee385095446525ece11523b5dec6cb5eb269937b4836d8fc439cc05713",
+          "bench/frontier-json/run.mjs": "a617e43569b88a77e9eef92c6db4287f0b439402ac6b9058e40fe38900401068",
+          "bench/frontier-json/json-kernels.mjs": "66985f5be207c4f170c0ccd3822f91f8f7f2c257b1b6abc9f3e5ab5e566f67c5",
+          "bench/frontier-json/src/main.rs": "295a467a214ce257f5d41e5fa8304649d2b21cb1beabefc19565d763856b597d",
+          "bench/frontier-json/package-lock.json": "3cc5c3e6c05c279b921df5c2b1a232d2b5f6a114f0a674d2d5d1946840d75a52",
+          "bench/frontier-json/Cargo.lock": "66cecb01a676b2fef9d944feab7ce7d7876e9133c7095f4c0eba566e6ae125f9",
+          "bench/frontier-json/provenance.mjs": "1f7d263503b8b29586a854afc362a59977eb689a28cbdac865d33a00149c1241",
+          "build/frontier-json/fixtures.json": "f03846851a92e4968589f0daa0ae4bb1768f323a3cf90486017e89c58cf62145",
+          "build/frontier-json/preparation.json": "945bb6ebd6460d5a9ac33342e3d2e9e0d852dc14f604149b8297e2547a6773a1",
+          "build/frontier-json/ink.mjs": "a3e4dd199bd66efaa794be629ace508961158c59ac7958168b2fc5fce3cdbc90",
+          "target/debug/ink": "17c4886d583fb58884b4056132b7b2821b6188d694e0179d1aecc92355323bc4",
+          "build/frontier-json/ink-indexed.mjs": "7aa19686dd2fbbf3ced38f05237748de574f0d31d005b4bd747d0a723278f674",
+          "build/frontier-json/indexed.plan.json": "9c999ba5286d9056a802d3924cd33d089d21fa88f7a2ca7e9004adb6707d7d7f",
+          "build/frontier-json/target/release/ink-frontier-json-benchmark": "f1b8433e354ff184b7a3af6c74261758b6e89bafc44c8345b457a75a9fe28be7",
+          "build/frontier-json/wire-scalar-release.mjs": "1fd3313c0ea8b73237d41baac191df9f0152f9f13d6454ec610e500521144099"
+        },
+        "revisions": {
+          ".": "72852dfcec2ee50bc9a2cac3bef8edb52e68d08f",
+          "abi": "72b2643af6b64765baaf7193afb6bee843bc5e41",
+          "core": "72852dfcec2ee50bc9a2cac3bef8edb52e68d08f",
+          "native-support": "eea3285a3ea1847c0dda237c3c988178e4a00f4c",
+          "runtime": "84249082d6c9a36e638c6294049c7e8d7f8b91e9",
+          "knowledge": "3cfd93cb9e8698b29c5d52b2e31d52419da5a447",
+          "planner": "cbafcdd0e10e65ded513a2298eb32d30a73c421b",
+          "lowerings/c": "ab96f3581576153a80c5c04f30a20c393f6155c3",
+          "lowerings/rust": "6d2de59893e06d219ef4d30a8414f26931596e23",
+          "lowerings/js": "1cbc5f9f026ad549375f7be0b2e48ac2ae7652c4",
+          "lowerings/wasm": "9235d3949dbc3776b2287beb3a0edeb12be76163",
+          "lowerings/gpu": "4515274d1ee85a8baae471d366f8ce9da64df685",
+          "build/frontier": "2c72dbb4030e2695b682d3e49ec82d8c5c8ffec2",
+          "build/frontier-state-main": "9ff840ea690e55fd8c064934f92a26c1603a63fa",
+          "build/frontier-engine": "1fdd01b67367ccd2b1088b0148b558896935856e",
+          "build/frontier-codec": "7835c68e60ecb400f82d26436bd8e8855a7ba9b9"
+        },
+        "node": "v26.1.0",
+        "target": {
+          "cpu": "Apple M2",
+          "platform": "darwin",
+          "arch": "arm64",
+          "release": "25.5.0"
+        },
+        "host_isolation": "Shared development host; no exclusive CPU reservation. Repeated process cohorts and rotated lane order, not a controlled laboratory."
+      },
+      "process_medians_us": {
+        "frontier-core-diff": [
+          1696.588546875,
+          1648.7766875,
+          1678.9954375
+        ],
+        "frontier-core-dirty": [
+          748.62759375,
+          734.067703125,
+          743.753265625
+        ],
+        "frontier-core-patch": [
+          0.9418781536697247,
+          0.7650404881386861,
+          0.7750405724789916
+        ],
+        "frontier-state-main-commit": [
+          1660.384125,
+          1631.53125,
+          1651.13996875
+        ],
+        "frontier-state-main-patch": [
+          0.8421420393318965,
+          0.6930747093023256,
+          0.6711433531746032
+        ],
+        "frontier-state-main-prepared-patch": [
+          0.6574160897943039,
+          0.41760649843096237,
+          0.4874821078431373
+        ],
+        "frontier-state-release-commit": [
+          1636.97721875,
+          1632.793625,
+          1634.43815625
+        ],
+        "frontier-state-release-patch": [
+          0.9082066722972972,
+          0.6306034787735849,
+          0.7210019467213115
+        ],
+        "ink-js": [
+          2.6199138671875,
+          2.6272813791322314,
+          2.7931158014112905
+        ],
+        "ink-js-bound": [
+          2.977961753731343,
+          2.3837611607142857,
+          2.8672981249999996
+        ],
+        "ink-js-db-indexed": [
+          20.28656640625,
+          25.74432589285714,
+          21.331705729166668
+        ],
+        "ink-js-prepared": [
+          1.0987945906432748,
+          1.0036870216836735,
+          0.8355209911616162
+        ]
+      },
+      "median_process_us": {
+        "frontier-core-diff": 1678.9954375,
+        "frontier-core-dirty": 743.753265625,
+        "frontier-core-patch": 0.7750405724789916,
+        "frontier-state-main-commit": 1651.13996875,
+        "frontier-state-main-patch": 0.6930747093023256,
+        "frontier-state-main-prepared-patch": 0.4874821078431373,
+        "frontier-state-release-commit": 1634.43815625,
+        "frontier-state-release-patch": 0.7210019467213115,
+        "ink-js": 2.6272813791322314,
+        "ink-js-bound": 2.8672981249999996,
+        "ink-js-db-indexed": 21.331705729166668,
+        "ink-js-prepared": 1.0036870216836735
+      },
+      "warmup_calls": null,
+      "scope": "State runner setup/pilot as previously documented; separately supplied indexed artifact unchanged"
+    }
+  },
+  "scope": "Fresh published artifact comparison on a shared host; encoding, decoding and replacement groups are separate. Compact negotiates schema out of band. Not a full workload/startup/memory ranking."
+}

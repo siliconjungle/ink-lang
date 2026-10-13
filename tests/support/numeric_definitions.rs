@@ -76,7 +76,7 @@ pub fn check(checked: &CheckedDefinition, functions: &[(&str, String)], work: &P
     js.push_str("\nconst functions=[");
     for (i, (op, id)) in functions.iter().enumerate() {
         let boolean =
-            op.starts_with("f32:") && !matches!(*op, "f32:+" | "f32:-" | "f32:*" | "f32:neg");
+            matches!(*op,"f32:=="|"f32:!="|"f32:<"|"f32:<="|"f32:>"|"f32:>="|"f32:is_nan"|"f32:is_finite");
         rust.push_str(&format!("{i}=>f_{id}(x,y) as u64,\n"));
         c.push_str(&format!(
             "case {i}:r=f_{id}(a,b);if(ink_def_kind(r)!={})__builtin_trap();break;\n",
@@ -128,7 +128,10 @@ pub fn check(checked: &CheckedDefinition, functions: &[(&str, String)], work: &P
         .args(["-std=c11", "-O2", "-ffp-contract=off"])
         .arg(work.join("check.c"))
         .arg("-o")
-        .arg(work.join("c-check")));
+        .arg(work.join("c-check"))
+        // Generated binary32 primitives call sqrtf and friends; glibc keeps
+        // them in libm, which must follow the object on the link line.
+        .arg("-lm"));
     run(&mut Command::new(work.join("c-check")));
     if let Some(zig) = zig {
         fs::write(work.join("wasm.rs"), rust).unwrap();
