@@ -57,4 +57,15 @@ class Certificates(unittest.TestCase):
             # A replacement guarded by a presence test needs distinct keys
             # (the lookup moves past the removal), which is not certified.
             self.assertEqual(certify(COMPILER,path,'erase','set',ROOT/'knowledge',Path(d)/'certs')['certificate'],'rejected')
+class ConditionalCertificates(unittest.TestCase):
+    def test_two_puts_commute_when_their_keys_differ_on_sorted_tables(self):
+        # Unconditionally rejected (equal keys); with the key guard and the
+        # checked sorted-table invariant, the conditional fact is admitted.
+        with tempfile.TemporaryDirectory() as d:
+            path=Path(d)/'a.ink';path.write_text(SOURCE)
+            report=describe(COMPILER,path)
+            row=next(r for r in report['pairs'] if r['first']=='put' and r['second']=='put')
+            self.assertEqual(row['key_parameters'],[[0,0]])
+            ok=certify(COMPILER,path,'put','put',ROOT/'knowledge',Path(d)/'certs',row['key_parameters'])
+            self.assertEqual(ok['certificate'],'checked when keys differ',ok)
 if __name__=='__main__':unittest.main()
