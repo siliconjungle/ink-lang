@@ -30,6 +30,7 @@ pub enum Step {
     Physical(physical::Plan),
     Routing(Route),
     Resources(resources::Plan),
+    Maintained(crate::maintained::Package),
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -49,6 +50,7 @@ pub struct CheckedPlan {
     definitions: Vec<Vec<Replacement>>,
     route: Option<source_routing::CheckedRouting>,
     resources: Option<resources::CheckedResources>,
+    maintained: Option<crate::maintained::CheckedViews>,
     package: Package,
 }
 impl CheckedPlan {
@@ -71,6 +73,13 @@ impl CheckedPlan {
         self.route.as_ref()
     }
     pub fn resources(&self) -> Option<&resources::CheckedResources> { self.resources.as_ref() }
+    pub fn maintained(&self) -> Option<&crate::maintained::CheckedViews> { self.maintained.as_ref() }
+    /// Emitters declare support explicitly; an admitted choice cannot disappear.
+    pub fn require_source_storage_capability(&self,folds:bool,dense:bool)->LangResult<()>{
+        if !folds&&self.maintained.is_some(){return Err("target does not support maintained source folds".into());}
+        if !dense&&self.physical.as_ref().is_some_and(|p|!p.plan().dense_prefixes.is_empty()){return Err("target does not support dense source table prefixes".into());}
+        Ok(())
+    }
     pub fn package(&self) -> &Package {
         &self.package
     }
@@ -145,6 +154,7 @@ fn check_from(
         definitions: vec![],
         route: None,
         resources: None,
+        maintained: None,
         package: package.clone(),
     });
     checked.package = package.clone();
@@ -156,6 +166,7 @@ fn check_from(
                 checked.module=selected;
                 checked.representation=None;checked.physical=None;checked.properties.clear();
                 checked.definitions.clear();checked.route=None;checked.resources=None;
+                checked.maintained=None;
             }
             Step::Rewrite(p) => {
                 let selected = optimisation::check(&checked.module, p)?;
@@ -170,8 +181,10 @@ fn check_from(
                 checked.definitions.clear();
                 checked.route = None;
                 checked.resources = None;
+                checked.maintained = None;
             }
             Step::Representation(p) => {
+                if checked.maintained.is_some(){return Err("maintained source folds cannot compose with a definition representation".into());}
                 let mut r = representation::check(&checked.module, p)?;
                 r.set_snapshot_module(original);
                 checked.representation = Some(r);
@@ -210,6 +223,10 @@ fn check_from(
             }
             Step::Resources(p) => {
                 checked.resources = Some(resources::check(checked.route.as_ref().ok_or("resource plan needs a checked graph")?, p)?);
+            }
+            Step::Maintained(p) => {
+                if checked.representation.is_some(){return Err("maintained folds require source tables".into());}
+                checked.maintained=Some(crate::maintained::check(&checked.module,p)?);
             }
             Step::Routing(p) => {
                 checked.resources = None;
