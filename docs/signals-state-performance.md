@@ -50,7 +50,9 @@ structured cloning. Zero-argument read-only bound calls omit mutation bookkeepin
 Checked representation bundles expose the same `bind` surface synchronously.
 Their existing `invoke`/`invoke_json` interfaces remain asynchronous. This is an
 explicit API boundary, not an implicit profitability policy or a change to source
-transactions. It does not add durability, schema evolution or UI subscriptions.
+transactions. State subscriptions, batching and explicit host transactions are
+now available on both implementations; see [maintained folds](maintained-folds.md).
+These APIs publish state observations without introducing UI or DOM semantics.
 
 ## Pure definition call machinery
 

@@ -132,6 +132,17 @@ lanes. Profiles rank replayed candidates only; absent comparable lifecycle evide
 retains the baseline. Unsupported target selections must fail explicitly. Physical
 planning does not change executable-core V9 or public serialisation formats.
 
+Maintained source folds use ink-maintained-fold-v1: exact source factorisation,
+commutative group laws and insertion/deletion/replacement equations replay in core.
+Contributions and group operations remain database definitions, emitted literally.
+The fixed native cell/fold controller and codecs remain trusted; this is not whole
+compiler correctness. Restore rebuilds folds from validated rows and rollback
+restores before-images. Dense prefixes require exact fallback outside their range.
+Single-cell bounds and fresh-result ownership facts are structural core analyses,
+never algorithm authority. Current maintained/dense capabilities are JavaScript
+only; unsupported targets fail explicitly. State lifecycle measurements require
+independent source histories, exact snapshots, fresh processes and held-out traces.
+
 Finish completed, validated work by merging and publishing it on `main` in the
 distribution and every changed independent package repository. Report the verified
 main revision. Feature branches and worktrees are staging areas during active work;
