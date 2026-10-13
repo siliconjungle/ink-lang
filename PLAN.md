@@ -36,6 +36,7 @@ alternatives. [Design and ambitions](docs/vision.md) explains this separation;
 | 4 | Usable language and distribution | Modules/imports, a small standard library, actionable diagnostics, installation and debugging; consistent existing types across pure and stateful boundaries. Keep executable and draft features explicit. |
 | 5 | Durable deployment | Persist state and outbox before returning success; recover from interrupted writes and crashes. Persist acknowledgements; demonstrate at-least-once delivery with receiver deduplication and bounded request retry receipts. Declare single-writer and storage limits. Test native compiled C/Rust and browser storage, compiled JavaScript/Wasm continuation and corruption rejection. |
 | 6 | Trust-boundary hardening | Adversarial/fuzz and independent checking of admission and codecs; connect any external metatheory explicitly to the implemented checker before verification claims. Report concurrency and resource boundaries, raw measurements and remaining trusted components. |
+| 7 | Measured generalisation | On the frozen planning corpus, ordinary defaults improve held-out programs they were not written for, with bounded planning time and reported regressions. Every knowledge publication reports the corpus funnel, near misses and cross-program reuse. Selection needs comparable evidence acquired without per-program authoring: paired measurements under one target description, or a calibrated work model validated on held-out cells. |
 
 ## Outstanding architecture requirements
 

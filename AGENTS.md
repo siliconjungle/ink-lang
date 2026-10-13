@@ -143,6 +143,19 @@ never algorithm authority. Current maintained/dense capabilities are JavaScript
 only; unsupported targets fail explicitly. State lifecycle measurements require
 independent source histories, exact snapshots, fresh processes and held-out traces.
 
+Measure generalisation, not entry count. Evaluate knowledge changes on the frozen
+`bench/planning-corpus` (programs enter before laws aimed at them) with
+`ink_planner.corpus`, and report the funnel, near misses and cross-program reuse.
+Compiled planning publishes candidates into the knowledge root it is given, so
+evaluations run against a private copy. Near-miss receipts, corpus and knowledge
+health reports, and `tools/action_algebra.py` relations are untrusted
+observations: never proof premises, applicability hints for admission, or
+selection authority. Structure laws (general laws with assumptions about a whole
+fold step) reach programs only through plan-time instances admitted by
+`knowledge-check`; keep that library free of carrier-, operator- or
+program-specific statements. A commutation claim needs a checked whole-action
+equality of the swapped pair, not the access analysis.
+
 Finish completed, validated work by merging and publishing it on `main` in the
 distribution and every changed independent package repository. Report the verified
 main revision. Feature branches and worktrees are staging areas during active work;
