@@ -622,7 +622,7 @@ impl Lower<'_> {
             }
             Kind::Builtin { name,arguments } if ["sqrt","f32_div","floor","ceil","trunc","round_ties_even","is_nan","is_finite","f32_bits","f32_from_bits"].contains(&name.as_str()) => {
                 let x=self.expr(body,arguments[0],env,state)?;
-                if name=="f32_bits"||name=="f32_from_bits" {return Ok(x);}
+                if name=="f32_bits"||name=="f32_from_bits" {return Ok(b("&",x,Term::U64(u32::MAX as u64)));}
                 let y=if name=="f32_div"{self.expr(body,arguments[1],env,state)?}else{Term::U64(0)};
                 Ok(b(&format!("f32:{}",if name=="f32_div"{"div"}else{name}),x,y))
             }

@@ -109,6 +109,15 @@ pub fn sqrt_bits(bits: u32) -> u32 {
     (((half + 127) as u32) << 23) | ((lo as u32) & 0x7fffff)
 }
 pub fn evaluate(n: &str, a: &[V]) -> LangResult<V> {
+    let arity = match n {
+        "f32_div" | "string_byte_at" | "string_concat" => 2,
+        "string_slice" | "string_find" => 3,
+        _ => 1,
+    };
+    if a.len() != arity {
+        return Err(format!("{n}: argument count mismatch"));
+    }
+
     let f = |i| match a.get(i) {
         Some(V::F32(b)) => Ok(f32::from_bits(*b)),
         _ => Err("expected F32".to_string()),
@@ -222,19 +231,13 @@ pub fn evaluate(n: &str, a: &[V]) -> LangResult<V> {
         "string_find" => {
             let text = s(0)?;
             let from = u(2)? as usize;
+            let needle = s(1)?;
             option(
                 text.get(from..)
-                    .and_then(|s| s.find(s_find(a)))
+                    .and_then(|s| s.find(needle))
                     .map(|i| V::U32((from + i) as u32)),
             )
         }
         _ => return Err("unsupported fixed primitive".into()),
     })
-}
-fn s_find(a: &[V]) -> &str {
-    if let V::String(s) = &a[1] {
-        s
-    } else {
-        unreachable!("checked String needle")
-    }
 }

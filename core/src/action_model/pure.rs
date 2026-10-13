@@ -264,7 +264,7 @@ impl Lower<'_> {
                         let y=if name=="f32_div"{self.pure_term(&args[1],env,bound,depth+1)?}else{Term::U64(0)};
                         return Ok(b(&format!("f32:{}",if name=="f32_div"{"div"}else{name}),x,y));
                     }
-                    if name=="f32_bits"||name=="f32_from_bits" {return self.pure_term(&args[0],env,bound,depth+1);}
+                    if name=="f32_bits"||name=="f32_from_bits" {let x=self.pure_term(&args[0],env,bound,depth+1)?;return Ok(b("&",x,Term::U64(u32::MAX as u64)));}
                 }
                 if op == "apply" {
                     let [function, argument] = args.as_slice() else {

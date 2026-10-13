@@ -1,0 +1,1136 @@
+{
+  "applied_rule_ids": [],
+  "backend": {
+    "abi": "ink-javascript-trusted-values-v2",
+    "backend": "javascript",
+    "caller_contract": "trusted, well-typed target-native values; no input validation, snapshot capture or host resource budgets",
+    "core_semantics": "ink-executable-core-v11",
+    "core_sha256": "d2f5dfc60ccdee12b06eb954b25759c5dcb3948cd2cc3f1163bfc63b0e5504b0",
+    "destination_abi": {
+      "aliasing": "destination-disjoint-from-all-reachable-inputs",
+      "capacity": "trusted",
+      "count_unit": "elements",
+      "name": "ink-javascript-into-v1",
+      "ownership": "caller-owned",
+      "tail": "unwritten"
+    },
+    "f32_storage": "native-number-with-exact-nonfinite-tags",
+    "functions": [
+      {
+        "destination": {
+          "abi": "ink-javascript-into-v1",
+          "count_unit": "elements",
+          "ownership": "caller-owned"
+        },
+        "index": 0,
+        "internal": false,
+        "name": "float_ops",
+        "parallel": false,
+        "params": [
+          {
+            "name": "xs",
+            "type": {
+              "element": {
+                "element": {
+                  "kind": "f32"
+                },
+                "kind": "vector",
+                "size": 2
+              },
+              "kind": "list"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "element": {
+            "fields": [
+              {
+                "name": "root",
+                "type": {
+                  "kind": "u32"
+                }
+              },
+              {
+                "name": "quotient",
+                "type": {
+                  "kind": "u32"
+                }
+              },
+              {
+                "name": "floored",
+                "type": {
+                  "kind": "u32"
+                }
+              },
+              {
+                "name": "ceiled",
+                "type": {
+                  "kind": "u32"
+                }
+              },
+              {
+                "name": "truncated",
+                "type": {
+                  "kind": "u32"
+                }
+              },
+              {
+                "name": "rounded",
+                "type": {
+                  "kind": "u32"
+                }
+              },
+              {
+                "name": "nan",
+                "type": {
+                  "kind": "bool"
+                }
+              },
+              {
+                "name": "finite",
+                "type": {
+                  "kind": "bool"
+                }
+              }
+            ],
+            "kind": "record",
+            "name": "Ops"
+          },
+          "kind": "list"
+        }
+      },
+      {
+        "destination": null,
+        "index": 1,
+        "internal": false,
+        "name": "casts",
+        "parallel": false,
+        "params": [
+          {
+            "name": "x",
+            "type": {
+              "kind": "f32"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "fields": [
+            {
+              "name": "unsigned",
+              "type": {
+                "element": {
+                  "kind": "u32"
+                },
+                "kind": "option"
+              }
+            },
+            {
+              "name": "wide",
+              "type": {
+                "element": {
+                  "kind": "u64"
+                },
+                "kind": "option"
+              }
+            },
+            {
+              "name": "signed",
+              "type": {
+                "element": {
+                  "kind": "i32"
+                },
+                "kind": "option"
+              }
+            },
+            {
+              "name": "exact",
+              "type": {
+                "element": {
+                  "kind": "int"
+                },
+                "kind": "option"
+              }
+            }
+          ],
+          "kind": "record",
+          "name": "Casts"
+        }
+      },
+      {
+        "destination": {
+          "abi": "ink-javascript-into-v1",
+          "count_unit": "elements",
+          "ownership": "caller-owned"
+        },
+        "index": 2,
+        "internal": false,
+        "name": "from_wide",
+        "parallel": false,
+        "params": [
+          {
+            "name": "xs",
+            "type": {
+              "element": {
+                "kind": "u64"
+              },
+              "kind": "list"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "element": {
+            "kind": "u32"
+          },
+          "kind": "list"
+        }
+      },
+      {
+        "destination": null,
+        "index": 3,
+        "internal": false,
+        "name": "from_unsigned",
+        "parallel": false,
+        "params": [
+          {
+            "name": "x",
+            "type": {
+              "kind": "u32"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "u32"
+        }
+      },
+      {
+        "destination": null,
+        "index": 4,
+        "internal": false,
+        "name": "from_signed",
+        "parallel": false,
+        "params": [
+          {
+            "name": "x",
+            "type": {
+              "kind": "i32"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "u32"
+        }
+      },
+      {
+        "destination": null,
+        "index": 5,
+        "internal": false,
+        "name": "from_exact",
+        "parallel": false,
+        "params": [
+          {
+            "name": "x",
+            "type": {
+              "kind": "int"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "u32"
+        }
+      },
+      {
+        "destination": {
+          "abi": "ink-javascript-into-v1",
+          "count_unit": "elements",
+          "ownership": "caller-owned"
+        },
+        "index": 6,
+        "internal": false,
+        "name": "word_stats",
+        "parallel": false,
+        "params": [
+          {
+            "name": "xs",
+            "type": {
+              "element": {
+                "kind": "u64"
+              },
+              "kind": "list"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "element": {
+            "element": {
+              "kind": "u32"
+            },
+            "kind": "vector",
+            "size": 3
+          },
+          "kind": "list"
+        }
+      },
+      {
+        "destination": null,
+        "index": 7,
+        "internal": false,
+        "name": "signed_stats",
+        "parallel": false,
+        "params": [
+          {
+            "name": "x",
+            "type": {
+              "kind": "i32"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "element": {
+            "kind": "u32"
+          },
+          "kind": "vector",
+          "size": 3
+        }
+      },
+      {
+        "destination": null,
+        "index": 8,
+        "internal": false,
+        "name": "word32_stats",
+        "parallel": false,
+        "params": [
+          {
+            "name": "x",
+            "type": {
+              "kind": "u32"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "element": {
+            "kind": "u32"
+          },
+          "kind": "vector",
+          "size": 3
+        }
+      },
+      {
+        "destination": null,
+        "index": 9,
+        "internal": false,
+        "name": "byte_len",
+        "parallel": false,
+        "params": [
+          {
+            "name": "s",
+            "type": {
+              "kind": "string"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "u32"
+        }
+      },
+      {
+        "destination": null,
+        "index": 10,
+        "internal": false,
+        "name": "byte",
+        "parallel": false,
+        "params": [
+          {
+            "name": "s",
+            "type": {
+              "kind": "string"
+            }
+          },
+          {
+            "name": "i",
+            "type": {
+              "kind": "u32"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "element": {
+            "kind": "u32"
+          },
+          "kind": "option"
+        }
+      },
+      {
+        "destination": null,
+        "index": 11,
+        "internal": false,
+        "name": "substring",
+        "parallel": false,
+        "params": [
+          {
+            "name": "s",
+            "type": {
+              "kind": "string"
+            }
+          },
+          {
+            "name": "a",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "b",
+            "type": {
+              "kind": "u32"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "element": {
+            "kind": "string"
+          },
+          "kind": "option"
+        }
+      },
+      {
+        "destination": null,
+        "index": 12,
+        "internal": false,
+        "name": "joined",
+        "parallel": false,
+        "params": [
+          {
+            "name": "a",
+            "type": {
+              "kind": "string"
+            }
+          },
+          {
+            "name": "b",
+            "type": {
+              "kind": "string"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "string"
+        }
+      },
+      {
+        "destination": null,
+        "index": 13,
+        "internal": false,
+        "name": "locate",
+        "parallel": false,
+        "params": [
+          {
+            "name": "s",
+            "type": {
+              "kind": "string"
+            }
+          },
+          {
+            "name": "n",
+            "type": {
+              "kind": "string"
+            }
+          },
+          {
+            "name": "a",
+            "type": {
+              "kind": "u32"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "element": {
+            "kind": "u32"
+          },
+          "kind": "option"
+        }
+      }
+    ],
+    "javascript_sha256": "3c9294b5a8a6ce24a0977e025901d8baba888ddbf35d8055bf77988655daa165",
+    "named_types": {
+      "Casts": {
+        "fields": [
+          {
+            "name": "unsigned",
+            "type": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "option"
+            }
+          },
+          {
+            "name": "wide",
+            "type": {
+              "element": {
+                "kind": "u64"
+              },
+              "kind": "option"
+            }
+          },
+          {
+            "name": "signed",
+            "type": {
+              "element": {
+                "kind": "i32"
+              },
+              "kind": "option"
+            }
+          },
+          {
+            "name": "exact",
+            "type": {
+              "element": {
+                "kind": "int"
+              },
+              "kind": "option"
+            }
+          }
+        ],
+        "kind": "record",
+        "name": "Casts"
+      },
+      "Ops": {
+        "fields": [
+          {
+            "name": "root",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "quotient",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "floored",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "ceiled",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "truncated",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "rounded",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "nan",
+            "type": {
+              "kind": "bool"
+            }
+          },
+          {
+            "name": "finite",
+            "type": {
+              "kind": "bool"
+            }
+          }
+        ],
+        "kind": "record",
+        "name": "Ops"
+      }
+    },
+    "schema": 1,
+    "scope": "trusted pure functions and temporary collections; state/actions with portable snapshots and ordered transaction events",
+    "state": null,
+    "trusted": [
+      "Ink checker and source correspondence",
+      "JavaScript emitter and representation conversion",
+      "JavaScript engine and host"
+    ],
+    "wire": {
+      "format": "ink-value-wire-v1",
+      "functions": {
+        "byte": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "9f88eab8cb92b4c6625d2aba465f2a535f09faa9c5f3b243e1eca8827269bd2c",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "s",
+                  "type": {
+                    "kind": "string"
+                  }
+                },
+                {
+                  "name": "i",
+                  "type": {
+                    "kind": "u32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "f4055357f369cc8f275f6cc1d5569678031edf449ad32c3c8d392d37fab5b1ed",
+            "named": {},
+            "root": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "option"
+            }
+          }
+        },
+        "byte_len": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "43c7d39d28f9f34c6101b156917972ccb2af4901881013363490ab274999eb7f",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "s",
+                  "type": {
+                    "kind": "string"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "51f75af7953a9d922f9ada927ffd8d0c8c476597ed69294f0a0425f75b052cff",
+            "named": {},
+            "root": {
+              "kind": "u32"
+            }
+          }
+        },
+        "casts": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "3d9fa005996e654b10e4e749ab0e2c4a9988b4ba944f21f1019c2132cbcb62b2",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "x",
+                  "type": {
+                    "kind": "f32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "a82d809950cb50557ddbc9cc07c04bd415f0e2237dcb8993db9c4825d91afaad",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "unsigned",
+                  "type": {
+                    "element": {
+                      "kind": "u32"
+                    },
+                    "kind": "option"
+                  }
+                },
+                {
+                  "name": "wide",
+                  "type": {
+                    "element": {
+                      "kind": "u64"
+                    },
+                    "kind": "option"
+                  }
+                },
+                {
+                  "name": "signed",
+                  "type": {
+                    "element": {
+                      "kind": "i32"
+                    },
+                    "kind": "option"
+                  }
+                },
+                {
+                  "name": "exact",
+                  "type": {
+                    "element": {
+                      "kind": "int"
+                    },
+                    "kind": "option"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "Casts"
+            }
+          }
+        },
+        "float_ops": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "044eb6bef426f7d4e2ba68c21f64fbf8108afda58458798a8016a17c3bb159a8",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "xs",
+                  "type": {
+                    "element": {
+                      "element": {
+                        "kind": "f32"
+                      },
+                      "kind": "vector",
+                      "size": 2
+                    },
+                    "kind": "list"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "bf97609e14f451589af32cf3bc8de8dbb52d4d69f17c37f38b4140a4cfaa8b36",
+            "named": {},
+            "root": {
+              "element": {
+                "fields": [
+                  {
+                    "name": "root",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "quotient",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "floored",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "ceiled",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "truncated",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "rounded",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "nan",
+                    "type": {
+                      "kind": "bool"
+                    }
+                  },
+                  {
+                    "name": "finite",
+                    "type": {
+                      "kind": "bool"
+                    }
+                  }
+                ],
+                "kind": "record",
+                "name": "Ops"
+              },
+              "kind": "list"
+            }
+          }
+        },
+        "from_exact": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "e8ac5f1e85714acd583fd30786ec1ef0e4acca92acd0aa56ce80316fa8261a7c",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "x",
+                  "type": {
+                    "kind": "int"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "51f75af7953a9d922f9ada927ffd8d0c8c476597ed69294f0a0425f75b052cff",
+            "named": {},
+            "root": {
+              "kind": "u32"
+            }
+          }
+        },
+        "from_signed": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "575da0cb6689c7cb6931ef06a75bffb230e67c4c3b1d7361d242374d916e64f9",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "x",
+                  "type": {
+                    "kind": "i32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "51f75af7953a9d922f9ada927ffd8d0c8c476597ed69294f0a0425f75b052cff",
+            "named": {},
+            "root": {
+              "kind": "u32"
+            }
+          }
+        },
+        "from_unsigned": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "cc08f1332c0bbd676577f3e81f06e85cc8ef81a32bcbe10b3177d811cc8e0ae2",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "x",
+                  "type": {
+                    "kind": "u32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "51f75af7953a9d922f9ada927ffd8d0c8c476597ed69294f0a0425f75b052cff",
+            "named": {},
+            "root": {
+              "kind": "u32"
+            }
+          }
+        },
+        "from_wide": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "59dc6cc158c2bf630b377f03884dad9e50e345b1aade1d5353f4f11a86fa8329",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "xs",
+                  "type": {
+                    "element": {
+                      "kind": "u64"
+                    },
+                    "kind": "list"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "69ebf947aa59a2546656d1976b0baa6e56e7182d989425379b31e3bff74168ca",
+            "named": {},
+            "root": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            }
+          }
+        },
+        "joined": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "03ec2f7a84c110dff99c20c977b55460b280cb94c51ef691e9e4c48434a7deec",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "a",
+                  "type": {
+                    "kind": "string"
+                  }
+                },
+                {
+                  "name": "b",
+                  "type": {
+                    "kind": "string"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "1cdb97f14e69255770652db593f88ce0009f937c28d02381f37b2c643dc1470e",
+            "named": {},
+            "root": {
+              "kind": "string"
+            }
+          }
+        },
+        "locate": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "27a83d5eac62d49b6fa68267746cccddd9f472b8d027d52810b4711d5b281a7c",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "s",
+                  "type": {
+                    "kind": "string"
+                  }
+                },
+                {
+                  "name": "n",
+                  "type": {
+                    "kind": "string"
+                  }
+                },
+                {
+                  "name": "a",
+                  "type": {
+                    "kind": "u32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "f4055357f369cc8f275f6cc1d5569678031edf449ad32c3c8d392d37fab5b1ed",
+            "named": {},
+            "root": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "option"
+            }
+          }
+        },
+        "signed_stats": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "575da0cb6689c7cb6931ef06a75bffb230e67c4c3b1d7361d242374d916e64f9",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "x",
+                  "type": {
+                    "kind": "i32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "df8e250e1434681a397612867c7855bc54caa00233261128d39cf197f2222bb3",
+            "named": {},
+            "root": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "vector",
+              "size": 3
+            }
+          }
+        },
+        "substring": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "5a932ed07c15af2d52129159a7ce1fc290e59662a25f88fdb413fc15f1d29a54",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "s",
+                  "type": {
+                    "kind": "string"
+                  }
+                },
+                {
+                  "name": "a",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "b",
+                  "type": {
+                    "kind": "u32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "e6ec2005c4843453596f9f4142340982753d0b37b69b33e8d21e40b51b08bc43",
+            "named": {},
+            "root": {
+              "element": {
+                "kind": "string"
+              },
+              "kind": "option"
+            }
+          }
+        },
+        "word32_stats": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "cc08f1332c0bbd676577f3e81f06e85cc8ef81a32bcbe10b3177d811cc8e0ae2",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "x",
+                  "type": {
+                    "kind": "u32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "df8e250e1434681a397612867c7855bc54caa00233261128d39cf197f2222bb3",
+            "named": {},
+            "root": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "vector",
+              "size": 3
+            }
+          }
+        },
+        "word_stats": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "59dc6cc158c2bf630b377f03884dad9e50e345b1aade1d5353f4f11a86fa8329",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "xs",
+                  "type": {
+                    "element": {
+                      "kind": "u64"
+                    },
+                    "kind": "list"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "95af277d359544f5c37bf8e1a89436e47cbe9ded09212399e0dbcad98b8aa67b",
+            "named": {},
+            "root": {
+              "element": {
+                "element": {
+                  "kind": "u32"
+                },
+                "kind": "vector",
+                "size": 3
+              },
+              "kind": "list"
+            }
+          }
+        }
+      }
+    }
+  },
+  "checked_implementation": null,
+  "checked_replacement": null,
+  "input_core_sha256": "d2f5dfc60ccdee12b06eb954b25759c5dcb3948cd2cc3f1163bfc63b0e5504b0",
+  "selected_core_sha256": "d2f5dfc60ccdee12b06eb954b25759c5dcb3948cd2cc3f1163bfc63b0e5504b0",
+  "semantic_package": null,
+  "semantic_selection": null,
+  "source": "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-generalisation-epoch2/bench/numeric-text-primitives/primitives.ink",
+  "target": "javascript",
+  "trust": "checked transformations; JavaScript emission and engine remain trusted"
+}
