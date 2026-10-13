@@ -108,3 +108,10 @@ private record choices. The byte validators, literal readers/writers, ownership
 copiers and backend remain trusted machinery. State actions keep their existing
 capture and transactional APIs; this addition does not silently bypass their
 separate capture budgets or expose mutable state nodes.
+
+Ownership replies memoize by the declared source sort within an invocation.
+Nominal references and expanded declarations have the same memo key, preserving
+sharing across same-sort fields and recursive schema paths. Different source
+sorts retain different keys, even when private record elision gives them the
+same payload object. Public containers remain detached from state and later
+replies; schema interning retains no invocation payload.
