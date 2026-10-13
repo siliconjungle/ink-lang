@@ -39,6 +39,17 @@ ABI `6ae7c57` and JavaScript `cc3f1e3` publish the selected implementation. The
 standalone JavaScript suite also passed. This generated module adds 256 bytes
 (0.065%); equivalent startup and peak-memory rankings remain unmeasured.
 
+`wire-decode-release-cohorts-140-142.json` binds published distribution `ec71759c`,
+ABI `6ae7c57` and JavaScript `cc3f1e3`. The emitted module exactly matches the
+selected paired candidate. Three fresh processes, 200 warmup calls per lane and
+nine rotated rounds give compact decode 0.428 µs and portable decode 0.596 µs,
+versus Frontier 0.317 µs. Ink still takes 1.35×/1.88× longer. Per-process compact
+Ink is 0.385–0.495 µs, portable 0.576–0.747 µs and Frontier 0.314–0.458 µs.
+Complete fixture preflight passes. Different host conditions and process warming
+prevent treating absolute times from previous releases as causal before/after
+gains. Encoding, state, text conversion, startup and memory are not reranked here;
+the all-metrics target remains unmet.
+
 ## Immutable default policies and scalar encoder limits
 
 Value codecs now reuse private immutable default policies; every invocation
