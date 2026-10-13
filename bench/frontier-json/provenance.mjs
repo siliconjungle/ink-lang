@@ -7,7 +7,7 @@ import {execFileSync} from 'node:child_process';
 export function provenance(root) {
   const files = [
     'bench/frontier-json/state.ink', 'bench/frontier-json/prepare.py',
-    'bench/frontier-json/run.mjs', 'bench/frontier-json/json-kernels.mjs',
+    'bench/frontier-json/run.mjs', 'bench/frontier-json/state-adapters.mjs', 'bench/frontier-json/json-kernels.mjs',
     'bench/frontier-json/src/main.rs', 'bench/frontier-json/package-lock.json',
     'bench/frontier-json/Cargo.lock', 'bench/frontier-json/provenance.mjs',
     'build/frontier-json/fixtures.json', 'build/frontier-json/preparation.json',

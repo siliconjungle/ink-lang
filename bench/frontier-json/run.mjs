@@ -1,4 +1,6 @@
 import {provenance} from './provenance.mjs';
+import {createFrontierAdapter} from './state-adapters.mjs';
+const frontier=(fixture,lane)=>createFrontierAdapter(fixture,lane,{cloneJson,applyPatch,diff,OP_SET,OP_REMOVE,mainState,releasedState});
 import fs from 'node:fs';import path from 'node:path';import os from 'node:os';import assert from 'node:assert/strict';import {spawn}from'node:child_process';import {createInterface}from'node:readline';import {createHash}from'node:crypto';import {fileURLToPath,pathToFileURL}from'node:url';
 import {cloneJson}from'@shapeshift-labs/frontier/clone';import {diff}from'@shapeshift-labs/frontier/diff';import {applyPatch,applyPatchImmutable}from'@shapeshift-labs/frontier/apply';import {OP_SET,OP_REMOVE}from'@shapeshift-labs/frontier/constants';import {createStateEngine as releasedState}from'@shapeshift-labs/frontier-state';import {encodePatch,decodePatch}from'@shapeshift-labs/frontier-codec';
 import {createStateEngine as mainState}from'../../build/frontier-state-main/dist/index.js';import * as indexed from '../../build/frontier-json/ink-indexed.mjs';
@@ -22,26 +24,6 @@ const normalize=v=>typeof v==='bigint'?Number(v):Array.isArray(v)?v.map(normaliz
 const hashBytes=b=>createHash('sha256').update(b).digest('hex');
 function consume(h,r){let e=0;for(const v of r.events)e=(e+Number(v.value)+Number(v.commit)+Number(v.position))>>>0;const value=typeof r.result==='number'?r.result:r.result?.Err?0xbad:0;return(Math.imul(h,1664525)+Number(r.version)+value+(r.committed?65537:0)+e)>>>0;}
 function expected(replies,repeats){const commits=replies.filter(r=>r.committed).length;let h=0;for(let cycle=0;cycle<repeats;cycle++)for(const r of replies)h=consume(h,{...r,version:r.version+cycle*commits,events:r.events.map(e=>({...e,commit:e.commit+cycle*commits}))});return h;}
-function word(value){if(typeof value==='number'&&!Number.isSafeInteger(value))throw Error('u64 requires an exact integer');if(!['number','bigint','string'].includes(typeof value)||typeof value==='string'&&!/^(0|[1-9][0-9]*)$/.test(value))throw Error('invalid u64');const n=BigInt(value);if(n<0n||n>18446744073709551615n)throw Error('invalid u64');return n;}
-function frontier(f,lane){
- const isState=lane.includes('state'),isCommit=lane.endsWith('commit'),factory=lane.includes('main')?mainState:releasedState;
- let rows=cloneJson(f.initial),engine=isState?factory(rows):null,version=BigInt(f.rows),outbox=[];
- function invoke_json(name,args){
-  if(name==='total')return{result:Object.values(rows).reduce((n,r)=>n+(r.active?r.value:0),0)>>>0,committed:false,version,events:[]};
-  const key=args[0],value=name==='put'?args[1]:undefined,fail=args.at(-1),saved=fail&&lane.startsWith('frontier-core-')&&lane!=='frontier-core-patch'?cloneJson(rows[key]):rows[key];
-  if(lane==='frontier-core-patch')rows=applyPatch(rows,value?[[OP_SET,[key],value]]:[[OP_REMOVE,[key]]],{cloneValues:true});
-  else if(isState&&!isCommit){engine.commitPatch(value?[[OP_SET,[key],lane.includes('prepared')?value:cloneJson(value)]]:[[OP_REMOVE,[key]]]);rows=engine.get();}
-  else{
-   const target={...rows};if(value)target[key]=lane.includes('prepared')?value:cloneJson(value);else delete target[key];
-   if(isState){engine.commit(target);rows=engine.get();}
-   else{const patch=diff(rows,target,lane==='frontier-core-dirty'?{dirtyPaths:[[key]]}:undefined);rows=applyPatch(rows,patch,{cloneValues:true});}
-  }
-  if(fail){const inverse=saved?[[OP_SET,[key],saved]]:[[OP_REMOVE,[key]]];if(engine){engine.commitPatch(inverse);rows=engine.get();}else rows=applyPatch(rows,inverse);return{result:{Err:'Error.Failed'},committed:false,version,events:[]};}
-  if(version===18446744073709551615n){const inverse=saved?[[OP_SET,[key],saved]]:[[OP_REMOVE,[key]]];if(engine){engine.commitPatch(inverse);rows=engine.get();}else rows=applyPatch(rows,inverse);throw Error('commit sequence exhausted');}
-  version++;const event={commit:version,position:0n,channel:'seen',value:value?.value??0};outbox.push({...event});return{result:{Ok:null},committed:true,version,events:[event]};
- }
- return{invoke_json,acknowledge_through(commit,position){commit=word(commit);position=word(position);const last=outbox.at(-1);if(!last)return;if(last.commit<commit||(last.commit===commit&&last.position<=position)){outbox.length=0;return;}outbox=outbox.filter(e=>e.commit>commit||(e.commit===commit&&e.position>position));},get rows(){return rows;},get version(){return version;},get outbox(){return outbox.map(e=>({...e}));},dispose(){engine?.clear();}};
-}
 async function execute(f,index,lane,repeats,capture){
  if(lane.startsWith('ink-rust'))return nativeRun(index,lane,repeats,capture);
  const started=process.hrtime.bigint(),isInk=lane.startsWith('ink-js'),state=isInk?(lane==='ink-js-db-indexed'?indexed:ink).createState():frontier(f,lane);
