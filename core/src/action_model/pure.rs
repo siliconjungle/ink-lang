@@ -258,6 +258,14 @@ impl Lower<'_> {
                         self.operator(ty, "-", Term::U64(0), x)
                     };
                 }
+                if let Some(name)=op.strip_prefix("call:") {
+                    if ["sqrt","f32_div","floor","ceil","trunc","round_ties_even","is_nan","is_finite"].contains(&name) {
+                        let x=self.pure_term(&args[0],env,bound,depth+1)?;
+                        let y=if name=="f32_div"{self.pure_term(&args[1],env,bound,depth+1)?}else{Term::U64(0)};
+                        return Ok(b(&format!("f32:{}",if name=="f32_div"{"div"}else{name}),x,y));
+                    }
+                    if name=="f32_bits"||name=="f32_from_bits" {return self.pure_term(&args[0],env,bound,depth+1);}
+                }
                 if op == "apply" {
                     let [function, argument] = args.as_slice() else {
                         return Err("action model pure application arity".into());

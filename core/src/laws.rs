@@ -1731,6 +1731,7 @@ fn literal_primitive(t: &Term, p: &Program, b: &mut Budget) -> LangResult<Option
     };
     if !(n.starts_with("binary:")
         || n == "neg"
+        || n.strip_prefix("call:").is_some_and(crate::primitives::primitive)
         || n == "call:quot_or"
         || n == "call:rem_or"
         || n.strip_prefix("call:").is_some_and(crate::word::primitive))
@@ -1748,7 +1749,7 @@ fn literal_primitive(t: &Term, p: &Program, b: &mut Budget) -> LangResult<Option
     }
     if !args
         .iter()
-        .all(|a| matches!(a.node, Node::Word(_) | Node::Float(_) | Node::Bool(_)))
+        .all(|a| matches!(a.node, Node::Word(_) | Node::Float(_) | Node::Bool(_) | Node::String(_)))
     {
         return Ok(None);
     }
@@ -1769,6 +1770,18 @@ fn literal_primitive(t: &Term, p: &Program, b: &mut Budget) -> LangResult<Option
         crate::eval::Value::U64(n) => word(Type::U64, n),
         crate::eval::Value::F32(n) => term(value(Type::F32), Node::Float(n)),
         crate::eval::Value::Bool(x) => term(value(Type::Bool), Node::Bool(x)),
+        crate::eval::Value::Opaque(crate::stateful::Value::String(x)) => term(value(Type::String),Node::String(x)),
+        crate::eval::Value::Opaque(crate::stateful::Value::Option(x)) => {
+            let Type::Option(inner)=ty else{return Err("literal option type".into())};
+            if let Some(x)=x {let child=match *x {
+                crate::stateful::Value::String(x)=>term(value(Type::String),Node::String(x)),
+                crate::stateful::Value::U32(x)=>word(Type::U32,x as u64),
+                crate::stateful::Value::U64(x)=>word(Type::U64,x),
+                crate::stateful::Value::I32(x)=>word(Type::I32,x as u32 as u64),
+                _=>return Err("literal option value".into())};
+                let _=inner;op(value(ty.clone()),"call:Some",vec![child])
+            }else{op(value(ty.clone()),"call:None",vec![])}
+        },
         _ => return Err("literal primitive output".into()),
     }))
 }
