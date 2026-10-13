@@ -1145,6 +1145,23 @@ fn run() -> LangResult<()> {
                 serde_json::json!({"status":"checked","semantics":verified_language::action_ir::SEMANTICS,"source":actions.source_identity(),"actions_sha256":actions.identity()?,"trust":"Source checking, typed elaboration and execution adapters remain trusted; no action-body refinement proof"})
             );
         }
+        "emit-sum-codecs" => {
+            let module=core::CheckedModule::from_source(p)?;
+            let mut schemas=Vec::new();
+            for ty in verified_language::sum_codec::source_types(&module)? {
+                if let Ok(schema)=verified_language::sum_codec::schema(&module,&ty) { schemas.push(schema); }
+            }
+            let out=arg_value(&args,"-o")?.ok_or("emit-sum-codecs requires -o")?;
+            write(&out,&serde_json::to_string(&schemas).map_err(|e|e.to_string())?)?;
+            println!("{}",serde_json::json!({"status":"codec-semantics","sums":schemas.len()}));
+        }
+        "check-sum-codec" => {
+            let module=core::CheckedModule::from_source(p)?;
+            let path=args.get(2).ok_or("check-sum-codec requires LAYOUT.json")?;
+            let layout=serde_json::from_slice(&read_bounded(path,verified_language::registry::MAX_VIEW_BYTES)?).map_err(|e|e.to_string())?;
+            verified_language::sum_codec::check(&module,&layout)?;
+            println!("{}",serde_json::json!({"status":"checked","source":module.identity()?}));
+        }
         "emit-record-codec" => {
             let record=arg_value(&args,"--entry")?.ok_or("emit-record-codec requires --entry RECORD")?;
             let module=core::CheckedModule::from_source(p)?;
