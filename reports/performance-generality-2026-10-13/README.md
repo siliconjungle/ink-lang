@@ -88,10 +88,13 @@ noise tails, phase weights, insufficient samples, memory/migration, near ties,
 typed holdout collisions and per-process candidate rejection. Compiled guard
 conformance checks all native/JavaScript/Wasm targets plus GPU-host fallback,
 invalid preconditions, correctly encoded invalid restores, and reauthenticated
-conditional proofs deprived of their source domain. Full mandatory target
-conformance and final main revisions are recorded in `validation.json`.
+conditional proofs deprived of their source domain. Consolidated mandatory CPU coverage, browser GPU results and exact tested
+revisions are recorded in `validation.json`. The initial full run stopped after
+disk exhaustion; 29 completed suites were retained. The integrated compiler
+supplies the remaining mandatory coverage. This is not one full-suite run on
+one distribution revision.
 
-The final independent suites pass 57 core unit tests, 19 JavaScript backend
+The independent suites before integration pass 57 core unit tests, 19 JavaScript backend
 tests, 135 planner tests and 49 affected knowledge tests. An earlier planner run
 sampled a killed child in a transient macOS kernel wait; the test now waits at
 most one second for actual death and still rejects a live descendant. Its failed
@@ -101,3 +104,19 @@ final full run. Historical failed logs are not relabelled as passing checks.
 
 Rendering, durability amortisation, cold/setup selection, exact allocation peaks
 and broad framework/Frontier comparisons are outside these timing loops.
+
+Integration preserves upstream automatic JavaScript/Rust planning and JSON
+boundaries. Its separate logs record 57 core, 19 JavaScript, 144 planner and 49
+affected knowledge tests. Earlier integration logs are retained too: initial
+temporary-worktree Python paths omitted imports; old whole-module JavaScript
+assertions included the new explicit wire validation; one automatic compilation
+test incorrectly required a timing winner; two errors occurred while revising
+that test. The final conformance test accepts conservative baseline selection
+and separately replays an admitted nonempty plan across targets. These failed
+logs are not included in passing totals.
+
+Disk exhaustion interrupted the base run and the last integrated C-Wasm archive.
+The affected test passed after completed caches were cleared. Raw failure and
+recheck logs remain in `integration/`; passing totals count each required case
+once. Browser replay combines base pure/runtime fixtures with integrated
+source-contract fixtures and checks each CPU/GPU source identity.

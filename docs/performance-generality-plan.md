@@ -11,9 +11,9 @@ and reliable implementation choice across unfamiliar workloads.
       and retain the baseline on uncertain costs.
 - [x] Measure fresh size/distribution/workload holdouts against strong controls;
       report update, query, capture, checkpoint and restore costs separately.
-- [ ] Check adversarial bits, ownership, malformed inputs, transaction rollback,
+- [x] Check adversarial bits, ownership, malformed inputs, transaction rollback,
       independent packages, CPU/Wasm parity and eligible actual GPU work.
-- [ ] Publish changed independent repositories and exact distribution main pins.
+- [x] Publish changed independent repositories and exact distribution main pins.
 
 Backend work implements fixed checked value meanings, without algorithm names or
 theorem hashes granting authority. Proved algorithm/layout alternatives stay in
