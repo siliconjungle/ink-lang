@@ -158,7 +158,11 @@ equality of the swapped pair, not the access analysis.
 
 Finish completed, validated work by merging and publishing it on `main` in the
 distribution and every changed independent package repository. Report the verified
-main revision. Feature branches and worktrees are staging areas during active work;
+main revision. When a pin bump changes a crate another pinned crate depends on
+(the C lowering pins ink-lowering-rust), refresh `runtime/Cargo.lock` in the same
+change (`cargo metadata` without `--locked`); CI's locked fetch fails otherwise.
+A run is verified only when every job finishes green; failing steps report their
+error lines as annotations (`tools/ci_step.sh`). Feature branches and worktrees are staging areas during active work;
 keep work isolated when James explicitly requests a draft or separate branch.
 
 Executable core V11 adds fixed F32 sqrt/division, explicit conversion, classification,
