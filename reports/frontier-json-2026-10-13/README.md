@@ -4,6 +4,32 @@ The all-metrics target remains unmet. Read-heavy state and retained JSON editing
 win in these fixtures; row updates, conversion and portable-message codecs lose.
 This is a shared development host, not a controlled laboratory.
 
+## JSON boundary and bound scan follow-up
+
+ABI `4e7af56` binds portable validation/visitation to a separate immutable-schema
+plan and cursor, preserving complete checks and postorder callbacks. Decoding
+keeps its existing plan and methods. JSON and typed JSON share an exact token
+reader with fast unescaped strings and ASCII whitespace/long-text byte counts.
+Rendering retains native string escaping and rejects missing array elements.
+No wire format or source algorithm changes, and no new equality authority is
+granted. Full ABI and mandatory JSON/maintained-state integration suites passed.
+
+`json-boundary-paired-summary.json` aggregates three fresh paired processes,
+15 alternating rounds per operation. Against the published primitive-capture
+module, median process speedups are 3.05× for schema validation, 1.49× for JSON
+binary validation, 1.25× for full binary editing and 1.15× for text editing.
+Document encoding/decoding and logical validation are approximately unchanged.
+These are warmed diagnostics with construction/first binding excluded, not a
+Frontier ranking or a memory/startup claim. Standalone rendering is still costly.
+
+`json-boundary-cpu-samples.json` and archived profiles show that parsing and
+rendering dominate the text pipeline; the compiled edit is a small share.
+The cursor-sharing experiments (`bound-scan-final`, `separate-scan`) retained
+validation gains but regressed decoding; the published candidate uses separate
+cursor methods. Indexed rendering and manual string escaping were removed after
+the rendering measurements regressed. Exact accepted/rejected modules, source,
+harness and hashes are under `artifacts/json-boundary-followup/`.
+
 ## Primitive capture follow-up
 
 JavaScript revision `b08a052988cdedd8ac8b24671d256c6fc59382c5` emits

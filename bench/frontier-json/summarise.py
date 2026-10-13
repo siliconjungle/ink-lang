@@ -59,5 +59,6 @@ result = dict(schema=1, status="all-metrics target unmet", provenance=provenance
             "JSON binary and Frontier patch formats have different contracts",
             "No equivalent startup or peak-memory ranking; no general Ink JSON snapshot diff"])
 args.output.parent.mkdir(parents=True, exist_ok=True)
-args.output.write_text(json.dumps(result, indent=2) + "\n")
+with args.output.open("x") as report:
+    report.write(json.dumps(result, indent=2) + "\n")
 print(args.output)

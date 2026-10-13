@@ -25,6 +25,15 @@ if(mode==='codec'){
    (groups[operation]??={})[name]=run;
   }
  }
+}else if(mode==='text'){
+ const text=JSON.stringify(Object.fromEntries(Array.from({length:512},(_,i)=>['k'+String(i).padStart(5,'0'),i])));
+ for(const[name,ink]of Object.entries(modules)){
+  const json=new ink.JsonCodec(ink.valueCodecs.identity.result),value=json.parse(text),next=ink.parseJson('777');
+  assert.equal(json.stringify(value),text);
+  for(const[operation,run]of Object.entries({'parse-owned-json':()=>json.parse(text).payload?1:0,'render-checked-json':()=>json.stringify(value).length,'text-edit-text':()=>json.stringify(ink.call('set_document',[json.parse(text),'k00000',next]).Ok).length})){
+   (groups[operation]??={})[name]=run;
+  }
+ }
 }else if(mode==='transport'){
  for(const[name,ink]of Object.entries(modules)){
   const values=ink.valueCodecs.identity.result,codec=await ink.createValueCodec({kind:'record',name:'Update',fields:[{name:'key',type:{kind:'string'}},{name:'value',type:values.descriptor.root}]},values.descriptor.named),value={key:'k00000',value:ink.parseJson('777')};
