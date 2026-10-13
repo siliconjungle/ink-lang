@@ -4,6 +4,32 @@ The all-metrics target remains unmet. Read-heavy state and retained JSON editing
 win in these fixtures; row updates, conversion and portable-message codecs lose.
 This is a shared development host, not a controlled laboratory.
 
+## Literal wire materialisation
+
+ABI `116e779` and JS `184e96a` add trusted literal materialisers for
+compiler-derived value codecs. Complete generic validation runs first; source
+field names are emitted literally and outputs own their containers. Arbitrary
+runtime `createValueCodec` schemas retain the generic decoder. Full ABI/JS and
+mandatory JSON/state parity suites passed; emitted-versus-generic decoding
+compares mutated headers/body bytes, recursion, floats/integers, compact counts,
+lowered budgets and prototype-safe fields. The materialisers remain trusted
+backend code, not proof authority.
+
+All four paired `variants-codec-literal-wire-final-*` reports are retained.
+Large-document decode speedups are 0.987×, 1.575×, 1.655× and 1.635× (median
+1.605×); the first noisy process did not show a gain. Complete binary editing
+improved less and was roughly unchanged in one process. The generated module
+grew 12,300 bytes, from 379,539 to 391,839 bytes (3.24%). Startup/peak memory
+superiority remains unproven.
+
+`json-targeted-101.json` checks the warmed complete pipelines with 200 warmup
+calls per lane and 50 ms pilots. Ink text editing is 418.436 µs versus Frontier
+80.115 µs; the full Ink binary pipeline is 1388.289 µs and crosses extra transport
+boundaries. The text gap remains. The `variants-transport-*` update-message schema
+is created dynamically and does not use this materialiser; those noisy timing
+differences cannot establish a gain from the compiler change. Exact modules,
+sources and harnesses are archived in `artifacts/literal-wire/`.
+
 ## Owned-value release and phase controls
 
 Distribution `d211fbb3` publishes ABI `e605df8` and JS `1c5082e`.
