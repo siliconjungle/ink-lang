@@ -76,8 +76,8 @@ support. Missing capability stays explicit while implementation continues.
   both Wasm paths with exact snapshots and a real eligible numeric wgpu dispatch
   (`build/general-machinery/value-parity-final.log`). This does not claim that
   predicates or state transitions execute on the GPU device.
-- Eight focused producer tests passed in
-  `build/general-machinery/producer-tests.log`. The declared python-sat version
+- Seventeen affected producer/database tests passed in
+  `build/general-machinery/producer-tests-final.log`. The declared python-sat version
   is installed in the isolated `build/general-machinery/python` environment.
   Producers bind scalar-certificate caches to the explicitly selected compiler.
 - New state conformance and selected indexed-read native/Rust-Wasm conformance
@@ -98,9 +98,21 @@ support. Missing capability stays explicit while implementation continues.
   Cargo integration build changed the compiler binary during search. Its partial
   `fact-selection-current.json` is not admitted evidence. Search is rerunning
   against the frozen `build/general-machinery/frozen/ink` (identity recorded in
-  `frozen/compiler.json`), writing `fact-selection-frozen.json` and
-  `fact-selection-frozen.log`. Poll its exact exec handle before dependent
-  emission/measurement; preserve the failed receipt.
+  `frozen/compiler.json`) completed and checked its selected chain. Its 1024
+  attempts admitted three applications; structural cost changed from 1427 to
+  1187. This is not a measured runtime speedup. Results are in
+  `fact-selection-frozen.json` and `fact-selection-frozen.log`; the failed receipt
+  is retained. Fresh whole-chain replay and JavaScript emission also passed.
+- `bench/value-invariants/run.mjs` measures literal, selected and strong
+  handwritten u32 uniqueness calls with validity checks retained. At 512 items,
+  selected/literal median ratios are 0.497 for typed values and 0.507 for complete
+  checked binary-wire calls. The latter remains 19.376 times the handwritten
+  control using identical codecs. Raw interleaved samples and all boundaries are
+  in `docs/evidence/general-machinery/value-performance.json`. This is one
+  fixture, not automatic profitability or complete performance acceptance.
+- Local checkpoint commits are distribution
+  `fcd82cfafc2c4e5c0e0f654206611bf981244f4b` and knowledge
+  `1a963549659e62298d2f83a8516c323f90d9ff64`. Neither is published on remote main.
 - Remaining requirements include actual abstract opacity/interfaces, general
   storage and externalisation, authored termination, local frame/loop relations,
   broader cross-consumer fact transport, compositional incremental maintenance,
