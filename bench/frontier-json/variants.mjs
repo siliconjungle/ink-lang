@@ -6,6 +6,10 @@ const mode=process.argv[2]??'codec',candidate=process.argv[3];if(!candidate)thro
 const baseline=process.argv.find(a=>a.startsWith('--baseline='))?.slice('--baseline='.length)??'build/frontier-json/ink.mjs';
 const paths={baseline,candidate};
 const label=path.basename(candidate,'.mjs');if(!/^[a-z0-9-]+$/.test(label))throw Error('candidate label');
+const runLabel=process.argv.find(a=>a.startsWith('--run='))?.slice('--run='.length);
+if(runLabel&&!/^[a-z0-9-]+$/.test(runLabel))throw Error('run label');
+const reportPath=path.join(root,`reports/frontier-json-2026-10-13/variants-${mode}-${label}${runLabel?'-'+runLabel:''}.json`);
+if(fs.existsSync(reportPath))throw Error('report already exists; choose a fresh --run label');
 const hashes=Object.fromEntries(Object.entries(paths).map(([k,p])=>[k,createHash('sha256').update(fs.readFileSync(path.resolve(root,p))).digest('hex')]));
 const modules=Object.fromEntries(await Promise.all(Object.entries(paths).map(async([k,p])=>[k,await import(pathToFileURL(path.resolve(root,p)).href)])));
 const groups={};let sink=0;
@@ -48,4 +52,4 @@ for(const[operation,lanes]of Object.entries(groups)){
  }
 }
 for(const[k,p]of Object.entries(paths))assert.equal(createHash('sha256').update(fs.readFileSync(path.resolve(root,p))).digest('hex'),hashes[k],'artifact changed during timing');
-fs.writeFileSync(path.join(root,`reports/frontier-json-2026-10-13/variants-${mode}-${label}.json`),JSON.stringify({schema:1,diagnostic_experiment:true,instrumented:process.execArgv.some(a=>a.startsWith("--cpu-prof")||a.startsWith("--prof")||a.startsWith("--trace")),paths,hashes,measurements,sink,scope:'Paired source candidate experiment on a shared host. Setup excluded; compare candidate ratios, not historical absolute timings.'},null,2)+'\n');
+fs.writeFileSync(reportPath,JSON.stringify({schema:1,diagnostic_experiment:true,instrumented:process.execArgv.some(a=>a.startsWith("--cpu-prof")||a.startsWith("--prof")||a.startsWith("--trace")),paths,hashes,measurements,sink,scope:'Paired source candidate experiment on a shared host. Setup excluded; compare candidate ratios, not historical absolute timings.'},null,2)+'\n',{flag:'wx'});
