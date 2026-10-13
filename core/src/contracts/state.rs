@@ -53,6 +53,7 @@ struct Ghosts {
     p: Program,
     next: usize,
 }
+enum PrefixPhase { Value, Call, Entry }
 impl Ghosts {
     /// Pure proof observations use the ordinary pure-function correspondence.
     /// Capture state reads as arguments at the ghost query, rather than adding
@@ -407,7 +408,7 @@ pub(super) fn derive(source: &Program) -> LangResult<StateObligations> {
                     .cloned().collect::<Vec<_>>();
                 let mut params=locals.clone();params.push((names["result"].clone(),spec.result.clone()));
                 let post=ghosts.query(params,Type::Bool,predicate)?;
-                prefix_checks.push((g.name,g.owner,guarantee.site,locals,post,false));
+                prefix_checks.push((g.name,g.owner,guarantee.site,locals,post,PrefixPhase::Value));
                 continue;
             }
             let anchor=ghosts.query(g.params.clone(),Type::Bool,Expr::Bool(true))?;
@@ -442,7 +443,20 @@ pub(super) fn derive(source: &Program) -> LangResult<StateObligations> {
                 let parameters=requirement.params.iter().map(|(n,t)|(names[n].clone(),t.clone())).collect();
                 let predicate=crate::syntax::rename_expression(&requirement.predicate,&names);
                 let query=ghosts.query(parameters,Type::Bool,predicate)?;
-                prefix_checks.push((g.name,g.owner,requirement.site,vec![],query,true));
+                prefix_checks.push((g.name,g.owner,requirement.site,vec![],query,PrefixPhase::Call));
+                continue;
+            }
+        }
+        if let Some(site)=g.consumer {
+            if source.actions.iter().any(|a|a.name==g.owner && !site_in_callback(a,site)) {
+                // Domain lifting only captures total pure expressions and
+                // readonly observations. They denote this entry state; caller
+                // locals and preceding writes come from the actual prefix.
+                let locals=g.params.iter().filter(|(n,_)|crate::analysis::references_free(&g.predicate,n)
+                    || g.observations.as_ref().is_some_and(|o|o.iter().any(|(_,_,e)|crate::analysis::references_free(e,n))))
+                    .cloned().collect::<Vec<_>>();
+                let query=ghosts.observation_query(locals.clone(),g.predicate,&g.observations)?;
+                prefix_checks.push((g.name,g.owner,site,locals,query,PrefixPhase::Entry));
                 continue;
             }
         }
@@ -463,7 +477,7 @@ pub(super) fn derive(source: &Program) -> LangResult<StateObligations> {
     let typed=crate::action_ir::CheckedActions::elaborate(&checked)?;
     let mut requests=vec![];
     let mut site_maps=BTreeMap::new();
-    for (_,owner,site,locals,post,before) in &prefix_checks {
+    for (_,owner,site,locals,post,phase) in &prefix_checks {
         let index=source.actions.iter().position(|a|&a.name==owner).ok_or("missing observed caller")?;
         if !site_maps.contains_key(owner) {
             site_maps.insert(owner.clone(),typed.action(index).ok_or("missing observed caller tree")?
@@ -472,12 +486,13 @@ pub(super) fn derive(source: &Program) -> LangResult<StateObligations> {
         let (node,env)=site_maps[owner].get(site).ok_or("missing captured result source site")?;
         let slots=locals.iter().map(|(name,_)|env.get(name).copied().ok_or("missing captured lexical slot"))
             .collect::<Result<Vec<_>,_>>()?;
-        requests.push(if *before {
-            crate::action_model::SiteObservation::Call(crate::action_model::CallObservation{
+        requests.push(match phase {
+            PrefixPhase::Call=>crate::action_model::SiteObservation::Call(crate::action_model::CallObservation{
                 action:owner.clone(),node:*node,predicate:post.clone(),slots})
-        } else {
-            crate::action_model::SiteObservation::Value(crate::action_model::ValueObservation{
-                action:owner.clone(),node:*node,predicate:post.clone(),slots})
+            ,PrefixPhase::Value=>crate::action_model::SiteObservation::Value(crate::action_model::ValueObservation{
+                action:owner.clone(),node:*node,predicate:post.clone(),slots}),
+            PrefixPhase::Entry=>crate::action_model::SiteObservation::Entry(crate::action_model::EntryObservation{
+                action:owner.clone(),node:*node,predicate:post.clone(),slots}),
         });
     }
     let (model,observations) = Projection::derive_site_observations(&checked,&requests)?;

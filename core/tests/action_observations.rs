@@ -1,6 +1,8 @@
 use ink_core::{
     action_ir::{CheckedActions, Kind},
-    action_model::{CallObservation, Projection, SiteObservation, ValueObservation},
+    action_model::{
+        CallObservation, EntryObservation, Projection, SiteObservation, ValueObservation,
+    },
     core::CheckedModule,
     logic::Term,
     syntax,
@@ -36,6 +38,8 @@ fn double(x:u32)->u32{return x+x;}
 query pure()->u32{return double(double(1));}
 query nonzero(value:u32)->Bool{return value>0;}
 query zero(value:u32)->Bool{return value==0;}
+query always()->Bool{return true;}
+query never()->Bool{return false;}
 query failed_query()->Result<u32,String>{return Err("query error");}
 query success(value:Result<u32,String>)->Bool{return value.fold(fn(x)=>x>0,fn(_)=>false);}
 query reject(value:Result<Unit,String>)->Bool{return false;}
@@ -153,6 +157,40 @@ fn preconditions_observe_ordered_arguments_before_the_callee_can_repair_state() 
                 &m,
                 SiteObservation::Call(CallObservation {
                     action: owner.into(),
+                    node,
+                    predicate: predicate.into(),
+                    slots: vec![],
+                }),
+                vec![]
+            ),
+            Term::Bool(want)
+        );
+    }
+}
+
+#[test]
+fn expression_entry_checks_are_visited_inside_total_parent_expressions() {
+    let m = module();
+    let actions = CheckedActions::elaborate(&m).unwrap();
+    let index = m
+        .program()
+        .actions
+        .iter()
+        .position(|a| a.name == "pure")
+        .unwrap();
+    let node = actions
+        .action(index)
+        .unwrap()
+        .nodes
+        .iter()
+        .position(|n| matches!(n.kind, Kind::PureCall { .. }))
+        .unwrap();
+    for (predicate, want) in [("always", true), ("never", false)] {
+        assert_eq!(
+            check_site(
+                &m,
+                SiteObservation::Entry(EntryObservation {
+                    action: "pure".into(),
                     node,
                     predicate: predicate.into(),
                     slots: vec![],

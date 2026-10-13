@@ -308,6 +308,32 @@ support. Missing capability stays explicit while implementation continues.
   Receipt: `docs/evidence/general-machinery/before-call.json`. Earlier failed
   regressions/authoring remain diagnostic data, not admitted evidence. No runtime
   or proof-production performance claim follows from this conformance checkpoint.
+- Supported callback-domain checks now use expression-entry observations at the
+  actual caller state. Entry predicates retain readonly query inputs and lexical
+  slots; closed state reads inside callbacks are sampled without assuming a
+  boundary invariant after mutation. Zero-argument readonly queries additionally
+  require a source closure without nontrivial call contracts. Dependent and
+  unsupported domains retain stronger checks. Empty domains remain vacuous.
+  Total value correspondence and observation visitation are separate summaries;
+  readonly list receivers sequence through existing map/filter meanings.
+- Database proof search now exposes constructor payload equalities through Match
+  congruence, retains relevant relational origins after extraction, and proposes
+  separately checked concrete-result lemmas for recursive observations. The repair
+  fixture authors two pure/twelve state proofs with a 124-object closure. Refreshed
+  standalone/imported callback closures have 172/170 objects and two pure/25 state
+  proofs each. Constructor projection independently replays; a rehashed theorem
+  with the wrong conclusion rejects. Current local publication is recorded in
+  `consumer-entry-publication.json` and its exported source views.
+- Final verification passes 252 core tests, twelve affected database tests and
+  fourteen abstract/value integration tests across C/Rust/JS/both Wasm paths with
+  eligible wgpu work. The new fixture compares thirteen replies and exact snapshots
+  for repairs, empty domains, readonly receiver captures, commits and rollback.
+  The bad callback followed by a repair rejects (`consumer-entry-bad-rejection.log`).
+  Logs: `consumer-entry-core-all.log`, `consumer-entry-db-tests.log`,
+  `consumer-entry-target-parity.log`, and the published replay logs. Receipt:
+  `docs/evidence/general-machinery/consumer-entry.json`. This remains partial local
+  staging; no execution/proof-production performance acceptance or remote main
+  publication is claimed.
 - Remaining requirements include interchangeable abstract interfaces and owners, general
   storage and externalisation, authored termination, local frame/loop relations,
   broader cross-consumer fact transport, compositional incremental maintenance,
