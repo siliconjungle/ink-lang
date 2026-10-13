@@ -572,3 +572,37 @@ is 77.40 MB, versus logical Ink 83.59 MB and its Frontier control 73.12 MB.
 Whole-process/JIT/GC effects prevent an exact allocation or universal memory
 claim. Owned-tree and live-state footprint gaps persist. No compiler/test/profile
 job ran concurrently with this measured sequence.
+
+`compact-stream-release-cohorts-186-200.json` reranks five matched boundaries
+against the same published module in three fresh processes each. JSON kernels
+use 200 warmups, 50 ms pilots and nine rotated rounds; state uses its existing
+fixture setup/pilot and nine rotated rounds. Results are medians of process
+medians, on a shared Node 26.1 / Apple M2 host:
+
+| Boundary | Ink µs/call | Frontier µs/call | Ink result |
+| --- | ---: | ---: | --- |
+| Detached result from stable prepared logical inputs | 53.030 | 97.791 | 1.84× faster |
+| Compact message encode | 0.464 | 0.654 | 1.41× faster |
+| Portable message encode | 0.645 | 0.654 | Approximately tied |
+| Compact message decode | 0.783 | 0.605 | 1.29× longer |
+| Portable message decode | 1.318 | 0.605 | 2.18× longer |
+| 4096-row replacement | 2.559 | 0.718 | 3.56× longer |
+| Prepared replacement, both preparations excluded | 0.771 | 0.446 | 1.73× longer |
+| Text → known edit → text | 360.424 | 80.016 | 4.50× longer |
+
+Complete outputs, detached object identities and source histories pass preflight.
+The public checked-capture edit is 322.474 µs; it includes external logical input
+validation, so it is a separate boundary from the caller-trusted detached lane.
+Ink's full binary text pipeline remains 1,448.262 µs and contains extra boundaries.
+The supplied older indexed implementation is explicitly hash-bound and costs
+21.815 µs for replacement; it is not silently substituted for the new baseline.
+Shared-host absolute differences from older epochs are not causal speedup claims.
+JSON exact tokens/member order and protocol/schema differences remain explicit;
+general arbitrary JSON snapshot diff is still a feature gap. The whole-goal
+Frontier win has not been achieved.
+
+The direct-document example composes the validated `JsonCodec.parseCompact` bytes
+into a checked argument record with `encodeWith`. `TypedJsonCodec` follows the
+declared source record/sum shapes; it does not implicitly make an embedded library
+Json field transparent. The compiled compact-call composition is now checked
+against the ordinary encode/call result in the JSON conformance suite.

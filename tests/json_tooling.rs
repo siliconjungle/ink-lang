@@ -260,6 +260,10 @@ assert.deepEqual(valueCodecs.echo_packet.result.encode(valueCodecs.echo_packet.r
 assert.throws(()=>callCompact('guarded',valueCodecs.guarded.arguments.compact().encode({x:0})),/precondition/);
 const compactJson=callCompact('mark_received',valueCodecs.mark_received.arguments.compact().encode({document:parseJson('{"title":"hello","unknown":1e10000}')}));
 assert.equal(stringifyJson(valueCodecs.mark_received.result.compact().decode(compactJson).Ok),'{"received":true,"title":"hello","unknown":1e10000}');
+const directDocument=json.parseCompact('{"title":"hello","unknown":1e10000}');
+const directRequest=valueCodecs.mark_received.arguments.compact().encodeWith(w=>w.frame(()=>w.bytes(directDocument.subarray(1))));
+assert.deepEqual(callCompact('mark_received',directRequest),compactJson);
+
 const ordered=new TypedJsonCodec(valueCodecs.echo_packet.arguments),parsed=ordered.parseBinary('{"packet":{"unit":null,"result":{"Err":"雪"},"optional":{"Some":4},"mode":"Mode.Off","tag":"0123456789abcdef0123456789abcdef","vector":[-0,0.1],"bits":2,"exact":-123456789012345678901234567890,"word":-2147483648,"wide":18446744073709551615}}');
 assert.deepEqual(Array.from(parsed),Array.from(valueCodecs.echo_packet.arguments.encode(ordered.parse('{"packet":{"unit":null,"result":{"Err":"雪"},"optional":{"Some":4},"mode":"Mode.Off","tag":"0123456789abcdef0123456789abcdef","vector":[-0,0.1],"bits":2,"exact":-123456789012345678901234567890,"word":-2147483648,"wide":18446744073709551615}}'))));
 for(const text of ['{"x":0,"x":1}','{"x":0,"\\u0078":1}','[1,]','01','+1','1.','1e','NaN','"\\ud800"','true false'])assert.throws(()=>json.parseBinary(text));
