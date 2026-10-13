@@ -23,6 +23,55 @@ fn root() -> PathBuf {
 }
 
 #[test]
+fn source_preconditions_remove_duplicate_action_guards_with_complete_proofs() {
+    use verified_language::{contracts,registry};
+    let source=include_str!("../examples/performance-invariant-guards.ink");
+    let dir=root().join("precondition-guards-authoring");fs::create_dir_all(&dir).unwrap();
+    let knowledge=Path::new(env!("CARGO_MANIFEST_DIR")).join("knowledge");
+    let pythonpath=format!("{}:{}",knowledge.display(),Path::new(env!("CARGO_MANIFEST_DIR")).join("planner").display());
+    run(Command::new("python3").current_dir(env!("CARGO_MANIFEST_DIR"))
+        .env("PYTHONPATH",&pythonpath).args(["-m","producers.contract_proofs","examples/performance-invariant-guards.ink"])
+        .arg(&dir).args(["--compiler",env!("CARGO_BIN_EXE_ink")]),&dir.join("author.log"));
+    let mut program=parse(source).unwrap();contracts::attach(&mut program,serde_json::from_slice(&fs::read(dir.join("evidence.json")).unwrap()).unwrap()).unwrap();
+    let module=CheckedModule::from_source(program).unwrap();
+    fs::write(dir.join("model.json"),serde_json::to_vec(&verified_language::action_model::Projection::derive(&module).unwrap()).unwrap()).unwrap();
+    run(Command::new("python3").current_dir(env!("CARGO_MANIFEST_DIR"))
+        .env("PYTHONPATH",&pythonpath).args(["-m","producers.invariant_representations"])
+        .arg(dir.join("model.json")).args(["--compiler",env!("CARGO_BIN_EXE_ink"),"-o"]).arg(dir.join("candidates.json")),&dir.join("producer.log"));
+    let report:Value=serde_json::from_slice(&fs::read(dir.join("candidates.json")).unwrap()).unwrap();
+    for name in ["checked_install","install","is_valid"]{assert!(report["changed"].as_array().unwrap().contains(&json!(name)));}
+    let request:Request=serde_json::from_value(report["requests"][0].clone()).unwrap();
+    let checked=representation::check(&module,&request).unwrap();
+    // Reauthenticate the proposal after removing its source-bound domain.
+    // Valid content hashes must not turn conditional proofs into total proofs.
+    let mut bad=request.clone();let mut plan=bad.knowledge.objects.remove(&bad.representation).unwrap();
+    bad.knowledge.roots.retain(|id|id!=&bad.representation);
+    plan.payload["source_domain"]=json!(false);
+    plan.interface.conditions.clear();
+    bad.representation=registry::identity(&plan).unwrap();
+    bad.knowledge.objects.insert(bad.representation.clone(),plan);bad.knowledge.roots.push(bad.representation.clone());
+    bad.semantics=representation::SEMANTICS.into();add_unused_mathematics(&mut bad);
+    registry::CheckedBundle::check(&bad.knowledge).unwrap();
+    assert!(representation::check(&module,&bad).is_err());
+    let mut state=CompiledState::new(checked.clone()).unwrap();
+    state.invoke_json("install",&json!([[0,1,u32::MAX]])).unwrap();
+    let before=state.checkpoint().unwrap();
+    for name in ["checked_install","install"]{
+        assert!(state.invoke_json(name,&json!([[1,1]])).unwrap_err().contains("precondition"));
+        assert_eq!(state.checkpoint().unwrap(),before);
+    }
+    let layout=verified_language::snapshot::layout(module.program()).unwrap();
+    let mut logical=verified_language::snapshot_wire::decode(&layout,&before,Default::default()).unwrap();
+    logical.tables[0]=vec![(json!(0),json!([1,1]))];
+    let forged=verified_language::snapshot_wire::encode(&layout,&logical,Default::default()).unwrap();
+    assert!(CompiledState::restore(checked,&forged).err().unwrap().contains("invariant"));
+    check_module("source-precondition-guards",source,module,Some(request),vec![
+        ("is_valid",json!([])),("install",json!([[0,1,u32::MAX]])),("contents",json!([])),
+        ("checked_install",json!([[3,4,5]])),("is_valid",json!([])),("clear",json!([])),("contents",json!([])),
+    ]);
+}
+
+#[test]
 fn source_invariants_simplify_queries_without_leaking_into_nested_actions() {
     use verified_language::{contracts,registry};
     let source=include_str!("../examples/invariant-algorithms.ink");

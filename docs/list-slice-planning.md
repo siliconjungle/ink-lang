@@ -35,7 +35,7 @@ The public compiler also accepts an offline measurement workload:
 
 ```sh
 ink compile program.ink --optimise knowledge --target javascript \
-  --measure-workload workload.json -o program.mjs
+  --measure-workload workload.json --measure-holdout holdout.json -o program.mjs
 ```
 
 A minimal workload is:
@@ -57,11 +57,24 @@ A minimal workload is:
 Each phase measures the complete sequence of supplied calls and consumption of
 all output values. Profile weights count repetitions of that sequence. Acquisition
 emits admitted candidates, compares outputs with the independent reference,
-checks input preservation, and collects nine interleaved timing batches. Compilation,
-reference execution and module loading are reported separately. Immutable
+checks input preservation, and collects nine interleaved timing batches in each
+of three fresh Node processes. Compilation, reference execution, module loading
+and untimed output validation are reported separately. Immutable
 observations bind the candidate, compiler, backend, host, Node/adapter versions,
-phase and exact selection-input bytes. The existing lifecycle ranker chooses from
-comparable observations. A selected plan receives fresh proof replay before emission.
+phase and exact selection-input bytes. The lifecycle ranker chooses from
+comparable observations. Fresh acquisition requires the alternative's slowest
+observed weighted cost to beat the baseline's fastest by at least 10%. These
+empirical extrema are a conservative noise guard, not a statistical confidence
+interval. `--minimum-measured-gain-ppm`, `--measure-processes` (1–8) and
+`--measure-timeout` bound this offline work. Saved external profiles retain their
+existing median policy.
+
+With `--measure-holdout`, inputs must be disjoint and the phase weights identical.
+The holdout measures only the baseline and the already chosen alternative; it
+may reject to baseline but cannot choose a new candidate. Input fingerprints bind
+typed values, including exact binary32 bits and declared record fields, rather
+than formatting or extra JSON metadata. The holdout never feeds candidate search.
+A selected plan receives fresh proof replay before emission.
 Without evidence the compiler retains its baseline. Runtime does no profitability
 probing. Selection inputs are training data; evaluating generalisation requires
 separate programs and inputs.

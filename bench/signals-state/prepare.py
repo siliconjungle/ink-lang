@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Rebuild pinned emitters, or replay the exact retained measured modules."""
 import argparse, gzip, hashlib, io, json, subprocess, tarfile
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -27,6 +28,7 @@ def main():
                 if hashlib.sha256(emitted).hexdigest() != hashes[key]:
                     raise RuntimeError(f"frozen module hash mismatch: {lane}/{name}")
                 (BUILD / lane / f"{name}.mjs").write_bytes(emitted)
+        (BUILD / 'indexed.request.json').write_bytes((ROOT / 'knowledge/research/indexed-aggregate/request.json').read_bytes())
         return
     # Old backend, current identical checked core/source/request on both sides.
     pinned = BUILD / f"baseline-js-{BASELINE}"
@@ -68,7 +70,13 @@ ink-core={{path={core}}}
         run("cargo", "run", "--manifest-path", crate / "Cargo.toml", "--", source, BUILD / "before" / f"{name}.mjs")
         run(ROOT / "target/debug/ink", "build", source, "--target", "javascript", "-o", BUILD / "after" / f"{name}.mjs")
     source = ROOT / "examples/filtered-aggregate.ink"
-    request = ROOT / "knowledge/research/indexed-aggregate/request.json"
+    # Explicit database proof replaces historical backend envelope erasure.
+    # Both emitters receive the same checked compact request in source mode.
+    sys.path.insert(0,str(ROOT/'knowledge'))
+    from producers.compact_observation import attach
+    request=BUILD/'indexed.request.json'
+    request.write_text(json.dumps(attach(json.loads((ROOT/'knowledge/research/indexed-aggregate/request.json').read_text()),BUILD/'compact-store')))
+    run(ROOT/'target/debug/ink','check-representation',source,request)
     run("cargo", "run", "--manifest-path", crate / "Cargo.toml", "--", source, BUILD / "before/indexed.mjs", request)
     run(ROOT / "target/debug/ink", "emit-representation", source, request, "--target", "javascript", "-o", BUILD / "after/indexed.mjs")
 
