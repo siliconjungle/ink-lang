@@ -4,6 +4,38 @@ The all-metrics target remains unmet. Read-heavy state and retained JSON editing
 win in these fixtures; row updates, conversion and message decoding still lose.
 This is a shared development host, not a controlled laboratory.
 
+## Immutable default policies and scalar encoder limits
+
+Value codecs now reuse private immutable default policies; every invocation
+retains independent byte/node/depth counters. Arbitrary supplied options still
+undergo complete normalization and hard-limit checks. Encoder resets snapshot
+byte/depth limits into scalar fields, and the typed encoder snapshots its depth
+bound once. This is fixed ABI resource machinery, not a source rewrite or new
+database proof authority.
+ABI `72b2643` and JavaScript `1cbc5f9` publish the selected change. Full ABI and
+standalone JavaScript suites passed. Mandatory JSON/state parity passed five
+JSON and two maintained-state tests, covering lowered budgets, all CPU lowerings,
+GPU-host observations, exact snapshots, rollback and forged-proof rejection.
+This fixture's module adds 472 bytes (0.12%); startup and peak-memory rankings
+remain unmeasured.
+
+Three paired processes for dynamically created Update codecs give median
+speedups of 1.643× portable decoding, 1.649× compact decoding, 1.307× portable
+encoding and 1.366× compact encoding. Explicit reduced-budget results remain
+separate; both processes pass and show no regression. Row replacement improves
+1.055× median (individual process ratios 1.015×–1.194×). Large-document encoding
+is approximately unchanged/slightly faster (1.021× median), and full binary
+editing improves 1.033× median. No gain is attributed to unchanged JSON text
+algorithms or incidental timing variation in other lanes.
+
+The first default-policy-only candidate consistently slowed large-document
+encoding (0.804×–0.930×) and is rejected. Scalar encoder bounds remove that
+regression in all three repeated processes while retaining the message gains.
+`wire-scalar-budgets-summary.json` retains every raw experiment; exact baseline,
+both candidates, source, tests and old/new harnesses are archived in
+`artifacts/wire-scalar-budgets/`. These paired diagnostics do not establish a
+Frontier, startup or memory win. The all-metrics target remains open.
+
 ## Incremental checked text rendering
 
 The JSON boundary now accumulates validated output into a string rather than

@@ -10,6 +10,8 @@ const runLabel=process.argv.find(a=>a.startsWith('--run='))?.slice('--run='.leng
 const copyKind=process.argv.find(a=>a.startsWith('--copy='))?.slice('--copy='.length)??'capture';
 const textFields=Number(process.argv.find(a=>a.startsWith('--fields='))?.slice('--fields='.length)??512);
 const textFixture=process.argv.find(a=>a.startsWith('--text-fixture='))?.slice('--text-fixture='.length)??'numeric';
+const budgetKind=process.argv.find(a=>a.startsWith('--budget='))?.slice('--budget='.length)??'default';
+if(!['default','reduced'].includes(budgetKind))throw Error('invalid budget');
 if(!Number.isSafeInteger(textFields)||textFields<1||textFields>10000)throw Error('invalid text field count');
 if(!['numeric','unicode','nested'].includes(textFixture))throw Error('invalid text fixture');
 if(!['capture','trusted'].includes(copyKind))throw Error('copy kind');
@@ -53,12 +55,13 @@ if(mode==='codec'){
   }
  }
 }else if(mode==='transport'){
+ const limits=budgetKind==='reduced'?{bytes:128,nodes:32,depth:16}:undefined;
  for(const[name,ink]of Object.entries(modules)){
   const values=ink.valueCodecs.identity.result,codec=await ink.createValueCodec({kind:'record',name:'Update',fields:[{name:'key',type:{kind:'string'}},{name:'value',type:values.descriptor.root}]},values.descriptor.named),value={key:'k00000',value:ink.parseJson('777')};
   for(const[format,encoder]of Object.entries({portable:codec,compact:codec.compact()})){
-   const bytes=encoder.encode(value);assert.deepEqual(encoder.decode(bytes),value);
-   (groups['encode-'+format]??={})[name]=()=>encoder.encode(value).length;
-   (groups['decode-'+format]??={})[name]=()=>encoder.decode(bytes).key.length;
+   const bytes=encoder.encode(value,limits);assert.deepEqual(encoder.decode(bytes,limits),value);
+   (groups['encode-'+format]??={})[name]=()=>encoder.encode(value,limits).length;
+   (groups['decode-'+format]??={})[name]=()=>encoder.decode(bytes,limits).key.length;
   }
  }
 }else if(mode==='row'){
@@ -79,4 +82,4 @@ for(const[operation,lanes]of Object.entries(groups)){
  }
 }
 for(const[k,p]of Object.entries(paths))assert.equal(createHash('sha256').update(fs.readFileSync(path.resolve(root,p))).digest('hex'),hashes[k],'artifact changed during timing');
-fs.writeFileSync(reportPath,JSON.stringify({schema:1,diagnostic_experiment:true,instrumented:process.execArgv.some(a=>a.startsWith("--cpu-prof")||a.startsWith("--prof")||a.startsWith("--trace")),copy_kind:copyKind,text_fields:textFields,text_fixture:textFixture,consume_utf8:mode==='text-bytes',paths,hashes,measurements,sink,scope:'Paired source candidate experiment on a shared host. Setup excluded; compare candidate ratios, not historical absolute timings.'},null,2)+'\n',{flag:'wx'});
+fs.writeFileSync(reportPath,JSON.stringify({schema:1,diagnostic_experiment:true,instrumented:process.execArgv.some(a=>a.startsWith("--cpu-prof")||a.startsWith("--prof")||a.startsWith("--trace")),copy_kind:copyKind,text_fields:textFields,text_fixture:textFixture,budget:budgetKind,consume_utf8:mode==='text-bytes',paths,hashes,measurements,sink,scope:'Paired source candidate experiment on a shared host. Setup excluded; compare candidate ratios, not historical absolute timings.'},null,2)+'\n',{flag:'wx'});
