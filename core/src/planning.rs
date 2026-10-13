@@ -76,8 +76,12 @@ impl CheckedPlan {
     pub fn maintained(&self) -> Option<&crate::maintained::CheckedViews> { self.maintained.as_ref() }
     /// Emitters declare support explicitly; an admitted choice cannot disappear.
     pub fn require_source_storage_capability(&self,folds:bool,dense:bool)->LangResult<()>{
+        self.require_source_storage_capabilities(folds,dense,false)
+    }
+    pub fn require_source_storage_capabilities(&self,folds:bool,dense:bool,dictionaries:bool)->LangResult<()>{
         if !folds&&self.maintained.is_some(){return Err("target does not support maintained source folds".into());}
         if !dense&&self.physical.as_ref().is_some_and(|p|!p.plan().dense_prefixes.is_empty()){return Err("target does not support dense source table prefixes".into());}
+        if !dictionaries&&self.physical.as_ref().is_some_and(|p|!p.plan().dictionary_tables.is_empty()){return Err("target does not support source dictionary tables".into());}
         Ok(())
     }
     pub fn require_record_elision_capability(&self, supported:bool)->LangResult<()> {
