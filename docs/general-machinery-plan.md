@@ -242,6 +242,25 @@ support. Missing capability stays explicit while implementation continues.
   and `4e1a40bc0d29039336e71edf41cf4566698fb1db4b3dac7858fbb31e699a1665`.
   Receipt: `docs/evidence/general-machinery/result-guarantees.json`. This is local
   staging evidence, not completion of the full programme or remote publication.
+- Exact source-site value observations now reuse the action transition CPS.
+  They bind local slots and actual results in the intermediate state, preserve
+  nested query/change error distinctions, and retain a failed observation through
+  later aborts. Earlier exits do not observe an unexecuted site. Checked node
+  selectors carry no mathematical authority; ordinary kernel proofs check the
+  resulting Bool functions. No runtime instrumentation or new proof axiom was
+  introduced, and original action definitions/objects remain byte-identical.
+  Callback sites fail closed rather than silently appearing unvisited.
+- This is a foundation for actual-prefix reasoning. Contract generation still
+  uses its conservative arbitrary-state checks. Exact source/lexical capture
+  transport, before-call requirements, loop/frame composition and database proof
+  families remain open. Evidence is recorded separately in
+  `docs/evidence/general-machinery/action-observations.json`; prior canonical
+  result-guarantee proof packets still replay unchanged. The final standalone
+  suite passes 238 tests, including six observation tests, in
+  `action-observation-core-final-v2.log`. Seven abstract-interface integration
+  tests pass with C/Rust/JS/both Wasm paths and eligible wgpu work enabled in
+  `action-observation-target-parity.log`. These are conformance checks, not
+  observation-runtime or proof-production performance measurements.
 - Remaining requirements include interchangeable abstract interfaces and owners, general
   storage and externalisation, authored termination, local frame/loop relations,
   broader cross-consumer fact transport, compositional incremental maintenance,

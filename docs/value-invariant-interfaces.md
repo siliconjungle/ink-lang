@@ -136,6 +136,36 @@ state-dependent contracts remain part of that broader audit. Binding types now
 come from the actual action typing traversal; inference no longer reinterprets a
 change call as a synthetic query.
 
+## Source-site observation foundation
+
+`Projection::derive_observations` now derives Bool safety functions for exact
+value-expression sites in a checked action tree. A request identifies the action,
+node, lexical argument slots and a checked readonly Bool query. The query receives
+those local values and the expression's actual result, and observes the state at
+that point. Selectors choose a source site; they supply no transition meaning or
+proof authority. Every generated definition and proof uses the existing kernel.
+
+The projection shares the original transition continuations. Earlier writes,
+nested calls, lazy branches, intermediate reads and ordered events therefore
+retain their source evaluation order. A false observation stays false through
+later aborts. An exit before the site leaves it unobserved. Query errors are
+ordinary observed Result values; an erroneous nested change exits the caller
+before its binding produces a value. Failure of the observation query itself
+cannot establish its predicate. The total-expression shortcut visits monitored
+children rather than silently skipping their observations.
+
+This foundation is separate from executable admission and adds no runtime
+instrumentation. Ordinary action definitions and their mathematical objects are
+unchanged when observations are requested. Malformed sites/signatures and sites
+inside callback bodies reject; the latter still execute through pure callback
+correspondence. Explicit slots preserve lexical identities.
+
+Contract generation still uses the conservative result-guarantee checks above.
+Connecting exact call sites and their captured arguments to these observations
+is the next step. Before-call requirements, callback/loop observation domains,
+compositional frame relations, nested replacement domains and database proof
+families remain unfinished. This is not completion of local relational reasoning.
+
 ## Current evidence and remaining scope
 
 The frozen value-state proof packet contains one pure obligation and eleven state
