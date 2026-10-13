@@ -1174,7 +1174,9 @@ impl Projection {
         Ok(c)
     }
 }
-/// Compare complete transitions over every logical state, version and argument.
+/// Compare complete transitions over every logical state, version and argument,
+/// or, with `sorted_tables`, over every state whose tables are strictly sorted
+/// once that invariant is checked (recorded in the evidence's assumptions).
 /// This is source correspondence; host codecs and generated native code remain
 /// in the disclosed trust boundary. Resource-exhaustion behaviour is not equated.
 pub(crate) fn check(
