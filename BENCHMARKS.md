@@ -23,6 +23,26 @@ The report retains acquisition boundaries, complete-call costs, compiler effects
 forced alternatives and adverse cells. [The preceding broad study](docs/broad-performance-research.md)
 separately diagnoses conversion, proof loading and discovery costs.
 
+## Real upstream kernels and compilation cost
+
+[The frozen real-kernel follow-up](reports/real-software-delivery-2026-10-13/README.md)
+uses separate development and held-out sources from D3, Earcut, Three.js,
+gl-matrix and CodeMirror. Twenty-eight newly checked objects produce no new
+selected implementation across five executable held-out kernels; every emitted
+artifact remains the literal baseline. A sixth string-length port is unsupported
+in that measured pre-JSON compiler. All 228 upstream/reference comparisons pass.
+The upstream control cohort is mixed: D3 max and Earcut are faster in Ink, while
+float-heavy calls are much slower; internal float conversion costs are diagnosed
+separately. This is a bounded kernel study, not a library or population ranking.
+
+Development profiling also exposes compact Merkle-tree publication cost. Repacking
+the same canonical IDs with the existing 64-entry leaf format reduces publication
+node calls from 41,297 to 1,085. Matching-source cold acquisitions improve, with
+shared-host/single-acquisition limitations retained. Complete repacked cold-build
+medians remain 35–52 seconds for quick and about 100 seconds for balanced; fifteen
+cached builds take a median 0.448 seconds with fresh proof replay. The report keeps
+partial compact results, every loss and setup/environment failures distinct.
+
 ## Frozen knowledge growth, 13 October 2026
 
 [The independent automatic-delivery replication](reports/automatic-delivery-2026-10-13/README.md)

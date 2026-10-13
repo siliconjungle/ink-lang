@@ -185,7 +185,19 @@ pub fn obligations(p: &Program) -> LangResult<Vec<Obligation>> {
     let catalogue = CheckedCatalogue::check(&Catalogue {
         schema: 1, semantics: laws::SEMANTICS.into(), roots: vec![], objects: BTreeMap::new(),
     }, &executable)?;
+    // Only call sites with an actual precondition need semantic proof terms.
+    // Unrelated checked functions may use values outside that proof domain.
+    // Each callee's own body and specification remain checked independently.
+    let guarded = p.contracts.specifications.iter()
+        .filter(|s| s.kind.is_none() && !s.requires.is_empty())
+        .flat_map(|spec| std::iter::once(spec.name.clone()).chain(
+            p.contracts.implementations.iter()
+                .filter(|i| i.specification == spec.name).map(|i| i.name.clone())))
+        .collect::<BTreeSet<_>>();
     for f in &p.functions {
+        let mut callees = BTreeSet::new();
+        crate::check::calls(&f.body, &mut callees);
+        if callees.is_disjoint(&guarded) { continue; }
         let env = crate::check::params_env(&f.params)?;
         let owner = p.contracts.specifications.iter().find(|s| {
             s.name == f.name

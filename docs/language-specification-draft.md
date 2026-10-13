@@ -1043,4 +1043,4 @@ This interface makes the architecture implementable in stages without claiming t
 
 The executable-core V5 extension adds ordered parallel mapping, affine buffer
 partitions/rejoining and guarded unsigned/list self recursion. Exact semantics
-and target limits are specified in [the extension](bend-inspired.md).
+and target limits are specified in [the extension](parallel-execution.md).

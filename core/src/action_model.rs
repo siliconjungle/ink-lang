@@ -10,6 +10,7 @@ use crate::{
     LangResult,
 };
 use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
 use std::collections::{BTreeMap, BTreeSet};
 mod collections;
 mod bulk;
@@ -244,8 +245,20 @@ impl Lower<'_> {
         self.fresh += 1;
         n
     }
-    fn store(&mut self, d: Declaration) -> LangResult<String> {
+    fn store(&mut self, mut d: Declaration) -> LangResult<String> {
         self.tick()?;
+        if let Declaration::Datatype { constructors } = &mut d {
+            // Generated source names can exceed the proof language's binder
+            // limit. Constructor labels carry no computation: keep a stable,
+            // bounded label while retaining source/type correspondence separately.
+            for constructor in constructors {
+                let name = &constructor.name;
+                if name.len() > 64 {
+                    let digest = format!("{:x}", Sha256::digest(name.as_bytes()));
+                    constructor.name = format!("c{}", &digest[..63]);
+                }
+            }
+        }
         let mut dependencies = BTreeSet::new();
         refs(
             &serde_json::to_value(&d).map_err(|e| e.to_string())?,

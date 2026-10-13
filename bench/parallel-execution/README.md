@@ -1,6 +1,6 @@
 # Native ordered parallel work evidence
 
-Run `cargo build --bin ink`, then `python3 bench/bend-inspired/run.py`.
+Run `cargo build --bin ink`, then `python3 bench/parallel-execution/run.py`.
 The driver checks complete sequential, parallel and split/rejoined outputs
 against an independently written wrapping recurrence before timing.
 
