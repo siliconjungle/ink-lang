@@ -51,6 +51,49 @@ checks. Option and Result use explicit `{Some:...}`, `{None:null}`, `{Ok:...}` o
 codec preserves all raw f32 bits. Arbitrary future shapes require checked guards
 or contracts; usage profiles only guide representation profitability.
 
+## Plain objects at the JavaScript boundary
+
+JavaScript applications can use `JsonCodec.fromJS` and `JsonCodec.toJS` without a
+JSON text round trip or a declared record for each incoming object shape:
+
+```js
+import {JsonCodec, valueCodecs, callOwned} from './json.mjs';
+const documents = new JsonCodec(valueCodecs.identity.result);
+const input = {title: 'hello', unknown: {items: [true, null, 3]}};
+const result = callOwned('mark_received', [documents.fromJS(input)]);
+if (Object.hasOwn(result, 'Ok')) console.log(documents.toJS(result.Ok));
+```
+
+These are explicit JavaScript host adapters to the same recursive `Json` type.
+They do not add source primitives, alter portable schemas/checkpoints, or run in
+native Rust/C/Wasm execution. Existing calls and codecs do not invoke them.
+Their source bytes are included in generated JavaScript; traversal work and
+allocation occur only when the methods are called. The resulting logical value
+can use ordinary calls or existing portable/compact binary calls. A JavaScript
+host may also encode it and hand the unchanged portable bytes to a native or
+Wasm consumer. No adapter is inserted into that consumer's computation.
+
+The input domain is null, booleans, well-formed strings, finite Numbers, BigInts,
+dense plain arrays, and current-realm plain objects with ordinary or null
+prototypes. All object fields must be enumerable own string-keyed data
+properties. Undefined, functions, symbols, accessors, hidden properties,
+non-finite numbers, class instances, sparse/decorated arrays and cycles reject.
+`toJSON` and getters are not invoked. Inputs must remain stable; Proxy reflection
+can execute traps, so this is not a sandbox for hostile JavaScript code.
+
+Containers are detached, repeated references become independent values, and
+returned objects have ordinary prototypes with safe own `__proto__` properties.
+Numeric spelling and JSON member order are not generally preserved by plain JS
+values. BigInt becomes an exact integer token; JSON has no separate BigInt tag.
+`toJS` defaults to `numbers: 'number'`, rejecting non-finite results and decimal
+values that change when reserialized as a Number. `numbers: 'bigint'` requires
+integral values of at most 4096 decimal digits; `numbers: 'string'` preserves all
+numeric tokens as strings. Negative zero survives Number conversion. Existing
+portable byte/node/depth budgets apply to both methods.
+
+Known record schemas should still use direct typed calls or `ValueCodec.capture`;
+they need no dynamic-JSON conversion and can accept supported typed-array inputs.
+
 ## Keep values compiled across the network
 
 `ink-value-wire-v1` is a portable typed value format, owned by the ABI package.
