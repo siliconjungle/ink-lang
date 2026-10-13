@@ -47,6 +47,14 @@ and checkpoints retain their existing bytes. Ink has no general arbitrary JSON
 snapshot-difference operation in this suite; the difference controls are
 Frontier-only.
 
+The plain retained JSON edit uses Ink's caller-trusted pure ABI. Both it and
+Frontier's single-set path can share unchanged input subtrees. The separate
+`known-edit-detached` group adds `structuredClone` to both results and verifies
+that neither result aliases any caller input object before timing. Use that group
+for fully detached mutable output comparisons. The sharing group measures
+callers managing immutable inputs/results, not fully detached host values.
+The text pipeline returns owned text and needs no detached intermediate tree.
+
 `variants.mjs` pairs frozen candidate/baseline modules in alternating order;
 `--baseline=<module>` supports successive implementation experiments. These are
 diagnostic comparisons, separate from the Frontier cohorts. `profile.mjs` starts

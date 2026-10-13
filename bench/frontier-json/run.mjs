@@ -5,7 +5,7 @@ import {createStateEngine as mainState}from'../../build/frontier-state-main/dist
 const ROOT=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../..'),D=path.join(ROOT,'build/frontier-json'),OUT=path.join(ROOT,'reports/frontier-json-2026-10-13');fs.mkdirSync(OUT,{recursive:true});
 const processIndex=Number(process.argv[2]??0),smoke=process.argv.includes('--smoke'),rounds=smoke?1:9;
 const fixtureFilter=process.argv.find(a=>a.startsWith('--fixture='))?.split('=')[1];
-const reportPath=path.join(OUT,`state-${fixtureFilter?'targeted-'+fixtureFilter+'-'+processIndex:smoke?'smoke':processIndex}.json`);
+const reportPath=path.join(OUT,`state-${fixtureFilter?'targeted-'+fixtureFilter+'-'+processIndex:smoke?'smoke-'+processIndex:processIndex}.json`);
 if(fs.existsSync(reportPath))throw Error('report exists; choose a fresh process ID');
 const provenanceAtStart=provenance(ROOT);
 const fixtures=JSON.parse(fs.readFileSync(path.join(D,'fixtures.json'))),raw=[],validation=[],setup=[];
