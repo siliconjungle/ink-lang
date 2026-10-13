@@ -88,6 +88,24 @@ the dynamic Update schema after setup/warmup and consume its key and numeric
 payload. Inspector samples identify implementation costs; they never establish
 benchmark speed gains.
 
+`node lifecycle-compare.mjs <fresh-id> --ink-module=<module>` runs eight fresh
+child processes: each library separately for owned JSON trees, per-row live-state
+initialization, portable document buffers and agreed-schema document buffers.
+Defaults are 512 fields, 32 retained documents and 4096 rows; configurable counts
+are bounded. The state control reuses the exact source-observation adapter from
+throughput comparisons, with initialization/acknowledgement identical for both.
+Imports are capability-specific. Parse/conversion, full reply/event assertions
+and acknowledgement are explicitly included in initialization; this is not a
+steady-state throughput comparison.
+
+Record forced-GC heap/external/buffer deltas, exact owned backing-buffer bytes,
+peak RSS before verification and whole-process peak RSS separately. GC deltas may
+be negative and peak RSS includes runtime/harness/JIT overhead, so neither is an
+exact allocation count or a statistical memory bound. Compact negotiation is
+outside the buffer; its construction currently includes logical parse then encode.
+Historical reports are immutable and differing harness/source epochs must not be
+pooled. `lifecycle-cohorts-167-169.json` is the complete repeated control.
+
 State comparisons accept `--ink-module=<emitted module>` to select an exact
 baseline implementation without overwriting a frozen artifact. The runner binds
 its hash before timing and verifies it afterward. The separately supplied indexed

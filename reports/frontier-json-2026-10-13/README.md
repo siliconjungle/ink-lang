@@ -4,6 +4,47 @@ The all-metrics target remains unmet. Read-heavy state and retained JSON editing
 win in these fixtures; row updates, conversion and message decoding still lose.
 This is a shared development host, not a controlled laboratory.
 
+## Matched lifecycle and retained footprint
+
+`lifecycle-cohorts-167-169.json` binds distribution `d3d8284e`, ABI `49ea093` and
+JavaScript `f720ae2`. Each cohort runs eight independent fresh processes in
+alternating library order, with capability-specific imports. State initialization
+uses the unchanged source-observation adapter extracted from `run.mjs`; an exact
+source comparison and mixed-state smoke preflight preserve full replies, rollback,
+versions, events and snapshots. The final harness/source/module snapshot is in
+`artifacts/lifecycle/`; earlier diagnostic epochs remain separate.
+
+| Retained boundary | Ink | Frontier |
+| --- | ---: | ---: |
+| 32 owned 512-field JSON trees, GC heap delta | 3,815,360 B | 790,608 B |
+| 4096 live rows, acknowledged events, GC heap delta | 3,241,984 B | 838,672 B |
+| 32 complete portable document backing buffers | 727,904 B | 179,840 B |
+| 32 complete agreed-schema document backing buffers | 227,872 B | 179,840 B |
+
+The owned-tree/live-state heap ratios are 4.83×/3.87× in these fixtures. Portable
+and compact buffers have distinct protocol/observation contracts; compact requires
+out-of-band schema agreement. These are independently owned buffers, with exact
+backing sizes, not estimates derived from a negative GC external-memory delta.
+
+Median capability-specific import times are 5.541/1.355 ms for Ink/Frontier JSON
+trees, 5.397/11.370 ms for state, and 5.363/7.700 ms for portable buffers. Per-row
+live-state initialization, including conversion/reply assertions/acknowledgement,
+is 14.761/4.422 ms. Retaining 32 parsed trees is 5.506/2.304 ms; portable buffers
+13.687/8.877 ms; compact buffers 24.598/8.751 ms. Compact construction currently
+does logical parse then encode, explicitly unlike portable streaming emission.
+Imports, codec/state construction and first use are retained as separate phases.
+No new steady-state speed claim follows from these setup diagnostics.
+
+Median peak RSS measured before output verification is about 85.5/70.0 MB for
+owned trees, 83.0/72.5 MB for state, 82.3/73.1 MB for portable buffers and
+83.1/73.0 MB for compact buffers (Ink/Frontier). Whole-process high-water values
+are also retained. Runtime, harness, warmup and JIT memory are included; forced
+GC samples are not exact allocation counts or statistical peak bounds. Initial
+small-buffer external deltas were negative, which is why exact backing bytes are
+reported independently. These measured lifecycle gaps, especially live datatype
+storage, are now explicit optimisation targets. They do not establish universal
+ratios or an all-metrics victory.
+
 ## Bound child readers
 
 Record/sum reading dominates the sampled message-decode profiles. The selected
