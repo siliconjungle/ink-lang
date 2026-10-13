@@ -6,6 +6,11 @@ bounded-total cache authority, typed storage policies and their experimental
 compatibility paths have been removed. Maintained physical representations use
 the general database proof interface below.
 
+Source tables can also use [maintained folds](maintained-folds.md), admitted by
+exact source factorisation, commutative group laws and cell preservation proofs.
+Their fixed native cell/fold controller is trusted separately from the complete
+database-defined representation protocol described here.
+
 ## Contract
 
 A representation entry supplies arbitrary total first-order definitions for its
