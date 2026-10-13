@@ -10,6 +10,8 @@ log="$(mktemp)"
 bash --noprofile --norc -eo pipefail "$script" 2>&1 | tee "$log"
 status=${PIPESTATUS[0]}
 if [ "$status" -ne 0 ]; then
+  # Terminal colour codes would hide `error:` at the start of a line.
+  sed -i 's/\x1b\[[0-9;]*m//g' "$log"
   {
     grep -E 'panicked at|^error(\[|:)|^Error|FAILED|AssertionError|ValueError|No space left|not ok ' "$log" \
       || tail -n 5 "$log"
