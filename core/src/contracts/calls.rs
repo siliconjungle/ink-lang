@@ -11,6 +11,13 @@ pub(super) struct CallCondition {
     pub predicate: Expr,
     pub observations: Option<Vec<(String, Type, Expr)>>,
     pub guarantee: Option<ResultGuarantee>,
+    pub requirement: Option<CallRequirement>,
+}
+#[derive(Clone)]
+pub(super) struct CallRequirement {
+    pub site: usize,
+    pub params: Vec<(String,Type)>,
+    pub predicate: Expr,
 }
 #[derive(Clone)]
 pub(super) struct ResultGuarantee {
@@ -222,7 +229,8 @@ fn expression(
             for (i, (n, _)) in spec.params.iter().enumerate() {
                 let mut fresh = format!("__ink_call_{}_{}", *serial, i);
                 while env.contains_key(&fresh)
-                    || crate::analysis::references_free(predicate, &fresh)
+                    || p.states.iter().chain(&p.keeps).any(|s|s.name==fresh)
+                    || crate::analysis::mentions_variable(predicate, &fresh)
                 {
                     fresh.push('_');
                 }
@@ -252,6 +260,8 @@ fn expression(
                 predicate: value,
                 observations: None,
                 guarantee: None,
+                requirement: Some(CallRequirement {site:e as *const Expr as usize,
+                    params:spec.params.clone(),predicate:predicate.clone()}),
             });
             *serial += 1;
         }
@@ -400,6 +410,7 @@ fn callback_conditions(
             predicate,
             observations: Some(observations.clone()),
             guarantee: None,
+            requirement: None,
         });
     }
     Ok(Some(out))
@@ -692,12 +703,13 @@ fn binding_facts(
             {
                 let mut fresh = format!("__ink_binding_{index}");
                 while env.contains_key(&fresh)
+                    || p.states.iter().chain(&p.keeps).any(|s|s.name==fresh)
                     || fresh == name
                     || spec
                         .ensures
                         .iter()
                         .chain(args)
-                        .any(|e| crate::analysis::references_free(e, &fresh))
+                        .any(|e| crate::analysis::mentions_variable(e, &fresh))
                     || names.values().any(|n| n == &fresh)
                 {
                     fresh.push('_')
@@ -727,6 +739,7 @@ fn binding_facts(
                             arguments: args.clone(),
                             ensure: ensure.clone(),
                         }),
+                        requirement: None,
                     });
                     *serial += 1;
                 }

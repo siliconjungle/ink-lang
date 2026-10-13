@@ -19,7 +19,7 @@ mod keys;
 mod local;
 mod flow;
 mod observations;
-pub use observations::{ValueObservation, ObservationFunction};
+pub use observations::{ValueObservation, CallObservation, SiteObservation, ObservationFunction};
 mod integer;
 mod pure;
 pub(crate) mod recursive_values;
@@ -892,6 +892,12 @@ impl Projection {
         module: &CheckedModule,
         observations: &[ValueObservation],
     ) -> LangResult<(Self, Vec<ObservationFunction>)> {
+        Self::derive_site_observations(module,&observations.iter().cloned().map(SiteObservation::Value).collect::<Vec<_>>())
+    }
+    pub fn derive_site_observations(
+        module: &CheckedModule,
+        observations: &[SiteObservation],
+    ) -> LangResult<(Self, Vec<ObservationFunction>)> {
         let actions = CheckedActions::elaborate(module)?;
         let mut nodes = 0usize;
         for i in 0..module.program().actions.len() {
@@ -1055,7 +1061,7 @@ impl Projection {
         }
         let mut observed = vec![];
         for observation in observations {
-            observed.push(l.value_observation(&actions, observation)?);
+            observed.push(l.site_observation(&actions, observation)?);
         }
         let mut out = Self {
             schema: 1,

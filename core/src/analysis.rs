@@ -72,6 +72,14 @@ pub fn references_free(e: &Expr, name: &str) -> bool {
     free_variables(e).contains(name)
 }
 
+/// Fresh substitution targets must avoid bound names as well as free uses.
+/// Renaming a free variable to an existing binder would otherwise capture it.
+pub fn mentions_variable(e: &Expr, name: &str) -> bool {
+    let mut found=false;
+    walk(e,|e|if matches!(e,Expr::Var(n)|Expr::Lambda(n,_)|Expr::Let(n,_,_,_) if n==name){found=true});
+    found
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

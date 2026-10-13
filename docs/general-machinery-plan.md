@@ -285,6 +285,29 @@ support. Missing capability stays explicit while implementation continues.
   `docs/evidence/general-machinery/prefix-guarantees.json`. This is partial local
   staging progress, not full programme completion, performance acceptance or
   remote main publication.
+- Direct source-call preconditions now check immediately after ordered argument
+  evaluation and before invocation. Predicates receive actual values and current
+  state; expressions with mutation/events are not rerun. A callee's later repair
+  cannot validate its entry requirement. Generated binders avoid free, bound and
+  state/keep names. Fixed value primitives enclosing monitored sites consume
+  already-evaluated typed inputs through existing primitive meanings. Callback
+  domains and keep initializers retain their preceding conservative checks.
+- The new call fixture authors ten state obligations with a 53-object closure;
+  refreshed result, field-order and value-state closures have 130, 39 and 72 objects
+  respectively. Published views independently replay all four sources. The final
+  local snapshot is
+  `9419d947001993fbd7a60ef96cb378e67ff009ba5e6ed83f5459d5ae87b48c12`.
+  Reversed effectful arguments reject at `bad_arguments:action-call:0:requires`
+  (`before-call-bad-arguments-rejection.log`).
+- Final verification passes 245 core tests, ten affected database tests and
+  thirteen abstract/value integration tests across C/Rust/JS/both Wasm paths and
+  eligible wgpu work. The new fixture compares thirteen replies, ordered events
+  and exact snapshots, including invalid public calls and rollback after repairs.
+  Logs: `before-call-core-verified.log`, `before-call-db-tests.log`,
+  `before-call-target-parity-final.log`, and the four published-replay logs.
+  Receipt: `docs/evidence/general-machinery/before-call.json`. Earlier failed
+  regressions/authoring remain diagnostic data, not admitted evidence. No runtime
+  or proof-production performance claim follows from this conformance checkpoint.
 - Remaining requirements include interchangeable abstract interfaces and owners, general
   storage and externalisation, authored termination, local frame/loop relations,
   broader cross-consumer fact transport, compositional incremental maintenance,
