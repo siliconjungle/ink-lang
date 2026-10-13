@@ -35,6 +35,14 @@ pub enum Buffers {
     Scoped,
     Direct,
 }
+/// A bounded array prefix with an exact map fallback for every other key.
+/// This never assumes a profiled key range is a source invariant.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct DensePrefix {
+    pub table: String,
+    pub capacity: u32,
+}
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Reservation {
@@ -57,6 +65,8 @@ pub struct Plan {
     pub representation: Option<String>,
     #[serde(default)]
     pub tables: Tables,
+    #[serde(default,skip_serializing_if="Vec::is_empty")]
+    pub dense_prefixes: Vec<DensePrefix>,
     #[serde(default)]
     pub buffers: Buffers,
     #[serde(default)]
@@ -251,6 +261,15 @@ pub fn check(
     // Generic lexical type validation is independent of strategy authoring.
     // A source hash alone cannot turn a scalar variable into a list borrow.
     let p = module.program();
+    if plan.dense_prefixes.len()>64 || !plan.dense_prefixes.windows(2).all(|w|w[0].table<w[1].table) {
+        return Err("dense table prefixes must be bounded, sorted and unique".into());
+    }
+    for prefix in &plan.dense_prefixes {
+        if representation.is_some() || prefix.capacity==0 || prefix.capacity>1_048_576
+            || !p.states.iter().any(|s|s.name==prefix.table && matches!(s.ty,crate::syntax::Type::Table(ref k,_) if **k==crate::syntax::Type::U64 || **k==crate::syntax::Type::U32)) {
+            return Err("dense prefix lacks a supported source table/capacity".into());
+        }
+    }
     let mut read_sites = BTreeSet::new();
     for f in &p.functions {
         let mut failure = None;

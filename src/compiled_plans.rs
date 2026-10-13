@@ -13,6 +13,8 @@ fn write(path: &Path, bytes: impl AsRef<[u8]>) -> LangResult<()> {
     fs::write(path, bytes).map_err(|e| e.to_string())
 }
 pub fn emit(plan: &CheckedPlan, target: &str, output: &Path) -> LangResult<()> {
+    if plan.maintained().is_some() && target!="javascript" {return Err("maintained source folds currently require the JavaScript state capability; choose a target-compatible plan".into());}
+    if target!="javascript" && plan.physical().is_some_and(|p|!p.plan().dense_prefixes.is_empty()){return Err("dense source table prefixes currently require the JavaScript state capability".into());}
     let physical = plan.physical().map(|p| p.plan());
     if plan.route().is_some() && !matches!(target, "wgpu" | "webgpu") {
         return Err("pure placement requires the wgpu or webgpu host; CPU lanes must select a plan without routing".into());
