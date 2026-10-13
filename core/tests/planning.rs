@@ -143,3 +143,53 @@ fn sealed_prefix_reuse_never_authorises_modified_proof_bytes() {
     checker.check(&next).unwrap();
     assert_eq!(checker.reused_steps(), 2);
 }
+
+#[test]
+fn longest_prefix_and_rejections_match_fresh_admission() {
+    let m = module();
+    let mut checker = planning::Checker::new(m.clone());
+    let package = planning::Package {
+        schema: 1,
+        semantics: planning::SEMANTICS.into(),
+        input_core_sha256: m.identity().unwrap(),
+        steps: vec![planning::Step::Properties(fact(&m)); 12],
+    };
+    for length in [1, 5, 3, 5, 8, 8, 6, 10] {
+        let mut p = package.clone();
+        p.steps.truncate(length);
+        let actual = checker.check(&p).unwrap();
+        let expected = planning::check(&m, &p).unwrap();
+        assert_eq!(
+            registry::canonical(actual.package()).unwrap(),
+            registry::canonical(expected.package()).unwrap()
+        );
+        assert_eq!(actual.module().identity().unwrap(), expected.module().identity().unwrap());
+        assert_eq!(actual.properties().len(), expected.properties().len());
+        for (actual, expected) in actual.properties().iter().zip(expected.properties()) {
+            assert_eq!(actual.equations(), expected.equations());
+        }
+    }
+    checker.check(&package).unwrap();
+    assert_eq!(checker.reused_steps(), 10);
+    for kind in 0..4 {
+        let mut wrong = package.clone();
+        match kind {
+            0 => wrong.schema = 2,
+            1 => wrong.semantics = "not-a-plan".into(),
+            2 => wrong.input_core_sha256 = "0".repeat(64),
+            _ => {
+                if let planning::Step::Properties(p) = &mut wrong.steps[7] {
+                    p.facts[0].value = s::word(ink_core::syntax::Type::U32, 17);
+                }
+            },
+        }
+        assert!(checker.check(&wrong).is_err());
+        assert!(planning::check(&m, &wrong).is_err());
+        checker.check(&package).unwrap();
+        assert_eq!(checker.reused_steps(), 12);
+    }
+    let changed = CheckedModule::from_source(
+        parse("module properties;fn value(x:u32)->u32{return x+1;}").unwrap()
+    ).unwrap();
+    assert!(planning::Checker::new(changed).check(&package).is_err());
+}
