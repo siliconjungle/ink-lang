@@ -34,9 +34,11 @@ Planning is now observable end to end. Semantic search records near misses
 (matched laws the checker rejected, with the failed premise as stated and as
 instantiated), compiled-planning receipts carry a stage funnel and per-recipe
 time, and `ink_planner.corpus` evaluates installed knowledge on the frozen
-[planning corpus](bench/planning-corpus/README.md). On its ten held-out programs
-the defaults still select the baseline everywhere, because no comparable
-measurements exist ([results](bench/planning-corpus/results-2026-10-13.md)).
+[planning corpus](bench/planning-corpus/README.md). Ordinary defaults now
+acquire their own bounded synthetic probes. With no supplied inputs, they
+select an alternative for 6 of the 10 held-out programs. Over all ten, the
+held-out geomean is 1.61×, with 48 robust gains and 2 robust losses (both at
+size 0) ([results](bench/planning-corpus/results-defaults-2026-10-14.md)).
 [Structure laws](docs/structure-laws.md) state early exit for absorbing
 accumulators and sort erasure before commuting fold steps once. They reach
 programs through plan-time instances that `knowledge-check` admits per module,
@@ -66,8 +68,16 @@ Several changes contribute:
 JavaScript iterations and was rejected for reference-interpreter fuel.
 [Equality saturation and modular planning](planner/docs/search-modes.md) are
 opt-in search modes. Two-key table lemmas certify that removals commute even
-for equal keys; conditional (distinct-key) and insert-based commutation remain
-uncertified.
+for equal keys.
+
+[Sorted tables](docs/action-algebra.md#conditional-certificates-on-sorted-tables)
+are a checked inductive invariant of the transition checker. Replacements may
+assume every table is strictly sorted once the original actions are proved to
+preserve it, and snapshot decoding already enforces it on restore. Under it,
+writes, removals and lookups of different keys are certified to commute when
+their keys differ (`put`/`put`, `erase`/`put`, `get`/`put`). This uses 26 general
+row laws in `state-calculus`. Only word keys have laws so far, and nothing yet
+consumes these certificates.
 
 ## Universal optimisation boundaries
 
