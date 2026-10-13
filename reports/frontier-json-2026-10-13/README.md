@@ -4,6 +4,31 @@ The all-metrics target remains unmet. Read-heavy state and retained JSON editing
 win in these fixtures; row updates, conversion and portable-message codecs lose.
 This is a shared development host, not a controlled laboratory.
 
+## Primitive capture follow-up
+
+JavaScript revision `b08a052988cdedd8ac8b24671d256c6fc59382c5` emits
+primitive record-field ownership checks directly, with the same field reads,
+validation order, resource charges and detached composite ownership. The full
+JavaScript lowering suite and the mandatory JSON/maintained-state integration
+suites passed, including the two Wasm CPU lowerings.
+
+The paired replacement diagnostics `variants-row-inline-capture-repeat.json`
+and `variants-row-inline-capture-third.json` reduce median time by 11.9% and
+12.4%. The final shared-helper artifact in
+`variants-row-primitive-capture-final-final-1.json` reduces it by 33.9% in that
+process; this variability is not a new Frontier ranking or a guaranteed gain.
+An initial run was overwritten before unique run labels were added, so its raw
+measurements are unavailable and are not evidence here. The harness now refuses
+to overwrite an existing report. Exact modules, final source and the diagnostic
+harness are archived under `artifacts/primitive-capture/`, with SHA-256 bindings.
+
+The broader record/sum fusion experiment was rejected:
+`variants-row-fused-capture.json` increased replacement time by 31.7%.
+Its module is archived for reproducibility, but the transformation is absent
+from the published compiler. These are operational ownership improvements, not
+database equality laws or formal backend correctness proofs. The full comparison
+below predates this follow-up; the all-metrics target remains unmet.
+
 ## Combined decoder/Core release
 
 `decoder-release-cohorts-70-72.json` records the complete distribution at
