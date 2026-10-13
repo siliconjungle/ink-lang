@@ -124,6 +124,12 @@ recursive children retain complete frame, Unicode, discriminant and resource
 checks. Selected visitor names restrict callbacks, never validation. Callbacks
 run in postorder with the same byte spans and no exposed internal cursor.
 The generic materialising scanner remains an independent conformance oracle.
+Compiler-derived JavaScript codecs may validate the complete buffer and then
+materialise it with literal typed readers and static field names. Arbitrary
+runtime schemas retain generic decoding. The materialisers are trusted backend
+code; their callbacks are not an untrusted extension mechanism or a proof of
+meaning. Full validation precedes synchronous owned materialisation for both
+portable and compact formats, with their existing schema and resource contracts.
 JSON and typed JSON share an exact token cursor; number text is not converted
 through JavaScript Number. Sparse logical arrays reject during JSON rendering.
 
