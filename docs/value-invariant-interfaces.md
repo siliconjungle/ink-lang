@@ -129,11 +129,35 @@ source labels cannot collapse the two fixture record sorts. Existing short label
 retain their previous encoding.
 
 The final abstract/module/value integration suites pass on C, Rust, JavaScript,
-both Wasm paths and the eligible wgpu host/device legs. A separate positive probe
-still fails for `xs.map(fn(v)=>library.observe(v))` on a validated list of refined
-values: the callback-call obligation loses the element's relationship to the
-list. General transport through callback domains remains required; granting a
-predicate to raw validator elements merely from their type would be unsound.
+both Wasm paths and the eligible wgpu host/device legs.
+
+## Callback domains
+
+Pure call obligations now retain the connection between a callback and the fixed
+consumer that invokes it. `xs.map(fn(v)=>library.observe(v))` checks against the
+actual elements of `xs`, rather than an unrelated arbitrary nominal value.
+The checker reconstructs an ordinary Boolean proof goal: a right fold for list
+map/filter, indexed map and zip domains, and the selected branch for Option or
+Result. Zip checks the actual paired prefix, including unequal-length inputs.
+Exact lambda applications substitute their actual argument without capture.
+No element predicate follows merely from its nominal type.
+
+Accumulator-dependent callbacks use the original fixed fold direction or bounded
+loop semantics. A mathematical Option state carries the original accumulator or
+permanent failure. Early-stop loops separately distinguish legitimate stopping
+from failure; count zero never evaluates a stop callback. `fold_until` checks the
+step on its stopping element, matching its existing fixed semantics. Local
+branch premises become conditional predicates, with exact structural equality
+for aliases, including raw float bits. These terms are proof obligations only;
+they add no runtime validity wrapper or new executable primitive.
+
+The imported composition fixture carries 19 independently replayed pure
+obligations and 17 canonical objects. Two Result branches use ordinary exhaustive
+variant proofs proposed by the database producer. Raw inputs still undergo their
+independent validation, and unsupported inner callback domains retain the
+stronger universal obligation. Action-body callback domains, ownership-bearing
+accumulator predicates and general preservation proofs for arbitrary folds still
+need further composition work; this change covers the pure semantic call path.
 
 This is not the completed abstract-interface request. Interchangeable abstract
 implementations and checked owner interfaces still need implementation. Recursive

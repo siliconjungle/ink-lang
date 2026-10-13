@@ -199,3 +199,43 @@ fn abstract_interfaces_preserve_complete_calls_state_and_invalid_ingress_across_
         expected,
     );
 }
+
+#[test]
+fn imported_abstract_values_compose_through_actual_callback_domains_across_targets() {
+    let file = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/abstract-composition/main.ink");
+    let mut p = modules::load(&file).unwrap().program;
+    verified_language::contracts::attach(&mut p,
+        serde_json::from_str(include_str!("fixtures/abstract-composition/proofs.json")).unwrap()).unwrap();
+    CheckedModule::from_source(p.clone()).unwrap();
+    let runtime = Runtime::new(p.clone()).unwrap();
+    let snapshot = runtime.checkpoint_portable().unwrap();
+    let steps = vec![
+        json!({"pure":"items","args":[[]],"cpu_only":true}),
+        json!({"pure":"items","args":[[{"item":0,"valid":true},{"item":u32::MAX,"valid":true}]],"cpu_only":true}),
+        json!({"pure":"items","args":[[{"item":0,"valid":true},{"item":7,"valid":false}]],"cpu_only":true}),
+        json!({"pure":"nested","args":[[{"item":9,"valid":true}]],"cpu_only":true}),
+        json!({"pure":"maybe","args":[{"Some":{"item":7,"valid":true}}],"cpu_only":true}),
+        json!({"pure":"maybe","args":[{"None":null}],"cpu_only":true}),
+        json!({"pure":"either","args":[{"Ok":{"item":11,"valid":true}}],"cpu_only":true}),
+        json!({"pure":"either","args":[{"Err":{"item":12,"valid":true}}],"cpu_only":true}),
+        json!({"pure":"either","args":[{"Err":{"item":12,"valid":false}}],"cpu_only":true}),
+        json!({"pure":"indexed","args":[],"cpu_only":true}),
+        json!({"pure":"zipped","args":[],"cpu_only":true}),
+        json!({"pure":"folded","args":[],"cpu_only":true}),
+        json!({"pure":"stopped","args":[],"cpu_only":true}),
+        json!({"pure":"repeated","args":[],"cpu_only":true}),
+        json!({"pure":"until","args":[],"cpu_only":true}),
+        json!({"pure":"numeric","args":[[0,u32::MAX]],"expect_gpu":true}),
+    ];
+    let expected:Vec<Value> = steps.iter().map(|step| {
+        let name=step["pure"].as_str().unwrap();
+        let f=p.functions.iter().find(|f|f.name==name).unwrap();
+        let args=step["args"].as_array().unwrap().iter().zip(&f.params)
+            .map(|(v,(_,ty))|eval::Value::from_program_json(v,ty,&p).unwrap()).collect();
+        let reply=match eval::call(&p,name,args,&mut 1_000_000) {
+            Ok(v)=>json!({"value":v.json()}),Err(e)=>json!({"host_error":e}),
+        };
+        json!({"reply":reply,"snapshot":snapshot})
+    }).collect();
+    parity::conformance("invariant-value-abstract-composition",p,&fs::read_to_string(file).unwrap(),steps,expected);
+}
