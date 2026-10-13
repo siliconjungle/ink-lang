@@ -65,28 +65,45 @@ def main():
                                  per_program=per_program,candidate_gates=gates,
                                  gains=sum(r['classification']=='gain' for r in rows),regressions=sum(r['classification']=='regression' for r in rows),
                                  same_artifact_cells=sum(r['classification']=='same_artifact_timing' for r in rows),cells=rows))
-    save(OUT/'summary.json',dict(schema=1,scope=protocol,curves=all_rows))
+    warm=read(OUT/'warm-summary.json') if (OUT/'warm-summary.json').exists() else None
+    save(OUT/'summary.json',dict(schema=1,scope=protocol,curves=all_rows,warm_compilation=warm))
+    chart(all_rows,warm)
+    print(json.dumps([{k:v for k,v in r.items() if k not in {'cells','candidate_gates','per_program'}} for r in all_rows],indent=2))
+
+
+def chart(all_rows,warm):
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
-    fig,axes=plt.subplots(1,3,figsize=(15,5));fig.subplots_adjust(left=.07,right=.98,bottom=.23,top=.8,wspace=.32)
-    fig.suptitle('What ordinary Ink compilation delivers',fontsize=20,fontweight='bold',x=.07,ha='left')
+    fig,axes=plt.subplots(2,2,figsize=(13,9))
+    fig.subplots_adjust(left=.08,right=.97,bottom=.13,top=.87,wspace=.27,hspace=.47)
+    fig.suptitle('Ordinary compilation now delivers checked optimisations',fontsize=20,fontweight='bold',x=.08,ha='left')
+    total=[r for r in all_rows if r['experiment']=='machinery_and_growth']
     growth=[r for r in all_rows if r['experiment']=='frozen_machinery_database_growth']
-    y=[r['geometric_mean_speedup'] for r in growth]
-    errors=[[r['geometric_mean_speedup']-r['timing_only_fixed_corpus_ci95'][0] for r in growth],
-            [r['timing_only_fixed_corpus_ci95'][1]-r['geometric_mean_speedup'] for r in growth]]
-    axes[0].errorbar([0,1,2],y,yerr=errors,fmt='o-',capsize=4,color='#2563eb')
-    axes[0].axhline(1,color='gray',linestyle='--',linewidth=1);axes[0].set_ylabel('Complete-call geometric-mean speedup ↑')
-    axes[0].set_title('Frozen planner: database growth')
-    axes[1].plot([0,1,2],[r['selected_alternative_programs'] for r in growth],'o-',color='#0f9c85')
-    axes[1].set_ylim(-.3,8.3);axes[1].set_ylabel('Programs selecting an alternative / 8');axes[1].set_title('Automatic selection coverage')
-    axes[2].plot([0,1,2],[r['compilation_median_seconds'] for r in growth],'o-',color='#d97706')
-    axes[2].set_ylabel('Median complete compilation, seconds ↓');axes[2].set_title('Search + checking + probes + emission')
-    for ax in axes:
-        ax.set_xticks([0,1,2],['Baseline','+ absorption','+ controlled\nfusion']);ax.set_xlabel('Added reusable schemes: 0 → 1 → 2');ax.grid(axis='y',alpha=.3);ax.spines[['top','right']].set_visible(False)
-    fig.text(.07,.035,'96 nonempty cells, eight handwritten partial kernels, fixed weighting. Timing-only intervals; synthetic evaluation inputs.\nNo forced selections or evaluation calls enter compilation. Different artifacts and every observed regression remain in summary.json.',fontsize=10,color='#52647b')
+    ax=axes[0,0];y=[1.]+[r['geometric_mean_speedup'] for r in total]
+    ci=[[1.,1.]]+[r['timing_only_fixed_corpus_ci95'] for r in total]
+    ax.errorbar(range(4),y,yerr=[[a-c[0] for a,c in zip(y,ci)],[c[1]-a for a,c in zip(y,ci)]],fmt='o-',capsize=4,color='#2563eb')
+    ax.set_xticks(range(4),['Previous planner\nfull catalogue','Automatic planner\nbase catalogue','+ absorbing folds','+ controlled\nfusion'])
+    ax.set_ylabel('Complete-call speedup vs previous planner ↑');ax.set_ylim(.9,1.95);ax.set_title('Same eight programs and 96 nonempty cases')
+    ax.annotate(f'{y[-1]:.2f}×',(3,y[-1]),xytext=(5,-17),textcoords='offset points',color='#2563eb')
+    ax=axes[0,1];y=[r['geometric_mean_speedup'] for r in growth]
+    ci=[r['timing_only_fixed_corpus_ci95'] for r in growth]
+    ax.errorbar(range(3),y,yerr=[[a-c[0] for a,c in zip(y,ci)],[c[1]-a for a,c in zip(y,ci)]],fmt='o-',capsize=4,color='#2563eb')
+    ax.set_ylabel('Speedup vs new planner’s base catalogue ↑');ax.set_ylim(.97,1.28);ax.set_title('Database growth with machinery frozen')
+    ax.set_xticks(range(3),['Baseline','+ absorbing folds','+ controlled\nfusion'])
+    ax.annotate(f'{y[-1]:.2f}×',(2,y[-1]),xytext=(5,-17),textcoords='offset points',color='#2563eb')
+    ax=axes[1,0];ax.plot(range(4),[0]+[r['selected_alternative_programs'] for r in total],'o-',color='#0f9c85')
+    ax.set_xticks(range(4),['Previous planner','Automatic planner','+ absorbing folds','+ controlled\nfusion'])
+    ax.set_ylim(-.3,8.3);ax.set_ylabel('Programs selecting an alternative / 8');ax.set_title('Automatic selection coverage')
+    ax=axes[1,1];ax.plot(range(3),[r['compilation_median_seconds'] for r in growth],'o-',color='#d97706',label='Cold builds')
+    if warm:ax.axhline(warm['median_seconds'],color='#64748b',linestyle='--',label=f'Warm cache + proof replay: {warm["median_seconds"]:.2f} s')
+    ax.set_xticks(range(3),['Baseline','+ absorbing folds','+ controlled\nfusion']);ax.set_ylim(0,85)
+    ax.set_ylabel('Median complete compilation, seconds ↓');ax.set_title('First-build cost remains high');ax.legend(frameon=False,loc='center right',fontsize=9)
+    for ax in axes.flat:
+        ax.grid(axis='y',alpha=.3);ax.spines[['top','right']].set_visible(False)
+        ax.axhline(1,color='gray',linestyle='--',linewidth=.8) if ax in list(axes[0]) else None
+    fig.text(.08,.035,'Fixed corpus, handwritten partial kernels, synthetic inputs; timing-only 95% intervals. No forced selections or evaluation calls enter planning.\nAdditional database gain comes chiefly from Unicode search. Retained controls, unchanged-artifact noise and every loss remain in summary.json.',fontsize=10,color='#52647b')
     for extension in ['png','svg']:fig.savefig(OUT/f'curves.{extension}',dpi=150)
-    print(json.dumps([{k:v for k,v in r.items() if k not in {'cells','candidate_gates','per_program'}} for r in all_rows],indent=2))
 
 
 if __name__=='__main__':main()

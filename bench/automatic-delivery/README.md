@@ -19,6 +19,7 @@ python bench/automatic-delivery/run.py build --lane after --code /path/to/after
 python bench/automatic-delivery/run.py reference
 node bench/automatic-delivery/bench.mjs time telemetry-total
 node --expose-gc bench/automatic-delivery/bench.mjs memory telemetry-total after/complete
+python bench/automatic-delivery/warm.py
 ```
 
 Freeze once, before measurements; do not overwrite an epoch. Reproduction needs
@@ -43,3 +44,11 @@ Extract each archive into its report directory before using the benchmark or
 report script. Archive manifests bind every member's bytes; no disposable index
 or planning cache is archived. `validate-before` checks the baseline independently
 while the after builds are pending.
+
+`measured-machinery.part-*` retains the exact before/after Python/knowledge
+source trees and measured macOS compiler, including pinned producer resources.
+Reassemble the parts in filename order into `measured-machinery.tar.gz`, verify
+its SHA-256 and member manifest in `archive-machinery.json`, then extract it.
+This preserves the measured prototype independently of subsequent main changes.
+The full compiler binary and inventories bind the experiment; source-to-binary
+correspondence remains trusted. Final main integration is checked separately.
