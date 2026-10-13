@@ -75,15 +75,20 @@ directly from JSON tokens, without a temporary logical tree. Both paths validate
 the completed value against the full schema. Input text and final compact bytes
 each obey the byte limit, and source/wire node and depth checks remain distinct.
 This optional construction path leaves `parse`, `parseBinary` and checkpoints
-unchanged. Measurements must choose between direct emission and logical
+unchanged. `TypedJsonCodec` uses the declared record/sum shapes; arbitrary JSON
+inside a library `Json` field uses `JsonCodec` and validated buffer composition.
+Measurements must choose between direct emission and logical
 parse/encode for the actual workload: bypassing a tree is not a universal speed
 guarantee.
 
 ```js
-import {TypedJsonCodec, valueCodecs, callCompact} from './json.mjs';
-const requests = new TypedJsonCodec(valueCodecs.mark_received.arguments);
+import {JsonCodec, valueCodecs, callCompact} from './json.mjs';
+const documents = new JsonCodec(valueCodecs.identity.result);
+const document = documents.parseCompact('{"title":"hello"}');
+const requests = valueCodecs.mark_received.arguments.compact();
+// Compose validated document bytes into the one-field argument record.
 // The connection negotiates arguments/result schema identities beforehand.
-const request = requests.parseCompact('{"document":{"title":"hello"}}');
+const request = requests.encodeWith(w => w.frame(() => w.bytes(document.subarray(1))));
 const reply = callCompact('mark_received', request);
 const result = valueCodecs.mark_received.result.compact().decode(reply);
 ```
