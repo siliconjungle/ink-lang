@@ -796,3 +796,41 @@ This does not change the measured text pipeline, prepared state update or
 retained-memory gaps. No all-metrics, complete diff implementation or whole
 compiler correctness claim follows. Exact modules, source changes and checks
 are archived in `artifacts/fused-external-capture`.
+
+## State controller controls (260–271)
+
+The follow-up compares the exact published fused-capture module with two generic
+backend experiments: a reusable single-cell slot/flat staged-event buffer, and
+literal table primitive calls avoiding a temporary argument array and string
+dispatch. Both use the same source and checked physical plan. Neither changes
+algorithms, logical observations or layout selection. Complete results, events,
+versions and exact initial/final portable snapshots pass preflight.
+
+Separate-process medians make staging look promising (prepared replacement
+0.707 → 0.633 µs), while direct calls take 0.736 µs. Three later processes
+interleave the previous module and the staging-plus-ownership-fix module within
+each process. Prepared medians are 0.709 µs previous and 0.695 µs candidate,
+versus 0.436 µs Frontier. The candidate/control ratios are 0.965, 1.219 and 0.939;
+the candidate regresses in one process. Ordinary replacement medians are
+2.215 µs previous and 2.234 µs candidate. **Neither controller experiment is
+retained.** An apparent cross-process reduction is insufficient evidence for
+adding runtime complexity. These results do not replace earlier releases with
+a new state-update speed claim.
+
+The comparison runner now supports explicit lane filtering and an optional
+second Ink module with separate ordinary/prepared lanes. Both module hashes and
+the runner hash bind the report, and preflight compares full observations and
+portable checkpoints. Reconstructed separate-runner bytes match the recorded
+hash; paired-runner bytes and all complete modules are archived alongside it.
+
+An additional cache/subscription test exposed an existing detached-reply alias
+bug. The pinned published browser compiler reproduces it: two fields sharing
+one List<Row> are copied with distinct memo identities. Ownership memo keys
+now intern the declared schema and normalize nominal references/expanded
+declarations. One reply preserves same-sort sharing without sharing mutable
+containers with state or another invocation. Distinct source sorts remain
+distinct, including elided parent/child records. This is generic ownership
+machinery and a correctness fix, not a database equality rule or speed claim.
+The cache/subscription suite passes with the correction; standalone tests
+exercise recursive schemas and event/transaction ownership. Exact controls
+are in `artifacts/state-controller-controls`.
