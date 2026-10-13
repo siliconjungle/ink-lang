@@ -1,0 +1,1 @@
+module reserved; record Particle {x:f32,v:f32,active:Bool,} pub fn run(xs:List<Particle>,cut:f32)->Bool{return foldl(xs.filter(fn(x)=>x.active).map(fn(x)=>(x.x+x.v*0.5)<cut),true,fn(x)=>fn(a)=>a && x);}

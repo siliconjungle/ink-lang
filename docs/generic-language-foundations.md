@@ -91,8 +91,10 @@ it is not a new variant-labelled transport format.
 
 Result/Option `fold` selects exactly one typed branch callback. Actions can read
 state in these callbacks, but cannot write or emit from a callback. Effect analysis
-accounts for both possible branches. Recursive payload datatypes and structural
-recursion over them remain outside this bounded record encoding.
+accounts for both possible branches. Payload enums may contain recursive values through guarded nominal fields,
+including Lists; the JSON knowledge library uses this ordinary encoding.
+General structural self-recursion over payload enums remains unsupported;
+list/word measures and explicitly bounded traversals retain their existing checks.
 
 ## Local mutation and finite iteration
 

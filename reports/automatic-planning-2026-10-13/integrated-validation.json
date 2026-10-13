@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "planner_unit_tests": 136,
+  "additional_authoring_cache_epoch_tests": 1,
+  "knowledge_probe_tests": 2,
+  "cross_target": {
+    "required_all_lanes": true,
+    "targets": [
+      "reference",
+      "c",
+      "rust",
+      "javascript",
+      "c-wasm",
+      "rust-wasm"
+    ],
+    "automatically_selected_cases": 8,
+    "typed_helper_cases": 5,
+    "values_errors_snapshots": "passed"
+  },
+  "javascript": {
+    "automatic_selected_steps": 1,
+    "held_out_boundary_inputs": 24,
+    "corrupt_cached_packet": "freshly rejected; ordinary search recovered"
+  },
+  "composed": {
+    "selected_steps": 3,
+    "every_candidate": "freshly checked"
+  },
+  "rust": {
+    "automatic_acquisition": "passed",
+    "selected_steps": 0,
+    "boundary": "existing JSON call ABI; conservative profitability baseline"
+  },
+  "ordinary_cli": {
+    "supplied_selection_packet": false,
+    "supplied_workload": false,
+    "automatic_probe_calls": 48,
+    "selected_steps": 0,
+    "reason": "No candidate cleared the paired uncertainty/minimum-gain guard",
+    "fresh_complete_replay": "passed"
+  },
+  "scope": "Integrated development/conformance checks, separate from frozen E2 performance. No universal backend correctness or whole-application performance proof."
+}

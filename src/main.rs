@@ -201,6 +201,8 @@ fn run() -> LangResult<()> {
         "--minimum-measured-gain-ppm",
         "--measure-processes",
         "--measure-timeout",
+        "--measurement-mode",
+        "--planning-cache",
         "--cargo",
         "--cc",
         "--compiler",
@@ -318,6 +320,8 @@ fn run() -> LangResult<()> {
             ("--minimum-measured-gain-ppm", "--minimum-measured-gain-ppm"),
             ("--measure-processes", "--measure-processes"),
             ("--measure-timeout", "--measure-timeout"),
+            ("--measurement-mode", "--measurement-mode"),
+            ("--planning-cache", "--cache"),
         ] {
             if let Some(value) = arg_value(&args, flag)? {
                 command.arg(option).arg(value);

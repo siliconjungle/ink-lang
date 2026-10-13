@@ -309,3 +309,5 @@ hosts enforce preconditions and reject invariant-violating snapshots.
 
 See [source contracts](docs/source-contracts.md) for syntax, proof authoring,
 trusted boundaries, CPU/GPU coverage and the admitted state-proof domain.
+
+JSON tooling now includes the ordinary `std:json` knowledge library, six checked laws, exact/fallible JSON codecs, generic schema-bound binary transport, borrowed validation and raw binary pure calls across native/JavaScript/both-Wasm hosts. Recursive JSON state/events/checkpoints share CPU parity; dynamic JSON remains host-only. See `docs/json-and-portable-values.md` for number, schema, resource and trust contracts.
