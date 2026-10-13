@@ -1,8 +1,14 @@
 # Probabilistic search with exact admission
 
-Ink now has opt-in learned/stochastic proposal ranking, shared-budget restarts,
+Ink has opt-in seeded stochastic proposal ranking, shared-budget restarts,
 independent CPU search processes, bounded word superoptimization, offline Bayesian
 autotuning, exact-result database accelerators and HNSW neighbourhood hints.
+The optional learned search ranking model, its training command and model flag
+have been removed: the saved complete-planning comparison took 1280.74 ms versus
+471.97 ms for deterministic search, with the same selected structural cost.
+Deterministic search remains the default; archived measurements retain their
+original revisions.
+
 Compiled Ink kernels execute pure word scoring and candidate evaluation on CPU
 or GPU through an optional loopback bridge. Python still coordinates the planner;
 proof replay remains in the independent core.
@@ -14,7 +20,7 @@ It requires independent heldout gains without losing checked structural quality.
 There is no unsupported extrapolation or online trial; unfamiliar cases use
 ordinary search. The wrapper currently adds measurable overhead and is opt-in.
 
-Randomness, learned models, similarity, Bloom filters, hashes and test vectors
+Randomness, similarity, Bloom filters, hashes and test vectors
 never establish equivalence. Samples and counterexamples only reject proposals.
 Each selected transformation requires an ordinary source-bound proof, checked
 against the original module. Failed search and device work retain checked CPU

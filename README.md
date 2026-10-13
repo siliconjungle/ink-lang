@@ -206,6 +206,8 @@ Database-authored recursive compilation and frozen replay: [database planning](d
 [Competitive workloads](docs/competitive-workloads.md): real block-mesh/Flecs/LZ4/Zstd comparisons, generic final-use ownership, and knowledge-owned voxel/adaptive codec algorithms.
 
 [Source specifications and invariants](docs/source-contracts.md) describe the checked syntax, database proof authoring and implementation refinement workflow.
+[Scoped facts, valid invariant domains and loose-contract search](docs/contract-generality.md)
+connect that syntax to 71 reusable checked laws and the planner's implementation producers.
 
 [Discovery reuse and traversal elimination](docs/discovery-reuse.md): frozen-core proof additions, structural matching, bounded file allocations and complete-call ablation curves.
 

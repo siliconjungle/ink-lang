@@ -1,5 +1,10 @@
 # Reproduce probabilistic planner experiments
 
+Current commands measure deterministic and seeded stochastic search. Learned
+proposal ranking and its trainer are removed. The October 12 report and raw
+samples preserve the historical learned/parallel-model comparison; rerunning
+these commands on current source does not reproduce those removed variants.
+
 Run from the distribution checkout with all pinned submodules available. Build
 the ordinary `target/debug/ink` first and supply a compatible Zig 0.15.2 path.
 
@@ -11,12 +16,8 @@ python3 -m ink_planner.semantic_search --compiler target/debug/ink \
   --snapshot build/probabilistic-planner/knowledge/store/snapshot.json \
   --knowledge-root build/probabilistic-planner/knowledge --budget 64 \
   --search-strategy stochastic --search-seed 173 --search-restarts 4 \
-  --search-trace build/probabilistic-planner/train-trace.json \
+  --search-trace build/probabilistic-planner/search-trace.json \
   -o build/probabilistic-planner/search.json
-python3 -m ink_planner.search_policy \
-  --rows build/probabilistic-planner/train-trace.json \
-  --knowledge-root build/probabilistic-planner/knowledge \
-  -o build/probabilistic-planner/search-model.json
 python3 -m venv build/probabilistic-planner/ann-env
 build/probabilistic-planner/ann-env/bin/pip install hnswlib==0.8.0 numpy==2.4.4
 build/probabilistic-planner/ann-env/bin/python bench/probabilistic-planner/measure.py

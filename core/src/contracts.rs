@@ -10,9 +10,11 @@ use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 
 mod calls;
+pub(crate) mod facts;
 mod refinement;
-mod state;
+pub(crate) mod state;
 pub use refinement::{check_refinement, prepare, Body, Refinement};
+pub use facts::SiteFacts;
 pub(crate) mod cells;
 pub(crate) mod collections;
 pub use state::{StateObligation, StateObligations};
@@ -84,7 +86,7 @@ pub struct Obligation {
     pub conditions: Vec<Equation>,
     pub goal: Equation,
 }
-fn assertion(t: s::Term) -> Equation {
+pub(crate) fn assertion(t: s::Term) -> Equation {
     if let s::Node::Op(n, args) = &t.node {
         if n == "binary:==" && args.len() == 2 && args[0].sort != s::value(Type::F32) {
             return Equation {
@@ -120,11 +122,12 @@ pub fn obligations(p: &Program) -> LangResult<Vec<Obligation>> {
         if params.contains_key("result") {
             return Err("result is reserved in specifications".into());
         }
-        let conditions = spec
+        let mut conditions = spec
             .requires
             .iter()
             .map(|e| Ok(assertion(predicate(e, &params, p)?)))
             .collect::<LangResult<Vec<_>>>()?;
+        facts::expand_conjunctions(&mut conditions)?;
         let mut env = params.clone();
         env.insert("result".into(), spec.result.clone());
         for name in std::iter::once(&spec.name).chain(
@@ -177,6 +180,11 @@ pub fn obligations(p: &Program) -> LangResult<Vec<Obligation>> {
     {
         return Ok(out);
     }
+    let mut executable = p.clone();
+    executable.contracts = Contracts::default();
+    let catalogue = CheckedCatalogue::check(&Catalogue {
+        schema: 1, semantics: laws::SEMANTICS.into(), roots: vec![], objects: BTreeMap::new(),
+    }, &executable)?;
     for f in &p.functions {
         let env = crate::check::params_env(&f.params)?;
         let owner = p.contracts.specifications.iter().find(|s| {
@@ -186,7 +194,7 @@ pub fn obligations(p: &Program) -> LangResult<Vec<Obligation>> {
                     .iter()
                     .any(|i| i.name == f.name && i.specification == s.name)
         });
-        let conditions = if let Some(spec) = owner {
+        let mut conditions = if let Some(spec) = owner {
             spec.requires
                 .iter()
                 .map(|e| Ok(assertion(predicate(e, &env, p)?)))
@@ -194,6 +202,7 @@ pub fn obligations(p: &Program) -> LangResult<Vec<Obligation>> {
         } else {
             vec![]
         };
+        facts::expand_conjunctions(&mut conditions)?;
         let term = s::elaborate(&f.body, &env, p, &f.result)?;
         let semantic_env = env
             .iter()
@@ -209,6 +218,8 @@ pub fn obligations(p: &Program) -> LangResult<Vec<Obligation>> {
             &mut vec![],
             &mut out,
             &mut s::Budget::new(),
+            &catalogue,
+            &executable,
         )?;
     }
     Ok(out)
@@ -223,7 +234,15 @@ fn call_obligations(
     path: &mut Vec<usize>,
     out: &mut Vec<Obligation>,
     budget: &mut s::Budget,
+    catalogue: &CheckedCatalogue,
+    executable: &Program,
 ) -> LangResult<()> {
+    let mut conditions = conditions.to_vec();
+    // Postconditions are introduced only in call-site obligations. Every
+    // implementation's own postconditions are checked independently above;
+    // using a callee contract cannot justify that same contract circularly.
+    facts::consequences(p, executable, &s::open_scope(t, scope, budget)?, env,
+        &mut conditions, catalogue, budget, 0)?;
     budget.step(path.len())?;
     if let s::Node::Op(n, args) = &t.node {
         if let Some(name) = n.strip_prefix("call:") {
@@ -248,7 +267,7 @@ fn call_obligations(
                     out.push(Obligation {
                         name: format!("{owner}:call:{path:?}:requires:{i}"),
                         params: env.clone(),
-                        conditions: conditions.to_vec(),
+                        conditions: conditions.clone(),
                         goal: assertion(from),
                     });
                 }
@@ -269,7 +288,7 @@ fn call_obligations(
         scope.push((n, (**input).clone()));
     }
     for (i, child) in s::children(t).into_iter().enumerate() {
-        let mut facts = conditions.to_vec();
+        let mut facts = conditions.clone();
         if let s::Node::Op(n, args) = &t.node {
             let flag = match (n.as_str(), i) {
                 ("call:choose", 1) | ("binary:&&", 1) => Some(true),
@@ -282,9 +301,19 @@ fn call_obligations(
                     to: s::term(s::value(Type::Bool), s::Node::Bool(v)),
                 });
             }
+            if n == "apply" && i == 0 && args.len() == 2 {
+                if let (s::Node::Lambda(_), s::Sort::Arrow(parameter, _)) = (&args[0].node, &args[0].sort) {
+                    let mut name = format!("__contract_binder_{}", scope.len());
+                    while local.contains_key(&name) { name.push('_') }
+                    facts.push(Equation {
+                        from: s::free((**parameter).clone(), &name),
+                        to: s::open_scope(&args[1], &scope, budget)?,
+                    });
+                }
+            }
         }
         path.push(i);
-        call_obligations(child, p, &local, &facts, &scope, owner, path, out, budget)?;
+        call_obligations(child, p, &local, &facts, &scope, owner, path, out, budget, catalogue, executable)?;
         path.pop();
     }
     Ok(())

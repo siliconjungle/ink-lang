@@ -63,6 +63,7 @@ fn dependencies(
                 dependencies(p, out, budget, depth + 1)?;
             }
         }
+        Proof::Forall { body, .. } => dependencies(body, out, budget, depth + 1)?,
         Proof::Cases {
             on_false, on_true, ..
         } => {
