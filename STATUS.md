@@ -30,6 +30,45 @@ chosen kernels are not an unseen-program generalisation estimate. The standalone
 single-file programs locally; its external knowledge-search and import limits are
 separate from the distribution compiler's capabilities.
 
+Planning is now observable end to end. Semantic search records near misses
+(matched laws the checker rejected, with the failed premise as stated and as
+instantiated), compiled-planning receipts carry a stage funnel and per-recipe
+time, and `ink_planner.corpus` evaluates installed knowledge on the frozen
+[planning corpus](bench/planning-corpus/README.md). On its ten held-out programs
+the defaults still select the baseline everywhere, because no comparable
+measurements exist ([results](bench/planning-corpus/results-2026-10-13.md)).
+[Structure laws](docs/structure-laws.md) state early exit for absorbing
+accumulators and sort erasure before commuting fold steps once. They reach
+programs through plan-time instances that `knowledge-check` admits per module,
+and are admitted in 5 of the 10 held-out programs. Measured selection requires
+its bootstrap interval to lie below the baseline before switching.
+[Knowledge health](docs/knowledge-health.md) and
+[action algebra](docs/action-algebra.md) reports, the latter with checked
+commutation certificates for disjoint actions, are diagnostics without
+selection authority.
+
+With paired timings acquired on development inputs only, measured selection
+now switches 5 of the 10 held-out programs. Against the previous unplanned
+output, the held-out geomean is 1.73× (73 robust gains, 6 robust losses in
+240 cells; [results](bench/planning-corpus/results-measured-2026-10-13.md)).
+Several changes contribute:
+
+- **Representation refusal.** The core refuses representation steps for
+  modules without state, which were untimeable candidates.
+- **[Order analysis](docs/structure-laws.md#order-analysis).** A kernel case
+  analysis over weak orderings proves maximum, minimum and clamp steps.
+- **[Guarded laws](docs/guarded-laws.md).** Data-dependent premises become
+  runtime tests. They are checked but not yet selected on this corpus.
+- **[In-place appends](docs/in-place-reuse.md).** The JavaScript and C
+  backends reuse storage, from a unique-ownership analysis.
+
+[Selection without timings](planner/docs/work-model.md) validated for counted
+JavaScript iterations and was rejected for reference-interpreter fuel.
+[Equality saturation and modular planning](planner/docs/search-modes.md) are
+opt-in search modes. Two-key table lemmas certify that removals commute even
+for equal keys; conditional (distinct-key) and insert-based commutation remain
+uncertified.
+
 ## Universal optimisation boundaries
 
 Early termination, owned-buffer reuse and bounded helper unfolding are proposed

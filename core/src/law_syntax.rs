@@ -104,4 +104,11 @@ pub enum Tactic {
         premise: Box<Tactic>,
         body: Box<Tactic>,
     },
+    /// `order(a, b, c) then p`: check `p` once for every weak ordering of the
+    /// atoms (two to five, one word or Int type), with that ordering's
+    /// comparisons and equalities as extra hypotheses.
+    Order {
+        atoms: Vec<Expr>,
+        body: Box<Tactic>,
+    },
 }

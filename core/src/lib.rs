@@ -71,6 +71,7 @@ pub mod planning;
 pub use action_types::table_argument;
 
 pub mod last_use;
+pub mod in_place;
 
 pub mod bounds;
 
