@@ -1,0 +1,20 @@
+............................E..........................................................................................................
+======================================================================
+ERROR: test_candidate_must_validate_in_every_fresh_process (test_offline_measurements.OfflineMeasurements.test_candidate_must_validate_in_every_fresh_process)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-contract-generality-2026-10-13/planner/tests/test_offline_measurements.py", line 49, in test_candidate_must_validate_in_every_fresh_process
+    old,_=rank(history,'c'*64,[baseline,candidate],{}, {},{'call:run':1},baseline,sample_guard=True)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-contract-generality-2026-10-13/planner/ink_planner/representation_selection.py", line 29, in rank
+    observations=store.iter_observations(program,plans,target,phase_workload(workload,phase)) if hasattr(store,"iter_observations")else store.observations(program,plans,target,phase_workload(workload,phase))
+                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-contract-generality-2026-10-13/planner/ink_planner/representation_selection.py", line 14, in phase_workload
+    return dict(workload,distribution=dict(workload=workload['distribution'],phase=phase))
+                                                    ~~~~~~~~^^^^^^^^^^^^^^^^
+KeyError: 'distribution'
+
+----------------------------------------------------------------------
+Ran 135 tests in 87.758s
+
+FAILED (errors=1)

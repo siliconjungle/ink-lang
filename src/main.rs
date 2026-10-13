@@ -197,6 +197,10 @@ fn run() -> LangResult<()> {
         "--workload",
         "--target-profile",
         "--measure-workload",
+        "--measure-holdout",
+        "--minimum-measured-gain-ppm",
+        "--measure-processes",
+        "--measure-timeout",
         "--cargo",
         "--cc",
         "--compiler",
@@ -310,6 +314,10 @@ fn run() -> LangResult<()> {
             ("--workload", "--workload"),
             ("--target-profile", "--target-profile"),
             ("--measure-workload", "--measure-workload"),
+            ("--measure-holdout", "--measure-holdout"),
+            ("--minimum-measured-gain-ppm", "--minimum-measured-gain-ppm"),
+            ("--measure-processes", "--measure-processes"),
+            ("--measure-timeout", "--measure-timeout"),
         ] {
             if let Some(value) = arg_value(&args, flag)? {
                 command.arg(option).arg(value);
