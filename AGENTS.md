@@ -147,3 +147,11 @@ Finish completed, validated work by merging and publishing it on `main` in the
 distribution and every changed independent package repository. Report the verified
 main revision. Feature branches and worktrees are staging areas during active work;
 keep work isolated when James explicitly requests a draft or separate branch.
+
+Executable core V11 adds fixed F32 sqrt/division, explicit conversion, classification,
+named rounding, fixed-width counts and UTF-8 byte operations. Preserve exact
+rounding, canonical arithmetic NaNs, raw reinterpretation and fallible boundaries.
+Derived math/text algorithms and bounded approximations remain knowledge source;
+never substitute them for exact computation without ordinary equality authority.
+GPU numeric operations use integer lanes; host fallback is not device coverage.
+See docs/numeric-text-primitives.md and its required cross-target suites.

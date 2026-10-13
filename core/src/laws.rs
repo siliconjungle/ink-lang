@@ -1753,7 +1753,7 @@ fn literal_primitive(t: &Term, p: &Program, b: &mut Budget) -> LangResult<Option
     {
         return Ok(None);
     }
-    if t.sort == value(Type::Int) || args.iter().any(|a| a.sort == value(Type::Int)) {
+    if t.sort == value(Type::Int) || (n != "call:f32_from_int" && args.iter().any(|a| a.sort == value(Type::Int))) {
         return Ok(None);
     }
     let expr = s::reify(t, p)
@@ -1778,6 +1778,11 @@ fn literal_primitive(t: &Term, p: &Program, b: &mut Budget) -> LangResult<Option
                 crate::stateful::Value::U32(x)=>word(Type::U32,x as u64),
                 crate::stateful::Value::U64(x)=>word(Type::U64,x),
                 crate::stateful::Value::I32(x)=>word(Type::I32,x as u32 as u64),
+                crate::stateful::Value::Int(x)=>{
+                    let (sign,digits)=x.to_u32_digits();let mut result=word(Type::Int,0);
+                    for digit in digits.iter().rev(){result=op(value(Type::Int),"binary:+",vec![op(value(Type::Int),"binary:*",vec![result,word(Type::Int,4294967296)]),word(Type::Int,*digit as u64)]);}
+                    if sign==num_bigint::Sign::Minus {op(value(Type::Int),"neg",vec![result])}else{result}
+                },
                 _=>return Err("literal option value".into())};
                 let _=inner;op(value(ty.clone()),"call:Some",vec![child])
             }else{op(value(ty.clone()),"call:None",vec![])}

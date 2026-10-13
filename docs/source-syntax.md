@@ -47,3 +47,12 @@ execution refines a logical interpreter. Connecting actual primitive operations,
 transactions and candidate implementations to that interpreter remains required.
 No native speed improvement or universal optimisation claim follows from this
 milestone.
+
+## Numerical and text operations
+
+Executable core V11 adds F32 square root/division, explicit numeric conversions,
+classification and named rounding, fixed-width bit counts and UTF-8 byte-based
+String access/slicing/search. `std:math` supplies derived algorithms and explicitly
+bounded approximations; `std:text` supplies chunked text algorithms. See
+[numerical and text primitives](numeric-text-primitives.md) for signatures, exact
+exceptional-value rules, approximation domains and target limitations.

@@ -105,3 +105,69 @@ fn float_division_rounding_and_utf8_coordinates_have_fixed_meanings() {
     assert_eq!(run("locate", json!(["aé😀z", "😀", 0])), json!({"Some":3}));
     assert_eq!(run("locate", json!(["aé😀z", "", 2])), json!({"None":null}));
 }
+#[test]
+fn closed_new_operations_replay_in_the_semantic_proof_kernel() {
+    use ink_core::{
+        laws::{self, Catalogue, CheckedCatalogue, Law, Proof},
+        optimisation, registry, semantic,
+    };
+    let p=parse("module proofs;fn root()->f32{return sqrt(4.0);}fn cast()->Option<Int>{return int_from_f32(42.0);}fn bytes()->Option<String>{return string_slice(\"aé😀\",1,3);}").unwrap();
+    let m = CheckedModule::from_source(p).unwrap();
+    let subject = optimisation::subject(&m).unwrap();
+    let s = semantic::value;
+    let word = |ty, n| semantic::term(s(ty), semantic::Node::Word(n));
+    for (name, to) in [
+        (
+            "root",
+            semantic::term(
+                s(ink_core::syntax::Type::F32),
+                semantic::Node::Float(2f32.to_bits()),
+            ),
+        ),
+        (
+            "cast",
+            semantic::op(
+                s(ink_core::syntax::Type::Option(Box::new(
+                    ink_core::syntax::Type::Int,
+                ))),
+                "call:Some",
+                vec![word(ink_core::syntax::Type::Int, 42)],
+            ),
+        ),
+        (
+            "bytes",
+            semantic::op(
+                s(ink_core::syntax::Type::Option(Box::new(
+                    ink_core::syntax::Type::String,
+                ))),
+                "call:Some",
+                vec![semantic::term(
+                    s(ink_core::syntax::Type::String),
+                    semantic::Node::String("é".into()),
+                )],
+            ),
+        ),
+    ] {
+        let law = Law {
+            schema: 1,
+            semantics: laws::SEMANTICS.into(),
+            types: vec![],
+            assumptions: vec![],
+            params: Default::default(),
+            conditions: vec![],
+            from: subject.functions[name].clone(),
+            to,
+            proof: Proof::Normalize,
+            dependencies: vec![],
+            definition_context: None,
+        };
+        let id = registry::identity(&registry::Entry::from_law(&law).unwrap()).unwrap();
+        let c = Catalogue {
+            schema: 1,
+            semantics: laws::SEMANTICS.into(),
+            roots: vec![id.clone()],
+            objects: [(id, law)].into(),
+        };
+        CheckedCatalogue::check(&c, m.program()).unwrap();
+    }
+}
