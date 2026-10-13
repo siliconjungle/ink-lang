@@ -1731,6 +1731,7 @@ fn literal_primitive(t: &Term, p: &Program, b: &mut Budget) -> LangResult<Option
     };
     if !(n.starts_with("binary:")
         || n == "neg"
+        || n.strip_prefix("call:").is_some_and(crate::primitives::primitive)
         || n == "call:quot_or"
         || n == "call:rem_or"
         || n.strip_prefix("call:").is_some_and(crate::word::primitive))
@@ -1748,11 +1749,11 @@ fn literal_primitive(t: &Term, p: &Program, b: &mut Budget) -> LangResult<Option
     }
     if !args
         .iter()
-        .all(|a| matches!(a.node, Node::Word(_) | Node::Float(_) | Node::Bool(_)))
+        .all(|a| matches!(a.node, Node::Word(_) | Node::Float(_) | Node::Bool(_) | Node::String(_)))
     {
         return Ok(None);
     }
-    if t.sort == value(Type::Int) || args.iter().any(|a| a.sort == value(Type::Int)) {
+    if t.sort == value(Type::Int) || (n != "call:f32_from_int" && args.iter().any(|a| a.sort == value(Type::Int))) {
         return Ok(None);
     }
     let expr = s::reify(t, p)
@@ -1769,6 +1770,23 @@ fn literal_primitive(t: &Term, p: &Program, b: &mut Budget) -> LangResult<Option
         crate::eval::Value::U64(n) => word(Type::U64, n),
         crate::eval::Value::F32(n) => term(value(Type::F32), Node::Float(n)),
         crate::eval::Value::Bool(x) => term(value(Type::Bool), Node::Bool(x)),
+        crate::eval::Value::Opaque(crate::stateful::Value::String(x)) => term(value(Type::String),Node::String(x)),
+        crate::eval::Value::Opaque(crate::stateful::Value::Option(x)) => {
+            let Type::Option(inner)=ty else{return Err("literal option type".into())};
+            if let Some(x)=x {let child=match *x {
+                crate::stateful::Value::String(x)=>term(value(Type::String),Node::String(x)),
+                crate::stateful::Value::U32(x)=>word(Type::U32,x as u64),
+                crate::stateful::Value::U64(x)=>word(Type::U64,x),
+                crate::stateful::Value::I32(x)=>word(Type::I32,x as u32 as u64),
+                crate::stateful::Value::Int(x)=>{
+                    let (sign,digits)=x.to_u32_digits();let mut result=word(Type::Int,0);
+                    for digit in digits.iter().rev(){result=op(value(Type::Int),"binary:+",vec![op(value(Type::Int),"binary:*",vec![result,word(Type::Int,4294967296)]),word(Type::Int,*digit as u64)]);}
+                    if sign==num_bigint::Sign::Minus {op(value(Type::Int),"neg",vec![result])}else{result}
+                },
+                _=>return Err("literal option value".into())};
+                let _=inner;op(value(ty.clone()),"call:Some",vec![child])
+            }else{op(value(ty.clone()),"call:None",vec![])}
+        },
         _ => return Err("literal primitive output".into()),
     }))
 }

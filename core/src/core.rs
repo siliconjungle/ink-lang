@@ -122,6 +122,7 @@ pub struct Program {
 
 /// This version fixes the executable representation and its current semantics,
 /// not the larger proposed language or a proof of the Rust implementation.
+pub const PRIMITIVE_SEMANTICS: &str = "ink-executable-core-v11";
 pub const CANONICAL_FLOAT_SEMANTICS: &str = "ink-executable-core-v7";
 pub const CONTROL_SEMANTICS: &str = "ink-executable-core-v6";
 pub const SEMANTICS: &str = "ink-executable-core-v1";
@@ -411,6 +412,19 @@ fn value_domain(p: &Program) -> bool {
         .any(|k| expr(&k.value, &Default::default(), p, Some(&k.ty), false))
 }
 
+fn primitive_needed(p: &Program) -> bool {
+    let mut found=false;
+    let mut visit=|e:&Expr|crate::analysis::walk(e,|x|found |= matches!(x,Expr::Call(n,_) if crate::primitives::primitive(n)));
+    for f in &p.functions {visit(&f.body);}
+    for s in p.states.iter().chain(&p.keeps) {visit(&s.value);}
+    let mut statements:Vec<_>=p.actions.iter().flat_map(|a|&a.body).collect();
+    while let Some(s)=statements.pop(){match s {
+        Statement::Let(_,_,e)|Statement::Return(e)|Statement::Emit(_,e)|Statement::Expr(e)=>visit(e),
+        Statement::If(e,a,b)=>{visit(e);statements.extend(a);statements.extend(b);}
+    }}
+    found
+}
+
 fn bulk_buffer_needed(p: &Program) -> bool {
     let mut found = false;
     let mut visit = |e: &Expr| {
@@ -448,7 +462,7 @@ impl CheckedModule {
         crate::check::check(&program)?;
         let module = Self(WireModule {
             schema: 1,
-            semantics: if !program.contracts.is_empty() || program.actions.iter().any(|a| a.kind==ActionKind::Change && !matches!(a.result,Type::Result(..))) {
+            semantics: if primitive_needed(&program) { PRIMITIVE_SEMANTICS } else if !program.contracts.is_empty() || program.actions.iter().any(|a| a.kind==ActionKind::Change && !matches!(a.result,Type::Result(..))) {
                 CONTRACT_SEMANTICS
             } else if bulk_buffer_needed(&program) {
                 BULK_BUFFER_SEMANTICS
@@ -495,6 +509,7 @@ impl CheckedModule {
                 VALUE_SEMANTICS,
                 BULK_BUFFER_SEMANTICS,
                 CONTRACT_SEMANTICS,
+                PRIMITIVE_SEMANTICS,
             ]
             .contains(&wire.semantics.as_str())
         {

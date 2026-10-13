@@ -94,7 +94,7 @@ fn lex(source: &str) -> LangResult<Vec<Token>> {
             .any(|s| source[p..].starts_with(s))
         {
             p += 2;
-        } else if b";:,.(){}[]<>+-*!=?&|^~".contains(&b[p]) {
+        } else if b";:,.(){}[]<>+-*/!=?&|^~".contains(&b[p]) {
             p += 1;
         } else {
             return Err(format!("unsupported character at byte {p}"));
@@ -590,7 +590,7 @@ impl Parser {
                 "==" | "!=" => 6,
                 "<" | ">" | "<=" | ">=" => 7,
                 "+" | "-" => 9,
-                "*" => 10,
+                "*" | "/" => 10,
                 _ => 0,
             };
             if prec == 0 || prec < min {
@@ -598,7 +598,7 @@ impl Parser {
             }
             let op = self.take();
             let rhs = self.expr(prec + 1)?;
-            lhs = if ["&", "|", "^"].contains(&op.as_str()) {
+            lhs = if op=="/" { Expr::Call("f32_div".into(),vec![lhs,rhs]) } else if ["&", "|", "^"].contains(&op.as_str()) {
                 Expr::Call(
                     match op.as_str() {
                         "&" => "word_and",

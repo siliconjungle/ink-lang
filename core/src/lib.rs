@@ -44,6 +44,7 @@ pub mod syntax;
 pub mod transaction;
 pub mod transaction_model;
 pub mod word;
+pub mod primitives;
 
 pub type LangResult<T> = Result<T, String>;
 
