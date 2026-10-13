@@ -64,6 +64,21 @@ if(mode==='codec'){
    (groups['decode-'+format]??={})[name]=()=>encoder.decode(bytes,limits).key.length;
   }
  }
+}else if(mode==='typed-codec'){
+ const scalar=kind=>({kind});
+ const fixtures=[
+  ['numeric-list',{kind:'list',element:scalar('u32')},Array.from({length:1024},(_,i)=>i)],
+  ['wide-record',{kind:'record',name:'Wide',fields:Array.from({length:8},(_,i)=>({name:i===0?'__proto__':'f'+i,type:scalar(i%2?'u32':'string')}))},Object.fromEntries(Array.from({length:8},(_,i)=>[i===0?'__proto__':'f'+i,i%2?i:'雪😀'+i]))],
+  ['recursive-numeric',{kind:'record',name:'Root',fields:[{name:'bits',type:scalar('f32')},{name:'wide',type:scalar('u64')},{name:'next',type:{kind:'option',element:{kind:'ref',name:'Root'}}}]},{bits:{F32Bits:0x7fc12345},wide:18446744073709551615n,next:{Some:{bits:{F32Bits:0x80000000},wide:7n,next:{None:null}}}}],
+ ];
+ for(const[name,ink]of Object.entries(modules))for(const[label,type,value]of fixtures){
+  const codec=await ink.createValueCodec(type,type.name==='Root'?{Root:type}:{});
+  for(const[format,encoder]of Object.entries({portable:codec,compact:codec.compact()})){
+   const bytes=encoder.encode(value);assert.deepEqual(encoder.decode(bytes),value);
+   (groups[label+'-encode-'+format]??={})[name]=()=>encoder.encode(value).length;
+   (groups[label+'-decode-'+format]??={})[name]=()=>encoder.decode(bytes)?1:0;
+  }
+ }
 }else if(mode==='row'){
  const f=JSON.parse(fs.readFileSync(path.join(root,'build/frontier-json/fixtures.json'))).find(f=>f.id==='replace-4096');
  for(const[name,ink]of Object.entries(modules)){

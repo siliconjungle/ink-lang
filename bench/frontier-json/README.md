@@ -77,6 +77,12 @@ supplies explicit 128-byte/32-node/16-depth limits to both implementations;
 default mode exercises the ordinary omitted-options API. Keep those resource
 policies separate when aggregating timings.
 
+The paired `typed-codec` control covers a 1024-element numeric list, an eight-field
+record with numeric/string/prototype-key fields, and recursive exact-float/u64
+records. Every format passes complete-value preflight; timed decode consumes
+result truthiness, so this is an API-return diagnostic rather than a complete
+downstream traversal or serialization measurement.
+
 State comparisons accept `--ink-module=<emitted module>` to select an exact
 baseline implementation without overwriting a frozen artifact. The runner binds
 its hash before timing and verifies it afterward. The separately supplied indexed
