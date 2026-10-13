@@ -9,6 +9,7 @@ pub(super) struct CallCondition {
     pub params: Vec<(String, Type)>,
     pub conditions: Vec<Expr>,
     pub predicate: Expr,
+    pub observations: Option<Vec<(String, Type, Expr)>>,
 }
 pub(super) fn actions(p: &Program) -> LangResult<Vec<CallCondition>> {
     let mut out = vec![];
@@ -121,6 +122,11 @@ fn expression(
     serial: &mut usize,
     out: &mut Vec<CallCondition>,
 ) -> LangResult<()> {
+    if let Some(checks) = callback_conditions(p, typing, e, env, facts, owner, *serial)? {
+        *serial += checks.len();
+        out.extend(checks);
+        return Ok(());
+    }
     // Only retain immutable parameter facts. Each occurrence receives a separate
     // source-derived obligation, even when the same specification is called twice.
     if let Expr::Let(name, annotation, value, body) = e {
@@ -234,6 +240,7 @@ fn expression(
                     .collect(),
                 conditions: facts.to_vec(),
                 predicate: value,
+                observations: None,
             });
             *serial += 1;
         }
@@ -265,6 +272,350 @@ fn expression(
         _ => (),
     }
     Ok(())
+}
+
+/// Reuse semantic callback domains for a pure subexpression. State slots are
+/// observations, never inferred validity premises. The ghost query reads them
+/// from its universally quantified current state; only the existing readonly
+/// action rule may subsequently supply boundary invariants.
+fn callback_conditions(
+    p: &Program,
+    typing: &crate::statecheck::Typing,
+    e: &Expr,
+    env: &crate::check::Env,
+    facts: &[Expr],
+    owner: &str,
+    serial: usize,
+) -> LangResult<Option<Vec<CallCondition>>> {
+    let arguments = match e {
+        Expr::Call(_, args) | Expr::Method(_, _, args) => args,
+        _ => return Ok(None),
+    };
+    if !arguments.iter().any(|e| matches!(e, Expr::Lambda(..))) {
+        return Ok(None);
+    }
+    let mut pure_env = env.clone();
+    let mut global = BTreeSet::new();
+    let mut observations = vec![];
+    for state in p.states.iter().chain(&p.keeps) {
+        if !pure_env.contains_key(&state.name)
+            && (crate::analysis::references_free(e, &state.name)
+                || facts
+                    .iter()
+                    .any(|f| crate::analysis::references_free(f, &state.name)))
+        {
+            pure_env.insert(state.name.clone(), state.ty.clone());
+            global.insert(state.name.clone());
+            observations.push((
+                state.name.clone(),
+                state.ty.clone(),
+                Expr::Var(state.name.clone()),
+            ));
+        }
+    }
+    let mut captures = vec![];
+    let mut occupied = BTreeSet::new();
+    crate::analysis::walk(e, |e| match e {
+        Expr::Var(n) | Expr::Lambda(n, _) | Expr::Let(n, _, _, _) => {
+            occupied.insert(n.clone());
+        }
+        _ => (),
+    });
+    let Ok(value) = capture_queries(
+        p,
+        typing,
+        e,
+        &mut pure_env,
+        &mut global,
+        &mut observations,
+        &mut captures,
+        &occupied,
+        0,
+        0,
+    ) else {
+        return Ok(None);
+    };
+    pure_env.retain(|name, _| {
+        crate::analysis::references_free(&value, name)
+            || facts
+                .iter()
+                .any(|e| crate::analysis::references_free(e, name))
+    });
+    observations.retain(|(name, _, _)| pure_env.contains_key(name));
+    // Unsupported total-value correspondence retains the original, stronger
+    // action obligation. It never becomes an assumed callback guarantee.
+    let Ok(goals) = super::expression_obligations(p, &value, &pure_env, facts) else {
+        return Ok(None);
+    };
+    if goals.is_empty() {
+        return Ok(None);
+    }
+    let mut out = vec![];
+    let mut next = serial;
+    for capture in captures {
+        expression(p, typing, capture, env, facts, owner, &mut next, &mut out)?;
+    }
+    for (index, goal) in goals.into_iter().enumerate() {
+        let predicate = equation_expression(&goal.goal, p)?;
+        let conditions = goal
+            .conditions
+            .iter()
+            .map(|e| equation_expression(e, p))
+            .collect::<LangResult<Vec<_>>>()?;
+        let mut params = vec![];
+        for (name, sort) in goal.params {
+            if global.contains(&name) {
+                continue;
+            }
+            let s::Sort::Value(ty) = sort else {
+                return Ok(None);
+            };
+            if crate::local_collections::owned(&ty, p) {
+                return Ok(None);
+            }
+            if crate::analysis::references_free(&predicate, &name)
+                || conditions
+                    .iter()
+                    .any(|e| crate::analysis::references_free(e, &name))
+            {
+                params.push((name, ty));
+            }
+        }
+        out.push(CallCondition {
+            name: format!("{owner}:action-call:{}:requires", next + index),
+            owner: owner.into(),
+            params,
+            conditions,
+            predicate,
+            observations: Some(observations.clone()),
+        });
+    }
+    Ok(Some(out))
+}
+
+/// A readonly call outside callbacks is one observation of the expression's
+/// current state. Its own preconditions remain separate action obligations.
+/// Dependent query calls inside callbacks retain the stronger legacy path until
+/// their state-and-argument relation has a total pure correspondence.
+fn capture_queries<'a>(
+    p: &Program,
+    typing: &crate::statecheck::Typing,
+    e: &'a Expr,
+    env: &mut crate::check::Env,
+    global: &mut BTreeSet<String>,
+    observations: &mut Vec<(String, Type, Expr)>,
+    captures: &mut Vec<&'a Expr>,
+    occupied: &BTreeSet<String>,
+    scope: usize,
+    depth: usize,
+) -> LangResult<Expr> {
+    if depth > 128 || observations.len() > 128 {
+        return Err("action observation limit".into());
+    }
+    if let Expr::Method(receiver, name, args) = e {
+        if let Expr::Var(root) = receiver.as_ref() {
+            if scope == 0
+                && global.contains(root)
+                && p.states.iter().any(|s| s.name == *root)
+                && ["get", "contains", "values", "keys", "intersect_keys"].contains(&name.as_str())
+                && args.iter().all(|e| crate::check::infer(e, env, p).is_ok())
+            {
+                let ty = typing
+                    .values
+                    .get(&(e as *const Expr as usize))
+                    .ok_or("missing observation typing")?
+                    .clone();
+                let mut fresh = format!("__ink_observation_{}", observations.len());
+                while env.contains_key(&fresh) || occupied.contains(&fresh) {
+                    fresh.push('_')
+                }
+                env.insert(fresh.clone(), ty.clone());
+                global.insert(fresh.clone());
+                observations.push((fresh.clone(), ty, e.clone()));
+                captures.push(e);
+                return Ok(Expr::Var(fresh));
+            }
+        }
+    }
+    if let Expr::Call(name, args) = e {
+        if let Some(action) = p.actions.iter().find(|a| &a.name == name) {
+            if scope != 0
+                || action.kind != ActionKind::Query
+                || !action.writes.is_empty()
+                || !action.emits.is_empty()
+                || action.params.len() != args.len()
+                || args
+                    .iter()
+                    .zip(&action.params)
+                    .any(|(e, (_, ty))| crate::check::infer_as(e, env, p, ty).is_err())
+            {
+                return Err("action call lacks readonly total correspondence".into());
+            }
+            let mut fresh = format!("__ink_observation_{}", observations.len());
+            while env.contains_key(&fresh) || occupied.contains(&fresh) {
+                fresh.push('_')
+            }
+            env.insert(fresh.clone(), action.result.clone());
+            global.insert(fresh.clone());
+            observations.push((fresh.clone(), action.result.clone(), e.clone()));
+            captures.push(e);
+            return Ok(Expr::Var(fresh));
+        }
+    }
+    let recurse = |e: &'a Expr,
+                   env: &mut crate::check::Env,
+                   global: &mut BTreeSet<String>,
+                   observations: &mut Vec<(String, Type, Expr)>,
+                   captures: &mut Vec<&'a Expr>,
+                   scope| {
+        capture_queries(
+            p,
+            typing,
+            e,
+            env,
+            global,
+            observations,
+            captures,
+            occupied,
+            scope,
+            depth + 1,
+        )
+    };
+    if let Expr::Method(receiver, name, args) = e {
+        if name == "unwrap_or" && args.len() == 1 {
+            let receiver = recurse(receiver, env, global, observations, captures, scope)?;
+            let fallback = recurse(&args[0], env, global, observations, captures, scope)?;
+            let ty = typing
+                .values
+                .get(&(e as *const Expr as usize))
+                .ok_or("missing fallback observation typing")?
+                .clone();
+            let fresh = |base: &str| {
+                let mut n = base.to_owned();
+                while env.contains_key(&n) || occupied.contains(&n) {
+                    n.push('_')
+                }
+                n
+            };
+            let name = fresh("__ink_observation_fallback");
+            let value = fresh("__ink_observation_value");
+            let unit = fresh("__ink_observation_unit");
+            // Action unwrap_or evaluates its fallback eagerly. Bind it outside
+            // the variant fold, so its calls retain unconditional obligations.
+            return Ok(Expr::Let(
+                name.clone(),
+                Some(Box::new(ty)),
+                Box::new(fallback),
+                Box::new(Expr::Method(
+                    Box::new(receiver),
+                    "fold".into(),
+                    vec![
+                        Expr::Lambda(value.clone(), Box::new(Expr::Var(value))),
+                        Expr::Lambda(unit, Box::new(Expr::Var(name))),
+                    ],
+                )),
+            ));
+        }
+    }
+    Ok(match e {
+        Expr::Lambda(n, body) => Expr::Lambda(
+            n.clone(),
+            Box::new(recurse(
+                body,
+                env,
+                global,
+                observations,
+                captures,
+                scope + 1,
+            )?),
+        ),
+        Expr::Let(n, ty, value, body) => Expr::Let(
+            n.clone(),
+            ty.clone(),
+            Box::new(recurse(value, env, global, observations, captures, scope)?),
+            Box::new(recurse(
+                body,
+                env,
+                global,
+                observations,
+                captures,
+                scope + 1,
+            )?),
+        ),
+        Expr::Neg(x) => Expr::Neg(Box::new(recurse(
+            x,
+            env,
+            global,
+            observations,
+            captures,
+            scope,
+        )?)),
+        Expr::Try(_) => return Err("fallible observation lacks total correspondence".into()),
+        Expr::Field(x, n) => Expr::Field(
+            Box::new(recurse(x, env, global, observations, captures, scope)?),
+            n.clone(),
+        ),
+        Expr::Binary(n, a, b) => Expr::Binary(
+            n.clone(),
+            Box::new(recurse(a, env, global, observations, captures, scope)?),
+            Box::new(recurse(
+                b,
+                env,
+                global,
+                observations,
+                captures,
+                scope + usize::from(n == "&&" || n == "||"),
+            )?),
+        ),
+        Expr::Call(n, args) => Expr::Call(
+            n.clone(),
+            args.iter()
+                .enumerate()
+                .map(|(i, e)| {
+                    recurse(
+                        e,
+                        env,
+                        global,
+                        observations,
+                        captures,
+                        scope + usize::from(n == "choose" && i > 0),
+                    )
+                })
+                .collect::<LangResult<_>>()?,
+        ),
+        Expr::Method(x, n, args) => Expr::Method(
+            Box::new(recurse(x, env, global, observations, captures, scope)?),
+            n.clone(),
+            args.iter()
+                .map(|e| recurse(e, env, global, observations, captures, scope))
+                .collect::<LangResult<_>>()?,
+        ),
+        Expr::Record(n, fields) => Expr::Record(
+            n.clone(),
+            fields
+                .iter()
+                .map(|(n, e)| {
+                    Ok((
+                        n.clone(),
+                        recurse(e, env, global, observations, captures, scope)?,
+                    ))
+                })
+                .collect::<LangResult<_>>()?,
+        ),
+        _ => e.clone(),
+    })
+}
+fn equation_expression(e: &Equation, p: &Program) -> LangResult<Expr> {
+    let predicate = if e.to.node == s::Node::Bool(true) {
+        e.from.clone()
+    } else {
+        s::op(
+            s::value(Type::Bool),
+            "value:equal",
+            vec![e.from.clone(), e.to.clone()],
+        )
+    };
+    s::reify(&predicate, p)
 }
 
 /// Immutable result-only guarantees can survive later writes. State observations
@@ -305,4 +656,31 @@ fn binding_facts(p:&Program,env:&crate::check::Env,name:&str,ty:&Type,value:&Exp
     }
     if facts.len()>1024{return Err("action contract fact count limit".into())}
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn action_domains_remove_callback_parameters_before_transition_projection() {
+        let p = crate::syntax::parse(include_str!(
+            "../../tests/fixtures/action-callback-values.ink"
+        ))
+        .unwrap();
+        let conditions = actions(&p).unwrap();
+        for owner in ["items", "current", "maybe", "either", "store", "abort"] {
+            let goals = conditions
+                .iter()
+                .filter(|g| g.owner == owner)
+                .collect::<Vec<_>>();
+            assert!(!goals.is_empty());
+            assert!(goals.iter().all(|g| g.observations.is_some()), "{owner}");
+            assert!(
+                goals.iter().all(|g| !g.params.iter().any(|(n, _)| n == "x"
+                    || (n == "v" && !["maybe", "either"].contains(&owner))
+                    || n.starts_with("__contract_binder"))),
+                "{owner}"
+            );
+        }
+    }
 }

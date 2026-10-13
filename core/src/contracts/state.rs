@@ -38,6 +38,52 @@ struct Ghosts {
     next: usize,
 }
 impl Ghosts {
+    /// Pure proof observations use the ordinary pure-function correspondence.
+    /// Capture state reads as arguments at the ghost query, rather than adding
+    /// collection primitives or callback assumptions to the action language.
+    fn observation_query(
+        &mut self,
+        params: Vec<(String, Type)>,
+        value: Expr,
+        observations: &Option<Vec<(String, Type, Expr)>>,
+    ) -> LangResult<String> {
+        let Some(observations) = observations else {
+            return self.query(params, Type::Bool, value);
+        };
+        let mut parameters = params.clone();
+        parameters.extend(observations.iter().map(|(n, t, _)| (n.clone(), t.clone())));
+        let query = self.query(params, Type::Bool, Expr::Bool(true))?;
+        let mut function = format!("{query}_value");
+        while self.p.functions.iter().any(|f| f.name == function)
+            || self.p.actions.iter().any(|a| a.name == function)
+            || self
+                .p
+                .states
+                .iter()
+                .chain(&self.p.keeps)
+                .any(|s| s.name == function)
+        {
+            function.push('_');
+        }
+        let mut args = parameters[..parameters.len() - observations.len()]
+            .iter()
+            .map(|(n, _)| Expr::Var(n.clone()))
+            .collect::<Vec<_>>();
+        args.extend(observations.iter().map(|(_, _, e)| e.clone()));
+        self.p.functions.push(Function {
+            name: function.clone(),
+            params: parameters,
+            result: Type::Bool,
+            body: value,
+        });
+        self.p
+            .actions
+            .iter_mut()
+            .find(|a| a.name == query)
+            .unwrap()
+            .body = vec![Statement::Return(Expr::Call(function, args))];
+        Ok(query)
+    }
     fn query(
         &mut self,
         params: Vec<(String, Type)>,
@@ -315,10 +361,10 @@ pub(super) fn derive(source: &Program) -> LangResult<StateObligations> {
     }
     let mut call_checks = vec![];
     for g in super::calls::actions(source)? {
-        let name = ghosts.query(g.params.clone(), Type::Bool, g.predicate)?;
+        let name = ghosts.observation_query(g.params.clone(), g.predicate, &g.observations)?;
         let mut conditions = vec![];
         for e in g.conditions {
-            conditions.push(ghosts.query(g.params.clone(), Type::Bool, e)?);
+            conditions.push(ghosts.observation_query(g.params.clone(), e, &g.observations)?);
         }
         // Invariants hold at a checked invocation boundary. A source action
         // with no write capability observes that same state throughout, so its

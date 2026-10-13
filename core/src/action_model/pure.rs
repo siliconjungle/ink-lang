@@ -281,6 +281,18 @@ impl Lower<'_> {
                     .map(|x| self.pure_term(x, env, bound, depth + 1))
                     .collect::<LangResult<Vec<_>>>()?;
                 match op.as_str() {
+                    "call:None" if matches!(ty,Type::Option(_)) && xs.is_empty() => {
+                        Ok(c(id(&sort)?,0,xs))
+                    }
+                    "call:Some" if matches!(ty,Type::Option(_)) && xs.len()==1 => {
+                        Ok(c(id(&sort)?,1,xs))
+                    }
+                    "call:Ok" if matches!(ty,Type::Result(..)) && xs.len()==1 => {
+                        Ok(c(id(&sort)?,0,xs))
+                    }
+                    "call:Err" if matches!(ty,Type::Result(..)) && xs.len()==1 => {
+                        Ok(c(id(&sort)?,1,xs))
+                    }
                     "method:sort" if xs.len()==1 => {
                         let SemanticSort::Value(Type::List(element))=&args[0].sort else {
                             return Err("sort correspondence requires a list".into());
