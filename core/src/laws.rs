@@ -1980,6 +1980,28 @@ fn equivalent(
             })
         })
         .collect::<LangResult<Vec<_>>>()?;
+    // A true fixed structural-equality predicate establishes exact value
+    // identity. Transport that consequence to its consumers after beta/source
+    // normalization, including instantiated relation callbacks. IEEE scalar
+    // binary:== is deliberately excluded: signed zeros and NaNs do not carry
+    // this stronger raw-bit guarantee.
+    fn structural_facts(facts:&mut Vec<Equation>)->LangResult<()> {
+        let previous=facts.clone();
+        for h in previous {
+            if h.to.node!=Node::Bool(true) {continue;}
+            if let Node::Op(name,args)=h.from.node {
+                if name=="value:equal" && args.len()==2 && args[0].sort==args[1].sort {
+                    let derived=Equation{from:args[0].clone(),to:args[1].clone()};
+                    if derived.from!=derived.to && !facts.contains(&derived) {
+                        if facts.len()>=1024{return Err("semantic derived fact count limit".into());}
+                        facts.push(derived);
+                    }
+                }
+            }
+        }
+        Ok(())
+    }
+    structural_facts(&mut facts)?;
     // A premise can itself contain a parameter established by another premise.
     // In particular, an induction hypothesis retains the original callback,
     // while a contract may establish one of that callback's captures. Normalize
@@ -1998,6 +2020,7 @@ fn equivalent(
                     facts.push(derived);
                 }
             }
+            structural_facts(&mut facts)?;
             if facts==previous {break}
         }
     }

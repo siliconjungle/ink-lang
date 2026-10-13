@@ -146,6 +146,7 @@ impl SurfaceProgram {
             .records
             .retain(|n, _| !e.parameters.contains_key(n));
         e.output.contracts.value_invariants.retain(|n, _| !e.parameters.contains_key(n));
+        e.output.termination.measures.retain(|n,_| !e.parameters.contains_key(n));
         // Remove the output while walking to permit generated declarations.
         let mut p = std::mem::take(&mut e.output);
         let env = BTreeMap::new();
@@ -174,6 +175,9 @@ impl SurfaceProgram {
         e.templates.states=p.states.clone(); e.templates.keeps=p.keeps.clone();
         for f in &mut p.functions {
             e.function(f, &env, 0)?;
+            if let Some(measure)=p.termination.measures.get_mut(&f.name) {
+                e.measure(measure,f,&env,0)?;
+            }
         }
         for a in &mut p.actions {
             e.locals = a.params.iter().map(|(n, _)| n.clone()).collect();
@@ -238,6 +242,7 @@ impl SurfaceProgram {
         p.contracts.specifications.extend(e.output.contracts.specifications);
         p.contracts.implementations.extend(e.output.contracts.implementations);
         p.contracts.value_invariants.extend(e.output.contracts.value_invariants);
+        p.termination.measures.extend(e.output.termination.measures);
         p.functions.extend(e.output.functions);
         p.records.extend(e.output.records);
         for t in unused {
@@ -350,6 +355,10 @@ impl Elaborator {
             self.instances.insert(instance.clone(), instance.clone());
             f.name = instance.clone();
             self.function(&mut f, &bindings, depth + 1)?;
+            if let Some(mut measure)=self.templates.termination.measures.get(&name).cloned() {
+                self.measure(&mut measure,&f,&bindings,depth+1)?;
+                self.output.termination.measures.insert(instance.clone(),measure);
+            }
             self.output.functions.push(f);
             self.instance_contract(&name,&instance,&bindings,&args,depth+1)?;
         } else if let Some(fields) = self.templates.records.get(&name).cloned() {
@@ -462,6 +471,12 @@ impl Elaborator {
             ),
             _ => t.clone(),
         })
+    }
+    fn measure(&mut self,e:&mut Expr,f:&Function,env:&BTreeMap<String,Type>,depth:usize)->LangResult<()> {
+        let outer=std::mem::replace(&mut self.locals,f.params.iter().map(|(n,_)|n.clone()).collect());
+        let types=std::mem::replace(&mut self.local_types,f.params.iter().cloned().collect());
+        let result=self.expr(e,env,depth+1);
+        self.locals=outer;self.local_types=types;result
     }
     fn function(
         &mut self,

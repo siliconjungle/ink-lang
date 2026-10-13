@@ -8,7 +8,12 @@ use super::*;
 pub(crate) fn resolve(p: &mut Program) -> LangResult<()> {
     let declarations: BTreeSet<_> = p.functions.iter().map(|f|f.name.clone())
         .chain(p.actions.iter().map(|a|a.name.clone())).collect();
-    fn expr(e:&mut Expr,declared:&BTreeSet<String>,locals:&BTreeSet<String>,depth:usize)->LangResult<()> {
+    resolve_program(p, &declarations)
+}
+pub(crate) fn resolve_expression(e:&mut Expr,declared:&BTreeSet<String>,locals:&BTreeSet<String>)->LangResult<()> {
+    expr(e,declared,locals,0)
+}
+fn expr(e:&mut Expr,declared:&BTreeSet<String>,locals:&BTreeSet<String>,depth:usize)->LangResult<()> {
         if depth>128{return Err("collection syntax resolution depth".into())}
         match e {
             Expr::Call(name,args)=>{
@@ -33,6 +38,7 @@ pub(crate) fn resolve(p: &mut Program) -> LangResult<()> {
         }
         Ok(())
     }
+fn resolve_program(p:&mut Program,declarations:&BTreeSet<String>)->LangResult<()> {
     fn block(body:&mut [Statement],declared:&BTreeSet<String>,mut locals:BTreeSet<String>,depth:usize)->LangResult<()> {
         if depth>128{return Err("collection statement resolution depth".into())}
         for statement in body {match statement {

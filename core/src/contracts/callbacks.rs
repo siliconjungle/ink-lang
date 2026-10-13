@@ -71,7 +71,8 @@ fn arity(name: &str, child: usize) -> Option<usize> {
         ("apply", 0)
         | ("method:map" | "method:filter", 1)
         | ("method:fold", 1 | 2)
-        | ("call:repeat_until", 2) => Some(1),
+        | ("call:repeat_until", 2)
+        | ("method:borrow_range", 3) => Some(1),
         ("method:map_indexed", 1)
         | ("method:zip", 2)
         | ("call:foldr" | "call:foldl" | "call:repeat", 2)
@@ -252,6 +253,7 @@ fn domain(
     b: &mut s::Budget,
 ) -> LangResult<Option<s::Term>> {
     let result = match name {
+        "method:borrow_range" => s::op(s::value(Type::Bool),name,vec![args[0].clone(),args[1].clone(),args[2].clone(),predicate]),
         "method:map" | "method:filter" => all(list(&args[0])?, predicate)?,
         "method:map_indexed" => all_bools(s::op(
             s::value(Type::List(Box::new(Type::Bool))),

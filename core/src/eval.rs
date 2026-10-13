@@ -1348,7 +1348,8 @@ pub(crate) fn closed(e: &Expr, p: &Program, want: &Type, fuel: &mut u64) -> Lang
 }
 
 pub fn call(p: &Program, name: &str, args: Vec<Value>, fuel: &mut u64) -> LangResult<Value> {
-    if !p.contracts.is_empty(){crate::core::CheckedModule::from_source(p.clone())?;}
+    if !p.contracts.is_empty() || !p.termination.is_empty(){crate::core::CheckedModule::from_source(p.clone())?;}
+    else {crate::check::check(p)?;}
     call_verified(p,name,args,fuel)
 }
 /// Reuse a sealed module's admission while retaining ordinary argument checks,
@@ -1362,7 +1363,6 @@ pub fn call_checked(
     call_verified(module.program(), name, args, fuel)
 }
 pub(crate) fn call_verified(p:&Program,name:&str,args:Vec<Value>,fuel:&mut u64)->LangResult<Value>{
-    crate::check::check(p)?;
     let f = p
         .functions
         .iter()
@@ -1576,6 +1576,18 @@ fn evaluate_local(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> LangR
             let v = expr(x, env, types, p, fuel, Some(&xt), depth)?;
             match (v, xt) {
                 (Value::Buffer(b), Type::Buffer(t)) => {
+                    if n=="borrow_range" {
+                        let Value::U32(start)=expr(&a[0],env,types,p,fuel,Some(&Type::U32),depth)? else {unreachable!()};
+                        let Value::U32(count)=expr(&a[1],env,types,p,fuel,Some(&Type::U32),depth)? else {unreachable!()};
+                        let Expr::Lambda(name,body)=&a[2] else {unreachable!()};
+                        let begin=start.min(b.len());let size=count.min(b.len()-begin);
+                        let cost=(0..size).fold(0u64,|cost,i|cost.saturating_add(1+b.with_item(begin+i,|v|weight(v.unwrap()))));
+                        charge(fuel,cost)?;
+                        let view=Value::Buffer(b.range_snapshot(start,count));
+                        let mut local=copy_env(env,fuel)?;local.insert(name.clone(),view);
+                        let mut ts=types.clone();ts.insert(name.clone(),Type::Buffer(t.clone()));
+                        return expr(body,&local,&ts,p,fuel,Some(&ty),depth);
+                    }
                     if n == "map_indexed" {
                         let xs =
                             indexed_values(b.freeze(), &a[0], env, types, p, fuel, &t, &t, depth)?;

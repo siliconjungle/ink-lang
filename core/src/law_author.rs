@@ -426,7 +426,8 @@ impl<'a> Scope<'a> {
         s::try_map_children(t, |c| self.post(c, b, d + 1))
     }
     fn value(&self, e: &Expr, env: &check::Env, want: Option<&Type>) -> LangResult<(Term, Type)> {
-        let e = self.transform(e, &mut vec![])?;
+        let e = self.resolved(e, env)?;
+        let e = self.transform(&e, &mut vec![])?;
         let ty = match want {
             Some(t) => check::infer_as(&e, env, &self.aug, t)?,
             None => check::infer(&e, env, &self.aug)?,
@@ -441,7 +442,8 @@ impl<'a> Scope<'a> {
     }
     /// `a == b` is an equation; any other condition is a Bool fact.
     fn condition(&self, e: &Expr, env: &check::Env) -> LangResult<Equation> {
-        let e=self.transform(e,&mut vec![])?;
+        let e=self.resolved(e,env)?;
+        let e=self.transform(&e,&mut vec![])?;
         match &e {
             Expr::Binary(o, a, c) if o == "==" => self.pair(a, c, env),
             e => {
@@ -452,6 +454,12 @@ impl<'a> Scope<'a> {
                 })
             }
         }
+    }
+    fn resolved(&self,e:&Expr,env:&check::Env)->LangResult<Expr> {
+        let mut e=e.clone();
+        let declared=self.aug.functions.iter().map(|f|f.name.clone()).chain(self.fns.keys().cloned()).collect();
+        crate::contracts::collections::resolve_expression(&mut e,&declared,&env.keys().cloned().collect())?;
+        Ok(e)
     }
     /// An argument for a parameter of the given sort. Function arguments are
     /// lambdas (curried or `fn(a, b) =>`), function parameters in scope, or
