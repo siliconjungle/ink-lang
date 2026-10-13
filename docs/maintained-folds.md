@@ -48,6 +48,38 @@ the original caches and cells. Every version and ordered event is retained.
 Checkpoint bytes and source/schema identity are unchanged, allowing portable
 baseline-to-selected migration at a transaction boundary.
 
+## Native definitions and whole actions
+
+A view may supply `update: {function, proof}`. The kernel checks the function's
+three-scalar signature and its equality to `combine(combine(total,inverse(old)),new)`
+for arbitrary scalar arguments. `contribution_choice: {function, proof}` similarly
+checks a complete key/row contribution against the original factorised function.
+Missing choices retain the original definitions; forged choices reject admission.
+The producer authors wrapping replacement arithmetic and ordinary word-law
+simplifications, including zero multiplication in counts, through row cases and
+Boolean branch proofs. No algebraic matcher in the backend grants these changes.
+
+JavaScript has a bounded native lane for scalar definitions and source record/vector
+fields. It emits literal calls, branches and arithmetic on the actual source
+carriers, removing private constructor codecs and recursion wrappers. Unused opaque
+fields need no codec; inspecting unsupported or recursive carriers declines to the
+ordinary literal lane. Checked record elisions are reflected in field access.
+Modular arithmetic regions carry bounded BigInt representatives (at most 256 bits)
+and normalize before comparisons, division, branch/output boundaries or excessive
+intermediate growth. This is trusted primitive lowering, not a compiler-correctness
+proof. Native cell preparation is emitted per root, with one insertion/deletion/
+replacement branch and fixed view sites; partially native roots retain the loop.
+
+The installed `cell_actions` and `early_return` recipes propose one upsert for an
+explicit contains/replace/insert branch, and move parameter-dependent returns ahead
+of prior statements. The existing whole-action checker must prove every action's
+result, error, state, commitment, version and event observations for arbitrary
+initial states. These are proposals, never permissions from a syntactic pattern.
+An earlier competing failure rejects a move. Resource exhaustion is outside the
+existing whole-action equality domain. Ordinary induction lemmas bridge equivalent
+generated definitions when lexical allocation renames helpers used by unchanged
+queries; identities themselves grant no equality authority.
+
 ## Map and bounded array storage
 
 `physical.dense_prefixes` specifies sorted, unique table/capacity pairs. Capacities
@@ -70,13 +102,20 @@ unbounded bulk writes decline the single-cell bound.
 Outside an existing host transaction, actions with at most one cell write stage
 that cell and install it only after successful result conversion, domain checks
 and commit-sequence checks. Reads within the action see the staged value.
-Aborts discard it. This avoids a write-and-undo journal. Multi-cell actions retain
+Aborts discard it. Auxiliary maintenance is deferred until a keep is read or the
+action succeeds; staged keep reads use private scalar scratch without changing the
+committed caches. Aborted paths that never read a keep perform no maintenance.
+This avoids a write-and-undo journal and aggregate before-images on this path. Multi-cell actions retain
 the existing journal. Owned inputs/results, fuel, versions and events remain.
 Non-Result action bodies omit the domain-error catch wrapper. Typed bound calls
-use fixed-arity factories and one captured argument carrier, and invocation
+use fixed-arity factories, and invocation
 contexts and scalar cache before-image storage are reused.
-Bindings with only immutable native scalar arguments also reuse their argument
-carrier. Composite argument capture retains a fresh carrier.
+Bound changes without preconditions capture parameters into lexical locals and
+call their action directly, without argument arrays, spread invocation or action-kind
+dispatch. Preconditions retain the ordinary evaluation path. Fixed table primitives
+take typed arguments directly. The first emitted event uses scalar staging slots;
+additional events preserve their ordered staging array. Parameterless subscriptions
+use direct readonly calls, and immutable scalar publication skips redundant codecs.
 Fresh flat result containers may cross directly when every child is an immutable
 native scalar. Stored composites, nested containers, exact Int and float-bit
 carriers retain their ownership/conversion codecs. This is a conservative checked

@@ -55,7 +55,9 @@ fn generated_journals_keep_one_before_image_per_cell() {
     let mut js = fs::read_to_string("lowerings/js/src/state.mjs").unwrap();
     js.push_str(
         r#"
-const rt={tables:[new Map([[7n,11n]])],undo:[],seen:[new Set()]};
+// Generated modules define per-root value equality; this harness has one root.
+const __stateRootEquals=[(a,b)=>a===b];
+const rt={tables:[new Map([[7n,11n]])],undo:[],seen:[new Set()],viewsByRoot:[[]],keeps:null};
 for(let i=0n;i<1000n;i++)__table(rt,0,'replace',[7n,i]);
 if(rt.undo.length!==1||rt.undo[0][3]!==11n)throw Error('journal did not retain one original value');
 __table(rt,0,'remove',[7n]);__table(rt,0,'insert',[7n,19n]);

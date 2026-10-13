@@ -33,6 +33,18 @@ pub struct View {
     pub insertion: Proof,
     pub deletion: Proof,
     pub replacement: Proof,
+    /// Optional database implementation of the group replacement operation.
+    /// Admission checks it for arbitrary totals and contributions, not a profile.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub update: Option<Update>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub contribution_choice: Option<Update>,
+}
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct Update {
+    pub function: String,
+    pub proof: Proof,
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -272,6 +284,12 @@ pub fn check(module: &CheckedModule, package: &Package) -> LangResult<CheckedVie
             view.inverse.clone(),
             s.query.clone(),
         ]);
+        if let Some(update) = &view.update {
+            exports.insert(update.function.clone());
+        }
+        if let Some(choice) = &view.contribution_choice {
+            exports.insert(choice.function.clone());
+        }
         selected.push((s, id));
     }
     let (definition, context) = definition::check_registry_with_context(
@@ -296,6 +314,37 @@ pub fn check(module: &CheckedModule, package: &Package) -> LangResult<CheckedVie
             }
         }
         let combine = |a, b| call(&v.combine, vec![a, b]);
+        if let Some(choice) = &v.contribution_choice {
+            let d: Declaration = serde_json::from_value(
+                package.knowledge.objects.get(&choice.function)
+                    .ok_or("maintained contribution choice missing")?.payload["declaration"].clone(),
+            ).map_err(|e| e.to_string())?;
+            if !matches!(d, Declaration::Function { params, result, .. }
+                if params.iter().map(|x|x.1.clone()).collect::<Vec<_>>() == vec![s.key.clone(),s.row.clone()]
+                    && result == s.result) {
+                return Err("maintained contribution choice signature".into());
+            }
+            context.check(&[("key".into(),s.key.clone()),("row".into(),s.row.clone())], &[],
+                &call(&v.contribution, vec![var("key"),var("row")]),
+                &call(&choice.function, vec![var("key"),var("row")]),
+                &choice.proof).map_err(|e|format!("{}/contribution choice: {e}",v.keep))?;
+        }
+        if let Some(update) = &v.update {
+            let d: Declaration = serde_json::from_value(
+                package.knowledge.objects.get(&update.function)
+                    .ok_or("maintained update definition missing")?.payload["declaration"].clone(),
+            ).map_err(|e| e.to_string())?;
+            if !matches!(d, Declaration::Function { params, result, .. }
+                if params.iter().map(|x|x.1.clone()).collect::<Vec<_>>() == vec![s.result.clone();3]
+                    && result == s.result) {
+                return Err("maintained update signature".into());
+            }
+            let params = ["total", "old", "new"].map(|n|(n.into(),s.result.clone()));
+            context.check(&params, &[],
+                &combine(combine(var("total"), call(&v.inverse, vec![var("old")])), var("new")),
+                &call(&update.function, vec![var("total"),var("old"),var("new")]),
+                &update.proof).map_err(|e|format!("{}/update: {e}",v.keep))?;
+        }
         let state: Declaration =
             serde_json::from_value(source.objects[&s.state].payload["declaration"].clone())
                 .map_err(|e| e.to_string())?;

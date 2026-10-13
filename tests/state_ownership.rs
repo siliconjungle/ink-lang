@@ -24,7 +24,7 @@ fn emit_borrowed_rows(p: &verified_language::syntax::Program) -> String {
         "emit_target":"rust"});
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
     let mut author = Command::new("python3")
-        .args(["-c", "import json,sys;from producers.planning_recipes import physical;c=json.load(sys.stdin);rows=list(physical(c,[dict(tables='ordered',borrow=True)],[]));print(json.dumps(next(r['step'] for r in rows if r['step']['package']['borrow_rows'])))"])
+        .args(["-c", "import json,sys;from producers.planning_recipes import physical;c=json.load(sys.stdin);rows=list(physical(c,[dict(tables='ordered',borrow=True,targets=['rust'])],[]));print(json.dumps(next(r['step'] for r in rows if r['step']['package']['borrow_rows'])))"])
         .env("PYTHONPATH", root.join("knowledge"))
         .stdin(Stdio::piped()).stdout(Stdio::piped()).stderr(Stdio::piped())
         .spawn().unwrap();
