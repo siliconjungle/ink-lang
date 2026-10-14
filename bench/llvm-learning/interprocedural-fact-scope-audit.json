@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "finding": "F051",
+  "sources": [
+    {
+      "path": "llvm/include/llvm/Analysis/ValueLatticeUtils.h",
+      "revision": "d977b4533f1d9b01d28cf4dba9b2db9d1ccfda08",
+      "blob": "f0e93ebff4bfd92f71b156fd4425cc2856ae482d",
+      "bytes": 1764,
+      "sha256": "7ba1db3e367bf54a06e09201ee2104f231511004bae31e887f5d602b8500be19"
+    },
+    {
+      "path": "llvm/lib/Analysis/ValueLatticeUtils.cpp",
+      "revision": "d977b4533f1d9b01d28cf4dba9b2db9d1ccfda08",
+      "blob": "acc19667d7764989d6e7386b0928bb6531118466",
+      "bytes": 1738,
+      "sha256": "1a685780dc07783fb0190d8b37ed484b4ca9997ef0eda1b236ad8dde629c0feb"
+    }
+  ],
+  "insights": [
+    "Argument tracking requires an exact definition, local linkage and no escaping function address; observed callers alone do not bound externally supplied arguments.",
+    "Return tracking separately requires exact definition and excludes naked assembly functions. Argument and result summaries need different eligibility conditions.",
+    "Global tracking checks definitive initializer, local linkage, every use, exact loaded/stored type, non-volatile access and forbids storing the global address itself. The helper excludes constant globals; that is a scope restriction of this helper, not a claim that constants cannot be optimized."
+  ],
+  "ink_actions": [
+    "Keep summary applicability bound to the exact source, checked callback captures and complete call graph. Treat public entry-point parameters as unconstrained unless explicit proof premises establish a bound.",
+    "Put specialization algorithms and assumptions in database laws; use source-bound summaries only to propose those laws and replay each application.",
+    "For maintained state facts preserve every mutating action, rollback and restore boundary. A scalar equality or measured workload does not establish mutation completeness."
+  ],
+  "status": "Reviewed both complete files; transfer requirements recorded. No new implementation or performance claim."
+}
