@@ -936,6 +936,17 @@ impl CheckedCatalogue {
                     if hyp
                         .iter()
                         .any(|h| occurs(&h.from, name) || occurs(&h.to, name))
+                        || self.assumptions.iter().any(|a| {
+                            // Assumptions quantify only their own parameters.
+                            // A free accumulator in an assumption is fixed;
+                            // the IH must not silently quantify it afresh.
+                            !a.params.contains_key(name)
+                                && (occurs(&a.from, name)
+                                    || occurs(&a.to, name)
+                                    || a.conditions.iter().any(|e| {
+                                        occurs(&e.from, name) || occurs(&e.to, name)
+                                    }))
+                        })
                         || schemas.iter().any(|s| {
                             !s.params.contains_key(name)
                                 && (occurs(&s.equation.from, name) || occurs(&s.equation.to, name))
@@ -2635,6 +2646,39 @@ mod tests {
             0,
         )
         .unwrap();
+    }
+    #[test]
+    fn induction_does_not_quantify_free_assumption_parameters() {
+        let (p, mut c) = context();
+        let scalar = value(Type::U32);
+        let list = value(Type::List(Box::new(Type::U32)));
+        let seed = free(scalar.clone(), "seed");
+        let xs = free(list.clone(), "xs");
+        let env = BTreeMap::from([("xs".into(), list), ("seed".into(), scalar.clone())]);
+        let goal = Equation { from: xs.clone(), to: xs };
+        let proof = Proof::GeneralizedInduction {
+            variable: "xs".into(), generalize: vec!["seed".into()],
+            names: vec!["head".into(), "tail".into()],
+            base: Box::new(Proof::Normalize), step: Box::new(Proof::Normalize),
+        };
+        // Dependencies in an assumption's premise matter just as much as its
+        // conclusion; neither may become unconditionally true for another seed.
+        for premise in [false, true] {
+            c.assumptions = vec![Assumption {
+                name: "fixed_seed".into(), params: Env::new(),
+                conditions: if premise { vec![Equation {
+                    from: seed.clone(), to: word(Type::U32, 0),
+                }] } else { vec![] },
+                from: if premise { word(Type::U32, 0) } else { seed.clone() },
+                to: word(Type::U32, 0),
+            }];
+            assert!(c.prove(&p, &env, &[], &goal, &proof, &mut Budget::new(), 0)
+                .unwrap_err().contains("independent"));
+        }
+        // An assumption's own universal parameter is bound, not a fixed free
+        // parameter of the surrounding proof (including nested fresh binders).
+        c.assumptions[0].params.insert("seed".into(), scalar);
+        c.prove(&p, &env, &[], &goal, &proof, &mut Budget::new(), 0).unwrap();
     }
     #[test]
     fn wrapping_arithmetic_is_checked_for_each_word_width() {
