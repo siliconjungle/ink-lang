@@ -1,4 +1,0 @@
-// Untimed CPU/JS parity only; real GPU validation is parent-driven browser work.
-import{readFile,writeFile}from'node:fs/promises';import{fileURLToPath,pathToFileURL}from'node:url';import path from'node:path';
-const B=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..'),R=path.join(B,'reports/web-stack-engine-39-2026-10-11/adaptive'),original=globalThis.fetch;globalThis.fetch=async value=>{const u=new URL(value);if(u.protocol!=='file:')return original(value);const b=await readFile(u);return{ok:true,json:async()=>JSON.parse(b),arrayBuffer:async()=>b.buffer.slice(b.byteOffset,b.byteOffset+b.byteLength)}};
-const{runAdaptive}=await import('./adaptive39.mjs');const result=await runAdaptive(pathToFileURL(R+'/'),{phase:'validate',browser:false});await writeFile(path.join(R,'node-validation.json'),JSON.stringify(result,null,2)+'\n',{flag:'wx'});console.log(JSON.stringify({status:result.status,validations:result.validation.length,samples:result.samples.length}));

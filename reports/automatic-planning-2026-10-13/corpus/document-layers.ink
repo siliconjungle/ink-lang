@@ -1,1 +1,0 @@
-module reserved; record Layer {visible:Bool,selected:Bool,id:i32,} pub fn run(xs:List<Layer>,key:i32)->Bool{return foldl(xs.filter(fn(x)=>x.visible).map(fn(x)=>x.selected && x.id==key),false,fn(x)=>fn(a)=>a || x);}

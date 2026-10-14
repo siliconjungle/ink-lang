@@ -1,8 +1,0 @@
-Traceback (most recent call last):
-  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-knowledge-growth-2026-10-13/source/bench/knowledge-growth/audit.py", line 18, in <module>
-    st=Store(OUT/'growth/admission-store');record=next(r for r in read(OUT/'growth/admission.json')['instances']if r['name']=='left-any'and r['bindings']=={'A':'U32'});obj=copy.deepcopy(st.object(record['root']));payload=obj['payload'];payload['to']={'sort':{'Value':'Bool'},'node':{'Bool':False}};bad=semantic_entry(payload);ident=identity(bad)
-                                                                                                                                                                                                                                                                                                              ^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-knowledge-growth-2026-10-13/source/knowledge/ink_knowledge/store.py", line 63, in semantic_entry
-    return entry('rewrite', law['semantics'], payload, law['dependencies'], parameters=law['params'],
-                            ~~~^^^^^^^^^^^^^
-KeyError: 'semantics'

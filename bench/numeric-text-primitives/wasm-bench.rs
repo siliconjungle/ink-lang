@@ -1,6 +1,0 @@
-use compiled_state::State;
-use serde_json::{json,Value};
-thread_local!{static DATA:std::cell::RefCell<Option<(State,Vec<Value>)>>=const{std::cell::RefCell::new(None)};}
-fn digest(v:&Value)->u64{match v{Value::Number(x)=>x.as_u64().unwrap(),Value::Bool(x)=>u64::from(*x),Value::Array(xs)=>xs.iter().fold(0u64,|h,x|h.wrapping_mul(31)^digest(x)),Value::Object(xs)=>xs.values().fold(0u64,|h,x|h.wrapping_mul(31)^digest(x)),_=>0}}
-#[no_mangle]pub extern "C" fn bench_prepare(size:u32){let n=size as usize;let vals:Vec<f32>=(0..n).map(|i|((i%101)as f32-50.0)/16.0).collect();let pairs:Vec<_>=vals.iter().enumerate().map(|(i,x)|vec![*x,vals[(i*17+1)%n]]).collect();let words:Vec<u64>=(0..n).map(|i|(i as u64*1664525+1013904223)<<16).collect();DATA.with(|d|*d.borrow_mut()=Some((State::new(),vec![json!([pairs]),json!([words]),json!([words])])));}
-#[no_mangle]pub extern "C" fn bench_run(which:u32,iterations:u32)->u64{DATA.with(|d|{let mut d=d.borrow_mut();let(state,inputs)=d.as_mut().unwrap();let names=["float_ops","word_stats","from_wide"];let mut result=0u64;for _ in 0..iterations{result=result.wrapping_add(std::hint::black_box(digest(&state.call_json(names[which as usize],&inputs[which as usize]).unwrap())));}result})}

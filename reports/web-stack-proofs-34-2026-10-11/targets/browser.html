@@ -1,7 +1,0 @@
-<!doctype html><meta charset="utf-8"><title>Ink proof batch34</title>
-<h1>DB-only checked proof comparison</h1><button id="validate">Validate full outputs</button><button id="measure">Measure nine rounds</button><pre id="status">Ready</pre>
-<script type="module">
-import {run} from './runner.mjs';const status=document.querySelector('#status');
-async function start(validateOnly){for(const b of document.querySelectorAll('button'))b.disabled=true;try{const result=await run(new URL('./',location.href),{browser:true,validateOnly,progress:p=>status.textContent=p});const response=await fetch('/save/'+(validateOnly?'browser-validation.json':'browser-results.json'),{method:'POST',body:JSON.stringify(result)});if(!response.ok)throw Error('save rejected');status.textContent=`PASS ${result.validation.length} complete validations; ${result.samples.length} samples`;}catch(error){status.textContent=error.stack;await fetch('/failure',{method:'POST',body:JSON.stringify({status:'failed',message:String(error),stack:error.stack})})}finally{for(const b of document.querySelectorAll('button'))b.disabled=false}}
-document.querySelector('#validate').onclick=()=>start(true);document.querySelector('#measure').onclick=()=>start(false);
-</script>

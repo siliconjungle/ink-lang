@@ -1,1 +1,0 @@
-/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/ink-lang/lowerings/js/src/snapshot.mjs

@@ -1,9 +1,0 @@
-const mul=(a,b)=>Math.imul(a,b)>>>0,add=(a,b)=>(a+b)>>>0,sub=(a,b)=>(a-b)>>>0;
-export function createExpert(capacity){const scratch=Object.fromEntries([6, 7].map(i=>[i,new Uint32Array(capacity)]));const functions={"partition_recombine_u32":(xs,ys,seed,k)=>{let a=0;for(let i=0;i<xs.length;i++){const x=xs[i];a=add(a,mul(add(x,7),add(x,seed)));}return a;},
-"partition_contrast_u32":(xs,ys,seed,k)=>{let a=0,b=0;for(let i=0;i<xs.length;i++){const x=xs[i],value=mul(add(x,7),add(x,seed));if((x<seed))a=add(a,value);else b=add(b,value);}return sub(a,b);},
-"partition_weighted_u32":(xs,ys,seed,k)=>{let a=0,b=0;for(let i=0;i<xs.length;i++){const x=xs[i],value=mul(add(x,7),add(x,seed));if((x<seed))a=add(a,value);else b=add(b,value);}return add(mul(a,k),mul(b,3));},
-"partition_recombine_u32_heldout":(xs,ys,seed,k)=>{let a=0;for(let i=0;i<xs.length;i++){const x=xs[i];a=add(a,add(((x<k)?sub(k,x):sub(x,k)),seed));}return a;},
-"partition_contrast_u32_heldout":(xs,ys,seed,k)=>{let a=0,b=0;for(let i=0;i<xs.length;i++){const x=xs[i],value=add(((x<k)?sub(k,x):sub(x,k)),seed);if((x>seed))a=add(a,value);else b=add(b,value);}return sub(a,b);},
-"partition_weighted_u32_heldout":(xs,ys,seed,k)=>{let a=0,b=0;for(let i=0;i<xs.length;i++){const x=xs[i],value=add(((x<k)?sub(k,x):sub(x,k)),seed);if((x>seed))a=add(a,value);else b=add(b,value);}return add(mul(a,k),mul(b,3));},
-"paired_score_u32":(xs,ys,seed,k)=>{const out=scratch[6];for(let i=0;i<xs.length;i++){const x=xs[i],a=((x<seed)?x:k),b=((x<seed)?k:x);out[i]=((a<b)?add(a,mul(b,k)):sub(a,mul(b,k)));}return out.subarray(0,xs.length);},
-"paired_signal_heldout_u32":(xs,ys,seed,k)=>{const out=scratch[7];for(let i=0;i<xs.length;i++){const x=xs[i],a=((x>k)?x:seed),b=((x>k)?seed:x);out[i]=((a>b)?add(mul(a,b),seed):add(a,mul(b,k)));}return out.subarray(0,xs.length);}};return {call:(name,args)=>functions[name](...args)};}
