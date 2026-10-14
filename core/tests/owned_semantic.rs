@@ -97,6 +97,64 @@ fn check_call(module: &CheckedModule, name: &str, args: Vec<Value>) {
     }
 }
 #[test]
+fn symbolic_map_membership_observes_its_keys_and_preserves_captured_queries() {
+    let module=CheckedModule::from_source(parse(r#"module MapKeys;
+fn direct(m:Map<u32,Bool>,key:u32)->Bool{return m.contains(key);}
+fn observed(m:Map<u32,Bool>,key:u32)->Bool{return foldr(m.keys(),false,fn(item)=>fn(found)=>key==item||found);}
+fn built(xs:List<u32>,key:u32)->Bool{let m:Map<u32,Bool>=foldl(xs,Map.empty(),fn(item)=>fn(m)=>m.set(item,false));return m.contains(key);}
+"#).unwrap()).unwrap();
+    let p=module.program();
+    let bodies:Vec<_>=["direct","observed"].iter().map(|name|{
+        let f=p.functions.iter().find(|f|f.name==*name).unwrap();
+        s::elaborate(&f.body,&check::params_env(&f.params).unwrap(),p,&f.result).unwrap()
+    }).collect();
+    let env=BTreeMap::from([
+        ("m".into(),s::value(Type::Map(Box::new(Type::U32),Box::new(Type::Bool)))),
+        ("key".into(),s::value(Type::U32)),
+    ]);
+    let catalogue=CheckedCatalogue::check(&Catalogue{schema:1,semantics:ink_core::laws::SEMANTICS.into(),roots:vec![],objects:BTreeMap::new()},p).unwrap();
+    catalogue.prove(p,&env,&[],&Equation{from:bodies[0].clone(),to:bodies[1].clone()},&Proof::Normalize,&mut Budget::new(),0).unwrap();
+    let names=env.iter().map(|(n,t)|(n.clone(),t.clone())).collect::<Vec<_>>();
+    let wrap=|body:&Term|{
+        let closed=s::close_scope(body,&names,&mut Budget::new()).unwrap();
+        names.iter().rev().fold(closed,|body,(_,sort)|s::lambda(sort.clone(),body))
+    };
+    catalogue.prove(p,&BTreeMap::new(),&[],&Equation{from:wrap(&bodies[0]),to:wrap(&bodies[1])},&Proof::Normalize,&mut Budget::new(),0).unwrap();
+    assert!(catalogue.prove(p,&env,&[],&Equation{from:bodies[0].clone(),to:s::term(s::value(Type::Bool),Node::Bool(false))},&Proof::Normalize,&mut Budget::new(),0).is_err());
+    for xs in [vec![],vec![3],vec![3,7,3]] {
+        for key in [0,3,7,u32::MAX] {
+            check_call(&module,"built",vec![Value::List(xs.iter().map(|x|Value::U32(*x)).collect()),Value::U32(key)]);
+        }
+    }
+}
+#[test]
+fn symbolic_key_observations_cover_supported_scalar_domains() {
+    for (syntax_type,ty,samples) in [
+        ("Bool",Type::Bool,vec![Value::Bool(false),Value::Bool(true)]),
+        ("i32",Type::I32,vec![Value::I32(i32::MIN),Value::I32(0),Value::I32(i32::MAX)]),
+        ("u64",Type::U64,vec![Value::U64(0),Value::U64(1<<32),Value::U64(u64::MAX)]),
+    ] {
+        let source=format!(r#"module KeyDomain;
+fn direct(m:Map<{syntax_type},u32>,key:{syntax_type})->Bool{{return m.contains(key);}}
+fn observed(m:Map<{syntax_type},u32>,key:{syntax_type})->Bool{{return foldr(m.keys(),false,fn(item)=>fn(found)=>key==item||found);}}
+fn built(xs:List<{syntax_type}>,key:{syntax_type})->Bool{{let m:Map<{syntax_type},u32>=foldl(xs,Map.empty(),fn(item)=>fn(m)=>m.set(item,0));return m.contains(key);}}
+"#);
+        let module=CheckedModule::from_source(parse(&source).unwrap()).unwrap();let p=module.program();
+        let elaborate=|name:&str|{let f=p.functions.iter().find(|f|f.name==name).unwrap();s::elaborate(&f.body,&check::params_env(&f.params).unwrap(),p,&f.result).unwrap()};
+        let env=BTreeMap::from([("m".into(),s::value(Type::Map(Box::new(ty.clone()),Box::new(Type::U32)))),("key".into(),s::value(ty))]);
+        let catalogue=CheckedCatalogue::check(&Catalogue{schema:1,semantics:ink_core::laws::SEMANTICS.into(),roots:vec![],objects:BTreeMap::new()},p).unwrap();
+        catalogue.prove(p,&env,&[],&Equation{from:elaborate("direct"),to:elaborate("observed")},&Proof::Normalize,&mut Budget::new(),0).unwrap();
+        for n in 0..=samples.len(){
+            let mut rows=samples[..n].to_vec();rows.extend_from_within(..);
+            for key in &samples{check_call(&module,"built",vec![Value::List(rows.clone()),key.clone()]);}
+        }
+    }
+    for key in ["String","f32"] {
+        let source=format!("module Unsupported;fn direct(m:Map<{key},u32>,key:{key})->Bool{{return m.contains(key);}}");
+        assert!(CheckedModule::from_source(parse(&source).unwrap()).is_err());
+    }
+}
+#[test]
 fn buffer_edits_and_owned_iteration_match_reference() {
     let module=CheckedModule::from_source(parse(r#"module Owned;
 fn edit(xs:List<u32>,i:u32,j:u32,n:u32)->List<u32>{let b=buffer(xs);let b=b.set(i,37);let b=b.swap(i,j);let b=b.push(19);let b=b.pop();return b.truncate(n).freeze();}

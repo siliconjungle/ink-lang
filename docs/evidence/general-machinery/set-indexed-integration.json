@@ -45,8 +45,8 @@
       "status": "passed"
     },
     "set-indexed-final-contract-tests": {
-      "log_sha256": "3a64255862ed4ddfa404f916f70e01be733f094828476d99a2de6212fd174f64",
-      "passed": 0,
+      "log_sha256": "add0a81f4d57993f830df0449113594f1b638b8863be3e22b93f98fd3ea099ed",
+      "passed": 20,
       "status": "passed"
     }
   },
@@ -76,7 +76,11 @@
       "status": "completed",
       "conclusion": "success"
     },
-    "distribution": "not yet published",
+    "distribution": {
+      "run": "https://github.com/siliconjungle/ink-lang/actions/runs/38529737063",
+      "status": "in_progress",
+      "conclusion": null
+    },
     "knowledge_runtime": "no configured workflow runs returned"
   },
   "commands": [
@@ -87,5 +91,9 @@
     "PYTHONPATH=knowledge:planner build/general-machinery/python/bin/python -m producers.set_contracts tests/fixtures/indexed-sets/main.ink build/general-machinery/set-final-proof-reuse --compiler target/debug/ink --source-evidence tests/fixtures/indexed-sets/proofs.json",
     "node bench/checked-sets/run.mjs build/general-machinery/set-final-literal.mjs build/general-machinery/set-final-indexed.mjs indexed-u32",
     "node bench/checked-sets/handles.mjs build/general-machinery/set-final-indexed.mjs"
-  ]
+  ],
+  "publication": {
+    "distribution": "2f07afe1cb73ef78e5912baea7f8a0f4786a8dca",
+    "verified_main_at_publication": true
+  }
 }
