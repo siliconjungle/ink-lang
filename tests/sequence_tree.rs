@@ -180,41 +180,20 @@ let indexed=f_{encode}(&rows);assert_eq!(f_{measure}(&indexed),100_000);let deco
     let gpu=ink_lowering_gpu::lower_definition(&checked).unwrap();
     let wasm=ink_lowering_wasm::lower_definition(&checked).unwrap();
     assert_eq!(gpu.source,wasm.source);
-}
-
-fn c_driver(names: &BTreeMap<String, String>, types: &[String]) -> String {
-    let tree = types.iter().position(|x| x == &names["datatype"]).unwrap();
-    let table = types.iter().position(|x| x == &names["table"]).unwrap();
-    format!(
-        r#"
-static uint64_t seed=718431;static uint64_t random_word(void){{seed^=seed<<13;seed^=seed>>7;seed^=seed<<17;return seed;}}
-struct Row{{uint64_t key,value;}};
-static V* rows(struct Row*xs,int n){{V*t=construct({table},0,0,0);while(n--){{V*args[]={{scalar(1,xs[n].key),scalar(1,xs[n].value),t}};t=construct({table},1,3,args);}}return t;}}
-static int equals(V*a,V*b){{if(a->kind!=b->kind||a->word!=b->word||a->type!=b->type||a->tag!=b->tag||a->count!=b->count)return 0;for(int i=0;i<a->count;i++)if(!equals(a->fields[i],b->fields[i]))return 0;return 1;}}
-int run_checks(void){{
-for(int ordered=0;ordered<2;ordered++){{struct Row xs[256];int n=24;for(int j=0;j<n;j++)xs[j]=(struct Row){{random_word()%16,random_word()}};
-if(ordered)for(int j=1;j<n;j++){{struct Row v=xs[j];int k=j;while(k&&xs[k-1].key>v.key){{xs[k]=xs[k-1];k--;}}xs[k]=v;}}
-for(int i=0;i<180;i++){{ink_def_reset();V*original=rows(xs,n);V*tree=f_{encode}(original);uint64_t key=i%19?random_word()%20:UINT64_MAX,value=random_word();V*k=scalar(1,key),*v=scalar(1,value);
-V*found=f_{get}(tree,k);int position=-1;for(int j=0;j<n;j++)if(xs[j].key==key){{position=j;break;}}
-if(found->tag!=(position>=0)|| (position>=0&&found->fields[0]->word!=xs[position].value))return 1;
-V*next;if(i%3==0){{next=f_{insert}(tree,k,v);int p=0;while(p<n&&!(key<xs[p].key))p++;for(int j=n;j>p;j--)xs[j]=xs[j-1];xs[p]=(struct Row){{key,value}};n++;}}
-else if(i%3==1){{next=f_{replace}(tree,k,v);for(int j=0;j<n;j++)if(xs[j].key==key)xs[j].value=value;}}
-else{{next=f_{remove}(tree,k);int p=0;for(int j=0;j<n;j++)if(xs[j].key!=key)xs[p++]=xs[j];n=p;}}
-if(error||!equals(f_{decode}(tree),original)||!equals(f_{decode}(next),rows(xs,n))||f_{measure}(next)->word!=(uint64_t)n||!equals(f_{decorate}(next),next)||error)return 2;
-if(!validate(next,{tree}))return 3;
-}}}}return 0;
-}}
-#ifndef __wasm__
-int main(void){{return run_checks();}}
-#endif
-"#,
-        encode = names["encode"],
-        get = names["get"],
-        insert = names["insert"],
-        replace = names["replace"],
-        remove = names["remove"],
-        decode = names["decode"],
-        measure = names["measure"],
-        decorate = names["decorate"]
-    )
+    let mut js = literal_js::lower(&checked, &Default::default()).unwrap();
+    js.push_str(&format!(r#"
+import assert from 'node:assert/strict';
+const rows=xs=>xs.reduceRight((t,[k,v])=>__node(1,[k,v,t]),__node(0,[]));
+let seed=718431n;const random=()=>{{seed=BigInt.asUintN(64,seed^(seed<<13n));seed^=seed>>7n;seed=BigInt.asUintN(64,seed^(seed<<17n));return seed;}};
+for(const ordered of [false,true]){{let xs=Array.from({{length:24}},()=>[random()%16n,random()]);if(ordered)xs.sort((a,b)=>a[0]<b[0]?-1:a[0]>b[0]?1:0);
+let tree=f_{encode}(rows(xs));for(let i=0;i<180;i++){{const old=tree,key=i%19===0?18446744073709551615n:random()%20n,value=random(),found=xs.find(x=>x[0]===key);
+assert.deepEqual(f_{get}(tree,key),found?__node(1,[found[1]]):__node(0,[]));const before=rows(xs);
+if(i%3===0){{tree=f_{insert}(tree,key,value);let p=xs.findIndex(x=>key<x[0]);if(p<0)p=xs.length;xs.splice(p,0,[key,value]);}}
+else if(i%3===1){{tree=f_{replace}(tree,key,value);xs=xs.map(x=>x[0]===key?[key,value]:x);}}
+else{{tree=f_{remove}(tree,key);xs=xs.filter(x=>x[0]!==key);}}
+assert.deepEqual(f_{decode}(old),before);assert.deepEqual(f_{decode}(tree),rows(xs));assert.equal(f_{measure}(tree),BigInt(xs.length));assert.deepEqual(f_{decorate}(tree),tree);
+}}}} console.log('360 literal JS sequence-tree histories passed');
+"#,encode=names["encode"],decode=names["decode"],get=names["get"],insert=names["insert"],replace=names["replace"],remove=names["remove"],measure=names["measure"],decorate=names["decorate"]));
+    fs::write(work.join("check.mjs"), js).unwrap();
+    command(Command::new("node").arg(work.join("check.mjs")));
 }

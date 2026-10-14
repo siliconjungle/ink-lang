@@ -430,7 +430,7 @@ fn the_same_proof_calculus_checks_alternative_routed_compositions() {
         stages: vec![Stage {
             id: "fast".into(),
             function: "faster".into(),
-            backend: "c".into(),
+            backend: "rust".into(),
             domain: "cpu".into(),
             arguments: vec![ValueRef::Input(0)],
         }],
