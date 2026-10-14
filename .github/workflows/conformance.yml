@@ -283,6 +283,7 @@ jobs:
         cargo test --test indexed_dedup --test independent_batches
         PYTHONPATH=planner:knowledge python3 -m unittest discover -s planner/tests -p test_recipe_streams.py
         PYTHONPATH=planner:knowledge python3 -m unittest discover -s planner/tests -p test_cost_profiles.py
+        PYTHONPATH=planner:knowledge python3 -m unittest discover -s planner/tests -p test_engine_profiles.py
         PYTHONPATH=planner:knowledge python3 -m unittest discover -s planner/tests -p test_measured_selection.py
         PYTHONPATH=planner:knowledge python3 -m unittest discover -s knowledge/tests -p test_selection_probes.py
         PYTHONPATH=planner:knowledge python3 planner/tests/automatic_measurement_integration.py target/debug/ink javascript
@@ -992,6 +993,7 @@ jobs:
         name: wgpu-native-conformance
         path: |
           build/browser-lowering-parity.json
+          build/engine-lifetime-conformance/checks.json
           build/database-plan-browser.json
           build/database-plan-conformance/checks.json
           build/database-plan-conformance/routed-plan.json
@@ -1126,6 +1128,8 @@ jobs:
         INK_TEST_WGPU=1 cargo test --test database_planning recursive_database_plan_preserves_every_observation_and_original_checkpoints -- --exact --nocapture
         python bench/gpu/prepare-database-plan-browser.py
         node bench/gpu/database-plan-browser.mjs "$(command -v google-chrome)"
+        target/debug/ink build bench/gpu/resident-profile.ink --target webgpu -o build/engine-lifetime-conformance
+        INK_CHROME="$(command -v google-chrome)" INK_ALLOW_SOFTWARE_GPU=1 node bench/gpu/engine-profile-browser.mjs smoke build/engine-lifetime-conformance/checks.json build/engine-lifetime-conformance bench/gpu/engine-profile-smoke.json
     - name: Retain GPU failure reproductions
       if: always()
       uses: actions/upload-artifact@v4
@@ -1133,6 +1137,7 @@ jobs:
         name: wgpu-browser-conformance
         path: |
           build/browser-lowering-parity.json
+          build/engine-lifetime-conformance/checks.json
           build/database-plan-browser.json
           build/database-plan-conformance/checks.json
           build/database-plan-conformance/routed-plan.json
