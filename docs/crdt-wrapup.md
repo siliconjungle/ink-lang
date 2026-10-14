@@ -7,7 +7,8 @@ universal CRDT convergence theorem or full FugueMax bridge is claimed.
 ## Retained work
 
 General ownership analysis, scoped loans, callback/field observations, exact
-word-width conversions, typed snapshot support and checked proof authoring
+word-width conversions, typed snapshot support (including reconstruction of derived maintained views)
+and checked proof authoring
 remain independent of CRDT names and algorithms. Planning reuses bounded
 immutable analysis and reports unfinished discovery. Source/layout proposals
 still need ordinary kernel checks and comparable measurements.

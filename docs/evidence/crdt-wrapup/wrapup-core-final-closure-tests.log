@@ -1,0 +1,745 @@
+   Compiling ink-core v0.1.0 (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/crdt/wrapup-main/core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 26.75s
+     Running unittests src/lib.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/ink_core-8fc09d43f0b6c969)
+
+running 87 tests
+test action_types::tests::contextual_types_solve_before_defaults_and_shared_holes_agree ... ok
+test action_types::tests::recursive_types_and_resource_exhaustion_fail_closed ... ok
+test action_semantic::tests::copying_branch_facts_consumes_work_per_copied_node ... ok
+test access::tests::exhausted_work_cannot_return_a_partial_access_description ... ok
+test action_values::tests::all_value_work_and_ignored_term_fields_are_bounded ... ok
+test action_semantic::tests::exhausted_projection_never_returns_partial_authority ... ok
+test action_semantic::tests::exact_integer_projection_preserves_the_complete_source ... ok
+test analysis::tests::captures_under_try_record_and_method_are_seen ... ok
+test analysis::tests::shadowing_applies_to_body_but_not_initializer ... ok
+test action_values::tests::canonical_membership_rejects_width_nominal_padding_and_tree_corruption ... ok
+test bitproof::tests::gates_conditionals_and_all_boolean_inputs_agree ... ok
+test bitproof::tests::auditing_only_records_accepted_proofs_and_restores_after_panics ... ok
+test analysis::tests::contextual_walk_retains_variant_callback_and_constructor_types ... ok
+test bitproof::tests::learned_clauses_are_checked_and_corrupt_hints_fail_closed ... ok
+test bitproof::tests::legacy_certificate_encoding_is_implicit_and_mode_substitution_is_rejected ... ok
+test action_values::tests::flat_images_reject_aliasing_forward_unused_and_noncanonical_order ... ok
+test bitproof::tests::shared_gates_preserve_every_boolean_assignment_and_share_commuted_inputs ... ok
+test bounds::callback_image_tests::opaque_callback_images_do_not_merge_distinct_captures ... ok
+test bitproof::tests::type_operator_and_depth_errors_are_not_encoded_as_assumptions ... ok
+test collection_facts::tests::aliases_require_literal_lexical_bindings ... ok
+test bounds::callback_image_tests::buffer_element_context_reaches_nested_unsigned_folds ... ok
+test bounds::callback_image_tests::opaque_fold_images_preserve_record_local_bindings ... ok
+test contracts::callbacks::tests::float_alias_guards_use_exact_bits_and_cannot_hide_nan_failures ... ok
+test contracts::calls::tests::closed_state_reads_inside_callbacks_keep_the_consumer_entry_site ... ok
+test core::control_domain_tests::domain_marks_general_pure_control_without_relabelling_unchanged_actions ... ok
+test bitproof::tests::resource_budgets_are_shared_and_literals_are_bounded ... ok
+test effects::tests::exhausted_effect_work_budget_cannot_create_a_partial_judgment ... ok
+test in_place::tests::accumulating_loops_append_in_place ... ok
+test last_use::tests::ancestor_descendant_and_repeated_fields_overlap ... ok
+test in_place::tests::shared_storage_is_copied ... ok
+test last_use::tests::captured_field_stays_shared_and_shadowed_field_can_move ... ok
+test last_use::tests::conditional_whole_read_blocks_prior_field_and_later_sibling_is_independent ... ok
+test last_use::tests::condition_use_and_later_eager_use_are_not_final ... ok
+test last_use::tests::eager_arguments_and_shadowing ... ok
+test last_use::tests::independent_final_fields_and_later_whole_record_reads ... ok
+test last_use::tests::initial_reads_and_nested_capture_sites_stay_shared ... ok
+test last_use::tests::mutually_exclusive_arms_can_each_have_a_final_use_and_depth_fails_closed ... ok
+test last_use::tests::nested_arms_merge_without_losing_lexical_shadowing ... ok
+test last_use::tests::repeated_callback_captures_never_move ... ok
+test last_use::tests::synchronous_callback_captures_end_before_later_field_and_whole_moves ... ok
+test last_use::tests::unknown_closure_lifetime_is_not_released_by_a_later_loop ... ok
+test last_use::tests::variant_branch_field_facts_respect_siblings_and_repeated_inner_callbacks ... ok
+test last_use::tests::variant_branches_can_move_final_captures_but_later_uses_keep_them_shared ... ok
+test laws::tests::beta_reduction_preserves_free_variables_beneath_binders ... ok
+test laws::tests::false_equalities_and_unknown_primitives_reject ... ok
+test laws::tests::floats_do_not_enter_the_word_polynomial_checker ... ok
+test laws::tests::order_analysis_derives_transitivity_from_hypotheses ... ok
+test action_values::tests::full_width_values_have_compact_canonical_kernel_inhabitants ... ok
+test contracts::calls::tests::callback_consumers_keep_state_observations_out_of_lexical_parameters ... ok
+test laws::tests::order_analysis_rejects_false_order_claims ... ok
+test laws::tests::order_analysis_respects_literal_atoms_and_signedness ... ok
+test laws::tests::quantified_induction_respects_free_variables_of_inherited_schemas ... ok
+test laws::tests::order_analysis_is_bounded_and_typed ... ok
+test logic::alpha_tests::bounded_memo_reuses_exact_computation_without_changing_normal_forms ... ok
+test logic::alpha_tests::free_internal_names_and_nested_shadowing_survive_canonicalisation ... ok
+test laws::tests::wrapping_arithmetic_is_checked_for_each_word_width ... ok
+test logic::alpha_tests::normal_cache_is_context_local_and_preserves_work_and_depth_bounds ... ok
+test logic::alpha_tests::prepared_memo_never_skips_environment_type_checks ... ok
+test logic::alpha_tests::staged_imports_preserve_exact_visibility_and_are_transactional ... ok
+test logic::normal_cache_tests::reductions_share_work_only_in_the_same_context_and_depth ... ok
+test physical::composition_tests::independent_sites_compose_but_cannot_bypass_capability_checks ... ok
+test registry::tests::borrowed_admission_replays_proofs_and_authentication ... ok
+test logic::normal_cache_tests::retained_call_syntax_is_bounded ... ok
+test registry::tests::canonical_identity_matches_shared_json_contract ... ok
+test contracts::calls::tests::action_domains_remove_callback_parameters_before_transition_projection ... ok
+test registry::tests::exact_closure_and_unknown_domains_are_rejected ... ok
+test registry::tests::immutable_membership_and_snapshot_pins_are_checked ... ok
+test registry::tests::mathematical_domains_share_entry_and_evidence_admission ... ok
+test registry::tests::rehashing_false_proofs_or_false_interfaces_does_not_grant_authority ... ok
+test semantic_word::tests::nested_bitwise_expansion_charges_generated_copies_before_allocation ... ok
+test semantic_word::tests::reconstructed_words_agree_with_independent_native_bitwise_operations ... ok
+test snapshot_wire::recursive_schema_tests::recursive_schema_preserves_wire_bytes_and_rejects_truncation ... ok
+test snapshot_wire::recursive_schema_tests::schema_references_cannot_escape_or_loop_without_consuming_budget ... ok
+test registry::tests::borrowed_bundle_encoding_preserves_bytes_hashes_and_rejection_bounds ... ok
+test logic::alpha_tests::dependency_imports_cannot_overshoot_the_view_capacity ... ok
+test source_syntax::tests::full_module_and_typed_actions_roundtrip_through_unchanged_kernel ... ok
+test stateful::actions::tests::isolated_core_executes_resolved_callback_scopes_without_knowledge_or_lowerings ... ok
+test stateful::actions::tests::table_resources_are_rejected_as_values_by_the_independent_core ... ok
+test transaction::tests::domain_errors_precede_exhaustion_and_success_never_wraps ... ok
+test transaction::tests::nested_result_and_ordered_publication_move_payloads ... ok
+test source_syntax::tests::bounded_invalid_values_fail_without_relaxing_kernel_limits ... ok
+test bitproof::tests::accepted_short_refutations_have_no_two_variable_model ... ok
+test source_syntax::tests::lossless_unicode_words_order_and_balancing_boundaries ... ok
+test laws::tests::order_analysis_proves_that_maxima_and_minima_swap ... ok
+test action_values::tests::nominal_order_recursive_records_results_and_wide_lists_preserve_values ... ok
+test bitproof::tests::full_width_wrapping_arithmetic_and_unsigned_order_agree_with_rust ... ok
+test registry::tests::enlarged_package_allowance_keeps_entry_and_root_limits_fail_closed ... ok
+
+test result: ok. 87 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.02s
+
+     Running tests/abstract_interfaces.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/abstract_interfaces-2630290a97d607b0)
+
+running 4 tests
+test nonrecord_abstract_declarations_fail_explicitly ... ok
+test defining_module_can_construct_and_observe_without_runtime_provenance ... ok
+test callbacks_cannot_launder_representation_access_through_library_code ... ok
+test generic_interfaces_carry_validity_but_hide_their_representation ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/access.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/access-29d5356634cd4eff)
+
+running 6 tests
+test early_returns_and_literal_lazy_branches_do_not_invent_accesses ... ok
+test helper_arithmetic_retains_its_word_width ... ok
+test boolean_helper_guards_are_typed_and_unsupported_enum_symbols_widen ... ok
+test aliases_helpers_fields_and_branch_guards_keep_parameter_identity ... ok
+test state_derived_keys_scans_callbacks_and_keeps_are_conservative ... ok
+test artifacts_reject_forged_keys_guards_source_and_missing_accesses ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/action_callback_contracts.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/action_callback_contracts-03aa2f3f419d9bf2)
+
+running 4 tests
+test unsafe_calls_in_action_callbacks_do_not_become_nominal_or_state_assumptions ... ok
+test guarded_calls_and_eager_fallback_calls_keep_their_execution_scope ... ok
+test callback_requirements_bind_actual_action_parameters_and_state_observations ... ok
+test checked_action_callbacks_preserve_commit_abort_events_and_raw_ingress ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.43s
+
+     Running tests/action_observations.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/action_observations-b0625b367e5225f2)
+
+running 8 tests
+test malformed_and_unvisited_callback_sites_fail_closed ... ok
+test query_errors_are_observed_values_and_change_errors_exit_before_observation ... ok
+test expression_entry_checks_are_visited_inside_total_parent_expressions ... ok
+test observation_proofs_use_the_existing_kernel_and_leave_transition_meanings_unchanged ... ok
+test binds_local_slots_at_the_site_and_visits_total_expression_children ... ok
+test preconditions_observe_ordered_arguments_before_the_callee_can_repair_state ... ok
+test exits_before_a_site_do_not_observe_its_unexecuted_call ... ok
+test observes_repaired_state_and_preserves_failure_across_later_abort ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.50s
+
+     Running tests/action_shape.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/action_shape-7c93de38454da68d)
+
+running 2 tests
+test cell_bounds_follow_branches_nested_actions_and_reject_unbounded_bulk_writes ... ok
+test fresh_results_require_native_scalars_and_detached_flat_containers ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/action_transitions.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/action_transitions-48859f6d72a52734)
+
+running 10 tests
+test nested_action_expansion_has_a_call_budget_independent_of_source_typing ... ok
+test pure_left_folds_project_current_accumulators_and_owned_record_carriers ... ok
+test nested_unknown_results_are_sticky_and_domain_errors_precede_exhaustion ... ok
+test fixed_whole_action_model_checks_and_runs_without_catalogue_or_backend ... ok
+test long_source_constructor_labels_are_bounded_without_colliding_with_source_names ... ok
+test source_parameter_names_cannot_capture_transaction_model_binders ... ok
+test source_transition_roots_cannot_ignore_ordered_event_changes ... ok
+test total_helper_projection_is_bound_and_bounded_without_external_tools ... ok
+test generated_payload_constructor_labels_fit_the_logic_language ... ok
+test expanded_domains_preserve_bounded_continuation_work ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.11s
+
+     Running tests/alias_facts.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/alias_facts-4ce048765a666814)
+
+running 2 tests
+test established_structural_relations_transport_exact_identity_but_ieee_equality_does_not ... ok
+test facts_follow_typed_alias_chains_and_cyclic_facts_do_not_prove_arbitrary_values ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/bag_laws.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/bag_laws-0dd34c24b9f9a517)
+
+running 2 tests
+test named_extensionality_rejects_capture_false_bodies_and_nonfunctions ... ok
+test insertion_sort_preserves_every_word_multiplicity_and_observer ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s
+
+     Running tests/bend_features.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/bend_features-2f9b8e62c83bf851)
+
+running 3 tests
+test reject_races_aliases_wrapping_and_false_descent ... ok
+test ordered_work_and_partitioned_owners ... ok
+test decreasing_recursion_is_checked ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/boundary_readers.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/boundary_readers-0691daf8a8ba32ae)
+
+running 2 tests
+test reader_choices_bind_complete_first_order_interfaces_and_target_support ... ok
+test boundary_readers_and_state_protocols_compose_in_either_order ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/buffer_append_meaning.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/buffer_append_meaning-29179217b1a23172)
+
+running 2 tests
+test dropping_reversing_or_mismatching_append_inputs_is_rejected ... ok
+test append_is_ordered_concatenation_of_both_logical_owners ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/bulk_buffers.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/bulk_buffers-6ca4fb5257fff72d)
+
+running 4 tests
+test bulk_work_cannot_bypass_reference_budget ... ok
+test replay_rejects_old_version_wrong_argument_types_and_reused_owners ... ok
+test clipped_ranges_match_snapshot_oracle_including_overlaps_and_overflow ... ok
+test executable_range_values_agree_with_kernel_definitions ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.19s
+
+     Running tests/call_preconditions.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/call_preconditions-a66d6195dce0b006)
+
+running 5 tests
+test a_bound_name_cannot_capture_a_generated_invocation_parameter ... ok
+test generated_invocation_parameters_do_not_shadow_existing_global_state ... ok
+test the_callees_own_repair_cannot_establish_its_entry_requirement ... ok
+test calls_can_use_an_explicit_repair_at_the_actual_point_of_invocation ... ok
+test canonical_before_call_evidence_executes_ordered_argument_effects_once ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.04s
+
+     Running tests/callback_contracts.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/callback_contracts-066b19e93ccaef54)
+
+running 8 tests
+test empty_callback_domains_do_not_require_an_arbitrary_element_to_be_valid ... ok
+test raw_validation_does_not_assume_its_own_result_or_a_nominal_element_invariant ... ok
+test stopping_fold_still_checks_the_step_of_the_stopping_element ... ok
+test variant_callbacks_have_only_the_selected_branch_domain ... ok
+test indexed_and_zip_callbacks_check_only_their_real_indices_and_pairs ... ok
+test list_callbacks_receive_validated_elements_without_arbitrary_element_premises ... ok
+test folds_check_actual_accumulators_in_both_directions ... ok
+test bounded_loops_check_each_reachable_accumulator ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/canonical_float.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/canonical_float-b71dcff4697f235b)
+
+running 1 test
+test arithmetic_is_canonical_but_transport_and_negation_preserve_payloads ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/catalogue_resources.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/catalogue_resources-a6455f0ac5f36375)
+
+running 2 tests
+test a_single_proof_cannot_borrow_another_entries_work_allowance ... ok
+test independently_bounded_proof_entries_compose_in_one_catalogue ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 11.27s
+
+     Running tests/checked_execution.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/checked_execution-9baa6b91e3f1449a)
+
+running 1 test
+test sealed_execution_reuses_admission_but_validates_each_untrusted_input ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/conditional_induction.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/conditional_induction-a3e9ead077822b00)
+
+running 1 test
+test boolean_validity_projections_are_independently_checked ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/constructor_cases.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/constructor_cases-d0655872bfe779d0)
+
+running 6 tests
+test induction_reduces_discarded_arguments_but_rejects_dependent_premises ... ok
+test variable_cases_compare_checked_definitional_equations_after_substitution ... ok
+test conversion_computes_stuck_branch_bodies_without_assuming_equal_results ... ok
+test exhaustive_constructor_elimination_preserves_conditional_premises ... ok
+test constructor_cases_cannot_supply_induction_or_unchecked_equalities ... ok
+test projection_checks_types_but_does_not_expand_discarded_fields ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.26s
+
+     Running tests/consumer_entry_contracts.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/consumer_entry_contracts-fc028ee725d24704)
+
+running 4 tests
+test readonly_receiver_observations_retain_their_lexical_inputs ... ok
+test a_later_repair_cannot_validate_a_callback_executed_in_invalid_state ... ok
+test empty_callback_domains_do_not_require_a_state_fact_for_an_unexecuted_call ... ok
+test authored_consumer_entry_proofs_preserve_current_state_events_and_rollback ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.32s
+
+     Running tests/contract_facts.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/contract_facts-d8d2908de3ec9a28)
+
+running 8 tests
+test arbitrary_callbacks_do_not_inherit_a_let_argument_fact ... ok
+test an_unreachable_false_precondition_cannot_launder_a_postcondition ... ok
+test ieee_preconditions_do_not_authorise_a_float_bit_replacement ... ok
+test conjunctions_and_branch_facts_remain_scoped_and_source_bound ... ok
+test function_preconditions_authorise_conditional_database_rewrites ... ok
+test checked_postconditions_remove_a_composed_observation ... ok
+test postconditions_travel_through_lexical_bindings_into_callee_preconditions ... ok
+test action_bindings_that_shadow_the_initializer_do_not_create_false_aliases ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/contract_proof_context.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/contract_proof_context-26aab94ec7281406)
+
+running 2 tests
+test authoring_context_keeps_the_original_source_after_the_callers_copy_changes ... ok
+test authoring_context_reuses_exact_obligations_without_admitting_false_contracts ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/contracts.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/contracts-73e395ae5dadccf2)
+
+running 24 tests
+test default_body_cannot_bypass_contract ... ok
+test callers_must_establish_preconditions ... ok
+test false_and_missing_implementations_reject ... ok
+test call_obligations_ignore_unrelated_values_but_still_check_guarded_calls ... ok
+test callback_contract_instances ... ok
+test generic_contract_instances ... ok
+test keep_initializers_cannot_bypass_callee_preconditions ... ok
+test metadata_and_ingress_guards_are_authenticated ... ok
+test private_value_state_uses_transactions ... ok
+test action_callback_guards_establish_preconditions_in_their_own_scope ... ok
+test action_callers_establish_preconditions ... ok
+test refinement_allows_different_permitted_values_but_rechecks_callers ... ok
+test public_preconditions_and_total_change_runtime ... ok
+test invariant_initialisation_is_checked ... ok
+test scalar_float_equality_is_not_structural_reflexivity ... ok
+test specifications_check_each_implementation_and_round_trip ... ok
+test uniqueness_sugar_does_not_override_user_functions ... ok
+test relational_query_captures_before ... ok
+test state_postcondition_rejects_wrong_reply ... ok
+test action_callback_shadowing_cannot_reuse_outer_preconditions ... ok
+test total_change_and_before ... ok
+test finite_multisets_and_uniqueness ... ok
+test entry_state_facts_do_not_validate_a_call_after_an_invalidating_write ... ok
+test list_state_invariants_reject_duplicate_initial_ids ... ok
+
+test result: ok. 24 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s
+
+     Running tests/curried_reification.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/curried_reification-82d0b8452393daa6)
+
+running 1 test
+test curried_known_callbacks_bind_arguments_once_and_preserve_capture ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/definition_context.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/definition_context-18bfa02452115c42)
+
+running 8 tests
+test exact_int_literal_contexts_replay_without_inserting_conversions ... ok
+test proof_produced_empty_receivers_keep_their_type_without_changing_checked_contexts ... ok
+test empty_option_contexts_preserve_explicit_bindings_and_constructor_trees ... ok
+test rehashed_false_contexts_and_unbound_dependencies_have_no_authority ... ok
+test lexical_capture_context_identity_and_context_free_bytes_are_explicit ... ok
+test recursive_components_bind_complete_bodies_without_circular_hashes ... ok
+test portable_admission_requires_exact_original_definitions_at_application ... ok
+test generic_laws_apply_inside_helpers_and_contextual_composed_callers ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.39s
+
+     Running tests/demand_normal.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/demand_normal-a9e42ced66fbf77c)
+
+running 1 test
+test observing_a_field_does_not_unfold_unobserved_work_or_drop_required_values ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/empty_reification.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/empty_reification-ea124b037552fa72)
+
+running 1 test
+test empty_optional_carriers_keep_their_types_and_do_not_capture_free_names ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/enum_semantic.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/enum_semantic-91bfbae8f00c44cb)
+
+running 1 test
+test enum_literals_have_exact_source_bound_semantics_and_roundtrip ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/exact_float.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/exact_float-f650173a4c9cc188)
+
+running 2 tests
+test exact_float_contract_is_source_bound_and_preserves_transport_bits ... ok
+test fixed_definition_float_words_match_source_execution ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/flat_term.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/flat_term-702c674e3b190d7b)
+
+running 4 tests
+test topology_schema_and_expansion_bounds_reject_malformed_flat_terms ... ok
+test iterative_validation_keeps_binders_sorts_and_depth_limits ... ok
+test flat_transport_roundtrips_all_node_shapes_and_preserves_legacy_definition_bytes ... ok
+test deep_context_is_shallow_transport_but_still_binds_exact_source ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/generalized_semantic_induction.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/generalized_semantic_induction-1d4b4ede23ef28ac)
+
+running 5 tests
+test tree_rebuilding_preserves_capture_checks_scope_roundtrips_and_budgets ... ok
+test natural_generalization_uses_only_the_immediate_predecessor ... ok
+test schema_cannot_escape_its_step_or_prove_the_current_constructor ... ok
+test indexed_edit_identities_need_and_admit_generalized_induction ... ok
+test typed_instantiation_and_quantifier_premise_checks_reject_forgery ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/higher_order_facts.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/higher_order_facts-eab30d6141790057)
+
+running 3 tests
+test nested_eta_preserves_outer_captures_and_curried_arguments ... ok
+test callback_capture_or_changed_argument_cannot_grant_eta_equality ... ok
+test checked_filter_facts_transport_through_eta_wrapped_callbacks ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/input_demand.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/input_demand-16c9f632b2e9d1ef)
+
+running 4 tests
+test helper_calls_track_provenance_with_separate_scopes_and_early_stop ... ok
+test demanded_fields_follow_bindings_callbacks_and_whole_observations ... ok
+test escaping_records_accumulators_nested_values_and_unknown_operations_stay_complete ... ok
+test cycles_and_expansion_budget_fail_closed ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
+
+     Running tests/language_foundations.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/language_foundations-45c7982859595cbc)
+
+running 22 tests
+test action_conditionals_do_not_execute_unselected_changes ... ok
+test aliases_preserve_payload_constructors_and_patterns ... ok
+test computed_record_update_base_and_overrides_preserve_failure_order ... ok
+test exact_integer_correspondence_uses_a_bounded_ring_without_wrapping ... ok
+test expanded_values_bind_their_semantics_and_lazy_effect_paths ... ok
+test inferred_counts_are_exact_and_recursion_measures_cannot_be_shadowed_or_wrap ... ok
+test mutable_action_branches_rejoin_values_and_discard_caller_continuations_on_return ... ok
+test bounded_generics_and_aliases_elaborate_to_ordinary_core ... ok
+test pure_result_propagation_and_action_bindings_keep_effect_and_version_boundaries ... ok
+test pure_helpers_share_exact_values_and_checked_results ... ok
+test payload_enums_and_exhaustive_matching_elaborate_into_nominal_records_and_sums ... ok
+test returning_action_branches_preserve_legacy_fallback_without_executing_it ... ok
+test shadowing_cannot_reuse_table_presence_facts ... ok
+test surface_conditionals_preserve_scope_laziness_and_owned_branches ... ok
+test pure_callbacks_specialise_with_immutable_captures_and_checked_signatures ... ok
+test word_operations_are_total_and_reject_non_words ... ok
+test fixed_shapes_and_bounded_constant_generics_are_checked_before_execution ... ok
+test record_updates_preserve_generic_fields_hygiene_and_affine_moves ... ok
+test generic_helper_call_graphs_do_not_consume_expression_depth ... ok
+test contracts_validate_explicit_results_and_roll_back_postcondition_failure ... ok
+test reference_binding_sequences_use_bounded_stack_and_preserve_shadowing ... ok
+test local_mutation_and_finite_iteration_preserve_scope_and_order ... ok
+
+test result: ok. 22 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.24s
+
+     Running tests/law_author.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/law_author-9d29cefbb20307b9)
+
+running 2 tests
+test external_authoring_replays_independently_and_source_never_grants_authority ... ok
+test supplied_proofs_keep_conditions_and_exact_definition_context ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/list_slice_semantic.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/list_slice_semantic-b1910d8947c728a7)
+
+running 2 tests
+test slice_correspondence_roundtrips_and_rejects_wrong_count_types ... ok
+test slice_induction_proofs_reject_wrong_counts_and_unquantified_hypotheses ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/local_collection_proofs.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/local_collection_proofs-c0a8986bbeb624ea)
+
+running 4 tests
+test buffer_observations_preserve_float_bits_and_lazy_fallback ... ok
+test malformed_owned_semantic_terms_fail_closed ... ok
+test stopping_operational_meaning_matches_reference_indices_and_timing ... ok
+test larger_in_memory_catalogues_use_bounded_authenticated_leaves ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.10s
+
+     Running tests/local_collections.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/local_collections-32a2cc675eeada4a)
+
+running 6 tests
+test external_calls_cannot_export_owned_handles ... ok
+test buffers_move_through_helpers_without_changing_inputs ... ok
+test lazy_reads_and_branch_local_moves_preserve_ownership ... ok
+test stopping_is_checked_before_each_step_and_limit_is_explicit ... ok
+test ownership_and_persistence_rejections_are_checked_on_core_replay ... ok
+test maps_are_reusable_ordered_local_values ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/loop_ownership.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/loop_ownership-d0f0bd6ecd5fca54)
+
+running 6 tests
+test consuming_an_uncarried_capture_still_rejects ... ok
+test unmodified_mutable_locals_remain_lexical_captures ... ok
+test conditional_assignment_and_shadowed_names_keep_their_lexical_scope ... ok
+test bounded_loops_use_only_their_assigned_owners ... ok
+test loop_state_limit_applies_to_carried_locals ... ok
+test nested_loops_do_not_move_unrelated_partially_consumed_owners ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/owned_semantic.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/owned_semantic-e4664bf7ce02472a)
+
+running 5 tests
+test owned_values_preserve_nan_payloads_and_scalar_reflexivity_excludes_floats ... ok
+test symbolic_map_membership_observes_its_keys_and_preserves_captured_queries ... ok
+test symbolic_key_observations_cover_supported_scalar_domains ... ok
+test local_maps_match_order_upsert_removal_and_lazy_reads ... ok
+test buffer_edits_and_owned_iteration_match_reference ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.17s
+
+     Running tests/physical_capabilities.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/physical_capabilities-17fc5569d60424e3)
+
+running 4 tests
+test paged_columns_keep_the_codec_gate_and_reject_invalid_or_unimplemented_layouts ... ok
+test carrier_fusion_composes_before_source_bound_physical_admission ... ok
+test codecs_are_fixed_to_source_shape_and_column_skips_need_real_equality ... ok
+test bounds_are_source_bound_and_false_rehashed_certificates_cannot_authorise_reads ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.45s
+
+     Running tests/planning.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/planning-4244c2dcd82dd9b8)
+
+running 5 tests
+test physical_metadata_cannot_select_missing_source_or_fake_definition_sites ... ok
+test properties_bind_actual_source_and_reject_false_or_stale_statements ... ok
+test sealed_prefix_reuse_never_authorises_modified_proof_bytes ... ok
+test longest_prefix_and_rejections_match_fresh_admission ... ok
+test repeated_layers_have_no_artificial_round_ceiling ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
+
+     Running tests/primitives.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/primitives-be785f13b4364efb)
+
+running 4 tests
+test float_division_rounding_and_utf8_coordinates_have_fixed_meanings ... ok
+test new_operations_bind_a_new_core_and_fail_closed_on_wrong_types ... ok
+test closed_new_operations_replay_in_the_semantic_proof_kernel ... ok
+test reference_sqrt_uses_exact_integer_rounding ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/record_codec.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/record_codec-fb27648946ba60ea)
+
+running 1 test
+test codecs_bind_source_shapes_and_require_both_unconditional_equalities ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+
+     Running tests/record_extensionality.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/record_extensionality-531789f499134d30)
+
+running 2 tests
+test changed_fields_and_distinct_roots_cannot_claim_record_identity ... ok
+test complete_lexical_record_reconstruction_preserves_nested_and_owned_values ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/refinements.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/refinements-5a96f35824bdae16)
+
+running 4 tests
+test integer_certificates_reject_wrapping_forgery_and_false_conclusions ... ok
+test capacity_contract_binds_record_projection_and_rejects_unrelated_or_stale_facts ... ok
+test database_allocation_formulas_are_universal_across_carriers ... ok
+test database_cardinality_refinements_check_with_generic_kernel ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/resources.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/resources-82f7eb68255cdaa8)
+
+running 2 tests
+test release_requires_actual_final_use_and_exact_graph ... ok
+test replay_and_replacing_route_invalidates_resources ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/result_guarantees.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/result_guarantees-0bf63c1bc9d64ffb)
+
+running 5 tests
+test readonly_callers_can_discharge_a_query_guarantee_from_boundary_invariants ... ok
+test query_result_guarantees_require_actual_state_support_before_transport ... ok
+test captured_guarantees_resolve_the_actual_shadowed_lexical_slot ... ok
+test independent_result_guarantees_survive_writes_without_ambient_state_facts ... ok
+test checked_query_and_change_result_guarantees_replay_as_canonical_source_evidence ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.49s
+
+     Running tests/scoped_range_borrows.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/scoped_range_borrows-957019208ee544f9)
+
+running 3 tests
+test borrow_callbacks_reject_mutation_captured_writes_moves_and_escape ... ok
+test clipped_nested_readonly_borrows_retain_owners_lazy_fallbacks_and_versioning ... ok
+test callback_contracts_bind_the_actual_view_and_execute_once_even_when_empty ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/semantic_word_laws.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/semantic_word_laws-e82126bb9cd3ab2a)
+
+running 3 tests
+test word_certificate_inputs_are_typed_scoped_and_resource_bounded ... ok
+test source_rehashing_or_false_premises_do_not_repair_a_false_word_certificate ... ok
+test word_certificates_replay_unsigned_wrapping_ranges_conditions_and_booleans ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.17s
+
+     Running tests/sequence.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/sequence-076f1488d1f9a78c)
+
+running 4 tests
+test semantic_concat_round_trips_source_without_new_syntax ... ok
+test semantic_concat_has_only_typed_definitional_computation ... ok
+test concat_versions_and_contextual_types_are_checked ... ok
+test concat_preserves_order_empty_boundaries_and_all_reference_value_types ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/sort_projection.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/sort_projection-5bd2418168b4206f)
+
+running 2 tests
+test float_sort_correspondence_is_explicitly_unsupported ... ok
+test fixed_word_sort_correspondence_matches_the_independent_evaluator ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/source_bitvector.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/source_bitvector-1a6b10f6a5525697)
+
+running 5 tests
+test signed_floating_and_collection_endpoints_are_not_unsigned_circuits ... ok
+test exhausted_circuit_work_cannot_reach_certificate_admission ... ok
+test missing_hypotheses_empty_hints_and_corrupt_circuit_ids_are_rejected ... ok
+test rehashing_false_conclusions_or_definitions_does_not_grant_authority ... ok
+test scalar_certificates_bind_source_functions_fields_widths_and_conditions ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.06s
+
+     Running tests/source_extension.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/source_extension-ce65259eb3c36344)
+
+running 3 tests
+test extensions_cannot_change_source_or_add_host_code ... ok
+test definitions_are_conservative_and_compose_without_changing_snapshots ... ok
+test hashes_and_membership_do_not_admit_bad_definitions_or_shadowing ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/structural_descent.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/structural_descent-5db8375338bff33e)
+
+running 3 tests
+test immutable_record_list_and_variant_subvalues_support_total_source_traversals ... ok
+test ancestors_rebuilt_values_loop_accumulators_shadowing_and_unknown_callback_domains_reject ... ok
+test mutually_recursive_functions_must_descend_on_every_component_edge ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/termination_measures.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/termination_measures-186dc7607b03686b)
+
+running 5 tests
+test mutually_recursive_helpers_cannot_supply_an_unadmitted_measure ... ok
+test recursive_measures_nonword_measures_and_unvisited_calls_reject ... ok
+test source_annotation_and_authoring_typecheck_grant_no_admission ... ok
+test incomplete_duplicate_and_stale_termination_certificates_never_admit ... ok
+test authored_measures_replay_independently_of_catalogue_and_reject_downgrades ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.62s
+
+     Running tests/typed_walk.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/typed_walk-b1f7afc300a7bc3d)
+
+running 2 tests
+test variant_and_owned_callbacks_keep_exact_lexical_carriers ... ok
+test fixed_callbacks_bind_rows_accumulators_and_shadow_names ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/value_invariants.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/value_invariants-1907ddb95d9bda96)
+
+running 15 tests
+test collection_named_source_functions_keep_their_lexical_meaning ... ok
+test inferred_invariant_contract_does_not_weaken_an_exact_function ... ok
+test authenticated_metadata_and_raw_core_construction_reject_forgery ... ok
+test guarded_construction_and_reserved_field_names_are_hygienic ... ok
+test one_interface_fact_reaches_semantic_and_physical_consumers ... ok
+test predicates_are_pure_and_closed_over_their_own_value ... ok
+test construction_preservation_and_type_facts_are_checked ... ok
+test unrelated_recursive_values_remain_supported ... ok
+test raw_nested_validators_do_not_assume_their_input_invariant ... ok
+test public_ingress_validates_once_and_internal_calls_use_proved_facts ... ok
+test recursive_raw_validators_check_every_finite_nested_value_without_self_assumptions ... ok
+test generic_and_nested_values_cannot_hide_invalid_elements ... ok
+test invariant_index_certificate_is_checked_and_cannot_move_to_another_index ... ok
+test construction_preserves_action_field_order_and_events ... ok
+test value_invariants_preserve_transactions_and_validate_portable_restore ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.12s
+
+     Running tests/word_conversions.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/word_conversions-2f2f193853a54c97)
+
+running 1 test
+test fixed_unsigned_conversions_have_distinct_sorts_and_versioned_meanings ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/word_induction.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/word_induction-1a888cabc4c39fde)
+
+running 5 tests
+test successor_guard_is_exact_and_never_an_unconditional_word_premise ... ok
+test generalized_ih_cannot_choose_its_recursive_count ... ok
+test word_induction_rejects_zero_branch_ih_and_forged_conclusions ... ok
+test premises_on_quantified_words_signed_words_and_bad_binders_reject ... ok
+test guarded_unsigned_induction_and_generalized_state_replay ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/word_induction_author.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/word_induction_author-f35ca240cd1f9516)
+
+running 2 tests
+test word_authoring_rejects_wrong_shape_capture_and_escaping_guard ... ok
+test external_unsigned_recurrence_and_generalized_state_replay ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/word_loop_frame.rs (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-crdt-2026-10-13/build/wrapup-integration-target/debug/deps/word_loop_frame-7cd3f2e95b20f352)
+
+running 5 tests
+test word_counted_stopping_loop_preserves_arbitrary_observer ... ok
+test exact_record_projection_does_not_execute_the_selected_loop ... ok
+test missing_preservation_and_wrong_observed_state_reject ... ok
+test exact_unfolding_rejects_changed_count_index_and_unguarded_body ... ok
+test one_step_loop_meaning_agrees_with_existing_literal_normalization ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.21s
+
+   Doc-tests ink_core
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
