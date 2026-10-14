@@ -26,6 +26,17 @@ alternatives. They are not static assumptions obtained from contracts, and they
 cannot bypass the equality checker. Correlation reasoning relies on equality of
 pure semantic expressions. Unknown operations lose information.
 
+
+`analyse_candidates` returns facts and proposals in one synchronous discovery
+query, avoiding a second traversal of the root. Reuse is bounded to 2,048
+non-leaf entries, 16,384 node/scope references and a conservative 1 MiB record
+charge (not an RSS limit). Each key binds the exact source node and branch
+scope; strong references prevent identity reuse. Cache hits charge the original
+logical node visits and relative depth, so reuse cannot bypass analysis limits.
+The query clears all records on success or failure. The streaming `candidates`
+API retains no memo across yields. Callers must not mutate input during a
+synchronous query. These facts remain untrusted; each rewrite still needs proof.
+
 Run a single discovery from an already checked core:
 
 ```sh

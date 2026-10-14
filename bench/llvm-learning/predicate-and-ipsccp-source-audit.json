@@ -1,0 +1,115 @@
+{
+  "findings": [
+    "F063",
+    "F064",
+    "F050",
+    "F051"
+  ],
+  "llvm_revision": "d977b4533f1d9b01d28cf4dba9b2db9d1ccfda08",
+  "files": [
+    {
+      "path": "llvm/lib/Transforms/Utils/PredicateInfo.cpp",
+      "bytes": 33705,
+      "sha256": "e8666827892c4987836a2ff848f906e48acd168b6d3c1d3a623ab7c1b260798a",
+      "read": "All contiguous bytes via coverage ledger show; LLVM tests not executed."
+    },
+    {
+      "path": "llvm/lib/Transforms/IPO/SCCP.cpp",
+      "bytes": 15266,
+      "sha256": "52b64ca78aa571634625c4a73ec82e4da8002827e900ed1a30440ecd1cee6999",
+      "read": "All contiguous bytes via coverage ledger show; LLVM tests not executed."
+    }
+  ],
+  "insights": [
+    {
+      "source": "PredicateInfo.cpp",
+      "topic": "Demand-driven materialisation",
+      "mapping": "Sort only relevant definitions and uses by dominance/edge order; materialize refinements only when a dominated use needs them. Ink can build context-specific fact demand lists instead of rescanning all nodes. No proof authority follows from scheduling."
+    },
+    {
+      "source": "PredicateInfo.cpp",
+      "topic": "Edge scope is narrower than block scope",
+      "mapping": "Multi-predecessor successors restrict copies to the matching incoming phi edge. Joins require intersection/union according to fact semantics. Ink branch-local hypotheses must never leak across sibling branches or independent call contexts."
+    },
+    {
+      "source": "PredicateInfo.cpp",
+      "topic": "Determinism is part of reproducibility",
+      "mapping": "Stable ordering handles multiple uses in one instruction; DFS identifiers order destinations. Ink caches/worklists should use stable source identities/order, not address order, for reproducible budget cutoffs."
+    },
+    {
+      "source": "PredicateInfo.cpp",
+      "topic": "Only useful subjects receive work",
+      "mapping": "Skip constants, single-use comparison-only operands, unreachable uses and lifetime operations. Transfer as a profitability filter for analysis bookkeeping, not permission to erase source effects or ownership obligations."
+    },
+    {
+      "source": "PredicateInfo.cpp",
+      "topic": "Bounded predicate decomposition",
+      "mapping": "Deduplicated worklists cap each branch at eight examined conditions; true AND and false OR decompose. Ink already has bounded refinement of analogous logical conditions; extra precision should remain bounded and decline safely."
+    },
+    {
+      "source": "PredicateInfo.cpp",
+      "topic": "Multi-edge switches need disjunctions",
+      "mapping": "A case fact is created only when exactly one outgoing switch edge reaches that destination. Repeated destinations cannot inherit a single case value. An Ink generalized match/switch proposal needs explicit case membership hypotheses."
+    },
+    {
+      "source": "PredicateInfo.cpp",
+      "topic": "Origin and refined operand differ",
+      "mapping": "Lazy copy chains record both original and renamed subjects; comparison constraints swap or invert predicates and return unknown on unmatched subjects. Ink cache keys must include the exact context and subject lifetime."
+    },
+    {
+      "source": "PredicateInfo.cpp",
+      "topic": "LLVM assumptions are a distinct trust contract",
+      "mapping": "Nonnull bundles and nowrap truncation constraints rely on LLVM semantics. Ink runtime validation contracts do not become assumptions; imported opportunities need ordinary Ink premises/proofs."
+    },
+    {
+      "source": "PredicateInfo.cpp",
+      "topic": "Verifier hook is empty",
+      "mapping": "At this exact revision verifyPredicateInfo() has an empty body. The verifier pass constructs predicates but adds no independent check through this hook. Do not count names or command success as verification of invariants."
+    },
+    {
+      "source": "PredicateInfo.cpp",
+      "topic": "Temporary representation cleanup",
+      "mapping": "Printer pass removes introduced same-type bitcasts; raw copies have no predicate semantics outside the analysis map. Ink analysis metadata should be bounded/lifetime-owned and never silently persist as proof authority."
+    },
+    {
+      "source": "IPO/SCCP.cpp",
+      "topic": "Separate argument and return trackability",
+      "mapping": "Argument and return tracking use different eligibility checks. External/address-taken boundaries receive conservative entry facts. Ink interprocedural summaries must bind exact function/module, instantiation and call context and retain unknown external behavior."
+    },
+    {
+      "source": "IPO/SCCP.cpp",
+      "topic": "Specialisation has its own budget",
+      "mapping": "Solve propagation first, then run a separately enabled specialization loop capped at ten iterations. Ink can separate candidate discovery/propagation from profitability-driven cloning with shared global resource limits."
+    },
+    {
+      "source": "IPO/SCCP.cpp",
+      "topic": "Replacements change effect classification",
+      "mapping": "Replacing pointer arguments by globals broadens function and call-site memory effects. Ink specialisation must recompute exact dependencies/effects and invalidation summaries, not retain source-local assumptions."
+    },
+    {
+      "source": "IPO/SCCP.cpp",
+      "topic": "Apply rewrites before structural cleanup",
+      "mapping": "Replace constants in all executable blocks before unreachable-block cleanup can erase live phi nodes. Batch eligibility before mutation where deletion could alter later decisions; maintain dependent analyses after edits."
+    },
+    {
+      "source": "IPO/SCCP.cpp",
+      "topic": "Return elimination needs whole-call evidence",
+      "mapping": "Return zapping checks tracked callers, musttail and attached calls, batches targets, and removes incompatible attributes. Ink cannot substitute poison/undef; value/result removal needs checked preservation of effects, errors and return semantics."
+    },
+    {
+      "source": "IPO/SCCP.cpp",
+      "topic": "Constant abstract values can be nonreplaceable",
+      "mapping": "Global deletion tests replaceability, including pointer provenance, rather than treating every constant lattice value as literal replacement. Ink fact precision alone cannot authorize rewriting or dropping state."
+    },
+    {
+      "source": "IPO/SCCP.cpp",
+      "topic": "Analysis preservation is explicit",
+      "mapping": "Updated dominator/postdominator trees are preserved while other analyses invalidate. Ink shared fact caches need documented invalidation after source rewrite, schema/registry change and source/context mutation."
+    }
+  ],
+  "implementation_status": "Knowledge publication complete in prior batch; query cache experiments remain scratch, interprocedural proposals remain open. No new database law or LLVM code changes.",
+  "related": [
+    "word-fact-lifetime-memo-experiment.json",
+    "word-fact-stale-replay.json"
+  ]
+}

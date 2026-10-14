@@ -1,0 +1,66 @@
+{
+  "finding": "F064",
+  "revision": "d977b4533f1d9b01d28cf4dba9b2db9d1ccfda08",
+  "status": "All listed files fully read. LLVM opt/FileCheck not executed. Expectations exercise printed predicate metadata rather than whole-compiler correctness.",
+  "files": [
+    {
+      "path": "llvm/test/Transforms/Util/PredicateInfo/branch-on-same-cond.ll",
+      "bytes": 2743,
+      "sha256": "16a9b317ce82e5ddf7a252e13c42b4aa29eb11fcfb6e6c465ea29cad42b43eee",
+      "insight": "Repeated use of one condition across nested blocks exercises refined versus original operands; the fixture itself retains a FIXME about RenamedOp accuracy. Ink must return unknown on uncertain subject correspondence rather than assume it."
+    },
+    {
+      "path": "llvm/test/Transforms/Util/PredicateInfo/edge.ll",
+      "bytes": 8718,
+      "sha256": "2784e881aaa4f63b801d9eae5f70167a6c499eebeac97a8818e6adb2d6e5aebb",
+      "insight": "Phi inputs get edge-local refinements while ordinary uses after joins remain unrefined. Float ordered equality/unordered inequality, positive/negative zero and computed zero operands exercise scope; Ink numeric equality must not imply identical raw bits or interchangeable divisors."
+    },
+    {
+      "path": "llvm/test/Transforms/Util/PredicateInfo/ordering.ll",
+      "bytes": 2484,
+      "sha256": "d2a9221068f5ca062ebfd3c34c48717ab547e9a07277159fca203bfb4afd3127",
+      "insight": "Debug-output test fixes traversal order across nested left branches and a right branch. Stable context traversal is needed for reproducible bounded discovery independent of allocation addresses."
+    },
+    {
+      "path": "llvm/test/Transforms/Util/PredicateInfo/pr33456.ll",
+      "bytes": 2960,
+      "sha256": "e229dfb5bf046561bb2409934110b12bb14a591e03ffafa1e2f0b3fb71545bb8",
+      "insight": "Duplicate successors do not establish a branch truth value even with repeated phi inputs, loops and later divisions. Only an actually distinguishing edge supports refinement."
+    },
+    {
+      "path": "llvm/test/Transforms/Util/PredicateInfo/pr33457.ll",
+      "bytes": 4092,
+      "sha256": "a9c3fee48b44ea57bff13d0d523ae916f7e85cb44107cd32e035efed1e30ce93",
+      "insight": "Repeated same-target branches and later reuse of a condition must not gain facts at the earlier merge; loop and effectful call behavior remain intact."
+    },
+    {
+      "path": "llvm/test/Transforms/Util/PredicateInfo/unreachable.ll",
+      "bytes": 468,
+      "sha256": "ec6cef33d3535ee6853c22cf2784a3978929144f7994cdd16d636b4d422de96c",
+      "insight": "Unreachable assumptions must not make dominating tree lookup invalid or introduce reachable facts. Lack of an analysis node is not permission to infer values."
+    },
+    {
+      "path": "llvm/test/Transforms/Util/PredicateInfo/assume-operand-bundles.ll",
+      "bytes": 2638,
+      "sha256": "2452fd9c890026591f21057764619969274e2c20d7e0f08e1e78d9c5b8d8c3e1",
+      "insight": "Only demanded nonnull subjects receive copies; multiple subjects and repeated assumes preserve copy/context chains. LLVM assume bundles are not equivalent to Ink validation contracts."
+    },
+    {
+      "path": "llvm/test/Transforms/Util/PredicateInfo/diamond.ll",
+      "bytes": 2990,
+      "sha256": "d0b79715bdbc69488cd7a7e096e58c19c0ecd6521d735cc55a0679a1c4dc45c5",
+      "insight": "Distinct predecessor facts apply to distinct phi operands for true and false edges; do not intersect all path facts globally. Source nowrap flags cannot be imported into Ink wrapping arithmetic."
+    },
+    {
+      "path": "llvm/test/Transforms/Util/PredicateInfo/unnamed-types.ll",
+      "bytes": 1072,
+      "sha256": "0aada113b54960a5ce8e4b22de64fecc783bf704ae1d9982e243bffcd5c143eb",
+      "insight": "Predicate copy creation works independently of source-level type names and swapped null operands; generic mechanisms should use structural type identity and comparator orientation."
+    }
+  ],
+  "remaining_in_directory": [
+    "condprop.ll",
+    "testandor.ll"
+  ],
+  "relation": "Complements predicate-and-ipsccp-source-audit.json and Ink scoped-fact/lifetime-cache tests; no new proof authority."
+}
