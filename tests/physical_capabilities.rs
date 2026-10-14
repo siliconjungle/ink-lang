@@ -1,6 +1,8 @@
 use serde_json::json;
 use std::{fs, path::Path, process::Command};
 use verified_language::{eval, stateful::Runtime, syntax};
+// All child suites share this module and its GPU artifact mutex. Defining a
+// separate parity module in each child gives each one a separate lock.
 #[path = "support/parity.rs"]
 mod parity;
 const SOURCE: &str = include_str!("../core/tests/fixtures/physical-capabilities.ink");
@@ -234,3 +236,9 @@ mod cross_domain_workloads;
 #[path="support/semantic_word_parity.rs"] mod semantic_word_parity;
 
 #[path="support/matmul_tiles.rs"] mod matmul_tiles;
+
+#[path = "support/broadphase.rs"]
+mod broadphase;
+
+#[path = "support/projected_list_reads.rs"]
+mod projected_list_reads;

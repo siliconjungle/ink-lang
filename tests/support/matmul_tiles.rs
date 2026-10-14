@@ -1,6 +1,6 @@
 use serde_json::json;
 use verified_language::{modules,stateful::Runtime};
-#[path="parity.rs"] mod parity;
+use super::parity;
 
 #[test]
 fn column_tiles_preserve_modular_products_tails_and_missing_entries(){
