@@ -32,7 +32,7 @@ def prepare(compiler, source, output, rounds=3, scalar_calls=False):
     original = output / 'core-0.json'
     run('emit-core', source, '-o', original)
     current = original
-    steps, receipts = [], []
+    steps, receipts, rejections = [], [], []
     original_id = None
     for iteration in range(rounds):
         subject_path = output / f'subject-{iteration}.json'
@@ -75,7 +75,30 @@ def prepare(compiler, source, output, rounds=3, scalar_calls=False):
                        knowledge=store.bundle(ids), applications=applications)
         package_path = output / f'selection-{iteration}.json'
         write(package_path, package)
-        receipt = json.loads(run('check-selection', current, package_path))
+        try:
+            receipt = json.loads(run('check-selection', current, package_path))
+        except RuntimeError:
+            # A valid law can still produce an inadmissibly deep combined core.
+            # Replay cumulative subsets against the same source; never bypass
+            # the checker or silently turn an observation into rewrite authority.
+            admitted = []
+            receipt = None
+            for application in applications:
+                trial = dict(package, applications=admitted + [application])
+                trial['knowledge'] = store.bundle([a['law'] for a in trial['applications']])
+                write(package_path, trial)
+                try:
+                    candidate_receipt = json.loads(run('check-selection', current, package_path))
+                except RuntimeError as error:
+                    rejections.append(dict(iteration=iteration, application=application, reason=str(error)))
+                else:
+                    admitted.append(application)
+                    receipt = candidate_receipt
+            if not admitted:
+                break
+            package = dict(package, applications=admitted,
+                           knowledge=store.bundle([a['law'] for a in admitted]))
+            write(package_path, package)
         receipts.append(receipt)
         steps.append(dict(kind='rewrite', package=package))
         selected = output / f'core-{iteration + 1}.json'
@@ -87,6 +110,7 @@ def prepare(compiler, source, output, rounds=3, scalar_calls=False):
     write(output / 'plan.json', dict(schema=1, semantics='ink-compiled-plan-v1', input_core_sha256=original_id,
                                     steps=steps + [dict(kind='physical', package=physical)]))
     write(output / 'receipts.json', receipts)
+    write(output / 'rejections.json', rejections)
     print(f'{sum(len(r["applied_laws"]) for r in receipts)} checked applications in {len(receipts)} rounds: {output / "plan.json"}')
 
 
