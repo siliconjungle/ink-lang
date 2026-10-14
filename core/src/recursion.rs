@@ -39,6 +39,7 @@ pub fn needed(p: &Program) -> bool {
         }
     }
     p.functions.iter().any(|f| recursive(f) || new(&f.body))
+        || crate::analysis::recursive_function_groups(p).map_or(true, |groups| !groups.is_empty())
         || p.states.iter().chain(&p.keeps).any(|d| new(&d.value))
         || p.actions.iter().any(|a| statements(&a.body))
 }

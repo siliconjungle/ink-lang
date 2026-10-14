@@ -1096,19 +1096,23 @@ fn check_word(t: &Type) -> bool {
     crate::check::is_word(t)
 }
 fn normal(t: &Term, hyp: &[Equation], p: &Program, b: &mut Budget, d: usize) -> LangResult<Term> {
+    normal_inner(t, hyp, p, b, d, &mut BTreeSet::new())
+}
+fn normal_inner(t: &Term, hyp: &[Equation], p: &Program, b: &mut Budget, d: usize,
+    unfolding: &mut BTreeSet<String>) -> LangResult<Term> {
     b.step(d)?;
     // Fixed lazy control semantics: do not spend proof work unfolding a branch
     // that cannot execute. This also keeps a stopping loop's bound independent
     // of proof work when its initial stop condition is already true.
     if let Node::Op(name, args) = &t.node {
         if name == "call:choose" && args.len() == 3 {
-            let condition = normal(&args[0], hyp, p, b, d + 1)?;
+            let condition = normal_inner(&args[0], hyp, p, b, d + 1, unfolding)?;
             if let Node::Bool(flag) = condition.node {
-                return normal(&args[if flag { 1 } else { 2 }], hyp, p, b, d + 1);
+                return normal_inner(&args[if flag { 1 } else { 2 }], hyp, p, b, d + 1, unfolding);
             }
         }
     }
-    let out = try_map_children(t, |c| normal(c, hyp, p, b, d + 1))?;
+    let out = try_map_children(t, |c| normal_inner(c, hyp, p, b, d + 1, unfolding))?;
     // Equality premises are oriented local facts. Match only exact typed terms.
     for (index, h) in hyp.iter().enumerate() {
         if out == h.from && h.from != h.to {
@@ -1120,15 +1124,14 @@ fn normal(t: &Term, hyp: &[Equation], p: &Program, b: &mut Budget, d: usize) -> 
             let remaining = hyp.iter().enumerate()
                 .filter(|(i, _)| *i != index)
                 .map(|(_, equation)| equation.clone()).collect::<Vec<_>>();
-            return normal(&h.to, &remaining, p, b, d + 1);
+            return normal_inner(&h.to, &remaining, p, b, d + 1, unfolding);
         }
     }
     let Node::Op(n, a) = &out.node else {
         return Ok(out);
     };
-    let again = |t: &Term, b: &mut Budget| normal(t, hyp, p, b, d + 1);
     if let Some(reduced) = crate::owned_semantic::reduce(&out)? {
-        return again(&reduced, b);
+        return normal_inner(&reduced, hyp, p, b, d + 1, unfolding);
     }
     let reduced = match (n.as_str(), a.as_slice()) {
         ("call:Int", [x]) if x.sort == value(Type::Int) => Some(x.clone()),
@@ -1239,7 +1242,7 @@ fn normal(t: &Term, hyp: &[Equation], p: &Program, b: &mut Budget, d: usize) -> 
         },
         ("call:repeat", [count, init, f]) => {
             let previous = match &count.node {
-                Node::Nat(0) => return again(init, b),
+                Node::Nat(0) => return normal_inner(init, hyp, p, b, d + 1, unfolding),
                 Node::Nat(n) => Some(term(Sort::Nat, Node::Nat(n - 1))),
                 Node::Op(n, a) if n == "nat.succ" => Some(a[0].clone()),
                 _ => None,
@@ -1729,9 +1732,22 @@ fn normal(t: &Term, hyp: &[Equation], p: &Program, b: &mut Budget, d: usize) -> 
         }
         (n, args) if n.starts_with("call:") => {
             if let Some(f) = p.functions.iter().find(|f| f.name == n[5..]) {
+                // Symbolic recursive calls retain their exact meaning. Unfold
+                // a definition once along this normalization path rather than
+                // inventing an infinite expansion of an unknown finite value.
+                let entered = unfolding.insert(f.name.clone());
+                if !entered {
+                    let mut pending = args.iter().collect::<Vec<_>>();
+                    while let Some(argument) = pending.pop() {
+                        if matches!(argument.node, Node::Free(_) | Node::Bound(_) | Node::Lambda(_)) {
+                            return Ok(out);
+                        }
+                        pending.extend(children(argument));
+                    }
+                }
                 let body =
                     s::elaborate(&f.body, &crate::check::params_env(&f.params)?, p, &f.result)?;
-                Some(substitute(
+                let expanded = substitute(
                     &body,
                     &f.params
                         .iter()
@@ -1739,7 +1755,10 @@ fn normal(t: &Term, hyp: &[Equation], p: &Program, b: &mut Budget, d: usize) -> 
                         .map(|((n, _), t)| (n.clone(), t.clone()))
                         .collect(),
                     b,
-                )?)
+                )?;
+                let result = normal_inner(&expanded, hyp, p, b, d + 1, unfolding);
+                if entered { unfolding.remove(&f.name); }
+                return result;
             } else {
                 None
             }
@@ -1747,7 +1766,7 @@ fn normal(t: &Term, hyp: &[Equation], p: &Program, b: &mut Budget, d: usize) -> 
         _ => None,
     };
     if let Some(t) = reduced {
-        return again(&t, b);
+        return normal_inner(&t, hyp, p, b, d + 1, unfolding);
     }
     if let Some(t) = literal_primitive(&out, p, b)? {
         return Ok(t);
