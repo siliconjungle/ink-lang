@@ -1,0 +1,121 @@
+{
+  "status": "passed",
+  "scope": "Browser conformance harness; no performance measurement",
+  "browser": "155.0.8059.41",
+  "findings": [
+    "Packed pure modules have no state API; exact parser is supplied by fixture root",
+    "Browser replay and preparation previously hard-coded four alternatives; current authoring produces ten checked alternatives",
+    "All generated alternatives now enter browser preparation and replay; state snapshots and restore atomicity remain mandatory for state-module ABI"
+  ],
+  "totals": {
+    "comparisons": 162,
+    "gpu_calls": 10,
+    "snapshotComparisons": 42,
+    "rejectedRestores": 3
+  },
+  "unit_tests": 5,
+  "receipts": [
+    {
+      "name": "contract-refinement-0",
+      "abi": "ink-packed-pipeline-v2",
+      "comparisons": 12,
+      "gpu_calls": 1,
+      "rejectedRestores": 0,
+      "snapshotComparisons": 0
+    },
+    {
+      "name": "contract-refinement-1",
+      "abi": "ink-packed-pipeline-v2",
+      "comparisons": 12,
+      "gpu_calls": 1,
+      "rejectedRestores": 0,
+      "snapshotComparisons": 0
+    },
+    {
+      "name": "contract-refinement-2",
+      "abi": "ink-packed-pipeline-v2",
+      "comparisons": 12,
+      "gpu_calls": 1,
+      "rejectedRestores": 0,
+      "snapshotComparisons": 0
+    },
+    {
+      "name": "contract-refinement-3",
+      "abi": "ink-packed-pipeline-v2",
+      "comparisons": 12,
+      "gpu_calls": 1,
+      "rejectedRestores": 0,
+      "snapshotComparisons": 0
+    },
+    {
+      "name": "contract-refinement-4",
+      "abi": "ink-packed-pipeline-v2",
+      "comparisons": 12,
+      "gpu_calls": 1,
+      "rejectedRestores": 0,
+      "snapshotComparisons": 0
+    },
+    {
+      "name": "contract-refinement-5",
+      "abi": "ink-packed-pipeline-v2",
+      "comparisons": 12,
+      "gpu_calls": 1,
+      "rejectedRestores": 0,
+      "snapshotComparisons": 0
+    },
+    {
+      "name": "contract-refinement-6",
+      "abi": "ink-packed-pipeline-v2",
+      "comparisons": 12,
+      "gpu_calls": 1,
+      "rejectedRestores": 0,
+      "snapshotComparisons": 0
+    },
+    {
+      "name": "contract-refinement-7",
+      "abi": "ink-packed-pipeline-v2",
+      "comparisons": 12,
+      "gpu_calls": 1,
+      "rejectedRestores": 0,
+      "snapshotComparisons": 0
+    },
+    {
+      "name": "contract-refinement-8",
+      "abi": "ink-packed-pipeline-v2",
+      "comparisons": 12,
+      "gpu_calls": 1,
+      "rejectedRestores": 0,
+      "snapshotComparisons": 0
+    },
+    {
+      "name": "contract-refinement-9",
+      "abi": "ink-packed-pipeline-v2",
+      "comparisons": 12,
+      "gpu_calls": 1,
+      "rejectedRestores": 0,
+      "snapshotComparisons": 0
+    },
+    {
+      "name": "source-contracts-parity",
+      "abi": "ink-module-v1",
+      "comparisons": 42,
+      "gpu_calls": 0,
+      "rejectedRestores": 3,
+      "snapshotComparisons": 42
+    }
+  ],
+  "native_wasm_validation": {
+    "contract_alternatives": 10,
+    "values_per_alternative": 4,
+    "state_values_outcomes_and_snapshots": 14
+  },
+  "limits": [
+    "Targeted local Chrome validation; full distribution CI remains pending",
+    "Pure packed ABI does not expose snapshots; corresponding native and Rust-Wasm logical snapshots checked independently",
+    "Source candidate proposals are bounded, untrusted search; authoring and independent selection checking remain required"
+  ],
+  "audit_notes": {
+    "tools/build_gpu_wasm.py": "Reviewed complete recursive emitted-CPU build helper. Compiles offline release Wasm at explicit per-project target, chooses emitted package filename and copies artifact, recurses GPU parts. Missing CPU project is skipped; manifest name detection relies on emitter formatting. Direct pure and state-module builds/replays pass. Does not manufacture state wrappers for packed hosts.",
+    "knowledge/producers/contract_candidates.py": "Reviewed full bounded witness enumeration, duplicate pruning, exact-source baseline proof authoring, candidate contract authoring, independent check-selection gate and publication. Reports actual candidate IDs and budgets; count may grow as search/database evolves. Browser tests must consume that report. Unbounded input JSON and filesystem failures propagate in offline authoring; no new admission authority."
+  }
+}

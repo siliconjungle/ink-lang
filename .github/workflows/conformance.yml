@@ -316,6 +316,7 @@ jobs:
           python-version: '3.12'
       - name: Browser CPU, JavaScript and actual WebGPU parity
         run: |
+          node --test bench/gpu/contract-replay.test.mjs
           INK_TEST_WASM=1 cargo test --test feature_parity gpu -- --nocapture --test-threads=1
           INK_TEST_WASM=1 cargo test --test bend_features parallel_buffers_recursion_and_scratch_agree_on_all_backends -- --nocapture
           INK_TEST_WASM=1 cargo test --test source_contracts -- --nocapture --test-threads=1
