@@ -1,0 +1,48 @@
+{
+  "scope": "Collection-analysis hint correction on frozen ten-program quick corpus",
+  "status": "complete",
+  "changed_sources": [
+    "producers/collection_analysis.py"
+  ],
+  "context_differences": [
+    "producer_source_sha256"
+  ],
+  "baseline": {
+    "programs": 10,
+    "compiled": 10,
+    "programs_with_rewrite_alternative": 10,
+    "programs_with_any_alternative": 10,
+    "programs_selecting_alternative": 4,
+    "median_seconds": 13.906,
+    "stopped_by_time": 1,
+    "laws_admitted": 44,
+    "laws_admitted_in_multiple_programs": 7,
+    "representations_admitted": 0,
+    "last_gates": {
+      "selected_alternative": 4,
+      "measurement_budget": 6
+    }
+  },
+  "candidate": {
+    "programs": 10,
+    "compiled": 10,
+    "programs_with_rewrite_alternative": 10,
+    "programs_with_any_alternative": 10,
+    "programs_selecting_alternative": 4,
+    "median_seconds": 14.159500000000001,
+    "stopped_by_time": 1,
+    "laws_admitted": 44,
+    "laws_admitted_in_multiple_programs": 7,
+    "representations_admitted": 0,
+    "last_gates": {
+      "selected_alternative": 4,
+      "measurement_budget": 6
+    }
+  },
+  "limitations": [
+    "Fixed debug compiler and frozen planner, shared machine",
+    "No runtime or browser timings; planning durations are diagnostic",
+    "Offline cost fitter provenance checks are outside this compilation experiment"
+  ],
+  "conclusion": "All ten programs compile. Selection and admitted-law counts match the prior snapshot; no application speedup is established."
+}

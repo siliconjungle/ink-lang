@@ -1,0 +1,170 @@
+{
+  "schema": 1,
+  "planner": "54fa72b816d56a5d3680acf3256e20dc3543c26c",
+  "scope": "Reliability and source-audit evidence; no new measured performance claim",
+  "validation": {
+    "targeted": {
+      "sha256": "a4b8d0b71bec7525facc1d1046ad435375b3b461ebd7fbdb6534eedd70d3a19a",
+      "result": "passed"
+    },
+    "before_after": {
+      "sha256": "e978a42d61defd571cc0cd3dbc89e4c509329e1e46097e478c6cdc8c4a4bc825",
+      "result": "passed"
+    },
+    "hardening": {
+      "sha256": "b854c8c13a17245983b10e3e41d21c3a7deb72985210dff309239cb345a5c835",
+      "result": "passed",
+      "python_tests": 81
+    }
+  },
+  "findings": [
+    {
+      "id": "authenticated-metadata",
+      "files": [
+        "planner/ink_planner/physical_features.py"
+      ],
+      "finding": "Bound JSON was hashed then reread; concurrent edits could replace parsed metadata.",
+      "action": "Capture bounded bytes, verify digest, parse the captured bytes; validate nested objects and trace rows."
+    },
+    {
+      "id": "concurrent-eviction",
+      "files": [
+        "planner/ink_planner/plan_cache.py"
+      ],
+      "finding": "Concurrent eviction between glob and stat raised FileNotFoundError after cache publication.",
+      "action": "Snapshot regular-file metadata while tolerating missing entries; ignore directories and symlinks; deterministic ties."
+    },
+    {
+      "id": "joint-domain",
+      "files": [
+        "abi/src/selection.rs",
+        "abi/src/selection.mjs",
+        "knowledge/ink_knowledge/cost_models.py"
+      ],
+      "finding": "Axis-aligned domains do not preserve observed correlations. A real fitted synthetic profile selected GPU for (10,30), outside the convex hull of training points (10,10),(20,20),(30,30).",
+      "action": "Corrected documentation; retained real Wasm decision reproduction. General joint-domain applicability remains open, with no runtime training/probes to be introduced."
+    },
+    {
+      "id": "loop-cache-interface",
+      "files": [
+        "llvm/llvm/include/llvm/Analysis/LoopCacheAnalysis.h"
+      ],
+      "finding": "Reference groups separate temporal/spatial reuse from per-loop cost; unknown reference properties remain optional. Distance less than a line is only heuristic grouping without concrete alignment, not a guarantee of identical cache lines.",
+      "action": "Future physical model needs target line size, stride, alignment, alias and trip-count provenance; current JS observations have no address traces."
+    },
+    {
+      "id": "instruction-precedence",
+      "files": [
+        "llvm/llvm/include/llvm/Analysis/InstructionPrecedenceTracking.h",
+        "llvm/llvm/lib/Analysis/InstructionPrecedenceTracking.cpp"
+      ],
+      "finding": "Lazy cache of first relevant instruction; insertion/deletion/user replacement invalidation and debug recomputation. Implicit control flow blocks reasoning that later dominated operations necessarily execute.",
+      "action": "Keep Ink immutable content keys and fresh proof replay; audited disk-cache concurrent invalidation. General code-motion proposals must preserve failure/evaluation order; no new law is inferred from this analysis."
+    },
+    {
+      "id": "cost-model-store",
+      "files": [
+        "knowledge/ink_knowledge/cost_models.py"
+      ],
+      "finding": "Immutable decimal-preserving profile storage reauthenticates observation references and remains outside proof membership. Publication/loading do not independently check prediction accuracy or joint support.",
+      "action": "Preserve distinction between provenance and model applicability; joint-domain extension must be enforced at the actual consumer."
+    },
+    {
+      "id": "wasm-decision-wrapper",
+      "files": [
+        "abi/src/selection.mjs"
+      ],
+      "finding": "One cached Wasm engine, bounded request bytes, input/output allocations freed in finally blocks; shares Rust selection meaning rather than a duplicate JavaScript algorithm.",
+      "action": "Keep native/Wasm parity for future applicability changes; no wrapper rewrite needed."
+    }
+  ],
+  "joint_domain": {
+    "protocol": {
+      "scope": "Synthetic model-domain reproduction only; no performance result and no change to fixed benchmark execution",
+      "training_points": [
+        [
+          10,
+          10
+        ],
+        [
+          20,
+          20
+        ],
+        [
+          30,
+          30
+        ]
+      ],
+      "query": [
+        10,
+        30
+      ],
+      "outside_convex_hull": "All training points satisfy input_elements == iterations; query does not."
+    },
+    "request": {
+      "options": {
+        "policy": "adaptive",
+        "target_key": "synthetic-target",
+        "cost_profile": {
+          "models": {
+            "correlated": {
+              "backends": {
+                "cpu": {
+                  "intercept_ns": 1000.0000000000013,
+                  "terms": {
+                    "input_elements": 99.99999999999912,
+                    "iterations": 8.250416223225849e-13
+                  }
+                },
+                "gpu": {
+                  "intercept_ns": 100.00000000000016,
+                  "terms": {
+                    "input_elements": 9.999999999999847,
+                    "iterations": 1.4616879135636345e-13
+                  }
+                }
+              },
+              "boundary": "captured-owned",
+              "domains": {
+                "input_elements": [
+                  10,
+                  30
+                ],
+                "iterations": [
+                  10,
+                  30
+                ]
+              }
+            }
+          },
+          "schema": 1,
+          "target_key": "synthetic-target"
+        }
+      },
+      "context": {
+        "scope": "correlated",
+        "boundary": "captured-owned",
+        "features": {
+          "input_elements": 10,
+          "iterations": 30
+        }
+      },
+      "eligible": [
+        "cpu",
+        "gpu"
+      ]
+    },
+    "result": {
+      "backend": "gpu",
+      "cost_ns": {
+        "cpu": 2000.000000000017,
+        "gpu": 200.000000000003
+      },
+      "policy": "adaptive",
+      "reason": "saved target profile; 10% minimum predicted saving; no runtime probes"
+    },
+    "abi_revision": "b794d162b3e3770640d96516f9b640c11448cfbe",
+    "wasm_sha256": "d510a9a8d308bc0cff5a5f776db754a75a88c6c4886aa173067f64823e271ecb",
+    "source_manifest_verified": true
+  }
+}

@@ -100,7 +100,7 @@ jobs:
           CARGO_TARGET_DIR=target cargo test --manifest-path lowerings/gpu/Cargo.toml --test temporary_bounds
           cargo test --test distribution --test source_syntax --test action_values --test general_laws --test semantic_optimisation
           cargo test --test internal_snapshots --test collect_before_build --test proved_refinement_parity
-          cargo test --test physical_capabilities
+          cargo test --test physical_capabilities --test gpu
       - name: Composable state proofs, publication, journals and bounded search
         run: |
           cargo test --test composable_state --test journal_compaction --test indexed_dedup --test indexed_laws --test composable_knowledge --test sorted_tables
