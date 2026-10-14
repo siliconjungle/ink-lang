@@ -1,0 +1,98 @@
+{
+  "schema": 1,
+  "kind": "ink-adaptive-state-v1",
+  "binding": {
+    "source": "83baab250e2ca4968f2c864e2f0269d9852b92ce72f818a7b6fe97cd795ca378",
+    "compiler": "b56ad1a9743fd9fac13899ff692696ce46bfbf6aac70726d2b108998009565ab",
+    "target": "local-node22-arm64",
+    "boundary": "owned-serial-state-v1",
+    "variants": {
+      "direct": "1720a214871bdd167ee5c1906c9b7ffc215cae7b08ac306128f791f59f8830c4",
+      "cached": "f3d270e77cadcd9f3ab7b01e86adf897ac63a1d09f9eeb6496768c1d0c067dc9"
+    }
+  },
+  "artifacts": [
+    {
+      "id": "direct",
+      "file": "direct.mjs",
+      "plan": "direct.plan.json"
+    },
+    {
+      "id": "cached",
+      "file": "cached.mjs",
+      "plan": "cached.plan.json"
+    }
+  ],
+  "baseline": "direct",
+  "profile": {
+    "binding": {
+      "source": "83baab250e2ca4968f2c864e2f0269d9852b92ce72f818a7b6fe97cd795ca378",
+      "compiler": "b56ad1a9743fd9fac13899ff692696ce46bfbf6aac70726d2b108998009565ab",
+      "target": "local-node22-arm64",
+      "boundary": "owned-serial-state-v1",
+      "variants": {
+        "direct": "1720a214871bdd167ee5c1906c9b7ffc215cae7b08ac306128f791f59f8830c4",
+        "cached": "f3d270e77cadcd9f3ab7b01e86adf897ac63a1d09f9eeb6496768c1d0c067dc9"
+      }
+    },
+    "variants": {
+      "direct": {
+        "cells": {
+          "action:zero@rows128": {
+            "low_ns": 3736.572265625002,
+            "high_ns": 4635.7421875
+          },
+          "action:replace_zero@rows128": {
+            "low_ns": 212.8085937500024,
+            "high_ns": 669.9218750000069
+          }
+        },
+        "peak_bytes": 77971456
+      },
+      "cached": {
+        "cells": {
+          "action:zero@rows128": {
+            "low_ns": 159.7499999999863,
+            "high_ns": 457.84570312501495
+          },
+          "action:replace_zero@rows128": {
+            "low_ns": 33164.30664062497,
+            "high_ns": 35818.441406250015
+          }
+        },
+        "peak_bytes": 111673344
+      }
+    },
+    "migrations": [
+      {
+        "from": "direct",
+        "to": "cached",
+        "high_ns": 301040.9999999979,
+        "max_pause_ns": 301040.9999999979,
+        "peak_bytes": 108101632,
+        "min_state_elements": 128,
+        "max_state_elements": 128
+      },
+      {
+        "from": "cached",
+        "to": "direct",
+        "high_ns": 583791.99999996,
+        "max_pause_ns": 583791.99999996,
+        "peak_bytes": 108101632,
+        "min_state_elements": 128,
+        "max_state_elements": 128
+      }
+    ]
+  },
+  "policy": {
+    "horizon_calls": 4096,
+    "min_residence_calls": 1024,
+    "stable_windows": 3,
+    "min_gain": 0.15,
+    "migration_margin": 2.0,
+    "memory_limit_bytes": 268435456,
+    "max_pause_ns": 50000000.0,
+    "max_switches": 32
+  },
+  "measurement_scope": "Empirical extrema, not confidence intervals or future latency/memory guarantees. Exact workload cells only."
+}

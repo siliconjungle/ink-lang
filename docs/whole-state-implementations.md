@@ -107,3 +107,28 @@ explicit JavaScript capability, not a silently omitted cross-target choice.
 Explicit workflow job additions are retained as a patch in the implementation report
 because the configured GitHub credential cannot write workflow files. The existing
 mandatory CPU suite inventory includes `state_protocol`.
+
+## Guarded word updates and reusable publication
+
+The maintained-fold recipe offers ordinary and guarded map/dense alternatives.
+The guarded update returns the prior total when old and new contributions are
+equal. Its database theorem proves the complete identity for arbitrary 64-bit
+totals and contributions, including overflow, by a replayed RUP certificate.
+`producers.maintained_folds --guarded-update` authors that choice explicitly.
+`--guard-zero` additionally skips the redundant subtraction/addition when either
+contribution is zero, under a second complete 64-bit proof. Both remain database
+alternatives alongside the ordinary update.
+This changes no source meaning and grants no compiler arithmetic shortcut.
+
+Preflight actions with one statically known root bind its admitted maintenance
+entry and emit its keep installation directly. Grouped committed scalar outputs
+read current keep slots without query dispatch. Publication reuses two queues of
+subscription slots; a single committed scalar consumer publishes directly.
+Both paths preserve installation order, evaluate-before-deliver,
+disposal, reentry, listener isolation and nested batch/transaction boundaries.
+Changed-output generations prevent stale flags from another root causing work.
+
+Boxed dense prefixes use packed object arrays and direct Number indexes for
+checked capacities up to 2^20, with exact sparse fallback for larger word keys.
+The index conversion changes no row or arithmetic carrier. Prefix allocation is
+a setup/memory cost and remains an offline whole-plan choice.

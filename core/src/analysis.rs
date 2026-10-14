@@ -163,6 +163,23 @@ pub fn typed_walk(
 ) -> crate::LangResult<()> {
     typed_walk_context(program,function,|expression,env,_|visit(expression,env))
 }
+
+/// Expected value arguments of fixed collection methods. Callback binders are
+/// handled by their own scopes; this transports existing type judgments only.
+pub(crate) fn collection_argument_context(receiver:&Type,method:&str,index:usize)->Option<Type> {
+    match (receiver,method,index) {
+        (Type::Buffer(t),"push",0)
+        |(Type::Buffer(t),"set",1)
+        |(Type::List(t)|Type::Buffer(t),"at_or",1)
+        |(Type::Buffer(t),"fill_range",2)=>Some(*t.clone()),
+        (Type::List(_)|Type::Buffer(_),"at_or",0)
+        |(Type::Buffer(_),"set",0)
+        |(Type::Buffer(_),"swap"|"fill_range"|"copy_within",_)=>Some(Type::U32),
+        (Type::Map(k,_),"set"|"get_or"|"contains"|"remove",0)=>Some(*k.clone()),
+        (Type::Map(_,v),"set"|"get_or",1)=>Some(*v.clone()),
+        _=>None,
+    }
+}
 /// Preserve the expected type when exposing lexical source judgments. Consumers
 /// must not reinterpret contextually typed literals with an unrelated default.
 pub fn typed_walk_context(
@@ -354,6 +371,13 @@ pub fn typed_walk_context(
                     );
                 }
                 pending.push((receiver, env, None, depth + 1));
+            }
+            Expr::Method(receiver,name,args) => {
+                let input=crate::check::infer(receiver,&env,program).ok();
+                for (i,arg) in args.iter().enumerate() {
+                    pending.push((arg,env.clone(),input.as_ref().and_then(|t|collection_argument_context(t,name,i)),depth+1));
+                }
+                pending.push((receiver,env,None,depth+1));
             }
             Expr::Call(name, args) if name == "choose" && args.len() == 3 => {
                 pending.push((&args[0], env.clone(), Some(Type::Bool), depth + 1));
