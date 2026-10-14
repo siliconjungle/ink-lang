@@ -1,5 +1,5 @@
 //! Check committed source-bound evidence before expensive backend conformance.
-//! Every fixture directory containing proofs.json participates. The termination
+//! Every fixture/example directory containing proofs.json participates. The termination
 //! bundle uses termination admission rather than contract attachment.
 use std::{fs, path::Path};
 use verified_language::{contracts, core::CheckedModule, modules};
@@ -17,23 +17,28 @@ fn committed_contract_fixtures_replay_against_current_source() {
 }
 
 fn check_fixtures() {
-    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures");
-    let mut fixtures: Vec<_> = fs::read_dir(&root)
-        .unwrap()
-        .map(|entry| entry.unwrap().path())
-        .filter(|path| path.join("proofs.json").is_file())
-        .collect();
+    let root = Path::new(env!("CARGO_MANIFEST_DIR"));
+    fn collect(directory: &Path, fixtures: &mut Vec<std::path::PathBuf>) {
+        if directory.join("proofs.json").is_file() { fixtures.push(directory.to_owned()); }
+        for entry in fs::read_dir(directory).unwrap() {
+            let entry = entry.unwrap();
+            // Do not follow directory links outside the committed fixture trees.
+            if entry.file_type().unwrap().is_dir() { collect(&entry.path(), fixtures); }
+        }
+    }
+    let mut fixtures = Vec::new();
+    for directory in ["tests/fixtures", "examples"] { collect(&root.join(directory), &mut fixtures); }
     fixtures.sort();
     let mut checked = 0;
     let mut failures = Vec::new();
     for fixture in fixtures {
-        let name = fixture.file_name().unwrap().to_str().unwrap();
+        let name = fixture.strip_prefix(root).unwrap().display().to_string();
         let result = (|| -> Result<(), String> {
             let evidence: serde_json::Value = serde_json::from_slice(
                 &fs::read(fixture.join("proofs.json")).map_err(|e| e.to_string())?,
             )
             .map_err(|e| e.to_string())?;
-            if name == "authored-measures" {
+            if fixture == root.join("tests/fixtures/authored-measures") {
                 let mut program = modules::load_for_termination(fixture.join("main.ink"))?.program;
                 program.termination.knowledge =
                     Some(serde_json::from_value(evidence).map_err(|e| e.to_string())?);

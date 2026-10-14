@@ -1,0 +1,78 @@
+{
+  "schema": 1,
+  "finding": "F037",
+  "trigger": {
+    "ci_run": 38594135664,
+    "error": "generic_libraries fails contract attachment: evidence does not match exact source/semantics"
+  },
+  "change": [
+    "Re-author current evidence by replaying all23 old proof proposals against newly derived obligations, then require final module admission. Old source identity is not accepted or manually overridden.",
+    "Publish a fresh47-entry snapshot with unchanged canonical law objects and unchanged proof terms.",
+    "Extend the early evidence gate recursively across tests/fixtures and examples, without following directory symlinks."
+  ],
+  "old_source_identity": "531bf5fd4e2848c849a42c98c1d2a83db3480fa82dde73cc7f0bb086d46b5d3a",
+  "new_source_identity": "347c90fce932096ab73856bd1d1982c0fc3f618497e476e519574abf56cdeaf7",
+  "proof_terms_unchanged": true,
+  "canonical_objects_unchanged": true,
+  "validation": {
+    "pure_proposals_checked": 23,
+    "final_module_admission": "passed",
+    "early_gate": "12 contract fixtures +1 termination fixture passed",
+    "backend_comparison": "30 cases: independent reference/native/JavaScript/Rust-Wasm values and exact snapshots pass",
+    "mandatory_hardening": "passed"
+  },
+  "limitations": [
+    "Fresh authoring without supplied proposals still misses an installed exact law; reproduced separately as F039.",
+    "First local backend compilation lacked a sparse excluded committed bench source; restored exact HEAD bytes and reran successfully.",
+    "No application speed claim."
+  ],
+  "sources": [
+    {
+      "path": "work/ink-development/examples/libraries/proofs.json",
+      "bytes": 854731,
+      "sha256": "e21cfb6cae0ce8c0ef18d317c8371467e5d5c982fe8fb7e9e03dfea71e4d947a"
+    },
+    {
+      "path": "work/ink-development/tests/contract_fixtures.rs",
+      "bytes": 3015,
+      "sha256": "30b827f92434940f2b4699b0fc0e5fda602802795cf6dc51372f02221397df02"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "work/llvm-learning-smoke/ci-38594135664-failed.log",
+      "bytes": 43807,
+      "sha256": "fff37d597b6c8c88ef2e7ff9f5b589ed06c2bad8a961749a24eabb7999a36ac1"
+    },
+    {
+      "path": "work/llvm-learning-smoke/library-contract-before.log",
+      "bytes": 63,
+      "sha256": "ba11178e5588dcf272ecf7cfe758dfcf08ee105ef2f90b4176ddc9f8f9795345"
+    },
+    {
+      "path": "work/llvm-learning-smoke/replay-library-contract-proposals.py",
+      "bytes": 984,
+      "sha256": "4ef33b0b328145c0cdcf4a064b0976abc403fc21c2c2c0039a05f6c76849e2be"
+    },
+    {
+      "path": "work/llvm-learning-smoke/library-contract-replay.log",
+      "bytes": 270,
+      "sha256": "e23fc1e08131273d1122f43e7d0f6739d22796c6579580a95de45f4965f635f2"
+    },
+    {
+      "path": "work/llvm-learning-smoke/contract-examples-gate.log",
+      "bytes": 1576,
+      "sha256": "95971e4ec4acf9b56b70977212b87255ef656176195105a81a48e9fb5ebe90cb"
+    },
+    {
+      "path": "work/llvm-learning-smoke/library-contract-parity-materialized.log",
+      "bytes": 582,
+      "sha256": "dbeaf24100d0d7eda24e8af40fdbf59bf61d40ccc2137f055bd461a95adc85f4"
+    },
+    {
+      "path": "work/llvm-learning-smoke/llvm-library-hardening.log",
+      "bytes": 488,
+      "sha256": "4d40c1710b7936b3637e4e35b2ab3f69a7d50b7594f36441a7392405836450b4"
+    }
+  ]
+}

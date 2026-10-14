@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "finding": "F031",
+  "trigger": "CARGO_TARGET_DIR points at the shared outer build directory.",
+  "before": "Existing selected CLI conformance builds successfully, then fails to launch destination/target/debug/compiled-state: No such file or directory.",
+  "after": "Explicit --target-dir uses the same per-artifact path the test launches; existing provenance and original checkpoint assertions pass under the same override.",
+  "evidence": [
+    {
+      "path": "work/llvm-learning-smoke/selected-cli-target-before.log",
+      "bytes": 933,
+      "sha256": "c44c6389066b3ccf195dc556119664b3b2b82763061015acd08afcf840d895b9"
+    },
+    {
+      "path": "work/llvm-learning-smoke/selected-cli-target-after.log",
+      "bytes": 526,
+      "sha256": "3181d7191143ec9af8deb95bfd2c9c75cd540d55fbefd9b593c9b9ea416af18a"
+    },
+    {
+      "path": "work/ink-development/tests/selected_checkpoint.rs",
+      "bytes": 10505,
+      "sha256": "cee879ebad7fc983d10cdadcbd3ff371cdcf1d1b36c1155be47064d8780f8f20"
+    }
+  ]
+}

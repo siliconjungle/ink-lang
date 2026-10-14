@@ -1,0 +1,377 @@
+{
+  "schema": 1,
+  "findings": [
+    "F043",
+    "F044"
+  ],
+  "base_distribution": "368b397e363b6804e72efce5d1009242c88398f6",
+  "base_knowledge": "90d1a3870f31334315c036970dbc5fb0741c384b",
+  "candidate_knowledge": "c5b74822207ca472a1a3852ef10416e06dfbc919",
+  "change": [
+    "Serialize public publication/extension and private proposal transport publication using a stable private SQLite BEGIN IMMEDIATE lock, bounded60second acquisition.",
+    "Expected snapshot comparison, names merge, pointer writes and returned view creation stay inside the same critical section. Stale extensions reject; explicit retry from current Store retains both additions.",
+    "Complete immutable bytes privately, then link without replacement; identical creators succeed and different content rejects. Cleanup temporary staged files on ordinary failure."
+  ],
+  "validation": {
+    "process_and_io_tests": 6,
+    "baseline_failures": 5,
+    "tests": "Two actual spawned writers, stale conflict and retry, names-only concurrent updates, termination lock release, simultaneous identical/different immutable creators and injected pre-publication I/O failure.",
+    "related_store_tests": 39,
+    "related_scope": "Initial4concurrency methods plus35existing store/incremental tests; final6concurrency methods separately pass and are included in final mandatory hook.",
+    "mandatory_hardening": "passed with new concurrency and corpus helper suites",
+    "ordinary_authoring": [
+      {
+        "case": "fresh",
+        "label": "before",
+        "pure": 4,
+        "state": 13,
+        "export_sha256": "c255282cf0ae562f149dc45816e02608af678325d8373b5a6c3f2904f8565989",
+        "evidence_sha256": "546b303a0c42946116da7befb1173ecca0886f0d12970b504cfa34453bdd3502"
+      },
+      {
+        "case": "fresh",
+        "label": "after",
+        "pure": 4,
+        "state": 13,
+        "export_sha256": "c255282cf0ae562f149dc45816e02608af678325d8373b5a6c3f2904f8565989",
+        "evidence_sha256": "546b303a0c42946116da7befb1173ecca0886f0d12970b504cfa34453bdd3502"
+      },
+      {
+        "case": "replay",
+        "label": "before",
+        "pure": 9,
+        "state": 10,
+        "export_sha256": "8b100f371342bef6491322b298a67d46bbc36aaacf990a3deda7b2376856a1df",
+        "evidence_sha256": "1e95bedcc46f6624a44019d7a0fe176a0b824d15190d044479c2b05867aea05b"
+      },
+      {
+        "case": "replay",
+        "label": "after",
+        "pure": 9,
+        "state": 10,
+        "export_sha256": "8b100f371342bef6491322b298a67d46bbc36aaacf990a3deda7b2376856a1df",
+        "evidence_sha256": "1e95bedcc46f6624a44019d7a0fe176a0b824d15190d044479c2b05867aea05b"
+      },
+      {
+        "case": "refinement",
+        "label": "before",
+        "pure": 8,
+        "state": 0,
+        "export_sha256": "de4099218b34fc003010b19af03239b67317338737d6ef1b27d074eac6cc373a",
+        "evidence_sha256": "12cf327597afb002b4a636877847f76a96ae6bc67faec1bf9291b8a8a5df10d9"
+      },
+      {
+        "case": "refinement",
+        "label": "after",
+        "pure": 8,
+        "state": 0,
+        "export_sha256": "de4099218b34fc003010b19af03239b67317338737d6ef1b27d074eac6cc373a",
+        "evidence_sha256": "12cf327597afb002b4a636877847f76a96ae6bc67faec1bf9291b8a8a5df10d9"
+      }
+    ],
+    "corpus_before": {
+      "programs": 10,
+      "compiled": 10,
+      "programs_with_rewrite_alternative": 10,
+      "programs_with_any_alternative": 10,
+      "programs_selecting_alternative": 4,
+      "median_seconds": 14.635000000000002,
+      "stopped_by_time": 1,
+      "laws_admitted": 44,
+      "laws_admitted_in_multiple_programs": 7,
+      "representations_admitted": 0,
+      "last_gates": {
+        "measurement_budget": 6,
+        "selected_alternative": 4
+      }
+    },
+    "corpus_after": {
+      "programs": 10,
+      "compiled": 10,
+      "programs_with_rewrite_alternative": 10,
+      "programs_with_any_alternative": 10,
+      "programs_selecting_alternative": 4,
+      "median_seconds": 15.251999999999999,
+      "stopped_by_time": 1,
+      "laws_admitted": 45,
+      "laws_admitted_in_multiple_programs": 7,
+      "representations_admitted": 0,
+      "last_gates": {
+        "measurement_budget": 6,
+        "selected_alternative": 4
+      }
+    },
+    "per_program_differences": [
+      {
+        "program": "sequence-every",
+        "differences": {
+          "last_gate": [
+            "measurement_budget",
+            "selected_alternative"
+          ],
+          "selected_alternative": [
+            false,
+            true
+          ],
+          "admitted_edges": [
+            {
+              "rewrite": 31,
+              "properties": 1
+            },
+            {
+              "rewrite": 30,
+              "properties": 2
+            }
+          ],
+          "alternatives_with_knowledge": [
+            30,
+            29
+          ],
+          "selection_reason": [
+            "baseline retained; no robust measured lifecycle improvement",
+            "paired complete-lifecycle improvement on selection inputs"
+          ],
+          "rewrite_alternatives": [
+            30,
+            29
+          ]
+        }
+      },
+      {
+        "program": "drawing-hit",
+        "differences": {
+          "admitted_edges": [
+            {
+              "rewrite": 32
+            },
+            {
+              "rewrite": 32,
+              "extension": 1
+            }
+          ]
+        }
+      },
+      {
+        "program": "particle-step",
+        "differences": {
+          "admitted_edges": [
+            {
+              "rewrite": 4,
+              "physical": 17
+            },
+            {
+              "rewrite": 4,
+              "physical": 18
+            }
+          ]
+        }
+      },
+      {
+        "program": "index-membership",
+        "differences": {
+          "admitted_edges": [
+            {
+              "rewrite": 32
+            },
+            {
+              "rewrite": 30,
+              "properties": 2
+            }
+          ],
+          "alternatives_with_knowledge": [
+            31,
+            29
+          ],
+          "rewrite_alternatives": [
+            31,
+            29
+          ]
+        }
+      },
+      {
+        "program": "bulk-update",
+        "differences": {
+          "last_gate": [
+            "selected_alternative",
+            "measurement_budget"
+          ],
+          "selected_alternative": [
+            true,
+            false
+          ],
+          "selection_reason": [
+            "paired complete-lifecycle improvement on selection inputs",
+            "baseline retained; no robust measured lifecycle improvement"
+          ]
+        }
+      }
+    ],
+    "added_attribution": {
+      "5a0cf328fbe55589eb3af1e392423ec02252a0db3a418ae47c3f3eca7efdc52c": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "drawing-hit"
+        ]
+      }
+    },
+    "removed_attribution": {}
+  },
+  "limits": [
+    "No generated application runtime performance claim.",
+    "Frozen quick-planning runs are contended and contain state/time/measurement budgets.45versus44admitted laws and selection changes are observations, not attributed speed/generalisation gains.",
+    "Initial disk failures are retained; successful exact-context resumes replace only failed or missing records.15older audit databases were losslessly gzip-archived with decompressed SHA256 verification; currentaudit remains SQLite.",
+    "Current pointer publication still uses separate names.json and snapshot.json replacements. Injected failure between them leaves stale names; membership rejects absent references. F046 remains pending and is documented.",
+    "Coordination applies to writers using these APIs; direct external mutation/deletion of files is not coordinated. Locks/receipts do not grant proof authority.",
+    "Local tests exercised macOS spawned processes; full remote CI required."
+  ],
+  "source_files": [
+    {
+      "path": "work/ink-development/knowledge/ink_knowledge/store.py",
+      "bytes": 36537,
+      "sha256": "5ceaabd0f510b7fea585a9678bb7e5e36717df0742e693b952b57848b452f2d0"
+    },
+    {
+      "path": "work/ink-development/knowledge/ink_knowledge/proposal_views.py",
+      "bytes": 3292,
+      "sha256": "263a1437c365c8f1275956d7ecc3a5d4c2d7f563a5e777fe2aff4fdcc494b543"
+    },
+    {
+      "path": "work/ink-development/knowledge/tests/test_publication_concurrency.py",
+      "bytes": 9306,
+      "sha256": "4f9bfba3a6b98608df33f9b4752d8f106b86d2354cece3bc23c8f0045bb6c48d"
+    },
+    {
+      "path": "work/ink-development/knowledge/README.md",
+      "bytes": 38591,
+      "sha256": "4e96ba3ad9f6989454dbf8d559269411d2db45ae182086cef43113115c3be131"
+    },
+    {
+      "path": "work/ink-development/knowledge/.gitignore",
+      "bytes": 302,
+      "sha256": "264cbbcfec40383db37eee838c344a483a28b8ec888e2ab4b61d198c58d9ce0e"
+    },
+    {
+      "path": "work/ink-development/tests/hardening.rs",
+      "bytes": 80154,
+      "sha256": "164a6d1c8f1ecea5d76c7972029979b08db5312cc9a415e423ddf35e304e39d4"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "work/llvm-learning-smoke/publication-concurrency-before.log",
+      "bytes": 3134,
+      "sha256": "2ffc45b1c23ba7cec413880b0e9d8d39172d68202455659ea6416702751ca373"
+    },
+    {
+      "path": "work/llvm-learning-smoke/publication-concurrency-final-before.log",
+      "bytes": 5212,
+      "sha256": "85a22ff6d11e4845e8a7f8d40d2db40af387a8690b719ce5f6be28af0cd1c495"
+    },
+    {
+      "path": "work/llvm-learning-smoke/publication-concurrency-final-after.log",
+      "bytes": 104,
+      "sha256": "ad56d7effaa11ab1489ac29fb1fe47f93a47e5f284bbaf3fdc70f9e8347867a8"
+    },
+    {
+      "path": "work/llvm-learning-smoke/publication-store-regressions.log",
+      "bytes": 139,
+      "sha256": "c1a5ed40bcee5f7cc5372ecab4aa7b23aed91a7e82f5f34ca9ec5ab771141715"
+    },
+    {
+      "path": "work/llvm-learning-smoke/publication-and-clone-hardening-final.log",
+      "bytes": 488,
+      "sha256": "2a240bbca5faabbfc1bf24f619c44339e09798091c05b02e975281857b59115d"
+    },
+    {
+      "path": "work/llvm-learning-smoke/publication-concurrency-authoring.log",
+      "bytes": 1405,
+      "sha256": "96e57149850b94957d6f1b872be20570d0762dcb978f0f292b7e3c22a607a041"
+    },
+    {
+      "path": "work/llvm-learning-smoke/publication-concurrency-authoring/results.json",
+      "bytes": 1594,
+      "sha256": "a72a75b08c755a76175df89b5c64c2a91ebf7b6e95adaaa00ab00e934dba594f"
+    },
+    {
+      "path": "work/llvm-learning-smoke/publication-concurrency-authoring/refinement-admission.log",
+      "bytes": 993,
+      "sha256": "fb13bead15c341f0315ea14acfd39ea4b325e311d016520e8d4879348d190733"
+    },
+    {
+      "path": "work/llvm-learning-smoke/publication-concurrency-corpus-before.log",
+      "bytes": 1502,
+      "sha256": "54aeb134854ad1b2afd61ec270d854d3b9a83219c9445ea811611c2078477245"
+    },
+    {
+      "path": "work/llvm-learning-smoke/publication-concurrency-corpus-before-resume.log",
+      "bytes": 498,
+      "sha256": "02d41236939283fbde4f1fe40a7a5503a836db0a32def6680bc35957a3fcad36"
+    },
+    {
+      "path": "work/llvm-learning-smoke/publication-concurrency-corpus-after.log",
+      "bytes": 777,
+      "sha256": "ec1052c8bffdbec10d5df5c65ac5e4b88311f76d2448b1306448e0864c7b1fa6"
+    },
+    {
+      "path": "work/llvm-learning-smoke/publication-concurrency-corpus-after-resume.log",
+      "bytes": 453,
+      "sha256": "ec5e5e769b136e40f36db5eaa9069844fdf1f47c2e9aafb3fce79b6fb8c803aa"
+    },
+    {
+      "path": "work/llvm-learning-smoke/publication-corpus-before-disk-records.json",
+      "bytes": 70525,
+      "sha256": "62b7afffd02941c5e69862ec0545f90c739a47db19a4227ebd17940dbd4fb516"
+    },
+    {
+      "path": "work/llvm-learning-smoke/publication-corpus-after-disk-records.json",
+      "bytes": 85626,
+      "sha256": "8fc2c29a16a15d63b0a9e061a2ec62aa82505b29439eb0065bd759d0bf0fa5fd"
+    },
+    {
+      "path": "work/llvm-learning-smoke/publication-freeze-ignore-recovery.json",
+      "bytes": 269,
+      "sha256": "4e6e9b9ba3c793b804bfc45963c03d63bc462fadebe1fd5ed8e0909203fdabc7"
+    },
+    {
+      "path": "work/llvm-learning-smoke/publication-pointer-failure.json",
+      "bytes": 409,
+      "sha256": "668d47540f62e5b84f9881e601f85501820cd280ec4509a78df971cac9edce12"
+    },
+    {
+      "path": "outputs/llvm-ink-audit/publication-concurrency-corpus/before/context.json",
+      "bytes": 617,
+      "sha256": "d841fb6180c26128feee793d78f55a6fcabc8e03bbaeeb6beaeb904d3dd49855"
+    },
+    {
+      "path": "outputs/llvm-ink-audit/publication-concurrency-corpus/before/report.json",
+      "bytes": 18658,
+      "sha256": "b5b53fd1bd1953d69c9ab1fad3497ddefaedcd70e9f539c9eee4eb45a44ed068"
+    },
+    {
+      "path": "outputs/llvm-ink-audit/publication-concurrency-corpus/before/records.json",
+      "bytes": 105451,
+      "sha256": "104453410ac89a4d204578cf0ebcad4bef1dbc47e83539f9fbdd1e99827d5c7b"
+    },
+    {
+      "path": "outputs/llvm-ink-audit/publication-concurrency-corpus/after/context.json",
+      "bytes": 617,
+      "sha256": "b7f5eb33ab928378675be9729253fc3d6b79453d304b43b3ee86130f92d6b154"
+    },
+    {
+      "path": "outputs/llvm-ink-audit/publication-concurrency-corpus/after/report.json",
+      "bytes": 18861,
+      "sha256": "4020204f5691f3d231a0c1d01bd98aafb58ed967685e5c72dbe32f446f9c0995"
+    },
+    {
+      "path": "outputs/llvm-ink-audit/publication-concurrency-corpus/after/records.json",
+      "bytes": 104917,
+      "sha256": "5e90f7d4ff74b52d68e497d1e9ffc3772bf261de07087587ddae696475a1b7be"
+    },
+    {
+      "path": "outputs/llvm-ink-audit/audit-snapshot-archives.json",
+      "bytes": 4925,
+      "sha256": "a980f23a35f5e71d31ed39e6a126b9c34a51010aa5e9b4bb20708d4ab199ffbd"
+    }
+  ]
+}

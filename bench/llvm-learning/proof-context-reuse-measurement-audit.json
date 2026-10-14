@@ -1,0 +1,100 @@
+{
+  "schema": 1,
+  "finding": "F033",
+  "implementation_revision": "02710bc17f07079c999cd30e6f0657d0564f73d2",
+  "scope": "Shared-machine debug compiler proof-authoring sessions; no generated application execution or browser runtime timing.",
+  "controlled_build": [
+    {
+      "label": "baseline",
+      "binary": "/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/work/llvm-learning-smoke/proof-reuse-baseline-ink",
+      "sha256": "7770e4deb136b87694873ecad216d9078172329805341a7a0b0235e2503a4a79",
+      "source_sha256": "19977c148b2bcbf199afc7a7b5ba19243f4ac6eaa2472f61b1826e6f5477dabc"
+    },
+    {
+      "label": "after",
+      "binary": "/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/work/llvm-learning-smoke/proof-reuse-after-ink",
+      "sha256": "1d96e5220e0058badcb1dd16e8b0f5529668f969676dadb97a35f08395c80e40",
+      "source_sha256": "9046923a50b64cdb90ff37cdcd60cd4344766ad2f7a3c6832b3fef8c265a2e68"
+    }
+  ],
+  "storage_generic": {
+    "baseline": {
+      "preparation_seconds": 130.02584029198624,
+      "cold_first_request_seconds": 64.83124679210596,
+      "matched_next_two_request_seconds": 129.08699583192356,
+      "matched_first_three_replay_seconds": 193.91824262402952,
+      "matched_preparation_plus_three_seconds": 323.94408291601576,
+      "completed_requests": 3
+    },
+    "after": {
+      "preparation_seconds": 127.42177354102023,
+      "cold_first_request_seconds": 65.44272783398628,
+      "matched_next_two_request_seconds": 5.772632790962234,
+      "matched_first_three_replay_seconds": 71.21536062494852,
+      "matched_preparation_plus_three_seconds": 198.63713416596875,
+      "completed_requests": 30
+    }
+  },
+  "matched_warm_request_speedup": 22.361892832335553,
+  "matched_first_three_replay_speedup": 2.7229833693504477,
+  "matched_preparation_plus_three_time_reduction_percent": 38.68166000196198,
+  "additional_validation": {
+    "after_all_30_requests": "checked",
+    "after_all_30_total_seconds": 276.8140042501036,
+    "after_29_warm_request_median_seconds": 2.8879168750718236,
+    "export_sha256": "b82185036460616866d50813404dcc7d9ccd9eaab569450d580be49999e24fb0"
+  },
+  "small_control": {
+    "baseline": {
+      "total_seconds": [
+        1.8086908750701696,
+        1.1101355829741806,
+        1.2934610829688609
+      ],
+      "median_total_seconds": 1.2934610829688609
+    },
+    "after": {
+      "total_seconds": [
+        1.5062267920002341,
+        1.0997588750906289,
+        1.8108003751840442
+      ],
+      "median_total_seconds": 1.5062267920002341
+    }
+  },
+  "limitations": [
+    "One sequential storage pair with three matched proof requests. The baseline checks three; the after run additionally checks the remaining27. Only the first three are used for paired speed ratios.",
+    "The first request still independently replays the complete30-law catalogue. Subsequent requests authenticate incoming bytes, reuse sealed laws and check their own proof.",
+    "Other tasks, the historical F027 measurement and local validation work were running; no isolated hardware estimate or confidence interval.",
+    "Small19-proof mixed pure/state controls have mixed timings; median total is slower after in this sample. No general speedup is inferred.",
+    "The compiler binaries use the identical dependency graph and differ in core/src/contracts.rs; the controlled baseline hash exactly matches the earlier frozen compiler. Later Wasm-wrapper and fixture changes are outside this measurement.",
+    "No extrapolated30-request baseline or application runtime speedup is claimed."
+  ],
+  "evidence": [
+    {
+      "path": "work/llvm-learning-smoke/measure-proof-reuse.py",
+      "bytes": 2676,
+      "sha256": "6edd607cded4de46da56596b7f7ce6a1135eeb6c9e5c96c9dd92189837b8a2bb"
+    },
+    {
+      "path": "work/llvm-learning-smoke/proof-reuse-measurement/results.json",
+      "bytes": 30906,
+      "sha256": "cfccb8588e76670b37aafc3c532ac77fe1ede58efb11d90a6b10f46619968bcc"
+    },
+    {
+      "path": "work/llvm-learning-smoke/proof-reuse-measurement.log",
+      "bytes": 30372,
+      "sha256": "b49046a496938b8c4ae70e7e5c5b94ed62eac77305d166a8d0ecfc55e6f061cd"
+    },
+    {
+      "path": "work/llvm-learning-smoke/proof-reuse-build-pair.json",
+      "bytes": 645,
+      "sha256": "4682d8650d9d4d1d99048a2f1f433573fd5f262cf13870f0b6180f8103a49918"
+    },
+    {
+      "path": "work/llvm-learning-smoke/build-proof-reuse-pair.py",
+      "bytes": 1135,
+      "sha256": "8c8da8fd503bc596fb308ae1987a31ae97ef5f69cd78daa2c6617811eaa97220"
+    }
+  ]
+}

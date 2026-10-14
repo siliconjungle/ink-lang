@@ -1,0 +1,64 @@
+{
+  "schema": 1,
+  "finding": "F036",
+  "change": "Plain Wasm lower/lower_complete wrappers retain the sealed CheckedModule and call the pinned Rust emit_checked API.",
+  "scope": "Compiler admission/emission only. Generated Rust remains byte-identical in the existing transactional/specification fixture. No new Wasm runtime performance measurement.",
+  "revisions": {
+    "wasm": "1ac20047cb95fb042d45303b2a93997a89ecc06e",
+    "runtime": "f65b54bddfc7941cbe2654e83585dd3e4d909099"
+  },
+  "validation": [
+    "Existing checked/raw emission regression passes with both Wasm wrapper outputs included; false raw contracts remain rejected.",
+    "Standalone Wasm cargo check --locked passes against exact independently pinned core/Rust/ABI packages through the verified local source mirror.",
+    "Runtime manifest pin and Cargo.lock refreshed with cargo metadata; independent locked check passes."
+  ],
+  "sources": [
+    {
+      "path": "work/ink-development/lowerings/wasm/Cargo.toml",
+      "bytes": 493,
+      "sha256": "7a218cc6839855b6caa1ee93f1940c028198137ba94217620b731ddf3c4d8e70"
+    },
+    {
+      "path": "work/ink-development/lowerings/wasm/src/lib.rs",
+      "bytes": 1307,
+      "sha256": "f6d16bd769838e1bb13c06cbcf8d6622dc9229316065b31bcd0a9e9edcb00d19"
+    },
+    {
+      "path": "work/ink-development/runtime/Cargo.toml",
+      "bytes": 1088,
+      "sha256": "6b09da535be22b80208a9797cbe2fe3a9bbde29b38ab76980e34e9bd723ca552"
+    },
+    {
+      "path": "work/ink-development/runtime/Cargo.lock",
+      "bytes": 7866,
+      "sha256": "8bc49d467e6fa997a89eafc8e514bb4e220fa93a9d77a43866ed920c29345181"
+    },
+    {
+      "path": "work/ink-development/tests/checked_emission.rs",
+      "bytes": 1549,
+      "sha256": "df752cc8cdd4b6b2603fb48f4a82442267a4dd15ab15d5c19bfaeeb9cc025333"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "work/llvm-learning-smoke/wasm-checked-wrapper-tests.log",
+      "bytes": 767,
+      "sha256": "9e4b81fc1a838850687645dcf83dfc6974cc1a9f3eac9cbc58c1864b6d0cbc1d"
+    },
+    {
+      "path": "work/llvm-learning-smoke/wasm-checked-wrapper-independent.log",
+      "bytes": 1275,
+      "sha256": "efe3277fa292a7568bb934f9308a45b85c4b60cd8b56019dc2ceced2b74a6aac"
+    },
+    {
+      "path": "work/llvm-learning-smoke/wasm-wrapper-runtime-locked.log",
+      "bytes": 605,
+      "sha256": "e43e8a0f32009c3daa8c60a7b15478a791bb63ceb17f2e1c82d92586aab2912e"
+    }
+  ],
+  "audit_insights": [
+    "Wasm crate is target configuration over typed Rust lowering, not a direct Wasm emitter.",
+    "All dependencies are exact independently published revisions; distribution path patches and standalone package builds exercise different dependency resolution contexts.",
+    "Existing checked emitter preserves source validity without changing concrete layout or target semantics; raw emitter remains available for raw input checking."
+  ]
+}

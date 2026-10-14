@@ -1,0 +1,126 @@
+{
+  "schema": 1,
+  "finding": "F033",
+  "base_distribution": "4f6f0e17a7b88fd551e6ab1be92dd5c6798254b2",
+  "change": "Retain one bounded sealed pure-law catalogue in an immutable source authoring context; authenticate every incoming bundle and independently prove each requested obligation.",
+  "trust_boundaries": [
+    "Reuse only current incoming authenticated laws under exactly the same executable program.",
+    "Missing bundle uses an empty catalogue; a smaller view cannot inherit absent laws.",
+    "Missing dependencies, changed content, invalid snapshot membership and newly rehashed invalid proofs are rejected.",
+    "Failed bundle/context admission leaves the last valid catalogue intact. Valid law admission never implies a proposed obligation is valid.",
+    "State proof dependencies keep their existing first-order replay path. Final module and refinement admission remain required."
+  ],
+  "validation": {
+    "authoring_context_tests": 6,
+    "related_core_tests": 42,
+    "stream_tests": 4,
+    "mandatory_hardening": "passed",
+    "actual_authoring": [
+      {
+        "case": "fresh",
+        "label": "before",
+        "pure": 4,
+        "state": 13,
+        "export_sha256": "c255282cf0ae562f149dc45816e02608af678325d8373b5a6c3f2904f8565989",
+        "evidence_sha256": "546b303a0c42946116da7befb1173ecca0886f0d12970b504cfa34453bdd3502"
+      },
+      {
+        "case": "fresh",
+        "label": "after",
+        "pure": 4,
+        "state": 13,
+        "export_sha256": "c255282cf0ae562f149dc45816e02608af678325d8373b5a6c3f2904f8565989",
+        "evidence_sha256": "546b303a0c42946116da7befb1173ecca0886f0d12970b504cfa34453bdd3502"
+      },
+      {
+        "case": "replay",
+        "label": "before",
+        "pure": 9,
+        "state": 10,
+        "export_sha256": "8b100f371342bef6491322b298a67d46bbc36aaacf990a3deda7b2376856a1df",
+        "evidence_sha256": "1e95bedcc46f6624a44019d7a0fe176a0b824d15190d044479c2b05867aea05b"
+      },
+      {
+        "case": "replay",
+        "label": "after",
+        "pure": 9,
+        "state": 10,
+        "export_sha256": "8b100f371342bef6491322b298a67d46bbc36aaacf990a3deda7b2376856a1df",
+        "evidence_sha256": "1e95bedcc46f6624a44019d7a0fe176a0b824d15190d044479c2b05867aea05b"
+      },
+      {
+        "case": "refinement",
+        "label": "before",
+        "pure": 8,
+        "state": 0,
+        "export_sha256": "de4099218b34fc003010b19af03239b67317338737d6ef1b27d074eac6cc373a",
+        "evidence_sha256": "12cf327597afb002b4a636877847f76a96ae6bc67faec1bf9291b8a8a5df10d9"
+      },
+      {
+        "case": "refinement",
+        "label": "after",
+        "pure": 8,
+        "state": 0,
+        "export_sha256": "de4099218b34fc003010b19af03239b67317338737d6ef1b27d074eac6cc373a",
+        "evidence_sha256": "12cf327597afb002b4a636877847f76a96ae6bc67faec1bf9291b8a8a5df10d9"
+      }
+    ],
+    "refinement_final_admission": "passed"
+  },
+  "measurement": "Controlled identical dependency graph binary pair frozen. Timing process is running; no measured speed claim in this conformance record.",
+  "sources": [
+    {
+      "path": "work/ink-development/core/src/contracts.rs",
+      "bytes": 32156,
+      "sha256": "9046923a50b64cdb90ff37cdcd60cd4344766ad2f7a3c6832b3fef8c265a2e68"
+    },
+    {
+      "path": "work/ink-development/core/tests/contract_proof_context.rs",
+      "bytes": 8985,
+      "sha256": "85c2272f4cc230845b85f6746cae246a90683b4078e146134521aa92c7b72e99"
+    },
+    {
+      "path": "work/ink-development/docs/source-contracts.md",
+      "bytes": 11485,
+      "sha256": "1888564643e1b2d4b9acdf55ebb90bc78b1607e9db4d976217ceeba609273f87"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "work/llvm-learning-smoke/proof-context-reuse-tests.log",
+      "bytes": 959,
+      "sha256": "777b12f1efcf4c79fe7b7bf7f3195ae11d594c1cfde6801480fa402d9e68e8d8"
+    },
+    {
+      "path": "work/llvm-learning-smoke/proof-context-related-tests.log",
+      "bytes": 4034,
+      "sha256": "5794c9dec216a0f34c378fcf8ec48a617301289eba0bde04d55dd37810e8dce4"
+    },
+    {
+      "path": "work/llvm-learning-smoke/proof-context-stream-tests.log",
+      "bytes": 1500,
+      "sha256": "720742f8f85620e3373116a2909ee80032245e46a67ad33724557d5f9c220f41"
+    },
+    {
+      "path": "work/llvm-learning-smoke/proof-reuse-cache-hardening.log",
+      "bytes": 1225,
+      "sha256": "3d93c52b5451746b133c1bce4e1664c19edcf86b5f38dd33ef878ffa386ff4f6"
+    },
+    {
+      "path": "work/llvm-learning-smoke/proof-reuse-build-pair.json",
+      "bytes": 645,
+      "sha256": "4682d8650d9d4d1d99048a2f1f433573fd5f262cf13870f0b6180f8103a49918"
+    },
+    {
+      "path": "work/llvm-learning-smoke/proof-reuse-authoring/results.json",
+      "bytes": 1594,
+      "sha256": "a72a75b08c755a76175df89b5c64c2a91ebf7b6e95adaaa00ab00e934dba594f"
+    },
+    {
+      "path": "work/llvm-learning-smoke/proof-reuse-authoring/refinement-admission.log",
+      "bytes": 993,
+      "sha256": "fb13bead15c341f0315ea14acfd39ea4b325e311d016520e8d4879348d190733"
+    }
+  ],
+  "environment": "First authoring attempt used system Python without pysat; failed before completion. Corrected to existing pyenv and reran all scenarios; original failure log retained."
+}
