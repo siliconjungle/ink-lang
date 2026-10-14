@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "sources": [
+    {
+      "repo": "llvm",
+      "path": "llvm/include/llvm/Support/Caching.h",
+      "blob": "c98ef24e610fb6f9209cf1b42a0d4d8aac8dae29",
+      "bytes": 5542,
+      "sha256": "99491c45193f251e4e39c397a423a154f3f17c45badb115a0d8c91ec0ab68050"
+    },
+    {
+      "repo": "llvm",
+      "path": "llvm/lib/Support/Caching.cpp",
+      "blob": "5f801e1c21142d453476f09a041df7154f52bd35",
+      "bytes": 9974,
+      "sha256": "c19967a2443ab3436026306bec2f78b80bd9480be256be109b58123403ab076c"
+    },
+    {
+      "repo": "llvm",
+      "path": "llvm/unittests/Support/Caching.cpp",
+      "blob": "41e6b85a5a1179cd1472d8ce68a7395d9ed1dae3",
+      "bytes": 5014,
+      "sha256": "3fe3253c5b5799cf604783000f41b973db2de6e33f19f9350bb17f657ea8e48b"
+    }
+  ],
+  "insights": [
+    "Callbacks own captured strings and mapped/open file data; stream commit has an explicit exactly-once lifecycle. Ink immutable input snapshots should likewise survive later path changes.",
+    "Ordinary cache writes finish a temporary file in the destination directory and publish by rename. The open file is obtained before publication to survive concurrent pruning. Both Ink planner caches already use same-directory temporary replacement.",
+    "An expected absent/deleting file can be a cache miss. Ink compiled_cache has an uncaught inventory/stat deletion race also previously repaired in plan_cache; reproduce and share that implementation.",
+    "Windows rename-permission fallback returns a copy of newly written bytes instead of reopening a path a pruner may remove. Do not generalize that policy to arbitrary errors or mathematical proof admission.",
+    "MoveFileToCache cross-device path copies directly; it is a separate behavior from temporary-stream atomic replacement. No inference of identical guarantees across modes.",
+    "Provided LLVM tests cover normal hits, closed output after commit and death on uncommitted destruction. They do not establish concurrent-pruning, Windows fallback or cross-device correctness. No LLVM code was copied."
+  ],
+  "application": "F034 reproducible cache IO repairs; F033 sealed in-memory proof reuse is a different trust boundary and cannot use a disk-cache hit as proof."
+}
