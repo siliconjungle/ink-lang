@@ -2,9 +2,13 @@
 // capture, backend setup, upload, execution, full output read and disposal.
 import {chromium} from 'playwright-core';
 import fs from 'node:fs/promises';import http from 'node:http';import path from 'node:path';import os from 'node:os';import crypto from 'node:crypto';
+import {captureBundle} from './engine-profile-assets.mjs';
 const [mode,output,bundle,protocolFile,profileFile]=process.argv.slice(2);
 if(!['smoke','train','evaluation'].includes(mode)||!output||!bundle||!protocolFile)throw Error('usage: engine-profile-browser.mjs smoke|train|evaluation OUTPUT BUNDLE PROTOCOL [PROFILE]');
-const protocol=JSON.parse(await fs.readFile(protocolFile,'utf8')),profile=profileFile?JSON.parse(await fs.readFile(profileFile,'utf8')):null;
+const protocolBytes=await fs.readFile(protocolFile),profileBytes=profileFile?await fs.readFile(profileFile):null;
+const sha256=bytes=>crypto.createHash('sha256').update(bytes).digest('hex');
+const protocol=JSON.parse(protocolBytes),profile=profileBytes?JSON.parse(profileBytes):null;
+const protocol_sha256=sha256(protocolBytes),profile_sha256=profileBytes?sha256(profileBytes):null;
 if(mode==='evaluation'&&!profile)throw Error('evaluation requires a previously fitted profile');
 if(mode==='train'&&profile)throw Error('training uses explicit CPU/GPU only');
 if(protocol.schema!==1)throw Error('protocol schema');
@@ -15,7 +19,10 @@ for(const split of ['training','evaluation']){
 if(protocol.training.sizes.some(n=>protocol.evaluation.sizes.includes(n))||protocol.training.horizons.some(n=>protocol.evaluation.horizons.includes(n))||protocol.training.seed===protocol.evaluation.seed)throw Error('training/evaluation overlap');
 const allowSoftware=mode==='smoke'&&process.env.INK_ALLOW_SOFTWARE_GPU==='1';
 const root=process.cwd();if(!path.resolve(root,bundle).startsWith(root+path.sep))throw Error('bundle outside root');
-const server=http.createServer(async(req,res)=>{res.setHeader('Cross-Origin-Opener-Policy','same-origin');res.setHeader('Cross-Origin-Embedder-Policy','require-corp');try{const file=path.resolve(root,'.'+new URL(req.url,'http://localhost').pathname);if(!file.startsWith(root+path.sep))throw Error('outside root');const data=await fs.readFile(file);res.setHeader('Content-Type',file.endsWith('.mjs')?'text/javascript':file.endsWith('.wasm')?'application/wasm':'application/json');res.end(data);}catch{res.statusCode=404;res.end();}});
+const {assets,hashes:source_hashes}=await captureBundle(path.resolve(root,bundle));
+for(const name of ['bench/gpu/engine-profile-browser.mjs','bench/gpu/engine-profile-assets.mjs','bench/gpu/resident-profile.ink'])source_hashes[name]=crypto.createHash('sha256').update(await fs.readFile(name)).digest('hex');
+const prefix=new URL(bundle+'/', 'http://localhost/').pathname;
+const server=http.createServer((req,res)=>{res.setHeader('Cross-Origin-Opener-Policy','same-origin');res.setHeader('Cross-Origin-Embedder-Policy','require-corp');const pathname=new URL(req.url,'http://localhost').pathname,name=pathname.startsWith(prefix)?pathname.slice(prefix.length):null,data=assets.get(name);if(!data){res.statusCode=404;res.end();return;}res.setHeader('Content-Type',name.endsWith('.mjs')?'text/javascript':name.endsWith('.wasm')?'application/wasm':name.endsWith('.wgsl')?'text/plain':'application/json');res.end(data);});
 await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));let browser;
 try{
  browser=await chromium.launch({executablePath:process.env.INK_CHROME??'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true,args:['--enable-unsafe-webgpu']});
@@ -38,7 +45,7 @@ try{
    const rows=input(family,n,spec.seed),plan={inputs:{rows},steps:[{id:'next',call:family,args:[{input:'rows'},...(family==='physics'?[1/64,-9.75]:[])]}],outputs:['next'],feedback:{rows:'next'}};
    let wanted=rows;for(let i=0;i<iterations;i++)wanted=step(family,wanted);
    const names=mode==='train'?['cpu','gpu']:['cpu','gpu','auto','profile'];
-   const complete_engine_ns=Object.fromEntries(names.map(n=>[n,[]])),backends={},decisions={},counters={};let context;
+   const complete_engine_ns=Object.fromEntries(names.map(n=>[n,[]])),backends={},decisions={},counters={},samples=Object.fromEntries(names.map(n=>[n,[]]));let context;
    let synthetic;
    if(mode==='smoke'){
     const probe=await executeSession(url,plan,{iterations,backend:'cpu',targetKey:target_key});
@@ -58,16 +65,14 @@ try{
     if(name==='cpu'&&result.backend!=='cpu'||name==='gpu'&&result.backend!=='gpu'||name==='auto'&&result.backend!=='cpu'||mode==='smoke'&&name==='profile'&&result.backend!=='gpu')throw Error('backend contract');
     if(result.backend==='gpu'&&(result.counters.live_buffer_bytes!==0||!(result.counters.peak_buffer_bytes>0)||(n>0&&!(result.counters.dispatches>0))))throw Error('GPU resources or dispatch');
     if(result.backend==='cpu'&&result.counters.peak_buffer_bytes!==null)throw Error('CPU memory is unmeasured');
+    samples[name].push({round,order:offset,elapsed_ns:elapsed,backend:result.backend,decision:result.profile,counters:result.counters});
     complete_engine_ns[name].push(elapsed);backends[name]=result.backend;decisions[name]=result.profile;counters[name]=result.counters;
    }
-   cases.push({family,n,iterations,core_sha256:manifest.core_sha256,context,complete_engine_ns,backends,decisions,counters,validated:true});
+   cases.push({family,n,iterations,core_sha256:manifest.core_sha256,context,complete_engine_ns,samples,backends,decisions,counters,validated:true});
   }
   return{device,target_key,cases,lifecycle};
  },{base,bundle,mode,protocol,profile,environment,allowSoftware});
- const source_hashes={};
- for(const name of ['bench/gpu/engine-profile-browser.mjs','bench/gpu/resident-profile.ink'])source_hashes[name]=crypto.createHash('sha256').update(await fs.readFile(name)).digest('hex');
- for(const name of ['manifest.json','ink-gpu.mjs','complete-session.mjs','backend-selection.mjs','pipeline-contract.mjs','prepared-wasm.mjs','ink-abi.mjs','ink-selection.mjs','ink-selection.wasm','ink-device.mjs','cpu.wasm','program.mjs'])source_hashes['bundle/'+name]=crypto.createHash('sha256').update(await fs.readFile(path.join(bundle,name))).digest('hex');
  await fs.mkdir(path.dirname(output),{recursive:true});
- await fs.writeFile(output,JSON.stringify({schema:1,mode,process_id:crypto.randomUUID(),environment,source_hashes,training_protocol:protocol.training,evaluation_protocol:protocol.evaluation,...result,scope:'Complete executeSession call including copied inputs/profile, engine creation, backend/shader setup, upload, steps, one full owned read, session close and engine close. Browser startup, common module import, input generation and output oracle excluded. Module/network/driver caches may be warm; no whole-browser cold-start claim. CPU memory unmeasured; GPU counters exclude host and driver memory.'},null,2)+'\n');
+ await fs.writeFile(output,JSON.stringify({schema:1,mode,process_id:crypto.randomUUID(),environment,source_hashes,protocol_sha256,profile_sha256,training_protocol:protocol.training,evaluation_protocol:protocol.evaluation,...result,scope:'Complete executeSession call including copied inputs/profile, engine creation, backend/shader setup, upload, steps, one full owned read, session close and engine close. Browser startup, common module import, input generation and output oracle excluded. Module/network/driver caches may be warm; no whole-browser cold-start claim. CPU memory unmeasured; GPU counters exclude host and driver memory.'},null,2)+'\n');
  console.log(JSON.stringify({mode,cases:result.cases.length,device:result.device,output}));
 }finally{await browser?.close();await new Promise(resolve=>server.close(resolve));}
