@@ -1077,6 +1077,7 @@ jobs:
         INK_TEST_WASM=1 cargo test --test lowering_parity resident_collection_lengths_survive_feedback -- --exact --nocapture
         INK_TEST_WASM=1 cargo test --test physical_capabilities semantic_word_parity -- --nocapture --test-threads=1
         python bench/gpu/prepare-lowering-parity-browser.py
+        python bench/gpu/prepare-word-parity-browser.py
         npm ci --prefix bench/gpu --ignore-scripts --no-audit --no-fund
         node bench/gpu/lowering-parity-browser.mjs "$(command -v google-chrome)"
         python bench/gpu/prepare-database-plan-browser.py
