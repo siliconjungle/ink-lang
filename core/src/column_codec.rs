@@ -275,6 +275,12 @@ pub fn packing_goal(
     if ![1, 8, 16, 32, 64].contains(&bits) {
         return Err("packed column bit width".into());
     }
+    guarded_word_goal(bits)
+}
+/// Generic word-mask preservation under an explicit unsigned range guard.
+/// Physical carriers still check their own supported widths independently.
+pub fn guarded_word_goal(bits:u8)->LangResult<(Vec<(String,Sort)>,Vec<logic::Equation>,logic::Equation)> {
+    if bits==0||bits>64{return Err("word guard bit width".into());}
     let mask = if bits == 64 {
         u64::MAX
     } else {

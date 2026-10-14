@@ -23,6 +23,8 @@ pub const SEMANTICS: &str = "ink-contracts-v1";
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Contracts {
+    #[serde(default, skip_serializing_if="BTreeMap::is_empty")]
+    pub action_protocols: BTreeMap<String, crate::protocol::Execution>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub specifications: Vec<Specification>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -46,7 +48,8 @@ pub struct Contracts {
 }
 impl Contracts {
     pub fn is_empty(&self) -> bool {
-        self.specifications.is_empty()
+        self.action_protocols.is_empty()
+            && self.specifications.is_empty()
             && self.implementations.is_empty()
             && self.invariants.is_empty()
             && self.private_states.is_empty()
