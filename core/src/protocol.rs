@@ -27,6 +27,8 @@ pub struct Plan {
     #[serde(default)] pub direct_reads:Vec<String>,
     #[serde(default)] pub output_publication:bool,
     #[serde(default)] pub snapshot_rows:bool,
+    /// Trusted ordered event retention layout; no event is omitted.
+    #[serde(default)] pub event_columns:bool,
     #[serde(default)] pub columns:Vec<ColumnPrefix>,
 }
 #[derive(Clone, Debug)]
@@ -113,6 +115,7 @@ pub fn check_source(module:&CheckedModule)->LangResult<()> {
 pub fn check(module:&CheckedModule,plan:&Plan,views:Option<&crate::maintained::CheckedViews>)->LangResult<CheckedProtocol>{
     if plan.schema!=1||plan.semantics!=SEMANTICS||plan.input_core_sha256!=module.identity()?{return Err("state protocol source/semantics mismatch".into());}
     let facts=capabilities(module)?;let p=module.program();let mut seen=BTreeSet::new();
+    if plan.event_columns&&p.events.is_empty(){return Err("event columns require source events".into());}
     for c in &plan.actions {
         if !seen.insert(&c.action){return Err("duplicate protocol action".into());}
         let f=facts.iter().find(|f|f.action==c.action).ok_or("protocol action missing")?;
