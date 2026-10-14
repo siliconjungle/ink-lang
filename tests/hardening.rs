@@ -2182,3 +2182,24 @@ fn checked_ordered_affine_producer_replays_and_rejects_tampering() {
         .output().unwrap();
     assert!(result.status.success(), "{}", String::from_utf8_lossy(&result.stderr));
 }
+
+#[test]
+fn llvm_learning_and_incremental_knowledge_remain_checked() {
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
+    let result = std::process::Command::new("python3")
+        .args(["-m", "unittest", "planner.tests.test_llvm_learning",
+            "planner.tests.test_learning_provenance", "planner.tests.test_target_components",
+            "planner.tests.test_physical_features", "planner.tests.test_physical_selection",
+            "planner.tests.test_cost_profiles",
+            "knowledge.tests.test_word_identities", "knowledge.tests.test_word_facts",
+            "knowledge.tests.test_proof_authoring_deadline",
+            "knowledge.tests.test_source_algorithms",
+            "knowledge.tests.test_carrier_fusion", "knowledge.tests.test_planning_recipes",
+            "planner.tests.test_selected_closure_sessions", "planner.tests.test_plan_cache",
+            "tests.test_audit_coverage"])
+        .current_dir(root)
+        .env("PYTHONPATH", std::env::join_paths([root.join("knowledge"), root.join("planner")]).unwrap())
+        .env("INK_COMPILER", env!("CARGO_BIN_EXE_ink"))
+        .output().unwrap();
+    assert!(result.status.success(), "{}", String::from_utf8_lossy(&result.stderr));
+}
