@@ -122,37 +122,24 @@ try {
     },{base,name,script,expected}));
   }
   const contracts=[];
-  for(const name of ['source-contracts-parity','total-changes-parity','state-contracts-parity','action-contract-refinement',...Array.from({length:4},(_,i)=>`contract-refinement-${i}`)]){
+  const candidates=JSON.parse(await fs.readFile('build/contract-candidates/candidates.json','utf8')).candidates;
+  assert.ok(Array.isArray(candidates)&&candidates.length,'missing checked contract candidates');
+  for(const name of ['source-contracts-parity','total-changes-parity','state-contracts-parity','action-contract-refinement',...Array.from({length:candidates.length},(_,i)=>`contract-refinement-${i}`)]){
     const script=await fs.readFile(`build/${name}/script.json`,'utf8');
     const expected=await fs.readFile(`build/${name}/expected.json`,'utf8');
     contracts.push(await page.evaluate(async({base,name,script,expected})=>{
-      const root=new URL(`build/${name}/gpu-module/`,base);
+      const fixture=new URL(`build/${name}/`,base),root=new URL('gpu-module/',fixture);
       const {loadInk}=await import(new URL('ink-gpu.mjs',root));
-      const {parseExactJSON}=await import(new URL('state-wasm.mjs',root));
-      const host=await loadInk(root),steps=parseExactJSON(script),wanted=parseExactJSON(expected);
-      const normalize=v=>typeof v==='bigint'?String(v):typeof v==='number'&&Number.isInteger(v)?Object.is(v,-0)?'negative zero':String(v):Array.isArray(v)?v.map(normalize):v&&typeof v==='object'?Object.fromEntries(Object.keys(v).sort().map(k=>[k,normalize(v[k])])):v;
-      const exact=v=>JSON.stringify(normalize(v));
-      const typed=(v,t)=>t.kind==='ref'?typed(v,host.manifest.javascript.named_types[t.name]):t.kind==='u64'?BigInt(v):t.kind==='u32'||t.kind==='i32'?Number(v):t.kind==='f32'?typeof v==='object'?{F32Bits:Number(v.F32Bits)}:Number(v):t.kind==='list'||t.kind==='vector'?v.map(x=>typed(x,t.element)):t.kind==='record'?Object.fromEntries(t.fields.map(f=>[f.name,typed(v[f.name],f.type)])):v;
-      let comparisons=0,gpu_calls=0,rejectedRestores=0;
-      try{for(const backend of ['cpu','javascript','gpu']){
-        const jsState=backend==='javascript'&&host.manifest.javascript.state!=null;const state=jsState?host.createJavaScriptState():host.createState();let index=0;
-        const snapshot=async()=>Array.from(jsState?await state.checkpoint():state.snapshot());
-        try{for(const step of steps){
-          if(step.reject_restore){const before=await snapshot();let rejected=false;try{if(jsState)await state.restore(step.reject_restore.map(Number));else host.restoreState(new Uint8Array(step.reject_restore.map(Number))).dispose();}catch(e){rejected=/invariant/.test(e.message);}if(!rejected||exact(await snapshot())!==exact(before))throw Error(`${name}/${backend}: invariant restore was not atomic`);rejectedRestores++;continue;}
-          let reply;
-          try{
-            if(step.pure){const f=host.manifest.javascript.functions.find(f=>f.name===step.pure),args=step.args.map((v,i)=>typed(v,f.params[i].type));const request=backend==='gpu'?(step.cpu_only?'cpu':step.expect_gpu?'gpu-required':'gpu'):backend;const result=await host.call(step.pure,args,{backend:request});if(request==='gpu-required'){if(result.backend!=='gpu')throw Error('required GPU fell back');gpu_calls++;}reply={value:result.value};}
-            else {const action=host.manifest.javascript.state.actions.find(a=>a.name===step.call);const args=step.args.map((v,i)=>typed(v,action.params[i].type));reply={outcome:state.invoke(step.call,args)};}
-          }catch(e){reply={host_error:e.message};}
-          if(exact(reply)!==exact(wanted[index].reply)||exact(await snapshot())!==exact(wanted[index].snapshot))throw Error(`${name}/${backend}/${index}: contract value or snapshot differs: ${exact(reply)}`);
-          index++;comparisons++;
-        }}finally{state.dispose?.();}
-      }}finally{await host.dispose();}
-      return {name,comparisons,gpu_calls,rejectedRestores};
+      // The fixture always supplies the exact parser; packed hosts have no state ABI.
+      const {parseExactJSON}=await import(new URL('state-wasm.mjs',fixture));
+      const {replayContracts}=await import(new URL('bench/gpu/contract-replay.mjs',base));
+      const host=await loadInk(root);
+      try{return await replayContracts(host,{name,steps:parseExactJSON(script),wanted:parseExactJSON(expected)});}
+      finally{await(host.dispose?host.dispose():host.close());}
     },{base,name,script,expected}));
   }
   const words=await checkWordFixtures(page,base);
   const receipt={status:'passed',browser:browser.version(),bend,residency,numerics,contracts,words};
   await fs.writeFile(output,JSON.stringify(receipt,null,2)+'\n');
-  console.log(JSON.stringify({status:receipt.status,browser:receipt.browser,comparisons:bend.comparisons+residency.comparisons+numerics.reduce((n,r)=>n+r.comparisons,0)+contracts.reduce((n,r)=>n+r.comparisons,0),gpu_calls:bend.gpu_calls+residency.gpu_calls+numerics.reduce((n,r)=>n+r.gpu_calls,0)+contracts.reduce((n,r)=>n+r.gpu_calls,0)}));
+  console.log(JSON.stringify({status:receipt.status,browser:receipt.browser,comparisons:bend.comparisons+residency.comparisons+numerics.reduce((n,r)=>n+r.comparisons,0)+contracts.reduce((n,r)=>n+r.comparisons,0)+words.reduce((n,r)=>n+r.comparisons,0),gpu_calls:bend.gpu_calls+residency.gpu_calls+numerics.reduce((n,r)=>n+r.gpu_calls,0)+contracts.reduce((n,r)=>n+r.gpu_calls,0)+words.reduce((n,r)=>n+r.gpu_calls,0)}));
 } finally {await browser?.close();await new Promise(resolve=>server.close(resolve));}

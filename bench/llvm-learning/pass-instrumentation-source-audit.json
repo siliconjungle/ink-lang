@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "llvm_revision": "d977b4533f1d9b01d28cf4dba9b2db9d1ccfda08",
+  "files": {
+    "llvm/include/llvm/IR/PassInstrumentation.h": "480a65420ea80b891b80b515c10a476d37f4977c",
+    "llvm/lib/IR/PassInstrumentation.cpp": "6d4281c13518af7a134d18ea2f6f382aec3d3e77"
+  },
+  "insights": [
+    "Separate pass-execution, skipped-pass, analysis-computation and analysis-invalidation events. Timing an analysis computation differs from timing a cache lookup.",
+    "Optional-pass veto callbacks all run and combine their answers; required passes bypass veto. Ink proof admission must never be disabled by diagnostic or profitability callbacks.",
+    "After-pass invalidation callbacks omit the invalidated IR reference, avoiding observation of dead objects. Read-only references prevent accidental instrumentation mutation; callback ownership lifetime remains an explicit contract.",
+    "Instrumentation pseudo-analysis itself never invalidates because it wraps a callback registry, not an IR-dependent semantic result. This is not a precedent for retaining source-dependent proof facts across mutation.",
+    "Class-to-pass display mappings populate lazily once, keep the first mapping and return empty for missing entries. Display names and suffix-based special-pass matching are unsuitable as canonical database/proof identities."
+  ],
+  "ink_action": "Preserve required replay while removing duplicate derivation in F027. Next investigate bounded compiler-phase diagnostics for derivation, context reuse, dependency replay and final admission using immutable source identities. No callback-control framework is justified solely by this audit.",
+  "status": "Source-backed insights; general phase diagnostics not implemented; no performance claim."
+}

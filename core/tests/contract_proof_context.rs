@@ -56,3 +56,22 @@ fn authoring_context_keeps_the_original_source_after_the_callers_copy_changes() 
     assert!(contracts::check_proof(&p, "same:ensures:0", json!("Normalize"), None).is_err());
     assert_eq!(context.source_identity().unwrap(), identity);
 }
+
+#[test]
+fn exported_goals_preserve_derivation_order_without_becoming_proof_authority() {
+    let mut p=syntax::parse("module exported;spec fn zebra(x:u32)->u32 ensures result==x;implementation alpha for zebra{return x;}spec fn zero(x:u32)->u32 ensures result==0;implementation wrong for zero{return x;}").unwrap();
+    let expected = serde_json::to_value(contracts::obligations(&p).unwrap()).unwrap();
+    let mut context = ProofContext::new(&p).unwrap();
+    let original = context.export_obligations().unwrap();
+    assert_eq!(original["pure"], expected);
+    assert_eq!(original["source_sha256"], contracts::subject_identity(&p).unwrap());
+    assert!(original["state"].is_null());
+    // Exported trees and the caller's program are detached from the context.
+    let mut edited = original.clone();
+    edited["pure"] = json!([]);
+    p.functions.iter_mut().find(|f| f.name == "alpha").unwrap().body = syntax::Expr::Num(0);
+    assert_eq!(context.export_obligations().unwrap(), original);
+    assert!(context.check("alpha:ensures:0", json!("Normalize"), None).is_ok());
+    assert!(context.check("wrong:ensures:0", json!("Normalize"), None).is_err());
+    assert!(CheckedModule::from_source(p).is_err());
+}

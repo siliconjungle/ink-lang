@@ -1,0 +1,198 @@
+{
+  "schema": 1,
+  "base_revision": "0b0bf5ba4077b1e38a3e39051933ff3c7645b30d",
+  "changes": [
+    "Export obligations from the same immutable ProofContext used to replay proposed proofs. Preserve source order, exact identity, portable definitions and lazily cached state.",
+    "Optional --export-obligations writes successfully before readiness; existing plain NDJSON protocol and request limit retained. Standalone exporter shares the same implementation.",
+    "Ordinary producer removes separate export process, drops stale output and binds export identity to ready frame. Individual proofs and dependency bundles still replay, followed by final module or refinement admission."
+  ],
+  "validation": {
+    "focused_core_tests": 54,
+    "portable_definition_tests": 8,
+    "stream_tests": 4,
+    "producer_tests": 24,
+    "mandatory_hardening_hook": "passed; includes new session and replay regression suites; counts overlap focused producer tests",
+    "actual_authoring": [
+      {
+        "case": "fresh",
+        "label": "before",
+        "pure": 4,
+        "state": 13,
+        "export_sha256": "c255282cf0ae562f149dc45816e02608af678325d8373b5a6c3f2904f8565989",
+        "evidence_sha256": "546b303a0c42946116da7befb1173ecca0886f0d12970b504cfa34453bdd3502"
+      },
+      {
+        "case": "fresh",
+        "label": "after",
+        "pure": 4,
+        "state": 13,
+        "export_sha256": "c255282cf0ae562f149dc45816e02608af678325d8373b5a6c3f2904f8565989",
+        "evidence_sha256": "546b303a0c42946116da7befb1173ecca0886f0d12970b504cfa34453bdd3502"
+      },
+      {
+        "case": "replay",
+        "label": "before",
+        "pure": 9,
+        "state": 10,
+        "export_sha256": "8b100f371342bef6491322b298a67d46bbc36aaacf990a3deda7b2376856a1df",
+        "evidence_sha256": "1e95bedcc46f6624a44019d7a0fe176a0b824d15190d044479c2b05867aea05b"
+      },
+      {
+        "case": "replay",
+        "label": "after",
+        "pure": 9,
+        "state": 10,
+        "export_sha256": "8b100f371342bef6491322b298a67d46bbc36aaacf990a3deda7b2376856a1df",
+        "evidence_sha256": "1e95bedcc46f6624a44019d7a0fe176a0b824d15190d044479c2b05867aea05b"
+      },
+      {
+        "case": "refinement",
+        "label": "before",
+        "pure": 8,
+        "state": 0,
+        "export_sha256": "de4099218b34fc003010b19af03239b67317338737d6ef1b27d074eac6cc373a",
+        "evidence_sha256": "12cf327597afb002b4a636877847f76a96ae6bc67faec1bf9291b8a8a5df10d9"
+      },
+      {
+        "case": "refinement",
+        "label": "after",
+        "pure": 8,
+        "state": 0,
+        "export_sha256": "de4099218b34fc003010b19af03239b67317338737d6ef1b27d074eac6cc373a",
+        "evidence_sha256": "12cf327597afb002b4a636877847f76a96ae6bc67faec1bf9291b8a8a5df10d9"
+      }
+    ],
+    "refinement_final_admission": "passed",
+    "corpus_before": {
+      "programs": 10,
+      "compiled": 10,
+      "programs_with_rewrite_alternative": 10,
+      "programs_with_any_alternative": 10,
+      "programs_selecting_alternative": 4,
+      "median_seconds": 13.839,
+      "stopped_by_time": 1,
+      "laws_admitted": 44,
+      "laws_admitted_in_multiple_programs": 7,
+      "representations_admitted": 0,
+      "last_gates": {
+        "measurement_budget": 6,
+        "selected_alternative": 4
+      }
+    },
+    "corpus_after": {
+      "programs": 10,
+      "compiled": 10,
+      "programs_with_rewrite_alternative": 10,
+      "programs_with_any_alternative": 10,
+      "programs_selecting_alternative": 4,
+      "median_seconds": 13.692,
+      "stopped_by_time": 1,
+      "laws_admitted": 44,
+      "laws_admitted_in_multiple_programs": 7,
+      "representations_admitted": 0,
+      "last_gates": {
+        "selected_alternative": 4,
+        "measurement_budget": 6
+      }
+    },
+    "corpus_unchanged_fields": [
+      "programs",
+      "compiled",
+      "programs_with_rewrite_alternative",
+      "programs_with_any_alternative",
+      "programs_selecting_alternative",
+      "laws_admitted",
+      "laws_admitted_in_multiple_programs",
+      "representations_admitted",
+      "last_gates"
+    ]
+  },
+  "limits": [
+    "This conformance checkpoint makes no performance claim; separate contended debug compiler measurements are running.",
+    "No broader generalisation gain in the frozen ten-program corpus: compilation, admission and selection counts unchanged.",
+    "First before-corpus case failed from disk exhaustion; disposable completed indexes were removed and exact-context resume passed. Original failed record was replaced by successful resume; original failure log and all run logs retained.",
+    "Remote CI required after publication. No backend emission or executable semantics changed."
+  ],
+  "compilers": {
+    "before": "f7db5659044b0010b294e828d818f5eb38b727f248c2e1e7695d342af9ba5360",
+    "after": "4a2a09ba306961c6de1885c8cd1403ef23cf32ec7d3d676c194b6644039bb5ca"
+  },
+  "evidence": [
+    {
+      "path": "work/llvm-learning-smoke/proof-export-corpus-before-failure.json",
+      "sha256": "ae88e6db47228a6690251617945441a53bbd143afc475a782e4525d48e1f06bc"
+    },
+    {
+      "path": "work/llvm-learning-smoke/proof-export-core.log",
+      "sha256": "cc03962f960e9f3eceaf86b464fef344d7a39c22e46b738ba51ab0f31fb0c275"
+    },
+    {
+      "path": "work/llvm-learning-smoke/proof-export-contracts.log",
+      "sha256": "9ae7cb154d670e6f3c98d2bc15e51e0aa22b721dbf29bb20ed62eecbbd217f7d"
+    },
+    {
+      "path": "work/llvm-learning-smoke/proof-export-stream-final.log",
+      "sha256": "11daaa28679ca13b89d739ad77a2e6a85755739e68f96f17cf1ad973d71d6828"
+    },
+    {
+      "path": "work/llvm-learning-smoke/proof-export-producers-retry.log",
+      "sha256": "8f03ef9370c6b424696d7322183a74a4e41cbb4dedf1dde9a8f4b85ad6e72985"
+    },
+    {
+      "path": "work/llvm-learning-smoke/proof-export-hardening.log",
+      "sha256": "a6eab4c4bf75acf9a204f7f63a742db6455775337e7452654be41d9a4962ce59"
+    },
+    {
+      "path": "work/llvm-learning-smoke/proof-export-definition-context.log",
+      "sha256": "53e2d1af4225e41c5363e7e8324acb2127011642bfd8088d50dfe65d222a85f2"
+    },
+    {
+      "path": "work/llvm-learning-smoke/proof-export-authoring-retry.log",
+      "sha256": "96e57149850b94957d6f1b872be20570d0762dcb978f0f292b7e3c22a607a041"
+    },
+    {
+      "path": "work/llvm-learning-smoke/proof-export-authoring/refinement-admission.log",
+      "sha256": "fb13bead15c341f0315ea14acfd39ea4b325e311d016520e8d4879348d190733"
+    },
+    {
+      "path": "work/llvm-learning-smoke/proof-export-authoring/results.json",
+      "sha256": "a72a75b08c755a76175df89b5c64c2a91ebf7b6e95adaaa00ab00e934dba594f"
+    },
+    {
+      "path": "work/llvm-learning-smoke/proof-export-corpus-before-retry.log",
+      "sha256": "0f8d801220ff4d985acaf2d9e8a37b30029721a1f51e0c6190da246d504b4147"
+    },
+    {
+      "path": "work/llvm-learning-smoke/proof-export-corpus-before-resume.log",
+      "sha256": "833e365598a5b65dbc7ab8a9adbe73716d1fa5eb97d5b6d0d4cc8d1e233fd331"
+    },
+    {
+      "path": "work/llvm-learning-smoke/proof-export-corpus-after-retry.log",
+      "sha256": "f3e0ef5aaf526d707be856c1a22d3c0ecf0b7fa5073ddca58c67ffbca98e8c4c"
+    },
+    {
+      "path": "outputs/llvm-ink-audit/proof-export-corpus/before/context.json",
+      "sha256": "02b8288da543a49de9a97852904586545852825e6bb9c0e3b202470d054965af"
+    },
+    {
+      "path": "outputs/llvm-ink-audit/proof-export-corpus/before/records.json",
+      "sha256": "202a50e23970c27fe4f73f7fdd8bac0f69f0c83a75f0e2ce4b03905cfc46b06c"
+    },
+    {
+      "path": "outputs/llvm-ink-audit/proof-export-corpus/before/report.json",
+      "sha256": "bffdbe2485d3a178a4948b499b17dcdf2a5fa7abd70592ef63c7dceaec283aa8"
+    },
+    {
+      "path": "outputs/llvm-ink-audit/proof-export-corpus/after/context.json",
+      "sha256": "c11e7655350d0442f0679e01d1079f81321863d2f56e1f1f03db96319ff36190"
+    },
+    {
+      "path": "outputs/llvm-ink-audit/proof-export-corpus/after/records.json",
+      "sha256": "6c233cf5426d027ab680cb4b3cb2f181fc9f336f0de6f2ea106a7264e6a43fdc"
+    },
+    {
+      "path": "outputs/llvm-ink-audit/proof-export-corpus/after/report.json",
+      "sha256": "c6699f7ada412bcacb7e9b2863f811c7c81e6bf08a94e57088e37b9b6189632a"
+    }
+  ]
+}
