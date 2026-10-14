@@ -24,3 +24,10 @@ replacement. These shared-machine samples are observations, not proof premises
 or automatic selection evidence. Native/Wasm, state histories and memory/lifetime
 measurements remain to be added. The literal implementation retains quadratic
 worst-case work; efficient proof-backed strategies are still required.
+
+An optional third argument supplies a module with checked boundary-reader
+selection. Its lane is compared with the exact same codecs and complete calls.
+The three-lane report includes `distinct`; only selected interfaces use the
+specialized reader. At 256 inputs, selected/literal wire ratios of 1.001 for
+`distinct` and 1.044 for `union` show no material benefit in these samples.
+Invariant validation and the generic algorithms remain the dominant costs.

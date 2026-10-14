@@ -1,0 +1,98 @@
+{
+  "schema": 1,
+  "kind": "ink-adaptive-state-v1",
+  "binding": {
+    "source": "83baab250e2ca4968f2c864e2f0269d9852b92ce72f818a7b6fe97cd795ca378",
+    "compiler": "b56ad1a9743fd9fac13899ff692696ce46bfbf6aac70726d2b108998009565ab",
+    "target": "local-node22-arm64",
+    "boundary": "owned-serial-state-v1",
+    "variants": {
+      "direct": "1720a214871bdd167ee5c1906c9b7ffc215cae7b08ac306128f791f59f8830c4",
+      "cached": "f3d270e77cadcd9f3ab7b01e86adf897ac63a1d09f9eeb6496768c1d0c067dc9"
+    }
+  },
+  "artifacts": [
+    {
+      "id": "direct",
+      "file": "direct.mjs",
+      "plan": "direct.plan.json"
+    },
+    {
+      "id": "cached",
+      "file": "cached.mjs",
+      "plan": "cached.plan.json"
+    }
+  ],
+  "baseline": "direct",
+  "profile": {
+    "binding": {
+      "source": "83baab250e2ca4968f2c864e2f0269d9852b92ce72f818a7b6fe97cd795ca378",
+      "compiler": "b56ad1a9743fd9fac13899ff692696ce46bfbf6aac70726d2b108998009565ab",
+      "target": "local-node22-arm64",
+      "boundary": "owned-serial-state-v1",
+      "variants": {
+        "direct": "1720a214871bdd167ee5c1906c9b7ffc215cae7b08ac306128f791f59f8830c4",
+        "cached": "f3d270e77cadcd9f3ab7b01e86adf897ac63a1d09f9eeb6496768c1d0c067dc9"
+      }
+    },
+    "variants": {
+      "direct": {
+        "cells": {
+          "action:zero@rows128": {
+            "low_ns": 3944.0097656249923,
+            "high_ns": 4974.609375000008
+          },
+          "action:replace_zero@rows128": {
+            "low_ns": 205.40234374999412,
+            "high_ns": 707.7636718750002
+          }
+        },
+        "peak_bytes": 80789504
+      },
+      "cached": {
+        "cells": {
+          "action:zero@rows128": {
+            "low_ns": 172.44335937499633,
+            "high_ns": 400.8789062499851
+          },
+          "action:replace_zero@rows128": {
+            "low_ns": 33064.941406249935,
+            "high_ns": 36091.95898437501
+          }
+        },
+        "peak_bytes": 116637696
+      }
+    },
+    "migrations": [
+      {
+        "from": "direct",
+        "to": "cached",
+        "high_ns": 354583.9999999885,
+        "max_pause_ns": 354583.9999999885,
+        "peak_bytes": 116588544,
+        "min_state_elements": 128,
+        "max_state_elements": 128
+      },
+      {
+        "from": "cached",
+        "to": "direct",
+        "high_ns": 522500.0000000364,
+        "max_pause_ns": 522500.0000000364,
+        "peak_bytes": 116588544,
+        "min_state_elements": 128,
+        "max_state_elements": 128
+      }
+    ]
+  },
+  "policy": {
+    "horizon_calls": 4096,
+    "min_residence_calls": 1024,
+    "stable_windows": 3,
+    "min_gain": 0.15,
+    "migration_margin": 2.0,
+    "memory_limit_bytes": 268435456,
+    "max_pause_ns": 50000000.0,
+    "max_switches": 32
+  },
+  "measurement_scope": "Empirical extrema, not confidence intervals or future latency/memory guarantees. Exact workload cells only."
+}

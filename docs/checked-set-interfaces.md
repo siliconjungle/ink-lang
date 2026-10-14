@@ -31,8 +31,10 @@ observation, append and insert preservation, guarded fold preservation, absence
 under filtering and a relation between full and filtered scans. No Set name,
 source hash or producer verdict grants authority. Every generated lemma replays
 in the existing kernel; exact source obligations replay again at attachment.
-Pure proof reuse also rechecks every supplied certificate, retaining direct uses
-without adding duplicate wrapper theorems. Source unfolding and proposal attempts
+Pure and state proof reuse both recheck every supplied certificate against the
+original source obligation. They retain the same proof trees and direct uses
+without adding duplicate wrapper theorems; induction search runs only for
+obligations still lacking a checked certificate. Source unfolding and proposal attempts
 have finite budgets and fail closed on exhaustion.
 
 To author a program importing the library:
@@ -58,3 +60,10 @@ worst-case work. Automatic contract proof discovery for arbitrary importers,
 transport to additional physical consumers and full lifecycle/native/Wasm
 performance measurements remain in progress. See `bench/checked-sets` for the
 complete-call JavaScript measurements and strong u32 control.
+
+Checked compact and portable JavaScript boundary readers compose with the Set
+interface without weakening its validation. A 1,300-case comparison includes
+complete values, exact error names/messages, corrupted and truncated bytes,
+invalid invariants and raw float bits. The native/Wasm paths retain ordinary
+readers; unsupported boundary selections fail explicitly. The new full-call
+samples show no Set speedup from reader selection alone.
