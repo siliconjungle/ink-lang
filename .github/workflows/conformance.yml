@@ -37,6 +37,11 @@ jobs:
           name: declared-feature-parity-inventory
           path: build/enforced-parity/contract-audit.json
   cpu-wasm-durability:
+    name: cpu-wasm-${{ matrix.suite }}
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: [foundation, planning, parity, indexed]
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     env:
@@ -90,10 +95,12 @@ jobs:
           PYTHON
           cargo fetch --locked --manifest-path build/host-deps/Cargo.toml
       - name: Runtime policies and failure injection
+        if: matrix.suite == 'foundation'
         run: |
           node --test runtime/tests/backend-selection.mjs runtime/tests/durable-state.mjs runtime/tests/route-resources.mjs runtime/tests/usage-profile.mjs
           node lowerings/gpu/tests/device_graph.mjs
       - name: Independent core and source-bound value admission
+        if: matrix.suite == 'foundation'
         run: |
           cargo test --test contract_fixtures --test checked_emission -- --nocapture
           cargo test --manifest-path core/Cargo.toml --offline
@@ -107,6 +114,7 @@ jobs:
           cargo test --test internal_snapshots --test collect_before_build --test proved_refinement_parity
           cargo test --test physical_capabilities --test gpu
       - name: Composable state proofs, publication, journals and bounded search
+        if: matrix.suite == 'planning'
         run: |
           cargo test --test composable_state --test journal_compaction --test indexed_dedup --test independent_batches --test indexed_laws --test composable_knowledge --test sorted_tables
           PYTHONPATH=planner:knowledge python3 -m unittest discover -s planner/tests -p test_compiled_planning.py
@@ -122,6 +130,7 @@ jobs:
           PYTHONPATH=planner:knowledge python3 -m unittest discover -s knowledge/tests -p test_product_fusion.py
           PYTHONPATH=planner:knowledge python3 -m unittest discover -s knowledge/tests -p test_general_templates.py
           PYTHONPATH=planner:knowledge python3 -m unittest discover -s knowledge/tests -p test_captured_fold_templates.py
+          PYTHONPATH=planner:knowledge python3 -m unittest discover -s knowledge/tests -p test_head_beta.py
           PYTHONPATH=planner:knowledge python3 -m unittest discover -s knowledge/tests -p test_indexed_lookup.py
           PYTHONPATH=planner:knowledge python3 -m unittest discover -s knowledge/tests -p test_indexed_dedup.py
           PYTHONPATH=planner:knowledge python3 -m unittest discover -s knowledge/tests -p test_indexed_dedup_discovery.py
@@ -137,8 +146,10 @@ jobs:
           python3 bench/composable-state/replay-admissions.py --compiler target/debug/ink --mathematics-source source-group examples/grouped-state.ink
           cargo test --test sequence_tree
       - name: Literal CPU and both Wasm lowerings, generated histories and crash recovery
+        if: matrix.suite == 'parity'
         run: python3 tools/check_feature_parity.py --scope cpu --shard general --run --receipt build/enforced-parity/cpu-audit.json
       - name: Cold indexed proposals, measured batching selection and authenticated corruption
+        if: matrix.suite == 'indexed'
         env:
           PYTHONPATH: knowledge:planner
           INK_COMPILER: target/release/ink
@@ -154,7 +165,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: cpu-wasm-conformance
+          name: cpu-wasm-conformance-${{ matrix.suite }}
           path: |
             build/lowering-residency/*.json
             build/lowering-residency/*.wgsl
