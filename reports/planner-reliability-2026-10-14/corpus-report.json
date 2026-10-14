@@ -1,0 +1,418 @@
+{
+  "schema": 1,
+  "semantics": "ink-planning-corpus-report-v1",
+  "scope": "Observed default planning on a fixed corpus; no proof, applicability or profitability authority",
+  "headline": {
+    "programs": 3,
+    "compiled": 3,
+    "programs_with_rewrite_alternative": 2,
+    "programs_with_any_alternative": 2,
+    "programs_selecting_alternative": 2,
+    "median_seconds": 101.519,
+    "stopped_by_time": 3,
+    "laws_admitted": 5,
+    "laws_admitted_in_multiple_programs": 0,
+    "representations_admitted": 0,
+    "last_gates": {
+      "selected_alternative": 2,
+      "no_alternative": 1
+    }
+  },
+  "programs": [
+    {
+      "name": "sequence-every",
+      "split": "heldout",
+      "status": 0,
+      "seconds": 81.659,
+      "stop_reason": "time",
+      "admitted_states": 9,
+      "candidates": 9,
+      "admitted_edges": {
+        "rewrite": 2,
+        "properties": 5,
+        "physical": 1
+      },
+      "semantic": {
+        "matched": 6,
+        "checked": 6,
+        "admitted": 2,
+        "rejected": 4,
+        "unchecked": 0
+      },
+      "alternatives_with_knowledge": 2,
+      "rewrite_alternatives": 2,
+      "selected_alternative": true,
+      "last_gate": "selected_alternative",
+      "selection_reason": "paired complete-lifecycle improvement on selection inputs"
+    },
+    {
+      "name": "index-membership",
+      "split": "heldout",
+      "status": 0,
+      "seconds": 107.864,
+      "stop_reason": "time",
+      "admitted_states": 12,
+      "candidates": 12,
+      "admitted_edges": {
+        "rewrite": 11
+      },
+      "semantic": {
+        "matched": 50,
+        "checked": 38,
+        "admitted": 11,
+        "rejected": 27,
+        "unchecked": 0
+      },
+      "alternatives_with_knowledge": 11,
+      "rewrite_alternatives": 11,
+      "selected_alternative": true,
+      "last_gate": "selected_alternative",
+      "selection_reason": "paired complete-lifecycle improvement on selection inputs"
+    },
+    {
+      "name": "incremental-distinct",
+      "split": "heldout",
+      "status": 0,
+      "seconds": 101.519,
+      "stop_reason": "time",
+      "admitted_states": 1,
+      "candidates": 1,
+      "admitted_edges": {},
+      "semantic": {
+        "matched": 2,
+        "checked": 2,
+        "admitted": 0,
+        "rejected": 2,
+        "unchecked": 0
+      },
+      "alternatives_with_knowledge": 0,
+      "rewrite_alternatives": 0,
+      "selected_alternative": false,
+      "last_gate": "no_alternative",
+      "selection_reason": "baseline retained; no robust measured lifecycle improvement"
+    }
+  ],
+  "attribution": {
+    "328a77c62a310366d5fb5940eb002a3a72a26348437dae69fc4c403e4c2ccd75": {
+      "kind": "law",
+      "name": null,
+      "programs": [
+        "sequence-every"
+      ]
+    },
+    "73a2a5e50087631bb0711f9d42f7adaafc3315c28c44113a84c7fd31ba28b5f2": {
+      "kind": "law",
+      "name": null,
+      "programs": [
+        "sequence-every"
+      ]
+    },
+    "a9cd775b6b2b99129e1e32952bcd3667f497d3a5f83aed73b3e064879fa5fd14": {
+      "kind": "law",
+      "name": null,
+      "programs": [
+        "index-membership"
+      ]
+    },
+    "4d8433ee77b0d2e1ad6a0d0fea4a32fc47b38a16a28641e451afe3f6972c01a9": {
+      "kind": "law",
+      "name": null,
+      "programs": [
+        "index-membership"
+      ]
+    },
+    "84ebd27c020770e9ee8cdf5246a2d35adf35208f8e3598add98619102fb525c2": {
+      "kind": "law",
+      "name": null,
+      "programs": [
+        "index-membership"
+      ]
+    }
+  },
+  "near_misses": {
+    "reasons": {
+      "closure": 31,
+      "premise": 2
+    },
+    "premise_shapes": [
+      {
+        "shape": "_ = Bool:False",
+        "rejections": 1,
+        "programs": [
+          "incremental-distinct"
+        ]
+      },
+      {
+        "shape": "_ = Bool:True",
+        "rejections": 1,
+        "programs": [
+          "incremental-distinct"
+        ]
+      }
+    ],
+    "instance_shapes": [
+      {
+        "shape": "binary:||(binary:==(field:seen(bound), Bool:False), binary:!=(field:last(bound), bound)) = Bool:False",
+        "rejections": 1,
+        "programs": [
+          "incremental-distinct"
+        ]
+      },
+      {
+        "shape": "binary:||(binary:==(field:seen(bound), Bool:False), binary:!=(field:last(bound), bound)) = Bool:True",
+        "rejections": 1,
+        "programs": [
+          "incremental-distinct"
+        ]
+      }
+    ],
+    "laws": [
+      {
+        "law": "0b47a3a116f625c5d5b495c8f0f867e64fdbf676f52fb9dd37532a6d6e824376",
+        "name": null,
+        "rejected": 7,
+        "programs": [
+          "index-membership"
+        ],
+        "premises": {}
+      },
+      {
+        "law": "1c8d58e0d65c5f8d1fb1a1339b276b60fda22ed62990ddd791201e5431d12ca2",
+        "name": null,
+        "rejected": 7,
+        "programs": [
+          "index-membership"
+        ],
+        "premises": {}
+      },
+      {
+        "law": "3280318a6c19849607153ac9bb9284fdefd0fdd5be966de88dc53bb25b246a37",
+        "name": null,
+        "rejected": 5,
+        "programs": [
+          "index-membership"
+        ],
+        "premises": {}
+      },
+      {
+        "law": "a31d8e064f529cc31b2ab7360a7e964d6c5fb824af5ad6facee1191d6526f6ee",
+        "name": null,
+        "rejected": 5,
+        "programs": [
+          "index-membership"
+        ],
+        "premises": {}
+      },
+      {
+        "law": "fc6cb9bcda4bbdd3e42b8ab7d442b5e95b880ccc063130702cf59121a7418cfd",
+        "name": null,
+        "rejected": 2,
+        "programs": [
+          "index-membership"
+        ],
+        "premises": {}
+      },
+      {
+        "law": "89cb065defbc893a45be051f6bb6c7de3868bfd4795dd464acd135406ab650a9",
+        "name": null,
+        "rejected": 1,
+        "programs": [
+          "sequence-every"
+        ],
+        "premises": {}
+      },
+      {
+        "law": "9fbee22804912f69d16f26d490cb16cfc07cb3110b8d4083886645ba32922eab",
+        "name": null,
+        "rejected": 1,
+        "programs": [
+          "sequence-every"
+        ],
+        "premises": {}
+      },
+      {
+        "law": "aa103466571245cb264b4b4174ec267db2d7c7e0ef26988e588ebf6ae34301c3",
+        "name": null,
+        "rejected": 1,
+        "programs": [
+          "sequence-every"
+        ],
+        "premises": {}
+      },
+      {
+        "law": "beaf80ed31a92192bfbe91e7b9bd590e10dd3d6c2eea3fb7031476dea1117485",
+        "name": null,
+        "rejected": 1,
+        "programs": [
+          "sequence-every"
+        ],
+        "premises": {}
+      },
+      {
+        "law": "889209c858e8a8167307866e8b14707df6268dad92fdb2f0331f82f2a506c602",
+        "name": null,
+        "rejected": 1,
+        "programs": [
+          "index-membership"
+        ],
+        "premises": {}
+      },
+      {
+        "law": "435365e92e712bcfd252ab237a1ba096e15620d080bec3fa8d35093b6c9849d3",
+        "name": null,
+        "rejected": 1,
+        "programs": [
+          "incremental-distinct"
+        ],
+        "premises": {
+          "_ = Bool:False": 1
+        }
+      },
+      {
+        "law": "a10b13cad47f5b126326a915f268a7b31dab9202264e3e3fea3ed8ee144b4eaa",
+        "name": null,
+        "rejected": 1,
+        "programs": [
+          "incremental-distinct"
+        ],
+        "premises": {
+          "_ = Bool:True": 1
+        }
+      }
+    ]
+  },
+  "recipe_seconds": [
+    {
+      "recipe": "semantic-laws",
+      "seconds": 15.12,
+      "share": 0.44
+    },
+    {
+      "recipe": "all-published-packages",
+      "seconds": 14.13,
+      "share": 0.411
+    },
+    {
+      "recipe": "proved-observations",
+      "seconds": 1.49,
+      "share": 0.043
+    },
+    {
+      "recipe": "maintained-folds",
+      "seconds": 1.23,
+      "share": 0.036
+    },
+    {
+      "recipe": "database-source-algorithms",
+      "seconds": 0.83,
+      "share": 0.024
+    },
+    {
+      "recipe": "source-capabilities",
+      "seconds": 0.3,
+      "share": 0.009
+    },
+    {
+      "recipe": "pure-routing",
+      "seconds": 0.26,
+      "share": 0.008
+    },
+    {
+      "recipe": "index",
+      "seconds": 0.14,
+      "share": 0.004
+    },
+    {
+      "recipe": "refresh-on-query",
+      "seconds": 0.1,
+      "share": 0.003
+    },
+    {
+      "recipe": "direct",
+      "seconds": 0.1,
+      "share": 0.003
+    },
+    {
+      "recipe": "grouped-index",
+      "seconds": 0.09,
+      "share": 0.003
+    },
+    {
+      "recipe": "whole-action-early-return",
+      "seconds": 0.09,
+      "share": 0.003
+    },
+    {
+      "recipe": "private-sum-spines",
+      "seconds": 0.09,
+      "share": 0.003
+    },
+    {
+      "recipe": "contract-witnesses",
+      "seconds": 0.09,
+      "share": 0.003
+    },
+    {
+      "recipe": "literal-physical-alternatives",
+      "seconds": 0.09,
+      "share": 0.003
+    },
+    {
+      "recipe": "whole-action-coalescing",
+      "seconds": 0.08,
+      "share": 0.002
+    },
+    {
+      "recipe": "whole-entry-placement",
+      "seconds": 0.08,
+      "share": 0.002
+    },
+    {
+      "recipe": "proved-capacities",
+      "seconds": 0.07,
+      "share": 0.002
+    },
+    {
+      "recipe": "compact-observer",
+      "seconds": 0.0,
+      "share": 0.0
+    },
+    {
+      "recipe": "representation-products",
+      "seconds": 0.0,
+      "share": 0.0
+    },
+    {
+      "recipe": "first-order-choices",
+      "seconds": 0.0,
+      "share": 0.0
+    },
+    {
+      "recipe": "migration-bridges",
+      "seconds": 0.0,
+      "share": 0.0
+    },
+    {
+      "recipe": "residual-execution-carriers",
+      "seconds": 0.0,
+      "share": 0.0
+    },
+    {
+      "recipe": "graph-resources",
+      "seconds": 0.0,
+      "share": 0.0
+    },
+    {
+      "recipe": "representation-5",
+      "seconds": 0.0,
+      "share": 0.0
+    }
+  ],
+  "context": {
+    "target": "javascript",
+    "planning_effort": "quick",
+    "compiler_sha256": "ae0193222a7e76c7af9262cd54c3d696a0fbf20e46f90fae4431c0aa7546e8be",
+    "snapshot": "12c02889be3f1f2c787a94836439714fa3803f3966473092e28422ede1c96382",
+    "manifest_sha256": "7e543f59af019ad96719bc4bc858b8da98d4dfbc41be12f6cc09317e5aaa4288"
+  }
+}

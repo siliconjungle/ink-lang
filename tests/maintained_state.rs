@@ -110,6 +110,13 @@ fn arbitrary_schema_products_preserve_histories_rollback_and_portable_state_and_
         .contains("maintained"));
     let mut forged = packet.clone();
     if let planning::Step::Maintained(ref mut p) = forged.steps[0] {
+        p.knowledge.snapshot.root = "0".repeat(64);
+    }
+    assert!(planning::check(&module, &forged)
+        .unwrap_err()
+        .contains("pinned snapshot"));
+    let mut forged = packet.clone();
+    if let planning::Step::Maintained(ref mut p) = forged.steps[0] {
         p.views[0].replacement = Proof::Refl(Term::U64(0));
     }
     assert!(planning::check(&module, &forged)
@@ -145,7 +152,24 @@ fn arbitrary_schema_products_preserve_histories_rollback_and_portable_state_and_
     assert!(planning::check(&module, &forged).is_err());
     let mut map_packet = packet.clone();
     map_packet.steps.pop();
-    let map = planning::check(&module, &map_packet).unwrap();
+    let mut session = planning::Checker::new(module.clone());
+    let map = session.check(&map_packet).unwrap();
+    let mut wrong_membership = map_packet.clone();
+    if let planning::Step::Maintained(ref mut p) = wrong_membership.steps[0] {
+        p.knowledge.snapshot.root = "0".repeat(64);
+    }
+    assert!(session.check(&wrong_membership).unwrap_err().contains("pinned snapshot"));
+    assert_eq!(session.reused_steps(), 0);
+    assert!(session.check(&forged).is_err());
+    assert_eq!(session.reused_steps(), 1);
+    session.check(&packet).unwrap();
+    assert_eq!(session.reused_steps(), 1);
+    let mut other_dense = packet.clone();
+    if let planning::Step::Physical(ref mut p) = other_dense.steps[1] {
+        p.dense_prefixes[0].capacity = 65;
+    }
+    session.check(&other_dense).unwrap();
+    assert_eq!(session.reused_steps(), 1);
     fs::write(
         dir.join("dense.mjs"),
         verified_language::javascript::lower_planned(&plan)
