@@ -442,3 +442,7 @@ fn nominal_field_replay_proofs_bind_id_declarations_portably() {
         )],
     );
 }
+
+// Existing mandatory snapshot CI also exercises adaptive migrations.
+#[path = "adaptive_host.rs"]
+mod adaptive_host;

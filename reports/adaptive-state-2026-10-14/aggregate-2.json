@@ -1,0 +1,316 @@
+{
+  "binding": {
+    "source": "83baab250e2ca4968f2c864e2f0269d9852b92ce72f818a7b6fe97cd795ca378",
+    "compiler": "b56ad1a9743fd9fac13899ff692696ce46bfbf6aac70726d2b108998009565ab",
+    "target": "local-node22-arm64",
+    "boundary": "owned-serial-state-v1",
+    "variants": {
+      "direct": "1720a214871bdd167ee5c1906c9b7ffc215cae7b08ac306128f791f59f8830c4",
+      "cached": "f3d270e77cadcd9f3ab7b01e86adf897ac63a1d09f9eeb6496768c1d0c067dc9"
+    }
+  },
+  "scope": "Shared host, complete serialized sessions; setup included, output validation outside timings. Empirical model extrema, not universal bounds.",
+  "results": [
+    {
+      "trace": "read_heavy",
+      "mode": "cached",
+      "elapsed_ns": 17052749.999999948,
+      "events": [],
+      "selected": "cached",
+      "calls": 8192,
+      "peak_rss": 120340480
+    },
+    {
+      "trace": "read_heavy",
+      "mode": "profile_once",
+      "elapsed_ns": 14469875.000000002,
+      "events": [],
+      "selected": "cached",
+      "calls": 8192,
+      "peak_rss": 120487936
+    },
+    {
+      "trace": "read_heavy",
+      "mode": "adaptive",
+      "elapsed_ns": 19463834.00000002,
+      "events": [
+        {
+          "kind": "switched",
+          "from": "direct",
+          "to": "cached",
+          "total_calls": 1024,
+          "elapsed_ns": 492875.00000002637
+        }
+      ],
+      "selected": "cached",
+      "calls": 8192,
+      "peak_rss": 120684544
+    },
+    {
+      "trace": "read_heavy",
+      "mode": "raw_direct",
+      "elapsed_ns": 29308207.99999992,
+      "events": [],
+      "selected": "direct",
+      "calls": 8192,
+      "peak_rss": 120815616
+    },
+    {
+      "trace": "read_heavy",
+      "mode": "direct",
+      "elapsed_ns": 39434666.99999999,
+      "events": [],
+      "selected": "direct",
+      "calls": 8192,
+      "peak_rss": 121012224
+    },
+    {
+      "trace": "write_heavy",
+      "mode": "cached",
+      "elapsed_ns": 304339209,
+      "events": [],
+      "selected": "cached",
+      "calls": 8192,
+      "peak_rss": 142180352
+    },
+    {
+      "trace": "write_heavy",
+      "mode": "profile_once",
+      "elapsed_ns": 20823374.99999994,
+      "events": [],
+      "selected": "direct",
+      "calls": 8192,
+      "peak_rss": 157122560
+    },
+    {
+      "trace": "write_heavy",
+      "mode": "adaptive",
+      "elapsed_ns": 23729374.999999892,
+      "events": [],
+      "selected": "direct",
+      "calls": 8192,
+      "peak_rss": 163479552
+    },
+    {
+      "trace": "write_heavy",
+      "mode": "raw_direct",
+      "elapsed_ns": 4685582.999999952,
+      "events": [],
+      "selected": "direct",
+      "calls": 8192,
+      "peak_rss": 181010432
+    },
+    {
+      "trace": "write_heavy",
+      "mode": "direct",
+      "elapsed_ns": 19316499.999999907,
+      "events": [],
+      "selected": "direct",
+      "calls": 8192,
+      "peak_rss": 202326016
+    },
+    {
+      "trace": "phase_change",
+      "mode": "cached",
+      "elapsed_ns": 173782667.00000018,
+      "events": [],
+      "selected": "cached",
+      "calls": 20480,
+      "peak_rss": 212860928
+    },
+    {
+      "trace": "phase_change",
+      "mode": "profile_once",
+      "elapsed_ns": 101595083.99999982,
+      "events": [],
+      "selected": "direct",
+      "calls": 20480,
+      "peak_rss": 169623552
+    },
+    {
+      "trace": "phase_change",
+      "mode": "adaptive",
+      "elapsed_ns": 51682291.99999996,
+      "events": [
+        {
+          "kind": "switched",
+          "from": "direct",
+          "to": "cached",
+          "total_calls": 4864,
+          "elapsed_ns": 13139124.999999922
+        }
+      ],
+      "selected": "cached",
+      "calls": 20480,
+      "peak_rss": 185483264
+    },
+    {
+      "trace": "phase_change",
+      "mode": "raw_direct",
+      "elapsed_ns": 57865166.999999925,
+      "events": [],
+      "selected": "direct",
+      "calls": 20480,
+      "peak_rss": 187695104
+    },
+    {
+      "trace": "phase_change",
+      "mode": "direct",
+      "elapsed_ns": 107156958.00000003,
+      "events": [],
+      "selected": "direct",
+      "calls": 20480,
+      "peak_rss": 171573248
+    },
+    {
+      "trace": "read_then_write",
+      "mode": "cached",
+      "elapsed_ns": 321756625,
+      "events": [],
+      "selected": "cached",
+      "calls": 16384,
+      "peak_rss": 181469184
+    },
+    {
+      "trace": "read_then_write",
+      "mode": "profile_once",
+      "elapsed_ns": 316421292,
+      "events": [],
+      "selected": "cached",
+      "calls": 16384,
+      "peak_rss": 172916736
+    },
+    {
+      "trace": "read_then_write",
+      "mode": "adaptive",
+      "elapsed_ns": 71933374.99999961,
+      "events": [
+        {
+          "kind": "switched",
+          "from": "direct",
+          "to": "cached",
+          "total_calls": 1024,
+          "elapsed_ns": 560083.0000003043
+        },
+        {
+          "kind": "switched",
+          "from": "cached",
+          "to": "direct",
+          "total_calls": 8960,
+          "elapsed_ns": 2929791.999999907
+        }
+      ],
+      "selected": "direct",
+      "calls": 16384,
+      "peak_rss": 214286336
+    },
+    {
+      "trace": "read_then_write",
+      "mode": "raw_direct",
+      "elapsed_ns": 32585792.00000031,
+      "events": [],
+      "selected": "direct",
+      "calls": 16384,
+      "peak_rss": 241434624
+    },
+    {
+      "trace": "read_then_write",
+      "mode": "direct",
+      "elapsed_ns": 56700582.99999982,
+      "events": [],
+      "selected": "direct",
+      "calls": 16384,
+      "peak_rss": 214253568
+    },
+    {
+      "trace": "oscillating",
+      "mode": "cached",
+      "elapsed_ns": 42404625.00000013,
+      "events": [],
+      "selected": "cached",
+      "calls": 2048,
+      "peak_rss": 215367680
+    },
+    {
+      "trace": "oscillating",
+      "mode": "profile_once",
+      "elapsed_ns": 7530750.000000353,
+      "events": [],
+      "selected": "direct",
+      "calls": 2048,
+      "peak_rss": 217399296
+    },
+    {
+      "trace": "oscillating",
+      "mode": "adaptive",
+      "elapsed_ns": 7914291.999999932,
+      "events": [],
+      "selected": "direct",
+      "calls": 2048,
+      "peak_rss": 217612288
+    },
+    {
+      "trace": "oscillating",
+      "mode": "raw_direct",
+      "elapsed_ns": 4036374.9999996796,
+      "events": [],
+      "selected": "direct",
+      "calls": 2048,
+      "peak_rss": 218726400
+    },
+    {
+      "trace": "oscillating",
+      "mode": "direct",
+      "elapsed_ns": 7459791.999999652,
+      "events": [],
+      "selected": "direct",
+      "calls": 2048,
+      "peak_rss": 220758016
+    },
+    {
+      "trace": "unknown",
+      "mode": "cached",
+      "elapsed_ns": 8203125,
+      "events": [],
+      "selected": "cached",
+      "calls": 4096,
+      "peak_rss": 219856896
+    },
+    {
+      "trace": "unknown",
+      "mode": "profile_once",
+      "elapsed_ns": 19286583.000000063,
+      "events": [],
+      "selected": "direct",
+      "calls": 4096,
+      "peak_rss": 219856896
+    },
+    {
+      "trace": "unknown",
+      "mode": "adaptive",
+      "elapsed_ns": 20384167.00000016,
+      "events": [],
+      "selected": "direct",
+      "calls": 4096,
+      "peak_rss": 219856896
+    },
+    {
+      "trace": "unknown",
+      "mode": "raw_direct",
+      "elapsed_ns": 14469165.999999858,
+      "events": [],
+      "selected": "direct",
+      "calls": 4096,
+      "peak_rss": 219856896
+    },
+    {
+      "trace": "unknown",
+      "mode": "direct",
+      "elapsed_ns": 19188290.999999937,
+      "events": [],
+      "selected": "direct",
+      "calls": 4096,
+      "peak_rss": 219856896
+    }
+  ]
+}

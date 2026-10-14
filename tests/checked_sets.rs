@@ -108,3 +108,54 @@ fn rehashed_set_preservation_with_fresh_membership_still_requires_a_proof(){
  let error=CheckedModule::from_source(p).err().unwrap();
  assert_eq!(error,"semantic normal forms differ");
 }
+
+#[test]
+fn checked_set_boundary_readers_preserve_validation_bits_and_transport_errors(){
+ use verified_language::{physical,planning,javascript};
+ use std::process::Command;
+ let module=CheckedModule::from_source(program()).unwrap();
+ let root=Path::new(env!("CARGO_MANIFEST_DIR")).join("build/checked-set-boundary-readers");fs::create_dir_all(&root).unwrap();
+ let physical:physical::Plan=serde_json::from_value(json!({"schema":1,"semantics":physical::SEMANTICS,"input_core_sha256":module.identity().unwrap(),"boundary_readers":[
+  {"function":"distinct","format":"compact"},{"function":"distinct","format":"portable"},
+  {"function":"float_bits","format":"compact"},{"function":"float_bits","format":"portable"},
+  {"function":"union","format":"compact"},{"function":"union","format":"portable"}
+ ]})).unwrap();
+ let package=planning::Package{schema:1,semantics:planning::SEMANTICS.into(),input_core_sha256:module.identity().unwrap(),steps:vec![planning::Step::Physical(physical)]};
+ let checked=planning::check(&module,&package).unwrap();
+ fs::write(root.join("baseline.mjs"),javascript::lower(&module).unwrap().javascript).unwrap();
+ fs::write(root.join("readers.mjs"),javascript::lower_planned(&checked).unwrap().javascript).unwrap();
+ fs::write(root.join("check.mjs"),r#"
+import assert from 'node:assert/strict';
+import * as baseline from './baseline.mjs';
+import * as readers from './readers.mjs';
+const outcome=run=>{try{return {value:run()};}catch(error){return {name:error.name,message:error.message};}};
+let compared=0;
+const cases=[['distinct',{value:{items:[]}}],['distinct',{value:{items:[0,4294967295]}}],['distinct',{value:{items:[1,1]}}],
+ ['union',{a:{items:[3,1]},b:{items:[1,2]}}],['union',{a:{items:[3,3]},b:{items:[1]}}],
+ ['float_bits',{value:{items:[{F32Bits:0},{F32Bits:2147483648},{F32Bits:2139169605},{F32Bits:4290847557}]}}],
+ ['float_bits',{value:{items:[{F32Bits:2139169605},{F32Bits:2139169605}]}}]];
+for(const compact of [false,true])for(const [name,args]of cases){
+ const codec=compact?baseline.valueCodecs[name].arguments.compact():baseline.valueCodecs[name].arguments;
+ const bytes=codec.encode(args),call=compact?'callCompact':'callBinary';
+ const expected=outcome(()=>baseline[call](name,bytes));
+ assert.deepEqual(outcome(()=>readers[call](name,bytes)),expected);compared++;
+ const argsArray=baseline.valueCodecs[name].arguments.descriptor.root.fields.map(f=>args[f.name]);
+ if(expected.message)assert.match(expected.message,/contract precondition failed/);
+ else{const resultCodec=compact?baseline.valueCodecs[name].result.compact():baseline.valueCodecs[name].result;
+  assert.deepEqual(resultCodec.decode(expected.value),baseline.call(name,argsArray));}
+ // Truncation, extra bytes and changed header/payload must retain the exact
+ // baseline error/value behavior; no validity fact survives an invalid input.
+ for(let end=0;end<bytes.length;end++){
+  const partial=bytes.subarray(0,end);assert.deepEqual(outcome(()=>readers[call](name,partial)),outcome(()=>baseline[call](name,partial)));compared++;
+ }
+ const extra=new Uint8Array(bytes.length+1);extra.set(bytes);assert.deepEqual(outcome(()=>readers[call](name,extra)),outcome(()=>baseline[call](name,extra)));compared++;
+ for(let i=0;i<bytes.length;i++){
+  const corrupt=bytes.slice();corrupt[i]^=255;assert.deepEqual(outcome(()=>readers[call](name,corrupt)),outcome(()=>baseline[call](name,corrupt)));compared++;
+ }
+}
+console.log(JSON.stringify({status:'checked',compared}));
+"#).unwrap();
+ let output=Command::new("node").arg(root.join("check.mjs")).output().unwrap();
+ assert!(output.status.success(),"{}",String::from_utf8_lossy(&output.stderr));
+ println!("{}",String::from_utf8_lossy(&output.stdout));
+}
