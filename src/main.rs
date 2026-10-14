@@ -252,6 +252,7 @@ fn run() -> LangResult<()> {
         "--representation",
         "--syntax-roles",
         "--table-storage",
+        "--lowering",
         "--target",
         "--value-roles",
         "--version",
@@ -778,7 +779,7 @@ fn run() -> LangResult<()> {
             "ink emit-definition LOCK.json EXPORTS.json [--select PACKAGE.json] -o DEFINITION.rs"
         );
         println!("ink emit-core SOURCE -o CORE.json\nink check-core CORE.json\nink extend-core SOURCE REQUEST.json [--core] -o CORE.json\nink emit-actions SOURCE -o ACTIONS.json\nink check-actions SOURCE ACTIONS.json\nink emit-effects SOURCE -o EFFECTS.json\nink check-effects SOURCE EFFECTS.json\nink emit-access SOURCE -o ACCESS.json\nink check-access SOURCE ACCESS.json\nExecution/lowering commands also accept --core to read a checked CORE.json instead of source.\nChecked replacement packages: build/emit-c ... --replacement PACKAGE.json");
-        println!("ink check SOURCE\nink execute SOURCE SCRIPT.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable]\nink run SOURCE FUNCTION ARGS.json\nink build SOURCE --target c|rust|javascript|wasm32|webgpu -o OUTPUT\nink emit-state SOURCE -o DIRECTORY [--wasm-abi] [--table-storage ordered|indexed-slots]\nink check-representation SOURCE REQUEST.json\nink verify-library LOCK.json");
+        println!("ink check SOURCE\nink execute SOURCE SCRIPT.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable]\nink run SOURCE FUNCTION ARGS.json\nink build SOURCE [--target native|wasm32|c|rust|javascript|webgpu] [--lowering rust|c] -o OUTPUT (native and wasm32 use typed Rust unless --lowering c)\nink emit-state SOURCE -o DIRECTORY [--wasm-abi] [--table-storage ordered|indexed-slots]\nink check-representation SOURCE REQUEST.json\nink verify-library LOCK.json");
 
         return Ok(());
     }
@@ -1497,9 +1498,11 @@ fn run() -> LangResult<()> {
             let selected_core_sha256 = core::CheckedModule::from_source(p.clone())?.identity()?;
             let out = arg_value(&args, "-o")?.ok_or("build requires -o OUTPUT.o")?;
             let target = arg_value(&args, "--target")?.unwrap_or_else(|| "native".into());
-            if cmd == "build" && target != "rust" && arg_value(&args, "--table-storage")?.is_some()
+            if cmd == "build"
+                && !matches!(target.as_str(), "rust" | "native" | "wasm32")
+                && arg_value(&args, "--table-storage")?.is_some()
             {
-                return Err("--table-storage requires the Rust project target".into());
+                return Err("--table-storage requires the Rust lowering".into());
             }
             if arg_value(&args, "--route-proof")?.is_some()
                 && arg_value(&args, "--route")?.is_none()
@@ -1559,12 +1562,30 @@ fn run() -> LangResult<()> {
                 if arg_value(&args, "--route")?.is_some() {
                     return Err("explicit routes require the GPU bundle target".into());
                 }
-                let module = core::CheckedModule::from_source(p.clone())?;
                 let project = std::path::PathBuf::from(format!("{out}.project"));
-                if let Some(selected) = &semantic_selection {
-                    verified_language::runtime::emit_c_program_selected(selected, &project)?;
-                } else {
-                    verified_language::runtime::emit_c_program(&module, &project)?;
+                // Typed Rust is the default executable lowering. The complete C
+                // lowering routes every value through the shared dynamic primitive
+                // runtime and remains available for cross-lowering comparison.
+                let lowering = arg_value(&args, "--lowering")?.unwrap_or_else(|| "rust".into());
+                match lowering.as_str() {
+                    "rust" => verified_language::runtime::emit_rust_program(
+                        &emit_state_rust(&p, semantic_selection.as_ref(), &args)?,
+                        &project,
+                    )?,
+                    "c" => {
+                        if arg_value(&args, "--table-storage")?.is_some() {
+                            return Err("--table-storage requires the Rust lowering".into());
+                        }
+                        if let Some(selected) = &semantic_selection {
+                            verified_language::runtime::emit_c_program_selected(selected, &project)?;
+                        } else {
+                            verified_language::runtime::emit_c_program(
+                                &core::CheckedModule::from_source(p.clone())?,
+                                &project,
+                            )?;
+                        }
+                    }
+                    _ => return Err("--lowering must be rust or c".into()),
                 }
                 let cargo = arg_value(&args, "--cargo")?
                     .or_else(|| std::env::var("INK_CARGO").ok())
@@ -1579,7 +1600,7 @@ fn run() -> LangResult<()> {
                     &cargo,
                     arg_value(&args, "--zig")?.as_deref(),
                 )?;
-                write(&format!("{out}.plan.json"),&serde_json::to_string_pretty(&serde_json::json!({"target":target,"abi":verified_language::abi::VALUE_ABI,"artifact_kind":if target=="native"{"executable"}else{"wasm_module"},"input_core_sha256":input_core_sha256,"selected_core_sha256":selected_core_sha256,"semantic_selection":semantic_selection.as_ref().map(|s|s.evidence()),"semantic_package":semantic_selection.as_ref().map(|s|s.package()),"checked_replacement":replacement,"checked_implementation":implementation,"applied_rule_ids":used,"trust":"literal C emission and shared Rust primitive runtime; toolchains remain trusted"})).map_err(|e|e.to_string())?)?;
+                write(&format!("{out}.plan.json"),&serde_json::to_string_pretty(&serde_json::json!({"target":target,"abi":verified_language::abi::VALUE_ABI,"artifact_kind":if target=="native"{"executable"}else{"wasm_module"},"lowering":lowering,"table_storage":if lowering=="rust"{Some(arg_value(&args,"--table-storage")?.unwrap_or_else(||"ordered".into()))}else{None},"input_core_sha256":input_core_sha256,"selected_core_sha256":selected_core_sha256,"semantic_selection":semantic_selection.as_ref().map(|s|s.evidence()),"semantic_package":semantic_selection.as_ref().map(|s|s.package()),"checked_replacement":replacement,"checked_implementation":implementation,"applied_rule_ids":used,"trust":if lowering=="rust"{"literal typed Rust emission; Rust toolchain remains trusted"}else{"literal C emission and shared Rust primitive runtime; toolchains remain trusted"}})).map_err(|e|e.to_string())?)?;
                 println!("wrote complete program to {out}");
                 return Ok(());
             }
