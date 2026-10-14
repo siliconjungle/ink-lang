@@ -1,5 +1,5 @@
 //! Shared structural and lexical analysis. This module grants no rewrite authority.
-use crate::core::{Expr,Type,Program};
+use crate::{core::{Expr,Type,Program}, LangResult};
 use std::collections::{BTreeMap,BTreeSet};
 
 /// Immediate children in source evaluation order. Exhaustive over executable IR.
@@ -407,4 +407,55 @@ pub fn cyclic_records(p: &Program) -> BTreeSet<String> {
         }
         false
     }).cloned().collect()
+}
+
+/// Exact strongly connected components of the source function-call graph.
+/// Membership describes a cycle; each consumer must check its own capability.
+pub fn recursive_function_groups(p: &Program) -> LangResult<Vec<Vec<usize>>> {
+    if p.functions.len() > 4096 { return Err("function graph size limit".into()); }
+    let names = p.functions.iter().enumerate().map(|(i, f)| (f.name.as_str(), i)).collect::<BTreeMap<_,_>>();
+    let edges = p.functions.iter().map(|f| {
+        let mut calls = BTreeSet::new(); crate::check::calls(&f.body, &mut calls);
+        calls.iter().filter_map(|name| names.get(name.as_str()).copied()).collect::<Vec<_>>()
+    }).collect::<Vec<_>>();
+    struct Graph<'a> {
+        edges: &'a [Vec<usize>], next: usize, indices: Vec<Option<usize>>,
+        low: Vec<usize>, active: Vec<bool>, stack: Vec<usize>, groups: Vec<Vec<usize>>, work: usize,
+    }
+    impl Graph<'_> {
+        fn visit(&mut self, node: usize, depth: usize) -> LangResult<()> {
+            if depth > 128 || self.work == 0 { return Err("function graph traversal limit".into()); }
+            self.work -= 1;
+            let index = self.next; self.next += 1;
+            self.indices[node] = Some(index); self.low[node] = index;
+            self.active[node] = true; self.stack.push(node);
+            for &child in &self.edges[node].clone() {
+                if self.work == 0 { return Err("function graph edge limit".into()); }
+                self.work -= 1;
+                if self.indices[child].is_none() {
+                    self.visit(child, depth + 1)?;
+                    self.low[node] = self.low[node].min(self.low[child]);
+                } else if self.active[child] {
+                    self.low[node] = self.low[node].min(self.indices[child].unwrap());
+                }
+            }
+            if self.low[node] == index {
+                let mut group = vec![];
+                loop {
+                    let child = self.stack.pop().ok_or("function graph stack")?;
+                    self.active[child] = false; group.push(child);
+                    if child == node { break; }
+                }
+                if group.len() > 1 || self.edges[node].contains(&node) {
+                    group.sort_unstable(); self.groups.push(group);
+                }
+            }
+            Ok(())
+        }
+    }
+    let n = p.functions.len();
+    let mut graph = Graph { edges: &edges, next: 0, indices: vec![None;n], low: vec![0;n],
+        active: vec![false;n], stack: vec![], groups: vec![], work: 100_000 };
+    for node in 0..n { if graph.indices[node].is_none() { graph.visit(node, 0)?; } }
+    graph.groups.sort(); Ok(graph.groups)
 }

@@ -54,6 +54,7 @@ fn contains(p: &Program, ty: &Type) -> bool {
 }
 
 fn validator_types(p: &Program) -> LangResult<BTreeMap<String, Type>> {
+    let recursive = crate::analysis::cyclic_records(p);
     let mut pending: Vec<_> = p
         .records
         .values()
@@ -90,6 +91,12 @@ fn validator_types(p: &Program) -> LangResult<BTreeMap<String, Type>> {
                 pending.extend([Type::List(key.clone()), Type::List(item.clone())]);
             }
             Type::Named(name) => {
+                if recursive.contains(name) && contains(p, &ty) {
+                    out.insert(
+                        format!("__ink_validate_{:x}", sha2::Sha256::digest(bytes)),
+                        ty.clone(),
+                    );
+                }
                 if let Some(fields) = p.records.get(name) {
                     pending.extend(fields.iter().map(|(_, t)| t.clone()));
                 }
@@ -103,32 +110,48 @@ fn validator_types(p: &Program) -> LangResult<BTreeMap<String, Type>> {
 }
 
 fn expected_validator(p: &Program, name: &str, ty: &Type) -> LangResult<Function> {
-    let Type::List(item) = ty else {
-        return Err("value validator requires an immutable list".into());
+    let body = match ty {
+        Type::List(item) => {
+            let predicate = conjunction(&predicates(p, item, var("__ink_validation_item"))?);
+            Expr::Call(
+                "foldr".into(),
+                vec![
+                    var("__ink_validation_input"),
+                    Expr::Bool(true),
+                    Expr::Lambda(
+                        "__ink_validation_item".into(),
+                        Box::new(Expr::Lambda(
+                            "__ink_validation_acc".into(),
+                            Box::new(Expr::Binary(
+                                "&&".into(),
+                                Box::new(predicate),
+                                Box::new(var("__ink_validation_acc")),
+                            )),
+                        )),
+                    ),
+                ],
+            )
+        }
+        Type::Named(record) => {
+            // Expand this one record, then validate its actual proper subvalues.
+            // Never use this function's result as an assumption about its input.
+            let input = var("__ink_validation_input");
+            let mut checks = vec![];
+            if let Some(predicate) = p.contracts.value_invariants.get(record) {
+                checks.push(apply("value", ty, input.clone(), predicate));
+            }
+            for (field_name, field_ty) in p.records.get(record).ok_or("value validator record missing")? {
+                checks.extend(predicates(p, field_ty, field(input.clone(), field_name))?);
+            }
+            conjunction(&checks)
+        }
+        _ => return Err("value validator requires a list or recursive immutable record".into()),
     };
-    let predicate = conjunction(&predicates(p, item, var("__ink_validation_item"))?);
     Ok(Function {
         name: name.into(),
         params: vec![("__ink_validation_input".into(), ty.clone())],
         result: Type::Bool,
-        body: Expr::Call(
-            "foldr".into(),
-            vec![
-                var("__ink_validation_input"),
-                Expr::Bool(true),
-                Expr::Lambda(
-                    "__ink_validation_item".into(),
-                    Box::new(Expr::Lambda(
-                        "__ink_validation_acc".into(),
-                        Box::new(Expr::Binary(
-                            "&&".into(),
-                            Box::new(predicate),
-                            Box::new(var("__ink_validation_acc")),
-                        )),
-                    )),
-                ),
-            ],
-        ),
+        body,
     })
 }
 
@@ -145,6 +168,11 @@ pub fn predicates(p: &Program, ty: &Type, value: Expr) -> LangResult<Vec<Expr>> 
         let mut out = vec![];
         match ty {
             Type::Named(name) => {
+                if depth > 0 {
+                    if let Some((validator, _)) = p.contracts.value_validators.iter().find(|(_, t)| *t == ty) {
+                        return Ok(vec![Expr::Call(validator.clone(), vec![value])]);
+                    }
+                }
                 if let Some(predicate) = p.contracts.value_invariants.get(name) {
                     out.push(apply("value", ty, value.clone(), predicate));
                 }

@@ -53,3 +53,27 @@ fn ancestors_rebuilt_values_loop_accumulators_shadowing_and_unknown_callback_dom
         .and_then(CheckedModule::from_source)
         .is_err());
 }
+
+#[test]
+fn mutually_recursive_functions_must_descend_on_every_component_edge() {
+    let source = "module mutual;
+      record Branch{children:List<Branch>,value:u32,}
+      fn branch(x:Branch)->u32{return x.value+children(x.children);}
+      fn children(xs:List<Branch>)->u32{return foldl(xs,0,fn(x)=>fn(acc)=>acc+branch(x));}";
+    let module = CheckedModule::from_source(syntax::parse(source).unwrap()).unwrap();
+    let f = module.program().functions.iter().find(|f| f.name=="branch").unwrap();
+    let arg = eval::Value::from_program_json(&json!({"value":1,"children":[{"value":2,"children":[]}]}), &f.params[0].1, module.program()).unwrap();
+    assert_eq!(eval::call_checked(&module,"branch",vec![arg], &mut 100000).unwrap().json(), json!(3));
+    for source in [
+        "module bad;record N{child:Option<N>,}fn a(x:N)->u32{return b(x);}fn b(x:N)->u32{return a(x);}",
+        "module bad;record N{child:Option<N>,}fn a(x:N)->u32{return x.child.fold(fn(y)=>b(x),fn(u)=>0);}fn b(x:N)->u32{return x.child.fold(fn(y)=>a(y),fn(u)=>0);}",
+        "module bad;record N{children:List<N>,}fn a(x:N)->u32{return b(x.children);}fn b(xs:List<N>)->u32{return foldl(xs,0,fn(x)=>fn(acc)=>a(N{children:xs}));}",
+    ] {
+        assert!(syntax::parse(source).and_then(CheckedModule::from_source).is_err(), "accepted {source}");
+    }
+    // Parameter positions are inferred independently, including shadowed captures.
+    let source = "module mutual;record N{next:Option<N>,}
+      fn a(ignored:u32,x:N)->u32{return x.next.fold(fn(y)=>b(y,ignored)+1,fn(u)=>0);}
+      fn b(x:N,ignored:u32)->u32{return x.next.fold(fn(y)=>a(ignored,y)+1,fn(u)=>0);}";
+    CheckedModule::from_source(syntax::parse(source).unwrap()).unwrap();
+}

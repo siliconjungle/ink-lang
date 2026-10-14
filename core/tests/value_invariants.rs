@@ -316,6 +316,33 @@ fn raw_nested_validators_do_not_assume_their_input_invariant() {
 }
 
 #[test]
+fn recursive_raw_validators_check_every_finite_nested_value_without_self_assumptions() {
+    let source = format!("{SMALL}record Node{{payload:Small,children:List<Node>,}}fn identity(node:Node)->Node{{return node;}}fn payload(node:Node)->Small{{return node.payload;}}");
+    let module = checked(&source).unwrap();
+    let ty = Type::Named("Node".into());
+    let valid = serde_json::json!({"payload":{"x":1},"children":[{"payload":{"x":2},"children":[]}]});
+    let invalid = serde_json::json!({"payload":{"x":1},"children":[{"payload":{"x":99},"children":[]}]});
+    let (validator, _) = module.program().contracts.value_validators.iter().find(|(_,t)| *t==&ty).unwrap();
+    assert!(!module.program().contracts.inferred.contains_key(validator));
+    for (value, expected) in [(valid.clone(),true),(invalid.clone(),false)] {
+        let input = eval::Value::from_program_json(&value,&ty,module.program()).unwrap();
+        assert_eq!(eval::call_checked(&module,validator,vec![input],&mut 100000).unwrap(),eval::Value::Bool(expected));
+    }
+    let bad = eval::Value::from_program_json(&invalid,&ty,module.program()).unwrap();
+    assert_eq!(eval::call_checked(&module,"identity",vec![bad],&mut 100000).unwrap_err(),"contract precondition failed");
+    let good = eval::Value::from_program_json(&valid,&ty,module.program()).unwrap();
+    assert_eq!(eval::call_checked(&module,"payload",vec![good.clone()],&mut 100000).unwrap().json(),serde_json::json!({"x":1}));
+    assert_eq!(eval::call_checked(&module,"identity",vec![good.clone()],&mut 100000).unwrap(),good);
+    let mut forged = module.program().clone();
+    forged.functions.iter_mut().find(|f| &f.name==validator).unwrap().body=Expr::Bool(true);
+    assert!(CheckedModule::from_source(forged).is_err());
+    let source=format!("{SMALL}record A{{payload:Small,next:Option<B>,}}record B{{next:Option<A>,}}fn identity(x:A)->A{{return x;}}");
+    let module=checked(&source).unwrap();
+    let bad=eval::Value::from_program_json(&serde_json::json!({"payload":{"x":1},"next":{"Some":{"next":{"Some":{"payload":{"x":99},"next":{"None":null}}}}}}),&Type::Named("A".into()),module.program()).unwrap();
+    assert_eq!(eval::call_checked(&module,"identity",vec![bad],&mut 100000).unwrap_err(),"contract precondition failed");
+}
+
+#[test]
 fn guarded_construction_and_reserved_field_names_are_hygienic() {
     checked(&format!(
         "{SMALL}

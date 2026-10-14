@@ -36,8 +36,7 @@ fn common(a: Value, b: Value) -> Value {
 }
 struct Walk<'a> {
     program: &'a Program,
-    function: &'a Function,
-    index: usize,
+    roots: &'a BTreeMap<String, usize>,
     work: usize,
 }
 impl Walk<'_> {
@@ -98,15 +97,16 @@ impl Walk<'_> {
                 local.insert(name.clone(), value);
                 self.expression(body, &local, depth + 1)?
             }
-            Expr::Call(name, args) if name == &self.function.name => {
+            Expr::Call(name, args) if self.roots.contains_key(name) => {
                 let mut values = vec![];
                 for arg in args {
                     values.push(self.expression(arg, env, depth + 1)?);
                 }
-                if values.get(self.index).and_then(|v| v.descendant) != Some(true) {
+                if values.get(self.roots[name]).and_then(|v| v.descendant) != Some(true) {
                     return Err("recursive call is not on a proper structural subvalue".into());
                 }
-                unknown(self.function.result.clone())
+                unknown(self.program.functions.iter().find(|f| &f.name == name)
+                    .ok_or("structural callee missing")?.result.clone())
             }
             Expr::Call(name, args) if name == "choose" && args.len() == 3 => {
                 self.expression(&args[0], env, depth + 1)?;
@@ -205,10 +205,10 @@ pub(crate) fn check(function: &Function, program: &Program) -> LangResult<()> {
                 )
             })
             .collect();
+        let roots = BTreeMap::from([(function.name.clone(), index)]);
         if (Walk {
             program,
-            function,
-            index,
+            roots: &roots,
             work: 50_000,
         })
         .expression(&function.body, &env, 0)
@@ -218,4 +218,42 @@ pub(crate) fn check(function: &Function, program: &Program) -> LangResult<()> {
         }
     }
     Err("no structural parameter decreases at every recursive call".into())
+}
+
+/// Every edge inside a recursive component must descend through a finite
+/// immutable value. Callees may use different parameter positions and types;
+/// constructors, accumulators and opaque outputs still cannot establish descent.
+pub(crate) fn check_group(functions: &[&Function], program: &Program) -> LangResult<()> {
+    let choices = functions.iter().map(|f| f.params.iter().enumerate()
+        .filter_map(|(i, (_, ty))| matches!(ty, Type::Named(_) | Type::List(_) | Type::Option(_) | Type::Result(..)).then_some(i))
+        .collect::<Vec<_>>()).collect::<Vec<_>>();
+    if choices.iter().any(Vec::is_empty) {
+        return Err("mutual recursion requires immutable structural parameters".into());
+    }
+    let mut selected = vec![0; functions.len()];
+    let mut work = 1_000_000;
+    for _ in 0..512 {
+        let roots = functions.iter().zip(&choices).zip(&selected)
+            .map(|((f, choices), selected)| (f.name.clone(), choices[*selected]))
+            .collect::<BTreeMap<_,_>>();
+        let valid = functions.iter().all(|f| {
+            let env = f.params.iter().enumerate().map(|(i, (n, ty))| (n.clone(), Value {
+                ty: ty.clone(), descendant: (i == roots[&f.name]).then_some(false),
+            })).collect();
+            let mut walk = Walk { program, roots: &roots, work };
+            let result = walk.expression(&f.body, &env, 0).is_ok();
+            work = walk.work;
+            result
+        });
+        if valid { return Ok(()); }
+        if work == 0 { return Err("mutual structural descent work limit".into()); }
+        let mut carry = true;
+        for (i, choices) in choices.iter().enumerate().rev() {
+            selected[i] += 1;
+            if selected[i] < choices.len() { carry = false; break; }
+            selected[i] = 0;
+        }
+        if carry { break; }
+    }
+    Err("mutual recursive calls do not all descend through proper immutable subvalues".into())
 }
