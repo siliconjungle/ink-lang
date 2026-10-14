@@ -34,3 +34,8 @@ A plan selected for large batches is not a promise of profitability on tiny ones
 The current producer bounds discovery and preserves query-dependent scans. The
 proofs authorize equivalent results; they do not establish persistent indexes,
 peak memory use, GPU execution, full-library coverage or general profitability.
+
+Use `--seed-offset N` when registering a subsequent experiment to obtain distinct
+training, rejection-only validation and evaluation inputs. The offset is recorded
+before acquisition; changing it does not make this development source an unseen
+program. Never use evaluation measurements to choose or repair that run's plan.

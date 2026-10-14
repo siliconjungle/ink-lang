@@ -1,5 +1,5 @@
 """Report every registered cell; never fit or select a plan from evaluation."""
-import argparse,hashlib,itertools,json,math,pathlib,statistics
+import argparse,hashlib,itertools,json,math,pathlib,statistics,subprocess,sys,os
 
 def analyse(directory):
  d=pathlib.Path(directory);registration=json.loads((d/'registration.json').read_text());protocol=registration['evaluation']
@@ -9,6 +9,10 @@ def analyse(directory):
   if hashlib.sha256((d/name).read_bytes()).hexdigest()!=sha:raise ValueError('frozen source mismatch: '+name)
  expected=set(itertools.product(['records','predicate','nested'],protocol['sizes'],protocol['queries'],protocol['shapes']))
  labels={};raw_files={}
+ env=dict(os.environ,PYTHONPATH=os.pathsep.join([str(d.resolve()/'planner'),str(d.resolve()/'knowledge')]))
+ fingerprint=subprocess.check_output([sys.executable,'-c',
+  'from ink_planner.compiled_planning import code_fingerprint;print(code_fingerprint())'],
+  cwd=d.resolve(),env=env,text=True).strip()
  for label in ['large','small']:
   paths={'baseline':d/'baseline.mjs','selected':d/(label+'.mjs'),'indexed':d/'indexed.mjs'}
   hashes={name:hashlib.sha256(p.read_bytes()).hexdigest()for name,p in paths.items()}
@@ -30,6 +34,20 @@ def analyse(directory):
      if sum((x,y)==(a,b)for order in orders for x,y in zip(order,order[1:]))!=protocol['rounds']//4:raise ValueError('unbalanced adjacent pairs')
     medians={name:statistics.median(xs)for name,xs in samples.items()};per_cell[key].append(medians)
    if seen!=expected:raise ValueError('missing registered evaluation cells')
+  plan_path=d/(label+'.plan.json');receipt_path=d/(label+'.plan.json.receipt.json')
+  plan=json.loads(plan_path.read_text());receipt=json.loads(receipt_path.read_text())
+  plan_id=hashlib.sha256(json.dumps(plan,sort_keys=True,separators=(',',':'),ensure_ascii=False).encode()).hexdigest()
+  if receipt['selected']!=plan_id or receipt['producer_sha256']!=fingerprint:raise ValueError('planning provenance mismatch')
+  if receipt['compiler_sha256']!=registration['files']['ink'] or receipt['source_snapshot']!=registration['knowledge_snapshot']:raise ValueError('planning input mismatch')
+  for path in [plan_path,receipt_path]:raw_files[path.name]=hashlib.sha256(path.read_bytes()).hexdigest()
+  holdout=receipt['selection'].get('holdout')
+  planning=dict(selected_plan=plan_id,steps=len(plan['steps']),
+   rewritten_functions=sorted({a['function']for step in plan['steps']if step['kind']=='rewrite'for a in step['package']['applications']}),
+   attempts=receipt['attempts'],admitted_states=receipt['admitted_states'],stop_reason=receipt['stop_reason'],
+   producer_sha256=fingerprint,registry_sha256=receipt['registry_sha256'],
+   measured_shortlist=receipt['measurement_acquisition']['shortlist'],
+   holdout=None if holdout is None else {k:holdout[k]for k in ['proposed','accepted','scope']},
+   scheduling=[n['diagnostics']for n in receipt['recipes']if n.get('recipe')=='discovery-scheduling'])
   cells=[]
   for key,processes in sorted(per_cell.items()):
    cells.append(dict(zip(['operation','n','queries','shape'],key),
@@ -37,7 +55,7 @@ def analyse(directory):
     speedup_vs_baseline={name:statistics.median(p['baseline']/p[name]for p in processes)for name in ['selected','indexed','native_set']},
     selected_speedup_vs_native=statistics.median(p['native_set']/p['selected']for p in processes),
     process_medians_ns=processes))
-  labels[label]=dict(hashes=hashes,selected_bytes_equal_baseline=hashes['selected']==hashes['baseline'],
+  labels[label]=dict(planning=planning,hashes=hashes,selected_bytes_equal_baseline=hashes['selected']==hashes['baseline'],
    cases=len(cells),median_loss_cells={name:sum(c['speedup_vs_baseline'][name]<1 for c in cells)for name in ['selected','indexed','native_set']},
    largest_batches=[c for c in cells if c['n']==max(protocol['sizes'])and c['queries']==max(protocol['queries'])],cells=cells)
  return dict(schema=1,scope=registration['scope'],selection=registration['selection'],registration=registration,
