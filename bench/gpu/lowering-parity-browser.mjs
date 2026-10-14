@@ -141,5 +141,5 @@ try {
   const words=await checkWordFixtures(page,base);
   const receipt={status:'passed',browser:browser.version(),bend,residency,numerics,contracts,words};
   await fs.writeFile(output,JSON.stringify(receipt,null,2)+'\n');
-  console.log(JSON.stringify({status:receipt.status,browser:receipt.browser,comparisons:bend.comparisons+residency.comparisons+numerics.reduce((n,r)=>n+r.comparisons,0)+contracts.reduce((n,r)=>n+r.comparisons,0),gpu_calls:bend.gpu_calls+residency.gpu_calls+numerics.reduce((n,r)=>n+r.gpu_calls,0)+contracts.reduce((n,r)=>n+r.gpu_calls,0)}));
+  console.log(JSON.stringify({status:receipt.status,browser:receipt.browser,comparisons:bend.comparisons+residency.comparisons+numerics.reduce((n,r)=>n+r.comparisons,0)+contracts.reduce((n,r)=>n+r.comparisons,0)+words.reduce((n,r)=>n+r.comparisons,0),gpu_calls:bend.gpu_calls+residency.gpu_calls+numerics.reduce((n,r)=>n+r.gpu_calls,0)+contracts.reduce((n,r)=>n+r.gpu_calls,0)+words.reduce((n,r)=>n+r.gpu_calls,0)}));
 } finally {await browser?.close();await new Promise(resolve=>server.close(resolve));}

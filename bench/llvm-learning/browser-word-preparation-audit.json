@@ -1,0 +1,108 @@
+{
+  "schema": 1,
+  "base_revision": "84ac70dcbed062599cfa2e06f5d95d7c502d9925",
+  "failure": {
+    "ci_run": 38584336767,
+    "message": "WebAssembly.instantiate(): BufferSource argument is empty",
+    "cause": "Browser replays three word fixtures omitted from CPU fallback preparation. All three lacked their browser CPU Wasm artifact.",
+    "local_reproduction": "Exact empty-buffer error reproduced in Chrome before building the word fixture CPU projects."
+  },
+  "changes": [
+    "Shared word-fixtures.json consumed by browser replay and CPU preparation.",
+    "Preflight every required CPU project before starting compilation; missing bundles can no longer silently do nothing.",
+    "Report word comparisons/GPU calls in the overall browser summary.",
+    "Mandatory Python preparation regressions: old preparation fails2 of3; corrected preparation passes3 of3."
+  ],
+  "validation": {
+    "fixture_rust_tests": 2,
+    "fixture_rust_wasm_outcomes": 13,
+    "preparation_tests": 3,
+    "contract_replay_node_tests": 5,
+    "browser": {
+      "status": "passed",
+      "browser": "155.0.8059.41",
+      "results": [
+        {
+          "name": "generated-parity-word-boundaries",
+          "comparisons": 9,
+          "gpu_calls": 3,
+          "dispatches": 3
+        },
+        {
+          "name": "generated-parity-semantic-word-baseline",
+          "comparisons": 14,
+          "gpu_calls": 4,
+          "dispatches": 4
+        },
+        {
+          "name": "semantic-word-selected",
+          "comparisons": 14,
+          "gpu_calls": 4,
+          "dispatches": 4
+        }
+      ]
+    },
+    "comparisons": 37,
+    "required_gpu_calls": 11,
+    "dispatches": 11
+  },
+  "artifacts": [
+    {
+      "fixture": "generated-parity-word-boundaries",
+      "manifest_sha256": "d3c59b49c30019d887a3973939dfde259f0ea2401b74df86aadfdf9a6d05ec8f",
+      "cpu_wasm": "build/generated-parity-word-boundaries/gpu-module/cpu.wasm",
+      "cpu_wasm_sha256": "7a5c39a82aff3cfe49601f98089f5a2dafd4fbf557bb9dfd50cdb8f5adc313f2"
+    },
+    {
+      "fixture": "generated-parity-semantic-word-baseline",
+      "manifest_sha256": "3ef2427e7e0d6aba01b6aa8fcbae820994d0184ea625252119eff3deb1fde82b",
+      "cpu_wasm": "build/generated-parity-semantic-word-baseline/gpu-module/cpu.wasm",
+      "cpu_wasm_sha256": "d910c2d5a872a498d66b49c887ff261437cf1aca550c5a5f5aa79d7ca9100714"
+    },
+    {
+      "fixture": "semantic-word-selected",
+      "manifest_sha256": "fdaa32eff30592d5cf02ea3f87795b7ed6d947213665c483043fd2dec7d7a68d",
+      "cpu_wasm": "build/semantic-word-selected/gpu-module/cpu.wasm",
+      "cpu_wasm_sha256": "40ac030887f267b8276acb2c69b23f10e8a5d546071a41c8775aba40770745ef"
+    }
+  ],
+  "limits": [
+    "Conformance only; no performance claim.",
+    "Standalone word browser replay passed; the entire aggregate browser job awaits remote CI.",
+    "Existing numeric normalization compares exact numeric values across JSON carriers; it is not universal return-carrier type validation."
+  ],
+  "evidence": [
+    {
+      "path": "work/llvm-learning-smoke/ci-38584336767-failed.log",
+      "sha256": "bf34fd0953846cbf44b4b261083b50e23eb9bebbabf36a19a30bb2ab38c0300b"
+    },
+    {
+      "path": "work/llvm-learning-smoke/browser-preparation-before.log",
+      "sha256": "814fa9d68eeba065f2cfcd2b093d31f81545662b3f01b18f0baf1e7bdf786b08"
+    },
+    {
+      "path": "work/llvm-learning-smoke/browser-preparation-tests-final.log",
+      "sha256": "ce155d9697089f241dcde88726f33980547fde850204098b7080f77732dcf5f8"
+    },
+    {
+      "path": "work/llvm-learning-smoke/browser-word-before.log",
+      "sha256": "7c913c9e29a56df4079088aaf45d5031f9d770b9e5317d000869b4ce6877e034"
+    },
+    {
+      "path": "work/llvm-learning-smoke/browser-word-after.log",
+      "sha256": "dde4c0fa389f034b39011a89b5e159c556c4bb234e5a951d7e6bb3308ed3d651"
+    },
+    {
+      "path": "work/llvm-learning-smoke/browser-word-build.log",
+      "sha256": "5661a4c73224ef187f001b19ff52bce094bb863fb197dcc3cd337058d89f2575"
+    },
+    {
+      "path": "work/llvm-learning-smoke/browser-word-fixtures-retry.log",
+      "sha256": "35d620257ced4efe6f4efcce92bb3fa2f3222b38d5f8fb20b00f50ac4b6bfc80"
+    },
+    {
+      "path": "work/llvm-learning-smoke/browser-contract-unit-final.log",
+      "sha256": "b440e64cd5aab2d4d44b5cedb8e66e9a680b062a81301b33e938885504a1e895"
+    }
+  ]
+}
