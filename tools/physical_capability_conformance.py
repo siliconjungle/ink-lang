@@ -17,9 +17,9 @@ def main():
  selected=d/'selected.rs';run(compiler,'emit-plan',source,plan,'--target','rust','-o',selected)
  project=d/'selected';run(compiler,'emit-plan',source,plan,'--target','rust-wasm','-o',project)
  (project/'src/main.rs').write_bytes((ROOT/'tests/lowering-parity-runner.rs.txt').read_bytes())
- run('cargo','build','--offline','--quiet','--manifest-path',project/'Cargo.toml')
+ run('cargo','build','--offline','--quiet','--manifest-path',project/'Cargo.toml','--bin','compiled-state','--target-dir',project/'target')
  out=run(project/'target/debug/compiled-state',d/'script.json');got=json.loads(out);expected=json.loads((d/'expected.json').read_text());assert got==expected,'native values/snapshots differ'
- run('cargo','build','--offline','--quiet','--lib','--target','wasm32-unknown-unknown','--manifest-path',project/'Cargo.toml')
+ run('cargo','build','--offline','--quiet','--lib','--target','wasm32-unknown-unknown','--manifest-path',project/'Cargo.toml','--target-dir',project/'target')
  (d/'state-wasm.mjs').write_bytes((ROOT/'runtime/hosts/state-wasm.mjs').read_bytes())
  (d/'check.mjs').write_text("""import fs from 'node:fs';import assert from 'node:assert/strict';import {StatefulModule,parseExactJSON} from './state-wasm.mjs';
 const module=await StatefulModule.instantiate(new Uint8Array(fs.readFileSync(new URL('selected/target/wasm32-unknown-unknown/debug/compiled_state.wasm',import.meta.url))));let state=module.create();

@@ -175,6 +175,9 @@ impl Context<'_> {
                 }
             }
             if crate::word::primitive(n) && crate::check::is_word(want) {
+                if crate::word::conversion(n).is_some_and(|(_,output)| &output != want) {
+                    return Err("word conversion result type".into());
+                }
                 let ts = crate::word::arguments(n, want);
                 if args.len() != ts.len() {
                     return Err("word operation arity".into());
@@ -468,8 +471,12 @@ impl Context<'_> {
             }
             Expr::Call(n, args) => {
                 if crate::word::primitive(n) {
-                    if args.len() != if n == "word_not" { 1 } else { 2 } {
+                    if args.len() != if crate::word::unary(n) { 1 } else { 2 } {
                         return Err("word operation arity".into());
+                    }
+                    if let Some((input,output))=crate::word::conversion(n) {
+                        self.expected(&args[0],&input,env,facts)?;
+                        return Ok(output);
                     }
                     let t = self.infer(&args[0], env, facts)?;
                     if !crate::check::is_word(&t) {
