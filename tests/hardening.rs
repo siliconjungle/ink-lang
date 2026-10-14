@@ -2196,6 +2196,7 @@ fn llvm_learning_and_incremental_knowledge_remain_checked() {
             "knowledge.tests.test_proof_authoring_deadline",
             "knowledge.tests.test_source_algorithms",
             "knowledge.tests.test_carrier_fusion", "knowledge.tests.test_planning_recipes",
+            "knowledge.tests.test_contract_session", "knowledge.tests.test_contract_replay",
             "planner.tests.test_selected_closure_sessions", "planner.tests.test_plan_cache",
             "tests.test_audit_coverage"])
         .current_dir(root)
