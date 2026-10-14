@@ -301,8 +301,13 @@ pub struct Runtime {
 }
 impl Runtime {
     pub fn new(program: Program) -> LangResult<Self> {
-        let module = crate::core::CheckedModule::from_source(program.clone())?;
-        let action_ir = crate::action_ir::CheckedActions::elaborate(&module)?;
+        Self::from_checked(&crate::core::CheckedModule::from_source(program)?)
+    }
+    /// Reuse sealed source admission. Action elaboration, effects, ingress,
+    /// invocation fuel and transactional state checks still apply normally.
+    pub fn from_checked(module: &crate::core::CheckedModule) -> LangResult<Self> {
+        let program = module.program().clone();
+        let action_ir = crate::action_ir::CheckedActions::elaborate(module)?;
         let action_bodies = (0..program.actions.len())
             .map(|i| std::sync::Arc::new(action_ir.action(i).expect("checked action").clone()))
             .collect();
@@ -333,7 +338,7 @@ impl Runtime {
     }
     pub fn new_selected(selection: &crate::optimisation::CheckedSelection) -> LangResult<Self> {
         let layout = crate::snapshot::selected_layout(selection)?;
-        let mut rt = Self::new(selection.module().program().clone())?;
+        let mut rt = Self::from_checked(selection.module())?;
         rt.selected_layout = Some(layout);
         Ok(rt)
     }
@@ -891,6 +896,16 @@ impl Runtime {
     ) -> LangResult<Self> {
         Self::restore_portable_into(Self::new(program)?, bytes, limits)
     }
+    pub fn restore_portable_checked(module: &crate::core::CheckedModule, bytes: &[u8]) -> LangResult<Self> {
+        Self::restore_portable_checked_with_limits(module, bytes, crate::snapshot_wire::Limits::default())
+    }
+    pub fn restore_portable_checked_with_limits(
+        module: &crate::core::CheckedModule,
+        bytes: &[u8],
+        limits: crate::snapshot_wire::Limits,
+    ) -> LangResult<Self> {
+        Self::restore_portable_into(Self::from_checked(module)?, bytes, limits)
+    }
     pub fn restore_portable_selected(
         selection: &crate::optimisation::CheckedSelection,
         bytes: &[u8],
@@ -956,6 +971,9 @@ impl Runtime {
     }
     pub fn restore(program: Program, bytes: &[u8]) -> LangResult<Self> {
         Self::restore_into(Self::new(program)?, bytes)
+    }
+    pub fn restore_checked(module: &crate::core::CheckedModule, bytes: &[u8]) -> LangResult<Self> {
+        Self::restore_into(Self::from_checked(module)?, bytes)
     }
     pub fn restore_selected(
         selection: &crate::optimisation::CheckedSelection,

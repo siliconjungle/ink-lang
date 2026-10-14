@@ -715,15 +715,19 @@ pub fn check_proof(
 }
 
 /// An immutable source context for repeated authoring attempts. Its executable
-/// structure and source-derived obligations are reused; every proposed proof
-/// and dependency bundle is still checked independently. This does not admit
-/// the source contracts or make the original program executable.
+/// structure and source-derived obligations are reused. Every incoming bundle
+/// is authenticated and every proposed proof is checked. Previously checked
+/// pure laws may be reused only when present in the current authenticated view
+/// and bound to this exact executable context. This does not admit the source
+/// contracts or make the original program executable.
 pub struct ProofContext {
     source: Program,
     executable: CheckedModule,
     pure: Vec<Obligation>,
     pure_names: BTreeMap<String, usize>,
     empty_catalogue: CheckedCatalogue,
+    // Retain at most one bounded view, never a growing union of session laws.
+    previous_catalogue: Option<CheckedCatalogue>,
     state: Option<StateObligations>,
 }
 impl ProofContext {
@@ -750,6 +754,7 @@ impl ProofContext {
             pure,
             pure_names,
             empty_catalogue,
+            previous_catalogue: None,
             state: None,
         })
     }
@@ -791,16 +796,20 @@ impl ProofContext {
     ) -> LangResult<()> {
         if let Some(&index) = self.pure_names.get(name) {
             let g = &self.pure[index];
-            let catalogue = if let Some(b) = bundle {
-                Some(crate::registry::CheckedBundle::check(b)?.catalogue()?)
+            let laws = if let Some(b) = bundle {
+                let catalogue = crate::registry::CheckedBundle::check(b)?.catalogue()?;
+                let checked = CheckedCatalogue::check_reusing(
+                    &catalogue,
+                    self.executable.program(),
+                    self.previous_catalogue.as_ref(),
+                )?;
+                checked.require_applicable()?;
+                self.previous_catalogue = Some(checked);
+                self.previous_catalogue.as_ref().expect("checked incoming catalogue")
             } else {
-                None
+                // A previous request cannot grant laws to an empty request.
+                &self.empty_catalogue
             };
-            let checked = catalogue
-                .as_ref()
-                .map(|c| CheckedCatalogue::check(c, self.executable.program()))
-                .transpose()?;
-            let laws = checked.as_ref().unwrap_or(&self.empty_catalogue);
             return laws.prove(
                 self.executable.program(),
                 &g.params,
