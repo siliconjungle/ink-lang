@@ -737,7 +737,8 @@ impl CheckedCatalogue {
                         from: condition.clone(),
                         to: term(value(Type::Bool), Node::Bool(flag)),
                     });
-                    self.prove_inner(p, env, &local, schemas, goal, proof, b, d + 1)?;
+                    self.prove_inner(p, env, &local, schemas, goal, proof, b, d + 1)
+                        .map_err(|e| format!("case {flag}: {e}"))?;
                 }
                 Ok(())
             }
@@ -905,7 +906,7 @@ impl CheckedCatalogue {
                     base,
                     b,
                     d + 1,
-                )?;
+                ).map_err(|e| format!("induction base: {e}"))?;
                 let mut hs = hyp.to_vec();
                 let mut local_schemas = schemas.to_vec();
                 let equation = sub_equation(goal, &sub(ih_arg), b)?;
@@ -926,7 +927,7 @@ impl CheckedCatalogue {
                     step,
                     b,
                     d + 1,
-                )
+                ).map_err(|e| format!("induction step: {e}"))
             }
         }
     }
