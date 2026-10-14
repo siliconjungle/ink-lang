@@ -167,6 +167,8 @@ fn build_and_emit_commands_keep_selected_provenance_and_native_host_assembly() {
         let out = Command::new(env!("CARGO"))
             .args(["build", "--offline", "--quiet", "--manifest-path"])
             .arg(destination.join("Cargo.toml"))
+            .arg("--target-dir")
+            .arg(destination.join("target"))
             .output()
             .unwrap();
         assert!(

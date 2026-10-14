@@ -119,6 +119,11 @@ alter the checker's goals. Every proposed proof and dependency bundle still
 replays independently, and final module or refinement admission remains required.
 The single-request `check-contract-proof` endpoint remains available.
 
+The state-contract author reserves the full typed parameter scope when choosing
+constructor binders, congruence holes and normalised match names, including unused
+parameters. These names preserve lexical meaning and grant no proof authority.
+Every resulting theorem still requires replay.
+
 In-process consumers can retain the private `CheckedModule` value instead of
 converting it back to a raw program and repeating source admission. The reference
 runtime's `from_checked` and checked restore methods, and Rust lowering's
