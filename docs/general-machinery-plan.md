@@ -68,9 +68,13 @@ scoped storage support at `ca9bc59f119db62c2c1ea5000b6baf390f94705a`.
 Current upstream integration passed 300 core tests across 51 test/doc runs,
 13 standalone Rust tests, 31 standalone JavaScript tests, 10 GPU package tests
 and all 182 planner tests. The standalone Wasm crate also builds/tests (it has
-no unit tests; execution coverage comes from the target parity suites). The
-remaining C/runtime closure, complete-target checks and distribution main
-publication are still being completed. Historical local-only publication statements below describe
+no unit tests; execution coverage comes from the target parity suites). The C suite passed 13 tests and runtime passed seven locked tests after
+refreshing its exact dependency lockfile. The complete-target run passed 36
+tests; another 15 source-law integration tests passed. These include complete
+CPU/Wasm observations and eligible wgpu control work. All changed independent
+repositories are published on main. Distribution main publication and CI
+verification are being completed. The reproducible commands, exact dependency
+revisions and log digests are in `docs/evidence/general-machinery/integration-v3.json`. Historical local-only publication statements below describe
 their respective earlier checkpoints.
 
 The largest remaining implementation requirements are the real invariant-bearing
