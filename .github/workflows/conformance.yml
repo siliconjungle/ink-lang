@@ -212,6 +212,9 @@ jobs:
             build/action-rule-search/*.json
             build/action-rule-native-search/*.json
           retention-days: 30
+      - name: Report compile cache use
+        if: always()
+        run: echo "::notice title=sccache::$(sccache --show-stats | grep -E 'Compile requests|Cache hits|Cache misses|Non-cacheable' | grep -v rate | tr -s ' ' | paste -sd ';' -)"
   cpu-representations:
     runs-on: ubuntu-24.04
     timeout-minutes: 120
@@ -294,6 +297,9 @@ jobs:
             build/representation-parity/**/producer.log
             build/representation-parity/**/*-run.log
           retention-days: 30
+      - name: Report compile cache use
+        if: always()
+        run: echo "::notice title=sccache::$(sccache --show-stats | grep -E 'Compile requests|Cache hits|Cache misses|Non-cacheable' | grep -v rate | tr -s ' ' | paste -sd ';' -)"
   wgpu:
     runs-on: ubuntu-24.04
     timeout-minutes: 60
@@ -433,3 +439,6 @@ jobs:
             build/action-rule-search/*.json
             build/action-rule-native-search/*.json
           retention-days: 30
+      - name: Report compile cache use
+        if: always()
+        run: echo "::notice title=sccache::$(sccache --show-stats | grep -E 'Compile requests|Cache hits|Cache misses|Non-cacheable' | grep -v rate | tr -s ' ' | paste -sd ';' -)"
