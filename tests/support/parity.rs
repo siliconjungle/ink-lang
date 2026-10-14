@@ -5,6 +5,7 @@ fn compile(root: &Path) {
     let out = Command::new(env!("CARGO"))
         .args(["build", "--offline", "--quiet", "--manifest-path"])
         .arg(root.join("Cargo.toml"))
+        .arg("--target-dir").arg(root.join("target"))
         .output()
         .unwrap();
     assert!(
@@ -230,6 +231,11 @@ fn conformance_inner(
                 .map(|line| serde_json::from_str(line).unwrap())
                 .collect()
         };
+        fs::write(
+            root.join("gpu-receipts.json"),
+            serde_json::to_vec(&actual).unwrap(),
+        )
+        .unwrap();
         let calls = gpu_steps
             .iter()
             .filter(|s| s["restore"].is_null())
@@ -462,7 +468,8 @@ fn conformance_inner(
                 "wasm32-unknown-unknown",
                 "--manifest-path",
             ])
-            .arg(dir.join("Cargo.toml"));
+            .arg(dir.join("Cargo.toml"))
+            .arg("--target-dir").arg(dir.join("target"));
             if dir == &c {
                 for (name, operation) in [("zig-cc", "cc"), ("zig-ar", "ar")] {
                     let path = dir.join(name);

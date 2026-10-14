@@ -40,6 +40,7 @@ impl SurfaceProgram {
             applications: self.applications,
             output: self.program,
             instances: BTreeMap::new(),
+            pending_functions: Vec::new(),
             work: 100_000,
             locals: BTreeSet::new(),
             callback_types: self.callback_types,
@@ -75,7 +76,9 @@ impl SurfaceProgram {
             .any(|f| callable(&f.result, &e.callback_types))
             || e.callback_types
                 .values()
-                .any(|(a, b)| callable(a, &e.callback_types) || callable(b, &e.callback_types))
+                .any(|(a, b)| callable(a, &e.callback_types)
+                    || (callable(b, &e.callback_types)
+                        && !matches!(b,Type::Named(n) if e.callback_types.contains_key(n))))
         {
             return Err("function values cannot escape or contain callable values".into());
         }
@@ -239,6 +242,23 @@ impl SurfaceProgram {
         for n in names {
             unused.push(e.ty(&Type::Named(n), &env, 0)?);
         }
+        // Generic helper call graphs are not expression nesting. Process each
+        // reserved instance once at its own lexical depth instead of recursively
+        // elaborating a callee body on the caller's expression stack.
+        let mut next_instance = 0;
+        while next_instance < e.pending_functions.len() {
+            let (index, mut function, bindings, base, args) =
+                e.pending_functions[next_instance].clone();
+            next_instance += 1;
+            e.function(&mut function, &bindings, 0)?;
+            let instance = function.name.clone();
+            if let Some(mut measure)=e.templates.termination.measures.get(&base).cloned() {
+                e.measure(&mut measure,&function,&bindings,0)?;
+                e.output.termination.measures.insert(instance.clone(),measure);
+            }
+            e.output.functions[index] = function;
+            e.instance_contract(&base, &instance, &bindings, &args, 0)?;
+        }
         p.contracts.specifications.extend(e.output.contracts.specifications);
         p.contracts.implementations.extend(e.output.contracts.implementations);
         p.contracts.value_invariants.extend(e.output.contracts.value_invariants);
@@ -269,6 +289,7 @@ struct Elaborator {
     applications: BTreeMap<String, (String, Vec<Type>)>,
     output: Program,
     instances: BTreeMap<String, String>,
+    pending_functions: Vec<(usize, Function, BTreeMap<String, Type>, String, Vec<Type>)>,
     work: usize,
     locals: BTreeSet<String>,
     callback_types: BTreeMap<String, (Type, Type)>,
@@ -301,7 +322,7 @@ impl Elaborator {
     }
     fn step(&mut self, depth: usize) -> LangResult<()> {
         if depth > 64 || self.work == 0 {
-            return Err("surface elaboration budget exceeded".into());
+            return Err(format!("surface elaboration budget exceeded (depth {depth}, remaining work {}, instances {})", self.work, self.instances.len()));
         }
         self.work -= 1;
         Ok(())
@@ -354,13 +375,16 @@ impl Elaborator {
             // checker subsequently checks all specialised call edges.
             self.instances.insert(instance.clone(), instance.clone());
             f.name = instance.clone();
-            self.function(&mut f, &bindings, depth + 1)?;
-            if let Some(mut measure)=self.templates.termination.measures.get(&name).cloned() {
-                self.measure(&mut measure,&f,&bindings,depth+1)?;
-                self.output.termination.measures.insert(instance.clone(),measure);
+            // Publish the concrete signature before its body so recursive calls
+            // and callers can type their results. Body admission is deferred;
+            // no unelaborated instance escapes SurfaceProgram::elaborate.
+            for (_, t) in &mut f.params {
+                *t = self.ty(t, &bindings, 0)?;
             }
+            f.result = self.ty(&f.result, &bindings, 0)?;
+            let index = self.output.functions.len();
+            self.pending_functions.push((index, f.clone(), bindings, name, args));
             self.output.functions.push(f);
-            self.instance_contract(&name,&instance,&bindings,&args,depth+1)?;
         } else if let Some(fields) = self.templates.records.get(&name).cloned() {
             self.instances.insert(instance.clone(), instance.clone());
             self.instance_bases.insert(instance.clone(), name.clone());
@@ -579,6 +603,53 @@ impl Elaborator {
                     *n = target;
                 } else {
                     return Err("record constructor requires a record type".into());
+                }
+                if fs.first().is_some_and(|(field, _)| field == "..") {
+                    let fields = self.program_context().records.get(n).cloned()
+                        .ok_or("record update requires a declared record type")?;
+                    let prefix = self.fresh_prefix();
+                    let base = format!("{prefix}_base");
+                    let mut bindings = Vec::new();
+                    let base_expression = if let Expr::Var(_) = &fs[0].1 {
+                        // A variable can already have an overridden affine
+                        // field consumed. Project only the remaining fields,
+                        // just as an ordinary explicit constructor does.
+                        let ty = crate::check::infer(&fs[0].1, &self.local_types, &self.program_context())?;
+                        if ty != Type::Named(n.clone()) {
+                            return Err("record update base type differs from constructor".into());
+                        }
+                        fs[0].1.clone()
+                    } else {
+                        bindings.push((base.clone(), Type::Named(n.clone()), fs[0].1.clone()));
+                        Expr::Var(base)
+                    };
+                    let mut overrides = BTreeMap::new();
+                    for (index, (field, value)) in fs.iter().skip(1).enumerate() {
+                        let ty = fields.iter().find(|(name, _)| name == field)
+                            .map(|(_, ty)| ty.clone())
+                            .ok_or_else(|| format!("unknown record update field {field}"))?;
+                        let local = format!("{prefix}_field{index}");
+                        if overrides.insert(field.clone(), local.clone()).is_some() {
+                            return Err(format!("duplicate record update field {field}"));
+                        }
+                        bindings.push((local, ty, value.clone()));
+                    }
+                    let mut body = Expr::Record(n.clone(), fields.into_iter().map(|(field, _)| {
+                        let value = if let Some(local) = overrides.get(&field) {
+                            Expr::Var(local.clone())
+                        } else {
+                            Expr::Field(Box::new(base_expression.clone()), field.clone())
+                        };
+                        (field, value)
+                    }).collect());
+                    // Evaluate the base once, then overrides in written order.
+                    // Ordinary typed lets/fields retain affine ownership checks;
+                    // no record update operation enters executable core.
+                    for (local, ty, value) in bindings.into_iter().rev() {
+                        body = Expr::Let(local, Some(Box::new(ty)), Box::new(value), Box::new(body));
+                    }
+                    *e = body;
+                    return self.expr(e, env, depth + 1);
                 }
                 for (_, a) in fs {
                     self.expr(a, env, depth + 1)?;
@@ -1163,7 +1234,14 @@ impl Elaborator {
             let parameter = format!("{prefix}_p{i}");
             if let Type::Named(n) = t {
                 if let Some((input, output)) = self.callback_types.get(n).cloned() {
-                    let input = self.ty(&input, &bindings, depth + 1)?;
+                    let mut inputs = vec![self.ty(&input, &bindings, depth + 1)?];
+                    let mut output = output;
+                    while let Type::Named(next) = &output {
+                        let Some((input, result)) = self.callback_types.get(next).cloned() else {break;};
+                        if inputs.len() >= 16 {return Err("callback arity limit exceeded".into());}
+                        inputs.push(self.ty(&input, &bindings, depth + 1)?);
+                        output = result;
+                    }
                     let output = self.ty(&output, &bindings, depth + 1)?;
                     let lambda = match arg {
                         Expr::Lambda(n, b) => {
@@ -1179,13 +1257,10 @@ impl Elaborator {
                             arg.clone()
                         }
                         Expr::Var(n) if self.templates.functions.iter().any(|f| f.name == *n) => {
-                            Expr::Lambda(
-                                format!("{prefix}_argument"),
-                                Box::new(Expr::Call(
-                                    n.clone(),
-                                    vec![Expr::Var(format!("{prefix}_argument"))],
-                                )),
-                            )
+                            let names=(0..inputs.len()).map(|i|format!("{prefix}_argument{i}")).collect::<Vec<_>>();
+                            let mut lambda=Expr::Call(n.clone(),names.iter().map(|n|Expr::Var(n.clone())).collect());
+                            for n in names.into_iter().rev(){lambda=Expr::Lambda(n,Box::new(lambda));}
+                            lambda
                         }
                         _ => {
                             return Err(
@@ -1194,13 +1269,15 @@ impl Elaborator {
                             )
                         }
                     };
-                    let Expr::Lambda(n, body) = &lambda else {
-                        unreachable!()
-                    };
                     let mut types = self.local_types.clone();
-                    types.insert(n.clone(), input.clone());
+                    let mut body=&lambda;
+                    for input in &inputs {
+                        let Expr::Lambda(n, next) = body else {return Err("callback lambda arity mismatch".into());};
+                        types.insert(n.clone(), input.clone());
+                        body=next;
+                    }
                     crate::check::infer_as(body, &types, &self.program_context(), &output)?;
-                    callbacks.insert(parameter, (input, output, lambda));
+                    callbacks.insert(parameter, (inputs, output, lambda));
                     continue;
                 }
             }
@@ -1376,45 +1453,48 @@ fn free_variables(e: &Expr, bound: &BTreeSet<String>) -> BTreeSet<String> {
 }
 fn substitute_callbacks(
     e: &mut Expr,
-    callbacks: &BTreeMap<String, (Type, Type, Expr)>,
+    callbacks: &BTreeMap<String, (Vec<Type>, Type, Expr)>,
     prefix: &str,
     serial: &mut usize,
 ) -> LangResult<()> {
-    let wrap = |signature: &(Type, Type, Expr), serial: &mut usize| -> Expr {
-        let (input, output, lambda) = signature;
-        let Expr::Lambda(n, body) = lambda else {
-            unreachable!()
-        };
-        let argument = format!("{prefix}_c{}", *serial);
-        *serial += 1;
+    let wrap = |signature: &(Vec<Type>, Type, Expr), serial: &mut usize| -> Expr {
+        let (inputs, output, lambda) = signature;
+        let mut body=lambda;
+        let mut params=vec![];
+        for input in inputs {
+            let Expr::Lambda(n,next)=body else {unreachable!()};
+            let argument=format!("{prefix}_c{}",*serial);*serial+=1;
+            params.push((argument,n.clone(),input.clone()));
+            body=next;
+        }
         let result = format!("{prefix}_c{}", *serial);
         *serial += 1;
-        Expr::Lambda(
-            argument.clone(),
-            Box::new(Expr::Let(
-                n.clone(),
-                Some(Box::new(input.clone())),
-                Box::new(Expr::Var(argument)),
-                Box::new(Expr::Let(
-                    result.clone(),
-                    Some(Box::new(output.clone())),
-                    body.clone(),
-                    Box::new(Expr::Var(result)),
-                )),
-            )),
-        )
+        let mut body=Expr::Let(result.clone(),Some(Box::new(output.clone())),Box::new(body.clone()),Box::new(Expr::Var(result)));
+        for (argument,n,input) in params.iter().rev() {
+            body=Expr::Let(n.clone(),Some(Box::new(input.clone())),Box::new(Expr::Var(argument.clone())),Box::new(body));
+        }
+        // Keep all lambdas adjacent: fixed collection operations consume
+        // curried callbacks without introducing a runtime closure carrier.
+        for (argument,_,_) in params.into_iter().rev(){body=Expr::Lambda(argument,Box::new(body));}
+        body
     };
     match e {
         Expr::Call(n, args) if callbacks.contains_key(n) => {
-            if args.len() != 1 {
-                return Err("pure callback expects one argument".into());
+            let inputs=&callbacks[n].0;
+            if args.len() != inputs.len() {
+                return Err("pure callback argument count mismatch".into());
             }
-            substitute_callbacks(&mut args[0], callbacks, prefix, serial)?;
-            let input = callbacks[n].0.clone();
-            let Expr::Lambda(n, body) = wrap(&callbacks[n], serial) else {
-                unreachable!()
-            };
-            *e = Expr::Let(n, Some(Box::new(input)), Box::new(args[0].clone()), body);
+            for arg in args.iter_mut(){substitute_callbacks(arg, callbacks, prefix, serial)?;}
+            let wrapped=wrap(&callbacks[n],serial);
+            let mut body=&wrapped;
+            let mut values=vec![];
+            for (input,arg) in inputs.iter().zip(args.iter()) {
+                let Expr::Lambda(n,next)=body else {unreachable!()};
+                values.push((n.clone(),input.clone(),arg.clone()));body=next;
+            }
+            let mut body=body.clone();
+            for (n,input,arg) in values.into_iter().rev(){body=Expr::Let(n,Some(Box::new(input)),Box::new(arg),Box::new(body));}
+            *e=body;
             // Do not substitute inside caller lambda bodies, whose lexical
             // names belong to a different environment.
             return Ok(());

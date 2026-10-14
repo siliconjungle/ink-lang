@@ -102,10 +102,12 @@ pub fn replace_child(t: &Term, i: usize, child: Term) -> LangResult<Term> {
 #[derive(Debug)]
 pub struct Budget {
     pub remaining: usize,
+    /// Shared circuit construction and RUP work across a complete proof check.
+    pub bit_work: usize,
 }
 impl Budget {
     pub fn new() -> Self {
-        Self { remaining: 500_000 }
+        Self { remaining: 500_000, bit_work: 20_000_000 }
     }
     pub fn step(&mut self, depth: usize) -> LangResult<()> {
         if depth > 128 || self.remaining == 0 {
@@ -280,15 +282,12 @@ fn need(got: &Sort, want: Sort) -> LangResult<()> {
     }
 }
 pub fn validate(t: &Term, env: &Env, p: &Program, b: &mut Budget) -> LangResult<()> {
-    fn walk(
+    fn check_node(
         t: &Term,
         env: &Env,
-        bound: &mut Vec<Sort>,
+        bound: &[Sort],
         p: &Program,
-        b: &mut Budget,
-        d: usize,
     ) -> LangResult<()> {
-        b.step(d)?;
         match &t.node {
             Node::Free(n) => need(
                 &t.sort,
@@ -319,13 +318,10 @@ pub fn validate(t: &Term, env: &Env, p: &Program, b: &mut Budget) -> LangResult<
             Node::Unit => need(&t.sort, value(Type::Unit))?,
             Node::Nat(_) => need(&t.sort, Sort::Nat)?,
             Node::Lambda(body) => {
-                let Sort::Arrow(a, c) = &t.sort else {
+                let Sort::Arrow(_, c) = &t.sort else {
                     return Err("lambda needs arrow sort".into());
                 };
                 need(&body.sort, (**c).clone())?;
-                bound.push((**a).clone());
-                walk(body, env, bound, p, b, d + 1)?;
-                bound.pop();
             }
             Node::Nil => {
                 list(&t.sort)?;
@@ -333,13 +329,10 @@ pub fn validate(t: &Term, env: &Env, p: &Program, b: &mut Budget) -> LangResult<
             Node::Cons(a, c) => {
                 need(&a.sort, value(list(&t.sort)?.clone()))?;
                 need(&c.sort, t.sort.clone())?;
-                walk(a, env, bound, p, b, d + 1)?;
-                walk(c, env, bound, p, b, d + 1)?;
+
             }
             Node::Op(n, args) => {
-                for a in args {
-                    walk(a, env, bound, p, b, d + 1)?;
-                }
+
                 let a = |i: usize| {
                     args.get(i)
                         .map(|x| &x.sort)
@@ -478,6 +471,9 @@ pub fn validate(t: &Term, env: &Env, p: &Program, b: &mut Budget) -> LangResult<
                         let result = val(&t.sort)?;
                         if !check::is_word(result) {
                             return Err("word primitive sort".into());
+                        }
+                        if crate::word::conversion(name).is_some_and(|(_,output)| &output != result) {
+                            return Err("word conversion result sort".into());
                         }
                         let ts = crate::word::arguments(name, result);
                         arity(ts.len())?;
@@ -681,6 +677,18 @@ pub fn validate(t: &Term, env: &Env, p: &Program, b: &mut Budget) -> LangResult<
                             need(&x_.sort, value((**x).clone()))?;
                         }
                     }
+                    "enum" => {
+                        arity(2)?;
+                        need(a(0)?, value(Type::String))?;
+                        need(a(1)?, value(Type::String))?;
+                        let (Node::String(name), Node::String(variant)) = (&args[0].node, &args[1].node) else {
+                            return Err("enum semantic literals required".into());
+                        };
+                        if !p.enums.get(name).is_some_and(|variants| variants.contains(variant)) {
+                            return Err("unknown semantic enum variant".into());
+                        }
+                        need(&t.sort, value(Type::Named(name.clone())))?;
+                    }
                     n if n.starts_with("record:") => {
                         let fields = p.records.get(&n[7..]).ok_or("unknown semantic record")?;
                         arity(fields.len())?;
@@ -750,7 +758,32 @@ pub fn validate(t: &Term, env: &Env, p: &Program, b: &mut Budget) -> LangResult<
         }
         sort(ty, p, b, 0)?;
     }
-    walk(t, env, &mut vec![], p, b, 0)
+    // Postorder node checking uses heap work frames, so valid source binding
+    // chains do not consume a large validator stack frame at every level.
+    let mut pending = vec![(t, Vec::<Sort>::new(), 0usize, false)];
+    while let Some((term, scope, depth, exit)) = pending.pop() {
+        if exit { check_node(term, env, &scope, p)?; continue; }
+        b.step(depth)?;
+        pending.push((term, scope.clone(), depth, true));
+        match &term.node {
+            Node::Lambda(body) => {
+                let Sort::Arrow(parameter, result) = &term.sort else { return Err("lambda needs arrow sort".into()); };
+                need(&body.sort, (**result).clone())?;
+                let mut local = scope; local.push((**parameter).clone());
+                pending.push((body, local, depth + 1, false));
+            }
+            Node::Cons(head, tail) => {
+                need(&head.sort, value(list(&term.sort)?.clone()))?;
+                need(&tail.sort, term.sort.clone())?;
+                pending.push((tail, scope.clone(), depth + 1, false));
+                pending.push((head, scope, depth + 1, false));
+            }
+            _ => for child in children(term).into_iter().rev() {
+                pending.push((child, scope.clone(), depth + 1, false));
+            },
+        }
+    }
+    Ok(())
 }
 /// Elaborate the exact executable AST. Numeric contexts and all lambda slots
 /// follow the same type checker used by the interpreter and independent backends.
@@ -830,6 +863,10 @@ pub fn elaborate(e: &Expr, env: &check::Env, p: &Program, want: &Type) -> LangRe
                     .map(|(f, t)| recur(&fields.iter().find(|(n, _)| n == f).unwrap().1, t))
                     .collect::<LangResult<_>>()?;
                 Ok(op(s, &format!("record:{n}"), args))
+            }
+            Expr::Field(x, n) if matches!(x.as_ref(),Expr::Var(name) if p.enums.contains_key(name) && !env.contains_key(name)) => {
+                let Expr::Var(name)=x.as_ref() else {unreachable!()};
+                Ok(op(s,"enum",vec![term(value(Type::String),Node::String(name.clone())),term(value(Type::String),Node::String(n.clone()))]))
             }
             Expr::Field(x, n) => {
                 if let Expr::Var(name)=x.as_ref() {
@@ -1265,7 +1302,7 @@ pub fn reify(t: &Term, p: &Program) -> LangResult<Expr> {
             _ => Err("unresolved function hole cannot execute".into()),
         }
     }
-    fn go(t: &Term, bound: &mut Vec<String>, free: &[String], p: &Program) -> LangResult<Expr> {
+    fn go(t: &Term, bound: &mut Vec<String>, free: &[String], p: &Program, shadowed:&std::collections::BTreeSet<String>) -> LangResult<Expr> {
         Ok(match &t.node {
             Node::Free(n) => Expr::Var(n.clone()),
             Node::Bound(i) => Expr::Var(
@@ -1306,20 +1343,29 @@ pub fn reify(t: &Term, p: &Program) -> LangResult<Expr> {
                     name.push('_')
                 }
                 bound.push(name.clone());
-                let body = go(body, bound, free, p)?;
+                let body = go(body, bound, free, p, shadowed)?;
                 bound.pop();
                 Expr::Lambda(name, Box::new(body))
             }
             Node::Op(n, a) => {
                 let args = a
                     .iter()
-                    .map(|x| go(x, bound, free, p))
+                    .map(|x| go(x, bound, free, p, shadowed))
                     .collect::<LangResult<Vec<_>>>()?;
                 if let Some(literal)=n.strip_prefix("enum:") {
                     let (name,index)=literal.rsplit_once(':').ok_or("reified enum literal")?;
                     let index:usize=index.parse().map_err(|_|"reified enum index")?;
                     let variant=p.enums.get(name).and_then(|variants|variants.get(index)).ok_or("unknown reified enum variant")?;
                     return Ok(Expr::Field(Box::new(Expr::Var(name.into())),variant.clone()));
+                }
+                if n == "enum" {
+                    let (Node::String(name),Node::String(variant))=(&a[0].node,&a[1].node) else {
+                        return Err("enum reification literals required".into());
+                    };
+                    if free.contains(name) || bound.contains(name) || shadowed.contains(name) {
+                        return Err("enum namespace is shadowed during reification".into());
+                    }
+                    return Ok(Expr::Field(Box::new(Expr::Var(name.clone())),variant.clone()));
                 } else if n == "value:equal" {
                     return Ok(Expr::Binary("==".into(),Box::new(Expr::Call("list".into(),vec![args[0].clone()])),Box::new(Expr::Call("list".into(),vec![args[1].clone()]))));
                 } else if n == "nat.word" {
@@ -1334,7 +1380,7 @@ pub fn reify(t: &Term, p: &Program) -> LangResult<Expr> {
                             k as u32 as u64
                         },
                     );
-                    return go(&literal, bound, free, p);
+                    return go(&literal, bound, free, p, shadowed);
                 }
                 if n == "local:buffer-empty" || n == "local:map-empty" {
                     Expr::Method(
@@ -1435,7 +1481,7 @@ pub fn reify(t: &Term, p: &Program) -> LangResult<Expr> {
                 let mut heads = Vec::new();
                 let mut tail = t;
                 while let Node::Cons(head, rest) = &tail.node {
-                    heads.push(go(head, bound, free, p)?);
+                    heads.push(go(head, bound, free, p, shadowed)?);
                     tail = rest;
                 }
                 let literal = Expr::Call("list".into(), heads);
@@ -1445,7 +1491,7 @@ pub fn reify(t: &Term, p: &Program) -> LangResult<Expr> {
                     Expr::Method(
                         Box::new(literal),
                         "concat".into(),
-                        vec![go(tail, bound, free, p)?],
+                        vec![go(tail, bound, free, p, shadowed)?],
                     )
                 }
             }
@@ -1461,7 +1507,27 @@ pub fn reify(t: &Term, p: &Program) -> LangResult<Expr> {
     }
     let mut free = vec![];
     names(t, &mut free);
-    go(t, &mut vec![], &free, p)
+    // Reification does not receive the surrounding site's complete environment.
+    // Conservatively refuse enum namespace syntax if any source scope can shadow
+    // that name, including unused parameters absent from the semantic term.
+    let mut shadowed=std::collections::BTreeSet::new();
+    let mut bindings=|e:&Expr|match e {
+        Expr::Let(n,_,_,_)|Expr::Lambda(n,_)=>{shadowed.insert(n.clone());},
+        _=>(),
+    };
+    for f in &p.functions {crate::analysis::walk(&f.body,&mut bindings);}
+    fn block(xs:&[crate::core::Statement],out:&mut std::collections::BTreeSet<String>){
+        for s in xs {match s {
+            crate::core::Statement::Let(n,_,e)=>{out.insert(n.clone());crate::analysis::walk(e,|e|if let Expr::Let(n,_,_,_)|Expr::Lambda(n,_)=e{out.insert(n.clone());});},
+            crate::core::Statement::If(c,a,b)=>{crate::analysis::walk(c,|e|if let Expr::Let(n,_,_,_)|Expr::Lambda(n,_)=e{out.insert(n.clone());});block(a,out);block(b,out);},
+            crate::core::Statement::Return(e)|crate::core::Statement::Emit(_,e)|crate::core::Statement::Expr(e)=>crate::analysis::walk(e,|e|if let Expr::Let(n,_,_,_)|Expr::Lambda(n,_)=e{out.insert(n.clone());}),
+        }}
+    }
+    for a in &p.actions{block(&a.body,&mut shadowed);}
+    for f in &p.functions {shadowed.extend(f.params.iter().map(|(n,_)|n.clone()));}
+    for a in &p.actions {shadowed.extend(a.params.iter().map(|(n,_)|n.clone()));}
+    shadowed.extend(p.states.iter().chain(&p.keeps).map(|d|d.name.clone()));
+    go(t, &mut vec![], &free, p, &shadowed)
 }
 /// Turn a local binder context into fresh universal parameters while checking
 /// an application, then restore exactly those binders after instantiation.

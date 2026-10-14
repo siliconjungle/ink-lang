@@ -14,6 +14,7 @@ pub mod content;
 pub mod core;
 pub mod definition;
 pub mod definition_context;
+pub mod flat_term;
 pub mod effect_model;
 pub mod effects;
 pub mod equality;

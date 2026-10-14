@@ -705,6 +705,39 @@ fn run() -> LangResult<()> {
         println!("wrote {output}; solver output requires a checked hinted-RUP certificate");
         return Ok(());
     }
+    if cmd == "semantic-bitvector-obligation" {
+        #[derive(serde::Deserialize)]
+        #[serde(deny_unknown_fields)]
+        struct Goal {
+            params:verified_language::semantic::Env,
+            conditions:Vec<verified_language::laws::Equation>,
+            from:verified_language::semantic::Term,
+            to:verified_language::semantic::Term,
+        }
+        let path=args.get(1).ok_or("semantic-bitvector-obligation requires SOURCE GOAL.json")?;
+        let goal_path=args.get(2).ok_or("semantic-bitvector-obligation requires GOAL.json")?;
+        let module=if args.iter().any(|a|a=="--core"){
+            core::CheckedModule::from_bytes(&read_bounded(path,core::MAX_BYTES)?)?
+        }else{core::CheckedModule::from_source(source(path)?)?};
+        let goal:Goal=serde_json::from_slice(&read_bounded(goal_path,4_000_000)?).map_err(|e|e.to_string())?;
+        if goal.params.len()>128 || goal.conditions.len()>128{return Err("semantic bit obligation parameter/condition limit".into());}
+        let problem=verified_language::laws::bitvector_problem(module.program(),&goal.params,&goal.conditions,&verified_language::laws::Equation{from:goal.from,to:goal.to})?;
+        let output=arg_value(&args,"-o")?.ok_or("missing -o")?;
+        write(&output,&serde_json::to_string(&problem).map_err(|e|e.to_string())?)?;
+        println!("{}",serde_json::json!({"status":"unproved","source":module.identity()?,"conditions":goal.conditions.len(),"scope":"Typed scalar circuit only; rewrite admission requires certificate replay."}));
+        return Ok(());
+    }
+    if cmd == "law-bitvector-obligation" {
+        let path=args.get(1).ok_or("law-bitvector-obligation requires SOURCE LAW_NAME")?;
+        let name=args.get(2).ok_or("law-bitvector-obligation requires LAW_NAME")?;
+        let bytes=read_bounded(path,1_000_000)?;
+        let text=std::str::from_utf8(&bytes).map_err(|e|e.to_string())?;
+        let obligation=verified_language::law_author::source_bitvector_obligation(syntax::parse_law_source(text)?,name)?;
+        let output=arg_value(&args,"-o")?.ok_or("missing -o")?;
+        write(&output,&serde_json::to_string(&obligation.problem).map_err(|e|e.to_string())?)?;
+        println!("{}",serde_json::json!({"status":"unproved","law":name,"conditions":obligation.condition_count,"output":output,"scope":"Source meanings elaborated; equality requires independent hinted-RUP replay through emit-laws."}));
+        return Ok(());
+    }
     if cmd == "emit-laws" {
         let path = args
             .get(1)
@@ -769,6 +802,8 @@ fn run() -> LangResult<()> {
         println!("ink emit-contract-obligations SOURCE -o OBLIGATIONS.json\nink check-contract-proof-stream SOURCE (bounded NDJSON authoring attempts)\nink check-contracts SOURCE [--contract-proofs EVIDENCE.json]\nAll source build/execution commands accept --contract-proofs EVIDENCE.json.");
         println!("ink emit-termination-obligations SOURCE -o GOALS.json\nink check-termination SOURCE --termination-proofs BUNDLE.json\nSource compilation/execution accepts --termination-proofs BUNDLE.json; measures grant no authority without checked evidence.");
         println!("ink emit-laws THEOREMS.ink [--proofs EVIDENCE.json] [--view DEPENDENCIES.json] -o BUNDLE.json");
+        println!("ink law-bitvector-obligation THEOREMS.ink LAW_NAME -o CNF.json\nExported scalar obligations remain unproved until emit-laws replays a hinted-RUP certificate.");
+        println!("ink semantic-bitvector-obligation SOURCE GOAL.json [--core] -o CNF.json");
         println!("ink emit-semantic SOURCE [--core] -o SUBJECT.json\nink check-selection CORE.json PACKAGE.json\nExecution, lowering and core emission accept --optimise KNOWLEDGE_DIRECTORY or SNAPSHOT.json (external search) or --selection PACKAGE.json (checked replay). Optional --search-tool PATH, --search-budget N, --python PATH and --plan-cache DIRECTORY [--plan-cache-context FILE]. INK_DISTRIBUTION locates an optional installed tool bundle.");
         println!("ink check-representation SOURCE REQUEST.json\nink emit-representation SOURCE REQUEST.json [--target rust|rust-packed|rust-memo|c|javascript|wasm32|c-wasm|rust-wasm|rust-wasm-packed|rust-wasm-memo|wgpu|webgpu] -o OUTPUT\nink execute-representation SOURCE REQUEST.json SCRIPT.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] (compiles standalone Rust; requires Cargo; script supports call and portable migrate steps)");
         println!("ink check-source-route CORE.json ROUTING.json\nink emit-action-model SOURCE -o MODEL.json (restricted whole-action transition projection)");
