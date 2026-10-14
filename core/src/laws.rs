@@ -23,6 +23,8 @@ pub enum Proof {
     },
     /// Nonnegative linear combination of exact-integer inequalities.
     Linear { premises: Vec<(usize, u64)> },
+    /// RUP refutation of the fixed typed unsigned-word/Boolean equality.
+    Word { hypotheses: Vec<usize>, certificate: crate::bitproof::Certificate },
     Normalize,
     Hypothesis(usize),
     /// Instantiate only the quantified parameters of a branch-local induction
@@ -151,7 +153,7 @@ pub fn required_semantics(law: &Law) -> &'static str {
 }
 fn general_proof(p: &Proof) -> bool {
     match p {
-        Proof::Assume { .. } | Proof::Variants { .. } | Proof::Order { .. } => true,
+        Proof::Assume { .. } | Proof::Variants { .. } | Proof::Order { .. } | Proof::Word { .. } => true,
         Proof::Use { types, assumptions, premises, .. } => {
             !types.is_empty() || !assumptions.is_empty() || premises.iter().any(general_proof)
         }
@@ -427,6 +429,10 @@ impl CheckedCatalogue {
         }
         match proof {
             Proof::Linear { premises } => linear(p, hyp, goal, premises, b),
+            Proof::Word { hypotheses, certificate } => {
+                let problem = crate::semantic_word::problem(p, env, hyp, goal, hypotheses, certificate.encoding, b)?;
+                crate::bitproof::verify_with_work(&problem, certificate, &mut b.remaining)
+            }
             Proof::AssertEquality {
                 equality,
                 premise,
@@ -2542,6 +2548,7 @@ pub fn open_proof(proof: &Proof, scope: &[(String, Sort)], b: &mut Budget) -> La
         };
         Ok(match proof {
             Proof::Linear { premises } => Proof::Linear { premises: premises.clone() },
+            Proof::Word { hypotheses, certificate } => Proof::Word { hypotheses: hypotheses.clone(), certificate: certificate.clone() },
             Proof::Normalize => Proof::Normalize,
             Proof::Hypothesis(i) => Proof::Hypothesis(*i),
             Proof::Forall { parameter, body } => Proof::Forall {

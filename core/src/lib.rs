@@ -35,6 +35,7 @@ pub mod registry;
 pub mod representation;
 pub mod routing;
 pub mod semantic;
+pub mod semantic_word;
 pub mod snapshot;
 pub mod snapshot_wire;
 pub mod source_routing;
