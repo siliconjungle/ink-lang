@@ -101,11 +101,8 @@ fn arbitrary_schema_products_preserve_histories_rollback_and_portable_state_and_
         serde_json::from_slice(&fs::read(dir.join("plan.json")).unwrap()).unwrap();
     let plan = planning::check(&module, &packet).unwrap();
     assert_eq!(plan.maintained().unwrap().package().views.len(), 3);
-<<<<<<< HEAD
     assert_eq!(plan.maintained().unwrap().package().views.iter().filter(|v|v.row_update.is_some()).count(),1);
-=======
     // Rust executes maintained folds; dense prefixes remain JavaScript-only.
->>>>>>> origin/main
     assert!(verified_language::state_native::emit_planned(&plan)
         .unwrap_err()
         .contains("dense"));
