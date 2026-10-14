@@ -124,8 +124,9 @@ fn unsound_or_ill_formed_laws_are_rejected() {
 fn executable_sources_reject_law_declarations() {
     let e = syntax::parse("module m; law t(x: u32) { x == x; }").unwrap_err();
     assert!(e.contains("emit-laws"), "{e}");
-    // Function-typed law parameters never reach executable elaboration.
-    assert!(syntax::parse("module m; fn f(g: fn(u32, u32) -> u32) -> u32 { return 0; }").is_err());
+    // Pure source callback parameters elaborate into checked specialisations.
+    let callbacks = syntax::parse("module m; fn f(g: fn(u32, u32) -> u32) -> u32 { return g(1, 2); } fn run()->u32{return f(fn(a,b)=>a+b);}").unwrap();
+    verified_language::core::CheckedModule::from_source(callbacks).unwrap();
 }
 
 #[test]
@@ -333,7 +334,8 @@ fn collection_observations_are_shared_by_contracts_and_source_laws(){
 #[test]
 fn scoped_buffer_observation_laws_use_fixed_clipped_slice_meanings(){
  let source=include_str!("../knowledge/libraries/buffer-view-laws.ink");
- let authored=author(source).unwrap();assert_eq!(authored.names.len(),3);
+ let authored=author(source).unwrap();
+ assert_eq!(authored.names.keys().cloned().collect::<std::collections::BTreeSet<_>>(), ["range_at","range_length","nested_range","lookup_view"].into_iter().map(str::to_owned).collect());
  CheckedCatalogue::check(&catalogue(&authored),&Program::default()).unwrap();
  assert!(author("module wrong;law bad(){buffer(list(1,2)).borrow_range(1,1,fn(view)=>view.at_or(0,99))==1;}").is_err());
 }
