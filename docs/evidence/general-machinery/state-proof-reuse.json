@@ -1,0 +1,34 @@
+{
+  "schema": 1,
+  "scope": "Fresh replay of supplied pure/state source certificates; runtime and core semantics unchanged",
+  "pure_obligations": 49,
+  "state_obligations": 10,
+  "pure_objects": 72,
+  "state_objects": 89,
+  "proof_trees": "identical to the original certificate",
+  "checks": {
+    "state-reuse-final-unit-tests": {
+      "path": "build/general-machinery/set-interface/state-reuse-final-unit-tests.log",
+      "sha256": "6382226b3d362b999ef315eb35dc236f94f49bd2cf030f4b2d39164b03e30579"
+    },
+    "state-reuse-real-check": {
+      "path": "build/general-machinery/set-interface/state-reuse-real-check.log",
+      "sha256": "71fe078e0b4921c5309d38004de762ca22335ad48fa8a03aebab738dadf9bb86"
+    },
+    "state-reuse-rehashed-negative": {
+      "path": "build/general-machinery/set-interface/state-reuse-rehashed-negative.log",
+      "sha256": "435f2a9096bb24586a65655724a1839893dbb41d8da3447c5d4d41c4a4fc545a"
+    },
+    "state-reuse-stale-source": {
+      "path": "build/general-machinery/set-interface/state-reuse-stale-source.log",
+      "sha256": "4c0bbc249b85df9b1a8dd5f9349cd894656682867a9732fdd0b0fafd792a27f1"
+    }
+  },
+  "unit_tests": 20,
+  "negative_controls": [
+    "Rehashed false state theorem with fresh snapshot membership rejects",
+    "Changed executable source rejects old evidence",
+    "Rejected replay never falls back to an assumption",
+    "Missing obligations are freshly authored"
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "checked_at": "2026-10-14T17:03:00.427295+11:00",
+  "packages": {
+    "abi": "607d5b6391093e00b6bbe1d64b02f05b45dff722",
+    "runtime": "eb3d6aa65051df8a2002d9c84d717b447d652841",
+    "planner": "e1a4c974a182ec102f9a29995631f5bbf8d21bbe"
+  },
+  "checks": [
+    {
+      "check": "Planner unit suite",
+      "result": "passed",
+      "tests": 200
+    },
+    {
+      "check": "ABI suite, including native/Wasm usage and native/JS JSON parity",
+      "result": "passed",
+      "tests": 18
+    },
+    {
+      "check": "JSON boundary adversarial path tests after final hardening",
+      "result": "passed",
+      "tests": 2
+    },
+    {
+      "check": "Runtime library and host suites",
+      "result": "passed",
+      "native_tests": 2,
+      "host_tests": 18
+    },
+    {
+      "check": "Distribution snapshots, adaptive migrations and rollback journals",
+      "result": "passed",
+      "tests": 9
+    },
+    {
+      "check": "Compiled and independent-reference JSON source conformance after final hardening",
+      "result": "passed"
+    },
+    {
+      "check": "Native usage snapshot serialization",
+      "result": "passed"
+    },
+    {
+      "check": "Browser Rust/Wasm diagnostics and JSON exactness/invalidation",
+      "result": "passed"
+    },
+    {
+      "check": "Packaged installation: prepare, load, call, no recording, collection assets and JSON lookup",
+      "result": "passed"
+    }
+  ],
+  "scope": "Local validations. Full hosted CI is separate and must finish green before calling a run CI-verified. No formal backend correctness or universal performance claim."
+}

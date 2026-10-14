@@ -361,3 +361,24 @@ See [source contracts](docs/source-contracts.md) for syntax, proof authoring,
 trusted boundaries, CPU/GPU coverage and the admitted state-proof domain.
 
 JSON tooling now includes the ordinary `std:json` knowledge library, six checked laws, exact/fallible JSON codecs, generic schema-bound binary transport, borrowed validation and raw binary pure calls across native/JavaScript/both-Wasm hosts. Recursive JSON state/events/checkpoints share CPU parity; dynamic JSON remains host-only. See `docs/json-and-portable-values.md` for number, schema, resource and trust contracts.
+
+## Opt-in adaptive state host
+
+[Recent-window adaptive execution](docs/adaptive-state.md) adds offline checked
+JavaScript bundles, empirical cost profiles, shared native/Wasm decision policy,
+bounded usage/latency recording and serialized checkpoint/restore switching.
+Correctness admission stays offline; no speculative state calls or runtime fitting.
+Sustained savings must cover migration, memory, pause and residence limits. Unknown
+workloads retain the current variant. The report retains both gains and overheads:
+this is opt-in, not an automatic default or a general performance guarantee.
+
+Optional access diagnostics now expose bounded locality, size, scan and invalidation
+summaries through the shared Rust/Wasm ABI. Independent compiled collections can
+adapt separately; explicit native/JavaScript JSON read views grow member indexes
+incrementally. A fixed state host can disable recording entirely. Offline lifecycle
+replay separates the best fixed choice, migration-charged hindsight and actual host
+execution. The [measurement report](reports/adaptive-learning-2026-10-14/README.md)
+records gains from local adaptation and wide-object JSON lookup, plus losses from
+cheap operations and overly responsive switching. Defaults and proof authority are
+unchanged; none of this introduces AI, inferred state partitioning or automatic
+JSON source rewrites.
