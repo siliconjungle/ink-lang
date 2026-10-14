@@ -1,0 +1,144 @@
+{
+  "finding": "F063",
+  "scope": "Query-local identity caching experiment on constructed and JSON-parsed inputs under contention; not application performance.",
+  "budget_checks": 44,
+  "prototype_limitations": [
+    "Source mutation/identity lifetime contract is not yet hardened; not production code.",
+    "Cache entry cap only; explicit retention/byte accounting and caller integration still needed.",
+    "Depth logic present but adversarial depth/context/mutation regression tests remain before production."
+  ],
+  "rows": [
+    {
+      "case": "bounded-mask",
+      "samples_ns_per_query": {
+        "baseline": [
+          13111.25,
+          12985.42,
+          13058.75,
+          14900.42,
+          13010.0,
+          13088.34,
+          14910.42,
+          12878.34,
+          12959.17
+        ],
+        "identity_memo": [
+          26080.84,
+          12917.08,
+          12817.09,
+          12725.83,
+          12620.42,
+          12873.34,
+          15427.08,
+          13927.5,
+          12506.25
+        ]
+      },
+      "median_ns": {
+        "baseline": 13058.75,
+        "identity_memo": 12873.34
+      },
+      "memo_over_baseline": 0.985801856992438,
+      "proposals_equal": true
+    },
+    {
+      "case": "scoped-branch",
+      "samples_ns_per_query": {
+        "baseline": [
+          38688.34,
+          43692.91,
+          37518.75,
+          41475.42,
+          39542.08,
+          44295.84,
+          40841.67,
+          42403.34,
+          38208.33
+        ],
+        "identity_memo": [
+          42858.75,
+          43573.33,
+          44491.25,
+          43675.83,
+          43310.83,
+          47185.0,
+          44246.25,
+          45975.42,
+          46600.41
+        ]
+      },
+      "median_ns": {
+        "baseline": 40841.67,
+        "identity_memo": 44246.25
+      },
+      "memo_over_baseline": 1.0833604502460354,
+      "proposals_equal": true
+    },
+    {
+      "case": "nested-scoped-shared",
+      "samples_ns_per_query": {
+        "baseline": [
+          450625.83,
+          483590.42,
+          444046.66,
+          454288.33,
+          455999.59,
+          447937.92,
+          452188.33,
+          464235.0,
+          447118.75
+        ],
+        "identity_memo": [
+          291787.91,
+          291194.58,
+          281512.92,
+          297629.17,
+          301210.41,
+          306720.84,
+          296300.42,
+          293302.08,
+          295863.33
+        ]
+      },
+      "median_ns": {
+        "baseline": 452188.33,
+        "identity_memo": 295863.33
+      },
+      "memo_over_baseline": 0.6542922724255179,
+      "proposals_equal": true
+    },
+    {
+      "case": "nested-scoped-parsed",
+      "samples_ns_per_query": {
+        "baseline": [
+          483119.17,
+          462810.83,
+          465917.09,
+          469060.84,
+          467664.59,
+          466890.0,
+          466698.33,
+          493546.67,
+          469268.33
+        ],
+        "identity_memo": [
+          314347.09,
+          310001.25,
+          311999.58,
+          317509.17,
+          299531.25,
+          344601.25,
+          307887.92,
+          308205.42,
+          317675.0
+        ]
+      },
+      "median_ns": {
+        "baseline": 467664.59,
+        "identity_memo": 311999.58
+      },
+      "memo_over_baseline": 0.6671439032833338,
+      "proposals_equal": true
+    }
+  ]
+}

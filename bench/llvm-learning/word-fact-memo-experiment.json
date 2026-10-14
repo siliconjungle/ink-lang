@@ -1,0 +1,98 @@
+{
+  "finding": "F063",
+  "scope": "Isolated constructed-input timing experiment on a contended machine. Not compiler/application throughput.",
+  "prototype_limitations": [
+    "Serialized-key memo does not preserve logical visit/depth budget semantics; deliberately not production code.",
+    "No byte cap in experimental cache; bounded entries only.",
+    "No claim of broad generalisation or correctness from these three cases."
+  ],
+  "rows": [
+    {
+      "case": "bounded-mask",
+      "samples_ns_per_query": {
+        "baseline": [
+          15229.17,
+          14235.84,
+          15399.58,
+          14240.42,
+          14055.0,
+          12855.83,
+          14707.92
+        ],
+        "serialized_memo": [
+          57715.41,
+          46778.75,
+          45153.75,
+          50831.66,
+          53078.75,
+          44433.33,
+          46644.58
+        ]
+      },
+      "median_ns": {
+        "baseline": 14240.42,
+        "serialized_memo": 46778.75
+      },
+      "memo_over_baseline": 3.284927691739429,
+      "proposals_equal": true
+    },
+    {
+      "case": "scoped-branch",
+      "samples_ns_per_query": {
+        "baseline": [
+          38875.84,
+          40485.0,
+          42203.33,
+          38846.25,
+          40358.75,
+          40859.58,
+          39879.59
+        ],
+        "serialized_memo": [
+          178812.92,
+          177773.75,
+          177446.25,
+          180395.0,
+          178121.25,
+          181318.33,
+          183910.41
+        ]
+      },
+      "median_ns": {
+        "baseline": 40358.75,
+        "serialized_memo": 178812.92
+      },
+      "memo_over_baseline": 4.430586180196364,
+      "proposals_equal": true
+    },
+    {
+      "case": "nested-scoped-branches",
+      "samples_ns_per_query": {
+        "baseline": [
+          446988.34,
+          463213.34,
+          464753.33,
+          457905.42,
+          465905.84,
+          454868.34,
+          450488.75
+        ],
+        "serialized_memo": [
+          4287185.42,
+          4190894.58,
+          4298904.16,
+          4166415.84,
+          4201992.09,
+          4184034.17,
+          4242237.09
+        ]
+      },
+      "median_ns": {
+        "baseline": 457905.42,
+        "serialized_memo": 4201992.09
+      },
+      "memo_over_baseline": 9.176550236072767,
+      "proposals_equal": true
+    }
+  ]
+}

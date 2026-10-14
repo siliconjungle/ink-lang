@@ -14,7 +14,7 @@ p=argparse.ArgumentParser(description=__doc__)
 for n in ['core','subject','store','compiler']:p.add_argument('--'+n,type=Path,required=True)
 p.add_argument('--law',required=True);p.add_argument('-o',type=Path,required=True);a=p.parse_args()
 if a.o.exists():raise ValueError('refusing to overwrite output')
-store=Store(a.store);key=json.loads((a.store/'store/names.json').read_text())[a.law];obj=store.object(key);law=dict(schema=1,semantics=obj['semantics'],dependencies=obj['dependencies'],**obj['payload']);proof=law['proof']
+store=Store(a.store);key=store.names[a.law];obj=store.object(key);law=dict(schema=1,semantics=obj['semantics'],dependencies=obj['dependencies'],**obj['payload']);proof=law['proof']
 if not isinstance(proof,dict)or set(proof)!= {'Trans'}:raise ValueError('observer proof has no explicit calculation prefix')
 law['from']=proof['Trans']['middle'];law['proof']=proof['Trans']['right'];law.pop('definition_context',None)
 core=json.loads(a.core.read_text());subject=json.loads(a.subject.read_text());obj=semantic_entry(prune(bind(law,core,subject)));ident=identity(obj);objects=dict(store.bundle(law['dependencies'])['objects']);objects[ident]=obj
