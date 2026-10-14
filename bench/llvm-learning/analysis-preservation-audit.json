@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "llvm_revision": "d977b4533f1d9b01d28cf4dba9b2db9d1ccfda08",
+  "file": "llvm/include/llvm/IR/Analysis.h",
+  "blob": "8ab70dd9ed594c501d2c2e388818a1b5b5ec84f3",
+  "bytes_read": 12523,
+  "insights": [
+    "CFG preservation concerns blocks and successor edges; changing a branch condition does not change the CFG but can invalidate branch-dependent value facts. Preserve analysis dependencies at the right semantic granularity.",
+    "Specific abandonment overrides abstract preserved sets, including all. Explicit preserve of one analysis removes its abandonment. Intersection unions negative exceptions and intersects preserved IDs.",
+    "areAllPreserved and allAnalysesInSetPreserved require an empty abandonment set; stateless preservation still respects explicit abandonment.",
+    "Analysis IDs are process-local addresses, with explicit instantiation needed for stable Windows identity. They are not portable content IDs for a knowledge database."
+  ],
+  "ink_application": [
+    "Retain exact-source identity for proof and path facts; do not use a CFG-only preservation promise to retain predicate conclusions.",
+    "Use complete immutable context for proposed authoring export reuse. A future mutable analysis cache must propagate invalidation through dependencies and keep explicit exceptions.",
+    "Keep persistent database hashes separate from process-local analysis identities."
+  ],
+  "implementation_status": "Requirements extracted; no new mutable preservation framework introduced.",
+  "performance_claim": false
+}

@@ -1,0 +1,140 @@
+{
+  "schema": 1,
+  "base_revision": "84ac70dcbed062599cfa2e06f5d95d7c502d9925",
+  "changes": [
+    "Reauthor five stale fixture packets with ordinary proof producers and final source admission; no manually relabelled proof hashes.",
+    "Replay every committed proofs.json fixture before expensive conformance:11 contract packets plus the separate termination bundle.",
+    "Check callback environment compatibility before optional normalization; mismatched scopes retain identical obligations."
+  ],
+  "fixtures": [
+    {
+      "fixture": "checked-sets",
+      "old_source": "f2248ed5a047ab2f15f95fe4b58b4215f6ebb61461ff9dac032a265f43391f60",
+      "new_source": "5c2a4656e064e4bb098373bc3924912b9ce9f57fdd5e8f0f215bc7f919054de7",
+      "pure_proofs": 57,
+      "state_proofs": 10,
+      "file_sha256": "504c15ef3a6d173e0db0178d6a1ee3d7ef3fb911fe6fd28f4ac124b08c91b80d"
+    },
+    {
+      "fixture": "indexed-sets",
+      "old_source": "a122fab681caffa38855f2211ee0c3b02a044f5d435b3968ea0b6610b59d7027",
+      "new_source": "5ebf1e97515ecc69af71660711ec06e0b802e8ebcc99759e024e5162f5b6d038",
+      "pure_proofs": 51,
+      "state_proofs": 10,
+      "file_sha256": "fbc3e2e6722462dd595fc5ce24c55586b010d5c28728363b8a7b6b8b3547d0e4"
+    },
+    {
+      "fixture": "owned-invariant-storage",
+      "old_source": "65f0f6c7b63290e0f3f96dabe9d4aa75e9f5bb2a3ed77086c4f9f9322c54d64e",
+      "new_source": "53f00f83d9f183f5150b0561cabba4e0319dbf84134ccd1fc9fdbc679015b0ff",
+      "pure_proofs": 6,
+      "state_proofs": 11,
+      "file_sha256": "ec055d7b44d5e9ffe5e3f0fad941648328eaf97d7d4796e417fd61252a79ba1f"
+    },
+    {
+      "fixture": "storage-generic",
+      "old_source": "0808de98cb243213580cfb5d09fd5a1bb982fb843f809b440c21a9e75578c0db",
+      "new_source": "1a0cc17e48943e3b0692c26a8d97e91c205b5fe7d67e8f7e35fae25be83a158c",
+      "pure_proofs": 30,
+      "state_proofs": 0,
+      "file_sha256": "ec607304b29792d81307f6d2958f14b5e9bdd08cb0532715d6a56e5bba26a7f5"
+    },
+    {
+      "fixture": "storage-regions",
+      "old_source": "ff6a37d29c13254216f0151d24a020e6e85662eac4c42cd0420d4656c731f65b",
+      "new_source": "d928bf4017a8ea10d173d22a1e5ef078c0187414723688418216758a528a7ce0",
+      "pure_proofs": 27,
+      "state_proofs": 0,
+      "file_sha256": "ee40b059e2d3db81185682604a1b20de7e1b42f8d41259855f363145242b7cfd"
+    }
+  ],
+  "validation": {
+    "standalone_core_tests": 361,
+    "focused_contract_tests": 53,
+    "focused_tests_are_subset_of_full_core": true,
+    "new_callback_scope_regression": true,
+    "fixture_gate_contracts": 11,
+    "fixture_gate_termination": 1,
+    "integration_tests": {
+      "sets": 6,
+      "owned_storage": 2,
+      "generic_storage": 2,
+      "storage_regions": 2
+    },
+    "rust_wasm_outcomes_and_exact_snapshots": {
+      "checked_sets": 30,
+      "indexed_sets": 30,
+      "owned_storage": 15,
+      "generic_storage": 16,
+      "storage_regions": 31
+    },
+    "boundary_comparisons": 1300,
+    "immutable_handle_consumers": 8,
+    "scope_note": "Set and owned integration runs precede the callback reorder; full core, differential export, complete fixture gate and generic/region integration runs validate edited core. Backend emission code unchanged."
+  },
+  "differential": {
+    "rows": [
+      {
+        "label": "candidate",
+        "seconds": 129.51617720793,
+        "status": 0,
+        "compiler_sha256": "f7db5659044b0010b294e828d818f5eb38b727f248c2e1e7695d342af9ba5360",
+        "stderr": "",
+        "output_sha256": "b82185036460616866d50813404dcc7d9ccd9eaab569450d580be49999e24fb0"
+      },
+      {
+        "label": "baseline",
+        "seconds": 132.73170466697775,
+        "status": 0,
+        "compiler_sha256": "fe447ec9ddcbe19a60e007046ae59abf80ea80360202c1818545fa222550340d",
+        "stderr": "",
+        "output_sha256": "b82185036460616866d50813404dcc7d9ccd9eaab569450d580be49999e24fb0"
+      }
+    ],
+    "byte_identical": true,
+    "scope": "one contended debug-build derivation pair; not an application benchmark"
+  },
+  "limits": [
+    "No application speed claim. Single contended debug timing pair is not reliable evidence of a speedup.",
+    "Full remote CI required after publication. Initial local full core build exhausted disk; retry passed361 tests.",
+    "Current contract proof fixture validation is not a whole-compiler correctness proof."
+  ],
+  "evidence": [
+    {
+      "path": "work/llvm-learning-smoke/contract-fixtures-gate-before.log",
+      "sha256": "18594f197baaf6b688e68dc2774a9de7ac69006c2355cd3b65f0079cc3ff1572"
+    },
+    {
+      "path": "work/llvm-learning-smoke/contract-fixtures-gate-after.log",
+      "sha256": "0bf91894f5e179adea6e94cf77740576e916a535d8be4853102665895eb9d7ba"
+    },
+    {
+      "path": "work/llvm-learning-smoke/checked-sets-cross-target.log",
+      "sha256": "a3978276784952c4fb9de0863aa9f70072e4a11c84a3e8b270956124c037c27c"
+    },
+    {
+      "path": "work/llvm-learning-smoke/owned-storage-cross-target.log",
+      "sha256": "b83659812e41aed339eca475de6d9c67d19dd20b00a2c2685952e2bd069bcec7"
+    },
+    {
+      "path": "work/llvm-learning-smoke/generic-storage-cross-target.log",
+      "sha256": "311cece8ffb709fe2639e8399434b5b2ddc8b4801ae1acf42f6e8abaffbb540f"
+    },
+    {
+      "path": "work/llvm-learning-smoke/region-storage-cross-target.log",
+      "sha256": "c1a61c609ab9d57cb427f55b72de6c438e5220e2fbd989110c2b1bea2663a6b0"
+    },
+    {
+      "path": "work/llvm-learning-smoke/callback-scope-core-full-retry.log",
+      "sha256": "da4199036a94b4d509dcf6c575faac91266f73a335e5d7a2cc1efdff92fb6e17"
+    },
+    {
+      "path": "work/llvm-learning-smoke/callback-scope-core-contracts.log",
+      "sha256": "fea4b09c2b91be72486882765dccd71c2bd41a8f0e3fb84b1729ddb22ee47807"
+    },
+    {
+      "path": "work/llvm-learning-smoke/callback-scope-differential.log",
+      "sha256": "598e248f1c2119b099f2531f2dc8856b2d6bebc40d246c76f47c07a58a08537d"
+    }
+  ]
+}
