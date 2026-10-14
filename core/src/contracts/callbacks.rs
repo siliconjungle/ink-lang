@@ -121,6 +121,13 @@ pub(super) fn lift(
         .map(|a| s::open_scope(a, scope, b))
         .collect::<LangResult<Vec<_>>>()?;
     for obligation in obligations {
+        // An unrecognised inner callback retains its universal obligation. Its
+        // additional variables cannot become arbitrary witnesses in this domain.
+        // Check scope before trying normalization: either proof verdict leaves
+        // an obligation with a different environment unchanged.
+        if obligation.params != local {
+            continue;
+        }
         if checker
             .prove(
                 executable,
@@ -133,11 +140,6 @@ pub(super) fn lift(
             )
             .is_ok()
         {
-            continue;
-        }
-        // An unrecognised inner callback retains its universal obligation. Its
-        // additional variables cannot become arbitrary witnesses in this domain.
-        if obligation.params != local {
             continue;
         }
         if name == "apply" {
@@ -495,6 +497,46 @@ fn trace_until(
 mod tests {
     use super::*;
     use crate::laws::{self, Catalogue};
+    #[test]
+    fn foreign_callback_scope_stays_universal_while_local_scope_lifts() {
+        let p = crate::syntax::parse("module scopes;").unwrap();
+        let checker = CheckedCatalogue::check(
+            &Catalogue {
+                schema: 1,
+                semantics: laws::SEMANTICS.into(),
+                roots: vec![],
+                objects: BTreeMap::new(),
+            },
+            &p,
+        ).unwrap();
+        let item = s::value(Type::U32);
+        let list = s::value(Type::List(Box::new(Type::U32)));
+        let parent = s::op(list.clone(), "method:map", vec![
+            s::term(list, s::Node::Nil),
+            s::lambda(item.clone(), s::term(item.clone(), s::Node::Bound(0))),
+        ]);
+        let env = s::Env::new();
+        let local = BTreeMap::from([(binder_name(&env, 0), item.clone())]);
+        let mut foreign = local.clone();
+        foreign.insert("inner_callback_parameter".into(), item);
+        let goal = Equation { from: boolean(false), to: boolean(true) };
+        let mut obligations = vec![
+            Obligation { name: "foreign".into(), params: foreign, conditions: vec![], goal: goal.clone() },
+            Obligation { name: "local".into(), params: local, conditions: vec![], goal },
+        ];
+        let original = serde_json::to_value(&obligations[0]).unwrap();
+        lift(&parent, 1, &env, &[], &[], &mut obligations,
+            &mut s::Budget::new(), &checker, &p).unwrap();
+        assert_eq!(serde_json::to_value(&obligations[0]).unwrap(), original);
+        assert!(checker.prove(&p, &obligations[0].params, &[], &obligations[0].goal,
+            &Proof::Normalize, &mut s::Budget::new(), 0).is_err());
+        // The empty map never invokes its own callback. That cannot discharge
+        // an obligation with an unrelated inner callback's parameter.
+        assert_eq!(obligations[1].params, env);
+        checker.prove(&p, &env, &[], &obligations[1].goal,
+            &Proof::Normalize, &mut s::Budget::new(), 0).unwrap();
+    }
+
     #[test]
     fn float_alias_guards_use_exact_bits_and_cannot_hide_nan_failures() {
         let p = crate::syntax::parse("module floats;").unwrap();

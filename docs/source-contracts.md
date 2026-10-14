@@ -110,7 +110,15 @@ and `ink-contracts-v1` semantics. New modules use executable-core V10; modules
 without the new features retain their existing identities.
 
 The knowledge producer proposes normalization, hypothesis, constructor-case and
-induction proofs and replays them through `check-contract-proof`. Alpha-equivalent generated
+induction proofs and replays them through `check-contract-proof-stream`. Its
+`--export-obligations FILE.json` option exports goals from the same immutable
+context before the ready frame. This avoids deriving the goals again in a
+separate export process; derivation order, exact source identity, definition
+context and state obligations are preserved. Editing that exported file cannot
+alter the checker's goals. Every proposed proof and dependency bundle still
+replays independently, and final module or refinement admission remains required.
+The single-request `check-contract-proof` endpoint remains available.
+Alpha-equivalent generated
 traversals are connected by ordinary induction theorems; their names never
 stand in for a proof. Accepted pure
 laws and state theorems are canonical database objects with explicit dependency

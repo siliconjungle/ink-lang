@@ -1,0 +1,293 @@
+{
+  "schema": 1,
+  "scope": "Exact joint applicability and regression evidence; synthetic prices, no measured performance gain",
+  "parent_distribution": "9f95504846fdaddcb079ef7d4ad534eb94c75c57",
+  "components": {
+    "abi": "5c74c999f0852fe9f582311401f0d51905044356",
+    "planner": "8517306f617b4a9dcfe4f8a1ce203c064879768a",
+    "runtime": "9a0f4fd8d584a2086b182a4e6f97a0f0c2884d4c",
+    "lowerings/rust": "3ac247cf1827c90230453c0920d560f842c39172",
+    "lowerings/js": "d982bd5de13227d78adbaa0f319923c1c9fbfc9f",
+    "lowerings/wasm": "bf32ee386de71411c570d2958e4c657ce77c02e5",
+    "lowerings/gpu": "e1dce254d9dbe0e93a0f2dc728182a1f230cb9df"
+  },
+  "tests": {
+    "joint_geometry_and_fitting": {
+      "result": "passed",
+      "sha256": "9bed959045735be259f6fccb5694f160f4af986899b0b869e6a996e857e17fef",
+      "tests": 11
+    },
+    "full_abi": {
+      "result": "passed",
+      "sha256": "c43660b861a51df6fe45a7462c99cf43af4d12322997388e38ba418adbeceb20",
+      "tests": 20
+    },
+    "hardening": {
+      "result": "passed",
+      "sha256": "1184bd8fa44ce74acd75ebc16c31260baafc7169296dce6d1168fa092564d35d",
+      "python_tests": 88
+    },
+    "runtime": {
+      "result": "passed",
+      "sha256": "f4edd22a09d2375c50d8467109b46867c829c359aa7c4bfb84d3a5bad2069ba9",
+      "tests": 28
+    },
+    "contract_reauthoring": {
+      "result": "passed",
+      "sha256": "55906386ba00ad17943432be0067a1dec55059270e42c40d6215285afe35536d",
+      "pure_proofs": 9,
+      "state_proofs": 10,
+      "reason": "CI 38573147605 reproduced stale exact-source binding; full authoring and check-contracts regenerated evidence, not hash-only rebinding"
+    },
+    "contract_cross_target": {
+      "result": "passed",
+      "sha256": "de9807ae2ec5b3ed9d030fced8c3618ef8f81d9d0effca1d09c46e17617afa44",
+      "rust_wasm_complete_outcomes": 10
+    }
+  },
+  "joint_reproduction": {
+    "requests": [
+      {
+        "options": {
+          "policy": "adaptive",
+          "target_key": "synthetic-target",
+          "cost_profile": {
+            "models": {
+              "correlated": {
+                "backends": {
+                  "cpu": {
+                    "intercept_ns": 1000.0000000000013,
+                    "support": {
+                      "equalities": [
+                        [
+                          "0",
+                          "1",
+                          "-1"
+                        ]
+                      ],
+                      "features": [
+                        "input_elements",
+                        "iterations"
+                      ],
+                      "inequalities": [
+                        [
+                          "-30",
+                          "1",
+                          "0"
+                        ],
+                        [
+                          "10",
+                          "-1",
+                          "0"
+                        ]
+                      ]
+                    },
+                    "terms": {
+                      "input_elements": 99.99999999999912,
+                      "iterations": 8.250416223225849e-13
+                    }
+                  },
+                  "gpu": {
+                    "intercept_ns": 100.00000000000016,
+                    "support": {
+                      "equalities": [
+                        [
+                          "0",
+                          "1",
+                          "-1"
+                        ]
+                      ],
+                      "features": [
+                        "input_elements",
+                        "iterations"
+                      ],
+                      "inequalities": [
+                        [
+                          "-30",
+                          "1",
+                          "0"
+                        ],
+                        [
+                          "10",
+                          "-1",
+                          "0"
+                        ]
+                      ]
+                    },
+                    "terms": {
+                      "input_elements": 9.999999999999847,
+                      "iterations": 1.4616879135636345e-13
+                    }
+                  }
+                },
+                "boundary": "captured-owned",
+                "domains": {
+                  "input_elements": [
+                    10,
+                    30
+                  ],
+                  "iterations": [
+                    10,
+                    30
+                  ]
+                }
+              }
+            },
+            "schema": 3,
+            "target_key": "synthetic-target"
+          }
+        },
+        "context": {
+          "scope": "correlated",
+          "boundary": "captured-owned",
+          "features": {
+            "input_elements": 15,
+            "iterations": 15
+          }
+        },
+        "eligible": [
+          "cpu",
+          "gpu"
+        ]
+      },
+      {
+        "options": {
+          "policy": "adaptive",
+          "target_key": "synthetic-target",
+          "cost_profile": {
+            "models": {
+              "correlated": {
+                "backends": {
+                  "cpu": {
+                    "intercept_ns": 1000.0000000000013,
+                    "support": {
+                      "equalities": [
+                        [
+                          "0",
+                          "1",
+                          "-1"
+                        ]
+                      ],
+                      "features": [
+                        "input_elements",
+                        "iterations"
+                      ],
+                      "inequalities": [
+                        [
+                          "-30",
+                          "1",
+                          "0"
+                        ],
+                        [
+                          "10",
+                          "-1",
+                          "0"
+                        ]
+                      ]
+                    },
+                    "terms": {
+                      "input_elements": 99.99999999999912,
+                      "iterations": 8.250416223225849e-13
+                    }
+                  },
+                  "gpu": {
+                    "intercept_ns": 100.00000000000016,
+                    "support": {
+                      "equalities": [
+                        [
+                          "0",
+                          "1",
+                          "-1"
+                        ]
+                      ],
+                      "features": [
+                        "input_elements",
+                        "iterations"
+                      ],
+                      "inequalities": [
+                        [
+                          "-30",
+                          "1",
+                          "0"
+                        ],
+                        [
+                          "10",
+                          "-1",
+                          "0"
+                        ]
+                      ]
+                    },
+                    "terms": {
+                      "input_elements": 9.999999999999847,
+                      "iterations": 1.4616879135636345e-13
+                    }
+                  }
+                },
+                "boundary": "captured-owned",
+                "domains": {
+                  "input_elements": [
+                    10,
+                    30
+                  ],
+                  "iterations": [
+                    10,
+                    30
+                  ]
+                }
+              }
+            },
+            "schema": 3,
+            "target_key": "synthetic-target"
+          }
+        },
+        "context": {
+          "scope": "correlated",
+          "boundary": "captured-owned",
+          "features": {
+            "input_elements": 10,
+            "iterations": 30
+          }
+        },
+        "eligible": [
+          "cpu",
+          "gpu"
+        ]
+      }
+    ],
+    "results": [
+      {
+        "backend": "gpu",
+        "cost_ns": {
+          "cpu": 2500.0000000000005,
+          "gpu": 250.00000000000003
+        },
+        "policy": "adaptive",
+        "reason": "saved target profile; 10% minimum predicted saving; no runtime probes"
+      },
+      {
+        "backend": "cpu",
+        "cost_ns": {},
+        "policy": "adaptive",
+        "reason": "no comparable saved profile; compiled CPU baseline"
+      }
+    ]
+  },
+  "remaining": [
+    "Full CI on published distribution and package revisions",
+    "Held-out prediction accuracy and performance",
+    "Target-specific cache-line/reuse acquisition",
+    "Complete file audit and all beneficial resulting work"
+  ],
+  "source_mirror": {
+    "revision": "3ce90453f57e6e2639f93ef6d1a66ba1ad13921b",
+    "checked_git_blobs": 188,
+    "config_scope": "Local validation only; dependency lock retains original Git identity",
+    "cargo_documentation": "https://doc.rust-lang.org/cargo/reference/source-replacement.html"
+  },
+  "limitations": [
+    "Older schema-1/2 profiles remain range-only; no stored canonical cost-model directory existed to migrate.",
+    "Convex support bounds only declared features; it does not certify timing accuracy or complete workload characterization.",
+    "No runtime fitting, measurements or geometric search; fixed benchmark policies unchanged.",
+    "Initial runtime test attempted an oversized historical checkout and hit disk exhaustion; failed checkout was removed and identical pinned core source was used through Cargo source replacement for successful rerun."
+  ]
+}
