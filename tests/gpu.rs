@@ -1,6 +1,27 @@
 use std::fs;
 use verified_language::{check, syntax::parse};
 #[test]
+fn packed_wasm_parallel_fallback_preserves_captures_indices_and_nesting() {
+    if std::env::var_os("INK_TEST_WASM").is_none() { return; }
+    let source = r#"module packed_parallel;
+fn mapped(xs:List<u32>,bias:u32,grain:u32)->List<u32>{
+    return parallel_map(xs,grain,fn(i)=>fn(x)=>
+        sum(parallel_map([x,bias],1,fn(j)=>fn(y)=>y+i+j)));
+}
+fn updated(xs:List<u32>,bias:u32,grain:u32)->List<u32>{
+    return buffer(xs).map_parallel(grain,fn(i)=>fn(x)=>x+bias+i).freeze();
+}
+"#;
+    let p = parse(source).unwrap();
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("build/packed-parallel-fallback");
+    verified_language::runtime::emit_gpu(&p, &root).unwrap();
+    ink_runtime::toolchain::gpu_cpu_wasm(&root.join("cpu"), &root.join("cpu.wasm")).unwrap();
+    let script = root.join("check.mjs");
+    fs::write(&script, include_str!("fixtures/packed-parallel-fallback.mjs")).unwrap();
+    let out = std::process::Command::new("node").arg(&script).output().unwrap();
+    assert!(out.status.success(), "{}\n{}", String::from_utf8_lossy(&out.stdout), String::from_utf8_lossy(&out.stderr));
+}
+#[test]
 fn capability_rejection_preserves_compiled_cpu_and_staged_lowering() {
     let p = parse(include_str!("../examples/gpu.ink")).unwrap();
     check::check(&p).unwrap();
