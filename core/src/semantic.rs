@@ -167,6 +167,23 @@ fn beta_at(t: &Term, arg: &Term, depth: usize, b: &mut Budget) -> LangResult<Ter
 pub fn beta(body: &Term, arg: &Term, b: &mut Budget) -> LangResult<Term> {
     beta_at(body, arg, 0, b)
 }
+/// Capture-avoiding beta computation only. This exposes the fixed meaning of
+/// lexical bindings without unfolding helpers or choosing an optimisation law.
+pub fn beta_normalize(t: &Term, budget: &mut Budget) -> LangResult<Term> {
+    fn walk(t: &Term, budget: &mut Budget, depth: usize) -> LangResult<Term> {
+        budget.step(depth)?;
+        let term = try_map_children(t, |child| walk(child, budget, depth + 1))?;
+        if let Node::Op(name, args) = &term.node {
+            if name == "apply" && args.len() == 2 {
+                if let Node::Lambda(body) = &args[0].node {
+                    return walk(&beta(body, &args[1], budget)?, budget, depth + 1);
+                }
+            }
+        }
+        Ok(term)
+    }
+    walk(t, budget, 0)
+}
 pub fn substitute(t: &Term, args: &BTreeMap<String, Term>, b: &mut Budget) -> LangResult<Term> {
     fn walk(
         t: &Term,
@@ -311,6 +328,15 @@ pub fn validate(t: &Term, env: &Env, p: &Program, b: &mut Budget) -> LangResult<
                     }
                 };
                 if crate::owned_semantic::validate(t, p)? {
+                    return Ok(());
+                }
+                if let Some(literal)=n.strip_prefix("enum:") {
+                    let (name,encoded)=literal.rsplit_once(':').ok_or("enum semantic literal")?;
+                    let index:usize=encoded.parse().map_err(|_|"enum semantic variant index")?;
+                    if index.to_string()!=encoded{return Err("noncanonical semantic enum index".into())}
+                    let variants=p.enums.get(name).ok_or("unknown semantic enum")?;
+                    if index>=variants.len(){return Err("semantic enum variant outside declaration".into())}
+                    arity(0)?;need(&t.sort,value(Type::Named(name.into())))?;
                     return Ok(());
                 }
                 match n.as_str() {
@@ -781,6 +807,14 @@ pub fn elaborate(e: &Expr, env: &check::Env, p: &Program, want: &Type) -> LangRe
                 Ok(op(s, &format!("record:{n}"), args))
             }
             Expr::Field(x, n) => {
+                if let Expr::Var(name)=x.as_ref() {
+                    if !env.contains_key(name) {
+                        if let Some(variants)=p.enums.get(name) {
+                            let index=variants.iter().position(|variant|variant==n).ok_or("unknown semantic enum variant")?;
+                            return Ok(op(s,&format!("enum:{name}:{index}"),vec![]));
+                        }
+                    }
+                }
                 let ty = check::infer(x, env, p)?;
                 Ok(op(s, &format!("field:{n}"), vec![recur(x, &ty)?]))
             }
@@ -990,6 +1024,12 @@ pub fn elaborate(e: &Expr, env: &check::Env, p: &Program, want: &Type) -> LangRe
                 if matches!(ty, Type::Buffer(_) | Type::Map(..)) {
                     let mut out = vec![recur(xs, &ty)?];
                     if let Type::Buffer(inner) = &ty {
+                        if n=="borrow_range" {
+                            out.push(recur(&args[0],&Type::U32)?);
+                            out.push(recur(&args[1],&Type::U32)?);
+                            out.push(lam(&args[2],&[ty.clone()],want,env,bound,p,b)?);
+                            return Ok(op(s,"method:borrow_range",out));
+                        }
                         if ["map", "map_indexed", "filter"].contains(&n.as_str()) {
                             let params = if n != "map_indexed" {
                                 vec![*inner.clone()]
@@ -1213,7 +1253,10 @@ pub fn reify(t: &Term, p: &Program) -> LangResult<Expr> {
             ),
             Node::Word(n) => {
                 if t.sort == value(Type::Int) {
-                    Expr::Call("Int".into(), vec![Expr::Num(*n)])
+                    // A source literal already acquires Int from its checked
+                    // context. Adding an Int() conversion changes the exact
+                    // semantic tree and breaks portable definition replay.
+                    Expr::Num(*n)
                 } else if t.sort == value(Type::I32) && *n > i32::MAX as u64 {
                     Expr::Neg(Box::new(Expr::Num(
                         ((*n as u32) as i32).unsigned_abs() as u64
@@ -1247,7 +1290,12 @@ pub fn reify(t: &Term, p: &Program) -> LangResult<Expr> {
                     .iter()
                     .map(|x| go(x, bound, free, p))
                     .collect::<LangResult<Vec<_>>>()?;
-                if n == "value:equal" {
+                if let Some(literal)=n.strip_prefix("enum:") {
+                    let (name,index)=literal.rsplit_once(':').ok_or("reified enum literal")?;
+                    let index:usize=index.parse().map_err(|_|"reified enum index")?;
+                    let variant=p.enums.get(name).and_then(|variants|variants.get(index)).ok_or("unknown reified enum variant")?;
+                    return Ok(Expr::Field(Box::new(Expr::Var(name.into())),variant.clone()));
+                } else if n == "value:equal" {
                     return Ok(Expr::Binary("==".into(),Box::new(Expr::Call("list".into(),vec![args[0].clone()])),Box::new(Expr::Call("list".into(),vec![args[1].clone()]))));
                 } else if n == "nat.word" {
                     let Node::Nat(k) = a[0].node else {
@@ -1290,14 +1338,57 @@ pub fn reify(t: &Term, p: &Program) -> LangResult<Expr> {
                     };
                     application(args[0].clone(), args[1].clone(), val(x)?, 0)?
                 } else if n == "call:None" {
-                    // Preserve the carried type when a surrounding operation
-                    // must infer its receiver without an expected type.
-                    Expr::Let("__ink_empty".into(),Some(Box::new(val(&t.sort)?.clone())),
-                        Box::new(Expr::Var("None".into())),Box::new(Expr::Var("__ink_empty".into())))
+                    // Checked source already supplies the constructor's type
+                    // through its enclosing expression or an explicit typed
+                    // binding. Inserting another binding changes the exact
+                    // semantic tree and prevents portable definition replay.
+                    Expr::Var("None".into())
                 } else if n.starts_with("call:") {
                     Expr::Call(n[5..].into(), args)
                 } else if n.starts_with("method:") {
-                    Expr::Method(Box::new(args[0].clone()), n[7..].into(), args[1..].to_vec())
+                    let mut receiver = args[0].clone();
+                    let mut env = check::Env::new();
+                    fn environment(t: &Term, bound: &[String], local: usize, env: &mut check::Env) {
+                        if let Sort::Value(ty) = &t.sort {
+                            let name = match &t.node {
+                                Node::Free(name) => Some(name),
+                                Node::Bound(index) if *index >= local => {
+                                    bound.iter().rev().nth(index - local)
+                                }
+                                _ => None,
+                            };
+                            if let Some(name) = name {
+                                env.insert(name.clone(), ty.clone());
+                            }
+                        }
+                        for child in children(t) {
+                            environment(
+                                child,
+                                bound,
+                                local + usize::from(matches!(t.node, Node::Lambda(_))),
+                                env,
+                            );
+                        }
+                    }
+                    environment(&a[0], bound, 0, &mut env);
+                    let ty = val(&a[0].sort)?;
+                    if check::infer(&receiver, &env, p).as_ref() != Ok(ty) {
+                        // Proof-produced empty receivers may need a type that
+                        // ordinary source supplied through a binding. Insert
+                        // one only when inference actually needs it, keeping
+                        // captured source definitions exact on round trip.
+                        let mut name = "__ink_receiver".to_string();
+                        while free.contains(&name) || bound.contains(&name) {
+                            name.push('_');
+                        }
+                        receiver = Expr::Let(
+                            name.clone(),
+                            Some(Box::new(ty.clone())),
+                            Box::new(receiver),
+                            Box::new(Expr::Var(name)),
+                        );
+                    }
+                    Expr::Method(Box::new(receiver), n[7..].into(), args[1..].to_vec())
                 } else if n.starts_with("field:") {
                     Expr::Field(Box::new(args[0].clone()), n[6..].into())
                 } else if n.starts_with("record:") {

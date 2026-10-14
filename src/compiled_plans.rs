@@ -18,6 +18,7 @@ pub fn emit(plan: &CheckedPlan, target: &str, output: &Path) -> LangResult<()> {
     if target!="javascript" && plan.physical().is_some_and(|p|!p.plan().record_elisions.is_empty()) {return Err("source record elision currently requires JavaScript".into());}
     if target!="javascript" && plan.physical().is_some_and(|p|!p.plan().sum_spines.is_empty()) {return Err("source sum spines currently require JavaScript".into());}
     if target!="javascript" && plan.physical().is_some_and(|p|!p.plan().dictionary_tables.is_empty()) {return Err("source dictionary tables currently require JavaScript".into());}
+    if target!="javascript" && plan.physical().is_some_and(|p|!p.plan().boundary_readers.is_empty()) {return Err("checked literal boundary readers currently require JavaScript".into());}
     let physical = plan.physical().map(|p| p.plan());
     if plan.route().is_some() && !matches!(target, "wgpu" | "webgpu") {
         return Err("pure placement requires the wgpu or webgpu host; CPU lanes must select a plan without routing".into());

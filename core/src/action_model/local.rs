@@ -96,7 +96,11 @@ impl Lower<'_> {
                     ],
                 ),
             ),
-            "truncate" => {
+            "drop" => {
+                params.push(("local_index",Sort::U64));
+                (sequence.clone(),nil,choice(zero,v("local_rows"),Term::SelfCall(vec![tail,decrement])))
+            }
+            "truncate" | "take" => {
                 params.push(("local_index", Sort::U64));
                 (
                     sequence.clone(),
@@ -279,7 +283,7 @@ impl Lower<'_> {
             _ => return Ok(None),
         };
         if ![
-            "len", "length", "freeze", "at_or", "set", "push", "pop", "truncate", "swap", "concat",
+            "len", "length", "freeze", "at_or", "set", "push", "pop", "truncate", "swap", "concat", "drop", "take",
         ]
         .contains(&name)
         {

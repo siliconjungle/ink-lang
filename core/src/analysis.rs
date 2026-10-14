@@ -1,5 +1,5 @@
 //! Shared structural and lexical analysis. This module grants no rewrite authority.
-use crate::core::{Expr,Type,Program};
+use crate::{core::{Expr,Type,Program}, LangResult};
 use std::collections::{BTreeMap,BTreeSet};
 
 /// Immediate children in source evaluation order. Exhaustive over executable IR.
@@ -70,6 +70,14 @@ pub fn free_variables(e: &Expr) -> BTreeSet<String> {
 
 pub fn references_free(e: &Expr, name: &str) -> bool {
     free_variables(e).contains(name)
+}
+
+/// Fresh substitution targets must avoid bound names as well as free uses.
+/// Renaming a free variable to an existing binder would otherwise capture it.
+pub fn mentions_variable(e: &Expr, name: &str) -> bool {
+    let mut found=false;
+    walk(e,|e|if matches!(e,Expr::Var(n)|Expr::Lambda(n,_)|Expr::Let(n,_,_,_) if n==name){found=true});
+    found
 }
 
 #[cfg(test)]
@@ -244,25 +252,51 @@ pub fn typed_walk_context(
                 pending.push((&args[1], env.clone(), Some(result), depth + 1));
                 pending.push((&args[0], env, None, depth + 1));
             }
-            Expr::Method(receiver,name,args)
-                if ["map","map_err","fold"].contains(&name.as_str())
-                    && matches!(crate::check::infer(receiver,&env,program)?,Type::Option(_)|Type::Result(..)) =>
-            {
+            Expr::Method(receiver,name,args) if ["fold","map","map_err"].contains(&name.as_str())
+                && matches!(crate::check::infer(receiver,&env,program)?,Type::Option(_)|Type::Result(..)) => {
                 let input=crate::check::infer(receiver,&env,program)?;
                 let result=crate::check::infer_context(e,&env,program,want.as_ref())?;
                 if name=="fold" {
-                    let (a,b)=match input {Type::Option(a)=>(*a,Type::Unit),Type::Result(a,b)=>(*a,*b),_=>unreachable!()};
-                    for (arg,t) in args.iter().zip([a,b]) {callback(arg,&[t],Some(result.clone()),&env,depth+1,&mut pending);}
+                    let parameters=match input {Type::Option(t)=>vec![*t,Type::Unit],Type::Result(a,b)=>vec![*a,*b],_=>unreachable!()};
+                    for (arg,parameter) in args.iter().zip(parameters){callback(arg,&[parameter],Some(result.clone()),&env,depth+1,&mut pending);}
                 } else {
                     let (parameter,output)=match (input,result,name.as_str()) {
                         (Type::Option(a),Type::Option(b),"map")=>(*a,*b),
                         (Type::Result(a,_),Type::Result(b,_),"map")=>(*a,*b),
                         (Type::Result(_,a),Type::Result(_,b),"map_err")=>(*a,*b),
-                        _=>return Err("typed variant callback correspondence".into()),
+                        _=>return Err("typed variant callback".into()),
                     };
                     callback(&args[0],&[parameter],Some(output),&env,depth+1,&mut pending);
                 }
                 pending.push((receiver,env,None,depth+1));
+            }
+            Expr::Call(name,args) if ["repeat","repeat_until"].contains(&name.as_str()) => {
+                let result=crate::check::infer_context(e,&env,program,want.as_ref())?;
+                let step=if name=="repeat" {2}else{3};
+                callback(&args[step],&[Type::U32,result.clone()],Some(result.clone()),&env,depth+1,&mut pending);
+                if step==3 {callback(&args[2],&[result.clone()],Some(Type::Bool),&env,depth+1,&mut pending);}
+                pending.push((&args[1],env.clone(),Some(result),depth+1));
+                pending.push((&args[0],env,Some(Type::U32),depth+1));
+            }
+            Expr::Call(name,args) if name=="parallel_map" && args.len()==3 => {
+                let Type::List(input)=crate::check::infer(&args[0],&env,program)? else{return Err("typed parallel receiver".into())};
+                let Type::List(output)=crate::check::infer_context(e,&env,program,want.as_ref())? else{return Err("typed parallel result".into())};
+                callback(&args[2],&[Type::U32,*input],Some(*output),&env,depth+1,&mut pending);
+                pending.push((&args[1],env.clone(),Some(Type::U32),depth+1));pending.push((&args[0],env,None,depth+1));
+            }
+            Expr::Method(receiver,name,args) if name=="split_at" && args.len()==2 => {
+                let input=crate::check::infer(receiver,&env,program)?;
+                if !matches!(input,Type::Buffer(_)){return Err("typed split receiver".into())}
+                callback(&args[1],&[input.clone(),input.clone()],Some(input),&env,depth+1,&mut pending);
+                pending.push((&args[0],env.clone(),Some(Type::U32),depth+1));pending.push((receiver,env,None,depth+1));
+            }
+            Expr::Method(receiver,name,args) if name=="map_parallel" && args.len()==2 => {
+                let input=crate::check::infer(receiver,&env,program)?;
+                let item=match input{Type::List(t)|Type::Buffer(t)=>*t,_=>return Err("typed parallel receiver".into())};
+                let result=crate::check::infer_context(e,&env,program,want.as_ref())?;
+                let output=match result{Type::List(t)|Type::Buffer(t)=>*t,_=>return Err("typed parallel result".into())};
+                callback(&args[1],&[Type::U32,item],Some(output),&env,depth+1,&mut pending);
+                pending.push((&args[0],env.clone(),Some(Type::U32),depth+1));pending.push((receiver,env,None,depth+1));
             }
             Expr::Call(name,args) if ["Ok","Err","Some"].contains(&name.as_str()) && args.len()==1 => {
                 let result=crate::check::infer_context(e,&env,program,want.as_ref())?;
@@ -279,12 +313,12 @@ pub fn typed_walk_context(
             {
                 let input = crate::check::infer(receiver, &env, program)?;
                 let item = match input {
-                    Type::List(t) | Type::Vector(t, _) => *t,
+                    Type::List(t) | Type::Vector(t, _) | Type::Buffer(t) => *t,
                     _ => return Err("typed sequence receiver".into()),
                 };
                 let result = crate::check::infer_context(e, &env, program, want.as_ref())?;
                 let output = match result {
-                    Type::List(t) | Type::Vector(t, _) => Some(*t),
+                    Type::List(t) | Type::Vector(t, _) | Type::Buffer(t) => Some(*t),
                     _ => None,
                 };
                 if name == "zip" {
@@ -373,4 +407,55 @@ pub fn cyclic_records(p: &Program) -> BTreeSet<String> {
         }
         false
     }).cloned().collect()
+}
+
+/// Exact strongly connected components of the source function-call graph.
+/// Membership describes a cycle; each consumer must check its own capability.
+pub fn recursive_function_groups(p: &Program) -> LangResult<Vec<Vec<usize>>> {
+    if p.functions.len() > 4096 { return Err("function graph size limit".into()); }
+    let names = p.functions.iter().enumerate().map(|(i, f)| (f.name.as_str(), i)).collect::<BTreeMap<_,_>>();
+    let edges = p.functions.iter().map(|f| {
+        let mut calls = BTreeSet::new(); crate::check::calls(&f.body, &mut calls);
+        calls.iter().filter_map(|name| names.get(name.as_str()).copied()).collect::<Vec<_>>()
+    }).collect::<Vec<_>>();
+    struct Graph<'a> {
+        edges: &'a [Vec<usize>], next: usize, indices: Vec<Option<usize>>,
+        low: Vec<usize>, active: Vec<bool>, stack: Vec<usize>, groups: Vec<Vec<usize>>, work: usize,
+    }
+    impl Graph<'_> {
+        fn visit(&mut self, node: usize, depth: usize) -> LangResult<()> {
+            if depth > 128 || self.work == 0 { return Err("function graph traversal limit".into()); }
+            self.work -= 1;
+            let index = self.next; self.next += 1;
+            self.indices[node] = Some(index); self.low[node] = index;
+            self.active[node] = true; self.stack.push(node);
+            for &child in &self.edges[node].clone() {
+                if self.work == 0 { return Err("function graph edge limit".into()); }
+                self.work -= 1;
+                if self.indices[child].is_none() {
+                    self.visit(child, depth + 1)?;
+                    self.low[node] = self.low[node].min(self.low[child]);
+                } else if self.active[child] {
+                    self.low[node] = self.low[node].min(self.indices[child].unwrap());
+                }
+            }
+            if self.low[node] == index {
+                let mut group = vec![];
+                loop {
+                    let child = self.stack.pop().ok_or("function graph stack")?;
+                    self.active[child] = false; group.push(child);
+                    if child == node { break; }
+                }
+                if group.len() > 1 || self.edges[node].contains(&node) {
+                    group.sort_unstable(); self.groups.push(group);
+                }
+            }
+            Ok(())
+        }
+    }
+    let n = p.functions.len();
+    let mut graph = Graph { edges: &edges, next: 0, indices: vec![None;n], low: vec![0;n],
+        active: vec![false;n], stack: vec![], groups: vec![], work: 100_000 };
+    for node in 0..n { if graph.indices[node].is_none() { graph.visit(node, 0)?; } }
+    graph.groups.sort(); Ok(graph.groups)
 }

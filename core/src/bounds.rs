@@ -74,6 +74,7 @@ struct Walk<'a> {
     out: Vec<Obligation>,
     map_out: Vec<crate::column_codec::MapObligation>,
     nodes: usize,
+    measure: Option<Vec<(Expr, Type, Term)>>,
 }
 impl Walk<'_> {
     fn fresh(&mut self, t: &Type) -> Expr {
@@ -335,6 +336,37 @@ impl Walk<'_> {
             return Err("bounds source walk limit".into());
         }
         match e {
+            Expr::Call(n, args) if n == &self.function && self.measure.is_some() => {
+                let measures = self.measure.clone().unwrap();
+                let function = self.p.functions.iter().find(|f| &f.name == n).ok_or("termination function missing")?;
+                if args.len() != function.params.len() { return Err("termination recursive arity".into()); }
+                let mut call_scope = Scope::new();
+                for (i, ((name, ty), arg)) in function.params.iter().zip(args).enumerate() {
+                    self.descend(arg, env, facts, path, i, Some(ty), d)?;
+                    let actual = self.image(arg, env, 0)?;
+                    call_scope.insert(name.clone(), (ty.clone(), Self::alias(ty, actual)?));
+                }
+                let mut descent=None;let mut equal:Option<Term>=None;
+                for (measure,ty,current) in measures {
+                    let next=self.scalar(&measure,&call_scope,&ty,0)?;
+                    let less=bin("<",next.clone(),current.clone());
+                    let less=if let Some(prefix)=&equal{bin("&&",prefix.clone(),less)}else{less};
+                    descent=Some(if let Some(previous)=descent{bin("||",previous,less)}else{less});
+                    let same=bin("==",next,current);
+                    equal=Some(if let Some(prefix)=equal{bin("&&",prefix,same)}else{same});
+                }
+                // Keep scalar obligation bytes stable for existing packets.
+                let descent=descent.ok_or("termination measure product is empty")?;
+                let mut conditions = self.word_bounds.clone();
+                conditions.extend_from_slice(facts);
+                self.out.push(Obligation {
+                    site: Site { function: self.function.clone(), path: path.clone() },
+                    params: self.params.iter().map(|(n,t)|(n.clone(),t.clone())).collect(),
+                    conditions,
+                    from: descent,
+                    to: Term::Bool(true),
+                });
+            }
             Expr::Let(n, t, a, b) => {
                 self.descend(a, env, facts, path, 0, t.as_deref(), d)?;
                 let ty = check::infer_context(a, &Self::types(env), self.p, t.as_deref())?;
@@ -494,6 +526,7 @@ impl Walk<'_> {
                 self.descend(receiver, env, facts, path, 0, None, d)?;
                 for (i, arg) in args.iter().enumerate() {
                     let types = match (&rt, name.as_str(), i) {
+                        (Some(t@Type::Buffer(_)),"borrow_range",2)=>Some(vec![t.clone()]),
                         (Some(Type::List(t) | Type::Buffer(t)), "map" | "filter", 0) => {
                             Some(vec![*t.clone()])
                         }
@@ -504,7 +537,9 @@ impl Walk<'_> {
                     };
                     path.push(i + 1);
                     if let Some(types) = types {
-                        let output = if name == "filter" {
+                        let output = if name=="borrow_range" {
+                            check::infer_context(e,&Self::types(env),self.p,want).ok()
+                        } else if name == "filter" {
                             Some(Type::Bool)
                         } else {
                             check::infer_context(e, &Self::types(env), self.p, want)
@@ -566,13 +601,25 @@ fn derive(
             out: vec![],
             map_out: vec![],
             nodes: 0,
+            measure: None,
         };
         let mut env = Scope::new();
         for (n, t) in &f.params {
             let v = w.fresh(t);
             env.insert(n.clone(), (t.clone(), v));
         }
-        w.visit(&f.body, &env, &[], &mut vec![], Some(&f.result), 0)?;
+        // The admitted module has checked every caller and its public ingress.
+        // Carry those exact interface premises into the physical obligation;
+        // unsupported scalar structure stays an opaque typed value. A producer
+        // must still prove the site's actual bound under these premises.
+        let mut facts = vec![];
+        if let Some(specification) = crate::contracts::specification(p, &f.name) {
+            for predicate in &specification.requires {
+                let condition = w.scalar(predicate, &env, &Type::Bool, 0)?;
+                facts.push(eq(condition, Term::Bool(true)));
+            }
+        }
+        w.visit(&f.body, &env, &facts, &mut vec![], Some(&f.result), 0)?;
         out.extend(w.out);
         maps.extend(w.map_out);
         if out.len() + maps.len() > 4096 {
@@ -580,6 +627,37 @@ fn derive(
         }
     }
     Ok((out, maps))
+}
+/// Proof-authoring projection only. No CheckedModule is created by this API.
+/// The same lexical/scalar meanings used for bounds derive strict descent.
+pub(crate) fn measure_obligations(p: &Program, f: &crate::core::Function, measure: &Expr) -> LangResult<Vec<Obligation>> {
+    let measures=match measure {Expr::Call(name,args) if name=="list"=>args.iter().collect::<Vec<_>>(),_=>vec![measure]};
+    if measures.is_empty()||measures.len()>16{return Err("termination product needs 1..16 unsigned components".into())}
+    let types=measures.iter().map(|measure|check::infer(measure,&check::params_env(&f.params)?,p)).collect::<LangResult<Vec<_>>>()?;
+    if types.iter().any(|ty|!matches!(ty,Type::U32|Type::U64)){return Err("termination measure must be an unsigned word".into())}
+    let mut w = Walk {
+        p, function: f.name.clone(), next: 0, params: BTreeMap::new(), types: BTreeMap::new(),
+        opaque: BTreeMap::new(), word_bounds: vec![], out: vec![], map_out: vec![], nodes: 0, measure: None,
+    };
+    let mut env = Scope::new();
+    for (n,t) in &f.params { let v=w.fresh(t); env.insert(n.clone(), (t.clone(), v)); }
+    let mut current=vec![];
+    for (measure,ty) in measures.into_iter().zip(types){let entry=w.scalar(measure,&env,&ty,0)?;current.push((measure.clone(),ty,entry));}
+    w.measure=Some(current);
+    w.visit(&f.body, &env, &[], &mut vec![], Some(&f.result), 0)?;
+    let mut sites = BTreeSet::new();
+    fn calls(e:&Expr,name:&str,path:&mut Vec<usize>,out:&mut BTreeSet<Vec<usize>>) {
+        if matches!(e,Expr::Call(n,_) if n==name) {out.insert(path.clone());}
+        for (i,child) in crate::analysis::children(e).into_iter().enumerate() {
+            path.push(i); calls(child,name,path,out); path.pop();
+        }
+    }
+    calls(&f.body,&f.name,&mut vec![],&mut sites);
+    let recursive: Vec<_> = w.out.into_iter().filter(|g| sites.contains(&g.site.path)).collect();
+    if sites.is_empty() || recursive.len()!=sites.len() || recursive.iter().map(|g|g.site.path.clone()).collect::<BTreeSet<_>>()!=sites {
+        return Err("termination requires coverage of every recursive call; unsupported callback domain".into());
+    }
+    Ok(recursive)
 }
 pub fn obligations(module: &CheckedModule) -> LangResult<Vec<Obligation>> {
     Ok(derive(module)?.0)

@@ -109,6 +109,7 @@ struct Node {
     exports: BTreeSet<String>,
     private_states: BTreeSet<String>,
     records: BTreeSet<String>,
+    has_abstract_records: bool,
 }
 fn header(path: PathBuf, text: String) -> LangResult<Node> {
     let ts = tokens(&text)?;
@@ -177,7 +178,9 @@ fn header(path: PathBuf, text: String) -> LangResult<Node> {
     let mut depth = 0i32;
     let mut declaration_start = true;
     let mut declarations = BTreeSet::new();
+    let mut has_abstract_records=false;
     for pair in ts[at..].windows(2) {
+        if depth==0 && declaration_start && pair[0].text=="abstract" {has_abstract_records=true;}
         if depth == 0
             && declaration_start
             && [
@@ -222,6 +225,7 @@ fn header(path: PathBuf, text: String) -> LangResult<Node> {
         exports,
         private_states,
         records,
+        has_abstract_records,
     })
 }
 fn names(node: &Node, root: bool) -> BTreeMap<String, String> {
@@ -274,7 +278,7 @@ fn expr(
             }
         }
         Expr::Call(n, args) => {
-            renamed(n, names);
+            if !locals.contains(n) { renamed(n, names); }
             for a in args {
                 expr(a, names, locals, aliases)?;
             }
@@ -408,6 +412,14 @@ fn link(
         ty(&mut b.ty, names);
         expr(&mut b.value, names, &BTreeSet::new(), aliases)?;
     }
+    let measures=std::mem::take(&mut p.termination.measures);
+    for (mut name,mut measure) in measures {
+        let f=p.functions.iter().find(|f|f.name==name).ok_or("termination function missing during linking")?;
+        let locals=f.params.iter().map(|(n,_)|n.clone()).collect();
+        renamed(&mut name,names);
+        expr(&mut measure,names,&locals,aliases)?;
+        p.termination.measures.insert(name,measure);
+    }
     for f in &mut p.functions {
         renamed(&mut f.name, names);
         let locals = params(&mut f.params, names, aliases)?;
@@ -437,6 +449,12 @@ fn link(
         for e in &mut spec.requires{expr(e,names,&locals,aliases)?;}
         locals.insert("result".into());
         for e in &mut spec.ensures{expr(e,names,&locals,aliases)?;}
+    }
+    let invariants = std::mem::take(&mut p.contracts.value_invariants);
+    for (mut name, mut predicate) in invariants {
+        renamed(&mut name, names);
+        expr(&mut predicate, names, &BTreeSet::from(["value".into()]), aliases)?;
+        p.contracts.value_invariants.insert(name, predicate);
     }
     for imp in &mut p.contracts.implementations {renamed(&mut imp.name,names);renamed(&mut imp.specification,names);}
     for e in &mut p.contracts.invariants{expr(e,names,&BTreeSet::new(),aliases)?;}
@@ -588,9 +606,17 @@ impl Loader {
         text.push_str(&node.text[end..]);
         let mut parsed = parse_surface(&text, imported_records)
             .map_err(|e| source_diagnostic(node, &mapping, e))?;
+        if self.nodes.iter().any(|node|node.has_abstract_records) {
+            let occupied=self.nodes.iter().flat_map(|node|node.tokens.iter())
+                .filter(|token|identifier(&token.text)).map(|token|token.text.clone()).collect();
+            parsed.mark_accesses_avoiding(&occupied)?;
+        }
         let mapping = names(node, index == 0);
         parsed.program = link(parsed.program, &mapping, &aliases)
             .map_err(|e| format!("{}: {e}", node.path.display()))?;
+        parsed.abstract_records=parsed.abstract_records.into_iter().map(|(mut name,owner)|{
+            renamed(&mut name,&mapping);(name,owner)
+        }).collect();
         parsed.aliases = parsed
             .aliases
             .into_iter()
@@ -700,6 +726,14 @@ fn function_error_origin<'a>(
     None
 }
 pub fn load(path: impl AsRef<Path>) -> LangResult<Loaded> {
+    load_impl(path,false)
+}
+/// Source assembly for exporting unproved termination obligations. This returns
+/// raw Program data, never a CheckedModule or executable admission witness.
+pub fn load_for_termination(path:impl AsRef<Path>)->LangResult<Loaded> {
+    load_impl(path,true)
+}
+fn load_impl(path:impl AsRef<Path>,authoring:bool)->LangResult<Loaded> {
     let mut loader = Loader {
         nodes: vec![],
         indices: BTreeMap::new(),
@@ -716,6 +750,13 @@ pub fn load(path: impl AsRef<Path>) -> LangResult<Loaded> {
     let mut displays = vec![];
     for i in 1..loader.nodes.len() {
         let parsed = loader.program(i)?;
+        surface.abstract_records.extend(parsed.abstract_records);
+        for (name,origin) in parsed.access_origins {
+            if surface.access_origins.get(&name).is_some_and(|previous|previous!=&origin) {
+                return Err("source origin collision".into());
+            }
+            surface.access_origins.insert(name,origin);
+        }
         surface.aliases.extend(parsed.aliases);
         surface.parameters.extend(parsed.parameters);
         surface.applications.extend(parsed.applications);
@@ -730,6 +771,8 @@ pub fn load(path: impl AsRef<Path>) -> LangResult<Loaded> {
         program.contracts.implementations.extend(p.contracts.implementations);
         program.contracts.invariants.extend(p.contracts.invariants);
         program.contracts.private_states.extend(p.contracts.private_states);
+        program.contracts.value_invariants.extend(p.contracts.value_invariants);
+        program.termination.measures.extend(p.termination.measures);
         program.functions.extend(p.functions);
         program.actions.extend(p.actions);
         program.rules.extend(p.rules);
@@ -758,7 +801,7 @@ pub fn load(path: impl AsRef<Path>) -> LangResult<Loaded> {
     let program = surface
         .elaborate()
         .map_err(|e| format!("{}: {e}", loader.nodes[0].path.display()))?;
-    check::check(&program).map_err(|mut e| {
+    (if authoring {check::check_termination_source(&program)} else {check::check(&program)}).map_err(|mut e| {
         let origin = function_error_origin(&loader, &program, &e);
         for (linked, display) in &displays {
             e = e.replace(linked, display);

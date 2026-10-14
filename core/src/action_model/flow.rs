@@ -7,10 +7,27 @@ type Exit<'f, 'p> = dyn Fn(&mut Lower<'p>, Term) -> LangResult<Term> + 'f;
 struct Scope<'a> {
     actions: &'a CheckedActions,
     observation: &'a str,
+    probe: Option<&'a SiteObservation>,
+    target_body: Option<&'a Body>,
+    failure: Option<bool>,
+}
+impl Scope<'_> {
+    fn host(&self, lower: &Lower<'_>, code: u64) -> Term {
+        self.failure
+            .map(Term::Bool)
+            .unwrap_or_else(|| lower.host(self.observation, code))
+    }
+    fn target(&self, body: &Body) -> Option<NodeId> {
+        let probe = self.probe?;
+        // These addresses only distinguish trees from this checked elaboration.
+        // No address is transported or accepted as proof authority.
+        std::ptr::eq(body, self.target_body?).then_some(probe.node())
+    }
 }
 struct Frame<'a> {
     body: &'a Body,
     total: Vec<bool>,
+    value_total: Vec<bool>,
 }
 impl std::ops::Deref for Frame<'_> {
     type Target = Body;
@@ -39,14 +56,38 @@ fn result_field(value: &Term, sort: &Sort) -> LangResult<Option<(bool, Term)>> {
 }
 
 impl<'p> Lower<'p> {
+    pub(super) fn observation_flow(
+        &mut self,
+        actions: &CheckedActions,
+        index: usize,
+        env: Env,
+        probe: &SiteObservation,
+    ) -> LangResult<Term> {
+        let source = actions.action(index).ok_or("missing observed source action")?;
+        let scope = Scope {
+            actions,
+            observation: "",
+            probe: Some(probe),
+            target_body: Some(source),
+            failure: Some(true),
+        };
+        let frame = self.flow_frame(source, scope.target(source))?;
+        self.flow_block(
+            &scope, &frame, &frame.instructions, env, v("initial"),
+            c(&self.events, 0, vec![]),
+            &|_, _, _, _| Ok(Term::Bool(true)),
+            &|_, _| Ok(Term::Bool(true)), 0, 0,
+        )
+    }
     // Sealed trees are emitted in child-first order. A conservative structural
     // summary distinguishes total expression evaluation from control/effects;
     // it selects no alternate algorithm and carries no proof authority.
-    fn flow_frame<'b>(&mut self, body: &'b Body) -> LangResult<Frame<'b>> {
-        let mut total = Vec::with_capacity(body.nodes.len());
+    fn flow_frame<'b>(&mut self, body: &'b Body, observed: Option<NodeId>) -> LangResult<Frame<'b>> {
+        let mut total:Vec<bool> = Vec::with_capacity(body.nodes.len());
+        let mut value_total = Vec::with_capacity(body.nodes.len());
         for node in &body.nodes {
             self.tick()?;
-            let child = |n: NodeId| total.get(n).copied().unwrap_or(false);
+            let child = |n: NodeId| value_total.get(n).copied().unwrap_or(false);
             let safe = match &node.kind {
                 Kind::State(_) | Kind::Keep(_) => true,
                 Kind::Bind { value, body, .. } => child(*value) && child(*body),
@@ -90,9 +131,15 @@ impl<'p> Lower<'p> {
                 }
                 _ => false,
             };
-            total.push(safe);
+            value_total.push(safe);
+            // Observation visitation is separate from total value meaning. An
+            // entry check can evaluate its complete pure subtree afterwards,
+            // while ancestors must still sequence down to the monitored site.
+            let blocked = crate::action_model::observations::children(&node.kind).iter()
+                .any(|n|value_total[*n] && !total[*n]);
+            total.push(safe && !blocked && observed != Some(total.len()));
         }
-        Ok(Frame { body, total })
+        Ok(Frame { body, total, value_total })
     }
     pub(super) fn action_flow(
         &mut self,
@@ -105,6 +152,9 @@ impl<'p> Lower<'p> {
         let scope = Scope {
             actions,
             observation,
+            probe: None,
+            target_body: None,
+            failure: None,
         };
         let finish = |this: &mut Self, value, state, events| {
             this.finish(
@@ -130,7 +180,7 @@ impl<'p> Lower<'p> {
                 observation,
             )
         };
-        let frame = self.flow_frame(actions.action(index).unwrap())?;
+        let frame = self.flow_frame(actions.action(index).unwrap(), None)?;
         self.flow_block(
             &scope,
             &frame,
@@ -162,7 +212,7 @@ impl<'p> Lower<'p> {
             return Err("action transition continuation depth limit".into());
         }
         let Some((first, tail)) = instructions.split_first() else {
-            return Ok(self.host(scope.observation, 3));
+            return Ok(scope.host(self, 3));
         };
         match first {
             Instruction::Return(n) => {
@@ -373,6 +423,65 @@ impl<'p> Lower<'p> {
         depth: usize,
         calls: usize,
     ) -> LangResult<Term> {
+        if scope.target(body.body)==Some(node) && matches!(scope.probe,Some(SiteObservation::Entry(_))) {
+            return self.check_observation(scope,env,vec![],state.clone(),events.clone(),
+                &|this|this.flow_expr_value(scope,body,node,env,state.clone(),events.clone(),next,abort,depth,calls),calls);
+        }
+        if scope.target(body.body) == Some(node) && matches!(scope.probe,Some(SiteObservation::Value(_))) {
+            return self.flow_expr_value(
+                scope, body, node, env, state, events,
+                &|this, value, state, events| this.check_observation(scope,env,vec![value.clone()],
+                    state.clone(),events.clone(),&|this|next(this,value.clone(),state.clone(),events.clone()),calls),
+                abort, depth, calls,
+            );
+        }
+        self.flow_expr_value(scope, body, node, env, state, events, next, abort, depth, calls)
+    }
+    fn check_observation(
+        &mut self, scope:&Scope, env:&Env, values:Vec<Term>, state:Term, events:Term,
+        next:&dyn Fn(&mut Self)->LangResult<Term>, calls:usize,
+    ) -> LangResult<Term> {
+        let probe=scope.probe.ok_or("missing source observation")?;
+        let predicate=self.program.actions.iter().position(|a|a.name==probe.predicate())
+            .ok_or("missing source observation predicate")?;
+        let mut args=probe.slots().iter().map(|slot|env.get(slot).cloned()
+            .ok_or("source observation local is out of scope")).collect::<Result<Vec<_>,_>>()?;
+        args.extend(values);
+        let predicate_scope=Scope{actions:scope.actions,observation:scope.observation,
+            probe:None,target_body:None,failure:Some(false)};
+        self.flow_call(&predicate_scope,predicate,args,state,events,&|this,test,_,_|{
+            let continuation=next(this)?;
+            Ok(if continuation==Term::Bool(true){test}else{choice(test,continuation,Term::Bool(false))})
+        },&|_,_|Ok(Term::Bool(false)),calls+1)
+    }
+    fn before_call(
+        &mut self, scope:&Scope, body:&Frame<'_>, node:NodeId, env:&Env,
+        args:Vec<Term>, state:Term, events:Term,
+        next:&dyn Fn(&mut Self,Vec<Term>,Term,Term)->LangResult<Term>, calls:usize,
+    ) -> LangResult<Term> {
+        if scope.target(body.body)==Some(node) && matches!(scope.probe,Some(SiteObservation::Call(_))) {
+            self.check_observation(scope,env,args.clone(),state.clone(),events.clone(),
+                &|this|next(this,args.clone(),state.clone(),events.clone()),calls)
+        } else {next(self,args,state,events)}
+    }
+    fn fixed_value_application(&mut self, result:ExprType, kind:Kind, inputs:Vec<ExprType>,
+        values:Vec<Term>, state:&Term) -> LangResult<Term> {
+        if inputs.len()!=values.len(){return Err("primitive value arity mismatch".into());}
+        let mut nodes=vec![];let mut slots=vec![];
+        for (slot,ty) in inputs.into_iter().enumerate() {
+            let ExprType::Value(t)=&ty else{return Err("primitive argument must be a value".into());};
+            slots.push(crate::action_ir::Slot{name:format!("primitive_{slot}"),ty:t.clone()});
+            nodes.push(crate::action_ir::Node{ty,kind:Kind::Local(slot)});
+        }
+        let root=nodes.len();nodes.push(crate::action_ir::Node{ty:result,kind});
+        let primitive=Body{slots,nodes,instructions:vec![],value:Some(root)};
+        self.expr(&primitive,root,&values.into_iter().enumerate().collect(),state)
+    }
+    fn flow_expr_value(
+        &mut self, scope: &Scope, body: &Frame<'_>, node: NodeId, env: &Env,
+        state: Term, events: Term, next: &Next<'_, 'p>, abort: &Exit<'_, 'p>,
+        depth: usize, calls: usize,
+    ) -> LangResult<Term> {
         self.tick()?;
         if depth > 128 {
             return Err("action model expression depth limit".into());
@@ -382,7 +491,8 @@ impl<'p> Lower<'p> {
             return Err("standalone action model lambda is unsupported".into());
         };
         let sort = self.sort(ty)?;
-        if body.total[node] {
+        if body.total[node] || (body.value_total[node] && scope.target(body.body)==Some(node)
+            && matches!(scope.probe,Some(SiteObservation::Entry(_)))) {
             let value = self.expr(body, node, env, &state)?;
             return next(self, value, state, events);
         }
@@ -400,7 +510,7 @@ impl<'p> Lower<'p> {
                     .actions
                     .keep(*index)
                     .ok_or("action model keep index")?;
-                let frame = self.flow_frame(keep)?;
+                let frame = self.flow_frame(keep, scope.target(keep))?;
                 let root = frame.value.ok_or("action model keep root")?;
                 let kept_state = state.clone();
                 let kept_events = events.clone();
@@ -428,6 +538,8 @@ impl<'p> Lower<'p> {
                 )
             }
             Kind::Number(_)
+            | Kind::Float(_)
+            | Kind::State(_)
             | Kind::Bool(_)
             | Kind::String(_)
             | Kind::Unit
@@ -436,6 +548,18 @@ impl<'p> Lower<'p> {
             | Kind::Enum { .. } => {
                 let value = self.expr(body, node, env, &state)?;
                 next(self, value, state, events)
+            }
+            Kind::Neg{value:child}|Kind::VectorField{receiver:child,..} => {
+                self.flow_expr(scope,body,*child,env,state,events,&|this,value,state,events| {
+                    let kind=match &n.kind {
+                        Kind::Neg{..}=>Kind::Neg{value:0},
+                        Kind::VectorField{component,..}=>Kind::VectorField{receiver:0,component:*component},
+                        _=>unreachable!(),
+                    };
+                    let value=this.fixed_value_application(n.ty.clone(),kind,
+                        vec![body.nodes[*child].ty.clone()],vec![value],&state)?;
+                    next(this,value,state,events)
+                },abort,depth+1,calls)
             }
             Kind::Try { value } => {
                 let ExprType::Value(result_type) = &body.nodes[*value].ty else {
@@ -640,6 +764,18 @@ impl<'p> Lower<'p> {
                     calls,
                 )
             }
+            Kind::Builtin{name,arguments} if ["list","count","sum","vec2","vec3","vec4","quot_or","rem_or"].contains(&name.as_str()) => {
+                // Reuse the fixed value meaning after ordered child evaluation.
+                // Only the primitive and typed local arguments are reconstructed;
+                // source effects are not evaluated again or moved into a lambda.
+                self.flow_args(scope,body,arguments,env,state,events,vec![],
+                    &|this,values,state,events| {
+                        let kind=Kind::Builtin{name:name.clone(),arguments:(0..arguments.len()).collect()};
+                        let inputs=arguments.iter().map(|a|body.nodes[*a].ty.clone()).collect();
+                        let value=this.fixed_value_application(n.ty.clone(),kind,inputs,values,&state)?;
+                        next(this,value,state,events)
+                    },abort,depth+1,calls)
+            }
             Kind::PureCall {
                 function,
                 arguments,
@@ -653,7 +789,8 @@ impl<'p> Lower<'p> {
                     state,
                     events,
                     vec![],
-                    &|this, xs, state, events| next(this, call(&f, xs), state, events),
+                    &|this, xs, state, events| this.before_call(scope,body,node,env,xs,state,events,
+                        &|this,xs,state,events|next(this,call(&f,xs),state,events),calls),
                     abort,
                     depth + 1,
                     calls,
@@ -669,7 +806,8 @@ impl<'p> Lower<'p> {
                     events,
                     vec![],
                     &|this, xs, state, events| {
-                        this.flow_call(scope, *action, xs, state, events, next, abort, calls + 1)
+                        this.before_call(scope,body,node,env,xs,state,events,
+                            &|this,xs,state,events|this.flow_call(scope,*action,xs,state,events,next,abort,calls+1),calls)
                     },
                     abort,
                     depth + 1,
@@ -733,10 +871,10 @@ impl<'p> Lower<'p> {
                                 )?;
                                 Ok(match method.as_str() {
                                     "insert" => {
-                                        choice(present, this.host(scope.observation, 2), resumed)
+                                        choice(present, scope.host(this, 2), resumed)
                                     }
                                     "replace" => {
-                                        choice(present, resumed, this.host(scope.observation, 2))
+                                        choice(present, resumed, scope.host(this, 2))
                                     }
                                     _ => resumed,
                                 })
@@ -789,7 +927,8 @@ impl<'p> Lower<'p> {
             return Err("action model nested call depth limit".into());
         }
         let action = self.program.actions[index].clone();
-        let frame = self.flow_frame(scope.actions.action(index).unwrap())?;
+        let source_body = scope.actions.action(index).unwrap();
+        let frame = self.flow_frame(source_body, scope.target(source_body))?;
         let body = &frame;
         let env = arguments.into_iter().enumerate().collect();
         let sort = self.sort(&action.result)?;
@@ -858,6 +997,15 @@ impl<'p> Lower<'p> {
         let ExprType::Value(receiver_type) = &body.nodes[receiver].ty else {
             return Err("action model method receiver".into());
         };
+        if matches!(receiver_type,Type::List(_)) && ["map","filter"].contains(&method) {
+            let [lambda]=arguments else{return Err("list traversal arity".into());};
+            if !body.value_total[*lambda] {return Err("list callback requires total value correspondence".into());}
+            return self.flow_expr(scope,body,receiver,env,state,events,
+                &|this,value,state,events| {
+                    let value=this.collection_value(body,receiver,method,arguments,env,&state,Some(value))?;
+                    next(this,value,state,events)
+                },abort,depth+1,calls);
+        }
         if method == "unwrap_or" {
             return self.flow_args(scope, body, &[receiver, arguments[0]], env, state, events, vec![],
                 &|this, xs, state, events| {

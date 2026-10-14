@@ -29,6 +29,25 @@ fn data(s: &Sort) -> &str {
 }
 const APP:&str="module bound; enum Error{Failed,} state Rows:Table<u64,u64> = Table.empty(); event seen:u64; change erase(k:u64,fail:Bool)->Result<Unit,Error> writes(Rows) emits(seen){Rows.remove(k); emit seen(10); emit seen(20); if fail{return Err(Error.Failed);}return Ok(());} query get(k:u64)->Option<u64> reads(Rows){return Rows.get(k);}";
 #[test]
+fn long_source_constructor_labels_are_bounded_without_colliding_with_source_names() {
+    use sha2::{Digest,Sha256};
+    let long=format!("LongRecord{}","x".repeat(80));
+    let mut hash=Sha256::new();hash.update(long.as_bytes());hash.update(0u32.to_le_bytes());
+    let digest=format!("{:x}",hash.finalize());let collision=format!("ink_{}",&digest[..60]);
+    let enum_name=format!("LongEnum{}","x".repeat(80));
+    let event=format!("LongEvent{}","x".repeat(80));
+    let src=format!("module labels;record {long}{{value:u64,}}record {collision}{{value:u64,}}
+      enum {enum_name}{{First,Second,}} event {event}:{long};
+      query read(v:{long})->u64{{return v.value;}}
+      query other(v:{collision})->u64{{return v.value;}}
+      query variant(v:{enum_name})->{enum_name}{{return v;}}");
+    let model=Projection::derive(&module(&src)).unwrap();model.context().unwrap();
+    let long_key=serde_json::to_string(&ink_core::core::Type::Named(long)).unwrap();
+    let collision_key=serde_json::to_string(&ink_core::core::Type::Named(collision)).unwrap();
+    assert_ne!(model.types[&long_key],model.types[&collision_key]);
+}
+
+#[test]
 fn generated_payload_constructor_labels_fit_the_logic_language() {
     let source = r#"module payload_projection;
 enum Tree { Leaf(u32), Node(List<Tree>), }
@@ -382,4 +401,27 @@ fn nested_action_expansion_has_a_call_budget_independent_of_source_typing() {
     assert!(Projection::derive(&module(&source))
         .unwrap_err()
         .contains("nested call depth limit"));
+}
+
+#[test]
+fn pure_left_folds_project_current_accumulators_and_owned_record_carriers() {
+    let source="module folds;
+      fn left(xs:List<u32>,base:u32)->u32{return foldl(xs,0,fn(x)=>fn(acc)=>acc*base+x);}
+      fn right(xs:List<u32>,base:u32)->u32{return foldr(xs,0,fn(x)=>fn(acc)=>acc*base+x);}
+      fn copied(xs:List<u32>)->List<u32>{var output:Buffer<u32>=Buffer.empty();for x in xs{output=output.push(x);}return output.freeze();}
+      query left_value(xs:List<u32>,base:u32)->u32{return left(xs,base);}
+      query right_value(xs:List<u32>,base:u32)->u32{return right(xs,base);}
+      query copied_value(xs:List<u32>)->List<u32>{return copied(xs);}";
+    let checked=module(source);let model=Projection::derive(&checked).unwrap();let context=model.context().unwrap();
+    let list=data(&model.types["{\"List\":\"U32\"}"]);
+    let rows=[1,2,3].into_iter().rev().fold(c(list,0,vec![]),|tail,x|c(list,1,vec![Term::U64(x),tail]));
+    let state=c(&model.state,0,vec![]);
+    for (query,expected) in [("left_value",Term::U64(123)),("right_value",Term::U64(321)),("copied_value",rows.clone())] {
+        let mut args=vec![state.clone(),Term::U64(0),rows.clone()];if query!="copied_value"{args.push(Term::U64(10));}
+        let actual=context.evaluate(&[],&call(&model.actions[query].function,args)).unwrap();
+        let Term::Construct{arguments,..}=actual else {panic!()};
+        assert_eq!(arguments[0],expected,"{query}");assert_eq!(arguments[3],state);assert_eq!(arguments[4],c(&model.events,0,vec![]));
+    }
+    let empty=context.evaluate(&[],&call(&model.actions["left_value"].function,vec![state,Term::U64(0),c(list,0,vec![]),Term::U64(10)])).unwrap();
+    let Term::Construct{arguments,..}=empty else {panic!()};assert_eq!(arguments[0],Term::U64(0));
 }
