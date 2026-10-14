@@ -4,7 +4,7 @@
 
 Write typed programs that describe computation, state and permitted changes. An
 external knowledge store supplies alternative implementations and mathematical
-proofs. A planner discovers and combines them; a small semantic core checks that
+proofs. A planner discovers and combines them; a semantic core checks that
 each accepted change preserves the actual program's meaning.
 
 The ambition is to make better algorithms, storage layouts and execution plans
@@ -31,6 +31,10 @@ execute them reusable. Proofs establish which alternatives preserve meaning;
 measurements guide which are worthwhile. Keep the semantic core focused on
 meaning and checking, while the store grows its repertoire of implementations.
 Judge progress by less work and better complete execution on real workloads.
+
+The core can grow when a general mechanism unlocks many independently authored
+implementation families and their combinations. The objective is for reusable
+knowledge and useful possibilities to grow much faster than the core machinery.
 
 ## How it works
 

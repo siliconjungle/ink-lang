@@ -2,6 +2,69 @@
 //! Each input is evaluated once. Element identity uses structural list equality
 //! (including floating-point bits); multiplicities use exact Int arithmetic.
 use super::*;
+/// Resolve collection syntax in its declaring module before templates/imports
+/// are combined. These source-only markers disappear during elaboration; they
+/// carry no theorem authority and cannot occur in checked executable code.
+pub(crate) fn resolve(p: &mut Program) -> LangResult<()> {
+    let declarations: BTreeSet<_> = p.functions.iter().map(|f|f.name.clone())
+        .chain(p.actions.iter().map(|a|a.name.clone())).collect();
+    resolve_program(p, &declarations)
+}
+pub(crate) fn resolve_expression(e:&mut Expr,declared:&BTreeSet<String>,locals:&BTreeSet<String>)->LangResult<()> {
+    expr(e,declared,locals,0)
+}
+fn expr(e:&mut Expr,declared:&BTreeSet<String>,locals:&BTreeSet<String>,depth:usize)->LangResult<()> {
+        if depth>128{return Err("collection syntax resolution depth".into())}
+        match e {
+            Expr::Call(name,args)=>{
+                if ["unique","unique_ids","unique_by","multiset","singleton"].contains(&name.as_str())
+                    && !declared.contains(name) && !locals.contains(name) {
+                    *name=format!("@{name}");
+                }
+                for a in args {expr(a,declared,locals,depth+1)?;}
+            }
+            Expr::Let(name,_,initial,body)=>{
+                expr(initial,declared,locals,depth+1)?;
+                let mut inner=locals.clone();inner.insert(name.clone());expr(body,declared,&inner,depth+1)?;
+            }
+            Expr::Lambda(name,body)=>{
+                let mut inner=locals.clone();inner.insert(name.clone());expr(body,declared,&inner,depth+1)?;
+            }
+            Expr::Binary(_,a,b)=>{expr(a,declared,locals,depth+1)?;expr(b,declared,locals,depth+1)?;}
+            Expr::Neg(x)|Expr::Try(x)|Expr::Field(x,_)=>expr(x,declared,locals,depth+1)?,
+            Expr::Method(x,_,args)=>{expr(x,declared,locals,depth+1)?;for a in args{expr(a,declared,locals,depth+1)?;}}
+            Expr::Record(_,fields)=>for (_,value) in fields{expr(value,declared,locals,depth+1)?;},
+            _=>(),
+        }
+        Ok(())
+    }
+fn resolve_program(p:&mut Program,declarations:&BTreeSet<String>)->LangResult<()> {
+    fn block(body:&mut [Statement],declared:&BTreeSet<String>,mut locals:BTreeSet<String>,depth:usize)->LangResult<()> {
+        if depth>128{return Err("collection statement resolution depth".into())}
+        for statement in body {match statement {
+            Statement::Let(name,_,value)=>{expr(value,declared,&locals,depth+1)?;locals.insert(name.clone());}
+            Statement::Return(value)|Statement::Expr(value)|Statement::Emit(_,value)=>expr(value,declared,&locals,depth+1)?,
+            Statement::If(value,a,b)=>{expr(value,declared,&locals,depth+1)?;block(a,declared,locals.clone(),depth+1)?;block(b,declared,locals.clone(),depth+1)?;}
+        }}
+        Ok(())
+    }
+    for f in &mut p.functions {expr(&mut f.body,&declarations,&f.params.iter().map(|(n,_)|n.clone()).collect(),0)?;}
+    for a in &mut p.actions {block(&mut a.body,&declarations,a.params.iter().map(|(n,_)|n.clone()).collect(),0)?;}
+    for d in p.states.iter_mut().chain(&mut p.keeps) {expr(&mut d.value,&declarations,&BTreeSet::new(),0)?;}
+    for r in &mut p.rules {
+        let locals=r.params.iter().map(|(n,_)|n.clone()).collect();
+        expr(&mut r.from,&declarations,&locals,0)?;expr(&mut r.to,&declarations,&locals,0)?;
+    }
+    for spec in &mut p.contracts.specifications {
+        let mut locals:BTreeSet<_>=spec.params.iter().map(|(n,_)|n.clone()).collect();
+        for predicate in &mut spec.requires {expr(predicate,&declarations,&locals,0)?;}
+        locals.insert("result".into());
+        for predicate in &mut spec.ensures {expr(predicate,&declarations,&locals,0)?;}
+    }
+    for predicate in &mut p.contracts.invariants {expr(predicate,&declarations,&BTreeSet::new(),0)?;}
+    for predicate in p.contracts.value_invariants.values_mut() {expr(predicate,&declarations,&BTreeSet::from(["value".into()]),0)?;}
+    Ok(())
+}
 fn v(n: &str) -> Expr {
     Expr::Var(n.into())
 }
@@ -47,8 +110,8 @@ fn count(xs: Expr, item: Expr, prefix: &str) -> Expr {
 }
 fn bag(e: &Expr) -> LangResult<Expr> {
     match e {
-        Expr::Call(n, args) if n == "multiset" && args.len() == 1 => Ok(args[0].clone()),
-        Expr::Call(n, args) if n == "singleton" && args.len() == 1 => {
+        Expr::Call(n, args) if n == "@multiset" && args.len() == 1 => Ok(args[0].clone()),
+        Expr::Call(n, args) if n == "@singleton" && args.len() == 1 => {
             Ok(call("list", args.clone()))
         }
         Expr::Binary(n, a, b) if n == "+" => Ok(Expr::Method(
@@ -63,7 +126,7 @@ fn bag(e: &Expr) -> LangResult<Expr> {
 }
 fn is_bag(e: &Expr) -> bool {
     match e {
-        Expr::Call(n, _) => n == "multiset" || n == "singleton",
+        Expr::Call(n, _) => n == "@multiset" || n == "@singleton",
         Expr::Binary(n, a, b) => n == "+" && (is_bag(a) || is_bag(b)),
         _ => false,
     }
@@ -96,17 +159,17 @@ pub(crate) fn lower(e: &Expr, prefix: &str) -> LangResult<Option<Expr>> {
         }
     }
     if let Expr::Call(n, args) = e {
-        if ["unique", "unique_ids", "unique_by"].contains(&n.as_str()) {
-            if args.len() != if n == "unique_by" { 2 } else { 1 } {
+        if ["@unique", "@unique_ids", "@unique_by"].contains(&n.as_str()) {
+            if args.len() != if n == "@unique_by" { 2 } else { 1 } {
                 return Err("uniqueness predicate arity".into());
             }
-            let input = if n == "unique_ids" {
+            let input = if n == "@unique_ids" {
                 Expr::Method(
                     Box::new(args[0].clone()),
                     "map".into(),
                     vec![lambda(&item, Expr::Field(Box::new(v(&item)), "id".into()))],
                 )
-            } else if n == "unique_by" {
+            } else if n == "@unique_by" {
                 Expr::Method(
                     Box::new(args[0].clone()),
                     "map".into(),

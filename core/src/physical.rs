@@ -67,6 +67,8 @@ pub struct Plan {
     pub tables: Tables,
     #[serde(default,skip_serializing_if="Vec::is_empty")]
     pub dense_prefixes: Vec<DensePrefix>,
+    #[serde(default,skip_serializing_if="Vec::is_empty")]
+    pub dictionary_tables: Vec<String>,
     #[serde(default)]
     pub buffers: Buffers,
     #[serde(default)]
@@ -186,6 +188,18 @@ pub fn check(
         &plan.memo_functions,
     ] {
         ids(sites)?;
+    }
+    if plan.dictionary_tables.len()>256 || !plan.dictionary_tables.windows(2).all(|w|w[0]<w[1]) {
+        return Err("dictionary table ordering/count limit".into());
+    }
+    if representation.is_some() && !plan.dictionary_tables.is_empty() {
+        return Err("source dictionary tables do not apply to definition representations".into());
+    }
+    for name in &plan.dictionary_tables {
+        let root=module.program().states.iter().find(|s|&s.name==name).ok_or("dictionary table is not a source state root")?;
+        if !matches!(&root.ty,crate::syntax::Type::Table(key,_) if **key==crate::syntax::Type::String) {
+            return Err("dictionary tables require source String keys".into());
+        }
     }
     if representation.is_some()
         && (plan.tables != Tables::Ordered

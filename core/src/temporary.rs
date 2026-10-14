@@ -21,6 +21,13 @@ impl<T: Clone> OwnedBuffer<T> {
     pub fn get(&self, i: u32) -> Option<T> {
         self.0.borrow().get(i as usize).cloned()
     }
+    /// The independent evaluator materializes this logical readonly view.
+    /// Native emission may instead retain a scoped slice of the same owner.
+    pub fn range_snapshot(&self,start:u32,count:u32)->Self {
+        let xs=self.0.borrow();let start=(start as usize).min(xs.len());
+        let count=(count as usize).min(xs.len()-start);
+        Self::new(xs[start..start+count].to_vec())
+    }
     pub fn set(self, i: u32, value: T) -> Self {
         if let Some(slot) = self.0.borrow_mut().get_mut(i as usize) {
             *slot = value;

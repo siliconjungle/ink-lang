@@ -39,6 +39,7 @@ pub fn needed(p: &Program) -> bool {
         }
     }
     p.functions.iter().any(|f| recursive(f) || new(&f.body))
+        || crate::analysis::recursive_function_groups(p).map_or(true, |groups| !groups.is_empty())
         || p.states.iter().chain(&p.keeps).any(|d| new(&d.value))
         || p.actions.iter().any(|a| statements(&a.body))
 }
@@ -154,7 +155,8 @@ fn walk(
     }
     Ok(())
 }
-pub fn check_function(f: &Function, _p: &Program) -> LangResult<()> {
+pub fn check_function(f: &Function, p: &Program) -> LangResult<()> {
+    if crate::structural_descent::check(f,p).is_ok(){return Ok(())}
     for (index, (name, t)) in f.params.iter().enumerate() {
         let list = matches!(t, Type::List(_));
         if (list || matches!(t, Type::U32 | Type::U64))

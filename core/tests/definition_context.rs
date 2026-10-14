@@ -1,6 +1,6 @@
 //! Context mechanisms are independent of the knowledge checkout and backends.
 use ink_core::{
-    core::{CheckedModule, Type},
+    core::{CheckedModule, Program, Type},
     definition_context::DefinitionContext,
     eval::{self, Value},
     laws::{self, Catalogue, CheckedCatalogue, Law, Proof},
@@ -130,6 +130,58 @@ fn portable_admission_requires_exact_original_definitions_at_application() {
         &package(&unrelated, &c, vec![site(&law, "entry")]),
     )
     .unwrap();
+}
+
+#[test]
+fn recursive_components_bind_complete_bodies_without_circular_hashes() {
+    let m = module("record Tree{value:u32,children:List<Tree>,}
+      fn branch(x:Tree)->u32{return x.value+children(x.children);}
+      fn children(xs:List<Tree>)->u32{return foldl(xs,0,fn(x)=>fn(acc)=>acc+branch(x));}
+      fn example()->u32{return branch(Tree{value:1,children:[Tree{value:2,children:[]}]});}");
+    let context = DefinitionContext::capture(&m,&["branch".into()]).unwrap();
+    assert_eq!(context.recursive_groups.len(),1);
+    assert_eq!(context.definitions.len(),2);
+    let reconstructed = context.check().unwrap();
+    context.matches(m.program()).unwrap();
+    let law = normalize(&m,"example",s::word(Type::U32,3),&["branch"]);
+    CheckedCatalogue::check(&catalogue(vec![law.clone()]),&Program::default()).unwrap();
+    let mut false_law = law.clone();false_law.to=s::word(Type::U32,4);
+    assert!(CheckedCatalogue::check(&catalogue(vec![false_law]),&Program::default()).is_err());
+    let mut missing = context.clone();missing.recursive_groups.clear();
+    assert!(missing.check().is_err());
+    let mut changed = context.clone();
+    changed.definitions.get_mut("branch").unwrap().definition.body=s::word(Type::U32,0);
+    let d=changed.definitions.get_mut("branch").unwrap();d.sha256=registry::identity(&d.definition).unwrap();
+    assert!(changed.check().is_err());
+    let mut dangling = context.clone();dangling.definitions.remove("children");
+    assert!(dangling.check().is_err());
+    let mut membership = context.clone();membership.recursive_groups.values_mut().next().unwrap().pop();
+    assert!(membership.check().is_err());
+    // Even a completely rehashed cycle must establish genuine descent.
+    let mut no_descent=context.clone();
+    let tree=s::free(s::value(Type::Named("Tree".into())),"x");
+    let list=s::term(s::value(Type::List(Box::new(Type::Named("Tree".into())))),
+        Node::Cons(Box::new(tree),Box::new(s::term(s::value(Type::List(Box::new(Type::Named("Tree".into())))),Node::Nil))));
+    no_descent.definitions.get_mut("branch").unwrap().definition.body=s::op(s::value(Type::U32),"call:children",vec![list]);
+    let members=no_descent.recursive_groups.values().next().unwrap().clone();
+    let mut bodies=BTreeMap::new();
+    for name in &members {
+        let mut d=no_descent.definitions[name].definition.clone();d.callees.retain(|name,_|!members.contains(name));
+        bodies.insert(name.clone(),d);
+    }
+    let group=registry::identity(&("ink-recursive-definitions-v1",bodies)).unwrap();
+    no_descent.recursive_groups=BTreeMap::from([(group.clone(),members.clone())]);
+    for name in &members {
+        let d=no_descent.definitions.get_mut(name).unwrap();
+        for (callee,id) in &mut d.definition.callees {if members.contains(callee){*id=group.clone();}}
+        d.sha256=registry::identity(&d.definition).unwrap();
+    }
+    assert!(no_descent.check().unwrap_err().contains("proper immutable subvalues"));
+    let renamed = module("record Tree{value:u32,children:List<Tree>,}
+      fn branch(x:Tree)->u32{return x.value+children(x.children)+1;}
+      fn children(xs:List<Tree>)->u32{return foldl(xs,0,fn(x)=>fn(acc)=>acc+branch(x));}");
+    assert!(context.matches(renamed.program()).is_err());
+    assert_eq!(reconstructed.functions.len(),2);
 }
 
 #[test]
@@ -417,4 +469,74 @@ fn lexical_capture_context_identity_and_context_free_bytes_are_explicit() {
         .unwrap()
         .sha256 = "0".repeat(64);
     assert!(CheckedCatalogue::check(&catalogue(vec![tampered]), &Default::default()).is_err());
+}
+
+#[test]
+fn exact_int_literal_contexts_replay_without_inserting_conversions() {
+    let m = module("fn count_once(xs:List<u32>)->Bool{return count(xs)==1;} fn literal()->Int{return 1;}");
+    let context=DefinitionContext::capture(&m,&["count_once".into(),"literal".into()]).unwrap();
+    context.check().unwrap();
+    context.matches(m.program()).unwrap();
+}
+
+#[test]
+fn empty_option_contexts_preserve_explicit_bindings_and_constructor_trees() {
+    let m = module(
+        "fn absent()->Option<u32>{return None;}
+      fn maybe(x:u32)->Option<u32>{if x<3{return Some(x);}return None;}
+      fn observe()->u32{let empty:Option<u32>=None;return empty.fold(fn(x)=>x,fn(_)=>9);}
+      fn nested()->List<Option<u32>>{return [None,Some(7)];}",
+    );
+    let roots = ["absent", "maybe", "observe", "nested"].map(str::to_string);
+    let context = DefinitionContext::capture(&m, &roots).unwrap();
+    let replay = context.check().unwrap();
+    context.matches(m.program()).unwrap();
+    for (name, args) in [
+        ("absent", vec![]),
+        ("maybe", vec![Value::U32(0)]),
+        ("maybe", vec![Value::U32(3)]),
+        ("observe", vec![]),
+        ("nested", vec![]),
+    ] {
+        assert_eq!(
+            eval::call(m.program(), name, args.clone(), &mut 10000).unwrap(),
+            eval::call(&replay, name, args, &mut 10000).unwrap()
+        );
+    }
+    let changed = module("fn absent()->Option<u32>{return Some(0);}");
+    assert!(context.matches(changed.program()).is_err());
+}
+
+#[test]
+fn proof_produced_empty_receivers_keep_their_type_without_changing_checked_contexts() {
+    let scalar = s::value(Type::U32);
+    let empty = s::op(
+        s::value(Type::Option(Box::new(Type::U32))),
+        "call:None",
+        vec![],
+    );
+    let term = s::op(
+        scalar.clone(),
+        "method:fold",
+        vec![
+            empty,
+            s::lambda(scalar.clone(), s::term(scalar.clone(), Node::Bound(0))),
+            s::lambda(s::value(Type::Unit), s::word(Type::U32, 9)),
+        ],
+    );
+    let mut p = module("fn run()->u32{return 0;}").into_program();
+    p.functions[0].body = s::reify(&term, &p).unwrap();
+    let m = CheckedModule::from_source(p).unwrap();
+    assert_eq!(
+        eval::call(m.program(), "run", vec![], &mut 10000).unwrap(),
+        Value::U32(9)
+    );
+    let actual = optimisation::subject(&m).unwrap().functions["run"].clone();
+    assert_eq!(
+        s::beta_normalize(&actual, &mut s::Budget::new()).unwrap(),
+        term
+    );
+    let context = DefinitionContext::capture(&m, &["run".into()]).unwrap();
+    context.check().unwrap();
+    context.matches(m.program()).unwrap();
 }
