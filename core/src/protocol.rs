@@ -136,7 +136,7 @@ pub fn check(module:&CheckedModule,plan:&Plan,views:Option<&crate::maintained::C
     for name in &plan.direct_reads {
         if !seen.insert(name){return Err("duplicate direct read".into());}
         let k=facts.iter().find(|f|&f.action==name).and_then(|f|f.direct_keep).ok_or("direct read capability missing")?;
-        if !views.is_some_and(|v|v.package().views.iter().any(|v|v.keep==p.keeps[k].name)){return Err("direct read requires a checked maintained value".into());}
+        if !views.is_some_and(|v|v.package().views.iter().any(|v|v.keep==p.keeps[k].name&&v.group.is_none())){return Err("direct read requires a checked maintained value".into());}
     }
     let mut seen=BTreeSet::new();
     for c in &plan.columns {
