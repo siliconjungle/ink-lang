@@ -1,0 +1,53 @@
+{
+  "schema": 1,
+  "scope": "Composition of checked Set interfaces, fresh state proof replay and checked boundary-reader capabilities",
+  "packages": {
+    "abi": "8ad066eaca7ed7d7876bb3ff88414b071013b554",
+    "native-support": "ca9bc59f119db62c2c1ea5000b6baf390f94705a",
+    "knowledge": "613de83d693eb127fa9ef983ecf05ffc7af60241",
+    "planner": "bd00dc3053f05839aad9f794e79abda81c638456",
+    "lowerings/rust": "2a1c2b04edcc55c3465bc7bdf03386861e3ec867",
+    "lowerings/c": "a52c85e88267204330fb06ebabfee0e903422556",
+    "lowerings/wasm": "29dec0577d71cb5e50376534c94352b2be3149fb",
+    "lowerings/js": "5766277bc03be5526282bde100c108de8d62baf7",
+    "lowerings/gpu": "2011f68c3061614e6279822f37d31fffd6f453a7",
+    "runtime": "85735bfbab33a0d02092f38993a48958ac1fc3ff"
+  },
+  "source_capability_origin": "https://github.com/siliconjungle/ink-lang/commit/3a184663",
+  "checks": {
+    "boundary-integrated-core-tests": {
+      "path": "build/general-machinery/set-interface/boundary-integrated-core-tests.log",
+      "sha256": "fdb541af938be7995981a7a59048210d407897f328b979a679f8dbc9a9467ab4"
+    },
+    "boundary-integrated-complete-target-tests": {
+      "path": "build/general-machinery/set-interface/boundary-integrated-complete-target-tests.log",
+      "sha256": "44cd495e7a65c551fa09e12fdc640f3441f80cfc8ac0d8339913f9d0714fdaf6"
+    },
+    "boundary-current-compiler-tests": {
+      "path": "build/general-machinery/set-interface/boundary-current-compiler-tests.log",
+      "sha256": "da11932592112732c9cfee0df5c6c86769f5f31e2cab1629822482218fab0c8a"
+    },
+    "set-boundary-reader-error-names-tests": {
+      "path": "build/general-machinery/set-interface/set-boundary-reader-error-names-tests.log",
+      "sha256": "223a535fe6cb5f334910e880bd381eb27a5a70e1af86625559067f4d37311e94"
+    },
+    "planner-state-reuse-merged-tests": {
+      "path": "build/general-machinery/set-interface/planner-state-reuse-merged-tests.log",
+      "sha256": "6aaa61fe5b088175276fce63588e97d41bcd1c9ae6493febcdb19e625aec7d61"
+    },
+    "state-reuse-final-unit-tests": {
+      "path": "build/general-machinery/set-interface/state-reuse-final-unit-tests.log",
+      "sha256": "6382226b3d362b999ef315eb35dc236f94f49bd2cf030f4b2d39164b03e30579"
+    }
+  },
+  "core_tests": 305,
+  "target_tests": 8,
+  "boundary_adversaries": 1300,
+  "scope_limits": [
+    "Boundary-reader selection is supported on JavaScript only; unsupported target selections fail explicitly",
+    "Raw Set validation still executes; the generic algorithm retains quadratic worst-case work",
+    "At 256 items the distinct wire reader/literal ratio is 1.001 and union is 1.044; these samples establish no speedup",
+    "The complete six-workstream programme remains unfinished"
+  ],
+  "ci": "All-job completion for the final distribution revision is pending"
+}
