@@ -1081,6 +1081,7 @@ jobs:
         python bench/gpu/prepare-word-parity-browser.py
         npm ci --prefix bench/gpu --ignore-scripts --no-audit --no-fund
         node bench/gpu/lowering-parity-browser.mjs "$(command -v google-chrome)"
+        INK_TEST_WGPU=1 cargo test --test database_planning recursive_database_plan_preserves_every_observation_and_original_checkpoints -- --exact --nocapture
         python bench/gpu/prepare-database-plan-browser.py
         node bench/gpu/database-plan-browser.mjs "$(command -v google-chrome)"
     - name: Retain GPU failure reproductions
