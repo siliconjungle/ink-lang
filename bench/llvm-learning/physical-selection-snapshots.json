@@ -1,0 +1,18 @@
+{
+  "change": "Offline physical selection publishes frozen checked inputs",
+  "planner": "6969a70f7e0b42bfe97974c8932a176162c8a75d",
+  "finding": "Caller-owned selection was reread after checking and ranking; model receipt could hash different bytes than the model used. Capture selection/core/model/index once and bind publication to captured bytes.",
+  "validation": {
+    "targeted": {
+      "sha256": "34746cd15bad3240ce97f3a4d2c6f71a528fb18574be5eea2437535ab8409deb",
+      "result": "passed",
+      "tests": 11
+    },
+    "mandatory_hardening": {
+      "sha256": "e373953ecbc5c610355b2ba4412d17ad3dd56ca9c61a15cab28543cd69e7f5dc",
+      "result": "passed",
+      "python_tests": 77
+    }
+  },
+  "scope": "Real checker and JavaScript emitter replay with synthetic ranking counts. This is provenance/correctness coverage, not measured performance or generalisation evidence."
+}
