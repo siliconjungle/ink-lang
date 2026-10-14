@@ -183,7 +183,7 @@ fn general_scalar_library_reproduces_and_legacy_search_flag_fails_closed() {
     }
     let output = fixture.0.join("rejected.c");
     let result = Command::new(env!("CARGO_BIN_EXE_ink"))
-        .arg("emit-c")
+        .arg("emit-rust")
         .arg(root.join("examples/boolean.lang"))
         .arg("--database")
         .arg(root.join("knowledge/research/boolean/lock.json"))

@@ -3,8 +3,8 @@ import fs from 'node:fs/promises';
 import assert from 'node:assert/strict';
 import {pathToFileURL} from 'node:url';
 import {createHash} from 'node:crypto';
-const [javascriptPath,rustPath,cPath,hostPath]=process.argv.slice(2);
-if(!hostPath)throw Error('javascript program, Rust-Wasm, C-Wasm and state-wasm host paths required');
+const [javascriptPath,rustPath,hostPath]=process.argv.slice(2);
+if(!hostPath)throw Error('javascript program, Rust-Wasm and state-wasm host paths required');
 const rows=Number(process.env.INK_PROFILE_ROWS??4000),calls=Number(process.env.INK_PROFILE_CALLS??1000);
 assert(Number.isInteger(rows)&&rows>0&&rows<=100_000);assert(Number.isInteger(calls)&&calls>=100&&calls<=10000);
 const mixes=(process.env.INK_PROFILE_READS??'100,90,0').split(',').map(Number),rounds=Number(process.env.INK_PROFILE_ROUNDS??5);
@@ -15,14 +15,13 @@ const javascript=await import(pathToFileURL(javascriptPath));
 const source=javascript.createState(),maximum=0xffffffffffffffffn;
 for(let i=0;i<rows;i++){await source.invoke_json('put',[BigInt(i),BigInt(i*13+7),i%3!==0,false]);source.acknowledge_through(maximum,maximum);}
 const snapshot=await source.checkpoint(),observations=[],profiles=[];
-const artifacts={};for(const [label,path]of Object.entries({javascript:javascriptPath,'rust-wasm':rustPath,'c-wasm':cPath,host:hostPath}))artifacts[label]={path,sha256:createHash('sha256').update(await fs.readFile(path)).digest('hex')};
-const hosts={'rust-wasm':await StatefulModule.instantiate(await fs.readFile(rustPath)),'c-wasm':await StatefulModule.instantiate(await fs.readFile(cPath))};
+const artifacts={};for(const [label,path]of Object.entries({javascript:javascriptPath,'rust-wasm':rustPath,host:hostPath}))artifacts[label]={path,sha256:createHash('sha256').update(await fs.readFile(path)).digest('hex')};
+const hosts={'rust-wasm':await StatefulModule.instantiate(await fs.readFile(rustPath))};
 if(process.env.INK_PROFILE_BASELINE_HOST){
  const path=process.env.INK_PROFILE_BASELINE_HOST;
  const baseline=await import(pathToFileURL(path));
  artifacts.baseline_host={path,sha256:createHash('sha256').update(await fs.readFile(path)).digest('hex')};
  hosts['baseline-rust-wasm']=await baseline.StatefulModule.instantiate(await fs.readFile(rustPath));
- hosts['baseline-c-wasm']=await baseline.StatefulModule.instantiate(await fs.readFile(cPath));
 }
 const canonical=v=>typeof v==='bigint'?v.toString():Array.isArray(v)?v.map(canonical):v&&typeof v==='object'?Object.fromEntries(Object.entries(v).sort(([a],[b])=>a.localeCompare(b)).map(([k,x])=>[k,canonical(x)])):v;
 const normalize=x=>JSON.stringify(canonical(x));

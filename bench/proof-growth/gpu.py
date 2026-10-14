@@ -9,7 +9,7 @@ def run(cmd):
 for count in [0,11,16]:
  bundle=a.output/str(count);cmd=[a.compiler.resolve(),'build',Path(__file__).with_name('corpus.ink').resolve(),'--target','webgpu','-o',bundle.resolve()]
  if count:cmd+=['--selection',(a.selections/('db'+str(count))/'selection.json').resolve()]
- cmd+=['--zig',os.environ['INK_TEST_ZIG']] if os.environ.get('INK_TEST_ZIG') else []
+ cmd+=[] if os.environ.get('INK_TEST_ZIG') else []
  run(cmd);manifest=json.loads((bundle/'manifest.json').read_text());assert next(f for f in manifest['functions']if f['name']=='numeric_left')['gpu']
  projects=list((bundle/'gpu').glob('*/native'));assert len(projects)==1
  project=projects[0];cargo=(project/'Cargo.toml').read_text();import re

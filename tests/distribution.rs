@@ -306,7 +306,7 @@ Store.publish(sys.argv[2],objects)
 /// complete C lowering stores every intermediate in a per-call arena, so this
 /// million-step loop exhausts it; typed Rust keeps loop values in registers.
 #[test]
-fn native_build_defaults_to_typed_rust_and_keeps_the_c_lowering_explicit() {
+fn native_build_defaults_to_typed_rust_and_rejects_other_lowerings() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
     let work = root.join("build/native-default-lowering");
     let _ = fs::remove_dir_all(&work);

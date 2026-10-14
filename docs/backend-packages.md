@@ -10,17 +10,16 @@ The `ink` distribution combines that core with independently pinned repositories
 | [ink-knowledge](https://github.com/siliconjungle/ink-knowledge) | Canonical entries, snapshots, typed SQLite discovery and separate performance observations |
 | [ink-planner](https://github.com/siliconjungle/ink-planner) | Search, applicability proof production and checked-plan selection |
 | [ink-runtime](https://github.com/siliconjungle/ink-runtime) | Backend-neutral graph execution, bundle assembly, host assembly, shared saved-model decisions, scheduling and pure fallback |
-| [ink-lowering-c](https://github.com/siliconjungle/ink-lowering-c) | Portable C emission and allocation primitives |
 | [ink-lowering-rust](https://github.com/siliconjungle/ink-lowering-rust) | Stateful/inductive Rust emission and native storage primitives |
-| [ink-lowering-wasm](https://github.com/siliconjungle/ink-lowering-wasm) | Checked C-to-Wasm target configuration and exports |
+| [ink-lowering-wasm](https://github.com/siliconjungle/ink-lowering-wasm) | Checked Rust-to-Wasm target configuration and exports |
 | [ink-lowering-js](https://github.com/siliconjungle/ink-lowering-js) | Literal ES module emission preserving Ink word/f32 semantics |
 | [ink-lowering-gpu](https://github.com/siliconjungle/ink-lowering-gpu) | WGSL emission and WebGPU/wgpu device adapters |
 
 JavaScript emits portable ES modules; see [its value and selection contract](javascript-backend.md).
-C/Rust toolchains produce native machine code or Wasm. WebGPU and native wgpu
-share shader lowering. Runtime assembles GPU artifacts with compiled C/Wasm
+Rust toolchains produce native machine code or Wasm. WebGPU and native wgpu
+share shader lowering. Runtime assembles GPU artifacts with compiled Rust/Wasm
 fallback. GPU shader emission is independent; its recursive host lanes reuse
-literal C and JavaScript representation emission. ABI contracts and emitted native
+literal Rust and JavaScript representation emission. ABI contracts and emitted native
 support live in `ink-abi` and `ink-native-support`. Core source lives entirely
 in `core/src`.
 
@@ -78,7 +77,7 @@ See [compute pipelines](gpu-compute.md).
 
 The v1 literal pure call router now executes checked source compositions through
 the shared runtime and independent lowerers: `ink build CORE.json --core --route ROUTE.json
---target webgpu ...` produces Wasm/WebGPU and native C/wgpu hosts. Stages return
+--target webgpu ...` produces Wasm/WebGPU and native Rust/wgpu hosts. Stages return
 scalar word/Bool results on the host. Repeated pure calls can share one stage,
 with exact source reconstruction checked by core; external production owns
 sharing, placement and complete-cost selection. See [source routing](source-routing.md)

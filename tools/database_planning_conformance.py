@@ -66,7 +66,7 @@ def main():
  package['steps'].append(dict(kind='physical',package=shared));check()
  frozen=save('plan.json',package)
  oracle=(d/'oracle.json').read_text();target=d/'target'
- for lane in ['c','rust-wasm','javascript','c-wasm']:
+ for lane in ['rust-wasm','javascript']:
   project=d/lane;project.mkdir(exist_ok=True)
   if lane=='javascript':
    cli('emit-plan',original,frozen,'--core','--target',lane,'-o',project/'program.mjs')
@@ -79,14 +79,12 @@ def main():
   (project/'src/bin/check.rs').write_text('use ink_compiled_representation::State;use serde_json::{Value as Json,json};const ORACLE:&str='+json.dumps(oracle)+';\n'+runner)
   run('cargo','build','--offline','--quiet','--manifest-path',project/'Cargo.toml','--target-dir',target,env=dict(CARGO_INCREMENTAL='0'))
   run(target/'debug/check')
-  if lane in {'rust-wasm','c-wasm'}:
-   zig=os.environ.get('INK_TEST_ZIG')
+  if lane in {'rust-wasm'}:
+   zig=os.environ.get('INK_TEST_WASM')
    if not zig:
-    assert not os.environ.get('INK_PARITY_REQUIRE_ALL'),'Wasm parity requires INK_TEST_ZIG'
+    assert not os.environ.get('INK_PARITY_REQUIRE_ALL'),'Wasm parity requires INK_TEST_WASM'
     continue
-   cc=project/'zig-cc';ar=project/'zig-ar'
-   for path,op in [(cc,'cc -target wasm32-freestanding'),(ar,'ar')]:path.write_text('#!/bin/sh\nexec '+shlex_quote(zig)+' '+op+' "$@"\n');path.chmod(0o755)
-   run('cargo','build','--offline','--quiet','--lib','--target','wasm32-unknown-unknown','--manifest-path',project/'Cargo.toml','--target-dir',target,env=dict(INK_CC=str(cc),INK_AR=str(ar),CARGO_INCREMENTAL='0'))
+   run('cargo','build','--offline','--quiet','--lib','--target','wasm32-unknown-unknown','--manifest-path',project/'Cargo.toml','--target-dir',target,env=dict(CARGO_INCREMENTAL='0'))
    shutil.copyfile(target/'wasm32-unknown-unknown/debug/ink_compiled_representation.wasm',project/'program.wasm');run('node',project/'check.mjs',env=dict(INK_REP_WASM='1'))
  # Rust literal file uses the same project adapter; previous lane exercises it.
  rust=d/'rust.rs';cli('emit-plan',original,frozen,'--core','--target','rust','-o',rust);assert 'logic::Term'not in rust.read_text()
@@ -102,9 +100,9 @@ def main():
  (project/'src/bin/check.rs').write_text('use ink_composed_plan::State;use serde_json::{Value as Json,json};const ORACLE:&str='+json.dumps(oracle)+';\n'+runner)
  run('cargo','build','--offline','--quiet','--manifest-path',project/'Cargo.toml','--target-dir',d/'gpu-target',env=dict(CARGO_INCREMENTAL='0'));run(d/'gpu-target/debug/check')
  # CPU lane must reject an unimplemented placement rather than ignore it.
- result=subprocess.run([str(compiler),'emit-plan',str(original),str(frozen),'--core','--target','c','-o',str(d/'bad-c')],capture_output=True,text=True)
+ result=subprocess.run([str(compiler),'emit-plan',str(original),str(frozen),'--core','--target','-o',str(d/'bad-c')],capture_output=True,text=True)
  assert result.returncode and 'placement requires'in result.stderr
- save('checks.json',dict(status='passed',steps=[s['kind']for s in package['steps']],cpu=['rust','c','javascript','rust-wasm','c-wasm'],gpu='actual wgpu pure entry; maintained state exact oracle',source=source,selected=state['source']))
+ save('checks.json',dict(status='passed',steps=[s['kind']for s in package['steps']],cpu=['rust','javascript','rust-wasm'],gpu='actual wgpu pure entry; maintained state exact oracle',source=source,selected=state['source']))
  print('Recursive action/representation/observer/property/definition/physical/routing plan: all CPU lanes and actual GPU passed')
 
 def shlex_quote(value):

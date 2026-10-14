@@ -1,7 +1,6 @@
 use verified_language::{
     check,
     eval::{self, Value},
-    native,
     syntax::parse,
 };
 fn program() -> verified_language::syntax::Program {
@@ -80,36 +79,7 @@ fn narrowing_and_cross_width_values_are_rejected() {
     )
     .is_err());
 }
-#[test]
-fn compiled_c_matches_wrapping_oracle() {
-    use std::{fs, process::Command};
-    let p = program();
-    let mut c = native::emit(&p).unwrap();
-    c.push_str(r#"#include <stdio.h>
-int main(void){uint32_t a[]={UINT32_MAX,1,2};printf("%u %u %u %llu %u %u\n",lang_fn_total(a,3,3),lang_fn_constant(a,3),lang_fn_folded(a,3),(unsigned long long)lang_fn_count32(a,3),lang_fn_literal(),lang_fn_compare(4));}
-"#);
-    let dir = std::path::Path::new("build/u32-c-test");
-    fs::create_dir_all(dir).unwrap();
-    fs::write(dir.join("test.c"), c).unwrap();
-    let compile = Command::new("clang")
-        .args(["-O2", "-std=c11", "-Wall", "-Wextra", "-Werror"])
-        .arg(dir.join("test.c"))
-        .arg("-o")
-        .arg(dir.join("test"))
-        .output()
-        .unwrap();
-    assert!(
-        compile.status.success(),
-        "{}",
-        String::from_utf8_lossy(&compile.stderr)
-    );
-    let output = Command::new(dir.join("test")).output().unwrap();
-    assert!(output.status.success());
-    assert_eq!(
-        String::from_utf8(output.stdout).unwrap().trim(),
-        "39 3 0 3 0 1"
-    );
-}
+
 #[test]
 fn stateful_reference_and_rust_share_pure_word_semantics() {
     use std::{fs, process::Command};

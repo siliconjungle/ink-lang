@@ -93,8 +93,8 @@ fn conformance_inner(
 ) {
     if std::env::var_os("INK_PARITY_REQUIRE_ALL").is_some() {
         assert!(
-            std::env::var_os("INK_TEST_ZIG").is_some(),
-            "complete-target parity forbids skipping Wasm: set INK_TEST_ZIG"
+            std::env::var_os("INK_TEST_WASM").is_some(),
+            "complete-target parity forbids skipping Wasm: set INK_TEST_WASM"
         );
     }
     // Emission, building and execution form one operation for these GPU
@@ -331,19 +331,6 @@ fn conformance_inner(
             }
         }
     }
-    let c = root.join("c");
-    if let Some(plan) = planned {
-        verified_language::runtime::emit_c_program_planned(plan, &c).unwrap();
-    } else if let Some(selected) = selected {
-        verified_language::runtime::emit_c_program_selected(selected, &c).unwrap();
-    } else {
-        verified_language::runtime::emit_c_program(&module, &c).unwrap();
-    }
-    fs::write(
-        c.join("src/main.rs"),
-        include_str!("../lowering-parity-runner.rs.txt"),
-    )
-    .unwrap();
     let rust = root.join("rust");
     fs::create_dir_all(rust.join("src")).unwrap();
     fs::write(
@@ -367,11 +354,11 @@ fn conformance_inner(
     .unwrap();
     fs::write(
         rust.join("src/main.rs"),
-        fs::read(c.join("src/main.rs")).unwrap(),
+        include_str!("../lowering-parity-runner.rs.txt"),
     )
     .unwrap();
     fs::write(rust.join("Cargo.toml"),"[package]\nname=\"compiled-state\"\nversion=\"0.1.0\"\nedition=\"2021\"\n[lib]\ncrate-type=[\"rlib\",\"cdylib\"]\n[dependencies]\nnum-bigint=\"=0.4.8\"\nserde_json={version=\"=1.0.151\",features=[\"float_roundtrip\"]}\nsha2=\"=0.10.9\"\n[workspace]\n").unwrap();
-    for dir in [&c, &rust] {
+    for dir in [&rust] {
         compile(dir);
         let out = Command::new(dir.join("target/debug/compiled-state"))
             .arg(root.join("script.json"))
@@ -394,32 +381,7 @@ fn conformance_inner(
             );
         }
     }
-    if p.functions.iter().any(|f| f.name == "wide_scan") {
-        fs::write(
-            root.join("host.c"),
-            include_str!("../lowering-parity-host.c"),
-        )
-        .unwrap();
-        let mut command = Command::new("clang");
-        command
-            .args(["-std=c11", "-Wall", "-Wextra", "-Werror"])
-            .arg(root.join("host.c"))
-            .arg("-I")
-            .arg(&c)
-            .arg(c.join("target/debug/libcompiled_state.a"))
-            .arg("-o")
-            .arg(root.join("host"));
-        if cfg!(target_os = "linux") {
-            command.args(["-lpthread", "-ldl", "-lm"]);
-        }
-        let out = command.output().unwrap();
-        assert!(
-            out.status.success(),
-            "{}",
-            String::from_utf8_lossy(&out.stderr)
-        );
-        assert!(Command::new(root.join("host")).status().unwrap().success());
-    }
+
     fs::write(
         root.join("program.mjs"),
         if let Some(plan) = planned {
@@ -456,8 +418,8 @@ fn conformance_inner(
         "{}",
         String::from_utf8_lossy(&out.stderr)
     );
-    if let Ok(zig) = std::env::var("INK_TEST_ZIG") {
-        for dir in [&c, &rust] {
+    if std::env::var_os("INK_TEST_WASM").is_some() || std::env::var_os("INK_TEST_WASM").is_some() {
+        for dir in [&rust] {
             let mut cmd = Command::new(env!("CARGO"));
             cmd.args([
                 "build",
@@ -470,24 +432,7 @@ fn conformance_inner(
             ])
             .arg(dir.join("Cargo.toml"))
             .arg("--target-dir").arg(dir.join("target"));
-            if dir == &c {
-                for (name, operation) in [("zig-cc", "cc"), ("zig-ar", "ar")] {
-                    let path = dir.join(name);
-                    fs::write(
-                        &path,
-                        format!(
-                            "#!/bin/sh\nexec '{}' {operation} \"$@\"\n",
-                            zig.replace('\'', "'\"'\"'")
-                        ),
-                    )
-                    .unwrap();
-                    use std::os::unix::fs::PermissionsExt;
-                    fs::set_permissions(&path, fs::Permissions::from_mode(0o755)).unwrap();
-                }
-                cmd.env("INK_CC", dir.join("zig-cc"))
-                    .env("INK_AR", dir.join("zig-ar"))
-                    .env("INK_CC_KIND", "zig");
-            }
+
             let out = cmd.output().unwrap();
             assert!(
                 out.status.success(),

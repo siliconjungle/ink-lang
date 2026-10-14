@@ -312,7 +312,7 @@ pub fn emit(checked: &CheckedRepresentation, target: &str, output: &Path) -> Lan
             &ink_lowering_rust::representation_program::lower(checked)?,
         ),
         "rust-memo" => write(output,&ink_lowering_rust::representation_program::lower_memo(checked)?),
-        "rust-wasm-memo" => project(output,&ink_lowering_rust::representation_program::lower_memo(checked)?,None,target),
+        "rust-wasm-memo" => project(output,&ink_lowering_rust::representation_program::lower_memo(checked)?,target),
         "rust-packed" => write(
             output,
             &ink_lowering_rust::representation_program::lower_packed(checked)?,
@@ -320,7 +320,6 @@ pub fn emit(checked: &CheckedRepresentation, target: &str, output: &Path) -> Lan
         "rust-wasm-packed" => project(
             output,
             &ink_lowering_rust::representation_program::lower_packed(checked)?,
-            None,
             target,
         ),
         "javascript" | "js" => write(
@@ -334,16 +333,17 @@ pub fn emit(checked: &CheckedRepresentation, target: &str, output: &Path) -> Lan
         "rust-wasm" => project(
             output,
             &ink_lowering_rust::representation_program::lower(checked)?,
-            None,
             target,
         ),
-        "c" | "wasm" | "wasm32" | "c-wasm" | "wgpu" | "gpu" => {
-            let emitted = match target {
-                "wasm" | "wasm32" | "c-wasm" => ink_lowering_wasm::lower_representation(checked)?,
-                "wgpu" | "gpu" => ink_lowering_gpu::lower_representation(checked)?,
-                _ => ink_lowering_c::representation_program::lower(checked)?,
-            };
-            project(output, &emitted.rust, Some(&emitted.c), target)
+        "wgpu" | "gpu" => project(
+            output,
+            &ink_lowering_gpu::lower_representation(checked)?,
+            target,
+        ),
+        "wasm" | "wasm32" => {
+            let source = ink_lowering_wasm::lower_representation(checked)?;
+            project(output, &source, target)
+
         }
         _ => Err(format!("unknown representation target {target}")),
     }
@@ -354,24 +354,15 @@ fn write(output: &Path, source: &str) -> LangResult<()> {
     }
     fs::write(output, source).map_err(|e| e.to_string())
 }
-pub(crate) fn project(output: &Path, source: &str, c: Option<&str>, target: &str) -> LangResult<()> {
+pub(crate) fn project(output: &Path, source: &str, target: &str) -> LangResult<()> {
     let mut source = source.to_owned();
     source.push_str(crate::runtime::REPRESENTATION_ABI_SOURCE);
     write(&output.join("src/lib.rs"), &source)?;
     write(&output.join("Cargo.toml"), "[package]\nname=\"ink-compiled-representation\"\nversion=\"0.1.0\"\nedition=\"2021\"\n[workspace]\n[lib]\ncrate-type=[\"rlib\",\"cdylib\"]\n[dependencies]\nserde_json={version=\"1\",features=[\"float_roundtrip\"]}\nsha2=\"0.10\"\nnum-bigint=\"0.4\"\n")?;
-    if let Some(c) = c {
-        write(&output.join("representation.c"), c)?;
-        write(
-            &output.join("build.rs"),
-            include_str!("representation-build.rs.txt"),
-        )?;
-    } else {
-        write(&output.join("build.rs"), "fn main(){if std::env::var(\"TARGET\").unwrap().starts_with(\"wasm32\"){println!(\"cargo:rustc-link-arg=-zstack-size=8388608\");}}\n")?;
-    }
+    write(&output.join("build.rs"), "fn main(){if std::env::var(\"TARGET\").unwrap().starts_with(\"wasm32\"){println!(\"cargo:rustc-link-arg=-zstack-size=8388608\");}}\n")?;
     write(
         &output.join("state-wasm.mjs"),
         include_str!("../runtime/hosts/state-wasm.mjs"),
     )?;
-    write(&output.join("state-abi.h"), ink_abi::STATE_C_HEADER)?;
-    write(&output.join("README.md"), &format!("Standalone {target} representation. Build with `cargo build --offline`. For Wasm add `--target wasm32-unknown-unknown` (the project declares an 8 MiB stack); set INK_CC and INK_AR to cross-compiler wrappers for C/Wasm. Exports the ordinary handle/buffer state ABI. C and GPU host projects use literal C functions and typed Rust storage; browser WebGPU uses literal JavaScript host code. Recursive representations execute on the host. No Ink runtime, proof package or checker dependency is linked. Caller arguments must have declared types, arity, shapes and canonical ranges. Generated calls do not type-check input; bad data is unsafe, may crash or produce wrong results, and raw native pointer APIs may corrupt memory. JSON parsing/representation conversion and explicit portable checkpoint integrity checks remain. Source and proof checks happen during compilation.\n"))
+    write(&output.join("README.md"), &format!("Standalone {target} representation. Build with `cargo build --offline`. For Wasm add `--target wasm32-unknown-unknown` (the project declares an 8 MiB stack); Exports the ordinary handle/buffer state ABI. Native GPU host projects use typed Rust storage and functions; browser WebGPU uses literal JavaScript host code. Recursive representations execute on the host. No Ink runtime, proof package or checker dependency is linked. Caller arguments must have declared types, arity, shapes and canonical ranges. Generated calls do not type-check input; bad data is unsafe, may crash or produce wrong results, and raw native pointer APIs may corrupt memory. JSON parsing/representation conversion and explicit portable checkpoint integrity checks remain. Source and proof checks happen during compilation.\n"))
 }

@@ -11,7 +11,7 @@ def main():
   return r.stdout
  compiler=a.compiler.resolve();source=a.source.resolve();plan=a.plan.resolve()
  # Explicit unsupported target selections must fail, never be silently dropped.
- for target in ['c','c-wasm','javascript','wgpu','webgpu']:
+ for target in ['javascript','wgpu','webgpu']:
   result=subprocess.run([compiler,'emit-plan',source,plan,'--target',target,'-o',d/('unsupported-'+target)],capture_output=True,text=True)
   assert result.returncode and 'require the Rust or Rust-Wasm capability'in result.stderr,result.stderr
  selected=d/'selected.rs';run(compiler,'emit-plan',source,plan,'--target','rust','-o',selected)
