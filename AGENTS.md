@@ -34,7 +34,11 @@ Planner search and model fitting belong in `ink-planner`. Structural prices,
 immutable measurements and fitted models live in knowledge. Runtime executes
 already eligible implementations, applies the common decision contract, enforces
 resource limits and falls back on device failure. Runtime does not run profitability
-probes. Missing comparable evidence retains the compiled CPU baseline.
+probes. Missing comparable evidence retains the compiled CPU baseline, with one
+exception at James's request: a plan made only of checked maintained group folds
+is selected without evidence (planner/ink_planner/static_dominance.py), because it
+adds constant work per cell write and turns keep reads from scans into constant
+time. Do not widen that exception without the same asymptotic argument.
 Correctness, applicability and profitability are separate gates.
 
 Legacy aggregate certificates, bounded cache/narrowing, typed storage policies,
@@ -142,8 +146,8 @@ The fixed native cell/fold controller and codecs remain trusted; this is not who
 compiler correctness. Restore rebuilds folds from validated rows and rollback
 restores before-images. Dense prefixes require exact fallback outside their range.
 Single-cell bounds and fresh-result ownership facts are structural core analyses,
-never algorithm authority. Current maintained/dense capabilities are JavaScript
-only; unsupported targets fail explicitly. State lifecycle measurements require
+never algorithm authority. Maintained folds run on JavaScript, Rust and Rust-Wasm;
+dense prefixes are JavaScript only; unsupported targets fail explicitly. State lifecycle measurements require
 independent source histories, exact snapshots, fresh processes and held-out traces.
 
 Measure generalisation, not entry count. Evaluate knowledge changes on the frozen

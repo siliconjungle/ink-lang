@@ -10,7 +10,53 @@ fn program()->verified_language::syntax::Program{
 fn set(items:Value)->Value{json!({"items":items})}
 #[test]
 fn sets_preserve_structural_identity_interfaces_transactions_and_restore_on_complete_targets(){
- let p=program();let mut runtime=Runtime::new(p.clone()).unwrap();let mut steps=vec![];let mut expected=vec![];
+ check_set_targets(program(),"checked-sets","checked-set-interfaces");
+}
+#[test]
+fn indexed_sets_preserve_interfaces_and_transactions_on_complete_targets(){
+ let root=Path::new(env!("CARGO_MANIFEST_DIR"));
+ let mut p=modules::load(root.join("tests/fixtures/indexed-sets/main.ink")).unwrap().program;
+ contracts::attach(&mut p,serde_json::from_str(include_str!("fixtures/indexed-sets/proofs.json")).unwrap()).unwrap();
+ CheckedModule::from_source(p.clone()).unwrap();
+ check_set_targets(p,"indexed-sets","indexed-set-interfaces");
+}
+#[test]
+fn immutable_set_handles_transport_guarantees_to_multiple_consumers(){
+ let root=Path::new(env!("CARGO_MANIFEST_DIR"));
+ let mut p=modules::load(root.join("tests/fixtures/indexed-sets/main.ink")).unwrap().program;
+ contracts::attach(&mut p,serde_json::from_str(include_str!("fixtures/indexed-sets/proofs.json")).unwrap()).unwrap();
+ let module=CheckedModule::from_source(p).unwrap();
+ let dir=root.join("build/checked-set-handles");fs::create_dir_all(&dir).unwrap();
+ let mut code=verified_language::javascript::lower(&module).unwrap().javascript;
+ code.push_str(r#"
+const guardCalls=new Map();for(const index of new Set([...__compiledEntries.values()].map(e=>e.precondition).filter(i=>i!==null))){const original=__implementations[index];__implementations[index]=(...values)=>{guardCalls.set(index,(guardCalls.get(index)||0)+1);return original(...values);};}
+export const countGuards=name=>guardCalls.get(__compiledEntries.get(name).precondition)||0;
+"#);
+ fs::write(dir.join("program.mjs"),code).unwrap();
+ fs::write(dir.join("check.mjs"),r#"
+import assert from 'node:assert/strict';import * as m from './program.mjs';
+const invoke=(name,args)=>m.callCompiled(name,args),plain=(name,args)=>m.compiledValues[name].result.materialize(invoke(name,args));
+const make=xs=>invoke('make',[m.compiledValues.make.params[0].capture(xs)]),a=make([3,1,3]),b=make([1,2,1]);
+const item=m.compiledValues.has.params[1].capture(3);
+for(let i=0;i<3;i++){
+ assert.equal(plain('has',[a,item]),true);assert.deepEqual(plain('elements',[a]),[3,1]);assert.deepEqual(plain('size',[a]),{Int:'2'});assert.equal(plain('distinct',[a]),true);
+ assert.deepEqual(plain('union',[a,b]),{items:[3,1,2]});assert.deepEqual(plain('intersection',[a,b]),{items:[1]});assert.deepEqual(plain('difference',[a,b]),{items:[3]});
+}
+for(const name of ['has','elements','size','distinct','union','intersection','difference'])assert.equal(m.countGuards(name),0,name);
+const codec=m.compiledValues.has.params[0],captured=codec.capture({items:[7,8]});assert.equal(plain('has',[captured,item]),false);assert.equal(m.countGuards('has'),1);
+const exposed=codec.materialize(captured);exposed.items.push(7);assert.deepEqual(plain('elements',[captured]),[7,8]);assert.equal(m.countGuards('elements'),0);
+const invalid=codec.capture({items:[1,1]});for(let i=0;i<2;i++)assert.throws(()=>invoke('has',[invalid,item]),/precondition/);assert.equal(m.countGuards('has'),3);
+const decoded=codec.decode(codec.encode(a));assert.equal(plain('has',[decoded,item]),true);assert.equal(m.countGuards('has'),4);assert.equal(plain('distinct',[decoded]),true);assert.equal(m.countGuards('distinct'),0);
+const bits=[0,2147483648,2143363909,2143363909,2139169605].map(F32Bits=>({F32Bits})),floats=invoke('floats',[m.compiledValues.floats.params[0].capture(bits)]);
+assert.deepEqual(plain('float_bits',[floats]),[0,2147483648,2143363909,2139169605]);assert.equal(m.countGuards('float_bits'),0);
+assert.throws(()=>invoke('has',[{},item]),/owner mismatch/);
+console.log(JSON.stringify({status:'checked',consumers:8}));
+"#).unwrap();
+ let output=std::process::Command::new("node").arg(dir.join("check.mjs")).output().unwrap();
+ assert!(output.status.success(),"{}",String::from_utf8_lossy(&output.stderr));println!("{}",String::from_utf8_lossy(&output.stdout));
+}
+fn check_set_targets(p:verified_language::syntax::Program,fixture:&str,name:&str){
+ let mut runtime=Runtime::new(p.clone()).unwrap();let mut steps=vec![];let mut expected=vec![];
  let a=set(json!([3,1]));let b=set(json!([1,2]));let bad=set(json!([3,3]));
  let item=json!({"name":"é😀","weights":[0,u32::MAX]});
  let plus=json!({"F32Bits":0});let minus=json!({"F32Bits":0x80000000u32});let nan=json!({"F32Bits":0x7fc12345u32});
@@ -62,8 +108,8 @@ fn sets_preserve_structural_identity_interfaces_transactions_and_restore_on_comp
  logical.tables[0]=vec![(json!(0),bad)];
  let forged=verified_language::snapshot_wire::encode(&layout,&logical,Default::default()).unwrap();
  assert!(Runtime::restore_portable(p.clone(),&forged).err().unwrap().contains("invariant"));steps.push(json!({"reject_restore":forged}));
- let source=fs::read_to_string(Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/checked-sets/main.ink")).unwrap();
- parity::conformance("checked-set-interfaces",p,&source,steps,expected);
+ let source=fs::read_to_string(Path::new(env!("CARGO_MANIFEST_DIR")).join(format!("tests/fixtures/{fixture}/main.ink"))).unwrap();
+ parity::conformance(name,p,&source,steps,expected);
 }
 #[test]
 fn set_opacity_stale_source_rehashed_laws_and_unproved_preservation_reject(){
