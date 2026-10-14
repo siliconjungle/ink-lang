@@ -65,6 +65,22 @@ the bootstrap replication units. Metadata binds source hashes, generated code,
 executables, dependency locks, exact upstream revisions and toolchains. Controls
 use Clang C++ and Ink uses Rust/LLVM; compiler versions are reported separately.
 
+To compare ordinary substitution with checked sharing of repeated scalar helper
+arguments, build two named variants before starting any timing:
+
+```sh
+python3 bench/ecs-lifecycle/run.py --upstreams path/to/upstreams --name substitution --build-only
+python3 bench/ecs-lifecycle/run.py --upstreams path/to/upstreams --name scalar-sharing --share-arguments --build-only
+python3 bench/ecs-lifecycle/compare.py substitution scalar-sharing --output build/ecs-lifecycle/sharing.json
+```
+
+The comparison requires matching source, compiler, driver, upstream pins, and
+flags. Fresh-process order rotates between variants; full samples and artifact
+hashes accompany the report. Sharing is an explicit candidate, not a claim that
+it helps every workload or size. A sharing proof that exceeds checking limits
+falls back to a separately checked ordinary unfolding proposal at that site;
+failure of both proposals retains the call. No proof or core limit is relaxed.
+
 ## Admission and remaining work
 
 The sparse-set bijection and component membership are tested here; they are not
