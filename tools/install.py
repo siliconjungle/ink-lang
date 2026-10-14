@@ -62,7 +62,7 @@ def main():
         planner_scripts = [name for name in git(root / 'planner', 'ls-files', '-z').decode().split('\0')
                            if name and len(Path(name).parts) == 1 and Path(name).suffix == '.py']
         committed(root, ['LICENSE'], resources)
-        for package in ['abi', 'native-support', 'runtime', 'lowerings/c', 'lowerings/rust',
+        for package in ['abi', 'native-support', 'runtime', 'lowerings/rust',
                         'lowerings/js', 'lowerings/wasm', 'lowerings/gpu']:
             committed(root / package, ['LICENSE'], resources / 'licenses' / package)
         committed(root / 'planner', ['LICENSE', 'ink_planner', *planner_scripts], resources / 'planner')

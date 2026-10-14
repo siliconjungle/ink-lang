@@ -440,13 +440,11 @@ fn check_module(name: &str, source: &str, module:CheckedModule, request: Option<
     }
     let encoded = serde_json::to_string(&oracle).unwrap();
     fs::write(dir.join("oracle.json"), &encoded).unwrap();
-    let c = ink_lowering_c::representation_program::lower(&checked).unwrap();
-    let wasm = ink_lowering_wasm::lower_representation(&checked).unwrap();
-    let gpu = ink_lowering_gpu::lower_representation(&checked).unwrap();
-    assert_eq!((&c.c, &c.rust), (&wasm.c, &wasm.rust));
-    assert_eq!((&c.c, &c.rust), (&gpu.c, &gpu.rust));
+    let rust=verified_language::representation_program::lower(&checked).unwrap();
+    assert_eq!(rust,ink_lowering_wasm::lower_representation(&checked).unwrap());
+    assert_eq!(rust,ink_lowering_gpu::lower_representation(&checked).unwrap());
     let js = verified_language::javascript::representation_program::lower(&checked).unwrap();
-    for text in [&c.c, &c.rust, &js] {
+    for text in [&rust, &js] {
         assert!(
             unused.iter().all(|id| !text.contains(id)),
             "unused mathematics was emitted"
@@ -457,8 +455,7 @@ fn check_module(name: &str, source: &str, module:CheckedModule, request: Option<
         ink_lowering_gpu::lower_representation_web(&checked).unwrap()
     );
     for text in [
-        &c.c,
-        &c.rust,
+        &rust,
         &js,
         &verified_language::representation_program::lower(&checked).unwrap(),
     ] {
@@ -476,7 +473,7 @@ fn check_module(name: &str, source: &str, module:CheckedModule, request: Option<
         }
     }
     let target = root().join("target");
-    let mut native_backends = vec!["rust-wasm", "c", "wgpu"];
+    let mut native_backends = vec!["rust-wasm", "wgpu"];
     if std::env::var_os("INK_TEST_PACKED").is_some() { native_backends.push("rust-wasm-packed"); }
     if std::env::var_os("INK_TEST_MEMO").is_some() { native_backends.push("rust-wasm-memo"); }
     for backend in native_backends {
@@ -543,34 +540,17 @@ fn check_module(name: &str, source: &str, module:CheckedModule, request: Option<
     }
     if std::env::var_os("INK_PARITY_REQUIRE_ALL").is_some() {
         assert!(
-            std::env::var_os("INK_TEST_ZIG").is_some(),
+            std::env::var_os("INK_TEST_WASM").is_some(),
             "required standalone parity forbids skipping Wasm"
         );
     }
-    if let Ok(zig) = std::env::var("INK_TEST_ZIG") {
+    if std::env::var_os("INK_TEST_WASM").is_some() || std::env::var_os("INK_TEST_WASM").is_some() {
         let mut wasm_backends = vec!["rust-wasm", "wasm32"];
         if std::env::var_os("INK_TEST_PACKED").is_some() { wasm_backends.push("rust-wasm-packed"); }
         if std::env::var_os("INK_TEST_MEMO").is_some() { wasm_backends.push("rust-wasm-memo"); }
         for backend in wasm_backends {
             let project = dir.join(backend);
             verified_language::representations::emit(&checked, backend, &project).unwrap();
-            let cc = project.join("zig-cc");
-            let ar = project.join("zig-ar");
-            for (path, op) in [(&cc, "cc -target wasm32-freestanding"), (&ar, "ar")] {
-                fs::write(
-                    path,
-                    format!(
-                        "#!/bin/sh\nexec '{}' {op} \"$@\"\n",
-                        zig.replace('\'', "'\"'\"'")
-                    ),
-                )
-                .unwrap();
-                #[cfg(unix)]
-                {
-                    use std::os::unix::fs::PermissionsExt;
-                    fs::set_permissions(path, fs::Permissions::from_mode(0o755)).unwrap();
-                }
-            }
             run(
                 Command::new(env!("CARGO"))
                     .args([
@@ -585,9 +565,7 @@ fn check_module(name: &str, source: &str, module:CheckedModule, request: Option<
                     .arg(project.join("Cargo.toml"))
                     .arg("--target-dir")
                     .arg(&target)
-                    .env("INK_CC", &cc)
-                    .env("INK_AR", &ar)
-                    .env("CARGO_INCREMENTAL", "0"),
+                                                            .env("CARGO_INCREMENTAL", "0"),
                 &project.join("wasm-build.log"),
             );
             fs::copy(
@@ -611,7 +589,7 @@ fn check_module(name: &str, source: &str, module:CheckedModule, request: Option<
     }
     if name == "indexed-aggregate" {
         for backend in ["javascript", "rust-wasm", "wasm32"] {
-            if backend != "javascript" && std::env::var_os("INK_TEST_ZIG").is_none() {
+            if backend != "javascript" && std::env::var_os("INK_TEST_WASM").is_none() {
                 continue;
             }
             run(
@@ -623,7 +601,7 @@ fn check_module(name: &str, source: &str, module:CheckedModule, request: Option<
             );
         }
     }
-    fs::write(dir.join("checks.json"),serde_json::to_vec_pretty(&json!({"requests":oracle.as_array().unwrap().len(),"native":if std::env::var_os("INK_TEST_PACKED").is_some(){json!(["rust","c","wgpu-host","rust-packed"])}else{json!(["rust","c","wgpu-host"])},"javascript":["javascript","webgpu-host"],"wasm":if std::env::var_os("INK_TEST_ZIG").is_some(){if std::env::var_os("INK_TEST_PACKED").is_some(){json!(["rust-wasm","c-wasm","rust-wasm-packed"])}else{json!(["rust-wasm","c-wasm"])}}else{json!("not enabled")},"checks":"exact replies/errors, snapshots and outboxes; restore after every request; acknowledgement; exhausted counter; malformed snapshots; standalone dependency audit"})).unwrap()).unwrap();
+    fs::write(dir.join("checks.json"),serde_json::to_vec_pretty(&json!({"requests":oracle.as_array().unwrap().len(),"native":if std::env::var_os("INK_TEST_PACKED").is_some(){json!(["rust","wgpu-host","rust-packed"])}else{json!(["rust","wgpu-host"])},"javascript":["javascript","webgpu-host"],"wasm":if std::env::var_os("INK_TEST_WASM").is_some(){if std::env::var_os("INK_TEST_PACKED").is_some(){json!(["rust-wasm","rust-wasm-packed"])}else{json!(["rust-wasm"])}}else{json!("not enabled")},"checks":"exact replies/errors, snapshots and outboxes; restore after every request; acknowledgement; exhausted counter; malformed snapshots; standalone dependency audit"})).unwrap()).unwrap();
 }
 #[test]
 fn every_representation_backend_has_the_same_execution_contract() {

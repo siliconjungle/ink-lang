@@ -152,7 +152,7 @@ fn database_only_helpers_compose_and_preserve_values_transactions_and_snapshots(
     );
     let actual: Vec<Value> = serde_json::from_slice(&run.stdout).unwrap();
     assert_eq!(actual, expected);
-    if std::env::var_os("INK_TEST_ZIG").is_some() {
+    if std::env::var_os("INK_TEST_WASM").is_some() {
         let built = Command::new(env!("CARGO"))
             .args([
                 "build",
@@ -184,7 +184,7 @@ fn database_only_helpers_compose_and_preserve_values_transactions_and_snapshots(
         )
         .unwrap();
         let wasm_check = include_str!("lowering-parity-wasm.mjs")
-            .replace("['c','rust']", "['reserved']")
+            .replace("['rust']", "['reserved']")
             .replace(
                 "`${backend}/target/wasm32-unknown-unknown/debug/compiled_state.wasm`",
                 "'target/wasm32-unknown-unknown/debug/compiled_state.wasm'",

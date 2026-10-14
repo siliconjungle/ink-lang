@@ -14,28 +14,20 @@ fn compiled_durable_state_recovers_before_reply_and_keeps_outbox() {
     .unwrap();
     fs::write(dir.join("state-wasm.mjs"), ink_runtime::STATE_WASM_HOST).unwrap();
     ink_runtime::emit_durable_hosts(dir).unwrap();
-    for backend in ["javascript", "c", "rust"] {
+    for backend in ["javascript", "rust"] {
         if backend != "javascript" {
-            let Some(zig) = std::env::var_os("INK_TEST_ZIG") else {
+            let Some(_wasm) = std::env::var_os("INK_TEST_WASM") else {
                 continue;
             };
             let project = dir.join(backend);
-            if backend == "c" {
-                ink_runtime::emit_c_program(&module, &project).unwrap();
-            } else {
+
                 ink_runtime::emit_rust_program(
                     &ink_lowering_rust::state_native::emit(module.program()).unwrap(),
                     &project,
                 )
                 .unwrap();
-            }
-            ink_runtime::toolchain::complete_program(
-                &project,
-                true,
-                &project.join("program.wasm"),
-                "cargo",
-                Some(&zig.to_string_lossy()),
-            )
+            
+            ink_runtime::toolchain::complete_program(&project,true,&project.join("program.wasm"),"cargo")
             .unwrap();
         }
         let status = Command::new("node")
@@ -60,24 +52,20 @@ fn generated_native_durable_hosts_recover_and_retry_after_process_death() {
             .unwrap();
     let root = Path::new("build/durable-native");
     fs::create_dir_all(root).unwrap();
-    for backend in ["c", "rust"] {
+    for backend in ["rust"] {
         let dir = root.join(backend);
-        if backend == "c" {
-            ink_runtime::emit_c_program(&module, &dir).unwrap();
-        } else {
+
             ink_runtime::emit_rust_program(
                 &ink_lowering_rust::state_native::emit(module.program()).unwrap(),
                 &dir,
             )
             .unwrap();
-        }
+        
         let binary = dir.join("program");
-        ink_runtime::toolchain::complete_program(&dir, false, &binary, "cargo", None).unwrap();
+        ink_runtime::toolchain::complete_program(&dir,false,&binary,"cargo").unwrap();
         let file = dir.join("state.inkd");
         let _ = fs::remove_file(&file);
-        if backend == "rust" {
-            fs::copy(root.join("c-initial.inkd"), &file).unwrap();
-        }
+
         let id = "00000000000000000000000000000001";
         let run = |steps: serde_json::Value| {
             let script = dir.join("script.json");
@@ -98,9 +86,7 @@ fn generated_native_durable_hosts_recover_and_retry_after_process_death() {
         run(
             serde_json::json!([{"id":"create","call":"create","args":[id,"雪\u{0}😀",10]},{"id":"update","call":"restock","args":[id,2]}]),
         );
-        if backend == "c" {
-            fs::copy(&file, root.join("c-initial.inkd")).unwrap();
-        }
+
         // Compile a real process that exits after durable publish but before reply.
         fs::create_dir_all(dir.join("src/bin")).unwrap();
         fs::write(
@@ -162,12 +148,7 @@ fn generated_native_durable_hosts_recover_and_retry_after_process_death() {
             "{}",
             String::from_utf8_lossy(&out.stderr)
         );
-        if backend == "rust" {
-            assert_eq!(
-                fs::read(snapshot).unwrap(),
-                fs::read(root.join("c/portable.snapshot")).unwrap()
-            );
-        }
+
         let mut bytes = fs::read(&file).unwrap();
         bytes[12] ^= 1;
         fs::write(&file, bytes).unwrap();

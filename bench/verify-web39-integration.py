@@ -19,7 +19,7 @@ def executable(data):
 rows=[];commands=[]
 for td in sorted((G/'targets').iterdir()):
  out=O/'targets'/td.name
- argv=[str(C),'build',str(td/'candidate.core.json'),'--core','--target','webgpu','--zig',str(B.parent/'toolchain/zig-aarch64-macos-0.15.2/zig'),'-o',str(out)]
+ argv=[str(C), 'build', str(td / 'candidate.core.json'), '--core', '--target', 'webgpu', '-o', str(out)]
  p=subprocess.run(argv,cwd=B,capture_output=True,text=True);commands.append(dict(argv=argv,exit_code=p.returncode,stdout=p.stdout,stderr=p.stderr))
  if p.returncode:raise RuntimeError(p.stderr)
  previous=td/'candidate';files={}
@@ -42,4 +42,4 @@ for td in sorted((G/'targets').iterdir()):
  rows.append(dict(task=td.name,files=files,wasm_noncustom_sections_identical=True,manifest_identical_except_shader_hashes_and_feedback_limitation=True,shader_identical_except_four_unreferenced_buffer_type_declarations=True,scope='CPU computations byte-identical; shader statements identical after removing four unreferenced buffer type declarations; distinct host/device source integration; no new timer samples.'))
  print(td.name,flush=True)
 (O/'commands.json').write_text(json.dumps(commands,indent=2)+'\n')
-(O/'byte-parity.json').write_text(json.dumps(dict(status='passed',compiler_sha256=sha(C),measured_compiler_sha256=json.loads((R/'candidate-final-freeze.json').read_text())['sha256'],tasks=rows,source_heads={p:subprocess.check_output(['git','rev-parse','HEAD'],cwd=B/p,text=True).strip()for p in ['.','lowerings/c','lowerings/js','lowerings/gpu','lowerings/rust','lowerings/wasm','runtime','planner']}),indent=2)+'\n')
+(O/'byte-parity.json').write_text(json.dumps(dict(status='passed',compiler_sha256=sha(C),measured_compiler_sha256=json.loads((R/'candidate-final-freeze.json').read_text())['sha256'],tasks=rows,source_heads={p:subprocess.check_output(['git','rev-parse','HEAD'],cwd=B/p,text=True).strip()for p in ['.','lowerings/js','lowerings/gpu','lowerings/rust','lowerings/wasm','runtime','planner']}),indent=2)+'\n')

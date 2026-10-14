@@ -104,7 +104,7 @@ fn loop_count_and_increment_are_instantiated_generically() {
         let b = eval::call_selected(&selected, "bump", input, &mut 100).unwrap();
         assert_eq!(a, b);
     }
-    let c = verified_language::native::lower_selected(&selected).unwrap();
+    let c = verified_language::state_native::emit_selected(&selected).unwrap();
     assert!(!c.contains("<65536u"));
 }
 #[test]
@@ -430,7 +430,7 @@ fn the_same_proof_calculus_checks_alternative_routed_compositions() {
         stages: vec![Stage {
             id: "fast".into(),
             function: "faster".into(),
-            backend: "c".into(),
+            backend: "rust".into(),
             domain: "cpu".into(),
             arguments: vec![ValueRef::Input(0)],
         }],

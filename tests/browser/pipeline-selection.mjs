@@ -9,7 +9,7 @@ await copyFile(new URL('../../planner/browser/pipeline-selection.mjs',import.met
 await copyFile(new URL('../../runtime/hosts/pipeline-contract.mjs',import.meta.url),join(dir,'pipeline-contract.mjs'));
 const {createPipelineSelector,pipelineScope,segmentContext,segmentScope,fitPlacementProfile}=await import(pathToFileURL(join(dir,'pipeline-selection.mjs')));
 await rm(dir,{recursive:true,force:true});
-const type={kind:'list',element:{kind:'u32'}},manifest={core_sha256:'program',cpu_c_sha256:'wasm',javascript_sha256:'js',shaders:{'map.wgsl':'shader'}};
+const type={kind:'list',element:{kind:'u32'}},manifest={core_sha256:'program',cpu_rust_sha256:'wasm',javascript_sha256:'js',shaders:{'map.wgsl':'shader'}};
 function plan(independent=false) {
  const f={name:'map',result:type,shader:'map.wgsl',lengths:[0]};
  return {constants:[{type,count:100,finite:true}],steps:[{id:'a',f,args:[{kind:'constant',index:0,type,count:100}],count:100},{id:'b',f,args:[{kind:independent?'constant':'step',index:0,type,count:100}],count:100}],outputs:['a','b'],ids:new Map([['a',0],['b',1]]),feedback:new Map(),iterations:1};

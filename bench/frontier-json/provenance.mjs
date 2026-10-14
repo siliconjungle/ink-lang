@@ -59,7 +59,8 @@ export function provenance(root, {native = true, artifacts = null, repositories:
   const hashes = Object.fromEntries(files.filter(file => native || file !== 'build/frontier-json/target/release/ink-frontier-json-benchmark').map(file => [file,
     createHash('sha256').update(fs.readFileSync(path.join(root, file))).digest('hex')]));
   const repositories = repositoryPaths ?? ['.', 'abi', 'core', 'native-support', 'runtime', 'knowledge',
-    'planner', 'lowerings/c', 'lowerings/rust', 'lowerings/js', 'lowerings/wasm',
+    'planner', 'lowerings/rust', 'lowerings/js', 'lowerings/wasm',
+
     'lowerings/gpu', 'build/frontier', 'build/frontier-state-main',
     'build/frontier-engine', 'build/frontier-codec'];
   const revisions = Object.fromEntries(repositories.map(repo => [repo,

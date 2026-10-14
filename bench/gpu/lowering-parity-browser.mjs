@@ -52,8 +52,8 @@ try {
           parts.set(info.bundle,await adapter.loadInk(url));
         }
         const cpu=await parts.get(info.bundle).call(f.pure,args,{backend:'cpu'});
-        if(exact(cpu.value)!==exact(f.expected))throw Error(`${f.pure}/packed-c-wasm: value mismatch`);
-        replies.push({function:f.pure,requested:'packed-c-wasm',backend:cpu.backend});
+        if(exact(cpu.value)!==exact(f.expected))throw Error(`${f.pure}/packed-rust-packed-wasm: value mismatch`);
+        replies.push({function:f.pure,requested:'packed-rust-packed-wasm',backend:cpu.backend});
       }
     }
     let requiredErrors=0;

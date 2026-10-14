@@ -24,7 +24,7 @@ run(['python3','planner/research/rewrite_search.py','examples/kernels.lang',
      '--rules','knowledge/research/bitvector/rewrite-index.json','--compiler',lang,
      '--output-dir',replacement,'--fuse-mapped-sum'])
 for mode in ['plain','knowledge']:
-    args=[lang,'build','examples/kernels.lang','--target','wasm32','--zig',zig,'-o',build/f'{mode}.wasm']
+    args=[lang, 'build', 'examples/kernels.lang', '--target', 'wasm32', '-o', build / f'{mode}.wasm']
     if mode=='knowledge':args+=['--replacement',replacement/'replacement.json']
     run(args)
 run(['node','bench/wasm.mjs',build/'plain.wasm',build/'knowledge.wasm',out/'validation.json'])
