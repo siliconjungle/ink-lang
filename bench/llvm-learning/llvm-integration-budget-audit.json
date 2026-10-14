@@ -1,0 +1,40 @@
+{
+  "schema": 1,
+  "finding": "F038",
+  "trigger": {
+    "ci_run": 38597061395,
+    "job": 115966395419,
+    "error": "LLVM integration proof authoring exceeded its5-second total budget while constructing RUP hints"
+  },
+  "change": "Use a finite60-second acquisition budget in the correctness integration test, preserving all LLVM examples, false-overflow counterexample and U32/U64 fact replay. Production defaults and kernel budgets unchanged.",
+  "validation": {
+    "integration_and_deadline_tests": 6,
+    "mandatory_hardening": "passed",
+    "deadline_enforcement": "Existing expired hint-generation/addition and bounded certificate tests retained and passed."
+  },
+  "scope": "CI harness portability, not a compiler optimization or performance result.",
+  "sources": [
+    {
+      "path": "work/ink-development/planner/tests/test_llvm_learning.py",
+      "bytes": 5838,
+      "sha256": "9b32e975fdb15edc33a7a6e8a9c615b89024601a1958880091b8c362493aa724"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "work/llvm-learning-smoke/ci-38597061395-cpu-wasm.log",
+      "bytes": 184144,
+      "sha256": "d726e414f269dda81b0743d94037caeff34a9320c9f7052abd9ddb74c04a0d31"
+    },
+    {
+      "path": "work/llvm-learning-smoke/llvm-integration-deadline-tests.log",
+      "bytes": 104,
+      "sha256": "8c98d0190d120bc209f8a072b689b2b654d1abaa621257b1f0f20a56fbca6dd0"
+    },
+    {
+      "path": "work/llvm-learning-smoke/llvm-library-hardening.log",
+      "bytes": 488,
+      "sha256": "4d40c1710b7936b3637e4e35b2ab3f69a7d50b7594f36441a7392405836450b4"
+    }
+  ]
+}
