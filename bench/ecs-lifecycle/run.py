@@ -3,15 +3,15 @@
 import argparse,hashlib,json,os,pathlib,re,statistics,subprocess,sys,time
 ROOT=pathlib.Path(__file__).resolve().parents[2];HERE=pathlib.Path(__file__).resolve().parent
 sys.path.insert(0,str(ROOT/'bench'));import methodology
-p=argparse.ArgumentParser(description=__doc__);p.add_argument('--compiler',type=pathlib.Path,default=ROOT/'target/debug/ink');p.add_argument('--upstreams',type=pathlib.Path,required=True);p.add_argument('--build-only',action='store_true');p.add_argument('--measure-only',action='store_true');p.add_argument('--rounds',type=int,default=8);a=p.parse_args()
-build=ROOT/'build/ecs-lifecycle';project=build/'ink-planned';up=a.upstreams.resolve();build.mkdir(parents=True,exist_ok=True)
+p=argparse.ArgumentParser(description=__doc__);p.add_argument('--compiler',type=pathlib.Path,default=ROOT/'target/debug/ink');p.add_argument('--upstreams',type=pathlib.Path,required=True);p.add_argument('--build-only',action='store_true');p.add_argument('--measure-only',action='store_true');p.add_argument('--rounds',type=int,default=8);p.add_argument('--name',help='separate named build for a controlled comparison');p.add_argument('--share-arguments',action='store_true',help='propose checked sharing of repeated scalar helper arguments');a=p.parse_args()
+build=ROOT/'build/ecs-lifecycle';build=build/a.name if a.name else build;project=build/'ink-planned';up=a.upstreams.resolve();build.mkdir(parents=True,exist_ok=True)
 def call(args,**kw):return subprocess.run(list(map(str,args)),check=True,**kw)
 def digest(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 def revision(p):return subprocess.check_output(['git','-C',str(p),'rev-parse','HEAD'],text=True).strip()
-source_paths=[HERE/'main.ink',HERE/'adapter.rs',HERE/'driver.cpp',HERE/'run.py',ROOT/'knowledge/libraries/sparse_ecs.ink',ROOT/'knowledge/libraries/sparse_ecs_indexed.ink',ROOT/'bench/cross-domain/prepare.py']
+source_paths=[HERE/'main.ink',HERE/'adapter.rs',HERE/'driver.cpp',HERE/'run.py',ROOT/'knowledge/libraries/sparse_ecs.ink',ROOT/'knowledge/libraries/sparse_ecs_indexed.ink',ROOT/'knowledge/producers/inline_laws.py',ROOT/'bench/cross-domain/prepare.py']
 hashes={str(p.relative_to(ROOT)):digest(p)for p in source_paths};meta_path=build/'build.json';suffix=methodology.shared_suffix();lib=project/'target/release'/('libcompiled_state.'+suffix);driver=build/'driver'
 if not a.measure_only:
- call(['python3',ROOT/'bench/cross-domain/prepare.py','--compiler',a.compiler,'--source',HERE/'main.ink','--scalar-calls','--output',build/'plan'])
+ call(['python3',ROOT/'bench/cross-domain/prepare.py','--compiler',a.compiler,'--source',HERE/'main.ink','--scalar-calls','--output',build/'plan',*(['--share-arguments']if a.share_arguments else [])])
  call([a.compiler,'emit-plan',HERE/'main.ink',build/'plan/plan.json','--target','rust-wasm','-o',project])
  src=project/'src/lib.rs';text=src.read_text();command=re.search(r'pub fn function_l_run\(&self,\w+:u32,\w+:Vec<([^>]+)>',text)[1];snapshot=re.search(r'pub fn function_l_run\([^\n]+?\)->(\w+)',text)[1];src.write_text(text+'\ntype Snapshot='+snapshot+';\ntype Command='+command+';\n'+(HERE/'adapter.rs').read_text())
  cargo=project/'Cargo.toml';cargo.write_text(cargo.read_text().replace('["rlib","cdylib","staticlib"]','["cdylib"]')+'\n[profile.release]\nlto=false\n')
@@ -20,9 +20,10 @@ if not a.measure_only:
  call(['clang',*flags,'-DNDEBUG','-I'+str(include),'-c',include/'flecs.c','-o',build/'flecs.o'])
  call(['clang++',*flags,'-std=c++20','-I'+str(up/'entt/src'),'-I'+str(include),HERE/'driver.cpp',build/'flecs.o','-o',driver])
  meta=dict(schema=1,method=__doc__,environment=methodology.environment(),compiler_sha256=digest(a.compiler),source_hashes=hashes,generated_sha256=digest(src),binary_sha256=digest(lib),driver_sha256=digest(driver),plan_sha256=digest(build/'plan/plan.json'),dependency_lock=(project/'Cargo.lock').read_text(),upstreams={name:dict(revision=revision(up/name),dirty=bool(subprocess.check_output(['git','-C',str(up/name),'status','--porcelain'],text=True).strip()))for name in ['entt','flecs']},flags=dict(rust='release, target-cpu=native, no LTO',cpp='O3, native CPU, c++20, assertions enabled',flecs='O3, native CPU, NDEBUG'))
+ meta['share_arguments']=a.share_arguments
  meta_path.write_text(json.dumps(meta,indent=2)+'\n')
 else:
- meta=json.loads(meta_path.read_text());assert meta['source_hashes']==hashes;assert meta['binary_sha256']==digest(lib);assert meta['driver_sha256']==digest(driver)
+ meta=json.loads(meta_path.read_text());assert meta['source_hashes']==hashes;assert meta['binary_sha256']==digest(lib);assert meta['driver_sha256']==digest(driver);assert meta.get('share_arguments',False)==a.share_arguments
 if a.build_only:sys.exit(0)
 processes=[]
 for i in range(a.rounds):
