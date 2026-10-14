@@ -40,6 +40,11 @@ pub struct Evidence {
     pub snapshot_sha256: String,
     pub closure: Vec<String>,
     pub applied_laws: Vec<String>,
+    /// Domain restrictions the equality was checked under, such as
+    /// `ink-sorted-tables-v1`: then it holds on states satisfying that
+    /// checked invariant, not on every logical state.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub assumptions: Vec<String>,
 }
 #[derive(Clone, Debug)]
 pub struct CheckedSelection {
@@ -158,6 +163,7 @@ pub fn check(module: &CheckedModule, package: &Package) -> LangResult<CheckedSel
         references(&serde_json::to_value(&refinement.evidence.state_proofs).map_err(|e|e.to_string())?,&mut applied_laws);
         return Ok(CheckedSelection{input:module.clone(),module:selected.clone(),package:package.clone(),evidence:Evidence{
             semantics:SEMANTICS.into(),input_core_sha256:module.identity()?,selected_core_sha256:selected.identity()?,snapshot_sha256:crate::registry::identity(&package.knowledge.snapshot)?,closure,applied_laws:applied_laws.into_iter().collect(),
+            assumptions:vec![],
         }});
     }
     if let Some(replacement) = &package.action_replacement {
@@ -181,6 +187,11 @@ pub fn check(module: &CheckedModule, package: &Package) -> LangResult<CheckedSel
                     replacement,
                     &package.knowledge,
                 )?,
+                assumptions: replacement
+                    .sorted_tables
+                    .iter()
+                    .map(|_| crate::action_model::SORTED_SEMANTICS.to_string())
+                    .collect(),
             },
         });
     }
@@ -207,6 +218,7 @@ fn check_with_catalogue(
                 snapshot_sha256: crate::registry::identity(&package.knowledge.snapshot)?,
                 closure: laws.closure(),
                 applied_laws: vec![],
+                assumptions: vec![],
             },
         });
     }
@@ -371,6 +383,7 @@ fn check_with_catalogue(
         snapshot_sha256: crate::registry::identity(&package.knowledge.snapshot)?,
         closure: laws.closure(),
         applied_laws: used,
+        assumptions: vec![],
     };
     Ok(CheckedSelection {
         input: module.clone(),
