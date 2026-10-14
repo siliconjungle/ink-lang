@@ -16,6 +16,117 @@ fn pure(src: &str, name: &str, args: serde_json::Value) -> serde_json::Value {
 }
 
 #[test]
+fn reference_binding_sequences_use_bounded_stack_and_preserve_shadowing() {
+    let mut source=String::from("module straight;");
+    for index in 0..9 {
+        source.push_str(&format!("fn f{index}(x:u32)->u32{{"));
+        for _ in 0..12 {source.push_str("let x=x+1;");}
+        if index==0 {source.push_str("return x;}");}
+        else {source.push_str(&format!("return f{}(x);}}",index-1));}
+    }
+    source.push_str("fn main(x:u32)->u32{return f8(x);}");
+    assert_eq!(pure(&source,"main",json!([0])),json!(108));
+    assert_eq!(pure(&source,"main",json!([4294967295u32])),json!(107));
+    let p=parse(&source).unwrap();
+    let error=eval::call(&p,"main",vec![eval::Value::U32(0)],&mut 10).unwrap_err();
+    assert!(error.contains("budget"),"{error}");
+}
+
+#[test]
+fn record_updates_preserve_generic_fields_hygiene_and_affine_moves() {
+    let src = r#"module updates;
+      record Pair<T>{left:T,right:T,}
+      record Owner{data:Buffer<u32>,tag:u32,}
+      fn updated<T>(p:Pair<T>,x:T)->Pair<T>{return Pair<T>{..p,right:x};}
+      fn main(p:Pair<u32>,x:u32)->Pair<u32>{return updated<u32>(p,x);}
+      fn computed()->Pair<u32>{return Pair<u32>{..Pair<u32>{left:7,right:9},right:3};}
+      fn hygiene(__ink_surface_0_base:u32)->Pair<u32>{
+        let p=Pair<u32>{left:__ink_surface_0_base,right:8};
+        return Pair<u32>{..p,right:p.left+1};
+      }
+      fn owned()->List<u32>{
+        let owner=Owner{data:buffer([1,2]),tag:7};
+        let data=owner.data.push(owner.tag);
+        let changed=Owner{..owner,data:data,tag:9};
+        return changed.data.push(changed.tag).freeze();
+      }
+      fn combined<T>(xs:List<T>,zero:T,plus:fn(T,T)->T)->T{
+        return foldl(xs,zero,fn(x,acc)=>plus(acc,x));
+      }
+      fn callbacks(xs:List<u32>)->u32{
+        return combined<u32>(xs,0,fn(a,b)=>a+b);
+      }
+      fn traversed<T>(xs:List<T>,zero:T,step:fn(T,T)->T)->T{return foldl(xs,zero,step);}
+      fn decimal(value:u32,acc:u32)->u32{return acc*10+value;}
+      fn named(xs:List<u32>)->u32{return traversed<u32>(xs,0,decimal);}
+    "#;
+    assert_eq!(pure(src,"main",json!([{"left":1,"right":2},99])),json!({"left":1,"right":99}));
+    assert_eq!(pure(src,"computed",json!([])),json!({"left":7,"right":3}));
+    assert_eq!(pure(src,"hygiene",json!([17])),json!({"left":17,"right":18}));
+    assert_eq!(pure(src,"owned",json!([])),json!([1,2,7,9]));
+    assert_eq!(pure(src,"callbacks",json!([[4294967295u32,2]])),json!(1));
+    assert_eq!(pure(src,"named",json!([[1,2,3]])),json!(123));
+    for expression in ["Pair{..p,left:1,left:2}","Pair{..p,missing:1}",
+                       "Pair{left:1,..p}","Pair{..p,..p}","Pair{..x,left:1,right:2}"] {
+        let source=format!("module bad;record Pair{{left:u32,right:u32,}} fn bad(p:Pair,x:u32)->Pair{{return {expression};}}");
+        let result=parse(&source).and_then(CheckedModule::from_source);
+        assert!(result.is_err(),"accepted {expression}");
+    }
+    let source="module alias;record Owner{data:Buffer<u32>,tag:u32,} fn bad()->List<u32>{let p=Owner{data:buffer([1]),tag:2};let q=Owner{..p,tag:3};let a=p.data.freeze();return q.data.freeze();}";
+    assert!(CheckedModule::from_source(parse(source).unwrap()).is_err());
+    for source in [
+        "module bad;fn f(x:u32,step:fn(u32,u32)->u32)->u32{return step(x);}fn main()->u32{return f(1,fn(a,b)=>a+b);}",
+        "module bad;fn f(x:u32,step:fn(u32,u32)->u32)->u32{return step(x,x);}fn main()->u32{return f(1,fn(a)=>a);}",
+        "module bad;fn f(x:u32,step:fn(u32,u32)->u32)->u32{return step(x,x);}fn main()->u32{return f(1,fn(a,b)=>true);}",
+        "module bad;fn f(x:u32,step:fn(u32)->List<fn(u32)->u32>)->u32{return x;}fn main()->u32{return 1;}",
+    ] {
+        assert!(parse(source).and_then(CheckedModule::from_source).is_err(),"accepted {source}");
+    }
+}
+
+#[test]
+fn computed_record_update_base_and_overrides_preserve_failure_order() {
+    let src=r#"module update_errors;
+      enum Error{Base,First,Second,}
+      record Pair{left:u32,right:u32,}
+      fn base(fail:Bool)->Result<Pair,Error>{return choose(fail,Err(Error.Base),Ok(Pair{left:1,right:2}));}
+      fn item(fail:Bool,error:Error)->Result<u32,Error>{return choose(fail,Err(error),Ok(7));}
+      change changed(a:Bool,b:Bool,c:Bool)->Result<Pair,Error>{
+        return Ok(Pair{..base(a)?,right:item(b,Error.First)?,left:item(c,Error.Second)?});
+      }
+    "#;
+    let mut runtime=Runtime::new(parse(src).unwrap()).unwrap();
+    for (args,expected) in [
+        (json!([true,true,true]),json!({"Err":"Error.Base"})),
+        (json!([false,true,true]),json!({"Err":"Error.First"})),
+        (json!([false,false,true]),json!({"Err":"Error.Second"})),
+        (json!([false,false,false]),json!({"Ok":{"left":7,"right":7}})),
+    ] {
+        assert_eq!(runtime.invoke_json("changed",&args).unwrap().result.json(),expected);
+    }
+}
+
+#[test]
+fn generic_helper_call_graphs_do_not_consume_expression_depth() {
+    let mut source = String::from("module deep_generic_helpers;\n");
+    for i in 0..96 {
+        source.push_str(&format!("fn helper{i}<T>(x:T)->T {{ return helper{}<T>(x); }}\n",i+1));
+    }
+    source.push_str("fn helper96<T>(x:T)->T {return x;}\nfn start(x:u32)->u32 {return helper0<u32>(x);}\nfn shorter(x:u32)->u32{return helper90<u32>(x);}\n");
+    CheckedModule::from_source(parse(&source).unwrap()).unwrap();
+    // Reference execution has its own nesting policy. Check value semantics on
+    // a short entry while admitting the complete long helper graph above.
+    assert_eq!(pure(&source,"shorter",json!([42])),json!(42));
+    // Reserving instances must not bypass ordinary recursion/descent checking.
+    let p=parse("module bad; fn looped<T>(x:T)->T{return looped<T>(x);} fn start(x:u32)->u32{return looped<u32>(x);}").unwrap();
+    assert!(CheckedModule::from_source(p).is_err());
+    // A genuinely expanding generic family still meets the finite instance or
+    // type/elaboration bound, without recursive compiler-stack expansion.
+    let result=parse("module expanding; fn bigger<T>(x:T)->T {let ignored=bigger<List<T>>([x]);return x;} fn start(x:u32)->u32{return bigger<u32>(x);}");
+    assert!(result.is_err());
+}
+
+#[test]
 fn surface_conditionals_preserve_scope_laziness_and_owned_branches() {
     let src = r#"module surface;
       fn scoped(c:Bool,x:u32)->u32 {

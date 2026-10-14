@@ -212,16 +212,16 @@ mod tests {
             ),
             to: s::free(s::value(Type::U32), "x"),
         };
-        let mut exhausted = Budget { remaining: 3 };
+        let mut exhausted = Budget { remaining: 3, ..Budget::new() };
         assert!(copy_facts(&[fact.clone()], &mut exhausted).is_err());
-        let mut exact = Budget { remaining: 4 };
+        let mut exact = Budget { remaining: 4, ..Budget::new() };
         assert_eq!(copy_facts(&[fact.clone()], &mut exact).unwrap(), vec![fact]);
         assert_eq!(exact.remaining, 0);
     }
     #[test]
     fn exhausted_projection_never_returns_partial_authority() {
         let m = checked("module m; query f(x:u32)->u32{return x+0;}");
-        assert!(Regions::derive(&m, &mut Budget { remaining: 0 }).is_err());
+        assert!(Regions::derive(&m, &mut Budget { remaining: 0, ..Budget::new() }).is_err());
         assert!(!Regions::derive(&m, &mut Budget::new())
             .unwrap()
             .entries

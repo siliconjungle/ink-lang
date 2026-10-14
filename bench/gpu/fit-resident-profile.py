@@ -8,7 +8,7 @@ from ink_planner.cost_profiles import fit
 output=pathlib.Path(sys.argv[1]);paths=[pathlib.Path(p)for p in sys.argv[2:]]
 if len(paths)<3:raise ValueError('at least three fresh training processes required')
 records=[json.loads(p.read_text())for p in paths]
-if any(r['mode'] not in ('train','cold-train')or len(r['receipts'])!=18 or r['source_hashes']!=records[0]['source_hashes']or r['targetKey']!=records[0]['targetKey']for r in records):raise ValueError('training provenance differs')
+if any(r['mode'] not in ('train','cold-train','cpu-warm-train','gpu-warm-train')or len(r['receipts'])!=18 or r['source_hashes']!=records[0]['source_hashes']or r['targetKey']!=records[0]['targetKey']for r in records):raise ValueError('training provenance differs')
 if any(n<3 for n in Counter(r['mode'] for r in records).values()):raise ValueError('three fresh processes per preparation regime required')
 private=output.parent/'profile-knowledge'
 if private.exists():raise ValueError('preserve previous observations; choose a fresh output directory')

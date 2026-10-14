@@ -2,6 +2,8 @@
 //! while identities and alternative algorithms belong in external knowledge.
 use crate::{stateful::Value, syntax::Type, LangResult};
 pub const NAMES: &[&str] = &[
+    "word_widen_u32_to_u64",
+    "word_narrow_u64_to_u32",
     "word_not",
     "word_and",
     "word_or",
@@ -14,6 +16,14 @@ pub const NAMES: &[&str] = &[
 pub fn primitive(name: &str) -> bool {
     NAMES.contains(&name)
 }
+pub fn conversion(name: &str) -> Option<(Type,Type)> {
+    match name {
+        "word_widen_u32_to_u64" => Some((Type::U32,Type::U64)),
+        "word_narrow_u64_to_u32" => Some((Type::U64,Type::U32)),
+        _ => None,
+    }
+}
+pub fn unary(name: &str) -> bool {name == "word_not" || conversion(name).is_some()}
 pub fn count(name: &str) -> bool {
     [
         "wrapping_shl",
@@ -24,7 +34,9 @@ pub fn count(name: &str) -> bool {
     .contains(&name)
 }
 pub fn arguments(name: &str, result: &Type) -> Vec<Type> {
-    if name == "word_not" {
+    if let Some((input,_))=conversion(name) {
+        vec![input]
+    } else if name == "word_not" {
         vec![result.clone()]
     } else {
         vec![
@@ -38,6 +50,13 @@ pub fn arguments(name: &str, result: &Type) -> Vec<Type> {
     }
 }
 pub fn evaluate(name: &str, args: &[Value]) -> LangResult<Value> {
+    if conversion(name).is_some() {
+        return match (name,args) {
+            ("word_widen_u32_to_u64",[Value::U32(x)]) => Ok(Value::U64(u64::from(*x))),
+            ("word_narrow_u64_to_u32",[Value::U64(x)]) => Ok(Value::U32(*x as u32)),
+            _ => Err("word conversion arity or input type".into()),
+        };
+    }
     macro_rules! apply {
         ($a:expr,$t:ty,$variant:ident) => {{
             let a = *$a;

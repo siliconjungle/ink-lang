@@ -1,5 +1,16 @@
 # Checked physical capabilities
 
+The optional `inline_functions` choice names sorted, unique functions in the
+exact source image. Rust and Rust/Wasm place native `inline(always)` hints on
+their owning and borrowed methods. Other targets reject this choice. Empty
+hints serialize exactly as before; Ink syntax and executable semantics do not
+change. The hints confer no source equality or invariant, and the target compiler
+may decline to inline. Knowledge proposes hot helpers using untrusted call counts
+and carrier estimates; ordinary offline measurements decide whether to select
+them. Correctness and target-admission checks passed. The tested CRDT candidates
+were slower on training workloads and were rejected by normal planning. The
+producer remains optional and is excluded from the default recipe registry.
+
 Ink can now select direct vector ownership, source-proved reads without bounds
 checks, and dense or packed columns for ordinary lists of scalar records. The
 knowledge database supplies the proofs and alternatives. The language syntax and
@@ -34,6 +45,19 @@ Map execution reads a complete original row before applying changes; a column
 write is skipped only with an independently checked field equality. Captured
 immutable collections retain their original snapshots through lexical last-use
 checking and cloning when required.
+
+Direct Option/Result `fold` branches execute at most once. Rust lowering can
+move a captured value on its last use in the selected branch, including the
+continuation produced by `?`. Later uses retain copying, independent record
+fields may move separately, and repeated or escaping callbacks keep their
+captures shared. This is lexical ownership analysis of the existing source;
+it adds no syntax, algebraic law or domain-specific compiler behaviour.
+
+A parameter loan permits borrowing without requiring it at every call. If all
+eligible actual arguments are computed owning values or final lexical uses,
+Rust calls the owning entry point. This lets a helper transfer its result
+without copying an aggregate through a borrowed formal. Shared bindings and
+active sibling loans retain the borrowed call and their original lifetimes.
 
 Preferred 8/16/32/64-bit word lanes promote to their full source width when a
 value does not fit. Booleans use individual bits; I32 and raw F32 stay in plain
@@ -133,3 +157,50 @@ intermediate source traversal/allocation, but the host compiler already optimise
 some literal stages and changed traversal shapes can reduce vectorisation. No
 universal runtime speedup is claimed. Automatic physical planning continues to
 retain the baseline when comparable lifecycle evidence is absent.
+# Function-scoped parameter loans
+
+Rust and Rust-Wasm plans may name an immutable parameter through
+`physical::parameter_read_site(function, parameter)`. The canonical site binds
+the capability `ink-parameter-read-v1`, the exact function name and its parameter
+name. The module checker admits only actual nonrecursive List or record
+parameters without affine Buffer/Map contents. Rehashing a packet does not admit
+a missing, scalar or affine parameter.
+
+These sites occupy the existing sorted `borrow_reads` list. Legacy lexical read
+sites retain their meanings. A scoped site for `read(x)` does not also borrow
+`transfer(x)`. The public owning ABI stays intact; eligible internal calls use a
+borrowed implementation. Public functions with no affine arguments or result also
+export that safe Rust entry as `ink_borrowed_function_l_NAME`, so native library
+callers can retain a document while querying or saving it without cloning its
+owning value. Wire/native C entry points keep their existing owning signatures.
+Immutable field observations through an already
+borrowed binding share that lifetime. Computed arguments and projections from
+affine owners are first materialised as ordinary owning temporaries, then lent
+for the synchronous call. This preserves argument evaluation order and lets
+other arguments remain borrowed. Conflicting lexical loans still prevent moves.
+
+`producers.readonly_borrows.scoped_candidates` proposes bounded alternatives from
+generic read-use analysis. It excludes aggregate transfers into working storage
+and follows read-only callees to a least fixed point. This analysis ranks
+proposals; typed source checking and Rust lifetime enforcement remain separate.
+There is no CRDT-specific compiler rule or new source syntax.
+
+`physical::expression_read_site(function, expression)` separately binds a lexical
+observation to its function and expression identity (`ink-function-read-v1`).
+The checker admits only existing typed projections rooted in a List or record.
+This permits borrowing a local collection for a traversal or lookup while a
+later final use still moves the collection. It does not make the function's
+parameter borrowed, change the owning ABI, or establish a mutable loan. Existing
+alias and lifetime checks continue to apply. The read site authorises an
+implementation choice; measurements still decide whether to select it.
+
+Literal Rust and Rust/Wasm field observations of `rows.at_or(index, fallback)`
+copy the selected field without cloning the complete row. Both ordinary lists
+and native buffer owners support this access. The lookup finishes its storage
+borrow before evaluating a missing-row fallback, so a fallback can mutate a
+disjoint scoped range safely. The complete fallback record is evaluated before
+its field is moved. Affine rows, physical columns and indices referencing the
+receiver's root retain the existing access path. This introduces no capability,
+source syntax or semantic rewrite. Cross-backend outcomes, fallible preparation,
+partition mutation and actual row-clone counters are covered by
+`tests/projected_item_fields.rs`.
