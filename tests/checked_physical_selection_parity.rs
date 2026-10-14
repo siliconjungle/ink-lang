@@ -4,10 +4,10 @@ use serde_json::{json, Value};
 use verified_language::{core::CheckedModule, eval, optimisation, stateful::Runtime};
 #[path = "support/parity.rs"]
 mod parity;
-const ORIGINAL_CORE: &[u8] = include_bytes!("../reports/web-stack-proofs-38-2026-10-11/targets/targets/pipeline38_left_padded_zip_heldout_u32/literal.core.json");
-const SELECTED_CORE: &[u8] = include_bytes!("../reports/web-stack-proofs-38-2026-10-11/targets/targets/pipeline38_left_padded_zip_heldout_u32/checked.core.json");
-const SOURCE: &str = include_str!("../reports/web-stack-proofs-38-2026-10-11/targets/targets/pipeline38_left_padded_zip_heldout_u32/source.ink");
-const PACKAGE: &[u8] = include_bytes!("../reports/web-stack-proofs-38-2026-10-11/targets/targets/pipeline38_left_padded_zip_heldout_u32/checked.selection.json");
+const ORIGINAL_CORE: &[u8] = include_bytes!("fixtures/checked-physical-selection/literal.core.json");
+const SELECTED_CORE: &[u8] = include_bytes!("fixtures/checked-physical-selection/checked.core.json");
+const SOURCE: &str = include_str!("fixtures/checked-physical-selection/source.ink");
+const PACKAGE: &[u8] = include_bytes!("fixtures/checked-physical-selection/checked.selection.json");
 const FIXTURES: &str = include_str!("fixtures/checked-physical40.json");
 #[test]
 fn checked_helper_composition_matches_every_portable_target() {
