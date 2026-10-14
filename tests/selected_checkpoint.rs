@@ -96,27 +96,9 @@ fn selected_cpu_wasm_and_mixed_gpu_hosts_use_original_checkpoints() {
         steps,
         expected,
     );
-    let original = verified_language::snapshot::layout(module.program()).unwrap();
-    let selected_c = ink_lowering_c::complete::lower_selected(&selected).unwrap();
-    assert_eq!(
-        selected_c.metadata["snapshot_program"],
-        json!(original.program)
-    );
-    assert_eq!(
-        selected_c.metadata["core_sha256"],
-        selected.module().identity().unwrap()
-    );
-    let raw = ink_lowering_c::complete::lower(selected.module()).unwrap();
-    assert_ne!(
-        raw.metadata["snapshot_program"],
-        selected_c.metadata["snapshot_program"]
-    );
-    assert_eq!(
-        ink_lowering_wasm::lower_complete_selected(&selected)
-            .unwrap()
-            .metadata["snapshot_program"],
-        json!(original.program)
-    );
+    let rust=ink_lowering_rust::state_native::emit_selected(&selected).unwrap();
+    assert_eq!(rust,ink_lowering_wasm::lower_complete_selected(&selected).unwrap());
+
 }
 #[test]
 fn build_and_emit_commands_keep_selected_provenance_and_native_host_assembly() {
@@ -128,7 +110,6 @@ fn build_and_emit_commands_keep_selected_provenance_and_native_host_assembly() {
     let plan = root.join("selection.json");
     fs::write(&plan, serde_json::to_vec(selected.package()).unwrap()).unwrap();
     for (command, target, destination) in [
-        ("build", Some("c"), root.join("c")),
         ("build", Some("rust"), root.join("rust")),
         ("build", Some("javascript"), root.join("program.mjs")),
         ("emit-state", None, root.join("state")),
@@ -209,23 +190,10 @@ fn compiled_native_durable_files_continue_across_checked_selection() {
             .unwrap();
     }
     let expected = original.checkpoint_portable().unwrap();
-    for backend in [
-        "baseline-c",
-        "selected-c",
-        "selected-rust",
-        "raw-selected-c",
-    ] {
-        let project = root.join(backend);
-        match backend {
-            "baseline-c" => ink_runtime::emit_c_program(&module, &project).unwrap(),
-            "selected-c" => ink_runtime::emit_c_program_selected(&selected, &project).unwrap(),
-            "selected-rust" => ink_runtime::emit_rust_program(
-                &verified_language::state_native::emit_selected(&selected).unwrap(),
-                &project,
-            )
-            .unwrap(),
-            _ => ink_runtime::emit_c_program(selected.module(), &project).unwrap(),
-        }
+    for backend in ["baseline-rust","selected-rust","raw-selected-rust"] {
+        let project=root.join(backend);
+        let code=match backend{"baseline-rust"=>verified_language::state_native::emit(module.program()).unwrap(),"selected-rust"=>verified_language::state_native::emit_selected(&selected).unwrap(),_=>verified_language::state_native::emit(selected.module().program()).unwrap()};
+        ink_runtime::emit_rust_program(&code,&project).unwrap();
         let binary = project.join("program");
         ink_runtime::toolchain::complete_program(&project, false, &binary, "cargo", None).unwrap();
         let snapshot = project.join("snapshot");
@@ -237,7 +205,7 @@ fn compiled_native_durable_files_continue_across_checked_selection() {
             .arg(&snapshot)
             .output()
             .unwrap();
-        if backend == "raw-selected-c" {
+        if backend == "raw-selected-rust" {
             assert!(
                 !out.status.success(),
                 "bare selected Program must retain its own namespace"

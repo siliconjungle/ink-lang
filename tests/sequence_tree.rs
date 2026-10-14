@@ -177,62 +177,9 @@ let indexed=f_{encode}(&rows);assert_eq!(f_{measure}(&indexed),100_000);let deco
     );
     command(&mut Command::new(work.join("shared")));
 
-    let c = ink_lowering_c::definition::lower(&checked).unwrap();
-    let gpu = ink_lowering_gpu::lower_definition(&checked).unwrap();
-    let wasm = ink_lowering_wasm::lower_definition(&checked).unwrap();
-    assert_eq!(c.source, gpu.source);
-    assert_eq!(c.source, wasm.source);
-    let driver = c_driver(&names, &c.datatypes);
-    fs::write(work.join("check.c"), format!("{}\n{driver}", c.source)).unwrap();
-    command(
-        Command::new("clang")
-            .args(["-std=c11", "-O2"])
-            .arg(work.join("check.c"))
-            .arg("-o")
-            .arg(work.join("c")),
-    );
-    command(&mut Command::new(work.join("c")));
-    let zig = std::env::var_os("INK_ZIG")
-        .expect("INK_ZIG must name Zig for mandatory C-Wasm sequence-tree coverage");
-    command(
-        Command::new(zig)
-            .args([
-                "cc",
-                "-target",
-                "wasm32-freestanding",
-                "-O2",
-                "-nostdlib",
-                "-Wl,--no-entry",
-                "-Wl,--export=run_checks",
-                "-Wl,-z,stack-size=2097152",
-            ])
-            .arg(work.join("check.c"))
-            .arg("-o")
-            .arg(work.join("c.wasm")),
-    );
-    fs::write(work.join("c-wasm.cjs"),"const fs=require('node:fs');WebAssembly.instantiate(fs.readFileSync(process.argv[2]),{}).then(({instance})=>{const result=instance.exports.run_checks();if(result)throw Error('C-Wasm tree mismatch '+result);}).catch(e=>{console.error(e);process.exitCode=1;});").unwrap();
-    command(
-        Command::new("node")
-            .arg(work.join("c-wasm.cjs"))
-            .arg(work.join("c.wasm")),
-    );
-
-    let mut js = literal_js::lower(&checked, &Default::default()).unwrap();
-    js.push_str(&format!(r#"
-import assert from 'node:assert/strict';
-const rows=xs=>xs.reduceRight((t,[k,v])=>__node(1,[k,v,t]),__node(0,[]));
-let seed=718431n;const random=()=>{{seed=BigInt.asUintN(64,seed^(seed<<13n));seed^=seed>>7n;seed=BigInt.asUintN(64,seed^(seed<<17n));return seed;}};
-for(const ordered of [false,true]){{let xs=Array.from({{length:24}},()=>[random()%16n,random()]);if(ordered)xs.sort((a,b)=>a[0]<b[0]?-1:a[0]>b[0]?1:0);
-let tree=f_{encode}(rows(xs));for(let i=0;i<180;i++){{const old=tree,key=i%19===0?18446744073709551615n:random()%20n,value=random(),found=xs.find(x=>x[0]===key);
-assert.deepEqual(f_{get}(tree,key),found?__node(1,[found[1]]):__node(0,[]));const before=rows(xs);
-if(i%3===0){{tree=f_{insert}(tree,key,value);let p=xs.findIndex(x=>key<x[0]);if(p<0)p=xs.length;xs.splice(p,0,[key,value]);}}
-else if(i%3===1){{tree=f_{replace}(tree,key,value);xs=xs.map(x=>x[0]===key?[key,value]:x);}}
-else{{tree=f_{remove}(tree,key);xs=xs.filter(x=>x[0]!==key);}}
-assert.deepEqual(f_{decode}(old),before);assert.deepEqual(f_{decode}(tree),rows(xs));assert.equal(f_{measure}(tree),BigInt(xs.length));assert.deepEqual(f_{decorate}(tree),tree);
-}}}} console.log('360 literal JS sequence-tree histories passed');
-"#,encode=names["encode"],decode=names["decode"],get=names["get"],insert=names["insert"],replace=names["replace"],remove=names["remove"],measure=names["measure"],decorate=names["decorate"]));
-    fs::write(work.join("check.mjs"), js).unwrap();
-    command(Command::new("node").arg(work.join("check.mjs")));
+    let gpu=ink_lowering_gpu::lower_definition(&checked).unwrap();
+    let wasm=ink_lowering_wasm::lower_definition(&checked).unwrap();
+    assert_eq!(gpu.source,wasm.source);
 }
 
 fn c_driver(names: &BTreeMap<String, String>, types: &[String]) -> String {

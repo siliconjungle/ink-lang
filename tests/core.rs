@@ -5,7 +5,7 @@ use verified_language::{
     core::{CheckedModule, Expr},
     eval::{self, Value},
     implementation::{self, Package, ReplacementPackage},
-    native, stateful, syntax,
+    state_native, stateful, syntax,
 };
 
 fn pure() -> syntax::Program {
@@ -22,8 +22,8 @@ fn checked_core_roundtrips_preserve_full_width_order_and_native_source() {
     let restored = CheckedModule::from_bytes(&checked.bytes().unwrap()).unwrap();
     assert_eq!(checked.identity().unwrap(), restored.identity().unwrap());
     assert_eq!(
-        native::emit(&program).unwrap(),
-        native::emit(restored.pure_program().unwrap()).unwrap()
+        state_native::emit(&program).unwrap(),
+        state_native::emit(restored.pure_program().unwrap()).unwrap()
     );
     for xs in [vec![], vec![0, 1, 3], vec![u64::MAX, 1 << 63, u64::MAX - 1]] {
         let args = vec![

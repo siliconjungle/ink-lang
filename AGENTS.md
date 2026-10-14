@@ -16,7 +16,7 @@ auxiliary caches. This preserves deterministic evaluation of the same source; it
 grants no algebraic replacement or maintained-layout authority. More selective
 state/field/algorithm replacements continue to require database proofs.
 
-The distribution pins C, Rust, JavaScript, Wasm and GPU lowering packages.
+The distribution pins Rust, JavaScript, Wasm and GPU lowering packages.
 Each backend emits checked programs literally and reports unsupported capabilities.
 General visitors, lexical binding and expression limits belong in core analysis.
 A new primitive needs general semantics, explicit trust documentation and meaningful
@@ -69,7 +69,7 @@ Installation, diagnostics, durable snapshots, transaction rollback, recovery and
 portable logical state remain in scope. Keep broader proof ambitions distinct from
 what is currently admitted; see PLAN.md and the domain-specific docs.
 
-Source correspondence covers the admitted scalar, collection, vector and pure closure domains. Preserve fail-closed unsupported keys/operators and standalone representation conformance across CPU, JavaScript, both Wasm and both GPU hosts. Recursive physical state executes on the host. Keep caller-trusted standalone calls and explicit checked codec boundaries distinct; benchmark checking, compilation, migration and steady state separately.
+Source correspondence covers the admitted scalar, collection, vector and pure closure domains. Preserve fail-closed unsupported keys/operators and standalone representation conformance across CPU, JavaScript, Wasm and both GPU hosts. Recursive physical state executes on the host. Keep caller-trusted standalone calls and explicit checked codec boundaries distinct; benchmark checking, compilation, migration and steady state separately.
 
 The generic stateful representation executor, research bundle adapters and per-call
 logical snapshot validation are removed. Do not restore them under a new name.
@@ -85,7 +85,7 @@ value operations bind executable-core V8; action Bind/fold bind typed-actions V3
 Algorithms/laws remain in ink-knowledge (libraries and finite-list producer).
 Do not restore the JavaScript fold shortcut. Keep docs/generic-language-foundations.md
 coverage, source/transport limits and remaining machinery explicit. Both new
-mandatory CPU suites include complete C/Rust/JS/both-Wasm comparisons; GPU host
+mandatory CPU suites include complete Rust/JS/Wasm comparisons; GPU host
 fallback does not close the broad GPU gap.
 
 Fallible requires/ensures clauses erase to checked readonly callbacks, lazy branches
@@ -167,7 +167,7 @@ equality of the swapped pair, not the access analysis.
 Finish completed, validated work by merging and publishing it on `main` in the
 distribution and every changed independent package repository. Report the verified
 main revision. When a pin bump changes a crate another pinned crate depends on
-(the C lowering pins ink-lowering-rust), refresh `runtime/Cargo.lock` in the same
+(for example, runtime pins the Rust lowering), refresh `runtime/Cargo.lock` in the same
 change (`cargo metadata` without `--locked`); CI's locked fetch fails otherwise.
 A run is verified only when every job finishes green; failing steps report their
 error lines as annotations (`tools/ci_step.sh`). Feature branches and worktrees are staging areas during active work;

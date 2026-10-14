@@ -1,11 +1,10 @@
-use sha2::{Digest, Sha256};
 use std::{
     env, fs,
     io::Read,
     path::Path,
     process::{Command, ExitCode},
 };
-use verified_language::{check, core, eval, native, state_native, stateful, syntax, LangResult};
+use verified_language::{check, core, eval, state_native, stateful, syntax, LangResult};
 
 fn arg_value(args: &[String], flag: &str) -> LangResult<Option<String>> {
     if let Some(i) = args.iter().position(|a| a == flag) {
@@ -216,7 +215,6 @@ fn run() -> LangResult<()> {
         "--measurement-mode",
         "--planning-cache",
         "--cargo",
-        "--cc",
         "--compiler",
         "--core",
         "--help",
@@ -225,7 +223,6 @@ fn run() -> LangResult<()> {
         "--lean",
         "--library",
         "--circuit",
-        "--native-cpu",
         "--optimise",
         "--plan-cache",
         "--plan-cache-context",
@@ -258,7 +255,6 @@ fn run() -> LangResult<()> {
         "--version",
         "--view",
         "--wasm-abi",
-        "--zig",
     ];
     for arg in &args {
         if arg.starts_with("--") && !OPTIONS.contains(&arg.as_str()) {
@@ -797,7 +793,7 @@ fn run() -> LangResult<()> {
     }
 
     if cmd == "help" || cmd == "--help" {
-        println!("ink compile SOURCE --optimise KNOWLEDGE_DIRECTORY [--snapshot SNAPSHOT.json] --target rust|c|javascript|rust-wasm|c-wasm|wgpu|webgpu -o OUTPUT\nink compile SOURCE --plan PACKET.json --target TARGET -o OUTPUT\nink check-plan SOURCE PACKET.json [--core]\nink --version\nink doctor [--python PATH]\nink explain SOURCE [--core] [--selection PACKAGE.json | --optimise SNAPSHOT.json]\nink modules SOURCE");
+        println!("ink compile SOURCE --optimise KNOWLEDGE_DIRECTORY [--snapshot SNAPSHOT.json] --target rust|javascript|rust-wasm|wgpu|webgpu -o OUTPUT\nink compile SOURCE --plan PACKET.json --target TARGET -o OUTPUT\nink check-plan SOURCE PACKET.json [--core]\nink --version\nink doctor [--python PATH]\nink explain SOURCE [--core] [--selection PACKAGE.json | --optimise SNAPSHOT.json]\nink modules SOURCE");
         println!("ink check-boolean-verdict THEOREM.json --lean PATH -o CERTIFICATE.lean");
         println!("ink emit-contract-obligations SOURCE -o OBLIGATIONS.json\nink check-contract-proof-stream SOURCE (bounded NDJSON authoring attempts)\nink check-contracts SOURCE [--contract-proofs EVIDENCE.json]\nAll source build/execution commands accept --contract-proofs EVIDENCE.json.");
         println!("ink emit-termination-obligations SOURCE -o GOALS.json\nink check-termination SOURCE --termination-proofs BUNDLE.json\nSource compilation/execution accepts --termination-proofs BUNDLE.json; measures grant no authority without checked evidence.");
@@ -805,7 +801,7 @@ fn run() -> LangResult<()> {
         println!("ink law-bitvector-obligation THEOREMS.ink LAW_NAME -o CNF.json\nExported scalar obligations remain unproved until emit-laws replays a hinted-RUP certificate.");
         println!("ink semantic-bitvector-obligation SOURCE GOAL.json [--core] -o CNF.json");
         println!("ink emit-semantic SOURCE [--core] -o SUBJECT.json\nink check-selection CORE.json PACKAGE.json\nExecution, lowering and core emission accept --optimise KNOWLEDGE_DIRECTORY or SNAPSHOT.json (external search) or --selection PACKAGE.json (checked replay). Optional --search-tool PATH, --search-budget N, --python PATH and --plan-cache DIRECTORY [--plan-cache-context FILE]. INK_DISTRIBUTION locates an optional installed tool bundle.");
-        println!("ink check-representation SOURCE REQUEST.json\nink emit-representation SOURCE REQUEST.json [--target rust|rust-packed|rust-memo|c|javascript|wasm32|c-wasm|rust-wasm|rust-wasm-packed|rust-wasm-memo|wgpu|webgpu] -o OUTPUT\nink execute-representation SOURCE REQUEST.json SCRIPT.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] (compiles standalone Rust; requires Cargo; script supports call and portable migrate steps)");
+        println!("ink check-representation SOURCE REQUEST.json\nink emit-representation SOURCE REQUEST.json [--target rust|rust-packed|rust-memo|javascript|wasm32|rust-wasm|rust-wasm-packed|rust-wasm-memo|wgpu|webgpu] -o OUTPUT\nink execute-representation SOURCE REQUEST.json SCRIPT.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] (compiles standalone Rust; requires Cargo; script supports call and portable migrate steps)");
         println!("ink check-source-route CORE.json ROUTING.json\nink emit-action-model SOURCE -o MODEL.json (restricted whole-action transition projection)");
         println!("ink emit-source-syntax SOURCE --roles ROLES.json -o EXPECTED.json\nink check-source-syntax SOURCE --roles ROLES.json --view VIEW.json (complete code-data binding only)");
         println!("ink check-action-values SOURCE --syntax-roles SYNTAX.json --value-roles VALUES.json --view VIEW.json\nink emit-action-values SOURCE ACTION ARGS.json --syntax-roles SYNTAX.json --value-roles VALUES.json --view VIEW.json -o IMAGE.json (typed value data only)");
@@ -939,10 +935,7 @@ fn run() -> LangResult<()> {
         write(&output,&String::from_utf8(selected.bytes()?).map_err(|e|e.to_string())?)?;
         println!("{}",serde_json::json!({"status":"checked","input":module.identity()?,"core_sha256":selected.identity()?,"scope":"Conservative typed definitions; no source replacement authority"}));return Ok(());
     }
-    let source_program_sha256 = format!(
-        "{:x}",
-        Sha256::digest(serde_json::to_vec(&p).map_err(|e| e.to_string())?)
-    );
+
     let input_module = if cmd == "explain" {
         Some(core::CheckedModule::from_source(p.clone())?)
     } else {
@@ -1503,7 +1496,6 @@ fn run() -> LangResult<()> {
                 .as_ref()
                 .map(|s| s.evidence().input_core_sha256.clone())
                 .unwrap_or(input_core.identity()?);
-            let input_program_sha256 = source_program_sha256.clone();
             let replacement = arg_value(&args, "--replacement")?
                 .map(|path| {
                     verified_language::implementation::apply_replacement(&mut p, Path::new(&path))
@@ -1516,12 +1508,6 @@ fn run() -> LangResult<()> {
                 .as_ref()
                 .map(|s| s.evidence().applied_laws.clone())
                 .unwrap_or_default();
-            let implementation_count = implementation
-                .as_ref()
-                .map_or(0, |e| e.checked_proposals.len())
-                + replacement
-                    .as_ref()
-                    .map_or(0, |e| e.equality.checked_proposals.len());
             check::check(&p)?;
             if let Some(selected) = &semantic_selection {
                 if core::CheckedModule::from_source(p.clone())?.identity()?
@@ -1549,9 +1535,7 @@ fn run() -> LangResult<()> {
             {
                 return Err("explicit routes require the GPU bundle target".into());
             }
-            if cmd == "build" && target != "object" && args.iter().any(|a| a == "--native-cpu") {
-                return Err("--native-cpu requires the object target".into());
-            }
+
             if cmd == "emit-rust" {
                 let code = emit_state_rust(&p, semantic_selection.as_ref(), &args)?;
                 write(&out, &code)?;
@@ -1615,7 +1599,7 @@ fn run() -> LangResult<()> {
                 return Err("--route currently requires build --target webgpu or gpu".into());
             }
             if target == "javascript" {
-                if cmd != "build" || args.iter().any(|a| a == "--native-cpu") {
+                if cmd != "build" {
                     return Err("JavaScript requires build --target javascript".into());
                 }
                 let module = core::CheckedModule::from_source(p.clone())?;
@@ -1637,9 +1621,7 @@ fn run() -> LangResult<()> {
                 return Ok(());
             }
             if target == "webgpu" || target == "gpu" {
-                if args.iter().any(|a| a == "--native-cpu") {
-                    return Err("--native-cpu is not a GPU bundle option".into());
-                }
+
                 if let Some(route) = &route {
                     verified_language::runtime::emit_routed(route, Path::new(&out))?;
                 } else if let Some(selected) = &semantic_selection {

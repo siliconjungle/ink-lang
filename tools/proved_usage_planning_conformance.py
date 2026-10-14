@@ -34,7 +34,7 @@ def main():
  result=subprocess.run([str(compiler),'check-plan',str(core),str(save('forged.json',wrong)),'--core'],capture_output=True);assert result.returncode
  # Rust-Wasm receives the same literal collector; the other CPU lanes execute
  # the source with erased properties (capacity is capability-gated).
- for target in ['rust','javascript','c','c-wasm','rust-wasm']:
+ for target in ['rust','javascript','rust-wasm']:
   output=d/target
   if target in ['rust','rust-wasm']:cli('emit-plan',core,plan_path,'--core','--target',target,'-o',output)
   else:cli('emit-plan',core,save('erased-plan.json',dict(plan,steps=[bound['step']])),'--core','--target',target,'-o',output)
@@ -44,5 +44,5 @@ def main():
  (package/'src/main.rs').write_text(emitted+'\nfn main(){let mut state=State::new();for args in [serde_json::json!([[]]),serde_json::json!([[0u32,3,4,4294967295u32]]),serde_json::json!([[4,4,0,9]])]{println!("{}",state.call_json("select",&args).unwrap());}}')
  results=[json.loads(x) for x in run('cargo','run','--offline','--quiet','--manifest-path',package/'Cargo.toml').splitlines()]
  assert results==[[],[4,4294967295],[4,4,9]],results
- print(json.dumps(dict(source=source_id,plan=identity(plan),facts=len(packets),reserved_outputs=results,targets=['rust','javascript','c','c-wasm','rust-wasm'],scope='proof and literal emission; target execution parity separately tested')))
+ print(json.dumps(dict(source=source_id,plan=identity(plan),facts=len(packets),reserved_outputs=results,targets=['rust','javascript','rust-wasm'],scope='proof and literal emission; target execution parity separately tested')))
 if __name__=='__main__':main()

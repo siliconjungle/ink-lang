@@ -50,9 +50,9 @@ fn capability_rejection_preserves_compiled_cpu_and_staged_lowering() {
     }
     assert!(!function("constant")["graph"].is_null());
     assert!(!function("heavy")["graph"].is_null());
-    let c = fs::read_to_string(dir.join("cpu.c")).unwrap();
-    assert!(c.contains("uint32_t"));
-    assert!(c.contains("lang_fn_wide"));
+    let c = fs::read_to_string(dir.join("native/src/cpu.rs")).unwrap();
+    assert!(c.contains("u32"));
+    assert!(c.contains("function_l_wide"));
     assert!(dir.join("native/Cargo.lock").exists());
 }
 #[test]

@@ -20,7 +20,7 @@ yet admit; this is not a claim that those features are implemented.
 | Portable checkpoint/restore, outbox acknowledgement | Yes | Yes | Yes | Yes | CPU host |
 
 The same Ink syntax and observable values apply to every complete backend.
-Scheduling uses bounded native threads for complete C/Rust and module workers for
+Scheduling uses bounded native threads for complete Rust and module workers for
 JavaScript, C-Wasm and Rust-Wasm. A regression check requires distinct worker IDs;
 matching values alone cannot demonstrate parallel execution. Grain, small inputs
 and nested work can select sequential execution. Packed pure C objects retain
@@ -45,14 +45,13 @@ ink build program.ink --target c -o build/c-project
 ink build program.ink --target rust -o build/rust-project
 ink build program.ink --target javascript -o build/program.mjs
 ink build program.ink --target wasm32 -o build/program.wasm
-ink build program.ink --lowering c --target wasm32 --zig /path/to/zig -o build/program.wasm
 ink build program.ink --target webgpu --zig /path/to/zig -o build/web
 ```
 
 Native builds produce an executable accepting a JSON array of requests:
 `[{"pure":"name","args":[...]},{"call":"action","args":[...]}]`.
 Native and `wasm32` builds use the typed Rust lowering by default; pass
-`--lowering c` to build the same artifact from the complete C project instead.
+Native and Wasm projects use the same typed Rust lowering.
 The complete C project contains literal C function/action code and a shared Rust
 primitive runtime for values, exact integers, transactions and snapshot codecs.
 Every C operation calls that runtime through a dynamically typed value handle,
@@ -110,7 +109,7 @@ that admission boundary. See [checked representations](database-representations.
 
 ## Validation and trust
 
-`tests/lowering_parity.rs` compares complete native C, native Rust, JavaScript,
+`tests/lowering_parity.rs` compares complete native Rust, JavaScript,
 C/Wasm and Rust/Wasm with the reference evaluator. It covers 68 mixed-module
 requests plus 10 query/Result-keep boundary requests, including snapshots after
 every result, rollback, near-u64-max versions, events, full-width values, Unicode
@@ -186,14 +185,14 @@ through compiled CPU, native GPU and browser GPU execution.
 ## Standalone physical representations
 
 Proof-selected physical representations now use standalone compiled code on
-all targets, including C/Rust Wasm and native/browser GPU host lanes. Proofs,
+all targets, including Rust Wasm and native/browser GPU host lanes. Proofs,
 source ASTs and checker packages remain at compile time. All targets use the
 same checked snapshot namespace and transaction contract. GPU device eligibility
 is unchanged; recursive state executes on the host. The narrower fixed source
 representation model is described in [database representations](database-representations.md).
 
 `tests/representation_parity.rs` supplies the shared replies/errors/events/exact
-snapshot gate. It runs both Wasm lanes when INK_TEST_ZIG is set, including in CI.
+snapshot gate. It runs Wasm lanes when INK_TEST_ZIG is set, including in CI.
 No backend emitter is mechanically verified by that differential gate.
 
 Resident stage-graph feedback now captures source buffers before simultaneous

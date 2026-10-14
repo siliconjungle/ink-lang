@@ -106,10 +106,7 @@ fn arbitrary_schema_products_preserve_histories_rollback_and_portable_state_and_
     assert!(verified_language::state_native::emit_planned(&plan)
         .unwrap_err()
         .contains("dense"));
-    assert!(ink_lowering_c::complete::lower_planned(&plan)
-        .err()
-        .unwrap()
-        .contains("maintained"));
+
     let mut forged = packet.clone();
     if let planning::Step::Maintained(ref mut p) = forged.steps[0] {
         p.knowledge.snapshot.root = "0".repeat(64);

@@ -2,7 +2,7 @@ use std::{fs, path::Path, process::Command};
 use verified_language::{
     core::CheckedModule,
     eval::{self, Value},
-    implementation, native, syntax,
+    implementation, state_native, syntax,
 };
 
 #[test]
@@ -14,8 +14,8 @@ fn external_arithmetic_search_proves_scalars_and_mapped_sums_with_lexical_shadow
         implementation::apply_replacement(&mut selected, &root.join("replacement.json")).unwrap();
     assert_eq!(evidence.equality.checked_proposals.len(), 4);
     assert_ne!(
-        native::emit(&original).unwrap(),
-        native::emit(&selected).unwrap()
+        state_native::emit(&original).unwrap(),
+        state_native::emit(&selected).unwrap()
     );
     let unproved = |p: &syntax::Program| {
         p.functions
@@ -132,7 +132,7 @@ fn retired_polynomial_commands_fail_before_writing_output() {
     let output = std::env::temp_dir().join(format!("ink-retired-poly-{}.c", std::process::id()));
     assert!(!output.exists());
     let result = Command::new(env!("CARGO_BIN_EXE_ink"))
-        .args(["emit-c"])
+        .args(["emit-rust"])
         .arg(root.join("examples/kernels.lang"))
         .arg("--knowledge")
         .arg(root.join("knowledge/phase1-ring.json"))
@@ -177,16 +177,6 @@ fn external_mapped_sum_fusion_is_checked_by_induction_without_new_core_rules() {
     let evidence =
         implementation::apply_replacement(&mut selected, &temp.join("replacement.json")).unwrap();
     assert_eq!(evidence.equality.checked_proposals.len(), 3);
-    assert!(
-        native::emit(&selected)
-            .unwrap()
-            .matches("= lang_allocate(")
-            .count()
-            < native::emit(&original)
-                .unwrap()
-                .matches("= lang_allocate(")
-                .count()
-    );
     for xs in [vec![], vec![0, 1, 3], vec![u64::MAX, 1 << 63, u64::MAX - 1]] {
         for name in ["affine", "squares", "expanded"] {
             let mut args = vec![Value::List(xs.iter().copied().map(Value::U64).collect())];

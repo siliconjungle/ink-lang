@@ -57,7 +57,6 @@ fn benchmark_standalone_aggregate_scaling() {
         "abi",
         "native-support",
         "core",
-        "lowerings/c",
         "lowerings/gpu",
         "lowerings/wasm",
         "lowerings/js",
@@ -158,7 +157,7 @@ fn indexed_point_calls_do_not_copy_whole_tables() {
     use verified_language::{core::CheckedModule,syntax::parse};
     let module=CheckedModule::from_source(parse(include_str!("../examples/point-query-delta.ink")).unwrap()).unwrap();
     let root=Path::new(env!("CARGO_MANIFEST_DIR")).join("build/indexed-undo-alloc");
-    verified_language::runtime::emit_c_program(&module,&root).unwrap();
+    verified_language::runtime::emit_rust_program(&ink_lowering_rust::state_native::emit(module.program()).unwrap(), &root).unwrap();
     fs::write(root.join("src/main.rs"),include_str!("indexed-undo-alloc.rs.txt")).unwrap();
     let output=Command::new(env!("CARGO")).args(["build","--offline","--quiet","--manifest-path"]).arg(root.join("Cargo.toml")).arg("--target-dir").arg(root.join("target")).output().unwrap();
     assert!(output.status.success(),"{}",String::from_utf8_lossy(&output.stderr));
