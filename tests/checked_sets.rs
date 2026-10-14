@@ -30,6 +30,8 @@ fn sets_preserve_structural_identity_interfaces_transactions_and_restore_on_comp
  ("floats",json!([[plus.clone(),minus.clone(),nan.clone(),nan.clone()]]),set(json!([0.0,-0.0,nan])),false),
  ("float_bits",json!([{"items":[{"F32Bits":0},{"F32Bits":0x80000000u32},{"F32Bits":0x7fc12345u32}]}]),json!([0,0x80000000u32,0x7fc12345u32]),false),
  ("float_bits",json!([{"items":[{"F32Bits":0x7fc12345u32},{"F32Bits":0x7fc12345u32}]}]),json!(null),true),
+ ("float_bits",json!([{"items":[{"F32Bits":0x7fc12345u32},{"F32Bits":0x7fc12346u32},{"F32Bits":0xffc12345u32},{"F32Bits":0x7f812345u32}]}]),json!([0x7fc12345u32,0x7fc12346u32,0xffc12345u32,0x7f812345u32]),false),
+ ("floats",json!([[{"F32Bits":0x7f812345u32},{"F32Bits":0xffc12345u32},{"F32Bits":0x7f812345u32}]]),set(json!([{"F32Bits":0x7f812345u32},{"F32Bits":0xffc12345u32}])),false),
  ("elements",json!([bad.clone()]),json!(null),true),
  ("size",json!([bad.clone()]),json!(null),true),
  ("distinct",json!([bad.clone()]),json!(null),true),
@@ -64,7 +66,7 @@ fn sets_preserve_structural_identity_interfaces_transactions_and_restore_on_comp
  parity::conformance("checked-set-interfaces",p,&source,steps,expected);
 }
 #[test]
-fn set_opacity_stale_source_and_unproved_preservation_reject(){
+fn set_opacity_stale_source_rehashed_laws_and_unproved_preservation_reject(){
  let root=Path::new(env!("CARGO_MANIFEST_DIR"));let dir=root.join("build/checked-set-adversaries");fs::create_dir_all(&dir).unwrap();
  let import=format!("module adversary;import {} as sets;",serde_json::to_string(root.join("knowledge/libraries/collections.ink").to_str().unwrap()).unwrap());
  for (i,body)in["fn leak(v:sets.Set<u32>)->List<u32>{return v.items;}","fn forge()->sets.Set<u32>{return sets.Set<u32>{items:[1,1]};}","type Alias=sets.Set<u32>;fn forge()->Alias{return Alias{items:[1,1]};}"].iter().enumerate(){
@@ -77,4 +79,32 @@ fn set_opacity_stale_source_and_unproved_preservation_reject(){
  let mut p=modules::load(root.join("tests/fixtures/checked-sets/main.ink")).unwrap().program;
  evidence.proofs.insert("make:ensures:0".into(),verified_language::laws::Proof::Normalize);
  contracts::attach(&mut p,evidence).unwrap();assert!(CheckedModule::from_source(p).is_err(),"normalization alone cannot establish constructor preservation");
+}
+
+#[test]
+fn rehashed_set_preservation_with_fresh_membership_still_requires_a_proof(){
+ use verified_language::{registry,laws};
+ let root=Path::new(env!("CARGO_MANIFEST_DIR"));
+ let mut p=modules::load(root.join("tests/fixtures/checked-sets/main.ink")).unwrap().program;
+ let mut evidence:contracts::Evidence=serde_json::from_str(include_str!("fixtures/checked-sets/proofs.json")).unwrap();
+ let original=evidence.proofs["make:ensures:0"].clone();
+ let laws::Proof::Use{law:old,..}=&original else{panic!("expected canonical source-bound law")};
+ let mut objects=evidence.knowledge.as_ref().unwrap().objects.clone();
+ let mut forged_law=objects[old].law().unwrap();forged_law.proof=laws::Proof::Normalize;
+ forged_law.semantics=laws::required_semantics(&forged_law).into();
+ let forged=registry::Entry::from_law(&forged_law).unwrap();
+ // Retain the exact statement, source context and dependencies; refresh both
+ // the canonical entry identity and every authenticated membership witness.
+ let id=registry::identity(&forged).unwrap();assert_ne!(&id,old);objects.insert(id.clone(),forged);
+ let catalogue=laws::Catalogue{schema:1,semantics:laws::SEMANTICS.into(),roots:vec![id.clone()],objects:objects.into_iter().map(|(key,obj)|(key,obj.law().unwrap())).collect()};
+ evidence.knowledge=Some(registry::from_catalogue(&catalogue).unwrap());
+ let laws::Proof::Use{arguments,premises,types,assumptions,..}=original else{unreachable!()};
+ evidence.proofs.insert("make:ensures:0".into(),laws::Proof::Use{law:id,arguments,premises,types,assumptions});
+ // Include the other evidence roots too so rejection cannot be attributed to
+ // a missing original root; all original objects already have fresh witnesses.
+ let roots=evidence.knowledge.as_ref().unwrap().objects.keys().cloned().collect();
+ evidence.knowledge.as_mut().unwrap().roots=roots;
+ contracts::attach(&mut p,evidence).unwrap();
+ let error=CheckedModule::from_source(p).err().unwrap();
+ assert_eq!(error,"semantic normal forms differ");
 }
