@@ -1,0 +1,68 @@
+   Compiling ink-core v0.1.0 (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-contract-generality-2026-10-13/build/performance-generality-2026-10-13/distribution-integration/core)
+   Compiling ink-lowering-rust v0.1.0 (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-contract-generality-2026-10-13/build/performance-generality-2026-10-13/distribution-integration/lowerings/rust)
+   Compiling ink-lowering-c v0.1.0 (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-contract-generality-2026-10-13/build/performance-generality-2026-10-13/distribution-integration/lowerings/c)
+   Compiling ink-lowering-js v0.1.0 (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-contract-generality-2026-10-13/build/performance-generality-2026-10-13/distribution-integration/lowerings/js)
+   Compiling ink-lowering-gpu v0.1.0 (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-contract-generality-2026-10-13/build/performance-generality-2026-10-13/distribution-integration/lowerings/gpu)
+   Compiling ink-lowering-wasm v0.1.0 (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-contract-generality-2026-10-13/build/performance-generality-2026-10-13/distribution-integration/lowerings/wasm)
+   Compiling ink-runtime v0.1.0 (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-contract-generality-2026-10-13/build/performance-generality-2026-10-13/distribution-integration/runtime)
+   Compiling ink v0.1.0 (/Users/james/Documents/ChatGPT/3d-modelling/research/ink-contract-generality-2026-10-13/build/performance-generality-2026-10-13/distribution-integration)
+    Finished `release` profile [optimized] target(s) in 4m 21s
+     Running tests/checked_sets.rs (target/release/deps/checked_sets-b00d7b2166a9f465)
+
+running 6 tests
+test rehashed_set_preservation_with_fresh_membership_still_requires_a_proof ... ok
+test set_opacity_stale_source_rehashed_laws_and_unproved_preservation_reject ... ok
+test immutable_set_handles_transport_guarantees_to_multiple_consumers ... ok
+test checked_set_boundary_readers_preserve_validation_bits_and_transport_errors ... ok
+test indexed_sets_preserve_interfaces_and_transactions_on_complete_targets ... ok
+test sets_preserve_structural_identity_interfaces_transactions_and_restore_on_complete_targets ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 45.41s
+
+     Running tests/maintained_state.rs (target/release/deps/maintained_state-f9de2b590a0fc160)
+
+running 3 tests
+test word_extremum_views_follow_histories_and_reject_forged_orders ... FAILED
+test general_source_controller_preserves_native_js_wasm_and_gpu_host_observations ... ok
+test arbitrary_schema_products_preserve_histories_rollback_and_portable_state_and_reject_forged_proofs has been running for over 60 seconds
+test arbitrary_schema_products_preserve_histories_rollback_and_portable_state_and_reject_forged_proofs ... ok
+
+failures:
+
+---- word_extremum_views_follow_histories_and_reject_forged_orders stdout ----
+
+thread 'word_extremum_views_follow_histories_and_reject_forged_orders' (38101443) panicked at tests/maintained_state.rs:387:5:
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-contract-generality-2026-10-13/build/performance-generality-2026-10-13/distribution-integration/knowledge/producers/maintained_folds.py", line 243, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-contract-generality-2026-10-13/build/performance-generality-2026-10-13/distribution-integration/knowledge/producers/maintained_folds.py", line 241, in main
+    plan=produce(a.source,a.compiler,a.o,a.keep,a.dense_capacity,a.core,a.guarded_update or a.guard_zero,a.guard_zero,a.predicate_update,a.extrema)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-contract-generality-2026-10-13/build/performance-generality-2026-10-13/distribution-integration/knowledge/producers/maintained_folds.py", line 128, in produce
+    views.append(author(subject,model,objects,add,compiler,certificates));continue
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-contract-generality-2026-10-13/build/performance-generality-2026-10-13/distribution-integration/knowledge/producers/maintained_extrema.py", line 98, in author
+    identity_proof = word_fact(c(zero, a), a, ['a'])
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-contract-generality-2026-10-13/build/performance-generality-2026-10-13/distribution-integration/knowledge/producers/maintained_extrema.py", line 94, in word_fact
+    cert = word_certificate(compiler, goal, certificates)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-contract-generality-2026-10-13/build/performance-generality-2026-10-13/distribution-integration/knowledge/producers/sorted_rows.py", line 442, in word_certificate
+    cache[key] = certificate(json.loads(cnf.read_text()))
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-contract-generality-2026-10-13/build/performance-generality-2026-10-13/distribution-integration/knowledge/producers/bitvector_proofs.py", line 82, in certificate
+    from pysat.solvers import Glucose3
+ModuleNotFoundError: No module named 'pysat'
+
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    word_extremum_views_follow_histories_and_reject_forged_orders
+
+test result: FAILED. 2 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 64.21s
+
+error: test failed, to rerun pass `--test maintained_state`
