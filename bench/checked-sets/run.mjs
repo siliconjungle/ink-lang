@@ -8,6 +8,7 @@ const file=path.resolve(process.argv[2]);
 const m=await import(pathToFileURL(file));
 const readerFile=process.argv[3]?path.resolve(process.argv[3]):null;
 const readers=readerFile?await import(pathToFileURL(readerFile)):null;
+const candidateLabel=process.argv[4]??'checked-boundary-reader';
 const now=()=>process.hrtime.bigint();
 const valid=x=>{if(new Set(x.items).size!==x.items.length)throw Error('contract precondition failed');};
 const control={
@@ -41,15 +42,18 @@ for(const n of [0,16,64,256]){
   for(const boundary of ['typed-values-with-invariant-validation','checked-value-wire']){
    const methods=boundary==='checked-value-wire'?[()=>m.callBinary(name,bytes),handwrittenBinary]:[()=>m.call(name,args),()=>control[name](...args)];
    if(readers){assert.equal(readers.valueCodecs[name].arguments.descriptor.identity,codec.arguments.descriptor.identity);methods.splice(1,0,boundary==='checked-value-wire'?()=>readers.callBinary(name,bytes):()=>readers.call(name,args));}
-   for(const method of methods)assert.deepEqual(method(),methods[0]());for(const method of methods)for(let i=0;i<8;i++)consume(method());
-   const repetitions=Math.max(2,Math.floor(256/Math.max(16,n))),samples=methods.map(()=>[]);
+   for(const method of methods)assert.deepEqual(method(),methods[0]());
+   // Warm complete calls long enough to avoid comparing partially optimised
+   // JIT tiers. Keep every output observable throughout warmup and sampling.
+   for(const method of methods){const end=now()+50_000_000n;do{consume(method());}while(now()<end);}
+   const repetitions=Math.max(16,Math.floor(4096/Math.max(16,n))),samples=methods.map(()=>[]);
    for(let round=0;round<11;round++)for(let offset=0;offset<methods.length;offset++){
     const lane=(round+offset)%methods.length,begin=now();for(let i=0;i<repetitions;i++)consume(methods[lane]());samples[lane].push(Number(now()-begin)/repetitions);
    }
    const medianNs=samples.map(xs=>[...xs].sort((a,b)=>a-b)[5]);
-   rows.push({n,name,boundary,repetitions,inputEncodingNs,samplesNs:samples,medianNs,literalOverHandwritten:medianNs[0]/medianNs[medianNs.length-1],...(readers?{readerOverLiteral:medianNs[1]/medianNs[0],readerOverHandwritten:medianNs[1]/medianNs[2]}:{})});
+   rows.push({n,name,boundary,repetitions,inputEncodingNs,samplesNs:samples,medianNs,literalOverHandwritten:medianNs[0]/medianNs[medianNs.length-1],...(readers?{candidateOverLiteral:medianNs[1]/medianNs[0],candidateOverHandwritten:medianNs[1]/medianNs[2]}:{})});
   }
   assert.equal(JSON.stringify(args),before);
  }
 }
-console.log(JSON.stringify({schema:1,scope:'One u32 Set family; complete literal calls and strong handwritten controls; no general profitability claim',platform:process.platform,architecture:process.arch,node:process.version,moduleSha256:crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex'),readerModuleSha256:readerFile?crypto.createHash('sha256').update(fs.readFileSync(readerFile)).digest('hex'):null,lanes:readers?['literal','checked-boundary-reader','handwritten-set']:['literal','handwritten-set'],setup:'Input construction and encoding outside call timing; encoding recorded separately; full outputs consumed inside timing',validity:'Duplicate inputs reject in both lanes; complete positive outputs agree; inputs stay unchanged; shared wire codecs',consumed,rows},null,2));
+console.log(JSON.stringify({schema:1,scope:'One u32 Set family; complete literal calls and strong handwritten controls; no general profitability claim',platform:process.platform,architecture:process.arch,node:process.version,moduleSha256:crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex'),candidateModuleSha256:readerFile?crypto.createHash('sha256').update(fs.readFileSync(readerFile)).digest('hex'):null,lanes:readers?['literal',candidateLabel,'handwritten-set']:['literal','handwritten-set'],warmup:'Each complete lane consumes outputs for at least 50 ms before sampling; at least 16 calls per raw sample',setup:'Input construction and encoding outside call timing; encoding recorded separately; full outputs consumed inside timing',validity:'Duplicate inputs reject in both lanes; complete positive outputs agree; inputs stay unchanged; shared wire codecs',consumed,rows},null,2));
