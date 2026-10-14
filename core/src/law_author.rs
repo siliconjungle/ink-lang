@@ -66,6 +66,10 @@ fn dependencies(
         Proof::Forall { body, .. } | Proof::Order { body, .. } => {
             dependencies(body, out, budget, depth + 1)?
         }
+        Proof::MapExtensional { presence, values, .. } => {
+            dependencies(presence, out, budget, depth + 1)?;
+            dependencies(values, out, budget, depth + 1)?;
+        }
         Proof::Cases {
             on_false, on_true, ..
         } => {
