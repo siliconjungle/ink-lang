@@ -3,9 +3,10 @@ import fs from 'node:fs/promises';
 import http from 'node:http';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
+const wordFixtures=JSON.parse(await fs.readFile(new URL('./word-fixtures.json',import.meta.url),'utf8'));
 export async function checkWordFixtures(page,base){
  const results=[];
- for(const name of ['generated-parity-word-boundaries','generated-parity-semantic-word-baseline','semantic-word-selected']){
+ for(const name of wordFixtures){
   const script=await fs.readFile(`build/${name}/script.json`,'utf8');
   const expected=await fs.readFile(`build/${name}/expected.json`,'utf8');
   results.push(await page.evaluate(async({base,name,script,expected})=>{

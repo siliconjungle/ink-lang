@@ -1,0 +1,75 @@
+{
+  "schema": 1,
+  "review_snapshot": "84ac70dcbed062599cfa2e06f5d95d7c502d9925",
+  "llvm_revision": "d977b4533f1d9b01d28cf4dba9b2db9d1ccfda08",
+  "scope": "Source audit and partial validation checkpoint; not a completion or performance claim",
+  "findings": [
+    {
+      "id": "contract-fixtures",
+      "finding": "Five committed fixtures fail exact source attachment: checked-sets, indexed-sets, owned-invariant-storage, storage-generic, storage-regions. authored-measures is termination evidence, not a contract packet.",
+      "action": "Normal reauthoring; new early CI test discovers every immediate fixture directory with proofs.json, checks full contracts and the distinct termination bundle. Three repairs locally installed; remaining two pending."
+    },
+    {
+      "id": "callback-scope",
+      "finding": "callbacks::lift tries optional normalization before a scope mismatch branch that leaves the obligation unchanged for either verdict. A real storage derivation sample spent its sampled time in callback lifting and semantic normalization.",
+      "action": "Moved the existing scope check ahead of optional proof work; added a foreign-scope versus empty-local-domain regression. 88 core unit and53 focused integration tests pass. Full core test build exhausted disk; complete CI and differential output checks remain pending. Sample does not establish savings from this particular reorder."
+    },
+    {
+      "id": "contract-gates",
+      "finding": "Exact source attachment is distinct from proof replay. Pure/action obligations, raw ingress guards and exact typed invariant metadata are checked separately. ProofContext captures immutable source and derived obligations but rechecks each proposed dependency bundle and proof.",
+      "action": "Preserve all gates. Generic author --source-evidence attaches exact evidence before export, so stale evidence cannot be passed as already valid context. A local replay experiment rejected an obsolete owned-storage proof; fresh authoring was required."
+    },
+    {
+      "id": "scoped-facts",
+      "finding": "facts::consequences proves every actual precondition before adding postconditions, does not descend through unopened lambdas and uses hygienic binder scopes. Descriptions are bounded to1024 visited sites; at() re-derives facts for an exact selection path.",
+      "action": "Retain independent admission. Repeated descendant scans and derivation across export/session are potential compile-time work to measure, not established performance gains."
+    },
+    {
+      "id": "llvm-scope",
+      "finding": "LLVM ScopedHashTable uses separate per-key shadow chains and per-scope entry chains. Scope destruction restores bindings in stack order. Explicit erase removes the latest visible binding, including parent-owned entries; insertion into noncurrent scopes has a documented no-underlying-shadow constraint. Missing lookup returns V(), so absence needs count/iterator when default is a meaningful value.",
+      "action": "Apply scope-lifetime and shadowing requirements to any future fact cache. Do not import this C++ container or its erase semantics blindly into immutable proof scopes; current Ink binder mechanisms already cover much of this need."
+    },
+    {
+      "id": "test-coverage",
+      "finding": "Set tests compare structural identity including raw float bits, boundary validation and error behavior, immutable handle facts, exact state history, restoration, and forged proof rejection. Storage tests cover refined payloads, scope/type rejection, rollback and portability. Their numeric GPU controls do not establish device execution for Set/storage algorithms.",
+      "action": "Set6tests and owned-storage2tests passed locally with Rust-Wasm enabled before callback reorder; current edited-core checks listed separately. Whole storage suite, latest early gate and remote CI remain open."
+    }
+  ],
+  "validation": {
+    "set_tests": 6,
+    "set_wasm_values_per_fixture": 30,
+    "set_fixtures": 2,
+    "boundary_comparisons": 1300,
+    "handle_consumers": 8,
+    "owned_storage_tests": 2,
+    "core_unit_tests": 88,
+    "focused_contract_tests": 53,
+    "application_performance_claim": false
+  },
+  "evidence": [
+    {
+      "path": "work/llvm-learning-smoke/contract-fixtures-gate-before.log",
+      "sha256": "18594f197baaf6b688e68dc2774a9de7ac69006c2355cd3b65f0079cc3ff1572"
+    },
+    {
+      "path": "work/llvm-learning-smoke/checked-sets-cross-target.log",
+      "sha256": "a3978276784952c4fb9de0863aa9f70072e4a11c84a3e8b270956124c037c27c"
+    },
+    {
+      "path": "work/llvm-learning-smoke/owned-storage-cross-target.log",
+      "sha256": "b83659812e41aed339eca475de6d9c67d19dd20b00a2c2685952e2bd069bcec7"
+    },
+    {
+      "path": "work/llvm-learning-smoke/callback-scope-core-lib.log",
+      "sha256": "811556778aec14ef9fbab29811333f616b7ebdd365dc65609859522d10dd5477"
+    },
+    {
+      "path": "work/llvm-learning-smoke/callback-scope-core-contracts.log",
+      "sha256": "fea4b09c2b91be72486882765dccd71c2bd41a8f0e3fb84b1729ddb22ee47807"
+    },
+    {
+      "path": "work/llvm-learning-smoke/storage-obligation-sample.txt",
+      "sha256": "07d4df2aa4d84a7eab723ec85519f1374efce62c8aa24f41b292ccb82d56dafd"
+    }
+  ]
+}
