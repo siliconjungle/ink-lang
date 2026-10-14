@@ -5,6 +5,17 @@ The knowledge database supplies the row contribution, combination, inverse and
 identity, together with proofs. The JavaScript source-state emitter executes those
 checked definitions and updates auxiliary folds at concrete cell mutations.
 
+## Selection
+
+Ordinary compilation selects a plan made only of maintained folds without a
+workload profile: each cell write does a constant amount of extra work, and each
+read of a maintained keep is constant time instead of a scan of the table, so no
+workload makes it asymptotically worse. This is the single evidence-free selection
+rule (`planner/ink_planner/static_dominance.py`); plans with any other step remain
+evidence-gated, and supplied profiles, measurements or a validated work model
+still decide first. On a 4,000-row table, a JavaScript write followed by a read of
+a summed keep drops from 17.8 to 4.6 µs.
+
 ## Admission and scope
 
 A `maintained` step in an `ink-compiled-plan-v1` packet carries
