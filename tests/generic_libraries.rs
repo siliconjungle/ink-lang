@@ -4,9 +4,11 @@ use verified_language::{eval, modules, stateful::Runtime};
 mod parity;
 #[test]
 fn external_generic_libraries_have_deterministic_semantics_and_backend_parity() {
-    let p = modules::load("examples/libraries/main.ink")
+    let mut p = modules::load("examples/libraries/main.ink")
         .unwrap()
         .program;
+    verified_language::contracts::attach(&mut p,
+        serde_json::from_str(include_str!("../examples/libraries/proofs.json")).unwrap()).unwrap();
     let runtime = Runtime::new(p.clone()).unwrap();
     let verified_language::syntax::Type::Result(_, error) = &p
         .functions
