@@ -115,6 +115,7 @@ jobs:
           PYTHONPATH=planner:knowledge python3 -m unittest discover -s planner/tests -p test_measured_selection.py
           PYTHONPATH=planner:knowledge python3 -m unittest discover -s knowledge/tests -p test_selection_probes.py
           PYTHONPATH=planner:knowledge python3 planner/tests/automatic_measurement_integration.py target/debug/ink javascript
+          PYTHONPATH=planner:knowledge python3 planner/tests/automatic_measurement_integration.py target/debug/ink rust
           PYTHONPATH=planner:knowledge python3 -m unittest discover -s planner/tests -p test_offline_measurements.py
           PYTHONPATH=planner:knowledge python3 -m unittest discover -s planner/tests -p test_static_dominance.py
           PYTHONPATH=planner:knowledge python3 -m unittest discover -s knowledge/tests -p test_boolean_groups.py
