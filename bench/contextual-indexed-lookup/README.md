@@ -39,3 +39,10 @@ Use `--seed-offset N` when registering a subsequent experiment to obtain distinc
 training, rejection-only validation and evaluation inputs. The offset is recorded
 before acquisition; changing it does not make this development source an unseen
 program. Never use evaluation measurements to choose or repair that run's plan.
+
+`--training-grid` replaces the large training/validation workload with two distinct
+registered Cartesian grids spanning empty, small and large key/query counts. Each
+operation/shape is a separate equally weighted measurement phase, so construction
+costs on low-query workloads remain visible. The small-workload plan and all
+registered evaluation cells remain in the report. Choose an offset before running;
+evaluation results must not fit the guarded cutoffs or choose a plan.
