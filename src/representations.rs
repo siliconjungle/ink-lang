@@ -337,10 +337,15 @@ pub fn emit(checked: &CheckedRepresentation, target: &str, output: &Path) -> Lan
             None,
             target,
         ),
-        "c" | "wasm" | "wasm32" | "c-wasm" | "wgpu" | "gpu" => {
+        "wgpu" | "gpu" => project(
+            output,
+            &ink_lowering_gpu::lower_representation(checked)?,
+            None,
+            target,
+        ),
+        "c" | "wasm" | "wasm32" | "c-wasm" => {
             let emitted = match target {
                 "wasm" | "wasm32" | "c-wasm" => ink_lowering_wasm::lower_representation(checked)?,
-                "wgpu" | "gpu" => ink_lowering_gpu::lower_representation(checked)?,
                 _ => ink_lowering_c::representation_program::lower(checked)?,
             };
             project(output, &emitted.rust, Some(&emitted.c), target)
