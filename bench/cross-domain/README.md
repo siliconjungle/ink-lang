@@ -67,6 +67,28 @@ The numeric primitive suite exercises raw float edges and eligible GPU calls.
 Broader planning reuse is evaluated on the unchanged `bench/planning-corpus`
 using private knowledge copies.
 
+## Owned scalar-record map emission
+
+`scalar-record-map-results.json` isolates a Rust lowering change against distribution
+`1a4f7634` and its exact pins. Both variants use the same checked helper unfolding
+and direct-buffer plan. The changed emitter uses an explicit ordered loop over
+private owned storage for same-type maps of flat fixed-width scalar records.
+Borrowed traversals, column carriers and explicit reservations retain their paths.
+There is no algorithm substitution, reassociation or new language syntax.
+
+Eight balanced fresh-process rounds on an Apple M4 Pro measured new/old time
+ratios of 0.3803 (95% bootstrap interval 0.3786–0.3836) for 16,384 physics rows
+and 0.9424 (0.9367–0.9465) for 16,384 ECS rows. Their matched Rust-control ratios
+were 0.9935 and 1.0031 respectively. Other large kernels were unchanged within
+the reported intervals. This is incremental to the earlier inline/direct-buffer
+experiment, not a comparison with complete physics or ECS engines.
+
+The lowering regression checks allocation reuse, captured-source isolation,
+ordered branch results, wrapping arithmetic and raw float payload preservation.
+The existing cross-domain and numeric suites check reference, C, Rust, JavaScript,
+both Wasm targets and eligible numeric GPU work. Conformance does not establish
+a speed claim outside the measured host and workload.
+
 ## Remaining work
 
 Real engine lifecycle workloads, additional language implementations, hot and
