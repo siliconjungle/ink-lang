@@ -1,0 +1,54 @@
+{
+  "schema": 1,
+  "llvm_revision": "d977b4533f1d9b01d28cf4dba9b2db9d1ccfda08",
+  "ink_revision": "84ac70dcbed062599cfa2e06f5d95d7c502d9925",
+  "reviewed_files": [
+    {
+      "path": "llvm/include/llvm/IR/PassManagerInternal.h",
+      "bytes": 12769,
+      "insights": [
+        "Pass/result type erasure uses explicit function pointers and typed deleters; the implementation comment motivates avoiding vtable relocation/indirection, not evidence of an Ink speedup.",
+        "Analysis invalidation delegates to custom result dependencies where available; otherwise absence from preserved analysis/IR sets invalidates.",
+        "Move-only lifetime and IR-specific result types are part of cache correctness; these are not proof-preservation certificates."
+      ]
+    },
+    {
+      "path": "llvm/lib/IR/PassManager.cpp",
+      "bytes": 7115,
+      "insights": [
+        "Module-to-function proxies clear all inner results if key lifetime cannot be guaranteed after function deletion. Preserving the proxy requires clearing removed function keys.",
+        "Invalidation of an outer analysis can revoke an otherwise preserved inner result through dependency registration.",
+        "Function adaptor invalidates after each function pass and intersects preserved sets; the claim that one function pass cannot mutate another is a pass contract, unsuitable as untrusted proof authority.",
+        "Opt-bisect instrumentation can skip passes for diagnosis; this does not justify changing mandatory checking or treating diagnostics as semantic evidence."
+      ]
+    },
+    {
+      "path": "llvm/include/llvm/IR/PassManagerImpl.h",
+      "bytes": 8862,
+      "insights": [
+        "Cache lookup keys include analysis identity and IR identity. A recursively computed dependency may rehash the map, so insertion iterators are reacquired after running an analysis.",
+        "Invalidation first computes dependent validity, then removes results; it does not destroy dependencies while other invalidation queries still need them.",
+        "The invalidation map is memoized per event; cycle detection is an assertion in this trusted pass infrastructure. Ink requires explicit resource/error handling for untrusted proposals rather than importing this trust assumption.",
+        "Instrumentation runs on analysis cache misses and invalidation; separate analysis construction cost from execution cost in benchmarks."
+      ]
+    }
+  ],
+  "ink_followup": {
+    "finding": "emit-contract-obligations and ProofContext::new separately derive the same pure obligations. The generic author executes export, starts a fresh proof session and then performs final module checking.",
+    "candidate": "Expose export from the same immutable ProofContext used for proposal checking, preserving original obligation order, exact source identity, definitions, state derivation, bounded transport and independent checks of every proposal. Keep final full module admission.",
+    "requirements": [
+      "No mutable-source cache or caller preservation promise.",
+      "No caching of a previous checked verdict as substitute for checking a new proof/dependency bundle.",
+      "Compare exported packets byte-for-byte with current export and reject stale source/unknown goals/wrong proof/bundle.",
+      "Retain existing source-evidence/refinement semantics and explicit resource limits.",
+      "Measure end-to-end authoring separately from runtime/application speed."
+    ],
+    "status": "source-backed implementation opportunity; not implemented in this checkpoint"
+  },
+  "validation": {
+    "core_full_tests": 361,
+    "full_core_log": "work/llvm-learning-smoke/callback-scope-core-full-retry.log",
+    "full_core_log_sha256": "da4199036a94b4d509dcf6c575faac91266f73a335e5d7a2cc1efdff92fb6e17",
+    "performance_claim": false
+  }
+}

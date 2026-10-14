@@ -108,6 +108,7 @@ jobs:
         node lowerings/gpu/tests/device_graph.mjs
     - name: Independent core and source-bound value admission
       run: |
+        cargo test --test contract_fixtures -- --nocapture
         cargo test --manifest-path core/Cargo.toml --offline
         cargo test --manifest-path lowerings/rust/Cargo.toml --lib
         # The whole suite: fuzz_logic_objects re-declares every first-order
@@ -1072,6 +1073,7 @@ jobs:
     - name: Browser CPU, JavaScript and actual WebGPU parity
       run: |
         node --test bench/gpu/contract-replay.test.mjs
+        python3 -m unittest discover -s bench/gpu -p 'test_prepare_browser.py'
         INK_TEST_WASM=1 cargo test --test feature_parity gpu -- --nocapture --test-threads=1
         INK_TEST_WASM=1 cargo test --test bend_features parallel_buffers_recursion_and_scratch_agree_on_all_backends -- --nocapture
         INK_TEST_WASM=1 cargo test --test source_contracts -- --nocapture --test-threads=1
