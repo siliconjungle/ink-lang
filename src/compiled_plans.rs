@@ -48,7 +48,6 @@ pub fn emit(plan: &CheckedPlan, target: &str, output: &Path) -> LangResult<()> {
             "rust-wasm" => crate::representations::project(
                 output,
                 &ink_lowering_rust::representation_program::lower_planned(plan)?,
-                None,
                 target,
             )?,
             _ => crate::representations::emit(representation, target, output)?,

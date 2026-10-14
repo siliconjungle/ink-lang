@@ -88,7 +88,7 @@ def prepare(args):
             selected=td/f'{"gpu-" if is_gpu else ""}{kind}-selection.json'
             extra=[] if kind=='baseline' else ['--selection',selected]
             target=report/output_kind/name
-            run([compiler,'build',core,'--core','--target','webgpu','--zig',args.zig,*extra,'-o',target],commands)
+            run([compiler, 'build', core, '--core', '--target', 'webgpu', *extra, '-o', target],commands)
             manifest=json.loads((target/'manifest.json').read_text());fn=next(f for f in manifest['functions'] if f['name']==name)
             if is_gpu:
                 gpu[kind][name]=dict(schema=manifest['schema'],shader=fn.get('shader'),stages=(fn.get('gpu') or {}).get('stages'),aggregate=(fn.get('gpu') or {}).get('aggregate'),parameter_count=len(task['params']),reason=fn.get('fallback_reason',fn.get('gpu_reason',fn.get('cpu_reason'))),timing_eligible=bool(fn.get('gpu')) if manifest['schema']==1 else bool(fn.get('shader')),bundle=output_kind+'/'+name,policy='baseline' if kind=='baseline' else 'gpu-cost-model')
@@ -237,7 +237,6 @@ def main():
     for name in ['report','compiler','knowledge','prior_snapshot','input_preparation','cost_model','gpu_cost_model']:setattr(args,name,getattr(args,name).resolve())
     if not 3<=args.repeats<=128 or not 1<=args.warmup<=10 or not 0<args.seconds<=1 or any(not 0<n<=100000 for n in args.sizes):p.error('invalid parameters')
     if args.prepare:
-        if not args.zig:p.error('--zig required')
         args.zig=args.zig.resolve();prepare(args)
     if args.node:
         if (args.report/'node-results.json').exists():raise ValueError('archived results exist')

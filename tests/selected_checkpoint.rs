@@ -195,7 +195,7 @@ fn compiled_native_durable_files_continue_across_checked_selection() {
         let code=match backend{"baseline-rust"=>verified_language::state_native::emit(module.program()).unwrap(),"selected-rust"=>verified_language::state_native::emit_selected(&selected).unwrap(),_=>verified_language::state_native::emit(selected.module().program()).unwrap()};
         ink_runtime::emit_rust_program(&code,&project).unwrap();
         let binary = project.join("program");
-        ink_runtime::toolchain::complete_program(&project, false, &binary, "cargo", None).unwrap();
+        ink_runtime::toolchain::complete_program(&project,false,&binary,"cargo").unwrap();
         let snapshot = project.join("snapshot");
         let out = Command::new(binary)
             .arg(&script)

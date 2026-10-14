@@ -5,7 +5,7 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
 p=argparse.ArgumentParser(description=__doc__);p.add_argument('--zig',default=os.environ.get('INK_TEST_ZIG','zig'));a=p.parse_args()
 subprocess.run(['cargo','build','--locked','--bin','ink'],cwd=ROOT,check=True)
-subprocess.run([str(ROOT/'target/debug/ink'),'build',str(ROOT/'bench/gpu-signals/compute.ink'),'--target','webgpu','--zig',a.zig,'-o',str(ROOT/'build/gpu-signals/ink')],cwd=ROOT,check=True)
+subprocess.run([str(ROOT / 'target/debug/ink'), 'build', str(ROOT / 'bench/gpu-signals/compute.ink'), '--target', 'webgpu', '-o', str(ROOT / 'build/gpu-signals/ink')],cwd=ROOT,check=True)
 fixtures=[]
 for kind in ['affine','cheap-sum','heavy512','feedback32']:
  for n in [0,1,63,64,65,257]:

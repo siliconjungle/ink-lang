@@ -23,7 +23,7 @@ A new primitive needs general semantics, explicit trust documentation and meanin
 adversarial and cross-target validation. `foldr` and `fold_until` have distinct fixed
 iteration semantics; proofs selecting early termination stay in the database.
 
-Every backend uses `ink-abi`. It owns value descriptors, packed layouts, C headers,
+Every backend uses `ink-abi`. It owns value descriptors, packed layouts,
 and the shared host decision contract. Browser hosts run the same Rust decision
 and workload-feature code through Wasm; do not duplicate those algorithms.
 `ink-native-support` owns emitted value/ownership primitives and state exports.

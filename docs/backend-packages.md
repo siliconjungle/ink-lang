@@ -17,7 +17,7 @@ The `ink` distribution combines that core with independently pinned repositories
 
 JavaScript emits portable ES modules; see [its value and selection contract](javascript-backend.md).
 Rust toolchains produce native machine code or Wasm. WebGPU and native wgpu
-share shader lowering. Runtime assembles GPU artifacts with compiled C/Wasm
+share shader lowering. Runtime assembles GPU artifacts with compiled Rust/Wasm
 fallback. GPU shader emission is independent; its recursive host lanes reuse
 literal Rust and JavaScript representation emission. ABI contracts and emitted native
 support live in `ink-abi` and `ink-native-support`. Core source lives entirely

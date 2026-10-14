@@ -184,7 +184,7 @@ fn database_only_helpers_compose_and_preserve_values_transactions_and_snapshots(
         )
         .unwrap();
         let wasm_check = include_str!("lowering-parity-wasm.mjs")
-            .replace("['c','rust']", "['reserved']")
+            .replace("['rust']", "['reserved']")
             .replace(
                 "`${backend}/target/wasm32-unknown-unknown/debug/compiled_state.wasm`",
                 "'target/wasm32-unknown-unknown/debug/compiled_state.wasm'",

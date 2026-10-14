@@ -26,7 +26,7 @@ def prepare():
  if R.exists()and any(R.iterdir()):raise ValueError('preserve adaptive preparation')
  R.mkdir(parents=True);commands=[]
  for name in ['source.ink','literal.core.json','checked.selection.json']:shutil.copy2(A/name,R/name)
- for argv in [[COMP,'emit-core',R/'literal.core.json','--core','--selection',R/'checked.selection.json','-o',R/'checked.core.json'],[COMP,'build',R/'checked.core.json','--core','--target','webgpu','--zig',B.parent/'toolchain/zig-aarch64-macos-0.15.2/zig','-o',R/'bundle']]:
+ for argv in [[COMP,'emit-core',R/'literal.core.json','--core','--selection',R/'checked.selection.json','-o',R/'checked.core.json'],[COMP, 'build', R / 'checked.core.json', '--core', '--target', 'webgpu', '-o', R / 'bundle']]:
   p=subprocess.run(list(map(str,argv)),cwd=B,capture_output=True,text=True);commands.append(dict(argv=list(map(str,argv)),exit_code=p.returncode,stdout=p.stdout,stderr=p.stderr));assert p.returncode==0,p.stderr
  assert json.loads((R/'checked.core.json').read_text())==json.loads((A/'checked.core.json').read_text()),'checked source meaning changed'
  fixtures=[fixture(n,mode,shape,split)for split,sizes in [('training',[32,65536]),('heldout',[2048,4096])]for n in sizes for mode in ['low','high']for shape in ['empty-suffix','long-suffix']]
