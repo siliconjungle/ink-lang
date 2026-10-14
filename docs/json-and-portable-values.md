@@ -66,7 +66,7 @@ if (Object.hasOwn(result, 'Ok')) console.log(documents.toJS(result.Ok));
 
 These are explicit JavaScript host adapters to the same recursive `Json` type.
 They do not add source primitives, alter portable schemas/checkpoints, or run in
-native Rust/C/Wasm execution. Existing calls and codecs do not invoke them.
+native Rust and Rust/Wasm execution. Existing calls and codecs do not invoke them.
 Their source bytes are included in generated JavaScript; traversal work and
 allocation occur only when the methods are called. The resulting logical value
 can use ordinary calls or existing portable/compact binary calls. A JavaScript
@@ -149,9 +149,9 @@ console.log(documents.stringify(result.Ok));
 // {"received":true,"title":"hello","unknown":1e10000}
 ```
 
-Generated native C/Rust packages expose `State::call_binary`,
+Generated native Rust packages expose `State::call_binary`,
 `State::binary_schemas`, `State::validate_binary_arguments` and `ValueWireLimits`.
-C and both Wasm hosts additionally expose optional `lang_call_binary(state,
+The Rust/Wasm host additionally exposes optional `lang_call_binary(state,
 function_index,arguments_buffer)`, returning a raw result buffer (zero on error,
 read `lang_error`). Indices enumerate sorted supported wire signature names.
 `StateInstance.pureBinary(index,bytes)` is the browser/Node adapter. These are
@@ -214,7 +214,7 @@ text output is an owned string without requiring a detached intermediate tree.
 
 ## Compiler, database and trust boundary
 
-Compiler changes are stable, hygienic naming of all payload enums and a shared generic recursive-record analysis. C checkpoint schema construction now handles bound recursive types with explicit budgets. JSON
+Compiler changes are stable, hygienic naming of all payload enums and a shared generic recursive-record analysis. Schema derivation handles bound recursive types with explicit budgets. JSON
 algorithms and datatype definitions stay in knowledge. General schema derivation,
 byte codecs, bounded validation and entrypoint plumbing live in ABI/support,
 lowerings and runtime. No JSON-specific rewrite or storage strategy is selected
@@ -232,10 +232,9 @@ already ordered fields need no reorder copy. Unknown, missing or duplicate names
 invalid numbers, forged frames and lowered resource-limit violations reject.
 
 Generated Rust binary calls decode directly into the emitted native types through
-`BinaryValue` and encode those types through the ABI's bounded `Encoder`. C calls
-decode directly into their ordinary typed value arena and emit frames from arena
-values. Both paths preserve preconditions, raw f32 bits and exact Int. Wasm uses
-the same implementations, with copies at its memory boundary. Calls still
+`BinaryValue` and encode those types through the ABI's bounded `Encoder`.
+This path preserves preconditions, raw f32 bits and exact Int. Rust/Wasm uses
+the same implementation, with copies at its memory boundary. Calls still
 materialise native values, and source algorithms retain their normal ownership
 costs; this is not zero-copy execution of arbitrary compiled programs.
 

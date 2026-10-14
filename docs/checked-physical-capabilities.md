@@ -189,7 +189,7 @@ sites retain their meanings. A scoped site for `read(x)` does not also borrow
 borrowed implementation. Public functions with no affine arguments or result also
 export that safe Rust entry as `ink_borrowed_function_l_NAME`, so native library
 callers can retain a document while querying or saving it without cloning its
-owning value. Wire/native C entry points keep their existing owning signatures.
+owning value. Wire entry points keep their existing owning signatures.
 Immutable field observations through an already
 borrowed binding share that lifetime. Computed arguments and projections from
 affine owners are first materialised as ordinary owning temporaries, then lent

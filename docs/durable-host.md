@@ -1,7 +1,7 @@
 # Durable compiled state
 
-`ink-runtime` supplies durable hosts for generated native C/Rust executables,
-JavaScript modules and the complete C/Rust Wasm ABI. The JavaScript host lives
+`ink-runtime` supplies durable hosts for generated native Rust executables,
+JavaScript modules and the complete Rust/Wasm ABI. The JavaScript host lives
 in `hosts/durable-state.mjs`; the native host in `src/durable.rs`. Each host serializes calls, restores a private candidate
 from the published checkpoint, executes once, and persists one record containing
 the new checkpoint and retry receipt before returning the reply. Failed actions
@@ -15,7 +15,7 @@ across compatible compiled backends for the same checked program.
 
 ## Node file host
 
-Complete C/Rust projects and mixed web bundles include `durable-state.mjs`,
+Complete Rust projects and mixed web bundles include `durable-state.mjs`,
 `durable-file.mjs` and `state-wasm.mjs`. A JavaScript module can use these hosts
 from the runtime checkout too:
 
@@ -57,7 +57,7 @@ publication. If the Wasm module traps, reopen with a fresh module instance.
 
 ## Native executable and embedding
 
-Complete C/Rust projects include the same durable protocol and a native runner:
+Complete Rust projects include the same durable protocol and a native runner:
 
 ```sh
 ink build examples/inventory.lang -o build/inventory
@@ -161,11 +161,11 @@ performance evaluation remain separate work.
 serialization, writes failing before/after publication, stale writers, receiver
 failures, duplicate delivery, bounded receipts, file recovery and corruption.
 `cargo test --test durability` also exercises native failure injection and
-generated C/Rust executable recovery. Both native processes exit after synced
+generated Rust executable recovery. Native processes exit after synced
 publication but before replying, then reopen to check retries, aborts, outbox
 acknowledgements, exact cross-backend snapshots and corruption rejection. It
 executes generated JavaScript too. Set
-`INK_TEST_ZIG=/path/to/zig` to include complete C and Rust Wasm. Each backend's
+`INK_TEST_WASM=1` to include Rust/Wasm. Each backend's
 child process exits after persistence and before returning its reply; recovery
 and retry apply the action once, retain the outbox and preserve rollback.
 
