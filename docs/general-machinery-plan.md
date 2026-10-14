@@ -60,8 +60,9 @@ quadratic. Immutable JavaScript handles now transport established type guarantee
 to eight consumers, while other requires clauses still run; the observer returns
 its established guarantee directly. The ordinary Set fixture replays 57 pure/10
 state proofs, its indexed counterpart 51/10, and the library examples 23 pure
-proofs. Construction's full functional equivalence, persistent indexed value
-representations, native/Wasm performance and the broader workstreams remain open.
+proofs. Construction's complete ordered-value equivalence now checks through a
+14-object canonical closure. Persistent indexed value representations,
+automatic selection, native/Wasm performance and the broader workstreams remain open.
 See `docs/checked-set-interfaces.md` for the precise evidence and limits.
 
 Latest checkpoint (14 October): the programme is still incomplete. The collection

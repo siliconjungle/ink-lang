@@ -2,7 +2,7 @@
 //! Allocation identity/failure and fuel are outside the total-value domain.
 use crate::{
     core::{Program, Type},
-    semantic::{arrow, op, term, value, word, Node, Sort, Term},
+    semantic::{arrow, lambda as lam, op, term, value, word, Node, Sort, Term},
     LangResult,
 };
 
