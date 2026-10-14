@@ -1,0 +1,39 @@
+Browser portfolio/profile evaluation
+
+portfolio-profile-results.json summarizes five independent held-out Chrome
+processes. Raw measurements, three training processes, the fitted profile and
+immutable fitting observations are in portfolio-profile-evidence/.
+
+Generate training records with portfolio-profile-browser.mjs train OUTPUT.
+Fit them with fit-portfolio-profile.py PROFILE TRAIN0 TRAIN1 TRAIN2. Its output
+directory must not already contain profile-knowledge: retain previous evidence.
+Generate fresh held-out records with portfolio-profile-browser.mjs test OUTPUT
+PROFILE. Summarize test-0.json through test-4.json and train-0.json through
+train-2.json with summarize-portfolio-profile.py INPUT_DIRECTORY OUTPUT_JSON.
+Run from the repository root with bench/gpu's Playwright dependency installed.
+
+The harness expects build/cross-domain-webgpu-probe, compiled from
+bench/cross-domain/main.ink with the WebGPU target. The archived run used the
+frozen build/projected-read-compiler/ink; compiler and source hashes are recorded.
+Rebuilding with another compiler produces a new experiment, not a replacement
+for these observations. The profile is bound to its exact program and target.
+
+Every measured invocation checks complete outputs against independently written
+word and rounded-binary32 oracles outside the timed boundary. Explicit GPU work
+requires actual dispatch, not host fallback. Five browser process medians are
+the statistical units; inner repetitions are not independent processes.
+
+Single-call WebGPU was slower than browser CPU in all six held-out cases. The
+trained profile chose CPU in all six. This matches the faster forced backend,
+but does not improve on the unprofiled CPU default; selection adds overhead.
+At 131072 items over 32 resident steps, GPU step/completion was 12.2x faster for
+ECS and 4.9x faster for particle integration. Whole lifecycle gains were only
+1.18x and 1.19x after setup, upload and full output readback.
+
+Resident auto currently ignores attached cost profiles and prefers GPU. The
+resident auto/profile rows therefore measure a fixed policy, not learned
+placement. Ordinary-call profiles must not be reused as resident cost evidence.
+Only ECS and particle physics are GPU eligible in this bundle. The other six
+portfolio kernels use host fallback. Particle physics is integration with floor
+bounce, not a Box2D rigid-body simulation. These browser boundary measurements
+are not comparable to native Rust kernel-only timings.

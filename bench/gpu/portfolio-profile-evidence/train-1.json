@@ -1,0 +1,410 @@
+{
+  "schema": 1,
+  "environment": {
+    "browser": "155.0.8059.41",
+    "platform": "darwin",
+    "architecture": "arm64",
+    "cpu": "Apple M4 Pro"
+  },
+  "source_hashes": {
+    "bench/gpu/portfolio-profile-browser.mjs": "29c38dc3bfada112620bb0cb2f49c55bb94f832ed34ebcc292c9efaa1c1d8164",
+    "bench/cross-domain/main.ink": "444a82b7ecd463c6a2215e441c39b3c6be5f370ac93731f44e2106145c209904",
+    "knowledge/libraries/workload_kernels.ink": "78c217a0c39f6efc7e131877c407448a00efe8ac850161897a685b4d896f9128",
+    "build/cross-domain-webgpu-probe/manifest.json": "6bee25189e190501365db705b454e09030ee614a6b52dcbcd93526879bcf47e0",
+    "build/cross-domain-webgpu-probe/gpu/f0/manifest.json": "711e99d1f58caf47d76d30a5522a60f6d3ddfa542345ecfae5875df45a9e5d0c",
+    "build/cross-domain-webgpu-probe/gpu/f7/manifest.json": "385509e7f7030e00b9e9a4c54354bb82dadc58a40a2eaefa6d90785f3d2d61c1",
+    "build/projected-read-compiler/ink": "592a3789f58f52225aad5b6a3b8840f6c859524fcd8d1c2ee5220a7b414306c0"
+  },
+  "mode": "train",
+  "device": {
+    "vendor": "apple",
+    "architecture": "metal-3",
+    "device": "",
+    "description": "",
+    "isFallbackAdapter": false
+  },
+  "targetKey": "{\"browser\":\"155.0.8059.41\",\"platform\":\"darwin\",\"architecture\":\"arm64\",\"cpu\":\"Apple M4 Pro\",\"device\":{\"vendor\":\"apple\",\"architecture\":\"metal-3\",\"device\":\"\",\"description\":\"\",\"isFallbackAdapter\":false}}",
+  "crossOriginIsolated": true,
+  "receipts": [
+    {
+      "kernel": "ecs",
+      "n": 256,
+      "scope": "[\"c235dcaafd234a433e2309ab1450def5e1abc8dcaef0ea2f12618c903ef6a78a\",\"b714485dc4814482667cb8a1e8ee1616d5a9507b6514cf0512d5c1b9ebd30ec3\",\"f864738144dc60e53c239278b9c344da5eaef21dbae26f3fc3ccecfbe0e89b97\",\"ecs\"]",
+      "core_sha256": "c235dcaafd234a433e2309ab1450def5e1abc8dcaef0ea2f12618c903ef6a78a",
+      "features": {
+        "input_elements": 256,
+        "input_bytes": 4096,
+        "output_capacity_elements": 256,
+        "dispatches": 1,
+        "iterations": 1
+      },
+      "boundary": "captured-owned",
+      "samples_ns": {
+        "cpu": [
+          190000.05722045898,
+          154999.9713897705,
+          144999.98092651367,
+          105000.01907348633,
+          115000.00953674316,
+          119999.88555908203,
+          140000.1049041748,
+          115000.00953674316
+        ],
+        "gpu": [
+          1025000.0953674316,
+          1315000.057220459,
+          654999.9713897705,
+          674999.9523162842,
+          1130000.114440918,
+          990000.0095367432,
+          780000.2098083496,
+          765000.1049041748
+        ]
+      },
+      "backends": {
+        "cpu": "cpu",
+        "gpu": "gpu"
+      },
+      "counters": {
+        "cpu": {
+          "upload_bytes": 0,
+          "readback_bytes": 0,
+          "dispatches": 0
+        },
+        "gpu": {
+          "upload_bytes": 4108,
+          "readback_bytes": 4100,
+          "dispatches": 1,
+          "live_buffer_bytes": 16408,
+          "resident_copy_bytes": 0
+        }
+      },
+      "reasons": {
+        "cpu": "explicit backend selection",
+        "gpu": "explicit backend selection"
+      },
+      "first_call_ns": {
+        "cpu": 2254999.876022339,
+        "gpu": 21375000
+      },
+      "validated": true
+    },
+    {
+      "kernel": "ecs",
+      "n": 8192,
+      "scope": "[\"c235dcaafd234a433e2309ab1450def5e1abc8dcaef0ea2f12618c903ef6a78a\",\"b714485dc4814482667cb8a1e8ee1616d5a9507b6514cf0512d5c1b9ebd30ec3\",\"f864738144dc60e53c239278b9c344da5eaef21dbae26f3fc3ccecfbe0e89b97\",\"ecs\"]",
+      "core_sha256": "c235dcaafd234a433e2309ab1450def5e1abc8dcaef0ea2f12618c903ef6a78a",
+      "features": {
+        "input_elements": 8192,
+        "input_bytes": 131072,
+        "output_capacity_elements": 8192,
+        "dispatches": 1,
+        "iterations": 1
+      },
+      "boundary": "captured-owned",
+      "samples_ns": {
+        "cpu": [
+          3514999.8664855957,
+          3250000,
+          3259999.990463257,
+          3260000.228881836,
+          3424999.952316284,
+          3025000.0953674316,
+          3309999.942779541,
+          3225000.1430511475
+        ],
+        "gpu": [
+          4799999.952316284,
+          4450000.047683716,
+          4430000.066757202,
+          3994999.885559082,
+          4359999.895095825,
+          4210000.038146973,
+          4880000.114440918,
+          3970000.0286102295
+        ]
+      },
+      "backends": {
+        "cpu": "cpu",
+        "gpu": "gpu"
+      },
+      "counters": {
+        "cpu": {
+          "upload_bytes": 0,
+          "readback_bytes": 0,
+          "dispatches": 0
+        },
+        "gpu": {
+          "upload_bytes": 131084,
+          "readback_bytes": 131076,
+          "dispatches": 1,
+          "live_buffer_bytes": 524312,
+          "resident_copy_bytes": 0
+        }
+      },
+      "reasons": {
+        "cpu": "explicit backend selection",
+        "gpu": "explicit backend selection"
+      },
+      "first_call_ns": {
+        "cpu": 3664999.9618530273,
+        "gpu": 4620000.123977661
+      },
+      "validated": true
+    },
+    {
+      "kernel": "ecs",
+      "n": 262144,
+      "scope": "[\"c235dcaafd234a433e2309ab1450def5e1abc8dcaef0ea2f12618c903ef6a78a\",\"b714485dc4814482667cb8a1e8ee1616d5a9507b6514cf0512d5c1b9ebd30ec3\",\"f864738144dc60e53c239278b9c344da5eaef21dbae26f3fc3ccecfbe0e89b97\",\"ecs\"]",
+      "core_sha256": "c235dcaafd234a433e2309ab1450def5e1abc8dcaef0ea2f12618c903ef6a78a",
+      "features": {
+        "input_elements": 262144,
+        "input_bytes": 4194304,
+        "output_capacity_elements": 262144,
+        "dispatches": 1,
+        "iterations": 1
+      },
+      "boundary": "captured-owned",
+      "samples_ns": {
+        "cpu": [
+          110099999.90463257,
+          112420000.07629395,
+          108039999.96185303,
+          106629999.87602234,
+          107764999.8664856,
+          109370000.12397766,
+          110700000.04768372,
+          107180000.0667572
+        ],
+        "gpu": [
+          112250000,
+          141815000.05722046,
+          108525000.09536743,
+          110044999.83787537,
+          111829999.92370605,
+          112299999.95231628,
+          113200000.04768372,
+          133634999.99046326
+        ]
+      },
+      "backends": {
+        "cpu": "cpu",
+        "gpu": "gpu"
+      },
+      "counters": {
+        "cpu": {
+          "upload_bytes": 0,
+          "readback_bytes": 0,
+          "dispatches": 0
+        },
+        "gpu": {
+          "upload_bytes": 4194316,
+          "readback_bytes": 4194308,
+          "dispatches": 1,
+          "live_buffer_bytes": 16777240,
+          "resident_copy_bytes": 0
+        }
+      },
+      "reasons": {
+        "cpu": "explicit backend selection",
+        "gpu": "explicit backend selection"
+      },
+      "first_call_ns": {
+        "cpu": 120174999.95231628,
+        "gpu": 112815000.05722046
+      },
+      "validated": true
+    },
+    {
+      "kernel": "physics",
+      "n": 256,
+      "scope": "[\"d4af981c85408636ee56015dd326cf780e40d8afe709f0b4540bd5fb0d2cc090\",\"e20df1026651cefe7ec06f693418a0232f5c7bd7a0eeb307e1fa1a908c665b11\",\"8884c4aa6a679844b827a18dd506db955503f4e54167ead632d9ab94b69641d4\",\"physics\"]",
+      "core_sha256": "d4af981c85408636ee56015dd326cf780e40d8afe709f0b4540bd5fb0d2cc090",
+      "features": {
+        "input_elements": 256,
+        "input_bytes": 4104,
+        "output_capacity_elements": 256,
+        "dispatches": 1,
+        "iterations": 1
+      },
+      "boundary": "captured-owned",
+      "samples_ns": {
+        "cpu": [
+          144999.98092651367,
+          154999.9713897705,
+          144999.98092651367,
+          184999.94277954102,
+          115000.00953674316,
+          170000.0762939453,
+          149999.85694885254,
+          154999.9713897705
+        ],
+        "gpu": [
+          935000.1811981201,
+          809999.942779541,
+          750000,
+          714999.9141693115,
+          940000.057220459,
+          875000,
+          889999.8664855957,
+          1420000.0762939453
+        ]
+      },
+      "backends": {
+        "cpu": "cpu",
+        "gpu": "gpu"
+      },
+      "counters": {
+        "cpu": {
+          "upload_bytes": 0,
+          "readback_bytes": 0,
+          "dispatches": 0
+        },
+        "gpu": {
+          "upload_bytes": 4124,
+          "readback_bytes": 4100,
+          "dispatches": 1,
+          "live_buffer_bytes": 16424,
+          "resident_copy_bytes": 0
+        }
+      },
+      "reasons": {
+        "cpu": "explicit backend selection",
+        "gpu": "explicit backend selection"
+      },
+      "first_call_ns": {
+        "cpu": 2000000,
+        "gpu": 10454999.923706055
+      },
+      "validated": true
+    },
+    {
+      "kernel": "physics",
+      "n": 8192,
+      "scope": "[\"d4af981c85408636ee56015dd326cf780e40d8afe709f0b4540bd5fb0d2cc090\",\"e20df1026651cefe7ec06f693418a0232f5c7bd7a0eeb307e1fa1a908c665b11\",\"8884c4aa6a679844b827a18dd506db955503f4e54167ead632d9ab94b69641d4\",\"physics\"]",
+      "core_sha256": "d4af981c85408636ee56015dd326cf780e40d8afe709f0b4540bd5fb0d2cc090",
+      "features": {
+        "input_elements": 8192,
+        "input_bytes": 131080,
+        "output_capacity_elements": 8192,
+        "dispatches": 1,
+        "iterations": 1
+      },
+      "boundary": "captured-owned",
+      "samples_ns": {
+        "cpu": [
+          3289999.9618530273,
+          3299999.952316284,
+          3214999.9141693115,
+          3180000.066757202,
+          3184999.942779541,
+          3289999.9618530273,
+          3225000.1430511475,
+          3284999.8474121094
+        ],
+        "gpu": [
+          4579999.923706055,
+          4214999.9141693115,
+          4410000.0858306885,
+          4415000.200271606,
+          4170000.0762939453,
+          3979999.780654907,
+          4400000.095367432,
+          4035000.0858306885
+        ]
+      },
+      "backends": {
+        "cpu": "cpu",
+        "gpu": "gpu"
+      },
+      "counters": {
+        "cpu": {
+          "upload_bytes": 0,
+          "readback_bytes": 0,
+          "dispatches": 0
+        },
+        "gpu": {
+          "upload_bytes": 131100,
+          "readback_bytes": 131076,
+          "dispatches": 1,
+          "live_buffer_bytes": 524328,
+          "resident_copy_bytes": 0
+        }
+      },
+      "reasons": {
+        "cpu": "explicit backend selection",
+        "gpu": "explicit backend selection"
+      },
+      "first_call_ns": {
+        "cpu": 3399999.8569488525,
+        "gpu": 5279999.9713897705
+      },
+      "validated": true
+    },
+    {
+      "kernel": "physics",
+      "n": 262144,
+      "scope": "[\"d4af981c85408636ee56015dd326cf780e40d8afe709f0b4540bd5fb0d2cc090\",\"e20df1026651cefe7ec06f693418a0232f5c7bd7a0eeb307e1fa1a908c665b11\",\"8884c4aa6a679844b827a18dd506db955503f4e54167ead632d9ab94b69641d4\",\"physics\"]",
+      "core_sha256": "d4af981c85408636ee56015dd326cf780e40d8afe709f0b4540bd5fb0d2cc090",
+      "features": {
+        "input_elements": 262144,
+        "input_bytes": 4194312,
+        "output_capacity_elements": 262144,
+        "dispatches": 1,
+        "iterations": 1
+      },
+      "boundary": "captured-owned",
+      "samples_ns": {
+        "cpu": [
+          116664999.96185303,
+          116890000.10490417,
+          114950000.04768372,
+          113284999.84741211,
+          115005000.11444092,
+          114139999.8664856,
+          117780000.20980835,
+          122100000.14305115
+        ],
+        "gpu": [
+          118579999.92370605,
+          159080000.16212463,
+          119970000.02861023,
+          117750000,
+          119914999.96185303,
+          118775000.09536743,
+          121710000.03814697,
+          157394999.9809265
+        ]
+      },
+      "backends": {
+        "cpu": "cpu",
+        "gpu": "gpu"
+      },
+      "counters": {
+        "cpu": {
+          "upload_bytes": 0,
+          "readback_bytes": 0,
+          "dispatches": 0
+        },
+        "gpu": {
+          "upload_bytes": 4194332,
+          "readback_bytes": 4194308,
+          "dispatches": 1,
+          "live_buffer_bytes": 16777256,
+          "resident_copy_bytes": 0
+        }
+      },
+      "reasons": {
+        "cpu": "explicit backend selection",
+        "gpu": "explicit backend selection"
+      },
+      "first_call_ns": {
+        "cpu": 115180000.0667572,
+        "gpu": 120575000.04768372
+      },
+      "validated": true
+    }
+  ],
+  "resident": [],
+  "validation": "Complete outputs compared with independent modular-word and rounded-binary32 oracle after every invocation; no checksum-only validation."
+}
