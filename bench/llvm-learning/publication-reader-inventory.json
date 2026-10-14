@@ -1,0 +1,526 @@
+{
+  "scope": "Reference inventory only, not full-file review credit; includes canonical store metadata and distinct research fixture name files that must not be blindly migrated.",
+  "files": 78,
+  "references": [
+    {
+      "path": "tools/audit_table_undo.py",
+      "line": 42,
+      "text": "names = json.loads((path/'names.json').read_text())"
+    },
+    {
+      "path": "planner/ink_planner/automatic_candidates.py",
+      "line": 34,
+      "text": "if not (root/'store/snapshot.json').exists():Store.publish(root,[])"
+    },
+    {
+      "path": "tools/namespace_separation_laws.py",
+      "line": 54,
+      "text": "(a.o/'names.json').write_text(json.dumps(names,sort_keys=True)+'\\n')"
+    },
+    {
+      "path": "tools/bench_storage_compilation.py",
+      "line": 17,
+      "text": "args=[sys.executable,ROOT/'planner/plan.py','--compiler',COMPILER,'--core',core,'--knowledge-root',ROOT/'knowledge','--snapshot',ROOT/'knowledge/store/snapshot.json','--budget',4096,'--rounds',32,'--cache-dir',directory/'cache','--cache-context',directory/'context','-o',directory/'selection.json']"
+    },
+    {
+      "path": "planner/ink_planner/llvm_learning.py",
+      "line": 284,
+      "text": "store = (Store(a.output_store).extend([obj]) if (a.output_store/'store/snapshot.json').exists()"
+    },
+    {
+      "path": "planner/ink_planner/corpus.py",
+      "line": 46,
+      "text": "if (source / 'store/snapshot.json').exists():"
+    },
+    {
+      "path": "planner/ink_planner/corpus.py",
+      "line": 184,
+      "text": "names = json.loads((scratch / 'store' / 'names.json').read_text()) if (scratch / 'store' / 'names.json').exists() else {}"
+    },
+    {
+      "path": "planner/ink_planner/llvm_corpus.py",
+      "line": 77,
+      "text": "store=(Store(store_root).extend(objects.values(),names) if (store_root/'store/snapshot.json').exists()"
+    },
+    {
+      "path": "tools/proofs/package_source_algorithm.py",
+      "line": 47,
+      "text": "result=Store(a.root).extend(objects,names)if(a.root/'store/snapshot.json').exists()else Store.publish(a.root,objects,names)"
+    },
+    {
+      "path": "tools/proofs/prove_loop_embedding.py",
+      "line": 14,
+      "text": "parent=Store(a.embedding_store);key=json.loads((a.embedding_store/'store/names.json').read_text())['until_embedding']"
+    },
+    {
+      "path": "tools/proofs/prove_query_reuse.py",
+      "line": 21,
+      "text": "store=Store(root);key=json.loads((root/'store/names.json').read_text())[name];objects.update(store.bundle([key])['objects']);return key"
+    },
+    {
+      "path": "tools/proofs/prove_chunked_frame.py",
+      "line": 10,
+      "text": "frame=Store(a.frame_store);key=json.loads((a.frame_store/'store/names.json').read_text())['until_frame'];core=json.loads(a.core.read_text());subject=json.loads(a.subject.read_text());lemmas=[];obj=semantic_entry(propose(core,subject,a.function,a.parameter,key,lemmas=lemmas));ident=identity(obj);store=Store.publish(a.o,[frame.object(key),*lemmas,obj],{a.function:ident});view=a.o/'view.json';view.write_bytes(canonical(store.bundle([ident])))"
+    },
+    {
+      "path": "tools/proofs/prove_boundary_selection.py",
+      "line": 22,
+      "text": "parent=Store(a.reuse_store);names=json.loads((a.reuse_store/'store/names.json').read_text());objects=parent.bundle(list(names.values()))['objects']"
+    },
+    {
+      "path": "knowledge/producers/reversible_maintenance_proofs.py",
+      "line": 19,
+      "text": "names=json.loads((KNOWLEDGE_ROOT/'delta-maintenance/names.json').read_text())"
+    },
+    {
+      "path": "knowledge/producers/reversible_maintenance_proofs.py",
+      "line": 56,
+      "text": "(args.directory/'names.json').write_text(json.dumps(names,indent=2)+'\\n')"
+    },
+    {
+      "path": "knowledge/producers/admit_representations.py",
+      "line": 18,
+      "text": "objects={i:original.object(i)for i in members};names=json.loads((original.data/'names.json').read_text());subjects=[]"
+    },
+    {
+      "path": "knowledge/ink_knowledge/implementation_candidates.py",
+      "line": 52,
+      "text": "if (root/'store/snapshot.json').exists():"
+    },
+    {
+      "path": "knowledge/producers/maintenance_proofs.py",
+      "line": 27,
+      "text": "ids = json.loads((args.library/'names.json').read_text())"
+    },
+    {
+      "path": "tools/proofs/prove_definitional_frame.py",
+      "line": 11,
+      "text": "frame=Store(a.frame_store);key=json.loads((a.frame_store/'store/names.json').read_text())['until_frame'];objects=dict(frame.bundle([key])['objects']);rules=[]"
+    },
+    {
+      "path": "tools/proofs/prove_definitional_frame.py",
+      "line": 13,
+      "text": "source=Store(path);root=json.loads((path/'store/names.json').read_text())['source_frame'];obj=source.object(root)"
+    },
+    {
+      "path": "knowledge/producers/publish_physical_capabilities.py",
+      "line": 13,
+      "text": "st=Store(root);objects={};names=read(st.data/'names.json');codec_roots=set();cap_roots=set();fusion_roots=set()"
+    },
+    {
+      "path": "tools/proofs/trim_observer_frame.py",
+      "line": 17,
+      "text": "store=Store(a.store);key=json.loads((a.store/'store/names.json').read_text())[a.law];obj=store.object(key);law=dict(schema=1,semantics=obj['semantics'],dependencies=obj['dependencies'],**obj['payload']);proof=law['proof']"
+    },
+    {
+      "path": "knowledge/producers/reactive_dependencies.py",
+      "line": 61,
+      "text": "names=json.loads((old.data/'names.json').read_text())"
+    },
+    {
+      "path": "knowledge/producers/aggregate_measurements.py",
+      "line": 14,
+      "text": "store=Store(directory) if (directory/'store/snapshot.json').exists() else Store.publish(directory,[])"
+    },
+    {
+      "path": "knowledge/producers/integer_proofs.py",
+      "line": 179,
+      "text": "(directory/'names.json').write_text(json.dumps(names,indent=2)+'\\n')"
+    },
+    {
+      "path": "tools/proofs/prove_guarded_loop_embedding.py",
+      "line": 16,
+      "text": "parent=Store(a.embedding_store);key=json.loads((parent.root/'store/names.json').read_text())['until_embedding']"
+    },
+    {
+      "path": "knowledge/producers/table_undo_proofs.py",
+      "line": 31,
+      "text": "evidence=json.loads(parent.read_text());bundle=evidence['library'];names=json.loads((KNOWLEDGE_ROOT/'table-maintenance/names.json').read_text());initial=set(names)"
+    },
+    {
+      "path": "knowledge/producers/table_undo_proofs.py",
+      "line": 223,
+      "text": "(out/'names.json').write_text(json.dumps(names,indent=2)+'\\n')"
+    },
+    {
+      "path": "knowledge/producers/publish_web_pipeline33.py",
+      "line": 30,
+      "text": "names = json.loads((root / 'store/names.json').read_text())"
+    },
+    {
+      "path": "knowledge/producers/publish_web_pipeline33.py",
+      "line": 102,
+      "text": "original_names_sha256=sha(root / 'store/names.json'),"
+    },
+    {
+      "path": "knowledge/producers/publish_web_pipeline33.py",
+      "line": 103,
+      "text": "staged_names_sha256=sha(current.data / 'names.json'),"
+    },
+    {
+      "path": "knowledge/producers/publish_web_pipeline33.py",
+      "line": 133,
+      "text": "names = json.loads((candidate.data / 'names.json').read_text())"
+    },
+    {
+      "path": "knowledge/producers/publish_web_pipeline33.py",
+      "line": 134,
+      "text": "old_names = json.loads((root / 'store/names.json').read_text())"
+    },
+    {
+      "path": "knowledge/producers/publish_web_pipeline33.py",
+      "line": 137,
+      "text": "if sha(root / 'store/names.json') != receipt['original_names_sha256'] or sha(candidate.data / 'names.json') != receipt['staged_names_sha256']:"
+    },
+    {
+      "path": "tools/proofs/prove_source_query_context.py",
+      "line": 25,
+      "text": "parent=Store(a.equation_store);key=json.loads((parent.root/'store/names.json').read_text())[a.equation];equation=parent.object(key)['payload']"
+    },
+    {
+      "path": "tools/proofs/test_modular_frames.py",
+      "line": 13,
+      "text": "frame=Store(ROOT/'knowledge/libraries/proofs/until-frame');key=json.loads((frame.data/'names.json').read_text())['until_frame']"
+    },
+    {
+      "path": "tools/check_induction.py",
+      "line": 17,
+      "text": "names=json.loads((db/'names.json').read_text());full=json.loads((db/'lock.json').read_text())"
+    },
+    {
+      "path": "knowledge/producers/action_laws.py",
+      "line": 32,
+      "text": "lock=dict(schema=1,semantics=MATH,objects=sorted(translated.values()));(directory/'lock.json').write_text(json.dumps(lock,indent=2)+'\\n');(directory/'names.json').write_text(json.dumps(names,indent=2)+'\\n')"
+    },
+    {
+      "path": "knowledge/producers/collection_proofs.py",
+      "line": 112,
+      "text": "(db/'names.json').write_text(json.dumps(names,indent=2)+'\\n')"
+    },
+    {
+      "path": "knowledge/producers/incremental_view_proofs.py",
+      "line": 48,
+      "text": "names = json.loads((args.integers / 'names.json').read_text())"
+    },
+    {
+      "path": "knowledge/producers/incremental_view_proofs.py",
+      "line": 244,
+      "text": "(directory / 'names.json').write_text(json.dumps(names, indent=2) + '\\n')"
+    },
+    {
+      "path": "knowledge/producers/sorted_layout_proofs.py",
+      "line": 29,
+      "text": "original_names=json.loads((args.layout/'names.json').read_text()); source=json.loads(args.source_model.read_text())"
+    },
+    {
+      "path": "knowledge/producers/sorted_layout_proofs.py",
+      "line": 279,
+      "text": "(out/'names.json').write_text(json.dumps(names,indent=2)+'\\n')"
+    },
+    {
+      "path": "knowledge/producers/bitvector_proofs.py",
+      "line": 194,
+      "text": "(directory/'names.json').write_text(json.dumps(names,indent=2)+'\\n')"
+    },
+    {
+      "path": "knowledge/producers/filter_proofs.py",
+      "line": 151,
+      "text": "(args.directory/'names.json').write_text(json.dumps(p.names,indent=2)+'\\n');(args.directory/'kernels.lang').write_text('\\n\\n'.join(source)+'\\n')"
+    },
+    {
+      "path": "knowledge/producers/bulk_buffer_laws.py",
+      "line": 43,
+      "text": "names=json.loads((output/'store/names.json').read_text());roots=json.loads((output/'store/rewrite-view.json').read_text())['roots'];entries=[]"
+    },
+    {
+      "path": "knowledge/producers/owned_fold_contracts.py",
+      "line": 95,
+      "text": "names=json.loads((store.data/'names.json').read_text())"
+    },
+    {
+      "path": "knowledge/producers/research_representations.py",
+      "line": 123,
+      "text": "names = read(existing.data / 'names.json')"
+    },
+    {
+      "path": "knowledge/producers/filtered_sort_laws.py",
+      "line": 67,
+      "text": "names = json.loads((output / 'store/names.json').read_text())"
+    },
+    {
+      "path": "knowledge/producers/shared_sequence_laws.py",
+      "line": 58,
+      "text": "previous = Store(output) if (output / 'store/snapshot.json').exists() else None"
+    },
+    {
+      "path": "knowledge/producers/shared_sequence_laws.py",
+      "line": 60,
+      "text": "names = json.loads((output / 'store/names.json').read_text()) if previous else {}"
+    },
+    {
+      "path": "knowledge/producers/publish_web_stack_laws.py",
+      "line": 34,
+      "text": "original_names = json.loads((root / 'store/names.json').read_text())"
+    },
+    {
+      "path": "knowledge/producers/list_slice_laws.py",
+      "line": 122,
+      "text": "aliases=read(root/'store/names.json');aliases.update(names)"
+    },
+    {
+      "path": "knowledge/producers/author_word_identities.py",
+      "line": 106,
+      "text": "store = (Store(a.output_store).extend(objects, names) if (a.output_store/'store/snapshot.json').exists()"
+    },
+    {
+      "path": "knowledge/producers/effect_composition_proofs.py",
+      "line": 73,
+      "text": "(directory/'names.json').write_text(json.dumps(names,indent=2)+'\\n')"
+    },
+    {
+      "path": "knowledge/producers/definition_candidates.py",
+      "line": 44,
+      "text": "names = json.loads((base / \"names.json\").read_text())"
+    },
+    {
+      "path": "knowledge/producers/definition_candidates.py",
+      "line": 84,
+      "text": "(out / \"names.json\").write_text(json.dumps(names, indent=2) + \"\\n\")"
+    },
+    {
+      "path": "knowledge/producers/loop_state_embedding.py",
+      "line": 207,
+      "text": "key=__import__('json').loads((parent.root/'store/names.json').read_text())['until_embedding']"
+    },
+    {
+      "path": "knowledge/producers/publish_performance_laws.py",
+      "line": 23,
+      "text": "names = json.loads((root / 'store/names.json').read_text())"
+    },
+    {
+      "path": "knowledge/producers/sequence_tree_fixture.py",
+      "line": 54,
+      "text": "(Path(directory)/'names.json').write_text(json.dumps(names, indent=2)+'\\n')"
+    },
+    {
+      "path": "knowledge/producers/sort_cardinality_laws.py",
+      "line": 58,
+      "text": "names = json.loads((output / 'store/names.json').read_text())"
+    },
+    {
+      "path": "knowledge/producers/view_decomposition.py",
+      "line": 84,
+      "text": "law_names = json.loads((laws / 'names.json').read_text())"
+    },
+    {
+      "path": "knowledge/producers/structure_laws.py",
+      "line": 97,
+      "text": "names = read(root / 'store' / 'names.json') if (root / 'store' / 'names.json').exists() else {}"
+    },
+    {
+      "path": "knowledge/producers/json_laws.py",
+      "line": 18,
+      "text": "if (output/'store/snapshot.json').exists():"
+    },
+    {
+      "path": "knowledge/producers/composed_proofs.py",
+      "line": 51,
+      "text": "(args.database/'names.json').write_text(json.dumps(names,indent=2)+'\\n')"
+    },
+    {
+      "path": "knowledge/producers/delta_maintenance_proofs.py",
+      "line": 20,
+      "text": "names=json.loads((KNOWLEDGE_ROOT/'exact-integers/names.json').read_text())"
+    },
+    {
+      "path": "knowledge/producers/delta_maintenance_proofs.py",
+      "line": 61,
+      "text": "(args.directory/'names.json').write_text(json.dumps(names,indent=2)+'\\n')"
+    },
+    {
+      "path": "knowledge/producers/storage_bulk_publish.py",
+      "line": 19,
+      "text": "previous=Store(root);objects={i:previous.object(i) for i in previous.members()};names=read(previous.data/'names.json')"
+    },
+    {
+      "path": "knowledge/producers/general_laws.py",
+      "line": 281,
+      "text": "(lib.directory / 'names.json').write_text(json.dumps(lib.names, indent=2) + '\\n')"
+    },
+    {
+      "path": "knowledge/producers/conditional_proofs.py",
+      "line": 44,
+      "text": "(args.database/'names.json').write_text(json.dumps(names,indent=2)+'\\n')"
+    },
+    {
+      "path": "knowledge/producers/source_laws.py",
+      "line": 28,
+      "text": "if (output / 'store/snapshot.json').exists():"
+    },
+    {
+      "path": "knowledge/producers/source_laws.py",
+      "line": 31,
+      "text": "names = json.loads((output / 'store/names.json').read_text())"
+    },
+    {
+      "path": "knowledge/producers/state_laws.py",
+      "line": 112,
+      "text": "root=Path(root);compiler=Path(compiler).resolve();old=Store(root);objects,names=library();existing=json.loads((root/'store/names.json').read_text());existing.update({'state-laws/'+k:v for k,v in names.items()})"
+    },
+    {
+      "path": "knowledge/producers/literal_collection_laws.py",
+      "line": 47,
+      "text": "if (output / 'store/snapshot.json').exists():"
+    },
+    {
+      "path": "knowledge/producers/literal_collection_laws.py",
+      "line": 50,
+      "text": "names = json.loads((output / 'store/names.json').read_text())"
+    },
+    {
+      "path": "knowledge/producers/inductive_proofs.py",
+      "line": 42,
+      "text": "(args.database/'names.json').write_text(json.dumps(names,indent=2)+'\\n')"
+    },
+    {
+      "path": "knowledge/producers/publish_sequence_candidates.py",
+      "line": 21,
+      "text": "names=read(root/'store/names.json')"
+    },
+    {
+      "path": "knowledge/producers/machine_candidates.py",
+      "line": 33,
+      "text": "self.names = json.loads((base / \"names.json\").read_text())"
+    },
+    {
+      "path": "knowledge/ink_knowledge/store.py",
+      "line": 131,
+      "text": "self.snapshot=read(Path(snapshot)) if snapshot else read(self.data/'snapshot.json')"
+    },
+    {
+      "path": "knowledge/ink_knowledge/store.py",
+      "line": 170,
+      "text": "old_names=read(self.data/'names.json')"
+    },
+    {
+      "path": "knowledge/ink_knowledge/store.py",
+      "line": 198,
+      "text": "for name,value in [('names.json',names or {}),('snapshot.json',snapshot)]:"
+    },
+    {
+      "path": "knowledge/ink_knowledge/store.py",
+      "line": 340,
+      "text": "for name,i in read(self.data/'names.json').items():"
+    },
+    {
+      "path": "knowledge/ink_knowledge/store.py",
+      "line": 431,
+      "text": "for name,i in read(self.data/'names.json').items():"
+    },
+    {
+      "path": "knowledge/producers/owned_collection_laws.py",
+      "line": 51,
+      "text": "objects=[previous.object(i) for i in previous.members()];names=json.loads((output/'store/names.json').read_text());roots=json.loads((output/'store/rewrite-view.json').read_text())['roots'];laws=examples()"
+    },
+    {
+      "path": "knowledge/producers/contract_algebra.py",
+      "line": 91,
+      "text": "previous=Store(root)if(root/'store/snapshot.json').exists()else None"
+    },
+    {
+      "path": "knowledge/producers/value_boundary_measurements.py",
+      "line": 21,
+      "text": "store=Store(root)if(Path(root)/'store/snapshot.json').exists()else Store.publish(root,[])"
+    },
+    {
+      "path": "knowledge/producers/transaction_boundary_proofs.py",
+      "line": 87,
+      "text": "(directory / 'names.json').write_text(json.dumps(names, indent=2) + '\\n')"
+    },
+    {
+      "path": "knowledge/producers/table_transition_proofs.py",
+      "line": 24,
+      "text": "bundle=evidence['library'];names=json.loads((KNOWLEDGE_ROOT/'reversible-maintenance/names.json').read_text())"
+    },
+    {
+      "path": "knowledge/producers/table_transition_proofs.py",
+      "line": 144,
+      "text": "(out/'names.json').write_text(json.dumps(names,indent=2)+'\\n')"
+    },
+    {
+      "path": "knowledge/producers/state_calculus.py",
+      "line": 267,
+      "text": "original=Store(root);old_ids=set(original.members());names=json.loads((original.data/'names.json').read_text())"
+    },
+    {
+      "path": "knowledge/producers/action_replacement.py",
+      "line": 102,
+      "text": "names=read(database.data/'names.json')"
+    },
+    {
+      "path": "knowledge/producers/indexed_aggregate.py",
+      "line": 541,
+      "text": "names=read(root/'store/names.json');names.update(read(candidate.root/'store/names.json'))"
+    },
+    {
+      "path": "knowledge/producers/indexed_aggregate.py",
+      "line": 556,
+      "text": "result=dict(implementations=implementations,status='checked',source=receipt['source'],representation=receipt['representation'],previous_snapshot=previous,snapshot=admitted.snapshot_id,view_snapshot=candidate.snapshot_id,request_sha256=hashlib.sha256(raw).hexdigest(),obligations=len(receipt['obligations']),entries=read(candidate.root/'store/names.json'))"
+    },
+    {
+      "path": "knowledge/producers/sum_flatten.py",
+      "line": 90,
+      "text": "names_path = publication.data / 'names.json'"
+    },
+    {
+      "path": "knowledge/producers/local_collection_laws.py",
+      "line": 84,
+      "text": "if (output/'store/snapshot.json').exists():"
+    },
+    {
+      "path": "knowledge/producers/local_collection_laws.py",
+      "line": 87,
+      "text": "names = json.loads((output/'store/names.json').read_text())"
+    },
+    {
+      "path": "knowledge/producers/column_layout_proofs.py",
+      "line": 234,
+      "text": "(out/'names.json').write_text(json.dumps(names,indent=2)+'\\n')"
+    },
+    {
+      "path": "knowledge/producers/import_target_work40.py",
+      "line": 179,
+      "text": "write(a.output / 'names.json', names)"
+    },
+    {
+      "path": "knowledge/producers/import_target_work40.py",
+      "line": 182,
+      "text": "artifacts={n:file_hash(a.output/n) for n in ('entries.json','observations.json','names.json')},"
+    },
+    {
+      "path": "knowledge/producers/collection_pipeline_laws.py",
+      "line": 98,
+      "text": "previous = Store(output) if (output / 'store/snapshot.json').exists() else None"
+    },
+    {
+      "path": "knowledge/producers/collection_pipeline_laws.py",
+      "line": 100,
+      "text": "names = json.loads((output / 'store/names.json').read_text()) if previous else {}"
+    },
+    {
+      "path": "knowledge/producers/search_layout_proofs.py",
+      "line": 29,
+      "text": "original = json.loads((args.sorted/'names.json').read_text())"
+    },
+    {
+      "path": "knowledge/producers/search_layout_proofs.py",
+      "line": 353,
+      "text": "(out/'names.json').write_text(json.dumps(names,indent=2)+'\\n')"
+    },
+    {
+      "path": "knowledge/producers/scalar_library.py",
+      "line": 143,
+      "text": "(out / 'names.json').write_text(json.dumps(names, indent=2) + '\\n')"
+    }
+  ]
+}

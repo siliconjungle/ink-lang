@@ -8,9 +8,9 @@ from ink_knowledge import Store,canonical,identity,semantic_entry
 from producers.definitional_frames import propose
 p=argparse.ArgumentParser(description=__doc__);p.add_argument('core',type=Path);p.add_argument('subject',type=Path);p.add_argument('function');p.add_argument('parameter');p.add_argument('--frame-store',type=Path,required=True);p.add_argument('--source-frame-store',type=Path,action='append',default=[]);p.add_argument('--compiler',type=Path,required=True);p.add_argument('-o',type=Path,required=True);a=p.parse_args()
 if a.o.exists():raise ValueError('refusing to overwrite output')
-frame=Store(a.frame_store);key=json.loads((a.frame_store/'store/names.json').read_text())['until_frame'];objects=dict(frame.bundle([key])['objects']);rules=[]
+frame=Store(a.frame_store);key=frame.names['until_frame'];objects=dict(frame.bundle([key])['objects']);rules=[]
 for path in a.source_frame_store:
- source=Store(path);root=json.loads((path/'store/names.json').read_text())['source_frame'];obj=source.object(root)
+ source=Store(path);root=source.names['source_frame'];obj=source.object(root)
  rules.append((root,dict(schema=1,semantics=obj['semantics'],dependencies=obj['dependencies'],**obj['payload'])))
  for ident,entry in source.bundle([root])['objects'].items():
   if ident in objects and objects[ident]!=entry:raise ValueError('source frame object collision')

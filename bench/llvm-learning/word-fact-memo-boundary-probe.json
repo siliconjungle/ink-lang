@@ -1,0 +1,66 @@
+{
+  "finding": "F063",
+  "depth_checks": [
+    {
+      "total_depth": 63,
+      "result": "ok"
+    },
+    {
+      "total_depth": 64,
+      "result": "ok"
+    },
+    {
+      "total_depth": 65,
+      "result": "error"
+    },
+    {
+      "total_depth": 70,
+      "result": "error"
+    }
+  ],
+  "mutation_counterexample": [
+    {
+      "variant": "baseline",
+      "first": [
+        "constant-from-bits-or-range",
+        {
+          "sort": {
+            "Value": "U32"
+          },
+          "node": {
+            "Word": 1
+          }
+        }
+      ],
+      "remaining": []
+    },
+    {
+      "variant": "prototype",
+      "first": [
+        "constant-from-bits-or-range",
+        {
+          "sort": {
+            "Value": "U32"
+          },
+          "node": {
+            "Word": 1
+          }
+        }
+      ],
+      "remaining": [
+        [
+          "redundant-mask",
+          {
+            "sort": {
+              "Value": "U32"
+            },
+            "node": {
+              "Word": 8
+            }
+          }
+        ]
+      ]
+    }
+  ],
+  "conclusion": "Warm-cache depth boundaries agree in these cases. Resuming a candidate generator after source mutation can reuse stale facts in the prototype; it must not ship. Ordinary proof replay remains required and would reject the false rewrite. Clear query cache on resumption and retain key subjects, or use an immutable query snapshot before production."
+}

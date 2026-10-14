@@ -44,5 +44,5 @@ if __name__=='__main__':
     template=package(json.loads(a.target_core.read_bytes()),json.loads(a.helper_core.read_bytes()),obj)
     dependencies=source.bundle(obj['dependencies'])['objects']if obj['dependencies']else{}
     objects=[*dependencies.values(),template];names={'source-algorithms/'+a.name:identity(template)}
-    result=Store(a.root).extend(objects,names)if(a.root/'store/snapshot.json').exists()else Store.publish(a.root,objects,names)
+    result=Store(a.root).extend(objects,names)if Store.is_published(a.root)else Store.publish(a.root,objects,names)
     print(json.dumps(dict(template=identity(template),snapshot=result.snapshot_id,scope='Untrusted template packaging; no new rewrite authority')))

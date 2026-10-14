@@ -22,7 +22,7 @@ def main():
  p.add_argument('-o',type=Path,required=True);a=p.parse_args()
  if a.o.exists():raise ValueError('refusing to overwrite proof output')
  core=json.loads(a.core.read_bytes());subject=json.loads(a.subject.read_bytes());functions={f['name']:f for f in core['program']['functions']}
- parent=Store(a.equation_store);key=json.loads((parent.root/'store/names.json').read_text())[a.equation];equation=parent.object(key)['payload']
+ parent=Store(a.equation_store);key=parent.names[a.equation];equation=parent.object(key)['payload']
  if equation['conditions']:raise ValueError('unconditional argument equation required')
  left=functions[a.left];right=functions[a.right]
  if left['params']!=right['params']or left['result']!=right['result']:raise ValueError('matching source signatures required')

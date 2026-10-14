@@ -1,0 +1,751 @@
+{
+  "findings": [
+    "F046"
+  ],
+  "status": "Local core, reader migration, recovery/concurrency/staging/clone tests, mandatory integration and full frozen corpus complete. Publication and remote CI still pending.",
+  "changes": [
+    "Atomic selector binds immutable names map to snapshot.",
+    "Canonical Python reader and existence probes use Store API; research fixture formats preserved.",
+    "Corpus clones install captured metadata, omit transient/coordinator files, and detect names-only races.",
+    "Staged publisher hashes captured names and uses expected generation checked under writer lock.",
+    "No-op extension preserves object identity when generation unchanged; returns fresh names after concurrent alias change.",
+    "Explicit historical pins remain exact; alias capture and failure semantics documented."
+  ],
+  "tests": {
+    "focused": {
+      "count": 66,
+      "seconds": "22.017",
+      "result": "pass"
+    },
+    "actual_checker_staging": {
+      "count": 3,
+      "seconds": "0.429",
+      "result": "pass"
+    },
+    "mandatory_hardening": {
+      "seconds": "37.59",
+      "result": "pass"
+    }
+  },
+  "frozen_inputs_equal": {
+    "compiler_sha256": true,
+    "snapshot": true,
+    "registry_sha256": true,
+    "manifest_sha256": true,
+    "corpus_inputs": true,
+    "target": true,
+    "planning_effort": true,
+    "timeout": true
+  },
+  "headlines": {
+    "before": {
+      "programs": 10,
+      "compiled": 10,
+      "programs_with_rewrite_alternative": 10,
+      "programs_with_any_alternative": 10,
+      "programs_selecting_alternative": 4,
+      "median_seconds": 15.898499999999999,
+      "stopped_by_time": 1,
+      "laws_admitted": 44,
+      "laws_admitted_in_multiple_programs": 7,
+      "representations_admitted": 0,
+      "last_gates": {
+        "selected_alternative": 4,
+        "measurement_budget": 6
+      }
+    },
+    "after": {
+      "programs": 10,
+      "compiled": 10,
+      "programs_with_rewrite_alternative": 10,
+      "programs_with_any_alternative": 10,
+      "programs_selecting_alternative": 4,
+      "median_seconds": 16.552500000000002,
+      "stopped_by_time": 3,
+      "laws_admitted": 43,
+      "laws_admitted_in_multiple_programs": 7,
+      "representations_admitted": 0,
+      "last_gates": {
+        "selected_alternative": 4,
+        "measurement_budget": 6
+      }
+    }
+  },
+  "program_funnels": {
+    "before": [
+      {
+        "name": "sequence-every",
+        "split": "heldout",
+        "status": 0,
+        "seconds": 12.502,
+        "stop_reason": "states",
+        "admitted_states": 32,
+        "candidates": 32,
+        "admitted_edges": {
+          "rewrite": 27,
+          "properties": 5
+        },
+        "semantic": {
+          "matched": 0,
+          "checked": 0,
+          "admitted": 0,
+          "rejected": 0,
+          "unchecked": 0
+        },
+        "alternatives_with_knowledge": 27,
+        "rewrite_alternatives": 27,
+        "selected_alternative": true,
+        "last_gate": "selected_alternative",
+        "selection_reason": "paired complete-lifecycle improvement on selection inputs"
+      },
+      {
+        "name": "ast-ancestor",
+        "split": "heldout",
+        "status": 0,
+        "seconds": 13.728,
+        "stop_reason": "states",
+        "admitted_states": 32,
+        "candidates": 32,
+        "admitted_edges": {
+          "rewrite": 32
+        },
+        "semantic": {
+          "matched": 0,
+          "checked": 0,
+          "admitted": 0,
+          "rejected": 0,
+          "unchecked": 0
+        },
+        "alternatives_with_knowledge": 31,
+        "rewrite_alternatives": 31,
+        "selected_alternative": false,
+        "last_gate": "measurement_budget",
+        "selection_reason": "baseline retained; no robust measured lifecycle improvement"
+      },
+      {
+        "name": "text-lines",
+        "split": "heldout",
+        "status": 0,
+        "seconds": 12.052,
+        "stop_reason": "states",
+        "admitted_states": 32,
+        "candidates": 32,
+        "admitted_edges": {
+          "rewrite": 32
+        },
+        "semantic": {
+          "matched": 0,
+          "checked": 0,
+          "admitted": 0,
+          "rejected": 0,
+          "unchecked": 0
+        },
+        "alternatives_with_knowledge": 31,
+        "rewrite_alternatives": 31,
+        "selected_alternative": false,
+        "last_gate": "measurement_budget",
+        "selection_reason": "baseline retained; no robust measured lifecycle improvement"
+      },
+      {
+        "name": "drawing-hit",
+        "split": "heldout",
+        "status": 0,
+        "seconds": 16.697,
+        "stop_reason": "states",
+        "admitted_states": 32,
+        "candidates": 32,
+        "admitted_edges": {
+          "rewrite": 32
+        },
+        "semantic": {
+          "matched": 0,
+          "checked": 0,
+          "admitted": 0,
+          "rejected": 0,
+          "unchecked": 0
+        },
+        "alternatives_with_knowledge": 31,
+        "rewrite_alternatives": 31,
+        "selected_alternative": false,
+        "last_gate": "measurement_budget",
+        "selection_reason": "baseline retained; no robust measured lifecycle improvement"
+      },
+      {
+        "name": "particle-step",
+        "split": "heldout",
+        "status": 0,
+        "seconds": 21.199,
+        "stop_reason": "time",
+        "admitted_states": 6,
+        "candidates": 6,
+        "admitted_edges": {
+          "rewrite": 1,
+          "physical": 7
+        },
+        "semantic": {
+          "matched": 1,
+          "checked": 1,
+          "admitted": 1,
+          "rejected": 0,
+          "unchecked": 0
+        },
+        "alternatives_with_knowledge": 1,
+        "rewrite_alternatives": 1,
+        "selected_alternative": true,
+        "last_gate": "selected_alternative",
+        "selection_reason": "paired complete-lifecycle improvement on selection inputs"
+      },
+      {
+        "name": "spatial-collision",
+        "split": "heldout",
+        "status": 0,
+        "seconds": 17.695,
+        "stop_reason": "states",
+        "admitted_states": 32,
+        "candidates": 32,
+        "admitted_edges": {
+          "rewrite": 32
+        },
+        "semantic": {
+          "matched": 0,
+          "checked": 0,
+          "admitted": 0,
+          "rejected": 0,
+          "unchecked": 0
+        },
+        "alternatives_with_knowledge": 31,
+        "rewrite_alternatives": 31,
+        "selected_alternative": false,
+        "last_gate": "measurement_budget",
+        "selection_reason": "baseline retained; no robust measured lifecycle improvement"
+      },
+      {
+        "name": "index-membership",
+        "split": "heldout",
+        "status": 0,
+        "seconds": 15.1,
+        "stop_reason": "states",
+        "admitted_states": 32,
+        "candidates": 32,
+        "admitted_edges": {
+          "rewrite": 30,
+          "properties": 2
+        },
+        "semantic": {
+          "matched": 0,
+          "checked": 0,
+          "admitted": 0,
+          "rejected": 0,
+          "unchecked": 0
+        },
+        "alternatives_with_knowledge": 29,
+        "rewrite_alternatives": 29,
+        "selected_alternative": true,
+        "last_gate": "selected_alternative",
+        "selection_reason": "paired complete-lifecycle improvement on selection inputs"
+      },
+      {
+        "name": "incremental-distinct",
+        "split": "heldout",
+        "status": 0,
+        "seconds": 17.321,
+        "stop_reason": "states",
+        "admitted_states": 32,
+        "candidates": 32,
+        "admitted_edges": {
+          "rewrite": 32
+        },
+        "semantic": {
+          "matched": 0,
+          "checked": 0,
+          "admitted": 0,
+          "rejected": 0,
+          "unchecked": 0
+        },
+        "alternatives_with_knowledge": 31,
+        "rewrite_alternatives": 31,
+        "selected_alternative": false,
+        "last_gate": "measurement_budget",
+        "selection_reason": "baseline retained; no robust measured lifecycle improvement"
+      },
+      {
+        "name": "bulk-update",
+        "split": "heldout",
+        "status": 0,
+        "seconds": 14.592,
+        "stop_reason": "states",
+        "admitted_states": 32,
+        "candidates": 32,
+        "admitted_edges": {
+          "rewrite": 32
+        },
+        "semantic": {
+          "matched": 0,
+          "checked": 0,
+          "admitted": 0,
+          "rejected": 0,
+          "unchecked": 0
+        },
+        "alternatives_with_knowledge": 31,
+        "rewrite_alternatives": 31,
+        "selected_alternative": false,
+        "last_gate": "measurement_budget",
+        "selection_reason": "baseline retained; no robust measured lifecycle improvement"
+      },
+      {
+        "name": "compact-set",
+        "split": "heldout",
+        "status": 0,
+        "seconds": 33.256,
+        "stop_reason": "states",
+        "admitted_states": 32,
+        "candidates": 32,
+        "admitted_edges": {
+          "rewrite": 32
+        },
+        "semantic": {
+          "matched": 0,
+          "checked": 0,
+          "admitted": 0,
+          "rejected": 0,
+          "unchecked": 0
+        },
+        "alternatives_with_knowledge": 31,
+        "rewrite_alternatives": 31,
+        "selected_alternative": true,
+        "last_gate": "selected_alternative",
+        "selection_reason": "paired complete-lifecycle improvement on selection inputs"
+      }
+    ],
+    "after": [
+      {
+        "name": "sequence-every",
+        "split": "heldout",
+        "status": 0,
+        "seconds": 13.957,
+        "stop_reason": "states",
+        "admitted_states": 32,
+        "candidates": 32,
+        "admitted_edges": {
+          "rewrite": 26,
+          "properties": 6
+        },
+        "semantic": {
+          "matched": 0,
+          "checked": 0,
+          "admitted": 0,
+          "rejected": 0,
+          "unchecked": 0
+        },
+        "alternatives_with_knowledge": 26,
+        "rewrite_alternatives": 26,
+        "selected_alternative": true,
+        "last_gate": "selected_alternative",
+        "selection_reason": "paired complete-lifecycle improvement on selection inputs"
+      },
+      {
+        "name": "ast-ancestor",
+        "split": "heldout",
+        "status": 0,
+        "seconds": 16.982,
+        "stop_reason": "states",
+        "admitted_states": 32,
+        "candidates": 32,
+        "admitted_edges": {
+          "rewrite": 32
+        },
+        "semantic": {
+          "matched": 0,
+          "checked": 0,
+          "admitted": 0,
+          "rejected": 0,
+          "unchecked": 0
+        },
+        "alternatives_with_knowledge": 31,
+        "rewrite_alternatives": 31,
+        "selected_alternative": false,
+        "last_gate": "measurement_budget",
+        "selection_reason": "baseline retained; no robust measured lifecycle improvement"
+      },
+      {
+        "name": "text-lines",
+        "split": "heldout",
+        "status": 0,
+        "seconds": 15.294,
+        "stop_reason": "states",
+        "admitted_states": 32,
+        "candidates": 32,
+        "admitted_edges": {
+          "rewrite": 32
+        },
+        "semantic": {
+          "matched": 0,
+          "checked": 0,
+          "admitted": 0,
+          "rejected": 0,
+          "unchecked": 0
+        },
+        "alternatives_with_knowledge": 31,
+        "rewrite_alternatives": 31,
+        "selected_alternative": false,
+        "last_gate": "measurement_budget",
+        "selection_reason": "baseline retained; no robust measured lifecycle improvement"
+      },
+      {
+        "name": "drawing-hit",
+        "split": "heldout",
+        "status": 0,
+        "seconds": 17.768,
+        "stop_reason": "time",
+        "admitted_states": 31,
+        "candidates": 31,
+        "admitted_edges": {
+          "rewrite": 30,
+          "extension": 1
+        },
+        "semantic": {
+          "matched": 0,
+          "checked": 0,
+          "admitted": 0,
+          "rejected": 0,
+          "unchecked": 0
+        },
+        "alternatives_with_knowledge": 30,
+        "rewrite_alternatives": 30,
+        "selected_alternative": false,
+        "last_gate": "measurement_budget",
+        "selection_reason": "baseline retained; no robust measured lifecycle improvement"
+      },
+      {
+        "name": "particle-step",
+        "split": "heldout",
+        "status": 0,
+        "seconds": 16.123,
+        "stop_reason": "time",
+        "admitted_states": 6,
+        "candidates": 6,
+        "admitted_edges": {
+          "rewrite": 2,
+          "physical": 12
+        },
+        "semantic": {
+          "matched": 2,
+          "checked": 2,
+          "admitted": 2,
+          "rejected": 0,
+          "unchecked": 0
+        },
+        "alternatives_with_knowledge": 1,
+        "rewrite_alternatives": 1,
+        "selected_alternative": true,
+        "last_gate": "selected_alternative",
+        "selection_reason": "paired complete-lifecycle improvement on selection inputs"
+      },
+      {
+        "name": "spatial-collision",
+        "split": "heldout",
+        "status": 0,
+        "seconds": 15.428,
+        "stop_reason": "states",
+        "admitted_states": 32,
+        "candidates": 32,
+        "admitted_edges": {
+          "rewrite": 32
+        },
+        "semantic": {
+          "matched": 0,
+          "checked": 0,
+          "admitted": 0,
+          "rejected": 0,
+          "unchecked": 0
+        },
+        "alternatives_with_knowledge": 31,
+        "rewrite_alternatives": 31,
+        "selected_alternative": false,
+        "last_gate": "measurement_budget",
+        "selection_reason": "baseline retained; no robust measured lifecycle improvement"
+      },
+      {
+        "name": "index-membership",
+        "split": "heldout",
+        "status": 0,
+        "seconds": 15.212,
+        "stop_reason": "states",
+        "admitted_states": 32,
+        "candidates": 32,
+        "admitted_edges": {
+          "rewrite": 30,
+          "properties": 2
+        },
+        "semantic": {
+          "matched": 0,
+          "checked": 0,
+          "admitted": 0,
+          "rejected": 0,
+          "unchecked": 0
+        },
+        "alternatives_with_knowledge": 29,
+        "rewrite_alternatives": 29,
+        "selected_alternative": true,
+        "last_gate": "selected_alternative",
+        "selection_reason": "paired complete-lifecycle improvement on selection inputs"
+      },
+      {
+        "name": "incremental-distinct",
+        "split": "heldout",
+        "status": 0,
+        "seconds": 17.359,
+        "stop_reason": "states",
+        "admitted_states": 32,
+        "candidates": 32,
+        "admitted_edges": {
+          "rewrite": 32
+        },
+        "semantic": {
+          "matched": 0,
+          "checked": 0,
+          "admitted": 0,
+          "rejected": 0,
+          "unchecked": 0
+        },
+        "alternatives_with_knowledge": 31,
+        "rewrite_alternatives": 31,
+        "selected_alternative": false,
+        "last_gate": "measurement_budget",
+        "selection_reason": "baseline retained; no robust measured lifecycle improvement"
+      },
+      {
+        "name": "bulk-update",
+        "split": "heldout",
+        "status": 0,
+        "seconds": 18.149,
+        "stop_reason": "time",
+        "admitted_states": 26,
+        "candidates": 26,
+        "admitted_edges": {
+          "rewrite": 25
+        },
+        "semantic": {
+          "matched": 0,
+          "checked": 0,
+          "admitted": 0,
+          "rejected": 0,
+          "unchecked": 0
+        },
+        "alternatives_with_knowledge": 25,
+        "rewrite_alternatives": 25,
+        "selected_alternative": false,
+        "last_gate": "measurement_budget",
+        "selection_reason": "baseline retained; no robust measured lifecycle improvement"
+      },
+      {
+        "name": "compact-set",
+        "split": "heldout",
+        "status": 0,
+        "seconds": 34.617,
+        "stop_reason": "states",
+        "admitted_states": 32,
+        "candidates": 32,
+        "admitted_edges": {
+          "rewrite": 32
+        },
+        "semantic": {
+          "matched": 0,
+          "checked": 0,
+          "admitted": 0,
+          "rejected": 0,
+          "unchecked": 0
+        },
+        "alternatives_with_knowledge": 31,
+        "rewrite_alternatives": 31,
+        "selected_alternative": true,
+        "last_gate": "selected_alternative",
+        "selection_reason": "paired complete-lifecycle improvement on selection inputs"
+      }
+    ]
+  },
+  "near_misses": {
+    "before": {
+      "reasons": {},
+      "premise_shapes": [],
+      "instance_shapes": [],
+      "laws": []
+    },
+    "after": {
+      "reasons": {},
+      "premise_shapes": [],
+      "instance_shapes": [],
+      "laws": []
+    }
+  },
+  "reference_comparison": [
+    {
+      "program": "sequence-every",
+      "before_references": 31,
+      "after_references": 31,
+      "common_ordered_reference_prefix": 26,
+      "laws_lost": [],
+      "laws_added": []
+    },
+    {
+      "program": "ast-ancestor",
+      "before_references": 31,
+      "after_references": 31,
+      "common_ordered_reference_prefix": 31,
+      "laws_lost": [],
+      "laws_added": []
+    },
+    {
+      "program": "text-lines",
+      "before_references": 31,
+      "after_references": 31,
+      "common_ordered_reference_prefix": 31,
+      "laws_lost": [],
+      "laws_added": []
+    },
+    {
+      "program": "drawing-hit",
+      "before_references": 31,
+      "after_references": 30,
+      "common_ordered_reference_prefix": 17,
+      "laws_lost": [],
+      "laws_added": [
+        "5a0cf328fbe55589eb3af1e392423ec02252a0db3a418ae47c3f3eca7efdc52c"
+      ]
+    },
+    {
+      "program": "particle-step",
+      "before_references": 5,
+      "after_references": 5,
+      "common_ordered_reference_prefix": 5,
+      "laws_lost": [],
+      "laws_added": []
+    },
+    {
+      "program": "spatial-collision",
+      "before_references": 31,
+      "after_references": 31,
+      "common_ordered_reference_prefix": 31,
+      "laws_lost": [],
+      "laws_added": []
+    },
+    {
+      "program": "index-membership",
+      "before_references": 31,
+      "after_references": 31,
+      "common_ordered_reference_prefix": 31,
+      "laws_lost": [],
+      "laws_added": []
+    },
+    {
+      "program": "incremental-distinct",
+      "before_references": 31,
+      "after_references": 31,
+      "common_ordered_reference_prefix": 31,
+      "laws_lost": [],
+      "laws_added": []
+    },
+    {
+      "program": "bulk-update",
+      "before_references": 31,
+      "after_references": 25,
+      "common_ordered_reference_prefix": 25,
+      "laws_lost": [
+        "30cd417196536b83b65ced7830bc1886772e84cf2c0f423037be8082ef4396bd",
+        "c38efe5cc01b505eb4476b3086bc04067b7e181fe38c3775959d9b9eb354f1ad"
+      ],
+      "laws_added": []
+    },
+    {
+      "program": "compact-set",
+      "before_references": 31,
+      "after_references": 31,
+      "common_ordered_reference_prefix": 31,
+      "laws_lost": [],
+      "laws_added": []
+    }
+  ],
+  "interpretation": [
+    "Both runs compile all10 and select alternatives on4; cross-program reused laws remain7.",
+    "Candidate admits43 distinct laws versus44; drawing-hit adds1 law, bulk-update loses2 with fewer explored states. Some reference orders also differ; do not claim a universal prefix match.",
+    "Median planning15.8985s before versus16.5525s after;1 versus3time stops. This comparison does not demonstrate a speedup or improved generalisation.",
+    "The shared machine is contended, and source also changed; the comparison does not isolate those causes. No application runtime claim."
+  ],
+  "limitations": [
+    "No fsync/power-loss durability guarantee.",
+    "Historical snapshot pins do not pin aliases; explicit alias semantics documented.",
+    "Full remoteCI must finish green before verified status.",
+    "Complete LLVM/Ink file audit remains unfinished."
+  ],
+  "source_sha256": {
+    "tests/hardening.rs": "e07768b35daa78be89d6b40fe400e25fd5249eca2f70172a24fda2156699271a",
+    "tools/bench_storage_compilation.py": "3c6508b16af30907e52af0c38ef0123474b50aa08725a44c6a7363d19caa1c48",
+    "tools/proofs/package_source_algorithm.py": "21dc110df9ac2c0a8862bc7271def2858ed43bc086b9c26286848b704e9d6a92",
+    "tools/proofs/prove_boundary_selection.py": "eed835c2b28ac97fa0d7f5ff5947743f0eaac7a41bc1e5e799dda68dfb18c247",
+    "tools/proofs/prove_chunked_frame.py": "18cea14c57c06b3917aa98974d62464da89566dd3ddfccd4e75b30f27a3327de",
+    "tools/proofs/prove_definitional_frame.py": "d8f117bbf783b2ca90a4a9ee0c5f06aee86719667c68b269e7abf30f8d014f43",
+    "tools/proofs/prove_guarded_loop_embedding.py": "1f201f874d3c0edff09e5fdfbed9ab69c7d0602ca241d88aaac2f080a20fd526",
+    "tools/proofs/prove_loop_embedding.py": "c614fd506ccb25a2d01f240d984fb5b4301a688fb1ff71b29163bfa6153aa005",
+    "tools/proofs/prove_query_reuse.py": "c126cb9ab3feb7ee278b20ca9c4c972f66c2d4d48b8ba321e69bfb85ef399392",
+    "tools/proofs/prove_source_query_context.py": "33fa253ae97bb79e332c9fb9804edc945c014807fcb476ba9a3b613e97c888ac",
+    "tools/proofs/test_modular_frames.py": "7764572b108486ddb55f0c193466f6d15caabaa16eea66b11236158e8c7e72dc",
+    "tools/proofs/trim_observer_frame.py": "6a1a58568ca6c20a8b88a8ad7af3e1a8007bb0b0063861afcda9495272d6a18f",
+    "knowledge/.gitignore": "927d3c02f41476396363435cf584283505abfa0b0a8b77708243c82c67da2497",
+    "knowledge/README.md": "b5b0a9f53f59a36c85c7863269b2092b2b0af41fec46fa98c89027d0f02619f1",
+    "knowledge/ink_knowledge/implementation_candidates.py": "321b573f707e47195a2ce03c049de82754c6b1263855683a02ecb08fa6604a32",
+    "knowledge/ink_knowledge/store.py": "f8bc9d1c638d69b02e2eb13ea710e912d1f8ef7b8fbb42daf2df6a6271af1b24",
+    "knowledge/producers/action_replacement.py": "ac5b7316e3a3ec9f6335055bd0919cb426ddfb60af1343f5a8fc97f951646108",
+    "knowledge/producers/admit_representations.py": "1da4860d1b3b3487d7112c8a4c69d1c6668aadfe0cc27d26f4304f4c9f473bb0",
+    "knowledge/producers/aggregate_measurements.py": "44137993de3f142e8096d583d825ebabf7357f1f465649491683600b2b28632f",
+    "knowledge/producers/author_word_identities.py": "dbc0cfa2a7fe556c51558d0bf6811f1359c0579ba4d98b372f4f68146373f21c",
+    "knowledge/producers/bulk_buffer_laws.py": "76fb25e7c2f063b0971c8377b93ed087720f06b99389315a08412e5df66aa681",
+    "knowledge/producers/collection_pipeline_laws.py": "608b03a0783b95909d151981c08fe306fea05d7c5ee2c25702b272f5db8f6800",
+    "knowledge/producers/contract_algebra.py": "74be09745ea93f7a033b43a0fa44409887c8b46025355062c43a4b9dde0eaf0c",
+    "knowledge/producers/filtered_sort_laws.py": "f9464ee848747c73f6b84ae96bd5c028d4660d1bc0b06c5355b130ae59558892",
+    "knowledge/producers/indexed_aggregate.py": "8ffc851a16bd484ab197738e56473edd955bea49dc1dc355d67ac7c7d4924b01",
+    "knowledge/producers/json_laws.py": "5e22518819c79bb5efb238adbaae86ea08832f379c38847719be8532fff747fb",
+    "knowledge/producers/list_slice_laws.py": "04d7af7d7899aba3d1ceaf91428494bda05011cdc2367f6b4a415607d773fb76",
+    "knowledge/producers/literal_collection_laws.py": "d74f8d6679be4179aa21fc52666dc13a5b30b8a2148becf037f75cf900b94f90",
+    "knowledge/producers/local_collection_laws.py": "81d249a320404e3e0df358e32a2284774ceb10fb1841644bd47134d56c3f2d4c",
+    "knowledge/producers/loop_state_embedding.py": "51306d840b623af2e6aa8635709853de75bf1b32474a9be70f28ff55546872a5",
+    "knowledge/producers/owned_collection_laws.py": "06914b6704f272c751ca13bacf7ae7fcd475bff87735e1ac615f1faabb2f5a9f",
+    "knowledge/producers/owned_fold_contracts.py": "207de23f589ed5d608ba213ca039f75cdd92a0efc1256d6b1012e8236feb582a",
+    "knowledge/producers/publish_performance_laws.py": "51deb2f745d00f720946fa6d801683e53d40f7b9eaff59539a96c9591181cf9c",
+    "knowledge/producers/publish_physical_capabilities.py": "46a4eea49e8ab66b6cb9c1023d1726c35e0cb876feb34b57bc96f75e3b5ee348",
+    "knowledge/producers/publish_sequence_candidates.py": "06eee0491378b63ef8417abc272d42623578d073be6fa91ece962ecaad3a452e",
+    "knowledge/producers/publish_web_pipeline33.py": "603950171d457ab7abf0d6a567783c33ad266ae4d4713e62f57b290d35012134",
+    "knowledge/producers/publish_web_stack_laws.py": "813af85fa3ec001d8597ba7a590fdb4802581854cc7898404b3aa1c7384cb1cc",
+    "knowledge/producers/reactive_dependencies.py": "750ebbd35ab124aaf83102d2a1439cf573ca1558384178729b25523e2fddc06e",
+    "knowledge/producers/research_representations.py": "15995517df5c1b6553e2073ab2e73786d953a08be10742e01730dbedcfb73879",
+    "knowledge/producers/shared_sequence_laws.py": "42693d7c46a545a6d10af356e3592413e9cad7a5cce0370e833ec0b3bd3aec4e",
+    "knowledge/producers/sort_cardinality_laws.py": "b60881365165e969dcb38b8a622f026fb928732946aab686b632795a0d1ac684",
+    "knowledge/producers/source_laws.py": "439665a57fd32a89623b0361f1f7d822e223f323d4867ec9aca5c38ce8e3aec7",
+    "knowledge/producers/state_calculus.py": "ac545c3775bbcfea9e5d08fafc8793ce7797268d1710c2e728a8a535567af79d",
+    "knowledge/producers/state_laws.py": "93515064f240e1b176e25442cfad99abf25d269c2f139051920a96d05ecc09bf",
+    "knowledge/producers/storage_bulk_publish.py": "5a4a8a2f095152480dbde4985049620863b8cdb4011a21ec2bb9ae6b97580d81",
+    "knowledge/producers/structure_laws.py": "d2965b5f5367ca74dc3f011f663c534e3157c0d850188c8ac2fd7ef9fc165125",
+    "knowledge/producers/sum_flatten.py": "fdf8fff1389391ddceb1564af0d719103091669d4f0ded73bd061c42dfa688e5",
+    "knowledge/producers/value_boundary_measurements.py": "59d444ad2119f9fb9b4a06e2650de0282775e69452792f65224a22120dae76b8",
+    "planner/ink_planner/automatic_candidates.py": "c455968fb404d142376a03d3be8fc8bfb2ae25ccecbc11265bec45cbce717115",
+    "planner/ink_planner/corpus.py": "edf4b77b3daac1d08ff3e90cbe05dd1d7cba49e3ce42f9ebb893593942096d64",
+    "planner/ink_planner/llvm_corpus.py": "028924482331b30a253bdcc51fa44b7eb40d168655a55ef07df0d68b8a1ae3a8",
+    "planner/ink_planner/llvm_learning.py": "382cfbeac293dbbd6a5761e982f7b7f2e442d4a45bd11445b52e652e31ed2342",
+    "planner/tests/test_corpus_clone.py": "3e5130a5364451ea018f2be62082f3a3531a2640cf08e349f1c4fac945cf87e8",
+    "knowledge/ink_knowledge/publication.py": "65f72bb88dbed900e7a1d706618822e36242e21b0285abb9ff321778a56d2bb4",
+    "knowledge/tests/test_publication_recovery.py": "0ff53e63add5307f1df968d8e4c60d399de3a7adce2e98b8ca1f6fdf81203422",
+    "knowledge/tests/test_publication_staging.py": "a31d5868dd2ae307b945d5695f7b790784b72bc8ce12d4cad27c0276d3bbb439"
+  },
+  "corpus_files": {
+    "publication-generation-corpus/before/report.json": "9d4f8c68f91bcfbf269c3a1b713e164e4999889740de6b227e3825bb814036b4",
+    "publication-generation-corpus/before/records.json": "2b7677af3ca2dc4e266efad2d1fda00a47e659ef4dfca410a04d7f8c1b2da2eb",
+    "publication-generation-corpus/before/context.json": "c418eab25ca53f4735396eec2cc56acac0fb106a335fd11d89eb90f3d9779783",
+    "publication-generation-corpus/after/report.json": "2bbc87b6855db60eba20dc9a49f7508d10e8c874632b26174a03e068c507a648",
+    "publication-generation-corpus/after/records.json": "b2ef11a1bcb0787c96f0715f8e72c0586a8c2f1cd543d3de9d5ae81d8d5d5b58",
+    "publication-generation-corpus/after/context.json": "8e1b1909535d978ce24017dfe639cb617d2b3c8780797e2b484643234bc5da7c"
+  },
+  "logs": {
+    "publication-migration-final-focused.log": "35418ac9819d97c6c198f22ad1f9ee755f04fcd2b2f631248f232156f88ad3b0",
+    "publication-staging-tests.log": "a06597830c00427cffc04e41efcf91022fd2efb856120305c46ecb47675227bf",
+    "publication-migration-final-hardening.log": "76a884184b9b853758259d53f5e5bc6a7244ea0f9a5d799df099f3306b40ffd9"
+  }
+}
