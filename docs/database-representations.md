@@ -145,17 +145,16 @@ steps and bundles at sixteen variants. Source argument nesting/list/integer boun
 remain 32/4,096/4,090 bits. Source syntax and snapshot container version are unchanged.
 
 `emit-representation` emits a standalone compiled program for the selected
-representation across Rust, C, JavaScript, both Wasm lanes and GPU host lanes.
+representation across Rust, JavaScript, Rust-based Wasm and GPU host lanes.
 All source, definition and preservation checking finishes before
 emission. The generated `State` stores native physical data, version, pending
 events and the portable snapshot layout. Changes invoke the literal checked execute/observe/next functions directly.
 Targets emit the checked execute, observe and next definitions literally.
-Database candidates express compact queries and physical-state retention. C uses a generated type-specific borrowed
-ABI into immutable typed storage; its functions do not repack physical state.
+Database candidates express compact queries and physical-state retention.
 JavaScript emits literal functions and immutable native constructor objects, with
 an explicit call stack only for functions that depend on inductive recursion;
-other functions use ordinary synchronous calls. Wasm uses the C or Rust program;
-wgpu uses the native C host and WebGPU uses the JavaScript host. Recursive state
+other functions use ordinary synchronous calls. Wasm uses the Rust program;
+wgpu uses the native Rust host and WebGPU uses the JavaScript host. Recursive state
 representations execute on the host, consistent with the general GPU contract.
 The executable carries no proof bundle,
 checker context, source AST, `CheckedRepresentation`, generic `Term`/constructor
@@ -199,13 +198,10 @@ copies events when the caller needs them to outlive that borrow. JSON invocation
 remains available. Event payloads still use the portable codec; this is not a
 typed Wasm ABI or a zero-copy event-payload representation.
 
-Standalone C adapters allocate temporary constructors in typed, stable-address
-chunks with nested call marks. Results acquire immutable ownership before rewind;
-rewind drops exactly the initialized values, retains at most one chunk per used
-datatype, and releases oversized chunk directories. These are generic backend
-allocation mechanics, not a table-layout recogniser. Rust constructor fields
-reuse matched immutable Arc owners; closed constant fields use shared templates.
-Neither mechanism changes source identity or representation proof obligations.
+Rust constructor fields reuse matched immutable Arc owners; closed constant
+fields use shared templates. These allocation mechanisms do not change source
+identity or representation proof obligations. The retired C lowering is not a
+distribution dependency or an available emission target.
 
 Existing `String` values and keys, nominal IDs, and signed/32-bit keys now have
 fixed correspondence. Strings use UTF-8 Nil/Cons bytes; IDs use two unsigned
@@ -354,7 +350,6 @@ executor's direct-switch API is retired as described above.
 ink emit-representation source.ink request.json --target rust -o program.rs
 ink emit-representation source.ink request.json --target rust-packed -o packed-program.rs
 ink emit-representation source.ink request.json --target javascript -o program.mjs
-ink emit-representation source.ink request.json --target c -o c-project
 ink emit-representation source.ink request.json --target wasm32 -o wasm-project
 ink emit-representation source.ink request.json --target rust-wasm -o rust-wasm-project
 ink emit-representation source.ink request.json --target rust-wasm-packed -o packed-wasm-project
@@ -364,8 +359,8 @@ ink emit-representation source.ink request.json --target webgpu -o browser-host.
 
 Native/Wasm projects contain literal code, ordinary codec dependencies and the
 handle/buffer state ABI. `cargo build --offline` builds them; Wasm adds
-`--target wasm32-unknown-unknown`. C/Wasm accepts INK_CC/INK_AR cross-compiler
-wrappers. Generated Wasm projects declare an 8 MiB stack, matching the native
+`--target wasm32-unknown-unknown`. Both `wasm32` and `rust-wasm` use retained
+Rust-based emission. Generated Wasm projects declare an 8 MiB stack, matching the native
 stack budget used for the admitted inductive input limits; conformance includes
 a 4096-element list. JavaScript exports `createState()` with asynchronous `invoke`/
 `invoke_json`, checkpoint and restore. Invocation executes synchronously before

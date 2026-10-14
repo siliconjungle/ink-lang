@@ -3,6 +3,17 @@ import {chromium} from 'playwright-core';
 import fs from 'node:fs/promises';import http from 'node:http';import path from 'node:path';import os from 'node:os';import crypto from 'node:crypto';
 const [mode,output,profilePath]=process.argv.slice(2);
 if(!['smoke','train','test',...['cold','cpu-warm','gpu-warm'].flatMap(r=>[r+'-train',r+'-test'])].includes(mode)||!output)throw Error('usage: resident-profile-browser.mjs smoke|[cold-|cpu-warm-|gpu-warm-]train|test OUTPUT [PROFILE]');
+// An explicit protocol lets a later experiment reserve fresh evaluation inputs
+// without rewriting the benchmark or silently reusing previously inspected data.
+const protocolPath=process.env.INK_RESIDENT_PROTOCOL;
+const protocol=protocolPath?JSON.parse(await fs.readFile(protocolPath,'utf8')):null;
+if(protocol){
+ if(protocol.schema!==1)throw Error('resident protocol schema');
+ for(const split of ['training','evaluation']){
+  const p=protocol[split];
+  if(!p||!Array.isArray(p.sizes)||p.sizes.length!==3||!p.sizes.every(n=>Number.isSafeInteger(n)&&n>=0&&n<=1_000_000)||!Array.isArray(p.horizons)||p.horizons.length!==3||!p.horizons.every(n=>Number.isSafeInteger(n)&&n>=1&&n<=1000)||!Number.isSafeInteger(p.seed)||p.seed<0||p.seed>0xffffffff)throw Error('invalid resident protocol '+split);
+ }
+}
 const root=process.cwd(),bundle='build/resident-profile',profile=profilePath?JSON.parse(await fs.readFile(profilePath,'utf8')):null;
 const server=http.createServer(async(req,res)=>{res.setHeader('Cross-Origin-Opener-Policy','same-origin');res.setHeader('Cross-Origin-Embedder-Policy','require-corp');try{const file=path.resolve(root,'.'+new URL(req.url,'http://localhost').pathname);if(!file.startsWith(root+path.sep))throw Error('outside root');const data=await fs.readFile(file);res.setHeader('Content-Type',file.endsWith('.mjs')?'text/javascript':file.endsWith('.wasm')?'application/wasm':'application/json');res.end(data);}catch{res.statusCode=404;res.end();}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));let browser;
@@ -11,7 +22,7 @@ try{
  const page=await browser.newPage(),base=`http://127.0.0.1:${server.address().port}/`;
  await page.goto(base+bundle+'/manifest.json');
  const environment={browser:browser.version(),platform:os.platform(),architecture:os.arch(),cpu:os.cpus()[0]?.model};
- const result=await page.evaluate(async({base,bundle,mode,profile,environment})=>{
+ const result=await page.evaluate(async({base,bundle,mode,profile,environment,protocol})=>{
   const adapter=await navigator.gpu?.requestAdapter();if(!adapter)throw Error('actual WebGPU adapter required');const info=adapter.info;
   const device={vendor:info?.vendor,architecture:info?.architecture,device:info?.device,description:info?.description,isFallbackAdapter:info?.isFallbackAdapter??adapter.isFallbackAdapter??null};
   if(device.isFallbackAdapter)throw Error('software adapter is not device coverage');
@@ -21,16 +32,17 @@ try{
   const engine_initialization_ns={plain:(performance.now()-plainStarted)*1e6};
   const fittedStarted=performance.now();let fitted=profile?await loadInk(url,{targetKey,costProfile:profile}):null;
   engine_initialization_ns.profile=fitted?(performance.now()-fittedStarted)*1e6:null;
-  const input=(kernel,n)=>Array.from({length:n},(_,i)=>kernel==='ecs'?{x:Math.imul(i,2654435761)>>>0,y:(0xffffffff-i)>>>0,vx:i%13,vy:i%7}:{x:Math.fround((i%101)/8),y:Math.fround((i%43)/16-.25),vx:Math.fround((i%17-8)/32),vy:Math.fround((i%11-5)/16)});
+  const input=(kernel,n,seed)=>Array.from({length:n},(_,index)=>{const i=(index+seed)>>>0;return kernel==='ecs'?{x:Math.imul(i,2654435761)>>>0,y:(0xffffffff-i)>>>0,vx:i%13,vy:i%7}:{x:Math.fround((i%101)/8),y:Math.fround((i%43)/16-.25),vx:Math.fround((i%17-8)/32),vy:Math.fround((i%11-5)/16)};});
   const step=(kernel,rows)=>rows.map(b=>{if(kernel==='ecs')return {x:(b.x+b.vx)>>>0,y:(b.y+b.vy)>>>0,vx:b.vx,vy:b.vy};const vy=Math.fround(b.vy+Math.fround(Math.fround(-9.75)*Math.fround(1/64))),y=Math.fround(b.y+Math.fround(vy*Math.fround(1/64)));return{x:Math.fround(b.x+Math.fround(b.vx*Math.fround(1/64))),y:y<0?0:y,vx:b.vx,vy:y<0?Math.fround(0-vy):vy};});
   const check=(actual,wanted,label)=>{if(actual.length!==wanted.length)throw Error(label+' length');for(let i=0;i<wanted.length;i++)for(const f of ['x','y','vx','vy'])if(!Object.is(actual[i][f],wanted[i][f]))throw Error(`${label}/${i}/${f}`);};
   const freshMode=mode.includes('-'),kind=mode.replace(/^(cold|cpu-warm|gpu-warm)-/,'');
   const regime=mode.startsWith('cold-')?'cold':mode.startsWith('cpu-warm-')?'cpu-warm':mode.startsWith('gpu-warm-')?'gpu-warm':'warm';
   const prepareBackends=regime==='cold'?[]:regime==='cpu-warm'?['cpu']:regime==='gpu-warm'?['gpu-required']:['cpu','gpu-required'];
-  const sizes=kind==='smoke'?[0,1,257]:kind==='train'?[256,8192,262144]:[2048,40960,147456];
-  const horizons=kind==='smoke'?[1,32]:kind==='train'?[1,16,64]:[4,20,52],count=kind==='smoke'?1:kind==='train'?5:8,receipts=[];
+  const selectedProtocol=kind==='smoke'?null:protocol?.[kind==='train'?'training':'evaluation'];
+  const sizes=selectedProtocol?.sizes??(kind==='smoke'?[0,1,257]:kind==='train'?[256,8192,262144]:[2048,40960,147456]);
+  const horizons=selectedProtocol?.horizons??(kind==='smoke'?[1,32]:kind==='train'?[1,16,64]:[4,20,52]),count=kind==='smoke'?1:kind==='train'?5:8,receipts=[];
   try{for(const kernel of ['ecs','physics'])for(const n of sizes)for(const iterations of horizons){
-   const rows=input(kernel,n),plan={inputs:{rows},steps:[{id:'next',call:kernel,args:[{input:'rows'},...(kernel==='physics'?[1/64,-9.75]:[])]}],outputs:['next'],feedback:{rows:'next'}};
+   const rows=input(kernel,n,selectedProtocol?.seed??0),plan={inputs:{rows},steps:[{id:'next',call:kernel,args:[{input:'rows'},...(kernel==='physics'?[1/64,-9.75]:[])]}],outputs:['next'],feedback:{rows:'next'}};
    let wanted=rows;for(let i=0;i<iterations;i++)wanted=step(kernel,wanted);
    const workload={iterations,readbacks:1};
    // Bind the preparation state actually measured. Backend and shader startup
@@ -69,7 +81,8 @@ try{
    receipts.push({kernel,n,iterations,scope:context.scope,features:context.features,boundary:context.boundary,core_sha256:plain.manifest.core_sha256,samples_ns:samples,step_finish_samples_ns:steps,engine_initialization_samples_ns:initialization,preparation_samples_ns:preparation,engine_close_samples_ns:engineClose,complete_lifecycle_samples_ns:lifecycle,backends,counters,decisions,validated:true});
   }}finally{await plain.close();await fitted?.close();}
   return {mode,device,targetKey,receipts,engine_initialization_ns,preparation_regime:regime,lifecycle_scope:freshMode?'Fresh engine creation including profile capture, requested prewarming, complete session and engine close. Cold regime has no requested prewarming. These samples never train the session-cost model.':'Reused engines: per-call full lifecycle is not claimed; initial engine setup is reported separately. Session samples exclude explicit prewarming.',scope:`${regime} preparation; common loadInk import and explicit prewarming excluded; complete open, upload, steps, finish, full owned output read, close. Oracle outside timing. Smoke uses synthetic cost models only for decision conformance.`};
- },{base,bundle,mode,profile,environment});
+ },{base,bundle,mode,profile,environment,protocol});
  const source_hashes={};for(const file of ['bench/gpu/resident-profile-browser.mjs','bench/gpu/resident-profile.ink',`${bundle}/manifest.json`,`${bundle}/ink-gpu.mjs`,`${bundle}/backend-selection.mjs`,`${bundle}/ink-selection.wasm`,`${bundle}/cpu.wasm`])source_hashes[file]=crypto.createHash('sha256').update(await fs.readFile(file)).digest('hex');
- await fs.mkdir(path.dirname(output),{recursive:true});await fs.writeFile(output,JSON.stringify({schema:1,environment,source_hashes,...result},null,2)+'\n');console.log(JSON.stringify({mode,cases:result.receipts.length,device:result.device,output}));
+ if(protocolPath)source_hashes.protocol=crypto.createHash('sha256').update(await fs.readFile(protocolPath)).digest('hex');
+ await fs.mkdir(path.dirname(output),{recursive:true});await fs.writeFile(output,JSON.stringify({schema:1,environment,source_hashes,protocol,...result},null,2)+'\n');console.log(JSON.stringify({mode,cases:result.receipts.length,device:result.device,output}));
 }finally{await browser?.close();await new Promise(r=>server.close(r));}
