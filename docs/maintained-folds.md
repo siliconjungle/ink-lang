@@ -68,6 +68,16 @@ The producer authors wrapping replacement arithmetic and ordinary word-law
 simplifications, including zero multiplication in counts, through row cases and
 Boolean branch proofs. No algebraic matcher in the backend grants these changes.
 
+A view may also supply `row_update: {function, proof}` with signature
+`(total,key,oldRow,newRow)->group`. Admission checks its complete equality to
+`combine(combine(total,inverse(contribution(key,oldRow))),contribution(key,newRow))`
+for arbitrary totals, keys and both rows. This lets database definitions retain
+row predicates instead of first constructing scalar contributions. The installed
+producer proposes direct predicate transitions for fixed or row-dependent U64
+weights. Universal word proofs cover wrapping arithmetic; row expressions are
+ordinary theorem arguments, and contribution-choice proofs compose explicitly.
+`--predicate-update` requests this alternative from the standalone producer.
+
 JavaScript has a bounded native lane for scalar definitions and source record/vector
 fields. It emits literal calls, branches and arithmetic on the actual source
 carriers, removing private constructor codecs and recursion wrappers. Unused opaque

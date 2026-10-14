@@ -72,7 +72,7 @@ fn arbitrary_schema_products_preserve_histories_rollback_and_portable_state_and_
     let source = dir.join("source.ink");
     fs::write(&source, SOURCE).unwrap();
     let out = Command::new("python3")
-        .args(["-m", "producers.maintained_folds", "--guarded-update", "--guard-zero"])
+        .args(["-m", "producers.maintained_folds", "--guarded-update", "--guard-zero", "--predicate-update"])
         .arg(&source)
         .args([
             "--compiler",
@@ -101,6 +101,7 @@ fn arbitrary_schema_products_preserve_histories_rollback_and_portable_state_and_
         serde_json::from_slice(&fs::read(dir.join("plan.json")).unwrap()).unwrap();
     let plan = planning::check(&module, &packet).unwrap();
     assert_eq!(plan.maintained().unwrap().package().views.len(), 3);
+    assert_eq!(plan.maintained().unwrap().package().views.iter().filter(|v|v.row_update.is_some()).count(),1);
     assert!(verified_language::state_native::emit_planned(&plan)
         .unwrap_err()
         .contains("maintained"));
