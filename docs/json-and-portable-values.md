@@ -256,3 +256,42 @@ alternatives, separate from source rewrites. No compiler recognition case or
 benchmark result grants mathematical authority. See the measured report in
 `reports/value-boundaries-2026-10-13` and the Frontier comparison in
 `reports/frontier-json-2026-10-13` for current numbers and limits.
+
+## Constructing compiled inputs directly
+
+Generated JavaScript codecs expose generic typed construction sessions through
+`compiledValues.function.params[index].builder(limits)`. The session accepts
+constructor and scalar events, enforces the source schema and resource limits,
+and returns an opaque handle only after a complete root. Constructor path fusion
+retains the resource charges of erased records and flattened sums. Private
+composite values never become mutable host inputs. Representation choices still
+come from checked physical plans and their database proofs.
+
+`JsonCodec.parseCompiled(codec, text, limits)` feeds that interface directly. It
+preserves exact numeric tokens, member order, unknown fields, Unicode checks and
+duplicate rejection. Existing parsing and calls retain their contracts.
+
+```js
+const json = new JsonCodec(valueCodecs.identity.result);
+const input = json.parseCompiled(compiledValues.identity.params[0], text);
+const result = callCompiled('identity', [input]);
+const bytes = compiledValues.identity.result.encodeCompact(result);
+// Peers must agree on this codec's identity and compact transport format.
+```
+
+The generic codec `visit(handle, visitor, limits)` also emits portable framing and
+scalar events without a logical tree or binary buffer. It exposes no private
+composite nodes or writer callbacks. These are boundary tools, not automatic
+speedups: comparable whole-workload measurements must establish profitability.
+The attempted JSON renderer that interpreted those events was slower and removed;
+see the retained Frontier comparison reports. Source typing alone does not prove
+format-specific invariants such as valid JSON number tokens.
+
+Compiled codecs additionally expose `reducer(factory)`: a literal typed fold
+whose callbacks see scalars and their own child results. It can compute summaries
+or render output without allocating a logical tree or exposing private nodes.
+`JsonCodec.stringifyCompiled(codec, handle, limits)` uses this interface and
+retains JSON-specific checks, exact numeric tokens and member order. For a
+`Result<Json,E>` reply, pass `{unwrapResult:true}`; Err is rejected. Source and
+output resource limits remain checked. Ordinary JSON APIs keep their existing
+behaviour, and this explicit path requires comparable lifecycle measurements.

@@ -4,8 +4,8 @@ import os from 'node:os';
 import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
 
-export function provenance(root) {
-  const files = [
+export function provenance(root, {native = true, artifacts = null, repositories: repositoryPaths = null} = {}) {
+  const files = artifacts ?? [
     'bench/frontier-json/state.ink', 'bench/frontier-json/prepare.py',
     'bench/frontier-json/run.mjs', 'bench/frontier-json/state-adapters.mjs', 'bench/frontier-json/json-kernels.mjs',
     'bench/frontier-json/src/main.rs', 'bench/frontier-json/package-lock.json',
@@ -15,9 +15,9 @@ export function provenance(root) {
     'build/frontier-json/ink-indexed.mjs', 'build/frontier-json/indexed.plan.json',
     'build/frontier-json/target/release/ink-frontier-json-benchmark',
   ];
-  const hashes = Object.fromEntries(files.map(file => [file,
+  const hashes = Object.fromEntries(files.filter(file => native || file !== 'build/frontier-json/target/release/ink-frontier-json-benchmark').map(file => [file,
     createHash('sha256').update(fs.readFileSync(path.join(root, file))).digest('hex')]));
-  const repositories = ['.', 'abi', 'core', 'native-support', 'runtime', 'knowledge',
+  const repositories = repositoryPaths ?? ['.', 'abi', 'core', 'native-support', 'runtime', 'knowledge',
     'planner', 'lowerings/c', 'lowerings/rust', 'lowerings/js', 'lowerings/wasm',
     'lowerings/gpu', 'build/frontier', 'build/frontier-state-main',
     'build/frontier-engine', 'build/frontier-codec'];
@@ -26,6 +26,7 @@ export function provenance(root) {
       {encoding: 'utf8'}).trim()]));
   return {
     captured_at: new Date().toISOString(), hashes, revisions,
+    native_artifact_included: native,
     node: process.version,
     target: {cpu: os.cpus()[0].model, platform: os.platform(), arch: os.arch(),
       release: os.release()},
