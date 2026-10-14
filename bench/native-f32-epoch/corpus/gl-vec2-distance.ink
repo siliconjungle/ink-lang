@@ -1,1 +1,0 @@
-module Distance; record V{x:f32,y:f32,} record Pair{a:V,b:V,} fn distance(p:Pair)->f32{let x:f32=p.b.x-p.a.x;let y:f32=p.b.y-p.a.y;return x*x+y*y;} pub fn run(xs:List<Pair>)->List<f32>{return xs.map(fn(p)=>distance(p));}

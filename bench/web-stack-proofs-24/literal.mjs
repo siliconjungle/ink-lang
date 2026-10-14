@@ -1,9 +1,0 @@
-const mul=(a,b)=>Math.imul(a,b)>>>0,add=(a,b)=>(a+b)>>>0,sub=(a,b)=>(a-b)>>>0,quot=(a,b,z)=>b?Math.floor(a/b)>>>0:z,rem=(a,b,z)=>b?a%b:z;
-const functions={"demand_mapped_head_u32":(xs,ys,seed,k)=>{const mapped=Array.prototype.map.call(xs,x=>((x>k)?add(mul(x,k),seed):sub(seed,x)));const fallback=((seed>k)?add(mul(seed,k),seed):sub(seed,seed));return mapped.length?mapped[0]:fallback;},
-"demand_mapped_head_heldout_u32":(xs,ys,seed,k)=>{const mapped=Array.prototype.map.call(xs,x=>((x<k)?add(mul(x,x),seed):mul(sub(x,seed),add(x,k))));const fallback=((seed<k)?add(mul(seed,seed),seed):mul(sub(seed,seed),add(seed,k)));return mapped.length?mapped[0]:fallback;},
-"demand_filtered_mapped_head_u32":(xs,ys,seed,k)=>{const accepted=Array.prototype.filter.call(xs,x=>(x>seed));const mapped=Array.prototype.map.call(accepted,x=>((x>k)?add(mul(x,k),seed):sub(seed,x)));const fallback=((seed>k)?add(mul(seed,k),seed):sub(seed,seed));return mapped.length?mapped[0]:fallback;},
-"demand_filtered_mapped_head_heldout_u32":(xs,ys,seed,k)=>{const accepted=Array.prototype.filter.call(xs,x=>(x<k));const mapped=Array.prototype.map.call(accepted,x=>((x<k)?add(mul(x,x),seed):mul(sub(x,seed),add(x,k))));const fallback=((seed<k)?add(mul(seed,seed),seed):mul(sub(seed,seed),add(seed,k)));return mapped.length?mapped[0]:fallback;},
-"skip_first_accepted_u32":(xs,ys,seed,k)=>{const accepted=Array.prototype.filter.call(xs,x=>(x>seed));return accepted.length?accepted[0]:seed;},
-"skip_first_accepted_u32_heldout":(xs,ys,seed,k)=>{const accepted=Array.prototype.filter.call(xs,x=>(x<k));return accepted.length?accepted[0]:seed;},
-"reference_count_u32":(xs,ys,seed,k)=>{return BigInt(xs.length);},
-"reference_indexed_u32":(xs,ys,seed,k)=>{return Array.prototype.map.call(xs,(x,j)=>{const i=j>>>0;return ((rem(i,2,0)==0)?add(x,k):sub(x,seed));});}};export const call=(name,args)=>functions[name](...args);
