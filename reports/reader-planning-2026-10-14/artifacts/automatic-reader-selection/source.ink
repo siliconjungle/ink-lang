@@ -1,0 +1,1 @@
+module packets; record Packet { label:String, values:List<u32>, } fn copy(packet:Packet)->Packet{return packet;}

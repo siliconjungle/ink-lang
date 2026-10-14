@@ -1,0 +1,1566 @@
+{
+  "schema": 1,
+  "process": 297,
+  "node": "v26.1.0",
+  "provenance": {
+    "captured_at": "2026-10-14T01:44:58.810Z",
+    "hashes": {
+      "bench/frontier-json/fused-wire-reader.mjs": "5cb354e0d4dd158f3e8e8803b3d575a712293e5362133e5b1d7efb1b034fbb26",
+      "bench/frontier-json/provenance.mjs": "bf3bd3f4d032a6074a4c989b3eade0811434a9a295a89e716b0b352e85ffc63a",
+      "bench/frontier-json/state.ink": "f98f971b59e11d0983af3cbbd9a472f2d55b4e5720556de1f31b19b12ae866a4",
+      "build/typed-reduction/emitted-allocation-sums.mjs": "d1be548ac44f1fd790c1e6f6e3bf7ed736dbddc6cefb48834ef66f321f4c47c7",
+      "build/typed-reduction/emitted-fused-sums.mjs": "b780a16b3034ee866555552048bcbc9a13c7eacce91e658f06a0acd10f3bbba7"
+    },
+    "revisions": {
+      ".": "81e8388aee7c5a2a16a5c8ebc86c4ff1020af193",
+      "abi": "a535dadffdd0772cefdaaf75b32b4ca2410e630c",
+      "lowerings/js": "c8f32cabab6b6dbb3b2a0252c6669dee3c5957d6",
+      "knowledge": "b0f7ae5c6a572ecf601a14f1d7bdf550c4fbdfc8"
+    },
+    "native_artifact_included": false,
+    "node": "v26.1.0",
+    "target": {
+      "cpu": "Apple M2",
+      "platform": "darwin",
+      "arch": "arm64",
+      "release": "25.5.0"
+    },
+    "host_isolation": "Shared development host; no exclusive CPU reservation. Repeated process cohorts and rotated lane order, not a controlled laboratory."
+  },
+  "measurements": [
+    {
+      "fields": 4,
+      "lane": "fused/portable-edit-portable",
+      "round": 0,
+      "calls": 56,
+      "elapsed_ns": "2462375"
+    },
+    {
+      "fields": 4,
+      "lane": "control/portable-edit-portable",
+      "round": 0,
+      "calls": 304,
+      "elapsed_ns": "11591292"
+    },
+    {
+      "fields": 4,
+      "lane": "control/compact-edit-compact",
+      "round": 0,
+      "calls": 211,
+      "elapsed_ns": "6995458"
+    },
+    {
+      "fields": 4,
+      "lane": "fused/compact-decode",
+      "round": 0,
+      "calls": 830,
+      "elapsed_ns": "5139125"
+    },
+    {
+      "fields": 4,
+      "lane": "control/portable-decode",
+      "round": 0,
+      "calls": 849,
+      "elapsed_ns": "6672083"
+    },
+    {
+      "fields": 4,
+      "lane": "fused/compact-edit-compact",
+      "round": 0,
+      "calls": 543,
+      "elapsed_ns": "19626500"
+    },
+    {
+      "fields": 4,
+      "lane": "control/compact-decode",
+      "round": 0,
+      "calls": 925,
+      "elapsed_ns": "9147041"
+    },
+    {
+      "fields": 4,
+      "lane": "fused/portable-decode",
+      "round": 0,
+      "calls": 934,
+      "elapsed_ns": "9242209"
+    },
+    {
+      "fields": 4,
+      "lane": "control/portable-decode",
+      "round": 1,
+      "calls": 849,
+      "elapsed_ns": "7800875"
+    },
+    {
+      "fields": 4,
+      "lane": "fused/portable-edit-portable",
+      "round": 1,
+      "calls": 56,
+      "elapsed_ns": "2109209"
+    },
+    {
+      "fields": 4,
+      "lane": "control/compact-edit-compact",
+      "round": 1,
+      "calls": 211,
+      "elapsed_ns": "6655375"
+    },
+    {
+      "fields": 4,
+      "lane": "fused/compact-edit-compact",
+      "round": 1,
+      "calls": 543,
+      "elapsed_ns": "16784583"
+    },
+    {
+      "fields": 4,
+      "lane": "fused/portable-decode",
+      "round": 1,
+      "calls": 934,
+      "elapsed_ns": "2649000"
+    },
+    {
+      "fields": 4,
+      "lane": "fused/compact-decode",
+      "round": 1,
+      "calls": 830,
+      "elapsed_ns": "3837250"
+    },
+    {
+      "fields": 4,
+      "lane": "control/portable-edit-portable",
+      "round": 1,
+      "calls": 304,
+      "elapsed_ns": "7433292"
+    },
+    {
+      "fields": 4,
+      "lane": "control/compact-decode",
+      "round": 1,
+      "calls": 925,
+      "elapsed_ns": "14390292"
+    },
+    {
+      "fields": 4,
+      "lane": "control/compact-decode",
+      "round": 2,
+      "calls": 925,
+      "elapsed_ns": "5567250"
+    },
+    {
+      "fields": 4,
+      "lane": "control/portable-decode",
+      "round": 2,
+      "calls": 849,
+      "elapsed_ns": "5865333"
+    },
+    {
+      "fields": 4,
+      "lane": "control/compact-edit-compact",
+      "round": 2,
+      "calls": 211,
+      "elapsed_ns": "6619833"
+    },
+    {
+      "fields": 4,
+      "lane": "fused/portable-decode",
+      "round": 2,
+      "calls": 934,
+      "elapsed_ns": "2871959"
+    },
+    {
+      "fields": 4,
+      "lane": "fused/portable-edit-portable",
+      "round": 2,
+      "calls": 56,
+      "elapsed_ns": "2206959"
+    },
+    {
+      "fields": 4,
+      "lane": "fused/compact-edit-compact",
+      "round": 2,
+      "calls": 543,
+      "elapsed_ns": "25451333"
+    },
+    {
+      "fields": 4,
+      "lane": "fused/compact-decode",
+      "round": 2,
+      "calls": 830,
+      "elapsed_ns": "4708708"
+    },
+    {
+      "fields": 4,
+      "lane": "control/portable-edit-portable",
+      "round": 2,
+      "calls": 304,
+      "elapsed_ns": "11479666"
+    },
+    {
+      "fields": 4,
+      "lane": "fused/portable-decode",
+      "round": 3,
+      "calls": 934,
+      "elapsed_ns": "3647542"
+    },
+    {
+      "fields": 4,
+      "lane": "fused/compact-decode",
+      "round": 3,
+      "calls": 830,
+      "elapsed_ns": "1827958"
+    },
+    {
+      "fields": 4,
+      "lane": "control/portable-decode",
+      "round": 3,
+      "calls": 849,
+      "elapsed_ns": "3024333"
+    },
+    {
+      "fields": 4,
+      "lane": "control/compact-edit-compact",
+      "round": 3,
+      "calls": 211,
+      "elapsed_ns": "7791542"
+    },
+    {
+      "fields": 4,
+      "lane": "control/portable-edit-portable",
+      "round": 3,
+      "calls": 304,
+      "elapsed_ns": "8676292"
+    },
+    {
+      "fields": 4,
+      "lane": "fused/portable-edit-portable",
+      "round": 3,
+      "calls": 56,
+      "elapsed_ns": "1122500"
+    },
+    {
+      "fields": 4,
+      "lane": "control/compact-decode",
+      "round": 3,
+      "calls": 925,
+      "elapsed_ns": "8407875"
+    },
+    {
+      "fields": 4,
+      "lane": "fused/compact-edit-compact",
+      "round": 3,
+      "calls": 543,
+      "elapsed_ns": "12004250"
+    },
+    {
+      "fields": 4,
+      "lane": "fused/portable-decode",
+      "round": 4,
+      "calls": 934,
+      "elapsed_ns": "4714709"
+    },
+    {
+      "fields": 4,
+      "lane": "control/compact-edit-compact",
+      "round": 4,
+      "calls": 211,
+      "elapsed_ns": "7714083"
+    },
+    {
+      "fields": 4,
+      "lane": "control/portable-edit-portable",
+      "round": 4,
+      "calls": 304,
+      "elapsed_ns": "8217208"
+    },
+    {
+      "fields": 4,
+      "lane": "fused/compact-decode",
+      "round": 4,
+      "calls": 830,
+      "elapsed_ns": "3524917"
+    },
+    {
+      "fields": 4,
+      "lane": "control/compact-decode",
+      "round": 4,
+      "calls": 925,
+      "elapsed_ns": "5173708"
+    },
+    {
+      "fields": 4,
+      "lane": "fused/compact-edit-compact",
+      "round": 4,
+      "calls": 543,
+      "elapsed_ns": "19044375"
+    },
+    {
+      "fields": 4,
+      "lane": "fused/portable-edit-portable",
+      "round": 4,
+      "calls": 56,
+      "elapsed_ns": "1436500"
+    },
+    {
+      "fields": 4,
+      "lane": "control/portable-decode",
+      "round": 4,
+      "calls": 849,
+      "elapsed_ns": "4890916"
+    },
+    {
+      "fields": 4,
+      "lane": "control/portable-decode",
+      "round": 5,
+      "calls": 849,
+      "elapsed_ns": "4323041"
+    },
+    {
+      "fields": 4,
+      "lane": "control/portable-edit-portable",
+      "round": 5,
+      "calls": 304,
+      "elapsed_ns": "7508750"
+    },
+    {
+      "fields": 4,
+      "lane": "control/compact-edit-compact",
+      "round": 5,
+      "calls": 211,
+      "elapsed_ns": "7542791"
+    },
+    {
+      "fields": 4,
+      "lane": "control/compact-decode",
+      "round": 5,
+      "calls": 925,
+      "elapsed_ns": "7473625"
+    },
+    {
+      "fields": 4,
+      "lane": "fused/portable-decode",
+      "round": 5,
+      "calls": 934,
+      "elapsed_ns": "3526333"
+    },
+    {
+      "fields": 4,
+      "lane": "fused/portable-edit-portable",
+      "round": 5,
+      "calls": 56,
+      "elapsed_ns": "1955333"
+    },
+    {
+      "fields": 4,
+      "lane": "fused/compact-edit-compact",
+      "round": 5,
+      "calls": 543,
+      "elapsed_ns": "15993542"
+    },
+    {
+      "fields": 4,
+      "lane": "fused/compact-decode",
+      "round": 5,
+      "calls": 830,
+      "elapsed_ns": "1835667"
+    },
+    {
+      "fields": 4,
+      "lane": "fused/portable-decode",
+      "round": 6,
+      "calls": 934,
+      "elapsed_ns": "3174458"
+    },
+    {
+      "fields": 4,
+      "lane": "fused/compact-edit-compact",
+      "round": 6,
+      "calls": 543,
+      "elapsed_ns": "10105667"
+    },
+    {
+      "fields": 4,
+      "lane": "control/compact-edit-compact",
+      "round": 6,
+      "calls": 211,
+      "elapsed_ns": "4297916"
+    },
+    {
+      "fields": 4,
+      "lane": "fused/compact-decode",
+      "round": 6,
+      "calls": 830,
+      "elapsed_ns": "1844125"
+    },
+    {
+      "fields": 4,
+      "lane": "control/compact-decode",
+      "round": 6,
+      "calls": 925,
+      "elapsed_ns": "7101958"
+    },
+    {
+      "fields": 4,
+      "lane": "control/portable-edit-portable",
+      "round": 6,
+      "calls": 304,
+      "elapsed_ns": "15339167"
+    },
+    {
+      "fields": 4,
+      "lane": "control/portable-decode",
+      "round": 6,
+      "calls": 849,
+      "elapsed_ns": "4540875"
+    },
+    {
+      "fields": 4,
+      "lane": "fused/portable-edit-portable",
+      "round": 6,
+      "calls": 56,
+      "elapsed_ns": "1618291"
+    },
+    {
+      "fields": 4,
+      "lane": "control/portable-decode",
+      "round": 7,
+      "calls": 849,
+      "elapsed_ns": "7976709"
+    },
+    {
+      "fields": 4,
+      "lane": "control/portable-edit-portable",
+      "round": 7,
+      "calls": 304,
+      "elapsed_ns": "7021708"
+    },
+    {
+      "fields": 4,
+      "lane": "fused/portable-decode",
+      "round": 7,
+      "calls": 934,
+      "elapsed_ns": "6732167"
+    },
+    {
+      "fields": 4,
+      "lane": "fused/compact-edit-compact",
+      "round": 7,
+      "calls": 543,
+      "elapsed_ns": "10341209"
+    },
+    {
+      "fields": 4,
+      "lane": "fused/compact-decode",
+      "round": 7,
+      "calls": 830,
+      "elapsed_ns": "3262209"
+    },
+    {
+      "fields": 4,
+      "lane": "control/compact-decode",
+      "round": 7,
+      "calls": 925,
+      "elapsed_ns": "16410583"
+    },
+    {
+      "fields": 4,
+      "lane": "fused/portable-edit-portable",
+      "round": 7,
+      "calls": 56,
+      "elapsed_ns": "864958"
+    },
+    {
+      "fields": 4,
+      "lane": "control/compact-edit-compact",
+      "round": 7,
+      "calls": 211,
+      "elapsed_ns": "7416625"
+    },
+    {
+      "fields": 4,
+      "lane": "fused/compact-decode",
+      "round": 8,
+      "calls": 830,
+      "elapsed_ns": "2452667"
+    },
+    {
+      "fields": 4,
+      "lane": "control/portable-edit-portable",
+      "round": 8,
+      "calls": 304,
+      "elapsed_ns": "6570584"
+    },
+    {
+      "fields": 4,
+      "lane": "control/compact-edit-compact",
+      "round": 8,
+      "calls": 211,
+      "elapsed_ns": "7648458"
+    },
+    {
+      "fields": 4,
+      "lane": "control/portable-decode",
+      "round": 8,
+      "calls": 849,
+      "elapsed_ns": "4894250"
+    },
+    {
+      "fields": 4,
+      "lane": "control/compact-decode",
+      "round": 8,
+      "calls": 925,
+      "elapsed_ns": "9639917"
+    },
+    {
+      "fields": 4,
+      "lane": "fused/compact-edit-compact",
+      "round": 8,
+      "calls": 543,
+      "elapsed_ns": "21223917"
+    },
+    {
+      "fields": 4,
+      "lane": "fused/portable-edit-portable",
+      "round": 8,
+      "calls": 56,
+      "elapsed_ns": "1507666"
+    },
+    {
+      "fields": 4,
+      "lane": "fused/portable-decode",
+      "round": 8,
+      "calls": 934,
+      "elapsed_ns": "2674250"
+    },
+    {
+      "fields": 64,
+      "lane": "fused/portable-decode",
+      "round": 0,
+      "calls": 455,
+      "elapsed_ns": "11122625"
+    },
+    {
+      "fields": 64,
+      "lane": "control/portable-edit-portable",
+      "round": 0,
+      "calls": 36,
+      "elapsed_ns": "9254167"
+    },
+    {
+      "fields": 64,
+      "lane": "fused/portable-edit-portable",
+      "round": 0,
+      "calls": 132,
+      "elapsed_ns": "10010625"
+    },
+    {
+      "fields": 64,
+      "lane": "fused/compact-edit-compact",
+      "round": 0,
+      "calls": 110,
+      "elapsed_ns": "9278208"
+    },
+    {
+      "fields": 64,
+      "lane": "control/portable-decode",
+      "round": 0,
+      "calls": 425,
+      "elapsed_ns": "12802916"
+    },
+    {
+      "fields": 64,
+      "lane": "fused/compact-decode",
+      "round": 0,
+      "calls": 421,
+      "elapsed_ns": "4475000"
+    },
+    {
+      "fields": 64,
+      "lane": "control/compact-edit-compact",
+      "round": 0,
+      "calls": 40,
+      "elapsed_ns": "4777208"
+    },
+    {
+      "fields": 64,
+      "lane": "control/compact-decode",
+      "round": 0,
+      "calls": 224,
+      "elapsed_ns": "8819292"
+    },
+    {
+      "fields": 64,
+      "lane": "fused/compact-decode",
+      "round": 1,
+      "calls": 421,
+      "elapsed_ns": "6661625"
+    },
+    {
+      "fields": 64,
+      "lane": "control/compact-edit-compact",
+      "round": 1,
+      "calls": 40,
+      "elapsed_ns": "4442084"
+    },
+    {
+      "fields": 64,
+      "lane": "control/portable-decode",
+      "round": 1,
+      "calls": 425,
+      "elapsed_ns": "8056084"
+    },
+    {
+      "fields": 64,
+      "lane": "fused/compact-edit-compact",
+      "round": 1,
+      "calls": 110,
+      "elapsed_ns": "13127291"
+    },
+    {
+      "fields": 64,
+      "lane": "control/compact-decode",
+      "round": 1,
+      "calls": 224,
+      "elapsed_ns": "6806833"
+    },
+    {
+      "fields": 64,
+      "lane": "fused/portable-decode",
+      "round": 1,
+      "calls": 455,
+      "elapsed_ns": "8810500"
+    },
+    {
+      "fields": 64,
+      "lane": "fused/portable-edit-portable",
+      "round": 1,
+      "calls": 132,
+      "elapsed_ns": "9964791"
+    },
+    {
+      "fields": 64,
+      "lane": "control/portable-edit-portable",
+      "round": 1,
+      "calls": 36,
+      "elapsed_ns": "1971250"
+    },
+    {
+      "fields": 64,
+      "lane": "fused/portable-edit-portable",
+      "round": 2,
+      "calls": 132,
+      "elapsed_ns": "7296000"
+    },
+    {
+      "fields": 64,
+      "lane": "control/compact-decode",
+      "round": 2,
+      "calls": 224,
+      "elapsed_ns": "6810583"
+    },
+    {
+      "fields": 64,
+      "lane": "control/portable-decode",
+      "round": 2,
+      "calls": 425,
+      "elapsed_ns": "8531500"
+    },
+    {
+      "fields": 64,
+      "lane": "control/compact-edit-compact",
+      "round": 2,
+      "calls": 40,
+      "elapsed_ns": "2786500"
+    },
+    {
+      "fields": 64,
+      "lane": "control/portable-edit-portable",
+      "round": 2,
+      "calls": 36,
+      "elapsed_ns": "2628958"
+    },
+    {
+      "fields": 64,
+      "lane": "fused/compact-decode",
+      "round": 2,
+      "calls": 421,
+      "elapsed_ns": "6273375"
+    },
+    {
+      "fields": 64,
+      "lane": "fused/portable-decode",
+      "round": 2,
+      "calls": 455,
+      "elapsed_ns": "5659500"
+    },
+    {
+      "fields": 64,
+      "lane": "fused/compact-edit-compact",
+      "round": 2,
+      "calls": 110,
+      "elapsed_ns": "11929584"
+    },
+    {
+      "fields": 64,
+      "lane": "fused/portable-edit-portable",
+      "round": 3,
+      "calls": 132,
+      "elapsed_ns": "5958333"
+    },
+    {
+      "fields": 64,
+      "lane": "control/compact-edit-compact",
+      "round": 3,
+      "calls": 40,
+      "elapsed_ns": "2965875"
+    },
+    {
+      "fields": 64,
+      "lane": "control/compact-decode",
+      "round": 3,
+      "calls": 224,
+      "elapsed_ns": "8605125"
+    },
+    {
+      "fields": 64,
+      "lane": "fused/compact-edit-compact",
+      "round": 3,
+      "calls": 110,
+      "elapsed_ns": "5968750"
+    },
+    {
+      "fields": 64,
+      "lane": "fused/compact-decode",
+      "round": 3,
+      "calls": 421,
+      "elapsed_ns": "5579875"
+    },
+    {
+      "fields": 64,
+      "lane": "control/portable-edit-portable",
+      "round": 3,
+      "calls": 36,
+      "elapsed_ns": "1772375"
+    },
+    {
+      "fields": 64,
+      "lane": "fused/portable-decode",
+      "round": 3,
+      "calls": 455,
+      "elapsed_ns": "5662709"
+    },
+    {
+      "fields": 64,
+      "lane": "control/portable-decode",
+      "round": 3,
+      "calls": 425,
+      "elapsed_ns": "7149792"
+    },
+    {
+      "fields": 64,
+      "lane": "control/portable-edit-portable",
+      "round": 4,
+      "calls": 36,
+      "elapsed_ns": "6969042"
+    },
+    {
+      "fields": 64,
+      "lane": "control/compact-edit-compact",
+      "round": 4,
+      "calls": 40,
+      "elapsed_ns": "2872000"
+    },
+    {
+      "fields": 64,
+      "lane": "fused/portable-decode",
+      "round": 4,
+      "calls": 455,
+      "elapsed_ns": "7302875"
+    },
+    {
+      "fields": 64,
+      "lane": "control/compact-decode",
+      "round": 4,
+      "calls": 224,
+      "elapsed_ns": "8722750"
+    },
+    {
+      "fields": 64,
+      "lane": "control/portable-decode",
+      "round": 4,
+      "calls": 425,
+      "elapsed_ns": "12613416"
+    },
+    {
+      "fields": 64,
+      "lane": "fused/compact-edit-compact",
+      "round": 4,
+      "calls": 110,
+      "elapsed_ns": "5733959"
+    },
+    {
+      "fields": 64,
+      "lane": "fused/portable-edit-portable",
+      "round": 4,
+      "calls": 132,
+      "elapsed_ns": "6934625"
+    },
+    {
+      "fields": 64,
+      "lane": "fused/compact-decode",
+      "round": 4,
+      "calls": 421,
+      "elapsed_ns": "6999875"
+    },
+    {
+      "fields": 64,
+      "lane": "control/compact-edit-compact",
+      "round": 5,
+      "calls": 40,
+      "elapsed_ns": "2801708"
+    },
+    {
+      "fields": 64,
+      "lane": "control/portable-decode",
+      "round": 5,
+      "calls": 425,
+      "elapsed_ns": "6377584"
+    },
+    {
+      "fields": 64,
+      "lane": "fused/compact-edit-compact",
+      "round": 5,
+      "calls": 110,
+      "elapsed_ns": "5687542"
+    },
+    {
+      "fields": 64,
+      "lane": "fused/compact-decode",
+      "round": 5,
+      "calls": 421,
+      "elapsed_ns": "4557167"
+    },
+    {
+      "fields": 64,
+      "lane": "fused/portable-decode",
+      "round": 5,
+      "calls": 455,
+      "elapsed_ns": "11762000"
+    },
+    {
+      "fields": 64,
+      "lane": "control/portable-edit-portable",
+      "round": 5,
+      "calls": 36,
+      "elapsed_ns": "2444833"
+    },
+    {
+      "fields": 64,
+      "lane": "control/compact-decode",
+      "round": 5,
+      "calls": 224,
+      "elapsed_ns": "15960792"
+    },
+    {
+      "fields": 64,
+      "lane": "fused/portable-edit-portable",
+      "round": 5,
+      "calls": 132,
+      "elapsed_ns": "7939792"
+    },
+    {
+      "fields": 64,
+      "lane": "control/portable-edit-portable",
+      "round": 6,
+      "calls": 36,
+      "elapsed_ns": "2486000"
+    },
+    {
+      "fields": 64,
+      "lane": "fused/compact-decode",
+      "round": 6,
+      "calls": 421,
+      "elapsed_ns": "7140833"
+    },
+    {
+      "fields": 64,
+      "lane": "control/portable-decode",
+      "round": 6,
+      "calls": 425,
+      "elapsed_ns": "6330541"
+    },
+    {
+      "fields": 64,
+      "lane": "fused/portable-decode",
+      "round": 6,
+      "calls": 455,
+      "elapsed_ns": "5677833"
+    },
+    {
+      "fields": 64,
+      "lane": "fused/compact-edit-compact",
+      "round": 6,
+      "calls": 110,
+      "elapsed_ns": "20401625"
+    },
+    {
+      "fields": 64,
+      "lane": "fused/portable-edit-portable",
+      "round": 6,
+      "calls": 132,
+      "elapsed_ns": "8615584"
+    },
+    {
+      "fields": 64,
+      "lane": "control/compact-decode",
+      "round": 6,
+      "calls": 224,
+      "elapsed_ns": "6155292"
+    },
+    {
+      "fields": 64,
+      "lane": "control/compact-edit-compact",
+      "round": 6,
+      "calls": 40,
+      "elapsed_ns": "3084250"
+    },
+    {
+      "fields": 64,
+      "lane": "control/compact-decode",
+      "round": 7,
+      "calls": 224,
+      "elapsed_ns": "6771917"
+    },
+    {
+      "fields": 64,
+      "lane": "control/portable-edit-portable",
+      "round": 7,
+      "calls": 36,
+      "elapsed_ns": "2616833"
+    },
+    {
+      "fields": 64,
+      "lane": "control/compact-edit-compact",
+      "round": 7,
+      "calls": 40,
+      "elapsed_ns": "3099084"
+    },
+    {
+      "fields": 64,
+      "lane": "fused/compact-edit-compact",
+      "round": 7,
+      "calls": 110,
+      "elapsed_ns": "6050958"
+    },
+    {
+      "fields": 64,
+      "lane": "fused/compact-decode",
+      "round": 7,
+      "calls": 421,
+      "elapsed_ns": "4644750"
+    },
+    {
+      "fields": 64,
+      "lane": "control/portable-decode",
+      "round": 7,
+      "calls": 425,
+      "elapsed_ns": "10617125"
+    },
+    {
+      "fields": 64,
+      "lane": "fused/portable-edit-portable",
+      "round": 7,
+      "calls": 132,
+      "elapsed_ns": "6493291"
+    },
+    {
+      "fields": 64,
+      "lane": "fused/portable-decode",
+      "round": 7,
+      "calls": 455,
+      "elapsed_ns": "5732125"
+    },
+    {
+      "fields": 64,
+      "lane": "fused/portable-decode",
+      "round": 8,
+      "calls": 455,
+      "elapsed_ns": "10376041"
+    },
+    {
+      "fields": 64,
+      "lane": "fused/compact-decode",
+      "round": 8,
+      "calls": 421,
+      "elapsed_ns": "4566041"
+    },
+    {
+      "fields": 64,
+      "lane": "control/portable-decode",
+      "round": 8,
+      "calls": 425,
+      "elapsed_ns": "6374500"
+    },
+    {
+      "fields": 64,
+      "lane": "fused/compact-edit-compact",
+      "round": 8,
+      "calls": 110,
+      "elapsed_ns": "9901959"
+    },
+    {
+      "fields": 64,
+      "lane": "fused/portable-edit-portable",
+      "round": 8,
+      "calls": 132,
+      "elapsed_ns": "6147750"
+    },
+    {
+      "fields": 64,
+      "lane": "control/compact-edit-compact",
+      "round": 8,
+      "calls": 40,
+      "elapsed_ns": "4724375"
+    },
+    {
+      "fields": 64,
+      "lane": "control/portable-edit-portable",
+      "round": 8,
+      "calls": 36,
+      "elapsed_ns": "1928792"
+    },
+    {
+      "fields": 64,
+      "lane": "control/compact-decode",
+      "round": 8,
+      "calls": 224,
+      "elapsed_ns": "9048792"
+    },
+    {
+      "fields": 512,
+      "lane": "fused/compact-decode",
+      "round": 0,
+      "calls": 23,
+      "elapsed_ns": "6148292"
+    },
+    {
+      "fields": 512,
+      "lane": "control/portable-decode",
+      "round": 0,
+      "calls": 80,
+      "elapsed_ns": "8519792"
+    },
+    {
+      "fields": 512,
+      "lane": "control/compact-edit-compact",
+      "round": 0,
+      "calls": 16,
+      "elapsed_ns": "7368292"
+    },
+    {
+      "fields": 512,
+      "lane": "fused/compact-edit-compact",
+      "round": 0,
+      "calls": 28,
+      "elapsed_ns": "13908625"
+    },
+    {
+      "fields": 512,
+      "lane": "fused/portable-edit-portable",
+      "round": 0,
+      "calls": 37,
+      "elapsed_ns": "12632042"
+    },
+    {
+      "fields": 512,
+      "lane": "fused/portable-decode",
+      "round": 0,
+      "calls": 89,
+      "elapsed_ns": "8387875"
+    },
+    {
+      "fields": 512,
+      "lane": "control/compact-decode",
+      "round": 0,
+      "calls": 42,
+      "elapsed_ns": "8470166"
+    },
+    {
+      "fields": 512,
+      "lane": "control/portable-edit-portable",
+      "round": 0,
+      "calls": 34,
+      "elapsed_ns": "15155125"
+    },
+    {
+      "fields": 512,
+      "lane": "control/portable-edit-portable",
+      "round": 1,
+      "calls": 34,
+      "elapsed_ns": "12450833"
+    },
+    {
+      "fields": 512,
+      "lane": "control/compact-decode",
+      "round": 1,
+      "calls": 42,
+      "elapsed_ns": "8712583"
+    },
+    {
+      "fields": 512,
+      "lane": "control/portable-decode",
+      "round": 1,
+      "calls": 80,
+      "elapsed_ns": "9065167"
+    },
+    {
+      "fields": 512,
+      "lane": "fused/portable-decode",
+      "round": 1,
+      "calls": 89,
+      "elapsed_ns": "11028541"
+    },
+    {
+      "fields": 512,
+      "lane": "fused/compact-decode",
+      "round": 1,
+      "calls": 23,
+      "elapsed_ns": "1950542"
+    },
+    {
+      "fields": 512,
+      "lane": "control/compact-edit-compact",
+      "round": 1,
+      "calls": 16,
+      "elapsed_ns": "14715209"
+    },
+    {
+      "fields": 512,
+      "lane": "fused/portable-edit-portable",
+      "round": 1,
+      "calls": 37,
+      "elapsed_ns": "13890417"
+    },
+    {
+      "fields": 512,
+      "lane": "fused/compact-edit-compact",
+      "round": 1,
+      "calls": 28,
+      "elapsed_ns": "12583041"
+    },
+    {
+      "fields": 512,
+      "lane": "control/portable-edit-portable",
+      "round": 2,
+      "calls": 34,
+      "elapsed_ns": "13399500"
+    },
+    {
+      "fields": 512,
+      "lane": "control/compact-edit-compact",
+      "round": 2,
+      "calls": 16,
+      "elapsed_ns": "9021709"
+    },
+    {
+      "fields": 512,
+      "lane": "control/compact-decode",
+      "round": 2,
+      "calls": 42,
+      "elapsed_ns": "8893166"
+    },
+    {
+      "fields": 512,
+      "lane": "fused/portable-edit-portable",
+      "round": 2,
+      "calls": 37,
+      "elapsed_ns": "22485833"
+    },
+    {
+      "fields": 512,
+      "lane": "fused/compact-edit-compact",
+      "round": 2,
+      "calls": 28,
+      "elapsed_ns": "18509666"
+    },
+    {
+      "fields": 512,
+      "lane": "fused/portable-decode",
+      "round": 2,
+      "calls": 89,
+      "elapsed_ns": "10495250"
+    },
+    {
+      "fields": 512,
+      "lane": "fused/compact-decode",
+      "round": 2,
+      "calls": 23,
+      "elapsed_ns": "1950500"
+    },
+    {
+      "fields": 512,
+      "lane": "control/portable-decode",
+      "round": 2,
+      "calls": 80,
+      "elapsed_ns": "8456792"
+    },
+    {
+      "fields": 512,
+      "lane": "control/portable-decode",
+      "round": 3,
+      "calls": 80,
+      "elapsed_ns": "14200042"
+    },
+    {
+      "fields": 512,
+      "lane": "fused/compact-edit-compact",
+      "round": 3,
+      "calls": 28,
+      "elapsed_ns": "11952917"
+    },
+    {
+      "fields": 512,
+      "lane": "fused/portable-decode",
+      "round": 3,
+      "calls": 89,
+      "elapsed_ns": "8644250"
+    },
+    {
+      "fields": 512,
+      "lane": "control/compact-decode",
+      "round": 3,
+      "calls": 42,
+      "elapsed_ns": "20396208"
+    },
+    {
+      "fields": 512,
+      "lane": "fused/portable-edit-portable",
+      "round": 3,
+      "calls": 37,
+      "elapsed_ns": "11423625"
+    },
+    {
+      "fields": 512,
+      "lane": "control/compact-edit-compact",
+      "round": 3,
+      "calls": 16,
+      "elapsed_ns": "13942583"
+    },
+    {
+      "fields": 512,
+      "lane": "control/portable-edit-portable",
+      "round": 3,
+      "calls": 34,
+      "elapsed_ns": "12849875"
+    },
+    {
+      "fields": 512,
+      "lane": "fused/compact-decode",
+      "round": 3,
+      "calls": 23,
+      "elapsed_ns": "3342500"
+    },
+    {
+      "fields": 512,
+      "lane": "control/compact-edit-compact",
+      "round": 4,
+      "calls": 16,
+      "elapsed_ns": "10965125"
+    },
+    {
+      "fields": 512,
+      "lane": "fused/portable-decode",
+      "round": 4,
+      "calls": 89,
+      "elapsed_ns": "8390208"
+    },
+    {
+      "fields": 512,
+      "lane": "control/compact-decode",
+      "round": 4,
+      "calls": 42,
+      "elapsed_ns": "8433625"
+    },
+    {
+      "fields": 512,
+      "lane": "fused/compact-decode",
+      "round": 4,
+      "calls": 23,
+      "elapsed_ns": "1980500"
+    },
+    {
+      "fields": 512,
+      "lane": "fused/compact-edit-compact",
+      "round": 4,
+      "calls": 28,
+      "elapsed_ns": "15605625"
+    },
+    {
+      "fields": 512,
+      "lane": "control/portable-edit-portable",
+      "round": 4,
+      "calls": 34,
+      "elapsed_ns": "11460917"
+    },
+    {
+      "fields": 512,
+      "lane": "control/portable-decode",
+      "round": 4,
+      "calls": 80,
+      "elapsed_ns": "8400209"
+    },
+    {
+      "fields": 512,
+      "lane": "fused/portable-edit-portable",
+      "round": 4,
+      "calls": 37,
+      "elapsed_ns": "16667208"
+    },
+    {
+      "fields": 512,
+      "lane": "fused/portable-edit-portable",
+      "round": 5,
+      "calls": 37,
+      "elapsed_ns": "12095875"
+    },
+    {
+      "fields": 512,
+      "lane": "fused/portable-decode",
+      "round": 5,
+      "calls": 89,
+      "elapsed_ns": "8290000"
+    },
+    {
+      "fields": 512,
+      "lane": "fused/compact-decode",
+      "round": 5,
+      "calls": 23,
+      "elapsed_ns": "2247459"
+    },
+    {
+      "fields": 512,
+      "lane": "fused/compact-edit-compact",
+      "round": 5,
+      "calls": 28,
+      "elapsed_ns": "16634292"
+    },
+    {
+      "fields": 512,
+      "lane": "control/portable-edit-portable",
+      "round": 5,
+      "calls": 34,
+      "elapsed_ns": "9617500"
+    },
+    {
+      "fields": 512,
+      "lane": "control/compact-decode",
+      "round": 5,
+      "calls": 42,
+      "elapsed_ns": "10889834"
+    },
+    {
+      "fields": 512,
+      "lane": "control/portable-decode",
+      "round": 5,
+      "calls": 80,
+      "elapsed_ns": "10036625"
+    },
+    {
+      "fields": 512,
+      "lane": "control/compact-edit-compact",
+      "round": 5,
+      "calls": 16,
+      "elapsed_ns": "8869334"
+    },
+    {
+      "fields": 512,
+      "lane": "control/compact-decode",
+      "round": 6,
+      "calls": 42,
+      "elapsed_ns": "8426500"
+    },
+    {
+      "fields": 512,
+      "lane": "control/portable-edit-portable",
+      "round": 6,
+      "calls": 34,
+      "elapsed_ns": "16860250"
+    },
+    {
+      "fields": 512,
+      "lane": "fused/compact-edit-compact",
+      "round": 6,
+      "calls": 28,
+      "elapsed_ns": "11074083"
+    },
+    {
+      "fields": 512,
+      "lane": "fused/compact-decode",
+      "round": 6,
+      "calls": 23,
+      "elapsed_ns": "1938042"
+    },
+    {
+      "fields": 512,
+      "lane": "control/compact-edit-compact",
+      "round": 6,
+      "calls": 16,
+      "elapsed_ns": "8034084"
+    },
+    {
+      "fields": 512,
+      "lane": "control/portable-decode",
+      "round": 6,
+      "calls": 80,
+      "elapsed_ns": "9189834"
+    },
+    {
+      "fields": 512,
+      "lane": "fused/portable-edit-portable",
+      "round": 6,
+      "calls": 37,
+      "elapsed_ns": "17844959"
+    },
+    {
+      "fields": 512,
+      "lane": "fused/portable-decode",
+      "round": 6,
+      "calls": 89,
+      "elapsed_ns": "11189750"
+    },
+    {
+      "fields": 512,
+      "lane": "control/portable-decode",
+      "round": 7,
+      "calls": 80,
+      "elapsed_ns": "8483000"
+    },
+    {
+      "fields": 512,
+      "lane": "control/compact-edit-compact",
+      "round": 7,
+      "calls": 16,
+      "elapsed_ns": "7438084"
+    },
+    {
+      "fields": 512,
+      "lane": "control/portable-edit-portable",
+      "round": 7,
+      "calls": 34,
+      "elapsed_ns": "18375833"
+    },
+    {
+      "fields": 512,
+      "lane": "fused/portable-edit-portable",
+      "round": 7,
+      "calls": 37,
+      "elapsed_ns": "13192208"
+    },
+    {
+      "fields": 512,
+      "lane": "fused/compact-edit-compact",
+      "round": 7,
+      "calls": 28,
+      "elapsed_ns": "9481750"
+    },
+    {
+      "fields": 512,
+      "lane": "fused/compact-decode",
+      "round": 7,
+      "calls": 23,
+      "elapsed_ns": "5424250"
+    },
+    {
+      "fields": 512,
+      "lane": "fused/portable-decode",
+      "round": 7,
+      "calls": 89,
+      "elapsed_ns": "11682750"
+    },
+    {
+      "fields": 512,
+      "lane": "control/compact-decode",
+      "round": 7,
+      "calls": 42,
+      "elapsed_ns": "8447042"
+    },
+    {
+      "fields": 512,
+      "lane": "control/compact-edit-compact",
+      "round": 8,
+      "calls": 16,
+      "elapsed_ns": "7326917"
+    },
+    {
+      "fields": 512,
+      "lane": "fused/compact-decode",
+      "round": 8,
+      "calls": 23,
+      "elapsed_ns": "1960833"
+    },
+    {
+      "fields": 512,
+      "lane": "fused/portable-edit-portable",
+      "round": 8,
+      "calls": 37,
+      "elapsed_ns": "16819333"
+    },
+    {
+      "fields": 512,
+      "lane": "fused/compact-edit-compact",
+      "round": 8,
+      "calls": 28,
+      "elapsed_ns": "11197625"
+    },
+    {
+      "fields": 512,
+      "lane": "control/compact-decode",
+      "round": 8,
+      "calls": 42,
+      "elapsed_ns": "8869041"
+    },
+    {
+      "fields": 512,
+      "lane": "control/portable-decode",
+      "round": 8,
+      "calls": 80,
+      "elapsed_ns": "8297958"
+    },
+    {
+      "fields": 512,
+      "lane": "fused/portable-decode",
+      "round": 8,
+      "calls": 89,
+      "elapsed_ns": "13393666"
+    },
+    {
+      "fields": 512,
+      "lane": "control/portable-edit-portable",
+      "round": 8,
+      "calls": 34,
+      "elapsed_ns": "12882916"
+    }
+  ],
+  "validation": [
+    {
+      "fields": 4,
+      "exact_documents": true,
+      "complete_edit_outputs": true,
+      "exact_portable_and_compact_input_and_reply_bytes": true
+    },
+    {
+      "fields": 64,
+      "exact_documents": true,
+      "complete_edit_outputs": true,
+      "exact_portable_and_compact_input_and_reply_bytes": true
+    },
+    {
+      "fields": 512,
+      "exact_documents": true,
+      "complete_edit_outputs": true,
+      "exact_portable_and_compact_input_and_reply_bytes": true
+    }
+  ],
+  "checksum": 21583,
+  "scope": "Paired same-source/layout opaque-value decoders and complete binary edit lifecycles. No JSON format-invariant validation skip. The control prevalidates; candidate validates while constructing. No matched Frontier claim. Shared host; three fresh processes required. Setup/retained heap not measured."
+}

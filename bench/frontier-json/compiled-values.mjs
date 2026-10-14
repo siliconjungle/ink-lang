@@ -8,7 +8,7 @@ const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../..');
 const id=Number(process.argv[2]),modulePath=process.argv[3],out=path.join(root,'reports/frontier-json-2026-10-13',`compiled-values-${id}.json`);
 if(!Number.isSafeInteger(id)||!modulePath||fs.existsSync(out))throw Error('fresh process ID and module path required');
 const filename=path.resolve(root,modulePath),hash=()=>createHash('sha256').update(fs.readFileSync(filename)).digest('hex');
-const before=provenance(root),moduleHash=hash(),runnerFile=fileURLToPath(import.meta.url),runnerHash=createHash('sha256').update(fs.readFileSync(runnerFile)).digest('hex'),started=process.hrtime.bigint();
+const before=provenance(root,{native:false}),moduleHash=hash(),runnerFile=fileURLToPath(import.meta.url),runnerHash=createHash('sha256').update(fs.readFileSync(runnerFile)).digest('hex'),started=process.hrtime.bigint();
 const ink=await import(pathToFileURL(filename).href),importNs=String(process.hrtime.bigint()-started);
 const document={...Object.fromEntries(Array.from({length:512},(_,i)=>['k'+String(i).padStart(5,'0'),i])),unknown:{nested:['雪',true,null,3],enabled:false}};
 const text=JSON.stringify(document),key='k00000',target={...document,[key]:777},json=new ink.JsonCodec(ink.valueCodecs.identity.result);
@@ -68,7 +68,7 @@ const measure=(fn,n)=>{let checksum=0;const at=process.hrtime.bigint();for(let i
 const counts={};for(const [name,run]of Object.entries(lanes)){for(let i=0;i<200;i++)run();const pilot=measure(run,20);counts[name]=Math.max(1,Math.min(100000,Math.ceil(50000000/(pilot.ns/20))));}
 const shuffle=values=>{const a=values.slice();for(let i=a.length-1;i>0;i--){rng=(Math.imul(rng,1664525)+1013904223)>>>0;const j=rng%(i+1);[a[i],a[j]]=[a[j],a[i]];}return a;};
 for(let round=0;round<9;round++)for(const name of shuffle(Object.keys(lanes))){const calls=counts[name],m=measure(lanes[name],calls);raw.push({lane:name,round,calls,elapsed_ns:String(m.ns),checksum:m.checksum});}
-assert.equal(createHash('sha256').update(fs.readFileSync(runnerFile)).digest('hex'),runnerHash);assert.equal(hash(),moduleHash);assert.deepEqual(provenance(root).hashes,before.hashes);
+assert.equal(createHash('sha256').update(fs.readFileSync(runnerFile)).digest('hex'),runnerHash);assert.equal(hash(),moduleHash);assert.deepEqual(provenance(root,{native:false}).hashes,before.hashes);
 if(controlFile)assert.equal(createHash('sha256').update(fs.readFileSync(controlFile)).digest('hex'),controlHash);
 fs.writeFileSync(out,JSON.stringify({schema:1,process:id,module:modulePath,module_sha256:moduleHash,control,provenance:before,node:process.version,import_ns:importNs,compiled_codec_factory_ns:factory.ns,benchmark_sha256:runnerHash,capture_ns:captured.ns,frontier_capture_ns:nativeCaptured.ns,direct_compact_decode_ns:direct.ns,measurements:raw,sink,validation:{complete_outputs:true,source_unchanged:true,owned_outputs:true,exact_portable_and_compact_bytes:true},scope:'Prepared independently captured inputs, capture excluded from hot calls and reported separately. Both owned lanes return detached mutable complete outputs. Private-only and encoded-output lanes are different boundaries and have no matched Frontier claim. Warm capture lanes measure ingress separately. Ink validates and owns all three typed arguments; Frontier clone lane only clones the native document and does not provide matching validation. Shared host; three fresh processes required.'},null,2)+'\n',{flag:'wx'});
 console.log(out);

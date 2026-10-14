@@ -131,10 +131,16 @@ try {
       const fixture=new URL(`build/${name}/`,base),root=new URL('gpu-module/',fixture);
       const {loadInk}=await import(new URL('ink-gpu.mjs',root));
       // The fixture always supplies the exact parser; packed hosts have no state ABI.
-      const {parseExactJSON}=await import(new URL('state-wasm.mjs',fixture));
+      const {parseExactJSON,StatefulModule}=await import(new URL('state-wasm.mjs',fixture));
       const {replayContracts}=await import(new URL('bench/gpu/contract-replay.mjs',base));
       const host=await loadInk(root);
-      try{return await replayContracts(host,{name,steps:parseExactJSON(script),wanted:parseExactJSON(expected)});}
+      let pureStateModule=null;
+      if(host.manifest.runtime_abi!=='ink-module-v1'){
+        const response=await fetch(new URL('rust/target/wasm32-unknown-unknown/debug/compiled_state.wasm',fixture));
+        if(!response.ok)throw Error(`${name}: complete Rust/Wasm fixture missing`);
+        pureStateModule=await StatefulModule.instantiate(new Uint8Array(await response.arrayBuffer()));
+      }
+      try{return await replayContracts(host,{name,steps:parseExactJSON(script),wanted:parseExactJSON(expected),pureStateModule});}
       finally{await(host.dispose?host.dispose():host.close());}
     },{base,name,script,expected}));
   }
