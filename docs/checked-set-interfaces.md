@@ -53,10 +53,41 @@ A fresh canonical hash and valid snapshot membership do not rescue a false
 preservation proof. Set code currently executes on CPU/GPU host paths; the
 numeric GPU control is separate device coverage.
 
-This establishes a real Set interface and preservation proofs. It does not yet
-provide interchangeable Set representations or a proved faster index algorithm.
-The generic list implementation and invariant validation still have quadratic
-worst-case work. Automatic contract proof discovery for arbitrary importers,
+The library now also exports `set_indexed_u32`, `union_indexed_u32`,
+`intersection_indexed_u32` and `difference_indexed_u32`. These ordinary source
+algorithms use the existing affine Map and Buffer primitives. Construction
+preserves first occurrence order without copying every prefix. Its checked loop
+predicate combines uniqueness of the buffer with index coverage; initialization,
+each map/buffer step, the complete fold and its final observation all replay.
+The query laws additionally prove complete ordered-list equivalence. Construction
+currently has a checked uniqueness postcondition and complete output controls;
+automatic replacement of the generic constructor still needs its functional
+equivalence proof. These are explicit source implementations, not automatic
+representation selection or persistent indexes.
+
+JavaScript `callCompiled` transports established value-interface guarantees on
+module-owned immutable handles. Checked source outputs establish those guarantees;
+captured/decoded/built raw values establish them only after a successful guard.
+Only an exact source-derived conjunction of parameter type predicates can skip
+its repeated check. Other requires clauses still execute. Foreign handles,
+mutable materialized copies and unsuccessful validation cannot establish facts.
+Eight Set consumers exercise this transport, including raw float bits.
+`known_distinct` now returns the interface's established Boolean guarantee while
+retaining its raw ingress guard.
+
+At 256 inputs, the indexed constructor's complete JavaScript calls measured
+12.23 us typed and 36.83 us wire, versus 10.90 us and 31.50 us for the strong
+u32 control. A separate immutable-handle workload at 4096 inputs measured union
+383.82 us versus 327.04 us and intersection 203.95 us versus 120.70 us, including
+detached output materialization and full consumption. Membership still scans
+the logical list: 3.18 us versus 0.022 us for a retained native Set. Capture,
+construction, encoding, decoding and the first decoded invariant check are
+recorded separately. These shared-machine samples do not establish general
+profitability; see the immutable receipts and `bench/checked-sets/handles.mjs`.
+
+Interchangeable persistent Set representations remain unfinished. The generic
+list implementation and raw invariant validation retain quadratic worst-case
+work. Automatic contract proof discovery for arbitrary importers,
 transport to additional physical consumers and full lifecycle/native/Wasm
 performance measurements remain in progress. See `bench/checked-sets` for the
 complete-call JavaScript measurements and strong u32 control.
