@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "finding": "F049",
+  "system": {
+    "interpreter": "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "version": "3.14.7 (main, Aug  5 2026, 10:29:49) [Clang 17.0.0 (clang-1700.6.4.2)]",
+    "pysat_available": false,
+    "execution_context": {
+      "target": "javascript",
+      "planning_effort": "quick",
+      "timeout": 600,
+      "planner_source_sha256": "276b3b487809fb3e8794bb480e69f57e8748a4b91cfb6137ae2dd4c672439aab",
+      "compiler_sha256": "1d96e5220e0058badcb1dd16e8b0f5529668f969676dadb97a35f08395c80e40",
+      "snapshot": "8e343cde9127d729ed3e37a7e9513b492d9e426433de3c22c12e3a776d2669a3",
+      "registry_sha256": "25b50931a4194162918da4da116436aded2bb56579398708fdd3170720a3adef",
+      "producer_source_sha256": "ceb5caa3332403492e492aba94d26e34c7f40a1fee04617d88e395cf6e9f2f40",
+      "manifest_sha256": "7e543f59af019ad96719bc4bc858b8da98d4dfbc41be12f6cc09317e5aaa4288"
+    },
+    "context_sha256": "cdc4ea86be69d7047879c645c6e78c69869d518f5b3b09954ed988d44b1a4351"
+  },
+  "proof_environment": {
+    "interpreter": "/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/work/pyenv/bin/python3",
+    "version": "3.14.7 (main, Aug  5 2026, 10:29:49) [Clang 17.0.0 (clang-1700.6.4.2)]",
+    "pysat_available": true,
+    "execution_context": {
+      "target": "javascript",
+      "planning_effort": "quick",
+      "timeout": 600,
+      "planner_source_sha256": "276b3b487809fb3e8794bb480e69f57e8748a4b91cfb6137ae2dd4c672439aab",
+      "compiler_sha256": "1d96e5220e0058badcb1dd16e8b0f5529668f969676dadb97a35f08395c80e40",
+      "snapshot": "8e343cde9127d729ed3e37a7e9513b492d9e426433de3c22c12e3a776d2669a3",
+      "registry_sha256": "25b50931a4194162918da4da116436aded2bb56579398708fdd3170720a3adef",
+      "producer_source_sha256": "ceb5caa3332403492e492aba94d26e34c7f40a1fee04617d88e395cf6e9f2f40",
+      "manifest_sha256": "7e543f59af019ad96719bc4bc858b8da98d4dfbc41be12f6cc09317e5aaa4288"
+    },
+    "context_sha256": "cdc4ea86be69d7047879c645c6e78c69869d518f5b3b09954ed988d44b1a4351"
+  },
+  "contexts_equal": true,
+  "pysat_differs": true,
+  "status": "Reproduced context omission; no resume between these environments was performed.",
+  "impact": "Source/compiler/publication hashing alone does not bind interpreter dependencies. Direct contract authoring failed under system Python for missing pysat and passed under the existing proof environment. Both current full corpus arms use the same system Python; no extra law or speed claim is inferred.",
+  "next": "Bind relevant interpreter and proof/planning dependency identities and capabilities in execution context, with a regression rejecting cross-environment resume."
+}
