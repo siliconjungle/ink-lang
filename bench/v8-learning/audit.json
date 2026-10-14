@@ -27,17 +27,6 @@
       "review_status": "partial"
     },
     {
-      "path": "src/compiler/turboshaft/value-numbering-reducer.h",
-      "sha256": "a002b203ed072056f140c76b370c38c7a932ca068f6988933a0bd8bc4472d748",
-      "inclusive_lines": [
-        [
-          1,
-          110
-        ]
-      ],
-      "review_status": "partial"
-    },
-    {
       "path": "src/compiler/turboshaft/machine-optimization-reducer.h",
       "sha256": "9239724610a1736a1168ffd5c3409bc448f2ba1f06c709ea7b84ea499c866484",
       "inclusive_lines": [
@@ -87,18 +76,6 @@
       ],
       "review_status": "file-read; family assessment open",
       "note": "Full file read: allocation-use collection and fixed-point removal of nonescaping allocation/store chains. Compare owned-buffer and collect-before-build proofs; no new authority admitted."
-    },
-    {
-      "path": "src/compiler/turboshaft/store-store-elimination-reducer-inl.h",
-      "sha256": "9581651ca6cbe6406bf7c6574ec10fa67636163ffad7f5b2a2dadd5cecea1648",
-      "inclusive_lines": [
-        [
-          1,
-          160
-        ]
-      ],
-      "review_status": "partial",
-      "note": "Backward observability lattice; aliasing, store sizes, branch joins, loop fixed points and GC initialization barriers. Existing Ink replace_overwrite database law identified; whole-action/effects assessment remains."
     },
     {
       "path": "src/compiler/turboshaft/simplified-optimization-reducer.h",
@@ -159,6 +136,42 @@
       ],
       "review_status": "file-read; family assessment open",
       "note": "Full file read. Exact versus approximate iteration counts, loop/function/code-size budgets, partial body cloning with per-copy exit checks, Phi snapshot repair and variable-allocation bailout. Exact literal repeat proposals are now independently checked for arbitrary source carriers. Dynamic partial unrolling and peeling need separately checked identities and profitability evidence; V8 thresholds are not imported as authority."
+    },
+    {
+      "path": "src/compiler/turboshaft/value-numbering-reducer.h",
+      "sha256": "a002b203ed072056f140c76b370c38c7a932ca068f6988933a0bd8bc4472d748",
+      "inclusive_lines": [
+        [
+          1,
+          508
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Exact equality after hashing, dominance-scoped tables, same-block Phi restriction, mutation epochs, conservative loop invalidation, GC-sensitive map-load exclusion and ordered rehashing. Generic database scalar-sharing producer inserts existing lexical bindings; scoped/captured source instances independently replayed. Stateful memory/value numbering remains open."
+    },
+    {
+      "path": "src/compiler/turboshaft/dead-code-elimination-reducer.h",
+      "sha256": "0dfb3358e71e472c97d24dbfffe7797d5ca33270869574b638d787c2b373a1dd",
+      "inclusive_lines": [
+        [
+          1,
+          483
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Backwards live-operation/control lattice, required effects, joins, loop fixed-point revisits, branch redirection and leaf stack-check facts. Pure lexical dead-value proposals need checker evidence; stateful effects, observations, failures and interrupts cannot be erased from source observations."
+    },
+    {
+      "path": "src/compiler/turboshaft/store-store-elimination-reducer-inl.h",
+      "sha256": "9581651ca6cbe6406bf7c6574ec10fa67636163ffad7f5b2a2dadd5cecea1648",
+      "inclusive_lines": [
+        [
+          1,
+          611
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Exact base/offset/size shadowing, conservative read aliasing, observable/GC-observable lattice and joins, loop-local fresh-base invalidation, fixed-point revisits and adjacent initializing store merge with pointer/endianness restrictions. Compare existing whole-action replace_overwrite proof; broader effects/transaction assessment remains open."
     }
   ],
   "families": [
@@ -178,7 +191,7 @@
       "name": "value-numbering",
       "status": "partial",
       "entry_point": "src/compiler/turboshaft/value-numbering-reducer.h",
-      "note": "Dominance and exact equality constraints identified; compare with existing Ink sharing and query caches"
+      "note": "Full reducer reviewed. Generic exact scalar lexical-sharing proposals admitted through existing Normalize checks, including nested binders; held-out complete-call JavaScript evidence retained. Stateful loads and global dominance reuse remain open."
     },
     {
       "name": "load-elimination",
@@ -188,9 +201,9 @@
     },
     {
       "name": "store-elimination",
-      "status": "pending",
+      "status": "partial",
       "entry_point": "src/compiler/turboshaft/store-store-elimination-reducer-inl.h",
-      "note": "Assess observer/error/transaction semantics before proposing source action laws"
+      "note": "Full reducer read. Existing replace_overwrite database laws identified; whole-action observation/error/transaction assessment and profitability remain open."
     },
     {
       "name": "escape-allocation",
