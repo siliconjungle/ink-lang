@@ -7,11 +7,14 @@ Read ranges and review notes are separate. Updating a snapshot invalidates
 coverage for changed content; it never silently removes the previous inventory.
 """
 import argparse
+from contextlib import closing
 import hashlib
 import html
 import json
+import os
 import sqlite3
 import subprocess
+import tempfile
 from pathlib import Path
 
 
@@ -119,16 +122,91 @@ def review(db, repo, path, notes, evidence):
     db.commit()
 
 
+def review_valid(db, row, artifacts):
+    """A flag alone is not evidence: retain reads, notes and intact artifacts."""
+    if not row['reviewed'] or not row['notes'] or not coverage(db, row):
+        return False
+    try:
+        record = json.loads(row['evidence'])
+        path = record['path']
+        if path not in artifacts:
+            try:
+                artifacts[path] = hashlib.sha256(Path(path).read_bytes()).hexdigest()
+            except OSError:
+                artifacts[path] = None
+        return artifacts[path] == record['sha256']
+    except (TypeError, ValueError, KeyError):
+        return False
+
+
+def advance(db, destination, revisions):
+    """Create a new inventory; carry review only for the same path, blob and mode.
+
+    This is content-review provenance, not a claim that unchanged source has been
+    revalidated against new dependencies. The previous database remains intact.
+    """
+    destination = Path(destination).resolve()
+    if destination.exists():
+        raise ValueError('New snapshot destination must not exist')
+    repos = list(db.execute('SELECT * FROM repos ORDER BY name'))
+    roots = [r for r in repos if not any(r['name'].startswith(s['name'] + '/')
+                                       for s in repos if s['name'] != r['name'])]
+    if set(revisions) - {r['name'] for r in roots}:
+        raise ValueError('Revision overrides must name top-level repositories')
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    fd, name = tempfile.mkstemp(prefix=destination.name + '.', dir=destination.parent)
+    os.close(fd)
+    pending = Path(name)
+    artifacts = {}
+    carried = 0
+    try:
+        with closing(connect(pending)) as out:
+            out.execute('CREATE TABLE provenance(repo TEXT, path TEXT, source_revision TEXT, '
+                        'source_blob TEXT, source_mode TEXT, PRIMARY KEY(repo,path))')
+            for r in roots:
+                inventory(out, r['name'], r['root'], revisions.get(r['name'], r['revision']))
+            # Only files with recorded reads can have useful progress to carry.
+            for old in db.execute('SELECT f.*,r.revision FROM files f JOIN repos r '
+                                  'ON r.name=f.repo WHERE f.bytes IS NOT NULL'):
+                new = out.execute('SELECT blob,mode FROM files WHERE repo=? AND path=?',
+                                  (old['repo'], old['path'])).fetchone()
+                if new is None or (new['blob'], new['mode']) != (old['blob'], old['mode']):
+                    continue
+                valid = review_valid(db, old, artifacts)
+                out.execute('UPDATE files SET bytes=?,sha256=?,reviewed=?,notes=?,evidence=? '
+                            'WHERE repo=? AND path=?',
+                            (old['bytes'], old['sha256'], int(valid),
+                             old['notes'] if valid else None, old['evidence'] if valid else None,
+                             old['repo'], old['path']))
+                out.executemany('INSERT INTO reads VALUES (?,?,?,?,?)', db.execute(
+                    'SELECT * FROM reads WHERE repo=? AND path=? AND blob=?',
+                    (old['repo'], old['path'], old['blob'])))
+                out.execute('INSERT INTO provenance VALUES (?,?,?,?,?)',
+                            (old['repo'], old['path'], old['revision'], old['blob'], old['mode']))
+                carried += int(valid)
+            out.commit()
+        # Never replace an existing audit, including one created concurrently.
+        os.link(pending, destination)
+        return dict(destination=str(destination), carried_reviews=carried)
+    finally:
+        pending.unlink(missing_ok=True)
+
+
 def summary(db):
     rows = []
+    artifacts = {}
     for repo in db.execute('SELECT * FROM repos ORDER BY name'):
-        total, reviewed = db.execute('SELECT count(*),coalesce(sum(reviewed),0) FROM files '
+        total, flagged = db.execute('SELECT count(*),coalesce(sum(reviewed),0) FROM files '
                                      'WHERE repo=?', (repo['name'],)).fetchone()
+        reviewed = sum(review_valid(db, row, artifacts) for row in db.execute(
+            'SELECT * FROM files WHERE repo=? AND reviewed=1', (repo['name'],)))
         rows.append(dict(repo=repo['name'], revision=repo['revision'], files=total,
-                         reviewed=reviewed, percent=100 * reviewed / total if total else 100))
+                         reviewed=reviewed, invalid_reviews=flagged-reviewed,
+                         percent=100 * reviewed / total if total else 100))
     total = sum(r['files'] for r in rows)
     reviewed = sum(r['reviewed'] for r in rows)
     return dict(schema=1, total_files=total, reviewed_files=reviewed,
+                invalid_reviews=sum(r['invalid_reviews'] for r in rows),
                 percent=100 * reviewed / total if total else 0,
                 complete=bool(total) and reviewed == total, repositories=rows)
 
@@ -153,7 +231,10 @@ def report(db, destination):
       "repositories are counted, including sparse files, tests, documentation, proof data and "
       "binary assets. Inventory and automated search do not count as review. Each review "
       "requires complete recorded reads, notes and a hashed evidence artifact. The SQLite "
-      "database contains the individual file records.</p><table><tr><th>Repository</th>"
+      "database contains the individual file records. Snapshot advancement carries content "
+      "reviews only at identical paths, blobs and file modes; this does not revalidate new "
+      "dependency combinations. Missing or modified evidence does not count.</p>" +
+      f"<p>Invalid review records: {data['invalid_reviews']}.</p><table><tr><th>Repository</th>" +
       "<th>Revision</th><th>Files</th><th>Reviewed</th><th>Coverage</th></tr>" + table + '</table>')
     return data
 
@@ -169,6 +250,8 @@ def main():
     r = sub.add_parser('review'); r.add_argument('repo'); r.add_argument('path')
     r.add_argument('--notes', required=True); r.add_argument('--evidence', type=Path, required=True)
     out = sub.add_parser('report'); out.add_argument('destination', type=Path)
+    a = sub.add_parser('advance'); a.add_argument('destination', type=Path)
+    a.add_argument('--revision', action='append', default=[], metavar='REPO=REVISION')
     sub.add_parser('summary')
     a = p.parse_args()
     with connect(a.db) as db:
@@ -176,6 +259,14 @@ def main():
         elif a.command == 'show': show(db, a.repo, a.path, a.start, a.bytes)
         elif a.command == 'review': review(db, a.repo, a.path, a.notes, a.evidence)
         elif a.command == 'report': print(json.dumps(report(db, a.destination)))
+        elif a.command == 'advance':
+            revisions = {}
+            for spec in a.revision:
+                name, sep, revision = spec.partition('=')
+                if not sep or not revision or name in revisions:
+                    raise ValueError('Use one REPO=REVISION per top-level repository')
+                revisions[name] = revision
+            print(json.dumps(advance(db, a.destination, revisions)))
         else: print(json.dumps(summary(db)))
 
 
