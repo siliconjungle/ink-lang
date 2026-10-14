@@ -1,4 +1,8 @@
-use compiled_state::State;
+// Retain native C link directives from the package library. Executable state
+// methods below still come from the literal generated module.
+extern crate compiled_state as _;
+#[path="lib.rs"]mod emitted;
+use emitted::State;
 use serde_json::{Value,json};
 fn run()->Result<(),String>{
  let mut args=std::env::args().skip(1);let file=args.next().ok_or("expected SCRIPT.json")?;let script:Value=serde_json::from_slice(&std::fs::read(file).map_err(|e|e.to_string())?).map_err(|e|e.to_string())?;
