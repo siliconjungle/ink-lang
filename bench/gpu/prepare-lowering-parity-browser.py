@@ -31,3 +31,5 @@ for c in [*root.glob('gpu-module/gpu/*/cpu.c'), Path('build/lowering-residency/c
                     '-Wl,--no-entry', '-Wl,--export-memory',
                     *[f'-Wl,--export={name}' for name in symbols],
                     str(c), '-o', str(c.with_suffix('.wasm'))], check=True)
+
+subprocess.run([sys.executable, 'bench/gpu/prepare-word-parity-browser.py', zig], check=True)

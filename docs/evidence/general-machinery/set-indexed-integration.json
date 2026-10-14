@@ -1,0 +1,91 @@
+{
+  "schema": 1,
+  "scope": "Resumed Set performance and generic immutable value guarantee transport; original programme incomplete",
+  "distribution_base": "ad5ccc26ac74cf13e64ed9bd1470eb8c0917a776",
+  "packages": {
+    "knowledge": "5d6e4a1e086dfd23e33f6197a1d02046e55808a9",
+    "lowerings/js": "8c1d7db6a197b8e3340b40bdf316955c7e459c86",
+    "runtime": "5fa3472c16ccb9e6c0cc3efcb0b86d9c8ac087ce"
+  },
+  "checks": {
+    "set-indexed-final-core-tests": {
+      "log_sha256": "cc88283b91239b39ff7b8a43fc5bfaad8181db65d21c9df478d022fc58d3a3ec",
+      "passed": 313,
+      "status": "passed"
+    },
+    "set-indexed-final-js-tests": {
+      "log_sha256": "a0b897c342e77a2662a4691682ffab9d4809d205f6ca2d63357f5677d7fad260",
+      "passed": 37,
+      "status": "passed"
+    },
+    "set-indexed-runtime-tests": {
+      "log_sha256": "bfa1b3e75153ceb0d0bfe043a411814bbeb9b3ab53f341cce38ca9b6a75e38e0",
+      "passed": 7,
+      "status": "passed"
+    },
+    "set-indexed-final-graph-targets": {
+      "log_sha256": "f6d0cefffcd67a8e46e8b766eaf2a27b9bd5cf754487fd4ba5f8b7a017dce3b2",
+      "passed": 6,
+      "status": "passed"
+    },
+    "set-indexed-final-knowledge-tests": {
+      "log_sha256": "afa00faeb4af4c11e0a416c6af3c2cd179b826a74de0edb049821a2323a33f61",
+      "passed": 5,
+      "status": "passed"
+    },
+    "set-indexed-final-proof-reuse": {
+      "log_sha256": "e8ef75bf4d07c4c7711ad8dc62894897fbe214d6318fb3c151ae5c8af89a94f3",
+      "passed": 0,
+      "status": "passed",
+      "pure_obligations": 51
+    },
+    "set-indexed-final-emission": {
+      "log_sha256": "59333b4e8c3f0b89604fd93551b68a0a8307cc53ddb7908a97ca8ab9920653d5",
+      "passed": 0,
+      "status": "passed"
+    },
+    "set-indexed-final-contract-tests": {
+      "log_sha256": "3a64255862ed4ddfa404f916f70e01be733f094828476d99a2de6212fd174f64",
+      "passed": 0,
+      "status": "passed"
+    }
+  },
+  "performance": {
+    "complete": {
+      "path": "docs/evidence/general-machinery/set-indexed-final-complete-performance.json",
+      "sha256": "93262ecf52e9a36cf9eb7653f83fe5b5ce6f6b383d9b1e9ae3ba5e4440734190",
+      "module_sha256": "af50132a56dea9d1978361f8080024cbf4880471227cd7ef704b65e8a3644e4f"
+    },
+    "handle": {
+      "path": "docs/evidence/general-machinery/set-indexed-final-handle-performance.json",
+      "sha256": "81a105ee675c85edbd0b46485a0fca2139611a54241f7214fde42e3aefacbbb6",
+      "module_sha256": "af50132a56dea9d1978361f8080024cbf4880471227cd7ef704b65e8a3644e4f"
+    }
+  },
+  "limits": [
+    "Indexed u32 construction proves uniqueness and coverage, not complete equivalence to the generic constructor; no automatic replacement",
+    "Membership uses the logical list rather than a retained index",
+    "Raw ingress invariant validation and generic construction remain quadratic",
+    "Native/Wasm performance and memory/lifetime measurements remain open",
+    "Broader physical storage, recursive correspondence, mutation frames and compositional maintenance programme remains incomplete"
+  ],
+  "compiler_sha256": "4cb4b499cfecf6ff83f324a21dd6d921a6e95402b23651aeed4bc576f436b7fa",
+  "ci": {
+    "javascript": {
+      "run": "https://github.com/siliconjungle/ink-lowering-js/actions/runs/38527792138",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "distribution": "not yet published",
+    "knowledge_runtime": "no configured workflow runs returned"
+  },
+  "commands": [
+    "CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 cargo test --manifest-path core/Cargo.toml --locked",
+    "CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 cargo test --manifest-path lowerings/js/Cargo.toml --locked",
+    "CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 cargo test --manifest-path runtime/Cargo.toml --locked",
+    "CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 INK_TEST_WGPU=1 INK_PARITY_REQUIRE_ALL=1 INK_TEST_ZIG=/Users/james/Documents/ChatGPT/3d-modelling/research/ink-optimisation-2026-10-10/toolchain/zig-aarch64-macos-0.15.2/zig cargo test --test checked_sets --locked",
+    "PYTHONPATH=knowledge:planner build/general-machinery/python/bin/python -m producers.set_contracts tests/fixtures/indexed-sets/main.ink build/general-machinery/set-final-proof-reuse --compiler target/debug/ink --source-evidence tests/fixtures/indexed-sets/proofs.json",
+    "node bench/checked-sets/run.mjs build/general-machinery/set-final-literal.mjs build/general-machinery/set-final-indexed.mjs indexed-u32",
+    "node bench/checked-sets/handles.mjs build/general-machinery/set-final-indexed.mjs"
+  ]
+}
