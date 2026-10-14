@@ -13,7 +13,7 @@ def main():
  p.add_argument('--left',required=True);p.add_argument('--right',required=True);p.add_argument('-o',type=Path,required=True);a=p.parse_args()
  if a.o.exists():raise ValueError('refusing to overwrite proof output')
  core=json.loads(a.core.read_bytes());subject=json.loads(a.subject.read_bytes())
- parent=Store(a.embedding_store);key=json.loads((parent.root/'store/names.json').read_text())['until_embedding']
+ parent=Store(a.embedding_store);key=parent.names['until_embedding']
  generated,ident=guarded_proposals(core,subject,a.left,a.right,key)
  objects={**parent.bundle([key])['objects'],**generated};names={'guarded_loop_embedding':ident}
  for branch in generated[ident]['dependencies']:

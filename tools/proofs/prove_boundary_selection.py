@@ -19,7 +19,7 @@ def main():
  p.add_argument('--left',default='original');p.add_argument('--right',default='reused');p.add_argument('-o',type=Path,required=True);a=p.parse_args()
  if a.o.exists():raise ValueError('refusing to overwrite proof output')
  core=json.loads(a.core.read_text());subject=json.loads(a.subject.read_text());functions={f['name']:f for f in core['program']['functions']}
- parent=Store(a.reuse_store);names=json.loads((a.reuse_store/'store/names.json').read_text());objects=parent.bundle(list(names.values()))['objects']
+ parent=Store(a.reuse_store);names=parent.names;objects=parent.bundle(list(names.values()))['objects']
  scalar=json.loads(a.zero_test.read_bytes());objects.update(scalar['objects']);test=next(iter(scalar['objects']))
  trans=lambda m,l,r:{'Trans':dict(middle=m,left=l,right=r)}
  def use(key,args,premises=()):return {'Use':dict(law=key,arguments=args,premises=list(premises))}

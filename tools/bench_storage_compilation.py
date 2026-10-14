@@ -14,7 +14,7 @@ def main():
     OUT.mkdir(parents=True,exist_ok=True)
     with tempfile.TemporaryDirectory(prefix='ink-incremental-measure-') as tmp:
         directory=Path(tmp);core=directory/'core.json';run([COMPILER,'emit-core',ROOT/'examples/bulk-collections.ink','-o',core]);(directory/'context').write_text('host javascript, deterministic bulk fixture, no fitted profile')
-        args=[sys.executable,ROOT/'planner/plan.py','--compiler',COMPILER,'--core',core,'--knowledge-root',ROOT/'knowledge','--snapshot',ROOT/'knowledge/store/snapshot.json','--budget',4096,'--rounds',32,'--cache-dir',directory/'cache','--cache-context',directory/'context','-o',directory/'selection.json']
+        args=[sys.executable,ROOT/'planner/plan.py','--compiler',COMPILER,'--core',core,'--knowledge-root',ROOT/'knowledge','--budget',4096,'--rounds',32,'--cache-dir',directory/'cache','--cache-context',directory/'context','-o',directory/'selection.json']
         cold,elapsed=run(args);selected=json.loads((directory/'selection.json').read_text());warm=[]
         for _ in range(7):
             receipt,t=run(args);assert receipt['cache']['hit'];warm.append(t);assert json.loads((directory/'selection.json').read_text())==selected

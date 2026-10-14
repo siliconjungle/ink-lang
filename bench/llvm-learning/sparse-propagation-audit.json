@@ -1,0 +1,92 @@
+{
+  "finding": "F063",
+  "scope": "Seven complete LLVM file reviews; implementation transfer candidates, not a completed new Ink solver.",
+  "llvm_revision": "d977b4533f1d9b01d28cf4dba9b2db9d1ccfda08",
+  "files": {
+    "llvm/lib/Transforms/Scalar/SCCP.cpp": "Full pass orchestration: initialize entry/arguments, solve and resolve unresolved values before rewrites, remove infeasible edges through dominator updater, preserve only analyses actually maintained.",
+    "llvm/include/llvm/Analysis/SparsePropagation.h": "Full generic solver: pluggable lattice keys/transfer/merge, monotone convergence, value/block worklists, feasible-edge PHI revisits, conservative untracked states and 64-incoming precision cap.",
+    "llvm/include/llvm/Transforms/Utils/SCCPSolver.h": "Full API: predicate context, value/struct/argument/return/global tracking, specialization invalidation, provenance restrictions and explicit unresolved-value completion.",
+    "llvm/lib/Transforms/Utils/SCCPSolver.cpp": "Full 91447-byte implementation in eight contiguous ranges: deduplicated instruction scheduling, first block visitation suppression, hidden predicate/overflow dependencies, transitively invalidated specialized calls, bounded widening, exact reachability repair, field summaries, constant substitution/effect constraints, range simplification and metadata/provenance boundaries.",
+    "llvm/test/Transforms/SCCP/2002-05-02-MissSecondInst.ll": "Complete historical regression; every initial block instruction must be visited, not only the first changed instruction. Read, not executed.",
+    "llvm/test/Transforms/SCCP/2002-05-20-MissedIncomingValue.ll": "Complete historical regression; later feasible backedge must invalidate initial constant PHI inference. Read, not executed.",
+    "llvm/test/Transforms/SCCP/2002-05-21-InvalidSimplify.ll": "Complete historical regression; nested loop convergence must not wrongly delete the reachable return. Read, not executed."
+  },
+  "insights": [
+    {
+      "topic": "Separate scheduling from transfer semantics",
+      "llvm": "SparsePropagation permits a reusable scheduling engine while clients define keys, transfer functions and joins.",
+      "ink": "Potential Ink scheduling machinery can remain general; algorithm-specific equalities and transfer proposals remain database knowledge, with normal proof replay."
+    },
+    {
+      "topic": "Changed-user worklist with deduplication",
+      "llvm": "SCCPInstVisitor queues instruction users only when lattice state changes, using SmallSetVector.",
+      "ink": "Assess dependency-indexed discovery instead of rescanning every site for every state. Measure proposal/evaluation counts and compile time; no runtime benefit assumed."
+    },
+    {
+      "topic": "First-visit suppression",
+      "llvm": "Do not enqueue instructions in unvisited blocks or later than the current instruction in the initial walk. Earlier users and backedges still requeue.",
+      "ink": "A fact traversal needs explicit processed/pending state; blindly dropping repeat work can miss later instructions or loop dependencies."
+    },
+    {
+      "topic": "Control-flow edges are dependencies",
+      "llvm": "Newly feasible edges retrigger PHIs even if a destination block was already reachable.",
+      "ink": "Facts about branch-local values cannot be cached without branch/context identity. Future loop/fold summary joins must include every feasible path."
+    },
+    {
+      "topic": "Hidden dependencies must be registered",
+      "llvm": "Predicate constraints and extracted overflow flags add AdditionalUsers beyond ordinary operands.",
+      "ink": "A discovery dependency index must account for conditions, definitions, helper bodies and contract premises, not only surface operands."
+    },
+    {
+      "topic": "Invalidate after specialization",
+      "llvm": "resetLatticeValueFor walks ordinary and additional users, including tracked returns, then resolves remaining unknowns.",
+      "ink": "After changing a helper body or accepted module prefix, invalidate dependent summaries. Existing exact prefix cache binding is necessary but is not an incremental solver."
+    },
+    {
+      "topic": "Precision loss is the safe budget exit",
+      "llvm": "High-degree PHIs become overdefined; widening bounds range extensions by active inputs or fixed limits.",
+      "ink": "Future cyclic analysis must widen to unconstrained facts when its budget expires, not retain an optimistic constant or claim unreachable code."
+    },
+    {
+      "topic": "Unknown is distinct from unreachable",
+      "llvm": "SCCP performs explicit unresolved-value completion before rewrites.",
+      "ink": "Ink cannot equate unfinished analysis, a missing fact, or unsupported semantics with an impossible execution path."
+    },
+    {
+      "topic": "Field-sensitive function summaries",
+      "llvm": "Struct elements, incoming arguments and return values have separate lattice entries.",
+      "ink": "General checked function and record-field summaries can retain known fields when other fields are unconstrained; must bind exact body and call context."
+    },
+    {
+      "topic": "Constant result does not erase effects",
+      "llvm": "Constant call substitution respects musttail/attachedcall and trivial deadness; implicit references are preserved.",
+      "ink": "Ink constant-result proposals must preserve effects, errors, ownership and evaluation count; known output alone cannot justify dropping a call."
+    },
+    {
+      "topic": "Fresh instructions need fresh facts",
+      "llvm": "Inserted instructions receive full ranges when absent from old solver state.",
+      "ink": "Facts belong to exact expressions and context. New replacement nodes must not inherit facts by position or stale identity."
+    },
+    {
+      "topic": "Range-to-rule extraction",
+      "llvm": "Solver removes bounded masks, simplifies range checks, converts nonnegative signed operations and infers no-wrap regions.",
+      "ink": "Low-mask law already exists in Ink. Further signed/range transformations need ordinary conditional laws under Ink wrapping/conversion/error semantics; LLVM poison flags are not authority."
+    },
+    {
+      "topic": "Foreign trust boundaries",
+      "llvm": "LLVM uses attributes, metadata, undef/poison refinement and pointer provenance restrictions.",
+      "ink": "Do not import those assumptions as Ink facts. Fallible requires/ensures remain runtime validations; metadata remains untrusted. Pointer equality alone does not authorize owned-storage interchange."
+    }
+  ],
+  "ink_observation": {
+    "path": "knowledge/producers/word_facts.py",
+    "status": "Relevant existing implementation inspected; prior full-file review already recorded.",
+    "detail": "analyse recursively recomputes facts; candidates invokes analyse again for conditions/operands/branches. Branch facts carry explicit scope; support is total Bool/U32/U64 only. Count repeated work and validate context-safe reuse before choosing changes."
+  },
+  "limits": [
+    "No LLVM executable tests run in this review.",
+    "No new runtime/performance/generalisation claim.",
+    "The full audit is incomplete.",
+    "Production publication recovery is a separate unfinished local change."
+  ]
+}

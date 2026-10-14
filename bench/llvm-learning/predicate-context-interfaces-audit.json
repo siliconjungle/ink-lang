@@ -1,0 +1,39 @@
+{
+  "finding": "F064",
+  "llvm_revision": "d977b4533f1d9b01d28cf4dba9b2db9d1ccfda08",
+  "files": {
+    "llvm/include/llvm/Transforms/Scalar/SCCP.h": "Complete local pass API; function-scoped propagation and analysis preservation result. No additional implementation beyond reviewed SCCP.cpp.",
+    "llvm/include/llvm/Transforms/IPO/SCCP.h": "Complete interprocedural pass API; function specialization is separately configurable and enabled by default. IPO implementation and profitability policy not reviewed by this header read.",
+    "llvm/include/llvm/Transforms/Utils/PredicateInfo.h": "Complete predicate representation contract: dominated-use copies, lazy materialization only for live uses, original and renamed operands, branch/switch edge identity, assume variants, explicit owner lifetime and separate verifier/printer APIs."
+  },
+  "insights": [
+    {
+      "topic": "Context belongs to a use/edge",
+      "ink": "Retain branch edge or lexical scope identity with facts; do not place a narrowed range on an expression globally. A stable scope ID can make F063 identity memo keys cheaper while preserving separation."
+    },
+    {
+      "topic": "Materialize only relevant constraints",
+      "ink": "LLVM inserts predicate copies only when dominated uses exist. Ink can avoid expanding or keying irrelevant branch facts, but must first prove which terms depend on the predicate; simply dropping scope entries is unsound."
+    },
+    {
+      "topic": "Nested predicate lineage",
+      "ink": "Distinguish original subject from a subject already refined by an outer condition. Reusing an original-node key without refined context risks losing or leaking nested facts."
+    },
+    {
+      "topic": "Assumptions versus validations",
+      "ink": "LLVM assume instructions have truth semantics. Ink fallible requires/ensures may execute, fail, and return errors; do not silently replace them with assumed premises."
+    },
+    {
+      "topic": "Specialization is a separate policy",
+      "ink": "Function specialization can be controlled separately from fact propagation; future Ink summaries should not force cloning or code growth whenever facts improve."
+    },
+    {
+      "topic": "Ownership of analysis records",
+      "ink": "Predicate map entries borrow an owner. Any query-local identity cache must keep its subjects/context alive or avoid raw identity reuse, and dispose of records with their analysis epoch."
+    }
+  ],
+  "limits": [
+    "Header contracts and the already audited SCCP solver support these mappings; PredicateInfo.cpp and IPO/SCCP.cpp remain separate unreviewed implementations.",
+    "No new production predicate pass, proof rule, or performance claim."
+  ]
+}
