@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 const history=JSON.parse(fs.readFileSync(new URL('./history.json',import.meta.url)));
 const normal=x=>JSON.parse(JSON.stringify(x,(_k,v)=>typeof v==='bigint'||typeof v==='number'?String(v):v));
-for(const name of ['baseline','map','word','number','guarded','dense','zero','zero_dense']){
+for(const name of ['baseline','map','event_columns','compact','compact_events','inline_compact','word','number','guarded','dense','zero','zero_dense']){
  const {createState}=await import(new URL(`./${name}.mjs`,import.meta.url));const state=createState();
  const bound=Object.fromEntries(['put','erase','total_query','count_query'].map(n=>[n,state.bind(n)]));
  for(let i=0;i<history.length;i++){
@@ -41,5 +41,15 @@ for(const name of ['baseline','map','word','number','guarded','dense','zero','ze
  await state.restore(new Uint8Array(fs.readFileSync(new URL('./exhausted.bin',import.meta.url))));
  const exhausted=await state.checkpoint(),unchanged=total();assert.throws(()=>put(91n,97n,true,false),/commit sequence exhausted/);assert.equal(total(),unchanged);assert.deepEqual(await state.checkpoint(),exhausted);
  assert.deepEqual(put(91n,97n,true,true),{Err:'Error.Failed'});assert.deepEqual(await state.checkpoint(),exhausted);
+ for(const h of JSON.parse(fs.readFileSync(new URL('./commit_boundaries.json',import.meta.url)))){
+  await state.restore(new Uint8Array(h.seed));const seed=await state.checkpoint();
+  assert.deepEqual(normal(state.bind('put')(0n,97n,true,true)),h.failed);assert.deepEqual(await state.checkpoint(),seed);
+  const token=state.changeToken(),from=state.version;
+  if(h.result===null)assert.throws(()=>state.bind('put')(0n,97n,true,false),/commit sequence exhausted/);
+  else assert.deepEqual(normal(state.bind('put')(0n,97n,true,false)),h.result);
+  assert.deepEqual([...await state.checkpoint()],h.snapshot);assert.equal(typeof state.version,'bigint');assert.equal(state.changesSince(token).from,from);assert.equal(state.changesSince(token).to,state.version);state.releaseChangeToken(token);
+  const restored=await state.checkpoint();state.beginTransaction();state.acknowledgeThrough(18446744073709551615n,18446744073709551615n);state.rollbackTransaction();assert.deepEqual(await state.checkpoint(),restored);
+  const last=state.outbox.at(-1);if(last){state.acknowledgeThrough(last.commit,last.position);assert.deepEqual(state.outbox,[]);}
+ }
  assert.deepEqual(state.takeSubscriptionErrors(),[]);console.log(name+' source histories, snapshots, grouped publication, rollback, deltas and integer guards passed');
 }
