@@ -599,6 +599,7 @@ impl<'a> Lower<'a> {
                                 .map(|i| (false, i))
                         };
                     let mut arguments = vec![];
+                    let word_arguments=crate::word::arguments(name,&ty);
                     for (index, arg) in args.iter().enumerate() {
                         let expected = match target {
                             Some((true, i)) => Some(&self.p.actions[i].params[index].1),
@@ -611,11 +612,7 @@ impl<'a> Lower<'a> {
                             }
                             None => match (name.as_str(), &ty) {
                                 (name, _) if crate::word::primitive(name) => {
-                                    Some(if index > 0 && crate::word::count(name) {
-                                        &Type::U32
-                                    } else {
-                                        &ty
-                                    })
+                                    word_arguments.get(index)
                                 }
                                 ("list", Type::List(t)) => Some(t.as_ref()),
                                 ("choose", _) if index == 0 => Some(&Type::Bool),
@@ -1030,6 +1027,12 @@ impl Body {
                         for (arg,ty) in arguments.iter().zip(params){let rt=solver.ty(&ty);solver.unify(val(*arg)?,rt)?;}
                     }
                     name if crate::word::primitive(name) => {
+                        if let Some((input,output))=crate::word::conversion(name) {
+                            if arguments.len()!=1{return Err("word conversion arity".into());}
+                            solver.unify(out()?,Ty::Atom(output))?;
+                            solver.unify(val(arguments[0])?,Ty::Atom(input))?;
+                            continue;
+                        }
                         solver.unify(out()?, val(arguments[0])?)?;
                         if arguments.len() > 1 {
                             solver.unify(

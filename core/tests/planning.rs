@@ -102,9 +102,16 @@ fn physical_metadata_cannot_select_missing_source_or_fake_definition_sites() {
         definitions: Default::default(),
         packed_datatypes: vec![],
         memo_functions: vec![],
-        reservations: vec![],
+        reservations: vec![],inline_functions:vec![],
     };
     physical::check(&m, None, &p).unwrap();
+    assert!(serde_json::to_value(&p).unwrap().get("inline_functions").is_none());
+    let mut hinted=p.clone();hinted.inline_functions=vec!["value".into()];
+    assert!(physical::check(&m,None,&hinted).unwrap().inlines_function("value"));
+    for names in [vec!["missing".into()],vec!["value".into(),"value".into()],vec!["value".into(),"missing".into()]] {
+        let mut wrong=p.clone();wrong.inline_functions=names;
+        assert!(physical::check(&m,None,&wrong).is_err());
+    }
     let mut wrong = p.clone();
     wrong.borrow_rows = vec!["0".repeat(64)];
     assert!(physical::check(&m, None, &wrong).is_err());
