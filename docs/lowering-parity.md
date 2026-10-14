@@ -44,16 +44,22 @@ ink build program.ink -o build/program
 ink build program.ink --target c -o build/c-project
 ink build program.ink --target rust -o build/rust-project
 ink build program.ink --target javascript -o build/program.mjs
-ink build program.ink --target wasm32 --zig /path/to/zig -o build/program.wasm
+ink build program.ink --target wasm32 -o build/program.wasm
+ink build program.ink --lowering c --target wasm32 --zig /path/to/zig -o build/program.wasm
 ink build program.ink --target webgpu --zig /path/to/zig -o build/web
 ```
 
 Native builds produce an executable accepting a JSON array of requests:
 `[{"pure":"name","args":[...]},{"call":"action","args":[...]}]`.
+Native and `wasm32` builds use the typed Rust lowering by default; pass
+`--lowering c` to build the same artifact from the complete C project instead.
 The complete C project contains literal C function/action code and a shared Rust
 primitive runtime for values, exact integers, transactions and snapshot codecs.
-It is not a freestanding C-only implementation or an AST interpreter. Rust
-projects contain literal typed Rust; JavaScript modules contain literal ES code.
+Every C operation calls that runtime through a dynamically typed value handle,
+and intermediates live in a bounded per-call arena, so it is a conformance
+lowering rather than a performance one: a scalar loop runs roughly 300–10,000×
+slower than typed Rust and exhausts the arena after about a million steps.
+Rust projects contain literal typed Rust; JavaScript modules contain literal ES code.
 `--target object` retains the small packed pure C object interface explicitly.
 
 The runtime emits the same handle/buffer lifecycle ABI for native libraries and

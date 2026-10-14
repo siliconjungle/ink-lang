@@ -52,7 +52,9 @@ callbacks. It optionally includes scalar and record arguments. Every application
 replays through `check-selection`, followed by an explicit existing direct-buffer
 physical choice. This is an experiment; it neither installs default selection nor
 claims profitability for arbitrary inputs. Inlining is bounded, and all selected
-proof bytes and receipts are retained under the output directory.
+proof bytes and receipts are retained under the output directory. If a combined
+expansion exceeds checker limits, smaller cumulative subsets are replayed; only
+admitted subsets enter the plan, and rejected applications are recorded.
 
 The fixes exposed by this corpus are general: preserve lexical bindings when a
 bounds image crosses an opaque callback, transport collection element types into
