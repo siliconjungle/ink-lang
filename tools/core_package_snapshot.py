@@ -33,7 +33,7 @@ def main():
  if existing.returncode==0 and old!=parent:raise ValueError('package branch changed or does not match parent')
  git('update-ref',ref,commit,old)
  record=dict(commit=commit,parent=parent,source=source,core_tree=core,branch=a.branch,
-  scope='Standalone package only; entire core tree identical to tested distribution source. Distribution main is unchanged.')
+  scope='Standalone package only; entire core tree identical to the specified committed distribution source. This verifies tree identity, not test completion. Distribution main is unchanged.')
  a.receipt.write_text(json.dumps(record,indent=2)+'\n');print(json.dumps(record))
 
 if __name__=='__main__':main()
