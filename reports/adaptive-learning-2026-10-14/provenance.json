@@ -1,0 +1,64 @@
+{
+  "schema": 1,
+  "revision": "b6973d0dd25a5e9d16219e695f1a1e8ad3875d5f",
+  "bundle": {
+    "schema": 1,
+    "kind": "ink-adaptive-state-v1",
+    "binding": {
+      "source": "83baab250e2ca4968f2c864e2f0269d9852b92ce72f818a7b6fe97cd795ca378",
+      "compiler": "ff36fb90873ecfa7ea7c412e428d64dd16a09a8034d3f58431904be8525e7771",
+      "target": "apple-arm-node22-adaptive-learning",
+      "boundary": "owned-serial-state-v1",
+      "variants": {
+        "direct": "f096d1994d6ceef0abd5d6eee6b2c24b29cf96e1c4ea5ff451e309d85d9652ac",
+        "cached": "5e6432494e0523b7f95fde1837f30f1098987f1377996b0e08358748842b2aeb"
+      }
+    },
+    "artifacts": [
+      {
+        "id": "direct",
+        "file": "direct.mjs",
+        "plan": "direct.plan.json"
+      },
+      {
+        "id": "cached",
+        "file": "cached.mjs",
+        "plan": "cached.plan.json"
+      }
+    ],
+    "baseline": "direct"
+  },
+  "profile_sha256": "ca334634cebb6b21508def4df9a6e320cae94239e669be000b23a8ab78682e34",
+  "scripts": {
+    "bench/adaptive-learning/collections.mjs": "dc8e367dfc708716e5529e93a5af2552b14c7b798b7cae16ef95a360655d66d3",
+    "bench/adaptive-learning/replay.mjs": "46212197c36476d17b23be4f466440013fc5f7ede7bb6e288f928e84339c0452",
+    "bench/adaptive-learning/json.mjs": "e40588e9c15f0216707b57b55c166bbbdb8613749be23e2f531662051424f58d",
+    "runtime/hosts/pipeline-worker.mjs": "93fcbba7da51493705573d8c0b2e0025d5a24cc38dd109902e793d7c199d568e",
+    "runtime/hosts/pipeline-workers.mjs": "ce2acfcfb75d6c8c6c5ae4e03727ffa3a1a6160782f691ae9dd6449655119430",
+    "runtime/hosts/adaptive-collections.mjs": "822a4975c49884d9a914f19a4cf5eadf7def7348fa781ea6cce9f70d7f933c1f",
+    "runtime/hosts/adaptive-state.mjs": "3d11adbf2445a6e32e26319018cd1f08974c67cad10bb10483076e269f82e0ff",
+    "runtime/hosts/ink-abi.mjs": "5db0cad4e43edbabf68dba11d4ce9bae44603a426dc6b33ff1e1701ea94373bc",
+    "runtime/hosts/usage-profile.mjs": "42087f6de268e704be5851654945f27c05bbd392930dd4a69045f6a5e34736bb",
+    "runtime/hosts/backend-selection.mjs": "19f0780f6d8ce4fbdcf0faffea4f68efa676223ee7d8b8a2d9714b587254fca5",
+    "runtime/hosts/ink-module.mjs": "6476c16f6a6f9d42c11379563d47ddb2bbf175ec7f13b380f0b713a1dd320c76",
+    "runtime/hosts/durable-file.mjs": "2e574f631b351eebf9e4bc1192d794fbbb98941a40f9ddb035e75afa5bb8fad2",
+    "runtime/hosts/adaptive-profile.mjs": "446ab79766772684d430bd66734ed94f96248e64dafc349c873327c44c6849b2",
+    "runtime/hosts/prepared-wasm.mjs": "cfd128e081b2fab9c35012878255af7f79a7720427c7b94363b0112d67289f06",
+    "runtime/hosts/ink-selection.mjs": "bbd63dfd959c06658dde1f5da743af125e5394171202e865a07de7826166afd5",
+    "runtime/hosts/pipeline-contract.mjs": "2b65d6017f1673777af7ce5a4f231a741bace358ac4077d9420f6b6f697f98d0",
+    "runtime/hosts/ink-route.mjs": "e627d00ea73e79310d534ccaa098013e7fdcc0e27e85fba7ab6c106c8632d6ea",
+    "runtime/hosts/usage-window.mjs": "f898224de6f1e50576a58039ff3eba139a7611ee0b7b2476d988a490764d664b",
+    "runtime/hosts/ink-gpu.mjs": "a21b0e3660ffbb21c63653e3d9b342b7c2a3041027b9d4b45f8773052049594e",
+    "runtime/hosts/ink-compute.mjs": "4564524e4fb4e5de3c189c1142d20f0d9d4b094b4b68453b048abb6b0eb93ac6",
+    "runtime/hosts/state-wasm.mjs": "978ec224c096f6ed26f4461fad5364bcb2d0e65ec563b1e4824890fe028814e9",
+    "runtime/hosts/durable-state.mjs": "1c466107159e2f8dc727968aefc481a39a6cba99574e36a3240e6466a16d9f59",
+    "runtime/hosts/pipeline-profile.mjs": "6e302b624979c317a47d2413d84b9ebfc4ea9ffffe756d45cf82a51f2d101cfe"
+  },
+  "analysis_sources": {
+    "planner/ink_planner/lifecycle_analysis.py": "99963ad7567df794da958db1abebfda2bdf5f9cc5d4207f2a8542f9fd111cae6",
+    "abi/src/usage.rs": "da282929fdab776cebc01b4bdacdd3d7a6b1876c0aa635e94821ea62169146dd",
+    "abi/src/json_lookup.rs": "c0fec97d8d9dd03fd3f9c2f4fffddb2ee0868d1a90cfa8e62e5888bd19f33279",
+    "abi/src/json-value.mjs": "08b882176b806e572618d806f614a94151cb785f6f61fb2eb406425300133a98"
+  },
+  "validation_scope": "Native/Rust-Wasm feature parity, native/JS JSON view parity, compiled/reference JSON source correspondence, browser smoke, snapshot and rollback conformance. Tests are not backend correctness proofs."
+}
