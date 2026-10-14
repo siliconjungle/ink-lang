@@ -254,3 +254,27 @@ See `examples/maintained-ledger.ink` for independent tables, weighted and filter
 keeps, nested failure and observations inside actions. See `tests/maintained_state.rs`
 and `tests/signals_state.rs` for source-oracle histories, forged-proof rejection,
 wraparound, commit exhaustion, rollback, ownership and subscription coverage.
+
+## Database-defined Boolean groups
+
+The maintained-fold recipe now accepts Boolean group descriptions in its
+`groups` parameter. The installed defaults also live in
+`knowledge/producers/data/maintained-groups.json` for direct authoring. Each
+entry supplies ordinary total definitions for `combine`, `inverse`, and `zero`.
+The defaults describe parity and its complementary encoding; they are not
+compiler-recognised operations.
+
+`producers.boolean_groups` authors bounded Boolean cases, datatype cases,
+congruence and table induction. The existing checker replays group laws, exact
+source factorisation, and insertion/deletion/replacement preservation. Singleton
+contributions may inspect row fields and keys. Boolean groups compose in one
+package with existing word groups. Non-invertible OR/AND reductions do not
+acquire this maintenance mechanism; they require another representation and
+proof. This closes Boolean groups over the existing admitted table domain,
+not arbitrary reducer maintenance or persistent Set representation selection.
+
+`examples/maintained-parity.ink` exercises both Boolean encodings alongside a
+word sum. The mandatory physical-capability suite compares 320 complete
+source-oracle observations, errors, events, rollback, restore and byte-identical
+snapshots on Rust, JavaScript and Rust-Wasm and rejects forged preservation
+proofs. C and device execution remain unsupported for maintained folds.

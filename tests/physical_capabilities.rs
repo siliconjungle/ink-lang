@@ -242,3 +242,6 @@ mod broadphase;
 
 #[path = "support/projected_list_reads.rs"]
 mod projected_list_reads;
+
+#[path = "support/boolean_maintenance.rs"]
+mod boolean_maintenance;
