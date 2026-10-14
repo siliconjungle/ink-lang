@@ -1,0 +1,3324 @@
+{
+  "schema": 1,
+  "process": 282,
+  "node": "v26.1.0",
+  "provenance": {
+    "captured_at": "2026-10-13T23:24:08.057Z",
+    "hashes": {
+      "bench/frontier-json/state.ink": "f98f971b59e11d0983af3cbbd9a472f2d55b4e5720556de1f31b19b12ae866a4",
+      "bench/frontier-json/prepare.py": "d4040dee385095446525ece11523b5dec6cb5eb269937b4836d8fc439cc05713",
+      "bench/frontier-json/run.mjs": "72b74f144dc6db0c56688ae000be9f7a9dbcadc3efc1f4023964d441c570dc68",
+      "bench/frontier-json/state-adapters.mjs": "2a7c24ff7778690f0ff6090d31afc45e26f7f6bd2909c3ae619c8e055ea79694",
+      "bench/frontier-json/json-kernels.mjs": "66985f5be207c4f170c0ccd3822f91f8f7f2c257b1b6abc9f3e5ab5e566f67c5",
+      "bench/frontier-json/src/main.rs": "295a467a214ce257f5d41e5fa8304649d2b21cb1beabefc19565d763856b597d",
+      "bench/frontier-json/package-lock.json": "3cc5c3e6c05c279b921df5c2b1a232d2b5f6a114f0a674d2d5d1946840d75a52",
+      "bench/frontier-json/Cargo.lock": "66cecb01a676b2fef9d944feab7ce7d7876e9133c7095f4c0eba566e6ae125f9",
+      "bench/frontier-json/provenance.mjs": "11c6bc40df69e0ef50c143d81aa79b60504681e3fc9337df64d8de0232432a30",
+      "build/frontier-json/fixtures.json": "f03846851a92e4968589f0daa0ae4bb1768f323a3cf90486017e89c58cf62145",
+      "build/frontier-json/preparation.json": "945bb6ebd6460d5a9ac33342e3d2e9e0d852dc14f604149b8297e2547a6773a1",
+      "build/frontier-json/ink.mjs": "a3e4dd199bd66efaa794be629ace508961158c59ac7958168b2fc5fce3cdbc90",
+      "target/debug/ink": "0ae91bd6193dc28ddda182d498b8d0a24700defb0cfcd9a66a2c2b59db20271b",
+      "build/frontier-json/ink-indexed.mjs": "7aa19686dd2fbbf3ced38f05237748de574f0d31d005b4bd747d0a723278f674",
+      "build/frontier-json/indexed.plan.json": "9c999ba5286d9056a802d3924cd33d089d21fa88f7a2ca7e9004adb6707d7d7f"
+    },
+    "revisions": {
+      ".": "9ebcf86315ce882aae4f3d48019d5e42dca97931",
+      "abi": "90a7a93c6be095cb906601ec2b40c8a1467adbdf",
+      "core": "9ebcf86315ce882aae4f3d48019d5e42dca97931",
+      "native-support": "eea3285a3ea1847c0dda237c3c988178e4a00f4c",
+      "runtime": "f41a5b23aad742bad289c8c94561cbe295baebad",
+      "knowledge": "13b30948e0c2a177d420c833916c3be6d400043c",
+      "planner": "2fcd46fbb6e8a13c36fe0da25463f7fb8c79f181",
+      "lowerings/c": "8930ae3191141977b416b07d4a23935bc2f05807",
+      "lowerings/rust": "d25a9435a9dfe2fc33f1318445cf2a74d4703708",
+      "lowerings/js": "d877661369f2baa82e494713b5147e075dc487d4",
+      "lowerings/wasm": "4d4771dc2e33346213561583c2c3fb98b2029228",
+      "lowerings/gpu": "08c81dea7f6479ee06573192dd8b18b5edf22fe9",
+      "build/frontier": "2c72dbb4030e2695b682d3e49ec82d8c5c8ffec2",
+      "build/frontier-state-main": "9ff840ea690e55fd8c064934f92a26c1603a63fa",
+      "build/frontier-engine": "1fdd01b67367ccd2b1088b0148b558896935856e",
+      "build/frontier-codec": "7835c68e60ecb400f82d26436bd8e8855a7ba9b9"
+    },
+    "native_artifact_included": false,
+    "node": "v26.1.0",
+    "target": {
+      "cpu": "Apple M2",
+      "platform": "darwin",
+      "arch": "arm64",
+      "release": "25.5.0"
+    },
+    "host_isolation": "Shared development host; no exclusive CPU reservation. Repeated process cohorts and rotated lane order, not a controlled laboratory."
+  },
+  "runner_sha256": "14c31e2d1cc624d5568bc25de633753e8abe2d641bafb435c64debd16f3ff712",
+  "modules": [
+    {
+      "label": "control-records",
+      "filename": "build/constructed-json/baseline-cached.mjs",
+      "sha256": "7e1d4c888cc2a1eab470de73ad51cf98630ba03461221395b3c46a016b337070",
+      "bytes": 534091,
+      "import_ns": "13055583",
+      "codec_factory_ns": "1345459"
+    },
+    {
+      "label": "control-records-sums",
+      "filename": "build/constructed-json/flat-cached.mjs",
+      "sha256": "d1becfbcf40e675cf41dbffd8822038f9b6bbbe68b0f8e8e02f9fda8a17d8fc7",
+      "bytes": 598204,
+      "import_ns": "11542708",
+      "codec_factory_ns": "1192416"
+    },
+    {
+      "label": "candidate-records",
+      "filename": "build/constructed-json/baseline-atomic.mjs",
+      "sha256": "ef8caf208863208541b9244c8e7694dbdbe4aba80218cdefc383b13ac3214406",
+      "bytes": 535011,
+      "import_ns": "9903833",
+      "codec_factory_ns": "1115291"
+    },
+    {
+      "label": "candidate-records-sums",
+      "filename": "build/constructed-json/flat-atomic.mjs",
+      "sha256": "c6c308d67358221d3e8e09b6c8bfa7c0ec91a266ed5993c6b0191d90fe37e6da",
+      "bytes": 599124,
+      "import_ns": "12470584",
+      "codec_factory_ns": "1186708"
+    }
+  ],
+  "measurements": [
+    {
+      "fields": 4,
+      "lane": "candidate-records/parse-capture",
+      "round": 0,
+      "calls": 1625,
+      "elapsed_ns": "14415000"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records/constructed-edit-text",
+      "round": 0,
+      "calls": 828,
+      "elapsed_ns": "23820917"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records/parse-capture",
+      "round": 0,
+      "calls": 666,
+      "elapsed_ns": "6413833"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records-sums/constructed-edit-text",
+      "round": 0,
+      "calls": 625,
+      "elapsed_ns": "16142917"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records-sums/capture-edit-text",
+      "round": 0,
+      "calls": 818,
+      "elapsed_ns": "18440708"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records-sums/parse-capture",
+      "round": 0,
+      "calls": 1881,
+      "elapsed_ns": "16802334"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records-sums/parse-constructed",
+      "round": 0,
+      "calls": 1524,
+      "elapsed_ns": "17519625"
+    },
+    {
+      "fields": 4,
+      "lane": "frontier/text-edit-text",
+      "round": 0,
+      "calls": 18286,
+      "elapsed_ns": "15131875"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records/capture-edit-text",
+      "round": 0,
+      "calls": 899,
+      "elapsed_ns": "17679125"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records-sums/constructed-edit-text",
+      "round": 0,
+      "calls": 806,
+      "elapsed_ns": "20691250"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records-sums/parse-capture",
+      "round": 0,
+      "calls": 1804,
+      "elapsed_ns": "20700750"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records/parse-constructed",
+      "round": 0,
+      "calls": 1470,
+      "elapsed_ns": "21325750"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records-sums/capture-edit-text",
+      "round": 0,
+      "calls": 859,
+      "elapsed_ns": "20006750"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records-sums/parse-constructed",
+      "round": 0,
+      "calls": 574,
+      "elapsed_ns": "9340709"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records/capture-edit-text",
+      "round": 0,
+      "calls": 848,
+      "elapsed_ns": "21337208"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records/parse-constructed",
+      "round": 0,
+      "calls": 795,
+      "elapsed_ns": "11420875"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records/constructed-edit-text",
+      "round": 0,
+      "calls": 802,
+      "elapsed_ns": "19767834"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records/capture-edit-text",
+      "round": 1,
+      "calls": 848,
+      "elapsed_ns": "14072833"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records/parse-constructed",
+      "round": 1,
+      "calls": 1470,
+      "elapsed_ns": "11593583"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records/capture-edit-text",
+      "round": 1,
+      "calls": 899,
+      "elapsed_ns": "17179250"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records-sums/parse-capture",
+      "round": 1,
+      "calls": 1804,
+      "elapsed_ns": "10799500"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records-sums/constructed-edit-text",
+      "round": 1,
+      "calls": 625,
+      "elapsed_ns": "17529167"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records/constructed-edit-text",
+      "round": 1,
+      "calls": 828,
+      "elapsed_ns": "16087042"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records-sums/capture-edit-text",
+      "round": 1,
+      "calls": 859,
+      "elapsed_ns": "13138042"
+    },
+    {
+      "fields": 4,
+      "lane": "frontier/text-edit-text",
+      "round": 1,
+      "calls": 18286,
+      "elapsed_ns": "15681000"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records-sums/parse-capture",
+      "round": 1,
+      "calls": 1881,
+      "elapsed_ns": "10955959"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records/constructed-edit-text",
+      "round": 1,
+      "calls": 802,
+      "elapsed_ns": "13996333"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records/parse-capture",
+      "round": 1,
+      "calls": 666,
+      "elapsed_ns": "3661375"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records-sums/capture-edit-text",
+      "round": 1,
+      "calls": 818,
+      "elapsed_ns": "15703375"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records-sums/parse-constructed",
+      "round": 1,
+      "calls": 574,
+      "elapsed_ns": "5781083"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records-sums/constructed-edit-text",
+      "round": 1,
+      "calls": 806,
+      "elapsed_ns": "15006959"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records-sums/parse-constructed",
+      "round": 1,
+      "calls": 1524,
+      "elapsed_ns": "14077750"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records/parse-constructed",
+      "round": 1,
+      "calls": 795,
+      "elapsed_ns": "6282500"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records/parse-capture",
+      "round": 1,
+      "calls": 1625,
+      "elapsed_ns": "10840334"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records-sums/parse-capture",
+      "round": 2,
+      "calls": 1881,
+      "elapsed_ns": "9956709"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records/parse-constructed",
+      "round": 2,
+      "calls": 1470,
+      "elapsed_ns": "11876208"
+    },
+    {
+      "fields": 4,
+      "lane": "frontier/text-edit-text",
+      "round": 2,
+      "calls": 18286,
+      "elapsed_ns": "14208958"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records-sums/parse-constructed",
+      "round": 2,
+      "calls": 574,
+      "elapsed_ns": "5243250"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records/capture-edit-text",
+      "round": 2,
+      "calls": 899,
+      "elapsed_ns": "12388542"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records/parse-capture",
+      "round": 2,
+      "calls": 1625,
+      "elapsed_ns": "10593750"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records-sums/constructed-edit-text",
+      "round": 2,
+      "calls": 625,
+      "elapsed_ns": "10470750"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records-sums/constructed-edit-text",
+      "round": 2,
+      "calls": 806,
+      "elapsed_ns": "13667709"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records-sums/capture-edit-text",
+      "round": 2,
+      "calls": 859,
+      "elapsed_ns": "11971000"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records/constructed-edit-text",
+      "round": 2,
+      "calls": 828,
+      "elapsed_ns": "15028917"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records-sums/parse-capture",
+      "round": 2,
+      "calls": 1804,
+      "elapsed_ns": "11804792"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records-sums/parse-constructed",
+      "round": 2,
+      "calls": 1524,
+      "elapsed_ns": "12853792"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records/capture-edit-text",
+      "round": 2,
+      "calls": 848,
+      "elapsed_ns": "11449167"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records/constructed-edit-text",
+      "round": 2,
+      "calls": 802,
+      "elapsed_ns": "13462375"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records/parse-capture",
+      "round": 2,
+      "calls": 666,
+      "elapsed_ns": "3524292"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records/parse-constructed",
+      "round": 2,
+      "calls": 795,
+      "elapsed_ns": "7559459"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records-sums/capture-edit-text",
+      "round": 2,
+      "calls": 818,
+      "elapsed_ns": "10822541"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records/parse-capture",
+      "round": 3,
+      "calls": 666,
+      "elapsed_ns": "3499084"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records-sums/parse-capture",
+      "round": 3,
+      "calls": 1804,
+      "elapsed_ns": "10673958"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records/capture-edit-text",
+      "round": 3,
+      "calls": 899,
+      "elapsed_ns": "12324500"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records/capture-edit-text",
+      "round": 3,
+      "calls": 848,
+      "elapsed_ns": "10720375"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records/constructed-edit-text",
+      "round": 3,
+      "calls": 828,
+      "elapsed_ns": "13193917"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records/parse-capture",
+      "round": 3,
+      "calls": 1625,
+      "elapsed_ns": "10314583"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records-sums/parse-constructed",
+      "round": 3,
+      "calls": 1524,
+      "elapsed_ns": "11752084"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records/constructed-edit-text",
+      "round": 3,
+      "calls": 802,
+      "elapsed_ns": "12268084"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records-sums/parse-capture",
+      "round": 3,
+      "calls": 1881,
+      "elapsed_ns": "10770666"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records-sums/capture-edit-text",
+      "round": 3,
+      "calls": 818,
+      "elapsed_ns": "20315875"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records-sums/parse-constructed",
+      "round": 3,
+      "calls": 574,
+      "elapsed_ns": "7757292"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records/parse-constructed",
+      "round": 3,
+      "calls": 1470,
+      "elapsed_ns": "18536292"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records-sums/capture-edit-text",
+      "round": 3,
+      "calls": 859,
+      "elapsed_ns": "16746625"
+    },
+    {
+      "fields": 4,
+      "lane": "frontier/text-edit-text",
+      "round": 3,
+      "calls": 18286,
+      "elapsed_ns": "14623792"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records-sums/constructed-edit-text",
+      "round": 3,
+      "calls": 806,
+      "elapsed_ns": "15598791"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records/parse-constructed",
+      "round": 3,
+      "calls": 795,
+      "elapsed_ns": "17835125"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records-sums/constructed-edit-text",
+      "round": 3,
+      "calls": 625,
+      "elapsed_ns": "20425750"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records-sums/capture-edit-text",
+      "round": 4,
+      "calls": 859,
+      "elapsed_ns": "14203625"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records-sums/parse-capture",
+      "round": 4,
+      "calls": 1881,
+      "elapsed_ns": "9132292"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records/constructed-edit-text",
+      "round": 4,
+      "calls": 802,
+      "elapsed_ns": "14922584"
+    },
+    {
+      "fields": 4,
+      "lane": "frontier/text-edit-text",
+      "round": 4,
+      "calls": 18286,
+      "elapsed_ns": "13477667"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records/capture-edit-text",
+      "round": 4,
+      "calls": 848,
+      "elapsed_ns": "12756375"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records/constructed-edit-text",
+      "round": 4,
+      "calls": 828,
+      "elapsed_ns": "16706500"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records/parse-capture",
+      "round": 4,
+      "calls": 1625,
+      "elapsed_ns": "10036625"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records/parse-constructed",
+      "round": 4,
+      "calls": 1470,
+      "elapsed_ns": "11621208"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records/parse-capture",
+      "round": 4,
+      "calls": 666,
+      "elapsed_ns": "3712833"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records-sums/constructed-edit-text",
+      "round": 4,
+      "calls": 806,
+      "elapsed_ns": "16843250"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records-sums/parse-capture",
+      "round": 4,
+      "calls": 1804,
+      "elapsed_ns": "9449833"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records-sums/capture-edit-text",
+      "round": 4,
+      "calls": 818,
+      "elapsed_ns": "10726958"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records/capture-edit-text",
+      "round": 4,
+      "calls": 899,
+      "elapsed_ns": "13134666"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records-sums/constructed-edit-text",
+      "round": 4,
+      "calls": 625,
+      "elapsed_ns": "16445792"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records-sums/parse-constructed",
+      "round": 4,
+      "calls": 1524,
+      "elapsed_ns": "15038042"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records/parse-constructed",
+      "round": 4,
+      "calls": 795,
+      "elapsed_ns": "8153125"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records-sums/parse-constructed",
+      "round": 4,
+      "calls": 574,
+      "elapsed_ns": "4285875"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records/parse-capture",
+      "round": 5,
+      "calls": 666,
+      "elapsed_ns": "3589792"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records-sums/capture-edit-text",
+      "round": 5,
+      "calls": 818,
+      "elapsed_ns": "10915292"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records/capture-edit-text",
+      "round": 5,
+      "calls": 899,
+      "elapsed_ns": "10658083"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records-sums/capture-edit-text",
+      "round": 5,
+      "calls": 859,
+      "elapsed_ns": "11067958"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records/constructed-edit-text",
+      "round": 5,
+      "calls": 802,
+      "elapsed_ns": "13706375"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records-sums/parse-constructed",
+      "round": 5,
+      "calls": 574,
+      "elapsed_ns": "4129000"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records-sums/constructed-edit-text",
+      "round": 5,
+      "calls": 625,
+      "elapsed_ns": "8802666"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records/parse-capture",
+      "round": 5,
+      "calls": 1625,
+      "elapsed_ns": "9800625"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records-sums/constructed-edit-text",
+      "round": 5,
+      "calls": 806,
+      "elapsed_ns": "13635958"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records-sums/parse-constructed",
+      "round": 5,
+      "calls": 1524,
+      "elapsed_ns": "10695584"
+    },
+    {
+      "fields": 4,
+      "lane": "frontier/text-edit-text",
+      "round": 5,
+      "calls": 18286,
+      "elapsed_ns": "15413750"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records/parse-constructed",
+      "round": 5,
+      "calls": 1470,
+      "elapsed_ns": "11944375"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records-sums/parse-capture",
+      "round": 5,
+      "calls": 1881,
+      "elapsed_ns": "9570750"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records/constructed-edit-text",
+      "round": 5,
+      "calls": 828,
+      "elapsed_ns": "12391375"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records-sums/parse-capture",
+      "round": 5,
+      "calls": 1804,
+      "elapsed_ns": "9145000"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records/parse-constructed",
+      "round": 5,
+      "calls": 795,
+      "elapsed_ns": "7131666"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records/capture-edit-text",
+      "round": 5,
+      "calls": 848,
+      "elapsed_ns": "10986375"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records-sums/parse-capture",
+      "round": 6,
+      "calls": 1804,
+      "elapsed_ns": "9575334"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records/parse-capture",
+      "round": 6,
+      "calls": 1625,
+      "elapsed_ns": "9893042"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records/capture-edit-text",
+      "round": 6,
+      "calls": 899,
+      "elapsed_ns": "10191417"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records-sums/constructed-edit-text",
+      "round": 6,
+      "calls": 625,
+      "elapsed_ns": "10245750"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records/parse-capture",
+      "round": 6,
+      "calls": 666,
+      "elapsed_ns": "3393000"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records-sums/capture-edit-text",
+      "round": 6,
+      "calls": 818,
+      "elapsed_ns": "11308333"
+    },
+    {
+      "fields": 4,
+      "lane": "frontier/text-edit-text",
+      "round": 6,
+      "calls": 18286,
+      "elapsed_ns": "14173500"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records-sums/constructed-edit-text",
+      "round": 6,
+      "calls": 806,
+      "elapsed_ns": "12629625"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records-sums/parse-constructed",
+      "round": 6,
+      "calls": 574,
+      "elapsed_ns": "3729792"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records-sums/parse-capture",
+      "round": 6,
+      "calls": 1881,
+      "elapsed_ns": "22350416"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records/parse-constructed",
+      "round": 6,
+      "calls": 1470,
+      "elapsed_ns": "15721666"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records-sums/parse-constructed",
+      "round": 6,
+      "calls": 1524,
+      "elapsed_ns": "24558041"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records/constructed-edit-text",
+      "round": 6,
+      "calls": 828,
+      "elapsed_ns": "25255167"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records/constructed-edit-text",
+      "round": 6,
+      "calls": 802,
+      "elapsed_ns": "15413834"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records-sums/capture-edit-text",
+      "round": 6,
+      "calls": 859,
+      "elapsed_ns": "17479958"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records/parse-constructed",
+      "round": 6,
+      "calls": 795,
+      "elapsed_ns": "9146375"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records/capture-edit-text",
+      "round": 6,
+      "calls": 848,
+      "elapsed_ns": "12579583"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records/parse-capture",
+      "round": 7,
+      "calls": 666,
+      "elapsed_ns": "5571375"
+    },
+    {
+      "fields": 4,
+      "lane": "frontier/text-edit-text",
+      "round": 7,
+      "calls": 18286,
+      "elapsed_ns": "13386750"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records/parse-capture",
+      "round": 7,
+      "calls": 1625,
+      "elapsed_ns": "10894667"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records-sums/capture-edit-text",
+      "round": 7,
+      "calls": 859,
+      "elapsed_ns": "11847208"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records-sums/parse-capture",
+      "round": 7,
+      "calls": 1804,
+      "elapsed_ns": "9750208"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records-sums/parse-capture",
+      "round": 7,
+      "calls": 1881,
+      "elapsed_ns": "8902000"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records-sums/constructed-edit-text",
+      "round": 7,
+      "calls": 625,
+      "elapsed_ns": "10726541"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records-sums/capture-edit-text",
+      "round": 7,
+      "calls": 818,
+      "elapsed_ns": "13993167"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records-sums/parse-constructed",
+      "round": 7,
+      "calls": 1524,
+      "elapsed_ns": "9997625"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records-sums/parse-constructed",
+      "round": 7,
+      "calls": 574,
+      "elapsed_ns": "9179041"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records-sums/constructed-edit-text",
+      "round": 7,
+      "calls": 806,
+      "elapsed_ns": "14849875"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records/parse-constructed",
+      "round": 7,
+      "calls": 1470,
+      "elapsed_ns": "11949584"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records/constructed-edit-text",
+      "round": 7,
+      "calls": 802,
+      "elapsed_ns": "12379792"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records/constructed-edit-text",
+      "round": 7,
+      "calls": 828,
+      "elapsed_ns": "14317541"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records/capture-edit-text",
+      "round": 7,
+      "calls": 848,
+      "elapsed_ns": "9433459"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records/parse-constructed",
+      "round": 7,
+      "calls": 795,
+      "elapsed_ns": "6804584"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records/capture-edit-text",
+      "round": 7,
+      "calls": 899,
+      "elapsed_ns": "12055875"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records-sums/parse-capture",
+      "round": 8,
+      "calls": 1804,
+      "elapsed_ns": "10693083"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records-sums/capture-edit-text",
+      "round": 8,
+      "calls": 818,
+      "elapsed_ns": "11564875"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records-sums/parse-capture",
+      "round": 8,
+      "calls": 1881,
+      "elapsed_ns": "10003791"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records/parse-capture",
+      "round": 8,
+      "calls": 1625,
+      "elapsed_ns": "9748375"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records-sums/capture-edit-text",
+      "round": 8,
+      "calls": 859,
+      "elapsed_ns": "9890750"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records/capture-edit-text",
+      "round": 8,
+      "calls": 848,
+      "elapsed_ns": "10640958"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records/parse-capture",
+      "round": 8,
+      "calls": 666,
+      "elapsed_ns": "4091417"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records-sums/constructed-edit-text",
+      "round": 8,
+      "calls": 806,
+      "elapsed_ns": "13640875"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records/parse-constructed",
+      "round": 8,
+      "calls": 1470,
+      "elapsed_ns": "10215875"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records-sums/constructed-edit-text",
+      "round": 8,
+      "calls": 625,
+      "elapsed_ns": "10091458"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records-sums/parse-constructed",
+      "round": 8,
+      "calls": 574,
+      "elapsed_ns": "4089250"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records-sums/parse-constructed",
+      "round": 8,
+      "calls": 1524,
+      "elapsed_ns": "11681417"
+    },
+    {
+      "fields": 4,
+      "lane": "frontier/text-edit-text",
+      "round": 8,
+      "calls": 18286,
+      "elapsed_ns": "13741375"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records/constructed-edit-text",
+      "round": 8,
+      "calls": 828,
+      "elapsed_ns": "11493750"
+    },
+    {
+      "fields": 4,
+      "lane": "candidate-records/constructed-edit-text",
+      "round": 8,
+      "calls": 802,
+      "elapsed_ns": "11593750"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records/parse-constructed",
+      "round": 8,
+      "calls": 795,
+      "elapsed_ns": "7426500"
+    },
+    {
+      "fields": 4,
+      "lane": "control-records/capture-edit-text",
+      "round": 8,
+      "calls": 899,
+      "elapsed_ns": "10979125"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records/parse-capture",
+      "round": 0,
+      "calls": 565,
+      "elapsed_ns": "25789833"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records-sums/capture-edit-text",
+      "round": 0,
+      "calls": 243,
+      "elapsed_ns": "20100292"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records-sums/parse-constructed",
+      "round": 0,
+      "calls": 414,
+      "elapsed_ns": "36976917"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records-sums/constructed-edit-text",
+      "round": 0,
+      "calls": 263,
+      "elapsed_ns": "32104375"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records-sums/capture-edit-text",
+      "round": 0,
+      "calls": 313,
+      "elapsed_ns": "26305417"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records/parse-constructed",
+      "round": 0,
+      "calls": 364,
+      "elapsed_ns": "18462416"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records-sums/parse-capture",
+      "round": 0,
+      "calls": 605,
+      "elapsed_ns": "24078750"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records-sums/parse-capture",
+      "round": 0,
+      "calls": 434,
+      "elapsed_ns": "16701792"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records/capture-edit-text",
+      "round": 0,
+      "calls": 167,
+      "elapsed_ns": "14559375"
+    },
+    {
+      "fields": 64,
+      "lane": "frontier/text-edit-text",
+      "round": 0,
+      "calls": 5861,
+      "elapsed_ns": "20940375"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records-sums/parse-constructed",
+      "round": 0,
+      "calls": 432,
+      "elapsed_ns": "20579167"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records-sums/constructed-edit-text",
+      "round": 0,
+      "calls": 258,
+      "elapsed_ns": "20846292"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records/parse-capture",
+      "round": 0,
+      "calls": 566,
+      "elapsed_ns": "21004750"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records/constructed-edit-text",
+      "round": 0,
+      "calls": 245,
+      "elapsed_ns": "20144791"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records/capture-edit-text",
+      "round": 0,
+      "calls": 300,
+      "elapsed_ns": "26237000"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records/parse-constructed",
+      "round": 0,
+      "calls": 381,
+      "elapsed_ns": "32553208"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records/constructed-edit-text",
+      "round": 0,
+      "calls": 254,
+      "elapsed_ns": "25895833"
+    },
+    {
+      "fields": 64,
+      "lane": "frontier/text-edit-text",
+      "round": 1,
+      "calls": 5861,
+      "elapsed_ns": "21537125"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records/capture-edit-text",
+      "round": 1,
+      "calls": 167,
+      "elapsed_ns": "11564875"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records/parse-constructed",
+      "round": 1,
+      "calls": 364,
+      "elapsed_ns": "17986542"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records/parse-capture",
+      "round": 1,
+      "calls": 566,
+      "elapsed_ns": "21408916"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records/constructed-edit-text",
+      "round": 1,
+      "calls": 245,
+      "elapsed_ns": "20505125"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records-sums/capture-edit-text",
+      "round": 1,
+      "calls": 313,
+      "elapsed_ns": "20369792"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records-sums/parse-constructed",
+      "round": 1,
+      "calls": 432,
+      "elapsed_ns": "19459917"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records-sums/constructed-edit-text",
+      "round": 1,
+      "calls": 258,
+      "elapsed_ns": "25657625"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records-sums/parse-capture",
+      "round": 1,
+      "calls": 605,
+      "elapsed_ns": "24582875"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records-sums/capture-edit-text",
+      "round": 1,
+      "calls": 243,
+      "elapsed_ns": "20351625"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records/capture-edit-text",
+      "round": 1,
+      "calls": 300,
+      "elapsed_ns": "30233000"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records-sums/parse-constructed",
+      "round": 1,
+      "calls": 414,
+      "elapsed_ns": "32510959"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records/constructed-edit-text",
+      "round": 1,
+      "calls": 254,
+      "elapsed_ns": "34225625"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records-sums/constructed-edit-text",
+      "round": 1,
+      "calls": 263,
+      "elapsed_ns": "28425917"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records-sums/parse-capture",
+      "round": 1,
+      "calls": 434,
+      "elapsed_ns": "16774667"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records/parse-constructed",
+      "round": 1,
+      "calls": 381,
+      "elapsed_ns": "22979709"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records/parse-capture",
+      "round": 1,
+      "calls": 565,
+      "elapsed_ns": "25030916"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records/parse-capture",
+      "round": 2,
+      "calls": 565,
+      "elapsed_ns": "22038458"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records-sums/capture-edit-text",
+      "round": 2,
+      "calls": 313,
+      "elapsed_ns": "23434583"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records-sums/parse-capture",
+      "round": 2,
+      "calls": 434,
+      "elapsed_ns": "16039417"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records/parse-constructed",
+      "round": 2,
+      "calls": 364,
+      "elapsed_ns": "23752291"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records-sums/parse-capture",
+      "round": 2,
+      "calls": 605,
+      "elapsed_ns": "22438542"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records-sums/capture-edit-text",
+      "round": 2,
+      "calls": 243,
+      "elapsed_ns": "17512000"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records-sums/parse-constructed",
+      "round": 2,
+      "calls": 414,
+      "elapsed_ns": "21086291"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records/capture-edit-text",
+      "round": 2,
+      "calls": 167,
+      "elapsed_ns": "17764125"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records/capture-edit-text",
+      "round": 2,
+      "calls": 300,
+      "elapsed_ns": "21750541"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records-sums/constructed-edit-text",
+      "round": 2,
+      "calls": 263,
+      "elapsed_ns": "21178875"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records-sums/parse-constructed",
+      "round": 2,
+      "calls": 432,
+      "elapsed_ns": "19685292"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records-sums/constructed-edit-text",
+      "round": 2,
+      "calls": 258,
+      "elapsed_ns": "20270791"
+    },
+    {
+      "fields": 64,
+      "lane": "frontier/text-edit-text",
+      "round": 2,
+      "calls": 5861,
+      "elapsed_ns": "19740667"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records/constructed-edit-text",
+      "round": 2,
+      "calls": 245,
+      "elapsed_ns": "21048375"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records/constructed-edit-text",
+      "round": 2,
+      "calls": 254,
+      "elapsed_ns": "23584542"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records/parse-constructed",
+      "round": 2,
+      "calls": 381,
+      "elapsed_ns": "20074625"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records/parse-capture",
+      "round": 2,
+      "calls": 566,
+      "elapsed_ns": "22163875"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records/parse-capture",
+      "round": 3,
+      "calls": 565,
+      "elapsed_ns": "22937042"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records/capture-edit-text",
+      "round": 3,
+      "calls": 300,
+      "elapsed_ns": "20007959"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records/parse-capture",
+      "round": 3,
+      "calls": 566,
+      "elapsed_ns": "20276334"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records-sums/capture-edit-text",
+      "round": 3,
+      "calls": 243,
+      "elapsed_ns": "21319958"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records/capture-edit-text",
+      "round": 3,
+      "calls": 167,
+      "elapsed_ns": "17430958"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records-sums/capture-edit-text",
+      "round": 3,
+      "calls": 313,
+      "elapsed_ns": "29121916"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records-sums/constructed-edit-text",
+      "round": 3,
+      "calls": 263,
+      "elapsed_ns": "33566042"
+    },
+    {
+      "fields": 64,
+      "lane": "frontier/text-edit-text",
+      "round": 3,
+      "calls": 5861,
+      "elapsed_ns": "19469709"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records-sums/parse-capture",
+      "round": 3,
+      "calls": 434,
+      "elapsed_ns": "14951084"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records/parse-constructed",
+      "round": 3,
+      "calls": 364,
+      "elapsed_ns": "22867000"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records-sums/parse-capture",
+      "round": 3,
+      "calls": 605,
+      "elapsed_ns": "22970083"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records-sums/parse-constructed",
+      "round": 3,
+      "calls": 414,
+      "elapsed_ns": "23084458"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records/constructed-edit-text",
+      "round": 3,
+      "calls": 254,
+      "elapsed_ns": "40503708"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records-sums/constructed-edit-text",
+      "round": 3,
+      "calls": 258,
+      "elapsed_ns": "27753042"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records/constructed-edit-text",
+      "round": 3,
+      "calls": 245,
+      "elapsed_ns": "22930334"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records/parse-constructed",
+      "round": 3,
+      "calls": 381,
+      "elapsed_ns": "23895250"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records-sums/parse-constructed",
+      "round": 3,
+      "calls": 432,
+      "elapsed_ns": "20549208"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records-sums/capture-edit-text",
+      "round": 4,
+      "calls": 243,
+      "elapsed_ns": "17289209"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records-sums/parse-constructed",
+      "round": 4,
+      "calls": 414,
+      "elapsed_ns": "22849791"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records-sums/capture-edit-text",
+      "round": 4,
+      "calls": 313,
+      "elapsed_ns": "21983917"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records-sums/parse-capture",
+      "round": 4,
+      "calls": 605,
+      "elapsed_ns": "22025792"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records-sums/parse-constructed",
+      "round": 4,
+      "calls": 432,
+      "elapsed_ns": "21034708"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records-sums/parse-capture",
+      "round": 4,
+      "calls": 434,
+      "elapsed_ns": "15184375"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records/parse-capture",
+      "round": 4,
+      "calls": 565,
+      "elapsed_ns": "27798666"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records/capture-edit-text",
+      "round": 4,
+      "calls": 167,
+      "elapsed_ns": "12371791"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records/parse-capture",
+      "round": 4,
+      "calls": 566,
+      "elapsed_ns": "21631333"
+    },
+    {
+      "fields": 64,
+      "lane": "frontier/text-edit-text",
+      "round": 4,
+      "calls": 5861,
+      "elapsed_ns": "21245000"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records-sums/constructed-edit-text",
+      "round": 4,
+      "calls": 258,
+      "elapsed_ns": "19101625"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records/parse-constructed",
+      "round": 4,
+      "calls": 364,
+      "elapsed_ns": "16866333"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records/constructed-edit-text",
+      "round": 4,
+      "calls": 254,
+      "elapsed_ns": "24912042"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records-sums/constructed-edit-text",
+      "round": 4,
+      "calls": 263,
+      "elapsed_ns": "21144833"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records/capture-edit-text",
+      "round": 4,
+      "calls": 300,
+      "elapsed_ns": "19906125"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records/parse-constructed",
+      "round": 4,
+      "calls": 381,
+      "elapsed_ns": "21385125"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records/constructed-edit-text",
+      "round": 4,
+      "calls": 245,
+      "elapsed_ns": "25192167"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records/parse-capture",
+      "round": 5,
+      "calls": 565,
+      "elapsed_ns": "24515459"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records-sums/capture-edit-text",
+      "round": 5,
+      "calls": 243,
+      "elapsed_ns": "25407791"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records/capture-edit-text",
+      "round": 5,
+      "calls": 300,
+      "elapsed_ns": "25688333"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records-sums/parse-capture",
+      "round": 5,
+      "calls": 434,
+      "elapsed_ns": "16560083"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records/capture-edit-text",
+      "round": 5,
+      "calls": 167,
+      "elapsed_ns": "14186125"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records-sums/parse-constructed",
+      "round": 5,
+      "calls": 414,
+      "elapsed_ns": "32811375"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records-sums/parse-constructed",
+      "round": 5,
+      "calls": 432,
+      "elapsed_ns": "27336167"
+    },
+    {
+      "fields": 64,
+      "lane": "frontier/text-edit-text",
+      "round": 5,
+      "calls": 5861,
+      "elapsed_ns": "21331625"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records/parse-capture",
+      "round": 5,
+      "calls": 566,
+      "elapsed_ns": "22978666"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records/constructed-edit-text",
+      "round": 5,
+      "calls": 254,
+      "elapsed_ns": "35358833"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records-sums/parse-capture",
+      "round": 5,
+      "calls": 605,
+      "elapsed_ns": "26075083"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records-sums/constructed-edit-text",
+      "round": 5,
+      "calls": 258,
+      "elapsed_ns": "21169583"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records-sums/capture-edit-text",
+      "round": 5,
+      "calls": 313,
+      "elapsed_ns": "27444583"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records-sums/constructed-edit-text",
+      "round": 5,
+      "calls": 263,
+      "elapsed_ns": "24048875"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records/parse-constructed",
+      "round": 5,
+      "calls": 364,
+      "elapsed_ns": "18553000"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records/parse-constructed",
+      "round": 5,
+      "calls": 381,
+      "elapsed_ns": "22833250"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records/constructed-edit-text",
+      "round": 5,
+      "calls": 245,
+      "elapsed_ns": "20966500"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records-sums/parse-capture",
+      "round": 6,
+      "calls": 605,
+      "elapsed_ns": "21860625"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records/parse-capture",
+      "round": 6,
+      "calls": 566,
+      "elapsed_ns": "21043292"
+    },
+    {
+      "fields": 64,
+      "lane": "frontier/text-edit-text",
+      "round": 6,
+      "calls": 5861,
+      "elapsed_ns": "20658041"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records-sums/parse-capture",
+      "round": 6,
+      "calls": 434,
+      "elapsed_ns": "15372958"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records-sums/capture-edit-text",
+      "round": 6,
+      "calls": 313,
+      "elapsed_ns": "20166750"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records/constructed-edit-text",
+      "round": 6,
+      "calls": 245,
+      "elapsed_ns": "18996125"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records/parse-capture",
+      "round": 6,
+      "calls": 565,
+      "elapsed_ns": "20284292"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records-sums/constructed-edit-text",
+      "round": 6,
+      "calls": 258,
+      "elapsed_ns": "20891167"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records-sums/capture-edit-text",
+      "round": 6,
+      "calls": 243,
+      "elapsed_ns": "15516375"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records-sums/parse-constructed",
+      "round": 6,
+      "calls": 414,
+      "elapsed_ns": "20632584"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records-sums/constructed-edit-text",
+      "round": 6,
+      "calls": 263,
+      "elapsed_ns": "20859625"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records/parse-constructed",
+      "round": 6,
+      "calls": 364,
+      "elapsed_ns": "23043916"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records/capture-edit-text",
+      "round": 6,
+      "calls": 167,
+      "elapsed_ns": "18317334"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records-sums/parse-constructed",
+      "round": 6,
+      "calls": 432,
+      "elapsed_ns": "26404167"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records/constructed-edit-text",
+      "round": 6,
+      "calls": 254,
+      "elapsed_ns": "42000542"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records/parse-constructed",
+      "round": 6,
+      "calls": 381,
+      "elapsed_ns": "23383458"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records/capture-edit-text",
+      "round": 6,
+      "calls": 300,
+      "elapsed_ns": "26712709"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records/capture-edit-text",
+      "round": 7,
+      "calls": 167,
+      "elapsed_ns": "15385625"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records/constructed-edit-text",
+      "round": 7,
+      "calls": 254,
+      "elapsed_ns": "26165666"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records-sums/capture-edit-text",
+      "round": 7,
+      "calls": 313,
+      "elapsed_ns": "31614417"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records-sums/parse-constructed",
+      "round": 7,
+      "calls": 432,
+      "elapsed_ns": "20985208"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records/capture-edit-text",
+      "round": 7,
+      "calls": 300,
+      "elapsed_ns": "22585209"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records-sums/parse-constructed",
+      "round": 7,
+      "calls": 414,
+      "elapsed_ns": "39051541"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records/parse-capture",
+      "round": 7,
+      "calls": 565,
+      "elapsed_ns": "22961500"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records-sums/constructed-edit-text",
+      "round": 7,
+      "calls": 258,
+      "elapsed_ns": "27618375"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records/parse-capture",
+      "round": 7,
+      "calls": 566,
+      "elapsed_ns": "21998583"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records-sums/constructed-edit-text",
+      "round": 7,
+      "calls": 263,
+      "elapsed_ns": "26093875"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records-sums/capture-edit-text",
+      "round": 7,
+      "calls": 243,
+      "elapsed_ns": "20912250"
+    },
+    {
+      "fields": 64,
+      "lane": "frontier/text-edit-text",
+      "round": 7,
+      "calls": 5861,
+      "elapsed_ns": "20694917"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records/parse-constructed",
+      "round": 7,
+      "calls": 364,
+      "elapsed_ns": "18139125"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records/constructed-edit-text",
+      "round": 7,
+      "calls": 245,
+      "elapsed_ns": "21348166"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records-sums/parse-capture",
+      "round": 7,
+      "calls": 605,
+      "elapsed_ns": "24260167"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records/parse-constructed",
+      "round": 7,
+      "calls": 381,
+      "elapsed_ns": "21234500"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records-sums/parse-capture",
+      "round": 7,
+      "calls": 434,
+      "elapsed_ns": "18266625"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records/parse-capture",
+      "round": 8,
+      "calls": 566,
+      "elapsed_ns": "21335667"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records-sums/capture-edit-text",
+      "round": 8,
+      "calls": 313,
+      "elapsed_ns": "21257750"
+    },
+    {
+      "fields": 64,
+      "lane": "frontier/text-edit-text",
+      "round": 8,
+      "calls": 5861,
+      "elapsed_ns": "19739625"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records-sums/parse-constructed",
+      "round": 8,
+      "calls": 414,
+      "elapsed_ns": "20770292"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records-sums/parse-capture",
+      "round": 8,
+      "calls": 434,
+      "elapsed_ns": "15327292"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records-sums/capture-edit-text",
+      "round": 8,
+      "calls": 243,
+      "elapsed_ns": "16906334"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records/constructed-edit-text",
+      "round": 8,
+      "calls": 254,
+      "elapsed_ns": "35824833"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records/constructed-edit-text",
+      "round": 8,
+      "calls": 245,
+      "elapsed_ns": "29747917"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records/capture-edit-text",
+      "round": 8,
+      "calls": 167,
+      "elapsed_ns": "13332583"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records/parse-constructed",
+      "round": 8,
+      "calls": 364,
+      "elapsed_ns": "19682583"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records-sums/parse-capture",
+      "round": 8,
+      "calls": 605,
+      "elapsed_ns": "26399000"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records-sums/constructed-edit-text",
+      "round": 8,
+      "calls": 258,
+      "elapsed_ns": "28097833"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records/parse-capture",
+      "round": 8,
+      "calls": 565,
+      "elapsed_ns": "25524125"
+    },
+    {
+      "fields": 64,
+      "lane": "candidate-records-sums/parse-constructed",
+      "round": 8,
+      "calls": 432,
+      "elapsed_ns": "22248250"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records-sums/constructed-edit-text",
+      "round": 8,
+      "calls": 263,
+      "elapsed_ns": "41669834"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records/parse-constructed",
+      "round": 8,
+      "calls": 381,
+      "elapsed_ns": "22728708"
+    },
+    {
+      "fields": 64,
+      "lane": "control-records/capture-edit-text",
+      "round": 8,
+      "calls": 300,
+      "elapsed_ns": "23354958"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records/parse-capture",
+      "round": 0,
+      "calls": 56,
+      "elapsed_ns": "19457041"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records/parse-capture",
+      "round": 0,
+      "calls": 80,
+      "elapsed_ns": "26207750"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records-sums/capture-edit-text",
+      "round": 0,
+      "calls": 45,
+      "elapsed_ns": "22035416"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records-sums/parse-capture",
+      "round": 0,
+      "calls": 82,
+      "elapsed_ns": "21130333"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records/capture-edit-text",
+      "round": 0,
+      "calls": 42,
+      "elapsed_ns": "25868458"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records/constructed-edit-text",
+      "round": 0,
+      "calls": 36,
+      "elapsed_ns": "27888375"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records-sums/parse-capture",
+      "round": 0,
+      "calls": 81,
+      "elapsed_ns": "25939250"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records-sums/constructed-edit-text",
+      "round": 0,
+      "calls": 38,
+      "elapsed_ns": "22366458"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records-sums/parse-constructed",
+      "round": 0,
+      "calls": 52,
+      "elapsed_ns": "32454875"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records/constructed-edit-text",
+      "round": 0,
+      "calls": 33,
+      "elapsed_ns": "38564709"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records/capture-edit-text",
+      "round": 0,
+      "calls": 38,
+      "elapsed_ns": "21174791"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records/parse-constructed",
+      "round": 0,
+      "calls": 55,
+      "elapsed_ns": "21008583"
+    },
+    {
+      "fields": 512,
+      "lane": "frontier/text-edit-text",
+      "round": 0,
+      "calls": 214,
+      "elapsed_ns": "21604208"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records-sums/constructed-edit-text",
+      "round": 0,
+      "calls": 36,
+      "elapsed_ns": "29319542"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records-sums/capture-edit-text",
+      "round": 0,
+      "calls": 45,
+      "elapsed_ns": "22627625"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records/parse-constructed",
+      "round": 0,
+      "calls": 57,
+      "elapsed_ns": "24413792"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records-sums/parse-constructed",
+      "round": 0,
+      "calls": 65,
+      "elapsed_ns": "23674459"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records/parse-capture",
+      "round": 1,
+      "calls": 56,
+      "elapsed_ns": "18058917"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records-sums/capture-edit-text",
+      "round": 1,
+      "calls": 45,
+      "elapsed_ns": "33927000"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records-sums/capture-edit-text",
+      "round": 1,
+      "calls": 45,
+      "elapsed_ns": "31416250"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records-sums/parse-capture",
+      "round": 1,
+      "calls": 81,
+      "elapsed_ns": "22939541"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records-sums/parse-constructed",
+      "round": 1,
+      "calls": 52,
+      "elapsed_ns": "34462292"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records/parse-capture",
+      "round": 1,
+      "calls": 80,
+      "elapsed_ns": "25999792"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records/capture-edit-text",
+      "round": 1,
+      "calls": 38,
+      "elapsed_ns": "26086250"
+    },
+    {
+      "fields": 512,
+      "lane": "frontier/text-edit-text",
+      "round": 1,
+      "calls": 214,
+      "elapsed_ns": "22482625"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records-sums/parse-constructed",
+      "round": 1,
+      "calls": 65,
+      "elapsed_ns": "29660125"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records-sums/constructed-edit-text",
+      "round": 1,
+      "calls": 38,
+      "elapsed_ns": "23237917"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records/constructed-edit-text",
+      "round": 1,
+      "calls": 36,
+      "elapsed_ns": "33683875"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records/parse-constructed",
+      "round": 1,
+      "calls": 55,
+      "elapsed_ns": "20713167"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records/constructed-edit-text",
+      "round": 1,
+      "calls": 33,
+      "elapsed_ns": "35359625"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records-sums/constructed-edit-text",
+      "round": 1,
+      "calls": 36,
+      "elapsed_ns": "23877208"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records-sums/parse-capture",
+      "round": 1,
+      "calls": 82,
+      "elapsed_ns": "23144500"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records/parse-constructed",
+      "round": 1,
+      "calls": 57,
+      "elapsed_ns": "25066833"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records/capture-edit-text",
+      "round": 1,
+      "calls": 42,
+      "elapsed_ns": "24258667"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records/parse-capture",
+      "round": 2,
+      "calls": 56,
+      "elapsed_ns": "14802458"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records-sums/capture-edit-text",
+      "round": 2,
+      "calls": 45,
+      "elapsed_ns": "24796708"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records/capture-edit-text",
+      "round": 2,
+      "calls": 38,
+      "elapsed_ns": "19424625"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records/constructed-edit-text",
+      "round": 2,
+      "calls": 36,
+      "elapsed_ns": "22279417"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records-sums/parse-constructed",
+      "round": 2,
+      "calls": 65,
+      "elapsed_ns": "22299000"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records-sums/parse-constructed",
+      "round": 2,
+      "calls": 52,
+      "elapsed_ns": "20072084"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records/parse-capture",
+      "round": 2,
+      "calls": 80,
+      "elapsed_ns": "22123167"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records-sums/constructed-edit-text",
+      "round": 2,
+      "calls": 38,
+      "elapsed_ns": "21548916"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records-sums/parse-capture",
+      "round": 2,
+      "calls": 82,
+      "elapsed_ns": "22323042"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records-sums/constructed-edit-text",
+      "round": 2,
+      "calls": 36,
+      "elapsed_ns": "22258000"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records-sums/parse-capture",
+      "round": 2,
+      "calls": 81,
+      "elapsed_ns": "24375250"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records-sums/capture-edit-text",
+      "round": 2,
+      "calls": 45,
+      "elapsed_ns": "32536042"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records/capture-edit-text",
+      "round": 2,
+      "calls": 42,
+      "elapsed_ns": "28903833"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records/constructed-edit-text",
+      "round": 2,
+      "calls": 33,
+      "elapsed_ns": "38151750"
+    },
+    {
+      "fields": 512,
+      "lane": "frontier/text-edit-text",
+      "round": 2,
+      "calls": 214,
+      "elapsed_ns": "21818334"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records/parse-constructed",
+      "round": 2,
+      "calls": 57,
+      "elapsed_ns": "23941708"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records/parse-constructed",
+      "round": 2,
+      "calls": 55,
+      "elapsed_ns": "27873042"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records/capture-edit-text",
+      "round": 3,
+      "calls": 38,
+      "elapsed_ns": "23778292"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records/constructed-edit-text",
+      "round": 3,
+      "calls": 33,
+      "elapsed_ns": "22074583"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records/parse-capture",
+      "round": 3,
+      "calls": 80,
+      "elapsed_ns": "23504417"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records-sums/capture-edit-text",
+      "round": 3,
+      "calls": 45,
+      "elapsed_ns": "29620417"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records/capture-edit-text",
+      "round": 3,
+      "calls": 42,
+      "elapsed_ns": "23048167"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records/constructed-edit-text",
+      "round": 3,
+      "calls": 36,
+      "elapsed_ns": "22345959"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records-sums/parse-constructed",
+      "round": 3,
+      "calls": 52,
+      "elapsed_ns": "33384042"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records-sums/parse-constructed",
+      "round": 3,
+      "calls": 65,
+      "elapsed_ns": "29744875"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records-sums/parse-capture",
+      "round": 3,
+      "calls": 81,
+      "elapsed_ns": "23897583"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records-sums/capture-edit-text",
+      "round": 3,
+      "calls": 45,
+      "elapsed_ns": "25294875"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records/parse-capture",
+      "round": 3,
+      "calls": 56,
+      "elapsed_ns": "16459250"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records/parse-constructed",
+      "round": 3,
+      "calls": 55,
+      "elapsed_ns": "20352083"
+    },
+    {
+      "fields": 512,
+      "lane": "frontier/text-edit-text",
+      "round": 3,
+      "calls": 214,
+      "elapsed_ns": "21302083"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records-sums/constructed-edit-text",
+      "round": 3,
+      "calls": 38,
+      "elapsed_ns": "21958166"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records-sums/parse-capture",
+      "round": 3,
+      "calls": 82,
+      "elapsed_ns": "22506667"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records/parse-constructed",
+      "round": 3,
+      "calls": 57,
+      "elapsed_ns": "22597834"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records-sums/constructed-edit-text",
+      "round": 3,
+      "calls": 36,
+      "elapsed_ns": "24672125"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records-sums/capture-edit-text",
+      "round": 4,
+      "calls": 45,
+      "elapsed_ns": "21805583"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records/constructed-edit-text",
+      "round": 4,
+      "calls": 33,
+      "elapsed_ns": "21495875"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records/parse-capture",
+      "round": 4,
+      "calls": 56,
+      "elapsed_ns": "16914500"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records/capture-edit-text",
+      "round": 4,
+      "calls": 42,
+      "elapsed_ns": "21781500"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records/constructed-edit-text",
+      "round": 4,
+      "calls": 36,
+      "elapsed_ns": "21729708"
+    },
+    {
+      "fields": 512,
+      "lane": "frontier/text-edit-text",
+      "round": 4,
+      "calls": 214,
+      "elapsed_ns": "21482334"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records-sums/parse-capture",
+      "round": 4,
+      "calls": 82,
+      "elapsed_ns": "24358750"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records-sums/constructed-edit-text",
+      "round": 4,
+      "calls": 38,
+      "elapsed_ns": "31821333"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records-sums/capture-edit-text",
+      "round": 4,
+      "calls": 45,
+      "elapsed_ns": "31395500"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records-sums/parse-constructed",
+      "round": 4,
+      "calls": 65,
+      "elapsed_ns": "22393583"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records/parse-capture",
+      "round": 4,
+      "calls": 80,
+      "elapsed_ns": "26283042"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records-sums/parse-constructed",
+      "round": 4,
+      "calls": 52,
+      "elapsed_ns": "35399250"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records-sums/parse-capture",
+      "round": 4,
+      "calls": 81,
+      "elapsed_ns": "23945292"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records/parse-constructed",
+      "round": 4,
+      "calls": 55,
+      "elapsed_ns": "24166000"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records/capture-edit-text",
+      "round": 4,
+      "calls": 38,
+      "elapsed_ns": "28938708"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records/parse-constructed",
+      "round": 4,
+      "calls": 57,
+      "elapsed_ns": "37745292"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records-sums/constructed-edit-text",
+      "round": 4,
+      "calls": 36,
+      "elapsed_ns": "23879500"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records/capture-edit-text",
+      "round": 5,
+      "calls": 38,
+      "elapsed_ns": "21101834"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records/capture-edit-text",
+      "round": 5,
+      "calls": 42,
+      "elapsed_ns": "28325250"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records-sums/parse-capture",
+      "round": 5,
+      "calls": 81,
+      "elapsed_ns": "22332833"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records-sums/constructed-edit-text",
+      "round": 5,
+      "calls": 36,
+      "elapsed_ns": "21696084"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records-sums/capture-edit-text",
+      "round": 5,
+      "calls": 45,
+      "elapsed_ns": "21746042"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records/parse-capture",
+      "round": 5,
+      "calls": 80,
+      "elapsed_ns": "22019000"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records-sums/capture-edit-text",
+      "round": 5,
+      "calls": 45,
+      "elapsed_ns": "24087083"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records-sums/constructed-edit-text",
+      "round": 5,
+      "calls": 38,
+      "elapsed_ns": "21085000"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records-sums/parse-capture",
+      "round": 5,
+      "calls": 82,
+      "elapsed_ns": "22600625"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records/constructed-edit-text",
+      "round": 5,
+      "calls": 33,
+      "elapsed_ns": "23548416"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records-sums/parse-constructed",
+      "round": 5,
+      "calls": 52,
+      "elapsed_ns": "20001708"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records/parse-constructed",
+      "round": 5,
+      "calls": 55,
+      "elapsed_ns": "19971542"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records-sums/parse-constructed",
+      "round": 5,
+      "calls": 65,
+      "elapsed_ns": "22520000"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records/constructed-edit-text",
+      "round": 5,
+      "calls": 36,
+      "elapsed_ns": "26949791"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records/parse-capture",
+      "round": 5,
+      "calls": 56,
+      "elapsed_ns": "19306542"
+    },
+    {
+      "fields": 512,
+      "lane": "frontier/text-edit-text",
+      "round": 5,
+      "calls": 214,
+      "elapsed_ns": "21620250"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records/parse-constructed",
+      "round": 5,
+      "calls": 57,
+      "elapsed_ns": "39198583"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records/parse-capture",
+      "round": 6,
+      "calls": 56,
+      "elapsed_ns": "16792500"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records/constructed-edit-text",
+      "round": 6,
+      "calls": 33,
+      "elapsed_ns": "29978916"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records/capture-edit-text",
+      "round": 6,
+      "calls": 38,
+      "elapsed_ns": "20776584"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records-sums/capture-edit-text",
+      "round": 6,
+      "calls": 45,
+      "elapsed_ns": "32434208"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records-sums/constructed-edit-text",
+      "round": 6,
+      "calls": 36,
+      "elapsed_ns": "39763458"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records-sums/parse-constructed",
+      "round": 6,
+      "calls": 52,
+      "elapsed_ns": "20967666"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records/capture-edit-text",
+      "round": 6,
+      "calls": 42,
+      "elapsed_ns": "24472625"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records/parse-capture",
+      "round": 6,
+      "calls": 80,
+      "elapsed_ns": "22907208"
+    },
+    {
+      "fields": 512,
+      "lane": "frontier/text-edit-text",
+      "round": 6,
+      "calls": 214,
+      "elapsed_ns": "21441167"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records-sums/parse-constructed",
+      "round": 6,
+      "calls": 65,
+      "elapsed_ns": "29886541"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records-sums/capture-edit-text",
+      "round": 6,
+      "calls": 45,
+      "elapsed_ns": "26169333"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records-sums/constructed-edit-text",
+      "round": 6,
+      "calls": 38,
+      "elapsed_ns": "22134791"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records-sums/parse-capture",
+      "round": 6,
+      "calls": 82,
+      "elapsed_ns": "23274542"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records/parse-constructed",
+      "round": 6,
+      "calls": 55,
+      "elapsed_ns": "20776500"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records-sums/parse-capture",
+      "round": 6,
+      "calls": 81,
+      "elapsed_ns": "24088542"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records/parse-constructed",
+      "round": 6,
+      "calls": 57,
+      "elapsed_ns": "23145834"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records/constructed-edit-text",
+      "round": 6,
+      "calls": 36,
+      "elapsed_ns": "22376875"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records/parse-capture",
+      "round": 7,
+      "calls": 56,
+      "elapsed_ns": "16630375"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records/capture-edit-text",
+      "round": 7,
+      "calls": 38,
+      "elapsed_ns": "19453541"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records/capture-edit-text",
+      "round": 7,
+      "calls": 42,
+      "elapsed_ns": "20481708"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records/constructed-edit-text",
+      "round": 7,
+      "calls": 36,
+      "elapsed_ns": "20002667"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records-sums/parse-capture",
+      "round": 7,
+      "calls": 81,
+      "elapsed_ns": "20775625"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records/constructed-edit-text",
+      "round": 7,
+      "calls": 33,
+      "elapsed_ns": "20570250"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records-sums/parse-capture",
+      "round": 7,
+      "calls": 82,
+      "elapsed_ns": "21320042"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records-sums/constructed-edit-text",
+      "round": 7,
+      "calls": 38,
+      "elapsed_ns": "20506958"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records-sums/parse-constructed",
+      "round": 7,
+      "calls": 52,
+      "elapsed_ns": "21940791"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records-sums/constructed-edit-text",
+      "round": 7,
+      "calls": 36,
+      "elapsed_ns": "21636667"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records-sums/capture-edit-text",
+      "round": 7,
+      "calls": 45,
+      "elapsed_ns": "21931916"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records-sums/capture-edit-text",
+      "round": 7,
+      "calls": 45,
+      "elapsed_ns": "25465500"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records/parse-capture",
+      "round": 7,
+      "calls": 80,
+      "elapsed_ns": "25873125"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records/parse-constructed",
+      "round": 7,
+      "calls": 55,
+      "elapsed_ns": "27926625"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records-sums/parse-constructed",
+      "round": 7,
+      "calls": 65,
+      "elapsed_ns": "33226959"
+    },
+    {
+      "fields": 512,
+      "lane": "frontier/text-edit-text",
+      "round": 7,
+      "calls": 214,
+      "elapsed_ns": "22703250"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records/parse-constructed",
+      "round": 7,
+      "calls": 57,
+      "elapsed_ns": "40465750"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records/parse-capture",
+      "round": 8,
+      "calls": 56,
+      "elapsed_ns": "18172333"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records/capture-edit-text",
+      "round": 8,
+      "calls": 38,
+      "elapsed_ns": "30155042"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records-sums/parse-capture",
+      "round": 8,
+      "calls": 81,
+      "elapsed_ns": "28028291"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records/parse-capture",
+      "round": 8,
+      "calls": 80,
+      "elapsed_ns": "24160792"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records/capture-edit-text",
+      "round": 8,
+      "calls": 42,
+      "elapsed_ns": "29298209"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records/constructed-edit-text",
+      "round": 8,
+      "calls": 36,
+      "elapsed_ns": "23786417"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records/parse-constructed",
+      "round": 8,
+      "calls": 55,
+      "elapsed_ns": "21890208"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records-sums/constructed-edit-text",
+      "round": 8,
+      "calls": 38,
+      "elapsed_ns": "22861041"
+    },
+    {
+      "fields": 512,
+      "lane": "frontier/text-edit-text",
+      "round": 8,
+      "calls": 214,
+      "elapsed_ns": "22773792"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records-sums/constructed-edit-text",
+      "round": 8,
+      "calls": 36,
+      "elapsed_ns": "42431792"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records-sums/parse-capture",
+      "round": 8,
+      "calls": 82,
+      "elapsed_ns": "23643958"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records-sums/parse-constructed",
+      "round": 8,
+      "calls": 52,
+      "elapsed_ns": "23324541"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records-sums/parse-constructed",
+      "round": 8,
+      "calls": 65,
+      "elapsed_ns": "23898958"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records/constructed-edit-text",
+      "round": 8,
+      "calls": 33,
+      "elapsed_ns": "26723666"
+    },
+    {
+      "fields": 512,
+      "lane": "candidate-records-sums/capture-edit-text",
+      "round": 8,
+      "calls": 45,
+      "elapsed_ns": "23678208"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records/parse-constructed",
+      "round": 8,
+      "calls": 57,
+      "elapsed_ns": "24901500"
+    },
+    {
+      "fields": 512,
+      "lane": "control-records-sums/capture-edit-text",
+      "round": 8,
+      "calls": 45,
+      "elapsed_ns": "24498042"
+    }
+  ],
+  "validation": [
+    {
+      "fields": 4,
+      "complete_text_outputs": true,
+      "source_unchanged": true,
+      "exact_portable_and_compact_bytes": true
+    },
+    {
+      "fields": 64,
+      "complete_text_outputs": true,
+      "source_unchanged": true,
+      "exact_portable_and_compact_bytes": true
+    },
+    {
+      "fields": 512,
+      "complete_text_outputs": true,
+      "source_unchanged": true,
+      "exact_portable_and_compact_bytes": true
+    }
+  ],
+  "sink": 4504832,
+  "scope": "Paired same-process ordinary capture and direct construction, with exact source layout controls and complete text lifecycles. Three fresh processes required. Shared finite integer/Unicode JSON inputs: Ink additionally rejects duplicate keys and preserves exact numeric tokens/member order; Frontier native JSON has a different ingress contract. Import/codec setup diagnostics are order-dependent. No selection authority or all-metrics claim."
+}
