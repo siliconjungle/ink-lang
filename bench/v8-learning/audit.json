@@ -9,10 +9,11 @@
       "inclusive_lines": [
         [
           1,
-          220
+          765
         ]
       ],
-      "review_status": "partial"
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Dominator-layer facts, replay after cloning, switch/branch/select folding, guarded trap/deopt behavior, small-block threading and return duplication. Existing arbitrary-carrier control_choice_templates already cover repeated branches; consolidate duplicate word instances rather than counting these as new generalization. Further control equivalences require ordinary Cases proofs; clone budgets are search policy."
     },
     {
       "path": "src/compiler/turboshaft/late-load-elimination-reducer.h",
@@ -98,6 +99,66 @@
       ],
       "review_status": "partial",
       "note": "Backward observability lattice; aliasing, store sizes, branch joins, loop fixed points and GC initialization barriers. Existing Ink replace_overwrite database law identified; whole-action/effects assessment remains."
+    },
+    {
+      "path": "src/compiler/turboshaft/simplified-optimization-reducer.h",
+      "sha256": "65a5b277c023f2fbf4ba367e3550b935c0586f00aef3b2a78d2208c0e47fcf17",
+      "inclusive_lines": [
+        [
+          1,
+          294
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Tagged/untagged cancellation, exact conversion constants, object-kind checks and overflow/minus-zero check removal. Ink has fixed carriers rather than JS maps/oddballs; seven total U32/U64 conversion laws independently checked in staging, multiplication-narrowing unadmitted."
+    },
+    {
+      "path": "src/compiler/turboshaft/late-escape-analysis-reducer.h",
+      "sha256": "767a851e5ba06c86e637ee1d02beafc93af7992f9740cd4ff0514e66de4df517",
+      "inclusive_lines": [
+        [
+          1,
+          63
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. API and use-list/worklist state for the already-read allocation remover; broader escape/physical representation assessment remains."
+    },
+    {
+      "path": "src/compiler/turboshaft/loop-unrolling-reducer.cc",
+      "sha256": "4d5b7175a90273e650bb3a43857418ab44123adcffa3fd2e438e75889a156540",
+      "inclusive_lines": [
+        [
+          1,
+          613
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Static canonical loop matching, bounded exact simulation and conservative overflow bailout; approximate counts are heuristics, not proof. Ink stages exact literal-count expansions through existing Normalize proofs rather than copying approximate assumptions."
+    },
+    {
+      "path": "src/compiler/turboshaft/loop-peeling-reducer.h",
+      "sha256": "4cfa2790c560ef3e78400a69c6fc82d4485af0c069aac74bc5b024eaabbf9e79",
+      "inclusive_lines": [
+        [
+          1,
+          195
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Peel innermost bounded-size loops, remap loop phis/backedges and retain separate peeling/unrolling phases; skip unavailable second iteration. General database literal-loop expansions checked on U32, U64 and List<U32>; broader dynamic peeling and profitability remain open."
+    },
+    {
+      "path": "src/compiler/turboshaft/loop-unrolling-reducer.h",
+      "sha256": "4acae4e0bff4d6e6d550170696cdf240b505e6493d84980fcb14321584fb4466",
+      "inclusive_lines": [
+        [
+          1,
+          711
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Exact versus approximate iteration counts, loop/function/code-size budgets, partial body cloning with per-copy exit checks, Phi snapshot repair and variable-allocation bailout. Exact literal repeat proposals are now independently checked for arbitrary source carriers. Dynamic partial unrolling and peeling need separately checked identities and profitability evidence; V8 thresholds are not imported as authority."
     }
   ],
   "families": [
@@ -105,7 +166,7 @@
       "name": "machine-word",
       "status": "partial",
       "entry_point": "src/compiler/turboshaft/machine-optimization-reducer.h",
-      "note": "56 independently admitted database laws; four shift-combination proposals remain unadmitted; remaining reducers need review"
+      "note": "63 independently admitted database word/control/conversion laws; four shift-combination proposals and multiplication narrowing remain unadmitted; remaining reducers need review"
     },
     {
       "name": "branch-control",
@@ -151,9 +212,9 @@
     },
     {
       "name": "loop-transforms",
-      "status": "pending",
+      "status": "partial",
       "entry_point": "src/compiler/turboshaft/loop-optimization-reducer.h",
-      "note": "Peeling, unrolling, invariant motion and literal backend delegation"
+      "note": "Literal-count repeat expansions use generic source-carrier proposals and existing Normalize proofs. Full peeling/unrolling implementation reviewed; dynamic transformations and profitability remain open."
     },
     {
       "name": "strings",

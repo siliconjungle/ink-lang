@@ -26,11 +26,12 @@ The first family covers compatible bitfield tests, complementary masks,
 wrapped-add/subtract/xor comparison cancellation, redundant shift-count masks,
 shift distribution over bitwise operations, lossy shift round trips, overflowing
 consecutive shifts, repeated branch conditions and shared-condition selects.
-There are 56 admitted U32/U64 laws. Four additional variable-count combination
-proposals exhausted the initial proof budget and remain unadmitted. This says
-nothing about whether those equalities are false.
+There are 63 admitted word/conversion laws. Four variable-count combination
+proposals exhausted the initial proof budget; a multiplication-narrowing proposal
+exhausted its time/conflict budget. Those five proposals remain unadmitted. A
+budget failure does not establish that an equality is false.
 
-Every law is a normal `ink-conditional-laws-v1` object with a hinted-RUP
+Every frozen word law is a normal `ink-conditional-laws-v1` object with a hinted-RUP
 bitvector certificate. Shift counts are U32 and reduce modulo the value width,
 including counts 32, 64 and UINT32_MAX. Consecutive shifts may discard all bits;
 wrapping their combined count without the appropriate premise is invalid.
@@ -68,7 +69,7 @@ source-identity binding and incorrect shift-mask rejection. Seeded value checks
 exercise all proposal templates, including proposals without admitted proofs;
 these examples do not substitute for proof.
 
-`proved_refinement_parity` also replays six database laws on 117 requests, including
+`proved_refinement_parity` also replays word/conversion laws and literal loop expansions on 141 requests, including
 wrapping overflow, oversized counts, both branch directions and overlapping
 bitfields. The shared harness compares original reference outcomes and exact
 snapshots against generated native, JavaScript and Rust-Wasm execution. CPU
@@ -79,6 +80,27 @@ publications and frozen compiler/producer sources. Record the funnel, failed
 premises, shared law use and selection gates; distinguish measured speedups from
 proof and conformance. A corpus with no matching word patterns is a useful
 negative control, not evidence of broad application gains.
+
+The completed first corpus run compiled all ten unchanged programs. Initial
+sources had no direct V8 pattern matches, but generic planning subsequently
+admitted `u32/branch_condition_value` for `ast-ancestor`. That program retained
+the baseline after the measurement-budget gate. No new V8 law was observed in
+multiple held-out programs. Both runs selected one alternative, on different
+programs; their time-bounded shared-machine funnel differences are not speedup
+evidence. See `bench/v8-learning/corpus-summary.json` for the exact frozen scope.
+
+## Literal loop expansion
+
+`producers.literal_loop_laws` proposes expansion for literal iteration counts
+0 through 8 using the existing fixed `repeat` meaning and ordinary `Normalize`
+proofs. The proposal bound limits code growth. There is no approximate trip-count
+premise or new loop rule in the compiler. A single construction works for words,
+lists and declared records, including callbacks capturing surrounding binders.
+The normal source checker still enforces ownership, lexical binding and bounds.
+Every admitted instance is source-bound before literal emission. Tests reject a
+rehashed proof with an incorrect iteration index, retain the configured proposal
+bound and compare compiled list/record/captured-callback results across CPU paths.
+Profitability remains a separate planner gate.
 
 The audit must continue through the remaining machine reducers, floating point,
 branch threading, loop transforms, type/representation analysis, load/store
