@@ -92,6 +92,37 @@ tests, conservative bit-analysis checks, snapshot/dependency admission regressio
 cache invalidation and cost-model regressions. These tests do not prove the whole
 compiler or the external analysis correct.
 
+Collection-analysis regressions retain dependencies through `let` bindings and
+respect nested callback shadowing. The existing type-parametric pipeline template
+path is also checked with record/scalar carriers, different accumulator types,
+captured values and colliding source names; removing a filter predicate from the
+proved result must fail admission. This uses the existing database template,
+not an additional compiler fusion recogniser.
+
+Offline cost-profile fitting allows only declared workload features to vary
+within one compiled-scope/backend/boundary model. Program, plan, entry set, target
+provenance, distribution, concurrency and other shape metadata must match.
+Backend-specific drivers and toolchains remain separate cohorts. These checks
+prevent pooling incomparable observations; they do not establish model accuracy,
+cross-backend fairness or a performance improvement.
+
 `tools/audit_coverage.py` inventories every tracked blob at pinned revisions and
 records exact read ranges separately from review notes and evidence. Inventory,
 search matches and partial reads do not count as completed file reviews.
+Reports recheck complete read coverage and evidence hashes; deleted or modified
+evidence does not count. To audit an updated distribution while retaining the
+original inventory:
+
+```sh
+python3 tools/audit_coverage.py --db previous.sqlite advance current.sqlite \
+  --revision ink=HEAD
+```
+
+The destination must be new. The command inventories every tracked file and
+recurses through the new submodule pins. Other top-level repositories retain their
+existing revision unless explicitly overridden. Read ranges and valid reviews
+carry only across identical repository names, paths, Git blobs and file modes.
+Changed, added and renamed files require new review; removed files remain in the
+previous snapshot. The new database records each carried file's original revision.
+Carried credit means its content was reviewed, not that its interaction with new
+dependencies has been revalidated. Reports identify their exact pinned scope.

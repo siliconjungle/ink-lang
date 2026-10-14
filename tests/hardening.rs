@@ -2189,10 +2189,12 @@ fn llvm_learning_and_incremental_knowledge_remain_checked() {
     let result = std::process::Command::new("python3")
         .args(["-m", "unittest", "planner.tests.test_llvm_learning",
             "planner.tests.test_learning_provenance", "planner.tests.test_target_components",
-            "planner.tests.test_physical_features",
+            "planner.tests.test_physical_features", "planner.tests.test_physical_selection",
+            "planner.tests.test_cost_profiles",
             "knowledge.tests.test_word_identities", "knowledge.tests.test_word_facts",
             "knowledge.tests.test_proof_authoring_deadline",
             "knowledge.tests.test_source_algorithms",
+            "knowledge.tests.test_carrier_fusion", "knowledge.tests.test_planning_recipes",
             "planner.tests.test_selected_closure_sessions", "planner.tests.test_plan_cache",
             "tests.test_audit_coverage"])
         .current_dir(root)
