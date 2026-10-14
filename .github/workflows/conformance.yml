@@ -114,6 +114,11 @@ jobs:
         run: |
           cargo test --test composable_state --test journal_compaction --test indexed_laws --test composable_knowledge --test sorted_tables
           PYTHONPATH=planner:knowledge python3 -m unittest discover -s planner/tests -p test_compiled_planning.py
+          PYTHONPATH=planner:knowledge python3 -m unittest discover -s planner/tests -p test_recipe_streams.py
+          PYTHONPATH=planner:knowledge python3 -m unittest discover -s planner/tests -p test_cost_profiles.py
+          PYTHONPATH=planner:knowledge python3 -m unittest discover -s planner/tests -p test_measured_selection.py
+          PYTHONPATH=planner:knowledge python3 -m unittest discover -s planner/tests -p test_static_dominance.py
+          PYTHONPATH=planner:knowledge python3 -m unittest discover -s knowledge/tests -p test_boolean_groups.py
           PYTHONPATH=planner:knowledge python3 -m unittest discover -s planner/tests -p test_usage_profiles.py
           PYTHONPATH=planner:knowledge python3 -m unittest discover -s knowledge/tests -p test_planning_recipes.py
           PYTHONPATH=planner:knowledge python3 -m unittest knowledge.tests.test_template_matching knowledge.tests.test_traversal_templates knowledge.tests.test_composable_knowledge

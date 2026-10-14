@@ -9,7 +9,7 @@ those checked definitions and update auxiliary folds at concrete cell mutations.
 
 Ordinary compilation selects a plan made only of maintained folds without a
 workload profile: each cell write does a constant amount of extra work, and each
-read of a maintained keep is constant time instead of a scan of the table, so no
+read after initialization is constant time instead of a scan of the table, so no
 workload makes it asymptotically worse. This is the single evidence-free selection
 rule (`planner/ink_planner/static_dominance.py`); plans with any other step remain
 evidence-gated, and supplied profiles, measurements or a validated work model
@@ -288,3 +288,17 @@ word sum. The mandatory physical-capability suite compares 320 complete
 source-oracle observations, errors, events, rollback, restore and byte-identical
 snapshots on Rust, JavaScript and Rust-Wasm and rejects forged preservation
 proofs. C and device execution remain unsupported for maintained folds.
+### Deferred activation on JavaScript
+
+Ordinary JavaScript maintained plans leave a view inactive until its first read.
+That read folds the current committed rows using the same checked contribution
+and group operations; a pending cell is then applied once. Later mutations
+maintain the active result. Unread views perform no contribution calculations.
+Restoration leaves views inactive unless invariant checks read them, and existing
+cache before-images preserve action and host-transaction rollback.
+
+This is fixed controller scheduling, not new algebraic authority. Specialised
+whole-state protocols retain eager initialization and their existing direct-read
+and publication contracts. Native maintained controllers are unchanged. Tests
+compare complete source histories, including first reads inside pending writes,
+and count skipped contribution work separately from timing measurements.

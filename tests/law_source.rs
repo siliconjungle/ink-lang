@@ -421,3 +421,19 @@ fn order_analysis_is_an_authored_tactic() {
         "words or exact Int",
     );
 }
+
+#[test]
+fn ordered_product_and_block_folds_require_complete_step_equations() {
+    let source=include_str!("../knowledge/libraries/fold-products.ink");
+    let authored=author(source).unwrap();
+    for name in ["foldl_product","foldl_blocks","fuse_totals","fuse_float_totals"] {
+        assert!(authored.names.contains_key(name));
+    }
+    CheckedCatalogue::check(&catalogue(&authored),&Program::default()).unwrap();
+    let coupled=format!("{source}\nlaw coupled(xs:List<u32>,a:u32,b:u32){{Totals{{sum:foldl(xs,a,fn(x,s)=>s+x),xor:foldl(xs,b,fn(x,s)=>s^x)}}==foldl(xs,Totals{{sum:a,xor:b}},fn(x,s)=>Totals{{sum:s.sum+x,xor:s.sum^x}});proof by symmetry(use foldl_product<u32,u32,u32,Totals>(xs,a,b,fn(a,b)=>Totals{{sum:a,xor:b}},fn(x,s)=>s+x,fn(x,s)=>s^x,fn(x,s)=>Totals{{sum:s.sum+x,xor:s.sum^x}}));}}");
+    assert!(author(&coupled).is_err(),"cross-lane dependency was admitted as independent fusion");
+    let dropped=format!("{source}\nlaw dropped(blocks:List<List<u32>>,rest:List<u32>,s:u32){{foldl(foldr(blocks,rest,fn(xs,tail)=>xs.concat(tail)),s,fn(x,s)=>s+x)==foldl(rest,s,fn(x,s)=>s+x);proof by use foldl_blocks<u32,u32>(blocks,rest,s,fn(x,s)=>s+x);}}");
+    assert!(author(&dropped).is_err(),"block traversal silently discarded rows");
+    let reassociated=format!("{source}\nlaw reassociated(xs:List<f32>,a:f32,b:f32){{FloatTotals{{first:foldl(xs,a,fn(x,s)=>(s+x)+x),second:foldl(xs,b,fn(x,s)=>s*x)}}==foldl(xs,FloatTotals{{first:a,second:b}},fn(x,s)=>FloatTotals{{first:s.first+(x+x),second:s.second*x}});proof by symmetry(use foldl_product<f32,f32,f32,FloatTotals>(xs,a,b,fn(a,b)=>FloatTotals{{first:a,second:b}},fn(x,s)=>(s+x)+x,fn(x,s)=>s*x,fn(x,s)=>FloatTotals{{first:s.first+(x+x),second:s.second*x}}));}}");
+    assert!(author(&reassociated).is_err(),"changed floating-point work was admitted");
+}
