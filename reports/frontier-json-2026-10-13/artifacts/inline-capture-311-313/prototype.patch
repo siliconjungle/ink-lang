@@ -1,0 +1,49 @@
+diff --git a/src/state_capture.rs b/src/state_capture.rs
+index 2a750d8..9b46577 100644
+--- a/src/state_capture.rs
++++ b/src/state_capture.rs
+@@ -43,6 +43,24 @@ impl<'a> Captures<'a> {
+     pub fn for_type(&mut self, ty: &Type) -> LangResult<String> {
+         self.compile(&descriptor(ty, self.program, &mut BTreeSet::new())?)
+     }
++    fn inline_elided_record(&mut self, ty:&Value, input:&str, output:&str, depth:&str) -> LangResult<Option<String>> {
++        if ty["kind"]!="record" || !ty["name"].as_str().is_some_and(|name|self.elisions.contains(name)) {
++            return Ok(None);
++        }
++        let fields=ty["fields"].as_array().ok_or("inline capture record fields")?;
++        let [field]=fields.as_slice() else{return Err("inline capture record correspondence".into());};
++        let label=quote(field["name"].as_str().ok_or("inline capture field name")?);
++        let wrapper=format!("{output}Wrapper");
++        let child=format!("{wrapper}[{label}]");
++        let child_depth=format!("({depth})+1");
++        let capture=if let Some(code)=Self::scalar(&field["type"],&child,output,&child_depth) {
++            code
++        } else {
++            let next=self.compile(&field["type"])?;
++            format!("const {output}={next}({child},budget,{child_depth});")
++        };
++        Ok(Some(format!("const {wrapper}={input};if({depth}>64||--budget.cells<0)throw Error('state input resource limit');if(!{wrapper}||typeof {wrapper}!=='object'||Array.isArray({wrapper})||!Object.hasOwn({wrapper},{label}))throw Error('invalid record');{capture}")))
++    }
+     fn compile(&mut self, ty: &Value) -> LangResult<String> {
+         let key = serde_json::to_string(ty).map_err(|e| e.to_string())?;
+         if let Some((name, _)) = self.functions.get(&key) { return Ok(name.clone()); }
+@@ -92,9 +110,16 @@ impl<'a> Captures<'a> {
+                 let leaves=super::sum_layout::Sums::leaves(ty);let count=leaves.len()-1;let mut body="let cursor=value;".to_string();
+                 for i in 0..count {
+                     if i>0 {body.push_str(&format!("if(depth+{i}>64||--budget.cells<0)throw Error('state input resource limit');"));}
+-                    let next=self.compile(&leaves[i])?;
+-                    body.push_str(&format!("if(!cursor||typeof cursor!=='object'||Array.isArray(cursor))throw Error('invalid Result');const keys{i}=Object.keys(cursor);if(keys{i}.length!==1)throw Error('invalid Result');const tag{i}=keys{i}[0];if(tag{i}==='Ok')return {{tag:{i},payload:{next}(cursor.Ok,budget,depth+{})}};if(tag{i}!=='Err')throw Error('invalid Result');",i+1));
+-                    if i+1==count {let next=self.compile(&leaves[count])?;body.push_str(&format!("return {{tag:{count},payload:{next}(cursor.Err,budget,depth+{count})}};"));}else{body.push_str("cursor=cursor.Err;");}
++                    let value=format!("leaf{i}");
++                    let yes=if let Some(code)=self.inline_elided_record(&leaves[i],"cursor.Ok",&value,&format!("depth+{}",i+1))? {
++                        format!("{{{code}return {{tag:{i},payload:{value}}};}}")
++                    }else{let next=self.compile(&leaves[i])?;format!("return {{tag:{i},payload:{next}(cursor.Ok,budget,depth+{})}};",i+1)};
++                    body.push_str(&format!("if(!cursor||typeof cursor!=='object'||Array.isArray(cursor))throw Error('invalid Result');const keys{i}=Object.keys(cursor);if(keys{i}.length!==1)throw Error('invalid Result');const tag{i}=keys{i}[0];if(tag{i}==='Ok'){yes}if(tag{i}!=='Err')throw Error('invalid Result');"));
++                    if i+1==count {
++                        if let Some(code)=self.inline_elided_record(&leaves[count],"cursor.Err","lastLeaf",&format!("depth+{count}"))? {
++                            body.push_str(&format!("{code}return {{tag:{count},payload:lastLeaf}};"));
++                        }else{let next=self.compile(&leaves[count])?;body.push_str(&format!("return {{tag:{count},payload:{next}(cursor.Err,budget,depth+{count})}};"));}
++                    }else{body.push_str("cursor=cursor.Err;");}
+                 }
+                 body
+             }

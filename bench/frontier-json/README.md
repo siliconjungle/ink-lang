@@ -120,3 +120,27 @@ checks exact bytes and complete decoded/rendered values before timing. Numeric,
 Unicode, nested, small and large inputs are separate controls; portable streaming
 is retained as a regression control. The timed consumer reads the result length,
 so this diagnostic does not rank full application consumption.
+
+To compare the source-state protocol machinery against the same source baseline,
+prepare checked controls from the installed database recipes:
+
+```sh
+build/validation-tools/bin/python bench/frontier-json/prepare-state-protocols.py --compiler target/debug/ink --output build/frontier-json/protocol-controls
+```
+
+The output directory must be new. Its manifest records the compiler, source,
+registry, admitted plans, replay receipts and generated modules. It includes
+preflight and snapshot-cache combinations where applicable. Choose modules from
+that manifest for `run.mjs --ink-module=... --compare-ink-module=...`; use
+`--smoke` to check complete replies and portable checkpoints before acquiring a
+fresh repeated performance cohort. Preparation proposes controls and does not
+establish an automatically selected winner. A smoke run is conformance evidence,
+not profitability evidence.
+
+`variants.mjs compiled-writer` compares frozen compiled-handle encoders, event
+visitors and complete execution/encode/decode/render/UTF-8 round trips. All output
+bytes are consumed; exact logical values and portable/compact bytes are checked
+before timing. `variants.mjs typed-ingress` pairs TypedJsonCodec numeric-list text
+to portable/compact boundaries, consuming every encoded byte and checking reduced
+limits. Both are Ink implementation diagnostics, with separate artifact hashes,
+not Frontier or lifecycle rankings.

@@ -1,0 +1,173 @@
+// Paired candidate experiment. Both modules run in one process in rotated order.
+import assert from 'node:assert/strict';
+import fs from 'node:fs';import path from 'node:path';import{fileURLToPath,pathToFileURL}from'node:url';import{createHash}from'node:crypto';
+const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../..');
+const mode=process.argv[2]??'codec',candidate=process.argv[3];if(!candidate)throw Error('candidate module required');
+const baseline=process.argv.find(a=>a.startsWith('--baseline='))?.slice('--baseline='.length)??'build/frontier-json/ink.mjs';
+const paths={baseline,candidate};
+const label=path.basename(candidate,'.mjs');if(!/^[a-z0-9-]+$/.test(label))throw Error('candidate label');
+const runLabel=process.argv.find(a=>a.startsWith('--run='))?.slice('--run='.length);
+const copyKind=process.argv.find(a=>a.startsWith('--copy='))?.slice('--copy='.length)??'capture';
+const textFields=Number(process.argv.find(a=>a.startsWith('--fields='))?.slice('--fields='.length)??512);
+const textFixture=process.argv.find(a=>a.startsWith('--text-fixture='))?.slice('--text-fixture='.length)??'numeric';
+const canonicalParse=process.argv.includes('--canonical-parse');
+const budgetKind=process.argv.find(a=>a.startsWith('--budget='))?.slice('--budget='.length)??'default';
+if(!['default','reduced'].includes(budgetKind))throw Error('invalid budget');
+if(!Number.isSafeInteger(textFields)||textFields<1||textFields>10000)throw Error('invalid text field count');
+if(!['numeric','unicode','nested'].includes(textFixture))throw Error('invalid text fixture');
+if(!['capture','trusted'].includes(copyKind))throw Error('copy kind');
+if(runLabel&&!/^[a-z0-9-]+$/.test(runLabel))throw Error('run label');
+const reportPath=path.join(root,`reports/frontier-json-2026-10-13/variants-${mode}-${label}${runLabel?'-'+runLabel:''}.json`);
+if(fs.existsSync(reportPath))throw Error('report already exists; choose a fresh --run label');
+const hashes=Object.fromEntries(Object.entries(paths).map(([k,p])=>[k,createHash('sha256').update(fs.readFileSync(path.resolve(root,p))).digest('hex')]));
+const modules=Object.fromEntries(await Promise.all(Object.entries(paths).map(async([k,p])=>[k,await import(pathToFileURL(path.resolve(root,p)).href)])));
+const groups={};let sink=0;
+if(mode==='codec'){
+ const text=JSON.stringify(Object.fromEntries(Array.from({length:512},(_,i)=>['k'+String(i).padStart(5,'0'),i])));
+ for(const[name,ink]of Object.entries(modules)){
+  const json=new ink.JsonCodec(ink.valueCodecs.identity.result),value=json.parse(text),next=ink.parseJson('777');
+  assert.equal(json.stringify(value),text);
+  const wire=json.parseBinary(text),nextWire=json.parseBinary('777'),args=ink.valueCodecs.set_document.arguments;
+  const binaryPipeline=()=>{const doc=json.parseBinary(text),request=args.encodeWith(w=>w.frame(w=>{w.bytes(doc.subarray(40));w.frame(w=>w.text('k00000'));w.bytes(nextWire.subarray(40));})),reply=ink.callBinary('set_document',request);assert.equal(reply[44],0);const result=new Uint8Array(40+reply.length-45);result.set(doc.subarray(0,40));result.set(reply.subarray(45),40);return json.stringifyBinary(result);};
+  assert.equal(JSON.parse(binaryPipeline()).k00000,777);
+  for(const[operation,run]of Object.entries({'logical-validation':()=>json.values.validateValue(value)?1:0,'binary-encode':()=>json.values.encode(value).length,'binary-decode':()=>json.values.decode(wire).payload?1:0,'text-edit-text':()=>json.stringify(ink.call('set_document',[json.parse(text),'k00000',next]).Ok).length,'binary-schema-validation':()=>json.values.validate(wire)?1:0,'binary-json-validation':()=>json.validateBinary(wire)?1:0,'binary-edit-text':()=>binaryPipeline().length})){
+   (groups[operation]??={})[name]=run;
+  }
+ }
+}else if(mode==='compact-json'){
+ const text=JSON.stringify(Object.fromEntries(Array.from({length:textFields},(_,i)=>['k'+String(i).padStart(5,'0'),textFixture==='unicode'?`雪😀${i}\n"\\`:textFixture==='nested'?{items:[i,true,null,'雪😀'],enabled:false}:i])));
+ let expected;
+ for(const[name,ink]of Object.entries(modules)){
+  const json=new ink.JsonCodec(ink.valueCodecs.identity.result),compact=json.values.compact();
+  const make=name==='candidate'?()=>json.parseCompact(text):()=>compact.encode(json.parse(text));
+  const bytes=make();expected??=bytes;assert.deepEqual(bytes,expected);assert.equal(json.stringify(compact.decode(bytes)),text);
+  (groups['text-to-compact']??={})[name]=()=>make().length;
+  (groups['portable-stream-control']??={})[name]=()=>json.parseBinary(text).length;
+ }
+}else if(mode==='ownership'){
+ const text=JSON.stringify(Object.fromEntries(Array.from({length:512},(_,i)=>['k'+String(i).padStart(5,'0'),i])));
+ for(const[name,ink]of Object.entries(modules)){
+  const json=new ink.JsonCodec(ink.valueCodecs.identity.result),value=json.parse(text),next=ink.parseJson('777');
+  const copy=name==='candidate'?v=>copyKind==='trusted'?json.values.copy(v):json.values.capture(v):v=>structuredClone(v);
+  const edit=name==='candidate'&&copyKind==='trusted'?()=>ink.callOwned('set_document',[value,'k00000',next]).Ok:()=>copy(ink.call('set_document',[value,'k00000',next]).Ok);
+  const owned=copy(value);assert.deepEqual(owned,value);owned.payload.Err.Err.Err.Err.Err.item0[0].key='changed';assert.equal(json.stringify(value),text);
+  for(const[operation,run]of Object.entries({'copy-owned-json':()=>copy(value).payload?1:0,'edit-owned-json':()=>edit().payload?1:0})){
+   (groups[operation]??={})[name]=run;
+  }
+ }
+}else if(mode==='text'||mode==='text-bytes'){
+ const encoder=new TextEncoder(),consume=mode==='text-bytes'?text=>encoder.encode(text).length:text=>text.length;
+ const text=JSON.stringify(Object.fromEntries(Array.from({length:textFields},(_,i)=>['k'+String(i).padStart(5,'0'),textFixture==='unicode'?`雪😀${i}\n"\\`:textFixture==='nested'?{items:[i,true,null,'雪😀'],enabled:false}:i])));
+ for(const[name,ink]of Object.entries(modules)){
+  const json=new ink.JsonCodec(ink.valueCodecs.identity.result),parse=canonicalParse&&name==='candidate'?t=>json.parseCanonical(t):t=>json.parse(t),value=parse(text),next=ink.parseJson('777');
+  assert.deepEqual(value,json.parse(text));assert.equal(json.stringify(value),text);
+  for(const[operation,run]of Object.entries({'parse-owned-json':()=>parse(text).payload?1:0,'render-checked-json':()=>consume(json.stringify(value)),'text-edit-text':()=>consume(json.stringify(ink.call('set_document',[parse(text),'k00000',next]).Ok))})){
+   (groups[operation]??={})[name]=run;
+  }
+ }
+}else if(mode==='compiled-canonical'){
+ const text=JSON.stringify(Object.fromEntries(Array.from({length:textFields},(_,i)=>['k'+String(i).padStart(5,'0'),textFixture==='unicode'?`雪😀${i}\n"\\`:textFixture==='nested'?{items:[i,true,null,'雪😀'],enabled:false}:i])));
+ const expected={...JSON.parse(text),k00000:777},encoder=new TextEncoder();
+ const checksum=bytes=>{let h=0;for(let i=0;i<bytes.length;i++)h=Math.imul(h,31)^bytes[i];return h;};
+ let portable,compact;
+ for(const[name,ink]of Object.entries(modules)){
+  const json=new ink.JsonCodec(ink.valueCodecs.identity.result),entry=ink.compiledValues.set_document,codec=entry.params[0];
+  const parse=name==='candidate'?()=>json.parseCanonicalCompiled(codec,text):()=>json.parseCompiled(codec,text);
+  const handle=parse(),bytes=codec.encode(handle),short=codec.encodeCompact(handle);portable??=bytes;compact??=short;
+  assert.deepEqual(bytes,portable);assert.deepEqual(short,compact);assert.deepEqual(codec.materialize(handle),json.parse(text));
+  const key=entry.params[1].capture('k00000'),value=entry.params[2].capture(json.parse('777'));
+  const pipeline=()=>json.stringifyCompiled(entry.result,ink.callCompiled('set_document',[parse(),key,value]),{unwrapResult:true});
+  assert.deepEqual(JSON.parse(pipeline()),expected);
+  (groups['compiled-input']??={})[name]=()=>checksum(codec.encode(parse()));
+  (groups['compiled-edit-utf8-output']??={})[name]=()=>checksum(encoder.encode(pipeline()));
+ }
+ const {applyPatch}=await import('@shapeshift-labs/frontier/apply'),{OP_SET}=await import('@shapeshift-labs/frontier/constants');
+ const patch=[[OP_SET,['k00000'],777]],frontier=()=>JSON.stringify(applyPatch(JSON.parse(text),patch,{cloneValues:true}));
+ assert.deepEqual(JSON.parse(frontier()),expected);
+ groups['compiled-edit-utf8-output'].frontier=()=>checksum(encoder.encode(frontier()));
+}else if(mode==='compiled-writer'){
+ const text=JSON.stringify(Object.fromEntries(Array.from({length:textFields},(_,i)=>['k'+String(i).padStart(5,'0'),textFixture==='unicode'?`雪😀${i}\n"\\`:textFixture==='nested'?{items:[i,true,null,'雪😀'],enabled:false}:i])));
+ const byteHash=bytes=>{let h=0;for(let i=0;i<bytes.length;i++)h=Math.imul(h,31)^bytes[i];return h;};
+ const encoder=new TextEncoder();let expectedPortable,expectedCompact;
+ for(const[name,ink]of Object.entries(modules)){
+  const json=new ink.JsonCodec(ink.valueCodecs.identity.result),codec=ink.compiledValues.identity.params[0];
+  const handle=json.parseCompiled(codec,text);
+  const portable=codec.encode(handle),compact=codec.encodeCompact(handle);
+  expectedPortable??=portable;expectedCompact??=compact;
+  assert.deepEqual(portable,expectedPortable);assert.deepEqual(compact,expectedCompact);
+  assert.equal(json.stringifyBinary(portable),text);assert.equal(json.stringifyCompiled(codec,codec.decodeCompact(compact)),text);
+  const roundtrip=short=>{
+   const result=ink.callCompiled('identity',[handle]),bytes=short?codec.encodeCompact(result):codec.encode(result);
+   const decoded=short?codec.decodeCompact(bytes):codec.decode(bytes);
+   return encoder.encode(json.stringifyCompiled(codec,decoded));
+  };
+  for(const short of [false,true])assert.deepEqual(roundtrip(short),encoder.encode(text));
+  const visit=()=>{let hash=0;const add=v=>{if(typeof v==='string'){for(let i=0;i<v.length;i++)hash=Math.imul(hash,31)^v.charCodeAt(i);}else hash=Math.imul(hash,31)^Number(v??0);};
+   codec.visit(handle,{begin(){add(1);},end(){add(2);},byte:add,word:add,wide:add,text:add,count:add});return hash;};
+  for(const[operation,run]of Object.entries({'compiled-encode-portable':()=>byteHash(codec.encode(handle)),'compiled-encode-compact':()=>byteHash(codec.encodeCompact(handle)),'compiled-value-visit':visit,'compiled-roundtrip-portable':()=>byteHash(roundtrip(false)),'compiled-roundtrip-compact':()=>byteHash(roundtrip(true))})){
+   (groups[operation]??={})[name]=run;
+  }
+ }
+}else if(mode==='typed-ingress'){
+ const checksum=bytes=>{let h=0;for(let i=0;i<bytes.length;i++)h=Math.imul(h,31)^bytes[i];return h;};
+ const scalar=kind=>({kind}),fixtures=[
+  ['u32',{kind:'list',element:scalar('u32')},'['+Array.from({length:textFields},(_,i)=>String(i)).join(',')+']'],
+  ['f32',{kind:'list',element:scalar('f32')},'['+Array.from({length:textFields},(_,i)=>i%7===0?'-0':String((i-128)/8)).join(',')+']'],
+  ['u64',{kind:'list',element:scalar('u64')},'['+Array.from({length:textFields},(_,i)=>String(18446744073709551615n-BigInt(i))).join(',')+']'],
+ ];
+ const expected={};
+ for(const[name,ink]of Object.entries(modules))for(const[label,type,text]of fixtures){
+  const json=new ink.TypedJsonCodec(await ink.createValueCodec(type));
+  for(const[format,encode]of Object.entries({portable:()=>json.parseBinary(text),compact:()=>json.parseCompact(text)})){
+   const bytes=encode();expected[label+format]??=bytes;assert.deepEqual(bytes,expected[label+format]);
+   const codec=format==='compact'?json.values.compact():json.values;
+   assert.deepEqual(codec.decode(bytes),json.parse(text));
+   for(const limits of [{nodes:0},{nodes:1},{depth:0},{bytes:bytes.length-1}])assert.throws(()=>format==='compact'?json.parseCompact(text,limits):json.parseBinary(text,limits));
+   (groups[label+'-text-to-'+format]??={})[name]=()=>checksum(encode());
+  }
+ }
+}else if(mode==='transport'){
+ const limits=budgetKind==='reduced'?{bytes:128,nodes:32,depth:16}:undefined;
+ for(const[name,ink]of Object.entries(modules)){
+  const values=ink.valueCodecs.identity.result,codec=await ink.createValueCodec({kind:'record',name:'Update',fields:[{name:'key',type:{kind:'string'}},{name:'value',type:values.descriptor.root}]},values.descriptor.named),value={key:'k00000',value:ink.parseJson('777')};
+  for(const[format,encoder]of Object.entries({portable:codec,compact:codec.compact()})){
+   const bytes=encoder.encode(value,limits);assert.deepEqual(encoder.decode(bytes,limits),value);
+   (groups['encode-'+format]??={})[name]=()=>encoder.encode(value,limits).length;
+   (groups['decode-'+format]??={})[name]=()=>encoder.decode(bytes,limits).key.length;
+  }
+ }
+}else if(mode==='typed-codec'){
+ const scalar=kind=>({kind});
+ const fixtures=[
+  ['numeric-list',{kind:'list',element:scalar('u32')},Array.from({length:1024},(_,i)=>i)],
+  ['wide-record',{kind:'record',name:'Wide',fields:Array.from({length:8},(_,i)=>({name:i===0?'__proto__':'f'+i,type:scalar(i%2?'u32':'string')}))},Object.fromEntries(Array.from({length:8},(_,i)=>[i===0?'__proto__':'f'+i,i%2?i:'雪😀'+i]))],
+  ['recursive-numeric',{kind:'record',name:'Root',fields:[{name:'bits',type:scalar('f32')},{name:'wide',type:scalar('u64')},{name:'next',type:{kind:'option',element:{kind:'ref',name:'Root'}}}]},{bits:{F32Bits:0x7fc12345},wide:18446744073709551615n,next:{Some:{bits:{F32Bits:0x80000000},wide:7n,next:{None:null}}}}],
+ ];
+ for(const[name,ink]of Object.entries(modules))for(const[label,type,value]of fixtures){
+  const codec=await ink.createValueCodec(type,type.name==='Root'?{Root:type}:{});
+  for(const[format,encoder]of Object.entries({portable:codec,compact:codec.compact()})){
+   const bytes=encoder.encode(value);assert.deepEqual(encoder.decode(bytes),value);
+   (groups[label+'-encode-'+format]??={})[name]=()=>encoder.encode(value).length;
+   (groups[label+'-decode-'+format]??={})[name]=()=>encoder.decode(bytes)?1:0;
+  }
+ }
+}else if(mode==='row'){
+ const f=JSON.parse(fs.readFileSync(path.join(root,'build/frontier-json/fixtures.json'))).find(f=>f.id==='replace-4096');
+ for(const[name,ink]of Object.entries(modules)){
+  const state=ink.createState(),row=r=>({...r,metadata:ink.parseJson(JSON.stringify(r.metadata))});
+  for(const[key,r]of Object.entries(f.initial)){state.invoke('put',[key,row(r),false]);state.acknowledgeThrough(0xffffffffffffffffn,0xffffffffffffffffn);}
+  const script=f.script.map(s=>[s.args[0],row(s.args[1]),false]);
+  (groups['replace-owned-row']??={})[name]=i=>{const r=state.invoke('put',script[i%script.length]);state.acknowledgeThrough(0xffffffffffffffffn,0xffffffffffffffffn);return r.events[0].value;};
+ }
+}else throw Error('unknown variant mode');
+const measure=(run,count)=>{const at=process.hrtime.bigint();for(let i=0;i<count;i++)sink^=run(i);return Number(process.hrtime.bigint()-at);};
+const measurements=[];
+for(const[operation,lanes]of Object.entries(groups)){
+ const counts={};for(const[name,run]of Object.entries(lanes)){measure(run,100);counts[name]=Math.max(10,Math.min(100000,Math.ceil(50000000/(measure(run,100)/100))));}
+ const names=Object.keys(lanes);
+ for(let round=0;round<15;round++)for(let i=0;i<names.length;i++){const name=names[(i+round)%names.length];
+  global.gc?.();const calls=counts[name],elapsed_ns=measure(lanes[name],calls);measurements.push({operation,lane:name,round,calls,elapsed_ns});
+ }
+}
+for(const[k,p]of Object.entries(paths))assert.equal(createHash('sha256').update(fs.readFileSync(path.resolve(root,p))).digest('hex'),hashes[k],'artifact changed during timing');
+fs.writeFileSync(reportPath,JSON.stringify({schema:1,diagnostic_experiment:true,instrumented:process.execArgv.some(a=>a.startsWith("--cpu-prof")||a.startsWith("--prof")||a.startsWith("--trace")),copy_kind:copyKind,canonical_parse:canonicalParse,text_fields:textFields,text_fixture:textFixture,budget:budgetKind,consume_utf8:mode==='text-bytes',paths,hashes,measurements,sink,scope:'Paired source candidate experiment on a shared host. Setup excluded; compare candidate ratios, not historical absolute timings.'},null,2)+'\n',{flag:'wx'});

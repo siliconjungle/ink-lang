@@ -1,0 +1,421 @@
+{
+  "schema": 1,
+  "findings": [
+    "F042",
+    "F048"
+  ],
+  "base_distribution": "5920ab8a222f59fe5195faf103f81310f82dc9a2",
+  "base_knowledge": "c5b74822207ca472a1a3852ef10416e06dfbc919",
+  "publication_status": "Knowledge published; included in the distribution revision carrying this evidence. Remote CI remains required.",
+  "changes": [
+    "Contract rewrite search reuses existing exact typed-head discovery through one Reader connection per typed operation. Payloads authenticate and match; every proposed proof still replays.",
+    "No/legacy-index fallback retains original operation filtering, including explicit historical read-only pins.1024 scanned rows,8frontier,8rounds,64proposal limits retained.",
+    "Candidate publication contributes unnamed objects only; extend merges the names current under its publication lock rather than replaying a stale name map. Membership changes still conflict."
+  ],
+  "validation": {
+    "discovery_tests": 11,
+    "candidate_and_related_tests": 17,
+    "ordinary_authoring": [
+      {
+        "case": "fresh",
+        "label": "before",
+        "pure": 4,
+        "state": 13,
+        "export_sha256": "c255282cf0ae562f149dc45816e02608af678325d8373b5a6c3f2904f8565989",
+        "evidence_sha256": "546b303a0c42946116da7befb1173ecca0886f0d12970b504cfa34453bdd3502"
+      },
+      {
+        "case": "fresh",
+        "label": "after",
+        "pure": 4,
+        "state": 13,
+        "export_sha256": "c255282cf0ae562f149dc45816e02608af678325d8373b5a6c3f2904f8565989",
+        "evidence_sha256": "546b303a0c42946116da7befb1173ecca0886f0d12970b504cfa34453bdd3502"
+      },
+      {
+        "case": "replay",
+        "label": "before",
+        "pure": 9,
+        "state": 10,
+        "export_sha256": "8b100f371342bef6491322b298a67d46bbc36aaacf990a3deda7b2376856a1df",
+        "evidence_sha256": "1e95bedcc46f6624a44019d7a0fe176a0b824d15190d044479c2b05867aea05b"
+      },
+      {
+        "case": "replay",
+        "label": "after",
+        "pure": 9,
+        "state": 10,
+        "export_sha256": "8b100f371342bef6491322b298a67d46bbc36aaacf990a3deda7b2376856a1df",
+        "evidence_sha256": "1e95bedcc46f6624a44019d7a0fe176a0b824d15190d044479c2b05867aea05b"
+      },
+      {
+        "case": "refinement",
+        "label": "before",
+        "pure": 8,
+        "state": 0,
+        "export_sha256": "de4099218b34fc003010b19af03239b67317338737d6ef1b27d074eac6cc373a",
+        "evidence_sha256": "12cf327597afb002b4a636877847f76a96ae6bc67faec1bf9291b8a8a5df10d9"
+      },
+      {
+        "case": "refinement",
+        "label": "after",
+        "pure": 8,
+        "state": 0,
+        "export_sha256": "de4099218b34fc003010b19af03239b67317338737d6ef1b27d074eac6cc373a",
+        "evidence_sha256": "12cf327597afb002b4a636877847f76a96ae6bc67faec1bf9291b8a8a5df10d9"
+      }
+    ],
+    "mandatory_hardening": "passed27.40seconds",
+    "corpus_before": {
+      "programs": 10,
+      "compiled": 10,
+      "programs_with_rewrite_alternative": 10,
+      "programs_with_any_alternative": 10,
+      "programs_selecting_alternative": 3,
+      "median_seconds": 14.94,
+      "stopped_by_time": 2,
+      "laws_admitted": 44,
+      "laws_admitted_in_multiple_programs": 7,
+      "representations_admitted": 0,
+      "last_gates": {
+        "measurement_budget": 7,
+        "selected_alternative": 3
+      }
+    },
+    "corpus_after": {
+      "programs": 10,
+      "compiled": 10,
+      "programs_with_rewrite_alternative": 10,
+      "programs_with_any_alternative": 10,
+      "programs_selecting_alternative": 4,
+      "median_seconds": 14.55,
+      "stopped_by_time": 1,
+      "laws_admitted": 44,
+      "laws_admitted_in_multiple_programs": 7,
+      "representations_admitted": 0,
+      "last_gates": {
+        "selected_alternative": 4,
+        "measurement_budget": 6
+      }
+    },
+    "per_program_differences": [
+      {
+        "program": "sequence-every",
+        "differences": {
+          "selected_alternative": [
+            false,
+            true
+          ],
+          "last_gate": [
+            "measurement_budget",
+            "selected_alternative"
+          ],
+          "selection_reason": [
+            "baseline retained; no robust measured lifecycle improvement",
+            "paired complete-lifecycle improvement on selection inputs"
+          ]
+        }
+      },
+      {
+        "program": "drawing-hit",
+        "differences": {
+          "selected_alternative": [
+            true,
+            false
+          ],
+          "last_gate": [
+            "selected_alternative",
+            "measurement_budget"
+          ],
+          "admitted_edges": [
+            {
+              "rewrite": 32
+            },
+            {
+              "rewrite": 32,
+              "extension": 1
+            }
+          ],
+          "selection_reason": [
+            "paired complete-lifecycle improvement on selection inputs",
+            "baseline retained; no robust measured lifecycle improvement"
+          ]
+        }
+      },
+      {
+        "program": "particle-step",
+        "differences": {
+          "semantic": [
+            {
+              "matched": 4,
+              "checked": 4,
+              "admitted": 4,
+              "rejected": 0,
+              "unchecked": 0
+            },
+            {
+              "matched": 5,
+              "checked": 5,
+              "admitted": 5,
+              "rejected": 0,
+              "unchecked": 0
+            }
+          ]
+        }
+      },
+      {
+        "program": "index-membership",
+        "differences": {
+          "selected_alternative": [
+            false,
+            true
+          ],
+          "last_gate": [
+            "measurement_budget",
+            "selected_alternative"
+          ],
+          "admitted_edges": [
+            {
+              "rewrite": 31,
+              "properties": 1
+            },
+            {
+              "rewrite": 32
+            }
+          ],
+          "selection_reason": [
+            "baseline retained; no robust measured lifecycle improvement",
+            "paired complete-lifecycle improvement on selection inputs"
+          ]
+        }
+      },
+      {
+        "program": "compact-set",
+        "differences": {
+          "admitted_states": [
+            17,
+            32
+          ],
+          "alternatives_with_knowledge": [
+            16,
+            31
+          ],
+          "admitted_edges": [
+            {
+              "rewrite": 16
+            },
+            {
+              "rewrite": 32
+            }
+          ],
+          "candidates": [
+            17,
+            32
+          ],
+          "stop_reason": [
+            "time",
+            "states"
+          ],
+          "rewrite_alternatives": [
+            16,
+            31
+          ]
+        }
+      }
+    ],
+    "discovery_probe": {
+      "schema": 1,
+      "finding": "F042",
+      "fixture_entries": 1401,
+      "useful_id": "ffeef14d1392b46271a3cb8efacb2ac9840ea3f53433395561071dbb4d0fd3bd",
+      "useful_sorted_position": 1399,
+      "observations": {
+        "operation": {
+          "objects_read": 1024,
+          "page_sizes": [
+            128,
+            128,
+            128,
+            128,
+            128,
+            128,
+            128,
+            128
+          ],
+          "proposals": 0,
+          "useful_seen": false
+        },
+        "typed_head": {
+          "objects_read": 1,
+          "page_sizes": [
+            1
+          ],
+          "proposals": 2,
+          "useful_seen": true
+        }
+      },
+      "proof_replay": {
+        "returncode": 0,
+        "stdout": "{\"entries\":[\"ffeef14d1392b46271a3cb8efacb2ac9840ea3f53433395561071dbb4d0fd3bd\",\"5d9d61e21a7c6b53ddb1c05013a6a2610c47efd1466fef2d1fa6343c07b17524\"],\"snapshot_sha256\":\"29d5afdeb6ced676a77302e7dc925f0f0ca2fecfc5cd982beeda4c9543422825\",\"status\":\"checked\"}\n",
+        "stderr": ""
+      },
+      "implementation_status": "Probe adapter only; production contract search not changed.",
+      "scope": "Existing exact typed-head discovery avoids nested-operation crowding under the same scan budget. Metadata only proposes; actual proof replay remains required. No runtime speed claim.",
+      "compiler_sha256": "1d96e5220e0058badcb1dd16e8b0f5529668f969676dadb97a35f08395c80e40"
+    }
+  },
+  "limits": [
+    "No application runtime speed claim. Discovery probe found a valid law with1 object read instead of1024 irrelevant reads; it tests the rewrite acquisition path, not a previously uncompilable full application.",
+    "Shared-machine contention and bounded planning/measurement budgets make corpus count/selection differences observations, not attributed gains.",
+    "Both complete corpus comparison arms use the same system Python without pysat; ordinary authoring and focused tests use the existing proof environment with pysat. F049 records that the current resume context omits interpreter/dependency identity. No cross-environment resume was performed.",
+    "Initial authoring attempt under system Python failed on missing pysat; corrected environment produced matching packets. Initial corpus command used nonexistent manifest.json and terminated before work; corrected corpus.json run is retained separately.",
+    "Initial direct-candidates implementation regressed explicit no-index fallback; regression reproduced then fixed with Reader and original operation-filtered fallback. Initial corpus after report is retained but superseded by after-final.",
+    "F046 separate mutable name/snapshot pointer consistency remains unresolved; these changes do not establish crash-safe catalogue publication.",
+    "Current remote CI still required."
+  ],
+  "sources": [
+    {
+      "path": "work/ink-development/knowledge/ink_knowledge/implementation_candidates.py",
+      "bytes": 3351,
+      "sha256": "1d74292ca173d5e8bb77e4b27f9c15cea51bad4a94239633ccc08dd16c20e6a5"
+    },
+    {
+      "path": "work/ink-development/knowledge/producers/contract_proofs.py",
+      "bytes": 51378,
+      "sha256": "d31022c6688104926239d353a3513a44b9d7ca3870b90dad9acd49d998a1a7b0"
+    },
+    {
+      "path": "work/ink-development/knowledge/tests/test_implementation_candidates.py",
+      "bytes": 4344,
+      "sha256": "a23424aa0cada2e8b935084e6355f7e5316c0c2b076893397e39bb6454be9ef8"
+    },
+    {
+      "path": "work/ink-development/knowledge/tests/test_contract_search_alternatives.py",
+      "bytes": 13069,
+      "sha256": "729c0868e3680926165aff2adce3a0ec56ef7524d797a6cd3fda4ee5d8f44d0f"
+    },
+    {
+      "path": "work/ink-development/tests/hardening.rs",
+      "bytes": 80216,
+      "sha256": "296a42c40aea402e2c7d9672af58d6e4f7f41f6aafdb43daeef5743f77ec4a95"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "work/llvm-learning-smoke/candidate-name-race-before.log",
+      "bytes": 2210,
+      "sha256": "26995e4928c320a7e269d656e7fc26eba77b106736225d70d849902e90a4d295"
+    },
+    {
+      "path": "work/llvm-learning-smoke/candidate-name-race-after.log",
+      "bytes": 3358,
+      "sha256": "d2fbd088d0eb5ccc67fe654926e05eb8b2c446c15fcfeb55bca491b9963f94a5"
+    },
+    {
+      "path": "work/llvm-learning-smoke/typed-head-discovery-probe.log",
+      "bytes": 1111,
+      "sha256": "ae0c8c04b6cc900b0f4147b2e11a7412d0ae2adf2179d8defca6529c07ccebd2"
+    },
+    {
+      "path": "work/llvm-learning-smoke/typed-head-contract-before.log",
+      "bytes": 2339,
+      "sha256": "36b53af1f8b2553f028a50188fa9bbd0a7b01bb5f150c60071fd70a0a9d8e32d"
+    },
+    {
+      "path": "work/llvm-learning-smoke/typed-head-contract-after.log",
+      "bytes": 2941,
+      "sha256": "58921f2f8e201b3892a91c98c835803857c470794011978bcea936cee68ce836"
+    },
+    {
+      "path": "work/llvm-learning-smoke/typed-head-fallback-before.log",
+      "bytes": 1058,
+      "sha256": "dd543f71fab80cc861e33ae1c6fb8ea829e571582752527c557d54b687f0c4d1"
+    },
+    {
+      "path": "work/llvm-learning-smoke/typed-head-contract-complete.log",
+      "bytes": 2430,
+      "sha256": "86a95b5f3effde025eef097966cb98ccd73cd7ea484d194979f4a58afd882b1e"
+    },
+    {
+      "path": "work/llvm-learning-smoke/typed-head-final-authoring.log",
+      "bytes": 1405,
+      "sha256": "96e57149850b94957d6f1b872be20570d0762dcb978f0f292b7e3c22a607a041"
+    },
+    {
+      "path": "work/llvm-learning-smoke/typed-head-final-authoring/results.json",
+      "bytes": 1594,
+      "sha256": "a72a75b08c755a76175df89b5c64c2a91ebf7b6e95adaaa00ab00e934dba594f"
+    },
+    {
+      "path": "work/llvm-learning-smoke/typed-head-final-authoring/refinement-admission.log",
+      "bytes": 993,
+      "sha256": "fb13bead15c341f0315ea14acfd39ea4b325e311d016520e8d4879348d190733"
+    },
+    {
+      "path": "work/llvm-learning-smoke/typed-head-and-candidate-hardening-complete.log",
+      "bytes": 388,
+      "sha256": "00b9e04a5c18526a6a73d402e3aeff8da22a5173bcc4bd9f2e2af419cd207443"
+    },
+    {
+      "path": "work/llvm-learning-smoke/candidate-name-race-corpus-before.log",
+      "bytes": 1406,
+      "sha256": "88e95118aac830a6b842494e73156509a6ad76cad7955bc714b3862ffa921dc6"
+    },
+    {
+      "path": "work/llvm-learning-smoke/candidate-name-race-corpus-before-valid.log",
+      "bytes": 781,
+      "sha256": "4740019d9a4f9113c978211dbd26083df6b0c739a63bea0cde9ac837a5666bf8"
+    },
+    {
+      "path": "work/llvm-learning-smoke/typed-head-authoring.log",
+      "bytes": 3042,
+      "sha256": "05ef9ef5db2589de4f1248d312f7adc03f76d1678b2c31877e50c7817c41f92c"
+    },
+    {
+      "path": "outputs/llvm-ink-audit/typed-head-discovery-probe.json",
+      "bytes": 1309,
+      "sha256": "b71fef57e0762d07f1424e413b736447226386e27c273c886c6a4376d9ad2acd"
+    },
+    {
+      "path": "outputs/llvm-ink-audit/corpus-environment-context-audit.json",
+      "bytes": 2670,
+      "sha256": "b1f4d9a8624995d654147a884b498c081a2412683310d29e1fd5c301eae3c31f"
+    },
+    {
+      "path": "outputs/llvm-ink-audit/candidate-name-race-corpus/before/context.json",
+      "bytes": 617,
+      "sha256": "1838707237d68f3c1f9c7de7a3a1772c32b7e7c22b3607f5230a682e398d664c"
+    },
+    {
+      "path": "outputs/llvm-ink-audit/candidate-name-race-corpus/before/report.json",
+      "bytes": 18655,
+      "sha256": "944090fc262f2c7a96a6e04dea74bc371b1c468916ce1f23bfa5fbf973e5d757"
+    },
+    {
+      "path": "outputs/llvm-ink-audit/candidate-name-race-corpus/before/records.json",
+      "bytes": 99452,
+      "sha256": "440b55e75f7c1eec7ee2f11f43cc0c926d9de06440b37fa21bcdbd3c1e261b01"
+    },
+    {
+      "path": "outputs/llvm-ink-audit/candidate-name-race-corpus/after-final/context.json",
+      "bytes": 617,
+      "sha256": "6fdb37a526f14b71bbd2a58b74de44ccd9ea8bc6c9ea02cd400a4ff00d1d86db"
+    },
+    {
+      "path": "outputs/llvm-ink-audit/candidate-name-race-corpus/after-final/report.json",
+      "bytes": 18641,
+      "sha256": "5d1b7530bda75acc1967af93e0cbea1932ba4158d62bde38a500ce86c68d5890"
+    },
+    {
+      "path": "outputs/llvm-ink-audit/candidate-name-race-corpus/after-final/records.json",
+      "bytes": 105450,
+      "sha256": "6fe7d059db99fda3156d02f35cabf7b3b0846ed395c75cf5bc7ed08d97dbc423"
+    },
+    {
+      "path": "work/llvm-learning-smoke/typed-head-final-corpus-after.log",
+      "bytes": 779,
+      "sha256": "d78bdb3b23e0a4623db4b63482737e6d0281fdfd832b84cb3603603dfa61fb6b"
+    }
+  ],
+  "candidate_knowledge": "ac6a71f4a20456b4cc46088930568d49d1f66f83"
+}

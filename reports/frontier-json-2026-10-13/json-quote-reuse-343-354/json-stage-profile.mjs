@@ -1,0 +1,5 @@
+import * as ink from '../frontier-json/current-state-kernel-controls/control-0.mjs';
+import assert from 'node:assert/strict';
+const mode=process.argv[2],text=JSON.stringify(Object.fromEntries(Array.from({length:512},(_,i)=>['k'+String(i).padStart(5,'0'),i]))),entry=ink.compiledValues.set_document,json=new ink.JsonCodec(ink.valueCodecs.identity.result),codec=entry.params[0],input=json.parseCompiled(codec,text),key=entry.params[1].capture('k00000'),value=entry.params[2].capture(json.parse('777')),output=ink.callCompiled('set_document',[input,key,value]);
+const ops={parse:()=>json.parseCompiled(codec,text),edit:()=>ink.callCompiled('set_document',[input,key,value]),render:()=>json.stringifyCompiled(entry.result,output,{unwrapResult:true}),pipeline:()=>json.stringifyCompiled(entry.result,ink.callCompiled('set_document',[json.parseCompiled(codec,text),key,value]),{unwrapResult:true})};
+assert.equal(JSON.parse(ops.render()).k00000,777);let result;for(let i=0;i<25000;i++)result=ops[mode]();assert.ok(result);console.log(mode+' complete');

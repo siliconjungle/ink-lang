@@ -1,0 +1,1972 @@
+{
+  "schema": 1,
+  "process": 293,
+  "node": "v26.1.0",
+  "provenance": {
+    "captured_at": "2026-10-14T01:19:38.677Z",
+    "hashes": {
+      "bench/frontier-json/boundary-allocation.mjs": "180c46be9c9eb38df5316bdc79def0fe6178228a84875684e75f26b1b168ebc0",
+      "bench/frontier-json/provenance.mjs": "bf3bd3f4d032a6074a4c989b3eade0811434a9a295a89e716b0b352e85ffc63a",
+      "bench/frontier-json/state.ink": "f98f971b59e11d0983af3cbbd9a472f2d55b4e5720556de1f31b19b12ae866a4",
+      "bench/frontier-json/package-lock.json": "3cc5c3e6c05c279b921df5c2b1a232d2b5f6a114f0a674d2d5d1946840d75a52",
+      "reports/frontier-json-2026-10-13/artifacts/typed-reduction-287-289/candidate-sums.mjs": "8f03e2e199d2922d129897952ac8b1c4d42613ff6fe3b5e81ad60f6357b28cc4",
+      "build/typed-reduction/builder-sums.mjs": "4fa10e994180c1601c148fbe48a40c7bb0d644f1de251fb826fb334e8046b190",
+      "build/typed-reduction/consumer-sums.mjs": "44299c6057c4b293d7ab6d6544c80b0bbc5a510a71185c285f56b31424cff182"
+    },
+    "revisions": {
+      ".": "81e8388aee7c5a2a16a5c8ebc86c4ff1020af193",
+      "abi": "64ccedd9f69ba626bd26c120922ef5a7ccf6afdc",
+      "lowerings/js": "e4303ccd3240c52cb6e7da2eda86f5372348eb1e",
+      "knowledge": "b0f7ae5c6a572ecf601a14f1d7bdf550c4fbdfc8",
+      "planner": "01052fd8077fcbec58d02bc080dd2abc74ead3a0",
+      "build/frontier": "2c72dbb4030e2695b682d3e49ec82d8c5c8ffec2"
+    },
+    "native_artifact_included": false,
+    "node": "v26.1.0",
+    "target": {
+      "cpu": "Apple M2",
+      "platform": "darwin",
+      "arch": "arm64",
+      "release": "25.5.0"
+    },
+    "host_isolation": "Shared development host; no exclusive CPU reservation. Repeated process cohorts and rotated lane order, not a controlled laboratory."
+  },
+  "dependency": {
+    "package_root": "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/bench/frontier-json/node_modules/@shapeshift-labs/frontier",
+    "hashes": {
+      "benchmarks/package-bench.mjs": "f014533b893194539ef7bfe088092377a5a05fbd5a3917a1ad400efad0e5016c",
+      "dist/apply.js": "fb01085243772aa308220771e1fe8ec8ead14877c3445c12c31701cc462b0d64",
+      "dist/clone.js": "34b0eb5c271beecc3363a297a55276dd12b35ade9c2e34466e97773bb6b27ea5",
+      "dist/constants.js": "b6aa1df97e443abe400f7cffff5c026672b8bc3906b259715d8376090cc8f915",
+      "dist/diff.js": "761ba65824071ac3966b063448202b1861490bd78626acdcbe646c1199128751",
+      "dist/equal.js": "b5eda0d9708def04844dc54e1d985483325ddd3dfa9de979b48c5f5a4a97c824",
+      "dist/index.js": "3db1b96bbb8e82d88da15432537e536f6eac0c9e9c4160873553225ccb9b8c90",
+      "dist/json-patch.js": "5c9a8c37c17be867df0559e2916b4d12ce2e0d6e55cf116edee02255978ba7ef",
+      "dist/normalize.js": "99142b3f3d1e438c4930995251edcb100f2c339c5126f125e3cbb2addb017b6d",
+      "dist/object.js": "64d4eab7c9998c70b2e88d27abcf77fbb8768a91b0bfbe3db2ca180a0c3b4215",
+      "dist/patch-validate.js": "f20be704fdb1fd84355735e81d832746adcb93fb5fcd846a736443245146b3f2",
+      "dist/patch.js": "6224b9fbfa50dce3ff1df73cd1b76c26e7ef7aca95b7a2e6d31e45ae8fe89508",
+      "dist/pointer.js": "9f88e26e4b32e709b0e0eb95083fb59b76c9fc8ab2687e687687f063ce8db1e3",
+      "dist/registry.js": "70132f31e081d29d9546d1474a87cf4ee06f1e97bd75957f84c4b330b748c3b0",
+      "dist/runtime.js": "66869e599e782a6e1d4eb46bb4a9a1bb62c85c189c314875c0c4855d4bd7e0e4",
+      "dist/types.js": "01ae2a5b120382f9a648ced7ee8507493a134f216d100fc61600c6c9738235d2",
+      "dist/unicode.js": "78a3e42b36ef82ac8e038861382cf98d32d5c581dd19e500116e65b9a786317b",
+      "dist/validate.js": "69d5c980f84c7fa727055be997a5f19b56f906da6beba5a42bc4842a8bb62087",
+      "package.json": "a71436783b312d9d3d057a1868211888ddd0ed667bb9ffcbf2a583ddc87622a7"
+    }
+  },
+  "measurements": [
+    {
+      "fields": 4,
+      "lane": "consumer/text-edit-text",
+      "round": 0,
+      "calls": 294,
+      "elapsed_ns": "6270625"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/prepared-output",
+      "round": 0,
+      "calls": 2069,
+      "elapsed_ns": "13791875"
+    },
+    {
+      "fields": 4,
+      "lane": "frontier/text-edit-text",
+      "round": 0,
+      "calls": 9348,
+      "elapsed_ns": "169566875"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/prepared-output",
+      "round": 0,
+      "calls": 136,
+      "elapsed_ns": "3116000"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/input",
+      "round": 0,
+      "calls": 23,
+      "elapsed_ns": "416583"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/input",
+      "round": 0,
+      "calls": 910,
+      "elapsed_ns": "48068792"
+    },
+    {
+      "fields": 4,
+      "lane": "control/text-edit-text",
+      "round": 0,
+      "calls": 457,
+      "elapsed_ns": "216939083"
+    },
+    {
+      "fields": 4,
+      "lane": "control/prepared-output",
+      "round": 0,
+      "calls": 386,
+      "elapsed_ns": "4547750"
+    },
+    {
+      "fields": 4,
+      "lane": "control/input",
+      "round": 0,
+      "calls": 1006,
+      "elapsed_ns": "73548167"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/text-edit-text",
+      "round": 0,
+      "calls": 10,
+      "elapsed_ns": "1466250"
+    },
+    {
+      "fields": 4,
+      "lane": "control/prepared-output",
+      "round": 1,
+      "calls": 386,
+      "elapsed_ns": "22215916"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/prepared-output",
+      "round": 1,
+      "calls": 136,
+      "elapsed_ns": "616416"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/input",
+      "round": 1,
+      "calls": 23,
+      "elapsed_ns": "348542"
+    },
+    {
+      "fields": 4,
+      "lane": "control/input",
+      "round": 1,
+      "calls": 1006,
+      "elapsed_ns": "16592917"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/text-edit-text",
+      "round": 1,
+      "calls": 10,
+      "elapsed_ns": "237708"
+    },
+    {
+      "fields": 4,
+      "lane": "control/text-edit-text",
+      "round": 1,
+      "calls": 457,
+      "elapsed_ns": "10051000"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/input",
+      "round": 1,
+      "calls": 910,
+      "elapsed_ns": "248745583"
+    },
+    {
+      "fields": 4,
+      "lane": "frontier/text-edit-text",
+      "round": 1,
+      "calls": 9348,
+      "elapsed_ns": "51902500"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/prepared-output",
+      "round": 1,
+      "calls": 2069,
+      "elapsed_ns": "15704375"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/text-edit-text",
+      "round": 1,
+      "calls": 294,
+      "elapsed_ns": "6698333"
+    },
+    {
+      "fields": 4,
+      "lane": "control/input",
+      "round": 2,
+      "calls": 1006,
+      "elapsed_ns": "102470250"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/prepared-output",
+      "round": 2,
+      "calls": 2069,
+      "elapsed_ns": "71217125"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/input",
+      "round": 2,
+      "calls": 23,
+      "elapsed_ns": "8044250"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/text-edit-text",
+      "round": 2,
+      "calls": 10,
+      "elapsed_ns": "13138583"
+    },
+    {
+      "fields": 4,
+      "lane": "control/text-edit-text",
+      "round": 2,
+      "calls": 457,
+      "elapsed_ns": "148117792"
+    },
+    {
+      "fields": 4,
+      "lane": "frontier/text-edit-text",
+      "round": 2,
+      "calls": 9348,
+      "elapsed_ns": "51744833"
+    },
+    {
+      "fields": 4,
+      "lane": "control/prepared-output",
+      "round": 2,
+      "calls": 386,
+      "elapsed_ns": "3372792"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/input",
+      "round": 2,
+      "calls": 910,
+      "elapsed_ns": "92756042"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/text-edit-text",
+      "round": 2,
+      "calls": 294,
+      "elapsed_ns": "23611708"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/prepared-output",
+      "round": 2,
+      "calls": 136,
+      "elapsed_ns": "1221417"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/input",
+      "round": 3,
+      "calls": 910,
+      "elapsed_ns": "86366000"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/prepared-output",
+      "round": 3,
+      "calls": 2069,
+      "elapsed_ns": "68422500"
+    },
+    {
+      "fields": 4,
+      "lane": "control/prepared-output",
+      "round": 3,
+      "calls": 386,
+      "elapsed_ns": "3065834"
+    },
+    {
+      "fields": 4,
+      "lane": "control/text-edit-text",
+      "round": 3,
+      "calls": 457,
+      "elapsed_ns": "41961792"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/prepared-output",
+      "round": 3,
+      "calls": 136,
+      "elapsed_ns": "1274125"
+    },
+    {
+      "fields": 4,
+      "lane": "frontier/text-edit-text",
+      "round": 3,
+      "calls": 9348,
+      "elapsed_ns": "78117208"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/text-edit-text",
+      "round": 3,
+      "calls": 10,
+      "elapsed_ns": "17046542"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/text-edit-text",
+      "round": 3,
+      "calls": 294,
+      "elapsed_ns": "35723208"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/input",
+      "round": 3,
+      "calls": 23,
+      "elapsed_ns": "10188209"
+    },
+    {
+      "fields": 4,
+      "lane": "control/input",
+      "round": 3,
+      "calls": 1006,
+      "elapsed_ns": "129012875"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/prepared-output",
+      "round": 4,
+      "calls": 2069,
+      "elapsed_ns": "64973167"
+    },
+    {
+      "fields": 4,
+      "lane": "frontier/text-edit-text",
+      "round": 4,
+      "calls": 9348,
+      "elapsed_ns": "38112708"
+    },
+    {
+      "fields": 4,
+      "lane": "control/text-edit-text",
+      "round": 4,
+      "calls": 457,
+      "elapsed_ns": "44001167"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/prepared-output",
+      "round": 4,
+      "calls": 136,
+      "elapsed_ns": "509417"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/input",
+      "round": 4,
+      "calls": 23,
+      "elapsed_ns": "287833"
+    },
+    {
+      "fields": 4,
+      "lane": "control/prepared-output",
+      "round": 4,
+      "calls": 386,
+      "elapsed_ns": "9105791"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/text-edit-text",
+      "round": 4,
+      "calls": 294,
+      "elapsed_ns": "24690959"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/text-edit-text",
+      "round": 4,
+      "calls": 10,
+      "elapsed_ns": "333667"
+    },
+    {
+      "fields": 4,
+      "lane": "control/input",
+      "round": 4,
+      "calls": 1006,
+      "elapsed_ns": "50558417"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/input",
+      "round": 4,
+      "calls": 910,
+      "elapsed_ns": "11376708"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/prepared-output",
+      "round": 5,
+      "calls": 2069,
+      "elapsed_ns": "9844500"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/text-edit-text",
+      "round": 5,
+      "calls": 294,
+      "elapsed_ns": "5624709"
+    },
+    {
+      "fields": 4,
+      "lane": "control/prepared-output",
+      "round": 5,
+      "calls": 386,
+      "elapsed_ns": "1452292"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/text-edit-text",
+      "round": 5,
+      "calls": 10,
+      "elapsed_ns": "210000"
+    },
+    {
+      "fields": 4,
+      "lane": "control/text-edit-text",
+      "round": 5,
+      "calls": 457,
+      "elapsed_ns": "200095333"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/prepared-output",
+      "round": 5,
+      "calls": 136,
+      "elapsed_ns": "1295291"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/input",
+      "round": 5,
+      "calls": 910,
+      "elapsed_ns": "63012208"
+    },
+    {
+      "fields": 4,
+      "lane": "control/input",
+      "round": 5,
+      "calls": 1006,
+      "elapsed_ns": "22788250"
+    },
+    {
+      "fields": 4,
+      "lane": "frontier/text-edit-text",
+      "round": 5,
+      "calls": 9348,
+      "elapsed_ns": "112606333"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/input",
+      "round": 5,
+      "calls": 23,
+      "elapsed_ns": "570708"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/input",
+      "round": 6,
+      "calls": 23,
+      "elapsed_ns": "352875"
+    },
+    {
+      "fields": 4,
+      "lane": "control/text-edit-text",
+      "round": 6,
+      "calls": 457,
+      "elapsed_ns": "26261125"
+    },
+    {
+      "fields": 4,
+      "lane": "frontier/text-edit-text",
+      "round": 6,
+      "calls": 9348,
+      "elapsed_ns": "18464792"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/prepared-output",
+      "round": 6,
+      "calls": 2069,
+      "elapsed_ns": "99373833"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/input",
+      "round": 6,
+      "calls": 910,
+      "elapsed_ns": "20710333"
+    },
+    {
+      "fields": 4,
+      "lane": "control/prepared-output",
+      "round": 6,
+      "calls": 386,
+      "elapsed_ns": "2212625"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/text-edit-text",
+      "round": 6,
+      "calls": 294,
+      "elapsed_ns": "8449833"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/prepared-output",
+      "round": 6,
+      "calls": 136,
+      "elapsed_ns": "737125"
+    },
+    {
+      "fields": 4,
+      "lane": "control/input",
+      "round": 6,
+      "calls": 1006,
+      "elapsed_ns": "91947250"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/text-edit-text",
+      "round": 6,
+      "calls": 10,
+      "elapsed_ns": "423333"
+    },
+    {
+      "fields": 4,
+      "lane": "control/prepared-output",
+      "round": 7,
+      "calls": 386,
+      "elapsed_ns": "2099959"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/text-edit-text",
+      "round": 7,
+      "calls": 10,
+      "elapsed_ns": "5205708"
+    },
+    {
+      "fields": 4,
+      "lane": "control/input",
+      "round": 7,
+      "calls": 1006,
+      "elapsed_ns": "89223041"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/input",
+      "round": 7,
+      "calls": 23,
+      "elapsed_ns": "527875"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/input",
+      "round": 7,
+      "calls": 910,
+      "elapsed_ns": "188211125"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/prepared-output",
+      "round": 7,
+      "calls": 2069,
+      "elapsed_ns": "50361958"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/text-edit-text",
+      "round": 7,
+      "calls": 294,
+      "elapsed_ns": "7520875"
+    },
+    {
+      "fields": 4,
+      "lane": "frontier/text-edit-text",
+      "round": 7,
+      "calls": 9348,
+      "elapsed_ns": "63563958"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/prepared-output",
+      "round": 7,
+      "calls": 136,
+      "elapsed_ns": "750250"
+    },
+    {
+      "fields": 4,
+      "lane": "control/text-edit-text",
+      "round": 7,
+      "calls": 457,
+      "elapsed_ns": "8367667"
+    },
+    {
+      "fields": 4,
+      "lane": "control/input",
+      "round": 8,
+      "calls": 1006,
+      "elapsed_ns": "7141667"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/prepared-output",
+      "round": 8,
+      "calls": 2069,
+      "elapsed_ns": "10422583"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/text-edit-text",
+      "round": 8,
+      "calls": 294,
+      "elapsed_ns": "18035125"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/input",
+      "round": 8,
+      "calls": 23,
+      "elapsed_ns": "300750"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/input",
+      "round": 8,
+      "calls": 910,
+      "elapsed_ns": "129697750"
+    },
+    {
+      "fields": 4,
+      "lane": "frontier/text-edit-text",
+      "round": 8,
+      "calls": 9348,
+      "elapsed_ns": "70993625"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/text-edit-text",
+      "round": 8,
+      "calls": 10,
+      "elapsed_ns": "932666"
+    },
+    {
+      "fields": 4,
+      "lane": "control/prepared-output",
+      "round": 8,
+      "calls": 386,
+      "elapsed_ns": "7555750"
+    },
+    {
+      "fields": 4,
+      "lane": "control/text-edit-text",
+      "round": 8,
+      "calls": 457,
+      "elapsed_ns": "37674792"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/prepared-output",
+      "round": 8,
+      "calls": 136,
+      "elapsed_ns": "11019958"
+    },
+    {
+      "fields": 64,
+      "lane": "control/prepared-output",
+      "round": 0,
+      "calls": 424,
+      "elapsed_ns": "37765167"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/input",
+      "round": 0,
+      "calls": 10,
+      "elapsed_ns": "819584"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/text-edit-text",
+      "round": 0,
+      "calls": 21,
+      "elapsed_ns": "3337875"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/input",
+      "round": 0,
+      "calls": 276,
+      "elapsed_ns": "99736666"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/text-edit-text",
+      "round": 0,
+      "calls": 232,
+      "elapsed_ns": "240885917"
+    },
+    {
+      "fields": 64,
+      "lane": "control/text-edit-text",
+      "round": 0,
+      "calls": 59,
+      "elapsed_ns": "34727000"
+    },
+    {
+      "fields": 64,
+      "lane": "frontier/text-edit-text",
+      "round": 0,
+      "calls": 2433,
+      "elapsed_ns": "136957542"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/prepared-output",
+      "round": 0,
+      "calls": 506,
+      "elapsed_ns": "92995792"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/prepared-output",
+      "round": 0,
+      "calls": 575,
+      "elapsed_ns": "106791541"
+    },
+    {
+      "fields": 64,
+      "lane": "control/input",
+      "round": 0,
+      "calls": 10,
+      "elapsed_ns": "6987125"
+    },
+    {
+      "fields": 64,
+      "lane": "control/input",
+      "round": 1,
+      "calls": 10,
+      "elapsed_ns": "19409375"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/input",
+      "round": 1,
+      "calls": 276,
+      "elapsed_ns": "72751208"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/prepared-output",
+      "round": 1,
+      "calls": 506,
+      "elapsed_ns": "15553542"
+    },
+    {
+      "fields": 64,
+      "lane": "frontier/text-edit-text",
+      "round": 1,
+      "calls": 2433,
+      "elapsed_ns": "143010000"
+    },
+    {
+      "fields": 64,
+      "lane": "control/text-edit-text",
+      "round": 1,
+      "calls": 59,
+      "elapsed_ns": "114342584"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/text-edit-text",
+      "round": 1,
+      "calls": 232,
+      "elapsed_ns": "91378666"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/text-edit-text",
+      "round": 1,
+      "calls": 21,
+      "elapsed_ns": "2687250"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/input",
+      "round": 1,
+      "calls": 10,
+      "elapsed_ns": "723666"
+    },
+    {
+      "fields": 64,
+      "lane": "control/prepared-output",
+      "round": 1,
+      "calls": 424,
+      "elapsed_ns": "59878916"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/prepared-output",
+      "round": 1,
+      "calls": 575,
+      "elapsed_ns": "29461375"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/text-edit-text",
+      "round": 2,
+      "calls": 21,
+      "elapsed_ns": "5377041"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/text-edit-text",
+      "round": 2,
+      "calls": 232,
+      "elapsed_ns": "135870250"
+    },
+    {
+      "fields": 64,
+      "lane": "control/prepared-output",
+      "round": 2,
+      "calls": 424,
+      "elapsed_ns": "96797042"
+    },
+    {
+      "fields": 64,
+      "lane": "frontier/text-edit-text",
+      "round": 2,
+      "calls": 2433,
+      "elapsed_ns": "35120000"
+    },
+    {
+      "fields": 64,
+      "lane": "control/input",
+      "round": 2,
+      "calls": 10,
+      "elapsed_ns": "1750584"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/prepared-output",
+      "round": 2,
+      "calls": 506,
+      "elapsed_ns": "152141125"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/prepared-output",
+      "round": 2,
+      "calls": 575,
+      "elapsed_ns": "145097125"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/input",
+      "round": 2,
+      "calls": 276,
+      "elapsed_ns": "48074834"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/input",
+      "round": 2,
+      "calls": 10,
+      "elapsed_ns": "545958"
+    },
+    {
+      "fields": 64,
+      "lane": "control/text-edit-text",
+      "round": 2,
+      "calls": 59,
+      "elapsed_ns": "9518042"
+    },
+    {
+      "fields": 64,
+      "lane": "control/text-edit-text",
+      "round": 3,
+      "calls": 59,
+      "elapsed_ns": "32616417"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/prepared-output",
+      "round": 3,
+      "calls": 506,
+      "elapsed_ns": "151080125"
+    },
+    {
+      "fields": 64,
+      "lane": "control/input",
+      "round": 3,
+      "calls": 10,
+      "elapsed_ns": "1677209"
+    },
+    {
+      "fields": 64,
+      "lane": "frontier/text-edit-text",
+      "round": 3,
+      "calls": 2433,
+      "elapsed_ns": "47968750"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/text-edit-text",
+      "round": 3,
+      "calls": 21,
+      "elapsed_ns": "4238917"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/input",
+      "round": 3,
+      "calls": 276,
+      "elapsed_ns": "21196292"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/prepared-output",
+      "round": 3,
+      "calls": 575,
+      "elapsed_ns": "207966542"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/text-edit-text",
+      "round": 3,
+      "calls": 232,
+      "elapsed_ns": "153500541"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/input",
+      "round": 3,
+      "calls": 10,
+      "elapsed_ns": "600583"
+    },
+    {
+      "fields": 64,
+      "lane": "control/prepared-output",
+      "round": 3,
+      "calls": 424,
+      "elapsed_ns": "18233333"
+    },
+    {
+      "fields": 64,
+      "lane": "frontier/text-edit-text",
+      "round": 4,
+      "calls": 2433,
+      "elapsed_ns": "16978292"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/input",
+      "round": 4,
+      "calls": 10,
+      "elapsed_ns": "2033167"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/input",
+      "round": 4,
+      "calls": 276,
+      "elapsed_ns": "23083459"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/prepared-output",
+      "round": 4,
+      "calls": 506,
+      "elapsed_ns": "253149583"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/prepared-output",
+      "round": 4,
+      "calls": 575,
+      "elapsed_ns": "41318458"
+    },
+    {
+      "fields": 64,
+      "lane": "control/text-edit-text",
+      "round": 4,
+      "calls": 59,
+      "elapsed_ns": "17623334"
+    },
+    {
+      "fields": 64,
+      "lane": "control/prepared-output",
+      "round": 4,
+      "calls": 424,
+      "elapsed_ns": "137707333"
+    },
+    {
+      "fields": 64,
+      "lane": "control/input",
+      "round": 4,
+      "calls": 10,
+      "elapsed_ns": "41042834"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/text-edit-text",
+      "round": 4,
+      "calls": 232,
+      "elapsed_ns": "134537834"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/text-edit-text",
+      "round": 4,
+      "calls": 21,
+      "elapsed_ns": "1857291"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/text-edit-text",
+      "round": 5,
+      "calls": 21,
+      "elapsed_ns": "4146792"
+    },
+    {
+      "fields": 64,
+      "lane": "control/text-edit-text",
+      "round": 5,
+      "calls": 59,
+      "elapsed_ns": "6756500"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/input",
+      "round": 5,
+      "calls": 276,
+      "elapsed_ns": "18470125"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/text-edit-text",
+      "round": 5,
+      "calls": 232,
+      "elapsed_ns": "31564209"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/prepared-output",
+      "round": 5,
+      "calls": 506,
+      "elapsed_ns": "23942166"
+    },
+    {
+      "fields": 64,
+      "lane": "frontier/text-edit-text",
+      "round": 5,
+      "calls": 2433,
+      "elapsed_ns": "23362000"
+    },
+    {
+      "fields": 64,
+      "lane": "control/prepared-output",
+      "round": 5,
+      "calls": 424,
+      "elapsed_ns": "271539333"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/prepared-output",
+      "round": 5,
+      "calls": 575,
+      "elapsed_ns": "22020583"
+    },
+    {
+      "fields": 64,
+      "lane": "control/input",
+      "round": 5,
+      "calls": 10,
+      "elapsed_ns": "7882041"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/input",
+      "round": 5,
+      "calls": 10,
+      "elapsed_ns": "773166"
+    },
+    {
+      "fields": 64,
+      "lane": "control/prepared-output",
+      "round": 6,
+      "calls": 424,
+      "elapsed_ns": "150850792"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/input",
+      "round": 6,
+      "calls": 10,
+      "elapsed_ns": "2069875"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/text-edit-text",
+      "round": 6,
+      "calls": 21,
+      "elapsed_ns": "3311667"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/input",
+      "round": 6,
+      "calls": 276,
+      "elapsed_ns": "23686958"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/text-edit-text",
+      "round": 6,
+      "calls": 232,
+      "elapsed_ns": "31998167"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/prepared-output",
+      "round": 6,
+      "calls": 575,
+      "elapsed_ns": "256776250"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/prepared-output",
+      "round": 6,
+      "calls": 506,
+      "elapsed_ns": "112443958"
+    },
+    {
+      "fields": 64,
+      "lane": "frontier/text-edit-text",
+      "round": 6,
+      "calls": 2433,
+      "elapsed_ns": "91307000"
+    },
+    {
+      "fields": 64,
+      "lane": "control/input",
+      "round": 6,
+      "calls": 10,
+      "elapsed_ns": "9760417"
+    },
+    {
+      "fields": 64,
+      "lane": "control/text-edit-text",
+      "round": 6,
+      "calls": 59,
+      "elapsed_ns": "51221042"
+    },
+    {
+      "fields": 64,
+      "lane": "control/text-edit-text",
+      "round": 7,
+      "calls": 59,
+      "elapsed_ns": "33759542"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/input",
+      "round": 7,
+      "calls": 10,
+      "elapsed_ns": "6987375"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/text-edit-text",
+      "round": 7,
+      "calls": 21,
+      "elapsed_ns": "56384500"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/prepared-output",
+      "round": 7,
+      "calls": 506,
+      "elapsed_ns": "28366584"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/input",
+      "round": 7,
+      "calls": 276,
+      "elapsed_ns": "175109209"
+    },
+    {
+      "fields": 64,
+      "lane": "frontier/text-edit-text",
+      "round": 7,
+      "calls": 2433,
+      "elapsed_ns": "28092291"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/text-edit-text",
+      "round": 7,
+      "calls": 232,
+      "elapsed_ns": "130149792"
+    },
+    {
+      "fields": 64,
+      "lane": "control/prepared-output",
+      "round": 7,
+      "calls": 424,
+      "elapsed_ns": "13455250"
+    },
+    {
+      "fields": 64,
+      "lane": "control/input",
+      "round": 7,
+      "calls": 10,
+      "elapsed_ns": "991833"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/prepared-output",
+      "round": 7,
+      "calls": 575,
+      "elapsed_ns": "279320875"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/text-edit-text",
+      "round": 8,
+      "calls": 232,
+      "elapsed_ns": "287302500"
+    },
+    {
+      "fields": 64,
+      "lane": "control/text-edit-text",
+      "round": 8,
+      "calls": 59,
+      "elapsed_ns": "46838875"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/input",
+      "round": 8,
+      "calls": 10,
+      "elapsed_ns": "1108000"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/text-edit-text",
+      "round": 8,
+      "calls": 21,
+      "elapsed_ns": "2965958"
+    },
+    {
+      "fields": 64,
+      "lane": "frontier/text-edit-text",
+      "round": 8,
+      "calls": 2433,
+      "elapsed_ns": "104183792"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/prepared-output",
+      "round": 8,
+      "calls": 575,
+      "elapsed_ns": "137780541"
+    },
+    {
+      "fields": 64,
+      "lane": "control/prepared-output",
+      "round": 8,
+      "calls": 424,
+      "elapsed_ns": "39823958"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/prepared-output",
+      "round": 8,
+      "calls": 506,
+      "elapsed_ns": "20722791"
+    },
+    {
+      "fields": 64,
+      "lane": "control/input",
+      "round": 8,
+      "calls": 10,
+      "elapsed_ns": "1050000"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/input",
+      "round": 8,
+      "calls": 276,
+      "elapsed_ns": "223990334"
+    },
+    {
+      "fields": 512,
+      "lane": "control/text-edit-text",
+      "round": 0,
+      "calls": 10,
+      "elapsed_ns": "31557333"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/prepared-output",
+      "round": 0,
+      "calls": 10,
+      "elapsed_ns": "6640125"
+    },
+    {
+      "fields": 512,
+      "lane": "control/input",
+      "round": 0,
+      "calls": 11,
+      "elapsed_ns": "8319958"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/prepared-output",
+      "round": 0,
+      "calls": 87,
+      "elapsed_ns": "280625208"
+    },
+    {
+      "fields": 512,
+      "lane": "control/prepared-output",
+      "round": 0,
+      "calls": 41,
+      "elapsed_ns": "143997792"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/input",
+      "round": 0,
+      "calls": 10,
+      "elapsed_ns": "54537292"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/text-edit-text",
+      "round": 0,
+      "calls": 10,
+      "elapsed_ns": "100556292"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/input",
+      "round": 0,
+      "calls": 34,
+      "elapsed_ns": "21223375"
+    },
+    {
+      "fields": 512,
+      "lane": "frontier/text-edit-text",
+      "round": 0,
+      "calls": 10,
+      "elapsed_ns": "2576875"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/text-edit-text",
+      "round": 0,
+      "calls": 10,
+      "elapsed_ns": "121001541"
+    },
+    {
+      "fields": 512,
+      "lane": "control/prepared-output",
+      "round": 1,
+      "calls": 41,
+      "elapsed_ns": "17005458"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/prepared-output",
+      "round": 1,
+      "calls": 87,
+      "elapsed_ns": "158510709"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/text-edit-text",
+      "round": 1,
+      "calls": 10,
+      "elapsed_ns": "23055458"
+    },
+    {
+      "fields": 512,
+      "lane": "control/text-edit-text",
+      "round": 1,
+      "calls": 10,
+      "elapsed_ns": "11741042"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/text-edit-text",
+      "round": 1,
+      "calls": 10,
+      "elapsed_ns": "7437917"
+    },
+    {
+      "fields": 512,
+      "lane": "frontier/text-edit-text",
+      "round": 1,
+      "calls": 10,
+      "elapsed_ns": "193285875"
+    },
+    {
+      "fields": 512,
+      "lane": "control/input",
+      "round": 1,
+      "calls": 11,
+      "elapsed_ns": "8352084"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/input",
+      "round": 1,
+      "calls": 10,
+      "elapsed_ns": "4205833"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/input",
+      "round": 1,
+      "calls": 34,
+      "elapsed_ns": "15712792"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/prepared-output",
+      "round": 1,
+      "calls": 10,
+      "elapsed_ns": "1783041"
+    },
+    {
+      "fields": 512,
+      "lane": "control/text-edit-text",
+      "round": 2,
+      "calls": 10,
+      "elapsed_ns": "7398292"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/input",
+      "round": 2,
+      "calls": 34,
+      "elapsed_ns": "223468916"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/text-edit-text",
+      "round": 2,
+      "calls": 10,
+      "elapsed_ns": "109557584"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/prepared-output",
+      "round": 2,
+      "calls": 10,
+      "elapsed_ns": "2691250"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/prepared-output",
+      "round": 2,
+      "calls": 87,
+      "elapsed_ns": "160343750"
+    },
+    {
+      "fields": 512,
+      "lane": "control/prepared-output",
+      "round": 2,
+      "calls": 41,
+      "elapsed_ns": "63163250"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/input",
+      "round": 2,
+      "calls": 10,
+      "elapsed_ns": "5738292"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/text-edit-text",
+      "round": 2,
+      "calls": 10,
+      "elapsed_ns": "69645583"
+    },
+    {
+      "fields": 512,
+      "lane": "control/input",
+      "round": 2,
+      "calls": 11,
+      "elapsed_ns": "26748292"
+    },
+    {
+      "fields": 512,
+      "lane": "frontier/text-edit-text",
+      "round": 2,
+      "calls": 10,
+      "elapsed_ns": "6613958"
+    },
+    {
+      "fields": 512,
+      "lane": "control/prepared-output",
+      "round": 3,
+      "calls": 41,
+      "elapsed_ns": "19614542"
+    },
+    {
+      "fields": 512,
+      "lane": "control/text-edit-text",
+      "round": 3,
+      "calls": 10,
+      "elapsed_ns": "12693375"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/input",
+      "round": 3,
+      "calls": 34,
+      "elapsed_ns": "195148667"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/text-edit-text",
+      "round": 3,
+      "calls": 10,
+      "elapsed_ns": "6495750"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/prepared-output",
+      "round": 3,
+      "calls": 10,
+      "elapsed_ns": "1474042"
+    },
+    {
+      "fields": 512,
+      "lane": "frontier/text-edit-text",
+      "round": 3,
+      "calls": 10,
+      "elapsed_ns": "1202166"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/prepared-output",
+      "round": 3,
+      "calls": 87,
+      "elapsed_ns": "114174041"
+    },
+    {
+      "fields": 512,
+      "lane": "control/input",
+      "round": 3,
+      "calls": 11,
+      "elapsed_ns": "28840042"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/text-edit-text",
+      "round": 3,
+      "calls": 10,
+      "elapsed_ns": "96263666"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/input",
+      "round": 3,
+      "calls": 10,
+      "elapsed_ns": "5119666"
+    },
+    {
+      "fields": 512,
+      "lane": "control/input",
+      "round": 4,
+      "calls": 11,
+      "elapsed_ns": "6644750"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/input",
+      "round": 4,
+      "calls": 10,
+      "elapsed_ns": "8075958"
+    },
+    {
+      "fields": 512,
+      "lane": "control/text-edit-text",
+      "round": 4,
+      "calls": 10,
+      "elapsed_ns": "27926709"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/text-edit-text",
+      "round": 4,
+      "calls": 10,
+      "elapsed_ns": "6348500"
+    },
+    {
+      "fields": 512,
+      "lane": "control/prepared-output",
+      "round": 4,
+      "calls": 41,
+      "elapsed_ns": "12336959"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/text-edit-text",
+      "round": 4,
+      "calls": 10,
+      "elapsed_ns": "8914333"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/prepared-output",
+      "round": 4,
+      "calls": 10,
+      "elapsed_ns": "1507292"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/prepared-output",
+      "round": 4,
+      "calls": 87,
+      "elapsed_ns": "405894333"
+    },
+    {
+      "fields": 512,
+      "lane": "frontier/text-edit-text",
+      "round": 4,
+      "calls": 10,
+      "elapsed_ns": "6608209"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/input",
+      "round": 4,
+      "calls": 34,
+      "elapsed_ns": "46885500"
+    },
+    {
+      "fields": 512,
+      "lane": "control/prepared-output",
+      "round": 5,
+      "calls": 41,
+      "elapsed_ns": "169662250"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/input",
+      "round": 5,
+      "calls": 34,
+      "elapsed_ns": "48668750"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/input",
+      "round": 5,
+      "calls": 10,
+      "elapsed_ns": "126401417"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/prepared-output",
+      "round": 5,
+      "calls": 10,
+      "elapsed_ns": "31819541"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/text-edit-text",
+      "round": 5,
+      "calls": 10,
+      "elapsed_ns": "71390625"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/prepared-output",
+      "round": 5,
+      "calls": 87,
+      "elapsed_ns": "38714417"
+    },
+    {
+      "fields": 512,
+      "lane": "control/input",
+      "round": 5,
+      "calls": 11,
+      "elapsed_ns": "4332625"
+    },
+    {
+      "fields": 512,
+      "lane": "frontier/text-edit-text",
+      "round": 5,
+      "calls": 10,
+      "elapsed_ns": "3073208"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/text-edit-text",
+      "round": 5,
+      "calls": 10,
+      "elapsed_ns": "44184833"
+    },
+    {
+      "fields": 512,
+      "lane": "control/text-edit-text",
+      "round": 5,
+      "calls": 10,
+      "elapsed_ns": "47227500"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/text-edit-text",
+      "round": 6,
+      "calls": 10,
+      "elapsed_ns": "308071750"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/input",
+      "round": 6,
+      "calls": 34,
+      "elapsed_ns": "82507250"
+    },
+    {
+      "fields": 512,
+      "lane": "control/text-edit-text",
+      "round": 6,
+      "calls": 10,
+      "elapsed_ns": "215501042"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/text-edit-text",
+      "round": 6,
+      "calls": 10,
+      "elapsed_ns": "100478792"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/prepared-output",
+      "round": 6,
+      "calls": 10,
+      "elapsed_ns": "3458666"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/input",
+      "round": 6,
+      "calls": 10,
+      "elapsed_ns": "25313334"
+    },
+    {
+      "fields": 512,
+      "lane": "frontier/text-edit-text",
+      "round": 6,
+      "calls": 10,
+      "elapsed_ns": "10325708"
+    },
+    {
+      "fields": 512,
+      "lane": "control/prepared-output",
+      "round": 6,
+      "calls": 41,
+      "elapsed_ns": "13603666"
+    },
+    {
+      "fields": 512,
+      "lane": "control/input",
+      "round": 6,
+      "calls": 11,
+      "elapsed_ns": "18037042"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/prepared-output",
+      "round": 6,
+      "calls": 87,
+      "elapsed_ns": "157724541"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/input",
+      "round": 7,
+      "calls": 10,
+      "elapsed_ns": "57309917"
+    },
+    {
+      "fields": 512,
+      "lane": "control/text-edit-text",
+      "round": 7,
+      "calls": 10,
+      "elapsed_ns": "25442500"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/input",
+      "round": 7,
+      "calls": 34,
+      "elapsed_ns": "198305667"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/text-edit-text",
+      "round": 7,
+      "calls": 10,
+      "elapsed_ns": "8587375"
+    },
+    {
+      "fields": 512,
+      "lane": "frontier/text-edit-text",
+      "round": 7,
+      "calls": 10,
+      "elapsed_ns": "73191291"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/prepared-output",
+      "round": 7,
+      "calls": 87,
+      "elapsed_ns": "58501625"
+    },
+    {
+      "fields": 512,
+      "lane": "control/prepared-output",
+      "round": 7,
+      "calls": 41,
+      "elapsed_ns": "35517708"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/text-edit-text",
+      "round": 7,
+      "calls": 10,
+      "elapsed_ns": "26581792"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/prepared-output",
+      "round": 7,
+      "calls": 10,
+      "elapsed_ns": "3211709"
+    },
+    {
+      "fields": 512,
+      "lane": "control/input",
+      "round": 7,
+      "calls": 11,
+      "elapsed_ns": "8361500"
+    },
+    {
+      "fields": 512,
+      "lane": "control/input",
+      "round": 8,
+      "calls": 11,
+      "elapsed_ns": "6558583"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/text-edit-text",
+      "round": 8,
+      "calls": 10,
+      "elapsed_ns": "27017584"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/prepared-output",
+      "round": 8,
+      "calls": 10,
+      "elapsed_ns": "2527625"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/prepared-output",
+      "round": 8,
+      "calls": 87,
+      "elapsed_ns": "68300541"
+    },
+    {
+      "fields": 512,
+      "lane": "control/text-edit-text",
+      "round": 8,
+      "calls": 10,
+      "elapsed_ns": "234081208"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/text-edit-text",
+      "round": 8,
+      "calls": 10,
+      "elapsed_ns": "17035042"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/input",
+      "round": 8,
+      "calls": 10,
+      "elapsed_ns": "6971625"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/input",
+      "round": 8,
+      "calls": 34,
+      "elapsed_ns": "123831500"
+    },
+    {
+      "fields": 512,
+      "lane": "frontier/text-edit-text",
+      "round": 8,
+      "calls": 10,
+      "elapsed_ns": "9978333"
+    },
+    {
+      "fields": 512,
+      "lane": "control/prepared-output",
+      "round": 8,
+      "calls": 41,
+      "elapsed_ns": "22266583"
+    }
+  ],
+  "validation": [
+    {
+      "fields": 4,
+      "complete_outputs": true,
+      "source_unchanged": true,
+      "exact_portable_and_compact_bytes": true
+    },
+    {
+      "fields": 64,
+      "complete_outputs": true,
+      "source_unchanged": true,
+      "exact_portable_and_compact_bytes": true
+    },
+    {
+      "fields": 512,
+      "complete_outputs": true,
+      "source_unchanged": true,
+      "exact_portable_and_compact_bytes": true
+    }
+  ],
+  "checksum": 0,
+  "scope": "Three fresh paired processes; identical selected layout and source. Builder changes only generic session allocation; consumer also removes JSON member result objects. Native Frontier uses different numeric-token/member-order/duplicate/resource contracts. Shared host; import, memory and selection profitability are not established."
+}

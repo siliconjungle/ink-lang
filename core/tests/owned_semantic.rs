@@ -97,6 +97,26 @@ fn check_call(module: &CheckedModule, name: &str, args: Vec<Value>) {
     }
 }
 #[test]
+fn callback_substitution_preserves_map_constructor_observations() {
+    for key in ["u32", "i32", "u64", "Bool"] {
+        let source=format!(r#"module CallbackMap;
+fn inserted(m:Map<{key},f32>,key:{key},value:f32)->Bool{{let next=m.set(key,value);return next.contains(key);}}
+fn removed(m:Map<{key},f32>,key:{key})->Bool{{let next=m.remove(key);return next.contains(key);}}
+"#);
+        let module=CheckedModule::from_source(parse(&source).unwrap()).unwrap();
+        let p=module.program();
+        let catalogue=CheckedCatalogue::check(&Catalogue{schema:1,semantics:ink_core::laws::SEMANTICS.into(),roots:vec![],objects:BTreeMap::new()},p).unwrap();
+        for (name,expected) in [("inserted",true),("removed",false)] {
+            let f=p.functions.iter().find(|f|f.name==name).unwrap();
+            let from=s::elaborate(&f.body,&check::params_env(&f.params).unwrap(),p,&f.result).unwrap();
+            let env=f.params.iter().map(|(name,ty)|(name.clone(),s::value(ty.clone()))).collect();
+            let equation=|answer|Equation{from:from.clone(),to:s::term(s::value(Type::Bool),Node::Bool(answer))};
+            catalogue.prove(p,&env,&[],&equation(expected),&Proof::Normalize,&mut Budget::new(),0).unwrap();
+            assert!(catalogue.prove(p,&env,&[],&equation(!expected),&Proof::Normalize,&mut Budget::new(),0).is_err());
+        }
+    }
+}
+#[test]
 fn symbolic_map_membership_observes_its_keys_and_preserves_captured_queries() {
     let module=CheckedModule::from_source(parse(r#"module MapKeys;
 fn direct(m:Map<u32,Bool>,key:u32)->Bool{return m.contains(key);}

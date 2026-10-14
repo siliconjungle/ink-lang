@@ -87,15 +87,62 @@ def audit(catalog, scope):
     return gaps
 
 
+
+def partition(items, index, count):
+    if count < 1 or not 0 <= index < count:
+        raise ValueError("invalid conformance partition")
+    return list(items)[index::count]
+
+
+def run_test_partition(suites, index, count, env, receipt):
+    command = ["cargo", "test", "--locked", "--no-run", "--message-format=json"]
+    for suite in suites:
+        command += ["--test", suite]
+    build = subprocess.run(command, cwd=ROOT, env=env, stdout=subprocess.PIPE, text=True)
+    if build.returncode:
+        return build.returncode
+    binaries = {}
+    for line in build.stdout.splitlines():
+        try:
+            artifact = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if artifact.get("reason") == "compiler-artifact" and artifact.get("executable") and artifact.get("target", {}).get("name") in suites:
+            binaries[artifact["target"]["name"]] = artifact["executable"]
+    if set(binaries) != set(suites):
+        raise ValueError("missing conformance test executable")
+    receipt["test_partitions"] = {}
+    for suite in suites:
+        listing = subprocess.run([binaries[suite], "--list", "--format=terse"], cwd=ROOT, env=env, capture_output=True, text=True, check=True)
+        tests = sorted(line[:-6] for line in listing.stdout.splitlines() if line.endswith(": test"))
+        if not tests:
+            raise ValueError("empty conformance test inventory: " + suite)
+        selected = partition(tests, index, count)
+        receipt["test_partitions"][suite] = {"all": tests, "selected": selected}
+        for test in selected:
+            print(f"Conformance {suite}/{test} partition {index}/{count}", flush=True)
+            result = subprocess.run([binaries[suite], test, "--exact", "--nocapture", "--test-threads=1"], cwd=ROOT, env=env)
+            if result.returncode:
+                return result.returncode
+    return 0
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--scope", choices=["all", "cpu", "contract"], default="all")
     parser.add_argument("--catalog", type=Path, default=ROOT / "tests/feature-parity.json")
     parser.add_argument("--run", action="store_true", help="run required compiled conformance after the inventory passes")
     parser.add_argument("--receipt", type=Path)
-    parser.add_argument("--shard", choices=["all", "general", "representations"], default="all",
+    parser.add_argument("--shard", choices=["all", "general", "representations", "contracts"], default="all",
                         help="fixed CPU suite partition; partial receipts identify exactly which suites ran")
+    parser.add_argument("--partition-index", type=int, default=0)
+    parser.add_argument("--partition-count", type=int, default=1)
+    parser.add_argument("--partition-tests", action="store_true", help="partition individual tests instead of entire suites")
+    parser.add_argument("--exclude-suite", action="append", default=[], help="exclude a suite supplied by another audited CI partition")
     args = parser.parse_args()
+    partition([], args.partition_index, args.partition_count)
+    if args.partition_count != 1 and args.scope != "cpu":
+        raise ValueError("partitioned execution requires CPU scope")
     catalog = json.loads(args.catalog.read_text())
     gaps = audit(catalog, args.scope)
     if args.shard != "all" and args.scope != "cpu":
@@ -105,8 +152,19 @@ def main():
         suites = [s for s in suites if s != "representation_parity"]
     elif args.shard == "representations":
         suites = [s for s in suites if s == "representation_parity"]
+    elif args.shard == "contracts":
+        suites = [s for s in suites if s == "source_contracts"]
+    if args.exclude_suite:
+        if args.scope != "cpu" or len(set(args.exclude_suite)) != len(args.exclude_suite) or not set(args.exclude_suite).issubset(suites):
+            raise ValueError("invalid excluded suite")
+        suites = [suite for suite in suites if suite not in args.exclude_suite]
+    all_suites = suites
+    if not args.partition_tests:
+        suites = partition(suites, args.partition_index, args.partition_count)
+    if not suites:
+        raise ValueError("empty conformance suite partition")
     receipt = {"schema": 1, "scope": args.scope, "inventory": "failed" if gaps else "passed", "conformance": "not-run", "gaps": gaps}
-    receipt.update(suite_shard=args.shard, suites=suites)
+    receipt.update(suite_shard=args.shard, suites=suites, all_suites=all_suites, partition_index=args.partition_index, partition_count=args.partition_count, partition_tests=args.partition_tests)
     for gap in gaps:
         print(f"FAIL {gap['target']}/{gap['feature']}: {gap['reason']}", file=sys.stderr)
     status = 1 if gaps else 0
@@ -127,10 +185,13 @@ def main():
         command = ["cargo", "test", "--locked"]
         for suite in suites:
             command += ["--test", suite]
-        status = subprocess.run(command + ["--", "--nocapture", "--test-threads=1"], cwd=ROOT, env=env).returncode
+        if args.partition_tests:
+            status = run_test_partition(suites, args.partition_index, args.partition_count, env, receipt)
+        else:
+            status = subprocess.run(command + ["--", "--nocapture", "--test-threads=1"], cwd=ROOT, env=env).returncode
         receipt["conformance"] = ("passed" if args.shard == "all" else "shard-passed") if status == 0 else "failed"
         if status == 0 and args.scope in ("all", "contract"):
-            status = subprocess.run(["python3", "bench/gpu/prepare-lowering-parity-browser.py", env["INK_TEST_WASM"]], cwd=ROOT, env=env).returncode
+            status = subprocess.run(["python3", "bench/gpu/prepare-lowering-parity-browser.py"], cwd=ROOT, env=env).returncode
             if status == 0:
                 status = subprocess.run(["node", "bench/gpu/lowering-parity-browser.mjs", env["INK_TEST_CHROME"]], cwd=ROOT, env=env).returncode
             receipt["conformance"] = "passed" if status == 0 else "failed"

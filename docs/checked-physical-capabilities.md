@@ -157,6 +157,23 @@ intermediate source traversal/allocation, but the host compiler already optimise
 some literal stages and changed traversal shapes can reduce vectorisation. No
 universal runtime speedup is claimed. Automatic physical planning continues to
 retain the baseline when comparable lifecycle evidence is absent.
+
+## Checked wire reader choices
+
+A physical plan may contain boundary_readers entries naming a source function and
+a compact or portable format. The general checker binds the complete first-order
+function interface to the exact module and rejects repeated, unsorted, missing or
+unsupported sites. JavaScript emits the selected checked literal reader for that
+function's input and value-codec boundaries. Other targets reject this capability.
+
+The database's boundary-readers recipe proposes individual and combined choices,
+preserving earlier physical steps. Ordinary automatic JavaScript calibration
+includes trusted, portable and compact call lifecycles. Observed profiles take
+precedence over these bounded general probes. Decoder-only improvements do not
+establish complete lifecycle profitability; absent comparable gains retains the
+baseline. Mathematical source checking, operational validation and backend
+correctness remain separate obligations.
+
 # Function-scoped parameter loans
 
 Rust and Rust-Wasm plans may name an immutable parameter through
@@ -172,7 +189,7 @@ sites retain their meanings. A scoped site for `read(x)` does not also borrow
 borrowed implementation. Public functions with no affine arguments or result also
 export that safe Rust entry as `ink_borrowed_function_l_NAME`, so native library
 callers can retain a document while querying or saving it without cloning its
-owning value. Wire/native C entry points keep their existing owning signatures.
+owning value. Wire entry points keep their existing owning signatures.
 Immutable field observations through an already
 borrowed binding share that lifetime. Computed arguments and projections from
 affine owners are first materialised as ordinary owning temporaries, then lent

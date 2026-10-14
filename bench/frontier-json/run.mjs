@@ -13,7 +13,8 @@ const modulePath=process.argv.find(a=>a.startsWith('--ink-module='))?.slice('--i
 const ink=await import(pathToFileURL(path.resolve(ROOT,modulePath)).href);
 const controlModulePath=process.argv.find(a=>a.startsWith('--compare-ink-module='))?.slice('--compare-ink-module='.length);
 const controlInk=controlModulePath?await import(pathToFileURL(path.resolve(ROOT,controlModulePath)).href):null;
-const provenanceAtStart=provenance(ROOT);
+const provenanceOptions={native:!process.argv.includes('--javascript-only')};
+const provenanceAtStart=provenance(ROOT,provenanceOptions);
 const selectedModuleHash=createHash('sha256').update(fs.readFileSync(path.resolve(ROOT,modulePath))).digest('hex');
 provenanceAtStart.hashes[modulePath]=selectedModuleHash;
 const controlModuleHash=controlModulePath?createHash('sha256').update(fs.readFileSync(path.resolve(ROOT,controlModulePath))).digest('hex'):null;
@@ -22,10 +23,13 @@ const fixtures=JSON.parse(fs.readFileSync(path.join(D,'fixtures.json'))),raw=[],
 const laneFilter=process.argv.find(a=>a.startsWith('--lanes='))?.slice('--lanes='.length).split(',');
 const lanes=['ink-rust-ordered','ink-rust-borrow','ink-rust-indexed','ink-rust-indexed-borrow','ink-js','ink-js-bound','ink-js-prepared','ink-js-db-indexed','frontier-core-patch','frontier-core-diff','frontier-core-dirty','frontier-state-release-patch','frontier-state-main-patch','frontier-state-main-prepared-patch','frontier-state-release-commit','frontier-state-main-commit',...(controlInk?['ink-js-control','ink-js-control-prepared']:[])].filter(lane=>!process.argv.includes('--javascript-only')||!lane.startsWith('ink-rust')).filter(lane=>!laneFilter||laneFilter.includes(lane));
 if(!lanes.length||laneFilter?.some(lane=>!lanes.includes(lane)))throw Error('unknown or incompatible lane selection');
-const native=spawn(path.join(D,'target/release/ink-frontier-json-benchmark'),[path.join(D,'fixtures.json')],{stdio:['pipe','pipe','inherit']}),pending=[];
-createInterface({input:native.stdout}).on('line',line=>{const p=pending.shift();if(!p)throw Error('unexpected native response');p.resolve(JSON.parse(line));});
-native.on('exit',code=>{for(const p of pending.splice(0))p.reject(Error('native exit '+code));});
-const nativeRun=(fixture,lane,repeats,capture)=>new Promise((resolve,reject)=>{pending.push({resolve,reject});native.stdin.write(JSON.stringify({fixture,lane,repeats,capture})+'\n');});
+const native=lanes.some(l=>l.startsWith('ink-rust'))?spawn(path.join(D,'target/release/ink-frontier-json-benchmark'),[path.join(D,'fixtures.json')],{stdio:['pipe','pipe','inherit']}):null,pending=[];let nativeError=null;
+if(native){
+ createInterface({input:native.stdout}).on('line',line=>{const p=pending.shift();if(!p)throw Error('unexpected native response');p.resolve(JSON.parse(line));});
+ native.on('error',error=>{nativeError=error;for(const p of pending.splice(0))p.reject(error);});
+ native.on('exit',code=>{for(const p of pending.splice(0))p.reject(Error('native exit '+code));});
+}
+const nativeRun=(fixture,lane,repeats,capture)=>new Promise((resolve,reject)=>{if(!native||nativeError){reject(nativeError??Error('native lane unavailable'));return;}pending.push({resolve,reject});native.stdin.write(JSON.stringify({fixture,lane,repeats,capture})+'\n');});
 const normalize=v=>typeof v==='bigint'?Number(v):Array.isArray(v)?v.map(normalize):v&&typeof v==='object'?Object.fromEntries(Object.entries(v).map(([k,x])=>[k,normalize(x)])):v;
 const hashBytes=b=>createHash('sha256').update(b).digest('hex');
 function consume(h,r){let e=0;for(const v of r.events)e=(e+Number(v.value)+Number(v.commit)+Number(v.position))>>>0;const value=typeof r.result==='number'?r.result:r.result?.Err?0xbad:0;return(Math.imul(h,1664525)+Number(r.version)+value+(r.committed?65537:0)+e)>>>0;}
@@ -71,4 +75,4 @@ try{
  if(controlModulePath)assert.equal(createHash('sha256').update(fs.readFileSync(path.resolve(ROOT,controlModulePath))).digest('hex'),controlModuleHash,'control module changed during timing');
  const report={schema:1,control_javascript_module:controlModulePath??null,javascript_module:modulePath,provenance:provenanceAtStart,instrumented:process.execArgv.some(a=>a.startsWith('--cpu-prof')||a.startsWith('--prof')||a.startsWith('--trace')),node:process.version,target:{cpu:os.cpus()[0].model,platform:os.platform(),arch:os.arch(),release:os.release()},process:processIndex,rounds,selected_lanes:lanes,benchmark_sha256:createHash('sha256').update(fs.readFileSync(fileURLToPath(import.meta.url))).digest('hex'),state_api:'watcher-free; full transactions, rollback, versions, events and acknowledgement supplied in adapter where Frontier omits them',timing_boundary:'retained compiled data; actual in-process calls; native IPC/checkpoints/capture/setup excluded; input capture/output replies included',measurements:raw,setup,validation};
  fs.writeFileSync(reportPath,JSON.stringify(report,null,2)+'\n',{flag:'wx'});
-}finally{native.stdin.end();}
+}finally{native?.stdin.end();}
