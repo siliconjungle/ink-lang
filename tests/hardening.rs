@@ -2191,7 +2191,7 @@ fn llvm_learning_and_incremental_knowledge_remain_checked() {
             "planner.tests.test_learning_provenance", "planner.tests.test_target_components",
             "planner.tests.test_physical_features", "planner.tests.test_physical_selection",
             "planner.tests.test_cost_profiles", "planner.tests.test_joint_domain",
-            "knowledge.tests.test_word_identities", "knowledge.tests.test_word_facts",
+            "knowledge.tests.test_word_identities", "knowledge.tests.test_v8_word_laws", "knowledge.tests.test_frozen_laws", "knowledge.tests.test_word_facts", "knowledge.tests.test_word_fact_queries",
             "knowledge.tests.test_target_work40_acquisition",
             "knowledge.tests.test_proof_authoring_deadline",
             "knowledge.tests.test_source_algorithms",
@@ -2203,7 +2203,7 @@ fn llvm_learning_and_incremental_knowledge_remain_checked() {
             "knowledge.tests.test_publication_concurrency", "knowledge.tests.test_publication_recovery", "knowledge.tests.test_publication_staging",
             "knowledge.tests.test_implementation_candidates",
             "planner.tests.test_modular_planning", "planner.tests.test_search_deadlines", "planner.tests.test_probabilistic_planning", "planner.tests.test_selected_closure_sessions", "planner.tests.test_plan_cache",
-            "planner.tests.test_compiled_cache", "planner.tests.test_compiled_cache_io",
+            "planner.tests.test_compiled_planning", "planner.tests.test_compiled_cache", "planner.tests.test_compiled_cache_io",
             "planner.tests.test_corpus_clone", "planner.tests.test_corpus_copy", "planner.tests.test_corpus_context",
             "planner.tests.test_corpus_environment", "planner.tests.test_corpus_inputs",
             "tests.test_audit_coverage"])

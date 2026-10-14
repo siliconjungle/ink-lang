@@ -1,0 +1,86 @@
+{
+  "finding": "F065",
+  "llvm_revision": "d977b4533f1d9b01d28cf4dba9b2db9d1ccfda08",
+  "files": [
+    {
+      "path": "llvm/include/llvm/Transforms/IPO/FunctionSpecialization.h",
+      "bytes": 13311,
+      "sha256": "cf291d06fb1b69f95a3455892b4861798695db2e1484ac2aee22e1d828ae1c74"
+    },
+    {
+      "path": "llvm/lib/Transforms/IPO/FunctionSpecialization.cpp",
+      "bytes": 44774,
+      "sha256": "281932828da75a2ceda8f6aecd66f0c22f9a00062d342ec673c86fe4ee75d0f9"
+    }
+  ],
+  "review_status": "All bytes reviewed; LLVM tests not executed. Implementation of function specialization in Ink remains open.",
+  "insights": [
+    {
+      "topic": "Separate legality and ranking",
+      "transfer": "LLVM estimates constant propagation/dead-block savings before solver confirmation. Ink ranking may speculate, but emitted specialization and dropped work require ordinary source-bound proofs; cost models never authorize a rewrite."
+    },
+    {
+      "topic": "Canonical specialization signatures",
+      "transfer": "Group all matching call sites by exact argument/constant signature; do analysis once per signature. Ink keys additionally bind exact core/module, type instantiation, checked effects and knowledge context."
+    },
+    {
+      "topic": "Plan a family before changing calls",
+      "transfer": "Discover and rank candidates first, create selected clones, then rematch recursive/remaining call sites after propagation. Avoid decision order changing candidate availability."
+    },
+    {
+      "topic": "Global finite variant selection",
+      "transfer": "The heap selects at most eligible-function-count times MaxClones across the module, with explicit index tie-breaking. It is not a strict independent per-function limit. Ink should state and enforce both local and aggregate search/code-growth budgets."
+    },
+    {
+      "topic": "Deferred dependencies",
+      "transfer": "Pending PHIs are retried after all specialized arguments propagate. Distinguish temporarily unknown from definitely unsuitable; retain bounded dependency lists rather than repeating unrelated work."
+    },
+    {
+      "topic": "Bounded cycle reasoning",
+      "transfer": "Transitive PHI walks deduplicate values, cap iterations and incoming fan-in, and reject conflicting constants/unknown non-PHI inputs. Ink recursive summaries need analogous safe widening and termination with fixed semantic proof gates."
+    },
+    {
+      "topic": "Avoid overlapping benefit counts",
+      "transfer": "KnownConstants and DeadBlocks prevent double counting removed instructions; latency is aggregated only after every argument and pending PHI has been processed. Ink combined transformations need marginal/shared cost accounting."
+    },
+    {
+      "topic": "Late expensive costs",
+      "transfer": "Compute frequency-weighted latency only after cheaper size/inline gates. Frequency/latency are heuristic estimates: integer weighting drops sub-entry frequencies, and thresholds are LLVM-specific rather than portable constants."
+    },
+    {
+      "topic": "Joint downstream opportunities",
+      "transfer": "Constant function pointers expose direct calls and future inlining; their bonus is separate and remains speculative. Ink bounded callback unfolding can benefit from composed costing instead of treating each intermediate rewrite as independently profitable."
+    },
+    {
+      "topic": "Code growth accounting boundaries",
+      "transfer": "Growth is accumulated when chosen clones are created. Candidate profitability checks occur earlier; early force/inlining-bonus exits bypass later growth checks. Do not copy these heuristics as hard Ink resource guarantees."
+    },
+    {
+      "topic": "Read-only constant storage",
+      "transfer": "Stack-to-global promotion requires a single nonvolatile store, no unknown users and readonly pointer call use. Ink needs exact ownership, escape/effects and lifecycle proofs before changing storage; observations alone cannot establish readonly."
+    },
+    {
+      "topic": "Analysis invalidation after specialization",
+      "transfer": "Cloned return facts reset dependent call lattice values and rerun propagation; removed functions clear cached analyses. Persisting summaries without source/context invalidation can hide newly available constants or keep stale facts."
+    },
+    {
+      "topic": "Eligibility and exported boundaries",
+      "transfer": "Exclude interposable/noduplicate/minsize/inlined-away functions, preserve address-taken originals, and reject poison. Ink public/host callbacks remain unconstrained unless exact whole-source authority closes the use set."
+    },
+    {
+      "topic": "Temporary analysis forms interact with later passes",
+      "transfer": "Predicate no-op copies are removed before clone/stack promotion. Ink analysis forms must have explicit lifetimes so later structural matching does not silently miss equivalent input."
+    },
+    {
+      "topic": "Finer instruction facts as proposal support",
+      "transfer": "LLVM can estimate calls, loads, GEPs and selects using target semantics. Ink current unsigned expression analysis should expand only with defined supported types/effects and independent checks, never LLVM pointer/undef/poison assumptions."
+    }
+  ],
+  "related": [
+    "F050",
+    "F051",
+    "F063",
+    "F064"
+  ],
+  "current_implementation": "F063 query-local reuse applied to offline fact discovery, with independent proof replay. This is not interprocedural specialization."
+}

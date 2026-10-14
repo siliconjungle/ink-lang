@@ -1,0 +1,20 @@
+{
+  "finding": "F064",
+  "llvm_revision": "d977b4533f1d9b01d28cf4dba9b2db9d1ccfda08",
+  "status": "Complete source review of the final two predicate fixtures; LLVM opt/FileCheck not executed. Together with predicate-regression-source-audit.json, all 11 pinned files in this directory are read. This does not imply all LLVM predicate behavior is verified.",
+  "files": [
+    {
+      "path": "llvm/test/Transforms/Util/PredicateInfo/condprop.ll",
+      "bytes": 17937,
+      "sha256": "013f1974c3dd636653ae99a6edce36dd7d8c64ff5107e72680fb688cda2dadbd",
+      "review": "Reviewed all 17937 bytes. Separate SSA load/call results are not structurally interchangeable; edge-local equality and ordered comparisons refine only dominated operands, not pre-branch computed results. Switch duplicate/default/external predecessors withhold single-case equality. Distinguish floating ordered/unordered predicates, typed ranges, and relation subjects. Preserve calls/effects even when returned values coincide."
+    },
+    {
+      "path": "llvm/test/Transforms/Util/PredicateInfo/testandor.ll",
+      "bytes": 50225,
+      "sha256": "483cb00d6deea23508b1672d8356b8ff526d6e6da8fb6738c8061baa788c8b50",
+      "review": "Reviewed all 50225 bytes. Logical and/select-and true edges and or/select-or false edges propagate all required operands, while opposite edges retain only whole-condition facts. Mixed logic stops decomposition at disjunctive boundaries. Assumes use only true conjunction consequences. Deep chain/shared-tree fixtures cap traversal and avoid exponential repeated work; multiple refinements survive on the same incoming phi edge. Ink equivalents require total boolean semantics and explicit proof, never LLVM assume authority."
+    }
+  ],
+  "transfer": "Budgeted logic decomposition, identity-aware sharing, exactly scoped relation subjects, and whole-condition preservation; no new proof authority."
+}

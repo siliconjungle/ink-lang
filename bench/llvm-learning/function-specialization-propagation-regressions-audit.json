@@ -1,0 +1,91 @@
+{
+  "finding": "F065",
+  "llvm_revision": "d977b4533f1d9b01d28cf4dba9b2db9d1ccfda08",
+  "files": [
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/bug52821-use-after-free.ll",
+      "blob": "3892273aac8a051bdade7e972d3620cb601f9e27",
+      "bytes": 1575,
+      "sha256": "1fc95ade083f509088e61fcbfd0233e8a0f563925a0eb44a75af7595d73d6bc2",
+      "insight": "Nested loop and unreachable-block simplification regression covers analysis lifetime during deletion. Test source uses undef and inbounds; no equivalent Ink optimization follows from those assumptions."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/bug55000-read-uninitialized-value.ll",
+      "blob": "a2fd239c9ce3055df0a5bbef24be7a38ec57d61f",
+      "bytes": 2253,
+      "sha256": "e84b9f9cd807783aeb7a01e84e87ada5bfae1cef173407efc4c11800cc505692",
+      "insight": "Two-round forced recursive specialization with null versus stack pointers exercises initialized state after clone iteration. Candidate state must be fully initialized each iteration; fixture alone does not identify the historical field defect."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/no-spec-unused-arg.ll",
+      "blob": "8469727e974fe375a4cb4b3c3f246e547217f878",
+      "bytes": 537,
+      "sha256": "9ab5d886aee31310f09148bbaa28475af18e8eebb9a9024d9bc195e5883366e8",
+      "insight": "Avoid cloning for unused arguments or arguments already constant across all known calls. Such cloning adds no new information; argument elimination still needs ordinary effects and equality checks."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/specialization-order.ll",
+      "blob": "da4cb40fb6dc5034e83882342af56880d23bff15",
+      "bytes": 1615,
+      "sha256": "b56b38d31dd99afd783fafc16d39c6a37e47d3ace84309a33392597b5d792d6c",
+      "insight": "When one specialization binds a subset of another, route calls to the appropriate specific signature after ranking; dead argument elimination is a separate downstream pass."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/reachable-after-specialization.ll",
+      "blob": "ab2260aadab31b5fc1ebedc3a5d5390e3ff3c849",
+      "bytes": 4341,
+      "sha256": "657de01b26dee1834cf24c228f49412f239b85edc68ae4880765b80fdcce0e3d",
+      "insight": "Call rewriting and undef-resolution can change executable reachability; reconsider calls newly exposed after specialization and preserve address-taken originals. LLVM undef/poison/nontermination are not Ink equalities."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/remove-dead-recursive-function.ll",
+      "blob": "810526532c1060d524fbaeee27302a6cd8bac3e9",
+      "bytes": 1534,
+      "sha256": "f7fc655f7e14127a2577c411e49ba5807d778b13747c6dcd446d6302193d3c54",
+      "insight": "Once all external users and recursive edges redirect to specialized families, original internal function may become dead. Cyclic self-use alone is not external reachability; require whole call graph and address-use accounting."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/discover-transitive-phis.ll",
+      "blob": "8a172db2665aa44e34286ef0a435f9236b2688f8",
+      "bytes": 5959,
+      "sha256": "566f4e5851de51baad75289b458d7739aeb00924754d653ad0c5d628e07a4945",
+      "insight": "Cyclic PHI discovery requires bounded iterative exploration across transitive merges; reducing discovery budget intentionally loses opportunities rather than inventing constants."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/phi-nodes-can-constfold.ll",
+      "blob": "5865b5492e1f54d29b374a2a95324b8012467294",
+      "bytes": 1318,
+      "sha256": "93ed0bf65853e9fec152b6db24881187e96abaa065aab3a29f19aa2fbc55146b",
+      "insight": "A strongly connected PHI region can retain a common constant from its external inputs. Acyclic-only local propagation misses this benefit."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/phi-nodes-non-constfoldable.ll",
+      "blob": "11b71d6667b985b1b7739bc03cca2ed75eeff82b",
+      "bytes": 1757,
+      "sha256": "2fa8a7fc4170e7956215dc8e4794444dba02ad1e39b2242fa6625db21fe07e31",
+      "insight": "Conflicting external PHI inputs must prevent constant collapse; equal jointly specialized arguments can enable it. Compute combined context before evaluating merge benefits."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/specialize-multiple-arguments.ll",
+      "blob": "73291600edb85deef9216a14761abf486afb9541",
+      "bytes": 8055,
+      "sha256": "cc69f7e5ffd796ca7354b49cbb426a86fafb524a0b38fc29174bc193d8fe014b",
+      "insight": "Cost ranking and clone limits must retain the association between whole ordered argument signatures and selected callsites after sorting; limits0..3 exercise distinct subsets."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/track-return.ll",
+      "blob": "aaff6c138bbaa9aa59f3d8afd632836e874ba9a9",
+      "bytes": 2724,
+      "sha256": "6ced2faf09b5a28785e16905b7e8f5be252f5f71809069510555ec1b522d66e8",
+      "insight": "Caller-to-callee constants and callee-to-caller return facts enable successive specialization across three rounds. Revisit dependants after changes. LLVM poison for unused returns is not an Ink value rewrite."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/track-ptr-return.ll",
+      "blob": "f4ba0e72a1b4397092184a2c491ae145442ec737",
+      "bytes": 4457,
+      "sha256": "381179cbb58de3eedd9ea5bea2d6e43a54af2a69c234e8cd705f26608f4d2499",
+      "insight": "Function-valued returns can expose new direct calls across multiple rounds, but enabling/disabling literal specialization changes opportunities. Exact closure/identity and effect semantics are required for Ink; arbitrary address assumptions cannot transfer."
+    }
+  ],
+  "validation": "Full source review only. opt/FileCheck not executed; no runtime performance claim."
+}

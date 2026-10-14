@@ -1,0 +1,195 @@
+{
+  "schema": 1,
+  "upstream_revision": "c4e049d3cbda775e2c3af9410f6e18b18388d68b",
+  "scope": "Compiler/Maglev source inventory and partial optimizer review; no exhaustive-coverage claim",
+  "reads": [
+    {
+      "path": "src/compiler/turboshaft/branch-elimination-reducer.h",
+      "sha256": "b143d72552079e6b0d236367554a034f0f4e721657e7c3a8fed3092b495ac2af",
+      "inclusive_lines": [
+        [
+          1,
+          220
+        ]
+      ],
+      "review_status": "partial"
+    },
+    {
+      "path": "src/compiler/turboshaft/late-load-elimination-reducer.h",
+      "sha256": "25d69b9ef9673230e563f88035bb18b3a26da08a515ed799dc9a703dd1f0ceac",
+      "inclusive_lines": [
+        [
+          1,
+          180
+        ]
+      ],
+      "review_status": "partial"
+    },
+    {
+      "path": "src/compiler/turboshaft/value-numbering-reducer.h",
+      "sha256": "a002b203ed072056f140c76b370c38c7a932ca068f6988933a0bd8bc4472d748",
+      "inclusive_lines": [
+        [
+          1,
+          110
+        ]
+      ],
+      "review_status": "partial"
+    },
+    {
+      "path": "src/compiler/turboshaft/machine-optimization-reducer.h",
+      "sha256": "9239724610a1736a1168ffd5c3409bc448f2ba1f06c709ea7b84ea499c866484",
+      "inclusive_lines": [
+        [
+          780,
+          1075
+        ],
+        [
+          1918,
+          2130
+        ]
+      ],
+      "review_status": "partial"
+    },
+    {
+      "path": "src/compiler/turboshaft/typed-optimizations-reducer.h",
+      "sha256": "02f991a7414913ad8540bf79c4a5818c06673c10191434918e56a9a66dc0c02e",
+      "inclusive_lines": [
+        [
+          1,
+          135
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read: singleton word constants and exact FP constants; NaN payload and minus-zero caveats. Compare general known-value proposal/checking, not speculative assumptions."
+    },
+    {
+      "path": "src/compiler/turboshaft/loop-optimization-reducer.h",
+      "sha256": "97eb245b51443d427564a94c2bf1dbb37d48f4b0dab180d4b2cd286e4d82b189",
+      "inclusive_lines": [
+        [
+          1,
+          47
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read: current reducer is a speculation-test hook, not a loop optimization implementation. Continue peeling/unrolling and older loop machinery."
+    },
+    {
+      "path": "src/compiler/turboshaft/late-escape-analysis-reducer.cc",
+      "sha256": "e314c89bfe48bb4d30e1525f773e17d6549cf6c66fb5601b7b837b3dbd672791",
+      "inclusive_lines": [
+        [
+          1,
+          102
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read: allocation-use collection and fixed-point removal of nonescaping allocation/store chains. Compare owned-buffer and collect-before-build proofs; no new authority admitted."
+    },
+    {
+      "path": "src/compiler/turboshaft/store-store-elimination-reducer-inl.h",
+      "sha256": "9581651ca6cbe6406bf7c6574ec10fa67636163ffad7f5b2a2dadd5cecea1648",
+      "inclusive_lines": [
+        [
+          1,
+          160
+        ]
+      ],
+      "review_status": "partial",
+      "note": "Backward observability lattice; aliasing, store sizes, branch joins, loop fixed points and GC initialization barriers. Existing Ink replace_overwrite database law identified; whole-action/effects assessment remains."
+    }
+  ],
+  "families": [
+    {
+      "name": "machine-word",
+      "status": "partial",
+      "entry_point": "src/compiler/turboshaft/machine-optimization-reducer.h",
+      "note": "56 independently admitted database laws; four shift-combination proposals remain unadmitted; remaining reducers need review"
+    },
+    {
+      "name": "branch-control",
+      "status": "partial",
+      "entry_point": "src/compiler/turboshaft/branch-elimination-reducer.h",
+      "note": "Repeated conditions/select proposals admitted; CFG branch threading and merge behavior remain"
+    },
+    {
+      "name": "value-numbering",
+      "status": "partial",
+      "entry_point": "src/compiler/turboshaft/value-numbering-reducer.h",
+      "note": "Dominance and exact equality constraints identified; compare with existing Ink sharing and query caches"
+    },
+    {
+      "name": "load-elimination",
+      "status": "partial",
+      "entry_point": "src/compiler/turboshaft/late-load-elimination-reducer.h",
+      "note": "Alias, call invalidation and loop-backedge requirements identified; no new stateful optimization admitted"
+    },
+    {
+      "name": "store-elimination",
+      "status": "pending",
+      "entry_point": "src/compiler/turboshaft/store-store-elimination-reducer-inl.h",
+      "note": "Assess observer/error/transaction semantics before proposing source action laws"
+    },
+    {
+      "name": "escape-allocation",
+      "status": "pending",
+      "entry_point": "src/compiler/turboshaft/late-escape-analysis-reducer.cc",
+      "note": "Assess affine owners, scalar replacement, allocation folding and existing support"
+    },
+    {
+      "name": "representation-types",
+      "status": "pending",
+      "entry_point": "src/compiler/turboshaft/typed-optimizations-reducer.h",
+      "note": "Assess checked narrowing, conversions and type facts"
+    },
+    {
+      "name": "floating-point",
+      "status": "pending",
+      "entry_point": "src/compiler/turboshaft/machine-optimization-reducer.h",
+      "note": "Exact IEEE/NaN/negative-zero behavior; no fast-math assumptions"
+    },
+    {
+      "name": "loop-transforms",
+      "status": "pending",
+      "entry_point": "src/compiler/turboshaft/loop-optimization-reducer.h",
+      "note": "Peeling, unrolling, invariant motion and literal backend delegation"
+    },
+    {
+      "name": "strings",
+      "status": "pending",
+      "entry_point": "src/compiler/turboshaft/string-escape-analysis-reducer.cc",
+      "note": "Compare fixed UTF-8 semantics and database text algorithms"
+    },
+    {
+      "name": "simd-wasm",
+      "status": "pending",
+      "entry_point": "src/compiler/turboshaft/wasm-revec-reducer.cc",
+      "note": "Assess real device/backend applicability and profitability"
+    },
+    {
+      "name": "feedback-tiering",
+      "status": "pending",
+      "entry_point": "src/execution/tiering-manager.cc",
+      "note": "Assess guarded feedback use and offline lifecycle amortization; preserve exact fallback"
+    },
+    {
+      "name": "maglev",
+      "status": "pending",
+      "entry_point": "src/maglev/maglev-graph-builder.cc",
+      "note": "Audit graph construction, known-node facts, inlining and representation selection"
+    },
+    {
+      "name": "pipeline-infrastructure",
+      "status": "pending",
+      "entry_point": "src/compiler/turboshaft/pipelines.cc",
+      "note": "Assess reducer scheduling, bounded worklists and phase ordering"
+    },
+    {
+      "name": "instruction-selection-registers",
+      "status": "pending",
+      "entry_point": "src/compiler/backend/register-allocator.cc",
+      "note": "Assess which responsibilities are already delegated to existing host compilers"
+    }
+  ]
+}

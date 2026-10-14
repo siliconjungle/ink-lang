@@ -1,0 +1,62 @@
+{
+  "finding": "F065",
+  "files": [
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/noipa.ll",
+      "blob": "e97247a16defba09903cf43b0756e62a522693e9",
+      "bytes": 645,
+      "sha256": "99d66f3024b6fdc31e9434d410538f97bbbded091038a3db8bbabddf904d4c63",
+      "insight": "An explicit no-interprocedural-optimization constraint prevents specialization even when forced. Keep user optimisation policy separate from semantic admissibility."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/noinline.ll",
+      "blob": "34a8ecbcf7c07464b95b1aa20cad0966d109e6c7",
+      "bytes": 891,
+      "sha256": "8ae72ec7e81ee727d91b2d470160ecea698d334b7b1ff9d1a77d9c273d593849",
+      "insight": "Noinline prevents inlining but does not prohibit cloning specialization; small functions can still benefit from bound function arguments. Do not conflate distinct optimization controls."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization-minsize.ll",
+      "blob": "9127e90ce23e8c915c0e98b6d7a261583ea76008",
+      "bytes": 738,
+      "sha256": "77c36543da992818d319abd33e1c44eba5784c817ead6a5d614ac877847c01be",
+      "insight": "Function-level minimum-size objective blocks clone expansion in this fixture; code size and speed objectives must be explicit policy."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization-minsize2.ll",
+      "blob": "0e2c4836b69309deaea7cd64fdabd65fc50251d7",
+      "bytes": 902,
+      "sha256": "be6bf92162759a3b038febede3141811d9ce4bcc5a331666aa17d8c232c12382",
+      "insight": "All minsize callsites suppress specialization even if the callee lacks a size attribute. Cost context belongs to the use site as well as the definition."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization-minsize3.ll",
+      "blob": "743ca89e96cc752fd3d25d90c51160fa20c233ae",
+      "bytes": 1087,
+      "sha256": "c6e05bd7a63d84d673679371d97e0230fd0cc6f7aa32129c6655b234482e3053",
+      "insight": "Mixed size objectives allow specialization for the unrestricted call while leaving the size-constrained call unchanged; one global callee flag loses this distinction."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization-optsize.ll",
+      "blob": "9a2be2865428a90e205a1c4f5057b8fe33a5205a",
+      "bytes": 738,
+      "sha256": "27034f75042830189ac8e9f1caa95b07a1db55dbe4b704ad71d4f6f87155c1bb",
+      "insight": "Optimise-for-size callee avoids duplication. Separate size-oriented objective from legality and raw call-count heuristics."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/interposable.ll",
+      "blob": "ab9aff7dbd90fbbc6143bcc3ec44e1da025e3498",
+      "bytes": 1405,
+      "sha256": "d5ad1aa0ce53a771b0564e584904e2f4c443f2fb8b612c8923ecc0cf4ba45ad8",
+      "insight": "A weak interposable definition may not be the executing definition, while ODR identity permits specialization. Ink imported/source definitions need exact binding; name equality alone grants no authority."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/non-argument-tracked.ll",
+      "blob": "9446e557da758173fceac4cb51d0f0d2df38bf3c",
+      "bytes": 2040,
+      "sha256": "eec82780732b79ac8d7c70eff4c5a82e0e6138197b3645fe7cee4612f8260a73",
+      "insight": "Known callsites can specialize even when external/address-taken uses prevent global argument constancy, but the original entry must remain for unknown callers. Distinguish local specialization eligibility from whole-function removal."
+    }
+  ],
+  "validation": "Complete source review only; opt/FileCheck not executed."
+}
