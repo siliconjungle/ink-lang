@@ -1,0 +1,123 @@
+{
+  "schema": 1,
+  "keep": [
+    {
+      "path": "AGENTS.md",
+      "reason": "Applicable architecture and validation contract"
+    },
+    {
+      "path": "Cargo.toml",
+      "reason": "Reproduction build configuration"
+    },
+    {
+      "path": "Cargo.lock",
+      "reason": "Exact dependency resolution"
+    },
+    {
+      "path": "core",
+      "reason": "Pinned general checker source"
+    },
+    {
+      "path": "src",
+      "reason": "Distribution source and CLI"
+    },
+    {
+      "path": "abi",
+      "reason": "Pinned ABI input"
+    },
+    {
+      "path": "native-support",
+      "reason": "Pinned generated-support input"
+    },
+    {
+      "path": "lowerings",
+      "reason": "Pinned literal lowering inputs"
+    },
+    {
+      "path": "runtime",
+      "reason": "Pinned runtime input"
+    },
+    {
+      "path": "planner",
+      "reason": "Pinned generic search and corpus tooling"
+    },
+    {
+      "path": "knowledge",
+      "reason": "Checked database laws and acquisition machinery"
+    },
+    {
+      "path": "tests",
+      "reason": "Required proof and compiled conformance inputs"
+    },
+    {
+      "path": "tools",
+      "reason": "Source acquisition and verification inputs"
+    },
+    {
+      "path": "docs",
+      "reason": "Architecture and honest audit scope"
+    },
+    {
+      "path": "bench/v8-learning",
+      "reason": "Pinned upstream inventory, audit ledger and retained evidence"
+    },
+    {
+      "path": "bench/planning-corpus",
+      "reason": "Unmodified held-out generalization inputs"
+    },
+    {
+      "path": "build/v8-source",
+      "reason": "Active source review inputs, reproducible by acquisition script"
+    },
+    {
+      "path": "build/proof-python",
+      "reason": "Active required proof-authoring runtime"
+    },
+    {
+      "path": "build/v8-corpus-baseline-knowledge",
+      "reason": "Active frozen baseline using shared immutable inputs"
+    },
+    {
+      "path": "build/v8-corpus-before",
+      "reason": "Active baseline corpus evidence"
+    },
+    {
+      "path": "build/v8-corpus-after",
+      "reason": "Active current-knowledge held-out corpus evidence"
+    },
+    {
+      "path": "target/debug/ink",
+      "reason": "Exact compiler retained until both active corpus runs finish"
+    }
+  ],
+  "safe_to_remove": [
+    {
+      "path": "build/v8-reacquired-source",
+      "reason": "Completed byte-for-byte source acquisition check; inventory, acquisition script and validation receipt retained"
+    },
+    {
+      "path": "build/v8-authoring",
+      "reason": "Completed intermediate authoring store; all admitted proof bytes retained in knowledge/producers/data/v8-word-laws and initial outcomes retained in bench/v8-learning"
+    },
+    {
+      "path": "build/v8-repro-store",
+      "reason": "Completed reproduction check; source templates and proof receipt retained"
+    },
+    {
+      "path": "build/v8-repro-library",
+      "reason": "Completed reproduction check; canonical frozen proof library and reproduction recipe retained"
+    },
+    {
+      "path": "build/v8-wheels",
+      "reason": "Completed packaging check; source packaging configuration and validation log retained"
+    },
+    {
+      "path": "knowledge/build",
+      "reason": "Completed generated wheel staging; no unique source or proof inputs"
+    },
+    {
+      "path": "knowledge/ink_knowledge.egg-info",
+      "reason": "Completed generated packaging metadata"
+    }
+  ]
+}

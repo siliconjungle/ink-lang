@@ -1,0 +1,40 @@
+{
+  "schema": 1,
+  "scope": "Initial V8-derived word/branch family; not exhaustive optimizer coverage or performance evidence",
+  "upstream_revision": "c4e049d3cbda775e2c3af9410f6e18b18388d68b",
+  "compiler_sha256": "9d7057b5c0b1978df2cda56f61a4d1894142ff49d70a41102e296bb96bae0d6a",
+  "requested_proposals": 60,
+  "admitted_laws": 56,
+  "unadmitted": [
+    {
+      "name": "u32/shift_left_combine",
+      "reason": "Initial 15-second hinted-RUP authoring budget exhausted; not admitted"
+    },
+    {
+      "name": "u32/shift_right_combine",
+      "reason": "Initial 15-second hinted-RUP authoring budget exhausted; not admitted"
+    },
+    {
+      "name": "u64/shift_left_combine",
+      "reason": "Initial 15-second hinted-RUP authoring budget exhausted; not admitted"
+    },
+    {
+      "name": "u64/shift_right_combine",
+      "reason": "Initial 15-second hinted-RUP authoring budget exhausted; not admitted"
+    }
+  ],
+  "conformance": {
+    "suite": "proved_refinement_parity::v8_database_laws_preserve_modular_counts_and_branch_values_on_cpu_targets",
+    "requests": 117,
+    "scope": "Reference values/outcomes and exact portable snapshots against native, JavaScript and Rust-Wasm; no GPU execution claim"
+  },
+  "proofs": {
+    "family": "knowledge/producers/data/v8-word-laws/index.json",
+    "admission": "Each proof independently replayed by knowledge-check with existing limits"
+  },
+  "corpus": {
+    "status": "running",
+    "effort": "quick",
+    "scope": "Unmodified ten-program held-out corpus; isolated baseline and current knowledge; no speedup claim"
+  }
+}
