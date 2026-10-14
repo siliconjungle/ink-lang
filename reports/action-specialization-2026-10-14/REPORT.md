@@ -1,5 +1,9 @@
 # Native maintained actions — 14 October 2026
 
+Follow-up: [checked planner selection](../planner-reliability-2026-10-14/REPORT.md)
+resolves the original checker-timeout run below using optimized checking, large
+sealed prefix reuse, and independent lifecycle selection on two state programs.
+
 Ink now emits direct bound action calls, typed table primitives, native scalar
 maintenance definitions and root-specific view preparation. Database-authored
 whole-action equalities admit one upsert instead of contains/replace/insert and
