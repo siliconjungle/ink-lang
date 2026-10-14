@@ -60,6 +60,11 @@ law NAME<T, ...>(PARAMS) {
 - **Function parameters** `f: fn(A) -> B` are universally quantified total
   functions. `fn(A, B) -> C` is the curried `fn(A) -> fn(B) -> C`; apply it as
   `f(a, b)`, pass it bare (`xs.map(f)`), or write lambdas `fn(a, b) => e`.
+  Normalization transports facts between `f` and `fn(x) => f(x)`. This
+  extensional equality applies only when the function expression does not
+  capture `x`; removing a binder adjusts outer captures and shares the
+  ordinary proof work/depth budget. Changed arguments and dependent captures
+  do not acquire this equality.
 - **Conditions** (`requires`) are hypotheses while proving and premises at
   every use. `a == b` is an equation (oriented from `a` to `b`); any other
   condition is a Bool fact `c == true`.
