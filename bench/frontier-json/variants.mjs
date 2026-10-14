@@ -64,6 +64,47 @@ if(mode==='codec'){
    (groups[operation]??={})[name]=run;
   }
  }
+}else if(mode==='compiled-writer'){
+ const text=JSON.stringify(Object.fromEntries(Array.from({length:textFields},(_,i)=>['k'+String(i).padStart(5,'0'),textFixture==='unicode'?`雪😀${i}\n"\\`:textFixture==='nested'?{items:[i,true,null,'雪😀'],enabled:false}:i])));
+ const byteHash=bytes=>{let h=0;for(let i=0;i<bytes.length;i++)h=Math.imul(h,31)^bytes[i];return h;};
+ const encoder=new TextEncoder();let expectedPortable,expectedCompact;
+ for(const[name,ink]of Object.entries(modules)){
+  const json=new ink.JsonCodec(ink.valueCodecs.identity.result),codec=ink.compiledValues.identity.params[0];
+  const handle=json.parseCompiled(codec,text);
+  const portable=codec.encode(handle),compact=codec.encodeCompact(handle);
+  expectedPortable??=portable;expectedCompact??=compact;
+  assert.deepEqual(portable,expectedPortable);assert.deepEqual(compact,expectedCompact);
+  assert.equal(json.stringifyBinary(portable),text);assert.equal(json.stringifyCompiled(codec,codec.decodeCompact(compact)),text);
+  const roundtrip=short=>{
+   const result=ink.callCompiled('identity',[handle]),bytes=short?codec.encodeCompact(result):codec.encode(result);
+   const decoded=short?codec.decodeCompact(bytes):codec.decode(bytes);
+   return encoder.encode(json.stringifyCompiled(codec,decoded));
+  };
+  for(const short of [false,true])assert.deepEqual(roundtrip(short),encoder.encode(text));
+  const visit=()=>{let hash=0;const add=v=>{if(typeof v==='string'){for(let i=0;i<v.length;i++)hash=Math.imul(hash,31)^v.charCodeAt(i);}else hash=Math.imul(hash,31)^Number(v??0);};
+   codec.visit(handle,{begin(){add(1);},end(){add(2);},byte:add,word:add,wide:add,text:add,count:add});return hash;};
+  for(const[operation,run]of Object.entries({'compiled-encode-portable':()=>byteHash(codec.encode(handle)),'compiled-encode-compact':()=>byteHash(codec.encodeCompact(handle)),'compiled-value-visit':visit,'compiled-roundtrip-portable':()=>byteHash(roundtrip(false)),'compiled-roundtrip-compact':()=>byteHash(roundtrip(true))})){
+   (groups[operation]??={})[name]=run;
+  }
+ }
+}else if(mode==='typed-ingress'){
+ const checksum=bytes=>{let h=0;for(let i=0;i<bytes.length;i++)h=Math.imul(h,31)^bytes[i];return h;};
+ const scalar=kind=>({kind}),fixtures=[
+  ['u32',{kind:'list',element:scalar('u32')},'['+Array.from({length:textFields},(_,i)=>String(i)).join(',')+']'],
+  ['f32',{kind:'list',element:scalar('f32')},'['+Array.from({length:textFields},(_,i)=>i%7===0?'-0':String((i-128)/8)).join(',')+']'],
+  ['u64',{kind:'list',element:scalar('u64')},'['+Array.from({length:textFields},(_,i)=>String(18446744073709551615n-BigInt(i))).join(',')+']'],
+ ];
+ const expected={};
+ for(const[name,ink]of Object.entries(modules))for(const[label,type,text]of fixtures){
+  const json=new ink.TypedJsonCodec(await ink.createValueCodec(type));
+  for(const[format,encode]of Object.entries({portable:()=>json.parseBinary(text),compact:()=>json.parseCompact(text)})){
+   const bytes=encode();expected[label+format]??=bytes;assert.deepEqual(bytes,expected[label+format]);
+   const codec=format==='compact'?json.values.compact():json.values;
+   assert.deepEqual(codec.decode(bytes),json.parse(text));
+   for(const limits of [{nodes:0},{nodes:1},{depth:0},{bytes:bytes.length-1}])assert.throws(()=>format==='compact'?json.parseCompact(text,limits):json.parseBinary(text,limits));
+   (groups[label+'-text-to-'+format]??={})[name]=()=>checksum(encode());
+  }
+ }
 }else if(mode==='transport'){
  const limits=budgetKind==='reduced'?{bytes:128,nodes:32,depth:16}:undefined;
  for(const[name,ink]of Object.entries(modules)){

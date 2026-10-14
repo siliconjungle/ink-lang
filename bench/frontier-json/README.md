@@ -136,3 +136,11 @@ that manifest for `run.mjs --ink-module=... --compare-ink-module=...`; use
 fresh repeated performance cohort. Preparation proposes controls and does not
 establish an automatically selected winner. A smoke run is conformance evidence,
 not profitability evidence.
+
+`variants.mjs compiled-writer` compares frozen compiled-handle encoders, event
+visitors and complete execution/encode/decode/render/UTF-8 round trips. All output
+bytes are consumed; exact logical values and portable/compact bytes are checked
+before timing. `variants.mjs typed-ingress` pairs TypedJsonCodec numeric-list text
+to portable/compact boundaries, consuming every encoded byte and checking reduced
+limits. Both are Ink implementation diagnostics, with separate artifact hashes,
+not Frontier or lifecycle rankings.
