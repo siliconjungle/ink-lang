@@ -1,0 +1,146 @@
+{
+  "schema": 1,
+  "finding": "F060",
+  "status": "Locally validated; independent planner published on main; distribution pin update pending",
+  "changes": [
+    "Modular schema2 CLI scores with TargetCostModel instead of unpacking it as structural prices. Local search sees a fixed full-module body context, including admitted helper changes.",
+    "Each per-function search/check and cache replay includes the previously accepted complete prefix. Rejected hints fall back within the same global checker budget and deadline, without unbudgeted full-module retry.",
+    "Zero budgets never start checker work. Actual calls and rejections are counted centrally; child search time/memory stops are retained in diagnostics.",
+    "Malformed/oversized/wrong-shape/unknown-law cache entries are misses. Existing bounded cache load/save helpers provide atomic writes and retention; failed cache writes preserve checked work and do not replace previous bytes.",
+    "Incremental template discovery receives the full admitted syntax; alternatives include accepted prefixes and are streamed through ordinary proof closures.",
+    "Cached chains are untrusted; every nonempty reuse still checks its exact complete source application chain. No runtime adaptation or new proof authority."
+  ],
+  "validation": {
+    "targeted": "47 tests passed3.449s:10modular plus semantic search, target components and plan cache",
+    "mandatory": "llvm_learning_and_incremental_knowledge_remain_checked passed33.67s with new10-case modular suite; final additional cache-save length ceiling covered by targeted rerun",
+    "real_cli": "Two U32 functions: schema2 modular cold plan, valid cache reuse, rehashed forged cached argument rejection/replan; each streamed alternative independently checked; both selected functions execute MAX_U32 exactly",
+    "helper_context": "Caller cost remains complete with helper body available; changed helper definitions reflected in subsequent function estimates",
+    "budget": "Global checker counts, zero work/time, rejection recovery and shared deadline tested; per-function cache keys invalidate callers but retain unrelated functions"
+  },
+  "before": {
+    "schema2_cli": {
+      "returncode": 1,
+      "error": "<frozen runpy>:130: RuntimeWarning: 'ink_planner.semantic_search' found in sys.modules after import of package 'ink_planner', but prior to execution of 'ink_planner.semantic_search'; this may result in unpredictable behaviour\nTraceback (most recent call last):\n  File \"<frozen runpy>\", line 203, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/work/ink-development/planner/ink_planner/semantic_search.py\", line 1008, in <module>\n    if __name__ == '__main__': main()\n                               ~~~~^^\n  File \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/work/ink-development/planner/ink_planner/semantic_search.py\", line 951, in main\n    receipt.update(initial_cost=sum(structural(b, operation_costs) for b in subject['functions'].values()),\n                                ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/work/ink-development/planner/ink_planner/semantic_search.py\", line 951, in <genexpr>\n    receipt.update(initial_cost=sum(structural(b, operation_costs) for b in subject['functions'].values()),\n                                    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/work/ink-development/planner/ink_planner/semantic_search.py\", line 156, in cost\n    operation_costs = dict(structural_prices(), **operation_costs)\nTypeError: dict() argument after ** must be a mapping, not TargetCostModel\n",
+      "output_exists": false
+    },
+    "zero_budget": {
+      "check_calls": 2,
+      "applications": 1,
+      "receipt": {
+        "attempts": 1,
+        "rejected": 0,
+        "generated_proposals": 0,
+        "exhausted": false,
+        "estimate": "structural; not measured runtime",
+        "modular": {
+          "functions": [
+            {
+              "function": "run",
+              "cache": "miss",
+              "steps": 1,
+              "attempts": 1,
+              "initial_cost": 3,
+              "selected_cost": 1
+            }
+          ],
+          "hits": 0,
+          "misses": 1,
+          "replanned": false,
+          "scope": "Cached per-function chains are hints; the combined chain is checked against the module"
+        }
+      }
+    },
+    "corrupt_cache": {
+      "error_type": "JSONDecodeError",
+      "message": "Expecting property name enclosed in double quotes: line 1 column 2 (char 1)"
+    }
+  },
+  "after": {
+    "schema2_cli": {
+      "returncode": 0,
+      "error": "<frozen runpy>:130: RuntimeWarning: 'ink_planner.semantic_search' found in sys.modules after import of package 'ink_planner', but prior to execution of 'ink_planner.semantic_search'; this may result in unpredictable behaviour\n",
+      "output_exists": true
+    },
+    "zero_budget": {
+      "check_calls": 0,
+      "applications": 0,
+      "receipt": {
+        "attempts": 0,
+        "rejected": 0,
+        "generated_proposals": 0,
+        "exhausted": true,
+        "estimate": "structural; not measured runtime",
+        "memo": {
+          "rounds": 0,
+          "timed_out": true,
+          "memory_exhausted": false
+        },
+        "modular": {
+          "functions": [
+            {
+              "function": "run",
+              "cache": "miss",
+              "steps": 0,
+              "attempts": 0,
+              "cache_rejected": false
+            }
+          ],
+          "hits": 0,
+          "misses": 1,
+          "replanned": false,
+          "scope": "Every cache replay and search extension checks the complete accepted prefix; one global check budget and deadline"
+        }
+      }
+    },
+    "corrupt_cache": {
+      "error": null
+    }
+  },
+  "sources": [
+    {
+      "path": "work/ink-development/planner/ink_planner/modular.py",
+      "bytes": 9116,
+      "sha256": "2c058069ba6613f9d6fc0a89fbb10962fcb8d720c84a4a1b8a768a743cd1ebf2"
+    },
+    {
+      "path": "work/ink-development/planner/ink_planner/semantic_search.py",
+      "bytes": 63392,
+      "sha256": "3c375c3f28beb8077a7fd9cf4eaff654d2a1077d8ecd2eea6fd1ed6015abf59b"
+    },
+    {
+      "path": "work/ink-development/planner/tests/test_modular_planning.py",
+      "bytes": 11497,
+      "sha256": "4be05e46cb197406f6a493e39a252bb54a1a7d8aa68ead690cc8f469c060e955"
+    },
+    {
+      "path": "work/ink-development/planner/README.md",
+      "bytes": 27151,
+      "sha256": "7c3bd3d0fb1a8ee16983679a32de4fe045c39a2e08e9de56f71c36979654c749"
+    },
+    {
+      "path": "work/ink-development/tests/hardening.rs",
+      "bytes": 80440,
+      "sha256": "dd2af03b1ee1828180690701e3ab7d88536f0c4f050ebbab8cd9196bcede9b84"
+    }
+  ],
+  "logs": [
+    {
+      "path": "work/llvm-learning-smoke/modular-final-tests.log",
+      "bytes": 146,
+      "sha256": "c8bdbbf4b8b19d9819d20f5c29097827e9236f9296bb99000912d1a8a6b55f0d"
+    },
+    {
+      "path": "work/llvm-learning-smoke/modular-hardening.log",
+      "bytes": 488,
+      "sha256": "a34e285ebfa065a3e0ec86e934aad4ef0964c1d657915feec58b30cb97123e29"
+    }
+  ],
+  "limitations": [
+    "No application runtime performance gain measured; schema2 scores are untrusted search estimates.",
+    "Time limit gates new synchronous checker calls; already running calls finish. Final output replay is separate mandatory validation, not discovery budget.",
+    "Existing modular CLI bypasses optional stochastic/ANN ordering; broader option-combination audit remains open.",
+    "No knowledge package or canonical database changed in this batch. Prior frozen10program corpus remains evidence for previous knowledge revision, not a new modular performance measurement.",
+    "Whole-codebase audit, database publication coherence F046 and broad browser benchmark remain incomplete. Current publication CI still must finish green."
+  ],
+  "planner_revision": "6a64e3ed078ae0d157b079a4274f30ca3ea5ba0f"
+}
