@@ -26,6 +26,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('variants', nargs='+', help='run.py --name values; baseline first')
     parser.add_argument('--rounds', type=int, default=8)
+    parser.add_argument('--allow-compiler-change', action='store_true',
+                        help='compare compiler implementations while retaining identical workload, driver, upstreams and flags')
     parser.add_argument('--output', type=pathlib.Path, required=True)
     args = parser.parse_args()
     if len(args.variants) < 2 or len(set(args.variants)) != len(args.variants) or args.rounds < 3:
@@ -44,6 +46,8 @@ def main():
         if builds:
             previous = next(iter(builds.values()))
             for key in ['source_hashes', 'driver_sha256', 'compiler_sha256', 'upstreams', 'flags']:
+                if key == 'compiler_sha256' and args.allow_compiler_change:
+                    continue
                 if meta[key] != previous[key]:
                     raise ValueError('unmatched comparison field: ' + key)
         builds[name], binaries[name], drivers[name] = meta, lib, driver
@@ -83,6 +87,7 @@ def main():
         if digest(binaries[name]) != builds[name]['binary_sha256'] or digest(drivers[name]) != builds[name]['driver_sha256']:
             raise ValueError('executable changed during measurement')
     report = dict(schema=1, method=__doc__, started_unix=started, finished_unix=time.time(),
+                  allow_compiler_change=args.allow_compiler_change,
                   rounds=args.rounds, order=order_history, builds=builds, results=results, processes=processes,
                   orchestrator_sha256=digest(pathlib.Path(__file__)))
     args.output.parent.mkdir(parents=True, exist_ok=True)
