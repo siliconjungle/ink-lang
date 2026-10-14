@@ -1128,6 +1128,9 @@ fn normal_inner(t: &Term, hyp: &[Equation], p: &Program, b: &mut Budget, d: usiz
         }
     }
     let out = try_map_children(t, |c| normal_inner(c, hyp, p, b, d + 1, recursive))?;
+    if let Some(function) = s::eta_reduce(&out, b, d)? {
+        return normal_inner(&function, hyp, p, b, d + 1, recursive);
+    }
     // Equality premises are oriented local facts. Match only exact typed terms.
     for (index, h) in hyp.iter().enumerate() {
         if out == h.from && h.from != h.to {

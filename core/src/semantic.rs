@@ -231,6 +231,31 @@ pub fn unshift_hole(t: &Term, depth: usize) -> LangResult<Term> {
     let out = walk(t, depth, 0, &mut b)?;
     shift(&out, -(depth as isize), 0, &mut b, 0)
 }
+/// Function extensionality: `fn(x) => f(x)` denotes `f` only when `f`
+/// does not capture `x`. Removing the binder shifts outer captures, while
+/// binders inside `f` retain their own lexical indices. Share the caller's
+/// proof budget; a large callback cannot acquire a fresh work allowance.
+pub(crate) fn eta_reduce(t: &Term, b: &mut Budget, depth: usize) -> LangResult<Option<Term>> {
+    let (Sort::Arrow(input, _), Node::Lambda(body)) = (&t.sort, &t.node) else {
+        return Ok(None);
+    };
+    let Node::Op(name, args) = &body.node else { return Ok(None) };
+    if name != "apply" || args.len() != 2 || args[0].sort != t.sort
+        || args[1].sort != **input || args[1].node != Node::Bound(0) {
+        return Ok(None);
+    }
+    fn captures(t: &Term, local: usize, b: &mut Budget, depth: usize) -> LangResult<bool> {
+        b.step(depth)?;
+        if matches!(t.node, Node::Bound(index) if index == local) { return Ok(true) }
+        let nested = local + usize::from(matches!(t.node, Node::Lambda(_)));
+        for child in children(t) {
+            if captures(child, nested, b, depth + 1)? { return Ok(true) }
+        }
+        Ok(false)
+    }
+    if captures(&args[0], 0, b, depth + 1)? { return Ok(None) }
+    Ok(Some(shift(&args[0], -1, 0, b, depth + 1)?))
+}
 pub(crate) fn val(s: &Sort) -> LangResult<&Type> {
     if let Sort::Value(t) = s {
         Ok(t)
