@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "source": {
+    "path": "core/src/registry.rs",
+    "blob": "b2278bd0d97b989ee06f1624c80ff0fc8ec25422",
+    "bytes": 33599,
+    "sha256": "166b8e3f5d4525e359a20a3656374fdcba07aa86fee6ce8ca87720a49cd85666"
+  },
+  "insights": [
+    "Authentication checks canonical entry identities, snapshot membership, exact complete reachable closure and topological order. It grants no theorem authority; domain-specific admission still replays proofs.",
+    "Borrowed bundle encoding avoids a second JSON tree while preserving canonical key order and integer/depth constraints. Existing adversarial tests compare its bytes/hash/rejections with generic canonical encoding.",
+    "First-order admission uses a context subset of explicit dependencies before declaring/importing an entry. General reuse must preserve these direct import boundaries and sealed transitive dependencies.",
+    "A future reused first-order context must pair sealed proof entries with authenticated registry identities. An arbitrary logic::Context may contain caller-chosen IDs and cannot serve as a generic content-hash verdict cache.",
+    "CheckedBundle::merge requires the same snapshot and checks bounded union size. ProofContext pure reuse instead authenticates every complete incoming view and exposes only its laws; these are deliberately different policies.",
+    "The common verifier keeps proof domains separate, authenticates searchable interfaces against typed payloads, and rejects unsupported domains. Database generalisations must be translated to an admitted proof domain, not accepted from a new semantics string.",
+    "Per-entry, complete-view, dependency-count/depth and catalogue limits are distinct. Increasing one domain transport allowance cannot imply larger proof-kernel work budgets.",
+    "Membership path/leaf hashing repeats across entries sharing witnesses. Potential bounded structural deduplication needs profiling and exact-byte keys; it could save authentication work but must never skip membership or proof checking.",
+    "Canonicalization currently serializes full bytes before length checking; streaming bounded hashing could lower transient memory, requiring byte-identical key ordering, numeric/depth rejection and frontend transport-limit tests before replacement."
+  ],
+  "validation": {
+    "registry_unit_tests": 8,
+    "status": "passed",
+    "log_sha256": "7e658db3b9771ba658fc503479690a43751251e7391a5268af9d91a29eb2c101"
+  },
+  "status": "Full source review and existing tests; follow-up optimisations unimplemented and unmeasured."
+}

@@ -110,7 +110,45 @@ and `ink-contracts-v1` semantics. New modules use executable-core V10; modules
 without the new features retain their existing identities.
 
 The knowledge producer proposes normalization, hypothesis, constructor-case and
-induction proofs and replays them through `check-contract-proof`. Alpha-equivalent generated
+induction proofs and replays them through `check-contract-proof-stream`. Its
+`--export-obligations FILE.json` option exports goals from the same immutable
+context before the ready frame. This avoids deriving the goals again in a
+separate export process; derivation order, exact source identity, definition
+context and state obligations are preserved. Editing that exported file cannot
+alter the checker's goals. Every proposed proof is checked independently. Each
+incoming dependency bundle is authenticated, including its content, snapshot and
+complete closure. Pure laws already checked in this exact executable context may
+be reused when present in the incoming view; the session retains at most one
+bounded catalogue and never grants previous laws to a request without them.
+State dependencies retain their existing replay path. Final module or refinement
+admission remains required.
+The single-request `check-contract-proof` endpoint remains available.
+
+Pure rewrite search retains distinct proof derivations even when they produce
+identical expressions: a failed premise on one derivation cannot establish that
+another derivation fails. Exact duplicate derivations are suppressed. Within the
+bounded acquired rows, patterns describing more source structure are tried first
+to reduce starvation by broad rules. This ordering is only a search heuristic;
+it grants no authority to matching laws or their premises. The existing proposal,
+frontier and depth limits remain. Acquisition stops after 1,024 indexed rows
+per result-sort/operation query, including rows mentioning the operation only
+inside their expressions. Search is still incomplete.
+
+The state-contract author reserves the full typed parameter scope when choosing
+constructor binders, congruence holes and normalised match names, including unused
+parameters. These names preserve lexical meaning and grant no proof authority.
+Every resulting theorem still requires replay.
+
+In-process consumers can retain the private `CheckedModule` value instead of
+converting it back to a raw program and repeating source admission. The reference
+runtime's `from_checked` and checked restore methods, and Rust lowering's
+`emit_checked` methods, accept this sealed value. Selected and planned emission
+reuse it too. Raw program entry points still perform full source admission.
+Action elaboration, target capabilities, snapshot layouts, runtime argument
+validation and restore-time invariant checks continue to apply. This reuse
+avoids repeated compiler work; it does not establish a faster generated program.
+
+Alpha-equivalent generated
 traversals are connected by ordinary induction theorems; their names never
 stand in for a proof. Accepted pure
 laws and state theorems are canonical database objects with explicit dependency

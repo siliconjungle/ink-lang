@@ -203,7 +203,7 @@ fn storage_interfaces_run() {
             json!({"value":[1,2,3]}),
         ),
     ];
-    let mut runtime = Runtime::new(p.clone()).unwrap();
+    let mut runtime = Runtime::from_checked(&checked).unwrap();
     let mut steps = Vec::new();
     let mut expected = Vec::new();
     for (name, args, reply) in cases {
@@ -225,9 +225,9 @@ fn storage_interfaces_run() {
     assert_eq!(numeric, json!({"value":[1,0]}));
     steps.push(json!({"pure":"numeric","args":numeric_args,"expect_gpu":true}));
     expected.push(json!({"reply":numeric,"snapshot":runtime.checkpoint_portable().unwrap()}));
-    parity::conformance(
+    parity::conformance_checked(
         "invariant-value-storage-regions",
-        p,
+        &checked,
         &fs::read_to_string(source()).unwrap(),
         steps,
         expected,
@@ -355,7 +355,7 @@ fn generic_storage_run() {
             json!({"host_error":"contract precondition failed"}),
         ),
     ];
-    let snapshot = Runtime::new(p.clone())
+    let snapshot = Runtime::from_checked(&checked)
         .unwrap()
         .checkpoint_portable()
         .unwrap();
@@ -371,9 +371,9 @@ fn generic_storage_run() {
     assert_eq!(reply, json!({"value":[1,0]}));
     steps.push(json!({"pure":"numeric","args":args,"expect_gpu":true}));
     expected.push(json!({"reply":reply,"snapshot":snapshot}));
-    parity::conformance(
+    parity::conformance_checked(
         "invariant-value-storage-generic",
-        p,
+        &checked,
         &fs::read_to_string(file).unwrap(),
         steps,
         expected,
@@ -406,7 +406,7 @@ fn owned_folds_run() {
     verified_language::contracts::attach(&mut p, serde_json::from_str(include_str!(
         "fixtures/owned-invariant-storage/proofs.json")).unwrap()).unwrap();
     let checked = CheckedModule::from_source(p.clone()).unwrap();
-    let mut runtime = Runtime::new(p.clone()).unwrap();
+    let mut runtime = Runtime::from_checked(&checked).unwrap();
     let snapshot = runtime.checkpoint_portable().unwrap();
     let mut steps = vec![];
     let mut expected = vec![];
@@ -490,7 +490,7 @@ fn database_authored_measures_execute_imports_generics_and_derived_descent_acros
     let mut p=modules::load_for_termination(&file).unwrap().program;
     p.termination.knowledge=Some(serde_json::from_str(include_str!("fixtures/authored-measures/proofs.json")).unwrap());
     let checked=CheckedModule::from_source(p.clone()).unwrap();
-    let snapshot=Runtime::new(p.clone()).unwrap().checkpoint_portable().unwrap();
+    let snapshot=Runtime::from_checked(&checked).unwrap().checkpoint_portable().unwrap();
     let mut steps=vec![];let mut expected=vec![];
     for (name,args,value) in [
         ("steps",json!([0,1]),json!(0)),
@@ -525,7 +525,7 @@ fn scoped_range_borrows_preserve_payloads_owner_lifetimes_and_action_history_acr
     let file=Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/scoped-range-borrows/main.ink");
     let p=modules::load(&file).unwrap().program;
     let checked=CheckedModule::from_source(p.clone()).unwrap();
-    let mut runtime=Runtime::new(p.clone()).unwrap();
+    let mut runtime=Runtime::from_checked(&checked).unwrap();
     let snapshot=runtime.checkpoint_portable().unwrap();
     let mut steps=vec![];let mut expected=vec![];
     let cell=json!({"value":3,"retained":true});
@@ -588,7 +588,7 @@ fn scoped_range_borrows_preserve_payloads_owner_lifetimes_and_action_history_acr
 fn generic_recursive_tree_traversals_preserve_values_order_abort_and_snapshots_across_targets(){
  let file=Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/recursive-trees/main.ink");
  let p=modules::load(&file).unwrap().program;
- let checked=CheckedModule::from_source(p.clone()).unwrap();let mut runtime=Runtime::new(p.clone()).unwrap();
+ let checked=CheckedModule::from_source(p.clone()).unwrap();let mut runtime=Runtime::from_checked(&checked).unwrap();
  let leaf=|value:&str|json!({"payload":{"Ok":{"item0":value}}});
  let branch=|values:Vec<Value>|json!({"payload":{"Err":{"item0":values}}});
  let empty=branch(vec![]);let tree=branch(vec![leaf("a"),branch(vec![leaf("α"),empty.clone(),leaf("b")])]);

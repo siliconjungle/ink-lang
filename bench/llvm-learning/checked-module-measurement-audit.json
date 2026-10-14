@@ -1,0 +1,64 @@
+{
+  "schema": 1,
+  "finding": "F028",
+  "scope": "Compiler emit-state command: source loading, contract admission and complete state bundle emission; no generated application execution or Rust compilation.",
+  "fixture": "tests/fixtures/storage-generic/main.ink",
+  "before_seconds": 392.5315675828606,
+  "after_seconds": 203.60047354083508,
+  "observed_ratio": 1.9279501700379522,
+  "observed_time_reduction_percent": 48.13143951846459,
+  "repetitions": 1,
+  "byte_identical_artifacts": {
+    "Cargo.toml": "bdf12661e8f59fbc5d2f832cd9c3b21572f06987af6b3f7770e3b09f3870f1fd",
+    "plan.json": "5758b2c637395fa6be419f3906e4cba8ae8dfbe918d706f7eb703ea621db19c8",
+    "src/durable.rs": "ebd7eb81cfae1aa99d08b44814cedc33b9a01c4a9aeb61c41db50dba6131fc42",
+    "src/lib.rs": "d920d84875125387f4ddb5a66aac752c797c06259926dfe553b1df6283de59c2",
+    "src/main.rs": "eaa13105c45604dc79bfc0bf2fa43750f081c7d29fd4f62f330c9d96e9899874",
+    "src/state-cli.rs": "90c4c8df7bbe0f579f21057a13702641dc00eff8238c1efdb42e30cce12ca58e"
+  },
+  "compiler_binaries": {
+    "before": "4a2a09ba306961c6de1885c8cd1403ef23cf32ec7d3d676c194b6644039bb5ca",
+    "after": "7770e4deb136b87694873ecad216d9078172329805341a7a0b0235e2503a4a79"
+  },
+  "implementation_published_revision": "525cc2030aeb36a192a6f58a9ff1c51bfef15a0a",
+  "limitations": [
+    "One sequential before/after pair on a shared machine with other work running. No confidence interval, hardware-isolated estimate or across-workload speedup.",
+    "Small abstract-interface CLI controls had mixed timings; large-fixture result must not be generalized to every compile.",
+    "Frozen after compiler predates the final independent dependency pin refresh; exact binary hashes identify the actual executables.",
+    "Outputs match byte-for-byte, including core identity. This optimization does not claim application runtime acceleration."
+  ],
+  "inputs": [
+    {
+      "path": "work/ink-development/tests/fixtures/storage-generic/main.ink",
+      "bytes": 1343,
+      "sha256": "4d99b2ddf3125e0ec6d3748ef3f3da63a8071f4335316fdf3c9f2a4fb11a8549"
+    },
+    {
+      "path": "work/ink-development/tests/fixtures/storage-generic/proofs.json",
+      "bytes": 6268730,
+      "sha256": "ec607304b29792d81307f6d2958f14b5e9bdd08cb0532715d6a56e5bba26a7f5"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "work/llvm-learning-smoke/checked-module-measurement/results.json",
+      "bytes": 1655,
+      "sha256": "fecabb246ebbae007f27c5cd32e6fb0aa0f60c80de3dea86e5e4b7c47adfc6c4"
+    },
+    {
+      "path": "work/llvm-learning-smoke/checked-module-measurement.log",
+      "bytes": 1420,
+      "sha256": "e90c0972e8a42895b145a80a32eb9c75bc1bd6cd960a80b5fd685080b826f101"
+    },
+    {
+      "path": "work/llvm-learning-smoke/measure-checked-module.py",
+      "bytes": 1691,
+      "sha256": "0fb0b7637b2438a465a2b9805ded29db21cc3b569780a50a7631b5d9ca0c5ff5"
+    },
+    {
+      "path": "work/llvm-learning-smoke/checked-module-cli/results.json",
+      "bytes": 3286,
+      "sha256": "c225af4e8901ea6bcadd20825fc20d81a5805e54dc779f7f40ef5dfb8d81cb7c"
+    }
+  ]
+}

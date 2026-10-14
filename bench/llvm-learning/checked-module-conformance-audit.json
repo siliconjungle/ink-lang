@@ -1,0 +1,258 @@
+{
+  "schema": 1,
+  "finding": "F028",
+  "base_distribution": "df013bb694737875fded031c7ccf37be64067231",
+  "change": "Preserve private CheckedModule admission across reference runtime, checked restore, Rust selected/planned emission and CLI/parity consumers. Raw Program entrypoints still admit source; action elaboration, effects, target capabilities, original checkpoint layout, runtime inputs and restored invariants remain checked.",
+  "source_files": [
+    {
+      "path": "work/ink-development/core/src/stateful.rs",
+      "bytes": 41362,
+      "sha256": "7402f26901da58b711c852c04b26f1816f1256519e94482c7708bf28db41a8d5"
+    },
+    {
+      "path": "work/ink-development/core/tests/checked_runtime.rs",
+      "bytes": 2749,
+      "sha256": "183221418ac57273d1df98ac708a30ad9dd9e9afaa2125286830564ce1d4a0f5"
+    },
+    {
+      "path": "work/ink-development/core/tests/value_invariants.rs",
+      "bytes": 16505,
+      "sha256": "ef9cc7fc61051bae5cca0bb5eacda6328a8f4119402f75ed40fe7c13d78da09d"
+    },
+    {
+      "path": "work/ink-development/lowerings/rust/src/state_native.rs",
+      "bytes": 89319,
+      "sha256": "0439dc25ff69caa44e1bf1089abb69e266f1540f049c09179f1aab409885b773"
+    },
+    {
+      "path": "work/ink-development/src/main.rs",
+      "bytes": 90564,
+      "sha256": "801f3c1aa1f27f0ac808aa3b4ea63cdc36e9c2fed050d57b4496f60066df7c7a"
+    },
+    {
+      "path": "work/ink-development/tests/support/parity.rs",
+      "bytes": 16410,
+      "sha256": "3d25bfb2753927164291e801f77cac1cf3ad8f0e1607ff961a6b0a15e5238476"
+    },
+    {
+      "path": "work/ink-development/tests/storage_regions.rs",
+      "bytes": 26140,
+      "sha256": "bd65ca4c32873bd4a06ec8ca5c1636ee8bf4168b841fedf7055f32af8fcb71ff"
+    },
+    {
+      "path": "work/ink-development/tests/selected_checkpoint.rs",
+      "bytes": 10427,
+      "sha256": "a7babca456a7756d45dc32da75ddb50e8a9b2f97c39bbc6c66fbef0f9c2b1614"
+    },
+    {
+      "path": "work/ink-development/tests/checked_emission.rs",
+      "bytes": 1372,
+      "sha256": "569c6f8bba5bfc5b6c3354ecd5cc8f25339a0f49ca7b9d1fa8373d44ddd42a18"
+    },
+    {
+      "path": "work/ink-development/docs/source-contracts.md",
+      "bytes": 10850,
+      "sha256": "26df497d16d162b676ed147014c24d3eefccb3eab26de76ade2b445c259fbaa9"
+    },
+    {
+      "path": "work/ink-development/.github/workflows/conformance.yml",
+      "bytes": 19446,
+      "sha256": "95d6e919ecaf7da23185ac66d4c34cac6e68fc865e1e5555bfa07016f04f76c9"
+    }
+  ],
+  "logs": [
+    {
+      "path": "work/llvm-learning-smoke/checked-module-invariants.log",
+      "bytes": 1947,
+      "sha256": "71d65bab4d28d7e772e39ea9e11f2cedffabc42546abbb90426d9c3f23534a3d"
+    },
+    {
+      "path": "work/llvm-learning-smoke/checked-module-emission-final.log",
+      "bytes": 422,
+      "sha256": "1f83f43f0df05bd66259d120503a92bc51c6c96f47e148700926c1b23479c212"
+    },
+    {
+      "path": "work/llvm-learning-smoke/checked-module-generic.log",
+      "bytes": 615,
+      "sha256": "b08af339bb9e241a88252215dd3ea2b5cd9a3bb114ca23017f42deaaec98e5be"
+    },
+    {
+      "path": "work/llvm-learning-smoke/checked-module-generic-wasm.log",
+      "bytes": 2720,
+      "sha256": "c8dd013607bdc7ebd547d0dc349577c48bc31d9f63599928eb0b6e18dfa93c5d"
+    },
+    {
+      "path": "work/llvm-learning-smoke/checked-module-regions.log",
+      "bytes": 577,
+      "sha256": "edf3cedba2d23bd4504f534ccb9326c06f108e51bf6e81225c903b2ed3bb5da3"
+    },
+    {
+      "path": "work/llvm-learning-smoke/checked-module-planned.log",
+      "bytes": 620,
+      "sha256": "129a3b68ee5805219ae54cae1d452e431a1ead98e847c2637c42c20eb7b03ac5"
+    },
+    {
+      "path": "work/llvm-learning-smoke/checked-module-physical.log",
+      "bytes": 1024,
+      "sha256": "c5e88e34b331e4f24e2a725fd10c15d45f7108cf3c66bb56a9faf972eb8e2e6b"
+    },
+    {
+      "path": "work/llvm-learning-smoke/checked-module-maintained.log",
+      "bytes": 585,
+      "sha256": "0b7474c864d77896c32fd30fea94a338a52371db12f31501a021783b1abe3342"
+    },
+    {
+      "path": "work/llvm-learning-smoke/checked-module-selected-reference-retry.log",
+      "bytes": 426,
+      "sha256": "fb1f8413ff995338cde4f956fa91a0577d8f9c3af2a15432cc69b98e5be68855"
+    },
+    {
+      "path": "work/llvm-learning-smoke/checked-module-selected-retry.log",
+      "bytes": 510,
+      "sha256": "9170e86b633a473aaaa4aaef9ea78022c71a92846bc4fbd5d34487b649bca5ef"
+    },
+    {
+      "path": "work/llvm-learning-smoke/checked-module-rust-current.log",
+      "bytes": 2943,
+      "sha256": "2b5d92667ad8cf45e5882fac53c9b7758511d1938de47f265895416afb177116"
+    },
+    {
+      "path": "work/llvm-learning-smoke/checked-module-wasm-independent.log",
+      "bytes": 604,
+      "sha256": "a0267d2ae61421fd37f2f1d5c9b6822a5a4efb99848dc87ed98af6a7972cce49"
+    },
+    {
+      "path": "work/llvm-learning-smoke/checked-module-gpu-independent.log",
+      "bytes": 1938,
+      "sha256": "c14256a64f0b3442255d5ef873cdcddaad92aa9654641d1b0b078500e1e4ed79"
+    },
+    {
+      "path": "work/llvm-learning-smoke/checked-module-runtime-independent.log",
+      "bytes": 1034,
+      "sha256": "6c39ab863a1369b210cb7d83ddaf588cddc19bcd07fe818373fd54b32caa5b90"
+    }
+  ],
+  "validation": {
+    "core_runtime_and_value_invariants": 17,
+    "raw_checked_emission": 1,
+    "generic_storage_tests": 2,
+    "generic_wasm_outcomes_exact_snapshots": 16,
+    "regions_cpu_outcomes_exact_snapshots": 31,
+    "planned_cpu_gpu_outcomes": 13,
+    "planned_actual_gpu_calls": 1,
+    "selected_cpu_gpu_outcomes": 7,
+    "selected_actual_gpu_calls": 1,
+    "selected_reference_restore_namespace_regression": 1,
+    "physical_nested_owners": "Native and Wasm integer/raw-float payloads; unsupported JS/GPU target rejection",
+    "maintained_histories": "Native and JS baseline/map/dense variants; ordinary proof replay, forged proof rejection, dense Rust capability rejection, host rollback, restore and exact snapshots. No additional maintained-only Wasm claim.",
+    "independent_rust_tests": 19,
+    "independent_runtime_tests": 2,
+    "independent_wasm_gpu": "Library compilation succeeds; each exposes zero library unit tests. Actual generated target conformance recorded separately."
+  },
+  "cli_before_after": {
+    "scope": "Actual CLI old/new emission; complete generated artifacts byte-identical, ordered and indexed slots. One run each on contended shared machine; no runtime performance inference.",
+    "rows": [
+      {
+        "mode": "ordered",
+        "label": "before",
+        "seconds": 0.537532958900556,
+        "compiler_sha256": "4a2a09ba306961c6de1885c8cd1403ef23cf32ec7d3d676c194b6644039bb5ca",
+        "files": {
+          "Cargo.toml": "bdf12661e8f59fbc5d2f832cd9c3b21572f06987af6b3f7770e3b09f3870f1fd",
+          "plan.json": "07b8e2fc575de6f48d21f6062016f82d8ce2abf226ca40c95d0d089f74dc01f8",
+          "src/durable.rs": "ebd7eb81cfae1aa99d08b44814cedc33b9a01c4a9aeb61c41db50dba6131fc42",
+          "src/lib.rs": "76bc8c19768f7b501d81788c7ec1aecddec0dc318ced23c41b6a502131ebeade",
+          "src/main.rs": "eaa13105c45604dc79bfc0bf2fa43750f081c7d29fd4f62f330c9d96e9899874",
+          "src/state-cli.rs": "90c4c8df7bbe0f579f21057a13702641dc00eff8238c1efdb42e30cce12ca58e"
+        }
+      },
+      {
+        "mode": "ordered",
+        "label": "after",
+        "seconds": 0.7223331248387694,
+        "compiler_sha256": "7770e4deb136b87694873ecad216d9078172329805341a7a0b0235e2503a4a79",
+        "files": {
+          "Cargo.toml": "bdf12661e8f59fbc5d2f832cd9c3b21572f06987af6b3f7770e3b09f3870f1fd",
+          "plan.json": "07b8e2fc575de6f48d21f6062016f82d8ce2abf226ca40c95d0d089f74dc01f8",
+          "src/durable.rs": "ebd7eb81cfae1aa99d08b44814cedc33b9a01c4a9aeb61c41db50dba6131fc42",
+          "src/lib.rs": "76bc8c19768f7b501d81788c7ec1aecddec0dc318ced23c41b6a502131ebeade",
+          "src/main.rs": "eaa13105c45604dc79bfc0bf2fa43750f081c7d29fd4f62f330c9d96e9899874",
+          "src/state-cli.rs": "90c4c8df7bbe0f579f21057a13702641dc00eff8238c1efdb42e30cce12ca58e"
+        }
+      },
+      {
+        "mode": "indexed-slots",
+        "label": "before",
+        "seconds": 0.4736622089985758,
+        "compiler_sha256": "4a2a09ba306961c6de1885c8cd1403ef23cf32ec7d3d676c194b6644039bb5ca",
+        "files": {
+          "Cargo.toml": "bdf12661e8f59fbc5d2f832cd9c3b21572f06987af6b3f7770e3b09f3870f1fd",
+          "plan.json": "07b8e2fc575de6f48d21f6062016f82d8ce2abf226ca40c95d0d089f74dc01f8",
+          "src/durable.rs": "ebd7eb81cfae1aa99d08b44814cedc33b9a01c4a9aeb61c41db50dba6131fc42",
+          "src/lib.rs": "9f6d27ce31f15e0572e810e783dc2365e32bd8366c9c334866904b83990cb6f8",
+          "src/main.rs": "eaa13105c45604dc79bfc0bf2fa43750f081c7d29fd4f62f330c9d96e9899874",
+          "src/state-cli.rs": "90c4c8df7bbe0f579f21057a13702641dc00eff8238c1efdb42e30cce12ca58e"
+        }
+      },
+      {
+        "mode": "indexed-slots",
+        "label": "after",
+        "seconds": 0.319344166200608,
+        "compiler_sha256": "7770e4deb136b87694873ecad216d9078172329805341a7a0b0235e2503a4a79",
+        "files": {
+          "Cargo.toml": "bdf12661e8f59fbc5d2f832cd9c3b21572f06987af6b3f7770e3b09f3870f1fd",
+          "plan.json": "07b8e2fc575de6f48d21f6062016f82d8ce2abf226ca40c95d0d089f74dc01f8",
+          "src/durable.rs": "ebd7eb81cfae1aa99d08b44814cedc33b9a01c4a9aeb61c41db50dba6131fc42",
+          "src/lib.rs": "9f6d27ce31f15e0572e810e783dc2365e32bd8366c9c334866904b83990cb6f8",
+          "src/main.rs": "eaa13105c45604dc79bfc0bf2fa43750f081c7d29fd4f62f330c9d96e9899874",
+          "src/state-cli.rs": "90c4c8df7bbe0f579f21057a13702641dc00eff8238c1efdb42e30cce12ca58e"
+        }
+      }
+    ]
+  },
+  "independent_pins": {
+    "lowerings/rust": "b7024687d1d2bb0f2ba4e7ae01d3f69871db3b31",
+    "lowerings/js": "6a4a2bee6d30c8b733d71e3f0ec3b0f5605c7f91",
+    "lowerings/wasm": "94836ffa0fea007cf146be8e100a6fe91ac6afab",
+    "lowerings/gpu": "3f1080b94e3b570d3f541bc4a261f1c1f73561d2",
+    "runtime": "1955f549b9dbf8ed1fa3c32b7acd64f496eb8eb3"
+  },
+  "exact_core_build_inputs": {
+    "path": "work/llvm-learning-smoke/core-source-mirror-0b0/receipt.json",
+    "bytes": 19111,
+    "sha256": "3d99966a0b433fb19684825a0b82c8684eca065567a37569d3326298c796d240"
+  },
+  "limitations": [
+    "Full remote CI pending.",
+    "Tests establish observed conformance, not a proof of backend correctness.",
+    "No application runtime speedup is inferred from compiler admission reuse. Small CLI times are mixed and insufficient for a performance claim. Large-fixture phase timings remain in progress.",
+    "The all-files LLVM/Ink audit remains incomplete; excerpt inspection does not count as a complete file review."
+  ],
+  "environment_repairs": [
+    "Sparse checkout omitted committed knowledge/store/rewrite-view.json; materialized exact pinned Git bytes before selected conformance retries.",
+    "Independent Cargo source replacement needed an existing lockfile; seeded ignored package locks from the pinned runtime lock, then used Cargo metadata to resolve dependencies.",
+    "Upstream independent package core pin updates were fast-forwarded and retained; all code test inputs unchanged except the intended checked-module reuse."
+  ],
+  "failed_attempt_logs": [
+    {
+      "path": "work/llvm-learning-smoke/checked-module-selected.log",
+      "bytes": 999,
+      "sha256": "2c50fcc0fe2c51753cf761aa232701f8e7fb416dad772867e2f3e0ef9ee46fa6"
+    },
+    {
+      "path": "work/llvm-learning-smoke/checked-module-selected-reference.log",
+      "bytes": 1035,
+      "sha256": "870971f721bfa25df90d0237e8ac180e6944a7601384286492dbba15d77ceeba"
+    },
+    {
+      "path": "work/llvm-learning-smoke/checked-module-rust-independent.log",
+      "bytes": 713,
+      "sha256": "974d0e99114c7aa460a32110d3ce7ed6271f65745cb7435a09915f51b1aeab42"
+    },
+    {
+      "path": "work/llvm-learning-smoke/checked-module-rust-current-metadata.log",
+      "bytes": 364,
+      "sha256": "0610d80c7c4419e1af4c5e258e24fbf11b980a24f3b6e54640b2a6fe91df7352"
+    }
+  ]
+}

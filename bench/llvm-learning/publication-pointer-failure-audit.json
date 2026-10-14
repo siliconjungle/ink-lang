@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "finding": "F046",
+  "status": "Reproduced; repair/design decision pending.",
+  "result": {
+    "error": "injected snapshot pointer replacement failure",
+    "old_snapshot_retained": true,
+    "names_changed": true,
+    "named_entry_in_snapshot": false,
+    "lookup_rejected": "entry absent from pinned snapshot",
+    "scope": "Remaining metadata consistency limitation of two mutable pointers. No unproved law or missing member is admitted; reproduction is an injected I/O exception, not a power-loss test."
+  },
+  "next": "Coordinate name/snapshot metadata as a recoverable publication generation without promoting the disposable index to proof authority; preserve existing canonical snapshot/export semantics. Test injected failure between pointer updates and process interruption.",
+  "evidence": [
+    {
+      "path": "work/llvm-learning-smoke/publication-pointer-failure.json",
+      "bytes": 409,
+      "sha256": "668d47540f62e5b84f9881e601f85501820cd280ec4509a78df971cac9edce12"
+    },
+    {
+      "path": "work/llvm-learning-smoke/reproduce-publication-pointer-failure.py",
+      "bytes": 1713,
+      "sha256": "478e5940add6110ec2c5689476153017221255d0da0c115fb70fd40652e76aec"
+    }
+  ]
+}

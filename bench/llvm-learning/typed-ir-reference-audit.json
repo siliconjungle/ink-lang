@@ -1,0 +1,12 @@
+{
+  "schema": 1,
+  "llvm_revision": "d977b4533f1d9b01d28cf4dba9b2db9d1ccfda08",
+  "file": "llvm/include/llvm/IR/IRUnitRef.h",
+  "blob": "a51563ddcc19a4a6b7f6651017a191d261b01b81",
+  "insights": [
+    "Closed IR kind tags and specialized construction keep type-erased observations distinguishable across module/function/loop/machine/SCC levels. Cast access returns const pointers.",
+    "The nullptr construction assertion is not a lifetime proof: the wrapper is non-owning and requires the underlying IR to remain alive. It does not prove semantic validity or justify cached analysis retention.",
+    "Ink already has a private CheckedModule wrapper with immutable program access. F028 should carry that checked type through analysis and emission APIs instead of raw Program plus a caller-trusted flag. Use Rust lifetimes/ownership for borrowed diagnostics; no portable pointer identity or new runtime tagging machinery is required."
+  ],
+  "status": "Full source review; F028 implementation remains outstanding; no performance claim."
+}

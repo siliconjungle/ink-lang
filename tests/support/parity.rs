@@ -22,7 +22,18 @@ pub(crate) fn conformance(
     steps: Vec<Value>,
     expected: Vec<Value>,
 ) {
-    conformance_inner(name, p, None, None, None, source, steps, expected)
+    let module = CheckedModule::from_source(p).unwrap();
+    conformance_checked(name, &module, source, steps, expected)
+}
+#[allow(dead_code)]
+pub(crate) fn conformance_checked(
+    name: &str,
+    module: &CheckedModule,
+    source: &str,
+    steps: Vec<Value>,
+    expected: Vec<Value>,
+) {
+    conformance_inner(name, module, None, None, None, source, steps, expected)
 }
 #[allow(dead_code)]
 pub(crate) fn conformance_selected(
@@ -34,7 +45,7 @@ pub(crate) fn conformance_selected(
 ) {
     conformance_inner(
         name,
-        selected.module().program().clone(),
+        selected.module(),
         Some(selected),
         None,
         None,
@@ -53,7 +64,7 @@ pub(crate) fn conformance_indexed(
 ) {
     conformance_inner(
         name,
-        p,
+        &CheckedModule::from_source(p).unwrap(),
         None,
         None,
         Some(verified_language::state_native::TableStorage::IndexedSlots),
@@ -72,7 +83,7 @@ pub(crate) fn conformance_planned(
 ) {
     conformance_inner(
         name,
-        plan.module().program().clone(),
+        plan.module(),
         None,
         Some(plan),
         None,
@@ -83,7 +94,7 @@ pub(crate) fn conformance_planned(
 }
 fn conformance_inner(
     name: &str,
-    p: verified_language::syntax::Program,
+    module: &CheckedModule,
     selected: Option<&verified_language::optimisation::CheckedSelection>,
     planned: Option<&verified_language::planning::CheckedPlan>,
     table_storage: Option<verified_language::state_native::TableStorage>,
@@ -107,7 +118,7 @@ fn conformance_inner(
             .lock()
             .unwrap_or_else(|poisoned| poisoned.into_inner())
     });
-    let module = CheckedModule::from_source(p.clone()).unwrap();
+    let p = module.program();
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join(format!("build/{name}"));
     fs::create_dir_all(&root).unwrap();
     fs::write(root.join("source.ink"), source).unwrap();
@@ -342,8 +353,8 @@ fn conformance_inner(
             } else if let Some(selected) = selected {
                 verified_language::state_native::emit_selected(selected).unwrap()
             } else {
-                verified_language::state_native::emit_with_table_storage(
-                    &p,
+                verified_language::state_native::emit_checked_with_table_storage(
+                    module,
                     table_storage.unwrap_or(verified_language::state_native::TableStorage::Ordered),
                 )
                 .unwrap()
@@ -393,7 +404,7 @@ fn conformance_inner(
                 .unwrap()
                 .javascript
         } else {
-            verified_language::javascript::lower(&module)
+            verified_language::javascript::lower(module)
                 .unwrap()
                 .javascript
         },

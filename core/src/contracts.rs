@@ -715,21 +715,26 @@ pub fn check_proof(
 }
 
 /// An immutable source context for repeated authoring attempts. Its executable
-/// structure and source-derived obligations are reused; every proposed proof
-/// and dependency bundle is still checked independently. This does not admit
-/// the source contracts or make the original program executable.
+/// structure and source-derived obligations are reused. Every incoming bundle
+/// is authenticated and every proposed proof is checked. Previously checked
+/// pure laws may be reused only when present in the current authenticated view
+/// and bound to this exact executable context. This does not admit the source
+/// contracts or make the original program executable.
 pub struct ProofContext {
     source: Program,
     executable: CheckedModule,
-    pure: BTreeMap<String, Obligation>,
+    pure: Vec<Obligation>,
+    pure_names: BTreeMap<String, usize>,
     empty_catalogue: CheckedCatalogue,
+    // Retain at most one bounded view, never a growing union of session laws.
+    previous_catalogue: Option<CheckedCatalogue>,
     state: Option<StateObligations>,
 }
 impl ProofContext {
     pub fn new(p: &Program) -> LangResult<Self> {
-        let pure = obligations(p)?
-            .into_iter()
-            .map(|g| (g.name.clone(), g))
+        let pure = obligations(p)?;
+        let pure_names = pure.iter().enumerate()
+            .map(|(i, g)| (g.name.clone(), i))
             .collect();
         let mut executable = p.clone();
         executable.contracts = Contracts::default();
@@ -747,12 +752,41 @@ impl ProofContext {
             source: p.clone(),
             executable,
             pure,
+            pure_names,
             empty_catalogue,
+            previous_catalogue: None,
             state: None,
         })
     }
     pub fn source_identity(&self) -> LangResult<String> {
         subject_identity(&self.source)
+    }
+    /// Export the same source-derived goals used by this context, in derivation
+    /// order. The returned document is authoring data, never proof authority.
+    pub fn export_obligations(&mut self) -> LangResult<serde_json::Value> {
+        let pure = serde_json::to_value(&self.pure).map_err(|e| e.to_string())?;
+        fn called_helpers(value: &serde_json::Value, program: &Program, names: &mut BTreeSet<String>) {
+            match value {
+                serde_json::Value::String(value) => if let Some(name) = value.strip_prefix("call:") {
+                    if program.functions.iter().any(|f| f.name == name) { names.insert(name.into()); }
+                },
+                serde_json::Value::Array(values) => for value in values { called_helpers(value, program, names); },
+                serde_json::Value::Object(fields) => for value in fields.values() { called_helpers(value, program, names); },
+                _ => (),
+            }
+        }
+        let mut roots = BTreeSet::new();
+        called_helpers(&pure, &self.source, &mut roots);
+        let definition_context = crate::definition_context::DefinitionContext::capture(
+            &self.executable, &roots.into_iter().collect::<Vec<_>>(),
+        )?;
+        let state = if needs_state(&self.source)? {
+            if self.state.is_none() { self.state = Some(state::derive(&self.source)?); }
+            self.state.as_ref()
+        } else { None };
+        Ok(serde_json::json!({"schema":1,"semantics":SEMANTICS,
+            "source_sha256":self.source_identity()?,"pure":pure,"state":state,
+            "definition_context":definition_context}))
     }
     pub fn check(
         &mut self,
@@ -760,17 +794,22 @@ impl ProofContext {
         proof: serde_json::Value,
         bundle: Option<&crate::registry::Bundle>,
     ) -> LangResult<()> {
-        if let Some(g) = self.pure.get(name) {
-            let catalogue = if let Some(b) = bundle {
-                Some(crate::registry::CheckedBundle::check(b)?.catalogue()?)
+        if let Some(&index) = self.pure_names.get(name) {
+            let g = &self.pure[index];
+            let laws = if let Some(b) = bundle {
+                let catalogue = crate::registry::CheckedBundle::check(b)?.catalogue()?;
+                let checked = CheckedCatalogue::check_reusing(
+                    &catalogue,
+                    self.executable.program(),
+                    self.previous_catalogue.as_ref(),
+                )?;
+                checked.require_applicable()?;
+                self.previous_catalogue = Some(checked);
+                self.previous_catalogue.as_ref().expect("checked incoming catalogue")
             } else {
-                None
+                // A previous request cannot grant laws to an empty request.
+                &self.empty_catalogue
             };
-            let checked = catalogue
-                .as_ref()
-                .map(|c| CheckedCatalogue::check(c, self.executable.program()))
-                .transpose()?;
-            let laws = checked.as_ref().unwrap_or(&self.empty_catalogue);
             return laws.prove(
                 self.executable.program(),
                 &g.params,

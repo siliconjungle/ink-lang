@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "ink_revision": "0b0bf5ba4077b1e38a3e39051933ff3c7645b30d",
+  "files": {
+    "core/src/definition_context.rs": "ddd8388fad70aef0eb208059f1f9bcbbb5ac7ee7",
+    "core/tests/definition_context.rs": "a195bdfecdeced8d092bf7d0a2868edd7d42aa39"
+  },
+  "findings": [
+    "Capture binds a transitive closure of at most128 pure definitions. Recursive component identities include every member body and external callee bindings while avoiding circular per-member hashes.",
+    "Checking independently validates schema/bytes, body and callee identities, typed reconstruction, genuine recursion descent and actual strongly connected components. Rehashing a false equation or non-descending recursive body grants no authority.",
+    "Applicability requires exact parameter names/types and typed bodies plus captured record/enum/ID meanings. Unrelated functions may differ. Type declarations in the initial capture are conservative.",
+    "The existing knowledge producer context_for at lines182-202 trims each law to referenced definitions and recursive named-type closure, including recursive-group completeness. Do not add a duplicate special-purpose context pruner in core.",
+    "Compact body encoding is a transport choice, selected above JSON depth80; inline identities are preserved. New pruning or encoding changes would require fresh identities and ordinary replay."
+  ],
+  "validation": {
+    "definition_context_tests": 8,
+    "log": "work/llvm-learning-smoke/proof-export-definition-context.log",
+    "sha256": "53e2d1af4225e41c5363e7e8324acb2127011642bfd8088d50dfe65d222a85f2",
+    "scope": "Existing portable-definition regressions on current F027 working tree; eight pass. No newly implemented pruning, no runtime performance claim."
+  }
+}

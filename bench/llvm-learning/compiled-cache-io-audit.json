@@ -1,0 +1,66 @@
+{
+  "schema": 1,
+  "finding": "F034",
+  "base_planner": "80a35454c15731d50cb127aa61a040fe47895842",
+  "reproduced_before": [
+    "Concurrent eviction during inventory/stat raises FileNotFoundError after successful packet publication.",
+    "Pruning tries to unlink a directory and raises PermissionError on this macOS host.",
+    "Malformed receipt fields raise AttributeError.",
+    "A file replaced between stat and read exceeds the limit yet is returned by load."
+  ],
+  "change": [
+    "Reuse existing regular-file metadata snapshot pruning in both planner caches, retaining128 compiled packets and256 search packets.",
+    "Read at most LIMIT+1 bytes through one open file; reject oversize bytes independent of earlier path metadata.",
+    "Malformed receipt shapes and JSON recursion errors are optional cache misses.",
+    "Preserve same-directory temporary publication and require ordinary checker replay for cache hits."
+  ],
+  "validation": {
+    "cache_tests": 12,
+    "mandatory_hardening": "passed",
+    "before": "4 new test methods fail with1 failure and6 error reports, including malformed-receipt subcases.",
+    "performance": "No speed claim; reliability and bounded IO change."
+  },
+  "sources": [
+    {
+      "path": "work/ink-development/planner/ink_planner/compiled_cache.py",
+      "bytes": 3297,
+      "sha256": "91efae4e69442c22599b4f83e56f04216ab706441ff835a692661971a95743ab"
+    },
+    {
+      "path": "work/ink-development/planner/ink_planner/plan_cache.py",
+      "bytes": 2888,
+      "sha256": "5654889cb9274ebd02494943ff8cbc03a2e67bc3b16f75cc4442faf06a73d05a"
+    },
+    {
+      "path": "work/ink-development/planner/tests/test_compiled_cache_io.py",
+      "bytes": 3950,
+      "sha256": "68677af7df8e357173eb7eb498e5569e163d706fefdae9e2a4415281f1fc58c6"
+    },
+    {
+      "path": "work/ink-development/tests/hardening.rs",
+      "bytes": 79911,
+      "sha256": "f1bec8a71a6bc49e84c5c85bd7bb364763ceba18d45af41ae3d6ec62f98be1a0"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "work/llvm-learning-smoke/compiled-cache-io-before-final.log",
+      "bytes": 8517,
+      "sha256": "ac375d2dc199c6b13ff745623a66d7b47569f509ef731350f8978c16f2a2f90f"
+    },
+    {
+      "path": "work/llvm-learning-smoke/compiled-cache-io-after.log",
+      "bytes": 111,
+      "sha256": "04449dbfbfcfa9009556e64d2c38aca83322a0563e0d74e00e5cc5afbe507018"
+    },
+    {
+      "path": "work/llvm-learning-smoke/proof-reuse-cache-hardening.log",
+      "bytes": 1225,
+      "sha256": "3d93c52b5451746b133c1bce4e1664c19edcf86b5f38dd33ef878ffa386ff4f6"
+    }
+  ],
+  "limits": [
+    "Concurrent cache deletion tests deterministically inject real filesystem removal; not an exhaustive OS interleaving proof.",
+    "Selected package checking remains external to the cache loader."
+  ]
+}

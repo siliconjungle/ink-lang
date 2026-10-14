@@ -1,0 +1,104 @@
+{
+  "schema": 1,
+  "findings": [
+    "F041",
+    "F047"
+  ],
+  "base_planner": "d3157785559cd9a2e4a9523fd741f6f7ed5f3339",
+  "candidate_planner": "9463d5fa56c1ff9daf9ec20c3f9398a5dccc975e",
+  "changes": [
+    "Resolve source and destination paths before tree cloning and SQLite URI construction.",
+    "Close both SQLite backup connections explicitly, on success and failure. Connection context managers alone only end transactions.",
+    "Test fixtures also close connections explicitly."
+  ],
+  "validation": {
+    "helper_tests": 8,
+    "relative_path_regression": "Old indexed relative-source clone raises ValueError; indexed/nonindexed final cases pass.",
+    "connection_regression": "Old successful backup retains usable connections after return; final connections reject use after both successful and injected failed backup.",
+    "mandatory_hardening": "passed; includes clone/copy/context suites",
+    "actual_final_helper_smoke": {
+      "programs": 1,
+      "compiled": 1,
+      "programs_with_rewrite_alternative": 1,
+      "programs_with_any_alternative": 1,
+      "programs_selecting_alternative": 1,
+      "median_seconds": 33.706,
+      "stopped_by_time": 0,
+      "laws_admitted": 7,
+      "laws_admitted_in_multiple_programs": 0,
+      "representations_admitted": 0,
+      "last_gates": {
+        "selected_alternative": 1
+      }
+    }
+  },
+  "limits": [
+    "Full before/after knowledge corpus completed before these planner-helper changes; its invocations already used absolute clone paths. Final helper tested on actual compact-set planning, plus private/WAL copying, relative paths, close-on-success/failure and exact resume/checkpoint regressions.",
+    "Unclosed connections are reproduced; their contribution to observed disk pressure was not measured. No runtime or compile-time speedup claimed.",
+    "Full remote CI required."
+  ],
+  "source_files": [
+    {
+      "path": "work/ink-development/planner/ink_planner/corpus.py",
+      "bytes": 22651,
+      "sha256": "56a2954c0b3e656165df646bd0d717fa9574132a58a4a79ca611129bee40e9e1"
+    },
+    {
+      "path": "work/ink-development/planner/tests/test_corpus_clone.py",
+      "bytes": 7274,
+      "sha256": "be9a45e63cf96b269abd7e26f3a27c92e04d3261db39d8dadd9494510bf151e6"
+    },
+    {
+      "path": "work/ink-development/planner/tests/test_corpus_copy.py",
+      "bytes": 1644,
+      "sha256": "8f1897542e820561a96a125d36142c854ce2f73e1c9e7509e2adf00473cb61fd"
+    },
+    {
+      "path": "work/ink-development/tests/hardening.rs",
+      "bytes": 80154,
+      "sha256": "164a6d1c8f1ecea5d76c7972029979b08db5312cc9a415e423ddf35e304e39d4"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "work/llvm-learning-smoke/corpus-relative-paths-before.log",
+      "bytes": 1375,
+      "sha256": "ffd2c0addcfe5856244a3076658489e0c2ebf89be2b633ff68554153c69dd7fa"
+    },
+    {
+      "path": "work/llvm-learning-smoke/corpus-connection-close-before.log",
+      "bytes": 822,
+      "sha256": "42faca0b375d4eb7d627511122e7489152e80d5220f1d058acd59baa70d9ecf4"
+    },
+    {
+      "path": "work/llvm-learning-smoke/corpus-clone-final.log",
+      "bytes": 106,
+      "sha256": "f3ab7257c24aa2ce000275fc8c1931f43a06699f16030de9cc82ec0b6201d477"
+    },
+    {
+      "path": "work/llvm-learning-smoke/publication-and-clone-hardening-final.log",
+      "bytes": 488,
+      "sha256": "2a240bbca5faabbfc1bf24f619c44339e09798091c05b02e975281857b59115d"
+    },
+    {
+      "path": "work/llvm-learning-smoke/publication-clone-helper-smoke.log",
+      "bytes": 367,
+      "sha256": "0a308089a76c2cbfc8f0f0b1a914efa52aab2272e9eb96b2cced10b683965436"
+    },
+    {
+      "path": "outputs/llvm-ink-audit/publication-concurrency-corpus/clone-helper-smoke/context.json",
+      "bytes": 617,
+      "sha256": "1838707237d68f3c1f9c7de7a3a1772c32b7e7c22b3607f5230a682e398d664c"
+    },
+    {
+      "path": "outputs/llvm-ink-audit/publication-concurrency-corpus/clone-helper-smoke/report.json",
+      "bytes": 5589,
+      "sha256": "1adb0f2cee118483b2f7659e21528ed11f8c399a8f123cb29ab67f0523d3f0e8"
+    },
+    {
+      "path": "outputs/llvm-ink-audit/publication-concurrency-corpus/clone-helper-smoke/records.json",
+      "bytes": 11483,
+      "sha256": "f8eb45f082e6382aa1e510f797098a3ece45ceb5e0d33bede5625d5fef47b2d5"
+    }
+  ]
+}

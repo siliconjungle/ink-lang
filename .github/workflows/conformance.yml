@@ -110,7 +110,7 @@ jobs:
         node lowerings/gpu/tests/device_graph.mjs
     - name: Independent core and source-bound value admission
       run: |
-        cargo test --test contract_fixtures -- --nocapture
+        cargo test --test contract_fixtures --test checked_emission -- --nocapture
         cargo test --manifest-path core/Cargo.toml --offline
         cargo test --manifest-path lowerings/rust/Cargo.toml --lib
         # The whole suite: fuzz_logic_objects re-declares every first-order

@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "source": {
+    "path": "work/ink-development/knowledge/ink_knowledge/pattern_index.py",
+    "bytes": 5708,
+    "sha256": "56392839aeeccd3fe77220ad864b1f15060a24b42b9019e3a3bad3a13e2b7201"
+  },
+  "review": "Full source read: typed root/target shape extraction, indexed candidate query, conservative fallback and persistent connection Reader.",
+  "findings": [
+    {
+      "id": "F042",
+      "status": "existing mechanism identified; integration pending",
+      "insight": "pattern_index.candidates already queries exact typed rewrite heads plus wildcard roots under pinned snapshot membership, with conservative no-index fallback. Contract rewrite_proposals can reuse it instead of scanning every nested operation occurrence.",
+      "next": "Add indexed and absent/legacy-index contract discovery regressions; keep bounded fallback scanning and normal object authentication and proof replay."
+    },
+    {
+      "id": "F045",
+      "status": "source observation; not reproduced",
+      "insight": "candidates and Reader.candidates pass limit directly to SQLite unlike Store.query; negative SQL LIMIT would be unbounded, and Reader does not explicitly begin a read transaction.",
+      "next": "Inspect all callers and test resource limits and concurrent snapshot/index refresh before claiming an admission or consistency defect."
+    }
+  ],
+  "limits": [
+    "Discovery index shape and root membership are scheduling hints, not proof authority.",
+    "No new schema is needed for typed-head contract acquisition.",
+    "No performance measurement accompanies this source review."
+  ]
+}

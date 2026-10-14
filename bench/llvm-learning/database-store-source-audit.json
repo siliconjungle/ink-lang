@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "source": {
+    "path": "work/ink-development/knowledge/ink_knowledge/store.py",
+    "bytes": 35253,
+    "sha256": "7267121e0846cf8f00def10f16233c18014c6cad0480fd6a43f7ee0a79db8d83"
+  },
+  "review": "Full35253byte source review, exact pinned blob a1c6f792215c851e263a7e9cf065636a958e75c4.",
+  "findings": [
+    {
+      "id": "F043",
+      "status": "reproduced; repair pending",
+      "issue": "extend checks the selected snapshot before entering _publish_ids, leaving a window for another successful extension whose membership/name pointer is then overwritten.",
+      "next": "Coordinate publication and recheck expected snapshot inside the same critical section; retain explicit immutable pins, ordinary authentication and independent proof checks. Reproduce with separate processes as well as the deterministic boundary injection."
+    },
+    {
+      "id": "F042",
+      "status": "design investigation",
+      "issue": "Operations indexes include nested operations; root-pattern discovery could avoid spending acquisition limits on irrelevant heads.",
+      "next": "Inspect and reuse existing pattern_index structures before adding database schema or new parallel query mechanisms."
+    },
+    {
+      "id": "F044",
+      "status": "source observation; not yet reproduced",
+      "issue": "immutable uses exists/read or exclusive final-file open, so concurrent creation can see a partial existing file or FileExistsError.",
+      "next": "Test identical/different simultaneous publication and failure cleanup before choosing atomic content-addressed publication."
+    }
+  ],
+  "preserved_properties": [
+    "Pinned snapshot witnesses and object bytes independently authenticated on export.",
+    "Bundle traversal uses one SQLite read transaction and bounded dependency closure.",
+    "Rebuild uses replacement and modern refresh a transaction; discovery metadata grants no proof authority.",
+    "Observations are reauthenticated and full provenance compared after indexed retrieval."
+  ],
+  "evidence": [
+    {
+      "path": "work/llvm-learning-smoke/store-extension-race.json",
+      "bytes": 1079,
+      "sha256": "608117e333c1de78a1cdcbd32dc9592cb15a87c7349035ec3270332ce4ca8acb"
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "llvm_revision": "d977b4533f1d9b01d28cf4dba9b2db9d1ccfda08",
+  "complete_source_reads": [
+    {
+      "path": "llvm/include/llvm/IR/ValueSymbolTable.h",
+      "git_blob": "b792ee64a02e6123de0928caa5b1321bbe0e59f1",
+      "bytes": 4913
+    },
+    {
+      "path": "llvm/lib/IR/ValueSymbolTable.cpp",
+      "git_blob": "3bf52f6ef024e17cb2099ccd4848083b3f556a1a",
+      "bytes": 4965
+    }
+  ],
+  "insights": [
+    {
+      "observation": "Name-to-Value mapping has controlled mutation; insertion first attempts the requested name, then retries suffix candidates against the actual occupied map. Reinsertion can rename while retaining the associated Value.",
+      "ink_application": "Use occupied ambient parameter sets for generated proof names, retaining the requested stem when free and retrying on collisions. Numeric counters alone do not establish freshness."
+    },
+    {
+      "observation": "The bounded-name path truncates and rechecks collisions; global names use target-dependent dot policy because NVPTX identifier syntax differs.",
+      "ink_application": "Keep proof/source identifiers distinct from target symbol formatting. Do not import LLVM truncation or naming syntax as proof equality or semantic identity."
+    },
+    {
+      "observation": "Removing a table entry leaves the ValueName attached; destruction checks table emptiness only in debug builds.",
+      "ink_application": "A name registry does not establish ownership, lifetime, admission or immutable checked-state authority. Continue sealed CheckedModule and independent proof replay."
+    }
+  ],
+  "limits": [
+    "This is a source audit of these two files, not the whole Value implementation or optimizer.",
+    "No LLVM code was transplanted; Ink already uses named proof terms and must preserve their lexical references.",
+    "Fresh-name changes are untrusted authoring improvements, not a weakening of the kernel."
+  ]
+}
