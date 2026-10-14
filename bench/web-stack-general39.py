@@ -159,7 +159,7 @@ def summarize(a):
  if a.host=='native':
   native=read(audit_metadata)
   if native['main_metadata_sha256']!=sha(p/'metadata.json'):raise ValueError('native/main metadata changed before summary')
-  verify_bindings(p/'native',native)
+  verify_bindings(p/native)
  r=read(result_path)
  if r['metadata_sha256']!=sha(audit_metadata):raise ValueError('unbound results before summary')
  fixtures={f['id']:f for f in read(p/'fixtures.json')['frames']};groups={}
@@ -190,7 +190,7 @@ def serve(a):
    (a.report/name).write_bytes(data);self.send_response(200);self.end_headers();self.wfile.write(b'ok')
  http.server.ThreadingHTTPServer(('127.0.0.1',a.port),Handler).serve_forever()
 def main():
- p=argparse.ArgumentParser();p.add_argument('mode',choices=['prepare','node','serve','audit','summarize','native-prepare','native','native-audit']);p.add_argument('--report',type=Path,default=REPORT);p.add_argument('--compiler',type=Path,default=ROOT/'reports/web-stack-proofs-32-2026-10-11/main-integration/ink-main-publish');p.add_argument('--candidate-compiler',type=Path);p.add_argument('--knowledge',type=Path,default=ROOT/'knowledge');p.add_argument('--snapshot',type=Path);p.add_argument('--model',type=Path,default=ROOT/'reports/web-stack-proofs-32-2026-10-11/cpu-cost-model.json');p.add_argument('--zig',type=Path,default=ROOT.parent/'toolchain/zig-aarch64-macos-0.15.2/zig');p.add_argument('--host',choices=['node','browser','native'],default='node');p.add_argument('--port',type=int,default=8894);p.add_argument('--validate-only',action='store_true');p.add_argument('--serial-gate',type=Path);p.add_argument('--audit-output',type=Path);a=p.parse_args()
+ p=argparse.ArgumentParser();p.add_argument('mode',choices=['prepare','node','serve','audit','summarize']);p.add_argument('--report',type=Path,default=REPORT);p.add_argument('--compiler',type=Path,default=ROOT/'reports/web-stack-proofs-32-2026-10-11/main-integration/ink-main-publish');p.add_argument('--candidate-compiler',type=Path);p.add_argument('--knowledge',type=Path,default=ROOT/'knowledge');p.add_argument('--snapshot',type=Path);p.add_argument('--model',type=Path,default=ROOT/'reports/web-stack-proofs-32-2026-10-11/cpu-cost-model.json');p.add_argument('--zig',type=Path,default=ROOT.parent/'toolchain/zig-aarch64-macos-0.15.2/zig');p.add_argument('--host',choices=['node','browser'],default='node');p.add_argument('--port',type=int,default=8894);p.add_argument('--validate-only',action='store_true');p.add_argument('--serial-gate',type=Path);p.add_argument('--audit-output',type=Path);a=p.parse_args()
  if a.mode=='native'or(a.mode=='node'and not a.validate_only):
   if not a.serial_gate:p.error('timing requires explicit --serial-gate bound to prepared metadata')
   gate=read(a.serial_gate)
@@ -202,8 +202,4 @@ def main():
  elif a.mode=='serve':serve(a)
  elif a.mode=='audit':audit(a)
  elif a.mode=='summarize':summarize(a)
- elif a.mode=='native-audit':
-  sys.path.insert(0,str(ASSETS));n=module('general39_native_audit',ASSETS/'native-audit.py');print(json.dumps(n.audit(a.report,a.audit_output)))
- elif a.mode in ['native-prepare','native','native-audit']:
-  n=module('general39_native',ASSETS/'native.py');r=n.prepare(a.report)if a.mode=='native-prepare'else n.measure(a.report);print(json.dumps(dict(status=r['status'],validation=len(r.get('validation',[])),samples=len(r.get('samples',[])))))
 if __name__=='__main__':main()

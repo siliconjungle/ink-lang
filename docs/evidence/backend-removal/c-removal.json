@@ -1,0 +1,482 @@
+{
+  "schema": 1,
+  "scope": "Remove C backend and C-dependent emission, primitive runtime, toolchains, lanes and registration; retain JavaScript, WGSL/WebGPU, Rust/native, Rust/Wasm and wgpu.",
+  "published_package_revisions": {
+    "abi": "b794d162b3e3770640d96516f9b640c11448cfbe",
+    "native-support": "bb6ea23cc95b978f043004256296ac6ea7c4ed73",
+    "knowledge": "d24edd2ecfb2405089dad447ee6e415d07d5b0df",
+    "planner": "3f6b90c6da8238a7018dcec6752ad929a4b1123a",
+    "runtime": "f29ad50c68cdb5f913b801ba9ee3773d99529dc3",
+    "lowerings/rust": "88c3047a1f9963265374982c377e248875dc572f",
+    "lowerings/js": "019455604bab0771ce7d22c89ea81bfa9fbd03c7",
+    "lowerings/wasm": "942208f01cc6bdd015706ebcb5cf1b35263c0635",
+    "lowerings/gpu": "ab43333df38bf5c36eac2eb9d167666d957c9f57"
+  },
+  "rust_main_revision": "f2ab8f67d72381cfae7f3b6b3289c7b2fb80aadc",
+  "checks": {
+    "all-final-build.log": {
+      "sha256": "f9ef8c774e418ca87f72c125c3b481e0b2dcb4a6328e616c1ff5b70664ea7a7e",
+      "test_results": [],
+      "contains_prior_failure": false
+    },
+    "core-backends-final.log": {
+      "sha256": "b42f0ea42037c61cbe81f6750a2a80d93a2499efe37e39779b7a291d451d9602",
+      "test_results": [
+        [
+          "ok",
+          "5",
+          "0"
+        ],
+        [
+          "ok",
+          "4",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0"
+        ],
+        [
+          "ok",
+          "4",
+          "0"
+        ]
+      ],
+      "contains_prior_failure": false
+    },
+    "integration.log": {
+      "sha256": "eb72a0c6aac55ed7fbb4138eda1ee18bff5247d79282aa0e1e7dbe07d4c0db11",
+      "test_results": [
+        [
+          "ok",
+          "6",
+          "0"
+        ],
+        [
+          "FAILED",
+          "1",
+          "1"
+        ]
+      ],
+      "contains_prior_failure": true,
+      "note": "Contains earlier failures corrected by later validation; use the passing suite results and final dedicated logs."
+    },
+    "retained-targets.log": {
+      "sha256": "254355c3904f05b4f10e9bbcd0b18c837365a3527d6caee8dafb434f403f269d",
+      "test_results": [
+        [
+          "ok",
+          "6",
+          "0"
+        ],
+        [
+          "ok",
+          "5",
+          "0"
+        ],
+        [
+          "ok",
+          "4",
+          "0"
+        ],
+        [
+          "ok",
+          "4",
+          "0"
+        ],
+        [
+          "FAILED",
+          "1",
+          "1"
+        ]
+      ],
+      "contains_prior_failure": true,
+      "note": "Contains earlier failures corrected by later validation; use the passing suite results and final dedicated logs."
+    },
+    "final-adapters.log": {
+      "sha256": "d3d909fab76e4f4e8d9c29dd2814524dc1ca89d33fdda2f8c6b956dcf97bf84f",
+      "test_results": [
+        [
+          "ok",
+          "2",
+          "0"
+        ],
+        [
+          "ok",
+          "3",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0"
+        ]
+      ],
+      "contains_prior_failure": false
+    },
+    "adapters-final.log": {
+      "sha256": "b1709e6077f55a8a743edcfff1f5f9aa7003447f30c5688c2cd826bd2bd16cd5",
+      "test_results": [
+        [
+          "ok",
+          "2",
+          "0"
+        ]
+      ],
+      "contains_prior_failure": false
+    },
+    "packed-domain.log": {
+      "sha256": "29f1ca7cbde4365f1e20e0b9ba6d288782de786fa7471e0d77c759dce49bd4f8",
+      "test_results": [
+        [
+          "ok",
+          "1",
+          "0"
+        ],
+        [
+          "ok",
+          "0",
+          "0"
+        ]
+      ],
+      "contains_prior_failure": false
+    },
+    "rust-package.log": {
+      "sha256": "b7e32100dfda8eb81c2c54ac4b6db491999d5e90739f0ace49627b8c0ce9d88f",
+      "test_results": [
+        [
+          "ok",
+          "18",
+          "0"
+        ],
+        [
+          "ok",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "0",
+          "0"
+        ]
+      ],
+      "contains_prior_failure": false
+    },
+    "rust-main-tests.log": {
+      "sha256": "ad92060572f393eff2749d6f4cc0dd02415429c15784189065cb2ba9ee59ddfe",
+      "test_results": [
+        [
+          "ok",
+          "18",
+          "0"
+        ],
+        [
+          "ok",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "0",
+          "0"
+        ]
+      ],
+      "contains_prior_failure": false
+    },
+    "rust-main-domain.log": {
+      "sha256": "4bc82e18c23af2f7eb880c8e4df37199b323ac0e689286ec306c2180dd9ebf58",
+      "test_results": [
+        [
+          "ok",
+          "1",
+          "0"
+        ],
+        [
+          "ok",
+          "0",
+          "0"
+        ]
+      ],
+      "contains_prior_failure": false
+    },
+    "abi-tests.log": {
+      "sha256": "2114ee306740ea1a62e295dfc7372845a2bc8a1d8a19067d32a590a3e2dfdc13",
+      "test_results": [
+        [
+          "ok",
+          "2",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0"
+        ],
+        [
+          "ok",
+          "3",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0"
+        ],
+        [
+          "ok",
+          "7",
+          "0"
+        ],
+        [
+          "ok",
+          "0",
+          "0"
+        ]
+      ],
+      "contains_prior_failure": false
+    },
+    "native-support-tests.log": {
+      "sha256": "9cb79a90a1792e2d2c3bb09fb0121ae604895d14268e92c8f1ec87e799b33d97",
+      "test_results": [
+        [
+          "ok",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0"
+        ],
+        [
+          "ok",
+          "4",
+          "0"
+        ],
+        [
+          "ok",
+          "3",
+          "0"
+        ],
+        [
+          "ok",
+          "7",
+          "0"
+        ],
+        [
+          "ok",
+          "7",
+          "0"
+        ],
+        [
+          "ok",
+          "0",
+          "0"
+        ]
+      ],
+      "contains_prior_failure": false
+    },
+    "gpu-package.log": {
+      "sha256": "9458f786cbc2ab4c253334effd9550bb4e7013399b9f72acf13b11e954e13f6f",
+      "test_results": [
+        [
+          "ok",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0"
+        ],
+        [
+          "ok",
+          "5",
+          "0"
+        ],
+        [
+          "ok",
+          "3",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0"
+        ],
+        [
+          "ok",
+          "0",
+          "0"
+        ]
+      ],
+      "contains_prior_failure": false
+    },
+    "wasm-package.log": {
+      "sha256": "8b70b09c998f92c982cc8b04c5787e1c41e225320de59c78426996b9e0216a83",
+      "test_results": [
+        [
+          "ok",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "0",
+          "0"
+        ]
+      ],
+      "contains_prior_failure": false
+    },
+    "runtime-final.log": {
+      "sha256": "7d1811f04ba6cd54cac2c6f10414098e57d161cc1b59cd221416cb30273078ef",
+      "test_results": [
+        [
+          "ok",
+          "2",
+          "0"
+        ],
+        [
+          "ok",
+          "4",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0"
+        ],
+        [
+          "ok",
+          "0",
+          "0"
+        ]
+      ],
+      "contains_prior_failure": false
+    },
+    "planner-final.log": {
+      "sha256": "a74201c7628815c982dbd4178d4970400dd6b83c3cc82e6c124e38bd73802c3d",
+      "test_results": [],
+      "contains_prior_failure": false
+    },
+    "knowledge-tests.log": {
+      "sha256": "eb799608e2cba76d78dd7cbdcbd6b0253e92e77526532b0eccc9244529b5aeeb",
+      "test_results": [],
+      "contains_prior_failure": false
+    },
+    "capture-producer.log": {
+      "sha256": "d798df94bc21d138a8102e74db7a034d712598ea2ec9a0baf6cb3eba4b3135b2",
+      "test_results": [],
+      "contains_prior_failure": false
+    },
+    "sequence-final.log": {
+      "sha256": "85fda56bbca47455840b9428fc7f977319c3492dcb49e7dcba72cdb3ca8c5f0b",
+      "test_results": [
+        [
+          "ok",
+          "1",
+          "0"
+        ]
+      ],
+      "contains_prior_failure": false
+    },
+    "proof-source-final.log": {
+      "sha256": "9efd0e61543d47ab5d2e301f8b0f44a29a247117a7a1231f4d11fc870ffe8e14",
+      "test_results": [
+        [
+          "ok",
+          "4",
+          "0"
+        ],
+        [
+          "ok",
+          "18",
+          "0"
+        ],
+        [
+          "ok",
+          "3",
+          "0"
+        ]
+      ],
+      "contains_prior_failure": false
+    },
+    "source-regressions.log": {
+      "sha256": "84da511db2bea98686994279432d0ee3d236e039f4ab3ce76ab0ceb7688e8108",
+      "test_results": [
+        [
+          "ok",
+          "5",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0"
+        ],
+        [
+          "ok",
+          "4",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0"
+        ],
+        [
+          "FAILED",
+          "3",
+          "1"
+        ]
+      ],
+      "contains_prior_failure": true,
+      "note": "Contains earlier failures corrected by later validation; use the passing suite results and final dedicated logs."
+    },
+    "web-bundle.log": {
+      "sha256": "4a0486007f530646ce26a8f695c6440bbcb0562ddd749c6cbca9d7ba0ea6fc7b",
+      "test_results": [],
+      "contains_prior_failure": false
+    },
+    "web-host.log": {
+      "sha256": "c913ee69eea60f902bd9400bc0612bbe91c51bd5e7b75677e1b4d574fa75aca8",
+      "test_results": [],
+      "contains_prior_failure": false
+    }
+  },
+  "dependency_audit": {
+    "root": "C-free",
+    "runtime": "C-free",
+    "generated_gpu_host": "C-free"
+  },
+  "actual_device_evidence": {
+    "feature_parity": 106,
+    "lowering_parity": 34,
+    "selected_checkpoint": 1
+  },
+  "preserved": "CRDT work, portable proof fixtures, typed restore reconstruction, immutable historical proof/performance receipts.",
+  "performance_claim": "None; this is backend removal and correctness validation.",
+  "remote_repository_deletion": "Pending final root publication.",
+  "ci": "Not yet run for final root commit."
+}

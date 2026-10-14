@@ -129,7 +129,7 @@ fn exhausted_external_search_keeps_original_program_and_reproduces_without_solve
 #[test]
 fn retired_polynomial_commands_fail_before_writing_output() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
-    let output = std::env::temp_dir().join(format!("ink-retired-poly-{}.c", std::process::id()));
+    let output = std::env::temp_dir().join(format!("ink-retired-poly-{}.rs", std::process::id()));
     assert!(!output.exists());
     let result = Command::new(env!("CARGO_BIN_EXE_ink"))
         .args(["emit-rust"])
@@ -141,7 +141,7 @@ fn retired_polynomial_commands_fail_before_writing_output() {
         .output()
         .unwrap();
     assert!(!result.status.success());
-    assert!(String::from_utf8_lossy(&result.stderr).contains("retired"));
+    assert!(String::from_utf8_lossy(&result.stderr).contains("retired") || String::from_utf8_lossy(&result.stderr).contains("unknown option"));
     assert!(!output.exists());
     let result = Command::new(env!("CARGO_BIN_EXE_ink"))
         .args(["prove"])

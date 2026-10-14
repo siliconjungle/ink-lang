@@ -110,7 +110,7 @@ The source, seeds, script and expected results remain under
 `build/generated-parity/`, including after failures. This supplements the fixed
 feature inventory; it is not exhaustive enumeration of the language.
 
-The `Executable conformance` GitHub workflow runs C, Rust, JavaScript and both
+The `Executable conformance` GitHub workflow runs Rust, JavaScript and
 Wasm lowerings, durable-host failure tests, and a separate actual wgpu dispatch
 job on Vulkan's software adapter, including resident feedback. It adds a seed
 from the commit identity and retains reproduction artifacts. Hardware/browser
@@ -153,7 +153,7 @@ dispatch and explicit `gpu-required` errors without fallback. Stateful transacti
 arbitrary-size Int, general dynamic maps and recursive physical state execute on
 CPU hosts. The unrestricted all-GPU audit remains available with the default
 `tools/check_feature_parity.py` command and fails on its disclosed coverage gaps.
-Run `--scope contract --run` with Zig and Chrome to enforce the supported contract
+Run `--scope contract --run` with the Rust Wasm target and Chrome to enforce the supported contract
 through compiled CPU, native GPU and browser GPU execution.
 
 ## Standalone physical representations
