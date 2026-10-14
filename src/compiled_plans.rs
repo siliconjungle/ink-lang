@@ -14,7 +14,7 @@ fn write(path: &Path, bytes: impl AsRef<[u8]>) -> LangResult<()> {
 }
 pub fn emit(plan: &CheckedPlan, target: &str, output: &Path) -> LangResult<()> {
     if plan.protocol().is_some()&&target!="javascript" {return Err("selected state protocol currently requires the JavaScript state capability".into());}
-    if plan.maintained().is_some() && target!="javascript" {return Err("maintained source folds currently require the JavaScript state capability; choose a target-compatible plan".into());}
+    if plan.maintained().is_some() && !matches!(target,"javascript"|"rust"|"rust-wasm") {return Err("maintained source folds currently require the JavaScript or Rust state capability; choose a target-compatible plan".into());}
     if target!="javascript" && plan.physical().is_some_and(|p|!p.plan().dense_prefixes.is_empty()){return Err("dense source table prefixes currently require the JavaScript state capability".into());}
     if target!="javascript" && plan.physical().is_some_and(|p|!p.plan().record_elisions.is_empty()) {return Err("source record elision currently requires JavaScript".into());}
     if target!="javascript" && plan.physical().is_some_and(|p|!p.plan().sum_spines.is_empty()) {return Err("source sum spines currently require JavaScript".into());}
