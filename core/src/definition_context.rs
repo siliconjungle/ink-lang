@@ -35,6 +35,20 @@ pub struct DefinitionContext {
     pub definitions: BTreeMap<String, BoundDefinition>,
     pub records: BTreeMap<String, Vec<(String, Type)>>,
     pub enums: BTreeMap<String, Vec<String>>,
+    /// A cycle binds all member bodies together. Internal references use this
+    /// group identity, avoiding circular content hashes of individual members.
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub recursive_groups: BTreeMap<String, Vec<String>>,
+}
+
+fn group_identity(definitions: &BTreeMap<String, BoundDefinition>, members: &[String]) -> LangResult<String> {
+    let mut bodies = BTreeMap::new();
+    for name in members {
+        let mut definition = definitions.get(name).ok_or("recursive context member missing")?.definition.clone();
+        definition.callees.retain(|callee, _| !members.contains(callee));
+        bodies.insert(name.clone(), definition);
+    }
+    crate::registry::identity(&("ink-recursive-definitions-v1", bodies))
 }
 
 fn calls(t: &Term, names: &BTreeSet<String>, out: &mut BTreeSet<String>) {
@@ -63,22 +77,14 @@ impl DefinitionContext {
             definitions: BTreeMap::new(),
             records: p.records.clone(),
             enums: p.enums.clone(),
+            recursive_groups: BTreeMap::new(),
         };
-        fn visit(
-            name: &str,
-            p: &Program,
-            names: &BTreeSet<String>,
-            out: &mut DefinitionContext,
-            active: &mut BTreeSet<String>,
-        ) -> LangResult<()> {
-            if out.definitions.contains_key(name) {
-                return Ok(());
-            }
-            if active.len() >= 64 || active.len() + out.definitions.len() >= 128 {
+        let mut pending = roots.to_vec();
+        let mut bodies = BTreeMap::new();
+        while let Some(name) = pending.pop() {
+            if bodies.contains_key(&name) { continue; }
+            if bodies.len() >= 128 {
                 return Err("definition context closure limit".into());
-            }
-            if !active.insert(name.to_owned()) {
-                return Err("cyclic definition context".into());
             }
             let f = p
                 .functions
@@ -87,37 +93,59 @@ impl DefinitionContext {
                 .ok_or("definition context function missing")?;
             let body = s::elaborate(&f.body, &crate::check::params_env(&f.params)?, p, &f.result)?;
             let mut deps = BTreeSet::new();
-            calls(&body, names, &mut deps);
-            for dep in &deps {
-                visit(dep, p, names, out, active)?;
-            }
-            let definition = Definition {
+            calls(&body, &names, &mut deps);
+            pending.extend(deps.iter().cloned());
+            bodies.insert(name, Definition {
                 params: f.params.clone(),
                 result: f.result.clone(),
                 body,
-                callees: deps
-                    .into_iter()
-                    .map(|n| {
-                        let id = out.definitions[&n].sha256.clone();
-                        (n, id)
-                    })
-                    .collect(),
-            };
-            let sha256 = crate::registry::identity(&definition)?;
-            out.definitions
-                .insert(name.to_owned(), BoundDefinition { sha256, definition });
-            active.remove(name);
-            Ok(())
+                callees: deps.into_iter().map(|name| (name, String::new())).collect(),
+            });
         }
-        for root in roots {
-            visit(root, p, &names, &mut out, &mut BTreeSet::new())?;
+        let mut units = vec![];
+        let mut grouped = BTreeSet::new();
+        for group in crate::analysis::recursive_function_groups(p)? {
+            let mut members = group.into_iter().map(|i| p.functions[i].name.clone()).collect::<Vec<_>>();
+            if !members.iter().any(|name| bodies.contains_key(name)) { continue; }
+            members.sort();
+            if members.iter().any(|name| !bodies.contains_key(name)) {
+                return Err("recursive definition context closure incomplete".into());
+            }
+            grouped.extend(members.iter().cloned()); units.push(members);
+        }
+        units.extend(bodies.keys().filter(|name| !grouped.contains(*name)).map(|name| vec![name.clone()]));
+        while !units.is_empty() {
+            let ready = units.iter().position(|members| members.iter().all(|name| bodies[name].callees.keys()
+                .all(|callee| members.contains(callee) || out.definitions.contains_key(callee))))
+                .ok_or("definition context component dependency cycle")?;
+            let members = units.remove(ready);
+            let cyclic = grouped.contains(&members[0]);
+            for name in &members {
+                let mut definition = bodies.remove(name).unwrap();
+                for (callee, id) in &mut definition.callees {
+                    if !members.contains(callee) { *id = out.definitions[callee].sha256.clone(); }
+                }
+                out.definitions.insert(name.clone(), BoundDefinition { sha256: String::new(), definition });
+            }
+            let group = if cyclic { Some(group_identity(&out.definitions, &members)?) } else { None };
+            for name in &members {
+                let bound = out.definitions.get_mut(name).unwrap();
+                if let Some(group) = &group {
+                    for (callee, id) in &mut bound.definition.callees {
+                        if members.contains(callee) { *id = group.clone(); }
+                    }
+                }
+                bound.sha256 = crate::registry::identity(&bound.definition)?;
+            }
+            if let Some(group) = group { out.recursive_groups.insert(group, members); }
         }
         out.check()?;
         Ok(out)
     }
 
     /// Reconstruct only the supplied definitions, with no authority from the
-    /// admission caller's module. Missing names, cycles and invalid bodies fail.
+    /// admission caller's module. Missing names, invalid cycle bindings and
+    /// unproved recursion fail; group hashes themselves prove no equation.
     pub fn check(&self) -> LangResult<Program> {
         if self.schema != 1
             || self.definitions.len() > 128
@@ -126,6 +154,19 @@ impl DefinitionContext {
             return Err("definition context schema/size limit".into());
         }
         let names = self.definitions.keys().cloned().collect();
+        let mut group_of = BTreeMap::new();
+        for (group, members) in &self.recursive_groups {
+            crate::content::identity(group)?;
+            if members.is_empty() || !members.windows(2).all(|pair| pair[0] < pair[1])
+                || group_identity(&self.definitions, members)? != *group {
+                return Err("recursive definition group identity/membership mismatch".into());
+            }
+            for name in members {
+                if group_of.insert(name.as_str(), group.as_str()).is_some() {
+                    return Err("recursive definition belongs to multiple groups".into());
+                }
+            }
+        }
         for (name, bound) in &self.definitions {
             crate::content::identity(&bound.sha256)?;
             if crate::registry::identity(&bound.definition)? != bound.sha256 {
@@ -137,7 +178,11 @@ impl DefinitionContext {
                 return Err("definition context callee set mismatch".into());
             }
             for (callee, id) in &bound.definition.callees {
-                if self.definitions.get(callee).map(|d| &d.sha256) != Some(id) {
+                let expected = if group_of.get(name.as_str()).is_some()
+                    && group_of.get(name.as_str()) == group_of.get(callee.as_str()) {
+                    group_of.get(name.as_str()).copied()
+                } else { self.definitions.get(callee).map(|d| d.sha256.as_str()) };
+                if expected != Some(id.as_str()) {
                     return Err(format!(
                         "definition context callee identity mismatch: {name}"
                     ));
@@ -177,6 +222,13 @@ impl DefinitionContext {
         }
         let checked = CheckedModule::from_source(p)?;
         let p = checked.program();
+        let actual = crate::analysis::recursive_function_groups(p)?.into_iter().map(|group| {
+            let mut members = group.into_iter().map(|i| p.functions[i].name.clone()).collect::<Vec<_>>();
+            members.sort(); members
+        }).collect::<BTreeSet<_>>();
+        if actual != self.recursive_groups.values().cloned().collect() {
+            return Err("recursive definition groups differ from actual call components".into());
+        }
         self.matches(p)?;
         Ok(p.clone())
     }
@@ -211,7 +263,22 @@ impl DefinitionContext {
             }
             let body = s::elaborate(&f.body, &crate::check::params_env(&f.params)?, p, &f.result)?;
             if body != d.body {
-                return Err(format!("definition context body differs: {name}"));
+                fn mismatch(a: &Term, b: &Term, path: &mut Vec<usize>) -> String {
+                    if a.sort != b.sort { return format!("{path:?}: sort {:?} versus {:?}", a.sort, b.sort) }
+                    let left=s::children(a); let right=s::children(b);
+                    if left.len()==right.len() {
+                        for (index,(a,b)) in left.iter().zip(right).enumerate() {
+                            if a!=&b {path.push(index);return mismatch(a,b,path)}
+                        }
+                    }
+                    fn head(node:&s::Node)->String { match node {
+                        s::Node::Op(name,_)=>name.clone(),
+                        s::Node::Lambda(_)=>"lambda".into(),
+                        other=>format!("{other:?}"),
+                    } }
+                    format!("{path:?}: {} versus {}",head(&a.node),head(&b.node))
+                }
+                return Err(format!("definition context body differs: {name}, {}",mismatch(&body,&d.body,&mut vec![])));
             }
         }
         Ok(())

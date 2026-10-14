@@ -181,3 +181,12 @@ observations and wrapping integer sums, using checked insertion lemmas.
 
 [Filtered-sort aggregation](filtered-sort.md) extends sort erasure through pure
 value-based filtering with checked kept/dropped insertion premises.
+
+Catalogue admission bounds proof work per immutable entry. Each entry keeps the
+500,000-step semantic budget and the existing depth limits; dependency traversal
+retains its own bounded budget, and a checked entry is loaded once per catalogue.
+Catalogue entry counts, byte limits, dependency limits and canonical nesting
+limits remain enforced. A large collection of independently bounded proofs can
+therefore compose without consuming a previous entry's proof allowance. A single
+oversized proof still fails. This changes admission resources, not the meanings
+or proof rules of any operation.

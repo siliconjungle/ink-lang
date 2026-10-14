@@ -626,8 +626,13 @@ impl Parser {
             p.module.push_str(&self.name()?);
         }
         self.expect(";")?;
+        let mut abstract_records=std::collections::BTreeMap::new();
         while self.peek() != "<eof>" {
             self.eat("pub");
+            let abstract_record=self.eat("abstract");
+            let refined = self.eat("refined");
+            if refined && self.peek() != "record" { return Err(self.err("refined applies to record declarations")); }
+            if abstract_record && self.peek() != "record" { return Err(self.err("abstract applies to record declarations")); }
             let private = self.eat("private");
             if private && self.peek() != "state" { return Err(self.err("private applies to state declarations")); }
             if private {
@@ -685,6 +690,13 @@ impl Parser {
                     .cloned()
                     .unwrap_or_default();
                 let (requires, ensures) = self.contracts()?;
+                if self.eat("decreases") {
+                    let measure = self.expr(0)?;
+                    self.expect(";")?;
+                    if p.termination.measures.insert(name.clone(), measure).is_some() {
+                        return Err(self.err("duplicate termination measure"));
+                    }
+                }
                 let statements = self.block()?;
                 let body = self.pure_body(&statements, None)?;
                 let body = self.contract_expression(body, &result, &requires, &ensures);
@@ -721,6 +733,13 @@ impl Parser {
                 }
                 if p.records.insert(n.clone(), fields).is_some() {
                     return Err(format!("duplicate record {n}"));
+                }
+                if abstract_record {abstract_records.insert(n.clone(),p.module.clone());}
+                if refined {
+                    self.expect("invariant")?;
+                    self.pure = true;
+                    p.contracts.value_invariants.insert(n, self.expr(0)?);
+                    self.expect(";")?;
                 }
             } else if self.eat("enum") {
                 let n = self.name()?;
@@ -982,7 +1001,8 @@ impl Parser {
         }
         p.records
             .extend(std::mem::take(&mut self.generated_records));
-        Ok(SurfaceProgram {
+        crate::contracts::collections::resolve(&mut p)?;
+        let mut surface=SurfaceProgram {
             program: p,
             aliases: std::mem::take(&mut self.aliases),
             parameters: std::mem::take(&mut self.parameters),
@@ -991,7 +1011,11 @@ impl Parser {
             payload_enums: std::mem::take(&mut self.payload_enums),
             matches: std::mem::take(&mut self.matches),
             constant_parameters: std::mem::take(&mut self.constant_parameters),
-        })
+            abstract_records,
+            access_origins: Default::default(),
+        };
+        if !surface.abstract_records.is_empty() {surface.mark_accesses()?;}
+        Ok(surface)
     }
     // Contracts validate, never assume. Failure is the declared Result error.
     // They erase into normal lazy branches and lexical result bindings.
@@ -1517,6 +1541,45 @@ impl Parser {
         }
         Ok(())
     }
+    fn loop_variables(
+        &self,
+        body: &[Statement],
+        outer: &std::collections::BTreeMap<String, Type>,
+    ) -> std::collections::BTreeMap<String, Type> {
+        fn assigned(
+            parser: &Parser,
+            body: &[Statement],
+            outer: &std::collections::BTreeMap<String, Type>,
+            mut shadowed: std::collections::BTreeSet<String>,
+            out: &mut std::collections::BTreeSet<String>,
+        ) {
+            for statement in body {
+                match statement {
+                    Statement::Let(name, _, _) => {
+                        if let Some(target) = parser.assignments.get(name) {
+                            if outer.contains_key(target) && !shadowed.contains(target) {
+                                out.insert(target.clone());
+                            }
+                        } else if outer.contains_key(name) {
+                            shadowed.insert(name.clone());
+                        }
+                    }
+                    Statement::If(_, yes, no) => {
+                        assigned(parser, yes, outer, shadowed.clone(), out);
+                        assigned(parser, no, outer, shadowed.clone(), out);
+                    }
+                    _ => (),
+                }
+            }
+        }
+        let mut writes = std::collections::BTreeSet::new();
+        assigned(self, body, outer, Default::default(), &mut writes);
+        outer
+            .iter()
+            .filter(|(name, _)| writes.contains(*name))
+            .map(|(n, t)| (n.clone(), t.clone()))
+            .collect()
+    }
     fn for_loop(&mut self) -> LangResult<Vec<Statement>> {
         let item = self.name()?;
         self.expect("in")?;
@@ -1536,13 +1599,14 @@ impl Parser {
         } else {
             None
         };
-        let variables = self.mutables.clone();
+        let outer_variables = self.mutables.clone();
+        self.mutables.remove(&item);
+        let body = self.block()?;
+        self.mutables = outer_variables.clone();
+        let variables = self.loop_variables(&body, &outer_variables);
         if variables.len() > 16 {
             return Err(self.err("loop state exceeds 16 mutable locals"));
         }
-        self.mutables.remove(&item);
-        let body = self.block()?;
-        self.mutables = variables.clone();
         fn control(body: &[Statement]) -> bool {
             body.iter().any(|s| match s {
                 Statement::Return(_) | Statement::Emit(..) => true,
@@ -1659,11 +1723,12 @@ impl Parser {
         if limit > 65536 {
             return Err(self.err("while exceeds iteration bound"));
         }
-        let variables = self.mutables.clone();
+        let outer_variables = self.mutables.clone();
+        let body = self.block()?;
+        let variables = self.loop_variables(&body, &outer_variables);
         if variables.len() > 16 {
             return Err(self.err("loop state exceeds 16 mutable locals"));
         }
-        let body = self.block()?;
         fn control(body: &[Statement]) -> bool {
             body.iter().any(|s| match s {
                 Statement::Return(_) | Statement::Emit(..) => true,
