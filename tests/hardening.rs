@@ -2199,6 +2199,7 @@ fn llvm_learning_and_incremental_knowledge_remain_checked() {
             "knowledge.tests.test_contract_session", "knowledge.tests.test_contract_replay",
             "knowledge.tests.test_contract_proof_hygiene",
             "knowledge.tests.test_contract_search_alternatives",
+            "knowledge.tests.test_pattern_reader", "knowledge.tests.test_conditional_adapters",
             "knowledge.tests.test_publication_concurrency",
             "knowledge.tests.test_implementation_candidates",
             "planner.tests.test_selected_closure_sessions", "planner.tests.test_plan_cache",

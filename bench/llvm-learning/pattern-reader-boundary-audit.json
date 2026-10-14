@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "finding": "F056",
+  "status": "Reproduced; repair pending.",
+  "negative_limit": {
+    "single_connection_rows": 1050,
+    "shared_reader_rows": 1050,
+    "ordinary_store_error": "query limit"
+  },
+  "reader_entry_failure": {
+    "close_calls": 0
+  },
+  "scope": "Direct discovery helper APIs can bypass Store.query bounded-page contract; normal current planner callers pass1024. Malformed disposable index may control memory/work but grants no proof authority. Explicit cleanup is absent when Reader.__enter__ metadata validation raises; destructor timing is not asserted.",
+  "next": "Apply the same0..1024limit validation to both indexed entrypoints, and explicitly close a connection on failed Reader entry. Keep index metadata nonauthoritative and verify historical/no-index fallback."
+}
