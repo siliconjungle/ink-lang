@@ -72,7 +72,7 @@ fn arbitrary_schema_products_preserve_histories_rollback_and_portable_state_and_
     let source = dir.join("source.ink");
     fs::write(&source, SOURCE).unwrap();
     let out = Command::new("python3")
-        .args(["-m", "producers.maintained_folds"])
+        .args(["-m", "producers.maintained_folds", "--guarded-update", "--guard-zero"])
         .arg(&source)
         .args([
             "--compiler",
