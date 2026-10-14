@@ -1561,13 +1561,7 @@ fn run() -> LangResult<()> {
                 let cargo = arg_value(&args, "--cargo")?
                     .or_else(|| std::env::var("INK_CARGO").ok())
                     .unwrap_or_else(|| "cargo".into());
-                verified_language::runtime::toolchain::complete_program(
-                    &project,
-                    target == "wasm32",
-                    Path::new(&out),
-                    &cargo,
-                    None,
-                )?;
+                verified_language::runtime::toolchain::complete_program(&project,target == "wasm32",Path::new(&out),&cargo)?;
                 write(&format!("{out}.plan.json"),&serde_json::to_string_pretty(&serde_json::json!({"target":target,"abi":verified_language::abi::VALUE_ABI,"artifact_kind":if target=="native"{"executable"}else{"wasm_module"},"lowering":lowering,"table_storage":if lowering=="rust"{Some(arg_value(&args,"--table-storage")?.unwrap_or_else(||"ordered".into()))}else{None},"input_core_sha256":input_core_sha256,"selected_core_sha256":selected_core_sha256,"semantic_selection":semantic_selection.as_ref().map(|s|s.evidence()),"semantic_package":semantic_selection.as_ref().map(|s|s.package()),"checked_replacement":replacement,"checked_implementation":implementation,"applied_rule_ids":used,"trust":if lowering=="rust"{"literal typed Rust emission; Rust toolchain remains trusted"}else{"literal C emission and shared Rust primitive runtime; toolchains remain trusted"}})).map_err(|e|e.to_string())?)?;
                 println!("wrote complete program to {out}");
                 return Ok(());
@@ -1638,36 +1632,18 @@ fn run() -> LangResult<()> {
                     let cargo = arg_value(&args, "--cargo")?
                         .or_else(|| std::env::var("INK_CARGO").ok())
                         .unwrap_or_else(|| "cargo".into());
-                    verified_language::runtime::toolchain::complete_program(
-                        &Path::new(&out).join("cpu"),
-                        true,
-                        &Path::new(&out).join("cpu/compiled_state.wasm"),
-                        &cargo,
-                        None,
-                    )?;
+                    verified_language::runtime::toolchain::complete_program(&Path::new(&out).join("cpu"),true,&Path::new(&out).join("cpu/compiled_state.wasm"),&cargo)?;
                     for f in manifest["functions"].as_array().unwrap() {
                         if let Some(folder) = f["bundle"].as_str() {
                             let dir = Path::new(&out).join(folder);
-                            let module = core::CheckedModule::from_bytes(
+                            let _module = core::CheckedModule::from_bytes(
                                 &fs::read(dir.join("core.json")).map_err(|e| e.to_string())?,
                             )?;
-                            verified_language::runtime::toolchain::wasm_with_abi(
-                                &module,
-                                &dir.join("cpu"),
-                                &dir.join("cpu.wasm"),
-                                "cargo",
-                                verified_language::runtime::uses_packed_compute(module.program()),
-                            )?;
+                            verified_language::runtime::toolchain::gpu_cpu_wasm(&dir.join("cpu"),&dir.join("cpu.wasm"))?;
                         }
                     }
                 } else {
-                    verified_language::runtime::toolchain::wasm_with_abi(
-                        &core::CheckedModule::from_source(p.clone())?,
-                        &Path::new(&out).join("cpu"),
-                        &Path::new(&out).join("cpu.wasm"),
-                        "cargo",
-                        verified_language::runtime::uses_packed_compute(&p),
-                    )?;
+                    verified_language::runtime::toolchain::gpu_cpu_wasm(&Path::new(&out).join("cpu"),&Path::new(&out).join("cpu.wasm"))?;
                 }
                 let plan = serde_json::json!({"source":path,"target":target,"semantic_selection":semantic_selection.as_ref().map(|s|s.evidence()),"semantic_package":semantic_selection.as_ref().map(|s|s.package()),"checked_replacement":replacement,"checked_implementation":implementation,"applied_rule_ids":used,"database_lock":serde_json::Value::Null,"database_closure":serde_json::Value::Null,"input_core_sha256":input_core_sha256,"selected_core_sha256":selected_core_sha256,"checked_source_route":route.as_ref().map(|r|r.package()),"source_route_equivalence":route.as_ref().and_then(|r|r.equivalence()),"trust":"GPU backend and physical routing remain trusted; see manifest.json"});
                 write(

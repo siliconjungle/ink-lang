@@ -48,7 +48,7 @@ def prepare(a):
     selected=td/(version+'.selection.json');receipt=plan(compiler,raw,store,a.model,selected,budget=4096)
     if receipt['search'].get('exhausted'):raise ValueError('ordinary search exhausted '+name)
     core=td/(version+'.core.json');run([compiler,'emit-core',raw,'--core','--selection',selected,'-o',core],log)
-    bundle=td/version;run([compiler,'build',core,'--core','--target','webgpu','--zig',a.zig,'-o',bundle],log)
+    bundle=td/version;run([compiler, 'build', core, '--core', '--target', 'webgpu', '-o', bundle],log)
     host=bundle/'ink-gpu.mjs';text=host.read_text();anchor='    manifest,'
     if text.count(anchor)!=1:raise ValueError('instrumentation anchor changed')
     host.write_text(text.replace(anchor,anchor+'\n    benchmarkMemoryBytes(){return cpu?.memory.buffer.byteLength ?? 0;},',1))

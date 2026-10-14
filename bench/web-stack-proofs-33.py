@@ -54,7 +54,7 @@ def prepare(a):
   rows.update(input_core_sha256=receipt['check']['input_core_sha256'],literal_core_file_sha256=sha(core),source_sha256=sha(src),fresh_laws=sorted(used),prior_equals_literal=prior==body,checked_changes_prior=checked!=prior,fresh_proof_required=t.get('fresh_proof_required',True))
   rows['literal']=dict(core_sha256=sha(core))
   for version in ['literal','prior','checked']:
-   target=td/version;run([a.compiler,'build',td/f'{version}.core.json','--core','--target','webgpu','--zig',a.zig,'-o',target],commands)
+   target=td/version;run([a.compiler, 'build', td / f'{version}.core.json', '--core', '--target', 'webgpu', '-o', target],commands)
    # Benchmark-only accessor; source/position and resulting bytes are bound.
    host=target/'ink-gpu.mjs';text=host.read_text();anchor='    manifest,'
    if text.count(anchor)!=1:raise ValueError('memory instrumentation anchor')

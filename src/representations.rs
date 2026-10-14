@@ -312,7 +312,7 @@ pub fn emit(checked: &CheckedRepresentation, target: &str, output: &Path) -> Lan
             &ink_lowering_rust::representation_program::lower(checked)?,
         ),
         "rust-memo" => write(output,&ink_lowering_rust::representation_program::lower_memo(checked)?),
-        "rust-wasm-memo" => project(output,&ink_lowering_rust::representation_program::lower_memo(checked)?,None,target),
+        "rust-wasm-memo" => project(output,&ink_lowering_rust::representation_program::lower_memo(checked)?,target),
         "rust-packed" => write(
             output,
             &ink_lowering_rust::representation_program::lower_packed(checked)?,
@@ -320,7 +320,6 @@ pub fn emit(checked: &CheckedRepresentation, target: &str, output: &Path) -> Lan
         "rust-wasm-packed" => project(
             output,
             &ink_lowering_rust::representation_program::lower_packed(checked)?,
-            None,
             target,
         ),
         "javascript" | "js" => write(
@@ -334,12 +333,11 @@ pub fn emit(checked: &CheckedRepresentation, target: &str, output: &Path) -> Lan
         "rust-wasm" => project(
             output,
             &ink_lowering_rust::representation_program::lower(checked)?,
-            None,
             target,
         ),
         "wasm" | "wasm32" | "wgpu" | "gpu" => {
             let source=match target {"wgpu"|"gpu"=>ink_lowering_gpu::lower_representation(checked)?,_=>ink_lowering_wasm::lower_representation(checked)?};
-            project(output,&source,None,target)
+            project(output,&source,target)
         }
         _ => Err(format!("unknown representation target {target}")),
     }
@@ -350,7 +348,7 @@ fn write(output: &Path, source: &str) -> LangResult<()> {
     }
     fs::write(output, source).map_err(|e| e.to_string())
 }
-pub(crate) fn project(output: &Path, source: &str, _unused: Option<&str>, target: &str) -> LangResult<()> {
+pub(crate) fn project(output: &Path, source: &str, target: &str) -> LangResult<()> {
     let mut source = source.to_owned();
     source.push_str(crate::runtime::REPRESENTATION_ABI_SOURCE);
     write(&output.join("src/lib.rs"), &source)?;

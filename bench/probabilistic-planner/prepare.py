@@ -12,7 +12,7 @@ subprocess.run([compiler,'emit-core',source,'-o',BUILD/'core.json'],cwd=ROOT,che
 store=Store.publish(BUILD/'knowledge',[semantic_entry(law) for law in examples()]);store.rebuild()
 subprocess.run([sys.executable,'-m','ink_planner.synthesis','--compiler',compiler,'--core',BUILD/'core.json','--function','scalar','--output-store',BUILD/'synthesized','--seed','173','-o',BUILD/'selection.json'],cwd=ROOT,check=True,env={**__import__('os').environ,'PYTHONPATH':str(ROOT/'planner')+':'+str(ROOT/'knowledge')})
 for label,src,selection in [('ink',ROOT/'planner/ink_planner/kernels/planner.ink',None),('before',source,None),('after',source,BUILD/'selection.json')]:
- command=[compiler,'build',src,'--target','webgpu','--zig',a.zig,'-o',BUILD/label]
+ command=[compiler, 'build', src, '--target', 'webgpu', '-o', BUILD / label]
  if selection:command += ['--selection',selection]
  subprocess.run(command,cwd=ROOT,check=True)
 shutil.copyfile(ROOT/'planner/ink_planner/hosts/planner-kernels.mjs',BUILD/'planner-kernels.mjs')

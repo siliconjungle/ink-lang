@@ -19,7 +19,7 @@ def executable(data):
 rows=[];commands=[]
 for td in sorted((G/'targets').iterdir()):
  out=O/'targets'/td.name
- argv=[str(C),'build',str(td/'candidate.core.json'),'--core','--target','webgpu','--zig',str(B.parent/'toolchain/zig-aarch64-macos-0.15.2/zig'),'-o',str(out)]
+ argv=[str(C), 'build', str(td / 'candidate.core.json'), '--core', '--target', 'webgpu', '-o', str(out)]
  p=subprocess.run(argv,cwd=B,capture_output=True,text=True);commands.append(dict(argv=argv,exit_code=p.returncode,stdout=p.stdout,stderr=p.stderr))
  if p.returncode:raise RuntimeError(p.stderr)
  previous=td/'candidate';files={}
