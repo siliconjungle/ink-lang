@@ -1,0 +1,63 @@
+{
+  "schema": 1,
+  "finding": "F059",
+  "status": "Complete interface reviews; implementation transfer opportunities remain",
+  "sources": [
+    {
+      "path": "llvm/include/llvm/Analysis/InstructionSimplify.h",
+      "blob": "3568422c8348b3a76ba18c0d150f0235db69d5b8",
+      "bytes": 15022
+    },
+    {
+      "path": "llvm/include/llvm/Analysis/SimplifyQuery.h",
+      "blob": "6786c9c7606f71252177fe380679a48b5eed8e5a",
+      "bytes": 4964
+    }
+  ],
+  "insights": [
+    {
+      "area": "Separate simplification from construction",
+      "evidence": "InstructionSimplify returns constants or existing def-reachable dominating values; it does not create instructions.",
+      "transfer": "Rank checked existing-subterm or constant replacements as a bounded cheap search tier; investigate current candidate scheduler before implementation. This does not permit bypassing Ink equality proofs."
+    },
+    {
+      "area": "Explicit query context",
+      "evidence": "SimplifyQuery carries DataLayout, target library, dominance, assumptions, instruction/function, dominating conditions and local condition context; copy helpers add/remove contexts.",
+      "transfer": "Ink branch-local facts already use explicit scope. Any shared memoization must bind source, scope and semantics rather than source alone. No shared memo cache introduced in current change."
+    },
+    {
+      "area": "Instruction metadata can be disabled",
+      "evidence": "InstrInfoQuery conservatively hides metadata, nowrap, exact and no-signed-zero properties when UseInstrInfo=false.",
+      "transfer": "Never import flags as assumptions just because an optimizer emitted them. Existing LLVM learner proposals require independent Ink equality replay; additional importer audit remains."
+    },
+    {
+      "area": "Refinement versus equality",
+      "evidence": "CanUseUndef, AllowRefinement and DropFlags explicitly distinguish refinement from identical values; replacing all undef uses avoids inconsistent resolutions.",
+      "transfer": "Ink deterministic values/errors require its own admitted equality domain. LLVM undef/poison refinements cannot be copied as law authority."
+    },
+    {
+      "area": "Value replacement versus effect elimination",
+      "evidence": "simplifyConstrainedFPCall explicitly guarantees successful simplification removes side effects; ordinary simplification does not imply that contract.",
+      "transfer": "Future readonly/fallible/effectful call simplification must prove preserved errors/events/state in addition to value. Current word-fact producer remains scalar equality proposals."
+    },
+    {
+      "area": "Floating point evaluation context",
+      "evidence": "Rounding and exception behavior are explicit; simplifyFMAFMul preserves unrounded distinctions needed by FMA.",
+      "transfer": "Preserve Ink exact F32 semantics. Do not infer multiply/add fusion from equal individually rounded products."
+    },
+    {
+      "area": "Incremental affected-user worklist",
+      "evidence": "replaceAndRecursivelySimplify visits changed users and returns unsimplified users; CondContext records affected values.",
+      "transfer": "Potential bounded incremental proposal regeneration keyed by changed ancestors/dependencies. Needs planner graph audit and before/after measurements; not implemented here."
+    },
+    {
+      "area": "Only valid analyses",
+      "evidence": "getBestSimplifyQuery helpers choose currently valid optional analyses; query helpers remove condition caches.",
+      "transfer": "Source-bound facts and cache invalidation should remain explicit across transformations; published corpus capture binds consumed source. Broad invalidation audit remains."
+    }
+  ],
+  "limitations": [
+    "This evidence covers declarations and contracts in two headers, not their full implementation or all LLVM optimization behavior.",
+    "No performance measurement or new optimization claim follows from this review."
+  ]
+}

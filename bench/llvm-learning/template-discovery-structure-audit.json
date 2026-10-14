@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "finding": "F057",
+  "status": "Complete source/test review; existing general structural-discovery mechanisms mapped.",
+  "files": [
+    {
+      "path": "ink_knowledge/template_index.py",
+      "blob": "8453755e0fd6118a81f536cd752436edb0a003cd",
+      "bytes": 5028
+    },
+    {
+      "path": "ink_knowledge/template_matching.py",
+      "blob": "0a86334ae4dad1fd3e8ef2c7af91b4959e194210",
+      "bytes": 3880
+    },
+    {
+      "path": "tests/test_template_matching.py",
+      "blob": "ca9536ad388a12f9a302de7637d25d1f99560ed2",
+      "bytes": 3962
+    }
+  ],
+  "insights": [
+    "Database token filtering is already generic: holes and applied higher-order holes stop structural constraints, and only one subject site may satisfy a template; unrelated sites must not jointly satisfy it.",
+    "The in-memory matcher indexes concrete sorts and literal leaves in addition to heads; generic type variables omit sort constraints. Composite constructors are not literal leaves.",
+    "Small head buckets use direct matching; large buckets lazily construct inverted token postings and intersect rarest constraints first. This is a search scheduling decision, not proof authority.",
+    "Subject nodes, tokens and full inference attempts have distinct budgets. Unrelated heads do not spend inference attempts; repeated matches share the budget within one TemplateSites instance.",
+    "SQLite candidates run under an explicit read transaction and bounded token materialization, then return a complete union; its API deliberately has no page-limit parameter. Do not mechanically impose the pattern-reader page contract on this different API.",
+    "Missing/legacy indexes and unavailable pinned snapshot metadata fall back to paged canonical discovery. Full higher-order inference and kernel admission remain mandatory.",
+    "Tests compare accelerated discovery with exhaustive infer results, test irrelevant-head budget behavior,512literal alternatives,composite constructors,sorts and applied-hole binder order. They do not prove every legal template or corrupted-index behavior."
+  ],
+  "next": "Prefer extending these existing generic mechanisms for new checked law families instead of building ad hoc per-rule indexes. Measure demand/selectivity before adding more token depth or caching. No new defect reproduced in these three files; broader higher-pattern/infer audit still required."
+}

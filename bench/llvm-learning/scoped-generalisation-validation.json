@@ -1,0 +1,490 @@
+{
+  "schema": 1,
+  "findings": [
+    "F050",
+    "F054",
+    "F056",
+    "F058"
+  ],
+  "status": "Implemented and locally validated; independent packages published on main; distribution pin update pending",
+  "changes": [
+    "Branch-local unsigned/Boolean constraints generate whole-expression candidates; ordinary independent equality proofs remain mandatory.",
+    "Two generic symbolic bounded-low-mask laws with explicit mask-shape premises added to the canonical database for U32/U64.",
+    "Conditional higher-order adapters substitute and carry all premises through scoped Hypothesis proofs; application still proves each condition.",
+    "Indexed pattern readers enforce page limits and close/clear handles on error and exit."
+  ],
+  "validation": {
+    "word_facts_and_laws": "16 focused tests passed; actual offline learning and selected execution for both widths; invalid mask and removed premise rejected",
+    "reader_and_adapters": "25 targeted tests passed cleanly; Boolean/U32/U64 callback selection and execution, captured offset, unknown/false premise rejection",
+    "final_forgery": "Final adapter test passed after using proper U64 sort in forged-result rejection",
+    "mandatory": "llvm_learning_and_incremental_knowledge_remain_checked passed38.09seconds"
+  },
+  "corpus": {
+    "before": {
+      "programs": 10,
+      "compiled": 10,
+      "programs_with_rewrite_alternative": 10,
+      "programs_with_any_alternative": 10,
+      "programs_selecting_alternative": 3,
+      "median_seconds": 15.8265,
+      "stopped_by_time": 3,
+      "laws_admitted": 44,
+      "laws_admitted_in_multiple_programs": 7,
+      "representations_admitted": 0,
+      "last_gates": {
+        "measurement_budget": 7,
+        "selected_alternative": 3
+      }
+    },
+    "after": {
+      "programs": 10,
+      "compiled": 10,
+      "programs_with_rewrite_alternative": 10,
+      "programs_with_any_alternative": 10,
+      "programs_selecting_alternative": 3,
+      "median_seconds": 17.658,
+      "stopped_by_time": 7,
+      "laws_admitted": 37,
+      "laws_admitted_in_multiple_programs": 7,
+      "representations_admitted": 0,
+      "last_gates": {
+        "selected_alternative": 3,
+        "profitability": 2,
+        "measurement_budget": 5
+      }
+    },
+    "per_program": [
+      {
+        "program": "sequence-every",
+        "before": {
+          "status": 0,
+          "rewrite_alternatives": 31,
+          "selected_alternative": false,
+          "last_gate": "measurement_budget",
+          "seconds": 13.961
+        },
+        "after": {
+          "status": 0,
+          "rewrite_alternatives": 25,
+          "selected_alternative": true,
+          "last_gate": "selected_alternative",
+          "seconds": 14.685
+        }
+      },
+      {
+        "program": "ast-ancestor",
+        "before": {
+          "status": 0,
+          "rewrite_alternatives": 31,
+          "selected_alternative": false,
+          "last_gate": "measurement_budget",
+          "seconds": 13.726
+        },
+        "after": {
+          "status": 0,
+          "rewrite_alternatives": 12,
+          "selected_alternative": false,
+          "last_gate": "profitability",
+          "seconds": 17.487
+        }
+      },
+      {
+        "program": "text-lines",
+        "before": {
+          "status": 0,
+          "rewrite_alternatives": 31,
+          "selected_alternative": false,
+          "last_gate": "measurement_budget",
+          "seconds": 11.852
+        },
+        "after": {
+          "status": 0,
+          "rewrite_alternatives": 31,
+          "selected_alternative": false,
+          "last_gate": "measurement_budget",
+          "seconds": 14.644
+        }
+      },
+      {
+        "program": "drawing-hit",
+        "before": {
+          "status": 0,
+          "rewrite_alternatives": 31,
+          "selected_alternative": false,
+          "last_gate": "measurement_budget",
+          "seconds": 16.64
+        },
+        "after": {
+          "status": 0,
+          "rewrite_alternatives": 16,
+          "selected_alternative": false,
+          "last_gate": "measurement_budget",
+          "seconds": 21.841
+        }
+      },
+      {
+        "program": "particle-step",
+        "before": {
+          "status": 0,
+          "rewrite_alternatives": 1,
+          "selected_alternative": true,
+          "last_gate": "selected_alternative",
+          "seconds": 19.095
+        },
+        "after": {
+          "status": 0,
+          "rewrite_alternatives": 1,
+          "selected_alternative": false,
+          "last_gate": "profitability",
+          "seconds": 22.435
+        }
+      },
+      {
+        "program": "spatial-collision",
+        "before": {
+          "status": 0,
+          "rewrite_alternatives": 31,
+          "selected_alternative": false,
+          "last_gate": "measurement_budget",
+          "seconds": 17.402
+        },
+        "after": {
+          "status": 0,
+          "rewrite_alternatives": 16,
+          "selected_alternative": false,
+          "last_gate": "measurement_budget",
+          "seconds": 20.999
+        }
+      },
+      {
+        "program": "index-membership",
+        "before": {
+          "status": 0,
+          "rewrite_alternatives": 29,
+          "selected_alternative": true,
+          "last_gate": "selected_alternative",
+          "seconds": 19.018
+        },
+        "after": {
+          "status": 0,
+          "rewrite_alternatives": 29,
+          "selected_alternative": true,
+          "last_gate": "selected_alternative",
+          "seconds": 17.829
+        }
+      },
+      {
+        "program": "incremental-distinct",
+        "before": {
+          "status": 0,
+          "rewrite_alternatives": 31,
+          "selected_alternative": false,
+          "last_gate": "measurement_budget",
+          "seconds": 15.013
+        },
+        "after": {
+          "status": 0,
+          "rewrite_alternatives": 21,
+          "selected_alternative": false,
+          "last_gate": "measurement_budget",
+          "seconds": 17.308
+        }
+      },
+      {
+        "program": "bulk-update",
+        "before": {
+          "status": 0,
+          "rewrite_alternatives": 31,
+          "selected_alternative": false,
+          "last_gate": "measurement_budget",
+          "seconds": 14.97
+        },
+        "after": {
+          "status": 0,
+          "rewrite_alternatives": 31,
+          "selected_alternative": false,
+          "last_gate": "measurement_budget",
+          "seconds": 15.326
+        }
+      },
+      {
+        "program": "compact-set",
+        "before": {
+          "status": 0,
+          "rewrite_alternatives": 16,
+          "selected_alternative": true,
+          "last_gate": "selected_alternative",
+          "seconds": 40.185
+        },
+        "after": {
+          "status": 0,
+          "rewrite_alternatives": 31,
+          "selected_alternative": true,
+          "last_gate": "selected_alternative",
+          "seconds": 35.234
+        }
+      }
+    ],
+    "attribution_equal": false,
+    "new_law_attribution": {
+      "74f710ead342261ffae8ad929453f36a03bfae09800e39fca3fdbde9e349ed5c": null,
+      "e18b962e04f5a21b85e7ba0e949d12abd97db659eb9853f41065cc8f5f69abec": null
+    },
+    "scope": "Frozen10-program JavaScript planning corpus, quick effort, same compiler, indexed input stores; shared/contended machine; observed funnel, not application runtime benchmark",
+    "edge_comparison": [
+      {
+        "program": "ast-ancestor",
+        "before_stop": "states",
+        "after_stop": "time",
+        "before_edges": 32,
+        "after_edges": 12,
+        "common_prefix": 12,
+        "shorter_is_prefix": true,
+        "before_rejected": 0,
+        "after_rejected": 0
+      },
+      {
+        "program": "bulk-update",
+        "before_stop": "states",
+        "after_stop": "states",
+        "before_edges": 32,
+        "after_edges": 32,
+        "common_prefix": 32,
+        "shorter_is_prefix": true,
+        "before_rejected": 0,
+        "after_rejected": 0
+      },
+      {
+        "program": "compact-set",
+        "before_stop": "time",
+        "after_stop": "states",
+        "before_edges": 16,
+        "after_edges": 32,
+        "common_prefix": 16,
+        "shorter_is_prefix": true,
+        "before_rejected": 0,
+        "after_rejected": 0
+      },
+      {
+        "program": "drawing-hit",
+        "before_stop": "states",
+        "after_stop": "time",
+        "before_edges": 32,
+        "after_edges": 16,
+        "common_prefix": 16,
+        "shorter_is_prefix": true,
+        "before_rejected": 0,
+        "after_rejected": 0
+      },
+      {
+        "program": "incremental-distinct",
+        "before_stop": "states",
+        "after_stop": "time",
+        "before_edges": 32,
+        "after_edges": 21,
+        "common_prefix": 21,
+        "shorter_is_prefix": true,
+        "before_rejected": 0,
+        "after_rejected": 0
+      },
+      {
+        "program": "index-membership",
+        "before_stop": "time",
+        "after_stop": "time",
+        "before_edges": 29,
+        "after_edges": 29,
+        "common_prefix": 29,
+        "shorter_is_prefix": true,
+        "before_rejected": 0,
+        "after_rejected": 0
+      },
+      {
+        "program": "particle-step",
+        "before_stop": "time",
+        "after_stop": "time",
+        "before_edges": 21,
+        "after_edges": 1,
+        "common_prefix": 1,
+        "shorter_is_prefix": true,
+        "before_rejected": 8,
+        "after_rejected": 0
+      },
+      {
+        "program": "sequence-every",
+        "before_stop": "states",
+        "after_stop": "time",
+        "before_edges": 32,
+        "after_edges": 25,
+        "common_prefix": 25,
+        "shorter_is_prefix": true,
+        "before_rejected": 0,
+        "after_rejected": 0
+      },
+      {
+        "program": "spatial-collision",
+        "before_stop": "states",
+        "after_stop": "time",
+        "before_edges": 32,
+        "after_edges": 16,
+        "common_prefix": 16,
+        "shorter_is_prefix": true,
+        "before_rejected": 0,
+        "after_rejected": 0
+      },
+      {
+        "program": "text-lines",
+        "before_stop": "states",
+        "after_stop": "states",
+        "before_edges": 32,
+        "after_edges": 32,
+        "common_prefix": 32,
+        "shorter_is_prefix": true,
+        "before_rejected": 0,
+        "after_rejected": 0
+      }
+    ],
+    "interpretation": "No broad improvement demonstrated:37versus44distinct admitted laws,7versus3time stops; selected count3both. New low-mask laws have no recorded corpus attribution. Do not attribute timing differences solely to contention or source changes without controlled follow-up."
+  },
+  "sources": [
+    {
+      "path": "work/ink-development/knowledge/producers/word_facts.py",
+      "bytes": 13904,
+      "sha256": "e4b97b5913810d6e36dad416ac245c4232c078c1d39ca0ec2ce7f68381974992"
+    },
+    {
+      "path": "work/ink-development/knowledge/producers/word_identities.py",
+      "bytes": 4769,
+      "sha256": "4d8a4cd09c07e403617657c64045887d22b5e8d9dae4f6cf4280d407273291b2"
+    },
+    {
+      "path": "work/ink-development/knowledge/producers/data/word-identities.json.gz",
+      "bytes": 600719,
+      "sha256": "5305053a1da038fdfae0bc1d7bd38ccab217e8935d2608a0a8f78a1c34dc9751"
+    },
+    {
+      "path": "work/ink-development/knowledge/ink_knowledge/law_templates.py",
+      "bytes": 8021,
+      "sha256": "03403e73b9aee935b71c41f4f551118eee9454ca22f94876c53b11581b5966d9"
+    },
+    {
+      "path": "work/ink-development/knowledge/ink_knowledge/pattern_index.py",
+      "bytes": 6024,
+      "sha256": "19ea89b33935c4cdb05bade3f1e00d2f12ebe25c9b4ec5f736bcbe80ac37d6d4"
+    },
+    {
+      "path": "work/ink-development/knowledge/tests/test_word_facts.py",
+      "bytes": 11179,
+      "sha256": "445c0581a8ff9f2376b32a1dbce265360cfc7cad015f8d3e50f9036a4d47fbe1"
+    },
+    {
+      "path": "work/ink-development/knowledge/tests/test_word_identities.py",
+      "bytes": 8817,
+      "sha256": "8dd9b437605712b27b93f1eb276d3e54f396c5dccebe7e927e763d59e9f43095"
+    },
+    {
+      "path": "work/ink-development/knowledge/tests/test_conditional_adapters.py",
+      "bytes": 5098,
+      "sha256": "573964d38a65cd680d1e2a57b8bdf9786034caf8d718e43d0ad503ed688239db"
+    },
+    {
+      "path": "work/ink-development/knowledge/tests/test_pattern_reader.py",
+      "bytes": 3984,
+      "sha256": "fdfbdf940d8162e7da812d87fbdd76bef5e289d0beb33caaa45df4cf749360f7"
+    },
+    {
+      "path": "work/ink-development/planner/tests/test_llvm_learning.py",
+      "bytes": 6878,
+      "sha256": "4ea5f5038cf9bf99f43b6bf3594c00f3a116cc8f8c92e6d8ffc40126c6714a66"
+    },
+    {
+      "path": "work/ink-development/planner/tests/test_pattern_discovery.py",
+      "bytes": 2201,
+      "sha256": "6d608ebe15cf2973c4131c272d6ae153ea7064018dc536d494330c6fa30f1179"
+    },
+    {
+      "path": "work/ink-development/tests/hardening.rs",
+      "bytes": 80401,
+      "sha256": "a543a161bbd4371cba9240f5929391d82bfd860cd283930ba52d668ac773bf51"
+    }
+  ],
+  "logs": [
+    {
+      "path": "work/llvm-learning-smoke/scoped-facts-complete-tests-recovered.log",
+      "bytes": 116,
+      "sha256": "e0746b0c90a808ae9235376c155809bf49f50bbcd5dca3f49a650282321958e5"
+    },
+    {
+      "path": "work/llvm-learning-smoke/scoped-readers-adapters-tests-clean.log",
+      "bytes": 124,
+      "sha256": "f887a510087f207004dd718fb6bddd27ee71c78f9d49030d372f471458b39859"
+    },
+    {
+      "path": "work/llvm-learning-smoke/scoped-readers-adapters-hardening.log",
+      "bytes": 488,
+      "sha256": "067b65980d44dc45752b350b350779f54b243924f5f12537db2b65131b3ddc66"
+    },
+    {
+      "path": "work/llvm-learning-smoke/conditional-adapters-final-forgery-tests.log",
+      "bytes": 98,
+      "sha256": "1b915d28490034e933cc29cee1aca85dd2184ef6d25a9460d9b67b7f3b9b3255"
+    },
+    {
+      "path": "work/llvm-learning-smoke/scoped-facts-final-corpus-driver.log",
+      "bytes": 1348,
+      "sha256": "2fa5e170ce9cdb7faf684e3857a58f4fe5aa4437883bdc800003ba84c43d516f"
+    }
+  ],
+  "reports": [
+    {
+      "path": "outputs/llvm-ink-audit/scoped-word-facts-corpus/before/report.json",
+      "bytes": 24795,
+      "sha256": "23e6b9dc0c5f8b7d42dd8364c72cf54f0da4ce6b28279e25f0af5bfa42676210"
+    },
+    {
+      "path": "outputs/llvm-ink-audit/scoped-word-facts-corpus/after-final/report.json",
+      "bytes": 23451,
+      "sha256": "633886129dde2dcaeb9541381c9e1c4b7a3b9a7bfe2ece814453a671bdac274f"
+    }
+  ],
+  "proposal_comparison": {
+    "before": [
+      {
+        "kind": "U32",
+        "labels": [],
+        "replaces_with_input": false
+      },
+      {
+        "kind": "U64",
+        "labels": [],
+        "replaces_with_input": false
+      }
+    ],
+    "after": [
+      {
+        "kind": "U32",
+        "labels": [
+          "branch-scoped-facts"
+        ],
+        "replaces_with_input": true
+      },
+      {
+        "kind": "U64",
+        "labels": [
+          "branch-scoped-facts"
+        ],
+        "replaces_with_input": true
+      }
+    ]
+  },
+  "limitations": [
+    "No application runtime speed improvement claimed. Bounded contended search can change admissions, selection and planning time.",
+    "Baseline first attempt had disk errors; exact-context resume retried failed compact-set and achieved10/10. Failure records preserved.",
+    "Earlier cold candidate run was explicitly stopped after3programs because new snapshot was not indexed; preserved partial after/ is not used. Final after-final indexed run covers all10.",
+    "No whole-CFG fixed-point analysis, arbitrary caller assumptions, signed interval domain or general interprocedural summaries introduced.",
+    "Full codebase audit and broad browser benchmark remain incomplete; remote CI must finish green before revision is called verified."
+  ],
+  "package_revisions": {
+    "knowledge": "3d309dab7b0a6f3cda73a87d3c189d846b52f421",
+    "planner": "071f09f85e713c8b9b044334090049eb695355a8"
+  }
+}

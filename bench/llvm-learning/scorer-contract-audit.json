@@ -1,0 +1,69 @@
+{
+  "schema": 1,
+  "finding": "F061",
+  "path": "ink_planner/selfhost.py",
+  "blob": "5e43337a132f25d1910cb0903ebfea07bf96d692",
+  "bytes": 3312,
+  "status": "Fullsource reviewed; output-score boundary tested; no production change needed",
+  "results": [
+    {
+      "values": [
+        0
+      ],
+      "accepted": true,
+      "result": [
+        0
+      ]
+    },
+    {
+      "values": [
+        -1
+      ],
+      "accepted": false,
+      "error": "self-host score output"
+    },
+    {
+      "values": [
+        4294967296
+      ],
+      "accepted": false,
+      "error": "self-host score output"
+    },
+    {
+      "values": [
+        true
+      ],
+      "accepted": false,
+      "error": "self-host score output"
+    },
+    {
+      "values": [],
+      "accepted": false,
+      "error": "self-host score output"
+    },
+    {
+      "values": [
+        1.5
+      ],
+      "accepted": false,
+      "error": "self-host score output"
+    },
+    {
+      "values": [
+        1
+      ],
+      "accepted": false,
+      "error": "self-host score disagreement"
+    }
+  ],
+  "insights": [
+    "Constructor restricts initial endpoint to loopbackHTTP without embedded credentials and bounds weights/timeout.",
+    "Scores use fixed eight-lane packed words and exact local dot-product comparison; value count, unsigned range and Boolean rejection checked before return.",
+    "Network/response budgets are explicit; policy catches scorer exceptions and retains ordinary ordering. No score establishes proof or profitability.",
+    "VM evaluation path validates shape/range only; downstream proof/measurement contract must be audited separately. HTTP redirect policy and fulltransport behavior are outside this stub-response test."
+  ],
+  "limitations": [
+    "No real compiled-Ink scorer service or GPU execution exercised; mocked HTTP byte responses isolate adapter validation.",
+    "No performance claim."
+  ]
+}

@@ -1,0 +1,100 @@
+{
+  "schema": 1,
+  "findings": [
+    "F061",
+    "F062"
+  ],
+  "status": "Implemented locally;44focused tests and mandatory hardening passed; publication pending",
+  "changes": [
+    "Seeded restarts share one deadline and remaining checker quota. The first zero-resource call retains an ordinary baseline receipt; no later restart starts after exhaustion. Timeout/memory/round diagnostics aggregate across runs.",
+    "Modular planning delegates to the requested seeded/baseline policy, scorer and neighbour ordering. Cache keys include search options/properties; traces bind local proposal digest plus accepted-prefix digest. Full combined chains still replay.",
+    "Exact semantic discovery now queries optional neighbour hints at actual term sites before ordering. Hints never filter the exact candidate set or authorize proof.",
+    "Malformed HNSW label shapes, negative/out-of-range/noninteger/Boolean/duplicate labels disable hints. Query cache retains at most16MBserialized keys and4096entries; errors clear retained hints.",
+    "Real modular schema2/stochastic CLI test requires at least2streamed alternatives, independently checks every row, exercises valid/forged cache reuse and exact selected execution."
+  ],
+  "validation": {
+    "focused": "44tests passed2.693s",
+    "mandatory": "llvm_learning_and_incremental_knowledge_remain_checked passed35.28s; initial pre-label-bound run passed45.11s",
+    "before": "New deadline and neighbour-query regression tests each fail once against exact published6a64e3e source; current versions pass",
+    "scorer": "No source change required:7mocked HTTP responses establish strict score shape/range/exact-value checks",
+    "runtime": "No runtime strategy changes; no application performance gain claimed"
+  },
+  "sources": [
+    {
+      "path": "work/ink-development/planner/ink_planner/stochastic_search.py",
+      "bytes": 5489,
+      "sha256": "9c37b892a8f4859e5f81e1d8f46cccffe9319a0d6d01b70b4fa2e6cc768ce980"
+    },
+    {
+      "path": "work/ink-development/planner/ink_planner/modular.py",
+      "bytes": 9593,
+      "sha256": "14c140143049c3b3e1e53cf181425ba5e4a6ded233c25c70ddc37046e72b6231"
+    },
+    {
+      "path": "work/ink-development/planner/ink_planner/semantic_search.py",
+      "bytes": 64308,
+      "sha256": "5973d87d71c39a4ddfd6d3ee27d9e3fe078fc605ab5c492e9d867a5d1400c69c"
+    },
+    {
+      "path": "work/ink-development/planner/ink_planner/neighbourhood.py",
+      "bytes": 4886,
+      "sha256": "84babffcc79e32c6c331ee52e8f357ac8fbb2ece0e78373ec0a12d17a36c0af7"
+    },
+    {
+      "path": "work/ink-development/planner/tests/test_search_deadlines.py",
+      "bytes": 5608,
+      "sha256": "7cb7a401e3667fc2f97a70b6ff19a45d49aef0e4278d076813bd1970c305221d"
+    },
+    {
+      "path": "work/ink-development/planner/tests/test_modular_planning.py",
+      "bytes": 12082,
+      "sha256": "c2c6f67ce788ac3b152406633670f3ff1a5946a94daf2cef7131179b4b9cc92b"
+    },
+    {
+      "path": "work/ink-development/planner/README.md",
+      "bytes": 27690,
+      "sha256": "e83d0ec16e851020bcb2a46ba3a2c08018bb0e3d5d226942c65189851db4ff39"
+    },
+    {
+      "path": "work/ink-development/tests/hardening.rs",
+      "bytes": 80524,
+      "sha256": "d2c29d60be2b9391ddd402371227907edd025e9b7686d87ccd5b1ff4daa9d0ec"
+    }
+  ],
+  "logs": [
+    {
+      "path": "work/llvm-learning-smoke/restart-final-tests.log",
+      "bytes": 143,
+      "sha256": "8c4118877cdb3afda40a5ba510843a55f57bc8119038676d94e28f3286c51636"
+    },
+    {
+      "path": "work/llvm-learning-smoke/restart-final-hardening.log",
+      "bytes": 388,
+      "sha256": "ea668aa32342c06868a061520f3022c91a6c4971eb2a67d8ef0c8d2ddf7b5f9e"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "outputs/llvm-ink-audit/restart-before-regressions.json",
+      "bytes": 1962,
+      "sha256": "37ac78fe08aff78b6cb6d2e04953ac865f424ed0b9853981e76138474ea04eec"
+    },
+    {
+      "path": "outputs/llvm-ink-audit/neighbour-label-boundary-probe.json",
+      "bytes": 260,
+      "sha256": "69dc42d7b3212c5b0769869a8f1e1349abab3179ed470050cb82be667e1dd95f"
+    },
+    {
+      "path": "outputs/llvm-ink-audit/scorer-contract-audit.json",
+      "bytes": 1902,
+      "sha256": "0ed4209c8b3fc81dbb9255597edfde63247d1aff91c8bd79a557de3de45bbc42"
+    }
+  ],
+  "limitations": [
+    "Actual HNSW/numpy packages are absent in this interpreter. Provider-boundary tests use injected outputs; unavailable-provider fallback is tested. No HNSW throughput claim.",
+    "An in-flight synchronous proof/scorer call can exceed its share; the deadline prevents subsequent work rather than interrupting that call.",
+    "Full browser benchmark, F046 publication recovery and100%file audit remain open. Egraph composition and other source/transport boundaries still require audit.",
+    "No canonical knowledge changes in this batch; previous frozen corpus is not a measurement of these optional-policy changes.",
+    "Current revision must complete all CI jobs before it is called verified."
+  ]
+}
