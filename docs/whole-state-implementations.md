@@ -132,3 +132,28 @@ Boxed dense prefixes use packed object arrays and direct Number indexes for
 checked capacities up to 2^20, with exact sparse fallback for larger word keys.
 The index conversion changes no row or arithmetic carrier. Prefix allocation is
 a setup/memory cost and remains an offline whole-plan choice.
+
+The protocol also exposes two event/commit storage choices. `event_columns`
+retains private parallel columns and materializes owned ordered records only at
+public event and snapshot boundaries. `compact_commits` carries the checked
+53-bit word guard used by exact-number storage. It permits exact Number commit
+metadata below that bound, then widens to BigInt before the next increment.
+Versions, event commits and typed change boundaries remain full-width BigInt at
+the public API. Restore, acknowledgement, rollback and exhaustion keep their
+ordinary contracts. Source values and aggregate arithmetic remain full-width;
+this choice only changes private commit metadata. Controllers remain trusted.
+
+Dense preflight entries retain their checked lookup slot until commit, avoiding
+another key conversion and membership probe. Bound committed scalar reads use
+emitted fixed keep indexes while retaining the busy-state boundary.
+
+Offline state acquisition now alternates isolated candidate states within each
+fresh process. The installed `ink_knowledge/state-selection.json` policy requires
+at least three processes and nine rounds per repeated phase. The minimum weighted
+lifecycle gain (10% by default) must hold in every paired process, using the sum
+of weighted phase medians, including module load, setup, checkpoint and restore.
+This replaces independent phase-extrema comparison for freshly acquired state
+histories; historical or unpaired costs cannot authorize that switch. A frozen
+winner still needs independent holdout acceptance. This is an empirical
+profitability policy, not a statistical confidence interval or proof. Shared
+process RSS includes all candidate states and is a conservative memory bound.
