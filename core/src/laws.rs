@@ -1127,6 +1127,18 @@ fn normal_inner(t: &Term, hyp: &[Equation], p: &Program, b: &mut Budget, d: usiz
     // that cannot execute. This also keeps a stopping loop's bound independent
     // of proof work when its initial stop condition is already true.
     if let Node::Op(name, args) = &t.node {
+        // Instantiate a literal callback before normalizing its body. Expanding
+        // an observation of its bound argument first can hide constructor
+        // equations that become applicable after substitution. Normalize the
+        // argument first to retain the fixed call-by-value meaning; beta() owns
+        // capture avoidance and the ordinary proof budget still bounds work.
+        if name == "apply" && args.len() == 2 {
+            if let Node::Lambda(body) = &args[0].node {
+                let argument = normal_inner(&args[1], hyp, p, b, d + 1, recursive)?;
+                let instantiated = beta(body, &argument, b)?;
+                return normal_inner(&instantiated, hyp, p, b, d + 1, recursive);
+            }
+        }
         if name == "call:choose" && args.len() == 3 {
             let condition = normal_inner(&args[0], hyp, p, b, d + 1, recursive)?;
             if let Node::Bool(flag) = condition.node {
