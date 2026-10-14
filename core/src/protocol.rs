@@ -29,6 +29,8 @@ pub struct Plan {
     #[serde(default)] pub snapshot_rows:bool,
     /// Trusted ordered event retention layout; no event is omitted.
     #[serde(default)] pub event_columns:bool,
+    /// Exact Number commit metadata, widening before the 53-bit bound.
+    #[serde(default,skip_serializing_if="Option::is_none")] pub compact_commits:Option<crate::bitproof::Certificate>,
     #[serde(default)] pub columns:Vec<ColumnPrefix>,
 }
 #[derive(Clone, Debug)]
@@ -115,6 +117,11 @@ pub fn check_source(module:&CheckedModule)->LangResult<()> {
 pub fn check(module:&CheckedModule,plan:&Plan,views:Option<&crate::maintained::CheckedViews>)->LangResult<CheckedProtocol>{
     if plan.schema!=1||plan.semantics!=SEMANTICS||plan.input_core_sha256!=module.identity()?{return Err("state protocol source/semantics mismatch".into());}
     let facts=capabilities(module)?;let p=module.program();let mut seen=BTreeSet::new();
+    if let Some(guard)=&plan.compact_commits {
+        let (params,hyp,goal)=crate::column_codec::guarded_word_goal(53)?;
+        let problem=crate::logic::Context::default().bitvector_problem(&params,&hyp,&goal.from,&goal.to)?;
+        crate::bitproof::verify(&problem,guard)?;
+    }
     if plan.event_columns&&p.events.is_empty(){return Err("event columns require source events".into());}
     for c in &plan.actions {
         if !seen.insert(&c.action){return Err("duplicate protocol action".into());}
