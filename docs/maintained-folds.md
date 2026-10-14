@@ -2,8 +2,8 @@
 
 Ink can now admit a source keep as a maintained fold through a commutative group.
 The knowledge database supplies the row contribution, combination, inverse and
-identity, together with proofs. The JavaScript source-state emitter executes those
-checked definitions and updates auxiliary folds at concrete cell mutations.
+identity, together with proofs. The JavaScript and Rust source-state emitters execute
+those checked definitions and update auxiliary folds at concrete cell mutations.
 
 ## Selection
 
@@ -108,8 +108,17 @@ slots; every other valid key uses an exact map fallback. This is one fixed stora
 implementation. It never infers a source range from a profile, silently narrows
 keys or changes the meaning of a key outside the proposed range.
 
-Emission currently supports maintained source folds and dense prefixes on
-JavaScript. Other target APIs explicitly reject those choices. Their ordinary
+Emission supports maintained source folds on JavaScript, Rust and Rust-Wasm, and
+dense prefixes on JavaScript. Other target APIs explicitly reject those choices.
+
+The Rust lane (`lowerings/rust/src/maintained_native.rs`) emits each fold's
+admitted insertion, removal and replacement definitions as literal functions over
+the borrowed source key and row, with wrapping word arithmetic. A cell write moves
+each fold of its table by the old and new rows before the table changes and journals
+the previous total, so action failure and host rollback restore it; restore rebuilds
+folds from validated rows. Carriers the lane cannot read natively (recursive rows,
+inspected opaque fields) make the plan unemittable for Rust, so selection fails
+closed. The maintained-ledger conformance history runs on Rust as well as JavaScript. Their ordinary
 source implementations remain available; the planner must select a compatible
 packet. This does not claim device execution of maintained state.
 

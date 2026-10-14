@@ -146,8 +146,8 @@ The fixed native cell/fold controller and codecs remain trusted; this is not who
 compiler correctness. Restore rebuilds folds from validated rows and rollback
 restores before-images. Dense prefixes require exact fallback outside their range.
 Single-cell bounds and fresh-result ownership facts are structural core analyses,
-never algorithm authority. Current maintained/dense capabilities are JavaScript
-only; unsupported targets fail explicitly. State lifecycle measurements require
+never algorithm authority. Maintained folds run on JavaScript, Rust and Rust-Wasm;
+dense prefixes are JavaScript only; unsupported targets fail explicitly. State lifecycle measurements require
 independent source histories, exact snapshots, fresh processes and held-out traces.
 
 Measure generalisation, not entry count. Evaluate knowledge changes on the frozen
