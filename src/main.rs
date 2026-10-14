@@ -155,7 +155,7 @@ fn planning_state(
         "representation":checked.representation().map(|r|r.request()),
         "definition_choices":checked.representation().map(|r|r.definition().choices()),
         "definitions":checked.representation().map(|r|r.definition().reachable_executable_declarations()).transpose()?,
-        "physical":checked.physical().map(|p|p.plan()),"properties":checked.properties().iter().map(|p|p.package()).collect::<Vec<_>>(),
+        "protocol":checked.protocol().map(|p|p.plan()),"protocol_capabilities":ink_core::protocol::capabilities(checked.module())?,"physical":checked.physical().map(|p|p.plan()),"properties":checked.properties().iter().map(|p|p.package()).collect::<Vec<_>>(),
         "resources":checked.resources().map(|r|r.plan()),"route":checked.route().map(|r|r.package()),
         "maintained":checked.maintained().map(|v|Ok::<_,String>(serde_json::json!({"package_sha256":verified_language::registry::identity(v.package())?,"keeps":v.package().views.iter().map(|v|&v.keep).collect::<Vec<_>>()}))).transpose()?}),
     )
@@ -914,9 +914,14 @@ fn run() -> LangResult<()> {
     };
     if matches!(
         cmd,
-        "check-plan" | "emit-plan" | "check-properties" | "check-physical-plan" | "emit-maintained-subjects" | "plan-work"
+        "check-plan" | "emit-plan" | "check-properties" | "check-physical-plan" | "emit-maintained-subjects" | "emit-protocol-ir" | "plan-work"
     ) {
         let module = core::CheckedModule::from_source(p.clone())?;
+        if cmd=="emit-protocol-ir" {
+            let output=serde_json::to_string(&ink_core::protocol::graph(&module)?).map_err(|e|e.to_string())?;
+            if let Some(path)=arg_value(&args,"-o")?{write(&path,&output)?;}else{println!("{output}");}
+            return Ok(());
+        }
         if cmd=="emit-maintained-subjects" {
             let subjects=verified_language::maintained::subjects(&module)?;
             let output=serde_json::to_string(&subjects).map_err(|e|e.to_string())?;

@@ -511,6 +511,7 @@ impl CheckedModule {
         });
         module.bytes()?;
         crate::contracts::check(&module)?;
+        crate::protocol::check_source(&module)?;
         Ok(module)
     }
 
