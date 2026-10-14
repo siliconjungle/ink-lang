@@ -19,14 +19,8 @@ pub(crate) struct Scope<'a> {
     pub conditions: Vec<Equation>,
 }
 
-fn specification<'a>(p: &'a Program, name: &str) -> Option<&'a Specification> {
-    p.contracts.specifications.iter().find(|spec| {
-        spec.kind.is_none()
-            && (spec.name == name
-                || p.contracts.implementations.iter().any(|i| {
-                    i.name == name && i.specification == spec.name
-                }))
-    })
+fn specification(p: &Program, name: &str) -> Option<Specification> {
+    super::specification(p, name).filter(|s| s.kind.is_none())
 }
 
 pub(crate) fn entry(p: &Program, name: &str) -> LangResult<Vec<Equation>> {
@@ -65,7 +59,7 @@ pub(crate) fn consequences(
     p: &Program, proof_program: &Program, term: &Term, env: &Env, facts: &mut Vec<Equation>,
     laws: &CheckedCatalogue, budget: &mut Budget, depth: usize,
 ) -> LangResult<()> {
-    if p.contracts.specifications.is_empty() { return Ok(()) }
+    if p.contracts.specifications.is_empty() && p.contracts.inferred.is_empty() { return Ok(()) }
     budget.step(depth)?;
     if matches!(term.node, Node::Lambda(_)) { return Ok(()) }
     for child in s::children(term) {

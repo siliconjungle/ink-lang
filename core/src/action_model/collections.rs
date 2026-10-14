@@ -130,6 +130,12 @@ impl Lower<'_> {
         env: &BTreeMap<usize, Term>,
         state: &Term,
     ) -> LangResult<Term> {
+        self.collection_value(body,receiver,method,arguments,env,state,None)
+    }
+    pub(super) fn collection_value(
+        &mut self, body:&Body, receiver:NodeId, method:&str, arguments:&[NodeId],
+        env:&BTreeMap<usize,Term>, state:&Term, evaluated:Option<Term>,
+    ) -> LangResult<Term> {
         if ["keys", "values"].contains(&method) {
             let Kind::State(root) = body.nodes[receiver].kind else {
                 return Err("collection requires source table".into());
@@ -141,7 +147,7 @@ impl Lower<'_> {
         if matches!(&body.nodes[receiver].ty,ExprType::Value(Type::Option(_))) && method=="map" {
             let ExprType::Value(result_type)=&body.nodes[expression].ty else{return Err("option mapper result".into());};
             let output=self.sort(&Type::Option(Box::new(result_type.clone())))?;
-            let input=self.expr(body,receiver,env,state)?;
+            let input=match &evaluated {Some(value)=>value.clone(),None=>self.expr(body,receiver,env,state)?};
             let name=self.fresh();let mut local=env.clone();local.insert(parameter,v(&name));
             let mapped=self.expr(body,expression,&local,state)?;
             return Ok(m(input,vec![(vec![],c(id(&output)?,0,vec![])),(vec![name],c(id(&output)?,1,vec![mapped]))]));
@@ -159,7 +165,7 @@ impl Lower<'_> {
         };
         let output = self.sort(&output_type)?;
         let mut params = vec![("traverse_rows".to_string(), input_sort)];
-        let mut args = vec![self.expr(body, receiver, env, state)?];
+        let mut args = vec![match evaluated {Some(value)=>value,None=>self.expr(body,receiver,env,state)?}];
         let mut recursive = vec![v("traverse_tail")];
         // Conservatively capture state only when the lambda contains a state read.
         // A pure row mapper has no hidden whole-table parameter.

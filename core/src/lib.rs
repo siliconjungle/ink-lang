@@ -6,6 +6,7 @@ mod action_semantic;
 mod action_types;
 pub mod action_values;
 pub mod analysis;
+mod abstraction;
 pub mod bitproof;
 pub mod check;
 pub mod collection_facts;
@@ -29,6 +30,7 @@ pub mod optimisation;
 pub mod source_extension;
 pub mod parallel;
 pub mod recursion;
+pub mod termination;
 pub mod registry;
 pub mod representation;
 pub mod routing;
@@ -74,6 +76,7 @@ pub mod last_use;
 pub mod in_place;
 
 pub mod bounds;
+mod structural_descent;
 
 pub mod column_codec;
 pub mod resources;

@@ -38,6 +38,12 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     env:
+      # Compiled crates are reused across runs and across the generated
+      # projects inside one run; a cache error falls back to compiling.
+      SCCACHE_GHA_ENABLED: 'true'
+      RUSTC_WRAPPER: sccache
+      SCCACHE_IGNORE_SERVER_IO_ERROR: '1'
+      CARGO_INCREMENTAL: '0'
       INK_PARITY_REQUIRE_ALL: '1'
       INK_THREADS: '4'
       CARGO_BUILD_JOBS: '2'
@@ -48,6 +54,14 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: wasm32-unknown-unknown
+      # Registry and git dependency caches between runs. Build outputs are
+      # shared through sccache instead, which also serves the generated test
+      # projects that each keep their own target directory.
+      - uses: Swatinem/rust-cache@v2
+        with:
+          cache-targets: false
+          cache-on-failure: true
+      - uses: mozilla-actions/sccache-action@v0.0.9
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -198,10 +212,19 @@ jobs:
             build/action-rule-search/*.json
             build/action-rule-native-search/*.json
           retention-days: 30
+      - name: Report compile cache use
+        if: always()
+        run: echo "::notice title=sccache::$(sccache --show-stats | grep -E 'Compile requests|Cache hits|Cache misses|Non-cacheable' | grep -v rate | tr -s ' ' | paste -sd ';' -)"
   cpu-representations:
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     env:
+      # Compiled crates are reused across runs and across the generated
+      # projects inside one run; a cache error falls back to compiling.
+      SCCACHE_GHA_ENABLED: 'true'
+      RUSTC_WRAPPER: sccache
+      SCCACHE_IGNORE_SERVER_IO_ERROR: '1'
+      CARGO_INCREMENTAL: '0'
       INK_PARITY_REQUIRE_ALL: '1'
       INK_THREADS: '4'
       CARGO_BUILD_JOBS: '2'
@@ -212,6 +235,14 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: wasm32-unknown-unknown
+      # Registry and git dependency caches between runs. Build outputs are
+      # shared through sccache instead, which also serves the generated test
+      # projects that each keep their own target directory.
+      - uses: Swatinem/rust-cache@v2
+        with:
+          cache-targets: false
+          cache-on-failure: true
+      - uses: mozilla-actions/sccache-action@v0.0.9
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -266,10 +297,19 @@ jobs:
             build/representation-parity/**/producer.log
             build/representation-parity/**/*-run.log
           retention-days: 30
+      - name: Report compile cache use
+        if: always()
+        run: echo "::notice title=sccache::$(sccache --show-stats | grep -E 'Compile requests|Cache hits|Cache misses|Non-cacheable' | grep -v rate | tr -s ' ' | paste -sd ';' -)"
   wgpu:
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     env:
+      # Compiled crates are reused across runs and across the generated
+      # projects inside one run; a cache error falls back to compiling.
+      SCCACHE_GHA_ENABLED: 'true'
+      RUSTC_WRAPPER: sccache
+      SCCACHE_IGNORE_SERVER_IO_ERROR: '1'
+      CARGO_INCREMENTAL: '0'
       INK_TEST_WGPU: '1'
       INK_THREADS: '4'
       CARGO_BUILD_JOBS: '2'
@@ -281,6 +321,14 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: wasm32-unknown-unknown
+      # Registry and git dependency caches between runs. Build outputs are
+      # shared through sccache instead, which also serves the generated test
+      # projects that each keep their own target directory.
+      - uses: Swatinem/rust-cache@v2
+        with:
+          cache-targets: false
+          cache-on-failure: true
+      - uses: mozilla-actions/sccache-action@v0.0.9
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -391,3 +439,6 @@ jobs:
             build/action-rule-search/*.json
             build/action-rule-native-search/*.json
           retention-days: 30
+      - name: Report compile cache use
+        if: always()
+        run: echo "::notice title=sccache::$(sccache --show-stats | grep -E 'Compile requests|Cache hits|Cache misses|Non-cacheable' | grep -v rate | tr -s ' ' | paste -sd ';' -)"

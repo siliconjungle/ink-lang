@@ -96,7 +96,7 @@ fn physical_metadata_cannot_select_missing_source_or_fake_definition_sites() {
         representation: None,
         tables: Default::default(), buffers:Default::default(), bounds:None, columns:vec![],record_elisions:vec![],sum_spines:vec![],column_maps:None,
         dense_prefixes:vec![],
-        dictionary_tables:vec![],
+        dictionary_tables:vec![],boundary_readers:vec![],
         borrow_reads: vec![],
         borrow_rows: vec![],
         definitions: Default::default(),

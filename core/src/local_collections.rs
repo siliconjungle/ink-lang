@@ -198,6 +198,15 @@ fn infer_with_receiver(
             }
             match &t {
                 Type::Buffer(inner) => match n.as_str() {
+                    "borrow_range" if a.len()==3 => {
+                        check::infer_as(&a[0],env,p,&Type::U32)?;
+                        check::infer_as(&a[1],env,p,&Type::U32)?;
+                        let Expr::Lambda(name,body)=&a[2] else {return Err("borrow_range requires a scoped callback".into());};
+                        let mut local=env.clone();local.insert(name.clone(),t.clone());
+                        let result=check::infer_context(body,&local,p,want)?;
+                        if owned(&result,p) {return Err("borrow_range cannot return temporary owners".into());}
+                        return Ok(result);
+                    }
                     "map" | "map_indexed" | "filter" if a.len() == 1 => {
                         let params = if n != "map_indexed" {
                             vec![*inner.clone()]
@@ -410,8 +419,18 @@ impl Uses {
                 }
                 let xt = check::infer(x, env, p)?;
                 let read =
-                    ["len", "at_or", "get_or", "contains", "keys", "values"].contains(&n.as_str());
+                    ["len", "at_or", "get_or", "contains", "keys", "values", "borrow_range"].contains(&n.as_str());
                 self.walk(x, env, p, Some(&xt), read)?;
+                if n=="borrow_range" && matches!(&xt,Type::Buffer(_)) {
+                    let owner=self.path(x);
+                    self.walk(&a[0],env,p,Some(&Type::U32),false)?;
+                    self.walk(&a[1],env,p,Some(&Type::U32),false)?;
+                    if owner.is_some_and(|path|self.moved.iter().any(|m|m==&path||m.starts_with(&format!("{path}."))||path.starts_with(&format!("{m}.")))) {
+                        return Err("borrow_range parameters cannot consume the borrowed owner".into());
+                    }
+                    self.callback(&a[2],env,p,&[xt.clone()],&t,true)?;
+                    return Ok(());
+                }
                 if n == "fold" && matches!(xt, Type::Option(_) | Type::Result(..)) {
                     let (left, right) = match xt {
                         Type::Option(a) => (*a, Type::Unit),

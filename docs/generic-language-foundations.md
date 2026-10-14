@@ -67,6 +67,12 @@ names. Work, depth and instance budgets reject recursive aliases, expanding
 applications and resource amplification. The checker does not trust a template
 merely because its library is pinned.
 
+`abstract record` restricts construction and field access to the declaring module,
+including after generic specialisation and callback inlining. It can carry a
+checked predicate with `abstract refined record`. Callers use public operations;
+wire input still needs ordinary validation. See [checked value interfaces](value-invariant-interfaces.md)
+for source visibility, inferred guarantees and the remaining implementation scope.
+
 ## Payload enums and matching
 
 ```ink

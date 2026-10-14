@@ -236,7 +236,7 @@ pub(crate) fn calls(e: &Expr, out: &mut BTreeSet<String>) {
                 calls(a, out);
             }
         }
-        Expr::Lambda(_, e) | Expr::Neg(e) | Expr::Field(e, _) => calls(e, out),
+        Expr::Lambda(_, e) | Expr::Neg(e) | Expr::Field(e, _) | Expr::Try(e) => calls(e, out),
         Expr::Let(_, _, a, b) => {
             calls(a, out);
             calls(b, out);
@@ -251,6 +251,14 @@ pub(crate) fn calls(e: &Expr, out: &mut BTreeSet<String>) {
 }
 
 pub fn check(p: &Program) -> LangResult<()> {
+    check_impl(p,false)
+}
+/// Unsealed authoring inputs still receive typing, ownership and dependency
+/// checks. Only the authored-descent certificates are left as exported goals.
+pub fn check_termination_source(p:&Program)->LangResult<()> {
+    check_impl(p,true)
+}
+fn check_impl(p:&Program, authoring:bool)->LangResult<()> {
     let mut names = BTreeSet::new();
     for f in &p.functions {
         for (_, t) in &f.params {
@@ -298,9 +306,20 @@ pub fn check(p: &Program) -> LangResult<()> {
             ));
         }
     }
+    if authoring { crate::termination::obligations(p)?; }
+    else { crate::termination::check(p)?; }
+    let mut groups = BTreeMap::new();
+    for (group_id, indices) in crate::analysis::recursive_function_groups(p)?.iter().enumerate() {
+        if indices.len() > 1 {
+            let functions = indices.iter().map(|&i| &p.functions[i]).collect::<Vec<_>>();
+            crate::structural_descent::check_group(&functions, p)?;
+            for f in functions { groups.insert(f.name.clone(), group_id); }
+        }
+    }
     fn visit(
         n: &str,
         p: &Program,
+        groups: &BTreeMap<String, usize>,
         stack: &mut BTreeSet<String>,
         done: &mut BTreeSet<String>,
     ) -> LangResult<()> {
@@ -322,11 +341,12 @@ pub fn check(p: &Program) -> LangResult<()> {
             .ok_or_else(|| format!("unknown function {n}"))?;
         let mut deps = BTreeSet::new();
         calls(&f.body, &mut deps);
-        if deps.remove(n) {
+        if deps.remove(n) && !p.termination.measures.contains_key(n) {
             crate::recursion::check_function(f, p)?;
         }
         for d in deps {
-            visit(&d, p, stack, done)?;
+            if groups.get(n).is_some() && groups.get(n) == groups.get(&d) { continue; }
+            visit(&d, p, groups, stack, done)?;
         }
         stack.remove(n);
         done.insert(n.into());
@@ -334,7 +354,7 @@ pub fn check(p: &Program) -> LangResult<()> {
     }
     let mut done = BTreeSet::new();
     for f in &p.functions {
-        visit(&f.name, p, &mut BTreeSet::new(), &mut done)?;
+        visit(&f.name, p, &groups, &mut BTreeSet::new(), &mut done)?;
     }
     crate::statecheck::check(p)?;
     crate::local_collections::check_ownership(p)

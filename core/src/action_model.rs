@@ -18,6 +18,8 @@ mod equality;
 mod keys;
 mod local;
 mod flow;
+mod observations;
+pub use observations::{ValueObservation, CallObservation, EntryObservation, SiteObservation, ObservationFunction};
 mod integer;
 mod pure;
 mod sorted;
@@ -27,6 +29,25 @@ pub use recursive_values::{RecursiveField,RecursiveRecord};
 pub const SEMANTICS: &str = "ink-action-transition-v1";
 const MAX_DEFINITIONS: usize = 256;
 const MAX_WORK: usize = 20_000;
+// Source specialisation produces names longer than the kernel's descriptive
+// constructor-label limit. Constructor identity is its checked datatype and
+// ordinal, never this label. Retain old short labels for stable proof bytes;
+// encode longer ones without widening the kernel's input bounds. Avoid a source
+// author deliberately using the generated spelling as another short label.
+fn constructor_label(p: &Program, source: &str) -> LangResult<String> {
+    if source.len() <= 64 { return Ok(source.into()); }
+    let occupied = p.records.keys().chain(p.events.keys()).cloned()
+        .chain(p.enums.iter().flat_map(|(n,variants)| variants.iter().map(move |v|format!("{n}_{v}"))))
+        .collect::<BTreeSet<_>>();
+    for nonce in 0..128u32 {
+        let mut hash = Sha256::new();
+        hash.update(source.as_bytes()); hash.update(nonce.to_le_bytes());
+        let digest = format!("{:x}",hash.finalize());
+        let label = format!("ink_{}", &digest[..60]);
+        if !occupied.contains(&label) { return Ok(label); }
+    }
+    Err("source constructor label collision limit".into())
+}
 fn v(n: &str) -> Term {
     Term::Var(n.into())
 }
@@ -417,11 +438,11 @@ impl Lower<'_> {
                         self.store(Declaration::Datatype {
                             constructors: xs
                                 .into_iter()
-                                .map(|name| Constructor {
-                                    name: format!("{n}_{name}"),
+                                .map(|name| Ok(Constructor {
+                                    name: constructor_label(self.program,&format!("{n}_{name}"))?,
                                     fields: vec![],
-                                })
-                                .collect(),
+                                }))
+                                .collect::<LangResult<_>>()?,
                         })?,
                     )
                 } else if let Some(fs) = self.program.records.get(n).cloned() {
@@ -431,7 +452,7 @@ impl Lower<'_> {
                         .collect::<LangResult<_>>()?;
                     Sort::Data(self.store(Declaration::Datatype {
                         constructors: vec![Constructor {
-                            name: n.clone(),
+                            name: constructor_label(self.program,n)?,
                             fields,
                         }],
                     })?)
@@ -941,6 +962,20 @@ impl Lower<'_> {
 }
 impl Projection {
     pub fn derive(module: &CheckedModule) -> LangResult<Self> {
+        Ok(Self::derive_observations(module, &[])?.0)
+    }
+    /// Project source-site predicates through the same ordered execution used
+    /// for transitions. Requests select checked source nodes, never meanings.
+    pub fn derive_observations(
+        module: &CheckedModule,
+        observations: &[ValueObservation],
+    ) -> LangResult<(Self, Vec<ObservationFunction>)> {
+        Self::derive_site_observations(module,&observations.iter().cloned().map(SiteObservation::Value).collect::<Vec<_>>())
+    }
+    pub fn derive_site_observations(
+        module: &CheckedModule,
+        observations: &[SiteObservation],
+    ) -> LangResult<(Self, Vec<ObservationFunction>)> {
         let actions = CheckedActions::elaborate(module)?;
         let mut nodes = 0usize;
         for i in 0..module.program().actions.len() {
@@ -982,7 +1017,7 @@ impl Projection {
         let mut events = vec![];
         for (n, t) in &p.events {
             events.push(Constructor {
-                name: n.clone(),
+                name: constructor_label(p,n)?,
                 fields: vec![l.sort(t)?],
             });
         }
@@ -1076,6 +1111,10 @@ impl Projection {
                 },
             );
         }
+        let mut observed = vec![];
+        for observation in observations {
+            observed.push(l.site_observation(&actions, observation)?);
+        }
         let mut out = Self {
             schema: 1,
             semantics: SEMANTICS.into(),
@@ -1132,7 +1171,7 @@ impl Projection {
         if registry::canonical(&out)?.len() > crate::core::MAX_BYTES {
             return Err("action model byte limit".into());
         }
-        Ok(out)
+        Ok((out, observed))
     }
     fn reachable(&self) -> LangResult<BTreeSet<String>> {
         let mut pending = self

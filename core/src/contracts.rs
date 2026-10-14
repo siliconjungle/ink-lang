@@ -10,6 +10,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 
 mod calls;
+mod callbacks;
 pub(crate) mod facts;
 mod refinement;
 pub(crate) mod state;
@@ -17,12 +18,24 @@ pub use refinement::{check_refinement, prepare, Body, Refinement};
 pub use facts::SiteFacts;
 pub(crate) mod cells;
 pub(crate) mod collections;
+pub mod values;
 pub use state::{StateObligation, StateObligations};
 
 pub const SEMANTICS: &str = "ink-contracts-v1";
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Contracts {
+    /// Predicates on immutable nominal values, in the single `value` binder.
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub value_invariants: BTreeMap<String, Expr>,
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub value_constructors: BTreeMap<String, String>,
+    /// Fixed, raw-value validation bodies; these do not assume their inputs valid.
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub value_validators: BTreeMap<String, Type>,
+    /// Derived type obligations, authenticated again against the actual module.
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub inferred: BTreeMap<String, Specification>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub specifications: Vec<Specification>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -46,7 +59,11 @@ pub struct Contracts {
 }
 impl Contracts {
     pub fn is_empty(&self) -> bool {
-        self.specifications.is_empty()
+        self.value_invariants.is_empty()
+            && self.value_constructors.is_empty()
+            && self.value_validators.is_empty()
+            && self.inferred.is_empty()
+            && self.specifications.is_empty()
             && self.implementations.is_empty()
             && self.invariants.is_empty()
             && self.private_states.is_empty()
@@ -56,6 +73,39 @@ impl Contracts {
             && self.knowledge.is_none()
             && self.state_proofs.is_empty()
             && self.state_knowledge.is_none()
+    }
+}
+
+/// Explicit behavioural specifications and exact, source-derived value contracts
+/// use the same existing proof and ingress interfaces. Inferred contracts do not
+/// make an ordinary function eligible for specification refinement.
+pub fn specifications(p: &Program) -> Vec<Specification> {
+    let mut out = p.contracts.specifications.clone();
+    for (name, inferred) in &p.contracts.inferred {
+        if let Some(spec) = out.iter_mut().find(|s| &s.name == name) {
+            spec.requires.extend(inferred.requires.clone());
+            spec.ensures.extend(inferred.ensures.clone());
+        } else {
+            out.push(inferred.clone());
+        }
+    }
+    out
+}
+
+pub(crate) fn specification(p: &Program, name: &str) -> Option<Specification> {
+    let owner = p.contracts.implementations.iter().find(|i| i.name == name)
+        .map_or(name, |i| i.specification.as_str());
+    let explicit = p.contracts.specifications.iter().find(|s| s.name == owner);
+    let inferred = p.contracts.inferred.get(owner);
+    match (explicit, inferred) {
+        (Some(spec), Some(inferred)) => {
+            let mut spec = spec.clone();
+            spec.requires.extend(inferred.requires.clone());
+            spec.ensures.extend(inferred.ensures.clone());
+            Some(spec)
+        }
+        (Some(spec), None) | (None, Some(spec)) => Some(spec.clone()),
+        _ => None,
     }
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -105,13 +155,15 @@ fn truth() -> s::Term {
 }
 fn predicate(e: &Expr, env: &crate::check::Env, p: &Program) -> LangResult<s::Term> {
     crate::check::infer_as(e, env, p, &Type::Bool)?;
-    s::elaborate(e, env, p, &Type::Bool)
+    let term = s::elaborate(e, env, p, &Type::Bool)?;
+    if p.contracts.value_invariants.is_empty() { Ok(term) }
+    else { s::beta_normalize(&term, &mut s::Budget::new()) }
 }
 /// Pure obligations are exported verbatim for untrusted proof production.
 pub fn obligations(p: &Program) -> LangResult<Vec<Obligation>> {
     let mut out = Vec::new();
     let mut names = BTreeSet::new();
-    for spec in &p.contracts.specifications {
+    for spec in &specifications(p) {
         if !names.insert(&spec.name) || spec.ensures.is_empty() {
             return Err("duplicate specification or missing ensures clause".into());
         }
@@ -163,7 +215,7 @@ pub fn obligations(p: &Program) -> LangResult<Vec<Obligation>> {
                 });
             }
         }
-        if !p
+        if !p.contracts.inferred.contains_key(&spec.name) && !p
             .contracts
             .implementations
             .iter()
@@ -172,9 +224,7 @@ pub fn obligations(p: &Program) -> LangResult<Vec<Obligation>> {
             return Err(format!("specification {} has no implementation", spec.name));
         }
     }
-    if !p
-        .contracts
-        .specifications
+    if !specifications(p)
         .iter()
         .any(|s| s.kind.is_none() && !s.requires.is_empty())
     {
@@ -188,24 +238,17 @@ pub fn obligations(p: &Program) -> LangResult<Vec<Obligation>> {
     // Only call sites with an actual precondition need semantic proof terms.
     // Unrelated checked functions may use values outside that proof domain.
     // Each callee's own body and specification remain checked independently.
-    let guarded = p.contracts.specifications.iter()
-        .filter(|s| s.kind.is_none() && !s.requires.is_empty())
-        .flat_map(|spec| std::iter::once(spec.name.clone()).chain(
-            p.contracts.implementations.iter()
-                .filter(|i| i.specification == spec.name).map(|i| i.name.clone())))
-        .collect::<BTreeSet<_>>();
+    let mut guarded=BTreeSet::new();
+    for spec in specifications(p).into_iter().filter(|s|s.kind.is_none()&&!s.requires.is_empty()) {
+        guarded.insert(spec.name.clone());
+        guarded.extend(p.contracts.implementations.iter().filter(|i|i.specification==spec.name).map(|i|i.name.clone()));
+    }
     for f in &p.functions {
         let mut callees = BTreeSet::new();
         crate::check::calls(&f.body, &mut callees);
         if callees.is_disjoint(&guarded) { continue; }
         let env = crate::check::params_env(&f.params)?;
-        let owner = p.contracts.specifications.iter().find(|s| {
-            s.name == f.name
-                || p.contracts
-                    .implementations
-                    .iter()
-                    .any(|i| i.name == f.name && i.specification == s.name)
-        });
+        let owner = specification(p, &f.name);
         let mut conditions = if let Some(spec) = owner {
             spec.requires
                 .iter()
@@ -250,6 +293,7 @@ fn call_obligations(
     executable: &Program,
 ) -> LangResult<()> {
     let mut conditions = conditions.to_vec();
+    facts::expand_conjunctions(&mut conditions)?;
     // Postconditions are introduced only in call-site obligations. Every
     // implementation's own postconditions are checked independently above;
     // using a callee contract cannot justify that same contract circularly.
@@ -258,14 +302,7 @@ fn call_obligations(
     budget.step(path.len())?;
     if let s::Node::Op(n, args) = &t.node {
         if let Some(name) = n.strip_prefix("call:") {
-            if let Some(spec) = p.contracts.specifications.iter().find(|s| {
-                s.kind.is_none()
-                    && (s.name == name
-                        || p.contracts
-                            .implementations
-                            .iter()
-                            .any(|i| i.name == name && i.specification == s.name))
-            }) {
+            if let Some(spec) = specification(p, name).filter(|s| s.kind.is_none()) {
                 let parameters = crate::check::params_env(&spec.params)?;
                 let substitutions = spec
                     .params
@@ -292,10 +329,7 @@ fn call_obligations(
         let s::Sort::Arrow(input, _) = &t.sort else {
             return Err("invalid contract binder".into());
         };
-        let mut n = format!("__contract_binder_{}", scope.len());
-        while local.contains_key(&n) {
-            n.push('_');
-        }
+        let n = callbacks::binder_name(&local, scope.len());
         local.insert(n.clone(), (**input).clone());
         scope.push((n, (**input).clone()));
     }
@@ -308,15 +342,15 @@ fn call_obligations(
                 _ => None,
             };
             if let Some(v) = flag {
-                facts.push(Equation {
-                    from: s::open_scope(&args[0], &scope, budget)?,
-                    to: s::term(s::value(Type::Bool), s::Node::Bool(v)),
-                });
+                let condition = s::open_scope(&args[0], &scope, budget)?;
+                facts.push(if v { assertion(condition) } else { Equation {
+                    from: condition,
+                    to: s::term(s::value(Type::Bool), s::Node::Bool(false)),
+                }});
             }
             if n == "apply" && i == 0 && args.len() == 2 {
                 if let (s::Node::Lambda(_), s::Sort::Arrow(parameter, _)) = (&args[0].node, &args[0].sort) {
-                    let mut name = format!("__contract_binder_{}", scope.len());
-                    while local.contains_key(&name) { name.push('_') }
+                    let name = callbacks::binder_name(&local, scope.len());
                     facts.push(Equation {
                         from: s::free((**parameter).clone(), &name),
                         to: s::open_scope(&args[1], &scope, budget)?,
@@ -325,17 +359,70 @@ fn call_obligations(
             }
         }
         path.push(i);
+        let start = out.len();
         call_obligations(child, p, &local, &facts, &scope, owner, path, out, budget, catalogue, executable)?;
         path.pop();
+        callbacks::lift(t, i, &local, &conditions, &scope, &mut out[start..], budget,
+            catalogue, executable)?;
     }
     Ok(())
 }
+
+/// Shared pure-expression call obligations for readonly computation inside an
+/// action. State observations are supplied as typed free values by the action
+/// walker; this grants no state invariant or fact across a mutation.
+fn expression_obligations(
+    p: &Program,
+    e: &Expr,
+    env: &crate::check::Env,
+    facts: &[Expr],
+) -> LangResult<Vec<Obligation>> {
+    let ty = crate::check::infer(e, env, p)?;
+    let term = s::elaborate(e, env, p, &ty)?;
+    let mut conditions = facts
+        .iter()
+        .map(|e| Ok(assertion(predicate(e, env, p)?)))
+        .collect::<LangResult<Vec<_>>>()?;
+    facts::expand_conjunctions(&mut conditions)?;
+    let semantic_env = env
+        .iter()
+        .map(|(n, t)| (n.clone(), s::value(t.clone())))
+        .collect();
+    let mut executable = p.clone();
+    executable.contracts = Contracts::default();
+    let catalogue = CheckedCatalogue::check(
+        &Catalogue {
+            schema: 1,
+            semantics: laws::SEMANTICS.into(),
+            roots: vec![],
+            objects: BTreeMap::new(),
+        },
+        &executable,
+    )?;
+    let mut out = vec![];
+    call_obligations(
+        &term,
+        p,
+        &semantic_env,
+        &conditions,
+        &[],
+        "expression",
+        &mut vec![],
+        &mut out,
+        &mut s::Budget::new(),
+        &catalogue,
+        &executable,
+    )?;
+    Ok(out)
+}
+
 pub fn check(module: &CheckedModule) -> LangResult<()> {
     let p = module.program();
     let c = &p.contracts;
     if c.is_empty() {
         return Ok(());
     }
+    values::check(p)?;
     if c.specifications.len() + c.implementations.len() + c.invariants.len() > 256
         || c.proofs.len() > 4096
         || c.state_proofs.len() > 4096
@@ -382,7 +469,7 @@ pub fn check(module: &CheckedModule) -> LangResult<()> {
         }
     }
     let mut expected_checks = BTreeSet::new();
-    for spec in &c.specifications {
+    for spec in &specifications(p) {
         if spec.requires.is_empty() {
             continue;
         }
@@ -478,9 +565,7 @@ pub fn check(module: &CheckedModule) -> LangResult<()> {
 
 pub fn needs_state(program: &Program) -> LangResult<bool> {
     Ok(!program.contracts.invariants.is_empty()
-        || program
-            .contracts
-            .specifications
+        || specifications(program)
             .iter()
             .any(|s| s.kind.is_some())
         || !calls::actions(program)?.is_empty())
@@ -564,7 +649,7 @@ pub(crate) fn install_guards(p: &mut Program) -> LangResult<()> {
         });
         p.contracts.invariant_checks.push(name);
     }
-    for (i, spec) in p.contracts.specifications.clone().iter().enumerate() {
+    for (i, spec) in specifications(p).iter().enumerate() {
         if spec.requires.is_empty() {
             continue;
         }
@@ -623,42 +708,92 @@ pub fn check_proof(
     proof: serde_json::Value,
     bundle: Option<&crate::registry::Bundle>,
 ) -> LangResult<()> {
-    if let Some(g) = obligations(p)?.into_iter().find(|g| g.name == name) {
-        let catalogue = if let Some(b) = bundle {
-            crate::registry::CheckedBundle::check(b)?.catalogue()?
-        } else {
-            Catalogue {
+    ProofContext::new(p)?.check(name, proof, bundle)
+}
+
+/// An immutable source context for repeated authoring attempts. Its executable
+/// structure and source-derived obligations are reused; every proposed proof
+/// and dependency bundle is still checked independently. This does not admit
+/// the source contracts or make the original program executable.
+pub struct ProofContext {
+    source: Program,
+    executable: CheckedModule,
+    pure: BTreeMap<String, Obligation>,
+    empty_catalogue: CheckedCatalogue,
+    state: Option<StateObligations>,
+}
+impl ProofContext {
+    pub fn new(p: &Program) -> LangResult<Self> {
+        let pure = obligations(p)?
+            .into_iter()
+            .map(|g| (g.name.clone(), g))
+            .collect();
+        let mut executable = p.clone();
+        executable.contracts = Contracts::default();
+        let executable = CheckedModule::from_source(executable)?;
+        let empty_catalogue = CheckedCatalogue::check(
+            &Catalogue {
                 schema: 1,
                 semantics: laws::SEMANTICS.into(),
                 roots: vec![],
                 objects: BTreeMap::new(),
-            }
-        };
-        let mut executable = p.clone();
-        executable.contracts = Contracts::default();
-        let laws = CheckedCatalogue::check(&catalogue, &executable)?;
-        return laws.prove(
-            &executable,
+            },
+            executable.program(),
+        )?;
+        Ok(Self {
+            source: p.clone(),
+            executable,
+            pure,
+            empty_catalogue,
+            state: None,
+        })
+    }
+    pub fn source_identity(&self) -> LangResult<String> {
+        subject_identity(&self.source)
+    }
+    pub fn check(
+        &mut self,
+        name: &str,
+        proof: serde_json::Value,
+        bundle: Option<&crate::registry::Bundle>,
+    ) -> LangResult<()> {
+        if let Some(g) = self.pure.get(name) {
+            let catalogue = if let Some(b) = bundle {
+                Some(crate::registry::CheckedBundle::check(b)?.catalogue()?)
+            } else {
+                None
+            };
+            let checked = catalogue
+                .as_ref()
+                .map(|c| CheckedCatalogue::check(c, self.executable.program()))
+                .transpose()?;
+            let laws = checked.as_ref().unwrap_or(&self.empty_catalogue);
+            return laws.prove(
+                self.executable.program(),
+                &g.params,
+                &g.conditions,
+                &g.goal,
+                &serde_json::from_value(proof).map_err(|e| e.to_string())?,
+                &mut s::Budget::new(),
+                0,
+            );
+        }
+        if self.state.is_none() {
+            self.state = Some(state::derive(&self.source)?);
+        }
+        let derived = self.state.as_ref().expect("derived state context");
+        let cx = state::context(derived, bundle)?;
+        let g = derived
+            .obligations
+            .iter()
+            .find(|g| g.name == name)
+            .ok_or("unknown contract obligation")?;
+        cx.check(
             &g.params,
             &g.conditions,
-            &g.goal,
+            &g.goal.from,
+            &g.goal.to,
             &serde_json::from_value(proof).map_err(|e| e.to_string())?,
-            &mut s::Budget::new(),
-            0,
-        );
+        )
     }
-    let derived = state::derive(p)?;
-    let cx = state::context(&derived, bundle)?;
-    let g = derived
-        .obligations
-        .iter()
-        .find(|g| g.name == name)
-        .ok_or("unknown contract obligation")?;
-    cx.check(
-        &g.params,
-        &g.conditions,
-        &g.goal.from,
-        &g.goal.to,
-        &serde_json::from_value(proof).map_err(|e| e.to_string())?,
-    )
 }

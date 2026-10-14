@@ -69,6 +69,13 @@ pub fn validate(t: &Term, p: &Program) -> LangResult<bool> {
             if matches!(receiver_ty, Type::Buffer(_) | Type::Map(..)) {
                 crate::statecheck::validate_type(receiver_ty, p)?;
                 if let Type::Buffer(inner) = receiver_ty {
+                    if name=="borrow_range" {
+                        if a.len()!=4 {return Err("borrow_range semantic arity".into());}
+                        expect(&a[1],value(Type::U32))?;expect(&a[2],value(Type::U32))?;
+                        if crate::local_collections::owned(ty(&t.sort)?,p) {return Err("borrow_range result must be immutable".into());}
+                        expect(&a[3],arrow(receiver.sort.clone(),t.sort.clone()))?;
+                        return Ok(true);
+                    }
                     if ["map", "map_indexed", "filter"].contains(&name) {
                         if a.len() != 2 {
                             return Err("buffer map arity".into());
@@ -252,6 +259,14 @@ pub fn reduce(t: &Term) -> LangResult<Option<Term>> {
     };
     let list_edit = |name: &str, args: Vec<Term>| op(args[0].sort.clone(), name, args);
     let result = match (n.as_str(), a.as_slice()) {
+        ("method:borrow_range",[owner,start,count,callback]) => {
+            let Type::Buffer(inner)=ty(&owner.sort)? else {return Err("borrow_range receiver".into());};
+            let sequence=value(Type::List(inner.clone()));
+            let rows=op(sequence.clone(),"method:freeze",vec![owner.clone()]);
+            let clipped=op(sequence.clone(),"method:take",vec![op(sequence,"method:drop",vec![rows,start.clone()]),count.clone()]);
+            let view=op(owner.sort.clone(),"call:buffer",vec![clipped]);
+            Some(op(t.sort.clone(),"apply",vec![callback.clone(),view]))
+        }
         ("local:buffer-empty", []) => {
             let Type::Buffer(inner) = ty(&t.sort)? else {
                 return Err("empty buffer".into());
