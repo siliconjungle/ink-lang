@@ -1,0 +1,2668 @@
+{
+  "schema": 1,
+  "recorded_at": "2026-10-14T13:00:56.887Z",
+  "scope": "Development scalar microbenchmarks; not application or held-out generalisation evidence",
+  "runtime": "Fixed JavaScript; compile-time proof-checked planner selection",
+  "contention": "Shared machine, as authorised. Other workloads not stopped.",
+  "load_average": [
+    12.95703125,
+    11.17041015625,
+    10.73095703125
+  ],
+  "cpu": "Apple M4 Pro",
+  "files": [
+    {
+      "name": "baseline.mjs",
+      "sha256": "33ff25bfe1932f35f49a54938a410762453f026f9a732f36eb2f7c49d046200a"
+    },
+    {
+      "name": "planned.mjs",
+      "sha256": "2958251bf0e1b6e4420c5357f45078cb4c58042a87b5068d47e656c324e81f5e"
+    }
+  ],
+  "method": "Three fresh Chrome processes, 12 warmups per case, 15 alternating-order pairs; varying unsigned inputs, consumed checksums; exported trusted-value functions. Shifted is an unchanged control.",
+  "summary": [
+    {
+      "name": "cancelled",
+      "perProcess": [
+        {
+          "processId": 0,
+          "baseline_ns": 7.87999997138977,
+          "planned_ns": 6.6,
+          "paired_speedup": 1.1945288791244684
+        },
+        {
+          "processId": 1,
+          "baseline_ns": 7.912999624364693,
+          "planned_ns": 6.539499725272836,
+          "paired_speedup": 1.2113564680632636
+        },
+        {
+          "processId": 2,
+          "baseline_ns": 7.646499646132354,
+          "planned_ns": 6.5804997332029975,
+          "paired_speedup": 1.1661442073511594
+        }
+      ],
+      "speedup": 1.1945288791244684
+    },
+    {
+      "name": "mask_join",
+      "perProcess": [
+        {
+          "processId": 0,
+          "baseline_ns": 7.8,
+          "planned_ns": 6.6,
+          "paired_speedup": 1.1715976237031969
+        },
+        {
+          "processId": 1,
+          "baseline_ns": 7.61899987479972,
+          "planned_ns": 6.402999880999908,
+          "paired_speedup": 1.1993957752890336
+        },
+        {
+          "processId": 2,
+          "baseline_ns": 7.760998671331901,
+          "planned_ns": 6.551998867563543,
+          "paired_speedup": 1.1796407109116631
+        }
+      ],
+      "speedup": 1.1796407109116631
+    },
+    {
+      "name": "bounded",
+      "perProcess": [
+        {
+          "processId": 0,
+          "baseline_ns": 8.039999961853027,
+          "planned_ns": 6.42000002861023,
+          "paired_speedup": 1.2523364370752952
+        },
+        {
+          "processId": 1,
+          "baseline_ns": 7.97999960100002,
+          "planned_ns": 6.383999650759277,
+          "paired_speedup": 1.2633333365122477
+        },
+        {
+          "processId": 2,
+          "baseline_ns": 7.9754986627618765,
+          "planned_ns": 6.493498886806865,
+          "paired_speedup": 1.225903614133376
+        }
+      ],
+      "speedup": 1.2523364370752952
+    },
+    {
+      "name": "shifted",
+      "perProcess": [
+        {
+          "processId": 0,
+          "baseline_ns": 6.894999671939317,
+          "planned_ns": 6.9299996368107175,
+          "paired_speedup": 0.9974619253094138
+        },
+        {
+          "processId": 1,
+          "baseline_ns": 6.982499667564317,
+          "planned_ns": 6.859999623621418,
+          "paired_speedup": 1.0150753684255927
+        },
+        {
+          "processId": 2,
+          "baseline_ns": 6.912499654375018,
+          "planned_ns": 6.912499654375018,
+          "paired_speedup": 1.0025380686393532
+        }
+      ],
+      "speedup": 1.0025380686393532
+    }
+  ],
+  "results": [
+    {
+      "processId": 0,
+      "rows": [
+        {
+          "name": "cancelled",
+          "round": 0,
+          "count": 5000000,
+          "first": "baseline",
+          "baseline": {
+            "ms": 38.90000009536743,
+            "checksum": 1621752322
+          },
+          "planned": {
+            "ms": 33.09999990463257,
+            "checksum": 1621752322
+          }
+        },
+        {
+          "name": "cancelled",
+          "round": 1,
+          "count": 5000000,
+          "first": "planned",
+          "planned": {
+            "ms": 33.200000047683716,
+            "checksum": 1621752322
+          },
+          "baseline": {
+            "ms": 39.90000009536743,
+            "checksum": 1621752322
+          }
+        },
+        {
+          "name": "cancelled",
+          "round": 2,
+          "count": 5000000,
+          "first": "baseline",
+          "baseline": {
+            "ms": 39.5,
+            "checksum": 1621752322
+          },
+          "planned": {
+            "ms": 33,
+            "checksum": 1621752322
+          }
+        },
+        {
+          "name": "cancelled",
+          "round": 3,
+          "count": 5000000,
+          "first": "planned",
+          "planned": {
+            "ms": 33,
+            "checksum": 1621752322
+          },
+          "baseline": {
+            "ms": 39.5,
+            "checksum": 1621752322
+          }
+        },
+        {
+          "name": "cancelled",
+          "round": 4,
+          "count": 5000000,
+          "first": "baseline",
+          "baseline": {
+            "ms": 39.39999985694885,
+            "checksum": 1621752322
+          },
+          "planned": {
+            "ms": 33.30000019073486,
+            "checksum": 1621752322
+          }
+        },
+        {
+          "name": "cancelled",
+          "round": 5,
+          "count": 5000000,
+          "first": "planned",
+          "planned": {
+            "ms": 32.69999980926514,
+            "checksum": 1621752322
+          },
+          "baseline": {
+            "ms": 39.700000047683716,
+            "checksum": 1621752322
+          }
+        },
+        {
+          "name": "cancelled",
+          "round": 6,
+          "count": 5000000,
+          "first": "baseline",
+          "baseline": {
+            "ms": 39.40000009536743,
+            "checksum": 1621752322
+          },
+          "planned": {
+            "ms": 33.09999990463257,
+            "checksum": 1621752322
+          }
+        },
+        {
+          "name": "cancelled",
+          "round": 7,
+          "count": 5000000,
+          "first": "planned",
+          "planned": {
+            "ms": 32.90000009536743,
+            "checksum": 1621752322
+          },
+          "baseline": {
+            "ms": 39.200000047683716,
+            "checksum": 1621752322
+          }
+        },
+        {
+          "name": "cancelled",
+          "round": 8,
+          "count": 5000000,
+          "first": "baseline",
+          "baseline": {
+            "ms": 39.19999980926514,
+            "checksum": 1621752322
+          },
+          "planned": {
+            "ms": 32.80000019073486,
+            "checksum": 1621752322
+          }
+        },
+        {
+          "name": "cancelled",
+          "round": 9,
+          "count": 5000000,
+          "first": "planned",
+          "planned": {
+            "ms": 33,
+            "checksum": 1621752322
+          },
+          "baseline": {
+            "ms": 39.299999952316284,
+            "checksum": 1621752322
+          }
+        },
+        {
+          "name": "cancelled",
+          "round": 10,
+          "count": 5000000,
+          "first": "baseline",
+          "baseline": {
+            "ms": 39.59999990463257,
+            "checksum": 1621752322
+          },
+          "planned": {
+            "ms": 33.10000014305115,
+            "checksum": 1621752322
+          }
+        },
+        {
+          "name": "cancelled",
+          "round": 11,
+          "count": 5000000,
+          "first": "planned",
+          "planned": {
+            "ms": 32.89999985694885,
+            "checksum": 1621752322
+          },
+          "baseline": {
+            "ms": 39.299999952316284,
+            "checksum": 1621752322
+          }
+        },
+        {
+          "name": "cancelled",
+          "round": 12,
+          "count": 5000000,
+          "first": "baseline",
+          "baseline": {
+            "ms": 38.5,
+            "checksum": 1621752322
+          },
+          "planned": {
+            "ms": 33.200000047683716,
+            "checksum": 1621752322
+          }
+        },
+        {
+          "name": "cancelled",
+          "round": 13,
+          "count": 5000000,
+          "first": "planned",
+          "planned": {
+            "ms": 35,
+            "checksum": 1621752322
+          },
+          "baseline": {
+            "ms": 38.5,
+            "checksum": 1621752322
+          }
+        },
+        {
+          "name": "cancelled",
+          "round": 14,
+          "count": 5000000,
+          "first": "baseline",
+          "baseline": {
+            "ms": 39.5,
+            "checksum": 1621752322
+          },
+          "planned": {
+            "ms": 32.90000009536743,
+            "checksum": 1621752322
+          }
+        },
+        {
+          "name": "mask_join",
+          "round": 0,
+          "count": 5000000,
+          "first": "baseline",
+          "baseline": {
+            "ms": 39.60000014305115,
+            "checksum": 3411425435
+          },
+          "planned": {
+            "ms": 32.59999990463257,
+            "checksum": 3411425435
+          }
+        },
+        {
+          "name": "mask_join",
+          "round": 1,
+          "count": 5000000,
+          "first": "planned",
+          "planned": {
+            "ms": 32.5,
+            "checksum": 3411425435
+          },
+          "baseline": {
+            "ms": 39.40000009536743,
+            "checksum": 3411425435
+          }
+        },
+        {
+          "name": "mask_join",
+          "round": 2,
+          "count": 5000000,
+          "first": "baseline",
+          "baseline": {
+            "ms": 39,
+            "checksum": 3411425435
+          },
+          "planned": {
+            "ms": 32.700000047683716,
+            "checksum": 3411425435
+          }
+        },
+        {
+          "name": "mask_join",
+          "round": 3,
+          "count": 5000000,
+          "first": "planned",
+          "planned": {
+            "ms": 32.59999990463257,
+            "checksum": 3411425435
+          },
+          "baseline": {
+            "ms": 38.09999990463257,
+            "checksum": 3411425435
+          }
+        },
+        {
+          "name": "mask_join",
+          "round": 4,
+          "count": 5000000,
+          "first": "baseline",
+          "baseline": {
+            "ms": 38.10000014305115,
+            "checksum": 3411425435
+          },
+          "planned": {
+            "ms": 32.299999952316284,
+            "checksum": 3411425435
+          }
+        },
+        {
+          "name": "mask_join",
+          "round": 5,
+          "count": 5000000,
+          "first": "planned",
+          "planned": {
+            "ms": 32.700000047683716,
+            "checksum": 3411425435
+          },
+          "baseline": {
+            "ms": 37.799999952316284,
+            "checksum": 3411425435
+          }
+        },
+        {
+          "name": "mask_join",
+          "round": 6,
+          "count": 5000000,
+          "first": "baseline",
+          "baseline": {
+            "ms": 39.59999990463257,
+            "checksum": 3411425435
+          },
+          "planned": {
+            "ms": 33.80000019073486,
+            "checksum": 3411425435
+          }
+        },
+        {
+          "name": "mask_join",
+          "round": 7,
+          "count": 5000000,
+          "first": "planned",
+          "planned": {
+            "ms": 33.89999985694885,
+            "checksum": 3411425435
+          },
+          "baseline": {
+            "ms": 40,
+            "checksum": 3411425435
+          }
+        },
+        {
+          "name": "mask_join",
+          "round": 8,
+          "count": 5000000,
+          "first": "baseline",
+          "baseline": {
+            "ms": 41.39999985694885,
+            "checksum": 3411425435
+          },
+          "planned": {
+            "ms": 34,
+            "checksum": 3411425435
+          }
+        },
+        {
+          "name": "mask_join",
+          "round": 9,
+          "count": 5000000,
+          "first": "planned",
+          "planned": {
+            "ms": 33.40000009536743,
+            "checksum": 3411425435
+          },
+          "baseline": {
+            "ms": 38.09999990463257,
+            "checksum": 3411425435
+          }
+        },
+        {
+          "name": "mask_join",
+          "round": 10,
+          "count": 5000000,
+          "first": "baseline",
+          "baseline": {
+            "ms": 39.299999952316284,
+            "checksum": 3411425435
+          },
+          "planned": {
+            "ms": 33.40000009536743,
+            "checksum": 3411425435
+          }
+        },
+        {
+          "name": "mask_join",
+          "round": 11,
+          "count": 5000000,
+          "first": "planned",
+          "planned": {
+            "ms": 33,
+            "checksum": 3411425435
+          },
+          "baseline": {
+            "ms": 38.59999990463257,
+            "checksum": 3411425435
+          }
+        },
+        {
+          "name": "mask_join",
+          "round": 12,
+          "count": 5000000,
+          "first": "baseline",
+          "baseline": {
+            "ms": 38.40000009536743,
+            "checksum": 3411425435
+          },
+          "planned": {
+            "ms": 33.09999990463257,
+            "checksum": 3411425435
+          }
+        },
+        {
+          "name": "mask_join",
+          "round": 13,
+          "count": 5000000,
+          "first": "planned",
+          "planned": {
+            "ms": 33.80000019073486,
+            "checksum": 3411425435
+          },
+          "baseline": {
+            "ms": 39.19999980926514,
+            "checksum": 3411425435
+          }
+        },
+        {
+          "name": "mask_join",
+          "round": 14,
+          "count": 5000000,
+          "first": "baseline",
+          "baseline": {
+            "ms": 38.40000009536743,
+            "checksum": 3411425435
+          },
+          "planned": {
+            "ms": 32.90000009536743,
+            "checksum": 3411425435
+          }
+        },
+        {
+          "name": "bounded",
+          "round": 0,
+          "count": 5000000,
+          "first": "baseline",
+          "baseline": {
+            "ms": 38.90000009536743,
+            "checksum": 5000000
+          },
+          "planned": {
+            "ms": 32,
+            "checksum": 5000000
+          }
+        },
+        {
+          "name": "bounded",
+          "round": 1,
+          "count": 5000000,
+          "first": "planned",
+          "planned": {
+            "ms": 32.5,
+            "checksum": 5000000
+          },
+          "baseline": {
+            "ms": 40.09999990463257,
+            "checksum": 5000000
+          }
+        },
+        {
+          "name": "bounded",
+          "round": 2,
+          "count": 5000000,
+          "first": "baseline",
+          "baseline": {
+            "ms": 40.19999980926514,
+            "checksum": 5000000
+          },
+          "planned": {
+            "ms": 32.10000014305115,
+            "checksum": 5000000
+          }
+        },
+        {
+          "name": "bounded",
+          "round": 3,
+          "count": 5000000,
+          "first": "planned",
+          "planned": {
+            "ms": 32.39999985694885,
+            "checksum": 5000000
+          },
+          "baseline": {
+            "ms": 40.5,
+            "checksum": 5000000
+          }
+        },
+        {
+          "name": "bounded",
+          "round": 4,
+          "count": 5000000,
+          "first": "baseline",
+          "baseline": {
+            "ms": 40.40000009536743,
+            "checksum": 5000000
+          },
+          "planned": {
+            "ms": 32.09999990463257,
+            "checksum": 5000000
+          }
+        },
+        {
+          "name": "bounded",
+          "round": 5,
+          "count": 5000000,
+          "first": "planned",
+          "planned": {
+            "ms": 32.200000047683716,
+            "checksum": 5000000
+          },
+          "baseline": {
+            "ms": 40.5,
+            "checksum": 5000000
+          }
+        },
+        {
+          "name": "bounded",
+          "round": 6,
+          "count": 5000000,
+          "first": "baseline",
+          "baseline": {
+            "ms": 39.299999952316284,
+            "checksum": 5000000
+          },
+          "planned": {
+            "ms": 32.5,
+            "checksum": 5000000
+          }
+        },
+        {
+          "name": "bounded",
+          "round": 7,
+          "count": 5000000,
+          "first": "planned",
+          "planned": {
+            "ms": 31.899999856948853,
+            "checksum": 5000000
+          },
+          "baseline": {
+            "ms": 40,
+            "checksum": 5000000
+          }
+        },
+        {
+          "name": "bounded",
+          "round": 8,
+          "count": 5000000,
+          "first": "baseline",
+          "baseline": {
+            "ms": 40.200000047683716,
+            "checksum": 5000000
+          },
+          "planned": {
+            "ms": 32.59999990463257,
+            "checksum": 5000000
+          }
+        },
+        {
+          "name": "bounded",
+          "round": 9,
+          "count": 5000000,
+          "first": "planned",
+          "planned": {
+            "ms": 32.09999990463257,
+            "checksum": 5000000
+          },
+          "baseline": {
+            "ms": 40.30000019073486,
+            "checksum": 5000000
+          }
+        },
+        {
+          "name": "bounded",
+          "round": 10,
+          "count": 5000000,
+          "first": "baseline",
+          "baseline": {
+            "ms": 40.799999952316284,
+            "checksum": 5000000
+          },
+          "planned": {
+            "ms": 32,
+            "checksum": 5000000
+          }
+        },
+        {
+          "name": "bounded",
+          "round": 11,
+          "count": 5000000,
+          "first": "planned",
+          "planned": {
+            "ms": 32.200000047683716,
+            "checksum": 5000000
+          },
+          "baseline": {
+            "ms": 40.39999985694885,
+            "checksum": 5000000
+          }
+        },
+        {
+          "name": "bounded",
+          "round": 12,
+          "count": 5000000,
+          "first": "baseline",
+          "baseline": {
+            "ms": 40.10000014305115,
+            "checksum": 5000000
+          },
+          "planned": {
+            "ms": 32,
+            "checksum": 5000000
+          }
+        },
+        {
+          "name": "bounded",
+          "round": 13,
+          "count": 5000000,
+          "first": "planned",
+          "planned": {
+            "ms": 32.40000009536743,
+            "checksum": 5000000
+          },
+          "baseline": {
+            "ms": 39.799999952316284,
+            "checksum": 5000000
+          }
+        },
+        {
+          "name": "bounded",
+          "round": 14,
+          "count": 5000000,
+          "first": "baseline",
+          "baseline": {
+            "ms": 39.799999952316284,
+            "checksum": 5000000
+          },
+          "planned": {
+            "ms": 32,
+            "checksum": 5000000
+          }
+        },
+        {
+          "name": "shifted",
+          "round": 0,
+          "count": 5714286,
+          "first": "baseline",
+          "baseline": {
+            "ms": 38.700000047683716,
+            "checksum": 1372721916
+          },
+          "planned": {
+            "ms": 39.40000009536743,
+            "checksum": 1372721916
+          }
+        },
+        {
+          "name": "shifted",
+          "round": 1,
+          "count": 5714286,
+          "first": "planned",
+          "planned": {
+            "ms": 39.59999990463257,
+            "checksum": 1372721916
+          },
+          "baseline": {
+            "ms": 40,
+            "checksum": 1372721916
+          }
+        },
+        {
+          "name": "shifted",
+          "round": 2,
+          "count": 5714286,
+          "first": "baseline",
+          "baseline": {
+            "ms": 39.299999952316284,
+            "checksum": 1372721916
+          },
+          "planned": {
+            "ms": 40,
+            "checksum": 1372721916
+          }
+        },
+        {
+          "name": "shifted",
+          "round": 3,
+          "count": 5714286,
+          "first": "planned",
+          "planned": {
+            "ms": 39.799999952316284,
+            "checksum": 1372721916
+          },
+          "baseline": {
+            "ms": 38.90000009536743,
+            "checksum": 1372721916
+          }
+        },
+        {
+          "name": "shifted",
+          "round": 4,
+          "count": 5714286,
+          "first": "baseline",
+          "baseline": {
+            "ms": 38.90000009536743,
+            "checksum": 1372721916
+          },
+          "planned": {
+            "ms": 39.39999985694885,
+            "checksum": 1372721916
+          }
+        },
+        {
+          "name": "shifted",
+          "round": 5,
+          "count": 5714286,
+          "first": "planned",
+          "planned": {
+            "ms": 39.40000009536743,
+            "checksum": 1372721916
+          },
+          "baseline": {
+            "ms": 39.299999952316284,
+            "checksum": 1372721916
+          }
+        },
+        {
+          "name": "shifted",
+          "round": 6,
+          "count": 5714286,
+          "first": "baseline",
+          "baseline": {
+            "ms": 39.200000047683716,
+            "checksum": 1372721916
+          },
+          "planned": {
+            "ms": 40.200000047683716,
+            "checksum": 1372721916
+          }
+        },
+        {
+          "name": "shifted",
+          "round": 7,
+          "count": 5714286,
+          "first": "planned",
+          "planned": {
+            "ms": 39.5,
+            "checksum": 1372721916
+          },
+          "baseline": {
+            "ms": 39.700000047683716,
+            "checksum": 1372721916
+          }
+        },
+        {
+          "name": "shifted",
+          "round": 8,
+          "count": 5714286,
+          "first": "baseline",
+          "baseline": {
+            "ms": 39,
+            "checksum": 1372721916
+          },
+          "planned": {
+            "ms": 40.39999985694885,
+            "checksum": 1372721916
+          }
+        },
+        {
+          "name": "shifted",
+          "round": 9,
+          "count": 5714286,
+          "first": "planned",
+          "planned": {
+            "ms": 40.40000009536743,
+            "checksum": 1372721916
+          },
+          "baseline": {
+            "ms": 40.200000047683716,
+            "checksum": 1372721916
+          }
+        },
+        {
+          "name": "shifted",
+          "round": 10,
+          "count": 5714286,
+          "first": "baseline",
+          "baseline": {
+            "ms": 39.40000009536743,
+            "checksum": 1372721916
+          },
+          "planned": {
+            "ms": 39.39999985694885,
+            "checksum": 1372721916
+          }
+        },
+        {
+          "name": "shifted",
+          "round": 11,
+          "count": 5714286,
+          "first": "planned",
+          "planned": {
+            "ms": 39.10000014305115,
+            "checksum": 1372721916
+          },
+          "baseline": {
+            "ms": 39.59999990463257,
+            "checksum": 1372721916
+          }
+        },
+        {
+          "name": "shifted",
+          "round": 12,
+          "count": 5714286,
+          "first": "baseline",
+          "baseline": {
+            "ms": 39.700000047683716,
+            "checksum": 1372721916
+          },
+          "planned": {
+            "ms": 39.59999990463257,
+            "checksum": 1372721916
+          }
+        },
+        {
+          "name": "shifted",
+          "round": 13,
+          "count": 5714286,
+          "first": "planned",
+          "planned": {
+            "ms": 39.700000047683716,
+            "checksum": 1372721916
+          },
+          "baseline": {
+            "ms": 40.700000047683716,
+            "checksum": 1372721916
+          }
+        },
+        {
+          "name": "shifted",
+          "round": 14,
+          "count": 5714286,
+          "first": "baseline",
+          "baseline": {
+            "ms": 40.40000009536743,
+            "checksum": 1372721916
+          },
+          "planned": {
+            "ms": 40.09999990463257,
+            "checksum": 1372721916
+          }
+        }
+      ],
+      "checks": 16384,
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
+      "browserVersion": "155.0.8059.41"
+    },
+    {
+      "processId": 1,
+      "rows": [
+        {
+          "name": "cancelled",
+          "round": 0,
+          "count": 4878049,
+          "first": "planned",
+          "planned": {
+            "ms": 31.799999952316284,
+            "checksum": 1143801388
+          },
+          "baseline": {
+            "ms": 38.5,
+            "checksum": 1143801388
+          }
+        },
+        {
+          "name": "cancelled",
+          "round": 1,
+          "count": 4878049,
+          "first": "baseline",
+          "baseline": {
+            "ms": 38.5,
+            "checksum": 1143801388
+          },
+          "planned": {
+            "ms": 31.59999990463257,
+            "checksum": 1143801388
+          }
+        },
+        {
+          "name": "cancelled",
+          "round": 2,
+          "count": 4878049,
+          "first": "planned",
+          "planned": {
+            "ms": 31.700000047683716,
+            "checksum": 1143801388
+          },
+          "baseline": {
+            "ms": 38.40000009536743,
+            "checksum": 1143801388
+          }
+        },
+        {
+          "name": "cancelled",
+          "round": 3,
+          "count": 4878049,
+          "first": "baseline",
+          "baseline": {
+            "ms": 38.299999952316284,
+            "checksum": 1143801388
+          },
+          "planned": {
+            "ms": 31.399999856948853,
+            "checksum": 1143801388
+          }
+        },
+        {
+          "name": "cancelled",
+          "round": 4,
+          "count": 4878049,
+          "first": "planned",
+          "planned": {
+            "ms": 31.90000009536743,
+            "checksum": 1143801388
+          },
+          "baseline": {
+            "ms": 39.299999952316284,
+            "checksum": 1143801388
+          }
+        },
+        {
+          "name": "cancelled",
+          "round": 5,
+          "count": 4878049,
+          "first": "baseline",
+          "baseline": {
+            "ms": 38.59999990463257,
+            "checksum": 1143801388
+          },
+          "planned": {
+            "ms": 32.10000014305115,
+            "checksum": 1143801388
+          }
+        },
+        {
+          "name": "cancelled",
+          "round": 6,
+          "count": 4878049,
+          "first": "planned",
+          "planned": {
+            "ms": 34,
+            "checksum": 1143801388
+          },
+          "baseline": {
+            "ms": 39.700000047683716,
+            "checksum": 1143801388
+          }
+        },
+        {
+          "name": "cancelled",
+          "round": 7,
+          "count": 4878049,
+          "first": "baseline",
+          "baseline": {
+            "ms": 38.39999985694885,
+            "checksum": 1143801388
+          },
+          "planned": {
+            "ms": 31.5,
+            "checksum": 1143801388
+          }
+        },
+        {
+          "name": "cancelled",
+          "round": 8,
+          "count": 4878049,
+          "first": "planned",
+          "planned": {
+            "ms": 31.199999809265137,
+            "checksum": 1143801388
+          },
+          "baseline": {
+            "ms": 38.10000014305115,
+            "checksum": 1143801388
+          }
+        },
+        {
+          "name": "cancelled",
+          "round": 9,
+          "count": 4878049,
+          "first": "baseline",
+          "baseline": {
+            "ms": 38.200000047683716,
+            "checksum": 1143801388
+          },
+          "planned": {
+            "ms": 32.09999990463257,
+            "checksum": 1143801388
+          }
+        },
+        {
+          "name": "cancelled",
+          "round": 10,
+          "count": 4878049,
+          "first": "planned",
+          "planned": {
+            "ms": 32.799999952316284,
+            "checksum": 1143801388
+          },
+          "baseline": {
+            "ms": 39.700000047683716,
+            "checksum": 1143801388
+          }
+        },
+        {
+          "name": "cancelled",
+          "round": 11,
+          "count": 4878049,
+          "first": "baseline",
+          "baseline": {
+            "ms": 39.09999990463257,
+            "checksum": 1143801388
+          },
+          "planned": {
+            "ms": 31.90000009536743,
+            "checksum": 1143801388
+          }
+        },
+        {
+          "name": "cancelled",
+          "round": 12,
+          "count": 4878049,
+          "first": "planned",
+          "planned": {
+            "ms": 32.40000009536743,
+            "checksum": 1143801388
+          },
+          "baseline": {
+            "ms": 39.19999980926514,
+            "checksum": 1143801388
+          }
+        },
+        {
+          "name": "cancelled",
+          "round": 13,
+          "count": 4878049,
+          "first": "baseline",
+          "baseline": {
+            "ms": 39.10000014305115,
+            "checksum": 1143801388
+          },
+          "planned": {
+            "ms": 32,
+            "checksum": 1143801388
+          }
+        },
+        {
+          "name": "cancelled",
+          "round": 14,
+          "count": 4878049,
+          "first": "planned",
+          "planned": {
+            "ms": 32.299999952316284,
+            "checksum": 1143801388
+          },
+          "baseline": {
+            "ms": 39,
+            "checksum": 1143801388
+          }
+        },
+        {
+          "name": "mask_join",
+          "round": 0,
+          "count": 5263158,
+          "first": "planned",
+          "planned": {
+            "ms": 33.39999985694885,
+            "checksum": 270705637
+          },
+          "baseline": {
+            "ms": 40,
+            "checksum": 270705637
+          }
+        },
+        {
+          "name": "mask_join",
+          "round": 1,
+          "count": 5263158,
+          "first": "baseline",
+          "baseline": {
+            "ms": 41.700000047683716,
+            "checksum": 270705637
+          },
+          "planned": {
+            "ms": 33.700000047683716,
+            "checksum": 270705637
+          }
+        },
+        {
+          "name": "mask_join",
+          "round": 2,
+          "count": 5263158,
+          "first": "planned",
+          "planned": {
+            "ms": 33.700000047683716,
+            "checksum": 270705637
+          },
+          "baseline": {
+            "ms": 41.299999952316284,
+            "checksum": 270705637
+          }
+        },
+        {
+          "name": "mask_join",
+          "round": 3,
+          "count": 5263158,
+          "first": "baseline",
+          "baseline": {
+            "ms": 39.799999952316284,
+            "checksum": 270705637
+          },
+          "planned": {
+            "ms": 33.700000047683716,
+            "checksum": 270705637
+          }
+        },
+        {
+          "name": "mask_join",
+          "round": 4,
+          "count": 5263158,
+          "first": "planned",
+          "planned": {
+            "ms": 33.39999985694885,
+            "checksum": 270705637
+          },
+          "baseline": {
+            "ms": 39.80000019073486,
+            "checksum": 270705637
+          }
+        },
+        {
+          "name": "mask_join",
+          "round": 5,
+          "count": 5263158,
+          "first": "baseline",
+          "baseline": {
+            "ms": 39.59999990463257,
+            "checksum": 270705637
+          },
+          "planned": {
+            "ms": 33.299999952316284,
+            "checksum": 270705637
+          }
+        },
+        {
+          "name": "mask_join",
+          "round": 6,
+          "count": 5263158,
+          "first": "planned",
+          "planned": {
+            "ms": 33.299999952316284,
+            "checksum": 270705637
+          },
+          "baseline": {
+            "ms": 40.30000019073486,
+            "checksum": 270705637
+          }
+        },
+        {
+          "name": "mask_join",
+          "round": 7,
+          "count": 5263158,
+          "first": "baseline",
+          "baseline": {
+            "ms": 41.39999985694885,
+            "checksum": 270705637
+          },
+          "planned": {
+            "ms": 33.40000009536743,
+            "checksum": 270705637
+          }
+        },
+        {
+          "name": "mask_join",
+          "round": 8,
+          "count": 5263158,
+          "first": "planned",
+          "planned": {
+            "ms": 34.700000047683716,
+            "checksum": 270705637
+          },
+          "baseline": {
+            "ms": 39.90000009536743,
+            "checksum": 270705637
+          }
+        },
+        {
+          "name": "mask_join",
+          "round": 9,
+          "count": 5263158,
+          "first": "baseline",
+          "baseline": {
+            "ms": 41.19999980926514,
+            "checksum": 270705637
+          },
+          "planned": {
+            "ms": 33.700000047683716,
+            "checksum": 270705637
+          }
+        },
+        {
+          "name": "mask_join",
+          "round": 10,
+          "count": 5263158,
+          "first": "planned",
+          "planned": {
+            "ms": 33.09999990463257,
+            "checksum": 270705637
+          },
+          "baseline": {
+            "ms": 39.700000047683716,
+            "checksum": 270705637
+          }
+        },
+        {
+          "name": "mask_join",
+          "round": 11,
+          "count": 5263158,
+          "first": "baseline",
+          "baseline": {
+            "ms": 39.799999952316284,
+            "checksum": 270705637
+          },
+          "planned": {
+            "ms": 34.40000009536743,
+            "checksum": 270705637
+          }
+        },
+        {
+          "name": "mask_join",
+          "round": 12,
+          "count": 5263158,
+          "first": "planned",
+          "planned": {
+            "ms": 34.69999980926514,
+            "checksum": 270705637
+          },
+          "baseline": {
+            "ms": 40.10000014305115,
+            "checksum": 270705637
+          }
+        },
+        {
+          "name": "mask_join",
+          "round": 13,
+          "count": 5263158,
+          "first": "baseline",
+          "baseline": {
+            "ms": 41.89999985694885,
+            "checksum": 270705637
+          },
+          "planned": {
+            "ms": 34.5,
+            "checksum": 270705637
+          }
+        },
+        {
+          "name": "mask_join",
+          "round": 14,
+          "count": 5263158,
+          "first": "planned",
+          "planned": {
+            "ms": 34.80000019073486,
+            "checksum": 270705637
+          },
+          "baseline": {
+            "ms": 42.799999952316284,
+            "checksum": 270705637
+          }
+        },
+        {
+          "name": "bounded",
+          "round": 0,
+          "count": 4761905,
+          "first": "planned",
+          "planned": {
+            "ms": 30,
+            "checksum": 4761905
+          },
+          "baseline": {
+            "ms": 39.80000019073486,
+            "checksum": 4761905
+          }
+        },
+        {
+          "name": "bounded",
+          "round": 1,
+          "count": 4761905,
+          "first": "baseline",
+          "baseline": {
+            "ms": 39.09999990463257,
+            "checksum": 4761905
+          },
+          "planned": {
+            "ms": 30.5,
+            "checksum": 4761905
+          }
+        },
+        {
+          "name": "bounded",
+          "round": 2,
+          "count": 4761905,
+          "first": "planned",
+          "planned": {
+            "ms": 30.40000009536743,
+            "checksum": 4761905
+          },
+          "baseline": {
+            "ms": 37.89999985694885,
+            "checksum": 4761905
+          }
+        },
+        {
+          "name": "bounded",
+          "round": 3,
+          "count": 4761905,
+          "first": "baseline",
+          "baseline": {
+            "ms": 37.90000009536743,
+            "checksum": 4761905
+          },
+          "planned": {
+            "ms": 30,
+            "checksum": 4761905
+          }
+        },
+        {
+          "name": "bounded",
+          "round": 4,
+          "count": 4761905,
+          "first": "planned",
+          "planned": {
+            "ms": 30.700000047683716,
+            "checksum": 4761905
+          },
+          "baseline": {
+            "ms": 37.69999980926514,
+            "checksum": 4761905
+          }
+        },
+        {
+          "name": "bounded",
+          "round": 5,
+          "count": 4761905,
+          "first": "baseline",
+          "baseline": {
+            "ms": 38,
+            "checksum": 4761905
+          },
+          "planned": {
+            "ms": 30.600000143051147,
+            "checksum": 4761905
+          }
+        },
+        {
+          "name": "bounded",
+          "round": 6,
+          "count": 4761905,
+          "first": "planned",
+          "planned": {
+            "ms": 30.5,
+            "checksum": 4761905
+          },
+          "baseline": {
+            "ms": 37.39999985694885,
+            "checksum": 4761905
+          }
+        },
+        {
+          "name": "bounded",
+          "round": 7,
+          "count": 4761905,
+          "first": "baseline",
+          "baseline": {
+            "ms": 37.80000019073486,
+            "checksum": 4761905
+          },
+          "planned": {
+            "ms": 30,
+            "checksum": 4761905
+          }
+        },
+        {
+          "name": "bounded",
+          "round": 8,
+          "count": 4761905,
+          "first": "planned",
+          "planned": {
+            "ms": 29.799999952316284,
+            "checksum": 4761905
+          },
+          "baseline": {
+            "ms": 38.09999990463257,
+            "checksum": 4761905
+          }
+        },
+        {
+          "name": "bounded",
+          "round": 9,
+          "count": 4761905,
+          "first": "baseline",
+          "baseline": {
+            "ms": 39.200000047683716,
+            "checksum": 4761905
+          },
+          "planned": {
+            "ms": 30.200000047683716,
+            "checksum": 4761905
+          }
+        },
+        {
+          "name": "bounded",
+          "round": 10,
+          "count": 4761905,
+          "first": "planned",
+          "planned": {
+            "ms": 30.299999952316284,
+            "checksum": 4761905
+          },
+          "baseline": {
+            "ms": 37.5,
+            "checksum": 4761905
+          }
+        },
+        {
+          "name": "bounded",
+          "round": 11,
+          "count": 4761905,
+          "first": "baseline",
+          "baseline": {
+            "ms": 39.59999990463257,
+            "checksum": 4761905
+          },
+          "planned": {
+            "ms": 31,
+            "checksum": 4761905
+          }
+        },
+        {
+          "name": "bounded",
+          "round": 12,
+          "count": 4761905,
+          "first": "planned",
+          "planned": {
+            "ms": 29.90000009536743,
+            "checksum": 4761905
+          },
+          "baseline": {
+            "ms": 37.59999990463257,
+            "checksum": 4761905
+          }
+        },
+        {
+          "name": "bounded",
+          "round": 13,
+          "count": 4761905,
+          "first": "baseline",
+          "baseline": {
+            "ms": 39.60000014305115,
+            "checksum": 4761905
+          },
+          "planned": {
+            "ms": 30.399999856948853,
+            "checksum": 4761905
+          }
+        },
+        {
+          "name": "bounded",
+          "round": 14,
+          "count": 4761905,
+          "first": "planned",
+          "planned": {
+            "ms": 30.5,
+            "checksum": 4761905
+          },
+          "baseline": {
+            "ms": 39.40000009536743,
+            "checksum": 4761905
+          }
+        },
+        {
+          "name": "shifted",
+          "round": 0,
+          "count": 5714286,
+          "first": "planned",
+          "planned": {
+            "ms": 39.5,
+            "checksum": 1372721916
+          },
+          "baseline": {
+            "ms": 40,
+            "checksum": 1372721916
+          }
+        },
+        {
+          "name": "shifted",
+          "round": 1,
+          "count": 5714286,
+          "first": "baseline",
+          "baseline": {
+            "ms": 39.700000047683716,
+            "checksum": 1372721916
+          },
+          "planned": {
+            "ms": 39.299999952316284,
+            "checksum": 1372721916
+          }
+        },
+        {
+          "name": "shifted",
+          "round": 2,
+          "count": 5714286,
+          "first": "planned",
+          "planned": {
+            "ms": 39.09999990463257,
+            "checksum": 1372721916
+          },
+          "baseline": {
+            "ms": 40.5,
+            "checksum": 1372721916
+          }
+        },
+        {
+          "name": "shifted",
+          "round": 3,
+          "count": 5714286,
+          "first": "baseline",
+          "baseline": {
+            "ms": 40,
+            "checksum": 1372721916
+          },
+          "planned": {
+            "ms": 38.89999985694885,
+            "checksum": 1372721916
+          }
+        },
+        {
+          "name": "shifted",
+          "round": 4,
+          "count": 5714286,
+          "first": "planned",
+          "planned": {
+            "ms": 38.5,
+            "checksum": 1372721916
+          },
+          "baseline": {
+            "ms": 39.90000009536743,
+            "checksum": 1372721916
+          }
+        },
+        {
+          "name": "shifted",
+          "round": 5,
+          "count": 5714286,
+          "first": "baseline",
+          "baseline": {
+            "ms": 40.39999985694885,
+            "checksum": 1372721916
+          },
+          "planned": {
+            "ms": 39.80000019073486,
+            "checksum": 1372721916
+          }
+        },
+        {
+          "name": "shifted",
+          "round": 6,
+          "count": 5714286,
+          "first": "planned",
+          "planned": {
+            "ms": 39.19999980926514,
+            "checksum": 1372721916
+          },
+          "baseline": {
+            "ms": 39.90000009536743,
+            "checksum": 1372721916
+          }
+        },
+        {
+          "name": "shifted",
+          "round": 7,
+          "count": 5714286,
+          "first": "baseline",
+          "baseline": {
+            "ms": 39.90000009536743,
+            "checksum": 1372721916
+          },
+          "planned": {
+            "ms": 39.59999990463257,
+            "checksum": 1372721916
+          }
+        },
+        {
+          "name": "shifted",
+          "round": 8,
+          "count": 5714286,
+          "first": "planned",
+          "planned": {
+            "ms": 38.299999952316284,
+            "checksum": 1372721916
+          },
+          "baseline": {
+            "ms": 39.40000009536743,
+            "checksum": 1372721916
+          }
+        },
+        {
+          "name": "shifted",
+          "round": 9,
+          "count": 5714286,
+          "first": "baseline",
+          "baseline": {
+            "ms": 38.700000047683716,
+            "checksum": 1372721916
+          },
+          "planned": {
+            "ms": 37.89999985694885,
+            "checksum": 1372721916
+          }
+        },
+        {
+          "name": "shifted",
+          "round": 10,
+          "count": 5714286,
+          "first": "planned",
+          "planned": {
+            "ms": 39.60000014305115,
+            "checksum": 1372721916
+          },
+          "baseline": {
+            "ms": 39.69999980926514,
+            "checksum": 1372721916
+          }
+        },
+        {
+          "name": "shifted",
+          "round": 11,
+          "count": 5714286,
+          "first": "baseline",
+          "baseline": {
+            "ms": 39.5,
+            "checksum": 1372721916
+          },
+          "planned": {
+            "ms": 39.90000009536743,
+            "checksum": 1372721916
+          }
+        },
+        {
+          "name": "shifted",
+          "round": 12,
+          "count": 5714286,
+          "first": "planned",
+          "planned": {
+            "ms": 38.799999952316284,
+            "checksum": 1372721916
+          },
+          "baseline": {
+            "ms": 40.299999952316284,
+            "checksum": 1372721916
+          }
+        },
+        {
+          "name": "shifted",
+          "round": 13,
+          "count": 5714286,
+          "first": "baseline",
+          "baseline": {
+            "ms": 39.40000009536743,
+            "checksum": 1372721916
+          },
+          "planned": {
+            "ms": 38.90000009536743,
+            "checksum": 1372721916
+          }
+        },
+        {
+          "name": "shifted",
+          "round": 14,
+          "count": 5714286,
+          "first": "planned",
+          "planned": {
+            "ms": 39.69999980926514,
+            "checksum": 1372721916
+          },
+          "baseline": {
+            "ms": 39.200000047683716,
+            "checksum": 1372721916
+          }
+        }
+      ],
+      "checks": 16384,
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
+      "browserVersion": "155.0.8059.41"
+    },
+    {
+      "processId": 2,
+      "rows": [
+        {
+          "name": "cancelled",
+          "round": 0,
+          "count": 4878049,
+          "first": "baseline",
+          "baseline": {
+            "ms": 39.59999990463257,
+            "checksum": 1143801388
+          },
+          "planned": {
+            "ms": 32,
+            "checksum": 1143801388
+          }
+        },
+        {
+          "name": "cancelled",
+          "round": 1,
+          "count": 4878049,
+          "first": "planned",
+          "planned": {
+            "ms": 32.30000019073486,
+            "checksum": 1143801388
+          },
+          "baseline": {
+            "ms": 39.39999985694885,
+            "checksum": 1143801388
+          }
+        },
+        {
+          "name": "cancelled",
+          "round": 2,
+          "count": 4878049,
+          "first": "baseline",
+          "baseline": {
+            "ms": 38.799999952316284,
+            "checksum": 1143801388
+          },
+          "planned": {
+            "ms": 32.10000014305115,
+            "checksum": 1143801388
+          }
+        },
+        {
+          "name": "cancelled",
+          "round": 3,
+          "count": 4878049,
+          "first": "planned",
+          "planned": {
+            "ms": 31.899999856948853,
+            "checksum": 1143801388
+          },
+          "baseline": {
+            "ms": 37.200000047683716,
+            "checksum": 1143801388
+          }
+        },
+        {
+          "name": "cancelled",
+          "round": 4,
+          "count": 4878049,
+          "first": "baseline",
+          "baseline": {
+            "ms": 37.200000047683716,
+            "checksum": 1143801388
+          },
+          "planned": {
+            "ms": 32,
+            "checksum": 1143801388
+          }
+        },
+        {
+          "name": "cancelled",
+          "round": 5,
+          "count": 4878049,
+          "first": "planned",
+          "planned": {
+            "ms": 31.700000047683716,
+            "checksum": 1143801388
+          },
+          "baseline": {
+            "ms": 37.200000047683716,
+            "checksum": 1143801388
+          }
+        },
+        {
+          "name": "cancelled",
+          "round": 6,
+          "count": 4878049,
+          "first": "baseline",
+          "baseline": {
+            "ms": 37.5,
+            "checksum": 1143801388
+          },
+          "planned": {
+            "ms": 32.19999980926514,
+            "checksum": 1143801388
+          }
+        },
+        {
+          "name": "cancelled",
+          "round": 7,
+          "count": 4878049,
+          "first": "planned",
+          "planned": {
+            "ms": 32.200000047683716,
+            "checksum": 1143801388
+          },
+          "baseline": {
+            "ms": 37.299999952316284,
+            "checksum": 1143801388
+          }
+        },
+        {
+          "name": "cancelled",
+          "round": 8,
+          "count": 4878049,
+          "first": "baseline",
+          "baseline": {
+            "ms": 37.200000047683716,
+            "checksum": 1143801388
+          },
+          "planned": {
+            "ms": 32.10000014305115,
+            "checksum": 1143801388
+          }
+        },
+        {
+          "name": "cancelled",
+          "round": 9,
+          "count": 4878049,
+          "first": "planned",
+          "planned": {
+            "ms": 32.299999952316284,
+            "checksum": 1143801388
+          },
+          "baseline": {
+            "ms": 37.299999952316284,
+            "checksum": 1143801388
+          }
+        },
+        {
+          "name": "cancelled",
+          "round": 10,
+          "count": 4878049,
+          "first": "baseline",
+          "baseline": {
+            "ms": 37.299999952316284,
+            "checksum": 1143801388
+          },
+          "planned": {
+            "ms": 32.10000014305115,
+            "checksum": 1143801388
+          }
+        },
+        {
+          "name": "cancelled",
+          "round": 11,
+          "count": 4878049,
+          "first": "planned",
+          "planned": {
+            "ms": 32,
+            "checksum": 1143801388
+          },
+          "baseline": {
+            "ms": 37,
+            "checksum": 1143801388
+          }
+        },
+        {
+          "name": "cancelled",
+          "round": 12,
+          "count": 4878049,
+          "first": "baseline",
+          "baseline": {
+            "ms": 38.299999952316284,
+            "checksum": 1143801388
+          },
+          "planned": {
+            "ms": 32,
+            "checksum": 1143801388
+          }
+        },
+        {
+          "name": "cancelled",
+          "round": 13,
+          "count": 4878049,
+          "first": "planned",
+          "planned": {
+            "ms": 31.90000009536743,
+            "checksum": 1143801388
+          },
+          "baseline": {
+            "ms": 37.5,
+            "checksum": 1143801388
+          }
+        },
+        {
+          "name": "cancelled",
+          "round": 14,
+          "count": 4878049,
+          "first": "baseline",
+          "baseline": {
+            "ms": 38.59999990463257,
+            "checksum": 1143801388
+          },
+          "planned": {
+            "ms": 32.40000009536743,
+            "checksum": 1143801388
+          }
+        },
+        {
+          "name": "mask_join",
+          "round": 0,
+          "count": 5128206,
+          "first": "baseline",
+          "baseline": {
+            "ms": 39,
+            "checksum": 688182130
+          },
+          "planned": {
+            "ms": 33.39999985694885,
+            "checksum": 688182130
+          }
+        },
+        {
+          "name": "mask_join",
+          "round": 1,
+          "count": 5128206,
+          "first": "planned",
+          "planned": {
+            "ms": 34.200000047683716,
+            "checksum": 688182130
+          },
+          "baseline": {
+            "ms": 39.799999952316284,
+            "checksum": 688182130
+          }
+        },
+        {
+          "name": "mask_join",
+          "round": 2,
+          "count": 5128206,
+          "first": "baseline",
+          "baseline": {
+            "ms": 39.90000009536743,
+            "checksum": 688182130
+          },
+          "planned": {
+            "ms": 34.700000047683716,
+            "checksum": 688182130
+          }
+        },
+        {
+          "name": "mask_join",
+          "round": 3,
+          "count": 5128206,
+          "first": "planned",
+          "planned": {
+            "ms": 33.89999985694885,
+            "checksum": 688182130
+          },
+          "baseline": {
+            "ms": 40.30000019073486,
+            "checksum": 688182130
+          }
+        },
+        {
+          "name": "mask_join",
+          "round": 4,
+          "count": 5128206,
+          "first": "baseline",
+          "baseline": {
+            "ms": 39.39999985694885,
+            "checksum": 688182130
+          },
+          "planned": {
+            "ms": 33.40000009536743,
+            "checksum": 688182130
+          }
+        },
+        {
+          "name": "mask_join",
+          "round": 5,
+          "count": 5128206,
+          "first": "planned",
+          "planned": {
+            "ms": 33.200000047683716,
+            "checksum": 688182130
+          },
+          "baseline": {
+            "ms": 40.39999985694885,
+            "checksum": 688182130
+          }
+        },
+        {
+          "name": "mask_join",
+          "round": 6,
+          "count": 5128206,
+          "first": "baseline",
+          "baseline": {
+            "ms": 39.10000014305115,
+            "checksum": 688182130
+          },
+          "planned": {
+            "ms": 33.39999985694885,
+            "checksum": 688182130
+          }
+        },
+        {
+          "name": "mask_join",
+          "round": 7,
+          "count": 5128206,
+          "first": "planned",
+          "planned": {
+            "ms": 33.10000014305115,
+            "checksum": 688182130
+          },
+          "baseline": {
+            "ms": 39.19999980926514,
+            "checksum": 688182130
+          }
+        },
+        {
+          "name": "mask_join",
+          "round": 8,
+          "count": 5128206,
+          "first": "baseline",
+          "baseline": {
+            "ms": 39,
+            "checksum": 688182130
+          },
+          "planned": {
+            "ms": 33.30000019073486,
+            "checksum": 688182130
+          }
+        },
+        {
+          "name": "mask_join",
+          "round": 9,
+          "count": 5128206,
+          "first": "planned",
+          "planned": {
+            "ms": 33.90000009536743,
+            "checksum": 688182130
+          },
+          "baseline": {
+            "ms": 40.59999990463257,
+            "checksum": 688182130
+          }
+        },
+        {
+          "name": "mask_join",
+          "round": 10,
+          "count": 5128206,
+          "first": "baseline",
+          "baseline": {
+            "ms": 40.5,
+            "checksum": 688182130
+          },
+          "planned": {
+            "ms": 33.5,
+            "checksum": 688182130
+          }
+        },
+        {
+          "name": "mask_join",
+          "round": 11,
+          "count": 5128206,
+          "first": "planned",
+          "planned": {
+            "ms": 33.59999990463257,
+            "checksum": 688182130
+          },
+          "baseline": {
+            "ms": 39.59999990463257,
+            "checksum": 688182130
+          }
+        },
+        {
+          "name": "mask_join",
+          "round": 12,
+          "count": 5128206,
+          "first": "baseline",
+          "baseline": {
+            "ms": 41.799999952316284,
+            "checksum": 688182130
+          },
+          "planned": {
+            "ms": 34.40000009536743,
+            "checksum": 688182130
+          }
+        },
+        {
+          "name": "mask_join",
+          "round": 13,
+          "count": 5128206,
+          "first": "planned",
+          "planned": {
+            "ms": 34.200000047683716,
+            "checksum": 688182130
+          },
+          "baseline": {
+            "ms": 40.89999985694885,
+            "checksum": 688182130
+          }
+        },
+        {
+          "name": "mask_join",
+          "round": 14,
+          "count": 5128206,
+          "first": "baseline",
+          "baseline": {
+            "ms": 39.30000019073486,
+            "checksum": 688182130
+          },
+          "planned": {
+            "ms": 33.59999990463257,
+            "checksum": 688182130
+          }
+        },
+        {
+          "name": "bounded",
+          "round": 0,
+          "count": 5128206,
+          "first": "baseline",
+          "baseline": {
+            "ms": 40.700000047683716,
+            "checksum": 5128206
+          },
+          "planned": {
+            "ms": 33.69999980926514,
+            "checksum": 5128206
+          }
+        },
+        {
+          "name": "bounded",
+          "round": 1,
+          "count": 5128206,
+          "first": "planned",
+          "planned": {
+            "ms": 33.5,
+            "checksum": 5128206
+          },
+          "baseline": {
+            "ms": 40.90000009536743,
+            "checksum": 5128206
+          }
+        },
+        {
+          "name": "bounded",
+          "round": 2,
+          "count": 5128206,
+          "first": "baseline",
+          "baseline": {
+            "ms": 42,
+            "checksum": 5128206
+          },
+          "planned": {
+            "ms": 33.90000009536743,
+            "checksum": 5128206
+          }
+        },
+        {
+          "name": "bounded",
+          "round": 3,
+          "count": 5128206,
+          "first": "planned",
+          "planned": {
+            "ms": 33.299999952316284,
+            "checksum": 5128206
+          },
+          "baseline": {
+            "ms": 41.89999985694885,
+            "checksum": 5128206
+          }
+        },
+        {
+          "name": "bounded",
+          "round": 4,
+          "count": 5128206,
+          "first": "baseline",
+          "baseline": {
+            "ms": 41,
+            "checksum": 5128206
+          },
+          "planned": {
+            "ms": 33.200000047683716,
+            "checksum": 5128206
+          }
+        },
+        {
+          "name": "bounded",
+          "round": 5,
+          "count": 5128206,
+          "first": "planned",
+          "planned": {
+            "ms": 33.40000009536743,
+            "checksum": 5128206
+          },
+          "baseline": {
+            "ms": 40.700000047683716,
+            "checksum": 5128206
+          }
+        },
+        {
+          "name": "bounded",
+          "round": 6,
+          "count": 5128206,
+          "first": "baseline",
+          "baseline": {
+            "ms": 39.799999952316284,
+            "checksum": 5128206
+          },
+          "planned": {
+            "ms": 33.299999952316284,
+            "checksum": 5128206
+          }
+        },
+        {
+          "name": "bounded",
+          "round": 7,
+          "count": 5128206,
+          "first": "planned",
+          "planned": {
+            "ms": 33.299999952316284,
+            "checksum": 5128206
+          },
+          "baseline": {
+            "ms": 41,
+            "checksum": 5128206
+          }
+        },
+        {
+          "name": "bounded",
+          "round": 8,
+          "count": 5128206,
+          "first": "baseline",
+          "baseline": {
+            "ms": 40.90000009536743,
+            "checksum": 5128206
+          },
+          "planned": {
+            "ms": 33.299999952316284,
+            "checksum": 5128206
+          }
+        },
+        {
+          "name": "bounded",
+          "round": 9,
+          "count": 5128206,
+          "first": "planned",
+          "planned": {
+            "ms": 33.299999952316284,
+            "checksum": 5128206
+          },
+          "baseline": {
+            "ms": 41,
+            "checksum": 5128206
+          }
+        },
+        {
+          "name": "bounded",
+          "round": 10,
+          "count": 5128206,
+          "first": "baseline",
+          "baseline": {
+            "ms": 42.59999990463257,
+            "checksum": 5128206
+          },
+          "planned": {
+            "ms": 33.200000047683716,
+            "checksum": 5128206
+          }
+        },
+        {
+          "name": "bounded",
+          "round": 11,
+          "count": 5128206,
+          "first": "planned",
+          "planned": {
+            "ms": 33.299999952316284,
+            "checksum": 5128206
+          },
+          "baseline": {
+            "ms": 40.59999990463257,
+            "checksum": 5128206
+          }
+        },
+        {
+          "name": "bounded",
+          "round": 12,
+          "count": 5128206,
+          "first": "baseline",
+          "baseline": {
+            "ms": 40.40000009536743,
+            "checksum": 5128206
+          },
+          "planned": {
+            "ms": 33.200000047683716,
+            "checksum": 5128206
+          }
+        },
+        {
+          "name": "bounded",
+          "round": 13,
+          "count": 5128206,
+          "first": "planned",
+          "planned": {
+            "ms": 33.299999952316284,
+            "checksum": 5128206
+          },
+          "baseline": {
+            "ms": 40.799999952316284,
+            "checksum": 5128206
+          }
+        },
+        {
+          "name": "bounded",
+          "round": 14,
+          "count": 5128206,
+          "first": "baseline",
+          "baseline": {
+            "ms": 40.700000047683716,
+            "checksum": 5128206
+          },
+          "planned": {
+            "ms": 33.200000047683716,
+            "checksum": 5128206
+          }
+        },
+        {
+          "name": "shifted",
+          "round": 0,
+          "count": 5714286,
+          "first": "baseline",
+          "baseline": {
+            "ms": 39,
+            "checksum": 1372721916
+          },
+          "planned": {
+            "ms": 39.09999990463257,
+            "checksum": 1372721916
+          }
+        },
+        {
+          "name": "shifted",
+          "round": 1,
+          "count": 5714286,
+          "first": "planned",
+          "planned": {
+            "ms": 39,
+            "checksum": 1372721916
+          },
+          "baseline": {
+            "ms": 39.5,
+            "checksum": 1372721916
+          }
+        },
+        {
+          "name": "shifted",
+          "round": 2,
+          "count": 5714286,
+          "first": "baseline",
+          "baseline": {
+            "ms": 40.200000047683716,
+            "checksum": 1372721916
+          },
+          "planned": {
+            "ms": 40.299999952316284,
+            "checksum": 1372721916
+          }
+        },
+        {
+          "name": "shifted",
+          "round": 3,
+          "count": 5714286,
+          "first": "planned",
+          "planned": {
+            "ms": 40.09999990463257,
+            "checksum": 1372721916
+          },
+          "baseline": {
+            "ms": 39.10000014305115,
+            "checksum": 1372721916
+          }
+        },
+        {
+          "name": "shifted",
+          "round": 4,
+          "count": 5714286,
+          "first": "baseline",
+          "baseline": {
+            "ms": 39.09999990463257,
+            "checksum": 1372721916
+          },
+          "planned": {
+            "ms": 39.5,
+            "checksum": 1372721916
+          }
+        },
+        {
+          "name": "shifted",
+          "round": 5,
+          "count": 5714286,
+          "first": "planned",
+          "planned": {
+            "ms": 39.700000047683716,
+            "checksum": 1372721916
+          },
+          "baseline": {
+            "ms": 38.59999990463257,
+            "checksum": 1372721916
+          }
+        },
+        {
+          "name": "shifted",
+          "round": 6,
+          "count": 5714286,
+          "first": "baseline",
+          "baseline": {
+            "ms": 39.5,
+            "checksum": 1372721916
+          },
+          "planned": {
+            "ms": 39.40000009536743,
+            "checksum": 1372721916
+          }
+        },
+        {
+          "name": "shifted",
+          "round": 7,
+          "count": 5714286,
+          "first": "planned",
+          "planned": {
+            "ms": 39.59999990463257,
+            "checksum": 1372721916
+          },
+          "baseline": {
+            "ms": 40.200000047683716,
+            "checksum": 1372721916
+          }
+        },
+        {
+          "name": "shifted",
+          "round": 8,
+          "count": 5714286,
+          "first": "baseline",
+          "baseline": {
+            "ms": 39.40000009536743,
+            "checksum": 1372721916
+          },
+          "planned": {
+            "ms": 39.19999980926514,
+            "checksum": 1372721916
+          }
+        },
+        {
+          "name": "shifted",
+          "round": 9,
+          "count": 5714286,
+          "first": "planned",
+          "planned": {
+            "ms": 39.59999990463257,
+            "checksum": 1372721916
+          },
+          "baseline": {
+            "ms": 39.5,
+            "checksum": 1372721916
+          }
+        },
+        {
+          "name": "shifted",
+          "round": 10,
+          "count": 5714286,
+          "first": "baseline",
+          "baseline": {
+            "ms": 40.60000014305115,
+            "checksum": 1372721916
+          },
+          "planned": {
+            "ms": 39,
+            "checksum": 1372721916
+          }
+        },
+        {
+          "name": "shifted",
+          "round": 11,
+          "count": 5714286,
+          "first": "planned",
+          "planned": {
+            "ms": 39.89999985694885,
+            "checksum": 1372721916
+          },
+          "baseline": {
+            "ms": 40.700000047683716,
+            "checksum": 1372721916
+          }
+        },
+        {
+          "name": "shifted",
+          "round": 12,
+          "count": 5714286,
+          "first": "baseline",
+          "baseline": {
+            "ms": 40.09999990463257,
+            "checksum": 1372721916
+          },
+          "planned": {
+            "ms": 39.40000009536743,
+            "checksum": 1372721916
+          }
+        },
+        {
+          "name": "shifted",
+          "round": 13,
+          "count": 5714286,
+          "first": "planned",
+          "planned": {
+            "ms": 39.799999952316284,
+            "checksum": 1372721916
+          },
+          "baseline": {
+            "ms": 40.10000014305115,
+            "checksum": 1372721916
+          }
+        },
+        {
+          "name": "shifted",
+          "round": 14,
+          "count": 5714286,
+          "first": "baseline",
+          "baseline": {
+            "ms": 39.09999990463257,
+            "checksum": 1372721916
+          },
+          "planned": {
+            "ms": 39.200000047683716,
+            "checksum": 1372721916
+          }
+        }
+      ],
+      "checks": 16384,
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
+      "browserVersion": "155.0.8059.41"
+    }
+  ]
+}
