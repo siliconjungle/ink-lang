@@ -1,0 +1,13 @@
+{
+  "scope": "Complete source review of LLVM InstructionCost.h and InstructionCost.cpp at the pinned revision",
+  "llvm_revision": "d977b4533f1d9b01d28cf4dba9b2db9d1ccfda08",
+  "insights": [
+    "Validity is a separate cost state; invalid is not merely a very large valid price. LLVM explicitly advises against using its Invalid state for unknown cost. Ink should preserve separate eligibility/proof and observation-completeness gates.",
+    "Saturating arithmetic prevents overflow from making expensive transformations appear cheap. Ink already bounds source counters and validates nonnegative finite physical prices; no duplicate numeric framework added.",
+    "This LLVM revision uses internal quarter-unit granularity. Relative instruction costs are not nanoseconds and cannot be copied into Ink target prices without target/boundary calibration. Raw internal values, public integer conversion and formatting use different scales.",
+    "Printing preserves quarter-unit fractions and handles minimum signed values through unsigned magnitude arithmetic. Diagnostics must not silently present truncated values as exact calibrated prices.",
+    "Validity propagation and unit discipline are general mechanisms worth retaining; neither replaces source equivalence proofs or measured held-out profitability."
+  ],
+  "followup": "InstructionCost call-site usage, including map callbacks receiving the internal value, still needs separate audit; these two complete file reviews do not cover all LLVM cost consumers.",
+  "performance": "No new performance measurement or claim"
+}
