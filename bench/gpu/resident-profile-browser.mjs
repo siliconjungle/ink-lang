@@ -17,7 +17,10 @@ try{
   if(device.isFallbackAdapter)throw Error('software adapter is not device coverage');
   const targetKey=JSON.stringify({...environment,device});if(profile&&profile.target_key!==targetKey)throw Error('profile hardware/browser mismatch');
   const url=new URL(bundle+'/',base),{loadInk}=await import(new URL('ink-gpu.mjs',url));
-  const plain=await loadInk(url,{targetKey});let fitted=profile?await loadInk(url,{targetKey,costProfile:profile}):null;
+  const plainStarted=performance.now(),plain=await loadInk(url,{targetKey});
+  const engine_initialization_ns={plain:(performance.now()-plainStarted)*1e6};
+  const fittedStarted=performance.now();let fitted=profile?await loadInk(url,{targetKey,costProfile:profile}):null;
+  engine_initialization_ns.profile=fitted?(performance.now()-fittedStarted)*1e6:null;
   const input=(kernel,n)=>Array.from({length:n},(_,i)=>kernel==='ecs'?{x:Math.imul(i,2654435761)>>>0,y:(0xffffffff-i)>>>0,vx:i%13,vy:i%7}:{x:Math.fround((i%101)/8),y:Math.fround((i%43)/16-.25),vx:Math.fround((i%17-8)/32),vy:Math.fround((i%11-5)/16)});
   const step=(kernel,rows)=>rows.map(b=>{if(kernel==='ecs')return {x:(b.x+b.vx)>>>0,y:(b.y+b.vy)>>>0,vx:b.vx,vy:b.vy};const vy=Math.fround(b.vy+Math.fround(Math.fround(-9.75)*Math.fround(1/64))),y=Math.fround(b.y+Math.fround(vy*Math.fround(1/64)));return{x:Math.fround(b.x+Math.fround(b.vx*Math.fround(1/64))),y:y<0?0:y,vx:b.vx,vy:y<0?Math.fround(0-vy):vy};});
   const check=(actual,wanted,label)=>{if(actual.length!==wanted.length)throw Error(label+' length');for(let i=0;i<wanted.length;i++)for(const f of ['x','y','vx','vy'])if(!Object.is(actual[i][f],wanted[i][f]))throw Error(`${label}/${i}/${f}`);};
@@ -41,14 +44,19 @@ try{
     const cold=await fitted.open(plan,{workload});if(cold.backend!=='cpu')throw Error('warm profile reused for a cold engine');await cold.close();
    }
    if(fitted&&!freshMode)await warm(fitted);
-   const names=kind==='train'?['cpu','gpu']:['cpu','gpu','auto','profile'],samples=Object.fromEntries(names.map(n=>[n,[]])),steps=Object.fromEntries(names.map(n=>[n,[]])),backends={},counters={},decisions={};
+   const names=kind==='train'?['cpu','gpu']:['cpu','gpu','auto','profile'],samples=Object.fromEntries(names.map(n=>[n,[]])),steps=Object.fromEntries(names.map(n=>[n,[]])),initialization=Object.fromEntries(names.map(n=>[n,[]])),preparation=Object.fromEntries(names.map(n=>[n,[]])),engineClose=Object.fromEntries(names.map(n=>[n,[]])),lifecycle=Object.fromEntries(names.map(n=>[n,[]])),backends={},counters={},decisions={};
    for(let round=freshMode?0:-1;round<count;round++)for(let offset=0;offset<names.length;offset++){
-    const name=names[((round+1)+offset)%names.length],engine=freshMode?await loadInk(url,{targetKey,...(name==='profile'?{costProfile:profile}:{})}):name==='profile'?fitted:plain;if(!engine)throw Error('test mode requires a fitted profile');
-    if(freshMode)await warm(engine);
+    const name=names[((round+1)+offset)%names.length],lifecycleStarted=performance.now();
+    const engine=freshMode?await loadInk(url,{targetKey,...(name==='profile'?{costProfile:profile}:{})}):name==='profile'?fitted:plain;if(!engine)throw Error('test mode requires a fitted profile');
+    const initializationNs=freshMode?(performance.now()-lifecycleStarted)*1e6:null;
+    const preparationStarted=performance.now();if(freshMode)await warm(engine);
+    const preparationNs=freshMode?(performance.now()-preparationStarted)*1e6:null;
     const started=performance.now(),session=await engine.open(plan,{backend:name==='cpu'?'cpu':name==='gpu'?'gpu-required':'auto',workload});
     const before=performance.now(),advanced=await session.step(iterations);await session.finish();const stepNs=(performance.now()-before)*1e6;
     const result=await session.read({outputs:['next']});await session.close();const elapsed=(performance.now()-started)*1e6;
-    if(freshMode)await engine.close();
+    const closeStarted=performance.now();if(freshMode)await engine.close();
+    const closeNs=freshMode?(performance.now()-closeStarted)*1e6:null;
+    const lifecycleNs=freshMode?(performance.now()-lifecycleStarted)*1e6:null;
     check(result.values.next,wanted,`${kernel}/${n}/${iterations}/${name}`);
     if(session.backend==='gpu'&&(!(session.counters.peak_buffer_bytes>0)||session.counters.live_buffer_bytes!==0))throw Error('resident GPU buffer lifecycle accounting');
     if(session.backend==='cpu'&&session.counters.peak_buffer_bytes!==null)throw Error('CPU memory was not measured');
@@ -56,11 +64,11 @@ try{
     if(name==='auto'&&session.backend!=='cpu')throw Error('unprofiled resident execution must retain CPU');
     if(kind==='smoke'&&name==='profile'&&session.backend!==(n===257&&iterations===32?'gpu':'cpu'))throw Error('lifecycle profile decision not honoured');
     backends[name]=session.backend;counters[name]={initial:session.counters,step:advanced.counters,read:result.counters};decisions[name]=session.profile;
-    if(round>=0){samples[name].push(elapsed);steps[name].push(stepNs);}
+    if(round>=0){samples[name].push(elapsed);steps[name].push(stepNs);initialization[name].push(initializationNs);preparation[name].push(preparationNs);engineClose[name].push(closeNs);lifecycle[name].push(lifecycleNs);}
    }
-   receipts.push({kernel,n,iterations,scope:context.scope,features:context.features,boundary:context.boundary,core_sha256:plain.manifest.core_sha256,samples_ns:samples,step_finish_samples_ns:steps,backends,counters,decisions,validated:true});
+   receipts.push({kernel,n,iterations,scope:context.scope,features:context.features,boundary:context.boundary,core_sha256:plain.manifest.core_sha256,samples_ns:samples,step_finish_samples_ns:steps,engine_initialization_samples_ns:initialization,preparation_samples_ns:preparation,engine_close_samples_ns:engineClose,complete_lifecycle_samples_ns:lifecycle,backends,counters,decisions,validated:true});
   }}finally{await plain.close();await fitted?.close();}
-  return {mode,device,targetKey,receipts,preparation_regime:regime,scope:`${regime} preparation; common loadInk import and explicit prewarming excluded; complete open, upload, steps, finish, full owned output read, close. Oracle outside timing. Smoke uses synthetic cost models only for decision conformance.`};
+  return {mode,device,targetKey,receipts,engine_initialization_ns,preparation_regime:regime,lifecycle_scope:freshMode?'Fresh engine creation including profile capture, requested prewarming, complete session and engine close. Cold regime has no requested prewarming. These samples never train the session-cost model.':'Reused engines: per-call full lifecycle is not claimed; initial engine setup is reported separately. Session samples exclude explicit prewarming.',scope:`${regime} preparation; common loadInk import and explicit prewarming excluded; complete open, upload, steps, finish, full owned output read, close. Oracle outside timing. Smoke uses synthetic cost models only for decision conformance.`};
  },{base,bundle,mode,profile,environment});
  const source_hashes={};for(const file of ['bench/gpu/resident-profile-browser.mjs','bench/gpu/resident-profile.ink',`${bundle}/manifest.json`,`${bundle}/ink-gpu.mjs`,`${bundle}/backend-selection.mjs`,`${bundle}/ink-selection.wasm`,`${bundle}/cpu.wasm`])source_hashes[file]=crypto.createHash('sha256').update(await fs.readFile(file)).digest('hex');
  await fs.mkdir(path.dirname(output),{recursive:true});await fs.writeFile(output,JSON.stringify({schema:1,environment,source_hashes,...result},null,2)+'\n');console.log(JSON.stringify({mode,cases:result.receipts.length,device:result.device,output}));
