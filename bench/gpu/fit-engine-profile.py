@@ -12,7 +12,7 @@ if private.exists():raise ValueError('choose a fresh output directory; retain pr
 records=[json.loads(p.read_text())for p in paths]
 store=Store.publish(private,[]);ident,profile,rows=fit_records(store,records)
 output.write_text(json.dumps(profile,indent=2)+'\n')
-receipt=dict(model=ident,observations=rows,training_files={str(p):hashlib.sha256(p.read_bytes()).hexdigest()for p in paths},
+receipt=dict(model=ident,profile_sha256=hashlib.sha256(output.read_bytes()).hexdigest(),observations=rows,training_files={str(p):hashlib.sha256(p.read_bytes()).hexdigest()for p in paths},
     source_hashes={p:hashlib.sha256((ROOT/p).read_bytes()).hexdigest()for p in ['planner/ink_planner/engine_profiles.py','planner/ink_planner/cost_profiles.py','knowledge/ink_knowledge/cost-model-basis.json']},
     authority='Profitability evidence only; full engine costs, distinct from session scope. Evaluation observations excluded.')
 (output.parent/'engine-fit-receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
