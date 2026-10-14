@@ -18,7 +18,7 @@ export function provenance(root) {
   const hashes = Object.fromEntries(files.map(file => [file,
     createHash('sha256').update(fs.readFileSync(path.join(root, file))).digest('hex')]));
   const repositories = ['.', 'abi', 'core', 'native-support', 'runtime', 'knowledge',
-    'planner', 'lowerings/c', 'lowerings/rust', 'lowerings/js', 'lowerings/wasm',
+    'planner',  'lowerings/rust', 'lowerings/js', 'lowerings/wasm',
     'lowerings/gpu', 'build/frontier', 'build/frontier-state-main',
     'build/frontier-engine', 'build/frontier-codec'];
   const revisions = Object.fromEntries(repositories.map(repo => [repo,

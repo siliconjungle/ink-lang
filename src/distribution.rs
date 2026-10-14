@@ -49,7 +49,7 @@ fn available(tool: &str) -> Value {
 }
 
 pub fn doctor(python: &str) -> Value {
-    let tools = [python, "cargo", "rustc", "clang", "node", "zig"]
+    let tools = [python, "cargo", "rustc", "node"]
         .iter()
         .map(|t| available(t))
         .collect::<Vec<_>>();
@@ -70,7 +70,7 @@ pub fn doctor(python: &str) -> Value {
     json!({"schema":1,"version":env!("CARGO_PKG_VERSION"),"core_semantics":crate::core::SEMANTICS,
         "executable":env::current_exe().ok(),"tools":tools,"resources":resources,
         "requirements":{"reference":"no external toolchain","javascript":"emission needs no external toolchain; execution needs a JavaScript host",
-            "native":"cargo and a C compiler","wasm":"target-specific Rust/C cross toolchain","search":"Python 3.10+, planner and knowledge Python package",
+            "native":"Rust/Cargo","wasm":"Rust wasm32 target","search":"Python 3.10+, planner and knowledge Python package",
             "gpu":"compiled CPU toolchain plus a supported WebGPU/wgpu device"},
         "scope":"Tool versions and file availability only; devices, target installation and proofs are not validated by doctor."})
 }

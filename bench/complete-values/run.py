@@ -20,7 +20,7 @@ report['driver_sha256']=hashlib.sha256((ROOT/'bench/complete-values/driver.rs').
 report['environment']['runtime_commit']=subprocess.check_output(['git','-C',str(ROOT/'runtime'),'rev-parse','HEAD'],text=True).strip()
 for name,runtime in [('arena',old),('inline',current)]:
     project=work/name
-    subprocess.run([a.ink,'emit-c-project',str(ROOT/'bench/complete-values/program.ink'),'-o',str(project)],check=True)
+    subprocess.run([a.ink,'build',str(ROOT/'bench/complete-values/program.ink'),'--target','rust','-o',str(project)],check=True)
     lib=(project/'src/lib.rs').read_text();assert current in lib
     (project/'src/lib.rs').write_text(lib.replace(current,runtime,1))
     shutil.copyfile(ROOT/'bench/complete-values/driver.rs',project/'src/main.rs')

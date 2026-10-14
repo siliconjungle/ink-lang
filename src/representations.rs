@@ -360,6 +360,5 @@ pub(crate) fn project(output: &Path, source: &str, _unused: Option<&str>, target
         &output.join("state-wasm.mjs"),
         include_str!("../runtime/hosts/state-wasm.mjs"),
     )?;
-    write(&output.join("state-abi.h"), ink_abi::STATE_C_HEADER)?;
     write(&output.join("README.md"), &format!("Standalone {target} representation. Build with `cargo build --offline`. For Wasm add `--target wasm32-unknown-unknown` (the project declares an 8 MiB stack); Exports the ordinary handle/buffer state ABI. Native GPU host projects use typed Rust storage and functions; browser WebGPU uses literal JavaScript host code. Recursive representations execute on the host. No Ink runtime, proof package or checker dependency is linked. Caller arguments must have declared types, arity, shapes and canonical ranges. Generated calls do not type-check input; bad data is unsafe, may crash or produce wrong results, and raw native pointer APIs may corrupt memory. JSON parsing/representation conversion and explicit portable checkpoint integrity checks remain. Source and proof checks happen during compilation.\n"))
 }
