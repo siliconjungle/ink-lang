@@ -17,10 +17,10 @@ record containing an immutable column index and a changing accumulator.
 
 This permits one input traversal to advance several independent results. It is
 one ingredient of matrix blocking, but does not yet prove chunking, introduce
-fixed-width tiles, lift captured lane constants into records, or automatically
-replace the existing matrix multiplication library. A callback which captures
-the original outer seed is deliberately excluded when it cannot be expressed as
-a step shared by every lane.
+fixed-width tiles, or automatically replace the existing matrix multiplication
+library. This first template excludes a callback which captures the original
+outer seed when it cannot express it as a step shared by every lane. The source
+template below supplies that missing state conversion as another proved option.
 
 ## Database authoring and discovery
 
@@ -54,7 +54,7 @@ of a captured-seed mismatch, a consistently rehashed dropped-input rewrite,
 missing snapshot dependencies, a dependency with the wrong role, and an attempt
 to erase a law's unproved conditions.
 
-`tests/independent_batches.rs` checks 55 cases against original reference
+`tests/independent_batches.rs` checks 63 cases against original reference
 evaluation and the selected reference, Rust, JavaScript and Rust-Wasm programs,
 including exact portable snapshots. Cases cover empty inputs and states,
 wrapping indices, missing matrix elements, signed zero, subnormal values,
@@ -66,3 +66,42 @@ an unhelpful way. It remains an alternative for ordinary offline planning;
 selection requires comparable lifecycle evidence. There is no static dominance
 exception for batching and no claim of automatic matrix speedups from these
 checks.
+
+## Captured per-result data
+
+`producers.captured_fold_batching.templates(map_fusion_id)` authors a second
+database template for this ordinary source form:
+
+```ink
+envs.map(fn(env) => foldl(xs, initial(env),
+    fn(item, state) => step(env, item, state)))
+```
+
+The template introduces a private record with `environment` and `state` fields,
+initialises one record per result, advances their states in an input traversal,
+and projects the final states. Every record retains the original environment.
+The type parameters cover input items, environments and accumulators
+independently. Callback captures from the surrounding function remain bound.
+The proof generalises the initial-state function in an induction over `xs` and
+uses the supplied general map-fusion law. It does not assume arithmetic laws.
+
+This is source-algorithm data: typed record declarations, expressions and an
+ordinary proof. The existing extension checker authenticates the enlarged
+source image. The general source-algorithm producer now shares the same
+higher-order adapter builder as law templates: exact source endpoint, checked
+normalisation, and ordinary use of the instantiated theorem. It does not add a
+compiler matcher or select an implementation on correctness evidence alone.
+
+The adapter rejects open lexical sites and unproved conditions or assumptions.
+When each result iterates a different input sequence, the shared-input template
+does not match. Tests cover both a directly captured list and an input filtered
+by the environment. A rehashed change that substitutes the evolving accumulator
+for the original environment fails proof replay. Normal quick search finds the
+extension/rewrite composition and retains the baseline without cost evidence.
+
+Both original independent batching and captured-state batching pass the 63-case
+reference/Rust/JavaScript/Rust-Wasm suite. The latter composes four source
+rewrites, including the original-seed callback, floating arithmetic and matrix
+column records. This demonstrates automatic carrier introduction and checked
+composition, not profitable fixed-width matrix blocking. Private records and
+intermediate lists can add allocation; selection still needs lifecycle timings.
