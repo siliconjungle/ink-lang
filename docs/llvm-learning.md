@@ -126,3 +126,14 @@ Changed, added and renamed files require new review; removed files remain in the
 previous snapshot. The new database records each carried file's original revision.
 Carried credit means its content was reviewed, not that its interaction with new
 dependencies has been revalidated. Reports identify their exact pinned scope.
+
+Joint-feature applicability now uses exact offline convex-hull construction in
+`planner/ink_planner/joint_domain.py`. New fitted profiles carry per-backend
+integer halfspaces and affine equalities. The shared ABI evaluates those saved
+constraints exactly in Rust and Wasm; unsupported candidates are unpriced, and
+a missing supported CPU estimate retains the baseline. No runtime measurement,
+training or hull search is introduced. Synthetic diagonal and triangular examples,
+independent two-/three-dimensional geometric oracles, five-dimensional fixtures
+and adjacent-float boundary tests cover the mechanism. These checks limit joint
+extrapolation within the declared features; they do not establish timing accuracy,
+held-out performance or completeness of the feature set.
