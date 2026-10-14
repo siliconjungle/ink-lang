@@ -23,6 +23,15 @@ change erase(key:u64)->Result<Unit,Error> writes(Rows){Rows.remove(key);return O
 query get(key:u64)->Option<u64> reads(Rows){return Rows.get(key);}
 ";
 
+/// One table per key order the projection supports for snapshots.
+const ORDERS: &str = "module sorted_orders;
+state Words:Table<u64,u64> = Table.empty();
+state Flags:Table<Bool,u64> = Table.empty();
+state Signed:Table<i32,u64> = Table.empty();
+state Names:Table<String,u64> = Table.empty();
+query peek(key:u64)->Option<u64> reads(Words){return Words.get(key);}
+";
+
 fn module(source: &str) -> CheckedModule {
     CheckedModule::from_source(parse(source).unwrap()).unwrap()
 }
@@ -44,7 +53,7 @@ fn rows(datatype: &str, keys: &[Term]) -> Term {
 
 #[test]
 fn derived_predicates_accept_exactly_strictly_ascending_rows() {
-    let projection = Projection::derive(&module(SOURCE)).unwrap();
+    let projection = Projection::derive(&module(ORDERS)).unwrap();
     let sorted = projection.sorted_tables().unwrap();
     assert_eq!(sorted.predicates.len(), projection.tables.len());
     let mut context = projection.context().unwrap();
@@ -69,18 +78,37 @@ fn derived_predicates_accept_exactly_strictly_ascending_rows() {
         };
         context.evaluate(&[], &term).unwrap() == Term::Bool(true)
     };
-    let w = Term::U64;
-    assert!(holds(0, &[]));
-    assert!(holds(0, &[w(3)]));
-    assert!(holds(0, &[w(1), w(2), w(u64::MAX)]));
-    assert!(!holds(0, &[w(2), w(1)]));
-    assert!(!holds(0, &[w(1), w(1)]));
-    assert!(!holds(0, &[w(1), w(3), w(2)]));
-    // Bool keys use the projection's own order: false before true.
-    let b = Term::Bool;
-    assert!(holds(1, &[b(false), b(true)]));
-    assert!(!holds(1, &[b(true), b(false)]));
-    assert!(!holds(1, &[b(true), b(true)]));
+    // Keys listed in the runtime's (and snapshot decoder's) ascending order
+    // must be accepted, and every adjacent swap or repeat refused.
+    let agrees = |table: usize, ascending: Vec<Term>| {
+        assert!(holds(table, &[]));
+        assert!(holds(table, &ascending), "table {table} ascending");
+        for i in 0..ascending.len() - 1 {
+            let mut swapped = ascending.clone();
+            swapped.swap(i, i + 1);
+            assert!(!holds(table, &swapped), "table {table} swap {i}");
+            let mut repeated = ascending.clone();
+            repeated[i + 1] = repeated[i].clone();
+            assert!(!holds(table, &repeated), "table {table} repeat {i}");
+        }
+    };
+    let index = |name: &str| ORDERS.lines().filter(|l| l.starts_with("state ")).position(|l| l.contains(name)).unwrap();
+    agrees(index("Words"), [0, 1, 2, 1 << 40, u64::MAX].map(Term::U64).to_vec());
+    agrees(index("Flags"), vec![Term::Bool(false), Term::Bool(true)]);
+    let mut signed = vec![i32::MIN, -5, -1, 0, 1, 7, i32::MAX];
+    signed.sort();
+    agrees(index("Signed"), signed.into_iter().map(|x| Term::U64(x as u32 as u64)).collect());
+    let mut names = vec!["", "a", "ab", "b", "ba", "z", "\u{e9}"];
+    names.sort_by(|a, b| a.as_bytes().cmp(b.as_bytes()));
+    let string = projection.types[&serde_json::to_string(&verified_language::syntax::Type::String).unwrap()].clone();
+    let verified_language::logic::Sort::Data(string) = string else { panic!("string sort") };
+    let text = |s: &str| {
+        s.bytes().rev().fold(
+            Term::Construct { datatype: string.clone(), constructor: 0, arguments: vec![] },
+            |tail, byte| Term::Construct { datatype: string.clone(), constructor: 1, arguments: vec![Term::U64(byte as u64), tail] },
+        )
+    };
+    agrees(index("Names"), names.into_iter().map(text).collect());
 }
 
 /// The commutation tool's conditional certificate, then tampering with it.
@@ -111,7 +139,12 @@ fn removal_and_insertion_of_different_keys_commute_only_under_the_checked_invari
     let pair = work.join("certificates/erase--put--keys-differ");
     let original = CheckedModule::from_bytes(&fs::read(pair.join("ab-core.json")).unwrap()).unwrap();
     let selection: Package = serde_json::from_slice(&fs::read(result["selection"].as_str().unwrap()).unwrap()).unwrap();
-    optimisation::check(&original, &selection).unwrap();
+    let checked = optimisation::check(&original, &selection).unwrap();
+    // The evidence says the equality holds on sorted tables, not on every state.
+    assert_eq!(
+        checked.evidence().assumptions,
+        vec![verified_language::action_model::SORTED_SEMANTICS.to_string()]
+    );
 
     // Without the invariant the equality is false (unsorted rows), and its
     // proof cannot cite the sortedness hypotheses.
