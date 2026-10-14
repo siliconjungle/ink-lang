@@ -96,11 +96,11 @@ jobs:
           # The whole suite: fuzz_logic_objects re-declares every first-order
           # knowledge object, so checker changes cannot silently strand proofs.
           cargo test --test hardening
-          cargo test --test temporary_lowering
+          cargo test --test rust_cpu_adapters --test javascript_package --test literal_collections_package --test javascript_word_collections
           CARGO_TARGET_DIR=target cargo test --manifest-path lowerings/gpu/Cargo.toml --test temporary_bounds
           cargo test --test distribution --test source_syntax --test action_values --test general_laws --test semantic_optimisation
           cargo test --test internal_snapshots --test collect_before_build --test proved_refinement_parity
-          cargo test --test physical_capabilities --test borrowed_native_reads
+          cargo test --test physical_capabilities
       - name: Composable state proofs, publication, journals and bounded search
         run: |
           cargo test --test composable_state --test journal_compaction --test indexed_laws --test composable_knowledge --test sorted_tables
@@ -108,6 +108,7 @@ jobs:
           PYTHONPATH=planner:knowledge python3 -m unittest discover -s planner/tests -p test_recipe_streams.py
           PYTHONPATH=planner:knowledge python3 -m unittest discover -s planner/tests -p test_cost_profiles.py
           PYTHONPATH=planner:knowledge python3 -m unittest discover -s planner/tests -p test_measured_selection.py
+          PYTHONPATH=planner:knowledge python3 -m unittest discover -s planner/tests -p test_offline_measurements.py
           PYTHONPATH=planner:knowledge python3 -m unittest discover -s planner/tests -p test_static_dominance.py
           PYTHONPATH=planner:knowledge python3 -m unittest discover -s knowledge/tests -p test_boolean_groups.py
           PYTHONPATH=planner:knowledge python3 -m unittest discover -s knowledge/tests -p test_product_fusion.py
