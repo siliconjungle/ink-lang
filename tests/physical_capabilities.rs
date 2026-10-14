@@ -230,3 +230,5 @@ query read(k:u32)->Result<Batch,Error> reads(Groups){return Groups.get(k).ok_or(
 mod cross_domain_workloads;
 
 #[path="support/ecs_lifecycle.rs"] mod ecs_lifecycle;
+#[path="support/lexer_runs.rs"] mod lexer_runs;
+#[path="support/semantic_word_parity.rs"] mod semantic_word_parity;

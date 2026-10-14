@@ -21,7 +21,7 @@ def write(path, value):
     path.write_text(json.dumps(value, indent=2) + '\n')
 
 
-def prepare(compiler, source, output, rounds=3, scalar_calls=False):
+def prepare(compiler, source, output, rounds=3, scalar_calls=False, share_arguments=False, input_core=False):
     compiler, source, output = map(lambda p: pathlib.Path(p).resolve(), (compiler, source, output))
     output.mkdir(parents=True, exist_ok=True)
     def run(*args):
@@ -30,7 +30,7 @@ def prepare(compiler, source, output, rounds=3, scalar_calls=False):
             raise RuntimeError(result.stderr)
         return result.stdout
     original = output / 'core-0.json'
-    run('emit-core', source, '-o', original)
+    run('emit-core', source, *(['--core'] if input_core else []), '-o', original)
     current = original
     steps, receipts, rejections = [], [], []
     original_id = None
@@ -44,7 +44,7 @@ def prepare(compiler, source, output, rounds=3, scalar_calls=False):
         functions = {f['name']: f for f in core['program']['functions']}
         laws = dict(specialize(subject, core))
         store = Store.publish(output / f'knowledge-{iteration}', [semantic_entry(law) for law in laws.values()])
-        applications, ids = [], []
+        applications, ids, fallbacks = [], [], {}
         for name, body in subject['functions'].items():
             for path, target in positions(body):
                 parent = body
@@ -54,19 +54,26 @@ def prepare(compiler, source, output, rounds=3, scalar_calls=False):
                     parent = children(parent)[child]
                 if not in_callback:
                     continue
-                op = target['node'].get('Op', [''])[0]
+                node = target['node']
+                op = node.get('Op', [''])[0] if isinstance(node, dict) else ''
                 if not op.startswith('call:'):
                     continue
                 callee = functions.get(op[5:])
                 if not callee or (not scalar_calls and not any(isinstance(t, dict) and 'List' in t for _, t in callee['params'])):
                     continue
-                law = laws.get('unfold_' + callee['name'])
+                law = laws.get(('unfold_shared_' if share_arguments else 'unfold_') + callee['name']) or laws.get('unfold_' + callee['name'])
                 bindings = {}
                 if law is None or not match(law['from'], target, law['params'], bindings):
                     continue
                 ident = identity(semantic_entry(law))
                 ids.append(ident)
                 applications.append(dict(function=name, path=list(path), law=ident, arguments=bindings, premises=[]))
+                ordinary = laws.get('unfold_' + callee['name'])
+                if share_arguments and ordinary is not None and ordinary != law:
+                    ordinary_bindings = {}
+                    if match(ordinary['from'], target, ordinary['params'], ordinary_bindings):
+                        fallbacks[(name, tuple(path))] = dict(function=name, path=list(path),
+                            law=identity(semantic_entry(ordinary)), arguments=ordinary_bindings, premises=[])
         if not applications:
             break
         # Deeper disjoint sites first; overlapping proposals must still replay.
@@ -84,16 +91,19 @@ def prepare(compiler, source, output, rounds=3, scalar_calls=False):
             admitted = []
             receipt = None
             for application in applications:
-                trial = dict(package, applications=admitted + [application])
-                trial['knowledge'] = store.bundle([a['law'] for a in trial['applications']])
-                write(package_path, trial)
-                try:
-                    candidate_receipt = json.loads(run('check-selection', current, package_path))
-                except RuntimeError as error:
-                    rejections.append(dict(iteration=iteration, application=application, reason=str(error)))
-                else:
-                    admitted.append(application)
-                    receipt = candidate_receipt
+                ordinary = fallbacks.get((application['function'], tuple(application['path'])))
+                for candidate in [application] + ([ordinary] if ordinary else []):
+                    trial = dict(package, applications=admitted + [candidate])
+                    trial['knowledge'] = store.bundle([a['law'] for a in trial['applications']])
+                    write(package_path, trial)
+                    try:
+                        candidate_receipt = json.loads(run('check-selection', current, package_path))
+                    except RuntimeError as error:
+                        rejections.append(dict(iteration=iteration, application=candidate, reason=str(error)))
+                    else:
+                        admitted.append(candidate)
+                        receipt = candidate_receipt
+                        break
             if not admitted:
                 break
             package = dict(package, applications=admitted,
@@ -120,5 +130,7 @@ if __name__ == '__main__':
     parser.add_argument('--source', type=pathlib.Path, default=ROOT / 'bench/cross-domain/main.ink')
     parser.add_argument('--output', type=pathlib.Path, default=ROOT / 'build/cross-domain/prepared')
     parser.add_argument('--scalar-calls', action='store_true', help='also expand scalar and record helpers in callbacks')
+    parser.add_argument('--share-arguments', action='store_true', help='preserve single evaluation of helper arguments with checked lexical bindings')
+    parser.add_argument('--core', action='store_true', help='read an already checked executable-core input')
     args = parser.parse_args()
-    prepare(args.compiler, args.source, args.output, scalar_calls=args.scalar_calls)
+    prepare(args.compiler, args.source, args.output, scalar_calls=args.scalar_calls, share_arguments=args.share_arguments, input_core=args.core)
