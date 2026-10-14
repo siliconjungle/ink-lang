@@ -43,6 +43,19 @@ function guardedDenseDelta(init){
   const row={value:v,active:a};if(dense)rows[i]=row;else sparse.set(k,row);
  });},total:()=>total.value,count:()=>count.value,connect(cb){return effect(()=>cb(total.value,count.value));}};
 }
+// Match prebound Ink's trusted canonical U64 key contract. Such keys are
+// nonnegative integers, and rounding a wide key cannot enter the small prefix.
+// Keep the guarded control above as a separately reported historical lane.
+function trustedDenseDelta(init){
+ const rows=new Array(16384).fill(undefined),sparse=new Map();
+ for(let i=0;i<init.length;i++){if(i<rows.length)rows[i]={...init[i]};else sparse.set(BigInt(i),{...init[i]});}
+ const total=signal(init.reduce((s,r)=>r.active?word(s+r.value):s,0n)),count=signal(BigInt(init.filter(r=>r.active).length));
+ return {put(k,v,a){const i=Number(k),dense=i<rows.length,old=dense?rows[i]:sparse.get(k),before=old?.active?old.value:0n,after=a?v:0n;batch(()=>{
+  if(before!==after)total.value=word(total.value-before+after);
+  if(a!==(old?.active??false))count.value+=a?1n:-1n;
+  const row={value:v,active:a};if(dense)rows[i]=row;else sparse.set(k,row);
+ });},total:()=>total.value,count:()=>count.value,connect(cb){return effect(()=>cb(total.value,count.value));}};
+}
 function derived(init){
  const rows=init.map(r=>signal({...r}));
  const total=computed(()=>rows.reduce((s,r)=>r.value.active?word(s+r.value.value):s,0n));
@@ -85,6 +98,7 @@ const factories=[
  {label:'Preact manual delta',create:init=>delta(init)},
  ...(cfg.guarded_raw_control?[{label:'Preact guarded manual delta',create:init=>guardedDelta(init)}]:[]),
  ...(cfg.guarded_dense_control?[{label:'Preact guarded dense delta',create:init=>guardedDenseDelta(init)}]:[]),
+ ...(cfg.trusted_dense_control?[{label:'Preact trusted dense delta',create:init=>trustedDenseDelta(init)}]:[]),
  {label:'Preact delta + commits/events',create:init=>committedDelta(init)},
  {label:'Svelte manual delta',create:init=>svelte.deltaRows(init)},
  {label:'Preact computed',create:init=>derived(init),baseline:true}

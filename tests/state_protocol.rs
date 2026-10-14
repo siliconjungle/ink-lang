@@ -6,7 +6,7 @@ const SOURCE:&str=include_str!("../examples/filtered-aggregate.ink");
 fn event_columns_preserve_multiple_channels_owned_records_and_transactional_positions(){
  let source="module event_storage;enum Error{Failed,}record Payload{value:u64,}event one:Payload;event two:u64;change multi(v:Payload,fail:Bool)->Result<Unit,Error> emits(one,two){emit one(v);emit two(v.value);if fail{return Err(Error.Failed);}return Ok(());}change single(v:Payload)->Unit emits(one) protocol(preflight){emit one(v);return ();}";
  let module=CheckedModule::from_source(parse(source).unwrap()).unwrap();
- let protocol:protocol::Plan=serde_json::from_value(json!({"schema":1,"semantics":protocol::SEMANTICS,"input_core_sha256":module.identity().unwrap(),"event_columns":true,"actions":[{"action":"single","execution":"preflight"}]})).unwrap();
+ let protocol:protocol::Plan=serde_json::from_value(json!({"schema":1,"semantics":protocol::SEMANTICS,"input_core_sha256":module.identity().unwrap(),"event_columns":true,"event_runs":true,"actions":[{"action":"single","execution":"preflight"}]})).unwrap();
  let packet:planning::Package=serde_json::from_value(json!({"schema":1,"semantics":planning::SEMANTICS,"input_core_sha256":module.identity().unwrap(),"steps":[{"kind":"protocol","package":protocol}]})).unwrap();
  let checked=planning::check(&module,&packet).unwrap();
  let dir=directory().join("events");fs::create_dir_all(&dir).unwrap();fs::write(dir.join("events.mjs"),verified_language::javascript::lower_planned(&checked).unwrap().javascript).unwrap();
@@ -35,11 +35,12 @@ fn execution_declarations_and_proposals_replay_structural_capabilities(){
  assert!(CheckedModule::from_source(parse(&bad).unwrap()).unwrap_err().contains("preflight"));
  let source=SOURCE.replace("emits(seen){","emits(seen) protocol(transactional){");
  let module=CheckedModule::from_source(parse(&source).unwrap()).unwrap();
- let p=protocol::Plan{schema:1,semantics:protocol::SEMANTICS.into(),input_core_sha256:module.identity().unwrap(),actions:vec![protocol::ActionChoice{action:"put".into(),execution:protocol::Execution::Preflight}],direct_reads:vec![],output_publication:false,snapshot_rows:false,event_columns:false,inline_maintenance:false,compact_commits:None,columns:vec![]};
+ let p=protocol::Plan{schema:1,semantics:protocol::SEMANTICS.into(),input_core_sha256:module.identity().unwrap(),actions:vec![protocol::ActionChoice{action:"put".into(),execution:protocol::Execution::Preflight}],direct_reads:vec![],output_publication:false,snapshot_rows:false,event_columns:false,event_runs:false,inline_maintenance:false,compact_commits:None,columns:vec![]};
  assert!(protocol::check(&module,&p,None).unwrap_err().contains("source declaration"));
  let mut p=p;p.actions.clear();p.direct_reads.push("total_query".into());
  assert!(protocol::check(&module,&p,None).unwrap_err().contains("maintained"));
  p.direct_reads.clear();p.inline_maintenance=true;assert!(protocol::check(&module,&p,None).unwrap_err().contains("checked views"));
+ p.inline_maintenance=false;p.event_runs=true;assert!(protocol::check(&module,&p,None).unwrap_err().contains("event columns"));
 }
 #[test]
 fn whole_implementations_preserve_histories_publication_changes_and_portable_state(){
@@ -52,7 +53,7 @@ fn whole_implementations_preserve_histories_publication_changes_and_portable_sta
  let plan=planning::check(&module,&packet).unwrap();
  fs::write(dir.join("baseline.mjs"),verified_language::javascript::lower(&module).unwrap().javascript).unwrap();
  let facts=protocol::capabilities(&module).unwrap();
- let protocol=protocol::Plan{schema:1,semantics:protocol::SEMANTICS.into(),input_core_sha256:module.identity().unwrap(),actions:facts.iter().filter(|c|c.preflight).map(|c|protocol::ActionChoice{action:c.action.clone(),execution:protocol::Execution::Preflight}).collect(),direct_reads:facts.iter().filter(|c|c.direct_keep.is_some()).map(|c|c.action.clone()).collect(),output_publication:true,snapshot_rows:true,event_columns:false,inline_maintenance:false,compact_commits:None,columns:vec![]};
+ let protocol=protocol::Plan{schema:1,semantics:protocol::SEMANTICS.into(),input_core_sha256:module.identity().unwrap(),actions:facts.iter().filter(|c|c.preflight).map(|c|protocol::ActionChoice{action:c.action.clone(),execution:protocol::Execution::Preflight}).collect(),direct_reads:facts.iter().filter(|c|c.direct_keep.is_some()).map(|c|c.action.clone()).collect(),output_publication:true,snapshot_rows:true,event_columns:false,event_runs:false,inline_maintenance:false,compact_commits:None,columns:vec![]};
  assert_eq!(protocol.actions.len(),2);
  packet.steps.push(planning::Step::Protocol(protocol));
  let optimized=planning::check(&module,&packet).unwrap();
@@ -97,6 +98,14 @@ for step in zero['steps']:
 dense=copy.deepcopy(guarded);dense['steps'].insert(-1,dict(kind='physical',package=dict(schema=1,semantics='ink-physical-plan-v1',input_core_sha256=dense['steps'][-1]['package']['input_core_sha256'],dense_prefixes=[dict(table='Rows',capacity=64)])))
 (p/'dense.json').write_text(json.dumps(dense))
 zero['steps'].insert(-1,dense['steps'][-2]);(p/'zero_dense.json').write_text(json.dumps(zero))
+from producers.maintained_updates import predicate_row_update
+predicate=copy.deepcopy(zero)
+for step in predicate['steps']:
+ if step['kind']=='maintained':step['package']=predicate_row_update(step['package'],p/'predicate-knowledge')
+(p/'predicate.json').write_text(json.dumps(predicate))
+predicate_inline=copy.deepcopy(predicate)
+predicate_inline['steps'][-1]['package']['inline_maintenance']=True
+(p/'predicate_inline.json').write_text(json.dumps(predicate_inline))
 for row in rows:
  if row['status']!='proposal' or '/columns/' not in row['label']:continue
  v=dict(plans);v['steps']=[*plans['steps'],row['step']]
@@ -108,22 +117,33 @@ for row in rows:
   let p:planning::Package=serde_json::from_slice(&fs::read(dir.join(format!("{name}.json"))).unwrap()).unwrap();
   let checked=planning::check(&module,&p).unwrap();
   fs::write(dir.join(format!("{name}.mjs")),verified_language::javascript::lower_planned(&checked).unwrap().javascript).unwrap();
+  if name=="word"{let mut inline=p.clone();if let planning::Step::Protocol(p)=inline.steps.last_mut().unwrap(){p.inline_maintenance=true;}let checked=planning::check(&module,&inline).unwrap();fs::write(dir.join("inline_word.mjs"),verified_language::javascript::lower_planned(&checked).unwrap().javascript).unwrap();}
   let mut forged=p.clone();if let planning::Step::Protocol(p)=forged.steps.last_mut().unwrap(){p.columns[0].codec.roundtrip="0".repeat(64);}
   assert!(planning::check(&module,&forged).is_err());
   if name=="number"{let mut forged=p.clone();if let planning::Step::Protocol(p)=forged.steps.last_mut().unwrap(){p.columns[0].guards.values_mut().next().unwrap().problem_sha256="0".repeat(64);}assert!(planning::check(&module,&forged).is_err());}
   if name=="number"{let mut forged=p.clone();if let planning::Step::Protocol(p)=forged.steps.last_mut().unwrap(){p.columns[0].guards.clear();}assert!(planning::check(&module,&forged).unwrap_err().contains("guard certificate"));}
  }
- for name in ["guarded","dense","zero","zero_dense"]{
+ for name in ["guarded","dense","zero","zero_dense","predicate","predicate_inline"]{
   let p:planning::Package=serde_json::from_slice(&fs::read(dir.join(format!("{name}.json"))).unwrap()).unwrap();
   let checked=planning::check(&module,&p).unwrap();
   fs::write(dir.join(format!("{name}.mjs")),verified_language::javascript::lower_planned(&checked).unwrap().javascript).unwrap();
   let mut forged=p.clone();for step in &mut forged.steps{if let planning::Step::Maintained(p)=step{p.views[0].update.as_mut().unwrap().proof=verified_language::logic::Proof::Refl(verified_language::logic::Term::U64(0));}}
   assert!(planning::check(&module,&forged).is_err());
+  if name.starts_with("predicate"){
+   let mut forged=p.clone();for step in &mut forged.steps{if let planning::Step::Maintained(p)=step{p.views.iter_mut().find_map(|v|v.row_update.as_mut()).unwrap().proof=verified_language::logic::Proof::Refl(verified_language::logic::Term::U64(0));}}
+   assert!(planning::check(&module,&forged).unwrap_err().contains("row update"));
+   let mut forged=p.clone();for step in &mut forged.steps{if let planning::Step::Maintained(p)=step{let v=p.views.iter_mut().find(|v|v.row_update.is_some()).unwrap();v.row_update.as_mut().unwrap().function=v.update.as_ref().unwrap().function.clone();}}
+   assert!(planning::check(&module,&forged).unwrap_err().contains("row update signature"));
+  }
  }
  for (name,events) in [("compact",false),("compact_events",true)]{
   let mut p=packet.clone();if let planning::Step::Protocol(p)=p.steps.last_mut().unwrap(){p.event_columns=events;p.compact_commits=Some(serde_json::from_slice(&std::process::Command::new("python3").args(["-c","import gzip,sys;sys.stdout.buffer.write(gzip.open(sys.argv[1],'rb').read())"]).arg(root.join("knowledge/producers/data/commit-word53.json.gz")).output().unwrap().stdout).unwrap());}
   let checked=planning::check(&module,&p).unwrap();fs::write(dir.join(format!("{name}.mjs")),verified_language::javascript::lower_planned(&checked).unwrap().javascript).unwrap();
-  if events{let mut inline=p.clone();if let planning::Step::Protocol(p)=inline.steps.last_mut().unwrap(){p.inline_maintenance=true;}let checked=planning::check(&module,&inline).unwrap();fs::write(dir.join("inline_compact.mjs"),verified_language::javascript::lower_planned(&checked).unwrap().javascript).unwrap();}
+  if events{
+   let mut inline=p.clone();if let planning::Step::Protocol(p)=inline.steps.last_mut().unwrap(){p.inline_maintenance=true;}let checked=planning::check(&module,&inline).unwrap();fs::write(dir.join("inline_compact.mjs"),verified_language::javascript::lower_planned(&checked).unwrap().javascript).unwrap();
+   let mut runs=inline.clone();if let planning::Step::Protocol(p)=runs.steps.last_mut().unwrap(){p.event_runs=true;}let checked=planning::check(&module,&runs).unwrap();fs::write(dir.join("event_runs.mjs"),verified_language::javascript::lower_planned(&checked).unwrap().javascript).unwrap();
+   let mut predicate:planning::Package=serde_json::from_slice(&fs::read(dir.join("predicate_inline.json")).unwrap()).unwrap();predicate.steps.pop();predicate.steps.push(runs.steps.last().unwrap().clone());let checked=planning::check(&module,&predicate).unwrap();fs::write(dir.join("predicate_runs.mjs"),verified_language::javascript::lower_planned(&checked).unwrap().javascript).unwrap();
+  }
   let mut forged=p;if let planning::Step::Protocol(p)=forged.steps.last_mut().unwrap(){p.compact_commits.as_mut().unwrap().problem_sha256="0".repeat(64);}assert!(planning::check(&module,&forged).is_err());
  }
  let mut boundaries=vec![];
