@@ -2298,6 +2298,42 @@ mod tests {
         (p, checked)
     }
     #[test]
+    fn opaque_map_membership_observes_keys_and_preserves_bound_queries() {
+        let (p, checked) = context();
+        let boolean = value(Type::Bool);
+        for key_type in [Type::U32, Type::U64, Type::I32, Type::Bool] {
+            let key_sort = value(key_type.clone());
+            let map_sort = value(Type::Map(Box::new(key_type.clone()), Box::new(Type::U32)));
+            let map = free(map_sort.clone(), "map");
+            let other = free(map_sort.clone(), "other");
+            let env = BTreeMap::from([("map".into(), map_sort.clone()), ("other".into(), map_sort)]);
+            let lambda = |input: Sort, body: Term| term(arrow(input, body.sort.clone()), Node::Lambda(Box::new(body)));
+            // The query is bound outside the fold; its index must survive both
+            // callback binders. This expected term does not call the reducer.
+            let observe = |source: Term| {
+                let body = op(boolean.clone(), "binary:||", vec![
+                    op(boolean.clone(), "binary:==", vec![
+                        term(key_sort.clone(), Node::Bound(2)),
+                        term(key_sort.clone(), Node::Bound(1)),
+                    ]),
+                    term(boolean.clone(), Node::Bound(0)),
+                ]);
+                lambda(key_sort.clone(), op(boolean.clone(), "call:foldr", vec![
+                    op(value(Type::List(Box::new(key_type.clone()))), "method:keys", vec![source]),
+                    term(boolean.clone(), Node::Bool(false)),
+                    lambda(key_sort.clone(), lambda(boolean.clone(), body)),
+                ]))
+            };
+            let contains = lambda(key_sort.clone(), op(boolean.clone(), "method:contains", vec![
+                map.clone(), term(key_sort.clone(), Node::Bound(0)),
+            ]));
+            checked.prove(&p, &env, &[], &Equation { from: contains.clone(), to: observe(map) },
+                &Proof::Normalize, &mut Budget::new(), 0).unwrap();
+            assert!(checked.prove(&p, &env, &[], &Equation { from: contains, to: observe(other) },
+                &Proof::Normalize, &mut Budget::new(), 0).is_err(), "membership must bind the same map");
+        }
+    }
+    #[test]
     fn quantified_induction_respects_free_variables_of_inherited_schemas() {
         let (p, c) = context();
         let list = value(Type::List(Box::new(Type::U32)));

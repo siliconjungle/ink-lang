@@ -253,6 +253,28 @@ fn dec(n: Term) -> Term {
 fn empty_map(t: &Term) -> bool {
     matches!(&t.node,Node::Op(n,a) if n=="local:map-empty" && a.is_empty())
 }
+// Membership observes the finite key sequence, irrespective of the map's
+// construction history. Bind the query outside both fold parameters so captures
+// under existing lambdas are shifted by the ordinary checked beta machinery.
+fn map_membership(map: &Term, key: &Term) -> LangResult<Term> {
+    let Type::Map(key_type, _) = ty(&map.sort)? else { return Err("map membership receiver".into()); };
+    expect(key, value(*key_type.clone()))?;
+    let boolean = value(Type::Bool);
+    let key_sort = key.sort.clone();
+    let body = op(boolean.clone(), "binary:||", vec![
+        eq(term(key_sort.clone(), Node::Bound(2)), term(key_sort.clone(), Node::Bound(1))),
+        term(boolean.clone(), Node::Bound(0)),
+    ]);
+    let accumulated = term(arrow(boolean.clone(), boolean.clone()), Node::Lambda(Box::new(body)));
+    let step_sort = arrow(key_sort.clone(), accumulated.sort.clone());
+    let step = term(step_sort.clone(), Node::Lambda(Box::new(accumulated)));
+    let capture = term(arrow(key_sort, step_sort.clone()), Node::Lambda(Box::new(step)));
+    Ok(op(boolean.clone(), "call:foldr", vec![
+        op(value(Type::List(key_type.clone())), "method:keys", vec![map.clone()]),
+        term(boolean, Node::Bool(false)),
+        op(step_sort, "apply", vec![capture, key.clone()]),
+    ]))
+}
 pub fn reduce(t: &Term) -> LangResult<Option<Term>> {
     let Node::Op(n, a) = &t.node else {
         return Ok(None);
@@ -588,6 +610,9 @@ pub fn reduce(t: &Term) -> LangResult<Option<Term>> {
         ("method:get_or", [m, k, _])
         | ("method:contains", [m, k])
         | ("local:map-value", [m, k]) => {
+            let opaque = || -> LangResult<Option<Term>> {
+                if n == "method:contains" { Ok(Some(map_membership(m, k)?)) } else { Ok(None) }
+            };
             let fallback = if n == "method:contains" {
                 term(value(Type::Bool), Node::Bool(false))
             } else if n == "method:get_or" {
@@ -645,10 +670,10 @@ pub fn reduce(t: &Term) -> LangResult<Option<Term>> {
                             ))
                         }
                     }
-                    _ => None,
+                    _ => opaque()?,
                 }
             } else {
-                None
+                opaque()?
             }
         }
         ("method:keys", [m]) => {
