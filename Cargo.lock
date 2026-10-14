@@ -68,7 +68,6 @@ version = "0.1.0"
 dependencies = [
  "ink-abi",
  "ink-core",
- "ink-lowering-c",
  "ink-lowering-gpu",
  "ink-lowering-js",
  "ink-lowering-rust",
@@ -102,23 +101,13 @@ dependencies = [
 ]
 
 [[package]]
-name = "ink-lowering-c"
-version = "0.1.0"
-dependencies = [
- "ink-abi",
- "ink-core",
- "ink-lowering-rust",
- "serde_json",
-]
-
-[[package]]
 name = "ink-lowering-gpu"
 version = "0.1.0"
 dependencies = [
  "ink-abi",
  "ink-core",
- "ink-lowering-c",
  "ink-lowering-js",
+ "ink-lowering-rust",
  "serde_json",
  "sha2",
 ]
@@ -152,7 +141,7 @@ version = "0.1.0"
 dependencies = [
  "ink-abi",
  "ink-core",
- "ink-lowering-c",
+ "ink-lowering-rust",
 ]
 
 [[package]]
@@ -165,9 +154,9 @@ version = "0.1.0"
 dependencies = [
  "ink-abi",
  "ink-core",
- "ink-lowering-c",
  "ink-lowering-gpu",
  "ink-lowering-js",
+ "ink-lowering-rust",
  "ink-lowering-wasm",
  "ink-native-support",
  "serde_json",
