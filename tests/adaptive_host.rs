@@ -83,7 +83,10 @@ fn native_switch_retains_reply_state_and_never_repeats_effects() {
 fn emitted_adaptive_state_preserves_reference_histories() {
     use std::{path::Path, process::Command};
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
-    let output = root.join("build/adaptive-state-conformance");
+    let output = root.join(format!(
+        "build/adaptive-state-conformance-{}",
+        std::process::id()
+    ));
     if output.exists() {
         std::fs::remove_dir_all(&output).unwrap();
     }
