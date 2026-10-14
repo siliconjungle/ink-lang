@@ -34,6 +34,8 @@ are emitted separately from full replies. Selected native inline maintenance can
 compute scalar keeps in locals, then store the row and install those keeps in one
 kernel; all maintained computations precede mutation. Full replies retain the
 separate preparation phase before fallible public event copying.
+For eligible result-only actions, the compiler embeds that kernel directly in
+the action entrypoint, without a separate maintained-kernel call or scratch cells.
 
 ## Direct reads and output publication
 
