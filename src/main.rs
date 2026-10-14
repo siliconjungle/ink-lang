@@ -247,6 +247,7 @@ fn run() -> LangResult<()> {
         "--termination-proofs",
         "--refinement-bodies",
         "--export-obligations",
+        "--capture-sources",
         "--snapshot",
         "--snapshot-out",
         "--sorted-tables",
@@ -816,13 +817,27 @@ fn run() -> LangResult<()> {
         println!(
             "ink emit-definition LOCK.json EXPORTS.json [--select PACKAGE.json] -o DEFINITION.rs"
         );
-        println!("ink emit-core SOURCE -o CORE.json\nink check-core CORE.json\nink extend-core SOURCE REQUEST.json [--core] -o CORE.json\nink emit-actions SOURCE -o ACTIONS.json\nink check-actions SOURCE ACTIONS.json\nink emit-effects SOURCE -o EFFECTS.json\nink check-effects SOURCE EFFECTS.json\nink emit-access SOURCE -o ACCESS.json\nink check-access SOURCE ACCESS.json\nExecution/lowering commands also accept --core to read a checked CORE.json instead of source.\nChecked replacement packages: build ... --replacement PACKAGE.json");
+        println!("ink emit-core SOURCE -o CORE.json [--capture-sources INPUTS.json]\nink check-core CORE.json\nink extend-core SOURCE REQUEST.json [--core] -o CORE.json\nink emit-actions SOURCE -o ACTIONS.json\nink check-actions SOURCE ACTIONS.json\nink emit-effects SOURCE -o EFFECTS.json\nink check-effects SOURCE EFFECTS.json\nink emit-access SOURCE -o ACCESS.json\nink check-access SOURCE ACCESS.json\nExecution/lowering commands also accept --core to read a checked CORE.json instead of source.\nChecked replacement packages: build ... --replacement PACKAGE.json");
         println!("ink check SOURCE\nink execute SOURCE SCRIPT.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable]\nink run SOURCE FUNCTION ARGS.json [--evaluation-budget N] (1..10000000000; default100000000)\nink build SOURCE [--target native|wasm32|rust|javascript|webgpu] -o OUTPUT (native and wasm32 use typed Rust)\nink emit-state SOURCE -o DIRECTORY [--wasm-abi] [--table-storage ordered|indexed-slots]\nink check-representation SOURCE REQUEST.json\nink verify-library LOCK.json");
 
         return Ok(());
     }
     let path = args.get(1).ok_or("missing source path")?;
-    let mut p = if cmd == "check-core" || args.iter().any(|arg| arg == "--core") {
+    let capture_path = arg_value(&args, "--capture-sources")?;
+    if capture_path.is_some() && (cmd != "emit-core" || args.iter().any(|arg|
+        ["--core", "--optimise", "--selection"].contains(&arg.as_str()))) {
+        return Err("--capture-sources requires literal emit-core from source".into());
+    }
+    let mut captured_files = None;
+    let mut p = if capture_path.is_some() {
+        let loaded = if arg_value(&args, "--termination-proofs")?.is_some() {
+            verified_language::modules::load_for_termination(path)?
+        } else {
+            verified_language::modules::load(path)?
+        };
+        captured_files = Some(loaded.files);
+        loaded.program
+    } else if cmd == "check-core" || args.iter().any(|arg| arg == "--core") {
         core::CheckedModule::from_bytes(&read_bounded(path, core::MAX_BYTES)?)?.into_program()
     } else if cmd=="emit-termination-obligations" || arg_value(&args,"--termination-proofs")?.is_some() {
         verified_language::modules::load_for_termination(path)?.program
@@ -1366,10 +1381,19 @@ fn run() -> LangResult<()> {
             let module = core::CheckedModule::from_source(p)?;
             if cmd == "emit-core" {
                 let out = arg_value(&args, "-o")?.ok_or("emit-core requires -o CORE.json")?;
-                write(
-                    &out,
-                    &String::from_utf8(module.bytes()?).map_err(|e| e.to_string())?,
-                )?;
+                let bytes = module.bytes()?;
+                write(&out, std::str::from_utf8(&bytes).map_err(|e| e.to_string())?)?;
+                if let (Some(capture), Some(files)) = (&capture_path, &captured_files) {
+                    use sha2::{Digest, Sha256};
+                    let captured = serde_json::json!({"schema":1,
+                        "semantics":"ink-source-capture-v1",
+                        "core_sha256":format!("{:x}", Sha256::digest(&bytes)),
+                        "files":files.iter().map(|f| serde_json::json!({
+                            "path":f.path,"module":f.module,"sha256":f.sha256,"source":f.source
+                        })).collect::<Vec<_>>(),
+                        "scope":"Exact source bytes consumed by this load, not a filesystem-wide atomic snapshot or proof authority."});
+                    write(capture, &serde_json::to_string_pretty(&captured).map_err(|e|e.to_string())?)?;
+                }
             }
             println!(
                 "{}",

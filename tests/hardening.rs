@@ -2200,9 +2200,11 @@ fn llvm_learning_and_incremental_knowledge_remain_checked() {
             "knowledge.tests.test_contract_proof_hygiene",
             "knowledge.tests.test_contract_search_alternatives",
             "knowledge.tests.test_publication_concurrency",
+            "knowledge.tests.test_implementation_candidates",
             "planner.tests.test_selected_closure_sessions", "planner.tests.test_plan_cache",
             "planner.tests.test_compiled_cache", "planner.tests.test_compiled_cache_io",
             "planner.tests.test_corpus_clone", "planner.tests.test_corpus_copy", "planner.tests.test_corpus_context",
+            "planner.tests.test_corpus_environment", "planner.tests.test_corpus_inputs",
             "tests.test_audit_coverage"])
         .current_dir(root)
         .env("PYTHONPATH", std::env::join_paths([root.join("knowledge"), root.join("planner")]).unwrap())

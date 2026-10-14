@@ -52,3 +52,12 @@ test('missing replies, unsupported ABI and silent required GPU fallback fail',as
   const host=packed();host.call=async(_,args)=>({value:args[0],backend:'cpu'});
   await assert.rejects(replayContracts(host,fixture),/required GPU fell back/);
 });
+
+test("packed companions replay real values and snapshots and reject mismatches",async()=>{
+ for(const corruption of ["none","value","snapshot"]){
+  let disposed=0;const pureStateModule={create:()=>({pure:(_,args)=>corruption==="value"?[]:args[0],snapshot:()=>corruption==="snapshot"?[1]:[0],dispose:()=>{disposed++;}})};
+  const work=replayContracts(packed(),{...fixture,pureStateModule});
+  if(corruption==="none"){const result=await work;assert.equal(result.snapshotComparisons,3);assert.equal(disposed,3);}
+  else {await assert.rejects(work,/replay differs|snapshot differs/);assert.equal(disposed,1);}
+ }
+});

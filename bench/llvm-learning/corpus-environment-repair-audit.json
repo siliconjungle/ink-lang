@@ -1,0 +1,170 @@
+{
+  "schema": 1,
+  "finding": "F049",
+  "base_distribution": "bd3b52daec8f57753699a185e352742fb6afcf0e",
+  "base_planner": "9463d5fa56c1ff9daf9ec20c3f9398a5dccc975e",
+  "candidate_planner": "4d6ddc4a8658561524d15bfdd89ac1bacaacddb9",
+  "changes": [
+    "Capture a fresh child interpreter using the same environment construction as corpus workers.",
+    "Bind interpreter/ABI/SQLite identity, actual distribution files and selected import origins/content for python-sat,pysolvers,six,numpy,hnswlib.",
+    "Bind Node or rustc/Cargo executable bytes and version-response hashes, host identity and an explicit small set of hashed execution controls.",
+    "Require exact saved-context equality for resume/report-only; historical reports lacking this field cannot silently resume. No whole process environment is serialized."
+  ],
+  "validation": {
+    "baseline": "Same execution context despite missing versus installed pysat; actual direct authoring failure was recorded previously.",
+    "after": "Actual system and proof environments differ solely in new environment field.",
+    "related_tests": 12,
+    "mandatory_hardening": "passed26.26seconds; includes final host-proxy version-response regression",
+    "controls": [
+      "Two real temporary Python environments, dependency availability difference and identical-env stability.",
+      "Same-version package and external module edits reject resume.",
+      "A shadow module changes context without changing installed distribution metadata, and capture does not import its raising initializer.",
+      "Host proxy byte identity can stay unchanged while version response changes; both are recorded.",
+      "Unrelated test secret omitted; explicit control changes are hashed and change identity."
+    ],
+    "actual_workflow": {
+      "runs": [
+        {
+          "label": "initial",
+          "returncode": 0,
+          "preserved": {
+            "context.json": "c68bb7521dad5da358b68967d859cc4ae57a8ada92610b0ca0d91eac0de03d41",
+            "records.json": "fb97df39551b3d67806e061c634308b528a1da8cd85574e85b293369e27dc1de"
+          }
+        },
+        {
+          "label": "matching-resume",
+          "returncode": 0,
+          "preserved": {
+            "context.json": "c68bb7521dad5da358b68967d859cc4ae57a8ada92610b0ca0d91eac0de03d41",
+            "records.json": "fb97df39551b3d67806e061c634308b528a1da8cd85574e85b293369e27dc1de"
+          }
+        },
+        {
+          "label": "different-environment",
+          "returncode": 1,
+          "preserved": {
+            "context.json": "c68bb7521dad5da358b68967d859cc4ae57a8ada92610b0ca0d91eac0de03d41",
+            "records.json": "fb97df39551b3d67806e061c634308b528a1da8cd85574e85b293369e27dc1de"
+          }
+        }
+      ],
+      "headline": {
+        "programs": 1,
+        "compiled": 1,
+        "programs_with_rewrite_alternative": 1,
+        "programs_with_any_alternative": 1,
+        "programs_selecting_alternative": 1,
+        "median_seconds": 38.756,
+        "stopped_by_time": 0,
+        "laws_admitted": 7,
+        "laws_admitted_in_multiple_programs": 0,
+        "representations_admitted": 0,
+        "last_gates": {
+          "selected_alternative": 1
+        }
+      }
+    }
+  },
+  "limits": [
+    "Selected-component provenance, not a hermetic machine snapshot or proof authority. System shared libraries, arbitrary plugin dependencies, Cargo configuration and hardware driver details are not comprehensively bound.",
+    "Missing/import-discoverable status is recorded; this does not certify native dependency functionality. Bytecode caches are excluded from file hashing.",
+    "Time budgets, scheduling, load and randomization can still change discovery and timing. No speed claim.",
+    "Corpus source/semantics and knowledge unchanged. Actual compact-set compile/resume/rejection plus context tests validate the diagnostic change; this is not a new ten-program generalisation measurement.",
+    "Current remote CI must finish green before claiming the revision fully verified."
+  ],
+  "sources": [
+    {
+      "path": "work/ink-development/planner/ink_planner/corpus.py",
+      "bytes": 22882,
+      "sha256": "f7066c26c8485c6ea827214529118024d850652e3f863e60d2cef32ffd568c1c"
+    },
+    {
+      "path": "work/ink-development/planner/ink_planner/corpus_environment.py",
+      "bytes": 6275,
+      "sha256": "3f352478813f0ca4bcf671252602d17acbdf46acf6f9a8dd840be1c5af283c52"
+    },
+    {
+      "path": "work/ink-development/planner/tests/test_corpus_environment.py",
+      "bytes": 7969,
+      "sha256": "22397bc0edb93f3048529e56000aceff1d07ada9d2b933188fe3d7e8b0b96a30"
+    },
+    {
+      "path": "work/ink-development/planner/README.md",
+      "bytes": 25227,
+      "sha256": "aea23366351c5a56239caf68d09a9cde716ac847ff5972b8133d870dae42c4bf"
+    },
+    {
+      "path": "work/ink-development/tests/hardening.rs",
+      "bytes": 80269,
+      "sha256": "3d2617c420e5c6bc17bfbf8bf9a8334556493f2a102cc1fcc8cafbd3160ea290"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "work/llvm-learning-smoke/corpus-environment-system-after.json",
+      "bytes": 2460,
+      "sha256": "a0756701eab4bbdfcb0e3b9ec2975152dd6e054b6849cc12e5847c3d5b0c386e"
+    },
+    {
+      "path": "work/llvm-learning-smoke/corpus-environment-venv-after.json",
+      "bytes": 3643,
+      "sha256": "1825a93a599620870e8671b5e5ccc64619e6a3ab29e2ae44127a0ce7cb099a99"
+    },
+    {
+      "path": "work/llvm-learning-smoke/corpus-environment-tests-final.log",
+      "bytes": 2143,
+      "sha256": "496476a2f729e7f1f797a76f739730def6df3b9f04d3b46f3f3313c2a86838ca"
+    },
+    {
+      "path": "work/llvm-learning-smoke/corpus-environment-hardening-final.log",
+      "bytes": 488,
+      "sha256": "3829382c18aa1d412da5fd7121c76a4095a91be272a1652e1ee9621ea3b31802"
+    },
+    {
+      "path": "work/llvm-learning-smoke/corpus-environment-smoke-results.json",
+      "bytes": 1265,
+      "sha256": "3c7c3fda074251e76e8c19e8fd61709b83deacd0040dade9f060e4c515b15dff"
+    },
+    {
+      "path": "work/llvm-learning-smoke/corpus-environment-smoke-driver.log",
+      "bytes": 685,
+      "sha256": "77e15efd70d0d2019b11e69a58159599f80fd37490f3e4e547db50ba0e1f7a7f"
+    },
+    {
+      "path": "work/llvm-learning-smoke/corpus-environment-smoke-initial.log",
+      "bytes": 367,
+      "sha256": "a3cf94177ddbca3aaec5b9efb8df74f4bf12647a8cd3bc48c9fac093e55a67aa"
+    },
+    {
+      "path": "work/llvm-learning-smoke/corpus-environment-smoke-matching-resume.log",
+      "bytes": 327,
+      "sha256": "cc23ade6334cd8d21e08d3626292f1761d1dd5058c0fb598417ac976d3fe9363"
+    },
+    {
+      "path": "work/llvm-learning-smoke/corpus-environment-smoke-different-environment.log",
+      "bytes": 872,
+      "sha256": "a4d1c22e93fa26d97c1c0b329f74b535063179686a9ed8683e8fb5d5f6ce6550"
+    },
+    {
+      "path": "outputs/llvm-ink-audit/corpus-environment-context-audit.json",
+      "bytes": 2670,
+      "sha256": "b1f4d9a8624995d654147a884b498c081a2412683310d29e1fd5c301eae3c31f"
+    },
+    {
+      "path": "outputs/llvm-ink-audit/corpus-environment-smoke/context.json",
+      "bytes": 4369,
+      "sha256": "c68bb7521dad5da358b68967d859cc4ae57a8ada92610b0ca0d91eac0de03d41"
+    },
+    {
+      "path": "outputs/llvm-ink-audit/corpus-environment-smoke/records.json",
+      "bytes": 11483,
+      "sha256": "fb97df39551b3d67806e061c634308b528a1da8cd85574e85b293369e27dc1de"
+    },
+    {
+      "path": "outputs/llvm-ink-audit/corpus-environment-smoke/report.json",
+      "bytes": 9542,
+      "sha256": "a58c6b154086f230f8d7367c1f4f872d4c92e95ea516b19da6b40ab05b2efe30"
+    }
+  ]
+}

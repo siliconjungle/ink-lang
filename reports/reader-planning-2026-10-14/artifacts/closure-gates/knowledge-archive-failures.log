@@ -1,0 +1,1058 @@
+......s.s........ssssssssss..................................s.........ssss.sssss.............................ss...................ss....sss..............................................................ssss................EEEE.E.EEEs.ss.ss.ss.sss.s.ss.ss.ss.ss.ss.ss.sssE.ssssE.ssssE.ssssE.sss.sEssssE.ss.sEsssssE.sssE.ssssE.ssssE.ss....EEEs.sss.s.ss.s.EE.EEEss.sEEE.EEEs.s.ssE.EEEEEEEEEEEEEEs.ss.EEEsss.ss.sss.ss.sE.EssEss.ssEEEEEE..ssEEE
+======================================================================
+ERROR: test_hash_valid_false_controls_and_capture_safety (test_web_accepted25_laws.Accepted25Tests.test_hash_valid_false_controls_and_capture_safety)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_accepted25_laws.py", line 112, in test_hash_valid_false_controls_and_capture_safety
+    src,core,_=self.compile('controls',source_functions()[0][2]);base=root_laws()[0][1];bad_branch=copy.deepcopy(base);bad_branch['to']['node']['Op'][1][1]=var(arrow(value('U32'),value('U32')),'g');bad_filter=copy.deepcopy(base);bad_filter['to']['node']['Op'][1][0]=var(value({'List':'U32'}),'xs');failures=[]
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_accepted25_laws.py", line 70, in compile
+    src=self.directory/(name+'.ink');src.write_text('module Accepted25;\n'+text+'\n');core=src.with_suffix('.core.json');sem=src.with_suffix('.semantic.json');self.command(COMPILER,'emit-core',src,'-o',core);self.command(COMPILER,'emit-semantic',core,'--core','-o',sem);return src,core,json.loads(sem.read_text())
+                                                                                                                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_accepted25_laws.py", line 66, in command
+    r=subprocess.run(list(map(str,args)),text=True,capture_output=True);self.commands.append(dict(argv=list(map(str,args)),exit_code=r.returncode,stdout=r.stdout,stderr=r.stderr))
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 548, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1955, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/toolchain/ink-demand-proofs'
+
+======================================================================
+ERROR: test_novelty_and_full_prior_first_step_opportunities (test_web_accepted25_laws.Accepted25Tests.test_novelty_and_full_prior_first_step_opportunities)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_accepted25_laws.py", line 91, in test_novelty_and_full_prior_first_step_opportunities
+    src,core,subject=self.compile(name,text);checks=[]
+                     ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_accepted25_laws.py", line 70, in compile
+    src=self.directory/(name+'.ink');src.write_text('module Accepted25;\n'+text+'\n');core=src.with_suffix('.core.json');sem=src.with_suffix('.semantic.json');self.command(COMPILER,'emit-core',src,'-o',core);self.command(COMPILER,'emit-semantic',core,'--core','-o',sem);return src,core,json.loads(sem.read_text())
+                                                                                                                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_accepted25_laws.py", line 66, in command
+    r=subprocess.run(list(map(str,args)),text=True,capture_output=True);self.commands.append(dict(argv=list(map(str,args)),exit_code=r.returncode,stdout=r.stdout,stderr=r.stderr))
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 548, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1955, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/toolchain/ink-demand-proofs'
+
+======================================================================
+ERROR: test_typed_default_replay_reification_and_complete_oracles (test_web_accepted25_laws.Accepted25Tests.test_typed_default_replay_reification_and_complete_oracles)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_accepted25_laws.py", line 99, in test_typed_default_replay_reification_and_complete_oracles
+    self.assertEqual(hashlib.sha256(COMPILER.read_bytes()).hexdigest(),'b84caa0b9fbdc4166338b3c31dc90d1f7045d14cf1e7c0abacf9f911146fd438');rows=source_functions()+source_functions(True);src,core,subject=self.compile('all','\n'.join(s for _,_,s in rows));derived=specialize(subject);self.assertEqual(len(derived),26);st=publish(self.directory/'isolated',derived);admit=self.command(COMPILER,'knowledge-check',core,st.root/'view.json');apps=[];searches=[]
+                                    ^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/toolchain/ink-demand-proofs'
+
+======================================================================
+ERROR: test_checked_sharing_deployment_and_complete_typed_arrays (test_web_algebra19_laws.Algebra19Tests.test_checked_sharing_deployment_and_complete_typed_arrays)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_algebra19_laws.py", line 86, in test_checked_sharing_deployment_and_complete_typed_arrays
+    self.assertEqual(hashlib.sha256(COMPILER.read_bytes()).hexdigest(),'45670dbced0999e945278d7de7ed495cad9b43b1ab9d24c27182c9f9a5683e08')
+                                    ^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/toolchain/ink-sequence-proofs'
+
+======================================================================
+ERROR: test_hash_valid_false_swapped_operands_and_wrong_output_rejected (test_web_algebra19_laws.Algebra19Tests.test_hash_valid_false_swapped_operands_and_wrong_output_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_algebra19_laws.py", line 109, in test_hash_valid_false_swapped_operands_and_wrong_output_rejected
+    src=self.directory/'negative.ink';src.write_text('module Negative19;\n'+source_functions()[0][2]+'\n');core=self.directory/'negative.core.json';subject=self.directory/'negative.semantic.json';self.run_command(COMPILER,'emit-core',src,'-o',core);self.run_command(COMPILER,'emit-semantic',core,'--core','-o',subject)
+                                                                                                                                                                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_algebra19_laws.py", line 73, in run_command
+    r=subprocess.run(list(map(str,args)),capture_output=True,text=True);self.commands.append(dict(argv=list(map(str,args)),exit_code=r.returncode,stdout=r.stdout,stderr=r.stderr))
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 548, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1955, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/toolchain/ink-sequence-proofs'
+
+======================================================================
+ERROR: test_hash_valid_false_endpoints_rejected_semantically (test_web_algebra20_laws.Algebra20Tests.test_hash_valid_false_endpoints_rejected_semantically)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_algebra20_laws.py", line 140, in test_hash_valid_false_endpoints_rejected_semantically
+    src=self.directory/'negative.ink';src.write_text('module Negative20;\n'+source_functions(t='u32')[0][1]+'\n');core=src.with_suffix('.core.json');self.run_command(COMPILER,'emit-core',src,'-o',core);failures=[]
+                                                                                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_algebra20_laws.py", line 93, in run_command
+    r=subprocess.run(list(map(str,args)),capture_output=True,text=True);self.commands.append(dict(argv=list(map(str,args)),exit_code=r.returncode,stdout=r.stdout,stderr=r.stderr))
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 548, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1955, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/toolchain/ink-sequence-proofs'
+
+======================================================================
+ERROR: test_source_specialization_checks_false_branch (test_web_algebra20_laws.Algebra20Tests.test_source_specialization_checks_false_branch)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_algebra20_laws.py", line 146, in test_source_specialization_checks_false_branch
+    text=source_functions(t='u32')[0][1].replace(',0)))',',k)))');self.assertNotEqual(text,source_functions(t='u32')[0][1]);src=self.directory/'wrong-fallback.ink';src.write_text('module Wrong20;\n'+text+'\n');core=src.with_suffix('.core.json');subject=src.with_suffix('.semantic.json');self.run_command(COMPILER,'emit-core',src,'-o',core);self.run_command(COMPILER,'emit-semantic',core,'--core','-o',subject);rows=specialize(json.loads(subject.read_text()));self.assertEqual(len(rows),2)
+                                                                                                                                                                                                                                                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_algebra20_laws.py", line 93, in run_command
+    r=subprocess.run(list(map(str,args)),capture_output=True,text=True);self.commands.append(dict(argv=list(map(str,args)),exit_code=r.returncode,stdout=r.stdout,stderr=r.stderr))
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 548, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1955, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/toolchain/ink-sequence-proofs'
+
+======================================================================
+ERROR: test_typed_admission_default_selection_replay_and_oracles (test_web_algebra20_laws.Algebra20Tests.test_typed_admission_default_selection_replay_and_oracles)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_algebra20_laws.py", line 106, in test_typed_admission_default_selection_replay_and_oracles
+    self.assertEqual(hashlib.sha256(COMPILER.read_bytes()).hexdigest(),'45670dbced0999e945278d7de7ed495cad9b43b1ab9d24c27182c9f9a5683e08')
+                                    ^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/toolchain/ink-sequence-proofs'
+
+======================================================================
+ERROR: test_independent_literal_stages_match_unbounded_closed_oracle (test_web_compute10_laws.Compute10LawTests.test_independent_literal_stages_match_unbounded_closed_oracle)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_compute10_laws.py", line 59, in test_independent_literal_stages_match_unbounded_closed_oracle
+    reference=oracle()
+              ^^^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_compute10_laws.py", line 36, in oracle
+    spec.loader.exec_module(module)
+  File "<frozen importlib._bootstrap_external>", line 991, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 1128, in get_code
+  File "<frozen importlib._bootstrap_external>", line 1186, in get_data
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/research/web-stack-proofs-10/compute/oracle.py'
+
+======================================================================
+ERROR: test_independent_literal_stages_match_unbounded_closed_oracle (test_web_compute11_laws.Compute11LawTests.test_independent_literal_stages_match_unbounded_closed_oracle)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_compute11_laws.py", line 59, in test_independent_literal_stages_match_unbounded_closed_oracle
+    reference=oracle()
+              ^^^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_compute11_laws.py", line 36, in oracle
+    spec.loader.exec_module(module)
+  File "<frozen importlib._bootstrap_external>", line 991, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 1128, in get_code
+  File "<frozen importlib._bootstrap_external>", line 1186, in get_data
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/research/web-stack-proofs-11/compute/oracle.py'
+
+======================================================================
+ERROR: test_independent_literal_stages_match_unbounded_closed_oracle (test_web_compute12_laws.Compute12LawTests.test_independent_literal_stages_match_unbounded_closed_oracle)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_compute12_laws.py", line 59, in test_independent_literal_stages_match_unbounded_closed_oracle
+    reference=oracle()
+              ^^^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_compute12_laws.py", line 36, in oracle
+    spec.loader.exec_module(module)
+  File "<frozen importlib._bootstrap_external>", line 991, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 1128, in get_code
+  File "<frozen importlib._bootstrap_external>", line 1186, in get_data
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/research/web-stack-proofs-12/compute/oracle.py'
+
+======================================================================
+ERROR: test_independent_literal_stages_match_unbounded_closed_oracle (test_web_compute13_laws.Compute13LawTests.test_independent_literal_stages_match_unbounded_closed_oracle)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_compute13_laws.py", line 72, in test_independent_literal_stages_match_unbounded_closed_oracle
+    reference=oracle()
+              ^^^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_compute13_laws.py", line 49, in oracle
+    spec.loader.exec_module(module)
+  File "<frozen importlib._bootstrap_external>", line 991, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 1128, in get_code
+  File "<frozen importlib._bootstrap_external>", line 1186, in get_data
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/research/web-stack-proofs-13/compute/oracle.py'
+
+======================================================================
+ERROR: test_independent_literal_recurrence_at_zero_and_word_boundaries (test_web_compute2_laws.Compute2LawTests.test_independent_literal_recurrence_at_zero_and_word_boundaries)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_compute2_laws.py", line 51, in test_independent_literal_recurrence_at_zero_and_word_boundaries
+    spec.loader.exec_module(oracle)
+  File "<frozen importlib._bootstrap_external>", line 991, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 1128, in get_code
+  File "<frozen importlib._bootstrap_external>", line 1186, in get_data
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/research/web-stack-proofs-2/compute/oracle.py'
+
+======================================================================
+ERROR: test_independent_literal_recurrence_at_zero_and_word_boundaries (test_web_compute3_laws.Compute3LawTests.test_independent_literal_recurrence_at_zero_and_word_boundaries)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_compute3_laws.py", line 51, in test_independent_literal_recurrence_at_zero_and_word_boundaries
+    spec.loader.exec_module(oracle)
+  File "<frozen importlib._bootstrap_external>", line 991, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 1128, in get_code
+  File "<frozen importlib._bootstrap_external>", line 1186, in get_data
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/research/web-stack-proofs-3/compute/oracle.py'
+
+======================================================================
+ERROR: test_literal_stage_oracle_word_overflow_empty_and_singletons (test_web_compute4_laws.Compute4LawTests.test_literal_stage_oracle_word_overflow_empty_and_singletons)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_compute4_laws.py", line 63, in test_literal_stage_oracle_word_overflow_empty_and_singletons
+    ref = oracle()
+          ^^^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_compute4_laws.py", line 35, in oracle
+    spec.loader.exec_module(module)
+  File "<frozen importlib._bootstrap_external>", line 991, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 1128, in get_code
+  File "<frozen importlib._bootstrap_external>", line 1186, in get_data
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/research/web-stack-proofs-4/compute/oracle.py'
+
+======================================================================
+ERROR: test_independent_literal_recurrence_at_zero_and_word_boundaries (test_web_compute6_laws.Compute6LawTests.test_independent_literal_recurrence_at_zero_and_word_boundaries)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_compute6_laws.py", line 51, in test_independent_literal_recurrence_at_zero_and_word_boundaries
+    spec.loader.exec_module(oracle)
+  File "<frozen importlib._bootstrap_external>", line 991, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 1128, in get_code
+  File "<frozen importlib._bootstrap_external>", line 1186, in get_data
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/research/web-stack-proofs-6/compute/oracle.py'
+
+======================================================================
+ERROR: test_independent_literal_stages_match_unbounded_closed_oracle (test_web_compute7_laws.Compute7LawTests.test_independent_literal_stages_match_unbounded_closed_oracle)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_compute7_laws.py", line 59, in test_independent_literal_stages_match_unbounded_closed_oracle
+    reference=oracle()
+              ^^^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_compute7_laws.py", line 36, in oracle
+    spec.loader.exec_module(module)
+  File "<frozen importlib._bootstrap_external>", line 991, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 1128, in get_code
+  File "<frozen importlib._bootstrap_external>", line 1186, in get_data
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/research/web-stack-proofs-7/compute/oracle.py'
+
+======================================================================
+ERROR: test_independent_literal_stages_match_unbounded_closed_oracle (test_web_compute8_laws.Compute8LawTests.test_independent_literal_stages_match_unbounded_closed_oracle)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_compute8_laws.py", line 59, in test_independent_literal_stages_match_unbounded_closed_oracle
+    reference=oracle()
+              ^^^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_compute8_laws.py", line 36, in oracle
+    spec.loader.exec_module(module)
+  File "<frozen importlib._bootstrap_external>", line 991, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 1128, in get_code
+  File "<frozen importlib._bootstrap_external>", line 1186, in get_data
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/research/web-stack-proofs-8/compute/oracle.py'
+
+======================================================================
+ERROR: test_independent_literal_stages_match_unbounded_closed_oracle (test_web_compute9_laws.Compute9LawTests.test_independent_literal_stages_match_unbounded_closed_oracle)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_compute9_laws.py", line 59, in test_independent_literal_stages_match_unbounded_closed_oracle
+    reference=oracle()
+              ^^^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_compute9_laws.py", line 36, in oracle
+    spec.loader.exec_module(module)
+  File "<frozen importlib._bootstrap_external>", line 991, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 1128, in get_code
+  File "<frozen importlib._bootstrap_external>", line 1186, in get_data
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/research/web-stack-proofs-9/compute/oracle.py'
+
+======================================================================
+ERROR: test_all_typed_default_applications_replay_and_interpreter (test_web_demand24_laws.Demand24Tests.test_all_typed_default_applications_replay_and_interpreter)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_demand24_laws.py", line 84, in test_all_typed_default_applications_replay_and_interpreter
+    self.assertEqual(hashlib.sha256(COMPILER.read_bytes()).hexdigest(),'45670dbced0999e945278d7de7ed495cad9b43b1ab9d24c27182c9f9a5683e08');rows=source_functions()+source_functions(True);src,core,subject=self.compile('all','\n'.join(s for _,_,s in rows));derived=specialize(subject);self.assertEqual(len(derived),24);st=publish(self.directory/'isolated',derived);admit=self.command(COMPILER,'knowledge-check',core,st.root/'view.json');apps=[];searches=[]
+                                    ^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/toolchain/ink-sequence-proofs'
+
+======================================================================
+ERROR: test_fallback_capture_false_controls_and_index_limit (test_web_demand24_laws.Demand24Tests.test_fallback_capture_false_controls_and_index_limit)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_demand24_laws.py", line 100, in test_fallback_capture_false_controls_and_index_limit
+    src,core,_=self.compile('controls',source_functions()[0][2]);s,ls=value('U32'),value({'List':'U32'});f=lam(s,op(s,'binary:+',bound(s,0),word('U32',1)));nil=term(ls,'Nil');mapped=op(ls,'method:map',nil,f)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_demand24_laws.py", line 60, in compile
+    src=self.directory/(name+'.ink');src.write_text('module Demand24;\n'+text+'\n');core=src.with_suffix('.core.json');sem=src.with_suffix('.semantic.json');self.command(COMPILER,'emit-core',src,'-o',core);self.command(COMPILER,'emit-semantic',core,'--core','-o',sem);return src,core,json.loads(sem.read_text())
+                                                                                                                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_demand24_laws.py", line 56, in command
+    r=subprocess.run(list(map(str,args)),text=True,capture_output=True);self.commands.append(dict(argv=list(map(str,args)),exit_code=r.returncode,stdout=r.stdout,stderr=r.stderr))
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 548, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1955, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/toolchain/ink-sequence-proofs'
+
+======================================================================
+ERROR: test_fresh_endpoints_and_full_prior_source_opportunities (test_web_demand24_laws.Demand24Tests.test_fresh_endpoints_and_full_prior_source_opportunities)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_demand24_laws.py", line 63, in test_fresh_endpoints_and_full_prior_source_opportunities
+    old=Store(ROOT,ROOT/'store/snapshots'/f'{PIN}.json');self.assertEqual(len(old.members()),1688);self.assertEqual(len(named_laws()),8);roots,deploy=grouped_laws();self.assertEqual((len(roots),len(deploy)),(4,4));self.assertEqual(list(law_roles().values()).count('deployment_composition'),4)
+                                                                                                                        ^^^^^^^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/producers/web_demand24_laws.py", line 37, in named_laws
+    roots,deployments=grouped_laws();return roots+deployments
+                      ^^^^^^^^^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/producers/web_demand24_laws.py", line 17, in grouped_laws
+    old=dict(prior_laws());roots=[];deployments=[]
+             ^^^^^^^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/producers/web_skip23_laws.py", line 39, in named_laws
+    deployments={r['name']:r['law'] for r in json.loads((DATA/'mapped-deployment/accepted.json').read_text())}
+                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1027, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/research/web-stack-proofs-23/skip/mapped-deployment/accepted.json'
+
+======================================================================
+ERROR: test_hash_valid_false_compositions_reject (test_web_gpu21_laws.Gpu21Tests.test_hash_valid_false_compositions_reject)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_gpu21_laws.py", line 63, in test_hash_valid_false_compositions_reject
+    src=self.directory/'negative.ink';src.write_text('module FalseGpu21;\n'+source_functions(t='u32')[0][1]+'\n');core=src.with_suffix('.core.json');self.command(COMPILER,'emit-core',src,'-o',core);records=[]
+                                                                                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_gpu21_laws.py", line 23, in command
+    r=subprocess.run(list(map(str,args)),capture_output=True,text=True);self.commands.append(dict(argv=list(map(str,args)),exit_code=r.returncode,stdout=r.stdout,stderr=r.stderr))
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 548, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1955, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/toolchain/ink-sequence-proofs'
+
+======================================================================
+ERROR: test_two_policies_replay_typed_values_and_real_gpu_bundles (test_web_gpu21_laws.Gpu21Tests.test_two_policies_replay_typed_values_and_real_gpu_bundles)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_gpu21_laws.py", line 34, in test_two_policies_replay_typed_values_and_real_gpu_bundles
+    self.assertEqual(hashlib.sha256(COMPILER.read_bytes()).hexdigest(),'45670dbced0999e945278d7de7ed495cad9b43b1ab9d24c27182c9f9a5683e08')
+                                    ^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/toolchain/ink-sequence-proofs'
+
+======================================================================
+ERROR: test_hash_valid_false_generic_endpoints_reject (test_web_guard22_laws.Guard22Tests.test_hash_valid_false_generic_endpoints_reject)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_guard22_laws.py", line 110, in test_hash_valid_false_generic_endpoints_reject
+    src=self.directory/'negative.ink';src.write_text('module Negative22;\n'+source_functions(t='u32')[0][1]+'\n');core=src.with_suffix('.core.json');self.run_command(COMPILER,'emit-core',src,'-o',core);failures=[]
+                                                                                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_guard22_laws.py", line 88, in run_command
+    r=subprocess.run(list(map(str,args)),capture_output=True,text=True);self.commands.append(dict(argv=list(map(str,args)),exit_code=r.returncode,stdout=r.stdout,stderr=r.stderr))
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 548, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1955, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/toolchain/ink-sequence-proofs'
+
+======================================================================
+ERROR: test_source_bridge_checks_condition_correlation (test_web_guard22_laws.Guard22Tests.test_source_bridge_checks_condition_correlation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_guard22_laws.py", line 120, in test_source_bridge_checks_condition_correlation
+    self.assertNotEqual(text,original if label=='wrong-complement' else choice);src=self.directory/(label+'.ink');src.write_text('module Wrong22;\n'+text+'\n');core=src.with_suffix('.core.json');subject=src.with_suffix('.semantic.json');self.run_command(COMPILER,'emit-core',src,'-o',core);self.run_command(COMPILER,'emit-semantic',core,'--core','-o',subject);rows=specialize(json.loads(subject.read_text()));self.assertEqual(len(rows),1);st=publish(self.directory/label,rows);r=self.run_command(COMPILER,'knowledge-check',core,st.root/'view.json',success=False);self.assertNotEqual(r.returncode,0);self.assertIn('semantic normal forms differ',r.stderr);self.assertNotIn('identity mismatch',r.stderr);failures.append(dict(label=label,content_id=identity(semantic_entry(rows[0][1])),stderr=r.stderr))
+                                                                                                                                                                                                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_guard22_laws.py", line 88, in run_command
+    r=subprocess.run(list(map(str,args)),capture_output=True,text=True);self.commands.append(dict(argv=list(map(str,args)),exit_code=r.returncode,stdout=r.stdout,stderr=r.stderr))
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 548, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1955, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/toolchain/ink-sequence-proofs'
+
+======================================================================
+ERROR: test_typed_selection_replay_allocation_free_and_complete_values (test_web_guard22_laws.Guard22Tests.test_typed_selection_replay_allocation_free_and_complete_values)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_guard22_laws.py", line 98, in test_typed_selection_replay_allocation_free_and_complete_values
+    self.assertEqual(hashlib.sha256(COMPILER.read_bytes()).hexdigest(),'45670dbced0999e945278d7de7ed495cad9b43b1ab9d24c27182c9f9a5683e08');self.assertEqual(hashlib.sha256(COST.read_bytes()).hexdigest(),'9524fee019274e2a5fd57b5ed8ff570dc7b63525f324e9f654efc8f6da0c85ec')
+                                    ^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/toolchain/ink-sequence-proofs'
+
+======================================================================
+ERROR: test_admission_all_typed_source_applications_replay_reify_and_whole_arrays (test_web_indexed22_laws.Indexed22Tests.test_admission_all_typed_source_applications_replay_reify_and_whole_arrays)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_indexed22_laws.py", line 87, in test_admission_all_typed_source_applications_replay_reify_and_whole_arrays
+    self.assertEqual(hashlib.sha256(COMPILER.read_bytes()).hexdigest(),'45670dbced0999e945278d7de7ed495cad9b43b1ab9d24c27182c9f9a5683e08')
+                                    ^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/toolchain/ink-sequence-proofs'
+
+======================================================================
+ERROR: test_index_wrap_checked_normalization_and_hash_valid_false_controls (test_web_indexed22_laws.Indexed22Tests.test_index_wrap_checked_normalization_and_hash_valid_false_controls)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_indexed22_laws.py", line 125, in test_index_wrap_checked_normalization_and_hash_valid_false_controls
+    src=self.directory/'negative.ink';src.write_text('module Negative22;\n'+source_functions()[0][2]+'\n');core=src.with_suffix('.core.json');self.run_command(COMPILER,'emit-core',src,'-o',core)
+                                                                                                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_indexed22_laws.py", line 72, in run_command
+    r=subprocess.run(list(map(str,args)),capture_output=True,text=True);self.commands.append(dict(argv=list(map(str,args)),exit_code=r.returncode,stdout=r.stdout,stderr=r.stderr))
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 548, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1955, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/toolchain/ink-sequence-proofs'
+
+======================================================================
+ERROR: test_prior_compositional_opportunities_on_six_exact_sources (test_web_indexed22_laws.Indexed22Tests.test_prior_compositional_opportunities_on_six_exact_sources)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_indexed22_laws.py", line 122, in test_prior_compositional_opportunities_on_six_exact_sources
+    src=self.directory/(name+'.ink');src.write_text('module Prior22;\n'+text+'\n');core=src.with_suffix('.core.json');sem=src.with_suffix('.semantic.json');self.run_command(COMPILER,'emit-core',src,'-o',core);self.run_command(COMPILER,'emit-semantic',core,'--core','-o',sem);subject=json.loads(sem.read_text());rows=derive(subject,generic);self.assertEqual(len(rows),0,(name,[n for n,_ in rows]));records.append(dict(function=name,old_only_source_certificates=len(rows),subject_sha256=hashlib.sha256(sem.read_bytes()).hexdigest()))
+                                                                                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_indexed22_laws.py", line 72, in run_command
+    r=subprocess.run(list(map(str,args)),capture_output=True,text=True);self.commands.append(dict(argv=list(map(str,args)),exit_code=r.returncode,stdout=r.stdout,stderr=r.stderr))
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 548, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1955, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/toolchain/ink-sequence-proofs'
+
+======================================================================
+ERROR: test_hash_valid_false_controls_and_invariant_capture (test_web_invariant26_laws.Invariant26Tests.test_hash_valid_false_controls_and_invariant_capture)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_invariant26_laws.py", line 76, in test_hash_valid_false_controls_and_invariant_capture
+    src,core,_=self.compile('controls',source_functions()[0][2]);rules=dict(named_laws());bad=copy.deepcopy(rules['invariant_two_branch_fold_u32']);bad['to']['node']['Op'][1][1],bad['to']['node']['Op'][1][2]=bad['to']['node']['Op'][1][2],bad['to']['node']['Op'][1][1]
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_invariant26_laws.py", line 43, in compile
+    src=self.directory/(name+'.ink');src.write_text('module Invariant26;\n'+text+'\n');core=src.with_suffix('.core.json');sem=src.with_suffix('.semantic.json');self.command(COMPILER,'emit-core',src,'-o',core);self.command(COMPILER,'emit-semantic',core,'--core','-o',sem);return src,core,json.loads(sem.read_text())
+                                                                                                                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_accepted25_laws.py", line 66, in command
+    r=subprocess.run(list(map(str,args)),text=True,capture_output=True);self.commands.append(dict(argv=list(map(str,args)),exit_code=r.returncode,stdout=r.stdout,stderr=r.stderr))
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 548, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1955, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/toolchain/ink-accepted-proofs'
+
+======================================================================
+ERROR: test_novelty_and_every_prior_first_step (test_web_invariant26_laws.Invariant26Tests.test_novelty_and_every_prior_first_step)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_invariant26_laws.py", line 58, in test_novelty_and_every_prior_first_step
+    src,core,subject=self.compile(name,text);checks=[]
+                     ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_invariant26_laws.py", line 43, in compile
+    src=self.directory/(name+'.ink');src.write_text('module Invariant26;\n'+text+'\n');core=src.with_suffix('.core.json');sem=src.with_suffix('.semantic.json');self.command(COMPILER,'emit-core',src,'-o',core);self.command(COMPILER,'emit-semantic',core,'--core','-o',sem);return src,core,json.loads(sem.read_text())
+                                                                                                                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_accepted25_laws.py", line 66, in command
+    r=subprocess.run(list(map(str,args)),text=True,capture_output=True);self.commands.append(dict(argv=list(map(str,args)),exit_code=r.returncode,stdout=r.stdout,stderr=r.stderr))
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 548, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1955, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/toolchain/ink-accepted-proofs'
+
+======================================================================
+ERROR: test_typed_admission_default_fold_selection_and_complete_values (test_web_invariant26_laws.Invariant26Tests.test_typed_admission_default_fold_selection_and_complete_values)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_invariant26_laws.py", line 64, in test_typed_admission_default_fold_selection_and_complete_values
+    self.assertEqual(hashlib.sha256(COMPILER.read_bytes()).hexdigest(),'3e358acc9026c1dbcc9ab2183a11e1d240b02196d0f3d8ecbb8740603b3c06a2')
+                                    ^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/toolchain/ink-accepted-proofs'
+
+======================================================================
+ERROR: test_admission_default_selection_replay_reification_and_typed_outputs (test_web_permutation18_laws.Permutation18Tests.test_admission_default_selection_replay_reification_and_typed_outputs)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_permutation18_laws.py", line 85, in test_admission_default_selection_replay_reification_and_typed_outputs
+    self.assertEqual(hashlib.sha256(COMPILER.read_bytes()).hexdigest(),'45670dbced0999e945278d7de7ed495cad9b43b1ab9d24c27182c9f9a5683e08')
+                                    ^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/toolchain/ink-sequence-proofs'
+
+======================================================================
+ERROR: test_hash_valid_false_missing_contribution_and_wrong_count_rejected (test_web_permutation18_laws.Permutation18Tests.test_hash_valid_false_missing_contribution_and_wrong_count_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_permutation18_laws.py", line 117, in test_hash_valid_false_missing_contribution_and_wrong_count_rejected
+    source=self.directory/'source.ink';source.write_text('module Negative18;\n'+source_functions()[0][3]+'\n');core=self.directory/'source.core.json';self.run_command(COMPILER,'emit-core',source,'-o',core)
+                                                                                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_permutation18_laws.py", line 69, in run_command
+    argv=list(map(str,args));r=subprocess.run(argv,text=True,capture_output=True)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 548, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1955, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/toolchain/ink-sequence-proofs'
+
+======================================================================
+ERROR: test_admission_default_selection_replay_full_arrays_and_gpu_builds (test_web_pipeline23_laws.Pipeline23Tests.test_admission_default_selection_replay_full_arrays_and_gpu_builds)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_pipeline23_laws.py", line 64, in test_admission_default_selection_replay_full_arrays_and_gpu_builds
+    self.assertEqual(hashlib.sha256(COMPILER.read_bytes()).hexdigest(),'45670dbced0999e945278d7de7ed495cad9b43b1ab9d24c27182c9f9a5683e08')
+                                    ^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/toolchain/ink-sequence-proofs'
+
+======================================================================
+ERROR: test_arbitrary_initial_state_capture_safety_and_false_controls (test_web_pipeline23_laws.Pipeline23Tests.test_arbitrary_initial_state_capture_safety_and_false_controls)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_pipeline23_laws.py", line 81, in test_arbitrary_initial_state_capture_safety_and_false_controls
+    src=self.directory/'unit.ink';src.write_text('module Controls23;\n'+source_functions()[0][2]+'\n');core=src.with_suffix('.core.json');self.run_command(COMPILER,'emit-core',src,'-o',core)
+                                                                                                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_pipeline23_laws.py", line 42, in run_command
+    r=subprocess.run(list(map(str,args)),capture_output=True,text=True);self.commands.append(dict(argv=list(map(str,args)),exit_code=r.returncode,stdout=r.stdout,stderr=r.stderr))
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 548, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1955, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/toolchain/ink-sequence-proofs'
+
+======================================================================
+ERROR: test_novelty_and_symmetric_old_only_opportunity (test_web_pipeline23_laws.Pipeline23Tests.test_novelty_and_symmetric_old_only_opportunity)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_pipeline23_laws.py", line 57, in test_novelty_and_symmetric_old_only_opportunity
+    src=self.directory/(name+'.ink');src.write_text('module Prior23;\n'+text+'\n');core=src.with_suffix('.core.json');sem=src.with_suffix('.semantic.json');self.run_command(COMPILER,'emit-core',src,'-o',core);self.run_command(COMPILER,'emit-semantic',core,'--core','-o',sem);subject=json.loads(sem.read_text());rows=derive(subject,generic);attempts=[]
+                                                                                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_pipeline23_laws.py", line 42, in run_command
+    r=subprocess.run(list(map(str,args)),capture_output=True,text=True);self.commands.append(dict(argv=list(map(str,args)),exit_code=r.returncode,stdout=r.stdout,stderr=r.stderr))
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 548, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1955, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/toolchain/ink-sequence-proofs'
+
+======================================================================
+ERROR: setUpClass (test_web_pipeline29_laws.Pipeline29)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_pipeline29_laws.py", line 56, in setUpClass
+    assert hashlib.sha256(COMPILER.read_bytes()).hexdigest()=='c0f3651f11c04b2a4f30740a1239f3192af52c3cdff4523076456624cc557bbc'
+                          ^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/toolchain/ink-web-engine-28'
+
+======================================================================
+ERROR: setUpClass (test_web_pipeline30_laws.Pipeline30)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_pipeline30_laws.py", line 65, in setUpClass
+    assert hashlib.sha256(C.read_bytes()).hexdigest()=='c0f3651f11c04b2a4f30740a1239f3192af52c3cdff4523076456624cc557bbc'
+                          ^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/toolchain/ink-web-engine-28'
+
+======================================================================
+ERROR: setUpClass (test_web_pipeline31_laws.Pipeline31)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_pipeline31_laws.py", line 60, in setUpClass
+    (R/'dummy.core.json').write_bytes((B/'reports/web-stack-proofs-30-2026-10-11/proofs/dummy.core.json').read_bytes())
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/reports/web-stack-proofs-30-2026-10-11/proofs/dummy.core.json'
+
+======================================================================
+ERROR: setUpClass (test_web_pipeline32_laws.Pipeline32)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_pipeline32_laws.py", line 62, in setUpClass
+    assert hashlib.sha256(C.read_bytes()).hexdigest()=='c0f3651f11c04b2a4f30740a1239f3192af52c3cdff4523076456624cc557bbc'
+                          ^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/toolchain/ink-web-engine-28'
+
+======================================================================
+ERROR: setUpClass (test_web_pipeline33_laws.Pipeline33)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_pipeline33_laws.py", line 39, in setUpClass
+    assert hashlib.sha256(C.read_bytes()).hexdigest() == '04f42856696cbc9a4d5b0523e4a2c5d9d84ae28e0e039f0fd9c305fe2d0a5536'
+                          ^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/reports/web-stack-proofs-32-2026-10-11/main-integration/ink-main-publish'
+
+======================================================================
+ERROR: setUpClass (test_web_pipeline34_laws.Pipeline34)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_pipeline34_laws.py", line 42, in setUpClass
+    assert hashlib.sha256(C.read_bytes()).hexdigest() == '04f42856696cbc9a4d5b0523e4a2c5d9d84ae28e0e039f0fd9c305fe2d0a5536'
+                          ^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/reports/web-stack-proofs-32-2026-10-11/main-integration/ink-main-publish'
+
+======================================================================
+ERROR: setUpClass (test_web_pipeline35_laws.Pipeline35)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_pipeline35_laws.py", line 45, in setUpClass
+    assert hashlib.sha256(C.read_bytes()).hexdigest() == '04f42856696cbc9a4d5b0523e4a2c5d9d84ae28e0e039f0fd9c305fe2d0a5536'
+                          ^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/reports/web-stack-proofs-32-2026-10-11/main-integration/ink-main-publish'
+
+======================================================================
+ERROR: setUpClass (test_web_pipeline36_laws.Pipeline36)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_pipeline36_laws.py", line 46, in setUpClass
+    assert hashlib.sha256(C.read_bytes()).hexdigest() == '04f42856696cbc9a4d5b0523e4a2c5d9d84ae28e0e039f0fd9c305fe2d0a5536'
+                          ^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/reports/web-stack-proofs-32-2026-10-11/main-integration/ink-main-publish'
+
+======================================================================
+ERROR: setUpClass (test_web_pipeline37_laws.Pipeline37)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_pipeline37_laws.py", line 35, in setUpClass
+    assert hashlib.sha256(C.read_bytes()).hexdigest() == '04f42856696cbc9a4d5b0523e4a2c5d9d84ae28e0e039f0fd9c305fe2d0a5536'
+                          ^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/reports/web-stack-proofs-32-2026-10-11/main-integration/ink-main-publish'
+
+======================================================================
+ERROR: setUpClass (test_web_pipeline38_laws.Pipeline38)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_pipeline38_laws.py", line 41, in setUpClass
+    assert hashlib.sha256(C.read_bytes()).hexdigest() == '04f42856696cbc9a4d5b0523e4a2c5d9d84ae28e0e039f0fd9c305fe2d0a5536'
+                          ^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/reports/web-stack-proofs-32-2026-10-11/main-integration/ink-main-publish'
+
+======================================================================
+ERROR: test_hash_valid_false_generic_endpoints_reject (test_web_predicate21_laws.Predicate21Tests.test_hash_valid_false_generic_endpoints_reject)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_predicate21_laws.py", line 104, in test_hash_valid_false_generic_endpoints_reject
+    src=self.directory/'negative.ink';src.write_text('module Negative21;\n'+source_functions(t='u32')[0][1]+'\n');core=src.with_suffix('.core.json');self.run_command(COMPILER,'emit-core',src,'-o',core);failures=[]
+                                                                                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_predicate21_laws.py", line 82, in run_command
+    r=subprocess.run(list(map(str,args)),capture_output=True,text=True);self.commands.append(dict(argv=list(map(str,args)),exit_code=r.returncode,stdout=r.stdout,stderr=r.stderr))
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 548, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1955, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/toolchain/ink-sequence-proofs'
+
+======================================================================
+ERROR: test_source_bridge_checks_complement_and_receiver (test_web_predicate21_laws.Predicate21Tests.test_source_bridge_checks_complement_and_receiver)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_predicate21_laws.py", line 111, in test_source_bridge_checks_complement_and_receiver
+    self.assertNotEqual(text,original);src=self.directory/(label+'.ink');src.write_text('module Wrong21;\n'+text+'\n');core=src.with_suffix('.core.json');subject=src.with_suffix('.semantic.json');self.run_command(COMPILER,'emit-core',src,'-o',core);self.run_command(COMPILER,'emit-semantic',core,'--core','-o',subject);rows=specialize(json.loads(subject.read_text()));self.assertEqual(len(rows),1);st=publish(self.directory/label,rows);r=self.run_command(COMPILER,'knowledge-check',core,st.root/'view.json',success=False);self.assertNotEqual(r.returncode,0);self.assertIn('semantic normal forms differ',r.stderr);self.assertNotIn('identity mismatch',r.stderr);failures.append(dict(label=label,content_id=identity(semantic_entry(rows[0][1])),stderr=r.stderr))
+                                                                                                                                                                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_predicate21_laws.py", line 82, in run_command
+    r=subprocess.run(list(map(str,args)),capture_output=True,text=True);self.commands.append(dict(argv=list(map(str,args)),exit_code=r.returncode,stdout=r.stdout,stderr=r.stderr))
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 548, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1955, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/toolchain/ink-sequence-proofs'
+
+======================================================================
+ERROR: test_typed_selection_replay_allocation_free_and_complete_values (test_web_predicate21_laws.Predicate21Tests.test_typed_selection_replay_allocation_free_and_complete_values)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_predicate21_laws.py", line 92, in test_typed_selection_replay_allocation_free_and_complete_values
+    self.assertEqual(hashlib.sha256(COMPILER.read_bytes()).hexdigest(),'45670dbced0999e945278d7de7ed495cad9b43b1ab9d24c27182c9f9a5683e08');self.assertEqual(hashlib.sha256(COST.read_bytes()).hexdigest(),'9524fee019274e2a5fd57b5ed8ff570dc7b63525f324e9f654efc8f6da0c85ec')
+                                    ^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/toolchain/ink-sequence-proofs'
+
+======================================================================
+ERROR: test_checked_sharing_selection_and_complete_typed_outputs (test_web_reduction20_laws.Reduction20Tests.test_checked_sharing_selection_and_complete_typed_outputs)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_reduction20_laws.py", line 91, in test_checked_sharing_selection_and_complete_typed_outputs
+    self.assertEqual(hashlib.sha256(COMPILER.read_bytes()).hexdigest(),'45670dbced0999e945278d7de7ed495cad9b43b1ab9d24c27182c9f9a5683e08')
+                                    ^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/toolchain/ink-sequence-proofs'
+
+======================================================================
+ERROR: test_hash_valid_false_initial_accumulator_and_swapped_zip_rejected (test_web_reduction20_laws.Reduction20Tests.test_hash_valid_false_initial_accumulator_and_swapped_zip_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_reduction20_laws.py", line 120, in test_hash_valid_false_initial_accumulator_and_swapped_zip_rejected
+    src=self.directory/'negative.ink';src.write_text('module Negative20;\n'+source_functions()[0][2]+'\n');core=src.with_suffix('.core.json');self.run_command(COMPILER,'emit-core',src,'-o',core)
+                                                                                                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_reduction20_laws.py", line 77, in run_command
+    r=subprocess.run(list(map(str,args)),capture_output=True,text=True);self.commands.append(dict(argv=list(map(str,args)),exit_code=r.returncode,stdout=r.stdout,stderr=r.stderr))
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 548, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1955, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/toolchain/ink-sequence-proofs'
+
+======================================================================
+ERROR: test_literal_word_stages_and_independent_closed_forms (test_web_reduction5_laws.Reduction5LawTests.test_literal_word_stages_and_independent_closed_forms)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_reduction5_laws.py", line 62, in test_literal_word_stages_and_independent_closed_forms
+    ref=oracle()
+        ^^^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_reduction5_laws.py", line 36, in oracle
+    spec.loader.exec_module(module)
+  File "<frozen importlib._bootstrap_external>", line 991, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 1128, in get_code
+  File "<frozen importlib._bootstrap_external>", line 1186, in get_data
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/research/web-stack-proofs-5/reduction/oracle.py'
+
+======================================================================
+ERROR: test_hash_valid_false_endpoints_reject_semantically (test_web_skip23_laws.Skip23Tests.test_hash_valid_false_endpoints_reject_semantically)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_skip23_laws.py", line 76, in test_hash_valid_false_endpoints_reject_semantically
+    src=self.directory/'negative.ink';src.write_text('module Negative23;\n'+source_functions(t='u32')[0][1]+'\n');core=src.with_suffix('.core.json');self.run_command(COMPILER,'emit-core',src,'-o',core);failures=[]
+                                                                                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_skip23_laws.py", line 53, in run_command
+    r=subprocess.run(list(map(str,args)),capture_output=True,text=True);self.commands.append(dict(argv=list(map(str,args)),exit_code=r.returncode,stdout=r.stdout,stderr=r.stderr))
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 548, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1955, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/toolchain/ink-sequence-proofs'
+
+======================================================================
+ERROR: test_novelty_roles_and_checked_old_opportunity (test_web_skip23_laws.Skip23Tests.test_novelty_roles_and_checked_old_opportunity)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_skip23_laws.py", line 57, in test_novelty_roles_and_checked_old_opportunity
+    prior=Store(ROOT,ROOT/'store/snapshots'/f'{PIN}.json');self.assertEqual(len(prior.members()),1648);rows=named_laws();self.assertEqual(len(rows),12);self.assertEqual(list(law_roles().values()).count('optimization_endpoint'),8);self.assertEqual(list(law_roles().values()).count('deployment_composition'),4);endpoints={alpha(l) for _,l in rows};self.assertEqual(len(endpoints),12)
+                                                                                                            ^^^^^^^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/producers/web_skip23_laws.py", line 39, in named_laws
+    deployments={r['name']:r['law'] for r in json.loads((DATA/'mapped-deployment/accepted.json').read_text())}
+                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1027, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/research/web-stack-proofs-23/skip/mapped-deployment/accepted.json'
+
+======================================================================
+ERROR: test_source_correlations_and_first_index_rejected (test_web_skip23_laws.Skip23Tests.test_source_correlations_and_first_index_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_skip23_laws.py", line 83, in test_source_correlations_and_first_index_rejected
+    src=self.directory/(label+'.ink');src.write_text('module Correlation23;\n'+text+'\n');core=src.with_suffix('.core.json');sem=src.with_suffix('.semantic.json');self.run_command(COMPILER,'emit-core',src,'-o',core);self.run_command(COMPILER,'emit-semantic',core,'--core','-o',sem);candidates=specialize(json.loads(sem.read_text()));self.assertEqual(len(candidates),1);st=publish(self.directory/label,candidates);r=self.run_command(COMPILER,'knowledge-check',core,st.root/'view.json',success=False);self.assertNotEqual(r.returncode,0);self.assertIn('semantic normal forms differ',r.stderr);self.assertNotIn('identity mismatch',r.stderr);failures.append(dict(label=label,id=identity(semantic_entry(candidates[0][1])),stderr=r.stderr))
+                                                                                                                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_skip23_laws.py", line 53, in run_command
+    r=subprocess.run(list(map(str,args)),capture_output=True,text=True);self.commands.append(dict(argv=list(map(str,args)),exit_code=r.returncode,stdout=r.stdout,stderr=r.stderr))
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 548, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1955, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/toolchain/ink-sequence-proofs'
+
+======================================================================
+ERROR: test_typed_application_replay_reification_and_complete_values (test_web_skip23_laws.Skip23Tests.test_typed_application_replay_reification_and_complete_values)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_skip23_laws.py", line 65, in test_typed_application_replay_reification_and_complete_values
+    self.assertEqual(hashlib.sha256(COMPILER.read_bytes()).hexdigest(),'45670dbced0999e945278d7de7ed495cad9b43b1ab9d24c27182c9f9a5683e08');rows=source_functions()+source_functions(True);self.assertEqual(len(rows),26);src=self.directory/'typed.ink';src.write_text('module Typed23;\n'+'\n'.join(s for _,s in rows)+'\n');core=src.with_suffix('.core.json');subject=src.with_suffix('.semantic.json');self.run_command(COMPILER,'emit-core',src,'-o',core);self.run_command(COMPILER,'emit-semantic',core,'--core','-o',subject);original=json.loads(subject.read_text());static=specialize(original);self.assertEqual(len(static),26);st=publish(self.directory/'isolated',static);self.assertEqual(len(st.members()),50);admission=self.run_command(COMPILER,'knowledge-check',core,st.root/'view.json');apps=[];searches=[]
+                                    ^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/toolchain/ink-sequence-proofs'
+
+======================================================================
+ERROR: test_admission_all_typed_source_applications_replay_reify_and_whole_arrays (test_web_structure21_laws.Structure21Tests.test_admission_all_typed_source_applications_replay_reify_and_whole_arrays)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_structure21_laws.py", line 84, in test_admission_all_typed_source_applications_replay_reify_and_whole_arrays
+    self.assertEqual(hashlib.sha256(COMPILER.read_bytes()).hexdigest(),'45670dbced0999e945278d7de7ed495cad9b43b1ab9d24c27182c9f9a5683e08')
+                                    ^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/toolchain/ink-sequence-proofs'
+
+======================================================================
+ERROR: test_index_wrap_checked_normalization_and_hash_valid_false_controls (test_web_structure21_laws.Structure21Tests.test_index_wrap_checked_normalization_and_hash_valid_false_controls)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_structure21_laws.py", line 105, in test_index_wrap_checked_normalization_and_hash_valid_false_controls
+    src=self.directory/'negative.ink';src.write_text('module Negative21;\n'+source_functions()[0][2]+'\n');core=src.with_suffix('.core.json');self.run_command(COMPILER,'emit-core',src,'-o',core)
+                                                                                                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_structure21_laws.py", line 69, in run_command
+    r=subprocess.run(list(map(str,args)),capture_output=True,text=True);self.commands.append(dict(argv=list(map(str,args)),exit_code=r.returncode,stdout=r.stdout,stderr=r.stderr))
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 548, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1955, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/toolchain/ink-sequence-proofs'
+
+======================================================================
+ERROR: test_all_typed_bridges_default_selection_replay_and_values (test_web_zip27_laws.Zip27Tests.test_all_typed_bridges_default_selection_replay_and_values)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_zip27_laws.py", line 76, in test_all_typed_bridges_default_selection_replay_and_values
+    self.assertEqual(hashlib.sha256(COMPILER.read_bytes()).hexdigest(),SHA);sources=source_functions()+source_functions(True)
+                                    ^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/toolchain/ink-direct-js-proofs'
+
+======================================================================
+ERROR: test_alpha_novelty_and_all_prior_first_step_opportunities (test_web_zip27_laws.Zip27Tests.test_alpha_novelty_and_all_prior_first_step_opportunities)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_zip27_laws.py", line 70, in test_alpha_novelty_and_all_prior_first_step_opportunities
+    _,core,subject=self.compile(n,text);proposed=derive(subject,generic);checks=[]
+                   ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_zip27_laws.py", line 52, in compile
+    src=self.q/(name+'.ink');core=src.with_suffix('.core.json');sem=src.with_suffix('.semantic.json');src.write_text('module Zip27;\n'+text+'\n');self.cmd(COMPILER,'emit-core',src,'-o',core);self.cmd(COMPILER,'emit-semantic',core,'--core','-o',sem);return src,core,json.loads(sem.read_text())
+                                                                                                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_zip27_laws.py", line 48, in cmd
+    r=subprocess.run(list(map(str,args)),capture_output=True,text=True);self.commands.append(dict(command=r.args,exit_code=r.returncode,stdout=r.stdout,stderr=r.stderr))
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 548, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1955, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/toolchain/ink-direct-js-proofs'
+
+======================================================================
+ERROR: test_hash_valid_wrong_alignment_controls (test_web_zip27_laws.Zip27Tests.test_hash_valid_wrong_alignment_controls)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_zip27_laws.py", line 85, in test_hash_valid_wrong_alignment_controls
+    _,core,_=self.compile('false',source_functions()[0][2]);supports,roots=grouped_laws();supportobjects={identity(semantic_entry(v)):semantic_entry(v) for _,v in supports};results=[]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_zip27_laws.py", line 52, in compile
+    src=self.q/(name+'.ink');core=src.with_suffix('.core.json');sem=src.with_suffix('.semantic.json');src.write_text('module Zip27;\n'+text+'\n');self.cmd(COMPILER,'emit-core',src,'-o',core);self.cmd(COMPILER,'emit-semantic',core,'--core','-o',sem);return src,core,json.loads(sem.read_text())
+                                                                                                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/knowledge/tests/test_web_zip27_laws.py", line 48, in cmd
+    r=subprocess.run(list(map(str,args)),capture_output=True,text=True);self.commands.append(dict(command=r.args,exit_code=r.returncode,stdout=r.stdout,stderr=r.stderr))
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 548, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 1955, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/james/Documents/ChatGPT/3d-modelling/research/toolchain/ink-direct-js-proofs'
+
+----------------------------------------------------------------------
+Ran 429 tests in 1467.388s
+
+FAILED (errors=63, skipped=137)

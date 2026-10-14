@@ -1,0 +1,1972 @@
+{
+  "schema": 1,
+  "process": 294,
+  "node": "v26.1.0",
+  "provenance": {
+    "captured_at": "2026-10-14T01:20:20.550Z",
+    "hashes": {
+      "bench/frontier-json/boundary-allocation.mjs": "180c46be9c9eb38df5316bdc79def0fe6178228a84875684e75f26b1b168ebc0",
+      "bench/frontier-json/provenance.mjs": "bf3bd3f4d032a6074a4c989b3eade0811434a9a295a89e716b0b352e85ffc63a",
+      "bench/frontier-json/state.ink": "f98f971b59e11d0983af3cbbd9a472f2d55b4e5720556de1f31b19b12ae866a4",
+      "bench/frontier-json/package-lock.json": "3cc5c3e6c05c279b921df5c2b1a232d2b5f6a114f0a674d2d5d1946840d75a52",
+      "reports/frontier-json-2026-10-13/artifacts/typed-reduction-287-289/candidate-sums.mjs": "8f03e2e199d2922d129897952ac8b1c4d42613ff6fe3b5e81ad60f6357b28cc4",
+      "build/typed-reduction/builder-sums.mjs": "4fa10e994180c1601c148fbe48a40c7bb0d644f1de251fb826fb334e8046b190",
+      "build/typed-reduction/consumer-sums.mjs": "44299c6057c4b293d7ab6d6544c80b0bbc5a510a71185c285f56b31424cff182"
+    },
+    "revisions": {
+      ".": "81e8388aee7c5a2a16a5c8ebc86c4ff1020af193",
+      "abi": "64ccedd9f69ba626bd26c120922ef5a7ccf6afdc",
+      "lowerings/js": "e4303ccd3240c52cb6e7da2eda86f5372348eb1e",
+      "knowledge": "b0f7ae5c6a572ecf601a14f1d7bdf550c4fbdfc8",
+      "planner": "01052fd8077fcbec58d02bc080dd2abc74ead3a0",
+      "build/frontier": "2c72dbb4030e2695b682d3e49ec82d8c5c8ffec2"
+    },
+    "native_artifact_included": false,
+    "node": "v26.1.0",
+    "target": {
+      "cpu": "Apple M2",
+      "platform": "darwin",
+      "arch": "arm64",
+      "release": "25.5.0"
+    },
+    "host_isolation": "Shared development host; no exclusive CPU reservation. Repeated process cohorts and rotated lane order, not a controlled laboratory."
+  },
+  "dependency": {
+    "package_root": "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/bench/frontier-json/node_modules/@shapeshift-labs/frontier",
+    "hashes": {
+      "benchmarks/package-bench.mjs": "f014533b893194539ef7bfe088092377a5a05fbd5a3917a1ad400efad0e5016c",
+      "dist/apply.js": "fb01085243772aa308220771e1fe8ec8ead14877c3445c12c31701cc462b0d64",
+      "dist/clone.js": "34b0eb5c271beecc3363a297a55276dd12b35ade9c2e34466e97773bb6b27ea5",
+      "dist/constants.js": "b6aa1df97e443abe400f7cffff5c026672b8bc3906b259715d8376090cc8f915",
+      "dist/diff.js": "761ba65824071ac3966b063448202b1861490bd78626acdcbe646c1199128751",
+      "dist/equal.js": "b5eda0d9708def04844dc54e1d985483325ddd3dfa9de979b48c5f5a4a97c824",
+      "dist/index.js": "3db1b96bbb8e82d88da15432537e536f6eac0c9e9c4160873553225ccb9b8c90",
+      "dist/json-patch.js": "5c9a8c37c17be867df0559e2916b4d12ce2e0d6e55cf116edee02255978ba7ef",
+      "dist/normalize.js": "99142b3f3d1e438c4930995251edcb100f2c339c5126f125e3cbb2addb017b6d",
+      "dist/object.js": "64d4eab7c9998c70b2e88d27abcf77fbb8768a91b0bfbe3db2ca180a0c3b4215",
+      "dist/patch-validate.js": "f20be704fdb1fd84355735e81d832746adcb93fb5fcd846a736443245146b3f2",
+      "dist/patch.js": "6224b9fbfa50dce3ff1df73cd1b76c26e7ef7aca95b7a2e6d31e45ae8fe89508",
+      "dist/pointer.js": "9f88e26e4b32e709b0e0eb95083fb59b76c9fc8ab2687e687687f063ce8db1e3",
+      "dist/registry.js": "70132f31e081d29d9546d1474a87cf4ee06f1e97bd75957f84c4b330b748c3b0",
+      "dist/runtime.js": "66869e599e782a6e1d4eb46bb4a9a1bb62c85c189c314875c0c4855d4bd7e0e4",
+      "dist/types.js": "01ae2a5b120382f9a648ced7ee8507493a134f216d100fc61600c6c9738235d2",
+      "dist/unicode.js": "78a3e42b36ef82ac8e038861382cf98d32d5c581dd19e500116e65b9a786317b",
+      "dist/validate.js": "69d5c980f84c7fa727055be997a5f19b56f906da6beba5a42bc4842a8bb62087",
+      "package.json": "a71436783b312d9d3d057a1868211888ddd0ed667bb9ffcbf2a583ddc87622a7"
+    }
+  },
+  "measurements": [
+    {
+      "fields": 4,
+      "lane": "control/prepared-output",
+      "round": 0,
+      "calls": 2955,
+      "elapsed_ns": "12751167"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/input",
+      "round": 0,
+      "calls": 388,
+      "elapsed_ns": "12349000"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/prepared-output",
+      "round": 0,
+      "calls": 3188,
+      "elapsed_ns": "40881667"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/input",
+      "round": 0,
+      "calls": 1518,
+      "elapsed_ns": "25511667"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/text-edit-text",
+      "round": 0,
+      "calls": 471,
+      "elapsed_ns": "45718875"
+    },
+    {
+      "fields": 4,
+      "lane": "control/text-edit-text",
+      "round": 0,
+      "calls": 388,
+      "elapsed_ns": "60142125"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/prepared-output",
+      "round": 0,
+      "calls": 1773,
+      "elapsed_ns": "22084208"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/text-edit-text",
+      "round": 0,
+      "calls": 1093,
+      "elapsed_ns": "93622833"
+    },
+    {
+      "fields": 4,
+      "lane": "frontier/text-edit-text",
+      "round": 0,
+      "calls": 15509,
+      "elapsed_ns": "23728125"
+    },
+    {
+      "fields": 4,
+      "lane": "control/input",
+      "round": 0,
+      "calls": 510,
+      "elapsed_ns": "8222291"
+    },
+    {
+      "fields": 4,
+      "lane": "control/input",
+      "round": 1,
+      "calls": 510,
+      "elapsed_ns": "25742500"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/prepared-output",
+      "round": 1,
+      "calls": 3188,
+      "elapsed_ns": "34526250"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/input",
+      "round": 1,
+      "calls": 1518,
+      "elapsed_ns": "15282125"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/input",
+      "round": 1,
+      "calls": 388,
+      "elapsed_ns": "16068500"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/text-edit-text",
+      "round": 1,
+      "calls": 471,
+      "elapsed_ns": "22070792"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/text-edit-text",
+      "round": 1,
+      "calls": 1093,
+      "elapsed_ns": "28682167"
+    },
+    {
+      "fields": 4,
+      "lane": "control/text-edit-text",
+      "round": 1,
+      "calls": 388,
+      "elapsed_ns": "15463791"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/prepared-output",
+      "round": 1,
+      "calls": 1773,
+      "elapsed_ns": "7992959"
+    },
+    {
+      "fields": 4,
+      "lane": "frontier/text-edit-text",
+      "round": 1,
+      "calls": 15509,
+      "elapsed_ns": "38583959"
+    },
+    {
+      "fields": 4,
+      "lane": "control/prepared-output",
+      "round": 1,
+      "calls": 2955,
+      "elapsed_ns": "29797875"
+    },
+    {
+      "fields": 4,
+      "lane": "frontier/text-edit-text",
+      "round": 2,
+      "calls": 15509,
+      "elapsed_ns": "29215000"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/text-edit-text",
+      "round": 2,
+      "calls": 1093,
+      "elapsed_ns": "28880833"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/input",
+      "round": 2,
+      "calls": 388,
+      "elapsed_ns": "9894833"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/prepared-output",
+      "round": 2,
+      "calls": 3188,
+      "elapsed_ns": "48867458"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/prepared-output",
+      "round": 2,
+      "calls": 1773,
+      "elapsed_ns": "8341542"
+    },
+    {
+      "fields": 4,
+      "lane": "control/input",
+      "round": 2,
+      "calls": 510,
+      "elapsed_ns": "7577250"
+    },
+    {
+      "fields": 4,
+      "lane": "control/prepared-output",
+      "round": 2,
+      "calls": 2955,
+      "elapsed_ns": "28635583"
+    },
+    {
+      "fields": 4,
+      "lane": "control/text-edit-text",
+      "round": 2,
+      "calls": 388,
+      "elapsed_ns": "22278541"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/text-edit-text",
+      "round": 2,
+      "calls": 471,
+      "elapsed_ns": "10996375"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/input",
+      "round": 2,
+      "calls": 1518,
+      "elapsed_ns": "17182375"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/input",
+      "round": 3,
+      "calls": 1518,
+      "elapsed_ns": "28517334"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/input",
+      "round": 3,
+      "calls": 388,
+      "elapsed_ns": "3263875"
+    },
+    {
+      "fields": 4,
+      "lane": "control/text-edit-text",
+      "round": 3,
+      "calls": 388,
+      "elapsed_ns": "15084917"
+    },
+    {
+      "fields": 4,
+      "lane": "frontier/text-edit-text",
+      "round": 3,
+      "calls": 15509,
+      "elapsed_ns": "39448959"
+    },
+    {
+      "fields": 4,
+      "lane": "control/input",
+      "round": 3,
+      "calls": 510,
+      "elapsed_ns": "8609375"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/prepared-output",
+      "round": 3,
+      "calls": 1773,
+      "elapsed_ns": "14459916"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/text-edit-text",
+      "round": 3,
+      "calls": 1093,
+      "elapsed_ns": "22312708"
+    },
+    {
+      "fields": 4,
+      "lane": "control/prepared-output",
+      "round": 3,
+      "calls": 2955,
+      "elapsed_ns": "12508916"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/prepared-output",
+      "round": 3,
+      "calls": 3188,
+      "elapsed_ns": "43254625"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/text-edit-text",
+      "round": 3,
+      "calls": 471,
+      "elapsed_ns": "14440291"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/prepared-output",
+      "round": 4,
+      "calls": 1773,
+      "elapsed_ns": "36074500"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/text-edit-text",
+      "round": 4,
+      "calls": 471,
+      "elapsed_ns": "22621583"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/text-edit-text",
+      "round": 4,
+      "calls": 1093,
+      "elapsed_ns": "30243667"
+    },
+    {
+      "fields": 4,
+      "lane": "control/input",
+      "round": 4,
+      "calls": 510,
+      "elapsed_ns": "4042375"
+    },
+    {
+      "fields": 4,
+      "lane": "control/prepared-output",
+      "round": 4,
+      "calls": 2955,
+      "elapsed_ns": "13288250"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/input",
+      "round": 4,
+      "calls": 1518,
+      "elapsed_ns": "31410416"
+    },
+    {
+      "fields": 4,
+      "lane": "frontier/text-edit-text",
+      "round": 4,
+      "calls": 15509,
+      "elapsed_ns": "29526625"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/prepared-output",
+      "round": 4,
+      "calls": 3188,
+      "elapsed_ns": "24884500"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/input",
+      "round": 4,
+      "calls": 388,
+      "elapsed_ns": "5120709"
+    },
+    {
+      "fields": 4,
+      "lane": "control/text-edit-text",
+      "round": 4,
+      "calls": 388,
+      "elapsed_ns": "13957375"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/text-edit-text",
+      "round": 5,
+      "calls": 1093,
+      "elapsed_ns": "26195125"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/text-edit-text",
+      "round": 5,
+      "calls": 471,
+      "elapsed_ns": "14630792"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/prepared-output",
+      "round": 5,
+      "calls": 3188,
+      "elapsed_ns": "13598375"
+    },
+    {
+      "fields": 4,
+      "lane": "frontier/text-edit-text",
+      "round": 5,
+      "calls": 15509,
+      "elapsed_ns": "35950667"
+    },
+    {
+      "fields": 4,
+      "lane": "control/input",
+      "round": 5,
+      "calls": 510,
+      "elapsed_ns": "4678917"
+    },
+    {
+      "fields": 4,
+      "lane": "control/prepared-output",
+      "round": 5,
+      "calls": 2955,
+      "elapsed_ns": "14898833"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/input",
+      "round": 5,
+      "calls": 1518,
+      "elapsed_ns": "59739083"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/input",
+      "round": 5,
+      "calls": 388,
+      "elapsed_ns": "4211583"
+    },
+    {
+      "fields": 4,
+      "lane": "control/text-edit-text",
+      "round": 5,
+      "calls": 388,
+      "elapsed_ns": "29038125"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/prepared-output",
+      "round": 5,
+      "calls": 1773,
+      "elapsed_ns": "14562792"
+    },
+    {
+      "fields": 4,
+      "lane": "control/prepared-output",
+      "round": 6,
+      "calls": 2955,
+      "elapsed_ns": "15590459"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/prepared-output",
+      "round": 6,
+      "calls": 3188,
+      "elapsed_ns": "44372542"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/input",
+      "round": 6,
+      "calls": 388,
+      "elapsed_ns": "9971917"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/prepared-output",
+      "round": 6,
+      "calls": 1773,
+      "elapsed_ns": "8895792"
+    },
+    {
+      "fields": 4,
+      "lane": "frontier/text-edit-text",
+      "round": 6,
+      "calls": 15509,
+      "elapsed_ns": "36657833"
+    },
+    {
+      "fields": 4,
+      "lane": "control/text-edit-text",
+      "round": 6,
+      "calls": 388,
+      "elapsed_ns": "10931416"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/text-edit-text",
+      "round": 6,
+      "calls": 471,
+      "elapsed_ns": "13939167"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/text-edit-text",
+      "round": 6,
+      "calls": 1093,
+      "elapsed_ns": "49143000"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/input",
+      "round": 6,
+      "calls": 1518,
+      "elapsed_ns": "23752375"
+    },
+    {
+      "fields": 4,
+      "lane": "control/input",
+      "round": 6,
+      "calls": 510,
+      "elapsed_ns": "18222834"
+    },
+    {
+      "fields": 4,
+      "lane": "control/text-edit-text",
+      "round": 7,
+      "calls": 388,
+      "elapsed_ns": "20425666"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/prepared-output",
+      "round": 7,
+      "calls": 3188,
+      "elapsed_ns": "34552541"
+    },
+    {
+      "fields": 4,
+      "lane": "control/input",
+      "round": 7,
+      "calls": 510,
+      "elapsed_ns": "26559750"
+    },
+    {
+      "fields": 4,
+      "lane": "control/prepared-output",
+      "round": 7,
+      "calls": 2955,
+      "elapsed_ns": "27304125"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/prepared-output",
+      "round": 7,
+      "calls": 1773,
+      "elapsed_ns": "8072750"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/text-edit-text",
+      "round": 7,
+      "calls": 1093,
+      "elapsed_ns": "25505042"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/input",
+      "round": 7,
+      "calls": 1518,
+      "elapsed_ns": "20197875"
+    },
+    {
+      "fields": 4,
+      "lane": "frontier/text-edit-text",
+      "round": 7,
+      "calls": 15509,
+      "elapsed_ns": "60524667"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/input",
+      "round": 7,
+      "calls": 388,
+      "elapsed_ns": "4839583"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/text-edit-text",
+      "round": 7,
+      "calls": 471,
+      "elapsed_ns": "15351750"
+    },
+    {
+      "fields": 4,
+      "lane": "control/text-edit-text",
+      "round": 8,
+      "calls": 388,
+      "elapsed_ns": "16887042"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/text-edit-text",
+      "round": 8,
+      "calls": 1093,
+      "elapsed_ns": "42739250"
+    },
+    {
+      "fields": 4,
+      "lane": "control/prepared-output",
+      "round": 8,
+      "calls": 2955,
+      "elapsed_ns": "14302166"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/prepared-output",
+      "round": 8,
+      "calls": 1773,
+      "elapsed_ns": "5966875"
+    },
+    {
+      "fields": 4,
+      "lane": "frontier/text-edit-text",
+      "round": 8,
+      "calls": 15509,
+      "elapsed_ns": "47161833"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/prepared-output",
+      "round": 8,
+      "calls": 3188,
+      "elapsed_ns": "22036833"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/input",
+      "round": 8,
+      "calls": 388,
+      "elapsed_ns": "19975875"
+    },
+    {
+      "fields": 4,
+      "lane": "control/input",
+      "round": 8,
+      "calls": 510,
+      "elapsed_ns": "37510708"
+    },
+    {
+      "fields": 4,
+      "lane": "builder/text-edit-text",
+      "round": 8,
+      "calls": 471,
+      "elapsed_ns": "28074333"
+    },
+    {
+      "fields": 4,
+      "lane": "consumer/input",
+      "round": 8,
+      "calls": 1518,
+      "elapsed_ns": "23493333"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/prepared-output",
+      "round": 0,
+      "calls": 1047,
+      "elapsed_ns": "45742833"
+    },
+    {
+      "fields": 64,
+      "lane": "control/text-edit-text",
+      "round": 0,
+      "calls": 202,
+      "elapsed_ns": "27481125"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/text-edit-text",
+      "round": 0,
+      "calls": 39,
+      "elapsed_ns": "3813542"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/input",
+      "round": 0,
+      "calls": 204,
+      "elapsed_ns": "18068208"
+    },
+    {
+      "fields": 64,
+      "lane": "control/input",
+      "round": 0,
+      "calls": 74,
+      "elapsed_ns": "11579583"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/text-edit-text",
+      "round": 0,
+      "calls": 194,
+      "elapsed_ns": "22738625"
+    },
+    {
+      "fields": 64,
+      "lane": "frontier/text-edit-text",
+      "round": 0,
+      "calls": 5367,
+      "elapsed_ns": "63649125"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/prepared-output",
+      "round": 0,
+      "calls": 66,
+      "elapsed_ns": "2905333"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/input",
+      "round": 0,
+      "calls": 176,
+      "elapsed_ns": "25585667"
+    },
+    {
+      "fields": 64,
+      "lane": "control/prepared-output",
+      "round": 0,
+      "calls": 636,
+      "elapsed_ns": "20513250"
+    },
+    {
+      "fields": 64,
+      "lane": "frontier/text-edit-text",
+      "round": 1,
+      "calls": 5367,
+      "elapsed_ns": "35156583"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/text-edit-text",
+      "round": 1,
+      "calls": 194,
+      "elapsed_ns": "19709042"
+    },
+    {
+      "fields": 64,
+      "lane": "control/prepared-output",
+      "round": 1,
+      "calls": 636,
+      "elapsed_ns": "28460416"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/prepared-output",
+      "round": 1,
+      "calls": 1047,
+      "elapsed_ns": "34846667"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/prepared-output",
+      "round": 1,
+      "calls": 66,
+      "elapsed_ns": "2409542"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/input",
+      "round": 1,
+      "calls": 176,
+      "elapsed_ns": "13457042"
+    },
+    {
+      "fields": 64,
+      "lane": "control/input",
+      "round": 1,
+      "calls": 74,
+      "elapsed_ns": "5660208"
+    },
+    {
+      "fields": 64,
+      "lane": "control/text-edit-text",
+      "round": 1,
+      "calls": 202,
+      "elapsed_ns": "62599875"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/input",
+      "round": 1,
+      "calls": 204,
+      "elapsed_ns": "27105667"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/text-edit-text",
+      "round": 1,
+      "calls": 39,
+      "elapsed_ns": "4105875"
+    },
+    {
+      "fields": 64,
+      "lane": "control/input",
+      "round": 2,
+      "calls": 74,
+      "elapsed_ns": "2901083"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/input",
+      "round": 2,
+      "calls": 176,
+      "elapsed_ns": "8348042"
+    },
+    {
+      "fields": 64,
+      "lane": "control/text-edit-text",
+      "round": 2,
+      "calls": 202,
+      "elapsed_ns": "17960209"
+    },
+    {
+      "fields": 64,
+      "lane": "frontier/text-edit-text",
+      "round": 2,
+      "calls": 5367,
+      "elapsed_ns": "56708417"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/text-edit-text",
+      "round": 2,
+      "calls": 39,
+      "elapsed_ns": "10511917"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/input",
+      "round": 2,
+      "calls": 204,
+      "elapsed_ns": "24820375"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/text-edit-text",
+      "round": 2,
+      "calls": 194,
+      "elapsed_ns": "22536792"
+    },
+    {
+      "fields": 64,
+      "lane": "control/prepared-output",
+      "round": 2,
+      "calls": 636,
+      "elapsed_ns": "34685167"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/prepared-output",
+      "round": 2,
+      "calls": 1047,
+      "elapsed_ns": "25073084"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/prepared-output",
+      "round": 2,
+      "calls": 66,
+      "elapsed_ns": "1585333"
+    },
+    {
+      "fields": 64,
+      "lane": "control/prepared-output",
+      "round": 3,
+      "calls": 636,
+      "elapsed_ns": "61907875"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/prepared-output",
+      "round": 3,
+      "calls": 66,
+      "elapsed_ns": "2407125"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/input",
+      "round": 3,
+      "calls": 176,
+      "elapsed_ns": "10871292"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/text-edit-text",
+      "round": 3,
+      "calls": 194,
+      "elapsed_ns": "17314709"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/input",
+      "round": 3,
+      "calls": 204,
+      "elapsed_ns": "62415458"
+    },
+    {
+      "fields": 64,
+      "lane": "control/input",
+      "round": 3,
+      "calls": 74,
+      "elapsed_ns": "5038333"
+    },
+    {
+      "fields": 64,
+      "lane": "frontier/text-edit-text",
+      "round": 3,
+      "calls": 5367,
+      "elapsed_ns": "51590458"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/text-edit-text",
+      "round": 3,
+      "calls": 39,
+      "elapsed_ns": "4151125"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/prepared-output",
+      "round": 3,
+      "calls": 1047,
+      "elapsed_ns": "39043000"
+    },
+    {
+      "fields": 64,
+      "lane": "control/text-edit-text",
+      "round": 3,
+      "calls": 202,
+      "elapsed_ns": "26187667"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/text-edit-text",
+      "round": 4,
+      "calls": 39,
+      "elapsed_ns": "3571333"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/text-edit-text",
+      "round": 4,
+      "calls": 194,
+      "elapsed_ns": "24812084"
+    },
+    {
+      "fields": 64,
+      "lane": "control/text-edit-text",
+      "round": 4,
+      "calls": 202,
+      "elapsed_ns": "21138209"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/prepared-output",
+      "round": 4,
+      "calls": 66,
+      "elapsed_ns": "9309875"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/input",
+      "round": 4,
+      "calls": 176,
+      "elapsed_ns": "15780042"
+    },
+    {
+      "fields": 64,
+      "lane": "control/prepared-output",
+      "round": 4,
+      "calls": 636,
+      "elapsed_ns": "130260667"
+    },
+    {
+      "fields": 64,
+      "lane": "control/input",
+      "round": 4,
+      "calls": 74,
+      "elapsed_ns": "6879333"
+    },
+    {
+      "fields": 64,
+      "lane": "frontier/text-edit-text",
+      "round": 4,
+      "calls": 5367,
+      "elapsed_ns": "49697667"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/prepared-output",
+      "round": 4,
+      "calls": 1047,
+      "elapsed_ns": "99560375"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/input",
+      "round": 4,
+      "calls": 204,
+      "elapsed_ns": "18873875"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/input",
+      "round": 5,
+      "calls": 204,
+      "elapsed_ns": "50689708"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/prepared-output",
+      "round": 5,
+      "calls": 1047,
+      "elapsed_ns": "67996500"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/prepared-output",
+      "round": 5,
+      "calls": 66,
+      "elapsed_ns": "1173833"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/text-edit-text",
+      "round": 5,
+      "calls": 194,
+      "elapsed_ns": "24788292"
+    },
+    {
+      "fields": 64,
+      "lane": "control/input",
+      "round": 5,
+      "calls": 74,
+      "elapsed_ns": "41525042"
+    },
+    {
+      "fields": 64,
+      "lane": "control/text-edit-text",
+      "round": 5,
+      "calls": 202,
+      "elapsed_ns": "60932917"
+    },
+    {
+      "fields": 64,
+      "lane": "control/prepared-output",
+      "round": 5,
+      "calls": 636,
+      "elapsed_ns": "32357417"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/text-edit-text",
+      "round": 5,
+      "calls": 39,
+      "elapsed_ns": "10026375"
+    },
+    {
+      "fields": 64,
+      "lane": "frontier/text-edit-text",
+      "round": 5,
+      "calls": 5367,
+      "elapsed_ns": "54769334"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/input",
+      "round": 5,
+      "calls": 176,
+      "elapsed_ns": "60642375"
+    },
+    {
+      "fields": 64,
+      "lane": "control/input",
+      "round": 6,
+      "calls": 74,
+      "elapsed_ns": "5722666"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/input",
+      "round": 6,
+      "calls": 176,
+      "elapsed_ns": "7663417"
+    },
+    {
+      "fields": 64,
+      "lane": "control/text-edit-text",
+      "round": 6,
+      "calls": 202,
+      "elapsed_ns": "35336541"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/prepared-output",
+      "round": 6,
+      "calls": 1047,
+      "elapsed_ns": "42402333"
+    },
+    {
+      "fields": 64,
+      "lane": "control/prepared-output",
+      "round": 6,
+      "calls": 636,
+      "elapsed_ns": "38830500"
+    },
+    {
+      "fields": 64,
+      "lane": "frontier/text-edit-text",
+      "round": 6,
+      "calls": 5367,
+      "elapsed_ns": "40814500"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/prepared-output",
+      "round": 6,
+      "calls": 66,
+      "elapsed_ns": "1287792"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/text-edit-text",
+      "round": 6,
+      "calls": 194,
+      "elapsed_ns": "23435125"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/text-edit-text",
+      "round": 6,
+      "calls": 39,
+      "elapsed_ns": "4478125"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/input",
+      "round": 6,
+      "calls": 204,
+      "elapsed_ns": "14178084"
+    },
+    {
+      "fields": 64,
+      "lane": "control/prepared-output",
+      "round": 7,
+      "calls": 636,
+      "elapsed_ns": "35494417"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/prepared-output",
+      "round": 7,
+      "calls": 1047,
+      "elapsed_ns": "47279208"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/input",
+      "round": 7,
+      "calls": 176,
+      "elapsed_ns": "38235333"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/text-edit-text",
+      "round": 7,
+      "calls": 194,
+      "elapsed_ns": "22019375"
+    },
+    {
+      "fields": 64,
+      "lane": "frontier/text-edit-text",
+      "round": 7,
+      "calls": 5367,
+      "elapsed_ns": "92569709"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/prepared-output",
+      "round": 7,
+      "calls": 66,
+      "elapsed_ns": "7644291"
+    },
+    {
+      "fields": 64,
+      "lane": "control/text-edit-text",
+      "round": 7,
+      "calls": 202,
+      "elapsed_ns": "47697167"
+    },
+    {
+      "fields": 64,
+      "lane": "control/input",
+      "round": 7,
+      "calls": 74,
+      "elapsed_ns": "4565125"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/input",
+      "round": 7,
+      "calls": 204,
+      "elapsed_ns": "14688542"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/text-edit-text",
+      "round": 7,
+      "calls": 39,
+      "elapsed_ns": "4257000"
+    },
+    {
+      "fields": 64,
+      "lane": "control/input",
+      "round": 8,
+      "calls": 74,
+      "elapsed_ns": "5347625"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/prepared-output",
+      "round": 8,
+      "calls": 1047,
+      "elapsed_ns": "32476666"
+    },
+    {
+      "fields": 64,
+      "lane": "control/text-edit-text",
+      "round": 8,
+      "calls": 202,
+      "elapsed_ns": "18525041"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/input",
+      "round": 8,
+      "calls": 204,
+      "elapsed_ns": "15820750"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/input",
+      "round": 8,
+      "calls": 176,
+      "elapsed_ns": "11013167"
+    },
+    {
+      "fields": 64,
+      "lane": "control/prepared-output",
+      "round": 8,
+      "calls": 636,
+      "elapsed_ns": "40186792"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/text-edit-text",
+      "round": 8,
+      "calls": 39,
+      "elapsed_ns": "28614750"
+    },
+    {
+      "fields": 64,
+      "lane": "frontier/text-edit-text",
+      "round": 8,
+      "calls": 5367,
+      "elapsed_ns": "104515875"
+    },
+    {
+      "fields": 64,
+      "lane": "builder/text-edit-text",
+      "round": 8,
+      "calls": 194,
+      "elapsed_ns": "21459292"
+    },
+    {
+      "fields": 64,
+      "lane": "consumer/prepared-output",
+      "round": 8,
+      "calls": 66,
+      "elapsed_ns": "1305250"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/input",
+      "round": 0,
+      "calls": 39,
+      "elapsed_ns": "47425875"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/input",
+      "round": 0,
+      "calls": 73,
+      "elapsed_ns": "76845875"
+    },
+    {
+      "fields": 512,
+      "lane": "control/prepared-output",
+      "round": 0,
+      "calls": 127,
+      "elapsed_ns": "46357209"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/text-edit-text",
+      "round": 0,
+      "calls": 10,
+      "elapsed_ns": "4958958"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/text-edit-text",
+      "round": 0,
+      "calls": 19,
+      "elapsed_ns": "22583166"
+    },
+    {
+      "fields": 512,
+      "lane": "frontier/text-edit-text",
+      "round": 0,
+      "calls": 135,
+      "elapsed_ns": "52084166"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/prepared-output",
+      "round": 0,
+      "calls": 67,
+      "elapsed_ns": "20563875"
+    },
+    {
+      "fields": 512,
+      "lane": "control/text-edit-text",
+      "round": 0,
+      "calls": 31,
+      "elapsed_ns": "62591667"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/prepared-output",
+      "round": 0,
+      "calls": 110,
+      "elapsed_ns": "24760792"
+    },
+    {
+      "fields": 512,
+      "lane": "control/input",
+      "round": 0,
+      "calls": 46,
+      "elapsed_ns": "46170167"
+    },
+    {
+      "fields": 512,
+      "lane": "control/input",
+      "round": 1,
+      "calls": 46,
+      "elapsed_ns": "55164333"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/prepared-output",
+      "round": 1,
+      "calls": 67,
+      "elapsed_ns": "19321959"
+    },
+    {
+      "fields": 512,
+      "lane": "control/text-edit-text",
+      "round": 1,
+      "calls": 31,
+      "elapsed_ns": "25005459"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/prepared-output",
+      "round": 1,
+      "calls": 110,
+      "elapsed_ns": "21403209"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/input",
+      "round": 1,
+      "calls": 39,
+      "elapsed_ns": "33165500"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/input",
+      "round": 1,
+      "calls": 73,
+      "elapsed_ns": "60231709"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/text-edit-text",
+      "round": 1,
+      "calls": 19,
+      "elapsed_ns": "29020792"
+    },
+    {
+      "fields": 512,
+      "lane": "frontier/text-edit-text",
+      "round": 1,
+      "calls": 135,
+      "elapsed_ns": "35672042"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/text-edit-text",
+      "round": 1,
+      "calls": 10,
+      "elapsed_ns": "6945667"
+    },
+    {
+      "fields": 512,
+      "lane": "control/prepared-output",
+      "round": 1,
+      "calls": 127,
+      "elapsed_ns": "30256584"
+    },
+    {
+      "fields": 512,
+      "lane": "control/prepared-output",
+      "round": 2,
+      "calls": 127,
+      "elapsed_ns": "32505500"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/text-edit-text",
+      "round": 2,
+      "calls": 19,
+      "elapsed_ns": "18066625"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/input",
+      "round": 2,
+      "calls": 39,
+      "elapsed_ns": "21197459"
+    },
+    {
+      "fields": 512,
+      "lane": "frontier/text-edit-text",
+      "round": 2,
+      "calls": 135,
+      "elapsed_ns": "34568792"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/prepared-output",
+      "round": 2,
+      "calls": 110,
+      "elapsed_ns": "36389584"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/input",
+      "round": 2,
+      "calls": 73,
+      "elapsed_ns": "33442584"
+    },
+    {
+      "fields": 512,
+      "lane": "control/text-edit-text",
+      "round": 2,
+      "calls": 31,
+      "elapsed_ns": "30228667"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/prepared-output",
+      "round": 2,
+      "calls": 67,
+      "elapsed_ns": "15017291"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/text-edit-text",
+      "round": 2,
+      "calls": 10,
+      "elapsed_ns": "9313000"
+    },
+    {
+      "fields": 512,
+      "lane": "control/input",
+      "round": 2,
+      "calls": 46,
+      "elapsed_ns": "26512666"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/input",
+      "round": 3,
+      "calls": 73,
+      "elapsed_ns": "37618250"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/prepared-output",
+      "round": 3,
+      "calls": 67,
+      "elapsed_ns": "17989791"
+    },
+    {
+      "fields": 512,
+      "lane": "control/input",
+      "round": 3,
+      "calls": 46,
+      "elapsed_ns": "24785375"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/prepared-output",
+      "round": 3,
+      "calls": 110,
+      "elapsed_ns": "26877250"
+    },
+    {
+      "fields": 512,
+      "lane": "control/prepared-output",
+      "round": 3,
+      "calls": 127,
+      "elapsed_ns": "26617041"
+    },
+    {
+      "fields": 512,
+      "lane": "frontier/text-edit-text",
+      "round": 3,
+      "calls": 135,
+      "elapsed_ns": "27161125"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/text-edit-text",
+      "round": 3,
+      "calls": 10,
+      "elapsed_ns": "6465750"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/input",
+      "round": 3,
+      "calls": 39,
+      "elapsed_ns": "16852209"
+    },
+    {
+      "fields": 512,
+      "lane": "control/text-edit-text",
+      "round": 3,
+      "calls": 31,
+      "elapsed_ns": "27570667"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/text-edit-text",
+      "round": 3,
+      "calls": 19,
+      "elapsed_ns": "12943250"
+    },
+    {
+      "fields": 512,
+      "lane": "control/prepared-output",
+      "round": 4,
+      "calls": 127,
+      "elapsed_ns": "30378375"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/prepared-output",
+      "round": 4,
+      "calls": 67,
+      "elapsed_ns": "13565166"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/text-edit-text",
+      "round": 4,
+      "calls": 19,
+      "elapsed_ns": "15008917"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/prepared-output",
+      "round": 4,
+      "calls": 110,
+      "elapsed_ns": "20452791"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/input",
+      "round": 4,
+      "calls": 39,
+      "elapsed_ns": "21486875"
+    },
+    {
+      "fields": 512,
+      "lane": "frontier/text-edit-text",
+      "round": 4,
+      "calls": 135,
+      "elapsed_ns": "22950416"
+    },
+    {
+      "fields": 512,
+      "lane": "control/text-edit-text",
+      "round": 4,
+      "calls": 31,
+      "elapsed_ns": "25340416"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/input",
+      "round": 4,
+      "calls": 73,
+      "elapsed_ns": "30402208"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/text-edit-text",
+      "round": 4,
+      "calls": 10,
+      "elapsed_ns": "11048375"
+    },
+    {
+      "fields": 512,
+      "lane": "control/input",
+      "round": 4,
+      "calls": 46,
+      "elapsed_ns": "20686583"
+    },
+    {
+      "fields": 512,
+      "lane": "control/text-edit-text",
+      "round": 5,
+      "calls": 31,
+      "elapsed_ns": "36913792"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/input",
+      "round": 5,
+      "calls": 39,
+      "elapsed_ns": "24202083"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/prepared-output",
+      "round": 5,
+      "calls": 67,
+      "elapsed_ns": "16183333"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/input",
+      "round": 5,
+      "calls": 73,
+      "elapsed_ns": "50833417"
+    },
+    {
+      "fields": 512,
+      "lane": "control/input",
+      "round": 5,
+      "calls": 46,
+      "elapsed_ns": "25017417"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/prepared-output",
+      "round": 5,
+      "calls": 110,
+      "elapsed_ns": "23191125"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/text-edit-text",
+      "round": 5,
+      "calls": 10,
+      "elapsed_ns": "8540292"
+    },
+    {
+      "fields": 512,
+      "lane": "frontier/text-edit-text",
+      "round": 5,
+      "calls": 135,
+      "elapsed_ns": "23664416"
+    },
+    {
+      "fields": 512,
+      "lane": "control/prepared-output",
+      "round": 5,
+      "calls": 127,
+      "elapsed_ns": "27619333"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/text-edit-text",
+      "round": 5,
+      "calls": 19,
+      "elapsed_ns": "13902583"
+    },
+    {
+      "fields": 512,
+      "lane": "control/prepared-output",
+      "round": 6,
+      "calls": 127,
+      "elapsed_ns": "32822041"
+    },
+    {
+      "fields": 512,
+      "lane": "control/text-edit-text",
+      "round": 6,
+      "calls": 31,
+      "elapsed_ns": "25358917"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/input",
+      "round": 6,
+      "calls": 39,
+      "elapsed_ns": "18366375"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/text-edit-text",
+      "round": 6,
+      "calls": 19,
+      "elapsed_ns": "17869458"
+    },
+    {
+      "fields": 512,
+      "lane": "frontier/text-edit-text",
+      "round": 6,
+      "calls": 135,
+      "elapsed_ns": "31624750"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/prepared-output",
+      "round": 6,
+      "calls": 67,
+      "elapsed_ns": "14279875"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/input",
+      "round": 6,
+      "calls": 73,
+      "elapsed_ns": "38221250"
+    },
+    {
+      "fields": 512,
+      "lane": "control/input",
+      "round": 6,
+      "calls": 46,
+      "elapsed_ns": "25596458"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/prepared-output",
+      "round": 6,
+      "calls": 110,
+      "elapsed_ns": "21524000"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/text-edit-text",
+      "round": 6,
+      "calls": 10,
+      "elapsed_ns": "7116375"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/text-edit-text",
+      "round": 7,
+      "calls": 10,
+      "elapsed_ns": "6774750"
+    },
+    {
+      "fields": 512,
+      "lane": "control/prepared-output",
+      "round": 7,
+      "calls": 127,
+      "elapsed_ns": "31775541"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/input",
+      "round": 7,
+      "calls": 73,
+      "elapsed_ns": "32918083"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/input",
+      "round": 7,
+      "calls": 39,
+      "elapsed_ns": "17155791"
+    },
+    {
+      "fields": 512,
+      "lane": "control/text-edit-text",
+      "round": 7,
+      "calls": 31,
+      "elapsed_ns": "26503459"
+    },
+    {
+      "fields": 512,
+      "lane": "frontier/text-edit-text",
+      "round": 7,
+      "calls": 135,
+      "elapsed_ns": "26425916"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/prepared-output",
+      "round": 7,
+      "calls": 67,
+      "elapsed_ns": "19148792"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/prepared-output",
+      "round": 7,
+      "calls": 110,
+      "elapsed_ns": "25330334"
+    },
+    {
+      "fields": 512,
+      "lane": "control/input",
+      "round": 7,
+      "calls": 46,
+      "elapsed_ns": "28163042"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/text-edit-text",
+      "round": 7,
+      "calls": 19,
+      "elapsed_ns": "18885041"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/input",
+      "round": 8,
+      "calls": 39,
+      "elapsed_ns": "23113208"
+    },
+    {
+      "fields": 512,
+      "lane": "control/input",
+      "round": 8,
+      "calls": 46,
+      "elapsed_ns": "40322291"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/prepared-output",
+      "round": 8,
+      "calls": 67,
+      "elapsed_ns": "15526542"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/text-edit-text",
+      "round": 8,
+      "calls": 10,
+      "elapsed_ns": "6884667"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/input",
+      "round": 8,
+      "calls": 73,
+      "elapsed_ns": "35781375"
+    },
+    {
+      "fields": 512,
+      "lane": "consumer/prepared-output",
+      "round": 8,
+      "calls": 110,
+      "elapsed_ns": "21769208"
+    },
+    {
+      "fields": 512,
+      "lane": "control/prepared-output",
+      "round": 8,
+      "calls": 127,
+      "elapsed_ns": "27322042"
+    },
+    {
+      "fields": 512,
+      "lane": "frontier/text-edit-text",
+      "round": 8,
+      "calls": 135,
+      "elapsed_ns": "23012208"
+    },
+    {
+      "fields": 512,
+      "lane": "builder/text-edit-text",
+      "round": 8,
+      "calls": 19,
+      "elapsed_ns": "10244042"
+    },
+    {
+      "fields": 512,
+      "lane": "control/text-edit-text",
+      "round": 8,
+      "calls": 31,
+      "elapsed_ns": "28441042"
+    }
+  ],
+  "validation": [
+    {
+      "fields": 4,
+      "complete_outputs": true,
+      "source_unchanged": true,
+      "exact_portable_and_compact_bytes": true
+    },
+    {
+      "fields": 64,
+      "complete_outputs": true,
+      "source_unchanged": true,
+      "exact_portable_and_compact_bytes": true
+    },
+    {
+      "fields": 512,
+      "complete_outputs": true,
+      "source_unchanged": true,
+      "exact_portable_and_compact_bytes": true
+    }
+  ],
+  "checksum": 6810,
+  "scope": "Three fresh paired processes; identical selected layout and source. Builder changes only generic session allocation; consumer also removes JSON member result objects. Native Frontier uses different numeric-token/member-order/duplicate/resource contracts. Shared host; import, memory and selection profitability are not established."
+}
