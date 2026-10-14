@@ -121,11 +121,18 @@ values and reaching programs only through `Proof::Instance`:
 - lookups past writes of other keys;
 - bit-blasted word facts.
 
+Unsigned word keys (u32, u64) and signed keys (i32) each have their own insertion,
+sortedness and order laws; lookup, removal and replacement laws are shared. The
+projection orders i32 keys by comparing words shifted down by 2^31 with wrapping
+(`core/src/action_model/keys.rs`). That agrees with signed order on every i32
+encoding and is a strict total order on all words, so the signed order facts need
+no range hypothesis.
+
 The producer's search normalises, rewrites with hypotheses and laws, and splits
 on conditions. The kernel replays every step.
 
-On the module in `tests/sorted_tables.rs` (two tables), these pairs are all
-**checked when keys differ**: `put`/`put`, `erase`/`put`, `get`/`put`,
+On the module in `tests/sorted_tables.rs` (two tables, and again with i32 keys
+for `erase`/`put`), these pairs are all **checked when keys differ**: `put`/`put`, `erase`/`put`, `get`/`put`,
 `erase`/`get` and `erase`/`erase`. Each takes 10 s – 2 min, including the
 proof search. The test also shows the checker rejects the certificate when:
 
