@@ -48,6 +48,16 @@ pub enum Proof {
     /// Function extensionality with an explicitly fresh universal parameter.
     /// Names provide scope only; the body must prove the applied endpoints.
     Forall { parameter: String, body: Box<Proof> },
+    /// Finite canonical maps are determined by membership at every key and
+    /// exact reads with a common arbitrary fallback. Both parameters are
+    /// fresh and universally quantified. Membership is necessary even when
+    /// the value sort has only one inhabitant. No numeric float equality.
+    MapExtensional {
+        parameter: String,
+        fallback_parameter: String,
+        presence: Box<Proof>,
+        values: Box<Proof>,
+    },
     Use {
         law: String,
         arguments: BTreeMap<String, Term>,
@@ -161,7 +171,7 @@ pub fn required_semantics(law: &Law) -> &'static str {
 }
 fn general_proof(p: &Proof) -> bool {
     match p {
-        Proof::Assume { .. } | Proof::Variants { .. } | Proof::Order { .. } | Proof::Word { .. } | Proof::Unfold => true,
+        Proof::Assume { .. } | Proof::Variants { .. } | Proof::Order { .. } | Proof::Word { .. } | Proof::Unfold | Proof::MapExtensional { .. } => true,
         Proof::Use { types, assumptions, premises, .. } => {
             !types.is_empty() || !assumptions.is_empty() || premises.iter().any(general_proof)
         }
@@ -645,6 +655,34 @@ impl CheckedCatalogue {
                 self.prove_inner(p,&local,hyp,schemas,&Equation{
                     from:beta(from,&argument,b)?,to:beta(to,&argument,b)?,
                 },body,b,d+1)
+            }
+            Proof::MapExtensional { parameter, fallback_parameter, presence, values } => {
+                if parameter==fallback_parameter || [parameter,fallback_parameter].iter().any(|name|
+                    name.is_empty() || name.len()>128 || env.contains_key(*name)
+                    || !name.bytes().all(|c|c.is_ascii_alphanumeric()||c==b'_')) {
+                    return Err("map extensionality parameters must be distinct, fresh and bounded".into());
+                }
+                let Sort::Value(Type::Map(key_type, item_type)) = &goal.from.sort else {
+                    return Err("map extensionality requires two typed maps".into());
+                };
+                let key = free(value((**key_type).clone()), parameter);
+                let fallback = free(value((**item_type).clone()),fallback_parameter);
+                let mut local = env.clone();
+                local.insert(parameter.clone(),key.sort.clone());
+                local.insert(fallback_parameter.clone(),fallback.sort.clone());
+                let contains = |map: &Term| op(value(Type::Bool),"method:contains",vec![map.clone(),key.clone()]);
+                let from_present = contains(&goal.from);
+                let to_present = contains(&goal.to);
+                self.prove_inner(p,&local,hyp,schemas,&Equation {
+                    from:from_present.clone(),to:to_present.clone(),
+                },presence,b,d+1).map_err(|e|format!("map membership: {e}"))?;
+                // Fixed get_or semantics return the same fallback at absent
+                // keys. At present keys this is exact value equality, including
+                // raw float bits and complete structured payloads.
+                let item = |map: &Term| op(fallback.sort.clone(),"method:get_or",vec![map.clone(),key.clone(),fallback.clone()]);
+                self.prove_inner(p,&local,hyp,schemas,&Equation {
+                    from:item(&goal.from),to:item(&goal.to),
+                },values,b,d+1).map_err(|e|format!("map present values: {e}"))
             }
             Proof::Congruence(proofs) => {
                 let mut from = goal.from.clone();
@@ -2885,6 +2923,12 @@ pub fn open_proof(proof: &Proof, scope: &[(String, Sort)], b: &mut Budget) -> La
             Proof::Hypothesis(i) => Proof::Hypothesis(*i),
             Proof::Forall { parameter, body } => Proof::Forall {
                 parameter:parameter.clone(),body:Box::new(go(body,scope,b,d+1)?),
+            },
+            Proof::MapExtensional { parameter, fallback_parameter, presence, values } => Proof::MapExtensional {
+                parameter:parameter.clone(),
+                fallback_parameter:fallback_parameter.clone(),
+                presence:Box::new(go(presence,scope,b,d+1)?),
+                values:Box::new(go(values,scope,b,d+1)?),
             },
             Proof::GeneralizedHypothesis { index, arguments } => Proof::GeneralizedHypothesis {
                 index: *index,
