@@ -40,7 +40,7 @@ fn whole_implementations_preserve_histories_publication_changes_and_portable_sta
  fs::write(dir.join("plan.json"),serde_json::to_vec(&packet).unwrap()).unwrap();
  let mut oracle=Runtime::new(parse(SOURCE).unwrap()).unwrap();let mut history=vec![];
  for i in 0..240u64{
-  let key=if i%17==0{9999}else{i%31};let value=if i%11==0{u64::MAX-i}else{i*17};
+  let key=if i%23==0{u64::MAX-i}else if i%29==0{9007199254740992+i}else if i%17==0{9999}else{i%31};let value=if i%11==0{u64::MAX-i}else{i*17};
   let (name,args)=if i%7==0{("erase",json!([key,i%13==0]))}else{("put",json!([key,value,i%3==0,i%13==0]))};
   let result=oracle.invoke_json(name,&args).unwrap().json();
   let total=oracle.invoke_json("total_query",&json!([])).unwrap().json();
@@ -62,6 +62,19 @@ p=Path(sys.argv[1]);receipt=json.loads((p/'receipt.json').read_text());context=r
 context.update(compiler=sys.argv[2],emit_target='javascript')
 rows=list(candidates(context,capacities=(64,)))
 plans=json.loads((p/'plan.json').read_text())
+from producers.maintained_updates import guarded_word_update
+import copy
+guarded=copy.deepcopy(plans)
+for step in guarded['steps']:
+ if step['kind']=='maintained':step['package']=guarded_word_update(step['package'],p/'guarded-knowledge')
+(p/'guarded.json').write_text(json.dumps(guarded))
+zero=copy.deepcopy(plans)
+for step in zero['steps']:
+ if step['kind']=='maintained':step['package']=guarded_word_update(step['package'],p/'zero-knowledge',zero=True)
+(p/'zero.json').write_text(json.dumps(zero))
+dense=copy.deepcopy(guarded);dense['steps'].insert(-1,dict(kind='physical',package=dict(schema=1,semantics='ink-physical-plan-v1',input_core_sha256=dense['steps'][-1]['package']['input_core_sha256'],dense_prefixes=[dict(table='Rows',capacity=64)])))
+(p/'dense.json').write_text(json.dumps(dense))
+zero['steps'].insert(-1,dense['steps'][-2]);(p/'zero_dense.json').write_text(json.dumps(zero))
 for row in rows:
  if row['status']!='proposal' or '/columns/' not in row['label']:continue
  v=dict(plans);v['steps']=[*plans['steps'],row['step']]
@@ -77,6 +90,13 @@ for row in rows:
   assert!(planning::check(&module,&forged).is_err());
   if name=="number"{let mut forged=p.clone();if let planning::Step::Protocol(p)=forged.steps.last_mut().unwrap(){p.columns[0].guards.values_mut().next().unwrap().problem_sha256="0".repeat(64);}assert!(planning::check(&module,&forged).is_err());}
   if name=="number"{let mut forged=p.clone();if let planning::Step::Protocol(p)=forged.steps.last_mut().unwrap(){p.columns[0].guards.clear();}assert!(planning::check(&module,&forged).unwrap_err().contains("guard certificate"));}
+ }
+ for name in ["guarded","dense","zero","zero_dense"]{
+  let p:planning::Package=serde_json::from_slice(&fs::read(dir.join(format!("{name}.json"))).unwrap()).unwrap();
+  let checked=planning::check(&module,&p).unwrap();
+  fs::write(dir.join(format!("{name}.mjs")),verified_language::javascript::lower_planned(&checked).unwrap().javascript).unwrap();
+  let mut forged=p.clone();for step in &mut forged.steps{if let planning::Step::Maintained(p)=step{p.views[0].update.as_mut().unwrap().proof=verified_language::logic::Proof::Refl(verified_language::logic::Term::U64(0));}}
+  assert!(planning::check(&module,&forged).is_err());
  }
  fs::write(dir.join("run.mjs"),include_str!("support/state_protocol.mjs")).unwrap();
  let out=Command::new("node").arg(dir.join("run.mjs")).output().unwrap();fs::write(dir.join("validation.log"),[out.stdout.as_slice(),out.stderr.as_slice()].concat()).unwrap();

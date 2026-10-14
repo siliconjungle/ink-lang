@@ -20,6 +20,17 @@ function delta(init){
  return {put(k,v,a){const old=rows.get(k);batch(()=>{total.value=word(total.value-(old.active?old.value:0n)+(a?v:0n));count.value+=BigInt(a)-BigInt(old.active);rows.set(k,{value:v,active:a});});},total:()=>total.value,count:()=>count.value,
          connect(cb){return effect(()=>cb(total.value,count.value));}};
 }
+// A stronger raw control shares the guarded aggregate algorithm. This separates
+// savings from the proved algorithm from savings in storage/publication support.
+function guardedDelta(init){
+ const rows=new Map(init.map((r,i)=>[BigInt(i),{...r}]));
+ const total=signal(init.reduce((s,r)=>r.active?word(s+r.value):s,0n)),count=signal(BigInt(init.filter(r=>r.active).length));
+ return {put(k,v,a){const old=rows.get(k),before=old.active?old.value:0n,after=a?v:0n;batch(()=>{
+  if(before!==after)total.value=word(total.value-before+after);
+  if(a!==old.active)count.value+=a?1n:-1n;
+  rows.set(k,{value:v,active:a});
+ });},total:()=>total.value,count:()=>count.value,connect(cb){return effect(()=>cb(total.value,count.value));}};
+}
 function derived(init){
  const rows=init.map(r=>signal({...r}));
  const total=computed(()=>rows.reduce((s,r)=>r.value.active?word(s+r.value.value):s,0n));
@@ -50,7 +61,7 @@ async function ink(artifact,init){
  for(let i=0;i<init.length;i++)seedPut(BigInt(i),init[i].value,init[i].active,false);
  (seed.acknowledgeThrough??seed.acknowledge_through).call(seed,word(-1n),word(-1n));
  await state.restore(await seed.checkpoint());
- return {put(k,v,a,fail=false){return put(k,v,a,fail);},total,count,
+ return {put,total,count,
   contracts(){return {version:state.version,outbox:state.outbox};},
   clear(){(state.acknowledgeThrough??state.acknowledge_through).call(state,word(-1n),word(-1n));},
   connect(cb){if(cfg.positional_subscriptions)return state.subscribeValues(['total_query','count_query'],cb);if(cfg.grouped_subscriptions)return state.subscribeGroup(['total_query','count_query'],([total,count])=>cb(total,count));const a=state.subscribe('total_query',[],v=>cb(v,count())),b=state.subscribe('count_query',[],v=>cb(total(),v));return ()=>{a();b();};}};
@@ -60,6 +71,7 @@ const samples=[],validations=[];
 const factories=[
  ...modules.map(a=>({label:a.label,create:init=>ink(a,init),baseline:a.baseline??a.label==='Ink baseline'})),
  {label:'Preact manual delta',create:init=>delta(init)},
+ ...(cfg.guarded_raw_control?[{label:'Preact guarded manual delta',create:init=>guardedDelta(init)}]:[]),
  {label:'Preact delta + commits/events',create:init=>committedDelta(init)},
  {label:'Svelte manual delta',create:init=>svelte.deltaRows(init)},
  {label:'Preact computed',create:init=>derived(init),baseline:true}
@@ -73,7 +85,7 @@ for(const f of factories){
  const warmCalls=cfg.warmup_calls??20000;
  for(let i=0;i<warmCalls;i++){
   if(i===Math.floor(warmCalls/2))close=m.connect?.(()=>{});
-  m.put(BigInt(i%8),i%19===0?word(-1n):BigInt(i),i%3===0);
+  m.put(BigInt(i%8),i%19===0?word(-1n):BigInt(i),i%3===0,false);
   sink^=m.total()^m.count();
   if(i%2048===2047)m.clear?.();
  }
@@ -96,7 +108,7 @@ for(const n of cfg.rows??[256,4096,16384]){
   const m=await f.create(initial),rows=initial.map(r=>({...r}));
   for(let j=0;j<64;j++){
    const k=(j*37)%n,v=j%7===0?word(-1n):BigInt(999+j),a=j%3===0;
-   m.put(BigInt(k),v,a);rows[k]={value:v,active:a};
+   m.put(BigInt(k),v,a,false);rows[k]={value:v,active:a};
    assert.equal(m.total(),rows.reduce((s,r)=>r.active?word(s+r.value):s,0n),f.label+' full-width sum');
    assert.equal(m.count(),BigInt(rows.filter(r=>r.active).length),f.label+' count');
   }
@@ -111,22 +123,22 @@ for(const n of cfg.rows??[256,4096,16384]){
    lanes.push({...f,m,close,publications:()=>publications});
   }
   const roundOrder=lanes.map((_,i)=>i);
-  for(let round=-3;round<7;round++){
+  for(let round=-3;round<(cfg.measured_rounds??7);round++){
    const order=(round+cfg.process_index)%2?[...roundOrder].reverse():roundOrder;
    for(const index of order){
     const lane=lanes[index],m=lane.m,units=lane.baseline?(cfg.baseline_units??128):(cfg.units??2048),burst=phase==='sync-burst32'?32:1;
     const inputs=Array.from({length:units*burst},(_,i)=>[BigInt((i*37+(round+4)*19)%n),i%19===0?word(-1n):BigInt((round+4)*100000000+i),i%3===0]);
     const before=lane.publications();let total,count;
-    const start=performance.now();
+    const cpuStart=process.cpuUsage(),start=performance.now();
     if(phase==='awaited-update-and-aggregate'){
-     for(const [k,v,a]of inputs){await m.put(k,v,a);total=await m.total();count=await m.count();}
+     for(const [k,v,a]of inputs){await m.put(k,v,a,false);total=await m.total();count=await m.count();}
     }else if(phase==='sync-unchanged-read'){
      for(let i=0;i<units;i++){total=m.total();count=m.count();}
     }else{
-     for(let i=0;i<units;i++){for(let j=0;j<burst;j++){const [k,v,a]=inputs[i*burst+j];m.put(k,v,a);}total=m.total();count=m.count();}
+     for(let i=0;i<units;i++){for(let j=0;j<burst;j++){const [k,v,a]=inputs[i*burst+j];m.put(k,v,a,false);}total=m.total();count=m.count();}
     }
-    const ns=(performance.now()-start)*1e6;sink^=total^count;
-    if(round>=0)samples.push({label:lane.label,rows:n,phase,round,units,writesPerUnit:phase==='sync-unchanged-read'?0:burst,nsPerUnit:ns/units,publications:lane.publications()-before});
+    const ns=(performance.now()-start)*1e6,cpu=process.cpuUsage(cpuStart);sink^=total^count;
+    if(round>=0)samples.push({label:lane.label,rows:n,phase,round,units,writesPerUnit:phase==='sync-unchanged-read'?0:burst,nsPerUnit:ns/units,cpuNsPerUnit:(cpu.user+cpu.system)*1000/units,publications:lane.publications()-before});
     m.clear?.();
    }
   }
@@ -137,7 +149,7 @@ const median=v=>{const x=[...v].sort((a,b)=>a-b);return x[Math.floor(x.length/2)
 const summary=[];
 for(const label of factories.map(f=>f.label))for(const rows of cfg.rows??[256,4096,16384])for(const phase of phases){
  const items=samples.filter(s=>s.label===label&&s.rows===rows&&s.phase===phase);
- if(items.length)summary.push({label,rows,phase,medianNs:median(items.map(s=>s.nsPerUnit)),minNs:Math.min(...items.map(s=>s.nsPerUnit)),maxNs:Math.max(...items.map(s=>s.nsPerUnit))});
+ if(items.length)summary.push({label,rows,phase,medianNs:median(items.map(s=>s.nsPerUnit)),medianCpuNs:median(items.map(s=>s.cpuNsPerUnit)),minNs:Math.min(...items.map(s=>s.nsPerUnit)),maxNs:Math.max(...items.map(s=>s.nsPerUnit))});
 }
 console.log(JSON.stringify({schema:1,date:new Date().toISOString(),process_index:cfg.process_index,node:process.version,hardware:cpus()[0].model,
  artifacts:modules.map(({label,path,sha256})=>({label,path,sha256})),validations,samples,summary,sink:String(sink),

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 const history=JSON.parse(fs.readFileSync(new URL('./history.json',import.meta.url)));
 const normal=x=>JSON.parse(JSON.stringify(x,(_k,v)=>typeof v==='bigint'||typeof v==='number'?String(v):v));
-for(const name of ['baseline','map','word','number']){
+for(const name of ['baseline','map','word','number','guarded','dense','zero','zero_dense']){
  const {createState}=await import(new URL(`./${name}.mjs`,import.meta.url));const state=createState();
  const bound=Object.fromEntries(['put','erase','total_query','count_query'].map(n=>[n,state.bind(n)]));
  for(let i=0;i<history.length;i++){
@@ -30,6 +30,11 @@ for(const name of ['baseline','map','word','number']){
  assert.deepEqual(positions,publications,'positional and tuple publication traces');closePositions();close();await state.restore(before);assert.deepEqual(await state.checkpoint(),before);
  let reentered=false;const stop=state.subscribeGroup(['total_query','count_query'],()=>{if(!reentered){reentered=true;put(81n,83n,true,false);}},{immediate:false});
  put(80n,79n,true,false);assert.equal(reentered,true);stop();
+ const directEvents=[];let directReentered=false;
+ const directStop=state.subscribeValues(['total_query','count_query'],(a,b)=>{directEvents.push([a,b]);if(!directReentered){directReentered=true;put(501n,17n,true,false);}},{immediate:false});
+ const directTotal=total(),directCount=count();put(500n,13n,true,false);
+ assert.deepEqual(directEvents,[[BigInt.asUintN(64,directTotal+13n),directCount+1n],[BigInt.asUintN(64,directTotal+30n),directCount+2n]],name+' single consumer snapshot/reentry');
+ await state.restore(before);assert.deepEqual(directEvents.at(-1),[total(),count()],name+' direct slots follow restored keeps');directStop();
  const wide=state.changeToken();put(0n,9007199254740991n,true,false);put(1n,9007199254740992n,true,false);put(2n,18446744073709551615n,true,false);put(1n,1n,true,false);put(99999n,18446744073709551615n,true,false);
  assert.equal(state.changesSince(wide).changes.find(c=>c.key===2n).after.Some.value,18446744073709551615n);state.releaseChangeToken(wide);
  const saved=await state.checkpoint();const restored=createState();await restored.restore(saved);assert.equal(restored.bind('total_query',{resultOnly:true})(),total());assert.deepEqual(await restored.checkpoint(),saved);
