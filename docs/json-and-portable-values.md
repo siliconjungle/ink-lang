@@ -287,6 +287,16 @@ The attempted JSON renderer that interpreted those events was slower and removed
 see the retained Frontier comparison reports. Source typing alone does not prove
 format-specific invariants such as valid JSON number tokens.
 
+Opaque-value codecs expose `decodeFused` and `decodeCompactFused`, which validate
+and construct in one traversal through a checked literal ABI reader. The compiler emits scalar constraints, vector sizes
+and every source frame even when the private layout erases records or flattens
+sums. Headers, UTF-8, compact count canonicality, source resource limits and owned
+outputs remain checked. Malformed-input tests compare this path with independent
+generic decoding. The emitted reader remains a trusted backend implementation;
+structural validity does not establish JSON numeric grammar or unique members.
+The baseline decoding methods remain the default; lifecycle costs must govern
+selection of the fused alternative.
+
 Compiled codecs additionally expose `reducer(factory)`: a literal typed fold
 whose callbacks see scalars and their own child results. It can compute summaries
 or render output without allocating a logical tree or exposing private nodes.
