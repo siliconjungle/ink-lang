@@ -820,7 +820,7 @@ fn branch_env(bindings: &[String], fields: &[Sort], env: &Env, internal: bool) -
             name(n)?;
         }
         if local.insert(n.clone(), t.clone()).is_some() && !internal {
-            return Err("logic binder shadows an existing variable".into());
+            return Err(format!("logic binder {n} shadows an existing variable"));
         }
     }
     Ok(local)

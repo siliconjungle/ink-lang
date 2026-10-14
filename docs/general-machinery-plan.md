@@ -51,7 +51,36 @@ support. Missing capability stays explicit while implementation continues.
 
 ## Current state
 
-Latest checkpoint (14 October): the programme is still incomplete. Recursive
+Latest checkpoint (14 October): the programme is still incomplete. The collection
+library now exposes a real abstract refined Set interface, with 49 pure and 10
+state obligations for u32, strings, nested records and float bits. Construction,
+union, intersection and difference have source-bound preservation proofs;
+intersection and difference avoid renormalisation. Complete Set target execution
+and freshly authenticated false-proof rejection pass. The untrusted author has
+finite unfolding/proposal budgets and replays supplied proofs without duplicate
+wrapper laws, reducing the fixture packet from 2.50 MB to 1.90 MB. Canonical
+publication adds 192 objects at snapshot
+`fd9751c3b2bdce91b46e1ab8c17f7da2174826332e62aab56d0d76ce7d7fc010`;
+both source-bound and unrelated-source pure-law replay pass. The generic Set
+implementation still has quadratic worst-case work; complete JavaScript calls
+at 256 inputs remain roughly 10–25 times the handwritten u32 control. See
+`docs/checked-set-interfaces.md` and the complete raw measurements in
+`docs/evidence/general-machinery/set-performance.json`. Efficient alternate
+implementations and interchangeable Set representations remain unfinished.
+
+Binder-safe eta normalization now transports checked callback facts through
+noncapturing wrappers; 303 core tests across 52 runs pass. The latest state
+protocol work is integrated. CI for the preceding distribution checkpoint
+found one representation proof with a shadowed generated Match binder.
+Database authoring now freshens those lexical terms, with five proof hygiene/
+composition tests passing and the resulting representation proof independently
+accepted. Complete regression execution now passes, as do all 30 Set observations and
+the four integrated state-protocol tests. The broad 432-test knowledge archive
+run has 232 passes, 137 skips and 63 missing historical compiler/oracle errors;
+these are retained in the integration receipt. Final distribution publication
+and CI checks are in progress. No CI completion claim is made.
+
+Recursive
 raw-value validators, mutual structural descent and portable recursive definition
 contexts are now implemented. The checked-tree library produced 72 pure
 interface obligations with 53 canonical proof objects; both source-bound and
@@ -77,9 +106,8 @@ verification are being completed. The reproducible commands, exact dependency
 revisions and log digests are in `docs/evidence/general-machinery/integration-v3.json`. Historical local-only publication statements below describe
 their respective earlier checkpoints.
 
-The largest remaining implementation requirements are the real invariant-bearing
-Set interface (the collection alias remains), interchangeable abstract/owner
-interfaces, allocation provenance and general layout/codec relations, recursive
+The largest remaining implementation requirements are efficient Set algorithms
+and interchangeable abstract/owner interfaces, allocation provenance and general layout/codec relations, recursive
 source induction and state correspondence, effectful mutation/loop frames,
 fact transport through changed selected source and additional lowering consumers,
 and composed incremental history/lifecycle/memory/performance evidence. The
