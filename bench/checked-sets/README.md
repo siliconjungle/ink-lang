@@ -22,12 +22,23 @@ stay unchanged.
 The control covers u32 identity; it establishes no float/record algorithm
 replacement. These shared-machine samples are observations, not proof premises
 or automatic selection evidence. Native/Wasm, state histories and memory/lifetime
-measurements remain to be added. The literal implementation retains quadratic
-worst-case work; efficient proof-backed strategies are still required.
+measurements remain to be added. The generic literal implementation retains
+quadratic worst-case work. The indexed fixture uses database-authored Map/Buffer
+construction and indexed u32 queries with checked preservation proofs.
 
-An optional third argument supplies a module with checked boundary-reader
-selection. Its lane is compared with the exact same codecs and complete calls.
+An optional third argument supplies a candidate module; an optional fourth
+argument labels that lane. It is compared with the exact same codecs and complete
+calls. Every lane warms for 50 ms and every sample contains at least 16 calls.
+The historical boundary-reader receipts used the earlier shorter warmup.
 The three-lane report includes `distinct`; only selected interfaces use the
 specialized reader. At 256 inputs, selected/literal wire ratios of 1.001 for
 `distinct` and 1.044 for `union` show no material benefit in these samples.
 Invariant validation and the generic algorithms remain the dominant costs.
+
+For construction, reusable private value guarantees and retained native Set
+controls, run `node bench/checked-sets/handles.mjs MODULE.mjs`. Capture,
+construction, encoding, decoding and the first decoded invariant check are
+separate lifecycle observations. Steady calls include detached output
+materialization and full consumption. Raw handles validate once; checked source
+outputs already establish their declared value interfaces. Membership still
+scans the logical list and is slower than the retained native index.

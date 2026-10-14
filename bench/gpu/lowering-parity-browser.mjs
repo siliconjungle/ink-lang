@@ -1,5 +1,6 @@
 // Replay the native conformance artifacts through the browser host/device.
 import {chromium} from 'playwright-core';
+import {checkWordFixtures} from './word-parity-browser.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import http from 'node:http';
@@ -150,7 +151,8 @@ try {
       return {name,comparisons,gpu_calls,rejectedRestores};
     },{base,name,script,expected}));
   }
-  const receipt={status:'passed',browser:browser.version(),bend,residency,numerics,contracts};
+  const words=await checkWordFixtures(page,base);
+  const receipt={status:'passed',browser:browser.version(),bend,residency,numerics,contracts,words};
   await fs.writeFile(output,JSON.stringify(receipt,null,2)+'\n');
   console.log(JSON.stringify({status:receipt.status,browser:receipt.browser,comparisons:bend.comparisons+residency.comparisons+numerics.reduce((n,r)=>n+r.comparisons,0)+contracts.reduce((n,r)=>n+r.comparisons,0),gpu_calls:bend.gpu_calls+residency.gpu_calls+numerics.reduce((n,r)=>n+r.gpu_calls,0)+contracts.reduce((n,r)=>n+r.gpu_calls,0)}));
 } finally {await browser?.close();await new Promise(resolve=>server.close(resolve));}
