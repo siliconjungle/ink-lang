@@ -53,7 +53,7 @@ async function ink(artifact,init){
  return {put(k,v,a,fail=false){return put(k,v,a,fail);},total,count,
   contracts(){return {version:state.version,outbox:state.outbox};},
   clear(){(state.acknowledgeThrough??state.acknowledge_through).call(state,word(-1n),word(-1n));},
-  connect(cb){const a=state.subscribe('total_query',[],v=>cb(v,count())),b=state.subscribe('count_query',[],v=>cb(total(),v));return ()=>{a();b();};}};
+  connect(cb){if(cfg.positional_subscriptions)return state.subscribeValues(['total_query','count_query'],cb);if(cfg.grouped_subscriptions)return state.subscribeGroup(['total_query','count_query'],([total,count])=>cb(total,count));const a=state.subscribe('total_query',[],v=>cb(v,count())),b=state.subscribe('count_query',[],v=>cb(total(),v));return ()=>{a();b();};}};
 }
 let sink=0n;
 const samples=[],validations=[];
@@ -64,14 +64,15 @@ const factories=[
  {label:'Svelte manual delta',create:init=>svelte.deltaRows(init)},
  {label:'Preact computed',create:init=>derived(init),baseline:true}
 ];
-const phases=['sync-update-and-aggregate','awaited-update-and-aggregate','sync-unchanged-read','sync-burst32','sync-observed-update'];
+const phases=cfg.phases??['sync-update-and-aggregate','awaited-update-and-aggregate','sync-unchanged-read','sync-burst32','sync-observed-update'];
 // Warm shared generated bodies on a small state before comparing table sizes.
 // Otherwise the first (smallest) size also pays for evolving V8 optimisation.
 const warmInitial=Array.from({length:8},(_,i)=>({value:BigInt(i),active:i%2===0}));
 for(const f of factories){
  const m=await f.create(warmInitial);let close=null;
- for(let i=0;i<20000;i++){
-  if(i===10000)close=m.connect?.(()=>{});
+ const warmCalls=cfg.warmup_calls??20000;
+ for(let i=0;i<warmCalls;i++){
+  if(i===Math.floor(warmCalls/2))close=m.connect?.(()=>{});
   m.put(BigInt(i%8),i%19===0?word(-1n):BigInt(i),i%3===0);
   sink^=m.total()^m.count();
   if(i%2048===2047)m.clear?.();
@@ -113,7 +114,7 @@ for(const n of cfg.rows??[256,4096,16384]){
   for(let round=-3;round<7;round++){
    const order=(round+cfg.process_index)%2?[...roundOrder].reverse():roundOrder;
    for(const index of order){
-    const lane=lanes[index],m=lane.m,units=lane.baseline?128:2048,burst=phase==='sync-burst32'?32:1;
+    const lane=lanes[index],m=lane.m,units=lane.baseline?(cfg.baseline_units??128):(cfg.units??2048),burst=phase==='sync-burst32'?32:1;
     const inputs=Array.from({length:units*burst},(_,i)=>[BigInt((i*37+(round+4)*19)%n),i%19===0?word(-1n):BigInt((round+4)*100000000+i),i%3===0]);
     const before=lane.publications();let total,count;
     const start=performance.now();
@@ -140,5 +141,5 @@ for(const label of factories.map(f=>f.label))for(const rows of cfg.rows??[256,40
 }
 console.log(JSON.stringify({schema:1,date:new Date().toISOString(),process_index:cfg.process_index,node:process.version,hardware:cpus()[0].model,
  artifacts:modules.map(({label,path,sha256})=>({label,path,sha256})),validations,samples,summary,sink:String(sink),
- warmup:{sharedBodyCallsPerLane:20000,rows:8,connectedCalls:10000,phaseRounds:3},
- scope:'State-only; synchronous prebound result-only Ink retains versions/events/atomic failures. Raw controls omit them; separate commits/events control matches this hot action only, without portable restore or general source transactions. Matched synchronous and awaited windows; full-width U64 controls; no DOM; cold setup/restore excluded here and measured separately by planner lifecycles; connected Ink has two independently owned query subscriptions versus one batched signals effect'}));
+ warmup:{sharedBodyCallsPerLane:cfg.warmup_calls??20000,rows:8,connectedCalls:Math.floor((cfg.warmup_calls??20000)/2),phaseRounds:3},
+ scope:'State-only; synchronous prebound result-only Ink retains versions/events/atomic failures. Raw controls omit them; separate commits/events control matches this hot action only, without portable restore or general source transactions. Matched synchronous and awaited windows; full-width U64 controls; no DOM; cold setup/restore excluded here and measured separately by planner lifecycles; connected publication contract declared by grouped_subscriptions; grouped Ink uses one tuple subscription matching one batched signals effect',grouped_subscriptions:!!cfg.grouped_subscriptions,positional_subscriptions:!!cfg.positional_subscriptions}));
