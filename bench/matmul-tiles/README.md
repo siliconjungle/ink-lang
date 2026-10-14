@@ -40,24 +40,27 @@ eight fresh processes. Build metadata retains source, compiler, plan, generated
 code and binary hashes plus the dependency lock and flags. These Rust controls
 are purpose-built exact-integer kernels, not a measurement of the BLIS library.
 
-## Measured prototype
+## Measured release candidate
 
-On the Apple M4 Pro, full square inputs measured as follows (microseconds):
+The compiler built from root `4c68c180` and native support `632c95be` uses both
+cold growth and length-failure helpers. Eight fresh processes on the Apple M4 Pro
+measured full square inputs as follows (microseconds):
 
 | Side | Original Ink | Tiled Ink | Tiled Rust | Tiled/original Ink |
 |---|---:|---:|---:|---:|
-| 64 | 128.965 | 61.811 | 58.380 | 0.479 |
-| 127 | 1088.667 | 449.750 | 453.563 | 0.413 |
-| 128 | 1141.542 | 463.646 | 477.594 | 0.406 |
+| 64 | 129.120 | 61.995 | 57.780 | 0.480 |
+| 127 | 1088.219 | 449.031 | 451.250 | 0.413 |
+| 128 | 1137.198 | 467.198 | 476.115 | 0.411 |
 
-The 128-square tiled-Ink/Rust ratio is 0.971, with a process-bootstrap interval
-of 0.937–0.986. At 127 it is 0.992 (0.984–1.0003), and at 64 it is 1.059
-(1.028–1.069). Small sizes, tails and truncated inputs remain in `results.json`.
-The final Rust controls preserve wrapping-u32 index arithmetic and the same
-length guard. An earlier usize-index pilot is not used for these comparisons.
+Tiled-Ink/tiled-Rust ratios and 95% process-bootstrap intervals:
 
-This run uses the local cold-growth native-support candidate. Its compiler and
-generated-code hashes are recorded; this is not a timing of the published main
-binary. That support candidate has a separate pathfinding regression under
-investigation. These numbers establish a matrix algorithm result, not a safe
-default selection rule or general performance ranking.
+- Side 64: 1.073 [1.058, 1.084].
+- Side 127: 0.995 [0.976, 1.007].
+- Side 128: 0.981 [0.967, 0.992].
+
+Full sizes, tails, truncated inputs, compiler/generated-code/binary hashes and
+process observations are in `results.json`. Rust controls preserve wrapping-u32
+indices and the same length guard; the earlier usize-index pilot is superseded.
+This establishes an explicit matrix algorithm result, not an automatic selection
+rule or a general BLAS ranking. The independent buffer-support change has a
+pathfinding regression documented in `docs/buffer-growth-and-matrix-tiles.md`.
