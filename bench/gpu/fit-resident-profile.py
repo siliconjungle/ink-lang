@@ -18,9 +18,11 @@ for record in records:
   if not case['validated']:raise ValueError('unvalidated candidate')
   for backend in ['cpu','gpu']:
    if case['backends'][backend]!=backend:raise ValueError('fallback is not device evidence')
+   # Size and horizon already vary through the declared fitted features. Keep
+   # the protocol cohort fixed; raw training files retain their exact values.
    observation=dict(schema=1,program=case['core_sha256'],entries=[],plan=case['core_sha256'],
     target=dict(hardware=json.dumps(record['device'],sort_keys=True),driver=record['environment']['browser'],toolchain=record['source_hashes']['build/resident-profile/manifest.json'],backend=backend,bridge='packed-v1'),
-    workload=dict(shape={'features':case['features']},distribution={'dataset':'resident-profile-v1','kernel':case['kernel'],'preparation':record['mode'],'n':case['n'],'iterations':case['iterations']},concurrency=1,residency=case['boundary']),
+    workload=dict(shape={'features':case['features']},distribution={'dataset':'resident-profile-v1','kernel':case['kernel'],'preparation':record['mode']},concurrency=1,residency=case['boundary']),
     metrics=dict(complete_call_ns=[str(max(1,round(ns)))for ns in case['samples_ns'][backend]],peak_bytes=None))
    rows.append(dict(scope=case['scope'],observation=store.observe(observation)))
 id,profile=fit(store,rows,records[0]['targetKey']);output.write_text(json.dumps(profile,indent=2)+'\n')
