@@ -58,13 +58,53 @@ fn sparse_ecs_histories_match_slot_oracle_and_portable_targets(){
  }
  }
  parity::conformance("ecs-lifecycle",p.clone(),include_str!("../../bench/ecs-lifecycle/main.ink"),steps.clone(),expected.clone());
- let root=std::path::Path::new(env!("CARGO_MANIFEST_DIR"));let output=root.join("build/ecs-lifecycle/conformance-plan");
- let prepare=std::process::Command::new("python3").arg(root.join("bench/cross-domain/prepare.py"))
+ let root=std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
+ for shared in [false,true] {
+ let label=if shared {"ecs-lifecycle-shared-arguments"}else{"ecs-lifecycle-unfolded"};
+ let output=root.join("build/ecs-lifecycle").join(label);
+ let mut command=std::process::Command::new("python3");
+ if shared {command.arg(root.join("bench/cross-domain/prepare.py")).arg("--share-arguments");}
+ else {command.arg(root.join("bench/cross-domain/prepare.py"));}
+ let prepare=command
   .args(["--compiler",env!("CARGO_BIN_EXE_ink"),"--source"]).arg(root.join("bench/ecs-lifecycle/main.ink"))
   .args(["--scalar-calls","--output"]).arg(&output).output().unwrap();
  assert!(prepare.status.success(),"{}",String::from_utf8_lossy(&prepare.stderr));
- let original=verified_language::core::CheckedModule::from_source(p).unwrap();
+ let original=verified_language::core::CheckedModule::from_source(p.clone()).unwrap();
  let package:verified_language::planning::Package=serde_json::from_slice(&std::fs::read(output.join("rewrite-plan.json")).unwrap()).unwrap();
  let checked=verified_language::planning::check(&original,&package).unwrap();
- parity::conformance_planned("ecs-lifecycle-unfolded",&checked,include_str!("../../bench/ecs-lifecycle/main.ink"),steps,expected);
+ parity::conformance_planned(label,&checked,include_str!("../../bench/ecs-lifecycle/main.ink"),steps.clone(),expected.clone());
+ }
+}
+
+#[test]
+fn shared_unfolding_preserves_nested_callback_and_literal_scopes(){
+ let source=r#"module shared_arguments;
+fn repeated(x:u32,y:u32)->List<u32>{return [x,y,x+y,x];}
+fn nested(xs:List<u32>,seed:u32)->List<u32>{
+ return xs.map(fn(x)=>repeat_until(3,x,fn(v)=>false,fn(i)=>fn(v)=>v+seed+i));
+}
+fn run(xs:List<u32>,seed:u32)->List<u32>{
+ return xs.map(fn(x)=>foldr(nested(repeated(x,seed),seed),0,fn(y)=>fn(a)=>a+y));
+}
+"#;
+ let root=std::path::Path::new(env!("CARGO_MANIFEST_DIR"));let output=root.join("build/shared-arguments-conformance");
+ std::fs::create_dir_all(&output).unwrap();let file=output.join("main.ink");std::fs::write(&file,source).unwrap();
+ let p=modules::load(&file).unwrap().program;let rt=Runtime::new(p.clone()).unwrap();
+ let mut steps=vec![];let mut expected=vec![];
+ for seed in [0u32,3,u32::MAX] {for xs in [vec![],vec![0],vec![0,1,u32::MAX,0x80000000]] {
+  let want:Vec<u32>=xs.iter().map(|x:&u32|x.wrapping_mul(3).wrapping_add(seed.wrapping_mul(14)).wrapping_add(12)).collect();
+  let args=json!([xs,seed]);let f=p.functions.iter().find(|f|f.name=="run").unwrap();
+  let values=args.as_array().unwrap().iter().zip(&f.params).map(|(v,(_,t))|eval::Value::from_program_json(v,t,&p).unwrap()).collect();
+  assert_eq!(eval::call(&p,"run",values,&mut 10_000_000).unwrap().json(),json!(want));
+  steps.push(json!({"pure":"run","args":args,"cpu_only":true,"expect_gpu":false}));
+  expected.push(json!({"reply":{"value":want},"snapshot":rt.checkpoint_portable().unwrap()}));
+ }}
+ let prepare=std::process::Command::new("python3").arg(root.join("bench/cross-domain/prepare.py"))
+  .args(["--compiler",env!("CARGO_BIN_EXE_ink"),"--source"]).arg(file)
+  .args(["--scalar-calls","--share-arguments","--output"]).arg(&output).output().unwrap();
+ assert!(prepare.status.success(),"{}",String::from_utf8_lossy(&prepare.stderr));
+ let original=verified_language::core::CheckedModule::from_source(p).unwrap();
+ let package:verified_language::planning::Package=serde_json::from_slice(&std::fs::read(output.join("rewrite-plan.json")).unwrap()).unwrap();
+ assert!(!package.steps.is_empty());let checked=verified_language::planning::check(&original,&package).unwrap();
+ parity::conformance_planned("shared-argument-scopes",&checked,source,steps,expected);
 }
