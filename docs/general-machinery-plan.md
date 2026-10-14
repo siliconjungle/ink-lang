@@ -51,6 +51,37 @@ support. Missing capability stays explicit while implementation continues.
 
 ## Current state
 
+Latest checkpoint (14 October): the programme is still incomplete. Recursive
+raw-value validators, mutual structural descent and portable recursive definition
+contexts are now implemented. The checked-tree library produced 72 pure
+interface obligations with 53 canonical proof objects; both source-bound and
+unrelated-source portable replay pass. These are pure interface proofs, not
+recursive action, codec or induction correspondence. The standalone core suite
+passed 300 tests; 17 recursive-value cases passed the complete CPU/Wasm and wgpu
+host paths with an actual eligible numeric GPU control. Detailed evidence is in
+`docs/evidence/general-machinery/recursive-value-validation.json` and
+`build/general-machinery/recursive-context-full-core.log`.
+
+Knowledge main now contains the canonical proof publication at
+`20a78ee97f2f21bafeea7f5f7f80182c575ae6be`; native-support main contains the
+scoped storage support at `ca9bc59f119db62c2c1ea5000b6baf390f94705a`.
+Current upstream integration passed 300 core tests across 51 test/doc runs,
+13 standalone Rust tests, 31 standalone JavaScript tests, 10 GPU package tests
+and all 182 planner tests. The standalone Wasm crate also builds/tests (it has
+no unit tests; execution coverage comes from the target parity suites). The
+remaining C/runtime closure, complete-target checks and distribution main
+publication are still being completed. Historical local-only publication statements below describe
+their respective earlier checkpoints.
+
+The largest remaining implementation requirements are the real invariant-bearing
+Set interface (the collection alias remains), interchangeable abstract/owner
+interfaces, allocation provenance and general layout/codec relations, recursive
+source induction and state correspondence, effectful mutation/loop frames,
+fact transport through changed selected source and additional lowering consumers,
+and composed incremental history/lifecycle/memory/performance evidence. The
+scoped-range performance observations retain regressions and do not establish
+a blanket speedup.
+
 - Isolated current-main distribution and exact independent packages prepared.
 - Source/contract, induction, representation and physical capability boundaries
   inspected. Existing compositional machinery will be extended, not duplicated.
