@@ -1,0 +1,87 @@
+{
+  "status": "local_validation_passed",
+  "changes": [
+    "Recursive AST rendering retains instrumentation in chained receivers, nested arguments, destructuring defaults and lexical await",
+    "Native factories and mapping/reduction/search/sort callbacks contribute observed events; unobservable default native traversal remains unknown",
+    "Typed copies require matching element representation; equal-width numeric conversion is not priced as a known plain byte copy",
+    "New sidecars bind acquisition definitions in their price cohort; old collector prices cannot score new collector observations",
+    "Trace rows and digest come from one bounded byte snapshot"
+  ],
+  "validation": {
+    "focused_tests": 33,
+    "mandatory_hardening_python_tests": 107,
+    "actual_emitted_js_oracle_fixtures": 9,
+    "known_traversal_fixtures": 6,
+    "unknown_native_sort_fixtures": 3,
+    "original_collector_regressions": "7 of 8 initial acquisition regressions fail against the prior source; it also rejects the actual emitted module due to nested receiver overlap"
+  },
+  "frozen_corpus": {
+    "baseline_headline": {
+      "programs": 10,
+      "compiled": 10,
+      "programs_with_rewrite_alternative": 10,
+      "programs_with_any_alternative": 10,
+      "programs_selecting_alternative": 4,
+      "median_seconds": 14.159500000000001,
+      "stopped_by_time": 1,
+      "laws_admitted": 44,
+      "laws_admitted_in_multiple_programs": 7,
+      "representations_admitted": 0,
+      "last_gates": {
+        "selected_alternative": 4,
+        "measurement_budget": 6
+      }
+    },
+    "candidate_headline": {
+      "programs": 10,
+      "compiled": 10,
+      "programs_with_rewrite_alternative": 10,
+      "programs_with_any_alternative": 10,
+      "programs_selecting_alternative": 4,
+      "median_seconds": 13.8625,
+      "stopped_by_time": 1,
+      "laws_admitted": 44,
+      "laws_admitted_in_multiple_programs": 7,
+      "representations_admitted": 0,
+      "last_gates": {
+        "selected_alternative": 4,
+        "measurement_budget": 6
+      }
+    },
+    "baseline_context": {
+      "target": "javascript",
+      "planning_effort": "quick",
+      "timeout": 600,
+      "planner_source_sha256": "c22facfc86a7ecab256d2e9a0b6e4e1c62e51516f789ca6889ec327cf63a4a6d",
+      "compiler_sha256": "6b5e798c1df8f0b67b42f7357896cf6c389d0ad8e26f0174d9b193a716354d0b",
+      "snapshot": "8e343cde9127d729ed3e37a7e9513b492d9e426433de3c22c12e3a776d2669a3",
+      "registry_sha256": "25b50931a4194162918da4da116436aded2bb56579398708fdd3170720a3adef",
+      "producer_source_sha256": "e8664377a452a8289f31961994372209fd9fa3e8655cc926372181c0967de89d",
+      "manifest_sha256": "7e543f59af019ad96719bc4bc858b8da98d4dfbc41be12f6cc09317e5aaa4288"
+    },
+    "candidate_context": {
+      "target": "javascript",
+      "planning_effort": "quick",
+      "timeout": 600,
+      "planner_source_sha256": "c22facfc86a7ecab256d2e9a0b6e4e1c62e51516f789ca6889ec327cf63a4a6d",
+      "compiler_sha256": "6b5e798c1df8f0b67b42f7357896cf6c389d0ad8e26f0174d9b193a716354d0b",
+      "snapshot": "8e343cde9127d729ed3e37a7e9513b492d9e426433de3c22c12e3a776d2669a3",
+      "registry_sha256": "25b50931a4194162918da4da116436aded2bb56579398708fdd3170720a3adef",
+      "producer_source_sha256": "ce10e7e6cca9afe70a8164d291a967209af9eb047fa2ead2dbac590443699da9",
+      "manifest_sha256": "7e543f59af019ad96719bc4bc858b8da98d4dfbc41be12f6cc09317e5aaa4288"
+    },
+    "interpretation": "10/10 compiled, four selected alternatives, 44 admitted laws and seven cross-program laws unchanged. No broad optimisation or performance gain inferred."
+  },
+  "acquisition": {
+    "instrumenter": "2eaa9a9f93f4b21414dad39216e83f4549a6f9bde25b5a22f804c2e811e4d28f",
+    "runner": "6cb6cb31b2bfac471099f3e93465946338f78794e6a4ab569c98b2f5aa740e19",
+    "parser": "b4c8c70200e72bae33cf1085e0ecb1e792c1b6924ed50cab817caf14f51bb249"
+  },
+  "scope": "Untimed emitted-site diagnostics only, no online adaptation or proof authority",
+  "limitations": [
+    "No measured speedup from this tranche",
+    "Carrier-construction and callback-site counts are not V8 allocator calls, full memory traffic, cache misses or every native-library operation",
+    "Full distribution CI still required"
+  ],
+  "llvm_insights": "See llvm-cost-semantics-audit.json: invalid cost, unknown evidence, high valid cost and calibrated units remain distinct."
+}
