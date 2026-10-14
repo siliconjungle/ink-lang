@@ -236,7 +236,9 @@ pub fn check(module: &CheckedModule, package: &Package) -> LangResult<CheckedVie
     {
         return Err("maintained fold binding/count mismatch".into());
     }
-    registry::CheckedBundle::check(&package.knowledge)?;
+    // Definition admission below authenticates the complete borrowed bundle and
+    // replays its mathematical declarations. Do not authenticate and clone that
+    // same proof closure first; membership alone grants no additional authority.
     let source = subjects(module)?;
     for (id, obj) in &source.objects {
         if package
