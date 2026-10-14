@@ -118,6 +118,16 @@ context and state obligations are preserved. Editing that exported file cannot
 alter the checker's goals. Every proposed proof and dependency bundle still
 replays independently, and final module or refinement admission remains required.
 The single-request `check-contract-proof` endpoint remains available.
+
+In-process consumers can retain the private `CheckedModule` value instead of
+converting it back to a raw program and repeating source admission. The reference
+runtime's `from_checked` and checked restore methods, and Rust lowering's
+`emit_checked` methods, accept this sealed value. Selected and planned emission
+reuse it too. Raw program entry points still perform full source admission.
+Action elaboration, target capabilities, snapshot layouts, runtime argument
+validation and restore-time invariant checks continue to apply. This reuse
+avoids repeated compiler work; it does not establish a faster generated program.
+
 Alpha-equivalent generated
 traversals are connected by ordinary induction theorems; their names never
 stand in for a proof. Accepted pure

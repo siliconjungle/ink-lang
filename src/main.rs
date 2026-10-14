@@ -181,14 +181,17 @@ fn emit_state_rust(
     selected: Option<&verified_language::optimisation::CheckedSelection>,
     args: &[String],
 ) -> LangResult<String> {
-    let storage = match arg_value(args, "--table-storage")?.as_deref() {
-        None | Some("ordered") => state_native::TableStorage::Ordered,
-        Some("indexed-slots") => state_native::TableStorage::IndexedSlots,
-        _ => return Err("--table-storage must be ordered or indexed-slots".into()),
-    };
+    let storage = state_table_storage(args)?;
     match selected {
         Some(s) => state_native::emit_selected_with_table_storage(s, storage),
         None => state_native::emit_with_table_storage(p, storage),
+    }
+}
+fn state_table_storage(args: &[String]) -> LangResult<state_native::TableStorage> {
+    match arg_value(args, "--table-storage")?.as_deref() {
+        None | Some("ordered") => Ok(state_native::TableStorage::Ordered),
+        Some("indexed-slots") => Ok(state_native::TableStorage::IndexedSlots),
+        _ => Err("--table-storage must be ordered or indexed-slots".into()),
     }
 }
 fn run() -> LangResult<()> {
@@ -1375,7 +1378,18 @@ fn run() -> LangResult<()> {
         "emit-state" => {
             let out = arg_value(&args, "-o")?.ok_or("emit-state requires -o DIRECTORY")?;
             let wasm_abi = args.iter().any(|s| s == "--wasm-abi");
-            let mut code = emit_state_rust(&p, semantic_selection.as_ref(), &args)?;
+            let owned_module;
+            let module = if let Some(selected) = semantic_selection.as_ref() {
+                selected.module()
+            } else {
+                owned_module = core::CheckedModule::from_source(p.clone())?;
+                &owned_module
+            };
+            let storage = state_table_storage(&args)?;
+            let mut code = match semantic_selection.as_ref() {
+                Some(selected) => state_native::emit_selected_with_table_storage(selected, storage)?,
+                None => state_native::emit_checked_with_table_storage(module, storage)?,
+            };
             if wasm_abi {
                 code.push_str(state_native::WASM_ABI);
             }
@@ -1387,7 +1401,7 @@ fn run() -> LangResult<()> {
                 verified_language::runtime::COMPLETE_STATE_RUNNER,
             )?;
             write(&format!("{out}/Cargo.toml"), "[package]\nname = \"compiled-state\"\nversion = \"0.1.0\"\nedition = \"2021\"\n[lib]\ncrate-type = [\"rlib\", \"cdylib\"]\n[dependencies]\nnum-bigint = \"=0.4.8\"\nsha2 = \"=0.10.9\"\nserde_json = {version=\"=1.0.151\",features=[\"float_roundtrip\"]}\n[profile.release]\nlto = \"thin\"\ncodegen-units = 1\n")?;
-            let plan = serde_json::json!({"schema":1,"core_sha256":core::CheckedModule::from_source(p.clone())?.identity()?,"semantic_selection":semantic_selection.as_ref().map(|s|s.evidence()),"trust":["source checking","literal typed Rust lowering","primitive support","Rust/LLVM"]});
+            let plan = serde_json::json!({"schema":1,"core_sha256":module.identity()?,"semantic_selection":semantic_selection.as_ref().map(|s|s.evidence()),"trust":["source checking","literal typed Rust lowering","primitive support","Rust/LLVM"]});
             write(
                 &format!("{out}/plan.json"),
                 &serde_json::to_string_pretty(&plan).map_err(|e| e.to_string())?,
