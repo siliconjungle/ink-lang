@@ -1,0 +1,139 @@
+{
+  "binding": {
+    "source": "83baab250e2ca4968f2c864e2f0269d9852b92ce72f818a7b6fe97cd795ca378",
+    "compiler": "ff36fb90873ecfa7ea7c412e428d64dd16a09a8034d3f58431904be8525e7771",
+    "target": "apple-arm-node22-adaptive-learning",
+    "boundary": "owned-serial-state-v1",
+    "variants": {
+      "direct": "f096d1994d6ceef0abd5d6eee6b2c24b29cf96e1c4ea5ff451e309d85d9652ac",
+      "cached": "5e6432494e0523b7f95fde1837f30f1098987f1377996b0e08358748842b2aeb"
+    }
+  },
+  "collections": 16,
+  "rows_per_collection": 128,
+  "whole_profile": {
+    "binding": {
+      "source": "83baab250e2ca4968f2c864e2f0269d9852b92ce72f818a7b6fe97cd795ca378",
+      "compiler": "ff36fb90873ecfa7ea7c412e428d64dd16a09a8034d3f58431904be8525e7771",
+      "target": "apple-arm-node22-adaptive-learning",
+      "boundary": "owned-independent-collections-v1",
+      "variants": {
+        "direct": "91f49dfc7911d0cba52bf9f155ccb08b300905d047bd4fe025fb44c7a32627b2",
+        "cached": "e04b485681d50e0a29ef22405367dedf5b057f0fed69c0c1f335bcc287ef4c6e"
+      }
+    },
+    "variants": {
+      "direct": {
+        "cells": {
+          "action:zero@rows128": {
+            "low_ns": 5996.582031249989,
+            "high_ns": 7015.464843749999
+          },
+          "action:replace_zero@rows128": {
+            "low_ns": 748.6992187499819,
+            "high_ns": 969.3984375000186
+          }
+        },
+        "peak_bytes": 64110592
+      },
+      "cached": {
+        "cells": {
+          "action:zero@rows128": {
+            "low_ns": 450.1953124999569,
+            "high_ns": 775.3906249999832
+          },
+          "action:replace_zero@rows128": {
+            "low_ns": 37832.19140624999,
+            "high_ns": 40524.25000000004
+          }
+        },
+        "peak_bytes": 95043584
+      }
+    },
+    "migrations": [
+      {
+        "from": "direct",
+        "to": "cached",
+        "high_ns": 9801707.99999999,
+        "max_pause_ns": 9801707.99999999,
+        "peak_bytes": 103645184,
+        "min_state_elements": 2048,
+        "max_state_elements": 2048
+      },
+      {
+        "from": "cached",
+        "to": "direct",
+        "high_ns": 6944582.999999994,
+        "max_pause_ns": 6944582.999999994,
+        "peak_bytes": 126664704,
+        "min_state_elements": 2048,
+        "max_state_elements": 2048
+      }
+    ]
+  },
+  "scope": "Independent compiled states; whole mode switches all states, local mode only selected collection. Local mode has a richer candidate space. Timings include construction and transitions.",
+  "results": [
+    {
+      "mode": "local",
+      "elapsed_ns": 37308208.99999998,
+      "restored_bytes": 2188,
+      "restored_states": 1,
+      "status": {
+        "c0": "cached",
+        "c1": "direct",
+        "c2": "direct",
+        "c3": "direct",
+        "c4": "direct",
+        "c5": "direct",
+        "c6": "direct",
+        "c7": "direct",
+        "c8": "direct",
+        "c9": "direct",
+        "c10": "direct",
+        "c11": "direct",
+        "c12": "direct",
+        "c13": "direct",
+        "c14": "direct",
+        "c15": "direct"
+      }
+    },
+    {
+      "mode": "fixed",
+      "elapsed_ns": 46159625.00000001,
+      "restored_bytes": 0,
+      "restored_states": 0,
+      "status": "direct"
+    },
+    {
+      "mode": "whole",
+      "elapsed_ns": 47325125.000000015,
+      "restored_bytes": 36800,
+      "restored_states": 16,
+      "status": "cached"
+    },
+    {
+      "mode": "local_fixed",
+      "elapsed_ns": 43715874.999999985,
+      "restored_bytes": 0,
+      "restored_states": 0,
+      "status": {
+        "c0": "direct",
+        "c1": "direct",
+        "c2": "direct",
+        "c3": "direct",
+        "c4": "direct",
+        "c5": "direct",
+        "c6": "direct",
+        "c7": "direct",
+        "c8": "direct",
+        "c9": "direct",
+        "c10": "direct",
+        "c11": "direct",
+        "c12": "direct",
+        "c13": "direct",
+        "c14": "direct",
+        "c15": "direct"
+      }
+    }
+  ]
+}

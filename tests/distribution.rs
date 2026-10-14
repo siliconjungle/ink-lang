@@ -301,3 +301,53 @@ Store.publish(sys.argv[2],objects)
     assert!(!rejected.status.success());
     assert!(rejected.stdout.is_empty());
 }
+
+/// `ink build` defaults to the typed Rust lowering for native executables. The
+/// complete C lowering stores every intermediate in a per-call arena, so this
+/// million-step loop exhausts it; typed Rust keeps loop values in registers.
+#[test]
+fn native_build_defaults_to_typed_rust_and_keeps_the_c_lowering_explicit() {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let work = root.join("build/native-default-lowering");
+    let _ = fs::remove_dir_all(&work);
+    fs::create_dir_all(&work).unwrap();
+    fs::write(
+        work.join("main.ink"),
+        "module native_default;\n\
+         fn mix(n:u64)->u64 {var x:u64=1;var j:u64=0;while j<n limit 65536{var i:u64=0;while i<1024 limit 1024{x=x*6364136223846793005+1442695040888963407;i=i+1;}j=j+1;}return x;}\n\
+         state Totals:Table<u64,u64> = Table.empty();\n\
+         query mixed(n:u64)->u64 {return mix(n);}\n",
+    )
+    .unwrap();
+    let command = || {
+        let mut c = Command::new(env!("CARGO_BIN_EXE_ink"));
+        c.current_dir(&work);
+        c
+    };
+    success(command().args(["build", "main.ink", "-o", "program"]));
+    let plan: Value = serde_json::from_slice(&fs::read(work.join("program.plan.json")).unwrap()).unwrap();
+    assert_eq!(plan["lowering"], "rust");
+    assert_eq!(plan["artifact_kind"], "executable");
+    fs::write(
+        work.join("script.json"),
+        r#"[{"pure":"mix","args":[1024]},{"call":"mixed","args":[1024]}]"#,
+    )
+    .unwrap();
+    let out: Value = serde_json::from_slice(&success(
+        Command::new(work.join("program")).arg(work.join("script.json")),
+    ))
+    .unwrap();
+    // x_{k+1} = a*x_k + c over 2^20 steps, wrapping at 64 bits.
+    let mut x: u64 = 1;
+    for _ in 0..1u64 << 20 {
+        x = x.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+    }
+    assert_eq!(out[0], serde_json::json!(x), "{out}");
+    assert_eq!(out[1]["result"], serde_json::json!(x), "{out}");
+    let refused = command()
+        .args(["build", "main.ink", "--lowering", "interpreted", "-o", "other"])
+        .output()
+        .unwrap();
+    assert!(!refused.status.success());
+    assert!(String::from_utf8_lossy(&refused.stderr).contains("--lowering"));
+}
