@@ -43,6 +43,14 @@ pub struct DensePrefix {
     pub table: String,
     pub capacity: u32,
 }
+/// Literal checked boundary readers preserve the source value and validation
+/// contract. Backend correspondence remains an implementation obligation.
+#[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
+#[serde(rename_all = "snake_case")]
+pub enum BoundaryFormat { Compact, Portable }
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct BoundaryReader { pub function: String, pub format: BoundaryFormat }
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Reservation {
@@ -69,6 +77,8 @@ pub struct Plan {
     pub dense_prefixes: Vec<DensePrefix>,
     #[serde(default,skip_serializing_if="Vec::is_empty")]
     pub dictionary_tables: Vec<String>,
+    #[serde(default, skip_serializing_if="Vec::is_empty")]
+    pub boundary_readers: Vec<BoundaryReader>,
     #[serde(default)]
     pub buffers: Buffers,
     #[serde(default)]
@@ -168,6 +178,36 @@ fn definitions(plan: &Plan, definition: &CheckedDefinition) -> LangResult<()> {
     }
     Ok(())
 }
+fn check_boundary_readers(module: &CheckedModule, represented: bool, choices: &[BoundaryReader]) -> LangResult<()> {
+    use crate::syntax::{Program, Type};
+    fn first_order(ty: &Type, p: &Program, active: &mut BTreeSet<String>) -> bool {
+        match ty {
+            Type::Unit | Type::Bool | Type::U32 | Type::I32 | Type::U64 | Type::F32 | Type::Int | Type::String => true,
+            Type::List(t) | Type::Vector(t, _) | Type::Option(t) => first_order(t,p,active),
+            Type::Result(a,b) => first_order(a,p,active) && first_order(b,p,active),
+            Type::Named(n) => {
+                if p.ids.contains(n) || p.enums.contains_key(n) { return true; }
+                let Some(record)=p.records.get(n) else { return false; };
+                if !active.insert(n.clone()) { return true; }
+                let valid=record.iter().all(|(_,t)|first_order(t,p,active));
+                active.remove(n); valid
+            }
+            _ => false,
+        }
+    }
+    if choices.len()>256 || !choices.windows(2).all(|p|(&p[0].function,p[0].format)<(&p[1].function,p[1].format)) {
+        return Err("boundary reader choices must be bounded, unique and sorted".into());
+    }
+    if represented && !choices.is_empty() { return Err("boundary readers require a source interface".into()); }
+    for choice in choices {
+        let p=module.program();
+        let f=p.functions.iter().find(|f|f.name==choice.function).ok_or("boundary reader function not found")?;
+        if !f.params.iter().map(|(_,t)|t).chain([&f.result]).all(|t|first_order(t,p,&mut BTreeSet::new())) {
+            return Err("boundary reader requires first-order value interfaces".into());
+        }
+    }
+    Ok(())
+}
 pub fn check(
     module: &CheckedModule,
     representation: Option<&CheckedRepresentation>,
@@ -181,6 +221,7 @@ pub fn check(
     {
         return Err("physical plan source/representation binding mismatch".into());
     }
+    check_boundary_readers(module, representation.is_some(), &plan.boundary_readers)?;
     for sites in [
         &plan.borrow_reads,
         &plan.borrow_rows,

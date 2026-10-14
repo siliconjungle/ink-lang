@@ -93,8 +93,12 @@ impl CheckedPlan {
         self.require_source_layout_capabilities(supported,false)
     }
     pub fn require_source_layout_capabilities(&self, records:bool, sums:bool)->LangResult<()> {
+        self.require_source_layout_and_boundary_capabilities(records,sums,false)
+    }
+    pub fn require_source_layout_and_boundary_capabilities(&self, records:bool, sums:bool, boundaries:bool)->LangResult<()> {
         if !records && self.physical.as_ref().is_some_and(|p|!p.plan().record_elisions.is_empty()) {return Err("target does not support source record elision".into());}
         if !sums && self.physical.as_ref().is_some_and(|p|!p.plan().sum_spines.is_empty()) {return Err("target does not support source sum spines".into());}
+        if !boundaries && self.physical.as_ref().is_some_and(|p|!p.plan().boundary_readers.is_empty()) {return Err("target does not support checked literal boundary readers".into());}
         Ok(())
     }
     pub fn package(&self) -> &Package {
