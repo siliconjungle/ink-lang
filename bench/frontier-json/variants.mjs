@@ -64,6 +64,20 @@ if(mode==='codec'){
    (groups[operation]??={})[name]=run;
   }
  }
+}else if(mode==='compact-depth'){
+ const text=JSON.stringify(Object.fromEntries(Array.from({length:textFields},(_,i)=>['k'+String(i).padStart(5,'0'),i])));
+ const checksum=bytes=>{let h=0;for(const v of bytes)h=Math.imul(h,31)^v;return h;};
+ let expected;
+ for(const[name,ink]of Object.entries(modules)){
+  const json=new ink.JsonCodec(ink.valueCodecs.identity.result),codec=ink.compiledValues.identity.params[0],handle=json.parseCompiled(codec,text),bytes=codec.encodeCompact(handle);
+  expected??=bytes;assert.deepEqual(bytes,expected);
+  const decode=()=>codec.decodeCompactFused(bytes);
+  assert.deepEqual(codec.materialize(decode()),json.parse(text));assert.deepEqual(codec.encodeCompact(decode()),bytes);
+  for(const limits of [{nodes:0},{nodes:1},{depth:0},{depth:1},{bytes:bytes.length-1}])assert.throws(()=>codec.decodeCompactFused(bytes,limits));
+  for(const bad of [bytes.subarray(0,bytes.length-1),Uint8Array.from([...bytes,0])])assert.throws(()=>codec.decodeCompactFused(bad));
+  (groups['fused-compact-decode-roundtrip']??={})[name]=()=>checksum(codec.encodeCompact(decode()));
+  (groups['ordinary-compact-decode-roundtrip']??={})[name]=()=>checksum(codec.encodeCompact(codec.decodeCompact(bytes)));
+ }
 }else if(mode==='quote-cache'){
  const text=JSON.stringify(Object.fromEntries(Array.from({length:textFields},(_,i)=>['k'+String(i).padStart(5,'0'),textFixture==='unicode'?`雪😀${i}\n"\\`:textFixture==='nested'?{items:[i,true,null,'雪😀'],enabled:false}:i])));
  const encoder=new TextEncoder(),checksum=bytes=>{let h=0;for(let i=0;i<bytes.length;i++)h=Math.imul(h,31)^bytes[i];return h;};
