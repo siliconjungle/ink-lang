@@ -340,6 +340,11 @@ fn recursive_raw_validators_check_every_finite_nested_value_without_self_assumpt
     let module=checked(&source).unwrap();
     let bad=eval::Value::from_program_json(&serde_json::json!({"payload":{"x":1},"next":{"Some":{"next":{"Some":{"payload":{"x":99},"next":{"None":null}}}}}}),&Type::Named("A".into()),module.program()).unwrap();
     assert_eq!(eval::call_checked(&module,"identity",vec![bad],&mut 100000).unwrap_err(),"contract precondition failed");
+    // A recursive validator stays an actual obligation on unknown inputs.
+    // In particular, neither its nominal schema nor a symbolic fold is proof.
+    let source=format!("{SMALL}record Node{{payload:Small,children:List<Node>,}}
+      fn forge(xs:List<u32>)->List<Node>{{return xs.map(fn(x)=>Node{{payload:Small{{x:x}},children:[]}});}}");
+    assert!(checked(&source).is_err());
 }
 
 #[test]

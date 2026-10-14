@@ -85,3 +85,12 @@ fn recursive_measures_nonword_measures_and_unvisited_calls_reject() {
         assert!(e.contains(error),"{e}");
     }
 }
+
+#[test]
+fn mutually_recursive_helpers_cannot_supply_an_unadmitted_measure() {
+    let p=syntax::parse("module raw;record Node{next:Option<Node>,}
+      fn a(x:Node)->u32{return x.next.fold(fn(y)=>b(y)+1,fn(u)=>0);}
+      fn b(x:Node)->u32{return x.next.fold(fn(y)=>a(y)+1,fn(u)=>0);}
+      fn steps(n:u32,x:Node)->u32 decreases n+a(x);{if n>0{return steps(n-1,x)+1;}return 0;}").unwrap();
+    assert!(termination::obligations(&p).unwrap_err().contains("recursive execution"));
+}

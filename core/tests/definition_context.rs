@@ -1,6 +1,6 @@
 //! Context mechanisms are independent of the knowledge checkout and backends.
 use ink_core::{
-    core::{CheckedModule, Type},
+    core::{CheckedModule, Program, Type},
     definition_context::DefinitionContext,
     eval::{self, Value},
     laws::{self, Catalogue, CheckedCatalogue, Law, Proof},
@@ -130,6 +130,58 @@ fn portable_admission_requires_exact_original_definitions_at_application() {
         &package(&unrelated, &c, vec![site(&law, "entry")]),
     )
     .unwrap();
+}
+
+#[test]
+fn recursive_components_bind_complete_bodies_without_circular_hashes() {
+    let m = module("record Tree{value:u32,children:List<Tree>,}
+      fn branch(x:Tree)->u32{return x.value+children(x.children);}
+      fn children(xs:List<Tree>)->u32{return foldl(xs,0,fn(x)=>fn(acc)=>acc+branch(x));}
+      fn example()->u32{return branch(Tree{value:1,children:[Tree{value:2,children:[]}]});}");
+    let context = DefinitionContext::capture(&m,&["branch".into()]).unwrap();
+    assert_eq!(context.recursive_groups.len(),1);
+    assert_eq!(context.definitions.len(),2);
+    let reconstructed = context.check().unwrap();
+    context.matches(m.program()).unwrap();
+    let law = normalize(&m,"example",s::word(Type::U32,3),&["branch"]);
+    CheckedCatalogue::check(&catalogue(vec![law.clone()]),&Program::default()).unwrap();
+    let mut false_law = law.clone();false_law.to=s::word(Type::U32,4);
+    assert!(CheckedCatalogue::check(&catalogue(vec![false_law]),&Program::default()).is_err());
+    let mut missing = context.clone();missing.recursive_groups.clear();
+    assert!(missing.check().is_err());
+    let mut changed = context.clone();
+    changed.definitions.get_mut("branch").unwrap().definition.body=s::word(Type::U32,0);
+    let d=changed.definitions.get_mut("branch").unwrap();d.sha256=registry::identity(&d.definition).unwrap();
+    assert!(changed.check().is_err());
+    let mut dangling = context.clone();dangling.definitions.remove("children");
+    assert!(dangling.check().is_err());
+    let mut membership = context.clone();membership.recursive_groups.values_mut().next().unwrap().pop();
+    assert!(membership.check().is_err());
+    // Even a completely rehashed cycle must establish genuine descent.
+    let mut no_descent=context.clone();
+    let tree=s::free(s::value(Type::Named("Tree".into())),"x");
+    let list=s::term(s::value(Type::List(Box::new(Type::Named("Tree".into())))),
+        Node::Cons(Box::new(tree),Box::new(s::term(s::value(Type::List(Box::new(Type::Named("Tree".into())))),Node::Nil))));
+    no_descent.definitions.get_mut("branch").unwrap().definition.body=s::op(s::value(Type::U32),"call:children",vec![list]);
+    let members=no_descent.recursive_groups.values().next().unwrap().clone();
+    let mut bodies=BTreeMap::new();
+    for name in &members {
+        let mut d=no_descent.definitions[name].definition.clone();d.callees.retain(|name,_|!members.contains(name));
+        bodies.insert(name.clone(),d);
+    }
+    let group=registry::identity(&("ink-recursive-definitions-v1",bodies)).unwrap();
+    no_descent.recursive_groups=BTreeMap::from([(group.clone(),members.clone())]);
+    for name in &members {
+        let d=no_descent.definitions.get_mut(name).unwrap();
+        for (callee,id) in &mut d.definition.callees {if members.contains(callee){*id=group.clone();}}
+        d.sha256=registry::identity(&d.definition).unwrap();
+    }
+    assert!(no_descent.check().unwrap_err().contains("proper immutable subvalues"));
+    let renamed = module("record Tree{value:u32,children:List<Tree>,}
+      fn branch(x:Tree)->u32{return x.value+children(x.children)+1;}
+      fn children(xs:List<Tree>)->u32{return foldl(xs,0,fn(x)=>fn(acc)=>acc+branch(x));}");
+    assert!(context.matches(renamed.program()).is_err());
+    assert_eq!(reconstructed.functions.len(),2);
 }
 
 #[test]
