@@ -6,7 +6,9 @@ fn normal(v:&Value)->Value{match v{Value::Number(n)=>Value::String(n.to_string()
 #[test]
 fn database_groups_preserve_complete_histories_and_reject_false_preservation(){
  let root=PathBuf::from(env!("CARGO_MANIFEST_DIR"));let dir=root.join("build/boolean-maintenance-conformance");fs::create_dir_all(&dir).unwrap();
- let source=root.join("examples/maintained-parity.ink");let text=fs::read_to_string(&source).unwrap();
+ let mut text=fs::read_to_string(root.join("examples/maintained-parity.ink")).unwrap();
+ text.push_str("\nchange write_and_observe(key:u64,entry:Entry,cancel:Bool)->Result<Bool,Error> writes(Entries) reads(parity) emits(changed){Entries.put(key,entry);let result=parity;emit changed(key);if cancel{return Err(Error.Cancelled);}return Ok(result);}\n");
+ let source=dir.join("source.ink");fs::write(&source,&text).unwrap();
  let authored=Command::new("python3").args(["-m","producers.maintained_folds"]).arg(&source).args(["--compiler",env!("CARGO_BIN_EXE_ink"),"-o"]).arg(dir.join("proofs")).env("PYTHONPATH",root.join("knowledge")).output().unwrap();
  assert!(authored.status.success(),"{}",String::from_utf8_lossy(&authored.stderr));
  let module=CheckedModule::from_source(parse(&text).unwrap()).unwrap();
@@ -27,13 +29,20 @@ fn database_groups_preserve_complete_histories_and_reject_false_preservation(){
  for i in 0..80{
   seed^=seed<<13;seed^=seed>>7;seed^=seed<<17;
   let key=if i%9==0{u64::MAX}else{seed%13};
-  let (name,args)=if i%5==0{("erase",json!([key]))}else{("write",json!([key,{"active":i%3!=0,"weight":seed},i%7==0]))};
+  let (name,args)=if i%11==0{("write_and_observe",json!([key,{"active":i%3!=0,"weight":seed},i!=0&&i%7==0]))}else if i%5==0{("erase",json!([key]))}else{("write",json!([key,{"active":i%3!=0,"weight":seed},i%7==0]))};
   for (name,args)in [(name,args),("odd_count",json!([])),("even_count",json!([])),("total",json!([]))]{
    let reply=oracle.invoke_json(name,&args).unwrap();history.push(json!({"name":name,"args":args,"expected":normal(&reply.json()),"snapshot":oracle.checkpoint_portable().unwrap()}));
   }
  }
  fs::write(dir.join("history.json"),serde_json::to_vec(&history).unwrap()).unwrap();
- fs::write(dir.join("planned.mjs"),verified_language::javascript::lower_planned(&plan).unwrap().javascript).unwrap();
+ let mut javascript=verified_language::javascript::lower_planned(&plan).unwrap().javascript;
+ javascript.push_str(r#"
+export const maintenanceCalls=Object.fromEntries(__compiledMaintained.map(view=>{
+ const counts={};for(const operation of ['contribution','insert','remove','replace']){const original=view[operation];if(original)view[operation]=(...args)=>{counts[operation]=(counts[operation]||0)+1;return original(...args);};}
+ return [__stateMetadata.keeps[view.keep].name,counts];
+}));
+"#);
+ fs::write(dir.join("planned.mjs"),javascript).unwrap();
  let rust=dir.join("rust");verified_language::runtime::emit_rust_program(&verified_language::state_native::emit_planned(&plan).unwrap(),&rust).unwrap();
  fs::write(rust.join("src/main.rs"),r#"use compiled_state::State;use serde_json::{json,Value};
 fn norm(v:&Value)->Value{match v{Value::Number(n)=>Value::String(n.to_string()),Value::Array(a)=>Value::Array(a.iter().map(norm).collect()),Value::Object(o)=>Value::Object(o.iter().map(|(k,v)|(k.clone(),norm(v))).collect()),_=>v.clone()}}
@@ -46,12 +55,24 @@ let saved=state.checkpoint().unwrap();state.begin_transaction().unwrap();state.i
  }
  let out=Command::new(rust.join("target/debug/compiled-state")).arg(dir.join("history.json")).output().unwrap();assert!(out.status.success(),"{}",String::from_utf8_lossy(&out.stderr));
  fs::write(dir.join("state-wasm.mjs"),include_str!("../../runtime/hosts/state-wasm.mjs")).unwrap();
- fs::write(dir.join("run.mjs"),r#"import fs from 'node:fs';import assert from 'node:assert/strict';import{parseExactJSON,StatefulModule}from './state-wasm.mjs';import{createState}from './planned.mjs';
+ fs::write(dir.join("run.mjs"),r#"import fs from 'node:fs';import assert from 'node:assert/strict';import{parseExactJSON,StatefulModule}from './state-wasm.mjs';import{createState,maintenanceCalls}from './planned.mjs';
 const history=parseExactJSON(fs.readFileSync(new URL('history.json',import.meta.url),'utf8'));const norm=v=>typeof v==='bigint'||typeof v==='number'?String(v):Array.isArray(v)?v.map(norm):v&&typeof v==='object'?Object.fromEntries(Object.entries(v).map(([k,v])=>[k,norm(v)])):v;
 const wasm=await StatefulModule.instantiate(fs.readFileSync(new URL('rust/target/wasm32-unknown-unknown/debug/compiled_state.wasm',import.meta.url)));
 for(const backend of ['javascript','rust-wasm']){let state=backend==='javascript'?createState():wasm.create();
 for(const[i,h]of history.entries()){assert.deepEqual(norm(state.invoke(h.name,h.args)),h.expected,backend+' reply '+i);const saved=backend==='javascript'?await state.checkpoint():state.snapshot();assert.deepEqual([...saved],h.snapshot.map(Number),backend+' snapshot '+i);if(i%17===0){if(backend==='javascript')await state.restore(saved);else{state.dispose();state=wasm.restore(saved);}}}
 const snapshot=()=>backend==='javascript'?state.checkpoint():state.snapshot();const saved=await snapshot();state.beginTransaction();state.invoke('write',[999n,{active:true,weight:9n},false]);state.rollbackTransaction();assert.deepEqual(await snapshot(),saved);if(backend==='rust-wasm')state.dispose();}
-console.log(history.length+' complete histories passed on JavaScript and Rust-Wasm');"#).unwrap();
+for(const counts of Object.values(maintenanceCalls))for(const key of Object.keys(counts))delete counts[key];
+const lazy=createState(),write=lazy.bind('write',{resultOnly:true}),odd=lazy.bind('odd_count',{resultOnly:true}),even=lazy.bind('even_count',{resultOnly:true});
+for(let i=0;i<100;i++)write(BigInt(i),{active:i%2===0,weight:BigInt(i)},false);
+const saved=await lazy.checkpoint();await lazy.restore(saved);
+assert.deepEqual(maintenanceCalls,{parity:{},even_parity:{},weighted:{}});
+assert.equal(odd(),false);assert.equal(maintenanceCalls.parity.contribution,100);
+write(0n,{active:false,weight:0n},false);assert.equal(odd(),true);
+assert.equal(maintenanceCalls.parity.replace,1);assert.deepEqual(maintenanceCalls.even_parity,{});assert.deepEqual(maintenanceCalls.weighted,{});
+lazy.beginTransaction();write(2n,{active:false,weight:2n},false);assert.equal(even(),true);lazy.rollbackTransaction();
+assert.equal(odd(),true);assert.equal(even(),false);assert.equal(maintenanceCalls.even_parity.contribution,200);
+await lazy.restore(saved);const before=maintenanceCalls.parity.contribution;assert.equal(odd(),false);assert.equal(maintenanceCalls.parity.contribution,before+100);
+assert.equal(lazy.bind('total',{resultOnly:true})(),4950n);
+console.log(history.length+' complete histories passed on JavaScript and Rust-Wasm; unused views perform no maintenance and first reads survive rollback/restore');"#).unwrap();
  let out=Command::new("node").arg(dir.join("run.mjs")).output().unwrap();fs::write(dir.join("run.log"),[out.stdout.as_slice(),out.stderr.as_slice()].concat()).unwrap();assert!(out.status.success(),"{}",String::from_utf8_lossy(&out.stderr));
 }
