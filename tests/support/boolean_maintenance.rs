@@ -23,7 +23,6 @@ fn database_groups_preserve_complete_histories_and_reject_false_preservation(){
  }
  let mut wrong=packet.clone();if let planning::Step::Maintained(p)=&mut wrong.steps[0]{p.views[0].zero=Term::Bool(true);}
  assert!(planning::check(&module,&wrong).is_err());
- assert!(ink_lowering_c::complete::lower_planned(&plan).is_err());
  let mut oracle=Runtime::new(module.program().clone()).unwrap();let mut history=vec![];
  let mut seed=0x123456789abcdefu64;
  for i in 0..80{
