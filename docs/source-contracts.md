@@ -124,6 +124,16 @@ State dependencies retain their existing replay path. Final module or refinement
 admission remains required.
 The single-request `check-contract-proof` endpoint remains available.
 
+Pure rewrite search retains distinct proof derivations even when they produce
+identical expressions: a failed premise on one derivation cannot establish that
+another derivation fails. Exact duplicate derivations are suppressed. Within the
+bounded acquired rows, patterns describing more source structure are tried first
+to reduce starvation by broad rules. This ordering is only a search heuristic;
+it grants no authority to matching laws or their premises. The existing proposal,
+frontier and depth limits remain. Acquisition stops after 1,024 indexed rows
+per result-sort/operation query, including rows mentioning the operation only
+inside their expressions. Search is still incomplete.
+
 The state-contract author reserves the full typed parameter scope when choosing
 constructor binders, congruence holes and normalised match names, including unused
 parameters. These names preserve lexical meaning and grant no proof authority.
