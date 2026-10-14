@@ -1,0 +1,1083 @@
+{
+  "schema": 1,
+  "environment": {
+    "browser": "155.0.8059.41",
+    "platform": "darwin",
+    "architecture": "arm64",
+    "cpu": "Apple M4 Pro"
+  },
+  "source_hashes": {
+    "bench/gpu/portfolio-profile-browser.mjs": "29c38dc3bfada112620bb0cb2f49c55bb94f832ed34ebcc292c9efaa1c1d8164",
+    "bench/cross-domain/main.ink": "444a82b7ecd463c6a2215e441c39b3c6be5f370ac93731f44e2106145c209904",
+    "knowledge/libraries/workload_kernels.ink": "78c217a0c39f6efc7e131877c407448a00efe8ac850161897a685b4d896f9128",
+    "build/cross-domain-webgpu-probe/manifest.json": "6bee25189e190501365db705b454e09030ee614a6b52dcbcd93526879bcf47e0",
+    "build/cross-domain-webgpu-probe/gpu/f0/manifest.json": "711e99d1f58caf47d76d30a5522a60f6d3ddfa542345ecfae5875df45a9e5d0c",
+    "build/cross-domain-webgpu-probe/gpu/f7/manifest.json": "385509e7f7030e00b9e9a4c54354bb82dadc58a40a2eaefa6d90785f3d2d61c1",
+    "build/projected-read-compiler/ink": "592a3789f58f52225aad5b6a3b8840f6c859524fcd8d1c2ee5220a7b414306c0"
+  },
+  "mode": "test",
+  "device": {
+    "vendor": "apple",
+    "architecture": "metal-3",
+    "device": "",
+    "description": "",
+    "isFallbackAdapter": false
+  },
+  "targetKey": "{\"browser\":\"155.0.8059.41\",\"platform\":\"darwin\",\"architecture\":\"arm64\",\"cpu\":\"Apple M4 Pro\",\"device\":{\"vendor\":\"apple\",\"architecture\":\"metal-3\",\"device\":\"\",\"description\":\"\",\"isFallbackAdapter\":false}}",
+  "crossOriginIsolated": true,
+  "receipts": [
+    {
+      "kernel": "ecs",
+      "n": 1024,
+      "scope": "[\"c235dcaafd234a433e2309ab1450def5e1abc8dcaef0ea2f12618c903ef6a78a\",\"b714485dc4814482667cb8a1e8ee1616d5a9507b6514cf0512d5c1b9ebd30ec3\",\"f864738144dc60e53c239278b9c344da5eaef21dbae26f3fc3ccecfbe0e89b97\",\"ecs\"]",
+      "core_sha256": "c235dcaafd234a433e2309ab1450def5e1abc8dcaef0ea2f12618c903ef6a78a",
+      "features": {
+        "input_elements": 1024,
+        "input_bytes": 16384,
+        "output_capacity_elements": 1024,
+        "dispatches": 1,
+        "iterations": 1
+      },
+      "boundary": "captured-owned",
+      "samples_ns": {
+        "cpu": [
+          550000.1907348633,
+          409999.8474121094,
+          504999.87602233887,
+          394999.9809265137,
+          404999.9713897705,
+          535000.0858306885,
+          384999.99046325684,
+          414999.96185302734
+        ],
+        "gpu": [
+          1439999.8188018799,
+          1184999.942779541,
+          1149999.8569488525,
+          1359999.8950958252,
+          1630000.114440918,
+          1474999.9046325684,
+          1279999.9713897705,
+          1125000
+        ],
+        "auto": [
+          679999.828338623,
+          450000.0476837158,
+          539999.9618530273,
+          455000.1621246338,
+          570000.171661377,
+          434999.942779541,
+          459999.79972839355,
+          505000.11444091797
+        ],
+        "profile": [
+          569999.9332427979,
+          615000.0095367432,
+          470000.0286102295,
+          549999.9523162842,
+          480000.0190734863,
+          525000.0953674316,
+          534999.8474121094,
+          465000.1525878906
+        ]
+      },
+      "backends": {
+        "cpu": "cpu",
+        "gpu": "gpu",
+        "auto": "cpu",
+        "profile": "cpu"
+      },
+      "counters": {
+        "cpu": {
+          "upload_bytes": 0,
+          "readback_bytes": 0,
+          "dispatches": 0
+        },
+        "gpu": {
+          "upload_bytes": 16396,
+          "readback_bytes": 16388,
+          "dispatches": 1,
+          "live_buffer_bytes": 65560,
+          "resident_copy_bytes": 0
+        },
+        "auto": {
+          "upload_bytes": 0,
+          "readback_bytes": 0,
+          "dispatches": 0
+        },
+        "profile": {
+          "upload_bytes": 0,
+          "readback_bytes": 0,
+          "dispatches": 0
+        }
+      },
+      "reasons": {
+        "cpu": "explicit backend selection",
+        "gpu": "explicit backend selection",
+        "auto": "no comparable saved profile; compiled CPU baseline",
+        "profile": "saved target profile; 10% minimum predicted saving; no runtime probes"
+      },
+      "first_call_ns": {
+        "cpu": 3390000.104904175,
+        "gpu": 19839999.91416931,
+        "auto": 1194999.9332427979,
+        "profile": 2430000.066757202
+      },
+      "validated": true
+    },
+    {
+      "kernel": "ecs",
+      "n": 16384,
+      "scope": "[\"c235dcaafd234a433e2309ab1450def5e1abc8dcaef0ea2f12618c903ef6a78a\",\"b714485dc4814482667cb8a1e8ee1616d5a9507b6514cf0512d5c1b9ebd30ec3\",\"f864738144dc60e53c239278b9c344da5eaef21dbae26f3fc3ccecfbe0e89b97\",\"ecs\"]",
+      "core_sha256": "c235dcaafd234a433e2309ab1450def5e1abc8dcaef0ea2f12618c903ef6a78a",
+      "features": {
+        "input_elements": 16384,
+        "input_bytes": 262144,
+        "output_capacity_elements": 16384,
+        "dispatches": 1,
+        "iterations": 1
+      },
+      "boundary": "captured-owned",
+      "samples_ns": {
+        "cpu": [
+          6570000.171661377,
+          6744999.885559082,
+          6220000.0286102295,
+          5825000.047683716,
+          6039999.961853027,
+          6750000,
+          6865000.009536743,
+          6615000.009536743
+        ],
+        "gpu": [
+          8509999.990463257,
+          7620000.123977661,
+          8305000.066757202,
+          6859999.895095825,
+          8075000.047683716,
+          7039999.961853027,
+          7065000.057220459,
+          8855000.019073486
+        ],
+        "auto": [
+          7545000.076293945,
+          6629999.876022339,
+          6450000.047683716,
+          6309999.942779541,
+          6180000.066757202,
+          6049999.952316284,
+          6754999.876022339,
+          5990000.009536743
+        ],
+        "profile": [
+          6630000.114440918,
+          6419999.837875366,
+          7019999.980926514,
+          7029999.9713897705,
+          6254999.876022339,
+          6105000.019073486,
+          6015000.104904175,
+          6109999.895095825
+        ]
+      },
+      "backends": {
+        "cpu": "cpu",
+        "gpu": "gpu",
+        "auto": "cpu",
+        "profile": "cpu"
+      },
+      "counters": {
+        "cpu": {
+          "upload_bytes": 0,
+          "readback_bytes": 0,
+          "dispatches": 0
+        },
+        "gpu": {
+          "upload_bytes": 262156,
+          "readback_bytes": 262148,
+          "dispatches": 1,
+          "live_buffer_bytes": 1048600,
+          "resident_copy_bytes": 0
+        },
+        "auto": {
+          "upload_bytes": 0,
+          "readback_bytes": 0,
+          "dispatches": 0
+        },
+        "profile": {
+          "upload_bytes": 0,
+          "readback_bytes": 0,
+          "dispatches": 0
+        }
+      },
+      "reasons": {
+        "cpu": "explicit backend selection",
+        "gpu": "explicit backend selection",
+        "auto": "no comparable saved profile; compiled CPU baseline",
+        "profile": "saved target profile; 10% minimum predicted saving; no runtime probes"
+      },
+      "first_call_ns": {
+        "cpu": 6839999.9141693115,
+        "gpu": 8799999.952316284,
+        "auto": 7004999.876022339,
+        "profile": 7565000.057220459
+      },
+      "validated": true
+    },
+    {
+      "kernel": "ecs",
+      "n": 131072,
+      "scope": "[\"c235dcaafd234a433e2309ab1450def5e1abc8dcaef0ea2f12618c903ef6a78a\",\"b714485dc4814482667cb8a1e8ee1616d5a9507b6514cf0512d5c1b9ebd30ec3\",\"f864738144dc60e53c239278b9c344da5eaef21dbae26f3fc3ccecfbe0e89b97\",\"ecs\"]",
+      "core_sha256": "c235dcaafd234a433e2309ab1450def5e1abc8dcaef0ea2f12618c903ef6a78a",
+      "features": {
+        "input_elements": 131072,
+        "input_bytes": 2097152,
+        "output_capacity_elements": 131072,
+        "dispatches": 1,
+        "iterations": 1
+      },
+      "boundary": "captured-owned",
+      "samples_ns": {
+        "cpu": [
+          54674999.952316284,
+          54105000.01907349,
+          54049999.952316284,
+          54324999.80926514,
+          55079999.923706055,
+          53439999.81880188,
+          53275000.09536743,
+          50505000.11444092
+        ],
+        "gpu": [
+          55585000.03814697,
+          55460000.03814697,
+          55365000.00953674,
+          55509999.99046326,
+          59210000.03814697,
+          54909999.84741211,
+          56100000.14305115,
+          62695000.17166138
+        ],
+        "auto": [
+          54850000.14305115,
+          55034999.84741211,
+          53184999.94277954,
+          54595000.02861023,
+          53265000.104904175,
+          54779999.97138977,
+          53879999.87602234,
+          55964999.91416931
+        ],
+        "profile": [
+          54664999.96185303,
+          52950000.047683716,
+          66925000.19073486,
+          54035000.08583069,
+          54575000.047683716,
+          53950000.047683716,
+          54164999.96185303,
+          54014999.866485596
+        ]
+      },
+      "backends": {
+        "cpu": "cpu",
+        "gpu": "gpu",
+        "auto": "cpu",
+        "profile": "cpu"
+      },
+      "counters": {
+        "cpu": {
+          "upload_bytes": 0,
+          "readback_bytes": 0,
+          "dispatches": 0
+        },
+        "gpu": {
+          "upload_bytes": 2097164,
+          "readback_bytes": 2097156,
+          "dispatches": 1,
+          "live_buffer_bytes": 8388632,
+          "resident_copy_bytes": 0
+        },
+        "auto": {
+          "upload_bytes": 0,
+          "readback_bytes": 0,
+          "dispatches": 0
+        },
+        "profile": {
+          "upload_bytes": 0,
+          "readback_bytes": 0,
+          "dispatches": 0
+        }
+      },
+      "reasons": {
+        "cpu": "explicit backend selection",
+        "gpu": "explicit backend selection",
+        "auto": "no comparable saved profile; compiled CPU baseline",
+        "profile": "saved target profile; 10% minimum predicted saving; no runtime probes"
+      },
+      "first_call_ns": {
+        "cpu": 53029999.97138977,
+        "gpu": 55209999.79972839,
+        "auto": 61724999.90463257,
+        "profile": 54930000.0667572
+      },
+      "validated": true
+    },
+    {
+      "kernel": "physics",
+      "n": 1024,
+      "scope": "[\"d4af981c85408636ee56015dd326cf780e40d8afe709f0b4540bd5fb0d2cc090\",\"e20df1026651cefe7ec06f693418a0232f5c7bd7a0eeb307e1fa1a908c665b11\",\"8884c4aa6a679844b827a18dd506db955503f4e54167ead632d9ab94b69641d4\",\"physics\"]",
+      "core_sha256": "d4af981c85408636ee56015dd326cf780e40d8afe709f0b4540bd5fb0d2cc090",
+      "features": {
+        "input_elements": 1024,
+        "input_bytes": 16392,
+        "output_capacity_elements": 1024,
+        "dispatches": 1,
+        "iterations": 1
+      },
+      "boundary": "captured-owned",
+      "samples_ns": {
+        "cpu": [
+          449999.8092651367,
+          435000.1811981201,
+          424999.9523162842,
+          425000.1907348633,
+          445000.17166137695,
+          410000.0858306885,
+          420000.0762939453,
+          404999.9713897705
+        ],
+        "gpu": [
+          2660000.0858306885,
+          1375000,
+          1345000.0286102295,
+          1190000.057220459,
+          1375000,
+          1114999.771118164,
+          1204999.9237060547,
+          2339999.9141693115
+        ],
+        "auto": [
+          474999.90463256836,
+          469999.7901916504,
+          505000.11444091797,
+          454999.9237060547,
+          454999.9237060547,
+          484999.8950958252,
+          464999.9141693115,
+          460000.03814697266
+        ],
+        "profile": [
+          494999.88555908203,
+          599999.9046325684,
+          524999.8569488525,
+          484999.8950958252,
+          480000.0190734863,
+          515000.1049041748,
+          485000.1335144043,
+          455000.1621246338
+        ]
+      },
+      "backends": {
+        "cpu": "cpu",
+        "gpu": "gpu",
+        "auto": "cpu",
+        "profile": "cpu"
+      },
+      "counters": {
+        "cpu": {
+          "upload_bytes": 0,
+          "readback_bytes": 0,
+          "dispatches": 0
+        },
+        "gpu": {
+          "upload_bytes": 16412,
+          "readback_bytes": 16388,
+          "dispatches": 1,
+          "live_buffer_bytes": 65576,
+          "resident_copy_bytes": 0
+        },
+        "auto": {
+          "upload_bytes": 0,
+          "readback_bytes": 0,
+          "dispatches": 0
+        },
+        "profile": {
+          "upload_bytes": 0,
+          "readback_bytes": 0,
+          "dispatches": 0
+        }
+      },
+      "reasons": {
+        "cpu": "explicit backend selection",
+        "gpu": "explicit backend selection",
+        "auto": "no comparable saved profile; compiled CPU baseline",
+        "profile": "saved target profile; 10% minimum predicted saving; no runtime probes"
+      },
+      "first_call_ns": {
+        "cpu": 2529999.9713897705,
+        "gpu": 9684999.942779541,
+        "auto": 740000.0095367432,
+        "profile": 1974999.9046325684
+      },
+      "validated": true
+    },
+    {
+      "kernel": "physics",
+      "n": 16384,
+      "scope": "[\"d4af981c85408636ee56015dd326cf780e40d8afe709f0b4540bd5fb0d2cc090\",\"e20df1026651cefe7ec06f693418a0232f5c7bd7a0eeb307e1fa1a908c665b11\",\"8884c4aa6a679844b827a18dd506db955503f4e54167ead632d9ab94b69641d4\",\"physics\"]",
+      "core_sha256": "d4af981c85408636ee56015dd326cf780e40d8afe709f0b4540bd5fb0d2cc090",
+      "features": {
+        "input_elements": 16384,
+        "input_bytes": 262152,
+        "output_capacity_elements": 16384,
+        "dispatches": 1,
+        "iterations": 1
+      },
+      "boundary": "captured-owned",
+      "samples_ns": {
+        "cpu": [
+          6399999.856948853,
+          7139999.866485596,
+          6384999.990463257,
+          7119999.885559082,
+          6420000.076293945,
+          6319999.933242798,
+          6969999.79019165,
+          6380000.114440918
+        ],
+        "gpu": [
+          8369999.885559082,
+          7464999.9141693115,
+          7885000.228881836,
+          7425000.190734863,
+          8444999.933242798,
+          7485000.133514404,
+          8295000.076293945,
+          7615000.009536743
+        ],
+        "auto": [
+          6475000.143051147,
+          7400000.095367432,
+          6459999.799728394,
+          7650000.095367432,
+          6569999.933242798,
+          6474999.904632568,
+          6529999.9713897705,
+          6450000.047683716
+        ],
+        "profile": [
+          7329999.923706055,
+          6640000.104904175,
+          7029999.9713897705,
+          6575000.047683716,
+          7269999.980926514,
+          6480000.019073486,
+          6469999.79019165,
+          6984999.895095825
+        ]
+      },
+      "backends": {
+        "cpu": "cpu",
+        "gpu": "gpu",
+        "auto": "cpu",
+        "profile": "cpu"
+      },
+      "counters": {
+        "cpu": {
+          "upload_bytes": 0,
+          "readback_bytes": 0,
+          "dispatches": 0
+        },
+        "gpu": {
+          "upload_bytes": 262172,
+          "readback_bytes": 262148,
+          "dispatches": 1,
+          "live_buffer_bytes": 1048616,
+          "resident_copy_bytes": 0
+        },
+        "auto": {
+          "upload_bytes": 0,
+          "readback_bytes": 0,
+          "dispatches": 0
+        },
+        "profile": {
+          "upload_bytes": 0,
+          "readback_bytes": 0,
+          "dispatches": 0
+        }
+      },
+      "reasons": {
+        "cpu": "explicit backend selection",
+        "gpu": "explicit backend selection",
+        "auto": "no comparable saved profile; compiled CPU baseline",
+        "profile": "saved target profile; 10% minimum predicted saving; no runtime probes"
+      },
+      "first_call_ns": {
+        "cpu": 6474999.904632568,
+        "gpu": 8434999.942779541,
+        "auto": 6605000.019073486,
+        "profile": 7279999.9713897705
+      },
+      "validated": true
+    },
+    {
+      "kernel": "physics",
+      "n": 131072,
+      "scope": "[\"d4af981c85408636ee56015dd326cf780e40d8afe709f0b4540bd5fb0d2cc090\",\"e20df1026651cefe7ec06f693418a0232f5c7bd7a0eeb307e1fa1a908c665b11\",\"8884c4aa6a679844b827a18dd506db955503f4e54167ead632d9ab94b69641d4\",\"physics\"]",
+      "core_sha256": "d4af981c85408636ee56015dd326cf780e40d8afe709f0b4540bd5fb0d2cc090",
+      "features": {
+        "input_elements": 131072,
+        "input_bytes": 2097160,
+        "output_capacity_elements": 131072,
+        "dispatches": 1,
+        "iterations": 1
+      },
+      "boundary": "captured-owned",
+      "samples_ns": {
+        "cpu": [
+          56434999.94277954,
+          56745000.12397766,
+          56404999.97138977,
+          56700000.047683716,
+          56299999.952316284,
+          58109999.895095825,
+          58180000.0667572,
+          55560000.18119812
+        ],
+        "gpu": [
+          60339999.91416931,
+          58375000,
+          60410000.08583069,
+          61789999.96185303,
+          58884999.99046326,
+          61740000.00953674,
+          86669999.83787537,
+          57995000.12397766
+        ],
+        "auto": [
+          81200000.04768372,
+          58960000.03814697,
+          55284999.84741211,
+          56920000.076293945,
+          59500000,
+          56035000.08583069,
+          56595000.02861023,
+          59165000.20027161
+        ],
+        "profile": [
+          56220000.02861023,
+          56539999.96185303,
+          56629999.87602234,
+          56650000.09536743,
+          57289999.96185303,
+          61150000.09536743,
+          56659999.84741211,
+          56544999.837875366
+        ]
+      },
+      "backends": {
+        "cpu": "cpu",
+        "gpu": "gpu",
+        "auto": "cpu",
+        "profile": "cpu"
+      },
+      "counters": {
+        "cpu": {
+          "upload_bytes": 0,
+          "readback_bytes": 0,
+          "dispatches": 0
+        },
+        "gpu": {
+          "upload_bytes": 2097180,
+          "readback_bytes": 2097156,
+          "dispatches": 1,
+          "live_buffer_bytes": 8388648,
+          "resident_copy_bytes": 0
+        },
+        "auto": {
+          "upload_bytes": 0,
+          "readback_bytes": 0,
+          "dispatches": 0
+        },
+        "profile": {
+          "upload_bytes": 0,
+          "readback_bytes": 0,
+          "dispatches": 0
+        }
+      },
+      "reasons": {
+        "cpu": "explicit backend selection",
+        "gpu": "explicit backend selection",
+        "auto": "no comparable saved profile; compiled CPU baseline",
+        "profile": "saved target profile; 10% minimum predicted saving; no runtime probes"
+      },
+      "first_call_ns": {
+        "cpu": 55934999.94277954,
+        "gpu": 58355000.01907349,
+        "auto": 59500000,
+        "profile": 56440000.05722046
+      },
+      "validated": true
+    }
+  ],
+  "resident": [
+    {
+      "kernel": "ecs",
+      "n": 16384,
+      "iterations": 32,
+      "boundary": "open-step-finish-full-read-close",
+      "samples_ns": {
+        "cpu": [
+          7299999.952316284,
+          7779999.9713897705,
+          7049999.952316284,
+          7049999.952316284
+        ],
+        "gpu": [
+          7300000.190734863,
+          7405000.20980835,
+          8105000.019073486,
+          7644999.980926514
+        ],
+        "auto": [
+          7910000.0858306885,
+          8005000.114440918,
+          7130000.114440918,
+          7000000
+        ],
+        "profile": [
+          7275000.095367432,
+          7395000.219345093,
+          7990000.009536743,
+          7369999.885559082
+        ]
+      },
+      "step_finish_samples_ns": {
+        "cpu": [
+          1339999.9141693115,
+          1174999.9523162842,
+          1164999.9618530273,
+          1115000.0095367432
+        ],
+        "gpu": [
+          660000.0858306885,
+          669999.8378753662,
+          825000.0476837158,
+          424999.9523162842
+        ],
+        "auto": [
+          630000.114440918,
+          730000.0190734863,
+          390000.1049041748,
+          390000.1049041748
+        ],
+        "profile": [
+          660000.0858306885,
+          775000.0953674316,
+          710000.0381469727,
+          430000.06675720215
+        ]
+      },
+      "backends": {
+        "cpu": "cpu",
+        "gpu": "gpu",
+        "auto": "gpu",
+        "profile": "gpu"
+      },
+      "counters": {
+        "cpu": {
+          "initial": {
+            "upload_bytes": 0
+          },
+          "step": {
+            "dispatches": 0
+          },
+          "read": {
+            "readback_bytes": 0
+          }
+        },
+        "gpu": {
+          "initial": {
+            "upload_bytes": 262156
+          },
+          "step": {
+            "dispatches": 32,
+            "resident_copy_bytes": 0
+          },
+          "read": {
+            "readback_bytes": 262148
+          }
+        },
+        "auto": {
+          "initial": {
+            "upload_bytes": 262156
+          },
+          "step": {
+            "dispatches": 32,
+            "resident_copy_bytes": 0
+          },
+          "read": {
+            "readback_bytes": 262148
+          }
+        },
+        "profile": {
+          "initial": {
+            "upload_bytes": 262156
+          },
+          "step": {
+            "dispatches": 32,
+            "resident_copy_bytes": 0
+          },
+          "read": {
+            "readback_bytes": 262148
+          }
+        }
+      },
+      "validated": true
+    },
+    {
+      "kernel": "ecs",
+      "n": 131072,
+      "iterations": 32,
+      "boundary": "open-step-finish-full-read-close",
+      "samples_ns": {
+        "cpu": [
+          65720000.02861023,
+          73285000.08583069,
+          67469999.79019165,
+          66255000.11444092
+        ],
+        "gpu": [
+          55000000,
+          57784999.84741211,
+          57245000.12397766,
+          56845000.02861023
+        ],
+        "auto": [
+          55804999.82833862,
+          57190000.05722046,
+          59840000.15258789,
+          60900000.09536743
+        ],
+        "profile": [
+          59704999.923706055,
+          59730000.01907349,
+          57100000.14305115,
+          55805000.0667572
+        ]
+      },
+      "step_finish_samples_ns": {
+        "cpu": [
+          13650000.095367432,
+          14174999.952316284,
+          12975000.143051147,
+          14029999.97138977
+        ],
+        "gpu": [
+          1015000.1049041748,
+          1319999.9332427979,
+          2075000.0476837158,
+          2100000.1430511475
+        ],
+        "auto": [
+          850000.1430511475,
+          1125000,
+          1000000,
+          2319999.933242798
+        ],
+        "profile": [
+          1190000.057220459,
+          959999.7997283936,
+          1960000.0381469727,
+          1269999.9809265137
+        ]
+      },
+      "backends": {
+        "cpu": "cpu",
+        "gpu": "gpu",
+        "auto": "gpu",
+        "profile": "gpu"
+      },
+      "counters": {
+        "cpu": {
+          "initial": {
+            "upload_bytes": 0
+          },
+          "step": {
+            "dispatches": 0
+          },
+          "read": {
+            "readback_bytes": 0
+          }
+        },
+        "gpu": {
+          "initial": {
+            "upload_bytes": 2097164
+          },
+          "step": {
+            "dispatches": 32,
+            "resident_copy_bytes": 0
+          },
+          "read": {
+            "readback_bytes": 2097156
+          }
+        },
+        "auto": {
+          "initial": {
+            "upload_bytes": 2097164
+          },
+          "step": {
+            "dispatches": 32,
+            "resident_copy_bytes": 0
+          },
+          "read": {
+            "readback_bytes": 2097156
+          }
+        },
+        "profile": {
+          "initial": {
+            "upload_bytes": 2097164
+          },
+          "step": {
+            "dispatches": 32,
+            "resident_copy_bytes": 0
+          },
+          "read": {
+            "readback_bytes": 2097156
+          }
+        }
+      },
+      "validated": true
+    },
+    {
+      "kernel": "physics",
+      "n": 16384,
+      "iterations": 32,
+      "boundary": "open-step-finish-full-read-close",
+      "samples_ns": {
+        "cpu": [
+          8549999.952316284,
+          8115000.009536743,
+          8730000.019073486,
+          7965000.152587891
+        ],
+        "gpu": [
+          8080000.162124634,
+          8599999.904632568,
+          8099999.904632568,
+          9565000.057220459
+        ],
+        "auto": [
+          8085000.038146973,
+          8420000.076293945,
+          8859999.895095825,
+          8220000.0286102295
+        ],
+        "profile": [
+          7880000.114440918,
+          7964999.9141693115,
+          8100000.143051147,
+          8170000.076293945
+        ]
+      },
+      "step_finish_samples_ns": {
+        "cpu": [
+          1559999.942779541,
+          1620000.1239776611,
+          1514999.8664855957,
+          1580000.1621246338
+        ],
+        "gpu": [
+          664999.9618530273,
+          865000.0095367432,
+          884999.9904632568,
+          1875000
+        ],
+        "auto": [
+          569999.9332427979,
+          1174999.9523162842,
+          1129999.8760223389,
+          1055000.0667572021
+        ],
+        "profile": [
+          584999.7997283936,
+          585000.0381469727,
+          855000.0190734863,
+          609999.8950958252
+        ]
+      },
+      "backends": {
+        "cpu": "cpu",
+        "gpu": "gpu",
+        "auto": "gpu",
+        "profile": "gpu"
+      },
+      "counters": {
+        "cpu": {
+          "initial": {
+            "upload_bytes": 0
+          },
+          "step": {
+            "dispatches": 0
+          },
+          "read": {
+            "readback_bytes": 0
+          }
+        },
+        "gpu": {
+          "initial": {
+            "upload_bytes": 262172
+          },
+          "step": {
+            "dispatches": 32,
+            "resident_copy_bytes": 0
+          },
+          "read": {
+            "readback_bytes": 262148
+          }
+        },
+        "auto": {
+          "initial": {
+            "upload_bytes": 262172
+          },
+          "step": {
+            "dispatches": 32,
+            "resident_copy_bytes": 0
+          },
+          "read": {
+            "readback_bytes": 262148
+          }
+        },
+        "profile": {
+          "initial": {
+            "upload_bytes": 262172
+          },
+          "step": {
+            "dispatches": 32,
+            "resident_copy_bytes": 0
+          },
+          "read": {
+            "readback_bytes": 262148
+          }
+        }
+      },
+      "validated": true
+    },
+    {
+      "kernel": "physics",
+      "n": 131072,
+      "iterations": 32,
+      "boundary": "open-step-finish-full-read-close",
+      "samples_ns": {
+        "cpu": [
+          72355000.01907349,
+          88204999.92370605,
+          73650000.09536743,
+          73299999.95231628
+        ],
+        "gpu": [
+          64500000,
+          69390000.10490417,
+          61230000.01907349,
+          62755000.11444092
+        ],
+        "auto": [
+          62410000.08583069,
+          60339999.91416931,
+          63350000.14305115,
+          62519999.98092651
+        ],
+        "profile": [
+          61914999.96185303,
+          62029999.97138977,
+          63039999.96185303,
+          62379999.87602234
+        ]
+      },
+      "step_finish_samples_ns": {
+        "cpu": [
+          16785000.08583069,
+          17984999.895095825,
+          17634999.990463257,
+          17404999.97138977
+        ],
+        "gpu": [
+          4899999.856948853,
+          6164999.961853027,
+          3815000.057220459,
+          4509999.990463257
+        ],
+        "auto": [
+          2009999.9904632568,
+          1714999.9141693115,
+          2970000.0286102295,
+          2779999.9713897705
+        ],
+        "profile": [
+          2069999.9332427979,
+          1939999.8188018799,
+          2009999.9904632568,
+          1985000.1335144043
+        ]
+      },
+      "backends": {
+        "cpu": "cpu",
+        "gpu": "gpu",
+        "auto": "gpu",
+        "profile": "gpu"
+      },
+      "counters": {
+        "cpu": {
+          "initial": {
+            "upload_bytes": 0
+          },
+          "step": {
+            "dispatches": 0
+          },
+          "read": {
+            "readback_bytes": 0
+          }
+        },
+        "gpu": {
+          "initial": {
+            "upload_bytes": 2097180
+          },
+          "step": {
+            "dispatches": 32,
+            "resident_copy_bytes": 0
+          },
+          "read": {
+            "readback_bytes": 2097156
+          }
+        },
+        "auto": {
+          "initial": {
+            "upload_bytes": 2097180
+          },
+          "step": {
+            "dispatches": 32,
+            "resident_copy_bytes": 0
+          },
+          "read": {
+            "readback_bytes": 2097156
+          }
+        },
+        "profile": {
+          "initial": {
+            "upload_bytes": 2097180
+          },
+          "step": {
+            "dispatches": 32,
+            "resident_copy_bytes": 0
+          },
+          "read": {
+            "readback_bytes": 2097156
+          }
+        }
+      },
+      "validated": true
+    }
+  ],
+  "validation": "Complete outputs compared with independent modular-word and rounded-binary32 oracle after every invocation; no checksum-only validation."
+}

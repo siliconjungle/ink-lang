@@ -1,0 +1,1387 @@
+{
+  "schema": 1,
+  "environment": {
+    "browser": "155.0.8059.41",
+    "platform": "darwin",
+    "architecture": "arm64",
+    "cpu": "Apple M4 Pro"
+  },
+  "device": {
+    "vendor": "apple",
+    "architecture": "metal-3",
+    "device": "",
+    "description": "",
+    "isFallbackAdapter": false
+  },
+  "source_hashes": {
+    "bench/gpu/portfolio-profile-browser.mjs": "29c38dc3bfada112620bb0cb2f49c55bb94f832ed34ebcc292c9efaa1c1d8164",
+    "bench/cross-domain/main.ink": "444a82b7ecd463c6a2215e441c39b3c6be5f370ac93731f44e2106145c209904",
+    "knowledge/libraries/workload_kernels.ink": "78c217a0c39f6efc7e131877c407448a00efe8ac850161897a685b4d896f9128",
+    "build/cross-domain-webgpu-probe/manifest.json": "6bee25189e190501365db705b454e09030ee614a6b52dcbcd93526879bcf47e0",
+    "build/cross-domain-webgpu-probe/gpu/f0/manifest.json": "711e99d1f58caf47d76d30a5522a60f6d3ddfa542345ecfae5875df45a9e5d0c",
+    "build/cross-domain-webgpu-probe/gpu/f7/manifest.json": "385509e7f7030e00b9e9a4c54354bb82dadc58a40a2eaefa6d90785f3d2d61c1",
+    "build/projected-read-compiler/ink": "592a3789f58f52225aad5b6a3b8840f6c859524fcd8d1c2ee5220a7b414306c0"
+  },
+  "training_processes": 3,
+  "held_out_processes": 5,
+  "statistic": "Median of per-process medians; process ranges are descriptive, not confidence intervals.",
+  "validation": "Complete outputs compared with independent modular-word and rounded-binary32 oracle after every invocation; no checksum-only validation.",
+  "ordinary": [
+    {
+      "kernel": "ecs",
+      "n": 1024,
+      "backends": {
+        "cpu": "cpu",
+        "gpu": "gpu",
+        "auto": "cpu",
+        "profile": "cpu"
+      },
+      "counters": {
+        "cpu": {
+          "upload_bytes": 0,
+          "readback_bytes": 0,
+          "dispatches": 0
+        },
+        "gpu": {
+          "upload_bytes": 16396,
+          "readback_bytes": 16388,
+          "dispatches": 1,
+          "live_buffer_bytes": 65560,
+          "resident_copy_bytes": 0
+        },
+        "auto": {
+          "upload_bytes": 0,
+          "readback_bytes": 0,
+          "dispatches": 0
+        },
+        "profile": {
+          "upload_bytes": 0,
+          "readback_bytes": 0,
+          "dispatches": 0
+        }
+      },
+      "timings": {
+        "samples_ns": {
+          "cpu": {
+            "median_ms": 0.41999995708465576,
+            "process_medians_ms": [
+              0.4450000524520874,
+              0.4450000524520874,
+              0.41249990463256836,
+              0.4125000238418579,
+              0.41999995708465576
+            ],
+            "process_range_ms": [
+              0.41249990463256836,
+              0.4450000524520874
+            ]
+          },
+          "gpu": {
+            "median_ms": 1.3199999332427979,
+            "process_medians_ms": [
+              1.3274999856948853,
+              1.4674999713897705,
+              1.3199999332427979,
+              1.222499966621399,
+              1.1875
+            ],
+            "process_range_ms": [
+              1.1875,
+              1.4674999713897705
+            ]
+          },
+          "auto": {
+            "median_ms": 0.4700000286102295,
+            "process_medians_ms": [
+              0.4700000286102295,
+              0.4700000286102295,
+              0.48249995708465576,
+              0.45249998569488525,
+              0.4525001049041748
+            ],
+            "process_range_ms": [
+              0.45249998569488525,
+              0.48249995708465576
+            ]
+          },
+          "profile": {
+            "median_ms": 0.5149999856948853,
+            "process_medians_ms": [
+              0.5149999856948853,
+              0.5249999761581421,
+              0.5299999713897705,
+              0.49250006675720215,
+              0.5
+            ],
+            "process_range_ms": [
+              0.49250006675720215,
+              0.5299999713897705
+            ]
+          },
+          "cpu_over_gpu": 0.318181801761805
+        }
+      },
+      "reasons": {
+        "cpu": "explicit backend selection",
+        "gpu": "explicit backend selection",
+        "auto": "no comparable saved profile; compiled CPU baseline",
+        "profile": "saved target profile; 10% minimum predicted saving; no runtime probes"
+      },
+      "fastest_forced_backend": "cpu"
+    },
+    {
+      "kernel": "ecs",
+      "n": 16384,
+      "backends": {
+        "cpu": "cpu",
+        "gpu": "gpu",
+        "auto": "cpu",
+        "profile": "cpu"
+      },
+      "counters": {
+        "cpu": {
+          "upload_bytes": 0,
+          "readback_bytes": 0,
+          "dispatches": 0
+        },
+        "gpu": {
+          "upload_bytes": 262156,
+          "readback_bytes": 262148,
+          "dispatches": 1,
+          "live_buffer_bytes": 1048600,
+          "resident_copy_bytes": 0
+        },
+        "auto": {
+          "upload_bytes": 0,
+          "readback_bytes": 0,
+          "dispatches": 0
+        },
+        "profile": {
+          "upload_bytes": 0,
+          "readback_bytes": 0,
+          "dispatches": 0
+        }
+      },
+      "timings": {
+        "samples_ns": {
+          "cpu": {
+            "median_ms": 6.597499966621399,
+            "process_medians_ms": [
+              6.737499952316284,
+              6.9075000286102295,
+              6.59250009059906,
+              6.597499966621399,
+              6.585000038146973
+            ],
+            "process_range_ms": [
+              6.585000038146973,
+              6.9075000286102295
+            ]
+          },
+          "gpu": {
+            "median_ms": 7.822499871253967,
+            "process_medians_ms": [
+              7.822499871253967,
+              8.087499856948853,
+              7.8475000858306885,
+              7.797500014305115,
+              7.5975000858306885
+            ],
+            "process_range_ms": [
+              7.5975000858306885,
+              8.087499856948853
+            ]
+          },
+          "auto": {
+            "median_ms": 6.309999942779541,
+            "process_medians_ms": [
+              6.2825000286102295,
+              6.370000004768372,
+              6.379999995231628,
+              6.230000019073486,
+              6.309999942779541
+            ],
+            "process_range_ms": [
+              6.230000019073486,
+              6.379999995231628
+            ]
+          },
+          "profile": {
+            "median_ms": 6.442499995231628,
+            "process_medians_ms": [
+              6.567499995231628,
+              6.53000009059906,
+              6.3374998569488525,
+              6.195000052452087,
+              6.442499995231628
+            ],
+            "process_range_ms": [
+              6.195000052452087,
+              6.567499995231628
+            ]
+          },
+          "cpu_over_gpu": 0.8434004570413374
+        }
+      },
+      "reasons": {
+        "cpu": "explicit backend selection",
+        "gpu": "explicit backend selection",
+        "auto": "no comparable saved profile; compiled CPU baseline",
+        "profile": "saved target profile; 10% minimum predicted saving; no runtime probes"
+      },
+      "fastest_forced_backend": "cpu"
+    },
+    {
+      "kernel": "ecs",
+      "n": 131072,
+      "backends": {
+        "cpu": "cpu",
+        "gpu": "gpu",
+        "auto": "cpu",
+        "profile": "cpu"
+      },
+      "counters": {
+        "cpu": {
+          "upload_bytes": 0,
+          "readback_bytes": 0,
+          "dispatches": 0
+        },
+        "gpu": {
+          "upload_bytes": 2097164,
+          "readback_bytes": 2097156,
+          "dispatches": 1,
+          "live_buffer_bytes": 8388632,
+          "resident_copy_bytes": 0
+        },
+        "auto": {
+          "upload_bytes": 0,
+          "readback_bytes": 0,
+          "dispatches": 0
+        },
+        "profile": {
+          "upload_bytes": 0,
+          "readback_bytes": 0,
+          "dispatches": 0
+        }
+      },
+      "timings": {
+        "samples_ns": {
+          "cpu": {
+            "median_ms": 54.24999988079071,
+            "process_medians_ms": [
+              54.79000008106232,
+              55.14999997615814,
+              54.077499985694885,
+              54.24999988079071,
+              54.1049998998642
+            ],
+            "process_range_ms": [
+              54.077499985694885,
+              55.14999997615814
+            ]
+          },
+          "gpu": {
+            "median_ms": 56.21249997615814,
+            "process_medians_ms": [
+              57.18250000476837,
+              56.33999991416931,
+              55.547500014305115,
+              56.00999987125397,
+              56.21249997615814
+            ],
+            "process_range_ms": [
+              55.547500014305115,
+              57.18250000476837
+            ]
+          },
+          "auto": {
+            "median_ms": 54.6875,
+            "process_medians_ms": [
+              54.68999981880188,
+              55.21250009536743,
+              54.6875,
+              54.264999985694885,
+              54.38250005245209
+            ],
+            "process_range_ms": [
+              54.264999985694885,
+              55.21250009536743
+            ]
+          },
+          "profile": {
+            "median_ms": 54.642500042915344,
+            "process_medians_ms": [
+              55.21250009536743,
+              55.012500047683716,
+              54.10000002384186,
+              54.09999990463257,
+              54.642500042915344
+            ],
+            "process_range_ms": [
+              54.09999990463257,
+              55.21250009536743
+            ]
+          },
+          "cpu_over_gpu": 0.9650878346239751
+        }
+      },
+      "reasons": {
+        "cpu": "explicit backend selection",
+        "gpu": "explicit backend selection",
+        "auto": "no comparable saved profile; compiled CPU baseline",
+        "profile": "saved target profile; 10% minimum predicted saving; no runtime probes"
+      },
+      "fastest_forced_backend": "cpu"
+    },
+    {
+      "kernel": "physics",
+      "n": 1024,
+      "backends": {
+        "cpu": "cpu",
+        "gpu": "gpu",
+        "auto": "cpu",
+        "profile": "cpu"
+      },
+      "counters": {
+        "cpu": {
+          "upload_bytes": 0,
+          "readback_bytes": 0,
+          "dispatches": 0
+        },
+        "gpu": {
+          "upload_bytes": 16412,
+          "readback_bytes": 16388,
+          "dispatches": 1,
+          "live_buffer_bytes": 65576,
+          "resident_copy_bytes": 0
+        },
+        "auto": {
+          "upload_bytes": 0,
+          "readback_bytes": 0,
+          "dispatches": 0
+        },
+        "profile": {
+          "upload_bytes": 0,
+          "readback_bytes": 0,
+          "dispatches": 0
+        }
+      },
+      "timings": {
+        "samples_ns": {
+          "cpu": {
+            "median_ms": 0.43000006675720215,
+            "process_medians_ms": [
+              0.42750000953674316,
+              0.43500006198883057,
+              0.42500007152557373,
+              0.43000006675720215,
+              0.434999942779541
+            ],
+            "process_range_ms": [
+              0.42500007152557373,
+              0.43500006198883057
+            ]
+          },
+          "gpu": {
+            "median_ms": 1.3450000286102295,
+            "process_medians_ms": [
+              1.4924999475479126,
+              1.2675000429153442,
+              1.3600000143051147,
+              1.2825000286102295,
+              1.3450000286102295
+            ],
+            "process_range_ms": [
+              1.2675000429153442,
+              1.4924999475479126
+            ]
+          },
+          "auto": {
+            "median_ms": 0.4750000238418579,
+            "process_medians_ms": [
+              0.4924999475479126,
+              0.4700000286102295,
+              0.46749985218048096,
+              0.4750000238418579,
+              0.4874999523162842
+            ],
+            "process_range_ms": [
+              0.46749985218048096,
+              0.4924999475479126
+            ]
+          },
+          "profile": {
+            "median_ms": 0.5,
+            "process_medians_ms": [
+              0.5049999952316284,
+              0.4874999523162842,
+              0.49000000953674316,
+              0.5,
+              0.5125000476837158
+            ],
+            "process_range_ms": [
+              0.4874999523162842,
+              0.5125000476837158
+            ]
+          },
+          "cpu_over_gpu": 0.31970264506352125
+        }
+      },
+      "reasons": {
+        "cpu": "explicit backend selection",
+        "gpu": "explicit backend selection",
+        "auto": "no comparable saved profile; compiled CPU baseline",
+        "profile": "saved target profile; 10% minimum predicted saving; no runtime probes"
+      },
+      "fastest_forced_backend": "cpu"
+    },
+    {
+      "kernel": "physics",
+      "n": 16384,
+      "backends": {
+        "cpu": "cpu",
+        "gpu": "gpu",
+        "auto": "cpu",
+        "profile": "cpu"
+      },
+      "counters": {
+        "cpu": {
+          "upload_bytes": 0,
+          "readback_bytes": 0,
+          "dispatches": 0
+        },
+        "gpu": {
+          "upload_bytes": 262172,
+          "readback_bytes": 262148,
+          "dispatches": 1,
+          "live_buffer_bytes": 1048616,
+          "resident_copy_bytes": 0
+        },
+        "auto": {
+          "upload_bytes": 0,
+          "readback_bytes": 0,
+          "dispatches": 0
+        },
+        "profile": {
+          "upload_bytes": 0,
+          "readback_bytes": 0,
+          "dispatches": 0
+        }
+      },
+      "timings": {
+        "samples_ns": {
+          "cpu": {
+            "median_ms": 6.457500100135803,
+            "process_medians_ms": [
+              6.682499885559082,
+              6.565000057220459,
+              6.409999966621399,
+              6.424999952316284,
+              6.457500100135803
+            ],
+            "process_range_ms": [
+              6.409999966621399,
+              6.682499885559082
+            ]
+          },
+          "gpu": {
+            "median_ms": 7.939999938011169,
+            "process_medians_ms": [
+              8.184999942779541,
+              7.932500004768372,
+              7.7500001192092896,
+              7.939999938011169,
+              8.019999980926514
+            ],
+            "process_range_ms": [
+              7.7500001192092896,
+              8.184999942779541
+            ]
+          },
+          "auto": {
+            "median_ms": 6.560000061988831,
+            "process_medians_ms": [
+              6.677500009536743,
+              6.6874998807907104,
+              6.502500057220459,
+              6.519999980926514,
+              6.560000061988831
+            ],
+            "process_range_ms": [
+              6.502500057220459,
+              6.6874998807907104
+            ]
+          },
+          "profile": {
+            "median_ms": 6.909999966621399,
+            "process_medians_ms": [
+              7.03000009059906,
+              6.909999966621399,
+              6.8125,
+              6.827499985694885,
+              6.922500014305115
+            ],
+            "process_range_ms": [
+              6.8125,
+              7.03000009059906
+            ]
+          },
+          "cpu_over_gpu": 0.8132871726134161
+        }
+      },
+      "reasons": {
+        "cpu": "explicit backend selection",
+        "gpu": "explicit backend selection",
+        "auto": "no comparable saved profile; compiled CPU baseline",
+        "profile": "saved target profile; 10% minimum predicted saving; no runtime probes"
+      },
+      "fastest_forced_backend": "cpu"
+    },
+    {
+      "kernel": "physics",
+      "n": 131072,
+      "backends": {
+        "cpu": "cpu",
+        "gpu": "gpu",
+        "auto": "cpu",
+        "profile": "cpu"
+      },
+      "counters": {
+        "cpu": {
+          "upload_bytes": 0,
+          "readback_bytes": 0,
+          "dispatches": 0
+        },
+        "gpu": {
+          "upload_bytes": 2097180,
+          "readback_bytes": 2097156,
+          "dispatches": 1,
+          "live_buffer_bytes": 8388648,
+          "resident_copy_bytes": 0
+        },
+        "auto": {
+          "upload_bytes": 0,
+          "readback_bytes": 0,
+          "dispatches": 0
+        },
+        "profile": {
+          "upload_bytes": 0,
+          "readback_bytes": 0,
+          "dispatches": 0
+        }
+      },
+      "timings": {
+        "samples_ns": {
+          "cpu": {
+            "median_ms": 56.739999890327454,
+            "process_medians_ms": [
+              58.65500009059906,
+              56.739999890327454,
+              56.56749999523163,
+              56.4449999332428,
+              56.77499997615814
+            ],
+            "process_range_ms": [
+              56.4449999332428,
+              58.65500009059906
+            ]
+          },
+          "gpu": {
+            "median_ms": 60.375,
+            "process_medians_ms": [
+              60.92750000953674,
+              59.94749987125397,
+              60.375,
+              60.167500019073486,
+              60.93250000476837
+            ],
+            "process_range_ms": [
+              59.94749987125397,
+              60.93250000476837
+            ]
+          },
+          "auto": {
+            "median_ms": 57.575000047683716,
+            "process_medians_ms": [
+              57.207499980926514,
+              57.08499991893768,
+              57.94000005722046,
+              57.80250000953674,
+              57.575000047683716
+            ],
+            "process_range_ms": [
+              57.08499991893768,
+              57.94000005722046
+            ]
+          },
+          "profile": {
+            "median_ms": 56.639999985694885,
+            "process_medians_ms": [
+              58.207499980926514,
+              57.1049998998642,
+              56.639999985694885,
+              56.38499999046326,
+              56.50750005245209
+            ],
+            "process_range_ms": [
+              56.38499999046326,
+              58.207499980926514
+            ]
+          },
+          "cpu_over_gpu": 0.9397929588460033
+        }
+      },
+      "reasons": {
+        "cpu": "explicit backend selection",
+        "gpu": "explicit backend selection",
+        "auto": "no comparable saved profile; compiled CPU baseline",
+        "profile": "saved target profile; 10% minimum predicted saving; no runtime probes"
+      },
+      "fastest_forced_backend": "cpu"
+    }
+  ],
+  "resident": [
+    {
+      "kernel": "ecs",
+      "n": 16384,
+      "backends": {
+        "cpu": "cpu",
+        "gpu": "gpu",
+        "auto": "gpu",
+        "profile": "gpu"
+      },
+      "counters": {
+        "cpu": {
+          "initial": {
+            "upload_bytes": 0
+          },
+          "step": {
+            "dispatches": 0
+          },
+          "read": {
+            "readback_bytes": 0
+          }
+        },
+        "gpu": {
+          "initial": {
+            "upload_bytes": 262156
+          },
+          "step": {
+            "dispatches": 32,
+            "resident_copy_bytes": 0
+          },
+          "read": {
+            "readback_bytes": 262148
+          }
+        },
+        "auto": {
+          "initial": {
+            "upload_bytes": 262156
+          },
+          "step": {
+            "dispatches": 32,
+            "resident_copy_bytes": 0
+          },
+          "read": {
+            "readback_bytes": 262148
+          }
+        },
+        "profile": {
+          "initial": {
+            "upload_bytes": 262156
+          },
+          "step": {
+            "dispatches": 32,
+            "resident_copy_bytes": 0
+          },
+          "read": {
+            "readback_bytes": 262148
+          }
+        }
+      },
+      "timings": {
+        "samples_ns": {
+          "cpu": {
+            "median_ms": 7.269999980926514,
+            "process_medians_ms": [
+              7.269999980926514,
+              7.4649999141693115,
+              7.174999952316284,
+              7.210000038146973,
+              7.425000071525574
+            ],
+            "process_range_ms": [
+              7.174999952316284,
+              7.4649999141693115
+            ]
+          },
+          "gpu": {
+            "median_ms": 7.772500038146973,
+            "process_medians_ms": [
+              8.057500004768372,
+              7.772500038146973,
+              7.525000095367432,
+              7.877499938011169,
+              7.567499876022339
+            ],
+            "process_range_ms": [
+              7.525000095367432,
+              8.057500004768372
+            ]
+          },
+          "auto": {
+            "median_ms": 7.8124998807907104,
+            "process_medians_ms": [
+              7.672500133514404,
+              7.8124998807907104,
+              7.520000100135803,
+              8.040000081062317,
+              8.06499993801117
+            ],
+            "process_range_ms": [
+              7.520000100135803,
+              8.06499993801117
+            ]
+          },
+          "profile": {
+            "median_ms": 7.680000066757202,
+            "process_medians_ms": [
+              7.680000066757202,
+              7.992500066757202,
+              7.382500052452087,
+              7.434999942779541,
+              7.692500114440918
+            ],
+            "process_range_ms": [
+              7.382500052452087,
+              7.992500066757202
+            ]
+          },
+          "cpu_over_gpu": 0.9353489797678716
+        },
+        "step_finish_samples_ns": {
+          "cpu": {
+            "median_ms": 1.2074998617172241,
+            "process_medians_ms": [
+              1.2050000429153442,
+              1.2074998617172241,
+              1.1699999570846558,
+              1.2325000762939453,
+              1.3025001287460327
+            ],
+            "process_range_ms": [
+              1.1699999570846558,
+              1.3025001287460327
+            ]
+          },
+          "gpu": {
+            "median_ms": 0.6450001001358032,
+            "process_medians_ms": [
+              0.4725000858306885,
+              0.5075000524520874,
+              0.6649999618530273,
+              0.842499852180481,
+              0.6450001001358032
+            ],
+            "process_range_ms": [
+              0.4725000858306885,
+              0.842499852180481
+            ]
+          },
+          "auto": {
+            "median_ms": 0.5249999761581421,
+            "process_medians_ms": [
+              0.47749996185302734,
+              0.5249999761581421,
+              0.5100001096725464,
+              0.6850000619888306,
+              0.6500000953674316
+            ],
+            "process_range_ms": [
+              0.47749996185302734,
+              0.6850000619888306
+            ]
+          },
+          "profile": {
+            "median_ms": 0.6775000095367432,
+            "process_medians_ms": [
+              0.42500007152557373,
+              0.6475000381469727,
+              0.6850000619888306,
+              0.6899999380111694,
+              0.6775000095367432
+            ],
+            "process_range_ms": [
+              0.42500007152557373,
+              0.6899999380111694
+            ]
+          },
+          "cpu_over_gpu": 1.8720925182228467
+        }
+      },
+      "iterations": 32
+    },
+    {
+      "kernel": "ecs",
+      "n": 131072,
+      "backends": {
+        "cpu": "cpu",
+        "gpu": "gpu",
+        "auto": "gpu",
+        "profile": "gpu"
+      },
+      "counters": {
+        "cpu": {
+          "initial": {
+            "upload_bytes": 0
+          },
+          "step": {
+            "dispatches": 0
+          },
+          "read": {
+            "readback_bytes": 0
+          }
+        },
+        "gpu": {
+          "initial": {
+            "upload_bytes": 2097164
+          },
+          "step": {
+            "dispatches": 32,
+            "resident_copy_bytes": 0
+          },
+          "read": {
+            "readback_bytes": 2097156
+          }
+        },
+        "auto": {
+          "initial": {
+            "upload_bytes": 2097164
+          },
+          "step": {
+            "dispatches": 32,
+            "resident_copy_bytes": 0
+          },
+          "read": {
+            "readback_bytes": 2097156
+          }
+        },
+        "profile": {
+          "initial": {
+            "upload_bytes": 2097164
+          },
+          "step": {
+            "dispatches": 32,
+            "resident_copy_bytes": 0
+          },
+          "read": {
+            "readback_bytes": 2097156
+          }
+        }
+      },
+      "timings": {
+        "samples_ns": {
+          "cpu": {
+            "median_ms": 66.91250002384186,
+            "process_medians_ms": [
+              69.125,
+              69.40000009536743,
+              66.86249995231628,
+              66.91250002384186,
+              66.14499998092651
+            ],
+            "process_range_ms": [
+              66.14499998092651,
+              69.40000009536743
+            ]
+          },
+          "gpu": {
+            "median_ms": 56.56249988079071,
+            "process_medians_ms": [
+              57.87999987602234,
+              56.1324999332428,
+              57.045000076293945,
+              56.53999996185303,
+              56.56249988079071
+            ],
+            "process_range_ms": [
+              56.1324999332428,
+              57.87999987602234
+            ]
+          },
+          "auto": {
+            "median_ms": 57.89999997615814,
+            "process_medians_ms": [
+              58.549999952316284,
+              57.50499987602234,
+              58.515000104904175,
+              57.89999997615814,
+              57.732499957084656
+            ],
+            "process_range_ms": [
+              57.50499987602234,
+              58.549999952316284
+            ]
+          },
+          "profile": {
+            "median_ms": 58.739999890327454,
+            "process_medians_ms": [
+              60.267500042915344,
+              59.60250008106232,
+              58.4025000333786,
+              57.7299998998642,
+              58.739999890327454
+            ],
+            "process_range_ms": [
+              57.7299998998642,
+              60.267500042915344
+            ]
+          },
+          "cpu_over_gpu": 1.1829834283290956
+        },
+        "step_finish_samples_ns": {
+          "cpu": {
+            "median_ms": 13.840000033378601,
+            "process_medians_ms": [
+              15.004999995231628,
+              14.242500066757202,
+              13.840000033378601,
+              13.332499980926514,
+              13.330000042915344
+            ],
+            "process_range_ms": [
+              13.330000042915344,
+              15.004999995231628
+            ]
+          },
+          "gpu": {
+            "median_ms": 1.1324999332427979,
+            "process_medians_ms": [
+              1.4399999380111694,
+              0.7799999713897705,
+              1.6974999904632568,
+              0.9700000286102295,
+              1.1324999332427979
+            ],
+            "process_range_ms": [
+              0.7799999713897705,
+              1.6974999904632568
+            ]
+          },
+          "auto": {
+            "median_ms": 1.0625,
+            "process_medians_ms": [
+              1.165000081062317,
+              0.9750000238418579,
+              1.0625,
+              0.934999942779541,
+              2.5149998664855957
+            ],
+            "process_range_ms": [
+              0.934999942779541,
+              2.5149998664855957
+            ]
+          },
+          "profile": {
+            "median_ms": 1.2200000286102295,
+            "process_medians_ms": [
+              1.2200000286102295,
+              0.8675000667572021,
+              1.2300000190734863,
+              1.0175000429153442,
+              1.337499976158142
+            ],
+            "process_range_ms": [
+              0.8675000667572021,
+              1.337499976158142
+            ]
+          },
+          "cpu_over_gpu": 12.220751301723414
+        }
+      },
+      "iterations": 32
+    },
+    {
+      "kernel": "physics",
+      "n": 16384,
+      "backends": {
+        "cpu": "cpu",
+        "gpu": "gpu",
+        "auto": "gpu",
+        "profile": "gpu"
+      },
+      "counters": {
+        "cpu": {
+          "initial": {
+            "upload_bytes": 0
+          },
+          "step": {
+            "dispatches": 0
+          },
+          "read": {
+            "readback_bytes": 0
+          }
+        },
+        "gpu": {
+          "initial": {
+            "upload_bytes": 262172
+          },
+          "step": {
+            "dispatches": 32,
+            "resident_copy_bytes": 0
+          },
+          "read": {
+            "readback_bytes": 262148
+          }
+        },
+        "auto": {
+          "initial": {
+            "upload_bytes": 262172
+          },
+          "step": {
+            "dispatches": 32,
+            "resident_copy_bytes": 0
+          },
+          "read": {
+            "readback_bytes": 262148
+          }
+        },
+        "profile": {
+          "initial": {
+            "upload_bytes": 262172
+          },
+          "step": {
+            "dispatches": 32,
+            "resident_copy_bytes": 0
+          },
+          "read": {
+            "readback_bytes": 262148
+          }
+        }
+      },
+      "timings": {
+        "samples_ns": {
+          "cpu": {
+            "median_ms": 8.352499961853027,
+            "process_medians_ms": [
+              8.442499995231628,
+              8.352500081062317,
+              8.332499980926514,
+              8.287500023841858,
+              8.352499961853027
+            ],
+            "process_range_ms": [
+              8.287500023841858,
+              8.442499995231628
+            ]
+          },
+          "gpu": {
+            "median_ms": 8.427500009536743,
+            "process_medians_ms": [
+              8.480000019073486,
+              8.427500009536743,
+              8.349999904632568,
+              8.592499852180481,
+              7.900000095367432
+            ],
+            "process_range_ms": [
+              7.900000095367432,
+              8.592499852180481
+            ]
+          },
+          "auto": {
+            "median_ms": 8.365000009536743,
+            "process_medians_ms": [
+              8.679999947547913,
+              8.365000009536743,
+              8.320000052452087,
+              8.4375,
+              7.909999966621399
+            ],
+            "process_range_ms": [
+              7.909999966621399,
+              8.679999947547913
+            ]
+          },
+          "profile": {
+            "median_ms": 8.042500019073486,
+            "process_medians_ms": [
+              8.600000023841858,
+              8.375,
+              8.03250002861023,
+              8.042500019073486,
+              7.932500004768372
+            ],
+            "process_range_ms": [
+              7.932500004768372,
+              8.600000023841858
+            ]
+          },
+          "cpu_over_gpu": 0.9911005579829316
+        },
+        "step_finish_samples_ns": {
+          "cpu": {
+            "median_ms": 1.59499990940094,
+            "process_medians_ms": [
+              1.752500057220459,
+              1.59499990940094,
+              1.5700000524520874,
+              1.5625001192092896,
+              1.622499942779541
+            ],
+            "process_range_ms": [
+              1.5625001192092896,
+              1.752500057220459
+            ]
+          },
+          "gpu": {
+            "median_ms": 0.75,
+            "process_medians_ms": [
+              0.7199999094009399,
+              0.75,
+              0.875,
+              1.1299999952316284,
+              0.4674999713897705
+            ],
+            "process_range_ms": [
+              0.4674999713897705,
+              1.1299999952316284
+            ]
+          },
+          "auto": {
+            "median_ms": 0.8224999904632568,
+            "process_medians_ms": [
+              0.8000000715255737,
+              0.8224999904632568,
+              1.0924999713897705,
+              1.0000001192092896,
+              0.4849998950958252
+            ],
+            "process_range_ms": [
+              0.4849998950958252,
+              1.0924999713897705
+            ]
+          },
+          "profile": {
+            "median_ms": 0.5974999666213989,
+            "process_medians_ms": [
+              0.7524999380111694,
+              0.7100000381469727,
+              0.5974999666213989,
+              0.5850000381469727,
+              0.5275000333786011
+            ],
+            "process_range_ms": [
+              0.5275000333786011,
+              0.7524999380111694
+            ]
+          },
+          "cpu_over_gpu": 2.12666654586792
+        }
+      },
+      "iterations": 32
+    },
+    {
+      "kernel": "physics",
+      "n": 131072,
+      "backends": {
+        "cpu": "cpu",
+        "gpu": "gpu",
+        "auto": "gpu",
+        "profile": "gpu"
+      },
+      "counters": {
+        "cpu": {
+          "initial": {
+            "upload_bytes": 0
+          },
+          "step": {
+            "dispatches": 0
+          },
+          "read": {
+            "readback_bytes": 0
+          }
+        },
+        "gpu": {
+          "initial": {
+            "upload_bytes": 2097180
+          },
+          "step": {
+            "dispatches": 32,
+            "resident_copy_bytes": 0
+          },
+          "read": {
+            "readback_bytes": 2097156
+          }
+        },
+        "auto": {
+          "initial": {
+            "upload_bytes": 2097180
+          },
+          "step": {
+            "dispatches": 32,
+            "resident_copy_bytes": 0
+          },
+          "read": {
+            "readback_bytes": 2097156
+          }
+        },
+        "profile": {
+          "initial": {
+            "upload_bytes": 2097180
+          },
+          "step": {
+            "dispatches": 32,
+            "resident_copy_bytes": 0
+          },
+          "read": {
+            "readback_bytes": 2097156
+          }
+        }
+      },
+      "timings": {
+        "samples_ns": {
+          "cpu": {
+            "median_ms": 74.56749999523163,
+            "process_medians_ms": [
+              74.6175000667572,
+              74.81499993801117,
+              73.47500002384186,
+              73.77999997138977,
+              74.56749999523163
+            ],
+            "process_range_ms": [
+              73.47500002384186,
+              74.81499993801117
+            ]
+          },
+          "gpu": {
+            "median_ms": 62.5349999666214,
+            "process_medians_ms": [
+              62.5349999666214,
+              61.105000019073486,
+              63.62750005722046,
+              64.16750001907349,
+              62.4724999666214
+            ],
+            "process_range_ms": [
+              61.105000019073486,
+              64.16750001907349
+            ]
+          },
+          "auto": {
+            "median_ms": 62.4650000333786,
+            "process_medians_ms": [
+              62.827499866485596,
+              64.23750007152557,
+              62.4650000333786,
+              61.75499999523163,
+              62.10000002384186
+            ],
+            "process_range_ms": [
+              61.75499999523163,
+              64.23750007152557
+            ]
+          },
+          "profile": {
+            "median_ms": 63.07000005245209,
+            "process_medians_ms": [
+              66.10749995708466,
+              63.07000005245209,
+              62.204999923706055,
+              62.625,
+              64.2075001001358
+            ],
+            "process_range_ms": [
+              62.204999923706055,
+              66.10749995708466
+            ]
+          },
+          "cpu_over_gpu": 1.1924122497006906
+        },
+        "step_finish_samples_ns": {
+          "cpu": {
+            "median_ms": 17.602499961853027,
+            "process_medians_ms": [
+              17.52999997138977,
+              17.737499952316284,
+              17.519999980926514,
+              17.77500009536743,
+              17.602499961853027
+            ],
+            "process_range_ms": [
+              17.519999980926514,
+              17.77500009536743
+            ]
+          },
+          "gpu": {
+            "median_ms": 3.5674999952316284,
+            "process_medians_ms": [
+              3.447499990463257,
+              2.8000001907348633,
+              4.704999923706055,
+              5.019999980926514,
+              3.5674999952316284
+            ],
+            "process_range_ms": [
+              2.8000001907348633,
+              5.019999980926514
+            ]
+          },
+          "auto": {
+            "median_ms": 2.5149999856948853,
+            "process_medians_ms": [
+              3.0575000047683716,
+              3.4649999141693115,
+              2.3949999809265137,
+              2.2399998903274536,
+              2.5149999856948853
+            ],
+            "process_range_ms": [
+              2.2399998903274536,
+              3.4649999141693115
+            ]
+          },
+          "profile": {
+            "median_ms": 2.7925000190734863,
+            "process_medians_ms": [
+              3.8925000429153442,
+              2.7925000190734863,
+              1.9975000619888306,
+              2.524999976158142,
+              4.252499938011169
+            ],
+            "process_range_ms": [
+              1.9975000619888306,
+              4.252499938011169
+            ]
+          },
+          "cpu_over_gpu": 4.934127536196435
+        }
+      },
+      "iterations": 32
+    }
+  ],
+  "limitations": [
+    "Frozen projection-fix compiler; not a claim about latest published main.",
+    "CPU is the generated browser CPU backend through the same pipeline API, not a native Rust executable.",
+    "Ordinary calls include host handling, GPU upload, completion and full readback.",
+    "Resident step/finish excludes initial upload and final readback but awaits completion.",
+    "Resident lifecycle includes open, 32 steps, completion, full read and close.",
+    "Resident auto currently ignores the attached cost profile and prefers GPU.",
+    "Physics is particle integration with floor bounce, not Box2D rigid-body simulation.",
+    "Only ECS and physics are GPU eligible in this eight-kernel bundle."
+  ],
+  "evidence_sha256": {
+    "test-0.json": "bd3c6e1bdf8400bb0fd4787f3f579bffdbb64086affa68962bab93e3ae38a432",
+    "test-1.json": "f1464febadccd479e75842d083d3d402fc0303349defc61d1acdde3c1122a6f7",
+    "test-2.json": "f15c3c45f530cf8e660dbd51f4ca4e40485ef7ec30ed85d6c4d28d2c06670853",
+    "test-3.json": "b1a3af4244a7b47ef84885d09cbb94cad5037c6fa95fdd79748f494ce112fda0",
+    "test-4.json": "0dc80b62f63dccc64695b5d2f3b4f2d98cdb6bd42a81660f2008e4b350da9c9c",
+    "train-0.json": "22c8db16b0dd1895c7c0f980782c1e38ac66d46ec67de21a6b27776781ef962e",
+    "train-1.json": "e104657ca6c69be78691c5cfeac9a9ab69427a87db864cbe8f7c72b7efd438a3",
+    "train-2.json": "7fe131ebcf60a7654946388b66c938c6db84ef2d18ecee86a756f43134155d21",
+    "profile.json": "07a91493e6426f9186e9955bac40da63649493a01024cb3e95b50e51d2405869",
+    "fit-receipt.json": "b5ef3878a8f364372a64983dbb5e3c2744bed60bd406db08eb678374e5bf6ced"
+  }
+}
