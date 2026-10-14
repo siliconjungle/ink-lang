@@ -126,22 +126,32 @@ try {
     const script=await fs.readFile(`build/${name}/script.json`,'utf8');
     const expected=await fs.readFile(`build/${name}/expected.json`,'utf8');
     contracts.push(await page.evaluate(async({base,name,script,expected})=>{
-      const root=new URL(`build/${name}/gpu-module/`,base);
+      const fixture=new URL(`build/${name}/`,base),root=new URL('gpu-module/',fixture);
       const {loadInk}=await import(new URL('ink-gpu.mjs',root));
-      const {parseExactJSON}=await import(new URL('state-wasm.mjs',root));
+      const {parseExactJSON,StatefulModule}=await import(new URL('state-wasm.mjs',fixture));
       const host=await loadInk(root),steps=parseExactJSON(script),wanted=parseExactJSON(expected);
+      // Pure packed bundles have no state ABI. Use the same checked fixture's
+      // complete Rust/Wasm module for real portable snapshots and value replay.
+      const packedPure=typeof host.createState!=='function';
+      let pureState=null;
+      if(packedPure){
+        if(host.manifest.javascript.state!=null||steps.some(step=>!step.pure))throw Error(`${name}: packed fixture requires pure calls`);
+        const response=await fetch(new URL('rust/target/wasm32-unknown-unknown/debug/compiled_state.wasm',fixture));
+        if(!response.ok)throw Error(`${name}: complete Rust/Wasm fixture missing`);
+        pureState=await StatefulModule.instantiate(new Uint8Array(await response.arrayBuffer()));
+      }
       const normalize=v=>typeof v==='bigint'?String(v):typeof v==='number'&&Number.isInteger(v)?Object.is(v,-0)?'negative zero':String(v):Array.isArray(v)?v.map(normalize):v&&typeof v==='object'?Object.fromEntries(Object.keys(v).sort().map(k=>[k,normalize(v[k])])):v;
       const exact=v=>JSON.stringify(normalize(v));
       const typed=(v,t)=>t.kind==='ref'?typed(v,host.manifest.javascript.named_types[t.name]):t.kind==='u64'?BigInt(v):t.kind==='u32'||t.kind==='i32'?Number(v):t.kind==='f32'?typeof v==='object'?{F32Bits:Number(v.F32Bits)}:Number(v):t.kind==='list'||t.kind==='vector'?v.map(x=>typed(x,t.element)):t.kind==='record'?Object.fromEntries(t.fields.map(f=>[f.name,typed(v[f.name],f.type)])):v;
       let comparisons=0,gpu_calls=0,rejectedRestores=0;
       try{for(const backend of ['cpu','javascript','gpu']){
-        const jsState=backend==='javascript'&&host.manifest.javascript.state!=null;const state=jsState?host.createJavaScriptState():host.createState();let index=0;
+        const jsState=backend==='javascript'&&host.manifest.javascript.state!=null;const state=packedPure?pureState.create():jsState?host.createJavaScriptState():host.createState();let index=0;
         const snapshot=async()=>Array.from(jsState?await state.checkpoint():state.snapshot());
         try{for(const step of steps){
           if(step.reject_restore){const before=await snapshot();let rejected=false;try{if(jsState)await state.restore(step.reject_restore.map(Number));else host.restoreState(new Uint8Array(step.reject_restore.map(Number))).dispose();}catch(e){rejected=/invariant/.test(e.message);}if(!rejected||exact(await snapshot())!==exact(before))throw Error(`${name}/${backend}: invariant restore was not atomic`);rejectedRestores++;continue;}
           let reply;
           try{
-            if(step.pure){const f=host.manifest.javascript.functions.find(f=>f.name===step.pure),args=step.args.map((v,i)=>typed(v,f.params[i].type));const request=backend==='gpu'?(step.cpu_only?'cpu':step.expect_gpu?'gpu-required':'gpu'):backend;const result=await host.call(step.pure,args,{backend:request});if(request==='gpu-required'){if(result.backend!=='gpu')throw Error('required GPU fell back');gpu_calls++;}reply={value:result.value};}
+            if(step.pure){const f=host.manifest.javascript.functions.find(f=>f.name===step.pure),args=step.args.map((v,i)=>typed(v,f.params[i].type));const request=backend==='gpu'?(step.cpu_only?'cpu':step.expect_gpu?'gpu-required':'gpu'):backend;const result=await host.call(step.pure,args,{backend:request});if(request==='gpu-required'){if(result.backend!=='gpu')throw Error('required GPU fell back');gpu_calls++;}reply={value:result.value};if(packedPure&&exact(state.pure(step.pure,args))!==exact(result.value))throw Error(`${name}/${backend}: complete Rust/Wasm replay differs`);}
             else {const action=host.manifest.javascript.state.actions.find(a=>a.name===step.call);const args=step.args.map((v,i)=>typed(v,action.params[i].type));reply={outcome:state.invoke(step.call,args)};}
           }catch(e){reply={host_error:e.message};}
           if(exact(reply)!==exact(wanted[index].reply)||exact(await snapshot())!==exact(wanted[index].snapshot))throw Error(`${name}/${backend}/${index}: contract value or snapshot differs: ${exact(reply)}`);
