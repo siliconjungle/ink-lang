@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 const history=JSON.parse(fs.readFileSync(new URL('./history.json',import.meta.url)));
 const normal=x=>JSON.parse(JSON.stringify(x,(_k,v)=>typeof v==='bigint'||typeof v==='number'?String(v):v));
-for(const name of ['baseline','map','event_columns','compact','compact_events','inline_compact','word','number','guarded','dense','zero','zero_dense','predicate','predicate_inline','event_runs','predicate_runs']){
+for(const name of ['baseline','map','event_columns','compact','compact_events','inline_compact','word','inline_word','number','guarded','dense','zero','zero_dense','predicate','predicate_inline','event_runs','predicate_runs']){
  const {createState}=await import(new URL(`./${name}.mjs`,import.meta.url));const state=createState();
  const bound=Object.fromEntries(['put','erase','total_query','count_query'].map(n=>[n,state.bind(n)]));
  for(let i=0;i<history.length;i++){

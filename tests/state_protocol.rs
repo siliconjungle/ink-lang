@@ -117,6 +117,7 @@ for row in rows:
   let p:planning::Package=serde_json::from_slice(&fs::read(dir.join(format!("{name}.json"))).unwrap()).unwrap();
   let checked=planning::check(&module,&p).unwrap();
   fs::write(dir.join(format!("{name}.mjs")),verified_language::javascript::lower_planned(&checked).unwrap().javascript).unwrap();
+  if name=="word"{let mut inline=p.clone();if let planning::Step::Protocol(p)=inline.steps.last_mut().unwrap(){p.inline_maintenance=true;}let checked=planning::check(&module,&inline).unwrap();fs::write(dir.join("inline_word.mjs"),verified_language::javascript::lower_planned(&checked).unwrap().javascript).unwrap();}
   let mut forged=p.clone();if let planning::Step::Protocol(p)=forged.steps.last_mut().unwrap(){p.columns[0].codec.roundtrip="0".repeat(64);}
   assert!(planning::check(&module,&forged).is_err());
   if name=="number"{let mut forged=p.clone();if let planning::Step::Protocol(p)=forged.steps.last_mut().unwrap(){p.columns[0].guards.values_mut().next().unwrap().problem_sha256="0".repeat(64);}assert!(planning::check(&module,&forged).is_err());}
