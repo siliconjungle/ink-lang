@@ -325,6 +325,34 @@ pub fn typed_walk_context(
                 pending.push((&args[0],env,Some(child),depth+1));
             }
             Expr::Method(receiver, name, args)
+                if ["map", "map_err", "fold"].contains(&name.as_str())
+                    && crate::check::infer(receiver, &env, program)
+                        .is_ok_and(|t| matches!(t, Type::Option(_) | Type::Result(..))) =>
+            {
+                let input = crate::check::infer(receiver, &env, program)?;
+                let result = crate::check::infer_context(e, &env, program, want.as_ref())?;
+                let parameters = match (&input, name.as_str()) {
+                    (Type::Option(a), "map") | (Type::Result(a, _), "map") => vec![*a.clone()],
+                    (Type::Result(_, b), "map_err") => vec![*b.clone()],
+                    (Type::Option(a), "fold") => vec![*a.clone(), Type::Unit],
+                    (Type::Result(a, b), "fold") => vec![*a.clone(), *b.clone()],
+                    _ => return Err("typed variant callback".into()),
+                };
+                let output = match (&result, name.as_str()) {
+                    (Type::Option(a), "map") | (Type::Result(a, _), "map") => *a.clone(),
+                    (Type::Result(_, b), "map_err") => *b.clone(),
+                    (_, "fold") => result,
+                    _ => return Err("typed variant result".into()),
+                };
+                if args.len() != parameters.len() {
+                    return Err("typed variant callback arity".into());
+                }
+                for (arg, parameter) in args.iter().zip(parameters) {
+                    callback(arg, &[parameter], Some(output.clone()), &env, depth + 1, &mut pending);
+                }
+                pending.push((receiver, env, None, depth + 1));
+            }
+            Expr::Method(receiver, name, args)
                 if ["map", "filter", "map_indexed", "zip"].contains(&name.as_str())
                     && args.len() == if name == "zip" { 2 } else { 1 } =>
             {
