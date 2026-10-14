@@ -1,0 +1,505 @@
+{
+  "revision": "d977b4533f1d9b01d28cf4dba9b2db9d1ccfda08",
+  "directory": "llvm/test/Transforms/FunctionSpecialization",
+  "reviewed": 62,
+  "total": 62,
+  "scope": "Complete full-file source review of this pinned regression directory only. Not full LLVM coverage; tests not executed.",
+  "files": [
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/bug52821-use-after-free.ll",
+      "blob": "3892273aac8a051bdade7e972d3620cb601f9e27",
+      "bytes": 1575,
+      "sha256": "1fc95ade083f509088e61fcbfd0233e8a0f563925a0eb44a75af7595d73d6bc2",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-propagation-regressions-audit.json\", \"sha256\": \"6004a4ed96bc250e8c5e26699cfadd521748968c68d02a1c47d6fe5313ae39be\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/bug55000-read-uninitialized-value.ll",
+      "blob": "a2fd239c9ce3055df0a5bbef24be7a38ec57d61f",
+      "bytes": 2253,
+      "sha256": "e84b9f9cd807783aeb7a01e84e87ada5bfae1cef173407efc4c11800cc505692",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-propagation-regressions-audit.json\", \"sha256\": \"6004a4ed96bc250e8c5e26699cfadd521748968c68d02a1c47d6fe5313ae39be\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/cmp-with-range.ll",
+      "blob": "d69229473635618c8806e50aea2e700a5e03af1a",
+      "bytes": 4628,
+      "sha256": "5f36568c4ac5d9f8c8f46d72e1a02a8c3db292967b2b1fcd4ee175a070040033",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-domain-regressions-audit.json\", \"sha256\": \"7cf73f4022aa81292e66e9c013b40c379f2801bde44544cefe36f4ba87a23fb9\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/compiler-crash-58759.ll",
+      "blob": "7291d83b816115afa65ade8bbe14c55c2abc3f3f",
+      "bytes": 792,
+      "sha256": "41d78c76332e7c5cf637c9f381e6ce30ae11425c2685d48e6183cfbacf433b68",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-domain-regressions-audit.json\", \"sha256\": \"7cf73f4022aa81292e66e9c013b40c379f2801bde44544cefe36f4ba87a23fb9\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/compiler-crash-60191.ll",
+      "blob": "668929824cc6fa3e829d1fba354dc54f70d1ab46",
+      "bytes": 1824,
+      "sha256": "d69da344b3a094a574b0638c30d789751132e6382a2e1c292b6bf71e22b943fd",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-domain-regressions-audit.json\", \"sha256\": \"7cf73f4022aa81292e66e9c013b40c379f2801bde44544cefe36f4ba87a23fb9\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/compiler-crash-promote-alloca.ll",
+      "blob": "38450ba6819d756daf371dc0d08f73247db7260b",
+      "bytes": 829,
+      "sha256": "fc4841201622f21374d0b28bc3c56e25d00a5380f8bcfbb203381cb7034660e7",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-domain-regressions-audit.json\", \"sha256\": \"7cf73f4022aa81292e66e9c013b40c379f2801bde44544cefe36f4ba87a23fb9\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/constant-struct.ll",
+      "blob": "39df6b05aa5a74653922b6161a4d5e8f1410fdfe",
+      "bytes": 1703,
+      "sha256": "29327e25a9046fa821711a9ba0c9e7432f7a2b6b30fa3ce1de441a78dd435e15",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-domain-regressions-audit.json\", \"sha256\": \"7cf73f4022aa81292e66e9c013b40c379f2801bde44544cefe36f4ba87a23fb9\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/dead-gv-load.ll",
+      "blob": "134a79d3490356f7ae22570d9cc5d650fe711121",
+      "bytes": 896,
+      "sha256": "2ef49a6acd48f67c3c76a82fd3db6353a2dca5c54db2ebd5c5e73c47b1bfffb9",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-domain-regressions-audit.json\", \"sha256\": \"7cf73f4022aa81292e66e9c013b40c379f2801bde44544cefe36f4ba87a23fb9\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/discover-transitive-phis.ll",
+      "blob": "8a172db2665aa44e34286ef0a435f9236b2688f8",
+      "bytes": 5959,
+      "sha256": "566f4e5851de51baad75289b458d7739aeb00924754d653ad0c5d628e07a4945",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-propagation-regressions-audit.json\", \"sha256\": \"6004a4ed96bc250e8c5e26699cfadd521748968c68d02a1c47d6fe5313ae39be\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization-always-inline.ll",
+      "blob": "5e65b0db7b235fd10ee232e076c6673c0f469b9c",
+      "bytes": 1393,
+      "sha256": "10f7d8b944081f80590751702ec5fe243ad5f8c87b855bd7bf0ca5955d071936",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-domain-regressions-audit.json\", \"sha256\": \"7cf73f4022aa81292e66e9c013b40c379f2801bde44544cefe36f4ba87a23fb9\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization-constant-expression.ll",
+      "blob": "0e0854c8807c2e1c7b478e517517ff2e0687f02f",
+      "bytes": 2299,
+      "sha256": "2ac28c6d836c284b0a7a2328cc0a7fd7e75a8781f5880beefd920b67a400d099",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-domain-regressions-audit.json\", \"sha256\": \"7cf73f4022aa81292e66e9c013b40c379f2801bde44544cefe36f4ba87a23fb9\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization-constant-expression2.ll",
+      "blob": "2dd9e2c461b60c88461b47d2f2cc92449490f558",
+      "bytes": 1537,
+      "sha256": "0c9c993d1814822299c7d37e6f9eeeda6dd50a5a48deec692f7f98ac3030a5fb",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-domain-regressions-audit.json\", \"sha256\": \"7cf73f4022aa81292e66e9c013b40c379f2801bde44544cefe36f4ba87a23fb9\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization-constant-expression3.ll",
+      "blob": "7eaa68064607b8585baec37111188c50b3fcd7ca",
+      "bytes": 795,
+      "sha256": "22535bd4ba7cd1bb36ac0cc91366d3f0d56effae3120c61b9ac68871e5566dea",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-domain-regressions-audit.json\", \"sha256\": \"7cf73f4022aa81292e66e9c013b40c379f2801bde44544cefe36f4ba87a23fb9\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization-constant-expression4.ll",
+      "blob": "0410bfd9407b99dbf6cde918c831afd7dc515767",
+      "bytes": 976,
+      "sha256": "c6df9bfada73ae5fadb395346503bb44bb5fa956f9c187bb2b79589468ead567",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-domain-regressions-audit.json\", \"sha256\": \"7cf73f4022aa81292e66e9c013b40c379f2801bde44544cefe36f4ba87a23fb9\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization-constant-expression5.ll",
+      "blob": "c1b442be97e6224274a949523bf66ab88f694588",
+      "bytes": 1195,
+      "sha256": "072bb50f03b92ba08ac85fe4c0e3e9f0b586ac6d6dcb819c683059a168fe14e9",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-domain-regressions-audit.json\", \"sha256\": \"7cf73f4022aa81292e66e9c013b40c379f2801bde44544cefe36f4ba87a23fb9\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization-constant-expression6.ll",
+      "blob": "9c9611364b766520abf436fce8a2e15c132a804d",
+      "bytes": 420,
+      "sha256": "5e173880971ff7fd2c2354b00dbf304ac1f1be66bf742ac41ef10385a956f5a8",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-domain-regressions-audit.json\", \"sha256\": \"7cf73f4022aa81292e66e9c013b40c379f2801bde44544cefe36f4ba87a23fb9\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization-constant-integers.ll",
+      "blob": "17f9c30122d10a3d67d7693865d4a37c8875e891",
+      "bytes": 1024,
+      "sha256": "dc9b232f7cf587e9891f2b8ea543c4a9bb3c0001cd1021c370b978825bb605b9",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-domain-regressions-audit.json\", \"sha256\": \"7cf73f4022aa81292e66e9c013b40c379f2801bde44544cefe36f4ba87a23fb9\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization-implicit-ref.ll",
+      "blob": "1e38e5c80fa5f597d9fe650ef75a5b0606ffdf31",
+      "bytes": 875,
+      "sha256": "593ffe5e1d84a7852a56f4e0007fe96ae46a75a17c9dec5151c3d5da81ecda4b",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-domain-regressions-audit.json\", \"sha256\": \"7cf73f4022aa81292e66e9c013b40c379f2801bde44544cefe36f4ba87a23fb9\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization-minsize.ll",
+      "blob": "9127e90ce23e8c915c0e98b6d7a261583ea76008",
+      "bytes": 738,
+      "sha256": "77c36543da992818d319abd33e1c44eba5784c817ead6a5d614ac877847c01be",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-policy-regressions-audit.json\", \"sha256\": \"b9a0c43c18daa1d272b577b5ff00135f6fbcb31111c76c0111703daa44ac0c14\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization-minsize2.ll",
+      "blob": "0e2c4836b69309deaea7cd64fdabd65fc50251d7",
+      "bytes": 902,
+      "sha256": "be6bf92162759a3b038febede3141811d9ce4bcc5a331666aa17d8c232c12382",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-policy-regressions-audit.json\", \"sha256\": \"b9a0c43c18daa1d272b577b5ff00135f6fbcb31111c76c0111703daa44ac0c14\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization-minsize3.ll",
+      "blob": "743ca89e96cc752fd3d25d90c51160fa20c233ae",
+      "bytes": 1087,
+      "sha256": "c6e05bd7a63d84d673679371d97e0230fd0cc6f7aa32129c6655b234482e3053",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-policy-regressions-audit.json\", \"sha256\": \"b9a0c43c18daa1d272b577b5ff00135f6fbcb31111c76c0111703daa44ac0c14\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization-nodup.ll",
+      "blob": "a89aa2db84333e18ba296cac3e3c89f5f40ec644",
+      "bytes": 943,
+      "sha256": "3d469fed707970ddf365cc52cf8c3f5992fae5b9c1ab84eec33df5a5471111c4",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-final-regressions-audit.json\", \"sha256\": \"bc6602bd289171a0a4e23b9bc6c4a1c59219c4c8bb146b13cf21e4274f520345\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization-nodup2.ll",
+      "blob": "a61013e07b73a9dbda73d96efd53761c4a1f7cea",
+      "bytes": 1168,
+      "sha256": "f32dc215b788c1f0458bc3d8ee1e826c90c3bccc3920fcc18b3213c9e3a24fd0",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-final-regressions-audit.json\", \"sha256\": \"bc6602bd289171a0a4e23b9bc6c4a1c59219c4c8bb146b13cf21e4274f520345\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization-noexec.ll",
+      "blob": "47624c7b1fe3344776c113bb757076d90746a9fb",
+      "bytes": 888,
+      "sha256": "6feb4cfc3c6c06dc8906651c07658f07d84f1cf4dcd5f457f1b3e3f9ecfd3141",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-domain-regressions-audit.json\", \"sha256\": \"7cf73f4022aa81292e66e9c013b40c379f2801bde44544cefe36f4ba87a23fb9\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization-nonconst-glob.ll",
+      "blob": "6c22126121613fbb686c3716b5ef472424865394",
+      "bytes": 2394,
+      "sha256": "7f921cd1587081e4b128f7dfd82c0d8c71cd85ee551240f3e6863f8596a014c5",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-domain-regressions-audit.json\", \"sha256\": \"7cf73f4022aa81292e66e9c013b40c379f2801bde44544cefe36f4ba87a23fb9\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization-optsize.ll",
+      "blob": "9a2be2865428a90e205a1c4f5057b8fe33a5205a",
+      "bytes": 738,
+      "sha256": "27034f75042830189ac8e9f1caa95b07a1db55dbe4b704ad71d4f6f87155c1bb",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-policy-regressions-audit.json\", \"sha256\": \"b9a0c43c18daa1d272b577b5ff00135f6fbcb31111c76c0111703daa44ac0c14\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization-poison.ll",
+      "blob": "76cf05ab2aa14738989d9fea2dae52b0c0df53f4",
+      "bytes": 893,
+      "sha256": "f1d32f65ac8009a0dc61e594375a7c0dc08e39544ee694cadf2470a5711f8ee1",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-domain-regressions-audit.json\", \"sha256\": \"7cf73f4022aa81292e66e9c013b40c379f2801bde44544cefe36f4ba87a23fb9\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization-recursive2.ll",
+      "blob": "68ad5821dbe6e554b702905f0f3c319a4b2f3014",
+      "bytes": 872,
+      "sha256": "f37c002da6a86488d1071418162e60cc2235d5f6ae658fc09beafa28a3b93f93",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-final-regressions-audit.json\", \"sha256\": \"bc6602bd289171a0a4e23b9bc6c4a1c59219c4c8bb146b13cf21e4274f520345\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization-recursive3.ll",
+      "blob": "a98c91d2b82a3915d20c58b3e7aaa9684649bbd3",
+      "bytes": 906,
+      "sha256": "69c24c74d38d701aa1e007711394fecc172b57eb9ceffd201db3d3c22e21c8f7",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-final-regressions-audit.json\", \"sha256\": \"bc6602bd289171a0a4e23b9bc6c4a1c59219c4c8bb146b13cf21e4274f520345\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization-recursive4.ll",
+      "blob": "e9bee3e50088d12d1ca8928aa5477a4fc9a3250a",
+      "bytes": 803,
+      "sha256": "f97bc6a09505f09ab4c0995bd87e70577d4935ff6d92bd4b2dae86aec4222502",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-final-regressions-audit.json\", \"sha256\": \"bc6602bd289171a0a4e23b9bc6c4a1c59219c4c8bb146b13cf21e4274f520345\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization-stats.ll",
+      "blob": "c1ca3eb3ae299369f21247d5949ff445db9ece1e",
+      "bytes": 783,
+      "sha256": "c62690b7e4566a5c02ea1fda1f1e41c491a502868cc6741ab60ed348b946605e",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-final-regressions-audit.json\", \"sha256\": \"bc6602bd289171a0a4e23b9bc6c4a1c59219c4c8bb146b13cf21e4274f520345\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization.ll",
+      "blob": "e1cacce4a7dde20d4c05bf46a5002bd07deb9432",
+      "bytes": 2056,
+      "sha256": "8df1fa5ea0409b18f9de8e269899ccdfd4bb1635ab67fe93a5f20b85bb922de4",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-final-regressions-audit.json\", \"sha256\": \"bc6602bd289171a0a4e23b9bc6c4a1c59219c4c8bb146b13cf21e4274f520345\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization2.ll",
+      "blob": "eaec98d3522e5871b0cd4c0c1f42655f3fa6d3fa",
+      "bytes": 9569,
+      "sha256": "25d73fc6fc4a448390557f9a520e6ca693e14407b3033b3ae99a387c6a8f7dba",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-final-regressions-audit.json\", \"sha256\": \"bc6602bd289171a0a4e23b9bc6c4a1c59219c4c8bb146b13cf21e4274f520345\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization3.ll",
+      "blob": "8e075edaa6844c99a9a42ad995c511d46cbdecd5",
+      "bytes": 1645,
+      "sha256": "398ac9cfd03aef6629516c5f29a37bd9f4df81fd082b0f3cce91d5095a56c22c",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-final-regressions-audit.json\", \"sha256\": \"bc6602bd289171a0a4e23b9bc6c4a1c59219c4c8bb146b13cf21e4274f520345\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization4.ll",
+      "blob": "a6a990c3415936344e8a3fc0c62300cec68913a4",
+      "bytes": 2072,
+      "sha256": "00b11e0dca12bb8770e80835523d15c8bd39438811e7cd220163e247544753a6",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-final-regressions-audit.json\", \"sha256\": \"bc6602bd289171a0a4e23b9bc6c4a1c59219c4c8bb146b13cf21e4274f520345\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization5.ll",
+      "blob": "aff1b770f8c812ee2920f8f32391f89322f3f8e7",
+      "bytes": 1115,
+      "sha256": "e70ce9e305beaca6301b8c2119fc726f3d91a76003bb6d59f23cb153f6f55202",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-final-regressions-audit.json\", \"sha256\": \"bc6602bd289171a0a4e23b9bc6c4a1c59219c4c8bb146b13cf21e4274f520345\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/get-possible-constants.ll",
+      "blob": "2f42125d8cf9799dbfd18f55e7ca16f946b0c1f4",
+      "bytes": 2484,
+      "sha256": "2563830c2ea6824cfa8dd94abc1f842d1fdfc5cfad1ae7bbaabc7e57a306541a",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-domain-regressions-audit.json\", \"sha256\": \"7cf73f4022aa81292e66e9c013b40c379f2801bde44544cefe36f4ba87a23fb9\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/global-rank.ll",
+      "blob": "06185332f22e0cda2b9a9c44e3551a880f49020c",
+      "bytes": 1642,
+      "sha256": "811e1d48fa7c6574134042788612f73a38a20e7126f63ad5d9a42f8cce9370e2",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-budget-regressions-audit.json\", \"sha256\": \"8ae9c7bd0c00936741ce28d805ecc494025f60664b14d402cec75a3b5aeb2058\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/global-var-constants.ll",
+      "blob": "a576d9aa32e1408621dd821928116c20dacc4a22",
+      "bytes": 2159,
+      "sha256": "d3cd29ebcbcf09cd49f1fa22788b2feb4eda263df1b2cd1c23675212ee8620dd",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-domain-regressions-audit.json\", \"sha256\": \"7cf73f4022aa81292e66e9c013b40c379f2801bde44544cefe36f4ba87a23fb9\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/identical-specializations.ll",
+      "blob": "97d77971a92d3b1516782f1cc6817daa24157490",
+      "bytes": 4658,
+      "sha256": "7d7e1b7b2698088f3f5ed1ffc414c726a6f88149de3c901f086f7da4bbb682b7",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-budget-regressions-audit.json\", \"sha256\": \"8ae9c7bd0c00936741ce28d805ecc494025f60664b14d402cec75a3b5aeb2058\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/interposable.ll",
+      "blob": "ab9aff7dbd90fbbc6143bcc3ec44e1da025e3498",
+      "bytes": 1405,
+      "sha256": "d5ad1aa0ce53a771b0564e584904e2f4c443f2fb8b612c8923ecc0cf4ba45ad8",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-policy-regressions-audit.json\", \"sha256\": \"b9a0c43c18daa1d272b577b5ff00135f6fbcb31111c76c0111703daa44ac0c14\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/literal-const.ll",
+      "blob": "7d5e506064af778aceeee0bc6259c94c902605a4",
+      "bytes": 2478,
+      "sha256": "aed606a286c23d47bb405b9b8998c6899d49c65cbd95a26f4458e50787e6007e",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-domain-regressions-audit.json\", \"sha256\": \"7cf73f4022aa81292e66e9c013b40c379f2801bde44544cefe36f4ba87a23fb9\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/maxgrowth.ll",
+      "blob": "82d1f7ae4a6e1601360f892052eeaf033195dd2a",
+      "bytes": 1728,
+      "sha256": "78da9edb8b285997e2648d4ebdbe46cd53ab019c0788f34d9da2eeb619f9fee7",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-budget-regressions-audit.json\", \"sha256\": \"8ae9c7bd0c00936741ce28d805ecc494025f60664b14d402cec75a3b5aeb2058\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/no-spec-unused-arg.ll",
+      "blob": "8469727e974fe375a4cb4b3c3f246e547217f878",
+      "bytes": 537,
+      "sha256": "9ab5d886aee31310f09148bbaa28475af18e8eebb9a9024d9bc195e5883366e8",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-propagation-regressions-audit.json\", \"sha256\": \"6004a4ed96bc250e8c5e26699cfadd521748968c68d02a1c47d6fe5313ae39be\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/noinline.ll",
+      "blob": "34a8ecbcf7c07464b95b1aa20cad0966d109e6c7",
+      "bytes": 891,
+      "sha256": "8ae72ec7e81ee727d91b2d470160ecea698d334b7b1ff9d1a77d9c273d593849",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-policy-regressions-audit.json\", \"sha256\": \"b9a0c43c18daa1d272b577b5ff00135f6fbcb31111c76c0111703daa44ac0c14\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/noipa.ll",
+      "blob": "e97247a16defba09903cf43b0756e62a522693e9",
+      "bytes": 645,
+      "sha256": "99d66f3024b6fdc31e9434d410538f97bbbded091038a3db8bbabddf904d4c63",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-policy-regressions-audit.json\", \"sha256\": \"b9a0c43c18daa1d272b577b5ff00135f6fbcb31111c76c0111703daa44ac0c14\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/non-argument-tracked.ll",
+      "blob": "9446e557da758173fceac4cb51d0f0d2df38bf3c",
+      "bytes": 2040,
+      "sha256": "eec82780732b79ac8d7c70eff4c5a82e0e6138197b3645fe7cee4612f8260a73",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-policy-regressions-audit.json\", \"sha256\": \"b9a0c43c18daa1d272b577b5ff00135f6fbcb31111c76c0111703daa44ac0c14\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/phi-nodes-can-constfold.ll",
+      "blob": "5865b5492e1f54d29b374a2a95324b8012467294",
+      "bytes": 1318,
+      "sha256": "93ed0bf65853e9fec152b6db24881187e96abaa065aab3a29f19aa2fbc55146b",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-propagation-regressions-audit.json\", \"sha256\": \"6004a4ed96bc250e8c5e26699cfadd521748968c68d02a1c47d6fe5313ae39be\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/phi-nodes-non-constfoldable.ll",
+      "blob": "11b71d6667b985b1b7739bc03cca2ed75eeff82b",
+      "bytes": 1757,
+      "sha256": "2fa8a7fc4170e7956215dc8e4794444dba02ad1e39b2242fa6625db21fe07e31",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-propagation-regressions-audit.json\", \"sha256\": \"6004a4ed96bc250e8c5e26699cfadd521748968c68d02a1c47d6fe5313ae39be\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/profile-counts.ll",
+      "blob": "4d26247ad09cb975b6a381d0d08ac18d176cb0d1",
+      "bytes": 4346,
+      "sha256": "ce27ca5d0195da17a8389f3424870c3decb7a9ea2c5e5fbec4156f3c5b2212b1",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-final-regressions-audit.json\", \"sha256\": \"bc6602bd289171a0a4e23b9bc6c4a1c59219c4c8bb146b13cf21e4274f520345\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/promoteContantStackValues.ll",
+      "blob": "e75e0476957eb19d45701a67499bd210e3fc79dc",
+      "bytes": 4238,
+      "sha256": "07659c5af9ef914c54e49e3b453fa04b7b21779ba960b4bccb21227c96be984c",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-final-regressions-audit.json\", \"sha256\": \"bc6602bd289171a0a4e23b9bc6c4a1c59219c4c8bb146b13cf21e4274f520345\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/reachable-after-specialization.ll",
+      "blob": "ab2260aadab31b5fc1ebedc3a5d5390e3ff3c849",
+      "bytes": 4341,
+      "sha256": "657de01b26dee1834cf24c228f49412f239b85edc68ae4880765b80fdcce0e3d",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-propagation-regressions-audit.json\", \"sha256\": \"6004a4ed96bc250e8c5e26699cfadd521748968c68d02a1c47d6fe5313ae39be\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/recursive-penalty.ll",
+      "blob": "fc17387dec94ddf554a0127c3ebdb0fb2d9c9bc2",
+      "bytes": 1553,
+      "sha256": "56a224e5fc4c17ba5e2824d1e5ab8212c64386266cca2ed39ae0fe0f0a577c10",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-final-regressions-audit.json\", \"sha256\": \"bc6602bd289171a0a4e23b9bc6c4a1c59219c4c8bb146b13cf21e4274f520345\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/remove-dead-recursive-function.ll",
+      "blob": "810526532c1060d524fbaeee27302a6cd8bac3e9",
+      "bytes": 1534,
+      "sha256": "f7fc655f7e14127a2577c411e49ba5807d778b13747c6dcd446d6302193d3c54",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-propagation-regressions-audit.json\", \"sha256\": \"6004a4ed96bc250e8c5e26699cfadd521748968c68d02a1c47d6fe5313ae39be\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/solver-constant-strictfpmetadata.ll",
+      "blob": "99224b4efba6bcb7e3e692eb057761d6ae96d590",
+      "bytes": 932,
+      "sha256": "990fc2167de910fdd7b18de2da98d696bf6075cd0c356f0276e6d479e69fc2e7",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-final-regressions-audit.json\", \"sha256\": \"bc6602bd289171a0a4e23b9bc6c4a1c59219c4c8bb146b13cf21e4274f520345\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/solver-constants.ll",
+      "blob": "516fd5cb49bb7658f5177e77fb2618411ce01793",
+      "bytes": 2462,
+      "sha256": "7903ece0558102c0a9dc665da2debdd5f9a0a9eb869216a42eb95efb8b4e2fb1",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-final-regressions-audit.json\", \"sha256\": \"bc6602bd289171a0a4e23b9bc6c4a1c59219c4c8bb146b13cf21e4274f520345\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/solver-dead-blocks.ll",
+      "blob": "05368e934ebb66ba3df5c3a6879d42bed1bb1625",
+      "bytes": 2564,
+      "sha256": "d8bb9d5226beb1677eac88e4d0fa78426ddc7bcae6c7306f678b93f99470e79e",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-final-regressions-audit.json\", \"sha256\": \"bc6602bd289171a0a4e23b9bc6c4a1c59219c4c8bb146b13cf21e4274f520345\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/specialization-order.ll",
+      "blob": "da4cb40fb6dc5034e83882342af56880d23bff15",
+      "bytes": 1615,
+      "sha256": "b56b38d31dd99afd783fafc16d39c6a37e47d3ace84309a33392597b5d792d6c",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-propagation-regressions-audit.json\", \"sha256\": \"6004a4ed96bc250e8c5e26699cfadd521748968c68d02a1c47d6fe5313ae39be\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/specialize-multiple-arguments.ll",
+      "blob": "73291600edb85deef9216a14761abf486afb9541",
+      "bytes": 8055,
+      "sha256": "cc69f7e5ffd796ca7354b49cbb426a86fafb524a0b38fc29174bc193d8fe014b",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-propagation-regressions-audit.json\", \"sha256\": \"6004a4ed96bc250e8c5e26699cfadd521748968c68d02a1c47d6fe5313ae39be\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/ssa-copy.ll",
+      "blob": "b7cee46aa6f32d904e0536dc8072444feb47a0c8",
+      "bytes": 3885,
+      "sha256": "998eb895bde70d82877486def6ad718a73ec69047700e01aed2f4a79fbcd2ec1",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-final-regressions-audit.json\", \"sha256\": \"bc6602bd289171a0a4e23b9bc6c4a1c59219c4c8bb146b13cf21e4274f520345\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/track-ptr-return.ll",
+      "blob": "f4ba0e72a1b4397092184a2c491ae145442ec737",
+      "bytes": 4457,
+      "sha256": "381179cbb58de3eedd9ea5bea2d6e43a54af2a69c234e8cd705f26608f4d2499",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-propagation-regressions-audit.json\", \"sha256\": \"6004a4ed96bc250e8c5e26699cfadd521748968c68d02a1c47d6fe5313ae39be\"}"
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/track-return.ll",
+      "blob": "aaff6c138bbaa9aa59f3d8afd632836e874ba9a9",
+      "bytes": 2724,
+      "sha256": "6ced2faf09b5a28785e16905b7e8f5be252f5f71809069510555ec1b522d66e8",
+      "reviewed": 1,
+      "evidence": "{\"path\": \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/function-specialization-propagation-regressions-audit.json\", \"sha256\": \"6004a4ed96bc250e8c5e26699cfadd521748968c68d02a1c47d6fe5313ae39be\"}"
+    }
+  ]
+}

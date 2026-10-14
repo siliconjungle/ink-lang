@@ -1,0 +1,153 @@
+{
+  "finding": "F065",
+  "files": [
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/cmp-with-range.ll",
+      "blob": "d69229473635618c8806e50aea2e700a5e03af1a",
+      "bytes": 4628,
+      "sha256": "5f36568c4ac5d9f8c8f46d72e1a02a8c3db292967b2b1fcd4ee175a070040033",
+      "insight": "Cost estimation can combine known range information with newly constant arguments to predict dead branch savings; comparisons on either operand side matter. LLVM range metadata and nowrap flags cannot be used as Ink premises without independently checked facts."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/get-possible-constants.ll",
+      "blob": "2f42125d8cf9799dbfd18f55e7ca16f946b0c1f4",
+      "bytes": 2484,
+      "sha256": "2563830c2ea6824cfa8dd94abc1f842d1fdfc5cfad1ae7bbaabc7e57a306541a",
+      "insight": "An unusable argument at one call must not suppress other usable specialization signatures; new cloned-body callsites require initialized lattice facts before analysis."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/global-var-constants.ll",
+      "blob": "a576d9aa32e1408621dd821928116c20dacc4a22",
+      "bytes": 2159,
+      "sha256": "d3cd29ebcbcf09cd49f1fa22788b2feb4eda263df1b2cd1c23675212ee8620dd",
+      "insight": "Specializing a stable address is distinct from treating mutable pointed-to contents as constant. Address specialization can remove parameters while retaining loads/stores; never infer readonly from identity."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/constant-struct.ll",
+      "blob": "39df6b05aa5a74653922b6161a4d5e8f1410fdfe",
+      "bytes": 1703,
+      "sha256": "29327e25a9046fa821711a9ba0c9e7432f7a2b6b30fa3ce1de441a78dd435e15",
+      "insight": "Aggregate constant arguments expose per-field opportunities and require complete typed aggregate identity; a variable aggregate counterpart remains dynamic."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/dead-gv-load.ll",
+      "blob": "134a79d3490356f7ae22570d9cc5d650fe711121",
+      "bytes": 896,
+      "sha256": "2ef49a6acd48f67c3c76a82fd3db6353a2dca5c54db2ebd5c5e73c47b1bfffb9",
+      "insight": "Unreachable global-load users must not survive into stale analysis references after block cleanup; nontermination and undef results in this fixture are LLVM-specific."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/compiler-crash-58759.ll",
+      "blob": "7291d83b816115afa65ade8bbe14c55c2abc3f3f",
+      "bytes": 792,
+      "sha256": "41d78c76332e7c5cf637c9f381e6ce30ae11425c2685d48e6183cfbacf433b68",
+      "insight": "Whole O3 pipeline must remain valid when specialization removes a fully covered original and callees remain external declarations; isolated pass success is weaker than pipeline integration."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/compiler-crash-60191.ll",
+      "blob": "668929824cc6fa3e829d1fba354dc54f70d1ab46",
+      "bytes": 1824,
+      "sha256": "d69da344b3a094a574b0638c30d789751132e6382a2e1c292b6bf71e22b943fd",
+      "insight": "One function-valued parameter is called under different arities/types in separate switch paths; context specialization and call-cost analysis must not assume every use matches one direct-call signature."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/compiler-crash-promote-alloca.ll",
+      "blob": "38450ba6819d756daf371dc0d08f73247db7260b",
+      "bytes": 829,
+      "sha256": "fc4841201622f21374d0b28bc3c56e25d00a5380f8bcfbb203381cb7034660e7",
+      "insight": "Promoting stack values requires robust handling of unused/uninitialized allocas through nested readonly/noncapturing calls. A constant other argument does not establish initialized stack contents."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization-always-inline.ll",
+      "blob": "5e65b0db7b235fd10ee232e076c6673c0f469b9c",
+      "bytes": 1393,
+      "sha256": "10f7d8b944081f80590751702ec5fe243ad5f8c87b855bd7bf0ca5955d071936",
+      "insight": "Always-inline functions skip separate specialization even when forced, because later inlining can expose the same facts without additional clone construction. Pipeline role matters for profitability."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization-implicit-ref.ll",
+      "blob": "1e38e5c80fa5f597d9fe650ef75a5b0606ffdf31",
+      "bytes": 875,
+      "sha256": "593ffe5e1d84a7852a56f4e0007fe96ae46a75a17c9dec5151c3d5da81ecda4b",
+      "insight": "Clones preserve implicit reference metadata. Hidden dependencies belong in cloning/invalidation contracts; do not copy metadata into Ink proof authority."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization-poison.ll",
+      "blob": "76cf05ab2aa14738989d9fea2dae52b0c0df53f4",
+      "bytes": 893,
+      "sha256": "f1d32f65ac8009a0dc61e594375a7c0dc08e39544ee694cadf2470a5711f8ee1",
+      "insight": "Poison is not a usable concrete specialization signature; reject unsupported value categories without crashing. Ink has no permission to invent a poison value from this example."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization-noexec.ll",
+      "blob": "47624c7b1fe3344776c113bb757076d90746a9fb",
+      "bytes": 888,
+      "sha256": "6feb4cfc3c6c06dc8906651c07658f07d84f1cf4dcd5f457f1b3e3f9ecfd3141",
+      "insight": "Statically unreachable callsites should not seed specialization opportunities; remaining single known caller may permit ordinary propagation without cloning."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization-constant-expression.ll",
+      "blob": "0e0854c8807c2e1c7b478e517517ff2e0687f02f",
+      "bytes": 2299,
+      "sha256": "2ac28c6d836c284b0a7a2328cc0a7fd7e75a8781f5880beefd920b67a400d099",
+      "insight": "Constant expressions such as field-address GEP and ptr-to-int are not plain literals; a specialization-enabled pass can still change source through ordinary propagation. Measure the whole pipeline and keep address semantics target-specific."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization-constant-expression2.ll",
+      "blob": "2dd9e2c461b60c88461b47d2f2cc92449490f558",
+      "bytes": 1537,
+      "sha256": "0c9c993d1814822299c7d37e6f9eeeda6dd50a5a48deec692f7f98ac3030a5fb",
+      "insight": "By-value aggregate pointer arguments and constant GEP expressions require category-aware eligibility, especially with unreachable bodies and undef operands. Fixture demonstrates robustness, not a general transferable equality."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization-constant-expression3.ll",
+      "blob": "7eaa68064607b8585baec37111188c50b3fcd7ca",
+      "bytes": 795,
+      "sha256": "22535bd4ba7cd1bb36ac0cc91366d3f0d56effae3120c61b9ac68871e5566dea",
+      "insight": "Unknown unrelated arguments do not prevent specialization on known function identities, but indirect call signatures still require correct handling."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization-constant-expression4.ll",
+      "blob": "0410bfd9407b99dbf6cde918c831afd7dc515767",
+      "bytes": 976,
+      "sha256": "c6df9bfada73ae5fadb395346503bb44bb5fa956f9c187bb2b79589468ead567",
+      "insight": "Byval changes the meaning of a pointer argument and blocks treating it as an ordinary function-address signature even if the syntactic value names a function."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization-constant-expression5.ll",
+      "blob": "c1b442be97e6224274a949523bf66ab88f694588",
+      "bytes": 1195,
+      "sha256": "072bb50f03b92ba08ac85fe4c0e3e9f0b586ac6d6dcb819c683059a168fe14e9",
+      "insight": "Byval scalar globals need safe handling even when address specialization is enabled. Negative CHECK mentions wombat while source uses wobble, so that sentinel alone does not establish no extra wobble clones; full expected bodies are narrower evidence."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization-constant-expression6.ll",
+      "blob": "9c9611364b766520abf436fce8a2e15c132a804d",
+      "bytes": 420,
+      "sha256": "5e173880971ff7fd2c2354b00dbf304ac1f1be66bf742ac41ef10385a956f5a8",
+      "insight": "A constant switch operand can be a symbolic ptr-to-int expression rather than ConstantInt; avoid unchecked concrete-constant casts. This fixture only asserts no crash, not exact output."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization-constant-integers.ll",
+      "blob": "17f9c30122d10a3d67d7693865d4a37c8875e891",
+      "bytes": 1024,
+      "sha256": "dc9b232f7cf587e9891f2b8ea543c4a9bb3c0001cd1021c370b978825bb605b9",
+      "insight": "Literal Boolean arguments can simplify nested loop exits and enable separate specializations. Preserve call effects, iteration semantics and termination constraints in Ink."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization-nonconst-glob.ll",
+      "blob": "6c22126121613fbb686c3716b5ef472424865394",
+      "bytes": 2394,
+      "sha256": "7f921cd1587081e4b128f7dfd82c0d8c71cd85ee551240f3e6863f8596a014c5",
+      "insight": "Readonly global contents and mutable global addresses have separate specialization eligibility; address-enabled mode retains dynamic loads rather than assuming values."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/literal-const.ll",
+      "blob": "7d5e506064af778aceeee0bc6259c94c902605a4",
+      "bytes": 2478,
+      "sha256": "aed606a286c23d47bb405b9b8998c6899d49c65cbd95a26f4458e50787e6007e",
+      "insight": "Literal specialization policy applies across Boolean, integer and floating scalar carriers; tests distinguish disabled and enabled policy. Floating equality/NaN/signed-zero semantics still need explicit Ink proof domains."
+    }
+  ],
+  "validation": "Full source review only. LLVM opt/FileCheck not executed; no proof of backend correctness or runtime improvement."
+}

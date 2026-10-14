@@ -1,0 +1,29 @@
+{
+  "finding": "F067",
+  "files": [
+    {
+      "path": "llvm/include/llvm/Analysis/CodeMetrics.h",
+      "blob": "f3e2cf5d9481d819392a9bb6296f9662d2e4c585",
+      "bytes": 3335,
+      "sha256": "b965cf63eedb11f42c9975faea51dc1250716339ec30666c6646cb7c3b092470"
+    },
+    {
+      "path": "llvm/lib/Analysis/CodeMetrics.cpp",
+      "blob": "55e78c8b0ea62cdfeb0c0bc3e53babaac97b7286",
+      "bytes": 8876,
+      "sha256": "fe8a9525b5951a3634c5da90663b71b7238fb95206c2ede7b63288230cd7987f"
+    }
+  ],
+  "insights": [
+    "Keep estimated code size separate from legal duplication: dynamic allocations, recursion, noduplicate operations, cross-block token uses and convergence are distinct dimensions.",
+    "InstructionCost is target-provided code-size cost, not a count of source nodes or a latency estimate. Backend lowering can turn source operations into different amounts of code.",
+    "Internal single-live-use callees and post-link-resolvable indirect calls are future inline opportunities; the model depends on pipeline stage rather than only present instruction count.",
+    "Collect proof/assumption-only ephemeral work through side-effect-free nonterminator dependencies and exclude it from executable cost only when all uses qualify. Ink fallible requires/ensures are executable checks, not removable assumptions.",
+    "Loop-local assumption filtering avoids repeating whole-function work per loop. Worklist uses an advancing index rather than shifting a vector; visited keys bound traversal.",
+    "The documented ephemeral analysis misses PHI-supported chains; treat estimated cost as conservative heuristics, not a correctness theorem or an optimal result.",
+    "GPU convergence is a control-dependency property in addition to ordinary memory effects. Generic duplication cannot infer safety from absence of writes alone.",
+    "Indirect branches/block-address references need cross-function identity handling; LLVM explicitly documents a conservative limitation. Ink source-bound closure and callback proofs should reuse exact dependencies.",
+    "Per-block cost sums and vector/return/inline counts can inform bounded family ranking, but require matched target measurements before selecting a generated application."
+  ],
+  "validation": "Full source review, no local LLVM execution. No new cost model or semantic authority implemented from these observations yet."
+}
