@@ -32,33 +32,47 @@ fn checked_indexed_dedup_preserves_order_and_owned_results_across_cpu_hosts(){
 
 #[test]
 fn ordinary_source_discovers_a_checked_indexed_plan_across_cpu_hosts(){
+ discovery_cpu_hosts("indexed-ordered-dedup","indexed-dedup-discovery-parity");
+}
+
+#[test]
+fn guarded_source_choice_preserves_both_branches_across_cpu_hosts(){
+ discovery_cpu_hosts("guarded-whole-call-128","guarded-dedup-discovery-parity");
+}
+
+fn discovery_cpu_hosts(recipe_id:&str,label:&str){
  let source=include_str!("../bench/planning-corpus/heldout/compact-set.ink");
  let module=CheckedModule::from_source(syntax::parse(source).unwrap()).unwrap();
- let dir=Path::new(env!("CARGO_MANIFEST_DIR")).join("build/indexed-dedup-discovery-parity");fs::create_dir_all(&dir).unwrap();
+ let dir=Path::new(env!("CARGO_MANIFEST_DIR")).join("build").join(label);fs::create_dir_all(&dir).unwrap();
  fs::write(dir.join("core.json"),module.bytes().unwrap()).unwrap();
  let script=r#"
 import json,sys
 from pathlib import Path
 from ink_knowledge import Store,canonical
 from ink_knowledge.recipes import execute,load
-root=Path(sys.argv[1]);compiler=sys.argv[2];source=sys.argv[3]
+root=Path(sys.argv[1]);compiler=sys.argv[2];source=sys.argv[3];recipe_id=sys.argv[4]
 core=json.loads((root/'core.json').read_text());store=Store.publish(root/'knowledge',[])
-registry,_=load(store=store);recipe=next(r for r in registry['recipes']if r['id']=='indexed-ordered-dedup')
+registry,_=load(store=store);recipe=next(r for r in registry['recipes']if r['id']==recipe_id)
 rows=list(execute(recipe,dict(core=core,source=source,compiler=compiler,knowledge_root=str(store.root),knowledge_snapshot=store.snapshot_id,check_timeout=120)))
 plans=[r for r in rows if r['status']=='proposal'];assert len(plans)==1,[(r['status'],r.get('reason'))for r in rows]
 (root/'plan.json').write_bytes(canonical(dict(schema=1,semantics='ink-compiled-plan-v1',input_core_sha256=source,steps=plans[0]['steps'])))
 "#;
- let output=Command::new("python3").env("PYTHONPATH","knowledge:planner").args(["-c",script]).arg(&dir).arg(env!("CARGO_BIN_EXE_ink")).arg(module.identity().unwrap()).output().unwrap();
+ let output=Command::new("python3").env("PYTHONPATH","knowledge:planner").args(["-c",script]).arg(&dir).arg(env!("CARGO_BIN_EXE_ink")).arg(module.identity().unwrap()).arg(recipe_id).output().unwrap();
  assert!(output.status.success(),"{}",String::from_utf8_lossy(&output.stderr));
  let package=serde_json::from_slice(&fs::read(dir.join("plan.json")).unwrap()).unwrap();
  let plan=verified_language::planning::check(&module,&package).unwrap();
  let snapshot=verified_language::stateful::Runtime::new(module.program().clone()).unwrap().checkpoint_portable().unwrap();
  let mut steps=vec![];let mut expected=vec![];
- for xs in [vec![],vec![0],vec![u32::MAX,0,u32::MAX,17,0],(0..129).rev().map(|i|i%31).collect()] {
+ let mut cases=vec![vec![],vec![0],vec![u32::MAX,0,u32::MAX,17,0]];
+ for n in [127,128,129] {for mode in 0..3 {
+  let mut xs:Vec<u32>=(0..n).map(|i:u32|if mode==1{i%31}else{i.wrapping_mul(2654435761)}).collect();
+  if mode==2{xs.reverse();}cases.push(xs);
+ }}
+ for xs in cases {
   let mut seen=BTreeSet::new();let oracle:Vec<_>=xs.iter().copied().filter(|x|seen.insert(*x)).collect();
   let args=vec![eval::Value::List(xs.iter().copied().map(eval::Value::U32).collect()),eval::Value::U32(17)];
   for p in [module.program(),plan.module().program()] {assert_eq!(eval::call(p,"run",args.clone(),&mut 10_000_000).unwrap().json(),json!(oracle));}
   steps.push(json!({"pure":"run","args":[xs,17]}));expected.push(json!({"reply":{"value":oracle},"snapshot":snapshot}));
  }
- parity::conformance_planned("indexed-dedup-discovery-parity",&plan,source,steps,expected);
+ parity::conformance_planned(label,&plan,source,steps,expected);
 }
