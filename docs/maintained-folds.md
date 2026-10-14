@@ -150,6 +150,41 @@ induction over the row list. Only the Rust and Rust-Wasm lowerings implement the
 multiset controller; JavaScript rejects extremum views, so JavaScript selection
 fails closed to its ordinary scan.
 
+## Grouped query views
+
+A one-parameter query over one table, such as
+
+```
+query balance(account:u64)->u64 reads(Ledger){
+  return sum(Ledger.values().filter(fn(e)=>e.account==account).map(fn(e)=>e.amount));
+}
+```
+
+scans every row on every call. A view may name such a query (U64, U32 or I32
+parameter; no preconditions, writes or events) and carry `group`, a function of
+the row's key and value to a word. Its fixed meaning is the fold over rows that
+contributes `contribution(key,row)` when `group(key,row)` equals the parameter and
+the identity otherwise. The checker regenerates the factorisation for every
+parameter value (`q(p)` equals that fold), the group laws, and insertion, deletion
+and replacement of a cell for every parameter.
+
+The fixed controller keeps one total per group word in a hash map. A cell write
+removes the old row's contribution from its group and adds the new row's
+contribution to its own group (the same group when it did not move), journaling
+each previous entry for action failure and host rollback. A group whose total
+returns to the identity is dropped. The query becomes one lookup, with the
+identity for an absent group. Restore rebuilds the map from validated rows. Each
+write does constant extra work and each query is constant time instead of a scan,
+so static dominance selects these plans.
+
+`producers.maintained_groups` authors these views for wrapping word sums. It finds
+the unique `G == p` comparison in the query's per-row unfolding (possibly
+conjoined with other row filters), takes the row's contribution in its own group,
+and proves the factorisation by induction; every word fact is a bit-vector
+certificate. Only the Rust and Rust-Wasm lowerings implement the grouped
+controller; JavaScript rejects grouped views, so JavaScript selection fails closed
+to the ordinary scan.
+
 ## Lean action machinery
 
 The core derives a conservative maximum number of individual cell writes from

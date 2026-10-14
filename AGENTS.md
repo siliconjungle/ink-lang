@@ -37,8 +37,9 @@ resource limits and falls back on device failure. Runtime does not run profitabi
 probes. Missing comparable evidence retains the compiled CPU baseline, with one
 exception at James's request: a plan made only of checked maintained folds is
 selected without evidence (planner/ink_planner/static_dominance.py), because group
-folds add constant work per cell write and extremum views one logarithmic multiset
-update, while keep reads stop scanning the table. Do not widen that exception without the same asymptotic argument.
+folds and grouped query views add constant work per cell write and extremum views
+one logarithmic multiset update, while keep reads and grouped queries stop scanning
+the table. Do not widen that exception without the same asymptotic argument.
 Correctness, applicability and profitability are separate gates.
 
 Legacy aggregate certificates, bounded cache/narrowing, typed storage policies,
@@ -147,8 +148,9 @@ compiler correctness. Restore rebuilds folds from validated rows and rollback
 restores before-images. Dense prefixes require exact fallback outside their range.
 Single-cell bounds and fresh-result ownership facts are structural core analyses,
 never algorithm authority. Maintained group folds run on JavaScript, Rust and
-Rust-Wasm; word extremum views (max/min, checked against the fixed comparison) run on
-Rust and Rust-Wasm; dense prefixes are JavaScript only; unsupported targets fail explicitly. State lifecycle measurements require
+Rust-Wasm; word extremum views (max/min, checked against the fixed comparison) and
+grouped one-parameter query views run on Rust and Rust-Wasm; dense prefixes are
+JavaScript only; unsupported targets fail explicitly. State lifecycle measurements require
 independent source histories, exact snapshots, fresh processes and held-out traces.
 
 Measure generalisation, not entry count. Evaluate knowledge changes on the frozen
