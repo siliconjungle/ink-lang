@@ -26,6 +26,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Audit resident measurement report provenance
+        run: python3 -m unittest discover -s bench/gpu -p 'test_analyse_resident_profile.py'
       - name: Fail on any required CPU or GPU contract gap
         run: python3 tools/check_feature_parity.py --scope contract --receipt build/enforced-parity/contract-audit.json
       - name: Retain explicit missing capabilities
